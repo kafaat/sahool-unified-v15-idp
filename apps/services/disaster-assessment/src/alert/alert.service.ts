@@ -3,77 +3,110 @@
 // Early Warning System for Agricultural Disasters
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class AlertService {
   private alerts = [
     {
-      id: 'alert-001',
-      type: 'weather',
-      title: 'Heavy Rainfall Warning',
-      titleAr: 'تحذير من أمطار غزيرة',
-      description: 'Expected heavy rainfall in the next 48 hours',
-      descriptionAr: 'متوقع أمطار غزيرة خلال الـ 48 ساعة القادمة',
-      severity: 'high',
-      governorate: 'hadramaut',
-      governorateAr: 'حضرموت',
+      id: "alert-001",
+      type: "weather",
+      title: "Heavy Rainfall Warning",
+      titleAr: "تحذير من أمطار غزيرة",
+      description: "Expected heavy rainfall in the next 48 hours",
+      descriptionAr: "متوقع أمطار غزيرة خلال الـ 48 ساعة القادمة",
+      severity: "high",
+      governorate: "hadramaut",
+      governorateAr: "حضرموت",
       startTime: new Date(Date.now() + 6 * 3600000).toISOString(),
       endTime: new Date(Date.now() + 54 * 3600000).toISOString(),
       isActive: true,
-      recommendations: ['Ensure proper drainage', 'Protect harvested crops', 'Postpone fertilizer application'],
-      recommendationsAr: ['ضمان الصرف الصحيح', 'حماية المحاصيل المحصودة', 'تأجيل تطبيق الأسمدة'],
+      recommendations: [
+        "Ensure proper drainage",
+        "Protect harvested crops",
+        "Postpone fertilizer application",
+      ],
+      recommendationsAr: [
+        "ضمان الصرف الصحيح",
+        "حماية المحاصيل المحصودة",
+        "تأجيل تطبيق الأسمدة",
+      ],
       createdAt: new Date().toISOString(),
     },
     {
-      id: 'alert-002',
-      type: 'pest',
-      title: 'Locust Swarm Alert',
-      titleAr: 'تنبيه سرب جراد',
-      description: 'Desert locust swarm detected 50km west, moving east',
-      descriptionAr: 'رصد سرب جراد صحراوي على بعد 50 كم غرباً، يتحرك شرقاً',
-      severity: 'critical',
-      governorate: 'hodeidah',
-      governorateAr: 'الحديدة',
+      id: "alert-002",
+      type: "pest",
+      title: "Locust Swarm Alert",
+      titleAr: "تنبيه سرب جراد",
+      description: "Desert locust swarm detected 50km west, moving east",
+      descriptionAr: "رصد سرب جراد صحراوي على بعد 50 كم غرباً، يتحرك شرقاً",
+      severity: "critical",
+      governorate: "hodeidah",
+      governorateAr: "الحديدة",
       startTime: new Date().toISOString(),
       endTime: new Date(Date.now() + 72 * 3600000).toISOString(),
       isActive: true,
-      recommendations: ['Prepare insecticides', 'Coordinate with neighbors', 'Report sightings'],
-      recommendationsAr: ['تحضير المبيدات', 'التنسيق مع الجيران', 'الإبلاغ عن المشاهدات'],
+      recommendations: [
+        "Prepare insecticides",
+        "Coordinate with neighbors",
+        "Report sightings",
+      ],
+      recommendationsAr: [
+        "تحضير المبيدات",
+        "التنسيق مع الجيران",
+        "الإبلاغ عن المشاهدات",
+      ],
       createdAt: new Date().toISOString(),
     },
     {
-      id: 'alert-003',
-      type: 'disease',
-      title: 'Late Blight Risk - High',
-      titleAr: 'خطر اللفحة المتأخرة - مرتفع',
-      description: 'Weather conditions favor late blight development in tomatoes',
-      descriptionAr: 'الظروف الجوية تفضل انتشار اللفحة المتأخرة في الطماطم',
-      severity: 'medium',
-      governorate: 'ibb',
-      governorateAr: 'إب',
+      id: "alert-003",
+      type: "disease",
+      title: "Late Blight Risk - High",
+      titleAr: "خطر اللفحة المتأخرة - مرتفع",
+      description:
+        "Weather conditions favor late blight development in tomatoes",
+      descriptionAr: "الظروف الجوية تفضل انتشار اللفحة المتأخرة في الطماطم",
+      severity: "medium",
+      governorate: "ibb",
+      governorateAr: "إب",
       startTime: new Date().toISOString(),
       endTime: new Date(Date.now() + 168 * 3600000).toISOString(),
       isActive: true,
-      recommendations: ['Apply preventive fungicides', 'Monitor plants daily', 'Remove infected plants'],
-      recommendationsAr: ['رش مبيدات فطرية وقائية', 'مراقبة النباتات يومياً', 'إزالة النباتات المصابة'],
+      recommendations: [
+        "Apply preventive fungicides",
+        "Monitor plants daily",
+        "Remove infected plants",
+      ],
+      recommendationsAr: [
+        "رش مبيدات فطرية وقائية",
+        "مراقبة النباتات يومياً",
+        "إزالة النباتات المصابة",
+      ],
       createdAt: new Date().toISOString(),
     },
     {
-      id: 'alert-004',
-      type: 'weather',
-      title: 'Frost Warning',
-      titleAr: 'تحذير من الصقيع',
-      description: 'Temperatures expected to drop below 0°C tonight',
-      descriptionAr: 'متوقع انخفاض درجات الحرارة إلى ما دون الصفر الليلة',
-      severity: 'high',
-      governorate: 'sanaa',
-      governorateAr: 'صنعاء',
+      id: "alert-004",
+      type: "weather",
+      title: "Frost Warning",
+      titleAr: "تحذير من الصقيع",
+      description: "Temperatures expected to drop below 0°C tonight",
+      descriptionAr: "متوقع انخفاض درجات الحرارة إلى ما دون الصفر الليلة",
+      severity: "high",
+      governorate: "sanaa",
+      governorateAr: "صنعاء",
       startTime: new Date(Date.now() + 12 * 3600000).toISOString(),
       endTime: new Date(Date.now() + 24 * 3600000).toISOString(),
       isActive: true,
-      recommendations: ['Cover sensitive crops', 'Irrigate before sunset', 'Use anti-frost agents'],
-      recommendationsAr: ['تغطية المحاصيل الحساسة', 'الري قبل غروب الشمس', 'استخدام مواد مضادة للصقيع'],
+      recommendations: [
+        "Cover sensitive crops",
+        "Irrigate before sunset",
+        "Use anti-frost agents",
+      ],
+      recommendationsAr: [
+        "تغطية المحاصيل الحساسة",
+        "الري قبل غروب الشمس",
+        "استخدام مواد مضادة للصقيع",
+      ],
       createdAt: new Date().toISOString(),
     },
   ];
@@ -101,12 +134,16 @@ export class AlertService {
 
     // Sort by severity (critical first)
     const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-    filtered.sort((a, b) => severityOrder[a.severity as keyof typeof severityOrder] - severityOrder[b.severity as keyof typeof severityOrder]);
+    filtered.sort(
+      (a, b) =>
+        severityOrder[a.severity as keyof typeof severityOrder] -
+        severityOrder[b.severity as keyof typeof severityOrder],
+    );
 
     return {
       total: filtered.length,
-      criticalCount: filtered.filter((a) => a.severity === 'critical').length,
-      highCount: filtered.filter((a) => a.severity === 'high').length,
+      criticalCount: filtered.filter((a) => a.severity === "critical").length,
+      highCount: filtered.filter((a) => a.severity === "high").length,
       alerts: filtered,
     };
   }
@@ -116,10 +153,14 @@ export class AlertService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   async getWeatherAlerts(governorate?: string) {
-    let weatherAlerts = this.alerts.filter((a) => a.type === 'weather' && a.isActive);
+    let weatherAlerts = this.alerts.filter(
+      (a) => a.type === "weather" && a.isActive,
+    );
 
     if (governorate) {
-      weatherAlerts = weatherAlerts.filter((a) => a.governorate === governorate);
+      weatherAlerts = weatherAlerts.filter(
+        (a) => a.governorate === governorate,
+      );
     }
 
     // Add hourly forecast summary
@@ -137,8 +178,13 @@ export class AlertService {
       summary: {
         maxTemp: Math.max(...hourlyForecast.map((h) => h.temperature)),
         minTemp: Math.min(...hourlyForecast.map((h) => h.temperature)),
-        avgHumidity: Math.round(hourlyForecast.reduce((s, h) => s + h.humidity, 0) / 24),
-        totalPrecipitation: hourlyForecast.reduce((s, h) => s + h.precipitation, 0),
+        avgHumidity: Math.round(
+          hourlyForecast.reduce((s, h) => s + h.humidity, 0) / 24,
+        ),
+        totalPrecipitation: hourlyForecast.reduce(
+          (s, h) => s + h.precipitation,
+          0,
+        ),
       },
     };
   }
@@ -147,9 +193,12 @@ export class AlertService {
   // Get Pest & Disease Alerts (10-day forecast as per article)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getPestDiseaseAlerts(params: { governorate?: string; cropType?: string }) {
+  async getPestDiseaseAlerts(params: {
+    governorate?: string;
+    cropType?: string;
+  }) {
     let alerts = this.alerts.filter(
-      (a) => (a.type === 'pest' || a.type === 'disease') && a.isActive,
+      (a) => (a.type === "pest" || a.type === "disease") && a.isActive,
     );
 
     if (params.governorate) {
@@ -162,7 +211,7 @@ export class AlertService {
       date.setDate(date.getDate() + i);
 
       return {
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split("T")[0],
         pestRisk: Math.round(Math.random() * 100),
         diseaseRisk: Math.round(Math.random() * 100),
         conditions: {
@@ -170,19 +219,25 @@ export class AlertService {
           temperature: Math.round(20 + Math.random() * 15),
           leafWetness: Math.round(Math.random() * 12), // hours
         },
-        riskLevel: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)],
-        recommendations: i < 3 ? ['Monitor closely', 'Apply preventive measures'] : [],
-        recommendationsAr: i < 3 ? ['المراقبة عن كثب', 'تطبيق إجراءات وقائية'] : [],
+        riskLevel: ["low", "medium", "high"][Math.floor(Math.random() * 3)],
+        recommendations:
+          i < 3 ? ["Monitor closely", "Apply preventive measures"] : [],
+        recommendationsAr:
+          i < 3 ? ["المراقبة عن كثب", "تطبيق إجراءات وقائية"] : [],
       };
     });
 
     return {
       currentAlerts: alerts,
       tenDayForecast,
-      highRiskDays: tenDayForecast.filter((d) => d.riskLevel === 'high').length,
+      highRiskDays: tenDayForecast.filter((d) => d.riskLevel === "high").length,
       summary: {
-        overallPestRisk: Math.round(tenDayForecast.reduce((s, d) => s + d.pestRisk, 0) / 10),
-        overallDiseaseRisk: Math.round(tenDayForecast.reduce((s, d) => s + d.diseaseRisk, 0) / 10),
+        overallPestRisk: Math.round(
+          tenDayForecast.reduce((s, d) => s + d.pestRisk, 0) / 10,
+        ),
+        overallDiseaseRisk: Math.round(
+          tenDayForecast.reduce((s, d) => s + d.diseaseRisk, 0) / 10,
+        ),
       },
     };
   }
@@ -191,16 +246,20 @@ export class AlertService {
   // Subscribe to Alerts
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async subscribeToAlerts(dto: { userId: string; governorate: string; types: string[] }) {
+  async subscribeToAlerts(dto: {
+    userId: string;
+    governorate: string;
+    types: string[];
+  }) {
     return {
       success: true,
-      message: 'Subscribed successfully',
-      messageAr: 'تم الاشتراك بنجاح',
+      message: "Subscribed successfully",
+      messageAr: "تم الاشتراك بنجاح",
       subscription: {
         userId: dto.userId,
         governorate: dto.governorate,
         types: dto.types,
-        channels: ['sms', 'push', 'email'],
+        channels: ["sms", "push", "email"],
         createdAt: new Date().toISOString(),
       },
     };

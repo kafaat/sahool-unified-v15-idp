@@ -1,4 +1,5 @@
 # Growing Degree Days (GDD) Feature
+
 # ميزة وحدات الحرارة النامية
 
 ## Overview | نظرة عامة
@@ -10,6 +11,7 @@ The Growing Degree Days (GDD) tracking system helps farmers monitor crop develop
 ## Features | الميزات
 
 ### Core Features
+
 - ✅ **Daily GDD Calculation** - Calculate GDD for each day from planting
 - ✅ **Accumulation Tracking** - Track cumulative GDD over the growing season
 - ✅ **Growth Stage Mapping** - Automatically identify current crop growth stage
@@ -21,6 +23,7 @@ The Growing Degree Days (GDD) tracking system helps farmers monitor crop develop
 - ✅ **Bilingual** - Full Arabic and English support
 
 ### Integration Features
+
 - 🔗 **Weather Service Integration** - Uses Open-Meteo for historical and forecast data
 - 🔗 **Phenology Detection** - Links to existing phenology detector
 - 🔗 **Yield Prediction** - Can feed into yield prediction models
@@ -29,11 +32,13 @@ The Growing Degree Days (GDD) tracking system helps farmers monitor crop develop
 ## API Endpoints | نقاط النهاية
 
 ### 1. Get GDD Chart for Field
+
 ```http
 GET /v1/gdd/chart/{field_id}
 ```
 
 **Parameters:**
+
 - `field_id` - Field identifier
 - `crop_code` - Crop code (e.g., "WHEAT", "TOMATO")
 - `planting_date` - Planting date (YYYY-MM-DD)
@@ -43,11 +48,13 @@ GET /v1/gdd/chart/{field_id}
 - `method` - Calculation method: "simple", "modified", "sine" (default: "simple")
 
 **Example:**
+
 ```bash
 curl "http://localhost:8090/v1/gdd/chart/field123?crop_code=WHEAT&planting_date=2024-03-01&lat=15.37&lon=44.19"
 ```
 
 **Response:**
+
 ```json
 {
   "field_id": "field123",
@@ -107,11 +114,13 @@ curl "http://localhost:8090/v1/gdd/chart/field123?crop_code=WHEAT&planting_date=
 ```
 
 ### 2. Forecast GDD Accumulation
+
 ```http
 GET /v1/gdd/forecast
 ```
 
 **Parameters:**
+
 - `lat` - Latitude
 - `lon` - Longitude
 - `current_gdd` - Current accumulated GDD
@@ -121,11 +130,13 @@ GET /v1/gdd/forecast
 - `method` - Calculation method (default: "simple")
 
 **Example:**
+
 ```bash
 curl "http://localhost:8090/v1/gdd/forecast?lat=15.37&lon=44.19&current_gdd=1100&target_gdd=1500&base_temp=0"
 ```
 
 **Response:**
+
 ```json
 {
   "current_gdd": 1100,
@@ -147,16 +158,19 @@ curl "http://localhost:8090/v1/gdd/forecast?lat=15.37&lon=44.19&current_gdd=1100
 ```
 
 ### 3. Get Crop GDD Requirements
+
 ```http
 GET /v1/gdd/requirements/{crop_code}
 ```
 
 **Example:**
+
 ```bash
 curl "http://localhost:8090/v1/gdd/requirements/WHEAT"
 ```
 
 **Response:**
+
 ```json
 {
   "crop_code": "WHEAT",
@@ -181,16 +195,19 @@ curl "http://localhost:8090/v1/gdd/requirements/WHEAT"
 ```
 
 ### 4. Get Growth Stage from GDD
+
 ```http
 GET /v1/gdd/stage/{crop_code}?gdd={accumulated_gdd}
 ```
 
 **Example:**
+
 ```bash
 curl "http://localhost:8090/v1/gdd/stage/WHEAT?gdd=1247.5"
 ```
 
 **Response:**
+
 ```json
 {
   "crop_code": "WHEAT",
@@ -213,11 +230,13 @@ curl "http://localhost:8090/v1/gdd/stage/WHEAT?gdd=1247.5"
 ```
 
 ### 5. List All Supported Crops
+
 ```http
 GET /v1/gdd/crops
 ```
 
 **Example:**
+
 ```bash
 curl "http://localhost:8090/v1/gdd/crops"
 ```
@@ -225,6 +244,7 @@ curl "http://localhost:8090/v1/gdd/crops"
 ## Supported Crops | المحاصيل المدعومة
 
 ### Cereals (الحبوب) - 6 crops
+
 - **WHEAT** (قمح) - Base: 0°C, Total: 2000 GDD
 - **BARLEY** (شعير) - Base: 0°C, Total: 1800 GDD
 - **CORN** (ذرة شامية) - Base: 10°C, Total: 2700 GDD
@@ -233,6 +253,7 @@ curl "http://localhost:8090/v1/gdd/crops"
 - **RICE** (أرز) - Base: 10°C, Total: 2200 GDD
 
 ### Vegetables (الخضروات) - 11 crops
+
 - **TOMATO** (طماطم) - Base: 10°C, Total: 1500 GDD
 - **POTATO** (بطاطس) - Base: 7°C, Total: 1600 GDD
 - **ONION** (بصل) - Base: 6°C, Total: 1800 GDD
@@ -243,6 +264,7 @@ curl "http://localhost:8090/v1/gdd/crops"
 - And more...
 
 ### Legumes (البقوليات) - 6 crops
+
 - **FABA_BEAN** (فول) - Base: 0°C, Total: 1800 GDD
 - **LENTIL** (عدس) - Base: 5°C, Total: 1600 GDD
 - **CHICKPEA** (حمص) - Base: 5°C, Total: 1700 GDD
@@ -250,6 +272,7 @@ curl "http://localhost:8090/v1/gdd/crops"
 - And more...
 
 ### Cash Crops (المحاصيل النقدية) - 5 crops
+
 - **COTTON** (قطن) - Base: 15.5°C, Total: 2400 GDD
 - **COFFEE** (بن) - Base: 10°C, Total: 3000 GDD
 - **QAT** (قات) - Base: 10°C, Total: 1800 GDD
@@ -257,6 +280,7 @@ curl "http://localhost:8090/v1/gdd/crops"
 - **TOBACCO** (تبغ) - Base: 10°C, Total: 2000 GDD
 
 ### Fruits (الفواكه) - 9 crops
+
 - **DATE_PALM** (نخيل التمر) - Base: 18°C, Total: 4500 GDD
 - **GRAPE** (عنب) - Base: 10°C, Total: 2800 GDD
 - **MANGO** (مانجو) - Base: 10°C, Total: 3500 GDD
@@ -265,6 +289,7 @@ curl "http://localhost:8090/v1/gdd/crops"
 - And more...
 
 ### Fodder (الأعلاف) - 3 crops
+
 - **ALFALFA** (برسيم حجازي) - Base: 5°C, Total: 900 GDD
 - **RHODES_GRASS** (حشيش رودس) - Base: 10°C, Total: 1200 GDD
 - **SUDAN_GRASS** (حشيش سوداني) - Base: 10°C, Total: 1100 GDD
@@ -274,14 +299,17 @@ curl "http://localhost:8090/v1/gdd/crops"
 ## GDD Calculation Methods | طرق الحساب
 
 ### 1. Simple Method (Default)
+
 ```
 GDD = max(0, ((Tmax + Tmin) / 2) - Tbase)
 ```
+
 - **Pros:** Fast, simple, most commonly used
 - **Cons:** Less accurate for extreme temperatures
 - **Best for:** General use, most crops
 
 ### 2. Modified Method
+
 ```
 Tmax = min(Tmax, Tupper)
 Tmin = min(Tmin, Tupper)
@@ -289,14 +317,17 @@ Tmax = max(Tmax, Tbase)
 Tmin = max(Tmin, Tbase)
 GDD = ((Tmax + Tmin) / 2) - Tbase
 ```
+
 - **Pros:** More accurate with upper/lower cutoffs
 - **Cons:** Slightly more complex
 - **Best for:** Extreme climates, crops with upper limits
 
 ### 3. Sine Method (Baskerville-Emin)
+
 ```
 Uses sine wave approximation for sub-daily temperature variation
 ```
+
 - **Pros:** Most accurate
 - **Cons:** Slower calculation
 - **Best for:** Research, high-precision applications
@@ -304,31 +335,41 @@ Uses sine wave approximation for sub-daily temperature variation
 ## Use Cases | حالات الاستخدام
 
 ### 1. Crop Development Tracking
+
 Monitor where your crop is in its growth cycle:
+
 - Track daily progress
 - Identify current growth stage
 - Compare to expected timeline
 
 ### 2. Harvest Date Prediction
+
 Estimate when crops will be ready:
+
 - Predict flowering dates
 - Forecast harvest windows
 - Plan labor and equipment
 
 ### 3. Field Operations Planning
+
 Schedule activities based on growth stages:
+
 - Fertilization timing
 - Irrigation scheduling
 - Pesticide application windows
 
 ### 4. Season Comparison
+
 Compare current season to historical average:
+
 - Identify early/late development
 - Adjust management practices
 - Predict yield impacts
 
 ### 5. Mobile App Integration
+
 Display progress in farmer app:
+
 - Progress bars for milestones
 - Countdown to next stage
 - Push notifications for key events
@@ -336,6 +377,7 @@ Display progress in farmer app:
 ## Integration Examples | أمثلة التكامل
 
 ### Python Example
+
 ```python
 import httpx
 from datetime import date
@@ -370,16 +412,17 @@ async def track_wheat_field():
 ```
 
 ### JavaScript/React Example
+
 ```javascript
 async function getGDDChart(fieldId, cropCode, plantingDate, lat, lon) {
   const response = await fetch(
     `/v1/gdd/chart/${fieldId}?` +
-    new URLSearchParams({
-      crop_code: cropCode,
-      planting_date: plantingDate,
-      lat: lat,
-      lon: lon
-    })
+      new URLSearchParams({
+        crop_code: cropCode,
+        planting_date: plantingDate,
+        lat: lat,
+        lon: lon,
+      }),
   );
 
   const chart = await response.json();
@@ -389,7 +432,7 @@ async function getGDDChart(fieldId, cropCode, plantingDate, lat, lon) {
     totalGDD: chart.current_status.total_gdd,
     harvestDate: chart.harvest_prediction.estimated_date,
     milestones: chart.milestones,
-    dailyData: chart.daily_data
+    dailyData: chart.daily_data,
   };
 }
 
@@ -398,8 +441,7 @@ const GDDProgressChart = ({ fieldId }) => {
   const [chart, setChart] = useState(null);
 
   useEffect(() => {
-    getGDDChart(fieldId, 'WHEAT', '2024-03-01', 15.37, 44.19)
-      .then(setChart);
+    getGDDChart(fieldId, "WHEAT", "2024-03-01", 15.37, 44.19).then(setChart);
   }, [fieldId]);
 
   if (!chart) return <Loading />;
@@ -421,23 +463,27 @@ const GDDProgressChart = ({ fieldId }) => {
 ## Technical Details | التفاصيل التقنية
 
 ### Architecture
+
 - **Module:** `src/gdd_tracker.py` - Core GDD calculation logic
 - **Endpoints:** `src/gdd_endpoints.py` - FastAPI endpoints
 - **Integration:** Weather service for temperature data
 - **Caching:** Supports Redis caching for performance
 
 ### Data Sources
+
 - **Historical Weather:** Open-Meteo Archive API (1940-present)
 - **Forecast Weather:** Open-Meteo Forecast API (16 days)
 - **Crop Parameters:** Calibrated from FAO, USDA, and Yemen research
 
 ### Performance
+
 - **GDD Calculation:** <1ms per day
 - **Chart Generation:** <500ms for 120-day season
 - **Forecast:** <1s for 16-day projection
 - **API Response:** JSON, typically 5-50KB
 
 ### Accuracy
+
 - **Temperature Data:** ±1°C (Open-Meteo)
 - **GDD Calculation:** ±2% (validated against field data)
 - **Stage Prediction:** ±3-5 days (depends on weather variability)
@@ -458,6 +504,7 @@ const GDDProgressChart = ({ fieldId }) => {
 ## Support | الدعم
 
 For questions or issues:
+
 - Check API documentation: `http://localhost:8090/docs`
 - Review test file: `test_gdd.py`
 - Contact: SAHOOL Development Team

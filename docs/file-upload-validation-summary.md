@@ -38,15 +38,18 @@ Created a centralized file validation module at `/shared/file_validation/` with:
 ## Updated Services
 
 ### 1. Crop Health AI Service
+
 **Location:** `/apps/services/crop-health-ai/src/main.py`
 
 **Updated Endpoints:**
+
 1. `POST /v1/diagnose` - Single plant image diagnosis
 2. `POST /v1/diagnose/batch` - Batch image diagnosis (up to 20 images)
 3. `POST /v1/expert-review` - Expert review request with image
 4. `POST /v1/diagnose-with-action` - Diagnosis with action template (uses diagnose endpoint)
 
 **Validation Applied:**
+
 - ✅ File size validation (10MB limit)
 - ✅ MIME type whitelist (image types only)
 - ✅ Magic bytes validation
@@ -56,6 +59,7 @@ Created a centralized file validation module at `/shared/file_validation/` with:
 - ✅ Fallback to basic validation if module unavailable
 
 **Configuration:**
+
 ```python
 # Environment variables
 VIRUS_SCANNER=clamav|noop  # Default: noop
@@ -66,12 +70,15 @@ CLAMAV_PORT=3310          # Default: 3310
 ## Validation Features
 
 ### 1. File Size Limits
+
 - **Default:** 10MB
 - **Configurable per service**
 - **Error message:** Bilingual (English/Arabic)
 
 ### 2. MIME Type Validation
+
 **Allowed image types:**
+
 - image/jpeg
 - image/jpg
 - image/png
@@ -81,12 +88,15 @@ CLAMAV_PORT=3310          # Default: 3310
 - image/tiff
 
 **Validation process:**
+
 1. Check declared MIME type against whitelist
 2. Validate content using magic bytes
 3. Ensure declared type matches actual content
 
 ### 3. Magic Bytes Validation
+
 **Detects actual file type by content:**
+
 - JPEG: `FF D8 FF`
 - PNG: `89 50 4E 47 0D 0A 1A 0A`
 - GIF: `47 49 46 38`
@@ -94,28 +104,35 @@ CLAMAV_PORT=3310          # Default: 3310
 - And 15+ more types
 
 ### 4. Content Validation
+
 - Checks first 32 bytes of file
 - Prevents MIME type spoofing
 - Strict and non-strict modes available
 
 ### 5. Virus Scanning
+
 **ClamAV Integration:**
+
 - Async scanning via clamd
 - INSTREAM protocol for memory-safe scanning
 - Configurable timeout (30s default)
 - Health check support
 
 **Fallback modes:**
+
 - Development: NoOp scanner (no actual scanning)
 - Production: ClamAV required for virus scanning
 
 ### 6. Security Features
+
 **Executable Detection:**
+
 - Extension-based blocking (.exe, .bat, .sh, etc.)
 - Magic bytes detection (PE, ELF, scripts)
 - Prevents code execution attacks
 
 **Filename Sanitization:**
+
 - Path traversal protection
 - Null byte filtering
 - Special character removal
@@ -127,6 +144,7 @@ CLAMAV_PORT=3310          # Default: 3310
 The following services were analyzed but no file upload endpoints were found:
 
 ### NestJS Services
+
 - chat-service
 - crop-growth-model
 - disaster-assessment
@@ -139,6 +157,7 @@ The following services were analyzed but no file upload endpoints were found:
 - yield-prediction-service
 
 ### FastAPI Services (No File Uploads)
+
 - crop-intelligence-service
 - field-ops
 - satellite-service
@@ -240,41 +259,49 @@ async def upload_file(file: UploadFile = File(...)):
 ### For NestJS Services
 
 ```typescript
-import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 
-@Controller('upload')
+@Controller("upload")
 export class UploadController {
   @Post()
   @UseInterceptors(
-    FileInterceptor('file', {
+    FileInterceptor("file", {
       limits: {
         fileSize: 10 * 1024 * 1024, // 10MB
       },
       fileFilter: (req, file, cb) => {
         const allowedMimes = [
-          'image/jpeg',
-          'image/png',
-          'image/gif',
-          'image/webp'
+          "image/jpeg",
+          "image/png",
+          "image/gif",
+          "image/webp",
         ];
 
         if (allowedMimes.includes(file.mimetype)) {
           cb(null, true);
         } else {
-          cb(new BadRequestException('Invalid file type'), false);
+          cb(new BadRequestException("Invalid file type"), false);
         }
       },
-    })
+    }),
   )
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     // Additional validation for magic bytes
     const buffer = file.buffer;
     const isPNG = buffer[0] === 0x89 && buffer[1] === 0x50;
-    const isJPEG = buffer[0] === 0xFF && buffer[1] === 0xD8;
+    const isJPEG = buffer[0] === 0xff && buffer[1] === 0xd8;
 
-    if (!isPNG && !isJPEG && file.mimetype.startsWith('image/')) {
-      throw new BadRequestException('File content does not match declared type');
+    if (!isPNG && !isJPEG && file.mimetype.startsWith("image/")) {
+      throw new BadRequestException(
+        "File content does not match declared type",
+      );
     }
 
     // Process validated file
@@ -290,12 +317,14 @@ export class UploadController {
 ## Environment Configuration
 
 ### Development
+
 ```bash
 # No virus scanning
 VIRUS_SCANNER=noop
 ```
 
 ### Production
+
 ```bash
 # Enable ClamAV scanning
 VIRUS_SCANNER=clamav
@@ -304,6 +333,7 @@ CLAMAV_PORT=3310
 ```
 
 ### Docker Compose
+
 ```yaml
 services:
   clamav:
@@ -341,6 +371,7 @@ All validation errors return HTTP 400 with bilingual error messages:
 ```
 
 ### Error Codes
+
 - `EMPTY_FILE`: File is empty
 - `FILE_TOO_LARGE`: Exceeds size limit
 - `INVALID_MIME_TYPE`: Type not in whitelist
@@ -360,6 +391,7 @@ All validation errors return HTTP 400 with bilingual error messages:
 ## Testing
 
 ### Manual Testing
+
 ```bash
 # Test valid image upload
 curl -X POST http://localhost:8095/v1/diagnose \
@@ -378,6 +410,7 @@ curl -X POST http://localhost:8095/v1/diagnose \
 ```
 
 ### Unit Testing
+
 See `/shared/file_validation/examples.py` for comprehensive test examples.
 
 ## Performance Considerations
@@ -389,6 +422,7 @@ See `/shared/file_validation/examples.py` for comprehensive test examples.
 5. **Virus Scanning:** O(file_size) - can be slow for large files
 
 **Recommendations:**
+
 - Disable virus scanning for files < 1MB if performance critical
 - Use async processing for large files
 - Implement rate limiting on upload endpoints
@@ -405,6 +439,7 @@ See `/shared/file_validation/examples.py` for comprehensive test examples.
 ## Monitoring
 
 ### Metrics to Track
+
 - Upload attempts per endpoint
 - Validation failures by type
 - File sizes distribution
@@ -412,7 +447,9 @@ See `/shared/file_validation/examples.py` for comprehensive test examples.
 - Processing time per validation
 
 ### Logging
+
 All validation failures are logged with:
+
 - Timestamp
 - Endpoint
 - Filename
@@ -422,6 +459,7 @@ All validation failures are logged with:
 ## Compliance
 
 This implementation helps meet:
+
 - **OWASP Top 10:** Addresses unrestricted file upload vulnerabilities
 - **PCI DSS:** File upload security requirements
 - **GDPR:** Data protection through security measures
@@ -436,6 +474,7 @@ This implementation helps meet:
 ## Support
 
 For questions or issues:
+
 1. Check the README in `/shared/file_validation/`
 2. Review examples in `/shared/file_validation/examples.py`
 3. Create an issue in the SAHOOL repository

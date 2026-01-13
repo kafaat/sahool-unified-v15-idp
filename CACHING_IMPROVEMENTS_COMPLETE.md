@@ -13,20 +13,24 @@ Successfully implemented comprehensive caching improvements for the SAHOOL platf
 ### Key Achievements
 
 ✅ **Fixed Critical Issues**
+
 - Migrated IoT service from in-memory to Redis cache
 - Replaced unsafe `KEYS` command with `SCAN` for production safety
 
 ✅ **Enhanced Performance**
+
 - Implemented cache stampede protection (80% reduction in DB load)
 - Added cache warming strategies (50% reduction in cold start latency)
 - Achieved 85% cache hit rate (up from 70%)
 
 ✅ **Improved Observability**
+
 - Comprehensive metrics tracking with health status
 - Real-time monitoring with recommendations
 - Automated reporting every 5 minutes
 
 ✅ **Production-Ready Features**
+
 - Write-through pattern for critical data
 - Cache versioning for safe upgrades
 - Distributed locking for consistency
@@ -35,14 +39,14 @@ Successfully implemented comprehensive caching improvements for the SAHOOL platf
 
 ## 📊 Impact Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **Cache Hit Rate** | ~70% | **~85%** | +15% ✅ |
-| **Database Load (stampede)** | 100 req/s | **<20 req/s** | -80% ✅ |
-| **Cold Start Latency** | ~500ms | **~250ms** | -50% ✅ |
-| **IoT Data Persistence** | ❌ Lost on restart | ✅ Persistent | ∞ ✅ |
-| **Redis Blocking Risk** | 🔴 High (KEYS) | 🟢 None (SCAN) | -100% ✅ |
-| **Concurrent User Capacity** | 1000/s | **2000/s** | +100% ✅ |
+| Metric                       | Before             | After          | Improvement |
+| ---------------------------- | ------------------ | -------------- | ----------- |
+| **Cache Hit Rate**           | ~70%               | **~85%**       | +15% ✅     |
+| **Database Load (stampede)** | 100 req/s          | **<20 req/s**  | -80% ✅     |
+| **Cold Start Latency**       | ~500ms             | **~250ms**     | -50% ✅     |
+| **IoT Data Persistence**     | ❌ Lost on restart | ✅ Persistent  | ∞ ✅        |
+| **Redis Blocking Risk**      | 🔴 High (KEYS)     | 🟢 None (SCAN) | -100% ✅    |
+| **Concurrent User Capacity** | 1000/s             | **2000/s**     | +100% ✅    |
 
 ---
 
@@ -122,7 +126,7 @@ Prevents multiple concurrent requests from overwhelming the database when cache 
 
 ```typescript
 // Automatic stampede protection
-const data = await cacheManager.getOrFetch('expensive-key', async () => {
+const data = await cacheManager.getOrFetch("expensive-key", async () => {
   // Only ONE request executes this, even with 100 concurrent calls
   return await expensiveOperation();
 });
@@ -137,7 +141,7 @@ Proactive loading of frequently accessed data to reduce cold start latency.
 ```typescript
 // Register warming strategy
 cacheWarming.registerStrategy({
-  name: 'user-validation-warming',
+  name: "user-validation-warming",
   getKeys: async () => getTopActiveUsers(),
   fetcher: async (key) => fetchUserData(key),
   ttl: CacheTTL.USER_VALIDATION,
@@ -192,15 +196,15 @@ await cacheManager.writeThrough(
 
 ## 📈 Performance Benchmarks
 
-| Operation | Expected | Actual | Status |
-|-----------|----------|--------|--------|
-| Redis GET | < 1ms | 0.5ms | ✅ |
-| Redis SET | < 1ms | 0.7ms | ✅ |
-| Pipeline (10 ops) | < 2ms | 1.5ms | ✅ |
-| Cache Hit | < 5ms | 2ms | ✅ |
-| Cache Miss (with fetch) | < 100ms | 50ms | ✅ |
-| Pattern Invalidation | < 2s | 1.2s | ✅ |
-| Stampede Prevention | < 10ms | 5ms | ✅ |
+| Operation               | Expected | Actual | Status |
+| ----------------------- | -------- | ------ | ------ |
+| Redis GET               | < 1ms    | 0.5ms  | ✅     |
+| Redis SET               | < 1ms    | 0.7ms  | ✅     |
+| Pipeline (10 ops)       | < 2ms    | 1.5ms  | ✅     |
+| Cache Hit               | < 5ms    | 2ms    | ✅     |
+| Cache Miss (with fetch) | < 100ms  | 50ms   | ✅     |
+| Pattern Invalidation    | < 2s     | 1.2s   | ✅     |
+| Stampede Prevention     | < 10ms   | 5ms    | ✅     |
 
 ---
 
@@ -245,7 +249,7 @@ await cacheManager.writeThrough(
 const user = await cacheManager.getOrFetch(
   `user:${userId}`,
   async () => await db.users.findOne({ id: userId }),
-  CacheTTL.USER_VALIDATION
+  CacheTTL.USER_VALIDATION,
 );
 ```
 
@@ -256,7 +260,7 @@ await cacheManager.writeThrough(
   `user:${userId}`,
   updatedUser,
   async (data) => await db.users.update(userId, data),
-  CacheTTL.USER_VALIDATION
+  CacheTTL.USER_VALIDATION,
 );
 ```
 
@@ -270,7 +274,7 @@ await cacheManager.invalidatePattern(`user:${userId}:*`);
 ### Cache Warming
 
 ```typescript
-await cacheWarming.warmNow('user-validation-warming');
+await cacheWarming.warmNow("user-validation-warming");
 ```
 
 ---
@@ -298,14 +302,11 @@ REDIS_PASSWORD=your-secure-password
 ### 2. NestJS Module Setup
 
 ```typescript
-import { CacheMetricsService } from '@shared/cache/cache-metrics.service';
-import { CacheWarmingService } from '@shared/cache/cache-warming.service';
+import { CacheMetricsService } from "@shared/cache/cache-metrics.service";
+import { CacheWarmingService } from "@shared/cache/cache-warming.service";
 
 @Module({
-  providers: [
-    CacheMetricsService,
-    CacheWarmingService,
-  ],
+  providers: [CacheMetricsService, CacheWarmingService],
 })
 export class AppModule {}
 ```

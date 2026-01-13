@@ -49,14 +49,22 @@ A comprehensive, accessible map layer control component for managing multiple ma
 ## Installation / التثبيت
 
 The component is located at:
+
 ```
 /apps/web/src/features/fields/components/LayerControl.tsx
 ```
 
 Import the component:
+
 ```typescript
-import { LayerControl, useLayerControl } from '@/features/fields/components/LayerControl';
-import type { LayerSettings, NDVISettings } from '@/features/fields/components/LayerControl';
+import {
+  LayerControl,
+  useLayerControl,
+} from "@/features/fields/components/LayerControl";
+import type {
+  LayerSettings,
+  NDVISettings,
+} from "@/features/fields/components/LayerControl";
 ```
 
 ## Usage / الاستخدام
@@ -64,25 +72,23 @@ import type { LayerSettings, NDVISettings } from '@/features/fields/components/L
 ### Basic Usage
 
 ```tsx
-import { LayerControl } from '@/features/fields/components/LayerControl';
+import { LayerControl } from "@/features/fields/components/LayerControl";
 
 function MyMap() {
   const handleLayersChange = (layers) => {
-    console.log('Active layers:', layers);
+    console.log("Active layers:", layers);
     // Update your map layers here
   };
 
   const handleNDVIChange = (settings) => {
-    console.log('NDVI settings:', settings);
+    console.log("NDVI settings:", settings);
     // Update NDVI layer opacity and date
   };
 
   return (
     <div className="relative h-screen">
       {/* Your map component */}
-      <MapContainer>
-        {/* Map layers */}
-      </MapContainer>
+      <MapContainer>{/* Map layers */}</MapContainer>
 
       {/* Layer control */}
       <LayerControl
@@ -110,7 +116,7 @@ function MyMap() {
   }}
   initialNDVI={{
     opacity: 0.5,
-    historicalDate: new Date('2025-01-01'),
+    historicalDate: new Date("2025-01-01"),
   }}
   onLayersChange={handleLayersChange}
   onNDVIChange={handleNDVIChange}
@@ -120,7 +126,7 @@ function MyMap() {
 ### Using the Hook
 
 ```tsx
-import { useLayerControl } from '@/features/fields/components/LayerControl';
+import { useLayerControl } from "@/features/fields/components/LayerControl";
 
 function MyComponent() {
   const [state, controls] = useLayerControl({
@@ -139,7 +145,7 @@ function MyComponent() {
 
   // Programmatically control layers
   const handleToggleNDVI = () => {
-    controls.toggleLayer('ndvi');
+    controls.toggleLayer("ndvi");
   };
 
   const handleSetOpacity = (value: number) => {
@@ -167,24 +173,24 @@ function MyComponent() {
 
 ### LayerControl Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `initialLayers` | `Partial<LayerSettings>` | `DEFAULT_LAYERS` | Initial layer visibility settings |
-| `initialNDVI` | `Partial<NDVISettings>` | `DEFAULT_NDVI` | Initial NDVI configuration |
-| `onLayersChange` | `(layers: LayerSettings) => void` | - | Callback when any layer visibility changes |
-| `onNDVIChange` | `(settings: NDVISettings) => void` | - | Callback when NDVI settings change |
-| `position` | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'top-right'` | Position on the map |
-| `className` | `string` | `''` | Additional CSS classes |
-| `persistPreferences` | `boolean` | `true` | Enable/disable localStorage persistence |
-| `storageKey` | `string` | `'sahool-map-layers'` | localStorage key prefix |
+| Prop                 | Type                                                           | Default               | Description                                |
+| -------------------- | -------------------------------------------------------------- | --------------------- | ------------------------------------------ |
+| `initialLayers`      | `Partial<LayerSettings>`                                       | `DEFAULT_LAYERS`      | Initial layer visibility settings          |
+| `initialNDVI`        | `Partial<NDVISettings>`                                        | `DEFAULT_NDVI`        | Initial NDVI configuration                 |
+| `onLayersChange`     | `(layers: LayerSettings) => void`                              | -                     | Callback when any layer visibility changes |
+| `onNDVIChange`       | `(settings: NDVISettings) => void`                             | -                     | Callback when NDVI settings change         |
+| `position`           | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'top-right'`         | Position on the map                        |
+| `className`          | `string`                                                       | `''`                  | Additional CSS classes                     |
+| `persistPreferences` | `boolean`                                                      | `true`                | Enable/disable localStorage persistence    |
+| `storageKey`         | `string`                                                       | `'sahool-map-layers'` | localStorage key prefix                    |
 
 ### LayerSettings Interface
 
 ```typescript
 interface LayerSettings {
-  ndvi: boolean;           // NDVI satellite imagery
-  healthZones: boolean;    // Health zones
-  taskMarkers: boolean;    // Task markers
+  ndvi: boolean; // NDVI satellite imagery
+  healthZones: boolean; // Health zones
+  taskMarkers: boolean; // Task markers
   weatherOverlay: boolean; // Weather overlay
   irrigationZones: boolean; // Irrigation zones
 }
@@ -194,8 +200,8 @@ interface LayerSettings {
 
 ```typescript
 interface NDVISettings {
-  opacity: number;              // 0-1 range
-  historicalDate: Date | null;  // Date for historical data
+  opacity: number; // 0-1 range
+  historicalDate: Date | null; // Date for historical data
 }
 ```
 
@@ -204,6 +210,7 @@ interface NDVISettings {
 Returns: `[state, controls]`
 
 **State:**
+
 ```typescript
 {
   layers: LayerSettings;
@@ -212,6 +219,7 @@ Returns: `[state, controls]`
 ```
 
 **Controls:**
+
 ```typescript
 {
   toggleLayer: (layer: keyof LayerSettings) => void;
@@ -247,31 +255,32 @@ Returns: `[state, controls]`
 
 The component includes a comprehensive NDVI color scale:
 
-| Value | Color | Arabic | English |
-|-------|-------|--------|---------|
-| 1.0 | #006600 | كثيف جداً | Very Dense |
-| 0.8 | #00CC00 | كثيف | Dense |
-| 0.7 | #00FF00 | ممتاز | Excellent |
-| 0.6 | #55FF00 | جيد جداً | Very Good |
-| 0.5 | #AAFF00 | جيد | Good |
-| 0.4 | #FFFF00 | متوسط | Moderate |
-| 0.3 | #FFAA00 | ضعيف | Poor |
-| 0.2 | #FF6600 | ضعيف جداً | Very Poor |
-| 0.0 | #FF0000 | بدون غطاء | No Vegetation |
-| -1.0 | #8B4513 | تربة جافة | Bare Soil |
+| Value | Color   | Arabic    | English       |
+| ----- | ------- | --------- | ------------- |
+| 1.0   | #006600 | كثيف جداً | Very Dense    |
+| 0.8   | #00CC00 | كثيف      | Dense         |
+| 0.7   | #00FF00 | ممتاز     | Excellent     |
+| 0.6   | #55FF00 | جيد جداً  | Very Good     |
+| 0.5   | #AAFF00 | جيد       | Good          |
+| 0.4   | #FFFF00 | متوسط     | Moderate      |
+| 0.3   | #FFAA00 | ضعيف      | Poor          |
+| 0.2   | #FF6600 | ضعيف جداً | Very Poor     |
+| 0.0   | #FF0000 | بدون غطاء | No Vegetation |
+| -1.0  | #8B4513 | تربة جافة | Bare Soil     |
 
 ## Keyboard Accessibility / إمكانية الوصول عبر لوحة المفاتيح
 
-| Element | Keys | Action |
-|---------|------|--------|
-| Switch | `Space`, `Enter` | Toggle layer on/off |
-| Slider | `←` `→` | Decrease/increase opacity |
-| Date Picker | `Enter` | Open date selector |
-| Collapse Button | `Space`, `Enter` | Expand/collapse panel |
-| Legend Toggle | `Space`, `Enter` | Show/hide legend |
-| Reset Button | `Space`, `Enter` | Reset to defaults |
+| Element         | Keys             | Action                    |
+| --------------- | ---------------- | ------------------------- |
+| Switch          | `Space`, `Enter` | Toggle layer on/off       |
+| Slider          | `←` `→`          | Decrease/increase opacity |
+| Date Picker     | `Enter`          | Open date selector        |
+| Collapse Button | `Space`, `Enter` | Expand/collapse panel     |
+| Legend Toggle   | `Space`, `Enter` | Show/hide legend          |
+| Reset Button    | `Space`, `Enter` | Reset to defaults         |
 
 All interactive elements have:
+
 - Clear focus indicators (ring-2 ring-green-500)
 - ARIA labels for screen readers
 - Logical tab order
@@ -281,6 +290,7 @@ All interactive elements have:
 The component stores preferences in two keys:
 
 ### Layers Key: `sahool-map-layers-layers`
+
 ```json
 {
   "ndvi": true,
@@ -292,6 +302,7 @@ The component stores preferences in two keys:
 ```
 
 ### NDVI Key: `sahool-map-layers-ndvi`
+
 ```json
 {
   "opacity": 0.7,
@@ -302,6 +313,7 @@ The component stores preferences in two keys:
 ## Styling / التنسيق
 
 The component uses:
+
 - Tailwind CSS utility classes
 - `clsx` for conditional class names
 - Transparent backdrop with blur effect
@@ -313,10 +325,7 @@ The component uses:
 You can override styles using the `className` prop:
 
 ```tsx
-<LayerControl
-  className="shadow-2xl border-4"
-  position="top-right"
-/>
+<LayerControl className="shadow-2xl border-4" position="top-right" />
 ```
 
 ## Integration Examples / أمثلة التكامل
@@ -344,10 +353,7 @@ function FieldMap({ fieldId }) {
         {layers.weatherOverlay && <WeatherOverlay />}
       </MapContainer>
 
-      <LayerControl
-        onLayersChange={setLayers}
-        onNDVIChange={setNdviSettings}
-      />
+      <LayerControl onLayersChange={setLayers} onNDVIChange={setNdviSettings} />
     </div>
   );
 }
@@ -364,11 +370,11 @@ function MapLibreMap() {
     if (!map) return;
 
     // Toggle NDVI layer
-    if (map.getLayer('ndvi-layer')) {
+    if (map.getLayer("ndvi-layer")) {
       map.setLayoutProperty(
-        'ndvi-layer',
-        'visibility',
-        layers.ndvi ? 'visible' : 'none'
+        "ndvi-layer",
+        "visibility",
+        layers.ndvi ? "visible" : "none",
       );
     }
 
@@ -377,10 +383,10 @@ function MapLibreMap() {
 
   const handleNDVIChange = (settings: NDVISettings) => {
     const map = mapRef.current;
-    if (!map || !map.getLayer('ndvi-layer')) return;
+    if (!map || !map.getLayer("ndvi-layer")) return;
 
     // Update opacity
-    map.setPaintProperty('ndvi-layer', 'raster-opacity', settings.opacity);
+    map.setPaintProperty("ndvi-layer", "raster-opacity", settings.opacity);
 
     // Reload with historical date if needed
     if (settings.historicalDate) {
@@ -410,14 +416,14 @@ function MapLibreMap() {
 ### Optimization Example
 
 ```tsx
-import { debounce } from 'lodash';
+import { debounce } from "lodash";
 
 const handleNDVIChange = debounce((settings: NDVISettings) => {
   // Update expensive NDVI layer
   updateNDVILayer(settings);
 }, 300);
 
-<LayerControl onNDVIChange={handleNDVIChange} />
+<LayerControl onNDVIChange={handleNDVIChange} />;
 ```
 
 ## Testing / الاختبار
@@ -496,6 +502,7 @@ test('has no accessibility violations', async () => {
 ### Layers not updating
 
 Ensure you're passing the callbacks:
+
 ```tsx
 <LayerControl
   onLayersChange={(layers) => {
@@ -508,8 +515,9 @@ Ensure you're passing the callbacks:
 ### localStorage not working
 
 Check if localStorage is available:
+
 ```tsx
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   // Safe to use localStorage
 }
 ```

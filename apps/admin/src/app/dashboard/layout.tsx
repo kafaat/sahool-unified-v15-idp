@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Sidebar from '@/components/layout/Sidebar';
-import { AuthGuard } from '@/components/auth/AuthGuard';
+import Sidebar from "@/components/layout/Sidebar";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
 export default function DashboardLayout({
   children,
@@ -12,7 +12,11 @@ export default function DashboardLayout({
     <AuthGuard requiredRole="viewer">
       <div className="min-h-screen bg-gray-50">
         <Sidebar />
-        <main className="mr-64 min-h-screen" role="main" aria-label="المحتوى الرئيسي">
+        <main
+          className="mr-64 min-h-screen"
+          role="main"
+          aria-label="المحتوى الرئيسي"
+        >
           {children}
         </main>
       </div>

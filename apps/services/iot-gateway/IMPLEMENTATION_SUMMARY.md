@@ -1,4 +1,5 @@
 # Sensor Data Aggregation Service - Implementation Summary
+
 # ملخص تنفيذ خدمة تجميع بيانات المستشعرات
 
 ## Overview | نظرة عامة
@@ -71,6 +72,7 @@ Successfully implemented a comprehensive sensor data aggregation service for SAH
 ### 1. SensorAggregator Class ✓
 
 #### Core Methods:
+
 - ✅ `aggregate_by_field(field_id, time_range)` - Aggregate data by field
 - ✅ `aggregate_by_sensor_type(sensor_type, time_range)` - Aggregate by sensor type
 - ✅ `calculate_statistics(readings)` - Calculate comprehensive statistics
@@ -79,6 +81,7 @@ Successfully implemented a comprehensive sensor data aggregation service for SAH
 ### 2. Aggregation Methods ✓
 
 #### Statistical Measures:
+
 - ✅ **mean** (المتوسط) - Average value
 - ✅ **median** (الوسيط) - Middle value
 - ✅ **min** (الحد الأدنى) - Minimum value
@@ -86,12 +89,14 @@ Successfully implemented a comprehensive sensor data aggregation service for SAH
 - ✅ **std** (الانحراف المعياري) - Standard deviation
 
 #### Percentiles:
+
 - ✅ **10th percentile** (المئين العاشر)
 - ✅ **25th percentile** (المئين الخامس والعشرون / الربيع الأول)
 - ✅ **75th percentile** (المئين الخامس والسبعون / الربيع الثالث)
 - ✅ **90th percentile** (المئين التسعون)
 
 #### Advanced Metrics:
+
 - ✅ **rate_of_change** (معدل التغيير) - Units per hour
 - ✅ **cumulative_sum** (المجموع التراكمي) - For rainfall data
 
@@ -109,6 +114,7 @@ Successfully implemented a comprehensive sensor data aggregation service for SAH
 - ✅ `calculate_data_quality_score(readings)` - Quality scoring (0-100)
 
 #### Health Metrics:
+
 - ✅ Data quality score (نقاط جودة البيانات)
 - ✅ Uptime percentage (نسبة وقت التشغيل)
 - ✅ Outlier percentage (نسبة القيم الشاذة)
@@ -121,16 +127,16 @@ Successfully implemented a comprehensive sensor data aggregation service for SAH
 
 All thresholds implemented with warning and critical levels:
 
-| Sensor Type | Min | Max | Unit | Status |
-|-------------|-----|-----|------|--------|
-| **Soil Moisture** | 20% | 80% | % | ✅ |
-| **Air Temperature** | 5°C | 45°C | °C | ✅ |
-| **Soil Temperature** | 10°C | 35°C | °C | ✅ |
-| **Air Humidity** | 10% | 95% | % | ✅ |
-| **Soil EC (Salinity)** | 0 | 4 | dS/m | ✅ |
-| **Soil pH** | 5.5 | 8.5 | - | ✅ |
-| **Rainfall** | 0 | 100 | mm/day | ✅ |
-| **Wind Speed** | 0 | 15 | m/s | ✅ |
+| Sensor Type            | Min  | Max  | Unit   | Status |
+| ---------------------- | ---- | ---- | ------ | ------ |
+| **Soil Moisture**      | 20%  | 80%  | %      | ✅     |
+| **Air Temperature**    | 5°C  | 45°C | °C     | ✅     |
+| **Soil Temperature**   | 10°C | 35°C | °C     | ✅     |
+| **Air Humidity**       | 10%  | 95%  | %      | ✅     |
+| **Soil EC (Salinity)** | 0    | 4    | dS/m   | ✅     |
+| **Soil pH**            | 5.5  | 8.5  | -      | ✅     |
+| **Rainfall**           | 0    | 100  | mm/day | ✅     |
+| **Wind Speed**         | 0    | 15   | m/s    | ✅     |
 
 ### 6. Outlier Detection Methods ✓
 
@@ -151,6 +157,7 @@ Three methods implemented:
 ## Data Models | نماذج البيانات
 
 ### SensorReading ✓
+
 ```python
 device_id: str              # معرف الجهاز
 field_id: str               # معرف الحقل
@@ -164,6 +171,7 @@ is_outlier: bool           # هل هي قيمة شاذة
 ```
 
 ### AggregatedData ✓
+
 ```python
 field_id: str
 sensor_type: str
@@ -177,6 +185,7 @@ devices: List[str]
 ```
 
 ### SensorHealth ✓
+
 ```python
 device_id, field_id, sensor_type
 status: SensorStatus
@@ -194,6 +203,7 @@ recommendations_en: List[str]
 ## Arabic Comments | التعليقات العربية ✓
 
 All files include comprehensive Arabic comments:
+
 - Class and function docstrings in Arabic and English
 - Variable descriptions in both languages
 - Inline comments for complex logic
@@ -336,6 +346,7 @@ Recommended next steps:
 ## Support | الدعم
 
 For questions or issues:
+
 - Documentation: `SENSOR_AGGREGATOR_README.md`
 - Examples: `examples/aggregator_usage.py`
 - Tests: `tests/test_sensor_aggregator.py`
@@ -358,5 +369,5 @@ For questions or issues:
 **SAHOOL IoT Sensor Aggregation Service**
 **خدمة تجميع بيانات المستشعرات - صحول**
 
-*Implementation completed on 2024-01-02*
-*تم الانتهاء من التنفيذ في 2024-01-02*
+_Implementation completed on 2024-01-02_
+_تم الانتهاء من التنفيذ في 2024-01-02_

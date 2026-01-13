@@ -1,4 +1,5 @@
 # Kong Docker Configuration Audit Report
+
 # تقرير تدقيق تكوين Kong Docker
 
 **Platform:** SAHOOL Agricultural Intelligence Platform
@@ -11,6 +12,7 @@
 ## Executive Summary
 
 This audit examines the Docker configuration for Kong API Gateway across three deployment modes:
+
 1. **Development Mode** (main docker-compose.yml) - DB-less Kong with Docker DNS
 2. **Standalone Mode** (infrastructure/gateway/kong/docker-compose.yml) - Full Kong with PostgreSQL
 3. **High Availability Mode** (infrastructure/gateway/kong-ha/docker-compose.kong-ha.yml) - 3-node cluster
@@ -18,6 +20,7 @@ This audit examines the Docker configuration for Kong API Gateway across three d
 ### Overall Status: ✅ GOOD with Recommendations
 
 **Strengths:**
+
 - Well-configured DB-less mode for development
 - Comprehensive security hardening
 - Proper DNS configuration for Docker internal networking
@@ -44,6 +47,7 @@ kong:
 ```
 
 #### Analysis:
+
 ✅ **GOOD:** Using Kong 3.4 (recent stable version)
 ⚠️ **MEDIUM:** Image version is pinned, but not to a specific patch (e.g., 3.4.2)
 📋 **RECOMMENDATION:** Use specific patch version like `kong:3.4.3-alpine` for reproducibility
@@ -63,7 +67,9 @@ KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** DB-less mode configured correctly
+
 - **Benefits:**
   - Faster startup time
   - Lower resource usage
@@ -74,6 +80,7 @@ KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
 ✅ **GOOD:** Declarative configuration from file
 
 **Configuration Files:**
+
 1. Primary: `/infrastructure/gateway/kong/kong.yml` (1880 lines)
 2. Upstreams: 16 configured
 3. Services: 40+ microservices
@@ -94,7 +101,9 @@ KONG_DNS_NOT_FOUND_TTL: 30
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Properly configured for Docker internal DNS
+
 - **127.0.0.11:53** - Docker's embedded DNS server
 - **DNS_ORDER: LAST,A,CNAME** - Correct resolution order
 - **DNS_CACHE_TTL: 300** - 5-minute cache (good balance)
@@ -120,7 +129,9 @@ KONG_ADMIN_ERROR_LOG: /dev/stderr
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Follows Docker logging best practices
+
 - Logs to stdout/stderr for container log aggregation
 - Compatible with Docker logging drivers
 - Easy integration with ELK, Splunk, CloudWatch, etc.
@@ -135,11 +146,14 @@ KONG_PROXY_LISTEN: "0.0.0.0:8000"
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Security-conscious configuration
+
 - **Admin API (8001):** Bound to localhost only
 - **Proxy (8000):** Publicly accessible
 
 ⚠️ **CAUTION:** SSL disabled for development
+
 ```yaml
 # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
 # KONG_SSL_CERT: /etc/kong/ssl/server.crt
@@ -157,9 +171,11 @@ KONG_PLUGINS: "bundled,prometheus"
 ```
 
 #### Analysis:
+
 ⚠️ **MEDIUM CONCERN:** Limited plugins enabled at Docker level
 
 **Plugins in Declarative Config (kong.yml):**
+
 - jwt
 - acl
 - rate-limiting (Redis-backed)
@@ -185,12 +201,15 @@ REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:**
+
 - Required environment variable validation
 - Prevents startup without password
 - Enforces security
 
 **Used For:**
+
 - Rate limiting (all services)
 - Plugin data storage
 - Session management
@@ -212,17 +231,20 @@ volumes:
 
 **1. Declarative Config Volume:**
 ✅ **EXCELLENT:**
+
 - Read-only mount (`:ro`)
 - Security best practice
 - Prevents runtime modification
 
 **2. SSL Certificate Volume:**
 ✅ **GOOD:**
+
 - Read-only mount
 - Proper security
-⚠️ **INFO:** Currently only contains README.md (no certificates)
+  ⚠️ **INFO:** Currently only contains README.md (no certificates)
 
 **SSL Directory Contents:**
+
 ```
 drwxr-xr-x 2 root root  50 Jan  6 00:14 .
 -rw-r--r-- 1 root root  47 Jan  6 00:14 .gitignore
@@ -233,11 +255,13 @@ drwxr-xr-x 2 root root  50 Jan  6 00:14 .
 
 **3. Logs Volume:**
 ✅ **GOOD:**
+
 - Named volume for persistence
 - Survives container restarts
 - Read-write for log writing
 
 **Volume Declaration:**
+
 ```yaml
 volumes:
   kong_logs:
@@ -256,14 +280,17 @@ networks:
 ```
 
 #### Analysis:
+
 ✅ **GOOD:** Connected to main application network
 
 **Network Details:**
+
 - **Name:** sahool-network
 - **Driver:** bridge (default)
 - **Scope:** All microservices
 
 **Services Connected to Kong:**
+
 - 40+ microservices
 - PostgreSQL (via pgbouncer)
 - Redis
@@ -287,9 +314,11 @@ healthcheck:
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Well-configured health checks
 
 **Parameters Breakdown:**
+
 - **test:** Uses Kong's built-in health command
 - **interval: 30s** - Checks every 30 seconds (good balance)
 - **timeout: 10s** - Reasonable timeout
@@ -300,11 +329,11 @@ healthcheck:
 
 **Comparison with Other Deployments:**
 
-| Deployment | Interval | Timeout | Retries | Start Period |
-|------------|----------|---------|---------|--------------|
-| **Main (dev)** | 30s | 10s | 3 | 30s |
-| **Standalone** | 10s | 5s | 10 | 30s |
-| **HA Cluster** | 10s | 5s | 3 | 30s |
+| Deployment     | Interval | Timeout | Retries | Start Period |
+| -------------- | -------- | ------- | ------- | ------------ |
+| **Main (dev)** | 30s      | 10s     | 3       | 30s          |
+| **Standalone** | 10s      | 5s      | 10      | 30s          |
+| **HA Cluster** | 10s      | 5s      | 3       | 30s          |
 
 📋 **RECOMMENDATION:** Consider reducing interval to 10s for faster failure detection in production
 
@@ -321,13 +350,16 @@ depends_on:
 ```
 
 #### Analysis:
+
 ✅ **GOOD:** Proper dependency management
+
 - Waits for Redis to be healthy
 - Prevents startup failures
 
 ⚠️ **OBSERVATION:** Only Redis dependency declared
 
 **Other Services Depending on Kong:**
+
 1. `mcp-server` - SAHOOL_API_URL=http://kong:8000
 2. `demo-data` - KONG_URL=http://kong:8000
 
@@ -343,38 +375,43 @@ depends_on:
 deploy:
   resources:
     limits:
-      cpus: '2'
+      cpus: "2"
       memory: 1G
     reservations:
-      cpus: '0.25'
+      cpus: "0.25"
       memory: 128M
 ```
 
 #### Analysis:
+
 ✅ **GOOD:** Resource limits configured
 
 **Limits:**
+
 - **CPU:** 2 cores maximum
 - **Memory:** 1GB maximum
 
 **Reservations:**
+
 - **CPU:** 0.25 cores minimum
 - **Memory:** 128MB minimum
 
 **Assessment:**
+
 - ✅ Adequate for development
 - ✅ Reasonable for medium traffic
 - ⚠️ May need tuning for high traffic
 
 **Comparison Across Deployments:**
 
-| Deployment | CPU Limit | Memory Limit | CPU Reserve | Memory Reserve |
-|------------|-----------|--------------|-------------|----------------|
-| **Main (dev)** | 2 | 1G | 0.25 | 128M |
-| **Standalone** | 2 | 2G | 0.5 | 512M |
-| **HA (per node)** | 1 | 512M | 0.25 | 256M |
+| Deployment        | CPU Limit | Memory Limit | CPU Reserve | Memory Reserve |
+| ----------------- | --------- | ------------ | ----------- | -------------- |
+| **Main (dev)**    | 2         | 1G           | 0.25        | 128M           |
+| **Standalone**    | 2         | 2G           | 0.5         | 512M           |
+| **HA (per node)** | 1         | 512M         | 0.25        | 256M           |
 
 📋 **RECOMMENDATION:**
+
 - **Production:** Increase to 4 CPU / 2GB memory
 - **High Traffic:** Consider 8 CPU / 4GB memory
 - **Monitor:** Use Prometheus metrics to tune
@@ -392,6 +429,7 @@ security_opt:
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Security hardening implemented
 
 **Security Features:**
@@ -411,24 +449,28 @@ security_opt:
    - Requires port forwarding or exec for admin operations
 
 4. **Port Exposure:**
+
 ```yaml
 ports:
-  - "8000:8000"           # Proxy HTTP
+  - "8000:8000" # Proxy HTTP
   - "127.0.0.1:8001:8001" # Admin API (localhost only)
 ```
-   - ✅ Admin API properly restricted
-   - ⚠️ HTTPS port (8443) commented out
+
+- ✅ Admin API properly restricted
+- ⚠️ HTTPS port (8443) commented out
 
 ---
 
 ## 9. Standalone Kong Configuration
 
 ### 9.1 File Location
+
 `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong/docker-compose.yml`
 
 ### 9.2 Architecture
 
 **Components:**
+
 1. **kong-database** (PostgreSQL 16-alpine)
 2. **kong-migrations** (one-time bootstrap)
 3. **kong-migrations-up** (upgrade migrations)
@@ -440,14 +482,14 @@ ports:
 
 ### 9.3 Key Differences from Main
 
-| Feature | Main (dev) | Standalone |
-|---------|------------|------------|
-| Database | DB-less | PostgreSQL |
-| Kong Version | 3.4 | 3.5-alpine |
-| SSL | Disabled | Enabled (8443) |
-| Admin UI | No | Konga |
-| Monitoring | External | Built-in |
-| Networks | 1 (sahool) | 2 (kong-net, sahool-net) |
+| Feature      | Main (dev) | Standalone               |
+| ------------ | ---------- | ------------------------ |
+| Database     | DB-less    | PostgreSQL               |
+| Kong Version | 3.4        | 3.5-alpine               |
+| SSL          | Disabled   | Enabled (8443)           |
+| Admin UI     | No         | Konga                    |
+| Monitoring   | External   | Built-in                 |
+| Networks     | 1 (sahool) | 2 (kong-net, sahool-net) |
 
 ### 9.4 Database Configuration
 
@@ -461,11 +503,13 @@ kong-database:
 ```
 
 #### Analysis:
+
 ✅ **GOOD:** Latest PostgreSQL 16
 ⚠️ **MEDIUM:** Default passwords should be changed
 ✅ **GOOD:** tmpfs for /tmp and /run/postgresql (security)
 
 **Resource Limits:**
+
 - CPU: 1 core / Memory: 1GB
 - Reservations: 0.25 CPU / 256MB RAM
 
@@ -475,23 +519,25 @@ kong-database:
 
 ```yaml
 KONG_DATABASE: postgres
-KONG_DNS_RESOLVER: 8.8.8.8:53  # ⚠️ External DNS
+KONG_DNS_RESOLVER: 8.8.8.8:53 # ⚠️ External DNS
 KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
 KONG_ADMIN_LISTEN: 127.0.0.1:8001, 127.0.0.1:8444 ssl
 ```
 
 #### Analysis:
+
 ⚠️ **ISSUE:** Using Google DNS (8.8.8.8) instead of Docker DNS
 📋 **RECOMMENDATION:** Change to `127.0.0.11:53` for Docker service discovery
 
 ✅ **GOOD:** SSL enabled on both proxy and admin ports
 
 **Plugin Configuration:**
+
 ```yaml
 KONG_PLUGINS: bundled,prometheus,rate-limiting,jwt,acl,cors,request-transformer,
-               response-transformer,ip-restriction,bot-detection,
-               request-size-limiting,response-ratelimiting,correlation-id,
-               file-log,proxy-cache
+  response-transformer,ip-restriction,bot-detection,
+  request-size-limiting,response-ratelimiting,correlation-id,
+  file-log,proxy-cache
 ```
 
 ✅ **EXCELLENT:** Comprehensive plugin set
@@ -501,11 +547,13 @@ KONG_PLUGINS: bundled,prometheus,rate-limiting,jwt,acl,cors,request-transformer,
 ### 9.6 Monitoring Stack
 
 **Prometheus Configuration:**
+
 - Scrape interval: 15s
 - Evaluation interval: 15s
 - Alert rules: `/infrastructure/gateway/kong/alerts/kong-alerts.yml`
 
 **Alert Groups:**
+
 1. Service Availability (5 alerts)
 2. High Latency (4 alerts)
 3. High Error Rate (4 alerts)
@@ -515,6 +563,7 @@ KONG_PLUGINS: bundled,prometheus,rate-limiting,jwt,acl,cors,request-transformer,
 **Total: 20 alert rules** ✅
 
 **Grafana:**
+
 - Port: 3002 (avoiding conflict with field-core:3000)
 - Dashboards: Provisioned from `/grafana/dashboards`
 - Data sources: Provisioned from `/grafana/datasources`
@@ -524,11 +573,13 @@ KONG_PLUGINS: bundled,prometheus,rate-limiting,jwt,acl,cors,request-transformer,
 ## 10. High Availability Configuration
 
 ### 10.1 File Location
+
 `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong-ha/docker-compose.kong-ha.yml`
 
 ### 10.2 Architecture
 
 **Cluster Components:**
+
 1. **kong-primary** (Kong 3.9)
 2. **kong-secondary** (Kong 3.9)
 3. **kong-tertiary** (Kong 3.9)
@@ -537,6 +588,7 @@ KONG_PLUGINS: bundled,prometheus,rate-limiting,jwt,acl,cors,request-transformer,
 ### 10.3 Load Balancer Configuration
 
 **Nginx Upstream:**
+
 ```nginx
 upstream kong_cluster {
     server kong-primary:8000 max_fails=3 fail_timeout=30s;
@@ -549,15 +601,18 @@ upstream kong_cluster {
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Load balancing configuration
 
 **Features:**
+
 - **Algorithm:** Least connections (smart distribution)
 - **Health Checks:** max_fails=3, fail_timeout=30s
 - **Keep-Alive:** 64 connections pooled
 - **Retry Logic:** 3 upstream tries, 10s timeout
 
 **Admin API Upstream:**
+
 ```nginx
 upstream kong_admin {
     server kong-primary:8001 max_fails=2 fail_timeout=10s;
@@ -572,23 +627,27 @@ upstream kong_admin {
 ### 10.4 Kong Node Configuration
 
 **Per-Node Resources:**
+
 ```yaml
 deploy:
   resources:
     limits:
-      cpus: '1'
+      cpus: "1"
       memory: 512M
     reservations:
-      cpus: '0.25'
+      cpus: "0.25"
       memory: 256M
 ```
 
 #### Analysis:
+
 ✅ **GOOD:** Lighter per-node resources
+
 - **Total Cluster:** 3 CPU / 1.5GB memory
 - **Individual:** 1 CPU / 512MB per node
 
 **Comparison:**
+
 - Main Kong: 2 CPU / 1GB (single instance)
 - HA Cluster: 3 CPU / 1.5GB (3 instances)
 
@@ -603,7 +662,9 @@ KONG_STATUS_LISTEN: "0.0.0.0:8100"
 ```
 
 #### Analysis:
+
 ✅ **GOOD:** Status endpoint for health checks
+
 - Each node exposes status on port 8100
 - Load balancer uses `/health` endpoint
 - Nginx health check: `wget -q --spider http://localhost/health`
@@ -613,6 +674,7 @@ KONG_STATUS_LISTEN: "0.0.0.0:8100"
 ### 10.6 Security in HA Mode
 
 **Admin API Access Control:**
+
 ```nginx
 server {
     listen 8001;
@@ -624,6 +686,7 @@ server {
 ```
 
 ✅ **EXCELLENT:** IP-based access control
+
 - Restricted to private networks only
 - Prevents external admin access
 - Defense in depth
@@ -633,11 +696,13 @@ server {
 ## 11. Environment Variables
 
 ### 11.1 Environment File
+
 `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong/.env.example`
 
 ### 11.2 Variable Categories
 
 **1. Database Configuration:**
+
 ```bash
 KONG_PG_HOST=kong-database
 KONG_PG_PORT=5432
@@ -647,6 +712,7 @@ KONG_PG_PASSWORD=YourStrongKongPassword123!
 ```
 
 **2. JWT Secrets (7 tiers):**
+
 - STARTER_JWT_SECRET
 - PROFESSIONAL_JWT_SECRET
 - ENTERPRISE_JWT_SECRET
@@ -659,17 +725,18 @@ KONG_PG_PASSWORD=YourStrongKongPassword123!
 
 **3. Rate Limiting Configuration:**
 
-| Package | Requests/min | Requests/hour | Requests/day |
-|---------|--------------|---------------|--------------|
-| Trial | 50 | 2,000 | 30,000 |
-| Starter | 100 | 5,000 | 100,000 |
-| Professional | 1,000 | 50,000 | 1,000,000 |
-| Enterprise | 10,000 | 500,000 | 10,000,000 |
-| Research | 10,000 | 500,000 | 10,000,000 |
+| Package      | Requests/min | Requests/hour | Requests/day |
+| ------------ | ------------ | ------------- | ------------ |
+| Trial        | 50           | 2,000         | 30,000       |
+| Starter      | 100          | 5,000         | 100,000      |
+| Professional | 1,000        | 50,000        | 1,000,000    |
+| Enterprise   | 10,000       | 500,000       | 10,000,000   |
+| Research     | 10,000       | 500,000       | 10,000,000   |
 
 ✅ **EXCELLENT:** Well-defined rate limits per tier
 
 **4. Security Configuration:**
+
 ```bash
 CORS_ALLOWED_ORIGINS=https://app.sahool.platform,https://admin.sahool.platform
 TRUSTED_IPS=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
@@ -677,6 +744,7 @@ ADMIN_ALLOWED_IPS=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
 ```
 
 **5. SSL/TLS Configuration:**
+
 ```bash
 SSL_CERT_PATH=/etc/kong/ssl/sahool.crt
 SSL_KEY_PATH=/etc/kong/ssl/sahool.key
@@ -684,6 +752,7 @@ LETSENCRYPT_EMAIL=admin@sahool.platform
 ```
 
 **6. Performance Tuning:**
+
 ```bash
 NGINX_WORKER_PROCESSES=auto
 NGINX_WORKER_CONNECTIONS=10000
@@ -691,6 +760,7 @@ DB_POOL_SIZE=100
 ```
 
 **7. Feature Flags:**
+
 ```bash
 ENABLE_CACHING=true
 ENABLE_CIRCUIT_BREAKER=true
@@ -699,6 +769,7 @@ ENABLE_BOT_DETECTION=true
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Comprehensive environment variable management
 ✅ **GOOD:** Security-focused defaults
 ✅ **GOOD:** Feature flag support
@@ -709,11 +780,13 @@ ENABLE_BOT_DETECTION=true
 ## 12. Declarative Configuration Analysis
 
 ### 12.1 Configuration File
+
 `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong/kong.yml` (1880 lines)
 
 ### 12.2 Configuration Statistics
 
 **Upstreams:** 16
+
 - field-management-upstream
 - weather-service-upstream
 - vegetation-analysis-upstream
@@ -733,6 +806,7 @@ ENABLE_BOT_DETECTION=true
 - code-review-upstream
 
 **Services:** 40+
+
 - Starter Package: 6 services
 - Professional Package: 9 services
 - Enterprise Package: 12 services
@@ -741,6 +815,7 @@ ENABLE_BOT_DETECTION=true
 **Routes:** 40+ (one per service)
 
 **Consumers:** 5
+
 - starter-user-sample
 - professional-user-sample
 - enterprise-user-sample
@@ -748,6 +823,7 @@ ENABLE_BOT_DETECTION=true
 - admin-user-sample
 
 **ACL Groups:** 5
+
 - starter-users
 - professional-users
 - enterprise-users
@@ -755,6 +831,7 @@ ENABLE_BOT_DETECTION=true
 - admin-users
 
 **Global Plugins:** 4
+
 - cors
 - file-log
 - prometheus
@@ -766,6 +843,7 @@ ENABLE_BOT_DETECTION=true
 ### 12.3 Upstream Health Checks
 
 **Example (marketplace-service):**
+
 ```yaml
 healthchecks:
   active:
@@ -790,7 +868,9 @@ healthchecks:
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Comprehensive health checking
+
 - Active checks every 10 seconds
 - Passive checks on actual traffic
 - Multiple failure criteria
@@ -801,6 +881,7 @@ healthchecks:
 ### 12.4 Service-Level Plugins
 
 **Common Plugin Pattern:**
+
 ```yaml
 plugins:
   - name: jwt
@@ -825,7 +906,9 @@ plugins:
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Consistent plugin usage
+
 - JWT authentication on all routes
 - ACL for tier-based access
 - Redis-backed rate limiting
@@ -833,6 +916,7 @@ plugins:
 - Payload size limits
 
 ⚠️ **OBSERVATION:** All rate limiting uses `fault_tolerant: true`
+
 - ✅ Good for availability
 - ⚠️ Means rate limits may not be enforced if Redis fails
 
@@ -855,7 +939,9 @@ plugins:
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Comprehensive security headers
+
 - All OWASP recommended headers present
 - CSP configured (though permissive)
 - HSTS with preload
@@ -868,23 +954,27 @@ plugins:
 ### 13.1 HIGH PRIORITY Issues
 
 #### 🔴 ISSUE #1: SSL Not Enabled in Development Mode
+
 **Severity:** HIGH
 **Location:** Main docker-compose.yml
 **Impact:** No TLS encryption for API traffic
 
 **Current State:**
+
 ```yaml
 KONG_PROXY_LISTEN: "0.0.0.0:8000"
 # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
 ```
 
 **Recommendation:**
+
 1. Generate self-signed certificates for development
 2. Enable SSL listener for production
 3. Configure cert-manager for automatic certificate rotation
 4. Implement HTTPS redirect
 
 **Fix:**
+
 ```bash
 # Generate certificates
 cd /home/user/sahool-unified-v15-idp/infrastructure/gateway/kong/ssl
@@ -901,28 +991,33 @@ KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
 ---
 
 #### 🔴 ISSUE #2: DNS Resolver Inconsistency
+
 **Severity:** HIGH
 **Location:** infrastructure/gateway/kong/docker-compose.yml
 **Impact:** Service discovery failures in standalone mode
 
 **Current State:**
+
 ```yaml
 # Standalone mode uses external DNS
 KONG_DNS_RESOLVER: 8.8.8.8:53
 ```
 
 **Should be:**
+
 ```yaml
 # Docker internal DNS for service discovery
 KONG_DNS_RESOLVER: 127.0.0.11:53
 ```
 
 **Impact:**
+
 - Cannot resolve Docker service names
 - Forces use of IP addresses
 - Breaks container orchestration benefits
 
 **Fix:**
+
 ```yaml
 KONG_DNS_RESOLVER: 127.0.0.11:53
 KONG_DNS_ORDER: LAST,A,CNAME
@@ -934,16 +1029,19 @@ KONG_DNS_CACHE_TTL: 300
 ### 13.2 MEDIUM PRIORITY Issues
 
 #### ⚠️ ISSUE #3: Unpinned Image Tags
+
 **Severity:** MEDIUM
 **Impact:** Build reproducibility
 
 **Current:**
+
 - Main: `kong:3.4`
 - Standalone: `kong:3.5-alpine`
 - HA: `kong:3.9`
 
 **Recommendation:**
 Use specific patch versions:
+
 ```yaml
 image: kong:3.4.3-alpine
 ```
@@ -951,10 +1049,12 @@ image: kong:3.4.3-alpine
 ---
 
 #### ⚠️ ISSUE #4: Different Kong Versions Across Deployments
+
 **Severity:** MEDIUM
 **Impact:** Configuration drift, testing inconsistencies
 
 **Current Versions:**
+
 - Development: 3.4
 - Standalone: 3.5-alpine
 - HA: 3.9
@@ -965,41 +1065,48 @@ Standardize on Kong 3.9 (latest) or 3.4 LTS across all environments
 ---
 
 #### ⚠️ ISSUE #5: Resource Limits May Be Insufficient for Production
+
 **Severity:** MEDIUM
 **Impact:** Performance under high load
 
 **Current Production Limits:**
+
 - CPU: 2 cores
 - Memory: 1GB
 
 **Recommendation for Production:**
+
 ```yaml
 deploy:
   resources:
     limits:
-      cpus: '4'
+      cpus: "4"
       memory: 2G
     reservations:
-      cpus: '1'
+      cpus: "1"
       memory: 512M
 ```
 
 **Baseline from Load Testing:**
+
 - Expected RPS: 1000-5000
 - Recommended: 4 CPU / 2GB for 5000 RPS
 
 ---
 
 #### ⚠️ ISSUE #6: Health Check Intervals Too Long
+
 **Severity:** MEDIUM
 **Impact:** Slow failure detection
 
 **Current (Main):**
+
 ```yaml
 interval: 30s
 ```
 
 **Current (Standalone/HA):**
+
 ```yaml
 interval: 10s
 ```
@@ -1010,12 +1117,14 @@ Standardize on 10s for all deployments
 ---
 
 #### ⚠️ ISSUE #7: No Backup/Restore Strategy for Declarative Config
+
 **Severity:** MEDIUM
 **Impact:** Recovery from configuration errors
 
 **Current:** Single kong.yml file
 
 **Recommendation:**
+
 1. Version control (already in git) ✅
 2. Automated backups before changes
 3. Config validation in CI/CD
@@ -1026,6 +1135,7 @@ Standardize on 10s for all deployments
 ### 13.3 LOW PRIORITY Issues
 
 #### ℹ️ ISSUE #8: Missing Admin Dashboard in Main Deployment
+
 **Severity:** LOW
 **Impact:** Manual admin operations required
 
@@ -1037,12 +1147,14 @@ Consider adding Kong Manager or Konga to main deployment
 ---
 
 #### ℹ️ ISSUE #9: Log Rotation Not Configured
+
 **Severity:** LOW
 **Impact:** Disk space consumption
 
 **Current:** Logs to volume without rotation
 
 **Recommendation:**
+
 ```yaml
 logging:
   driver: "json-file"
@@ -1054,6 +1166,7 @@ logging:
 ---
 
 #### ℹ️ ISSUE #10: No Circuit Breaker Configuration
+
 **Severity:** LOW
 **Impact:** Cascading failures possible
 
@@ -1068,49 +1181,49 @@ Implement circuit breaker pattern for upstream services
 
 ### 14.1 Docker Best Practices
 
-| Practice | Status | Notes |
-|----------|--------|-------|
-| Use specific image tags | ⚠️ PARTIAL | Versions specified but not full tags |
-| Read-only root filesystem | ❌ NO | Not implemented |
-| Non-root user | ✅ YES | Kong runs as kong user |
-| No-new-privileges | ✅ YES | Configured |
-| Health checks | ✅ YES | Comprehensive |
-| Resource limits | ✅ YES | Configured |
-| Logging to stdout/stderr | ✅ YES | Properly configured |
-| Secrets management | ⚠️ PARTIAL | Uses env vars, should use Docker secrets |
+| Practice                  | Status     | Notes                                    |
+| ------------------------- | ---------- | ---------------------------------------- |
+| Use specific image tags   | ⚠️ PARTIAL | Versions specified but not full tags     |
+| Read-only root filesystem | ❌ NO      | Not implemented                          |
+| Non-root user             | ✅ YES     | Kong runs as kong user                   |
+| No-new-privileges         | ✅ YES     | Configured                               |
+| Health checks             | ✅ YES     | Comprehensive                            |
+| Resource limits           | ✅ YES     | Configured                               |
+| Logging to stdout/stderr  | ✅ YES     | Properly configured                      |
+| Secrets management        | ⚠️ PARTIAL | Uses env vars, should use Docker secrets |
 
 ---
 
 ### 14.2 Kong Best Practices
 
-| Practice | Status | Notes |
-|----------|--------|-------|
-| DB-less mode for stateless | ✅ YES | Main deployment |
-| Database mode for stateful | ✅ YES | Standalone deployment |
-| Health checks on upstreams | ✅ YES | Active + Passive |
-| Rate limiting | ✅ YES | Redis-backed, tier-based |
-| JWT authentication | ✅ YES | All routes protected |
-| CORS configuration | ✅ YES | Properly configured |
-| Security headers | ✅ YES | Comprehensive |
-| Request correlation | ✅ YES | X-Request-ID |
-| Monitoring | ✅ YES | Prometheus + Grafana |
-| Alerting | ✅ YES | 20 alert rules |
+| Practice                   | Status | Notes                    |
+| -------------------------- | ------ | ------------------------ |
+| DB-less mode for stateless | ✅ YES | Main deployment          |
+| Database mode for stateful | ✅ YES | Standalone deployment    |
+| Health checks on upstreams | ✅ YES | Active + Passive         |
+| Rate limiting              | ✅ YES | Redis-backed, tier-based |
+| JWT authentication         | ✅ YES | All routes protected     |
+| CORS configuration         | ✅ YES | Properly configured      |
+| Security headers           | ✅ YES | Comprehensive            |
+| Request correlation        | ✅ YES | X-Request-ID             |
+| Monitoring                 | ✅ YES | Prometheus + Grafana     |
+| Alerting                   | ✅ YES | 20 alert rules           |
 
 ---
 
 ### 14.3 Security Best Practices
 
-| Practice | Status | Notes |
-|----------|--------|-------|
-| TLS encryption | ⚠️ DEV ONLY | Disabled in main deployment |
-| Admin API restrictions | ✅ YES | Localhost only |
-| IP whitelisting | ✅ YES | For enterprise endpoints |
-| JWT token validation | ✅ YES | Claims verification |
-| Rate limiting | ✅ YES | Per-tier limits |
-| Request size limits | ✅ YES | Configured |
-| Bot detection | ⚠️ PARTIAL | Plugin available but not used |
-| DDoS protection | ⚠️ PARTIAL | Rate limiting only |
-| Secrets rotation | ❌ NO | No automation |
+| Practice               | Status      | Notes                         |
+| ---------------------- | ----------- | ----------------------------- |
+| TLS encryption         | ⚠️ DEV ONLY | Disabled in main deployment   |
+| Admin API restrictions | ✅ YES      | Localhost only                |
+| IP whitelisting        | ✅ YES      | For enterprise endpoints      |
+| JWT token validation   | ✅ YES      | Claims verification           |
+| Rate limiting          | ✅ YES      | Per-tier limits               |
+| Request size limits    | ✅ YES      | Configured                    |
+| Bot detection          | ⚠️ PARTIAL  | Plugin available but not used |
+| DDoS protection        | ⚠️ PARTIAL  | Rate limiting only            |
+| Secrets rotation       | ❌ NO       | No automation                 |
 
 ---
 
@@ -1119,6 +1232,7 @@ Implement circuit breaker pattern for upstream services
 ### 15.1 Prometheus Metrics
 
 **Configured Scrape Targets:**
+
 1. Kong Gateway (kong:8001/metrics)
 2. Kong Database (postgres-exporter:9187)
 3. Kong Redis (redis-exporter:9121)
@@ -1127,6 +1241,7 @@ Implement circuit breaker pattern for upstream services
 6. 40+ Microservices
 
 **Scrape Configuration:**
+
 ```yaml
 scrape_interval: 15s
 evaluation_interval: 15s
@@ -1140,6 +1255,7 @@ scrape_timeout: 10s
 ### 15.2 Alert Rules
 
 **Alert Categories (20 rules):**
+
 1. **Service Availability (5)**
    - KongDown
    - PostgreSQLDown
@@ -1171,7 +1287,9 @@ scrape_timeout: 10s
    - NoRequestsReceived
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Comprehensive alerting
+
 - Covers availability, performance, errors, resources
 - Multiple severity levels (critical, warning, info)
 - Actionable descriptions
@@ -1184,11 +1302,13 @@ scrape_timeout: 10s
 ### 15.3 Grafana Dashboards
 
 **Dashboard Provisioning:**
+
 - Location: `/infrastructure/gateway/kong/grafana/dashboards`
 - Auto-provisioned on startup
 - Includes Kong-specific dashboards
 
 **Data Sources:**
+
 - Prometheus (auto-configured)
 - PostgreSQL (for Kong DB)
 
@@ -1201,6 +1321,7 @@ scrape_timeout: 10s
 ### 16.1 HA Deployment Architecture
 
 **Cluster Configuration:**
+
 ```
                     ┌─────────────────────┐
                     │  Nginx Load Balancer│
@@ -1228,7 +1349,9 @@ scrape_timeout: 10s
 ```
 
 #### Analysis:
+
 ✅ **EXCELLENT:** Proper HA setup
+
 - 3-node cluster for redundancy
 - Load balancer for distribution
 - Shared configuration (DB-less)
@@ -1236,12 +1359,12 @@ scrape_timeout: 10s
 
 **Failure Scenarios:**
 
-| Scenario | Impact | Recovery |
-|----------|--------|----------|
-| 1 node fails | 33% capacity loss | Automatic (30s) |
-| 2 nodes fail | 66% capacity loss | Automatic (30s) |
-| All nodes fail | Complete outage | Manual restart |
-| LB fails | Complete outage | Single point of failure ⚠️ |
+| Scenario       | Impact            | Recovery                   |
+| -------------- | ----------------- | -------------------------- |
+| 1 node fails   | 33% capacity loss | Automatic (30s)            |
+| 2 nodes fail   | 66% capacity loss | Automatic (30s)            |
+| All nodes fail | Complete outage   | Manual restart             |
+| LB fails       | Complete outage   | Single point of failure ⚠️ |
 
 ⚠️ **CONCERN:** Load balancer is single point of failure
 
@@ -1252,6 +1375,7 @@ scrape_timeout: 10s
 ### 16.2 Load Balancer Configuration
 
 **Algorithm:** Least Connections
+
 ```nginx
 least_conn;
 ```
@@ -1259,12 +1383,14 @@ least_conn;
 ✅ **GOOD:** Better than round-robin for varying request durations
 
 **Health Checks:**
+
 ```nginx
 max_fails=3
 fail_timeout=30s
 ```
 
 **Retry Configuration:**
+
 ```nginx
 proxy_next_upstream error timeout http_502 http_503 http_504;
 proxy_next_upstream_tries 3;
@@ -1272,6 +1398,7 @@ proxy_next_upstream_timeout 10s;
 ```
 
 ✅ **EXCELLENT:** Automatic failover configured
+
 - Tries next upstream on errors
 - Up to 3 total attempts
 - 10-second total timeout
@@ -1281,16 +1408,19 @@ proxy_next_upstream_timeout 10s;
 ### 16.3 Capacity Planning
 
 **Current HA Setup:**
+
 - **Nodes:** 3
 - **Per-node:** 1 CPU / 512MB
 - **Total Cluster:** 3 CPU / 1.5GB
 
 **Estimated Capacity:**
+
 - ~500-1000 RPS per node
 - ~1500-3000 RPS total cluster
 - Assuming 50ms average request time
 
 **Scaling Strategy:**
+
 ```yaml
 # Horizontal Scaling: Add more nodes
 services:
@@ -1302,12 +1432,13 @@ services:
 ```
 
 **Vertical Scaling:**
+
 ```yaml
 # Increase per-node resources
 deploy:
   resources:
     limits:
-      cpus: '2'
+      cpus: "2"
       memory: 1G
 ```
 
@@ -1320,12 +1451,14 @@ deploy:
 ### 17.1 Current Backup Strategy
 
 **What's Backed Up:**
+
 - ✅ Declarative config (kong.yml) - Git versioned
 - ⚠️ Database (standalone mode) - No automated backups
 - ❌ Logs - No long-term retention
 - ❌ Metrics - Prometheus retention only
 
 **Recovery Time Objectives:**
+
 - **Config Recovery:** < 5 minutes (git pull)
 - **Database Recovery:** Unknown (no backups)
 - **Full Cluster Recovery:** ~10 minutes
@@ -1335,6 +1468,7 @@ deploy:
 ### 17.2 Recommended Backup Strategy
 
 **1. Declarative Config:**
+
 ```bash
 # Already in Git ✅
 # Add pre-commit validation
@@ -1344,6 +1478,7 @@ git commit -m "Update Kong config"
 ```
 
 **2. Database Backups (Standalone):**
+
 ```yaml
 # Add pg_dump sidecar
 kong-backup:
@@ -1359,11 +1494,12 @@ kong-backup:
 ```
 
 **3. Metrics Retention:**
+
 ```yaml
 prometheus:
   command:
-    - '--storage.tsdb.retention.time=30d'
-    - '--storage.tsdb.retention.size=10GB'
+    - "--storage.tsdb.retention.time=30d"
+    - "--storage.tsdb.retention.size=10GB"
 ```
 
 ---
@@ -1371,6 +1507,7 @@ prometheus:
 ### 17.3 Disaster Recovery Procedures
 
 **Scenario 1: Kong Container Failure**
+
 ```bash
 # Automatic restart (unless-stopped)
 # Manual restart if needed:
@@ -1378,6 +1515,7 @@ docker-compose restart kong
 ```
 
 **Scenario 2: Configuration Corruption**
+
 ```bash
 # Rollback to previous config
 git checkout HEAD~1 infrastructure/gateway/kong/kong.yml
@@ -1385,6 +1523,7 @@ docker-compose restart kong
 ```
 
 **Scenario 3: Complete Cluster Failure**
+
 ```bash
 # Restore from backup
 docker-compose down
@@ -1393,6 +1532,7 @@ docker-compose up -d
 ```
 
 **Scenario 4: Database Loss (Standalone)**
+
 ```bash
 # Restore from backup
 docker-compose stop kong
@@ -1408,6 +1548,7 @@ docker-compose restart kong
 ### 18.1 Current Performance Configuration
 
 **Nginx Workers:**
+
 ```yaml
 # Standalone mode
 KONG_NGINX_WORKER_PROCESSES: auto
@@ -1423,6 +1564,7 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 ### 18.2 Recommended Optimizations
 
 **1. Connection Pooling:**
+
 ```yaml
 # Add to kong environment
 KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE: 320
@@ -1431,18 +1573,21 @@ KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_TIMEOUT: 60s
 ```
 
 **2. DNS Caching (Already Good):**
+
 ```yaml
-KONG_DNS_CACHE_TTL: 300      # ✅ Already set
-KONG_DNS_STALE_TTL: 30       # ✅ Already set
+KONG_DNS_CACHE_TTL: 300 # ✅ Already set
+KONG_DNS_STALE_TTL: 30 # ✅ Already set
 ```
 
 **3. Lua Shared Dict Sizes:**
+
 ```yaml
 KONG_MEM_CACHE_SIZE: 128m
 KONG_DB_CACHE_TTL: 3600
 ```
 
 **4. Client Body Buffer:**
+
 ```yaml
 KONG_NGINX_HTTP_CLIENT_BODY_BUFFER_SIZE: 8m
 KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
@@ -1454,15 +1599,15 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 
 ### 19.1 Container Security
 
-| Standard | Requirement | Status | Notes |
-|----------|-------------|--------|-------|
-| CIS Docker Benchmark | Non-root user | ✅ PASS | Kong user |
-| CIS Docker Benchmark | Read-only root FS | ❌ FAIL | Not implemented |
-| CIS Docker Benchmark | No new privileges | ✅ PASS | Configured |
-| CIS Docker Benchmark | Resource limits | ✅ PASS | Set |
-| CIS Docker Benchmark | Health checks | ✅ PASS | Configured |
-| CIS Docker Benchmark | Logging | ✅ PASS | To stdout/stderr |
-| CIS Docker Benchmark | Secrets | ⚠️ PARTIAL | Env vars only |
+| Standard             | Requirement       | Status     | Notes            |
+| -------------------- | ----------------- | ---------- | ---------------- |
+| CIS Docker Benchmark | Non-root user     | ✅ PASS    | Kong user        |
+| CIS Docker Benchmark | Read-only root FS | ❌ FAIL    | Not implemented  |
+| CIS Docker Benchmark | No new privileges | ✅ PASS    | Configured       |
+| CIS Docker Benchmark | Resource limits   | ✅ PASS    | Set              |
+| CIS Docker Benchmark | Health checks     | ✅ PASS    | Configured       |
+| CIS Docker Benchmark | Logging           | ✅ PASS    | To stdout/stderr |
+| CIS Docker Benchmark | Secrets           | ⚠️ PARTIAL | Env vars only    |
 
 **Score: 5/7 (71%)**
 
@@ -1470,18 +1615,18 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 
 ### 19.2 OWASP API Security
 
-| Top 10 Risk | Mitigation | Status |
-|-------------|------------|--------|
-| Broken Object Level Authorization | JWT + ACL | ✅ IMPLEMENTED |
-| Broken Authentication | JWT validation | ✅ IMPLEMENTED |
-| Excessive Data Exposure | Response transformation | ✅ IMPLEMENTED |
-| Lack of Resources & Rate Limiting | Redis rate limiting | ✅ IMPLEMENTED |
-| Broken Function Level Authorization | ACL groups | ✅ IMPLEMENTED |
-| Mass Assignment | Request size limiting | ✅ IMPLEMENTED |
-| Security Misconfiguration | Security headers | ✅ IMPLEMENTED |
-| Injection | Input validation | ⚠️ PARTIAL |
-| Improper Assets Management | API versioning | ✅ IMPLEMENTED |
-| Insufficient Logging & Monitoring | Prometheus + Alerts | ✅ IMPLEMENTED |
+| Top 10 Risk                         | Mitigation              | Status         |
+| ----------------------------------- | ----------------------- | -------------- |
+| Broken Object Level Authorization   | JWT + ACL               | ✅ IMPLEMENTED |
+| Broken Authentication               | JWT validation          | ✅ IMPLEMENTED |
+| Excessive Data Exposure             | Response transformation | ✅ IMPLEMENTED |
+| Lack of Resources & Rate Limiting   | Redis rate limiting     | ✅ IMPLEMENTED |
+| Broken Function Level Authorization | ACL groups              | ✅ IMPLEMENTED |
+| Mass Assignment                     | Request size limiting   | ✅ IMPLEMENTED |
+| Security Misconfiguration           | Security headers        | ✅ IMPLEMENTED |
+| Injection                           | Input validation        | ⚠️ PARTIAL     |
+| Improper Assets Management          | API versioning          | ✅ IMPLEMENTED |
+| Insufficient Logging & Monitoring   | Prometheus + Alerts     | ✅ IMPLEMENTED |
 
 **Score: 9.5/10 (95%)**
 
@@ -1492,10 +1637,12 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 ### 20.1 Current Resource Usage
 
 **Development (Main):**
+
 - Kong: 2 CPU / 1GB = ~$30-50/month (cloud)
 - Total with Redis: ~$40-60/month
 
 **Standalone:**
+
 - Kong: 2 CPU / 2GB
 - PostgreSQL: 1 CPU / 1GB
 - Redis: 0.5 CPU / 512MB
@@ -1504,6 +1651,7 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 - Total: 5.5 CPU / 5GB = ~$150-200/month
 
 **HA Cluster:**
+
 - 3x Kong: 3 CPU / 1.5GB
 - Nginx LB: 0.5 CPU / 128MB
 - Total: 3.5 CPU / 1.6GB = ~$100-150/month
@@ -1513,10 +1661,12 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 ### 20.2 Optimization Recommendations
 
 **1. Use Spot/Preemptible Instances:**
+
 - Save 60-80% on cloud costs
 - HA cluster can tolerate node failures
 
 **2. Rightsize Resources:**
+
 ```yaml
 # Current: 2 CPU / 1GB (likely over-provisioned)
 # Recommended start: 1 CPU / 512MB
@@ -1524,10 +1674,12 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 ```
 
 **3. Consolidate Monitoring:**
+
 - Use centralized Prometheus instead of per-deployment
 - Share Grafana instance
 
 **4. Use DB-less Mode:**
+
 - Saves PostgreSQL instance costs
 - Faster, simpler, cheaper
 - ✅ Already implemented in main
@@ -1541,6 +1693,7 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 ### 21.1 Development → Production Checklist
 
 **Pre-Production:**
+
 - [ ] Generate production SSL certificates
 - [ ] Enable SSL listeners (8443, 8444)
 - [ ] Update DNS resolver to Docker internal (127.0.0.11)
@@ -1556,6 +1709,7 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 - [ ] Configure CI/CD for Kong config validation
 
 **Production Deployment:**
+
 - [ ] Deploy HA cluster (3+ nodes)
 - [ ] Configure external load balancer
 - [ ] Set up DNS records
@@ -1568,6 +1722,7 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 - [ ] Implement WAF rules
 
 **Post-Production:**
+
 - [ ] Monitor performance metrics
 - [ ] Tune resource allocations
 - [ ] Review and adjust rate limits
@@ -1584,24 +1739,28 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
 **Migration Steps:**
 
 1. **Preparation:**
+
    ```bash
    # Export current config (if using DB mode)
    deck dump -o kong.yml
    ```
 
 2. **Deploy HA Cluster:**
+
    ```bash
    cd infrastructure/gateway/kong-ha
    docker-compose up -d
    ```
 
 3. **Validate:**
+
    ```bash
    # Test all endpoints
    curl http://localhost:8000/health
    ```
 
 4. **Switch Traffic:**
+
    ```bash
    # Update DNS or load balancer
    # Gradual rollout: 10% → 50% → 100%
@@ -1679,6 +1838,7 @@ docker run --rm -it alpine/bombardier -c 1000 -d 60s http://kong:8000
 ### 23.1 Missing Documentation
 
 **Critical:**
+
 - [ ] Production deployment guide
 - [ ] SSL certificate setup procedure
 - [ ] Secrets management guide
@@ -1686,6 +1846,7 @@ docker run --rm -it alpine/bombardier -c 1000 -d 60s http://kong:8000
 - [ ] Incident response procedures
 
 **Important:**
+
 - [ ] Performance tuning guide
 - [ ] Monitoring dashboard guide
 - [ ] Alert response procedures
@@ -1693,6 +1854,7 @@ docker run --rm -it alpine/bombardier -c 1000 -d 60s http://kong:8000
 - [ ] Capacity planning guide
 
 **Nice to Have:**
+
 - [ ] Development setup guide (exists: QUICKSTART.md ✅)
 - [ ] Architecture overview (exists: SERVICES.md ✅)
 - [ ] API documentation
@@ -1846,6 +2008,7 @@ infrastructure/gateway/kong/
 The Kong Docker configuration for the SAHOOL platform demonstrates **strong fundamentals** with well-thought-out architecture across three deployment modes. The team has implemented many best practices including:
 
 ✅ **Strengths:**
+
 - Comprehensive DB-less configuration for development
 - Proper DNS configuration for Docker networking
 - Extensive monitoring and alerting (20+ alert rules)
@@ -1855,6 +2018,7 @@ The Kong Docker configuration for the SAHOOL platform demonstrates **strong fund
 - Detailed declarative configuration (40+ services)
 
 ⚠️ **Areas for Improvement:**
+
 - SSL not enabled in development mode (HIGH)
 - DNS resolver misconfiguration in standalone mode (HIGH)
 - Version inconsistencies across deployments (MEDIUM)
@@ -1866,15 +2030,15 @@ The Kong Docker configuration for the SAHOOL platform demonstrates **strong fund
 
 ### 25.2 Risk Assessment
 
-| Risk Category | Level | Mitigation Priority |
-|---------------|-------|---------------------|
-| Security (No SSL) | HIGH | Immediate |
-| Reliability (DNS) | HIGH | Immediate |
-| Compliance | MEDIUM | Short-term |
-| Performance | MEDIUM | Short-term |
-| Documentation | MEDIUM | Short-term |
-| Cost | LOW | Long-term |
-| Scalability | LOW | Long-term |
+| Risk Category     | Level  | Mitigation Priority |
+| ----------------- | ------ | ------------------- |
+| Security (No SSL) | HIGH   | Immediate           |
+| Reliability (DNS) | HIGH   | Immediate           |
+| Compliance        | MEDIUM | Short-term          |
+| Performance       | MEDIUM | Short-term          |
+| Documentation     | MEDIUM | Short-term          |
+| Cost              | LOW    | Long-term           |
+| Scalability       | LOW    | Long-term           |
 
 **Overall Risk Level: MEDIUM**
 
@@ -1885,17 +2049,20 @@ The platform is **production-ready with modifications**. The high-priority issue
 ### 25.3 Readiness Assessment
 
 **Development Environment:** ✅ **READY**
+
 - Current configuration is suitable for development
 - All required features working
 - Minor improvements recommended but not blocking
 
 **Staging Environment:** ⚠️ **READY WITH MODIFICATIONS**
+
 - Enable SSL
 - Fix DNS resolver
 - Standardize versions
 - Add monitoring
 
 **Production Environment:** ⚠️ **NOT YET READY**
+
 - Must complete all HIGH priority items
 - Must complete production deployment guide
 - Must implement secrets management
@@ -1910,12 +2077,14 @@ The platform is **production-ready with modifications**. The high-priority issue
 ### 25.4 Final Recommendations
 
 **For Immediate Deployment:**
+
 1. Fix SSL configuration (2 hours)
 2. Fix DNS resolver (30 minutes)
 3. Test all endpoints (2 hours)
 4. Deploy to staging (1 day)
 
 **For Production Deployment:**
+
 1. Complete all immediate action items (Week 1)
 2. Complete all short-term action items (Month 1)
 3. Conduct security audit (Week 2)
@@ -1923,6 +2092,7 @@ The platform is **production-ready with modifications**. The high-priority issue
 5. Deploy to production with gradual rollout (Week 4)
 
 **For Long-Term Success:**
+
 1. Establish SRE practices
 2. Continuous monitoring and optimization
 3. Regular security audits
@@ -2006,4 +2176,4 @@ container_memory_usage_bytes{name="sahool-kong"}
 
 ---
 
-*End of Audit Report*
+_End of Audit Report_

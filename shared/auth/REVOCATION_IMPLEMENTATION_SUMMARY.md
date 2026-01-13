@@ -1,4 +1,5 @@
 # Token Revocation Implementation Summary
+
 # ملخص تنفيذ نظام إلغاء الرموز
 
 ## Overview | نظرة عامة
@@ -12,8 +13,10 @@ A comprehensive Redis-based token revocation system has been implemented with fu
 ### Python Implementation
 
 #### 1. `/shared/auth/token_revocation.py`
+
 **الوصف:** Core implementation of Redis-based token revocation store
 **الميزات:**
+
 - `RedisTokenRevocationStore` class for managing token revocations
 - Support for individual token revocation (JTI-based)
 - User-level revocation (revoke all user tokens)
@@ -23,6 +26,7 @@ A comprehensive Redis-based token revocation system has been implemented with fu
 - Async/await support with redis.asyncio
 
 **Key Functions:**
+
 ```python
 - revoke_token(jti, expires_in, reason, user_id)
 - is_token_revoked(jti)
@@ -35,8 +39,10 @@ A comprehensive Redis-based token revocation system has been implemented with fu
 ```
 
 #### 2. `/shared/auth/revocation_middleware.py`
+
 **الوصف:** FastAPI middleware for checking revoked tokens
 **الميزات:**
+
 - `TokenRevocationMiddleware` class
 - Automatic token revocation checking on every request
 - Configurable fail-open/fail-closed behavior
@@ -44,19 +50,23 @@ A comprehensive Redis-based token revocation system has been implemented with fu
 - `RevocationCheckDependency` for route-level checks
 
 **Usage:**
+
 ```python
 app.add_middleware(TokenRevocationMiddleware, fail_open=True)
 ```
 
 #### 3. `/shared/auth/revocation_api.py`
+
 **الوصف:** REST API endpoints for token revocation
 **الميزات:**
+
 - Complete CRUD operations for token revocation
 - User authentication and authorization
 - Admin-only endpoints for sensitive operations
 - Pydantic models for request/response validation
 
 **Endpoints:**
+
 - `POST /auth/revocation/revoke` - Revoke specific token
 - `POST /auth/revocation/revoke-current` - Logout current session
 - `POST /auth/revocation/revoke-all` - Logout from all devices
@@ -69,8 +79,10 @@ app.add_middleware(TokenRevocationMiddleware, fail_open=True)
 ### TypeScript Implementation
 
 #### 4. `/shared/auth/token-revocation.ts`
+
 **الوصف:** Core implementation of Redis-based token revocation for NestJS
 **الميزات:**
+
 - `RedisTokenRevocationStore` class (Injectable)
 - NestJS lifecycle hooks (OnModuleInit, OnModuleDestroy)
 - Same functionality as Python version
@@ -78,26 +90,30 @@ app.add_middleware(TokenRevocationMiddleware, fail_open=True)
 - `TokenRevocationModule` for easy integration
 
 **Key Methods:**
+
 ```typescript
-- revokeToken(jti, options)
-- isTokenRevoked(jti)
-- revokeAllUserTokens(userId, reason)
-- isUserTokenRevoked(userId, tokenIssuedAt)
-- revokeAllTenantTokens(tenantId, reason)
-- isRevoked(options)
-- getStats()
-- healthCheck()
+-revokeToken(jti, options) -
+  isTokenRevoked(jti) -
+  revokeAllUserTokens(userId, reason) -
+  isUserTokenRevoked(userId, tokenIssuedAt) -
+  revokeAllTenantTokens(tenantId, reason) -
+  isRevoked(options) -
+  getStats() -
+  healthCheck();
 ```
 
 #### 5. `/shared/auth/token-revocation.guard.ts`
+
 **الوصف:** NestJS guard and interceptor for token revocation
 **الميزات:**
+
 - `TokenRevocationGuard` - Global guard for automatic checking
 - `TokenRevocationInterceptor` - Alternative interceptor approach
 - `@SkipRevocationCheck()` decorator for excluding routes
 - Integration with NestJS dependency injection
 
 **Usage:**
+
 ```typescript
 // Global guard
 {
@@ -112,8 +128,10 @@ async publicRoute() {}
 ```
 
 #### 6. `/shared/auth/revocation.controller.ts`
+
 **الوصف:** NestJS controller for token revocation API
 **الميزات:**
+
 - RESTful API endpoints
 - Swagger/OpenAPI documentation
 - DTOs with class-validator
@@ -121,6 +139,7 @@ async publicRoute() {}
 - Admin authorization checks
 
 **Decorators:**
+
 ```typescript
 @ApiTags('Token Revocation')
 @Controller('auth/revocation')
@@ -131,8 +150,10 @@ async publicRoute() {}
 ### Documentation Files
 
 #### 7. `/shared/auth/TOKEN_REVOCATION_README.md`
+
 **الوصف:** Comprehensive documentation for the token revocation system
 **المحتوى:**
+
 - Architecture overview
 - Component descriptions
 - Installation guide
@@ -146,8 +167,10 @@ async publicRoute() {}
 - FAQ
 
 #### 8. `/shared/auth/REVOCATION_EXAMPLES.md`
+
 **الوصف:** Practical examples for both Python and TypeScript
 **المحتوى:**
+
 - FastAPI setup examples
 - NestJS setup examples
 - Common use cases
@@ -157,8 +180,10 @@ async publicRoute() {}
 - Best practices
 
 #### 9. `/shared/auth/REVOCATION_QUICKSTART.md`
+
 **الوصف:** Quick start guide for getting started in 5 minutes
 **المحتوى:**
+
 - Prerequisites
 - Quick setup steps
 - Environment variables
@@ -167,17 +192,21 @@ async publicRoute() {}
 - Troubleshooting tips
 
 #### 10. `/shared/auth/REVOCATION_IMPLEMENTATION_SUMMARY.md`
+
 **الوصف:** This file - summary of implementation
 
 ### Updated Files
 
 #### 11. `/shared/auth/__init__.py`
+
 **التحديثات:**
+
 - Added imports for token revocation functions
 - Exported revocation classes and functions
 - Updated `__all__` list
 
 **New Exports:**
+
 ```python
 - RedisTokenRevocationStore
 - get_revocation_store
@@ -240,38 +269,45 @@ async publicRoute() {}
 ## Key Features | الميزات الرئيسية
 
 ### ✅ Multi-Level Revocation
+
 - **Token Level**: Revoke individual tokens by JTI
 - **User Level**: Revoke all tokens for a user
 - **Tenant Level**: Revoke all tokens for a tenant
 
 ### ✅ Automatic TTL Management
+
 - Tokens auto-expire from blacklist
 - No memory leaks
 - Efficient storage
 
 ### ✅ High Performance
+
 - Redis in-memory storage
 - O(1) lookup complexity
 - < 2ms latency
 
 ### ✅ Distributed Support
+
 - Works across multiple application instances
 - Redis Cluster support
 - Horizontal scaling
 
 ### ✅ Security Features
+
 - Fail-open/fail-closed modes
 - Admin-only operations
 - Audit logging support
 - Rate limiting ready
 
 ### ✅ Developer Friendly
+
 - Simple API
 - Type-safe (TypeScript)
 - Comprehensive documentation
 - Working examples
 
 ### ✅ Production Ready
+
 - Health checks
 - Statistics monitoring
 - Error handling
@@ -280,38 +316,45 @@ async publicRoute() {}
 ## Usage Scenarios | سيناريوهات الاستخدام
 
 ### 1. User Logout
+
 ```python
 # Python
 await revoke_token(jti=payload.jti, reason="user_logout")
 ```
+
 ```typescript
 // TypeScript
-await revocationStore.revokeToken(jti, { reason: 'user_logout' });
+await revocationStore.revokeToken(jti, { reason: "user_logout" });
 ```
 
 ### 2. Password Change
+
 ```python
 # Python
 await revoke_all_user_tokens(user_id, reason="password_change")
 ```
+
 ```typescript
 // TypeScript
-await revocationStore.revokeAllUserTokens(userId, 'password_change');
+await revocationStore.revokeAllUserTokens(userId, "password_change");
 ```
 
 ### 3. Security Breach
+
 ```python
 # Python (Admin)
 await store.revoke_all_tenant_tokens(tenant_id, reason="security_breach")
 ```
+
 ```typescript
 // TypeScript (Admin)
-await revocationStore.revokeAllTenantTokens(tenantId, 'security_breach');
+await revocationStore.revokeAllTenantTokens(tenantId, "security_breach");
 ```
 
 ## Configuration | الإعدادات
 
 ### Environment Variables
+
 ```bash
 # Redis Configuration
 REDIS_HOST=localhost
@@ -333,17 +376,20 @@ JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 ## Testing | الاختبار
 
 ### Health Check
+
 ```bash
 curl http://localhost:3000/auth/revocation/health
 ```
 
 ### Revoke Current Token
+
 ```bash
 curl -X POST http://localhost:3000/auth/revocation/revoke-current \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### Get Statistics
+
 ```bash
 curl http://localhost:3000/auth/revocation/stats \
   -H "Authorization: Bearer ADMIN_TOKEN"
@@ -378,11 +424,13 @@ curl http://localhost:3000/auth/revocation/stats \
 ## Support | الدعم
 
 ### Documentation
+
 - [Full Documentation](./TOKEN_REVOCATION_README.md)
 - [Examples](./REVOCATION_EXAMPLES.md)
 - [Quick Start](./REVOCATION_QUICKSTART.md)
 
 ### Getting Help
+
 - GitHub Issues
 - Team Chat
 - Email Support
@@ -390,6 +438,7 @@ curl http://localhost:3000/auth/revocation/stats \
 ## Version History | سجل الإصدارات
 
 **Version 1.0.0** (2024-12-27)
+
 - Initial implementation
 - Python (FastAPI) support
 - TypeScript (NestJS) support
@@ -415,11 +464,13 @@ All rights reserved.
 A comprehensive token revocation system has been created including:
 
 ✅ **10 Files Created**:
+
 - 3 Python implementation files
 - 3 TypeScript implementation files
 - 4 Documentation files
 
 ✅ **Complete Features**:
+
 - Redis-based distributed storage
 - Multi-level revocation (token/user/tenant)
 - Automatic TTL management
@@ -429,6 +480,7 @@ A comprehensive token revocation system has been created including:
 - Comprehensive documentation
 
 ✅ **Production Ready**:
+
 - High performance (< 2ms)
 - Scalable architecture
 - Security best practices
@@ -436,6 +488,7 @@ A comprehensive token revocation system has been created including:
 - Monitoring support
 
 ✅ **Developer Friendly**:
+
 - Simple API
 - Type safety
 - Examples
@@ -444,6 +497,7 @@ A comprehensive token revocation system has been created including:
 **Status: ✅ Ready for Use**
 
 **Next Steps:**
+
 1. Deploy Redis
 2. Configure environment
 3. Integrate middleware

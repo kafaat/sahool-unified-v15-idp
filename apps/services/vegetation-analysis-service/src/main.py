@@ -187,12 +187,12 @@ except ImportError as e:
 _ndvi_timeseries_analyzer = None
 try:
     from .ndvi_timeseries import (
-        NDVITimeSeriesAnalyzer,
-        NDVIPoint,
         AnomalyResult,
-        TrendResult,
-        SeasonalMetrics,
         ChangeDetectionResult,
+        NDVIPoint,
+        NDVITimeSeriesAnalyzer,
+        SeasonalMetrics,
+        TrendResult,
         create_ndvi_timeseries,
         export_results_to_dict,
     )
@@ -1275,7 +1275,9 @@ async def get_timeseries(
 async def analyze_ndvi_timeseries(
     field_id: str,
     days: int = Query(default=60, ge=14, le=365, description="Days of historical data"),
-    anomaly_threshold: float = Query(default=2.0, ge=1.0, le=4.0, description="Z-score threshold for anomaly detection"),
+    anomaly_threshold: float = Query(
+        default=2.0, ge=1.0, le=4.0, description="Z-score threshold for anomaly detection"
+    ),
 ):
     """
     تحليل شامل للسلسلة الزمنية لمؤشر NDVI
@@ -1299,12 +1301,14 @@ async def analyze_ndvi_timeseries(
     for point in timeseries_data["timeseries"]:
         try:
             point_date = datetime.fromisoformat(point["date"].replace("Z", "+00:00")).date()
-            ndvi_points.append(NDVIPoint(
-                date=point_date,
-                value=point["ndvi"],
-                quality=1.0 - (point.get("cloud_cover", 0) / 100),
-                cloud_coverage=point.get("cloud_cover", 0)
-            ))
+            ndvi_points.append(
+                NDVIPoint(
+                    date=point_date,
+                    value=point["ndvi"],
+                    quality=1.0 - (point.get("cloud_cover", 0) / 100),
+                    cloud_coverage=point.get("cloud_cover", 0),
+                )
+            )
         except (ValueError, KeyError):
             continue
 
@@ -1331,7 +1335,7 @@ async def analyze_ndvi_timeseries(
         season_start=season_start,
         peak_date=peak[0] if peak else None,
         peak_ndvi=peak[1] if peak else None,
-        integrated_ndvi=seasonal_integral
+        integrated_ndvi=seasonal_integral,
     )
 
     return {
@@ -1339,33 +1343,33 @@ async def analyze_ndvi_timeseries(
         "analysis_date": datetime.utcnow().isoformat(),
         "period_days": days,
         "data_points": len(ndvi_points),
-        "anomalies": {
-            "count": len(anomalies),
-            "items": [a.to_dict() for a in anomalies]
-        },
+        "anomalies": {"count": len(anomalies), "items": [a.to_dict() for a in anomalies]},
         "trend": trend.to_dict(),
         "phenology": {
             "stages_detected": len(phenology_stages),
             "stages": [
                 {"date": s[0].isoformat(), "stage": s[1].value, "confidence": s[2]}
                 for s in phenology_stages[:10]  # First 10
-            ]
+            ],
         },
         "seasonal_metrics": seasonal_metrics.to_dict(),
         "forecast": {
             "period_days": 7,
             "predictions": [
-                {"date": p[0].isoformat(), "predicted_ndvi": round(p[1], 4)}
-                for p in predictions
-            ]
+                {"date": p[0].isoformat(), "predicted_ndvi": round(p[1], 4)} for p in predictions
+            ],
         },
         "summary": {
             "current_ndvi": round(values[-1], 4) if values else None,
             "average_ndvi": round(sum(values) / len(values), 4) if values else None,
             "has_anomalies": len(anomalies) > 0,
             "trend_direction": trend.trend_type.value,
-            "health_status": "good" if values[-1] > 0.4 else "moderate" if values[-1] > 0.2 else "poor"
-        }
+            "health_status": "good"
+            if values[-1] > 0.4
+            else "moderate"
+            if values[-1] > 0.2
+            else "poor",
+        },
     }
 
 
@@ -1399,6 +1403,7 @@ async def compare_ndvi_periods(
 
     # Get data for both periods (simulated for now)
     import random
+
     period1_values = [random.uniform(0.3, 0.6) for _ in range((p1_end - p1_start).days)]
     period2_values = [random.uniform(0.35, 0.65) for _ in range((p2_end - p2_start).days)]
 
@@ -1412,17 +1417,21 @@ async def compare_ndvi_periods(
             "start": period1_start,
             "end": period1_end,
             "days": (p1_end - p1_start).days,
-            "mean_ndvi": round(sum(period1_values) / len(period1_values), 4) if period1_values else None
+            "mean_ndvi": round(sum(period1_values) / len(period1_values), 4)
+            if period1_values
+            else None,
         },
         "period2": {
             "start": period2_start,
             "end": period2_end,
             "days": (p2_end - p2_start).days,
-            "mean_ndvi": round(sum(period2_values) / len(period2_values), 4) if period2_values else None
+            "mean_ndvi": round(sum(period2_values) / len(period2_values), 4)
+            if period2_values
+            else None,
         },
         "change_analysis": change_result.to_dict(),
         "recommendation_ar": change_result.description_ar,
-        "recommendation_en": change_result.description_en
+        "recommendation_en": change_result.description_en,
     }
 
 

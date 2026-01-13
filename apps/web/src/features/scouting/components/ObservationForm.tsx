@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Observation Form Component
@@ -13,8 +13,8 @@
  * - Optional task creation
  */
 
-import React, { useState, useCallback, useRef } from 'react';
-import { useLocale } from 'next-intl';
+import React, { useState, useCallback, useRef } from "react";
+import { useLocale } from "next-intl";
 import {
   Bug,
   Activity,
@@ -26,17 +26,17 @@ import {
   X,
   CheckCircle,
   Image as ImageIcon,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   ObservationFormData,
   ObservationCategory,
   Severity,
   GeoPoint,
-} from '../types/scouting';
-import { CATEGORY_OPTIONS, SEVERITY_LABELS } from '../types/scouting';
-import { clsx } from 'clsx';
+} from "../types/scouting";
+import { CATEGORY_OPTIONS, SEVERITY_LABELS } from "../types/scouting";
+import { clsx } from "clsx";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -80,24 +80,30 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
   initialData,
 }) => {
   const locale = useLocale();
-  const isArabic = locale === 'ar';
+  const isArabic = locale === "ar";
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [category, setCategory] = useState<ObservationCategory | null>(
-    initialData?.category || null
+    initialData?.category || null,
   );
   const [subcategory, setSubcategory] = useState<string | null>(
-    initialData?.subcategory || null
+    initialData?.subcategory || null,
   );
-  const [severity, setSeverity] = useState<Severity>(initialData?.severity || 3);
-  const [notes, setNotes] = useState(initialData?.notes || '');
+  const [severity, setSeverity] = useState<Severity>(
+    initialData?.severity || 3,
+  );
+  const [notes, setNotes] = useState(initialData?.notes || "");
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
-  const [createTask, setCreateTask] = useState(initialData?.createTask || false);
+  const [createTask, setCreateTask] = useState(
+    initialData?.createTask || false,
+  );
   const [isDragging, setIsDragging] = useState(false);
 
   // Get selected category option
-  const selectedCategoryOption = CATEGORY_OPTIONS.find((opt) => opt.value === category);
+  const selectedCategoryOption = CATEGORY_OPTIONS.find(
+    (opt) => opt.value === category,
+  );
   const subcategoryOptions = selectedCategoryOption?.subcategories || [];
 
   // Validation
@@ -111,7 +117,9 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
     e.preventDefault();
     if (!canSubmit || isSubmitting) return;
 
-    const selectedSubcategory = subcategoryOptions.find((opt) => opt.value === subcategory);
+    const selectedSubcategory = subcategoryOptions.find(
+      (opt) => opt.value === subcategory,
+    );
 
     const formData: ObservationFormData = {
       location,
@@ -134,7 +142,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
     const newPhotos: PhotoPreview[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (file && file.type.startsWith('image/')) {
+      if (file && file.type.startsWith("image/")) {
         newPhotos.push({
           file,
           url: URL.createObjectURL(file),
@@ -173,7 +181,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
       setIsDragging(false);
       handlePhotoSelect(e.dataTransfer.files);
     },
-    [handlePhotoSelect]
+    [handlePhotoSelect],
   );
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -185,7 +193,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-sahool-green-600" />
-          {isArabic ? 'ملاحظة جديدة' : 'New Observation'}
+          {isArabic ? "ملاحظة جديدة" : "New Observation"}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -193,12 +201,13 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
           {/* Step 1: Category Selection */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              {isArabic ? '1. نوع المشكلة' : '1. Issue Category'}
+              {isArabic ? "1. نوع المشكلة" : "1. Issue Category"}
               <span className="text-red-500 ml-1">*</span>
             </label>
             <div className="grid grid-cols-2 gap-3">
               {CATEGORY_OPTIONS.map((option) => {
-                const IconComponent = ICON_MAP[option.icon as keyof typeof ICON_MAP];
+                const IconComponent =
+                  ICON_MAP[option.icon as keyof typeof ICON_MAP];
                 const isSelected = category === option.value;
 
                 return (
@@ -210,34 +219,43 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
                       setSubcategory(null);
                     }}
                     className={clsx(
-                      'p-4 rounded-lg border-2 transition-all duration-200 text-left',
-                      'hover:border-sahool-green-500 hover:shadow-md',
+                      "p-4 rounded-lg border-2 transition-all duration-200 text-left",
+                      "hover:border-sahool-green-500 hover:shadow-md",
                       isSelected
-                        ? 'border-sahool-green-600 bg-sahool-green-50 shadow-md'
-                        : 'border-gray-200 bg-white'
+                        ? "border-sahool-green-600 bg-sahool-green-50 shadow-md"
+                        : "border-gray-200 bg-white",
                     )}
                     style={{
                       borderColor: isSelected ? option.color : undefined,
-                      backgroundColor: isSelected ? `${option.color}15` : undefined,
+                      backgroundColor: isSelected
+                        ? `${option.color}15`
+                        : undefined,
                     }}
                   >
                     <div className="flex items-center gap-3">
                       {IconComponent && (
                         <IconComponent
                           className="w-6 h-6"
-                          style={{ color: isSelected ? option.color : '#9ca3af' }}
+                          style={{
+                            color: isSelected ? option.color : "#9ca3af",
+                          }}
                         />
                       )}
                       <div className="flex-1">
                         <p
                           className="font-semibold text-sm"
-                          style={{ color: isSelected ? option.color : '#1f2937' }}
+                          style={{
+                            color: isSelected ? option.color : "#1f2937",
+                          }}
                         >
                           {isArabic ? option.labelAr : option.label}
                         </p>
                       </div>
                       {isSelected && (
-                        <CheckCircle className="w-5 h-5" style={{ color: option.color }} />
+                        <CheckCircle
+                          className="w-5 h-5"
+                          style={{ color: option.color }}
+                        />
                       )}
                     </div>
                   </button>
@@ -250,7 +268,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
           {category && subcategoryOptions.length > 0 && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                {isArabic ? '2. تفاصيل المشكلة' : '2. Issue Details'}
+                {isArabic ? "2. تفاصيل المشكلة" : "2. Issue Details"}
               </label>
               <div className="flex flex-wrap gap-2">
                 {subcategoryOptions.map((option) => {
@@ -261,17 +279,19 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
                       type="button"
                       onClick={() => setSubcategory(option.value)}
                       className={clsx(
-                        'px-4 py-2 rounded-full border text-sm font-medium transition-all',
+                        "px-4 py-2 rounded-full border text-sm font-medium transition-all",
                         isSelected
-                          ? 'border-sahool-green-600 bg-sahool-green-600 text-white'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-sahool-green-400'
+                          ? "border-sahool-green-600 bg-sahool-green-600 text-white"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-sahool-green-400",
                       )}
                     >
                       <div className="text-center">
                         <div>{isArabic ? option.labelAr : option.label}</div>
                         {option.description && (
                           <div className="text-xs opacity-80">
-                            {isArabic ? option.descriptionAr : option.description}
+                            {isArabic
+                              ? option.descriptionAr
+                              : option.description}
                           </div>
                         )}
                       </div>
@@ -285,7 +305,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
           {/* Step 3: Severity */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              {isArabic ? '3. شدة المشكلة' : '3. Severity Level'}
+              {isArabic ? "3. شدة المشكلة" : "3. Severity Level"}
               <span className="text-red-500 ml-1">*</span>
             </label>
             <div className="bg-white rounded-lg p-4 border border-gray-200">
@@ -300,7 +320,9 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
                     color: SEVERITY_LABELS[severity].color,
                   }}
                 >
-                  {isArabic ? SEVERITY_LABELS[severity].ar : SEVERITY_LABELS[severity].en}
+                  {isArabic
+                    ? SEVERITY_LABELS[severity].ar
+                    : SEVERITY_LABELS[severity].en}
                 </div>
                 <span className="text-xs text-gray-600">
                   {isArabic ? SEVERITY_LABELS[5].ar : SEVERITY_LABELS[5].en}
@@ -312,7 +334,9 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
                 max="5"
                 step="1"
                 value={severity}
-                onChange={(e) => setSeverity(Number(e.target.value) as Severity)}
+                onChange={(e) =>
+                  setSeverity(Number(e.target.value) as Severity)
+                }
                 className="w-full h-2 rounded-lg appearance-none cursor-pointer"
                 style={{
                   background: `linear-gradient(to right, ${SEVERITY_LABELS[1].color}, ${SEVERITY_LABELS[3].color}, ${SEVERITY_LABELS[5].color})`,
@@ -325,14 +349,14 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
                     type="button"
                     onClick={() => setSeverity(val as Severity)}
                     className={clsx(
-                      'w-8 h-8 rounded-full text-xs font-bold transition-all',
+                      "w-8 h-8 rounded-full text-xs font-bold transition-all",
                       severity === val
-                        ? 'ring-4 ring-offset-2'
-                        : 'opacity-50 hover:opacity-100'
+                        ? "ring-4 ring-offset-2"
+                        : "opacity-50 hover:opacity-100",
                     )}
                     style={{
                       backgroundColor: SEVERITY_LABELS[val as Severity].color,
-                      color: 'white',
+                      color: "white",
                     }}
                   >
                     {val}
@@ -345,14 +369,14 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
           {/* Step 4: Photo Upload */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              {isArabic ? '4. الصور (اختياري)' : '4. Photos (Optional)'}
+              {isArabic ? "4. الصور (اختياري)" : "4. Photos (Optional)"}
             </label>
             <div
               className={clsx(
-                'border-2 border-dashed rounded-lg p-6 text-center transition-all',
+                "border-2 border-dashed rounded-lg p-6 text-center transition-all",
                 isDragging
-                  ? 'border-sahool-green-500 bg-sahool-green-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  ? "border-sahool-green-500 bg-sahool-green-50"
+                  : "border-gray-300 hover:border-gray-400",
               )}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -369,8 +393,8 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
               <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
               <p className="text-sm text-gray-600 mb-2">
                 {isArabic
-                  ? 'اسحب الصور هنا أو انقر للتحميل'
-                  : 'Drag photos here or click to upload'}
+                  ? "اسحب الصور هنا أو انقر للتحميل"
+                  : "Drag photos here or click to upload"}
               </p>
               <Button
                 type="button"
@@ -379,7 +403,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
                 onClick={() => fileInputRef.current?.click()}
               >
                 <ImageIcon className="w-4 h-4 mr-2" />
-                {isArabic ? 'اختر الصور' : 'Choose Photos'}
+                {isArabic ? "اختر الصور" : "Choose Photos"}
               </Button>
             </div>
 
@@ -409,7 +433,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
           {/* Step 5: Notes */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              {isArabic ? '5. ملاحظات' : '5. Notes'}
+              {isArabic ? "5. ملاحظات" : "5. Notes"}
               <span className="text-red-500 ml-1">*</span>
             </label>
             <textarea
@@ -418,8 +442,8 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
               rows={4}
               placeholder={
                 isArabic
-                  ? 'اكتب ملاحظاتك حول المشكلة...'
-                  : 'Write your notes about the issue...'
+                  ? "اكتب ملاحظاتك حول المشكلة..."
+                  : "Write your notes about the issue..."
               }
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent resize-none"
             />
@@ -434,8 +458,11 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
               onChange={(e) => setCreateTask(e.target.checked)}
               className="w-5 h-5 text-sahool-green-600 rounded focus:ring-sahool-green-500"
             />
-            <label htmlFor="createTask" className="text-sm font-medium text-gray-700 cursor-pointer">
-              {isArabic ? 'إنشاء مهمة للمتابعة' : 'Create follow-up task'}
+            <label
+              htmlFor="createTask"
+              className="text-sm font-medium text-gray-700 cursor-pointer"
+            >
+              {isArabic ? "إنشاء مهمة للمتابعة" : "Create follow-up task"}
             </label>
           </div>
 
@@ -448,7 +475,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
               disabled={isSubmitting}
               className="flex-1"
             >
-              {isArabic ? 'إلغاء' : 'Cancel'}
+              {isArabic ? "إلغاء" : "Cancel"}
             </Button>
             <Button
               type="submit"
@@ -457,11 +484,11 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
             >
               {isSubmitting
                 ? isArabic
-                  ? 'جاري الحفظ...'
-                  : 'Saving...'
+                  ? "جاري الحفظ..."
+                  : "Saving..."
                 : isArabic
-                ? 'حفظ الملاحظة'
-                : 'Save Observation'}
+                  ? "حفظ الملاحظة"
+                  : "Save Observation"}
             </Button>
           </div>
         </form>

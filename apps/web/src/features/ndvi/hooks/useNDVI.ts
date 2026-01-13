@@ -3,20 +3,23 @@
  * خطافات React لميزة مؤشر NDVI
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ndviApi, type NDVIFilters } from '../api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ndviApi, type NDVIFilters } from "../api";
 
 // Query Keys
 export const ndviKeys = {
-  all: ['ndvi'] as const,
-  latest: (filters?: NDVIFilters) => [...ndviKeys.all, 'latest', filters] as const,
-  field: (fieldId: string) => [...ndviKeys.all, 'field', fieldId] as const,
+  all: ["ndvi"] as const,
+  latest: (filters?: NDVIFilters) =>
+    [...ndviKeys.all, "latest", filters] as const,
+  field: (fieldId: string) => [...ndviKeys.all, "field", fieldId] as const,
   timeSeries: (fieldId: string, start?: string, end?: string) =>
-    [...ndviKeys.all, 'timeseries', fieldId, start, end] as const,
-  map: (fieldId: string, date?: string) => [...ndviKeys.all, 'map', fieldId, date] as const,
-  stats: (governorate?: string) => [...ndviKeys.all, 'stats', governorate] as const,
+    [...ndviKeys.all, "timeseries", fieldId, start, end] as const,
+  map: (fieldId: string, date?: string) =>
+    [...ndviKeys.all, "map", fieldId, date] as const,
+  stats: (governorate?: string) =>
+    [...ndviKeys.all, "stats", governorate] as const,
 };
 
 /**
@@ -46,7 +49,11 @@ export function useFieldNDVI(fieldId: string) {
 /**
  * Hook to fetch NDVI time series
  */
-export function useNDVITimeSeries(fieldId: string, startDate?: string, endDate?: string) {
+export function useNDVITimeSeries(
+  fieldId: string,
+  startDate?: string,
+  endDate?: string,
+) {
   return useQuery({
     queryKey: ndviKeys.timeSeries(fieldId, startDate, endDate),
     queryFn: () => ndviApi.getNDVITimeSeries(fieldId, startDate, endDate),
@@ -96,9 +103,13 @@ export function useRequestNDVIAnalysis() {
 /**
  * Hook to compare NDVI between dates
  */
-export function useNDVIComparison(fieldId: string, date1: string, date2: string) {
+export function useNDVIComparison(
+  fieldId: string,
+  date1: string,
+  date2: string,
+) {
   return useQuery({
-    queryKey: [...ndviKeys.all, 'compare', fieldId, date1, date2],
+    queryKey: [...ndviKeys.all, "compare", fieldId, date1, date2],
     queryFn: () => ndviApi.compareNDVI(fieldId, date1, date2),
     enabled: !!fieldId && !!date1 && !!date2,
   });

@@ -121,15 +121,15 @@ Internet
 
 All hardening scripts are located in `/home/user/sahool-unified-v15-idp/scripts/security/`:
 
-| Script | Purpose | Usage |
-|--------|---------|-------|
-| `harden-postgres.sh` | PostgreSQL security hardening | `./harden-postgres.sh --full` |
-| `harden-redis.sh` | Redis security hardening | `./harden-redis.sh --full` |
-| `harden-nats.sh` | NATS security hardening | `./harden-nats.sh --full` |
-| `harden-docker.sh` | Docker security hardening | `sudo ./harden-docker.sh --full` |
-| `audit-security.sh` | Comprehensive security audit | `./audit-security.sh --full` |
-| `scan-vulnerabilities.sh` | Vulnerability scanning | `./scan-vulnerabilities.sh --full` |
-| `rotate-secrets.sh` | Secret rotation | `./rotate-secrets.sh --all` |
+| Script                    | Purpose                       | Usage                              |
+| ------------------------- | ----------------------------- | ---------------------------------- |
+| `harden-postgres.sh`      | PostgreSQL security hardening | `./harden-postgres.sh --full`      |
+| `harden-redis.sh`         | Redis security hardening      | `./harden-redis.sh --full`         |
+| `harden-nats.sh`          | NATS security hardening       | `./harden-nats.sh --full`          |
+| `harden-docker.sh`        | Docker security hardening     | `sudo ./harden-docker.sh --full`   |
+| `audit-security.sh`       | Comprehensive security audit  | `./audit-security.sh --full`       |
+| `scan-vulnerabilities.sh` | Vulnerability scanning        | `./scan-vulnerabilities.sh --full` |
+| `rotate-secrets.sh`       | Secret rotation               | `./rotate-secrets.sh --all`        |
 
 ### Quick Start
 
@@ -375,8 +375,8 @@ EOF
 services:
   secure-service:
     image: your-image:tag
-    user: "1000:1000"  # Non-root user
-    read_only: true     # Read-only filesystem
+    user: "1000:1000" # Non-root user
+    read_only: true # Read-only filesystem
 
     security_opt:
       - no-new-privileges:true
@@ -394,7 +394,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 512M
           pids: 100
 ```
@@ -434,13 +434,13 @@ Security policies are defined in `/home/user/sahool-unified-v15-idp/infrastructu
 
 ### Scanning Schedule
 
-| Scan Type | Frequency | Tool |
-|-----------|-----------|------|
-| Container Images | Daily | Trivy, Grype |
-| Dependencies (npm) | Weekly | npm audit, Snyk |
-| Dependencies (Python) | Weekly | Safety |
-| Secrets in Code | On commit | Gitleaks |
-| Infrastructure as Code | Weekly | Checkov |
+| Scan Type              | Frequency | Tool            |
+| ---------------------- | --------- | --------------- |
+| Container Images       | Daily     | Trivy, Grype    |
+| Dependencies (npm)     | Weekly    | npm audit, Snyk |
+| Dependencies (Python)  | Weekly    | Safety          |
+| Secrets in Code        | On commit | Gitleaks        |
+| Infrastructure as Code | Weekly    | Checkov         |
 
 ### Running Scans
 
@@ -461,11 +461,11 @@ Security policies are defined in `/home/user/sahool-unified-v15-idp/infrastructu
 ### Remediation SLA
 
 | Severity | Response Time | Patch Window |
-|----------|---------------|--------------|
-| Critical | 24 hours | 7 days |
-| High | 48 hours | 30 days |
-| Medium | 1 week | 90 days |
-| Low | 1 month | 180 days |
+| -------- | ------------- | ------------ |
+| Critical | 24 hours      | 7 days       |
+| High     | 48 hours      | 30 days      |
+| Medium   | 1 week        | 90 days      |
+| Low      | 1 month       | 180 days     |
 
 ---
 
@@ -522,12 +522,12 @@ SQL
 
 ### Incident Classification
 
-| Level | Description | Examples | Response |
-|-------|-------------|----------|----------|
-| P0 | Critical | Data breach, system compromise | Immediate |
-| P1 | High | Security vulnerability exploited | 1 hour |
-| P2 | Medium | Suspicious activity detected | 4 hours |
-| P3 | Low | Policy violation | 24 hours |
+| Level | Description | Examples                         | Response  |
+| ----- | ----------- | -------------------------------- | --------- |
+| P0    | Critical    | Data breach, system compromise   | Immediate |
+| P1    | High        | Security vulnerability exploited | 1 hour    |
+| P2    | Medium      | Suspicious activity detected     | 4 hours   |
+| P3    | Low         | Policy violation                 | 24 hours  |
 
 ### Response Procedure
 
@@ -692,18 +692,19 @@ SQL
 
 ### Regular Tasks
 
-| Task | Frequency | Owner |
-|------|-----------|-------|
-| Security audit | Monthly | Security Team |
-| Vulnerability scan | Daily | DevOps |
-| Certificate rotation | Quarterly | DevOps |
-| Secret rotation | Quarterly | Security Team |
-| Access review | Quarterly | Security Team |
-| Penetration test | Annually | External Vendor |
+| Task                 | Frequency | Owner           |
+| -------------------- | --------- | --------------- |
+| Security audit       | Monthly   | Security Team   |
+| Vulnerability scan   | Daily     | DevOps          |
+| Certificate rotation | Quarterly | DevOps          |
+| Secret rotation      | Quarterly | Security Team   |
+| Access review        | Quarterly | Security Team   |
+| Penetration test     | Annually  | External Vendor |
 
 ### Contact
 
 For security issues or questions:
+
 - Email: security@sahool.local
 - Slack: #security-team
 - On-call: security-oncall@sahool.local

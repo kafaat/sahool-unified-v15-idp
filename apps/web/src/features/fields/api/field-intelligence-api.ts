@@ -12,9 +12,9 @@
  * - AI-powered recommendations
  */
 
-import { apiClient } from '@/lib/api';
-import type { ApiResponse } from '@/lib/api/types';
-import { logger } from '@/lib/logger';
+import { apiClient } from "@/lib/api";
+import type { ApiResponse } from "@/lib/api/types";
+import { logger } from "@/lib/logger";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Type Definitions
@@ -30,7 +30,7 @@ export interface LivingFieldScore {
   hydration: number;
   attention: number;
   astral: number;
-  trend: 'improving' | 'stable' | 'declining';
+  trend: "improving" | "stable" | "declining";
   trendPercentage?: number;
   lastUpdated: string;
   components: {
@@ -70,7 +70,7 @@ export interface FieldZone {
   name: string;
   nameAr: string;
   polygon: {
-    type: 'Polygon';
+    type: "Polygon";
     coordinates: number[][][];
   };
   area: number; // hectares
@@ -78,7 +78,7 @@ export interface FieldZone {
   ndviValue: number;
   soilMoisture?: number;
   temperature?: number;
-  status: 'healthy' | 'moderate' | 'stressed' | 'critical';
+  status: "healthy" | "moderate" | "stressed" | "critical";
   statusAr: string;
   recommendations: string[];
   recommendationsAr: string[];
@@ -94,13 +94,20 @@ export interface FieldAlert {
   fieldId: string;
   fieldName?: string;
   fieldNameAr?: string;
-  type: 'health' | 'irrigation' | 'pest' | 'disease' | 'weather' | 'task' | 'sensor';
-  severity: 'info' | 'warning' | 'critical' | 'emergency';
+  type:
+    | "health"
+    | "irrigation"
+    | "pest"
+    | "disease"
+    | "weather"
+    | "task"
+    | "sensor";
+  severity: "info" | "warning" | "critical" | "emergency";
   title: string;
   titleAr: string;
   message: string;
   messageAr: string;
-  status: 'active' | 'acknowledged' | 'resolved' | 'dismissed';
+  status: "active" | "acknowledged" | "resolved" | "dismissed";
   threshold?: number;
   currentValue?: number;
   unit?: string;
@@ -121,7 +128,7 @@ export interface TaskFromAlertData {
   titleAr: string;
   description?: string;
   descriptionAr?: string;
-  priority: 'urgent' | 'high' | 'medium' | 'low';
+  priority: "urgent" | "high" | "medium" | "low";
   dueDate?: string;
   assigneeId?: string;
 }
@@ -149,7 +156,7 @@ export interface CreatedTask {
 export interface BestDay {
   date: string;
   score: number;
-  suitability: 'excellent' | 'good' | 'moderate' | 'poor';
+  suitability: "excellent" | "good" | "moderate" | "poor";
   suitabilityAr: string;
   weather: {
     temperature: number;
@@ -181,7 +188,7 @@ export interface DateValidation {
   activityAr: string;
   suitable: boolean;
   score: number;
-  rating: 'excellent' | 'good' | 'moderate' | 'poor' | 'unsuitable';
+  rating: "excellent" | "good" | "moderate" | "poor" | "unsuitable";
   ratingAr: string;
   reasons: string[];
   reasonsAr: string[];
@@ -201,8 +208,15 @@ export interface DateValidation {
 export interface FieldRecommendation {
   id: string;
   fieldId: string;
-  type: 'irrigation' | 'fertilizer' | 'pest_control' | 'disease_treatment' | 'planting' | 'harvesting' | 'general';
-  priority: 'urgent' | 'high' | 'medium' | 'low';
+  type:
+    | "irrigation"
+    | "fertilizer"
+    | "pest_control"
+    | "disease_treatment"
+    | "planting"
+    | "harvesting"
+    | "general";
+  priority: "urgent" | "high" | "medium" | "low";
   title: string;
   titleAr: string;
   description: string;
@@ -239,48 +253,48 @@ export interface FieldRecommendation {
 
 export const INTELLIGENCE_ERROR_MESSAGES = {
   SCORE_FETCH_FAILED: {
-    en: 'Failed to fetch living field score',
-    ar: 'فشل في جلب درجة الحقل الحي',
+    en: "Failed to fetch living field score",
+    ar: "فشل في جلب درجة الحقل الحي",
   },
   ZONES_FETCH_FAILED: {
-    en: 'Failed to fetch field zones',
-    ar: 'فشل في جلب مناطق الحقل',
+    en: "Failed to fetch field zones",
+    ar: "فشل في جلب مناطق الحقل",
   },
   ALERTS_FETCH_FAILED: {
-    en: 'Failed to fetch field alerts',
-    ar: 'فشل في جلب تنبيهات الحقل',
+    en: "Failed to fetch field alerts",
+    ar: "فشل في جلب تنبيهات الحقل",
   },
   TASK_CREATE_FAILED: {
-    en: 'Failed to create task from alert',
-    ar: 'فشل في إنشاء المهمة من التنبيه',
+    en: "Failed to create task from alert",
+    ar: "فشل في إنشاء المهمة من التنبيه",
   },
   BEST_DAYS_FETCH_FAILED: {
-    en: 'Failed to fetch best days for activity',
-    ar: 'فشل في جلب أفضل الأيام للنشاط',
+    en: "Failed to fetch best days for activity",
+    ar: "فشل في جلب أفضل الأيام للنشاط",
   },
   DATE_VALIDATION_FAILED: {
-    en: 'Failed to validate date',
-    ar: 'فشل في التحقق من التاريخ',
+    en: "Failed to validate date",
+    ar: "فشل في التحقق من التاريخ",
   },
   RECOMMENDATIONS_FETCH_FAILED: {
-    en: 'Failed to fetch AI recommendations',
-    ar: 'فشل في جلب توصيات الذكاء الاصطناعي',
+    en: "Failed to fetch AI recommendations",
+    ar: "فشل في جلب توصيات الذكاء الاصطناعي",
   },
   INVALID_FIELD_ID: {
-    en: 'Invalid field ID provided',
-    ar: 'معرف الحقل غير صالح',
+    en: "Invalid field ID provided",
+    ar: "معرف الحقل غير صالح",
   },
   INVALID_ALERT_ID: {
-    en: 'Invalid alert ID provided',
-    ar: 'معرف التنبيه غير صالح',
+    en: "Invalid alert ID provided",
+    ar: "معرف التنبيه غير صالح",
   },
   INVALID_ACTIVITY: {
-    en: 'Invalid activity type',
-    ar: 'نوع النشاط غير صالح',
+    en: "Invalid activity type",
+    ar: "نوع النشاط غير صالح",
   },
   INVALID_DATE: {
-    en: 'Invalid date format',
-    ar: 'تنسيق التاريخ غير صالح',
+    en: "Invalid date format",
+    ar: "تنسيق التاريخ غير صالح",
   },
 } as const;
 
@@ -298,9 +312,9 @@ export const INTELLIGENCE_ERROR_MESSAGES = {
  * @returns Living Field Score with component breakdown
  */
 export async function fetchLivingFieldScore(
-  fieldId: string
+  fieldId: string,
 ): Promise<ApiResponse<LivingFieldScore>> {
-  if (!fieldId || typeof fieldId !== 'string' || fieldId.trim().length === 0) {
+  if (!fieldId || typeof fieldId !== "string" || fieldId.trim().length === 0) {
     return {
       success: false,
       error: INTELLIGENCE_ERROR_MESSAGES.INVALID_FIELD_ID.en,
@@ -312,20 +326,27 @@ export async function fetchLivingFieldScore(
     const response = await apiClient.getLivingFieldScore(fieldId);
 
     if (!response.success || !response.data) {
-      logger.error('[fetchLivingFieldScore] API returned unsuccessful response:', response.error);
+      logger.error(
+        "[fetchLivingFieldScore] API returned unsuccessful response:",
+        response.error,
+      );
       return {
         success: false,
-        error: response.error || INTELLIGENCE_ERROR_MESSAGES.SCORE_FETCH_FAILED.en,
+        error:
+          response.error || INTELLIGENCE_ERROR_MESSAGES.SCORE_FETCH_FAILED.en,
         error_ar: INTELLIGENCE_ERROR_MESSAGES.SCORE_FETCH_FAILED.ar,
       };
     }
 
     return response as ApiResponse<LivingFieldScore>;
   } catch (error) {
-    logger.error('[fetchLivingFieldScore] Request failed:', error);
+    logger.error("[fetchLivingFieldScore] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : INTELLIGENCE_ERROR_MESSAGES.SCORE_FETCH_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : INTELLIGENCE_ERROR_MESSAGES.SCORE_FETCH_FAILED.en,
       error_ar: INTELLIGENCE_ERROR_MESSAGES.SCORE_FETCH_FAILED.ar,
     };
   }
@@ -341,9 +362,9 @@ export async function fetchLivingFieldScore(
  * @returns Array of field zones with health data
  */
 export async function fetchFieldZones(
-  fieldId: string
+  fieldId: string,
 ): Promise<ApiResponse<FieldZone[]>> {
-  if (!fieldId || typeof fieldId !== 'string' || fieldId.trim().length === 0) {
+  if (!fieldId || typeof fieldId !== "string" || fieldId.trim().length === 0) {
     return {
       success: false,
       error: INTELLIGENCE_ERROR_MESSAGES.INVALID_FIELD_ID.en,
@@ -355,10 +376,14 @@ export async function fetchFieldZones(
     const response = await apiClient.getFieldZones(fieldId);
 
     if (!response.success) {
-      logger.error('[fetchFieldZones] API returned unsuccessful response:', response.error);
+      logger.error(
+        "[fetchFieldZones] API returned unsuccessful response:",
+        response.error,
+      );
       return {
         success: false,
-        error: response.error || INTELLIGENCE_ERROR_MESSAGES.ZONES_FETCH_FAILED.en,
+        error:
+          response.error || INTELLIGENCE_ERROR_MESSAGES.ZONES_FETCH_FAILED.en,
         error_ar: INTELLIGENCE_ERROR_MESSAGES.ZONES_FETCH_FAILED.ar,
       };
     }
@@ -368,10 +393,13 @@ export async function fetchFieldZones(
       data: (response.data || []) as FieldZone[],
     };
   } catch (error) {
-    logger.error('[fetchFieldZones] Request failed:', error);
+    logger.error("[fetchFieldZones] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : INTELLIGENCE_ERROR_MESSAGES.ZONES_FETCH_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : INTELLIGENCE_ERROR_MESSAGES.ZONES_FETCH_FAILED.en,
       error_ar: INTELLIGENCE_ERROR_MESSAGES.ZONES_FETCH_FAILED.ar,
     };
   }
@@ -387,9 +415,9 @@ export async function fetchFieldZones(
  * @returns Array of active field alerts
  */
 export async function fetchFieldAlerts(
-  fieldId: string
+  fieldId: string,
 ): Promise<ApiResponse<FieldAlert[]>> {
-  if (!fieldId || typeof fieldId !== 'string' || fieldId.trim().length === 0) {
+  if (!fieldId || typeof fieldId !== "string" || fieldId.trim().length === 0) {
     return {
       success: false,
       error: INTELLIGENCE_ERROR_MESSAGES.INVALID_FIELD_ID.en,
@@ -401,10 +429,14 @@ export async function fetchFieldAlerts(
     const response = await apiClient.getFieldIntelligenceAlerts(fieldId);
 
     if (!response.success) {
-      logger.error('[fetchFieldAlerts] API returned unsuccessful response:', response.error);
+      logger.error(
+        "[fetchFieldAlerts] API returned unsuccessful response:",
+        response.error,
+      );
       return {
         success: false,
-        error: response.error || INTELLIGENCE_ERROR_MESSAGES.ALERTS_FETCH_FAILED.en,
+        error:
+          response.error || INTELLIGENCE_ERROR_MESSAGES.ALERTS_FETCH_FAILED.en,
         error_ar: INTELLIGENCE_ERROR_MESSAGES.ALERTS_FETCH_FAILED.ar,
       };
     }
@@ -414,10 +446,13 @@ export async function fetchFieldAlerts(
       data: (response.data || []) as FieldAlert[],
     };
   } catch (error) {
-    logger.error('[fetchFieldAlerts] Request failed:', error);
+    logger.error("[fetchFieldAlerts] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : INTELLIGENCE_ERROR_MESSAGES.ALERTS_FETCH_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : INTELLIGENCE_ERROR_MESSAGES.ALERTS_FETCH_FAILED.en,
       error_ar: INTELLIGENCE_ERROR_MESSAGES.ALERTS_FETCH_FAILED.ar,
     };
   }
@@ -435,9 +470,9 @@ export async function fetchFieldAlerts(
  */
 export async function createTaskFromAlert(
   alertId: string,
-  taskData: TaskFromAlertData
+  taskData: TaskFromAlertData,
 ): Promise<ApiResponse<CreatedTask>> {
-  if (!alertId || typeof alertId !== 'string' || alertId.trim().length === 0) {
+  if (!alertId || typeof alertId !== "string" || alertId.trim().length === 0) {
     return {
       success: false,
       error: INTELLIGENCE_ERROR_MESSAGES.INVALID_ALERT_ID.en,
@@ -449,20 +484,27 @@ export async function createTaskFromAlert(
     const response = await apiClient.createTaskFromAlert(alertId, taskData);
 
     if (!response.success || !response.data) {
-      logger.error('[createTaskFromAlert] API returned unsuccessful response:', response.error);
+      logger.error(
+        "[createTaskFromAlert] API returned unsuccessful response:",
+        response.error,
+      );
       return {
         success: false,
-        error: response.error || INTELLIGENCE_ERROR_MESSAGES.TASK_CREATE_FAILED.en,
+        error:
+          response.error || INTELLIGENCE_ERROR_MESSAGES.TASK_CREATE_FAILED.en,
         error_ar: INTELLIGENCE_ERROR_MESSAGES.TASK_CREATE_FAILED.ar,
       };
     }
 
     return response as ApiResponse<CreatedTask>;
   } catch (error) {
-    logger.error('[createTaskFromAlert] Request failed:', error);
+    logger.error("[createTaskFromAlert] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : INTELLIGENCE_ERROR_MESSAGES.TASK_CREATE_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : INTELLIGENCE_ERROR_MESSAGES.TASK_CREATE_FAILED.en,
       error_ar: INTELLIGENCE_ERROR_MESSAGES.TASK_CREATE_FAILED.ar,
     };
   }
@@ -480,9 +522,13 @@ export async function createTaskFromAlert(
  */
 export async function fetchBestDays(
   activity: string,
-  days: number = 14
+  days: number = 14,
 ): Promise<ApiResponse<BestDay[]>> {
-  if (!activity || typeof activity !== 'string' || activity.trim().length === 0) {
+  if (
+    !activity ||
+    typeof activity !== "string" ||
+    activity.trim().length === 0
+  ) {
     return {
       success: false,
       error: INTELLIGENCE_ERROR_MESSAGES.INVALID_ACTIVITY.en,
@@ -494,10 +540,15 @@ export async function fetchBestDays(
     const response = await apiClient.getBestDaysForActivity(activity, days);
 
     if (!response.success) {
-      logger.error('[fetchBestDays] API returned unsuccessful response:', response.error);
+      logger.error(
+        "[fetchBestDays] API returned unsuccessful response:",
+        response.error,
+      );
       return {
         success: false,
-        error: response.error || INTELLIGENCE_ERROR_MESSAGES.BEST_DAYS_FETCH_FAILED.en,
+        error:
+          response.error ||
+          INTELLIGENCE_ERROR_MESSAGES.BEST_DAYS_FETCH_FAILED.en,
         error_ar: INTELLIGENCE_ERROR_MESSAGES.BEST_DAYS_FETCH_FAILED.ar,
       };
     }
@@ -507,10 +558,13 @@ export async function fetchBestDays(
       data: (response.data || []) as BestDay[],
     };
   } catch (error) {
-    logger.error('[fetchBestDays] Request failed:', error);
+    logger.error("[fetchBestDays] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : INTELLIGENCE_ERROR_MESSAGES.BEST_DAYS_FETCH_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : INTELLIGENCE_ERROR_MESSAGES.BEST_DAYS_FETCH_FAILED.en,
       error_ar: INTELLIGENCE_ERROR_MESSAGES.BEST_DAYS_FETCH_FAILED.ar,
     };
   }
@@ -528,9 +582,9 @@ export async function fetchBestDays(
  */
 export async function validateTaskDate(
   date: string,
-  activity: string
+  activity: string,
 ): Promise<ApiResponse<DateValidation>> {
-  if (!date || typeof date !== 'string') {
+  if (!date || typeof date !== "string") {
     return {
       success: false,
       error: INTELLIGENCE_ERROR_MESSAGES.INVALID_DATE.en,
@@ -538,7 +592,11 @@ export async function validateTaskDate(
     };
   }
 
-  if (!activity || typeof activity !== 'string' || activity.trim().length === 0) {
+  if (
+    !activity ||
+    typeof activity !== "string" ||
+    activity.trim().length === 0
+  ) {
     return {
       success: false,
       error: INTELLIGENCE_ERROR_MESSAGES.INVALID_ACTIVITY.en,
@@ -557,23 +615,34 @@ export async function validateTaskDate(
   }
 
   try {
-    const response = await apiClient.validateTaskDate(parsedDate.toISOString(), activity);
+    const response = await apiClient.validateTaskDate(
+      parsedDate.toISOString(),
+      activity,
+    );
 
     if (!response.success || !response.data) {
-      logger.error('[validateTaskDate] API returned unsuccessful response:', response.error);
+      logger.error(
+        "[validateTaskDate] API returned unsuccessful response:",
+        response.error,
+      );
       return {
         success: false,
-        error: response.error || INTELLIGENCE_ERROR_MESSAGES.DATE_VALIDATION_FAILED.en,
+        error:
+          response.error ||
+          INTELLIGENCE_ERROR_MESSAGES.DATE_VALIDATION_FAILED.en,
         error_ar: INTELLIGENCE_ERROR_MESSAGES.DATE_VALIDATION_FAILED.ar,
       };
     }
 
     return response as ApiResponse<DateValidation>;
   } catch (error) {
-    logger.error('[validateTaskDate] Request failed:', error);
+    logger.error("[validateTaskDate] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : INTELLIGENCE_ERROR_MESSAGES.DATE_VALIDATION_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : INTELLIGENCE_ERROR_MESSAGES.DATE_VALIDATION_FAILED.en,
       error_ar: INTELLIGENCE_ERROR_MESSAGES.DATE_VALIDATION_FAILED.ar,
     };
   }
@@ -589,9 +658,9 @@ export async function validateTaskDate(
  * @returns Array of prioritized AI recommendations
  */
 export async function fetchFieldRecommendations(
-  fieldId: string
+  fieldId: string,
 ): Promise<ApiResponse<FieldRecommendation[]>> {
-  if (!fieldId || typeof fieldId !== 'string' || fieldId.trim().length === 0) {
+  if (!fieldId || typeof fieldId !== "string" || fieldId.trim().length === 0) {
     return {
       success: false,
       error: INTELLIGENCE_ERROR_MESSAGES.INVALID_FIELD_ID.en,
@@ -603,10 +672,15 @@ export async function fetchFieldRecommendations(
     const response = await apiClient.getFieldRecommendations(fieldId);
 
     if (!response.success) {
-      logger.error('[fetchFieldRecommendations] API returned unsuccessful response:', response.error);
+      logger.error(
+        "[fetchFieldRecommendations] API returned unsuccessful response:",
+        response.error,
+      );
       return {
         success: false,
-        error: response.error || INTELLIGENCE_ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.en,
+        error:
+          response.error ||
+          INTELLIGENCE_ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.en,
         error_ar: INTELLIGENCE_ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.ar,
       };
     }
@@ -616,10 +690,13 @@ export async function fetchFieldRecommendations(
       data: (response.data || []) as FieldRecommendation[],
     };
   } catch (error) {
-    logger.error('[fetchFieldRecommendations] Request failed:', error);
+    logger.error("[fetchFieldRecommendations] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : INTELLIGENCE_ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : INTELLIGENCE_ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.en,
       error_ar: INTELLIGENCE_ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.ar,
     };
   }
@@ -634,11 +711,17 @@ export async function fetchFieldRecommendations(
  * Use these keys with TanStack Query for caching and invalidation
  */
 export const fieldIntelligenceKeys = {
-  all: ['field-intelligence'] as const,
-  score: (fieldId: string) => [...fieldIntelligenceKeys.all, 'score', fieldId] as const,
-  zones: (fieldId: string) => [...fieldIntelligenceKeys.all, 'zones', fieldId] as const,
-  alerts: (fieldId: string) => [...fieldIntelligenceKeys.all, 'alerts', fieldId] as const,
-  recommendations: (fieldId: string) => [...fieldIntelligenceKeys.all, 'recommendations', fieldId] as const,
-  bestDays: (activity: string, days: number) => [...fieldIntelligenceKeys.all, 'best-days', activity, days] as const,
-  dateValidation: (date: string, activity: string) => [...fieldIntelligenceKeys.all, 'validate-date', date, activity] as const,
+  all: ["field-intelligence"] as const,
+  score: (fieldId: string) =>
+    [...fieldIntelligenceKeys.all, "score", fieldId] as const,
+  zones: (fieldId: string) =>
+    [...fieldIntelligenceKeys.all, "zones", fieldId] as const,
+  alerts: (fieldId: string) =>
+    [...fieldIntelligenceKeys.all, "alerts", fieldId] as const,
+  recommendations: (fieldId: string) =>
+    [...fieldIntelligenceKeys.all, "recommendations", fieldId] as const,
+  bestDays: (activity: string, days: number) =>
+    [...fieldIntelligenceKeys.all, "best-days", activity, days] as const,
+  dateValidation: (date: string, activity: string) =>
+    [...fieldIntelligenceKeys.all, "validate-date", date, activity] as const,
 } as const;

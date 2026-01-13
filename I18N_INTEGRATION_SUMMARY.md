@@ -1,6 +1,7 @@
 # i18n Package Integration Summary
 
 ## Overview
+
 Successfully integrated the @sahool/i18n package into apps/web, enabling proper internationalization support with Arabic (ar) as the default locale and English (en) as a secondary option.
 
 ## Changes Made
@@ -8,19 +9,23 @@ Successfully integrated the @sahool/i18n package into apps/web, enabling proper 
 ### 1. Package Configuration
 
 #### `/apps/web/package.json`
+
 - **Added**: `"@sahool/i18n": "*"` to dependencies
 - The package now imports translations and utilities from the centralized i18n package
 
 ### 2. i18n Configuration
 
 #### `/apps/web/src/i18n.ts` (NEW)
+
 Created i18n configuration for Next.js App Router:
+
 - Imports locales, messages, and types from @sahool/i18n
 - Configures next-intl with proper locale validation
 - Sets timezone to 'Asia/Aden'
 - Validates incoming locale parameters and falls back to default (ar)
 
 #### `/apps/web/next.config.js`
+
 - **Added**: next-intl plugin integration
 - Wraps the Next.js config with `withNextIntl` plugin
 - Points to the i18n configuration file at `./src/i18n.ts`
@@ -28,6 +33,7 @@ Created i18n configuration for Next.js App Router:
 ### 3. Root Layout Updates
 
 #### `/apps/web/src/app/layout.tsx`
+
 - **Added**: NextIntlClientProvider wrapper
 - **Added**: Locale parameter support in layout props
 - **Added**: Dynamic locale validation
@@ -38,6 +44,7 @@ Created i18n configuration for Next.js App Router:
 ### 4. Middleware Updates
 
 #### `/apps/web/src/middleware.ts`
+
 - **Added**: next-intl middleware integration
 - **Added**: Locale detection and routing
 - **Configured**: `localePrefix: 'as-needed'` to avoid prefixing default locale (ar)
@@ -47,6 +54,7 @@ Created i18n configuration for Next.js App Router:
 ### 5. Component Updates
 
 #### `/apps/web/src/components/layouts/header.tsx`
+
 - **Added**: `useTranslations` hook from next-intl
 - **Added**: LocaleSwitcher component in header
 - **Replaced**: Hardcoded strings with translation keys:
@@ -58,6 +66,7 @@ Created i18n configuration for Next.js App Router:
 - **Removed**: Duplicate Arabic/English text
 
 #### `/apps/web/src/components/layouts/sidebar.tsx`
+
 - **Added**: `useTranslations` hook for 'nav' and 'common' namespaces
 - **Refactored**: NavItem interface to use `labelKey` instead of separate ar/en fields
 - **Replaced**: All hardcoded navigation labels with translation keys
@@ -65,7 +74,9 @@ Created i18n configuration for Next.js App Router:
 - **Updated**: Footer to use translated version string
 
 #### `/apps/web/src/components/common/LocaleSwitcher.tsx` (NEW)
+
 Created locale switcher component:
+
 - Displays both Arabic and English options
 - Uses `useLocale` hook to detect current locale
 - Implements smooth transitions with `useTransition`
@@ -76,7 +87,9 @@ Created locale switcher component:
 ### 6. Translation Updates
 
 #### `/packages/i18n/src/locales/ar.json`
+
 Added new translation keys to `common` section:
+
 - `welcomeMessage`: "مرحباً"
 - `welcomeBack`: "أهلاً بعودتك"
 - `notifications`: "التنبيهات"
@@ -86,6 +99,7 @@ Added new translation keys to `common` section:
 - `logout`: "تسجيل الخروج"
 
 Added new keys to `nav` section:
+
 - `users`: "المستخدمين"
 - `crops`: "المحاصيل"
 - `inventory`: "المخزون"
@@ -96,12 +110,15 @@ Added new keys to `nav` section:
 - `version`: "الإصدار"
 
 #### `/packages/i18n/src/locales/en.json`
+
 Added corresponding English translations for all the above keys.
 
 ### 7. Documentation
 
 #### `/packages/i18n/README.md` (NEW)
+
 Created comprehensive documentation covering:
+
 - Package features and capabilities
 - Installation instructions
 - Usage examples for Next.js App Router
@@ -113,7 +130,9 @@ Created comprehensive documentation covering:
 - Default locale information
 
 #### `/apps/web/src/components/examples/i18nExample.tsx` (NEW)
+
 Created demonstration component showing:
+
 - How to use `useTranslations` hook
 - How to access multiple namespaces
 - Current locale detection
@@ -143,6 +162,7 @@ Created demonstration component showing:
 ## How to Use
 
 ### In Server Components
+
 ```typescript
 import { useTranslations } from 'next-intl';
 
@@ -153,6 +173,7 @@ export default async function Page() {
 ```
 
 ### In Client Components
+
 ```typescript
 'use client';
 import { useTranslations } from 'next-intl';
@@ -164,6 +185,7 @@ export function MyComponent() {
 ```
 
 ### Adding the Locale Switcher
+
 ```typescript
 import { LocaleSwitcher } from '@/components/common/LocaleSwitcher';
 
@@ -184,6 +206,7 @@ export function Header() {
 4. **Update More Components**: Continue replacing hardcoded strings throughout the app
 
 ## Files Created
+
 - `/apps/web/src/i18n.ts`
 - `/apps/web/src/components/common/LocaleSwitcher.tsx`
 - `/apps/web/src/components/examples/i18nExample.tsx`
@@ -191,6 +214,7 @@ export function Header() {
 - `/I18N_INTEGRATION_SUMMARY.md` (this file)
 
 ## Files Modified
+
 - `/apps/web/package.json`
 - `/apps/web/next.config.js`
 - `/apps/web/src/app/layout.tsx`

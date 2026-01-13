@@ -21,9 +21,11 @@ packages/
 ## Package Details
 
 ### 🌱 Starter Package
+
 **File:** `/home/user/sahool-unified-v15-idp/packages/starter/docker-compose.yml`
 
 **Services (6):**
+
 - PostgreSQL/PostGIS (512MB RAM)
 - Redis (256MB RAM)
 - NATS (256MB RAM)
@@ -38,9 +40,11 @@ packages/
 ---
 
 ### 🚜 Professional Package
+
 **File:** `/home/user/sahool-unified-v15-idp/packages/professional/docker-compose.yml`
 
 **Services (14):**
+
 - All Starter services (with increased resources)
 - satellite_service
 - ndvi_engine
@@ -56,9 +60,11 @@ packages/
 ---
 
 ### 🏢 Enterprise Package
+
 **File:** `/home/user/sahool-unified-v15-idp/packages/enterprise/docker-compose.yml`
 
 **Services (25):**
+
 - All Professional services (with increased resources)
 - qdrant (vector database)
 - mqtt (IoT broker)
@@ -80,6 +86,7 @@ packages/
 ## Key Features
 
 ### All Packages Include:
+
 ✅ Proper health checks for all services
 ✅ Resource limits (CPU & memory)
 ✅ Docker network isolation
@@ -91,11 +98,13 @@ packages/
 ### Package-Specific Features:
 
 **Starter:**
+
 - Basic agricultural platform
 - Essential field and weather services
 - Minimal resource footprint
 
 **Professional:**
+
 - Satellite imagery integration
 - AI-powered crop health detection
 - Smart irrigation & fertilization
@@ -103,6 +112,7 @@ packages/
 - Inventory management
 
 **Enterprise:**
+
 - Advanced multi-agent AI advisor
 - IoT device support (MQTT)
 - Research and simulation tools
@@ -150,14 +160,17 @@ docker-compose down
 ### Environment Variables
 
 Required for all packages:
+
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
 - `REDIS_PASSWORD`
 - `JWT_SECRET_KEY`
 
 Additional for Professional:
+
 - Satellite API keys (optional for enhanced features)
 
 Additional for Enterprise:
+
 - `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (for AI advisor)
 - `MQTT_PASSWORD` (for IoT)
 - `GRAFANA_ADMIN_PASSWORD` (for monitoring)
@@ -169,6 +182,7 @@ See `.env.example` for complete list with detailed comments.
 ## Validation
 
 All docker-compose files have been created with:
+
 - Valid YAML syntax
 - Proper service dependencies
 - Health check configurations

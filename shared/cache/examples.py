@@ -33,7 +33,8 @@ def cache_result(key_prefix: str, ttl: int = 3600):
     Example:
         @cache_result('user:profile', ttl=3600)
         def get_user_profile(user_id: int):
-            return db.query(f"SELECT * FROM users WHERE id = {user_id}")
+            # Use parameterized queries to prevent SQL injection
+            return db.query("SELECT * FROM users WHERE id = %s", (user_id,))
     """
 
     def decorator(func: Callable) -> Callable:

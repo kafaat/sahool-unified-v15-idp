@@ -15,8 +15,8 @@ async function main(): Promise<void> {
     options: {
       model: "opus",
       allowedTools: ["Glob", "Read"],
-      maxTurns: 250
-    }
+      maxTurns: 250,
+    },
   })) {
     if (message.type === "system" && message.subtype === "init") {
       console.log("Session ID:", message.session_id);

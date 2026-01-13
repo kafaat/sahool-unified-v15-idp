@@ -54,13 +54,17 @@ npx tsx src/production-agent.ts ./src --export --sarif
 ### Programmatic
 
 ```typescript
-import { runCodeReview, printResults, exportResults } from '@sahool/code-review-agent';
+import {
+  runCodeReview,
+  printResults,
+  exportResults,
+} from "@sahool/code-review-agent";
 
 // Run review
 const result = await runCodeReview({
-  directory: './src',
-  model: 'opus',
-  useSubagents: true
+  directory: "./src",
+  model: "opus",
+  useSubagents: true,
 });
 
 if (result) {
@@ -68,8 +72,8 @@ if (result) {
   printResults(result);
 
   // Export as SARIF for GitHub
-  const sarif = exportResults(result, 'sarif');
-  fs.writeFileSync('results.sarif', sarif);
+  const sarif = exportResults(result, "sarif");
+  fs.writeFileSync("results.sarif", sarif);
 }
 ```
 
@@ -77,13 +81,13 @@ if (result) {
 
 ### ReviewAgentConfig
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `directory` | `string` | Required | Directory to review |
-| `model` | `'opus' \| 'sonnet' \| 'haiku'` | `'opus'` | Claude model to use |
-| `maxTurns` | `number` | `250` | Maximum agent turns |
-| `useSubagents` | `boolean` | `true` | Use specialized subagents |
-| `structuredOutput` | `boolean` | `true` | Return structured JSON |
+| Option             | Type                            | Default  | Description               |
+| ------------------ | ------------------------------- | -------- | ------------------------- |
+| `directory`        | `string`                        | Required | Directory to review       |
+| `model`            | `'opus' \| 'sonnet' \| 'haiku'` | `'opus'` | Claude model to use       |
+| `maxTurns`         | `number`                        | `250`    | Maximum agent turns       |
+| `useSubagents`     | `boolean`                       | `true`   | Use specialized subagents |
+| `structuredOutput` | `boolean`                       | `true`   | Return structured JSON    |
 
 ## Output Formats
 
@@ -118,10 +122,10 @@ Human-readable report format.
 
 The production agent uses specialized subagents:
 
-| Subagent | Model | Purpose |
-|----------|-------|---------|
-| `security-scanner` | Sonnet | Deep security vulnerability analysis |
-| `test-analyzer` | Haiku | Test coverage evaluation |
+| Subagent               | Model  | Purpose                                |
+| ---------------------- | ------ | -------------------------------------- |
+| `security-scanner`     | Sonnet | Deep security vulnerability analysis   |
+| `test-analyzer`        | Haiku  | Test coverage evaluation               |
 | `performance-analyzer` | Sonnet | Performance optimization opportunities |
 
 ## Hooks
@@ -138,6 +142,7 @@ Logs all tool usage with timestamps:
 ### Dangerous Command Blocker
 
 Blocks commands containing:
+
 - `rm -rf`
 - `sudo`
 - `chmod 777`
@@ -146,10 +151,10 @@ Blocks commands containing:
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `ANTHROPIC_API_KEY` | API key for Claude |
-| `LOG_LEVEL` | Logging level (default: `info`) |
+| Variable            | Description                     |
+| ------------------- | ------------------------------- |
+| `ANTHROPIC_API_KEY` | API key for Claude              |
+| `LOG_LEVEL`         | Logging level (default: `info`) |
 
 ## Development
 

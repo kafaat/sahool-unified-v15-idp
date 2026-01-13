@@ -199,20 +199,20 @@ async def call_weather():
 ### 1. Creating Service Tokens
 
 ```typescript
-import { createServiceToken } from './shared/auth/service_auth';
-import axios from 'axios';
+import { createServiceToken } from "./shared/auth/service_auth";
+import axios from "axios";
 
 // Create a service token
 const token = createServiceToken(
-  'farm-service',
-  'field-service',
-  300 // 5 minutes
+  "farm-service",
+  "field-service",
+  300, // 5 minutes
 );
 
 // Use the token in HTTP requests
-const response = await axios.get('http://field-service/api/fields', {
+const response = await axios.get("http://field-service/api/fields", {
   headers: {
-    'X-Service-Token': token,
+    "X-Service-Token": token,
   },
 });
 ```
@@ -220,15 +220,12 @@ const response = await axios.get('http://field-service/api/fields', {
 ### 2. Using ServiceToken Class
 
 ```typescript
-import { ServiceToken } from './shared/auth/service_auth';
+import { ServiceToken } from "./shared/auth/service_auth";
 
 // Create a token
-const token = ServiceToken.create(
-  'farm-service',
-  'field-service',
-  600,
-  { request_id: 'req-123' }
-);
+const token = ServiceToken.create("farm-service", "field-service", 600, {
+  request_id: "req-123",
+});
 
 // Verify a token
 try {
@@ -237,7 +234,7 @@ try {
   console.log(`Target: ${payload.target_service}`);
   console.log(`Expires: ${payload.exp}`);
 } catch (error) {
-  console.error('Invalid token:', error);
+  console.error("Invalid token:", error);
 }
 ```
 
@@ -319,18 +316,16 @@ export class InternalController {
 
 ```typescript
 // main.ts
-import { NestFactory, Reflector } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ServiceAuthGuard } from './shared/auth/service-auth.guard';
+import { NestFactory, Reflector } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { ServiceAuthGuard } from "./shared/auth/service-auth.guard";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Add global service auth guard
   const reflector = app.get(Reflector);
-  app.useGlobalGuards(
-    new ServiceAuthGuard(reflector, 'field-service')
-  );
+  app.useGlobalGuards(new ServiceAuthGuard(reflector, "field-service"));
 
   await app.listen(3000);
 }
@@ -483,10 +478,10 @@ SERVICE_COMMUNICATION_MATRIX = {
 ```typescript
 // TypeScript example
 export const SERVICE_COMMUNICATION_MATRIX: Record<string, string[]> = {
-  'farm-service': [
-    'field-service',
-    'crop-service',
-    'new-service', // Add new service
+  "farm-service": [
+    "field-service",
+    "crop-service",
+    "new-service", // Add new service
   ],
 };
 ```
@@ -534,10 +529,10 @@ except AuthException as e:
 ### TypeScript Error Handling
 
 ```typescript
-import { ServiceToken, ServiceAuthException } from './shared/auth/service_auth';
+import { ServiceToken, ServiceAuthException } from "./shared/auth/service_auth";
 
 try {
-  const token = ServiceToken.create('farm-service', 'field-service');
+  const token = ServiceToken.create("farm-service", "field-service");
 } catch (error) {
   if (error instanceof ServiceAuthException) {
     console.error(`Error: ${error.error.code}`);
@@ -586,22 +581,25 @@ def test_unauthorized_service():
 ### TypeScript Testing Example
 
 ```typescript
-import { createServiceToken, verifyServiceToken } from './shared/auth/service_auth';
+import {
+  createServiceToken,
+  verifyServiceToken,
+} from "./shared/auth/service_auth";
 
-describe('Service Authentication', () => {
-  it('should create and verify service token', () => {
-    const token = createServiceToken('farm-service', 'field-service');
+describe("Service Authentication", () => {
+  it("should create and verify service token", () => {
+    const token = createServiceToken("farm-service", "field-service");
     expect(token).toBeDefined();
 
     const payload = verifyServiceToken(token);
-    expect(payload.service_name).toBe('farm-service');
-    expect(payload.target_service).toBe('field-service');
+    expect(payload.service_name).toBe("farm-service");
+    expect(payload.target_service).toBe("field-service");
   });
 
-  it('should reject unauthorized service', () => {
+  it("should reject unauthorized service", () => {
     expect(() => {
       // notification-service cannot call farm-service
-      createServiceToken('notification-service', 'farm-service');
+      createServiceToken("notification-service", "farm-service");
     }).toThrow();
   });
 });

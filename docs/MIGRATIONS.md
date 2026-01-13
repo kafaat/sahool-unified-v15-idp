@@ -12,6 +12,7 @@ and ensure safe deployments across all environments.
 > **No migration is ever edited after merge to main.**
 
 Once a migration is merged:
+
 - It cannot be modified
 - It cannot be deleted
 - If there's an error, create a new migration to fix it
@@ -20,15 +21,15 @@ Once a migration is merged:
 
 Each sprint has its own migration prefix to prevent file conflicts:
 
-| Sprint | Prefix | Example |
-|--------|--------|---------|
-| Sprint 1 | `s1_` | `s1_001_initial_schema.py` |
-| Sprint 2 | `s2_` | `s2_001_add_indexes.py` |
-| Sprint 3 | `s3_` | `s3_001_refactor_fields.py` |
-| Sprint 4 | `s4_` | `s4_001_add_events.py` |
-| Sprint 5 | `s5_` | `s5_001_marketplace.py` |
-| Sprint 6 | `s6_` | `s6_001_analytics.py` |
-| Sprint 7 | `s7_` | `s7_001_ai_features.py` |
+| Sprint   | Prefix | Example                     |
+| -------- | ------ | --------------------------- |
+| Sprint 1 | `s1_`  | `s1_001_initial_schema.py`  |
+| Sprint 2 | `s2_`  | `s2_001_add_indexes.py`     |
+| Sprint 3 | `s3_`  | `s3_001_refactor_fields.py` |
+| Sprint 4 | `s4_`  | `s4_001_add_events.py`      |
+| Sprint 5 | `s5_`  | `s5_001_marketplace.py`     |
+| Sprint 6 | `s6_`  | `s6_001_analytics.py`       |
+| Sprint 7 | `s7_`  | `s7_001_ai_features.py`     |
 
 ### 3. Downgrade Support
 
@@ -49,6 +50,7 @@ def downgrade():
 > **One logical change = one migration.**
 
 Bad:
+
 ```python
 # DON'T: Multiple unrelated changes
 def upgrade():
@@ -58,6 +60,7 @@ def upgrade():
 ```
 
 Good:
+
 ```python
 # DO: Separate migrations
 # s3_001_add_user_email.py
@@ -76,6 +79,7 @@ Good:
 - `description`: snake_case, max 30 chars
 
 Examples:
+
 - `s1_001_initial_schema.py`
 - `s3_005_add_ndvi_column.py`
 - `s7_012_create_ai_feedback_table.py`
@@ -143,14 +147,17 @@ def upgrade():
 ## Environment Safety
 
 ### Development
+
 - Run all migrations
 - Test downgrades
 
 ### Staging
+
 - Run all migrations
 - Verify with production-like data
 
 ### Production
+
 - Run during maintenance window
 - Have rollback plan ready
 - Monitor after deployment

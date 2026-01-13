@@ -20,12 +20,14 @@ The Admin Dashboard is a Next.js 15-based application built for managing the Sah
 ### Status: ✅ EXCELLENT
 
 #### Configuration Analysis
+
 - **TypeScript Version:** 5.7.2 (latest)
 - **Strict Mode:** Enabled ✅
 - **Build Errors:** Zero ✅
 - **Type Checking:** Passing without errors
 
 #### tsconfig.json Review
+
 ```json
 {
   "compilerOptions": {
@@ -40,15 +42,18 @@ The Admin Dashboard is a Next.js 15-based application built for managing the Sah
 ```
 
 **Strengths:**
+
 - Strict type checking enabled
 - Proper path aliases configured for monorepo
 - Next.js plugin integration
 - Incremental builds enabled for performance
 
 **Issues Found:**
+
 - None
 
 **Recommendations:**
+
 - ✅ Configuration is optimal for production use
 
 ---
@@ -62,6 +67,7 @@ The Admin Dashboard is a Next.js 15-based application built for managing the Sah
 **Implementation:** `/apps/admin/src/lib/security/csp-config.ts`
 
 **Strengths:**
+
 - ✅ Nonce-based CSP implementation
 - ✅ Environment-aware directives (dev vs production)
 - ✅ Cryptographically secure nonce generation using Web Crypto API
@@ -72,6 +78,7 @@ The Admin Dashboard is a Next.js 15-based application built for managing the Sah
 - ✅ Upgrade insecure requests in production
 
 **Configuration Highlights:**
+
 ```typescript
 'script-src': [
   "'self'",
@@ -85,6 +92,7 @@ The Admin Dashboard is a Next.js 15-based application built for managing the Sah
 **Implementation:** `/apps/admin/next.config.js` + `/apps/admin/src/middleware.ts`
 
 **Headers Implemented:**
+
 - ✅ Strict-Transport-Security (HSTS)
 - ✅ X-Frame-Options: DENY
 - ✅ X-Content-Type-Options: nosniff
@@ -97,6 +105,7 @@ The Admin Dashboard is a Next.js 15-based application built for managing the Sah
 **Implementation:** `/apps/admin/src/middleware.ts` + `/apps/admin/src/stores/auth.store.tsx`
 
 **Strengths:**
+
 - ✅ Middleware-based route protection
 - ✅ Cookie-based authentication with secure flags
 - ✅ Role-based access control (admin, supervisor, viewer)
@@ -107,15 +116,17 @@ The Admin Dashboard is a Next.js 15-based application built for managing the Sah
 - ✅ Secure cookie configuration (httpOnly implied, sameSite: strict)
 
 **Cookie Configuration:**
+
 ```typescript
-Cookies.set('sahool_admin_token', access_token, {
+Cookies.set("sahool_admin_token", access_token, {
   expires: 7,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict'
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
 });
 ```
 
 **Issues Found:**
+
 - ⚠️ Missing `httpOnly` flag on auth cookie - should be set to prevent XSS access
 - ⚠️ 7-day cookie expiration is long - consider shorter duration with refresh tokens
 
@@ -124,6 +135,7 @@ Cookies.set('sahool_admin_token', access_token, {
 **Implementation:** `/apps/admin/src/lib/validation.ts`
 
 **Strengths:**
+
 - ✅ Comprehensive validation utilities
 - ✅ XSS prevention through HTML sanitization
 - ✅ Email validation with RFC 5322 compliance
@@ -132,13 +144,14 @@ Cookies.set('sahool_admin_token', access_token, {
 - ✅ Path traversal prevention in filename sanitization
 
 **Example:**
+
 ```typescript
 sanitizers.html = (input: string): string => {
   return input
-    .replace(/<[^>]*>/g, '')  // Remove HTML tags
-    .replace(/javascript:/gi, '')
-    .replace(/on\w+=/gi, '')  // Remove event handlers
-    .replace(/data:/gi, '')
+    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/javascript:/gi, "")
+    .replace(/on\w+=/gi, "") // Remove event handlers
+    .replace(/data:/gi, "")
     .trim();
 };
 ```
@@ -148,6 +161,7 @@ sanitizers.html = (input: string): string => {
 **Implementation:** `/apps/admin/src/lib/api-client.ts`
 
 **Strengths:**
+
 - ✅ Input sanitization on login endpoint
 - ✅ HTTPS enforcement in production
 - ✅ Request timeout implementation (30 seconds)
@@ -156,11 +170,13 @@ sanitizers.html = (input: string): string => {
 - ✅ Retry logic for server errors only (not client errors)
 
 **Issues Found:**
+
 - ⚠️ Sanitization could be more robust (currently only removes `<>`)
 
 ### Security Score: 9.2/10
 
 **Critical Recommendations:**
+
 1. Add `httpOnly: true` to cookie configuration
 2. Implement shorter token expiration with refresh token mechanism
 3. Add rate limiting on login endpoint
@@ -178,6 +194,7 @@ sanitizers.html = (input: string): string => {
 **Source Size:** 580KB
 
 **Directory Structure:**
+
 ```
 apps/admin/src/
 ├── app/                    # Next.js App Router pages
@@ -203,6 +220,7 @@ apps/admin/src/
 ```
 
 **Strengths:**
+
 - ✅ Clear separation of concerns
 - ✅ Organized by feature and type
 - ✅ App Router structure follows Next.js 15 conventions
@@ -211,15 +229,18 @@ apps/admin/src/
 ### 3.2 Component Quality
 
 **Error Handling:**
+
 - ✅ ErrorBoundary implementation with server-side logging
 - ✅ Graceful error states with retry functionality
 - ✅ Development-friendly error messages with stack traces
 
 **Code Splitting:**
+
 - ✅ Dynamic imports for map components (no SSR)
 - ✅ Lazy loading implemented where appropriate
 
 **Example:**
+
 ```typescript
 const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
   ssr: false,
@@ -230,16 +251,19 @@ const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
 ### 3.3 Component Architecture
 
 **Patterns Used:**
+
 - ✅ Server and Client Components properly separated
 - ✅ Suspense boundaries for loading states
 - ✅ Composition over inheritance
 - ✅ HOC pattern for authentication (AuthGuard)
 
 **Issues Found:**
+
 - ⚠️ Limited test coverage (only 2 test files found)
 - ⚠️ Some components could be broken down further (dashboard page is 565 lines)
 
 **Recommendations:**
+
 1. Add unit tests for critical components
 2. Break down large components (dashboard page)
 3. Consider implementing component documentation (Storybook)
@@ -255,6 +279,7 @@ const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
 **Implementation:** Centralized API client with singleton pattern
 
 **Features:**
+
 - ✅ Unified error handling
 - ✅ Automatic retry logic with exponential backoff
 - ✅ Request timeout support
@@ -263,6 +288,7 @@ const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
 - ✅ Response normalization
 
 **Retry Configuration:**
+
 ```typescript
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY = 1000; // 1 second
@@ -270,6 +296,7 @@ const RETRY_DELAY = 1000; // 1 second
 ```
 
 **Strengths:**
+
 - ✅ Retries only on 5xx errors (not 4xx)
 - ✅ Proper AbortController usage for timeouts
 - ✅ Content-Type negotiation
@@ -280,6 +307,7 @@ const RETRY_DELAY = 1000; // 1 second
 **Implementation:** `/apps/admin/src/lib/websocket.ts`
 
 **Features:**
+
 - ✅ Auto-reconnect with exponential backoff
 - ✅ Connection state management
 - ✅ Event-based architecture
@@ -289,6 +317,7 @@ const RETRY_DELAY = 1000; // 1 second
 - ✅ Max reconnect attempts (10) with backoff
 
 **Connection Management:**
+
 ```typescript
 private scheduleReconnect(): void {
   const delay = Math.min(
@@ -299,6 +328,7 @@ private scheduleReconnect(): void {
 ```
 
 **Strengths:**
+
 - ✅ Secure WebSocket (wss://) in production
 - ✅ Event subscription/unsubscription pattern
 - ✅ Memory leak prevention through cleanup
@@ -307,6 +337,7 @@ private scheduleReconnect(): void {
 ### 4.3 React Hooks for Data Fetching
 
 **Custom Hooks:**
+
 - `useWebSocket` - WebSocket connection management
 - `useWebSocketEvent` - Event subscription
 - `useRealtimeData` - Real-time data stream management
@@ -314,10 +345,11 @@ private scheduleReconnect(): void {
 - `useRealTimeAlerts` - Alert notifications
 
 **Example Usage:**
+
 ```typescript
 const { isConnected, subscribe } = useWebSocket({ autoConnect: true });
 
-useWebSocketEvent<AlertMessage>('alert', (alert) => {
+useWebSocketEvent<AlertMessage>("alert", (alert) => {
   // Handle real-time alert
 });
 ```
@@ -335,6 +367,7 @@ useWebSocketEvent<AlertMessage>('alert', (alert) => {
 **Login Implementation:** `/apps/admin/src/app/login/page.tsx`
 
 **Features:**
+
 - ✅ Email/password authentication
 - ✅ Two-Factor Authentication (2FA/TOTP) support
 - ✅ Return URL preservation
@@ -344,6 +377,7 @@ useWebSocketEvent<AlertMessage>('alert', (alert) => {
 - ✅ Client-side validation
 
 **2FA Flow:**
+
 1. User submits credentials
 2. Backend returns `requires_2fa: true` with `temp_token`
 3. UI switches to 2FA code input
@@ -353,15 +387,17 @@ useWebSocketEvent<AlertMessage>('alert', (alert) => {
 ### 5.2 Authorization (RBAC)
 
 **Role Hierarchy:**
+
 ```typescript
 const roleHierarchy = {
-  admin: 3,      // Full access
+  admin: 3, // Full access
   supervisor: 2, // Moderate access
-  viewer: 1      // Read-only access
+  viewer: 1, // Read-only access
 };
 ```
 
 **AuthGuard Implementation:**
+
 - ✅ Route-level protection
 - ✅ Role-based access control
 - ✅ Automatic redirect for insufficient permissions
@@ -373,17 +409,20 @@ const roleHierarchy = {
 **Token Storage:** Cookie-based (7-day expiration)
 
 **Session Validation:**
+
 - ✅ Middleware checks token on every request
 - ✅ Client-side auth check on mount
 - ✅ Token refresh capability (endpoint exists)
 - ✅ Automatic logout on token expiration
 
 **Issues Found:**
+
 - ⚠️ No automatic token refresh implementation
 - ⚠️ Session timeout not implemented (user stays logged in for 7 days)
 - ⚠️ No "Remember Me" option with different expiration times
 
 **Recommendations:**
+
 1. Implement automatic token refresh before expiration
 2. Add idle timeout (e.g., 30 minutes of inactivity)
 3. Add session activity tracking
@@ -400,12 +439,14 @@ const roleHierarchy = {
 ### 6.1 Multi-Stage Build
 
 **Stages:**
+
 1. `base` - Node.js 20 Alpine
 2. `deps` - Dependency installation
 3. `builder` - Build phase
 4. `runner` - Production runtime
 
 **Strengths:**
+
 - ✅ Multi-stage build reduces final image size
 - ✅ Alpine Linux for minimal footprint
 - ✅ Build arguments for configuration
@@ -424,6 +465,7 @@ USER nextjs
 ```
 
 **Features:**
+
 - ✅ Runs as non-root user
 - ✅ Minimal attack surface (Alpine)
 - ✅ No unnecessary packages
@@ -433,6 +475,7 @@ USER nextjs
 ### 6.3 Build Optimization
 
 **Features:**
+
 - ✅ Standalone output mode for smaller images
 - ✅ Shared workspace dependencies
 - ✅ Retry logic for npm install
@@ -440,16 +483,19 @@ USER nextjs
 - ✅ Proper .dockerignore configuration
 
 **Issues Found:**
+
 - ⚠️ No health check defined
 - ⚠️ No resource limits specified
 
 **.dockerignore Analysis:**
+
 - ✅ Comprehensive exclusions
 - ✅ Excludes build artifacts
 - ✅ Excludes environment files
 - ✅ Excludes IDE configurations
 
 **Recommendations:**
+
 1. Add HEALTHCHECK instruction
 2. Document resource requirements
 3. Consider using specific Node.js version (not just "20")
@@ -465,32 +511,35 @@ USER nextjs
 
 ### 7.1 Production Dependencies
 
-| Package | Version | Status | Notes |
-|---------|---------|--------|-------|
-| next | 15.5.9 | ✅ Latest | Core framework |
-| react | 19.0.0 | ✅ Latest | UI library |
-| react-dom | 19.0.0 | ✅ Latest | DOM rendering |
-| axios | 1.13.2 | ⚠️ Custom | Not using fetch API |
-| @tanstack/react-query | 5.62.8 | ✅ Good | Data fetching |
-| leaflet | 1.9.4 | ✅ Stable | Maps |
-| react-leaflet | 4.2.1 | ✅ Stable | React maps |
-| recharts | 2.15.3 | ✅ Latest | Charts |
-| jose | 5.9.6 | ✅ Latest | JWT handling |
-| js-cookie | 3.0.5 | ✅ Latest | Cookie management |
-| date-fns | 4.1.0 | ✅ Latest | Date utilities |
+| Package               | Version | Status    | Notes               |
+| --------------------- | ------- | --------- | ------------------- |
+| next                  | 15.5.9  | ✅ Latest | Core framework      |
+| react                 | 19.0.0  | ✅ Latest | UI library          |
+| react-dom             | 19.0.0  | ✅ Latest | DOM rendering       |
+| axios                 | 1.13.2  | ⚠️ Custom | Not using fetch API |
+| @tanstack/react-query | 5.62.8  | ✅ Good   | Data fetching       |
+| leaflet               | 1.9.4   | ✅ Stable | Maps                |
+| react-leaflet         | 4.2.1   | ✅ Stable | React maps          |
+| recharts              | 2.15.3  | ✅ Latest | Charts              |
+| jose                  | 5.9.6   | ✅ Latest | JWT handling        |
+| js-cookie             | 3.0.5   | ✅ Latest | Cookie management   |
+| date-fns              | 4.1.0   | ✅ Latest | Date utilities      |
 
 ### 7.2 Development Dependencies
 
 **TypeScript Ecosystem:**
+
 - ✅ TypeScript 5.7.2 (latest)
 - ✅ Proper type definitions for all packages
 
 **Testing:**
+
 - ✅ Vitest 3.2.4
 - ✅ @testing-library/react 16.3.0
 - ✅ @vitest/coverage-v8
 
 **Build Tools:**
+
 - ✅ Next.js Bundle Analyzer
 - ✅ Tailwind CSS 3.4.17
 - ✅ PostCSS, Autoprefixer
@@ -498,12 +547,14 @@ USER nextjs
 ### 7.3 Workspace Dependencies
 
 **Monorepo Packages:**
+
 - @sahool/api-client
 - @sahool/shared-ui
 - @sahool/shared-utils
 - @sahool/shared-hooks
 
 **Strengths:**
+
 - ✅ Code reuse across applications
 - ✅ Consistent versioning
 - ✅ Type-safe shared packages
@@ -511,15 +562,18 @@ USER nextjs
 ### 7.4 Security Audit
 
 **Findings:**
+
 - ✅ No known vulnerabilities in current dependencies
 - ✅ All packages are relatively up-to-date
 - ✅ No deprecated packages
 
 **Issues Found:**
+
 - ⚠️ Using custom axios instead of native fetch (Next.js recommends fetch)
 - ⚠️ One extraneous package: @emnapi/runtime@1.8.0
 
 **Recommendations:**
+
 1. Consider migrating from axios to native fetch API
 2. Remove extraneous @emnapi/runtime package
 3. Set up automated dependency updates (Dependabot/Renovate)
@@ -534,6 +588,7 @@ USER nextjs
 ### 8.1 Performance Optimizations
 
 **Implemented:**
+
 - ✅ Code splitting (dynamic imports)
 - ✅ Image optimization (Next.js Image)
 - ✅ Static asset caching
@@ -543,28 +598,31 @@ USER nextjs
 **Performance Hooks Count:** 30 instances of useMemo/useCallback/React.memo
 
 **Examples Found:**
+
 ```typescript
 // Dynamic imports for maps (no SSR)
-const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
-  ssr: false
+const FarmsMap = dynamic(() => import("@/components/maps/FarmsMap"), {
+  ssr: false,
 });
 
 // Memoization in auth store
 const value = React.useMemo(
   () => ({ user, isAuthenticated, isLoading, login, logout, checkAuth }),
-  [user, isLoading, login, logout, checkAuth]
+  [user, isLoading, login, logout, checkAuth],
 );
 ```
 
 ### 8.2 Bundle Optimization
 
 **Features:**
+
 - ✅ Bundle analyzer configured
 - ✅ Optimized package imports (lucide-react, recharts)
 - ✅ Tree-shaking enabled
 - ✅ No duplicate dependencies
 
 **Next.js Configuration:**
+
 ```javascript
 experimental: {
   optimizePackageImports: ['lucide-react', '@tanstack/react-query', 'recharts'],
@@ -574,6 +632,7 @@ experimental: {
 ### 8.3 Rendering Performance
 
 **Strategies:**
+
 - ✅ Server Components for static content
 - ✅ Client Components for interactive UI
 - ✅ Suspense boundaries for loading states
@@ -581,6 +640,7 @@ experimental: {
 - ✅ Force dynamic rendering where needed
 
 **Issues Found:**
+
 - ⚠️ Dashboard page loads all charts on initial render (no lazy loading)
 - ⚠️ No virtualization for long lists
 - ⚠️ Real-time updates could cause excessive re-renders
@@ -588,6 +648,7 @@ experimental: {
 ### 8.4 Network Performance
 
 **Strengths:**
+
 - ✅ HTTP/2 support (via Next.js)
 - ✅ Automatic prefetching of Next.js Link components
 - ✅ CDN-ready static assets
@@ -595,6 +656,7 @@ experimental: {
 - ✅ Request timeout prevention
 
 **WebSocket Performance:**
+
 - ✅ Heartbeat prevents connection drops
 - ✅ Automatic reconnection
 - ✅ Event subscription cleanup
@@ -602,16 +664,19 @@ experimental: {
 ### 8.5 Caching Strategy
 
 **Implementation:**
+
 - ✅ Static asset caching (via Next.js)
 - ✅ API response caching (via React Query - implied)
 - ⚠️ No explicit cache headers in API client
 
 **Issues Found:**
+
 - ⚠️ No service worker for offline support
 - ⚠️ No request deduplication implemented
 - ⚠️ WebSocket messages not cached
 
 **Recommendations:**
+
 1. Implement chart lazy loading (load on scroll)
 2. Add virtualization for long lists (react-window)
 3. Debounce real-time updates to prevent render thrashing
@@ -623,23 +688,24 @@ experimental: {
 
 ## Code Quality Metrics
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Total Files | 62 | ✅ |
-| Source Size | 580KB | ✅ Good |
-| TypeScript Errors | 0 | ✅ Excellent |
-| Test Files | 2 | ⚠️ Low |
-| Test Coverage | Unknown | ⚠️ Need metrics |
-| TODO Comments | 1 | ✅ Good |
-| Performance Optimizations | 30+ | ✅ Good |
-| Security Headers | 8 | ✅ Excellent |
-| RBAC Roles | 3 | ✅ Good |
+| Metric                    | Value   | Status          |
+| ------------------------- | ------- | --------------- |
+| Total Files               | 62      | ✅              |
+| Source Size               | 580KB   | ✅ Good         |
+| TypeScript Errors         | 0       | ✅ Excellent    |
+| Test Files                | 2       | ⚠️ Low          |
+| Test Coverage             | Unknown | ⚠️ Need metrics |
+| TODO Comments             | 1       | ✅ Good         |
+| Performance Optimizations | 30+     | ✅ Good         |
+| Security Headers          | 8       | ✅ Excellent    |
+| RBAC Roles                | 3       | ✅ Good         |
 
 ---
 
 ## Critical Issues
 
 ### Priority 1 (High) - Security
+
 1. **Missing httpOnly flag on auth cookie**
    - Risk: XSS attacks could steal tokens
    - Fix: Add `httpOnly: true` to cookie configuration
@@ -649,6 +715,7 @@ experimental: {
    - Fix: Implement shorter expiration with refresh tokens
 
 ### Priority 2 (Medium) - Performance
+
 3. **Dashboard loads all charts immediately**
    - Impact: Slower initial page load
    - Fix: Implement lazy loading for below-fold charts
@@ -658,6 +725,7 @@ experimental: {
    - Fix: Add unit and integration tests
 
 ### Priority 3 (Low) - Maintenance
+
 5. **Large component files**
    - Impact: Harder to maintain
    - Fix: Break down 500+ line components
@@ -702,11 +770,13 @@ experimental: {
 ## Recommendations Priority List
 
 ### Immediate (Week 1)
+
 1. Add `httpOnly: true` to authentication cookies
 2. Implement automated testing framework
 3. Add HEALTHCHECK to Dockerfile
 
 ### Short-term (Month 1)
+
 4. Implement token refresh mechanism
 5. Add idle timeout for sessions
 6. Set up error tracking service (Sentry)
@@ -714,6 +784,7 @@ experimental: {
 8. Implement chart lazy loading
 
 ### Medium-term (Quarter 1)
+
 9. Add comprehensive test coverage (target: 80%)
 10. Implement virtualization for long lists
 11. Add service worker for offline support
@@ -722,6 +793,7 @@ experimental: {
 14. Add component documentation (Storybook)
 
 ### Long-term (Ongoing)
+
 15. Monitor and optimize bundle size
 16. Implement advanced caching strategies
 17. Add performance monitoring (Web Vitals)
@@ -736,12 +808,14 @@ experimental: {
 The Sahool Admin Dashboard is a well-architected, secure, and modern web application that demonstrates professional-grade development practices. The application excels in security implementation, real-time capabilities, and overall code quality.
 
 **Key Strengths:**
+
 - Production-ready security measures
 - Clean, maintainable code structure
 - Robust real-time features
 - Modern tech stack
 
 **Areas for Improvement:**
+
 - Increase test coverage
 - Optimize initial load performance
 - Enhance session security
@@ -756,6 +830,7 @@ The application is ready for production deployment with the recommended security
 ## Appendix: File Locations
 
 ### Critical Files
+
 - **TypeScript Config:** `/apps/admin/tsconfig.json`
 - **Next.js Config:** `/apps/admin/next.config.js`
 - **Middleware:** `/apps/admin/src/middleware.ts`
@@ -768,6 +843,7 @@ The application is ready for production deployment with the recommended security
 - **Package.json:** `/apps/admin/package.json`
 
 ### Key Components
+
 - **Dashboard:** `/apps/admin/src/app/dashboard/page.tsx`
 - **Login:** `/apps/admin/src/app/login/page.tsx`
 - **Layout:** `/apps/admin/src/app/layout.tsx`

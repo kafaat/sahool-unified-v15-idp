@@ -1,4 +1,5 @@
 # SAHOOL Code Fix Agent
+
 # وكيل إصلاح الكود
 
 AI-powered code analysis, bug fixing, and implementation agent for the SAHOOL platform.
@@ -39,17 +40,17 @@ code-fix-agent/
 
 ## API Endpoints / نقاط النهاية
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/analyze` | POST | تحليل الكود |
-| `/api/v1/fix` | POST | إصلاح الكود |
-| `/api/v1/review` | POST | مراجعة PR |
-| `/api/v1/generate-tests` | POST | توليد الاختبارات |
-| `/api/v1/implement` | POST | تنفيذ ميزة |
-| `/api/v1/feedback` | POST | تغذية راجعة للتعلم |
-| `/healthz` | GET | فحص الحياة |
-| `/readyz` | GET | فحص الجاهزية |
-| `/metrics` | GET | مقاييس بروميثيوس |
+| Endpoint                 | Method | Description        |
+| ------------------------ | ------ | ------------------ |
+| `/api/v1/analyze`        | POST   | تحليل الكود        |
+| `/api/v1/fix`            | POST   | إصلاح الكود        |
+| `/api/v1/review`         | POST   | مراجعة PR          |
+| `/api/v1/generate-tests` | POST   | توليد الاختبارات   |
+| `/api/v1/implement`      | POST   | تنفيذ ميزة         |
+| `/api/v1/feedback`       | POST   | تغذية راجعة للتعلم |
+| `/healthz`               | GET    | فحص الحياة         |
+| `/readyz`                | GET    | فحص الجاهزية       |
+| `/metrics`               | GET    | مقاييس بروميثيوس   |
 
 ## Quick Start / البداية السريعة
 
@@ -100,12 +101,12 @@ curl -X POST http://localhost:8090/api/v1/fix \
 
 ## Configuration / التكوين
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | 8090 | Service port |
-| `HOST` | 0.0.0.0 | Bind address |
-| `LOG_LEVEL` | INFO | Logging level |
-| `NATS_URL` | - | NATS server URL |
+| Variable    | Default | Description     |
+| ----------- | ------- | --------------- |
+| `PORT`      | 8090    | Service port    |
+| `HOST`      | 0.0.0.0 | Bind address    |
+| `LOG_LEVEL` | INFO    | Logging level   |
+| `NATS_URL`  | -       | NATS server URL |
 
 ## Supported Languages / اللغات المدعومة
 

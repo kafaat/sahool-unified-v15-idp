@@ -14,6 +14,7 @@
 ## الملفات المُنشأة
 
 ### Python (FastAPI)
+
 ```
 shared/auth/
 ├── service_auth.py              # ServiceToken class والدوال الأساسية
@@ -22,6 +23,7 @@ shared/auth/
 ```
 
 ### TypeScript (NestJS)
+
 ```
 shared/auth/
 ├── service_auth.ts              # ServiceToken class والدوال الأساسية
@@ -30,6 +32,7 @@ shared/auth/
 ```
 
 ### التوثيق
+
 ```
 shared/auth/
 ├── SERVICE_AUTH_README.md       # هذا الملف
@@ -107,19 +110,15 @@ async def update_data(
 #### 1. إنشاء Service Token
 
 ```typescript
-import { createServiceToken } from './shared/auth/service_auth';
-import axios from 'axios';
+import { createServiceToken } from "./shared/auth/service_auth";
+import axios from "axios";
 
 // إنشاء token
-const token = createServiceToken(
-  'farm-service',
-  'field-service',
-  300
-);
+const token = createServiceToken("farm-service", "field-service", 300);
 
 // استخدام الـ token
-const response = await axios.get('http://field-service/api/fields', {
-  headers: { 'X-Service-Token': token },
+const response = await axios.get("http://field-service/api/fields", {
+  headers: { "X-Service-Token": token },
 });
 ```
 
@@ -194,6 +193,7 @@ pip install PyJWT fastapi
 ```
 
 في `requirements.txt`:
+
 ```text
 PyJWT>=2.8.0
 fastapi>=0.100.0
@@ -208,6 +208,7 @@ npm install -D @types/jsonwebtoken @types/uuid
 ```
 
 في `package.json`:
+
 ```json
 {
   "dependencies": {
@@ -255,9 +256,11 @@ npm test  # إذا أضفت script في package.json
 ## أمثلة الاستخدام الكاملة
 
 للحصول على أمثلة تفصيلية وشاملة، راجع:
+
 - 📖 [SERVICE_AUTH_EXAMPLES.md](./SERVICE_AUTH_EXAMPLES.md)
 
 يحتوي على:
+
 - أمثلة كاملة لـ FastAPI
 - أمثلة كاملة لـ NestJS
 - أمثلة معالجة الأخطاء
@@ -322,6 +325,7 @@ SERVICE_COMMUNICATION_MATRIX = {
 ### خطأ: "Invalid service authentication token"
 
 **الأسباب المحتملة**:
+
 - Token منتهي الصلاحية
 - JWT_SECRET مختلف بين الخدمات
 - Token تم التلاعب به
@@ -336,6 +340,7 @@ SERVICE_COMMUNICATION_MATRIX = {
 ## الدعم والمساهمة
 
 للإبلاغ عن مشاكل أو طلب ميزات جديدة:
+
 1. تحقق من [SERVICE_AUTH_EXAMPLES.md](./SERVICE_AUTH_EXAMPLES.md) للحلول الشائعة
 2. قم بتشغيل ملفات الاختبار للتأكد من عمل النظام
 3. تواصل مع فريق التطوير

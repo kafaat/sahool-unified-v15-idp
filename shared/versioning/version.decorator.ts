@@ -3,15 +3,15 @@
  * Decorators for version-specific controllers and methods
  */
 
-import { applyDecorators, SetMetadata } from '@nestjs/common';
-import { ApiHeader, ApiTags } from '@nestjs/swagger';
+import { applyDecorators, SetMetadata } from "@nestjs/common";
+import { ApiHeader, ApiTags } from "@nestjs/swagger";
 
 /**
  * API Version enum
  */
 export enum ApiVersion {
-  V1 = '1',
-  V2 = '2',
+  V1 = "1",
+  V2 = "2",
 }
 
 /**
@@ -22,13 +22,13 @@ export function ApiV1(resourceName: string) {
   return applyDecorators(
     ApiTags(`${resourceName} (v1 - Deprecated)`),
     ApiHeader({
-      name: 'X-API-Version',
-      description: 'API Version (optional, defaults to URI version)',
+      name: "X-API-Version",
+      description: "API Version (optional, defaults to URI version)",
       required: false,
-      example: '1',
+      example: "1",
     }),
-    SetMetadata('api-version', ApiVersion.V1),
-    SetMetadata('api-deprecated', true),
+    SetMetadata("api-version", ApiVersion.V1),
+    SetMetadata("api-deprecated", true),
   );
 }
 
@@ -40,12 +40,12 @@ export function ApiV2(resourceName: string) {
   return applyDecorators(
     ApiTags(`${resourceName} (v2)`),
     ApiHeader({
-      name: 'X-API-Version',
-      description: 'API Version (optional, defaults to URI version)',
+      name: "X-API-Version",
+      description: "API Version (optional, defaults to URI version)",
       required: false,
-      example: '2',
+      example: "2",
     }),
-    SetMetadata('api-version', ApiVersion.V2),
+    SetMetadata("api-version", ApiVersion.V2),
   );
 }
 
@@ -54,15 +54,15 @@ export function ApiV2(resourceName: string) {
  */
 export function ApiDeprecated(reason?: string, alternativeEndpoint?: string) {
   const description = [
-    '⚠️ DEPRECATED',
+    "⚠️ DEPRECATED",
     reason && `Reason: ${reason}`,
     alternativeEndpoint && `Use instead: ${alternativeEndpoint}`,
   ]
     .filter(Boolean)
-    .join(' | ');
+    .join(" | ");
 
   return applyDecorators(
-    SetMetadata('method-deprecated', true),
-    SetMetadata('deprecation-info', { reason, alternativeEndpoint }),
+    SetMetadata("method-deprecated", true),
+    SetMetadata("deprecation-info", { reason, alternativeEndpoint }),
   );
 }

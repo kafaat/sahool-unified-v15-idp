@@ -3,8 +3,8 @@
 // Unified utility functions for all frontend applications
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Class Name Utilities
@@ -26,12 +26,12 @@ export function cn(...inputs: ClassValue[]) {
  * Format date for Arabic/English display
  * تنسيق التاريخ للعرض بالعربية/الإنجليزية
  */
-export function formatDate(date: string | Date, locale: string = 'ar'): string {
+export function formatDate(date: string | Date, locale: string = "ar"): string {
   const d = new Date(date);
-  return d.toLocaleDateString(locale === 'ar' ? 'ar-YE' : 'en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+  return d.toLocaleDateString(locale === "ar" ? "ar-YE" : "en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 }
 
@@ -39,14 +39,17 @@ export function formatDate(date: string | Date, locale: string = 'ar'): string {
  * Format date with time
  * تنسيق التاريخ مع الوقت
  */
-export function formatDateTime(date: string | Date, locale: string = 'ar'): string {
+export function formatDateTime(
+  date: string | Date,
+  locale: string = "ar",
+): string {
   const d = new Date(date);
-  return d.toLocaleString(locale === 'ar' ? 'ar-YE' : 'en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return d.toLocaleString(locale === "ar" ? "ar-YE" : "en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
@@ -58,25 +61,29 @@ export function formatDateTime(date: string | Date, locale: string = 'ar'): stri
  * Format number for Arabic/English display
  * تنسيق الأرقام للعرض بالعربية/الإنجليزية
  */
-export function formatNumber(num: number, locale: string = 'ar'): string {
-  return num.toLocaleString(locale === 'ar' ? 'ar-YE' : 'en-US');
+export function formatNumber(num: number, locale: string = "ar"): string {
+  return num.toLocaleString(locale === "ar" ? "ar-YE" : "en-US");
 }
 
 /**
  * Format area in hectares
  * تنسيق المساحة بالهكتار
  */
-export function formatArea(hectares: number, locale: string = 'ar'): string {
-  return `${formatNumber(hectares, locale)} ${locale === 'ar' ? 'هكتار' : 'ha'}`;
+export function formatArea(hectares: number, locale: string = "ar"): string {
+  return `${formatNumber(hectares, locale)} ${locale === "ar" ? "هكتار" : "ha"}`;
 }
 
 /**
  * Format currency
  * تنسيق العملة
  */
-export function formatCurrency(amount: number, locale: string = 'ar', currency: string = 'YER'): string {
-  return new Intl.NumberFormat(locale === 'ar' ? 'ar-YE' : 'en-US', {
-    style: 'currency',
+export function formatCurrency(
+  amount: number,
+  locale: string = "ar",
+  currency: string = "YER",
+): string {
+  return new Intl.NumberFormat(locale === "ar" ? "ar-YE" : "en-US", {
+    style: "currency",
     currency,
   }).format(amount);
 }
@@ -85,7 +92,7 @@ export function formatCurrency(amount: number, locale: string = 'ar', currency: 
  * Format percentage
  * تنسيق النسبة المئوية
  */
-export function formatPercentage(value: number, locale: string = 'ar'): string {
+export function formatPercentage(value: number, locale: string = "ar"): string {
   return `${formatNumber(Math.round(value * 100) / 100, locale)}%`;
 }
 
@@ -98,10 +105,10 @@ export function formatPercentage(value: number, locale: string = 'ar'): string {
  * الحصول على أصناف ألوان درجة الصحة
  */
 export function getHealthScoreColor(score: number): string {
-  if (score >= 80) return 'text-green-600 bg-green-100';
-  if (score >= 60) return 'text-yellow-600 bg-yellow-100';
-  if (score >= 40) return 'text-orange-600 bg-orange-100';
-  return 'text-red-600 bg-red-100';
+  if (score >= 80) return "text-green-600 bg-green-100";
+  if (score >= 60) return "text-yellow-600 bg-yellow-100";
+  if (score >= 40) return "text-orange-600 bg-orange-100";
+  return "text-red-600 bg-red-100";
 }
 
 /**
@@ -110,12 +117,12 @@ export function getHealthScoreColor(score: number): string {
  */
 export function getSeverityColor(severity: string): string {
   const colors: Record<string, string> = {
-    low: 'text-green-600 bg-green-100',
-    medium: 'text-yellow-600 bg-yellow-100',
-    high: 'text-orange-600 bg-orange-100',
-    critical: 'text-red-600 bg-red-100',
+    low: "text-green-600 bg-green-100",
+    medium: "text-yellow-600 bg-yellow-100",
+    high: "text-orange-600 bg-orange-100",
+    critical: "text-red-600 bg-red-100",
   };
-  return colors[severity] || 'text-gray-600 bg-gray-100';
+  return colors[severity] || "text-gray-600 bg-gray-100";
 }
 
 /**
@@ -124,18 +131,18 @@ export function getSeverityColor(severity: string): string {
  */
 export function getStatusColor(status: string): string {
   const colors: Record<string, string> = {
-    pending: 'text-yellow-600 bg-yellow-100',
-    confirmed: 'text-blue-600 bg-blue-100',
-    rejected: 'text-gray-600 bg-gray-100',
-    treated: 'text-green-600 bg-green-100',
-    active: 'text-green-600 bg-green-100',
-    inactive: 'text-red-600 bg-red-100',
-    success: 'text-green-600 bg-green-100',
-    error: 'text-red-600 bg-red-100',
-    warning: 'text-yellow-600 bg-yellow-100',
-    info: 'text-blue-600 bg-blue-100',
+    pending: "text-yellow-600 bg-yellow-100",
+    confirmed: "text-blue-600 bg-blue-100",
+    rejected: "text-gray-600 bg-gray-100",
+    treated: "text-green-600 bg-green-100",
+    active: "text-green-600 bg-green-100",
+    inactive: "text-red-600 bg-red-100",
+    success: "text-green-600 bg-green-100",
+    error: "text-red-600 bg-red-100",
+    warning: "text-yellow-600 bg-yellow-100",
+    info: "text-blue-600 bg-blue-100",
   };
-  return colors[status] || 'text-gray-600 bg-gray-100';
+  return colors[status] || "text-gray-600 bg-gray-100";
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -146,19 +153,22 @@ export function getStatusColor(status: string): string {
  * Get severity label in Arabic/English
  * الحصول على تسمية الخطورة بالعربية/الإنجليزية
  */
-export function getSeverityLabel(severity: string, locale: string = 'ar'): string {
+export function getSeverityLabel(
+  severity: string,
+  locale: string = "ar",
+): string {
   const labels: Record<string, Record<string, string>> = {
     ar: {
-      low: 'منخفض',
-      medium: 'متوسط',
-      high: 'مرتفع',
-      critical: 'حرج',
+      low: "منخفض",
+      medium: "متوسط",
+      high: "مرتفع",
+      critical: "حرج",
     },
     en: {
-      low: 'Low',
-      medium: 'Medium',
-      high: 'High',
-      critical: 'Critical',
+      low: "Low",
+      medium: "Medium",
+      high: "High",
+      critical: "Critical",
     },
   };
   return labels[locale]?.[severity] || severity;
@@ -168,31 +178,31 @@ export function getSeverityLabel(severity: string, locale: string = 'ar'): strin
  * Get status label in Arabic/English
  * الحصول على تسمية الحالة بالعربية/الإنجليزية
  */
-export function getStatusLabel(status: string, locale: string = 'ar'): string {
+export function getStatusLabel(status: string, locale: string = "ar"): string {
   const labels: Record<string, Record<string, string>> = {
     ar: {
-      pending: 'قيد المراجعة',
-      confirmed: 'مؤكد',
-      rejected: 'مرفوض',
-      treated: 'تم العلاج',
-      active: 'نشط',
-      inactive: 'غير نشط',
-      success: 'نجاح',
-      error: 'خطأ',
-      warning: 'تحذير',
-      info: 'معلومات',
+      pending: "قيد المراجعة",
+      confirmed: "مؤكد",
+      rejected: "مرفوض",
+      treated: "تم العلاج",
+      active: "نشط",
+      inactive: "غير نشط",
+      success: "نجاح",
+      error: "خطأ",
+      warning: "تحذير",
+      info: "معلومات",
     },
     en: {
-      pending: 'Pending',
-      confirmed: 'Confirmed',
-      rejected: 'Rejected',
-      treated: 'Treated',
-      active: 'Active',
-      inactive: 'Inactive',
-      success: 'Success',
-      error: 'Error',
-      warning: 'Warning',
-      info: 'Info',
+      pending: "Pending",
+      confirmed: "Confirmed",
+      rejected: "Rejected",
+      treated: "Treated",
+      active: "Active",
+      inactive: "Inactive",
+      success: "Success",
+      error: "Error",
+      warning: "Warning",
+      info: "Info",
     },
   };
   return labels[locale]?.[status] || status;
@@ -207,9 +217,9 @@ export function getStatusLabel(status: string, locale: string = 'ar'): string {
  */
 export function isEmpty(value: unknown): boolean {
   if (value === null || value === undefined) return true;
-  if (typeof value === 'string') return value.trim() === '';
+  if (typeof value === "string") return value.trim() === "";
   if (Array.isArray(value)) return value.length === 0;
-  if (typeof value === 'object') return Object.keys(value).length === 0;
+  if (typeof value === "object") return Object.keys(value).length === 0;
   return false;
 }
 
@@ -226,7 +236,7 @@ export function isValidEmail(email: string): boolean {
  */
 export function isValidYemenPhone(phone: string): boolean {
   const yemenPhoneRegex = /^(\+967|00967|967)?[1-9]\d{8}$/;
-  return yemenPhoneRegex.test(phone.replace(/\s/g, ''));
+  return yemenPhoneRegex.test(phone.replace(/\s/g, ""));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -238,7 +248,7 @@ export function isValidYemenPhone(phone: string): boolean {
  */
 export function truncate(str: string, length: number): string {
   if (str.length <= length) return str;
-  return str.slice(0, length) + '...';
+  return str.slice(0, length) + "...";
 }
 
 /**
@@ -251,7 +261,7 @@ export function capitalize(str: string): string {
 /**
  * Generate random ID
  */
-export function generateId(prefix: string = 'id'): string {
+export function generateId(prefix: string = "id"): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
@@ -259,9 +269,15 @@ export function generateId(prefix: string = 'id'): string {
 // Export Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type Locale = 'ar' | 'en';
-export type Severity = 'low' | 'medium' | 'high' | 'critical';
-export type Status = 'pending' | 'confirmed' | 'rejected' | 'treated' | 'active' | 'inactive';
+export type Locale = "ar" | "en";
+export type Severity = "low" | "medium" | "high" | "critical";
+export type Status =
+  | "pending"
+  | "confirmed"
+  | "rejected"
+  | "treated"
+  | "active"
+  | "inactive";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Performance Utilities
@@ -276,4 +292,4 @@ export {
   cancelIdleCallback,
   measureTime,
   createLRUCache,
-} from './performance';
+} from "./performance";

@@ -1,4 +1,5 @@
 # NATS Messaging Infrastructure Audit Report
+
 **SAHOOL Platform - Comprehensive NATS Analysis**
 
 **Audit Date:** 2026-01-06
@@ -13,6 +14,7 @@
 The SAHOOL platform utilizes NATS as its core messaging infrastructure with JetStream for reliable event-driven communication across microservices. This audit evaluates the security, reliability, and configuration of the NATS deployment.
 
 ### Quick Scores
+
 - **Security Score:** 7/10
 - **Reliability Score:** 8/10
 - **Overall Health:** Good with recommended improvements
@@ -26,6 +28,7 @@ The SAHOOL platform utilizes NATS as its core messaging infrastructure with JetS
 **Primary Configuration File:** `/home/user/sahool-unified-v15-idp/config/nats/nats.conf`
 
 #### Server Settings
+
 ```conf
 server_name: sahool-nats
 listen: 0.0.0.0:4222
@@ -33,6 +36,7 @@ http_port: 8222
 ```
 
 #### JetStream Configuration
+
 ```conf
 jetstream {
     store_dir: /data
@@ -48,20 +52,23 @@ jetstream {
 **File Limit:** 10GB disk storage
 
 #### Docker Deployment
+
 **Container:** `sahool-nats`
 **Image:** `nats:2.10.24-alpine`
 **Ports:**
+
 - `4222` - NATS client connections (exposed)
 - `8222` - HTTP monitoring (localhost only)
 
 **Production Override (docker-compose.prod.yml):**
+
 ```yaml
 resources:
   limits:
-    cpus: '1.0'
+    cpus: "1.0"
     memory: 512M
   reservations:
-    cpus: '0.25'
+    cpus: "0.25"
     memory: 128M
 ```
 
@@ -72,12 +79,14 @@ resources:
 ### 2.1 User Roles
 
 #### 1. Admin User
+
 - **Username:** `$NATS_ADMIN_USER` (from environment)
 - **Password:** `$NATS_ADMIN_PASSWORD` (from environment)
 - **Permissions:** Full access to all subjects (`>`)
 - **Use Case:** Administrative operations, debugging, stream management
 
 #### 2. Application User (Primary)
+
 - **Username:** `$NATS_USER` (default: `sahool_app`)
 - **Password:** `$NATS_PASSWORD` (from environment)
 - **Permissions:**
@@ -93,6 +102,7 @@ resources:
   - ✅ `_INBOX.>` - Request-reply patterns
 
 #### 3. Monitor User (Read-Only)
+
 - **Username:** `$NATS_MONITOR_USER` (default: `nats_monitor`)
 - **Password:** `$NATS_MONITOR_PASSWORD` (from environment)
 - **Permissions:**
@@ -103,11 +113,13 @@ resources:
 ### 2.2 Connection Strings
 
 **Standard Service Connection:**
+
 ```bash
 NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
 ```
 
 **Services Using NATS (116 files reference NATS):**
+
 - field-management-service
 - marketplace-service
 - research-core
@@ -169,6 +181,7 @@ tls {
 **Purpose:** Failed message handling with retry logic
 
 #### Configuration
+
 ```python
 DLQConfig:
   max_retry_attempts: 3
@@ -183,6 +196,7 @@ DLQConfig:
 ```
 
 #### DLQ Features
+
 - ✅ Exponential backoff retry
 - ✅ Message metadata tracking (retry count, errors, timestamps)
 - ✅ 30-day retention policy
@@ -191,6 +205,7 @@ DLQConfig:
 - ✅ Monitoring and alerting integration
 
 #### DLQ Subject Pattern
+
 ```
 sahool.dlq.{domain}.{entity}.{action}
 
@@ -205,6 +220,7 @@ Examples:
 **Implementation:** Code-based stream management via JetStream API
 
 **Stream Types:**
+
 1. **Core Events:** Transient publish-subscribe
 2. **DLQ Events:** Persistent file-based storage
 3. **Custom Streams:** Created per service requirements
@@ -216,12 +232,14 @@ Examples:
 ### 5.1 JetStream Retention
 
 #### Main JetStream Store
+
 - **Memory:** 1GB limit
 - **Disk:** 10GB limit
 - **Retention:** `limits` (space/time based)
 - **Discard:** Old messages when limits reached
 
 #### DLQ Stream Retention
+
 - **Age:** 30 days maximum
 - **Messages:** 100,000 maximum
 - **Bytes:** 10GB maximum
@@ -242,6 +260,7 @@ write_deadline: 10s
 ```
 
 **Analysis:**
+
 - ✅ Generous payload size (8MB)
 - ✅ Appropriate connection limits
 - ✅ Reasonable timeout settings
@@ -254,6 +273,7 @@ write_deadline: 10s
 ### 6.1 Event Types (TypeScript)
 
 **Event Categories:**
+
 1. **Field Events:** `field.created`, `field.updated`, `field.deleted`
 2. **Order Events:** `order.placed`, `order.completed`, `order.cancelled`
 3. **Sensor Events:** `sensor.reading`, `device.connected`, `device.disconnected`
@@ -266,6 +286,7 @@ write_deadline: 10s
 **Pattern:** `<module>.<service>.<action>.<entity>`
 
 **Examples:**
+
 ```
 field.operations.created.field
 weather.forecast.updated.location
@@ -275,6 +296,7 @@ marketplace.order.created.product
 ```
 
 **Wildcard Subscriptions Supported:**
+
 - `field.*` - All field events
 - `order.*` - All order events
 - `*.created` - All creation events
@@ -285,10 +307,11 @@ marketplace.order.created.product
 **Load Balancing:** ✅ Implemented via queue group parameter
 
 ```typescript
-subscribe(subject, handler, { queue: 'service-workers' })
+subscribe(subject, handler, { queue: "service-workers" });
 ```
 
 **Consumer Groups:**
+
 - Durable consumers for JetStream
 - Queue groups for load distribution
 - Auto-acknowledgment with manual override option
@@ -302,6 +325,7 @@ subscribe(subject, handler, { queue: 'service-workers' })
 **Package:** `packages/shared-events/`
 
 **Features:**
+
 - ✅ Singleton client pattern
 - ✅ Automatic reconnection (infinite retries, 2s interval)
 - ✅ Connection health monitoring
@@ -312,6 +336,7 @@ subscribe(subject, handler, { queue: 'service-workers' })
 - ✅ Typed event definitions
 
 **Client Configuration:**
+
 ```typescript
 NatsClientConfig:
   servers: [NATS_URL]
@@ -326,6 +351,7 @@ NatsClientConfig:
 **Package:** `shared/events/`
 
 **Features:**
+
 - ✅ Async/await support
 - ✅ JetStream integration
 - ✅ DLQ with retry logic
@@ -336,6 +362,7 @@ NatsClientConfig:
 - ✅ Statistics tracking
 
 **Publisher Config:**
+
 ```python
 PublisherConfig:
   servers: [NATS_URL]
@@ -347,6 +374,7 @@ PublisherConfig:
 ```
 
 **Subscriber Config:**
+
 ```python
 SubscriberConfig:
   enable_jetstream: True
@@ -365,6 +393,7 @@ SubscriberConfig:
 **Mode:** Single-node deployment
 
 **Cluster Config (Available but Commented):**
+
 ```conf
 # cluster {
 #     name: sahool-cluster
@@ -386,6 +415,7 @@ SubscriberConfig:
 ### 8.2 Recommendations for HA
 
 For production high-availability:
+
 1. Enable 3-node cluster
 2. Configure cluster authentication
 3. Set up stream replication (replicas: 3)
@@ -399,12 +429,14 @@ For production high-availability:
 ### 9.1 Health Checks
 
 **HTTP Monitoring Endpoint:**
+
 ```bash
 curl http://localhost:8222/healthz
 # Returns: { "status": "ok" }
 ```
 
 **Docker Health Check:**
+
 ```yaml
 healthcheck:
   test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
@@ -417,6 +449,7 @@ healthcheck:
 ### 9.2 Monitoring Endpoints
 
 Available at `http://localhost:8222/`:
+
 - `/varz` - Server information
 - `/connz` - Connection information
 - `/routez` - Routing information
@@ -429,6 +462,7 @@ Available at `http://localhost:8222/`:
 **Monitor Class:** `DLQMonitor` (shared/events/dlq_monitoring.py)
 
 **Features:**
+
 - ✅ Periodic DLQ size checking (5-minute intervals)
 - ✅ Threshold-based alerting (>100 messages)
 - ✅ Alert cooldown (15 minutes)
@@ -436,6 +470,7 @@ Available at `http://localhost:8222/`:
 - ✅ Integration with notification service
 
 **Metrics Tracked:**
+
 ```python
 DLQMonitorStats:
   monitor_running: bool
@@ -451,6 +486,7 @@ DLQMonitorStats:
 **Status:** ⚠️ Not explicitly configured
 
 **Recommendation:** Add NATS Prometheus exporter
+
 ```yaml
 # Add to docker-compose.yml
 nats-exporter:
@@ -511,6 +547,7 @@ nats-exporter:
 ### 10.3 Environment Variable Security
 
 **Current Configuration (config/base.env):**
+
 ```bash
 NATS_USER=sahool_app
 NATS_PASSWORD=${NATS_PASSWORD:-MUST_SET_IN_PRODUCTION}
@@ -519,6 +556,7 @@ NATS_ADMIN_PASSWORD=${NATS_ADMIN_PASSWORD:-MUST_SET_IN_PRODUCTION}
 ```
 
 **Issues:**
+
 - ⚠️ Passwords must be set (good requirement)
 - ⚠️ No minimum password length enforcement
 - ⚠️ Default values could be insecure if not overridden
@@ -579,6 +617,7 @@ NATS_ADMIN_PASSWORD=${NATS_ADMIN_PASSWORD:-MUST_SET_IN_PRODUCTION}
 **Method:** Code-based via JetStream API
 
 **DLQ Stream (Auto-created):**
+
 ```python
 await js.add_stream(
     name="SAHOOL_DLQ",
@@ -596,15 +635,17 @@ await js.add_stream(
 ### 12.2 Consumer Patterns
 
 **Core NATS Subscriptions:**
+
 ```typescript
 // Simple subscription
-nc.subscribe(subject, callback)
+nc.subscribe(subject, callback);
 
 // Queue group (load balancing)
-nc.subscribe(subject, { queue: 'workers' }, callback)
+nc.subscribe(subject, { queue: "workers" }, callback);
 ```
 
 **JetStream Consumers:**
+
 ```python
 # Durable consumer (resumable)
 js.subscribe(
@@ -615,6 +656,7 @@ js.subscribe(
 ```
 
 **Consumer Features:**
+
 - ✅ Durable consumers for persistence
 - ✅ Queue groups for load balancing
 - ✅ Manual and auto-acknowledgment
@@ -702,6 +744,7 @@ js.subscribe(
 ### 14.1 Immediate Actions (Week 1)
 
 1. **Enforce Strong Passwords**
+
    ```bash
    # Generate secure passwords
    NATS_PASSWORD=$(openssl rand -base64 32)
@@ -710,6 +753,7 @@ js.subscribe(
    ```
 
 2. **Require TLS for All Connections**
+
    ```conf
    # Add to nats.conf
    tls {
@@ -722,6 +766,7 @@ js.subscribe(
    ```
 
 3. **Add Prometheus Exporter**
+
    ```yaml
    # docker-compose.monitoring.yml
    nats-exporter:
@@ -738,7 +783,7 @@ js.subscribe(
      deploy:
        resources:
          limits:
-           memory: 1G  # Increase from 512M
+           memory: 1G # Increase from 512M
    ```
 
 ### 14.2 Short-Term Improvements (Month 1)
@@ -749,6 +794,7 @@ js.subscribe(
    - Document renewal procedures
 
 6. **Enable Detailed Audit Logging**
+
    ```conf
    # nats.conf
    authorization {
@@ -764,6 +810,7 @@ js.subscribe(
    ```
 
 7. **Configure DLQ Archival**
+
    ```python
    # Add DLQ archival job
    async def archive_old_dlq_messages():
@@ -793,6 +840,7 @@ js.subscribe(
 ### 14.3 Long-Term Strategy (Quarter 1)
 
 9. **Implement High Availability Cluster**
+
    ```yaml
    # 3-node NATS cluster setup
    services:
@@ -805,6 +853,7 @@ js.subscribe(
    ```
 
 10. **Migrate to NKey Authentication**
+
     ```bash
     # Generate NKey
     nk -gen user -pubout
@@ -818,6 +867,7 @@ js.subscribe(
     ```
 
 11. **Implement Stream Replication**
+
     ```python
     # Update DLQ stream config
     await js.add_stream(
@@ -850,16 +900,19 @@ js.subscribe(
 ### 15.1 Security Standards Alignment
 
 ✅ **OWASP Application Security:**
+
 - Authentication implemented
 - Authorization with least privilege
 - TLS encryption available
 
 ⚠️ **CIS Docker Benchmark:**
+
 - Security options enabled
 - Resource limits set
 - Needs: Network policies, non-root user
 
 ✅ **SOC 2 Controls:**
+
 - Access controls implemented
 - Audit capability (via monitoring)
 - Encryption at rest (JetStream file storage)
@@ -878,14 +931,17 @@ js.subscribe(
 ### 16.1 Expected Throughput
 
 **NATS Core (without JetStream):**
+
 - Single node: ~10M msgs/sec (small messages)
 - Latency: <1ms
 
 **JetStream (with persistence):**
+
 - Single node: ~100k-500k msgs/sec
 - Latency: 1-5ms
 
 **Current Configuration Limits:**
+
 - Max connections: 1,000
 - Max payload: 8MB
 - Max pending: 64MB
@@ -909,11 +965,13 @@ nats-bench -s nats://localhost:4222 -np 10 -ns 10 -n 100000 -ms 1024
 ### 17.1 Current Backup Strategy
 
 **JetStream Data:**
+
 - **Location:** Docker volume `sahool-nats-data`
 - **Backup:** ⚠️ Not explicitly configured
 - **Retention:** Volume persists across container restarts
 
 **Recommendation:**
+
 ```bash
 # Implement regular backups
 docker run --rm -v sahool-nats-data:/data \
@@ -924,17 +982,20 @@ docker run --rm -v sahool-nats-data:/data \
 ### 17.2 Recovery Procedures
 
 **Container Failure:**
+
 1. Docker restart policy: `unless-stopped`
 2. Health checks trigger automatic restart
 3. Clients auto-reconnect with infinite retries
 
 **Data Corruption:**
+
 1. Stop NATS container
 2. Restore from backup
 3. Restart NATS
 4. Verify stream integrity
 
 **Complete Disaster:**
+
 1. Provision new infrastructure
 2. Restore volume from backup
 3. Update DNS/connection strings
@@ -947,12 +1008,14 @@ docker run --rm -v sahool-nats-data:/data \
 ### 18.1 Resource Utilization
 
 **Current Allocation (Production):**
+
 - CPU: 0.25-1.0 cores
 - Memory: 128-512MB
 - Storage: 10GB (JetStream) + volume overhead
 - Network: Minimal (internal)
 
 **Estimated Monthly Cost (Cloud):**
+
 - Compute: ~$15-30/month (single instance)
 - Storage: ~$1-2/month (10GB SSD)
 - Network: ~$0-5/month (internal traffic usually free)
@@ -977,12 +1040,14 @@ docker run --rm -v sahool-nats-data:/data \
 **Count:** 116+ files reference NATS configuration
 
 **Categories:**
+
 - **Core Services:** 15 services
 - **Python Services:** 29 services
 - **Deprecated Services:** 10+ services (being migrated)
 - **Infrastructure:** Monitoring, gateway, workers
 
 **Examples:**
+
 - field-management-service
 - marketplace-service
 - iot-service
@@ -1029,11 +1094,13 @@ The SAHOOL platform's NATS infrastructure is **well-designed and functionally so
 ### 20.4 Overall Assessment
 
 **Security Score: 7/10**
+
 - Strong foundation with room for hardening
 - TLS configured but not enforced
 - Authentication present but needs password policy
 
 **Reliability Score: 8/10**
+
 - Excellent client reconnection logic
 - JetStream persistence implemented
 - Single point of failure with no clustering

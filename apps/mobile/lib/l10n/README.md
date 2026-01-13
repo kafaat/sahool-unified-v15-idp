@@ -24,11 +24,13 @@ l10n.yaml               # Flutter l10n generation config (root level)
 The ARB files include comprehensive translations for:
 
 ### Core Features
+
 - **Common**: Buttons, labels, errors, confirmations
 - **Navigation**: Menu items, tabs, breadcrumbs
 - **Authentication**: Login, signup, password management
 
 ### Agricultural Features
+
 - **Fields**: Field management, boundaries, coordinates
 - **Crops**: Yemen-specific crops (wheat, barley, sorghum, qat, coffee, etc.)
 - **Soil**: Soil types, nutrients, analysis
@@ -36,6 +38,7 @@ The ARB files include comprehensive translations for:
 - **Satellite**: NDVI, imagery, vegetation health
 
 ### Precision Agriculture
+
 - **VRA (Variable Rate Application)**: Prescription maps, zones, rates
 - **GDD (Growing Degree Days)**: Growth stages, thermal time
 - **Spray**: Recommendations, timing, conditions
@@ -43,12 +46,14 @@ The ARB files include comprehensive translations for:
 - **Profitability**: Financial analysis, costs, revenue
 
 ### Management
+
 - **Inventory**: Stock management, movements, suppliers
 - **Equipment**: Machinery, maintenance, booking
 - **Tasks**: Task management, assignments, tracking
 - **Chat**: Messaging, conversations, groups
 
 ### System
+
 - **Settings**: App preferences, sync, security
 - **Notifications**: Alerts, push notifications
 - **Analytics**: Reports, charts, statistics
@@ -210,6 +215,7 @@ localeProvider.setLocale(Locale('ar', ''));
 Add the key-value pair to both `app_ar.arb` and `app_en.arb`:
 
 **app_ar.arb:**
+
 ```json
 {
   "newFeature": "ميزة جديدة",
@@ -218,6 +224,7 @@ Add the key-value pair to both `app_ar.arb` and `app_en.arb`:
 ```
 
 **app_en.arb:**
+
 ```json
 {
   "newFeature": "New Feature",
@@ -242,6 +249,7 @@ Text(AppLocalizations.of(context)!.newFeature)
 For dynamic content, use placeholders:
 
 **ARB File:**
+
 ```json
 {
   "greeting": "مرحبا {name}، لديك {count} حقول",
@@ -260,6 +268,7 @@ For dynamic content, use placeholders:
 ```
 
 **Usage:**
+
 ```dart
 Text(AppLocalizations.of(context)!.greeting('أحمد', 5))
 // Output: "مرحبا أحمد، لديك 5 حقول"
@@ -270,6 +279,7 @@ Text(AppLocalizations.of(context)!.greeting('أحمد', 5))
 Handle plurals correctly:
 
 **ARB File:**
+
 ```json
 {
   "fieldCount": "{count, plural, =0{لا توجد حقول} =1{حقل واحد} other{{count} حقول}}",
@@ -297,6 +307,7 @@ Handle plurals correctly:
 ## Yemen-Specific Crops
 
 The localization includes common Yemeni crops:
+
 - قمح (Wheat)
 - شعير (Barley)
 - ذرة رفيعة (Sorghum)
@@ -321,6 +332,7 @@ The localization includes common Yemeni crops:
 ## Support
 
 For translation issues or to add new languages:
+
 1. Create a new ARB file (e.g., `app_fr.arb` for French)
 2. Add the locale to `AppLocalizations.supportedLocales`
 3. Run `flutter gen-l10n`

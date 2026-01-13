@@ -5,6 +5,7 @@ This file contains the patches needed to update all task-service endpoints to us
 ## Endpoints to Update
 
 ### 1. get_today_tasks - Line ~1030
+
 ```python
 @app.get("/api/v1/tasks/today", response_model=dict)
 async def get_today_tasks(
@@ -31,6 +32,7 @@ async def get_today_tasks(
 ```
 
 ### 2. get_task_stats - Line ~1050
+
 ```python
 @app.get("/api/v1/tasks/stats", response_model=dict)
 async def get_task_stats(
@@ -43,6 +45,7 @@ async def get_task_stats(
 ```
 
 ### 3. get_task - Line ~1100
+
 ```python
 @app.get("/api/v1/tasks/{task_id}", response_model=Task)
 async def get_task(
@@ -59,6 +62,7 @@ async def get_task(
 ```
 
 ### 4. create_task - Line ~1110
+
 ```python
 @app.post("/api/v1/tasks", response_model=Task, status_code=201)
 async def create_task(
@@ -115,6 +119,7 @@ async def create_task(
 ```
 
 ### 5. update_task - Line ~1160
+
 ```python
 @app.put("/api/v1/tasks/{task_id}", response_model=Task)
 async def update_task(
@@ -166,6 +171,7 @@ async def update_task(
 ```
 
 ### 6. start_task, complete_task, cancel_task, delete_task
+
 ```python
 @app.post("/api/v1/tasks/{task_id}/start", response_model=Task)
 async def start_task(
@@ -249,6 +255,7 @@ async def delete_task(
 ```
 
 ### 7. add_evidence
+
 ```python
 @app.post("/api/v1/tasks/{task_id}/evidence", response_model=Evidence, status_code=201)
 async def add_evidence(
@@ -290,7 +297,9 @@ async def add_evidence(
 ```
 
 ### 8. create_task_from_ndvi_alert - Update to use database
+
 Replace `tasks_db[task_id] = task` with:
+
 ```python
     repo = TaskRepository(db)  # Add at start of function
     created_task = repo.create_task(task)  # Replace tasks_db assignment
@@ -299,7 +308,9 @@ Replace `tasks_db[task_id] = task` with:
 ```
 
 ### 9. auto_create_tasks - Update to use database
+
 Replace task creation loop with:
+
 ```python
     repo = TaskRepository(db)  # Add at start
     # ... in the loop:
@@ -308,7 +319,9 @@ Replace task creation loop with:
 ```
 
 ### 10. create_task_with_astronomical_recommendation - Update to use database
+
 Replace `tasks_db[task_id] = task` with:
+
 ```python
     repo = TaskRepository(db)  # Add at start of function
     created_task = repo.create_task(task)  # Replace tasks_db assignment
@@ -318,6 +331,7 @@ Replace `tasks_db[task_id] = task` with:
 ## Summary
 
 All endpoints need:
+
 1. Add `db: Session = Depends(get_db)` parameter
 2. Create `repo = TaskRepository(db)` at the start
 3. Replace in-memory operations with repository methods

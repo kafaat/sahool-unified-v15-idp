@@ -3,11 +3,11 @@
  * استراتيجية JWT لخدمة المستخدمين
  */
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PrismaService } from '../prisma/prisma.service';
-import { JWTConfig } from '../utils/jwt.config';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PassportStrategy } from "@nestjs/passport";
+import { ExtractJwt, Strategy } from "passport-jwt";
+import { PrismaService } from "../prisma/prisma.service";
+import { JWTConfig } from "../utils/jwt.config";
 
 export interface JwtPayload {
   sub: string;
@@ -15,7 +15,7 @@ export interface JwtPayload {
   roles: string[];
   tid?: string;
   jti?: string;
-  type?: 'access' | 'refresh';
+  type?: "access" | "refresh";
   iat?: number;
   exp?: number;
 }
@@ -40,12 +40,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException("User not found");
     }
 
     // Check if user is active
-    if (user.status !== 'ACTIVE') {
-      throw new UnauthorizedException('User account is not active');
+    if (user.status !== "ACTIVE") {
+      throw new UnauthorizedException("User account is not active");
     }
 
     // Return user object (will be attached to request.user)

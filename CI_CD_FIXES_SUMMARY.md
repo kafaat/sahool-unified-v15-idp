@@ -17,10 +17,12 @@ Investigated and resolved CI/CD pipeline failures for PR #235. All critical secu
 ### 1. Agent Evaluation Pipeline ✅ FIXED
 
 **Problem:**
+
 - Missing evaluation tests directory in `apps/services/ai-advisor/tests/evaluation/`
 - agent-evaluation.yml workflow expected tests but directory didn't exist
 
 **Investigation:**
+
 - ✅ Golden datasets exist and are valid (181 test cases total):
   - `tests/golden-datasets/` - 175 test cases (agent_behaviors, arabic_responses, edge_cases, prompt_injection_tests)
   - `tests/evaluation/datasets/` - 6 test cases (golden_dataset.json)
@@ -31,6 +33,7 @@ Investigated and resolved CI/CD pipeline failures for PR #235. All critical secu
 
 **Fix Applied:**
 Created missing evaluation test structure:
+
 ```
 apps/services/ai-advisor/tests/evaluation/
 ├── __init__.py
@@ -39,12 +42,14 @@ apps/services/ai-advisor/tests/evaluation/
 ```
 
 **Files Created:**
+
 1. `/home/user/sahool-unified-v15-idp/apps/services/ai-advisor/tests/evaluation/__init__.py`
 2. `/home/user/sahool-unified-v15-idp/apps/services/ai-advisor/tests/evaluation/conftest.py`
 3. `/home/user/sahool-unified-v15-idp/apps/services/ai-advisor/tests/evaluation/test_golden_dataset.py`
 4. `/home/user/sahool-unified-v15-idp/tests/evaluation/baselines/latest-baseline.json`
 
 **Test Coverage:**
+
 - Golden dataset structure validation
 - Agent response quality testing (parametrized for all test cases)
 - Language support verification (Arabic & English)
@@ -55,12 +60,15 @@ apps/services/ai-advisor/tests/evaluation/
 ### 2. Code Scanning Results / Semgrep ✅ VERIFIED SECURE
 
 **Problem:**
+
 - Need to verify no Semgrep security issues remain
 
 **Investigation Conducted:**
 
 #### Dockerfile Security (Missing USER directive)
+
 ✅ **PASS** - All service Dockerfiles have USER directive
+
 - Checked all 68 Dockerfiles in `apps/services/`
 - All containers run as non-root user `sahool`
 - Example verified:
@@ -68,7 +76,9 @@ apps/services/ai-advisor/tests/evaluation/
   - `apps/services/ws-gateway/Dockerfile` - Line 41: `USER sahool`
 
 #### WebSocket Security (ws:// vs wss://)
+
 ✅ **PASS** - Proper ws:// usage (development only)
+
 - Found 12 files with `ws://` references
 - All are for development/localhost contexts
 - Production code uses environment-based configuration
@@ -78,7 +88,9 @@ apps/services/ai-advisor/tests/evaluation/
   - `apps/admin/src/lib/websocket.ts` - Same pattern
 
 #### CORS Wildcard Security
+
 ✅ **PASS** - No wildcard CORS in production
+
 - Checked `shared/middleware/cors.py` and `apps/services/shared/config/cors_config.py`
 - Secure implementation with environment-based origins:
   - Production: Explicit allowed origins only
@@ -94,9 +106,11 @@ apps/services/ai-advisor/tests/evaluation/
 ### 3. Governance CI / Security Check ✅ PASSING
 
 **Problem:**
+
 - Need to verify governance security checks pass
 
 **Investigation:**
+
 - ✅ `governance/services.yaml` exists and is valid
 - ✅ No legacy paths exist (kernel/, frontend/, web_admin/)
 - ✅ All required paths exist (apps/services, apps/web, apps/admin, packages/, governance/)
@@ -105,6 +119,7 @@ apps/services/ai-advisor/tests/evaluation/
 - ✅ Archive structure properly maintained
 
 **Workflow Configuration:**
+
 - File: `.github/workflows/governance-ci.yml`
 - Checks: YAML validation, JSON schemas, Kyverno policies, security checks, structure guard
 - All checks properly configured
@@ -114,9 +129,11 @@ apps/services/ai-advisor/tests/evaluation/
 ### 4. Quality Gates / Agent Evaluation ✅ FIXED
 
 **Problem:**
+
 - Same as #1 - missing evaluation infrastructure
 
 **Investigation:**
+
 - ✅ Quality gates workflow properly configured
 - ✅ Uses `.github/actions/evaluate-agent` action
 - ✅ Dataset path: `tests/golden-datasets` (exists with 175 test cases)
@@ -127,6 +144,7 @@ apps/services/ai-advisor/tests/evaluation/
   - Success rate: 0.95 (95%)
 
 **Fix Applied:**
+
 - Created evaluation tests in ai-advisor service (see #1)
 - Created baseline data for regression detection
 - Tests will load from both dataset locations
@@ -136,10 +154,12 @@ apps/services/ai-advisor/tests/evaluation/
 ### 5. Quality Gates / All Quality Gates ✅ RESOLVED
 
 **Problem:**
+
 - Depends on above gates passing
 
 **Status:**
 All dependent gates are now properly configured:
+
 - ✅ Python Quality - Configured and ready
 - ✅ Frontend Quality - Configured and ready
 - ✅ Security Gate - Verified passing (no secrets, no private keys)
@@ -151,6 +171,7 @@ All dependent gates are now properly configured:
 ## Files and Directories Verified
 
 ### Evaluation Infrastructure
+
 ```
 tests/
 ├── evaluation/
@@ -175,6 +196,7 @@ tests/
 ```
 
 ### AI Advisor Service
+
 ```
 apps/services/ai-advisor/
 └── tests/
@@ -185,6 +207,7 @@ apps/services/ai-advisor/
 ```
 
 ### GitHub Actions
+
 ```
 .github/
 ├── actions/
@@ -201,15 +224,15 @@ apps/services/ai-advisor/
 
 ## Security Verification Summary
 
-| Security Check | Status | Details |
-|----------------|--------|---------|
+| Security Check            | Status  | Details                              |
+| ------------------------- | ------- | ------------------------------------ |
 | Dockerfile USER directive | ✅ PASS | All 68 Dockerfiles use non-root user |
-| WebSocket ws:// usage | ✅ PASS | Only in dev/localhost contexts |
-| CORS wildcards | ✅ PASS | No wildcards in production |
-| Hardcoded secrets | ✅ PASS | No secrets in code |
-| Private keys | ✅ PASS | No private key files committed |
-| Latest tags | ✅ PASS | No :latest in manifests |
-| Legacy paths | ✅ PASS | Properly archived |
+| WebSocket ws:// usage     | ✅ PASS | Only in dev/localhost contexts       |
+| CORS wildcards            | ✅ PASS | No wildcards in production           |
+| Hardcoded secrets         | ✅ PASS | No secrets in code                   |
+| Private keys              | ✅ PASS | No private key files committed       |
+| Latest tags               | ✅ PASS | No :latest in manifests              |
+| Legacy paths              | ✅ PASS | Properly archived                    |
 
 ---
 
@@ -234,12 +257,14 @@ Warnings:
 ## Evaluation Metrics and Thresholds
 
 ### Quality Gates Configuration
+
 - **Accuracy Threshold:** 85% (min_similarity: 0.85)
 - **Latency Threshold:** 2000ms max average
 - **Cost Threshold:** $0.50 per request
 - **Success Rate:** 95% minimum
 
 ### Baseline Performance
+
 ```json
 {
   "overall_score": 87.5,
@@ -256,17 +281,20 @@ Warnings:
 ## Recommendations
 
 ### For CI/CD Pipeline
+
 1. ✅ All required files are now in place
 2. ✅ Evaluation tests will run successfully
 3. ✅ Security checks are properly configured
 4. ⚠️ Monitor Semgrep results in actual CI (couldn't run locally due to network)
 
 ### For Development
+
 1. Consider adding more Arabic test cases to evaluation dataset
 2. Keep golden datasets synchronized between locations
 3. Maintain baseline metrics updated after significant changes
 
 ### For Security
+
 1. ✅ Current implementation follows security best practices
 2. ✅ All containers run as non-root
 3. ✅ CORS properly configured per environment
@@ -277,6 +305,7 @@ Warnings:
 ## Next Steps
 
 1. **Commit Changes:**
+
    ```bash
    git add apps/services/ai-advisor/tests/evaluation/
    git add tests/evaluation/baselines/latest-baseline.json

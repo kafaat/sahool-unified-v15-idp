@@ -17,12 +17,12 @@ A React Context-based authentication store that provides:
 
 ```typescript
 const {
-  user,              // Current user object (null if not authenticated)
-  isAuthenticated,   // Boolean indicating if user is logged in
-  isLoading,         // Boolean indicating if auth check is in progress
-  login,             // Function to log in: (email: string, password: string) => Promise<void>
-  logout,            // Function to log out: () => void
-  checkAuth,         // Function to verify current auth state: () => Promise<void>
+  user, // Current user object (null if not authenticated)
+  isAuthenticated, // Boolean indicating if user is logged in
+  isLoading, // Boolean indicating if auth check is in progress
+  login, // Function to log in: (email: string, password: string) => Promise<void>
+  logout, // Function to log out: () => void
+  checkAuth, // Function to verify current auth state: () => Promise<void>
 } = useAuth();
 ```
 
@@ -76,10 +76,10 @@ A component to protect routes that require authentication:
 
 ```typescript
 // Before: Direct import from auth utilities
-import { login } from '@/lib/auth';
+import { login } from "@/lib/auth";
 
 // After: Use auth context
-import { useAuth } from '@/stores/auth.store';
+import { useAuth } from "@/stores/auth.store";
 const { login } = useAuth();
 ```
 
@@ -105,10 +105,10 @@ All protected route layouts now use `AuthGuard`:
 
 ```typescript
 // Before: Direct auth utilities
-import { getUser, logout } from '@/lib/auth';
+import { getUser, logout } from "@/lib/auth";
 
 // After: Use auth context
-import { useAuth } from '@/stores/auth.store';
+import { useAuth } from "@/stores/auth.store";
 const { user, logout } = useAuth();
 ```
 
@@ -199,10 +199,10 @@ export default function AdminSettingsPage() {
 ### 3. Making Authenticated API Calls
 
 ```typescript
-import { apiClient } from '@/lib/api-client';
+import { apiClient } from "@/lib/api-client";
 
 // The token is automatically added to the request
-const response = await apiClient.get('/api/v1/users');
+const response = await apiClient.get("/api/v1/users");
 
 if (response.success) {
   console.log(response.data);
@@ -216,10 +216,10 @@ if (response.success) {
 Tokens are now stored in cookies with the following configuration:
 
 ```typescript
-Cookies.set('sahool_admin_token', token, {
-  expires: 7,                                    // 7 days
-  secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-  sameSite: 'strict'                             // CSRF protection
+Cookies.set("sahool_admin_token", token, {
+  expires: 7, // 7 days
+  secure: process.env.NODE_ENV === "production", // HTTPS only in production
+  sameSite: "strict", // CSRF protection
 });
 ```
 

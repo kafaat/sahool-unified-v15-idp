@@ -8,24 +8,26 @@ This test suite includes multiple load testing scenarios to ensure the SAHOOL pl
 
 ### Test Scenarios
 
-| Scenario | Duration | VUs | Purpose |
-|----------|----------|-----|---------|
-| **Smoke** | 1 minute | 1 | Verify basic functionality |
-| **Load** | 10 minutes | 50 | Test normal production load |
-| **Stress** | 15 minutes | 200 (peak) | Find breaking point |
-| **Spike** | 8 minutes | 10→200→10 | Test sudden traffic bursts |
-| **Soak** | 2 hours | 20 | Detect memory leaks |
+| Scenario   | Duration   | VUs        | Purpose                     |
+| ---------- | ---------- | ---------- | --------------------------- |
+| **Smoke**  | 1 minute   | 1          | Verify basic functionality  |
+| **Load**   | 10 minutes | 50         | Test normal production load |
+| **Stress** | 15 minutes | 200 (peak) | Find breaking point         |
+| **Spike**  | 8 minutes  | 10→200→10  | Test sudden traffic bursts  |
+| **Soak**   | 2 hours    | 20         | Detect memory leaks         |
 
 ## Prerequisites
 
 ### Option 1: Local k6 Installation
 
 **macOS:**
+
 ```bash
 brew install k6
 ```
 
 **Linux (Debian/Ubuntu):**
+
 ```bash
 sudo gpg -k
 sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
@@ -38,6 +40,7 @@ sudo apt-get install k6
 ```
 
 **Windows:**
+
 ```powershell
 choco install k6
 ```
@@ -154,6 +157,7 @@ Tests include scenarios for all package tiers:
 **Purpose**: Quick validation that all critical paths work.
 
 **What it tests**:
+
 - Health checks
 - Authentication
 - Field CRUD operations
@@ -173,6 +177,7 @@ Tests include scenarios for all package tiers:
 **Purpose**: Simulate expected production load.
 
 **What it tests**:
+
 - 50 concurrent users
 - Field management (60% of users)
 - Weather data (40% of users)
@@ -184,6 +189,7 @@ Tests include scenarios for all package tiers:
 - Billing operations (10% of users)
 
 **Performance targets**:
+
 - P95 response time < 500ms
 - Error rate < 1%
 - Throughput > 50 RPS
@@ -199,6 +205,7 @@ Tests include scenarios for all package tiers:
 **Purpose**: Find the system's breaking point.
 
 **Load profile**:
+
 1. Warm up: 0 → 20 VUs (2 min)
 2. Ramp up: 20 → 100 VUs (3 min)
 3. Increase: 100 → 150 VUs (3 min)
@@ -208,6 +215,7 @@ Tests include scenarios for all package tiers:
 7. Cool down: 50 → 0 VUs (1 min)
 
 **What to monitor**:
+
 - Maximum sustainable load
 - Error rates under stress
 - Recovery time
@@ -224,6 +232,7 @@ Tests include scenarios for all package tiers:
 **Purpose**: Test auto-scaling and sudden traffic handling.
 
 **Load profile**:
+
 1. Normal: 10 VUs (30s)
 2. **SPIKE 1**: 10 → 200 VUs in 30s
 3. Hold: 200 VUs (2 min)
@@ -234,6 +243,7 @@ Tests include scenarios for all package tiers:
 8. Cool down: 150 → 0 VUs (30s)
 
 **What to monitor**:
+
 - Response time during spike vs normal
 - Error rate during spike
 - Recovery time after spike
@@ -251,11 +261,13 @@ Tests include scenarios for all package tiers:
 **Purpose**: Detect memory leaks and performance degradation over time.
 
 **Load profile**:
+
 - Ramp up: 0 → 20 VUs (5 min)
 - Soak: 20 VUs constant (1h 50m)
 - Ramp down: 20 → 0 VUs (5 min)
 
 **What it tests**:
+
 - Memory leak detection
 - Database connection pool stability
 - Cache effectiveness over time
@@ -263,6 +275,7 @@ Tests include scenarios for all package tiers:
 - Resource cleanup
 
 **What to monitor**:
+
 - Response time trends (should remain stable)
 - Memory usage patterns (should not continuously grow)
 - Error rate stability
@@ -310,12 +323,12 @@ vus_max........................: 50     min=50     max=50
 
 Tests will **PASS** if:
 
-| Metric | Smoke | Load | Stress | Spike | Soak |
-|--------|-------|------|--------|-------|------|
-| P95 Duration | <800ms | <500ms | <2000ms | <1500ms | <600ms |
+| Metric       | Smoke   | Load    | Stress  | Spike   | Soak    |
+| ------------ | ------- | ------- | ------- | ------- | ------- |
+| P95 Duration | <800ms  | <500ms  | <2000ms | <1500ms | <600ms  |
 | P99 Duration | <1500ms | <1000ms | <5000ms | <3000ms | <1200ms |
-| Error Rate | <1% | <1% | <5% | <5% | <1% |
-| Checks | >99% | >99% | >95% | >95% | >99% |
+| Error Rate   | <1%     | <1%     | <5%     | <5%     | <1%     |
+| Checks       | >99%    | >99%    | >95%    | >95%    | >99%    |
 
 Tests will **FAIL** if thresholds are not met.
 
@@ -368,7 +381,7 @@ name: Load Tests
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM
+    - cron: "0 2 * * *" # Daily at 2 AM
   workflow_dispatch:
 
 jobs:
@@ -421,6 +434,7 @@ load-tests:
 ### Common Issues
 
 **1. k6 not found**
+
 ```bash
 # Install k6
 brew install k6  # macOS
@@ -429,6 +443,7 @@ docker-compose -f docker-compose.load.yml run k6 run scenarios/smoke.js
 ```
 
 **2. Services not reachable**
+
 ```bash
 # Check service health
 ./run-tests.sh --check-only
@@ -438,6 +453,7 @@ export FIELD_SERVICE_URL=http://your-service-url:8080
 ```
 
 **3. Authentication failures**
+
 ```bash
 # Check test user credentials
 export TEST_USER_EMAIL=your-test-user@example.com
@@ -445,6 +461,7 @@ export TEST_USER_PASSWORD=your-password
 ```
 
 **4. Tests failing due to quota limits**
+
 ```bash
 # Use different tenant for load testing
 export TENANT_ID=tenant_loadtest
@@ -453,6 +470,7 @@ export TENANT_ID=tenant_loadtest
 ```
 
 **5. High error rates**
+
 - Check service logs
 - Verify database connections
 - Check resource limits (CPU, memory)
@@ -487,13 +505,13 @@ export TENANT_ID=tenant_loadtest
 
 ### Response Times
 
-| Endpoint Type | P95 | P99 |
-|--------------|-----|-----|
-| Health checks | <100ms | <200ms |
-| Read operations | <300ms | <500ms |
-| Write operations | <500ms | <1000ms |
+| Endpoint Type      | P95     | P99     |
+| ------------------ | ------- | ------- |
+| Health checks      | <100ms  | <200ms  |
+| Read operations    | <300ms  | <500ms  |
+| Write operations   | <500ms  | <1000ms |
 | Satellite analysis | <2000ms | <5000ms |
-| Weather forecast | <500ms | <1000ms |
+| Weather forecast   | <500ms  | <1000ms |
 
 ### Availability
 
@@ -518,6 +536,7 @@ export TENANT_ID=tenant_loadtest
 ## Support
 
 For issues or questions:
+
 - Check logs in `results/` directory
 - Review service logs
 - Contact: devops@sahool.io

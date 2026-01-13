@@ -1,4 +1,5 @@
 # Change Detection API Examples
+
 # أمثلة واجهة برمجة تطبيقات كشف التغيرات
 
 ## Quick Start Examples | أمثلة البدء السريع
@@ -14,6 +15,7 @@ curl -X GET "http://localhost:8090/v1/changes/wheat_field_001?lat=15.5&lon=44.2&
 ```
 
 **Expected Response**:
+
 ```json
 {
   "field_id": "wheat_field_001",
@@ -51,6 +53,7 @@ curl -X GET "http://localhost:8090/v1/changes/sorghum_field_002/compare?lat=14.8
 ```
 
 **Expected Response**:
+
 ```json
 {
   "field_id": "sorghum_field_002",
@@ -59,7 +62,7 @@ curl -X GET "http://localhost:8090/v1/changes/sorghum_field_002/compare?lat=14.8
   "detected_date": "2024-10-05",
   "ndvi_before": 0.82,
   "ndvi_after": 0.22,
-  "ndvi_change": -0.60,
+  "ndvi_change": -0.6,
   "change_percent": -73.2,
   "confidence": 0.98,
   "description_ar": "حصاد مكتشف - انخفاض سريع في NDVI من 73.2٪",
@@ -78,6 +81,7 @@ curl -X GET "http://localhost:8090/v1/changes/new_field_003/compare?lat=16.2&lon
 ```
 
 **Expected Response**:
+
 ```json
 {
   "change_type": "planting",
@@ -103,6 +107,7 @@ curl -X GET "http://localhost:8090/v1/changes/coffee_field_004/anomalies?lat=15.
 ```
 
 **Expected Response**:
+
 ```json
 {
   "field_id": "coffee_field_004",
@@ -143,6 +148,7 @@ curl -X GET "http://localhost:8090/v1/changes/qat_field_005?lat=15.3&lon=44.1&st
 ```
 
 **Expected Response**:
+
 ```json
 {
   "events": [
@@ -172,6 +178,7 @@ curl -X GET "http://localhost:8090/v1/changes/rice_field_006/compare?lat=14.5&lo
 ```
 
 **Expected Response**:
+
 ```json
 {
   "change_type": "flooding",
@@ -197,6 +204,7 @@ curl -X GET "http://localhost:8090/v1/changes/rice_field_006/compare?lat=14.5&lo
 **Situation**: A wheat farmer in Sana'a governorate wants to monitor 5 fields during the growing season.
 
 **Implementation**:
+
 ```python
 import requests
 from datetime import date, timedelta
@@ -240,13 +248,14 @@ for field in fields:
 **Situation**: Monitor perennial coffee plantation for stress events throughout the year.
 
 **Implementation**:
+
 ```javascript
-const axios = require('axios');
+const axios = require("axios");
 
 async function monitorCoffeePlantation() {
   const fields = [
-    { id: 'taiz_coffee_001', lat: 13.58, lon: 44.02 },
-    { id: 'taiz_coffee_002', lat: 13.59, lon: 44.03 },
+    { id: "taiz_coffee_001", lat: 13.58, lon: 44.02 },
+    { id: "taiz_coffee_002", lat: 13.59, lon: 44.03 },
     // ... more fields
   ];
 
@@ -259,9 +268,9 @@ async function monitorCoffeePlantation() {
           lat: field.lat,
           lon: field.lon,
           days: 30,
-          crop_type: 'coffee'
-        }
-      }
+          crop_type: "coffee",
+        },
+      },
     );
 
     const { anomaly_count, anomalies } = response.data;
@@ -270,7 +279,7 @@ async function monitorCoffeePlantation() {
       console.log(`Field ${field.id}: ${anomaly_count} anomalies detected`);
 
       // Focus on severe anomalies
-      const severe = anomalies.filter(a => a.severity === 'severe');
+      const severe = anomalies.filter((a) => a.severity === "severe");
       if (severe.length > 0) {
         // Send notification to farmer
         await sendFarmerNotification(field.id, severe);
@@ -288,6 +297,7 @@ setInterval(monitorCoffeePlantation, 24 * 60 * 60 * 1000);
 **Situation**: Insurance company needs to verify crop damage claims with satellite evidence.
 
 **Implementation**:
+
 ```python
 def verify_damage_claim(claim_id, field_id, lat, lon, damage_date):
     """
@@ -339,6 +349,7 @@ python3 test_change_detection.py
 ```
 
 ### Expected Output:
+
 ```
 ======================================================================
 Testing SAHOOL Change Detection System
@@ -355,16 +366,17 @@ Testing SAHOOL Change Detection System
 
 ## Performance Benchmarks | معايير الأداء
 
-| Operation | Response Time | Notes |
-|-----------|--------------|-------|
-| detect_changes (90 days) | 1.2s | 15 observations |
-| compare_dates | 0.3s | 2 dates |
-| detect_anomalies | 0.8s | 20 observations |
-| Concurrent requests (10 fields) | 3.5s | Parallel processing |
+| Operation                       | Response Time | Notes               |
+| ------------------------------- | ------------- | ------------------- |
+| detect_changes (90 days)        | 1.2s          | 15 observations     |
+| compare_dates                   | 0.3s          | 2 dates             |
+| detect_anomalies                | 0.8s          | 20 observations     |
+| Concurrent requests (10 fields) | 3.5s          | Parallel processing |
 
 ## Error Handling | معالجة الأخطاء
 
 ### Invalid Date Range
+
 ```bash
 curl "http://localhost:8090/v1/changes/field/compare?lat=15.5&lon=44.2&date1=2024-12-01&date2=2024-01-01"
 
@@ -375,6 +387,7 @@ curl "http://localhost:8090/v1/changes/field/compare?lat=15.5&lon=44.2&date1=202
 ```
 
 ### Insufficient Data
+
 ```bash
 # Response when no satellite data available
 {

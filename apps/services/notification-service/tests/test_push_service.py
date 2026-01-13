@@ -61,9 +61,12 @@ class TestFirebaseClientInitialization:
 
     def test_initialize_from_environment(self, firebase_client, mock_firebase_credentials):
         """Test initialization from environment variables"""
-        with patch.dict(
-            "os.environ", {"FIREBASE_CREDENTIALS_JSON": json.dumps(mock_firebase_credentials)}
-        ), patch("firebase_admin.initialize_app"):
+        with (
+            patch.dict(
+                "os.environ", {"FIREBASE_CREDENTIALS_JSON": json.dumps(mock_firebase_credentials)}
+            ),
+            patch("firebase_admin.initialize_app"),
+        ):
             result = firebase_client.initialize()
 
             assert result is True
@@ -485,9 +488,7 @@ class TestBilingualSupport:
         firebase_client._initialized = True
 
         with patch("firebase_admin.messaging.send", return_value="msg-123") as mock_send:
-            firebase_client.send_notification(
-                token="token-123", title="Test", body="Test body"
-            )
+            firebase_client.send_notification(token="token-123", title="Test", body="Test body")
 
             # Should use English when no Arabic provided
             call_args = mock_send.call_args[0][0]

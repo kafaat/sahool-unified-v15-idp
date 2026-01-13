@@ -3,6 +3,7 @@
 ## For Python/FastAPI Services
 
 ### 1. Setup (Already Done)
+
 All Python services already have `structlog>=24.1.0` in requirements.txt.
 
 ### 2. Update main.py (3 steps)
@@ -24,6 +25,7 @@ app.add_middleware(RequestLoggingMiddleware, service_name="your-service-name")
 ```
 
 ### 3. Use Logger
+
 ```python
 # Replace print() statements
 logger.info("service_started", port=8000, version="1.0.0")
@@ -32,6 +34,7 @@ logger.error("operation_failed", error=str(e), field_id="456")
 ```
 
 ### 4. Install Dependencies
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/your-service
 pip install -r requirements.txt
@@ -42,20 +45,22 @@ pip install -r requirements.txt
 ## For TypeScript/NestJS Services
 
 ### 1. Install Dependencies
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/your-service
 npm install nestjs-pino pino-http pino-pretty
 ```
 
 ### 2. Update app.module.ts
+
 ```typescript
-import { LoggerModule } from 'nestjs-pino';
-import { createPinoLoggerConfig } from '../../shared/logging/pino-logger.config';
+import { LoggerModule } from "nestjs-pino";
+import { createPinoLoggerConfig } from "../../shared/logging/pino-logger.config";
 
 @Module({
   imports: [
     // Add this as the first import
-    LoggerModule.forRoot(createPinoLoggerConfig('your-service-name')),
+    LoggerModule.forRoot(createPinoLoggerConfig("your-service-name")),
     // ... other imports
   ],
 })
@@ -63,14 +68,15 @@ export class AppModule {}
 ```
 
 ### 3. Update main.ts
+
 ```typescript
-import { Logger } from 'nestjs-pino';
+import { Logger } from "nestjs-pino";
 
 async function bootstrap() {
   // Update NestFactory.create
   const app = await NestFactory.create(AppModule, {
-    logger: false,        // Disable default logger
-    bufferLogs: true,     // Buffer logs during startup
+    logger: false, // Disable default logger
+    bufferLogs: true, // Buffer logs during startup
   });
 
   // Use Pino logger
@@ -81,15 +87,16 @@ async function bootstrap() {
 ```
 
 ### 4. Use Logger in Services
+
 ```typescript
-import { Logger } from 'nestjs-pino';
+import { Logger } from "nestjs-pino";
 
 export class MyService {
   constructor(private readonly logger: Logger) {}
 
   someMethod() {
-    this.logger.log({ msg: 'operation_started', userId: '123' });
-    this.logger.error({ msg: 'operation_failed', error: err.message });
+    this.logger.log({ msg: "operation_started", userId: "123" });
+    this.logger.error({ msg: "operation_failed", error: err.message });
   }
 }
 ```
@@ -99,6 +106,7 @@ export class MyService {
 ## Testing Your Implementation
 
 ### Test 1: Verify JSON Output
+
 ```bash
 # Start your service
 npm start  # or python main.py
@@ -111,11 +119,13 @@ tail -f /var/log/your-service.log
 ```
 
 Expected output:
+
 ```json
 {"timestamp":"2026-01-06T...","level":"info","service":"your-service",...}
 ```
 
 ### Test 2: Verify Correlation ID
+
 ```bash
 # Send request with correlation ID
 curl -H "X-Correlation-ID: test-12345" http://localhost:PORT/healthz
@@ -128,6 +138,7 @@ curl -H "X-Correlation-ID: test-12345" http://localhost:PORT/healthz
 ```
 
 ### Test 3: Verify Request Logging
+
 ```bash
 # Make any API call
 curl http://localhost:PORT/api/v1/resource
@@ -143,9 +154,11 @@ curl http://localhost:PORT/api/v1/resource
 ## Common Issues & Solutions
 
 ### Python: Import Error
+
 **Problem:** `ModuleNotFoundError: No module named 'shared.logging_config'`
 
 **Solution:**
+
 ```python
 # Make sure sys.path is set correctly
 import sys
@@ -156,9 +169,11 @@ from shared.logging_config import setup_logging, get_logger
 ```
 
 ### TypeScript: Module Not Found
+
 **Problem:** `Cannot find module '../../shared/logging/pino-logger.config'`
 
 **Solution:**
+
 ```bash
 # Make sure the path is correct
 # From your-service/src/app.module.ts, the shared folder is:
@@ -166,9 +181,11 @@ from shared.logging_config import setup_logging, get_logger
 ```
 
 ### Logs Not Showing
+
 **Problem:** Logs not appearing in console
 
 **Solution:**
+
 ```bash
 # Check LOG_LEVEL environment variable
 export LOG_LEVEL=debug  # or info, warn, error
@@ -185,7 +202,9 @@ npm list nestjs-pino
 ## Environment Variables
 
 ### LOG_LEVEL
+
 Controls log verbosity:
+
 ```bash
 export LOG_LEVEL=debug   # Show all logs
 export LOG_LEVEL=info    # Default
@@ -194,7 +213,9 @@ export LOG_LEVEL=error   # Only errors
 ```
 
 ### ENVIRONMENT / NODE_ENV
+
 Controls log format:
+
 ```bash
 export ENVIRONMENT=production  # JSON format
 export ENVIRONMENT=development # Pretty format
@@ -209,17 +230,21 @@ export NODE_ENV=development    # Pretty format
 ## Examples by Service Type
 
 ### Example: weather-core (Python)
+
 See: `/home/user/sahool-unified-v15-idp/apps/services/weather-core/src/main.py`
 
 Key changes:
+
 - Lines 24-29: Import and setup logging
 - Line 102: Add middleware
 - Lines 51-91: Use logger instead of print()
 
 ### Example: chat-service (TypeScript)
+
 See: `/home/user/sahool-unified-v15-idp/apps/services/chat-service/`
 
 Key changes:
+
 - `src/app.module.ts` lines 9-10, 20: Import and configure Pino
 - `src/main.ts` lines 17, 22-28: Use Pino logger
 - `src/main.ts` line 100: Use logger instead of console.log()
@@ -229,6 +254,7 @@ Key changes:
 ## Best Practices
 
 ### 1. Use Structured Fields
+
 ```python
 # Good
 logger.info("user_login", user_id="123", tenant_id="abc", duration_ms=45)
@@ -238,6 +264,7 @@ logger.info(f"User 123 logged in for tenant abc in 45ms")
 ```
 
 ### 2. Use Descriptive Event Names
+
 ```python
 # Good
 logger.info("weather_forecast_requested", latitude=15.4, days=7)
@@ -247,6 +274,7 @@ logger.info("request", action="forecast")
 ```
 
 ### 3. Include Context
+
 ```python
 # Always include relevant IDs
 logger.error(
@@ -259,6 +287,7 @@ logger.error(
 ```
 
 ### 4. Don't Log Sensitive Data
+
 ```python
 # Bad
 logger.info("user_login", password=password, api_key=api_key)

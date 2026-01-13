@@ -10,21 +10,25 @@
  * from client-side code is no longer recommended.
  */
 
-import { logger } from './logger';
+import { logger } from "./logger";
 
 // Re-export server-side authorization utilities
-export * from './auth/jwt-verify';
-export * from './auth/route-protection';
-export * from './auth/api-middleware';
+export * from "./auth/jwt-verify";
+export * from "./auth/route-protection";
+export * from "./auth/api-middleware";
 
-const AUTH_USER_KEY = 'sahool_admin_user';
+const AUTH_USER_KEY = "sahool_admin_user";
 
 // API URL - configurable via environment
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 // Enforce HTTPS in production
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production' && !API_URL.startsWith('https://')) {
-  logger.warn('Warning: API_URL should use HTTPS in production environment');
+if (
+  typeof window !== "undefined" &&
+  process.env.NODE_ENV === "production" &&
+  !API_URL.startsWith("https://")
+) {
+  logger.warn("Warning: API_URL should use HTTPS in production environment");
 }
 
 export interface User {
@@ -32,7 +36,7 @@ export interface User {
   email: string;
   name: string;
   name_ar?: string;
-  role: 'admin' | 'supervisor' | 'viewer';
+  role: "admin" | "supervisor" | "viewer";
   tenant_id?: string;
 }
 
@@ -54,20 +58,24 @@ export interface LoginCredentials {
  * @deprecated Use the useAuth hook from @/stores/auth.store instead
  * This function now uses server-side API routes for secure httpOnly cookie management
  */
-export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
+export async function login(
+  credentials: LoginCredentials,
+): Promise<AuthResponse> {
   // Use server-side login endpoint that sets httpOnly cookies
-  const response = await fetch('/api/auth/login', {
-    method: 'POST',
+  const response = await fetch("/api/auth/login", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'same-origin',
+    credentials: "same-origin",
     body: JSON.stringify(credentials),
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'فشل تسجيل الدخول' }));
-    throw new Error(error.message || error.error || 'فشل تسجيل الدخول');
+    const error = await response
+      .json()
+      .catch(() => ({ message: "فشل تسجيل الدخول" }));
+    throw new Error(error.message || error.error || "فشل تسجيل الدخول");
   }
 
   const data = await response.json();
@@ -78,8 +86,8 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 
   // Return mock response for backward compatibility
   return {
-    access_token: 'stored_in_httponly_cookie',
-    token_type: 'Bearer',
+    access_token: "stored_in_httponly_cookie",
+    token_type: "Bearer",
     user: data.user,
   };
 }
@@ -94,17 +102,17 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 export async function logout(): Promise<void> {
   // Use server-side logout endpoint to clear httpOnly cookies
   try {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'same-origin',
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin",
     });
   } catch (error) {
-    logger.error('Logout error:', error);
+    logger.error("Logout error:", error);
   }
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     localStorage.removeItem(AUTH_USER_KEY);
-    window.location.href = '/login';
+    window.location.href = "/login";
   }
 }
 
@@ -116,7 +124,9 @@ export async function logout(): Promise<void> {
  * Returns undefined as tokens are now managed server-side
  */
 export function getToken(): string | undefined {
-  logger.warn('getToken() is deprecated. Tokens are now stored in httpOnly cookies and not accessible from client-side.');
+  logger.warn(
+    "getToken() is deprecated. Tokens are now stored in httpOnly cookies and not accessible from client-side.",
+  );
   return undefined;
 }
 
@@ -128,7 +138,9 @@ export function getToken(): string | undefined {
  * Tokens are now set via httpOnly cookies from server-side for security
  */
 export function setToken(token: string): void {
-  logger.warn('setToken() is deprecated. Use /api/auth/login endpoint to set tokens securely via httpOnly cookies.');
+  logger.warn(
+    "setToken() is deprecated. Use /api/auth/login endpoint to set tokens securely via httpOnly cookies.",
+  );
   // No-op - tokens are now managed server-side only
 }
 
@@ -137,7 +149,7 @@ export function setToken(token: string): void {
  * الحصول على بيانات المستخدم
  */
 export function getUser(): User | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
 
   const userStr = localStorage.getItem(AUTH_USER_KEY);
   if (!userStr) return null;
@@ -154,7 +166,7 @@ export function getUser(): User | null {
  * حفظ بيانات المستخدم
  */
 export function setUser(user: User): void {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
   }
 }
@@ -171,11 +183,11 @@ export function isAuthenticated(): boolean {
  * Check if user has required role
  * التحقق من الصلاحيات
  */
-export function hasRole(requiredRole: User['role']): boolean {
+export function hasRole(requiredRole: User["role"]): boolean {
   const user = getUser();
   if (!user) return false;
 
-  const roleHierarchy: Record<User['role'], number> = {
+  const roleHierarchy: Record<User["role"], number> = {
     admin: 3,
     supervisor: 2,
     viewer: 1,

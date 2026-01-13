@@ -3,7 +3,7 @@
  * أدوات قاعدة البيانات لخدمة المحادثات
  */
 
-import { Logger } from '@nestjs/common';
+import { Logger } from "@nestjs/common";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -17,7 +17,7 @@ export const SLOW_QUERY_THRESHOLD = 1000; // 1 second
 export const GENERAL_TRANSACTION_CONFIG = {
   maxWait: 5000,
   timeout: 15000,
-  isolationLevel: 'ReadCommitted' as const,
+  isolationLevel: "ReadCommitted" as const,
 };
 
 /**
@@ -26,7 +26,7 @@ export const GENERAL_TRANSACTION_CONFIG = {
 export const READ_TRANSACTION_CONFIG = {
   maxWait: 2000,
   timeout: 5000,
-  isolationLevel: 'ReadCommitted' as const,
+  isolationLevel: "ReadCommitted" as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

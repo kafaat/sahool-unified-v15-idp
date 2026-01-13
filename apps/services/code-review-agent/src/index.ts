@@ -35,12 +35,12 @@ export {
   type IssueSeverity,
   type IssueCategory,
   type ReviewAgentConfig,
-  reviewSchema
+  reviewSchema,
 } from "./types.js";
 
 // Re-export functions
 export {
   runCodeReview,
   printResults,
-  exportResults
+  exportResults,
 } from "./production-agent.js";

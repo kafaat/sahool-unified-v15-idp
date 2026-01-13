@@ -9,8 +9,8 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json", "html"],
       include: ["src/**/*.ts"],
-      exclude: ["src/**/*.d.ts", "src/agent.ts", "src/review-agent.ts"]
+      exclude: ["src/**/*.d.ts", "src/agent.ts", "src/review-agent.ts"],
     },
-    testTimeout: 10000
-  }
+    testTimeout: 10000,
+  },
 });

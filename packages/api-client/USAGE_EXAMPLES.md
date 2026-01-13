@@ -16,18 +16,18 @@ The SAHOOL API Client now includes comprehensive error handling with custom erro
 ### Error Handling Modes
 
 ```typescript
-import { SahoolApiClient } from '@sahool/api-client';
+import { SahoolApiClient } from "@sahool/api-client";
 
 // Throw mode (recommended - default)
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'throw', // Throws custom errors
+  baseUrl: "http://localhost",
+  errorHandling: "throw", // Throws custom errors
 });
 
 // Silent mode (legacy compatibility)
 const legacyClient = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'silent', // Returns empty arrays/null on errors
+  baseUrl: "http://localhost",
+  errorHandling: "silent", // Returns empty arrays/null on errors
 });
 ```
 
@@ -36,13 +36,13 @@ const legacyClient = new SahoolApiClient({
 ```typescript
 // Set log level
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  logLevel: 'error', // 'none' | 'error' | 'warn' | 'info' | 'debug'
+  baseUrl: "http://localhost",
+  logLevel: "error", // 'none' | 'error' | 'warn' | 'info' | 'debug'
 });
 
 // Custom logger
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
+  baseUrl: "http://localhost",
   logger: {
     error: (message, context) => myLogger.error(message, context),
     warn: (message, context) => myLogger.warn(message, context),
@@ -58,16 +58,16 @@ const client = new SahoolApiClient({
 
 ```typescript
 import {
-  ApiError,           // Base error class
-  NetworkError,       // Network/connection errors
-  AuthError,          // 401 authentication errors
+  ApiError, // Base error class
+  NetworkError, // Network/connection errors
+  AuthError, // 401 authentication errors
   AuthorizationError, // 403 permission errors
-  NotFoundError,      // 404 not found errors
-  ValidationError,    // 400 validation errors
-  ServerError,        // 5xx server errors
-  TimeoutError,       // Request timeout errors
-  RateLimitError,     // 429 rate limit errors
-} from '@sahool/api-client/errors';
+  NotFoundError, // 404 not found errors
+  ValidationError, // 400 validation errors
+  ServerError, // 5xx server errors
+  TimeoutError, // Request timeout errors
+  RateLimitError, // 429 rate limit errors
+} from "@sahool/api-client/errors";
 ```
 
 ### Error Properties
@@ -93,11 +93,15 @@ All errors extend `ApiError` and include:
 ### Basic Error Handling (Throw Mode)
 
 ```typescript
-import { SahoolApiClient, isAuthError, isNetworkError } from '@sahool/api-client';
+import {
+  SahoolApiClient,
+  isAuthError,
+  isNetworkError,
+} from "@sahool/api-client";
 
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'throw',
+  baseUrl: "http://localhost",
+  errorHandling: "throw",
 });
 
 async function getTasks() {
@@ -107,15 +111,15 @@ async function getTasks() {
   } catch (error) {
     if (isAuthError(error)) {
       // Handle authentication error
-      console.error('Authentication required:', error.message);
+      console.error("Authentication required:", error.message);
       redirectToLogin();
     } else if (isNetworkError(error)) {
       // Handle network error
-      console.error('Network error:', error.message);
+      console.error("Network error:", error.message);
       showRetryDialog();
     } else {
       // Handle other errors
-      console.error('Unexpected error:', error);
+      console.error("Unexpected error:", error);
     }
     throw error;
   }
@@ -130,7 +134,7 @@ import {
   ValidationError,
   NotFoundError,
   ServerError,
-} from '@sahool/api-client/errors';
+} from "@sahool/api-client/errors";
 
 async function createTask(taskData) {
   try {
@@ -139,16 +143,16 @@ async function createTask(taskData) {
   } catch (error) {
     if (error instanceof AuthError) {
       // Redirect to login
-      window.location.href = '/login';
+      window.location.href = "/login";
     } else if (error instanceof ValidationError) {
       // Show validation errors to user
       showValidationErrors(error.validationErrors);
     } else if (error instanceof NotFoundError) {
       // Resource not found
-      showError('Resource not found');
+      showError("Resource not found");
     } else if (error instanceof ServerError) {
       // Server error
-      showError('Server error, please try again later');
+      showError("Server error, please try again later");
     }
   }
 }
@@ -159,9 +163,9 @@ async function createTask(taskData) {
 ```typescript
 // For backward compatibility with existing code
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'silent',
-  logLevel: 'error', // Still logs errors even in silent mode
+  baseUrl: "http://localhost",
+  errorHandling: "silent",
+  logLevel: "error", // Still logs errors even in silent mode
 });
 
 // Returns empty array on error instead of throwing
@@ -211,13 +215,13 @@ function TasksList() {
 ### Error Logging with Custom Logger
 
 ```typescript
-import pino from 'pino';
+import pino from "pino";
 
 const logger = pino();
 
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  logLevel: 'debug',
+  baseUrl: "http://localhost",
+  logLevel: "debug",
   logger: {
     error: (message, context) => logger.error(context, message),
     warn: (message, context) => logger.warn(context, message),
@@ -230,7 +234,7 @@ const client = new SahoolApiClient({
 ### Rate Limit Handling
 
 ```typescript
-import { RateLimitError } from '@sahool/api-client/errors';
+import { RateLimitError } from "@sahool/api-client/errors";
 
 async function makeRequest() {
   try {
@@ -240,7 +244,7 @@ async function makeRequest() {
       // Wait for the retry-after period
       const retryAfter = error.retryAfter || 60;
       console.log(`Rate limited. Retry after ${retryAfter} seconds`);
-      await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+      await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
       // Retry the request
       return await client.getTasks();
     }
@@ -252,10 +256,10 @@ async function makeRequest() {
 ### Timeout Handling
 
 ```typescript
-import { TimeoutError } from '@sahool/api-client/errors';
+import { TimeoutError } from "@sahool/api-client/errors";
 
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
+  baseUrl: "http://localhost",
   timeout: 5000, // 5 second timeout
 });
 
@@ -266,7 +270,7 @@ async function getData() {
     if (error instanceof TimeoutError) {
       console.log(`Request timed out after ${error.timeout}ms`);
       // Show timeout message to user
-      showNotification('Request timed out. Please check your connection.');
+      showNotification("Request timed out. Please check your connection.");
     }
     throw error;
   }
@@ -278,6 +282,7 @@ async function getData() {
 ### From Silent Failures to Proper Error Handling
 
 **Before (Silent Failures):**
+
 ```typescript
 const tasks = await client.getTasks();
 // Empty array could mean no tasks OR an error occurred
@@ -287,12 +292,13 @@ if (tasks.length === 0) {
 ```
 
 **After (Proper Error Handling):**
+
 ```typescript
 try {
   const tasks = await client.getTasks();
   // Empty array definitely means no tasks
   if (tasks.length === 0) {
-    showMessage('No tasks found');
+    showMessage("No tasks found");
   }
 } catch (error) {
   // Definitely an error
@@ -310,9 +316,9 @@ try {
 ```typescript
 // Step 1: Add silent mode
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'silent',
-  logLevel: 'error', // See errors in console
+  baseUrl: "http://localhost",
+  errorHandling: "silent",
+  logLevel: "error", // See errors in console
 });
 
 // Step 2: Update one component at a time
@@ -328,8 +334,8 @@ async function NewComponent() {
 
 // Step 3: Once all components are updated, switch to throw mode
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'throw', // Now all errors are properly handled
+  baseUrl: "http://localhost",
+  errorHandling: "throw", // Now all errors are properly handled
 });
 ```
 

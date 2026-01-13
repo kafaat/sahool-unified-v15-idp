@@ -5,7 +5,6 @@ Please update your references to use `crop-intelligence-service` on port 8095.
 
 ---
 
-
 # Crop Growth Model - نموذج نمو المحاصيل
 
 ## نظرة عامة | Overview
@@ -22,14 +21,16 @@ Crop growth simulation and modeling service using advanced agricultural models.
 ## الميزات | Features
 
 ### النماذج | Models
-| النموذج | Model | الوصف |
-|---------|-------|--------|
-| DSSAT | DSSAT | نموذج محاكاة شامل |
+
+| النموذج  | Model    | الوصف               |
+| -------- | -------- | ------------------- |
+| DSSAT    | DSSAT    | نموذج محاكاة شامل   |
 | AquaCrop | AquaCrop | نموذج FAO للإنتاجية |
-| WOFOST | WOFOST | نموذج أوروبي |
-| Custom | Custom | نماذج مخصصة لليمن |
+| WOFOST   | WOFOST   | نموذج أوروبي        |
+| Custom   | Custom   | نماذج مخصصة لليمن   |
 
 ### المحاصيل المدعومة | Supported Crops
+
 - القمح (Wheat)
 - الذرة (Corn/Sorghum)
 - البن (Coffee)
@@ -159,55 +160,54 @@ Response:
 ## نماذج البيانات | Data Models
 
 ### SimulationResult
+
 ```json
 {
-    "id": "sim-001",
-    "field_id": "field-001",
-    "model": "aquacrop",
-    "status": "completed",
-    "parameters": {
-        "crop_type": "wheat",
-        "planting_date": "2024-01-15",
-        "variety": "local_yemen"
-    },
-    "results": {
-        "predicted_yield_kg_ha": 3500,
-        "harvest_date": "2024-05-20",
-        "total_water_mm": 450,
-        "total_nitrogen_kg_ha": 120,
-        "biomass_kg_ha": 8500
-    },
-    "daily_outputs": [
-        {
-            "day": 1,
-            "date": "2024-01-15",
-            "lai": 0.1,
-            "biomass": 50,
-            "root_depth": 0.05,
-            "soil_water": 85
-        }
-    ],
-    "created_at": "2024-01-14T10:00:00Z",
-    "completed_at": "2024-01-14T10:02:30Z"
+  "id": "sim-001",
+  "field_id": "field-001",
+  "model": "aquacrop",
+  "status": "completed",
+  "parameters": {
+    "crop_type": "wheat",
+    "planting_date": "2024-01-15",
+    "variety": "local_yemen"
+  },
+  "results": {
+    "predicted_yield_kg_ha": 3500,
+    "harvest_date": "2024-05-20",
+    "total_water_mm": 450,
+    "total_nitrogen_kg_ha": 120,
+    "biomass_kg_ha": 8500
+  },
+  "daily_outputs": [
+    {
+      "day": 1,
+      "date": "2024-01-15",
+      "lai": 0.1,
+      "biomass": 50,
+      "root_depth": 0.05,
+      "soil_water": 85
+    }
+  ],
+  "created_at": "2024-01-14T10:00:00Z",
+  "completed_at": "2024-01-14T10:02:30Z"
 }
 ```
 
 ### GrowthStage
+
 ```json
 {
-    "code": "V3",
-    "name": "التفريع",
-    "name_en": "Tillering",
-    "description": "تكون الفروع الجانبية",
-    "typical_duration_days": 20,
-    "key_indicators": [
-        "عدد الفروع: 3-5",
-        "ارتفاع النبات: 15-20 سم"
-    ],
-    "management_tips": [
-        "تطبيق الدفعة الأولى من النيتروجين",
-        "مراقبة الآفات المبكرة"
-    ]
+  "code": "V3",
+  "name": "التفريع",
+  "name_en": "Tillering",
+  "description": "تكون الفروع الجانبية",
+  "typical_duration_days": 20,
+  "key_indicators": ["عدد الفروع: 3-5", "ارتفاع النبات: 15-20 سم"],
+  "management_tips": [
+    "تطبيق الدفعة الأولى من النيتروجين",
+    "مراقبة الآفات المبكرة"
+  ]
 }
 ```
 

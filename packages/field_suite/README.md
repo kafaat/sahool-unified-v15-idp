@@ -4,14 +4,14 @@
 
 ## Modules
 
-| Module | Description |
-|--------|-------------|
-| `fields/` | Field domain models and services |
-| `farms/` | Farm management models |
-| `crops/` | Crop types and configurations |
-| `spatial/` | PostGIS ORM models, spatial queries, validation |
-| `zones/` | Management zone definitions |
-| `migrations/` | Alembic migrations for PostGIS |
+| Module        | Description                                     |
+| ------------- | ----------------------------------------------- |
+| `fields/`     | Field domain models and services                |
+| `farms/`      | Farm management models                          |
+| `crops/`      | Crop types and configurations                   |
+| `spatial/`    | PostGIS ORM models, spatial queries, validation |
+| `zones/`      | Management zone definitions                     |
+| `migrations/` | Alembic migrations for PostGIS                  |
 
 ## Usage
 

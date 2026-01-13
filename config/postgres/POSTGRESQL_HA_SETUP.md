@@ -39,14 +39,14 @@ This PostgreSQL High Availability setup provides:
 
 Based on the PostgreSQL audit (2026-01-06), this configuration addresses:
 
-| Issue | Status | Solution |
-|-------|--------|----------|
-| No replication/HA | ✅ Fixed | Streaming replication with hot standby |
-| TLS not enforced | ✅ Fixed | TLS 1.3 required for all connections |
-| Insufficient connections | ✅ Fixed | Increased to 300 max_connections |
-| No performance tuning | ✅ Fixed | Optimized for 8GB RAM, SSD storage |
-| No automated backups | ✅ Fixed | WAL archiving configured |
-| Missing monitoring | ✅ Fixed | pg_stat_statements enabled |
+| Issue                    | Status   | Solution                               |
+| ------------------------ | -------- | -------------------------------------- |
+| No replication/HA        | ✅ Fixed | Streaming replication with hot standby |
+| TLS not enforced         | ✅ Fixed | TLS 1.3 required for all connections   |
+| Insufficient connections | ✅ Fixed | Increased to 300 max_connections       |
+| No performance tuning    | ✅ Fixed | Optimized for 8GB RAM, SSD storage     |
+| No automated backups     | ✅ Fixed | WAL archiving configured               |
+| Missing monitoring       | ✅ Fixed | pg_stat_statements enabled             |
 
 ---
 
@@ -248,6 +248,7 @@ docker exec -it sahool-postgres-primary pg_isready -U sahool
 #### Step 2: Create Replication User (Automated)
 
 The initialization script automatically creates:
+
 - Replication user with REPLICATION privilege
 - Physical replication slot named `replica_slot`
 - Performance monitoring extensions
@@ -554,13 +555,13 @@ docker exec -it sahool-postgres-primary psql "sslmode=require host=localhost use
 
 ### Resource Allocation Guidelines
 
-| Component | Development | Production | High-Load |
-|-----------|-------------|------------|-----------|
-| Primary CPU | 2 cores | 4 cores | 8+ cores |
-| Primary RAM | 2GB | 8GB | 16GB+ |
-| Replica CPU | 1 core | 2 cores | 4+ cores |
-| Replica RAM | 1GB | 4GB | 8GB+ |
-| Storage | 20GB | 500GB | 1TB+ |
+| Component   | Development | Production | High-Load |
+| ----------- | ----------- | ---------- | --------- |
+| Primary CPU | 2 cores     | 4 cores    | 8+ cores  |
+| Primary RAM | 2GB         | 8GB        | 16GB+     |
+| Replica CPU | 1 core      | 2 cores    | 4+ cores  |
+| Replica RAM | 1GB         | 4GB        | 8GB+      |
+| Storage     | 20GB        | 500GB      | 1TB+      |
 
 ### Memory Settings (postgresql.conf)
 
@@ -860,18 +861,18 @@ For issues or questions:
 
 ## 📝 Change Log
 
-| Date | Version | Changes |
-|------|---------|---------|
-| 2026-01-06 | 1.0 | Initial HA configuration based on audit findings |
+| Date       | Version | Changes                                          |
+| ---------- | ------- | ------------------------------------------------ |
+| 2026-01-06 | 1.0     | Initial HA configuration based on audit findings |
 
 ---
 
 **Status**: ✅ Production Ready (with TLS certificates)
 
 **Next Steps**:
+
 1. Generate/install production TLS certificates
 2. Test failover procedure in staging environment
 3. Set up automated backup schedule
 4. Implement monitoring dashboards
 5. Configure alerting for replication lag
-

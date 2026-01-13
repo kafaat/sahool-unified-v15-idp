@@ -7,6 +7,7 @@ Successfully implemented a comprehensive Content Security Policy (CSP) system fo
 ## Security Improvements
 
 ### Before Implementation
+
 - ❌ Used `'unsafe-inline'` for scripts and styles
 - ❌ Used `'unsafe-eval'` in production
 - ❌ No CSP violation monitoring
@@ -14,6 +15,7 @@ Successfully implemented a comprehensive Content Security Policy (CSP) system fo
 - ❌ Weak protection against XSS attacks
 
 ### After Implementation
+
 - ✅ **Nonce-based CSP** - Eliminates `'unsafe-inline'` in production
 - ✅ **Removed `'unsafe-eval'`** - Only allowed in development for Next.js HMR
 - ✅ **CSP Violation Reporting** - Monitor and log policy violations via `/api/csp-report`
@@ -26,9 +28,11 @@ Successfully implemented a comprehensive Content Security Policy (CSP) system fo
 ## Files Created
 
 ### 1. `/apps/web/src/lib/security/csp-config.ts` (311 lines)
+
 **Purpose**: Core CSP configuration and nonce generation
 
 **Key Features**:
+
 - `generateNonce()` - Web Crypto API-based nonce generation (Edge Runtime compatible)
 - `getCSPDirectives()` - Environment-aware CSP directives
 - `buildCSPHeader()` - Converts directives to CSP header string
@@ -37,6 +41,7 @@ Successfully implemented a comprehensive Content Security Policy (CSP) system fo
 - `sanitizeCSPReport()` - Clean and format violation reports
 
 **CSP Directives Configured**:
+
 ```typescript
 default-src: 'self'
 script-src: 'self' 'nonce-{random}' (+ 'unsafe-eval' in dev only)
@@ -54,9 +59,11 @@ report-uri: /api/csp-report
 ```
 
 ### 2. `/apps/web/src/lib/security/nonce.ts` (129 lines)
+
 **Purpose**: Nonce utilities for React components
 
 **Key Functions**:
+
 - `getNonce()` - Retrieve nonce from headers (Server Components)
 - `getNonceProps()` - Get nonce props for script tags
 - `getStyleNonceProps()` - Get nonce props for style tags
@@ -65,8 +72,9 @@ report-uri: /api/csp-report
 - `cssVars()` - Helper for CSS custom properties
 
 **Usage Example**:
+
 ```tsx
-import { getNonce, createInlineScript } from '@/lib/security/nonce';
+import { getNonce, createInlineScript } from "@/lib/security/nonce";
 
 export default async function Page() {
   const nonce = await getNonce();
@@ -82,9 +90,11 @@ export default async function Page() {
 ```
 
 ### 3. `/apps/web/src/app/api/csp-report/route.ts` (146 lines)
+
 **Purpose**: CSP violation reporting endpoint
 
 **Features**:
+
 - Rate limiting (100 reports/minute per IP)
 - Request validation
 - False positive filtering (browser extensions, about:blank)
@@ -94,6 +104,7 @@ export default async function Page() {
 **Endpoint**: `POST /api/csp-report`
 
 **Example Violation Log**:
+
 ```json
 {
   "timestamp": "2025-12-30T12:34:56.789Z",
@@ -107,17 +118,21 @@ export default async function Page() {
 ```
 
 ### 4. `/apps/web/src/lib/security/index.ts` (14 lines)
+
 **Purpose**: Centralized security module exports
 
 **Exports**:
+
 - All security utilities from `security.ts`
 - All CSP utilities from `csp-config.ts`
 - All nonce utilities from `nonce.ts`
 
 ### 5. `/apps/web/src/lib/security/csp-example.tsx` (365 lines)
+
 **Purpose**: Comprehensive CSP usage examples
 
 **Examples Include**:
+
 - Server Components with inline scripts
 - Server Components with inline styles
 - CSS custom properties (recommended approach)
@@ -128,9 +143,11 @@ export default async function Page() {
 - Error logging setup
 
 ### 6. `/apps/web/src/lib/security/csp-config.test.ts` (333 lines)
+
 **Purpose**: Comprehensive test suite for CSP configuration
 
 **Test Coverage**:
+
 - ✅ Nonce generation (uniqueness, format, base64 encoding)
 - ✅ CSP directives (development vs production)
 - ✅ CSP header building
@@ -139,14 +156,17 @@ export default async function Page() {
 - ✅ Report sanitization
 
 **Run Tests**:
+
 ```bash
 npm test src/lib/security/csp-config.test.ts
 ```
 
 ### 7. `/apps/web/src/lib/security/CSP_README.md` (417 lines)
+
 **Purpose**: Comprehensive documentation
 
 **Sections**:
+
 - Overview and security improvements
 - Usage guide with examples
 - CSP violation reporting
@@ -159,9 +179,11 @@ npm test src/lib/security/csp-config.test.ts
 - Resources and links
 
 ### 8. `/apps/web/src/lib/security/CSP_MIGRATION.md` (634 lines)
+
 **Purpose**: Migration guide for existing code
 
 **Sections**:
+
 - Quick reference table
 - 12 common migration scenarios
 - Environment-specific considerations
@@ -173,7 +195,9 @@ npm test src/lib/security/csp-config.test.ts
 ## Files Modified
 
 ### 1. `/apps/web/src/middleware.ts`
+
 **Changes**:
+
 - ✅ Import CSP utilities
 - ✅ Generate nonce per request
 - ✅ Store nonce in `X-Nonce` header
@@ -181,17 +205,19 @@ npm test src/lib/security/csp-config.test.ts
 - ✅ Environment-aware CSP (dev/prod)
 
 **Before**:
+
 ```typescript
 response.headers.set(
-  'Content-Security-Policy',
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval';"
+  "Content-Security-Policy",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval';",
 );
 ```
 
 **After**:
+
 ```typescript
 const nonce = generateNonce();
-response.headers.set('X-Nonce', nonce);
+response.headers.set("X-Nonce", nonce);
 
 const cspConfig = getCSPConfig(nonce);
 const cspHeader = getCSPHeader(nonce);
@@ -199,7 +225,9 @@ response.headers.set(getCSPHeaderName(cspConfig.reportOnly), cspHeader);
 ```
 
 ### 2. `/apps/web/next.config.js`
+
 **Changes**:
+
 - ✅ Updated `X-Frame-Options` from `SAMEORIGIN` to `DENY`
 - ✅ Updated `Referrer-Policy` to `strict-origin-when-cross-origin`
 - ✅ Enhanced `Permissions-Policy` (added `payment=()`, `usb=()`, `interest-cohort=()`)
@@ -209,12 +237,15 @@ response.headers.set(getCSPHeaderName(cspConfig.reportOnly), cspHeader);
 - ✅ Added comment about CSP in middleware
 
 ### 3. `/apps/web/src/components/dashboard/EventTimeline.tsx`
+
 **Changes**:
+
 - ✅ Fixed `'use client'` directive placement (must be first line)
 
 ## Technical Details
 
 ### Nonce Generation
+
 - Uses Web Crypto API (`crypto.getRandomValues()`)
 - Compatible with Edge Runtime (Next.js middleware)
 - Generates 16-byte random values
@@ -224,12 +255,14 @@ response.headers.set(getCSPHeaderName(cspConfig.reportOnly), cspHeader);
 ### Environment Handling
 
 **Development**:
+
 - Allows `'unsafe-eval'` for Next.js HMR
 - Allows `'unsafe-inline'` in styles for faster iteration
 - Allows localhost connections
 - Can enable report-only mode with `CSP_REPORT_ONLY=true`
 
 **Production**:
+
 - Strict nonce-based policy
 - No `'unsafe-inline'` or `'unsafe-eval'`
 - HTTPS enforcement
@@ -237,6 +270,7 @@ response.headers.set(getCSPHeaderName(cspConfig.reportOnly), cspHeader);
 - `strict-dynamic` for script loading
 
 ### Edge Runtime Compatibility
+
 - ✅ Uses Web Crypto API instead of Node.js `crypto` module
 - ✅ No Node.js-specific imports in middleware code
 - ✅ Compatible with Next.js Edge Runtime
@@ -255,43 +289,50 @@ response.headers.set(getCSPHeaderName(cspConfig.reportOnly), cspHeader);
 ## Monitoring and Reporting
 
 ### CSP Violations Logged
+
 - Browser extensions (filtered out)
 - Malicious scripts
 - Unauthorized resources
 - Policy misconfigurations
 
 ### Log Location
+
 - Development: Console output
 - Production: Container logs (stdout/stderr)
 - Optional: Send to external monitoring (Sentry, LogRocket, etc.)
 
 ### Rate Limiting
+
 - 100 reports per minute per IP
 - Prevents DoS on reporting endpoint
 
 ## Testing
 
 ### Build Status
+
 - ✅ Webpack compilation successful
 - ✅ No CSP-related errors
 - ✅ Edge Runtime compatible
-- ⚠️  Pre-existing TypeScript errors in auth layout (not CSP-related)
+- ⚠️ Pre-existing TypeScript errors in auth layout (not CSP-related)
 
 ### Recommended Testing Steps
 
 1. **Development Testing**:
+
    ```bash
    npm run dev
    # Check browser console for CSP violations
    ```
 
 2. **Report-Only Mode**:
+
    ```bash
    CSP_REPORT_ONLY=true npm run dev
    # Reports violations without blocking
    ```
 
 3. **Production Build**:
+
    ```bash
    npm run build
    npm start
@@ -305,18 +346,21 @@ response.headers.set(getCSPHeaderName(cspConfig.reportOnly), cspHeader);
 ## Migration Path
 
 ### Immediate (Week 1)
+
 - ✅ CSP configuration created
 - ✅ Middleware updated
 - ✅ Violation reporting enabled
 - 📋 Enable report-only mode
 
 ### Short-term (Week 2-3)
+
 - 📋 Monitor CSP violations
 - 📋 Fix inline event handlers
 - 📋 Update inline styles to CSS classes
 - 📋 Add nonces to necessary inline scripts
 
 ### Long-term (Week 4+)
+
 - 📋 Enable enforcing mode
 - 📋 Integrate with monitoring service
 - 📋 Regular violation review
@@ -332,11 +376,13 @@ response.headers.set(getCSPHeaderName(cspConfig.reportOnly), cspHeader);
 ## Resources
 
 ### Documentation
+
 - `/apps/web/src/lib/security/CSP_README.md` - Usage guide
 - `/apps/web/src/lib/security/CSP_MIGRATION.md` - Migration guide
 - `/apps/web/src/lib/security/csp-example.tsx` - Code examples
 
 ### External Resources
+
 - [MDN CSP Guide](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
 - [CSP Evaluator](https://csp-evaluator.withgoogle.com/)
 - [OWASP CSP Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html)
@@ -347,12 +393,14 @@ response.headers.set(getCSPHeaderName(cspConfig.reportOnly), cspHeader);
 If issues arise in production:
 
 1. **Temporary**: Enable report-only mode
+
    ```typescript
    // In csp-config.ts
-   reportOnly: true
+   reportOnly: true;
    ```
 
 2. **Quick fix**: Relax specific directive
+
    ```typescript
    'script-src': [..., "'unsafe-inline'"]  // NOT recommended
    ```
@@ -365,12 +413,14 @@ If issues arise in production:
 ## Maintenance
 
 ### Regular Tasks
+
 - Monitor CSP violation reports weekly
 - Review and update allowed sources quarterly
 - Test new features for CSP compatibility
 - Update CSP configuration as needed
 
 ### When Adding Features
+
 1. Check if new scripts/styles are needed
 2. Use nonce for inline scripts
 3. Use CSS classes instead of inline styles

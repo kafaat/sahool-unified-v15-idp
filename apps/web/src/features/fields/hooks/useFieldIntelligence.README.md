@@ -32,7 +32,7 @@ import {
   useCreateTaskFromAlert,
   useFieldIntelligence,
   useDebouncedDateValidation,
-} from '@/features/fields';
+} from "@/features/fields";
 ```
 
 ## Available Hooks
@@ -42,12 +42,14 @@ import {
 Fetch and cache field zones with health data.
 
 **Parameters:**
+
 - `fieldId: string` - Field identifier
 - `options?: HookOptions` - Optional hook configuration
 
 **Returns:** Query result with field zones data
 
 **Cache Configuration:**
+
 - Stale Time: 5 minutes (zones don't change frequently)
 - Retry: 2 attempts with 1 second delay
 
@@ -80,12 +82,14 @@ function FieldZonesView({ fieldId }: { fieldId: string }) {
 Fetch field alerts with automatic real-time updates.
 
 **Parameters:**
+
 - `fieldId: string` - Field identifier
 - `options?: HookOptions` - Optional hook configuration
 
 **Returns:** Query result with active field alerts
 
 **Cache Configuration:**
+
 - Stale Time: 30 seconds (alerts change frequently)
 - Refetch Interval: 60 seconds (auto-refresh)
 - Retry: 2 attempts with 500ms delay
@@ -115,12 +119,14 @@ function FieldAlertsPanel({ fieldId }: { fieldId: string }) {
 Find best days for farming activities based on weather and astronomical conditions.
 
 **Parameters:**
+
 - `activity: string` - Activity type (e.g., 'planting', 'harvesting', 'irrigation')
 - `options?: BestDaysOptions` - Query options including days count
 
 **Returns:** Query result with best days ranked by suitability
 
 **Cache Configuration:**
+
 - Stale Time: 24 hours (best days are stable)
 - Retry: 2 attempts with 1 second delay
 
@@ -156,6 +162,7 @@ function BestDaysFinder() {
 Validate if a date is suitable for a farming activity.
 
 **Parameters:**
+
 - `date: string` - Date to validate (ISO format)
 - `activity: string` - Farming activity type
 - `options?: HookOptions` - Optional hook configuration
@@ -163,6 +170,7 @@ Validate if a date is suitable for a farming activity.
 **Returns:** Query result with validation data including score and alternatives
 
 **Cache Configuration:**
+
 - Stale Time: 1 hour (validation is stable per date)
 - Retry: 1 attempt with 500ms delay
 
@@ -202,12 +210,14 @@ function DateValidationForm() {
 Fetch AI-powered recommendations for a field.
 
 **Parameters:**
+
 - `fieldId: string` - Field identifier
 - `options?: HookOptions` - Optional hook configuration
 
 **Returns:** Query result with prioritized recommendations
 
 **Cache Configuration:**
+
 - Stale Time: 2 minutes (recommendations should be fresh)
 - Retry: 2 attempts with 1 second delay
 
@@ -242,6 +252,7 @@ Create a task from an alert with optimistic updates.
 **Returns:** Mutation result with task creation handler
 
 **Features:**
+
 - Optimistic updates for instant UI feedback
 - Automatic rollback on error
 - Query invalidation for affected data
@@ -286,6 +297,7 @@ function AlertActionButton({ alert }: { alert: FieldAlert }) {
 Get all field intelligence data in a single hook.
 
 **Parameters:**
+
 - `fieldId: string` - Field identifier
 - `options?: HookOptions` - Optional hook configuration
 
@@ -350,6 +362,7 @@ function FieldIntelligenceDashboard({ fieldId }: { fieldId: string }) {
 Validate date with built-in debouncing for forms.
 
 **Parameters:**
+
 - `date: string` - Date to validate
 - `activity: string` - Farming activity
 - `options?: HookOptions` - Optional hook configuration
@@ -389,18 +402,15 @@ function DateInputWithValidation() {
 All hooks use centralized query keys from `fieldIntelligenceKeys`:
 
 ```typescript
-import { fieldIntelligenceKeys } from '@/features/fields';
+import { fieldIntelligenceKeys } from "@/features/fields";
 
 // Manual cache invalidation
 queryClient.invalidateQueries({
-  queryKey: fieldIntelligenceKeys.zones(fieldId)
+  queryKey: fieldIntelligenceKeys.zones(fieldId),
 });
 
 // Manual cache updates
-queryClient.setQueryData(
-  fieldIntelligenceKeys.alerts(fieldId),
-  newAlerts
-);
+queryClient.setQueryData(fieldIntelligenceKeys.alerts(fieldId), newAlerts);
 ```
 
 ## Type Definitions
@@ -409,8 +419,8 @@ queryClient.setQueryData(
 
 ```typescript
 interface BestDaysOptions {
-  days?: number;        // Number of days to search (1-30)
-  enabled?: boolean;    // Enable/disable query
+  days?: number; // Number of days to search (1-30)
+  enabled?: boolean; // Enable/disable query
 }
 ```
 
@@ -418,7 +428,7 @@ interface BestDaysOptions {
 
 ```typescript
 interface HookOptions {
-  enabled?: boolean;    // Enable/disable query
+  enabled?: boolean; // Enable/disable query
 }
 ```
 
@@ -430,7 +440,7 @@ interface TaskFromAlertData {
   titleAr: string;
   description?: string;
   descriptionAr?: string;
-  priority: 'urgent' | 'high' | 'medium' | 'low';
+  priority: "urgent" | "high" | "medium" | "low";
   dueDate?: string;
   assigneeId?: string;
 }
@@ -472,7 +482,7 @@ Disable queries when data is not needed:
 
 ```typescript
 const { data } = useFieldZones(fieldId, {
-  enabled: !!fieldId && isVisible
+  enabled: !!fieldId && isVisible,
 });
 ```
 
@@ -512,17 +522,18 @@ try {
 
 ### Cache Times
 
-| Hook | Stale Time | Refetch Interval | Rationale |
-|------|------------|------------------|-----------|
-| `useFieldZones` | 5 minutes | None | Zones change infrequently |
-| `useFieldAlerts` | 30 seconds | 60 seconds | Real-time monitoring needed |
-| `useBestDays` | 24 hours | None | Astronomical data is stable |
-| `useValidateDate` | 1 hour | None | Validation results are stable |
-| `useFieldRecommendations` | 2 minutes | None | AI recommendations need freshness |
+| Hook                      | Stale Time | Refetch Interval | Rationale                         |
+| ------------------------- | ---------- | ---------------- | --------------------------------- |
+| `useFieldZones`           | 5 minutes  | None             | Zones change infrequently         |
+| `useFieldAlerts`          | 30 seconds | 60 seconds       | Real-time monitoring needed       |
+| `useBestDays`             | 24 hours   | None             | Astronomical data is stable       |
+| `useValidateDate`         | 1 hour     | None             | Validation results are stable     |
+| `useFieldRecommendations` | 2 minutes  | None             | AI recommendations need freshness |
 
 ### Optimization Tips
 
 1. **Use Query Keys for Prefetching:**
+
    ```typescript
    queryClient.prefetchQuery({
      queryKey: fieldIntelligenceKeys.zones(fieldId),
@@ -531,6 +542,7 @@ try {
    ```
 
 2. **Selective Refetching:**
+
    ```typescript
    const { data, refetch } = useFieldAlerts(fieldId);
    // Only refetch when user explicitly requests
@@ -579,6 +591,7 @@ test('useFieldZones fetches and returns zones', async () => {
 ## Support
 
 For issues or questions:
+
 1. Check the [example file](./useFieldIntelligence.example.tsx) for usage patterns
 2. Review the [API documentation](../api/field-intelligence-api.ts)
 3. Contact the development team

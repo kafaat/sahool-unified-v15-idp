@@ -9,14 +9,18 @@ import {
   ExecutionContext,
   CallHandler,
   Logger,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
-import { AuditLogger } from '../audit-logger';
-import { AUDIT_METADATA, AuditableOptions, AuditSeverity } from '../audit-types';
-import { RequestWithAudit } from '../audit-middleware';
-import { getAuditFieldMetadata } from './audit-field.decorator';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { Observable } from "rxjs";
+import { tap, catchError } from "rxjs/operators";
+import { AuditLogger } from "../audit-logger";
+import {
+  AUDIT_METADATA,
+  AuditableOptions,
+  AuditSeverity,
+} from "../audit-types";
+import { RequestWithAudit } from "../audit-middleware";
+import { getAuditFieldMetadata } from "./audit-field.decorator";
 
 /**
  * Interceptor that handles @Auditable decorator
@@ -47,13 +51,14 @@ export class AuditInterceptor implements NestInterceptor {
     const auditContext = request.audit;
 
     if (!auditContext) {
-      this.logger.warn('Audit context not found in request');
+      this.logger.warn("Audit context not found in request");
       return next.handle();
     }
 
     // Extract resource info from request
     const resourceId = this.extractResourceId(request);
-    const resourceType = options.resourceType || this.extractResourceType(context);
+    const resourceType =
+      options.resourceType || this.extractResourceType(context);
 
     // Capture old value if tracking changes
     let oldValue: Record<string, unknown> | undefined;
@@ -82,7 +87,7 @@ export class AuditInterceptor implements NestInterceptor {
                 tenantId: auditContext.tenantId,
                 actorId: auditContext.actorId,
                 actorType: auditContext.actorType,
-                action: options.action || 'unknown',
+                action: options.action || "unknown",
                 category: options.category,
                 severity: options.severity,
                 resourceType,
@@ -113,7 +118,7 @@ export class AuditInterceptor implements NestInterceptor {
                 tenantId: auditContext.tenantId,
                 actorId: auditContext.actorId,
                 actorType: auditContext.actorType,
-                action: options.action || 'unknown',
+                action: options.action || "unknown",
                 category: options.category,
                 severity: options.severity,
                 resourceType,
@@ -136,7 +141,7 @@ export class AuditInterceptor implements NestInterceptor {
             );
           }
         } catch (error) {
-          this.logger.error('Failed to log audit event', error);
+          this.logger.error("Failed to log audit event", error);
         }
       }),
       catchError(async (error) => {
@@ -148,7 +153,7 @@ export class AuditInterceptor implements NestInterceptor {
             tenantId: auditContext.tenantId,
             actorId: auditContext.actorId,
             actorType: auditContext.actorType,
-            action: options.action || 'unknown',
+            action: options.action || "unknown",
             category: options.category,
             severity: AuditSeverity.ERROR,
             resourceType,
@@ -163,11 +168,11 @@ export class AuditInterceptor implements NestInterceptor {
               handler: context.getHandler().name,
             },
             success: false,
-            errorCode: error.name || 'UnknownError',
+            errorCode: error.name || "UnknownError",
             errorMessage: error.message,
           });
         } catch (auditError) {
-          this.logger.error('Failed to log audit event', auditError);
+          this.logger.error("Failed to log audit event", auditError);
         }
 
         // Re-throw the original error
@@ -206,13 +211,15 @@ export class AuditInterceptor implements NestInterceptor {
     const className = context.getClass().name;
 
     // Remove 'Controller' suffix if present
-    return className.replace(/Controller$/i, '').toLowerCase();
+    return className.replace(/Controller$/i, "").toLowerCase();
   }
 
   /**
    * Extract old value from request (for updates)
    */
-  private extractOldValue(request: RequestWithAudit): Record<string, unknown> | undefined {
+  private extractOldValue(
+    request: RequestWithAudit,
+  ): Record<string, unknown> | undefined {
     // This is a placeholder - in real implementation, you might:
     // 1. Fetch from database using resource ID
     // 2. Get from request metadata
@@ -229,7 +236,7 @@ export class AuditInterceptor implements NestInterceptor {
     if (!result) return undefined;
 
     // If result is an object, use it
-    if (typeof result === 'object' && !Array.isArray(result)) {
+    if (typeof result === "object" && !Array.isArray(result)) {
       return result as Record<string, unknown>;
     }
 

@@ -3,18 +3,21 @@
 ## 🚀 Quick Start (5 minutes)
 
 ### 1. Generate Certificates
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/config/certs
 ./generate-internal-tls.sh
 ```
 
 ### 2. Start Services with TLS
+
 ```bash
 cd /home/user/sahool-unified-v15-idp
 docker-compose -f docker-compose.yml -f docker-compose.tls.yml up -d
 ```
 
 ### 3. Verify TLS is Working
+
 ```bash
 # Check PostgreSQL
 docker-compose exec postgres psql -U sahool -c "SHOW ssl;"
@@ -36,6 +39,7 @@ curl -k https://localhost:8443/
 ## 📋 Common Commands
 
 ### Certificate Management
+
 ```bash
 # View certificate info
 ./generate-internal-tls.sh --info postgres
@@ -51,6 +55,7 @@ curl -k https://localhost:8443/
 ```
 
 ### Service Management
+
 ```bash
 # Start with TLS
 docker-compose -f docker-compose.yml -f docker-compose.tls.yml up -d
@@ -67,6 +72,7 @@ docker-compose logs redis | grep -i tls
 ```
 
 ### Testing Connections
+
 ```bash
 # Test PostgreSQL TLS
 psql "postgresql://sahool:password@localhost:5432/sahool?sslmode=require"
@@ -86,6 +92,7 @@ curl -k https://localhost:8443/
 ## 🔧 Troubleshooting
 
 ### Certificate Errors
+
 ```bash
 # Verify certificate chain
 openssl verify -CAfile ca/ca.crt postgres/server.crt
@@ -98,6 +105,7 @@ openssl x509 -in postgres/server.crt -noout -text
 ```
 
 ### Connection Issues
+
 ```bash
 # Check if service is listening on TLS port
 docker-compose exec postgres ss -tlnp | grep 5432
@@ -109,6 +117,7 @@ openssl s_client -connect localhost:6379
 ```
 
 ### Permission Issues
+
 ```bash
 # Fix certificate permissions
 chmod 600 */server.key

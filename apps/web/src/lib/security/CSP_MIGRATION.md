@@ -6,20 +6,21 @@ This guide helps you migrate existing code to be compatible with the new strict 
 
 ## Quick Reference
 
-| Old Pattern (CSP-unsafe) | New Pattern (CSP-safe) |
-|--------------------------|------------------------|
-| `<div onClick="handler()">` | `<div onClick={handler}>` |
-| `<a href="javascript:void(0)">` | `<button onClick={handler}>` |
-| `<div style={{ color: 'red' }}>` | `<div className="text-red-600">` |
-| `<script>inline code</script>` | `<script {...createInlineScript(code, nonce)} />` |
-| `eval('code')` | Use proper function calls |
-| `new Function('code')` | Use proper function declarations |
+| Old Pattern (CSP-unsafe)         | New Pattern (CSP-safe)                            |
+| -------------------------------- | ------------------------------------------------- |
+| `<div onClick="handler()">`      | `<div onClick={handler}>`                         |
+| `<a href="javascript:void(0)">`  | `<button onClick={handler}>`                      |
+| `<div style={{ color: 'red' }}>` | `<div className="text-red-600">`                  |
+| `<script>inline code</script>`   | `<script {...createInlineScript(code, nonce)} />` |
+| `eval('code')`                   | Use proper function calls                         |
+| `new Function('code')`           | Use proper function declarations                  |
 
 ## Common Migration Scenarios
 
 ### 1. Inline Event Handlers
 
 #### ❌ Before (Blocked by CSP)
+
 ```jsx
 <button onclick="handleClick()">Click</button>
 <div onmouseover="showTooltip()">Hover</div>
@@ -27,6 +28,7 @@ This guide helps you migrate existing code to be compatible with the new strict 
 ```
 
 #### ✅ After (CSP-compliant)
+
 ```jsx
 <button onClick={handleClick}>Click</button>
 <div onMouseOver={showTooltip}>Hover</div>
@@ -36,20 +38,19 @@ This guide helps you migrate existing code to be compatible with the new strict 
 ### 2. Inline Styles
 
 #### ❌ Before (Blocked by CSP in production)
+
 ```jsx
-<div style={{ backgroundColor: dynamicColor, padding: '10px' }}>
-  Content
-</div>
+<div style={{ backgroundColor: dynamicColor, padding: "10px" }}>Content</div>
 ```
 
 #### ✅ After - Option 1: Tailwind Classes
+
 ```jsx
-<div className={`bg-${colorClass} p-4`}>
-  Content
-</div>
+<div className={`bg-${colorClass} p-4`}>Content</div>
 ```
 
 #### ✅ After - Option 2: CSS Custom Properties
+
 ```jsx
 <div
   className="dynamic-box"
@@ -66,33 +67,32 @@ This guide helps you migrate existing code to be compatible with the new strict 
 ```
 
 #### ✅ After - Option 3: CSS Modules
-```jsx
-import styles from './Component.module.css';
 
-<div className={styles.dynamicBox}>
-  Content
-</div>
+```jsx
+import styles from "./Component.module.css";
+
+<div className={styles.dynamicBox}>Content</div>;
 ```
 
 ### 3. Inline Scripts
 
 #### ❌ Before (Blocked by CSP)
+
 ```jsx
 export default function Page() {
   return (
     <>
       <div id="map"></div>
-      <script>
-        initializeMap();
-      </script>
+      <script>initializeMap();</script>
     </>
   );
 }
 ```
 
 #### ✅ After - Option 1: External Script File
+
 ```jsx
-import Script from 'next/script';
+import Script from "next/script";
 
 export default function Page() {
   return (
@@ -105,8 +105,9 @@ export default function Page() {
 ```
 
 #### ✅ After - Option 2: Inline with Nonce (Server Component)
+
 ```jsx
-import { getNonce, createInlineScript } from '@/lib/security/nonce';
+import { getNonce, createInlineScript } from "@/lib/security/nonce";
 
 export default async function Page() {
   const nonce = await getNonce();
@@ -125,10 +126,11 @@ export default async function Page() {
 ```
 
 #### ✅ After - Option 3: Use useEffect (Client Component)
-```jsx
-'use client';
 
-import { useEffect } from 'react';
+```jsx
+"use client";
+
+import { useEffect } from "react";
 
 export default function Page() {
   useEffect(() => {
@@ -142,20 +144,23 @@ export default function Page() {
 ### 4. Dynamic Script Injection
 
 #### ❌ Before (Blocked by CSP)
+
 ```javascript
-const script = document.createElement('script');
-script.src = 'https://example.com/analytics.js';
+const script = document.createElement("script");
+script.src = "https://example.com/analytics.js";
 document.head.appendChild(script);
 ```
 
 #### ✅ After - Option 1: next/script
-```jsx
-import Script from 'next/script';
 
-<Script src="https://example.com/analytics.js" strategy="lazyOnload" />
+```jsx
+import Script from "next/script";
+
+<Script src="https://example.com/analytics.js" strategy="lazyOnload" />;
 ```
 
 #### ✅ After - Option 2: Add to CSP allowed sources
+
 ```typescript
 // In csp-config.ts
 'script-src': [
@@ -168,12 +173,14 @@ import Script from 'next/script';
 ### 5. eval() and new Function()
 
 #### ❌ Before (Blocked by CSP in production)
+
 ```javascript
 eval('console.log("Hello")');
-const fn = new Function('return 1 + 1');
+const fn = new Function("return 1 + 1");
 ```
 
 #### ✅ After - Refactor to regular code
+
 ```javascript
 console.log("Hello");
 const fn = () => 1 + 1;
@@ -182,12 +189,14 @@ const fn = () => 1 + 1;
 ### 6. javascript: URLs
 
 #### ❌ Before (Blocked by CSP)
+
 ```jsx
 <a href="javascript:void(0)" onClick={handler}>Link</a>
 <a href="javascript:openModal()">Open</a>
 ```
 
 #### ✅ After
+
 ```jsx
 <button onClick={handler}>Link</button>
 <button onClick={openModal}>Open</button>
@@ -196,12 +205,14 @@ const fn = () => 1 + 1;
 ### 7. Data URIs in Script/Style
 
 #### ❌ Before (May be blocked)
+
 ```jsx
 <img src="data:image/png;base64,..." />  // OK for images
 <script src="data:text/javascript,alert('hi')"></script>  // Blocked
 ```
 
 #### ✅ After
+
 ```jsx
 <img src="data:image/png;base64,..." />  // Still OK
 <Script src="/scripts/alert.js" />  // Use file
@@ -210,49 +221,58 @@ const fn = () => 1 + 1;
 ### 8. Third-party Libraries
 
 #### ❌ Before - Library with inline scripts
+
 ```jsx
-import SomeLibrary from 'some-library';
+import SomeLibrary from "some-library";
 
 <SomeLibrary
   onInit={() => {
     // This library injects inline scripts
   }}
-/>
+/>;
 ```
 
 #### ✅ After - Solutions:
+
 1. **Update library** to CSP-compliant version
 2. **Add nonce support** if library supports it:
+
    ```jsx
-   import { getNonce } from '@/lib/security/nonce';
+   import { getNonce } from "@/lib/security/nonce";
 
    const nonce = await getNonce();
-   <SomeLibrary nonce={nonce} />
+   <SomeLibrary nonce={nonce} />;
    ```
+
 3. **Replace library** with CSP-friendly alternative
 4. **Load library differently**:
-   ```jsx
-   import Script from 'next/script';
 
-   <Script src="/libs/some-library.js" />
+   ```jsx
+   import Script from "next/script";
+
+   <Script src="/libs/some-library.js" />;
    ```
 
 ### 9. Google Analytics / Tag Manager
 
 #### ❌ Before (Traditional inline script)
+
 ```html
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'GA_MEASUREMENT_ID');
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "GA_MEASUREMENT_ID");
 </script>
 ```
 
 #### ✅ After - Using next/script with nonce
+
 ```jsx
-import Script from 'next/script';
-import { getNonce } from '@/lib/security/nonce';
+import Script from "next/script";
+import { getNonce } from "@/lib/security/nonce";
 
 export default async function Analytics() {
   const nonce = await getNonce();
@@ -277,6 +297,7 @@ export default async function Analytics() {
 ```
 
 And add Google domains to CSP:
+
 ```typescript
 // In csp-config.ts
 'script-src': [
@@ -293,16 +314,18 @@ And add Google domains to CSP:
 ### 10. Leaflet/OpenStreetMap
 
 #### ❌ Before - May have issues
+
 ```jsx
-import L from 'leaflet';
+import L from "leaflet";
 
 useEffect(() => {
-  const map = L.map('map').setView([15.5527, 48.5164], 6);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  const map = L.map("map").setView([15.5527, 48.5164], 6);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 }, []);
 ```
 
 #### ✅ After - Already configured in CSP
+
 The CSP configuration already includes OpenStreetMap domains. Just ensure you're loading Leaflet CSS in the head:
 
 ```jsx
@@ -317,11 +340,13 @@ The CSP configuration already includes OpenStreetMap domains. Just ensure you're
 ### 11. WebSocket Connections
 
 #### ❌ Before - May be blocked
+
 ```javascript
-const ws = new WebSocket('ws://unknown-domain.com/socket');
+const ws = new WebSocket("ws://unknown-domain.com/socket");
 ```
 
 #### ✅ After - Add to CSP connect-src
+
 ```typescript
 // In csp-config.ts
 'connect-src': [
@@ -334,6 +359,7 @@ const ws = new WebSocket('ws://unknown-domain.com/socket');
 ### 12. Form Actions
 
 #### ❌ Before - External form submission
+
 ```jsx
 <form action="https://external-site.com/submit" method="POST">
   <input type="text" />
@@ -342,23 +368,25 @@ const ws = new WebSocket('ws://unknown-domain.com/socket');
 ```
 
 #### ✅ After - Option 1: Submit via API
+
 ```jsx
 const handleSubmit = async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
-  await fetch('/api/submit', {
-    method: 'POST',
-    body: formData
+  await fetch("/api/submit", {
+    method: "POST",
+    body: formData,
   });
 };
 
 <form onSubmit={handleSubmit}>
   <input type="text" />
   <button type="submit">Submit</button>
-</form>
+</form>;
 ```
 
 #### ✅ After - Option 2: Add to CSP
+
 ```typescript
 // In csp-config.ts
 'form-action': [
@@ -372,6 +400,7 @@ const handleSubmit = async (e) => {
 ### Development
 
 In development, the CSP is more lenient:
+
 - ✅ `unsafe-eval` is allowed (needed for Next.js HMR)
 - ✅ `unsafe-inline` in styles is allowed
 - ✅ Localhost connections are allowed
@@ -379,6 +408,7 @@ In development, the CSP is more lenient:
 ### Production
 
 In production, the CSP is strict:
+
 - ❌ No `unsafe-eval` (except Next.js internals)
 - ❌ No `unsafe-inline` without nonce
 - ✅ HTTPS enforcement via `upgrade-insecure-requests`
@@ -388,6 +418,7 @@ In production, the CSP is strict:
 ## Testing Your Changes
 
 ### 1. Test in Development
+
 ```bash
 npm run dev
 ```
@@ -395,6 +426,7 @@ npm run dev
 Check browser console for CSP violations.
 
 ### 2. Test with Report-Only Mode
+
 ```bash
 CSP_REPORT_ONLY=true npm run dev
 ```
@@ -402,6 +434,7 @@ CSP_REPORT_ONLY=true npm run dev
 This reports violations without blocking them.
 
 ### 3. Check CSP Reports
+
 ```bash
 # Monitor the CSP report endpoint
 tail -f logs/csp-violations.log
@@ -410,6 +443,7 @@ tail -f logs/csp-violations.log
 ```
 
 ### 4. Test in Production Mode
+
 ```bash
 npm run build
 npm start
@@ -442,11 +476,12 @@ Test all features to ensure nothing is broken.
 **Cause**: Inline script without nonce
 
 **Solution**:
+
 ```jsx
-import { getNonce, createInlineScript } from '@/lib/security/nonce';
+import { getNonce, createInlineScript } from "@/lib/security/nonce";
 
 const nonce = await getNonce();
-<script {...createInlineScript(code, nonce)} />
+<script {...createInlineScript(code, nonce)} />;
 ```
 
 ### Error: "Refused to apply inline style"
@@ -460,6 +495,7 @@ const nonce = await getNonce();
 **Cause**: External script not in CSP allowlist
 
 **Solution**: Add domain to CSP config:
+
 ```typescript
 'script-src': ['...', 'https://trusted-domain.com'],
 ```
@@ -469,6 +505,7 @@ const nonce = await getNonce();
 **Cause**: API/WebSocket not in connect-src
 
 **Solution**: Add to CSP config:
+
 ```typescript
 'connect-src': ['...', 'https://api.example.com'],
 ```
@@ -478,18 +515,21 @@ const nonce = await getNonce();
 If CSP causes issues in production:
 
 ### 1. Temporary - Use Report-Only Mode
+
 ```typescript
 // In csp-config.ts
-reportOnly: true  // Reports violations but doesn't block
+reportOnly: true; // Reports violations but doesn't block
 ```
 
 ### 2. Relax Specific Directive
+
 ```typescript
 // Temporarily add back unsafe-inline for debugging
 'script-src': ['...', "'unsafe-inline'"],  // NOT recommended for production
 ```
 
 ### 3. Complete Rollback
+
 ```bash
 git revert <csp-commit-hash>
 ```

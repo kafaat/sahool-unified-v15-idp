@@ -6,8 +6,8 @@
  * @description Custom exception classes with bilingual support
  */
 
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { ErrorCode, ERROR_REGISTRY } from './error-codes';
+import { HttpException, HttpStatus } from "@nestjs/common";
+import { ErrorCode, ERROR_REGISTRY } from "./error-codes";
 
 /**
  * Base Application Exception
@@ -149,23 +149,33 @@ export class NotFoundException extends AppException {
    * إنشاء استثناء لأنواع موارد محددة
    */
   static user(userId?: string): NotFoundException {
-    return new NotFoundException(ErrorCode.USER_NOT_FOUND, undefined, { userId });
+    return new NotFoundException(ErrorCode.USER_NOT_FOUND, undefined, {
+      userId,
+    });
   }
 
   static farm(farmId?: string): NotFoundException {
-    return new NotFoundException(ErrorCode.FARM_NOT_FOUND, undefined, { farmId });
+    return new NotFoundException(ErrorCode.FARM_NOT_FOUND, undefined, {
+      farmId,
+    });
   }
 
   static field(fieldId?: string): NotFoundException {
-    return new NotFoundException(ErrorCode.FIELD_NOT_FOUND, undefined, { fieldId });
+    return new NotFoundException(ErrorCode.FIELD_NOT_FOUND, undefined, {
+      fieldId,
+    });
   }
 
   static crop(cropId?: string): NotFoundException {
-    return new NotFoundException(ErrorCode.CROP_NOT_FOUND, undefined, { cropId });
+    return new NotFoundException(ErrorCode.CROP_NOT_FOUND, undefined, {
+      cropId,
+    });
   }
 
   static sensor(sensorId?: string): NotFoundException {
-    return new NotFoundException(ErrorCode.SENSOR_NOT_FOUND, undefined, { sensorId });
+    return new NotFoundException(ErrorCode.SENSOR_NOT_FOUND, undefined, {
+      sensorId,
+    });
   }
 
   static conversation(conversationId?: string): NotFoundException {
@@ -187,7 +197,9 @@ export class NotFoundException extends AppException {
   }
 
   static order(orderId?: string): NotFoundException {
-    return new NotFoundException(ErrorCode.ORDER_NOT_FOUND, undefined, { orderId });
+    return new NotFoundException(ErrorCode.ORDER_NOT_FOUND, undefined, {
+      orderId,
+    });
   }
 
   static product(productId?: string): NotFoundException {
@@ -234,16 +246,24 @@ export class BusinessLogicException extends AppException {
     available: number,
     required: number,
   ): BusinessLogicException {
-    return new BusinessLogicException(ErrorCode.INSUFFICIENT_BALANCE, undefined, {
-      available,
-      required,
-    });
+    return new BusinessLogicException(
+      ErrorCode.INSUFFICIENT_BALANCE,
+      undefined,
+      {
+        available,
+        required,
+      },
+    );
   }
 
   static amountMustBePositive(amount: number): BusinessLogicException {
-    return new BusinessLogicException(ErrorCode.AMOUNT_MUST_BE_POSITIVE, undefined, {
-      amount,
-    });
+    return new BusinessLogicException(
+      ErrorCode.AMOUNT_MUST_BE_POSITIVE,
+      undefined,
+      {
+        amount,
+      },
+    );
   }
 
   static invalidStateTransition(
@@ -264,10 +284,14 @@ export class BusinessLogicException extends AppException {
     operation: string,
     reason?: string,
   ): BusinessLogicException {
-    return new BusinessLogicException(ErrorCode.OPERATION_NOT_ALLOWED, undefined, {
-      operation,
-      reason,
-    });
+    return new BusinessLogicException(
+      ErrorCode.OPERATION_NOT_ALLOWED,
+      undefined,
+      {
+        operation,
+        reason,
+      },
+    );
   }
 }
 
@@ -314,15 +338,23 @@ export class ExternalServiceException extends AppException {
   }
 
   static smsService(error?: any): ExternalServiceException {
-    return new ExternalServiceException(ErrorCode.SMS_SERVICE_ERROR, undefined, {
-      originalError: error,
-    });
+    return new ExternalServiceException(
+      ErrorCode.SMS_SERVICE_ERROR,
+      undefined,
+      {
+        originalError: error,
+      },
+    );
   }
 
   static emailService(error?: any): ExternalServiceException {
-    return new ExternalServiceException(ErrorCode.EMAIL_SERVICE_ERROR, undefined, {
-      originalError: error,
-    });
+    return new ExternalServiceException(
+      ErrorCode.EMAIL_SERVICE_ERROR,
+      undefined,
+      {
+        originalError: error,
+      },
+    );
   }
 }
 
@@ -346,17 +378,21 @@ export class DatabaseException extends AppException {
    */
   static fromDatabaseError(error: any): DatabaseException {
     // Prisma error codes
-    if (error.code === 'P2002') {
-      return new DatabaseException(ErrorCode.UNIQUE_CONSTRAINT_VIOLATION, undefined, {
-        fields: error.meta?.target,
-      });
+    if (error.code === "P2002") {
+      return new DatabaseException(
+        ErrorCode.UNIQUE_CONSTRAINT_VIOLATION,
+        undefined,
+        {
+          fields: error.meta?.target,
+        },
+      );
     }
-    if (error.code === 'P2003') {
+    if (error.code === "P2003") {
       return new DatabaseException(ErrorCode.FOREIGN_KEY_VIOLATION, undefined, {
         field: error.meta?.field_name,
       });
     }
-    if (error.code === 'P2025') {
+    if (error.code === "P2025") {
       return new DatabaseException(ErrorCode.RESOURCE_NOT_FOUND, undefined, {
         cause: error.meta?.cause,
       });

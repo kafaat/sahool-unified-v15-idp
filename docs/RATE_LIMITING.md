@@ -1,4 +1,5 @@
 # SAHOOL Platform - Rate Limiting Documentation
+
 # توثيق تحديد المعدل - منصة سهول
 
 **Version:** v16.0.0  
@@ -29,13 +30,13 @@ SAHOOL platform implements a comprehensive rate limiting system to protect APIs 
 
 ### Tier Comparison | مقارنة المستويات
 
-| Tier | RPM (Requests/Min) | RPH (Requests/Hour) | Burst | Use Case |
-|------|-------------------|---------------------|-------|----------|
-| **Free** | 30 | 500 | 5 | Public API, Testing |
-| **Basic** | 60 | 2,000 | 10 | Small farms, Individual users |
-| **Pro** | 120 | 5,000 | 20 | Medium farms, Business users |
-| **Enterprise** | 500 | 20,000 | 50 | Large operations, Partners |
-| **Internal** | 1,000 | 50,000 | 100 | Service-to-service calls |
+| Tier           | RPM (Requests/Min) | RPH (Requests/Hour) | Burst | Use Case                      |
+| -------------- | ------------------ | ------------------- | ----- | ----------------------------- |
+| **Free**       | 30                 | 500                 | 5     | Public API, Testing           |
+| **Basic**      | 60                 | 2,000               | 10    | Small farms, Individual users |
+| **Pro**        | 120                | 5,000               | 20    | Medium farms, Business users  |
+| **Enterprise** | 500                | 20,000              | 50    | Large operations, Partners    |
+| **Internal**   | 1,000              | 50,000              | 100   | Service-to-service calls      |
 
 **RPM:** Requests per minute (طلبات في الدقيقة)  
 **RPH:** Requests per hour (طلبات في الساعة)  
@@ -385,12 +386,12 @@ from shared.middleware.rate_limiter import RateLimiter, RateLimitStrategy
 
 class CustomRateLimitStrategy(RateLimitStrategy):
     """Custom strategy: Different limits for weekdays vs weekends"""
-    
+
     async def get_limit(self, user, request):
         from datetime import datetime
-        
+
         is_weekend = datetime.now().weekday() >= 5
-        
+
         if is_weekend:
             # Double limits on weekends
             return user.tier.rpm * 2, user.tier.rph * 2
@@ -437,28 +438,28 @@ async def test_rate_limit_enforcement():
             burst_size=2
         )
     )
-    
+
     # First 7 requests should pass (5 + 2 burst)
     for i in range(7):
         assert await limiter.check("test-user") == True
-    
+
     # 8th request should be rate limited
     assert await limiter.check("test-user") == False
 
 @pytest.mark.asyncio
 async def test_rate_limit_reset():
     limiter = RateLimiter(redis_url="redis://localhost")
-    
+
     # Consume all requests
     for i in range(60):
         await limiter.check("test-user")
-    
+
     # Should be rate limited
     assert await limiter.check("test-user") == False
-    
+
     # Wait for reset
     await asyncio.sleep(61)
-    
+
     # Should work again
     assert await limiter.check("test-user") == True
 ```
@@ -480,7 +481,7 @@ def test_rate_limit_exceeded(client: TestClient):
     # Exhaust rate limit
     for i in range(60):
         client.get("/fields")
-    
+
     # Next request should be rate limited
     response = client.get("/fields")
     assert response.status_code == 429
@@ -538,7 +539,7 @@ r.ping()  # Should return True
 ```python
 class RateLimiter:
     """Main rate limiter class"""
-    
+
     def __init__(
         self,
         redis_url: str = None,
@@ -546,17 +547,17 @@ class RateLimiter:
         strategy: RateLimitStrategy = None
     ):
         """Initialize rate limiter"""
-        
+
     async def check(
         self,
         key: str,
         cost: int = 1
     ) -> bool:
         """Check if request should be allowed"""
-        
+
     async def get_usage(self, key: str) -> Dict:
         """Get current usage statistics"""
-        
+
     async def reset(self, key: str):
         """Reset rate limit for key"""
 ```

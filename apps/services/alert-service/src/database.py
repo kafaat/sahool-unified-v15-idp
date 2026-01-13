@@ -21,31 +21,47 @@ logger = logging.getLogger(__name__)
 # Get database URL from environment
 # Security: No fallback credentials - require DATABASE_URL to be set
 # TLS/SSL: DATABASE_URL must include sslmode=require for production
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost:5432/sahool_alerts")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+# Check if running in CI/test environment (no database required for smoke tests)
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
+IS_CI_OR_TEST = ENVIRONMENT in ("test", "ci", "testing")
+ALLOW_DEV_DEFAULTS = os.getenv("ALLOW_DEV_DEFAULTS", "false").lower() == "true"
+
+# Use default URL for development/CI if allowed
+if not DATABASE_URL and (IS_CI_OR_TEST or ALLOW_DEV_DEFAULTS):
+    DATABASE_URL = "postgresql://localhost:5432/sahool_alerts"
+    logger.warning("Using default DATABASE_URL for CI/test environment")
 
 # Create SQLAlchemy engine with connection pooling and TLS support
 # SSL/TLS is enforced via DATABASE_URL parameter: ?sslmode=require
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True,  # Verify connections before using them
-    pool_size=10,  # Maximum number of connections in the pool
-    max_overflow=20,  # Maximum overflow connections
-    pool_timeout=30,  # Connection timeout (seconds)
-    pool_recycle=3600,  # Recycle connections after 1 hour
-    echo=False,  # Set to True for SQL query logging (debug only)
-    connect_args={
-        "connect_timeout": 10,  # Connection timeout in seconds
-        # Note: statement_timeout removed - PgBouncer doesn't support PostgreSQL startup parameters
-        # If needed, set statement_timeout at the session level or via SQL: SET statement_timeout = '30s'
-    },
-)
+engine = None
+SessionLocal = None
 
-# Create session factory
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine,
-)
+if DATABASE_URL:
+    engine = create_engine(
+        DATABASE_URL,
+        pool_pre_ping=True,  # Verify connections before using them
+        pool_size=10,  # Maximum number of connections in the pool
+        max_overflow=20,  # Maximum overflow connections
+        pool_timeout=30,  # Connection timeout (seconds)
+        pool_recycle=3600,  # Recycle connections after 1 hour
+        echo=False,  # Set to True for SQL query logging (debug only)
+        connect_args={
+            "connect_timeout": 10,  # Connection timeout in seconds
+            # Note: statement_timeout removed - PgBouncer doesn't support PostgreSQL startup parameters
+            # If needed, set statement_timeout at the session level or via SQL: SET statement_timeout = '30s'
+        },
+    )
+
+    # Create session factory
+    SessionLocal = sessionmaker(
+        autocommit=False,
+        autoflush=False,
+        bind=engine,
+    )
+else:
+    logger.warning("DATABASE_URL not set - database features disabled")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -110,6 +126,9 @@ def check_db_connection() -> bool:
     Returns:
         True if connection is successful, False otherwise
     """
+    if SessionLocal is None:
+        logger.warning("Database not configured - skipping connection check")
+        return False
     try:
         db = SessionLocal()
         db.execute(text("SELECT 1"))

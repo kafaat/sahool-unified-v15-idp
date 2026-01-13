@@ -501,7 +501,9 @@ async def send_sms_notification(notification, farmer_id: str):
                 status="sent",
                 provider_message_id=message_sid,
             )
-            logger.info(f"✅ SMS sent to {farmer_profile.phone}: {message_sid}")
+            logger.info(
+                f"✅ SMS sent to ***{farmer_profile.phone[-4:] if farmer_profile.phone else '****'}: {message_sid}"
+            )
         else:
             raise Exception("Failed to send SMS (no message_sid returned)")
 
@@ -577,7 +579,9 @@ async def send_email_notification(notification, farmer_id: str):
                 status="sent",
                 provider_message_id=message_id,
             )
-            logger.info(f"✅ Email sent to {farmer_profile.email}: {message_id}")
+            logger.info(
+                f"✅ Email sent to ***@{farmer_profile.email.split('@')[-1] if farmer_profile.email and '@' in farmer_profile.email else '***'}: {message_id}"
+            )
         else:
             raise Exception("Failed to send email (no message_id returned)")
 
@@ -681,7 +685,9 @@ async def send_whatsapp_notification(notification, farmer_id: str):
 
         # For now, WhatsApp integration is a placeholder
         # In production, you would integrate with WhatsApp Business API or Twilio WhatsApp
-        logger.info(f"WhatsApp notification placeholder for {farmer_profile.phone}")
+        logger.info(
+            f"WhatsApp notification placeholder for ***{farmer_profile.phone[-4:] if farmer_profile.phone else '****'}"
+        )
 
         # Placeholder: Log as pending until WhatsApp client is implemented
         await NotificationLogRepository.create_log(

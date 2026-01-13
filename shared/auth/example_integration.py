@@ -142,7 +142,9 @@ async def startup_event():
                 email="admin@sahool.io",
                 name="Test Admin",
                 name_ar="مسؤول تجريبي",
-                password=os.getenv("TEST_ADMIN_PASSWORD", "admin123"),  # Use TEST_ADMIN_PASSWORD env var
+                password=os.getenv(
+                    "TEST_ADMIN_PASSWORD", "admin123"
+                ),  # Use TEST_ADMIN_PASSWORD env var
                 roles=["admin"],
             )
             print(f"✅ Test admin user created: {test_user.email}")

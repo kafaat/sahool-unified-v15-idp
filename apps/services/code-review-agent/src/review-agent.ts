@@ -31,8 +31,8 @@ Be specific about file names and line numbers. Focus on actionable feedback.`,
       model: "opus",
       allowedTools: ["Read", "Glob", "Grep"],
       permissionMode: "bypassPermissions", // Auto-approve read operations
-      maxTurns: 250
-    }
+      maxTurns: 250,
+    },
   })) {
     // Show session initialization
     if (message.type === "system" && message.subtype === "init") {
@@ -55,7 +55,9 @@ Be specific about file names and line numbers. Focus on actionable feedback.`,
     if (message.type === "result") {
       console.log(`\n${"=".repeat(50)}`);
       if (message.subtype === "success") {
-        console.log(`Review complete! Cost: $${message.total_cost_usd.toFixed(4)}`);
+        console.log(
+          `Review complete! Cost: $${message.total_cost_usd.toFixed(4)}`,
+        );
       } else {
         console.log(`Review failed: ${message.subtype}`);
       }

@@ -5,10 +5,10 @@
  * Provides React integration for WebSocket client
  */
 
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { logger } from '../lib/logger';
+import { useEffect, useState, useCallback, useRef } from "react";
+import { logger } from "../lib/logger";
 import {
   getWebSocketClient,
   ConnectionStatus,
@@ -16,7 +16,7 @@ import {
   type SensorMessage,
   type IrrigationMessage,
   type DiagnosisMessage,
-} from '@/lib/websocket';
+} from "@/lib/websocket";
 
 export type {
   AlertMessage,
@@ -27,16 +27,16 @@ export type {
 };
 
 type EventType =
-  | 'alert'
-  | 'sensor'
-  | 'irrigation'
-  | 'diagnosis'
-  | 'farm_update'
-  | 'weather'
-  | 'task'
-  | 'connected'
-  | 'disconnected'
-  | 'error';
+  | "alert"
+  | "sensor"
+  | "irrigation"
+  | "diagnosis"
+  | "farm_update"
+  | "weather"
+  | "task"
+  | "connected"
+  | "disconnected"
+  | "error";
 
 interface UseWebSocketOptions {
   /** Auto-connect on mount */
@@ -62,7 +62,7 @@ interface UseWebSocketReturn {
   /** Subscribe to an event */
   subscribe: <T = unknown>(
     event: EventType,
-    handler: (data: T) => void
+    handler: (data: T) => void,
   ) => () => void;
   /** Send a message to the server */
   send: (type: string, data: unknown) => void;
@@ -93,16 +93,12 @@ interface UseWebSocketReturn {
  * ```
  */
 export function useWebSocket(
-  options: UseWebSocketOptions = {}
+  options: UseWebSocketOptions = {},
 ): UseWebSocketReturn {
-  const {
-    autoConnect = true,
-    autoDisconnect = true,
-    events = [],
-  } = options;
+  const { autoConnect = true, autoDisconnect = true, events = [] } = options;
 
   const [status, setStatus] = useState<ConnectionStatus>(
-    ConnectionStatus.DISCONNECTED
+    ConnectionStatus.DISCONNECTED,
   );
   const [error, setError] = useState<Error | null>(null);
   const clientRef = useRef(getWebSocketClient());
@@ -124,7 +120,7 @@ export function useWebSocket(
       // EventType is compatible with the WebSocketClient's event type
       return clientRef.current.on<T>(event, handler);
     },
-    []
+    [],
   );
 
   // Send function
@@ -148,11 +144,11 @@ export function useWebSocket(
 
   // Setup error listener
   useEffect(() => {
-    const unsubscribe = clientRef.current.on('error', (data: any) => {
+    const unsubscribe = clientRef.current.on("error", (data: any) => {
       setError(
         data?.error instanceof Error
           ? data.error
-          : new Error('WebSocket error occurred')
+          : new Error("WebSocket error occurred"),
       );
     });
 
@@ -175,7 +171,7 @@ export function useWebSocket(
   // Subscribe to events
   useEffect(() => {
     const unsubscribers = events.map(({ type, handler }) =>
-      subscribe(type, handler)
+      subscribe(type, handler),
     );
 
     return () => {
@@ -213,7 +209,7 @@ export function useWebSocket(
 export function useWebSocketEvent<T = unknown>(
   event: EventType,
   handler: (data: T) => void,
-  deps: React.DependencyList = []
+  deps: React.DependencyList = [],
 ): void {
   const { subscribe } = useWebSocket({ autoConnect: false });
 
@@ -247,7 +243,7 @@ export function useRealtimeData<T>(
   options: {
     maxItems?: number;
     filter?: (item: T) => boolean;
-  } = {}
+  } = {},
 ): T[] {
   const { maxItems = 50, filter } = options;
   const [data, setData] = useState<T[]>([]);
@@ -307,32 +303,32 @@ export function useConnectionStatus() {
 function getStatusText(status: ConnectionStatus): string {
   switch (status) {
     case ConnectionStatus.CONNECTED:
-      return 'متصل';
+      return "متصل";
     case ConnectionStatus.CONNECTING:
-      return 'جاري الاتصال...';
+      return "جاري الاتصال...";
     case ConnectionStatus.RECONNECTING:
-      return 'إعادة الاتصال...';
+      return "إعادة الاتصال...";
     case ConnectionStatus.DISCONNECTED:
-      return 'غير متصل';
+      return "غير متصل";
     case ConnectionStatus.ERROR:
-      return 'خطأ في الاتصال';
+      return "خطأ في الاتصال";
     default:
-      return 'غير معروف';
+      return "غير معروف";
   }
 }
 
 function getStatusColor(status: ConnectionStatus): string {
   switch (status) {
     case ConnectionStatus.CONNECTED:
-      return 'green';
+      return "green";
     case ConnectionStatus.CONNECTING:
     case ConnectionStatus.RECONNECTING:
-      return 'yellow';
+      return "yellow";
     case ConnectionStatus.DISCONNECTED:
-      return 'gray';
+      return "gray";
     case ConnectionStatus.ERROR:
-      return 'red';
+      return "red";
     default:
-      return 'gray';
+      return "gray";
   }
 }

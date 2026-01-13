@@ -14,19 +14,21 @@ Agricultural research support service for managing experiments and field studies
 ## الميزات | Features
 
 ### التجارب | Experiments
-| النوع | Type | الوصف |
-|-------|------|--------|
-| تجارب صنفية | Variety Trials | مقارنة أصناف |
-| تجارب تسميد | Fertilizer Trials | اختبار أسمدة |
-| تجارب ري | Irrigation Trials | طرق ري |
-| تجارب مبيدات | Pesticide Trials | فعالية المبيدات |
+
+| النوع        | Type              | الوصف           |
+| ------------ | ----------------- | --------------- |
+| تجارب صنفية  | Variety Trials    | مقارنة أصناف    |
+| تجارب تسميد  | Fertilizer Trials | اختبار أسمدة    |
+| تجارب ري     | Irrigation Trials | طرق ري          |
+| تجارب مبيدات | Pesticide Trials  | فعالية المبيدات |
 
 ### التحليل | Analysis
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| تحليل إحصائي | Statistical Analysis | ANOVA, t-test |
-| تصميم تجارب | Experiment Design | RCB, Latin Square |
-| تقارير علمية | Scientific Reports | تقارير بحثية |
+
+| الميزة       | Feature              | الوصف             |
+| ------------ | -------------------- | ----------------- |
+| تحليل إحصائي | Statistical Analysis | ANOVA, t-test     |
+| تصميم تجارب  | Experiment Design    | RCB, Latin Square |
+| تقارير علمية | Scientific Reports   | تقارير بحثية      |
 
 ---
 
@@ -198,59 +200,61 @@ POST /experiments/{experiment_id}/publish
 ## نماذج البيانات | Data Models
 
 ### Experiment
+
 ```json
 {
-    "id": "exp-001",
-    "title": "مقارنة أصناف القمح اليمني",
-    "title_en": "Yemeni Wheat Variety Comparison",
-    "type": "variety_trial",
-    "status": "data_collection",
-    "design": {
-        "type": "rcbd",
-        "replications": 4,
-        "treatments_count": 3,
-        "plot_size_m2": 25,
-        "total_plots": 12
-    },
-    "field_id": "field-001",
-    "location": {
-        "region": "صنعاء",
-        "coordinates": {"lat": 15.35, "lng": 44.15}
-    },
-    "dates": {
-        "start": "2024-01-15",
-        "end": "2024-05-30",
-        "planting": "2024-01-20",
-        "harvest": "2024-05-25"
-    },
-    "researcher": {
-        "name": "د. أحمد علي",
-        "institution": "مركز البحوث الزراعية"
-    },
-    "created_at": "2024-01-10T00:00:00Z"
+  "id": "exp-001",
+  "title": "مقارنة أصناف القمح اليمني",
+  "title_en": "Yemeni Wheat Variety Comparison",
+  "type": "variety_trial",
+  "status": "data_collection",
+  "design": {
+    "type": "rcbd",
+    "replications": 4,
+    "treatments_count": 3,
+    "plot_size_m2": 25,
+    "total_plots": 12
+  },
+  "field_id": "field-001",
+  "location": {
+    "region": "صنعاء",
+    "coordinates": { "lat": 15.35, "lng": 44.15 }
+  },
+  "dates": {
+    "start": "2024-01-15",
+    "end": "2024-05-30",
+    "planting": "2024-01-20",
+    "harvest": "2024-05-25"
+  },
+  "researcher": {
+    "name": "د. أحمد علي",
+    "institution": "مركز البحوث الزراعية"
+  },
+  "created_at": "2024-01-10T00:00:00Z"
 }
 ```
 
 ### Observation
+
 ```json
 {
-    "id": "obs-001",
-    "experiment_id": "exp-001",
-    "treatment_code": "T1",
-    "replication": 1,
-    "plot_number": 3,
-    "date": "2024-03-15",
-    "growth_stage": "heading",
-    "variables": {
-        "plant_height_cm": 85.5,
-        "tillers_count": 4,
-        "leaf_area_cm2": 45.2,
-        "chlorophyll_spad": 42.5,
-        "pest_damage_score": 1
-    },
-    "observer_id": "user-001",
-    "notes": "نمو جيد، لا توجد إصابات",
-    "created_at": "2024-03-15T10:30:00Z"
+  "id": "obs-001",
+  "experiment_id": "exp-001",
+  "treatment_code": "T1",
+  "replication": 1,
+  "plot_number": 3,
+  "date": "2024-03-15",
+  "growth_stage": "heading",
+  "variables": {
+    "plant_height_cm": 85.5,
+    "tillers_count": 4,
+    "leaf_area_cm2": 45.2,
+    "chlorophyll_spad": 42.5,
+    "pest_damage_score": 1
+  },
+  "observer_id": "user-001",
+  "notes": "نمو جيد، لا توجد إصابات",
+  "created_at": "2024-03-15T10:30:00Z"
 }
 ```
 

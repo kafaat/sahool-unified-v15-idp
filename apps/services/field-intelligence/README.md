@@ -1,4 +1,5 @@
 # SAHOOL Field Intelligence Service
+
 # خدمة ذكاء الحقول والقواعد الآلية
 
 **Version:** 16.0.0
@@ -13,6 +14,7 @@ The Field Intelligence Service is an intelligent automation engine that processe
 ## Features | الميزات
 
 ### 1. Rules Engine | محرك القواعد
+
 - **Flexible Condition Evaluation** - تقييم مرن للشروط
 - **Multiple Action Types** - أنواع متعددة من الإجراءات
 - **Priority-based Execution** - تنفيذ حسب الأولوية
@@ -20,7 +22,9 @@ The Field Intelligence Service is an intelligent automation engine that processe
 - **Field-specific or Global Rules** - قواعد خاصة بحقول محددة أو عامة
 
 ### 2. Event Processing | معالجة الأحداث
+
 Supports multiple event types:
+
 - **NDVI Drop/Anomaly** - انخفاض/شذوذ في مؤشر NDVI
 - **Weather Alerts** - تنبيهات الطقس (صقيع، موجة حر، عاصفة، جفاف)
 - **Soil Moisture Events** - أحداث رطوبة التربة (منخفضة/مرتفعة)
@@ -31,6 +35,7 @@ Supports multiple event types:
 - **Astronomical Events** - أحداث فلكية
 
 ### 3. Automated Actions | الإجراءات التلقائية
+
 - **Task Creation** - إنشاء المهام (integration with task-service)
 - **Notifications** - إرسال الإشعارات (Push, SMS, Email, WhatsApp)
 - **Alerts** - إنشاء التنبيهات (integration with alert-service)
@@ -38,6 +43,7 @@ Supports multiple event types:
 - **Event Logging** - تسجيل الأحداث
 
 ### 4. Integration | التكامل
+
 - **Astronomical Calendar** - التقويم الفلكي (port 8111)
 - **Task Service** - خدمة المهام (port 8103)
 - **Alert Service** - خدمة التنبيهات (port 8113)
@@ -74,6 +80,7 @@ field-intelligence/
 ### Events
 
 #### Create Event
+
 ```http
 POST /api/v1/events
 X-Tenant-Id: {tenant_id}
@@ -97,24 +104,28 @@ X-Tenant-Id: {tenant_id}
 ```
 
 #### Get Event
+
 ```http
 GET /api/v1/events/{event_id}
 X-Tenant-Id: {tenant_id}
 ```
 
 #### List Events
+
 ```http
 GET /api/v1/events?field_id={field_id}&event_type=ndvi_drop&status=active&skip=0&limit=50
 X-Tenant-Id: {tenant_id}
 ```
 
 #### Update Event Status
+
 ```http
 PATCH /api/v1/events/{event_id}/status?new_status=resolved
 X-Tenant-Id: {tenant_id}
 ```
 
 #### Field Event Statistics
+
 ```http
 GET /api/v1/events/field/{field_id}/stats?days=30
 X-Tenant-Id: {tenant_id}
@@ -123,6 +134,7 @@ X-Tenant-Id: {tenant_id}
 ### Rules
 
 #### Create Rule
+
 ```http
 POST /api/v1/rules
 X-Tenant-Id: {tenant_id}
@@ -164,18 +176,21 @@ X-Tenant-Id: {tenant_id}
 ```
 
 #### Get Rule
+
 ```http
 GET /api/v1/rules/{rule_id}
 X-Tenant-Id: {tenant_id}
 ```
 
 #### List Rules
+
 ```http
 GET /api/v1/rules?status=active&field_id={field_id}&skip=0&limit=50
 X-Tenant-Id: {tenant_id}
 ```
 
 #### Update Rule
+
 ```http
 PATCH /api/v1/rules/{rule_id}
 X-Tenant-Id: {tenant_id}
@@ -186,18 +201,21 @@ X-Tenant-Id: {tenant_id}
 ```
 
 #### Delete Rule
+
 ```http
 DELETE /api/v1/rules/{rule_id}
 X-Tenant-Id: {tenant_id}
 ```
 
 #### Toggle Rule Status
+
 ```http
 POST /api/v1/rules/{rule_id}/toggle
 X-Tenant-Id: {tenant_id}
 ```
 
 #### Rule Statistics
+
 ```http
 GET /api/v1/rules/{rule_id}/stats
 X-Tenant-Id: {tenant_id}
@@ -385,12 +403,14 @@ NOTIFICATION_SERVICE_URL=http://notification-service:8105
 ## Future Enhancements | التحسينات المستقبلية
 
 ### Database Migration
+
 - [ ] PostgreSQL integration for events and rules storage
 - [ ] Event history and audit trail
 - [ ] Rule execution history
 - [ ] Performance metrics storage
 
 ### Advanced Features
+
 - [ ] Machine learning-based anomaly detection
 - [ ] Predictive rule suggestions
 - [ ] A/B testing for rules
@@ -400,6 +420,7 @@ NOTIFICATION_SERVICE_URL=http://notification-service:8105
 - [ ] Rule performance analytics
 
 ### Integration
+
 - [ ] NATS messaging for real-time events
 - [ ] Redis for caching and rule state
 - [ ] Prometheus metrics
@@ -463,6 +484,7 @@ Proprietary - SAHOOL Platform © 2026
 ## Support | الدعم
 
 For issues and questions:
+
 - Email: dev@sahool.io
 - Documentation: https://docs.sahool.io
 - API Docs: http://localhost:8119/docs

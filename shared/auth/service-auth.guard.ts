@@ -11,25 +11,25 @@ import {
   ForbiddenException,
   SetMetadata,
   createParamDecorator,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { Request } from "express";
 import {
   verifyServiceToken,
   ServiceAuthErrors,
   ServiceTokenPayload,
   ServiceAuthException,
-} from './service_auth';
+} from "./service_auth";
 
 /**
  * Metadata key for allowed services
  */
-const ALLOWED_SERVICES_KEY = 'allowed_services';
+const ALLOWED_SERVICES_KEY = "allowed_services";
 
 /**
  * Metadata key for current service name
  */
-const CURRENT_SERVICE_KEY = 'current_service';
+const CURRENT_SERVICE_KEY = "current_service";
 
 /**
  * Decorator to specify which services are allowed to call an endpoint
@@ -177,17 +177,17 @@ export class ServiceAuthGuard implements CanActivate {
 
     if (!currentService) {
       throw new Error(
-        'Current service name not configured. Use @CurrentService() decorator or set SERVICE_NAME env variable',
+        "Current service name not configured. Use @CurrentService() decorator or set SERVICE_NAME env variable",
       );
     }
 
     // Extract service token from header
-    const serviceToken = request.headers['x-service-token'] as string;
+    const serviceToken = request.headers["x-service-token"] as string;
 
     if (!serviceToken) {
       throw new UnauthorizedException({
-        error: 'missing_service_token',
-        message: 'Service authentication token is required',
+        error: "missing_service_token",
+        message: "Service authentication token is required",
       });
     }
 
@@ -281,7 +281,7 @@ export class OptionalServiceAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
 
     // Extract service token from header
-    const serviceToken = request.headers['x-service-token'] as string;
+    const serviceToken = request.headers["x-service-token"] as string;
 
     if (!serviceToken) {
       // No service token, continue without service authentication
@@ -291,10 +291,7 @@ export class OptionalServiceAuthGuard implements CanActivate {
     try {
       // Get current service
       const currentService =
-        this.reflector.get<string>(
-          CURRENT_SERVICE_KEY,
-          context.getHandler(),
-        ) ||
+        this.reflector.get<string>(CURRENT_SERVICE_KEY, context.getHandler()) ||
         this.reflector.get<string>(CURRENT_SERVICE_KEY, context.getClass()) ||
         this.currentService ||
         process.env.SERVICE_NAME;

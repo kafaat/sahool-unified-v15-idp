@@ -8,7 +8,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,6 +24,9 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules (required for imports from shared/)
 COPY apps/services/shared/ ./shared/
+
+# Make registry module available at root level for imports
+RUN cp -r ./shared/registry ./registry
 
 # Copy service code
 COPY apps/services/agent-registry/src /app/src

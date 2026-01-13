@@ -1,4 +1,5 @@
 # Redis Sentinel - Quick Start Guide
+
 # دليل البدء السريع
 
 ## التثبيت السريع | Quick Installation
@@ -67,20 +68,20 @@ redis.delete('my_key')
 ### TypeScript
 
 ```typescript
-import { getRedisSentinelClient } from '@sahool/cache/redis-sentinel';
+import { getRedisSentinelClient } from "@sahool/cache/redis-sentinel";
 
 // الحصول على Redis Client
 const redis = getRedisSentinelClient();
 
 // الكتابة
-await redis.set('my_key', 'my_value', { ex: 60 });
+await redis.set("my_key", "my_value", { ex: 60 });
 
 // القراءة
-const value = await redis.get('my_key');
+const value = await redis.get("my_key");
 console.log(value); // my_value
 
 // الحذف
-await redis.delete('my_key');
+await redis.delete("my_key");
 ```
 
 ---
@@ -177,6 +178,7 @@ make monitor
 ## المزيد من المعلومات | More Information
 
 للحصول على دليل شامل، راجع:
+
 - [README.md](../../shared/cache/README.md) - التوثيق الكامل
 - [examples.py](../../shared/cache/examples.py) - أمثلة Python
 - [examples.ts](../../shared/cache/examples.ts) - أمثلة TypeScript
@@ -186,6 +188,7 @@ make monitor
 ## الدعم | Support
 
 للمساعدة:
+
 - 📧 Email: support@sahool.platform
 - 📝 GitHub Issues
 - 📖 Documentation: docs.sahool.platform

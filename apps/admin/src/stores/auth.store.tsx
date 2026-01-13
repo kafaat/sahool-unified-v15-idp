@@ -1,13 +1,13 @@
-'use client';
-import * as React from 'react';
-import { apiClient } from '@/lib/api-client';
+"use client";
+import * as React from "react";
+import { apiClient } from "@/lib/api-client";
 
 interface User {
   id: string;
   email: string;
   name: string;
   name_ar?: string;
-  role: 'admin' | 'supervisor' | 'viewer';
+  role: "admin" | "supervisor" | "viewer";
   tenant_id?: string;
 }
 
@@ -21,7 +21,11 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, totp_code?: string) => Promise<LoginResponse | void>;
+  login: (
+    email: string,
+    password: string,
+    totp_code?: string,
+  ) => Promise<LoginResponse | void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
 }
@@ -49,12 +53,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Update server-side activity timestamp
     try {
-      await fetch('/api/auth/activity', {
-        method: 'POST',
-        credentials: 'same-origin',
+      await fetch("/api/auth/activity", {
+        method: "POST",
+        credentials: "same-origin",
       });
     } catch (error) {
-      console.error('Failed to update activity:', error);
+      console.error("Failed to update activity:", error);
     }
   }, []);
 
@@ -64,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const timeSinceLastActivity = now - lastActivityRef.current;
 
     if (timeSinceLastActivity >= IDLE_TIMEOUT) {
-      console.log('Session expired due to inactivity');
+      console.log("Session expired due to inactivity");
       logout();
     }
   }, []);
@@ -72,17 +76,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Attempt to refresh token
   const refreshToken = React.useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/refresh', {
-        method: 'POST',
-        credentials: 'same-origin',
+      const response = await fetch("/api/auth/refresh", {
+        method: "POST",
+        credentials: "same-origin",
       });
 
       if (!response.ok) {
-        console.log('Token refresh failed, logging out');
+        console.log("Token refresh failed, logging out");
         logout();
       }
     } catch (error) {
-      console.error('Token refresh error:', error);
+      console.error("Token refresh error:", error);
     }
   }, []);
 
@@ -97,12 +101,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Track user activity
-    const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+    const events = ["mousedown", "keydown", "scroll", "touchstart", "click"];
     const handleActivity = () => {
       updateActivity();
     };
 
-    events.forEach(event => {
+    events.forEach((event) => {
       window.addEventListener(event, handleActivity, { passive: true });
     });
 
@@ -122,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, REFRESH_CHECK_INTERVAL);
 
     return () => {
-      events.forEach(event => {
+      events.forEach((event) => {
         window.removeEventListener(event, handleActivity);
       });
       if (activityTimerRef.current) clearInterval(activityTimerRef.current);
@@ -131,52 +135,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user, updateActivity, checkIdleTimeout, refreshToken]);
 
-  const login = React.useCallback(async (email: string, password: string, totp_code?: string) => {
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({ email, password, totp_code }),
-      });
+  const login = React.useCallback(
+    async (email: string, password: string, totp_code?: string) => {
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "same-origin",
+          body: JSON.stringify({ email, password, totp_code }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        if (!response.ok) {
+          throw new Error(data.error || "Login failed");
+        }
+
+        // Check if 2FA is required
+        if (data.requires_2fa) {
+          return { requires_2fa: true, temp_token: data.temp_token };
+        }
+
+        // Set user and initialize activity tracking
+        setUser(data.user);
+        lastActivityRef.current = Date.now();
+
+        return data;
+      } catch (error) {
+        throw error instanceof Error ? error : new Error("Login failed");
       }
-
-      // Check if 2FA is required
-      if (data.requires_2fa) {
-        return { requires_2fa: true, temp_token: data.temp_token };
-      }
-
-      // Set user and initialize activity tracking
-      setUser(data.user);
-      lastActivityRef.current = Date.now();
-
-      return data;
-    } catch (error) {
-      throw error instanceof Error ? error : new Error('Login failed');
-    }
-  }, []);
+    },
+    [],
+  );
 
   const logout = React.useCallback(async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'same-origin',
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       apiClient.clearToken();
       setUser(null);
       // Redirect to login
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
       }
     }
   }, []);
@@ -185,9 +192,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Check auth by fetching current user via proxy route
       // Token is in httpOnly cookie, automatically sent with request
-      const response = await fetch('/api/auth/me', {
-        method: 'GET',
-        credentials: 'same-origin',
+      const response = await fetch("/api/auth/me", {
+        method: "GET",
+        credentials: "same-origin",
       });
 
       if (response.ok) {
@@ -221,18 +228,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       checkAuth,
     }),
-    [user, isLoading, login, logout, checkAuth]
+    [user, isLoading, login, logout, checkAuth],
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
   const context = React.useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };

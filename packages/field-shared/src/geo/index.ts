@@ -12,11 +12,11 @@ export { GeoService, geoService } from "./geo-service";
 export { geoRoutes } from "./geo-routes";
 
 export type {
-    FieldInRadius,
-    NearbyFarm,
-    FieldInBBox,
-    RegionStats,
-    FieldAreaResult,
-    PointInFieldResult,
-    FieldsDistanceResult
+  FieldInRadius,
+  NearbyFarm,
+  FieldInBBox,
+  RegionStats,
+  FieldAreaResult,
+  PointInFieldResult,
+  FieldsDistanceResult,
 } from "./geo-service";

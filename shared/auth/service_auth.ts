@@ -3,28 +3,28 @@
  * JWT-based authentication for microservices communication
  */
 
-import * as jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
-import { JWTConfig } from './config';
+import * as jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import { JWTConfig } from "./config";
 
 /**
  * List of services allowed to communicate with each other
  */
 export const ALLOWED_SERVICES = [
-  'idp-service',
-  'farm-service',
-  'field-service',
-  'crop-service',
-  'weather-service',
-  'advisory-service',
-  'analytics-service',
-  'equipment-service',
-  'precision-ag-service',
-  'notification-service',
-  'payment-service',
-  'user-service',
-  'tenant-service',
-  'inventory-service',
+  "idp-service",
+  "farm-service",
+  "field-service",
+  "crop-service",
+  "weather-service",
+  "advisory-service",
+  "analytics-service",
+  "equipment-service",
+  "precision-ag-service",
+  "notification-service",
+  "payment-service",
+  "user-service",
+  "tenant-service",
+  "inventory-service",
 ];
 
 /**
@@ -32,42 +32,30 @@ export const ALLOWED_SERVICES = [
  * Format: {source_service: [list of allowed target services]}
  */
 export const SERVICE_COMMUNICATION_MATRIX: Record<string, string[]> = {
-  'idp-service': ALLOWED_SERVICES, // IDP can call all services
-  'farm-service': [
-    'field-service',
-    'crop-service',
-    'equipment-service',
-    'user-service',
-    'tenant-service',
+  "idp-service": ALLOWED_SERVICES, // IDP can call all services
+  "farm-service": [
+    "field-service",
+    "crop-service",
+    "equipment-service",
+    "user-service",
+    "tenant-service",
   ],
-  'field-service': [
-    'crop-service',
-    'weather-service',
-    'precision-ag-service',
+  "field-service": ["crop-service", "weather-service", "precision-ag-service"],
+  "crop-service": [
+    "weather-service",
+    "advisory-service",
+    "precision-ag-service",
   ],
-  'crop-service': [
-    'weather-service',
-    'advisory-service',
-    'precision-ag-service',
-  ],
-  'weather-service': ['advisory-service', 'analytics-service'],
-  'advisory-service': ['notification-service', 'analytics-service'],
-  'analytics-service': ['notification-service'],
-  'equipment-service': ['inventory-service', 'farm-service'],
-  'precision-ag-service': [
-    'weather-service',
-    'field-service',
-    'crop-service',
-  ],
-  'notification-service': [], // Notification service only receives calls
-  'payment-service': [
-    'user-service',
-    'tenant-service',
-    'notification-service',
-  ],
-  'user-service': ['tenant-service', 'notification-service'],
-  'tenant-service': ['notification-service'],
-  'inventory-service': ['notification-service'],
+  "weather-service": ["advisory-service", "analytics-service"],
+  "advisory-service": ["notification-service", "analytics-service"],
+  "analytics-service": ["notification-service"],
+  "equipment-service": ["inventory-service", "farm-service"],
+  "precision-ag-service": ["weather-service", "field-service", "crop-service"],
+  "notification-service": [], // Notification service only receives calls
+  "payment-service": ["user-service", "tenant-service", "notification-service"],
+  "user-service": ["tenant-service", "notification-service"],
+  "tenant-service": ["notification-service"],
+  "inventory-service": ["notification-service"],
 };
 
 /**
@@ -75,19 +63,19 @@ export const SERVICE_COMMUNICATION_MATRIX: Record<string, string[]> = {
  */
 export const ServiceAuthErrors = {
   INVALID_SERVICE: {
-    en: 'Invalid service name',
-    ar: 'اسم الخدمة غير صالح',
-    code: 'invalid_service',
+    en: "Invalid service name",
+    ar: "اسم الخدمة غير صالح",
+    code: "invalid_service",
   },
   UNAUTHORIZED_SERVICE_CALL: {
-    en: 'Service is not authorized to call the target service',
-    ar: 'الخدمة غير مصرح لها باستدعاء الخدمة المستهدفة',
-    code: 'unauthorized_service_call',
+    en: "Service is not authorized to call the target service",
+    ar: "الخدمة غير مصرح لها باستدعاء الخدمة المستهدفة",
+    code: "unauthorized_service_call",
   },
   INVALID_SERVICE_TOKEN: {
-    en: 'Invalid service authentication token',
-    ar: 'رمز مصادقة الخدمة غير صالح',
-    code: 'invalid_service_token',
+    en: "Invalid service authentication token",
+    ar: "رمز مصادقة الخدمة غير صالح",
+    code: "invalid_service_token",
   },
 };
 
@@ -111,13 +99,13 @@ export class ServiceAuthException extends Error {
     public readonly statusCode: number = 401,
   ) {
     super(error.en);
-    this.name = 'ServiceAuthException';
+    this.name = "ServiceAuthException";
   }
 
-  toJSON(lang: string = 'en') {
+  toJSON(lang: string = "en") {
     return {
       error: this.error.code,
-      message: lang === 'ar' ? this.error.ar : this.error.en,
+      message: lang === "ar" ? this.error.ar : this.error.en,
       statusCode: this.statusCode,
     };
   }
@@ -196,7 +184,7 @@ export class ServiceToken {
       sub: serviceName, // Subject: calling service
       service_name: serviceName,
       target_service: targetService,
-      type: 'service', // Special type for service tokens
+      type: "service", // Special type for service tokens
       exp,
       iat: now,
       iss: JWTConfig.ISSUER,
@@ -231,7 +219,14 @@ export class ServiceToken {
     try {
       // SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
       // Never trust algorithm from environment variables or token header
-      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
+      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = [
+        "HS256",
+        "HS384",
+        "HS512",
+        "RS256",
+        "RS384",
+        "RS512",
+      ];
 
       // Decode header without verification to check algorithm
       const header = jwt.decode(token, { complete: true })?.header;
@@ -243,7 +238,7 @@ export class ServiceToken {
       }
 
       // Reject 'none' algorithm explicitly
-      if (header.alg.toLowerCase() === 'none') {
+      if (header.alg.toLowerCase() === "none") {
         throw new ServiceAuthException(
           ServiceAuthErrors.INVALID_SERVICE_TOKEN,
           401,
@@ -265,7 +260,7 @@ export class ServiceToken {
       }) as any;
 
       // Verify it's a service token
-      if (decoded.type !== 'service') {
+      if (decoded.type !== "service") {
         throw new ServiceAuthException(
           ServiceAuthErrors.INVALID_SERVICE_TOKEN,
           401,
@@ -306,9 +301,9 @@ export class ServiceToken {
       if (error instanceof jwt.TokenExpiredError) {
         throw new ServiceAuthException(
           {
-            en: 'Authentication token has expired',
-            ar: 'انتهت صلاحية رمز المصادقة',
-            code: 'expired_token',
+            en: "Authentication token has expired",
+            ar: "انتهت صلاحية رمز المصادقة",
+            code: "expired_token",
           },
           401,
         );

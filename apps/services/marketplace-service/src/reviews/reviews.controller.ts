@@ -17,7 +17,7 @@ import {
   HttpStatus,
   UseGuards,
   ValidationPipe,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
@@ -25,9 +25,9 @@ import {
   ApiParam,
   ApiQuery,
   ApiBearerAuth,
-} from '@nestjs/swagger';
-import { ReviewsService } from './reviews.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+} from "@nestjs/swagger";
+import { ReviewsService } from "./reviews.service";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   CreateProductReviewDto,
   UpdateProductReviewDto,
@@ -37,10 +37,10 @@ import {
   UpdateReviewResponseDto,
   GetProductReviewsQueryDto,
   PaginationQueryDto,
-} from '../dto/reviews.dto';
+} from "../dto/reviews.dto";
 
-@ApiTags('Product Reviews')
-@Controller('reviews')
+@ApiTags("Product Reviews")
+@Controller("reviews")
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
@@ -56,10 +56,13 @@ export class ReviewsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new product review' })
-  @ApiResponse({ status: 201, description: 'Review created successfully' })
-  @ApiResponse({ status: 404, description: 'Buyer profile or order not found' })
-  @ApiResponse({ status: 409, description: 'Review already exists for this product and order' })
+  @ApiOperation({ summary: "Create a new product review" })
+  @ApiResponse({ status: 201, description: "Review created successfully" })
+  @ApiResponse({ status: 404, description: "Buyer profile or order not found" })
+  @ApiResponse({
+    status: 409,
+    description: "Review already exists for this product and order",
+  })
   async createProductReview(@Body(ValidationPipe) dto: CreateProductReviewDto) {
     return this.reviewsService.createProductReview(dto);
   }
@@ -68,11 +71,11 @@ export class ReviewsController {
    * جلب إحصائيات تقييمات المنتج
    * GET /api/v1/reviews/product/:productId/stats
    */
-  @Get('product/:productId/stats')
-  @ApiOperation({ summary: 'Get review statistics for a product' })
-  @ApiParam({ name: 'productId', description: 'Product ID' })
-  @ApiResponse({ status: 200, description: 'Review statistics' })
-  async getProductReviewStats(@Param('productId') productId: string) {
+  @Get("product/:productId/stats")
+  @ApiOperation({ summary: "Get review statistics for a product" })
+  @ApiParam({ name: "productId", description: "Product ID" })
+  @ApiResponse({ status: 200, description: "Review statistics" })
+  async getProductReviewStats(@Param("productId") productId: string) {
     return this.reviewsService.getProductReviewStats(productId);
   }
 
@@ -80,12 +83,12 @@ export class ReviewsController {
    * جلب تقييمات منتج
    * GET /api/v1/reviews/product/:productId
    */
-  @Get('product/:productId')
-  @ApiOperation({ summary: 'Get all reviews for a product' })
-  @ApiParam({ name: 'productId', description: 'Product ID' })
-  @ApiResponse({ status: 200, description: 'List of reviews' })
+  @Get("product/:productId")
+  @ApiOperation({ summary: "Get all reviews for a product" })
+  @ApiParam({ name: "productId", description: "Product ID" })
+  @ApiResponse({ status: 200, description: "List of reviews" })
   async getProductReviews(
-    @Param('productId') productId: string,
+    @Param("productId") productId: string,
     @Query() query: GetProductReviewsQueryDto,
   ) {
     return this.reviewsService.getProductReviews(productId, query);
@@ -95,12 +98,12 @@ export class ReviewsController {
    * جلب تقييم بالمعرف
    * GET /api/v1/reviews/:id
    */
-  @Get(':id')
-  @ApiOperation({ summary: 'Get review by ID' })
-  @ApiParam({ name: 'id', description: 'Review ID' })
-  @ApiResponse({ status: 200, description: 'Review found' })
-  @ApiResponse({ status: 404, description: 'Review not found' })
-  async getReviewById(@Param('id') id: string) {
+  @Get(":id")
+  @ApiOperation({ summary: "Get review by ID" })
+  @ApiParam({ name: "id", description: "Review ID" })
+  @ApiResponse({ status: 200, description: "Review found" })
+  @ApiResponse({ status: 404, description: "Review not found" })
+  async getReviewById(@Param("id") id: string) {
     return this.reviewsService.getReviewById(id);
   }
 
@@ -108,33 +111,40 @@ export class ReviewsController {
    * جلب تقييمات المشتري
    * GET /api/v1/reviews/buyer/:buyerId
    */
-  @Get('buyer/:buyerId')
-  @ApiOperation({ summary: 'Get all reviews by a buyer' })
-  @ApiParam({ name: 'buyerId', description: 'Buyer profile ID' })
-  @ApiResponse({ status: 200, description: 'List of buyer reviews' })
+  @Get("buyer/:buyerId")
+  @ApiOperation({ summary: "Get all reviews by a buyer" })
+  @ApiParam({ name: "buyerId", description: "Buyer profile ID" })
+  @ApiResponse({ status: 200, description: "List of buyer reviews" })
   async getBuyerReviews(
-    @Param('buyerId') buyerId: string,
+    @Param("buyerId") buyerId: string,
     @Query() query: PaginationQueryDto,
   ) {
-    return this.reviewsService.getBuyerReviews(buyerId, query.limit, query.offset);
+    return this.reviewsService.getBuyerReviews(
+      buyerId,
+      query.limit,
+      query.offset,
+    );
   }
 
   /**
    * تحديث تقييم
    * PUT /api/v1/reviews/:id/buyer/:buyerId
    */
-  @Put(':id/buyer/:buyerId')
+  @Put(":id/buyer/:buyerId")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a product review' })
-  @ApiParam({ name: 'id', description: 'Review ID' })
-  @ApiParam({ name: 'buyerId', description: 'Buyer profile ID' })
-  @ApiResponse({ status: 200, description: 'Review updated successfully' })
-  @ApiResponse({ status: 404, description: 'Review not found' })
-  @ApiResponse({ status: 403, description: 'You can only edit your own reviews' })
+  @ApiOperation({ summary: "Update a product review" })
+  @ApiParam({ name: "id", description: "Review ID" })
+  @ApiParam({ name: "buyerId", description: "Buyer profile ID" })
+  @ApiResponse({ status: 200, description: "Review updated successfully" })
+  @ApiResponse({ status: 404, description: "Review not found" })
+  @ApiResponse({
+    status: 403,
+    description: "You can only edit your own reviews",
+  })
   async updateProductReview(
-    @Param('id') id: string,
-    @Param('buyerId') buyerId: string,
+    @Param("id") id: string,
+    @Param("buyerId") buyerId: string,
     @Body(ValidationPipe) dto: UpdateProductReviewDto,
   ) {
     return this.reviewsService.updateProductReview(id, buyerId, dto);
@@ -144,18 +154,21 @@ export class ReviewsController {
    * حذف تقييم
    * DELETE /api/v1/reviews/:id/buyer/:buyerId
    */
-  @Delete(':id/buyer/:buyerId')
+  @Delete(":id/buyer/:buyerId")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a product review' })
-  @ApiParam({ name: 'id', description: 'Review ID' })
-  @ApiParam({ name: 'buyerId', description: 'Buyer profile ID' })
-  @ApiResponse({ status: 200, description: 'Review deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Review not found' })
-  @ApiResponse({ status: 403, description: 'You can only delete your own reviews' })
+  @ApiOperation({ summary: "Delete a product review" })
+  @ApiParam({ name: "id", description: "Review ID" })
+  @ApiParam({ name: "buyerId", description: "Buyer profile ID" })
+  @ApiResponse({ status: 200, description: "Review deleted successfully" })
+  @ApiResponse({ status: 404, description: "Review not found" })
+  @ApiResponse({
+    status: 403,
+    description: "You can only delete your own reviews",
+  })
   async deleteProductReview(
-    @Param('id') id: string,
-    @Param('buyerId') buyerId: string,
+    @Param("id") id: string,
+    @Param("buyerId") buyerId: string,
   ) {
     return this.reviewsService.deleteProductReview(id, buyerId);
   }
@@ -164,15 +177,15 @@ export class ReviewsController {
    * وضع علامة على التقييم كمفيد
    * PATCH /api/v1/reviews/:id/helpful
    */
-  @Patch(':id/helpful')
+  @Patch(":id/helpful")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Mark a review as helpful or not helpful' })
-  @ApiParam({ name: 'id', description: 'Review ID' })
-  @ApiResponse({ status: 200, description: 'Review helpfulness updated' })
-  @ApiResponse({ status: 404, description: 'Review not found' })
+  @ApiOperation({ summary: "Mark a review as helpful or not helpful" })
+  @ApiParam({ name: "id", description: "Review ID" })
+  @ApiResponse({ status: 200, description: "Review helpfulness updated" })
+  @ApiResponse({ status: 404, description: "Review not found" })
   async markReviewHelpful(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body(ValidationPipe) dto: MarkReviewHelpfulDto,
   ) {
     return this.reviewsService.markReviewHelpful(id, dto.helpful);
@@ -182,15 +195,15 @@ export class ReviewsController {
    * الإبلاغ عن تقييم
    * POST /api/v1/reviews/:id/report
    */
-  @Post(':id/report')
+  @Post(":id/report")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Report a review for inappropriate content' })
-  @ApiParam({ name: 'id', description: 'Review ID' })
-  @ApiResponse({ status: 200, description: 'Review reported successfully' })
-  @ApiResponse({ status: 404, description: 'Review not found' })
+  @ApiOperation({ summary: "Report a review for inappropriate content" })
+  @ApiParam({ name: "id", description: "Review ID" })
+  @ApiResponse({ status: 200, description: "Review reported successfully" })
+  @ApiResponse({ status: 404, description: "Review not found" })
   async reportReview(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body(ValidationPipe) dto: ReportReviewDto,
   ) {
     return this.reviewsService.reportReview(id, dto.reason);
@@ -204,15 +217,23 @@ export class ReviewsController {
    * إنشاء رد على تقييم
    * POST /api/v1/reviews/responses
    */
-  @Post('responses')
+  @Post("responses")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a response to a review (seller only)' })
-  @ApiResponse({ status: 201, description: 'Response created successfully' })
-  @ApiResponse({ status: 404, description: 'Review or seller profile not found' })
-  @ApiResponse({ status: 409, description: 'Response already exists for this review' })
-  async createReviewResponse(@Body(ValidationPipe) dto: CreateReviewResponseDto) {
+  @ApiOperation({ summary: "Create a response to a review (seller only)" })
+  @ApiResponse({ status: 201, description: "Response created successfully" })
+  @ApiResponse({
+    status: 404,
+    description: "Review or seller profile not found",
+  })
+  @ApiResponse({
+    status: 409,
+    description: "Response already exists for this review",
+  })
+  async createReviewResponse(
+    @Body(ValidationPipe) dto: CreateReviewResponseDto,
+  ) {
     return this.reviewsService.createReviewResponse(dto);
   }
 
@@ -220,33 +241,40 @@ export class ReviewsController {
    * جلب ردود البائع
    * GET /api/v1/reviews/responses/seller/:sellerId
    */
-  @Get('responses/seller/:sellerId')
-  @ApiOperation({ summary: 'Get all responses by a seller' })
-  @ApiParam({ name: 'sellerId', description: 'Seller profile ID' })
-  @ApiResponse({ status: 200, description: 'List of seller responses' })
+  @Get("responses/seller/:sellerId")
+  @ApiOperation({ summary: "Get all responses by a seller" })
+  @ApiParam({ name: "sellerId", description: "Seller profile ID" })
+  @ApiResponse({ status: 200, description: "List of seller responses" })
   async getSellerResponses(
-    @Param('sellerId') sellerId: string,
+    @Param("sellerId") sellerId: string,
     @Query() query: PaginationQueryDto,
   ) {
-    return this.reviewsService.getSellerResponses(sellerId, query.limit, query.offset);
+    return this.reviewsService.getSellerResponses(
+      sellerId,
+      query.limit,
+      query.offset,
+    );
   }
 
   /**
    * تحديث رد على تقييم
    * PUT /api/v1/reviews/responses/:id/seller/:sellerId
    */
-  @Put('responses/:id/seller/:sellerId')
+  @Put("responses/:id/seller/:sellerId")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a review response' })
-  @ApiParam({ name: 'id', description: 'Response ID' })
-  @ApiParam({ name: 'sellerId', description: 'Seller profile ID' })
-  @ApiResponse({ status: 200, description: 'Response updated successfully' })
-  @ApiResponse({ status: 404, description: 'Response not found' })
-  @ApiResponse({ status: 403, description: 'You can only edit your own responses' })
+  @ApiOperation({ summary: "Update a review response" })
+  @ApiParam({ name: "id", description: "Response ID" })
+  @ApiParam({ name: "sellerId", description: "Seller profile ID" })
+  @ApiResponse({ status: 200, description: "Response updated successfully" })
+  @ApiResponse({ status: 404, description: "Response not found" })
+  @ApiResponse({
+    status: 403,
+    description: "You can only edit your own responses",
+  })
   async updateReviewResponse(
-    @Param('id') id: string,
-    @Param('sellerId') sellerId: string,
+    @Param("id") id: string,
+    @Param("sellerId") sellerId: string,
     @Body(ValidationPipe) dto: UpdateReviewResponseDto,
   ) {
     return this.reviewsService.updateReviewResponse(id, sellerId, dto);
@@ -256,18 +284,21 @@ export class ReviewsController {
    * حذف رد على تقييم
    * DELETE /api/v1/reviews/responses/:id/seller/:sellerId
    */
-  @Delete('responses/:id/seller/:sellerId')
+  @Delete("responses/:id/seller/:sellerId")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a review response' })
-  @ApiParam({ name: 'id', description: 'Response ID' })
-  @ApiParam({ name: 'sellerId', description: 'Seller profile ID' })
-  @ApiResponse({ status: 200, description: 'Response deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Response not found' })
-  @ApiResponse({ status: 403, description: 'You can only delete your own responses' })
+  @ApiOperation({ summary: "Delete a review response" })
+  @ApiParam({ name: "id", description: "Response ID" })
+  @ApiParam({ name: "sellerId", description: "Seller profile ID" })
+  @ApiResponse({ status: 200, description: "Response deleted successfully" })
+  @ApiResponse({ status: 404, description: "Response not found" })
+  @ApiResponse({
+    status: 403,
+    description: "You can only delete your own responses",
+  })
   async deleteReviewResponse(
-    @Param('id') id: string,
-    @Param('sellerId') sellerId: string,
+    @Param("id") id: string,
+    @Param("sellerId") sellerId: string,
   ) {
     return this.reviewsService.deleteReviewResponse(id, sellerId);
   }

@@ -1,40 +1,40 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { Bell, User, LogOut, Settings, ChevronDown } from 'lucide-react';
-import { useAuth } from '@/stores/auth.store';
-import { Badge } from '@/components/ui/badge';
-import { LocaleSwitcher } from '@/components/common/LocaleSwitcher';
-import { clsx } from 'clsx';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Bell, User, LogOut, Settings, ChevronDown } from "lucide-react";
+import { useAuth } from "@/stores/auth.store";
+import { Badge } from "@/components/ui/badge";
+import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
+import { clsx } from "clsx";
 
 export const Header = React.memo(function Header() {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const t = useTranslations('common');
+  const t = useTranslations("common");
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (showUserMenu && !target.closest('[data-user-menu]')) {
+      if (showUserMenu && !target.closest("[data-user-menu]")) {
         setShowUserMenu(false);
       }
     };
 
     if (showUserMenu) {
-      document.addEventListener('click', handleClickOutside);
+      document.addEventListener("click", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, [showUserMenu]);
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    router.push("/login");
   };
 
   return (
@@ -42,7 +42,7 @@ export const Header = React.memo(function Header() {
       {/* Left section */}
       <div className="flex items-center gap-4">
         <h2 className="text-lg font-semibold text-gray-900">
-          {t('welcomeMessage')}, {user?.name_ar || user?.name}
+          {t("welcomeMessage")}, {user?.name_ar || user?.name}
         </h2>
         <Badge variant="success" size="sm">
           {user?.role}
@@ -57,10 +57,13 @@ export const Header = React.memo(function Header() {
         {/* Notifications */}
         <button
           className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label={t('notifications') || 'Notifications'}
+          aria-label={t("notifications") || "Notifications"}
         >
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full" aria-label={t('newNotifications') || 'New notifications'} />
+          <span
+            className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full"
+            aria-label={t("newNotifications") || "New notifications"}
+          />
         </button>
 
         {/* User Menu */}
@@ -73,7 +76,7 @@ export const Header = React.memo(function Header() {
             aria-haspopup="true"
           >
             <div className="w-8 h-8 bg-sahool-green-600 rounded-full flex items-center justify-center text-white font-semibold">
-              {user?.name_ar?.[0] || user?.name?.[0] || 'U'}
+              {user?.name_ar?.[0] || user?.name?.[0] || "U"}
             </div>
             <div className="text-start hidden sm:block">
               <div className="text-sm font-medium text-gray-900">
@@ -83,8 +86,8 @@ export const Header = React.memo(function Header() {
             </div>
             <ChevronDown
               className={clsx(
-                'w-4 h-4 text-gray-400 transition-transform',
-                showUserMenu && 'rotate-180'
+                "w-4 h-4 text-gray-400 transition-transform",
+                showUserMenu && "rotate-180",
               )}
             />
           </button>
@@ -100,7 +103,11 @@ export const Header = React.memo(function Header() {
               />
 
               {/* Menu */}
-              <div className="absolute end-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20" role="menu" aria-label="قائمة خيارات المستخدم">
+              <div
+                className="absolute end-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
+                role="menu"
+                aria-label="قائمة خيارات المستخدم"
+              >
                 <div className="px-4 py-3 border-b border-gray-200">
                   <div className="font-medium text-gray-900">
                     {user?.name_ar || user?.name}
@@ -112,30 +119,30 @@ export const Header = React.memo(function Header() {
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
-                      router.push('/dashboard/profile');
+                      router.push("/dashboard/profile");
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:bg-gray-100"
                     role="menuitem"
-                    aria-label={t('profile')}
+                    aria-label={t("profile")}
                   >
                     <User className="w-4 h-4" />
                     <div className="text-start">
-                      <div className="text-sm font-medium">{t('profile')}</div>
+                      <div className="text-sm font-medium">{t("profile")}</div>
                     </div>
                   </button>
 
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
-                      router.push('/dashboard/settings');
+                      router.push("/dashboard/settings");
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:bg-gray-100"
                     role="menuitem"
-                    aria-label={t('settings')}
+                    aria-label={t("settings")}
                   >
                     <Settings className="w-4 h-4" />
                     <div className="text-start">
-                      <div className="text-sm font-medium">{t('settings')}</div>
+                      <div className="text-sm font-medium">{t("settings")}</div>
                     </div>
                   </button>
                 </div>
@@ -145,11 +152,11 @@ export const Header = React.memo(function Header() {
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus:bg-red-50"
                     role="menuitem"
-                    aria-label={t('logout')}
+                    aria-label={t("logout")}
                   >
                     <LogOut className="w-4 h-4" />
                     <div className="text-start">
-                      <div className="text-sm font-medium">{t('logout')}</div>
+                      <div className="text-sm font-medium">{t("logout")}</div>
                     </div>
                   </button>
                 </div>

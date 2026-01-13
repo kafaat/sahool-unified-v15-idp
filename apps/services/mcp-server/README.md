@@ -212,12 +212,12 @@ Recommend crops suitable for field conditions.
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SAHOOL_API_URL` | Base URL for SAHOOL API | `http://localhost:8000` |
-| `MCP_SERVER_PORT` | Port to run on | `8200` |
-| `MCP_SERVER_HOST` | Host to bind to | `0.0.0.0` |
-| `LOG_LEVEL` | Logging level | `INFO` |
+| Variable          | Description             | Default                 |
+| ----------------- | ----------------------- | ----------------------- |
+| `SAHOOL_API_URL`  | Base URL for SAHOOL API | `http://localhost:8000` |
+| `MCP_SERVER_PORT` | Port to run on          | `8200`                  |
+| `MCP_SERVER_HOST` | Host to bind to         | `0.0.0.0`               |
+| `LOG_LEVEL`       | Logging level           | `INFO`                  |
 
 ## MCP Client Integration
 
@@ -328,25 +328,25 @@ spec:
         app: mcp-server
     spec:
       containers:
-      - name: mcp-server
-        image: sahool-mcp-server:1.0.0
-        ports:
-        - containerPort: 8200
-        env:
-        - name: SAHOOL_API_URL
-          value: "http://kong:8000"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8200
-          initialDelaySeconds: 10
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8200
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        - name: mcp-server
+          image: sahool-mcp-server:1.0.0
+          ports:
+            - containerPort: 8200
+          env:
+            - name: SAHOOL_API_URL
+              value: "http://kong:8000"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8200
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8200
+            initialDelaySeconds: 5
+            periodSeconds: 10
 ```
 
 ## License

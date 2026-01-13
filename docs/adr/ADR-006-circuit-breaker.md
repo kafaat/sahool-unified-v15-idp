@@ -115,6 +115,7 @@ circuit_breaker = CircuitBreaker(
 ### Alternative 1: Kong Health Checks Only
 
 **Rejected because:**
+
 - Only handles node-level failures
 - Client still sees errors during failover
 - No fallback data capability
@@ -122,10 +123,12 @@ circuit_breaker = CircuitBreaker(
 ### Alternative 2: Istio/Envoy Circuit Breaker
 
 **Considered because:**
+
 - Infrastructure-level solution
 - No application code changes
 
 **Rejected because:**
+
 - Heavyweight infrastructure dependency
 - Complex configuration
 - Overkill for current deployment
@@ -133,6 +136,7 @@ circuit_breaker = CircuitBreaker(
 ### Alternative 3: resilience4j/Polly
 
 **Rejected because:**
+
 - Not native to Python ecosystem
 - Additional dependency complexity
 - Our needs are simpler

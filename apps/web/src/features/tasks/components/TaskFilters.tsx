@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Task Filters Component
  * مكون تصفية المهام
  */
 
-import React from 'react';
-import { Filter, X } from 'lucide-react';
-import type { TaskFilters, Priority, TaskStatus } from '../types';
+import React from "react";
+import { Filter, X } from "lucide-react";
+import type { TaskFilters, Priority, TaskStatus } from "../types";
 
 interface TaskFiltersProps {
   filters: TaskFilters;
@@ -22,12 +22,12 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
 }) => {
   const handleChange = <K extends keyof TaskFilters>(
     key: K,
-    value: TaskFilters[K]
+    value: TaskFilters[K],
   ) => {
     onChange({ ...filters, [key]: value || undefined });
   };
 
-  const hasActiveFilters = Object.values(filters).some(v => v);
+  const hasActiveFilters = Object.values(filters).some((v) => v);
 
   return (
     <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -55,8 +55,8 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
           </label>
           <input
             type="text"
-            value={filters.search || ''}
-            onChange={(e) => handleChange('search', e.target.value)}
+            value={filters.search || ""}
+            onChange={(e) => handleChange("search", e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="ابحث في المهام..."
           />
@@ -68,8 +68,10 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
             الحالة
           </label>
           <select
-            value={filters.status || ''}
-            onChange={(e) => handleChange('status', e.target.value as TaskStatus)}
+            value={filters.status || ""}
+            onChange={(e) =>
+              handleChange("status", e.target.value as TaskStatus)
+            }
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           >
             <option value="">الكل</option>
@@ -86,8 +88,10 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
             الأولوية
           </label>
           <select
-            value={filters.priority || ''}
-            onChange={(e) => handleChange('priority', e.target.value as Priority)}
+            value={filters.priority || ""}
+            onChange={(e) =>
+              handleChange("priority", e.target.value as Priority)
+            }
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           >
             <option value="">الكل</option>
@@ -104,8 +108,8 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
           </label>
           <input
             type="text"
-            value={filters.field_id || ''}
-            onChange={(e) => handleChange('field_id', e.target.value)}
+            value={filters.field_id || ""}
+            onChange={(e) => handleChange("field_id", e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="معرّف الحقل"
           />
@@ -118,8 +122,8 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
           </label>
           <input
             type="date"
-            value={filters.due_date_from || ''}
-            onChange={(e) => handleChange('due_date_from', e.target.value)}
+            value={filters.due_date_from || ""}
+            onChange={(e) => handleChange("due_date_from", e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -130,8 +134,8 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
           </label>
           <input
             type="date"
-            value={filters.due_date_to || ''}
-            onChange={(e) => handleChange('due_date_to', e.target.value)}
+            value={filters.due_date_to || ""}
+            onChange={(e) => handleChange("due_date_to", e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>

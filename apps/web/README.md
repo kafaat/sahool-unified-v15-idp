@@ -23,13 +23,13 @@ React: 19.0.0
 
 ### Feature Modules
 
-| Feature | Path | Description |
-|---------|------|-------------|
-| Alerts | `/features/alerts` | Alert management |
+| Feature   | Path                  | Description           |
+| --------- | --------------------- | --------------------- |
+| Alerts    | `/features/alerts`    | Alert management      |
 | Field Map | `/features/field-map` | Interactive field map |
-| NDVI | `/features/ndvi` | Vegetation indices |
-| Advisor | `/features/advisor` | Agricultural advice |
-| Reports | `/features/reports` | Analytics reports |
+| NDVI      | `/features/ndvi`      | Vegetation indices    |
+| Advisor   | `/features/advisor`   | Agricultural advice   |
+| Reports   | `/features/reports`   | Analytics reports     |
 
 ---
 
@@ -116,23 +116,23 @@ apps/web/
 
 ### Internal Packages
 
-| Package | Purpose |
-|---------|---------|
-| `@sahool/api-client` | Unified API client |
-| `@sahool/shared-ui` | Shared UI components |
-| `@sahool/shared-utils` | Utility functions |
-| `@sahool/shared-hooks` | React hooks |
+| Package                | Purpose              |
+| ---------------------- | -------------------- |
+| `@sahool/api-client`   | Unified API client   |
+| `@sahool/shared-ui`    | Shared UI components |
+| `@sahool/shared-utils` | Utility functions    |
+| `@sahool/shared-hooks` | React hooks          |
 
 ### External Libraries
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| Next.js | 15.1.2 | React framework |
-| React | 19.0.0 | UI library |
-| next-intl | 3.26.3 | Internationalization |
-| Leaflet | 1.9.4 | Map visualization |
-| Recharts | 2.14.1 | Charts |
-| TanStack Query | 5.62.8 | Data fetching |
+| Library        | Version | Purpose              |
+| -------------- | ------- | -------------------- |
+| Next.js        | 15.1.2  | React framework      |
+| React          | 19.0.0  | UI library           |
+| next-intl      | 3.26.3  | Internationalization |
+| Leaflet        | 1.9.4   | Map visualization    |
+| Recharts       | 2.14.1  | Charts               |
+| TanStack Query | 5.62.8  | Data fetching        |
 
 ---
 
@@ -165,6 +165,7 @@ npm run dev
 ```
 
 الخدمات المحاكاة:
+
 - **field-core**: إدارة الحقول
 - **task-service**: إدارة المهام
 - **ndvi-engine**: تحليل NDVI
@@ -195,6 +196,7 @@ npm run analyze:browser
 ```
 
 This will generate interactive HTML reports showing:
+
 - Bundle composition and size
 - Package dependencies
 - Code splitting opportunities
@@ -248,12 +250,12 @@ if (enabled) {
 
 ### Available Flags
 
-| Flag | Description |
-|------|-------------|
-| `offline-mode` | Enable offline capabilities |
-| `ndvi-enhanced` | Enhanced NDVI visualization |
-| `advisor-ai` | AI-powered advisor |
-| `real-time-sync` | Real-time data sync |
+| Flag             | Description                 |
+| ---------------- | --------------------------- |
+| `offline-mode`   | Enable offline capabilities |
+| `ndvi-enhanced`  | Enhanced NDVI visualization |
+| `advisor-ai`     | AI-powered advisor          |
+| `real-time-sync` | Real-time data sync         |
 
 ---
 
@@ -262,19 +264,19 @@ if (enabled) {
 Real-time updates via notification-service:
 
 ```typescript
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { useWebSocket } from "@/hooks/useWebSocket";
 
-const { data, status } = useWebSocket('alerts');
+const { data, status } = useWebSocket("alerts");
 ```
 
 ### Channels
 
-| Channel | Purpose |
-|---------|---------|
-| `alerts` | System alerts |
-| `field-updates` | Field data updates |
-| `weather` | Weather notifications |
-| `tasks` | Task assignments |
+| Channel         | Purpose               |
+| --------------- | --------------------- |
+| `alerts`        | System alerts         |
+| `field-updates` | Field data updates    |
+| `weather`       | Weather notifications |
+| `tasks`         | Task assignments      |
 
 ---
 

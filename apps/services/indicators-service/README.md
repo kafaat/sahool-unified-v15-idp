@@ -14,21 +14,23 @@ Agricultural indicators calculation and field performance analytics service.
 ## الميزات | Features
 
 ### مؤشرات الغطاء النباتي | Vegetation Indices
-| المؤشر | Index | الوصف |
-|--------|-------|--------|
-| NDVI | NDVI | مؤشر الاختلاف النباتي |
-| EVI | EVI | مؤشر الغطاء النباتي المحسن |
-| SAVI | SAVI | مؤشر الغطاء النباتي المعدل للتربة |
-| NDWI | NDWI | مؤشر الماء |
-| LAI | LAI | مؤشر مساحة الورقة |
+
+| المؤشر | Index | الوصف                             |
+| ------ | ----- | --------------------------------- |
+| NDVI   | NDVI  | مؤشر الاختلاف النباتي             |
+| EVI    | EVI   | مؤشر الغطاء النباتي المحسن        |
+| SAVI   | SAVI  | مؤشر الغطاء النباتي المعدل للتربة |
+| NDWI   | NDWI  | مؤشر الماء                        |
+| LAI    | LAI   | مؤشر مساحة الورقة                 |
 
 ### مؤشرات الأداء | Performance Indicators
-| المؤشر | Indicator | الوصف |
-|--------|-----------|--------|
-| إنتاجية | Yield | كفاءة الإنتاج |
-| كفاءة المياه | WUE | استخدام المياه |
-| صحة المحصول | Health | صحة النباتات |
-| نمو | Growth | معدل النمو |
+
+| المؤشر       | Indicator | الوصف          |
+| ------------ | --------- | -------------- |
+| إنتاجية      | Yield     | كفاءة الإنتاج  |
+| كفاءة المياه | WUE       | استخدام المياه |
+| صحة المحصول  | Health    | صحة النباتات   |
+| نمو          | Growth    | معدل النمو     |
 
 ---
 
@@ -182,48 +184,50 @@ GET /fields/{field_id}/export?format=csv&indices=ndvi,evi&period=90d
 ## نماذج البيانات | Data Models
 
 ### VegetationIndices
+
 ```json
 {
-    "field_id": "field-001",
-    "timestamp": "2024-01-15T10:00:00Z",
-    "source": "sentinel-2",
-    "indices": {
-        "ndvi": {
-            "mean": 0.72,
-            "min": 0.45,
-            "max": 0.85,
-            "std": 0.08
-        },
-        "evi": {
-            "mean": 0.65,
-            "min": 0.40,
-            "max": 0.78
-        }
+  "field_id": "field-001",
+  "timestamp": "2024-01-15T10:00:00Z",
+  "source": "sentinel-2",
+  "indices": {
+    "ndvi": {
+      "mean": 0.72,
+      "min": 0.45,
+      "max": 0.85,
+      "std": 0.08
     },
-    "quality": {
-        "cloud_cover_percent": 5,
-        "valid_pixels_percent": 95
+    "evi": {
+      "mean": 0.65,
+      "min": 0.4,
+      "max": 0.78
     }
+  },
+  "quality": {
+    "cloud_cover_percent": 5,
+    "valid_pixels_percent": 95
+  }
 }
 ```
 
 ### PerformanceMetrics
+
 ```json
 {
-    "field_id": "field-001",
-    "season": "2024_winter",
-    "metrics": {
-        "yield_kg_ha": 3800,
-        "water_used_m3_ha": 4500,
-        "wue_kg_m3": 0.84,
-        "nitrogen_efficiency": 75,
-        "cost_per_kg_sar": 1.2,
-        "profit_sar_ha": 8500
-    },
-    "rankings": {
-        "regional_percentile": 82,
-        "national_percentile": 75
-    }
+  "field_id": "field-001",
+  "season": "2024_winter",
+  "metrics": {
+    "yield_kg_ha": 3800,
+    "water_used_m3_ha": 4500,
+    "wue_kg_m3": 0.84,
+    "nitrogen_efficiency": 75,
+    "cost_per_kg_sar": 1.2,
+    "profit_sar_ha": 8500
+  },
+  "rankings": {
+    "regional_percentile": 82,
+    "national_percentile": 75
+  }
 }
 ```
 

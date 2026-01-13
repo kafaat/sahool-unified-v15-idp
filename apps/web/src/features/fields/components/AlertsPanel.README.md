@@ -7,6 +7,7 @@ A comprehensive React component for displaying and managing field alerts with re
 ## Features / المميزات
 
 ### Core Features
+
 - ✅ **List of active alerts** - عرض قائمة التنبيهات النشطة
 - ✅ **Four alert types** - أربعة أنواع من التنبيهات:
   - `ndvi_drop` - انخفاض NDVI
@@ -42,19 +43,19 @@ npm install
 ### Basic Usage
 
 ```tsx
-import { AlertsPanel } from '@/features/fields/components/AlertsPanel';
+import { AlertsPanel } from "@/features/fields/components/AlertsPanel";
 
 function MyFieldPage() {
-  const fieldId = 'field-123';
+  const fieldId = "field-123";
   const [alerts, setAlerts] = useState<FieldAlert[]>([]);
 
   const handleDismiss = async (alertId: string) => {
     // Call API to dismiss alert
     await api.dismissAlert(alertId);
     // Update local state
-    setAlerts(prev => prev.map(a =>
-      a.id === alertId ? { ...a, acknowledged: true } : a
-    ));
+    setAlerts((prev) =>
+      prev.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a)),
+    );
   };
 
   const handleCreateTask = async (data: TaskFormData) => {
@@ -109,17 +110,17 @@ function MyFieldPage() {
 
 ## Props / الخصائص
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `fieldId` | `string` | ✅ | - | معرّف الحقل - Field ID |
-| `alerts` | `FieldAlert[]` | ❌ | `[]` | قائمة التنبيهات - List of alerts |
-| `onDismiss` | `(alertId: string) => void \| Promise<void>` | ❌ | - | دالة إغلاق التنبيه - Dismiss handler |
-| `onCreateTask` | `(data: TaskFormData) => void \| Promise<void>` | ❌ | - | دالة إنشاء مهمة - Task creation handler |
-| `onViewDetails` | `(alert: FieldAlert) => void` | ❌ | - | دالة عرض التفاصيل - View details handler |
-| `enableWebSocket` | `boolean` | ❌ | `false` | تفعيل WebSocket - Enable WebSocket |
-| `wsUrl` | `string` | ❌ | - | عنوان WebSocket - WebSocket URL |
-| `pollingInterval` | `number` | ❌ | `30000` | فترة التحديث (ms) - Polling interval |
-| `className` | `string` | ❌ | `''` | CSS classes إضافية - Additional CSS classes |
+| Prop              | Type                                            | Required | Default | Description                                 |
+| ----------------- | ----------------------------------------------- | -------- | ------- | ------------------------------------------- |
+| `fieldId`         | `string`                                        | ✅       | -       | معرّف الحقل - Field ID                      |
+| `alerts`          | `FieldAlert[]`                                  | ❌       | `[]`    | قائمة التنبيهات - List of alerts            |
+| `onDismiss`       | `(alertId: string) => void \| Promise<void>`    | ❌       | -       | دالة إغلاق التنبيه - Dismiss handler        |
+| `onCreateTask`    | `(data: TaskFormData) => void \| Promise<void>` | ❌       | -       | دالة إنشاء مهمة - Task creation handler     |
+| `onViewDetails`   | `(alert: FieldAlert) => void`                   | ❌       | -       | دالة عرض التفاصيل - View details handler    |
+| `enableWebSocket` | `boolean`                                       | ❌       | `false` | تفعيل WebSocket - Enable WebSocket          |
+| `wsUrl`           | `string`                                        | ❌       | -       | عنوان WebSocket - WebSocket URL             |
+| `pollingInterval` | `number`                                        | ❌       | `30000` | فترة التحديث (ms) - Polling interval        |
+| `className`       | `string`                                        | ❌       | `''`    | CSS classes إضافية - Additional CSS classes |
 
 ## Types / الأنواع
 
@@ -127,15 +128,15 @@ function MyFieldPage() {
 
 ```typescript
 interface FieldAlert {
-  id: string;                    // معرّف فريد
-  fieldId: string;               // معرّف الحقل
-  type: AlertType;               // نوع التنبيه
-  severity: AlertSeverity;       // مستوى الخطورة
-  title: string;                 // العنوان
-  message: string;               // الرسالة
-  data: Record<string, any>;     // بيانات إضافية
-  createdAt: Date;               // تاريخ الإنشاء
-  acknowledged: boolean;          // تم الاطلاع عليه
+  id: string; // معرّف فريد
+  fieldId: string; // معرّف الحقل
+  type: AlertType; // نوع التنبيه
+  severity: AlertSeverity; // مستوى الخطورة
+  title: string; // العنوان
+  message: string; // الرسالة
+  data: Record<string, any>; // بيانات إضافية
+  createdAt: Date; // تاريخ الإنشاء
+  acknowledged: boolean; // تم الاطلاع عليه
 }
 ```
 
@@ -143,24 +144,25 @@ interface FieldAlert {
 
 ```typescript
 type AlertType =
-  | 'ndvi_drop'         // انخفاض NDVI
-  | 'weather_warning'   // تحذير جوي
-  | 'soil_moisture'     // رطوبة التربة
-  | 'task_overdue';     // مهمة متأخرة
+  | "ndvi_drop" // انخفاض NDVI
+  | "weather_warning" // تحذير جوي
+  | "soil_moisture" // رطوبة التربة
+  | "task_overdue"; // مهمة متأخرة
 ```
 
 ### AlertSeverity
 
 ```typescript
 type AlertSeverity =
-  | 'critical'  // حرج (أحمر)
-  | 'warning'   // تحذير (أصفر)
-  | 'info';     // معلومة (أزرق)
+  | "critical" // حرج (أحمر)
+  | "warning" // تحذير (أصفر)
+  | "info"; // معلومة (أزرق)
 ```
 
 ## Examples / أمثلة
 
 See [AlertsPanel.example.tsx](./AlertsPanel.example.tsx) for complete working examples including:
+
 - WebSocket integration
 - Polling integration
 - Minimal setup
@@ -248,9 +250,9 @@ const ALERT_TYPE_CONFIG = {
   // ... existing types
   custom_type: {
     icon: CustomIcon,
-    label: 'Custom Type',
-    labelAr: 'نوع مخصص',
-    color: 'text-purple-600',
+    label: "Custom Type",
+    labelAr: "نوع مخصص",
+    color: "text-purple-600",
   },
 };
 ```
@@ -263,9 +265,9 @@ Extend severity configuration:
 const SEVERITY_CONFIG = {
   // ... existing levels
   urgent: {
-    variant: 'danger',
-    label: 'Urgent',
-    labelAr: 'عاجل',
+    variant: "danger",
+    label: "Urgent",
+    labelAr: "عاجل",
   },
 };
 ```
@@ -273,27 +275,25 @@ const SEVERITY_CONFIG = {
 ## Testing / الاختبار
 
 ```tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { AlertsPanel } from './AlertsPanel';
+import { render, screen, fireEvent } from "@testing-library/react";
+import { AlertsPanel } from "./AlertsPanel";
 
-test('renders alerts correctly', () => {
-  const alerts = [/* mock alerts */];
+test("renders alerts correctly", () => {
+  const alerts = [
+    /* mock alerts */
+  ];
   render(<AlertsPanel fieldId="field-123" alerts={alerts} />);
 
-  expect(screen.getByText('تنبيهات الحقل')).toBeInTheDocument();
+  expect(screen.getByText("تنبيهات الحقل")).toBeInTheDocument();
 });
 
-test('dismisses alert on button click', async () => {
+test("dismisses alert on button click", async () => {
   const onDismiss = jest.fn();
   render(
-    <AlertsPanel
-      fieldId="field-123"
-      alerts={alerts}
-      onDismiss={onDismiss}
-    />
+    <AlertsPanel fieldId="field-123" alerts={alerts} onDismiss={onDismiss} />,
   );
 
-  fireEvent.click(screen.getByText('إغلاق'));
+  fireEvent.click(screen.getByText("إغلاق"));
   expect(onDismiss).toHaveBeenCalled();
 });
 ```

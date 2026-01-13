@@ -1,7 +1,12 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { Prisma } from '@prisma/client';
-import { CreateSampleDto, UpdateSampleDto } from './dto/sample.dto';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import { Prisma } from "@prisma/client";
+import { CreateSampleDto, UpdateSampleDto } from "./dto/sample.dto";
 
 @Injectable()
 export class SamplesService {
@@ -9,8 +14,16 @@ export class SamplesService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
   async create(dto: CreateSampleDto) {
-    this.logger.log(`Creating sample: ${dto.sampleCode}`);
+    this.logger.log("Creating sample", { sampleCode: this.sanitizeForLog(dto.sampleCode) });
 
     // Check if sample code already exists
     const existing = await this.prisma.labSample.findUnique({
@@ -105,7 +118,7 @@ export class SamplesService {
         where,
         skip,
         take: limit,
-        orderBy: { collectionDate: 'desc' },
+        orderBy: { collectionDate: "desc" },
         include: {
           experiment: {
             select: {
@@ -212,10 +225,18 @@ export class SamplesService {
       where: { id },
       data: {
         ...restDto,
-        collectionDate: dto.collectionDate ? new Date(dto.collectionDate) : undefined,
+        collectionDate: dto.collectionDate
+          ? new Date(dto.collectionDate)
+          : undefined,
         analyzedAt: dto.analyzedAt ? new Date(dto.analyzedAt) : undefined,
-        analysisResults: analysisResults !== undefined ? (analysisResults as Prisma.InputJsonValue) : undefined,
-        metadata: metadata !== undefined ? (metadata as Prisma.InputJsonValue) : undefined,
+        analysisResults:
+          analysisResults !== undefined
+            ? (analysisResults as Prisma.InputJsonValue)
+            : undefined,
+        metadata:
+          metadata !== undefined
+            ? (metadata as Prisma.InputJsonValue)
+            : undefined,
       },
       include: {
         experiment: {

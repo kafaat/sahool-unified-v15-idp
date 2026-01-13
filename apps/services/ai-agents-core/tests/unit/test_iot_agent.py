@@ -612,9 +612,9 @@ class TestEdgePerformance:
         response_time = (datetime.now() - start).total_seconds() * 1000
 
         # Edge agents should respond < 100ms
-        assert response_time < 100 or result[
-            "success"
-        ]  # Allow some flexibility in test environment
+        assert (
+            response_time < 100 or result["success"]
+        )  # Allow some flexibility in test environment
 
     async def test_sensor_status_retrieval(self):
         """Test getting sensor status is fast"""

@@ -44,22 +44,16 @@ from .nutrient_deficiency import (
     generate_fertilizer_plan,
     get_nutrient_status_summary,
 )
-from .yield_prediction import (
-    CropType as YieldCropType,
-    YieldConfidence,
-    YieldPrediction,
-    YieldTrend,
-    compare_yield_potential,
-    get_crop_parameters,
-    predict_yield,
-)
 from .pest_assessment import (
-    PestRisk,
-    PestType,
     RiskLevel,
     assess_pest_risks,
     get_pest_summary,
     get_pest_types,
+)
+from .yield_prediction import (
+    CropType as YieldCropType,
+    get_crop_parameters,
+    predict_yield,
 )
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -883,22 +877,10 @@ def list_disease_types():
     from .disease_detection import DiseaseType, TreatmentType
 
     return {
-        "disease_types": [
-            {"value": dt.value, "name": dt.name}
-            for dt in DiseaseType
-        ],
-        "treatment_types": [
-            {"value": tt.value, "name": tt.name}
-            for tt in TreatmentType
-        ],
-        "crop_types": [
-            {"value": ct.value, "name": ct.name}
-            for ct in CropType
-        ],
-        "severity_levels": [
-            {"value": ds.value, "name": ds.name}
-            for ds in DiseaseSeverity
-        ],
+        "disease_types": [{"value": dt.value, "name": dt.name} for dt in DiseaseType],
+        "treatment_types": [{"value": tt.value, "name": tt.name} for tt in TreatmentType],
+        "crop_types": [{"value": ct.value, "name": ct.name} for ct in CropType],
+        "severity_levels": [{"value": ds.value, "name": ds.name} for ds in DiseaseSeverity],
     }
 
 
@@ -1069,23 +1051,29 @@ def list_nutrient_types():
     List supported nutrient types
     """
     return {
-        "nutrient_types": [
-            {"value": nt.value, "name": nt.name}
-            for nt in NutrientType
-        ],
-        "severity_levels": [
-            {"value": ds.value, "name": ds.name}
-            for ds in DeficiencySeverity
-        ],
+        "nutrient_types": [{"value": nt.value, "name": nt.name} for nt in NutrientType],
+        "severity_levels": [{"value": ds.value, "name": ds.name} for ds in DeficiencySeverity],
         "macronutrients": [
             {"value": nt.value, "name_en": nt.name, "name_ar": _get_nutrient_name_ar(nt)}
-            for nt in [NutrientType.NITROGEN, NutrientType.PHOSPHORUS, NutrientType.POTASSIUM,
-                       NutrientType.CALCIUM, NutrientType.MAGNESIUM, NutrientType.SULFUR]
+            for nt in [
+                NutrientType.NITROGEN,
+                NutrientType.PHOSPHORUS,
+                NutrientType.POTASSIUM,
+                NutrientType.CALCIUM,
+                NutrientType.MAGNESIUM,
+                NutrientType.SULFUR,
+            ]
         ],
         "micronutrients": [
             {"value": nt.value, "name_en": nt.name, "name_ar": _get_nutrient_name_ar(nt)}
-            for nt in [NutrientType.IRON, NutrientType.ZINC, NutrientType.MANGANESE,
-                       NutrientType.COPPER, NutrientType.BORON, NutrientType.MOLYBDENUM]
+            for nt in [
+                NutrientType.IRON,
+                NutrientType.ZINC,
+                NutrientType.MANGANESE,
+                NutrientType.COPPER,
+                NutrientType.BORON,
+                NutrientType.MOLYBDENUM,
+            ]
         ],
     }
 
@@ -1160,7 +1148,9 @@ def predict_crop_yield(body: YieldPredictionRequest):
     return {
         "prediction": prediction.to_dict(),
         "field_area_hectares": body.field_area_hectares,
-        "total_predicted_yield_kg": round(prediction.predicted_yield_kg_ha * body.field_area_hectares),
+        "total_predicted_yield_kg": round(
+            prediction.predicted_yield_kg_ha * body.field_area_hectares
+        ),
         "input_indices": {
             "ndvi": body.ndvi,
             "evi": body.evi,
@@ -1342,10 +1332,7 @@ def list_pest_types():
     """
     return {
         "pest_types": get_pest_types(),
-        "risk_levels": [
-            {"value": rl.value, "name": rl.name}
-            for rl in RiskLevel
-        ],
+        "risk_levels": [{"value": rl.value, "name": rl.name} for rl in RiskLevel],
     }
 
 
@@ -1387,27 +1374,47 @@ def comprehensive_analysis(
 
     # Disease detection
     diseases = detect_diseases(
-        ndvi=ndvi, evi=evi, ndre=ndre, ndwi=ndwi, lci=lci, savi=savi,
-        crop_type=disease_crop, humidity_pct=humidity_pct, temp_c=temp_c,
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+        ndwi=ndwi,
+        lci=lci,
+        savi=savi,
+        crop_type=disease_crop,
+        humidity_pct=humidity_pct,
+        temp_c=temp_c,
     )
     health_en, health_ar = get_overall_health_status(diseases)
 
     # Nutrient deficiencies
     deficiencies = detect_nutrient_deficiencies(
-        ndvi=ndvi, evi=evi, ndre=ndre, ndwi=ndwi, lci=lci, savi=savi,
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+        ndwi=ndwi,
+        lci=lci,
+        savi=savi,
     )
     nutrient_summary = get_nutrient_status_summary(deficiencies)
 
     # Yield prediction
     yield_pred = predict_yield(
         crop_type=yield_crop,
-        ndvi=ndvi, evi=evi, ndwi=ndwi, ndre=ndre, lci=lci, savi=savi,
+        ndvi=ndvi,
+        evi=evi,
+        ndwi=ndwi,
+        ndre=ndre,
+        lci=lci,
+        savi=savi,
         field_area_hectares=field_area_hectares,
     )
 
     # Pest assessment
     pest_risks = assess_pest_risks(
-        temp_c=temp_c, humidity_pct=humidity_pct, ndvi=ndvi, crop_type=crop_type,
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        ndvi=ndvi,
+        crop_type=crop_type,
     )
     pest_summary = get_pest_summary(pest_risks)
 
@@ -1440,7 +1447,12 @@ def comprehensive_analysis(
             "risks": [r.to_dict() for r in pest_risks[:3]],  # Top 3
         },
         "input_indices": {
-            "ndvi": ndvi, "evi": evi, "ndre": ndre, "ndwi": ndwi, "lci": lci, "savi": savi,
+            "ndvi": ndvi,
+            "evi": evi,
+            "ndre": ndre,
+            "ndwi": ndwi,
+            "lci": lci,
+            "savi": savi,
         },
         "environmental_context": {
             "temp_c": temp_c,

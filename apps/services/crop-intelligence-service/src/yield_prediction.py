@@ -223,7 +223,9 @@ class YieldPrediction:
     def to_dict(self) -> dict[str, Any]:
         return {
             "crop_type": self.crop_type.value,
-            "crop_name_ar": CROP_PARAMETERS.get(self.crop_type, {}).get("name_ar", self.crop_type.value),
+            "crop_name_ar": CROP_PARAMETERS.get(self.crop_type, {}).get(
+                "name_ar", self.crop_type.value
+            ),
             "predicted_yield_kg_ha": round(self.predicted_yield_kg_ha),
             "predicted_yield_range": {
                 "min": round(self.predicted_yield_range[0]),
@@ -329,11 +331,11 @@ def predict_yield(
 
     # Combine factors
     combined_factor = (
-        ndvi_factor * 0.35 +
-        evi_factor * 0.20 +
-        water_factor * water_sens * 0.20 +
-        nitrogen_factor * 0.15 +
-        savi_factor * 0.10
+        ndvi_factor * 0.35
+        + evi_factor * 0.20
+        + water_factor * water_sens * 0.20
+        + nitrogen_factor * 0.15
+        + savi_factor * 0.10
     )
 
     # Growth stage adjustment (yield estimate improves as crop matures)
@@ -363,9 +365,9 @@ def predict_yield(
 
     # Confidence based on data quality and growth stage
     data_quality = (
-        (1.0 if 0.3 <= ndvi <= 0.9 else 0.7) *
-        (1.0 if ndwi > -0.2 else 0.8) *
-        (1.0 if ndre > 0.15 else 0.8)
+        (1.0 if 0.3 <= ndvi <= 0.9 else 0.7)
+        * (1.0 if ndwi > -0.2 else 0.8)
+        * (1.0 if ndre > 0.15 else 0.8)
     )
     confidence_pct = min(95, max(30, (1.0 - stage_uncertainty) * data_quality * 100))
 
@@ -412,8 +414,15 @@ def predict_yield(
 
 
 def _get_yield_recommendations(
-    ndvi: float, evi: float, ndwi: float, ndre: float, lci: float, savi: float,
-    water_factor: float, nitrogen_factor: float, crop_type: CropType
+    ndvi: float,
+    evi: float,
+    ndwi: float,
+    ndre: float,
+    lci: float,
+    savi: float,
+    water_factor: float,
+    nitrogen_factor: float,
+    crop_type: CropType,
 ) -> tuple[list[str], list[str]]:
     """Generate yield improvement recommendations"""
     recommendations_en = []
@@ -502,11 +511,7 @@ def compare_yield_potential(
     sorted_by_yield = sorted(predictions, key=lambda p: p.predicted_yield_kg_ha, reverse=True)
 
     # Sort by confidence
-    sorted_by_confidence = sorted(
-        predictions,
-        key=lambda p: p.confidence_percent,
-        reverse=True
-    )
+    sorted_by_confidence = sorted(predictions, key=lambda p: p.confidence_percent, reverse=True)
 
     return {
         "total_crops_compared": len(predictions),
@@ -524,11 +529,19 @@ def compare_yield_potential(
         },
         "rankings": {
             "by_revenue": [
-                {"rank": i + 1, "crop": p.crop_type.value, "revenue_usd": round(p.estimated_revenue_usd, 2)}
+                {
+                    "rank": i + 1,
+                    "crop": p.crop_type.value,
+                    "revenue_usd": round(p.estimated_revenue_usd, 2),
+                }
                 for i, p in enumerate(sorted_by_revenue)
             ],
             "by_yield": [
-                {"rank": i + 1, "crop": p.crop_type.value, "yield_kg_ha": round(p.predicted_yield_kg_ha)}
+                {
+                    "rank": i + 1,
+                    "crop": p.crop_type.value,
+                    "yield_kg_ha": round(p.predicted_yield_kg_ha),
+                }
                 for i, p in enumerate(sorted_by_yield)
             ],
         },

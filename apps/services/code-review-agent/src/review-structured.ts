@@ -14,7 +14,9 @@ import { reviewSchema, type ReviewResult, type ContentBlock } from "./types.js";
  * @param directory - Path to the directory to review
  * @returns ReviewResult with structured issue data
  */
-async function reviewCodeStructured(directory: string): Promise<ReviewResult | null> {
+async function reviewCodeStructured(
+  directory: string,
+): Promise<ReviewResult | null> {
   console.log(`\n${"=".repeat(50)}`);
   console.log(`Structured Code Review Agent`);
   console.log(`Directory: ${directory}`);
@@ -37,9 +39,9 @@ Provide specific file paths and line numbers where possible.`,
       maxTurns: 250,
       outputFormat: {
         type: "json_schema",
-        schema: reviewSchema
-      }
-    }
+        schema: reviewSchema,
+      },
+    },
   })) {
     // Progress indicator
     if (message.type === "assistant") {
@@ -53,7 +55,9 @@ Provide specific file paths and line numbers where possible.`,
     // Final result
     if (message.type === "result" && message.subtype === "success") {
       result = message.structured_output as ReviewResult;
-      console.log(`\n\nReview complete! Cost: $${message.total_cost_usd.toFixed(4)}`);
+      console.log(
+        `\n\nReview complete! Cost: $${message.total_cost_usd.toFixed(4)}`,
+      );
     }
   }
 
@@ -77,7 +81,7 @@ function printResults(result: ReviewResult): void {
     critical: result.issues.filter((i) => i.severity === "critical"),
     high: result.issues.filter((i) => i.severity === "high"),
     medium: result.issues.filter((i) => i.severity === "medium"),
-    low: result.issues.filter((i) => i.severity === "low")
+    low: result.issues.filter((i) => i.severity === "low"),
   };
 
   for (const [severity, issues] of Object.entries(byCategory)) {

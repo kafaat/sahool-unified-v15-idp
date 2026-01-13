@@ -1,4 +1,5 @@
 # MQTT Security Setup for SAHOOL Platform
+
 # إعداد أمان MQTT لمنصة سهول
 
 **Date:** 2026-01-06
@@ -37,22 +38,26 @@ The SAHOOL MQTT broker has been secured with the following measures:
 ## Security Features Implemented
 
 ### 1. Authentication
+
 - **Allow Anonymous**: `false` - All clients must authenticate
 - **Password File**: `/mosquitto/config/passwd` - Dynamically generated from environment variables
 - **Authentication Method**: Username/password with bcrypt-like hashing
 
 ### 2. Authorization (ACL)
+
 - **ACL File**: `/mosquitto/config/acl`
 - **Topic-level Permissions**: Read, write, or readwrite per user/topic
 - **Wildcards Supported**: `#` (multi-level), `+` (single-level)
 - **Default Deny**: Users not listed in ACL have no access
 
 ### 3. Network Security
+
 - **MQTT Port**: 1883 (bound to 127.0.0.1 only - not exposed to external network)
 - **WebSocket Port**: 9001 (bound to 127.0.0.1 only)
 - **Docker Network**: Isolated `sahool-network`
 
 ### 4. Container Security
+
 - **Security Options**: `no-new-privileges:true`
 - **Resource Limits**: CPU (0.5 cores max), Memory (256MB max)
 - **Read-only Mounts**: Configuration files mounted as read-only
@@ -62,6 +67,7 @@ The SAHOOL MQTT broker has been secured with the following measures:
 ## Configuration Files
 
 ### File Structure
+
 ```
 infrastructure/core/mqtt/
 ├── mosquitto.conf      # Main configuration file
@@ -70,9 +76,11 @@ infrastructure/core/mqtt/
 ```
 
 ### mosquitto.conf
+
 **Location:** `/home/user/sahool-unified-v15-idp/infrastructure/core/mqtt/mosquitto.conf`
 
 Key settings:
+
 ```conf
 # Security
 allow_anonymous false
@@ -98,9 +106,11 @@ message_size_limit 1048576
 ```
 
 ### ACL File
+
 **Location:** `/home/user/sahool-unified-v15-idp/infrastructure/core/mqtt/acl`
 
 Access control rules:
+
 ```
 # Admin - Full access
 user admin
@@ -125,17 +135,18 @@ See the full ACL file for additional users and permissions.
 
 ### User Accounts
 
-| Username | Access Level | Services | Permissions |
-|----------|-------------|----------|-------------|
-| `sahool_iot` | Service | iot-service, iot-gateway | Read sensors, control actuators |
-| `admin` | Admin | Manual administration | Full access to all topics |
-| `test_sensor` | Testing | Development/testing | Limited to test topics |
-| `simulator` | Simulation | Load testing | Write to simulation topics |
-| `monitor` | Monitoring | Observability | Read-only system metrics |
+| Username      | Access Level | Services                 | Permissions                     |
+| ------------- | ------------ | ------------------------ | ------------------------------- |
+| `sahool_iot`  | Service      | iot-service, iot-gateway | Read sensors, control actuators |
+| `admin`       | Admin        | Manual administration    | Full access to all topics       |
+| `test_sensor` | Testing      | Development/testing      | Limited to test topics          |
+| `simulator`   | Simulation   | Load testing             | Write to simulation topics      |
+| `monitor`     | Monitoring   | Observability            | Read-only system metrics        |
 
 ### Password Management
 
 #### Current Password Configuration
+
 Passwords are dynamically generated from environment variables at container startup:
 
 ```bash
@@ -144,13 +155,16 @@ command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USE
 ```
 
 #### Environment Variables
+
 Set in `.env` file:
+
 ```bash
 MQTT_USER=sahool_iot
 MQTT_PASSWORD=sahool_mqtt_secure_2024  # Change this in production!
 ```
 
 #### Adding Additional Users
+
 To add more users, modify the startup command in `docker-compose.yml`:
 
 ```bash
@@ -163,6 +177,7 @@ mosquitto_passwd -b /mosquitto/config/passwd simulator sim_password
 ```
 
 #### Password Security Best Practices
+
 - **Generate Strong Passwords**: Use `openssl rand -base64 24`
 - **Rotate Regularly**: Change passwords every 90 days
 - **Never Commit Passwords**: Keep `.env` file out of git
@@ -173,12 +188,14 @@ mosquitto_passwd -b /mosquitto/config/passwd simulator sim_password
 ## Authorization (ACL)
 
 ### ACL Syntax
+
 ```
 user <username>
 topic [read|write|readwrite] <topic_pattern>
 ```
 
 ### Wildcard Patterns
+
 - `#` - Multi-level wildcard (matches any number of levels)
   - Example: `sahool/sensors/#` matches `sahool/sensors/temp` and `sahool/sensors/farm1/field1/temp`
 - `+` - Single-level wildcard (matches exactly one level)
@@ -187,6 +204,7 @@ topic [read|write|readwrite] <topic_pattern>
 ### Common ACL Patterns
 
 #### Read-only Monitoring User
+
 ```
 user monitor
 topic read $SYS/#
@@ -194,6 +212,7 @@ topic read sahool/#
 ```
 
 #### Device-specific Access
+
 ```
 user device_001
 topic write sahool/default/farm/farm-1/field/field-1/sensor/#
@@ -201,6 +220,7 @@ topic read sahool/default/farm/farm-1/field/field-1/actuator/+/command
 ```
 
 #### Admin User
+
 ```
 user admin
 topic readwrite #
@@ -237,6 +257,7 @@ this.client = mqtt.connect(brokerUrl, connectOptions);
 ```
 
 **Environment Variables:**
+
 ```bash
 MQTT_BROKER=mqtt
 MQTT_PORT=1883
@@ -271,6 +292,7 @@ async with Client(
 ```
 
 **Environment Variables:**
+
 ```bash
 MQTT_BROKER=mqtt
 MQTT_PORT=1883
@@ -294,6 +316,7 @@ python simulator.py \
 ```
 
 **Python Code:**
+
 ```python
 import paho.mqtt.client as mqtt
 
@@ -313,6 +336,7 @@ client.connect(broker, port, keepalive=60)
 ### 1. Test MQTT Broker Connection
 
 #### Using mosquitto_pub (with authentication)
+
 ```bash
 # Publish to MQTT broker with authentication
 mosquitto_pub \
@@ -325,6 +349,7 @@ mosquitto_pub \
 ```
 
 #### Using mosquitto_sub (with authentication)
+
 ```bash
 # Subscribe to MQTT topics with authentication
 mosquitto_sub \
@@ -337,6 +362,7 @@ mosquitto_sub \
 ```
 
 #### Test without authentication (should fail)
+
 ```bash
 # This should fail with "Connection Refused: not authorised"
 mosquitto_pub \
@@ -349,6 +375,7 @@ mosquitto_pub \
 ### 2. Verify ACL Permissions
 
 #### Test topic write permissions
+
 ```bash
 # Should succeed - sahool_iot can write to actuator commands
 mosquitto_pub -h localhost -p 1883 -u sahool_iot -P sahool_mqtt_secure_2024 \
@@ -393,9 +420,11 @@ docker logs sahool-iot-gateway --tail 30 | grep -i "mqtt"
 ### Common Issues
 
 #### 1. "Connection Refused: not authorised" Error
+
 **Cause:** Authentication failed or anonymous access attempted
 
 **Solutions:**
+
 - Verify username/password in environment variables
 - Check that passwd file was generated correctly
 - Ensure `allow_anonymous false` is set in mosquitto.conf
@@ -409,9 +438,11 @@ docker restart sahool-mqtt
 ```
 
 #### 2. "Publish denied" or "Subscribe denied" Error
+
 **Cause:** ACL permissions not configured correctly
 
 **Solutions:**
+
 - Verify user exists in ACL file
 - Check topic pattern matches the subscription/publish topic
 - Ensure wildcards are used correctly
@@ -425,18 +456,22 @@ mosquitto_pub -h localhost -p 1883 -u sahool_iot -P password -t "test/topic" -m 
 ```
 
 #### 3. Service Cannot Connect to MQTT Broker
+
 **Cause:** Network connectivity, credentials, or configuration issue
 
 **Solutions:**
+
 - Check MQTT broker is running: `docker ps | grep mqtt`
 - Verify network connectivity: `docker exec sahool-iot-service ping mqtt`
 - Check environment variables are set correctly
 - Review service logs for connection errors
 
 #### 4. Password File Not Found
+
 **Cause:** Password file not generated at startup
 
 **Solutions:**
+
 ```bash
 # Check if passwd file exists
 docker exec sahool-mqtt ls -la /mosquitto/config/
@@ -451,6 +486,7 @@ docker restart sahool-mqtt
 ### Debug Mode
 
 Enable verbose logging in `mosquitto.conf`:
+
 ```conf
 log_type all
 log_dest stdout
@@ -462,6 +498,7 @@ log_dest file /mosquitto/log/mosquitto.log
 ## Security Best Practices
 
 ### 1. Password Management
+
 - ✅ **Use Strong Passwords**: Minimum 16 characters, mix of letters, numbers, symbols
 - ✅ **Rotate Regularly**: Change passwords every 90 days
 - ✅ **Unique Passwords**: Each service/user should have unique credentials
@@ -469,24 +506,28 @@ log_dest file /mosquitto/log/mosquitto.log
 - ✅ **Never Commit Secrets**: Keep `.env` files out of version control
 
 ### 2. Network Security
+
 - ✅ **Localhost Binding**: MQTT ports bound to 127.0.0.1 (not exposed externally)
 - ✅ **Docker Network Isolation**: Use dedicated `sahool-network`
 - ✅ **TLS/SSL**: Consider enabling TLS for production deployments
 - ✅ **Firewall Rules**: Use firewall to restrict MQTT port access
 
 ### 3. Access Control
+
 - ✅ **Principle of Least Privilege**: Grant minimal permissions needed
 - ✅ **User Segregation**: Separate users for different services/roles
 - ✅ **Topic Hierarchy**: Use clear topic structure for easier ACL management
 - ✅ **Regular Audits**: Review ACL permissions quarterly
 
 ### 4. Monitoring & Auditing
+
 - ✅ **Enable Logging**: Monitor authentication failures
 - ✅ **Connection Tracking**: Track active connections and clients
 - ✅ **Metrics Collection**: Use Prometheus to monitor MQTT metrics
 - ✅ **Alert on Anomalies**: Set up alerts for unusual activity
 
 ### 5. Production Hardening
+
 - ✅ **Disable Test Users**: Remove `test_sensor` and `simulator` users
 - ✅ **Enable TLS**: Use TLS 1.2+ for encrypted connections
 - ✅ **Client Certificates**: Consider mTLS for device authentication
@@ -498,6 +539,7 @@ log_dest file /mosquitto/log/mosquitto.log
 ## Future Enhancements
 
 ### Planned Security Improvements
+
 - [ ] **TLS/SSL Encryption**: Enable encrypted MQTT connections (port 8883)
 - [ ] **Client Certificates (mTLS)**: Certificate-based authentication for devices
 - [ ] **Dynamic ACL**: Database-backed ACL for dynamic permission management
@@ -507,6 +549,7 @@ log_dest file /mosquitto/log/mosquitto.log
 - [ ] **WebSocket Authentication**: Secure WebSocket connections for web clients
 
 ### TLS Configuration (Future)
+
 ```conf
 # TLS Listener (when implemented)
 listener 8883

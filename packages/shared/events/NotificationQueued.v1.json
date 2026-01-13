@@ -3,14 +3,18 @@
   "$id": "https://sahool.io/events/NotificationQueued.v1.json",
   "title": "Notification Queued Event",
   "description": "Emitted when a notification is queued for delivery - يُنشر عند إضافة إشعار لقائمة الإرسال",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Notification.Queued" },
     "payload": {
       "type": "object",
-      "required": ["notification_id", "recipient_id", "channel", "priority", "content"],
+      "required": [
+        "notification_id",
+        "recipient_id",
+        "channel",
+        "priority",
+        "content"
+      ],
       "properties": {
         "notification_id": {
           "type": "string",

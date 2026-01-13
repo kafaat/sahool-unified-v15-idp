@@ -8,28 +8,28 @@ This guide provides a quick start for setting up automated certificate rotation 
 
 ### Scripts (`/scripts/certs/`)
 
-| File | Purpose | Executable |
-|------|---------|------------|
-| `generate-certs.sh` | Generate and manage TLS certificates | ✓ |
-| `validate-certs.sh` | Validate certificates and check expiration | ✓ |
-| `rotate-certs.sh` | Automate certificate rotation | ✓ |
-| `README.md` | Script documentation | - |
+| File                | Purpose                                    | Executable |
+| ------------------- | ------------------------------------------ | ---------- |
+| `generate-certs.sh` | Generate and manage TLS certificates       | ✓          |
+| `validate-certs.sh` | Validate certificates and check expiration | ✓          |
+| `rotate-certs.sh`   | Automate certificate rotation              | ✓          |
+| `README.md`         | Script documentation                       | -          |
 
 ### Infrastructure (`/infrastructure/certs/`)
 
-| File | Purpose | Type |
-|------|---------|------|
-| `cert-rotation.service` | Systemd service unit | systemd |
-| `cert-rotation.timer` | Systemd timer (daily at 2 AM) | systemd |
-| `cert-rotation.cron` | Alternative cron configuration | cron |
-| `README.md` | Infrastructure setup guide | - |
+| File                    | Purpose                        | Type    |
+| ----------------------- | ------------------------------ | ------- |
+| `cert-rotation.service` | Systemd service unit           | systemd |
+| `cert-rotation.timer`   | Systemd timer (daily at 2 AM)  | systemd |
+| `cert-rotation.cron`    | Alternative cron configuration | cron    |
+| `README.md`             | Infrastructure setup guide     | -       |
 
 ### Documentation (`/docs/`)
 
-| File | Purpose |
-|------|---------|
-| `CERTIFICATE_ROTATION.md` | Complete rotation guide (22 KB) |
-| `CERTIFICATE_ROTATION_QUICKSTART.md` | This quick start guide |
+| File                                 | Purpose                         |
+| ------------------------------------ | ------------------------------- |
+| `CERTIFICATE_ROTATION.md`            | Complete rotation guide (22 KB) |
+| `CERTIFICATE_ROTATION_QUICKSTART.md` | This quick start guide          |
 
 ## 5-Minute Setup
 
@@ -190,6 +190,7 @@ sudo chmod 600 /etc/default/sahool-certs
 ### Monitor Automated Rotation
 
 **Systemd:**
+
 ```bash
 # Check timer status
 sudo systemctl status cert-rotation.timer
@@ -205,6 +206,7 @@ sudo journalctl -u cert-rotation.service -f
 ```
 
 **Cron:**
+
 ```bash
 # View rotation log
 tail -f /var/log/sahool-cert-rotation.log
@@ -241,13 +243,13 @@ Log Rotation Event
 
 ## Certificate Lifecycle
 
-| Phase | Duration | Action |
-|-------|----------|--------|
-| **Fresh** | 795+ days | ✓ No action needed |
-| **Valid** | 31-795 days | ✓ Monitor regularly |
-| **Warning** | 8-30 days | ⚠ Rotation scheduled |
-| **Critical** | 1-7 days | 🔴 Immediate rotation |
-| **Expired** | < 0 days | 🚨 Emergency rotation |
+| Phase        | Duration    | Action                |
+| ------------ | ----------- | --------------------- |
+| **Fresh**    | 795+ days   | ✓ No action needed    |
+| **Valid**    | 31-795 days | ✓ Monitor regularly   |
+| **Warning**  | 8-30 days   | ⚠ Rotation scheduled  |
+| **Critical** | 1-7 days    | 🔴 Immediate rotation |
+| **Expired**  | < 0 days    | 🚨 Emergency rotation |
 
 ## Common Commands
 
@@ -467,18 +469,21 @@ config/certs/
 ## Support Resources
 
 ### Documentation
+
 - **Complete Guide**: `docs/CERTIFICATE_ROTATION.md` (comprehensive)
 - **Script Reference**: `scripts/certs/README.md` (script usage)
 - **Infrastructure Setup**: `infrastructure/certs/README.md` (systemd/cron)
 - **TLS Setup**: `config/certs/README.md` (certificate basics)
 
 ### Logs
+
 - **Rotation Logs**: `config/certs/rotation.log`
 - **Systemd Journal**: `sudo journalctl -u cert-rotation.service`
 - **Cron Logs**: `/var/log/sahool-cert-rotation.log`
 - **Syslog**: `grep sahool-cert-rotation /var/log/syslog`
 
 ### Commands
+
 - **Validate**: `./scripts/certs/validate-certs.sh`
 - **Dry Run**: `./scripts/certs/rotate-certs.sh --dry-run`
 - **Timer Status**: `sudo systemctl status cert-rotation.timer`

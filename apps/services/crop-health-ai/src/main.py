@@ -307,7 +307,9 @@ async def batch_diagnose(
 @app.get("/v1/diseases", response_model=list[dict])
 async def list_diseases(
     crop_type: CropType | None = Query(None, description="فلترة حسب نوع المحصول"),
-    limit: int = Query(default=50, ge=1, le=100, description="Maximum number of diseases to return"),
+    limit: int = Query(
+        default=50, ge=1, le=100, description="Maximum number of diseases to return"
+    ),
     offset: int = Query(default=0, ge=0, description="Number of diseases to skip"),
 ):
     """📋 قائمة الأمراض المدعومة مع الترقيم"""

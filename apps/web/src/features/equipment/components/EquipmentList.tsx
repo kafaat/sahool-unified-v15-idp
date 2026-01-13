@@ -3,13 +3,17 @@
  * مكون قائمة المعدات
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useEquipment } from '../hooks/useEquipment';
-import { EquipmentCard } from './EquipmentCard';
-import type { EquipmentFilters, EquipmentType, EquipmentStatus } from '../types';
-import { Search, Filter, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { useEquipment } from "../hooks/useEquipment";
+import { EquipmentCard } from "./EquipmentCard";
+import type {
+  EquipmentFilters,
+  EquipmentType,
+  EquipmentStatus,
+} from "../types";
+import { Search, Filter, Loader2 } from "lucide-react";
 
 interface EquipmentListProps {
   onFieldClick?: (equipmentId: string) => void;
@@ -18,7 +22,7 @@ interface EquipmentListProps {
 
 export function EquipmentList({ onFieldClick }: EquipmentListProps) {
   const [filters, setFilters] = useState<EquipmentFilters>({});
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: equipment, isLoading, error } = useEquipment(filters);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -83,38 +87,38 @@ export function EquipmentList({ onFieldClick }: EquipmentListProps) {
             onClick={() => handleTypeFilter(undefined)}
             className={`px-3 py-1 rounded-full text-sm ${
               !filters.type
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             الكل
           </button>
           <button
-            onClick={() => handleTypeFilter('tractor')}
+            onClick={() => handleTypeFilter("tractor")}
             className={`px-3 py-1 rounded-full text-sm ${
-              filters.type === 'tractor'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              filters.type === "tractor"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             جرار
           </button>
           <button
-            onClick={() => handleTypeFilter('harvester')}
+            onClick={() => handleTypeFilter("harvester")}
             className={`px-3 py-1 rounded-full text-sm ${
-              filters.type === 'harvester'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              filters.type === "harvester"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             حصادة
           </button>
           <button
-            onClick={() => handleTypeFilter('irrigation_system')}
+            onClick={() => handleTypeFilter("irrigation_system")}
             className={`px-3 py-1 rounded-full text-sm ${
-              filters.type === 'irrigation_system'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              filters.type === "irrigation_system"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             نظام ري
@@ -127,28 +131,28 @@ export function EquipmentList({ onFieldClick }: EquipmentListProps) {
             onClick={() => handleStatusFilter(undefined)}
             className={`px-3 py-1 rounded-full text-sm ${
               !filters.status
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             الكل
           </button>
           <button
-            onClick={() => handleStatusFilter('active')}
+            onClick={() => handleStatusFilter("active")}
             className={`px-3 py-1 rounded-full text-sm ${
-              filters.status === 'active'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              filters.status === "active"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             نشط
           </button>
           <button
-            onClick={() => handleStatusFilter('maintenance')}
+            onClick={() => handleStatusFilter("maintenance")}
             className={`px-3 py-1 rounded-full text-sm ${
-              filters.status === 'maintenance'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              filters.status === "maintenance"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             صيانة

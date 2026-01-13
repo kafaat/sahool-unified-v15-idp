@@ -4,8 +4,13 @@
  */
 
 // Post types
-export type PostType = 'question' | 'tip' | 'experience' | 'discussion' | 'update';
-export type PostStatus = 'active' | 'resolved' | 'closed';
+export type PostType =
+  | "question"
+  | "tip"
+  | "experience"
+  | "discussion"
+  | "update";
+export type PostStatus = "active" | "resolved" | "closed";
 
 // User post
 export interface Post {
@@ -14,7 +19,7 @@ export interface Post {
   userName: string;
   userNameAr: string;
   userAvatar?: string;
-  userBadge?: 'farmer' | 'expert' | 'verified' | 'moderator';
+  userBadge?: "farmer" | "expert" | "verified" | "moderator";
   type: PostType;
   title: string;
   titleAr: string;
@@ -48,7 +53,7 @@ export interface Comment {
   userName: string;
   userNameAr: string;
   userAvatar?: string;
-  userBadge?: 'farmer' | 'expert' | 'verified' | 'moderator';
+  userBadge?: "farmer" | "expert" | "verified" | "moderator";
   content: string;
   contentAr: string;
   likes: number;
@@ -70,7 +75,7 @@ export interface Group {
   image?: string;
   coverImage?: string;
   category: GroupCategory;
-  privacy: 'public' | 'private';
+  privacy: "public" | "private";
   memberCount: number;
   postCount: number;
   isJoined: boolean;
@@ -82,14 +87,14 @@ export interface Group {
 }
 
 export type GroupCategory =
-  | 'crops'
-  | 'livestock'
-  | 'irrigation'
-  | 'pests'
-  | 'organic'
-  | 'technology'
-  | 'marketing'
-  | 'general';
+  | "crops"
+  | "livestock"
+  | "irrigation"
+  | "pests"
+  | "organic"
+  | "technology"
+  | "marketing"
+  | "general";
 
 // Group member
 export interface GroupMember {
@@ -98,7 +103,7 @@ export interface GroupMember {
   userName: string;
   userNameAr: string;
   userAvatar?: string;
-  role: 'owner' | 'moderator' | 'member';
+  role: "owner" | "moderator" | "member";
   joinedAt: string;
   lastActive?: string;
   contributions: number;
@@ -114,7 +119,7 @@ export interface ChatMessage {
   userAvatar?: string;
   content: string;
   contentAr: string;
-  type: 'text' | 'image' | 'file' | 'voice';
+  type: "text" | "image" | "file" | "voice";
   fileUrl?: string;
   fileName?: string;
   replyTo?: {
@@ -141,7 +146,7 @@ export interface Expert {
   rating: number;
   totalAnswers: number;
   verifiedAnswers: number;
-  availability: 'available' | 'busy' | 'offline';
+  availability: "available" | "busy" | "offline";
   responseTime: number; // average in hours
 }
 
@@ -158,8 +163,8 @@ export interface ExpertQuestion {
   question: string;
   questionAr: string;
   images?: string[];
-  status: 'pending' | 'answered' | 'closed';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: "pending" | "answered" | "closed";
+  priority: "low" | "medium" | "high" | "urgent";
   answer?: {
     content: string;
     contentAr: string;
@@ -179,22 +184,22 @@ export interface CommunityFilters {
   status?: PostStatus;
   tags?: string[];
   location?: string;
-  sortBy?: 'recent' | 'popular' | 'trending';
+  sortBy?: "recent" | "popular" | "trending";
   search?: string;
 }
 
 export interface GroupFilters {
   category?: GroupCategory;
-  privacy?: 'public' | 'private';
+  privacy?: "public" | "private";
   joined?: boolean;
-  sortBy?: 'popular' | 'recent' | 'active';
+  sortBy?: "popular" | "recent" | "active";
   search?: string;
 }
 
 // Notifications
 export interface CommunityNotification {
   id: string;
-  type: 'like' | 'comment' | 'reply' | 'mention' | 'follow' | 'group_invite';
+  type: "like" | "comment" | "reply" | "mention" | "follow" | "group_invite";
   title: string;
   titleAr: string;
   message: string;
@@ -206,7 +211,7 @@ export interface CommunityNotification {
     avatar?: string;
   };
   relatedTo?: {
-    type: 'post' | 'comment' | 'group';
+    type: "post" | "comment" | "group";
     id: string;
     title?: string;
   };

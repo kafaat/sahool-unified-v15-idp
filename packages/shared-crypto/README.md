@@ -1,6 +1,7 @@
 # @sahool/shared-crypto
 
 ## SAHOOL Shared Cryptography Library
+
 ### مكتبة التشفير المشتركة
 
 A comprehensive cryptography library for the SAHOOL platform, providing field-level encryption, PII detection, and data protection utilities.
@@ -44,31 +45,36 @@ PREVIOUS_ENCRYPTION_KEY=old-key-for-migration
 ### Field Encryption
 
 ```typescript
-import { encrypt, decrypt, encryptDeterministic, decryptDeterministic } from '@sahool/shared-crypto';
+import {
+  encrypt,
+  decrypt,
+  encryptDeterministic,
+  decryptDeterministic,
+} from "@sahool/shared-crypto";
 
 // Standard encryption (non-searchable)
-const encrypted = encrypt('sensitive data');
+const encrypted = encrypt("sensitive data");
 const decrypted = decrypt(encrypted);
 
 // Deterministic encryption (searchable)
-const encryptedId = encryptDeterministic('national-id-123');
+const encryptedId = encryptDeterministic("national-id-123");
 const decryptedId = decryptDeterministic(encryptedId);
 ```
 
 ### Prisma Middleware
 
 ```typescript
-import { createPrismaEncryptionMiddleware } from '@sahool/shared-crypto';
+import { createPrismaEncryptionMiddleware } from "@sahool/shared-crypto";
 
 const encryptionConfig = {
   User: {
-    phone: { type: 'deterministic' },
-    email: { type: 'deterministic' }
+    phone: { type: "deterministic" },
+    email: { type: "deterministic" },
   },
   UserProfile: {
-    nationalId: { type: 'deterministic' },
-    dateOfBirth: { type: 'standard' }
-  }
+    nationalId: { type: "deterministic" },
+    dateOfBirth: { type: "standard" },
+  },
 };
 
 prisma.$use(createPrismaEncryptionMiddleware(encryptionConfig));
@@ -77,9 +83,9 @@ prisma.$use(createPrismaEncryptionMiddleware(encryptionConfig));
 ### PII Detection
 
 ```typescript
-import { detectPII, maskPII, shouldEncrypt } from '@sahool/shared-crypto';
+import { detectPII, maskPII, shouldEncrypt } from "@sahool/shared-crypto";
 
-const text = 'My phone is 05512345678';
+const text = "My phone is 05512345678";
 const detected = detectPII(text); // Returns detected PII patterns
 const masked = maskPII(text); // Returns 'My phone is 055****5678'
 ```
@@ -87,10 +93,10 @@ const masked = maskPII(text); // Returns 'My phone is 055****5678'
 ### Password Hashing
 
 ```typescript
-import { hashPassword, verifyPassword } from '@sahool/shared-crypto';
+import { hashPassword, verifyPassword } from "@sahool/shared-crypto";
 
-const hash = await hashPassword('user-password');
-const isValid = await verifyPassword('user-password', hash);
+const hash = await hashPassword("user-password");
+const isValid = await verifyPassword("user-password", hash);
 ```
 
 ## Security Best Practices

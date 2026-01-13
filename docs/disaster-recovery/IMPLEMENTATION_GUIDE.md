@@ -1,4 +1,5 @@
 # SAHOOL Platform - Disaster Recovery Implementation Guide
+
 # دليل تنفيذ التعافي من الكوارث
 
 **Version:** 1.0.0
@@ -25,6 +26,7 @@ Based on the audit findings, this implementation will:
 ## 📁 Files Created
 
 ### PostgreSQL HA Configuration
+
 ```
 /home/user/sahool-unified-v15-idp/infrastructure/core/postgres/ha-replication/
 ├── patroni-config.yml                  # Patroni configuration for HA
@@ -38,6 +40,7 @@ Based on the audit findings, this implementation will:
 ```
 
 ### Disaster Recovery Scripts
+
 ```
 /home/user/sahool-unified-v15-idp/scripts/disaster-recovery/
 ├── failover-postgres.sh                # Automated failover management
@@ -48,6 +51,7 @@ Based on the audit findings, this implementation will:
 ```
 
 ### Documentation
+
 ```
 /home/user/sahool-unified-v15-idp/docs/disaster-recovery/
 ├── DR_RUNBOOK.md                       # Comprehensive DR procedures
@@ -55,6 +59,7 @@ Based on the audit findings, this implementation will:
 ```
 
 ### Monitoring
+
 ```
 /home/user/sahool-unified-v15-idp/infrastructure/monitoring/
 ├── prometheus/rules/disaster-recovery.yml
@@ -66,12 +71,14 @@ Based on the audit findings, this implementation will:
 ## 🚀 Phase 1: PostgreSQL HA Setup (Critical Priority)
 
 ### Current State
+
 - ❌ Single PostgreSQL instance
 - ❌ No replication
 - ❌ RPO: 24 hours
 - ❌ Manual failover only
 
 ### Target State
+
 - ✅ 3-node PostgreSQL cluster
 - ✅ Streaming replication
 - ✅ RPO: <5 seconds
@@ -155,6 +162,7 @@ cd /home/user/sahool-unified-v15-idp
 ```
 
 **Expected Results:**
+
 - ✅ 3 PostgreSQL nodes running
 - ✅ Replication lag < 1MB
 - ✅ Failover completes in <30 seconds
@@ -172,8 +180,8 @@ WAL archiving is already configured in `patroni-config.yml`:
 
 ```yaml
 archive_mode: on
-archive_command: '/usr/local/bin/wal-archive.sh %p %f'
-archive_timeout: 300  # 5 minutes
+archive_command: "/usr/local/bin/wal-archive.sh %p %f"
+archive_timeout: 300 # 5 minutes
 ```
 
 #### Step 2: Create S3 Bucket for WAL Archive
@@ -209,6 +217,7 @@ mc ls minio/sahool-wal-archive/
 ```
 
 **Expected Results:**
+
 - ✅ WAL files appear in archive directory
 - ✅ WAL files uploaded to S3/MinIO
 - ✅ New WAL files every 5 minutes (or on activity)
@@ -251,6 +260,7 @@ aws rds wait db-instance-available \
 ```
 
 **Expected Results:**
+
 - ✅ Backups replicated to secondary region
 - ✅ Replication lag < 15 minutes
 - ✅ Read replica can be promoted
@@ -304,6 +314,7 @@ curl http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | select(.
 ```
 
 **Expected Results:**
+
 - ✅ Prometheus alerts configured
 - ✅ Grafana dashboard showing metrics
 - ✅ Backup metrics updating every 5 minutes
@@ -351,6 +362,7 @@ crontab -e
 ```
 
 **Expected Results:**
+
 - ✅ All tests pass
 - ✅ Failover completes successfully
 - ✅ Backups verified
@@ -361,6 +373,7 @@ crontab -e
 ## ✅ Verification Checklist
 
 ### PostgreSQL HA
+
 - [ ] 3 PostgreSQL nodes running and healthy
 - [ ] Replication lag < 1MB
 - [ ] Automated failover tested and working
@@ -368,6 +381,7 @@ crontab -e
 - [ ] HAProxy routing traffic correctly
 
 ### Backup & Recovery
+
 - [ ] Daily backups running automatically
 - [ ] WAL archiving active
 - [ ] Backups verified weekly
@@ -375,18 +389,21 @@ crontab -e
 - [ ] Backup age < 24 hours
 
 ### Cross-Region
+
 - [ ] Secondary region configured
 - [ ] Cross-region replication active
 - [ ] Replication lag < 15 minutes
 - [ ] Secondary region tested
 
 ### Monitoring
+
 - [ ] Prometheus alerts firing correctly
 - [ ] Grafana dashboard showing data
 - [ ] Metrics exporter running
 - [ ] Alert notifications working
 
 ### Documentation
+
 - [ ] DR runbook updated
 - [ ] Team trained on procedures
 - [ ] Emergency contacts updated
@@ -397,24 +414,26 @@ crontab -e
 ## 📈 Expected Improvements
 
 ### Before Implementation
-| Metric | Before | Target | Status |
-|--------|--------|--------|--------|
-| DR Readiness Score | 5.5/10 | 9/10 | ⚠️ Gap |
-| PostgreSQL HA | Single | 3-node | ❌ Missing |
-| RPO | 24 hours | <5 minutes | ❌ Exceeds |
-| RTO | 1-2 hours | <30 seconds | ❌ Exceeds |
-| Automated Failover | No | Yes | ❌ Missing |
-| DR Drills | Never | Monthly | ❌ Missing |
+
+| Metric             | Before    | Target      | Status     |
+| ------------------ | --------- | ----------- | ---------- |
+| DR Readiness Score | 5.5/10    | 9/10        | ⚠️ Gap     |
+| PostgreSQL HA      | Single    | 3-node      | ❌ Missing |
+| RPO                | 24 hours  | <5 minutes  | ❌ Exceeds |
+| RTO                | 1-2 hours | <30 seconds | ❌ Exceeds |
+| Automated Failover | No        | Yes         | ❌ Missing |
+| DR Drills          | Never     | Monthly     | ❌ Missing |
 
 ### After Implementation
-| Metric | After | Target | Status |
-|--------|-------|--------|--------|
-| DR Readiness Score | 9/10 | 9/10 | ✅ Met |
-| PostgreSQL HA | 3-node | 3-node | ✅ Met |
-| RPO | <5 seconds | <5 minutes | ✅ Exceeded |
-| RTO | <30 seconds | <30 seconds | ✅ Met |
-| Automated Failover | Yes | Yes | ✅ Met |
-| DR Drills | Monthly | Monthly | ✅ Met |
+
+| Metric             | After       | Target      | Status      |
+| ------------------ | ----------- | ----------- | ----------- |
+| DR Readiness Score | 9/10        | 9/10        | ✅ Met      |
+| PostgreSQL HA      | 3-node      | 3-node      | ✅ Met      |
+| RPO                | <5 seconds  | <5 minutes  | ✅ Exceeded |
+| RTO                | <30 seconds | <30 seconds | ✅ Met      |
+| Automated Failover | Yes         | Yes         | ✅ Met      |
+| DR Drills          | Monthly     | Monthly     | ✅ Met      |
 
 ---
 
@@ -423,6 +442,7 @@ crontab -e
 ### Issue: Patroni cluster won't start
 
 **Solution:**
+
 ```bash
 # Check ETCD health
 docker exec sahool-etcd etcdctl endpoint health
@@ -439,6 +459,7 @@ docker-compose -f docker-compose.ha.yml up -d
 ### Issue: Replication lag is high
 
 **Solution:**
+
 ```bash
 # Check network connectivity
 docker exec sahool-postgres-primary ping postgres-replica1
@@ -454,6 +475,7 @@ docker exec sahool-postgres-primary psql -U postgres -c \
 ### Issue: WAL archiving not working
 
 **Solution:**
+
 ```bash
 # Check S3/MinIO connectivity
 mc ls minio/sahool-wal-archive/

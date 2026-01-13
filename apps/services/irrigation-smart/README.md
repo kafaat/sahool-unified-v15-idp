@@ -14,20 +14,22 @@ Smart irrigation management and scheduling based on crop requirements and weathe
 ## الميزات | Features
 
 ### جدولة الري | Irrigation Scheduling
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| جدولة تلقائية | Auto Scheduling | بناءً على الطقس والتربة |
-| جدولة يدوية | Manual Scheduling | تحكم يدوي |
-| جدولة ذكية | Smart Scheduling | تعلم آلي |
-| تنبيهات | Alerts | إشعارات الري |
+
+| الميزة        | Feature           | الوصف                   |
+| ------------- | ----------------- | ----------------------- |
+| جدولة تلقائية | Auto Scheduling   | بناءً على الطقس والتربة |
+| جدولة يدوية   | Manual Scheduling | تحكم يدوي               |
+| جدولة ذكية    | Smart Scheduling  | تعلم آلي                |
+| تنبيهات       | Alerts            | إشعارات الري            |
 
 ### طرق الري | Irrigation Methods
-| الطريقة | Method | الكفاءة |
-|---------|--------|---------|
-| تنقيط | Drip | 90-95% |
-| رش | Sprinkler | 75-85% |
-| محوري | Center Pivot | 80-90% |
-| غمر | Flood | 40-50% |
+
+| الطريقة | Method       | الكفاءة |
+| ------- | ------------ | ------- |
+| تنقيط   | Drip         | 90-95%  |
+| رش      | Sprinkler    | 75-85%  |
+| محوري   | Center Pivot | 80-90%  |
+| غمر     | Flood        | 40-50%  |
 
 ---
 
@@ -218,45 +220,47 @@ Response:
 ## نماذج البيانات | Data Models
 
 ### IrrigationSchedule
+
 ```json
 {
-    "id": "schedule-001",
-    "field_id": "field-001",
-    "date": "2024-01-15",
-    "time": "06:00",
-    "duration_minutes": 45,
-    "volume_m3": 25,
-    "method": "drip",
-    "zones": ["zone-001", "zone-002"],
-    "status": "completed",
-    "actual": {
-        "started_at": "2024-01-15T06:00:00Z",
-        "ended_at": "2024-01-15T06:43:00Z",
-        "volume_delivered_m3": 24.5
-    },
-    "created_by": "system",
-    "created_at": "2024-01-14T10:00:00Z"
+  "id": "schedule-001",
+  "field_id": "field-001",
+  "date": "2024-01-15",
+  "time": "06:00",
+  "duration_minutes": 45,
+  "volume_m3": 25,
+  "method": "drip",
+  "zones": ["zone-001", "zone-002"],
+  "status": "completed",
+  "actual": {
+    "started_at": "2024-01-15T06:00:00Z",
+    "ended_at": "2024-01-15T06:43:00Z",
+    "volume_delivered_m3": 24.5
+  },
+  "created_by": "system",
+  "created_at": "2024-01-14T10:00:00Z"
 }
 ```
 
 ### WaterRequirement
+
 ```json
 {
-    "field_id": "field-001",
-    "date": "2024-01-15",
-    "crop_type": "wheat",
-    "growth_stage": "tillering",
-    "weather": {
-        "eto_mm": 6.0,
-        "rainfall_mm": 0,
-        "humidity_percent": 45
-    },
-    "calculation": {
-        "kc": 0.75,
-        "etc_mm": 4.5,
-        "net_irrigation_mm": 4.5,
-        "gross_irrigation_mm": 5.0
-    }
+  "field_id": "field-001",
+  "date": "2024-01-15",
+  "crop_type": "wheat",
+  "growth_stage": "tillering",
+  "weather": {
+    "eto_mm": 6.0,
+    "rainfall_mm": 0,
+    "humidity_percent": 45
+  },
+  "calculation": {
+    "kc": 0.75,
+    "etc_mm": 4.5,
+    "net_irrigation_mm": 4.5,
+    "gross_irrigation_mm": 5.0
+  }
 }
 ```
 

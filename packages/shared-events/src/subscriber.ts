@@ -3,15 +3,15 @@
  * Helper functions for subscribing to events from NATS
  */
 
-import { StringCodec, Subscription } from 'nats';
-import { NatsClient } from './nats-client';
-import { SahoolEvent, EventSubject } from './events';
+import { StringCodec, Subscription } from "nats";
+import { NatsClient } from "./nats-client";
+import { SahoolEvent, EventSubject } from "./events";
 
 const codec = StringCodec();
 
 export type EventHandler<T extends SahoolEvent = SahoolEvent> = (
   event: T,
-  subject: string
+  subject: string,
 ) => Promise<void> | void;
 
 export interface SubscribeOptions {
@@ -37,24 +37,24 @@ export interface SubscribeOptions {
 export async function subscribe<T extends SahoolEvent = SahoolEvent>(
   subject: EventSubject | string,
   handler: EventHandler<T>,
-  options: SubscribeOptions = {}
+  options: SubscribeOptions = {},
 ): Promise<Subscription> {
   const client = NatsClient.getInstance({
-    servers: process.env.NATS_URL || 'nats://localhost:4222',
+    servers: process.env.NATS_URL || "nats://localhost:4222",
   });
 
   const connection = client.getConnection();
   if (!connection || connection.isClosed()) {
-    throw new Error('NATS connection is not available. Please connect first.');
+    throw new Error("NATS connection is not available. Please connect first.");
   }
 
   const subscription = options.queue
     ? connection.subscribe(subject, { queue: options.queue })
     : connection.subscribe(subject);
 
-  if (options.debug !== false && process.env.NODE_ENV !== 'production') {
+  if (options.debug !== false && process.env.NODE_ENV !== "production") {
     console.log(
-      `[EventSubscriber] Subscribed to: ${subject}${options.queue ? ` (queue: ${options.queue})` : ''}`
+      `[EventSubscriber] Subscribed to: ${subject}${options.queue ? ` (queue: ${options.queue})` : ""}`,
     );
   }
 
@@ -65,13 +65,16 @@ export async function subscribe<T extends SahoolEvent = SahoolEvent>(
         const data = codec.decode(msg.data);
         const event = JSON.parse(data) as T;
 
-        if (options.debug !== false && process.env.NODE_ENV !== 'production') {
+        if (options.debug !== false && process.env.NODE_ENV !== "production") {
           console.log(`[EventSubscriber] Received event on ${subject}:`, event);
         }
 
         await handler(event, subject);
       } catch (error) {
-        console.error(`[EventSubscriber] Error processing message on ${subject}:`, error);
+        console.error(
+          `[EventSubscriber] Error processing message on ${subject}:`,
+          error,
+        );
         if (options.onError) {
           options.onError(error as Error);
         }
@@ -98,7 +101,7 @@ export async function subscribe<T extends SahoolEvent = SahoolEvent>(
 export async function subscribePattern<T extends SahoolEvent = SahoolEvent>(
   pattern: string,
   handler: EventHandler<T>,
-  options: SubscribeOptions = {}
+  options: SubscribeOptions = {},
 ): Promise<Subscription> {
   return subscribe(pattern, handler, options);
 }
@@ -108,9 +111,9 @@ export async function subscribePattern<T extends SahoolEvent = SahoolEvent>(
  */
 export async function subscribeAll(
   handler: EventHandler<SahoolEvent>,
-  options: SubscribeOptions = {}
+  options: SubscribeOptions = {},
 ): Promise<Subscription> {
-  return subscribe('>', handler, options);
+  return subscribe(">", handler, options);
 }
 
 // ============================================================================
@@ -122,9 +125,9 @@ export async function subscribeAll(
  */
 export async function subscribeToFieldEvents(
   handler: EventHandler,
-  options?: SubscribeOptions
+  options?: SubscribeOptions,
 ): Promise<Subscription> {
-  return subscribePattern('field.*', handler, options);
+  return subscribePattern("field.*", handler, options);
 }
 
 /**
@@ -132,9 +135,9 @@ export async function subscribeToFieldEvents(
  */
 export async function subscribeToOrderEvents(
   handler: EventHandler,
-  options?: SubscribeOptions
+  options?: SubscribeOptions,
 ): Promise<Subscription> {
-  return subscribePattern('order.*', handler, options);
+  return subscribePattern("order.*", handler, options);
 }
 
 /**
@@ -142,9 +145,9 @@ export async function subscribeToOrderEvents(
  */
 export async function subscribeToSensorEvents(
   handler: EventHandler,
-  options?: SubscribeOptions
+  options?: SubscribeOptions,
 ): Promise<Subscription> {
-  return subscribePattern('sensor.*', handler, options);
+  return subscribePattern("sensor.*", handler, options);
 }
 
 /**
@@ -152,9 +155,9 @@ export async function subscribeToSensorEvents(
  */
 export async function subscribeToDeviceEvents(
   handler: EventHandler,
-  options?: SubscribeOptions
+  options?: SubscribeOptions,
 ): Promise<Subscription> {
-  return subscribePattern('device.*', handler, options);
+  return subscribePattern("device.*", handler, options);
 }
 
 /**
@@ -162,9 +165,9 @@ export async function subscribeToDeviceEvents(
  */
 export async function subscribeToUserEvents(
   handler: EventHandler,
-  options?: SubscribeOptions
+  options?: SubscribeOptions,
 ): Promise<Subscription> {
-  return subscribePattern('user.*', handler, options);
+  return subscribePattern("user.*", handler, options);
 }
 
 /**
@@ -172,9 +175,9 @@ export async function subscribeToUserEvents(
  */
 export async function subscribeToInventoryEvents(
   handler: EventHandler,
-  options?: SubscribeOptions
+  options?: SubscribeOptions,
 ): Promise<Subscription> {
-  return subscribePattern('inventory.*', handler, options);
+  return subscribePattern("inventory.*", handler, options);
 }
 
 /**
@@ -182,9 +185,9 @@ export async function subscribeToInventoryEvents(
  */
 export async function subscribeToNotificationEvents(
   handler: EventHandler,
-  options?: SubscribeOptions
+  options?: SubscribeOptions,
 ): Promise<Subscription> {
-  return subscribePattern('notification.*', handler, options);
+  return subscribePattern("notification.*", handler, options);
 }
 
 // ============================================================================
@@ -201,7 +204,7 @@ export async function unsubscribe(subscription: Subscription): Promise<void> {
 /**
  * Create a logging handler for debugging
  */
-export function createLoggingHandler(prefix: string = '[Event]'): EventHandler {
+export function createLoggingHandler(prefix: string = "[Event]"): EventHandler {
   return (event: SahoolEvent, subject: string) => {
     console.log(`${prefix} [${subject}]`, {
       eventId: event.eventId,

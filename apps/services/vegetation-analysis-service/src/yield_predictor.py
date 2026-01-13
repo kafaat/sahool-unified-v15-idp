@@ -34,7 +34,8 @@ class CropInfo:
 
 # Try multiple possible shared paths (local dev vs Docker container)
 SHARED_PATHS = [
-    Path(__file__).parent.parent.parent / "shared",  # Local dev: apps/services/vegetation-analysis-service/../shared
+    Path(__file__).parent.parent.parent
+    / "shared",  # Local dev: apps/services/vegetation-analysis-service/../shared
     Path(__file__).parent.parent / "shared",  # Docker: /app/shared
     Path("/app/shared"),  # Absolute Docker path
 ]

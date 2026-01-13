@@ -3,26 +3,30 @@
  * خطافات المنتجات لميزة السوق الزراعي
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { marketplaceApi } from '../api';
-import type { ProductFilters, OrderFilters, Order } from '../types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { marketplaceApi } from "../api";
+import type { ProductFilters, OrderFilters, Order } from "../types";
 
 // Query Keys
 export const marketplaceKeys = {
-  all: ['marketplace'] as const,
+  all: ["marketplace"] as const,
   products: {
-    all: ['products'] as const,
-    lists: () => [...marketplaceKeys.products.all, 'list'] as const,
-    list: (filters?: ProductFilters) => [...marketplaceKeys.products.lists(), filters] as const,
-    detail: (id: string) => [...marketplaceKeys.products.all, 'detail', id] as const,
+    all: ["products"] as const,
+    lists: () => [...marketplaceKeys.products.all, "list"] as const,
+    list: (filters?: ProductFilters) =>
+      [...marketplaceKeys.products.lists(), filters] as const,
+    detail: (id: string) =>
+      [...marketplaceKeys.products.all, "detail", id] as const,
   },
   orders: {
-    all: ['orders'] as const,
-    lists: () => [...marketplaceKeys.orders.all, 'list'] as const,
-    list: (filters?: OrderFilters) => [...marketplaceKeys.orders.lists(), filters] as const,
-    detail: (id: string) => [...marketplaceKeys.orders.all, 'detail', id] as const,
+    all: ["orders"] as const,
+    lists: () => [...marketplaceKeys.orders.all, "list"] as const,
+    list: (filters?: OrderFilters) =>
+      [...marketplaceKeys.orders.lists(), filters] as const,
+    detail: (id: string) =>
+      [...marketplaceKeys.orders.all, "detail", id] as const,
   },
 };
 
@@ -79,11 +83,13 @@ export function useCreateOrder() {
   return useMutation({
     mutationFn: (data: {
       items: Array<{ productId: string; quantity: number }>;
-      shippingAddress: Order['shippingAddress'];
+      shippingAddress: Order["shippingAddress"];
       notes?: string;
     }) => marketplaceApi.createOrder(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: marketplaceKeys.orders.lists() });
+      queryClient.invalidateQueries({
+        queryKey: marketplaceKeys.orders.lists(),
+      });
     },
   });
 }
@@ -97,8 +103,12 @@ export function useCancelOrder() {
   return useMutation({
     mutationFn: (id: string) => marketplaceApi.cancelOrder(id),
     onSuccess: (_result, orderId) => {
-      queryClient.invalidateQueries({ queryKey: marketplaceKeys.orders.lists() });
-      queryClient.invalidateQueries({ queryKey: marketplaceKeys.orders.detail(orderId) });
+      queryClient.invalidateQueries({
+        queryKey: marketplaceKeys.orders.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: marketplaceKeys.orders.detail(orderId),
+      });
     },
   });
 }

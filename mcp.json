@@ -134,7 +134,13 @@
         "growth_stage": {
           "type": "string",
           "required": true,
-          "enum": ["germination", "vegetative", "flowering", "fruiting", "maturation"],
+          "enum": [
+            "germination",
+            "vegetative",
+            "flowering",
+            "fruiting",
+            "maturation"
+          ],
           "description": "Current growth stage"
         }
       },
@@ -205,7 +211,13 @@
       "provider": "sahool",
       "uriTemplate": "weather://{resource_type}",
       "description": "Access weather forecasts, current conditions, and advisories",
-      "resourceTypes": ["current", "forecast/7day", "forecast/14day", "advisories", "historical/30day"]
+      "resourceTypes": [
+        "current",
+        "forecast/7day",
+        "forecast/14day",
+        "advisories",
+        "historical/30day"
+      ]
     },
     "crops": {
       "provider": "sahool",

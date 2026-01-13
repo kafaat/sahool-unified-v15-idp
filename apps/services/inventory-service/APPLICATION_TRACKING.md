@@ -14,12 +14,14 @@ The Input Application Tracking system links inventory management with field oper
 ## Key Features
 
 ### 1. Automatic Inventory Deduction
+
 - Records application and deducts quantity from inventory
 - Uses FIFO (First In, First Out) for batch consumption
 - Creates stock movement audit trail
 - Tracks which batch/lot was used
 
 ### 2. Withholding Period Tracking
+
 - Calculates safe harvest date based on pesticide application
 - Checks if harvest is safe on a given date
 - Tracks blocking applications preventing harvest
@@ -30,26 +32,31 @@ The Input Application Tracking system links inventory management with field oper
   - Fertilizers: 0 days
 
 ### 3. Application Rate Calculation
+
 - Automatically calculates rate per hectare
 - Tracks area covered
 - Enables rate comparison across applications
 
 ### 4. Weather Condition Logging
+
 - Records temperature, humidity, wind speed
 - Useful for efficacy analysis
 - Supports post-application evaluation
 
 ### 5. Safety & PPE Tracking
+
 - Records Personal Protective Equipment used
 - Tracks operator/applicator
 - Equipment used for application
 
 ### 6. Cost Tracking
+
 - Records unit cost and total cost per application
 - Aggregates costs by category, purpose, method
 - Cost per hectare analysis
 
 ### 7. Efficacy Rating
+
 - Rate effectiveness (1-5 scale)
 - Track target pest/disease
 - Historical efficacy analysis
@@ -169,9 +176,11 @@ Why the input is being applied:
 ```
 POST   /v1/applications
 ```
+
 Record a new input application. Automatically deducts from inventory and creates stock movement.
 
 **Request Body:**
+
 ```json
 {
   "field_id": "field-123",
@@ -193,10 +202,13 @@ Record a new input application. Automatically deducts from inventory and creates
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "application": { /* full application object */ },
+  "application": {
+    /* full application object */
+  },
   "message": "Application recorded successfully"
 }
 ```
@@ -206,9 +218,11 @@ Record a new input application. Automatically deducts from inventory and creates
 ```
 GET    /v1/applications/field/{fieldId}
 ```
+
 Get all applications for a field.
 
 **Query Parameters:**
+
 - `crop_season_id` (optional): Filter by crop season
 - `category` (optional): Filter by item category (FERTILIZER, PESTICIDE, etc.)
 - `start_date` (optional): Filter by date range
@@ -219,11 +233,13 @@ Get all applications for a field.
 ```
 GET    /v1/applications/field/{fieldId}/summary
 ```
+
 Get comprehensive summary of all inputs applied to a crop season.
 
 **Required Query Params:** `crop_season_id`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -263,7 +279,9 @@ Get comprehensive summary of all inputs applied to a crop season.
         "Malathion": 5.0
       }
     },
-    "timeline": [ /* chronological list of applications */ ]
+    "timeline": [
+      /* chronological list of applications */
+    ]
   }
 }
 ```
@@ -273,6 +291,7 @@ Get comprehensive summary of all inputs applied to a crop season.
 ```
 GET    /v1/applications/{applicationId}
 ```
+
 Get a single application by ID.
 
 ### Planning
@@ -280,15 +299,18 @@ Get a single application by ID.
 ```
 POST   /v1/applications/plan
 ```
+
 Generate an application plan for a crop season.
 
 **Request Body:**
+
 ```json
 {
   "field_id": "field-123",
   "crop_season_id": "season-2024-wheat",
   "crop_type": "wheat",
-  "custom_applications": [  // Optional
+  "custom_applications": [
+    // Optional
     {
       "stage": "basal",
       "days_after_planting": 0,
@@ -306,9 +328,11 @@ Generate an application plan for a crop season.
 ```
 GET    /v1/applications/plan/{fieldId}
 ```
+
 Get application plans for a field.
 
 **Query Parameters:**
+
 - `crop_season_id` (optional): Filter by crop season
 
 ### Safety & Compliance
@@ -316,12 +340,14 @@ Get application plans for a field.
 ```
 GET    /v1/applications/field/{fieldId}/withholding-check
 ```
+
 Check if harvest is safe based on pesticide withholding periods.
 
 **Required Query Params:** `crop_season_id`
 **Optional Query Params:** `harvest_date` (defaults to today)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -345,6 +371,7 @@ Check if harvest is safe based on pesticide withholding periods.
 ```
 GET    /v1/applications/field/{fieldId}/safe-harvest-date
 ```
+
 Get the earliest safe harvest date for a field.
 
 **Required Query Params:** `crop_season_id`
@@ -354,11 +381,13 @@ Get the earliest safe harvest date for a field.
 ```
 GET    /v1/applications/field/{fieldId}/costs
 ```
+
 Calculate total input costs for a crop season.
 
 **Required Query Params:** `crop_season_id`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -382,6 +411,7 @@ Calculate total input costs for a crop season.
 GET    /v1/enums/application-methods
 GET    /v1/enums/application-purposes
 ```
+
 Get available enum values with descriptions.
 
 ## Usage Examples
@@ -444,21 +474,25 @@ curl "http://localhost:8095/v1/applications/field/field-123/summary?crop_season_
 ## Integration with Other Services
 
 ### Field Service
+
 - Link applications to specific fields
 - Use field boundaries for area calculation
 - Track applications across multiple crop seasons
 
 ### Agro Advisor Service
+
 - Generate recommendations based on application history
 - Analyze efficacy of different application methods
 - Suggest optimal timing for applications
 
 ### Weather Service
+
 - Validate weather conditions at application time
 - Alert on unsuitable conditions (high wind, rain)
 - Historical weather correlation with efficacy
 
 ### Task Service
+
 - Create tasks for planned applications
 - Schedule reminders for withholding period expiry
 - Track completion status
@@ -466,27 +500,32 @@ curl "http://localhost:8095/v1/applications/field/field-123/summary?crop_season_
 ## Best Practices
 
 ### 1. Recording Applications
+
 - Record applications as soon as possible after completion
 - Include accurate weather conditions
 - Always specify PPE used for safety tracking
 - Rate efficacy after observing results
 
 ### 2. Withholding Periods
+
 - Always check withholding periods before harvest
 - Set conservative withholding periods when uncertain
 - Consider extending periods for export crops
 
 ### 3. Cost Tracking
+
 - Ensure inventory items have accurate unit costs
 - Review cost summaries to optimize input expenses
 - Compare costs across seasons and fields
 
 ### 4. Application Planning
+
 - Create plans at season start
 - Update based on soil tests and plant analysis
 - Review and adjust based on weather and crop performance
 
 ### 5. Inventory Management
+
 - Maintain sufficient stock levels
 - Track batch/lot numbers for traceability
 - Monitor expiry dates for pesticides
@@ -595,31 +634,37 @@ enum PlanStatus {
 Use the provided `test_application_tracker.http` file with REST Client or similar tools to test all endpoints.
 
 ### Prerequisites
+
 1. Start the inventory service: `docker-compose up inventory-service`
 2. Ensure database is migrated: `prisma migrate dev`
 3. Create some inventory items for testing
 
 ### Running Tests
+
 Open `test_application_tracker.http` in VS Code with REST Client extension and execute requests sequentially.
 
 ## Troubleshooting
 
 ### Issue: "Insufficient stock" error
+
 - Check available quantity in inventory: `GET /v1/inventory/items/{itemId}`
 - Verify quantity is not reserved
 - Add stock if needed: `POST /v1/inventory/stock/in`
 
 ### Issue: "Item not found" error
+
 - Verify item_id is correct
 - Check item exists in inventory
 - Ensure item is not deleted
 
 ### Issue: Withholding period not calculated
+
 - Set `withholding_period_days` explicitly if not using default
 - Check item category is correct (PESTICIDE, HERBICIDE, etc.)
 - Verify safe_harvest_date is calculated in response
 
 ### Issue: Application not deducting from inventory
+
 - Check stock movement was created: `GET /v1/inventory/movements?item_id={itemId}`
 - Verify application was recorded successfully
 - Check batch/lot tracking is working

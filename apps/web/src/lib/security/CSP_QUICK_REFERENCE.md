@@ -3,6 +3,7 @@
 ## TL;DR
 
 ### What Changed?
+
 - ✅ **Strict CSP** with nonce-based scripts/styles
 - ✅ **No more `'unsafe-inline'`** in production
 - ✅ **CSP violation reporting** at `/api/csp-report`
@@ -10,6 +11,7 @@
 ### For Developers
 
 #### ❌ Don't Do This (CSP violations)
+
 ```jsx
 // Inline event handlers
 <button onclick="handleClick()">Click</button>
@@ -26,6 +28,7 @@ new Function('code')();
 ```
 
 #### ✅ Do This Instead
+
 ```jsx
 // React event handlers
 <button onClick={handleClick}>Click</button>
@@ -43,8 +46,9 @@ const fn = () => code();
 ## Common Scenarios
 
 ### 1. Need Inline Script (Server Component)
+
 ```tsx
-import { getNonce, createInlineScript } from '@/lib/security/nonce';
+import { getNonce, createInlineScript } from "@/lib/security/nonce";
 
 export default async function Page() {
   const nonce = await getNonce();
@@ -53,11 +57,12 @@ export default async function Page() {
 ```
 
 ### 2. Need Dynamic Styles
+
 ```tsx
 // Use CSS custom properties
 <div
   className="dynamic-box"
-  style={{ '--bg-color': color } as React.CSSProperties}
+  style={{ "--bg-color": color } as React.CSSProperties}
 >
   Content
 </div>
@@ -66,13 +71,15 @@ export default async function Page() {
 ```
 
 ### 3. Loading External Script
-```tsx
-import Script from 'next/script';
 
-<Script src="https://example.com/script.js" strategy="lazyOnload" />
+```tsx
+import Script from "next/script";
+
+<Script src="https://example.com/script.js" strategy="lazyOnload" />;
 ```
 
 ### 4. Need to Add External Resource
+
 ```typescript
 // Edit: /apps/web/src/lib/security/csp-config.ts
 
@@ -105,15 +112,19 @@ npm start
 ## Quick Fixes
 
 ### "Refused to execute inline script"
+
 **Solution**: Use `createInlineScript()` with nonce
 
 ### "Refused to apply inline style"
+
 **Solution**: Use CSS classes or custom properties
 
 ### "Refused to load script from X"
+
 **Solution**: Add domain to CSP config or use `next/script`
 
 ### "Refused to connect to X"
+
 **Solution**: Add domain to `connect-src` in CSP config
 
 ## File Locations
@@ -172,13 +183,13 @@ report-uri /api/csp-report;
 
 ## Environment Differences
 
-| Feature | Development | Production |
-|---------|-------------|------------|
-| `'unsafe-eval'` | ✅ Allowed (HMR) | ❌ Blocked |
-| `'unsafe-inline'` styles | ✅ Allowed | ❌ Blocked |
-| Localhost | ✅ Allowed | ❌ Blocked |
-| HTTPS enforcement | ❌ Optional | ✅ Required |
-| Report-only mode | ⚙️ Configurable | ❌ Enforcing |
+| Feature                  | Development      | Production   |
+| ------------------------ | ---------------- | ------------ |
+| `'unsafe-eval'`          | ✅ Allowed (HMR) | ❌ Blocked   |
+| `'unsafe-inline'` styles | ✅ Allowed       | ❌ Blocked   |
+| Localhost                | ✅ Allowed       | ❌ Blocked   |
+| HTTPS enforcement        | ❌ Optional      | ✅ Required  |
+| Report-only mode         | ⚙️ Configurable  | ❌ Enforcing |
 
 ## One-Liners
 

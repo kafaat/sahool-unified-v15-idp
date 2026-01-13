@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 // Sahool Farms Map Component
 // خريطة المزارع التفاعلية
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { getHealthScoreColor } from '@/lib/utils';
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { getHealthScoreColor } from "@/lib/utils";
 
 // Minimal interface for map farms - compatible with both Farm and MapFarm types
 export interface BaseFarmData {
@@ -23,24 +23,23 @@ export interface BaseFarmData {
 // Dynamic import for Leaflet (SSR not supported)
 // Using type assertions to preserve react-leaflet prop types
 const MapContainer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
-  { ssr: false }
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false },
 ) as any;
 const TileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
-  { ssr: false }
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false },
 ) as any;
 const Marker = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Marker),
-  { ssr: false }
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false },
 ) as any;
-const Popup = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Popup),
-  { ssr: false }
-) as any;
+const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
+  ssr: false,
+}) as any;
 const CircleMarker = dynamic(
-  () => import('react-leaflet').then((mod) => mod.CircleMarker),
-  { ssr: false }
+  () => import("react-leaflet").then((mod) => mod.CircleMarker),
+  { ssr: false },
 ) as any;
 
 interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
@@ -60,7 +59,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   onFarmClick,
   selectedFarmId,
   showHealthOverlay = true,
-  className = '',
+  className = "",
 }: FarmsMapProps<T>) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -69,10 +68,10 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   }, []);
 
   const getMarkerColor = (healthScore: number): string => {
-    if (healthScore >= 80) return '#22c55e'; // green
-    if (healthScore >= 60) return '#eab308'; // yellow
-    if (healthScore >= 40) return '#f97316'; // orange
-    return '#ef4444'; // red
+    if (healthScore >= 80) return "#22c55e"; // green
+    if (healthScore >= 60) return "#eab308"; // yellow
+    if (healthScore >= 40) return "#f97316"; // orange
+    return "#ef4444"; // red
   };
 
   if (!isMounted) {
@@ -89,7 +88,9 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
     <div className={`relative rounded-lg overflow-hidden ${className}`}>
       {/* Map Legend */}
       <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-3">
-        <h4 className="text-sm font-semibold mb-2 text-gray-700">مستوى الصحة</h4>
+        <h4 className="text-sm font-semibold mb-2 text-gray-700">
+          مستوى الصحة
+        </h4>
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-green-500"></span>
@@ -113,7 +114,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
       <MapContainer
         center={YEMEN_CENTER}
         zoom={DEFAULT_ZOOM}
-        style={{ height: '100%', minHeight: '500px', width: '100%' }}
+        style={{ height: "100%", minHeight: "500px", width: "100%" }}
         scrollWheelZoom={true}
       >
         {/* Base tile layer - OpenStreetMap */}
@@ -128,8 +129,10 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
             key={farm.id}
             center={[farm.coordinates.lat, farm.coordinates.lng]}
             radius={selectedFarmId === farm.id ? 12 : 8}
-            fillColor={showHealthOverlay ? getMarkerColor(farm.healthScore) : '#3b82f6'}
-            color={selectedFarmId === farm.id ? '#1e40af' : '#ffffff'}
+            fillColor={
+              showHealthOverlay ? getMarkerColor(farm.healthScore) : "#3b82f6"
+            }
+            color={selectedFarmId === farm.id ? "#1e40af" : "#ffffff"}
             weight={selectedFarmId === farm.id ? 3 : 2}
             fillOpacity={0.8}
             eventHandlers={{
@@ -138,25 +141,31 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
           >
             <Popup>
               <div className="text-right font-arabic" dir="rtl">
-                <h3 className="font-bold text-lg mb-2">{farm.nameAr || farm.name || 'مزرعة'}</h3>
+                <h3 className="font-bold text-lg mb-2">
+                  {farm.nameAr || farm.name || "مزرعة"}
+                </h3>
                 <div className="space-y-1 text-sm">
                   {farm.governorate && (
                     <p>
-                      <span className="text-gray-500">المحافظة:</span>{' '}
+                      <span className="text-gray-500">المحافظة:</span>{" "}
                       <span className="font-medium">{farm.governorate}</span>
                     </p>
                   )}
                   <p>
-                    <span className="text-gray-500">المساحة:</span>{' '}
-                    <span className="font-medium">{farm.area.toFixed(1)} هكتار</span>
+                    <span className="text-gray-500">المساحة:</span>{" "}
+                    <span className="font-medium">
+                      {farm.area.toFixed(1)} هكتار
+                    </span>
                   </p>
                   <p>
-                    <span className="text-gray-500">المحاصيل:</span>{' '}
-                    <span className="font-medium">{farm.crops.join(', ')}</span>
+                    <span className="text-gray-500">المحاصيل:</span>{" "}
+                    <span className="font-medium">{farm.crops.join(", ")}</span>
                   </p>
                   <p>
-                    <span className="text-gray-500">مستوى الصحة:</span>{' '}
-                    <span className={`font-bold px-2 py-0.5 rounded ${getHealthScoreColor(farm.healthScore)}`}>
+                    <span className="text-gray-500">مستوى الصحة:</span>{" "}
+                    <span
+                      className={`font-bold px-2 py-0.5 rounded ${getHealthScoreColor(farm.healthScore)}`}
+                    >
                       {farm.healthScore}%
                     </span>
                   </p>

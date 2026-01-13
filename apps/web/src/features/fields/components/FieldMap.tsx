@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Field Map Component
  * مكون خريطة الحقل
  */
 
-import React from 'react';
-import { MapPin } from 'lucide-react';
-import type { Field } from '../types';
+import React from "react";
+import { MapPin } from "lucide-react";
+import type { Field } from "../types";
 
 interface FieldMapProps {
   field?: Field;
@@ -19,8 +19,7 @@ interface FieldMapProps {
 export const FieldMap: React.FC<FieldMapProps> = ({
   field,
   fields,
-  height = '400px',
-
+  height = "400px",
 }) => {
   // Interactive map with Leaflet will be implemented in future release
   // Current implementation shows a placeholder with field count
@@ -37,7 +36,9 @@ export const FieldMap: React.FC<FieldMapProps> = ({
       <div className="w-full h-full flex flex-col items-center justify-center">
         <MapPin className="w-16 h-16 text-gray-400 mb-4" />
         <p className="text-gray-600 font-medium">خريطة الحقول</p>
-        <p className="text-sm text-gray-500">سيتم تفعيل الخريطة التفاعلية قريباً</p>
+        <p className="text-sm text-gray-500">
+          سيتم تفعيل الخريطة التفاعلية قريباً
+        </p>
 
         {displayFields.length > 0 && (
           <div className="mt-4 text-center">

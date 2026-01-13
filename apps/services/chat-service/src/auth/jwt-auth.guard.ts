@@ -8,8 +8,8 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-} from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
+} from "@nestjs/common";
+import * as jwt from "jsonwebtoken";
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -18,39 +18,48 @@ export class JwtAuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      throw new UnauthorizedException('Missing authorization header');
+      throw new UnauthorizedException("Missing authorization header");
     }
 
-    const [type, token] = authHeader.split(' ');
+    const [type, token] = authHeader.split(" ");
 
-    if (type !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Invalid authorization format');
+    if (type !== "Bearer" || !token) {
+      throw new UnauthorizedException("Invalid authorization format");
     }
 
     try {
       const secret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET;
       if (!secret) {
-        throw new UnauthorizedException('JWT secret not configured');
+        throw new UnauthorizedException("JWT secret not configured");
       }
 
       // SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
       // Never trust algorithm from environment variables or token header
-      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
+      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = [
+        "HS256",
+        "HS384",
+        "HS512",
+        "RS256",
+        "RS384",
+        "RS512",
+      ];
 
       // Decode header without verification to check algorithm
       const header = jwt.decode(token, { complete: true })?.header;
       if (!header || !header.alg) {
-        throw new UnauthorizedException('Invalid token: missing algorithm');
+        throw new UnauthorizedException("Invalid token: missing algorithm");
       }
 
       // Reject 'none' algorithm explicitly
-      if (header.alg.toLowerCase() === 'none') {
-        throw new UnauthorizedException('Invalid token: none algorithm not allowed');
+      if (header.alg.toLowerCase() === "none") {
+        throw new UnauthorizedException(
+          "Invalid token: none algorithm not allowed",
+        );
       }
 
       // Verify algorithm is in whitelist
       if (!ALLOWED_ALGORITHMS.includes(header.alg as jwt.Algorithm)) {
-        throw new UnauthorizedException('Invalid token: unsupported algorithm');
+        throw new UnauthorizedException("Invalid token: unsupported algorithm");
       }
 
       const decoded = jwt.verify(token, secret, {
@@ -68,12 +77,12 @@ export class JwtAuthGuard implements CanActivate {
       return true;
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
-        throw new UnauthorizedException('Token expired');
+        throw new UnauthorizedException("Token expired");
       }
       if (error instanceof jwt.JsonWebTokenError) {
-        throw new UnauthorizedException('Invalid token');
+        throw new UnauthorizedException("Invalid token");
       }
-      throw new UnauthorizedException('Authentication failed');
+      throw new UnauthorizedException("Authentication failed");
     }
   }
 }
@@ -92,9 +101,9 @@ export class OptionalJwtAuthGuard implements CanActivate {
       return true; // Allow unauthenticated
     }
 
-    const [type, token] = authHeader.split(' ');
+    const [type, token] = authHeader.split(" ");
 
-    if (type !== 'Bearer' || !token) {
+    if (type !== "Bearer" || !token) {
       return true; // Allow but don't authenticate
     }
 
@@ -106,7 +115,14 @@ export class OptionalJwtAuthGuard implements CanActivate {
 
       // SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
       // Never trust algorithm from environment variables or token header
-      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
+      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = [
+        "HS256",
+        "HS384",
+        "HS512",
+        "RS256",
+        "RS384",
+        "RS512",
+      ];
 
       // Decode header without verification to check algorithm
       const header = jwt.decode(token, { complete: true })?.header;
@@ -115,7 +131,7 @@ export class OptionalJwtAuthGuard implements CanActivate {
       }
 
       // Reject 'none' algorithm explicitly
-      if (header.alg.toLowerCase() === 'none') {
+      if (header.alg.toLowerCase() === "none") {
         return true; // Allow unauthenticated for optional guard
       }
 

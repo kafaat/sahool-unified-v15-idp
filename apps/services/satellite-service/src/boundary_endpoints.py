@@ -9,19 +9,20 @@ import json
 import logging
 from datetime import datetime
 
-from fastapi import HTTPException, Query, Body
+from fastapi import HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import Optional
 
 from .field_boundary_detector import BoundaryChange
 
 
 class RefineBoundaryRequest(BaseModel):
     """Request model for boundary refinement"""
+
     coords: list[list[float]] = Field(
         ..., description="Initial boundary coordinates [[lon, lat], ...]"
     )
     buffer_m: float = Field(50, description="Refinement buffer in meters")
+
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,5 @@
 # Redis Sentinel - High Availability Configuration
+
 # دليل التوافر العالي لـ Redis Sentinel
 
 ## نظرة عامة | Overview
@@ -232,7 +233,7 @@ print(f"Slaves: {sentinel_info['slaves']}")
 #### الإعداد الأساسي | Basic Setup
 
 ```typescript
-import { getRedisSentinelClient } from '@sahool/cache/redis-sentinel';
+import { getRedisSentinelClient } from "@sahool/cache/redis-sentinel";
 
 // الحصول على Redis Client
 const redis = getRedisSentinelClient();
@@ -246,32 +247,32 @@ console.log(`✓ Connected: ${isConnected}`);
 
 ```typescript
 // تعيين قيمة
-await redis.set('user:1000', 'Ahmed', { ex: 3600 }); // تنتهي بعد ساعة
+await redis.set("user:1000", "Ahmed", { ex: 3600 }); // تنتهي بعد ساعة
 
 // قراءة قيمة (من Slave)
-const value = await redis.get('user:1000', true);
+const value = await redis.get("user:1000", true);
 console.log(`User: ${value}`);
 
 // حذف مفتاح
-await redis.delete('user:1000');
+await redis.delete("user:1000");
 
 // التحقق من وجود مفتاح
-const exists = await redis.exists('user:1000');
+const exists = await redis.exists("user:1000");
 ```
 
 #### Hash Operations
 
 ```typescript
 // تعيين قيم Hash
-await redis.hset('user:1000:profile', 'name', 'Ahmed');
-await redis.hset('user:1000:profile', 'email', 'ahmed@example.com');
-await redis.hset('user:1000:profile', 'age', '30');
+await redis.hset("user:1000:profile", "name", "Ahmed");
+await redis.hset("user:1000:profile", "email", "ahmed@example.com");
+await redis.hset("user:1000:profile", "age", "30");
 
 // قراءة قيمة واحدة
-const name = await redis.hget('user:1000:profile', 'name');
+const name = await redis.hget("user:1000:profile", "name");
 
 // قراءة جميع القيم
-const profile = await redis.hgetall('user:1000:profile');
+const profile = await redis.hgetall("user:1000:profile");
 console.log(profile);
 // { name: 'Ahmed', email: 'ahmed@example.com', age: '30' }
 ```
@@ -280,14 +281,14 @@ console.log(profile);
 
 ```typescript
 // إضافة عناصر
-await redis.rpush('notifications:1000', 'Welcome!', 'New message');
+await redis.rpush("notifications:1000", "Welcome!", "New message");
 
 // قراءة القائمة
-const notifications = await redis.lrange('notifications:1000', 0, -1);
+const notifications = await redis.lrange("notifications:1000", 0, -1);
 console.log(notifications); // ['Welcome!', 'New message']
 
 // إزالة أول عنصر
-const first = await redis.lpop('notifications:1000');
+const first = await redis.lpop("notifications:1000");
 ```
 
 #### Pipeline for Batch Operations
@@ -295,9 +296,9 @@ const first = await redis.lpop('notifications:1000');
 ```typescript
 // استخدام Pipeline لعمليات متعددة
 const pipeline = redis.pipeline();
-pipeline.set('key1', 'value1');
-pipeline.set('key2', 'value2');
-pipeline.set('key3', 'value3');
+pipeline.set("key1", "value1");
+pipeline.set("key2", "value2");
+pipeline.set("key3", "value3");
 const results = await pipeline.exec();
 ```
 
@@ -446,9 +447,9 @@ redis-cli -p 6379 -a $REDIS_PASSWORD MONITOR
 ```yaml
 # prometheus.yml
 scrape_configs:
-  - job_name: 'redis'
+  - job_name: "redis"
     static_configs:
-      - targets: ['localhost:9121']
+      - targets: ["localhost:9121"]
 ```
 
 ---
@@ -844,6 +845,7 @@ docker-compose -f docker-compose.redis-ha.yml up -d redis-master
 ## الدعم | Support
 
 للمساعدة أو الإبلاغ عن مشكلة:
+
 - 📧 Email: support@sahool.platform
 - 📝 GitHub Issues: [sahool-unified/issues](https://github.com/sahool/sahool-unified/issues)
 - 📖 Documentation: [docs.sahool.platform](https://docs.sahool.platform)

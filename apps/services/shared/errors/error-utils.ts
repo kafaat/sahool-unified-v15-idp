@@ -6,14 +6,14 @@
  * @description Utility functions for error handling
  */
 
-import { Logger } from '@nestjs/common';
+import { Logger } from "@nestjs/common";
 import {
   AppException,
   DatabaseException,
   ExternalServiceException,
   InternalServerException,
-} from './exceptions';
-import { ErrorCode } from './error-codes';
+} from "./exceptions";
+import { ErrorCode } from "./error-codes";
 
 /**
  * Error Handler Decorator
@@ -54,9 +54,13 @@ export function HandleErrors(errorCode?: ErrorCode) {
         }
 
         // Otherwise, throw internal server error
-        throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR, undefined, {
-          originalError: error.message,
-        });
+        throw new InternalServerException(
+          ErrorCode.INTERNAL_SERVER_ERROR,
+          undefined,
+          {
+            originalError: error.message,
+          },
+        );
       }
     };
 
@@ -85,9 +89,13 @@ export async function handleAsync<T>(
       return fallbackValue;
     }
 
-    throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR, undefined, {
-      originalError: error.message,
-    });
+    throw new InternalServerException(
+      ErrorCode.INTERNAL_SERVER_ERROR,
+      undefined,
+      {
+        originalError: error.message,
+      },
+    );
   }
 }
 
@@ -147,7 +155,7 @@ export async function retryWithBackoff<T>(
 export class CircuitBreaker {
   private failureCount = 0;
   private lastFailureTime: number | null = null;
-  private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
+  private state: "CLOSED" | "OPEN" | "HALF_OPEN" = "CLOSED";
 
   constructor(
     private readonly threshold: number = 5,
@@ -156,15 +164,15 @@ export class CircuitBreaker {
   ) {}
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
-    if (this.state === 'OPEN') {
+    if (this.state === "OPEN") {
       if (Date.now() - this.lastFailureTime! > this.resetTimeout) {
-        this.state = 'HALF_OPEN';
+        this.state = "HALF_OPEN";
       } else {
         throw new ExternalServiceException(
           ErrorCode.EXTERNAL_SERVICE_ERROR,
           {
-            en: 'Service circuit breaker is open',
-            ar: 'قاطع دائرة الخدمة مفتوح',
+            en: "Service circuit breaker is open",
+            ar: "قاطع دائرة الخدمة مفتوح",
           },
           {
             state: this.state,
@@ -178,8 +186,8 @@ export class CircuitBreaker {
       const result = await fn();
 
       // Success - reset circuit breaker
-      if (this.state === 'HALF_OPEN') {
-        this.state = 'CLOSED';
+      if (this.state === "HALF_OPEN") {
+        this.state = "CLOSED";
         this.failureCount = 0;
       }
 
@@ -189,7 +197,7 @@ export class CircuitBreaker {
       this.lastFailureTime = Date.now();
 
       if (this.failureCount >= this.threshold) {
-        this.state = 'OPEN';
+        this.state = "OPEN";
       }
 
       throw error;
@@ -205,7 +213,7 @@ export class CircuitBreaker {
   }
 
   reset() {
-    this.state = 'CLOSED';
+    this.state = "CLOSED";
     this.failureCount = 0;
     this.lastFailureTime = null;
   }
@@ -217,17 +225,21 @@ export class CircuitBreaker {
  */
 export function isDatabaseError(error: any): boolean {
   // Prisma errors
-  if (error.code && typeof error.code === 'string' && error.code.startsWith('P')) {
+  if (
+    error.code &&
+    typeof error.code === "string" &&
+    error.code.startsWith("P")
+  ) {
     return true;
   }
 
   // TypeORM errors
-  if (error.name && error.name.includes('QueryFailed')) {
+  if (error.name && error.name.includes("QueryFailed")) {
     return true;
   }
 
   // MongoDB errors
-  if (error.name && error.name === 'MongoError') {
+  if (error.name && error.name === "MongoError") {
     return true;
   }
 
@@ -240,10 +252,10 @@ export function isDatabaseError(error: any): boolean {
  */
 export function isNetworkError(error: any): boolean {
   return (
-    error.code === 'ECONNREFUSED' ||
-    error.code === 'ENOTFOUND' ||
-    error.code === 'ETIMEDOUT' ||
-    error.code === 'ECONNRESET'
+    error.code === "ECONNREFUSED" ||
+    error.code === "ENOTFOUND" ||
+    error.code === "ETIMEDOUT" ||
+    error.code === "ECONNRESET"
   );
 }
 
@@ -263,7 +275,7 @@ export function isRetryable(error: any): boolean {
 
   // Some database errors are retryable
   if (isDatabaseError(error)) {
-    const retryablePrismaCodes = ['P1001', 'P1002', 'P1008', 'P1017'];
+    const retryablePrismaCodes = ["P1001", "P1002", "P1008", "P1017"];
     if (retryablePrismaCodes.includes(error.code)) {
       return true;
     }
@@ -285,11 +297,11 @@ export function getErrorMessage(error: any): string {
     return error.message;
   }
 
-  if (typeof error === 'string') {
+  if (typeof error === "string") {
     return error;
   }
 
-  return 'Unknown error occurred';
+  return "Unknown error occurred";
 }
 
 /**
@@ -302,7 +314,7 @@ export function logError(
   context?: Record<string, any>,
 ) {
   const errorMessage = getErrorMessage(error);
-  const errorCode = error instanceof AppException ? error.errorCode : 'UNKNOWN';
+  const errorCode = error instanceof AppException ? error.errorCode : "UNKNOWN";
 
   logger.error(`[${errorCode}] ${errorMessage}`, {
     error: error instanceof Error ? error.stack : error,
@@ -327,8 +339,8 @@ export function sanitizeError(error: any): any {
 
   return {
     code: ErrorCode.INTERNAL_SERVER_ERROR,
-    message: 'An error occurred',
-    messageAr: 'حدث خطأ',
+    message: "An error occurred",
+    messageAr: "حدث خطأ",
   };
 }
 

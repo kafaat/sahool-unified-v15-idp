@@ -174,12 +174,12 @@ overallScore = (ndviScore * 0.5) +
 
 ### Health Status Levels
 
-| Score Range | Status | Color | Arabic |
-|------------|--------|-------|--------|
-| 80-100 | Excellent | Green | ممتاز |
-| 60-79 | Good | Light Green | جيد |
-| 40-59 | Moderate | Orange | متوسط |
-| 0-39 | Poor | Red | ضعيف |
+| Score Range | Status    | Color       | Arabic |
+| ----------- | --------- | ----------- | ------ |
+| 80-100      | Excellent | Green       | ممتاز  |
+| 60-79       | Good      | Light Green | جيد    |
+| 40-59       | Moderate  | Orange      | متوسط  |
+| 0-39        | Poor      | Red         | ضعيف   |
 
 ## Customization
 
@@ -440,6 +440,7 @@ Container(
 **Problem**: Widget shows blank or error
 
 **Solution**: Ensure Field entity has valid data:
+
 ```dart
 // Check NDVI value
 assert(field.ndviCurrent >= 0 && field.ndviCurrent <= 1);
@@ -453,6 +454,7 @@ assert(field.pendingTasks >= 0);
 **Problem**: Expanded view has no recommendations
 
 **Solution**: Check health score calculation:
+
 ```dart
 final healthData = _calculateHealthData(field);
 print('Health score: ${healthData.score}');
@@ -464,6 +466,7 @@ print('Recommendations: ${healthData.recommendations.length}');
 **Problem**: Tap on "Create Task" does nothing
 
 **Solution**: Verify route is configured:
+
 ```dart
 // In router configuration
 GoRoute(path: '/tasks/create', builder: /* ... */),
@@ -536,6 +539,7 @@ Part of the SAHOOL Unified Platform.
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: [sahool-unified-v15-idp/issues]
 - Documentation: [docs/field-health-widget.md]
 - Email: support@sahool.com

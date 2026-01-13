@@ -3,31 +3,31 @@
  * طبقة API لميزة خريطة الحقول
  */
 
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== 'undefined') {
-  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+if (!API_BASE_URL && typeof window !== "undefined") {
+  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
 }
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 10000, // 10 seconds timeout
 });
 
 // Add auth token interceptor
 // SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 api.interceptors.request.use((config) => {
   // Get token from cookie using secure cookie parser
-  if (typeof window !== 'undefined') {
-    const token = Cookies.get('access_token');
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("access_token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -38,18 +38,18 @@ api.interceptors.request.use((config) => {
 
 // GeoJSON Types (simplified for field boundaries)
 export interface GeoJSONPolygon {
-  type: 'Polygon';
+  type: "Polygon";
   coordinates: number[][][];
 }
 
 export interface GeoJSONFeature<T = Record<string, unknown>> {
-  type: 'Feature';
+  type: "Feature";
   geometry: GeoJSONPolygon;
   properties: T;
 }
 
 export interface GeoJSONFeatureCollection<T = Record<string, unknown>> {
-  type: 'FeatureCollection';
+  type: "FeatureCollection";
   features: GeoJSONFeature<T>[];
 }
 
@@ -59,10 +59,10 @@ export interface Field {
   name: string;
   nameAr: string;
   area: number;
-  areaUnit: 'hectare' | 'dunum' | 'acre';
+  areaUnit: "hectare" | "dunum" | "acre";
   geometry: GeoJSONPolygon;
   cropType?: string;
-  status: 'active' | 'fallow' | 'harvested';
+  status: "active" | "fallow" | "harvested";
   governorate: string;
   district: string;
   createdAt: string;
@@ -80,14 +80,14 @@ export interface FieldUpdate {
   name?: string;
   nameAr?: string;
   cropType?: string;
-  status?: Field['status'];
+  status?: Field["status"];
 }
 
 export interface FieldFilters {
   governorate?: string;
   district?: string;
   cropType?: string;
-  status?: Field['status'];
+  status?: Field["status"];
   search?: string;
 }
 
@@ -98,11 +98,11 @@ export const fieldMapApi = {
    */
   getFields: async (filters?: FieldFilters): Promise<Field[]> => {
     const params = new URLSearchParams();
-    if (filters?.governorate) params.set('governorate', filters.governorate);
-    if (filters?.district) params.set('district', filters.district);
-    if (filters?.cropType) params.set('crop_type', filters.cropType);
-    if (filters?.status) params.set('status', filters.status);
-    if (filters?.search) params.set('search', filters.search);
+    if (filters?.governorate) params.set("governorate", filters.governorate);
+    if (filters?.district) params.set("district", filters.district);
+    if (filters?.cropType) params.set("crop_type", filters.cropType);
+    if (filters?.status) params.set("status", filters.status);
+    if (filters?.search) params.set("search", filters.search);
 
     const response = await api.get(`/api/v1/fields?${params.toString()}`);
     return response.data;
@@ -120,7 +120,7 @@ export const fieldMapApi = {
    * Create new field
    */
   createField: async (data: FieldCreate): Promise<Field> => {
-    const response = await api.post('/api/v1/fields', data);
+    const response = await api.post("/api/v1/fields", data);
     return response.data;
   },
 
@@ -142,12 +142,16 @@ export const fieldMapApi = {
   /**
    * Get field GeoJSON for map display
    */
-  getFieldsGeoJSON: async (filters?: FieldFilters): Promise<GeoJSONFeatureCollection<Field>> => {
+  getFieldsGeoJSON: async (
+    filters?: FieldFilters,
+  ): Promise<GeoJSONFeatureCollection<Field>> => {
     const params = new URLSearchParams();
-    if (filters?.governorate) params.set('governorate', filters.governorate);
-    if (filters?.status) params.set('status', filters.status);
+    if (filters?.governorate) params.set("governorate", filters.governorate);
+    if (filters?.status) params.set("status", filters.status);
 
-    const response = await api.get(`/api/v1/fields/geojson?${params.toString()}`);
+    const response = await api.get(
+      `/api/v1/fields/geojson?${params.toString()}`,
+    );
     return response.data;
   },
 
@@ -160,7 +164,7 @@ export const fieldMapApi = {
     byCrop: Record<string, number>;
     byGovernorate: Record<string, number>;
   }> => {
-    const response = await api.get('/api/v1/fields/stats');
+    const response = await api.get("/api/v1/fields/stats");
     return response.data;
   },
 };

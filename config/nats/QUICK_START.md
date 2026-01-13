@@ -50,16 +50,18 @@ docker-compose up -d nats
 Use the generated credential files in `config/nats/creds/`:
 
 **Node.js/TypeScript:**
+
 ```typescript
-import { connect } from 'nats';
+import { connect } from "nats";
 
 const nc = await connect({
-    servers: 'nats://localhost:4222',
-    userCreds: './config/nats/creds/APP_field-service.creds'
+  servers: "nats://localhost:4222",
+  userCreds: "./config/nats/creds/APP_field-service.creds",
 });
 ```
 
 **Go:**
+
 ```go
 nc, err := nats.Connect(
     "nats://localhost:4222",
@@ -68,6 +70,7 @@ nc, err := nats.Connect(
 ```
 
 **Python:**
+
 ```python
 await nc.connect(
     servers=["nats://localhost:4222"],
@@ -81,18 +84,18 @@ await nc.connect(
 
 After setup, you'll have these credential files:
 
-| Credential File | Use Case | Permissions |
-|----------------|----------|-------------|
-| `SYS_system-monitor.creds` | System monitoring | Read-only system metrics |
-| `APP_admin.creds` | Administration | Full access to all subjects |
-| `APP_monitor.creds` | Application monitoring | Read-only app subjects |
-| `APP_field-service.creds` | Field operations | Field-related subjects |
-| `APP_weather-service.creds` | Weather data | Weather subjects |
-| `APP_iot-service.creds` | IoT sensors | IoT data subjects |
-| `APP_notification-service.creds` | Notifications | Notification subjects |
-| `APP_marketplace-service.creds` | Marketplace | Marketplace subjects |
-| `APP_billing-service.creds` | Billing | Billing subjects |
-| `APP_chat-service.creds` | Chat | Chat message subjects |
+| Credential File                  | Use Case               | Permissions                 |
+| -------------------------------- | ---------------------- | --------------------------- |
+| `SYS_system-monitor.creds`       | System monitoring      | Read-only system metrics    |
+| `APP_admin.creds`                | Administration         | Full access to all subjects |
+| `APP_monitor.creds`              | Application monitoring | Read-only app subjects      |
+| `APP_field-service.creds`        | Field operations       | Field-related subjects      |
+| `APP_weather-service.creds`      | Weather data           | Weather subjects            |
+| `APP_iot-service.creds`          | IoT sensors            | IoT data subjects           |
+| `APP_notification-service.creds` | Notifications          | Notification subjects       |
+| `APP_marketplace-service.creds`  | Marketplace            | Marketplace subjects        |
+| `APP_billing-service.creds`      | Billing                | Billing subjects            |
+| `APP_chat-service.creds`         | Chat                   | Chat message subjects       |
 
 ---
 
@@ -143,6 +146,7 @@ docker run --rm -v $(pwd)/config/nats/creds:/creds natsio/nats-box:latest \
 - [ ] Resolver directory populated (`config/nats/resolver/`)
 
 Verify:
+
 ```bash
 # Check file permissions
 ls -la config/nats/creds/
@@ -253,6 +257,7 @@ nats sub -s nats://localhost:4222 \
 **Cause**: Invalid or missing credentials
 
 **Solution**:
+
 ```bash
 # Verify credential file exists
 ls -la config/nats/creds/APP_field-service.creds
@@ -271,6 +276,7 @@ nsc generate creds -a APP -n field-service > config/nats/creds/APP_field-service
 **Cause**: User doesn't have permission for that subject
 
 **Solution**:
+
 ```bash
 # Check current permissions
 nsc describe user -a APP -n field-service
@@ -291,6 +297,7 @@ docker-compose restart nats
 **Cause**: Account JWT not in resolver
 
 **Solution**:
+
 ```bash
 # Verify resolver directory
 ls -la config/nats/resolver/
@@ -308,6 +315,7 @@ docker-compose restart nats
 **Cause**: NATS server not running or network issue
 
 **Solution**:
+
 ```bash
 # Check NATS is running
 docker ps | grep nats

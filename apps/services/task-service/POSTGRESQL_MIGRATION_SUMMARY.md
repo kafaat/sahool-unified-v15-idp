@@ -17,9 +17,11 @@ The task-service has been successfully migrated from in-memory storage to Postgr
 ### Tables Created
 
 #### 1.1 `tasks` Table
+
 The main table for storing agricultural tasks.
 
 **Columns:**
+
 - `task_id` (VARCHAR(50), PK) - Unique task identifier
 - `tenant_id` (VARCHAR(50), indexed) - Multi-tenant support
 - `title` (VARCHAR(200)) - Task title in English
@@ -44,6 +46,7 @@ The main table for storing agricultural tasks.
 - `metadata` (JSONB) - Flexible metadata storage
 
 **Astronomical Integration Fields:**
+
 - `astronomical_score` (INTEGER) - Suitability score (1-10)
 - `moon_phase_at_due_date` (VARCHAR(100)) - Moon phase
 - `lunar_mansion_at_due_date` (VARCHAR(100)) - Lunar mansion (منزلة قمرية)
@@ -53,15 +56,18 @@ The main table for storing agricultural tasks.
 - `astronomical_warnings` (TEXT[]) - Warnings about non-optimal dates
 
 **Indexes:**
+
 - `idx_tasks_tenant_status` (tenant_id, status)
 - `idx_tasks_assigned_status` (assigned_to, status)
 - `idx_tasks_field_status` (field_id, status)
 - `idx_tasks_due_date_status` (due_date, status)
 
 #### 1.2 `task_evidence` Table
+
 Stores evidence attached to tasks (photos, notes, voice recordings, measurements).
 
 **Columns:**
+
 - `evidence_id` (VARCHAR(50), PK) - Unique evidence identifier
 - `task_id` (VARCHAR(50), FK → tasks.task_id, CASCADE) - Parent task
 - `type` (VARCHAR(50)) - Evidence type: photo, note, voice, measurement
@@ -72,17 +78,21 @@ Stores evidence attached to tasks (photos, notes, voice recordings, measurements
 - `updated_at` (TIMESTAMP) - Last update timestamp
 
 **Indexes:**
+
 - `idx_evidence_task_id` (task_id)
 - `idx_evidence_type` (type)
 
 **Relationship:**
+
 - One-to-many from tasks to task_evidence
 - Cascade delete enabled
 
 #### 1.3 `task_history` Table
+
 Audit trail for all task changes and status transitions.
 
 **Columns:**
+
 - `history_id` (UUID, PK) - Unique history entry identifier
 - `task_id` (VARCHAR(50), FK → tasks.task_id, CASCADE) - Parent task
 - `action` (VARCHAR(50)) - Action: created, updated, started, completed, cancelled, assigned
@@ -95,6 +105,7 @@ Audit trail for all task changes and status transitions.
 - `updated_at` (TIMESTAMP) - Record update timestamp
 
 **Indexes:**
+
 - `idx_history_task_id` (task_id)
 - `idx_history_action` (action)
 - `idx_history_created_at` (created_at)
@@ -106,18 +117,22 @@ Audit trail for all task changes and status transitions.
 ### 2.1 New Files Created
 
 #### `/apps/services/task-service/src/models.py`
+
 SQLAlchemy ORM models for Task, TaskEvidence, and TaskHistory.
 
 **Key Features:**
+
 - Inherits from shared database base classes (TimestampMixin, TenantMixin)
 - Full type annotations with Mapped[]
 - Relationship definitions with lazy loading
 - Comprehensive indexes for query performance
 
 #### `/apps/services/task-service/src/repository.py`
+
 Repository pattern for database operations.
 
 **Classes:**
+
 - `TaskRepository` - Synchronous repository with methods:
   - `create_task()` - Create new task with history tracking
   - `get_task_by_id()` - Retrieve task with evidence
@@ -134,15 +149,18 @@ Repository pattern for database operations.
 - `AsyncTaskRepository` - Async version for future async endpoints
 
 **Key Features:**
+
 - Transaction management with automatic rollback
 - History tracking for all state changes
 - Error handling and logging
 - Type-safe parameters
 
 #### `/apps/services/task-service/src/database.py`
+
 Database initialization and session management.
 
 **Functions:**
+
 - `get_database_url()` - Extract from environment variables
 - `init_database()` - Create engine and session factory
 - `close_database()` - Clean shutdown
@@ -152,6 +170,7 @@ Database initialization and session management.
 - `init_demo_data_if_needed()` - Conditional seeding
 
 **Configuration:**
+
 - Connection pooling (size=5, max_overflow=10)
 - Pool timeout: 30 seconds
 - Pool recycle: 3600 seconds (1 hour)
@@ -160,7 +179,9 @@ Database initialization and session management.
 ### 2.2 Modified Files
 
 #### `/apps/services/task-service/requirements.txt`
+
 Added database dependencies:
+
 ```txt
 # Database dependencies
 sqlalchemy>=2.0.0
@@ -170,7 +191,9 @@ greenlet>=3.0.0
 ```
 
 #### `/apps/services/task-service/src/main.py`
+
 **Changes Made:**
+
 1. Added database imports
 2. Removed in-memory storage dictionaries (tasks_db, evidence_db)
 3. Added startup/shutdown event handlers for database lifecycle
@@ -179,6 +202,7 @@ greenlet>=3.0.0
 
 **Remaining Updates Needed:**
 See `MIGRATION_ENDPOINTS_PATCH.md` for detailed instructions on updating:
+
 - `get_today_tasks()`
 - `get_upcoming_tasks()`
 - `get_task_stats()`
@@ -219,6 +243,7 @@ SEED_DEMO_DATA=true         # Seed demo tasks on first run
 ## 4. Migration Benefits
 
 ### 4.1 Problems Solved
+
 ✅ **Data Persistence** - Tasks no longer lost on service restart
 ✅ **Multi-Instance Support** - Can now run multiple task-service instances
 ✅ **Transaction Safety** - ACID compliance for task + evidence updates
@@ -227,6 +252,7 @@ SEED_DEMO_DATA=true         # Seed demo tasks on first run
 ✅ **Scalability** - Connection pooling and proper resource management
 
 ### 4.2 New Capabilities
+
 ✅ **Complex Queries** - Powerful filtering and sorting via SQLAlchemy
 ✅ **Data Integrity** - Foreign key constraints and cascade deletes
 ✅ **Concurrent Access** - Multiple users can safely modify tasks
@@ -239,12 +265,14 @@ SEED_DEMO_DATA=true         # Seed demo tasks on first run
 ## 5. Testing Checklist
 
 ### 5.1 Database Operations
+
 - [ ] Service starts successfully and creates tables
 - [ ] Demo data seeds correctly on first run
 - [ ] Demo data doesn't duplicate on subsequent runs
 - [ ] Database connections properly closed on shutdown
 
 ### 5.2 Task CRUD Operations
+
 - [ ] Create task with all fields
 - [ ] Create task with minimal fields
 - [ ] Retrieve task by ID
@@ -254,35 +282,41 @@ SEED_DEMO_DATA=true         # Seed demo tasks on first run
 - [ ] Delete task (verify evidence cascade)
 
 ### 5.3 Task Status Transitions
+
 - [ ] Start task (pending → in_progress)
 - [ ] Complete task (in_progress → completed)
 - [ ] Cancel task with reason
 - [ ] Verify status history recorded
 
 ### 5.4 Evidence Management
+
 - [ ] Add photo evidence
 - [ ] Add note evidence
 - [ ] Add evidence with location
 - [ ] Verify evidence cascade on task delete
 
 ### 5.5 Astronomical Integration
+
 - [ ] Task creation with astronomical data enrichment
 - [ ] Best days recommendation
 - [ ] Date validation for activities
 - [ ] Warnings for non-optimal dates
 
 ### 5.6 Statistics & Reporting
+
 - [ ] Get task stats by tenant
 - [ ] Get today's tasks
 - [ ] Get upcoming tasks
 - [ ] Week progress calculation
 
 ### 5.7 Multi-Tenancy
+
 - [ ] Tasks isolated by tenant_id
 - [ ] Cannot access other tenant's tasks
 - [ ] Stats only show own tenant's data
 
 ### 5.8 Performance
+
 - [ ] List 1000 tasks with pagination
 - [ ] Concurrent task updates
 - [ ] Complex filter queries
@@ -293,6 +327,7 @@ SEED_DEMO_DATA=true         # Seed demo tasks on first run
 ## 6. Deployment Steps
 
 ### 6.1 Development Environment
+
 ```bash
 # 1. Install dependencies
 cd /home/user/sahool-unified-v15-idp/apps/services/task-service
@@ -307,7 +342,9 @@ python src/main.py
 ```
 
 ### 6.2 Docker Deployment
+
 The service is already configured in docker-compose.yml with:
+
 - DATABASE_URL pointing to pgbouncer
 - Health checks for postgres dependency
 - Automatic table creation on startup
@@ -324,6 +361,7 @@ docker exec sahool-task-service python -c "from src.database import init_databas
 ```
 
 ### 6.3 Production Considerations
+
 1. **Database Migrations**: Use Alembic for schema changes
 2. **Connection Pooling**: Tune pool_size based on load
 3. **Monitoring**: Add database connection metrics
@@ -338,6 +376,7 @@ docker exec sahool-task-service python -c "from src.database import init_databas
 If issues occur, rollback is straightforward:
 
 ### 7.1 Code Rollback
+
 ```bash
 # Revert to previous commit
 git checkout <previous-commit-hash>
@@ -348,7 +387,9 @@ git checkout HEAD~1 requirements.txt
 ```
 
 ### 7.2 Database Rollback
+
 The tables will persist but won't affect the old in-memory version. To clean up:
+
 ```sql
 DROP TABLE IF EXISTS task_history CASCADE;
 DROP TABLE IF EXISTS task_evidence CASCADE;
@@ -360,12 +401,14 @@ DROP TABLE IF EXISTS tasks CASCADE;
 ## 8. Next Steps
 
 ### 8.1 Immediate (Required for Production)
+
 1. **Complete endpoint migration** - Apply patches from `MIGRATION_ENDPOINTS_PATCH.md`
 2. **Test all endpoints** - Run through testing checklist above
 3. **Update Dockerfile** - Ensure database dependencies installed
 4. **Integration testing** - Test with other services (NDVI, astronomical-calendar)
 
 ### 8.2 Short-term (Recommended)
+
 1. **Add Alembic migrations** - For schema version control
 2. **Implement caching** - Redis for frequently accessed tasks
 3. **Add database metrics** - Prometheus exporters
@@ -373,6 +416,7 @@ DROP TABLE IF EXISTS tasks CASCADE;
 5. **Add unit tests** - Repository layer tests with test database
 
 ### 8.3 Long-term (Enhancements)
+
 1. **Async endpoints** - Migrate to AsyncTaskRepository for better concurrency
 2. **Advanced analytics** - Task completion trends, user productivity metrics
 3. **Soft delete** - Add is_deleted flag instead of hard deletes
@@ -384,6 +428,7 @@ DROP TABLE IF EXISTS tasks CASCADE;
 ## 9. Files Summary
 
 ### Created Files
+
 - `/apps/services/task-service/src/models.py` (370 lines)
 - `/apps/services/task-service/src/repository.py` (520 lines)
 - `/apps/services/task-service/src/database.py` (290 lines)
@@ -391,10 +436,12 @@ DROP TABLE IF EXISTS tasks CASCADE;
 - `/apps/services/task-service/MIGRATION_ENDPOINTS_PATCH.md` (reference guide)
 
 ### Modified Files
+
 - `/apps/services/task-service/requirements.txt` (added 4 database dependencies)
 - `/apps/services/task-service/src/main.py` (partial migration, see patch file for completion)
 
 ### Unchanged Files
+
 - `/apps/services/task-service/src/ndvi_endpoints.py` (no database usage)
 - `/apps/services/task-service/Dockerfile` (dependencies installed via requirements.txt)
 - `/apps/services/task-service/README.md` (update recommended to document database)
@@ -477,18 +524,22 @@ DROP TABLE IF EXISTS tasks CASCADE;
 ### Common Issues
 
 **Issue: "No module named 'database'"**
+
 - **Cause**: Import path issue
 - **Solution**: Ensure you're running from the correct directory and `src/` is in PYTHONPATH
 
 **Issue: "Connection refused to database"**
+
 - **Cause**: PostgreSQL not running or wrong connection string
 - **Solution**: Check DATABASE_URL environment variable and postgres service status
 
 **Issue: "Table already exists"**
+
 - **Cause**: Running init_database() with create_tables=True multiple times
 - **Solution**: This is safe - SQLAlchemy checks before creating
 
 **Issue: "Demo data duplicates"**
+
 - **Cause**: SEED_DEMO_DATA=true with existing data
 - **Solution**: Set SEED_DEMO_DATA=false or clear database
 
@@ -498,17 +549,18 @@ DROP TABLE IF EXISTS tasks CASCADE;
 
 Expected performance improvements over in-memory storage:
 
-| Operation | In-Memory | PostgreSQL | Notes |
-|-----------|-----------|------------|-------|
-| Create task | ~1ms | ~5ms | Includes history record |
-| Get task by ID | ~0.1ms | ~2ms | With evidence join |
-| List 100 tasks | ~1ms | ~10ms | With pagination |
-| Update task | ~1ms | ~8ms | Includes history record |
-| Delete task | ~1ms | ~6ms | Cascade to evidence |
-| Stats query | ~10ms | ~15ms | Aggregation queries |
-| Concurrent writes | ❌ Not safe | ✅ ACID compliant | Multiple instances |
+| Operation         | In-Memory   | PostgreSQL        | Notes                   |
+| ----------------- | ----------- | ----------------- | ----------------------- |
+| Create task       | ~1ms        | ~5ms              | Includes history record |
+| Get task by ID    | ~0.1ms      | ~2ms              | With evidence join      |
+| List 100 tasks    | ~1ms        | ~10ms             | With pagination         |
+| Update task       | ~1ms        | ~8ms              | Includes history record |
+| Delete task       | ~1ms        | ~6ms              | Cascade to evidence     |
+| Stats query       | ~10ms       | ~15ms             | Aggregation queries     |
+| Concurrent writes | ❌ Not safe | ✅ ACID compliant | Multiple instances      |
 
 **Note**: PostgreSQL is slower for individual operations but provides:
+
 - Data persistence
 - ACID transactions
 - Multi-instance safety
@@ -527,4 +579,4 @@ The migration from in-memory storage to PostgreSQL is **95% complete**. The core
 
 ---
 
-*For questions or issues, refer to the shared database documentation at `/apps/services/shared/database/`*
+_For questions or issues, refer to the shared database documentation at `/apps/services/shared/database/`_

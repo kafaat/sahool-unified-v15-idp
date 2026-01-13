@@ -31,21 +31,25 @@
  * Date: 2025-12-26
  */
 
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { Resource } from '@opentelemetry/resources';
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { Resource } from "@opentelemetry/resources";
 import {
   SEMRESATTRS_SERVICE_NAME,
   SEMRESATTRS_SERVICE_VERSION,
   SEMRESATTRS_DEPLOYMENT_ENVIRONMENT,
-} from '@opentelemetry/semantic-conventions';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
-import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
-import { BatchSpanProcessor, ParentBasedSampler, TraceIdRatioBasedSampler } from '@opentelemetry/sdk-trace-node';
-import { trace, context, Span, SpanStatusCode } from '@opentelemetry/api';
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
-import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
-import { PrismaInstrumentation } from '@prisma/instrumentation';
+} from "@opentelemetry/semantic-conventions";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
+import { ConsoleSpanExporter } from "@opentelemetry/sdk-trace-base";
+import {
+  BatchSpanProcessor,
+  ParentBasedSampler,
+  TraceIdRatioBasedSampler,
+} from "@opentelemetry/sdk-trace-node";
+import { trace, context, Span, SpanStatusCode } from "@opentelemetry/api";
+import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
+import { NestInstrumentation } from "@opentelemetry/instrumentation-nestjs-core";
+import { PrismaInstrumentation } from "@prisma/instrumentation";
 
 let tracerProvider: NodeSDK | null = null;
 
@@ -67,13 +71,21 @@ export function initTracer(config: TracingConfig = {}): NodeSDK {
     config.serviceName ||
     process.env.OTEL_SERVICE_NAME ||
     process.env.SERVICE_NAME ||
-    'sahool-service';
+    "sahool-service";
 
-  const serviceVersion = config.serviceVersion || process.env.SERVICE_VERSION || '1.0.0';
-  const environment = config.environment || process.env.ENVIRONMENT || 'development';
-  const otlpEndpoint = config.otlpEndpoint || process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://otel-collector:4317';
-  const samplingRatio = config.samplingRatio ?? parseFloat(process.env.OTEL_TRACES_SAMPLER_ARG || '0.1');
-  const consoleExport = config.consoleExport ?? process.env.OTEL_CONSOLE_EXPORT === 'true';
+  const serviceVersion =
+    config.serviceVersion || process.env.SERVICE_VERSION || "1.0.0";
+  const environment =
+    config.environment || process.env.ENVIRONMENT || "development";
+  const otlpEndpoint =
+    config.otlpEndpoint ||
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT ||
+    "http://otel-collector:4317";
+  const samplingRatio =
+    config.samplingRatio ??
+    parseFloat(process.env.OTEL_TRACES_SAMPLER_ARG || "0.1");
+  const consoleExport =
+    config.consoleExport ?? process.env.OTEL_CONSOLE_EXPORT === "true";
 
   // Create resource with service information
   const resource = Resource.default().merge(
@@ -81,9 +93,9 @@ export function initTracer(config: TracingConfig = {}): NodeSDK {
       [SEMRESATTRS_SERVICE_NAME]: serviceName,
       [SEMRESATTRS_SERVICE_VERSION]: serviceVersion,
       [SEMRESATTRS_DEPLOYMENT_ENVIRONMENT]: environment,
-      'service.namespace': 'sahool',
-      'service.instance.id': process.env.HOSTNAME || 'unknown',
-    })
+      "service.namespace": "sahool",
+      "service.instance.id": process.env.HOSTNAME || "unknown",
+    }),
   );
 
   // Configure span processors
@@ -103,7 +115,7 @@ export function initTracer(config: TracingConfig = {}): NodeSDK {
   // Add console exporter for debugging
   if (consoleExport) {
     spanProcessors.push(new BatchSpanProcessor(new ConsoleSpanExporter()));
-    console.log('Console trace exporter enabled');
+    console.log("Console trace exporter enabled");
   }
 
   // Configure sampling
@@ -119,10 +131,10 @@ export function initTracer(config: TracingConfig = {}): NodeSDK {
     instrumentations: [
       // Auto-instrument Node.js core modules
       getNodeAutoInstrumentations({
-        '@opentelemetry/instrumentation-fs': {
+        "@opentelemetry/instrumentation-fs": {
           enabled: false, // Too noisy
         },
-        '@opentelemetry/instrumentation-dns': {
+        "@opentelemetry/instrumentation-dns": {
           enabled: false, // Too noisy
         },
       }),
@@ -130,7 +142,7 @@ export function initTracer(config: TracingConfig = {}): NodeSDK {
       new NestInstrumentation(),
       // HTTP instrumentation
       new HttpInstrumentation({
-        ignoreIncomingPaths: ['/health', '/metrics', '/ready'],
+        ignoreIncomingPaths: ["/health", "/metrics", "/ready"],
       }),
       // Prisma instrumentation (if using Prisma)
       new PrismaInstrumentation(),
@@ -140,15 +152,15 @@ export function initTracer(config: TracingConfig = {}): NodeSDK {
   tracerProvider.start();
 
   console.log(
-    `OpenTelemetry tracer initialized: service=${serviceName}, env=${environment}, sampling=${samplingRatio}`
+    `OpenTelemetry tracer initialized: service=${serviceName}, env=${environment}, sampling=${samplingRatio}`,
   );
 
   // Graceful shutdown
-  process.on('SIGTERM', () => {
+  process.on("SIGTERM", () => {
     tracerProvider
       ?.shutdown()
-      .then(() => console.log('Tracing terminated'))
-      .catch((error) => console.error('Error terminating tracing', error))
+      .then(() => console.log("Tracing terminated"))
+      .catch((error) => console.error("Error terminating tracing", error))
       .finally(() => process.exit(0));
   });
 
@@ -159,7 +171,7 @@ export function initTracer(config: TracingConfig = {}): NodeSDK {
  * Get a tracer instance
  */
 export function getTracer(name?: string) {
-  return trace.getTracer(name || 'sahool-tracer');
+  return trace.getTracer(name || "sahool-tracer");
 }
 
 /**
@@ -167,14 +179,18 @@ export function getTracer(name?: string) {
  */
 export function instrumentNestApp(app: any): void {
   // NestJS instrumentation is handled automatically by NestInstrumentation
-  console.log('NestJS instrumentation enabled');
+  console.log("NestJS instrumentation enabled");
 }
 
 /**
  * Decorator to trace a method
  */
 export function Trace(spanName?: string, attributes?: Record<string, any>) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) {
     const originalMethod = descriptor.value;
     const traceName = spanName || `${target.constructor.name}.${propertyKey}`;
 
@@ -190,8 +206,8 @@ export function Trace(spanName?: string, attributes?: Record<string, any>) {
           }
 
           // Add method metadata
-          span.setAttribute('code.function', propertyKey);
-          span.setAttribute('code.namespace', target.constructor.name);
+          span.setAttribute("code.function", propertyKey);
+          span.setAttribute("code.namespace", target.constructor.name);
 
           // Execute method
           const result = await originalMethod.apply(this, args);
@@ -273,7 +289,7 @@ export function getCurrentSpanId(): string | undefined {
 export async function withSpan<T>(
   name: string,
   fn: (span: Span) => Promise<T>,
-  attributes?: Record<string, any>
+  attributes?: Record<string, any>,
 ): Promise<T> {
   const tracer = getTracer();
   return tracer.startActiveSpan(name, async (span: Span) => {
@@ -305,21 +321,21 @@ export async function withSpan<T>(
  */
 export const SAHOOL_SERVICES = {
   // Communication services
-  chat_service: 'Chat Service',
-  community_chat: 'Community Chat Service',
-  field_chat: 'Field Chat Service',
-  notification_service: 'Notification Service',
+  chat_service: "Chat Service",
+  community_chat: "Community Chat Service",
+  field_chat: "Field Chat Service",
+  notification_service: "Notification Service",
 
   // Business services
-  billing_core: 'Billing Core Service',
-  marketplace_service: 'Marketplace Service',
-  inventory_service: 'Inventory Management',
-  equipment_service: 'Equipment Management',
-  task_service: 'Task Management Service',
+  billing_core: "Billing Core Service",
+  marketplace_service: "Marketplace Service",
+  inventory_service: "Inventory Management",
+  equipment_service: "Equipment Management",
+  task_service: "Task Management Service",
 
   // Infrastructure
-  ws_gateway: 'WebSocket Gateway',
-  kong: 'API Gateway (Kong)',
+  ws_gateway: "WebSocket Gateway",
+  kong: "API Gateway (Kong)",
 } as const;
 
 export default {

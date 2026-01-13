@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { LoadingSpinner } from './LoadingSpinner';
+import React from "react";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export interface LoadingOverlayProps {
   isLoading: boolean;
@@ -17,7 +17,7 @@ export interface LoadingOverlayProps {
  */
 export function LoadingOverlay({
   isLoading,
-  message = 'جاري التحميل...',
+  message = "جاري التحميل...",
   fullScreen = false,
   blur = true,
   children,
@@ -27,8 +27,8 @@ export function LoadingOverlay({
   }
 
   const overlayClasses = fullScreen
-    ? 'fixed inset-0 z-50'
-    : 'absolute inset-0 z-10';
+    ? "fixed inset-0 z-50"
+    : "absolute inset-0 z-10";
 
   return (
     <div className="relative">
@@ -38,7 +38,7 @@ export function LoadingOverlay({
           ${overlayClasses}
           flex items-center justify-center
           bg-white/80 dark:bg-gray-900/80
-          ${blur ? 'backdrop-blur-sm' : ''}
+          ${blur ? "backdrop-blur-sm" : ""}
         `}
         role="alert"
         aria-busy="true"
@@ -46,7 +46,9 @@ export function LoadingOverlay({
       >
         <div className="flex flex-col items-center gap-4 p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg">
           <LoadingSpinner size="lg" />
-          <p className="text-gray-700 dark:text-gray-300 font-medium">{message}</p>
+          <p className="text-gray-700 dark:text-gray-300 font-medium">
+            {message}
+          </p>
         </div>
       </div>
     </div>

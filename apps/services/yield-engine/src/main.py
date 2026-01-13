@@ -99,7 +99,9 @@ class YieldRequest(BaseModel):
     soil_quality: str | None = Field("medium", description="جودة التربة: poor/medium/good")
     irrigation_type: str | None = Field("rain-fed", description="نوع الري")
     governorate: str | None = Field(None, description="المحافظة")
-    target_yield_kg_ha: float | None = Field(None, ge=0, description="الإنتاجية المستهدفة (كجم/هكتار)")
+    target_yield_kg_ha: float | None = Field(
+        None, ge=0, description="الإنتاجية المستهدفة (كجم/هكتار)"
+    )
 
 
 class YieldPrediction(BaseModel):
@@ -579,7 +581,7 @@ class YieldPredictor:
                 target_ratio = request.target_yield_kg_ha / base_target
                 target_factor = 1 + min(0.2, (target_ratio - 1) * 0.3)  # حد أقصى 20%
                 total_factor *= target_factor
-                all_factors.append(f"إنتاجية مستهدفة عالية (+{int((target_factor-1)*100)}%)")
+                all_factors.append(f"إنتاجية مستهدفة عالية (+{int((target_factor - 1) * 100)}%)")
             elif request.target_yield_kg_ha < base_target * 0.8:
                 # إنتاجية أقل مستهدفة
                 target_factor = 0.95

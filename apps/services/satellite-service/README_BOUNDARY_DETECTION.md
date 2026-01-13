@@ -1,4 +1,5 @@
 # Field Boundary Detection - Complete Guide
+
 # الدليل الكامل لكشف حدود الحقول
 
 ## 🎯 Quick Links
@@ -12,6 +13,7 @@
 This implementation adds automatic field boundary detection to the SAHOOL satellite service using NDVI-based edge detection.
 
 ### Core Features
+
 ✅ Automatic field detection from satellite imagery
 ✅ Boundary refinement for hand-drawn fields
 ✅ Change detection over time (expansion/contraction)
@@ -22,12 +24,14 @@ This implementation adds automatic field boundary detection to the SAHOOL satell
 ## 🚀 Getting Started (2 Minutes)
 
 ### 1. Start the Service
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service
 python -m src.main
 ```
 
 ### 2. Run Examples
+
 ```bash
 # Python examples
 python examples/boundary_detection_example.py
@@ -37,6 +41,7 @@ python examples/boundary_detection_example.py
 ```
 
 ### 3. Test an Endpoint
+
 ```bash
 curl -X POST "http://localhost:8090/v1/boundaries/detect?lat=15.5527&lon=44.2075&radius_m=500"
 ```
@@ -44,17 +49,21 @@ curl -X POST "http://localhost:8090/v1/boundaries/detect?lat=15.5527&lon=44.2075
 ## 📁 Files Created
 
 ### Core Implementation (30KB + 11KB)
+
 - `src/field_boundary_detector.py` - Main detection engine
 - `src/boundary_endpoints.py` - FastAPI endpoints
 
 ### Tests (9KB)
+
 - `tests/test_boundary_detector.py` - 18 unit tests (100% passing)
 
 ### Examples (9KB + 7KB)
+
 - `examples/boundary_detection_example.py` - Python usage examples
 - `examples/test_boundary_api.sh` - Shell script for API testing
 
 ### Documentation (33KB)
+
 - `FIELD_BOUNDARY_DETECTION.md` - Complete documentation
 - `BOUNDARY_QUICK_START.md` - Quick reference guide
 - `BOUNDARY_IMPLEMENTATION_SUMMARY.md` - Technical summary
@@ -65,22 +74,28 @@ curl -X POST "http://localhost:8090/v1/boundaries/detect?lat=15.5527&lon=44.2075
 ## 🔧 API Endpoints
 
 ### 1. Detect Boundaries
+
 ```http
 POST /v1/boundaries/detect?lat=15.5527&lon=44.2075&radius_m=500
 ```
+
 Returns: GeoJSON FeatureCollection of detected fields
 
 ### 2. Refine Boundary
+
 ```http
 POST /v1/boundaries/refine
 Body: coords=[[lon,lat],...], buffer_m=50
 ```
+
 Returns: Refined GeoJSON Feature with statistics
 
 ### 3. Detect Changes
+
 ```http
 GET /v1/boundaries/{field_id}/changes?since_date=2023-01-01&previous_coords=[...]
 ```
+
 Returns: Change analysis with interpretation
 
 ## 📊 Algorithm Overview
@@ -95,6 +110,7 @@ NDVI Imagery → Edge Detection → Contour Tracing → Polygon Extraction
 ```
 
 ### Key Calculations
+
 - **Area**: Shoelace formula with latitude correction → hectares
 - **Perimeter**: Haversine distance → meters
 - **Simplification**: Douglas-Peucker → reduces points by 30-70%
@@ -103,6 +119,7 @@ NDVI Imagery → Edge Detection → Contour Tracing → Polygon Extraction
 ## 🧪 Testing
 
 ### Run Unit Tests
+
 ```bash
 pytest tests/test_boundary_detector.py -v
 ```
@@ -110,6 +127,7 @@ pytest tests/test_boundary_detector.py -v
 **Results**: ✅ 18/18 tests passing (100%)
 
 ### Test Coverage
+
 ✓ Geometric calculations (area, perimeter, centroid)
 ✓ Boundary simplification
 ✓ Async operations (detect, refine, change detection)
@@ -119,6 +137,7 @@ pytest tests/test_boundary_detector.py -v
 ## 📖 Usage Examples
 
 ### Python
+
 ```python
 from src.field_boundary_detector import FieldBoundaryDetector
 
@@ -138,6 +157,7 @@ for boundary in boundaries:
 ```
 
 ### cURL
+
 ```bash
 # Detect
 curl -X POST "http://localhost:8090/v1/boundaries/detect?lat=15.5527&lon=44.2075"
@@ -151,10 +171,11 @@ curl "http://localhost:8090/v1/boundaries/field_123/changes?since_date=2023-01-0
 ```
 
 ### JavaScript
+
 ```javascript
 const response = await fetch(
-  'http://localhost:8090/v1/boundaries/detect?lat=15.5527&lon=44.2075',
-  { method: 'POST' }
+  "http://localhost:8090/v1/boundaries/detect?lat=15.5527&lon=44.2075",
+  { method: "POST" },
 );
 const data = await response.json();
 
@@ -165,15 +186,19 @@ L.geoJSON(data).addTo(map);
 ## 🎓 Use Cases
 
 ### 1. Farmer Registration
+
 Automatically detect field boundaries when farmer provides GPS coordinates.
 
 ### 2. Field Monitoring
+
 Track boundary changes over seasons to detect expansion or abandonment.
 
 ### 3. Cadastral Mapping
+
 Generate agricultural maps from satellite imagery.
 
 ### 4. Precision Agriculture
+
 Define management zones with accurate field boundaries.
 
 ## ⚙️ Configuration
@@ -197,29 +222,32 @@ detector.simplify_tolerance = 0.00005  # ~5 meters
 
 ## 📈 Performance
 
-| Metric | Value |
-|--------|-------|
-| Small area detection | 2-5 seconds |
-| Medium area detection | 5-15 seconds |
-| Position accuracy | ±10-20 meters |
-| Area accuracy | ±5-10% |
-| Detection success rate | 85-95% |
-| Test coverage | 100% (18/18 tests) |
+| Metric                 | Value              |
+| ---------------------- | ------------------ |
+| Small area detection   | 2-5 seconds        |
+| Medium area detection  | 5-15 seconds       |
+| Position accuracy      | ±10-20 meters      |
+| Area accuracy          | ±5-10%             |
+| Detection success rate | 85-95%             |
+| Test coverage          | 100% (18/18 tests) |
 
 ## 🔍 Troubleshooting
 
 ### No boundaries detected
+
 - Increase search radius
 - Try different date/season
 - Lower NDVI threshold
 - Check for cloud coverage
 
 ### Low confidence scores
+
 - Use boundary refinement
 - Check for mixed vegetation
 - Try different imagery date
 
 ### Service won't start
+
 ```bash
 # Check dependencies
 pip install -r requirements.txt
@@ -247,12 +275,14 @@ boundaries = await detector.detect_boundary(14.7978, 42.9545, 500)
 ## 🔗 Integration
 
 ### With Other SAHOOL Services
+
 - `/v1/analyze` - Field health analysis
 - `/v1/phenology/{field_id}` - Crop growth stage
 - `/v1/soil-moisture/{field_id}` - Soil moisture from SAR
 - `/v1/yield-prediction` - Yield forecasting
 
 ### With External Systems
+
 - GIS software (QGIS, ArcGIS) - Import GeoJSON
 - Mobile apps - REST API integration
 - Databases - Store field boundaries
@@ -261,6 +291,7 @@ boundaries = await detector.detect_boundary(14.7978, 42.9545, 500)
 ## 📝 Data Models
 
 ### FieldBoundary
+
 ```json
 {
   "field_id": "field_15552700_44207500_0",
@@ -276,6 +307,7 @@ boundaries = await detector.detect_boundary(14.7978, 42.9545, 500)
 ```
 
 ### BoundaryChange
+
 ```json
 {
   "field_id": "field_123",
@@ -299,11 +331,13 @@ boundaries = await detector.detect_boundary(14.7978, 42.9545, 500)
 ## 🔮 Future Enhancements
 
 **Short-term:**
+
 - Machine learning detection
 - Batch processing API
 - Crop-specific thresholds
 
 **Long-term:**
+
 - CNN-based segmentation
 - High-resolution support (1m)
 - Real-time monitoring
@@ -339,11 +373,13 @@ To improve the boundary detection:
 ## 📞 Support
 
 **Documentation:**
+
 - Quick Start: See `BOUNDARY_QUICK_START.md`
 - Full Docs: See `FIELD_BOUNDARY_DETECTION.md`
 - Technical: See `BOUNDARY_IMPLEMENTATION_SUMMARY.md`
 
 **Testing:**
+
 - Unit tests: `pytest tests/test_boundary_detector.py`
 - Examples: `python examples/boundary_detection_example.py`
 - API tests: `./examples/test_boundary_api.sh`
@@ -366,6 +402,7 @@ To improve the boundary detection:
 **Status**: ✅ Complete and ready for use
 
 **What you get:**
+
 - Automatic field boundary detection
 - Three REST API endpoints
 - Complete documentation
@@ -374,6 +411,7 @@ To improve the boundary detection:
 - Production-ready code
 
 **Next steps:**
+
 1. Start the service
 2. Run examples
 3. Test with real data

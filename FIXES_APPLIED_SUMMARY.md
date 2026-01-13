@@ -1,11 +1,13 @@
 # Database Connection Fixes Applied
 
 ## Summary
+
 Fixed database connection issues affecting multiple services.
 
 ## Fixes Applied
 
 ### 1. ✅ PgBouncer SCRAM Authentication
+
 - **Issue:** PostgreSQL 16 uses SCRAM-SHA-256, but PgBouncer was configured for MD5
 - **Fix:**
   - Updated `infrastructure/core/pgbouncer/pgbouncer.ini` to use `auth_type = scram-sha-256`
@@ -14,6 +16,7 @@ Fixed database connection issues affecting multiple services.
 - **Status:** ✅ Fixed - PgBouncer now supports SCRAM authentication
 
 ### 2. ✅ Billing-Core Async Driver
+
 - **Issue:** Using `postgresql+psycopg2://` (sync) with async SQLAlchemy
 - **Fix:**
   - Changed `DATABASE_URL` in `docker-compose.yml` to `postgresql+asyncpg://`
@@ -23,6 +26,7 @@ Fixed database connection issues affecting multiple services.
 - **Status:** ✅ Fixed - Billing-core now uses async driver correctly
 
 ### 3. ✅ PgBouncer User Creation
+
 - **Issue:** `pgbouncer` user didn't exist in PostgreSQL
 - **Fix:**
   - Created user: `CREATE USER pgbouncer WITH PASSWORD 'pgbouncer_auth_query'`
@@ -30,6 +34,7 @@ Fixed database connection issues affecting multiple services.
 - **Status:** ✅ Fixed - User created and permissions granted
 
 ### 4. ✅ MQTT Password File
+
 - **Issue:** Password file had encoding issues and wrong permissions
 - **Fix:**
   - Regenerated password file with proper SHA-512 format
@@ -37,6 +42,7 @@ Fixed database connection issues affecting multiple services.
 - **Status:** ✅ Fixed - MQTT authentication working
 
 ## Services Restarted
+
 - `billing-core` - Recreated with new async driver
 - `pgbouncer` - Restarted after user creation
 - `chat-service` - Restarted to pick up auth fix
@@ -47,6 +53,7 @@ Fixed database connection issues affecting multiple services.
 ## Current Status
 
 ### Services Still Restarting (Expected - may need more time)
+
 - `chat-service` - Connecting to database
 - `marketplace-service` - Connecting to database
 - `research-core` - Connecting to database
@@ -55,6 +62,7 @@ Fixed database connection issues affecting multiple services.
 - `ndvi-processor` - Unknown issue
 
 ### Services Unhealthy (Non-database related)
+
 - `equipment-service` - Health check failing
 - `provider-config` - Health check failing
 - `task-service` - Health check failing
@@ -75,9 +83,9 @@ Fixed database connection issues affecting multiple services.
 4. **Review health checks** for unhealthy services
 
 ## Files Modified
+
 - `docker-compose.yml` - Updated billing-core DATABASE_URL
 - `infrastructure/core/pgbouncer/pgbouncer.ini` - SCRAM auth configuration
 - `infrastructure/core/postgres/init/02-pgbouncer-user.sql` - User creation script
 - `apps/services/billing-core/src/database.py` - Async driver and pool fixes
 - `infrastructure/core/mqtt/passwd` - Regenerated password file
-

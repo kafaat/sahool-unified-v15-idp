@@ -3,11 +3,11 @@
  * نقاط فحص صحة الخدمة
  */
 
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { PrismaService } from '../prisma/prisma.service';
+import { Controller, Get } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { PrismaService } from "../prisma/prisma.service";
 
-@ApiTags('Health')
+@ApiTags("Health")
 @Controller()
 export class HealthController {
   private readonly startTime: Date;
@@ -16,9 +16,9 @@ export class HealthController {
     this.startTime = new Date();
   }
 
-  @Get('health')
-  @ApiOperation({ summary: 'Health check endpoint' })
-  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  @Get("health")
+  @ApiOperation({ summary: "Health check endpoint" })
+  @ApiResponse({ status: 200, description: "Service is healthy" })
   async health() {
     // Check database connection
     let databaseHealthy = false;
@@ -26,36 +26,36 @@ export class HealthController {
       await this.prisma.$queryRaw`SELECT 1`;
       databaseHealthy = true;
     } catch (error) {
-      console.error('Database health check failed:', error);
+      console.error("Database health check failed:", error);
     }
 
     return {
-      status: 'healthy',
-      service: 'chat-service',
-      version: '16.0.0',
+      status: "healthy",
+      service: "chat-service",
+      version: "16.0.0",
       timestamp: new Date().toISOString(),
       uptime: this.getUptime(),
       dependencies: {
-        database: databaseHealthy ? 'connected' : 'disconnected',
+        database: databaseHealthy ? "connected" : "disconnected",
       },
     };
   }
 
-  @Get('healthz')
-  @ApiOperation({ summary: 'Kubernetes health check' })
-  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  @Get("healthz")
+  @ApiOperation({ summary: "Kubernetes health check" })
+  @ApiResponse({ status: 200, description: "Service is healthy" })
   healthz() {
     return {
-      status: 'ok',
-      service: 'chat-service',
+      status: "ok",
+      service: "chat-service",
       timestamp: new Date().toISOString(),
       uptime: this.getUptime(),
     };
   }
 
-  @Get('readyz')
-  @ApiOperation({ summary: 'Kubernetes readiness check' })
-  @ApiResponse({ status: 200, description: 'Service is ready' })
+  @Get("readyz")
+  @ApiOperation({ summary: "Kubernetes readiness check" })
+  @ApiResponse({ status: 200, description: "Service is ready" })
   async readyz() {
     // Check if service is ready to accept traffic
     let ready = true;
@@ -67,20 +67,20 @@ export class HealthController {
     }
 
     return {
-      status: ready ? 'ready' : 'not_ready',
-      service: 'chat-service',
+      status: ready ? "ready" : "not_ready",
+      service: "chat-service",
       timestamp: new Date().toISOString(),
       database: ready,
     };
   }
 
-  @Get('livez')
-  @ApiOperation({ summary: 'Liveness check endpoint' })
-  @ApiResponse({ status: 200, description: 'Service is alive' })
+  @Get("livez")
+  @ApiOperation({ summary: "Liveness check endpoint" })
+  @ApiResponse({ status: 200, description: "Service is alive" })
   livenessCheck() {
     return {
-      status: 'alive',
-      service: 'chat-service',
+      status: "alive",
+      service: "chat-service",
       timestamp: new Date().toISOString(),
       uptime: this.getUptime(),
     };

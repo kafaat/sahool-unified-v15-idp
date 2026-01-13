@@ -1,4 +1,5 @@
 # Inventory Service - Tests
+
 # اختبارات خدمة المخزون
 
 ## Overview | نظرة عامة
@@ -15,17 +16,20 @@ Comprehensive test suite for agricultural inventory management and analytics.
 ## Running Tests | تشغيل الاختبارات
 
 ### Run all tests | تشغيل جميع الاختبارات
+
 ```bash
 pytest
 ```
 
 ### Run specific test file | تشغيل ملف محدد
+
 ```bash
 pytest tests/test_inventory_analytics.py
 pytest tests/test_api_endpoints.py
 ```
 
 ### Run with coverage | مع تغطية الكود
+
 ```bash
 pytest --cov=src --cov-report=html
 ```
@@ -33,6 +37,7 @@ pytest --cov=src --cov-report=html
 ## Test Coverage | تغطية الاختبارات
 
 The test suite covers:
+
 - ✅ Consumption forecasting and predictions
 - ✅ Inventory valuation (FIFO, weighted average)
 - ✅ ABC/Pareto analysis

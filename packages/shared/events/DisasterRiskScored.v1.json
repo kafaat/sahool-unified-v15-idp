@@ -3,9 +3,7 @@
   "$id": "https://sahool.io/events/DisasterRiskScored.v1.json",
   "title": "Disaster Risk Scored Event",
   "description": "Emitted when disaster risk assessment is completed - يُنشر عند اكتمال تقييم مخاطر الكوارث",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Risk.DisasterRiskScored" },
     "payload": {
@@ -45,7 +43,15 @@
             "properties": {
               "risk_type": {
                 "type": "string",
-                "enum": ["flood", "drought", "locust", "frost", "heatwave", "storm", "landslide"]
+                "enum": [
+                  "flood",
+                  "drought",
+                  "locust",
+                  "frost",
+                  "heatwave",
+                  "storm",
+                  "landslide"
+                ]
               },
               "risk_level": {
                 "type": "string",
@@ -58,7 +64,13 @@
               },
               "expected_impact": {
                 "type": "string",
-                "enum": ["minimal", "minor", "moderate", "major", "catastrophic"]
+                "enum": [
+                  "minimal",
+                  "minor",
+                  "moderate",
+                  "major",
+                  "catastrophic"
+                ]
               },
               "onset_window": {
                 "type": "object",

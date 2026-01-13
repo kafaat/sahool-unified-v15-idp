@@ -7,6 +7,7 @@ All notable changes to the SAHOOL Field mobile application.
 ### ⚡ Performance Improvements
 
 #### Local Fonts Migration
+
 - **Removed `google_fonts` dependency** - No more runtime font downloads
 - **Bundled IBM Plex Sans Arabic fonts** (7 weights: 100-700)
 - **Faster app startup** - Fonts load instantly from assets
@@ -14,6 +15,7 @@ All notable changes to the SAHOOL Field mobile application.
 - **Better offline support** - Fonts always available
 
 #### APK Size Optimization
+
 - **APK Split by ABI** - Separate APKs for arm64-v8a, armeabi-v7a, x86_64
 - **Universal APK option** - For Play Store distribution
 - **Expected size reduction** - ~15-20% smaller downloads for users
@@ -21,12 +23,14 @@ All notable changes to the SAHOOL Field mobile application.
 ### 🔧 Build System Improvements
 
 #### build.yaml Configuration
+
 - Added `build.yaml` for proper code generation
 - Configured `json_serializable`, `freezed`, and `drift_dev` builders
 - Excluded test files from code generation
 - Prevents unnecessary regeneration cycles
 
 #### Gradle Configuration
+
 - **minSdk raised to 23** - Required by `camera_android_camerax`
 - **compileSdk/targetSdk 36** - Latest Android API
 - **Java/Kotlin 17** - Modern toolchain
@@ -35,12 +39,14 @@ All notable changes to the SAHOOL Field mobile application.
 ### 🛠️ Dependency Fixes
 
 #### Dart 3.6.0 Compatibility
+
 - **Flutter 3.27.1** with Dart SDK 3.6.0
 - **SDK constraint**: `>=3.2.0 <4.0.0`
 - **freezed**: Pinned to 2.5.8 (last Dart 3.6.0 compatible version)
 - **build_runner**: 2.4.13 (compatible with analyzer 7.x)
 
 #### Removed Dependencies
+
 - **mockito** - Removed due to analyzer 7.x incompatibility
   - Version 5.4.5: Uses internal `InterfaceElementImpl` (broken in analyzer 7.x)
   - Version 5.4.6+: Requires Dart 3.7.0+
@@ -50,6 +56,7 @@ All notable changes to the SAHOOL Field mobile application.
 ### 📱 Theme System Updates
 
 #### IBM Plex Sans Arabic Integration
+
 - Updated all theme files to use local font family
 - Consistent font weights across themes:
   - Display/Body: 400 (Regular)
@@ -57,6 +64,7 @@ All notable changes to the SAHOOL Field mobile application.
   - Labels: 500 (Medium)
 
 #### Files Updated
+
 - `lib/core/config/theme.dart`
 - `lib/core/theme/sahool_theme.dart`
 - `lib/core/theme/sahool_pro_theme.dart`
@@ -64,6 +72,7 @@ All notable changes to the SAHOOL Field mobile application.
 ### 📊 Technical Details
 
 #### Commits in This Release
+
 ```
 3d054ae perf(mobile): Replace google_fonts with local IBM Plex Sans Arabic
 6d3e3ef feat(mobile): Add build.yaml and APK split configuration
@@ -75,14 +84,15 @@ All notable changes to the SAHOOL Field mobile application.
 ```
 
 #### Compatibility Matrix
-| Package | Version | Notes |
-|---------|---------|-------|
-| Flutter | 3.27.1 | Dart 3.6.0 |
-| freezed | 2.5.8 | Last 2.x for Dart 3.6.0 |
-| freezed_annotation | ^2.4.4 | Compatible |
-| build_runner | 2.4.13 | Compatible |
-| drift | ^2.24.0 | Offline database |
-| drift_dev | ^2.24.0 | Code generation |
+
+| Package            | Version | Notes                   |
+| ------------------ | ------- | ----------------------- |
+| Flutter            | 3.27.1  | Dart 3.6.0              |
+| freezed            | 2.5.8   | Last 2.x for Dart 3.6.0 |
+| freezed_annotation | ^2.4.4  | Compatible              |
+| build_runner       | 2.4.13  | Compatible              |
+| drift              | ^2.24.0 | Offline database        |
+| drift_dev          | ^2.24.0 | Code generation         |
 
 ---
 
@@ -91,18 +101,21 @@ All notable changes to the SAHOOL Field mobile application.
 ### ✨ New Features
 
 #### Smart Daily Brief
+
 - **DailyBriefWidget**: Personalized morning/evening briefing
 - Weather-based recommendations
 - Priority task highlighting
 - Quick action shortcuts for common operations
 
 #### Smart Alerts Center
+
 - **SmartAlertsCenter**: Real-time alerts from IoT sensors
 - Severity-based alert categorization (Critical, Warning, Info)
 - Actionable recommendations with one-tap actions
 - Support for irrigation, weather, NDVI, sensor, task, and pest alerts
 
 #### Push Notifications
+
 - **Firebase Cloud Messaging (FCM)** integration
 - Background and foreground notification handling
 - Topic-based subscriptions (user, tenant, all_users)
@@ -112,6 +125,7 @@ All notable changes to the SAHOOL Field mobile application.
 ### 🔐 Security Improvements
 
 #### Authentication
+
 - **AuthService**: Complete auth flow with automatic token refresh
 - **SecureStorageService**: Encrypted token storage using flutter_secure_storage
 - **BiometricService**: Fingerprint and Face ID authentication
@@ -120,21 +134,25 @@ All notable changes to the SAHOOL Field mobile application.
 ### ⚡ Performance Optimizations
 
 #### Image Caching
+
 - **SahoolImageCacheManager**: LRU-based image caching
 - Configurable cache size limits
 - Background preloading support
 
 #### List Optimization
+
 - **SahoolOptimizedListView**: Lazy loading with pagination
 - **SahoolOptimizedGridView**: Memory-efficient grid rendering
 - RepaintBoundary optimization for smooth scrolling
 
 #### Memory Management
+
 - **MemoryManager**: Memory pressure monitoring
 - Automatic cache cleanup on low memory
 - Image cache size configuration
 
 #### Network Caching
+
 - **NetworkCache**: API response caching with TTL
 - Offline fallback support
 - Pattern-based cache invalidation
@@ -142,18 +160,21 @@ All notable changes to the SAHOOL Field mobile application.
 ### 🛠️ Developer Experience
 
 #### Testing Infrastructure
+
 - Comprehensive test helpers and utilities
 - Mock providers for Riverpod testing
 - Test fixtures with sample data
 - Integration tests for auth flow, offline sync, and notifications
 
 #### Code Quality
+
 - Enhanced lint rules (80+ rules in analysis_options.yaml)
 - Structured logging with AppLogger
 - Error boundaries for graceful error handling
 - Loading state widgets for consistent UX
 
 #### CI/CD
+
 - GitHub Actions workflow for mobile builds
 - Automated analysis, testing, and APK generation
 - Flutter version pinning for reproducible builds

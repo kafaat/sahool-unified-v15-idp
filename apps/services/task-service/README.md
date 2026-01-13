@@ -14,33 +14,36 @@ Agricultural task management service for irrigation, fertilization, spraying, an
 ## الميزات | Features
 
 ### إدارة المهام | Task Management
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| إنشاء المهام | Task CRUD | إدارة كاملة للمهام |
-| التعيين | Assignment | تعيين للعمال |
-| الجدولة | Scheduling | تاريخ ووقت محدد |
-| الأولويات | Priority | عاجل، عالي، متوسط، منخفض |
-| التتبع | Tracking | حالة المهمة في الوقت الحقيقي |
+
+| الميزة       | Feature    | الوصف                        |
+| ------------ | ---------- | ---------------------------- |
+| إنشاء المهام | Task CRUD  | إدارة كاملة للمهام           |
+| التعيين      | Assignment | تعيين للعمال                 |
+| الجدولة      | Scheduling | تاريخ ووقت محدد              |
+| الأولويات    | Priority   | عاجل، عالي، متوسط، منخفض     |
+| التتبع       | Tracking   | حالة المهمة في الوقت الحقيقي |
 
 ### أنواع المهام | Task Types
-| النوع | Type | الوصف |
-|-------|------|--------|
-| ري | Irrigation | مهام الري |
-| تسميد | Fertilization | التسميد |
-| رش | Spraying | رش المبيدات |
-| فحص | Scouting | فحص الحقل |
-| صيانة | Maintenance | صيانة المعدات |
-| عينات | Sampling | جمع العينات |
-| حصاد | Harvest | الحصاد |
-| زراعة | Planting | الزراعة |
+
+| النوع | Type          | الوصف         |
+| ----- | ------------- | ------------- |
+| ري    | Irrigation    | مهام الري     |
+| تسميد | Fertilization | التسميد       |
+| رش    | Spraying      | رش المبيدات   |
+| فحص   | Scouting      | فحص الحقل     |
+| صيانة | Maintenance   | صيانة المعدات |
+| عينات | Sampling      | جمع العينات   |
+| حصاد  | Harvest       | الحصاد        |
+| زراعة | Planting      | الزراعة       |
 
 ### الأدلة | Evidence
-| النوع | Type | الوصف |
-|-------|------|--------|
-| صور | Photos | صور الإنجاز |
-| ملاحظات | Notes | ملاحظات نصية |
-| صوت | Voice | تسجيلات صوتية |
-| قياسات | Measurements | قراءات وقياسات |
+
+| النوع   | Type         | الوصف          |
+| ------- | ------------ | -------------- |
+| صور     | Photos       | صور الإنجاز    |
+| ملاحظات | Notes        | ملاحظات نصية   |
+| صوت     | Voice        | تسجيلات صوتية  |
+| قياسات  | Measurements | قراءات وقياسات |
 
 ---
 
@@ -177,58 +180,61 @@ POST /api/v1/tasks/validate-date
 ## نماذج البيانات | Data Models
 
 ### Task
+
 ```json
 {
-    "task_id": "task_001",
-    "tenant_id": "tenant_demo",
-    "title": "Irrigate North Field",
-    "title_ar": "ري الحقل الشمالي",
-    "description": "Sector C needs irrigation using pump #2",
-    "task_type": "irrigation",
-    "priority": "high",
-    "status": "pending",
-    "field_id": "field_north",
-    "zone_id": "zone_c",
-    "assigned_to": "user_ahmed",
-    "created_by": "user_admin",
-    "due_date": "2024-02-16T08:00:00Z",
-    "scheduled_time": "08:00",
-    "estimated_duration_minutes": 120,
-    "actual_duration_minutes": null,
-    "created_at": "2024-02-15T10:00:00Z",
-    "updated_at": "2024-02-15T10:00:00Z",
-    "completed_at": null,
-    "completion_notes": null,
-    "evidence": [],
-    "metadata": {"pump_id": "pump_2", "water_volume_m3": 500}
+  "task_id": "task_001",
+  "tenant_id": "tenant_demo",
+  "title": "Irrigate North Field",
+  "title_ar": "ري الحقل الشمالي",
+  "description": "Sector C needs irrigation using pump #2",
+  "task_type": "irrigation",
+  "priority": "high",
+  "status": "pending",
+  "field_id": "field_north",
+  "zone_id": "zone_c",
+  "assigned_to": "user_ahmed",
+  "created_by": "user_admin",
+  "due_date": "2024-02-16T08:00:00Z",
+  "scheduled_time": "08:00",
+  "estimated_duration_minutes": 120,
+  "actual_duration_minutes": null,
+  "created_at": "2024-02-15T10:00:00Z",
+  "updated_at": "2024-02-15T10:00:00Z",
+  "completed_at": null,
+  "completion_notes": null,
+  "evidence": [],
+  "metadata": { "pump_id": "pump_2", "water_volume_m3": 500 }
 }
 ```
 
 ### Evidence
+
 ```json
 {
-    "evidence_id": "ev_abc123",
-    "task_id": "task_001",
-    "type": "photo",
-    "content": "https://storage.sahool.io/evidence/ev_abc123.jpg",
-    "captured_at": "2024-02-16T10:30:00Z",
-    "location": {"lat": 15.37, "lon": 44.19}
+  "evidence_id": "ev_abc123",
+  "task_id": "task_001",
+  "type": "photo",
+  "content": "https://storage.sahool.io/evidence/ev_abc123.jpg",
+  "captured_at": "2024-02-16T10:30:00Z",
+  "location": { "lat": 15.37, "lon": 44.19 }
 }
 ```
 
 ### Task Stats
+
 ```json
 {
-    "total": 50,
-    "pending": 20,
-    "in_progress": 5,
-    "completed": 22,
-    "overdue": 3,
-    "week_progress": {
-        "completed": 15,
-        "total": 25,
-        "percentage": 60
-    }
+  "total": 50,
+  "pending": 20,
+  "in_progress": 5,
+  "completed": 22,
+  "overdue": 3,
+  "week_progress": {
+    "completed": 15,
+    "total": 25,
+    "percentage": 60
+  }
 }
 ```
 
@@ -236,22 +242,22 @@ POST /api/v1/tasks/validate-date
 
 ## حالات المهمة | Task Status
 
-| الحالة | Status | الوصف |
-|--------|--------|--------|
-| `pending` | قيد الانتظار | لم تبدأ بعد |
-| `in_progress` | قيد التنفيذ | جاري العمل عليها |
-| `completed` | مكتملة | تم الإنجاز |
-| `cancelled` | ملغاة | تم الإلغاء |
-| `overdue` | متأخرة | تجاوزت الموعد |
+| الحالة        | Status       | الوصف            |
+| ------------- | ------------ | ---------------- |
+| `pending`     | قيد الانتظار | لم تبدأ بعد      |
+| `in_progress` | قيد التنفيذ  | جاري العمل عليها |
+| `completed`   | مكتملة       | تم الإنجاز       |
+| `cancelled`   | ملغاة        | تم الإلغاء       |
+| `overdue`     | متأخرة       | تجاوزت الموعد    |
 
 ## أولويات المهام | Task Priority
 
-| الأولوية | Priority | الوصف |
-|----------|----------|--------|
-| `urgent` | عاجلة | تحتاج تنفيذ فوري |
-| `high` | عالية | مهمة جداً |
-| `medium` | متوسطة | عادية |
-| `low` | منخفضة | يمكن تأجيلها |
+| الأولوية | Priority | الوصف            |
+| -------- | -------- | ---------------- |
+| `urgent` | عاجلة    | تحتاج تنفيذ فوري |
+| `high`   | عالية    | مهمة جداً        |
+| `medium` | متوسطة   | عادية            |
+| `low`    | منخفضة   | يمكن تأجيلها     |
 
 ---
 

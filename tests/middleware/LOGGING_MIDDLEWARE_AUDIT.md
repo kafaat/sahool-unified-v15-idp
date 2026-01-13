@@ -1,4 +1,5 @@
 # Logging Middleware Audit Report - SAHOOL Platform
+
 ## Comprehensive Analysis of Request Logging, Application Logging, and Audit Trails
 
 **Generated:** 2026-01-06
@@ -16,15 +17,15 @@ This audit reveals a **fragmented logging infrastructure** with excellent middle
 
 ### Critical Findings
 
-| Category | Status | Score | Priority |
-|----------|--------|-------|----------|
-| **Request Logging in Kong** | ⚠️ Partial | 60% | HIGH |
-| **Application Logging** | ❌ Poor | 25% | CRITICAL |
-| **Log Format (JSON Structured)** | ❌ Poor | 5% | CRITICAL |
-| **Sensitive Data Protection** | ❌ Poor | 2% | CRITICAL |
-| **Log Levels** | ✅ Good | 75% | MEDIUM |
-| **Correlation IDs/Tracing** | ⚠️ Partial | 40% | HIGH |
-| **Audit Logging** | ⚠️ Available but Unused | 10% | HIGH |
+| Category                         | Status                  | Score | Priority |
+| -------------------------------- | ----------------------- | ----- | -------- |
+| **Request Logging in Kong**      | ⚠️ Partial              | 60%   | HIGH     |
+| **Application Logging**          | ❌ Poor                 | 25%   | CRITICAL |
+| **Log Format (JSON Structured)** | ❌ Poor                 | 5%    | CRITICAL |
+| **Sensitive Data Protection**    | ❌ Poor                 | 2%    | CRITICAL |
+| **Log Levels**                   | ✅ Good                 | 75%   | MEDIUM   |
+| **Correlation IDs/Tracing**      | ⚠️ Partial              | 40%   | HIGH     |
+| **Audit Logging**                | ⚠️ Available but Unused | 10%   | HIGH     |
 
 ### Key Statistics
 
@@ -224,6 +225,7 @@ logger = logging.getLogger(__name__)
 ```
 
 **Examples:**
+
 - `/apps/services/alert-service/src/main.py` (line 68-71)
 - `/apps/services/ndvi-engine/src/main.py` (prints instead of logging)
 - `/apps/services/billing-core/src/main.py`
@@ -252,6 +254,7 @@ structlog.configure(
 ```
 
 **Features:**
+
 - ✅ JSON structured logging
 - ✅ PII masking (email, phone, IP, credit cards, JWT, passwords)
 - ✅ Timestamp in ISO format
@@ -273,6 +276,7 @@ structlog.configure(
 ```
 
 **Features:**
+
 - ✅ JSON structured logging
 - ❌ No PII masking
 
@@ -289,6 +293,7 @@ Similar to agent-registry with JSON rendering but no PII masking.
 **A. `/shared/middleware/request_logging.py`** - 348 lines
 
 **Features:**
+
 - ✅ Comprehensive request logging middleware for FastAPI
 - ✅ Logs request method, path, status code, duration
 - ✅ Tracks user_id and tenant_id
@@ -312,12 +317,14 @@ app.add_middleware(
 ```
 
 **Sensitive Headers Redacted:**
+
 - authorization, cookie, x-api-key, x-auth-token, x-secret-key
 - password, secret, token
 
 **B. `/shared/observability/logging.py`** - 457 lines
 
 **Features:**
+
 - ✅ Structured JSON logging with JSONFormatter
 - ✅ Comprehensive PII masking (SensitiveDataMasker class)
 - ✅ Context variables for request tracing
@@ -325,6 +332,7 @@ app.add_middleware(
 - ✅ Service-specific logger with context
 
 **PII Patterns Masked:**
+
 - API keys, bearer tokens, JWT tokens
 - Passwords, database URLs with credentials
 - AWS access keys, secret keys
@@ -351,6 +359,7 @@ logger.info("Processing field", extra={"field_id": "123"})
 **C. `/shared/telemetry/logging.py`** - 445 lines
 
 **Features:**
+
 - ✅ OpenTelemetry integration
 - ✅ Automatic trace ID and span ID injection
 - ✅ JSON structured logging
@@ -370,6 +379,7 @@ logger.info("Fetching weather data", extra={"location": "Sana'a"})
 **D. `/shared/observability/middleware.py`** - 404 lines
 
 **Features:**
+
 - ✅ ObservabilityMiddleware for FastAPI
 - ✅ Automatic trace context extraction
 - ✅ Request ID generation
@@ -379,14 +389,14 @@ logger.info("Fetching weather data", extra={"location": "Sana'a"})
 
 #### 2.1.4 Findings for Python Services
 
-| Finding | Status | Impact | Priority |
-|---------|--------|--------|----------|
-| **Structured Logging** | ❌ Only 3/48 services | Cannot parse logs efficiently | CRITICAL |
-| **PII Masking** | ❌ Only 1/48 services | GDPR/compliance risk | CRITICAL |
-| **Shared Libraries Available** | ✅ Yes, comprehensive | Ready to use | N/A |
-| **Shared Libraries Used** | ❌ <10% adoption | Wasted effort | HIGH |
-| **Correlation IDs** | ⚠️ Some services | Inconsistent tracing | HIGH |
-| **Log Levels Configurable** | ✅ Most services | Good operational control | GOOD |
+| Finding                        | Status                | Impact                        | Priority |
+| ------------------------------ | --------------------- | ----------------------------- | -------- |
+| **Structured Logging**         | ❌ Only 3/48 services | Cannot parse logs efficiently | CRITICAL |
+| **PII Masking**                | ❌ Only 1/48 services | GDPR/compliance risk          | CRITICAL |
+| **Shared Libraries Available** | ✅ Yes, comprehensive | Ready to use                  | N/A      |
+| **Shared Libraries Used**      | ❌ <10% adoption      | Wasted effort                 | HIGH     |
+| **Correlation IDs**            | ⚠️ Some services      | Inconsistent tracing          | HIGH     |
+| **Log Levels Configurable**    | ✅ Most services      | Good operational control      | GOOD     |
 
 ### 2.2 Node.js/TypeScript Services (13 services)
 
@@ -395,17 +405,19 @@ logger.info("Fetching weather data", extra={"location": "Sana'a"})
 **Most services use console.log:**
 
 ```typescript
-console.log('Server running on port:', port);
-console.error('Error during shutdown:', error);
+console.log("Server running on port:", port);
+console.error("Error during shutdown:", error);
 ```
 
 **Examples:**
+
 - `/apps/services/marketplace-service/src/main.ts` (line 105, 122, 133, 137)
 - `/apps/services/user-service/src/main.ts` (line 142, 160, 171, 175)
 - `/apps/services/chat-service/src/main.ts`
 - All 13 Node.js services
 
 **Issues:**
+
 - ❌ Plain text logging
 - ❌ No structured format
 - ❌ No log levels
@@ -420,6 +432,7 @@ console.error('Error during shutdown:', error);
 **A. `/apps/services/shared/middleware/request-logging.ts`** - 435 lines
 
 **Features:**
+
 - ✅ NestJS RequestLoggingInterceptor
 - ✅ Structured JSON logging
 - ✅ Correlation ID generation and propagation
@@ -432,19 +445,19 @@ console.error('Error during shutdown:', error);
 **Usage Example:**
 
 ```typescript
-import { RequestLoggingInterceptor } from './shared/middleware/request-logging';
+import { RequestLoggingInterceptor } from "./shared/middleware/request-logging";
 
-app.useGlobalInterceptors(
-  new RequestLoggingInterceptor('marketplace-service')
-);
+app.useGlobalInterceptors(new RequestLoggingInterceptor("marketplace-service"));
 ```
 
 **Sensitive Headers Redacted:**
+
 - authorization, cookie, x-api-key, x-auth-token
 
 **B. `/packages/field-shared/src/middleware/logger.ts`** - 238 lines
 
 **Features:**
+
 - ✅ Structured JSON logging for Express
 - ✅ Request ID generation
 - ✅ HTTP request/response logging
@@ -454,7 +467,7 @@ app.useGlobalInterceptors(
 **Usage Example:**
 
 ```typescript
-import { requestLogger, errorLogger } from './middleware/logger';
+import { requestLogger, errorLogger } from "./middleware/logger";
 
 app.use(requestLogger);
 app.use(errorLogger);
@@ -463,6 +476,7 @@ app.use(errorLogger);
 **C. `/packages/shared-audit/src/audit-middleware.ts`** - 264 lines
 
 **Features:**
+
 - ✅ Audit context injection for NestJS
 - ✅ Extracts tenant ID, actor ID, correlation ID
 - ✅ Captures IP address and user agent
@@ -472,21 +486,21 @@ app.use(errorLogger);
 **Usage Example:**
 
 ```typescript
-import { AuditMiddleware } from '@shared/audit';
+import { AuditMiddleware } from "@shared/audit";
 
 app.add_middleware(AuditMiddleware);
 ```
 
 #### 2.2.3 Findings for Node.js Services
 
-| Finding | Status | Impact | Priority |
-|---------|--------|--------|----------|
-| **Structured Logging** | ❌ 0/13 services | Cannot parse logs | CRITICAL |
-| **Console.log Usage** | ❌ 100% of services | No log levels/context | CRITICAL |
-| **Shared Libraries Available** | ✅ Yes, 3 libraries | Ready to use | N/A |
-| **Shared Libraries Used** | ❌ 0% adoption | Complete waste | CRITICAL |
-| **Correlation IDs** | ❌ Not implemented | Cannot trace requests | HIGH |
-| **Sensitive Data Masking** | ❌ None | Security risk | CRITICAL |
+| Finding                        | Status              | Impact                | Priority |
+| ------------------------------ | ------------------- | --------------------- | -------- |
+| **Structured Logging**         | ❌ 0/13 services    | Cannot parse logs     | CRITICAL |
+| **Console.log Usage**          | ❌ 100% of services | No log levels/context | CRITICAL |
+| **Shared Libraries Available** | ✅ Yes, 3 libraries | Ready to use          | N/A      |
+| **Shared Libraries Used**      | ❌ 0% adoption      | Complete waste        | CRITICAL |
+| **Correlation IDs**            | ❌ Not implemented  | Cannot trace requests | HIGH     |
+| **Sensitive Data Masking**     | ❌ None             | Security risk         | CRITICAL |
 
 ---
 
@@ -494,12 +508,12 @@ app.add_middleware(AuditMiddleware);
 
 ### 3.1 Current State
 
-| Component | Format | Structured? | Parser-Friendly? |
-|-----------|--------|-------------|------------------|
-| **Kong** | Plain text | ❌ No | ❌ No |
-| **Python Services (45/48)** | Plain text | ❌ No | ❌ No |
-| **Python Services (3/48)** | JSON | ✅ Yes | ✅ Yes |
-| **Node.js Services (13/13)** | Plain text | ❌ No | ❌ No |
+| Component                    | Format     | Structured? | Parser-Friendly? |
+| ---------------------------- | ---------- | ----------- | ---------------- |
+| **Kong**                     | Plain text | ❌ No       | ❌ No            |
+| **Python Services (45/48)**  | Plain text | ❌ No       | ❌ No            |
+| **Python Services (3/48)**   | JSON       | ✅ Yes      | ✅ Yes           |
+| **Node.js Services (13/13)** | Plain text | ❌ No       | ❌ No            |
 
 ### 3.2 Example Log Formats
 
@@ -510,6 +524,7 @@ app.add_middleware(AuditMiddleware);
 ```
 
 **Issues:**
+
 - ❌ Not JSON
 - ❌ No correlation ID visible
 - ❌ No user/tenant context
@@ -522,6 +537,7 @@ app.add_middleware(AuditMiddleware);
 ```
 
 **Issues:**
+
 - ❌ Not JSON
 - ❌ No structured fields
 - ❌ Cannot filter by field ID
@@ -542,6 +558,7 @@ app.add_middleware(AuditMiddleware);
 ```
 
 **Excellent:**
+
 - ✅ JSON format
 - ✅ Structured fields
 - ✅ Easy to parse
@@ -555,6 +572,7 @@ Error during shutdown: Error: Database connection lost
 ```
 
 **Issues:**
+
 - ❌ Not JSON
 - ❌ No timestamp
 - ❌ No log level
@@ -613,6 +631,7 @@ Error during shutdown: Error: Database connection lost
 **Comprehensive PII Masker:**
 
 **Patterns Masked:**
+
 - Email addresses → `[EMAIL]`
 - Phone numbers (including Arabic formats) → `[PHONE]`
 - IP addresses → `[IP]`
@@ -625,6 +644,7 @@ Error during shutdown: Error: Database connection lost
 - Bank account numbers → `[ACCOUNT]`
 
 **Sensitive Fields Redacted:**
+
 - password, passwd, pwd
 - secret, token, api_key, apikey
 - authorization, auth, credential
@@ -714,6 +734,7 @@ def _redact_sensitive_data(self, data: dict) -> dict:
 **1. notification-service** - `/apps/services/notification-service/src/main.py`
 
 **Lines 514, 592:**
+
 ```python
 logger.info(f"SMS sent to {phone_number}")
 logger.info(f"Email sent to {email}")
@@ -724,6 +745,7 @@ logger.info(f"Email sent to {email}")
 **2. Most Python Services**
 
 Using `basicConfig` with no masking:
+
 ```python
 logger.info(f"Processing request for user {user_id}")
 ```
@@ -733,8 +755,9 @@ logger.info(f"Processing request for user {user_id}")
 **3. All Node.js Services**
 
 Using `console.log` with no masking:
+
 ```typescript
-console.log('User authenticated:', userId, email);
+console.log("User authenticated:", userId, email);
 ```
 
 **Risk:** Direct logging of user data
@@ -821,16 +844,16 @@ logger.info("User registered", user_email="user@example.com")
 
 ```typescript
 // Node.js
-import pino from 'pino';
-import { PIIMasker } from './shared/pii-masker';
+import pino from "pino";
+import { PIIMasker } from "./shared/pii-masker";
 
 const logger = pino({
   formatters: {
-    log: (obj) => PIIMasker.maskObject(obj)
-  }
+    log: (obj) => PIIMasker.maskObject(obj),
+  },
 });
 
-logger.info({ email: 'user@example.com' }, 'User registered');
+logger.info({ email: "user@example.com" }, "User registered");
 // Output: {"email":"[EMAIL]","msg":"User registered"}
 ```
 
@@ -842,15 +865,16 @@ logger.info({ email: 'user@example.com' }, 'User registered');
 
 #### Python Services
 
-| Configuration Type | Count | Status | Example |
-|-------------------|-------|--------|---------|
-| **Env Var Configurable** | ~15/48 | ✅ Good | `LOG_LEVEL=INFO` |
-| **Hardcoded INFO** | ~30/48 | ⚠️ OK | `level=logging.INFO` |
-| **Hardcoded DEBUG** | ~3/48 | ⚠️ Verbose | `level=logging.DEBUG` |
+| Configuration Type       | Count  | Status     | Example               |
+| ------------------------ | ------ | ---------- | --------------------- |
+| **Env Var Configurable** | ~15/48 | ✅ Good    | `LOG_LEVEL=INFO`      |
+| **Hardcoded INFO**       | ~30/48 | ⚠️ OK      | `level=logging.INFO`  |
+| **Hardcoded DEBUG**      | ~3/48  | ⚠️ Verbose | `level=logging.DEBUG` |
 
 **Examples:**
 
 **Good - Environment Variable:**
+
 ```python
 # /apps/services/ai-advisor/src/config.py
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -862,6 +886,7 @@ logging.basicConfig(
 ```
 
 **Suboptimal - Hardcoded:**
+
 ```python
 # /apps/services/alert-service/src/main.py
 logging.basicConfig(level=logging.INFO)
@@ -872,25 +897,28 @@ logging.basicConfig(level=logging.INFO)
 
 #### Node.js Services
 
-| Configuration Type | Count | Status |
-|-------------------|-------|--------|
-| **No Log Levels** | 13/13 | ❌ Poor |
+| Configuration Type          | Count | Status  |
+| --------------------------- | ----- | ------- |
+| **No Log Levels**           | 13/13 | ❌ Poor |
 | **Console.log (No Levels)** | 13/13 | ❌ Poor |
 
 **Issue:** Console.log has no log levels
+
 ```typescript
-console.log('Info message');  // No level distinction
-console.error('Error message');  // Only error level
+console.log("Info message"); // No level distinction
+console.error("Error message"); // Only error level
 ```
 
 ### 5.2 Log Level Hierarchy
 
 **Standard Levels (Python logging):**
+
 ```
 DEBUG (10) < INFO (20) < WARNING (30) < ERROR (40) < CRITICAL (50)
 ```
 
 **Recommended by Environment:**
+
 - **Development:** `DEBUG` - See all logs
 - **Staging:** `INFO` - See important operations
 - **Production:** `WARNING` - See warnings and errors only
@@ -917,6 +945,7 @@ DEBUG (10) < INFO (20) < WARNING (30) < ERROR (40) < CRITICAL (50)
 1. **Standardize Log Level Configuration**
 
 **Python template:**
+
 ```python
 import os
 import logging
@@ -929,17 +958,19 @@ logging.basicConfig(
 ```
 
 **Node.js template:**
+
 ```typescript
-import pino from 'pino';
+import pino from "pino";
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info'
+  level: process.env.LOG_LEVEL || "info",
 });
 ```
 
 2. **Document Log Level Usage**
 
 Create `/docs/LOGGING_STANDARDS.md`:
+
 ```markdown
 # Log Level Guidelines
 
@@ -990,6 +1021,7 @@ plugins:
 ```
 
 **Features:**
+
 - ✅ Generates UUID for each request
 - ✅ Uses standard header: `X-Request-ID`
 - ✅ Propagates to downstream services
@@ -1044,6 +1076,7 @@ class TraceContextFilter(logging.Filter):
 ```
 
 **Features:**
+
 - ✅ OpenTelemetry integration
 - ✅ Automatic trace ID and span ID injection
 - ✅ Compatible with distributed tracing
@@ -1084,7 +1117,8 @@ response.setHeader('X-Correlation-ID', correlationId);
 **B. Field Logger - `/packages/field-shared/src/middleware/logger.ts`**
 
 ```typescript
-const requestId = req.headers["x-request-id"] as string || generateRequestId();
+const requestId =
+  (req.headers["x-request-id"] as string) || generateRequestId();
 
 // Add to request
 (req as any).requestId = requestId;
@@ -1098,12 +1132,12 @@ res.setHeader("X-Request-ID", requestId);
 ```typescript
 // Generate or extract correlation ID
 const correlationId =
-  (req.headers['x-correlation-id'] as string) ||
-  (req.headers['x-request-id'] as string) ||
+  (req.headers["x-correlation-id"] as string) ||
+  (req.headers["x-request-id"] as string) ||
   uuidv4();
 
 // Add correlation ID to response headers
-res.setHeader('X-Correlation-Id', correlationId);
+res.setHeader("X-Correlation-Id", correlationId);
 ```
 
 ### 6.3 OpenTelemetry Integration
@@ -1111,6 +1145,7 @@ res.setHeader('X-Correlation-Id', correlationId);
 **Available:** `/shared/telemetry/tracing.py`
 
 **Features:**
+
 - ✅ W3C Trace Context propagation
 - ✅ Jaeger exporter
 - ✅ Automatic span creation
@@ -1130,11 +1165,11 @@ setup_tracing(
 **TypeScript:** `/shared/telemetry/tracing.ts`
 
 ```typescript
-import { setupTracing } from '@shared/telemetry/tracing';
+import { setupTracing } from "@shared/telemetry/tracing";
 
 setupTracing({
-  serviceName: 'my-service',
-  jaegerEndpoint: 'http://jaeger:14268/api/traces'
+  serviceName: "my-service",
+  jaegerEndpoint: "http://jaeger:14268/api/traces",
 });
 ```
 
@@ -1156,12 +1191,12 @@ setupTracing({
 
 ### 6.5 Current Usage Estimate
 
-| Service Category | Correlation ID Support | Estimate |
-|------------------|------------------------|----------|
-| **Kong Gateway** | ✅ Full support | 100% |
-| **Python Services with Shared Middleware** | ✅ Yes | ~10/48 (21%) |
-| **Python Services without Middleware** | ❌ No | ~38/48 (79%) |
-| **Node.js Services** | ❌ No | 0/13 (0%) |
+| Service Category                           | Correlation ID Support | Estimate     |
+| ------------------------------------------ | ---------------------- | ------------ |
+| **Kong Gateway**                           | ✅ Full support        | 100%         |
+| **Python Services with Shared Middleware** | ✅ Yes                 | ~10/48 (21%) |
+| **Python Services without Middleware**     | ❌ No                  | ~38/48 (79%) |
+| **Node.js Services**                       | ❌ No                  | 0/13 (0%)    |
 
 ### 6.6 Recommendations
 
@@ -1170,6 +1205,7 @@ setupTracing({
 1. **Mandate Correlation ID Middleware for All Services**
 
 **Python FastAPI:**
+
 ```python
 from shared.middleware.request_logging import RequestLoggingMiddleware
 
@@ -1180,12 +1216,11 @@ app.add_middleware(
 ```
 
 **Node.js NestJS:**
-```typescript
-import { RequestLoggingInterceptor } from './shared/middleware/request-logging';
 
-app.useGlobalInterceptors(
-  new RequestLoggingInterceptor('my-service')
-);
+```typescript
+import { RequestLoggingInterceptor } from "./shared/middleware/request-logging";
+
+app.useGlobalInterceptors(new RequestLoggingInterceptor("my-service"));
 ```
 
 2. **Enable OpenTelemetry Across Platform**
@@ -1201,6 +1236,7 @@ Use `X-Request-ID` consistently (Kong already uses this).
 4. **Add Correlation ID to All Logs**
 
 **Python:**
+
 ```python
 logger.info(
     "Processing field",
@@ -1212,11 +1248,15 @@ logger.info(
 ```
 
 **Node.js:**
+
 ```typescript
-logger.info({
-  correlationId: req.correlationId,
-  fieldId: '123'
-}, 'Processing field');
+logger.info(
+  {
+    correlationId: req.correlationId,
+    fieldId: "123",
+  },
+  "Processing field",
+);
 ```
 
 ---
@@ -1300,6 +1340,7 @@ CREATE TRIGGER audit_logs_no_update
 ```
 
 **Features:**
+
 - ✅ Immutable audit logs (no updates/deletes)
 - ✅ Hashchain for tamper detection
 - ✅ Full audit trail
@@ -1337,6 +1378,7 @@ class AuditService:
 ```
 
 **Features:**
+
 - ✅ Hashchain validation
 - ✅ Tamper detection
 - ✅ Cryptographic integrity
@@ -1388,15 +1430,15 @@ export class AuditMiddleware implements NestMiddleware {
   use(req: RequestWithAudit, res: Response, next: NextFunction): void {
     // Extract audit context
     req.audit = {
-      tenantId: req.headers['x-tenant-id'] || 'default',
-      actorId: req.headers['x-user-id'],
-      correlationId: req.headers['x-correlation-id'] || uuidv4(),
+      tenantId: req.headers["x-tenant-id"] || "default",
+      actorId: req.headers["x-user-id"],
+      correlationId: req.headers["x-correlation-id"] || uuidv4(),
       ipAddress: this.getClientIp(req),
-      userAgent: req.headers['user-agent'],
+      userAgent: req.headers["user-agent"],
     };
 
     // Add correlation ID to response
-    res.setHeader('X-Correlation-Id', req.audit.correlationId);
+    res.setHeader("X-Correlation-Id", req.audit.correlationId);
   }
 }
 ```
@@ -1406,12 +1448,12 @@ export class AuditMiddleware implements NestMiddleware {
 ```typescript
 @Injectable()
 export class MyController {
-  @Post('/update')
+  @Post("/update")
   async update(
     @Audit() audit: AuditContext,
     @TenantId() tenantId: string,
     @ActorId() actorId: string,
-    @CorrelationId() correlationId: string
+    @CorrelationId() correlationId: string,
   ) {
     // Audit context automatically injected
   }
@@ -1490,6 +1532,7 @@ export class AuditLogger {
 1. **Deploy Central Audit Service**
 
 Create `/apps/services/audit-service/` to:
+
 - Collect audit events from all services
 - Store in central database
 - Provide query API
@@ -1498,6 +1541,7 @@ Create `/apps/services/audit-service/` to:
 2. **Mandate Audit Logging for Sensitive Operations**
 
 **Required audit events:**
+
 - User authentication (login, logout, failed attempts)
 - User management (create, update, delete, role changes)
 - Data access (view sensitive data)
@@ -1508,6 +1552,7 @@ Create `/apps/services/audit-service/` to:
 3. **Implement Audit Middleware in All Services**
 
 **Python:**
+
 ```python
 from shared.libs.audit.middleware import AuditContextMiddleware
 
@@ -1515,8 +1560,9 @@ app.add_middleware(AuditContextMiddleware)
 ```
 
 **Node.js:**
+
 ```typescript
-import { AuditMiddleware } from '@shared/audit';
+import { AuditMiddleware } from "@shared/audit";
 
 app.use(AuditMiddleware);
 ```
@@ -1524,6 +1570,7 @@ app.use(AuditMiddleware);
 4. **Add Audit Logging to Critical Endpoints**
 
 **Python Example:**
+
 ```python
 from shared.libs.audit import get_audit_context, AuditService
 
@@ -1544,6 +1591,7 @@ async def update_field(field_id: str):
 ```
 
 **Node.js Example:**
+
 ```typescript
 @Post('/fields/:id')
 @UseGuards(AuthGuard)
@@ -1582,14 +1630,14 @@ async updateField(
 
 ### 8.1 Security Risks
 
-| Risk | Severity | Impact | Services Affected |
-|------|----------|--------|-------------------|
-| **PII Exposure in Logs** | 🔴 CRITICAL | GDPR violations, fines | 60/61 services |
-| **No Log Rotation** | 🔴 CRITICAL | Disk space exhaustion, service outage | All services |
-| **No Structured Logging** | 🟠 HIGH | Cannot detect security incidents | 58/61 services |
-| **Sensitive Data in Logs** | 🔴 CRITICAL | Credential exposure | 60/61 services |
-| **No Audit Logging** | 🟠 HIGH | Cannot track unauthorized access | 58/61 services |
-| **4,447 Print/Console.log** | 🟠 HIGH | Unpredictable log content | 172 files |
+| Risk                        | Severity    | Impact                                | Services Affected |
+| --------------------------- | ----------- | ------------------------------------- | ----------------- |
+| **PII Exposure in Logs**    | 🔴 CRITICAL | GDPR violations, fines                | 60/61 services    |
+| **No Log Rotation**         | 🔴 CRITICAL | Disk space exhaustion, service outage | All services      |
+| **No Structured Logging**   | 🟠 HIGH     | Cannot detect security incidents      | 58/61 services    |
+| **Sensitive Data in Logs**  | 🔴 CRITICAL | Credential exposure                   | 60/61 services    |
+| **No Audit Logging**        | 🟠 HIGH     | Cannot track unauthorized access      | 58/61 services    |
+| **4,447 Print/Console.log** | 🟠 HIGH     | Unpredictable log content             | 172 files         |
 
 ### 8.2 Compliance Risks
 
@@ -1598,6 +1646,7 @@ async updateField(
 **Current Status:** ❌ NON-COMPLIANT
 
 **Required:**
+
 - ✅ No hardcoded credentials found
 - ❌ PII masking only in 1/61 services (2%)
 - ❌ No data retention policies
@@ -1605,6 +1654,7 @@ async updateField(
 - ❌ No right to be forgotten (log purging)
 
 **Action Items:**
+
 1. Implement PII masking in all services
 2. Configure log retention (30-90 days)
 3. Document what PII is logged and why
@@ -1615,6 +1665,7 @@ async updateField(
 **Current Status:** ❌ NON-COMPLIANT
 
 **Required:**
+
 - ❌ Audit logging (<5% coverage)
 - ❌ Log integrity (hashchain available but unused)
 - ❌ Access controls (no documented log access policies)
@@ -1623,6 +1674,7 @@ async updateField(
 - ⚠️ Encryption at rest (depends on infrastructure)
 
 **Action Items:**
+
 1. Deploy central audit service
 2. Implement audit logging in all services
 3. Enable hashchain validation
@@ -1631,28 +1683,28 @@ async updateField(
 
 ### 8.3 Operational Risks
 
-| Risk | Impact | Probability | Services |
-|------|--------|-------------|----------|
-| **Disk Space Exhaustion** | Service outage | HIGH | All services |
-| **Cannot Debug Issues** | Extended downtime | HIGH | 58/61 services |
-| **Cannot Trace Requests** | Poor customer support | MEDIUM | 40/61 services |
-| **Log Overload** | Performance degradation | MEDIUM | All services |
-| **Missing Audit Trail** | Cannot investigate incidents | HIGH | 58/61 services |
+| Risk                      | Impact                       | Probability | Services       |
+| ------------------------- | ---------------------------- | ----------- | -------------- |
+| **Disk Space Exhaustion** | Service outage               | HIGH        | All services   |
+| **Cannot Debug Issues**   | Extended downtime            | HIGH        | 58/61 services |
+| **Cannot Trace Requests** | Poor customer support        | MEDIUM      | 40/61 services |
+| **Log Overload**          | Performance degradation      | MEDIUM      | All services   |
+| **Missing Audit Trail**   | Cannot investigate incidents | HIGH        | 58/61 services |
 
 ### 8.4 Technical Debt
 
 **Estimated Effort to Fix:**
 
-| Task | Effort (Developer Weeks) | Priority | Dependencies |
-|------|--------------------------|----------|--------------|
-| **Implement Log Rotation** | 1 week | CRITICAL | Infrastructure |
-| **Deploy Shared Logging Middleware** | 4 weeks | CRITICAL | Testing |
-| **Migrate to JSON Logging** | 8 weeks | CRITICAL | Shared middleware |
-| **Implement PII Masking** | 3 weeks | CRITICAL | Testing |
-| **Replace Print/Console.log** | 12 weeks | HIGH | Code review |
-| **Deploy Central Audit Service** | 6 weeks | HIGH | Database |
-| **Implement Audit Logging** | 8 weeks | HIGH | Audit service |
-| **OpenTelemetry Deployment** | 4 weeks | MEDIUM | Jaeger setup |
+| Task                                 | Effort (Developer Weeks) | Priority | Dependencies      |
+| ------------------------------------ | ------------------------ | -------- | ----------------- |
+| **Implement Log Rotation**           | 1 week                   | CRITICAL | Infrastructure    |
+| **Deploy Shared Logging Middleware** | 4 weeks                  | CRITICAL | Testing           |
+| **Migrate to JSON Logging**          | 8 weeks                  | CRITICAL | Shared middleware |
+| **Implement PII Masking**            | 3 weeks                  | CRITICAL | Testing           |
+| **Replace Print/Console.log**        | 12 weeks                 | HIGH     | Code review       |
+| **Deploy Central Audit Service**     | 6 weeks                  | HIGH     | Database          |
+| **Implement Audit Logging**          | 8 weeks                  | HIGH     | Audit service     |
+| **OpenTelemetry Deployment**         | 4 weeks                  | MEDIUM   | Jaeger setup      |
 
 **Total Estimated Effort:** ~46 developer weeks (~11.5 months with 1 developer)
 
@@ -1671,7 +1723,7 @@ async updateField(
 ```yaml
 # docker-compose.logging.yml
 
-version: '3.8'
+version: "3.8"
 
 x-logging: &default-logging
   driver: "json-file"
@@ -1695,6 +1747,7 @@ services:
 ```
 
 **Apply with:**
+
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.logging.yml up -d
 ```
@@ -1730,23 +1783,24 @@ logger = get_logger(__name__)
 
 ```typescript
 // Before
-console.log('Message');
+console.log("Message");
 
 // After
-import pino from 'pino';
-import { PIIMasker } from './shared/pii-masker';
+import pino from "pino";
+import { PIIMasker } from "./shared/pii-masker";
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.LOG_LEVEL || "info",
   formatters: {
-    log: (obj) => PIIMasker.maskObject(obj)
-  }
+    log: (obj) => PIIMasker.maskObject(obj),
+  },
 });
 
-logger.info('Message');
+logger.info("Message");
 ```
 
 **Rollout Plan:**
+
 1. Week 2: Deploy to 3 pilot services
 2. Week 3: Deploy to 15 high-priority services
 3. Week 4: Deploy to remaining services
@@ -1760,11 +1814,11 @@ logger.info('Message');
 ```typescript
 export class PIIMasker {
   private static readonly PATTERNS: Record<string, [RegExp, string]> = {
-    email: [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]'],
-    phone: [/(\+?[\d\s\-\(\)]{10,})/g, '[PHONE]'],
-    ipv4: [/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, '[IP]'],
-    jwt: [/eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, '[JWT]'],
-    apiKey: [/[a-zA-Z0-9]{32,}/g, '[API_KEY]'],
+    email: [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[EMAIL]"],
+    phone: [/(\+?[\d\s\-\(\)]{10,})/g, "[PHONE]"],
+    ipv4: [/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, "[IP]"],
+    jwt: [/eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, "[JWT]"],
+    apiKey: [/[a-zA-Z0-9]{32,}/g, "[API_KEY]"],
   };
 
   static maskString(text: string): string {
@@ -1776,17 +1830,17 @@ export class PIIMasker {
   }
 
   static maskObject(obj: any): any {
-    if (typeof obj === 'string') {
+    if (typeof obj === "string") {
       return this.maskString(obj);
     }
     if (Array.isArray(obj)) {
-      return obj.map(item => this.maskObject(item));
+      return obj.map((item) => this.maskObject(item));
     }
-    if (obj && typeof obj === 'object') {
+    if (obj && typeof obj === "object") {
       const masked: any = {};
       for (const [key, value] of Object.entries(obj)) {
-        if (['password', 'secret', 'token', 'apiKey'].includes(key)) {
-          masked[key] = '[REDACTED]';
+        if (["password", "secret", "token", "apiKey"].includes(key)) {
+          masked[key] = "[REDACTED]";
         } else {
           masked[key] = this.maskObject(value);
         }
@@ -1805,11 +1859,13 @@ export class PIIMasker {
 **Service-by-Service Migration:**
 
 **Week 5-6: Python Services (48 services)**
+
 - Use shared/observability/logging.py
 - Replace logging.basicConfig()
 - Add request logging middleware
 
 **Week 7-8: Node.js Services (13 services)**
+
 - Implement pino logger
 - Add request logging interceptor
 - Replace console.log
@@ -1829,15 +1885,17 @@ grep -r "console.log" apps/services/ --include="*.ts" > console_log_statements.t
 **Create Linting Rules:**
 
 **.eslintrc.js:**
+
 ```javascript
 module.exports = {
   rules: {
-    'no-console': ['error', { allow: ['error'] }],
+    "no-console": ["error", { allow: ["error"] }],
   },
 };
 ```
 
 **pylint config:**
+
 ```ini
 [MESSAGES CONTROL]
 disable=print-statement
@@ -1850,6 +1908,7 @@ disable=print-statement
 **Create `/apps/services/audit-service/`**
 
 **Features:**
+
 - Collect audit events via NATS
 - Store in PostgreSQL
 - Provide query API
@@ -1857,6 +1916,7 @@ disable=print-statement
 - Hashchain validation
 
 **Schema:**
+
 ```sql
 CREATE TABLE audit_events (
     id UUID PRIMARY KEY,
@@ -1883,6 +1943,7 @@ CREATE INDEX idx_audit_correlation ON audit_events(correlation_id);
 **Mandate Middleware:**
 
 All services MUST use:
+
 - Python: `shared.middleware.request_logging.RequestLoggingMiddleware`
 - Node.js: `RequestLoggingInterceptor`
 
@@ -1901,8 +1962,8 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
-      - "16686:16686"  # UI
-      - "14268:14268"  # HTTP collector
+      - "16686:16686" # UI
+      - "14268:14268" # HTTP collector
     environment:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
 ```
@@ -1921,11 +1982,11 @@ setup_tracing(
 
 ```typescript
 // Node.js
-import { setupTracing } from '@shared/telemetry/tracing';
+import { setupTracing } from "@shared/telemetry/tracing";
 
 setupTracing({
-  serviceName: 'my-service',
-  jaegerEndpoint: 'http://jaeger:14268/api/traces'
+  serviceName: "my-service",
+  jaegerEndpoint: "http://jaeger:14268/api/traces",
 });
 ```
 
@@ -1935,52 +1996,56 @@ setupTracing({
 
 ### Phase 1: Critical Fixes (Weeks 1-4)
 
-| Week | Task | Owner | Deliverable |
-|------|------|-------|-------------|
-| 1 | Implement log rotation | DevOps | docker-compose.logging.yml |
-| 2-3 | Deploy shared logging middleware | Backend Team | 20 services migrated |
-| 4 | Implement PII masking | Security Team | PII masker for Node.js |
+| Week | Task                             | Owner         | Deliverable                |
+| ---- | -------------------------------- | ------------- | -------------------------- |
+| 1    | Implement log rotation           | DevOps        | docker-compose.logging.yml |
+| 2-3  | Deploy shared logging middleware | Backend Team  | 20 services migrated       |
+| 4    | Implement PII masking            | Security Team | PII masker for Node.js     |
 
 **Success Criteria:**
+
 - ✅ No services experiencing disk space issues
 - ✅ 20/61 services using shared middleware
 - ✅ PII masking available for all languages
 
 ### Phase 2: Standardization (Weeks 5-12)
 
-| Week | Task | Owner | Deliverable |
-|------|------|-------|-------------|
-| 5-6 | Migrate Python services to JSON logging | Backend Team | 48 services migrated |
-| 7-8 | Migrate Node.js services to pino | Frontend Team | 13 services migrated |
-| 9-12 | Replace print/console.log | All Teams | <100 statements remaining |
+| Week | Task                                    | Owner         | Deliverable               |
+| ---- | --------------------------------------- | ------------- | ------------------------- |
+| 5-6  | Migrate Python services to JSON logging | Backend Team  | 48 services migrated      |
+| 7-8  | Migrate Node.js services to pino        | Frontend Team | 13 services migrated      |
+| 9-12 | Replace print/console.log               | All Teams     | <100 statements remaining |
 
 **Success Criteria:**
+
 - ✅ 100% services use JSON logging
 - ✅ 100% services use structured logging
 - ✅ <5% of codebase uses print/console.log
 
 ### Phase 3: Observability (Weeks 13-20)
 
-| Week | Task | Owner | Deliverable |
-|------|------|-------|-------------|
+| Week  | Task                         | Owner        | Deliverable                 |
+| ----- | ---------------------------- | ------------ | --------------------------- |
 | 13-16 | Deploy central audit service | Backend Team | Audit service in production |
-| 17-18 | Implement correlation IDs | All Teams | 100% coverage |
-| 19-20 | Deploy OpenTelemetry | DevOps | Jaeger dashboard live |
+| 17-18 | Implement correlation IDs    | All Teams    | 100% coverage               |
+| 19-20 | Deploy OpenTelemetry         | DevOps       | Jaeger dashboard live       |
 
 **Success Criteria:**
+
 - ✅ Central audit service operational
 - ✅ All requests have correlation IDs
 - ✅ Distributed tracing functional
 
 ### Phase 4: Monitoring (Weeks 21-24)
 
-| Week | Task | Owner | Deliverable |
-|------|------|-------|-------------|
-| 21-22 | Create audit dashboard | Frontend Team | Audit UI |
-| 23 | Implement security alerting | Security Team | Alert rules |
-| 24 | Documentation and training | Tech Lead | Docs complete |
+| Week  | Task                        | Owner         | Deliverable   |
+| ----- | --------------------------- | ------------- | ------------- |
+| 21-22 | Create audit dashboard      | Frontend Team | Audit UI      |
+| 23    | Implement security alerting | Security Team | Alert rules   |
+| 24    | Documentation and training  | Tech Lead     | Docs complete |
 
 **Success Criteria:**
+
 - ✅ Audit dashboard operational
 - ✅ Security alerts configured
 - ✅ Team trained on new logging
@@ -2078,6 +2143,7 @@ log_error_rate{service="my-service"} 0.05
 - [ ] DPO informed of logging practices (❌)
 
 **Action Items:**
+
 1. Implement PII masking everywhere
 2. Set log retention to 90 days
 3. Implement user deletion workflow (purge logs)
@@ -2094,6 +2160,7 @@ log_error_rate{service="my-service"} 0.05
 - [ ] Regular log review procedures (❌)
 
 **Action Items:**
+
 1. Deploy central audit service
 2. Enable hashchain validation
 3. Document log access procedures
@@ -2102,18 +2169,21 @@ log_error_rate{service="my-service"} 0.05
 ### 12.3 Security Best Practices
 
 **Implemented:**
+
 - ✅ Non-root users in Docker containers
 - ✅ No credentials in code
 - ✅ JWT secrets from environment variables
 - ✅ Secure CORS configuration
 
 **Not Implemented:**
+
 - ❌ Log encryption at rest
 - ❌ Log access controls (RBAC)
 - ❌ Log tampering prevention (except audit logs)
 - ❌ Security information and event management (SIEM)
 
 **Recommendations:**
+
 1. Encrypt logs at rest if storing PII
 2. Implement log access RBAC
 3. Enable hashchain for all logs (not just audit)
@@ -2128,6 +2198,7 @@ log_error_rate{service="my-service"} 0.05
 The SAHOOL platform has a **fragmented logging infrastructure** with the following characteristics:
 
 **Strengths:**
+
 - ✅ Excellent shared middleware libraries available
 - ✅ Comprehensive PII masking capabilities in shared libraries
 - ✅ OpenTelemetry integration ready
@@ -2135,6 +2206,7 @@ The SAHOOL platform has a **fragmented logging infrastructure** with the followi
 - ✅ Kong correlation ID generation
 
 **Critical Weaknesses:**
+
 - 🔴 Only 5% of services use structured JSON logging
 - 🔴 Only 2% of services have PII masking
 - 🔴 No log rotation configured (risk of disk exhaustion)
@@ -2144,16 +2216,19 @@ The SAHOOL platform has a **fragmented logging infrastructure** with the followi
 ### 13.2 Risk Assessment
 
 **Security Risk: CRITICAL**
+
 - PII exposure in 98% of services
 - No audit trail for 95% of services
 - Potential GDPR violations
 
 **Operational Risk: HIGH**
+
 - Cannot debug issues in 95% of services
 - No request tracing in 60% of services
 - Disk space exhaustion risk
 
 **Compliance Risk: CRITICAL**
+
 - Non-compliant with GDPR
 - Non-compliant with SOC 2
 - No audit logging
@@ -2163,6 +2238,7 @@ The SAHOOL platform has a **fragmented logging infrastructure** with the followi
 **Total Effort:** ~46 developer weeks (~11.5 months with 1 developer, ~6 months with 2 developers)
 
 **ROI:**
+
 - **Security:** Prevent GDPR fines (€20M or 4% of revenue)
 - **Operational:** Reduce debugging time by 70%
 - **Compliance:** Enable SOC 2 certification
@@ -2171,17 +2247,20 @@ The SAHOOL platform has a **fragmented logging infrastructure** with the followi
 ### 13.4 Next Steps
 
 **Immediate Actions (This Week):**
+
 1. ✅ Present this audit report to leadership
 2. ✅ Get approval for logging improvement initiative
 3. ✅ Assign team for Phase 1 (Critical Fixes)
 4. ✅ Schedule kickoff meeting
 
 **Week 1:**
+
 1. Implement log rotation
 2. Test on 3 pilot services
 3. Deploy to all services
 
 **Week 2-4:**
+
 1. Deploy shared logging middleware
 2. Implement PII masking for Node.js
 3. Migrate 20 high-priority services
@@ -2195,34 +2274,36 @@ Follow the roadmap outlined in Section 10.
 
 ### Appendix A: Shared Middleware Inventory
 
-| Library | Language | Lines | Features | Location |
-|---------|----------|-------|----------|----------|
-| RequestLoggingMiddleware | Python | 348 | JSON logging, PII masking, correlation IDs | /shared/middleware/request_logging.py |
-| SensitiveDataMasker | Python | 457 | Comprehensive PII masking | /shared/observability/logging.py |
-| OpenTelemetry Logging | Python | 445 | Trace integration, JSON logging | /shared/telemetry/logging.py |
-| ObservabilityMiddleware | Python | 404 | Metrics, tracing, logging | /shared/observability/middleware.py |
-| RequestLoggingInterceptor | TypeScript | 435 | NestJS logging, correlation IDs | /apps/services/shared/middleware/request-logging.ts |
-| Express Logger | TypeScript | 238 | Express middleware, JSON logging | /packages/field-shared/src/middleware/logger.ts |
-| AuditMiddleware | TypeScript | 264 | Audit context, decorators | /packages/shared-audit/src/audit-middleware.ts |
+| Library                   | Language   | Lines | Features                                   | Location                                            |
+| ------------------------- | ---------- | ----- | ------------------------------------------ | --------------------------------------------------- |
+| RequestLoggingMiddleware  | Python     | 348   | JSON logging, PII masking, correlation IDs | /shared/middleware/request_logging.py               |
+| SensitiveDataMasker       | Python     | 457   | Comprehensive PII masking                  | /shared/observability/logging.py                    |
+| OpenTelemetry Logging     | Python     | 445   | Trace integration, JSON logging            | /shared/telemetry/logging.py                        |
+| ObservabilityMiddleware   | Python     | 404   | Metrics, tracing, logging                  | /shared/observability/middleware.py                 |
+| RequestLoggingInterceptor | TypeScript | 435   | NestJS logging, correlation IDs            | /apps/services/shared/middleware/request-logging.ts |
+| Express Logger            | TypeScript | 238   | Express middleware, JSON logging           | /packages/field-shared/src/middleware/logger.ts     |
+| AuditMiddleware           | TypeScript | 264   | Audit context, decorators                  | /packages/shared-audit/src/audit-middleware.ts      |
 
 ### Appendix B: Service Adoption Matrix
 
-| Service | JSON Logging | PII Masking | Correlation ID | Audit Logging | Status |
-|---------|--------------|-------------|----------------|---------------|--------|
-| ai-advisor | ✅ | ✅ | ✅ | ❌ | ✅ Excellent |
-| agent-registry | ✅ | ❌ | ✅ | ❌ | ⚠️ Good |
-| globalgap-compliance | ✅ | ❌ | ✅ | ❌ | ⚠️ Good |
-| marketplace-service | ❌ | ❌ | ❌ | ✅ | ⚠️ Partial |
-| [57 other services] | ❌ | ❌ | ⚠️ | ❌ | ❌ Poor |
+| Service              | JSON Logging | PII Masking | Correlation ID | Audit Logging | Status       |
+| -------------------- | ------------ | ----------- | -------------- | ------------- | ------------ |
+| ai-advisor           | ✅           | ✅          | ✅             | ❌            | ✅ Excellent |
+| agent-registry       | ✅           | ❌          | ✅             | ❌            | ⚠️ Good      |
+| globalgap-compliance | ✅           | ❌          | ✅             | ❌            | ⚠️ Good      |
+| marketplace-service  | ❌           | ❌          | ❌             | ✅            | ⚠️ Partial   |
+| [57 other services]  | ❌           | ❌          | ⚠️             | ❌            | ❌ Poor      |
 
 ### Appendix C: Log Format Examples
 
 **Kong Access Log (Current - Plain Text):**
+
 ```
 127.0.0.1 - - [06/Jan/2026:10:15:30 +0000] "GET /api/v1/fields HTTP/1.1" 200 1234 "-" "Mozilla/5.0"
 ```
 
 **Kong Access Log (Recommended - JSON):**
+
 ```json
 {
   "timestamp": "2026-01-06T10:15:30.123Z",
@@ -2237,11 +2318,13 @@ Follow the roadmap outlined in Section 10.
 ```
 
 **Application Log (Current - Plain Text):**
+
 ```
 2026-01-06 10:15:30 - alert-service - INFO - Processing alert for field 123
 ```
 
 **Application Log (Recommended - JSON):**
+
 ```json
 {
   "timestamp": "2026-01-06T10:15:30.123Z",
@@ -2260,6 +2343,7 @@ Follow the roadmap outlined in Section 10.
 ### Appendix D: References
 
 **Internal Documentation:**
+
 - `/tests/container/LOGGING_CONFIG_REPORT.md` - Previous logging audit
 - `/shared/middleware/REQUEST_LOGGING_ARCHITECTURE.md` - Logging architecture
 - `/shared/middleware/REQUEST_LOGGING_GUIDE.md` - Implementation guide
@@ -2267,6 +2351,7 @@ Follow the roadmap outlined in Section 10.
 - `/shared/telemetry/README.md` - Telemetry integration
 
 **External Resources:**
+
 - [12-Factor App: Logs](https://12factor.net/logs)
 - [OpenTelemetry Logging](https://opentelemetry.io/docs/reference/specification/logs/)
 - [GDPR Logging Guidelines](https://gdpr.eu/logging/)
@@ -2283,6 +2368,7 @@ Follow the roadmap outlined in Section 10.
 **Lines of Code Analyzed:** ~50,000+
 
 **Approval Required From:**
+
 - [ ] CTO / Engineering Lead
 - [ ] Security Team Lead
 - [ ] DevOps Team Lead

@@ -7,27 +7,39 @@
 // Report Type Enums
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type ReportType = 'field' | 'season' | 'scouting' | 'tasks' | 'ndvi' | 'weather' | 'comprehensive';
+export type ReportType =
+  | "field"
+  | "season"
+  | "scouting"
+  | "tasks"
+  | "ndvi"
+  | "weather"
+  | "comprehensive";
 
-export type ReportFormat = 'pdf' | 'excel' | 'csv' | 'json';
+export type ReportFormat = "pdf" | "excel" | "csv" | "json";
 
-export type ReportStatus = 'pending' | 'generating' | 'ready' | 'failed' | 'expired';
+export type ReportStatus =
+  | "pending"
+  | "generating"
+  | "ready"
+  | "failed"
+  | "expired";
 
 export type ReportSection =
-  | 'field_info'
-  | 'ndvi_trend'
-  | 'health_zones'
-  | 'tasks_summary'
-  | 'weather_summary'
-  | 'recommendations'
-  | 'crop_stages'
-  | 'yield_estimate'
-  | 'input_summary'
-  | 'cost_analysis'
-  | 'pest_disease'
-  | 'soil_analysis';
+  | "field_info"
+  | "ndvi_trend"
+  | "health_zones"
+  | "tasks_summary"
+  | "weather_summary"
+  | "recommendations"
+  | "crop_stages"
+  | "yield_estimate"
+  | "input_summary"
+  | "cost_analysis"
+  | "pest_disease"
+  | "soil_analysis";
 
-export type ShareMethod = 'link' | 'email' | 'whatsapp' | 'download';
+export type ShareMethod = "link" | "email" | "whatsapp" | "download";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Field Report Types
@@ -41,7 +53,7 @@ export interface FieldReportOptions {
   includeCharts?: boolean;
   includeMaps?: boolean;
   format?: ReportFormat;
-  language?: 'ar' | 'en' | 'both';
+  language?: "ar" | "en" | "both";
 }
 
 export interface FieldReportData {
@@ -65,7 +77,7 @@ export interface FieldReportData {
     dates: string[];
     values: number[];
     average: number;
-    trend: 'increasing' | 'decreasing' | 'stable';
+    trend: "increasing" | "decreasing" | "stable";
   };
   healthZones?: {
     healthy: number;
@@ -90,7 +102,7 @@ export interface FieldReportData {
   recommendations?: Array<{
     id: string;
     type: string;
-    priority: 'high' | 'medium' | 'low';
+    priority: "high" | "medium" | "low";
     title: string;
     titleAr: string;
     description: string;
@@ -110,7 +122,7 @@ export interface SeasonReportOptions {
   sections: ReportSection[];
   includeCharts?: boolean;
   format?: ReportFormat;
-  language?: 'ar' | 'en' | 'both';
+  language?: "ar" | "en" | "both";
 }
 
 export interface SeasonReportData {
@@ -208,7 +220,7 @@ export interface GeneratedReport {
   completedAt?: string;
   expiresAt?: string;
   createdBy?: string;
-  language: 'ar' | 'en' | 'both';
+  language: "ar" | "en" | "both";
   metadata?: Record<string, unknown>;
 }
 
@@ -244,7 +256,7 @@ export interface GenerateFieldReportRequest {
     includeMaps?: boolean;
     includeRecommendations?: boolean;
     format?: ReportFormat;
-    language?: 'ar' | 'en' | 'both';
+    language?: "ar" | "en" | "both";
     title?: string;
     titleAr?: string;
   };
@@ -261,7 +273,7 @@ export interface GenerateSeasonReportRequest {
     includeCostAnalysis?: boolean;
     includeYieldEstimate?: boolean;
     format?: ReportFormat;
-    language?: 'ar' | 'en' | 'both';
+    language?: "ar" | "en" | "both";
     title?: string;
     titleAr?: string;
   };
@@ -309,11 +321,11 @@ export interface ShareReportResponse {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface PDFGenerationOptions {
-  language: 'ar' | 'en' | 'both';
+  language: "ar" | "en" | "both";
   includeCharts: boolean;
   includeMaps: boolean;
-  pageSize: 'A4' | 'Letter';
-  orientation: 'portrait' | 'landscape';
+  pageSize: "A4" | "Letter";
+  orientation: "portrait" | "landscape";
   margins: {
     top: number;
     bottom: number;
@@ -332,7 +344,7 @@ export interface PDFGenerationOptions {
 }
 
 export interface PDFChartConfig {
-  type: 'line' | 'bar' | 'pie' | 'area';
+  type: "line" | "bar" | "pie" | "area";
   data: {
     labels: string[];
     datasets: Array<{

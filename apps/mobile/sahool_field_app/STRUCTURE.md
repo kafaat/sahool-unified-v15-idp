@@ -1,4 +1,5 @@
 # SAHOOL Field App - Project Structure
+
 # هيكلة مشروع تطبيق ساهول الميداني
 
 ## Architecture Overview | نظرة عامة على الهيكلة
@@ -281,6 +282,7 @@ feature_name/
 ## Naming Conventions | اصطلاحات التسمية
 
 ### Files | الملفات
+
 ```
 # Models
 user_model.dart              # Data model
@@ -301,6 +303,7 @@ login_form.dart              # Reusable widget
 ```
 
 ### Classes | الكلاسات
+
 ```dart
 // Models
 class UserModel { }
@@ -421,6 +424,7 @@ dart run build_runner clean
 ```
 
 ### Generated Files | الملفات المولدة
+
 ```
 *.g.dart           # JSON serializable, Drift
 *.freezed.dart     # Freezed models
@@ -469,15 +473,15 @@ test/
 
 ## Key Technologies | التقنيات الرئيسية
 
-| Category | Technology | Purpose |
-|----------|------------|---------|
-| State Management | Riverpod | Reactive state |
-| Database | Drift (SQLite) | Offline storage |
-| Networking | Dio | HTTP client |
-| Navigation | GoRouter | Declarative routing |
-| Maps | flutter_map | GIS & mapping |
-| Code Gen | Freezed, JSON Serializable | Immutable models |
-| Testing | flutter_test | Unit & widget tests |
+| Category         | Technology                 | Purpose             |
+| ---------------- | -------------------------- | ------------------- |
+| State Management | Riverpod                   | Reactive state      |
+| Database         | Drift (SQLite)             | Offline storage     |
+| Networking       | Dio                        | HTTP client         |
+| Navigation       | GoRouter                   | Declarative routing |
+| Maps             | flutter_map                | GIS & mapping       |
+| Code Gen         | Freezed, JSON Serializable | Immutable models    |
+| Testing          | flutter_test               | Unit & widget tests |
 
 ---
 

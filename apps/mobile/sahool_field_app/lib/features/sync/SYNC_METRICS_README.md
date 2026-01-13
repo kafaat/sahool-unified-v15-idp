@@ -7,6 +7,7 @@ A comprehensive sync metrics monitoring system for the SAHOOL Field App that tra
 ## Features
 
 ### 1. Metrics Tracking
+
 - **Total sync operations** (success/failure counts)
 - **Average sync duration** (performance monitoring)
 - **Bandwidth usage estimates** (payload size tracking)
@@ -15,12 +16,14 @@ A comprehensive sync metrics monitoring system for the SAHOOL Field App that tra
 - **Queue depth over time** (load monitoring)
 
 ### 2. Data Persistence
+
 - Metrics stored in `SharedPreferences`
 - Automatic save on every update
 - Survives app restarts
 - Efficient JSON serialization
 
 ### 3. Metrics Aggregation
+
 - **Real-time metrics**: Current state
 - **Daily metrics**: Last 7 days aggregated
 - **Weekly metrics**: Long-term trends
@@ -28,6 +31,7 @@ A comprehensive sync metrics monitoring system for the SAHOOL Field App that tra
 - **Queue depth history**: Last 1000 samples
 
 ### 4. Export Functionality
+
 - JSON export for debugging
 - Copy to clipboard support
 - Formatted output for support tickets
@@ -108,6 +112,7 @@ void main() async {
 ### Step 2: Use in Your UI
 
 **Compact View (Dashboard)**
+
 ```dart
 class HomeScreen extends StatelessWidget {
   @override
@@ -125,6 +130,7 @@ class HomeScreen extends StatelessWidget {
 ```
 
 **Full View (Dedicated Screen)**
+
 ```dart
 class MetricsScreen extends StatelessWidget {
   @override
@@ -140,6 +146,7 @@ class MetricsScreen extends StatelessWidget {
 ### Step 3: Automatic Tracking
 
 Once integrated, metrics are automatically tracked by:
+
 - `SyncEngine` - Records upload/download operations
 - `QueueManager` - Monitors queue depth every 30 seconds
 
@@ -152,6 +159,7 @@ No manual tracking needed!
 #### Methods
 
 **startSyncOperation()**
+
 ```dart
 String startSyncOperation({
   required SyncOperationType type,
@@ -159,9 +167,11 @@ String startSyncOperation({
   int? estimatedPayloadSize,
 })
 ```
+
 Starts tracking a sync operation. Returns operation ID.
 
 **completeSyncOperation()**
+
 ```dart
 Future<void> completeSyncOperation({
   required String operationId,
@@ -172,9 +182,11 @@ Future<void> completeSyncOperation({
   ConflictResolution? conflictResolution,
 })
 ```
+
 Completes tracking and records results.
 
 **recordRetry()**
+
 ```dart
 Future<void> recordRetry({
   required String operationId,
@@ -182,25 +194,32 @@ Future<void> recordRetry({
   required Duration backoffDelay,
 })
 ```
+
 Records a retry attempt.
 
 **updateQueueDepth()**
+
 ```dart
 Future<void> updateQueueDepth(int depth)
 ```
+
 Updates current queue depth for monitoring.
 
 **exportMetrics()**
+
 ```dart
 Map<String, dynamic> exportMetrics()
 String exportMetricsAsString()
 ```
+
 Exports metrics as JSON for debugging.
 
 **resetMetrics()**
+
 ```dart
 Future<void> resetMetrics()
 ```
+
 Clears all metrics (use with caution).
 
 ### SyncMetrics Model
@@ -233,12 +252,14 @@ class SyncMetrics {
 ### SyncMetricsWidget
 
 **Compact Mode**
+
 - Overall health indicator
 - Key metrics (operations, success rate, conflicts, queue depth)
 - Last sync time
 - Suitable for dashboard/home screen
 
 **Full Mode**
+
 - Overall health card
 - Performance metrics (duration, bandwidth, queue stats)
 - Historical trends chart (7 days)
@@ -251,12 +272,14 @@ class SyncMetrics {
 ### Charts
 
 **Historical Trends**
+
 - Line chart showing daily metrics
 - Three lines: total operations, successful, failed
 - Last 7 days of data
 - Interactive tooltips
 
 **Queue Depth**
+
 - Line chart showing queue depth over time
 - Last 100 samples
 - Helps identify sync bottlenecks
@@ -265,12 +288,12 @@ class SyncMetrics {
 
 ### Health Indicators
 
-| Metric | Healthy | Warning | Critical |
-|--------|---------|---------|----------|
-| Success Rate | > 90% | 80-90% | < 80% |
-| Queue Depth | < 5 | 5-10 | > 10 |
-| Conflicts | < 2/day | 2-5/day | > 5/day |
-| Avg Duration | < 2s | 2-5s | > 5s |
+| Metric       | Healthy | Warning | Critical |
+| ------------ | ------- | ------- | -------- |
+| Success Rate | > 90%   | 80-90%  | < 80%    |
+| Queue Depth  | < 5     | 5-10    | > 10     |
+| Conflicts    | < 2/day | 2-5/day | > 5/day  |
+| Avg Duration | < 2s    | 2-5s    | > 5s     |
 
 ### What to Monitor
 
@@ -347,6 +370,7 @@ await service.resetMetrics();
 ### Problem: Metrics Not Updating
 
 **Solution**: Check provider initialization
+
 ```dart
 // Ensure providers are properly overridden
 ProviderScope(
@@ -361,6 +385,7 @@ ProviderScope(
 ### Problem: High Memory Usage
 
 **Solution**: Metrics history may be too large
+
 - Check operation history size
 - Consider more aggressive cleanup
 - Reset metrics if needed
@@ -368,6 +393,7 @@ ProviderScope(
 ### Problem: Metrics Lost After Restart
 
 **Solution**: Check SharedPreferences initialization
+
 - Ensure prefs initialized before app start
 - Check for storage permissions
 - Verify JSON serialization works
@@ -375,6 +401,7 @@ ProviderScope(
 ## Future Enhancements
 
 Potential improvements:
+
 - [ ] Metrics database storage (for larger history)
 - [ ] Advanced analytics (percentiles, distributions)
 - [ ] Alerts/notifications for critical issues
@@ -395,6 +422,7 @@ Potential improvements:
 ## Support
 
 For issues or questions:
+
 1. Check this documentation
 2. Review example integration code
 3. Export metrics JSON for debugging

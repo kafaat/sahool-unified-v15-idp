@@ -4,6 +4,7 @@
 **Auditor:** Claude Code Security Audit
 **Scope:** `/home/user/sahool-unified-v15-idp/apps/web/src/middleware.ts`
 **Related Files:**
+
 - `/home/user/sahool-unified-v15-idp/apps/web/src/lib/security/csp-config.ts`
 - `/home/user/sahool-unified-v15-idp/apps/web/src/lib/rate-limiter.ts`
 - `/home/user/sahool-unified-v15-idp/apps/web/src/app/api/auth/session/route.ts`
@@ -29,16 +30,17 @@ The middleware implements cookie-based authentication:
 
 ```typescript
 // Line 86-93
-const token = request.cookies.get('access_token')?.value;
+const token = request.cookies.get("access_token")?.value;
 
 if (!token) {
-  const loginUrl = new URL('/login', request.url);
-  loginUrl.searchParams.set('returnTo', pathname);
+  const loginUrl = new URL("/login", request.url);
+  loginUrl.searchParams.set("returnTo", pathname);
   return NextResponse.redirect(loginUrl);
 }
 ```
 
 ### Strengths
+
 - ✅ Cookie-based authentication with httpOnly flag (in session API)
 - ✅ Protected routes clearly defined
 - ✅ Public routes properly excluded
@@ -46,6 +48,7 @@ if (!token) {
 - ✅ Static files and API routes bypassed appropriately
 
 ### Weaknesses
+
 - ⚠️ **NO TOKEN VALIDATION** - Token is only checked for existence, not validated
 - ⚠️ **NO JWT VERIFICATION** - No signature verification, expiry check, or claims validation
 - ⚠️ **NO TOKEN REFRESH** - No automatic token refresh mechanism
@@ -54,7 +57,9 @@ if (!token) {
 ### Recommendations
 
 **HIGH PRIORITY:**
+
 1. Add JWT token validation in middleware:
+
    ```typescript
    // Verify token signature and expiry
    const isValid = await verifyJWT(token);
@@ -66,16 +71,15 @@ if (!token) {
 2. Implement token refresh logic for expiring tokens
 
 3. Use exact path matching or normalized paths to prevent bypass:
+
    ```typescript
    // Current vulnerable code:
-   publicRoutes.some(route => pathname.startsWith(`${route}/`))
+   publicRoutes.some((route) => pathname.startsWith(`${route}/`));
 
    // Could match: /login/../protected-route
    ```
 
-**MEDIUM PRIORITY:**
-4. Add authentication failure logging
-5. Implement brute force protection with rate limiting
+**MEDIUM PRIORITY:** 4. Add authentication failure logging 5. Implement brute force protection with rate limiting
 
 ---
 
@@ -88,6 +92,7 @@ if (!token) {
 The middleware only performs authentication (identity verification), not authorization (permission checking). There is NO role-based access control (RBAC) or permission checking in the middleware.
 
 ### Risks
+
 - 🔴 **CRITICAL**: Any authenticated user can access any protected route
 - 🔴 **CRITICAL**: No role differentiation (admin vs regular user)
 - 🔴 **CRITICAL**: No resource-level permissions
@@ -96,7 +101,9 @@ The middleware only performs authentication (identity verification), not authori
 ### Recommendations
 
 **CRITICAL PRIORITY:**
+
 1. Implement RBAC middleware:
+
    ```typescript
    // Extract user roles from validated JWT
    const { roles, permissions, tenantId } = await decodeValidatedToken(token);
@@ -104,18 +111,19 @@ The middleware only performs authentication (identity verification), not authori
    // Check route permissions
    const requiredPermissions = ROUTE_PERMISSIONS[pathname];
    if (!hasPermissions(permissions, requiredPermissions)) {
-     return NextResponse.redirect('/unauthorized');
+     return NextResponse.redirect("/unauthorized");
    }
    ```
 
 2. Define route-permission mappings:
+
    ```typescript
    const ROUTE_PERMISSIONS = {
-     '/dashboard': ['read:dashboard'],
-     '/settings': ['read:settings', 'write:settings'],
-     '/analytics': ['read:analytics'],
+     "/dashboard": ["read:dashboard"],
+     "/settings": ["read:settings", "write:settings"],
+     "/analytics": ["read:analytics"],
      // admin-only routes
-     '/admin': ['admin:access'],
+     "/admin": ["admin:access"],
    };
    ```
 
@@ -134,6 +142,7 @@ The middleware only performs authentication (identity verification), not authori
 Strong security headers are implemented with comprehensive CSP configuration:
 
 **Headers Applied (Lines 118-128):**
+
 ```typescript
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
@@ -144,6 +153,7 @@ X-Nonce: [cryptographically secure nonce]
 ```
 
 ### CSP Configuration Strengths
+
 - ✅ Nonce-based script execution (prevents inline script XSS)
 - ✅ Strict CSP in production with `strict-dynamic`
 - ✅ No `unsafe-inline` in production
@@ -155,6 +165,7 @@ X-Nonce: [cryptographically secure nonce]
 - ✅ Object-src and frame-src blocked
 
 ### Minor Issues
+
 - ⚠️ `X-XSS-Protection` header is deprecated (browsers ignore it)
 - ⚠️ CSP includes `unsafe-eval` in development (acceptable for Next.js HMR)
 - ⚠️ CSP allows all HTTPS images (`https:`) - could be more restrictive
@@ -162,6 +173,7 @@ X-Nonce: [cryptographically secure nonce]
 ### Recommendations
 
 **LOW PRIORITY:**
+
 1. Remove deprecated `X-XSS-Protection` header
 2. Add `Permissions-Policy` header:
    ```typescript
@@ -184,6 +196,7 @@ X-Nonce: [cryptographically secure nonce]
 - ❌ No origin validation
 
 ### Risks
+
 - 🟡 **MEDIUM**: API endpoints vulnerable to unauthorized cross-origin requests
 - 🟡 **MEDIUM**: No protection against cross-origin credential theft
 - 🟡 **MEDIUM**: Potential CSRF attacks from malicious origins
@@ -191,19 +204,27 @@ X-Nonce: [cryptographically secure nonce]
 ### Recommendations
 
 **HIGH PRIORITY:**
+
 1. Implement CORS middleware for API routes:
+
    ```typescript
    // Add to middleware.ts
-   if (pathname.startsWith('/api/')) {
-     const origin = request.headers.get('origin');
-     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+   if (pathname.startsWith("/api/")) {
+     const origin = request.headers.get("origin");
+     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
      if (origin && allowedOrigins.includes(origin)) {
-       response.headers.set('Access-Control-Allow-Origin', origin);
-       response.headers.set('Access-Control-Allow-Credentials', 'true');
-       response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-       response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token');
-       response.headers.set('Access-Control-Max-Age', '86400');
+       response.headers.set("Access-Control-Allow-Origin", origin);
+       response.headers.set("Access-Control-Allow-Credentials", "true");
+       response.headers.set(
+         "Access-Control-Allow-Methods",
+         "GET, POST, PUT, DELETE, OPTIONS",
+       );
+       response.headers.set(
+         "Access-Control-Allow-Headers",
+         "Content-Type, Authorization, X-CSRF-Token",
+       );
+       response.headers.set("Access-Control-Max-Age", "86400");
      }
    }
    ```
@@ -221,9 +242,11 @@ X-Nonce: [cryptographically secure nonce]
 ### Current State
 
 **In Middleware:**
+
 - ❌ NO rate limiting in main middleware.ts
 
 **In API Routes:**
+
 - ✅ Rate limiting implemented in:
   - `/api/auth/session` (20 requests/minute for POST, 30 for DELETE)
   - `/api/csp-report` (100 requests/minute)
@@ -232,12 +255,14 @@ X-Nonce: [cryptographically secure nonce]
 - ✅ IP-based rate limiting
 
 ### Risks
+
 - 🔴 **HIGH**: Protected routes have NO rate limiting
 - 🔴 **HIGH**: Login endpoint not rate limited in middleware
 - 🟡 **MEDIUM**: Potential DoS attacks on static routes
 - 🟡 **MEDIUM**: No distributed rate limiting for scaled deployments (Redis connection issues)
 
 ### Rate Limiter Implementation Quality
+
 - ✅ Good: Redis with graceful fallback
 - ✅ Good: IP extraction from X-Forwarded-For and X-Real-IP headers
 - ✅ Good: Atomic operations with Redis INCR
@@ -247,42 +272,41 @@ X-Nonce: [cryptographically secure nonce]
 ### Recommendations
 
 **CRITICAL PRIORITY:**
+
 1. Add rate limiting to middleware for protected routes:
+
    ```typescript
    // Add after authentication check
-   const rateLimited = await isRateLimited(
-     getClientIP(request),
-     {
-       windowMs: 60000,
-       maxRequests: 100,
-       keyPrefix: 'route-access'
-     }
-   );
+   const rateLimited = await isRateLimited(getClientIP(request), {
+     windowMs: 60000,
+     maxRequests: 100,
+     keyPrefix: "route-access",
+   });
 
    if (rateLimited) {
-     return new NextResponse('Too Many Requests', { status: 429 });
+     return new NextResponse("Too Many Requests", { status: 429 });
    }
    ```
 
 2. Add stricter rate limiting for login/auth routes:
+
    ```typescript
-   if (pathname === '/login') {
+   if (pathname === "/login") {
      // 5 attempts per 15 minutes per IP
    }
    ```
 
 3. Return rate limit headers in all responses:
+
    ```typescript
-   response.headers.set('X-RateLimit-Limit', '100');
-   response.headers.set('X-RateLimit-Remaining', '87');
-   response.headers.set('X-RateLimit-Reset', '1704537600');
+   response.headers.set("X-RateLimit-Limit", "100");
+   response.headers.set("X-RateLimit-Remaining", "87");
+   response.headers.set("X-RateLimit-Reset", "1704537600");
    ```
 
 4. Implement sliding window algorithm for more accurate rate limiting
 
-**HIGH PRIORITY:**
-5. Add Redis connection health monitoring
-6. Implement rate limiting per user (in addition to IP) after authentication
+**HIGH PRIORITY:** 5. Add Redis connection health monitoring 6. Implement rate limiting per user (in addition to IP) after authentication
 
 ---
 
@@ -293,18 +317,21 @@ X-Nonce: [cryptographically secure nonce]
 ### Current State
 
 **In Middleware:**
+
 - ❌ NO request validation
 - ❌ NO input sanitization
 - ❌ NO path normalization
 - ❌ NO query parameter validation
 
 **In API Routes:**
+
 - ⚠️ Basic token validation in `/api/auth/session`:
   - Length checks (20-2048 characters)
   - Type checking
 - ⚠️ Basic CSP report validation in `/api/csp-report`
 
 ### Risks
+
 - 🔴 **HIGH**: Path traversal vulnerabilities
 - 🔴 **HIGH**: No protection against malformed requests
 - 🟡 **MEDIUM**: No request size limits
@@ -314,31 +341,35 @@ X-Nonce: [cryptographically secure nonce]
 ### Recommendations
 
 **HIGH PRIORITY:**
+
 1. Add path normalization to prevent traversal:
+
    ```typescript
-   import { normalize } from 'path';
+   import { normalize } from "path";
 
    // Normalize and validate pathname
    const normalizedPath = normalize(pathname);
-   if (normalizedPath.includes('..')) {
-     return new NextResponse('Invalid Path', { status: 400 });
+   if (normalizedPath.includes("..")) {
+     return new NextResponse("Invalid Path", { status: 400 });
    }
    ```
 
 2. Implement request size limits:
+
    ```typescript
-   const contentLength = request.headers.get('content-length');
+   const contentLength = request.headers.get("content-length");
    if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) {
-     return new NextResponse('Payload Too Large', { status: 413 });
+     return new NextResponse("Payload Too Large", { status: 413 });
    }
    ```
 
 3. Add Content-Type validation for API routes:
+
    ```typescript
-   if (pathname.startsWith('/api/') && request.method !== 'GET') {
-     const contentType = request.headers.get('content-type');
-     if (!contentType?.includes('application/json')) {
-       return new NextResponse('Unsupported Media Type', { status: 415 });
+   if (pathname.startsWith("/api/") && request.method !== "GET") {
+     const contentType = request.headers.get("content-type");
+     if (!contentType?.includes("application/json")) {
+       return new NextResponse("Unsupported Media Type", { status: 415 });
      }
    }
    ```
@@ -355,17 +386,20 @@ X-Nonce: [cryptographically secure nonce]
 ### Current State
 
 **In Middleware:**
+
 - ❌ NO try-catch block
 - ❌ NO error logging
 - ❌ Uncaught exceptions will crash the middleware
 - ❌ No graceful error responses
 
 **In API Routes:**
+
 - ✅ Try-catch blocks present
 - ⚠️ Basic error logging with `console.error()`
 - ⚠️ Generic error messages (good for security, bad for debugging)
 
 ### Risks
+
 - 🔴 **HIGH**: Middleware crash could take down entire application
 - 🟡 **MEDIUM**: No error tracking in production
 - 🟡 **MEDIUM**: No correlation IDs for request tracking
@@ -374,32 +408,36 @@ X-Nonce: [cryptographically secure nonce]
 ### Recommendations
 
 **CRITICAL PRIORITY:**
+
 1. Wrap entire middleware in try-catch:
+
    ```typescript
    export function middleware(request: NextRequest) {
      try {
        // ... existing logic ...
      } catch (error) {
-       logger.critical('[Middleware Error]', error);
+       logger.critical("[Middleware Error]", error);
 
        // Return safe error response
-       return new NextResponse('Internal Server Error', {
+       return new NextResponse("Internal Server Error", {
          status: 500,
          headers: {
-           'X-Error-ID': generateErrorId(),
-         }
+           "X-Error-ID": generateErrorId(),
+         },
        });
      }
    }
    ```
 
 2. Add request correlation IDs:
+
    ```typescript
    const requestId = generateRequestId();
-   response.headers.set('X-Request-ID', requestId);
+   response.headers.set("X-Request-ID", requestId);
    ```
 
 3. Implement structured error logging:
+
    ```typescript
    logger.error({
      requestId,
@@ -413,10 +451,7 @@ X-Nonce: [cryptographically secure nonce]
 
 4. Add error monitoring integration (Sentry, DataDog, etc.)
 
-**HIGH PRIORITY:**
-5. Differentiate between client errors (4xx) and server errors (5xx)
-6. Implement circuit breaker for external service calls (Redis)
-7. Add graceful degradation for non-critical features
+**HIGH PRIORITY:** 5. Differentiate between client errors (4xx) and server errors (5xx) 6. Implement circuit breaker for external service calls (Redis) 7. Add graceful degradation for non-critical features
 
 ---
 
@@ -427,12 +462,14 @@ X-Nonce: [cryptographically secure nonce]
 ### Current State
 
 **In Middleware:**
+
 - ❌ NO request logging
 - ❌ NO response logging
 - ❌ NO timing metrics
 - ❌ NO security event logging (auth failures, rate limits)
 
 **In API Routes:**
+
 - ✅ Logger utility available (`/lib/logger.ts`)
 - ✅ Environment-aware logging (dev only by default)
 - ✅ Critical error logging
@@ -442,11 +479,13 @@ X-Nonce: [cryptographically secure nonce]
 ### Logger Implementation Review
 
 **Strengths:**
+
 - ✅ Environment-aware (dev/prod separation)
 - ✅ Multiple log levels
 - ✅ Critical logging always enabled
 
 **Weaknesses:**
+
 - ⚠️ Simple console.log/error (no structured logging)
 - ⚠️ No log levels in production (all as errors)
 - ⚠️ No log aggregation integration
@@ -454,6 +493,7 @@ X-Nonce: [cryptographically secure nonce]
 - ⚠️ `any[]` types (should be more specific)
 
 ### Risks
+
 - 🟡 **MEDIUM**: No audit trail for security events
 - 🟡 **MEDIUM**: Difficult to debug production issues
 - 🟡 **MEDIUM**: No performance monitoring
@@ -462,7 +502,9 @@ X-Nonce: [cryptographically secure nonce]
 ### Recommendations
 
 **HIGH PRIORITY:**
+
 1. Add request/response logging to middleware:
+
    ```typescript
    const startTime = Date.now();
 
@@ -470,25 +512,26 @@ X-Nonce: [cryptographically secure nonce]
 
    const duration = Date.now() - startTime;
    logger.production({
-     type: 'request',
+     type: "request",
      method: request.method,
      path: pathname,
      statusCode: response.status,
      duration,
      ip: getClientIP(request),
-     userAgent: request.headers.get('user-agent'),
+     userAgent: request.headers.get("user-agent"),
      authenticated: !!token,
-     requestId: response.headers.get('X-Request-ID'),
+     requestId: response.headers.get("X-Request-ID"),
    });
    ```
 
 2. Log security events:
+
    ```typescript
    // Authentication failures
    if (!token) {
      logger.warn({
-       type: 'auth-failure',
-       reason: 'missing-token',
+       type: "auth-failure",
+       reason: "missing-token",
        path: pathname,
        ip: getClientIP(request),
      });
@@ -497,7 +540,7 @@ X-Nonce: [cryptographically secure nonce]
    // Rate limit events
    if (rateLimited) {
      logger.warn({
-       type: 'rate-limit-exceeded',
+       type: "rate-limit-exceeded",
        ip: getClientIP(request),
        path: pathname,
      });
@@ -508,19 +551,15 @@ X-Nonce: [cryptographically secure nonce]
    ```typescript
    // Replace console.log with structured logger
    interface LogEntry {
-     level: 'debug' | 'info' | 'warn' | 'error' | 'critical';
+     level: "debug" | "info" | "warn" | "error" | "critical";
      timestamp: string;
-     service: 'sahool-web';
+     service: "sahool-web";
      message: string;
      context?: Record<string, unknown>;
    }
    ```
 
-**MEDIUM PRIORITY:**
-4. Integrate with log aggregation service (CloudWatch, Datadog, ELK)
-5. Add performance metrics (P50, P95, P99 latencies)
-6. Implement log sampling for high-traffic routes
-7. Add PII redaction for sensitive data in logs
+**MEDIUM PRIORITY:** 4. Integrate with log aggregation service (CloudWatch, Datadog, ELK) 5. Add performance metrics (P50, P95, P99 latencies) 6. Implement log sampling for high-traffic routes 7. Add PII redaction for sensitive data in logs
 
 ---
 
@@ -529,11 +568,13 @@ X-Nonce: [cryptographically secure nonce]
 ### Critical Vulnerabilities
 
 #### 🔴 CVE-2024-SAHOOL-001: Missing JWT Token Validation
+
 **Severity:** CRITICAL
 **Location:** `middleware.ts:86-93`
 **Description:** Middleware only checks token existence, not validity. Invalid, expired, or tampered tokens are accepted.
 
 **Exploit Scenario:**
+
 ```bash
 # Attacker sets any random token
 curl -b "access_token=malicious_token" https://sahool.ye/dashboard
@@ -541,6 +582,7 @@ curl -b "access_token=malicious_token" https://sahool.ye/dashboard
 ```
 
 **Fix:**
+
 ```typescript
 // Validate JWT signature, expiry, and claims
 const decoded = await verifyJWT(token, process.env.JWT_SECRET);
@@ -552,19 +594,22 @@ if (!decoded || decoded.exp < Date.now() / 1000) {
 ---
 
 #### 🔴 CVE-2024-SAHOOL-002: Path Traversal in Route Matching
+
 **Severity:** CRITICAL
 **Location:** `middleware.ts:72-78`
 **Description:** Route matching uses `startsWith()` without path normalization, potentially allowing bypass through path traversal.
 
 **Exploit Scenario:**
+
 ```bash
 # Potential bypass attempt (depends on Next.js internal handling)
 /login/../dashboard  # May bypass authentication
 ```
 
 **Fix:**
+
 ```typescript
-import { normalize } from 'path';
+import { normalize } from "path";
 
 const normalizedPath = normalize(pathname);
 // Use exact matching or normalized paths
@@ -573,6 +618,7 @@ const normalizedPath = normalize(pathname);
 ---
 
 #### 🔴 CVE-2024-SAHOOL-003: No Authorization Controls
+
 **Severity:** CRITICAL
 **Location:** `middleware.ts` (missing functionality)
 **Description:** No role-based access control. Any authenticated user can access any protected route.
@@ -586,6 +632,7 @@ const normalizedPath = normalize(pathname);
 ### High Severity Vulnerabilities
 
 #### 🟠 CVE-2024-SAHOOL-004: Missing Rate Limiting in Middleware
+
 **Severity:** HIGH
 **Location:** `middleware.ts` (missing functionality)
 **Description:** No rate limiting on protected routes allows brute force and DoS attacks.
@@ -595,17 +642,20 @@ const normalizedPath = normalize(pathname);
 ---
 
 #### 🟠 CVE-2024-SAHOOL-005: CSRF Token Generation Uses crypto.randomBytes
+
 **Severity:** HIGH
 **Location:** `middleware.ts:107` and `csp-config.ts`
 **Description:** Using Node.js `crypto.randomBytes` in Edge Runtime middleware is problematic. Should use Web Crypto API consistently.
 
 **Current Code:**
+
 ```typescript
-import { randomBytes } from 'crypto';  // Line 14
-csrfToken = randomBytes(32).toString('base64url');  // Line 107
+import { randomBytes } from "crypto"; // Line 14
+csrfToken = randomBytes(32).toString("base64url"); // Line 107
 ```
 
 **Fix:**
+
 ```typescript
 // Use Web Crypto API (Edge Runtime compatible)
 const array = new Uint8Array(32);
@@ -616,6 +666,7 @@ const csrfToken = btoa(String.fromCharCode(...array));
 ---
 
 #### 🟠 CVE-2024-SAHOOL-006: CSRF Cookie Not Validated in Middleware
+
 **Severity:** HIGH
 **Location:** `middleware.ts:104-115`
 **Description:** CSRF token is generated and set but never validated in subsequent requests.
@@ -623,14 +674,15 @@ const csrfToken = btoa(String.fromCharCode(...array));
 **Impact:** CSRF attacks still possible
 
 **Fix:**
+
 ```typescript
 // Validate CSRF token for state-changing operations
-if (request.method !== 'GET' && request.method !== 'HEAD') {
-  const csrfToken = request.cookies.get('csrf_token')?.value;
-  const csrfHeader = request.headers.get('X-CSRF-Token');
+if (request.method !== "GET" && request.method !== "HEAD") {
+  const csrfToken = request.cookies.get("csrf_token")?.value;
+  const csrfHeader = request.headers.get("X-CSRF-Token");
 
   if (!csrfToken || csrfToken !== csrfHeader) {
-    return new NextResponse('Invalid CSRF Token', { status: 403 });
+    return new NextResponse("Invalid CSRF Token", { status: 403 });
   }
 }
 ```
@@ -640,24 +692,28 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 ### Medium Severity Issues
 
 #### 🟡 SAHOOL-007: No Request Size Limits
+
 **Severity:** MEDIUM
 **Description:** Missing request body size validation could lead to memory exhaustion
 
 ---
 
 #### 🟡 SAHOOL-008: Missing CORS Configuration
+
 **Severity:** MEDIUM
 **Description:** No CORS headers for API routes (see Section 4)
 
 ---
 
 #### 🟡 SAHOOL-009: Insufficient Error Handling
+
 **Severity:** MEDIUM
 **Description:** Middleware lacks try-catch wrapper (see Section 7)
 
 ---
 
 #### 🟡 SAHOOL-010: No Security Event Logging
+
 **Severity:** MEDIUM
 **Description:** Authentication failures and security events not logged (see Section 8)
 
@@ -666,12 +722,14 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 ### Low Severity Issues
 
 #### 🟢 SAHOOL-011: Deprecated X-XSS-Protection Header
+
 **Severity:** LOW
 **Description:** Header is deprecated and ignored by modern browsers
 
 ---
 
 #### 🟢 SAHOOL-012: CSP Allows All HTTPS Images
+
 **Severity:** LOW
 **Description:** CSP `img-src` includes `https:` - could be more restrictive
 
@@ -681,16 +739,17 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 
 ### Security Standards
 
-| Standard | Compliance Level | Notes |
-|----------|-----------------|-------|
-| OWASP Top 10 | ⚠️ Partial | Missing A01 (Broken Access Control), A05 (Security Misconfiguration) |
-| GDPR | ⚠️ Partial | No audit logging, insufficient data protection |
-| PCI-DSS | ❌ Non-compliant | No logging, insufficient authentication |
-| SOC 2 | ⚠️ Partial | Missing audit trails, insufficient monitoring |
+| Standard     | Compliance Level | Notes                                                                |
+| ------------ | ---------------- | -------------------------------------------------------------------- |
+| OWASP Top 10 | ⚠️ Partial       | Missing A01 (Broken Access Control), A05 (Security Misconfiguration) |
+| GDPR         | ⚠️ Partial       | No audit logging, insufficient data protection                       |
+| PCI-DSS      | ❌ Non-compliant | No logging, insufficient authentication                              |
+| SOC 2        | ⚠️ Partial       | Missing audit trails, insufficient monitoring                        |
 
 ### Best Practices Assessment
 
 ✅ **Implemented:**
+
 - Strong Content Security Policy
 - HTTP security headers
 - Cookie security (httpOnly, secure, sameSite)
@@ -698,11 +757,13 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 - CSRF token generation
 
 ⚠️ **Partially Implemented:**
+
 - Authentication (no validation)
 - Error handling (no middleware wrapper)
 - Logging (API routes only)
 
 ❌ **Not Implemented:**
+
 - Authorization/RBAC
 - JWT validation
 - CORS configuration
@@ -715,6 +776,7 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 ## 11. Priority Recommendations
 
 ### CRITICAL (Fix Immediately)
+
 1. ✅ Implement JWT token validation in middleware
 2. ✅ Add authorization/RBAC checks
 3. ✅ Fix path traversal vulnerability
@@ -722,6 +784,7 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 5. ✅ Add try-catch wrapper to middleware
 
 ### HIGH (Fix Within 1 Week)
+
 6. Add rate limiting to middleware
 7. Implement CORS configuration
 8. Add request validation and size limits
@@ -729,6 +792,7 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 10. Fix crypto.randomBytes usage in Edge Runtime
 
 ### MEDIUM (Fix Within 1 Month)
+
 11. Add request/response logging
 12. Implement structured logging
 13. Add performance metrics
@@ -736,6 +800,7 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 15. Implement rate limit headers
 
 ### LOW (Fix When Possible)
+
 16. Remove deprecated X-XSS-Protection header
 17. Add Permissions-Policy header
 18. Restrict CSP img-src
@@ -776,6 +841,7 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
    - Test path normalization
 
 ### Recommended Tools
+
 - OWASP ZAP for automated security scanning
 - Burp Suite for manual penetration testing
 - Artillery or k6 for load/stress testing
@@ -786,6 +852,7 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 ## 13. Monitoring & Alerting
 
 ### Metrics to Track
+
 - Authentication failure rate
 - Rate limit exceeded events
 - CSP violation frequency
@@ -794,6 +861,7 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 - Token validation failures
 
 ### Alerts to Configure
+
 - **Critical**: Authentication bypass attempts (> 10/minute)
 - **High**: Rate limit exceeded (> 100/minute from single IP)
 - **Medium**: CSP violations (> 50/hour)
@@ -806,6 +874,7 @@ if (request.method !== 'GET' && request.method !== 'HEAD') {
 The SAHOOL web middleware has a strong foundation with excellent CSP configuration and security headers. However, critical security gaps in authentication validation, authorization, and rate limiting pose significant risks.
 
 **Immediate Actions Required:**
+
 1. Implement JWT validation
 2. Add RBAC/authorization
 3. Fix path traversal vulnerability
@@ -813,12 +882,14 @@ The SAHOOL web middleware has a strong foundation with excellent CSP configurati
 5. Implement rate limiting in middleware
 
 **Timeline:**
+
 - **Week 1**: Address all CRITICAL issues
 - **Week 2-3**: Address HIGH priority issues
 - **Month 1**: Address MEDIUM priority issues
 - **Ongoing**: Implement monitoring and continuous security testing
 
 **Risk Level if Not Fixed:**
+
 - Current: HIGH RISK 🔴
 - After CRITICAL fixes: MEDIUM RISK 🟡
 - After all fixes: LOW RISK 🟢

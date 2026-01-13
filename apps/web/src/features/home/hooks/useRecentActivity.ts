@@ -3,10 +3,10 @@
  * خطاف النشاط الأخير
  */
 
-import { useQuery } from '@tanstack/react-query';
-import { dashboardApi, type DashboardData } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { dashboardApi, type DashboardData } from "../api";
 
-export type ActivityItem = DashboardData['recentActivity'][number];
+export type ActivityItem = DashboardData["recentActivity"][number];
 
 interface UseRecentActivityOptions {
   /** Maximum number of activities to fetch */
@@ -23,7 +23,7 @@ export function useRecentActivity(options: UseRecentActivityOptions = {}) {
   const { limit = 10, enabled = true } = options;
 
   return useQuery({
-    queryKey: ['dashboard', 'activity', limit],
+    queryKey: ["dashboard", "activity", limit],
     queryFn: () => dashboardApi.getRecentActivity(limit),
     staleTime: 30 * 1000, // 30 seconds - activity updates frequently
     refetchInterval: 60 * 1000, // Refetch every minute

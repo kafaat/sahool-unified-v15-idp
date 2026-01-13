@@ -1,50 +1,59 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Admin Login Page
  * صفحة تسجيل الدخول للوحة الإدارة
  */
 
-import { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/stores/auth.store';
-import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from 'lucide-react';
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/stores/auth.store";
+import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo') || '/dashboard';
+  const returnTo = searchParams.get("returnTo") || "/dashboard";
   const { login } = useAuth();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   // 2FA states
   const [requires2FA, setRequires2FA] = useState(false);
-  const [tempToken, setTempToken] = useState('');
-  const [twoFACode, setTwoFACode] = useState('');
+  const [tempToken, setTempToken] = useState("");
+  const [twoFACode, setTwoFACode] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
-      const result = await login(email, password, requires2FA ? twoFACode : undefined);
+      const result = await login(
+        email,
+        password,
+        requires2FA ? twoFACode : undefined,
+      );
 
       // Check if 2FA is required
-      if (result && typeof result === 'object' && 'requires_2fa' in result && result.requires_2fa) {
+      if (
+        result &&
+        typeof result === "object" &&
+        "requires_2fa" in result &&
+        result.requires_2fa
+      ) {
         setRequires2FA(true);
-        setTempToken(result.temp_token || '');
-        setError('');
+        setTempToken(result.temp_token || "");
+        setError("");
       } else {
         router.push(returnTo);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'فشل تسجيل الدخول');
+      setError(err instanceof Error ? err.message : "فشل تسجيل الدخول");
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +61,7 @@ function LoginForm() {
 
   const handle2FASubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
@@ -60,7 +69,7 @@ function LoginForm() {
       await login(email, password, twoFACode);
       router.push(returnTo);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'رمز التحقق غير صحيح');
+      setError(err instanceof Error ? err.message : "رمز التحقق غير صحيح");
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +90,7 @@ function LoginForm() {
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-            {requires2FA ? 'التحقق الثنائي' : 'تسجيل الدخول'}
+            {requires2FA ? "التحقق الثنائي" : "تسجيل الدخول"}
           </h2>
 
           {error && (
@@ -96,7 +105,10 @@ function LoginForm() {
             </div>
           )}
 
-          <form onSubmit={requires2FA ? handle2FASubmit : handleSubmit} className="space-y-5">
+          <form
+            onSubmit={requires2FA ? handle2FASubmit : handleSubmit}
+            className="space-y-5"
+          >
             {!requires2FA && (
               <>
                 {/* Email Field */}
@@ -134,7 +146,7 @@ function LoginForm() {
                     <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       id="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pr-10 pl-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
@@ -173,7 +185,11 @@ function LoginForm() {
                     id="twoFACode"
                     type="text"
                     value={twoFACode}
-                    onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    onChange={(e) =>
+                      setTwoFACode(
+                        e.target.value.replace(/\D/g, "").slice(0, 6),
+                      )
+                    }
                     className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-center text-2xl tracking-widest"
                     placeholder="000000"
                     required
@@ -197,10 +213,12 @@ function LoginForm() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>{requires2FA ? 'جاري التحقق...' : 'جاري تسجيل الدخول...'}</span>
+                  <span>
+                    {requires2FA ? "جاري التحقق..." : "جاري تسجيل الدخول..."}
+                  </span>
                 </>
               ) : (
-                <span>{requires2FA ? 'تحقق' : 'تسجيل الدخول'}</span>
+                <span>{requires2FA ? "تحقق" : "تسجيل الدخول"}</span>
               )}
             </button>
 
@@ -210,8 +228,8 @@ function LoginForm() {
                 type="button"
                 onClick={() => {
                   setRequires2FA(false);
-                  setTwoFACode('');
-                  setError('');
+                  setTwoFACode("");
+                  setError("");
                 }}
                 className="w-full text-green-600 py-2 px-4 rounded-lg font-medium hover:bg-green-50 transition"
               >
@@ -221,7 +239,7 @@ function LoginForm() {
           </form>
 
           {/* Demo Credentials (Development Only) */}
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV === "development" && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
               <p className="font-medium mb-2">بيانات الدخول للتجربة:</p>
               <p>البريد: admin@sahool.io</p>
@@ -241,11 +259,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

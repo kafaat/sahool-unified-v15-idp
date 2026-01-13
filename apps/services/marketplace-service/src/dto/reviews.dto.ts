@@ -12,32 +12,32 @@ import {
   IsNotEmpty,
   Min,
   Max,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Product Review DTOs
 // ═══════════════════════════════════════════════════════════════════════════
 
 export class CreateProductReviewDto {
-  @ApiProperty({ description: 'Product ID', example: 'prod-123' })
+  @ApiProperty({ description: "Product ID", example: "prod-123" })
   @IsString()
   @IsNotEmpty()
   productId: string;
 
-  @ApiProperty({ description: 'Buyer profile ID', example: 'buyer-123' })
+  @ApiProperty({ description: "Buyer profile ID", example: "buyer-123" })
   @IsString()
   @IsNotEmpty()
   buyerId: string;
 
-  @ApiProperty({ description: 'Order ID', example: 'order-123' })
+  @ApiProperty({ description: "Order ID", example: "order-123" })
   @IsString()
   @IsNotEmpty()
   orderId: string;
 
   @ApiProperty({
-    description: 'Rating from 1 to 5 stars',
+    description: "Rating from 1 to 5 stars",
     minimum: 1,
     maximum: 5,
     example: 5,
@@ -47,22 +47,25 @@ export class CreateProductReviewDto {
   @Max(5)
   rating: number;
 
-  @ApiProperty({ description: 'Review title', example: 'منتج ممتاز' })
+  @ApiProperty({ description: "Review title", example: "منتج ممتاز" })
   @IsString()
   @IsNotEmpty()
   title: string;
 
   @ApiPropertyOptional({
-    description: 'Review comment',
-    example: 'المنتج ذو جودة عالية وسعر مناسب',
+    description: "Review comment",
+    example: "المنتج ذو جودة عالية وسعر مناسب",
   })
   @IsString()
   @IsOptional()
   comment?: string;
 
   @ApiPropertyOptional({
-    description: 'Array of photo URLs',
-    example: ['https://example.com/photo1.jpg', 'https://example.com/photo2.jpg'],
+    description: "Array of photo URLs",
+    example: [
+      "https://example.com/photo1.jpg",
+      "https://example.com/photo2.jpg",
+    ],
   })
   @IsArray()
   @IsOptional()
@@ -70,37 +73,44 @@ export class CreateProductReviewDto {
 }
 
 export class UpdateProductReviewDto {
-  @ApiPropertyOptional({ description: 'Rating from 1 to 5 stars', minimum: 1, maximum: 5 })
+  @ApiPropertyOptional({
+    description: "Rating from 1 to 5 stars",
+    minimum: 1,
+    maximum: 5,
+  })
   @IsNumber()
   @Min(1)
   @Max(5)
   @IsOptional()
   rating?: number;
 
-  @ApiPropertyOptional({ description: 'Review title' })
+  @ApiPropertyOptional({ description: "Review title" })
   @IsString()
   @IsOptional()
   title?: string;
 
-  @ApiPropertyOptional({ description: 'Review comment' })
+  @ApiPropertyOptional({ description: "Review comment" })
   @IsString()
   @IsOptional()
   comment?: string;
 
-  @ApiPropertyOptional({ description: 'Array of photo URLs' })
+  @ApiPropertyOptional({ description: "Array of photo URLs" })
   @IsArray()
   @IsOptional()
   photos?: string[];
 }
 
 export class MarkReviewHelpfulDto {
-  @ApiProperty({ description: 'Whether the review was helpful', example: true })
+  @ApiProperty({ description: "Whether the review was helpful", example: true })
   @IsBoolean()
   helpful: boolean;
 }
 
 export class ReportReviewDto {
-  @ApiProperty({ description: 'Reason for reporting', example: 'Inappropriate content' })
+  @ApiProperty({
+    description: "Reason for reporting",
+    example: "Inappropriate content",
+  })
   @IsString()
   @IsNotEmpty()
   reason: string;
@@ -111,19 +121,19 @@ export class ReportReviewDto {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export class CreateReviewResponseDto {
-  @ApiProperty({ description: 'Review ID', example: 'review-123' })
+  @ApiProperty({ description: "Review ID", example: "review-123" })
   @IsString()
   @IsNotEmpty()
   reviewId: string;
 
-  @ApiProperty({ description: 'Seller profile ID', example: 'seller-123' })
+  @ApiProperty({ description: "Seller profile ID", example: "seller-123" })
   @IsString()
   @IsNotEmpty()
   sellerId: string;
 
   @ApiProperty({
-    description: 'Response message',
-    example: 'شكراً لك على تقييمك الإيجابي',
+    description: "Response message",
+    example: "شكراً لك على تقييمك الإيجابي",
   })
   @IsString()
   @IsNotEmpty()
@@ -131,7 +141,7 @@ export class CreateReviewResponseDto {
 }
 
 export class UpdateReviewResponseDto {
-  @ApiProperty({ description: 'Updated response message' })
+  @ApiProperty({ description: "Updated response message" })
   @IsString()
   @IsNotEmpty()
   response: string;
@@ -143,7 +153,7 @@ export class UpdateReviewResponseDto {
 
 export class GetProductReviewsQueryDto {
   @ApiPropertyOptional({
-    description: 'Filter by minimum rating',
+    description: "Filter by minimum rating",
     minimum: 1,
     maximum: 5,
     example: 3,
@@ -156,7 +166,7 @@ export class GetProductReviewsQueryDto {
   minRating?: number;
 
   @ApiPropertyOptional({
-    description: 'Filter by maximum rating',
+    description: "Filter by maximum rating",
     minimum: 1,
     maximum: 5,
     example: 5,
@@ -169,7 +179,7 @@ export class GetProductReviewsQueryDto {
   maxRating?: number;
 
   @ApiPropertyOptional({
-    description: 'Filter by verified purchases',
+    description: "Filter by verified purchases",
     example: true,
   })
   @Type(() => Boolean)
@@ -178,7 +188,7 @@ export class GetProductReviewsQueryDto {
   verified?: boolean;
 
   @ApiPropertyOptional({
-    description: 'Number of reviews to return',
+    description: "Number of reviews to return",
     minimum: 1,
     maximum: 100,
     example: 20,
@@ -191,7 +201,7 @@ export class GetProductReviewsQueryDto {
   limit?: number;
 
   @ApiPropertyOptional({
-    description: 'Number of reviews to skip',
+    description: "Number of reviews to skip",
     minimum: 0,
     example: 0,
   })
@@ -204,7 +214,7 @@ export class GetProductReviewsQueryDto {
 
 export class PaginationQueryDto {
   @ApiPropertyOptional({
-    description: 'Number of items to return',
+    description: "Number of items to return",
     minimum: 1,
     maximum: 100,
     example: 20,
@@ -217,7 +227,7 @@ export class PaginationQueryDto {
   limit?: number;
 
   @ApiPropertyOptional({
-    description: 'Number of items to skip',
+    description: "Number of items to skip",
     minimum: 0,
     example: 0,
   })

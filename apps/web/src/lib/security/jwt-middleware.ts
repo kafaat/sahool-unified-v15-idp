@@ -6,8 +6,8 @@
  * Uses jose library for secure JWT verification
  */
 
-import type { NextRequest } from 'next/server';
-import * as jose from 'jose';
+import type { NextRequest } from "next/server";
+import * as jose from "jose";
 
 /**
  * JWT validation result
@@ -59,7 +59,7 @@ export function getJwtConfig(): JwtConfig | null {
   }
 
   return {
-    cookieName: 'access_token',
+    cookieName: "access_token",
     secretKey,
     issuer,
     audience,
@@ -75,23 +75,25 @@ export function getJwtConfig(): JwtConfig | null {
  */
 export async function validateJwtToken(
   request: NextRequest,
-  config?: JwtConfig
+  config?: JwtConfig,
 ): Promise<JwtValidationResult> {
   // Get configuration
   const jwtConfig = config || getJwtConfig();
   if (!jwtConfig) {
     return {
       valid: false,
-      error: 'JWT configuration not found',
+      error: "JWT configuration not found",
     };
   }
 
   // Get token from cookie
-  const token = request.cookies.get(jwtConfig.cookieName || 'access_token')?.value;
+  const token = request.cookies.get(
+    jwtConfig.cookieName || "access_token",
+  )?.value;
   if (!token) {
     return {
       valid: false,
-      error: 'JWT token not found in cookies',
+      error: "JWT token not found in cookies",
     };
   }
 
@@ -104,17 +106,17 @@ export async function validateJwtToken(
     });
 
     // Validate required payload fields
-    if (!payload.sub || typeof payload.sub !== 'string') {
+    if (!payload.sub || typeof payload.sub !== "string") {
       return {
         valid: false,
-        error: 'Invalid JWT payload: missing or invalid subject',
+        error: "Invalid JWT payload: missing or invalid subject",
       };
     }
 
-    if (!payload.tenant_id || typeof payload.tenant_id !== 'string') {
+    if (!payload.tenant_id || typeof payload.tenant_id !== "string") {
       return {
         valid: false,
-        error: 'Invalid JWT payload: missing or invalid tenant_id',
+        error: "Invalid JWT payload: missing or invalid tenant_id",
       };
     }
 
@@ -128,28 +130,28 @@ export async function validateJwtToken(
     if (error instanceof jose.errors.JWTExpired) {
       return {
         valid: false,
-        error: 'JWT token has expired',
+        error: "JWT token has expired",
       };
     }
 
     if (error instanceof jose.errors.JWTClaimValidationFailed) {
       return {
         valid: false,
-        error: 'JWT claim validation failed',
+        error: "JWT claim validation failed",
       };
     }
 
     if (error instanceof jose.errors.JWSSignatureVerificationFailed) {
       return {
         valid: false,
-        error: 'JWT signature verification failed',
+        error: "JWT signature verification failed",
       };
     }
 
     // Generic error
     return {
       valid: false,
-      error: 'JWT validation failed',
+      error: "JWT validation failed",
     };
   }
 }
@@ -161,14 +163,17 @@ export async function validateJwtToken(
  * @param error - Error message
  * @returns Structured error information
  */
-export function getJwtErrorInfo(request: NextRequest, error: string): {
+export function getJwtErrorInfo(
+  request: NextRequest,
+  error: string,
+): {
   error: string;
   path: string;
   hasToken: boolean;
   configValid: boolean;
 } {
   const config = getJwtConfig();
-  const token = request.cookies.get('access_token')?.value;
+  const token = request.cookies.get("access_token")?.value;
 
   return {
     error,

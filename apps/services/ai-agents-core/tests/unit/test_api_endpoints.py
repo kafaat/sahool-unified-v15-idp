@@ -526,7 +526,10 @@ class TestRateLimiting:
                 "/api/v1/analyze", json=request_data, headers=rate_limit_headers
             )
             # Internal service should not be rate limited
-            assert response.status_code in [status.HTTP_200_OK, status.HTTP_500_INTERNAL_SERVER_ERROR]
+            assert response.status_code in [
+                status.HTTP_200_OK,
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+            ]
 
     def test_rate_limit_health_check_excluded(self, api_client):
         """Test health check is excluded from rate limiting"""

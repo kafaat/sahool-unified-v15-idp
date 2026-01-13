@@ -421,6 +421,7 @@ async def get_providers():
 
 class ETRequest(BaseModel):
     """Evapotranspiration calculation request"""
+
     tenant_id: str
     field_id: str
     temp_c: float = Field(ge=-50, le=60)
@@ -431,6 +432,7 @@ class ETRequest(BaseModel):
 
 class GDDRequest(BaseModel):
     """Growing Degree Days calculation request"""
+
     tenant_id: str
     field_id: str
     temp_max_c: float = Field(ge=-50, le=60)
@@ -441,6 +443,7 @@ class GDDRequest(BaseModel):
 
 class SprayWindowRequest(BaseModel):
     """Spray window assessment request"""
+
     tenant_id: str
     field_id: str
     temp_c: float = Field(ge=-50, le=60)
@@ -538,9 +541,7 @@ async def get_agricultural_report(req: LocationRequest):
     """
     # Get current weather
     if app.state.multi_provider:
-        weather_data = await app.state.multi_provider.get_current_weather(
-            lat=req.lat, lon=req.lon
-        )
+        weather_data = await app.state.multi_provider.get_current_weather(lat=req.lat, lon=req.lon)
     else:
         weather_data = await app.state.weather_provider.get_current_weather(
             lat=req.lat, lon=req.lon
@@ -548,8 +549,7 @@ async def get_agricultural_report(req: LocationRequest):
 
     if "error" in weather_data:
         raise ExternalServiceException(
-            service_name="Weather Provider",
-            message=weather_data["error"]
+            service_name="Weather Provider", message=weather_data["error"]
         )
 
     temp_c = weather_data.get("temperature_c", 25)
@@ -607,6 +607,7 @@ async def get_agricultural_report(req: LocationRequest):
 
 class FrostRiskRequest(BaseModel):
     """Frost risk assessment request"""
+
     tenant_id: str
     field_id: str
     temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
@@ -618,16 +619,20 @@ class FrostRiskRequest(BaseModel):
 
 class HeatStressRequest(BaseModel):
     """Heat stress assessment request"""
+
     tenant_id: str
     field_id: str
     temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
     humidity_pct: float = Field(ge=0, le=100, description="Humidity %")
-    solar_radiation_mj: float = Field(default=15.0, ge=0, le=50, description="Solar radiation MJ/m²/day")
+    solar_radiation_mj: float = Field(
+        default=15.0, ge=0, le=50, description="Solar radiation MJ/m²/day"
+    )
     wind_speed_kmh: float = Field(default=10.0, ge=0, description="Wind speed km/h")
 
 
 class ChillHoursRequest(BaseModel):
     """Chill hours calculation request"""
+
     tenant_id: str
     field_id: str
     hourly_temps: list[float] = Field(..., description="List of hourly temperatures °C")
@@ -637,6 +642,7 @@ class ChillHoursRequest(BaseModel):
 
 class DroughtIndexRequest(BaseModel):
     """Drought index calculation request"""
+
     tenant_id: str
     field_id: str
     precipitation_mm: float = Field(ge=0, description="Total precipitation mm")
@@ -750,9 +756,7 @@ async def get_stress_report(req: LocationRequest):
     """
     # Get current weather
     if app.state.multi_provider:
-        weather_data = await app.state.multi_provider.get_current_weather(
-            lat=req.lat, lon=req.lon
-        )
+        weather_data = await app.state.multi_provider.get_current_weather(lat=req.lat, lon=req.lon)
     else:
         weather_data = await app.state.weather_provider.get_current_weather(
             lat=req.lat, lon=req.lon
@@ -760,8 +764,7 @@ async def get_stress_report(req: LocationRequest):
 
     if "error" in weather_data:
         raise ExternalServiceException(
-            service_name="Weather Provider",
-            message=weather_data["error"]
+            service_name="Weather Provider", message=weather_data["error"]
         )
 
     temp_c = weather_data.get("temperature_c", 25)
@@ -790,7 +793,10 @@ async def get_stress_report(req: LocationRequest):
     )
 
     # Determine overall stress level
-    if frost_result["risk_level"] in ["critical", "high"] or heat_result["stress_level"] in ["extreme", "severe"]:
+    if frost_result["risk_level"] in ["critical", "high"] or heat_result["stress_level"] in [
+        "extreme",
+        "severe",
+    ]:
         overall_status = "critical"
         overall_color = "red"
     elif frost_result["risk_level"] == "moderate" or heat_result["stress_level"] in ["high"]:

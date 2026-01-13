@@ -1,4 +1,5 @@
 # 00-intake.md — SAHOOL Platform Repository Analysis
+
 **Timestamp:** 2026-01-09T00:00:00Z
 **Platform:** SAHOOL v16.0.0 - National Agricultural Intelligence Platform
 
@@ -7,6 +8,7 @@
 ## 1. Repository Overview
 
 SAHOOL is an **offline-first agricultural operating system** designed for low-connectivity environments in the Middle East. The platform provides:
+
 - Real-time advisory and irrigation management
 - Crop health monitoring (NDVI)
 - Field operations management
@@ -23,22 +25,23 @@ SAHOOL is an **offline-first agricultural operating system** designed for low-co
 
 ### 2.1 Infrastructure Services (10)
 
-| Service | Image | Port | Description |
-|---------|-------|------|-------------|
-| postgres | postgis/postgis:16-3.4 | 5432 | PostGIS spatial database |
-| pgbouncer | edoburu/pgbouncer:latest | 6432 | Connection pooler |
-| redis | redis:7-alpine | 6379/6380 | Cache & session store |
-| nats | nats:2.10-alpine | 4222/4223/8222 | Message queue (JetStream) |
-| nats-prometheus-exporter | natsio/prometheus-nats-exporter:0.14.0 | 7777 | NATS metrics |
-| mqtt | eclipse-mosquitto:2 | 1883/9001 | IoT communication |
-| qdrant | qdrant/qdrant:v1.7.4 | 6333/6334 | Vector database |
-| kong | kong (separate compose) | 8000/8443 | API Gateway |
-| minio | minio | - | Object storage |
-| milvus | milvus | - | Vector search |
+| Service                  | Image                                  | Port           | Description               |
+| ------------------------ | -------------------------------------- | -------------- | ------------------------- |
+| postgres                 | postgis/postgis:16-3.4                 | 5432           | PostGIS spatial database  |
+| pgbouncer                | edoburu/pgbouncer:latest               | 6432           | Connection pooler         |
+| redis                    | redis:7-alpine                         | 6379/6380      | Cache & session store     |
+| nats                     | nats:2.10-alpine                       | 4222/4223/8222 | Message queue (JetStream) |
+| nats-prometheus-exporter | natsio/prometheus-nats-exporter:0.14.0 | 7777           | NATS metrics              |
+| mqtt                     | eclipse-mosquitto:2                    | 1883/9001      | IoT communication         |
+| qdrant                   | qdrant/qdrant:v1.7.4                   | 6333/6334      | Vector database           |
+| kong                     | kong (separate compose)                | 8000/8443      | API Gateway               |
+| minio                    | minio                                  | -              | Object storage            |
+| milvus                   | milvus                                 | -              | Vector search             |
 
 ### 2.2 Application Services (39+)
 
 **Core Services:**
+
 - field-management-service (Node.js/NestJS)
 - marketplace-service
 - research-core
@@ -47,6 +50,7 @@ SAHOOL is an **offline-first agricultural operating system** designed for low-co
 - user-service
 
 **Intelligence Services:**
+
 - ai-advisor
 - crop-intelligence-service
 - disaster-assessment
@@ -55,6 +59,7 @@ SAHOOL is an **offline-first agricultural operating system** designed for low-co
 - crop-growth-model
 
 **Field Operations:**
+
 - field-ops
 - field-service
 - field-core
@@ -63,6 +68,7 @@ SAHOOL is an **offline-first agricultural operating system** designed for low-co
 - vegetation-analysis-service
 
 **IoT & Weather:**
+
 - iot-service
 - iot-gateway
 - weather-service
@@ -71,6 +77,7 @@ SAHOOL is an **offline-first agricultural operating system** designed for low-co
 - virtual-sensors
 
 **Advisory Services:**
+
 - advisory-service
 - agro-advisor
 - agro-rules
@@ -78,6 +85,7 @@ SAHOOL is an **offline-first agricultural operating system** designed for low-co
 - fertilizer-advisor
 
 **Supporting Services:**
+
 - notification-service
 - alert-service
 - equipment-service
@@ -99,34 +107,34 @@ SAHOOL is an **offline-first agricultural operating system** designed for low-co
 
 ### 3.1 Docker Compose Files
 
-| File | Purpose |
-|------|---------|
-| docker-compose.yml | Main stack (39 services + infra) |
-| docker-compose.prod.yml | Production overrides |
-| docker-compose.test.yml | Test environment |
-| docker-compose.tls.yml | TLS configuration |
-| docker/docker-compose.infra.yml | Infrastructure only |
-| infrastructure/gateway/kong/docker-compose.yml | Kong gateway stack |
-| infrastructure/monitoring/docker-compose.monitoring.yml | Prometheus/Grafana |
+| File                                                    | Purpose                          |
+| ------------------------------------------------------- | -------------------------------- |
+| docker-compose.yml                                      | Main stack (39 services + infra) |
+| docker-compose.prod.yml                                 | Production overrides             |
+| docker-compose.test.yml                                 | Test environment                 |
+| docker-compose.tls.yml                                  | TLS configuration                |
+| docker/docker-compose.infra.yml                         | Infrastructure only              |
+| infrastructure/gateway/kong/docker-compose.yml          | Kong gateway stack               |
+| infrastructure/monitoring/docker-compose.monitoring.yml | Prometheus/Grafana               |
 
 ### 3.2 Infrastructure Configs
 
-| Config | Location |
-|--------|----------|
-| PostgreSQL Init | infrastructure/core/postgres/init/ |
-| PgBouncer | infrastructure/core/pgbouncer/pgbouncer.ini |
-| Redis | infrastructure/redis/redis-secure.conf |
-| NATS | config/nats/nats.conf, config/nats/nats-secure.conf |
-| MQTT | infrastructure/core/mqtt/mosquitto.conf |
-| Kong | infrastructure/gateway/kong/kong.yml |
-| TLS Certs | config/certs/ |
+| Config          | Location                                            |
+| --------------- | --------------------------------------------------- |
+| PostgreSQL Init | infrastructure/core/postgres/init/                  |
+| PgBouncer       | infrastructure/core/pgbouncer/pgbouncer.ini         |
+| Redis           | infrastructure/redis/redis-secure.conf              |
+| NATS            | config/nats/nats.conf, config/nats/nats-secure.conf |
+| MQTT            | infrastructure/core/mqtt/mosquitto.conf             |
+| Kong            | infrastructure/gateway/kong/kong.yml                |
+| TLS Certs       | config/certs/                                       |
 
 ### 3.3 Environment Configuration
 
-| File | Purpose |
-|------|---------|
-| .env.example | Template with all required variables |
-| .env.development.template | Development defaults |
+| File                      | Purpose                              |
+| ------------------------- | ------------------------------------ |
+| .env.example              | Template with all required variables |
+| .env.development.template | Development defaults                 |
 
 ---
 
@@ -180,15 +188,18 @@ JWT_ALGORITHM=HS256
 ## 6. Known Configuration Issues (Pre-Analysis)
 
 ### 6.1 Environment Variables
+
 - All required env vars use `${VAR:?error message}` syntax
 - Stack will fail to start without proper `.env` file
 
 ### 6.2 TLS Certificates
+
 - TLS is required for production but optional for development
 - Certs should be at config/certs/
 - Non-TLS configs available for development
 
 ### 6.3 PgBouncer Authentication
+
 - Health check uses simple port check (auth issues noted in comments)
 - TODO: Fix password authentication
 
@@ -204,5 +215,5 @@ JWT_ALGORITHM=HS256
 
 ---
 
-*Document generated by Code Engineer Agent*
-*SAHOOL v16.0.0 - Unified Platform Analysis*
+_Document generated by Code Engineer Agent_
+_SAHOOL v16.0.0 - Unified Platform Analysis_

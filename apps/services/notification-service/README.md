@@ -14,25 +14,27 @@ Multi-channel notification management service for SAHOOL platform.
 ## الميزات | Features
 
 ### قنوات الإرسال | Delivery Channels
-| القناة | Channel | الوصف |
-|--------|---------|--------|
-| Push | Firebase FCM | إشعارات الهاتف |
-| In-App | WebSocket | إشعارات داخل التطبيق |
-| Email | SMTP/SendGrid | البريد الإلكتروني |
-| SMS | Twilio | الرسائل النصية |
-| WhatsApp | Twilio | واتساب للأعمال |
+
+| القناة   | Channel       | الوصف                |
+| -------- | ------------- | -------------------- |
+| Push     | Firebase FCM  | إشعارات الهاتف       |
+| In-App   | WebSocket     | إشعارات داخل التطبيق |
+| Email    | SMTP/SendGrid | البريد الإلكتروني    |
+| SMS      | Twilio        | الرسائل النصية       |
+| WhatsApp | Twilio        | واتساب للأعمال       |
 
 ### فئات الإشعارات | Notification Categories
-| الفئة | Category | الوصف |
-|-------|----------|--------|
-| weather | الطقس | تحديثات وتنبيهات الطقس |
-| task | المهام | تذكيرات المهام الزراعية |
-| alert | التنبيهات | تنبيهات المستشعرات |
-| irrigation | الري | جداول ونتائج الري |
-| crop_health | صحة المحصول | تحديثات صحة المحاصيل |
-| marketplace | السوق | عروض وطلبات السوق |
-| payment | المدفوعات | معاملات مالية |
-| system | النظام | إشعارات النظام |
+
+| الفئة       | Category    | الوصف                   |
+| ----------- | ----------- | ----------------------- |
+| weather     | الطقس       | تحديثات وتنبيهات الطقس  |
+| task        | المهام      | تذكيرات المهام الزراعية |
+| alert       | التنبيهات   | تنبيهات المستشعرات      |
+| irrigation  | الري        | جداول ونتائج الري       |
+| crop_health | صحة المحصول | تحديثات صحة المحاصيل    |
+| marketplace | السوق       | عروض وطلبات السوق       |
+| payment     | المدفوعات   | معاملات مالية           |
+| system      | النظام      | إشعارات النظام          |
 
 ---
 
@@ -158,25 +160,27 @@ POST /internal/broadcast
 ## نماذج البيانات | Data Models
 
 ### AppNotification
+
 ```json
 {
-    "id": "notif-001",
-    "title": "تنبيه الري",
-    "body": "رطوبة التربة منخفضة في الحقل 1",
-    "category": "irrigation",
-    "priority": "high",
-    "is_read": false,
-    "created_at": "2024-01-15T10:30:00Z",
-    "action_type": "navigate",
-    "data": {
-        "field_id": "field-001",
-        "screen": "irrigation_control"
-    },
-    "image_url": "https://..."
+  "id": "notif-001",
+  "title": "تنبيه الري",
+  "body": "رطوبة التربة منخفضة في الحقل 1",
+  "category": "irrigation",
+  "priority": "high",
+  "is_read": false,
+  "created_at": "2024-01-15T10:30:00Z",
+  "action_type": "navigate",
+  "data": {
+    "field_id": "field-001",
+    "screen": "irrigation_control"
+  },
+  "image_url": "https://..."
 }
 ```
 
 ### NotificationList
+
 ```json
 {
     "notifications": [...],
@@ -188,27 +192,28 @@ POST /internal/broadcast
 ```
 
 ### NotificationPreferences
+
 ```json
 {
-    "push_enabled": true,
-    "email_enabled": true,
-    "sms_enabled": false,
-    "categories": {
-        "weather": true,
-        "task": true,
-        "alert": true,
-        "irrigation": true,
-        "crop_health": true,
-        "marketplace": false,
-        "payment": true,
-        "system": true
-    },
-    "quiet_hours": {
-        "enabled": true,
-        "start_time": "22:00",
-        "end_time": "07:00"
-    },
-    "language": "ar"
+  "push_enabled": true,
+  "email_enabled": true,
+  "sms_enabled": false,
+  "categories": {
+    "weather": true,
+    "task": true,
+    "alert": true,
+    "irrigation": true,
+    "crop_health": true,
+    "marketplace": false,
+    "payment": true,
+    "system": true
+  },
+  "quiet_hours": {
+    "enabled": true,
+    "start_time": "22:00",
+    "end_time": "07:00"
+  },
+  "language": "ar"
 }
 ```
 
@@ -217,6 +222,7 @@ POST /internal/broadcast
 ## قوالب الإشعارات | Notification Templates
 
 ### باللغة العربية
+
 ```
 الطقس: ⛈️ تحذير من أمطار غزيرة خلال الساعات القادمة
 الري: 💧 تم إكمال ري {field_name} بنجاح
@@ -266,23 +272,23 @@ RATE_LIMIT_PER_MINUTE=100
 
 ## الأولويات | Priority Levels
 
-| الأولوية | Priority | السلوك |
-|----------|----------|--------|
-| urgent | عاجل | تجاوز ساعات الهدوء |
-| high | مرتفع | إرسال فوري |
-| normal | عادي | إرسال عادي |
-| low | منخفض | تجميع وإرسال دفعات |
+| الأولوية | Priority | السلوك             |
+| -------- | -------- | ------------------ |
+| urgent   | عاجل     | تجاوز ساعات الهدوء |
+| high     | مرتفع    | إرسال فوري         |
+| normal   | عادي     | إرسال عادي         |
+| low      | منخفض    | تجميع وإرسال دفعات |
 
 ---
 
 ## WebSocket للإشعارات الفورية | Real-time Notifications
 
 ```javascript
-const ws = new WebSocket('ws://localhost:8109/ws/user/{user_id}?token=JWT');
+const ws = new WebSocket("ws://localhost:8109/ws/user/{user_id}?token=JWT");
 
 ws.onmessage = (event) => {
-    const notification = JSON.parse(event.data);
-    showNotification(notification);
+  const notification = JSON.parse(event.data);
+  showNotification(notification);
 };
 ```
 
@@ -311,12 +317,14 @@ Response:
 ## التغييرات | Changelog
 
 ### v15.4.0
+
 - إضافة دعم WhatsApp
 - تحسين ساعات الهدوء
 - إضافة قوالب الإشعارات
 - دعم الإشعارات المجدولة
 
 ### v15.3.0
+
 - إضافة WebSocket للتحديثات الفورية
 - تحسين تفضيلات المستخدم
 - دعم الإشعارات الجماعية

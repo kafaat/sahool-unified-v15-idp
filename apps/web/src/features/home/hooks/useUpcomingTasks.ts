@@ -3,10 +3,10 @@
  * خطاف المهام القادمة
  */
 
-import { useQuery } from '@tanstack/react-query';
-import { dashboardApi, type DashboardData } from '../api';
+import { useQuery } from "@tanstack/react-query";
+import { dashboardApi, type DashboardData } from "../api";
 
-export type UpcomingTask = DashboardData['upcomingTasks'][number];
+export type UpcomingTask = DashboardData["upcomingTasks"][number];
 
 interface UseUpcomingTasksOptions {
   /** Maximum number of tasks to fetch */
@@ -23,7 +23,7 @@ export function useUpcomingTasks(options: UseUpcomingTasksOptions = {}) {
   const { limit = 5, enabled = true } = options;
 
   return useQuery({
-    queryKey: ['dashboard', 'tasks', 'upcoming', limit],
+    queryKey: ["dashboard", "tasks", "upcoming", limit],
     queryFn: () => dashboardApi.getUpcomingTasks(limit),
     staleTime: 60 * 1000, // 1 minute
     refetchInterval: 3 * 60 * 1000, // Refetch every 3 minutes

@@ -190,7 +190,9 @@ async def list_channels(
     tenant_id: str | None = Query(None, description="Tenant ID"),
     channel_type: str | None = Query(None, description="Filter by channel type"),
     enabled_only: bool = Query(False, description="Show only enabled channels"),
-    limit: int = Query(default=50, ge=1, le=100, description="Maximum number of channels to return"),
+    limit: int = Query(
+        default=50, ge=1, le=100, description="Maximum number of channels to return"
+    ),
     offset: int = Query(default=0, ge=0, description="Number of channels to skip"),
 ):
     """

@@ -40,14 +40,17 @@ class TestSMSClient:
         """Test SMS client initialization from environment variables"""
         from src.sms_client import SMSClient
 
-        with patch.dict(
-            "os.environ",
-            {
-                "TWILIO_ACCOUNT_SID": "env_sid",
-                "TWILIO_AUTH_TOKEN": "env_token",
-                "TWILIO_FROM_NUMBER": "+1234567890",
-            },
-        ), patch("src.sms_client.TwilioClient"):
+        with (
+            patch.dict(
+                "os.environ",
+                {
+                    "TWILIO_ACCOUNT_SID": "env_sid",
+                    "TWILIO_AUTH_TOKEN": "env_token",
+                    "TWILIO_FROM_NUMBER": "+1234567890",
+                },
+            ),
+            patch("src.sms_client.TwilioClient"),
+        ):
             client = SMSClient()
             result = client.initialize()
 
@@ -280,14 +283,17 @@ class TestEmailClient:
         """Test Email client initialization from environment"""
         from src.email_client import EmailClient
 
-        with patch.dict(
-            "os.environ",
-            {
-                "SENDGRID_API_KEY": "env_api_key",
-                "SENDGRID_FROM_EMAIL": "noreply@sahool.com",
-                "SENDGRID_FROM_NAME": "SAHOOL",
-            },
-        ), patch("src.email_client.SendGridAPIClient"):
+        with (
+            patch.dict(
+                "os.environ",
+                {
+                    "SENDGRID_API_KEY": "env_api_key",
+                    "SENDGRID_FROM_EMAIL": "noreply@sahool.com",
+                    "SENDGRID_FROM_NAME": "SAHOOL",
+                },
+            ),
+            patch("src.email_client.SendGridAPIClient"),
+        ):
             client = EmailClient()
             result = client.initialize()
 
@@ -579,14 +585,17 @@ class TestGlobalClientInstances:
         # Reset global client
         src.sms_client._sms_client = None
 
-        with patch.dict(
-            "os.environ",
-            {
-                "TWILIO_ACCOUNT_SID": "test_sid",
-                "TWILIO_AUTH_TOKEN": "test_token",
-                "TWILIO_FROM_NUMBER": "+1234567890",
-            },
-        ), patch("src.sms_client.SMSClient.initialize", return_value=True) as mock_init:
+        with (
+            patch.dict(
+                "os.environ",
+                {
+                    "TWILIO_ACCOUNT_SID": "test_sid",
+                    "TWILIO_AUTH_TOKEN": "test_token",
+                    "TWILIO_FROM_NUMBER": "+1234567890",
+                },
+            ),
+            patch("src.sms_client.SMSClient.initialize", return_value=True) as mock_init,
+        ):
             from src.sms_client import get_sms_client
 
             client = get_sms_client()
@@ -601,10 +610,13 @@ class TestGlobalClientInstances:
         # Reset global client
         src.email_client._email_client = None
 
-        with patch.dict(
-            "os.environ",
-            {"SENDGRID_API_KEY": "test_key", "SENDGRID_FROM_EMAIL": "noreply@sahool.com"},
-        ), patch("src.email_client.EmailClient.initialize", return_value=True) as mock_init:
+        with (
+            patch.dict(
+                "os.environ",
+                {"SENDGRID_API_KEY": "test_key", "SENDGRID_FROM_EMAIL": "noreply@sahool.com"},
+            ),
+            patch("src.email_client.EmailClient.initialize", return_value=True) as mock_init,
+        ):
             from src.email_client import get_email_client
 
             client = get_email_client()

@@ -3,9 +3,7 @@
   "$id": "https://sahool.io/events/OrderCreated.v1.json",
   "title": "Order Created Event",
   "description": "Emitted when a marketplace order is created - يُنشر عند إنشاء طلب في السوق",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Marketplace.OrderCreated" },
     "payload": {

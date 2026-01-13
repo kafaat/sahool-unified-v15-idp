@@ -367,6 +367,7 @@ Memory:
 ## Usage in Different Contexts
 
 ### 1. Field Details Screen
+
 ```
 Full View
 Scrollable
@@ -374,6 +375,7 @@ All features enabled
 ```
 
 ### 2. Fields List
+
 ```
 Compact View
 Multiple instances
@@ -381,6 +383,7 @@ Optimized rendering
 ```
 
 ### 3. Dashboard
+
 ```
 Horizontal Scroll
 Full View for critical fields
@@ -388,6 +391,7 @@ Compact View for overview
 ```
 
 ### 4. Map Overlay
+
 ```
 Compact View
 Minimal information

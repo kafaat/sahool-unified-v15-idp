@@ -30,5 +30,5 @@ except ImportError:
     mock_errors_py = MagicMock()
     mock_errors_py.add_request_id_middleware = MagicMock()
     mock_errors_py.setup_exception_handlers = MagicMock()
-    sys.modules['shared'] = MagicMock()
-    sys.modules['shared.errors_py'] = mock_errors_py
+    sys.modules["shared"] = MagicMock()
+    sys.modules["shared.errors_py"] = mock_errors_py

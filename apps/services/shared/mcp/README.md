@@ -22,6 +22,7 @@ shared/mcp/
 ### 1. MCP Server (`server.py`)
 
 Production-ready MCP server that handles:
+
 - JSON-RPC 2.0 protocol
 - Tool invocation
 - Resource management
@@ -174,6 +175,7 @@ async with MCPClientContext(server_url="http://localhost:8200") as client:
 Get weather forecast for a location.
 
 **Input:**
+
 ```python
 {
     "latitude": 15.5527,
@@ -183,6 +185,7 @@ Get weather forecast for a location.
 ```
 
 **Output:**
+
 ```python
 {
     "success": True,
@@ -201,6 +204,7 @@ Get weather forecast for a location.
 Analyze crop health using satellite imagery.
 
 **Input:**
+
 ```python
 {
     "field_id": "field-123",
@@ -210,6 +214,7 @@ Analyze crop health using satellite imagery.
 ```
 
 **Output:**
+
 ```python
 {
     "success": True,
@@ -228,6 +233,7 @@ Analyze crop health using satellite imagery.
 Get comprehensive field data.
 
 **Input:**
+
 ```python
 {
     "field_id": "field-123",
@@ -237,6 +243,7 @@ Get comprehensive field data.
 ```
 
 **Output:**
+
 ```python
 {
     "success": True,
@@ -256,6 +263,7 @@ Get comprehensive field data.
 Calculate irrigation requirements.
 
 **Input:**
+
 ```python
 {
     "field_id": "field-123",
@@ -266,6 +274,7 @@ Calculate irrigation requirements.
 ```
 
 **Output:**
+
 ```python
 {
     "success": True,
@@ -284,6 +293,7 @@ Calculate irrigation requirements.
 Get fertilizer recommendations.
 
 **Input:**
+
 ```python
 {
     "field_id": "field-123",
@@ -299,6 +309,7 @@ Get fertilizer recommendations.
 ```
 
 **Output:**
+
 ```python
 {
     "success": True,

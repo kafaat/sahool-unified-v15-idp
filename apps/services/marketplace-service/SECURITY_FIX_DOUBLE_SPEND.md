@@ -32,7 +32,7 @@ const wallet = await this.prisma.wallet.findUnique({
 });
 
 if (wallet.balance < amount) {
-  throw new BadRequestException('Insufficient balance');
+  throw new BadRequestException("Insufficient balance");
 }
 
 // ❌ Race condition window here - balance could change!
@@ -65,6 +65,7 @@ Result: Spent 1000 with only 1000 balance, but both transactions succeeded!
 **File**: `infrastructure/core/postgres/migrations/001_add_double_spend_protection.sql`
 
 #### Added Columns to `wallets` Table:
+
 - `version INTEGER` - For optimistic locking
 - `daily_withdraw_limit DECIMAL(14,2)` - Withdrawal limits
 - `single_transaction_limit DECIMAL(14,2)` - Per-transaction limits
@@ -73,6 +74,7 @@ Result: Spent 1000 with only 1000 balance, but both transactions succeeded!
 - `escrow_balance DECIMAL(14,2)` - Escrow tracking
 
 #### Added Columns to `transactions` Table:
+
 - `idempotency_key VARCHAR(255) UNIQUE` - Prevent duplicates
 - `balance_before DECIMAL(14,2)` - Audit trail
 - `user_id UUID` - User tracking
@@ -82,6 +84,7 @@ Result: Spent 1000 with only 1000 balance, but both transactions succeeded!
 #### New Tables Created:
 
 **`wallet_audit_log`**:
+
 ```sql
 CREATE TABLE wallet_audit_log (
     id UUID PRIMARY KEY,
@@ -104,6 +107,7 @@ CREATE TABLE wallet_audit_log (
 ```
 
 #### Database Triggers:
+
 - Auto-increment wallet version on balance changes
 - Prevent negative balances (constraint + trigger)
 - Helper function `safe_wallet_debit()` with built-in locking
@@ -128,7 +132,7 @@ const versionBefore = wallet.version;
 
 // Balance check happens AFTER locking - no race condition
 if (balanceBefore < amount) {
-  throw new BadRequestException('Insufficient balance');
+  throw new BadRequestException("Insufficient balance");
 }
 ```
 
@@ -172,7 +176,7 @@ return await this.prisma.$transaction(
     // All operations happen here
   },
   {
-    isolationLevel: 'Serializable', // Highest level of protection
+    isolationLevel: "Serializable", // Highest level of protection
     maxWait: 5000,
     timeout: 10000,
   },
@@ -188,7 +192,7 @@ await tx.walletAuditLog.create({
     walletId,
     transactionId: transaction.id,
     userId,
-    operation: 'WITHDRAWAL',
+    operation: "WITHDRAWAL",
     balanceBefore,
     balanceAfter: newBalance,
     amount: -amount,
@@ -196,7 +200,9 @@ await tx.walletAuditLog.create({
     versionAfter: newVersion,
     idempotencyKey,
     ipAddress,
-    metadata: { /* additional context */ },
+    metadata: {
+      /* additional context */
+    },
   },
 });
 ```
@@ -208,12 +214,14 @@ await tx.walletAuditLog.create({
 All balance deduction operations have been updated with full protection:
 
 #### ✅ deposit()
+
 - Idempotency key support
 - Row-level locking
 - Optimistic locking
 - Audit logging
 
 #### ✅ withdraw()
+
 - Idempotency key support
 - Row-level locking
 - Optimistic locking
@@ -222,6 +230,7 @@ All balance deduction operations have been updated with full protection:
 - Audit logging
 
 #### ✅ repayLoan()
+
 - Idempotency key support
 - Row-level locking
 - Optimistic locking
@@ -230,6 +239,7 @@ All balance deduction operations have been updated with full protection:
 - Audit logging
 
 #### ✅ createEscrow()
+
 - Idempotency key support
 - Row-level locking on buyer wallet
 - Optimistic locking
@@ -238,6 +248,7 @@ All balance deduction operations have been updated with full protection:
 - Audit logging
 
 #### ✅ releaseEscrow()
+
 - Idempotency key support
 - Row-level locking on BOTH buyer and seller wallets
 - Optimistic locking on BOTH wallets
@@ -246,6 +257,7 @@ All balance deduction operations have been updated with full protection:
 - Audit logging for both wallets
 
 #### ✅ refundEscrow()
+
 - Idempotency key support
 - Row-level locking
 - Optimistic locking
@@ -260,6 +272,7 @@ All balance deduction operations have been updated with full protection:
 ### Concurrency Test Scenarios
 
 1. **Concurrent Withdrawals**:
+
    ```
    Initial balance: 1000
    Transaction A: Withdraw 600
@@ -269,6 +282,7 @@ All balance deduction operations have been updated with full protection:
    ```
 
 2. **Duplicate Idempotency Keys**:
+
    ```
    Transaction A: Withdraw 500 (idempotency: abc123)
    Transaction B: Withdraw 500 (idempotency: abc123)
@@ -277,6 +291,7 @@ All balance deduction operations have been updated with full protection:
    ```
 
 3. **Version Conflict Detection**:
+
    ```
    Transaction A: Read version 1, update to version 2
    Transaction B: Read version 1, tries to update
@@ -296,6 +311,7 @@ All balance deduction operations have been updated with full protection:
 ### Load Testing
 
 Run concurrent transaction test:
+
 ```bash
 # Simulate 100 concurrent withdrawals
 npm run test:concurrency
@@ -305,15 +321,16 @@ npm run test:concurrency
 
 ## 📊 Performance Impact
 
-| Operation | Before (avg) | After (avg) | Impact |
-|-----------|-------------|------------|--------|
-| deposit() | 45ms | 52ms | +15% |
-| withdraw() | 48ms | 58ms | +20% |
-| repayLoan() | 65ms | 78ms | +20% |
-| createEscrow() | 70ms | 85ms | +21% |
-| releaseEscrow() | 95ms | 115ms | +21% |
+| Operation       | Before (avg) | After (avg) | Impact |
+| --------------- | ------------ | ----------- | ------ |
+| deposit()       | 45ms         | 52ms        | +15%   |
+| withdraw()      | 48ms         | 58ms        | +20%   |
+| repayLoan()     | 65ms         | 78ms        | +20%   |
+| createEscrow()  | 70ms         | 85ms        | +21%   |
+| releaseEscrow() | 95ms         | 115ms       | +21%   |
 
 **Note**: The 15-21% performance overhead is **acceptable and necessary** for financial security. The added latency is primarily from:
+
 - Row-level locks (SELECT FOR UPDATE)
 - SERIALIZABLE isolation level
 - Audit logging writes
@@ -325,12 +342,14 @@ npm run test:concurrency
 ### For Developers
 
 1. **ALWAYS use idempotency keys for API calls**:
+
    ```typescript
    const idempotencyKey = `${userId}-${Date.now()}-${crypto.randomUUID()}`;
    await fintechService.withdraw(walletId, amount, description, idempotencyKey);
    ```
 
 2. **NEVER read balance outside of transaction**:
+
    ```typescript
    // ❌ BAD
    const wallet = await prisma.wallet.findUnique({ where: { id } });
@@ -344,6 +363,7 @@ npm run test:concurrency
    ```
 
 3. **ALWAYS use version checking**:
+
    ```typescript
    await tx.wallet.update({
      where: { id: walletId, version: currentVersion },
@@ -356,7 +376,7 @@ npm run test:concurrency
    await tx.walletAuditLog.create({
      data: {
        walletId,
-       operation: 'OPERATION_NAME',
+       operation: "OPERATION_NAME",
        balanceBefore,
        balanceAfter,
        amount,
@@ -527,6 +547,7 @@ psql -U sahool -d sahool_db -f migrations/001_rollback_double_spend_protection.s
 ## 📝 Changelog
 
 ### Version 1.0.0 (2026-01-01)
+
 - Initial security fix implementation
 - Added row-level locking
 - Added optimistic locking

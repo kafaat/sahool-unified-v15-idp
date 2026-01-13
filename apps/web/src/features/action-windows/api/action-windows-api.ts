@@ -5,9 +5,9 @@
  * API functions for fetching spray windows, irrigation windows, and action recommendations
  */
 
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { logger } from '@/lib/logger';
+import axios from "axios";
+import Cookies from "js-cookie";
+import { logger } from "@/lib/logger";
 import type {
   SprayWindow,
   IrrigationWindow,
@@ -17,37 +17,37 @@ import type {
   GetActionRecommendationsRequest,
   ActionWindowsResponse,
   WeatherCondition,
-} from '../types/action-windows';
+} from "../types/action-windows";
 import {
   calculateSprayWindow,
   calculateIrrigationNeed,
   getOptimalWindow,
   groupIntoWindows,
   DEFAULT_SPRAY_CRITERIA,
-} from '../utils/window-calculator';
+} from "../utils/window-calculator";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // API Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
-if (!API_BASE_URL && typeof window !== 'undefined') {
-  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+if (!API_BASE_URL && typeof window !== "undefined") {
+  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
 }
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 15000,
 });
 
 // Add auth token interceptor
 api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = Cookies.get('access_token');
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -61,24 +61,24 @@ api.interceptors.request.use((config) => {
 
 export const ERROR_MESSAGES = {
   SPRAY_WINDOWS_FETCH_FAILED: {
-    en: 'Failed to fetch spray windows',
-    ar: 'فشل في جلب نوافذ الرش',
+    en: "Failed to fetch spray windows",
+    ar: "فشل في جلب نوافذ الرش",
   },
   IRRIGATION_WINDOWS_FETCH_FAILED: {
-    en: 'Failed to fetch irrigation windows',
-    ar: 'فشل في جلب نوافذ الري',
+    en: "Failed to fetch irrigation windows",
+    ar: "فشل في جلب نوافذ الري",
   },
   RECOMMENDATIONS_FETCH_FAILED: {
-    en: 'Failed to fetch action recommendations',
-    ar: 'فشل في جلب توصيات العمل',
+    en: "Failed to fetch action recommendations",
+    ar: "فشل في جلب توصيات العمل",
   },
   INVALID_FIELD_ID: {
-    en: 'Invalid field ID provided',
-    ar: 'معرف الحقل غير صالح',
+    en: "Invalid field ID provided",
+    ar: "معرف الحقل غير صالح",
   },
   WEATHER_DATA_UNAVAILABLE: {
-    en: 'Weather data unavailable',
-    ar: 'بيانات الطقس غير متوفرة',
+    en: "Weather data unavailable",
+    ar: "بيانات الطقس غير متوفرة",
   },
 } as const;
 
@@ -91,7 +91,7 @@ export const ERROR_MESSAGES = {
  */
 async function fetchWeatherForecast(
   fieldId: string,
-  days: number = 7
+  days: number = 7,
 ): Promise<WeatherCondition[]> {
   try {
     // Try to get field location
@@ -101,7 +101,10 @@ async function fetchWeatherForecast(
     let lat = 15.3694; // Default: Sana'a, Yemen
     let lon = 44.191;
 
-    if (field?.centroid?.coordinates && Array.isArray(field.centroid.coordinates)) {
+    if (
+      field?.centroid?.coordinates &&
+      Array.isArray(field.centroid.coordinates)
+    ) {
       const coords = field.centroid.coordinates;
       if (coords.length >= 2) {
         lon = coords[0] as number;
@@ -114,7 +117,10 @@ async function fetchWeatherForecast(
       params: { lat, lon, days },
     });
 
-    const forecastData = weatherResponse.data.forecast || weatherResponse.data.daily_forecast || [];
+    const forecastData =
+      weatherResponse.data.forecast ||
+      weatherResponse.data.daily_forecast ||
+      [];
 
     // Transform to hourly conditions (simplified - generate hourly from daily)
     const conditions: WeatherCondition[] = [];
@@ -130,10 +136,10 @@ async function fetchWeatherForecast(
 
         conditions.push({
           timestamp: timestamp.toISOString(),
-          temperature: day.temp_max_c - (Math.abs(hour - 12) * 2), // Simplified temperature curve
+          temperature: day.temp_max_c - Math.abs(hour - 12) * 2, // Simplified temperature curve
           humidity: day.humidity_pct || 60,
           windSpeed: day.wind_speed_max_kmh || 10,
-          windDirection: 'N',
+          windDirection: "N",
           rainProbability: day.precipitation_probability || 0,
           precipitation: day.precipitation_mm || 0,
           cloudCover: day.cloud_cover_pct || 30,
@@ -143,7 +149,7 @@ async function fetchWeatherForecast(
 
     return conditions;
   } catch (error) {
-    logger.warn('Failed to fetch weather forecast, using mock data:', error);
+    logger.warn("Failed to fetch weather forecast, using mock data:", error);
     return generateMockWeatherConditions(days);
   }
 }
@@ -166,7 +172,10 @@ function generateMockWeatherConditions(days: number): WeatherCondition[] {
         temperature: 20 + Math.random() * 15,
         humidity: 50 + Math.random() * 30,
         windSpeed: 5 + Math.random() * 15,
-        windDirection: (['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'] as const)[Math.floor(Math.random() * 8)] ?? 'N',
+        windDirection:
+          (["N", "NE", "E", "SE", "S", "SW", "W", "NW"] as const)[
+            Math.floor(Math.random() * 8)
+          ] ?? "N",
         rainProbability: Math.random() * 30,
         precipitation: Math.random() < 0.2 ? Math.random() * 5 : 0,
         cloudCover: Math.random() * 100,
@@ -187,11 +196,11 @@ function generateMockWeatherConditions(days: number): WeatherCondition[] {
  * جلب نوافذ الرش للحقل
  */
 export async function getSprayWindows(
-  request: GetSprayWindowsRequest
+  request: GetSprayWindowsRequest,
 ): Promise<ActionWindowsResponse<SprayWindow[]>> {
   const { fieldId, days = 7, criteria } = request;
 
-  if (!fieldId || typeof fieldId !== 'string' || fieldId.trim().length === 0) {
+  if (!fieldId || typeof fieldId !== "string" || fieldId.trim().length === 0) {
     return {
       success: false,
       error: ERROR_MESSAGES.INVALID_FIELD_ID.en,
@@ -211,7 +220,7 @@ export async function getSprayWindows(
       }
     } catch {
       // Backend not available, fall through to client-side calculation
-      logger.info('Action windows API not available, calculating client-side');
+      logger.info("Action windows API not available, calculating client-side");
     }
 
     // Fetch weather forecast
@@ -236,34 +245,40 @@ export async function getSprayWindows(
     // Group into windows
     const windows = groupIntoWindows(
       results.map((r) => ({ timestamp: r.timestamp, status: r.status })),
-      criteria?.minDuration || DEFAULT_SPRAY_CRITERIA.minDuration
+      criteria?.minDuration || DEFAULT_SPRAY_CRITERIA.minDuration,
     );
 
     // Create SprayWindow objects
-    const sprayWindows: SprayWindow[] = windows.map((window, index) => {
-      const startCondition = results.find((r) => r.timestamp === window.startTime);
-      if (!startCondition) {
-        // Skip windows without valid conditions
-        return null;
-      }
-      const result = startCondition.result || calculateSprayWindow(startCondition.condition, criteria);
+    const sprayWindows: SprayWindow[] = windows
+      .map((window, index) => {
+        const startCondition = results.find(
+          (r) => r.timestamp === window.startTime,
+        );
+        if (!startCondition) {
+          // Skip windows without valid conditions
+          return null;
+        }
+        const result =
+          startCondition.result ||
+          calculateSprayWindow(startCondition.condition, criteria);
 
-      return {
-        id: `spray-${fieldId}-${index}`,
-        fieldId,
-        startTime: window.startTime,
-        endTime: window.endTime,
-        duration: window.duration,
-        status: window.status,
-        score: result.score,
-        conditions: startCondition.condition,
-        suitability: result.suitability as Record<string, boolean>,
-        warnings: result.warnings,
-        warningsAr: result.warningsAr,
-        recommendations: result.recommendations,
-        recommendationsAr: result.recommendationsAr,
-      };
-    }).filter((w): w is SprayWindow => w !== null);
+        return {
+          id: `spray-${fieldId}-${index}`,
+          fieldId,
+          startTime: window.startTime,
+          endTime: window.endTime,
+          duration: window.duration,
+          status: window.status,
+          score: result.score,
+          conditions: startCondition.condition,
+          suitability: result.suitability as Record<string, boolean>,
+          warnings: result.warnings,
+          warningsAr: result.warningsAr,
+          recommendations: result.recommendations,
+          recommendationsAr: result.recommendationsAr,
+        };
+      })
+      .filter((w): w is SprayWindow => w !== null);
 
     // Sort by score (best first)
     sprayWindows.sort((a, b) => b.score - a.score);
@@ -273,10 +288,13 @@ export async function getSprayWindows(
       data: sprayWindows,
     };
   } catch (error) {
-    logger.error('[getSprayWindows] Request failed:', error);
+    logger.error("[getSprayWindows] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : ERROR_MESSAGES.SPRAY_WINDOWS_FETCH_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.SPRAY_WINDOWS_FETCH_FAILED.en,
       error_ar: ERROR_MESSAGES.SPRAY_WINDOWS_FETCH_FAILED.ar,
     };
   }
@@ -287,11 +305,11 @@ export async function getSprayWindows(
  * جلب نوافذ الري للحقل
  */
 export async function getIrrigationWindows(
-  request: GetIrrigationWindowsRequest
+  request: GetIrrigationWindowsRequest,
 ): Promise<ActionWindowsResponse<IrrigationWindow[]>> {
   const { fieldId, days = 7 } = request;
 
-  if (!fieldId || typeof fieldId !== 'string' || fieldId.trim().length === 0) {
+  if (!fieldId || typeof fieldId !== "string" || fieldId.trim().length === 0) {
     return {
       success: false,
       error: ERROR_MESSAGES.INVALID_FIELD_ID.en,
@@ -310,7 +328,7 @@ export async function getIrrigationWindows(
         return response.data;
       }
     } catch {
-      logger.info('Action windows API not available, calculating client-side');
+      logger.info("Action windows API not available, calculating client-side");
     }
 
     // Fetch weather forecast
@@ -329,7 +347,7 @@ export async function getIrrigationWindows(
     const irrigationNeed = calculateIrrigationNeed(
       soilMoisture,
       { et0: 5, date: new Date().toISOString() },
-      1
+      1,
     );
 
     irrigationNeed.fieldId = fieldId;
@@ -352,7 +370,10 @@ export async function getIrrigationWindows(
       });
 
       if (morningConditions.length > 0) {
-        const optimalCondition = getOptimalWindow(morningConditions, 'irrigate');
+        const optimalCondition = getOptimalWindow(
+          morningConditions,
+          "irrigate",
+        );
 
         if (optimalCondition) {
           irrigationWindows.push({
@@ -360,17 +381,39 @@ export async function getIrrigationWindows(
             fieldId,
             date: date.toISOString(),
             startTime: optimalCondition.timestamp,
-            endTime: new Date(new Date(optimalCondition.timestamp).getTime() + irrigationNeed.recommendedDuration * 60 * 60 * 1000).toISOString(),
-            status: irrigationNeed.urgency === 'critical' || irrigationNeed.urgency === 'high' ? 'optimal' : 'marginal',
-            priority: irrigationNeed.urgency === 'critical' ? 'urgent' : irrigationNeed.urgency === 'high' ? 'high' : 'medium',
+            endTime: new Date(
+              new Date(optimalCondition.timestamp).getTime() +
+                irrigationNeed.recommendedDuration * 60 * 60 * 1000,
+            ).toISOString(),
+            status:
+              irrigationNeed.urgency === "critical" ||
+              irrigationNeed.urgency === "high"
+                ? "optimal"
+                : "marginal",
+            priority:
+              irrigationNeed.urgency === "critical"
+                ? "urgent"
+                : irrigationNeed.urgency === "high"
+                  ? "high"
+                  : "medium",
             waterAmount: irrigationNeed.recommendedAmount,
             duration: irrigationNeed.recommendedDuration,
             soilMoisture: {
               current: soilMoisture.current,
               target: soilMoisture.target,
               deficit: irrigationNeed.soilMoistureDeficit,
-              status: irrigationNeed.urgency === 'critical' ? 'critical' : irrigationNeed.urgency === 'high' ? 'low' : 'optimal',
-              statusAr: irrigationNeed.urgency === 'critical' ? 'حرج' : irrigationNeed.urgency === 'high' ? 'منخفض' : 'مثالي',
+              status:
+                irrigationNeed.urgency === "critical"
+                  ? "critical"
+                  : irrigationNeed.urgency === "high"
+                    ? "low"
+                    : "optimal",
+              statusAr:
+                irrigationNeed.urgency === "critical"
+                  ? "حرج"
+                  : irrigationNeed.urgency === "high"
+                    ? "منخفض"
+                    : "مثالي",
             },
             et: {
               et0: irrigationNeed.et0,
@@ -378,8 +421,14 @@ export async function getIrrigationWindows(
               kc: 1.0,
             },
             weather: optimalCondition,
-            recommendations: ['Irrigate during morning hours for optimal absorption', 'Monitor soil moisture after irrigation'],
-            recommendationsAr: ['الري خلال ساعات الصباح للامتصاص الأمثل', 'راقب رطوبة التربة بعد الري'],
+            recommendations: [
+              "Irrigate during morning hours for optimal absorption",
+              "Monitor soil moisture after irrigation",
+            ],
+            recommendationsAr: [
+              "الري خلال ساعات الصباح للامتصاص الأمثل",
+              "راقب رطوبة التربة بعد الري",
+            ],
             reason: irrigationNeed.reasoning,
             reasonAr: irrigationNeed.reasoningAr,
           });
@@ -397,7 +446,10 @@ export async function getIrrigationWindows(
       });
 
       if (eveningConditions.length > 0) {
-        const optimalCondition = getOptimalWindow(eveningConditions, 'irrigate');
+        const optimalCondition = getOptimalWindow(
+          eveningConditions,
+          "irrigate",
+        );
 
         if (optimalCondition) {
           irrigationWindows.push({
@@ -405,17 +457,39 @@ export async function getIrrigationWindows(
             fieldId,
             date: date.toISOString(),
             startTime: optimalCondition.timestamp,
-            endTime: new Date(new Date(optimalCondition.timestamp).getTime() + irrigationNeed.recommendedDuration * 60 * 60 * 1000).toISOString(),
-            status: irrigationNeed.urgency === 'critical' || irrigationNeed.urgency === 'high' ? 'optimal' : 'marginal',
-            priority: irrigationNeed.urgency === 'critical' ? 'urgent' : irrigationNeed.urgency === 'high' ? 'high' : 'medium',
+            endTime: new Date(
+              new Date(optimalCondition.timestamp).getTime() +
+                irrigationNeed.recommendedDuration * 60 * 60 * 1000,
+            ).toISOString(),
+            status:
+              irrigationNeed.urgency === "critical" ||
+              irrigationNeed.urgency === "high"
+                ? "optimal"
+                : "marginal",
+            priority:
+              irrigationNeed.urgency === "critical"
+                ? "urgent"
+                : irrigationNeed.urgency === "high"
+                  ? "high"
+                  : "medium",
             waterAmount: irrigationNeed.recommendedAmount,
             duration: irrigationNeed.recommendedDuration,
             soilMoisture: {
               current: soilMoisture.current,
               target: soilMoisture.target,
               deficit: irrigationNeed.soilMoistureDeficit,
-              status: irrigationNeed.urgency === 'critical' ? 'critical' : irrigationNeed.urgency === 'high' ? 'low' : 'optimal',
-              statusAr: irrigationNeed.urgency === 'critical' ? 'حرج' : irrigationNeed.urgency === 'high' ? 'منخفض' : 'مثالي',
+              status:
+                irrigationNeed.urgency === "critical"
+                  ? "critical"
+                  : irrigationNeed.urgency === "high"
+                    ? "low"
+                    : "optimal",
+              statusAr:
+                irrigationNeed.urgency === "critical"
+                  ? "حرج"
+                  : irrigationNeed.urgency === "high"
+                    ? "منخفض"
+                    : "مثالي",
             },
             et: {
               et0: irrigationNeed.et0,
@@ -423,8 +497,14 @@ export async function getIrrigationWindows(
               kc: 1.0,
             },
             weather: optimalCondition,
-            recommendations: ['Evening irrigation reduces water loss from evaporation', 'Ensure adequate drainage'],
-            recommendationsAr: ['الري المسائي يقلل فقدان الماء من التبخر', 'تأكد من الصرف الكافي'],
+            recommendations: [
+              "Evening irrigation reduces water loss from evaporation",
+              "Ensure adequate drainage",
+            ],
+            recommendationsAr: [
+              "الري المسائي يقلل فقدان الماء من التبخر",
+              "تأكد من الصرف الكافي",
+            ],
             reason: irrigationNeed.reasoning,
             reasonAr: irrigationNeed.reasoningAr,
           });
@@ -437,10 +517,13 @@ export async function getIrrigationWindows(
       data: irrigationWindows,
     };
   } catch (error) {
-    logger.error('[getIrrigationWindows] Request failed:', error);
+    logger.error("[getIrrigationWindows] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : ERROR_MESSAGES.IRRIGATION_WINDOWS_FETCH_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.IRRIGATION_WINDOWS_FETCH_FAILED.en,
       error_ar: ERROR_MESSAGES.IRRIGATION_WINDOWS_FETCH_FAILED.ar,
     };
   }
@@ -451,11 +534,11 @@ export async function getIrrigationWindows(
  * جلب توصيات العمل للحقل
  */
 export async function getActionRecommendations(
-  request: GetActionRecommendationsRequest
+  request: GetActionRecommendationsRequest,
 ): Promise<ActionWindowsResponse<ActionRecommendation[]>> {
   const { fieldId, actionTypes, days = 7 } = request;
 
-  if (!fieldId || typeof fieldId !== 'string' || fieldId.trim().length === 0) {
+  if (!fieldId || typeof fieldId !== "string" || fieldId.trim().length === 0) {
     return {
       success: false,
       error: ERROR_MESSAGES.INVALID_FIELD_ID.en,
@@ -467,14 +550,14 @@ export async function getActionRecommendations(
     // Try to fetch from backend API first
     try {
       const response = await api.get(`/api/v1/action-windows/recommendations`, {
-        params: { fieldId, days, actionTypes: actionTypes?.join(',') },
+        params: { fieldId, days, actionTypes: actionTypes?.join(",") },
       });
 
       if (response.data?.success && response.data?.data) {
         return response.data;
       }
     } catch {
-      logger.info('Action windows API not available, generating client-side');
+      logger.info("Action windows API not available, generating client-side");
     }
 
     // Get spray and irrigation windows
@@ -486,19 +569,19 @@ export async function getActionRecommendations(
     // Create recommendations from spray windows
     if (sprayResponse.success && sprayResponse.data) {
       const optimalSprayWindows = sprayResponse.data
-        .filter((w) => w.status === 'optimal')
+        .filter((w) => w.status === "optimal")
         .slice(0, 3); // Top 3
 
       for (const window of optimalSprayWindows) {
         recommendations.push({
           id: `rec-spray-${window.id}`,
           fieldId,
-          actionType: 'spray',
-          priority: 'medium',
-          title: 'Optimal Spray Window Available',
-          titleAr: 'نافذة رش مثالية متاحة',
-          description: `Excellent conditions for spraying from ${new Date(window.startTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric' })}`,
-          descriptionAr: `ظروف ممتازة للرش من ${new Date(window.startTime).toLocaleString('ar-EG', { month: 'short', day: 'numeric', hour: 'numeric' })}`,
+          actionType: "spray",
+          priority: "medium",
+          title: "Optimal Spray Window Available",
+          titleAr: "نافذة رش مثالية متاحة",
+          description: `Excellent conditions for spraying from ${new Date(window.startTime).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric" })}`,
+          descriptionAr: `ظروف ممتازة للرش من ${new Date(window.startTime).toLocaleString("ar-EG", { month: "short", day: "numeric", hour: "numeric" })}`,
           window: {
             startTime: window.startTime,
             endTime: window.endTime,
@@ -510,7 +593,8 @@ export async function getActionRecommendations(
           benefits: window.recommendations,
           benefitsAr: window.recommendationsAr,
           warnings: window.warnings.length > 0 ? window.warnings : undefined,
-          warningsAr: window.warningsAr.length > 0 ? window.warningsAr : undefined,
+          warningsAr:
+            window.warningsAr.length > 0 ? window.warningsAr : undefined,
           confidence: window.score,
           createdAt: new Date().toISOString(),
           expiresAt: window.endTime,
@@ -521,30 +605,34 @@ export async function getActionRecommendations(
     // Create recommendations from irrigation windows
     if (irrigationResponse.success && irrigationResponse.data) {
       const urgentIrrigation = irrigationResponse.data
-        .filter((w) => w.priority === 'urgent' || w.priority === 'high')
+        .filter((w) => w.priority === "urgent" || w.priority === "high")
         .slice(0, 2); // Top 2
 
       for (const window of urgentIrrigation) {
         recommendations.push({
           id: `rec-irrigation-${window.id}`,
           fieldId,
-          actionType: 'irrigate',
+          actionType: "irrigate",
           priority: window.priority,
-          title: window.priority === 'urgent' ? 'Urgent Irrigation Required' : 'Irrigation Recommended',
-          titleAr: window.priority === 'urgent' ? 'الري العاجل مطلوب' : 'الري موصى به',
+          title:
+            window.priority === "urgent"
+              ? "Urgent Irrigation Required"
+              : "Irrigation Recommended",
+          titleAr:
+            window.priority === "urgent" ? "الري العاجل مطلوب" : "الري موصى به",
           description: `${window.reason.substring(0, 100)}...`,
           descriptionAr: `${window.reasonAr.substring(0, 100)}...`,
           window: {
             startTime: window.startTime,
             endTime: window.endTime,
-            optimal: window.status === 'optimal',
+            optimal: window.status === "optimal",
           },
           conditions: window.weather,
           reason: window.reason,
           reasonAr: window.reasonAr,
           benefits: window.recommendations,
           benefitsAr: window.recommendationsAr,
-          confidence: window.status === 'optimal' ? 90 : 70,
+          confidence: window.status === "optimal" ? 90 : 70,
           createdAt: new Date().toISOString(),
           expiresAt: window.endTime,
         });
@@ -553,17 +641,22 @@ export async function getActionRecommendations(
 
     // Sort by priority
     const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
-    recommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    recommendations.sort(
+      (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
+    );
 
     return {
       success: true,
       data: recommendations,
     };
   } catch (error) {
-    logger.error('[getActionRecommendations] Request failed:', error);
+    logger.error("[getActionRecommendations] Request failed:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.en,
+      error:
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.en,
       error_ar: ERROR_MESSAGES.RECOMMENDATIONS_FETCH_FAILED.ar,
     };
   }
@@ -574,8 +667,11 @@ export async function getActionRecommendations(
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const actionWindowsKeys = {
-  all: ['action-windows'] as const,
-  spray: (fieldId: string, days: number) => [...actionWindowsKeys.all, 'spray', fieldId, days] as const,
-  irrigation: (fieldId: string, days: number) => [...actionWindowsKeys.all, 'irrigation', fieldId, days] as const,
-  recommendations: (fieldId: string, days: number) => [...actionWindowsKeys.all, 'recommendations', fieldId, days] as const,
+  all: ["action-windows"] as const,
+  spray: (fieldId: string, days: number) =>
+    [...actionWindowsKeys.all, "spray", fieldId, days] as const,
+  irrigation: (fieldId: string, days: number) =>
+    [...actionWindowsKeys.all, "irrigation", fieldId, days] as const,
+  recommendations: (fieldId: string, days: number) =>
+    [...actionWindowsKeys.all, "recommendations", fieldId, days] as const,
 } as const;

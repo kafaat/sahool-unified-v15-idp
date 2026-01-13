@@ -9,8 +9,12 @@
  * - Scheduled payments management
  */
 
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
 interface CreateLoanDto {
   walletId: string;
@@ -31,13 +35,13 @@ export class LoanService {
    */
   getLoanPurposeAr(purpose: string): string {
     const purposes: Record<string, string> = {
-      SEEDS: 'شراء بذور',
-      FERTILIZER: 'شراء أسمدة',
-      EQUIPMENT: 'شراء معدات',
-      IRRIGATION: 'نظام ري',
-      EXPANSION: 'توسيع المزرعة',
-      EMERGENCY: 'طوارئ',
-      OTHER: 'أخرى',
+      SEEDS: "شراء بذور",
+      FERTILIZER: "شراء أسمدة",
+      EQUIPMENT: "شراء معدات",
+      IRRIGATION: "نظام ري",
+      EXPANSION: "توسيع المزرعة",
+      EMERGENCY: "طوارئ",
+      OTHER: "أخرى",
     };
     return purposes[purpose] || purpose;
   }
@@ -51,7 +55,7 @@ export class LoanService {
     });
 
     if (!wallet) {
-      throw new NotFoundException('المحفظة غير موجودة');
+      throw new NotFoundException("المحفظة غير موجودة");
     }
 
     const availableCredit = wallet.loanLimit - wallet.currentLoan;
@@ -83,17 +87,17 @@ export class LoanService {
         purposeDetails: data.purposeDetails,
         collateralType: data.collateralType,
         collateralValue: data.collateralValue,
-        status: 'PENDING',
+        status: "PENDING",
       },
     });
 
     return {
       loan,
-      message: 'تم تقديم طلب القرض بنجاح. سيتم مراجعته خلال 24-48 ساعة.',
+      message: "تم تقديم طلب القرض بنجاح. سيتم مراجعته خلال 24-48 ساعة.",
       nextSteps: [
-        'سيتم التحقق من بياناتك',
-        'قد نطلب مستندات إضافية',
-        'سيتم إيداع المبلغ في محفظتك عند الموافقة',
+        "سيتم التحقق من بياناتك",
+        "قد نطلب مستندات إضافية",
+        "سيتم إيداع المبلغ في محفظتك عند الموافقة",
       ],
     };
   }
@@ -108,39 +112,40 @@ export class LoanService {
     });
 
     if (!loan) {
-      throw new NotFoundException('القرض غير موجود');
+      throw new NotFoundException("القرض غير موجود");
     }
 
-    if (loan.status !== 'PENDING') {
-      throw new BadRequestException('لا يمكن الموافقة على هذا القرض');
+    if (loan.status !== "PENDING") {
+      throw new BadRequestException("لا يمكن الموافقة على هذا القرض");
     }
 
-    const [updatedLoan, updatedWallet, transaction] = await this.prisma.$transaction([
-      this.prisma.loan.update({
-        where: { id: loanId },
-        data: { status: 'ACTIVE' },
-      }),
-      this.prisma.wallet.update({
-        where: { id: loan.walletId },
-        data: {
-          balance: { increment: loan.amount },
-          currentLoan: { increment: loan.totalDue },
-        },
-      }),
-      this.prisma.transaction.create({
-        data: {
-          walletId: loan.walletId,
-          type: 'LOAN',
-          amount: loan.amount,
-          balanceAfter: loan.wallet.balance + loan.amount,
-          referenceId: loanId,
-          referenceType: 'loan',
-          description: `Agricultural loan - ${loan.purpose}`,
-          descriptionAr: `قرض زراعي - ${this.getLoanPurposeAr(loan.purpose)}`,
-          status: 'COMPLETED',
-        },
-      }),
-    ]);
+    const [updatedLoan, updatedWallet, transaction] =
+      await this.prisma.$transaction([
+        this.prisma.loan.update({
+          where: { id: loanId },
+          data: { status: "ACTIVE" },
+        }),
+        this.prisma.wallet.update({
+          where: { id: loan.walletId },
+          data: {
+            balance: { increment: loan.amount },
+            currentLoan: { increment: loan.totalDue },
+          },
+        }),
+        this.prisma.transaction.create({
+          data: {
+            walletId: loan.walletId,
+            type: "LOAN",
+            amount: loan.amount,
+            balanceAfter: loan.wallet.balance + loan.amount,
+            referenceId: loanId,
+            referenceType: "loan",
+            description: `Agricultural loan - ${loan.purpose}`,
+            descriptionAr: `قرض زراعي - ${this.getLoanPurposeAr(loan.purpose)}`,
+            status: "COMPLETED",
+          },
+        }),
+      ]);
 
     return { loan: updatedLoan, wallet: updatedWallet, transaction };
   }
@@ -156,7 +161,7 @@ export class LoanService {
     ipAddress?: string,
   ) {
     if (amount <= 0) {
-      throw new BadRequestException('المبلغ يجب أن يكون أكبر من صفر');
+      throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
 
     if (idempotencyKey) {
@@ -185,11 +190,11 @@ export class LoanService {
         });
 
         if (!loan) {
-          throw new NotFoundException('القرض غير موجود');
+          throw new NotFoundException("القرض غير موجود");
         }
 
-        if (loan.status !== 'ACTIVE') {
-          throw new BadRequestException('القرض غير نشط');
+        if (loan.status !== "ACTIVE") {
+          throw new BadRequestException("القرض غير نشط");
         }
 
         const walletRows = await tx.$queryRaw<any[]>`
@@ -197,7 +202,7 @@ export class LoanService {
         `;
 
         if (!walletRows || walletRows.length === 0) {
-          throw new NotFoundException('المحفظة غير موجودة');
+          throw new NotFoundException("المحفظة غير موجودة");
         }
 
         const wallet = walletRows[0];
@@ -222,7 +227,7 @@ export class LoanService {
           where: { id: loanId },
           data: {
             paidAmount: newPaidAmount,
-            status: isFullyPaid ? 'PAID' : 'ACTIVE',
+            status: isFullyPaid ? "PAID" : "ACTIVE",
           },
         });
 
@@ -241,15 +246,15 @@ export class LoanService {
         const transaction = await tx.transaction.create({
           data: {
             walletId: loan.walletId,
-            type: 'REPAYMENT',
+            type: "REPAYMENT",
             amount: -paymentAmount,
             balanceAfter: newBalance,
             balanceBefore,
             referenceId: loanId,
-            referenceType: 'loan',
+            referenceType: "loan",
             description: `Loan repayment`,
-            descriptionAr: isFullyPaid ? 'سداد كامل للقرض' : 'سداد جزئي للقرض',
-            status: 'COMPLETED',
+            descriptionAr: isFullyPaid ? "سداد كامل للقرض" : "سداد جزئي للقرض",
+            status: "COMPLETED",
             idempotencyKey,
             userId,
             ipAddress,
@@ -261,7 +266,7 @@ export class LoanService {
             walletId: loan.walletId,
             transactionId: transaction.id,
             userId,
-            operation: 'LOAN_REPAYMENT',
+            operation: "LOAN_REPAYMENT",
             balanceBefore,
             balanceAfter: newBalance,
             amount: -paymentAmount,
@@ -286,12 +291,12 @@ export class LoanService {
           await tx.creditEvent.create({
             data: {
               walletId: loan.walletId,
-              eventType: isOnTime ? 'LOAN_REPAID_ONTIME' : 'LOAN_REPAID_LATE',
+              eventType: isOnTime ? "LOAN_REPAID_ONTIME" : "LOAN_REPAID_LATE",
               amount: loan.totalDue,
               impact: isOnTime ? 15 : -10,
               description: isOnTime
-                ? 'قرض مسدد في الوقت المحدد'
-                : 'قرض مسدد متأخر',
+                ? "قرض مسدد في الوقت المحدد"
+                : "قرض مسدد متأخر",
             },
           });
         }
@@ -302,13 +307,13 @@ export class LoanService {
           transaction,
           remainingAmount: loan.totalDue - newPaidAmount,
           message: isFullyPaid
-            ? 'تهانينا! تم سداد القرض بالكامل. تم رفع تصنيفك الائتماني.'
+            ? "تهانينا! تم سداد القرض بالكامل. تم رفع تصنيفك الائتماني."
             : `تم السداد بنجاح. المتبقي: ${loan.totalDue - newPaidAmount} ر.ي`,
           duplicate: false,
         };
       },
       {
-        isolationLevel: 'Serializable',
+        isolationLevel: "Serializable",
         maxWait: 5000,
         timeout: 10000,
       },
@@ -321,7 +326,7 @@ export class LoanService {
   async getUserLoans(walletId: string) {
     return this.prisma.loan.findMany({
       where: { walletId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
@@ -342,7 +347,7 @@ export class LoanService {
     });
 
     if (!wallet) {
-      throw new NotFoundException('المحفظة غير موجودة');
+      throw new NotFoundException("المحفظة غير موجودة");
     }
 
     const scheduledPayment = await this.prisma.scheduledPayment.create({
@@ -360,7 +365,7 @@ export class LoanService {
 
     return {
       scheduledPayment,
-      message: 'تم إنشاء الدفعة المجدولة بنجاح',
+      message: "تم إنشاء الدفعة المجدولة بنجاح",
     };
   }
 
@@ -373,7 +378,7 @@ export class LoanService {
         walletId,
         ...(activeOnly && { isActive: true }),
       },
-      orderBy: { nextPaymentDate: 'asc' },
+      orderBy: { nextPaymentDate: "asc" },
     });
   }
 
@@ -386,7 +391,7 @@ export class LoanService {
     });
 
     if (!payment) {
-      throw new NotFoundException('الدفعة المجدولة غير موجودة');
+      throw new NotFoundException("الدفعة المجدولة غير موجودة");
     }
 
     return this.prisma.scheduledPayment.update({
@@ -405,11 +410,11 @@ export class LoanService {
     });
 
     if (!payment) {
-      throw new NotFoundException('الدفعة المجدولة غير موجودة');
+      throw new NotFoundException("الدفعة المجدولة غير موجودة");
     }
 
     if (!payment.isActive) {
-      throw new BadRequestException('الدفعة المجدولة غير نشطة');
+      throw new BadRequestException("الدفعة المجدولة غير نشطة");
     }
 
     if (payment.wallet.balance < payment.amount) {
@@ -417,64 +422,65 @@ export class LoanService {
         where: { id: paymentId },
         data: {
           failedAttempts: { increment: 1 },
-          lastFailureReason: 'الرصيد غير كافي',
+          lastFailureReason: "الرصيد غير كافي",
         },
       });
-      throw new BadRequestException('الرصيد غير كافي لتنفيذ الدفعة المجدولة');
+      throw new BadRequestException("الرصيد غير كافي لتنفيذ الدفعة المجدولة");
     }
 
     const nextDate = new Date(payment.nextPaymentDate);
     switch (payment.frequency) {
-      case 'DAILY':
+      case "DAILY":
         nextDate.setDate(nextDate.getDate() + 1);
         break;
-      case 'WEEKLY':
+      case "WEEKLY":
         nextDate.setDate(nextDate.getDate() + 7);
         break;
-      case 'BIWEEKLY':
+      case "BIWEEKLY":
         nextDate.setDate(nextDate.getDate() + 14);
         break;
-      case 'MONTHLY':
+      case "MONTHLY":
         nextDate.setMonth(nextDate.getMonth() + 1);
         break;
-      case 'QUARTERLY':
+      case "QUARTERLY":
         nextDate.setMonth(nextDate.getMonth() + 3);
         break;
-      case 'YEARLY':
+      case "YEARLY":
         nextDate.setFullYear(nextDate.getFullYear() + 1);
         break;
     }
 
     const newBalance = payment.wallet.balance - payment.amount;
 
-    const [updatedPayment, updatedWallet, transaction] = await this.prisma.$transaction([
-      this.prisma.scheduledPayment.update({
-        where: { id: paymentId },
-        data: {
-          lastPaymentDate: new Date(),
-          nextPaymentDate: nextDate,
-          failedAttempts: 0,
-          lastFailureReason: null,
-        },
-      }),
-      this.prisma.wallet.update({
-        where: { id: payment.walletId },
-        data: { balance: newBalance },
-      }),
-      this.prisma.transaction.create({
-        data: {
-          walletId: payment.walletId,
-          type: 'SCHEDULED_PAYMENT',
-          amount: -payment.amount,
-          balanceAfter: newBalance,
-          referenceId: payment.loanId || paymentId,
-          referenceType: payment.loanId ? 'loan' : 'scheduled_payment',
-          description: payment.description || 'Scheduled payment',
-          descriptionAr: payment.descriptionAr || 'دفعة مجدولة',
-          status: 'COMPLETED',
-        },
-      }),
-    ]);
+    const [updatedPayment, updatedWallet, transaction] =
+      await this.prisma.$transaction([
+        this.prisma.scheduledPayment.update({
+          where: { id: paymentId },
+          data: {
+            lastPaymentDate: new Date(),
+            nextPaymentDate: nextDate,
+            failedAttempts: 0,
+            lastFailureReason: null,
+          },
+        }),
+        this.prisma.wallet.update({
+          where: { id: payment.walletId },
+          data: { balance: newBalance },
+        }),
+        this.prisma.transaction.create({
+          data: {
+            walletId: payment.walletId,
+            type: "SCHEDULED_PAYMENT",
+            amount: -payment.amount,
+            balanceAfter: newBalance,
+            referenceId: payment.loanId || paymentId,
+            referenceType: payment.loanId ? "loan" : "scheduled_payment",
+            description: payment.description || "Scheduled payment",
+            descriptionAr: payment.descriptionAr || "دفعة مجدولة",
+            status: "COMPLETED",
+          },
+        }),
+      ]);
 
     return { payment: updatedPayment, wallet: updatedWallet, transaction };
   }

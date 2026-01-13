@@ -1,4 +1,5 @@
 # Token Revocation System
+
 # نظام إلغاء الرموز
 
 A comprehensive Redis-based token revocation system for SAHOOL platform with support for both Python (FastAPI) and TypeScript (NestJS).
@@ -11,16 +12,17 @@ This token revocation system provides a robust, distributed solution for invalid
 
 ✅ **Redis-Based Storage**: High-performance, distributed token revocation
 ✅ **Multiple Revocation Strategies**:
-   - Individual token revocation (by JTI)
-   - User-level revocation (all user tokens)
-   - Tenant-level revocation (all tenant tokens)
-✅ **Automatic TTL Management**: Tokens auto-expire from blacklist
-✅ **Dual Language Support**: Python and TypeScript implementations
-✅ **Fail-Safe Design**: Graceful degradation on Redis errors
-✅ **REST API Endpoints**: Complete API for token management
-✅ **Middleware Integration**: Automatic revocation checking
-✅ **Audit Logging**: Track all revocation activities
-✅ **Health Monitoring**: Built-in health checks
+
+- Individual token revocation (by JTI)
+- User-level revocation (all user tokens)
+- Tenant-level revocation (all tenant tokens)
+  ✅ **Automatic TTL Management**: Tokens auto-expire from blacklist
+  ✅ **Dual Language Support**: Python and TypeScript implementations
+  ✅ **Fail-Safe Design**: Graceful degradation on Redis errors
+  ✅ **REST API Endpoints**: Complete API for token management
+  ✅ **Middleware Integration**: Automatic revocation checking
+  ✅ **Audit Logging**: Track all revocation activities
+  ✅ **Health Monitoring**: Built-in health checks
 
 ## Architecture | البنية المعمارية
 
@@ -200,11 +202,11 @@ async def change_password(user_id: str):
 
 ```typescript
 // app.module.ts
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { TokenRevocationModule } from '@shared/auth/token-revocation';
-import { TokenRevocationGuard } from '@shared/auth/token-revocation.guard';
-import { RevocationController } from '@shared/auth/revocation.controller';
+import { Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
+import { TokenRevocationModule } from "@shared/auth/token-revocation";
+import { TokenRevocationGuard } from "@shared/auth/token-revocation.guard";
+import { RevocationController } from "@shared/auth/revocation.controller";
 
 @Module({
   imports: [TokenRevocationModule],
@@ -222,24 +224,22 @@ export class AppModule {}
 #### 2. Revoke Token on Logout
 
 ```typescript
-import { RedisTokenRevocationStore } from '@shared/auth/token-revocation';
+import { RedisTokenRevocationStore } from "@shared/auth/token-revocation";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
-  constructor(
-    private readonly revocationStore: RedisTokenRevocationStore,
-  ) {}
+  constructor(private readonly revocationStore: RedisTokenRevocationStore) {}
 
-  @Post('logout')
+  @Post("logout")
   async logout(@Request() req) {
     const payload = this.extractPayload(req);
 
     await this.revocationStore.revokeToken(payload.jti, {
       expiresIn: 3600,
-      reason: 'user_logout',
+      reason: "user_logout",
     });
 
-    return { message: 'Logged out successfully' };
+    return { message: "Logged out successfully" };
   }
 }
 ```
@@ -247,14 +247,14 @@ export class AuthController {
 #### 3. Skip Revocation Check
 
 ```typescript
-import { SkipRevocationCheck } from '@shared/auth/token-revocation.guard';
+import { SkipRevocationCheck } from "@shared/auth/token-revocation.guard";
 
-@Controller('public')
+@Controller("public")
 export class PublicController {
-  @Get('data')
+  @Get("data")
   @SkipRevocationCheck()
   async getPublicData() {
-    return { data: 'public' };
+    return { data: "public" };
   }
 }
 ```
@@ -264,14 +264,17 @@ export class PublicController {
 All endpoints are prefixed with `/auth/revocation`
 
 ### 1. POST `/revoke-current`
+
 Revoke the current token (logout)
 
 **Request Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -281,14 +284,17 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 ### 2. POST `/revoke-all`
+
 Revoke all tokens for current user (logout from all devices)
 
 **Request Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -297,14 +303,17 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 ### 3. POST `/revoke`
+
 Revoke a specific token by JTI
 
 **Request Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Request Body:**
+
 ```json
 {
   "jti": "550e8400-e29b-41d4-a716-446655440000",
@@ -313,6 +322,7 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -322,14 +332,17 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 ### 4. POST `/revoke-user-tokens`
+
 Revoke all tokens for a specific user (Admin only)
 
 **Request Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Request Body:**
+
 ```json
 {
   "userId": "user-123",
@@ -338,6 +351,7 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -346,14 +360,17 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 ### 5. POST `/revoke-tenant-tokens`
+
 Revoke all tokens for a tenant (Admin only)
 
 **Request Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Request Body:**
+
 ```json
 {
   "tenantId": "tenant-456",
@@ -362,6 +379,7 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -370,14 +388,17 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 ### 6. GET `/status/:jti`
+
 Check if a token is revoked
 
 **Request Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Response:**
+
 ```json
 {
   "isRevoked": true,
@@ -387,14 +408,17 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 ### 7. GET `/stats`
+
 Get revocation statistics (Admin only)
 
 **Request Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 **Response:**
+
 ```json
 {
   "initialized": true,
@@ -406,9 +430,11 @@ Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
 ### 8. GET `/health`
+
 Check service health
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -420,9 +446,11 @@ Check service health
 ## Revocation Strategies | استراتيجيات الإلغاء
 
 ### 1. Token-Level Revocation (JTI)
+
 Revoke individual tokens by their JWT ID.
 
 **Use Cases:**
+
 - User logout from current device
 - Suspicious activity on specific session
 - Token refresh invalidation
@@ -431,9 +459,11 @@ Revoke individual tokens by their JWT ID.
 **TTL:** Token expiration time
 
 ### 2. User-Level Revocation
+
 Revoke all tokens for a specific user.
 
 **Use Cases:**
+
 - Password change
 - Account security reset
 - Logout from all devices
@@ -443,9 +473,11 @@ Revoke all tokens for a specific user.
 **TTL:** 30 days
 
 ### 3. Tenant-Level Revocation
+
 Revoke all tokens for all users in a tenant.
 
 **Use Cases:**
+
 - Security breach
 - Tenant suspension
 - Major configuration changes
@@ -457,15 +489,18 @@ Revoke all tokens for all users in a tenant.
 ## Performance Considerations | اعتبارات الأداء
 
 ### Latency
+
 - Token revocation check: ~1-2ms (Redis in-memory)
 - Token revocation operation: ~2-3ms
 
 ### Scalability
+
 - Redis can handle 100,000+ ops/sec
 - Use Redis Cluster for high-traffic applications
 - Connection pooling is automatic
 
 ### Memory Usage
+
 - Each revoked token: ~200 bytes
 - Automatic cleanup via TTL
 - No memory leaks
@@ -575,17 +610,17 @@ async def test_token_revocation():
 
 ```typescript
 // TypeScript
-describe('RedisTokenRevocationStore', () => {
-  it('should revoke token', async () => {
+describe("RedisTokenRevocationStore", () => {
+  it("should revoke token", async () => {
     const store = new RedisTokenRevocationStore();
     await store.initialize();
 
-    const success = await store.revokeToken('test-jti', {
+    const success = await store.revokeToken("test-jti", {
       expiresIn: 60,
     });
     expect(success).toBe(true);
 
-    const isRevoked = await store.isTokenRevoked('test-jti');
+    const isRevoked = await store.isTokenRevoked("test-jti");
     expect(isRevoked).toBe(true);
 
     await store.close();
@@ -596,6 +631,7 @@ describe('RedisTokenRevocationStore', () => {
 ### Integration Tests
 
 Test the full flow:
+
 1. Login → Get token
 2. Make authenticated request → Success
 3. Logout → Token revoked
@@ -620,26 +656,33 @@ The API is compatible, so most code should work without changes.
 ## FAQ | الأسئلة الشائعة
 
 ### Q: What happens if Redis is down?
+
 A: By default, the system "fails open" - requests are allowed. You can configure "fail closed" behavior with `fail_open=False`.
 
 ### Q: How long are revocations stored?
+
 A: Token revocations are stored until token expiration. User/tenant revocations are stored for 30 days.
 
 ### Q: Can I use a different Redis database?
+
 A: Yes, set `REDIS_DB` environment variable.
 
 ### Q: Does this work with refresh tokens?
+
 A: Yes, refresh tokens also have JTI and can be revoked.
 
 ### Q: What's the performance impact?
+
 A: Minimal (~1-2ms per request). Redis operations are very fast.
 
 ### Q: Can I revoke tokens retrospectively?
+
 A: Yes, user-level and tenant-level revocations affect all tokens issued before revocation time.
 
 ## Support | الدعم
 
 For issues, questions, or contributions:
+
 - GitHub Issues: [Create an issue](#)
 - Documentation: See [REVOCATION_EXAMPLES.md](./REVOCATION_EXAMPLES.md)
 - Security Issues: Contact security team directly

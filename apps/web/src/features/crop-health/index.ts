@@ -11,9 +11,9 @@
  */
 
 // Component exports
-export { HealthDashboard } from './components/HealthDashboard';
-export { DiagnosisTool } from './components/DiagnosisTool';
-export { DiagnosisResult as DiagnosisResultView } from './components/DiagnosisResult';
+export { HealthDashboard } from "./components/HealthDashboard";
+export { DiagnosisTool } from "./components/DiagnosisTool";
+export { DiagnosisResult as DiagnosisResultView } from "./components/DiagnosisResult";
 
 // Hook exports
 export {
@@ -32,7 +32,7 @@ export {
   useDismissAlert,
   useRequestConsultation,
   useConsultations,
-} from './hooks/useCropHealth';
+} from "./hooks/useCropHealth";
 
 // Type exports
 export type {
@@ -51,6 +51,6 @@ export type {
   HealthFilters,
   DiseaseAlert,
   ExpertConsultation,
-} from './types';
+} from "./types";
 
-export const CROP_HEALTH_FEATURE = 'crop-health' as const;
+export const CROP_HEALTH_FEATURE = "crop-health" as const;

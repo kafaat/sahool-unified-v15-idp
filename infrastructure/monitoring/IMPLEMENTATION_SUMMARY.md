@@ -1,4 +1,5 @@
 # SAHOOL Platform - Database Monitoring Enhancement Implementation Summary
+
 # ملخص تنفيذ تحسينات مراقبة قواعد البيانات
 
 **Date:** 2026-01-06
@@ -19,15 +20,15 @@ Successfully implemented comprehensive database monitoring enhancements for the 
 
 ### Files Created/Modified
 
-| File | Type | Size | Purpose |
-|------|------|------|---------|
-| `postgres-exporter-queries.yaml` | New | 21 KB | Custom PostgreSQL metrics queries |
-| `prometheus/alerts.yml` | Modified | +350 lines | Added 15 new alert rules |
-| `backup_monitor.sh` | New | 13 KB | Backup monitoring script |
-| `sahool-database-performance.json` | New | 30 KB | Grafana dashboard |
-| `docker-compose.monitoring.yml` | Modified | +65 lines | Added Pushgateway, volume mounts |
-| `prometheus/prometheus.yml` | Modified | +12 lines | Added Pushgateway scrape config |
-| `DATABASE_MONITORING_GUIDE.md` | New | 27 KB | Comprehensive documentation |
+| File                               | Type     | Size       | Purpose                           |
+| ---------------------------------- | -------- | ---------- | --------------------------------- |
+| `postgres-exporter-queries.yaml`   | New      | 21 KB      | Custom PostgreSQL metrics queries |
+| `prometheus/alerts.yml`            | Modified | +350 lines | Added 15 new alert rules          |
+| `backup_monitor.sh`                | New      | 13 KB      | Backup monitoring script          |
+| `sahool-database-performance.json` | New      | 30 KB      | Grafana dashboard                 |
+| `docker-compose.monitoring.yml`    | Modified | +65 lines  | Added Pushgateway, volume mounts  |
+| `prometheus/prometheus.yml`        | Modified | +12 lines  | Added Pushgateway scrape config   |
+| `DATABASE_MONITORING_GUIDE.md`     | New      | 27 KB      | Comprehensive documentation       |
 
 **Total Changes:** 7 files (4 new, 3 modified)
 **Lines Added:** ~1,500 lines of configuration and documentation
@@ -121,36 +122,37 @@ postgres-exporter:
 
 #### Advanced Database Health Alerts
 
-| Alert Name | Expression | Threshold | Duration | Severity |
-|------------|-----------|-----------|----------|----------|
-| **DatabaseWALSizeHigh** | `pg_wal_size_bytes` | >1GB | 10m | Warning |
-| **DatabaseWALSizeCritical** | `pg_wal_size_bytes` | >5GB | 5m | Critical |
-| **DatabaseAutovacuumNotRunning** | `seconds_since_last_autovacuum` | >24h | 1h | Warning |
-| **DatabaseHighDeadTuples** | `dead_tuple_ratio` | >20% | 15m | Warning |
-| **DatabaseBufferCacheHitRatioLow** | `cache_hit_ratio` | <90% | 10m | Warning |
-| **DatabaseDiskSpaceLow** | `avail_bytes/size_bytes` | <15% | 5m | Critical |
-| **DatabaseDiskSpaceWarning** | `avail_bytes/size_bytes` | <25% | 10m | Warning |
-| **DatabaseReplicationLagHigh** | `lag_seconds` | >10s | 5m | Warning |
-| **DatabaseReplicationLagCritical** | `lag_seconds` | >60s | 2m | Critical |
-| **DatabaseTransactionWraparoundWarning** | `txid_remaining` | <500M | 1h | Warning |
-| **DatabaseTransactionWraparoundCritical** | `txid_remaining` | <100M | 10m | Critical |
-| **DatabaseUnusedIndexes** | `idx_scan<10 && size>10MB` | - | 24h | Info |
-| **DatabaseLongRunningQueries** | `max_duration_seconds` | >300s | 5m | Warning |
-| **DatabaseCheckpointTooFrequent** | `rate(checkpoints_req)` | >2x timed | 30m | Warning |
+| Alert Name                                | Expression                      | Threshold | Duration | Severity |
+| ----------------------------------------- | ------------------------------- | --------- | -------- | -------- |
+| **DatabaseWALSizeHigh**                   | `pg_wal_size_bytes`             | >1GB      | 10m      | Warning  |
+| **DatabaseWALSizeCritical**               | `pg_wal_size_bytes`             | >5GB      | 5m       | Critical |
+| **DatabaseAutovacuumNotRunning**          | `seconds_since_last_autovacuum` | >24h      | 1h       | Warning  |
+| **DatabaseHighDeadTuples**                | `dead_tuple_ratio`              | >20%      | 15m      | Warning  |
+| **DatabaseBufferCacheHitRatioLow**        | `cache_hit_ratio`               | <90%      | 10m      | Warning  |
+| **DatabaseDiskSpaceLow**                  | `avail_bytes/size_bytes`        | <15%      | 5m       | Critical |
+| **DatabaseDiskSpaceWarning**              | `avail_bytes/size_bytes`        | <25%      | 10m      | Warning  |
+| **DatabaseReplicationLagHigh**            | `lag_seconds`                   | >10s      | 5m       | Warning  |
+| **DatabaseReplicationLagCritical**        | `lag_seconds`                   | >60s      | 2m       | Critical |
+| **DatabaseTransactionWraparoundWarning**  | `txid_remaining`                | <500M     | 1h       | Warning  |
+| **DatabaseTransactionWraparoundCritical** | `txid_remaining`                | <100M     | 10m      | Critical |
+| **DatabaseUnusedIndexes**                 | `idx_scan<10 && size>10MB`      | -         | 24h      | Info     |
+| **DatabaseLongRunningQueries**            | `max_duration_seconds`          | >300s     | 5m       | Warning  |
+| **DatabaseCheckpointTooFrequent**         | `rate(checkpoints_req)`         | >2x timed | 30m      | Warning  |
 
 #### Backup Monitoring Alerts (5 total)
 
-| Alert Name | Expression | Threshold | Duration | Severity |
-|------------|-----------|-----------|----------|----------|
-| **DatabaseBackupOld** | `backup_age_seconds` | >24h | 1h | Critical |
-| **DatabaseBackupMissing** | `backup_status` | ==0 | 30m | Critical |
-| **DatabaseBackupTooSmall** | `backup_size_bytes` | <10MB | 15m | Warning |
-| **DatabaseBackupCorrupted** | `backup_integrity` | ==0 | 5m | Critical |
-| **DatabaseBackupMonitoringStale** | `monitoring_timestamp` | >30m | 10m | Warning |
+| Alert Name                        | Expression             | Threshold | Duration | Severity |
+| --------------------------------- | ---------------------- | --------- | -------- | -------- |
+| **DatabaseBackupOld**             | `backup_age_seconds`   | >24h      | 1h       | Critical |
+| **DatabaseBackupMissing**         | `backup_status`        | ==0       | 30m      | Critical |
+| **DatabaseBackupTooSmall**        | `backup_size_bytes`    | <10MB     | 15m      | Warning  |
+| **DatabaseBackupCorrupted**       | `backup_integrity`     | ==0       | 5m       | Critical |
+| **DatabaseBackupMonitoringStale** | `monitoring_timestamp` | >30m      | 10m      | Warning  |
 
 ### Alert Annotations
 
 All alerts include:
+
 - **English and Arabic** summaries and descriptions
 - **Impact** statements
 - **Action** items for remediation
@@ -158,6 +160,7 @@ All alerts include:
 - **Category** tags (database, backup, infrastructure)
 
 Example:
+
 ```yaml
 annotations:
   summary: "Database backup is outdated"
@@ -260,35 +263,38 @@ postgres_backup_monitoring_timestamp_seconds 1704556800
 
 ### Panel Breakdown
 
-| Panel # | Title | Type | Purpose |
-|---------|-------|------|---------|
-| 1 | Connection Pool Usage | Gauge | Monitor active connections (0-100%) |
-| 2 | Buffer Cache Hit Ratio | Gauge | Cache efficiency (0-100%) |
-| 3 | WAL Size | Time Series | Track WAL directory growth |
-| 4 | Database Size | Time Series | Monitor total database size |
-| 5 | Top 10 Slow Queries | Time Series | Identify performance bottlenecks |
-| 6 | Dead Tuples by Table | Time Series | Vacuum monitoring |
-| 7 | Potentially Unused Indexes | Table | Index optimization candidates |
-| 8 | Replication Lag | Time Series | HA monitoring |
-| 9 | Checkpoint Frequency | Bar Chart | I/O tuning insights |
-| 10 | Database Locks by Mode | Time Series | Contention detection |
-| 11 | Last Backup Age | Gauge | Backup freshness (0-48h) |
-| 12 | Last Backup Size | Gauge | Backup size validation |
-| 13 | Dead Tuple Ratio | Time Series | Table health percentage |
+| Panel # | Title                      | Type        | Purpose                             |
+| ------- | -------------------------- | ----------- | ----------------------------------- |
+| 1       | Connection Pool Usage      | Gauge       | Monitor active connections (0-100%) |
+| 2       | Buffer Cache Hit Ratio     | Gauge       | Cache efficiency (0-100%)           |
+| 3       | WAL Size                   | Time Series | Track WAL directory growth          |
+| 4       | Database Size              | Time Series | Monitor total database size         |
+| 5       | Top 10 Slow Queries        | Time Series | Identify performance bottlenecks    |
+| 6       | Dead Tuples by Table       | Time Series | Vacuum monitoring                   |
+| 7       | Potentially Unused Indexes | Table       | Index optimization candidates       |
+| 8       | Replication Lag            | Time Series | HA monitoring                       |
+| 9       | Checkpoint Frequency       | Bar Chart   | I/O tuning insights                 |
+| 10      | Database Locks by Mode     | Time Series | Contention detection                |
+| 11      | Last Backup Age            | Gauge       | Backup freshness (0-48h)            |
+| 12      | Last Backup Size           | Gauge       | Backup size validation              |
+| 13      | Dead Tuple Ratio           | Time Series | Table health percentage             |
 
 ### Color Thresholds
 
 **Connection Pool (Panel 1):**
+
 - Green: 0-70%
 - Yellow: 70-85%
 - Red: 85-100%
 
 **Cache Hit Ratio (Panel 2):**
+
 - Red: <85%
 - Yellow: 85-95%
 - Green: >95%
 
 **Backup Age (Panel 11):**
+
 - Green: <24 hours
 - Yellow: 24-48 hours
 - Red: >48 hours
@@ -325,9 +331,9 @@ pushgateway:
   ports:
     - "9091:9091"
   command:
-    - '--web.listen-address=:9091'
-    - '--persistence.file=/var/lib/pushgateway/metrics'
-    - '--persistence.interval=5m'
+    - "--web.listen-address=:9091"
+    - "--persistence.file=/var/lib/pushgateway/metrics"
+    - "--persistence.interval=5m"
   volumes:
     - pushgateway_data:/var/lib/pushgateway
   networks:
@@ -338,10 +344,10 @@ pushgateway:
 ### Prometheus Scrape Config
 
 ```yaml
-- job_name: 'pushgateway'
+- job_name: "pushgateway"
   honor_labels: true
   static_configs:
-    - targets: ['pushgateway:9091']
+    - targets: ["pushgateway:9091"]
   metrics_path: /metrics
 ```
 
@@ -418,32 +424,32 @@ pushgateway:
 
 ### Critical Gaps (All Resolved) 🟢
 
-| Gap | Status | Solution |
-|-----|--------|----------|
-| Backup Monitoring | ✅ Fixed | Backup monitor script + 5 alerts |
-| WAL Size Monitoring | ✅ Fixed | Custom query + 2 alerts |
-| Autovacuum Monitoring | ✅ Fixed | Custom query + 2 alerts |
-| Custom Postgres Queries | ✅ Fixed | 14 custom query definitions |
+| Gap                     | Status   | Solution                         |
+| ----------------------- | -------- | -------------------------------- |
+| Backup Monitoring       | ✅ Fixed | Backup monitor script + 5 alerts |
+| WAL Size Monitoring     | ✅ Fixed | Custom query + 2 alerts          |
+| Autovacuum Monitoring   | ✅ Fixed | Custom query + 2 alerts          |
+| Custom Postgres Queries | ✅ Fixed | 14 custom query definitions      |
 
 ### Important Gaps (All Resolved) 🟢
 
-| Gap | Status | Solution |
-|-----|--------|----------|
-| Query Performance Trends | ✅ Fixed | pg_stat_statements query + dashboard panel |
-| Index Usage Statistics | ✅ Fixed | Custom query + unused index alert |
-| Replication Lag (Automated) | ✅ Fixed | Custom query + 2 alerts |
-| Materialized View Refresh | ⚠️ Documented | Monitoring approach documented |
-| Table/Index Bloat | ✅ Fixed | 2 custom queries + dashboard |
-| Buffer Cache Hit Ratio | ✅ Fixed | Custom query + alert + gauge |
+| Gap                         | Status        | Solution                                   |
+| --------------------------- | ------------- | ------------------------------------------ |
+| Query Performance Trends    | ✅ Fixed      | pg_stat_statements query + dashboard panel |
+| Index Usage Statistics      | ✅ Fixed      | Custom query + unused index alert          |
+| Replication Lag (Automated) | ✅ Fixed      | Custom query + 2 alerts                    |
+| Materialized View Refresh   | ⚠️ Documented | Monitoring approach documented             |
+| Table/Index Bloat           | ✅ Fixed      | 2 custom queries + dashboard               |
+| Buffer Cache Hit Ratio      | ✅ Fixed      | Custom query + alert + gauge               |
 
 ### Nice-to-Have Gaps (Partially Addressed) 🟡
 
-| Gap | Status | Solution |
-|-----|--------|----------|
-| Connection Pool Efficiency | ✅ Fixed | Dashboard panel + alert |
-| Lock Wait Statistics | ✅ Fixed | Custom query + dashboard panel |
-| Database Growth Rate | ✅ Fixed | Size tracking query + dashboard |
-| Partition Management | 📝 Documented | Manual process documented |
+| Gap                        | Status        | Solution                        |
+| -------------------------- | ------------- | ------------------------------- |
+| Connection Pool Efficiency | ✅ Fixed      | Dashboard panel + alert         |
+| Lock Wait Statistics       | ✅ Fixed      | Custom query + dashboard panel  |
+| Database Growth Rate       | ✅ Fixed      | Size tracking query + dashboard |
+| Partition Management       | 📝 Documented | Manual process documented       |
 
 ---
 
@@ -514,13 +520,13 @@ crontab -e
 
 ### Resource Usage
 
-| Component | CPU | Memory | Disk I/O | Network |
-|-----------|-----|--------|----------|---------|
-| postgres_exporter | <5% | ~50MB | Low | Minimal |
-| Prometheus | ~10% | ~2GB | Medium | Moderate |
-| Grafana | ~5% | ~200MB | Low | Minimal |
-| Pushgateway | <2% | ~30MB | Low | Minimal |
-| backup_monitor.sh | <1% | ~10MB | Low | Minimal |
+| Component         | CPU  | Memory | Disk I/O | Network  |
+| ----------------- | ---- | ------ | -------- | -------- |
+| postgres_exporter | <5%  | ~50MB  | Low      | Minimal  |
+| Prometheus        | ~10% | ~2GB   | Medium   | Moderate |
+| Grafana           | ~5%  | ~200MB | Low      | Minimal  |
+| Pushgateway       | <2%  | ~30MB  | Low      | Minimal  |
+| backup_monitor.sh | <1%  | ~10MB  | Low      | Minimal  |
 
 ### Query Impact on PostgreSQL
 
@@ -543,21 +549,25 @@ crontab -e
 ### Unit Tests
 
 ✅ **PostgreSQL Exporter**
+
 - Custom queries syntax validated
 - All 14 queries return data
 - No syntax errors in YAML
 
 ✅ **Prometheus Alerts**
+
 - All alert rules validated with `promtool`
 - PromQL expressions tested
 - No syntax errors
 
 ✅ **Grafana Dashboard**
+
 - JSON syntax valid
 - All panels render correctly
 - Queries return data
 
 ✅ **Backup Monitor Script**
+
 - Executes without errors
 - Detects backup files correctly
 - Pushes metrics to Pushgateway
@@ -565,6 +575,7 @@ crontab -e
 ### Integration Tests
 
 ✅ **End-to-End Flow**
+
 1. postgres_exporter scrapes PostgreSQL → ✅
 2. Prometheus collects metrics → ✅
 3. Alerts evaluate correctly → ✅
@@ -574,11 +585,13 @@ crontab -e
 ### Security Tests
 
 ✅ **Credentials**
+
 - All passwords in environment variables
 - No hardcoded secrets in files
 - TLS optional for production
 
 ✅ **Access Control**
+
 - Anonymous access disabled in Grafana
 - Exporter ports not exposed externally
 - Network isolation configured
@@ -683,6 +696,7 @@ The database monitoring enhancement implementation for SAHOOL platform is **COMP
 The monitoring infrastructure now provides **enterprise-grade observability** with deep insights into database performance, health, and reliability.
 
 **Next Steps:**
+
 1. Deploy to production environment
 2. Configure alerting channels (Slack, PagerDuty, Email)
 3. Schedule backup monitoring cron job

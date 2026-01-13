@@ -41,6 +41,7 @@ except ImportError:
     def setup_cors_middleware(app):
         pass
 
+
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 except ImportError:

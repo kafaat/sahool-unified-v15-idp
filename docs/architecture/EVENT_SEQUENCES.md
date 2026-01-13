@@ -85,13 +85,13 @@ satellite-service
 
 ### Events Table
 
-| Event | Producer | Consumers |
-|-------|----------|-----------|
-| `SatelliteSceneIngested.v1` | satellite-service | indicators-service, disaster-assessment |
-| `IndexTileReady.v1` | satellite-service | indicators-service, lai-estimation |
+| Event                        | Producer           | Consumers                                        |
+| ---------------------------- | ------------------ | ------------------------------------------------ |
+| `SatelliteSceneIngested.v1`  | satellite-service  | indicators-service, disaster-assessment          |
+| `IndexTileReady.v1`          | satellite-service  | indicators-service, lai-estimation               |
 | `FieldIndicatorsComputed.v1` | indicators-service | crop-health-ai, yield-engine, fertilizer-advisor |
-| `CropHealthAssessed.v1` | crop-health-ai | notification-service, community-chat |
-| `YieldEstimated.v1` | yield-engine | yield-prediction, marketplace-service |
+| `CropHealthAssessed.v1`      | crop-health-ai     | notification-service, community-chat             |
+| `YieldEstimated.v1`          | yield-engine       | yield-prediction, marketplace-service            |
 
 ---
 
@@ -159,15 +159,15 @@ irrigation-smart ──[IrrigationPlanProposed.v1]──► notification-service
 
 ### Events Table
 
-| Event | Producer | Consumers |
-|-------|----------|-----------|
-| `WeatherObserved.v1` | weather-advanced | indicators-service, crop-health-ai |
-| `WeatherForecastReady.v1` | weather-advanced | crop-growth-model, irrigation-smart, yield-prediction |
-| `WeatherAlertIssued.v1` | weather-advanced | disaster-assessment, notification-service |
-| `GrowthStageEstimated.v1` | crop-growth-model | fertilizer-advisor, yield-engine, notification-service |
-| `FertilizerPlanProposed.v1` | fertilizer-advisor | notification-service, marketplace-service |
-| `IrrigationPlanProposed.v1` | irrigation-smart | notification-service, iot-service |
-| `DisasterRiskScored.v1` | disaster-assessment | notification-service, community-chat |
+| Event                       | Producer            | Consumers                                              |
+| --------------------------- | ------------------- | ------------------------------------------------------ |
+| `WeatherObserved.v1`        | weather-advanced    | indicators-service, crop-health-ai                     |
+| `WeatherForecastReady.v1`   | weather-advanced    | crop-growth-model, irrigation-smart, yield-prediction  |
+| `WeatherAlertIssued.v1`     | weather-advanced    | disaster-assessment, notification-service              |
+| `GrowthStageEstimated.v1`   | crop-growth-model   | fertilizer-advisor, yield-engine, notification-service |
+| `FertilizerPlanProposed.v1` | fertilizer-advisor  | notification-service, marketplace-service              |
+| `IrrigationPlanProposed.v1` | irrigation-smart    | notification-service, iot-service                      |
+| `DisasterRiskScored.v1`     | disaster-assessment | notification-service, community-chat                   |
 
 ---
 
@@ -222,11 +222,11 @@ iot-service (Physical Sensors)
 
 ### Events Table
 
-| Event | Producer | Consumers |
-|-------|----------|-----------|
-| `SensorReadingIngested.v1` | iot-service | virtual-sensors, indicators-service |
-| `DeviceStatusChanged.v1` | iot-service | notification-service |
-| `SensorAlert.v1` | iot-service | notification-service |
+| Event                       | Producer        | Consumers                            |
+| --------------------------- | --------------- | ------------------------------------ |
+| `SensorReadingIngested.v1`  | iot-service     | virtual-sensors, indicators-service  |
+| `DeviceStatusChanged.v1`    | iot-service     | notification-service                 |
+| `SensorAlert.v1`            | iot-service     | notification-service                 |
 | `VirtualSensorEstimated.v1` | virtual-sensors | indicators-service, irrigation-smart |
 
 ---
@@ -293,14 +293,14 @@ crop-growth-model
 
 ### Events Table
 
-| Event | Producer | Consumers |
-|-------|----------|-----------|
-| `BiomassEstimated.v1` | crop-growth-model | yield-engine |
-| `YieldEstimated.v1` | yield-engine | yield-prediction, marketplace-service |
-| `YieldPredicted.v1` | yield-prediction | marketplace-service, notification-service |
-| `OrderCreated.v1` | marketplace-service | billing-core, notification-service |
-| `OrderPaid.v1` | marketplace-service | billing-core |
-| `InvoiceIssued.v1` | billing-core | notification-service |
+| Event                 | Producer            | Consumers                                 |
+| --------------------- | ------------------- | ----------------------------------------- |
+| `BiomassEstimated.v1` | crop-growth-model   | yield-engine                              |
+| `YieldEstimated.v1`   | yield-engine        | yield-prediction, marketplace-service     |
+| `YieldPredicted.v1`   | yield-prediction    | marketplace-service, notification-service |
+| `OrderCreated.v1`     | marketplace-service | billing-core, notification-service        |
+| `OrderPaid.v1`        | marketplace-service | billing-core                              |
+| `InvoiceIssued.v1`    | billing-core        | notification-service                      |
 
 ---
 
@@ -331,9 +331,9 @@ crop-growth-model
 - Advisor.IrrigationPlanProposed
 
 # Bad Examples:
-- satellite_scene_ingested  # Wrong case
-- CropHealthAssessment      # Missing dot separator
-- IrrigationPlan           # Missing action verb
+- satellite_scene_ingested # Wrong case
+- CropHealthAssessment # Missing dot separator
+- IrrigationPlan # Missing action verb
 ```
 
 ### Transport Configuration
@@ -354,26 +354,26 @@ subject_pattern: "sahool.{tenant_id}.{event_type}"
 
 ### All Events by Layer
 
-| Layer | Service | Produces |
-|-------|---------|----------|
-| **Acquisition** | satellite-service | SatelliteSceneIngested, RasterTileReady, IndexTileReady |
-| | iot-service | SensorReadingIngested, DeviceStatusChanged, SensorAlert |
-| | weather-advanced | WeatherObserved, WeatherForecastReady, WeatherAlertIssued |
-| | virtual-sensors | VirtualSensorEstimated |
-| **Intelligence** | indicators-service | FieldIndicatorsComputed |
-| | lai-estimation | LAIEstimated |
-| | crop-health-ai | CropHealthAssessed, CropStressDetected |
-| | disaster-assessment | DisasterRiskScored, DisasterEventDetected |
-| **Decision** | crop-growth-model | GrowthStageEstimated, BiomassEstimated |
-| | fertilizer-advisor | FertilizerPlanProposed |
-| | irrigation-smart | IrrigationPlanProposed, IrrigationAlertIssued |
-| | yield-engine | YieldEstimated |
-| | yield-prediction | YieldPredicted, YieldConfidenceUpdated |
-| **Business** | notification-service | NotificationQueued, NotificationSent |
-| | marketplace-service | OrderCreated, OrderPaid |
-| | billing-core | InvoiceIssued, PaymentFailed |
-| | community-chat | CommunityPostCreated |
-| | research-core | TrialCreated, ObservationLogged |
+| Layer            | Service              | Produces                                                  |
+| ---------------- | -------------------- | --------------------------------------------------------- |
+| **Acquisition**  | satellite-service    | SatelliteSceneIngested, RasterTileReady, IndexTileReady   |
+|                  | iot-service          | SensorReadingIngested, DeviceStatusChanged, SensorAlert   |
+|                  | weather-advanced     | WeatherObserved, WeatherForecastReady, WeatherAlertIssued |
+|                  | virtual-sensors      | VirtualSensorEstimated                                    |
+| **Intelligence** | indicators-service   | FieldIndicatorsComputed                                   |
+|                  | lai-estimation       | LAIEstimated                                              |
+|                  | crop-health-ai       | CropHealthAssessed, CropStressDetected                    |
+|                  | disaster-assessment  | DisasterRiskScored, DisasterEventDetected                 |
+| **Decision**     | crop-growth-model    | GrowthStageEstimated, BiomassEstimated                    |
+|                  | fertilizer-advisor   | FertilizerPlanProposed                                    |
+|                  | irrigation-smart     | IrrigationPlanProposed, IrrigationAlertIssued             |
+|                  | yield-engine         | YieldEstimated                                            |
+|                  | yield-prediction     | YieldPredicted, YieldConfidenceUpdated                    |
+| **Business**     | notification-service | NotificationQueued, NotificationSent                      |
+|                  | marketplace-service  | OrderCreated, OrderPaid                                   |
+|                  | billing-core         | InvoiceIssued, PaymentFailed                              |
+|                  | community-chat       | CommunityPostCreated                                      |
+|                  | research-core        | TrialCreated, ObservationLogged                           |
 
 ---
 
@@ -385,4 +385,4 @@ subject_pattern: "sahool.{tenant_id}.{event_type}"
 
 ---
 
-*Last verified: 2025-12-19*
+_Last verified: 2025-12-19_

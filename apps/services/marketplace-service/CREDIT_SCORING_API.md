@@ -1,9 +1,11 @@
 # Advanced Credit Scoring System - API Documentation
 
 ## Overview
+
 The enhanced credit scoring system uses multiple factors to calculate a farmer's creditworthiness (300-850 points).
 
 ## Score Breakdown
+
 - **Farm Data (40%)**: 340 points max
   - Farm area, crop diversity, experience, irrigation, disease risk
 - **Payment History (30%)**: 255 points max
@@ -14,6 +16,7 @@ The enhanced credit scoring system uses multiple factors to calculate a farmer's
   - Cooperative membership, yield performance
 
 ## Credit Tiers
+
 - **BRONZE** (300-499): 10x multiplier = up to 4,990 YER loan limit
 - **SILVER** (500-649): 20x multiplier = up to 12,980 YER loan limit
 - **GOLD** (650-749): 35x multiplier = up to 26,215 YER loan limit
@@ -24,11 +27,13 @@ The enhanced credit scoring system uses multiple factors to calculate a farmer's
 ## API Endpoints
 
 ### 1. Calculate Advanced Credit Score
+
 **POST** `/api/v1/fintech/calculate-advanced-score`
 
 Calculate credit score using the enhanced algorithm with all factors.
 
 **Request Body:**
+
 ```json
 {
   "userId": "user-123",
@@ -52,6 +57,7 @@ Calculate credit score using the enhanced algorithm with all factors.
 ```
 
 **Response:**
+
 ```json
 {
   "wallet": {
@@ -81,6 +87,7 @@ Calculate credit score using the enhanced algorithm with all factors.
 ---
 
 ### 2. Get Credit Factors
+
 **GET** `/api/v1/fintech/credit-factors/:userId`
 
 Retrieve detailed credit factors for a user calculated from their wallet data and credit events.
@@ -88,6 +95,7 @@ Retrieve detailed credit factors for a user calculated from their wallet data an
 **Example:** `GET /api/v1/fintech/credit-factors/user-123`
 
 **Response:**
+
 ```json
 {
   "farmArea": 5,
@@ -110,11 +118,13 @@ Retrieve detailed credit factors for a user calculated from their wallet data an
 ---
 
 ### 3. Record Credit Event
+
 **POST** `/api/v1/fintech/credit-history`
 
 Record a credit event that impacts the user's credit score.
 
 **Request Body:**
+
 ```json
 {
   "walletId": "wallet-456",
@@ -142,6 +152,7 @@ Record a credit event that impacts the user's credit score.
 | `LAND_VERIFIED` | +15 | Land ownership verified |
 
 **Response:**
+
 ```json
 {
   "event": {
@@ -166,6 +177,7 @@ Record a credit event that impacts the user's credit score.
 ---
 
 ### 4. Get Credit Report
+
 **GET** `/api/v1/fintech/credit-report/:userId`
 
 Get a comprehensive credit report with score breakdown, factors, recommendations, and recent events.
@@ -173,6 +185,7 @@ Get a comprehensive credit report with score breakdown, factors, recommendations
 **Example:** `GET /api/v1/fintech/credit-report/user-123`
 
 **Response:**
+
 ```json
 {
   "userId": "user-123",
@@ -253,30 +266,31 @@ Get a comprehensive credit report with score breakdown, factors, recommendations
 ## Usage Examples
 
 ### Example 1: New Farmer Onboarding
+
 ```javascript
 // 1. Create wallet (automatic on first access)
-const wallet = await GET('/api/v1/fintech/wallet/new-farmer-001');
+const wallet = await GET("/api/v1/fintech/wallet/new-farmer-001");
 
 // 2. Record farm verification
-await POST('/api/v1/fintech/credit-history', {
+await POST("/api/v1/fintech/credit-history", {
   walletId: wallet.id,
-  eventType: 'FARM_VERIFIED',
-  description: 'Farm verified via satellite imagery'
+  eventType: "FARM_VERIFIED",
+  description: "Farm verified via satellite imagery",
 });
 
 // 3. Calculate initial credit score
-const score = await POST('/api/v1/fintech/calculate-advanced-score', {
-  userId: 'new-farmer-001',
+const score = await POST("/api/v1/fintech/calculate-advanced-score", {
+  userId: "new-farmer-001",
   factors: {
     farmArea: 2.5,
     cropDiversity: 2,
-    irrigationType: 'rainfed',
+    irrigationType: "rainfed",
     yearsOfExperience: 1,
-    verificationLevel: 'verified',
-    landOwnership: 'leased',
+    verificationLevel: "verified",
+    landOwnership: "leased",
     satelliteVerified: true,
     // ... other factors with defaults
-  }
+  },
 });
 
 console.log(`Credit Score: ${score.score}`);
@@ -284,31 +298,33 @@ console.log(`Available Credit: ${score.availableCredit} YER`);
 ```
 
 ### Example 2: Processing Loan Repayment
+
 ```javascript
 // When a loan is repaid on time
-await POST('/api/v1/fintech/credit-history', {
-  walletId: 'wallet-456',
-  eventType: 'LOAN_REPAID_ONTIME',
+await POST("/api/v1/fintech/credit-history", {
+  walletId: "wallet-456",
+  eventType: "LOAN_REPAID_ONTIME",
   amount: 10000,
-  description: 'Repaid fertilizer purchase loan on time',
+  description: "Repaid fertilizer purchase loan on time",
   metadata: {
-    loanId: 'loan-789',
-    originalDueDate: '2025-12-25',
-    paidDate: '2025-12-23'
-  }
+    loanId: "loan-789",
+    originalDueDate: "2025-12-25",
+    paidDate: "2025-12-23",
+  },
 });
 
 // Score automatically increases by +15 points
 ```
 
 ### Example 3: Generating Credit Improvement Plan
+
 ```javascript
 // Get comprehensive credit report
-const report = await GET('/api/v1/fintech/credit-report/farmer-123');
+const report = await GET("/api/v1/fintech/credit-report/farmer-123");
 
 console.log(`Current Score: ${report.currentScore}`);
 console.log(`Risk Level: ${report.riskLevel}`);
-console.log('\nTop Recommendations:');
+console.log("\nTop Recommendations:");
 
 report.recommendations.forEach((rec, i) => {
   console.log(`${i + 1}. [+${rec.impact}] ${rec.action}`);
@@ -317,17 +333,18 @@ report.recommendations.forEach((rec, i) => {
 ```
 
 ### Example 4: Cooperative Verification
+
 ```javascript
 // When farmer joins a cooperative
-await POST('/api/v1/fintech/credit-history', {
-  walletId: 'wallet-456',
-  eventType: 'COOPERATIVE_JOINED',
-  description: 'Joined Al-Khayr Agricultural Cooperative',
+await POST("/api/v1/fintech/credit-history", {
+  walletId: "wallet-456",
+  eventType: "COOPERATIVE_JOINED",
+  description: "Joined Al-Khayr Agricultural Cooperative",
   metadata: {
-    cooperativeId: 'coop-001',
-    cooperativeName: 'تعاونية الخير الزراعية',
-    joinDate: '2025-12-25'
-  }
+    cooperativeId: "coop-001",
+    cooperativeName: "تعاونية الخير الزراعية",
+    joinDate: "2025-12-25",
+  },
 });
 
 // Score increases by +10 points
@@ -338,7 +355,9 @@ await POST('/api/v1/fintech/credit-history', {
 ## Integration Notes
 
 ### Automatic Credit Events
+
 The system should automatically record credit events when:
+
 - An order is completed → `ORDER_COMPLETED` (+5)
 - An order is cancelled → `ORDER_CANCELLED` (-5)
 - A loan is repaid on time → `LOAN_REPAID_ONTIME` (+15)
@@ -346,7 +365,9 @@ The system should automatically record credit events when:
 - A loan defaults → `LOAN_DEFAULTED` (-50)
 
 ### Pulling Farm Data from Other Services
+
 The `getCreditFactors` method currently uses default values. In production, integrate with:
+
 - **farm-core**: Get actual `farmArea`, `landOwnership`
 - **field-core**: Get `numberOfSeasons`, `cropDiversity`
 - **crop-health-ai**: Get `diseaseRiskScore`
@@ -354,7 +375,9 @@ The `getCreditFactors` method currently uses default values. In production, inte
 - **satellite-service**: Verify `satelliteVerified` status
 
 ### Database Migration
+
 After deploying, run:
+
 ```bash
 cd apps/services/marketplace-service
 npx prisma migrate dev --name add_credit_events
@@ -375,6 +398,7 @@ npx prisma generate
 ## Monitoring & Analytics
 
 Track these metrics:
+
 - Average credit score by region
 - Credit tier distribution
 - Most impactful credit events

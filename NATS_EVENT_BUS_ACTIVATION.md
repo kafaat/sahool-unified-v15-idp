@@ -36,40 +36,48 @@ packages/shared-events/
 ### Implemented Event Types
 
 #### Field Events
+
 - `field.created` - New field created
 - `field.updated` - Field information updated
 - `field.deleted` - Field deleted
 
 #### Order Events
+
 - `order.placed` - New order placed
 - `order.completed` - Order completed
 - `order.cancelled` - Order cancelled
 
 #### Sensor & IoT Events
+
 - `sensor.reading` - Sensor data reading
 - `device.connected` - Device connected
 - `device.disconnected` - Device disconnected
 
 #### User Events
+
 - `user.created` - New user registered
 - `user.updated` - User information updated
 
 #### Inventory Events
+
 - `inventory.low_stock` - Stock level below threshold
 - `inventory.movement` - Inventory movement recorded
 
 #### Notification Events
+
 - `notification.send` - Notification to be sent
 
 ## 3. NATS Client Features
 
 ### Connection Management
+
 - Singleton pattern with lazy initialization
 - Automatic reconnection on disconnect
 - Connection status monitoring
 - Graceful shutdown with drain
 
 ### Configuration
+
 ```typescript
 {
   servers: string | string[],     // NATS server URLs
@@ -82,6 +90,7 @@ packages/shared-events/
 ```
 
 ### Event Lifecycle Monitoring
+
 - Disconnect detection
 - Reconnect notification
 - Connection updates
@@ -115,6 +124,7 @@ packages/shared-events/
 ### Event Publishing Examples
 
 #### Order Placed Event
+
 ```typescript
 // Triggered when createOrder() is called
 await this.eventsService.publishOrderPlaced({
@@ -126,11 +136,12 @@ await this.eventsService.publishOrderPlaced({
     price: item.unitPrice,
   })),
   totalAmount: order.totalAmount,
-  currency: 'YER',
+  currency: "YER",
 });
 ```
 
 #### Inventory Low Stock Event
+
 ```typescript
 // Triggered when stock falls below threshold
 await this.eventsService.publishInventoryLowStock({
@@ -148,7 +159,7 @@ The marketplace service automatically subscribes to all events in development mo
 
 ```typescript
 // In EventsService.connect()
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   await this.setupEventLogging();
 }
 ```
@@ -199,17 +210,17 @@ import {
   subscribe,
   subscribeToOrderEvents,
   EventSubjects,
-} from '@sahool/shared-events';
+} from "@sahool/shared-events";
 
 // Subscribe to specific event
 await subscribe(EventSubjects.ORDER_PLACED, async (event) => {
-  console.log('Order placed:', event.payload);
+  console.log("Order placed:", event.payload);
   // Process order...
 });
 
 // Subscribe to all order events
 await subscribeToOrderEvents(async (event) => {
-  console.log('Order event:', event.eventType);
+  console.log("Order event:", event.eventType);
 });
 
 // Subscribe with queue group for load balancing
@@ -218,7 +229,7 @@ await subscribe(
   async (event) => {
     // Process sensor data
   },
-  { queue: 'sensor-processors' }
+  { queue: "sensor-processors" },
 );
 ```
 
@@ -252,17 +263,20 @@ NODE_ENV=development
 To integrate the event bus into other services:
 
 1. **Add dependency** to service's `package.json`:
+
    ```json
    "@sahool/shared-events": "file:../../../packages/shared-events"
    ```
 
 2. **Initialize NATS** in service startup:
+
    ```typescript
-   import { initializeNatsClient } from '@sahool/shared-events';
+   import { initializeNatsClient } from "@sahool/shared-events";
    await initializeNatsClient();
    ```
 
 3. **Publish events** when appropriate:
+
    ```typescript
    import { publishFieldCreated } from '@sahool/shared-events';
    await publishFieldCreated({ ... });
@@ -300,6 +314,7 @@ npm run start:dev
 ### Watch the Logs
 
 When an order is created, you should see:
+
 - NATS connection established
 - Event logging subscriber active
 - `order.placed` event published
@@ -308,6 +323,7 @@ When an order is created, you should see:
 ## 11. Files Created/Modified
 
 ### New Files
+
 - `/packages/shared-events/package.json`
 - `/packages/shared-events/tsconfig.json`
 - `/packages/shared-events/README.md`
@@ -320,6 +336,7 @@ When an order is created, you should see:
 - `/apps/services/marketplace-service/src/events/events.service.ts`
 
 ### Modified Files
+
 - `/apps/services/marketplace-service/package.json`
 - `/apps/services/marketplace-service/src/app.module.ts`
 - `/apps/services/marketplace-service/src/market/market.service.ts`
@@ -327,6 +344,7 @@ When an order is created, you should see:
 ## Summary
 
 The NATS Event Bus is now fully activated with:
+
 - ✅ Shared events package with TypeScript types
 - ✅ Singleton NATS client with reconnection logic
 - ✅ Publisher helper functions for all event types

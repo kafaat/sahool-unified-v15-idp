@@ -12,7 +12,7 @@ import {
   reviewSchema,
   type ReviewResult,
   type ReviewIssue,
-  type ReviewAgentConfig
+  type ReviewAgentConfig,
 } from "../src/index.js";
 
 describe("Exports", () => {
@@ -49,11 +49,11 @@ describe("Exports", () => {
           file: "test.ts",
           line: 10,
           description: "Test issue",
-          suggestion: "Fix it"
-        }
+          suggestion: "Fix it",
+        },
       ],
       summary: "Test summary",
-      overallScore: 80
+      overallScore: 80,
     };
 
     it("should export as JSON", () => {
@@ -85,7 +85,7 @@ describe("Exports", () => {
       const result: ReviewResult = {
         issues: [],
         summary: "No issues",
-        overallScore: 100
+        overallScore: 100,
       };
 
       expect(() => printResults(result)).not.toThrow();
@@ -94,13 +94,33 @@ describe("Exports", () => {
     it("should handle results with all severity levels", () => {
       const result: ReviewResult = {
         issues: [
-          { severity: "critical", category: "security", file: "a.ts", description: "Critical" },
-          { severity: "high", category: "bug", file: "b.ts", description: "High" },
-          { severity: "medium", category: "performance", file: "c.ts", description: "Medium" },
-          { severity: "low", category: "style", file: "d.ts", description: "Low" }
+          {
+            severity: "critical",
+            category: "security",
+            file: "a.ts",
+            description: "Critical",
+          },
+          {
+            severity: "high",
+            category: "bug",
+            file: "b.ts",
+            description: "High",
+          },
+          {
+            severity: "medium",
+            category: "performance",
+            file: "c.ts",
+            description: "Medium",
+          },
+          {
+            severity: "low",
+            category: "style",
+            file: "d.ts",
+            description: "Low",
+          },
         ],
         summary: "Mixed issues",
-        overallScore: 50
+        overallScore: 50,
       };
 
       expect(() => printResults(result)).not.toThrow();

@@ -11,29 +11,34 @@
 ## 🚀 Quick Setup (5 minutes)
 
 ### 1. Install Dependencies
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/task-service
 pip install -r requirements.txt
 ```
 
 ### 2. Set Environment Variables
+
 ```bash
 export DATABASE_URL="postgresql://sahool:password@pgbouncer:6432/sahool"
 export SEED_DEMO_DATA="true"
 ```
 
 ### 3. Run Service
+
 ```bash
 python src/main.py
 ```
 
 The service will automatically:
+
 - Connect to PostgreSQL
 - Create tables (tasks, task_evidence, task_history)
 - Seed 6 demo tasks
 - Start on port 8103
 
 ### 4. Test Database Connection
+
 ```bash
 # View demo tasks
 curl -H "X-Tenant-Id: tenant_demo" http://localhost:8103/api/v1/tasks
@@ -50,6 +55,7 @@ curl http://localhost:8103/healthz
 ## 📝 Complete Remaining Migration (1-2 hours)
 
 ### What's Already Done ✅
+
 1. ✅ Database models (`src/models.py`)
 2. ✅ Repository layer (`src/repository.py`)
 3. ✅ Database initialization (`src/database.py`)
@@ -59,30 +65,32 @@ curl http://localhost:8103/healthz
 7. ✅ `list_tasks()` endpoint migrated
 
 ### What Needs Completion ⚠️
+
 Update these endpoints in `src/main.py` to use the database:
 
-| Endpoint | Line | Status | Effort |
-|----------|------|--------|--------|
-| `get_today_tasks()` | ~1030 | 🔴 Not started | 5 min |
-| `get_upcoming_tasks()` | ~1040 | 🔴 Not started | 5 min |
-| `get_task_stats()` | ~1050 | 🔴 Not started | 2 min |
-| `get_task()` | ~1100 | 🔴 Not started | 3 min |
-| `create_task()` | ~1110 | 🔴 Not started | 10 min |
-| `update_task()` | ~1160 | 🔴 Not started | 10 min |
-| `start_task()` | ~1230 | 🔴 Not started | 3 min |
-| `complete_task()` | ~1190 | 🔴 Not started | 8 min |
-| `cancel_task()` | ~1250 | 🔴 Not started | 3 min |
-| `delete_task()` | ~1270 | 🔴 Not started | 3 min |
-| `add_evidence()` | ~1280 | 🔴 Not started | 5 min |
-| `create_task_from_ndvi_alert()` | ~1320 | 🔴 Not started | 5 min |
-| `auto_create_tasks()` | ~1550 | 🔴 Not started | 8 min |
-| `create_task_with_astronomical_recommendation()` | ~1770 | 🔴 Not started | 8 min |
+| Endpoint                                         | Line  | Status         | Effort |
+| ------------------------------------------------ | ----- | -------------- | ------ |
+| `get_today_tasks()`                              | ~1030 | 🔴 Not started | 5 min  |
+| `get_upcoming_tasks()`                           | ~1040 | 🔴 Not started | 5 min  |
+| `get_task_stats()`                               | ~1050 | 🔴 Not started | 2 min  |
+| `get_task()`                                     | ~1100 | 🔴 Not started | 3 min  |
+| `create_task()`                                  | ~1110 | 🔴 Not started | 10 min |
+| `update_task()`                                  | ~1160 | 🔴 Not started | 10 min |
+| `start_task()`                                   | ~1230 | 🔴 Not started | 3 min  |
+| `complete_task()`                                | ~1190 | 🔴 Not started | 8 min  |
+| `cancel_task()`                                  | ~1250 | 🔴 Not started | 3 min  |
+| `delete_task()`                                  | ~1270 | 🔴 Not started | 3 min  |
+| `add_evidence()`                                 | ~1280 | 🔴 Not started | 5 min  |
+| `create_task_from_ndvi_alert()`                  | ~1320 | 🔴 Not started | 5 min  |
+| `auto_create_tasks()`                            | ~1550 | 🔴 Not started | 8 min  |
+| `create_task_with_astronomical_recommendation()` | ~1770 | 🔴 Not started | 8 min  |
 
 **Total estimated time:** ~75 minutes
 
 ### How to Update Each Endpoint
 
 #### Pattern (applies to all endpoints):
+
 ```python
 # 1. Add db parameter
 async def endpoint_name(
@@ -102,6 +110,7 @@ async def endpoint_name(
 ```
 
 #### Detailed patches available in:
+
 - **`MIGRATION_ENDPOINTS_PATCH.md`** - Full code examples for each endpoint
 
 ---
@@ -109,6 +118,7 @@ async def endpoint_name(
 ## 🧪 Testing After Migration
 
 ### 1. Basic CRUD Operations
+
 ```bash
 # Create task
 curl -X POST http://localhost:8103/api/v1/tasks \
@@ -137,6 +147,7 @@ curl -X DELETE http://localhost:8103/api/v1/tasks/task_001 \
 ```
 
 ### 2. Status Transitions
+
 ```bash
 # Start task
 curl -X POST http://localhost:8103/api/v1/tasks/task_002/start \
@@ -157,6 +168,7 @@ curl -X POST "http://localhost:8103/api/v1/tasks/task_003/cancel?reason=Weather"
 ```
 
 ### 3. Evidence Management
+
 ```bash
 # Add photo evidence
 curl -X POST "http://localhost:8103/api/v1/tasks/task_001/evidence?evidence_type=photo&content=https://example.com/photo.jpg&lat=24.7136&lon=46.6753" \
@@ -164,6 +176,7 @@ curl -X POST "http://localhost:8103/api/v1/tasks/task_001/evidence?evidence_type
 ```
 
 ### 4. Statistics & Reporting
+
 ```bash
 # Get statistics
 curl -H "X-Tenant-Id: tenant_demo" \
@@ -179,6 +192,7 @@ curl -H "X-Tenant-Id: tenant_demo" \
 ```
 
 ### 5. Verify Database Persistence
+
 ```bash
 # 1. Create a task
 curl -X POST http://localhost:8103/api/v1/tasks \
@@ -199,6 +213,7 @@ curl -H "X-Tenant-Id: tenant_demo" http://localhost:8103/api/v1/tasks
 ## 🐳 Docker Deployment
 
 ### Build and Run
+
 ```bash
 # From project root
 docker-compose up -d task-service
@@ -212,7 +227,9 @@ docker-compose exec task-service \
 ```
 
 ### Environment Variables (docker-compose.yml)
+
 Already configured:
+
 ```yaml
 environment:
   - DATABASE_URL=postgresql://sahool:password@pgbouncer:6432/sahool
@@ -225,6 +242,7 @@ environment:
 ## 🔍 Troubleshooting
 
 ### Issue: "No module named 'database'"
+
 ```python
 # Solution: Fix import in main.py
 # Change: from database import ...
@@ -233,6 +251,7 @@ environment:
 ```
 
 ### Issue: "Connection refused"
+
 ```bash
 # Check PostgreSQL is running
 docker-compose ps postgres
@@ -245,6 +264,7 @@ docker-compose exec postgres psql -U sahool -d sahool -c "SELECT 1;"
 ```
 
 ### Issue: "Table already exists"
+
 ```bash
 # This is safe - SQLAlchemy checks before creating
 # If you need to recreate tables:
@@ -257,6 +277,7 @@ DROP TABLE IF EXISTS tasks CASCADE;
 ```
 
 ### Issue: Demo data duplicates
+
 ```bash
 # Set environment variable
 export SEED_DEMO_DATA=false
@@ -268,6 +289,7 @@ export SEED_DEMO_DATA=false
 ## 📊 Verify Migration Success
 
 ### Checklist
+
 - [ ] Service starts without errors
 - [ ] Tables created (tasks, task_evidence, task_history)
 - [ ] Demo data seeded (6 tasks)
@@ -298,6 +320,7 @@ export SEED_DEMO_DATA=false
 ## 🎉 Success Criteria
 
 You'll know the migration is complete when:
+
 1. ✅ All endpoints accept `db: Session = Depends(get_db)`
 2. ✅ No references to `tasks_db` or `evidence_db` dictionaries
 3. ✅ All endpoints return `db_task_to_dict(task)`
@@ -310,18 +333,21 @@ You'll know the migration is complete when:
 ## 🚦 Next Actions
 
 ### Priority 1 (Required)
+
 1. Complete endpoint migration (75 minutes)
 2. Test all endpoints (30 minutes)
 3. Test persistence (restart service)
 4. Verify multi-tenancy
 
 ### Priority 2 (Recommended)
+
 1. Add Alembic for migrations
 2. Add unit tests for repository
 3. Performance testing with 1000+ tasks
 4. Integration testing with NDVI service
 
 ### Priority 3 (Optional)
+
 1. Add Redis caching
 2. Implement async endpoints
 3. Add database metrics
@@ -329,4 +355,4 @@ You'll know the migration is complete when:
 
 ---
 
-*Ready to complete the migration? Start with `MIGRATION_ENDPOINTS_PATCH.md` for detailed code examples!*
+_Ready to complete the migration? Start with `MIGRATION_ENDPOINTS_PATCH.md` for detailed code examples!_

@@ -1,4 +1,5 @@
 # SAHOOL Database Migrations
+
 # هجرة قاعدة البيانات
 
 This directory contains database migration scripts for the SAHOOL platform.

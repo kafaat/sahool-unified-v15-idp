@@ -1,4 +1,5 @@
 # Token Revocation Guide for Python FastAPI Services
+
 # دليل إلغاء الرموز لخدمات Python FastAPI
 
 This guide explains how to use the token revocation system in SAHOOL Python FastAPI services.
@@ -6,6 +7,7 @@ This guide explains how to use the token revocation system in SAHOOL Python Fast
 ## Overview
 
 The token revocation system provides:
+
 - **JTI (JWT ID) tracking** - Revoke individual tokens
 - **Token family tracking** - Revoke related tokens (refresh token rotation)
 - **User-level revocation** - Revoke all tokens for a user
@@ -25,6 +27,7 @@ The system consists of three main components:
 ### 1. Install Dependencies
 
 Add to your service's `requirements.txt`:
+
 ```
 redis[hiredis]==5.2.1
 ```
@@ -32,6 +35,7 @@ redis[hiredis]==5.2.1
 ### 2. Environment Variables
 
 Configure Redis connection:
+
 ```bash
 # Full URL (recommended)
 REDIS_URL=redis://localhost:6379/0
@@ -143,6 +147,7 @@ async def logout(request: Request, token_data: TokenData = Depends(get_token_dat
 ### 3. Revoking All User Tokens
 
 Useful for:
+
 - Password changes
 - Security incidents
 - Account suspension
@@ -172,6 +177,7 @@ async def revoke_user_tokens(
 ### 4. Revoking Tenant Tokens
 
 Useful for:
+
 - Tenant suspension
 - Plan downgrades
 - Security lockouts
@@ -366,6 +372,7 @@ All keys have TTL (Time To Live) to automatically expire and clean up.
 ### Redis Connection Failed
 
 If Redis is unavailable, the service will:
+
 1. Log a warning
 2. Continue running without revocation checks
 3. Accept all tokens (fail open)
@@ -375,6 +382,7 @@ This ensures service availability even if Redis is down.
 ### High Memory Usage
 
 If Redis memory grows too large:
+
 1. Check TTL settings - ensure keys expire
 2. Monitor revocation patterns
 3. Consider Redis maxmemory policies
@@ -383,12 +391,14 @@ If Redis memory grows too large:
 ### Token Still Valid After Revocation
 
 Common causes:
+
 1. Token cached in client
 2. Revocation propagation delay
 3. Wrong JTI used
 4. Redis connection issue
 
 Check:
+
 - Token JTI matches revocation JTI
 - Redis connection is healthy
 - Middleware is properly configured
@@ -404,6 +414,7 @@ If you have existing tokens without JTI:
 ## Examples in Existing Services
 
 See these files for reference:
+
 - `/apps/services/advisory-service/src/main.py` - Advisory service integration
 - `/apps/services/ai-advisor/src/main.py` - AI advisor integration
 - `/apps/services/shared/auth/token_revocation.py` - Core implementation

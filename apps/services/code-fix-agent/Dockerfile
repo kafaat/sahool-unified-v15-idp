@@ -12,8 +12,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Create virtual environment to avoid pip root user warning
+# إنشاء بيئة افتراضية لتجنب تحذير المستخدم الجذر
+ENV VIRTUAL_ENV=/opt/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 # Copy requirements first for caching
-COPY requirements.txt .
+COPY apps/services/code-fix-agent/requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -30,12 +36,16 @@ WORKDIR /app
 # Create non-root user for security
 RUN groupadd -r sahool && useradd -r -g sahool sahool
 
-# Copy installed packages from builder
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+# Copy virtual environment from builder
+# نسخ البيئة الافتراضية من البناء
+COPY --from=builder /opt/venv /opt/venv
+
+# Set virtual environment path
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Copy application code
-COPY src/ ./src/
+COPY apps/services/code-fix-agent/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app

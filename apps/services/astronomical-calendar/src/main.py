@@ -4631,7 +4631,14 @@ def get_technique_details(category: str, technique_id: str):
 
     # فحص المنزلة القمرية
     mansion_appropriate = False
-    if category == "plowing" and current_data.lunar_mansion.farming_score >= 6 or category == "irrigation" and current_data.lunar_mansion.element == "ماء" or category == "fertilization" and current_data.moon_phase.is_waxing:
+    if (
+        category == "plowing"
+        and current_data.lunar_mansion.farming_score >= 6
+        or category == "irrigation"
+        and current_data.lunar_mansion.element == "ماء"
+        or category == "fertilization"
+        and current_data.moon_phase.is_waxing
+    ):
         mansion_appropriate = True
 
     if mansion_appropriate:

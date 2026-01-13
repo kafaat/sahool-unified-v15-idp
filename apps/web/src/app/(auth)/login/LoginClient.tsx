@@ -1,12 +1,18 @@
-'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Mail, Lock } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { useAuth } from '@/stores/auth.store';
-import { useToast } from '@/components/ui/toast';
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Mail, Lock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { useAuth } from "@/stores/auth.store";
+import { useToast } from "@/components/ui/toast";
 
 /**
  * Extracts error message from various error types
@@ -22,15 +28,15 @@ function getErrorMessage(error: unknown): string {
     }
     return error.message;
   }
-  return 'Invalid credentials';
+  return "Invalid credentials";
 }
 
 export default function LoginClient() {
   const router = useRouter();
   const { login } = useAuth();
   const { showToast } = useToast();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,17 +46,17 @@ export default function LoginClient() {
     try {
       await login(email, password);
       showToast({
-        type: 'success',
-        messageAr: 'تم تسجيل الدخول بنجاح',
-        message: 'Login successful',
+        type: "success",
+        messageAr: "تم تسجيل الدخول بنجاح",
+        message: "Login successful",
       });
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
       showToast({
-        type: 'error',
-        messageAr: 'فشل تسجيل الدخول',
+        type: "error",
+        messageAr: "فشل تسجيل الدخول",
         message: errorMessage,
       });
     } finally {
@@ -71,7 +77,9 @@ export default function LoginClient() {
           </CardTitle>
           <CardDescription>
             <div className="text-gray-600">منصة الإدارة الزراعية المتكاملة</div>
-            <div className="text-xs text-gray-500">Integrated Agricultural Management Platform</div>
+            <div className="text-xs text-gray-500">
+              Integrated Agricultural Management Platform
+            </div>
           </CardDescription>
         </CardHeader>
         <CardContent>

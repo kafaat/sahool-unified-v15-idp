@@ -5,6 +5,7 @@ Comprehensive seed data for the SAHOOL agricultural platform, featuring realisti
 ## Overview
 
 This seed data package provides sample data for:
+
 - **Users**: Admin, farmers, agronomists, and researchers across Yemen regions
 - **Farms**: 10 farms in different governorates (صنعاء، تعز، حضرموت، إب، الحديدة)
 - **Fields**: 30+ fields with GeoJSON boundaries and various soil/irrigation types
@@ -16,17 +17,17 @@ This seed data package provides sample data for:
 
 ## Files
 
-| File | Description | Records |
-|------|-------------|---------|
-| `seed_runner.py` | Main Python script to run all seeds | - |
-| `01_users.sql` | Sample users (farmers, agronomists, admin) | 10 users |
-| `02_farms.sql` | Farms across Yemen governorates | 10 farms |
-| `03_fields.sql` | Fields with GeoJSON geometries | 30 fields |
-| `04_crops.sql` | Yemen crop catalog with GDD and prices | 50+ crops |
-| `05_weather_history.sql` | Historical weather for major cities | ~1,825 records |
-| `06_inventory.sql` | Inventory items, suppliers, stock | 35+ items, 6 suppliers |
-| `07_satellite_data.sql` | NDVI observations and alerts | 1,000+ observations |
-| `08_financial.sql` | Transactions, invoices, subscriptions | 30+ transactions |
+| File                     | Description                                | Records                |
+| ------------------------ | ------------------------------------------ | ---------------------- |
+| `seed_runner.py`         | Main Python script to run all seeds        | -                      |
+| `01_users.sql`           | Sample users (farmers, agronomists, admin) | 10 users               |
+| `02_farms.sql`           | Farms across Yemen governorates            | 10 farms               |
+| `03_fields.sql`          | Fields with GeoJSON geometries             | 30 fields              |
+| `04_crops.sql`           | Yemen crop catalog with GDD and prices     | 50+ crops              |
+| `05_weather_history.sql` | Historical weather for major cities        | ~1,825 records         |
+| `06_inventory.sql`       | Inventory items, suppliers, stock          | 35+ items, 6 suppliers |
+| `07_satellite_data.sql`  | NDVI observations and alerts               | 1,000+ observations    |
+| `08_financial.sql`       | Transactions, invoices, subscriptions      | 30+ transactions       |
 
 ## Quick Start
 
@@ -43,18 +44,21 @@ pip install psycopg2-binary
 ### Running Seeds
 
 **Option 1: Using database URL**
+
 ```bash
 cd database/seeds
 python seed_runner.py --db-url postgresql://user:password@localhost:5432/sahool
 ```
 
 **Option 2: Using environment variable**
+
 ```bash
 export DATABASE_URL="postgresql://user:password@localhost:5432/sahool"
 python seed_runner.py
 ```
 
 **Option 3: Using environment name**
+
 ```bash
 export DATABASE_URL_DEV="postgresql://user:password@localhost:5432/sahool_dev"
 python seed_runner.py --env development
@@ -63,6 +67,7 @@ python seed_runner.py --env development
 ### Verification Only
 
 To verify the database without running seeds:
+
 ```bash
 python seed_runner.py --db-url <url> --verify-only
 ```
@@ -70,6 +75,7 @@ python seed_runner.py --db-url <url> --verify-only
 ### Continue on Error
 
 To continue running remaining seeds even if one fails:
+
 ```bash
 python seed_runner.py --db-url <url> --continue-on-error
 ```
@@ -80,14 +86,15 @@ python seed_runner.py --db-url <url> --continue-on-error
 
 **Default Password**: All users have password `admin123` or `farmer123` (hashed with bcrypt)
 
-| Role | Count | Regions |
-|------|-------|---------|
-| Admin | 1 | System-wide |
-| Farmers | 5 | صنعاء، تعز، حضرموت، إب، الحديدة |
-| Agronomists | 2 | Advisory services |
-| Researchers | 1 | Data analysis |
+| Role        | Count | Regions                         |
+| ----------- | ----- | ------------------------------- |
+| Admin       | 1     | System-wide                     |
+| Farmers     | 5     | صنعاء، تعز، حضرموت، إب، الحديدة |
+| Agronomists | 2     | Advisory services               |
+| Researchers | 1     | Data analysis                   |
 
 **Sample Users:**
+
 - `admin@sahool.ye` - System Administrator (مدير النظام)
 - `ahmed.alsanani@sahool.ye` - Farmer from Sana'a
 - `mohammed.altaizi@sahool.ye` - Farmer from Ta'izz (Coffee)
@@ -98,15 +105,16 @@ python seed_runner.py --db-url <url> --continue-on-error
 
 10 farms distributed across Yemen's major agricultural regions:
 
-| Governorate | Farms | Total Area (ha) |
-|-------------|-------|-----------------|
-| صنعاء (Sana'a) | 2 | 40.8 |
-| تعز (Ta'izz) | 2 | 21.0 |
-| حضرموت (Hadramout) | 2 | 75.2 |
-| إب (Ibb) | 2 | 29.2 |
-| الحديدة (Al-Hudaydah) | 2 | 175.5 |
+| Governorate           | Farms | Total Area (ha) |
+| --------------------- | ----- | --------------- |
+| صنعاء (Sana'a)        | 2     | 40.8            |
+| تعز (Ta'izz)          | 2     | 21.0            |
+| حضرموت (Hadramout)    | 2     | 75.2            |
+| إب (Ibb)              | 2     | 29.2            |
+| الحديدة (Al-Hudaydah) | 2     | 175.5           |
 
 **Featured Farms:**
+
 - Green Valley Farm (مزرعة الوادي الأخضر) - Highland cereals
 - Al-Mawasit Coffee Estate (مزرعة المواسط للبن) - Mountain coffee
 - Wadi Hadramout Date Farm (مزرعة وادي حضرموت للنخيل) - Date palms
@@ -117,18 +125,21 @@ python seed_runner.py --db-url <url> --continue-on-error
 30 fields with realistic GeoJSON polygon boundaries:
 
 **Soil Types Distribution:**
+
 - Loamy: 40%
 - Sandy: 27%
 - Clay: 20%
 - Silty: 13%
 
 **Irrigation Types:**
+
 - Drip: 47%
 - Sprinkler: 23%
 - Flood: 17%
 - Rainfed: 13%
 
 **GeoJSON Format:**
+
 ```json
 {
   "type": "Polygon",
@@ -141,6 +152,7 @@ python seed_runner.py --db-url <url> --continue-on-error
 50+ Yemen-specific crops with comprehensive data:
 
 **Categories:**
+
 - **Cereals** (الحبوب): Wheat, Barley, Sorghum, Millet, Maize
 - **Legumes** (البقوليات): Lentils, Chickpeas, Faba Beans, Cowpea, Peanuts
 - **Vegetables** (الخضروات): Tomato, Onion, Potato, Cucumber, Eggplant, Peppers
@@ -150,6 +162,7 @@ python seed_runner.py --db-url <url> --continue-on-error
 - **Forage**: Alfalfa, Clover, Rhodes Grass
 
 **Data Fields:**
+
 - Arabic and English names
 - Growing Degree Days (GDD) requirements
 - Planting seasons and months
@@ -161,6 +174,7 @@ python seed_runner.py --db-url <url> --continue-on-error
 - Optimal altitude ranges
 
 **Example - Coffee (Arabica):**
+
 ```sql
 name_en: 'Arabica Coffee'
 name_ar: 'بن عربي'
@@ -177,15 +191,16 @@ altitude: 1000-2400m
 
 1 year of daily weather data for 5 major Yemen cities:
 
-| Location | Climate Type | Avg Temp (°C) | Annual Rainfall (mm) |
-|----------|--------------|---------------|----------------------|
-| Sana'a | Highland | 16-22 | 400-600 |
-| Ta'izz | Mountain | 20-26 | 600-800 |
-| Al-Hudaydah | Coastal Hot | 28-38 | 50-150 |
-| Hadramout (Shibam) | Desert/Wadi | 26-36 | 80-200 |
-| Ibb | Highland Wet | 18-24 | 800-1200 |
+| Location           | Climate Type | Avg Temp (°C) | Annual Rainfall (mm) |
+| ------------------ | ------------ | ------------- | -------------------- |
+| Sana'a             | Highland     | 16-22         | 400-600              |
+| Ta'izz             | Mountain     | 20-26         | 600-800              |
+| Al-Hudaydah        | Coastal Hot  | 28-38         | 50-150               |
+| Hadramout (Shibam) | Desert/Wadi  | 26-36         | 80-200               |
+| Ibb                | Highland Wet | 18-24         | 800-1200             |
 
 **Data Fields:**
+
 - Temperature (avg, min, max)
 - Precipitation (mm)
 - Humidity (%)
@@ -196,6 +211,7 @@ altitude: 1000-2400m
 - Growing Degree Days (GDD base 10°C)
 
 **Features:**
+
 - Realistic seasonal patterns
 - Monsoon seasons for appropriate regions
 - Temperature variations by altitude
@@ -206,6 +222,7 @@ altitude: 1000-2400m
 Comprehensive agricultural supply inventory:
 
 **Suppliers:** 6 Yemen-based suppliers
+
 - Yemen Agricultural Supplies Co. (صنعاء)
 - Al-Thawra Seeds & Fertilizers (صنعاء)
 - Red Sea Agricultural Import/Export (الحديدة)
@@ -214,6 +231,7 @@ Comprehensive agricultural supply inventory:
 - International Agro Tech Yemen (صنعاء)
 
 **Inventory Categories:**
+
 - **Seeds**: 10 items (cereals, vegetables, tree crops)
 - **Fertilizers**: 6 items (NPK, Urea, DAP, Organic, Micronutrients)
 - **Pesticides**: 5 items (Insecticides, Fungicides, Herbicides)
@@ -221,6 +239,7 @@ Comprehensive agricultural supply inventory:
 - **Irrigation Supplies**: 4 items (Drip systems, pipes, emitters)
 
 **Data Fields:**
+
 - SKU, barcode
 - Arabic/English names and descriptions
 - Categories and subcategories
@@ -235,12 +254,14 @@ Comprehensive agricultural supply inventory:
 NDVI (Normalized Difference Vegetation Index) observations:
 
 **Coverage:**
+
 - 1,000+ observations across 30 fields
 - 6-month historical data
 - 5-8 day revisit frequency (Sentinel-2)
 - Cloud filtering (<50% cloud cover)
 
 **Growth Patterns:**
+
 - Early germination: NDVI 0.15-0.25
 - Seedling stage: NDVI 0.30-0.45
 - Vegetative growth: NDVI 0.50-0.70
@@ -250,16 +271,19 @@ NDVI (Normalized Difference Vegetation Index) observations:
 - Harvest/senescence: NDVI 0.25-0.35
 
 **Perennial Crops (Coffee, Dates):**
+
 - Stable NDVI: 0.65-0.80
 - Seasonal variations minimal
 
 **NDVI Alerts:**
+
 - Anomaly detection (negative/positive)
 - Threshold breaches
 - Sudden drops (>15%)
 - Growth stage monitoring
 
 **Data Fields:**
+
 - NDVI statistics (mean, min, max, std, percentiles)
 - Cloud coverage
 - Confidence scores
@@ -272,6 +296,7 @@ NDVI (Normalized Difference Vegetation Index) observations:
 Comprehensive financial tracking:
 
 **Subscriptions:**
+
 - Basic Plan: 5,000 YER/month
 - Premium Plan: 15,000 YER/month
 - Enterprise Plan: 150,000 YER/year
@@ -280,6 +305,7 @@ Comprehensive financial tracking:
 **Transaction Categories:**
 
 **Expenses:**
+
 - Seed purchases
 - Fertilizer purchases
 - Pesticide purchases
@@ -289,11 +315,13 @@ Comprehensive financial tracking:
 - Water costs
 
 **Income:**
+
 - Harvest sales (crops)
 - Government subsidies
 - Agricultural support programs
 
 **Invoices:**
+
 - Purchase invoices (to suppliers)
 - Sales invoices (to buyers)
 - Status tracking (pending, paid, overdue)
@@ -301,6 +329,7 @@ Comprehensive financial tracking:
 - Line items
 
 **Sample Data:**
+
 - 20+ transactions across different farmers
 - Range: 28,000 - 3,500,000 YER
 - Purchase and sales invoices
@@ -365,6 +394,7 @@ Crop Catalog (reference data, no foreign keys)
 All financial data is in **Yemeni Rial (YER)**
 
 Approximate exchange rates (for reference):
+
 - 1 USD ≈ 250 YER (official)
 - Prices are realistic for Yemen agricultural context
 
@@ -417,6 +447,7 @@ Some files create tables if they don't exist:
 ### Disabling Cleanup
 
 By default, TRUNCATE statements are commented out:
+
 ```sql
 -- TRUNCATE TABLE users CASCADE;
 ```
@@ -426,6 +457,7 @@ Uncomment to clear existing data before seeding.
 ### Adding Custom Crops
 
 Follow this template in `04_crops.sql`:
+
 ```sql
 INSERT INTO crop_catalog (
     crop_code, name_en, name_ar, scientific_name,
@@ -476,38 +508,49 @@ SELECT category, SUM(current_quantity * unit_cost) as value FROM inventory_items
 ### Common Issues
 
 **1. Connection Error**
+
 ```
 Error: psycopg2.OperationalError: could not connect to server
 ```
+
 **Solution**: Check database URL, ensure PostgreSQL is running
 
 **2. Table Does Not Exist**
+
 ```
 Error: relation "users" does not exist
 ```
+
 **Solution**: Run database migrations first, or create required tables
 
 **3. Foreign Key Violation**
+
 ```
 Error: insert or update violates foreign key constraint
 ```
+
 **Solution**: Run seed files in order (01, 02, 03, ...)
 
 **4. UUID Generation Error**
+
 ```
 Error: function gen_random_uuid() does not exist
 ```
+
 **Solution**: Enable extension: `CREATE EXTENSION IF NOT EXISTS "pgcrypto";`
 
 **5. Duplicate Key Error**
+
 ```
 Error: duplicate key value violates unique constraint
 ```
+
 **Solution**: Run with cleanup enabled (uncomment TRUNCATE statements)
 
 ### Debug Mode
 
 Add `--continue-on-error` to see all errors:
+
 ```bash
 python seed_runner.py --db-url <url> --continue-on-error
 ```
@@ -554,6 +597,7 @@ This seed data is part of the SAHOOL platform.
 ## Support
 
 For issues or questions:
+
 - Check verification queries in each SQL file
 - Review troubleshooting section
 - Ensure all prerequisites are met

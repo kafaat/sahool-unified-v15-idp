@@ -1,4 +1,5 @@
 # SPRING - Sustainable Program for Irrigation and Groundwater
+
 ## البرنامج المستدام للري والمياه الجوفية
 
 GlobalGAP add-on module for responsible water management in agriculture, with special focus on Yemen's water scarcity context.
@@ -21,6 +22,7 @@ The SPRING module provides comprehensive water management capabilities for agric
 ### Yemen Context / السياق اليمني
 
 Yemen faces severe water scarcity with groundwater levels declining 6-7 meters annually. This module includes:
+
 - Groundwater depletion tracking and alerts
 - Qat vs. food crops water usage analysis
 - Rainwater harvesting maximization
@@ -61,6 +63,7 @@ from shared.globalgap.addons.spring import (
 Contains 20+ checklist items across 6 categories:
 
 #### Categories:
+
 - **WS** - Water Sources Assessment (4 items)
 - **WE** - Water Use Efficiency (6 items)
 - **IS** - Irrigation System Requirements (5 items)
@@ -93,6 +96,7 @@ print(f"Compliant Items: {compliance['compliant_items']}/{compliance['total_item
 #### Key Models:
 
 **WaterUsageMetric** - Track water usage records
+
 ```python
 from datetime import date
 from shared.globalgap.addons.spring import WaterUsageMetric
@@ -113,6 +117,7 @@ print(f"Flow rate: {usage.flow_rate_m3_per_hour} m³/h")
 ```
 
 **IrrigationEfficiency** - Calculate irrigation efficiency
+
 ```python
 from shared.globalgap.addons.spring import IrrigationEfficiency
 
@@ -130,6 +135,7 @@ efficiency = IrrigationEfficiency(
 ```
 
 **WaterSource** - Define water sources
+
 ```python
 from shared.globalgap.addons.spring import WaterSource
 
@@ -146,6 +152,7 @@ source = WaterSource(
 ```
 
 **WaterQualityTest** - Record water quality
+
 ```python
 from shared.globalgap.addons.spring import WaterQualityTest
 
@@ -371,6 +378,7 @@ The SPRING module integrates with SAHOOL services:
 ### Mandatory Items:
 
 **WS.01 - Water Source Identification**
+
 ```
 Requirement: All water sources used for irrigation must be identified
 and documented, including type, location, and capacity.
@@ -379,6 +387,7 @@ Verification: Water source register, maps, technical specifications
 ```
 
 **WE.01 - Water Use Measurement**
+
 ```
 Requirement: All water used for irrigation must be measured using
 flow meters or other reliable measurement devices.
@@ -387,6 +396,7 @@ Verification: Water meters, usage records, calibration certificates
 ```
 
 **WQ.01 - Water Quality Testing - Frequency**
+
 ```
 Requirement: Conduct water quality testing at least annually for all
 irrigation water sources. Quarterly for groundwater and recycled water.
@@ -395,6 +405,7 @@ Verification: Laboratory test reports, testing schedule
 ```
 
 **LC.01 - Water Extraction Permits**
+
 ```
 Requirement: Valid permits/licenses must be held for all water
 extraction (wells, boreholes, surface water abstraction).
@@ -406,6 +417,7 @@ or local water authorities.
 ### Recommended Items:
 
 **WE.04 - Soil Moisture Monitoring**
+
 ```
 Recommendation: Use soil moisture sensors or other monitoring tools
 to guide irrigation scheduling.
@@ -414,6 +426,7 @@ Benefits: Reduces water waste, improves crop yield
 ```
 
 **IS.04 - Drip Irrigation Adoption**
+
 ```
 Recommendation: Prioritize drip irrigation for high-value crops
 (vegetables, fruits, orchards).
@@ -465,6 +478,7 @@ Benefits: 30-60% water savings vs. surface irrigation
 ### Common Issues:
 
 **Import Errors:**
+
 ```python
 # Ensure parent package is in path
 import sys
@@ -474,11 +488,13 @@ from shared.globalgap.addons.spring import *
 ```
 
 **Missing Dependencies:**
+
 ```bash
 pip install pydantic
 ```
 
 **Data Validation Errors:**
+
 - Check that all required fields are provided
 - Ensure dates are in correct format (YYYY-MM-DD)
 - Verify numeric values are within valid ranges
@@ -488,6 +504,7 @@ pip install pydantic
 ## 📞 Support
 
 For questions or issues:
+
 - Technical Support: SAHOOL Platform Team
 - SPRING Methodology: GlobalGAP IFA v6 Documentation
 - Yemen Water Context: National Water Resources Authority (NWRA)

@@ -17,8 +17,13 @@ The marketplace-service has a simple JWT auth implementation that can be complet
 
 ```typescript
 // apps/services/marketplace-service/src/auth/jwt-auth.guard.ts
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from "@nestjs/common";
+import * as jwt from "jsonwebtoken";
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -27,13 +32,13 @@ export class JwtAuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      throw new UnauthorizedException('Missing authorization header');
+      throw new UnauthorizedException("Missing authorization header");
     }
 
-    const [type, token] = authHeader.split(' ');
+    const [type, token] = authHeader.split(" ");
 
-    if (type !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Invalid authorization format');
+    if (type !== "Bearer" || !token) {
+      throw new UnauthorizedException("Invalid authorization format");
     }
 
     try {
@@ -49,13 +54,13 @@ export class JwtAuthGuard implements CanActivate {
 
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Authentication failed');
+      throw new UnauthorizedException("Authentication failed");
     }
   }
 }
 
 // apps/services/marketplace-service/src/app.module.ts
-import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
+import { JwtAuthGuard, OptionalJwtAuthGuard } from "./auth/jwt-auth.guard";
 
 @Module({
   providers: [JwtAuthGuard, OptionalJwtAuthGuard],
@@ -67,16 +72,16 @@ export class AppModule {}
 
 ```typescript
 // apps/services/marketplace-service/src/app.module.ts
-import { Module } from '@nestjs/common';
-import { AuthModule } from '@sahool/nestjs-auth';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { Module } from "@nestjs/common";
+import { AuthModule } from "@sahool/nestjs-auth";
+import { RedisModule } from "@liaoliaots/nestjs-redis";
 
 @Module({
   imports: [
     RedisModule.forRoot({
       config: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
+        host: process.env.REDIS_HOST || "localhost",
+        port: parseInt(process.env.REDIS_PORT || "6379"),
         password: process.env.REDIS_PASSWORD,
       },
     }),
@@ -93,10 +98,11 @@ export class AppModule {}
 ### Update Controllers
 
 **Before:**
-```typescript
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
-@Controller('market')
+```typescript
+import { JwtAuthGuard } from "./auth/jwt-auth.guard";
+
+@Controller("market")
 @UseGuards(JwtAuthGuard)
 export class MarketController {
   @Get()
@@ -108,10 +114,11 @@ export class MarketController {
 ```
 
 **After:**
-```typescript
-import { JwtAuthGuard, CurrentUser, UserId } from '@sahool/nestjs-auth';
 
-@Controller('market')
+```typescript
+import { JwtAuthGuard, CurrentUser, UserId } from "@sahool/nestjs-auth";
+
+@Controller("market")
 @UseGuards(JwtAuthGuard)
 export class MarketController {
   @Get()
@@ -120,7 +127,7 @@ export class MarketController {
   }
 
   // Or use CurrentUser for full user object
-  @Get('user-info')
+  @Get("user-info")
   getUserInfo(@CurrentUser() user: any) {
     return {
       id: user.id,
@@ -149,6 +156,7 @@ If your service has a custom auth implementation, follow these steps:
 ### Step 1: Identify Current Auth Components
 
 List all auth-related files:
+
 ```bash
 # Find auth guards
 find your-service/src -name "*guard.ts" -o -name "*auth*.ts"
@@ -163,15 +171,15 @@ find your-service/src -name "*strategy.ts"
 ### Step 2: Map to Shared Module Features
 
 | Your Implementation | Shared Module Equivalent |
-|-------------------|-------------------------|
-| JWT Guard | `JwtAuthGuard` |
-| Roles Guard | `RolesGuard` |
-| Permissions Guard | `PermissionsGuard` |
-| Optional Auth | `OptionalAuthGuard` |
-| JWT Strategy | `JwtStrategy` |
-| User Decorator | `@CurrentUser()` |
-| Roles Decorator | `@Roles()` |
-| Public Decorator | `@Public()` |
+| ------------------- | ------------------------ |
+| JWT Guard           | `JwtAuthGuard`           |
+| Roles Guard         | `RolesGuard`             |
+| Permissions Guard   | `PermissionsGuard`       |
+| Optional Auth       | `OptionalAuthGuard`      |
+| JWT Strategy        | `JwtStrategy`            |
+| User Decorator      | `@CurrentUser()`         |
+| Roles Decorator     | `@Roles()`               |
+| Public Decorator    | `@Public()`              |
 
 ### Step 3: Update Dependencies
 
@@ -181,6 +189,7 @@ npm install @liaoliaots/nestjs-redis ioredis
 ```
 
 Update `package.json`:
+
 ```json
 {
   "dependencies": {
@@ -194,19 +203,20 @@ Update `package.json`:
 ### Step 4: Update Module Imports
 
 **Before:**
+
 ```typescript
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './auth/jwt.strategy';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
+import { PassportModule } from "@nestjs/passport";
+import { JwtStrategy } from "./auth/jwt.strategy";
+import { JwtAuthGuard } from "./auth/jwt-auth.guard";
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: "jwt" }),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: "1h" },
     }),
   ],
   providers: [JwtStrategy, JwtAuthGuard],
@@ -216,10 +226,11 @@ export class AuthModule {}
 ```
 
 **After:**
+
 ```typescript
-import { Module } from '@nestjs/common';
-import { AuthModule } from '@sahool/nestjs-auth';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { Module } from "@nestjs/common";
+import { AuthModule } from "@sahool/nestjs-auth";
+import { RedisModule } from "@liaoliaots/nestjs-redis";
 
 @Module({
   imports: [
@@ -238,26 +249,29 @@ export class AppModule {}
 ### Step 5: Update Imports in Controllers
 
 **Before:**
+
 ```typescript
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
-import { User } from '../auth/user.decorator';
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { RolesGuard } from "../auth/roles.guard";
+import { Roles } from "../auth/roles.decorator";
+import { User } from "../auth/user.decorator";
 ```
 
 **After:**
+
 ```typescript
 import {
   JwtAuthGuard,
   RolesGuard,
   Roles,
   CurrentUser,
-} from '@sahool/nestjs-auth';
+} from "@sahool/nestjs-auth";
 ```
 
 ### Step 6: Update Decorator Usage
 
 **Before:**
+
 ```typescript
 @Get('profile')
 getProfile(@User() user) {
@@ -266,6 +280,7 @@ getProfile(@User() user) {
 ```
 
 **After:**
+
 ```typescript
 @Get('profile')
 getProfile(@CurrentUser() user) {
@@ -331,10 +346,10 @@ Search and replace in all controller files:
 
 ```typescript
 // Old
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 // New
-import { JwtAuthGuard } from '@sahool/nestjs-auth';
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 ```
 
 #### 4. Update Decorator Usage
@@ -443,35 +458,39 @@ npm run build
 ### Issue 1: Missing Redis Connection
 
 **Error:**
+
 ```
 Error: Redis connection failed
 ```
 
 **Solution:**
+
 ```typescript
 // Ensure Redis is configured
 RedisModule.forRoot({
   config: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
+    host: process.env.REDIS_HOST || "localhost",
+    port: parseInt(process.env.REDIS_PORT || "6379"),
   },
-})
+});
 
 // Or disable features that require Redis
 AuthModule.forRoot({
   enableUserValidation: false,
   enableTokenRevocation: false,
-})
+});
 ```
 
 ### Issue 2: JWT Secret Not Found
 
 **Error:**
+
 ```
 Error: JWT_SECRET must be at least 32 characters
 ```
 
 **Solution:**
+
 ```bash
 # Add to .env
 JWT_SECRET_KEY=your-secret-key-at-least-32-characters-long
@@ -480,11 +499,13 @@ JWT_SECRET_KEY=your-secret-key-at-least-32-characters-long
 ### Issue 3: Import Errors
 
 **Error:**
+
 ```
 Cannot find module '@sahool/nestjs-auth'
 ```
 
 **Solution:**
+
 ```bash
 # Ensure the package is in workspace
 npm install
@@ -500,12 +521,14 @@ npm link @sahool/nestjs-auth
 ### Issue 4: User Object Shape Changed
 
 **Error:**
+
 ```
 Property 'userId' does not exist on type 'User'
 ```
 
 **Solution:**
 The shared module uses consistent user object shape:
+
 ```typescript
 {
   id: string;           // User ID (use this, not userId)
@@ -523,14 +546,16 @@ The shared module uses consistent user object shape:
 ### Issue 5: Decorators Not Working
 
 **Error:**
+
 ```
 @CurrentUser() is not a function
 ```
 
 **Solution:**
+
 ```typescript
 // Ensure you're importing from the correct location
-import { CurrentUser } from '@sahool/nestjs-auth';
+import { CurrentUser } from "@sahool/nestjs-auth";
 
 // Not from your old auth module
 // import { CurrentUser } from './auth/decorators';

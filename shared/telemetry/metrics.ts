@@ -28,8 +28,8 @@
  * Date: 2025-12-26
  */
 
-import * as promClient from 'prom-client';
-import { INestApplication } from '@nestjs/common';
+import * as promClient from "prom-client";
+import { INestApplication } from "@nestjs/common";
 
 let register: promClient.Registry;
 let metricsInitialized = false;
@@ -57,7 +57,7 @@ export interface MetricsConfig {
  */
 export function initMetrics(config: MetricsConfig = {}): promClient.Registry {
   if (metricsInitialized) {
-    console.warn('Metrics already initialized');
+    console.warn("Metrics already initialized");
     return register;
   }
 
@@ -66,10 +66,12 @@ export function initMetrics(config: MetricsConfig = {}): promClient.Registry {
     config.serviceName ||
     process.env.OTEL_SERVICE_NAME ||
     process.env.SERVICE_NAME ||
-    'sahool-service';
+    "sahool-service";
 
-  const serviceVersion = config.serviceVersion || process.env.SERVICE_VERSION || '1.0.0';
-  const environment = config.environment || process.env.ENVIRONMENT || 'development';
+  const serviceVersion =
+    config.serviceVersion || process.env.SERVICE_VERSION || "1.0.0";
+  const environment =
+    config.environment || process.env.ENVIRONMENT || "development";
 
   // Create new registry
   register = new promClient.Registry();
@@ -90,31 +92,31 @@ export function initMetrics(config: MetricsConfig = {}): promClient.Registry {
 
   // Initialize standard HTTP metrics
   httpRequestsTotal = new promClient.Counter({
-    name: 'http_requests_total',
-    help: 'Total number of HTTP requests',
-    labelNames: ['method', 'endpoint', 'status_code'],
+    name: "http_requests_total",
+    help: "Total number of HTTP requests",
+    labelNames: ["method", "endpoint", "status_code"],
     registers: [register],
   });
 
   httpRequestDuration = new promClient.Histogram({
-    name: 'http_request_duration_seconds',
-    help: 'HTTP request duration in seconds',
-    labelNames: ['method', 'endpoint', 'status_code'],
+    name: "http_request_duration_seconds",
+    help: "HTTP request duration in seconds",
+    labelNames: ["method", "endpoint", "status_code"],
     buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10],
     registers: [register],
   });
 
   httpErrorsTotal = new promClient.Counter({
-    name: 'http_errors_total',
-    help: 'Total number of HTTP errors',
-    labelNames: ['method', 'endpoint', 'status_code', 'error_type'],
+    name: "http_errors_total",
+    help: "Total number of HTTP errors",
+    labelNames: ["method", "endpoint", "status_code", "error_type"],
     registers: [register],
   });
 
   metricsInitialized = true;
 
   console.log(
-    `Prometheus metrics initialized: service=${serviceName}, env=${environment}`
+    `Prometheus metrics initialized: service=${serviceName}, env=${environment}`,
   );
 
   return register;
@@ -125,7 +127,7 @@ export function initMetrics(config: MetricsConfig = {}): promClient.Registry {
  */
 export function getRegistry(): promClient.Registry {
   if (!register) {
-    throw new Error('Metrics not initialized. Call initMetrics() first.');
+    throw new Error("Metrics not initialized. Call initMetrics() first.");
   }
   return register;
 }
@@ -145,7 +147,7 @@ export function trackRequest(
   endpoint: string,
   statusCode: number,
   duration: number,
-  labels?: Record<string, string>
+  labels?: Record<string, string>,
 ): void {
   if (!metricsInitialized) return;
 
@@ -164,7 +166,7 @@ export function trackRequest(
 
   // Count errors (4xx, 5xx)
   if (statusCode >= 400) {
-    const errorType = statusCode < 500 ? 'client_error' : 'server_error';
+    const errorType = statusCode < 500 ? "client_error" : "server_error";
     httpErrorsTotal.inc({
       ...metricLabels,
       error_type: errorType,
@@ -178,10 +180,10 @@ export function trackRequest(
 export function createCounter(
   name: string,
   help: string,
-  labelNames: string[] = []
+  labelNames: string[] = [],
 ): promClient.Counter<string> {
   if (!register) {
-    throw new Error('Metrics not initialized');
+    throw new Error("Metrics not initialized");
   }
 
   const counter = new promClient.Counter({
@@ -201,10 +203,10 @@ export function createHistogram(
   name: string,
   help: string,
   labelNames: string[] = [],
-  buckets?: number[]
+  buckets?: number[],
 ): promClient.Histogram<string> {
   if (!register) {
-    throw new Error('Metrics not initialized');
+    throw new Error("Metrics not initialized");
   }
 
   const histogram = new promClient.Histogram({
@@ -224,10 +226,10 @@ export function createHistogram(
 export function createGauge(
   name: string,
   help: string,
-  labelNames: string[] = []
+  labelNames: string[] = [],
 ): promClient.Gauge<string> {
   if (!register) {
-    throw new Error('Metrics not initialized');
+    throw new Error("Metrics not initialized");
   }
 
   const gauge = new promClient.Gauge({
@@ -246,43 +248,43 @@ export function createGauge(
 export function trackBusinessMetric(
   metricName: string,
   value: number = 1,
-  metricType: 'counter' | 'histogram' | 'gauge' = 'counter',
+  metricType: "counter" | "histogram" | "gauge" = "counter",
   labels?: Record<string, string>,
-  help?: string
+  help?: string,
 ): void {
   if (!metricsInitialized) return;
 
   const labelNames = labels ? Object.keys(labels) : [];
 
-  if (metricType === 'counter') {
+  if (metricType === "counter") {
     let counter = businessCounters.get(metricName);
     if (!counter) {
       counter = createCounter(
         metricName,
         help || `Business metric: ${metricName}`,
-        labelNames
+        labelNames,
       );
       businessCounters.set(metricName, counter);
     }
     counter.inc(labels || {}, value);
-  } else if (metricType === 'histogram') {
+  } else if (metricType === "histogram") {
     let histogram = businessHistograms.get(metricName);
     if (!histogram) {
       histogram = createHistogram(
         metricName,
         help || `Business metric: ${metricName}`,
-        labelNames
+        labelNames,
       );
       businessHistograms.set(metricName, histogram);
     }
     histogram.observe(labels || {}, value);
-  } else if (metricType === 'gauge') {
+  } else if (metricType === "gauge") {
     let gauge = businessGauges.get(metricName);
     if (!gauge) {
       gauge = createGauge(
         metricName,
         help || `Business metric: ${metricName}`,
-        labelNames
+        labelNames,
       );
       businessGauges.set(metricName, gauge);
     }
@@ -296,7 +298,7 @@ export function trackBusinessMetric(
 export function trackRequestDuration(
   method: string,
   endpoint: string,
-  labels?: Record<string, string>
+  labels?: Record<string, string>,
 ) {
   const startTime = Date.now();
 
@@ -316,14 +318,14 @@ export class SahoolMetrics {
   static trackMessageSent(
     channel: string,
     messageType: string,
-    userId: string
+    userId: string,
   ): void {
     trackBusinessMetric(
-      'sahool_messages_sent_total',
+      "sahool_messages_sent_total",
       1,
-      'counter',
+      "counter",
       { channel, message_type: messageType, user_id: userId },
-      'Total number of chat messages sent'
+      "Total number of chat messages sent",
     );
   }
 
@@ -333,14 +335,14 @@ export class SahoolMetrics {
   static trackNotificationSent(
     notificationType: string,
     channel: string,
-    status: string
+    status: string,
   ): void {
     trackBusinessMetric(
-      'sahool_notifications_sent_total',
+      "sahool_notifications_sent_total",
       1,
-      'counter',
+      "counter",
       { notification_type: notificationType, channel, status },
-      'Total number of notifications sent'
+      "Total number of notifications sent",
     );
   }
 
@@ -349,35 +351,35 @@ export class SahoolMetrics {
    */
   static trackNotificationLatency(
     notificationType: string,
-    duration: number
+    duration: number,
   ): void {
     trackBusinessMetric(
-      'sahool_notification_duration_seconds',
+      "sahool_notification_duration_seconds",
       duration,
-      'histogram',
+      "histogram",
       { notification_type: notificationType },
-      'Notification delivery duration in seconds'
+      "Notification delivery duration in seconds",
     );
   }
 
   /**
    * Track WebSocket connections
    */
-  static trackWebSocketConnection(event: 'connect' | 'disconnect'): void {
-    const gauge = businessGauges.get('sahool_websocket_connections');
+  static trackWebSocketConnection(event: "connect" | "disconnect"): void {
+    const gauge = businessGauges.get("sahool_websocket_connections");
     if (gauge) {
-      if (event === 'connect') {
+      if (event === "connect") {
         gauge.inc();
       } else {
         gauge.dec();
       }
     } else {
       const newGauge = createGauge(
-        'sahool_websocket_connections',
-        'Current number of WebSocket connections'
+        "sahool_websocket_connections",
+        "Current number of WebSocket connections",
       );
-      businessGauges.set('sahool_websocket_connections', newGauge);
-      newGauge.set(event === 'connect' ? 1 : 0);
+      businessGauges.set("sahool_websocket_connections", newGauge);
+      newGauge.set(event === "connect" ? 1 : 0);
     }
   }
 
@@ -387,22 +389,22 @@ export class SahoolMetrics {
   static trackBillingTransaction(
     transactionType: string,
     amount: number,
-    status: string
+    status: string,
   ): void {
     trackBusinessMetric(
-      'sahool_billing_transactions_total',
+      "sahool_billing_transactions_total",
       1,
-      'counter',
+      "counter",
       { transaction_type: transactionType, status },
-      'Total number of billing transactions'
+      "Total number of billing transactions",
     );
 
     trackBusinessMetric(
-      'sahool_billing_revenue',
+      "sahool_billing_revenue",
       amount,
-      'histogram',
+      "histogram",
       { transaction_type: transactionType },
-      'Billing transaction revenue'
+      "Billing transaction revenue",
     );
   }
 
@@ -411,14 +413,14 @@ export class SahoolMetrics {
    */
   static trackMarketplaceListing(
     listingType: string,
-    action: 'create' | 'update' | 'delete'
+    action: "create" | "update" | "delete",
   ): void {
     trackBusinessMetric(
-      'sahool_marketplace_listings_total',
+      "sahool_marketplace_listings_total",
       1,
-      'counter',
+      "counter",
       { listing_type: listingType, action },
-      'Total number of marketplace listings'
+      "Total number of marketplace listings",
     );
   }
 
@@ -428,38 +430,35 @@ export class SahoolMetrics {
   static trackInventoryOperation(
     operationType: string,
     itemType: string,
-    quantity: number
+    quantity: number,
   ): void {
     trackBusinessMetric(
-      'sahool_inventory_operations_total',
+      "sahool_inventory_operations_total",
       1,
-      'counter',
+      "counter",
       { operation_type: operationType, item_type: itemType },
-      'Total number of inventory operations'
+      "Total number of inventory operations",
     );
 
     trackBusinessMetric(
-      'sahool_inventory_quantity',
+      "sahool_inventory_quantity",
       quantity,
-      'gauge',
+      "gauge",
       { item_type: itemType },
-      'Current inventory quantity'
+      "Current inventory quantity",
     );
   }
 
   /**
    * Track equipment usage
    */
-  static trackEquipmentUsage(
-    equipmentType: string,
-    usageHours: number
-  ): void {
+  static trackEquipmentUsage(equipmentType: string, usageHours: number): void {
     trackBusinessMetric(
-      'sahool_equipment_usage_hours',
+      "sahool_equipment_usage_hours",
       usageHours,
-      'histogram',
+      "histogram",
       { equipment_type: equipmentType },
-      'Equipment usage in hours'
+      "Equipment usage in hours",
     );
   }
 
@@ -469,22 +468,22 @@ export class SahoolMetrics {
   static trackTaskCompletion(
     taskType: string,
     status: string,
-    duration: number
+    duration: number,
   ): void {
     trackBusinessMetric(
-      'sahool_tasks_completed_total',
+      "sahool_tasks_completed_total",
       1,
-      'counter',
+      "counter",
       { task_type: taskType, status },
-      'Total number of tasks completed'
+      "Total number of tasks completed",
     );
 
     trackBusinessMetric(
-      'sahool_task_duration_seconds',
+      "sahool_task_duration_seconds",
       duration,
-      'histogram',
+      "histogram",
       { task_type: taskType },
-      'Task completion duration in seconds'
+      "Task completion duration in seconds",
     );
   }
 
@@ -493,19 +492,19 @@ export class SahoolMetrics {
    */
   static trackChatSession(duration: number, participants: number): void {
     trackBusinessMetric(
-      'sahool_chat_session_duration_seconds',
+      "sahool_chat_session_duration_seconds",
       duration,
-      'histogram',
+      "histogram",
       {},
-      'Chat session duration in seconds'
+      "Chat session duration in seconds",
     );
 
     trackBusinessMetric(
-      'sahool_chat_participants',
+      "sahool_chat_participants",
       participants,
-      'histogram',
+      "histogram",
       {},
-      'Number of chat participants'
+      "Number of chat participants",
     );
   }
 }

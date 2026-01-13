@@ -8,6 +8,7 @@ Port of NestJS token-revocation.ts to Python for FastAPI services.
 import json
 import logging
 import os
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -17,6 +18,27 @@ from redis.asyncio import Redis
 from redis.exceptions import RedisError
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_log_value(value: str | None, max_length: int = 100) -> str:
+    """
+    Sanitize a value for safe logging to prevent log injection attacks.
+
+    Args:
+        value: The value to sanitize
+        max_length: Maximum length of the output string
+
+    Returns:
+        Sanitized string safe for logging
+    """
+    if value is None:
+        return "None"
+    # Remove newlines, carriage returns, and other control characters
+    sanitized = re.sub(r"[\r\n\t\x00-\x1f\x7f-\x9f]", "", str(value))
+    # Truncate to max length
+    if len(sanitized) > max_length:
+        sanitized = sanitized[:max_length] + "..."
+    return sanitized
 
 
 @dataclass
@@ -194,7 +216,12 @@ class RedisTokenRevocationStore:
         try:
             await self._redis.setex(key, expires_in, json.dumps(value.to_dict()))
 
-            logger.info(f"Token revoked: jti={jti[:8]}..., reason={reason}, ttl={expires_in}s")
+            logger.info(
+                "Token revoked: jti=%s, reason=%s, ttl=%ss",
+                _sanitize_log_value(jti[:8] if len(jti) > 8 else jti) + "...",
+                _sanitize_log_value(reason),
+                expires_in,
+            )
 
             return True
 
@@ -254,7 +281,11 @@ class RedisTokenRevocationStore:
             # Store for 30 days (longer than typical token lifetime)
             await self._redis.setex(key, 2592000, json.dumps(value.to_dict()))
 
-            logger.info(f"All user tokens revoked: user_id={user_id}, reason={reason}")
+            logger.info(
+                "All user tokens revoked: user_id=%s, reason=%s",
+                _sanitize_log_value(user_id),
+                _sanitize_log_value(reason),
+            )
 
             return True
 
@@ -323,7 +354,11 @@ class RedisTokenRevocationStore:
             # Store for 30 days
             await self._redis.setex(key, 2592000, json.dumps(value.to_dict()))
 
-            logger.info(f"All tenant tokens revoked: tenant_id={tenant_id}, reason={reason}")
+            logger.info(
+                "All tenant tokens revoked: tenant_id=%s, reason=%s",
+                _sanitize_log_value(tenant_id),
+                _sanitize_log_value(reason),
+            )
 
             return True
 
@@ -392,7 +427,11 @@ class RedisTokenRevocationStore:
             # Store for 30 days
             await self._redis.setex(key, 2592000, json.dumps(value.to_dict()))
 
-            logger.info(f"Token family revoked: family_id={family_id}, reason={reason}")
+            logger.info(
+                "Token family revoked: family_id=%s, reason=%s",
+                _sanitize_log_value(family_id),
+                _sanitize_log_value(reason),
+            )
 
             return True
 

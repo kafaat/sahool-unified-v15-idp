@@ -95,7 +95,7 @@ services:
     healthcheck:
       # Health check - temporarily using a simple port check since authentication is failing
       # TODO: Fix password authentication and restore proper health check
-      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 || exit 1"]
+      test: ["CMD-SHELL", "PGPASSWORD=$POSTGRES_PASSWORD pg_isready -h localhost -p 6432 -U $POSTGRES_USER || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1382,7 +1382,7 @@ services:
       - PORT=8089
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-password}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
@@ -1394,7 +1394,7 @@ services:
     ports:
       - "8089:8089"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy

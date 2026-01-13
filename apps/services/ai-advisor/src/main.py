@@ -197,6 +197,8 @@ async def lifespan(app: FastAPI):
     Application lifespan manager
     مدير دورة حياة التطبيق
     """
+    global CONTEXT_ENGINEERING_AVAILABLE
+
     # Startup | بدء التشغيل
     logger.info("ai_advisor_service_starting", version="1.0.0")
 

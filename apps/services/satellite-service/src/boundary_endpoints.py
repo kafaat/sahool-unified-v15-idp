@@ -8,10 +8,10 @@ API endpoints for automatic field boundary detection, refinement, and change det
 import json
 import logging
 from datetime import datetime
-
-from fastapi import HTTPException, Query, Body
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from fastapi import Body, HTTPException, Query
+from pydantic import BaseModel, Field
 
 from .field_boundary_detector import BoundaryChange
 

@@ -187,12 +187,12 @@ except ImportError as e:
 _ndvi_timeseries_analyzer = None
 try:
     from .ndvi_timeseries import (
-        NDVITimeSeriesAnalyzer,
-        NDVIPoint,
         AnomalyResult,
-        TrendResult,
-        SeasonalMetrics,
         ChangeDetectionResult,
+        NDVIPoint,
+        NDVITimeSeriesAnalyzer,
+        SeasonalMetrics,
+        TrendResult,
         create_ndvi_timeseries,
         export_results_to_dict,
     )

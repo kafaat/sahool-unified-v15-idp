@@ -90,6 +90,14 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private redisConnected = false;
   private readonly isTestEnvironment: boolean;
 
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
   constructor() {
     this.isTestEnvironment = ["test", "ci", "testing"].includes(
       (process.env.ENVIRONMENT || process.env.NODE_ENV || "").toLowerCase(),
@@ -254,7 +262,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         this.handleDeviceStatus(parts, payload);
       }
     } catch (error) {
-      this.logger.error(`Error processing message from ${topic}:`, error);
+      this.logger.error("Error processing message", { topic: this.sanitizeForLog(topic) }, error);
     }
   }
 
@@ -365,10 +373,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
 
     const message =
       status === "ON"
-        ? `تم تشغيل مضخة الحقل ${fieldId} ${options?.duration ? `لمدة ${options.duration} دقيقة` : ""}`
-        : `تم إيقاف مضخة الحقل ${fieldId}`;
+        ? `تم تشغيل مضخة الحقل ${this.sanitizeForLog(fieldId)} ${options?.duration ? `لمدة ${options.duration} دقيقة` : ""}`
+        : `تم إيقاف مضخة الحقل ${this.sanitizeForLog(fieldId)}`;
 
-    this.logger.log(`💧 ${message}`);
+    this.logger.log("💧 Pump control", { fieldId: this.sanitizeForLog(fieldId), status, message });
 
     return {
       success: true,

@@ -50,6 +50,14 @@ export class ExampleFarmService {
   private farms: Map<string, Farm> = new Map();
 
   /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
+  /**
    * Example 1: Not Found Exception
    * مثال 1: استثناء عدم العثور
    */
@@ -370,6 +378,6 @@ export class ExampleFarmService {
 
     // Archive the farm
     this.farms.delete(id);
-    this.logger.log(`Farm ${id} archived successfully`);
+    this.logger.log("Farm archived successfully", { farmId: this.sanitizeForLog(id) });
   }
 }

@@ -184,8 +184,8 @@ async function fetchWeatherAlerts(
     const data = await response.json();
     const alerts = data.alerts || [];
 
-    return alerts.map((alert: ApiWeatherAlert) => ({
-      id: alert.id || String(Math.random()),
+    return alerts.map((alert: ApiWeatherAlert, index: number) => ({
+      id: alert.id || crypto.randomUUID(),
       type: alert.type || alert.alert_type || "weather",
       severity: alert.severity || "warning",
       title: alert.title_en || alert.title || "Weather Alert",

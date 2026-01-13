@@ -12,6 +12,19 @@ export class EventsService {
   private readonly logger = new Logger(EventsService.name);
 
   /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") {
+      return String(input);
+    }
+    return input
+      .replace(/[\r\n]/g, "")
+      .replace(/[\x00-\x1F\x7F]/g, "")
+      .slice(0, 100);
+  }
+
+  /**
    * Connect to NATS (no-op stub)
    */
   async connect(): Promise<void> {
@@ -39,7 +52,9 @@ export class EventsService {
     totalAmount: number;
     currency: string;
   }): Promise<void> {
-    this.logger.debug(`[Stub] Order placed: ${orderData.orderId}`);
+    this.logger.debug("[Stub] Order placed", {
+      orderId: this.sanitizeForLog(orderData.orderId),
+    });
   }
 
   /**
@@ -52,7 +67,9 @@ export class EventsService {
     totalAmount: number;
     currency: string;
   }): Promise<void> {
-    this.logger.debug(`[Stub] Order completed: ${orderData.orderId}`);
+    this.logger.debug("[Stub] Order completed", {
+      orderId: this.sanitizeForLog(orderData.orderId),
+    });
   }
 
   /**
@@ -64,7 +81,9 @@ export class EventsService {
     cancelledAt: Date;
     reason?: string;
   }): Promise<void> {
-    this.logger.debug(`[Stub] Order cancelled: ${orderData.orderId}`);
+    this.logger.debug("[Stub] Order cancelled", {
+      orderId: this.sanitizeForLog(orderData.orderId),
+    });
   }
 
   /**
@@ -77,6 +96,8 @@ export class EventsService {
     threshold: number;
     unit: string;
   }): Promise<void> {
-    this.logger.debug(`[Stub] Low stock: ${inventoryData.productId}`);
+    this.logger.debug("[Stub] Low stock", {
+      productId: this.sanitizeForLog(inventoryData.productId),
+    });
   }
 }

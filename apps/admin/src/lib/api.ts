@@ -190,10 +190,10 @@ export async function fetchDiagnoses(params?: {
     );
 
     // Map backend response to our frontend model
-    return response.data.map((d: Record<string, unknown>) => ({
+    return response.data.map((d: Record<string, unknown>, index: number) => ({
       id: d.id as string,
       farmId:
-        (d.field_id as string) || `farm-${Math.floor(Math.random() * 25) + 1}`,
+        (d.field_id as string) || `farm-${crypto.randomUUID().slice(0, 8)}`,
       farmName: d.governorate ? `مزرعة في ${d.governorate}` : "مزرعة",
       imageUrl: (d.image_url as string) || "/api/placeholder/400/300",
       thumbnailUrl:

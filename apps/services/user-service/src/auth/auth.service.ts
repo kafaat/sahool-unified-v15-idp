@@ -66,6 +66,22 @@ export class AuthService {
   ) {}
 
   /**
+   * Sanitize user input for safe logging (prevents log injection)
+   * @param input - User-provided value to sanitize
+   * @returns Sanitized string safe for logging
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") {
+      return String(input);
+    }
+    // Remove newlines, carriage returns, and control characters to prevent log injection
+    return input
+      .replace(/[\r\n]/g, "")
+      .replace(/[\x00-\x1F\x7F]/g, "")
+      .slice(0, 100); // Limit length
+  }
+
+  /**
    * User login
    * تسجيل دخول المستخدم
    */
@@ -78,21 +94,28 @@ export class AuthService {
     });
 
     if (!user) {
-      this.logger.warn(`Login attempt failed: User not found (${email})`);
+      this.logger.warn(
+        `Login attempt failed: User not found`,
+        { email: this.sanitizeForLog(email) },
+      );
       throw new UnauthorizedException("Invalid email or password");
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      this.logger.warn(`Login attempt failed: Invalid password (${email})`);
+      this.logger.warn(
+        `Login attempt failed: Invalid password`,
+        { email: this.sanitizeForLog(email) },
+      );
       throw new UnauthorizedException("Invalid email or password");
     }
 
     // Check user status
     if (user.status !== UserStatus.ACTIVE) {
       this.logger.warn(
-        `Login attempt failed: User status is ${user.status} (${email})`,
+        `Login attempt failed: User status is ${user.status}`,
+        { email: this.sanitizeForLog(email) },
       );
       throw new UnauthorizedException(
         `Account is ${user.status.toLowerCase()}. Please contact support.`,
@@ -101,7 +124,10 @@ export class AuthService {
 
     // Check if email is verified (optional based on your requirements)
     if (!user.emailVerified) {
-      this.logger.warn(`Login attempt: Email not verified (${email})`);
+      this.logger.warn(
+        `Login attempt: Email not verified`,
+        { email: this.sanitizeForLog(email) },
+      );
       // You can either throw an error or allow login
       // throw new UnauthorizedException('Email not verified');
     }
@@ -115,7 +141,10 @@ export class AuthService {
       data: { lastLoginAt: new Date() },
     });
 
-    this.logger.log(`User logged in successfully: ${user.id} (${email})`);
+    this.logger.log(`User logged in successfully`, {
+      userId: user.id,
+      email: this.sanitizeForLog(email),
+    });
 
     return {
       ...tokens,

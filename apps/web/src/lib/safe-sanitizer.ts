@@ -129,6 +129,43 @@ function removeDangerousPatterns(input: string): string {
 }
 
 /**
+ * Remove dangerous tag content entirely (script, style, etc.)
+ * This removes both the tag and its contents
+ */
+function removeDangerousTagContent(input: string): string {
+  let result = input;
+  let previous = "";
+  let iterations = 0;
+
+  // Dangerous tags whose content should be completely removed
+  const DANGEROUS_TAGS = [
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi,
+    /<noscript\b[^<]*(?:(?!<\/noscript>)<[^<]*)*<\/noscript>/gi,
+    /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,
+    /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi,
+    /<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi,
+    /<applet\b[^<]*(?:(?!<\/applet>)<[^<]*)*<\/applet>/gi,
+  ];
+
+  while (result !== previous && iterations < MAX_ITERATIONS) {
+    previous = result;
+
+    for (const pattern of DANGEROUS_TAGS) {
+      const freshPattern = new RegExp(pattern.source, pattern.flags);
+      result = result.replace(freshPattern, "");
+    }
+
+    // Also handle self-closing script tags
+    result = result.replace(/<script[^>]*\/>/gi, "");
+
+    iterations++;
+  }
+
+  return result;
+}
+
+/**
  * Server-safe sanitizer using iterative regex
  * Implements defense-in-depth with multiple passes
  */
@@ -137,10 +174,22 @@ function regexSanitize(input: string, options?: SanitizeOptions): string {
 
   let result = input;
 
-  // Step 1: Initial dangerous pattern removal
+  // Step 1: Remove dangerous tag content FIRST (script, style, etc. with their contents)
+  result = removeDangerousTagContent(result);
+
+  // Step 2: Initial dangerous pattern removal
   result = removeDangerousPatterns(result);
 
-  // Step 2: Remove HTML tags iteratively
+  // Step 3: Decode HTML entities for checking
+  const decodedForCheck = decodeHtmlEntities(result);
+
+  // Step 4: Remove dangerous patterns from decoded content
+  result = removeDangerousPatterns(decodedForCheck);
+
+  // Step 5: Remove dangerous tag content again (after decoding might create new tags)
+  result = removeDangerousTagContent(result);
+
+  // Step 6: Remove HTML tags iteratively
   if (!options?.ALLOWED_TAGS || options.ALLOWED_TAGS.length === 0) {
     result = iterativeReplace(result, HTML_TAGS, "");
   } else {
@@ -153,18 +202,7 @@ function regexSanitize(input: string, options?: SanitizeOptions): string {
     result = iterativeReplace(result, disallowedTagRegex, "");
   }
 
-  // Step 3: Decode HTML entities (with proper ordering)
-  result = decodeHtmlEntities(result);
-
-  // Step 4: Remove dangerous patterns again (after decoding)
-  result = removeDangerousPatterns(result);
-
-  // Step 5: Final HTML tag removal (after entity decoding)
-  if (!options?.ALLOWED_TAGS || options.ALLOWED_TAGS.length === 0) {
-    result = iterativeReplace(result, HTML_TAGS, "");
-  }
-
-  // Step 6: Final cleanup pass
+  // Step 7: Final cleanup pass
   result = removeDangerousPatterns(result);
 
   return result.trim();

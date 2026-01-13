@@ -45,8 +45,6 @@ from .nutrient_deficiency import (
     get_nutrient_status_summary,
 )
 from .pest_assessment import (
-    PestRisk,
-    PestType,
     RiskLevel,
     assess_pest_risks,
     get_pest_summary,
@@ -54,12 +52,6 @@ from .pest_assessment import (
 )
 from .yield_prediction import (
     CropType as YieldCropType,
-)
-from .yield_prediction import (
-    YieldConfidence,
-    YieldPrediction,
-    YieldTrend,
-    compare_yield_potential,
     get_crop_parameters,
     predict_yield,
 )

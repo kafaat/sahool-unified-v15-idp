@@ -217,10 +217,12 @@ class RedisTokenRevocationStore:
             await self._redis.setex(key, expires_in, json.dumps(value.to_dict()))
 
             logger.info(
-                "Token revoked: jti=%s, reason=%s, ttl=%ss",
-                _sanitize_log_value(jti[:8] if len(jti) > 8 else jti) + "...",
-                _sanitize_log_value(reason),
-                expires_in,
+                "Token revoked",
+                extra={
+                    "jti_prefix": _sanitize_log_value(jti[:8] if len(jti) > 8 else jti),
+                    "reason": _sanitize_log_value(reason),
+                    "ttl_seconds": expires_in,
+                },
             )
 
             return True
@@ -282,9 +284,11 @@ class RedisTokenRevocationStore:
             await self._redis.setex(key, 2592000, json.dumps(value.to_dict()))
 
             logger.info(
-                "All user tokens revoked: user_id=%s, reason=%s",
-                _sanitize_log_value(user_id),
-                _sanitize_log_value(reason),
+                "All user tokens revoked",
+                extra={
+                    "user_id_prefix": _sanitize_log_value(user_id[:8] if len(user_id) > 8 else user_id),
+                    "reason": _sanitize_log_value(reason),
+                },
             )
 
             return True
@@ -355,9 +359,11 @@ class RedisTokenRevocationStore:
             await self._redis.setex(key, 2592000, json.dumps(value.to_dict()))
 
             logger.info(
-                "All tenant tokens revoked: tenant_id=%s, reason=%s",
-                _sanitize_log_value(tenant_id),
-                _sanitize_log_value(reason),
+                "All tenant tokens revoked",
+                extra={
+                    "tenant_id_prefix": _sanitize_log_value(tenant_id[:8] if len(tenant_id) > 8 else tenant_id),
+                    "reason": _sanitize_log_value(reason),
+                },
             )
 
             return True
@@ -428,9 +434,11 @@ class RedisTokenRevocationStore:
             await self._redis.setex(key, 2592000, json.dumps(value.to_dict()))
 
             logger.info(
-                "Token family revoked: family_id=%s, reason=%s",
-                _sanitize_log_value(family_id),
-                _sanitize_log_value(reason),
+                "Token family revoked",
+                extra={
+                    "family_id_prefix": _sanitize_log_value(family_id[:8] if len(family_id) > 8 else family_id),
+                    "reason": _sanitize_log_value(reason),
+                },
             )
 
             return True

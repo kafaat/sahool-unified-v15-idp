@@ -81,16 +81,38 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private readonly DEVICE_STATUS_TTL = 600; // 10 minutes
   private readonly ACTUATOR_STATE_TTL = 3600; // 1 hour
 
-  private readonly redis: Redis;
+  private redis: Redis | null = null;
+  private redisConnected = false;
+  private readonly isTestEnvironment: boolean;
 
   constructor() {
-    this.redis = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379', 10),
-      password: process.env.REDIS_PASSWORD || undefined,
-      db: parseInt(process.env.REDIS_DB || '0', 10),
-      lazyConnect: true,
-    });
+    this.isTestEnvironment = ['test', 'ci', 'testing'].includes(
+      (process.env.ENVIRONMENT || process.env.NODE_ENV || '').toLowerCase(),
+    );
+
+    // Only create Redis client if not in test environment or if REDIS_HOST is explicitly set
+    if (!this.isTestEnvironment || process.env.REDIS_HOST) {
+      this.redis = new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+        password: process.env.REDIS_PASSWORD || undefined,
+        db: parseInt(process.env.REDIS_DB || '0', 10),
+        lazyConnect: true,
+        retryStrategy: (times) => {
+          if (this.isTestEnvironment && times > 1) {
+            // In test/CI, don't retry more than once
+            return null;
+          }
+          return Math.min(times * 100, 3000);
+        },
+      });
+
+      // Handle Redis errors gracefully
+      this.redis.on('error', (err) => {
+        this.logger.warn(`Redis connection error: ${err.message}`);
+        this.redisConnected = false;
+      });
+    }
   }
 
   // ==========================================================================
@@ -98,9 +120,35 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   // ==========================================================================
 
   async onModuleInit() {
-    await this.redis.connect();
-    this.logger.log('Connected to Redis');
-    await this.connectToMqtt();
+    // Try to connect to Redis
+    if (this.redis) {
+      try {
+        await this.redis.connect();
+        this.redisConnected = true;
+        this.logger.log('Connected to Redis');
+      } catch (error) {
+        this.logger.warn(`Failed to connect to Redis: ${error.message}`);
+        if (this.isTestEnvironment) {
+          this.logger.warn('Running in test environment - continuing without Redis');
+          this.redisConnected = false;
+        } else {
+          throw error;
+        }
+      }
+    } else {
+      this.logger.warn('Redis client not initialized - running in degraded mode');
+    }
+
+    // Try to connect to MQTT (non-blocking in test environment)
+    try {
+      await this.connectToMqtt();
+    } catch (error) {
+      if (this.isTestEnvironment) {
+        this.logger.warn(`MQTT connection failed in test environment: ${error.message}`);
+      } else {
+        throw error;
+      }
+    }
   }
 
   async onModuleDestroy() {
@@ -108,8 +156,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       this.client.end();
       this.logger.log('Disconnected from MQTT broker');
     }
-    await this.redis.quit();
-    this.logger.log('Disconnected from Redis');
+    if (this.redis && this.redisConnected) {
+      await this.redis.quit();
+      this.logger.log('Disconnected from Redis');
+    }
   }
 
   // ==========================================================================
@@ -365,6 +415,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Get latest sensor readings for a field
    */
   async getFieldSensorData(fieldId: string): Promise<SensorReading[]> {
+    if (!this.redis || !this.redisConnected) return [];
     const readings: SensorReading[] = [];
     const pattern = `sensor:${fieldId}:*`;
 
@@ -401,6 +452,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     sensorType: SensorType,
   ): Promise<SensorReading | null> {
+    if (!this.redis || !this.redisConnected) return null;
     const key = `sensor:${fieldId}:${sensorType}`;
 
     try {
@@ -417,6 +469,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   async getFieldActuatorStates(fieldId: string): Promise<Record<string, boolean>> {
     const states: Record<string, boolean> = {};
+    if (!this.redis || !this.redisConnected) return states;
     const pattern = `actuator:${fieldId}:*`;
 
     try {
@@ -450,6 +503,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Get all connected devices
    */
   async getConnectedDevices(): Promise<DeviceStatus[]> {
+    if (!this.redis || !this.redisConnected) return [];
     const devices: DeviceStatus[] = [];
     const pattern = 'device:*';
 
@@ -509,6 +563,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Cache sensor reading in Redis
    */
   private async cacheSensorReading(key: string, reading: SensorReading): Promise<void> {
+    if (!this.redis || !this.redisConnected) return;
     try {
       await this.redis.setex(key, this.SENSOR_READING_TTL, JSON.stringify(reading));
     } catch (error) {
@@ -520,6 +575,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Cache device status in Redis
    */
   private async cacheDeviceStatus(status: DeviceStatus): Promise<void> {
+    if (!this.redis || !this.redisConnected) return;
     try {
       const key = `device:${status.deviceId}`;
       await this.redis.setex(key, this.DEVICE_STATUS_TTL, JSON.stringify(status));
@@ -532,6 +588,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Cache actuator state in Redis
    */
   private async cacheActuatorState(key: string, isOn: boolean): Promise<void> {
+    if (!this.redis || !this.redisConnected) return;
     try {
       await this.redis.setex(key, this.ACTUATOR_STATE_TTL, isOn.toString());
     } catch (error) {

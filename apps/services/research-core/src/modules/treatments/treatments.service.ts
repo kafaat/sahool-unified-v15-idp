@@ -9,8 +9,16 @@ export class TreatmentsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
   async create(dto: CreateTreatmentDto) {
-    this.logger.log(`Creating treatment: ${dto.name}`);
+    this.logger.log("Creating treatment", { name: this.sanitizeForLog(dto.name) });
 
     const { parameters, ...restDto } = dto;
 

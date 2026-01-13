@@ -9,8 +9,16 @@ export class ProtocolsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
   async create(dto: CreateProtocolDto) {
-    this.logger.log(`Creating protocol: ${dto.name}`);
+    this.logger.log("Creating protocol", { name: this.sanitizeForLog(dto.name) });
 
     const { variables, measurementSchedule, ...restDto } = dto;
 

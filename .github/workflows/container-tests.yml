@@ -338,6 +338,7 @@ jobs:
             -e DATABASE_URL="" \
             -e NATS_URL="" \
             -e REDIS_URL="" \
+            -e ALLOW_DEV_DEFAULTS=true \
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }})
 
           echo "container_id=$CONTAINER_ID" >> $GITHUB_OUTPUT

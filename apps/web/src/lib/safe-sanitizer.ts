@@ -23,9 +23,9 @@ const MAX_ITERATIONS = 10;
 const DANGEROUS_PROTOCOLS = /javascript\s*:|vbscript\s*:|data\s*:/gi;
 // More comprehensive event handler patterns to prevent bypass
 const EVENT_HANDLER_PATTERNS = [
-  /\bon\w+\s*=/gi,                    // Standard: onclick=
-  /\bon\s+\w+\s*=/gi,                 // With space: on click=
-  /\bon[\s\S]*?=/gi,                  // With any chars: on/**/click=
+  /\bon\w+\s*=/gi, // Standard: onclick=
+  /\bon\s+\w+\s*=/gi, // With space: on click=
+  /\bon[\s\S]*?=/gi, // With any chars: on/**/click=
   /\b(?:on(?:abort|blur|change|click|dblclick|error|focus|input|keydown|keypress|keyup|load|mousedown|mouseenter|mouseleave|mousemove|mouseout|mouseover|mouseup|reset|resize|scroll|select|submit|unload|wheel|copy|cut|paste|drag|dragend|dragenter|dragleave|dragover|dragstart|drop))\s*=/gi,
 ];
 const HTML_TAGS = /<[^>]*>/g;

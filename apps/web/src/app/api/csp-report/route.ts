@@ -124,7 +124,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({ status: "reported" }, { status: 204 });
+    // Return 204 No Content (cannot have body)
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     // Critical error - always log
     logger.critical("[CSP Report Handler Error]", error);

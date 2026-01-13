@@ -22,6 +22,7 @@ services:
     image: jaegertracing/all-in-one:1.53
     container_name: sahool-telemetry-jaeger
     restart: unless-stopped
+    user: root
     ports:
       # Jaeger UI - واجهة Jaeger
       - "16686:16686"

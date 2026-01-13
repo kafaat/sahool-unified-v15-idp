@@ -162,10 +162,10 @@ function removeDangerousTagContent(input: string): string {
       result = result.replace(freshPattern, "");
     }
 
-    // Handle self-closing and unclosed dangerous tags using iterative-safe patterns
-    // Pattern removes <script... until next < or end, works with iterative loop
-    result = result.replace(/<\s*script\b[^<]*/gi, "");
-    result = result.replace(/<\s*\/\s*script\b[^<]*/gi, "");
+    // Handle self-closing and unclosed dangerous tags
+    // Use [^>]*>? to limit to tag boundaries and prevent pattern reformation
+    result = result.replace(/<\s*script\b[^>]*>?/gi, "");
+    result = result.replace(/<\s*\/\s*script\b[^>]*>?/gi, "");
 
     iterations++;
   }

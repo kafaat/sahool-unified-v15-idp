@@ -907,6 +907,38 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8108'
       prometheus.io/path: /metrics
+  skills-service:
+    enabled: true
+    name: skills-service
+    image:
+      repository: ghcr.io/kafaat/sahool-skills-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8170
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 512Mi
+      limits:
+        cpu: 400000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8170'
+    serviceAccount:
+      create: true
+      name: sahool-skills-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8170'
+      prometheus.io/path: /metrics
   advisory-service:
     enabled: true
     name: advisory-service
@@ -1109,6 +1141,10 @@ ingress:
       pathType: Prefix
       service: weather-service
       port: 8108
+    - path: /api/v1/skills/service
+      pathType: Prefix
+      service: skills-service
+      port: 8170
     - path: /api/v1/advisory/service
       pathType: Prefix
       service: advisory-service

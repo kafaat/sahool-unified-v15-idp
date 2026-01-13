@@ -1195,6 +1195,46 @@ services:
     - sahool.category=integration
     - traefik.enable=true
     - traefik.http.routers.weather-service.rule=PathPrefix(`/api/v1/weather/service`)
+  skills-service:
+    build:
+      context: ./apps/services/skills-service
+      dockerfile: Dockerfile
+    container_name: sahool-skills-service
+    ports:
+    - 8170:8170
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8170
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - DB_NAME=sahool_skills
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8170/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=skills-service
+    - sahool.port=8170
+    - sahool.category=crop
+    - traefik.enable=true
+    - traefik.http.routers.skills-service.rule=PathPrefix(`/api/v1/skills/service`)
   advisory-service:
     build:
       context: ./apps/services/advisory-service

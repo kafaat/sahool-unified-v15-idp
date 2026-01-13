@@ -355,7 +355,11 @@ export class LAIService {
     );
     const interval = dataSource === DataSource.PLANETSCOPE ? 1 : 5; // Daily for PlanetScope
 
-    for (let i = 0; i <= daysDiff; i += interval) {
+    // Security: Limit maximum iterations to prevent DoS from large date ranges
+    const MAX_ITERATIONS = 365; // Maximum 1 year of data
+    const maxDays = Math.min(daysDiff, MAX_ITERATIONS * interval);
+
+    for (let i = 0; i <= maxDays; i += interval) {
       const date = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
       const dateStr = date.toISOString().split("T")[0];
 

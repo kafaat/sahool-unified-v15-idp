@@ -112,6 +112,7 @@ export function IsStrongPassword(
 
 /**
  * Simple HTML sanitization without external dependencies
+ * Security: Decodes entities BEFORE stripping tags to prevent bypass attacks
  */
 function sanitizePlainTextValue(input: string): string {
   if (typeof input !== "string") {
@@ -130,10 +131,8 @@ function sanitizePlainTextValue(input: string): string {
     "",
   );
 
-  // Strip HTML tags
-  sanitized = sanitized.replace(/<[^>]*>/g, "");
-
-  // Decode common HTML entities
+  // Security: Decode HTML entities FIRST, then strip tags
+  // This prevents bypass attacks like &lt;script&gt; -> <script>
   sanitized = sanitized
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -141,6 +140,18 @@ function sanitizePlainTextValue(input: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, " ");
+
+  // Strip HTML tags AFTER decoding entities
+  sanitized = sanitized.replace(/<[^>]*>/g, "");
+
+  // Second pass: decode any remaining entities that might have been nested
+  sanitized = sanitized
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+
+  // Final pass: strip any tags that appeared after second decode
+  sanitized = sanitized.replace(/<[^>]*>/g, "");
 
   // Normalize whitespace
   sanitized = sanitized.replace(/\s+/g, " ");

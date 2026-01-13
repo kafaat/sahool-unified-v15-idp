@@ -1023,6 +1023,17 @@ export class DigitalTwinCoreService {
   // Kalman Filter for state updates
   // ─────────────────────────────────────────────────────────────────────────────
 
+  // Security: Whitelist of allowed property names for data assimilation
+  private readonly ALLOWED_ASSIMILATION_PARAMS = new Set([
+    "lai",
+    "dvs",
+    "healthScore",
+    "predictedYield",
+    "biomass",
+    "soilState",
+    "waterBalance",
+  ]);
+
   /**
    * Perform Kalman filter data assimilation
    * Ensures synchronization between digital twin and real field
@@ -1042,6 +1053,11 @@ export class DigitalTwinCoreService {
     const kalmanGain: Record<string, number> = {};
 
     for (const obs of params.observations) {
+      // Security: Validate parameter name against whitelist to prevent property injection
+      if (!this.ALLOWED_ASSIMILATION_PARAMS.has(obs.parameter)) {
+        continue; // Skip invalid/unallowed parameters
+      }
+
       // Simplified Kalman update
       const priorStateRecord = params.priorState as Record<string, any>;
       const priorValue = priorStateRecord[obs.parameter] || obs.value;

@@ -56,7 +56,7 @@ const protectedRoutes = [
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
-  localePrefix: "as-needed", // Don't prefix default locale (ar)
+  localePrefix: "never", // Don't use locale prefixes in URL
 });
 
 export async function middleware(request: NextRequest) {

@@ -3,35 +3,39 @@
  * مكون تبديل اللغة
  *
  * Allows users to switch between Arabic and English
+ * Uses cookie-based locale storage (NEXT_LOCALE) since localePrefix is "never"
  */
 
 "use client";
 
 import React, { useTransition } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { Globe } from "lucide-react";
 import { clsx } from "clsx";
 import { locales, getLocaleDisplayName } from "@sahool/i18n";
 
+/**
+ * Set the locale cookie and refresh the page
+ * Since localePrefix is "never", we use cookies to store the locale
+ */
+function setLocaleCookie(locale: string): void {
+  // Set NEXT_LOCALE cookie - this is what next-intl reads
+  document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+}
+
 export function LocaleSwitcher() {
   const router = useRouter();
-  const pathname = usePathname();
   const currentLocale = useLocale();
   const [isPending, startTransition] = useTransition();
 
   const handleLocaleChange = (newLocale: string) => {
     startTransition(() => {
-      // Remove the current locale from pathname if it exists
-      const pathnameWithoutLocale = pathname.replace(/^\/(ar|en)/, "") || "/";
+      // Set the locale cookie
+      setLocaleCookie(newLocale);
 
-      // Add new locale prefix only if not the default locale
-      const newPath =
-        newLocale === "ar"
-          ? pathnameWithoutLocale
-          : `/${newLocale}${pathnameWithoutLocale}`;
-
-      router.replace(newPath);
+      // Refresh the page to apply the new locale
+      router.refresh();
     });
   };
 

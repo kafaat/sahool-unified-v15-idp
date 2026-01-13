@@ -209,14 +209,9 @@ processors:
 # Send telemetry data to backends
 exporters:
   # OTLP exporter to Jaeger - مُصدِّر OTLP إلى Jaeger
+  # Note: Native jaeger exporter is deprecated, use OTLP instead
   otlp/jaeger:
     endpoint: jaeger:4317
-    tls:
-      insecure: true
-
-  # Jaeger exporter - مُصدِّر Jaeger
-  jaeger:
-    endpoint: jaeger:14250
     tls:
       insecure: true
 
@@ -280,7 +275,6 @@ service:
         - batch
       exporters:
         - otlp/jaeger
-        - jaeger
         - logging
 
     # Metrics pipeline - خط معالجة المقاييس

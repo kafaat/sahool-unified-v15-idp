@@ -14,8 +14,16 @@ export class SamplesService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
   async create(dto: CreateSampleDto) {
-    this.logger.log(`Creating sample: ${dto.sampleCode}`);
+    this.logger.log("Creating sample", { sampleCode: this.sanitizeForLog(dto.sampleCode) });
 
     // Check if sample code already exists
     const existing = await this.prisma.labSample.findUnique({

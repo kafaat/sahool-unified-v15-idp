@@ -44,6 +44,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   >(); // userId -> {socketId, timestamp}
   private readonly SOCKET_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
   constructor(private readonly chatService: ChatService) {
     // Periodically clean up stale socket entries
     setInterval(() => this.cleanupStaleEntries(), 5 * 60 * 1000); // Every 5 minutes
@@ -56,7 +64,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const now = Date.now();
     for (const [userId, data] of this.userSocketMap.entries()) {
       if (now - data.timestamp > this.SOCKET_TIMEOUT) {
-        this.logger.log(`Removing stale socket entry for user ${userId}`);
+        this.logger.log("Removing stale socket entry", { userId: this.sanitizeForLog(userId) });
         this.userSocketMap.delete(userId);
       }
     }
@@ -110,7 +118,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       // Verify algorithm is in whitelist
       if (!ALLOWED_ALGORITHMS.includes(header.alg as jwt.Algorithm)) {
-        this.logger.warn(`Invalid token: unsupported algorithm ${header.alg}`);
+        this.logger.warn("Invalid token: unsupported algorithm", { algorithm: this.sanitizeForLog(header.alg) });
         return null;
       }
 
@@ -138,13 +146,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * Handle client connection
    */
   async handleConnection(client: Socket) {
-    this.logger.log(`Client attempting connection: ${client.id}`);
+    this.logger.log("Client attempting connection", { clientId: this.sanitizeForLog(client.id) });
 
     // Verify authentication
     const userId = this.verifyAuthentication(client);
 
     if (!userId) {
-      this.logger.warn(`Unauthenticated connection attempt from ${client.id}`);
+      this.logger.warn("Unauthenticated connection attempt", { clientId: this.sanitizeForLog(client.id) });
       client.emit("error", { message: "Authentication required" });
       client.disconnect();
       return;
@@ -166,9 +174,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Notify other users that this user is online
       this.server.emit("user_online", { userId, timestamp: new Date() });
 
-      this.logger.log(
-        `User ${userId} authenticated and connected with socket ${client.id}`,
-      );
+      this.logger.log("User authenticated and connected", {
+        userId: this.sanitizeForLog(userId),
+        socketId: this.sanitizeForLog(client.id),
+      });
     } catch (error) {
       this.logger.error("Failed to update user online status");
       // Don't expose internal error to client
@@ -181,7 +190,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * Handle client disconnection
    */
   async handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
+    this.logger.log("Client disconnected", { clientId: this.sanitizeForLog(client.id) });
 
     // Get userId from client data (set during authentication)
     const disconnectedUserId = client.data.userId;
@@ -200,7 +209,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           timestamp: new Date(),
         });
 
-        this.logger.log(`User ${disconnectedUserId} disconnected`);
+        this.logger.log("User disconnected", { userId: this.sanitizeForLog(disconnectedUserId) });
       } catch (error) {
         this.logger.error("Failed to update user offline status");
         // Don't expose error details
@@ -244,7 +253,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Join the conversation room
       client.join(conversationId);
 
-      this.logger.log(`User ${userId} joined conversation ${conversationId}`);
+      this.logger.log("User joined conversation", {
+        userId: this.sanitizeForLog(userId),
+        conversationId: this.sanitizeForLog(conversationId),
+      });
 
       return {
         event: "joined_conversation",
@@ -300,9 +312,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         timestamp: new Date(),
       });
 
-      this.logger.log(
-        `Message sent in conversation ${data.conversationId} by ${authenticatedUserId}`,
-      );
+      this.logger.log("Message sent in conversation", {
+        conversationId: this.sanitizeForLog(data.conversationId),
+        userId: this.sanitizeForLog(authenticatedUserId),
+      });
 
       return {
         event: "message_sent",
@@ -481,7 +494,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     client.leave(conversationId);
 
-    this.logger.log(`User ${userId} left conversation ${conversationId}`);
+    this.logger.log("User left conversation", {
+      userId: this.sanitizeForLog(userId),
+      conversationId: this.sanitizeForLog(conversationId),
+    });
 
     return {
       event: "left_conversation",

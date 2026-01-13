@@ -9,6 +9,7 @@ SAHOOL is a **National Agricultural Intelligence Platform** - an offline-first a
 **License**: Proprietary
 
 ### Key Differentiators
+
 - **Offline-First Architecture**: Full functionality without internet connectivity
 - **Geospatial Intelligence**: PostGIS-powered vector field rendering
 - **AI-Driven Advisory**: Crop disease detection and fertilizer recommendations
@@ -93,46 +94,46 @@ sahool-unified-v15-idp/
 
 ### Backend Services
 
-| Layer | Technology |
-|-------|------------|
-| **Python Services** | FastAPI 0.126.0, Tortoise ORM 0.21.7, asyncpg 0.30.0, Pydantic v2.10+ |
-| **Node.js Services** | NestJS, Prisma ORM, TypeScript 5.7.x |
-| **Database** | PostgreSQL 16+ with PostGIS 3.4 (geospatial) |
-| **Message Queue** | NATS 2.x (event-driven architecture) |
-| **API Gateway** | Kong (authentication, rate limiting) |
-| **Caching** | Redis 7.x (sessions, rate limiting) |
-| **Connection Pooling** | PgBouncer (transaction mode, 250 max connections) |
+| Layer                  | Technology                                                            |
+| ---------------------- | --------------------------------------------------------------------- |
+| **Python Services**    | FastAPI 0.126.0, Tortoise ORM 0.21.7, asyncpg 0.30.0, Pydantic v2.10+ |
+| **Node.js Services**   | NestJS, Prisma ORM, TypeScript 5.7.x                                  |
+| **Database**           | PostgreSQL 16+ with PostGIS 3.4 (geospatial)                          |
+| **Message Queue**      | NATS 2.x (event-driven architecture)                                  |
+| **API Gateway**        | Kong (authentication, rate limiting)                                  |
+| **Caching**            | Redis 7.x (sessions, rate limiting)                                   |
+| **Connection Pooling** | PgBouncer (transaction mode, 250 max connections)                     |
 
 ### Mobile Application
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | Flutter 3.27.x (Dart >=3.2.0) |
-| **State Management** | Riverpod 2.6.x |
-| **Local Database** | Drift 2.24+ with SQLCipher (encrypted) |
-| **Background Tasks** | Workmanager |
-| **Maps** | MapLibre GL, flutter_map |
-| **Network** | Dio 5.x with certificate pinning |
+| Layer                | Technology                             |
+| -------------------- | -------------------------------------- |
+| **Framework**        | Flutter 3.27.x (Dart >=3.2.0)          |
+| **State Management** | Riverpod 2.6.x                         |
+| **Local Database**   | Drift 2.24+ with SQLCipher (encrypted) |
+| **Background Tasks** | Workmanager                            |
+| **Maps**             | MapLibre GL, flutter_map               |
+| **Network**          | Dio 5.x with certificate pinning       |
 
 ### Frontend (Web/Admin)
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | Next.js / React with TypeScript |
-| **Testing** | Vitest 3.x, React Testing Library, Playwright |
-| **Build** | Vite / Next.js |
-| **Styling** | Tailwind CSS |
-| **Monitoring** | Sentry |
+| Layer          | Technology                                    |
+| -------------- | --------------------------------------------- |
+| **Framework**  | Next.js / React with TypeScript               |
+| **Testing**    | Vitest 3.x, React Testing Library, Playwright |
+| **Build**      | Vite / Next.js                                |
+| **Styling**    | Tailwind CSS                                  |
+| **Monitoring** | Sentry                                        |
 
 ### Infrastructure
 
-| Layer | Technology |
-|-------|------------|
-| **Container** | Docker, Kubernetes (K8s) |
-| **IaC** | Terraform, Helm Charts |
-| **CI/CD** | GitHub Actions (30+ workflows), Argo CD |
-| **Monitoring** | Prometheus, Grafana, OpenTelemetry |
-| **Secrets** | HashiCorp Vault |
+| Layer          | Technology                              |
+| -------------- | --------------------------------------- |
+| **Container**  | Docker, Kubernetes (K8s)                |
+| **IaC**        | Terraform, Helm Charts                  |
+| **CI/CD**      | GitHub Actions (30+ workflows), Argo CD |
+| **Monitoring** | Prometheus, Grafana, OpenTelemetry      |
+| **Secrets**    | HashiCorp Vault                         |
 
 ---
 
@@ -140,12 +141,12 @@ sahool-unified-v15-idp/
 
 The platform uses a 4-layer event architecture via NATS:
 
-| Layer | Services | Purpose |
-|-------|----------|---------|
-| **Acquisition** | satellite-service, iot-service, weather-advanced, virtual-sensors | Data ingestion & normalization |
-| **Intelligence** | indicators-service, lai-estimation, crop-health-ai, disaster-assessment | Feature extraction & AI |
-| **Decision** | crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine | Recommendations & planning |
-| **Business** | notification-service, marketplace-service, billing-core, community-chat | User-facing operations |
+| Layer            | Services                                                                | Purpose                        |
+| ---------------- | ----------------------------------------------------------------------- | ------------------------------ |
+| **Acquisition**  | satellite-service, iot-service, weather-advanced, virtual-sensors       | Data ingestion & normalization |
+| **Intelligence** | indicators-service, lai-estimation, crop-health-ai, disaster-assessment | Feature extraction & AI        |
+| **Decision**     | crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine   | Recommendations & planning     |
+| **Business**     | notification-service, marketplace-service, billing-core, community-chat | User-facing operations         |
 
 Event subject pattern: `sahool.{tenant_id}.{event_type}`
 
@@ -441,21 +442,22 @@ NATS_URL=""
 
 ### Test Folders
 
-| Folder | Purpose |
-|--------|---------|
-| `tests/unit/` | Fast unit tests |
-| `tests/integration/` | API & database tests |
-| `tests/smoke/` | Import verification |
-| `tests/e2e/` | End-to-end tests |
-| `tests/load/` | Locust load tests |
-| `tests/evaluation/` | AI agent evaluation |
-| `tests/guardrails/` | Input validation tests |
+| Folder               | Purpose                |
+| -------------------- | ---------------------- |
+| `tests/unit/`        | Fast unit tests        |
+| `tests/integration/` | API & database tests   |
+| `tests/smoke/`       | Import verification    |
+| `tests/e2e/`         | End-to-end tests       |
+| `tests/load/`        | Locust load tests      |
+| `tests/evaluation/`  | AI agent evaluation    |
+| `tests/guardrails/`  | Input validation tests |
 
 ---
 
 ## Security Considerations
 
 ### DO NOT
+
 - Commit secrets or credentials (`.env`, API keys)
 - Use hardcoded passwords
 - Skip authentication checks
@@ -464,6 +466,7 @@ NATS_URL=""
 - Use `--no-verify` for git hooks
 
 ### DO
+
 - Use environment variables for secrets
 - Follow RBAC patterns
 - Validate all user input
@@ -502,12 +505,12 @@ GET /metrics         # Prometheus metrics
 
 ### Rate Limiting Tiers
 
-| Tier | Requests/min | Requests/hour |
-|------|--------------|---------------|
-| Free | 30 | 500 |
-| Standard | 60 | 2000 |
-| Premium | 120 | 5000 |
-| Internal | 1000 | 50000 |
+| Tier     | Requests/min | Requests/hour |
+| -------- | ------------ | ------------- |
+| Free     | 30           | 500           |
+| Standard | 60           | 2000          |
+| Premium  | 120          | 5000          |
+| Internal | 1000         | 50000         |
 
 ---
 
@@ -576,15 +579,15 @@ logger.info("event_name", field_id=field_id, action="create")
 
 ## Important Files Reference
 
-| File | Purpose |
-|------|---------|
-| `Makefile` | All development commands |
-| `docker-compose.yml` | Full service stack (39 services) |
-| `pyproject.toml` | Python project config, linting (Ruff) |
-| `package.json` | Node.js root workspace |
-| `.env.example` | Environment template |
-| `governance/services.yaml` | Service registry (source of truth) |
-| `governance/agents.yaml` | AI agent definitions |
+| File                       | Purpose                               |
+| -------------------------- | ------------------------------------- |
+| `Makefile`                 | All development commands              |
+| `docker-compose.yml`       | Full service stack (39 services)      |
+| `pyproject.toml`           | Python project config, linting (Ruff) |
+| `package.json`             | Node.js root workspace                |
+| `.env.example`             | Environment template                  |
+| `governance/services.yaml` | Service registry (source of truth)    |
+| `governance/agents.yaml`   | AI agent definitions                  |
 
 ---
 
@@ -603,6 +606,7 @@ claude/**      # AI-assisted branches
 ### Commit Convention
 
 Use conventional commits:
+
 ```
 feat: add field boundary mapping
 fix: resolve sync conflict in offline mode
@@ -621,6 +625,7 @@ chore: update dependencies
 5. **Deploy**: ArgoCD to staging/production
 
 GitHub Workflows (30+):
+
 - `ci.yml` - Main CI pipeline
 - `cd-staging.yml` - Staging deployment
 - `cd-production.yml` - Production deployment
@@ -646,18 +651,18 @@ Example: `field-ops` → `field-management-service`
 
 ## Key Services Overview
 
-| Service | Type | Port | Description |
-|---------|------|------|-------------|
-| field-ops | Python | 8080 | Field operations (deprecated) |
-| field-management-service | Node.js | 3000 | Field management |
-| weather-core | Python | 8108 | Weather data |
-| ndvi-engine | Python | 8107 | NDVI processing |
-| crop-growth-model | Node.js | 3023 | Crop modeling |
-| crop-health-ai | Python | - | Disease detection |
-| fertilizer-advisor | Python | - | Fertilizer recommendations |
-| yield-engine | Python | - | Yield predictions |
-| notification-service | Python | - | Push notifications |
-| marketplace-service | Node.js | - | Marketplace |
+| Service                  | Type    | Port | Description                   |
+| ------------------------ | ------- | ---- | ----------------------------- |
+| field-ops                | Python  | 8080 | Field operations (deprecated) |
+| field-management-service | Node.js | 3000 | Field management              |
+| weather-core             | Python  | 8108 | Weather data                  |
+| ndvi-engine              | Python  | 8107 | NDVI processing               |
+| crop-growth-model        | Node.js | 3023 | Crop modeling                 |
+| crop-health-ai           | Python  | -    | Disease detection             |
+| fertilizer-advisor       | Python  | -    | Fertilizer recommendations    |
+| yield-engine             | Python  | -    | Yield predictions             |
+| notification-service     | Python  | -    | Push notifications            |
+| marketplace-service      | Node.js | -    | Marketplace                   |
 
 ---
 
@@ -700,4 +705,4 @@ make status
 
 ---
 
-*Last Updated: January 2025*
+_Last Updated: January 2025_

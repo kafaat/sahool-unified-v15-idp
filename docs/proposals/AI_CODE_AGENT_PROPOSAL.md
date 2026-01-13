@@ -1,4 +1,5 @@
 # مقترح وكيل الذكاء الاصطناعي لإصلاح وتنفيذ الأكواد
+
 # AI Code Agent Proposal for SAHOOL Platform
 
 **التاريخ**: يناير 2026
@@ -35,13 +36,13 @@ apps/services/
 
 ### 2.2 أنواع الوكلاء المطبقة (base_agent.py)
 
-| النوع | الوصف | الاستخدام |
-|-------|-------|-----------|
+| النوع           | الوصف                       | الاستخدام      |
+| --------------- | --------------------------- | -------------- |
 | `SIMPLE_REFLEX` | إذا كان الشرط → نفذ الإجراء | ردود فعل سريعة |
-| `MODEL_BASED` | نموذج داخلي للبيئة | تتبع الحالة |
-| `GOAL_BASED` | قرارات بناءً على الأهداف | تخطيط |
-| `UTILITY_BASED` | اختيار أفضل النتائج | تحسين |
-| `LEARNING` | يتعلم من التجربة | تحسين مستمر |
+| `MODEL_BASED`   | نموذج داخلي للبيئة          | تتبع الحالة    |
+| `GOAL_BASED`    | قرارات بناءً على الأهداف    | تخطيط          |
+| `UTILITY_BASED` | اختيار أفضل النتائج         | تحسين          |
+| `LEARNING`      | يتعلم من التجربة            | تحسين مستمر    |
 
 ### 2.3 طبقات الوكلاء (Agent Layers)
 
@@ -65,12 +66,13 @@ apps/services/
 
 ✅ **بروتوكول A2A متكامل** - تعريفات موحدة في `governance/agents.yaml`
 ✅ **نظام تقييم شامل** - `tests/evaluation/evaluator.py` مع:
-  - تحليل التشابه الدلالي (Semantic Similarity)
-  - فحص السلامة (Safety Checker)
-  - تقييم زمن الاستجابة (Latency Evaluation)
-✅ **بروتوكول MCP** - تكامل مع Model Context Protocol
-✅ **نظام حل النزاعات** - في Master Coordinator
-✅ **دعم ثنائي اللغة** - عربي/إنجليزي
+
+- تحليل التشابه الدلالي (Semantic Similarity)
+- فحص السلامة (Safety Checker)
+- تقييم زمن الاستجابة (Latency Evaluation)
+  ✅ **بروتوكول MCP** - تكامل مع Model Context Protocol
+  ✅ **نظام حل النزاعات** - في Master Coordinator
+  ✅ **دعم ثنائي اللغة** - عربي/إنجليزي
 
 ### 2.5 الفجوات المحددة
 
@@ -644,39 +646,39 @@ class CodeFixEvaluator:
 
 ### المرحلة 1: الأساس (Phase 1: Foundation)
 
-| المهمة | الأولوية | المتطلبات |
-|--------|----------|-----------|
-| إنشاء هيكل خدمة code-fix-agent | عالية | Python, FastAPI |
-| تنفيذ CodeFixAgent base class | عالية | ai-agents-core |
-| تكامل مع AST analyzers | عالية | Python AST, typescript-parser |
-| Sandbox للتنفيذ الآمن | عالية | Docker, seccomp |
+| المهمة                         | الأولوية | المتطلبات                     |
+| ------------------------------ | -------- | ----------------------------- |
+| إنشاء هيكل خدمة code-fix-agent | عالية    | Python, FastAPI               |
+| تنفيذ CodeFixAgent base class  | عالية    | ai-agents-core                |
+| تكامل مع AST analyzers         | عالية    | Python AST, typescript-parser |
+| Sandbox للتنفيذ الآمن          | عالية    | Docker, seccomp               |
 
 ### المرحلة 2: التحليل (Phase 2: Analysis)
 
-| المهمة | الأولوية | المتطلبات |
-|--------|----------|-----------|
-| Python Analyzer | عالية | pylint, mypy, bandit |
-| TypeScript Analyzer | عالية | ESLint, TypeScript compiler |
-| Dart Analyzer | متوسطة | dart analyze |
-| Security Scanner | عالية | semgrep, CodeQL |
+| المهمة              | الأولوية | المتطلبات                   |
+| ------------------- | -------- | --------------------------- |
+| Python Analyzer     | عالية    | pylint, mypy, bandit        |
+| TypeScript Analyzer | عالية    | ESLint, TypeScript compiler |
+| Dart Analyzer       | متوسطة   | dart analyze                |
+| Security Scanner    | عالية    | semgrep, CodeQL             |
 
 ### المرحلة 3: الإصلاح (Phase 3: Fixing)
 
-| المهمة | الأولوية | المتطلبات |
-|--------|----------|-----------|
-| Bug Fixer | عالية | Pattern matching, LLM |
-| Security Fixer | عالية | OWASP guidelines |
-| Performance Optimizer | متوسطة | Profiling integration |
-| Test Generator | عالية | pytest, vitest templates |
+| المهمة                | الأولوية | المتطلبات                |
+| --------------------- | -------- | ------------------------ |
+| Bug Fixer             | عالية    | Pattern matching, LLM    |
+| Security Fixer        | عالية    | OWASP guidelines         |
+| Performance Optimizer | متوسطة   | Profiling integration    |
+| Test Generator        | عالية    | pytest, vitest templates |
 
 ### المرحلة 4: التكامل (Phase 4: Integration)
 
-| المهمة | الأولوية | المتطلبات |
-|--------|----------|-----------|
-| Git Integration | عالية | GitPython |
-| CI/CD Integration | عالية | GitHub Actions |
-| IDE Plugin Support | منخفضة | LSP |
-| A2A Protocol Registration | عالية | governance/agents.yaml |
+| المهمة                    | الأولوية | المتطلبات              |
+| ------------------------- | -------- | ---------------------- |
+| Git Integration           | عالية    | GitPython              |
+| CI/CD Integration         | عالية    | GitHub Actions         |
+| IDE Plugin Support        | منخفضة   | LSP                    |
+| A2A Protocol Registration | عالية    | governance/agents.yaml |
 
 ---
 

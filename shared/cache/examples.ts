@@ -7,7 +7,7 @@
  * @author Sahool Platform Team
  */
 
-import { getRedisSentinelClient, RedisSentinelClient } from './redis-sentinel';
+import { getRedisSentinelClient, RedisSentinelClient } from "./redis-sentinel";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Example 1: Cache Decorator
@@ -20,7 +20,7 @@ function CacheResult(keyPrefix: string, ttl: number = 3600) {
   return function (
     target: any,
     propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;
 
@@ -36,7 +36,7 @@ function CacheResult(keyPrefix: string, ttl: number = 3600) {
           return JSON.parse(cached);
         }
       } catch (error) {
-        console.error('Cache read error:', error);
+        console.error("Cache read error:", error);
       }
 
       console.log(`✗ Cache miss: ${cacheKey}`);
@@ -48,7 +48,7 @@ function CacheResult(keyPrefix: string, ttl: number = 3600) {
       try {
         await redis.set(cacheKey, JSON.stringify(result), { ex: ttl });
       } catch (error) {
-        console.error('Cache write error:', error);
+        console.error("Cache write error:", error);
       }
 
       return result;
@@ -154,7 +154,7 @@ export class DistributedLock {
    */
   async acquire(
     blocking: boolean = true,
-    acquireTimeout?: number
+    acquireTimeout?: number,
   ): Promise<boolean> {
     const endTime = Date.now() + (acquireTimeout || this.timeout) * 1000;
 
@@ -165,7 +165,7 @@ export class DistributedLock {
         ex: this.timeout,
       });
 
-      if (result === 'OK') {
+      if (result === "OK") {
         return true;
       }
 
@@ -195,7 +195,7 @@ export class DistributedLock {
    */
   async withLock<T>(
     callback: () => Promise<T>,
-    acquireTimeout?: number
+    acquireTimeout?: number,
   ): Promise<T> {
     const acquired = await this.acquire(true, acquireTimeout);
     if (!acquired) {
@@ -221,7 +221,7 @@ export class SessionManager {
   private redis: RedisSentinelClient;
   private prefix: string;
 
-  constructor(prefix: string = 'session') {
+  constructor(prefix: string = "session") {
     this.redis = getRedisSentinelClient();
     this.prefix = prefix;
   }
@@ -232,11 +232,11 @@ export class SessionManager {
   async create(
     sessionId: string,
     data: Record<string, any>,
-    ttl: number = 3600
+    ttl: number = 3600,
   ): Promise<boolean> {
     const key = `${this.prefix}:${sessionId}`;
     const result = await this.redis.set(key, JSON.stringify(data), { ex: ttl });
-    return result === 'OK';
+    return result === "OK";
   }
 
   /**
@@ -254,13 +254,15 @@ export class SessionManager {
   async update(
     sessionId: string,
     data: Record<string, any>,
-    ttl?: number
+    ttl?: number,
   ): Promise<boolean> {
     const key = `${this.prefix}:${sessionId}`;
 
     if (ttl) {
-      const result = await this.redis.set(key, JSON.stringify(data), { ex: ttl });
-      return result === 'OK';
+      const result = await this.redis.set(key, JSON.stringify(data), {
+        ex: ttl,
+      });
+      return result === "OK";
     } else {
       // الحفاظ على TTL الحالي
       const currentTtl = await this.redis.ttl(key);
@@ -268,10 +270,10 @@ export class SessionManager {
         const result = await this.redis.set(key, JSON.stringify(data), {
           ex: currentTtl,
         });
-        return result === 'OK';
+        return result === "OK";
       }
       const result = await this.redis.set(key, JSON.stringify(data));
-      return result === 'OK';
+      return result === "OK";
     }
   }
 
@@ -314,7 +316,7 @@ export class CacheService {
   async getOrSet<T>(
     key: string,
     factory: () => Promise<T>,
-    ttl: number = 3600
+    ttl: number = 3600,
   ): Promise<T> {
     // محاولة القراءة من Cache
     const cached = await this.redis.get(key, true);
@@ -364,25 +366,25 @@ export class CacheService {
  * مثال على استخدام جميع الأمثلة
  */
 async function runExamples() {
-  console.log('Redis Sentinel Examples\n');
+  console.log("Redis Sentinel Examples\n");
 
   // Example 1: Basic Operations
-  console.log('Example 1: Basic Operations');
+  console.log("Example 1: Basic Operations");
   const redis = getRedisSentinelClient();
 
-  await redis.set('test:key', 'Hello from Redis Sentinel!', { ex: 60 });
-  const value = await redis.get('test:key');
+  await redis.set("test:key", "Hello from Redis Sentinel!", { ex: 60 });
+  const value = await redis.get("test:key");
   console.log(`  Value: ${value}`);
-  await redis.delete('test:key');
+  await redis.delete("test:key");
   console.log();
 
   // Example 2: Rate Limiter
-  console.log('Example 2: Rate Limiter');
+  console.log("Example 2: Rate Limiter");
   const limiter = new RateLimiter(5, 10);
 
   for (let i = 0; i < 7; i++) {
-    const allowed = await limiter.isAllowed('user:1000');
-    const remaining = await limiter.getRemaining('user:1000');
+    const allowed = await limiter.isAllowed("user:1000");
+    const remaining = await limiter.getRemaining("user:1000");
 
     if (allowed) {
       console.log(`  Request ${i + 1}: Allowed (Remaining: ${remaining})`);
@@ -393,59 +395,55 @@ async function runExamples() {
   console.log();
 
   // Example 3: Distributed Lock
-  console.log('Example 3: Distributed Lock');
-  const lock = new DistributedLock('export:process', 5);
+  console.log("Example 3: Distributed Lock");
+  const lock = new DistributedLock("export:process", 5);
 
   await lock.withLock(async () => {
-    console.log('  Lock acquired, processing...');
+    console.log("  Lock acquired, processing...");
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log('  Processing completed');
+    console.log("  Processing completed");
   });
-  console.log('  Lock released');
+  console.log("  Lock released");
   console.log();
 
   // Example 4: Session Manager
-  console.log('Example 4: Session Manager');
+  console.log("Example 4: Session Manager");
   const session = new SessionManager();
 
-  await session.create(
-    'user:1000',
-    { username: 'ahmed', role: 'admin' },
-    300
-  );
-  const sessionData = await session.get('user:1000');
+  await session.create("user:1000", { username: "ahmed", role: "admin" }, 300);
+  const sessionData = await session.get("user:1000");
   console.log(`  Session data:`, sessionData);
-  await session.delete('user:1000');
+  await session.delete("user:1000");
   console.log();
 
   // Example 5: Cache Service
-  console.log('Example 5: Cache Service');
+  console.log("Example 5: Cache Service");
   const cache = new CacheService();
 
   const userData = await cache.getOrSet(
-    'user:profile:1000',
+    "user:profile:1000",
     async () => {
-      console.log('  Fetching from database...');
-      return { id: 1000, name: 'Ahmed', email: 'ahmed@example.com' };
+      console.log("  Fetching from database...");
+      return { id: 1000, name: "Ahmed", email: "ahmed@example.com" };
     },
-    60
+    60,
   );
   console.log(`  User data:`, userData);
 
   // Second call should use cache
   const cachedUserData = await cache.getOrSet(
-    'user:profile:1000',
+    "user:profile:1000",
     async () => {
-      console.log('  This should not print!');
+      console.log("  This should not print!");
       return {};
     },
-    60
+    60,
   );
   console.log(`  Cached user data:`, cachedUserData);
   console.log();
 
   // Health Check
-  console.log('Health Check:');
+  console.log("Health Check:");
   const health = await redis.healthCheck();
   console.log(`  Status: ${health.status}`);
   console.log(`  Master Ping: ${health.checks.masterPing}`);
@@ -460,11 +458,11 @@ async function runExamples() {
 if (require.main === module) {
   runExamples()
     .then(() => {
-      console.log('✓ All examples completed successfully!');
+      console.log("✓ All examples completed successfully!");
       process.exit(0);
     })
     .catch((error) => {
-      console.error('✗ Error running examples:', error);
+      console.error("✗ Error running examples:", error);
       process.exit(1);
     });
 }

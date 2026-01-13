@@ -7,7 +7,7 @@ Get started with the LayerControl component in 5 minutes!
 ## 1. Basic Setup (30 seconds)
 
 ```tsx
-import { LayerControl } from '@/features/fields/components';
+import { LayerControl } from "@/features/fields/components";
 
 function MyMap() {
   return (
@@ -29,13 +29,13 @@ function MyMap() {
 ```tsx
 function MyMap() {
   const handleLayersChange = (layers) => {
-    console.log('Active layers:', layers);
+    console.log("Active layers:", layers);
     // layers = { ndvi: true, healthZones: false, ... }
   };
 
   const handleNDVIChange = (settings) => {
-    console.log('NDVI opacity:', settings.opacity);
-    console.log('Historical date:', settings.historicalDate);
+    console.log("NDVI opacity:", settings.opacity);
+    console.log("Historical date:", settings.historicalDate);
   };
 
   return (
@@ -53,7 +53,7 @@ function MyMap() {
 ## 3. Control Layers Programmatically (2 minutes)
 
 ```tsx
-import { useLayerControl } from '@/features/fields/components';
+import { useLayerControl } from "@/features/fields/components";
 
 function MyMap() {
   const [state, controls] = useLayerControl();
@@ -76,9 +76,7 @@ function MyMap() {
       <LayerControl />
 
       {/* External controls */}
-      <button onClick={() => controls.toggleLayer('ndvi')}>
-        Toggle NDVI
-      </button>
+      <button onClick={() => controls.toggleLayer("ndvi")}>Toggle NDVI</button>
       <button onClick={() => controls.updateNDVIOpacity(0.5)}>
         50% Opacity
       </button>
@@ -90,8 +88,12 @@ function MyMap() {
 ## 4. Full Integration Example (3 minutes)
 
 ```tsx
-import { useState } from 'react';
-import { LayerControl, NdviTileLayer, HealthZonesLayer } from '@/features/fields/components';
+import { useState } from "react";
+import {
+  LayerControl,
+  NdviTileLayer,
+  HealthZonesLayer,
+} from "@/features/fields/components";
 
 function FieldMap({ fieldId }) {
   const [layers, setLayers] = useState({
@@ -122,13 +124,9 @@ function FieldMap({ fieldId }) {
           />
         )}
 
-        {layers.healthZones && (
-          <HealthZonesLayer fieldId={fieldId} />
-        )}
+        {layers.healthZones && <HealthZonesLayer fieldId={fieldId} />}
 
-        {layers.taskMarkers && (
-          <TaskMarkers fieldId={fieldId} />
-        )}
+        {layers.taskMarkers && <TaskMarkers fieldId={fieldId} />}
       </MapContainer>
 
       {/* Layer control */}
@@ -148,6 +146,7 @@ function FieldMap({ fieldId }) {
 ## Features at a Glance
 
 ### Toggle Layers
+
 - NDVI satellite imagery ✓
 - Health zones ✓
 - Task markers ✓
@@ -155,11 +154,13 @@ function FieldMap({ fieldId }) {
 - Irrigation zones ✓
 
 ### NDVI Controls
+
 - Opacity slider (0-100%)
 - Historical date picker
 - Real-time updates
 
 ### User Experience
+
 - Collapsible panel
 - Color legend
 - Keyboard accessible
@@ -168,32 +169,35 @@ function FieldMap({ fieldId }) {
 
 ## Props Cheat Sheet
 
-| Prop | Type | Default | What it does |
-|------|------|---------|--------------|
-| `position` | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'top-right'` | Where to place the control |
-| `onLayersChange` | `(layers) => void` | - | Called when any layer toggles |
-| `onNDVIChange` | `(settings) => void` | - | Called when NDVI changes |
-| `initialLayers` | `object` | All on except weather | Starting layer visibility |
-| `initialNDVI` | `object` | `{ opacity: 0.7, date: null }` | Starting NDVI settings |
-| `persistPreferences` | `boolean` | `true` | Save to localStorage |
+| Prop                 | Type                                                           | Default                        | What it does                  |
+| -------------------- | -------------------------------------------------------------- | ------------------------------ | ----------------------------- |
+| `position`           | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'top-right'`                  | Where to place the control    |
+| `onLayersChange`     | `(layers) => void`                                             | -                              | Called when any layer toggles |
+| `onNDVIChange`       | `(settings) => void`                                           | -                              | Called when NDVI changes      |
+| `initialLayers`      | `object`                                                       | All on except weather          | Starting layer visibility     |
+| `initialNDVI`        | `object`                                                       | `{ opacity: 0.7, date: null }` | Starting NDVI settings        |
+| `persistPreferences` | `boolean`                                                      | `true`                         | Save to localStorage          |
 
 ## Common Patterns
 
 ### Pattern 1: Simple Toggle
+
 ```tsx
 <LayerControl onLayersChange={(layers) => console.log(layers)} />
 ```
 
 ### Pattern 2: With State
+
 ```tsx
 const [layers, setLayers] = useState({...});
 <LayerControl onLayersChange={setLayers} />
 ```
 
 ### Pattern 3: Programmatic Control
+
 ```tsx
 const [state, { toggleLayer }] = useLayerControl();
-<button onClick={() => toggleLayer('ndvi')}>Toggle</button>
+<button onClick={() => toggleLayer("ndvi")}>Toggle</button>;
 ```
 
 ## Keyboard Shortcuts

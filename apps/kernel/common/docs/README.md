@@ -1,4 +1,5 @@
 # SAHOOL API Documentation Generator
+
 # مولد توثيق واجهة برمجة تطبيقات سحول
 
 Automatically generate comprehensive API documentation for the SAHOOL platform from FastAPI services.
@@ -34,6 +35,7 @@ python apps/kernel/common/docs/api_docs_generator.py
 ```
 
 This will:
+
 1. Scan all services in `apps/services/`
 2. Generate OpenAPI spec at `docs/api/openapi.json`
 3. Generate Markdown documentation in `docs/api/`
@@ -53,11 +55,11 @@ python apps/kernel/common/docs/api_docs_generator.py --skip-scan
 
 ### Arguments
 
-| Argument | Description | Default |
-|----------|-------------|---------|
+| Argument         | Description                | Default         |
+| ---------------- | -------------------------- | --------------- |
 | `--services-dir` | Path to services directory | `apps/services` |
-| `--output-dir` | Path to output directory | `docs/api` |
-| `--skip-scan` | Skip scanning services | `False` |
+| `--output-dir`   | Path to output directory   | `docs/api`      |
+| `--skip-scan`    | Skip scanning services     | `False`         |
 
 ## Output Files | ملفات الإخراج
 
@@ -65,21 +67,21 @@ After running the generator, you'll find:
 
 ### Markdown Documentation
 
-| File | Description |
-|------|-------------|
-| `README.md` | Main API documentation index |
+| File                | Description                           |
+| ------------------- | ------------------------------------- |
+| `README.md`         | Main API documentation index          |
 | `authentication.md` | Authentication and authorization docs |
-| `fields.md` | Field management API docs |
-| `sensors.md` | IoT and sensor API docs |
-| `weather.md` | Weather API docs |
-| `ai.md` | AI and analysis API docs |
+| `fields.md`         | Field management API docs             |
+| `sensors.md`        | IoT and sensor API docs               |
+| `weather.md`        | Weather API docs                      |
+| `ai.md`             | AI and analysis API docs              |
 
 ### API Specifications
 
-| File | Description |
-|------|-------------|
-| `openapi.json` | OpenAPI 3.0 specification |
-| `SAHOOL.postman_collection.json` | Postman collection |
+| File                             | Description               |
+| -------------------------------- | ------------------------- |
+| `openapi.json`                   | OpenAPI 3.0 specification |
+| `SAHOOL.postman_collection.json` | Postman collection        |
 
 ## Programmatic Usage | الاستخدام البرمجي
 
@@ -171,7 +173,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/services/*/src/main.py'
+      - "apps/services/*/src/main.py"
 
 jobs:
   docs:
@@ -216,6 +218,7 @@ python apps/kernel/common/docs/api_docs_generator.py
 **Problem**: "Scanned 0 services"
 
 **Solution**:
+
 - Check `--services-dir` path is correct
 - Ensure services have `src/main.py` files
 - Verify FastAPI app is defined in main.py
@@ -225,6 +228,7 @@ python apps/kernel/common/docs/api_docs_generator.py
 **Problem**: Some endpoints not appearing in docs
 
 **Solution**:
+
 - Ensure endpoints use `@app.get`, `@app.post`, etc. decorators
 - Check endpoint paths are quoted strings
 - Verify docstrings are properly formatted
@@ -234,6 +238,7 @@ python apps/kernel/common/docs/api_docs_generator.py
 **Problem**: Arabic descriptions not appearing
 
 **Solution**:
+
 - Ensure source files are UTF-8 encoded
 - Add Arabic descriptions in docstrings
 - Use Arabic characters in service descriptions

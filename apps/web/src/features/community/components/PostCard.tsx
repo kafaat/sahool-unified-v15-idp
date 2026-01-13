@@ -3,10 +3,10 @@
  * مكون بطاقة المنشور
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Image from "next/image";
 import {
   ThumbsUp,
   MessageCircle,
@@ -15,33 +15,38 @@ import {
   MoreVertical,
   CheckCircle,
   Award,
-} from 'lucide-react';
-import { useLikePost, useSavePost, useSharePost, useComments } from '../hooks/useCommunity';
-import type { Post } from '../types';
+} from "lucide-react";
+import {
+  useLikePost,
+  useSavePost,
+  useSharePost,
+  useComments,
+} from "../hooks/useCommunity";
+import type { Post } from "../types";
 
 interface PostCardProps {
   post: Post;
 }
 
 const postTypeColors = {
-  question: 'bg-blue-100 text-blue-800',
-  tip: 'bg-green-100 text-green-800',
-  experience: 'bg-purple-100 text-purple-800',
-  discussion: 'bg-yellow-100 text-yellow-800',
-  update: 'bg-gray-100 text-gray-800',
+  question: "bg-blue-100 text-blue-800",
+  tip: "bg-green-100 text-green-800",
+  experience: "bg-purple-100 text-purple-800",
+  discussion: "bg-yellow-100 text-yellow-800",
+  update: "bg-gray-100 text-gray-800",
 };
 
 const postTypeLabels = {
-  question: 'سؤال',
-  tip: 'نصيحة',
-  experience: 'تجربة',
-  discussion: 'نقاش',
-  update: 'تحديث',
+  question: "سؤال",
+  tip: "نصيحة",
+  experience: "تجربة",
+  discussion: "نقاش",
+  update: "تحديث",
 };
 
 const badgeIcons = {
-  farmer: '👨‍🌾',
-  expert: '👨‍🏫',
+  farmer: "👨‍🌾",
+  expert: "👨‍🏫",
   verified: <CheckCircle className="w-4 h-4 text-blue-500" />,
   moderator: <Award className="w-4 h-4 text-yellow-500" />,
 };
@@ -77,7 +82,7 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
     if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
     if (diffHours < 24) return `منذ ${diffHours} ساعة`;
     if (diffDays < 7) return `منذ ${diffDays} يوم`;
-    return postDate.toLocaleDateString('ar-SA');
+    return postDate.toLocaleDateString("ar-SA");
   };
 
   return (
@@ -94,15 +99,21 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
             {/* User Info */}
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900">{post.userNameAr}</span>
+                <span className="font-semibold text-gray-900">
+                  {post.userNameAr}
+                </span>
                 {post.userBadge && badgeIcons[post.userBadge]}
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-gray-600">{formatDate(post.createdAt)}</span>
+                <span className="text-sm text-gray-600">
+                  {formatDate(post.createdAt)}
+                </span>
                 {post.location && (
                   <>
                     <span className="text-gray-400">•</span>
-                    <span className="text-sm text-gray-600">{post.location.cityAr}</span>
+                    <span className="text-sm text-gray-600">
+                      {post.location.cityAr}
+                    </span>
                   </>
                 )}
               </div>
@@ -128,7 +139,9 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">{post.titleAr}</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          {post.titleAr}
+        </h3>
         <p className="text-gray-700 whitespace-pre-line">{post.contentAr}</p>
 
         {/* Images */}
@@ -170,9 +183,9 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
       <div className="px-4 py-3 border-t border-gray-100">
         {/* Stats */}
         <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-          <span>{post.likes.toLocaleString('ar-SA')} إعجاب</span>
-          <span>{post.comments.toLocaleString('ar-SA')} تعليق</span>
-          <span>{post.views.toLocaleString('ar-SA')} مشاهدة</span>
+          <span>{post.likes.toLocaleString("ar-SA")} إعجاب</span>
+          <span>{post.comments.toLocaleString("ar-SA")} تعليق</span>
+          <span>{post.views.toLocaleString("ar-SA")} مشاهدة</span>
         </div>
 
         {/* Actions */}
@@ -182,11 +195,13 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
             disabled={likeMutation.isPending}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
               post.isLiked
-                ? 'bg-green-50 text-green-600'
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                ? "bg-green-50 text-green-600"
+                : "bg-gray-50 text-gray-700 hover:bg-gray-100"
             }`}
           >
-            <ThumbsUp className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
+            <ThumbsUp
+              className={`w-5 h-5 ${post.isLiked ? "fill-current" : ""}`}
+            />
             <span>إعجاب</span>
           </button>
 
@@ -212,11 +227,13 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
             disabled={saveMutation.isPending}
             className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
               post.isSaved
-                ? 'bg-green-50 text-green-600'
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                ? "bg-green-50 text-green-600"
+                : "bg-gray-50 text-gray-700 hover:bg-gray-100"
             }`}
           >
-            <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-current' : ''}`} />
+            <Bookmark
+              className={`w-5 h-5 ${post.isSaved ? "fill-current" : ""}`}
+            />
           </button>
         </div>
       </div>
@@ -233,8 +250,12 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
                     {comment.userName[0]}
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-sm text-gray-900">{comment.userNameAr}</p>
-                    <p className="text-sm text-gray-700 mt-1">{comment.contentAr}</p>
+                    <p className="font-medium text-sm text-gray-900">
+                      {comment.userNameAr}
+                    </p>
+                    <p className="text-sm text-gray-700 mt-1">
+                      {comment.contentAr}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -247,6 +268,6 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
 };
 
 export const PostCard = React.memo(PostCardComponent);
-PostCard.displayName = 'PostCard';
+PostCard.displayName = "PostCard";
 
 export default PostCard;

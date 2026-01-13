@@ -27,16 +27,16 @@ This document standardizes ORM (Object-Relational Mapping) usage across all SAHO
 
 The following services are already using Prisma and represent the **standard implementation**:
 
-| Service | Prisma Version | Database | Schema Location |
-|---------|---------------|----------|-----------------|
-| `chat-service` | 5.22.0 | PostgreSQL | `/apps/services/chat-service/prisma/schema.prisma` |
-| `crop-growth-model` | 5.22.0 | PostgreSQL | N/A (schema not yet created) |
-| `disaster-assessment` | 5.22.0 | PostgreSQL | N/A (schema not yet created) |
-| `lai-estimation` | 5.22.0 | PostgreSQL | N/A (schema not yet created) |
-| `marketplace-service` | 5.22.0 | PostgreSQL | `/apps/services/marketplace-service/prisma/schema.prisma` |
-| `research-core` | 5.22.0 | PostgreSQL | `/apps/services/research-core/prisma/schema.prisma` |
-| `yield-prediction` | 5.22.0 | PostgreSQL | N/A (schema not yet created) |
-| `yield-prediction-service` | 5.22.0 | PostgreSQL | N/A (schema not yet created) |
+| Service                    | Prisma Version | Database   | Schema Location                                           |
+| -------------------------- | -------------- | ---------- | --------------------------------------------------------- |
+| `chat-service`             | 5.22.0         | PostgreSQL | `/apps/services/chat-service/prisma/schema.prisma`        |
+| `crop-growth-model`        | 5.22.0         | PostgreSQL | N/A (schema not yet created)                              |
+| `disaster-assessment`      | 5.22.0         | PostgreSQL | N/A (schema not yet created)                              |
+| `lai-estimation`           | 5.22.0         | PostgreSQL | N/A (schema not yet created)                              |
+| `marketplace-service`      | 5.22.0         | PostgreSQL | `/apps/services/marketplace-service/prisma/schema.prisma` |
+| `research-core`            | 5.22.0         | PostgreSQL | `/apps/services/research-core/prisma/schema.prisma`       |
+| `yield-prediction`         | 5.22.0         | PostgreSQL | N/A (schema not yet created)                              |
+| `yield-prediction-service` | 5.22.0         | PostgreSQL | N/A (schema not yet created)                              |
 
 **Status**: These services are compliant with the standard. No action required.
 
@@ -44,20 +44,22 @@ The following services are already using Prisma and represent the **standard imp
 
 ### Services Using TypeORM (2 services - REQUIRES MIGRATION)
 
-| Service | TypeORM Version | Prisma Version | Status | Migration Priority |
-|---------|----------------|----------------|--------|-------------------|
-| `field-core` | 0.3.20 | 5.22.0 (installed) | **MIGRATION NEEDED** | HIGH |
-| `field-management-service` | 0.3.20 | 5.22.0 (installed) | **MIGRATION NEEDED** | HIGH |
+| Service                    | TypeORM Version | Prisma Version     | Status               | Migration Priority |
+| -------------------------- | --------------- | ------------------ | -------------------- | ------------------ |
+| `field-core`               | 0.3.20          | 5.22.0 (installed) | **MIGRATION NEEDED** | HIGH               |
+| `field-management-service` | 0.3.20          | 5.22.0 (installed) | **MIGRATION NEEDED** | HIGH               |
 
 **Critical Finding**: Both services have Prisma schemas already defined alongside TypeORM entities, indicating a **migration is in progress** but incomplete.
 
 #### field-core Current Implementation:
+
 - **Active ORM**: TypeORM (via `src/data-source.ts`)
 - **TypeORM Entities**: `Field`, `FieldBoundaryHistory`, `SyncStatus`
 - **Prisma Schema**: Available at `prisma/schema.prisma` (mirrors TypeORM entities)
 - **Special Requirements**: PostGIS extension for geospatial operations
 
 #### field-management-service Current Implementation:
+
 - **Active ORM**: TypeORM (via `src/data-source.ts`)
 - **TypeORM Entities**: `Field`, `FieldBoundaryHistory`, `SyncStatus`
 - **Prisma Schema**: Available at `prisma/schema.prisma` (mirrors TypeORM entities)
@@ -91,15 +93,15 @@ The following services do not use database ORMs (in-memory, stateless, or extern
 
 ### Prisma Advantages Over TypeORM
 
-| Feature | Prisma | TypeORM |
-|---------|--------|---------|
-| **Type Safety** | Fully type-safe, auto-generated | Manual type definitions required |
-| **Schema Definition** | Declarative Prisma Schema Language | Decorator-based entities |
-| **Migrations** | Built-in, version-controlled | Requires manual setup |
-| **Query Builder** | Type-safe, auto-complete | Runtime type checking |
-| **PostGIS Support** | Native via `Unsupported()` + raw SQL | Requires manual configuration |
-| **Performance** | Optimized query generation | Good, but requires tuning |
-| **Learning Curve** | Gentle | Steep |
+| Feature               | Prisma                               | TypeORM                          |
+| --------------------- | ------------------------------------ | -------------------------------- |
+| **Type Safety**       | Fully type-safe, auto-generated      | Manual type definitions required |
+| **Schema Definition** | Declarative Prisma Schema Language   | Decorator-based entities         |
+| **Migrations**        | Built-in, version-controlled         | Requires manual setup            |
+| **Query Builder**     | Type-safe, auto-complete             | Runtime type checking            |
+| **PostGIS Support**   | Native via `Unsupported()` + raw SQL | Requires manual configuration    |
+| **Performance**       | Optimized query generation           | Good, but requires tuning        |
+| **Learning Curve**    | Gentle                               | Steep                            |
 
 ---
 
@@ -110,12 +112,14 @@ The following services do not use database ORMs (in-memory, stateless, or extern
 **Path**: `/home/user/sahool-unified-v15-idp/apps/services/field-core`
 
 **Current State**:
+
 - Uses TypeORM with 3 entities: `Field`, `FieldBoundaryHistory`, `SyncStatus`
 - Prisma schema already defined (ready for migration)
 - PostGIS extension for geospatial operations
 - Complex geospatial queries using raw SQL
 
 **Migration Complexity**: **MEDIUM**
+
 - Prisma schema already exists and mirrors TypeORM entities
 - Need to update service layer to use PrismaClient
 - PostGIS operations already use raw SQL (compatible with Prisma)
@@ -127,12 +131,14 @@ The following services do not use database ORMs (in-memory, stateless, or extern
 **Path**: `/home/user/sahool-unified-v15-idp/apps/services/field-management-service`
 
 **Current State**:
+
 - Identical to field-core (same entities and schema)
 - Uses TypeORM with 3 entities: `Field`, `FieldBoundaryHistory`, `SyncStatus`
 - Prisma schema already defined
 - PostGIS extension for geospatial operations
 
 **Migration Complexity**: **MEDIUM**
+
 - Can leverage migration strategy from field-core
 - Same entities and operations
 
@@ -152,6 +158,7 @@ cat prisma/schema.prisma
 ```
 
 The schema includes:
+
 - ✅ PostgreSQL datasource
 - ✅ PostGIS extension support
 - ✅ All TypeORM entities (Field, FieldBoundaryHistory, SyncStatus, Task, NdviReading)
@@ -206,17 +213,18 @@ Create a Prisma service for dependency injection (if using NestJS) or as a singl
 **File**: `src/prisma/prisma.service.ts` (or `src/lib/prisma.ts` for Express)
 
 ```typescript
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 // Express/Node.js approach
 export const prisma = new PrismaClient({
-  log: process.env.NODE_ENV !== 'production'
-    ? ['query', 'info', 'warn', 'error']
-    : ['error'],
+  log:
+    process.env.NODE_ENV !== "production"
+      ? ["query", "info", "warn", "error"]
+      : ["error"],
 });
 
 // Graceful shutdown
-process.on('beforeExit', async () => {
+process.on("beforeExit", async () => {
   await prisma.$disconnect();
 });
 ```
@@ -226,22 +234,24 @@ process.on('beforeExit', async () => {
 Replace TypeORM repository patterns with Prisma Client:
 
 **Before (TypeORM)**:
+
 ```typescript
-import { AppDataSource } from './data-source';
-import { Field } from './entity/Field';
+import { AppDataSource } from "./data-source";
+import { Field } from "./entity/Field";
 
 const fieldRepo = AppDataSource.getRepository(Field);
 const fields = await fieldRepo.find({
-  where: { tenantId: 'abc123' }
+  where: { tenantId: "abc123" },
 });
 ```
 
 **After (Prisma)**:
+
 ```typescript
-import { prisma } from './lib/prisma';
+import { prisma } from "./lib/prisma";
 
 const fields = await prisma.field.findMany({
-  where: { tenantId: 'abc123' }
+  where: { tenantId: "abc123" },
 });
 ```
 
@@ -266,7 +276,7 @@ const saved = await fieldRepo.save(newField);
 
 // Prisma
 const saved = await prisma.field.create({
-  data: { name, tenantId, cropType }
+  data: { name, tenantId, cropType },
 });
 ```
 
@@ -281,7 +291,7 @@ await fieldRepo.save(field);
 // Prisma
 const updated = await prisma.field.update({
   where: { id },
-  data: { name: newName }
+  data: { name: newName },
 });
 ```
 
@@ -301,7 +311,7 @@ await prisma.field.delete({ where: { id } });
 // TypeORM
 const field = await fieldRepo.findOne({
   where: { id },
-  relations: ['boundaryHistory', 'tasks']
+  relations: ["boundaryHistory", "tasks"],
 });
 
 // Prisma
@@ -309,8 +319,8 @@ const field = await prisma.field.findUnique({
   where: { id },
   include: {
     boundaryHistory: true,
-    tasks: true
-  }
+    tasks: true,
+  },
 });
 ```
 
@@ -318,10 +328,13 @@ const field = await prisma.field.findUnique({
 
 ```typescript
 // TypeORM
-const fields = await AppDataSource.query(`
+const fields = await AppDataSource.query(
+  `
   SELECT id, ST_AsGeoJSON(boundary) as boundary
   FROM fields WHERE id = $1
-`, [id]);
+`,
+  [id],
+);
 
 // Prisma (same approach - Prisma supports raw SQL)
 const fields = await prisma.$queryRaw`
@@ -342,14 +355,14 @@ await AppDataSource.transaction(async (transactionalEntityManager) => {
 // Prisma
 await prisma.$transaction([
   prisma.field.create({ data: fieldData }),
-  prisma.fieldBoundaryHistory.create({ data: historyData })
+  prisma.fieldBoundaryHistory.create({ data: historyData }),
 ]);
 
 // Or with callback for complex logic
 await prisma.$transaction(async (tx) => {
   const field = await tx.field.create({ data: fieldData });
   await tx.fieldBoundaryHistory.create({
-    data: { ...historyData, fieldId: field.id }
+    data: { ...historyData, fieldId: field.id },
   });
 });
 ```
@@ -363,8 +376,8 @@ await prisma.$transaction(async (tx) => {
 Update unit tests to use Prisma Client:
 
 ```typescript
-import { PrismaClient } from '@prisma/client';
-import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { PrismaClient } from "@prisma/client";
+import { mockDeep, DeepMockProxy } from "jest-mock-extended";
 
 let prisma: DeepMockProxy<PrismaClient>;
 
@@ -372,11 +385,11 @@ beforeEach(() => {
   prisma = mockDeep<PrismaClient>();
 });
 
-it('should create a field', async () => {
-  const mockField = { id: '1', name: 'Test Field', /* ... */ };
+it("should create a field", async () => {
+  const mockField = { id: "1", name: "Test Field" /* ... */ };
   prisma.field.create.mockResolvedValue(mockField);
 
-  const result = await createField({ name: 'Test Field' });
+  const result = await createField({ name: "Test Field" });
 
   expect(result).toEqual(mockField);
   expect(prisma.field.create).toHaveBeenCalled();
@@ -419,6 +432,7 @@ Remove TypeORM dependencies:
 ```
 
 Remove these lines:
+
 ```json
 "typeorm": "^0.3.20",
 "reflect-metadata": "^0.2.2"
@@ -504,15 +518,15 @@ const prisma = new PrismaClient({
 ### 3. Error Handling
 
 ```typescript
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 
 try {
   await prisma.field.create({ data: fieldData });
 } catch (error) {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     // Handle specific Prisma errors
-    if (error.code === 'P2002') {
-      throw new Error('Unique constraint violation');
+    if (error.code === "P2002") {
+      throw new Error("Unique constraint violation");
     }
   }
   throw error;
@@ -523,10 +537,10 @@ try {
 
 ```typescript
 // Use generated types
-import { Field, Prisma } from '@prisma/client';
+import { Field, Prisma } from "@prisma/client";
 
 type FieldWithHistory = Prisma.FieldGetPayload<{
-  include: { boundaryHistory: true }
+  include: { boundaryHistory: true };
 }>;
 
 function processField(field: FieldWithHistory) {
@@ -643,10 +657,10 @@ const nearbyFields = await prisma.$queryRaw`
 
 ## Migration Timeline Estimate
 
-| Service | Complexity | Estimated Time | Priority |
-|---------|-----------|----------------|----------|
-| `field-core` | Medium | 2-3 days | HIGH |
-| `field-management-service` | Medium | 1-2 days | HIGH |
+| Service                    | Complexity | Estimated Time | Priority |
+| -------------------------- | ---------- | -------------- | -------- |
+| `field-core`               | Medium     | 2-3 days       | HIGH     |
+| `field-management-service` | Medium     | 1-2 days       | HIGH     |
 
 **Total Estimated Time**: 3-5 days (one developer)
 
@@ -655,17 +669,20 @@ const nearbyFields = await prisma.$queryRaw`
 ## Support and Resources
 
 ### Official Documentation
+
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [Prisma Migrate](https://www.prisma.io/docs/concepts/components/prisma-migrate)
 - [TypeORM to Prisma Migration Guide](https://www.prisma.io/docs/guides/migrate-to-prisma/migrate-from-typeorm)
 
 ### Internal Resources
+
 - Existing Prisma implementations:
   - `/apps/services/chat-service` - Clean Prisma implementation
   - `/apps/services/marketplace-service` - Prisma with relations
   - `/apps/services/field-core/prisma/schema.prisma` - PostGIS example
 
 ### Getting Help
+
 - Review existing Prisma schemas in other services
 - Check Prisma Discord community
 - Consult SAHOOL architecture team
@@ -679,6 +696,7 @@ const nearbyFields = await prisma.$queryRaw`
 Both implementations are functionally equivalent. The Prisma schema already mirrors all TypeORM entities:
 
 **Entities/Models**:
+
 - ✅ Field
 - ✅ FieldBoundaryHistory
 - ✅ SyncStatus
@@ -686,6 +704,7 @@ Both implementations are functionally equivalent. The Prisma schema already mirr
 - ✅ NdviReading
 
 **Enums**:
+
 - ✅ FieldStatus
 - ✅ ChangeSource
 - ✅ SyncState
@@ -694,6 +713,7 @@ Both implementations are functionally equivalent. The Prisma schema already mirr
 - ✅ TaskState
 
 **Special Features**:
+
 - ✅ PostGIS geometry types (via `Unsupported()`)
 - ✅ Optimistic locking (version field)
 - ✅ Cascade deletes
@@ -708,7 +728,7 @@ Both implementations are functionally equivalent. The Prisma schema already mirr
 ```typescript
 // Always filter by tenantId for multi-tenant services
 const fields = await prisma.field.findMany({
-  where: { tenantId: req.user.tenantId }
+  where: { tenantId: req.user.tenantId },
 });
 ```
 
@@ -718,12 +738,12 @@ const fields = await prisma.field.findMany({
 // Use status field instead of hard deletes
 await prisma.field.update({
   where: { id },
-  data: { status: 'inactive', isDeleted: true }
+  data: { status: "inactive", isDeleted: true },
 });
 
 // Filter out soft-deleted records
 const activeFields = await prisma.field.findMany({
-  where: { isDeleted: false }
+  where: { isDeleted: false },
 });
 ```
 
@@ -736,16 +756,16 @@ try {
   await prisma.field.updateMany({
     where: {
       id: fieldId,
-      version: currentVersion
+      version: currentVersion,
     },
     data: {
       name: newName,
-      version: { increment: 1 }
-    }
+      version: { increment: 1 },
+    },
   });
 } catch (error) {
   if (result.count === 0) {
-    throw new Error('Conflict: Field was updated by another user');
+    throw new Error("Conflict: Field was updated by another user");
   }
 }
 ```
@@ -755,9 +775,7 @@ try {
 ```typescript
 // Use transactions for batch operations
 const results = await prisma.$transaction(
-  fields.map(field =>
-    prisma.field.create({ data: field })
-  )
+  fields.map((field) => prisma.field.create({ data: field })),
 );
 ```
 
@@ -766,6 +784,7 @@ const results = await prisma.$transaction(
 ## Conclusion
 
 Migrating to Prisma as the standard ORM will:
+
 - ✅ Unify ORM usage across all services
 - ✅ Improve type safety and developer experience
 - ✅ Reduce maintenance complexity

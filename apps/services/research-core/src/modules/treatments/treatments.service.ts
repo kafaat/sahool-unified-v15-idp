@@ -1,7 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { Prisma } from '@prisma/client';
-import { CreateTreatmentDto, UpdateTreatmentDto } from './dto/treatment.dto';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import { Prisma } from "@prisma/client";
+import { CreateTreatmentDto, UpdateTreatmentDto } from "./dto/treatment.dto";
 
 @Injectable()
 export class TreatmentsService {
@@ -71,7 +71,7 @@ export class TreatmentsService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           experiment: {
             select: {
@@ -156,7 +156,10 @@ export class TreatmentsService {
         ...restDto,
         startDate: dto.startDate ? new Date(dto.startDate) : undefined,
         endDate: dto.endDate ? new Date(dto.endDate) : undefined,
-        parameters: parameters !== undefined ? (parameters as Prisma.InputJsonValue) : undefined,
+        parameters:
+          parameters !== undefined
+            ? (parameters as Prisma.InputJsonValue)
+            : undefined,
       },
       include: {
         experiment: {
@@ -191,7 +194,7 @@ export class TreatmentsService {
         experimentId,
         plotId,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 }

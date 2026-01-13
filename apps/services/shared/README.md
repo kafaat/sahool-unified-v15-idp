@@ -1,4 +1,5 @@
 # 🔧 SAHOOL Shared Libraries
+
 # المكتبات المشتركة لمنصة سهول
 
 ## نظرة عامة | Overview
@@ -12,6 +13,7 @@ This folder contains shared libraries and tools used by all SAHOOL services.
 ## المكونات | Components
 
 ### 1. 🗄️ Database Layer | طبقة قاعدة البيانات
+
 ```
 shared/database/
 ├── __init__.py      # Exports
@@ -22,6 +24,7 @@ shared/database/
 ```
 
 ### 2. 🔐 Authentication Layer | طبقة المصادقة
+
 ```
 shared/auth/
 ├── __init__.py      # Exports
@@ -34,6 +37,7 @@ shared/auth/
 ```
 
 ### 3. 🔗 Integration Layer | طبقة التكامل
+
 ```
 shared/integration/
 ├── __init__.py         # Exports
@@ -43,6 +47,7 @@ shared/integration/
 ```
 
 ### 4. ⚖️ Compliance Layer | طبقة الامتثال
+
 ```
 shared/compliance/
 ├── __init__.py         # Exports
@@ -50,6 +55,7 @@ shared/compliance/
 ```
 
 ### 5. 📌 Versions | الإصدارات
+
 ```
 shared/versions.py      # Unified library versions
 ```
@@ -93,12 +99,12 @@ async def get_farms(db: Session = Depends(get_db)):
 
 ### Mixins المتاحة
 
-| Mixin | الوصف |
-|-------|-------|
-| `TimestampMixin` | created_at, updated_at |
-| `TenantMixin` | tenant_id للعزل |
-| `UUIDMixin` | UUID primary key |
-| `AuditMixin` | created_by, updated_by |
+| Mixin             | الوصف                   |
+| ----------------- | ----------------------- |
+| `TimestampMixin`  | created_at, updated_at  |
+| `TenantMixin`     | tenant_id للعزل         |
+| `UUIDMixin`       | UUID primary key        |
+| `AuditMixin`      | created_by, updated_by  |
 | `SoftDeleteMixin` | deleted_at للحذف الناعم |
 
 ---
@@ -154,14 +160,14 @@ async def delete_farm(
 
 ### الأدوار المعرفة | Predefined Roles
 
-| الدور | الوصف | الصلاحيات |
-|------|-------|----------|
-| `super_admin` | مدير النظام | كل شيء |
-| `tenant_admin` | مدير المستأجر | كل شيء في المستأجر |
-| `farm_manager` | مدير المزرعة | إدارة المزارع والحقول |
-| `field_operator` | مشغل الحقل | عمليات الحقل |
-| `agronomist` | مهندس زراعي | تحليل المحاصيل |
-| `viewer` | مشاهد | قراءة فقط |
+| الدور            | الوصف         | الصلاحيات             |
+| ---------------- | ------------- | --------------------- |
+| `super_admin`    | مدير النظام   | كل شيء                |
+| `tenant_admin`   | مدير المستأجر | كل شيء في المستأجر    |
+| `farm_manager`   | مدير المزرعة  | إدارة المزارع والحقول |
+| `field_operator` | مشغل الحقل    | عمليات الحقل          |
+| `agronomist`     | مهندس زراعي   | تحليل المحاصيل        |
+| `viewer`         | مشاهد         | قراءة فقط             |
 
 ---
 
@@ -284,15 +290,15 @@ app.include_router(gdpr_router)
 
 ### المسارات المتاحة | Available Endpoints
 
-| المسار | الوصف | GDPR Article |
-|--------|-------|--------------|
-| `POST /gdpr/export` | طلب تصدير البيانات | Article 15, 20 |
-| `POST /gdpr/delete` | طلب حذف البيانات | Article 17 |
-| `GET /gdpr/consent/{user_id}` | عرض الموافقات | - |
-| `POST /gdpr/consent` | تسجيل موافقة | - |
-| `DELETE /gdpr/consent/{user_id}/{purpose}` | إلغاء موافقة | - |
-| `GET /gdpr/audit/{user_id}` | سجل التدقيق | Article 15 |
-| `GET /gdpr/status` | حالة الامتثال | - |
+| المسار                                     | الوصف              | GDPR Article   |
+| ------------------------------------------ | ------------------ | -------------- |
+| `POST /gdpr/export`                        | طلب تصدير البيانات | Article 15, 20 |
+| `POST /gdpr/delete`                        | طلب حذف البيانات   | Article 17     |
+| `GET /gdpr/consent/{user_id}`              | عرض الموافقات      | -              |
+| `POST /gdpr/consent`                       | تسجيل موافقة       | -              |
+| `DELETE /gdpr/consent/{user_id}/{purpose}` | إلغاء موافقة       | -              |
+| `GET /gdpr/audit/{user_id}`                | سجل التدقيق        | Article 15     |
+| `GET /gdpr/status`                         | حالة الامتثال      | -              |
 
 ---
 

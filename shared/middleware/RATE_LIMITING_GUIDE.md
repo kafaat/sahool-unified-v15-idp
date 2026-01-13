@@ -272,22 +272,22 @@ async def monitored_endpoint(request: Request, response: Response):
 
 ### Environment Variables
 
-| المتغير | الوصف | القيمة الافتراضية |
-|---------|--------|------------------|
-| `RATE_LIMIT_ENABLED` | تفعيل/تعطيل التحديد | `true` |
-| `REDIS_URL` | رابط Redis | - |
-| `RATE_LIMIT_FREE_RPM` | طلبات Free/دقيقة | `30` |
-| `RATE_LIMIT_FREE_RPH` | طلبات Free/ساعة | `500` |
-| `RATE_LIMIT_FREE_BURST` | Burst limit Free | `5` |
-| `RATE_LIMIT_STANDARD_RPM` | طلبات Standard/دقيقة | `60` |
-| `RATE_LIMIT_STANDARD_RPH` | طلبات Standard/ساعة | `2000` |
-| `RATE_LIMIT_STANDARD_BURST` | Burst limit Standard | `10` |
-| `RATE_LIMIT_PREMIUM_RPM` | طلبات Premium/دقيقة | `120` |
-| `RATE_LIMIT_PREMIUM_RPH` | طلبات Premium/ساعة | `5000` |
-| `RATE_LIMIT_PREMIUM_BURST` | Burst limit Premium | `20` |
-| `RATE_LIMIT_INTERNAL_RPM` | طلبات Internal/دقيقة | `1000` |
-| `RATE_LIMIT_INTERNAL_RPH` | طلبات Internal/ساعة | `50000` |
-| `RATE_LIMIT_INTERNAL_BURST` | Burst limit Internal | `100` |
+| المتغير                     | الوصف                | القيمة الافتراضية |
+| --------------------------- | -------------------- | ----------------- |
+| `RATE_LIMIT_ENABLED`        | تفعيل/تعطيل التحديد  | `true`            |
+| `REDIS_URL`                 | رابط Redis           | -                 |
+| `RATE_LIMIT_FREE_RPM`       | طلبات Free/دقيقة     | `30`              |
+| `RATE_LIMIT_FREE_RPH`       | طلبات Free/ساعة      | `500`             |
+| `RATE_LIMIT_FREE_BURST`     | Burst limit Free     | `5`               |
+| `RATE_LIMIT_STANDARD_RPM`   | طلبات Standard/دقيقة | `60`              |
+| `RATE_LIMIT_STANDARD_RPH`   | طلبات Standard/ساعة  | `2000`            |
+| `RATE_LIMIT_STANDARD_BURST` | Burst limit Standard | `10`              |
+| `RATE_LIMIT_PREMIUM_RPM`    | طلبات Premium/دقيقة  | `120`             |
+| `RATE_LIMIT_PREMIUM_RPH`    | طلبات Premium/ساعة   | `5000`            |
+| `RATE_LIMIT_PREMIUM_BURST`  | Burst limit Premium  | `20`              |
+| `RATE_LIMIT_INTERNAL_RPM`   | طلبات Internal/دقيقة | `1000`            |
+| `RATE_LIMIT_INTERNAL_RPH`   | طلبات Internal/ساعة  | `50000`           |
+| `RATE_LIMIT_INTERNAL_BURST` | Burst limit Internal | `100`             |
 
 ### RateLimitConfig Options
 
@@ -530,6 +530,7 @@ async def process_data(
 ✅ توافق مع بيئات مختلفة (development/production)
 
 للمزيد من المعلومات، راجع:
+
 - [shared/middleware/rate_limit.py](./rate_limit.py)
 - [shared/auth/middleware.py](../auth/middleware.py)
 - [.env.example](../../.env.example)
@@ -539,6 +540,7 @@ async def process_data(
 ## الدعم
 
 إذا واجهت أي مشاكل:
+
 1. تحقق من [استكشاف الأخطاء](#استكشاف-الأخطاء)
 2. راجع logs التطبيق
 3. تأكد من تكوين Redis بشكل صحيح

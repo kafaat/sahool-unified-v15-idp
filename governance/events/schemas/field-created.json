@@ -4,7 +4,14 @@
   "title": "FieldCreated",
   "description": "Event emitted when a new field is created",
   "type": "object",
-  "required": ["event_id", "timestamp", "field_id", "tenant_id", "name", "area_hectares"],
+  "required": [
+    "event_id",
+    "timestamp",
+    "field_id",
+    "tenant_id",
+    "name",
+    "area_hectares"
+  ],
   "properties": {
     "event_id": {
       "type": "string",
@@ -39,7 +46,16 @@
     },
     "crop_type": {
       "type": "string",
-      "enum": ["wheat", "barley", "corn", "alfalfa", "dates", "vegetables", "fruits", "other"],
+      "enum": [
+        "wheat",
+        "barley",
+        "corn",
+        "alfalfa",
+        "dates",
+        "vegetables",
+        "fruits",
+        "other"
+      ],
       "description": "Type of crop planted"
     },
     "location": {

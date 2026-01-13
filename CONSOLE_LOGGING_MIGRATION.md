@@ -1,6 +1,7 @@
 # Console Logging Migration Summary
 
 ## Overview
+
 All `console.log`, `console.error`, `console.warn`, `console.info`, and `console.debug` statements in the web apps have been replaced with an environment-aware logger utility.
 
 ## Changes Made
@@ -8,10 +9,12 @@ All `console.log`, `console.error`, `console.warn`, `console.info`, and `console
 ### 1. Logger Utility Created
 
 Created logger utilities for both web and admin apps:
+
 - `/home/user/sahool-unified-v15-idp/apps/web/src/lib/logger.ts`
 - `/home/user/sahool-unified-v15-idp/apps/admin/src/lib/logger.ts`
 
 The logger provides:
+
 - **Development Mode**: All logging enabled for debugging
 - **Production Mode**: Logging gated/disabled to prevent console pollution
 - **Critical Logging**: Always logged (for error tracking services)
@@ -20,16 +23,16 @@ The logger provides:
 ### 2. Logger API
 
 ```typescript
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 // Development-only logging
-logger.log(...args);     // General information
-logger.error(...args);   // Errors (dev only)
-logger.warn(...args);    // Warnings (dev only)
-logger.info(...args);    // Info messages (dev only)
-logger.debug(...args);   // Debug information
-logger.group(...args);   // Console grouping
-logger.groupEnd();       // End console group
+logger.log(...args); // General information
+logger.error(...args); // Errors (dev only)
+logger.warn(...args); // Warnings (dev only)
+logger.info(...args); // Info messages (dev only)
+logger.debug(...args); // Debug information
+logger.group(...args); // Console grouping
+logger.groupEnd(); // End console group
 
 // Critical errors (always logged)
 logger.critical(...args); // For errors that should be sent to error tracking
@@ -41,6 +44,7 @@ logger.production(...args); // Structured logging for production
 ### 3. Files Updated
 
 #### Apps/Web (41 files updated):
+
 - **Core Infrastructure**:
   - `src/lib/logger.ts` (created)
   - `src/lib/api/client.ts`
@@ -86,6 +90,7 @@ logger.production(...args); // Structured logging for production
   - `src/components/settings/ServiceSwitcher.tsx`
 
 #### Apps/Admin (23 files updated):
+
 - **Core Infrastructure**:
   - `src/lib/logger.ts` (created)
   - `src/lib/api.ts`
@@ -119,29 +124,35 @@ logger.production(...args); // Structured logging for production
 ### 5. Key Features
 
 #### Environment-Aware Logging
+
 The logger automatically adapts based on `NODE_ENV`:
+
 - **Development**: All logging visible in browser console
 - **Production**: Logging gated to prevent information leakage
 
 #### Critical Error Logging
+
 Use `logger.critical()` for errors that should be tracked in production:
+
 ```typescript
 try {
   // risky operation
 } catch (error) {
-  logger.critical('Critical operation failed:', error);
+  logger.critical("Critical operation failed:", error);
   // This will be logged in both dev and production
   // TODO: Integrate with error tracking service (Sentry, etc.)
 }
 ```
 
 #### Production Logging
+
 Use `logger.production()` for structured server-side logging:
+
 ```typescript
 // API routes
 logger.production({
-  level: 'error',
-  service: 'sahool-web',
+  level: "error",
+  service: "sahool-web",
   message: error.message,
   timestamp: new Date().toISOString(),
 });
@@ -150,6 +161,7 @@ logger.production({
 ### 6. Integration Points
 
 The logger is designed to integrate with:
+
 - **Error Tracking Services**: Sentry, LogRocket, Datadog
 - **Server Logging**: Structured JSON logs for production
 - **Monitoring Systems**: Custom error tracking endpoints
@@ -167,31 +179,33 @@ The logger is designed to integrate with:
 ### Recommended Integrations:
 
 1. **Error Tracking Service** (Recommended):
+
    ```typescript
    // In logger.ts, update critical() method:
    critical: (...args: any[]) => {
      console.error(...args);
-     if (process.env.NODE_ENV === 'production') {
+     if (process.env.NODE_ENV === "production") {
        Sentry.captureException(args[0]);
      }
-   }
+   };
    ```
 
 2. **Structured Logging Service**:
+
    ```typescript
    // In logger.ts, update production() method:
    production: (...args: any[]) => {
-     if (process.env.NODE_ENV === 'production') {
-       await fetch('/api/logging', {
-         method: 'POST',
+     if (process.env.NODE_ENV === "production") {
+       await fetch("/api/logging", {
+         method: "POST",
          body: JSON.stringify({
-           level: 'error',
+           level: "error",
            timestamp: new Date().toISOString(),
            data: args,
          }),
        });
      }
-   }
+   };
    ```
 
 3. **Analytics Integration**:
@@ -202,6 +216,7 @@ The logger is designed to integrate with:
 ## Testing
 
 The logger utility has been integrated into:
+
 - ✅ Error boundaries
 - ✅ API error handlers
 - ✅ WebSocket connections
@@ -212,6 +227,7 @@ The logger utility has been integrated into:
 ## Rollback
 
 If needed, the migration can be rolled back by:
+
 1. Removing logger imports
 2. Replacing `logger.log` with `console.log`
 3. Replacing `logger.error` with `console.error`

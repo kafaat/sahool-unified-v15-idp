@@ -12,8 +12,8 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+} from "@nestjs/common";
+import { Request, Response } from "express";
 
 /**
  * Error response structure
@@ -52,17 +52,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     // Extract error message
-    let message = 'An unexpected error occurred';
-    let messageAr = 'حدث خطأ غير متوقع';
-    let code = 'INTERNAL_ERROR';
+    let message = "An unexpected error occurred";
+    let messageAr = "حدث خطأ غير متوقع";
+    let code = "INTERNAL_ERROR";
     let details: Record<string, any> | undefined;
 
     if (exception instanceof HttpException) {
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === 'string') {
+      if (typeof exceptionResponse === "string") {
         message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object') {
+      } else if (typeof exceptionResponse === "object") {
         const resp = exceptionResponse as any;
         message = resp.message || resp.error || message;
         messageAr = resp.messageAr || resp.message_ar || messageAr;
@@ -75,8 +75,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Get request ID from headers
     const requestId =
-      (request.headers['x-request-id'] as string) ||
-      (request.headers['x-correlation-id'] as string);
+      (request.headers["x-request-id"] as string) ||
+      (request.headers["x-correlation-id"] as string);
 
     // Build error response
     const errorResponse: ErrorResponse = {
@@ -99,7 +99,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         exception instanceof Error ? exception.stack : undefined,
       );
     } else {
-      this.logger.warn(`${request.method} ${request.url} - ${status} - ${message}`);
+      this.logger.warn(
+        `${request.method} ${request.url} - ${status} - ${message}`,
+      );
     }
 
     // Send response
@@ -111,19 +113,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
    */
   private getDefaultCode(status: number): string {
     const statusCodes: Record<number, string> = {
-      400: 'BAD_REQUEST',
-      401: 'UNAUTHORIZED',
-      403: 'FORBIDDEN',
-      404: 'NOT_FOUND',
-      409: 'CONFLICT',
-      422: 'UNPROCESSABLE_ENTITY',
-      429: 'TOO_MANY_REQUESTS',
-      500: 'INTERNAL_ERROR',
-      502: 'BAD_GATEWAY',
-      503: 'SERVICE_UNAVAILABLE',
+      400: "BAD_REQUEST",
+      401: "UNAUTHORIZED",
+      403: "FORBIDDEN",
+      404: "NOT_FOUND",
+      409: "CONFLICT",
+      422: "UNPROCESSABLE_ENTITY",
+      429: "TOO_MANY_REQUESTS",
+      500: "INTERNAL_ERROR",
+      502: "BAD_GATEWAY",
+      503: "SERVICE_UNAVAILABLE",
     };
 
-    return statusCodes[status] || 'UNKNOWN_ERROR';
+    return statusCodes[status] || "UNKNOWN_ERROR";
   }
 }
 
@@ -138,8 +140,8 @@ export class LanguageAwareExceptionFilter extends HttpExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     // Detect preferred language from Accept-Language header
-    const acceptLanguage = request.headers['accept-language'] || 'en';
-    const preferArabic = acceptLanguage.includes('ar');
+    const acceptLanguage = request.headers["accept-language"] || "en";
+    const preferArabic = acceptLanguage.includes("ar");
 
     // Store language preference in request for use in response
     (request as any).preferArabic = preferArabic;

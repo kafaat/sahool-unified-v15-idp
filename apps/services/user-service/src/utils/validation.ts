@@ -9,17 +9,17 @@ import {
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-} from 'class-validator';
-import { Transform, TransformFnParams } from 'class-transformer';
+} from "class-validator";
+import { Transform, TransformFnParams } from "class-transformer";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Yemen Phone Validator
 // ═══════════════════════════════════════════════════════════════════════════
 
-@ValidatorConstraint({ name: 'isYemeniPhone', async: false })
+@ValidatorConstraint({ name: "isYemeniPhone", async: false })
 export class IsYemeniPhoneConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
@@ -29,11 +29,11 @@ export class IsYemeniPhoneConstraint implements ValidatorConstraintInterface {
       /^(77|78)[0-9]{7}$/,
     ];
 
-    return patterns.some((pattern) => pattern.test(value.replace(/\s/g, '')));
+    return patterns.some((pattern) => pattern.test(value.replace(/\s/g, "")));
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Phone number must be a valid Yemeni phone number (e.g., +967712345678 or 712345678)';
+    return "Phone number must be a valid Yemeni phone number (e.g., +967712345678 or 712345678)";
   }
 }
 
@@ -53,10 +53,10 @@ export function IsYemeniPhone(validationOptions?: ValidationOptions) {
 // Strong Password Validator
 // ═══════════════════════════════════════════════════════════════════════════
 
-@ValidatorConstraint({ name: 'isStrongPassword', async: false })
+@ValidatorConstraint({ name: "isStrongPassword", async: false })
 export class IsStrongPasswordConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
@@ -114,36 +114,36 @@ export function IsStrongPassword(
  * Simple HTML sanitization without external dependencies
  */
 function sanitizePlainTextValue(input: string): string {
-  if (typeof input !== 'string') {
+  if (typeof input !== "string") {
     return input;
   }
 
   let sanitized = input;
 
   // Remove null bytes
-  sanitized = sanitized.replace(/\x00/g, '');
+  sanitized = sanitized.replace(/\x00/g, "");
 
   // Remove control characters (except newline and tab)
   sanitized = sanitized.replace(
     // eslint-disable-next-line no-control-regex
     /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g,
-    '',
+    "",
   );
 
   // Strip HTML tags
-  sanitized = sanitized.replace(/<[^>]*>/g, '');
+  sanitized = sanitized.replace(/<[^>]*>/g, "");
 
   // Decode common HTML entities
   sanitized = sanitized
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ');
+    .replace(/&nbsp;/g, " ");
 
   // Normalize whitespace
-  sanitized = sanitized.replace(/\s+/g, ' ');
+  sanitized = sanitized.replace(/\s+/g, " ");
 
   // Trim
   sanitized = sanitized.trim();
@@ -156,7 +156,7 @@ function sanitizePlainTextValue(input: string): string {
  */
 export function SanitizePlainText() {
   return Transform((params: TransformFnParams) => {
-    if (typeof params.value !== 'string') {
+    if (typeof params.value !== "string") {
       return params.value;
     }
     return sanitizePlainTextValue(params.value);
@@ -168,16 +168,16 @@ export function SanitizePlainText() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export enum UserRole {
-  ADMIN = 'ADMIN',
-  MANAGER = 'MANAGER',
-  FARMER = 'FARMER',
-  WORKER = 'WORKER',
-  VIEWER = 'VIEWER',
+  ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+  FARMER = "FARMER",
+  WORKER = "WORKER",
+  VIEWER = "VIEWER",
 }
 
 export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  PENDING = 'PENDING',
-  SUSPENDED = 'SUSPENDED',
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  PENDING = "PENDING",
+  SUSPENDED = "SUSPENDED",
 }

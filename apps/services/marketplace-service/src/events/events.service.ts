@@ -5,7 +5,7 @@
  * TODO: Enable full NATS event bus integration when Docker build supports shared packages
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class EventsService {
@@ -15,7 +15,7 @@ export class EventsService {
    * Connect to NATS (no-op stub)
    */
   async connect(): Promise<void> {
-    this.logger.log('Events service running in stub mode (NATS disabled)');
+    this.logger.log("Events service running in stub mode (NATS disabled)");
   }
 
   /**

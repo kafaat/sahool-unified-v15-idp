@@ -14,16 +14,18 @@ Agricultural alerts and warnings management service for fields and crops.
 ## الميزات | Features
 
 ### أنواع التنبيهات | Alert Types
-| النوع | Type | الوصف |
-|-------|------|--------|
-| طقس | Weather | تنبيهات الطقس القاسي |
-| آفات | Pest | تنبيهات الإصابة بالآفات |
-| أمراض | Disease | تنبيهات الأمراض |
-| ري | Irrigation | تنبيهات نقص المياه |
-| تسميد | Fertilizer | تنبيهات التسميد |
-| حصاد | Harvest | تنبيهات موعد الحصاد |
+
+| النوع | Type       | الوصف                   |
+| ----- | ---------- | ----------------------- |
+| طقس   | Weather    | تنبيهات الطقس القاسي    |
+| آفات  | Pest       | تنبيهات الإصابة بالآفات |
+| أمراض | Disease    | تنبيهات الأمراض         |
+| ري    | Irrigation | تنبيهات نقص المياه      |
+| تسميد | Fertilizer | تنبيهات التسميد         |
+| حصاد  | Harvest    | تنبيهات موعد الحصاد     |
 
 ### مستويات الخطورة | Severity Levels
+
 - **critical** - حرج: يتطلب إجراء فوري
 - **high** - عالي: يتطلب انتباه عاجل
 - **medium** - متوسط: يحتاج مراجعة
@@ -119,45 +121,44 @@ Response:
 ## نماذج البيانات | Data Models
 
 ### Alert
+
 ```json
 {
-    "id": "alert-001",
-    "field_id": "field-001",
-    "type": "weather",
-    "severity": "high",
-    "status": "active",
-    "title": "توقع موجة حر",
-    "title_en": "Heat Wave Expected",
-    "message": "درجات حرارة مرتفعة متوقعة خلال الأيام الثلاثة القادمة",
-    "recommendations": [
-        "زيادة معدل الري",
-        "تغطية المحاصيل الحساسة"
-    ],
-    "created_at": "2024-01-15T10:00:00Z",
-    "expires_at": "2024-01-18T18:00:00Z",
-    "acknowledged_at": null
+  "id": "alert-001",
+  "field_id": "field-001",
+  "type": "weather",
+  "severity": "high",
+  "status": "active",
+  "title": "توقع موجة حر",
+  "title_en": "Heat Wave Expected",
+  "message": "درجات حرارة مرتفعة متوقعة خلال الأيام الثلاثة القادمة",
+  "recommendations": ["زيادة معدل الري", "تغطية المحاصيل الحساسة"],
+  "created_at": "2024-01-15T10:00:00Z",
+  "expires_at": "2024-01-18T18:00:00Z",
+  "acknowledged_at": null
 }
 ```
 
 ### AlertRule
+
 ```json
 {
-    "id": "rule-001",
-    "field_id": "field-001",
-    "name": "تنبيه رطوبة منخفضة",
-    "enabled": true,
-    "condition": {
-        "metric": "soil_moisture",
-        "operator": "lt",
-        "value": 30,
-        "duration_minutes": 60
-    },
-    "alert_config": {
-        "type": "irrigation",
-        "severity": "medium"
-    },
-    "cooldown_hours": 24,
-    "created_at": "2024-01-01T00:00:00Z"
+  "id": "rule-001",
+  "field_id": "field-001",
+  "name": "تنبيه رطوبة منخفضة",
+  "enabled": true,
+  "condition": {
+    "metric": "soil_moisture",
+    "operator": "lt",
+    "value": 30,
+    "duration_minutes": 60
+  },
+  "alert_config": {
+    "type": "irrigation",
+    "severity": "medium"
+  },
+  "cooldown_hours": 24,
+  "created_at": "2024-01-01T00:00:00Z"
 }
 ```
 

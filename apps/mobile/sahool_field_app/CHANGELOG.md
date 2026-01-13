@@ -5,12 +5,14 @@ All notable changes to the SAHOOL Field mobile application.
 ## [Unreleased]
 
 ### 🔧 Bug Fixes
+
 - Fixed `SecureApplicationController` constructor for `secure_application 4.1.0` compatibility
 - Removed invalid `const` keyword from `SecureApplicationState()` instantiation
 - Fixed Drift code generation glob patterns in `build.yaml`
 - Added dependency injection support in `SyncEngine` for improved testability
 
 ### 🧪 Testing
+
 - Fixed integration test runner to properly execute all tests with `--all` flag
 - Added `.env` file creation in CI for asset bundle requirements
 
@@ -19,18 +21,21 @@ All notable changes to the SAHOOL Field mobile application.
 ### ✨ New Features
 
 #### Smart Daily Brief
+
 - **DailyBriefWidget**: Personalized morning/evening briefing
 - Weather-based recommendations
 - Priority task highlighting
 - Quick action shortcuts for common operations
 
 #### Smart Alerts Center
+
 - **SmartAlertsCenter**: Real-time alerts from IoT sensors
 - Severity-based alert categorization (Critical, Warning, Info)
 - Actionable recommendations with one-tap actions
 - Support for irrigation, weather, NDVI, sensor, task, and pest alerts
 
 #### Push Notifications
+
 - **Firebase Cloud Messaging (FCM)** integration
 - Background and foreground notification handling
 - Topic-based subscriptions (user, tenant, all_users)
@@ -40,6 +45,7 @@ All notable changes to the SAHOOL Field mobile application.
 ### 🔐 Security Improvements
 
 #### Authentication
+
 - **AuthService**: Complete auth flow with automatic token refresh
 - **SecureStorageService**: Encrypted token storage using flutter_secure_storage
 - **BiometricService**: Fingerprint and Face ID authentication
@@ -48,21 +54,25 @@ All notable changes to the SAHOOL Field mobile application.
 ### ⚡ Performance Optimizations
 
 #### Image Caching
+
 - **SahoolImageCacheManager**: LRU-based image caching
 - Configurable cache size limits
 - Background preloading support
 
 #### List Optimization
+
 - **SahoolOptimizedListView**: Lazy loading with pagination
 - **SahoolOptimizedGridView**: Memory-efficient grid rendering
 - RepaintBoundary optimization for smooth scrolling
 
 #### Memory Management
+
 - **MemoryManager**: Memory pressure monitoring
 - Automatic cache cleanup on low memory
 - Image cache size configuration
 
 #### Network Caching
+
 - **NetworkCache**: API response caching with TTL
 - Offline fallback support
 - Pattern-based cache invalidation
@@ -70,18 +80,21 @@ All notable changes to the SAHOOL Field mobile application.
 ### 🛠️ Developer Experience
 
 #### Testing Infrastructure
+
 - Comprehensive test helpers and utilities
 - Mock providers for Riverpod testing
 - Test fixtures with sample data
 - Integration tests for auth flow, offline sync, and notifications
 
 #### Code Quality
+
 - Enhanced lint rules (80+ rules in analysis_options.yaml)
 - Structured logging with AppLogger
 - Error boundaries for graceful error handling
 - Loading state widgets for consistent UX
 
 #### CI/CD
+
 - GitHub Actions workflow for mobile builds
 - Automated analysis, testing, and APK generation
 - Flutter version pinning for reproducible builds

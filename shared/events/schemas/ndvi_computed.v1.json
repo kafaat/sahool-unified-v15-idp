@@ -50,11 +50,7 @@
     },
     "payload": {
       "type": "object",
-      "required": [
-        "field_id",
-        "ndvi_mean",
-        "scene_date"
-      ],
+      "required": ["field_id", "ndvi_mean", "scene_date"],
       "properties": {
         "field_id": {
           "type": "string",

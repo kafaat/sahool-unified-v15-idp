@@ -3,15 +3,15 @@
 // خطاف التخزين المحلي
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from "react";
 
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T
+  initialValue: T,
 ): [T, (value: T | ((prev: T) => T)) => void, () => void] {
   // Get stored value
   const readValue = useCallback((): T => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return initialValue;
     }
 
@@ -29,7 +29,7 @@ export function useLocalStorage<T>(
   // Set value
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
-      if (typeof window === 'undefined') {
+      if (typeof window === "undefined") {
         console.warn(`Cannot set localStorage key "${key}" in SSR`);
         return;
       }
@@ -40,17 +40,22 @@ export function useLocalStorage<T>(
         setStoredValue(newValue);
 
         // Dispatch storage event for other tabs
-        window.dispatchEvent(new StorageEvent('storage', { key, newValue: JSON.stringify(newValue) }));
+        window.dispatchEvent(
+          new StorageEvent("storage", {
+            key,
+            newValue: JSON.stringify(newValue),
+          }),
+        );
       } catch (error) {
         console.warn(`Error setting localStorage key "${key}":`, error);
       }
     },
-    [key, storedValue]
+    [key, storedValue],
   );
 
   // Remove value
   const removeValue = useCallback(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     try {
       window.localStorage.removeItem(key);
@@ -68,8 +73,8 @@ export function useLocalStorage<T>(
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, [key]);
 
   return [storedValue, setValue, removeValue];

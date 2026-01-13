@@ -1,4 +1,5 @@
 # SAHOOL Platform - Data Validation Audit Report
+
 ## نتائج تدقيق التحقق من صحة البيانات
 
 **Audit Date:** 2026-01-06
@@ -15,6 +16,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 ### Overall Validation Coverage Score: **7.5/10**
 
 **Key Findings:**
+
 - ✅ **Strong**: Database-level constraints and enum usage
 - ✅ **Good**: DTO validation in NestJS services
 - ✅ **Good**: Pydantic validation in FastAPI services
@@ -29,6 +31,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 ### 1.1 Prisma Schema Constraints (Database Level)
 
 **Files Analyzed:**
+
 - `/apps/services/user-service/prisma/schema.prisma`
 - `/apps/services/marketplace-service/prisma/schema.prisma`
 - `/apps/services/inventory-service/prisma/schema.prisma`
@@ -39,6 +42,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 #### Strengths ✅
 
 1. **Unique Constraints:**
+
    ```prisma
    email           String        @unique
    sku             String?       @unique
@@ -47,6 +51,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 2. **Default Values:**
+
    ```prisma
    status          UserStatus    @default(PENDING)
    emailVerified   Boolean       @default(false)
@@ -56,6 +61,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 3. **Database Indexes for Performance:**
+
    ```prisma
    @@index([tenantId])
    @@index([email])
@@ -64,6 +70,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 4. **Check Constraints (Advanced):**
+
    ```prisma
    CheckConstraint("subtotal >= 0", name="check_subtotal_positive")
    CheckConstraint("total >= 0", name="check_total_positive")
@@ -97,6 +104,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 ### 1.2 NestJS DTO Validation (API Input Layer)
 
 **Files Analyzed:**
+
 - `/apps/services/user-service/src/users/dto/create-user.dto.ts`
 - `/apps/services/chat-service/src/chat/dto/send-message.dto.ts`
 - `/apps/services/research-core/src/modules/experiments/dto/experiment.dto.ts`
@@ -105,6 +113,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 #### Strengths ✅
 
 1. **Comprehensive class-validator Usage:**
+
    ```typescript
    @IsEmail()
    email: string;
@@ -138,6 +147,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 2. **Proper Optional Field Handling:**
+
    ```typescript
    @IsOptional()
    @IsString()
@@ -145,6 +155,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 3. **Array Validation:**
+
    ```typescript
    @IsArray()
    @IsString({ each: true })
@@ -152,6 +163,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 4. **Date Validation:**
+
    ```typescript
    @IsDateString()
    startDate: string;
@@ -160,10 +172,10 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 5. **Global ValidationPipe Configuration:**
    ```typescript
    new ValidationPipe({
-     whitelist: true,        // Strip non-whitelisted properties
-     transform: true,        // Auto-transform payloads
-     forbidNonWhitelisted: true,  // Throw error on extra props
-   })
+     whitelist: true, // Strip non-whitelisted properties
+     transform: true, // Auto-transform payloads
+     forbidNonWhitelisted: true, // Throw error on extra props
+   });
    ```
 
 #### Weaknesses ⚠️
@@ -184,6 +196,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    - Potential XSS vulnerabilities
 
 4. **Missing Cross-Field Validation:**
+
    ```typescript
    // Should validate: startDate < endDate
    @IsDateString()
@@ -198,6 +211,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 ### 1.3 Pydantic Models (FastAPI Services)
 
 **Files Analyzed:**
+
 - `/apps/services/field-service/src/models.py`
 - `/apps/services/alert-service/src/models.py`
 - `/apps/services/billing-core/src/models.py`
@@ -207,6 +221,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 #### Strengths ✅
 
 1. **Field-Level Validation with Constraints:**
+
    ```python
    lat: float = Field(..., ge=-90, le=90, description="خط العرض")
    lng: float = Field(..., ge=-180, le=180, description="خط الطول")
@@ -221,6 +236,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 2. **Custom Field Validators:**
+
    ```python
    @field_validator("coordinates")
    @classmethod
@@ -240,6 +256,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 3. **Enum-Based Constraints:**
+
    ```python
    class AlertType(str, Enum):
        WEATHER = "weather"
@@ -256,12 +273,14 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 4. **Type-Safe Union Types:**
+
    ```python
    name_ar: str | None = Field(None, description="الاسم بالعربية")
    metadata: dict[str, Any] | None = Field(None, description="بيانات إضافية")
    ```
 
 5. **SQLAlchemy Model Constraints:**
+
    ```python
    cloud_coverage: Mapped[float] = mapped_column(
        Float,
@@ -296,12 +315,14 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 ### 1.4 Input Sanitization Analysis
 
 **Files Analyzed:**
+
 - `/apps/services/ai-advisor/src/middleware/input_validator.py`
 - `/apps/services/ai-advisor/src/security/prompt_guard.py`
 
 #### Strengths ✅
 
 1. **Prompt Injection Protection:**
+
    ```python
    class PromptGuard:
        INJECTION_PATTERNS = [
@@ -313,6 +334,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
    ```
 
 2. **Content Sanitization:**
+
    ```python
    # Remove null bytes
    text = text.replace('\x00', '')
@@ -360,6 +382,7 @@ This comprehensive audit analyzes data validation patterns across the SAHOOL agr
 **Score: 8/10**
 
 ✅ **Strong Points:**
+
 - Proper foreign key relationships in Prisma
 - Cascade delete rules defined
 - Indexed foreign keys for performance
@@ -374,6 +397,7 @@ field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 ```
 
 ⚠️ **Gaps:**
+
 - Some cross-service references use string IDs without validation
 - No distributed transaction support for multi-service operations
 
@@ -406,11 +430,13 @@ field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 **Score: 9/10**
 
 ✅ **Strong:**
+
 - Tenant ID required on most models
 - Indexes on tenant ID for query performance
 - Proper filtering in queries
 
 ⚠️ **Concern:**
+
 - Relies on application-level enforcement
 - No Row-Level Security (RLS) in PostgreSQL
 - Could be enhanced with database-level tenant isolation
@@ -461,12 +487,14 @@ field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 ### 3.3 Authentication & Authorization
 
 ✅ **Good:**
+
 - Proper password hashing (bcrypt)
 - Session management with expiry
 - Refresh token rotation
 - JTI tracking for token invalidation
 
 ⚠️ **Could Improve:**
+
 - No password complexity requirements in validation
 - No account lockout after failed attempts
 - No suspicious activity detection
@@ -478,6 +506,7 @@ field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 ### 4.1 User Service
 
 **Missing:**
+
 - ❌ Password complexity validation (uppercase, lowercase, number, special char)
 - ❌ Email domain validation (check MX records)
 - ❌ Phone number format validation (country-specific)
@@ -485,6 +514,7 @@ field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 - ❌ Age validation (must be 18+)
 
 **Recommendation:**
+
 ```typescript
 @IsString()
 @MinLength(8)
@@ -499,6 +529,7 @@ password: string;
 ### 4.2 Marketplace Service
 
 **Missing:**
+
 - ❌ Price range validation (min/max)
 - ❌ Stock quantity validation (non-negative)
 - ❌ Product name XSS sanitization
@@ -507,6 +538,7 @@ password: string;
 - ❌ Credit card number validation (Luhn algorithm)
 
 **Recommendation:**
+
 ```typescript
 @IsNumber()
 @Min(0)
@@ -521,6 +553,7 @@ description: string;
 ### 4.3 Field Service
 
 **Missing:**
+
 - ❌ GPS coordinate boundary validation (Yemen-specific)
 - ❌ Field area calculation validation
 - ❌ Polygon self-intersection check
@@ -528,6 +561,7 @@ description: string;
 - ❌ Crop type compatibility with soil type
 
 **Recommendation:**
+
 ```python
 @field_validator("coordinates")
 def validate_yemen_coordinates(cls, v: GeoPoint):
@@ -540,6 +574,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 ### 4.4 Inventory Service
 
 **Missing:**
+
 - ❌ Expiry date validation (must be future)
 - ❌ Temperature range validation
 - ❌ Batch number format validation
@@ -549,6 +584,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 ### 4.5 Billing Service
 
 **Missing:**
+
 - ❌ Invoice total calculation validation
 - ❌ Tax rate validation (0-100%)
 - ❌ Payment method verification
@@ -562,6 +598,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 ### 5.1 Immediate Actions (High Priority)
 
 1. **Implement Platform-Wide Input Sanitization**
+
    ```typescript
    // Shared sanitization middleware
    import { sanitizeHtml } from '@shared/security';
@@ -571,6 +608,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
    ```
 
 2. **Add Custom Validators Library**
+
    ```typescript
    // @shared/validators/custom-validators.ts
    export const IsYemeniPhone = () => {
@@ -583,6 +621,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
    ```
 
 3. **Implement Business Rule Validation**
+
    ```python
    @field_validator("end_date")
    def validate_date_range(cls, v, info: ValidationInfo):
@@ -592,6 +631,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
    ```
 
 4. **Convert Float to Decimal for Money**
+
    ```prisma
    // Before
    price Float
@@ -609,6 +649,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 ### 5.2 Medium-Term Improvements
 
 1. **Implement Rate Limiting**
+
    ```python
    from slowapi import Limiter
    from slowapi.util import get_remote_address
@@ -622,12 +663,14 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
    ```
 
 2. **Add Request Size Validation**
+
    ```typescript
-   app.use(express.json({ limit: '10mb' }));
-   app.use(express.urlencoded({ limit: '10mb', extended: true }));
+   app.use(express.json({ limit: "10mb" }));
+   app.use(express.urlencoded({ limit: "10mb", extended: true }));
    ```
 
 3. **Implement File Upload Validation**
+
    ```python
    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -651,6 +694,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 ### 5.3 Long-Term Enhancements
 
 1. **Implement Row-Level Security**
+
    ```sql
    CREATE POLICY tenant_isolation ON fields
    FOR ALL
@@ -660,27 +704,29 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
    ```
 
 2. **Add Validation Testing Suite**
+
    ```typescript
-   describe('CreateUserDto validation', () => {
-     it('should reject invalid email', async () => {
-       const dto = { email: 'invalid-email' };
+   describe("CreateUserDto validation", () => {
+     it("should reject invalid email", async () => {
+       const dto = { email: "invalid-email" };
        await expect(validate(dto)).rejects.toThrow();
      });
 
-     it('should reject short password', async () => {
-       const dto = { password: '123' };
+     it("should reject short password", async () => {
+       const dto = { password: "123" };
        await expect(validate(dto)).rejects.toThrow();
      });
    });
    ```
 
 3. **Implement Validation Metrics**
+
    ```typescript
    // Track validation failures
-   metrics.increment('validation.failure', {
-     service: 'user-service',
-     field: 'email',
-     reason: 'invalid_format'
+   metrics.increment("validation.failure", {
+     service: "user-service",
+     field: "email",
+     reason: "invalid_format",
    });
    ```
 
@@ -701,20 +747,20 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 
 ## 6. Validation Coverage by Service
 
-| Service | DTO Validation | Pydantic Validation | DB Constraints | Sanitization | Score |
-|---------|---------------|---------------------|----------------|--------------|-------|
-| user-service | ✅ Excellent | N/A | ✅ Good | ❌ None | 8/10 |
-| marketplace-service | ✅ Excellent | N/A | ✅ Excellent | ❌ None | 8/10 |
-| inventory-service | ❌ None | ✅ Good | ✅ Excellent | ❌ None | 7/10 |
-| field-service | ❌ None | ✅ Excellent | ✅ Good | ❌ None | 8/10 |
-| field-core | ✅ Good | N/A | ✅ Good | ❌ None | 7/10 |
-| alert-service | ❌ None | ✅ Excellent | ✅ Good | ❌ None | 7/10 |
-| billing-core | ❌ None | ✅ Good | ✅ Excellent | ❌ None | 8/10 |
-| chat-service | ✅ Excellent | N/A | ✅ Good | ❌ None | 8/10 |
-| ai-advisor | ❌ Limited | ✅ Good | N/A | ✅ Excellent | 7/10 |
-| research-core | ✅ Good | N/A | ✅ Good | ❌ None | 7/10 |
-| ndvi-engine | ❌ None | ✅ Good | ✅ Good | ❌ None | 7/10 |
-| iot-service | ✅ Limited | ✅ Good | ✅ Good | ❌ None | 6/10 |
+| Service             | DTO Validation | Pydantic Validation | DB Constraints | Sanitization | Score |
+| ------------------- | -------------- | ------------------- | -------------- | ------------ | ----- |
+| user-service        | ✅ Excellent   | N/A                 | ✅ Good        | ❌ None      | 8/10  |
+| marketplace-service | ✅ Excellent   | N/A                 | ✅ Excellent   | ❌ None      | 8/10  |
+| inventory-service   | ❌ None        | ✅ Good             | ✅ Excellent   | ❌ None      | 7/10  |
+| field-service       | ❌ None        | ✅ Excellent        | ✅ Good        | ❌ None      | 8/10  |
+| field-core          | ✅ Good        | N/A                 | ✅ Good        | ❌ None      | 7/10  |
+| alert-service       | ❌ None        | ✅ Excellent        | ✅ Good        | ❌ None      | 7/10  |
+| billing-core        | ❌ None        | ✅ Good             | ✅ Excellent   | ❌ None      | 8/10  |
+| chat-service        | ✅ Excellent   | N/A                 | ✅ Good        | ❌ None      | 8/10  |
+| ai-advisor          | ❌ Limited     | ✅ Good             | N/A            | ✅ Excellent | 7/10  |
+| research-core       | ✅ Good        | N/A                 | ✅ Good        | ❌ None      | 7/10  |
+| ndvi-engine         | ❌ None        | ✅ Good             | ✅ Good        | ❌ None      | 7/10  |
+| iot-service         | ✅ Limited     | ✅ Good             | ✅ Good        | ❌ None      | 6/10  |
 
 **Average Score: 7.3/10**
 
@@ -723,12 +769,14 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 ## 7. Priority Matrix
 
 ### Critical (Fix Immediately)
+
 1. ❌ Add input sanitization across all text inputs
 2. ❌ Convert Float to Decimal for all monetary values
 3. ❌ Add rate limiting on all public endpoints
 4. ❌ Implement file upload validation
 
 ### High Priority (Fix This Sprint)
+
 1. ⚠️ Add cross-field validation for date ranges
 2. ⚠️ Implement business rule validation
 3. ⚠️ Add password complexity validation
@@ -736,6 +784,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 5. ⚠️ Add GPS coordinate validation for Yemen
 
 ### Medium Priority (Next Quarter)
+
 1. 📋 Create shared validation library
 2. 📋 Implement validation testing suite
 3. 📋 Add validation metrics/monitoring
@@ -743,6 +792,7 @@ def validate_yemen_coordinates(cls, v: GeoPoint):
 5. 📋 Add Row-Level Security
 
 ### Low Priority (Future)
+
 1. 📝 Improve error message i18n
 2. 📝 Add validation documentation
 3. 📝 Create validation best practices guide
@@ -759,18 +809,21 @@ The SAHOOL platform demonstrates **good validation practices** at the database a
 4. **Financial precision** - Float usage for money
 
 ### Key Strengths:
+
 - ✅ Comprehensive enum usage for constrained fields
 - ✅ Strong database-level constraints
 - ✅ Good DTO validation in NestJS services
 - ✅ Excellent Pydantic model validation
 
 ### Key Weaknesses:
+
 - ❌ No platform-wide input sanitization
 - ❌ Inconsistent validation across services
 - ❌ Missing business rule validation
 - ❌ Float used for monetary values
 
 ### Recommendation:
+
 Implement the **Immediate Actions** (Section 5.1) within the next sprint to address critical security vulnerabilities, then proceed with medium-term improvements to achieve a **9/10 validation coverage score**.
 
 ---
@@ -837,6 +890,7 @@ def validate_field(cls, v):
 ## Appendix B: Files Analyzed
 
 ### Prisma Schemas (10 files)
+
 - /apps/services/user-service/prisma/schema.prisma
 - /apps/services/marketplace-service/prisma/schema.prisma
 - /apps/services/inventory-service/prisma/schema.prisma
@@ -849,25 +903,28 @@ def validate_field(cls, v):
 - /archive/kernel-legacy/kernel/services/field_core/prisma/schema.prisma
 
 ### NestJS DTOs (19 files)
-- /apps/services/user-service/src/users/dto/*.dto.ts
-- /apps/services/chat-service/src/chat/dto/*.dto.ts
-- /apps/services/marketplace-service/src/dto/*.dto.ts
-- /apps/services/research-core/src/modules/*/dto/*.dto.ts
+
+- /apps/services/user-service/src/users/dto/\*.dto.ts
+- /apps/services/chat-service/src/chat/dto/\*.dto.ts
+- /apps/services/marketplace-service/src/dto/\*.dto.ts
+- /apps/services/research-core/src/modules/_/dto/_.dto.ts
 - /apps/services/disaster-assessment/src/disaster/disaster.dto.ts
 - /apps/services/lai-estimation/src/lai/lai.dto.ts
 
 ### Python Models (42 files)
+
 - /apps/services/field-service/src/models.py
 - /apps/services/alert-service/src/models.py
 - /apps/services/billing-core/src/models.py
 - /apps/services/ndvi-engine/src/models.py
 - /apps/services/inventory-service/src/models.py
 - /apps/services/notification-service/src/models.py
-- /packages/field_suite/*/models.py
-- /packages/advisor/*/models.py
+- /packages/field_suite/\*/models.py
+- /packages/advisor/\*/models.py
 - Additional 30+ model files
 
 ### Security/Validation Middleware
+
 - /apps/services/ai-advisor/src/middleware/input_validator.py
 - /apps/services/ai-advisor/src/security/prompt_guard.py
 - /apps/services/shared/middleware/exception_handler.py
@@ -878,4 +935,3 @@ def validate_field(cls, v):
 **Total Files Analyzed:** 71
 **Lines of Code Analyzed:** ~15,000+
 **Validation Patterns Identified:** 200+
-

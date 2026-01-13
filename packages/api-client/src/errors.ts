@@ -3,7 +3,7 @@
 // أنواع الأخطاء المخصصة لعميل API
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { AxiosError } from 'axios';
+import { AxiosError } from "axios";
 
 /**
  * Base API Error class
@@ -27,11 +27,11 @@ export class ApiError extends Error {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ) {
     super(message);
-    this.name = 'ApiError';
-    this.code = options.code || 'API_ERROR';
+    this.name = "ApiError";
+    this.code = options.code || "API_ERROR";
     this.statusCode = options.statusCode;
     this.endpoint = options.endpoint;
     this.method = options.method;
@@ -74,13 +74,13 @@ export class NetworkError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ) {
     super(message, {
       ...options,
-      code: 'NETWORK_ERROR',
+      code: "NETWORK_ERROR",
     });
-    this.name = 'NetworkError';
+    this.name = "NetworkError";
   }
 }
 
@@ -95,14 +95,14 @@ export class AuthError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ) {
     super(message, {
       ...options,
-      code: 'AUTH_ERROR',
+      code: "AUTH_ERROR",
       statusCode: 401,
     });
-    this.name = 'AuthError';
+    this.name = "AuthError";
   }
 }
 
@@ -117,14 +117,14 @@ export class AuthorizationError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ) {
     super(message, {
       ...options,
-      code: 'AUTHORIZATION_ERROR',
+      code: "AUTHORIZATION_ERROR",
       statusCode: 403,
     });
-    this.name = 'AuthorizationError';
+    this.name = "AuthorizationError";
   }
 }
 
@@ -139,14 +139,14 @@ export class NotFoundError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ) {
     super(message, {
       ...options,
-      code: 'NOT_FOUND',
+      code: "NOT_FOUND",
       statusCode: 404,
     });
-    this.name = 'NotFoundError';
+    this.name = "NotFoundError";
   }
 }
 
@@ -164,14 +164,14 @@ export class ValidationError extends ApiError {
       originalError?: Error;
       context?: Record<string, unknown>;
       validationErrors?: Record<string, string[]>;
-    } = {}
+    } = {},
   ) {
     super(message, {
       ...options,
-      code: 'VALIDATION_ERROR',
+      code: "VALIDATION_ERROR",
       statusCode: 400,
     });
-    this.name = 'ValidationError';
+    this.name = "ValidationError";
     this.validationErrors = options.validationErrors;
   }
 
@@ -195,14 +195,14 @@ export class ServerError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ) {
     super(message, {
       ...options,
-      code: 'SERVER_ERROR',
+      code: "SERVER_ERROR",
       statusCode: options.statusCode || 500,
     });
-    this.name = 'ServerError';
+    this.name = "ServerError";
   }
 }
 
@@ -220,13 +220,13 @@ export class TimeoutError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    }
+    },
   ) {
     super(message, {
       ...options,
-      code: 'TIMEOUT_ERROR',
+      code: "TIMEOUT_ERROR",
     });
-    this.name = 'TimeoutError';
+    this.name = "TimeoutError";
     this.timeout = options.timeout;
   }
 
@@ -252,14 +252,14 @@ export class RateLimitError extends ApiError {
       method?: string;
       originalError?: Error;
       context?: Record<string, unknown>;
-    } = {}
+    } = {},
   ) {
     super(message, {
       ...options,
-      code: 'RATE_LIMIT_ERROR',
+      code: "RATE_LIMIT_ERROR",
       statusCode: 429,
     });
-    this.name = 'RateLimitError';
+    this.name = "RateLimitError";
     this.retryAfter = options.retryAfter;
   }
 
@@ -277,18 +277,18 @@ export class RateLimitError extends ApiError {
 export function parseAxiosError(
   error: AxiosError,
   endpoint?: string,
-  method?: string
+  method?: string,
 ): ApiError {
   const config = error.config;
   const response = error.response;
 
-  const errorEndpoint = endpoint || config?.url || 'unknown';
-  const errorMethod = method || config?.method?.toUpperCase() || 'unknown';
+  const errorEndpoint = endpoint || config?.url || "unknown";
+  const errorMethod = method || config?.method?.toUpperCase() || "unknown";
 
   // Network errors (no response received)
   if (!response) {
     // Timeout errors
-    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+    if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
       const timeout = config?.timeout || 0;
       return new TimeoutError(
         `Request timeout after ${timeout}ms: ${errorEndpoint}`,
@@ -297,117 +297,103 @@ export function parseAxiosError(
           endpoint: errorEndpoint,
           method: errorMethod,
           originalError: error,
-        }
+        },
       );
     }
 
     // Connection errors
-    return new NetworkError(
-      `Network error: ${error.message}`,
-      {
-        endpoint: errorEndpoint,
-        method: errorMethod,
-        originalError: error,
-        context: {
-          code: error.code,
-        },
-      }
-    );
+    return new NetworkError(`Network error: ${error.message}`, {
+      endpoint: errorEndpoint,
+      method: errorMethod,
+      originalError: error,
+      context: {
+        code: error.code,
+      },
+    });
   }
 
   // HTTP errors (response received)
   const statusCode = response.status;
-  const errorData = response.data as { message?: string; error?: string; errors?: Record<string, string[]> };
+  const errorData = response.data as {
+    message?: string;
+    error?: string;
+    errors?: Record<string, string[]>;
+  };
   const errorMessage = errorData?.message || errorData?.error || error.message;
 
   switch (statusCode) {
     case 400:
-      return new ValidationError(
-        errorMessage || 'Validation error',
-        {
-          endpoint: errorEndpoint,
-          method: errorMethod,
-          originalError: error,
-          validationErrors: errorData?.errors,
-          context: { statusCode, data: errorData },
-        }
-      );
+      return new ValidationError(errorMessage || "Validation error", {
+        endpoint: errorEndpoint,
+        method: errorMethod,
+        originalError: error,
+        validationErrors: errorData?.errors,
+        context: { statusCode, data: errorData },
+      });
 
     case 401:
       return new AuthError(
-        errorMessage || 'Unauthorized - authentication required',
+        errorMessage || "Unauthorized - authentication required",
         {
           endpoint: errorEndpoint,
           method: errorMethod,
           originalError: error,
           context: { statusCode },
-        }
+        },
       );
 
     case 403:
       return new AuthorizationError(
-        errorMessage || 'Forbidden - insufficient permissions',
+        errorMessage || "Forbidden - insufficient permissions",
         {
           endpoint: errorEndpoint,
           method: errorMethod,
           originalError: error,
           context: { statusCode },
-        }
+        },
       );
 
     case 404:
-      return new NotFoundError(
-        errorMessage || 'Resource not found',
-        {
-          endpoint: errorEndpoint,
-          method: errorMethod,
-          originalError: error,
-          context: { statusCode },
-        }
-      );
+      return new NotFoundError(errorMessage || "Resource not found", {
+        endpoint: errorEndpoint,
+        method: errorMethod,
+        originalError: error,
+        context: { statusCode },
+      });
 
     case 429:
-      const retryAfter = response.headers['retry-after']
-        ? parseInt(response.headers['retry-after'], 10)
+      const retryAfter = response.headers["retry-after"]
+        ? parseInt(response.headers["retry-after"], 10)
         : undefined;
-      return new RateLimitError(
-        errorMessage || 'Rate limit exceeded',
-        {
-          retryAfter,
-          endpoint: errorEndpoint,
-          method: errorMethod,
-          originalError: error,
-          context: { statusCode },
-        }
-      );
+      return new RateLimitError(errorMessage || "Rate limit exceeded", {
+        retryAfter,
+        endpoint: errorEndpoint,
+        method: errorMethod,
+        originalError: error,
+        context: { statusCode },
+      });
 
     case 500:
     case 502:
     case 503:
     case 504:
-      return new ServerError(
-        errorMessage || 'Server error',
-        {
-          statusCode,
-          endpoint: errorEndpoint,
-          method: errorMethod,
-          originalError: error,
-          context: { statusCode, data: errorData },
-        }
-      );
+      return new ServerError(errorMessage || "Server error", {
+        statusCode,
+        endpoint: errorEndpoint,
+        method: errorMethod,
+        originalError: error,
+        context: { statusCode, data: errorData },
+      });
 
     default:
-      return new ApiError(
-        errorMessage || 'API error',
-        {
-          code: `HTTP_${statusCode}`,
-          statusCode,
-          endpoint: errorEndpoint,
-          method: errorMethod,
-          originalError: error,
-          context: { statusCode, data: errorData },
-        }
-      );
+      return new ApiError(errorMessage || "API error", {
+        code: `HTTP_${statusCode}`,
+        statusCode,
+        endpoint: errorEndpoint,
+        method: errorMethod,
+        originalError: error,
+        context: { statusCode, data: errorData },
+      });
   }
 }
 

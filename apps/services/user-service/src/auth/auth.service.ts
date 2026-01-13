@@ -14,14 +14,14 @@ import {
   UnauthorizedException,
   NotFoundException,
   Logger,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
-import { PrismaService } from '../prisma/prisma.service';
-import { RedisTokenRevocationStore } from '../utils/token-revocation';
-import { JWTConfig } from '../utils/jwt.config';
-import { UserStatus } from '../utils/validation';
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
+import { PrismaService } from "../prisma/prisma.service";
+import { RedisTokenRevocationStore } from "../utils/token-revocation";
+import { JWTConfig } from "../utils/jwt.config";
+import { UserStatus } from "../utils/validation";
 
 export interface LoginDto {
   email: string;
@@ -49,7 +49,7 @@ export interface JwtPayload {
   roles: string[];
   tid?: string;
   jti: string;
-  type: 'access' | 'refresh';
+  type: "access" | "refresh";
   family?: string; // Token family for refresh token rotation
   iat?: number;
   exp?: number;
@@ -79,14 +79,14 @@ export class AuthService {
 
     if (!user) {
       this.logger.warn(`Login attempt failed: User not found (${email})`);
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException("Invalid email or password");
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       this.logger.warn(`Login attempt failed: Invalid password (${email})`);
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException("Invalid email or password");
     }
 
     // Check user status
@@ -156,7 +156,7 @@ export class AuthService {
       roles: [user.role],
       tid: user.tenantId,
       jti: accessJti,
-      type: 'access',
+      type: "access",
     };
 
     // Refresh token payload
@@ -166,7 +166,7 @@ export class AuthService {
       roles: [user.role],
       tid: user.tenantId,
       jti: refreshJti,
-      type: 'refresh',
+      type: "refresh",
       family: tokenFamily,
     };
 
@@ -201,7 +201,7 @@ export class AuthService {
       access_token,
       refresh_token,
       expires_in: JWTConfig.ACCESS_TOKEN_EXPIRE_MINUTES * 60, // in seconds
-      token_type: 'Bearer',
+      token_type: "Bearer",
     };
   }
 
@@ -218,8 +218,8 @@ export class AuthService {
       const payload = this.jwtService.decode(token) as JwtPayload;
 
       if (!payload || !payload.jti) {
-        this.logger.warn('Logout attempt with invalid token (no JTI)');
-        throw new UnauthorizedException('Invalid token');
+        this.logger.warn("Logout attempt with invalid token (no JTI)");
+        throw new UnauthorizedException("Invalid token");
       }
 
       // Calculate TTL based on token expiration
@@ -232,7 +232,7 @@ export class AuthService {
       // Revoke token in Redis
       const success = await this.revocationStore.revokeToken(payload.jti, {
         expiresIn: ttl,
-        reason: 'user_logout',
+        reason: "user_logout",
         userId,
         tenantId: payload.tid,
       });
@@ -243,14 +243,14 @@ export class AuthService {
         );
       } else {
         this.logger.error(`Failed to revoke token for user: ${userId}`);
-        throw new Error('Failed to revoke token');
+        throw new Error("Failed to revoke token");
       }
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
       this.logger.error(`Logout error: ${error.message}`, error.stack);
-      throw new Error('Logout failed');
+      throw new Error("Logout failed");
     }
   }
 
@@ -264,25 +264,18 @@ export class AuthService {
     try {
       const success = await this.revocationStore.revokeAllUserTokens(
         userId,
-        'user_logout_all',
+        "user_logout_all",
       );
 
       if (success) {
-        this.logger.log(
-          `User logged out from all devices: ${userId}`,
-        );
+        this.logger.log(`User logged out from all devices: ${userId}`);
       } else {
-        this.logger.error(
-          `Failed to revoke all tokens for user: ${userId}`,
-        );
-        throw new Error('Failed to revoke all tokens');
+        this.logger.error(`Failed to revoke all tokens for user: ${userId}`);
+        throw new Error("Failed to revoke all tokens");
       }
     } catch (error) {
-      this.logger.error(
-        `Logout all error: ${error.message}`,
-        error.stack,
-      );
-      throw new Error('Logout from all devices failed');
+      this.logger.error(`Logout all error: ${error.message}`, error.stack);
+      throw new Error("Logout from all devices failed");
     }
   }
 
@@ -310,7 +303,7 @@ export class AuthService {
       const revokePromises = familyTokens.map((token) =>
         this.revocationStore.revokeToken(token.jti, {
           expiresIn: JWTConfig.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-          reason: 'token_reuse_detected',
+          reason: "token_reuse_detected",
         }),
       );
 
@@ -349,8 +342,8 @@ export class AuthService {
       }) as JwtPayload;
 
       // Verify it's a refresh token
-      if (payload.type !== 'refresh') {
-        throw new UnauthorizedException('Invalid token type');
+      if (payload.type !== "refresh") {
+        throw new UnauthorizedException("Invalid token type");
       }
 
       // Check if refresh token exists in database
@@ -362,7 +355,7 @@ export class AuthService {
         this.logger.warn(
           `Refresh attempt with unknown token: ${payload.jti.substring(0, 8)}...`,
         );
-        throw new UnauthorizedException('Invalid refresh token');
+        throw new UnauthorizedException("Invalid refresh token");
       }
 
       // Check if token was already used (replay attack detection)
@@ -377,7 +370,7 @@ export class AuthService {
         }
 
         throw new UnauthorizedException(
-          'Token reuse detected - all tokens in family have been invalidated',
+          "Token reuse detected - all tokens in family have been invalidated",
         );
       }
 
@@ -386,7 +379,7 @@ export class AuthService {
         this.logger.warn(
           `Refresh attempt with revoked token: ${payload.jti.substring(0, 8)}...`,
         );
-        throw new UnauthorizedException('Token has been revoked');
+        throw new UnauthorizedException("Token has been revoked");
       }
 
       // Check if token is expired
@@ -394,7 +387,7 @@ export class AuthService {
         this.logger.warn(
           `Refresh attempt with expired token: ${payload.jti.substring(0, 8)}...`,
         );
-        throw new UnauthorizedException('Refresh token has expired');
+        throw new UnauthorizedException("Refresh token has expired");
       }
 
       // Verify user still exists and is active
@@ -403,7 +396,7 @@ export class AuthService {
       });
 
       if (!user || user.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedException('User account is not active');
+        throw new UnauthorizedException("User account is not active");
       }
 
       // Mark current refresh token as used
@@ -420,7 +413,7 @@ export class AuthService {
       // Mark old token as used in Redis (with short TTL for detection window)
       await this.revocationStore.revokeToken(payload.jti, {
         expiresIn: 300, // 5 minutes to detect concurrent reuse attempts
-        reason: 'refresh_token_rotated',
+        reason: "refresh_token_rotated",
         userId: user.id,
         tenantId: user.tenantId,
       });
@@ -438,7 +431,7 @@ export class AuthService {
         throw error;
       }
       this.logger.error(`Token refresh error: ${error.message}`, error.stack);
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException("Invalid refresh token");
     }
   }
 

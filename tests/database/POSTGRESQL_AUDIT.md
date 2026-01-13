@@ -1,4 +1,5 @@
 # PostgreSQL Database Configuration Audit Report
+
 ## SAHOOL Platform v15.3.2
 
 **Generated:** 2026-01-06
@@ -14,13 +15,13 @@ This comprehensive audit analyzes PostgreSQL database configurations across Dock
 
 ### Overall Scores
 
-| Category | Score | Status |
-|----------|-------|--------|
-| **Security** | 7.5/10 | ⚠️ Good with improvements needed |
-| **Performance** | 6.5/10 | ⚠️ Moderate - needs optimization |
-| **High Availability** | 4/10 | ❌ Limited - no replication configured |
-| **Monitoring** | 7/10 | ⚠️ Good - basic monitoring in place |
-| **Backup & Recovery** | 6/10 | ⚠️ Moderate - needs enhancement |
+| Category              | Score  | Status                                 |
+| --------------------- | ------ | -------------------------------------- |
+| **Security**          | 7.5/10 | ⚠️ Good with improvements needed       |
+| **Performance**       | 6.5/10 | ⚠️ Moderate - needs optimization       |
+| **High Availability** | 4/10   | ❌ Limited - no replication configured |
+| **Monitoring**        | 7/10   | ⚠️ Good - basic monitoring in place    |
+| **Backup & Recovery** | 6/10   | ⚠️ Moderate - needs enhancement        |
 
 **Overall Grade:** B- (74%)
 
@@ -62,20 +63,22 @@ postgres:
 ```
 
 **Resource Limits (Production Override):**
+
 ```yaml
 deploy:
   resources:
     limits:
-      cpus: '2.0'
+      cpus: "2.0"
       memory: 2G
     reservations:
-      cpus: '0.5'
+      cpus: "0.5"
       memory: 512M
 ```
 
 #### Findings:
 
 ✅ **Strengths:**
+
 - Port binding to localhost only (127.0.0.1:5432) - excellent security practice
 - Required environment variables enforced
 - tmpfs for /tmp and /run/postgresql reduces disk I/O
@@ -84,6 +87,7 @@ deploy:
 - Comprehensive health check configuration
 
 ⚠️ **Concerns:**
+
 - No explicit PostgreSQL configuration file mounted
 - Resource limits are minimal for production workload (2GB memory for 39+ services)
 - No SSL/TLS enforcement in main compose file
@@ -91,6 +95,7 @@ deploy:
 - Missing connection pooling directives
 
 ❌ **Critical Issues:**
+
 - No replication or high availability configured
 - No automated backup configuration
 - Single point of failure
@@ -130,6 +135,7 @@ server_check_delay = 30
 #### Findings:
 
 ✅ **Strengths:**
+
 - Transaction pooling mode - optimal for microservices
 - Comprehensive timeout configuration
 - Auth query using SECURITY DEFINER function
@@ -138,12 +144,14 @@ server_check_delay = 30
 - Proper connection lifecycle management
 
 ⚠️ **Concerns:**
+
 - Max 100 DB connections for 39+ services may be insufficient under load
 - Max 500 client connections might need tuning for peak traffic
 - MD5 authentication instead of SCRAM-SHA-256
 - TLS set to "prefer" instead of "require"
 
 📊 **Capacity Analysis:**
+
 - Services: 39+
 - Max DB Connections: 100
 - Connections per service: ~2.5 (theoretical)
@@ -172,6 +180,7 @@ password_encryption = scram-sha-256
 #### Findings:
 
 ✅ **Strengths:**
+
 - SSL/TLS enabled
 - Modern TLS 1.2 minimum version
 - Strong cipher configuration
@@ -179,11 +188,13 @@ password_encryption = scram-sha-256
 - Server cipher preference enabled
 
 ⚠️ **Concerns:**
+
 - SSL mode not set to "require" - allows unencrypted fallback
 - No TLS 1.3 specified (should upgrade to TLSv1.3)
 - Certificate paths hardcoded
 
 ❌ **Critical Issues:**
+
 - TLS configuration file not mounted in docker-compose.yml
 - No evidence of certificates being generated/mounted
 - Configuration may not be active
@@ -222,12 +233,14 @@ infrastructure:
 #### Findings:
 
 ✅ **Strengths:**
+
 - Persistent storage enabled (20Gi)
 - Secrets externalized
 - Resource requests/limits defined
 - Better memory allocation (4Gi) than Docker Compose
 
 ⚠️ **Concerns:**
+
 - No custom PostgreSQL configuration mounted
 - No replication configured
 - Storage class not specified (uses default)
@@ -243,6 +256,7 @@ infrastructure:
 **Location:** `/home/user/sahool-unified-v15-idp/infrastructure/core/postgres/init/`
 
 #### Files Found:
+
 1. `00-init-sahool.sql` (75,811 bytes) - Complete schema initialization
 2. `01-research-expansion.sql` (22,844 bytes) - Research module
 3. `02-pgbouncer-user.sql` (5,514 bytes) - PgBouncer authentication setup
@@ -251,6 +265,7 @@ infrastructure:
 #### Schema Analysis:
 
 **Extensions Installed:**
+
 ```sql
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "postgis";
@@ -262,6 +277,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 ✅ **Excellent:** All necessary extensions for agricultural platform
 
 **Tables Created:** 50+ tables including:
+
 - Core: tenants, users, fields, crops
 - Spatial: PostGIS geometry columns for field boundaries
 - IoT: devices, readings
@@ -273,12 +289,14 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 - Chat & notifications
 
 **Indexes:** 100+ indexes created
+
 - Spatial indexes using GIST for geometry columns ✅
 - B-tree indexes on foreign keys ✅
 - Composite indexes on frequently queried columns ✅
 - Full-text search indexes (pg_trgm) ✅
 
 **Security Features:**
+
 ```sql
 GRANT pg_monitor TO sahool;  -- For PgBouncer auth_query
 CREATE FUNCTION pgbouncer.get_auth(p_usename TEXT) SECURITY DEFINER;
@@ -287,6 +305,7 @@ CREATE FUNCTION pgbouncer.get_auth(p_usename TEXT) SECURITY DEFINER;
 #### Findings:
 
 ✅ **Strengths:**
+
 - Comprehensive schema design
 - Proper indexing strategy
 - PostGIS integration for geospatial features
@@ -295,12 +314,14 @@ CREATE FUNCTION pgbouncer.get_auth(p_usename TEXT) SECURITY DEFINER;
 - Strong data types and constraints
 
 ⚠️ **Concerns:**
+
 - Demo data with hardcoded passwords included (development only)
 - No partitioning strategy for large time-series tables (iot_readings, ndvi_records)
 - Missing Row-Level Security (RLS) policies
 - No table-level encryption
 
 ❌ **Security Issues:**
+
 ```sql
 -- Admin credentials in init script (line 1319)
 email: 'n@admin.com'
@@ -315,11 +336,11 @@ password: 'admin'  -- ⚠️ HARDCODED PASSWORD
 
 ### 3.1 Authentication Methods
 
-| Component | Method | Security Level |
-|-----------|--------|----------------|
-| PostgreSQL | SCRAM-SHA-256 | ✅ Excellent |
-| PgBouncer | MD5 with auth_query | ⚠️ Moderate |
-| Application | Connection string | ✅ Good |
+| Component   | Method              | Security Level |
+| ----------- | ------------------- | -------------- |
+| PostgreSQL  | SCRAM-SHA-256       | ✅ Excellent   |
+| PgBouncer   | MD5 with auth_query | ⚠️ Moderate    |
+| Application | Connection string   | ✅ Good        |
 
 #### Environment Variables (.env.example):
 
@@ -331,12 +352,14 @@ DATABASE_URL_POOLED=postgresql://sahool:password@pgbouncer:6432/sahool
 ```
 
 ✅ **Strengths:**
+
 - Required environment variables documented
 - Separate URLs for direct and pooled connections
 - Prisma-specific connection string with connection_limit
 - SQLAlchemy async support
 
 ⚠️ **Concerns:**
+
 - Default passwords in example file (expected, but should have strong examples)
 - No SSL mode specified in connection strings
 - No certificate validation parameters
@@ -346,6 +369,7 @@ DATABASE_URL_POOLED=postgresql://sahool:password@pgbouncer:6432/sahool
 ### 3.2 PgBouncer Authentication
 
 **Auth Query Function:**
+
 ```sql
 CREATE OR REPLACE FUNCTION pgbouncer.get_auth(p_usename TEXT)
 RETURNS TABLE(usename NAME, passwd TEXT) AS $$
@@ -384,18 +408,18 @@ command:
 
 #### Recommended Settings Analysis:
 
-| Parameter | Current | Recommended (2GB RAM) | Recommended (4GB RAM) | Status |
-|-----------|---------|----------------------|----------------------|--------|
-| max_connections | Default (100) | 200 | 300 | ❌ Not configured |
-| shared_buffers | Default (128MB) | 512MB | 1GB | ❌ Not configured |
-| effective_cache_size | Default | 1.5GB | 3GB | ❌ Not configured |
-| work_mem | Default (4MB) | 8MB | 16MB | ❌ Not configured |
-| maintenance_work_mem | Default (64MB) | 128MB | 256MB | ❌ Not configured |
-| checkpoint_completion_target | Default (0.9) | 0.9 | 0.9 | ✅ OK |
-| wal_buffers | Default (-1) | 16MB | 32MB | ⚠️ Auto |
-| default_statistics_target | Default (100) | 200 | 200 | ❌ Not configured |
-| random_page_cost | Default (4.0) | 1.1 (SSD) | 1.1 (SSD) | ❌ Not configured |
-| effective_io_concurrency | Default (1) | 200 (SSD) | 200 (SSD) | ❌ Not configured |
+| Parameter                    | Current         | Recommended (2GB RAM) | Recommended (4GB RAM) | Status            |
+| ---------------------------- | --------------- | --------------------- | --------------------- | ----------------- |
+| max_connections              | Default (100)   | 200                   | 300                   | ❌ Not configured |
+| shared_buffers               | Default (128MB) | 512MB                 | 1GB                   | ❌ Not configured |
+| effective_cache_size         | Default         | 1.5GB                 | 3GB                   | ❌ Not configured |
+| work_mem                     | Default (4MB)   | 8MB                   | 16MB                  | ❌ Not configured |
+| maintenance_work_mem         | Default (64MB)  | 128MB                 | 256MB                 | ❌ Not configured |
+| checkpoint_completion_target | Default (0.9)   | 0.9                   | 0.9                   | ✅ OK             |
+| wal_buffers                  | Default (-1)    | 16MB                  | 32MB                  | ⚠️ Auto           |
+| default_statistics_target    | Default (100)   | 200                   | 200                   | ❌ Not configured |
+| random_page_cost             | Default (4.0)   | 1.1 (SSD)             | 1.1 (SSD)             | ❌ Not configured |
+| effective_io_concurrency     | Default (1)     | 200 (SSD)             | 200 (SSD)             | ❌ Not configured |
 
 ### 4.2 PgBouncer Pool Settings
 
@@ -408,6 +432,7 @@ max_client_conn = 500
 ```
 
 **Capacity Calculation:**
+
 - 39+ services × 5 connections/service = 195 connections needed
 - Current max_db_connections = 100 ❌ INSUFFICIENT
 - Recommended: 250-300 connections
@@ -418,44 +443,46 @@ max_client_conn = 500
 
 ### 5.1 Network Security
 
-| Feature | Status | Details |
-|---------|--------|---------|
-| Port binding | ✅ Excellent | Bound to 127.0.0.1 only in Docker |
-| SSL/TLS enabled | ⚠️ Configured but not enforced | ssl=on but mode is "prefer" |
-| Certificate management | ❌ Missing | No certs mounted in container |
-| Firewall rules | ✅ Good | Network isolation via Docker networks |
-| VPC/Network policies | ⚠️ Partial | K8s network policies defined |
+| Feature                | Status                         | Details                               |
+| ---------------------- | ------------------------------ | ------------------------------------- |
+| Port binding           | ✅ Excellent                   | Bound to 127.0.0.1 only in Docker     |
+| SSL/TLS enabled        | ⚠️ Configured but not enforced | ssl=on but mode is "prefer"           |
+| Certificate management | ❌ Missing                     | No certs mounted in container         |
+| Firewall rules         | ✅ Good                        | Network isolation via Docker networks |
+| VPC/Network policies   | ⚠️ Partial                     | K8s network policies defined          |
 
 ### 5.2 Authentication & Authorization
 
-| Feature | Status | Details |
-|---------|--------|---------|
-| Password encryption | ✅ Excellent | SCRAM-SHA-256 |
-| Default passwords | ❌ Critical | Demo data has 'admin'/'admin' |
-| Password policy | ❌ Missing | No pg_password_check extension |
-| User roles | ⚠️ Basic | Only main 'sahool' user |
-| Row-level security | ❌ Missing | No RLS policies implemented |
-| Audit logging | ⚠️ Partial | audit_logs table, no pgaudit |
+| Feature             | Status       | Details                        |
+| ------------------- | ------------ | ------------------------------ |
+| Password encryption | ✅ Excellent | SCRAM-SHA-256                  |
+| Default passwords   | ❌ Critical  | Demo data has 'admin'/'admin'  |
+| Password policy     | ❌ Missing   | No pg_password_check extension |
+| User roles          | ⚠️ Basic     | Only main 'sahool' user        |
+| Row-level security  | ❌ Missing   | No RLS policies implemented    |
+| Audit logging       | ⚠️ Partial   | audit_logs table, no pgaudit   |
 
 ### 5.3 Data Protection
 
-| Feature | Status | Details |
-|---------|--------|---------|
-| At-rest encryption | ❌ Missing | No volume encryption configured |
-| In-transit encryption | ⚠️ Partial | TLS configured but not enforced |
-| Column-level encryption | ❌ Missing | Sensitive data not encrypted |
-| Backup encryption | ❌ Unknown | No backup config found |
-| Data masking | ❌ Missing | No masking for PII |
+| Feature                 | Status     | Details                         |
+| ----------------------- | ---------- | ------------------------------- |
+| At-rest encryption      | ❌ Missing | No volume encryption configured |
+| In-transit encryption   | ⚠️ Partial | TLS configured but not enforced |
+| Column-level encryption | ❌ Missing | Sensitive data not encrypted    |
+| Backup encryption       | ❌ Unknown | No backup config found          |
+| Data masking            | ❌ Missing | No masking for PII              |
 
 ### 5.4 Security Hardening
 
 ✅ **Implemented:**
+
 - Container security: `no-new-privileges:true`
 - tmpfs for temporary files
 - Read-only init scripts
 - Non-root user in PostgreSQL container (postgres user)
 
 ❌ **Missing:**
+
 - pg_stat_statements for query monitoring
 - pgaudit for comprehensive audit logging
 - pg_cron for scheduled tasks
@@ -472,12 +499,14 @@ max_client_conn = 500
 ❌ **No Replication Configured**
 
 **Evidence:**
+
 ```ini
 # pgbouncer.ini - replica defined but not active
 sahool_readonly = host=postgres-replica port=5432 dbname=sahool auth_user=sahool
 ```
 
 The replica is referenced but:
+
 - No postgres-replica container defined
 - No streaming replication setup
 - No WAL archiving configured
@@ -486,6 +515,7 @@ The replica is referenced but:
 ### 6.2 Recommendations
 
 **Streaming Replication Setup:**
+
 ```conf
 # Primary Server
 wal_level = replica
@@ -497,6 +527,7 @@ archive_command = 'cp %p /var/lib/postgresql/wal_archive/%f'
 ```
 
 **For Production:**
+
 1. Deploy 1 primary + 2 replicas
 2. Use synchronous replication for critical data
 3. Configure automatic failover (Patroni or pg_auto_failover)
@@ -509,6 +540,7 @@ archive_command = 'cp %p /var/lib/postgresql/wal_archive/%f'
 ### 7.1 Health Checks
 
 ✅ **Docker Compose:**
+
 ```yaml
 healthcheck:
   test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool}"]
@@ -519,6 +551,7 @@ healthcheck:
 ```
 
 ✅ **Kubernetes:**
+
 ```yaml
 livenessProbe:
   exec:
@@ -535,6 +568,7 @@ readinessProbe:
 ### 7.2 Metrics & Alerts
 
 **Prometheus Rules Found:**
+
 ```yaml
 # observability/slo/prometheus-slo-rules.yaml
 - alert: PostgreSQLConnectionPoolExhaustion
@@ -546,11 +580,13 @@ readinessProbe:
 ```
 
 ✅ **Strengths:**
+
 - Connection pool monitoring
 - Database-specific metrics
 - Alert thresholds defined
 
 ⚠️ **Missing:**
+
 - Slow query monitoring
 - Replication lag alerts (no replication)
 - Disk space alerts
@@ -560,6 +596,7 @@ readinessProbe:
 ### 7.3 Logging
 
 **Current Setup:**
+
 ```yaml
 logging:
   driver: json-file
@@ -569,6 +606,7 @@ logging:
 ```
 
 ⚠️ **Recommendations:**
+
 - Enable PostgreSQL query logging for slow queries
 - Configure log_min_duration_statement
 - Implement centralized log aggregation
@@ -581,12 +619,14 @@ logging:
 ### 8.1 Current Backup Strategy
 
 **Docker Volume:**
+
 ```yaml
 volumes:
   - postgres_data:/var/lib/postgresql/data
 ```
 
 **Kubernetes:**
+
 ```yaml
 persistence:
   enabled: true
@@ -596,6 +636,7 @@ persistence:
 ### 8.2 Findings
 
 ⚠️ **Limited:**
+
 - Volume persistence enabled ✅
 - No automated backup schedule ❌
 - No point-in-time recovery (PITR) ❌
@@ -607,6 +648,7 @@ persistence:
 **Location:** `/home/user/sahool-unified-v15-idp/scripts/backup/`
 
 Files:
+
 - backup_postgres.sh
 - restore_postgres.sh
 - backup-cron.sh
@@ -619,11 +661,13 @@ Files:
 ### 8.4 Recommendations
 
 **Implement 3-2-1 Backup Strategy:**
+
 1. **3** copies of data
 2. **2** different storage types
 3. **1** off-site backup
 
 **Setup:**
+
 ```bash
 # WAL archiving for PITR
 wal_level = replica
@@ -644,6 +688,7 @@ pg_basebackup -h postgres -U sahool -D /backups/base_$(date +%Y%m%d)
 ### 9.1 Query Performance
 
 **Missing Extensions:**
+
 - pg_stat_statements ❌ (query performance tracking)
 - auto_explain ❌ (automatic EXPLAIN for slow queries)
 - pg_trgm ✅ (already installed for fuzzy search)
@@ -653,12 +698,14 @@ pg_basebackup -h postgres -U sahool -D /backups/base_$(date +%Y%m%d)
 **From Schema (00-init-sahool.sql):**
 
 ✅ **Well-Indexed:**
+
 - All foreign keys indexed
 - Composite indexes on query patterns
 - Spatial indexes (GIST) on geometry columns
 - Text search indexes (GIN)
 
 **Example:**
+
 ```sql
 CREATE INDEX idx_fields_tenant ON fields(tenant_id);
 CREATE INDEX idx_fields_boundary ON fields USING GIST(boundary);
@@ -668,6 +715,7 @@ CREATE INDEX idx_ndvi_date ON ndvi_records(capture_date);
 ```
 
 ⚠️ **Potential Issues:**
+
 - No partial indexes for common filters
 - Missing BRIN indexes for time-series data
 - No covering indexes
@@ -675,6 +723,7 @@ CREATE INDEX idx_ndvi_date ON ndvi_records(capture_date);
 ### 9.3 Table Design
 
 **Time-Series Tables (candidates for partitioning):**
+
 - `iot_readings` - IoT sensor data
 - `ndvi_records` - Satellite imagery
 - `weather_records` - Weather data
@@ -685,6 +734,7 @@ CREATE INDEX idx_ndvi_date ON ndvi_records(capture_date);
 ❌ **Not Partitioned:** These tables will grow large, causing performance degradation
 
 **Recommendation:**
+
 ```sql
 -- Partition by date
 CREATE TABLE iot_readings_2026_01 PARTITION OF iot_readings
@@ -698,18 +748,21 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
 **Location:** `/home/user/sahool-unified-v15-idp/infrastructure/core/postgres/migrations/`
 
 **Files Found:**
-- V20260106__fix_pgbouncer_auth.sql
-- V20260105__add_performance_indexes.sql
-- V20260105__add_additional_improvements.sql
+
+- V20260106\_\_fix_pgbouncer_auth.sql
+- V20260105\_\_add_performance_indexes.sql
+- V20260105\_\_add_additional_improvements.sql
 - 003_composite_indexes.sql
 - 010_row_level_security.sql
 
 ✅ **Strengths:**
+
 - Versioned migrations (Flyway/Liquibase pattern)
 - Separate files for different concerns
 - Performance-focused migrations
 
 ⚠️ **Concerns:**
+
 - Some migrations very recent (January 2026)
 - Row-level security defined but implementation unclear
 
@@ -719,43 +772,43 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
 
 ### 11.1 Critical Issues
 
-| # | Issue | Impact | Priority |
-|---|-------|--------|----------|
-| 1 | Default admin password in demo data | Security breach | 🔴 CRITICAL |
-| 2 | No database replication/HA | Single point of failure | 🔴 CRITICAL |
-| 3 | TLS not enforced | Data exposure | 🔴 CRITICAL |
-| 4 | No automated backups | Data loss risk | 🔴 CRITICAL |
-| 5 | Insufficient connection pool size | Service outages | 🔴 CRITICAL |
+| #   | Issue                               | Impact                  | Priority    |
+| --- | ----------------------------------- | ----------------------- | ----------- |
+| 1   | Default admin password in demo data | Security breach         | 🔴 CRITICAL |
+| 2   | No database replication/HA          | Single point of failure | 🔴 CRITICAL |
+| 3   | TLS not enforced                    | Data exposure           | 🔴 CRITICAL |
+| 4   | No automated backups                | Data loss risk          | 🔴 CRITICAL |
+| 5   | Insufficient connection pool size   | Service outages         | 🔴 CRITICAL |
 
 ### 11.2 High Priority Warnings
 
-| # | Issue | Impact | Priority |
-|---|-------|--------|----------|
-| 6 | No performance tuning | Poor performance | 🟠 HIGH |
-| 7 | Missing pg_stat_statements | No query monitoring | 🟠 HIGH |
-| 8 | No table partitioning | Future scalability | 🟠 HIGH |
-| 9 | 2GB RAM limit too low | Resource exhaustion | 🟠 HIGH |
-| 10 | No Row-Level Security | Data isolation | 🟠 HIGH |
+| #   | Issue                      | Impact              | Priority |
+| --- | -------------------------- | ------------------- | -------- |
+| 6   | No performance tuning      | Poor performance    | 🟠 HIGH  |
+| 7   | Missing pg_stat_statements | No query monitoring | 🟠 HIGH  |
+| 8   | No table partitioning      | Future scalability  | 🟠 HIGH  |
+| 9   | 2GB RAM limit too low      | Resource exhaustion | 🟠 HIGH  |
+| 10  | No Row-Level Security      | Data isolation      | 🟠 HIGH  |
 
 ### 11.3 Medium Priority
 
-| # | Issue | Impact | Priority |
-|---|-------|--------|----------|
-| 11 | No pgaudit extension | Limited audit trail | 🟡 MEDIUM |
-| 12 | Default PostgreSQL config | Suboptimal defaults | 🟡 MEDIUM |
-| 13 | No slow query logging | Debug difficulties | 🟡 MEDIUM |
-| 14 | Missing backup testing | Unknown recovery time | 🟡 MEDIUM |
-| 15 | No column encryption | Sensitive data exposure | 🟡 MEDIUM |
+| #   | Issue                     | Impact                  | Priority  |
+| --- | ------------------------- | ----------------------- | --------- |
+| 11  | No pgaudit extension      | Limited audit trail     | 🟡 MEDIUM |
+| 12  | Default PostgreSQL config | Suboptimal defaults     | 🟡 MEDIUM |
+| 13  | No slow query logging     | Debug difficulties      | 🟡 MEDIUM |
+| 14  | Missing backup testing    | Unknown recovery time   | 🟡 MEDIUM |
+| 15  | No column encryption      | Sensitive data exposure | 🟡 MEDIUM |
 
 ### 11.4 Low Priority
 
-| # | Issue | Impact | Priority |
-|---|-------|--------|----------|
-| 16 | No connection rate limiting | DDoS vulnerability | 🟢 LOW |
-| 17 | No IP whitelisting | Broader attack surface | 🟢 LOW |
-| 18 | Basic monitoring only | Limited visibility | 🟢 LOW |
-| 19 | No auto-vacuum tuning | Bloat over time | 🟢 LOW |
-| 20 | No query timeout policy | Long-running queries | 🟢 LOW |
+| #   | Issue                       | Impact                 | Priority |
+| --- | --------------------------- | ---------------------- | -------- |
+| 16  | No connection rate limiting | DDoS vulnerability     | 🟢 LOW   |
+| 17  | No IP whitelisting          | Broader attack surface | 🟢 LOW   |
+| 18  | Basic monitoring only       | Limited visibility     | 🟢 LOW   |
+| 19  | No auto-vacuum tuning       | Bloat over time        | 🟢 LOW   |
+| 20  | No query timeout policy     | Long-running queries   | 🟢 LOW   |
 
 ---
 
@@ -764,12 +817,14 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
 ### 12.1 Immediate Actions (Within 24 Hours)
 
 1. **Remove Demo Credentials**
+
    ```sql
    DELETE FROM users WHERE email IN ('n@admin.com', 'manager@sahool.io',
                                       'agronomist@sahool.io', 'worker@sahool.io');
    ```
 
 2. **Increase Connection Pool**
+
    ```ini
    # pgbouncer.ini
    max_db_connections = 250
@@ -778,6 +833,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
    ```
 
 3. **Mount Custom PostgreSQL Config**
+
    ```yaml
    # docker-compose.yml
    volumes:
@@ -786,6 +842,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
    ```
 
 4. **Enforce SSL/TLS**
+
    ```conf
    # postgresql.conf
    ssl = on
@@ -800,6 +857,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
 ### 12.2 Short-Term Actions (1-2 Weeks)
 
 5. **Enable Performance Extensions**
+
    ```sql
    CREATE EXTENSION pg_stat_statements;
    CREATE EXTENSION auto_explain;
@@ -811,6 +869,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
    ```
 
 6. **Configure Performance Parameters**
+
    ```conf
    # postgresql.conf for 4GB RAM system
    max_connections = 300
@@ -828,6 +887,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
    ```
 
 7. **Setup Automated Backups**
+
    ```bash
    # Cron job
    0 2 * * * /scripts/backup_postgres.sh
@@ -837,6 +897,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
    ```
 
 8. **Implement Monitoring**
+
    ```sql
    -- Query monitoring
    SELECT query, calls, total_time, mean_time, rows
@@ -861,6 +922,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
    - Test failover procedures
 
 10. **Partition Large Tables**
+
     ```sql
     -- Example for iot_readings
     CREATE TABLE iot_readings_partitioned (
@@ -872,6 +934,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
     ```
 
 11. **Implement Row-Level Security**
+
     ```sql
     ALTER TABLE fields ENABLE ROW LEVEL SECURITY;
 
@@ -882,6 +945,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
     ```
 
 12. **Add Audit Logging**
+
     ```sql
     CREATE EXTENSION pgaudit;
 
@@ -894,6 +958,7 @@ FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
 ### 12.4 Long-Term Actions (3-6 Months)
 
 13. **Implement Column-Level Encryption**
+
     ```sql
     -- For sensitive data
     CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -1135,7 +1200,11 @@ postgres:
   security_opt:
     - no-new-privileges:true
   healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool} && psql -U ${POSTGRES_USER:-sahool} -c 'SELECT 1'"]
+    test:
+      [
+        "CMD-SHELL",
+        "pg_isready -U ${POSTGRES_USER:-sahool} && psql -U ${POSTGRES_USER:-sahool} -c 'SELECT 1'",
+      ]
     interval: 30s
     timeout: 10s
     retries: 3
@@ -1144,10 +1213,10 @@ postgres:
   deploy:
     resources:
       limits:
-        cpus: '4.0'
+        cpus: "4.0"
         memory: 8G
       reservations:
-        cpus: '1.0'
+        cpus: "1.0"
         memory: 2G
   networks:
     - sahool-network
@@ -1276,20 +1345,21 @@ FROM pg_stat_archiver;
 
 ### 15.1 OWASP Database Security
 
-| Requirement | Status | Notes |
-|-------------|--------|-------|
-| Least Privilege | ⚠️ Partial | Only sahool user, needs role separation |
-| Input Validation | ✅ Good | ORM handles parameterization |
-| Encryption at Rest | ❌ Missing | No volume encryption |
-| Encryption in Transit | ⚠️ Partial | TLS configured but not enforced |
-| Audit Logging | ⚠️ Partial | Custom logs, no pgaudit |
-| Secure Configuration | ⚠️ Partial | Some hardening, needs more |
-| Password Management | ✅ Good | SCRAM-SHA-256 encryption |
-| Backup & Recovery | ⚠️ Partial | Scripts exist, not automated |
+| Requirement           | Status     | Notes                                   |
+| --------------------- | ---------- | --------------------------------------- |
+| Least Privilege       | ⚠️ Partial | Only sahool user, needs role separation |
+| Input Validation      | ✅ Good    | ORM handles parameterization            |
+| Encryption at Rest    | ❌ Missing | No volume encryption                    |
+| Encryption in Transit | ⚠️ Partial | TLS configured but not enforced         |
+| Audit Logging         | ⚠️ Partial | Custom logs, no pgaudit                 |
+| Secure Configuration  | ⚠️ Partial | Some hardening, needs more              |
+| Password Management   | ✅ Good    | SCRAM-SHA-256 encryption                |
+| Backup & Recovery     | ⚠️ Partial | Scripts exist, not automated            |
 
 ### 15.2 CIS PostgreSQL Benchmark
 
 **Scored Items:**
+
 - 1.1 Ensure PostgreSQL is running ✅
 - 1.2 Ensure PostgreSQL is up to date ✅ (v16)
 - 2.1 Ensure the log destinations are set correctly ⚠️
@@ -1312,11 +1382,13 @@ FROM pg_stat_archiver;
 ### 16.1 Resource Requirements
 
 **Current Allocation:**
+
 - CPU: 2 cores (limit), 0.5 cores (reserved)
 - Memory: 2GB (Docker) / 4GB (K8s)
 - Storage: 20GB persistent
 
 **Recommended for Production:**
+
 - CPU: 4-8 cores
 - Memory: 8-16GB
 - Storage: 500GB-1TB (with growth)
@@ -1325,11 +1397,13 @@ FROM pg_stat_archiver;
 ### 16.2 Estimated Costs (AWS Example)
 
 **Current Setup:**
+
 - Instance: db.t3.medium (2 vCPU, 4GB RAM) = $66/month
 - Storage: 20GB gp3 = $2/month
 - **Total: ~$68/month**
 
 **Recommended Production:**
+
 - Primary: db.m6g.xlarge (4 vCPU, 16GB RAM) = $277/month
 - Replica: db.m6g.large (2 vCPU, 8GB RAM) = $139/month
 - Storage: 500GB gp3 = $50/month
@@ -1338,6 +1412,7 @@ FROM pg_stat_archiver;
 - **Total: ~$526/month**
 
 **With High Availability:**
+
 - Add second replica: +$139/month
 - Multi-AZ deployment: +15%
 - **Total: ~$700/month**
@@ -1349,30 +1424,35 @@ FROM pg_stat_archiver;
 ### 17.1 Zero-Downtime Migration to Production Config
 
 **Phase 1: Preparation (Week 1)**
+
 1. Backup current database
 2. Test configuration in staging
 3. Prepare rollback scripts
 4. Schedule maintenance window
 
 **Phase 2: Performance Tuning (Week 2)**
+
 1. Apply new postgresql.conf
 2. Increase connection limits
 3. Enable pg_stat_statements
 4. Monitor for 48 hours
 
 **Phase 3: Security Hardening (Week 3)**
+
 1. Enable SSL/TLS enforcement
 2. Update pg_hba.conf
 3. Remove demo data
 4. Implement audit logging
 
 **Phase 4: High Availability (Week 4)**
+
 1. Setup streaming replication
 2. Configure automatic failover
 3. Test failover procedures
 4. Update connection strings
 
 **Phase 5: Backup & Recovery (Week 5)**
+
 1. Implement WAL archiving
 2. Setup automated backups
 3. Test restore procedures
@@ -1398,6 +1478,7 @@ pg_restore -h postgres -U sahool -d sahool /backups/pre-migration.dump
 The SAHOOL platform's PostgreSQL configuration demonstrates a solid foundation with good security practices in some areas, but requires significant improvements for production readiness, particularly in:
 
 ### Critical Needs:
+
 1. **High Availability**: Implement streaming replication
 2. **Security**: Enforce SSL/TLS, remove demo credentials
 3. **Performance**: Apply tuning parameters, increase resources
@@ -1405,6 +1486,7 @@ The SAHOOL platform's PostgreSQL configuration demonstrates a solid foundation w
 5. **Monitoring**: Comprehensive observability stack
 
 ### Strengths:
+
 - Modern PostgreSQL 16 with PostGIS
 - Well-designed schema with proper indexing
 - PgBouncer connection pooling
@@ -1412,11 +1494,13 @@ The SAHOOL platform's PostgreSQL configuration demonstrates a solid foundation w
 - SCRAM-SHA-256 authentication
 
 ### Overall Assessment:
+
 **Current State**: Suitable for development and testing
 **Production Readiness**: 60% - Requires immediate action on critical items
 **Estimated Time to Production**: 4-6 weeks with dedicated effort
 
 ### Next Steps:
+
 1. Address critical security issues (Week 1)
 2. Implement performance optimizations (Week 2)
 3. Setup high availability (Week 3-4)
@@ -1464,4 +1548,4 @@ SELECT pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn) FROM pg_stat_replicatio
 
 **Report End**
 
-*For questions or clarifications, please contact the platform engineering team.*
+_For questions or clarifications, please contact the platform engineering team._

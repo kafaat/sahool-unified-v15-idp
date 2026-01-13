@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Dashboard Home Page Client Component
  * الصفحة الرئيسية للوحة التحكم
  */
 
-import React, { Suspense } from 'react';
-import { useAuth } from '@/stores/auth.store';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import React, { Suspense } from "react";
+import { useAuth } from "@/stores/auth.store";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import {
   DashboardStats,
   RecentActivity,
   WeatherWidget,
   TasksSummary,
   QuickActions,
-} from '@/features/home';
+} from "@/features/home";
 
 // Fallback components for error states
 const StatsFallback = () => (
@@ -59,7 +59,7 @@ export default function DashboardClient() {
       {/* Welcome Section */}
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
         <h1 className="text-3xl font-bold text-gray-900">
-          مرحباً، {user?.name_ar || user?.name || 'المستخدم'}
+          مرحباً، {user?.name_ar || user?.name || "المستخدم"}
         </h1>
         <p className="text-gray-600 mt-1">
           Welcome back to SAHOOL Agricultural Management Platform
@@ -79,7 +79,9 @@ export default function DashboardClient() {
         <div className="lg:col-span-2 space-y-6">
           {/* Recent Activity - Protected with ErrorBoundary */}
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">النشاط الأخير</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              النشاط الأخير
+            </h2>
             <p className="text-sm text-gray-600 mb-4">Recent Activity</p>
             <ErrorBoundary fallback={<ActivityFallback />}>
               <RecentActivity />
@@ -88,9 +90,17 @@ export default function DashboardClient() {
 
           {/* Quick Actions - Protected with ErrorBoundary */}
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">إجراءات سريعة</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              إجراءات سريعة
+            </h2>
             <p className="text-sm text-gray-600 mb-4">Quick Actions</p>
-            <ErrorBoundary fallback={<div className="text-gray-500 text-center py-4">فشل تحميل الإجراءات</div>}>
+            <ErrorBoundary
+              fallback={
+                <div className="text-gray-500 text-center py-4">
+                  فشل تحميل الإجراءات
+                </div>
+              }
+            >
               <QuickActions />
             </ErrorBoundary>
           </div>
@@ -109,9 +119,17 @@ export default function DashboardClient() {
 
           {/* Tasks Summary - Protected with ErrorBoundary */}
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">المهام القادمة</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              المهام القادمة
+            </h2>
             <p className="text-sm text-gray-600 mb-4">Upcoming Tasks</p>
-            <ErrorBoundary fallback={<div className="text-gray-500 text-center py-4">فشل تحميل المهام</div>}>
+            <ErrorBoundary
+              fallback={
+                <div className="text-gray-500 text-center py-4">
+                  فشل تحميل المهام
+                </div>
+              }
+            >
               <TasksSummary />
             </ErrorBoundary>
           </div>

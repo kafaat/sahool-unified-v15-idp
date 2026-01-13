@@ -6,14 +6,14 @@
 
 // CRITICAL: reflect-metadata must be imported FIRST before any NestJS imports
 // Required for decorators and dependency injection to work
-import 'reflect-metadata';
+import "reflect-metadata";
 
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './utils/http-exception.filter';
-import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { AppModule } from "./app.module";
+import { HttpExceptionFilter } from "./utils/http-exception.filter";
+import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,21 +31,22 @@ async function bootstrap() {
   );
 
   // CORS configuration
-  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-    'https://sahool.com',
-    'https://app.sahool.com',
-    'http://localhost:3000',
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+    "https://sahool.com",
+    "https://app.sahool.com",
+    "http://localhost:3000",
   ];
   app.enableCors({
     origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   });
 
   // Swagger/OpenAPI Documentation
   const config = new DocumentBuilder()
-    .setTitle('SAHOOL Disaster Assessment API')
-    .setDescription(`
+    .setTitle("SAHOOL Disaster Assessment API")
+    .setDescription(
+      `
       خدمة تقييم الكوارث الزراعية
 
       Agricultural Disaster Assessment Service providing:
@@ -55,16 +56,17 @@ async function bootstrap() {
       - Hail damage assessment (تقييم أضرار البَرَد)
       - Pest & disease outbreak tracking (تتبع تفشي الآفات والأمراض)
       - Storm damage evaluation (تقييم أضرار العواصف)
-    `)
-    .setVersion('16.0.0')
-    .addTag('disasters', 'Disaster monitoring and assessment')
-    .addTag('alerts', 'Early warning alerts')
-    .addTag('reports', 'Damage reports and statistics')
+    `,
+    )
+    .setVersion("16.0.0")
+    .addTag("disasters", "Disaster monitoring and assessment")
+    .addTag("alerts", "Early warning alerts")
+    .addTag("reports", "Damage reports and statistics")
     .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup("docs", app, document);
 
   const port = process.env.PORT || 3020;
   await app.listen(port);

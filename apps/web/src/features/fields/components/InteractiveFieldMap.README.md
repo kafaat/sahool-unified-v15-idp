@@ -62,21 +62,29 @@ The component is already part of the fields feature module. Dependencies are:
 ### Basic Usage / الاستخدام الأساسي
 
 ```tsx
-import { InteractiveFieldMap } from '@/features/fields/components';
+import { InteractiveFieldMap } from "@/features/fields/components";
 
 function MyComponent() {
   const field = {
-    id: 'field-1',
-    name: 'My Field',
-    nameAr: 'حقلي',
+    id: "field-1",
+    name: "My Field",
+    nameAr: "حقلي",
     area: 5.0,
     polygon: {
-      type: 'Polygon',
-      coordinates: [[[44.2, 15.3], [44.21, 15.3], [44.21, 15.31], [44.2, 15.31], [44.2, 15.3]]]
+      type: "Polygon",
+      coordinates: [
+        [
+          [44.2, 15.3],
+          [44.21, 15.3],
+          [44.21, 15.31],
+          [44.2, 15.31],
+          [44.2, 15.3],
+        ],
+      ],
     },
     ndviValue: 0.65,
     healthScore: 85,
-    status: 'active',
+    status: "active",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -85,7 +93,7 @@ function MyComponent() {
     <InteractiveFieldMap
       field={field}
       height="600px"
-      onFieldClick={(field) => console.log('Clicked:', field)}
+      onFieldClick={(field) => console.log("Clicked:", field)}
     />
   );
 }
@@ -94,14 +102,22 @@ function MyComponent() {
 ### Advanced Usage with All Features / الاستخدام المتقدم مع جميع المميزات
 
 ```tsx
-import { InteractiveFieldMap } from '@/features/fields/components';
-import type { HealthZone, MapTask } from '@/features/fields/components';
+import { InteractiveFieldMap } from "@/features/fields/components";
+import type { HealthZone, MapTask } from "@/features/fields/components";
 
 function AdvancedMap() {
-  const fields = [/* array of fields */];
-  const tasks: MapTask[] = [/* array of tasks with location */];
-  const healthZones: HealthZone[] = [/* array of health zones */];
-  const weather = {/* weather data */};
+  const fields = [
+    /* array of fields */
+  ];
+  const tasks: MapTask[] = [
+    /* array of tasks with location */
+  ];
+  const healthZones: HealthZone[] = [
+    /* array of health zones */
+  ];
+  const weather = {
+    /* weather data */
+  };
 
   return (
     <InteractiveFieldMap
@@ -116,7 +132,7 @@ function AdvancedMap() {
       onFieldClick={(field) => handleFieldClick(field)}
       onTaskClick={(task) => handleTaskClick(task)}
       onHealthZoneClick={(zone) => handleZoneClick(zone)}
-      onMapClick={(lat, lng) => console.log('Map clicked at:', lat, lng)}
+      onMapClick={(lat, lng) => console.log("Map clicked at:", lat, lng)}
     />
   );
 }
@@ -128,22 +144,22 @@ function AdvancedMap() {
 
 ### InteractiveFieldMapProps
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `fields` | `Field[]` | No | `[]` | Array of fields to display |
-| `field` | `Field` | No | - | Single field (alternative to fields array) |
-| `tasks` | `MapTask[]` | No | `[]` | Tasks with location data |
-| `healthZones` | `HealthZone[]` | No | `[]` | Health zones to visualize |
-| `weather` | `WeatherData` | No | - | Weather data for overlay |
-| `height` | `string` | No | `'600px'` | Map container height |
-| `center` | `LatLngTuple` | No | Auto-calculated | Initial map center [lat, lng] |
-| `zoom` | `number` | No | `13` | Initial zoom level |
-| `enableLayerControl` | `boolean` | No | `true` | Show layer control panel |
-| `onFieldClick` | `(field: Field) => void` | No | - | Callback when field is clicked |
-| `onTaskClick` | `(task: MapTask) => void` | No | - | Callback when task is clicked |
-| `onHealthZoneClick` | `(zone: HealthZone) => void` | No | - | Callback when zone is clicked |
-| `onMapClick` | `(lat: number, lng: number) => void` | No | - | Callback when map is clicked |
-| `className` | `string` | No | `''` | Additional CSS classes |
+| Prop                 | Type                                 | Required | Default         | Description                                |
+| -------------------- | ------------------------------------ | -------- | --------------- | ------------------------------------------ |
+| `fields`             | `Field[]`                            | No       | `[]`            | Array of fields to display                 |
+| `field`              | `Field`                              | No       | -               | Single field (alternative to fields array) |
+| `tasks`              | `MapTask[]`                          | No       | `[]`            | Tasks with location data                   |
+| `healthZones`        | `HealthZone[]`                       | No       | `[]`            | Health zones to visualize                  |
+| `weather`            | `WeatherData`                        | No       | -               | Weather data for overlay                   |
+| `height`             | `string`                             | No       | `'600px'`       | Map container height                       |
+| `center`             | `LatLngTuple`                        | No       | Auto-calculated | Initial map center [lat, lng]              |
+| `zoom`               | `number`                             | No       | `13`            | Initial zoom level                         |
+| `enableLayerControl` | `boolean`                            | No       | `true`          | Show layer control panel                   |
+| `onFieldClick`       | `(field: Field) => void`             | No       | -               | Callback when field is clicked             |
+| `onTaskClick`        | `(task: MapTask) => void`            | No       | -               | Callback when task is clicked              |
+| `onHealthZoneClick`  | `(zone: HealthZone) => void`         | No       | -               | Callback when zone is clicked              |
+| `onMapClick`         | `(lat: number, lng: number) => void` | No       | -               | Callback when map is clicked               |
+| `className`          | `string`                             | No       | `''`            | Additional CSS classes                     |
 
 ---
 
@@ -155,12 +171,12 @@ function AdvancedMap() {
 interface HealthZone {
   id: string;
   fieldId: string;
-  center: GeoPoint;              // Center coordinates / الإحداثيات المركزية
-  radius: number;                // Radius in meters / نصف القطر بالأمتار
-  healthScore: number;           // 0-100
-  ndviValue?: number;            // Optional NDVI value
-  status: 'healthy' | 'moderate' | 'stressed' | 'critical';
-  color: string;                 // Hex color code
+  center: GeoPoint; // Center coordinates / الإحداثيات المركزية
+  radius: number; // Radius in meters / نصف القطر بالأمتار
+  healthScore: number; // 0-100
+  ndviValue?: number; // Optional NDVI value
+  status: "healthy" | "moderate" | "stressed" | "critical";
+  color: string; // Hex color code
 }
 ```
 
@@ -168,7 +184,7 @@ interface HealthZone {
 
 ```typescript
 interface MapTask extends Task {
-  location?: GeoPoint;           // Task location on map / موقع المهمة على الخريطة
+  location?: GeoPoint; // Task location on map / موقع المهمة على الخريطة
 }
 ```
 
@@ -176,11 +192,11 @@ interface MapTask extends Task {
 
 ```typescript
 interface LayerConfig {
-  fields: boolean;               // Show field boundaries
-  ndvi: boolean;                 // Show NDVI coloring
-  healthZones: boolean;          // Show health zones
-  tasks: boolean;                // Show task markers
-  weather: boolean;              // Show weather overlay
+  fields: boolean; // Show field boundaries
+  ndvi: boolean; // Show NDVI coloring
+  healthZones: boolean; // Show health zones
+  tasks: boolean; // Show task markers
+  weather: boolean; // Show weather overlay
 }
 ```
 
@@ -191,10 +207,12 @@ interface LayerConfig {
 ### 1. Field Boundaries / حدود الحقول
 
 Fields are displayed as polygons on the map. The color is determined by:
+
 - NDVI value (if NDVI layer is active)
 - Default blue color (if NDVI is inactive)
 
 تُعرض الحقول كمضلعات على الخريطة. يتم تحديد اللون بواسطة:
+
 - قيمة NDVI (إذا كانت طبقة NDVI نشطة)
 - اللون الأزرق الافتراضي (إذا كان NDVI غير نشط)
 
@@ -217,11 +235,13 @@ A legend is automatically displayed at the bottom-left when NDVI layer is active
 ### 3. Health Zones / مناطق الصحة
 
 Circular zones representing areas with specific health characteristics:
+
 - Radius in meters
 - Color-coded by health score or custom color
 - Clickable with popup details
 
 مناطق دائرية تمثل مناطق ذات خصائص صحية محددة:
+
 - نصف القطر بالأمتار
 - مرمزة بالألوان حسب درجة الصحة أو لون مخصص
 - قابلة للنقر مع تفاصيل منبثقة
@@ -229,6 +249,7 @@ Circular zones representing areas with specific health characteristics:
 ### 4. Task Markers / علامات المهام
 
 Tasks are displayed as circular markers with:
+
 - **Color** based on priority and status
 - **Icon**: ✓ for completed, ! for others
 - **Priority colors**:
@@ -240,6 +261,7 @@ Tasks are displayed as circular markers with:
 ### 5. Weather Overlay / طبقة الطقس
 
 Displays current weather conditions in a panel:
+
 - Temperature / درجة الحرارة
 - Humidity / الرطوبة
 - Wind speed / سرعة الرياح
@@ -248,11 +270,13 @@ Displays current weather conditions in a panel:
 ### 6. Layer Control / التحكم في الطبقات
 
 Interactive panel to toggle each layer:
+
 - Click the layers icon (top-left)
 - Check/uncheck individual layers
 - Changes apply immediately
 
 لوحة تفاعلية لتبديل كل طبقة:
+
 - انقر على أيقونة الطبقات (أعلى اليسار)
 - حدد/ألغِ تحديد الطبقات الفردية
 - تُطبق التغييرات فوراً
@@ -265,11 +289,11 @@ Interactive panel to toggle each layer:
 
 ```typescript
 const getNDVIColor = (ndvi: number): string => {
-  if (ndvi >= 0.6) return '#00ff00';  // Healthy
-  if (ndvi >= 0.4) return '#90ee90';  // Good
-  if (ndvi >= 0.2) return '#ffff00';  // Moderate
-  if (ndvi >= 0.0) return '#ffa500';  // Poor
-  return '#ff0000';                   // Critical
+  if (ndvi >= 0.6) return "#00ff00"; // Healthy
+  if (ndvi >= 0.4) return "#90ee90"; // Good
+  if (ndvi >= 0.2) return "#ffff00"; // Moderate
+  if (ndvi >= 0.0) return "#ffa500"; // Poor
+  return "#ff0000"; // Critical
 };
 ```
 
@@ -277,10 +301,10 @@ const getNDVIColor = (ndvi: number): string => {
 
 ```typescript
 const getHealthColor = (score: number): string => {
-  if (score >= 80) return '#22c55e';  // Green
-  if (score >= 60) return '#eab308';  // Yellow
-  if (score >= 40) return '#f97316';  // Orange
-  return '#ef4444';                   // Red
+  if (score >= 80) return "#22c55e"; // Green
+  if (score >= 60) return "#eab308"; // Yellow
+  if (score >= 40) return "#f97316"; // Orange
+  return "#ef4444"; // Red
 };
 ```
 
@@ -288,14 +312,18 @@ const getHealthColor = (score: number): string => {
 
 ```typescript
 const getTaskColor = (priority: Priority, status: TaskStatus): string => {
-  if (status === 'completed') return '#22c55e';
-  if (status === 'cancelled') return '#6b7280';
+  if (status === "completed") return "#22c55e";
+  if (status === "cancelled") return "#6b7280";
 
   switch (priority) {
-    case 'urgent': return '#dc2626';
-    case 'high': return '#f97316';
-    case 'medium': return '#eab308';
-    case 'low': return '#3b82f6';
+    case "urgent":
+      return "#dc2626";
+    case "high":
+      return "#f97316";
+    case "medium":
+      return "#eab308";
+    case "low":
+      return "#3b82f6";
   }
 };
 ```
@@ -358,10 +386,7 @@ onMapClick={(lat: number, lng: number) => {
 
 ```typescript
 // ✅ DO: Memoize data
-const processedFields = useMemo(() =>
-  fields.map(processField),
-  [fields]
-);
+const processedFields = useMemo(() => fields.map(processField), [fields]);
 
 // ❌ DON'T: Process data on every render
 const processedFields = fields.map(processField);
@@ -428,12 +453,12 @@ const validFields = fields.filter(f =>
 
 ```typescript
 // Ensure tasks have location property
-const tasks = tasks.map(task => ({
+const tasks = tasks.map((task) => ({
   ...task,
   location: {
-    type: 'Point',
-    coordinates: [lng, lat]  // Note: [lng, lat] order
-  }
+    type: "Point",
+    coordinates: [lng, lat], // Note: [lng, lat] order
+  },
 }));
 ```
 
@@ -441,9 +466,9 @@ const tasks = tasks.map(task => ({
 
 ```typescript
 // Ensure ndviValue is set on fields
-const fields = fields.map(f => ({
+const fields = fields.map((f) => ({
   ...f,
-  ndviValue: calculateNDVI(f)
+  ndviValue: calculateNDVI(f),
 }));
 ```
 

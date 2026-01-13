@@ -9,17 +9,17 @@ import {
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-} from 'class-validator';
-import { Transform, TransformFnParams } from 'class-transformer';
+} from "class-validator";
+import { Transform, TransformFnParams } from "class-transformer";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Money Value Validator
 // ═══════════════════════════════════════════════════════════════════════════
 
-@ValidatorConstraint({ name: 'isMoneyValue', async: false })
+@ValidatorConstraint({ name: "isMoneyValue", async: false })
 export class IsMoneyValueConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'number') {
+    if (typeof value !== "number") {
       return false;
     }
 
@@ -27,7 +27,7 @@ export class IsMoneyValueConstraint implements ValidatorConstraintInterface {
       return false;
     }
 
-    const decimalPlaces = (value.toString().split('.')[1] || '').length;
+    const decimalPlaces = (value.toString().split(".")[1] || "").length;
     if (decimalPlaces > 2) {
       return false;
     }
@@ -36,7 +36,7 @@ export class IsMoneyValueConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Amount must be a positive number with maximum 2 decimal places';
+    return "Amount must be a positive number with maximum 2 decimal places";
   }
 }
 
@@ -56,10 +56,10 @@ export function IsMoneyValue(validationOptions?: ValidationOptions) {
 // Yemen Phone Validator
 // ═══════════════════════════════════════════════════════════════════════════
 
-@ValidatorConstraint({ name: 'isYemeniPhone', async: false })
+@ValidatorConstraint({ name: "isYemeniPhone", async: false })
 export class IsYemeniPhoneConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
@@ -69,11 +69,11 @@ export class IsYemeniPhoneConstraint implements ValidatorConstraintInterface {
       /^(77|78)[0-9]{7}$/,
     ];
 
-    return patterns.some((pattern) => pattern.test(value.replace(/\s/g, '')));
+    return patterns.some((pattern) => pattern.test(value.replace(/\s/g, "")));
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Phone number must be a valid Yemeni phone number';
+    return "Phone number must be a valid Yemeni phone number";
   }
 }
 
@@ -93,7 +93,7 @@ export function IsYemeniPhone(validationOptions?: ValidationOptions) {
 // Date Validators
 // ═══════════════════════════════════════════════════════════════════════════
 
-@ValidatorConstraint({ name: 'isAfterDate', async: false })
+@ValidatorConstraint({ name: "isAfterDate", async: false })
 export class IsAfterDateConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
     const [relatedPropertyName] = args.constraints;
@@ -130,7 +130,7 @@ export function IsAfterDate(
   };
 }
 
-@ValidatorConstraint({ name: 'isFutureDate', async: false })
+@ValidatorConstraint({ name: "isFutureDate", async: false })
 export class IsFutureDateConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
     if (!value) {
@@ -165,35 +165,32 @@ export function IsFutureDate(validationOptions?: ValidationOptions) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function sanitizePlainTextValue(input: string): string {
-  if (typeof input !== 'string') {
+  if (typeof input !== "string") {
     return input;
   }
 
   let sanitized = input;
 
   // Remove null bytes
-  sanitized = sanitized.replace(/\x00/g, '');
+  sanitized = sanitized.replace(/\x00/g, "");
 
   // Remove control characters
-  sanitized = sanitized.replace(
-    /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g,
-    '',
-  );
+  sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, "");
 
   // Strip HTML tags
-  sanitized = sanitized.replace(/<[^>]*>/g, '');
+  sanitized = sanitized.replace(/<[^>]*>/g, "");
 
   // Decode common HTML entities
   sanitized = sanitized
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ');
+    .replace(/&nbsp;/g, " ");
 
   // Normalize whitespace
-  sanitized = sanitized.replace(/\s+/g, ' ');
+  sanitized = sanitized.replace(/\s+/g, " ");
 
   // Trim
   sanitized = sanitized.trim();
@@ -203,7 +200,7 @@ function sanitizePlainTextValue(input: string): string {
 
 export function SanitizePlainText() {
   return Transform((params: TransformFnParams) => {
-    if (typeof params.value !== 'string') {
+    if (typeof params.value !== "string") {
       return params.value;
     }
     return sanitizePlainTextValue(params.value);

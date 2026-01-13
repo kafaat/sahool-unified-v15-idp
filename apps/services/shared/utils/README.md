@@ -1,4 +1,5 @@
 # SAHOOL API Fallback Manager with Circuit Breaker
+
 # مدير الاحتياطي لواجهات برمجة التطبيقات مع نمط قاطع الدائرة
 
 A robust fallback mechanism for API calls with circuit breaker pattern to prevent cascading failures and improve system resilience.
@@ -8,18 +9,21 @@ A robust fallback mechanism for API calls with circuit breaker pattern to preven
 ## Features / الميزات
 
 ### Circuit Breaker Pattern / نمط قاطع الدائرة
+
 - ✅ **Three States**: CLOSED, OPEN, HALF_OPEN
 - ✅ **Configurable Thresholds**: Customize failure/success thresholds
 - ✅ **Automatic Recovery**: Auto-transition to testing mode after timeout
 - ✅ **Thread-Safe**: Safe for concurrent operations
 
 ### Fallback Management / إدارة الاحتياطي
+
 - ✅ **Service Registration**: Register fallback functions per service
 - ✅ **Automatic Caching**: Cache successful responses
 - ✅ **Multi-Level Fallback**: Primary → Fallback → Cache
 - ✅ **Status Monitoring**: Real-time circuit status tracking
 
 ### Built-in Service Fallbacks / احتياطيات الخدمات المدمجة
+
 - 🌤️ **Weather Service**: Returns cached or default weather data
 - 🛰️ **Satellite Service**: Returns cached imagery or unavailable status
 - 🤖 **AI Service**: Returns rule-based recommendations
@@ -170,16 +174,19 @@ recommendations = get_ai_recommendations("field_123")
 ## Circuit Breaker States / حالات قاطع الدائرة
 
 ### CLOSED (مغلق)
+
 - Normal operation / العمليات الطبيعية
 - All requests are allowed / جميع الطلبات مسموحة
 - Counts failures / يحسب الفشل
 
 ### OPEN (مفتوح)
+
 - Circuit is broken / الدائرة معطلة
 - All requests fail immediately / جميع الطلبات تفشل فوراً
 - Waits for recovery timeout / ينتظر مهلة الاستعادة
 
 ### HALF_OPEN (نصف مفتوح)
+
 - Testing mode / وضع الاختبار
 - Limited requests allowed / طلبات محدودة مسموحة
 - Transitions to CLOSED on success / ينتقل إلى مغلق عند النجاح
@@ -345,16 +352,19 @@ def circuit_health():
 ### Choosing Thresholds / اختيار العتبات
 
 **failure_threshold** (عتبة الفشل):
+
 - **Low (3-5)**: For critical services that should fail fast
 - **Medium (5-10)**: For standard services
 - **High (10+)**: For services with expected intermittent failures
 
 **recovery_timeout** (مهلة الاستعادة):
+
 - **Short (10-30s)**: For services that recover quickly
 - **Medium (30-60s)**: Standard recovery time
 - **Long (60-300s)**: For services with slow recovery
 
 **success_threshold** (عتبة النجاح):
+
 - **Low (2-3)**: Quick recovery verification
 - **Medium (3-5)**: Standard verification
 - **High (5+)**: Conservative recovery verification
@@ -450,52 +460,65 @@ FallbackManager
 ### FallbackManager
 
 #### `register_fallback(service_name, fallback_fn, failure_threshold=5, recovery_timeout=30, success_threshold=3)`
+
 Register a fallback function for a service.
 
 #### `execute_with_fallback(service_name, primary_fn, *args, **kwargs)`
+
 Execute function with fallback protection.
 
 #### `get_circuit_status(service_name)`
+
 Get current circuit breaker status.
 
 #### `reset_circuit(service_name)`
+
 Manually reset circuit breaker.
 
 #### `get_all_statuses()`
+
 Get status of all circuit breakers.
 
 ### CircuitBreaker
 
 #### `call(func, *args, **kwargs)`
+
 Execute function with circuit breaker protection.
 
 #### `reset()`
+
 Manually reset the circuit.
 
 #### `get_status()`
+
 Get current status.
 
 ### Decorators
 
 #### `@circuit_breaker(failure_threshold, recovery_timeout, success_threshold)`
+
 Protect function with circuit breaker.
 
 #### `@with_fallback(fallback_fn)`
+
 Provide fallback function for failures.
 
 ## Troubleshooting / استكشاف الأخطاء
 
 ### Circuit stuck in OPEN state
+
 - Check if recovery_timeout is too long
 - Verify the service is actually available
 - Manually reset: `fm.reset_circuit(service_name)`
 
 ### Fallback not being called
+
 - Ensure fallback is registered: `fm.register_fallback(...)`
 - Check circuit is not in OPEN state before registration
 - Verify primary function is actually failing
 
 ### Cache not working
+
 - Check cache TTL (default 5 minutes)
 - Ensure successful call was made first
 - Verify service name matches
@@ -508,6 +531,7 @@ Part of SAHOOL Unified Agricultural Platform
 ## Support / الدعم
 
 For issues and questions:
+
 - GitHub Issues: [sahool-unified-v15-idp]
 - Email: support@sahool.com
 

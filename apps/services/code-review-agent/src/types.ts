@@ -57,24 +57,24 @@ export const reviewSchema = {
         properties: {
           severity: {
             type: "string",
-            enum: ["low", "medium", "high", "critical"]
+            enum: ["low", "medium", "high", "critical"],
           },
           category: {
             type: "string",
-            enum: ["bug", "security", "performance", "style"]
+            enum: ["bug", "security", "performance", "style"],
           },
           file: { type: "string" },
           line: { type: "number" },
           description: { type: "string" },
-          suggestion: { type: "string" }
+          suggestion: { type: "string" },
         },
-        required: ["severity", "category", "file", "description"]
-      }
+        required: ["severity", "category", "file", "description"],
+      },
     },
     summary: { type: "string" },
-    overallScore: { type: "number" }
+    overallScore: { type: "number" },
   },
-  required: ["issues", "summary", "overallScore"]
+  required: ["issues", "summary", "overallScore"],
 } as const;
 
 /**
@@ -152,11 +152,14 @@ export interface ResultMessage {
     input_tokens: number;
     output_tokens: number;
   };
-  modelUsage?: Record<string, {
-    costUSD: number;
-    inputTokens: number;
-    outputTokens: number;
-  }>;
+  modelUsage?: Record<
+    string,
+    {
+      costUSD: number;
+      inputTokens: number;
+      outputTokens: number;
+    }
+  >;
 }
 
 export type AgentMessage = SystemMessage | AssistantMessage | ResultMessage;

@@ -3,8 +3,8 @@
  * خادم محاكاة للأحداث المباشرة (ws-gateway)
  */
 
-const http = require('http');
-const crypto = require('crypto');
+const http = require("http");
+const crypto = require("crypto");
 
 // WebSocket implementation (minimal)
 function parseWebSocketFrame(buffer) {
@@ -37,7 +37,7 @@ function parseWebSocketFrame(buffer) {
     }
   }
 
-  return { opcode, payload: payload.toString('utf8') };
+  return { opcode, payload: payload.toString("utf8") };
 }
 
 function createWebSocketFrame(data) {
@@ -69,46 +69,83 @@ function createWebSocketFrame(data) {
 
 // Mock events
 const eventTypes = [
-  { type: 'task_created', payload: () => ({ title: 'مهمة جديدة: ري الحقل', field_id: 'field_001' }) },
-  { type: 'task_completed', payload: () => ({ title: 'تم إكمال: فحص المحاصيل', field_id: 'field_002' }) },
-  { type: 'ndvi_processed', payload: () => ({ field_id: 'field_00' + (Math.floor(Math.random() * 4) + 1), ndvi: (Math.random() * 0.5 + 0.3).toFixed(2), status: Math.random() > 0.5 ? 'healthy' : 'warning' }) },
-  { type: 'weather_alert_issued', payload: () => ({ type: 'موجة حارة', severity: 'warning', location: 'صنعاء' }) },
-  { type: 'image_diagnosed', payload: () => ({ disease_detected: Math.random() > 0.7, confidence: (Math.random() * 0.3 + 0.7).toFixed(2), disease: 'البياض الدقيقي' }) },
-  { type: 'sensor_reading', payload: () => ({ sensor_id: 'sensor_001', value: Math.floor(Math.random() * 100), type: 'soil_moisture' }) }
+  {
+    type: "task_created",
+    payload: () => ({ title: "مهمة جديدة: ري الحقل", field_id: "field_001" }),
+  },
+  {
+    type: "task_completed",
+    payload: () => ({ title: "تم إكمال: فحص المحاصيل", field_id: "field_002" }),
+  },
+  {
+    type: "ndvi_processed",
+    payload: () => ({
+      field_id: "field_00" + (Math.floor(Math.random() * 4) + 1),
+      ndvi: (Math.random() * 0.5 + 0.3).toFixed(2),
+      status: Math.random() > 0.5 ? "healthy" : "warning",
+    }),
+  },
+  {
+    type: "weather_alert_issued",
+    payload: () => ({
+      type: "موجة حارة",
+      severity: "warning",
+      location: "صنعاء",
+    }),
+  },
+  {
+    type: "image_diagnosed",
+    payload: () => ({
+      disease_detected: Math.random() > 0.7,
+      confidence: (Math.random() * 0.3 + 0.7).toFixed(2),
+      disease: "البياض الدقيقي",
+    }),
+  },
+  {
+    type: "sensor_reading",
+    payload: () => ({
+      sensor_id: "sensor_001",
+      value: Math.floor(Math.random() * 100),
+      type: "soil_moisture",
+    }),
+  },
 ];
 
 const clients = new Set();
 
 const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('SAHOOL WebSocket Server - Use WebSocket connection on /events');
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("SAHOOL WebSocket Server - Use WebSocket connection on /events");
 });
 
-server.on('upgrade', (req, socket, head) => {
-  if (req.url === '/events') {
+server.on("upgrade", (req, socket, head) => {
+  if (req.url === "/events") {
     // WebSocket handshake
-    const key = req.headers['sec-websocket-key'];
+    const key = req.headers["sec-websocket-key"];
     const acceptKey = crypto
-      .createHash('sha1')
-      .update(key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')
-      .digest('base64');
+      .createHash("sha1")
+      .update(key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
+      .digest("base64");
 
     socket.write(
-      'HTTP/1.1 101 Switching Protocols\r\n' +
-      'Upgrade: websocket\r\n' +
-      'Connection: Upgrade\r\n' +
-      `Sec-WebSocket-Accept: ${acceptKey}\r\n` +
-      '\r\n'
+      "HTTP/1.1 101 Switching Protocols\r\n" +
+        "Upgrade: websocket\r\n" +
+        "Connection: Upgrade\r\n" +
+        `Sec-WebSocket-Accept: ${acceptKey}\r\n` +
+        "\r\n",
     );
 
     clients.add(socket);
     console.log(`[WS] Client connected. Total clients: ${clients.size}`);
 
     // Send welcome message
-    const welcomeMsg = JSON.stringify({ type: 'connected', message: 'مرحباً بك في خادم الأحداث المباشرة' });
+    const welcomeMsg = JSON.stringify({
+      type: "connected",
+      message: "مرحباً بك في خادم الأحداث المباشرة",
+    });
     socket.write(createWebSocketFrame(welcomeMsg));
 
-    socket.on('data', (buffer) => {
+    socket.on("data", (buffer) => {
       try {
         const { opcode, payload } = parseWebSocketFrame(buffer);
 
@@ -130,28 +167,31 @@ server.on('upgrade', (req, socket, head) => {
 
         if (opcode === 1 && payload) {
           const message = JSON.parse(payload);
-          console.log('[WS] Received:', message);
+          console.log("[WS] Received:", message);
 
-          if (message.type === 'subscribe') {
-            const response = JSON.stringify({ type: 'subscribed', subjects: message.subjects });
+          if (message.type === "subscribe") {
+            const response = JSON.stringify({
+              type: "subscribed",
+              subjects: message.subjects,
+            });
             socket.write(createWebSocketFrame(response));
-          } else if (message.type === 'pong') {
+          } else if (message.type === "pong") {
             // Client responded to our ping
           }
         }
       } catch (e) {
-        console.error('[WS] Error parsing message:', e.message);
+        console.error("[WS] Error parsing message:", e.message);
       }
     });
 
-    socket.on('close', () => {
+    socket.on("close", () => {
       clients.delete(socket);
       console.log(`[WS] Client disconnected. Total clients: ${clients.size}`);
     });
 
-    socket.on('error', (err) => {
+    socket.on("error", (err) => {
       clients.delete(socket);
-      console.error('[WS] Socket error:', err.message);
+      console.error("[WS] Socket error:", err.message);
     });
   } else {
     socket.destroy();
@@ -164,15 +204,15 @@ setInterval(() => {
 
   const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
   const event = {
-    type: 'event',
+    type: "event",
     data: {
       event_id: `evt_${Date.now()}`,
       event_type: eventType.type,
       aggregate_id: `agg_${Math.random().toString(36).substr(2, 9)}`,
-      tenant_id: 'tenant_1',
+      tenant_id: "tenant_1",
       timestamp: new Date().toISOString(),
-      payload: eventType.payload()
-    }
+      payload: eventType.payload(),
+    },
   };
 
   const frame = createWebSocketFrame(JSON.stringify(event));

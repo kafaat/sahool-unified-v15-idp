@@ -25,6 +25,7 @@ Added a root endpoint to the Kong API Gateway that returns JSON information abou
 Added two new services to the Kong declarative configuration:
 
 ##### Root Endpoint Service
+
 ```yaml
 - name: root-endpoint
   url: http://kong:8000
@@ -42,6 +43,7 @@ Added two new services to the Kong declarative configuration:
 ```
 
 ##### Health Check Service
+
 ```yaml
 - name: health-check
   url: http://kong:8000
@@ -96,6 +98,7 @@ Added a new "Platform Endpoints" section documenting:
 **Purpose**: Provide platform information and available endpoints
 
 **Response** (200 OK):
+
 ```json
 {
   "platform": "SAHOOL",
@@ -116,6 +119,7 @@ Added a new "Platform Endpoints" section documenting:
 **Purpose**: Monitor API Gateway health status
 
 **Response** (200 OK):
+
 ```
 SAHOOL Platform is healthy
 ```
@@ -133,6 +137,7 @@ The implementation uses Kong's `request-termination` plugin to return static res
 ### Configuration Validation
 
 The Kong configuration was validated using:
+
 ```bash
 docker run --rm -e KONG_DATABASE=off \
   -e KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml \
@@ -145,6 +150,7 @@ Result: ✅ `parse successful`
 ## Testing Results
 
 All tests passed:
+
 ```
 tests/integration/test_kong_routes.py::TestRootEndpoint::test_root_endpoint_service_exists PASSED
 tests/integration/test_kong_routes.py::TestRootEndpoint::test_root_endpoint_has_slash_path PASSED
@@ -205,6 +211,7 @@ curl http://localhost:8000/ping
 ## Monitoring
 
 The endpoints can be monitored via:
+
 - Kong's Prometheus metrics (already configured)
 - Standard Kong access logs
 - Health check monitoring systems

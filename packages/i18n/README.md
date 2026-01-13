@@ -28,15 +28,17 @@ This package is already part of the SAHOOL monorepo. To use it in your app:
 Create `src/i18n.ts`:
 
 ```typescript
-import { getRequestConfig } from 'next-intl/server';
-import { locales, defaultLocale, messages, type Locale } from '@sahool/i18n';
+import { getRequestConfig } from "next-intl/server";
+import { locales, defaultLocale, messages, type Locale } from "@sahool/i18n";
 
 export default getRequestConfig(async ({ locale }) => {
-  const validLocale = (locales.includes(locale as Locale) ? locale : defaultLocale) as Locale;
+  const validLocale = (
+    locales.includes(locale as Locale) ? locale : defaultLocale
+  ) as Locale;
 
   return {
     messages: messages[validLocale],
-    timeZone: 'Asia/Aden',
+    timeZone: "Asia/Aden",
     now: new Date(),
   };
 });
@@ -45,8 +47,8 @@ export default getRequestConfig(async ({ locale }) => {
 #### 2. Update next.config.js
 
 ```javascript
-const createNextIntlPlugin = require('next-intl/plugin');
-const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
+const createNextIntlPlugin = require("next-intl/plugin");
+const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
 
 const nextConfig = {
   // your config here
@@ -134,13 +136,13 @@ export function Header() {
 
 ```typescript
 import {
-  locales,              // ['ar', 'en']
-  defaultLocale,        // 'ar'
-  getMessages,          // Get messages for a locale
+  locales, // ['ar', 'en']
+  defaultLocale, // 'ar'
+  getMessages, // Get messages for a locale
   getLocaleDisplayName, // Get locale name (e.g., 'العربية', 'English')
-  isRTL,               // Check if locale is RTL
-  getDirection,        // Get 'rtl' or 'ltr'
-} from '@sahool/i18n';
+  isRTL, // Check if locale is RTL
+  getDirection, // Get 'rtl' or 'ltr'
+} from "@sahool/i18n";
 ```
 
 ## Adding New Translations
@@ -173,6 +175,7 @@ Example:
 ## Default Locale
 
 The default locale is set to Arabic (ar). This means:
+
 - URLs without a locale prefix will use Arabic
 - The app will default to Arabic for new users
 - RTL layout is the default

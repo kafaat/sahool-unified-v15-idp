@@ -5,6 +5,7 @@ A Flutter widget for displaying field health zones on an interactive map with co
 ## Features - المميزات
 
 ### Core Features
+
 - ✅ **Color-coded health zones**: Automatic coloring based on NDVI values
   - 🟢 Green (>0.6): Healthy zones
   - 🟡 Yellow (0.4-0.6): Moderate health
@@ -138,17 +139,17 @@ class _FieldHealthScreenState extends State<FieldHealthScreen> {
 
 ### ZonesMapLayer
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `zones` | `List<ZoneHealth>` | ✅ | - | List of zones to display |
-| `selectedZone` | `ZoneHealth?` | ❌ | null | Currently selected zone |
-| `onZoneTapped` | `Function(ZoneHealth)?` | ❌ | null | Callback when zone is tapped |
-| `mapController` | `MapController?` | ❌ | null | Custom map controller |
-| `initialCenter` | `LatLng?` | ❌ | null | Initial map center |
-| `initialZoom` | `double` | ❌ | 14.0 | Initial zoom level |
-| `showLabels` | `bool` | ❌ | true | Show zone labels on map |
-| `isLoading` | `bool` | ❌ | false | Show loading state |
-| `enableSelection` | `bool` | ❌ | true | Enable zone selection |
+| Parameter         | Type                    | Required | Default | Description                  |
+| ----------------- | ----------------------- | -------- | ------- | ---------------------------- |
+| `zones`           | `List<ZoneHealth>`      | ✅       | -       | List of zones to display     |
+| `selectedZone`    | `ZoneHealth?`           | ❌       | null    | Currently selected zone      |
+| `onZoneTapped`    | `Function(ZoneHealth)?` | ❌       | null    | Callback when zone is tapped |
+| `mapController`   | `MapController?`        | ❌       | null    | Custom map controller        |
+| `initialCenter`   | `LatLng?`               | ❌       | null    | Initial map center           |
+| `initialZoom`     | `double`                | ❌       | 14.0    | Initial zoom level           |
+| `showLabels`      | `bool`                  | ❌       | true    | Show zone labels on map      |
+| `isLoading`       | `bool`                  | ❌       | false   | Show loading state           |
+| `enableSelection` | `bool`                  | ❌       | true    | Enable zone selection        |
 
 ### ZoneHealth Model
 
@@ -171,11 +172,11 @@ class ZoneHealth {
 
 The widget automatically classifies zones based on NDVI values:
 
-| NDVI Range | Status | Color | Arabic |
-|------------|--------|-------|--------|
-| > 0.6 | Healthy | 🟢 Green | صحي |
-| 0.4 - 0.6 | Moderate | 🟡 Yellow | متوسط |
-| < 0.4 | Critical | 🔴 Red | حرج |
+| NDVI Range | Status   | Color     | Arabic |
+| ---------- | -------- | --------- | ------ |
+| > 0.6      | Healthy  | 🟢 Green  | صحي    |
+| 0.4 - 0.6  | Moderate | 🟡 Yellow | متوسط  |
+| < 0.4      | Critical | 🔴 Red    | حرج    |
 
 ## Integration with Existing Models - التكامل مع النماذج الموجودة
 
@@ -369,19 +370,23 @@ void main() {
 ### Common Issues
 
 **1. Map not displaying**
+
 - Ensure internet connection for tile downloads
 - Check that coordinates are valid (latitude: -90 to 90, longitude: -180 to 180)
 
 **2. Zones not visible**
+
 - Verify boundary coordinates are in correct order (LatLng format)
 - Check that zone boundaries are closed (first point = last point)
 
 **3. Labels overlapping**
+
 - Reduce number of visible zones
 - Implement label collision detection
 - Hide labels at low zoom levels
 
 **4. Performance issues**
+
 - Simplify polygon boundaries (reduce points)
 - Implement zone clustering
 - Consider using vector tiles

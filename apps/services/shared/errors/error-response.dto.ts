@@ -6,8 +6,8 @@
  * @description Standardized error response formats
  */
 
-import { ApiProperty } from '@nestjs/swagger';
-import { ErrorCode, ErrorCategory } from './error-codes';
+import { ApiProperty } from "@nestjs/swagger";
+import { ErrorCode, ErrorCategory } from "./error-codes";
 
 /**
  * Field Validation Error
@@ -15,33 +15,33 @@ import { ErrorCode, ErrorCategory } from './error-codes';
  */
 export class FieldErrorDto {
   @ApiProperty({
-    description: 'Field name that failed validation',
-    example: 'email',
+    description: "Field name that failed validation",
+    example: "email",
   })
   field: string;
 
   @ApiProperty({
-    description: 'Error message in English',
-    example: 'Invalid email format',
+    description: "Error message in English",
+    example: "Invalid email format",
   })
   message: string;
 
   @ApiProperty({
-    description: 'Error message in Arabic - الرسالة بالعربية',
-    example: 'تنسيق البريد الإلكتروني غير صالح',
+    description: "Error message in Arabic - الرسالة بالعربية",
+    example: "تنسيق البريد الإلكتروني غير صالح",
     required: false,
   })
   messageAr?: string;
 
   @ApiProperty({
-    description: 'Validation constraint that failed',
-    example: 'isEmail',
+    description: "Validation constraint that failed",
+    example: "isEmail",
     required: false,
   })
   constraint?: string;
 
   @ApiProperty({
-    description: 'Invalid value that was provided',
+    description: "Invalid value that was provided",
     required: false,
   })
   value?: any;
@@ -53,60 +53,60 @@ export class FieldErrorDto {
  */
 export class ErrorDetailsDto {
   @ApiProperty({
-    description: 'Error code',
-    example: 'ERR_1001',
+    description: "Error code",
+    example: "ERR_1001",
     enum: ErrorCode,
   })
   code: ErrorCode;
 
   @ApiProperty({
-    description: 'Error message in English',
-    example: 'Invalid input provided',
+    description: "Error message in English",
+    example: "Invalid input provided",
   })
   message: string;
 
   @ApiProperty({
-    description: 'Error message in Arabic - الرسالة بالعربية',
-    example: 'تم تقديم بيانات غير صالحة',
+    description: "Error message in Arabic - الرسالة بالعربية",
+    example: "تم تقديم بيانات غير صالحة",
   })
   messageAr: string;
 
   @ApiProperty({
-    description: 'Error category',
-    example: 'VALIDATION',
+    description: "Error category",
+    example: "VALIDATION",
     enum: ErrorCategory,
     required: false,
   })
   category?: ErrorCategory;
 
   @ApiProperty({
-    description: 'Whether the operation can be retried',
+    description: "Whether the operation can be retried",
     example: false,
   })
   retryable: boolean;
 
   @ApiProperty({
-    description: 'Timestamp when error occurred',
-    example: '2025-12-31T10:30:00.000Z',
+    description: "Timestamp when error occurred",
+    example: "2025-12-31T10:30:00.000Z",
   })
   timestamp: string;
 
   @ApiProperty({
-    description: 'Request path where error occurred',
-    example: '/api/v1/farms',
+    description: "Request path where error occurred",
+    example: "/api/v1/farms",
     required: false,
   })
   path?: string;
 
   @ApiProperty({
-    description: 'Additional error details',
+    description: "Additional error details",
     required: false,
     type: Object,
     example: {
       fields: [
         {
-          field: 'email',
-          message: 'Invalid email format',
+          field: "email",
+          message: "Invalid email format",
         },
       ],
     },
@@ -114,14 +114,14 @@ export class ErrorDetailsDto {
   details?: any;
 
   @ApiProperty({
-    description: 'Request ID for tracking',
-    example: 'req-123-456-789',
+    description: "Request ID for tracking",
+    example: "req-123-456-789",
     required: false,
   })
   requestId?: string;
 
   @ApiProperty({
-    description: 'Stack trace (only in development)',
+    description: "Stack trace (only in development)",
     required: false,
   })
   stack?: string;
@@ -133,13 +133,13 @@ export class ErrorDetailsDto {
  */
 export class ErrorResponseDto {
   @ApiProperty({
-    description: 'Success indicator (always false for errors)',
+    description: "Success indicator (always false for errors)",
     example: false,
   })
   success: false;
 
   @ApiProperty({
-    description: 'Error details',
+    description: "Error details",
     type: ErrorDetailsDto,
   })
   error: ErrorDetailsDto;
@@ -179,7 +179,7 @@ export class ErrorResponseDto {
  */
 export class ValidationErrorResponseDto extends ErrorResponseDto {
   @ApiProperty({
-    description: 'Field validation errors',
+    description: "Field validation errors",
     type: [FieldErrorDto],
   })
   fields?: FieldErrorDto[];
@@ -209,31 +209,31 @@ export class ValidationErrorResponseDto extends ErrorResponseDto {
  */
 export class SuccessResponseDto<T = any> {
   @ApiProperty({
-    description: 'Success indicator',
+    description: "Success indicator",
     example: true,
   })
   success: true;
 
   @ApiProperty({
-    description: 'Response data',
+    description: "Response data",
   })
   data: T;
 
   @ApiProperty({
-    description: 'Response message in English',
+    description: "Response message in English",
     required: false,
   })
   message?: string;
 
   @ApiProperty({
-    description: 'Response message in Arabic - الرسالة بالعربية',
+    description: "Response message in Arabic - الرسالة بالعربية",
     required: false,
   })
   messageAr?: string;
 
   @ApiProperty({
-    description: 'Response timestamp',
-    example: '2025-12-31T10:30:00.000Z',
+    description: "Response timestamp",
+    example: "2025-12-31T10:30:00.000Z",
   })
   timestamp: string;
 
@@ -252,37 +252,37 @@ export class SuccessResponseDto<T = any> {
  */
 export class PaginationMetaDto {
   @ApiProperty({
-    description: 'Current page number',
+    description: "Current page number",
     example: 1,
   })
   page: number;
 
   @ApiProperty({
-    description: 'Items per page',
+    description: "Items per page",
     example: 20,
   })
   limit: number;
 
   @ApiProperty({
-    description: 'Total number of items',
+    description: "Total number of items",
     example: 100,
   })
   total: number;
 
   @ApiProperty({
-    description: 'Total number of pages',
+    description: "Total number of pages",
     example: 5,
   })
   totalPages: number;
 
   @ApiProperty({
-    description: 'Whether there is a next page',
+    description: "Whether there is a next page",
     example: true,
   })
   hasNextPage: boolean;
 
   @ApiProperty({
-    description: 'Whether there is a previous page',
+    description: "Whether there is a previous page",
     example: false,
   })
   hasPreviousPage: boolean;
@@ -290,7 +290,7 @@ export class PaginationMetaDto {
 
 export class PaginatedResponseDto<T = any> extends SuccessResponseDto<T[]> {
   @ApiProperty({
-    description: 'Pagination metadata',
+    description: "Pagination metadata",
     type: PaginationMetaDto,
   })
   meta: PaginationMetaDto;

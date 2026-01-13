@@ -1,4 +1,5 @@
 # دليل البدء السريع / Quick Start Guide
+
 # البنية التحتية لمنصة صحول - السعودية
 
 ## نظرة سريعة / Quick Overview
@@ -19,6 +20,7 @@ kubectl version      # Kubernetes CLI (اختياري للآن / optional for no
 ## 🚀 البدء السريع / Quick Start
 
 ### الخطوة 1: تكوين AWS
+
 ```bash
 # تكوين بيانات الاعتماد / Configure AWS credentials
 aws configure
@@ -30,6 +32,7 @@ export AWS_DEFAULT_REGION="me-south-1"
 ```
 
 ### الخطوة 2: إعداد Backend (اختياري)
+
 ```bash
 # إنشاء S3 bucket و DynamoDB للحالة / Create S3 and DynamoDB for state
 cd infrastructure/terraform
@@ -37,6 +40,7 @@ cd infrastructure/terraform
 ```
 
 ### الخطوة 3: تكوين المتغيرات
+
 ```bash
 # نسخ ملف المثال / Copy example file
 cp terraform.tfvars.example terraform.tfvars
@@ -46,6 +50,7 @@ nano terraform.tfvars
 ```
 
 ### الخطوة 4: النشر
+
 ```bash
 # استخدام السكريبت الآلي / Use automated script
 ./scripts/deploy.sh production
@@ -57,6 +62,7 @@ terraform apply -var-file="environments/production.tfvars" -var="db_password=YOU
 ```
 
 ### الخطوة 5: تكوين kubectl
+
 ```bash
 # تكوين kubectl للاتصال بمجموعات EKS / Configure kubectl for EKS
 ./scripts/configure-kubectl.sh
@@ -68,6 +74,7 @@ kubectl get nodes
 ## 📦 ما الذي سيتم إنشاؤه؟ / What Will Be Created?
 
 ### منطقة الرياض (Primary)
+
 - ✅ VPC مع 3 Availability Zones
 - ✅ EKS Cluster مع 3-10 عقد
 - ✅ RDS PostgreSQL 15 + PostGIS (db.r6g.xlarge)
@@ -75,6 +82,7 @@ kubectl get nodes
 - ✅ S3 Buckets للصور الفضائية والنماذج
 
 ### منطقة جدة (Secondary)
+
 - ✅ VPC مع 3 Availability Zones
 - ✅ EKS Cluster مع 2-8 عقد
 - ✅ RDS PostgreSQL 15 + PostGIS (db.r6g.large)
@@ -82,16 +90,17 @@ kubectl get nodes
 - ✅ S3 Buckets للصور الفضائية والنماذج
 
 ### الاتصال بين المناطق
+
 - ✅ VPC Peering بين الرياض وجدة
 - ✅ S3 Replication من الرياض إلى جدة
 
 ## 💰 التكلفة المتوقعة / Estimated Cost
 
-| المنطقة / Region | التكلفة الشهرية / Monthly Cost |
-|------------------|--------------------------------|
-| الرياض (Riyadh) | ~$1,500 - $2,000 |
-| جدة (Jeddah) | ~$800 - $1,200 |
-| **الإجمالي / Total** | **~$2,300 - $3,200** |
+| المنطقة / Region     | التكلفة الشهرية / Monthly Cost |
+| -------------------- | ------------------------------ |
+| الرياض (Riyadh)      | ~$1,500 - $2,000               |
+| جدة (Jeddah)         | ~$800 - $1,200                 |
+| **الإجمالي / Total** | **~$2,300 - $3,200**           |
 
 ## 🔐 الأمان / Security
 
@@ -124,6 +133,7 @@ terraform output deployment_instructions
 ## 🔧 الأوامر المفيدة / Useful Commands
 
 ### Terraform
+
 ```bash
 # تنسيق الملفات / Format files
 terraform fmt -recursive
@@ -139,6 +149,7 @@ terraform state list
 ```
 
 ### kubectl
+
 ```bash
 # التبديل بين المجموعات / Switch between clusters
 kubectl config use-context sahool-riyadh
@@ -156,6 +167,7 @@ kubectl top pods --all-namespaces
 ```
 
 ### AWS CLI
+
 ```bash
 # عرض معلومات EKS / View EKS information
 aws eks list-clusters --region me-south-1
@@ -180,24 +192,28 @@ terraform destroy -var-file="environments/production.tfvars" -var="db_password=Y
 ## 🐛 استكشاف الأخطاء / Troubleshooting
 
 ### مشكلة: فشل تهيئة Terraform
+
 ```bash
 # الحل / Solution
 terraform init -upgrade
 ```
 
 ### مشكلة: أخطاء الصلاحيات
+
 ```bash
 # تحقق من صلاحيات IAM / Check IAM permissions
 aws sts get-caller-identity
 ```
 
 ### مشكلة: تعذر الاتصال بـ EKS
+
 ```bash
 # إعادة تكوين kubectl / Reconfigure kubectl
 aws eks update-kubeconfig --region me-south-1 --name production-sahool-riyadh
 ```
 
 ### مشكلة: خطأ في lock state
+
 ```bash
 # إزالة القفل يدوياً (احذر!) / Remove lock manually (caution!)
 terraform force-unlock LOCK_ID

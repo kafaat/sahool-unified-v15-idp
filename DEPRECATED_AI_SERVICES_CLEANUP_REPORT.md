@@ -22,15 +22,16 @@ Successfully implemented comprehensive deprecation cleanup for two AI services t
 
 ### 1. crop-health → crop-intelligence-service
 
-| Aspect | Details |
-|--------|---------|
-| **Old Port** | 8100 |
-| **New Port** | 8095 |
-| **Replacement** | crop-intelligence-service |
-| **Deprecation Date** | 2026-01-06 |
-| **Sunset Date** | 2026-06-01 |
+| Aspect               | Details                   |
+| -------------------- | ------------------------- |
+| **Old Port**         | 8100                      |
+| **New Port**         | 8095                      |
+| **Replacement**      | crop-intelligence-service |
+| **Deprecation Date** | 2026-01-06                |
+| **Sunset Date**      | 2026-06-01                |
 
 **Features Migrated**:
+
 - Zone-based field analysis
 - Vegetation indices (NDVI, EVI, NDRE, LCI, NDWI, SAVI)
 - Zone observation management
@@ -39,15 +40,16 @@ Successfully implemented comprehensive deprecation cleanup for two AI services t
 
 ### 2. ndvi-engine → vegetation-analysis-service
 
-| Aspect | Details |
-|--------|---------|
-| **Old Port** | 8107 |
-| **New Port** | 8090 |
-| **Replacement** | vegetation-analysis-service |
-| **Deprecation Date** | 2026-01-06 |
-| **Sunset Date** | 2026-06-01 |
+| Aspect               | Details                     |
+| -------------------- | --------------------------- |
+| **Old Port**         | 8107                        |
+| **New Port**         | 8090                        |
+| **Replacement**      | vegetation-analysis-service |
+| **Deprecation Date** | 2026-01-06                  |
+| **Sunset Date**      | 2026-06-01                  |
 
 **Features Migrated**:
+
 - NDVI computation from satellite imagery
 - Vegetation indices calculations
 - Zone analysis and classification
@@ -122,6 +124,7 @@ Deprecation: true
 ```
 
 These headers comply with:
+
 - [RFC 8594 - Sunset HTTP Header](https://datatracker.ietf.org/doc/html/rfc8594)
 - [Deprecation HTTP Header (draft)](https://tools.ietf.org/id/draft-dalal-deprecation-header-01.html)
 
@@ -270,6 +273,7 @@ open http://localhost:8107/docs  # ndvi-engine
 - **Documentation**: `apps/services/crop-intelligence-service/README.md`
 
 **Features**:
+
 - Health monitoring
 - Disease diagnosis with AI
 - Growth simulation (WOFOST, DSSAT, AquaCrop)
@@ -284,6 +288,7 @@ open http://localhost:8107/docs  # ndvi-engine
 - **Documentation**: `apps/services/vegetation-analysis-service/README.md`
 
 **Features**:
+
 - Multi-source satellite imagery (Sentinel-2, Landsat, MODIS, Planet)
 - NDVI and vegetation indices calculations
 - LAI (Leaf Area Index) estimation
@@ -297,19 +302,20 @@ open http://localhost:8107/docs  # ndvi-engine
 
 ### Services Affected
 
-| Service | Impact | Action Required |
-|---------|--------|-----------------|
-| **Frontend (apps/web)** | Low | Kong routes already pointing to replacements |
-| **Mobile (apps/mobile)** | Low | Using Kong API Gateway |
-| **AI Advisor** | Medium | Update service URLs in config |
-| **Field Intelligence** | Medium | Update NDVI service URL |
-| **Integration Tests** | Medium | Update test URLs |
+| Service                  | Impact | Action Required                              |
+| ------------------------ | ------ | -------------------------------------------- |
+| **Frontend (apps/web)**  | Low    | Kong routes already pointing to replacements |
+| **Mobile (apps/mobile)** | Low    | Using Kong API Gateway                       |
+| **AI Advisor**           | Medium | Update service URLs in config                |
+| **Field Intelligence**   | Medium | Update NDVI service URL                      |
+| **Integration Tests**    | Medium | Update test URLs                             |
 
 ### Frontend References
 
 Frontend code references `crop-health` but uses Kong API Gateway which already routes to `crop-intelligence-service`. No immediate changes required for frontend.
 
 Files with references (using Kong routes):
+
 - `apps/web/src/app/(dashboard)/crop-health/CropHealthClient.tsx`
 - `apps/web/src/features/crop-health/api.ts`
 - `apps/web/src/features/crop-health/hooks/useCropHealth.ts`
@@ -319,23 +325,24 @@ Files with references (using Kong routes):
 
 ## Timeline
 
-| Date | Milestone |
-|------|-----------|
+| Date           | Milestone                        |
+| -------------- | -------------------------------- |
 | **2026-01-06** | ✅ Services marked as DEPRECATED |
-| **2026-01-06** | ✅ HTTP headers added |
-| **2026-01-06** | ✅ Documentation updated |
-| **2026-01-06** | ✅ Docker profiles configured |
-| **2026-02-01** | 📅 Send migration notifications |
-| **2026-03-01** | 📅 Monitor migration progress |
-| **2026-05-01** | 📅 Final migration warnings |
-| **2026-06-01** | 📅 SUNSET DATE |
-| **2026-07-01** | 📅 Complete removal (target) |
+| **2026-01-06** | ✅ HTTP headers added            |
+| **2026-01-06** | ✅ Documentation updated         |
+| **2026-01-06** | ✅ Docker profiles configured    |
+| **2026-02-01** | 📅 Send migration notifications  |
+| **2026-03-01** | 📅 Monitor migration progress    |
+| **2026-05-01** | 📅 Final migration warnings      |
+| **2026-06-01** | 📅 SUNSET DATE                   |
+| **2026-07-01** | 📅 Complete removal (target)     |
 
 ---
 
 ## Next Steps
 
 ### Immediate (This Week)
+
 - [x] Mark services as deprecated in code
 - [x] Add HTTP deprecation headers
 - [x] Update documentation
@@ -344,18 +351,21 @@ Files with references (using Kong routes):
 - [ ] Send initial deprecation notice to stakeholders
 
 ### Short Term (Month 1-2)
+
 - [ ] Notify all API consumers
 - [ ] Create migration guides for clients
 - [ ] Set up monitoring for deprecated service usage
 - [ ] Update client libraries/SDKs
 
 ### Medium Term (Month 3-4)
+
 - [ ] Track migration progress
 - [ ] Provide migration support
 - [ ] Send migration reminder notifications
 - [ ] Update integration tests
 
 ### Long Term (Month 5-6)
+
 - [ ] Send final migration warnings
 - [ ] Verify all consumers migrated
 - [ ] Remove services from default docker-compose
@@ -366,24 +376,28 @@ Files with references (using Kong routes):
 ## Benefits of This Cleanup
 
 ### 1. Clear Communication
+
 - ✅ Developers see deprecation warnings immediately on startup
 - ✅ API consumers receive HTTP headers on every request
 - ✅ Documentation clearly states migration path
 - ✅ Docker profiles prevent accidental usage
 
 ### 2. Backward Compatibility
+
 - ✅ Services still available via `--profile deprecated`
 - ✅ 6-month migration window
 - ✅ Kong routes already updated
 - ✅ No breaking changes for existing clients
 
 ### 3. Service Consolidation
+
 - ✅ Reduced from 8 fragmented services to 2 unified services
 - ✅ 75% reduction in AI services to maintain
 - ✅ Clearer service boundaries
 - ✅ Better resource utilization
 
 ### 4. Standards Compliance
+
 - ✅ Follows RFC 8594 (Sunset header)
 - ✅ Implements Deprecation HTTP header draft
 - ✅ Industry-standard deprecation practices
@@ -394,16 +408,19 @@ Files with references (using Kong routes):
 ## References
 
 ### Internal Documentation
+
 - [Service Consolidation Map](docs/SERVICE_CONSOLIDATION_MAP.md)
 - [Deprecated Services](docs/DEPRECATED_SERVICES.md)
 - [Deprecation Summary](apps/services/DEPRECATION_SUMMARY.md)
 - [Cleanup Summary](DEPRECATED_SERVICES_CLEANUP_SUMMARY.md)
 
 ### Replacement Service Documentation
+
 - [Crop Intelligence Service](apps/services/crop-intelligence-service/README.md)
 - [Vegetation Analysis Service](apps/services/vegetation-analysis-service/README.md)
 
 ### Standards
+
 - [RFC 8594 - Sunset HTTP Header](https://datatracker.ietf.org/doc/html/rfc8594)
 - [Deprecation HTTP Header Draft](https://tools.ietf.org/id/draft-dalal-deprecation-header-01.html)
 

@@ -1,4 +1,5 @@
 # البنية التحتية لمنصة صحول - متعددة المناطق
+
 # Sahool Platform Infrastructure - Multi-Region
 
 البنية التحتية الكاملة لمنصة صحول في المملكة العربية السعودية باستخدام Terraform وAWS.
@@ -24,6 +25,7 @@ This infrastructure creates a complete multi-region environment in AWS for Saudi
 ### المكونات الرئيسية / Main Components
 
 #### 1. الشبكة / Networking
+
 - **VPC** مع شبكات فرعية عامة وخاصة في 3 مناطق توفر
 - **VPC** with public and private subnets across 3 availability zones
 - **NAT Gateways** للوصول الآمن إلى الإنترنت
@@ -32,12 +34,14 @@ This infrastructure creates a complete multi-region environment in AWS for Saudi
 - **VPC Peering** for cross-region connectivity
 
 #### 2. الحوسبة / Compute
+
 - **Amazon EKS** - مجموعات Kubernetes المُدارة
 - **Amazon EKS** - Managed Kubernetes clusters
 - **Auto Scaling** - توسع تلقائي حسب الحمل
 - **Auto Scaling** - Automatic scaling based on load
 
 #### 3. قواعد البيانات / Databases
+
 - **Amazon RDS PostgreSQL 15** مع PostGIS للبيانات الجغرافية
 - **Amazon RDS PostgreSQL 15** with PostGIS for geospatial data
 - **Multi-AZ** للتوفر العالي
@@ -46,6 +50,7 @@ This infrastructure creates a complete multi-region environment in AWS for Saudi
 - Daily backups with 30-day retention
 
 #### 4. الذاكرة المؤقتة / Caching
+
 - **Amazon ElastiCache Redis 7.0**
 - مجموعة Redis مع تكرار تلقائي
 - Redis cluster with automatic failover
@@ -53,6 +58,7 @@ This infrastructure creates a complete multi-region environment in AWS for Saudi
 - Full encryption (at rest and in transit)
 
 #### 5. التخزين / Storage
+
 - **Amazon S3** للصور الفضائية (Sentinel، Landsat)
 - **Amazon S3** for satellite imagery (Sentinel, Landsat)
 - **S3** لنماذج الذكاء الاصطناعي والمخرجات
@@ -61,6 +67,7 @@ This infrastructure creates a complete multi-region environment in AWS for Saudi
 - **S3 Replication** between regions for backup
 
 #### 6. الأمان / Security
+
 - **KMS** للتشفير الشامل
 - **KMS** for comprehensive encryption
 - **Security Groups** مُحكمة
@@ -91,11 +98,13 @@ infrastructure/terraform/
 ## المتطلبات الأساسية / Prerequisites
 
 1. **Terraform** >= 1.5.0
+
    ```bash
    terraform --version
    ```
 
 2. **AWS CLI** مُثبّت ومُكوّن
+
    ```bash
    aws --version
    aws configure
@@ -220,18 +229,18 @@ aws secretsmanager get-secret-value \
 
 ### بيئة الإنتاج / Production Environment
 
-| المكون / Component | الرياض / Riyadh | جدة / Jeddah | الإجمالي / Total |
-|-------------------|-----------------|--------------|-----------------|
-| EKS Cluster | $75/شهر | $75/شهر | $150/شهر |
-| EC2 Nodes | $600/شهر | $300/شهر | $900/شهر |
-| RDS PostgreSQL | $400/شهر | $200/شهر | $600/شهر |
-| ElastiCache Redis | $200/شهر | $150/شهر | $350/شهر |
-| NAT Gateways | $100/شهر | $100/شهر | $200/شهر |
-| S3 & Transfer | متغير / Variable | متغير / Variable | ~$200/شهر |
-| **الإجمالي / Total** | | | **~$2,400/شهر** |
+| المكون / Component   | الرياض / Riyadh  | جدة / Jeddah     | الإجمالي / Total |
+| -------------------- | ---------------- | ---------------- | ---------------- |
+| EKS Cluster          | $75/شهر          | $75/شهر          | $150/شهر         |
+| EC2 Nodes            | $600/شهر         | $300/شهر         | $900/شهر         |
+| RDS PostgreSQL       | $400/شهر         | $200/شهر         | $600/شهر         |
+| ElastiCache Redis    | $200/شهر         | $150/شهر         | $350/شهر         |
+| NAT Gateways         | $100/شهر         | $100/شهر         | $200/شهر         |
+| S3 & Transfer        | متغير / Variable | متغير / Variable | ~$200/شهر        |
+| **الإجمالي / Total** |                  |                  | **~$2,400/شهر**  |
 
-*ملاحظة: التكاليف تقريبية وقد تختلف حسب الاستخدام*
-*Note: Costs are approximate and may vary based on usage*
+_ملاحظة: التكاليف تقريبية وقد تختلف حسب الاستخدام_
+_Note: Costs are approximate and may vary based on usage_
 
 ## الصيانة / Maintenance
 
@@ -271,6 +280,7 @@ kubectl top pods --all-namespaces
 ### مشاكل شائعة / Common Issues
 
 1. **فشل تهيئة Terraform**
+
    ```bash
    terraform init -upgrade
    ```

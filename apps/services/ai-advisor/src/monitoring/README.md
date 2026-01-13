@@ -18,6 +18,7 @@ The AI Advisor service includes comprehensive cost tracking for all LLM (Languag
 ### Cost Tracker (`cost_tracker.py`)
 
 The `CostTracker` class maintains:
+
 - Usage records with timestamps, models, tokens, and costs
 - Daily and monthly cost aggregates
 - Configurable budget limits
@@ -33,13 +34,13 @@ The `CostTracker` class maintains:
 
 ## Pricing (as of 2024)
 
-| Model | Input (per 1K tokens) | Output (per 1K tokens) |
-|-------|----------------------|------------------------|
-| claude-3-5-sonnet-20241022 | $0.003 | $0.015 |
-| claude-3-opus-20240229 | $0.015 | $0.075 |
-| gpt-4o | $0.005 | $0.015 |
-| gpt-4-turbo | $0.010 | $0.030 |
-| gemini-1.5-pro | $0.00125 | $0.005 |
+| Model                      | Input (per 1K tokens) | Output (per 1K tokens) |
+| -------------------------- | --------------------- | ---------------------- |
+| claude-3-5-sonnet-20241022 | $0.003                | $0.015                 |
+| claude-3-opus-20240229     | $0.015                | $0.075                 |
+| gpt-4o                     | $0.005                | $0.015                 |
+| gpt-4-turbo                | $0.010                | $0.030                 |
+| gemini-1.5-pro             | $0.00125              | $0.005                 |
 
 ## Configuration
 
@@ -58,9 +59,11 @@ per_request_limit: float = 1.0  # $1/request
 **Endpoint**: `GET /v1/advisor/cost/usage`
 
 **Query Parameters**:
+
 - `user_id` (optional): Filter statistics by user ID
 
 **Response**:
+
 ```json
 {
   "status": "success",

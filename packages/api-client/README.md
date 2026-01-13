@@ -15,12 +15,12 @@ pnpm add @sahool/api-client
 ### التهيئة الأساسية | Basic Setup
 
 ```typescript
-import { createApiClient } from '@sahool/api-client';
+import { createApiClient } from "@sahool/api-client";
 
 const client = createApiClient({
-  baseUrl: 'http://localhost:8000',
-  tenantId: 'your-tenant-id',
-  token: 'your-auth-token', // optional
+  baseUrl: "http://localhost:8000",
+  tenantId: "your-tenant-id",
+  token: "your-auth-token", // optional
 });
 ```
 
@@ -46,28 +46,28 @@ const newField = await client.createField({
 
 ```typescript
 // جلب المهام
-const tasks = await client.getTasks({ fieldId: 'field_001' });
+const tasks = await client.getTasks({ fieldId: "field_001" });
 
 // إنشاء مهمة
 const task = await client.createTask({
-  title: 'ري الحقل',
-  fieldId: 'field_001',
-  priority: 'high',
+  title: "ري الحقل",
+  fieldId: "field_001",
+  priority: "high",
   dueDate: new Date().toISOString(),
 });
 
 // تحديث حالة المهمة
-await client.updateTaskStatus('task_001', 'completed');
+await client.updateTaskStatus("task_001", "completed");
 ```
 
 ### تحليل NDVI
 
 ```typescript
 // جلب ملخص NDVI
-const summary = await client.getNDVISummary('tenant_001');
+const summary = await client.getNDVISummary("tenant_001");
 
 // جلب تحليل حقل محدد
-const analysis = await client.getFieldNDVI('field_001');
+const analysis = await client.getFieldNDVI("field_001");
 ```
 
 ### الطقس | Weather
@@ -84,10 +84,10 @@ const forecast = await client.getWeatherForecast(15.37, 44.19, 7);
 
 ```typescript
 // جلب التنبيهات
-const alerts = await client.getAlerts({ status: 'active' });
+const alerts = await client.getAlerts({ status: "active" });
 
 // تأكيد تنبيه
-await client.acknowledgeAlert('alert_001');
+await client.acknowledgeAlert("alert_001");
 ```
 
 ## الأنواع | Types
@@ -100,26 +100,26 @@ import type {
   NDVIAnalysis,
   WeatherData,
   ApiResponse,
-} from '@sahool/api-client/types';
+} from "@sahool/api-client/types";
 ```
 
 ## التكوين | Configuration
 
-| الخيار | النوع | الوصف |
-|--------|------|-------|
-| `baseUrl` | `string` | عنوان API الأساسي |
-| `tenantId` | `string` | معرف المستأجر |
-| `token` | `string?` | رمز المصادقة |
-| `timeout` | `number?` | مهلة الطلب (ms) |
-| `retries` | `number?` | عدد المحاولات |
+| الخيار     | النوع     | الوصف             |
+| ---------- | --------- | ----------------- |
+| `baseUrl`  | `string`  | عنوان API الأساسي |
+| `tenantId` | `string`  | معرف المستأجر     |
+| `token`    | `string?` | رمز المصادقة      |
+| `timeout`  | `number?` | مهلة الطلب (ms)   |
+| `retries`  | `number?` | عدد المحاولات     |
 
 ## معالجة الأخطاء | Error Handling
 
 ```typescript
-import { ApiError } from '@sahool/api-client';
+import { ApiError } from "@sahool/api-client";
 
 try {
-  const field = await client.getField('invalid_id');
+  const field = await client.getField("invalid_id");
 } catch (error) {
   if (error instanceof ApiError) {
     console.error(`API Error: ${error.status} - ${error.message}`);
@@ -129,19 +129,19 @@ try {
 
 ## خريطة المنافذ | Port Map
 
-| الخدمة | المنفذ | الوصف |
-|--------|--------|-------|
-| Kong Gateway | 8000 | البوابة الرئيسية |
-| WebSocket | 8081 | الأحداث المباشرة |
-| satellite-service | 8090 | تحليل الأقمار الصناعية |
-| indicators-service | 8091 | المؤشرات الزراعية |
-| weather-advanced | 8092 | الطقس المتقدم |
-| fertilizer-advisor | 8093 | مستشار التسميد |
-| irrigation-smart | 8094 | الري الذكي |
-| crop-health-ai | 8095 | صحة المحاصيل |
-| virtual-sensors | 8096 | المستشعرات الافتراضية |
-| yield-engine | 8098 | محرك الإنتاجية |
-| notification-service | 8110 | الإشعارات |
+| الخدمة               | المنفذ | الوصف                  |
+| -------------------- | ------ | ---------------------- |
+| Kong Gateway         | 8000   | البوابة الرئيسية       |
+| WebSocket            | 8081   | الأحداث المباشرة       |
+| satellite-service    | 8090   | تحليل الأقمار الصناعية |
+| indicators-service   | 8091   | المؤشرات الزراعية      |
+| weather-advanced     | 8092   | الطقس المتقدم          |
+| fertilizer-advisor   | 8093   | مستشار التسميد         |
+| irrigation-smart     | 8094   | الري الذكي             |
+| crop-health-ai       | 8095   | صحة المحاصيل           |
+| virtual-sensors      | 8096   | المستشعرات الافتراضية  |
+| yield-engine         | 8098   | محرك الإنتاجية         |
+| notification-service | 8110   | الإشعارات              |
 
 ## الترخيص | License
 

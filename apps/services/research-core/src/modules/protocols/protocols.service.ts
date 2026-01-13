@@ -1,7 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { Prisma } from '@prisma/client';
-import { CreateProtocolDto, UpdateProtocolDto } from './dto/protocol.dto';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import { Prisma } from "@prisma/client";
+import { CreateProtocolDto, UpdateProtocolDto } from "./dto/protocol.dto";
 
 @Injectable()
 export class ProtocolsService {
@@ -19,7 +19,9 @@ export class ProtocolsService {
         ...restDto,
         approvedAt: dto.approvedAt ? new Date(dto.approvedAt) : null,
         variables: variables as Prisma.InputJsonValue | undefined,
-        measurementSchedule: measurementSchedule as Prisma.InputJsonValue | undefined,
+        measurementSchedule: measurementSchedule as
+          | Prisma.InputJsonValue
+          | undefined,
       },
       include: {
         experiment: {
@@ -51,7 +53,7 @@ export class ProtocolsService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           experiment: {
             select: {
@@ -109,8 +111,14 @@ export class ProtocolsService {
       data: {
         ...restDto,
         approvedAt: dto.approvedAt ? new Date(dto.approvedAt) : undefined,
-        variables: variables !== undefined ? (variables as Prisma.InputJsonValue) : undefined,
-        measurementSchedule: measurementSchedule !== undefined ? (measurementSchedule as Prisma.InputJsonValue) : undefined,
+        variables:
+          variables !== undefined
+            ? (variables as Prisma.InputJsonValue)
+            : undefined,
+        measurementSchedule:
+          measurementSchedule !== undefined
+            ? (measurementSchedule as Prisma.InputJsonValue)
+            : undefined,
       },
       include: {
         experiment: {

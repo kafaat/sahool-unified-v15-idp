@@ -1,4 +1,5 @@
 # Alert Service - Quick Start Guide
+
 # دليل البدء السريع لخدمة التنبيهات
 
 ## الإعداد السريع | Quick Setup

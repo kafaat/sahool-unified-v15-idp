@@ -1,4 +1,5 @@
 # Field-First Integration Guide - دليل تكامل الميدان أولاً
+
 ## SAHOOL Platform v15.5
 
 ---
@@ -21,6 +22,7 @@
 هذا الدليل يشرح كيفية تحويل خدمة تحليل موجودة إلى خدمة متوافقة مع Field-First Architecture.
 
 **المبدأ الأساسي:**
+
 ```
 كل تحليل يجب أن ينتج ActionTemplate قابل للتنفيذ في الميدان
 ```
@@ -371,13 +373,13 @@ action_template = {
 
 ### إرشادات مستويات الثقة
 
-| مصدر البيانات | Confidence | السبب |
-|---------------|------------|-------|
-| IoT Reading | 0.90-0.95 | قراءة مباشرة من حساس |
-| Satellite Reading | 0.85-0.90 | قراءة مباشرة مع تأخر |
-| Virtual Estimate | 0.70-0.80 | حساب نظري |
-| Historical Estimate | 0.60-0.75 | بناء على الماضي |
-| Model Prediction | 0.65-0.85 | يعتمد على جودة النموذج |
+| مصدر البيانات       | Confidence | السبب                  |
+| ------------------- | ---------- | ---------------------- |
+| IoT Reading         | 0.90-0.95  | قراءة مباشرة من حساس   |
+| Satellite Reading   | 0.85-0.90  | قراءة مباشرة مع تأخر   |
+| Virtual Estimate    | 0.70-0.80  | حساب نظري              |
+| Historical Estimate | 0.60-0.75  | بناء على الماضي        |
+| Model Prediction    | 0.65-0.85  | يعتمد على جودة النموذج |
 
 ---
 
@@ -516,13 +518,13 @@ if __name__ == "__main__":
 ### docker-compose.yml
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   my-service-original:
     build:
       context: .
-      dockerfile: Dockerfile  # للخدمة الأصلية
+      dockerfile: Dockerfile # للخدمة الأصلية
     ports:
       - "8097:8097"
     environment:
@@ -696,6 +698,7 @@ async def call_original_service(url: str, payload: dict):
 ## 📞 الدعم | Support
 
 للمساعدة أو الاستفسارات:
+
 - راجع [FIELD_FIRST_ARCHITECTURE.md](./FIELD_FIRST_ARCHITECTURE.md)
 - راجع [SERVICE_ACTIVATION_MAP.md](./SERVICE_ACTIVATION_MAP.md)
 - افتح Issue في المستودع

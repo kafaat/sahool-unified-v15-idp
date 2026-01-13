@@ -3,9 +3,25 @@
  * أنواع ميزة المحفظة
  */
 
-export type TransactionType = 'deposit' | 'withdrawal' | 'payment' | 'refund' | 'transfer_in' | 'transfer_out';
-export type TransactionStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
-export type PaymentMethod = 'card' | 'bank_transfer' | 'cash' | 'wallet' | 'tharwatt' | 'mobile_money';
+export type TransactionType =
+  | "deposit"
+  | "withdrawal"
+  | "payment"
+  | "refund"
+  | "transfer_in"
+  | "transfer_out";
+export type TransactionStatus =
+  | "pending"
+  | "completed"
+  | "failed"
+  | "cancelled";
+export type PaymentMethod =
+  | "card"
+  | "bank_transfer"
+  | "cash"
+  | "wallet"
+  | "tharwatt"
+  | "mobile_money";
 
 /**
  * Transaction - معاملة
@@ -98,7 +114,7 @@ export interface DepositFormData {
 export interface WithdrawalFormData {
   amount: number;
   bankAccount?: string;
-  method: 'bank_transfer' | 'cash' | 'mobile_money';
+  method: "bank_transfer" | "cash" | "mobile_money";
   phoneNumber?: string; // For mobile money withdrawal
 }
 

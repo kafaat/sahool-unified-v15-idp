@@ -97,18 +97,18 @@ All services now return errors in this standardized format:
 
 ## 📝 Error Code Ranges
 
-| Range | Category | Description |
-|-------|----------|-------------|
-| 1000-1999 | Validation | Input validation errors |
-| 2000-2999 | Authentication | Authentication failures |
-| 3000-3999 | Authorization | Permission denials |
-| 4000-4999 | Not Found | Resource not found errors |
-| 5000-5999 | Conflict | Data conflicts (duplicates, etc.) |
-| 6000-6999 | Business Logic | Business rule violations |
-| 7000-7999 | External Service | External service failures |
-| 8000-8999 | Database | Database errors |
-| 9000-9999 | Internal | Internal server errors |
-| 10000-10999 | Rate Limiting | Rate limit exceeded |
+| Range       | Category         | Description                       |
+| ----------- | ---------------- | --------------------------------- |
+| 1000-1999   | Validation       | Input validation errors           |
+| 2000-2999   | Authentication   | Authentication failures           |
+| 3000-3999   | Authorization    | Permission denials                |
+| 4000-4999   | Not Found        | Resource not found errors         |
+| 5000-5999   | Conflict         | Data conflicts (duplicates, etc.) |
+| 6000-6999   | Business Logic   | Business rule violations          |
+| 7000-7999   | External Service | External service failures         |
+| 8000-8999   | Database         | Database errors                   |
+| 9000-9999   | Internal         | Internal server errors            |
+| 10000-10999 | Rate Limiting    | Rate limit exceeded               |
 
 ---
 
@@ -124,13 +124,13 @@ import {
   ValidationException,
   BusinessLogicException,
   ErrorCode,
-} from '@sahool/shared/errors';
+} from "@sahool/shared/errors";
 
 // Simple usage
 throw new NotFoundException(ErrorCode.FARM_NOT_FOUND);
 
 // With helper methods
-throw NotFoundException.farm('farm-123');
+throw NotFoundException.farm("farm-123");
 
 // Business logic errors
 throw BusinessLogicException.insufficientBalance(100.0, 500.0);
@@ -139,7 +139,7 @@ throw BusinessLogicException.insufficientBalance(100.0, 500.0);
 #### Setup in main.ts
 
 ```typescript
-import { HttpExceptionFilter } from '@sahool/shared/errors';
+import { HttpExceptionFilter } from "@sahool/shared/errors";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -229,6 +229,7 @@ add_request_id_middleware(app)
 ### 1. Stack Trace Hiding
 
 Stack traces are automatically hidden in production. They are only shown when:
+
 - `ENVIRONMENT=development`
 - `NODE_ENV=development`
 - `INCLUDE_STACK_TRACE=true`
@@ -236,6 +237,7 @@ Stack traces are automatically hidden in production. They are only shown when:
 ### 2. Sensitive Information Redaction
 
 The error handlers automatically sanitize:
+
 - Passwords
 - API keys
 - Tokens
@@ -246,12 +248,14 @@ The error handlers automatically sanitize:
 ### 3. Request ID Correlation
 
 Every error includes a unique request ID for:
+
 - Tracking errors across microservices
 - Correlating logs
 - Customer support
 - Debugging
 
 The request ID is automatically:
+
 - Generated if not provided
 - Added to response headers
 - Logged with errors
@@ -298,7 +302,7 @@ The request ID is automatically:
 **Step 1**: Import the global exception filter in `main.ts`:
 
 ```typescript
-import { HttpExceptionFilter } from '@sahool/shared/errors';
+import { HttpExceptionFilter } from "@sahool/shared/errors";
 
 app.useGlobalFilters(new HttpExceptionFilter());
 ```
@@ -307,11 +311,11 @@ app.useGlobalFilters(new HttpExceptionFilter());
 
 ```typescript
 // Old way ❌
-throw new HttpException('Farm not found', HttpStatus.NOT_FOUND);
+throw new HttpException("Farm not found", HttpStatus.NOT_FOUND);
 
 // New way ✅
-import { NotFoundException, ErrorCode } from '@sahool/shared/errors';
-throw NotFoundException.farm('farm-123');
+import { NotFoundException, ErrorCode } from "@sahool/shared/errors";
+throw NotFoundException.farm("farm-123");
 ```
 
 ### For FastAPI Services
@@ -366,17 +370,17 @@ async def get_farm(farm_id: str):
 
 ```typescript
 // NestJS
-throw NotFoundException.user('user-123');
-throw NotFoundException.farm('farm-123');
-throw NotFoundException.field('field-123');
-throw NotFoundException.crop('crop-123');
+throw NotFoundException.user("user-123");
+throw NotFoundException.farm("farm-123");
+throw NotFoundException.field("field-123");
+throw NotFoundException.crop("crop-123");
 
 throw ValidationException.fromFieldErrors([
-  { field: 'email', message: 'Invalid format' }
+  { field: "email", message: "Invalid format" },
 ]);
 
 throw BusinessLogicException.insufficientBalance(100, 500);
-throw BusinessLogicException.invalidStateTransition('pending', 'completed');
+throw BusinessLogicException.invalidStateTransition("pending", "completed");
 
 throw ExternalServiceException.weatherService(error);
 throw ExternalServiceException.paymentGateway(error);
@@ -445,12 +449,14 @@ Client receives sanitized error:
 ### Stack Trace Hiding
 
 **Development**:
+
 ```bash
 ENVIRONMENT=development
 # Stack traces are included in responses
 ```
 
 **Production**:
+
 ```bash
 ENVIRONMENT=production
 # Stack traces are hidden from responses but logged server-side

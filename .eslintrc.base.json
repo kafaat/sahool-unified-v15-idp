@@ -6,9 +6,7 @@
     "es2022": true,
     "node": true
   },
-  "extends": [
-    "eslint:recommended"
-  ],
+  "extends": ["eslint:recommended"],
   "parserOptions": {
     "ecmaVersion": 2022,
     "sourceType": "module"
@@ -19,11 +17,5 @@
     "prefer-const": "error",
     "no-var": "error"
   },
-  "ignorePatterns": [
-    "node_modules",
-    "dist",
-    ".next",
-    "coverage",
-    "*.config.js"
-  ]
+  "ignorePatterns": ["node_modules", "dist", ".next", "coverage", "*.config.js"]
 }

@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as crypto from 'crypto';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import * as crypto from "crypto";
 
 export interface SignaturePayload {
   entityType: string;
@@ -26,13 +26,14 @@ export interface VerificationResult {
 @Injectable()
 export class SignatureService {
   private readonly logger = new Logger(SignatureService.name);
-  private readonly algorithm = 'sha256';
+  private readonly algorithm = "sha256";
   private readonly secretKey: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.secretKey = this.configService.get<string>('SIGNATURE_SECRET_KEY') ||
-                     this.configService.get<string>('JWT_SECRET_KEY') ||
-                     'default-signature-key-change-in-production';
+    this.secretKey =
+      this.configService.get<string>("SIGNATURE_SECRET_KEY") ||
+      this.configService.get<string>("JWT_SECRET_KEY") ||
+      "default-signature-key-change-in-production";
   }
 
   /**
@@ -52,7 +53,9 @@ export class SignatureService {
     const signatureData = `${payloadHash}:${payload.signerId}:${timestamp.toISOString()}`;
     const signatureHash = this.createHmac(signatureData);
 
-    this.logger.debug(`Generated signature for ${payload.entityType}:${payload.entityId}`);
+    this.logger.debug(
+      `Generated signature for ${payload.entityType}:${payload.entityId}`,
+    );
 
     return {
       signatureHash,
@@ -80,7 +83,7 @@ export class SignatureService {
       if (currentPayloadHash !== expectedPayloadHash) {
         return {
           isValid: false,
-          message: 'Data integrity check failed - payload has been modified',
+          message: "Data integrity check failed - payload has been modified",
           details: {
             expectedHash: expectedPayloadHash,
             currentHash: currentPayloadHash,
@@ -101,15 +104,17 @@ export class SignatureService {
       if (!isValid) {
         return {
           isValid: false,
-          message: 'Signature verification failed - invalid signature',
+          message: "Signature verification failed - invalid signature",
         };
       }
 
-      this.logger.debug(`Signature verified for ${payload.entityType}:${payload.entityId}`);
+      this.logger.debug(
+        `Signature verified for ${payload.entityType}:${payload.entityId}`,
+      );
 
       return {
         isValid: true,
-        message: 'Signature verified successfully',
+        message: "Signature verified successfully",
       };
     } catch (error) {
       this.logger.error(`Signature verification error: ${error.message}`);
@@ -134,14 +139,14 @@ export class SignatureService {
     recordedBy: string;
   }): string {
     const dataString = [
-      logData.experimentId || '',
-      logData.plotId || '',
-      logData.logDate?.toISOString() || '',
-      logData.category || '',
-      logData.notes || '',
+      logData.experimentId || "",
+      logData.plotId || "",
+      logData.logDate?.toISOString() || "",
+      logData.category || "",
+      logData.notes || "",
       JSON.stringify(logData.measurements || {}),
-      logData.recordedBy || '',
-    ].join('|');
+      logData.recordedBy || "",
+    ].join("|");
 
     return this.hashData(dataString);
   }
@@ -165,13 +170,15 @@ export class SignatureService {
    * Recursively sort object keys for deterministic serialization
    */
   private sortObject(obj: Record<string, unknown>): Record<string, unknown> {
-    if (obj === null || typeof obj !== 'object') {
+    if (obj === null || typeof obj !== "object") {
       return obj;
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item =>
-        typeof item === 'object' ? this.sortObject(item as Record<string, unknown>) : item
+      return obj.map((item) =>
+        typeof item === "object"
+          ? this.sortObject(item as Record<string, unknown>)
+          : item,
       ) as unknown as Record<string, unknown>;
     }
 
@@ -180,9 +187,10 @@ export class SignatureService {
 
     for (const key of keys) {
       const value = obj[key];
-      sorted[key] = typeof value === 'object' && value !== null
-        ? this.sortObject(value as Record<string, unknown>)
-        : value;
+      sorted[key] =
+        typeof value === "object" && value !== null
+          ? this.sortObject(value as Record<string, unknown>)
+          : value;
     }
 
     return sorted;
@@ -192,7 +200,7 @@ export class SignatureService {
    * Create SHA-256 hash of data
    */
   private hashData(data: string): string {
-    return crypto.createHash(this.algorithm).update(data, 'utf8').digest('hex');
+    return crypto.createHash(this.algorithm).update(data, "utf8").digest("hex");
   }
 
   /**
@@ -201,8 +209,8 @@ export class SignatureService {
   private createHmac(data: string): string {
     return crypto
       .createHmac(this.algorithm, this.secretKey)
-      .update(data, 'utf8')
-      .digest('hex');
+      .update(data, "utf8")
+      .digest("hex");
   }
 
   /**
@@ -210,7 +218,7 @@ export class SignatureService {
    * توليد معرف فريد للمزامنة غير المتصلة
    */
   generateOfflineId(deviceId: string, timestamp: Date): string {
-    const data = `${deviceId}:${timestamp.toISOString()}:${crypto.randomBytes(8).toString('hex')}`;
+    const data = `${deviceId}:${timestamp.toISOString()}:${crypto.randomBytes(8).toString("hex")}`;
     return this.hashData(data).substring(0, 32);
   }
 }

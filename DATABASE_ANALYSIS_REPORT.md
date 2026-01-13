@@ -1,4 +1,5 @@
 # تقرير تحليل هيكلية قاعدة البيانات - SAHOOL IDP
+
 # Database Structure Analysis Report
 
 **تاريخ التحليل / Analysis Date:** 2026-01-01
@@ -12,11 +13,11 @@
 تم إجراء تحليل شامل لهيكلية قاعدة البيانات عبر جميع الخدمات في منصة سهول الموحدة. تم اكتشاف **87 فجوة** تتراوح بين حرجة ومتوسطة وبسيطة.
 
 | المستوى / Severity | العدد / Count |
-|-------------------|---------------|
-| 🔴 حرج / Critical | 12 |
-| 🟠 مهم / High | 28 |
-| 🟡 متوسط / Medium | 31 |
-| 🟢 منخفض / Low | 16 |
+| ------------------ | ------------- |
+| 🔴 حرج / Critical  | 12            |
+| 🟠 مهم / High      | 28            |
+| 🟡 متوسط / Medium  | 31            |
+| 🟢 منخفض / Low     | 16            |
 
 ---
 
@@ -24,20 +25,20 @@
 
 ### ORMs المستخدمة / ORM Frameworks Used
 
-| ORM | الخدمات / Services |
-|-----|---------------------|
-| **Prisma** | chat-service, field-core, marketplace-service, inventory-service, research-core |
-| **SQLAlchemy** | alert-service, billing-core, ndvi-engine, inventory-service |
-| **Tortoise** | notification-service, field-chat, field-service |
-| **None** | iot-service ⚠️ |
+| ORM            | الخدمات / Services                                                              |
+| -------------- | ------------------------------------------------------------------------------- |
+| **Prisma**     | chat-service, field-core, marketplace-service, inventory-service, research-core |
+| **SQLAlchemy** | alert-service, billing-core, ndvi-engine, inventory-service                     |
+| **Tortoise**   | notification-service, field-chat, field-service                                 |
+| **None**       | iot-service ⚠️                                                                  |
 
 ### قواعد البيانات / Databases
 
-| Database | الاستخدام / Usage |
-|----------|-------------------|
-| **PostgreSQL** | Primary data store (all services) |
-| **PostGIS** | Geospatial data (field-core, ndvi-engine) |
-| **Redis** | Caching, sessions, rate limiting |
+| Database        | الاستخدام / Usage                            |
+| --------------- | -------------------------------------------- |
+| **PostgreSQL**  | Primary data store (all services)            |
+| **PostGIS**     | Geospatial data (field-core, ndvi-engine)    |
+| **Redis**       | Caching, sessions, rate limiting             |
 | **TimescaleDB** | Time-series (configured, not fully utilized) |
 
 ---
@@ -58,6 +59,7 @@
 ```
 
 **الحل المقترح:**
+
 ```prisma
 // apps/services/iot-service/prisma/schema.prisma
 model Device {
@@ -104,11 +106,13 @@ model SensorReading {
 
 **المشكلة:** user_id موزع عبر جميع الخدمات بدون مصدر مركزي
 **التأثير:**
+
 - لا يمكن التحقق من صحة user_id
 - لا يوجد ملف تعريف مستخدم موحد
 - صعوبة في تتبع المستخدمين عبر الخدمات
 
 **الوضع الحالي:**
+
 ```
 field-core:        user_id: String (no FK)
 marketplace:       userId: String (no FK)
@@ -117,6 +121,7 @@ inventory:         created_by: String (no FK)
 ```
 
 **الحل المقترح:**
+
 ```prisma
 // apps/services/user-service/prisma/schema.prisma (جديد)
 model User {
@@ -172,16 +177,16 @@ model UserProfile {
 **النماذج المعرفة مقابل المنفذة:**
 
 | النموذج / Model | Schema | API | Controllers |
-|-----------------|--------|-----|-------------|
-| Experiment | ✅ | ❌ | ❌ |
-| Protocol | ✅ | ❌ | ❌ |
-| Treatment | ✅ | ❌ | ❌ |
-| Plot | ✅ | ❌ | ❌ |
-| Observation | ✅ | ❌ | ❌ |
-| Sample | ✅ | ❌ | ❌ |
-| LabAnalysis | ✅ | ❌ | ❌ |
-| Publication | ✅ | ❌ | ❌ |
-| Collaborator | ✅ | ❌ | ❌ |
+| --------------- | ------ | --- | ----------- |
+| Experiment      | ✅     | ❌  | ❌          |
+| Protocol        | ✅     | ❌  | ❌          |
+| Treatment       | ✅     | ❌  | ❌          |
+| Plot            | ✅     | ❌  | ❌          |
+| Observation     | ✅     | ❌  | ❌          |
+| Sample          | ✅     | ❌  | ❌          |
+| LabAnalysis     | ✅     | ❌  | ❌          |
+| Publication     | ✅     | ❌  | ❌          |
+| Collaborator    | ✅     | ❌  | ❌          |
 
 **الحل:** تنفيذ CRUDs لجميع النماذج المعرفة
 
@@ -193,11 +198,13 @@ model UserProfile {
 **المشكلة:** يتم جلب بيانات الطقس من APIs خارجية عند الطلب فقط
 
 **المخاطر:**
+
 - تكلفة عالية لاستدعاءات API المتكررة
 - عدم توفر بيانات تاريخية للتحليل
 - فشل الخدمة عند عدم توفر الإنترنت
 
 **الحل المقترح:**
+
 ```prisma
 model WeatherObservation {
   id          String   @id @default(uuid())
@@ -348,23 +355,26 @@ model PestTreatment {
 **المشكلة:** خدمة الفوترة تستخدم SQLAlchemy بينما باقي الخدمات تستخدم Prisma
 
 **الملفات المتأثرة:**
+
 - `billing-core/src/models/billing.py` - SQLAlchemy
 - يجب تحويلها إلى Prisma للتوحيد
 
 ### 10. NATS Event Bus غير مفعل
 
 **الوضع الحالي:**
+
 ```typescript
 // موجود في الإعدادات لكن غير مستخدم
 NATS_URL=nats://localhost:4222
 ```
 
 **المطلوب:**
+
 ```typescript
 // نشر الأحداث عند التغييرات
-await natsClient.publish('field.created', { fieldId, tenantId });
-await natsClient.publish('order.placed', { orderId, buyerId });
-await natsClient.publish('sensor.reading', { deviceId, value });
+await natsClient.publish("field.created", { fieldId, tenantId });
+await natsClient.publish("order.placed", { orderId, buyerId });
+await natsClient.publish("sensor.reading", { deviceId, value });
 ```
 
 ---
@@ -373,10 +383,10 @@ await natsClient.publish('sensor.reading', { deviceId, value });
 
 ### 11. تسمية غير متسقة للجداول
 
-| الخدمة | النمط الحالي | النمط المطلوب |
-|--------|-------------|---------------|
-| field-core | `Field`, `Farm` | `fields`, `farms` |
-| inventory | `inventory_items` | ✅ صحيح |
+| الخدمة      | النمط الحالي       | النمط المطلوب        |
+| ----------- | ------------------ | -------------------- |
+| field-core  | `Field`, `Farm`    | `fields`, `farms`    |
+| inventory   | `inventory_items`  | ✅ صحيح              |
 | marketplace | `Product`, `Order` | `products`, `orders` |
 
 ### 12. معرفات المستأجر (Tenant ID) غير موحدة
@@ -404,6 +414,7 @@ model BaseEntity {
 
 **الموجود:** `AuditLog` مع hash chain
 **المفقود:**
+
 - Field-level change tracking
 - Before/After values
 - Automatic triggers

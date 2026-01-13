@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Invite Member Dialog Component
  * مكون نافذة دعوة عضو
  */
 
-import React, { useState } from 'react';
-import { Send, X } from 'lucide-react';
-import { Modal, ModalFooter } from '@/components/ui/modal';
-import { Button } from '@/components/ui/button';
-import { RoleSelector } from './RoleSelector';
-import { useInviteMember } from '../hooks/useTeam';
-import { Role, InviteRequest } from '../types/team';
+import React, { useState } from "react";
+import { Send, X } from "lucide-react";
+import { Modal, ModalFooter } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { RoleSelector } from "./RoleSelector";
+import { useInviteMember } from "../hooks/useTeam";
+import { Role, InviteRequest } from "../types/team";
 
 interface InviteMemberDialogProps {
   isOpen: boolean;
@@ -25,18 +25,18 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
   const inviteMutation = useInviteMember();
 
   const [formData, setFormData] = useState<InviteRequest>({
-    email: '',
-    firstName: '',
-    lastName: '',
+    email: "",
+    firstName: "",
+    lastName: "",
     role: Role.VIEWER,
-    phone: '',
+    phone: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = <K extends keyof InviteRequest>(
     field: K,
-    value: InviteRequest[K]
+    value: InviteRequest[K],
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user types
@@ -53,21 +53,24 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.email) {
-      newErrors.email = 'البريد الإلكتروني مطلوب';
+      newErrors.email = "البريد الإلكتروني مطلوب";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'البريد الإلكتروني غير صالح';
+      newErrors.email = "البريد الإلكتروني غير صالح";
     }
 
     if (!formData.firstName) {
-      newErrors.firstName = 'الاسم الأول مطلوب';
+      newErrors.firstName = "الاسم الأول مطلوب";
     }
 
     if (!formData.lastName) {
-      newErrors.lastName = 'اسم العائلة مطلوب';
+      newErrors.lastName = "اسم العائلة مطلوب";
     }
 
-    if (formData.phone && !/^\+?[0-9]{10,15}$/.test(formData.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'رقم الهاتف غير صالح';
+    if (
+      formData.phone &&
+      !/^\+?[0-9]{10,15}$/.test(formData.phone.replace(/\s/g, ""))
+    ) {
+      newErrors.phone = "رقم الهاتف غير صالح";
     }
 
     setErrors(newErrors);
@@ -86,26 +89,26 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
 
       // Reset form and close dialog
       setFormData({
-        email: '',
-        firstName: '',
-        lastName: '',
+        email: "",
+        firstName: "",
+        lastName: "",
         role: Role.VIEWER,
-        phone: '',
+        phone: "",
       });
       onClose();
     } catch (error) {
-      console.error('Failed to invite member:', error);
-      setErrors({ submit: 'فشل في إرسال الدعوة. الرجاء المحاولة مرة أخرى.' });
+      console.error("Failed to invite member:", error);
+      setErrors({ submit: "فشل في إرسال الدعوة. الرجاء المحاولة مرة أخرى." });
     }
   };
 
   const handleClose = () => {
     setFormData({
-      email: '',
-      firstName: '',
-      lastName: '',
+      email: "",
+      firstName: "",
+      lastName: "",
       role: Role.VIEWER,
-      phone: '',
+      phone: "",
     });
     setErrors({});
     onClose();
@@ -128,9 +131,11 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
           <input
             type="email"
             value={formData.email}
-            onChange={(e) => handleChange('email', e.target.value)}
+            onChange={(e) => handleChange("email", e.target.value)}
             className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none ${
-              errors.email ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'
+              errors.email
+                ? "border-red-500"
+                : "border-gray-200 focus:border-blue-500"
             }`}
             placeholder="example@sahool.sa"
             dir="ltr"
@@ -150,9 +155,11 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
             <input
               type="text"
               value={formData.firstName}
-              onChange={(e) => handleChange('firstName', e.target.value)}
+              onChange={(e) => handleChange("firstName", e.target.value)}
               className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none ${
-                errors.firstName ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'
+                errors.firstName
+                  ? "border-red-500"
+                  : "border-gray-200 focus:border-blue-500"
               }`}
               placeholder="أحمد"
             />
@@ -169,9 +176,11 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
             <input
               type="text"
               value={formData.lastName}
-              onChange={(e) => handleChange('lastName', e.target.value)}
+              onChange={(e) => handleChange("lastName", e.target.value)}
               className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none ${
-                errors.lastName ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'
+                errors.lastName
+                  ? "border-red-500"
+                  : "border-gray-200 focus:border-blue-500"
               }`}
               placeholder="السعيد"
             />
@@ -189,9 +198,11 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
           <input
             type="tel"
             value={formData.phone}
-            onChange={(e) => handleChange('phone', e.target.value)}
+            onChange={(e) => handleChange("phone", e.target.value)}
             className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none ${
-              errors.phone ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'
+              errors.phone
+                ? "border-red-500"
+                : "border-gray-200 focus:border-blue-500"
             }`}
             placeholder="+966501234567"
             dir="ltr"
@@ -208,7 +219,7 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
           </label>
           <RoleSelector
             value={formData.role}
-            onChange={(role) => handleChange('role', role)}
+            onChange={(role) => handleChange("role", role)}
           />
         </div>
 
@@ -237,7 +248,7 @@ export const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({
             disabled={inviteMutation.isPending}
           >
             <Send className="w-4 h-4 ml-2" />
-            {inviteMutation.isPending ? 'جاري الإرسال...' : 'إرسال الدعوة'}
+            {inviteMutation.isPending ? "جاري الإرسال..." : "إرسال الدعوة"}
           </Button>
         </ModalFooter>
       </form>

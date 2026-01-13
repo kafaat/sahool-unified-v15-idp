@@ -1,13 +1,34 @@
-import { Controller, Get, Post, Body, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
-import { PlantingStrategyService } from './planting-strategy.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  HttpException,
+  HttpStatus,
+} from "@nestjs/common";
+import { PlantingStrategyService } from "./planting-strategy.service";
 
 // Request DTOs
 interface OptimizeStrategyDto {
-  cropType: 'wheat' | 'barley' | 'corn' | 'rice' | 'sorghum' | 'date_palm' | 'alfalfa';
+  cropType:
+    | "wheat"
+    | "barley"
+    | "corn"
+    | "rice"
+    | "sorghum"
+    | "date_palm"
+    | "alfalfa";
   targetYield: number;
   fieldArea: number;
-  soilType: 'sandy' | 'loamy' | 'clay' | 'silty' | 'saline';
-  climateZone: 'arid' | 'semi_arid' | 'mediterranean' | 'continental' | 'tropical';
+  soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+  climateZone:
+    | "arid"
+    | "semi_arid"
+    | "mediterranean"
+    | "continental"
+    | "tropical";
   availableWater: number;
   soilMoisture?: number;
   organicMatter?: number;
@@ -17,11 +38,23 @@ interface OptimizeStrategyDto {
 
 interface GeneratePlanDto {
   fieldId: string;
-  cropType: 'wheat' | 'barley' | 'corn' | 'rice' | 'sorghum' | 'date_palm' | 'alfalfa';
+  cropType:
+    | "wheat"
+    | "barley"
+    | "corn"
+    | "rice"
+    | "sorghum"
+    | "date_palm"
+    | "alfalfa";
   targetYield: number;
   fieldArea: number;
-  soilType: 'sandy' | 'loamy' | 'clay' | 'silty' | 'saline';
-  climateZone: 'arid' | 'semi_arid' | 'mediterranean' | 'continental' | 'tropical';
+  soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+  climateZone:
+    | "arid"
+    | "semi_arid"
+    | "mediterranean"
+    | "continental"
+    | "tropical";
   availableWater: number;
   plantingDate: string;
   soilMoisture?: number;
@@ -29,23 +62,49 @@ interface GeneratePlanDto {
 }
 
 interface CalculateDensityDto {
-  cropType: 'wheat' | 'barley' | 'corn' | 'rice' | 'sorghum' | 'date_palm' | 'alfalfa';
-  method: 'equal_row' | 'wide_strip' | 'space_broadcasting' | 'small_basin';
+  cropType:
+    | "wheat"
+    | "barley"
+    | "corn"
+    | "rice"
+    | "sorghum"
+    | "date_palm"
+    | "alfalfa";
+  method: "equal_row" | "wide_strip" | "space_broadcasting" | "small_basin";
   targetYield: number;
-  soilType: 'sandy' | 'loamy' | 'clay' | 'silty' | 'saline';
+  soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
 }
 
 interface CalculateFertilizerDto {
-  cropType: 'wheat' | 'barley' | 'corn' | 'rice' | 'sorghum' | 'date_palm' | 'alfalfa';
+  cropType:
+    | "wheat"
+    | "barley"
+    | "corn"
+    | "rice"
+    | "sorghum"
+    | "date_palm"
+    | "alfalfa";
   targetYield: number;
-  soilType: 'sandy' | 'loamy' | 'clay' | 'silty' | 'saline';
+  soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
   organicMatterContent: number;
 }
 
 interface CalculateIrrigationDto {
-  cropType: 'wheat' | 'barley' | 'corn' | 'rice' | 'sorghum' | 'date_palm' | 'alfalfa';
-  method: 'equal_row' | 'wide_strip' | 'space_broadcasting' | 'small_basin';
-  climateZone: 'arid' | 'semi_arid' | 'mediterranean' | 'continental' | 'tropical';
+  cropType:
+    | "wheat"
+    | "barley"
+    | "corn"
+    | "rice"
+    | "sorghum"
+    | "date_palm"
+    | "alfalfa";
+  method: "equal_row" | "wide_strip" | "space_broadcasting" | "small_basin";
+  climateZone:
+    | "arid"
+    | "semi_arid"
+    | "mediterranean"
+    | "continental"
+    | "tropical";
   availableWater: number;
 }
 
@@ -58,26 +117,52 @@ interface DigitalTwinIntegrationDto {
 }
 
 interface CompareMethodsDto {
-  cropType: 'wheat' | 'barley' | 'corn' | 'rice' | 'sorghum' | 'date_palm' | 'alfalfa';
+  cropType:
+    | "wheat"
+    | "barley"
+    | "corn"
+    | "rice"
+    | "sorghum"
+    | "date_palm"
+    | "alfalfa";
   targetYield: number;
-  soilType: 'sandy' | 'loamy' | 'clay' | 'silty' | 'saline';
-  climateZone: 'arid' | 'semi_arid' | 'mediterranean' | 'continental' | 'tropical';
+  soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+  climateZone:
+    | "arid"
+    | "semi_arid"
+    | "mediterranean"
+    | "continental"
+    | "tropical";
 }
 
 interface AnalyzeFieldDto {
-  cropType: 'wheat' | 'barley' | 'corn' | 'rice' | 'sorghum' | 'date_palm' | 'alfalfa';
+  cropType:
+    | "wheat"
+    | "barley"
+    | "corn"
+    | "rice"
+    | "sorghum"
+    | "date_palm"
+    | "alfalfa";
   targetYield: number;
   fieldArea: number;
-  soilType: 'sandy' | 'loamy' | 'clay' | 'silty' | 'saline';
-  climateZone: 'arid' | 'semi_arid' | 'mediterranean' | 'continental' | 'tropical';
+  soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+  climateZone:
+    | "arid"
+    | "semi_arid"
+    | "mediterranean"
+    | "continental"
+    | "tropical";
   availableWater: number;
   soilMoisture?: number;
   organicMatter?: number;
 }
 
-@Controller('planting-strategy')
+@Controller("planting-strategy")
 export class PlantingStrategyController {
-  constructor(private readonly plantingStrategyService: PlantingStrategyService) {}
+  constructor(
+    private readonly plantingStrategyService: PlantingStrategyService,
+  ) {}
 
   /**
    * GET /planting-strategy
@@ -86,41 +171,81 @@ export class PlantingStrategyController {
   @Get()
   getServiceInfo() {
     return {
-      service: 'Planting Strategy Optimizer',
-      serviceAr: 'محسّن استراتيجية الزراعة',
-      version: '1.0.0',
-      description: 'Optimizes planting strategies based on crop type, soil conditions, and climate zone',
+      service: "Planting Strategy Optimizer",
+      serviceAr: "محسّن استراتيجية الزراعة",
+      version: "1.0.0",
+      description:
+        "Optimizes planting strategies based on crop type, soil conditions, and climate zone",
       capabilities: [
-        'Planting method optimization',
-        'Density and spacing calculations',
-        'Fertilizer recommendations',
-        'Irrigation scheduling',
-        'Yield prediction',
-        'Complete planting plan generation',
-        'Method comparison analysis',
-        'Digital Twin integration',
+        "Planting method optimization",
+        "Density and spacing calculations",
+        "Fertilizer recommendations",
+        "Irrigation scheduling",
+        "Yield prediction",
+        "Complete planting plan generation",
+        "Method comparison analysis",
+        "Digital Twin integration",
       ],
       plantingMethods: [
-        { id: 'equal_row', nameEn: 'Equal Row Broadcasting', nameAr: 'البذر المتساوي الصفوف' },
-        { id: 'wide_strip', nameEn: 'Wide Strip Broadcasting', nameAr: 'البذر الشريطي العريض' },
-        { id: 'space_broadcasting', nameEn: 'Space Broadcasting', nameAr: 'البذر المتباعد' },
-        { id: 'small_basin', nameEn: 'Small Basin Planting', nameAr: 'الزراعة في الأحواض الصغيرة' },
+        {
+          id: "equal_row",
+          nameEn: "Equal Row Broadcasting",
+          nameAr: "البذر المتساوي الصفوف",
+        },
+        {
+          id: "wide_strip",
+          nameEn: "Wide Strip Broadcasting",
+          nameAr: "البذر الشريطي العريض",
+        },
+        {
+          id: "space_broadcasting",
+          nameEn: "Space Broadcasting",
+          nameAr: "البذر المتباعد",
+        },
+        {
+          id: "small_basin",
+          nameEn: "Small Basin Planting",
+          nameAr: "الزراعة في الأحواض الصغيرة",
+        },
       ],
-      supportedCrops: ['wheat', 'barley', 'corn', 'rice', 'sorghum', 'date_palm', 'alfalfa'],
-      supportedSoilTypes: ['sandy', 'loamy', 'clay', 'silty', 'saline'],
-      supportedClimateZones: ['arid', 'semi_arid', 'mediterranean', 'continental', 'tropical'],
+      supportedCrops: [
+        "wheat",
+        "barley",
+        "corn",
+        "rice",
+        "sorghum",
+        "date_palm",
+        "alfalfa",
+      ],
+      supportedSoilTypes: ["sandy", "loamy", "clay", "silty", "saline"],
+      supportedClimateZones: [
+        "arid",
+        "semi_arid",
+        "mediterranean",
+        "continental",
+        "tropical",
+      ],
       endpoints: {
-        methods: 'GET /planting-strategy/methods - List all planting methods',
-        methodDetail: 'GET /planting-strategy/methods/:methodId - Get method details',
-        methodGuidance: 'GET /planting-strategy/methods/:methodId/guidance - Step-by-step guide',
-        optimize: 'POST /planting-strategy/optimize - Get optimal strategy recommendation',
-        generatePlan: 'POST /planting-strategy/plan - Generate complete planting plan',
-        calculateDensity: 'POST /planting-strategy/density - Calculate planting density',
-        calculateFertilizer: 'POST /planting-strategy/fertilizer - Get fertilizer recommendations',
-        calculateIrrigation: 'POST /planting-strategy/irrigation - Get irrigation schedule',
-        compareMethods: 'POST /planting-strategy/compare - Compare all methods',
-        analyzeField: 'POST /planting-strategy/analyze-field - Analyze field conditions',
-        digitalTwin: 'POST /planting-strategy/digital-twin - Real-time optimization with Digital Twin',
+        methods: "GET /planting-strategy/methods - List all planting methods",
+        methodDetail:
+          "GET /planting-strategy/methods/:methodId - Get method details",
+        methodGuidance:
+          "GET /planting-strategy/methods/:methodId/guidance - Step-by-step guide",
+        optimize:
+          "POST /planting-strategy/optimize - Get optimal strategy recommendation",
+        generatePlan:
+          "POST /planting-strategy/plan - Generate complete planting plan",
+        calculateDensity:
+          "POST /planting-strategy/density - Calculate planting density",
+        calculateFertilizer:
+          "POST /planting-strategy/fertilizer - Get fertilizer recommendations",
+        calculateIrrigation:
+          "POST /planting-strategy/irrigation - Get irrigation schedule",
+        compareMethods: "POST /planting-strategy/compare - Compare all methods",
+        analyzeField:
+          "POST /planting-strategy/analyze-field - Analyze field conditions",
+        digitalTwin:
+          "POST /planting-strategy/digital-twin - Real-time optimization with Digital Twin",
       },
     };
   }
@@ -129,13 +254,13 @@ export class PlantingStrategyController {
    * GET /planting-strategy/methods
    * List all available planting methods
    */
-  @Get('methods')
+  @Get("methods")
   getAllMethods() {
     const methods = this.plantingStrategyService.getAllMethods();
     return {
       success: true,
       count: methods.length,
-      methods: methods.map(m => ({
+      methods: methods.map((m) => ({
         id: m.id,
         nameEn: m.nameEn,
         nameAr: m.nameAr,
@@ -154,10 +279,19 @@ export class PlantingStrategyController {
    * GET /planting-strategy/methods/:methodId
    * Get specific planting method details
    */
-  @Get('methods/:methodId')
-  getMethod(@Param('methodId') methodId: string) {
-    type PlantingMethodType = 'equal_row' | 'wide_strip' | 'space_broadcasting' | 'small_basin';
-    const validMethods: PlantingMethodType[] = ['equal_row', 'wide_strip', 'space_broadcasting', 'small_basin'];
+  @Get("methods/:methodId")
+  getMethod(@Param("methodId") methodId: string) {
+    type PlantingMethodType =
+      | "equal_row"
+      | "wide_strip"
+      | "space_broadcasting"
+      | "small_basin";
+    const validMethods: PlantingMethodType[] = [
+      "equal_row",
+      "wide_strip",
+      "space_broadcasting",
+      "small_basin",
+    ];
 
     const isValidMethod = (id: string): id is PlantingMethodType => {
       return validMethods.includes(id as PlantingMethodType);
@@ -165,14 +299,14 @@ export class PlantingStrategyController {
 
     if (!isValidMethod(methodId)) {
       throw new HttpException(
-        `Invalid method ID. Valid options: ${validMethods.join(', ')}`,
-        HttpStatus.BAD_REQUEST
+        `Invalid method ID. Valid options: ${validMethods.join(", ")}`,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     const method = this.plantingStrategyService.getMethod(methodId);
     if (!method) {
-      throw new HttpException('Method not found', HttpStatus.NOT_FOUND);
+      throw new HttpException("Method not found", HttpStatus.NOT_FOUND);
     }
 
     return {
@@ -185,10 +319,19 @@ export class PlantingStrategyController {
    * GET /planting-strategy/methods/:methodId/guidance
    * Get step-by-step guidance for a specific method
    */
-  @Get('methods/:methodId/guidance')
-  getMethodGuidance(@Param('methodId') methodId: string) {
-    type PlantingMethodType = 'equal_row' | 'wide_strip' | 'space_broadcasting' | 'small_basin';
-    const validMethods: PlantingMethodType[] = ['equal_row', 'wide_strip', 'space_broadcasting', 'small_basin'];
+  @Get("methods/:methodId/guidance")
+  getMethodGuidance(@Param("methodId") methodId: string) {
+    type PlantingMethodType =
+      | "equal_row"
+      | "wide_strip"
+      | "space_broadcasting"
+      | "small_basin";
+    const validMethods: PlantingMethodType[] = [
+      "equal_row",
+      "wide_strip",
+      "space_broadcasting",
+      "small_basin",
+    ];
 
     const isValidMethod = (id: string): id is PlantingMethodType => {
       return validMethods.includes(id as PlantingMethodType);
@@ -196,8 +339,8 @@ export class PlantingStrategyController {
 
     if (!isValidMethod(methodId)) {
       throw new HttpException(
-        `Invalid method ID. Valid options: ${validMethods.join(', ')}`,
-        HttpStatus.BAD_REQUEST
+        `Invalid method ID. Valid options: ${validMethods.join(", ")}`,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -216,13 +359,20 @@ export class PlantingStrategyController {
    * POST /planting-strategy/optimize
    * Get optimal planting strategy recommendation
    */
-  @Post('optimize')
+  @Post("optimize")
   optimizeStrategy(@Body() dto: OptimizeStrategyDto) {
     // Validate required fields
-    if (!dto.cropType || !dto.targetYield || !dto.fieldArea || !dto.soilType || !dto.climateZone || dto.availableWater === undefined) {
+    if (
+      !dto.cropType ||
+      !dto.targetYield ||
+      !dto.fieldArea ||
+      !dto.soilType ||
+      !dto.climateZone ||
+      dto.availableWater === undefined
+    ) {
       throw new HttpException(
-        'Missing required fields: cropType, targetYield, fieldArea, soilType, climateZone, availableWater',
-        HttpStatus.BAD_REQUEST
+        "Missing required fields: cropType, targetYield, fieldArea, soilType, climateZone, availableWater",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -239,7 +389,8 @@ export class PlantingStrategyController {
       plantingDate: dto.plantingDate ? new Date(dto.plantingDate) : undefined,
     };
 
-    const result = this.plantingStrategyService.optimizePlantingStrategy(request);
+    const result =
+      this.plantingStrategyService.optimizePlantingStrategy(request);
 
     return {
       success: true,
@@ -250,7 +401,7 @@ export class PlantingStrategyController {
           nameAr: result.recommendedMethod.nameAr,
           description: result.recommendedMethod.description,
         },
-        alternativeMethods: result.alternativeMethods.map(m => ({
+        alternativeMethods: result.alternativeMethods.map((m) => ({
           id: m.id,
           nameEn: m.nameEn,
           nameAr: m.nameAr,
@@ -259,7 +410,7 @@ export class PlantingStrategyController {
         fertilizerRecommendations: result.fertilizerRecommendations,
         irrigationSchedule: result.irrigationSchedule,
         expectedYield: result.expectedYield,
-        confidenceLevel: Math.round(result.confidenceLevel * 100) + '%',
+        confidenceLevel: Math.round(result.confidenceLevel * 100) + "%",
         warnings: result.warnings,
         recommendations: result.recommendations,
       },
@@ -270,14 +421,22 @@ export class PlantingStrategyController {
    * POST /planting-strategy/plan
    * Generate complete planting plan
    */
-  @Post('plan')
+  @Post("plan")
   generatePlan(@Body() dto: GeneratePlanDto) {
     // Validate required fields
-    if (!dto.fieldId || !dto.cropType || !dto.targetYield || !dto.fieldArea ||
-        !dto.soilType || !dto.climateZone || dto.availableWater === undefined || !dto.plantingDate) {
+    if (
+      !dto.fieldId ||
+      !dto.cropType ||
+      !dto.targetYield ||
+      !dto.fieldArea ||
+      !dto.soilType ||
+      !dto.climateZone ||
+      dto.availableWater === undefined ||
+      !dto.plantingDate
+    ) {
       throw new HttpException(
-        'Missing required fields: fieldId, cropType, targetYield, fieldArea, soilType, climateZone, availableWater, plantingDate',
-        HttpStatus.BAD_REQUEST
+        "Missing required fields: fieldId, cropType, targetYield, fieldArea, soilType, climateZone, availableWater, plantingDate",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -293,7 +452,11 @@ export class PlantingStrategyController {
     };
 
     const plantingDate = new Date(dto.plantingDate);
-    const plan = this.plantingStrategyService.generatePlantingPlan(dto.fieldId, request, plantingDate);
+    const plan = this.plantingStrategyService.generatePlantingPlan(
+      dto.fieldId,
+      request,
+      plantingDate,
+    );
 
     return {
       success: true,
@@ -301,31 +464,34 @@ export class PlantingStrategyController {
         fieldId: plan.fieldId,
         cropType: plan.cropType,
         method: plan.method,
-        plannedDate: plan.plannedDate.toISOString().split('T')[0],
-        tasks: plan.tasks.map(t => ({
+        plannedDate: plan.plannedDate.toISOString().split("T")[0],
+        tasks: plan.tasks.map((t) => ({
           id: t.id,
           name: t.name,
           nameAr: t.nameAr,
           description: t.description,
-          scheduledDate: new Date(plantingDate.getTime() - t.daysBeforePlanting * 24 * 60 * 60 * 1000)
-            .toISOString().split('T')[0],
+          scheduledDate: new Date(
+            plantingDate.getTime() - t.daysBeforePlanting * 24 * 60 * 60 * 1000,
+          )
+            .toISOString()
+            .split("T")[0],
           daysBeforePlanting: t.daysBeforePlanting,
-          duration: t.duration + ' hours',
+          duration: t.duration + " hours",
           equipment: t.equipment,
-          laborRequired: t.laborRequired + ' person-hours',
+          laborRequired: t.laborRequired + " person-hours",
         })),
         resourceRequirements: {
           seeds: `${plan.resourceRequirements.seeds.quantity.toFixed(1)} ${plan.resourceRequirements.seeds.unit}`,
-          fertilizers: plan.resourceRequirements.fertilizer.map(f =>
-            `${f.type}: ${f.quantity.toFixed(1)} ${f.unit}`
+          fertilizers: plan.resourceRequirements.fertilizer.map(
+            (f) => `${f.type}: ${f.quantity.toFixed(1)} ${f.unit}`,
           ),
           water: `${plan.resourceRequirements.water.quantity.toFixed(1)} ${plan.resourceRequirements.water.unit}`,
           laborHours: plan.resourceRequirements.labor.hours,
-          estimatedCost: '$' + plan.resourceRequirements.totalCost.toFixed(2),
+          estimatedCost: "$" + plan.resourceRequirements.totalCost.toFixed(2),
         },
-        timeline: plan.timeline.map(t => ({
+        timeline: plan.timeline.map((t) => ({
           event: t.event,
-          date: t.date.toISOString().split('T')[0],
+          date: t.date.toISOString().split("T")[0],
           description: t.description,
           critical: t.critical,
         })),
@@ -337,12 +503,12 @@ export class PlantingStrategyController {
    * POST /planting-strategy/density
    * Calculate planting density
    */
-  @Post('density')
+  @Post("density")
   calculateDensity(@Body() dto: CalculateDensityDto) {
     if (!dto.cropType || !dto.method || !dto.targetYield || !dto.soilType) {
       throw new HttpException(
-        'Missing required fields: cropType, method, targetYield, soilType',
-        HttpStatus.BAD_REQUEST
+        "Missing required fields: cropType, method, targetYield, soilType",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -350,21 +516,21 @@ export class PlantingStrategyController {
       dto.cropType,
       dto.method,
       dto.targetYield,
-      dto.soilType
+      dto.soilType,
     );
 
     return {
       success: true,
       densityCalculation: {
         method: result.method,
-        rowSpacing: result.rowSpacing + ' cm',
-        plantSpacing: result.plantSpacing + ' cm',
+        rowSpacing: result.rowSpacing + " cm",
+        plantSpacing: result.plantSpacing + " cm",
         seedsPerHole: result.seedsPerHole,
         rowsPerMu: result.rowsPerMu,
         plantsPerRow: result.plantsPerRow,
         totalPlantsPerMu: result.totalPlantsPerMu,
-        seedingRate: result.seedingRateKgPerMu + ' kg/mu',
-        coveragePercentage: result.coveragePercentage + '%',
+        seedingRate: result.seedingRateKgPerMu + " kg/mu",
+        coveragePercentage: result.coveragePercentage + "%",
       },
     };
   }
@@ -373,41 +539,47 @@ export class PlantingStrategyController {
    * POST /planting-strategy/fertilizer
    * Calculate fertilizer recommendations
    */
-  @Post('fertilizer')
+  @Post("fertilizer")
   calculateFertilizer(@Body() dto: CalculateFertilizerDto) {
-    if (!dto.cropType || !dto.targetYield || !dto.soilType || dto.organicMatterContent === undefined) {
+    if (
+      !dto.cropType ||
+      !dto.targetYield ||
+      !dto.soilType ||
+      dto.organicMatterContent === undefined
+    ) {
       throw new HttpException(
-        'Missing required fields: cropType, targetYield, soilType, organicMatterContent',
-        HttpStatus.BAD_REQUEST
+        "Missing required fields: cropType, targetYield, soilType, organicMatterContent",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
-    const result = this.plantingStrategyService.calculateFertilizerRecommendations(
-      dto.cropType,
-      dto.targetYield,
-      dto.soilType,
-      dto.organicMatterContent
-    );
+    const result =
+      this.plantingStrategyService.calculateFertilizerRecommendations(
+        dto.cropType,
+        dto.targetYield,
+        dto.soilType,
+        dto.organicMatterContent,
+      );
 
     return {
       success: true,
       fertilizerRecommendations: {
         baseApplication: {
-          nitrogen: result.baseApplication.n + ' kg/mu',
-          phosphorus: result.baseApplication.p + ' kg/mu',
-          potassium: result.baseApplication.k + ' kg/mu',
-          timing: '7-10 days before planting',
+          nitrogen: result.baseApplication.n + " kg/mu",
+          phosphorus: result.baseApplication.p + " kg/mu",
+          potassium: result.baseApplication.k + " kg/mu",
+          timing: "7-10 days before planting",
         },
-        topDressing: result.topDressing.map(td => ({
+        topDressing: result.topDressing.map((td) => ({
           stage: td.stage,
-          nitrogen: td.n + ' kg/mu',
+          nitrogen: td.n + " kg/mu",
           timing: td.timing,
         })),
-        organicMatter: result.organicMatter + ' kg/mu',
+        organicMatter: result.organicMatter + " kg/mu",
         notes: [
-          'Apply base fertilizer and incorporate into soil',
-          'Split nitrogen applications to reduce losses',
-          'Adjust rates based on soil test results',
+          "Apply base fertilizer and incorporate into soil",
+          "Split nitrogen applications to reduce losses",
+          "Adjust rates based on soil test results",
         ],
       },
     };
@@ -417,12 +589,17 @@ export class PlantingStrategyController {
    * POST /planting-strategy/irrigation
    * Calculate irrigation schedule
    */
-  @Post('irrigation')
+  @Post("irrigation")
   calculateIrrigation(@Body() dto: CalculateIrrigationDto) {
-    if (!dto.cropType || !dto.method || !dto.climateZone || dto.availableWater === undefined) {
+    if (
+      !dto.cropType ||
+      !dto.method ||
+      !dto.climateZone ||
+      dto.availableWater === undefined
+    ) {
       throw new HttpException(
-        'Missing required fields: cropType, method, climateZone, availableWater',
-        HttpStatus.BAD_REQUEST
+        "Missing required fields: cropType, method, climateZone, availableWater",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -430,26 +607,53 @@ export class PlantingStrategyController {
       dto.cropType,
       dto.method,
       dto.climateZone,
-      dto.availableWater
+      dto.availableWater,
     );
 
     return {
       success: true,
       irrigationSchedule: {
         stages: [
-          { stage: 'Pre-planting', water: result.prePlanting + ' m³/mu', timing: '2-3 days before planting' },
-          { stage: 'Emergence', water: result.emergence + ' m³/mu', timing: '7-10 days after planting' },
-          { stage: 'Tillering', water: result.tillering + ' m³/mu', timing: '25-35 days after planting' },
-          { stage: 'Jointing', water: result.jointing + ' m³/mu', timing: '50-60 days after planting' },
-          { stage: 'Heading', water: result.heading + ' m³/mu', timing: '75-85 days after planting' },
-          { stage: 'Grain Filling', water: result.grainfilling + ' m³/mu', timing: '100-120 days after planting' },
+          {
+            stage: "Pre-planting",
+            water: result.prePlanting + " m³/mu",
+            timing: "2-3 days before planting",
+          },
+          {
+            stage: "Emergence",
+            water: result.emergence + " m³/mu",
+            timing: "7-10 days after planting",
+          },
+          {
+            stage: "Tillering",
+            water: result.tillering + " m³/mu",
+            timing: "25-35 days after planting",
+          },
+          {
+            stage: "Jointing",
+            water: result.jointing + " m³/mu",
+            timing: "50-60 days after planting",
+          },
+          {
+            stage: "Heading",
+            water: result.heading + " m³/mu",
+            timing: "75-85 days after planting",
+          },
+          {
+            stage: "Grain Filling",
+            water: result.grainfilling + " m³/mu",
+            timing: "100-120 days after planting",
+          },
         ],
-        totalSeasonWater: result.totalWater + ' m³/mu',
-        waterSufficiency: dto.availableWater >= result.totalWater ? 'Sufficient' : 'Deficit - consider water-saving methods',
+        totalSeasonWater: result.totalWater + " m³/mu",
+        waterSufficiency:
+          dto.availableWater >= result.totalWater
+            ? "Sufficient"
+            : "Deficit - consider water-saving methods",
         recommendations: [
-          'Irrigate in early morning to reduce evaporation',
-          'Monitor soil moisture to avoid over-watering',
-          'Consider drip irrigation for water conservation',
+          "Irrigate in early morning to reduce evaporation",
+          "Monitor soil moisture to avoid over-watering",
+          "Consider drip irrigation for water conservation",
         ],
       },
     };
@@ -459,12 +663,17 @@ export class PlantingStrategyController {
    * POST /planting-strategy/compare
    * Compare all planting methods
    */
-  @Post('compare')
+  @Post("compare")
   compareMethods(@Body() dto: CompareMethodsDto) {
-    if (!dto.cropType || !dto.targetYield || !dto.soilType || !dto.climateZone) {
+    if (
+      !dto.cropType ||
+      !dto.targetYield ||
+      !dto.soilType ||
+      !dto.climateZone
+    ) {
       throw new HttpException(
-        'Missing required fields: cropType, targetYield, soilType, climateZone',
-        HttpStatus.BAD_REQUEST
+        "Missing required fields: cropType, targetYield, soilType, climateZone",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -472,23 +681,23 @@ export class PlantingStrategyController {
       dto.cropType,
       dto.targetYield,
       dto.soilType,
-      dto.climateZone
+      dto.climateZone,
     );
 
     return {
       success: true,
       comparison: {
-        methods: result.comparisons.map(c => ({
+        methods: result.comparisons.map((c) => ({
           method: {
             id: c.method.id,
             nameEn: c.method.nameEn,
             nameAr: c.method.nameAr,
           },
-          suitabilityScore: Math.round(c.suitabilityScore * 100) + '%',
-          expectedYield: c.yieldPrediction.adjustedYield + ' kg/mu',
+          suitabilityScore: Math.round(c.suitabilityScore * 100) + "%",
+          expectedYield: c.yieldPrediction.adjustedYield + " kg/mu",
           yieldConfidence: `${c.yieldPrediction.confidenceInterval.lower} - ${c.yieldPrediction.confidenceInterval.upper} kg/mu`,
-          seedingRate: c.density.seedingRateKgPerMu + ' kg/mu',
-          waterRequirement: c.waterRequirement.toFixed(2) + ' m³/mu',
+          seedingRate: c.density.seedingRateKgPerMu + " kg/mu",
+          waterRequirement: c.waterRequirement.toFixed(2) + " m³/mu",
           advantages: c.method.advantages.slice(0, 3),
         })),
         recommendation: result.recommendation,
@@ -500,13 +709,19 @@ export class PlantingStrategyController {
    * POST /planting-strategy/analyze-field
    * Analyze field conditions
    */
-  @Post('analyze-field')
+  @Post("analyze-field")
   analyzeField(@Body() dto: AnalyzeFieldDto) {
-    if (!dto.cropType || !dto.targetYield || !dto.fieldArea || !dto.soilType ||
-        !dto.climateZone || dto.availableWater === undefined) {
+    if (
+      !dto.cropType ||
+      !dto.targetYield ||
+      !dto.fieldArea ||
+      !dto.soilType ||
+      !dto.climateZone ||
+      dto.availableWater === undefined
+    ) {
       throw new HttpException(
-        'Missing required fields: cropType, targetYield, fieldArea, soilType, climateZone, availableWater',
-        HttpStatus.BAD_REQUEST
+        "Missing required fields: cropType, targetYield, fieldArea, soilType, climateZone, availableWater",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -527,14 +742,22 @@ export class PlantingStrategyController {
       success: true,
       fieldAnalysis: {
         scores: {
-          soilQuality: Math.round(result.soilQualityScore * 100) + '%',
-          waterAvailability: Math.round(result.waterAvailabilityScore * 100) + '%',
-          climateCompatibility: Math.round(result.climateCompatibilityScore * 100) + '%',
-          overallSuitability: Math.round(result.overallSuitabilityScore * 100) + '%',
+          soilQuality: Math.round(result.soilQualityScore * 100) + "%",
+          waterAvailability:
+            Math.round(result.waterAvailabilityScore * 100) + "%",
+          climateCompatibility:
+            Math.round(result.climateCompatibilityScore * 100) + "%",
+          overallSuitability:
+            Math.round(result.overallSuitabilityScore * 100) + "%",
         },
-        rating: result.overallSuitabilityScore >= 0.8 ? 'Excellent' :
-                result.overallSuitabilityScore >= 0.6 ? 'Good' :
-                result.overallSuitabilityScore >= 0.4 ? 'Fair' : 'Poor',
+        rating:
+          result.overallSuitabilityScore >= 0.8
+            ? "Excellent"
+            : result.overallSuitabilityScore >= 0.6
+              ? "Good"
+              : result.overallSuitabilityScore >= 0.4
+                ? "Fair"
+                : "Poor",
         limitingFactors: result.limitingFactors,
         improvementSuggestions: result.improvementSuggestions,
       },
@@ -545,22 +768,30 @@ export class PlantingStrategyController {
    * POST /planting-strategy/digital-twin
    * Real-time optimization with Digital Twin integration
    */
-  @Post('digital-twin')
+  @Post("digital-twin")
   integrateDigitalTwin(@Body() dto: DigitalTwinIntegrationDto) {
-    if (!dto.fieldId || dto.soilMoisture === undefined || dto.temperature === undefined ||
-        !dto.growthStage || dto.ndvi === undefined) {
+    if (
+      !dto.fieldId ||
+      dto.soilMoisture === undefined ||
+      dto.temperature === undefined ||
+      !dto.growthStage ||
+      dto.ndvi === undefined
+    ) {
       throw new HttpException(
-        'Missing required fields: fieldId, soilMoisture, temperature, growthStage, ndvi',
-        HttpStatus.BAD_REQUEST
+        "Missing required fields: fieldId, soilMoisture, temperature, growthStage, ndvi",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
-    const result = this.plantingStrategyService.integrateWithDigitalTwin(dto.fieldId, {
-      soilMoisture: dto.soilMoisture,
-      temperature: dto.temperature,
-      growthStage: dto.growthStage,
-      ndvi: dto.ndvi,
-    });
+    const result = this.plantingStrategyService.integrateWithDigitalTwin(
+      dto.fieldId,
+      {
+        soilMoisture: dto.soilMoisture,
+        temperature: dto.temperature,
+        growthStage: dto.growthStage,
+        ndvi: dto.ndvi,
+      },
+    );
 
     return {
       success: true,
@@ -569,8 +800,8 @@ export class PlantingStrategyController {
         currentStatus: result.currentStatus,
         timestamp: new Date().toISOString(),
         currentConditions: {
-          soilMoisture: dto.soilMoisture + '%',
-          temperature: dto.temperature + '°C',
+          soilMoisture: dto.soilMoisture + "%",
+          temperature: dto.temperature + "°C",
           growthStage: dto.growthStage,
           ndvi: dto.ndvi,
         },
@@ -585,44 +816,71 @@ export class PlantingStrategyController {
    * GET /planting-strategy/crops/:cropType
    * Get crop-specific planting information
    */
-  @Get('crops/:cropType')
-  getCropInfo(@Param('cropType') cropType: string) {
-    const validCrops = ['wheat', 'barley', 'corn', 'rice', 'sorghum', 'date_palm', 'alfalfa'];
+  @Get("crops/:cropType")
+  getCropInfo(@Param("cropType") cropType: string) {
+    const validCrops = [
+      "wheat",
+      "barley",
+      "corn",
+      "rice",
+      "sorghum",
+      "date_palm",
+      "alfalfa",
+    ];
     if (!validCrops.includes(cropType)) {
       throw new HttpException(
-        `Invalid crop type. Valid options: ${validCrops.join(', ')}`,
-        HttpStatus.BAD_REQUEST
+        `Invalid crop type. Valid options: ${validCrops.join(", ")}`,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     const cropNames: Record<string, { en: string; ar: string }> = {
-      wheat: { en: 'Wheat', ar: 'القمح' },
-      barley: { en: 'Barley', ar: 'الشعير' },
-      corn: { en: 'Corn/Maize', ar: 'الذرة' },
-      rice: { en: 'Rice', ar: 'الأرز' },
-      sorghum: { en: 'Sorghum', ar: 'الذرة الرفيعة' },
-      date_palm: { en: 'Date Palm', ar: 'نخيل التمر' },
-      alfalfa: { en: 'Alfalfa', ar: 'البرسيم الحجازي' },
+      wheat: { en: "Wheat", ar: "القمح" },
+      barley: { en: "Barley", ar: "الشعير" },
+      corn: { en: "Corn/Maize", ar: "الذرة" },
+      rice: { en: "Rice", ar: "الأرز" },
+      sorghum: { en: "Sorghum", ar: "الذرة الرفيعة" },
+      date_palm: { en: "Date Palm", ar: "نخيل التمر" },
+      alfalfa: { en: "Alfalfa", ar: "البرسيم الحجازي" },
     };
 
     const recommendedMethods: Record<string, string[]> = {
-      wheat: ['equal_row', 'wide_strip', 'space_broadcasting'],
-      barley: ['equal_row', 'wide_strip'],
-      corn: ['equal_row', 'space_broadcasting'],
-      rice: ['equal_row', 'small_basin'],
-      sorghum: ['equal_row', 'space_broadcasting'],
-      date_palm: ['small_basin'],
-      alfalfa: ['equal_row', 'wide_strip'],
+      wheat: ["equal_row", "wide_strip", "space_broadcasting"],
+      barley: ["equal_row", "wide_strip"],
+      corn: ["equal_row", "space_broadcasting"],
+      rice: ["equal_row", "small_basin"],
+      sorghum: ["equal_row", "space_broadcasting"],
+      date_palm: ["small_basin"],
+      alfalfa: ["equal_row", "wide_strip"],
     };
 
-    const plantingSeasons: Record<string, { early: string; optimal: string; late: string }> = {
-      wheat: { early: 'October 15', optimal: 'November 1-15', late: 'December 1' },
-      barley: { early: 'October 10', optimal: 'October 20 - November 10', late: 'November 25' },
-      corn: { early: 'March 15', optimal: 'April 1-15', late: 'May 1' },
-      rice: { early: 'April 1', optimal: 'April 15 - May 15', late: 'June 1' },
-      sorghum: { early: 'March 20', optimal: 'April 1-20', late: 'May 10' },
-      date_palm: { early: 'February 1', optimal: 'March 1 - April 15', late: 'May 1' },
-      alfalfa: { early: 'September 15', optimal: 'October 1-20', late: 'November 1' },
+    const plantingSeasons: Record<
+      string,
+      { early: string; optimal: string; late: string }
+    > = {
+      wheat: {
+        early: "October 15",
+        optimal: "November 1-15",
+        late: "December 1",
+      },
+      barley: {
+        early: "October 10",
+        optimal: "October 20 - November 10",
+        late: "November 25",
+      },
+      corn: { early: "March 15", optimal: "April 1-15", late: "May 1" },
+      rice: { early: "April 1", optimal: "April 15 - May 15", late: "June 1" },
+      sorghum: { early: "March 20", optimal: "April 1-20", late: "May 10" },
+      date_palm: {
+        early: "February 1",
+        optimal: "March 1 - April 15",
+        late: "May 1",
+      },
+      alfalfa: {
+        early: "September 15",
+        optimal: "October 1-20",
+        late: "November 1",
+      },
     };
 
     return {
@@ -640,46 +898,46 @@ export class PlantingStrategyController {
   private getCropTips(cropType: string): string[] {
     const tips: Record<string, string[]> = {
       wheat: [
-        'Plant when soil temperature is 12-15°C',
-        'Avoid planting too deep in clay soils',
-        'Wide strip method can increase yield by 15-20%',
-        'First irrigation critical 21-25 days after emergence',
+        "Plant when soil temperature is 12-15°C",
+        "Avoid planting too deep in clay soils",
+        "Wide strip method can increase yield by 15-20%",
+        "First irrigation critical 21-25 days after emergence",
       ],
       barley: [
-        'More drought-tolerant than wheat',
-        'Can tolerate slightly saline soils',
-        'Shorter growing season allows double cropping',
-        'Requires less nitrogen than wheat',
+        "More drought-tolerant than wheat",
+        "Can tolerate slightly saline soils",
+        "Shorter growing season allows double cropping",
+        "Requires less nitrogen than wheat",
       ],
       corn: [
-        'Requires warm soil (>12°C) for germination',
-        'Space broadcasting improves pollination',
-        'Critical water needs at tasseling stage',
-        'Heavy nitrogen feeder - split applications recommended',
+        "Requires warm soil (>12°C) for germination",
+        "Space broadcasting improves pollination",
+        "Critical water needs at tasseling stage",
+        "Heavy nitrogen feeder - split applications recommended",
       ],
       rice: [
-        'Small basin method ideal for water management',
-        'Requires standing water during vegetative stage',
-        'Alternate wetting and drying saves water',
-        'Level fields critical for uniform growth',
+        "Small basin method ideal for water management",
+        "Requires standing water during vegetative stage",
+        "Alternate wetting and drying saves water",
+        "Level fields critical for uniform growth",
       ],
       sorghum: [
-        'Excellent drought tolerance',
-        'Good for marginal lands',
-        'Deep rooting system accesses subsoil moisture',
-        'Lower input requirements than corn',
+        "Excellent drought tolerance",
+        "Good for marginal lands",
+        "Deep rooting system accesses subsoil moisture",
+        "Lower input requirements than corn",
       ],
       date_palm: [
-        'Basin planting essential for irrigation efficiency',
-        'Long-term investment (3-5 years to first harvest)',
-        'Tolerant of high salinity and heat',
-        'Regular irrigation critical in first 2 years',
+        "Basin planting essential for irrigation efficiency",
+        "Long-term investment (3-5 years to first harvest)",
+        "Tolerant of high salinity and heat",
+        "Regular irrigation critical in first 2 years",
       ],
       alfalfa: [
-        'Nitrogen-fixing reduces fertilizer needs',
-        'Deep rooting improves soil structure',
-        'Multiple harvests per season possible',
-        'Inoculate seeds before first planting',
+        "Nitrogen-fixing reduces fertilizer needs",
+        "Deep rooting improves soil structure",
+        "Multiple harvests per season possible",
+        "Inoculate seeds before first planting",
       ],
     };
 

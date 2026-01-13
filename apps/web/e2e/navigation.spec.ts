@@ -1,37 +1,45 @@
-import { test, expect } from './fixtures/test-fixtures';
-import { navigateAndWait, waitForPageLoad } from './helpers/page.helpers';
+import { test, expect } from "./fixtures/test-fixtures";
+import { navigateAndWait, waitForPageLoad } from "./helpers/page.helpers";
 
 /**
  * Navigation E2E Tests
  * اختبارات E2E للتنقل بين الصفحات
  */
 
-test.describe('Navigation Flow', () => {
+test.describe("Navigation Flow", () => {
   // Use authenticated fixture to ensure user is logged in
   test.use({ storageState: undefined });
 
   test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login automatically
-    await navigateAndWait(page, '/dashboard');
+    await navigateAndWait(page, "/dashboard");
   });
 
-  test('should navigate to dashboard from any page', async ({ page }) => {
+  test("should navigate to dashboard from any page", async ({ page }) => {
     // Navigate to another page first
-    await navigateAndWait(page, '/fields');
+    await navigateAndWait(page, "/fields");
 
     // Click dashboard link
-    const dashboardLink = page.locator('a[href="/dashboard"], a:has-text("Dashboard"), a:has-text("لوحة التحكم")').first();
+    const dashboardLink = page
+      .locator(
+        'a[href="/dashboard"], a:has-text("Dashboard"), a:has-text("لوحة التحكم")',
+      )
+      .first();
     await dashboardLink.click();
 
     // Should be on dashboard
     await expect(page).toHaveURL(/\/dashboard/);
     // Check for welcome message on dashboard
-    await expect(page.locator('h1:has-text("مرحباً")')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('h1:has-text("مرحباً")')).toBeVisible({
+      timeout: 10000,
+    });
   });
 
-  test('should navigate to Fields page', async ({ page }) => {
+  test("should navigate to Fields page", async ({ page }) => {
     // Click fields link in navigation
-    const fieldsLink = page.locator('a[href="/fields"], a:has-text("Fields"), a:has-text("الحقول")').first();
+    const fieldsLink = page
+      .locator('a[href="/fields"], a:has-text("Fields"), a:has-text("الحقول")')
+      .first();
 
     if (await fieldsLink.isVisible()) {
       await fieldsLink.click();
@@ -44,8 +52,12 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Analytics page', async ({ page }) => {
-    const analyticsLink = page.locator('a[href="/analytics"], a:has-text("Analytics"), a:has-text("التحليلات")').first();
+  test("should navigate to Analytics page", async ({ page }) => {
+    const analyticsLink = page
+      .locator(
+        'a[href="/analytics"], a:has-text("Analytics"), a:has-text("التحليلات")',
+      )
+      .first();
 
     if (await analyticsLink.isVisible()) {
       await analyticsLink.click();
@@ -56,8 +68,12 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Marketplace page', async ({ page }) => {
-    const marketplaceLink = page.locator('a[href="/marketplace"], a:has-text("Marketplace"), a:has-text("السوق")').first();
+  test("should navigate to Marketplace page", async ({ page }) => {
+    const marketplaceLink = page
+      .locator(
+        'a[href="/marketplace"], a:has-text("Marketplace"), a:has-text("السوق")',
+      )
+      .first();
 
     if (await marketplaceLink.isVisible()) {
       await marketplaceLink.click();
@@ -68,8 +84,10 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Tasks page', async ({ page }) => {
-    const tasksLink = page.locator('a[href="/tasks"], a:has-text("Tasks"), a:has-text("المهام")').first();
+  test("should navigate to Tasks page", async ({ page }) => {
+    const tasksLink = page
+      .locator('a[href="/tasks"], a:has-text("Tasks"), a:has-text("المهام")')
+      .first();
 
     if (await tasksLink.isVisible()) {
       await tasksLink.click();
@@ -80,8 +98,12 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Settings page', async ({ page }) => {
-    const settingsLink = page.locator('a[href="/settings"], a:has-text("Settings"), a:has-text("الإعدادات")').first();
+  test("should navigate to Settings page", async ({ page }) => {
+    const settingsLink = page
+      .locator(
+        'a[href="/settings"], a:has-text("Settings"), a:has-text("الإعدادات")',
+      )
+      .first();
 
     if (await settingsLink.isVisible()) {
       await settingsLink.click();
@@ -92,8 +114,10 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Weather page', async ({ page }) => {
-    const weatherLink = page.locator('a[href="/weather"], a:has-text("Weather"), a:has-text("الطقس")').first();
+  test("should navigate to Weather page", async ({ page }) => {
+    const weatherLink = page
+      .locator('a[href="/weather"], a:has-text("Weather"), a:has-text("الطقس")')
+      .first();
 
     if (await weatherLink.isVisible()) {
       await weatherLink.click();
@@ -104,8 +128,12 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to IoT page', async ({ page }) => {
-    const iotLink = page.locator('a[href="/iot"], a:has-text("IoT"), a:has-text("إنترنت الأشياء")').first();
+  test("should navigate to IoT page", async ({ page }) => {
+    const iotLink = page
+      .locator(
+        'a[href="/iot"], a:has-text("IoT"), a:has-text("إنترنت الأشياء")',
+      )
+      .first();
 
     if (await iotLink.isVisible()) {
       await iotLink.click();
@@ -116,8 +144,12 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Crop Health page', async ({ page }) => {
-    const cropHealthLink = page.locator('a[href="/crop-health"], a:has-text("Crop Health"), a:has-text("صحة المحاصيل")').first();
+  test("should navigate to Crop Health page", async ({ page }) => {
+    const cropHealthLink = page
+      .locator(
+        'a[href="/crop-health"], a:has-text("Crop Health"), a:has-text("صحة المحاصيل")',
+      )
+      .first();
 
     if (await cropHealthLink.isVisible()) {
       await cropHealthLink.click();
@@ -128,8 +160,12 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Equipment page', async ({ page }) => {
-    const equipmentLink = page.locator('a[href="/equipment"], a:has-text("Equipment"), a:has-text("المعدات")').first();
+  test("should navigate to Equipment page", async ({ page }) => {
+    const equipmentLink = page
+      .locator(
+        'a[href="/equipment"], a:has-text("Equipment"), a:has-text("المعدات")',
+      )
+      .first();
 
     if (await equipmentLink.isVisible()) {
       await equipmentLink.click();
@@ -140,8 +176,12 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Community page', async ({ page }) => {
-    const communityLink = page.locator('a[href="/community"], a:has-text("Community"), a:has-text("المجتمع")').first();
+  test("should navigate to Community page", async ({ page }) => {
+    const communityLink = page
+      .locator(
+        'a[href="/community"], a:has-text("Community"), a:has-text("المجتمع")',
+      )
+      .first();
 
     if (await communityLink.isVisible()) {
       await communityLink.click();
@@ -152,8 +192,10 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should navigate to Wallet page', async ({ page }) => {
-    const walletLink = page.locator('a[href="/wallet"], a:has-text("Wallet"), a:has-text("المحفظة")').first();
+  test("should navigate to Wallet page", async ({ page }) => {
+    const walletLink = page
+      .locator('a[href="/wallet"], a:has-text("Wallet"), a:has-text("المحفظة")')
+      .first();
 
     if (await walletLink.isVisible()) {
       await walletLink.click();
@@ -164,9 +206,11 @@ test.describe('Navigation Flow', () => {
     }
   });
 
-  test('should maintain navigation state after page reload', async ({ page }) => {
+  test("should maintain navigation state after page reload", async ({
+    page,
+  }) => {
     // Navigate to a specific page
-    await navigateAndWait(page, '/analytics');
+    await navigateAndWait(page, "/analytics");
     await expect(page).toHaveURL(/\/analytics/);
 
     // Reload page
@@ -177,13 +221,13 @@ test.describe('Navigation Flow', () => {
     await expect(page).toHaveURL(/\/analytics/);
   });
 
-  test('should use browser back button correctly', async ({ page }) => {
+  test("should use browser back button correctly", async ({ page }) => {
     // Navigate to fields
-    await navigateAndWait(page, '/fields');
+    await navigateAndWait(page, "/fields");
     await expect(page).toHaveURL(/\/fields/);
 
     // Navigate to analytics
-    await navigateAndWait(page, '/analytics');
+    await navigateAndWait(page, "/analytics");
     await expect(page).toHaveURL(/\/analytics/);
 
     // Go back
@@ -201,12 +245,12 @@ test.describe('Navigation Flow', () => {
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
-  test('should use browser forward button correctly', async ({ page }) => {
+  test("should use browser forward button correctly", async ({ page }) => {
     // Navigate to fields
-    await navigateAndWait(page, '/fields');
+    await navigateAndWait(page, "/fields");
 
     // Navigate to analytics
-    await navigateAndWait(page, '/analytics');
+    await navigateAndWait(page, "/analytics");
 
     // Go back
     await page.goBack();
@@ -220,50 +264,59 @@ test.describe('Navigation Flow', () => {
     await expect(page).toHaveURL(/\/analytics/);
   });
 
-  test('should highlight active navigation item', async ({ page }) => {
+  test("should highlight active navigation item", async ({ page }) => {
     // Navigate to different pages and check if nav item is highlighted
     const pages = [
-      { url: '/dashboard', text: 'Dashboard' },
-      { url: '/fields', text: 'Fields' },
-      { url: '/analytics', text: 'Analytics' },
+      { url: "/dashboard", text: "Dashboard" },
+      { url: "/fields", text: "Fields" },
+      { url: "/analytics", text: "Analytics" },
     ];
 
     for (const pageInfo of pages) {
       await navigateAndWait(page, pageInfo.url);
 
       // Check if there's an active class or aria-current on the nav item
-      const activeNavItem = page.locator(`
+      const activeNavItem = page
+        .locator(
+          `
         nav a[href="${pageInfo.url}"][aria-current="page"],
         nav a[href="${pageInfo.url}"].active,
         nav a[href="${pageInfo.url}"][class*="active"]
-      `).first();
+      `,
+        )
+        .first();
 
       // Allow this to be optional as implementation may vary
       const exists = await activeNavItem.count();
       // Just log the result, don't fail the test
-      console.log(`Active nav indicator for ${pageInfo.url}: ${exists > 0 ? 'found' : 'not found'}`);
+      console.log(
+        `Active nav indicator for ${pageInfo.url}: ${exists > 0 ? "found" : "not found"}`,
+      );
     }
   });
 
-  test('should handle direct URL navigation', async ({ page }) => {
+  test("should handle direct URL navigation", async ({ page }) => {
     // Navigate directly to a deep URL
-    await navigateAndWait(page, '/settings');
+    await navigateAndWait(page, "/settings");
 
     // Should successfully load the page
     await expect(page).toHaveURL(/\/settings/);
     await expect(page.locator('h1:has-text("الإعدادات")')).toBeVisible();
   });
 
-  test('should handle 404 for non-existent routes', async ({ page }) => {
+  test("should handle 404 for non-existent routes", async ({ page }) => {
     // Try to navigate to a non-existent route
-    await page.goto('/this-page-does-not-exist');
+    await page.goto("/this-page-does-not-exist");
 
     // Should either show 404 page or redirect to dashboard
     await page.waitForTimeout(2000);
 
     const url = page.url();
-    const is404 = await page.locator('text=/404|Not Found|الصفحة غير موجودة/i').isVisible().catch(() => false);
-    const isDashboard = url.includes('/dashboard');
+    const is404 = await page
+      .locator("text=/404|Not Found|الصفحة غير موجودة/i")
+      .isVisible()
+      .catch(() => false);
+    const isDashboard = url.includes("/dashboard");
 
     // Either shows 404 or redirects to dashboard
     expect(is404 || isDashboard).toBe(true);
@@ -274,18 +327,22 @@ test.describe('Navigation Flow', () => {
  * Mobile Navigation Tests
  * اختبارات التنقل على الأجهزة المحمولة
  */
-test.describe('Mobile Navigation', () => {
+test.describe("Mobile Navigation", () => {
   test.use({
     viewport: { width: 375, height: 667 }, // iPhone SE size
   });
 
   test.beforeEach(async ({ page }) => {
-    await navigateAndWait(page, '/dashboard');
+    await navigateAndWait(page, "/dashboard");
   });
 
-  test('should show mobile menu toggle', async ({ page }) => {
+  test("should show mobile menu toggle", async ({ page }) => {
     // Look for hamburger menu icon
-    const mobileMenuToggle = page.locator('[data-testid="mobile-menu-toggle"], button[aria-label*="menu"], button:has-text("☰")').first();
+    const mobileMenuToggle = page
+      .locator(
+        '[data-testid="mobile-menu-toggle"], button[aria-label*="menu"], button:has-text("☰")',
+      )
+      .first();
 
     // Mobile menu toggle should be visible on small screens
     const isVisible = await mobileMenuToggle.isVisible().catch(() => false);
@@ -294,7 +351,7 @@ test.describe('Mobile Navigation', () => {
     console.log(`Mobile menu toggle visible: ${isVisible}`);
   });
 
-  test.skip('should open and close mobile menu', async ({ page }) => {
+  test.skip("should open and close mobile menu", async ({ page }) => {
     // Skip if mobile menu not implemented
     const mobileMenuToggle = page.locator('[data-testid="mobile-menu-toggle"]');
 
@@ -302,7 +359,9 @@ test.describe('Mobile Navigation', () => {
     await mobileMenuToggle.click();
 
     // Menu should be visible
-    const menu = page.locator('[data-testid="mobile-menu"], nav[aria-label*="mobile"]');
+    const menu = page.locator(
+      '[data-testid="mobile-menu"], nav[aria-label*="mobile"]',
+    );
     await expect(menu).toBeVisible();
 
     // Close menu

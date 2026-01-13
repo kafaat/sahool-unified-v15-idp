@@ -1,9 +1,11 @@
 # Etcd Authentication Implementation Summary
 
 ## Overview
+
 This document summarizes the implementation of authentication for etcd in the SAHOOL platform to prevent unauthorized access to the metadata storage used by Milvus vector database.
 
 ## Security Status
+
 **BEFORE**: Etcd was running without authentication, allowing unrestricted access to metadata storage.
 **AFTER**: Etcd now requires root user authentication for all operations.
 
@@ -16,6 +18,7 @@ This document summarizes the implementation of authentication for etcd in the SA
 **Location**: `/home/user/sahool-unified-v15-idp/.env.example`
 
 **Added Configuration**:
+
 ```bash
 # ─────────────────────────────────────────────────────────────────────────────
 # Etcd Configuration (REQUIRED for Milvus metadata storage - SECURITY)
@@ -25,6 +28,7 @@ ETCD_ROOT_PASSWORD=change_this_secure_etcd_password
 ```
 
 **Action Required**:
+
 - Copy `.env.example` to `.env`
 - Set a strong password for `ETCD_ROOT_PASSWORD` (minimum 16 characters)
 - Generate with: `openssl rand -base64 24`
@@ -36,6 +40,7 @@ ETCD_ROOT_PASSWORD=change_this_secure_etcd_password
 **Location**: `/home/user/sahool-unified-v15-idp/docker-compose.yml`
 
 **Changes**:
+
 - Added SECURITY comment indicating authentication requirement
 - Added authentication environment variables:
   - `ETCD_ROOT_USERNAME` - Root username (required)
@@ -46,9 +51,14 @@ ETCD_ROOT_PASSWORD=change_this_secure_etcd_password
 - Updated healthcheck to support both authenticated and unauthenticated modes during initialization
 
 **Updated Healthcheck**:
+
 ```yaml
 healthcheck:
-  test: ["CMD-SHELL", "etcdctl --user=$${ETCD_ROOT_USERNAME}:$${ETCD_ROOT_PASSWORD} endpoint health || etcdctl endpoint health"]
+  test:
+    [
+      "CMD-SHELL",
+      "etcdctl --user=$${ETCD_ROOT_USERNAME}:$${ETCD_ROOT_PASSWORD} endpoint health || etcdctl endpoint health",
+    ]
 ```
 
 This allows the healthcheck to work during initialization (before auth is enabled) and after authentication is configured.
@@ -62,6 +72,7 @@ This allows the healthcheck to work during initialization (before auth is enable
 **Purpose**: Automatically configures etcd authentication on first startup
 
 **Features**:
+
 - Waits for etcd to be ready
 - Creates root user with password
 - Grants root role to root user
@@ -69,6 +80,7 @@ This allows the healthcheck to work during initialization (before auth is enable
 - Idempotent (safe to run multiple times)
 
 **Script Flow**:
+
 1. Wait for etcd health endpoint
 2. Check if authentication already enabled
 3. Create root user if not exists
@@ -84,6 +96,7 @@ This allows the healthcheck to work during initialization (before auth is enable
 **Purpose**: One-time initialization service that runs the authentication setup script
 
 **Configuration**:
+
 ```yaml
 etcd-init:
   image: quay.io/coreos/etcd:v3.5.5
@@ -103,6 +116,7 @@ etcd-init:
 ```
 
 **Behavior**:
+
 - Runs once after etcd is healthy
 - Exits after authentication is configured
 - Does not restart (one-time execution)
@@ -116,6 +130,7 @@ etcd-init:
 **Changes**: Updated to connect to etcd with authentication credentials
 
 **Added Environment Variables**:
+
 ```yaml
 environment:
   # Etcd connection with authentication
@@ -134,11 +149,13 @@ environment:
 ## Services Affected
 
 ### Direct Impact:
+
 1. **etcd** - Now requires authentication for all operations
 2. **etcd-init** - New service for authentication initialization
 3. **milvus** - Updated to use etcd with credentials
 
 ### No Changes Required:
+
 - No other services in the platform directly connect to etcd
 - Only Milvus uses etcd for metadata storage
 
@@ -149,6 +166,7 @@ environment:
 ### First-Time Deployment
 
 1. **Set Environment Variables**:
+
    ```bash
    cp .env.example .env
    # Edit .env and set secure values:
@@ -158,6 +176,7 @@ environment:
    ```
 
 2. **Start Services**:
+
    ```bash
    docker-compose up -d etcd
    docker-compose up -d etcd-init
@@ -165,6 +184,7 @@ environment:
    ```
 
 3. **Verify Authentication**:
+
    ```bash
    # Test unauthenticated access (should fail after init)
    docker exec sahool-etcd etcdctl endpoint health
@@ -178,12 +198,14 @@ environment:
 ⚠️ **IMPORTANT**: If you have existing etcd data:
 
 1. **Backup Existing Data**:
+
    ```bash
    docker exec sahool-etcd etcdctl snapshot save /etcd/backup.db
    docker cp sahool-etcd:/etcd/backup.db ./etcd-backup-$(date +%Y%m%d).db
    ```
 
 2. **Update Configuration**:
+
    ```bash
    # Pull latest changes
    git pull
@@ -204,12 +226,14 @@ environment:
 ## Security Best Practices
 
 ### Password Requirements:
+
 - **Minimum Length**: 16 characters
 - **Complexity**: Mix of uppercase, lowercase, numbers, and symbols
 - **Generation**: Use `openssl rand -base64 24` for strong passwords
 - **Storage**: Store in secure secret management system (not in git)
 
 ### Production Recommendations:
+
 1. Use HashiCorp Vault or similar for secret management
 2. Enable TLS/SSL for etcd connections (set ETCD_USE_SSL=true)
 3. Implement certificate-based authentication for production
@@ -224,6 +248,7 @@ environment:
 ### Issue: etcd-init service fails
 
 **Solution**:
+
 ```bash
 # Check etcd-init logs
 docker logs sahool-etcd-init
@@ -237,6 +262,7 @@ docker logs sahool-etcd-init
 ### Issue: Milvus cannot connect to etcd
 
 **Solution**:
+
 ```bash
 # Verify etcd credentials in .env
 grep ETCD_ .env
@@ -266,6 +292,7 @@ etcdctl --user=root:your-password auth disable
 ## Testing Authentication
 
 ### Test Script:
+
 ```bash
 #!/bin/bash
 # Test etcd authentication
@@ -310,6 +337,7 @@ docker logs sahool-milvus 2>&1 | grep -i etcd | tail -5
 ## Summary
 
 ✅ **Completed**:
+
 - [x] Added ETCD_ROOT_USERNAME and ETCD_ROOT_PASSWORD to .env.example
 - [x] Updated etcd service with authentication environment variables
 - [x] Updated etcd healthcheck to support authentication
@@ -319,6 +347,7 @@ docker logs sahool-milvus 2>&1 | grep -i etcd | tail -5
 - [x] Documented all changes and deployment procedures
 
 🔒 **Security Improvements**:
+
 - Etcd now requires authentication for all operations
 - Root user credentials required for access
 - Milvus authenticates to etcd with credentials
@@ -326,6 +355,7 @@ docker logs sahool-milvus 2>&1 | grep -i etcd | tail -5
 - Credentials stored in environment variables (externalized configuration)
 
 ⚡ **No Breaking Changes**:
+
 - All changes are backward compatible
 - Existing deployments can be migrated safely
 - Initialization is idempotent and safe
@@ -346,6 +376,7 @@ docker logs sahool-milvus 2>&1 | grep -i etcd | tail -5
 ## Support
 
 For issues or questions:
+
 - Check troubleshooting section above
 - Review etcd logs: `docker logs sahool-etcd`
 - Review init logs: `docker logs sahool-etcd-init`

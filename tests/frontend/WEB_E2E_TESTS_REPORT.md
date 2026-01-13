@@ -1,4 +1,5 @@
 # Web E2E Tests Analysis Report
+
 # تقرير تحليل اختبارات E2E للويب
 
 **Generated:** January 6, 2026
@@ -13,17 +14,17 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 
 ### Quick Stats | إحصائيات سريعة
 
-| Metric | Value |
-|--------|-------|
-| Total Test Spec Files | 17 |
-| Total Test Cases | 668 |
-| Skipped Tests | 17 (2.5%) |
-| Total Lines of Test Code | 11,095 |
-| Test Helpers | 3 files (518 LOC) |
-| Test Fixtures | 1 file (160 LOC) |
-| Browser Coverage | 5 (Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari) |
-| Configuration Quality | ⭐⭐⭐⭐⭐ Excellent |
-| Overall Test Quality | ⭐⭐⭐⭐ Good |
+| Metric                   | Value                                                       |
+| ------------------------ | ----------------------------------------------------------- |
+| Total Test Spec Files    | 17                                                          |
+| Total Test Cases         | 668                                                         |
+| Skipped Tests            | 17 (2.5%)                                                   |
+| Total Lines of Test Code | 11,095                                                      |
+| Test Helpers             | 3 files (518 LOC)                                           |
+| Test Fixtures            | 1 file (160 LOC)                                            |
+| Browser Coverage         | 5 (Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari) |
+| Configuration Quality    | ⭐⭐⭐⭐⭐ Excellent                                        |
+| Overall Test Quality     | ⭐⭐⭐⭐ Good                                               |
 
 ---
 
@@ -196,6 +197,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 ### 2.1 Strengths ✅
 
 1. **Excellent Helper Abstraction:**
+
    ```typescript
    // auth.helpers.ts - Well-designed authentication helpers
    - login(), logout(), isLoggedIn()
@@ -204,6 +206,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
    ```
 
 2. **Strong Test Fixtures:**
+
    ```typescript
    // test-fixtures.ts - Custom fixtures with API mocking
    - authenticatedPage fixture (auto-login)
@@ -212,14 +215,17 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
    ```
 
 3. **Comprehensive Page Helpers:**
+
    ```typescript
    // page.helpers.ts - Reusable utilities
-   - waitForPageLoad(), navigateAndWait()
-   - waitForToast(), waitForApiResponse()
-   - isElementVisible(), fillFieldByLabel()
+   (-waitForPageLoad(),
+     navigateAndWait() - waitForToast(),
+     waitForApiResponse() - isElementVisible(),
+     fillFieldByLabel());
    ```
 
 4. **Well-Organized Test Data:**
+
    ```typescript
    // test-data.ts - Centralized test data
    - Random data generators (randomEmail, randomName)
@@ -240,18 +246,23 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 ### 2.2 Areas for Improvement ⚠️
 
 1. **Inconsistent Waiting Strategies:**
+
    ```typescript
    // ❌ Bad - Fixed timeouts
    await page.waitForTimeout(2000);
 
    // ✅ Good - Event-based waiting
-   await page.waitForResponse(response => response.url().includes('/api/data'));
-   await page.waitForSelector('[data-testid="content"]', { state: 'visible' });
+   await page.waitForResponse((response) =>
+     response.url().includes("/api/data"),
+   );
+   await page.waitForSelector('[data-testid="content"]', { state: "visible" });
    ```
+
    **Finding:** 200+ instances of `waitForTimeout()` with arbitrary delays (500ms-5000ms)
    **Impact:** Tests are slower than necessary and may be flaky
 
 2. **Soft Assertions Masking Failures:**
+
    ```typescript
    // ❌ Bad - Using console.log instead of assertions
    console.log(`Found ${count} items`);
@@ -259,28 +270,35 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
    // ✅ Good - Proper assertions
    expect(count).toBeGreaterThan(0);
    ```
+
    **Finding:** 150+ instances of logging instead of asserting
    **Impact:** Tests pass when they should fail
 
 3. **Missing Test IDs:**
+
    ```typescript
    // ❌ Bad - Fragile selectors
-   page.locator('button:has-text("Add")').first()
+   page.locator('button:has-text("Add")').first();
 
    // ✅ Good - Stable selectors
-   page.locator('[data-testid="add-button"]')
+   page.locator('[data-testid="add-button"]');
    ```
+
    **Finding:** Heavy reliance on text-based and CSS selectors
    **Impact:** Tests break easily with UI changes
 
 4. **Inconsistent Error Handling:**
+
    ```typescript
    // ❌ Bad - Catching and ignoring all errors
    const hasElement = await element.isVisible().catch(() => false);
 
    // ✅ Good - Specific timeout handling
-   const hasElement = await element.isVisible({ timeout: 3000 }).catch(() => false);
+   const hasElement = await element
+     .isVisible({ timeout: 3000 })
+     .catch(() => false);
    ```
+
    **Finding:** Generic error catching without logging
    **Impact:** Debugging is difficult
 
@@ -305,14 +323,15 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 #### ✅ Strengths
 
 1. **Multi-Browser Coverage:**
+
    ```typescript
    projects: [
-     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
-     { name: 'Mobile Chrome', use: { ...devices['Pixel 5'] } },
-     { name: 'Mobile Safari', use: { ...devices['iPhone 12'] } },
-   ]
+     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+     { name: "webkit", use: { ...devices["Desktop Safari"] } },
+     { name: "Mobile Chrome", use: { ...devices["Pixel 5"] } },
+     { name: "Mobile Safari", use: { ...devices["iPhone 12"] } },
+   ];
    ```
 
 2. **Smart CI Configuration:**
@@ -339,25 +358,31 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 #### ⚠️ Improvement Opportunities
 
 1. **Missing Global Setup/Teardown:**
+
    ```typescript
    // Add to config
    globalSetup: require.resolve('./e2e/global-setup'),
    globalTeardown: require.resolve('./e2e/global-teardown'),
    ```
+
    - Could seed test data
    - Could clean up after all tests
    - Could verify environment readiness
 
 2. **No Test Sharding Configuration:**
+
    ```typescript
    // For parallel CI execution
-   shard: process.env.SHARD ? {
-     current: parseInt(process.env.SHARD_INDEX),
-     total: parseInt(process.env.SHARD_TOTAL)
-   } : undefined
+   shard: process.env.SHARD
+     ? {
+         current: parseInt(process.env.SHARD_INDEX),
+         total: parseInt(process.env.SHARD_TOTAL),
+       }
+     : undefined;
    ```
 
 3. **Trace Collection Could Be Optimized:**
+
    ```typescript
    // Current: only on retry
    trace: process.env.CI ? 'off' : 'on-first-retry',
@@ -383,6 +408,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 **Quality Rating:** ⭐⭐⭐⭐ (4/5)
 
 #### Strengths:
+
 1. **Smart CI Mocking:**
    - Automatically mocks API calls in CI
    - Comprehensive mock data coverage
@@ -398,6 +424,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
    - Good TypeScript usage
 
 #### Improvements Needed:
+
 1. **Mock Data Management:**
    - Mock responses hardcoded in fixture
    - Should be in separate files
@@ -413,6 +440,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 **Quality Rating:** ⭐⭐⭐⭐ (4/5)
 
 #### Strengths:
+
 1. **CI-Aware Login:**
    - Detects CI and uses mock login
    - Avoids real API calls in CI
@@ -426,13 +454,16 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
    - Try-catch blocks where appropriate
 
 #### Improvements Needed:
+
 1. **Hardcoded Credentials:**
+
    ```typescript
    export const TEST_USER: LoginCredentials = {
-     email: process.env.TEST_USER_EMAIL || 'test@sahool.com',
-     password: process.env.TEST_USER_PASSWORD || 'Test@123456',
+     email: process.env.TEST_USER_EMAIL || "test@sahool.com",
+     password: process.env.TEST_USER_PASSWORD || "Test@123456",
    };
    ```
+
    - Should validate env vars exist
    - Fallback values may cause confusion
 
@@ -446,6 +477,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 **Quality Rating:** ⭐⭐⭐⭐⭐ (5/5)
 
 #### Strengths:
+
 1. **Excellent Abstractions:**
    - waitForPageLoad, navigateAndWait
    - waitForToast, waitForApiResponse
@@ -460,6 +492,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
    - selectDropdownOption, fillFieldByLabel
 
 #### Minor Improvements:
+
 1. **Could Add:**
    - waitForElementToDisappear
    - waitForCountChange
@@ -470,6 +503,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 **Quality Rating:** ⭐⭐⭐⭐ (4/5)
 
 #### Strengths:
+
 1. **Random Data Generators:**
    - Prevents test interference
    - Good variety (email, name, phone, etc.)
@@ -482,6 +516,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
    - Different user types (admin, farmer, advisor)
 
 #### Improvements Needed:
+
 1. **No Data Cleanup Utilities:**
    - Should provide functions to clean up generated data
 
@@ -498,6 +533,7 @@ The SAHOOL web application has a comprehensive E2E testing suite with **668 test
 #### Pattern 1: Race Conditions ⚠️ HIGH RISK
 
 **Example:**
+
 ```typescript
 // dashboard.spec.ts, analytics.spec.ts, marketplace.spec.ts
 await page.reload();
@@ -510,27 +546,32 @@ await page.waitForTimeout(2000); // ❌ Hoping data loads in 2s
 **Impact:** Tests may pass on fast machines, fail on slow CI
 
 **Solution:**
+
 ```typescript
 // Wait for specific API call
-await page.waitForResponse(response =>
-  response.url().includes('/api/dashboard/stats') &&
-  response.status() === 200
+await page.waitForResponse(
+  (response) =>
+    response.url().includes("/api/dashboard/stats") &&
+    response.status() === 200,
 );
 
 // Or wait for loading state to disappear
-await page.waitForSelector('[data-loading="true"]', { state: 'detached' });
+await page.waitForSelector('[data-loading="true"]', { state: "detached" });
 ```
 
 #### Pattern 2: Network Dependency ⚠️ MEDIUM RISK
 
 **Example:**
+
 ```typescript
 // weather.spec.ts, iot.spec.ts
-const isVisible = await weatherIcon.isVisible({ timeout: 5000 }).catch(() => false);
+const isVisible = await weatherIcon
+  .isVisible({ timeout: 5000 })
+  .catch(() => false);
 if (isVisible) {
   // Test logic
 } else {
-  console.log('Weather data not available');
+  console.log("Weather data not available");
 }
 ```
 
@@ -539,6 +580,7 @@ if (isVisible) {
 **Impact:** Tests become non-deterministic, vary based on API availability
 
 **Solution:**
+
 - Use consistent API mocking in all environments
 - Don't make tests conditional on data presence
 - Mock at network level using `page.route()`
@@ -546,9 +588,10 @@ if (isVisible) {
 #### Pattern 3: Element Selection Race ⚠️ MEDIUM RISK
 
 **Example:**
+
 ```typescript
 // Multiple files
-const firstButton = page.locator('button').first();
+const firstButton = page.locator("button").first();
 await firstButton.click();
 ```
 
@@ -557,9 +600,10 @@ await firstButton.click();
 **Impact:** Clicks wrong element if page structure changes during load
 
 **Solution:**
+
 ```typescript
 // Wait for stable state
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 await page.waitForSelector('[data-testid="target-button"]');
 await page.click('[data-testid="target-button"]');
 ```
@@ -567,8 +611,9 @@ await page.click('[data-testid="target-button"]');
 #### Pattern 4: Text-Based Selectors ⚠️ LOW-MEDIUM RISK
 
 **Example:**
+
 ```typescript
-page.locator('button:has-text("Add"), button:has-text("إضافة")').first()
+page.locator('button:has-text("Add"), button:has-text("إضافة")').first();
 ```
 
 **Occurrences:** 500+ instances
@@ -576,15 +621,17 @@ page.locator('button:has-text("Add"), button:has-text("إضافة")').first()
 **Impact:** Breaks when text changes, locale-dependent
 
 **Solution:**
+
 ```typescript
-page.locator('[data-testid="add-button"]')
+page.locator('[data-testid="add-button"]');
 // Or use getByRole
-page.getByRole('button', { name: /add|إضافة/i })
+page.getByRole("button", { name: /add|إضافة/i });
 ```
 
 #### Pattern 5: Missing Loading State Handling ⚠️ MEDIUM RISK
 
 **Example:**
+
 ```typescript
 // forms.spec.ts
 await submitButton.click();
@@ -595,22 +642,24 @@ await page.waitForTimeout(2000); // ❌ Guess how long submission takes
 **Impact:** May proceed before server response
 
 **Solution:**
+
 ```typescript
 await Promise.all([
-  page.waitForResponse(response => response.url().includes('/api/forms')),
-  submitButton.click()
+  page.waitForResponse((response) => response.url().includes("/api/forms")),
+  submitButton.click(),
 ]);
 ```
 
 ### 5.2 Flaky Test Mitigation Recommendations
 
 1. **Implement Auto-Wait Pattern:**
+
    ```typescript
    // Create wrapper that auto-waits
    async function clickAndWaitForResponse(page, selector, apiPattern) {
      await Promise.all([
-       page.waitForResponse(r => r.url().includes(apiPattern)),
-       page.click(selector)
+       page.waitForResponse((r) => r.url().includes(apiPattern)),
+       page.click(selector),
      ]);
    }
    ```
@@ -620,9 +669,12 @@ await Promise.all([
    - Catch unexpected UI changes
 
 3. **Implement Test Retry Logic:**
+
    ```typescript
-   test('flaky test', async ({ page }) => {
-     test.info().annotations.push({ type: 'flaky', description: 'Known issue #123' });
+   test("flaky test", async ({ page }) => {
+     test
+       .info()
+       .annotations.push({ type: "flaky", description: "Known issue #123" });
      // test logic
    });
    ```
@@ -638,22 +690,22 @@ await Promise.all([
 
 ### 6.1 Covered Critical Flows ✅
 
-| Flow | Coverage | File | Status |
-|------|----------|------|--------|
-| User Login | ✅ Excellent | auth.spec.ts | 13 tests |
-| User Logout | ✅ Good | auth.spec.ts | 2 tests |
-| Dashboard View | ✅ Excellent | dashboard.spec.ts | 34 tests |
-| Field Management | ⚠️ Partial | forms.spec.ts | 8 tests (3 skipped) |
-| Task Management | ⚠️ Partial | forms.spec.ts | 6 tests (2 skipped) |
-| Analytics Viewing | ✅ Excellent | analytics.spec.ts | 66 tests |
-| Report Generation | ✅ Good | analytics.spec.ts | 15 tests |
-| Marketplace Browse | ✅ Excellent | marketplace.spec.ts | 72 tests |
-| Shopping Cart | ✅ Good | marketplace.spec.ts | 8 tests |
-| Weather Viewing | ✅ Excellent | weather.spec.ts | 64 tests |
-| IoT Monitoring | ✅ Excellent | iot.spec.ts | 93 tests |
-| Settings Update | ✅ Good | settings.spec.ts | 42 tests (5 skipped) |
-| Profile Update | ⚠️ Partial | settings.spec.ts | 6 tests (1 skipped) |
-| Navigation | ✅ Excellent | navigation.spec.ts | 24 tests |
+| Flow               | Coverage     | File                | Status               |
+| ------------------ | ------------ | ------------------- | -------------------- |
+| User Login         | ✅ Excellent | auth.spec.ts        | 13 tests             |
+| User Logout        | ✅ Good      | auth.spec.ts        | 2 tests              |
+| Dashboard View     | ✅ Excellent | dashboard.spec.ts   | 34 tests             |
+| Field Management   | ⚠️ Partial   | forms.spec.ts       | 8 tests (3 skipped)  |
+| Task Management    | ⚠️ Partial   | forms.spec.ts       | 6 tests (2 skipped)  |
+| Analytics Viewing  | ✅ Excellent | analytics.spec.ts   | 66 tests             |
+| Report Generation  | ✅ Good      | analytics.spec.ts   | 15 tests             |
+| Marketplace Browse | ✅ Excellent | marketplace.spec.ts | 72 tests             |
+| Shopping Cart      | ✅ Good      | marketplace.spec.ts | 8 tests              |
+| Weather Viewing    | ✅ Excellent | weather.spec.ts     | 64 tests             |
+| IoT Monitoring     | ✅ Excellent | iot.spec.ts         | 93 tests             |
+| Settings Update    | ✅ Good      | settings.spec.ts    | 42 tests (5 skipped) |
+| Profile Update     | ⚠️ Partial   | settings.spec.ts    | 6 tests (1 skipped)  |
+| Navigation         | ✅ Excellent | navigation.spec.ts  | 24 tests             |
 
 ### 6.2 Missing Critical Flows ❌
 
@@ -709,6 +761,7 @@ Most tests focus on individual pages. Missing tests for:
 ### 7.1 File Organization ⭐⭐⭐⭐ (4/5)
 
 **Structure:**
+
 ```
 e2e/
 ├── fixtures/
@@ -721,27 +774,32 @@ e2e/
 ```
 
 **Strengths:**
+
 - Clear separation of concerns
 - Helpers are well-organized
 - One file per feature/page
 
 **Improvements:**
+
 - Could benefit from subfolder grouping (e.g., `e2e/auth/`, `e2e/marketplace/`)
 - Page Object Model not used (could improve maintainability)
 
 ### 7.2 Code Reusability ⭐⭐⭐ (3/5)
 
 **Good Examples:**
+
 - Authentication helpers used across all tests
 - Page helpers prevent duplication
 - Centralized test data
 
 **Issues:**
+
 - Responsive design tests duplicated across 8 files
 - Similar form validation logic repeated
 - Error handling patterns inconsistent
 
 **Recommendation:**
+
 ```typescript
 // Create shared test suites
 export function testResponsiveDesign(pageName: string, pageUrl: string) {
@@ -751,31 +809,35 @@ export function testResponsiveDesign(pageName: string, pageUrl: string) {
 }
 
 // Use in test files
-testResponsiveDesign('Dashboard', '/dashboard');
+testResponsiveDesign("Dashboard", "/dashboard");
 ```
 
 ### 7.3 Test Naming Conventions ⭐⭐⭐⭐⭐ (5/5)
 
 **Excellent consistency:**
+
 - Clear, descriptive names
 - Follow pattern: "should [action/behavior]"
 - Both English expected results clear from name
 
 **Examples:**
+
 ```typescript
-test('should display dashboard page correctly')
-test('should navigate to Fields page')
-test('should validate email format')
+test("should display dashboard page correctly");
+test("should navigate to Fields page");
+test("should validate email format");
 ```
 
 ### 7.4 Documentation ⭐⭐⭐ (3/5)
 
 **Good:**
+
 - Bilingual comments in files
 - README.md exists with setup instructions
 - E2E_TESTS_SUMMARY.md provides overview
 
 **Missing:**
+
 - No architectural decision records (ADRs)
 - No troubleshooting guide
 - No contribution guidelines for tests
@@ -791,12 +853,14 @@ test('should validate email format')
 **Lines:** 197
 
 **Strengths:**
+
 - Comprehensive login/logout coverage
 - Session persistence tested
 - Protected routes verified
 - Email validation included
 
 **Coverage:**
+
 - ✅ Happy path (valid login)
 - ✅ Error path (invalid credentials)
 - ✅ Validation (email format, required fields)
@@ -812,17 +876,20 @@ test('should validate email format')
 **Lines:** 373
 
 **Strengths:**
+
 - Comprehensive widget testing
 - Responsive design coverage
 - Loading states tested
 - Error boundaries verified
 
 **Issues:**
+
 - Too many soft assertions (console.log instead of expect)
 - Fixed timeouts (await page.waitForTimeout)
 - Some tests too dependent on API data
 
 **Recommendations:**
+
 - Replace 50% of console.logs with proper assertions
 - Use API mocking more consistently
 - Add data-testid attributes to key elements
@@ -833,6 +900,7 @@ test('should validate email format')
 **Lines:** 1,086
 
 **Strengths:**
+
 - Extremely comprehensive
 - Tests all tabs and features
 - Chart interactions tested
@@ -840,11 +908,13 @@ test('should validate email format')
 - Excellent responsive design tests
 
 **Issues:**
+
 - Very long file (1,086 lines)
 - Some repetitive test logic
 - Heavy use of timeouts
 
 **Recommendations:**
+
 - Split into multiple files (analytics-overview.spec.ts, analytics-reports.spec.ts, etc.)
 - Extract common chart testing logic to helper
 - Use page.route() for consistent API mocking
@@ -855,6 +925,7 @@ test('should validate email format')
 **Lines:** 998
 
 **Strengths:**
+
 - Excellent coverage of all marketplace features
 - Search, filter, sort all tested
 - Shopping cart functionality verified
@@ -872,11 +943,13 @@ test('should validate email format')
 **Lines:** 363
 
 **Issues:**
+
 - Many skipped tests (22%)
 - Critical functionality not tested (form submission)
 - Too many conditional tests that skip themselves
 
 **Recommendations:**
+
 - Implement skipped tests or remove them
 - Add API mocking for form submissions
 - Test complete CRUD operations
@@ -887,16 +960,19 @@ test('should validate email format')
 **Lines:** 499
 
 **Strengths:**
+
 - Comprehensive settings coverage
 - Multi-tab navigation tested
 - Form validation tested
 - Persistence verified
 
 **Issues:**
+
 - Some critical actions skipped (password change, profile save)
 - Navigation to tabs could be more reliable
 
 **Recommendations:**
+
 - Implement skipped tests with API mocking
 - Add data-testid to tab buttons
 
@@ -906,6 +982,7 @@ test('should validate email format')
 **Lines:** 314
 
 **Strengths:**
+
 - Tests all navigation links
 - Browser history tested
 - 404 handling included
@@ -920,6 +997,7 @@ test('should validate email format')
 **Lines:** 863
 
 **Strengths:**
+
 - Very comprehensive weather feature testing
 - Location selector well-tested
 - Forecast and alerts covered
@@ -927,6 +1005,7 @@ test('should validate email format')
 - Good loading state coverage
 
 **Issues:**
+
 - Many conditional assertions based on data availability
 - Could benefit from consistent API mocking
 
@@ -936,12 +1015,14 @@ test('should validate email format')
 **Lines:** 1,319
 
 **Strengths:**
+
 - Most comprehensive test file
 - Covers all IoT features
 - Real-time updates considered
 - Device management tested
 
 **Issues:**
+
 - Very long file
 - Could be split into logical modules
 
@@ -951,6 +1032,7 @@ test('should validate email format')
 **Lines:** 1,418
 
 **Strengths:**
+
 - Comprehensive social features testing
 - Post interactions covered
 - Comment threading tested
@@ -1008,16 +1090,19 @@ test('should validate email format')
    - Create page objects for each page
    - Encapsulate selectors and actions
    - Improves maintainability
+
    ```typescript
    class DashboardPage {
      constructor(private page: Page) {}
 
      async navigateTo() {
-       await this.page.goto('/dashboard');
+       await this.page.goto("/dashboard");
      }
 
      async getStatValue(statName: string) {
-       return await this.page.locator(`[data-testid="stat-${statName}"]`).textContent();
+       return await this.page
+         .locator(`[data-testid="stat-${statName}"]`)
+         .textContent();
      }
    }
    ```
@@ -1038,7 +1123,7 @@ test('should validate email format')
         return {
           name: testData.randomName(),
           area: Math.random() * 1000,
-          ...overrides
+          ...overrides,
         };
       }
     }
@@ -1063,11 +1148,13 @@ test('should validate email format')
     - Add ADRs for major decisions
 
 14. **Implement Test Tagging** (Effort: Low, Impact: Low)
+
     ```typescript
-    test('login flow', { tag: ['@smoke', '@auth'] }, async ({ page }) => {
+    test("login flow", { tag: ["@smoke", "@auth"] }, async ({ page }) => {
       // test logic
     });
     ```
+
     - Run subsets: `npx playwright test --grep @smoke`
     - Enables smoke test suite
     - CI can run different test levels
@@ -1076,11 +1163,12 @@ test('should validate email format')
     - Use @axe-core/playwright
     - Check ARIA attributes
     - Verify keyboard navigation
-    ```typescript
-    import { injectAxe, checkA11y } from 'axe-playwright';
 
-    test('dashboard accessibility', async ({ page }) => {
-      await page.goto('/dashboard');
+    ```typescript
+    import { injectAxe, checkA11y } from "axe-playwright";
+
+    test("dashboard accessibility", async ({ page }) => {
+      await page.goto("/dashboard");
       await injectAxe(page);
       await checkA11y(page);
     });
@@ -1193,6 +1281,7 @@ test('should validate email format')
 Based on playwright.config.ts analysis:
 
 **Positives:**
+
 - ✅ CI detection (`process.env.CI`)
 - ✅ Backend availability check (`process.env.API_AVAILABLE`)
 - ✅ Conditional test execution
@@ -1201,6 +1290,7 @@ Based on playwright.config.ts analysis:
 - ✅ Retry configuration (1 retry)
 
 **Gaps:**
+
 - ❌ No GitHub Actions workflow file found
 - ❌ No test result publishing
 - ❌ No failure notifications
@@ -1230,8 +1320,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Install dependencies
         run: |
@@ -1269,6 +1359,7 @@ jobs:
 ### 11.3 Recommended Improvements
 
 1. **Add test result reporting:**
+
    ```bash
    npm install -D playwright-report-slack
    ```
@@ -1291,31 +1382,33 @@ jobs:
 
 ### 12.1 Estimated Execution Times
 
-| Test File | Tests | Estimated Time | Priority |
-|-----------|-------|----------------|----------|
-| auth.spec.ts | 13 | 45s | 🔴 Critical |
-| navigation.spec.ts | 24 | 1m 30s | 🔴 Critical |
-| dashboard.spec.ts | 34 | 2m 15s | 🔴 Critical |
-| forms.spec.ts | 36 | 2m 30s | 🟡 High |
-| settings.spec.ts | 42 | 2m 45s | 🟡 High |
-| weather.spec.ts | 64 | 4m 0s | 🟢 Medium |
-| analytics.spec.ts | 66 | 4m 30s | 🟡 High |
-| equipment.spec.ts | 69 | 4m 15s | 🟢 Medium |
-| marketplace.spec.ts | 72 | 5m 0s | 🟡 High |
-| wallet.spec.ts | 79 | 5m 30s | 🟡 High |
-| community.spec.ts | 88 | 6m 0s | 🟢 Medium |
-| iot.spec.ts | 93 | 6m 30s | 🟡 High |
-| action-windows.spec.ts | 20 | 1m 0s | 🟢 Low |
-| reports.spec.ts | 21 | 1m 15s | 🟢 Medium |
-| scouting.spec.ts | 16 | 50s | 🟢 Low |
-| team.spec.ts | 17 | 55s | 🟢 Low |
-| vra.spec.ts | 14 | 45s | 🟢 Low |
-| **TOTAL** | **668** | **~50min** | |
+| Test File              | Tests   | Estimated Time | Priority    |
+| ---------------------- | ------- | -------------- | ----------- |
+| auth.spec.ts           | 13      | 45s            | 🔴 Critical |
+| navigation.spec.ts     | 24      | 1m 30s         | 🔴 Critical |
+| dashboard.spec.ts      | 34      | 2m 15s         | 🔴 Critical |
+| forms.spec.ts          | 36      | 2m 30s         | 🟡 High     |
+| settings.spec.ts       | 42      | 2m 45s         | 🟡 High     |
+| weather.spec.ts        | 64      | 4m 0s          | 🟢 Medium   |
+| analytics.spec.ts      | 66      | 4m 30s         | 🟡 High     |
+| equipment.spec.ts      | 69      | 4m 15s         | 🟢 Medium   |
+| marketplace.spec.ts    | 72      | 5m 0s          | 🟡 High     |
+| wallet.spec.ts         | 79      | 5m 30s         | 🟡 High     |
+| community.spec.ts      | 88      | 6m 0s          | 🟢 Medium   |
+| iot.spec.ts            | 93      | 6m 30s         | 🟡 High     |
+| action-windows.spec.ts | 20      | 1m 0s          | 🟢 Low      |
+| reports.spec.ts        | 21      | 1m 15s         | 🟢 Medium   |
+| scouting.spec.ts       | 16      | 50s            | 🟢 Low      |
+| team.spec.ts           | 17      | 55s            | 🟢 Low      |
+| vra.spec.ts            | 14      | 45s            | 🟢 Low      |
+| **TOTAL**              | **668** | **~50min**     |             |
 
 **With Optimizations (remove timeouts, parallel execution):**
+
 - Estimated: 15-20 minutes
 
 **With Sharding (4 shards):**
+
 - Estimated: 4-6 minutes per shard
 
 ### 12.2 Smoke Test Suite Recommendation
@@ -1327,18 +1420,19 @@ Create a smoke test suite with 30 critical tests (~2 minutes):
 export default defineConfig({
   projects: [
     {
-      name: 'smoke',
-      testMatch: '**/*.smoke.spec.ts',
+      name: "smoke",
+      testMatch: "**/*.smoke.spec.ts",
     },
     {
-      name: 'full',
-      testMatch: '**/*.spec.ts',
+      name: "full",
+      testMatch: "**/*.spec.ts",
     },
   ],
 });
 ```
 
 **Smoke Tests:**
+
 - Login/logout (2 tests)
 - Navigate to all pages (12 tests)
 - View dashboard (3 tests)
@@ -1357,24 +1451,25 @@ export default defineConfig({
 
 ### 13.1 Industry Best Practices Scorecard
 
-| Practice | Current State | Target | Gap |
-|----------|--------------|--------|-----|
-| Test-to-Code Ratio | ~25% | 30-40% | ⚠️ Slightly low |
-| Code Coverage | Unknown | 70%+ | ❌ Not measured |
-| Flaky Test Rate | Est. 10-15% | <5% | ⚠️ High |
-| Test Execution Time | ~50min | <15min | ❌ Too slow |
-| Test Independence | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⚠️ Some dependencies |
-| Use of Test IDs | ⭐⭐ | ⭐⭐⭐⭐⭐ | ❌ Minimal |
-| Page Object Model | ❌ Not used | ✅ Used | ❌ Not implemented |
-| API Mocking | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⚠️ Inconsistent |
-| Visual Regression | ❌ Not used | ⭐⭐⭐ | ❌ Not implemented |
-| Accessibility Testing | ❌ Not used | ⭐⭐⭐⭐ | ❌ Not implemented |
-| Test Documentation | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⚠️ Needs improvement |
-| CI/CD Integration | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⚠️ Missing workflow |
+| Practice              | Current State | Target     | Gap                  |
+| --------------------- | ------------- | ---------- | -------------------- |
+| Test-to-Code Ratio    | ~25%          | 30-40%     | ⚠️ Slightly low      |
+| Code Coverage         | Unknown       | 70%+       | ❌ Not measured      |
+| Flaky Test Rate       | Est. 10-15%   | <5%        | ⚠️ High              |
+| Test Execution Time   | ~50min        | <15min     | ❌ Too slow          |
+| Test Independence     | ⭐⭐⭐        | ⭐⭐⭐⭐⭐ | ⚠️ Some dependencies |
+| Use of Test IDs       | ⭐⭐          | ⭐⭐⭐⭐⭐ | ❌ Minimal           |
+| Page Object Model     | ❌ Not used   | ✅ Used    | ❌ Not implemented   |
+| API Mocking           | ⭐⭐⭐        | ⭐⭐⭐⭐⭐ | ⚠️ Inconsistent      |
+| Visual Regression     | ❌ Not used   | ⭐⭐⭐     | ❌ Not implemented   |
+| Accessibility Testing | ❌ Not used   | ⭐⭐⭐⭐   | ❌ Not implemented   |
+| Test Documentation    | ⭐⭐⭐        | ⭐⭐⭐⭐⭐ | ⚠️ Needs improvement |
+| CI/CD Integration     | ⭐⭐⭐        | ⭐⭐⭐⭐⭐ | ⚠️ Missing workflow  |
 
 ### 13.2 Gaps Summary
 
 **Critical Gaps:**
+
 1. No code coverage measurement
 2. High estimated flaky test rate
 3. Slow test execution time
@@ -1382,12 +1477,14 @@ export default defineConfig({
 5. No Page Object Model
 
 **Medium Gaps:**
+
 1. Inconsistent API mocking
 2. Missing CI/CD workflow file
 3. No visual regression testing
 4. No accessibility testing
 
 **Minor Gaps:**
+
 1. Test documentation could be better
 2. Some test interdependencies
 3. Limited test tagging/categorization
@@ -1403,6 +1500,7 @@ export default defineConfig({
 The SAHOOL web application E2E test suite is comprehensive and demonstrates strong fundamentals:
 
 **Major Strengths:**
+
 - ✅ Excellent coverage of major features (668 tests)
 - ✅ Strong bilingual support throughout
 - ✅ Well-organized helpers and fixtures
@@ -1411,6 +1509,7 @@ The SAHOOL web application E2E test suite is comprehensive and demonstrates stro
 - ✅ Thoughtful test naming and structure
 
 **Areas Needing Improvement:**
+
 - ⚠️ High number of fixed timeouts (200+)
 - ⚠️ Inconsistent API mocking
 - ⚠️ Too many soft assertions
@@ -1421,24 +1520,15 @@ The SAHOOL web application E2E test suite is comprehensive and demonstrates stro
 ### 14.2 Priority Action Items
 
 **Immediate (Next Sprint):**
+
 1. Add data-testid to 50 most commonly tested elements
 2. Implement consistent API mocking layer
 3. Replace 50 fixed timeouts with event-based waits
 4. Implement 5 skipped form submission tests
 
-**Short Term (Next Month):**
-5. Add CI/CD workflow file
-6. Implement Page Object Model for 3 main pages
-7. Split 3 largest test files
-8. Add 10 integration flow tests
-9. Convert 100 soft assertions to proper expects
+**Short Term (Next Month):** 5. Add CI/CD workflow file 6. Implement Page Object Model for 3 main pages 7. Split 3 largest test files 8. Add 10 integration flow tests 9. Convert 100 soft assertions to proper expects
 
-**Medium Term (Next Quarter):**
-10. Achieve <10 minute full test execution
-11. Reduce flaky test rate to <5%
-12. Add visual regression testing
-13. Implement accessibility testing
-14. Add performance benchmarks
+**Medium Term (Next Quarter):** 10. Achieve <10 minute full test execution 11. Reduce flaky test rate to <5% 12. Add visual regression testing 13. Implement accessibility testing 14. Add performance benchmarks
 
 ### 14.3 Success Metrics
 
@@ -1458,6 +1548,7 @@ Track these metrics monthly:
 The foundation is solid with comprehensive feature coverage and well-structured helpers. Prioritize eliminating flakiness and improving test speed to maximize developer confidence and CI/CD effectiveness.
 
 **Recommended Investment:**
+
 - 2-3 sprints of dedicated test improvement work
 - Expected ROI: 40% faster tests, 60% fewer flaky tests, 30% easier maintenance
 
@@ -1465,36 +1556,36 @@ The foundation is solid with comprehensive feature coverage and well-structured 
 
 ## Appendix A: Test File Statistics
 
-| File | Tests | Lines | Tests/100LOC | Size | Complexity |
-|------|-------|-------|--------------|------|-----------|
-| community.spec.ts | 88 | 1,418 | 6.2 | 49KB | High |
-| iot.spec.ts | 93 | 1,319 | 7.1 | 46KB | High |
-| analytics.spec.ts | 66 | 1,086 | 6.1 | 38KB | High |
-| wallet.spec.ts | 79 | 1,041 | 7.6 | 38KB | High |
-| marketplace.spec.ts | 72 | 998 | 7.2 | 36KB | Medium |
-| equipment.spec.ts | 69 | 867 | 8.0 | 33KB | Medium |
-| weather.spec.ts | 64 | 863 | 7.4 | 30KB | Medium |
-| settings.spec.ts | 42 | 499 | 8.4 | 18KB | Medium |
-| reports.spec.ts | 21 | 465 | 4.5 | 17KB | Low |
-| scouting.spec.ts | 16 | 396 | 4.0 | 15KB | Low |
-| dashboard.spec.ts | 34 | 373 | 9.1 | 13KB | Medium |
-| forms.spec.ts | 36 | 363 | 9.9 | 13KB | Medium |
-| action-windows.spec.ts | 20 | 343 | 5.8 | 12KB | Low |
-| navigation.spec.ts | 24 | 314 | 7.6 | 11KB | Low |
-| team.spec.ts | 17 | 299 | 5.7 | 11KB | Low |
-| vra.spec.ts | 14 | 254 | 5.5 | 8.8KB | Low |
-| auth.spec.ts | 13 | 197 | 6.6 | 6.4KB | Low |
+| File                   | Tests | Lines | Tests/100LOC | Size  | Complexity |
+| ---------------------- | ----- | ----- | ------------ | ----- | ---------- |
+| community.spec.ts      | 88    | 1,418 | 6.2          | 49KB  | High       |
+| iot.spec.ts            | 93    | 1,319 | 7.1          | 46KB  | High       |
+| analytics.spec.ts      | 66    | 1,086 | 6.1          | 38KB  | High       |
+| wallet.spec.ts         | 79    | 1,041 | 7.6          | 38KB  | High       |
+| marketplace.spec.ts    | 72    | 998   | 7.2          | 36KB  | Medium     |
+| equipment.spec.ts      | 69    | 867   | 8.0          | 33KB  | Medium     |
+| weather.spec.ts        | 64    | 863   | 7.4          | 30KB  | Medium     |
+| settings.spec.ts       | 42    | 499   | 8.4          | 18KB  | Medium     |
+| reports.spec.ts        | 21    | 465   | 4.5          | 17KB  | Low        |
+| scouting.spec.ts       | 16    | 396   | 4.0          | 15KB  | Low        |
+| dashboard.spec.ts      | 34    | 373   | 9.1          | 13KB  | Medium     |
+| forms.spec.ts          | 36    | 363   | 9.9          | 13KB  | Medium     |
+| action-windows.spec.ts | 20    | 343   | 5.8          | 12KB  | Low        |
+| navigation.spec.ts     | 24    | 314   | 7.6          | 11KB  | Low        |
+| team.spec.ts           | 17    | 299   | 5.7          | 11KB  | Low        |
+| vra.spec.ts            | 14    | 254   | 5.5          | 8.8KB | Low        |
+| auth.spec.ts           | 13    | 197   | 6.6          | 6.4KB | Low        |
 
 ---
 
 ## Appendix B: Helper Files Analysis
 
-| File | Lines | Functions | Quality | Purpose |
-|------|-------|-----------|---------|---------|
-| page.helpers.ts | 180 | 15 | ⭐⭐⭐⭐⭐ | Page interaction utilities |
-| auth.helpers.ts | 174 | 7 | ⭐⭐⭐⭐ | Authentication helpers |
-| test-data.ts | 199 | 12 | ⭐⭐⭐⭐ | Test data generation |
-| test-fixtures.ts | 160 | 2 | ⭐⭐⭐⭐ | Custom fixtures |
+| File             | Lines | Functions | Quality    | Purpose                    |
+| ---------------- | ----- | --------- | ---------- | -------------------------- |
+| page.helpers.ts  | 180   | 15        | ⭐⭐⭐⭐⭐ | Page interaction utilities |
+| auth.helpers.ts  | 174   | 7         | ⭐⭐⭐⭐   | Authentication helpers     |
+| test-data.ts     | 199   | 12        | ⭐⭐⭐⭐   | Test data generation       |
+| test-fixtures.ts | 160   | 2         | ⭐⭐⭐⭐   | Custom fixtures            |
 
 **Total Helper Code:** 713 lines
 **Test Code:** 11,095 lines
@@ -1559,4 +1650,4 @@ npx playwright test --shard=1/4
 
 ---
 
-*End of Report | نهاية التقرير*
+_End of Report | نهاية التقرير_

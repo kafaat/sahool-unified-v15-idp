@@ -3,11 +3,11 @@
  * إعدادات توثيق OpenAPI
  */
 
-const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
-const yaml = require('js-yaml');
-const fs = require('fs');
-const path = require('path');
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const yaml = require("js-yaml");
+const fs = require("fs");
+const path = require("path");
 
 /**
  * Load OpenAPI YAML specification
@@ -15,11 +15,11 @@ const path = require('path');
  */
 function loadOpenAPISpec() {
   try {
-    const yamlPath = path.join(__dirname, '../openapi.yaml');
-    const fileContents = fs.readFileSync(yamlPath, 'utf8');
+    const yamlPath = path.join(__dirname, "../openapi.yaml");
+    const fileContents = fs.readFileSync(yamlPath, "utf8");
     return yaml.load(fileContents);
   } catch (error) {
-    console.error('❌ Error loading OpenAPI specification:', error.message);
+    console.error("❌ Error loading OpenAPI specification:", error.message);
     return null;
   }
 }
@@ -30,10 +30,10 @@ function loadOpenAPISpec() {
  */
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.3',
+    openapi: "3.0.3",
     info: {
-      title: 'Sahool Community Chat Service API',
-      version: '1.0.0',
+      title: "Sahool Community Chat Service API",
+      version: "1.0.0",
       description: `
 # خدمة الدردشة الحية لمجتمع سهول الزراعي
 Sahool Real-time Chat Service - Communication between farmers and agricultural experts
@@ -78,51 +78,51 @@ socket.on('registration_confirmed', (data) => {
 - \`CORS_ORIGINS\`: Comma-separated list of allowed origins
       `,
       contact: {
-        name: 'Sahool Platform',
-        url: 'https://sahool.io',
+        name: "Sahool Platform",
+        url: "https://sahool.io",
       },
       license: {
-        name: 'Proprietary',
+        name: "Proprietary",
       },
     },
     servers: [
       {
-        url: 'http://localhost:8097',
-        description: 'Local Development',
+        url: "http://localhost:8097",
+        description: "Local Development",
       },
       {
-        url: 'https://chat.sahool.io',
-        description: 'Production',
+        url: "https://chat.sahool.io",
+        description: "Production",
       },
     ],
     tags: [
       {
-        name: 'Health',
-        description: 'Service health and status endpoints',
+        name: "Health",
+        description: "Service health and status endpoints",
       },
       {
-        name: 'Rooms',
-        description: 'Chat room management and history',
+        name: "Rooms",
+        description: "Chat room management and history",
       },
       {
-        name: 'Experts',
-        description: 'Expert availability and management',
+        name: "Experts",
+        description: "Expert availability and management",
       },
       {
-        name: 'Support Requests',
-        description: 'Support ticket and request management',
+        name: "Support Requests",
+        description: "Support ticket and request management",
       },
       {
-        name: 'Statistics',
-        description: 'Service metrics and analytics',
+        name: "Statistics",
+        description: "Service metrics and analytics",
       },
       {
-        name: 'WebSocket Events',
-        description: 'Real-time Socket.io events documentation',
+        name: "WebSocket Events",
+        description: "Real-time Socket.io events documentation",
       },
     ],
   },
-  apis: ['./src/index.js', './src/**/*.js'], // Path to API files with JSDoc annotations
+  apis: ["./src/index.js", "./src/**/*.js"], // Path to API files with JSDoc annotations
 };
 
 /**
@@ -133,12 +133,12 @@ function generateSwaggerSpec() {
   // Try to load from YAML file first
   const yamlSpec = loadOpenAPISpec();
   if (yamlSpec) {
-    console.log('✅ Loaded OpenAPI specification from openapi.yaml');
+    console.log("✅ Loaded OpenAPI specification from openapi.yaml");
     return yamlSpec;
   }
 
   // Fallback to JSDoc generation
-  console.log('⚠️ Generating OpenAPI specification from JSDoc comments');
+  console.log("⚠️ Generating OpenAPI specification from JSDoc comments");
   return swaggerJsdoc(swaggerOptions);
 }
 
@@ -154,8 +154,8 @@ const swaggerUiOptions = {
     .swagger-ui .info .title { font-size: 2em; color: #2e7d32 }
     .swagger-ui .scheme-container { background: #f5f5f5; padding: 15px }
   `,
-  customSiteTitle: 'Sahool Chat API Documentation',
-  customfavIcon: 'https://sahool.io/favicon.ico',
+  customSiteTitle: "Sahool Chat API Documentation",
+  customfavIcon: "https://sahool.io/favicon.ico",
   swaggerOptions: {
     persistAuthorization: true,
     displayRequestDuration: true,
@@ -163,7 +163,7 @@ const swaggerUiOptions = {
     tryItOutEnabled: true,
     syntaxHighlight: {
       activate: true,
-      theme: 'monokai',
+      theme: "monokai",
     },
   },
 };
@@ -178,25 +178,25 @@ function setupSwagger(app) {
   const swaggerSpec = generateSwaggerSpec();
 
   if (!swaggerSpec) {
-    console.error('❌ Failed to generate Swagger specification');
+    console.error("❌ Failed to generate Swagger specification");
     return;
   }
 
   // Serve Swagger JSON
-  app.get('/api-docs.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
+  app.get("/api-docs.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
     res.json(swaggerSpec);
   });
 
   // Serve Swagger UI
   app.use(
-    '/api-docs',
+    "/api-docs",
     swaggerUi.serve,
-    swaggerUi.setup(swaggerSpec, swaggerUiOptions)
+    swaggerUi.setup(swaggerSpec, swaggerUiOptions),
   );
 
   // Serve Redoc (alternative documentation UI)
-  app.get('/redoc', (req, res) => {
+  app.get("/redoc", (req, res) => {
     res.send(`
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -220,10 +220,10 @@ function setupSwagger(app) {
     `);
   });
 
-  console.log('📚 Swagger documentation available at:');
-  console.log('   • Swagger UI: http://localhost:8097/api-docs');
-  console.log('   • OpenAPI JSON: http://localhost:8097/api-docs.json');
-  console.log('   • ReDoc: http://localhost:8097/redoc');
+  console.log("📚 Swagger documentation available at:");
+  console.log("   • Swagger UI: http://localhost:8097/api-docs");
+  console.log("   • OpenAPI JSON: http://localhost:8097/api-docs.json");
+  console.log("   • ReDoc: http://localhost:8097/redoc");
 }
 
 /**

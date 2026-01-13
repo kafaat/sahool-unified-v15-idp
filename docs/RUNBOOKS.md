@@ -20,6 +20,7 @@ This document provides step-by-step procedures for common incidents in the SAHOO
 ## Service Down
 
 ### Symptoms
+
 - Health check endpoint returns 503 or times out
 - Kubernetes shows pod as not ready
 - Alerts: `ServiceDown`
@@ -27,18 +28,21 @@ This document provides step-by-step procedures for common incidents in the SAHOO
 ### Investigation Steps
 
 1. **Check pod status**
+
    ```bash
    kubectl get pods -l app=<service-name>
    kubectl describe pod <pod-name>
    ```
 
 2. **Check recent logs**
+
    ```bash
    kubectl logs <pod-name> --tail=100
    kubectl logs <pod-name> --previous  # If pod restarted
    ```
 
 3. **Check health endpoint**
+
    ```bash
    curl http://<service-url>/health
    ```
@@ -51,9 +55,11 @@ This document provides step-by-step procedures for common incidents in the SAHOO
 ### Common Causes & Solutions
 
 #### Database Connection Failure
+
 **Symptoms**: Readiness check fails with database error
 
 **Solution**:
+
 ```bash
 # Check database connectivity
 kubectl exec -it <pod-name> -- psql -h postgres -U sahool -c "SELECT 1"
@@ -66,9 +72,11 @@ kubectl delete pod <pod-name>
 ```
 
 #### Configuration Error
+
 **Symptoms**: Pod crashes immediately on startup
 
 **Solution**:
+
 ```bash
 # Check environment variables
 kubectl describe pod <pod-name> | grep -A 20 Environment
@@ -81,9 +89,11 @@ kubectl get configmaps
 ```
 
 #### Out of Memory
+
 **Symptoms**: Pod killed with OOMKilled status
 
 **Solution**:
+
 ```bash
 # Increase memory limits
 kubectl set resources deployment/<service-name> --limits=memory=1Gi
@@ -96,6 +106,7 @@ kubectl edit deployment <service-name>
 ### Escalation
 
 If issue persists after 30 minutes:
+
 1. Page on-call engineer
 2. Open Slack incident channel: `#incident-<timestamp>`
 3. Document all investigation steps
@@ -105,6 +116,7 @@ If issue persists after 30 minutes:
 ## High Error Rate
 
 ### Symptoms
+
 - Error rate > 5% of requests
 - Metrics show spike in `service_errors_total`
 - Alerts: `HighErrorRate`
@@ -112,17 +124,20 @@ If issue persists after 30 minutes:
 ### Investigation Steps
 
 1. **Check error types**
+
    ```promql
    # In Prometheus
    rate(service_errors_total[5m]) by (type, severity)
    ```
 
 2. **Review error logs**
+
    ```bash
    kubectl logs <pod-name> | grep -i error | tail -50
    ```
 
 3. **Check specific endpoint**
+
    ```promql
    rate(service_requests_total{status=~"5.."}[5m]) by (endpoint)
    ```
@@ -135,18 +150,20 @@ If issue persists after 30 minutes:
 ### Common Causes & Solutions
 
 #### Database Query Failures
+
 **Symptoms**: Errors contain "database" or "query"
 
 **Solution**:
+
 ```bash
 # Check database connection pool
 curl http://<service-url>/debug/vars | jq '.database'
 
 # Review slow queries
 kubectl exec -it postgres-0 -- psql -U sahool -c "
-  SELECT query, calls, total_time, mean_time 
-  FROM pg_stat_statements 
-  ORDER BY total_time DESC 
+  SELECT query, calls, total_time, mean_time
+  FROM pg_stat_statements
+  ORDER BY total_time DESC
   LIMIT 10;"
 
 # Restart service to reset connection pool
@@ -154,9 +171,11 @@ kubectl rollout restart deployment/<service-name>
 ```
 
 #### External API Failures
+
 **Symptoms**: Errors mention external service (weather API, satellite API)
 
 **Solution**:
+
 ```bash
 # Check external service status
 curl -I https://<external-api>
@@ -169,9 +188,11 @@ kubectl set env deployment/<service-name> FEATURE_<name>_ENABLED=false
 ```
 
 #### Validation Errors
+
 **Symptoms**: 400 errors, validation failures
 
 **Solution**:
+
 ```bash
 # Review recent input changes
 kubectl logs <pod-name> | grep -B 5 "validation error"
@@ -186,6 +207,7 @@ kubectl rollout undo deployment/<service-name>
 ### Recovery
 
 1. **Immediate**: Roll back to previous version
+
    ```bash
    kubectl rollout undo deployment/<service-name>
    ```
@@ -198,6 +220,7 @@ kubectl rollout undo deployment/<service-name>
 ## High Latency
 
 ### Symptoms
+
 - P95 latency > 5 seconds
 - Timeout errors
 - Alerts: `HighResponseTime`
@@ -205,13 +228,15 @@ kubectl rollout undo deployment/<service-name>
 ### Investigation Steps
 
 1. **Check latency by endpoint**
+
    ```promql
-   histogram_quantile(0.95, 
+   histogram_quantile(0.95,
      rate(service_request_duration_seconds_bucket[5m])
    ) by (endpoint)
    ```
 
 2. **Check database queries**
+
    ```bash
    kubectl exec -it postgres-0 -- psql -U sahool -c "
      SELECT pid, query, state, wait_event_type, wait_event
@@ -221,8 +246,9 @@ kubectl rollout undo deployment/<service-name>
    ```
 
 3. **Check cache hit rate**
+
    ```promql
-   rate(cache_hits_total[5m]) / 
+   rate(cache_hits_total[5m]) /
    (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m]))
    ```
 
@@ -231,9 +257,11 @@ kubectl rollout undo deployment/<service-name>
 ### Common Causes & Solutions
 
 #### Slow Database Queries
+
 **Symptoms**: Database query time high
 
 **Solution**:
+
 ```bash
 # Add missing indexes
 kubectl exec -it postgres-0 -- psql -U sahool -c "
@@ -248,9 +276,11 @@ kubectl set env deployment/<service-name> DB_POOL_SIZE=50
 ```
 
 #### Cache Miss Storm
+
 **Symptoms**: Cache hit rate < 50%
 
 **Solution**:
+
 ```bash
 # Warm cache
 curl -X POST http://<service-url>/admin/cache/warm
@@ -263,9 +293,11 @@ kubectl rollout restart statefulset/redis
 ```
 
 #### High Load
+
 **Symptoms**: CPU/memory usage high
 
 **Solution**:
+
 ```bash
 # Scale horizontally
 kubectl scale deployment/<service-name> --replicas=5
@@ -281,6 +313,7 @@ kubectl set resources deployment/<service-name> \
 ## Database Connection Issues
 
 ### Symptoms
+
 - "connection refused" errors
 - "too many connections" errors
 - Readiness checks failing
@@ -288,12 +321,14 @@ kubectl set resources deployment/<service-name> \
 ### Investigation Steps
 
 1. **Check connection count**
+
    ```bash
    kubectl exec -it postgres-0 -- psql -U sahool -c "
      SELECT count(*) FROM pg_stat_activity;"
    ```
 
 2. **Check connection pool**
+
    ```bash
    curl http://<service-url>/debug/vars | jq '.database.pool'
    ```
@@ -307,6 +342,7 @@ kubectl set resources deployment/<service-name> \
 ### Solutions
 
 #### Too Many Connections
+
 ```bash
 # Increase max_connections in PostgreSQL
 kubectl edit configmap postgres-config
@@ -320,6 +356,7 @@ kubectl set env deployment/<service-name> DB_POOL_SIZE=10
 ```
 
 #### Connection Leaks
+
 ```bash
 # Check for idle connections
 kubectl exec -it postgres-0 -- psql -U sahool -c "
@@ -344,6 +381,7 @@ kubectl rollout restart deployment/<service-name>
 ## Cache Failures
 
 ### Symptoms
+
 - Redis connection errors
 - Cache hit rate drops to 0%
 - Increased database load
@@ -351,12 +389,14 @@ kubectl rollout restart deployment/<service-name>
 ### Investigation Steps
 
 1. **Check Redis status**
+
    ```bash
    kubectl get pod -l app=redis
    kubectl exec -it redis-0 -- redis-cli ping
    ```
 
 2. **Check memory usage**
+
    ```bash
    kubectl exec -it redis-0 -- redis-cli info memory
    ```
@@ -369,6 +409,7 @@ kubectl rollout restart deployment/<service-name>
 ### Solutions
 
 #### Redis Out of Memory
+
 ```bash
 # Clear cache
 kubectl exec -it redis-0 -- redis-cli FLUSHALL
@@ -381,6 +422,7 @@ kubectl exec -it redis-0 -- redis-cli CONFIG SET maxmemory-policy allkeys-lru
 ```
 
 #### Redis Unavailable
+
 ```bash
 # Services should fall back to no-cache mode
 # Verify fallback is working
@@ -397,6 +439,7 @@ kubectl rollout restart statefulset/redis
 ## Authentication Failures
 
 ### Symptoms
+
 - 401 Unauthorized errors
 - "Invalid token" errors
 - Login failures
@@ -404,12 +447,14 @@ kubectl rollout restart statefulset/redis
 ### Investigation Steps
 
 1. **Check auth service**
+
    ```bash
    kubectl get pods -l app=auth-service
    curl http://auth-service:8001/health
    ```
 
 2. **Verify JWT secret**
+
    ```bash
    kubectl get secret jwt-secret -o yaml
    ```
@@ -423,6 +468,7 @@ kubectl rollout restart statefulset/redis
 ### Solutions
 
 #### Invalid JWT Secret
+
 ```bash
 # Verify all services use same secret
 kubectl get deployments -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.template.spec.containers[0].env[?(@.name=="JWT_SECRET_KEY")].value}{"\n"}{end}'
@@ -437,6 +483,7 @@ kubectl rollout restart deployment
 ```
 
 #### Token Expiry Issues
+
 ```bash
 # Increase token lifetime
 kubectl set env deployment/auth-service JWT_ACCESS_TOKEN_EXPIRE_MINUTES=120
@@ -449,12 +496,12 @@ kubectl set env deployment/auth-service JWT_ACCESS_TOKEN_EXPIRE_MINUTES=120
 
 ## Escalation Matrix
 
-| Severity | Response Time | Escalation Path |
-|----------|---------------|-----------------|
-| **Critical** (Service down in production) | Immediate | → DevOps Lead → CTO |
-| **High** (Performance degradation) | 15 min | → On-call Engineer → DevOps Lead |
-| **Medium** (Non-critical errors) | 1 hour | → On-call Engineer |
-| **Low** (Warnings, low impact) | Next business day | → Create ticket |
+| Severity                                  | Response Time     | Escalation Path                  |
+| ----------------------------------------- | ----------------- | -------------------------------- |
+| **Critical** (Service down in production) | Immediate         | → DevOps Lead → CTO              |
+| **High** (Performance degradation)        | 15 min            | → On-call Engineer → DevOps Lead |
+| **Medium** (Non-critical errors)          | 1 hour            | → On-call Engineer               |
+| **Low** (Warnings, low impact)            | Next business day | → Create ticket                  |
 
 ## Post-Incident
 

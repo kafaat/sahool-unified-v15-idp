@@ -20,14 +20,17 @@ Successfully implemented comprehensive CSRF (Cross-Site Request Forgery) protect
 ## Files Created
 
 ### 1. API Routes
+
 - `/apps/web/src/app/api/csrf-token/route.ts` - CSRF token generation endpoint
 - `/apps/web/src/app/api/csrf-token/route.test.ts` - API tests (17 tests passing)
 
 ### 2. Documentation
+
 - `/apps/web/CSRF_PROTECTION.md` - Comprehensive implementation guide
 - `/apps/web/CSRF_IMPLEMENTATION_SUMMARY.md` - This file
 
 ### 3. Tests
+
 - `/apps/web/src/lib/security/csrf-integration.test.ts` - Integration tests (18 tests passing)
 - Updated `/apps/web/src/lib/api/__tests__/client.test.ts` - Added CSRF client tests
 
@@ -36,43 +39,49 @@ Successfully implemented comprehensive CSRF (Cross-Site Request Forgery) protect
 ## Files Modified
 
 ### 1. Middleware (`/apps/web/src/middleware.ts`)
+
 **Changes:**
+
 - Added CSRF token generation on authenticated requests
 - Token stored in cookie with 24-hour expiration
 - Cryptographically secure (32 bytes, base64url encoded)
 
 ```typescript
 // Generate CSRF token if not present
-let csrfToken = request.cookies.get('csrf_token')?.value;
+let csrfToken = request.cookies.get("csrf_token")?.value;
 if (!csrfToken) {
-  csrfToken = randomBytes(32).toString('base64url');
-  response.cookies.set('csrf_token', csrfToken, {
+  csrfToken = randomBytes(32).toString("base64url");
+  response.cookies.set("csrf_token", csrfToken, {
     httpOnly: false, // Must be readable by client JavaScript
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
     maxAge: 60 * 60 * 24, // 24 hours
   });
 }
 ```
 
 ### 2. API Client (`/apps/web/src/lib/api/client.ts`)
+
 **Changes:**
+
 - Integrated CSRF headers into all state-changing requests
 - Automatic token inclusion for POST, PUT, DELETE, PATCH methods
 - File upload requests also protected
 
 ```typescript
 // Add CSRF headers for state-changing requests
-const method = (fetchOptions.method || 'GET').toUpperCase();
-if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+const method = (fetchOptions.method || "GET").toUpperCase();
+if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
   const csrfHeaders = getCsrfHeaders();
   Object.assign(headers, csrfHeaders);
 }
 ```
 
 ### 3. Auth Store (`/apps/web/src/stores/auth.store.tsx`)
+
 **Changes:**
+
 - Added CSRF token fetch on login
 - CSRF token cleared on logout
 - Integration with new session API
@@ -115,6 +124,7 @@ Login → Token Generated → Token in Cookie (24h) → Used in Requests → Log
    - Unpredictable and unique per user
 
 2. **Cookie Security Flags**
+
    ```typescript
    {
      httpOnly: false,     // Must be readable by JS for header inclusion
@@ -144,6 +154,7 @@ Login → Token Generated → Token in Cookie (24h) → Used in Requests → Log
 ## Test Coverage
 
 ### Security Library Tests
+
 **File:** `/apps/web/src/lib/security/security.test.ts`
 **Status:** ✅ 44/44 tests passing
 
@@ -153,6 +164,7 @@ Login → Token Generated → Token in Cookie (24h) → Used in Requests → Log
 - Edge case handling
 
 ### CSRF Integration Tests
+
 **File:** `/apps/web/src/lib/security/csrf-integration.test.ts`
 **Status:** ✅ 18/18 tests passing
 
@@ -163,6 +175,7 @@ Login → Token Generated → Token in Cookie (24h) → Used in Requests → Log
 - Configuration options
 
 ### CSRF API Tests
+
 **File:** `/apps/web/src/app/api/csrf-token/route.test.ts`
 **Status:** ✅ 17/17 tests passing
 
@@ -173,6 +186,7 @@ Login → Token Generated → Token in Cookie (24h) → Used in Requests → Log
 - Security flags
 
 ### Total Test Coverage
+
 - **79 total tests**
 - **79 passing**
 - **0 failing**
@@ -187,29 +201,31 @@ Login → Token Generated → Token in Cookie (24h) → Used in Requests → Log
 The backend API must validate CSRF tokens. Example implementations:
 
 #### Node.js/Express
+
 ```javascript
 function validateCsrfToken(req, res, next) {
-  const headerToken = req.headers['x-csrf-token'];
+  const headerToken = req.headers["x-csrf-token"];
   const cookieToken = req.cookies.csrf_token;
 
   if (!headerToken || !cookieToken) {
-    return res.status(403).json({ error: 'CSRF token missing' });
+    return res.status(403).json({ error: "CSRF token missing" });
   }
 
   if (headerToken !== cookieToken) {
-    return res.status(403).json({ error: 'CSRF token mismatch' });
+    return res.status(403).json({ error: "CSRF token mismatch" });
   }
 
   next();
 }
 
 // Apply to state-changing routes
-app.post('/api/*', validateCsrfToken, handler);
-app.put('/api/*', validateCsrfToken, handler);
-app.delete('/api/*', validateCsrfToken, handler);
+app.post("/api/*", validateCsrfToken, handler);
+app.put("/api/*", validateCsrfToken, handler);
+app.delete("/api/*", validateCsrfToken, handler);
 ```
 
 #### Python/FastAPI
+
 ```python
 from fastapi import Request, HTTPException
 
@@ -229,9 +245,11 @@ def validate_csrf_token(request: Request):
 ## API Endpoints
 
 ### GET /api/csrf-token
+
 **Purpose:** Generate and return a new CSRF token
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -242,9 +260,11 @@ def validate_csrf_token(request: Request):
 **Cookie Set:** `csrf_token=abc123def456...`
 
 ### POST /api/csrf-token/validate
+
 **Purpose:** Validate CSRF token (testing/debugging)
 
 **Request:**
+
 ```json
 {
   "token": "abc123def456..."
@@ -252,6 +272,7 @@ def validate_csrf_token(request: Request):
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -260,9 +281,11 @@ def validate_csrf_token(request: Request):
 ```
 
 ### GET /api/auth/session
+
 **Purpose:** Check if user has an active session
 
 **Response:**
+
 ```json
 {
   "hasSession": true,
@@ -271,9 +294,11 @@ def validate_csrf_token(request: Request):
 ```
 
 ### POST /api/auth/session
+
 **Purpose:** Create secure session with httpOnly cookies
 
 **Request:**
+
 ```json
 {
   "access_token": "jwt...",
@@ -282,6 +307,7 @@ def validate_csrf_token(request: Request):
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -290,9 +316,11 @@ def validate_csrf_token(request: Request):
 ```
 
 ### DELETE /api/auth/session
+
 **Purpose:** Clear session cookies (logout)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -304,11 +332,11 @@ def validate_csrf_token(request: Request):
 
 ## Browser Compatibility
 
-| Feature | Chrome | Firefox | Safari | Edge | Mobile |
-|---------|--------|---------|--------|------|--------|
-| SameSite Cookies | ✅ 51+ | ✅ 60+ | ✅ 12+ | ✅ 16+ | ✅ |
-| CSRF Tokens | ✅ All | ✅ All | ✅ All | ✅ All | ✅ |
-| HttpOnly Cookies | ✅ All | ✅ All | ✅ All | ✅ All | ✅ |
+| Feature          | Chrome | Firefox | Safari | Edge   | Mobile |
+| ---------------- | ------ | ------- | ------ | ------ | ------ |
+| SameSite Cookies | ✅ 51+ | ✅ 60+  | ✅ 12+ | ✅ 16+ | ✅     |
+| CSRF Tokens      | ✅ All | ✅ All  | ✅ All | ✅ All | ✅     |
+| HttpOnly Cookies | ✅ All | ✅ All  | ✅ All | ✅ All | ✅     |
 
 **Global Coverage:** 99.8% of users (2024)
 
@@ -316,18 +344,19 @@ def validate_csrf_token(request: Request):
 
 ## Security Audit Score
 
-| Category | Before | After | Change |
-|----------|--------|-------|--------|
-| CSRF Protection | 9/10 | 10/10 | +1 ✅ |
-| XSS Prevention | 9/10 | 10/10 | +1 ✅ |
-| Cookie Security | 9/10 | 10/10 | +1 ✅ |
-| Overall Score | 9.0/10 | 9.5/10 | +0.5 ✅ |
+| Category        | Before | After  | Change  |
+| --------------- | ------ | ------ | ------- |
+| CSRF Protection | 9/10   | 10/10  | +1 ✅   |
+| XSS Prevention  | 9/10   | 10/10  | +1 ✅   |
+| Cookie Security | 9/10   | 10/10  | +1 ✅   |
+| Overall Score   | 9.0/10 | 9.5/10 | +0.5 ✅ |
 
 ---
 
 ## Migration Checklist
 
 ### Frontend (Complete) ✅
+
 - [x] CSRF token generation API route
 - [x] Middleware integration
 - [x] API client integration
@@ -336,6 +365,7 @@ def validate_csrf_token(request: Request):
 - [x] Documentation
 
 ### Backend (Required) ⚠️
+
 - [ ] Implement CSRF token validation middleware
 - [ ] Apply to all state-changing endpoints (POST/PUT/DELETE/PATCH)
 - [ ] Add error handling for invalid/missing tokens
@@ -343,6 +373,7 @@ def validate_csrf_token(request: Request):
 - [ ] Update API documentation
 
 ### DevOps (Recommended) 📋
+
 - [ ] Ensure HTTPS in production
 - [ ] Monitor CSRF validation failures
 - [ ] Set up alerts for suspicious activity
@@ -357,9 +388,11 @@ def validate_csrf_token(request: Request):
 ```typescript
 // Automatic CSRF protection - no code changes needed!
 const result = await apiClient.createField({
-  name: 'Test Field',
-  tenantId: 'tenant-123',
-  boundary: { /* ... */ }
+  name: "Test Field",
+  tenantId: "tenant-123",
+  boundary: {
+    /* ... */
+  },
 });
 
 // Behind the scenes:
@@ -372,33 +405,33 @@ const result = await apiClient.createField({
 ### Manual CSRF Token Fetch
 
 ```typescript
-import { getCsrfToken, getCsrfHeaders } from '@/lib/security/security';
+import { getCsrfToken, getCsrfHeaders } from "@/lib/security/security";
 
 // Get token
 const token = getCsrfToken();
-console.log('Current CSRF token:', token);
+console.log("Current CSRF token:", token);
 
 // Get headers for manual fetch
 const headers = getCsrfHeaders();
-fetch('/api/endpoint', {
-  method: 'POST',
+fetch("/api/endpoint", {
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...headers, // Includes X-CSRF-Token
   },
-  body: JSON.stringify(data)
+  body: JSON.stringify(data),
 });
 ```
 
 ### Using Secure Fetch Wrapper
 
 ```typescript
-import { secureFetch } from '@/lib/security/security';
+import { secureFetch } from "@/lib/security/security";
 
 // Automatically includes CSRF headers
-const response = await secureFetch('/api/endpoint', {
-  method: 'POST',
-  body: JSON.stringify(data)
+const response = await secureFetch("/api/endpoint", {
+  method: "POST",
+  body: JSON.stringify(data),
 });
 ```
 
@@ -418,27 +451,33 @@ const response = await secureFetch('/api/endpoint', {
 ## Troubleshooting
 
 ### CSRF Token Missing
+
 **Symptom:** 403 error with "CSRF token missing"
 
 **Solutions:**
+
 1. Check browser cookies for `csrf_token`
 2. Verify user is authenticated
 3. Try manual token fetch: `GET /api/csrf-token`
 4. Check browser console for errors
 
 ### CSRF Token Mismatch
+
 **Symptom:** 403 error with "CSRF token mismatch"
 
 **Solutions:**
+
 1. Clear browser cookies and re-login
 2. Check token expiration (24 hours)
 3. Verify no proxy/CDN modifying cookies
 4. Check for concurrent requests
 
 ### Token Not Included
+
 **Symptom:** Request missing X-CSRF-Token header
 
 **Solutions:**
+
 1. Verify using API client (not raw fetch)
 2. Check request method (POST/PUT/DELETE)
 3. Ensure security library imported
@@ -449,17 +488,20 @@ const response = await secureFetch('/api/endpoint', {
 ## Next Steps
 
 ### Immediate
+
 1. ✅ **DONE:** Frontend CSRF implementation
 2. ⚠️ **TODO:** Backend CSRF validation
 3. ⚠️ **TODO:** Integration testing with backend
 
 ### Short-term
+
 1. Monitor CSRF token usage
 2. Analyze validation failure rates
 3. Optimize token refresh logic
 4. Add security metrics dashboard
 
 ### Long-term
+
 1. Rotate CSRF secrets periodically
 2. Implement CSRF token binding to sessions
 3. Add geographic anomaly detection

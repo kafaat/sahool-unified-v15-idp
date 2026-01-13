@@ -29,10 +29,10 @@
 
 2 services using TypeORM 0.3.20 that need migration:
 
-| Service | Path | Priority | Complexity | Time |
-|---------|------|----------|------------|------|
-| **field-core** | `/apps/services/field-core` | HIGH | Medium | 2-3 days |
-| **field-management-service** | `/apps/services/field-management-service` | HIGH | Medium | 1-2 days |
+| Service                      | Path                                      | Priority | Complexity | Time     |
+| ---------------------------- | ----------------------------------------- | -------- | ---------- | -------- |
+| **field-core**               | `/apps/services/field-core`               | HIGH     | Medium     | 2-3 days |
+| **field-management-service** | `/apps/services/field-management-service` | HIGH     | Medium     | 1-2 days |
 
 **Good News**: Both services already have complete Prisma schemas ready for migration!
 
@@ -67,6 +67,7 @@ npm run prisma:studio
 ## Key Migration Patterns
 
 ### Find One
+
 ```typescript
 // Before (TypeORM)
 const field = await fieldRepo.findOne({ where: { id } });
@@ -76,6 +77,7 @@ const field = await prisma.field.findUnique({ where: { id } });
 ```
 
 ### Create
+
 ```typescript
 // Before (TypeORM)
 const newField = fieldRepo.create(data);
@@ -86,6 +88,7 @@ const saved = await prisma.field.create({ data });
 ```
 
 ### Update
+
 ```typescript
 // Before (TypeORM)
 field.name = newName;
@@ -94,11 +97,12 @@ await fieldRepo.save(field);
 // After (Prisma)
 await prisma.field.update({
   where: { id },
-  data: { name: newName }
+  data: { name: newName },
 });
 ```
 
 ### Raw SQL (PostGIS)
+
 ```typescript
 // Before (TypeORM)
 const fields = await AppDataSource.query(`SELECT ...`, [param]);
@@ -114,18 +118,22 @@ const fields = await prisma.$queryRaw`SELECT ... WHERE id = ${param}`;
 ### field-core
 
 **Create**:
+
 - `src/lib/prisma.ts` - Prisma client singleton
 
 **Update**:
+
 - `src/index.ts` - Replace all `AppDataSource.getRepository()` with `prisma.*`
 
 **Remove**:
+
 - `src/data-source.ts`
 - `src/entity/Field.ts`
 - `src/entity/FieldBoundaryHistory.ts`
 - `src/entity/SyncStatus.ts`
 
 **Update package.json**:
+
 ```json
 {
   "dependencies": {

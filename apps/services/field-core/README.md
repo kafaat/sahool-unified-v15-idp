@@ -5,7 +5,6 @@ Please update your references to use `field-management-service` on port 3000.
 
 ---
 
-
 # Field Core Service - خدمة الحقول الأساسية
 
 ## نظرة عامة | Overview
@@ -23,35 +22,39 @@ Core field management service with PostGIS support for geospatial queries and mo
 ## الميزات | Features
 
 ### إدارة الحقول | Field Management
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| إنشاء الحقول | Field CRUD | إدارة كاملة للحقول |
-| الحدود الجغرافية | GeoJSON Boundaries | حدود مضلعة دقيقة |
-| الاستعلامات المكانية | Spatial Queries | البحث القريب |
-| حساب المساحة | Area Calculation | PostGIS تلقائي |
+
+| الميزة               | Feature            | الوصف              |
+| -------------------- | ------------------ | ------------------ |
+| إنشاء الحقول         | Field CRUD         | إدارة كاملة للحقول |
+| الحدود الجغرافية     | GeoJSON Boundaries | حدود مضلعة دقيقة   |
+| الاستعلامات المكانية | Spatial Queries    | البحث القريب       |
+| حساب المساحة         | Area Calculation   | PostGIS تلقائي     |
 
 ### مزامنة الهاتف | Mobile Sync (Delta Sync)
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| Delta Sync | تزامن تفاضلي | فقط التغييرات الجديدة |
-| Batch Upload | رفع مجمع | مزامنة عدة حقول |
-| Conflict Resolution | حل التعارضات | ETag + server_version |
-| Offline Support | دعم عدم الاتصال | العمل بدون إنترنت |
+
+| الميزة              | Feature         | الوصف                 |
+| ------------------- | --------------- | --------------------- |
+| Delta Sync          | تزامن تفاضلي    | فقط التغييرات الجديدة |
+| Batch Upload        | رفع مجمع        | مزامنة عدة حقول       |
+| Conflict Resolution | حل التعارضات    | ETag + server_version |
+| Offline Support     | دعم عدم الاتصال | العمل بدون إنترنت     |
 
 ### تحليل NDVI | NDVI Analysis
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| Current NDVI | NDVI الحالي | القيمة الحالية |
-| Trend Analysis | تحليل الاتجاه | تحسن/انخفاض/مستقر |
-| History | السجل التاريخي | 30 يوم |
-| Tenant Summary | ملخص المستأجر | إحصائيات شاملة |
+
+| الميزة         | Feature        | الوصف             |
+| -------------- | -------------- | ----------------- |
+| Current NDVI   | NDVI الحالي    | القيمة الحالية    |
+| Trend Analysis | تحليل الاتجاه  | تحسن/انخفاض/مستقر |
+| History        | السجل التاريخي | 30 يوم            |
+| Tenant Summary | ملخص المستأجر  | إحصائيات شاملة    |
 
 ### سجل الحدود | Boundary History
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| Version Tracking | تتبع الإصدارات | كل تغيير محفوظ |
-| Rollback | استرجاع | العودة لحدود سابقة |
-| Change Audit | تدقيق التغييرات | من/متى/لماذا |
+
+| الميزة           | Feature         | الوصف              |
+| ---------------- | --------------- | ------------------ |
+| Version Tracking | تتبع الإصدارات  | كل تغيير محفوظ     |
+| Rollback         | استرجاع         | العودة لحدود سابقة |
+| Change Audit     | تدقيق التغييرات | من/متى/لماذا       |
 
 ---
 
@@ -190,27 +193,36 @@ POST /api/v1/fields/{id}/boundary-history/rollback
 ## نماذج البيانات | Data Models
 
 ### Field
+
 ```json
 {
-    "id": "field_001",
-    "tenantId": "tenant_001",
-    "name": "حقل القمح الشمالي",
-    "cropType": "wheat",
-    "status": "active",
-    "boundary": {
-        "type": "Polygon",
-        "coordinates": [[[44.1, 15.3], [44.2, 15.3], [44.2, 15.4], [44.1, 15.4], [44.1, 15.3]]]
-    },
-    "centroid": {
-        "type": "Point",
-        "coordinates": [44.15, 15.35]
-    },
-    "areaHectares": 120.5,
-    "ndviValue": 0.72,
-    "healthScore": 0.85,
-    "version": 5,
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-02-15T10:30:00Z"
+  "id": "field_001",
+  "tenantId": "tenant_001",
+  "name": "حقل القمح الشمالي",
+  "cropType": "wheat",
+  "status": "active",
+  "boundary": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [44.1, 15.3],
+        [44.2, 15.3],
+        [44.2, 15.4],
+        [44.1, 15.4],
+        [44.1, 15.3]
+      ]
+    ]
+  },
+  "centroid": {
+    "type": "Point",
+    "coordinates": [44.15, 15.35]
+  },
+  "areaHectares": 120.5,
+  "ndviValue": 0.72,
+  "healthScore": 0.85,
+  "version": 5,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-02-15T10:30:00Z"
 }
 ```
 
@@ -259,6 +271,7 @@ Comprehensive crop profitability analysis to help farmers understand which crops
 
 **Port:** 8090 (Python Service)
 **Features:**
+
 - تحليل ربحية المحصول الفردي | Individual Crop Analysis
 - ملخص الموسم مع الترتيب | Season Summary with Rankings
 - تحليل التعادل | Break-even Analysis
@@ -270,20 +283,20 @@ Comprehensive crop profitability analysis to help farmers understand which crops
 
 ### المحاصيل المدعومة | Supported Crops
 
-| المحصول | Crop | الإنتاجية (كجم/هكتار) | السعر (ريال/كجم) |
-|---------|------|----------------------|------------------|
-| قمح | Wheat | 2,800 | 550 |
-| طماطم | Tomato | 25,000 | 280 |
-| ذرة رفيعة | Sorghum | 2,200 | 400 |
-| بطاطس | Potato | 18,000 | 350 |
-| بصل | Onion | 22,000 | 300 |
-| بن | Coffee | 800 | 8,500 |
-| قات | Qat | 3,500 | 3,500 |
-| شعير | Barley | 2,500 | 480 |
-| ذرة شامية | Maize | 3,200 | 520 |
-| خيار | Cucumber | 20,000 | 250 |
-| بطيخ | Watermelon | 30,000 | 180 |
-| مانجو | Mango | 12,000 | 800 |
+| المحصول   | Crop       | الإنتاجية (كجم/هكتار) | السعر (ريال/كجم) |
+| --------- | ---------- | --------------------- | ---------------- |
+| قمح       | Wheat      | 2,800                 | 550              |
+| طماطم     | Tomato     | 25,000                | 280              |
+| ذرة رفيعة | Sorghum    | 2,200                 | 400              |
+| بطاطس     | Potato     | 18,000                | 350              |
+| بصل       | Onion      | 22,000                | 300              |
+| بن        | Coffee     | 800                   | 8,500            |
+| قات       | Qat        | 3,500                 | 3,500            |
+| شعير      | Barley     | 2,500                 | 480              |
+| ذرة شامية | Maize      | 3,200                 | 520              |
+| خيار      | Cucumber   | 20,000                | 250              |
+| بطيخ      | Watermelon | 30,000                | 180              |
+| مانجو     | Mango      | 12,000                | 800              |
 
 ### فئات التكاليف | Cost Categories
 
@@ -425,6 +438,7 @@ pytest tests/ --cov=src --cov-report=html
 ### أمثلة الاستخدام | Usage Examples
 
 #### تحليل محصول مع البيانات الإقليمية
+
 ```bash
 curl "http://localhost:8090/v1/profitability/crop/season-2025-1?\
 field_id=field-123&\
@@ -433,6 +447,7 @@ area_ha=2.5"
 ```
 
 #### تحليل مع التكاليف والإيرادات المخصصة
+
 ```bash
 curl -X POST "http://localhost:8090/v1/profitability/analyze" \
   -H "Content-Type: application/json" \
@@ -464,6 +479,7 @@ curl -X POST "http://localhost:8090/v1/profitability/analyze" \
 ```
 
 #### مقارنة المحاصيل للتخطيط
+
 ```bash
 curl "http://localhost:8090/v1/profitability/compare?\
 crops=wheat,tomato,potato,coffee&\
@@ -474,6 +490,7 @@ region=sanaa"
 ### Integration with SAHOOL Platform
 
 The profitability service integrates with:
+
 - **Field Service** - Field and crop season data
 - **Field Ops** - Operation costs and harvest data
 - **Market Service** - Real-time crop prices

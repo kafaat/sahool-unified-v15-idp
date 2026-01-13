@@ -1,7 +1,12 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { Prisma } from '@prisma/client';
-import { CreateSampleDto, UpdateSampleDto } from './dto/sample.dto';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import { Prisma } from "@prisma/client";
+import { CreateSampleDto, UpdateSampleDto } from "./dto/sample.dto";
 
 @Injectable()
 export class SamplesService {
@@ -105,7 +110,7 @@ export class SamplesService {
         where,
         skip,
         take: limit,
-        orderBy: { collectionDate: 'desc' },
+        orderBy: { collectionDate: "desc" },
         include: {
           experiment: {
             select: {
@@ -212,10 +217,18 @@ export class SamplesService {
       where: { id },
       data: {
         ...restDto,
-        collectionDate: dto.collectionDate ? new Date(dto.collectionDate) : undefined,
+        collectionDate: dto.collectionDate
+          ? new Date(dto.collectionDate)
+          : undefined,
         analyzedAt: dto.analyzedAt ? new Date(dto.analyzedAt) : undefined,
-        analysisResults: analysisResults !== undefined ? (analysisResults as Prisma.InputJsonValue) : undefined,
-        metadata: metadata !== undefined ? (metadata as Prisma.InputJsonValue) : undefined,
+        analysisResults:
+          analysisResults !== undefined
+            ? (analysisResults as Prisma.InputJsonValue)
+            : undefined,
+        metadata:
+          metadata !== undefined
+            ? (metadata as Prisma.InputJsonValue)
+            : undefined,
       },
       include: {
         experiment: {

@@ -11,9 +11,10 @@ Comprehensive security enhancements have been implemented for the SAHOOL Next.js
 **File:** `/apps/web/src/lib/security/jwt-middleware.ts`
 
 **Previous:** Middleware only checked if JWT token cookie existed (no validation)
+
 ```typescript
 // Old approach - INSECURE
-const token = request.cookies.get('access_token')?.value;
+const token = request.cookies.get("access_token")?.value;
 if (!token) {
   return NextResponse.redirect(loginUrl);
 }
@@ -21,6 +22,7 @@ if (!token) {
 ```
 
 **Current:** Full JWT validation with signature verification using jose library
+
 ```typescript
 // New approach - SECURE
 const jwtValidation = await validateJwtToken(request);
@@ -31,6 +33,7 @@ if (!jwtValidation.valid) {
 ```
 
 **Features:**
+
 - ✅ Signature verification using HMAC-SHA256
 - ✅ Issuer (iss) claim validation
 - ✅ Audience (aud) claim validation
@@ -40,6 +43,7 @@ if (!jwtValidation.valid) {
 - ✅ Detailed error categorization
 
 **Benefits:**
+
 - Prevents token tampering
 - Prevents token forgery
 - Enforces token expiration
@@ -52,6 +56,7 @@ if (!jwtValidation.valid) {
 **File:** `/apps/web/src/lib/security/csrf-server.ts`
 
 **Previous:** CSRF tokens were generated but never validated
+
 ```typescript
 // Old approach - INSECURE
 let csrfToken = request.cookies.get('csrf_token')?.value;
@@ -63,15 +68,17 @@ if (!csrfToken) {
 ```
 
 **Current:** Full CSRF validation for POST, PUT, DELETE, PATCH requests
+
 ```typescript
 // New approach - SECURE
 const csrfValidation = validateCsrfRequest(request);
 if (!csrfValidation.valid) {
-  return new NextResponse('CSRF validation failed', { status: 403 });
+  return new NextResponse("CSRF validation failed", { status: 403 });
 }
 ```
 
 **Features:**
+
 - ✅ Automatic validation for state-changing methods (POST, PUT, DELETE, PATCH)
 - ✅ Timing-safe token comparison (prevents timing attacks)
 - ✅ Configurable excluded paths (auth endpoints, webhooks)
@@ -79,17 +86,20 @@ if (!csrfValidation.valid) {
 - ✅ Detailed error logging (development mode)
 
 **Protected Methods:**
+
 ```typescript
-const CSRF_PROTECTED_METHODS = ['POST', 'PUT', 'DELETE', 'PATCH'];
+const CSRF_PROTECTED_METHODS = ["POST", "PUT", "DELETE", "PATCH"];
 ```
 
 **Excluded Paths (no CSRF required):**
+
 - `/api/auth/login` - Initial authentication
 - `/api/auth/register` - User registration
 - `/api/auth/logout` - Logout
 - `/api/webhooks/*` - Third-party webhooks
 
 **Benefits:**
+
 - Prevents Cross-Site Request Forgery attacks
 - Protects state-changing operations
 - Validates request origin
@@ -104,47 +114,52 @@ const CSRF_PROTECTED_METHODS = ['POST', 'PUT', 'DELETE', 'PATCH'];
 **Headers Added:**
 
 #### Standard Security Headers
+
 ```typescript
 // Prevent clickjacking attacks
-response.headers.set('X-Frame-Options', 'DENY');
+response.headers.set("X-Frame-Options", "DENY");
 
 // Prevent MIME type sniffing
-response.headers.set('X-Content-Type-Options', 'nosniff');
+response.headers.set("X-Content-Type-Options", "nosniff");
 
 // Control referrer information
-response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
 // Legacy XSS protection
-response.headers.set('X-XSS-Protection', '1; mode=block');
+response.headers.set("X-XSS-Protection", "1; mode=block");
 ```
 
 #### Permissions Policy (NEW)
+
 ```typescript
 // Restrict browser features
 response.headers.set(
-  'Permissions-Policy',
-  'camera=(), microphone=(), geolocation=(self), payment=()'
+  "Permissions-Policy",
+  "camera=(), microphone=(), geolocation=(self), payment=()",
 );
 ```
 
 **Benefits:**
+
 - Camera/microphone disabled by default
 - Geolocation restricted to same-origin
 - Payment API disabled
 - Reduces attack surface
 
 #### HSTS - HTTP Strict Transport Security (NEW)
+
 ```typescript
 // Force HTTPS in production (31,536,000 seconds = 1 year)
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   response.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains; preload'
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains; preload",
   );
 }
 ```
 
 **Benefits:**
+
 - Forces HTTPS connections
 - Prevents protocol downgrade attacks
 - Prevents cookie hijacking
@@ -152,11 +167,12 @@ if (process.env.NODE_ENV === 'production') {
 - Eligible for HSTS preload list
 
 #### Content Security Policy (Existing - Enhanced)
+
 ```typescript
 // CSP with nonce-based security
 const nonce = generateNonce();
 const cspHeader = getCSPHeader(nonce);
-response.headers.set('Content-Security-Policy', cspHeader);
+response.headers.set("Content-Security-Policy", cspHeader);
 ```
 
 ---
@@ -166,23 +182,26 @@ response.headers.set('Content-Security-Policy', cspHeader);
 **File:** `/apps/web/src/middleware.ts`
 
 **Previous:** Direct redirect without validation
+
 ```typescript
 // Old approach - VULNERABLE TO OPEN REDIRECT
-const loginUrl = new URL('/login', request.url);
-loginUrl.searchParams.set('returnTo', pathname); // Accepts any path!
+const loginUrl = new URL("/login", request.url);
+loginUrl.searchParams.set("returnTo", pathname); // Accepts any path!
 return NextResponse.redirect(loginUrl);
 ```
 
 **Current:** Sanitized and validated redirects
+
 ```typescript
 // New approach - SECURE
 const returnTo = sanitizeReturnUrl(pathname + search, request.url);
 if (returnTo) {
-  loginUrl.searchParams.set('returnTo', returnTo);
+  loginUrl.searchParams.set("returnTo", returnTo);
 }
 ```
 
 **Sanitization Function:**
+
 ```typescript
 function sanitizeReturnUrl(returnTo: string, baseUrl: string): string | null {
   try {
@@ -203,6 +222,7 @@ function sanitizeReturnUrl(returnTo: string, baseUrl: string): string | null {
 ```
 
 **Benefits:**
+
 - Prevents open redirect vulnerabilities
 - Validates origin before redirect
 - Strips protocol and host from return URL
@@ -213,8 +233,9 @@ function sanitizeReturnUrl(returnTo: string, baseUrl: string): string | null {
 ### 5. Improved Error Handling and Logging ✅
 
 **Development Mode Logging:**
+
 ```typescript
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   console.error(`[JWT] Validation failed: ${jwtValidation.error}`, {
     path: pathname,
   });
@@ -227,17 +248,20 @@ if (process.env.NODE_ENV === 'development') {
 ```
 
 **Production Mode:**
+
 - Errors logged without sensitive details
 - Generic error messages to users
 - Prevents information leakage
 
 **JWT Error Categories:**
+
 - `JWT token has expired`
 - `JWT claim validation failed`
 - `JWT signature verification failed`
 - `Invalid JWT payload`
 
 **CSRF Error Categories:**
+
 - `CSRF token cookie not found`
 - `CSRF token header not found`
 - `CSRF token mismatch`
@@ -341,6 +365,7 @@ JWT_AUDIENCE=sahool-web
 ### CSRF Tests (38 tests - ALL PASSING ✅)
 
 **Test Categories:**
+
 - ✅ Token validation (timing-safe comparison)
 - ✅ Request validation (method-based)
 - ✅ Error handling
@@ -349,6 +374,7 @@ JWT_AUDIENCE=sahool-web
 - ✅ Security requirements
 
 **Test Results:**
+
 ```
 ✓ src/lib/security/csrf-server.test.ts (38 tests) 27ms
   ✓ validateCsrfToken (8 tests)
@@ -365,6 +391,7 @@ JWT_AUDIENCE=sahool-web
 ## Security Score Improvement
 
 ### Before (6/10)
+
 - ❌ No JWT validation (only cookie existence check)
 - ❌ No CSRF validation (tokens generated but not verified)
 - ✅ Basic security headers
@@ -373,6 +400,7 @@ JWT_AUDIENCE=sahool-web
 - ❌ No permissions policy
 
 ### After (9/10)
+
 - ✅ Full JWT validation with signature verification
 - ✅ CSRF validation for state-changing requests
 - ✅ Comprehensive security headers
@@ -384,6 +412,7 @@ JWT_AUDIENCE=sahool-web
 - ✅ Comprehensive test coverage
 
 **Remaining improvements for 10/10:**
+
 - Rate limiting per IP/user
 - Request size limits
 - Additional security monitoring/alerts
@@ -395,7 +424,7 @@ JWT_AUDIENCE=sahool-web
 ### JWT Validation
 
 ```typescript
-import { validateJwtToken } from '@/lib/security/jwt-middleware';
+import { validateJwtToken } from "@/lib/security/jwt-middleware";
 
 // In middleware or API route
 const result = await validateJwtToken(request);
@@ -413,14 +442,14 @@ const tenantId = result.payload.tenant_id;
 ### CSRF Validation
 
 ```typescript
-import { validateCsrfRequest } from '@/lib/security/csrf-server';
+import { validateCsrfRequest } from "@/lib/security/csrf-server";
 
 // In middleware
 const csrfResult = validateCsrfRequest(request);
 if (!csrfResult.valid) {
-  return new NextResponse('CSRF validation failed', {
+  return new NextResponse("CSRF validation failed", {
     status: 403,
-    headers: { 'X-CSRF-Error': csrfResult.error },
+    headers: { "X-CSRF-Error": csrfResult.error },
   });
 }
 ```
@@ -430,17 +459,17 @@ if (!csrfResult.valid) {
 ```typescript
 // Custom CSRF config
 const result = validateCsrfRequest(request, {
-  cookieName: 'my_csrf_token',
-  headerName: 'x-my-csrf',
-  excludePaths: ['/api/public/*'],
+  cookieName: "my_csrf_token",
+  headerName: "x-my-csrf",
+  excludePaths: ["/api/public/*"],
 });
 
 // Custom JWT config
 const jwtResult = await validateJwtToken(request, {
-  cookieName: 'custom_token',
+  cookieName: "custom_token",
   secretKey: process.env.CUSTOM_SECRET,
-  issuer: 'custom-issuer',
-  audience: 'custom-audience',
+  issuer: "custom-issuer",
+  audience: "custom-audience",
 });
 ```
 
@@ -451,6 +480,7 @@ const jwtResult = await validateJwtToken(request, {
 No breaking changes - all enhancements are backward compatible:
 
 1. **Environment Variables** - Ensure these are set:
+
    ```bash
    JWT_SECRET_KEY=your-secret-key
    JWT_ISSUER=sahool.io
@@ -458,13 +488,14 @@ No breaking changes - all enhancements are backward compatible:
    ```
 
 2. **CSRF Headers** - Frontend must include CSRF token:
+
    ```typescript
-   const csrfToken = getCookie('csrf_token');
-   fetch('/api/endpoint', {
-     method: 'POST',
+   const csrfToken = getCookie("csrf_token");
+   fetch("/api/endpoint", {
+     method: "POST",
      headers: {
-       'X-CSRF-Token': csrfToken,
-       'Content-Type': 'application/json',
+       "X-CSRF-Token": csrfToken,
+       "Content-Type": "application/json",
      },
      body: JSON.stringify(data),
    });
@@ -512,6 +543,7 @@ No breaking changes - all enhancements are backward compatible:
 ## Support
 
 For questions or issues:
+
 1. Check environment variables are properly configured
 2. Review error logs in development mode
 3. Verify CSRF tokens are being sent from frontend

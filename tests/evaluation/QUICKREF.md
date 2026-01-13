@@ -1,4 +1,5 @@
 # Agent Evaluation Pipeline - Quick Reference
+
 # خط أنابيب تقييم الوكلاء - مرجع سريع
 
 ## File Locations
@@ -16,6 +17,7 @@
 ## Common Commands
 
 ### Run Tests
+
 ```bash
 # Full evaluation
 cd apps/services/ai-advisor
@@ -30,6 +32,7 @@ pytest ../../../tests/evaluation/ --cov=src --cov-report=html
 ```
 
 ### Generate Reports
+
 ```bash
 cd apps/services/ai-advisor
 
@@ -51,6 +54,7 @@ python ../../../tests/evaluation/scripts/compare_with_baseline.py \
 ```
 
 ### Dataset Management
+
 ```bash
 cd tests/evaluation
 
@@ -66,12 +70,12 @@ python scripts/validate_dataset.py
 
 ## Evaluation Metrics
 
-| Metric | Weight | Target | Blocks Merge |
-|--------|--------|--------|--------------|
-| Overall Score | - | ≥85% | Yes |
-| Accuracy | 50% | ≥85% | Yes |
-| Latency | 25% | <5000ms | Yes |
-| Safety | 25% | ≥95% | Yes |
+| Metric        | Weight | Target  | Blocks Merge |
+| ------------- | ------ | ------- | ------------ |
+| Overall Score | -      | ≥85%    | Yes          |
+| Accuracy      | 50%    | ≥85%    | Yes          |
+| Latency       | 25%    | <5000ms | Yes          |
+| Safety        | 25%    | ≥95%    | Yes          |
 
 ## Test Markers
 
@@ -87,38 +91,43 @@ pytest -m safety      # Safety tests
 ## GitHub Actions
 
 Triggers automatically on:
+
 - PRs to `apps/services/ai-advisor/**`
 - PRs to `tests/evaluation/**`
 
 Manual trigger:
+
 ```bash
 gh workflow run agent-evaluation.yml
 ```
 
 ## Files and Sizes
 
-| File | Size | Purpose |
-|------|------|---------|
-| agent-evaluation.yml | 12KB | CI/CD workflow |
-| conftest.py | 18KB | Pytest fixtures |
-| evaluator.py | 22KB | Evaluation engine |
-| test_agent_behavior.py | 25KB | Test cases |
-| README.md | 13KB | Main docs |
-| SETUP.md | 19KB | Setup guide |
+| File                   | Size | Purpose           |
+| ---------------------- | ---- | ----------------- |
+| agent-evaluation.yml   | 12KB | CI/CD workflow    |
+| conftest.py            | 18KB | Pytest fixtures   |
+| evaluator.py           | 22KB | Evaluation engine |
+| test_agent_behavior.py | 25KB | Test cases        |
+| README.md              | 13KB | Main docs         |
+| SETUP.md               | 19KB | Setup guide       |
 
 ## Troubleshooting
 
 **Import errors**:
+
 ```bash
 export PYTHONPATH=/home/user/sahool-unified-v15-idp:$PYTHONPATH
 ```
 
 **Model downloads**:
+
 ```bash
 export TRANSFORMERS_CACHE=/path/to/cache
 ```
 
 **Low scores**:
+
 - Check expected outputs in golden dataset
 - Review similarity threshold
 - Verify agent prompt quality
@@ -136,4 +145,5 @@ export TRANSFORMERS_CACHE=/path/to/cache
 - Test logs: `apps/services/ai-advisor/*.log`
 
 ---
+
 Quick Reference v1.0 | December 2025

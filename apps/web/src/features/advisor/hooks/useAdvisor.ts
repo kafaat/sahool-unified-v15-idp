@@ -3,22 +3,20 @@
  * خطافات React لميزة المستشار الزراعي
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  advisorApi,
-  type AdvisorQuery,
-  type AdvisorFilters,
-} from '../api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { advisorApi, type AdvisorQuery, type AdvisorFilters } from "../api";
 
 // Query Keys
 const ADVISOR_KEYS = {
-  all: ['advisor'] as const,
-  recommendations: (filters?: AdvisorFilters) => [...ADVISOR_KEYS.all, 'recommendations', filters] as const,
-  recommendation: (id: string) => [...ADVISOR_KEYS.all, 'recommendation', id] as const,
-  history: (limit?: number) => [...ADVISOR_KEYS.all, 'history', limit] as const,
-  stats: () => [...ADVISOR_KEYS.all, 'stats'] as const,
+  all: ["advisor"] as const,
+  recommendations: (filters?: AdvisorFilters) =>
+    [...ADVISOR_KEYS.all, "recommendations", filters] as const,
+  recommendation: (id: string) =>
+    [...ADVISOR_KEYS.all, "recommendation", id] as const,
+  history: (limit?: number) => [...ADVISOR_KEYS.all, "history", limit] as const,
+  stats: () => [...ADVISOR_KEYS.all, "stats"] as const,
 };
 
 /**
@@ -68,8 +66,12 @@ export function useApplyRecommendation() {
     mutationFn: ({ id, notes }: { id: string; notes?: string }) =>
       advisorApi.applyRecommendation(id, notes),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ADVISOR_KEYS.recommendation(id) });
-      queryClient.invalidateQueries({ queryKey: ADVISOR_KEYS.recommendations() });
+      queryClient.invalidateQueries({
+        queryKey: ADVISOR_KEYS.recommendation(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ADVISOR_KEYS.recommendations(),
+      });
       queryClient.invalidateQueries({ queryKey: ADVISOR_KEYS.stats() });
     },
   });
@@ -85,8 +87,12 @@ export function useDismissRecommendation() {
     mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       advisorApi.dismissRecommendation(id, reason),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ADVISOR_KEYS.recommendation(id) });
-      queryClient.invalidateQueries({ queryKey: ADVISOR_KEYS.recommendations() });
+      queryClient.invalidateQueries({
+        queryKey: ADVISOR_KEYS.recommendation(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ADVISOR_KEYS.recommendations(),
+      });
       queryClient.invalidateQueries({ queryKey: ADVISOR_KEYS.stats() });
     },
   });
@@ -99,10 +105,17 @@ export function useCompleteAction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ recommendationId, actionId }: { recommendationId: string; actionId: string }) =>
-      advisorApi.completeAction(recommendationId, actionId),
+    mutationFn: ({
+      recommendationId,
+      actionId,
+    }: {
+      recommendationId: string;
+      actionId: string;
+    }) => advisorApi.completeAction(recommendationId, actionId),
     onSuccess: (_, { recommendationId }) => {
-      queryClient.invalidateQueries({ queryKey: ADVISOR_KEYS.recommendation(recommendationId) });
+      queryClient.invalidateQueries({
+        queryKey: ADVISOR_KEYS.recommendation(recommendationId),
+      });
     },
   });
 }

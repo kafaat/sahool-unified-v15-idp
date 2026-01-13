@@ -1,4 +1,5 @@
 # Field-Level Encryption Setup Guide
+
 ## دليل إعداد التشفير على مستوى الحقول
 
 This guide provides step-by-step instructions for setting up field-level encryption in the SAHOOL platform.
@@ -116,9 +117,9 @@ The package is available as a local workspace package:
 
 ```typescript
 // src/prisma/prisma.service.ts
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { createPrismaEncryptionMiddleware } from '@sahool/shared-crypto';
+import { Injectable, OnModuleInit } from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
+import { createPrismaEncryptionMiddleware } from "@sahool/shared-crypto";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -128,17 +129,19 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     // Configure encryption
     const encryptionConfig = {
       User: {
-        phone: { type: 'deterministic' },  // Searchable
+        phone: { type: "deterministic" }, // Searchable
       },
       UserProfile: {
-        nationalId: { type: 'deterministic' },  // Searchable
-        dateOfBirth: { type: 'standard' },  // Not searchable, more secure
+        nationalId: { type: "deterministic" }, // Searchable
+        dateOfBirth: { type: "standard" }, // Not searchable, more secure
       },
     };
 
-    this.$use(createPrismaEncryptionMiddleware(encryptionConfig, {
-      debug: process.env.CRYPTO_DEBUG === 'true',
-    }));
+    this.$use(
+      createPrismaEncryptionMiddleware(encryptionConfig, {
+        debug: process.env.CRYPTO_DEBUG === "true",
+      }),
+    );
   }
 
   async onModuleInit() {
@@ -153,12 +156,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 // Data is automatically encrypted/decrypted
 const user = await prisma.user.create({
   data: {
-    email: 'user@example.com',
-    phone: '0551234567',  // Will be encrypted
+    email: "user@example.com",
+    phone: "0551234567", // Will be encrypted
     profile: {
       create: {
-        nationalId: '1234567890',  // Will be encrypted
-        dateOfBirth: new Date('1990-01-01'),  // Will be encrypted
+        nationalId: "1234567890", // Will be encrypted
+        dateOfBirth: new Date("1990-01-01"), // Will be encrypted
       },
     },
   },
@@ -167,7 +170,7 @@ const user = await prisma.user.create({
 // Searching works with deterministic encryption
 const foundUser = await prisma.user.findFirst({
   where: {
-    phone: '0551234567',  // Will search encrypted value
+    phone: "0551234567", // Will search encrypted value
   },
 });
 ```
@@ -291,13 +294,14 @@ PREVIOUS_ENCRYPTION_KEY=old-key-here
 ### Step 3: Re-encrypt Data
 
 The system will:
+
 1. Decrypt data using `PREVIOUS_ENCRYPTION_KEY`
 2. Encrypt data using `ENCRYPTION_KEY`
 
 You can also use the provided rotation utility:
 
 ```typescript
-import { rotateEncryption } from '@sahool/shared-crypto';
+import { rotateEncryption } from "@sahool/shared-crypto";
 
 // Re-encrypt a single value
 const newEncrypted = rotateEncryption(oldEncrypted);
@@ -326,11 +330,13 @@ npm install dotenv
 ### Error: "Decryption failed"
 
 **Possible Causes:**
+
 1. Using wrong encryption key
 2. Data was not encrypted
 3. Data was corrupted
 
 **Solutions:**
+
 1. Check that `ENCRYPTION_KEY` matches the key used to encrypt
 2. Check if `PREVIOUS_ENCRYPTION_KEY` is needed
 3. Enable debug mode: `CRYPTO_DEBUG=true`
@@ -344,7 +350,7 @@ npm install dotenv
 ```typescript
 const encryptionConfig = {
   User: {
-    phone: { type: 'deterministic' },  // Must be deterministic for search
+    phone: { type: "deterministic" }, // Must be deterministic for search
   },
 };
 ```
@@ -354,6 +360,7 @@ const encryptionConfig = {
 **Issue**: Encryption/decryption is slow.
 
 **Solutions:**
+
 1. Only encrypt truly sensitive fields
 2. Use deterministic encryption only for searchable fields
 3. Consider caching decrypted values (carefully!)
@@ -366,6 +373,7 @@ const encryptionConfig = {
 ### What to Encrypt
 
 **Always Encrypt:**
+
 - National IDs
 - Passport numbers
 - Social Security Numbers
@@ -374,6 +382,7 @@ const encryptionConfig = {
 - Health information
 
 **Consider Encrypting:**
+
 - Phone numbers (use deterministic for search)
 - Email addresses (use deterministic for search)
 - Dates of birth
@@ -381,6 +390,7 @@ const encryptionConfig = {
 - Salary information
 
 **Don't Encrypt:**
+
 - Non-sensitive reference data
 - Already public information
 - Data that needs complex queries
@@ -389,11 +399,13 @@ const encryptionConfig = {
 ### Encryption Types
 
 **Standard Encryption** (Non-searchable, more secure):
+
 - Use for highly sensitive data that doesn't need to be searched
 - Each encryption produces different output
 - Maximum security
 
 **Deterministic Encryption** (Searchable, less secure):
+
 - Use only for fields that must be searchable
 - Same input always produces same output
 - Allows equality searches but reveals patterns
@@ -404,6 +416,7 @@ const encryptionConfig = {
 ## Support
 
 For issues or questions:
+
 - Open an issue in the project repository
 - Contact the SAHOOL security team
 - Review the API documentation in the package README

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * Auth Error Boundary
  * حد الخطأ للمصادقة
  */
 
-import { useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { logger } from '@/lib/logger';
+import { useEffect } from "react";
+import { AlertTriangle } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 export default function AuthError({
   error,
@@ -18,7 +18,7 @@ export default function AuthError({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    logger.error('Auth error:', error);
+    logger.error("Auth error:", error);
   }, [error]);
 
   return (
@@ -27,7 +27,9 @@ export default function AuthError({
         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <AlertTriangle className="w-8 h-8 text-red-600" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">خطأ في تسجيل الدخول</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          خطأ في تسجيل الدخول
+        </h1>
         <h2 className="text-lg text-gray-700 mb-4">Authentication Error</h2>
         <p className="text-gray-600 mb-6">
           عذراً، حدث خطأ أثناء عملية تسجيل الدخول. يرجى المحاولة مرة أخرى.

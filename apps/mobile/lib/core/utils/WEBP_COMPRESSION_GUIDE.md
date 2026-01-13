@@ -1,4 +1,5 @@
 # دليل ضغط الصور بصيغة WebP للأجهزة المحمولة
+
 # WebP Image Compression Guide for Mobile
 
 ## نظرة عامة - Overview
@@ -19,6 +20,7 @@ WebP compression has been added to improve SAHOOL mobile app performance, especi
 ## الملفات المضافة - Added Files
 
 ### 1. `/lib/core/utils/image_compression.dart`
+
 أداة ضغط الصور الرئيسية - Main image compression utility
 
 **الوظائف الرئيسية - Key Functions:**
@@ -56,6 +58,7 @@ double getQualityForDevice(BuildContext context)
 ```
 
 ### 2. `/lib/core/services/tile_service.dart`
+
 خدمة جلب ومعالجة البلاطات - Tile fetching and processing service
 
 **الوظائف الرئيسية - Key Functions:**
@@ -93,6 +96,7 @@ Future<PrefetchResult> prefetchTilesAroundLocation({
 ## الاستخدام - Usage
 
 ### مثال 1: جلب وضغط بلاطة واحدة
+
 ### Example 1: Fetch and Compress Single Tile
 
 ```dart
@@ -122,6 +126,7 @@ if (tile != null) {
 ```
 
 ### مثال 2: تحميل مسبق لمنطقة
+
 ### Example 2: Prefetch Area
 
 ```dart
@@ -150,6 +155,7 @@ print('Duration: ${result.duration.inSeconds}s');
 ```
 
 ### مثال 3: تحميل مسبق حول موقع
+
 ### Example 3: Prefetch Around Location
 
 ```dart
@@ -170,6 +176,7 @@ final result = await tileService.prefetchTilesAroundLocation(
 ```
 
 ### مثال 4: التكامل مع الخرائط الموجودة
+
 ### Example 4: Integration with Existing Maps
 
 ```dart
@@ -245,6 +252,7 @@ class CompressedTileImage extends ImageProvider<CompressedTileImage> {
 ```
 
 ### مثال 5: تحديد الجودة بناءً على الجهاز
+
 ### Example 5: Device-Based Quality
 
 ```dart
@@ -316,11 +324,11 @@ await tileService.clearCache();
 
 ### مقارنة الأحجام - Size Comparison
 
-| نوع الصورة | الحجم الأصلي | بعد الضغط (WebP 60%) | التوفير |
-|-----------|-------------|---------------------|---------|
-| بلاطة خريطة 256x256 | 45 KB | 15 KB | 67% |
-| بلاطة خريطة 512x512 | 180 KB | 60 KB | 67% |
-| صورة فضائية عالية الدقة | 2.5 MB | 850 KB | 66% |
+| نوع الصورة              | الحجم الأصلي | بعد الضغط (WebP 60%) | التوفير |
+| ----------------------- | ------------ | -------------------- | ------- |
+| بلاطة خريطة 256x256     | 45 KB        | 15 KB                | 67%     |
+| بلاطة خريطة 512x512     | 180 KB       | 60 KB                | 67%     |
+| صورة فضائية عالية الدقة | 2.5 MB       | 850 KB               | 66%     |
 
 ### توصيات الاستخدام - Usage Recommendations
 
@@ -381,9 +389,11 @@ void main() {
 ## استكشاف الأخطاء - Troubleshooting
 
 ### المشكلة: WebP غير مدعوم على بعض الأجهزة
+
 **الحل**: النظام يتراجع تلقائياً إلى JPEG
 
 ### المشكلة: البلاطات لا تُحفظ في الكاش
+
 **الحل**: تحقق من صلاحيات التخزين والمساحة المتاحة
 
 ```dart
@@ -395,6 +405,7 @@ if (cacheInfo.sizeMB > 500) {
 ```
 
 ### المشكلة: الضغط يستهلك الكثير من الذاكرة
+
 **الحل**: معالجة البلاطات على دفعات صغيرة
 
 ```dart
@@ -442,12 +453,12 @@ lib/
 
 ```yaml
 dependencies:
-  image: ^4.3.0                   # معالجة وضغط الصور
-  dio: ^5.7.0                     # طلبات HTTP
-  path_provider: ^2.1.5           # الوصول إلى التخزين
-  shared_preferences: ^2.3.3      # التخزين المحلي
-  latlong2: ^0.9.1                # الإحداثيات الجغرافية
-  flutter_map: ^7.0.2             # الخرائط
+  image: ^4.3.0 # معالجة وضغط الصور
+  dio: ^5.7.0 # طلبات HTTP
+  path_provider: ^2.1.5 # الوصول إلى التخزين
+  shared_preferences: ^2.3.3 # التخزين المحلي
+  latlong2: ^0.9.1 # الإحداثيات الجغرافية
+  flutter_map: ^7.0.2 # الخرائط
 ```
 
 ---

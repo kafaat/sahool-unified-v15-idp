@@ -3,6 +3,7 @@
 ## ✅ Pre-Deployment Checklist
 
 ### Configuration
+
 - [ ] Copy `.env.example` to `.env`
 - [ ] Set `ETCD_ROOT_USERNAME=root` in `.env`
 - [ ] Set strong `ETCD_ROOT_PASSWORD` in `.env` (minimum 16 characters)
@@ -11,6 +12,7 @@
 - [ ] Review `init-auth.sh` script
 
 ### Security Review
+
 - [ ] Password meets complexity requirements (upper, lower, numbers, symbols)
 - [ ] Password stored securely (not in git, not in plain text logs)
 - [ ] Consider using secret management (Vault, AWS Secrets Manager)
@@ -18,6 +20,7 @@
 - [ ] Review network access restrictions (etcd port 2379 bound to localhost)
 
 ### Backup (if upgrading existing deployment)
+
 - [ ] Backup existing etcd data
 - [ ] Test restore procedure
 - [ ] Document rollback plan
@@ -25,6 +28,7 @@
 ## 🚀 Deployment Checklist
 
 ### Initial Deployment
+
 - [ ] Start etcd service: `docker-compose up -d etcd`
 - [ ] Wait for etcd to be healthy: `docker-compose ps etcd`
 - [ ] Start etcd-init: `docker-compose up -d etcd-init`
@@ -34,6 +38,7 @@
 - [ ] Check milvus logs: `docker logs sahool-milvus`
 
 ### Verification
+
 - [ ] Test authenticated access works
 - [ ] Test unauthenticated access is blocked
 - [ ] Verify milvus can connect to etcd
@@ -43,6 +48,7 @@
 ## 🧪 Testing Checklist
 
 ### Authentication Tests
+
 ```bash
 # Test 1: Unauthenticated access (should fail)
 docker exec sahool-etcd etcdctl endpoint health
@@ -64,6 +70,7 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 ```
 
 ### Service Health
+
 - [ ] Etcd service status: `docker-compose ps etcd`
 - [ ] Etcd-init completed: `docker-compose ps etcd-init` (should be exited)
 - [ ] Milvus service status: `docker-compose ps milvus`
@@ -72,6 +79,7 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 ## 📊 Monitoring Checklist
 
 ### Post-Deployment Monitoring (First 24 Hours)
+
 - [ ] Monitor etcd logs for authentication failures
 - [ ] Monitor milvus logs for etcd connection issues
 - [ ] Check etcd memory and CPU usage
@@ -79,6 +87,7 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 - [ ] Test backup and restore procedures
 
 ### Ongoing Monitoring
+
 - [ ] Set up alerts for etcd authentication failures
 - [ ] Monitor etcd performance metrics
 - [ ] Review access logs weekly
@@ -88,6 +97,7 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 ## 🔒 Security Hardening Checklist (Production)
 
 ### Advanced Security (Recommended for Production)
+
 - [ ] Enable TLS/SSL for etcd (set ETCD_USE_SSL=true)
 - [ ] Generate and configure TLS certificates
 - [ ] Implement certificate-based authentication
@@ -100,6 +110,7 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 - [ ] Implement automated credential rotation
 
 ### Compliance
+
 - [ ] Document security controls for compliance
 - [ ] Review against security standards (CIS, NIST)
 - [ ] Conduct security audit
@@ -109,6 +120,7 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 ## 📋 Rollback Checklist (If Needed)
 
 ### Emergency Rollback Procedure
+
 - [ ] Stop milvus: `docker-compose stop milvus`
 - [ ] Stop etcd-init: `docker-compose stop etcd-init`
 - [ ] Stop etcd: `docker-compose stop etcd`
@@ -122,6 +134,7 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 ## 📚 Documentation Checklist
 
 ### Required Documentation
+
 - [ ] Update deployment documentation
 - [ ] Update operations runbook
 - [ ] Document credential storage location
@@ -131,6 +144,7 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 - [ ] Share knowledge with team
 
 ### Team Training
+
 - [ ] Train operations team on new procedures
 - [ ] Train development team on local setup
 - [ ] Document common issues and solutions
@@ -138,29 +152,32 @@ docker logs sahool-milvus 2>&1 | grep -i "etcd.*success\|connected to etcd"
 
 ## ✅ Sign-off
 
-**Deployment Date**: _______________
+**Deployment Date**: ******\_\_\_******
 
-**Deployed By**: _______________
+**Deployed By**: ******\_\_\_******
 
-**Reviewed By**: _______________
+**Reviewed By**: ******\_\_\_******
 
-**Production Approval**: _______________
+**Production Approval**: ******\_\_\_******
 
 ---
 
 ## Quick Reference
 
 **Configuration Files**:
+
 - `.env` - Credentials (NOT in git)
 - `docker-compose.yml` - Service configuration
 - `infrastructure/core/etcd/init-auth.sh` - Init script
 
 **Documentation**:
+
 - `ETCD_AUTHENTICATION_IMPLEMENTATION.md` - Full documentation
 - `ETCD_QUICK_START.md` - Quick reference
 - `ETCD_SECURITY_CHECKLIST.md` - This file
 
 **Support**:
+
 - Check logs: `docker logs sahool-etcd`
 - Check init: `docker logs sahool-etcd-init`
 - Check milvus: `docker logs sahool-milvus`

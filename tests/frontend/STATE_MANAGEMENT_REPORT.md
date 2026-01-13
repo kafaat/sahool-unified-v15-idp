@@ -13,6 +13,7 @@ This report analyzes the state management implementations across the SAHOOL plat
 ### Overall Assessment: ⭐⭐⭐⭐ (4/5)
 
 **Strengths:**
+
 - Comprehensive offline-first architecture in mobile app
 - Proper separation of server state and client state
 - Good error boundary implementations
@@ -20,6 +21,7 @@ This report analyzes the state management implementations across the SAHOOL plat
 - Efficient caching strategies
 
 **Areas for Improvement:**
+
 - State synchronization between web and mobile needs coordination
 - Web app lacks comprehensive offline support
 - Missing global state management library on web (consider Zustand)
@@ -32,12 +34,14 @@ This report analyzes the state management implementations across the SAHOOL plat
 ### 1.1 State Management Libraries
 
 **Primary Libraries:**
+
 - **@tanstack/react-query**: Server state management (caching, background updates, mutations)
 - **React Context API**: Global auth state
 - **React Hooks (useState, useEffect)**: Local component state
 - **No dedicated global state library** (Zustand, Redux, Jotai absent)
 
 **Dependencies:**
+
 ```json
 {
   "@tanstack/react-query": "present",
@@ -48,6 +52,7 @@ This report analyzes the state management implementations across the SAHOOL plat
 ### 1.2 State Patterns
 
 #### Authentication State (`/apps/web/src/stores/auth.store.tsx`)
+
 ```typescript
 Pattern: React Context + useState
 - User authentication state
@@ -58,12 +63,14 @@ Pattern: React Context + useState
 ```
 
 **Issues Identified:**
+
 - ✅ Good: Secure cookie flags (secure, sameSite: 'strict')
 - ⚠️ Concern: Cookies managed client-side (should be httpOnly from server)
 - ✅ Good: Loading state management
 - ✅ Good: Error handling with try-catch
 
 #### Server State (`/apps/web/src/lib/api/hooks.ts`)
+
 ```typescript
 Pattern: TanStack Query with custom hooks
 - Centralized query key management
@@ -74,18 +81,21 @@ Pattern: TanStack Query with custom hooks
 ```
 
 **Query Configuration:**
+
 - Fields: 2-minute stale time, 3 retries
 - IoT Sensors: 30-second stale time, 30-second refetch interval
 - Weather: 5-minute stale time, 5-minute refetch interval
 - NDVI: 1-minute stale time, 1-minute refetch interval
 
 **Issues Identified:**
+
 - ✅ Excellent: Proper query key structure
 - ✅ Excellent: Exponential backoff retry strategy
 - ✅ Good: Different stale times for different data types
 - ⚠️ Minor: No query invalidation strategy documented
 
 #### Mutations (`/apps/web/src/features/fields/hooks/useFieldMutations.ts`)
+
 ```typescript
 Pattern: useMutation with cache invalidation
 - onCreate: Invalidates lists and stats
@@ -95,12 +105,14 @@ Pattern: useMutation with cache invalidation
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Optimistic cache updates for single items
 - ✅ Good: Invalidation of related queries
 - ✅ Good: Error parsing with bilingual support
 - ✅ Good: Loading state aggregation
 
 #### Cart State (`/apps/web/src/features/marketplace/hooks/useCart.tsx`)
+
 ```typescript
 Pattern: Context API + localStorage persistence
 - Add/remove/update cart items
@@ -110,6 +122,7 @@ Pattern: Context API + localStorage persistence
 ```
 
 **Issues Identified:**
+
 - ✅ Good: Automatic persistence
 - ⚠️ Issue: Not tied to user account (no multi-device sync)
 - ⚠️ Issue: No cleanup on logout
@@ -117,6 +130,7 @@ Pattern: Context API + localStorage persistence
 - ⚠️ Missing: No optimistic UI for network operations
 
 #### WebSocket State (`/apps/web/src/hooks/useWebSocket.ts`)
+
 ```typescript
 Pattern: Custom hook with reconnection logic
 - Automatic reconnection (5s interval)
@@ -126,6 +140,7 @@ Pattern: Custom hook with reconnection logic
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Proper cleanup and reconnection
 - ✅ Good: Memory leak prevention with ref pattern
 - ✅ Good: Graceful error handling
@@ -142,6 +157,7 @@ const { mutate, isPending } = useMutation(...)
 ```
 
 **Coverage:**
+
 - ✅ React Query provides built-in loading states
 - ✅ 94 components use loading states
 - ✅ Loading states properly propagated
@@ -152,6 +168,7 @@ const { mutate, isPending } = useMutation(...)
 **Implementation Quality: ⭐⭐⭐⭐⭐**
 
 #### Error Boundary (`/apps/web/src/components/common/ErrorBoundary.tsx`)
+
 ```typescript
 Features:
 - Catches React component errors
@@ -163,12 +180,14 @@ Features:
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Comprehensive error capture
 - ✅ Excellent: Server-side logging
 - ✅ Good: User-friendly fallback UI
 - ✅ Good: Silent fail for logging errors (prevents infinite loops)
 
 #### Query Error Handling
+
 ```typescript
 - Automatic retry (3 attempts with exponential backoff)
 - Error state exposed in hooks
@@ -181,12 +200,14 @@ Features:
 **Implementation Quality: ⭐⭐**
 
 **Current Implementation:**
+
 - Authentication: Cookies (7-day expiry)
 - Cart: localStorage
 - Layer preferences: localStorage (mentioned in `/apps/web/src/features/fields/components/LayerControl.tsx`)
 - Service switcher: localStorage
 
 **Issues Identified:**
+
 - ⚠️ Limited: Only specific features persist state
 - ⚠️ Missing: No unified persistence strategy
 - ⚠️ Missing: No IndexedDB for complex data
@@ -198,6 +219,7 @@ Features:
 **Implementation Quality: ⭐⭐ (Limited)**
 
 **Current Support:**
+
 - ❌ No service worker
 - ❌ No offline mutation queue
 - ❌ No background sync
@@ -205,6 +227,7 @@ Features:
 - ⚠️ staleTime configuration helps with network failures
 
 **Recommendations:**
+
 - Implement service worker for offline caching
 - Add offline mutation queue (consider TanStack Query Persist)
 - Add network status detection
@@ -226,6 +249,7 @@ riverpod_annotation: ^2.6.1
 **Provider Count:** 37 provider files across features
 
 **Pattern Distribution:**
+
 - Provider: Most common (150 files)
 - StateNotifier: 40+ instances
 - FutureProvider: 20+ instances
@@ -236,6 +260,7 @@ riverpod_annotation: ^2.6.1
 ### 2.2 State Patterns
 
 #### Dependency Injection (`/apps/mobile/lib/core/di/providers.dart`)
+
 ```dart
 Pattern: Provider-based DI
 - databaseProvider (overridden in main.dart)
@@ -245,11 +270,13 @@ Pattern: Provider-based DI
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Proper dependency hierarchy
 - ✅ Good: Security-aware (request signing, certificate pinning)
 - ⚠️ Note: Database provider must be overridden (throws UnimplementedError)
 
 #### Feature State (`/apps/mobile/lib/features/tasks/providers/tasks_provider.dart`)
+
 ```dart
 Pattern: StateNotifier + AsyncValue
 - Loads from local database first
@@ -259,6 +286,7 @@ Pattern: StateNotifier + AsyncValue
 ```
 
 **State Flow:**
+
 1. Load local data immediately (fast UX)
 2. Display AsyncValue.loading during initial load
 3. Show data when available
@@ -266,12 +294,14 @@ Pattern: StateNotifier + AsyncValue
 5. Fallback to local on server failure
 
 **Issues Identified:**
+
 - ✅ Excellent: Offline-first approach
 - ✅ Excellent: Graceful degradation on errors
 - ✅ Good: Proper state transitions
 - ✅ Good: Derived providers (pendingTasks, overdueTasks)
 
 #### Sync State (`/apps/mobile/lib/features/home/logic/sync_provider.dart`)
+
 ```dart
 Pattern: StateProvider + FutureProvider
 - SyncStatus enum (synced, syncing, offline)
@@ -281,6 +311,7 @@ Pattern: StateProvider + FutureProvider
 ```
 
 **Issues Identified:**
+
 - ⚠️ Placeholder: Comments indicate "في التطبيق الحقيقي" (in real app)
 - ⚠️ Hardcoded: isOnlineProvider returns true
 - ✅ Good: Status enum with translations
@@ -290,6 +321,7 @@ Pattern: StateProvider + FutureProvider
 **Implementation Quality: ⭐⭐⭐⭐⭐ (Excellent)**
 
 #### Offline Sync Engine (`/apps/mobile/lib/core/offline/offline_sync_engine.dart`)
+
 ```dart
 Features:
 - Outbox pattern for reliable offline mutations
@@ -302,11 +334,13 @@ Features:
 ```
 
 **Outbox Operations:**
+
 - CREATE: enqueueCreate with generated UUID
 - UPDATE: enqueueUpdate with previousData for conflict detection
 - DELETE: enqueueDelete with high priority
 
 **Conflict Resolution:**
+
 ```dart
 Strategies:
 - Server wins (default)
@@ -316,6 +350,7 @@ Strategies:
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Comprehensive offline support
 - ✅ Excellent: Proper conflict resolution
 - ✅ Excellent: Exponential backoff
@@ -324,6 +359,7 @@ Strategies:
 - ⚠️ Missing: Real API integration shown in comments
 
 #### Network Status (`/apps/mobile/lib/core/sync/network_status.dart`)
+
 ```dart
 Features:
 - connectivity_plus integration
@@ -333,11 +369,13 @@ Features:
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Reactive connectivity monitoring
 - ✅ Good: Clean dispose pattern
 - ✅ Good: Event deduplication
 
 #### Database Persistence (`Drift with SQLCipher`)
+
 ```yaml
 drift: ^2.24.0
 sqlite3_flutter_libs: ^0.5.28
@@ -345,12 +383,14 @@ sqlcipher_flutter_libs: ^0.6.1
 ```
 
 **Features:**
+
 - Encrypted local database (SQLCipher)
 - Type-safe queries
 - Reactive streams (watchAllFields)
 - Multi-tenancy support (tenant_mixin)
 
 **Issues Identified:**
+
 - ✅ Excellent: Encryption support
 - ✅ Excellent: Type safety
 - ✅ Excellent: Reactive queries
@@ -371,6 +411,7 @@ return tasksState.when(
 ```
 
 **Coverage:**
+
 - ✅ Consistent AsyncValue usage
 - ✅ Proper loading indicators
 - ✅ Loading state widgets (`/apps/mobile/lib/core/widgets/loading_states.dart`)
@@ -381,6 +422,7 @@ return tasksState.when(
 **Implementation Quality: ⭐⭐⭐⭐⭐**
 
 #### Error Boundary (`/apps/mobile/lib/core/error_handling/error_boundary.dart`)
+
 ```dart
 Features:
 - Widget tree error catching
@@ -394,12 +436,14 @@ Features:
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Comprehensive error capture
 - ✅ Excellent: User-friendly UI
 - ✅ Excellent: Developer-friendly debugging
 - ✅ Good: Reusable error components
 
 #### Main.dart Error Setup
+
 ```dart
 Features:
 - FlutterError.onError handler
@@ -410,6 +454,7 @@ Features:
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Multi-layer error capture
 - ✅ Excellent: Crash reporting service integration
 - ✅ Good: Error context preservation
@@ -420,6 +465,7 @@ Features:
 **Implementation Quality: ⭐⭐⭐⭐⭐**
 
 **Persistence Layers:**
+
 1. **Drift Database** (SQLite with encryption)
    - All entity data (fields, tasks, crops, etc.)
    - Offline mutations (outbox table)
@@ -438,6 +484,7 @@ Features:
    - Map tile cache metadata
 
 **Issues Identified:**
+
 - ✅ Excellent: Multi-tier persistence strategy
 - ✅ Excellent: Security-first (encrypted database)
 - ✅ Good: Proper separation of concerns
@@ -448,6 +495,7 @@ Features:
 **Implementation Quality: ⭐⭐⭐⭐⭐**
 
 #### Sync Engine (`/apps/mobile/lib/core/sync/sync_engine.dart`)
+
 ```dart
 Features:
 - Bidirectional sync (local ↔️ server)
@@ -459,6 +507,7 @@ Features:
 ```
 
 #### Background Sync (`/apps/mobile/lib/core/sync/background_sync_task.dart`)
+
 ```dart
 Features:
 - WorkManager periodic tasks
@@ -468,6 +517,7 @@ Features:
 ```
 
 **Issues Identified:**
+
 - ✅ Excellent: Production-ready sync architecture
 - ✅ Excellent: Battery optimization
 - ✅ Good: Network efficiency
@@ -482,12 +532,14 @@ Features:
 **Current Status: ⚠️ No Direct Synchronization**
 
 **Web → Mobile:**
+
 - ❌ No real-time sync mechanism
 - ❌ Web changes don't push to mobile
 - ⚠️ Mobile can pull updates through periodic sync
 - ⚠️ Reliant on backend as source of truth
 
 **Mobile → Web:**
+
 - ✅ Mobile offline changes sync to server
 - ⚠️ Web must manually refresh to see mobile changes
 - ❌ No WebSocket push notifications from mobile actions
@@ -517,20 +569,15 @@ Features:
 ### 3.3 Recommendations
 
 **High Priority:**
+
 1. Implement WebSocket on web for real-time updates
 2. Add server-side cart persistence
 3. Sync user preferences to backend
 4. Implement optimistic updates on web
 
-**Medium Priority:**
-5. Add version vectors for conflict detection
-6. Implement last-write-wins with timestamps
-7. Add cross-device notification sync
-8. Implement event sourcing for critical operations
+**Medium Priority:** 5. Add version vectors for conflict detection 6. Implement last-write-wins with timestamps 7. Add cross-device notification sync 8. Implement event sourcing for critical operations
 
-**Low Priority:**
-9. Add CRDT (Conflict-free Replicated Data Types) for complex state
-10. Implement session synchronization across tabs
+**Low Priority:** 9. Add CRDT (Conflict-free Replicated Data Types) for complex state 10. Implement session synchronization across tabs
 
 ---
 
@@ -541,6 +588,7 @@ Features:
 **Coverage: 94 components**
 
 **Patterns:**
+
 ```typescript
 // TanStack Query
 const { isLoading, isPending } = useQuery(...)
@@ -551,6 +599,7 @@ const [loading, setLoading] = useState(false)
 ```
 
 **Quality Indicators:**
+
 - ✅ Consistent use of isLoading/isPending
 - ✅ Skeleton components for major features
 - ✅ Loading aggregation in mutation hooks
@@ -561,6 +610,7 @@ const [loading, setLoading] = useState(false)
 **Coverage: 206 AsyncValue usages**
 
 **Patterns:**
+
 ```dart
 // Riverpod AsyncValue
 asyncValue.when(
@@ -574,6 +624,7 @@ bool _isLoading = false;
 ```
 
 **Quality Indicators:**
+
 - ✅ Excellent: AsyncValue pattern consistently used
 - ✅ Dedicated loading widgets
 - ✅ Progressive loading (show cached data while refreshing)
@@ -582,11 +633,13 @@ bool _isLoading = false;
 ### 4.3 Loading State Issues
 
 **Web:**
+
 - ⚠️ No global loading indicator for mutations
 - ⚠️ Parallel mutations don't show aggregate loading state
 - ⚠️ Missing loading states for lazy-loaded components
 
 **Mobile:**
+
 - ✅ Well implemented overall
 - ⚠️ Minor: Some screens use manual loading flags instead of AsyncValue
 
@@ -597,6 +650,7 @@ bool _isLoading = false;
 ### 5.1 Error Handling Coverage
 
 **Web:**
+
 - ErrorBoundary: ✅ Implemented
 - API Errors: ✅ Handled in React Query
 - Validation Errors: ✅ Form validation present
@@ -604,6 +658,7 @@ bool _isLoading = false;
 - Runtime Errors: ✅ Caught by ErrorBoundary
 
 **Mobile:**
+
 - ErrorBoundary: ✅ Implemented
 - API Errors: ✅ Handled in AsyncValue
 - Validation Errors: ✅ Form validation present
@@ -614,12 +669,14 @@ bool _isLoading = false;
 ### 5.2 Error Recovery Mechanisms
 
 **Web:**
+
 - Retry button in ErrorBoundary: ✅
 - Automatic retry (React Query): ✅ (3 attempts)
 - Manual refresh: ✅
 - Fallback UI: ✅
 
 **Mobile:**
+
 - Retry button in ErrorBoundary: ✅
 - Automatic retry (offline sync): ✅ (5 attempts with backoff)
 - Manual refresh: ✅
@@ -629,6 +686,7 @@ bool _isLoading = false;
 ### 5.3 Error Logging
 
 **Web:**
+
 ```typescript
 // Error Boundary logs to /api/log-error
 - Error message
@@ -640,6 +698,7 @@ bool _isLoading = false;
 ```
 
 **Mobile:**
+
 ```dart
 // CrashReportingService
 - Error details
@@ -651,6 +710,7 @@ bool _isLoading = false;
 ```
 
 **Issues Identified:**
+
 - ✅ Both platforms have comprehensive logging
 - ⚠️ Web: No breadcrumb system (mobile has this)
 - ⚠️ Web: No sampling rate control
@@ -662,21 +722,22 @@ bool _isLoading = false;
 
 ### 6.1 Persistence Strategies
 
-| Data Type | Web | Mobile |
-|-----------|-----|--------|
-| Auth Tokens | Cookies (7 days) | Secure Storage |
-| User Profile | Not persisted | Drift DB |
-| Cart | localStorage | N/A |
-| Field Data | Not persisted | Drift DB (encrypted) |
-| Tasks | Not persisted | Drift DB |
-| Settings | localStorage | SharedPreferences |
-| Map Layers | localStorage | Drift DB |
-| Offline Queue | N/A | Drift DB (outbox) |
-| Sensor Data | Not persisted | Drift DB |
+| Data Type     | Web              | Mobile               |
+| ------------- | ---------------- | -------------------- |
+| Auth Tokens   | Cookies (7 days) | Secure Storage       |
+| User Profile  | Not persisted    | Drift DB             |
+| Cart          | localStorage     | N/A                  |
+| Field Data    | Not persisted    | Drift DB (encrypted) |
+| Tasks         | Not persisted    | Drift DB             |
+| Settings      | localStorage     | SharedPreferences    |
+| Map Layers    | localStorage     | Drift DB             |
+| Offline Queue | N/A              | Drift DB (outbox)    |
+| Sensor Data   | Not persisted    | Drift DB             |
 
 ### 6.2 Persistence Issues
 
 **Web:**
+
 - ⚠️ Limited persistence (only cookies + localStorage)
 - ⚠️ No IndexedDB for large datasets
 - ⚠️ No encryption for sensitive data
@@ -684,6 +745,7 @@ bool _isLoading = false;
 - ❌ No offline data storage
 
 **Mobile:**
+
 - ✅ Excellent: Comprehensive persistence
 - ✅ Encrypted database
 - ✅ Proper cleanup on logout
@@ -693,11 +755,13 @@ bool _isLoading = false;
 ### 6.3 Data Retention
 
 **Web:**
+
 - Cookies: 7 days (auth tokens)
 - localStorage: Indefinite (manual cleanup needed)
 - No automatic cleanup strategy
 
 **Mobile:**
+
 - Database: Indefinite with sync metadata
 - Outbox: Completed entries cleaned periodically
 - Cache: Managed by image_cache_manager
@@ -712,6 +776,7 @@ bool _isLoading = false;
 #### Web Application
 
 1. **Add Global State Management**
+
    ```typescript
    // Consider Zustand for global client state
    - User preferences
@@ -741,6 +806,7 @@ bool _isLoading = false;
 #### Mobile Application
 
 5. **Complete Sync Implementation**
+
    ```dart
    // Current placeholders need real implementation
    - Replace hardcoded isOnlineProvider
@@ -818,7 +884,7 @@ export function useFieldMutations() {
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
     },
     onError: (error) => {
-      logger.error('Failed to create field:', error);
+      logger.error("Failed to create field:", error);
     },
   });
 }
@@ -829,9 +895,9 @@ const [loading, setLoading] = useState(false);
 
 useEffect(() => {
   setLoading(true);
-  fetch('/api/fields')
-    .then(res => res.json())
-    .then(data => setFields(data))
+  fetch("/api/fields")
+    .then((res) => res.json())
+    .then((data) => setFields(data))
     .finally(() => setLoading(false));
 }, []);
 ```
@@ -901,6 +967,7 @@ if (isError) {
 ### 9.1 State Management Tests Needed
 
 **Web:**
+
 ```typescript
 // Auth state tests
 - Login/logout flow
@@ -922,6 +989,7 @@ if (isError) {
 ```
 
 **Mobile:**
+
 ```dart
 // Provider tests
 - Initial state
@@ -957,6 +1025,7 @@ if (isError) {
 ### 10.1 Current Metrics
 
 **Web:**
+
 - State management files: 95 hooks/providers
 - Error boundary coverage: Layout level
 - Loading state coverage: 94 components
@@ -964,6 +1033,7 @@ if (isError) {
 - Cache hit ratio: Not measured
 
 **Mobile:**
+
 - Provider count: 37 feature providers
 - Database tables: 20+ entities
 - Offline support: 100% of mutations
@@ -973,6 +1043,7 @@ if (isError) {
 ### 10.2 Recommended KPIs
 
 **Track:**
+
 - State update performance (time to update)
 - Cache hit rate (React Query)
 - Offline sync success rate
@@ -990,12 +1061,14 @@ if (isError) {
 The SAHOOL platform demonstrates solid state management implementations with clear strengths in different areas:
 
 **Web Strengths:**
+
 - Excellent server state management with React Query
 - Clean separation of concerns
 - Good error boundaries
 - Proper retry strategies
 
 **Mobile Strengths:**
+
 - Outstanding offline-first architecture
 - Comprehensive sync engine
 - Excellent persistence layer
@@ -1013,6 +1086,7 @@ The SAHOOL platform demonstrates solid state management implementations with cle
 ### 11.3 Future Vision
 
 **Target Architecture:**
+
 - Unified state synchronization across all platforms
 - Real-time updates via WebSocket
 - Offline-first everywhere
@@ -1025,6 +1099,7 @@ The SAHOOL platform demonstrates solid state management implementations with cle
 ## Appendix A: File References
 
 ### Web App Key Files
+
 - `/apps/web/src/stores/auth.store.tsx` - Authentication state
 - `/apps/web/src/app/providers.tsx` - Root providers
 - `/apps/web/src/lib/api/hooks.ts` - React Query hooks
@@ -1033,6 +1108,7 @@ The SAHOOL platform demonstrates solid state management implementations with cle
 - `/apps/web/src/components/common/ErrorBoundary.tsx` - Error boundary
 
 ### Mobile App Key Files
+
 - `/apps/mobile/lib/main.dart` - App initialization
 - `/apps/mobile/lib/core/di/providers.dart` - Dependency injection
 - `/apps/mobile/lib/core/offline/offline_sync_engine.dart` - Offline sync
@@ -1041,6 +1117,7 @@ The SAHOOL platform demonstrates solid state management implementations with cle
 - `/apps/mobile/lib/core/error_handling/error_boundary.dart` - Error boundary
 
 ### State Management Patterns
+
 - Web: 94 files with useState/useEffect
 - Web: 37 files with React Query
 - Mobile: 150 files with Provider pattern

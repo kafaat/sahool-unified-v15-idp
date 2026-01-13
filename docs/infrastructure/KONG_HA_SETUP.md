@@ -1,4 +1,5 @@
 # Kong HA Setup Guide
+
 ## دليل إعداد Kong عالي التوفر
 
 **Version:** 15.5.0
@@ -74,6 +75,7 @@ docker-compose -f docker-compose.kong-ha.yml ps
 ### 1. docker-compose.kong-ha.yml
 
 Main orchestration file defining:
+
 - 3 Kong nodes (primary, secondary, tertiary)
 - Nginx load balancer
 - Network configuration
@@ -82,6 +84,7 @@ Main orchestration file defining:
 ### 2. nginx-kong-ha.conf
 
 Load balancer configuration:
+
 - Upstream cluster definition
 - Health check endpoints
 - Timeout settings
@@ -90,6 +93,7 @@ Load balancer configuration:
 ### 3. kong/declarative/kong.yml
 
 Service definitions:
+
 - All SAHOOL API services
 - Rate limiting plugins
 - CORS configuration
@@ -99,17 +103,17 @@ Service definitions:
 
 ## Services Configured | الخدمات المُعدة
 
-| Service | Upstream | Rate Limit | Path |
-|---------|----------|------------|------|
-| field-ops | field-service:8080 | 1000/min | /api/v1/fields |
-| satellite-service | satellite-service:8090 | 500/min | /api/v1/satellite |
-| virtual-sensors | virtual-sensors:8085 | 2000/min | /api/v1/sensors |
-| yield-prediction | yield-prediction:8091 | 300/min | /api/v1/yield |
-| lai-estimation | lai-estimation:8093 | 500/min | /api/v1/lai |
-| irrigation-smart | irrigation-smart:8086 | 1000/min | /api/v1/irrigation |
-| notification-service | notification-service:8083 | 5000/min | /api/v1/notifications |
-| crop-growth-timing | crop-growth-timing:8098 | 500/min | /api/v1/crop-timing |
-| weather-service | weather-advanced:8092 | 1000/min | /api/v1/weather |
+| Service              | Upstream                  | Rate Limit | Path                  |
+| -------------------- | ------------------------- | ---------- | --------------------- |
+| field-ops            | field-service:8080        | 1000/min   | /api/v1/fields        |
+| satellite-service    | satellite-service:8090    | 500/min    | /api/v1/satellite     |
+| virtual-sensors      | virtual-sensors:8085      | 2000/min   | /api/v1/sensors       |
+| yield-prediction     | yield-prediction:8091     | 300/min    | /api/v1/yield         |
+| lai-estimation       | lai-estimation:8093       | 500/min    | /api/v1/lai           |
+| irrigation-smart     | irrigation-smart:8086     | 1000/min   | /api/v1/irrigation    |
+| notification-service | notification-service:8083 | 5000/min   | /api/v1/notifications |
+| crop-growth-timing   | crop-growth-timing:8098   | 500/min    | /api/v1/crop-timing   |
+| weather-service      | weather-advanced:8092     | 1000/min   | /api/v1/weather       |
 
 ---
 
@@ -172,12 +176,12 @@ docker logs -f sahool-kong-lb
 
 ### Common Issues
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| 502 Bad Gateway | All Kong nodes down | Check Kong container health |
+| Issue                   | Cause                | Solution                     |
+| ----------------------- | -------------------- | ---------------------------- |
+| 502 Bad Gateway         | All Kong nodes down  | Check Kong container health  |
 | 503 Service Unavailable | Backend service down | Check backend service status |
-| Connection refused | Nginx not running | Restart nginx container |
-| Slow responses | Network issues | Check docker network |
+| Connection refused      | Nginx not running    | Restart nginx container      |
+| Slow responses          | Network issues       | Check docker network         |
 
 ### Recovery Steps
 
@@ -242,5 +246,6 @@ upstream kong_cluster {
 ---
 
 **Related Documents:**
+
 - [Engineering Recovery Plan](../engineering/ENGINEERING_RECOVERY_PLAN.md)
 - [Service Activation Map](../architecture/SERVICE_ACTIVATION_MAP.md)

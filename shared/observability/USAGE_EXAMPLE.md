@@ -402,6 +402,7 @@ def test_sensitive_masking():
 ### Issue: Traces not appearing in Google Cloud Trace
 
 **Solution:**
+
 - Verify `GCP_PROJECT_ID` is set correctly
 - Ensure service account has Cloud Trace Agent role
 - Check `GOOGLE_APPLICATION_CREDENTIALS` points to valid service account key
@@ -409,6 +410,7 @@ def test_sensitive_masking():
 ### Issue: High memory usage
 
 **Solution:**
+
 - Reduce trace sampling rate: `OTEL_SAMPLE_RATE=0.1`
 - Use batch span processor (default)
 - Monitor metric cardinality (avoid high-cardinality labels)
@@ -416,6 +418,7 @@ def test_sensitive_masking():
 ### Issue: Sensitive data in logs
 
 **Solution:**
+
 - Enable masking: `mask_sensitive=True`
 - Add custom patterns to `SensitiveDataMasker.PATTERNS`
 - Review logs in development before production deployment

@@ -21,6 +21,7 @@ npm run prisma:migrate:deploy
 ```
 
 This will apply:
+
 - Migration `0001_init_postgis`: Initial PostGIS setup and field tables
 - Migration `0002_add_geospatial_indexes`: Farm table and advanced geospatial functions
 
@@ -48,6 +49,7 @@ All endpoints are prefixed with `/api/v1/geo`
 ### Query Endpoints
 
 #### Find Fields in Radius
+
 ```http
 GET /api/v1/geo/fields/radius?lat=15.3694&lng=44.1910&radius=10&tenantId=tenant123
 ```
@@ -55,9 +57,10 @@ GET /api/v1/geo/fields/radius?lat=15.3694&lng=44.1910&radius=10&tenantId=tenant1
 Returns all fields within the specified radius (in km) from a point.
 
 **Response:**
+
 ```json
 {
-  "center": { "lat": 15.3694, "lng": 44.1910 },
+  "center": { "lat": 15.3694, "lng": 44.191 },
   "radius_km": 10,
   "total_fields": 5,
   "fields": [
@@ -67,14 +70,15 @@ Returns all fields within the specified radius (in km) from a point.
       "distance_km": 2.5,
       "area_hectares": 5.25,
       "crop_type": "wheat",
-      "centroid_lat": 15.3700,
-      "centroid_lng": 44.1920
+      "centroid_lat": 15.37,
+      "centroid_lng": 44.192
     }
   ]
 }
 ```
 
 #### Find Nearby Farms
+
 ```http
 GET /api/v1/geo/farms/nearby?lat=15.3694&lng=44.1910&limit=5
 ```
@@ -82,6 +86,7 @@ GET /api/v1/geo/farms/nearby?lat=15.3694&lng=44.1910&limit=5
 Returns the nearest farms to a location.
 
 #### Calculate Field Area
+
 ```http
 GET /api/v1/geo/fields/{fieldId}/area
 ```
@@ -89,6 +94,7 @@ GET /api/v1/geo/fields/{fieldId}/area
 Calculates the area of a field in hectares from its boundary geometry.
 
 #### Check Point in Field
+
 ```http
 POST /api/v1/geo/fields/{fieldId}/contains-point
 Content-Type: application/json
@@ -102,6 +108,7 @@ Content-Type: application/json
 Checks if a coordinate is inside a field's boundary.
 
 #### Find Fields in Bounding Box
+
 ```http
 GET /api/v1/geo/fields/bbox?minLat=15.0&minLng=44.0&maxLat=16.0&maxLng=45.0
 ```
@@ -109,6 +116,7 @@ GET /api/v1/geo/fields/bbox?minLat=15.0&minLng=44.0&maxLat=16.0&maxLng=45.0
 Returns all fields that intersect with the bounding box.
 
 #### Calculate Distance Between Fields
+
 ```http
 GET /api/v1/geo/fields/{fieldId1}/distance/{fieldId2}
 ```
@@ -116,17 +124,20 @@ GET /api/v1/geo/fields/{fieldId1}/distance/{fieldId2}
 Calculates the distance in kilometers between two fields.
 
 #### Get Regional Statistics
+
 ```http
 GET /api/v1/geo/region/stats?minLat=15.0&minLng=44.0&maxLat=16.0&maxLng=45.0&tenantId=tenant123
 ```
 
 Returns agricultural statistics for a region:
+
 - Total fields
 - Total area (ha)
 - Average field size
 - Crop distribution
 
 #### Get GeoJSON Representations
+
 ```http
 GET /api/v1/geo/fields/{fieldId}/geojson
 GET /api/v1/geo/farms/{farmId}/geojson
@@ -136,6 +147,7 @@ GET /api/v1/geo/farms/{farmId}/fields
 ### Mutation Endpoints
 
 #### Create Field with Boundary
+
 ```http
 POST /api/v1/geo/fields
 Content-Type: application/json
@@ -163,6 +175,7 @@ Content-Type: application/json
 Creates a field with a GeoJSON polygon boundary. The area and centroid are automatically calculated.
 
 #### Update Field Boundary
+
 ```http
 PUT /api/v1/geo/fields/{fieldId}/boundary
 Content-Type: application/json
@@ -176,6 +189,7 @@ Content-Type: application/json
 ```
 
 #### Create Farm with Location
+
 ```http
 POST /api/v1/geo/farms
 Content-Type: application/json
@@ -255,6 +269,7 @@ The following spatial indexes are created for optimal query performance:
 ## Coordinate System
 
 All geometries use **SRID 4326** (WGS 84, standard GPS coordinates):
+
 - Longitude: -180 to 180
 - Latitude: -90 to 90
 - Format: [longitude, latitude] (note: GeoJSON uses lng/lat order)

@@ -1,4 +1,5 @@
 # تحليل المرحلة الأولى - فحص الاعتماديات والتعارضات
+
 # Phase 1 Analysis - Dependency Scan & Conflicts Report
 
 **التاريخ:** 20 ديسمبر 2025
@@ -11,12 +12,12 @@
 
 ### الملفات المفحوصة | Files Scanned
 
-| التقنية | عدد الملفات | الموقع |
-|---------|-------------|--------|
-| Node.js (package.json) | 13 ملف نشط | packages/*, apps/web, apps/admin, apps/services/* |
-| Python (requirements.txt) | 12 ملف نشط | apps/services/* |
-| Flutter (pubspec.yaml) | 1 ملف | apps/mobile/sahool_field_app |
-| Docker | 2 base images | docker/Dockerfile.*.base |
+| التقنية                   | عدد الملفات   | الموقع                                            |
+| ------------------------- | ------------- | ------------------------------------------------- |
+| Node.js (package.json)    | 13 ملف نشط    | packages/_, apps/web, apps/admin, apps/services/_ |
+| Python (requirements.txt) | 12 ملف نشط    | apps/services/\*                                  |
+| Flutter (pubspec.yaml)    | 1 ملف         | apps/mobile/sahool_field_app                      |
+| Docker                    | 2 base images | docker/Dockerfile.\*.base                         |
 
 ---
 
@@ -25,6 +26,7 @@
 ### ✅ تعارضات حرجة تم إصلاحها | Critical Conflicts Fixed
 
 #### 2.1 تعارض numpy في Python
+
 ```
 المشكلة:
 crop-health-ai: numpy>=1.26.0,<2.1.0  (مطلوب من tensorflow-cpu 2.18.0)
@@ -35,6 +37,7 @@ yield-engine:   numpy==1.26.4        ✅ تم التوحيد
 ```
 
 #### 2.2 تعارض @nestjs/swagger في Node.js
+
 ```
 المشكلة:
 iot-service:         @nestjs/swagger ^8.1.0
@@ -45,6 +48,7 @@ marketplace-service: @nestjs/swagger ^8.1.0  ✅ تم التوحيد
 ```
 
 #### 2.3 تعارض React 19 peer dependencies
+
 ```
 المشكلة:
 react-leaflet@4.2.1: يتطلب React ^18.0.0
@@ -61,64 +65,71 @@ recharts:      2.14.1 → 3.6.0  ✅ يدعم React 19
 
 ### ✅ المرحلة B: ترقيات منخفضة المخاطر (مكتملة)
 
-| الحزمة | السابق | الحالي | الحالة |
-|--------|--------|--------|--------|
-| typescript | 5.7.2 | 5.9.3 | ✅ |
-| @types/node | 22.10.2 | 22.19.3 | ✅ |
-| axios | 1.7.9 | 1.13.2 | ✅ |
-| @tanstack/react-query | 5.62.8 | 5.90.12 | ✅ |
-| lucide-react | 0.468.0 | 0.562.0 | ✅ |
-| postcss | 8.4.49 | 8.5.6 | ✅ |
-| autoprefixer | 10.4.20 | 10.4.23 | ✅ |
-| @testing-library/react | 16.1.0 | 16.3.1 | ✅ |
-| @testing-library/jest-dom | 6.6.3 | 6.9.1 | ✅ |
-| @types/leaflet | 1.9.15 | 1.9.21 | ✅ |
+| الحزمة                    | السابق  | الحالي  | الحالة |
+| ------------------------- | ------- | ------- | ------ |
+| typescript                | 5.7.2   | 5.9.3   | ✅     |
+| @types/node               | 22.10.2 | 22.19.3 | ✅     |
+| axios                     | 1.7.9   | 1.13.2  | ✅     |
+| @tanstack/react-query     | 5.62.8  | 5.90.12 | ✅     |
+| lucide-react              | 0.468.0 | 0.562.0 | ✅     |
+| postcss                   | 8.4.49  | 8.5.6   | ✅     |
+| autoprefixer              | 10.4.20 | 10.4.23 | ✅     |
+| @testing-library/react    | 16.1.0  | 16.3.1  | ✅     |
+| @testing-library/jest-dom | 6.6.3   | 6.9.1   | ✅     |
+| @types/leaflet            | 1.9.15  | 1.9.21  | ✅     |
 
 ### ✅ ترقيات React 19 Compatibility (مكتملة)
 
-| الحزمة | السابق | الحالي | ملاحظات |
-|--------|--------|--------|---------|
-| react-leaflet | 4.2.1 | 5.0.0 | دعم React 19 |
-| recharts | 2.14.1 | 3.6.0 | دعم React 19 |
-| react | 19.0.0 | 19.0.0 | موحد عبر جميع الحزم |
-| react-dom | 19.0.0 | 19.0.0 | موحد عبر جميع الحزم |
+| الحزمة        | السابق | الحالي | ملاحظات             |
+| ------------- | ------ | ------ | ------------------- |
+| react-leaflet | 4.2.1  | 5.0.0  | دعم React 19        |
+| recharts      | 2.14.1 | 3.6.0  | دعم React 19        |
+| react         | 19.0.0 | 19.0.0 | موحد عبر جميع الحزم |
+| react-dom     | 19.0.0 | 19.0.0 | موحد عبر جميع الحزم |
 
 ### 🟡 ترقيات مؤجلة | Deferred Upgrades
 
-| الحزمة | الحالي | الأحدث | السبب |
-|--------|--------|--------|-------|
-| next | 15.1.2 | 16.1.0 | Major - تغييرات كبيرة في API |
-| tailwindcss | 3.4.17 | 4.1.18 | Major - إعادة كتابة كاملة |
-| vitest | 2.1.8 | 4.0.16 | Major - Breaking changes |
-| jose | 5.9.6 | 6.1.3 | Major - تغييرات JWT |
+| الحزمة      | الحالي | الأحدث | السبب                        |
+| ----------- | ------ | ------ | ---------------------------- |
+| next        | 15.1.2 | 16.1.0 | Major - تغييرات كبيرة في API |
+| tailwindcss | 3.4.17 | 4.1.18 | Major - إعادة كتابة كاملة    |
+| vitest      | 2.1.8  | 4.0.16 | Major - Breaking changes     |
+| jose        | 5.9.6  | 6.1.3  | Major - تغييرات JWT          |
 
 ---
 
 ## 4. القيود والحدود | Constraints & Blockers
 
 ### 4.1 Flutter/Dart Constraints
+
 ```
 Flutter Version: 3.27.1 (stable)
 Dart SDK: 3.6.0
 ```
+
 **محدودية الترقية:**
+
 - mockito: محدود بـ ^5.4.4 (≥5.4.6 يتطلب Dart 3.7.0)
 - json_serializable: محدود بـ ^6.8.0 (≥6.10.0 يتطلب Dart 3.8.0)
 - freezed: ^2.5.7 متوافق مع Dart 3.6.0
 
 ### 4.2 TensorFlow Constraint
+
 ```
 tensorflow-cpu: 2.18.0 → يتطلب numpy<2.1.0
 ```
+
 **التأثير:** جميع خدمات Python التي تستخدم numpy يجب أن تستخدم <2.1.0
 
 ### 4.3 Node.js Runtime
+
 ```
 Required: >=20.0.0
 Docker Base: node:20-slim
 ```
 
 ### 4.4 Python Runtime
+
 ```
 Required: 3.11
 Docker Base: python:3.11-slim
@@ -153,18 +164,19 @@ Docker Base: python:3.11-slim
 
 ### ✅ جميع الاختبارات ناجحة
 
-| الاختبار | النتيجة |
-|----------|---------|
-| npm install | ✅ نجح بدون تعارضات |
-| npm run build:packages | ✅ نجح |
-| npm run build:web | ✅ نجح |
-| npm run build:admin | ✅ نجح |
+| الاختبار               | النتيجة             |
+| ---------------------- | ------------------- |
+| npm install            | ✅ نجح بدون تعارضات |
+| npm run build:packages | ✅ نجح              |
+| npm run build:web      | ✅ نجح              |
+| npm run build:admin    | ✅ نجح              |
 
 ---
 
 ## 7. الملفات المُعدلة | Modified Files
 
 ### Node.js Packages
+
 - `package.json` (root)
 - `apps/web/package.json`
 - `apps/admin/package.json`
@@ -176,9 +188,11 @@ Docker Base: python:3.11-slim
 - `apps/services/marketplace-service/package.json`
 
 ### Python Services
+
 - `apps/services/yield-engine/requirements.txt`
 
 ### Code Fixes
+
 - `apps/admin/src/app/dashboard/page.tsx` (recharts API change)
 
 ---
@@ -193,32 +207,34 @@ Docker Base: python:3.11-slim
 
 ### ✅ المرحلة C: ESLint 9 Upgrade (مكتملة)
 
-| الحزمة | السابق | الحالي |
-|--------|--------|--------|
-| eslint | 9.17.0 | 9.39.2 |
+| الحزمة             | السابق | الحالي |
+| ------------------ | ------ | ------ |
+| eslint             | 9.17.0 | 9.39.2 |
 | eslint-config-next | 15.1.2 | 15.5.9 |
 
 **التغييرات:**
+
 - تحديث ESLint إلى 9.39.2 في apps/web و apps/admin
 - إنشاء `eslint.config.mjs` بتنسيق flat config لـ ESLint 9
 - استخدام `@eslint/eslintrc` FlatCompat للتوافق مع eslint-config-next
 
 ### ✅ المرحلة E: Smoke Tests & Final Verification (مكتملة)
 
-| الاختبار | النتيجة | التفاصيل |
-|----------|---------|----------|
-| تحقق الاعتماديات | ✅ | React 19.0.0 موحد، Next.js 15.5.9 متوافق |
-| Type Checking (Web) | ✅ | `tsc --noEmit` بدون أخطاء |
-| Type Checking (Admin) | ✅ | `tsc --noEmit` بدون أخطاء |
-| Unit Tests (Web) | ✅ | 83 اختبار - جميعها ناجحة |
-| Unit Tests (Admin) | ✅ | 48 اختبار - جميعها ناجحة |
-| ESLint (Web) | ✅ | تحذيرات فقط (لا توجد أخطاء) |
-| ESLint (Admin) | ✅ | تحذيرات فقط (لا توجد أخطاء) |
-| Build Packages | ✅ | shared-utils, shared-ui, api-client, shared-hooks |
-| Build Web | ✅ | 5 صفحات statically generated |
-| Build Admin | ✅ | 15 صفحة statically generated |
+| الاختبار              | النتيجة | التفاصيل                                          |
+| --------------------- | ------- | ------------------------------------------------- |
+| تحقق الاعتماديات      | ✅      | React 19.0.0 موحد، Next.js 15.5.9 متوافق          |
+| Type Checking (Web)   | ✅      | `tsc --noEmit` بدون أخطاء                         |
+| Type Checking (Admin) | ✅      | `tsc --noEmit` بدون أخطاء                         |
+| Unit Tests (Web)      | ✅      | 83 اختبار - جميعها ناجحة                          |
+| Unit Tests (Admin)    | ✅      | 48 اختبار - جميعها ناجحة                          |
+| ESLint (Web)          | ✅      | تحذيرات فقط (لا توجد أخطاء)                       |
+| ESLint (Admin)        | ✅      | تحذيرات فقط (لا توجد أخطاء)                       |
+| Build Packages        | ✅      | shared-utils, shared-ui, api-client, shared-hooks |
+| Build Web             | ✅      | 5 صفحات statically generated                      |
+| Build Admin           | ✅      | 15 صفحة statically generated                      |
 
 **إصلاحات ESLint:**
+
 - إضافة `next/typescript` للدعم الصحيح لـ TypeScript ESLint
 - تحويل قواعد `no-unused-vars` و `no-explicit-any` إلى تحذيرات
 
@@ -228,25 +244,25 @@ Docker Base: python:3.11-slim
 
 ### ✅ تم إصلاح الثغرات الأمنية
 
-| الثغرة | الخطورة | الحل |
-|--------|---------|------|
-| CVE-2025-29927 (Authorization Bypass) | 🔴 Critical | ترقية Next.js إلى 15.5.9 |
+| الثغرة                                       | الخطورة     | الحل                     |
+| -------------------------------------------- | ----------- | ------------------------ |
+| CVE-2025-29927 (Authorization Bypass)        | 🔴 Critical | ترقية Next.js إلى 15.5.9 |
 | CVE-2025-55182 (React Server Components RCE) | 🔴 Critical | ترقية Next.js إلى 15.5.9 |
-| esbuild security issues | 🟡 Moderate | ترقية vitest إلى 3.1.3 |
+| esbuild security issues                      | 🟡 Moderate | ترقية vitest إلى 3.1.3   |
 
 **الترقيات الأمنية المُنفذة:**
 
-| الحزمة | السابق | الجديد |
-|--------|--------|--------|
-| next | 15.1.2 | 15.5.9 |
-| eslint-config-next | 15.1.2 | 15.5.9 |
-| vitest | 2.1.8 | 3.1.3 |
-| @vitest/coverage-v8 | 2.1.8 | 3.1.3 |
-| @vitejs/plugin-react | 4.3.4 | 5.1.2 |
+| الحزمة               | السابق | الجديد |
+| -------------------- | ------ | ------ |
+| next                 | 15.1.2 | 15.5.9 |
+| eslint-config-next   | 15.1.2 | 15.5.9 |
+| vitest               | 2.1.8  | 3.1.3  |
+| @vitest/coverage-v8  | 2.1.8  | 3.1.3  |
+| @vitejs/plugin-react | 4.3.4  | 5.1.2  |
 
 **نتيجة npm audit:** ✅ 0 ثغرات
 
 ---
 
-*تم إنشاء هذا التقرير بواسطة Claude في 20 ديسمبر 2025*
-*آخر تحديث: 20 ديسمبر 2025 - بعد إصلاح الثغرات الأمنية*
+_تم إنشاء هذا التقرير بواسطة Claude في 20 ديسمبر 2025_
+_آخر تحديث: 20 ديسمبر 2025 - بعد إصلاح الثغرات الأمنية_

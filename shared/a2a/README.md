@@ -302,6 +302,7 @@ curl http://localhost:8001/a2a/.well-known/agent-card.json
 ```
 
 Response:
+
 ```json
 {
   "agent_id": "sahool-ai-advisor",

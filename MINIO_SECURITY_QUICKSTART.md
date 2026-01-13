@@ -1,4 +1,5 @@
 # MinIO Security Hardening - Quick Start Guide
+
 ## SAHOOL Platform | منصة سهول
 
 **Date:** 2026-01-06
@@ -16,6 +17,7 @@ cd /home/user/sahool-unified-v15-idp
 ```
 
 **Expected Output:**
+
 ```
 ✓ TLS Certificates Generated
   Production: ./secrets/minio-certs/production/certs/
@@ -52,6 +54,7 @@ nano .env
 ```
 
 **Required Updates:**
+
 ```bash
 # 1. MinIO Root Credentials (CHANGE THESE!)
 MINIO_ROOT_USER=<your-secure-username-16-chars>
@@ -117,6 +120,7 @@ docker exec -it sahool-backup-scheduler env | grep BACKUP_ENCRYPTION_ENABLED
 **Security Score:** 5.5/10 → 8.5/10 ✅
 
 **What Changed:**
+
 - ✅ TLS/SSL encryption enabled
 - ✅ Server-side encryption (SSE-S3) enabled
 - ✅ All buckets set to PRIVATE (no public access)
@@ -133,6 +137,7 @@ docker exec -it sahool-backup-scheduler env | grep BACKUP_ENCRYPTION_ENABLED
 ### Optional but Recommended:
 
 1. **Update Milvus to use service account** (after initialization)
+
    ```bash
    # Service account credentials will be generated on first run
    # Check: cat secrets/minio-minio-credentials.txt
@@ -140,6 +145,7 @@ docker exec -it sahool-backup-scheduler env | grep BACKUP_ENCRYPTION_ENABLED
    ```
 
 2. **Store secrets in HashiCorp Vault**
+
    ```bash
    # Move encryption keys from .env to Vault
    # Update .env to reference Vault
@@ -182,6 +188,7 @@ docker exec -it sahool-backup-scheduler /scripts/backup_minio.sh daily
 ## 🆘 Troubleshooting
 
 ### MinIO won't start?
+
 ```bash
 # Check logs
 docker compose logs minio | grep -i error
@@ -196,6 +203,7 @@ chmod 600 secrets/minio-certs/production/certs/private.key
 ```
 
 ### Connection refused?
+
 ```bash
 # Verify MinIO is running
 docker compose ps minio
@@ -206,6 +214,7 @@ docker exec -it sahool-minio curl -k https://localhost:9000/minio/health/live
 ```
 
 ### Milvus can't connect?
+
 ```bash
 # Check Milvus logs
 docker compose logs milvus | grep -i minio
@@ -228,16 +237,19 @@ docker compose logs milvus | grep -i minio
 ## 🎯 What's Next?
 
 ### Immediate (Today)
+
 1. ✅ Deploy hardened MinIO configuration
 2. ⏳ Verify all services work correctly
 3. ⏳ Update Milvus to use service account (optional)
 
 ### This Week
+
 4. ⏳ Set up monitoring dashboard
 5. ⏳ Configure backup alerts
 6. ⏳ Store secrets in Vault
 
 ### This Month
+
 7. ⏳ Certificate rotation procedure
 8. ⏳ Disaster recovery testing
 9. ⏳ Security compliance audit
@@ -247,6 +259,7 @@ docker compose logs milvus | grep -i minio
 ## 🔐 Security Reminders
 
 **⚠️ CRITICAL:**
+
 1. Never commit `.env` with real credentials to Git
 2. Store encryption keys in HashiCorp Vault
 3. Rotate credentials quarterly (every 90 days)
@@ -254,6 +267,7 @@ docker compose logs milvus | grep -i minio
 5. Monitor certificate expiration dates
 
 **✅ GOOD PRACTICES:**
+
 - Use strong passwords (32+ characters)
 - Enable audit logging for compliance
 - Review security logs weekly

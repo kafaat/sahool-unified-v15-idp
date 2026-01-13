@@ -3,13 +3,13 @@
  * مكون تحميل
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 interface LoadingSpinnerProps {
   /** Size of the spinner / حجم دائرة التحميل */
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   /** Show loading text / عرض نص التحميل */
   showText?: boolean;
   /** Custom loading text / نص تحميل مخصص */
@@ -23,19 +23,19 @@ interface LoadingSpinnerProps {
 }
 
 const sizeClasses = {
-  sm: 'h-6 w-6 border-2',
-  md: 'h-10 w-10 border-2',
-  lg: 'h-12 w-12 border-b-2',
-  xl: 'h-16 w-16 border-b-3',
+  sm: "h-6 w-6 border-2",
+  md: "h-10 w-10 border-2",
+  lg: "h-12 w-12 border-b-2",
+  xl: "h-16 w-16 border-b-3",
 };
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 'md',
+  size = "md",
   showText = true,
-  text = 'Loading...',
-  textAr = 'جاري التحميل...',
-  height = '200px',
-  className = '',
+  text = "Loading...",
+  textAr = "جاري التحميل...",
+  height = "200px",
+  className = "",
 }) => {
   return (
     <div
@@ -62,7 +62,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
  * مكون تحميل للرسوم البيانية
  */
 export const ChartLoadingSpinner: React.FC<{ height?: string }> = ({
-  height = '400px',
+  height = "400px",
 }) => {
   return (
     <div
@@ -83,7 +83,7 @@ export const ChartLoadingSpinner: React.FC<{ height?: string }> = ({
  * مكون تحميل للخرائط
  */
 export const MapLoadingSpinner: React.FC<{ height?: string }> = ({
-  height = '500px',
+  height = "500px",
 }) => {
   return (
     <div

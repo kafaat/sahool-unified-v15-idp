@@ -1,4 +1,5 @@
 # WebP Tile Compression for Mobile Satellite Imagery - SAHOOL
+
 # ضغط بلاطات الخرائط الفضائية بصيغة WebP لتطبيق SAHOOL المحمول
 
 ## 📋 نظرة عامة - Overview
@@ -14,9 +15,11 @@ A comprehensive WebP tile compression system has been added to improve SAHOOL mo
 ### Core Utilities - الأدوات الأساسية
 
 #### 1. `/apps/mobile/lib/core/utils/image_compression.dart`
+
 **الوظيفة - Purpose:** أداة ضغط الصور الرئيسية مع دعم WebP/JPEG
 
 **الميزات - Features:**
+
 - ✅ كشف دعم WebP على الجهاز تلقائياً
 - ✅ ضغط الصور بصيغة WebP أو JPEG (تراجع تلقائي)
 - ✅ تغيير حجم الصور (512x512 كحد أقصى للبلاطات)
@@ -24,6 +27,7 @@ A comprehensive WebP tile compression system has been added to improve SAHOOL mo
 - ✅ إعدادات جودة منفصلة للجوال (60%) والتابلت (80%)
 
 **الوظائف الرئيسية - Key Functions:**
+
 ```dart
 Future<ImageFormat> getOptimalFormat()
 Future<Uint8List?> compressToWebP({required Uint8List imageData, required double quality})
@@ -36,9 +40,11 @@ double getQualityForDevice(BuildContext context)
 ---
 
 #### 2. `/apps/mobile/lib/core/services/tile_service.dart`
+
 **الوظيفة - Purpose:** خدمة جلب ومعالجة بلاطات الخرائط الفضائية
 
 **الميزات - Features:**
+
 - ✅ جلب البلاطات من الخادم مع الضغط التلقائي
 - ✅ تحميل مسبق للبلاطات في مناطق محددة
 - ✅ تحميل مسبق حول موقع جغرافي محدد
@@ -46,6 +52,7 @@ double getQualityForDevice(BuildContext context)
 - ✅ إحصائيات مفصلة عن الأداء
 
 **الوظائف الرئيسية - Key Functions:**
+
 ```dart
 Future<TileResult?> fetchAndCompressTile({required String url, required int zoom, required int x, required int y})
 Future<PrefetchResult> prefetchTilesForArea({required LatLngBounds bounds, required List<int> zoomLevels})
@@ -59,15 +66,18 @@ Future<void> clearCache()
 ### Map Integration - التكامل مع الخرائط
 
 #### 3. `/apps/mobile/lib/core/map/compressed_tile_provider.dart`
+
 **الوظيفة - Purpose:** مزود بلاطات مخصص مع دعم الضغط
 
 **الميزات - Features:**
+
 - ✅ تكامل سلس مع flutter_map
 - ✅ ضغط تلقائي للبلاطات
 - ✅ واجهة لإدارة الكاش
 - ✅ Widget لعرض معلومات الكاش
 
 **الاستخدام - Usage:**
+
 ```dart
 final tileProvider = CompressedTileProvider(
   baseUrl: 'https://tiles.example.com/{z}/{x}/{y}.png',
@@ -79,9 +89,11 @@ final tileProvider = CompressedTileProvider(
 ---
 
 #### 4. `/apps/mobile/lib/core/map/compressed_map_example.dart`
+
 **الوظيفة - Purpose:** شاشة مثال كاملة توضح الاستخدام
 
 **الميزات - Features:**
+
 - ✅ تطبيق عملي كامل للنظام
 - ✅ واجهة لإدارة الإعدادات
 - ✅ تحميل مسبق للمدن الرئيسية في اليمن
@@ -92,9 +104,11 @@ final tileProvider = CompressedTileProvider(
 ### Documentation - التوثيق
 
 #### 5. `/apps/mobile/lib/core/utils/WEBP_COMPRESSION_GUIDE.md`
+
 **الوظيفة - Purpose:** دليل شامل للاستخدام والتكامل
 
 **المحتويات - Contents:**
+
 - 📖 أمثلة تفصيلية للاستخدام
 - 📖 شرح الوظائف والمعاملات
 - 📖 جداول مقارنة الأداء
@@ -112,10 +126,11 @@ final tileProvider = CompressedTileProvider(
 ```yaml
 dependencies:
   # Image Processing & Compression - معالجة وضغط الصور
-  image: ^4.3.0  # For WebP compression and image manipulation
+  image: ^4.3.0 # For WebP compression and image manipulation
 ```
 
 **تثبيت التبعيات - Install dependencies:**
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/mobile
 flutter pub get
@@ -126,6 +141,7 @@ flutter pub get
 ### 2. التكامل مع الكود الموجود - Integration with Existing Code
 
 #### الخيار أ: استخدام CompressedTileProvider مباشرة
+
 #### Option A: Use CompressedTileProvider Directly
 
 ```dart
@@ -172,6 +188,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
 ```
 
 #### الخيار ب: تحديث SahoolTileProvider الموجود
+
 #### Option B: Update Existing SahoolTileProvider
 
 يمكنك دمج وظائف الضغط في `sahool_tile_provider.dart` الموجود:
@@ -225,26 +242,27 @@ print('Duration: ${result.duration.inSeconds}s');
 
 ### مقارنة الأحجام - Size Comparison
 
-| نوع البلاطة | الحجم الأصلي | WebP (60%) | WebP (80%) | التوفير |
-|------------|-------------|-----------|-----------|---------|
-| 256x256 PNG | 45 KB | 15 KB | 20 KB | 67% |
-| 512x512 PNG | 180 KB | 60 KB | 80 KB | 67% |
-| 256x256 JPEG | 35 KB | 12 KB | 16 KB | 66% |
-| 512x512 JPEG | 140 KB | 47 KB | 63 KB | 66% |
+| نوع البلاطة  | الحجم الأصلي | WebP (60%) | WebP (80%) | التوفير |
+| ------------ | ------------ | ---------- | ---------- | ------- |
+| 256x256 PNG  | 45 KB        | 15 KB      | 20 KB      | 67%     |
+| 512x512 PNG  | 180 KB       | 60 KB      | 80 KB      | 67%     |
+| 256x256 JPEG | 35 KB        | 12 KB      | 16 KB      | 66%     |
+| 512x512 JPEG | 140 KB       | 47 KB      | 63 KB      | 66%     |
 
 ### استهلاك البيانات - Data Usage
 
 **سيناريو**: تحميل خريطة لمدينة صنعاء (zoom levels 10-12)
 
-| بدون ضغط | مع WebP (60%) | التوفير |
-|----------|--------------|---------|
-| ~15 MB | ~5 MB | ~10 MB (67%) |
+| بدون ضغط | مع WebP (60%) | التوفير      |
+| -------- | ------------- | ------------ |
+| ~15 MB   | ~5 MB         | ~10 MB (67%) |
 
 ---
 
 ## 🎯 حالات الاستخدام - Use Cases
 
 ### 1. عرض الخرائط الفضائية للحقول
+
 ```dart
 // في FieldDetailsScreen أو MapScreen
 final tileProvider = CompressedTileProvider(
@@ -254,6 +272,7 @@ final tileProvider = CompressedTileProvider(
 ```
 
 ### 2. التحميل المسبق للمزارع
+
 ```dart
 // عند إنشاء حقل جديد أو تحديث موقع
 await tileManager.prefetchAroundLocation(
@@ -264,6 +283,7 @@ await tileManager.prefetchAroundLocation(
 ```
 
 ### 3. الوضع غير المتصل
+
 ```dart
 // تحميل مسبق لجميع حقول المزارع
 for (final field in userFields) {
@@ -280,6 +300,7 @@ for (final field in userFields) {
 ## 🔍 المراقبة والصيانة - Monitoring & Maintenance
 
 ### عرض معلومات الكاش
+
 ```dart
 // في شاشة الإعدادات - In settings screen
 TileCacheInfoWidget(
@@ -288,6 +309,7 @@ TileCacheInfoWidget(
 ```
 
 ### تنظيف الكاش الدوري
+
 ```dart
 // في initState أو عند بدء التطبيق
 final cacheInfo = await ImageCompressionUtil.getCacheSize();
@@ -301,6 +323,7 @@ if (cacheInfo.sizeMB > 500) { // إذا تجاوز 500 MB
 ## 🧪 الاختبار - Testing
 
 ### اختبار الوحدات - Unit Tests
+
 ```dart
 test('Image compression reduces size', () async {
   final testImage = await loadTestImage();
@@ -314,6 +337,7 @@ test('Image compression reduces size', () async {
 ```
 
 ### اختبار التكامل - Integration Tests
+
 ```dart
 testWidgets('Compressed map loads successfully', (tester) async {
   await tester.pumpWidget(MyApp());
@@ -329,12 +353,14 @@ testWidgets('Compressed map loads successfully', (tester) async {
 ## 📱 دعم الأجهزة - Device Support
 
 ### WebP Support
+
 - ✅ Android 4.0+ (API 14+)
 - ✅ iOS 14+
 - ✅ معظم أجهزة Android الحديثة
 - ⚠️ التراجع التلقائي إلى JPEG للأجهزة القديمة
 
 ### الأداء - Performance
+
 - **جوال (Mobile)**: جودة 60% - توازن مثالي
 - **تابلت (Tablet)**: جودة 80% - جودة أعلى
 - **معالجة الدفعات**: 5 بلاطات في المرة لتجنب ضغط الذاكرة
@@ -344,16 +370,19 @@ testWidgets('Compressed map loads successfully', (tester) async {
 ## 🚀 الخطوات التالية - Next Steps
 
 ### قصيرة المدى - Short Term
+
 1. ✅ دمج النظام في شاشات الخرائط الموجودة
 2. ✅ إضافة واجهة مستخدم لإدارة الكاش
 3. ✅ اختبار الأداء على أجهزة مختلفة
 
 ### متوسطة المدى - Medium Term
+
 1. 📊 إضافة تحليلات الأداء (Analytics)
 2. 🔄 تحسين خوارزمية التحميل المسبق
 3. 📱 تحسينات خاصة بنوع الجهاز
 
 ### طويلة المدى - Long Term
+
 1. 🎯 دعم صيغ أحدث (AVIF, JPEG XL)
 2. 🤖 ضغط ذكي بناءً على نوع المحتوى
 3. ☁️ مزامنة الكاش عبر الأجهزة
@@ -363,16 +392,19 @@ testWidgets('Compressed map loads successfully', (tester) async {
 ## 📚 المراجع - References
 
 ### التوثيق - Documentation
+
 - [دليل الاستخدام الشامل - Complete Usage Guide](lib/core/utils/WEBP_COMPRESSION_GUIDE.md)
 - [مثال عملي - Practical Example](lib/core/map/compressed_map_example.dart)
 
 ### الحزم المستخدمة - Packages Used
+
 - [image](https://pub.dev/packages/image) - معالجة وضغط الصور
 - [flutter_map](https://pub.dev/packages/flutter_map) - عرض الخرائط
 - [dio](https://pub.dev/packages/dio) - طلبات HTTP
 - [path_provider](https://pub.dev/packages/path_provider) - الوصول للتخزين
 
 ### المواصفات التقنية - Technical Specs
+
 - [WebP Format Specification](https://developers.google.com/speed/webp)
 - [Tile Map Service (TMS)](https://wiki.osgeo.org/wiki/Tile_Map_Service_Specification)
 
@@ -392,6 +424,7 @@ testWidgets('Compressed map loads successfully', (tester) async {
 ## 📞 الدعم - Support
 
 للمساعدة أو الأسئلة:
+
 - راجع [دليل الاستخدام](lib/core/utils/WEBP_COMPRESSION_GUIDE.md)
 - تحقق من [الأمثلة العملية](lib/core/map/compressed_map_example.dart)
 - استخدم AppLogger لتتبع المشاكل

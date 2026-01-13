@@ -1,4 +1,5 @@
 # Chat/Messaging Feature - SAHOOL Mobile App
+
 # ميزة المحادثات والرسائل - تطبيق سهول للهاتف المحمول
 
 ## Overview | نظرة عامة
@@ -96,9 +97,9 @@ The required dependencies have already been added to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  socket_io_client: ^2.0.3+1  # For WebSocket/Socket.IO
-  flutter_riverpod: ^2.6.1     # State management
-  intl: ^0.19.0                # Date formatting
+  socket_io_client: ^2.0.3+1 # For WebSocket/Socket.IO
+  flutter_riverpod: ^2.6.1 # State management
+  intl: ^0.19.0 # Date formatting
 ```
 
 Run the following command to install:
@@ -194,6 +195,7 @@ The chat feature connects to the following endpoints:
 ### Socket.IO Events | أحداث Socket.IO
 
 **Emitting (Client → Server):**
+
 - `join_conversation` - Join conversation room
 - `leave_conversation` - Leave conversation room
 - `typing` - User is typing
@@ -201,6 +203,7 @@ The chat feature connects to the following endpoints:
 - `send_message` - Send message via socket
 
 **Listening (Server → Client):**
+
 - `message` - New message received
 - `typing` - Other user is typing
 - `stop_typing` - Other user stopped typing
@@ -317,6 +320,7 @@ To integrate this feature into your app:
 ## Support | الدعم
 
 For questions or issues:
+
 - Check the code comments in each file
 - Review the API documentation
 - Test with the mock chat service first

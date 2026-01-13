@@ -1,4 +1,5 @@
 # SAHOOL Shared Middleware Guide
+
 **دليل البرمجيات الوسيطة المشتركة لمنصة سهول**
 
 ## Overview | نظرة عامة
@@ -23,6 +24,7 @@ This guide covers the shared middleware libraries available across all SAHOOL se
 ## Available Middleware
 
 ### 1. RequestLoggingMiddleware
+
 **Correlation IDs & Structured Logging**
 
 - ✅ Generates or extracts correlation IDs (X-Correlation-ID)
@@ -32,12 +34,14 @@ This guide covers the shared middleware libraries available across all SAHOOL se
 - ✅ Filters sensitive data (passwords, tokens, etc.)
 
 **Location:**
+
 - Python: `shared/middleware/request_logging.py`
 - TypeScript: `apps/services/shared/middleware/request-logging.ts`
 
 ---
 
 ### 2. ObservabilityMiddleware
+
 **Tracing, Metrics & Monitoring**
 
 - ✅ OpenTelemetry distributed tracing support
@@ -47,11 +51,13 @@ This guide covers the shared middleware libraries available across all SAHOOL se
 - ✅ Performance monitoring
 
 **Location:**
+
 - Python: `shared/observability/middleware.py`
 
 ---
 
 ### 3. TenantContextMiddleware
+
 **Multi-Tenancy Isolation**
 
 - ✅ Extracts tenant ID from JWT or headers
@@ -60,11 +66,13 @@ This guide covers the shared middleware libraries available across all SAHOOL se
 - ✅ Validates tenant presence on protected endpoints
 
 **Location:**
+
 - Python: `shared/middleware/tenant_context.py`
 
 ---
 
 ### 4. MetricsMiddleware
+
 **HTTP Metrics Collection**
 
 - ✅ Request counts by method and endpoint
@@ -73,11 +81,13 @@ This guide covers the shared middleware libraries available across all SAHOOL se
 - ✅ Error rate monitoring
 
 **Location:**
+
 - Python: `shared/observability/middleware.py`
 
 ---
 
 ### 5. RateLimitMiddleware
+
 **API Rate Limiting**
 
 - ✅ Tiered rate limiting (by user, tenant, API key)
@@ -86,11 +96,13 @@ This guide covers the shared middleware libraries available across all SAHOOL se
 - ✅ Customizable limits per endpoint
 
 **Location:**
+
 - Python: `shared/middleware/rate_limit.py`
 
 ---
 
 ### 6. SecurityHeadersMiddleware
+
 **HTTP Security Headers**
 
 - ✅ HSTS (Strict-Transport-Security)
@@ -100,6 +112,7 @@ This guide covers the shared middleware libraries available across all SAHOOL se
 - ✅ Referrer-Policy
 
 **Location:**
+
 - Python: `shared/middleware/security_headers.py`
 
 ---
@@ -211,22 +224,29 @@ async def process_data(request: Request):
 ### Basic Setup
 
 ```typescript
-import { NestFactory } from '@nestjs/core';
-import { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';
-import { AppModule } from './app.module';
+import { NestFactory } from "@nestjs/core";
+import { RequestLoggingInterceptor } from "../../shared/middleware/request-logging";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // ============== Middleware Setup ==============
   // Global request logging interceptor with correlation IDs
-  app.useGlobalInterceptors(new RequestLoggingInterceptor('my-service'));
+  app.useGlobalInterceptors(new RequestLoggingInterceptor("my-service"));
 
   // Enable CORS
   app.enableCors({
-    origin: process.env.CORS_ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Correlation-ID'],
+    origin: process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+      "http://localhost:3000",
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Tenant-ID",
+      "X-Correlation-ID",
+    ],
     credentials: true,
   });
 
@@ -239,34 +259,34 @@ bootstrap();
 ### Using in Services
 
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { StructuredLogger } from '../../shared/middleware/request-logging';
+import { Injectable } from "@nestjs/common";
+import { StructuredLogger } from "../../shared/middleware/request-logging";
 
 @Injectable()
 export class MyService {
-  private readonly logger = new StructuredLogger('my-service', 'MyService');
+  private readonly logger = new StructuredLogger("my-service", "MyService");
 
   async processData(data: any, correlationId: string, tenantId: string) {
-    this.logger.log('Processing data', {
+    this.logger.log("Processing data", {
       correlationId,
       tenantId,
-      operation: 'processData',
+      operation: "processData",
     });
 
     try {
       // Process data...
 
-      this.logger.log('Data processed successfully', {
+      this.logger.log("Data processed successfully", {
         correlationId,
         tenantId,
-        operation: 'processData',
+        operation: "processData",
         recordCount: data.length,
       });
     } catch (error) {
-      this.logger.error('Failed to process data', {
+      this.logger.error("Failed to process data", {
         correlationId,
         tenantId,
-        operation: 'processData',
+        operation: "processData",
         error: error.message,
       });
       throw error;
@@ -278,11 +298,14 @@ export class MyService {
 ### Using in Controllers
 
 ```typescript
-import { Controller, Get, Req } from '@nestjs/common';
-import { Request } from 'express';
-import { getCorrelationId, getRequestContext } from '../../shared/middleware/request-logging';
+import { Controller, Get, Req } from "@nestjs/common";
+import { Request } from "express";
+import {
+  getCorrelationId,
+  getRequestContext,
+} from "../../shared/middleware/request-logging";
 
-@Controller('api/v1/items')
+@Controller("api/v1/items")
 export class ItemsController {
   @Get()
   async list(@Req() request: Request) {
@@ -331,6 +354,7 @@ REQUIRE_TENANT=true                 # Require tenant for all endpoints
 **IMPORTANT:** Middleware execution order matters!
 
 For FastAPI (Last added = First executed):
+
 ```python
 setup_cors(app)                     # Executed FIRST
 app.add_middleware(ObservabilityMiddleware, ...)
@@ -339,6 +363,7 @@ app.add_middleware(TenantContextMiddleware, ...)  # Executed LAST
 ```
 
 Execution flow:
+
 ```
 Request → CORS → Observability → Logging → Tenant → Your Routes → Response
 ```
@@ -348,13 +373,16 @@ Request → CORS → Observability → Logging → Tenant → Your Routes → Re
 ## Best Practices
 
 ### 1. Always Use Correlation IDs
+
 ✅ **DO:**
+
 ```python
 correlation_id = get_correlation_id(request)
 logger.info("Processing request", extra={"correlation_id": correlation_id})
 ```
 
 ❌ **DON'T:**
+
 ```python
 logger.info("Processing request")  # No correlation ID for tracing
 ```
@@ -362,7 +390,9 @@ logger.info("Processing request")  # No correlation ID for tracing
 ---
 
 ### 2. Propagate Correlation IDs to Downstream Services
+
 ✅ **DO:**
+
 ```python
 async with httpx.AsyncClient() as client:
     await client.post(
@@ -377,13 +407,16 @@ async with httpx.AsyncClient() as client:
 ---
 
 ### 3. Use Tenant Context for Data Isolation
+
 ✅ **DO:**
+
 ```python
 tenant_id = get_current_tenant_id()
 fields = await Field.filter(tenant_id=tenant_id).all()
 ```
 
 ❌ **DON'T:**
+
 ```python
 fields = await Field.all()  # No tenant isolation - security risk!
 ```
@@ -391,6 +424,7 @@ fields = await Field.all()  # No tenant isolation - security risk!
 ---
 
 ### 4. Configure Exempt Paths Appropriately
+
 ```python
 app.add_middleware(
     TenantContextMiddleware,
@@ -409,6 +443,7 @@ app.add_middleware(
 ---
 
 ### 5. Enable Request Body Logging Only for Debugging
+
 ```python
 # Development
 app.add_middleware(
@@ -432,6 +467,7 @@ app.add_middleware(
 ### Issue: "Tenant context not available"
 
 **Solution:** Ensure `TenantContextMiddleware` is added:
+
 ```python
 app.add_middleware(TenantContextMiddleware)
 ```
@@ -443,6 +479,7 @@ And that the request includes `X-Tenant-ID` header or JWT with `tid` claim.
 ### Issue: Correlation IDs not appearing in logs
 
 **Solution:** Ensure `RequestLoggingMiddleware` is added **before** your custom logging:
+
 ```python
 app.add_middleware(RequestLoggingMiddleware, service_name="my-service")
 ```
@@ -452,6 +489,7 @@ app.add_middleware(RequestLoggingMiddleware, service_name="my-service")
 ### Issue: CORS errors
 
 **Solution:** Use the shared `setup_cors()` function:
+
 ```python
 from shared.middleware import setup_cors
 
@@ -463,6 +501,7 @@ setup_cors(app)  # Uses environment-based configuration
 ### Issue: Middleware not executing
 
 **Solution:** Check middleware order. Last added = First executed in FastAPI:
+
 ```python
 # This middleware executes LAST
 app.add_middleware(TenantContextMiddleware)

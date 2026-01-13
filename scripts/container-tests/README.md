@@ -5,9 +5,11 @@ This directory contains comprehensive scripts for testing, building, and securin
 ## Scripts Overview
 
 ### 1. lint-dockerfiles.sh
+
 Lints all Dockerfiles using [hadolint](https://github.com/hadolint/hadolint).
 
 **Features:**
+
 - Auto-installs hadolint if not present
 - Scans all Dockerfiles in the project
 - Provides detailed linting reports
@@ -15,6 +17,7 @@ Lints all Dockerfiles using [hadolint](https://github.com/hadolint/hadolint).
 - Can generate hadolint configuration
 
 **Usage:**
+
 ```bash
 # Lint all Dockerfiles
 ./lint-dockerfiles.sh
@@ -30,6 +33,7 @@ Lints all Dockerfiles using [hadolint](https://github.com/hadolint/hadolint).
 ```
 
 **Options:**
+
 - `-h, --help` - Show help message
 - `-s, --strict` - Enable strict mode (fail on warnings)
 - `-g, --generate` - Generate hadolint configuration file
@@ -38,9 +42,11 @@ Lints all Dockerfiles using [hadolint](https://github.com/hadolint/hadolint).
 ---
 
 ### 2. build-all.sh
+
 Builds all Docker images with proper tagging and optional registry push.
 
 **Features:**
+
 - Discovers all Dockerfiles automatically
 - Supports custom tagging
 - Registry prefix support
@@ -50,6 +56,7 @@ Builds all Docker images with proper tagging and optional registry push.
 - Push to registry capability
 
 **Usage:**
+
 ```bash
 # Build all images with 'latest' tag
 ./build-all.sh
@@ -71,6 +78,7 @@ Builds all Docker images with proper tagging and optional registry push.
 ```
 
 **Options:**
+
 - `-h, --help` - Show help message
 - `-t, --tag TAG` - Tag for images (default: latest)
 - `-r, --registry REG` - Registry prefix (e.g., ghcr.io/org)
@@ -83,9 +91,11 @@ Builds all Docker images with proper tagging and optional registry push.
 ---
 
 ### 3. security-scan.sh
+
 Performs security scanning on Docker images using [Trivy](https://github.com/aquasecurity/trivy).
 
 **Features:**
+
 - Auto-installs Trivy if not present
 - Scans all Docker images for vulnerabilities
 - Configurable severity levels
@@ -96,6 +106,7 @@ Performs security scanning on Docker images using [Trivy](https://github.com/aqu
 - Old report cleanup
 
 **Usage:**
+
 ```bash
 # Scan all images
 ./security-scan.sh
@@ -120,6 +131,7 @@ Performs security scanning on Docker images using [Trivy](https://github.com/aqu
 ```
 
 **Options:**
+
 - `-h, --help` - Show help message
 - `-s, --severity LEVELS` - Severity levels (default: CRITICAL,HIGH,MEDIUM)
 - `-f, --format FORMAT` - Output format: table, json, sarif (default: table)
@@ -136,9 +148,11 @@ Security reports are saved to: `${PROJECT_ROOT}/security-reports/`
 ---
 
 ### 4. smoke-test.sh
+
 Starts containers and performs health checks to ensure they're working correctly.
 
 **Features:**
+
 - Uses docker-compose to manage services
 - Waits for containers to be healthy
 - Checks health endpoints
@@ -149,6 +163,7 @@ Starts containers and performs health checks to ensure they're working correctly
 - Optional cleanup
 
 **Usage:**
+
 ```bash
 # Test all services
 ./smoke-test.sh
@@ -170,6 +185,7 @@ Starts containers and performs health checks to ensure they're working correctly
 ```
 
 **Options:**
+
 - `-h, --help` - Show help message
 - `-f, --file FILE` - Docker Compose file (default: docker-compose.yml)
 - `-s, --services SERVICES` - Comma-separated list of services to test
@@ -180,9 +196,11 @@ Starts containers and performs health checks to ensure they're working correctly
 ---
 
 ### 5. cleanup.sh
+
 Comprehensive Docker cleanup tool for containers, images, volumes, and networks.
 
 **Features:**
+
 - Interactive or forced cleanup
 - Docker Compose service cleanup
 - Container removal (running and exited)
@@ -195,6 +213,7 @@ Comprehensive Docker cleanup tool for containers, images, volumes, and networks.
 - Disk usage reporting
 
 **Usage:**
+
 ```bash
 # Interactive cleanup
 ./cleanup.sh
@@ -225,6 +244,7 @@ Comprehensive Docker cleanup tool for containers, images, volumes, and networks.
 ```
 
 **Options:**
+
 - `-h, --help` - Show help message
 - `-a, --all` - Clean up everything
 - `-f, --force` - Force cleanup without confirmation
@@ -317,12 +337,14 @@ container-tests:
 ## Prerequisites
 
 ### Required
+
 - Docker (20.10+)
 - Docker Compose (2.0+) or docker compose plugin
 - Bash (4.0+)
 - curl or wget (for tool installation)
 
 ### Optional
+
 - jq (for better JSON formatting)
 - hadolint (auto-installed by lint script)
 - trivy (auto-installed by security-scan script)
@@ -330,17 +352,20 @@ container-tests:
 ### Installing Prerequisites
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y docker.io docker-compose jq
 ```
 
 **macOS:**
+
 ```bash
 brew install docker docker-compose jq
 ```
 
 **Arch Linux:**
+
 ```bash
 sudo pacman -S docker docker-compose jq
 ```
@@ -486,6 +511,7 @@ Part of the SAHOOL Unified Platform project.
 ## Support
 
 For issues or questions:
+
 - Create an issue in the project repository
 - Contact the DevOps team
 - Check the main project documentation

@@ -11,6 +11,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 **Focus**: API endpoints, external provider integration, and error handling
 
 **Test Classes**:
+
 - `TestHealthEndpoint` - Health check endpoint tests
 - `TestCurrentWeatherEndpoint` - Current weather retrieval tests
 - `TestForecastEndpoint` - Weather forecast endpoint tests
@@ -22,6 +23,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 - `TestCorrelationID` - Request correlation ID handling tests
 
 **Key Features Tested**:
+
 - ✅ Health check endpoint functionality
 - ✅ Current weather retrieval with multi-provider support
 - ✅ Weather forecast with customizable day ranges (1-16 days)
@@ -41,6 +43,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 **Focus**: Forecast calculations, alert generation, and agricultural indices
 
 **Test Classes**:
+
 - `TestFrostRiskDetection` - Frost risk detection at various severity levels
 - `TestHeatWaveDetection` - Heat wave identification (3+ consecutive hot days)
 - `TestHeavyRainDetection` - Heavy rainfall and flooding risk detection
@@ -52,6 +55,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 - `TestWeatherForecastService` - Multi-provider forecast service functionality
 
 **Key Features Tested**:
+
 - ✅ Frost risk detection (critical, high, medium severity levels)
 - ✅ Heat wave detection with consecutive day tracking
 - ✅ Heavy rain detection with confidence scoring
@@ -73,6 +77,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 **Focus**: Advanced weather features, agricultural reports, and Yemen-specific functionality
 
 **Test Classes**:
+
 - `TestHealthEndpoint` - Health check and deprecation warnings
 - `TestDeprecationHeaders` - API deprecation header validation
 - `TestYemenLocations` - Yemen governorate location data
@@ -89,6 +94,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 - `TestCacheManagement` - Weather data caching mechanisms
 
 **Key Features Tested**:
+
 - ✅ All 22 Yemen governorates with Arabic names
 - ✅ Current weather with real API integration (Open-Meteo fallback)
 - ✅ 7-14 day forecasts with hourly and daily data
@@ -111,6 +117,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 **Focus**: Historical weather data retrieval, analysis, and trend detection
 
 **Test Classes**:
+
 - `TestHistoricalDataRetrieval` - Historical data fetching and date range handling
 - `TestHistoricalStatistics` - Statistical analysis of historical data
 - `TestMonthlyAggregation` - Monthly weather data aggregation
@@ -124,6 +131,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 - `TestDataExportFormats` - Data export in various formats
 
 **Key Features Tested**:
+
 - ✅ Historical data retrieval with date range filtering
 - ✅ Average, maximum, and minimum temperature calculations
 - ✅ Total precipitation and rainy day counting
@@ -150,13 +158,13 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 
 ## Test Coverage Summary
 
-| Service | Test File | Lines | Test Classes | Test Methods | Coverage Areas |
-|---------|-----------|-------|--------------|--------------|----------------|
-| weather-service | test_weather_api.py | 635 | 9 | ~15 | API endpoints, external integration |
-| weather-service | test_weather_forecast.py | 831 | 9 | ~30 | Forecasting, alerts, agricultural indices |
-| weather-advanced | test_advanced_weather.py | 779 | 14 | ~22 | Advanced features, Yemen locations |
-| weather-advanced | test_historical_data.py | 639 | 11 | ~38 | Historical data, trends, statistics |
-| **TOTAL** | **4 files** | **2,884** | **43** | **~105** | **Comprehensive coverage** |
+| Service          | Test File                | Lines     | Test Classes | Test Methods | Coverage Areas                            |
+| ---------------- | ------------------------ | --------- | ------------ | ------------ | ----------------------------------------- |
+| weather-service  | test_weather_api.py      | 635       | 9            | ~15          | API endpoints, external integration       |
+| weather-service  | test_weather_forecast.py | 831       | 9            | ~30          | Forecasting, alerts, agricultural indices |
+| weather-advanced | test_advanced_weather.py | 779       | 14           | ~22          | Advanced features, Yemen locations        |
+| weather-advanced | test_historical_data.py  | 639       | 11           | ~38          | Historical data, trends, statistics       |
+| **TOTAL**        | **4 files**              | **2,884** | **43**       | **~105**     | **Comprehensive coverage**                |
 
 ---
 
@@ -174,6 +182,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 ## Mock Coverage
 
 ### External APIs Mocked:
+
 1. **Open-Meteo API** - Free weather API
    - Current weather endpoint
    - Daily forecast endpoint
@@ -188,6 +197,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
    - Multi-day forecast endpoint
 
 ### Internal Dependencies Mocked:
+
 - Weather provider services (OpenMeteoProvider, OpenWeatherMapProvider, WeatherAPIProvider)
 - Multi-provider service with automatic fallback
 - NATS event publisher for alerts
@@ -199,6 +209,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 ## Key Testing Scenarios
 
 ### 1. Weather Data Fetching
+
 - ✅ Successful API calls
 - ✅ API error handling and retries
 - ✅ Provider failover mechanisms
@@ -207,6 +218,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 - ✅ Invalid coordinate handling
 
 ### 2. Forecast Calculations
+
 - ✅ Daily and hourly forecasts
 - ✅ Growing Degree Days (GDD)
 - ✅ Chill hours for dormancy
@@ -215,6 +227,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 - ✅ Moisture deficit
 
 ### 3. Alert Generation
+
 - ✅ Heat stress detection (4 severity levels)
 - ✅ Frost risk detection
 - ✅ Heavy rain and flooding alerts
@@ -224,6 +237,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 - ✅ Heat wave detection (3+ consecutive days)
 
 ### 4. Agricultural Features
+
 - ✅ Irrigation adjustments (hot/dry/rainy conditions)
 - ✅ Spray window identification
 - ✅ Crop-specific calendars
@@ -231,6 +245,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 - ✅ Bilingual recommendations (Arabic/English)
 
 ### 5. Historical Data Analysis
+
 - ✅ Date range queries
 - ✅ Statistical calculations (mean, max, min, stdev)
 - ✅ Trend detection
@@ -243,6 +258,7 @@ Comprehensive test suites have been created for SAHOOL weather services, providi
 ## Running the Tests
 
 ### Run All Tests
+
 ```bash
 # Weather Service
 cd apps/services/weather-service
@@ -254,6 +270,7 @@ pytest tests/
 ```
 
 ### Run Specific Test Files
+
 ```bash
 # API tests
 pytest tests/test_weather_api.py -v
@@ -269,11 +286,13 @@ pytest tests/test_historical_data.py -v
 ```
 
 ### Run with Coverage
+
 ```bash
 pytest tests/ --cov=src --cov-report=html
 ```
 
 ### Run Async Tests Only
+
 ```bash
 pytest tests/ -k "asyncio" -v
 ```
@@ -283,6 +302,7 @@ pytest tests/ -k "asyncio" -v
 ## Test Data
 
 ### Sample Locations Tested
+
 - Sanaa (صنعاء) - Highland region, 2250m elevation
 - Aden (عدن) - Coastal region, 6m elevation
 - Taiz (تعز) - Highland region, 1400m elevation
@@ -290,6 +310,7 @@ pytest tests/ -k "asyncio" -v
 - All 22 Yemen governorates included
 
 ### Sample Weather Conditions
+
 - Normal conditions: 25°C, 55% humidity, 10 km/h wind
 - Heat stress: 42°C, 30% humidity, 15 km/h wind
 - Frost risk: 2°C, 80% humidity, 5 km/h wind
@@ -315,11 +336,13 @@ pydantic>=2.0.0
 ## Next Steps
 
 1. **Install Dependencies**:
+
    ```bash
    pip install pytest pytest-asyncio httpx
    ```
 
 2. **Run Tests**:
+
    ```bash
    cd apps/services/weather-service
    pytest tests/ -v
@@ -329,6 +352,7 @@ pydantic>=2.0.0
    ```
 
 3. **Generate Coverage Report**:
+
    ```bash
    pytest tests/ --cov=src --cov-report=html --cov-report=term
    ```
@@ -374,7 +398,9 @@ apps/services/weather-advanced/tests/
 ## Additional Notes
 
 ### Bilingual Support
+
 All tests verify both Arabic and English content:
+
 - Alert titles and descriptions
 - Recommendations
 - Agricultural summaries
@@ -382,6 +408,7 @@ All tests verify both Arabic and English content:
 - Weather condition translations
 
 ### Yemen-Specific Features
+
 - 22 governorate locations with accurate coordinates
 - Regional climate variations (highland, coastal, desert, island)
 - Elevation-adjusted temperature calculations
@@ -389,7 +416,9 @@ All tests verify both Arabic and English content:
 - Crop calendars for local crops (coffee, qat, tomatoes, wheat)
 
 ### Agricultural Focus
+
 Tests emphasize practical agricultural applications:
+
 - Irrigation scheduling recommendations
 - Optimal spray windows for pesticides
 - Planting and harvest timing

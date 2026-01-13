@@ -65,6 +65,7 @@ helm upgrade <release-name> ./services/<service-name> \
 All services share common configuration options:
 
 ### Image Settings
+
 ```yaml
 image:
   repository: ghcr.io/kafaat/sahool/<service-name>
@@ -73,6 +74,7 @@ image:
 ```
 
 ### Resource Limits
+
 ```yaml
 resources:
   limits:
@@ -84,12 +86,14 @@ resources:
 ```
 
 ### Environment & Deployment Slot
+
 ```yaml
-environment: staging         # staging, production
-deploymentSlot: blue        # blue, green
+environment: staging # staging, production
+deploymentSlot: blue # blue, green
 ```
 
 ### Autoscaling
+
 ```yaml
 autoscaling:
   enabled: false
@@ -99,6 +103,7 @@ autoscaling:
 ```
 
 ### Secrets
+
 ```yaml
 secrets:
   jwtSecret: ""
@@ -123,12 +128,14 @@ helm upgrade <release-name>-green ./services/<service-name> \
 ## Health Checks
 
 All services include:
+
 - **Liveness Probe**: `/health` endpoint (checks after 30s)
 - **Readiness Probe**: `/ready` endpoint (checks after 10s)
 
 ## Security Context
 
 All deployments run with:
+
 - Non-root user (UID 1000)
 - Read-only root filesystem
 - Dropped capabilities
@@ -141,6 +148,7 @@ All services expose port 8080 by default via ClusterIP service.
 ## Examples
 
 ### Install field-ops in production
+
 ```bash
 helm install field-ops-prod ./services/field-ops \
   --set environment=production \
@@ -150,6 +158,7 @@ helm install field-ops-prod ./services/field-ops \
 ```
 
 ### Enable autoscaling for weather-core
+
 ```bash
 helm install weather-core ./services/weather-core \
   --set autoscaling.enabled=true \
@@ -158,6 +167,7 @@ helm install weather-core ./services/weather-core \
 ```
 
 ### Install with custom resources
+
 ```bash
 helm install crop-health ./services/crop-health \
   --set resources.limits.cpu=1000m \

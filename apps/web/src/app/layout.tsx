@@ -1,16 +1,25 @@
-import type { Metadata } from 'next';
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
-import { notFound } from 'next/navigation';
-import './globals.css';
-import { Providers } from './providers';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { locales, getDirection, type Locale } from '@sahool/i18n';
+import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { notFound } from "next/navigation";
+import "./globals.css";
+import { Providers } from "./providers";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { locales, getDirection, type Locale } from "@sahool/i18n";
 
 export const metadata: Metadata = {
-  title: 'سهول | SAHOOL - Smart Agriculture Platform',
-  description: 'منصة سهول الزراعية الذكية - SAHOOL Smart Agricultural Platform for Yemen',
-  keywords: ['سهول', 'زراعة', 'اليمن', 'sahool', 'agriculture', 'yemen', 'smart farming'],
+  title: "سهول | SAHOOL - Smart Agriculture Platform",
+  description:
+    "منصة سهول الزراعية الذكية - SAHOOL Smart Agricultural Platform for Yemen",
+  keywords: [
+    "سهول",
+    "زراعة",
+    "اليمن",
+    "sahool",
+    "agriculture",
+    "yemen",
+    "smart farming",
+  ],
 };
 
 export function generateStaticParams() {
@@ -27,7 +36,7 @@ export default async function RootLayout({
   // In Next.js 15, params are Promises
   const resolvedParams = await params;
   // Default to 'ar' if no locale is provided
-  const localeStr = resolvedParams.locale || 'ar';
+  const localeStr = resolvedParams.locale || "ar";
 
   // Type guard to check if locale is valid
   const isValidLocale = (l: string): l is Locale => {
@@ -62,7 +71,9 @@ export default async function RootLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg"
         >
-          {direction === 'rtl' ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'}
+          {direction === "rtl"
+            ? "انتقل إلى المحتوى الرئيسي"
+            : "Skip to main content"}
         </a>
         <ErrorBoundary>
           <NextIntlClientProvider messages={messages} locale={locale}>

@@ -100,11 +100,13 @@ Current domains with certificate pinning:
 ### Debug vs Release
 
 **DEBUG Mode:**
+
 - Certificate pinning configured but bypassed
 - Allows testing with localhost/development servers
 - Logs: "⚠️ Certificate pinning bypassed in DEBUG mode"
 
 **RELEASE Mode:**
+
 - Certificate pinning strictly enforced
 - Blocks connections with invalid certificates
 - Logs: "✅ Certificate pin matched" or "❌ Certificate validation failed"
@@ -114,11 +116,13 @@ Current domains with certificate pinning:
 ### Add New Domain
 
 1. Extract SPKI hash:
+
    ```bash
    ./get_spki_hash.sh newdomain.sahool.io
    ```
 
 2. Add to `Info.plist`:
+
    ```xml
    <key>newdomain.sahool.io</key>
    <dict>
@@ -173,11 +177,13 @@ The app automatically logs expiring pins on startup:
 ### Issue: All API requests failing
 
 **Symptoms:**
+
 ```
 ❌ Certificate validation failed for host: api.sahool.io
 ```
 
 **Solution:**
+
 ```bash
 # 1. Check if server certificate changed
 ./get_spki_hash.sh api.sahool.io

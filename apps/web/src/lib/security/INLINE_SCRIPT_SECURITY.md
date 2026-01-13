@@ -34,8 +34,8 @@ export function createInlineScript(
   options?: {
     skipValidation?: boolean;
     allowSanitization?: boolean;
-  }
-)
+  },
+);
 ```
 
 ## Security Features Implemented
@@ -45,28 +45,33 @@ export function createInlineScript(
 The function now checks for and blocks dangerous code patterns:
 
 **Direct Code Execution:**
+
 - `eval()`
 - `Function()` constructor
 - `new Function()`
 
 **Script Injection:**
+
 - `<script>` tags
 - `</script>` closing tags
 - `javascript:` protocol
 
 **DOM Manipulation:**
+
 - `.innerHTML =`
 - `.outerHTML =`
 - `document.write()`
 - `document.writeln()`
 
 **XSS Vectors:**
+
 - Inline event handlers (`onclick=`, `onerror=`, etc.)
 - `<iframe>` tags
 - `<embed>` tags
 - `<object>` tags
 
 **Dangerous Imports:**
+
 - `data:text/html` URIs
 - Dynamic `import()` statements
 
@@ -97,10 +102,12 @@ When `allowSanitization: true` is enabled, the function removes:
 ### 4. Environment-Aware Error Handling
 
 **Production Mode:**
+
 - Throws an error immediately if dangerous patterns detected
 - Fails closed (rejects unsafe scripts)
 
 **Development Mode:**
+
 - Logs errors to console
 - Allows execution for debugging purposes
 - Displays warnings for suspicious patterns
@@ -108,6 +115,7 @@ When `allowSanitization: true` is enabled, the function removes:
 ### 5. Comprehensive JSDoc Documentation
 
 Added extensive documentation including:
+
 - Security warnings
 - Safe usage examples
 - Unsafe usage examples (what NOT to do)
@@ -151,12 +159,14 @@ const maliciousCode = 'eval(userInput)';
 ### Advanced Options
 
 **Skip Validation (Not Recommended):**
+
 ```typescript
 // Only for extremely trusted, static code
 <script {...createInlineScript(trustedCode, nonce, { skipValidation: true })} />
 ```
 
 **Enable Sanitization:**
+
 ```typescript
 // Attempt to clean code before validation
 <script {...createInlineScript(code, nonce, { allowSanitization: true })} />
@@ -169,20 +179,21 @@ const maliciousCode = 'eval(userInput)';
 Standalone validation function that can be used independently:
 
 ```typescript
-import { validateScriptCode } from '@/lib/security/nonce';
+import { validateScriptCode } from "@/lib/security/nonce";
 
 const result = validateScriptCode('console.log("test")');
 
 if (!result.isValid) {
-  console.error('Validation errors:', result.errors);
+  console.error("Validation errors:", result.errors);
 }
 
 if (result.warnings.length > 0) {
-  console.warn('Validation warnings:', result.warnings);
+  console.warn("Validation warnings:", result.warnings);
 }
 ```
 
 **Return Type:**
+
 ```typescript
 interface ValidationResult {
   isValid: boolean;
@@ -194,6 +205,7 @@ interface ValidationResult {
 ## Best Practices
 
 ### DO:
+
 1. ✅ Use only with static, hardcoded scripts
 2. ✅ Prefer external script files when possible
 3. ✅ Review validation errors and warnings carefully
@@ -202,6 +214,7 @@ interface ValidationResult {
 6. ✅ Test scripts in development mode first
 
 ### DON'T:
+
 1. ❌ Never pass user input directly
 2. ❌ Never pass untrusted external content
 3. ❌ Never skip validation unless absolutely necessary
@@ -214,11 +227,13 @@ interface ValidationResult {
 If you have existing code using the old `createInlineScript`:
 
 ### Before (Potentially Unsafe)
+
 ```typescript
 const script = createInlineScript(someCode, nonce);
 ```
 
 ### After (With Validation)
+
 ```typescript
 // Option 1: Let it validate (recommended)
 const script = createInlineScript(someCode, nonce);
@@ -239,6 +254,7 @@ Comprehensive tests are available in:
 `/home/user/sahool-unified-v15-idp/apps/web/src/lib/security/__tests__/nonce-validation.test.ts`
 
 Run tests:
+
 ```bash
 npm test -- nonce-validation.test.ts
 ```
@@ -269,10 +285,12 @@ This validation is **one layer** of security. It should be combined with:
 ## Monitoring and Logging
 
 ### Development Mode
+
 - Warnings logged to console: `[Security Warning] Inline script validation warnings`
 - Errors logged to console: `[Security Error] Inline script validation failed`
 
 ### Production Mode
+
 - Validation errors throw exceptions
 - Monitor error tracking for validation failures
 - Review logs for security incidents
@@ -305,6 +323,7 @@ To add new warning patterns:
 ## Version History
 
 ### v2.0.0 (2026-01-03)
+
 - ✅ Added comprehensive input validation
 - ✅ Added dangerous pattern detection
 - ✅ Added suspicious pattern warnings
@@ -316,5 +335,6 @@ To add new warning patterns:
 - ✅ Updated security documentation
 
 ### v1.0.0 (Previous)
+
 - Basic nonce support
 - No validation

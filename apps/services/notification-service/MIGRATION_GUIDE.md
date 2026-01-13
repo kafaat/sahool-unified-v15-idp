@@ -1,4 +1,5 @@
 # Farmer Profile Migration Guide
+
 # دليل ترحيل ملفات المزارعين
 
 This guide explains how to migrate the notification-service from in-memory farmer storage to PostgreSQL.
@@ -8,6 +9,7 @@ This guide explains how to migrate the notification-service from in-memory farme
 **Migration Date:** 2026-01-08
 
 **What Changed:**
+
 - ✅ Farmer profiles now stored in PostgreSQL instead of in-memory dictionary
 - ✅ Three new database tables: `farmer_profiles`, `farmer_crops`, `farmer_fields`
 - ✅ All endpoints updated to use database operations
@@ -16,6 +18,7 @@ This guide explains how to migrate the notification-service from in-memory farme
 ## Prerequisites | المتطلبات الأساسية
 
 1. **PostgreSQL Database Running**
+
    ```bash
    # Check if PostgreSQL is running
    pg_isready
@@ -25,6 +28,7 @@ This guide explains how to migrate the notification-service from in-memory farme
    ```
 
 2. **Database Created**
+
    ```bash
    # Create database (if not exists)
    createdb sahool_notifications
@@ -56,6 +60,7 @@ python migrate_farmer_profiles.py
 ```
 
 **What it does:**
+
 - ✅ Connects to PostgreSQL
 - ✅ Creates all three tables with proper indexes
 - ✅ Verifies tables were created successfully
@@ -63,6 +68,7 @@ python migrate_farmer_profiles.py
 - ✅ Provides detailed logging and error messages
 
 **Rollback:**
+
 ```bash
 # To undo the migration (drops all farmer tables)
 python migrate_farmer_profiles.py --rollback
@@ -87,6 +93,7 @@ aerich upgrade
 ```
 
 **Rollback:**
+
 ```bash
 # Downgrade to previous migration
 aerich downgrade -1
@@ -105,6 +112,7 @@ psql $DATABASE_URL -f migrations/farmer_profiles_schema.sql
 ```
 
 **Rollback:**
+
 ```sql
 -- Connect to database
 psql sahool_notifications
@@ -194,56 +202,59 @@ ORDER BY fp.farmer_id;
 ### Tables Created:
 
 #### 1. `farmer_profiles`
+
 Stores main farmer information.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| tenant_id | VARCHAR(100) | Multi-tenancy support |
-| farmer_id | VARCHAR(100) | Unique farmer identifier |
-| name | VARCHAR(255) | Farmer name (English) |
-| name_ar | VARCHAR(255) | Farmer name (Arabic) |
-| governorate | VARCHAR(50) | Governorate location |
-| district | VARCHAR(100) | District/area |
-| phone | VARCHAR(20) | Phone number |
-| email | VARCHAR(255) | Email address |
-| fcm_token | VARCHAR(500) | Firebase token for push |
-| language | VARCHAR(5) | Preferred language |
-| is_active | BOOLEAN | Active status |
-| metadata | JSONB | Additional data |
-| created_at | TIMESTAMP | Creation timestamp |
-| updated_at | TIMESTAMP | Last update timestamp |
-| last_login_at | TIMESTAMP | Last login time |
+| Column        | Type         | Description              |
+| ------------- | ------------ | ------------------------ |
+| id            | UUID         | Primary key              |
+| tenant_id     | VARCHAR(100) | Multi-tenancy support    |
+| farmer_id     | VARCHAR(100) | Unique farmer identifier |
+| name          | VARCHAR(255) | Farmer name (English)    |
+| name_ar       | VARCHAR(255) | Farmer name (Arabic)     |
+| governorate   | VARCHAR(50)  | Governorate location     |
+| district      | VARCHAR(100) | District/area            |
+| phone         | VARCHAR(20)  | Phone number             |
+| email         | VARCHAR(255) | Email address            |
+| fcm_token     | VARCHAR(500) | Firebase token for push  |
+| language      | VARCHAR(5)   | Preferred language       |
+| is_active     | BOOLEAN      | Active status            |
+| metadata      | JSONB        | Additional data          |
+| created_at    | TIMESTAMP    | Creation timestamp       |
+| updated_at    | TIMESTAMP    | Last update timestamp    |
+| last_login_at | TIMESTAMP    | Last login time          |
 
 #### 2. `farmer_crops`
+
 Junction table for farmer's crops.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| farmer_id | UUID | FK to farmer_profiles |
-| crop_type | VARCHAR(50) | Crop type (tomato, wheat, etc.) |
-| area_hectares | FLOAT | Cultivated area |
-| planting_date | DATE | Planting date |
-| harvest_date | DATE | Expected harvest |
-| is_active | BOOLEAN | Active status |
-| created_at | TIMESTAMP | Creation timestamp |
-| updated_at | TIMESTAMP | Last update timestamp |
+| Column        | Type        | Description                     |
+| ------------- | ----------- | ------------------------------- |
+| id            | UUID        | Primary key                     |
+| farmer_id     | UUID        | FK to farmer_profiles           |
+| crop_type     | VARCHAR(50) | Crop type (tomato, wheat, etc.) |
+| area_hectares | FLOAT       | Cultivated area                 |
+| planting_date | DATE        | Planting date                   |
+| harvest_date  | DATE        | Expected harvest                |
+| is_active     | BOOLEAN     | Active status                   |
+| created_at    | TIMESTAMP   | Creation timestamp              |
+| updated_at    | TIMESTAMP   | Last update timestamp           |
 
 #### 3. `farmer_fields`
+
 Junction table for farmer's fields.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| farmer_id | UUID | FK to farmer_profiles |
-| field_id | VARCHAR(100) | Field identifier |
-| field_name | VARCHAR(255) | Field name/label |
-| latitude | FLOAT | Field latitude |
-| longitude | FLOAT | Field longitude |
-| is_active | BOOLEAN | Active status |
-| created_at | TIMESTAMP | Creation timestamp |
-| updated_at | TIMESTAMP | Last update timestamp |
+| Column     | Type         | Description           |
+| ---------- | ------------ | --------------------- |
+| id         | UUID         | Primary key           |
+| farmer_id  | UUID         | FK to farmer_profiles |
+| field_id   | VARCHAR(100) | Field identifier      |
+| field_name | VARCHAR(255) | Field name/label      |
+| latitude   | FLOAT        | Field latitude        |
+| longitude  | FLOAT        | Field longitude       |
+| is_active  | BOOLEAN      | Active status         |
+| created_at | TIMESTAMP    | Creation timestamp    |
+| updated_at | TIMESTAMP    | Last update timestamp |
 
 ## Code Changes Summary | ملخص تغييرات الكود
 
@@ -284,6 +295,7 @@ Junction table for farmer's fields.
 ## Troubleshooting | استكشاف الأخطاء
 
 ### Issue: "DATABASE_URL not set"
+
 ```bash
 # Solution: Set the environment variable
 export DATABASE_URL="postgresql://user:password@localhost:5432/sahool_notifications"
@@ -293,6 +305,7 @@ echo 'DATABASE_URL=postgresql://user:password@localhost:5432/sahool_notification
 ```
 
 ### Issue: "Connection refused"
+
 ```bash
 # Check if PostgreSQL is running
 pg_isready
@@ -305,6 +318,7 @@ sudo netstat -plnt | grep postgres
 ```
 
 ### Issue: "Database does not exist"
+
 ```bash
 # Create the database
 createdb sahool_notifications
@@ -314,6 +328,7 @@ psql -U postgres -c "CREATE DATABASE sahool_notifications;"
 ```
 
 ### Issue: "Tables already exist"
+
 If you get a "table already exists" error:
 
 ```bash
@@ -370,12 +385,14 @@ The new database implementation includes:
 After successful migration:
 
 1. **Monitor Performance**
+
    ```bash
    # Check query performance
    psql sahool_notifications -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;"
    ```
 
 2. **Set up Backups**
+
    ```bash
    # Create backup
    pg_dump sahool_notifications > backup_$(date +%Y%m%d).sql
@@ -385,6 +402,7 @@ After successful migration:
    ```
 
 3. **Configure Auto-vacuum**
+
    ```sql
    ALTER TABLE farmer_profiles SET (autovacuum_vacuum_scale_factor = 0.1);
    ALTER TABLE farmer_crops SET (autovacuum_vacuum_scale_factor = 0.1);
@@ -410,6 +428,7 @@ If you encounter issues:
 You have successfully migrated the notification-service farmer profiles to PostgreSQL!
 
 The service now has:
+
 - ✅ Persistent farmer data storage
 - ✅ Proper database schema with relationships
 - ✅ Indexed queries for performance

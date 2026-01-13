@@ -26,6 +26,7 @@
 ## 🎯 Features Implemented
 
 ### Core Features
+
 - ✅ **NDVI Tile Rendering**: Displays NDVI data as colored tiles using MapLibre GL raster layers
 - ✅ **Historical Data**: Supports date selection for historical NDVI visualization
 - ✅ **Color Gradient**: Red (low NDVI) → Yellow (medium) → Green (high NDVI)
@@ -35,6 +36,7 @@
 - ✅ **Canvas Rendering**: Uses MapLibre GL's Canvas-based rendering for high performance
 
 ### Additional Features
+
 - ✅ **Automatic Map Bounds**: Fits map to NDVI data extent
 - ✅ **Color Legend**: Standalone legend component with Arabic labels
 - ✅ **Loading Overlay**: Reusable loading state component
@@ -45,30 +47,30 @@
 
 ```typescript
 interface NdviTileLayerProps {
-  fieldId: string;                          // معرف الحقل (required)
-  date?: Date;                              // التاريخ (optional)
-  opacity?: number;                         // الشفافية (default: 0.7)
-  visible?: boolean;                        // الظهور (default: true)
-  map: React.RefObject<Map | null>;         // مرجع الخريطة (required)
-  onLoad?: () => void;                      // عند التحميل (optional)
-  onError?: (error: Error) => void;         // عند الخطأ (optional)
+  fieldId: string; // معرف الحقل (required)
+  date?: Date; // التاريخ (optional)
+  opacity?: number; // الشفافية (default: 0.7)
+  visible?: boolean; // الظهور (default: true)
+  map: React.RefObject<Map | null>; // مرجع الخريطة (required)
+  onLoad?: () => void; // عند التحميل (optional)
+  onError?: (error: Error) => void; // عند الخطأ (optional)
 }
 ```
 
 ## 🎨 Color Scale (10 Stops)
 
-| NDVI Value | Color | Description AR | Description EN |
-|------------|-------|----------------|-----------------|
-| -1.0 | Brown (#8B4513) | تربة جافة | Bare soil |
-| 0.0 | Red (#FF0000) | بدون غطاء نباتي | No vegetation |
-| 0.2 | Orange-Red (#FF6600) | ضعيف جداً | Very poor |
-| 0.3 | Orange (#FFAA00) | ضعيف | Poor |
-| 0.4 | Yellow (#FFFF00) | متوسط | Moderate |
-| 0.5 | Yellow-Green (#AAFF00) | جيد | Good |
-| 0.6 | Light Green (#55FF00) | جيد جداً | Very good |
-| 0.7 | Green (#00FF00) | ممتاز | Excellent |
-| 0.8 | Dark Green (#00CC00) | كثيف | Dense |
-| 1.0 | Very Dark Green (#006600) | كثيف جداً | Very dense |
+| NDVI Value | Color                     | Description AR  | Description EN |
+| ---------- | ------------------------- | --------------- | -------------- |
+| -1.0       | Brown (#8B4513)           | تربة جافة       | Bare soil      |
+| 0.0        | Red (#FF0000)             | بدون غطاء نباتي | No vegetation  |
+| 0.2        | Orange-Red (#FF6600)      | ضعيف جداً       | Very poor      |
+| 0.3        | Orange (#FFAA00)          | ضعيف            | Poor           |
+| 0.4        | Yellow (#FFFF00)          | متوسط           | Moderate       |
+| 0.5        | Yellow-Green (#AAFF00)    | جيد             | Good           |
+| 0.6        | Light Green (#55FF00)     | جيد جداً        | Very good      |
+| 0.7        | Green (#00FF00)           | ممتاز           | Excellent      |
+| 0.8        | Dark Green (#00CC00)      | كثيف            | Dense          |
+| 1.0        | Very Dark Green (#006600) | كثيف جداً       | Very dense     |
 
 ## 🚀 Quick Start
 
@@ -143,6 +145,7 @@ const [opacity, setOpacity] = useState(0.7);
 ## 📦 Helper Components
 
 ### NdviColorLegend
+
 Displays the NDVI color scale legend with Arabic labels.
 
 ```typescript
@@ -150,6 +153,7 @@ Displays the NDVI color scale legend with Arabic labels.
 ```
 
 ### NdviLoadingOverlay
+
 Shows a loading indicator while NDVI data is being fetched.
 
 ```typescript
@@ -217,13 +221,16 @@ All components pass TypeScript strict mode with zero errors:
 ## 🔍 Integration Points
 
 ### With Existing Features
+
 - ✅ Uses `useNDVIMap` hook from `/features/ndvi`
 - ✅ Integrates with MapLibre GL (already in use)
 - ✅ Follows existing component patterns
 - ✅ Matches code style and structure
 
 ### With Other Map Components
+
 Can be used alongside:
+
 - `InteractiveFieldMap`
 - `WeatherOverlay`
 - `FieldMap`
@@ -251,8 +258,8 @@ import {
   NdviTileLayer,
   NdviColorLegend,
   NdviLoadingOverlay,
-  type NdviTileLayerProps
-} from '@/features/fields/components';
+  type NdviTileLayerProps,
+} from "@/features/fields/components";
 ```
 
 ---

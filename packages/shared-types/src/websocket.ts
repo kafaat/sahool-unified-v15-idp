@@ -4,16 +4,16 @@
  */
 
 export type WebSocketEventType =
-  | 'alert'
-  | 'sensor'
-  | 'irrigation'
-  | 'diagnosis'
-  | 'farm_update'
-  | 'weather'
-  | 'task'
-  | 'connected'
-  | 'disconnected'
-  | 'error';
+  | "alert"
+  | "sensor"
+  | "irrigation"
+  | "diagnosis"
+  | "farm_update"
+  | "weather"
+  | "task"
+  | "connected"
+  | "disconnected"
+  | "error";
 
 export interface WebSocketMessage<T = unknown> {
   type: WebSocketEventType;
@@ -24,8 +24,8 @@ export interface WebSocketMessage<T = unknown> {
 
 export interface AlertMessage {
   id: string;
-  type: 'pest' | 'disease' | 'weather' | 'irrigation' | 'general';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  type: "pest" | "disease" | "weather" | "irrigation" | "general";
+  severity: "low" | "medium" | "high" | "critical";
   title: string;
   message: string;
   farmId?: string;
@@ -37,7 +37,7 @@ export interface AlertMessage {
 export interface SensorMessage {
   id: string;
   sensorId: string;
-  type: 'temperature' | 'humidity' | 'soil_moisture' | 'ph' | 'light';
+  type: "temperature" | "humidity" | "soil_moisture" | "ph" | "light";
   value: number;
   unit: string;
   timestamp: string;
@@ -48,7 +48,7 @@ export interface SensorMessage {
 export interface IrrigationMessage {
   id: string;
   systemId: string;
-  status: 'on' | 'off' | 'scheduled' | 'error';
+  status: "on" | "off" | "scheduled" | "error";
   flowRate?: number;
   duration?: number;
   timestamp: string;
@@ -58,7 +58,7 @@ export interface IrrigationMessage {
 
 export interface DiagnosisMessage {
   id: string;
-  type: 'pest' | 'disease' | 'nutrient' | 'general';
+  type: "pest" | "disease" | "nutrient" | "general";
   confidence: number;
   diagnosis: string;
   recommendations?: string[];
@@ -69,11 +69,11 @@ export interface DiagnosisMessage {
 }
 
 export enum ConnectionStatus {
-  CONNECTED = 'connected',
-  CONNECTING = 'connecting',
-  DISCONNECTED = 'disconnected',
-  RECONNECTING = 'reconnecting',
-  ERROR = 'error',
+  CONNECTED = "connected",
+  CONNECTING = "connecting",
+  DISCONNECTED = "disconnected",
+  RECONNECTING = "reconnecting",
+  ERROR = "error",
 }
 
 export interface WebSocketClientOptions {

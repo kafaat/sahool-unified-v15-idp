@@ -15,23 +15,27 @@ Each level supports PostGIS geometry for spatial queries.
 ## Hierarchy
 
 ### Farm
+
 - Top-level container
 - Has location (lat/lon)
 - Contains multiple Fields
 
 ### Field
+
 - Agricultural parcel
 - Polygon geometry (PostGIS)
 - Contains multiple Zones
 - Properties: soil_type, irrigation_type, crop
 
 ### Zone
+
 - Management unit within Field
 - Types: irrigation, soil_type, ndvi_cluster, yield_zone, management, custom
 - Contains multiple SubZones
 - Properties stored as JSONB
 
 ### SubZone
+
 - Finest granularity
 - Used for Variable Rate Application (VRA)
 - Sensor placement areas
@@ -42,6 +46,7 @@ Each level supports PostGIS geometry for spatial queries.
 ### Geometry Columns
 
 Each spatial table has:
+
 - `geometry_wkt`: WKT string for compatibility
 - `geom`: Native PostGIS geometry(Polygon, 4326)
 
@@ -50,6 +55,7 @@ A trigger automatically syncs `geometry_wkt` → `geom` on INSERT/UPDATE.
 ### Spatial Indexes
 
 GIST indexes are created for efficient spatial queries:
+
 - `ix_fields_geom`
 - `ix_zones_geom`
 - `ix_subzones_geom`
@@ -88,29 +94,32 @@ print(f"Fixed: {report.total_fixed} geometries")
 ```
 
 Fixes applied:
+
 - `ST_MakeValid`: Repairs invalid geometry
 - `ST_Force2D`: Ensures 2D (removes Z/M)
 - `ST_CollectionExtract(..., 3)`: Extracts polygons
 
 ## Zone Types
 
-| Type | Use Case |
-|------|----------|
-| `irrigation` | Irrigation management zones |
-| `soil_type` | Soil classification zones |
-| `ndvi_cluster` | NDVI-based clustering |
-| `yield_zone` | Historical yield zones |
-| `management` | General management zones |
-| `custom` | User-defined zones |
+| Type           | Use Case                    |
+| -------------- | --------------------------- |
+| `irrigation`   | Irrigation management zones |
+| `soil_type`    | Soil classification zones   |
+| `ndvi_cluster` | NDVI-based clustering       |
+| `yield_zone`   | Historical yield zones      |
+| `management`   | General management zones    |
+| `custom`       | User-defined zones          |
 
 ## Migration
 
 Run PostGIS migration:
+
 ```bash
 make gis-migrate
 ```
 
 Or directly:
+
 ```bash
 alembic -c field_suite/migrations/alembic.ini upgrade head
 ```

@@ -70,6 +70,7 @@ The SAHOOL platform uses TLS/SSL encryption to secure all internal service commu
 - **Signature**: SHA-256
 
 **Subject DN**:
+
 ```
 C=YE, ST=Sana'a, L=Sana'a, O=SAHOOL, OU=Platform Security, CN=SAHOOL Internal CA
 ```
@@ -78,15 +79,16 @@ C=YE, ST=Sana'a, L=Sana'a, O=SAHOOL, OU=Platform Security, CN=SAHOOL Internal CA
 
 Each service has its own certificate with Subject Alternative Names (SANs):
 
-| Service | Location | SANs |
-|---------|----------|------|
-| PostgreSQL | `/config/certs/postgres/` | postgres, postgres.sahool.local, sahool-postgres, localhost |
-| PgBouncer | `/config/certs/pgbouncer/` | pgbouncer, pgbouncer.sahool.local, sahool-pgbouncer, localhost |
-| Redis | `/config/certs/redis/` | redis, redis.sahool.local, sahool-redis, localhost |
-| NATS | `/config/certs/nats/` | nats, nats.sahool.local, sahool-nats, localhost |
-| Kong | `/config/certs/kong/` | kong, kong.sahool.local, sahool-kong, localhost |
+| Service    | Location                   | SANs                                                           |
+| ---------- | -------------------------- | -------------------------------------------------------------- |
+| PostgreSQL | `/config/certs/postgres/`  | postgres, postgres.sahool.local, sahool-postgres, localhost    |
+| PgBouncer  | `/config/certs/pgbouncer/` | pgbouncer, pgbouncer.sahool.local, sahool-pgbouncer, localhost |
+| Redis      | `/config/certs/redis/`     | redis, redis.sahool.local, sahool-redis, localhost             |
+| NATS       | `/config/certs/nats/`      | nats, nats.sahool.local, sahool-nats, localhost                |
+| Kong       | `/config/certs/kong/`      | kong, kong.sahool.local, sahool-kong, localhost                |
 
 **Certificate Properties**:
+
 - **Validity**: 825 days (~2.25 years, Apple's maximum)
 - **Key Size**: 2048 bits RSA
 - **Signature**: SHA-256
@@ -100,6 +102,7 @@ Each service has its own certificate with Subject Alternative Names (SANs):
 **Configuration File**: Configured via command-line arguments in `docker-compose.tls.yml`
 
 **TLS Settings**:
+
 ```bash
 ssl=on
 ssl_cert_file=/var/lib/postgresql/certs/server.crt
@@ -110,6 +113,7 @@ ssl_prefer_server_ciphers=on
 ```
 
 **Client Connection**:
+
 ```bash
 # Connection string with TLS
 postgresql://user:pass@postgres:5432/db?sslmode=prefer
@@ -120,6 +124,7 @@ PGSSLROOTCERT=/path/to/ca.crt
 ```
 
 **SSL Modes**:
+
 - `disable`: No SSL (not recommended)
 - `allow`: Try non-SSL first, then SSL
 - `prefer`: Try SSL first, then non-SSL (default with TLS enabled)
@@ -132,6 +137,7 @@ PGSSLROOTCERT=/path/to/ca.crt
 **Configuration File**: `/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/pgbouncer.ini`
 
 **TLS Settings**:
+
 ```ini
 # Server-side TLS (to PostgreSQL)
 server_tls_sslmode = prefer
@@ -148,6 +154,7 @@ client_tls_key_file = /etc/pgbouncer/certs/server.key
 **Configuration**: Command-line arguments in `docker-compose.tls.yml`
 
 **TLS Settings**:
+
 ```bash
 --tls-port 6379
 --port 0                              # Disable non-TLS port
@@ -161,6 +168,7 @@ client_tls_key_file = /etc/pgbouncer/certs/server.key
 ```
 
 **Client Connection**:
+
 ```bash
 # Connection string with TLS
 rediss://:password@redis:6379/0
@@ -174,6 +182,7 @@ redis.Redis(host='redis', port=6379, password='pass', ssl=True, ssl_ca_certs='/p
 **Configuration File**: `/home/user/sahool-unified-v15-idp/config/nats/nats.conf`
 
 **TLS Settings**:
+
 ```conf
 tls {
     cert_file: "/etc/nats/certs/server.crt"
@@ -185,6 +194,7 @@ tls {
 ```
 
 **Client Connection**:
+
 ```bash
 # Connection string with TLS
 nats://user:pass@nats:4222?tls=true&tls_ca=/path/to/ca.crt
@@ -195,6 +205,7 @@ nats://user:pass@nats:4222?tls=true&tls_ca=/path/to/ca.crt
 **Configuration**: Environment variables in `docker-compose.tls.yml`
 
 **TLS Settings**:
+
 ```yaml
 KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
 KONG_SSL_CERT: /etc/kong/certs/server.crt
@@ -202,6 +213,7 @@ KONG_SSL_CERT_KEY: /etc/kong/certs/server.key
 ```
 
 **Access**:
+
 ```bash
 # HTTPS access
 curl https://kong:8443/api/v1/health
@@ -310,35 +322,35 @@ client = redis.Redis(
 #### Node.js - PostgreSQL with pg
 
 ```javascript
-const { Pool } = require('pg');
-const fs = require('fs');
+const { Pool } = require("pg");
+const fs = require("fs");
 
 const pool = new Pool({
-  host: 'postgres',
+  host: "postgres",
   port: 5432,
-  database: 'sahool',
-  user: 'sahool',
-  password: 'password',
+  database: "sahool",
+  user: "sahool",
+  password: "password",
   ssl: {
     rejectUnauthorized: true,
-    ca: fs.readFileSync('/app/certs/ca.crt').toString()
-  }
+    ca: fs.readFileSync("/app/certs/ca.crt").toString(),
+  },
 });
 ```
 
 #### Node.js - Redis with ioredis
 
 ```javascript
-const Redis = require('ioredis');
-const fs = require('fs');
+const Redis = require("ioredis");
+const fs = require("fs");
 
 const redis = new Redis({
-  host: 'redis',
+  host: "redis",
   port: 6379,
-  password: 'password',
+  password: "password",
   tls: {
-    ca: fs.readFileSync('/app/certs/ca.crt')
-  }
+    ca: fs.readFileSync("/app/certs/ca.crt"),
+  },
 });
 ```
 
@@ -408,11 +420,13 @@ curl -k https://localhost:8443/
 **Error**: `SSL error: certificate verify failed`
 
 **Causes**:
+
 - CA certificate not provided to client
 - Certificate expired
 - Hostname mismatch
 
 **Solutions**:
+
 ```bash
 # Verify certificate is valid
 openssl verify -CAfile config/certs/ca/ca.crt config/certs/postgres/server.crt
@@ -429,11 +443,13 @@ cd config/certs && ./generate-internal-tls.sh --force
 **Error**: `Connection refused` or `Connection reset by peer`
 
 **Causes**:
+
 - Service not configured for TLS
 - Wrong port
 - Firewall blocking TLS port
 
 **Solutions**:
+
 ```bash
 # Check service logs
 docker-compose logs postgres | grep -i ssl
@@ -451,6 +467,7 @@ openssl s_client -connect localhost:5432 -starttls postgres
 **Error**: `Permission denied` when accessing certificate files
 
 **Solution**:
+
 ```bash
 # Fix permissions
 cd /home/user/sahool-unified-v15-idp/config/certs
@@ -463,6 +480,7 @@ chmod 644 */server.crt ca/ca.crt
 **Error**: `sslmode value "require" is not valid`
 
 **Solution**: Use correct sslmode values:
+
 - PostgreSQL: `disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full`
 - Update connection string or environment variable
 

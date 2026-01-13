@@ -5,7 +5,7 @@
  * @description Demonstrates how to use the shared error handling module
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 import {
   ErrorCode,
   NotFoundException,
@@ -17,7 +17,7 @@ import {
   retryWithBackoff,
   createSuccessResponse,
   createPaginatedResponse,
-} from '../index';
+} from "../index";
 
 // Example DTOs
 interface CreateFarmDto {
@@ -74,27 +74,27 @@ export class ExampleFarmService {
     // Validate name
     if (!data.name || data.name.trim().length === 0) {
       errors.push({
-        field: 'name',
-        message: 'Name is required',
-        messageAr: 'الاسم مطلوب',
+        field: "name",
+        message: "Name is required",
+        messageAr: "الاسم مطلوب",
       });
     }
 
     // Validate area
     if (data.area <= 0) {
       errors.push({
-        field: 'area',
-        message: 'Area must be greater than zero',
-        messageAr: 'المساحة يجب أن تكون أكبر من صفر',
+        field: "area",
+        message: "Area must be greater than zero",
+        messageAr: "المساحة يجب أن تكون أكبر من صفر",
       });
     }
 
     // Validate location
     if (!data.location || !data.location.lat || !data.location.lng) {
       errors.push({
-        field: 'location',
-        message: 'Location coordinates are required',
-        messageAr: 'إحداثيات الموقع مطلوبة',
+        field: "location",
+        message: "Location coordinates are required",
+        messageAr: "إحداثيات الموقع مطلوبة",
       });
     }
 
@@ -120,7 +120,11 @@ export class ExampleFarmService {
    * Example 3: Business Logic Exception
    * مثال 3: استثناء منطق الأعمال
    */
-  async transferArea(fromFarmId: string, toFarmId: string, area: number): Promise<void> {
+  async transferArea(
+    fromFarmId: string,
+    toFarmId: string,
+    area: number,
+  ): Promise<void> {
     // Validate amount is positive
     if (area <= 0) {
       throw BusinessLogicException.amountMustBePositive(area);
@@ -178,8 +182,8 @@ export class ExampleFarmService {
       if (isDuplicate) {
         // Simulate Prisma error
         const error = {
-          code: 'P2002',
-          meta: { target: ['name'] },
+          code: "P2002",
+          meta: { target: ["name"] },
         };
         throw DatabaseException.fromDatabaseError(error);
       }
@@ -211,7 +215,7 @@ export class ExampleFarmService {
 
           // Simulate occasional failures
           if (Math.random() > 0.7) {
-            throw new Error('Weather service timeout');
+            throw new Error("Weather service timeout");
           }
 
           return {
@@ -239,8 +243,8 @@ export class ExampleFarmService {
     const farm = await this.findById(id);
     return createSuccessResponse(
       farm,
-      'Farm retrieved successfully',
-      'تم استرجاع المزرعة بنجاح',
+      "Farm retrieved successfully",
+      "تم استرجاع المزرعة بنجاح",
     );
   }
 
@@ -260,8 +264,8 @@ export class ExampleFarmService {
       page,
       limit,
       total,
-      'Farms retrieved successfully',
-      'تم استرجاع المزارع بنجاح',
+      "Farms retrieved successfully",
+      "تم استرجاع المزارع بنجاح",
     );
   }
 
@@ -275,17 +279,17 @@ export class ExampleFarmService {
     // Name validation
     if (!data.name) {
       errors.push({
-        field: 'name',
-        message: 'Name is required',
-        messageAr: 'الاسم مطلوب',
-        constraint: 'isNotEmpty',
+        field: "name",
+        message: "Name is required",
+        messageAr: "الاسم مطلوب",
+        constraint: "isNotEmpty",
       });
     } else if (data.name.length < 3) {
       errors.push({
-        field: 'name',
-        message: 'Name must be at least 3 characters',
-        messageAr: 'الاسم يجب أن يكون 3 أحرف على الأقل',
-        constraint: 'minLength',
+        field: "name",
+        message: "Name must be at least 3 characters",
+        messageAr: "الاسم يجب أن يكون 3 أحرف على الأقل",
+        constraint: "minLength",
         value: data.name,
       });
     }
@@ -293,25 +297,25 @@ export class ExampleFarmService {
     // Area validation
     if (data.area === undefined || data.area === null) {
       errors.push({
-        field: 'area',
-        message: 'Area is required',
-        messageAr: 'المساحة مطلوبة',
-        constraint: 'isNotEmpty',
+        field: "area",
+        message: "Area is required",
+        messageAr: "المساحة مطلوبة",
+        constraint: "isNotEmpty",
       });
     } else if (data.area <= 0) {
       errors.push({
-        field: 'area',
-        message: 'Area must be positive',
-        messageAr: 'المساحة يجب أن تكون موجبة',
-        constraint: 'isPositive',
+        field: "area",
+        message: "Area must be positive",
+        messageAr: "المساحة يجب أن تكون موجبة",
+        constraint: "isPositive",
         value: data.area,
       });
     } else if (data.area > 10000) {
       errors.push({
-        field: 'area',
-        message: 'Area cannot exceed 10,000 hectares',
-        messageAr: 'المساحة لا يمكن أن تتجاوز 10,000 هكتار',
-        constraint: 'max',
+        field: "area",
+        message: "Area cannot exceed 10,000 hectares",
+        messageAr: "المساحة لا يمكن أن تتجاوز 10,000 هكتار",
+        constraint: "max",
         value: data.area,
       });
     }
@@ -319,10 +323,10 @@ export class ExampleFarmService {
     // Location validation
     if (!data.location) {
       errors.push({
-        field: 'location',
-        message: 'Location is required',
-        messageAr: 'الموقع مطلوب',
-        constraint: 'isNotEmpty',
+        field: "location",
+        message: "Location is required",
+        messageAr: "الموقع مطلوب",
+        constraint: "isNotEmpty",
       });
     } else {
       if (
@@ -332,10 +336,10 @@ export class ExampleFarmService {
         data.location.lng > 180
       ) {
         errors.push({
-          field: 'location',
-          message: 'Invalid coordinates',
-          messageAr: 'إحداثيات غير صالحة',
-          constraint: 'isValidCoordinates',
+          field: "location",
+          message: "Invalid coordinates",
+          messageAr: "إحداثيات غير صالحة",
+          constraint: "isValidCoordinates",
           value: data.location,
         });
       }
@@ -359,8 +363,8 @@ export class ExampleFarmService {
 
     if (hasActiveCrops) {
       throw BusinessLogicException.operationNotAllowed(
-        'archive',
-        'Cannot archive farm with active crops',
+        "archive",
+        "Cannot archive farm with active crops",
       );
     }
 

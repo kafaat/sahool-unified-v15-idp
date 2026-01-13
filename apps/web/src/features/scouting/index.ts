@@ -6,13 +6,13 @@
  */
 
 // Components
-export * from './components';
+export * from "./components";
 
 // Hooks
-export * from './hooks/useScouting';
+export * from "./hooks/useScouting";
 
 // Types
-export * from './types/scouting';
+export * from "./types/scouting";
 
 // API
-export { scoutingApi } from './api/scouting-api';
+export { scoutingApi } from "./api/scouting-api";

@@ -7,6 +7,7 @@ A comprehensive React hook that calculates a "Living Field Score" by combining d
 ## Overview
 
 The `useLivingFieldScore` hook integrates data from:
+
 - **NDVI** (Normalized Difference Vegetation Index) - Satellite imagery for crop health
 - **Soil Moisture Sensors** - IoT sensors monitoring irrigation needs
 - **Weather Data** - Current and forecasted weather conditions
@@ -28,7 +29,7 @@ The `useLivingFieldScore` hook integrates data from:
 The hook is part of the fields feature and can be imported directly:
 
 ```typescript
-import { useLivingFieldScore } from '@/features/fields';
+import { useLivingFieldScore } from "@/features/fields";
 ```
 
 ## Basic Usage
@@ -60,21 +61,23 @@ function FieldDashboard({ fieldId }: { fieldId: string }) {
 ```typescript
 function useLivingFieldScore(
   fieldId: string,
-  options?: UseLivingFieldScoreOptions
+  options?: UseLivingFieldScoreOptions,
 ): {
   data: LivingFieldScore | undefined;
   isLoading: boolean;
   isError: boolean;
-}
+};
 ```
 
 ### Parameters
 
 #### `fieldId` (required)
+
 - **Type**: `string`
 - **Description**: The unique identifier of the field to analyze
 
 #### `options` (optional)
+
 - **Type**: `UseLivingFieldScoreOptions`
 - **Properties**:
   - `enabled?: boolean` - Enable/disable the hook (default: `true`)
@@ -85,36 +88,41 @@ function useLivingFieldScore(
 
 ```typescript
 interface LivingFieldScore {
-  overall: number;              // 0-100: Weighted average of all scores
-  health: number;               // 0-100: Crop health from NDVI
-  hydration: number;            // 0-100: Soil moisture and irrigation
-  attention: number;            // 0-100: Task completion and urgency
-  astral: number;               // 0-100: Astronomical favorability
-  trend: 'improving' | 'stable' | 'declining';
-  alerts: FieldAlert[];         // Active alerts requiring attention
-  recommendations: Recommendation[];  // Actionable recommendations
-  lastUpdated: Date;            // Timestamp of calculation
+  overall: number; // 0-100: Weighted average of all scores
+  health: number; // 0-100: Crop health from NDVI
+  hydration: number; // 0-100: Soil moisture and irrigation
+  attention: number; // 0-100: Task completion and urgency
+  astral: number; // 0-100: Astronomical favorability
+  trend: "improving" | "stable" | "declining";
+  alerts: FieldAlert[]; // Active alerts requiring attention
+  recommendations: Recommendation[]; // Actionable recommendations
+  lastUpdated: Date; // Timestamp of calculation
 }
 ```
 
 ## Score Components
 
 ### 1. Overall Score (0-100)
+
 **Weighted average of all component scores:**
+
 - Health: 35%
 - Hydration: 35%
 - Attention: 20%
 - Astral: 10%
 
 **Interpretation:**
+
 - 70-100: Excellent ✅ (Green)
 - 40-69: Moderate ⚠️ (Yellow)
 - 0-39: Poor ❌ (Red)
 
 ### 2. Health Score
+
 **Based on NDVI satellite data**
 
 Measures crop vegetation health:
+
 - **Excellent (95)**: NDVI ≥ 0.7
 - **Good (80)**: NDVI ≥ 0.5
 - **Moderate (60)**: NDVI ≥ 0.3
@@ -122,22 +130,27 @@ Measures crop vegetation health:
 - **Critical (15)**: NDVI < 0.15
 
 ### 3. Hydration Score
+
 **Based on soil moisture sensors and weather**
 
 Optimal soil moisture: 30-60%
+
 - **90**: Within optimal range
 - **60**: Slightly low (20-30%)
 - **30**: Over-irrigated (>80%)
 - **20**: Critical low (<20%)
 
 Adjusted for weather conditions:
+
 - Temperature > 35°C + Humidity < 30% → -15 points
 - Humidity 50-70% → +5 points
 
 ### 4. Attention Score
+
 **Based on task completion and urgency**
 
 Starts at 100, deductions for:
+
 - **5+ overdue tasks**: -50 points
 - **2-4 overdue tasks**: -25 points
 - **1 overdue task**: -10 points
@@ -145,12 +158,15 @@ Starts at 100, deductions for:
 - **6-9 pending tasks**: -10 points
 
 Bonus:
+
 - **Completion rate > 80%**: +10 points
 
 ### 5. Astral Score
+
 **Based on Yemeni agricultural astronomical calendar**
 
 Uses:
+
 - Moon phases (farming_good indicator)
 - Lunar mansions (farming_score 0-10)
 - Overall farming score from calendar
@@ -164,8 +180,15 @@ Favorable conditions increase score up to 100.
 ```typescript
 interface FieldAlert {
   id: string;
-  severity: 'info' | 'warning' | 'critical' | 'emergency';
-  category: 'crop_health' | 'weather' | 'irrigation' | 'pest' | 'disease' | 'market' | 'system';
+  severity: "info" | "warning" | "critical" | "emergency";
+  category:
+    | "crop_health"
+    | "weather"
+    | "irrigation"
+    | "pest"
+    | "disease"
+    | "market"
+    | "system";
   title: string;
   titleAr: string;
   message: string;
@@ -179,14 +202,17 @@ interface FieldAlert {
 ### Alert Triggers
 
 #### Health Alerts
+
 - **Critical**: Health < 30
 - **Warning**: Health < 50
 
 #### Hydration Alerts
+
 - **Critical Low**: Soil moisture < 20%
 - **Warning High**: Soil moisture > 80%
 
 #### Task Alerts
+
 - **Critical**: 5+ overdue tasks
 - **Warning**: 2-4 overdue tasks
 
@@ -221,8 +247,14 @@ interface FieldAlert {
 ```typescript
 interface Recommendation {
   id: string;
-  type: 'irrigation' | 'fertilizer' | 'pest_control' | 'harvest' | 'planting' | 'general';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type:
+    | "irrigation"
+    | "fertilizer"
+    | "pest_control"
+    | "harvest"
+    | "planting"
+    | "general";
+  priority: "low" | "medium" | "high" | "urgent";
   title: string;
   titleAr: string;
   description: string;
@@ -236,6 +268,7 @@ interface Recommendation {
 ### Recommendation Triggers
 
 #### Health Recommendations
+
 - **Priority: Urgent** (health < 30)
   - Conduct soil nutrient analysis
   - Check for pest or disease signs
@@ -243,6 +276,7 @@ interface Recommendation {
   - Consider targeted fertilization
 
 #### Irrigation Recommendations
+
 - **Increase Irrigation** (hydration < 40)
   - Schedule immediate irrigation
   - Check irrigation system functionality
@@ -255,12 +289,14 @@ interface Recommendation {
   - Monitor for signs of waterlogging
 
 #### Task Recommendations
+
 - **Complete Pending Tasks** (attention < 60)
   - Review overdue tasks
   - Prioritize urgent activities
   - Assign tasks to team members
 
 #### Weather-based Recommendations
+
 - **Heat Stress Mitigation** (temp > 35°C, humidity < 30%)
   - Increase irrigation frequency
   - Consider shade netting
@@ -340,24 +376,25 @@ The hook internally uses these data sources:
 
 ```typescript
 // NDVI data
-useFieldNDVI(fieldId)
+useFieldNDVI(fieldId);
 
 // Weather data
-useCurrentWeather()
+useCurrentWeather();
 
 // Astronomical calendar
-useAstronomicalToday()
+useAstronomicalToday();
 
 // Tasks
-useTasksByField(fieldId)
+useTasksByField(fieldId);
 
 // Soil moisture sensors
-useSensors({ fieldId, type: 'soil_moisture' })
+useSensors({ fieldId, type: "soil_moisture" });
 ```
 
 ## Error Handling
 
 The hook gracefully handles missing data:
+
 - Missing NDVI: Returns neutral score (50)
 - No sensors: Uses weather data only
 - No tasks: Assumes perfect attention (100)
@@ -382,6 +419,7 @@ import { LivingFieldCard } from '@/features/fields';
 ## Internationalization
 
 All alerts and recommendations include both English and Arabic text:
+
 - `title` / `titleAr`
 - `message` / `messageAr`
 - `description` / `descriptionAr`
@@ -389,6 +427,7 @@ All alerts and recommendations include both English and Arabic text:
 ## Examples
 
 See `useLivingFieldScore.example.ts` for complete working examples including:
+
 1. Basic usage
 2. With options
 3. Display alerts

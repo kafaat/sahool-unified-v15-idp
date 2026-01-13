@@ -3,8 +3,8 @@
  * نقطة نهاية API لتسجيل الأخطاء - لوحة التحكم
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '../../../lib/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "../../../lib/logger";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -57,19 +57,19 @@ function isRateLimited(ip: string): boolean {
  * الحصول على عنوان IP للعميل
  */
 function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
+  const forwarded = request.headers.get("x-forwarded-for");
+  const realIp = request.headers.get("x-real-ip");
 
   if (forwarded) {
-    const firstIp = forwarded.split(',')[0];
-    return firstIp ? firstIp.trim() : 'unknown';
+    const firstIp = forwarded.split(",")[0];
+    return firstIp ? firstIp.trim() : "unknown";
   }
 
   if (realIp) {
     return realIp;
   }
 
-  return 'unknown';
+  return "unknown";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -86,8 +86,8 @@ export async function POST(request: NextRequest) {
     const clientIP = getClientIP(request);
     if (isRateLimited(clientIP)) {
       return NextResponse.json(
-        { error: 'Too many error reports' },
-        { status: 429 }
+        { error: "Too many error reports" },
+        { status: 429 },
       );
     }
 
@@ -96,26 +96,26 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!payload.message || !payload.timestamp) {
       return NextResponse.json(
-        { error: 'Missing required fields: message, timestamp' },
-        { status: 400 }
+        { error: "Missing required fields: message, timestamp" },
+        { status: 400 },
       );
     }
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      logger.error('[Admin Error Log]', JSON.stringify(payload, null, 2));
+    if (process.env.NODE_ENV === "development") {
+      logger.error("[Admin Error Log]", JSON.stringify(payload, null, 2));
     }
 
     // Create structured log entry
     const logEntry = {
-      level: 'error',
-      service: 'sahool-admin',
+      level: "error",
+      service: "sahool-admin",
       ...payload,
       clientIP,
       receivedAt: new Date().toISOString(),
       requestHeaders: {
-        userAgent: request.headers.get('user-agent'),
-        referer: request.headers.get('referer'),
+        userAgent: request.headers.get("user-agent"),
+        referer: request.headers.get("referer"),
       },
     };
 
@@ -138,10 +138,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, logged: true });
   } catch (error) {
-    logger.error('[Error Log API] Failed to process error:', error);
-    return NextResponse.json(
-      { error: 'Failed to log error' },
-      { status: 500 }
-    );
+    logger.error("[Error Log API] Failed to process error:", error);
+    return NextResponse.json({ error: "Failed to log error" }, { status: 500 });
   }
 }

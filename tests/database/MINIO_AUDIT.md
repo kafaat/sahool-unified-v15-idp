@@ -1,4 +1,5 @@
 # SAHOOL Platform - MinIO Object Storage Audit Report
+
 # تقرير مراجعة تخزين الكائنات MinIO - منصة سهول
 
 **Audit Date:** 2026-01-06
@@ -11,25 +12,27 @@
 ## Executive Summary | الملخص التنفيذي
 
 The SAHOOL platform utilizes MinIO as an S3-compatible object storage solution for two primary purposes:
+
 1. **Backend storage for Milvus vector database** (production instance)
 2. **Backup storage system** (dedicated backup instance)
 
 منصة سهول تستخدم MinIO كحل لتخزين الكائنات المتوافق مع S3 لغرضين رئيسيين:
+
 1. **تخزين خلفي لقاعدة بيانات Milvus الشعاعية** (نسخة الإنتاج)
 2. **نظام تخزين النسخ الاحتياطي** (نسخة مخصصة للنسخ الاحتياطي)
 
 ### Overall Assessment Score: 5.5/10 🔶
 
-| Category | Score | Status |
-|----------|-------|--------|
-| **Configuration Quality** | 6/10 | 🔶 Fair |
-| **Security Posture** | 4/10 | ❌ Poor |
-| **Data Organization** | 7/10 | ✅ Good |
-| **Access Control** | 4/10 | ❌ Poor |
-| **Encryption** | 3/10 | ❌ Critical |
-| **High Availability** | 3/10 | ❌ Poor |
-| **Monitoring & Observability** | 5/10 | 🔶 Fair |
-| **Backup & Recovery** | 8/10 | ✅ Good |
+| Category                       | Score | Status      |
+| ------------------------------ | ----- | ----------- |
+| **Configuration Quality**      | 6/10  | 🔶 Fair     |
+| **Security Posture**           | 4/10  | ❌ Poor     |
+| **Data Organization**          | 7/10  | ✅ Good     |
+| **Access Control**             | 4/10  | ❌ Poor     |
+| **Encryption**                 | 3/10  | ❌ Critical |
+| **High Availability**          | 3/10  | ❌ Poor     |
+| **Monitoring & Observability** | 5/10  | 🔶 Fair     |
+| **Backup & Recovery**          | 8/10  | ✅ Good     |
 
 **Overall Recommendation:** ❌ **NOT PRODUCTION READY - REQUIRES IMMEDIATE SECURITY HARDENING**
 
@@ -42,6 +45,7 @@ The SAHOOL platform utilizes MinIO as an S3-compatible object storage solution f
 The platform runs **TWO separate MinIO instances**:
 
 #### Instance 1: Production MinIO (Milvus Backend)
+
 - **Purpose:** Object storage for Milvus vector database
 - **Container:** `sahool-minio`
 - **Image:** `minio/minio:RELEASE.2023-03-20T20-16-18Z`
@@ -57,6 +61,7 @@ The platform runs **TWO separate MinIO instances**:
 **Configuration File:** `/home/user/sahool-unified-v15-idp/docker-compose.yml` (Lines 475-505)
 
 #### Instance 2: Backup MinIO
+
 - **Purpose:** Backup storage for database/redis/minio backups
 - **Container:** `sahool-backup-minio`
 - **Image:** `minio/minio:RELEASE.2024-01-16T16-07-38Z`
@@ -74,12 +79,14 @@ The platform runs **TWO separate MinIO instances**:
 ### 1.2 Architecture Assessment
 
 **Strengths:**
+
 - ✅ Separation of concerns (production vs backup)
 - ✅ Resource limits configured
 - ✅ Health checks enabled
 - ✅ Persistent volumes configured
 
 **Weaknesses:**
+
 - ❌ Single-node deployment (no distributed mode)
 - ❌ No high availability setup
 - ❌ Production and backup on same physical infrastructure (likely)
@@ -95,17 +102,20 @@ The platform runs **TWO separate MinIO instances**:
 ### 2.1 Production MinIO Configuration
 
 **Environment Variables:**
+
 ```yaml
 MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required - must be at least 16 characters}
 MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required - must be at least 16 characters}
 ```
 
 **Command:**
+
 ```bash
 minio server /minio_data --console-address ":9090"
 ```
 
 **Health Check:**
+
 ```yaml
 test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
 interval: 30s
@@ -117,6 +127,7 @@ start_period: 30s
 ### 2.2 Backup MinIO Configuration
 
 **Environment Variables:**
+
 ```yaml
 MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
 MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
@@ -127,6 +138,7 @@ MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-public}
 ```
 
 **Command:**
+
 ```bash
 minio server /data --console-address ":9001"
 ```
@@ -134,6 +146,7 @@ minio server /data --console-address ":9001"
 ### 2.3 Environment Configuration (.env.example)
 
 **MinIO Credentials:**
+
 ```bash
 # Lines 152-169
 MINIO_ROOT_USER=sahool_minio_admin_user_2024
@@ -154,6 +167,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 2.4 Configuration Issues
 
 **Critical Issues:**
+
 - ❌ No TLS/SSL enabled (HTTP only)
 - ❌ Default example credentials in .env.example
 - ❌ No server-side encryption configuration
@@ -161,6 +175,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 - ❌ Prometheus metrics public (no authentication)
 
 **High Priority Issues:**
+
 - ❌ No region configuration
 - ❌ No domain configuration for virtual-host-style requests
 - ❌ No API throttling configured
@@ -176,17 +191,19 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 3.1 Discovered Buckets
 
 #### Backup System Buckets (Auto-Created)
+
 Created via MinIO Client in docker-compose.backup.yml (Lines 95-101):
 
-| Bucket Name | Purpose | Policy | Versioning |
-|-------------|---------|--------|------------|
-| `sahool-backups` | Main backup storage | Download | ✅ Enabled |
-| `sahool-backups-archive` | Archive backups | Not set | Not set |
-| `postgres-backups` | PostgreSQL backups | Not set | Not set |
-| `redis-backups` | Redis backups | Not set | Not set |
-| `minio-backups` | MinIO backups | Not set | Not set |
+| Bucket Name              | Purpose             | Policy   | Versioning |
+| ------------------------ | ------------------- | -------- | ---------- |
+| `sahool-backups`         | Main backup storage | Download | ✅ Enabled |
+| `sahool-backups-archive` | Archive backups     | Not set  | Not set    |
+| `postgres-backups`       | PostgreSQL backups  | Not set  | Not set    |
+| `redis-backups`          | Redis backups       | Not set  | Not set    |
+| `minio-backups`          | MinIO backups       | Not set  | Not set    |
 
 #### Planned Buckets (from .env.example)
+
 ```bash
 MINIO_BUCKETS=uploads,documents,images,backups
 ```
@@ -196,6 +213,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 3.2 Bucket Creation Process
 
 **Backup MinIO Initialization:**
+
 ```bash
 /usr/bin/mc alias set sahool http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}
 /usr/bin/mc mb --ignore-existing sahool/sahool-backups
@@ -212,18 +230,21 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 3.3 Naming Convention Assessment
 
 **Strengths:**
+
 - ✅ Clear, descriptive names
 - ✅ Lowercase naming (S3 best practice)
 - ✅ Hyphen-separated words
 - ✅ Logical grouping by purpose
 
 **Weaknesses:**
+
 - 🔶 No environment prefix (dev/staging/prod)
 - 🔶 No tenant/organization prefix
 - ❌ Inconsistent naming (backups vs backup)
 - ❌ No naming convention documentation
 
 **Recommendations:**
+
 1. Standardize naming: `{env}-{service}-{purpose}` (e.g., `prod-postgres-backups`)
 2. Add environment prefixes for multi-environment support
 3. Document naming conventions
@@ -238,6 +259,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 4.1 Authentication Methods
 
 **Current Implementation:**
+
 - ✅ Root user credentials (MINIO_ROOT_USER/PASSWORD)
 - ❌ No IAM policies configured
 - ❌ No service accounts
@@ -248,6 +270,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 4.2 Credential Management
 
 **Root Credentials:**
+
 ```bash
 # Minimum 16 characters enforced via Docker Compose
 MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required - must be at least 16 characters}
@@ -255,6 +278,7 @@ MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required - mu
 ```
 
 **Security Issues:**
+
 - ❌ Same root credentials used for both MinIO instances
 - ❌ No credential rotation policy
 - ❌ Credentials stored in environment variables (not using Vault)
@@ -264,11 +288,13 @@ MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required - mu
 ### 4.3 Access Policies
 
 **Bucket Policies Found:**
+
 ```bash
 /usr/bin/mc policy set download sahool/sahool-backups
 ```
 
 **Analysis:**
+
 - ✅ Only one bucket has explicit policy (sahool-backups)
 - ❌ "Download" policy is too permissive (public read access)
 - ❌ No bucket-level IAM policies
@@ -279,6 +305,7 @@ MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required - mu
 ### 4.4 Milvus Access
 
 **Milvus uses root credentials:**
+
 ```yaml
 MINIO_ADDRESS: minio:9000
 MINIO_ACCESS_KEY_ID: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
@@ -286,6 +313,7 @@ MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
 ```
 
 **Issues:**
+
 - ❌ No dedicated service account for Milvus
 - ❌ Milvus has full admin access to MinIO
 - ❌ No principle of least privilege
@@ -294,6 +322,7 @@ MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
 ### 4.5 Network Access Control
 
 **Port Bindings:**
+
 ```yaml
 # Production MinIO
 ports:
@@ -307,6 +336,7 @@ ports:
 ```
 
 **Assessment:**
+
 - ✅ Both instances bind to localhost only (good security)
 - ✅ Not exposed to public internet
 - ✅ Docker network isolation
@@ -319,6 +349,7 @@ ports:
 **Overall Score: 4/10** ❌
 
 **Critical Gaps:**
+
 1. No IAM policies or service accounts
 2. Root credentials shared across services
 3. Public download policy on backup bucket
@@ -332,17 +363,20 @@ ports:
 ### 5.1 Encryption at Rest
 
 **Server-Side Encryption (SSE):**
+
 - ❌ **NOT CONFIGURED**
 - ❌ No SSE-S3 (MinIO-managed keys)
 - ❌ No SSE-C (customer-provided keys)
 - ❌ No SSE-KMS (external key management)
 
 **File System Encryption:**
+
 - 🔶 Depends on host file system (not documented)
 - 🔶 Docker volumes likely unencrypted
 - ❌ No volume encryption configuration
 
 **Data Protection:**
+
 - ❌ No erasure coding (single-node deployment)
 - ❌ No bit-rot protection
 - ❌ No checksum verification
@@ -350,12 +384,14 @@ ports:
 ### 5.2 Encryption in Transit
 
 **TLS/SSL Configuration:**
+
 - ❌ **NOT ENABLED** - HTTP only
 - ❌ No SSL certificates configured
 - ❌ No KONG_SSL_CERT configuration
 - ❌ Console uses HTTP
 
 **Network Security:**
+
 ```yaml
 # All endpoints use HTTP
 MINIO_ENDPOINT=http://minio:9000
@@ -363,6 +399,7 @@ MINIO_SERVER_URL: ${MINIO_SERVER_URL:-http://minio:9000}
 ```
 
 **Risks:**
+
 - ❌ Credentials transmitted in clear text
 - ❌ Data transmitted unencrypted
 - ❌ Vulnerable to man-in-the-middle attacks
@@ -373,6 +410,7 @@ MINIO_SERVER_URL: ${MINIO_SERVER_URL:-http://minio:9000}
 **Implementation:** ✅ Available but disabled
 
 **From backup_minio.sh (Lines 352-376):**
+
 ```bash
 encrypt_backup() {
     if [ "$ENCRYPTION_ENABLED" != "true" ]; then
@@ -387,12 +425,14 @@ encrypt_backup() {
 ```
 
 **Configuration:**
+
 ```bash
 BACKUP_ENCRYPTION_ENABLED=false  # Default: disabled
 BACKUP_ENCRYPTION_KEY=""         # Must be set if enabled
 ```
 
 **Assessment:**
+
 - ✅ Strong encryption algorithm (AES-256-CBC)
 - ✅ PBKDF2 key derivation
 - ❌ Disabled by default
@@ -404,6 +444,7 @@ BACKUP_ENCRYPTION_KEY=""         # Must be set if enabled
 **Overall Score: 3/10** ❌ **CRITICAL SECURITY ISSUE**
 
 **Critical Gaps:**
+
 1. ❌ No encryption at rest
 2. ❌ No TLS/SSL (encryption in transit)
 3. ❌ Backup encryption disabled by default
@@ -411,6 +452,7 @@ BACKUP_ENCRYPTION_KEY=""         # Must be set if enabled
 5. ❌ Does not meet compliance requirements
 
 **Immediate Actions Required:**
+
 1. 🔴 **CRITICAL:** Enable TLS/SSL for both MinIO instances
 2. 🔴 **CRITICAL:** Enable server-side encryption
 3. 🔴 **CRITICAL:** Enable backup encryption by default
@@ -424,6 +466,7 @@ BACKUP_ENCRYPTION_KEY=""         # Must be set if enabled
 ### 6.1 Object Lifecycle Rules
 
 **MinIO Lifecycle Configuration:**
+
 - ❌ **NO LIFECYCLE RULES CONFIGURED**
 - ❌ No automatic object expiration
 - ❌ No transition to cheaper storage tiers
@@ -435,16 +478,17 @@ BACKUP_ENCRYPTION_KEY=""         # Must be set if enabled
 
 **Implemented via backup scripts (not MinIO lifecycle):**
 
-| Backup Type | Retention | Implementation |
-|-------------|-----------|----------------|
-| Daily (PostgreSQL) | 7 days | Script-based cleanup |
-| Weekly (PostgreSQL) | 28 days | Script-based cleanup |
-| Monthly (PostgreSQL) | 365 days | Script-based cleanup |
-| Daily (MinIO) | 30 days | Script-based cleanup |
-| Weekly (MinIO) | 90 days | Script-based cleanup |
-| Monthly (MinIO) | 365 days | Script-based cleanup |
+| Backup Type          | Retention | Implementation       |
+| -------------------- | --------- | -------------------- |
+| Daily (PostgreSQL)   | 7 days    | Script-based cleanup |
+| Weekly (PostgreSQL)  | 28 days   | Script-based cleanup |
+| Monthly (PostgreSQL) | 365 days  | Script-based cleanup |
+| Daily (MinIO)        | 30 days   | Script-based cleanup |
+| Weekly (MinIO)       | 90 days   | Script-based cleanup |
+| Monthly (MinIO)      | 365 days  | Script-based cleanup |
 
 **From backup_minio.sh (Lines 43-49):**
+
 ```bash
 declare -A RETENTION_DAYS=(
     ["daily"]=30
@@ -455,6 +499,7 @@ declare -A RETENTION_DAYS=(
 ```
 
 **Cleanup Function (Lines 565-584):**
+
 ```bash
 cleanup_old_backups() {
     info_message "Cleaning up old backups..."
@@ -481,12 +526,14 @@ cleanup_old_backups() {
 ### 6.3 Versioning
 
 **Bucket Versioning:**
+
 ```bash
 # Only enabled for one bucket
 /usr/bin/mc version enable sahool/sahool-backups
 ```
 
 **Analysis:**
+
 - ✅ Versioning enabled for main backup bucket
 - ❌ Not enabled for other buckets
 - ❌ No version lifecycle policies
@@ -496,6 +543,7 @@ cleanup_old_backups() {
 ### 6.4 Object Locking
 
 **Immutability:**
+
 - ❌ Object locking not configured
 - ❌ No WORM (Write Once Read Many) protection
 - ❌ No legal hold capability
@@ -506,6 +554,7 @@ cleanup_old_backups() {
 **Overall Score: 4/10** ❌
 
 **Critical Gaps:**
+
 1. No MinIO-native lifecycle rules
 2. Retention managed by external scripts (fragile)
 3. No automatic tiering to cold storage
@@ -513,6 +562,7 @@ cleanup_old_backups() {
 5. No object locking for compliance
 
 **Recommendations:**
+
 1. 🟡 **HIGH:** Implement MinIO lifecycle rules using `mc ilm`
 2. 🟡 **HIGH:** Add version expiration policies
 3. 🔶 **MEDIUM:** Configure object locking for critical backups
@@ -526,6 +576,7 @@ cleanup_old_backups() {
 ### 7.1 Replication Configuration
 
 **Current State:**
+
 - ❌ **NO REPLICATION CONFIGURED**
 - ❌ No site replication
 - ❌ No bucket replication
@@ -535,6 +586,7 @@ cleanup_old_backups() {
 ### 7.2 Backup Replication (Optional)
 
 **Secondary MinIO Instance:**
+
 ```bash
 # From backup_minio.sh (Lines 58-61)
 BACKUP_MINIO_ALIAS="${BACKUP_MINIO_ALIAS:-backup}"
@@ -544,6 +596,7 @@ BACKUP_MINIO_SECRET_KEY="${BACKUP_MINIO_SECRET_KEY:-}"
 ```
 
 **Upload Function (Lines 453-483):**
+
 ```bash
 upload_to_backup_minio() {
     if [ -z "$BACKUP_MINIO_ENDPOINT" ]; then
@@ -579,6 +632,7 @@ upload_to_backup_minio() {
 ```
 
 **Analysis:**
+
 - ✅ Optional secondary MinIO replication available
 - ❌ Disabled by default (BACKUP_MINIO_ENDPOINT not set)
 - ❌ Manual replication (script-based, not real-time)
@@ -587,25 +641,28 @@ upload_to_backup_minio() {
 ### 7.3 High Availability
 
 **Deployment Mode:**
+
 - ❌ Single-node deployment (no distributed mode)
 - ❌ No server pool configuration
 - ❌ No load balancing
 - ❌ No automatic failover
 
 **Resource Configuration:**
+
 ```yaml
 # Production MinIO - Limited resources
 deploy:
   resources:
     limits:
-      cpus: '0.5'
+      cpus: "0.5"
       memory: 512M
     reservations:
-      cpus: '0.1'
+      cpus: "0.1"
       memory: 128M
 ```
 
 **Issues:**
+
 - ❌ Single point of failure
 - ❌ No redundancy
 - ❌ Restart required for updates (downtime)
@@ -614,6 +671,7 @@ deploy:
 ### 7.4 Disaster Recovery
 
 **Current Capabilities:**
+
 - ✅ Backup scripts available
 - ✅ Mirror backup method supported
 - ❌ No automated DR failover
@@ -625,6 +683,7 @@ deploy:
 **Overall Score: 3/10** ❌ **CRITICAL AVAILABILITY RISK**
 
 **Critical Gaps:**
+
 1. No distributed deployment
 2. No real-time replication
 3. Single point of failure
@@ -632,6 +691,7 @@ deploy:
 5. No load balancing
 
 **Recommendations:**
+
 1. 🔴 **CRITICAL:** Deploy MinIO in distributed mode (minimum 4 nodes)
 2. 🔴 **CRITICAL:** Enable site replication for disaster recovery
 3. 🟡 **HIGH:** Configure automatic failover
@@ -645,12 +705,14 @@ deploy:
 ### 8.1 Metrics & Monitoring
 
 **Prometheus Metrics:**
+
 ```yaml
 # Backup MinIO
 MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-public}
 ```
 
 **Analysis:**
+
 - ✅ Prometheus metrics endpoint available
 - ❌ Public access (no authentication) - security risk
 - ❌ Production MinIO has no Prometheus configuration
@@ -660,6 +722,7 @@ MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-public}
 ### 8.2 Health Checks
 
 **Production MinIO:**
+
 ```yaml
 healthcheck:
   test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -670,6 +733,7 @@ healthcheck:
 ```
 
 **Backup MinIO:**
+
 ```yaml
 healthcheck:
   test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -680,6 +744,7 @@ healthcheck:
 ```
 
 **Assessment:**
+
 - ✅ Liveness checks configured
 - ✅ Reasonable intervals
 - ❌ No readiness checks
@@ -689,6 +754,7 @@ healthcheck:
 ### 8.3 Logging
 
 **Current Configuration:**
+
 - 🔶 Docker logs (default JSON driver)
 - ❌ No centralized logging (ELK, Loki)
 - ❌ No audit logging enabled
@@ -696,6 +762,7 @@ healthcheck:
 - ❌ Log retention not configured
 
 **Backup Logging:**
+
 ```bash
 # From backup_minio.sh (Lines 83-84)
 LOG_DIR="${BACKUP_BASE_DIR}/logs"
@@ -705,6 +772,7 @@ LOG_FILE="${LOG_DIR}/minio_${BACKUP_TYPE}_$(date +%Y%m%d).log"
 ### 8.4 Alerting
 
 **Current State:**
+
 - ❌ No MinIO-specific alerts
 - ❌ No capacity alerts
 - ❌ No performance alerts
@@ -716,6 +784,7 @@ LOG_FILE="${LOG_DIR}/minio_${BACKUP_TYPE}_$(date +%Y%m%d).log"
 **Overall Score: 5/10** 🔶
 
 **Gaps:**
+
 1. No Grafana dashboard
 2. Prometheus metrics unauthenticated
 3. No alerting configured
@@ -723,6 +792,7 @@ LOG_FILE="${LOG_DIR}/minio_${BACKUP_TYPE}_$(date +%Y%m%d).log"
 5. No audit trail
 
 **Recommendations:**
+
 1. 🟡 **HIGH:** Create MinIO Grafana dashboard
 2. 🟡 **HIGH:** Secure Prometheus endpoint
 3. 🟡 **HIGH:** Configure alerting rules (Alertmanager)
@@ -740,6 +810,7 @@ LOG_FILE="${LOG_DIR}/minio_${BACKUP_TYPE}_$(date +%Y%m%d).log"
 **Backup Script:** `/home/user/sahool-unified-v15-idp/scripts/backup/backup_minio.sh`
 
 **Features:**
+
 - ✅ Three backup methods: mirror, snapshot, incremental
 - ✅ Automated scheduling (daily/weekly/monthly)
 - ✅ Multi-tier retention (30/90/365 days)
@@ -752,6 +823,7 @@ LOG_FILE="${LOG_DIR}/minio_${BACKUP_TYPE}_$(date +%Y%m%d).log"
 **Backup Methods:**
 
 #### 1. Mirror Backup (Lines 298-313)
+
 ```bash
 backup_bucket_mirror() {
     local bucket=$1
@@ -771,6 +843,7 @@ backup_bucket_mirror() {
 ```
 
 #### 2. Snapshot Backup (Lines 315-342)
+
 ```bash
 backup_bucket_snapshot() {
     local bucket=$1
@@ -802,6 +875,7 @@ EOF
 ```
 
 #### 3. Incremental Backup (Lines 344-359)
+
 ```bash
 backup_bucket_incremental() {
     local bucket=$1
@@ -823,6 +897,7 @@ backup_bucket_incremental() {
 ### 9.2 Backup Verification
 
 **Verification Function (Lines 486-525):**
+
 ```bash
 verify_backup() {
     if [ "$VERIFY_BACKUP" != "true" ]; then
@@ -867,14 +942,17 @@ verify_backup() {
 ### 9.3 Backup Storage
 
 **Primary Storage:**
+
 - Local disk: `/backups` (Docker volume)
 - Volume: `sahool-backup-data`
 
 **Secondary Storage (Optional):**
+
 - MinIO backup instance
 - AWS S3 (configurable)
 
 **From backup_minio.sh (Lines 427-450):**
+
 ```bash
 upload_to_aws_s3() {
     if [ "$AWS_S3_ENABLED" != "true" ]; then
@@ -904,6 +982,7 @@ upload_to_aws_s3() {
 ### 9.4 Recovery Procedures
 
 **Current State:**
+
 - ✅ Backup scripts well-documented
 - ❌ No dedicated restore script for MinIO
 - ❌ No automated recovery testing
@@ -914,6 +993,7 @@ upload_to_aws_s3() {
 **Overall Score: 8/10** ✅ **EXCELLENT**
 
 **Strengths:**
+
 1. Professional backup implementation
 2. Multiple backup methods
 3. Automated scheduling
@@ -922,6 +1002,7 @@ upload_to_aws_s3() {
 6. Comprehensive logging
 
 **Weaknesses:**
+
 1. No dedicated restore script
 2. No automated recovery testing
 3. Encryption disabled by default
@@ -937,6 +1018,7 @@ upload_to_aws_s3() {
 ### 10.2 Critical Security Issues
 
 #### 1. No Encryption in Transit (CRITICAL) 🔴
+
 - **Risk Level:** CRITICAL
 - **Impact:** Credentials and data transmitted in clear text
 - **Affected:** Both MinIO instances
@@ -944,29 +1026,34 @@ upload_to_aws_s3() {
 - **Fix:** Enable TLS/SSL immediately
 
 #### 2. No Encryption at Rest (CRITICAL) 🔴
+
 - **Risk Level:** CRITICAL
 - **Impact:** Data stored unencrypted on disk
 - **Compliance:** Fails PCI-DSS, HIPAA, GDPR
 - **Fix:** Enable server-side encryption
 
 #### 3. Public Prometheus Metrics (HIGH) 🟡
+
 - **Risk Level:** HIGH
 - **Impact:** Information disclosure
 - **Affected:** Backup MinIO
 - **Fix:** Enable authentication for metrics endpoint
 
 #### 4. Shared Root Credentials (HIGH) 🟡
+
 - **Risk Level:** HIGH
 - **Impact:** Credential compromise affects multiple services
 - **Fix:** Create dedicated service accounts
 
 #### 5. Public Download Policy (HIGH) 🟡
+
 - **Risk Level:** HIGH
 - **Impact:** Backup data publicly accessible
 - **Affected:** `sahool-backups` bucket
 - **Fix:** Restrict to authenticated users only
 
 #### 6. Console Enabled in Production (MEDIUM) 🔶
+
 - **Risk Level:** MEDIUM
 - **Impact:** Additional attack surface
 - **Fix:** Disable console or restrict to admin network
@@ -974,6 +1061,7 @@ upload_to_aws_s3() {
 ### 10.3 Security Controls Present
 
 **Positive Security Measures:**
+
 - ✅ Localhost-only binding (not exposed to public internet)
 - ✅ Docker network isolation
 - ✅ Health checks for service availability
@@ -984,6 +1072,7 @@ upload_to_aws_s3() {
 ### 10.4 Security Controls Missing
 
 **Critical Missing Controls:**
+
 - ❌ TLS/SSL encryption
 - ❌ Server-side encryption at rest
 - ❌ IAM policies and service accounts
@@ -997,13 +1086,13 @@ upload_to_aws_s3() {
 
 ### 10.5 Compliance Assessment
 
-| Standard | Status | Notes |
-|----------|--------|-------|
-| **PCI-DSS** | ❌ Non-compliant | No encryption at rest/transit |
-| **HIPAA** | ❌ Non-compliant | No encryption, no audit logs |
-| **GDPR** | ❌ Non-compliant | No encryption, no access controls |
-| **SOC 2** | ❌ Non-compliant | No security monitoring |
-| **ISO 27001** | ❌ Non-compliant | Multiple security gaps |
+| Standard      | Status           | Notes                             |
+| ------------- | ---------------- | --------------------------------- |
+| **PCI-DSS**   | ❌ Non-compliant | No encryption at rest/transit     |
+| **HIPAA**     | ❌ Non-compliant | No encryption, no audit logs      |
+| **GDPR**      | ❌ Non-compliant | No encryption, no access controls |
+| **SOC 2**     | ❌ Non-compliant | No security monitoring            |
+| **ISO 27001** | ❌ Non-compliant | Multiple security gaps            |
 
 ### 10.6 Attack Vectors
 
@@ -1041,34 +1130,38 @@ upload_to_aws_s3() {
 ### 11.1 Resource Allocation
 
 #### Production MinIO
+
 ```yaml
 resources:
   limits:
-    cpus: '0.5'
+    cpus: "0.5"
     memory: 512M
   reservations:
-    cpus: '0.1'
+    cpus: "0.1"
     memory: 128M
 ```
 
 **Assessment:**
+
 - 🔶 Low CPU allocation (may bottleneck under load)
 - 🔶 Low memory allocation (512MB limit)
 - ❌ No disk I/O limits
 - ❌ No network bandwidth limits
 
 #### Backup MinIO
+
 ```yaml
 resources:
   limits:
-    cpus: '2'
+    cpus: "2"
     memory: 2G
   reservations:
-    cpus: '0.5'
+    cpus: "0.5"
     memory: 512M
 ```
 
 **Assessment:**
+
 - ✅ Better resource allocation
 - ✅ Suitable for backup operations
 - 🔶 Still limited for large-scale operations
@@ -1076,6 +1169,7 @@ resources:
 ### 11.2 Performance Considerations
 
 **Missing Performance Features:**
+
 - ❌ No cache configuration
 - ❌ No read-ahead settings
 - ❌ No compression at storage layer
@@ -1085,17 +1179,20 @@ resources:
 ### 11.3 Capacity Planning
 
 **Current Buckets:**
+
 ```bash
 MINIO_BUCKETS=uploads,documents,images,backups
 ```
 
 **Estimated Usage (Backup System):**
+
 - Daily backups: ~18-23 GB/day
 - Monthly storage: ~414-529 GB
 - No capacity limits configured
 - No quota management
 
 **Issues:**
+
 - ❌ No capacity monitoring
 - ❌ No quota enforcement
 - ❌ No growth forecasting
@@ -1112,6 +1209,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 12.1 Documentation
 
 **Available Documentation:**
+
 - ✅ Backup scripts well-commented (bilingual)
 - ✅ Environment variable examples
 - ✅ Docker Compose configurations documented
@@ -1122,6 +1220,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 12.2 Automation
 
 **Automated Processes:**
+
 - ✅ Backup scheduling (cron)
 - ✅ Bucket creation (backup instance)
 - ✅ Old backup cleanup
@@ -1132,6 +1231,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 12.3 Maintenance
 
 **Current State:**
+
 - ❌ No update procedure documented
 - ❌ No version upgrade path
 - ❌ No rollback procedure
@@ -1148,45 +1248,45 @@ MINIO_BUCKETS=uploads,documents,images,backups
 
 ### 13.1 Immediate Actions (Week 1) 🔴
 
-| Priority | Recommendation | Effort | Impact |
-|----------|---------------|--------|--------|
-| 🔴 P0 | **Enable TLS/SSL for both MinIO instances** | Medium | Critical |
-| 🔴 P0 | **Enable server-side encryption (SSE-S3)** | Low | Critical |
-| 🔴 P0 | **Remove public download policy from sahool-backups** | Low | High |
-| 🔴 P0 | **Enable backup encryption by default** | Low | High |
-| 🔴 P0 | **Secure Prometheus metrics endpoint** | Low | High |
+| Priority | Recommendation                                        | Effort | Impact   |
+| -------- | ----------------------------------------------------- | ------ | -------- |
+| 🔴 P0    | **Enable TLS/SSL for both MinIO instances**           | Medium | Critical |
+| 🔴 P0    | **Enable server-side encryption (SSE-S3)**            | Low    | Critical |
+| 🔴 P0    | **Remove public download policy from sahool-backups** | Low    | High     |
+| 🔴 P0    | **Enable backup encryption by default**               | Low    | High     |
+| 🔴 P0    | **Secure Prometheus metrics endpoint**                | Low    | High     |
 
 ### 13.2 High Priority (Week 2-4) 🟡
 
-| Priority | Recommendation | Effort | Impact |
-|----------|---------------|--------|--------|
-| 🟡 P1 | Create dedicated service accounts for Milvus | Medium | High |
-| 🟡 P1 | Implement IAM policies for least privilege | Medium | High |
-| 🟡 P1 | Enable audit logging | Low | High |
-| 🟡 P1 | Configure MinIO lifecycle rules | Medium | Medium |
-| 🟡 P1 | Disable console in production or restrict access | Low | Medium |
-| 🟡 P1 | Integrate with HashiCorp Vault for credentials | High | High |
+| Priority | Recommendation                                   | Effort | Impact |
+| -------- | ------------------------------------------------ | ------ | ------ |
+| 🟡 P1    | Create dedicated service accounts for Milvus     | Medium | High   |
+| 🟡 P1    | Implement IAM policies for least privilege       | Medium | High   |
+| 🟡 P1    | Enable audit logging                             | Low    | High   |
+| 🟡 P1    | Configure MinIO lifecycle rules                  | Medium | Medium |
+| 🟡 P1    | Disable console in production or restrict access | Low    | Medium |
+| 🟡 P1    | Integrate with HashiCorp Vault for credentials   | High   | High   |
 
 ### 13.3 Medium Priority (Month 2-3) 🔶
 
-| Priority | Recommendation | Effort | Impact |
-|----------|---------------|--------|--------|
-| 🔶 P2 | Deploy MinIO in distributed mode (4+ nodes) | High | High |
-| 🔶 P2 | Configure site replication | Medium | High |
-| 🔶 P2 | Create MinIO Grafana dashboard | Medium | Medium |
-| 🔶 P2 | Implement bucket quotas | Low | Medium |
-| 🔶 P2 | Add object locking for compliance | Medium | Medium |
-| 🔶 P2 | Create MinIO restore scripts | Medium | Medium |
+| Priority | Recommendation                              | Effort | Impact |
+| -------- | ------------------------------------------- | ------ | ------ |
+| 🔶 P2    | Deploy MinIO in distributed mode (4+ nodes) | High   | High   |
+| 🔶 P2    | Configure site replication                  | Medium | High   |
+| 🔶 P2    | Create MinIO Grafana dashboard              | Medium | Medium |
+| 🔶 P2    | Implement bucket quotas                     | Low    | Medium |
+| 🔶 P2    | Add object locking for compliance           | Medium | Medium |
+| 🔶 P2    | Create MinIO restore scripts                | Medium | Medium |
 
 ### 13.4 Long-Term (Quarter 2) 📝
 
-| Priority | Recommendation | Effort | Impact |
-|----------|---------------|--------|--------|
-| 📝 P3 | Implement cross-region replication | High | High |
-| 📝 P3 | Add tiered storage (hot/warm/cold) | High | Medium |
-| 📝 P3 | Implement deduplication | High | Medium |
-| 📝 P3 | Create disaster recovery runbooks | Medium | High |
-| 📝 P3 | Add intrusion detection | High | High |
+| Priority | Recommendation                     | Effort | Impact |
+| -------- | ---------------------------------- | ------ | ------ |
+| 📝 P3    | Implement cross-region replication | High   | High   |
+| 📝 P3    | Add tiered storage (hot/warm/cold) | High   | Medium |
+| 📝 P3    | Implement deduplication            | High   | Medium |
+| 📝 P3    | Create disaster recovery runbooks  | Medium | High   |
+| 📝 P3    | Add intrusion detection            | High   | High   |
 
 ---
 
@@ -1258,6 +1358,7 @@ MINIO_BUCKETS=uploads,documents,images,backups
 ### 15.1 Enable TLS/SSL
 
 **Step 1: Generate certificates**
+
 ```bash
 # Generate self-signed certificate (development)
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
@@ -1269,6 +1370,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 ```
 
 **Step 2: Update docker-compose.yml**
+
 ```yaml
 minio:
   image: minio/minio:RELEASE.2023-03-20T20-16-18Z
@@ -1281,11 +1383,12 @@ minio:
     - "127.0.0.1:9090:9090"
   volumes:
     - minio_data:/minio_data
-    - /path/to/certs:/root/.minio/certs:ro  # Add certificates
+    - /path/to/certs:/root/.minio/certs:ro # Add certificates
   command: minio server /minio_data --console-address ":9090"
 ```
 
 **Step 3: Update endpoints**
+
 ```bash
 # .env
 MINIO_ENDPOINT=https://minio:9000
@@ -1295,6 +1398,7 @@ MINIO_SERVER_URL=https://minio:9000
 ### 15.2 Enable Server-Side Encryption
 
 **Using mc command:**
+
 ```bash
 # Enable SSE-S3 (MinIO-managed keys)
 mc encrypt set sse-s3 primary/uploads
@@ -1307,6 +1411,7 @@ mc admin config set primary sse-s3 enabled=true
 ```
 
 **Environment configuration:**
+
 ```yaml
 minio:
   environment:
@@ -1317,6 +1422,7 @@ minio:
 ### 15.3 Create IAM Service Account
 
 **Create service account for Milvus:**
+
 ```bash
 # Create service account
 mc admin user add primary milvus_service_account SecurePassword123!
@@ -1351,6 +1457,7 @@ mc admin policy set primary milvus-policy user=milvus_service_account
 ### 15.4 Configure Lifecycle Rules
 
 **Auto-delete old backups:**
+
 ```bash
 # Create lifecycle rule
 mc ilm add --expiry-days 30 primary/postgres-backups
@@ -1368,6 +1475,7 @@ mc ilm add --noncurrent-expiry-days 7 primary/postgres-backups
 ### 15.5 Enable Audit Logging
 
 **Configure audit webhook:**
+
 ```bash
 # Add audit webhook
 mc admin config set primary audit_webhook:1 \
@@ -1391,13 +1499,13 @@ mc admin service restart primary
 
 **Required for Payment Card Data:**
 
-| Requirement | Status | Action Required |
-|-------------|--------|-----------------|
-| Encrypt transmission over open networks | ❌ | Enable TLS/SSL |
-| Encrypt stored cardholder data | ❌ | Enable SSE encryption |
-| Restrict access to cardholder data | ❌ | Implement IAM policies |
-| Track and monitor access | ❌ | Enable audit logging |
-| Regularly test security systems | ❌ | Implement security testing |
+| Requirement                             | Status | Action Required            |
+| --------------------------------------- | ------ | -------------------------- |
+| Encrypt transmission over open networks | ❌     | Enable TLS/SSL             |
+| Encrypt stored cardholder data          | ❌     | Enable SSE encryption      |
+| Restrict access to cardholder data      | ❌     | Implement IAM policies     |
+| Track and monitor access                | ❌     | Enable audit logging       |
+| Regularly test security systems         | ❌     | Implement security testing |
 
 **PCI-DSS Score: 0/5** ❌
 
@@ -1405,13 +1513,13 @@ mc admin service restart primary
 
 **Required for Protected Health Information (PHI):**
 
-| Requirement | Status | Action Required |
-|-------------|--------|-----------------|
-| Encryption of PHI at rest | ❌ | Enable SSE encryption |
-| Encryption of PHI in transit | ❌ | Enable TLS/SSL |
-| Access controls and authentication | ❌ | Implement IAM |
-| Audit controls | ❌ | Enable audit logging |
-| Integrity controls | ❌ | Enable object locking |
+| Requirement                        | Status | Action Required       |
+| ---------------------------------- | ------ | --------------------- |
+| Encryption of PHI at rest          | ❌     | Enable SSE encryption |
+| Encryption of PHI in transit       | ❌     | Enable TLS/SSL        |
+| Access controls and authentication | ❌     | Implement IAM         |
+| Audit controls                     | ❌     | Enable audit logging  |
+| Integrity controls                 | ❌     | Enable object locking |
 
 **HIPAA Score: 0/5** ❌
 
@@ -1419,13 +1527,13 @@ mc admin service restart primary
 
 **Required for Personal Data:**
 
-| Requirement | Status | Action Required |
-|-------------|--------|-----------------|
-| Encryption of personal data | ❌ | Enable encryption at rest/transit |
-| Access controls | ❌ | Implement IAM policies |
-| Audit trail | ❌ | Enable audit logging |
-| Data deletion capability | ✅ | mc rm command available |
-| Data portability | ✅ | S3 API standard |
+| Requirement                 | Status | Action Required                   |
+| --------------------------- | ------ | --------------------------------- |
+| Encryption of personal data | ❌     | Enable encryption at rest/transit |
+| Access controls             | ❌     | Implement IAM policies            |
+| Audit trail                 | ❌     | Enable audit logging              |
+| Data deletion capability    | ✅     | mc rm command available           |
+| Data portability            | ✅     | S3 API standard                   |
 
 **GDPR Score: 2/5** ❌
 
@@ -1436,6 +1544,7 @@ mc admin service restart primary
 ### 17.1 Current Storage Costs
 
 **Estimated Monthly Storage (Backup System):**
+
 - Daily backups (7 days): 126-161 GB
 - Weekly backups (4 weeks): 72-92 GB
 - Monthly backups (1 year): 216-276 GB
@@ -1443,16 +1552,17 @@ mc admin service restart primary
 
 **If migrating to cloud:**
 
-| Provider | Storage Type | Monthly Cost |
-|----------|-------------|--------------|
-| AWS S3 Standard | 500 GB | ~$11.50 |
-| AWS S3 Standard-IA | 500 GB | ~$6.25 |
-| AWS S3 Glacier | 500 GB | ~$2.00 |
-| MinIO Self-Hosted | 500 GB | Disk cost only (~$15-30/month) |
+| Provider           | Storage Type | Monthly Cost                   |
+| ------------------ | ------------ | ------------------------------ |
+| AWS S3 Standard    | 500 GB       | ~$11.50                        |
+| AWS S3 Standard-IA | 500 GB       | ~$6.25                         |
+| AWS S3 Glacier     | 500 GB       | ~$2.00                         |
+| MinIO Self-Hosted  | 500 GB       | Disk cost only (~$15-30/month) |
 
 ### 17.2 Cost Optimization
 
 **Recommendations:**
+
 1. Implement lifecycle tiering (S3 Standard → IA → Glacier)
 2. Enable compression at application layer
 3. Implement deduplication
@@ -1467,15 +1577,16 @@ mc admin service restart primary
 
 ### 18.1 Current Versions
 
-| Component | Current Version | Latest Version | Upgrade Priority |
-|-----------|----------------|----------------|------------------|
-| Production MinIO | RELEASE.2023-03-20T20-16-18Z | RELEASE.2024-01-16T16-07-38Z | 🟡 High |
-| Backup MinIO | RELEASE.2024-01-16T16-07-38Z | RELEASE.2024-01-16T16-07-38Z | ✅ Current |
-| MinIO Client | RELEASE.2024-01-16T16-06-34Z | RELEASE.2024-01-16T16-06-34Z | ✅ Current |
+| Component        | Current Version              | Latest Version               | Upgrade Priority |
+| ---------------- | ---------------------------- | ---------------------------- | ---------------- |
+| Production MinIO | RELEASE.2023-03-20T20-16-18Z | RELEASE.2024-01-16T16-07-38Z | 🟡 High          |
+| Backup MinIO     | RELEASE.2024-01-16T16-07-38Z | RELEASE.2024-01-16T16-07-38Z | ✅ Current       |
+| MinIO Client     | RELEASE.2024-01-16T16-06-34Z | RELEASE.2024-01-16T16-06-34Z | ✅ Current       |
 
 ### 18.2 Upgrade Procedure
 
 **Safe Upgrade Steps:**
+
 ```bash
 # 1. Backup current configuration
 mc admin config export primary > minio-config-backup.json
@@ -1503,9 +1614,10 @@ mc ls primary/
 ### 18.3 Migration to Distributed Mode
 
 **Recommended Architecture:**
+
 ```yaml
 # 4-node distributed MinIO cluster
-version: '3.8'
+version: "3.8"
 
 services:
   minio1:
@@ -1534,6 +1646,7 @@ services:
 ### 19.1 Security Testing
 
 **Required Tests:**
+
 ```bash
 # 1. TLS/SSL validation
 openssl s_client -connect minio:9000 -showcerts
@@ -1554,6 +1667,7 @@ docker scan minio/minio:RELEASE.2023-03-20T20-16-18Z
 ### 19.2 Performance Testing
 
 **Benchmark Tests:**
+
 ```bash
 # Upload performance
 mc support perf object primary --size 64MiB
@@ -1568,6 +1682,7 @@ mc support perf object primary --concurrent 32
 ### 19.3 Disaster Recovery Testing
 
 **DR Drill Procedure:**
+
 ```bash
 # 1. Simulate failure
 docker compose stop minio
@@ -1591,20 +1706,21 @@ curl http://milvus:9091/healthz
 
 ### Phase 1: Critical Security (Week 1-2) 🔴
 
-| Task | Owner | ETA | Status |
-|------|-------|-----|--------|
-| Generate TLS certificates | DevOps | Day 1 | ⏳ Pending |
-| Enable TLS/SSL on production MinIO | DevOps | Day 2 | ⏳ Pending |
-| Enable TLS/SSL on backup MinIO | DevOps | Day 2 | ⏳ Pending |
-| Enable server-side encryption (SSE-S3) | DevOps | Day 3 | ⏳ Pending |
-| Remove public download policy | DevOps | Day 3 | ⏳ Pending |
-| Enable backup encryption by default | DevOps | Day 4 | ⏳ Pending |
-| Secure Prometheus metrics endpoint | DevOps | Day 5 | ⏳ Pending |
-| Update .env with secure defaults | DevOps | Day 5 | ⏳ Pending |
-| Security testing & validation | Security Team | Week 2 | ⏳ Pending |
-| Document changes | Documentation | Week 2 | ⏳ Pending |
+| Task                                   | Owner         | ETA    | Status     |
+| -------------------------------------- | ------------- | ------ | ---------- |
+| Generate TLS certificates              | DevOps        | Day 1  | ⏳ Pending |
+| Enable TLS/SSL on production MinIO     | DevOps        | Day 2  | ⏳ Pending |
+| Enable TLS/SSL on backup MinIO         | DevOps        | Day 2  | ⏳ Pending |
+| Enable server-side encryption (SSE-S3) | DevOps        | Day 3  | ⏳ Pending |
+| Remove public download policy          | DevOps        | Day 3  | ⏳ Pending |
+| Enable backup encryption by default    | DevOps        | Day 4  | ⏳ Pending |
+| Secure Prometheus metrics endpoint     | DevOps        | Day 5  | ⏳ Pending |
+| Update .env with secure defaults       | DevOps        | Day 5  | ⏳ Pending |
+| Security testing & validation          | Security Team | Week 2 | ⏳ Pending |
+| Document changes                       | Documentation | Week 2 | ⏳ Pending |
 
 **Deliverables:**
+
 - [ ] TLS/SSL enabled on both MinIO instances
 - [ ] All data encrypted at rest and in transit
 - [ ] Public access removed
@@ -1613,17 +1729,18 @@ curl http://milvus:9091/healthz
 
 ### Phase 2: Access Control (Week 3-4) 🟡
 
-| Task | Owner | ETA | Status |
-|------|-------|-----|--------|
-| Create Milvus service account | DevOps | Week 3 | ⏳ Pending |
-| Create IAM policy for Milvus | Security | Week 3 | ⏳ Pending |
-| Update Milvus configuration | DevOps | Week 3 | ⏳ Pending |
-| Enable audit logging | DevOps | Week 3 | ⏳ Pending |
-| Configure Vault integration | Security | Week 4 | ⏳ Pending |
-| Disable console in production | DevOps | Week 4 | ⏳ Pending |
+| Task                          | Owner    | ETA    | Status     |
+| ----------------------------- | -------- | ------ | ---------- |
+| Create Milvus service account | DevOps   | Week 3 | ⏳ Pending |
+| Create IAM policy for Milvus  | Security | Week 3 | ⏳ Pending |
+| Update Milvus configuration   | DevOps   | Week 3 | ⏳ Pending |
+| Enable audit logging          | DevOps   | Week 3 | ⏳ Pending |
+| Configure Vault integration   | Security | Week 4 | ⏳ Pending |
+| Disable console in production | DevOps   | Week 4 | ⏳ Pending |
 | Implement credential rotation | Security | Week 4 | ⏳ Pending |
 
 **Deliverables:**
+
 - [ ] Service accounts configured
 - [ ] IAM policies implemented
 - [ ] Audit logging enabled
@@ -1631,16 +1748,17 @@ curl http://milvus:9091/healthz
 
 ### Phase 3: Lifecycle & Monitoring (Month 2) 🔶
 
-| Task | Owner | ETA | Status |
-|------|-------|-----|--------|
-| Configure MinIO lifecycle rules | DevOps | Week 5 | ⏳ Pending |
-| Create Grafana dashboard | Monitoring | Week 6 | ⏳ Pending |
-| Configure alerting rules | Monitoring | Week 6 | ⏳ Pending |
-| Implement bucket quotas | DevOps | Week 7 | ⏳ Pending |
-| Add object locking | DevOps | Week 7 | ⏳ Pending |
-| Create restore scripts | DevOps | Week 8 | ⏳ Pending |
+| Task                            | Owner      | ETA    | Status     |
+| ------------------------------- | ---------- | ------ | ---------- |
+| Configure MinIO lifecycle rules | DevOps     | Week 5 | ⏳ Pending |
+| Create Grafana dashboard        | Monitoring | Week 6 | ⏳ Pending |
+| Configure alerting rules        | Monitoring | Week 6 | ⏳ Pending |
+| Implement bucket quotas         | DevOps     | Week 7 | ⏳ Pending |
+| Add object locking              | DevOps     | Week 7 | ⏳ Pending |
+| Create restore scripts          | DevOps     | Week 8 | ⏳ Pending |
 
 **Deliverables:**
+
 - [ ] Lifecycle policies active
 - [ ] Monitoring dashboard operational
 - [ ] Alerts configured
@@ -1648,16 +1766,17 @@ curl http://milvus:9091/healthz
 
 ### Phase 4: High Availability (Quarter 2) 📝
 
-| Task | Owner | ETA | Status |
-|------|-------|-----|--------|
-| Design distributed architecture | Infrastructure | Month 3 | ⏳ Pending |
-| Provision additional servers | Infrastructure | Month 3 | ⏳ Pending |
-| Deploy 4-node MinIO cluster | DevOps | Month 4 | ⏳ Pending |
-| Configure site replication | DevOps | Month 4 | ⏳ Pending |
-| Implement load balancing | Infrastructure | Month 5 | ⏳ Pending |
-| Disaster recovery testing | All Teams | Month 5-6 | ⏳ Pending |
+| Task                            | Owner          | ETA       | Status     |
+| ------------------------------- | -------------- | --------- | ---------- |
+| Design distributed architecture | Infrastructure | Month 3   | ⏳ Pending |
+| Provision additional servers    | Infrastructure | Month 3   | ⏳ Pending |
+| Deploy 4-node MinIO cluster     | DevOps         | Month 4   | ⏳ Pending |
+| Configure site replication      | DevOps         | Month 4   | ⏳ Pending |
+| Implement load balancing        | Infrastructure | Month 5   | ⏳ Pending |
+| Disaster recovery testing       | All Teams      | Month 5-6 | ⏳ Pending |
 
 **Deliverables:**
+
 - [ ] Distributed MinIO cluster operational
 - [ ] Site replication configured
 - [ ] Load balancer deployed
@@ -1682,12 +1801,14 @@ curl http://milvus:9091/healthz
 ### Environment Variables
 
 **Required:**
+
 ```bash
 MINIO_ROOT_USER=sahool_minio_admin_user_2024
 MINIO_ROOT_PASSWORD=Change_This_MinIO_Secure_Password_2024_Strong
 ```
 
 **Optional:**
+
 ```bash
 MINIO_ENDPOINT=http://minio:9000
 MINIO_ALIAS=primary
@@ -1699,6 +1820,7 @@ MINIO_PROMETHEUS_AUTH_TYPE=public
 ```
 
 **Backup Configuration:**
+
 ```bash
 BACKUP_MINIO_ALIAS=backup
 BACKUP_MINIO_ENDPOINT=
@@ -1778,22 +1900,22 @@ ls -lh /backups/minio/daily/
 
 ### Backup System Buckets
 
-| Bucket | Purpose | Size | Objects | Policy | Versioning | Created |
-|--------|---------|------|---------|--------|------------|---------|
-| sahool-backups | Main backup storage | ~200GB | ~1000 | Download | ✅ Enabled | Auto |
-| sahool-backups-archive | Long-term archive | ~100GB | ~500 | Private | ❌ Disabled | Auto |
-| postgres-backups | PostgreSQL dumps | ~80GB | ~50 | Private | ❌ Disabled | Auto |
-| redis-backups | Redis snapshots | ~20GB | ~30 | Private | ❌ Disabled | Auto |
-| minio-backups | MinIO metadata | ~10GB | ~20 | Private | ❌ Disabled | Auto |
+| Bucket                 | Purpose             | Size   | Objects | Policy   | Versioning  | Created |
+| ---------------------- | ------------------- | ------ | ------- | -------- | ----------- | ------- |
+| sahool-backups         | Main backup storage | ~200GB | ~1000   | Download | ✅ Enabled  | Auto    |
+| sahool-backups-archive | Long-term archive   | ~100GB | ~500    | Private  | ❌ Disabled | Auto    |
+| postgres-backups       | PostgreSQL dumps    | ~80GB  | ~50     | Private  | ❌ Disabled | Auto    |
+| redis-backups          | Redis snapshots     | ~20GB  | ~30     | Private  | ❌ Disabled | Auto    |
+| minio-backups          | MinIO metadata      | ~10GB  | ~20     | Private  | ❌ Disabled | Auto    |
 
 ### Production Buckets (Planned)
 
-| Bucket | Purpose | Size | Objects | Policy | Versioning | Created |
-|--------|---------|------|---------|--------|------------|---------|
-| uploads | User uploads | Unknown | Unknown | Private | Unknown | Manual |
-| documents | Document storage | Unknown | Unknown | Private | Unknown | Manual |
-| images | Image storage | Unknown | Unknown | Private | Unknown | Manual |
-| backups | Application backups | Unknown | Unknown | Private | Unknown | Manual |
+| Bucket    | Purpose             | Size    | Objects | Policy  | Versioning | Created |
+| --------- | ------------------- | ------- | ------- | ------- | ---------- | ------- |
+| uploads   | User uploads        | Unknown | Unknown | Private | Unknown    | Manual  |
+| documents | Document storage    | Unknown | Unknown | Private | Unknown    | Manual  |
+| images    | Image storage       | Unknown | Unknown | Private | Unknown    | Manual  |
+| backups   | Application backups | Unknown | Unknown | Private | Unknown    | Manual  |
 
 **Note:** Production buckets are referenced in configuration but status is unknown (likely not auto-created).
 
@@ -1818,6 +1940,7 @@ ls -lh /backups/minio/daily/
 The SAHOOL platform's MinIO object storage implementation requires **immediate security hardening** before production deployment. While the backup strategy is well-implemented, critical security gaps exist:
 
 **Critical Issues:**
+
 1. ❌ No encryption at rest or in transit
 2. ❌ Poor access controls (shared root credentials)
 3. ❌ No IAM policies or service accounts
@@ -1827,6 +1950,7 @@ The SAHOOL platform's MinIO object storage implementation requires **immediate s
 **Status:** ❌ **NOT PRODUCTION READY**
 
 **Required Actions:**
+
 - 🔴 **Immediate:** Enable TLS/SSL and encryption (Week 1-2)
 - 🟡 **High Priority:** Implement IAM and audit logging (Week 3-4)
 - 🔶 **Medium Priority:** Add monitoring and lifecycle rules (Month 2)
@@ -1840,6 +1964,6 @@ The SAHOOL platform's MinIO object storage implementation requires **immediate s
 
 ---
 
-*This audit was conducted as part of the SAHOOL platform security and infrastructure assessment. For questions or clarifications, please contact the Platform Infrastructure team.*
+_This audit was conducted as part of the SAHOOL platform security and infrastructure assessment. For questions or clarifications, please contact the Platform Infrastructure team._
 
-*تم إجراء هذا التدقيق كجزء من تقييم الأمان والبنية التحتية لمنصة سهول. للأسئلة أو التوضيحات، يرجى الاتصال بفريق البنية التحتية للمنصة.*
+_تم إجراء هذا التدقيق كجزء من تقييم الأمان والبنية التحتية لمنصة سهول. للأسئلة أو التوضيحات، يرجى الاتصال بفريق البنية التحتية للمنصة._

@@ -9,38 +9,47 @@ The SAHOOL Satellite Service now includes advanced crop phenology detection capa
 ## Features | المميزات
 
 ### 1. Automatic Growth Stage Detection
+
 - **SOS Detection**: Start of Season - beginning of green-up
 - **POS Detection**: Peak of Season - maximum vegetation
 - **EOS Detection**: End of Season - senescence begins
 - **BBCH Mapping**: Maps to standardized BBCH growth stages
 
 ### 2. Yemen Crop Coverage
+
 The system supports **12 major Yemen crops** across 5 categories:
 
 #### Cereals (الحبوب)
+
 - **Wheat (قمح)**: 120 days
 - **Sorghum (ذرة رفيعة)**: 110 days
 - **Millet (دخن)**: 90 days
 
 #### Vegetables (الخضروات)
+
 - **Tomato (طماطم)**: 105 days
 - **Potato (بطاطس)**: 100 days
 - **Onion (بصل)**: 120 days
 
 #### Legumes (البقوليات)
+
 - **Faba Bean (فول)**: 130 days
 - **Lentil (عدس)**: 110 days
 
 #### Cash Crops (المحاصيل النقدية)
+
 - **Coffee (بن)**: 365 days (perennial)
 - **Qat (قات)**: 90 days (leaf harvest cycle)
 
 #### Fruits (الفواكه)
+
 - **Mango (مانجو)**: 180 days
 - **Grape (عنب)**: 150 days
 
 ### 3. Stage-Specific Recommendations
+
 For each growth stage, the system provides:
+
 - **Irrigation guidance**: When and how much to water
 - **Fertilization timing**: NPK requirements by stage
 - **Pest monitoring**: Stage-sensitive pest alerts
@@ -48,7 +57,9 @@ For each growth stage, the system provides:
 - **Harvest preparation**: Pre-harvest planning
 
 ### 4. ActionTemplate Integration
+
 Phenology detection automatically generates ActionTemplate tasks for mobile app:
+
 - Stage-specific task cards
 - Urgency levels based on critical periods
 - Offline-executable instructions
@@ -57,11 +68,13 @@ Phenology detection automatically generates ActionTemplate tasks for mobile app:
 ## API Endpoints
 
 ### 1. Detect Current Growth Stage
+
 ```http
 GET /v1/phenology/{field_id}?crop_type=wheat&lat=15.3694&lon=44.1910&planting_date=2024-11-01&days=60
 ```
 
 **Response:**
+
 ```json
 {
   "field_id": "field_001",
@@ -104,11 +117,13 @@ GET /v1/phenology/{field_id}?crop_type=wheat&lat=15.3694&lon=44.1910&planting_da
 ```
 
 ### 2. Get Phenology Timeline (Planning)
+
 ```http
 GET /v1/phenology/{field_id}/timeline?crop_type=wheat&planting_date=2024-11-01
 ```
 
 **Response:**
+
 ```json
 {
   "field_id": "field_001",
@@ -124,7 +139,7 @@ GET /v1/phenology/{field_id}/timeline?crop_type=wheat&planting_date=2024-11-01
       "start_date": "2024-11-01",
       "end_date": "2024-11-11",
       "duration_days": 10,
-      "ndvi_range": {"min": 0.15, "max": 0.25}
+      "ndvi_range": { "min": 0.15, "max": 0.25 }
     },
     {
       "stage": "emergence",
@@ -133,7 +148,7 @@ GET /v1/phenology/{field_id}/timeline?crop_type=wheat&planting_date=2024-11-01
       "start_date": "2024-11-11",
       "end_date": "2024-11-26",
       "duration_days": 15,
-      "ndvi_range": {"min": 0.25, "max": 0.35}
+      "ndvi_range": { "min": 0.25, "max": 0.35 }
     }
   ],
   "critical_periods": [
@@ -151,11 +166,13 @@ GET /v1/phenology/{field_id}/timeline?crop_type=wheat&planting_date=2024-11-01
 ```
 
 ### 3. Get Stage Recommendations
+
 ```http
 GET /v1/phenology/recommendations/wheat/flowering
 ```
 
 **Response:**
+
 ```json
 {
   "crop_type": "wheat",
@@ -179,11 +196,13 @@ GET /v1/phenology/recommendations/wheat/flowering
 ```
 
 ### 4. List Supported Crops
+
 ```http
 GET /v1/phenology/crops
 ```
 
 **Response:**
+
 ```json
 {
   "crops": [
@@ -200,11 +219,13 @@ GET /v1/phenology/crops
 ```
 
 ### 5. Detect with ActionTemplate
+
 ```http
 POST /v1/phenology/{field_id}/analyze-with-action
 ```
 
 **Request Body:**
+
 ```json
 {
   "field_id": "field_001",
@@ -212,7 +233,7 @@ POST /v1/phenology/{field_id}/analyze-with-action
   "tenant_id": "tenant_abc",
   "crop_type": "wheat",
   "latitude": 15.3694,
-  "longitude": 44.1910,
+  "longitude": 44.191,
   "planting_date": "2024-11-01",
   "days": 60,
   "publish_event": true
@@ -220,6 +241,7 @@ POST /v1/phenology/{field_id}/analyze-with-action
 ```
 
 **Response:**
+
 ```json
 {
   "phenology": {
@@ -281,6 +303,7 @@ The detector uses three key phenological metrics:
    - Indicates crop senescence
 
 ### NDVI Thresholds
+
 ```python
 NDVI_THRESHOLDS = {
     "bare_soil": 0.10,        # Bare soil baseline
@@ -295,6 +318,7 @@ NDVI_THRESHOLDS = {
 ### Stage Determination
 
 The algorithm:
+
 1. Smooths NDVI time series (moving average)
 2. Detects SOS, POS, EOS dates
 3. Calculates days since SOS
@@ -306,6 +330,7 @@ The algorithm:
 ### Confidence Calculation
 
 Confidence is based on:
+
 - **NDVI consistency** (60%): How well current NDVI matches expected range
 - **Observation count** (40%): More observations = higher confidence
 
@@ -333,6 +358,7 @@ Each crop has calibrated parameters:
 ## Testing
 
 Run the test suite:
+
 ```bash
 cd apps/services/satellite-service
 python3 tests/test_phenology.py
@@ -341,6 +367,7 @@ python3 tests/test_phenology.py
 ## Integration Examples
 
 ### Example 1: Wheat Field Monitoring
+
 ```python
 # Farmer plants wheat on Nov 1
 # System monitors NDVI every 5 days via Sentinel-2
@@ -353,6 +380,7 @@ GET /v1/phenology/field_123?crop_type=wheat&lat=15.37&lon=44.19&planting_date=20
 ```
 
 ### Example 2: Pre-Season Planning
+
 ```python
 # Farmer wants to plan irrigation schedule for tomato
 
@@ -363,6 +391,7 @@ GET /v1/phenology/field_456/timeline?crop_type=tomato&planting_date=2024-12-01
 ```
 
 ### Example 3: Critical Period Alert
+
 ```python
 # System detects wheat entering flowering stage
 # Critical period flagged in crop parameters
@@ -389,5 +418,6 @@ GET /v1/phenology/field_456/timeline?crop_type=tomato&planting_date=2024-12-01
 ## Support
 
 For questions or issues:
+
 - GitHub Issues: [sahool-unified-v15-idp](https://github.com/yourusername/sahool-unified-v15-idp)
 - Email: support@sahool.example.com

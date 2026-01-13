@@ -1,4 +1,5 @@
 # Database Backup System - Installation Summary
+
 # ملخص تثبيت نظام النسخ الاحتياطي
 
 **Installation Date**: 2026-01-06
@@ -306,10 +307,12 @@ docker exec sahool-postgres psql -U sahool -c "DROP DATABASE sahool_test;"
 ### Environment Variables | متغيرات البيئة
 
 The script automatically loads from:
+
 - `/home/user/sahool-unified-v15-idp/.env`
 - `/home/user/sahool-unified-v15-idp/config/base.env`
 
 Required variables:
+
 ```bash
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
@@ -354,12 +357,14 @@ declare -A RETENTION_COUNT=(
 
 **Problem**: "No such file or directory: /backups/logs"
 **Solution**: The script will create this automatically on first run, or manually:
+
 ```bash
 mkdir -p /backups/logs /backups/postgres/{daily,weekly,monthly,manual}
 ```
 
 **Problem**: "Cannot connect to database"
 **Solution**:
+
 ```bash
 # Check container is running
 docker ps | grep postgres
@@ -373,6 +378,7 @@ env | grep POSTGRES
 
 **Problem**: "Disk full"
 **Solution**:
+
 ```bash
 # Check disk space
 df -h /backups
@@ -422,6 +428,7 @@ rm -rf /backups/postgres/daily/$(ls -t /backups/postgres/daily | tail -1)
 ## Version History | سجل الإصدارات
 
 **Version 2.0.0** (2026-01-06)
+
 - Initial comprehensive backup system
 - Full and incremental backup support
 - Schema-specific backups

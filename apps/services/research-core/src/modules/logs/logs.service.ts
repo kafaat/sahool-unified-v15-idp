@@ -1,8 +1,13 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { Prisma } from '@prisma/client';
-import { SignatureService } from '@/core/services/signature.service';
-import { CreateLogDto, UpdateLogDto, SyncLogDto } from './dto/log.dto';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import { Prisma } from "@prisma/client";
+import { SignatureService } from "@/core/services/signature.service";
+import { CreateLogDto, UpdateLogDto, SyncLogDto } from "./dto/log.dto";
 
 @Injectable()
 export class LogsService {
@@ -14,7 +19,9 @@ export class LogsService {
   ) {}
 
   async create(dto: CreateLogDto, userId: string) {
-    this.logger.log(`Creating research log for experiment: ${dto.experimentId}`);
+    this.logger.log(
+      `Creating research log for experiment: ${dto.experimentId}`,
+    );
 
     // Generate hash for data integrity
     const hash = this.signatureService.hashResearchLog({
@@ -40,7 +47,8 @@ export class LogsService {
         notes: dto.notes,
         notesAr: dto.notesAr,
         measurements: (dto.measurements || {}) as Prisma.InputJsonValue,
-        weatherConditions: (dto.weatherConditions || {}) as Prisma.InputJsonValue,
+        weatherConditions: (dto.weatherConditions ||
+          {}) as Prisma.InputJsonValue,
         photos: dto.photos || [],
         attachments: dto.attachments || [],
         recordedBy: userId,
@@ -51,14 +59,17 @@ export class LogsService {
     });
   }
 
-  async findAll(experimentId: string, filters?: {
-    plotId?: string;
-    category?: string;
-    startDate?: string;
-    endDate?: string;
-    page?: number;
-    limit?: number;
-  }) {
+  async findAll(
+    experimentId: string,
+    filters?: {
+      plotId?: string;
+      category?: string;
+      startDate?: string;
+      endDate?: string;
+      page?: number;
+      limit?: number;
+    },
+  ) {
     const page = filters?.page || 1;
     const limit = filters?.limit || 50;
     const skip = (page - 1) * limit;
@@ -78,7 +89,7 @@ export class LogsService {
         where,
         skip,
         take: limit,
-        orderBy: [{ logDate: 'desc' }, { logTime: 'desc' }],
+        orderBy: [{ logDate: "desc" }, { logTime: "desc" }],
         include: {
           plot: { select: { plotCode: true, name: true } },
           treatment: { select: { treatmentCode: true, name: true } },
@@ -120,7 +131,8 @@ export class LogsService {
       logDate: dto.logDate ? new Date(dto.logDate) : existing.logDate,
       category: dto.category || existing.category,
       notes: dto.notes ?? existing.notes ?? undefined,
-      measurements: dto.measurements ?? (existing.measurements as Record<string, unknown>),
+      measurements:
+        dto.measurements ?? (existing.measurements as Record<string, unknown>),
       recordedBy: userId,
     });
 
@@ -131,8 +143,14 @@ export class LogsService {
       data: {
         ...restDto,
         logDate: dto.logDate ? new Date(dto.logDate) : undefined,
-        measurements: measurements !== undefined ? (measurements as Prisma.InputJsonValue) : undefined,
-        weatherConditions: weatherConditions !== undefined ? (weatherConditions as Prisma.InputJsonValue) : undefined,
+        measurements:
+          measurements !== undefined
+            ? (measurements as Prisma.InputJsonValue)
+            : undefined,
+        weatherConditions:
+          weatherConditions !== undefined
+            ? (weatherConditions as Prisma.InputJsonValue)
+            : undefined,
         hash,
       },
     });
@@ -175,15 +193,15 @@ export class LogsService {
         if (!experiment) {
           results.failed.push({
             offlineId: log.offlineId,
-            error: 'Experiment not found',
+            error: "Experiment not found",
           });
           continue;
         }
 
-        if (experiment.status === 'locked') {
+        if (experiment.status === "locked") {
           results.failed.push({
             offlineId: log.offlineId,
-            error: 'Experiment is locked',
+            error: "Experiment is locked",
           });
           continue;
         }
@@ -223,7 +241,9 @@ export class LogsService {
    * Verify log integrity
    * التحقق من سلامة السجل
    */
-  async verifyLogIntegrity(id: string): Promise<{ isValid: boolean; message: string }> {
+  async verifyLogIntegrity(
+    id: string,
+  ): Promise<{ isValid: boolean; message: string }> {
     const log = await this.findOne(id);
 
     const expectedHash = this.signatureService.hashResearchLog({
@@ -239,13 +259,14 @@ export class LogsService {
     if (log.hash !== expectedHash) {
       return {
         isValid: false,
-        message: 'Data integrity check failed - log data may have been modified',
+        message:
+          "Data integrity check failed - log data may have been modified",
       };
     }
 
     return {
       isValid: true,
-      message: 'Log integrity verified',
+      message: "Log integrity verified",
     };
   }
 }

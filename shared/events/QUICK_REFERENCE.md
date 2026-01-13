@@ -1,4 +1,5 @@
 # SAHOOL Events - Quick Reference Card
+
 # مرجع سريع لنظام الأحداث
 
 ## Import Statement
@@ -159,14 +160,14 @@ export SERVICE_VERSION="1.0.0"
 
 ## File Locations
 
-| File | Description | Size |
-|------|-------------|------|
-| `contracts.py` | Event definitions | 26KB |
-| `subjects.py` | NATS subjects | 19KB |
-| `publisher.py` | Publisher class | 19KB |
-| `subscriber.py` | Subscriber class | 24KB |
-| `EXAMPLES.md` | Usage examples | 18KB |
-| `README.md` | Full documentation | 8KB |
+| File            | Description        | Size |
+| --------------- | ------------------ | ---- |
+| `contracts.py`  | Event definitions  | 26KB |
+| `subjects.py`   | NATS subjects      | 19KB |
+| `publisher.py`  | Publisher class    | 19KB |
+| `subscriber.py` | Subscriber class   | 24KB |
+| `EXAMPLES.md`   | Usage examples     | 18KB |
+| `README.md`     | Full documentation | 8KB  |
 
 ## Installation
 

@@ -1,6 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { SignatureService, SignaturePayload } from '@/core/services/signature.service';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import {
+  SignatureService,
+  SignaturePayload,
+} from "@/core/services/signature.service";
 
 @Injectable()
 export class SignaturesService {
@@ -73,13 +76,13 @@ export class SignaturesService {
         entityId,
         isValid: true,
       },
-      orderBy: { timestamp: 'desc' },
+      orderBy: { timestamp: "desc" },
     });
 
     if (signatures.length === 0) {
       return {
         verified: false,
-        message: 'No valid signatures found for this entity',
+        message: "No valid signatures found for this entity",
       };
     }
 
@@ -118,7 +121,7 @@ export class SignaturesService {
   async getSignatureHistory(entityType: string, entityId: string) {
     return this.prisma.digitalSignature.findMany({
       where: { entityType, entityId },
-      orderBy: { timestamp: 'desc' },
+      orderBy: { timestamp: "desc" },
     });
   }
 

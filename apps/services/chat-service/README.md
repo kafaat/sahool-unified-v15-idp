@@ -1,4 +1,5 @@
 # SAHOOL Chat Service v16.0.0
+
 ## خدمة المحادثات للسوق الزراعي
 
 Real-time buyer-seller messaging service for the SAHOOL agricultural marketplace platform.
@@ -19,6 +20,7 @@ Real-time buyer-seller messaging service for the SAHOOL agricultural marketplace
 ## Architecture
 
 ### Technology Stack
+
 - **Framework**: NestJS 10.x
 - **WebSocket**: Socket.IO 4.8.x
 - **Database**: PostgreSQL with Prisma 5.x ORM
@@ -28,16 +30,19 @@ Real-time buyer-seller messaging service for the SAHOOL agricultural marketplace
 ### Database Models
 
 #### Conversation
+
 - Manages chat conversations between users
 - Links to products and orders
 - Tracks last message and activity
 
 #### Message
+
 - Stores chat messages
 - Supports multiple types: TEXT, IMAGE, OFFER, SYSTEM
 - Tracks read status and timestamps
 
 #### Participant
+
 - Manages conversation participants
 - Tracks roles (BUYER/SELLER)
 - Monitors online status and typing indicators
@@ -46,11 +51,13 @@ Real-time buyer-seller messaging service for the SAHOOL agricultural marketplace
 ## API Endpoints (REST)
 
 ### Health Check
+
 ```
 GET /api/v1/chat/health
 ```
 
 ### Conversations
+
 ```
 POST   /api/v1/chat/conversations              - Create new conversation
 GET    /api/v1/chat/conversations/user/:userId - Get user's conversations
@@ -60,12 +67,14 @@ POST   /api/v1/chat/conversations/:id/read     - Mark conversation as read
 ```
 
 ### Messages
+
 ```
 POST   /api/v1/chat/messages                   - Send message (REST fallback)
 POST   /api/v1/chat/messages/:messageId/read   - Mark message as read
 ```
 
 ### User
+
 ```
 GET    /api/v1/chat/users/:userId/unread-count - Get unread message count
 ```
@@ -75,101 +84,123 @@ GET    /api/v1/chat/users/:userId/unread-count - Get unread message count
 ### Client -> Server Events
 
 #### join_conversation
+
 Join a conversation room to receive real-time updates.
+
 ```javascript
-socket.emit('join_conversation', {
-  conversationId: 'conv-123',
-  userId: 'user-456'
+socket.emit("join_conversation", {
+  conversationId: "conv-123",
+  userId: "user-456",
 });
 ```
 
 #### send_message
+
 Send a message to a conversation.
+
 ```javascript
-socket.emit('send_message', {
-  conversationId: 'conv-123',
-  senderId: 'user-456',
-  content: 'Hello, I am interested in your wheat harvest',
-  messageType: 'TEXT'
+socket.emit("send_message", {
+  conversationId: "conv-123",
+  senderId: "user-456",
+  content: "Hello, I am interested in your wheat harvest",
+  messageType: "TEXT",
 });
 ```
 
 #### typing
+
 Indicate that user is typing.
+
 ```javascript
-socket.emit('typing', {
-  conversationId: 'conv-123',
-  userId: 'user-456',
-  isTyping: true
+socket.emit("typing", {
+  conversationId: "conv-123",
+  userId: "user-456",
+  isTyping: true,
 });
 ```
 
 #### read_receipt
+
 Mark a message as read.
+
 ```javascript
-socket.emit('read_receipt', {
-  conversationId: 'conv-123',
-  userId: 'user-456',
-  messageId: 'msg-789'
+socket.emit("read_receipt", {
+  conversationId: "conv-123",
+  userId: "user-456",
+  messageId: "msg-789",
 });
 ```
 
 #### mark_conversation_read
+
 Mark all messages in a conversation as read.
+
 ```javascript
-socket.emit('mark_conversation_read', {
-  conversationId: 'conv-123',
-  userId: 'user-456'
+socket.emit("mark_conversation_read", {
+  conversationId: "conv-123",
+  userId: "user-456",
 });
 ```
 
 #### leave_conversation
+
 Leave a conversation room.
+
 ```javascript
-socket.emit('leave_conversation', {
-  conversationId: 'conv-123',
-  userId: 'user-456'
+socket.emit("leave_conversation", {
+  conversationId: "conv-123",
+  userId: "user-456",
 });
 ```
 
 ### Server -> Client Events
 
 #### message_received
+
 Receive a new message.
+
 ```javascript
-socket.on('message_received', (data) => {
-  console.log('New message:', data.message);
+socket.on("message_received", (data) => {
+  console.log("New message:", data.message);
 });
 ```
 
 #### typing_indicator
+
 Receive typing indicator updates.
+
 ```javascript
-socket.on('typing_indicator', (data) => {
+socket.on("typing_indicator", (data) => {
   console.log(`${data.userId} is typing: ${data.isTyping}`);
 });
 ```
 
 #### message_read
+
 Notification that a message was read.
+
 ```javascript
-socket.on('message_read', (data) => {
+socket.on("message_read", (data) => {
   console.log(`Message ${data.messageId} read by ${data.userId}`);
 });
 ```
 
 #### user_online
+
 User came online.
+
 ```javascript
-socket.on('user_online', (data) => {
+socket.on("user_online", (data) => {
   console.log(`User ${data.userId} is online`);
 });
 ```
 
 #### user_offline
+
 User went offline.
+
 ```javascript
-socket.on('user_offline', (data) => {
+socket.on("user_offline", (data) => {
   console.log(`User ${data.userId} is offline`);
 });
 ```
@@ -191,23 +222,28 @@ CORS_ALLOWED_ORIGINS=https://sahool.com,https://app.sahool.com,http://localhost:
 ## Installation & Setup
 
 ### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 2. Configure Database
+
 Create a `.env` file:
+
 ```env
 DATABASE_URL=postgresql://user:password@localhost:5432/sahool_chat
 PORT=3015
 ```
 
 ### 3. Generate Prisma Client
+
 ```bash
 npm run prisma:generate
 ```
 
 ### 4. Run Database Migrations
+
 ```bash
 npm run prisma:migrate
 # or for development
@@ -215,21 +251,25 @@ npm run prisma:push
 ```
 
 ### 5. Start Development Server
+
 ```bash
 npm run start:dev
 ```
 
 ### 6. Access API Documentation
+
 Open http://localhost:3015/docs for Swagger documentation.
 
 ## Docker Deployment
 
 ### Build Image
+
 ```bash
 docker build -t sahool-chat-service:16.0.0 .
 ```
 
 ### Run Container
+
 ```bash
 docker run -d \
   -p 3015:3015 \
@@ -242,49 +282,53 @@ docker run -d \
 ## Client Integration Example
 
 ### JavaScript/TypeScript
+
 ```typescript
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client";
 
 // Connect to chat service
-const socket = io('ws://localhost:3015/chat', {
-  query: { userId: 'user-123' }
+const socket = io("ws://localhost:3015/chat", {
+  query: { userId: "user-123" },
 });
 
 // Join conversation
-socket.emit('join_conversation', {
-  conversationId: 'conv-456',
-  userId: 'user-123'
+socket.emit("join_conversation", {
+  conversationId: "conv-456",
+  userId: "user-123",
 });
 
 // Listen for messages
-socket.on('message_received', (data) => {
-  console.log('New message:', data.message);
+socket.on("message_received", (data) => {
+  console.log("New message:", data.message);
   // Update UI with new message
 });
 
 // Send message
-socket.emit('send_message', {
-  conversationId: 'conv-456',
-  senderId: 'user-123',
-  content: 'Hello!',
-  messageType: 'TEXT'
+socket.emit("send_message", {
+  conversationId: "conv-456",
+  senderId: "user-123",
+  content: "Hello!",
+  messageType: "TEXT",
 });
 
 // Typing indicator
-socket.emit('typing', {
-  conversationId: 'conv-456',
-  userId: 'user-123',
-  isTyping: true
+socket.emit("typing", {
+  conversationId: "conv-456",
+  userId: "user-123",
+  isTyping: true,
 });
 ```
 
 ## Message Types
 
 ### TEXT
+
 Standard text message.
 
 ### IMAGE
+
 Image message with URL.
+
 ```javascript
 {
   messageType: 'IMAGE',
@@ -294,7 +338,9 @@ Image message with URL.
 ```
 
 ### OFFER
+
 Price offer message.
+
 ```javascript
 {
   messageType: 'OFFER',
@@ -305,7 +351,9 @@ Price offer message.
 ```
 
 ### SYSTEM
+
 System-generated message.
+
 ```javascript
 {
   messageType: 'SYSTEM',
@@ -316,16 +364,19 @@ System-generated message.
 ## Testing
 
 ### Run Tests
+
 ```bash
 npm test
 ```
 
 ### Run Tests with Coverage
+
 ```bash
 npm run test:cov
 ```
 
 ### Watch Mode
+
 ```bash
 npm run test:watch
 ```
@@ -344,6 +395,7 @@ npm run test:watch
 ## Service Integration
 
 This chat service integrates with:
+
 - **Marketplace Service**: Links conversations to products and orders
 - **User Service**: Retrieves user profiles and authentication
 - **Notification Service**: Sends push notifications for new messages

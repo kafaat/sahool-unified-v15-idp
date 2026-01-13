@@ -1,4 +1,5 @@
 # خطة استثمار الأصول غير المستغلة
+
 # Under-Utilized Assets Investment Plan
 
 **الإصدار:** 1.0.0
@@ -19,42 +20,42 @@
 
 ### 1. Event Infrastructure (NATS)
 
-| المؤشر | الحالة |
-|--------|--------|
-| ملفات تستخدم NATS | 35 ملف |
-| في الخدمات النشطة | ❌ معظمها في `archive/` |
-| في shared/libs | ✅ بنية جاهزة غير مفعّلة |
+| المؤشر            | الحالة                   |
+| ----------------- | ------------------------ |
+| ملفات تستخدم NATS | 35 ملف                   |
+| في الخدمات النشطة | ❌ معظمها في `archive/`  |
+| في shared/libs    | ✅ بنية جاهزة غير مفعّلة |
 
 **الفجوة:** البنية التحتية للأحداث موجودة في `shared/libs/events/` لكن الخدمات النشطة تستخدم REST مباشرة.
 
 ### 2. Analysis Services Output
 
-| الخدمة | نوع المخرج | Action Template |
-|--------|-----------|-----------------|
-| fertilizer-advisor | `FertilizerRecommendation` | ❌ غير موجود |
-| irrigation-smart | `IrrigationSchedule` | ❌ غير موجود |
-| crop-health-ai | Disease detection | ❌ غير موجود |
-| yield-engine | Yield prediction | ❌ غير موجود |
+| الخدمة             | نوع المخرج                 | Action Template |
+| ------------------ | -------------------------- | --------------- |
+| fertilizer-advisor | `FertilizerRecommendation` | ❌ غير موجود    |
+| irrigation-smart   | `IrrigationSchedule`       | ❌ غير موجود    |
+| crop-health-ai     | Disease detection          | ❌ غير موجود    |
+| yield-engine       | Yield prediction           | ❌ غير موجود    |
 
 **الفجوة:** التحليلات تُنتج Insights لكن لا تُترجم إلى Tasks قابلة للتنفيذ.
 
 ### 3. Shared Packages Adoption
 
-| Package | apps/web | apps/admin | apps/mobile |
-|---------|----------|------------|-------------|
-| @sahool/shared-ui | ✅ | ✅ | ❌ |
-| @sahool/shared-hooks | ✅ | ✅ | ❌ |
-| Offline Components | ❌ | ❌ | ❌ |
+| Package              | apps/web | apps/admin | apps/mobile |
+| -------------------- | -------- | ---------- | ----------- |
+| @sahool/shared-ui    | ✅       | ✅         | ❌          |
+| @sahool/shared-hooks | ✅       | ✅         | ❌          |
+| Offline Components   | ❌       | ❌         | ❌          |
 
 **الفجوة:** لا توجد مكونات Offline موحدة في المكتبات المشتركة.
 
 ### 4. Historical Data Usage
 
-| الخدمة | بيانات تاريخية | Trend Analysis | Seasonal Comparison |
-|--------|---------------|----------------|---------------------|
-| satellite-service | ✅ timeseries | ⚠️ بسيط (improving/declining) | ❌ |
-| weather-advanced | ✅ | ❌ | ❌ |
-| indicators-service | ✅ | ❌ | ❌ |
+| الخدمة             | بيانات تاريخية | Trend Analysis                | Seasonal Comparison |
+| ------------------ | -------------- | ----------------------------- | ------------------- |
+| satellite-service  | ✅ timeseries  | ⚠️ بسيط (improving/declining) | ❌                  |
+| weather-advanced   | ✅             | ❌                            | ❌                  |
+| indicators-service | ✅             | ❌                            | ❌                  |
 
 **الفجوة:** البيانات التاريخية مخزنة لكن لا تُستخدم للمقارنات الموسمية أو اكتشاف الأنماط.
 
@@ -108,6 +109,7 @@ class ActionTemplate(BaseModel):
 ```
 
 **الملفات المتأثرة:**
+
 - `shared/contracts/action_template.py` (جديد)
 - `apps/services/fertilizer-advisor/src/main.py` (تحديث المخرجات)
 - `apps/services/irrigation-smart/src/main.py` (تحديث المخرجات)
@@ -153,6 +155,7 @@ class SatelliteEventPublisher:
 ```
 
 **الملفات المتأثرة:**
+
 - `apps/services/satellite-service/src/events.py` (جديد)
 - `apps/services/notification-service/src/subscribers.py` (جديد)
 - `docker-compose.yml` (تفعيل NATS)
@@ -166,10 +169,10 @@ class SatelliteEventPublisher:
 ```typescript
 // packages/shared-ui/src/components/offline/index.ts
 
-export { OfflineBanner } from './OfflineBanner';
-export { StaleDataBadge } from './StaleDataBadge';
-export { SyncStatusIndicator } from './SyncStatusIndicator';
-export { OfflineAwareWrapper } from './OfflineAwareWrapper';
+export { OfflineBanner } from "./OfflineBanner";
+export { StaleDataBadge } from "./StaleDataBadge";
+export { SyncStatusIndicator } from "./SyncStatusIndicator";
+export { OfflineAwareWrapper } from "./OfflineAwareWrapper";
 ```
 
 ```typescript
@@ -203,6 +206,7 @@ export function OfflineAwareWrapper({
 ```
 
 **الملفات الجديدة:**
+
 - `packages/shared-ui/src/components/offline/OfflineBanner.tsx`
 - `packages/shared-ui/src/components/offline/StaleDataBadge.tsx`
 - `packages/shared-ui/src/components/offline/SyncStatusIndicator.tsx`
@@ -268,6 +272,7 @@ class HistoricalAnalyzer:
 ```
 
 **Endpoint جديد:**
+
 ```
 GET /api/v1/fields/{field_id}/historical-analysis
 GET /api/v1/fields/{field_id}/seasonal-comparison
@@ -456,21 +461,22 @@ class OperationsAnalytics:
 
 ## 📈 ROI Matrix
 
-| المورد | الجهد | الأثر | ROI Score | الأولوية |
-|--------|-------|-------|-----------|----------|
-| Action Template Standard | 🟢 منخفض | 🔴 عالي جدًا | 9/10 | 🥇 1 |
-| NATS Notification Spine | 🟡 متوسط | 🔴 عالي | 8/10 | 🥈 2 |
-| Unified Offline UX | 🟢 منخفض | 🟡 متوسط | 7/10 | 🥉 3 |
-| Historical Intelligence | 🟡 متوسط | 🟡 متوسط | 6/10 | 4 |
-| Docs as Guardrails | 🟢 منخفض | 🟡 متوسط | 7/10 | 5 |
-| Event-Driven Playbooks | 🔴 عالي | 🔴 عالي جدًا | 7/10 | 6 |
-| Operations Analytics | 🟡 متوسط | 🟡 متوسط | 5/10 | 7 |
+| المورد                   | الجهد    | الأثر        | ROI Score | الأولوية |
+| ------------------------ | -------- | ------------ | --------- | -------- |
+| Action Template Standard | 🟢 منخفض | 🔴 عالي جدًا | 9/10      | 🥇 1     |
+| NATS Notification Spine  | 🟡 متوسط | 🔴 عالي      | 8/10      | 🥈 2     |
+| Unified Offline UX       | 🟢 منخفض | 🟡 متوسط     | 7/10      | 🥉 3     |
+| Historical Intelligence  | 🟡 متوسط | 🟡 متوسط     | 6/10      | 4        |
+| Docs as Guardrails       | 🟢 منخفض | 🟡 متوسط     | 7/10      | 5        |
+| Event-Driven Playbooks   | 🔴 عالي  | 🔴 عالي جدًا | 7/10      | 6        |
+| Operations Analytics     | 🟡 متوسط | 🟡 متوسط     | 5/10      | 7        |
 
 ---
 
 ## 📁 الملفات الجديدة المطلوبة
 
 ### Phase 1
+
 ```
 shared/contracts/action_template.py          # Action Template Standard
 shared/contracts/action_types.py             # Action Types Enum
@@ -479,6 +485,7 @@ apps/services/*/src/events.py                # Event Publishers
 ```
 
 ### Phase 2
+
 ```
 apps/services/satellite-service/src/historical.py
 .github/PULL_REQUEST_TEMPLATE.md
@@ -486,6 +493,7 @@ apps/services/satellite-service/src/historical.py
 ```
 
 ### Phase 3
+
 ```
 shared/playbooks/                            # Playbook Engine
 apps/services/analytics-service/             # Operations Analytics
@@ -496,15 +504,18 @@ apps/services/analytics-service/             # Operations Analytics
 ## ✅ معايير النجاح
 
 ### Phase 1 KPIs
+
 - [ ] 100% من خدمات التحليل تُنتج ActionTemplate
 - [ ] NATS يحمل 80% من التنبيهات
 - [ ] مكونات Offline مستخدمة في Web و Mobile
 
 ### Phase 2 KPIs
+
 - [ ] مقارنات موسمية متاحة لكل حقل
 - [ ] 100% من PRs تمر بـ Field-First check
 
 ### Phase 3 KPIs
+
 - [ ] 3+ Playbooks نشطة
 - [ ] تقارير فعالية أسبوعية
 
@@ -513,6 +524,7 @@ apps/services/analytics-service/             # Operations Analytics
 ## الخطوة التالية
 
 ابدأ بـ **Phase 1.1: Action Template Standard** لأنه:
+
 1. أقل جهد
 2. أعلى عائد
 3. أساس لكل المراحل اللاحقة

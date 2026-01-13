@@ -1,5 +1,5 @@
-import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import "@testing-library/jest-dom";
+import { vi } from "vitest";
 
 // Mock fetch globally
 global.fetch = vi.fn();
@@ -21,7 +21,7 @@ class MockEventSource {
     this.readyState = MockEventSource.CONNECTING;
     setTimeout(() => {
       this.readyState = MockEventSource.OPEN;
-      this.onopen?.(new Event('open'));
+      this.onopen?.(new Event("open"));
     }, 0);
   }
 
@@ -31,11 +31,13 @@ class MockEventSource {
 
   // Helper for tests to simulate messages
   simulateMessage(data: unknown) {
-    this.onmessage?.(new MessageEvent('message', { data: JSON.stringify(data) }));
+    this.onmessage?.(
+      new MessageEvent("message", { data: JSON.stringify(data) }),
+    );
   }
 
   simulateError() {
-    this.onerror?.(new Event('error'));
+    this.onerror?.(new Event("error"));
   }
 }
 

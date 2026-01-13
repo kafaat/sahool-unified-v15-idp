@@ -4,7 +4,7 @@
 // Based on AGRARIAN 4-layer, Sugarcane 5-layer, and Cloud-Edge-End collaborative architectures
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Interfaces & Types - واجهات وأنواع
@@ -14,7 +14,14 @@ import { Injectable } from '@nestjs/common';
 export interface SensingLayerData {
   timestamp: string;
   sensorId: string;
-  sensorType: 'soil_moisture' | 'temperature' | 'humidity' | 'light' | 'co2' | 'wind' | 'rain';
+  sensorType:
+    | "soil_moisture"
+    | "temperature"
+    | "humidity"
+    | "light"
+    | "co2"
+    | "wind"
+    | "rain";
   value: number;
   unit: string;
   location: { lat: number; lng: number };
@@ -22,13 +29,18 @@ export interface SensingLayerData {
 }
 
 export interface SatelliteData {
-  source: 'sentinel_2' | 'landsat_8' | 'modis' | 'planet' | 'gaofen';
+  source: "sentinel_2" | "landsat_8" | "modis" | "planet" | "gaofen";
   captureDate: string;
   resolution: number; // meters
   bands: string[];
   indices: { [key: string]: number }; // NDVI, LAI, etc.
   cloudCover: number;
-  boundingBox: { minLat: number; maxLat: number; minLng: number; maxLng: number };
+  boundingBox: {
+    minLat: number;
+    maxLat: number;
+    minLng: number;
+    maxLng: number;
+  };
 }
 
 export interface DroneInspectionData {
@@ -37,13 +49,18 @@ export interface DroneInspectionData {
   altitude: number;
   coverage: number; // hectares
   resolution: number; // cm
-  camera: 'rgb' | 'multispectral' | 'thermal' | 'hyperspectral';
+  camera: "rgb" | "multispectral" | "thermal" | "hyperspectral";
   images: number;
   anomaliesDetected: AnomalyDetection[];
 }
 
-export type AnomalyType = 'pest' | 'disease' | 'nutrient_deficiency' | 'water_stress' | 'weed';
-export type SeverityLevel = 'low' | 'medium' | 'high';
+export type AnomalyType =
+  | "pest"
+  | "disease"
+  | "nutrient_deficiency"
+  | "water_stress"
+  | "weed";
+export type SeverityLevel = "low" | "medium" | "high";
 
 export interface AnomalyDetection {
   type: AnomalyType;
@@ -99,11 +116,11 @@ export interface DataConflict {
   parameter: string;
   sources: { source: string; value: number }[];
   resolvedValue: number;
-  method: 'weighted_average' | 'max_quality' | 'ensemble' | 'kalman_filter';
+  method: "weighted_average" | "max_quality" | "ensemble" | "kalman_filter";
 }
 
 export interface ModelPrediction {
-  modelType: 'wofost' | 'machine_learning' | 'deep_learning' | 'llm' | 'hybrid';
+  modelType: "wofost" | "machine_learning" | "deep_learning" | "llm" | "hybrid";
   predictionDate: string;
   horizonDays: number;
   predictions: {
@@ -130,8 +147,8 @@ export interface ArchitectureLayer {
   nameAr: string;
   level: number;
   components: string[];
-  dataFlow: 'upstream' | 'downstream' | 'bidirectional';
-  status: 'active' | 'degraded' | 'offline';
+  dataFlow: "upstream" | "downstream" | "bidirectional";
+  status: "active" | "degraded" | "offline";
   metrics: { [key: string]: number };
 }
 
@@ -142,7 +159,7 @@ export interface EdgeNode {
   storageCapacity: number; // GB
   connectedSensors: number;
   latency: number; // ms
-  status: 'online' | 'offline' | 'maintenance';
+  status: "online" | "offline" | "maintenance";
   lastSync: string;
 }
 
@@ -155,101 +172,119 @@ export class DigitalTwinCoreService {
 
   private readonly architectureLayers: ArchitectureLayer[] = [
     {
-      id: 'sensing',
-      nameEn: 'Sensing Layer - Twin Perception',
-      nameAr: 'طبقة الاستشعار - إدراك التوأم',
+      id: "sensing",
+      nameEn: "Sensing Layer - Twin Perception",
+      nameAr: "طبقة الاستشعار - إدراك التوأم",
       level: 1,
       components: [
-        'Soil moisture sensors',
-        'Weather stations',
-        'Light sensors',
-        'CO2 sensors',
-        'Drone cameras',
-        'Satellite receivers',
+        "Soil moisture sensors",
+        "Weather stations",
+        "Light sensors",
+        "CO2 sensors",
+        "Drone cameras",
+        "Satellite receivers",
       ],
-      dataFlow: 'upstream',
-      status: 'active',
-      metrics: { sensorsActive: 156, dataPointsPerSecond: 20, sensorFailureRate: 0.035 },
+      dataFlow: "upstream",
+      status: "active",
+      metrics: {
+        sensorsActive: 156,
+        dataPointsPerSecond: 20,
+        sensorFailureRate: 0.035,
+      },
     },
     {
-      id: 'network',
-      nameEn: 'Network Layer - Data Transmission',
-      nameAr: 'طبقة الشبكة - نقل البيانات',
+      id: "network",
+      nameEn: "Network Layer - Data Transmission",
+      nameAr: "طبقة الشبكة - نقل البيانات",
       level: 2,
       components: [
-        'LoRaWAN gateways',
-        '5G base stations',
-        'Edge computing nodes',
-        'Star-Mesh topology',
-        'Redundant paths',
+        "LoRaWAN gateways",
+        "5G base stations",
+        "Edge computing nodes",
+        "Star-Mesh topology",
+        "Redundant paths",
       ],
-      dataFlow: 'bidirectional',
-      status: 'active',
-      metrics: { bandwidth: 1000, latency: 50, uptime: 99.7, packetLoss: 0.001 },
+      dataFlow: "bidirectional",
+      status: "active",
+      metrics: {
+        bandwidth: 1000,
+        latency: 50,
+        uptime: 99.7,
+        packetLoss: 0.001,
+      },
     },
     {
-      id: 'storage',
-      nameEn: 'Data Storage Layer',
-      nameAr: 'طبقة تخزين البيانات',
+      id: "storage",
+      nameEn: "Data Storage Layer",
+      nameAr: "طبقة تخزين البيانات",
       level: 3,
       components: [
-        'Time-series database',
-        'Spatial database (PostGIS)',
-        'Object storage (images)',
-        'Data lake',
-        'Hot/warm/cold tiers',
+        "Time-series database",
+        "Spatial database (PostGIS)",
+        "Object storage (images)",
+        "Data lake",
+        "Hot/warm/cold tiers",
       ],
-      dataFlow: 'bidirectional',
-      status: 'active',
-      metrics: { totalStorage: 50000, usedStorage: 23000, writeSpeed: 10000, readSpeed: 50000 },
+      dataFlow: "bidirectional",
+      status: "active",
+      metrics: {
+        totalStorage: 50000,
+        usedStorage: 23000,
+        writeSpeed: 10000,
+        readSpeed: 50000,
+      },
     },
     {
-      id: 'processing',
-      nameEn: 'Data Processing Layer - Twin Data',
-      nameAr: 'طبقة معالجة البيانات - بيانات التوأم',
+      id: "processing",
+      nameEn: "Data Processing Layer - Twin Data",
+      nameAr: "طبقة معالجة البيانات - بيانات التوأم",
       level: 4,
       components: [
-        'Data fusion engine',
-        'Quality control module',
-        'Feature engineering',
-        'Virtual entity builder',
-        'Real-time processing (1 TOPS+)',
+        "Data fusion engine",
+        "Quality control module",
+        "Feature engineering",
+        "Virtual entity builder",
+        "Real-time processing (1 TOPS+)",
       ],
-      dataFlow: 'bidirectional',
-      status: 'active',
+      dataFlow: "bidirectional",
+      status: "active",
       metrics: { computeCapacity: 1.5, processingLatency: 200, queueDepth: 45 },
     },
     {
-      id: 'application',
-      nameEn: 'Application Layer - Twin Application',
-      nameAr: 'طبقة التطبيقات - تطبيقات التوأم',
+      id: "application",
+      nameEn: "Application Layer - Twin Application",
+      nameAr: "طبقة التطبيقات - تطبيقات التوأم",
       level: 5,
       components: [
-        '3D visualization',
-        'Decision support system',
-        'Prediction engine',
-        'Alert system',
-        'Mobile/Web interfaces',
+        "3D visualization",
+        "Decision support system",
+        "Prediction engine",
+        "Alert system",
+        "Mobile/Web interfaces",
       ],
-      dataFlow: 'downstream',
-      status: 'active',
+      dataFlow: "downstream",
+      status: "active",
       metrics: { activeUsers: 234, apiCalls: 15000, responseTime: 120 },
     },
     {
-      id: 'interaction',
-      nameEn: 'Interaction Layer - Twin Interaction',
-      nameAr: 'طبقة التفاعل - تفاعل التوأم',
+      id: "interaction",
+      nameEn: "Interaction Layer - Twin Interaction",
+      nameAr: "طبقة التفاعل - تفاعل التوأم",
       level: 6,
       components: [
-        'Farmer mobile app',
-        'Voice commands',
-        'Actuation control',
-        'Feedback loop',
-        'AR/VR visualization',
+        "Farmer mobile app",
+        "Voice commands",
+        "Actuation control",
+        "Feedback loop",
+        "AR/VR visualization",
       ],
-      dataFlow: 'bidirectional',
-      status: 'active',
-      metrics: { userSatisfaction: 4.2, commandSuccess: 0.95, feedbackLatency: 500 },
+      dataFlow: "bidirectional",
+      status: "active",
+      metrics: {
+        userSatisfaction: 4.2,
+        commandSuccess: 0.95,
+        feedbackLatency: 500,
+      },
     },
   ];
 
@@ -259,33 +294,33 @@ export class DigitalTwinCoreService {
 
   private readonly edgeNodes: EdgeNode[] = [
     {
-      id: 'edge_riyadh_01',
-      location: 'Riyadh North Farm Cluster',
+      id: "edge_riyadh_01",
+      location: "Riyadh North Farm Cluster",
       computeCapacity: 1.5,
       storageCapacity: 256,
       connectedSensors: 45,
       latency: 15,
-      status: 'online',
+      status: "online",
       lastSync: new Date().toISOString(),
     },
     {
-      id: 'edge_qassim_01',
-      location: 'Al-Qassim Agricultural Zone',
+      id: "edge_qassim_01",
+      location: "Al-Qassim Agricultural Zone",
       computeCapacity: 2.0,
       storageCapacity: 512,
       connectedSensors: 78,
       latency: 12,
-      status: 'online',
+      status: "online",
       lastSync: new Date().toISOString(),
     },
     {
-      id: 'edge_hail_01',
-      location: 'Hail Wheat Region',
+      id: "edge_hail_01",
+      location: "Hail Wheat Region",
       computeCapacity: 1.0,
       storageCapacity: 128,
       connectedSensors: 32,
       latency: 25,
-      status: 'online',
+      status: "online",
       lastSync: new Date().toISOString(),
     },
   ];
@@ -295,39 +330,90 @@ export class DigitalTwinCoreService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   private readonly cropParameters: Map<string, any> = new Map([
-    ['wheat', {
-      TSUM1: 1050, // Temperature sum emergence to anthesis
-      TSUM2: 850,  // Temperature sum anthesis to maturity
-      TDWI: 50,    // Initial total dry weight (kg/ha)
-      SPAN: 35,    // Life span of leaves (days)
-      RGRLAI: 0.0294, // Max relative growth rate LAI
-      SLATB: [[0.0, 0.0022], [0.5, 0.0022], [2.0, 0.0020]], // Specific leaf area
-      AMAXTB: [[0.0, 35], [1.3, 35], [2.0, 5]], // Max CO2 assimilation rate
-      EFFTB: [[0, 0.45], [40, 0.45]], // Light use efficiency
-      CVL: 0.72, CVO: 0.45, CVR: 0.72, CVS: 0.69, // Conversion efficiencies
-    }],
-    ['corn', {
-      TSUM1: 750,
-      TSUM2: 850,
-      TDWI: 50,
-      SPAN: 40,
-      RGRLAI: 0.0500,
-      SLATB: [[0.0, 0.0030], [1.0, 0.0025], [2.0, 0.0020]],
-      AMAXTB: [[0.0, 45], [1.5, 45], [2.0, 10]],
-      EFFTB: [[0, 0.50], [40, 0.50]],
-      CVL: 0.68, CVO: 0.71, CVR: 0.72, CVS: 0.66,
-    }],
-    ['date_palm', {
-      TSUM1: 2500,
-      TSUM2: 2000,
-      TDWI: 5000,
-      SPAN: 365,
-      RGRLAI: 0.0050,
-      SLATB: [[0.0, 0.0008], [1.0, 0.0008], [2.0, 0.0008]],
-      AMAXTB: [[0.0, 25], [1.0, 25], [2.0, 20]],
-      EFFTB: [[0, 0.40], [45, 0.40]],
-      CVL: 0.70, CVO: 0.60, CVR: 0.70, CVS: 0.65,
-    }],
+    [
+      "wheat",
+      {
+        TSUM1: 1050, // Temperature sum emergence to anthesis
+        TSUM2: 850, // Temperature sum anthesis to maturity
+        TDWI: 50, // Initial total dry weight (kg/ha)
+        SPAN: 35, // Life span of leaves (days)
+        RGRLAI: 0.0294, // Max relative growth rate LAI
+        SLATB: [
+          [0.0, 0.0022],
+          [0.5, 0.0022],
+          [2.0, 0.002],
+        ], // Specific leaf area
+        AMAXTB: [
+          [0.0, 35],
+          [1.3, 35],
+          [2.0, 5],
+        ], // Max CO2 assimilation rate
+        EFFTB: [
+          [0, 0.45],
+          [40, 0.45],
+        ], // Light use efficiency
+        CVL: 0.72,
+        CVO: 0.45,
+        CVR: 0.72,
+        CVS: 0.69, // Conversion efficiencies
+      },
+    ],
+    [
+      "corn",
+      {
+        TSUM1: 750,
+        TSUM2: 850,
+        TDWI: 50,
+        SPAN: 40,
+        RGRLAI: 0.05,
+        SLATB: [
+          [0.0, 0.003],
+          [1.0, 0.0025],
+          [2.0, 0.002],
+        ],
+        AMAXTB: [
+          [0.0, 45],
+          [1.5, 45],
+          [2.0, 10],
+        ],
+        EFFTB: [
+          [0, 0.5],
+          [40, 0.5],
+        ],
+        CVL: 0.68,
+        CVO: 0.71,
+        CVR: 0.72,
+        CVS: 0.66,
+      },
+    ],
+    [
+      "date_palm",
+      {
+        TSUM1: 2500,
+        TSUM2: 2000,
+        TDWI: 5000,
+        SPAN: 365,
+        RGRLAI: 0.005,
+        SLATB: [
+          [0.0, 0.0008],
+          [1.0, 0.0008],
+          [2.0, 0.0008],
+        ],
+        AMAXTB: [
+          [0.0, 25],
+          [1.0, 25],
+          [2.0, 20],
+        ],
+        EFFTB: [
+          [0, 0.4],
+          [45, 0.4],
+        ],
+        CVL: 0.7,
+        CVO: 0.6,
+        CVR: 0.7,
+        CVS: 0.65,
+      },
+    ],
   ]);
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -345,7 +431,7 @@ export class DigitalTwinCoreService {
    * Get architecture layer by ID
    */
   getLayerById(id: string): ArchitectureLayer | undefined {
-    return this.architectureLayers.find(l => l.id === id);
+    return this.architectureLayers.find((l) => l.id === id);
   }
 
   /**
@@ -359,7 +445,7 @@ export class DigitalTwinCoreService {
    * Get edge node by ID
    */
   getEdgeNodeById(id: string): EdgeNode | undefined {
-    return this.edgeNodes.find(n => n.id === id);
+    return this.edgeNodes.find((n) => n.id === id);
   }
 
   /**
@@ -385,8 +471,13 @@ export class DigitalTwinCoreService {
    * Simulate satellite data acquisition
    */
   acquireSatelliteData(params: {
-    source: SatelliteData['source'];
-    boundingBox: { minLat: number; maxLat: number; minLng: number; maxLng: number };
+    source: SatelliteData["source"];
+    boundingBox: {
+      minLat: number;
+      maxLat: number;
+      minLng: number;
+      maxLng: number;
+    };
     targetDate?: string;
   }): SatelliteData {
     const resolutions: { [key: string]: number } = {
@@ -405,15 +496,16 @@ export class DigitalTwinCoreService {
       source: params.source,
       captureDate: params.targetDate || new Date().toISOString(),
       resolution: resolutions[params.source] || 10,
-      bands: params.source === 'sentinel_2'
-        ? ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12']
-        : ['RED', 'GREEN', 'BLUE', 'NIR', 'SWIR1', 'SWIR2'],
+      bands:
+        params.source === "sentinel_2"
+          ? ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12"]
+          : ["RED", "GREEN", "BLUE", "NIR", "SWIR1", "SWIR2"],
       indices: {
         NDVI: 0.55 * seasonFactor + Math.random() * 0.2,
         EVI: 0.45 * seasonFactor + Math.random() * 0.15,
         LAI: 2.5 * seasonFactor + Math.random() * 1.0,
         NDWI: 0.15 + Math.random() * 0.1,
-        SAVI: 0.50 * seasonFactor + Math.random() * 0.15,
+        SAVI: 0.5 * seasonFactor + Math.random() * 0.15,
       },
       cloudCover: Math.random() * 20,
       boundingBox: params.boundingBox,
@@ -425,21 +517,30 @@ export class DigitalTwinCoreService {
    */
   acquireDroneData(params: {
     fieldId: string;
-    camera: DroneInspectionData['camera'];
+    camera: DroneInspectionData["camera"];
     altitude: number;
   }): DroneInspectionData {
     const anomalies: AnomalyDetection[] = [];
 
     // Simulate random anomaly detection
     if (Math.random() > 0.7) {
-      const anomalyTypes: AnomalyType[] = ['pest', 'disease', 'water_stress', 'nutrient_deficiency'];
-      const severityLevels: SeverityLevel[] = ['low', 'medium', 'high'];
+      const anomalyTypes: AnomalyType[] = [
+        "pest",
+        "disease",
+        "water_stress",
+        "nutrient_deficiency",
+      ];
+      const severityLevels: SeverityLevel[] = ["low", "medium", "high"];
 
       anomalies.push({
         type: anomalyTypes[Math.floor(Math.random() * anomalyTypes.length)],
         confidence: 0.75 + Math.random() * 0.2,
-        location: { lat: 24.7 + Math.random() * 0.01, lng: 46.7 + Math.random() * 0.01 },
-        severity: severityLevels[Math.floor(Math.random() * severityLevels.length)],
+        location: {
+          lat: 24.7 + Math.random() * 0.01,
+          lng: 46.7 + Math.random() * 0.01,
+        },
+        severity:
+          severityLevels[Math.floor(Math.random() * severityLevels.length)],
         affectedArea: 50 + Math.random() * 200,
       });
     }
@@ -460,8 +561,14 @@ export class DigitalTwinCoreService {
    * Simulate ground sensor data collection
    */
   collectGroundSensorData(sensorIds: string[]): SensingLayerData[] {
-    const sensorTypes: SensingLayerData['sensorType'][] = [
-      'soil_moisture', 'temperature', 'humidity', 'light', 'co2', 'wind', 'rain',
+    const sensorTypes: SensingLayerData["sensorType"][] = [
+      "soil_moisture",
+      "temperature",
+      "humidity",
+      "light",
+      "co2",
+      "wind",
+      "rain",
     ];
 
     return sensorIds.map((id, index) => ({
@@ -470,12 +577,15 @@ export class DigitalTwinCoreService {
       sensorType: sensorTypes[index % sensorTypes.length],
       value: this.generateSensorValue(sensorTypes[index % sensorTypes.length]),
       unit: this.getSensorUnit(sensorTypes[index % sensorTypes.length]),
-      location: { lat: 24.7 + Math.random() * 0.1, lng: 46.7 + Math.random() * 0.1 },
+      location: {
+        lat: 24.7 + Math.random() * 0.1,
+        lng: 46.7 + Math.random() * 0.1,
+      },
       quality: 0.9 + Math.random() * 0.1,
     }));
   }
 
-  private generateSensorValue(type: SensingLayerData['sensorType']): number {
+  private generateSensorValue(type: SensingLayerData["sensorType"]): number {
     const ranges: { [key: string]: [number, number] } = {
       soil_moisture: [0.15, 0.35],
       temperature: [25, 40],
@@ -489,17 +599,17 @@ export class DigitalTwinCoreService {
     return min + Math.random() * (max - min);
   }
 
-  private getSensorUnit(type: SensingLayerData['sensorType']): string {
+  private getSensorUnit(type: SensingLayerData["sensorType"]): string {
     const units: { [key: string]: string } = {
-      soil_moisture: 'm³/m³',
-      temperature: '°C',
-      humidity: '%',
-      light: 'W/m²',
-      co2: 'ppm',
-      wind: 'm/s',
-      rain: 'mm/h',
+      soil_moisture: "m³/m³",
+      temperature: "°C",
+      humidity: "%",
+      light: "W/m²",
+      co2: "ppm",
+      wind: "m/s",
+      rain: "mm/h",
     };
-    return units[type] || '';
+    return units[type] || "";
   }
 
   /**
@@ -518,21 +628,23 @@ export class DigitalTwinCoreService {
     // Collect sources
     if (params.satellite) sources.push(`satellite:${params.satellite.source}`);
     if (params.drone) sources.push(`drone:${params.drone.camera}`);
-    if (params.groundSensors?.length) sources.push(`ground:${params.groundSensors.length}_sensors`);
+    if (params.groundSensors?.length)
+      sources.push(`ground:${params.groundSensors.length}_sensors`);
 
     // Fuse LAI from satellite and drone (if both available)
     if (params.satellite && params.drone) {
       const satelliteLAI = params.satellite.indices.LAI;
-      const droneLAI = params.satellite.indices.LAI * (1 + Math.random() * 0.1 - 0.05);
+      const droneLAI =
+        params.satellite.indices.LAI * (1 + Math.random() * 0.1 - 0.05);
 
       conflicts.push({
-        parameter: 'LAI',
+        parameter: "LAI",
         sources: [
-          { source: 'satellite', value: satelliteLAI },
-          { source: 'drone_derived', value: droneLAI },
+          { source: "satellite", value: satelliteLAI },
+          { source: "drone_derived", value: droneLAI },
         ],
-        resolvedValue: (satelliteLAI * 0.6 + droneLAI * 0.4), // Weighted average
-        method: 'weighted_average',
+        resolvedValue: satelliteLAI * 0.6 + droneLAI * 0.4, // Weighted average
+        method: "weighted_average",
       });
 
       fusedState.lai = conflicts[0].resolvedValue;
@@ -542,11 +654,15 @@ export class DigitalTwinCoreService {
 
     // Fuse ground sensor data
     if (params.groundSensors) {
-      const moistureSensors = params.groundSensors.filter(s => s.sensorType === 'soil_moisture');
+      const moistureSensors = params.groundSensors.filter(
+        (s) => s.sensorType === "soil_moisture",
+      );
       if (moistureSensors.length > 0) {
-        const avgMoisture = moistureSensors.reduce((sum, s) => sum + s.value, 0) / moistureSensors.length;
+        const avgMoisture =
+          moistureSensors.reduce((sum, s) => sum + s.value, 0) /
+          moistureSensors.length;
         fusedState.soilState = {
-          moisture: moistureSensors.map(s => s.value),
+          moisture: moistureSensors.map((s) => s.value),
           temperature: [],
           nitrogen: { no3: 0, nh4: 0 },
           phosphorus: 0,
@@ -556,8 +672,8 @@ export class DigitalTwinCoreService {
     }
 
     // Calculate quality score
-    const qualityScore = sources.length >= 3 ? 0.95 :
-      sources.length === 2 ? 0.85 : 0.70;
+    const qualityScore =
+      sources.length >= 3 ? 0.95 : sources.length === 2 ? 0.85 : 0.7;
 
     return {
       fusedTimestamp: new Date().toISOString(),
@@ -565,7 +681,7 @@ export class DigitalTwinCoreService {
       qualityScore,
       fusedState,
       conflicts,
-      resolution: 'Kalman filter with weighted ensemble',
+      resolution: "Kalman filter with weighted ensemble",
     };
   }
 
@@ -591,7 +707,9 @@ export class DigitalTwinCoreService {
 
     const plantDate = new Date(params.plantingDate);
     const currentDate = new Date(params.currentDate);
-    const daysSincePlanting = Math.floor((currentDate.getTime() - plantDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysSincePlanting = Math.floor(
+      (currentDate.getTime() - plantDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     // Calculate temperature sum (simplified GDD)
     const tsum = params.weather.reduce((sum, w) => {
@@ -610,17 +728,38 @@ export class DigitalTwinCoreService {
 
     // Estimate LAI and biomass based on DVS
     const lai = dvs < 1 ? dvs * 4 : 4 - (dvs - 1) * 2;
-    const totalBiomass = cropParams.TDWI * Math.pow(Math.E, 0.05 * daysSincePlanting);
+    const totalBiomass =
+      cropParams.TDWI * Math.pow(Math.E, 0.05 * daysSincePlanting);
 
     return {
-      modelType: 'wofost',
+      modelType: "wofost",
       predictionDate: new Date().toISOString(),
       horizonDays: 0,
       predictions: [
-        { parameter: 'DVS', value: Math.round(dvs * 1000) / 1000, uncertainty: 0.05, unit: '-' },
-        { parameter: 'LAI', value: Math.round(lai * 100) / 100, uncertainty: 0.3, unit: 'm²/m²' },
-        { parameter: 'TotalBiomass', value: Math.round(totalBiomass), uncertainty: totalBiomass * 0.15, unit: 'kg/ha' },
-        { parameter: 'TSUM', value: Math.round(tsum), uncertainty: 10, unit: '°C·day' },
+        {
+          parameter: "DVS",
+          value: Math.round(dvs * 1000) / 1000,
+          uncertainty: 0.05,
+          unit: "-",
+        },
+        {
+          parameter: "LAI",
+          value: Math.round(lai * 100) / 100,
+          uncertainty: 0.3,
+          unit: "m²/m²",
+        },
+        {
+          parameter: "TotalBiomass",
+          value: Math.round(totalBiomass),
+          uncertainty: totalBiomass * 0.15,
+          unit: "kg/ha",
+        },
+        {
+          parameter: "TSUM",
+          value: Math.round(tsum),
+          uncertainty: 10,
+          unit: "°C·day",
+        },
       ],
       confidence: 0.85,
     };
@@ -632,24 +771,43 @@ export class DigitalTwinCoreService {
    */
   runMLPrediction(params: {
     features: { [key: string]: number };
-    target: 'yield' | 'lai' | 'soil_moisture' | 'growth_stage';
+    target: "yield" | "lai" | "soil_moisture" | "growth_stage";
   }): ModelPrediction {
     // Simulate ML model output
-    const predictions: { [key: string]: { value: number; uncertainty: number; unit: string } } = {
-      yield: { value: 3500 + Math.random() * 2000, uncertainty: 350, unit: 'kg/ha' },
-      lai: { value: 2.5 + Math.random() * 2, uncertainty: 0.3, unit: 'm²/m²' },
-      soil_moisture: { value: 0.20 + Math.random() * 0.15, uncertainty: 0.03, unit: 'm³/m³' },
-      growth_stage: { value: Math.floor(Math.random() * 5), uncertainty: 0.5, unit: 'stage' },
+    const predictions: {
+      [key: string]: { value: number; uncertainty: number; unit: string };
+    } = {
+      yield: {
+        value: 3500 + Math.random() * 2000,
+        uncertainty: 350,
+        unit: "kg/ha",
+      },
+      lai: { value: 2.5 + Math.random() * 2, uncertainty: 0.3, unit: "m²/m²" },
+      soil_moisture: {
+        value: 0.2 + Math.random() * 0.15,
+        uncertainty: 0.03,
+        unit: "m³/m³",
+      },
+      growth_stage: {
+        value: Math.floor(Math.random() * 5),
+        uncertainty: 0.5,
+        unit: "stage",
+      },
     };
 
     const pred = predictions[params.target];
 
     return {
-      modelType: 'machine_learning',
+      modelType: "machine_learning",
       predictionDate: new Date().toISOString(),
       horizonDays: 7,
       predictions: [
-        { parameter: params.target, value: pred.value, uncertainty: pred.uncertainty, unit: pred.unit },
+        {
+          parameter: params.target,
+          value: pred.value,
+          uncertainty: pred.uncertainty,
+          unit: pred.unit,
+        },
       ],
       confidence: 0.82 + Math.random() * 0.1,
     };
@@ -665,11 +823,14 @@ export class DigitalTwinCoreService {
     horizonDays: number;
   }): ModelPrediction {
     // Simulate deep learning prediction (LSTM/Transformer output)
-    const lastValue = params.timeSeries[params.timeSeries.length - 1]?.value || 0;
-    const trend = params.timeSeries.length > 1
-      ? (params.timeSeries[params.timeSeries.length - 1].value -
-        params.timeSeries[params.timeSeries.length - 2].value) / params.timeSeries[params.timeSeries.length - 2].value
-      : 0;
+    const lastValue =
+      params.timeSeries[params.timeSeries.length - 1]?.value || 0;
+    const trend =
+      params.timeSeries.length > 1
+        ? (params.timeSeries[params.timeSeries.length - 1].value -
+            params.timeSeries[params.timeSeries.length - 2].value) /
+          params.timeSeries[params.timeSeries.length - 2].value
+        : 0;
 
     const predictions = [];
     for (let i = 1; i <= params.horizonDays; i++) {
@@ -677,12 +838,12 @@ export class DigitalTwinCoreService {
         parameter: `${params.target}_day_${i}`,
         value: lastValue * (1 + trend * i + (Math.random() - 0.5) * 0.1),
         uncertainty: lastValue * 0.05 * i,
-        unit: '',
+        unit: "",
       });
     }
 
     return {
-      modelType: 'deep_learning',
+      modelType: "deep_learning",
       predictionDate: new Date().toISOString(),
       horizonDays: params.horizonDays,
       predictions,
@@ -698,7 +859,11 @@ export class DigitalTwinCoreService {
   runLLMGrowthAnalysis(params: {
     cropType: string;
     observations: string[];
-    currentConditions: { temperature: number; humidity: number; soilMoisture: number };
+    currentConditions: {
+      temperature: number;
+      humidity: number;
+      soilMoisture: number;
+    };
   }): {
     recognizedStage: string;
     stageConfidence: number;
@@ -709,14 +874,22 @@ export class DigitalTwinCoreService {
     modelAccuracy: { stageRecognition: number; growthModeling: number };
   } {
     // Simulate LLM analysis (in production, would call actual LLM)
-    const stages = ['germination', 'seedling', 'vegetative', 'flowering', 'fruiting', 'maturity'];
+    const stages = [
+      "germination",
+      "seedling",
+      "vegetative",
+      "flowering",
+      "fruiting",
+      "maturity",
+    ];
     const stageIndex = Math.min(
       Math.floor(params.currentConditions.temperature / 8),
       stages.length - 1,
     );
 
     const stage = stages[stageIndex];
-    const isHealthy = params.currentConditions.soilMoisture > 0.2 &&
+    const isHealthy =
+      params.currentConditions.soilMoisture > 0.2 &&
       params.currentConditions.temperature > 15 &&
       params.currentConditions.temperature < 38;
 
@@ -730,14 +903,26 @@ export class DigitalTwinCoreService {
         ? `${params.cropType} يظهر نمواً صحياً في مرحلة ${stage}. المعلمات ضمن النطاق الأمثل.`
         : `${params.cropType} يظهر علامات إجهاد خلال مرحلة ${stage}. الظروف البيئية تحتاج تعديل.`,
       recommendations: isHealthy
-        ? ['Continue current management practices', 'Monitor for pest/disease', 'Prepare for next growth stage']
-        : ['Adjust irrigation schedule', 'Check for environmental stressors', 'Consider protective measures'],
+        ? [
+            "Continue current management practices",
+            "Monitor for pest/disease",
+            "Prepare for next growth stage",
+          ]
+        : [
+            "Adjust irrigation schedule",
+            "Check for environmental stressors",
+            "Consider protective measures",
+          ],
       recommendationsAr: isHealthy
-        ? ['استمر في ممارسات الإدارة الحالية', 'راقب الآفات والأمراض', 'استعد للمرحلة التالية']
-        : ['عدّل جدول الري', 'تحقق من الضغوط البيئية', 'فكر في إجراءات وقائية'],
+        ? [
+            "استمر في ممارسات الإدارة الحالية",
+            "راقب الآفات والأمراض",
+            "استعد للمرحلة التالية",
+          ]
+        : ["عدّل جدول الري", "تحقق من الضغوط البيئية", "فكر في إجراءات وقائية"],
       modelAccuracy: {
         stageRecognition: 0.997, // 99.7%
-        growthModeling: 0.98,    // 98%
+        growthModeling: 0.98, // 98%
       },
     };
   }
@@ -776,23 +961,35 @@ export class DigitalTwinCoreService {
 
     const ml = this.runMLPrediction({
       features: {
-        tsum: parseFloat(wofost.predictions.find(p => p.parameter === 'TSUM')?.value.toString() || '0'),
-        lai: parseFloat(wofost.predictions.find(p => p.parameter === 'LAI')?.value.toString() || '0'),
+        tsum: parseFloat(
+          wofost.predictions
+            .find((p) => p.parameter === "TSUM")
+            ?.value.toString() || "0",
+        ),
+        lai: parseFloat(
+          wofost.predictions
+            .find((p) => p.parameter === "LAI")
+            ?.value.toString() || "0",
+        ),
       },
-      target: 'yield',
+      target: "yield",
     });
 
     let dl: ModelPrediction | null = null;
     if (params.historicalData && params.historicalData.length > 10) {
       dl = this.runDeepLearningPrediction({
         timeSeries: params.historicalData,
-        target: 'yield',
+        target: "yield",
         horizonDays: 7,
       });
     }
 
     // Ensemble prediction (weighted average)
-    const wofostYield = parseFloat(wofost.predictions.find(p => p.parameter === 'TotalBiomass')?.value.toString() || '0');
+    const wofostYield = parseFloat(
+      wofost.predictions
+        .find((p) => p.parameter === "TotalBiomass")
+        ?.value.toString() || "0",
+    );
     const mlYield = ml.predictions[0]?.value || 0;
     const dlYield = dl?.predictions[0]?.value || mlYield;
 
@@ -802,8 +999,8 @@ export class DigitalTwinCoreService {
       : wofostYield * 0.4 + mlYield * 0.6;
 
     const ensembleConfidence = dl
-      ? (wofost.confidence * 0.3 + ml.confidence * 0.4 + dl.confidence * 0.3)
-      : (wofost.confidence * 0.4 + ml.confidence * 0.6);
+      ? wofost.confidence * 0.3 + ml.confidence * 0.4 + dl.confidence * 0.3
+      : wofost.confidence * 0.4 + ml.confidence * 0.6;
 
     return {
       wofostPrediction: wofost,
@@ -812,10 +1009,12 @@ export class DigitalTwinCoreService {
       ensemblePrediction: {
         yieldEstimate: Math.round(ensembleYield),
         confidence: Math.round(ensembleConfidence * 100) / 100,
-        uncertainty: ensembleYield * 0.10,
-        method: dl ? 'WOFOST + RandomForest + LSTM Ensemble' : 'WOFOST + RandomForest Ensemble',
+        uncertainty: ensembleYield * 0.1,
+        method: dl
+          ? "WOFOST + RandomForest + LSTM Ensemble"
+          : "WOFOST + RandomForest Ensemble",
       },
-      improvementOverSingle: 0.30, // 30%+ improvement as per research
+      improvementOverSingle: 0.3, // 30%+ improvement as per research
     };
   }
 
@@ -830,7 +1029,12 @@ export class DigitalTwinCoreService {
    */
   performDataAssimilation(params: {
     priorState: Partial<DigitalTwinState>;
-    observations: { parameter: string; value: number; source: string; uncertainty: number }[];
+    observations: {
+      parameter: string;
+      value: number;
+      source: string;
+      uncertainty: number;
+    }[];
     modelUncertainty: number;
   }): AssimilationResult {
     const posteriorState: Partial<DigitalTwinState> = { ...params.priorState };
@@ -882,13 +1086,24 @@ export class DigitalTwinCoreService {
   }): DigitalTwinState {
     const now = new Date();
     const plantDate = new Date(params.plantingDate);
-    const daysSincePlanting = Math.floor((now.getTime() - plantDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysSincePlanting = Math.floor(
+      (now.getTime() - plantDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     // Determine growth stage based on days
-    const growthStages = ['germination', 'seedling', 'vegetative', 'flowering', 'maturity'];
-    const stageIndex = Math.min(Math.floor(daysSincePlanting / 25), growthStages.length - 1);
+    const growthStages = [
+      "germination",
+      "seedling",
+      "vegetative",
+      "flowering",
+      "maturity",
+    ];
+    const stageIndex = Math.min(
+      Math.floor(daysSincePlanting / 25),
+      growthStages.length - 1,
+    );
 
-    const dvs = Math.min(daysSincePlanting / 120 * 2, 2.0);
+    const dvs = Math.min((daysSincePlanting / 120) * 2, 2.0);
     const lai = dvs < 1 ? dvs * 4 : Math.max(0.5, 4 - (dvs - 1) * 2);
 
     return {
@@ -903,10 +1118,13 @@ export class DigitalTwinCoreService {
         leaves: Math.round(20 * Math.pow(Math.E, 0.04 * daysSincePlanting)),
         stems: Math.round(15 * Math.pow(Math.E, 0.045 * daysSincePlanting)),
         roots: Math.round(10 * Math.pow(Math.E, 0.03 * daysSincePlanting)),
-        storage: stageIndex >= 3 ? Math.round(5 * Math.pow(Math.E, 0.06 * (daysSincePlanting - 75))) : 0,
+        storage:
+          stageIndex >= 3
+            ? Math.round(5 * Math.pow(Math.E, 0.06 * (daysSincePlanting - 75)))
+            : 0,
       },
       soilState: {
-        moisture: [0.22, 0.25, 0.28, 0.30],
+        moisture: [0.22, 0.25, 0.28, 0.3],
         temperature: [28, 26, 24, 22],
         nitrogen: { no3: 45, nh4: 12 },
         phosphorus: 25,
@@ -933,26 +1151,30 @@ export class DigitalTwinCoreService {
    * Get system health status
    */
   getSystemHealth(): {
-    status: 'healthy' | 'degraded' | 'critical';
+    status: "healthy" | "degraded" | "critical";
     layers: { layer: string; status: string; health: number }[];
     edgeNodes: { total: number; online: number; avgLatency: number };
     dataQuality: { sensorFailureRate: number; dataCompleteness: number };
     lastUpdate: string;
   } {
-    const layers = this.architectureLayers.map(l => ({
+    const layers = this.architectureLayers.map((l) => ({
       layer: l.nameEn,
       status: l.status,
-      health: l.status === 'active' ? 0.95 + Math.random() * 0.05 : 0.5,
+      health: l.status === "active" ? 0.95 + Math.random() * 0.05 : 0.5,
     }));
 
-    const onlineNodes = this.edgeNodes.filter(n => n.status === 'online').length;
-    const avgLatency = this.edgeNodes.reduce((sum, n) => sum + n.latency, 0) / this.edgeNodes.length;
+    const onlineNodes = this.edgeNodes.filter(
+      (n) => n.status === "online",
+    ).length;
+    const avgLatency =
+      this.edgeNodes.reduce((sum, n) => sum + n.latency, 0) /
+      this.edgeNodes.length;
 
-    const allActive = layers.every(l => l.status === 'active');
-    const anyOffline = layers.some(l => l.status === 'offline');
+    const allActive = layers.every((l) => l.status === "active");
+    const anyOffline = layers.some((l) => l.status === "offline");
 
     return {
-      status: anyOffline ? 'critical' : (allActive ? 'healthy' : 'degraded'),
+      status: anyOffline ? "critical" : allActive ? "healthy" : "degraded",
       layers,
       edgeNodes: {
         total: this.edgeNodes.length,

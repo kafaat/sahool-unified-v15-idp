@@ -49,20 +49,20 @@ const tenantId = "tenant_123";
 // Modern approach (RECOMMENDED)
 const ws = new WebSocket(`ws://localhost:8081/ws?tenant_id=${tenantId}`, {
   headers: {
-    'Authorization': `Bearer ${token}`
-  }
+    Authorization: `Bearer ${token}`,
+  },
 });
 
 // DEPRECATED: Query parameter approach (less secure)
 // const ws = new WebSocket(`ws://localhost:8081/ws?tenant_id=${tenantId}&token=${token}`);
 
 ws.onopen = () => {
-  console.log('Connected to WebSocket');
+  console.log("Connected to WebSocket");
 };
 
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  console.log('Received:', data);
+  console.log("Received:", data);
 };
 ```
 
@@ -97,16 +97,16 @@ When a client connects, they are automatically joined to:
 
 ### Available Room Types
 
-| Room Type | Format | Description |
-|-----------|--------|-------------|
-| Field | `field:{field_id}` | Updates for a specific field |
-| Farm | `farm:{farm_id}` | Updates for a farm |
-| User | `user:{user_id}` | Personal messages to a user |
-| Tenant | `tenant:{tenant_id}` | Tenant-wide broadcasts |
-| Alerts | `alerts` | Critical system alerts |
-| Weather | `weather` | Weather updates |
-| Chat | `chat:{room_id}` | Chat room messages |
-| Global | `global` | Global announcements |
+| Room Type | Format               | Description                  |
+| --------- | -------------------- | ---------------------------- |
+| Field     | `field:{field_id}`   | Updates for a specific field |
+| Farm      | `farm:{farm_id}`     | Updates for a farm           |
+| User      | `user:{user_id}`     | Personal messages to a user  |
+| Tenant    | `tenant:{tenant_id}` | Tenant-wide broadcasts       |
+| Alerts    | `alerts`             | Critical system alerts       |
+| Weather   | `weather`            | Weather updates              |
+| Chat      | `chat:{room_id}`     | Chat room messages           |
+| Global    | `global`             | Global announcements         |
 
 ## Message Types
 
@@ -122,6 +122,7 @@ When a client connects, they are automatically joined to:
 ```
 
 Response:
+
 ```json
 {
   "type": "subscribed",
@@ -181,6 +182,7 @@ Response:
 ```
 
 Response:
+
 ```json
 {
   "type": "pong",
@@ -233,89 +235,89 @@ Response:
 
 ### Field Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `field.updated` | Medium | Field data updated |
-| `field.created` | Medium | New field created |
-| `field.deleted` | Medium | Field deleted |
+| Event Type      | Priority | Description        |
+| --------------- | -------- | ------------------ |
+| `field.updated` | Medium   | Field data updated |
+| `field.created` | Medium   | New field created  |
+| `field.deleted` | Medium   | Field deleted      |
 
 ### Weather Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `weather.alert` | High | Important weather alert |
-| `weather.updated` | Low | Weather data updated |
+| Event Type        | Priority | Description             |
+| ----------------- | -------- | ----------------------- |
+| `weather.alert`   | High     | Important weather alert |
+| `weather.updated` | Low      | Weather data updated    |
 
 ### Satellite Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `satellite.ready` | Low | Satellite imagery ready |
-| `satellite.processing` | Low | Processing satellite imagery |
-| `satellite.failed` | Medium | Satellite processing failed |
+| Event Type             | Priority | Description                  |
+| ---------------------- | -------- | ---------------------------- |
+| `satellite.ready`      | Low      | Satellite imagery ready      |
+| `satellite.processing` | Low      | Processing satellite imagery |
+| `satellite.failed`     | Medium   | Satellite processing failed  |
 
 ### NDVI Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `ndvi.updated` | Low | NDVI data updated |
-| `ndvi.analysis.ready` | Low | NDVI analysis completed |
+| Event Type            | Priority | Description             |
+| --------------------- | -------- | ----------------------- |
+| `ndvi.updated`        | Low      | NDVI data updated       |
+| `ndvi.analysis.ready` | Low      | NDVI analysis completed |
 
 ### Inventory Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `inventory.low_stock` | Medium | Low stock alert |
-| `inventory.out_of_stock` | High | Out of stock |
-| `inventory.updated` | Low | Stock updated |
+| Event Type               | Priority | Description     |
+| ------------------------ | -------- | --------------- |
+| `inventory.low_stock`    | Medium   | Low stock alert |
+| `inventory.out_of_stock` | High     | Out of stock    |
+| `inventory.updated`      | Low      | Stock updated   |
 
 ### Crop Health Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `crop.disease.detected` | High | Disease detected |
-| `crop.pest.detected` | High | Pest detected |
-| `crop.health.alert` | High | Health issue detected |
+| Event Type              | Priority | Description           |
+| ----------------------- | -------- | --------------------- |
+| `crop.disease.detected` | High     | Disease detected      |
+| `crop.pest.detected`    | High     | Pest detected         |
+| `crop.health.alert`     | High     | Health issue detected |
 
 ### Spray Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `spray.window.optimal` | Medium | Optimal spray window |
-| `spray.window.warning` | Medium | Spray window warning |
-| `spray.scheduled` | Low | Spray operation scheduled |
+| Event Type             | Priority | Description               |
+| ---------------------- | -------- | ------------------------- |
+| `spray.window.optimal` | Medium   | Optimal spray window      |
+| `spray.window.warning` | Medium   | Spray window warning      |
+| `spray.scheduled`      | Low      | Spray operation scheduled |
 
 ### Chat Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `chat.message` | Low | New message |
-| `chat.typing` | Low | User typing |
-| `chat.read` | Low | Message read |
+| Event Type     | Priority | Description  |
+| -------------- | -------- | ------------ |
+| `chat.message` | Low      | New message  |
+| `chat.typing`  | Low      | User typing  |
+| `chat.read`    | Low      | Message read |
 
 ### Task Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `task.created` | Low | Task created |
-| `task.updated` | Low | Task updated |
-| `task.completed` | Low | Task completed |
-| `task.overdue` | Medium | Task overdue |
+| Event Type       | Priority | Description    |
+| ---------------- | -------- | -------------- |
+| `task.created`   | Low      | Task created   |
+| `task.updated`   | Low      | Task updated   |
+| `task.completed` | Low      | Task completed |
+| `task.overdue`   | Medium   | Task overdue   |
 
 ### IoT Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `iot.reading` | Low | Sensor reading |
-| `iot.alert` | High | Sensor alert |
-| `iot.offline` | Medium | Sensor offline |
+| Event Type    | Priority | Description    |
+| ------------- | -------- | -------------- |
+| `iot.reading` | Low      | Sensor reading |
+| `iot.alert`   | High     | Sensor alert   |
+| `iot.offline` | Medium   | Sensor offline |
 
 ### System Events
 
-| Event Type | Priority | Description |
-|------------|----------|-------------|
-| `system.notification` | Medium | System notification |
-| `sync_required` | Low | Sync required |
+| Event Type            | Priority | Description         |
+| --------------------- | -------- | ------------------- |
+| `system.notification` | Medium   | System notification |
+| `sync_required`       | Low      | Sync required       |
 
 ## REST API Endpoints
 
@@ -326,6 +328,7 @@ GET /healthz
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -342,6 +345,7 @@ GET /readyz
 ```
 
 Response:
+
 ```json
 {
   "status": "ok",
@@ -361,6 +365,7 @@ GET /stats
 ```
 
 Response:
+
 ```json
 {
   "connections": {
@@ -387,6 +392,7 @@ POST /broadcast
 ```
 
 Request Body:
+
 ```json
 {
   "tenant_id": "tenant_123",
@@ -398,6 +404,7 @@ Request Body:
 ```
 
 Or target specific rooms/users:
+
 ```json
 {
   "room": "field:123",
@@ -420,6 +427,7 @@ Or target specific rooms/users:
 ```
 
 Response:
+
 ```json
 {
   "status": "sent",
@@ -468,10 +476,10 @@ await nc.publish(
 
 ## Error Codes
 
-| Code | Reason | Description |
-|------|--------|-------------|
-| 4001 | Authentication Required | Missing or invalid token |
-| 4003 | Tenant Mismatch | Token tenant doesn't match requested tenant |
+| Code | Reason                  | Description                                 |
+| ---- | ----------------------- | ------------------------------------------- |
+| 4001 | Authentication Required | Missing or invalid token                    |
+| 4003 | Tenant Mismatch         | Token tenant doesn't match requested tenant |
 
 ## Environment Variables
 

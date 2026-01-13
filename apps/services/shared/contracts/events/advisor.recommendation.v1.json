@@ -5,7 +5,13 @@
   "description": "Event emitted when AI advisor generates a recommendation",
   "type": "object",
   "additionalProperties": false,
-  "required": ["recommendation_id", "tenant_id", "recommendation_type", "summary", "created_at"],
+  "required": [
+    "recommendation_id",
+    "tenant_id",
+    "recommendation_type",
+    "summary",
+    "created_at"
+  ],
   "properties": {
     "recommendation_id": {
       "type": "string",
@@ -24,7 +30,16 @@
     },
     "recommendation_type": {
       "type": "string",
-      "enum": ["irrigation", "fertilization", "pest_control", "planting", "harvesting", "soil_management", "weather_alert", "general"],
+      "enum": [
+        "irrigation",
+        "fertilization",
+        "pest_control",
+        "planting",
+        "harvesting",
+        "soil_management",
+        "weather_alert",
+        "general"
+      ],
       "description": "Type of recommendation"
     },
     "summary": {

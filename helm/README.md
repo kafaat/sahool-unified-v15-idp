@@ -38,11 +38,11 @@ description: SAHOOL Agricultural Platform - Complete Field Operations Management
 
 ### Dependencies
 
-| Chart | Version | Repository |
-|-------|---------|------------|
-| postgresql | 13.x.x | bitnami |
-| nats | 1.x.x | nats-io |
-| redis | 18.x.x | bitnami |
+| Chart      | Version | Repository |
+| ---------- | ------- | ---------- |
+| postgresql | 13.x.x  | bitnami    |
+| nats       | 1.x.x   | nats-io    |
+| redis      | 18.x.x  | bitnami    |
 
 ---
 
@@ -199,9 +199,9 @@ spec:
     canary:
       steps:
         - setWeight: 20
-        - pause: {duration: 30s}
+        - pause: { duration: 30s }
         - setWeight: 50
-        - pause: {duration: 30s}
+        - pause: { duration: 30s }
 ```
 
 ---

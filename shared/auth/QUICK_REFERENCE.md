@@ -1,20 +1,24 @@
 # Password Hasher - Quick Reference
+
 # مرجع سريع - معالج كلمات المرور
 
 ## Python API
 
 ### Import
+
 ```python
 from shared.auth.password_hasher import hash_password, verify_password, needs_rehash
 ```
 
 ### Hash Password
+
 ```python
 hashed = hash_password("MyPassword123!")
 # Returns: "$argon2id$v=19$m=65536,t=2,p=4$..."
 ```
 
 ### Verify Password
+
 ```python
 is_valid, needs_migration = verify_password("MyPassword123!", hashed)
 # is_valid: True if password matches
@@ -22,12 +26,14 @@ is_valid, needs_migration = verify_password("MyPassword123!", hashed)
 ```
 
 ### Check if Rehash Needed
+
 ```python
 should_rehash = needs_rehash(hashed)
 # Returns: True if password should be rehashed
 ```
 
 ### Full Login Example
+
 ```python
 from shared.auth.password_migration_helper import PasswordMigrationHelper
 
@@ -52,29 +58,38 @@ else:
 ## TypeScript API
 
 ### Import
+
 ```typescript
-import { hashPassword, verifyPassword, needsRehash } from '@/shared/auth/password-hasher';
+import {
+  hashPassword,
+  verifyPassword,
+  needsRehash,
+} from "@/shared/auth/password-hasher";
 ```
 
 ### Hash Password
+
 ```typescript
-const hashed = await hashPassword('MyPassword123!');
+const hashed = await hashPassword("MyPassword123!");
 // Returns: "$argon2id$v=19$m=65536,t=2,p=4$..."
 ```
 
 ### Verify Password
+
 ```typescript
-const result = await verifyPassword('MyPassword123!', hashed);
+const result = await verifyPassword("MyPassword123!", hashed);
 // result = { isValid: true, needsRehash: false }
 ```
 
 ### Check if Rehash Needed
+
 ```typescript
 const shouldRehash = await needsRehash(hashed);
 // Returns: true if password should be rehashed
 ```
 
 ### Full Login Example
+
 ```typescript
 async function login(email: string, password: string) {
   const user = await getUserByEmail(email);
@@ -98,11 +113,13 @@ async function login(email: string, password: string) {
 ## SQL Queries
 
 ### Check Migration Progress
+
 ```sql
 SELECT * FROM password_migration_stats;
 ```
 
 ### Get Users Needing Migration
+
 ```sql
 SELECT id, email, password_algorithm
 FROM users
@@ -111,6 +128,7 @@ LIMIT 10;
 ```
 
 ### Count by Algorithm
+
 ```sql
 SELECT
     password_algorithm,
@@ -125,6 +143,7 @@ GROUP BY password_algorithm;
 ## Command Line
 
 ### Install Dependencies
+
 ```bash
 # Python
 pip install argon2-cffi bcrypt
@@ -134,6 +153,7 @@ npm install argon2 bcrypt
 ```
 
 ### Run Migration
+
 ```bash
 # SQL migration
 psql -U postgres -d sahool -f database/migrations/011_migrate_passwords_to_argon2.sql
@@ -146,6 +166,7 @@ python database/migrations/011_migrate_passwords_to_argon2.py
 ```
 
 ### Run Tests
+
 ```bash
 # Python
 pytest tests/test_password_hasher.py -v
@@ -158,17 +179,18 @@ npm test tests/test_password_hasher.test.ts
 
 ## Hash Formats
 
-| Algorithm | Example Format |
-|-----------|---------------|
-| Argon2id | `$argon2id$v=19$m=65536,t=2,p=4$...` |
-| bcrypt | `$2b$12$...` |
-| PBKDF2 | `<64-char-salt>$<64-char-hash>` |
+| Algorithm | Example Format                       |
+| --------- | ------------------------------------ |
+| Argon2id  | `$argon2id$v=19$m=65536,t=2,p=4$...` |
+| bcrypt    | `$2b$12$...`                         |
+| PBKDF2    | `<64-char-salt>$<64-char-hash>`      |
 
 ---
 
 ## Configuration
 
 ### Default Parameters (OWASP 2024)
+
 - **Time cost**: 2 iterations
 - **Memory cost**: 64 MB (65536 KiB)
 - **Parallelism**: 4 threads
@@ -176,6 +198,7 @@ npm test tests/test_password_hasher.test.ts
 - **Salt length**: 128 bits (16 bytes)
 
 ### Custom Configuration
+
 ```python
 from shared.auth.password_hasher import PasswordHasher
 
@@ -189,14 +212,14 @@ hasher = PasswordHasher(
 ```
 
 ```typescript
-import { PasswordHasher } from '@/shared/auth/password-hasher';
+import { PasswordHasher } from "@/shared/auth/password-hasher";
 
 const hasher = new PasswordHasher({
   timeCost: 3,
   memoryCost: 131072,
   parallelism: 8,
   hashLength: 32,
-  saltLength: 16
+  saltLength: 16,
 });
 ```
 
@@ -205,6 +228,7 @@ const hasher = new PasswordHasher({
 ## Common Patterns
 
 ### Registration
+
 ```python
 # Python
 from shared.auth.password_hasher import hash_password
@@ -217,16 +241,17 @@ db.commit()
 
 ```typescript
 // TypeScript
-import { hashPassword } from '@/shared/auth/password-hasher';
+import { hashPassword } from "@/shared/auth/password-hasher";
 
 const passwordHash = await hashPassword(request.password);
 const user = await createUser({
   email: request.email,
-  passwordHash
+  passwordHash,
 });
 ```
 
 ### Password Change
+
 ```python
 # Python
 from shared.auth.password_hasher import verify_password, hash_password
@@ -244,7 +269,7 @@ db.commit()
 
 ```typescript
 // TypeScript
-import { verifyPassword, hashPassword } from '@/shared/auth/password-hasher';
+import { verifyPassword, hashPassword } from "@/shared/auth/password-hasher";
 
 // Verify current password
 const result = await verifyPassword(currentPassword, user.passwordHash);
@@ -262,22 +287,27 @@ await updateUser(user.id, { passwordHash: newHash });
 ## Troubleshooting
 
 ### Error: "argon2-cffi not available"
+
 ```bash
 pip install argon2-cffi
 ```
 
 ### Error: "Module not found: argon2"
+
 ```bash
 npm install argon2
 ```
 
 ### Migration not working
+
 1. Check SQL migration was applied: `SELECT * FROM password_migration_stats;`
 2. Verify code is using new hasher
 3. Check user is successfully authenticating
 
 ### Performance issues
+
 Reduce Argon2 parameters:
+
 ```python
 hasher = PasswordHasher(time_cost=1, memory_cost=32768, parallelism=2)
 ```
@@ -286,17 +316,17 @@ hasher = PasswordHasher(time_cost=1, memory_cost=32768, parallelism=2)
 
 ## Files Reference
 
-| File | Purpose |
-|------|---------|
-| `shared/auth/password_hasher.py` | Python implementation |
-| `shared/auth/password-hasher.ts` | TypeScript implementation |
-| `shared/auth/password_migration_helper.py` | Integration helper |
-| `shared/auth/password_hasher_example.py` | Complete examples |
-| `shared/auth/PASSWORD_MIGRATION_README.md` | Full documentation |
-| `database/migrations/011_migrate_passwords_to_argon2.sql` | SQL migration |
-| `database/migrations/011_migrate_passwords_to_argon2.py` | Python migration |
-| `tests/test_password_hasher.py` | Python tests |
-| `tests/test_password_hasher.test.ts` | TypeScript tests |
+| File                                                      | Purpose                   |
+| --------------------------------------------------------- | ------------------------- |
+| `shared/auth/password_hasher.py`                          | Python implementation     |
+| `shared/auth/password-hasher.ts`                          | TypeScript implementation |
+| `shared/auth/password_migration_helper.py`                | Integration helper        |
+| `shared/auth/password_hasher_example.py`                  | Complete examples         |
+| `shared/auth/PASSWORD_MIGRATION_README.md`                | Full documentation        |
+| `database/migrations/011_migrate_passwords_to_argon2.sql` | SQL migration             |
+| `database/migrations/011_migrate_passwords_to_argon2.py`  | Python migration          |
+| `tests/test_password_hasher.py`                           | Python tests              |
+| `tests/test_password_hasher.test.ts`                      | TypeScript tests          |
 
 ---
 

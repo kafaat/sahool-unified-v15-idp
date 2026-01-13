@@ -55,25 +55,25 @@ TOKEN_REVOCATION_ENABLED=true
  * وحدة التطبيق الرئيسية
  */
 
-import { Module } from '@nestjs/common';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { AuthModule } from '@sahool/nestjs-auth';
+import { Module } from "@nestjs/common";
+import { RedisModule } from "@liaoliaots/nestjs-redis";
+import { AuthModule } from "@sahool/nestjs-auth";
 
-import { AppController } from './app.controller';
-import { PrismaService } from './prisma/prisma.service';
-import { MarketService } from './market/market.service';
-import { FintechService } from './fintech/fintech.service';
-import { UserRepository } from './users/user.repository';
+import { AppController } from "./app.controller";
+import { PrismaService } from "./prisma/prisma.service";
+import { MarketService } from "./market/market.service";
+import { FintechService } from "./fintech/fintech.service";
+import { UserRepository } from "./users/user.repository";
 
 @Module({
   imports: [
     // Redis for caching and token revocation
     RedisModule.forRoot({
       config: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+        host: process.env.REDIS_HOST || "localhost",
+        port: parseInt(process.env.REDIS_PORT || "6379", 10),
         password: process.env.REDIS_PASSWORD,
-        db: parseInt(process.env.REDIS_DB || '0', 10),
+        db: parseInt(process.env.REDIS_DB || "0", 10),
       },
     }),
 
@@ -85,12 +85,7 @@ import { UserRepository } from './users/user.repository';
     }),
   ],
   controllers: [AppController],
-  providers: [
-    PrismaService,
-    MarketService,
-    FintechService,
-    UserRepository,
-  ],
+  providers: [PrismaService, MarketService, FintechService, UserRepository],
 })
 export class AppModule {}
 ```
@@ -103,9 +98,9 @@ export class AppModule {}
  * مستودع المستخدمين للمصادقة
  */
 
-import { Injectable } from '@nestjs/common';
-import { IUserRepository, UserValidationData } from '@sahool/nestjs-auth';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { IUserRepository, UserValidationData } from "@sahool/nestjs-auth";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -114,7 +109,9 @@ export class UserRepository implements IUserRepository {
   /**
    * Get user validation data from database
    */
-  async getUserValidationData(userId: string): Promise<UserValidationData | null> {
+  async getUserValidationData(
+    userId: string,
+  ): Promise<UserValidationData | null> {
     try {
       // Adjust based on your actual Prisma schema
       const user = await this.prisma.user.findUnique({
@@ -147,7 +144,7 @@ export class UserRepository implements IUserRepository {
         isSuspended: user.isSuspended ?? false,
       };
     } catch (error) {
-      console.error('Error fetching user validation data:', error);
+      console.error("Error fetching user validation data:", error);
       return null;
     }
   }
@@ -162,7 +159,7 @@ export class UserRepository implements IUserRepository {
         data: { lastLoginAt: new Date() },
       });
     } catch (error) {
-      console.error('Error updating last login:', error);
+      console.error("Error updating last login:", error);
     }
   }
 }
@@ -176,7 +173,14 @@ export class UserRepository implements IUserRepository {
  * المتحكم الرئيسي
  */
 
-import { Controller, Get, Post, Body, UseGuards, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  HttpCode,
+} from "@nestjs/common";
 import {
   JwtAuthGuard,
   RolesGuard,
@@ -186,10 +190,10 @@ import {
   CurrentUser,
   UserId,
   UserRoles,
-} from '@sahool/nestjs-auth';
+} from "@sahool/nestjs-auth";
 
-import { MarketService } from './market/market.service';
-import { FintechService } from './fintech/fintech.service';
+import { MarketService } from "./market/market.service";
+import { FintechService } from "./fintech/fintech.service";
 
 @Controller()
 export class AppController {
@@ -202,11 +206,11 @@ export class AppController {
    * Public health check endpoint
    */
   @Public()
-  @Get('health')
+  @Get("health")
   health() {
     return {
-      status: 'ok',
-      service: 'marketplace-service',
+      status: "ok",
+      service: "marketplace-service",
       timestamp: new Date().toISOString(),
     };
   }
@@ -216,7 +220,7 @@ export class AppController {
    * Returns more data if authenticated
    */
   @UseGuards(OptionalAuthGuard)
-  @Get('marketplace')
+  @Get("marketplace")
   async getMarketplace(@CurrentUser() user?: any) {
     if (user) {
       return this.marketService.getPersonalizedListings(user.id);
@@ -228,7 +232,7 @@ export class AppController {
    * Get user's marketplace activity (protected)
    */
   @UseGuards(JwtAuthGuard)
-  @Get('marketplace/my-activity')
+  @Get("marketplace/my-activity")
   async getMyActivity(@UserId() userId: string) {
     return this.marketService.getUserActivity(userId);
   }
@@ -237,8 +241,8 @@ export class AppController {
    * Create marketplace listing (protected, farmers only)
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('farmer', 'agricultural_business')
-  @Post('marketplace/listings')
+  @Roles("farmer", "agricultural_business")
+  @Post("marketplace/listings")
   @HttpCode(201)
   async createListing(
     @Body() listingData: any,
@@ -256,7 +260,7 @@ export class AppController {
    * Get credit score (protected)
    */
   @UseGuards(JwtAuthGuard)
-  @Get('fintech/credit-score')
+  @Get("fintech/credit-score")
   async getCreditScore(@UserId() userId: string) {
     return this.fintechService.getCreditScore(userId);
   }
@@ -265,11 +269,11 @@ export class AppController {
    * Admin: Get all credit scores (protected, admins only)
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin', 'financial_manager')
-  @Get('fintech/admin/credit-scores')
+  @Roles("admin", "financial_manager")
+  @Get("fintech/admin/credit-scores")
   async getAllCreditScores(@CurrentUser() user: any) {
     return {
-      message: 'Admin access granted',
+      message: "Admin access granted",
       user: {
         id: user.id,
         roles: user.roles,
@@ -282,11 +286,8 @@ export class AppController {
    * Process payment (protected)
    */
   @UseGuards(JwtAuthGuard)
-  @Post('fintech/payments')
-  async processPayment(
-    @Body() paymentData: any,
-    @UserId() userId: string,
-  ) {
+  @Post("fintech/payments")
+  async processPayment(@Body() paymentData: any, @UserId() userId: string) {
     return this.fintechService.processPayment({
       ...paymentData,
       userId,
@@ -303,16 +304,16 @@ export class AppController {
  * خدمة السوق
  */
 
-import { Injectable, ForbiddenException } from '@nestjs/common';
-import { hasRole } from '@sahool/nestjs-auth';
+import { Injectable, ForbiddenException } from "@nestjs/common";
+import { hasRole } from "@sahool/nestjs-auth";
 
 @Injectable()
 export class MarketService {
   async getPublicListings() {
     return {
       listings: [
-        { id: '1', title: 'Fresh Tomatoes', price: 100 },
-        { id: '2', title: 'Organic Wheat', price: 200 },
+        { id: "1", title: "Fresh Tomatoes", price: 100 },
+        { id: "2", title: "Organic Wheat", price: 200 },
       ],
       count: 2,
       isAuthenticated: false,
@@ -322,9 +323,9 @@ export class MarketService {
   async getPersonalizedListings(userId: string) {
     return {
       listings: [
-        { id: '1', title: 'Fresh Tomatoes', price: 100, recommended: true },
-        { id: '2', title: 'Organic Wheat', price: 200 },
-        { id: '3', title: 'Farm Equipment', price: 5000, featured: true },
+        { id: "1", title: "Fresh Tomatoes", price: 100, recommended: true },
+        { id: "2", title: "Organic Wheat", price: 200 },
+        { id: "3", title: "Farm Equipment", price: 5000, featured: true },
       ],
       count: 3,
       isAuthenticated: true,
@@ -343,7 +344,7 @@ export class MarketService {
 
   async createListing(data: any) {
     return {
-      id: 'listing-123',
+      id: "listing-123",
       ...data,
       createdAt: new Date().toISOString(),
     };
@@ -353,10 +354,8 @@ export class MarketService {
     // Business logic: Only admins or listing owners can delete
     const listing = await this.findOne(listingId);
 
-    if (!hasRole(user, 'admin') && listing.sellerId !== user.id) {
-      throw new ForbiddenException(
-        'You can only delete your own listings'
-      );
+    if (!hasRole(user, "admin") && listing.sellerId !== user.id) {
+      throw new ForbiddenException("You can only delete your own listings");
     }
 
     // Delete logic here
@@ -367,8 +366,8 @@ export class MarketService {
     // Mock implementation
     return {
       id: listingId,
-      sellerId: 'user-123',
-      title: 'Test Listing',
+      sellerId: "user-123",
+      title: "Test Listing",
     };
   }
 }
@@ -382,7 +381,7 @@ export class MarketService {
  * خدمة التكنولوجيا المالية
  */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class FintechService {
@@ -390,7 +389,7 @@ export class FintechService {
     return {
       userId,
       score: 750,
-      rating: 'Good',
+      rating: "Good",
       lastUpdated: new Date().toISOString(),
     };
   }
@@ -398,9 +397,9 @@ export class FintechService {
   async getAllCreditScores() {
     return {
       scores: [
-        { userId: 'user-1', score: 750, rating: 'Good' },
-        { userId: 'user-2', score: 650, rating: 'Fair' },
-        { userId: 'user-3', score: 850, rating: 'Excellent' },
+        { userId: "user-1", score: 750, rating: "Good" },
+        { userId: "user-2", score: 650, rating: "Fair" },
+        { userId: "user-3", score: 850, rating: "Excellent" },
       ],
       count: 3,
     };
@@ -408,8 +407,8 @@ export class FintechService {
 
   async processPayment(paymentData: any) {
     return {
-      transactionId: 'txn-123',
-      status: 'success',
+      transactionId: "txn-123",
+      status: "success",
       ...paymentData,
       processedAt: new Date().toISOString(),
     };
@@ -502,13 +501,16 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 ## What Changed from Original Implementation
 
 ### Removed Files
+
 - ❌ `src/auth/jwt-auth.guard.ts` (replaced by shared module)
 
 ### Updated Files
+
 - ✅ `src/app.module.ts` - Now imports AuthModule
 - ✅ `src/app.controller.ts` - Uses decorators from shared module
 
 ### New Files
+
 - ➕ `src/users/user.repository.ts` - User validation repository
 
 ### Benefits of Migration

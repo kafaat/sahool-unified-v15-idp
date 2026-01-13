@@ -1,11 +1,13 @@
 # SAHOOL Platform Test Coverage Summary
 
 ## Overview
+
 Comprehensive test suites created for core services to achieve 60%+ coverage targeting.
 
 ## Created Test Files
 
 ### Notification Service
+
 1. **test_notification_api.py** (19 KB, 27 tests)
    - Location: `/apps/services/notification-service/tests/test_notification_api.py`
 
@@ -13,6 +15,7 @@ Comprehensive test suites created for core services to achieve 60%+ coverage tar
    - Location: `/apps/services/notification-service/tests/test_notification_service.py`
 
 ### Alert Service
+
 3. **test_alert_api.py** (23 KB, 36 tests)
    - Location: `/apps/services/alert-service/tests/test_alert_api.py`
 
@@ -20,6 +23,7 @@ Comprehensive test suites created for core services to achieve 60%+ coverage tar
    - Location: `/apps/services/alert-service/tests/test_alert_service.py`
 
 ## Total Coverage
+
 - **Total Test Files Created:** 4
 - **Total Test Cases:** 142
 - **Total Test Code Size:** ~95 KB
@@ -31,6 +35,7 @@ Comprehensive test suites created for core services to achieve 60%+ coverage tar
 ### test_notification_api.py (27 tests)
 
 #### Test Classes and Coverage:
+
 1. **TestHealthEndpoints** (2 tests)
    - Health check endpoint
    - Health check with database stats
@@ -79,6 +84,7 @@ Comprehensive test suites created for core services to achieve 60%+ coverage tar
 ### test_notification_service.py (31 tests)
 
 #### Test Classes and Coverage:
+
 1. **TestNotificationRepository** (10 tests)
    - Create notification
    - Get by ID
@@ -131,6 +137,7 @@ Comprehensive test suites created for core services to achieve 60%+ coverage tar
 ### test_alert_api.py (36 tests)
 
 #### Test Classes and Coverage:
+
 1. **TestHealthEndpoints** (3 tests)
    - Health check
    - Healthz check
@@ -190,6 +197,7 @@ Comprehensive test suites created for core services to achieve 60%+ coverage tar
 ### test_alert_service.py (48 tests)
 
 #### Test Classes and Coverage:
+
 1. **TestAlertRepository** (13 tests)
    - Create alert
    - Get by ID
@@ -258,6 +266,7 @@ Comprehensive test suites created for core services to achieve 60%+ coverage tar
 ## Test Features and Best Practices
 
 ### Testing Frameworks Used
+
 - **pytest** - Primary testing framework
 - **pytest-asyncio** - For async function testing
 - **unittest.mock** - For mocking dependencies
@@ -307,6 +316,7 @@ Comprehensive test suites created for core services to achieve 60%+ coverage tar
 ## Running the Tests
 
 ### Run All Tests
+
 ```bash
 # From notification-service directory
 cd apps/services/notification-service
@@ -318,6 +328,7 @@ pytest tests/ -v
 ```
 
 ### Run Specific Test Files
+
 ```bash
 # Notification API tests
 pytest apps/services/notification-service/tests/test_notification_api.py -v
@@ -333,6 +344,7 @@ pytest apps/services/alert-service/tests/test_alert_service.py -v
 ```
 
 ### Run with Coverage Report
+
 ```bash
 # Install coverage
 pip install pytest-cov
@@ -344,6 +356,7 @@ pytest apps/services/alert-service/tests/ --cov=apps/services/alert-service/src 
 ```
 
 ### Run Specific Test Classes
+
 ```bash
 # Run only API tests
 pytest apps/services/notification-service/tests/test_notification_api.py::TestNotificationCreation -v
@@ -359,12 +372,14 @@ pytest apps/services/alert-service/tests/test_alert_service.py::TestAlertReposit
 ### Expected Coverage per Service
 
 **Notification Service:**
+
 - API Endpoints: 70-80%
 - Repository Layer: 75-85%
 - Service Logic: 65-75%
 - **Overall Target: 60%+**
 
 **Alert Service:**
+
 - API Endpoints: 70-80%
 - Repository Layer: 80-90%
 - Service Logic: 65-75%
@@ -401,6 +416,7 @@ pytest apps/services/alert-service/tests/test_alert_service.py::TestAlertReposit
 ## Test Maintenance
 
 ### Adding New Tests
+
 1. Follow existing test patterns
 2. Use appropriate fixtures
 3. Mock external dependencies
@@ -408,13 +424,16 @@ pytest apps/services/alert-service/tests/test_alert_service.py::TestAlertReposit
 5. Include docstrings
 
 ### Mock Data Guidelines
+
 - Use realistic data
 - Include Arabic text where applicable
 - Test multi-tenancy scenarios
 - Include edge cases
 
 ### Continuous Integration
+
 Tests are designed to run in CI/CD pipelines:
+
 - No external dependencies required
 - Fast execution (mocked I/O)
 - Deterministic results
@@ -425,6 +444,7 @@ Tests are designed to run in CI/CD pipelines:
 ## Dependencies Required
 
 Add to `requirements-test.txt`:
+
 ```
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
@@ -438,12 +458,14 @@ httpx>=0.24.0  # For TestClient
 ## Next Steps
 
 1. **Run Tests Locally**
+
    ```bash
    pytest apps/services/notification-service/tests/ -v
    pytest apps/services/alert-service/tests/ -v
    ```
 
 2. **Generate Coverage Reports**
+
    ```bash
    pytest --cov=apps/services --cov-report=html
    ```
@@ -477,6 +499,7 @@ Successfully created comprehensive test suites for SAHOOL platform core services
 - **Targeting 60%+ code coverage**
 
 The test suites cover:
+
 - API endpoints and request/response validation
 - Business logic and service operations
 - Repository/database operations

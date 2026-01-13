@@ -3,14 +3,17 @@
   "$id": "https://sahool.io/events/CropHealthAssessed.v1.json",
   "title": "Crop Health Assessed Event",
   "description": "Emitted when crop health assessment is completed - يُنشر عند اكتمال تقييم صحة المحصول",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Crop.HealthAssessed" },
     "payload": {
       "type": "object",
-      "required": ["field_id", "assessment_date", "overall_health", "crop_type"],
+      "required": [
+        "field_id",
+        "assessment_date",
+        "overall_health",
+        "crop_type"
+      ],
       "properties": {
         "field_id": {
           "type": "string",
@@ -43,7 +46,13 @@
             },
             "nutrient_deficiency": {
               "type": "string",
-              "enum": ["none", "nitrogen", "phosphorus", "potassium", "multiple"]
+              "enum": [
+                "none",
+                "nitrogen",
+                "phosphorus",
+                "potassium",
+                "multiple"
+              ]
             },
             "pest_risk": {
               "type": "string",
@@ -70,7 +79,10 @@
             "type": "object",
             "properties": {
               "action": { "type": "string" },
-              "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+              "priority": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "urgent"]
+              },
               "deadline_days": { "type": "integer" }
             }
           }
@@ -81,6 +93,11 @@
   "x-sahool": {
     "layer": "intelligence",
     "producer": "crop-health-ai",
-    "consumers": ["notification-service", "fertilizer-advisor", "community-chat", "research-core"]
+    "consumers": [
+      "notification-service",
+      "fertilizer-advisor",
+      "community-chat",
+      "research-core"
+    ]
   }
 }

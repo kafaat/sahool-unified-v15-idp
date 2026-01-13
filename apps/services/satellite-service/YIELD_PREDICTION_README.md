@@ -7,6 +7,7 @@ A comprehensive machine learning-based crop yield prediction system integrated i
 ## Files Created/Modified
 
 ### New Files
+
 1. **`src/yield_predictor.py`** (834 lines)
    - Core ML prediction engine
    - Ensemble model implementation
@@ -21,6 +22,7 @@ A comprehensive machine learning-based crop yield prediction system integrated i
    - API endpoint documentation and code reference
 
 ### Modified Files
+
 1. **`src/main.py`**
    - Added yield predictor imports (lines 85-86)
    - Added global `_yield_predictor` variable (line 46)
@@ -36,6 +38,7 @@ A comprehensive machine learning-based crop yield prediction system integrated i
 ## Model Architecture
 
 ### Ensemble Approach
+
 The yield predictor uses a weighted ensemble of 4 models:
 
 1. **NDVI-based Regression (40% weight)**
@@ -63,19 +66,25 @@ The yield predictor uses a weighted ensemble of 4 models:
 The model includes Yemen-specific calibration for **50+ crops** including:
 
 #### Cereals
+
 - Wheat, Barley, Corn, Sorghum, Millet, Rice
 
 #### Vegetables
+
 - Tomato, Potato, Onion, Cucumber, Eggplant, Pepper, etc.
 
 #### Fruits
+
 - Date Palm, Mango, Banana, Grape, Pomegranate, etc.
 
 #### Cash Crops
+
 - Coffee (Yemeni varieties), Qat, Sesame, Cotton
 
 #### Regional Averages
+
 Based on FAO statistics and local research:
+
 - Wheat: 1.8 ton/ha
 - Tomato: 25.0 ton/ha
 - Coffee: 0.6 ton/ha
@@ -88,15 +97,16 @@ Based on FAO statistics and local research:
 Predict crop yield for a specific field.
 
 **Request Body:**
+
 ```json
 {
   "field_id": "field-123",
   "crop_code": "WHEAT",
   "latitude": 15.3694,
-  "longitude": 44.1910,
+  "longitude": 44.191,
   "planting_date": "2025-09-15",
   "field_area_ha": 2.5,
-  "ndvi_series": [0.25, 0.35, 0.50, 0.65, 0.72],
+  "ndvi_series": [0.25, 0.35, 0.5, 0.65, 0.72],
   "precipitation_mm": 250,
   "avg_temp_min": 15,
   "avg_temp_max": 28,
@@ -105,6 +115,7 @@ Predict crop yield for a specific field.
 ```
 
 **Response:**
+
 ```json
 {
   "field_id": "field-123",
@@ -118,10 +129,10 @@ Predict crop yield for a specific field.
   "confidence": 0.847,
   "factors": {
     "vegetation_health": 0.938,
-    "biomass_accumulation": 0.750,
+    "biomass_accumulation": 0.75,
     "thermal_time": 0.892,
     "water_availability": 0.825,
-    "soil_moisture": 0.750
+    "soil_moisture": 0.75
   },
   "comparison_to_average": 19.4,
   "comparison_to_base": -14.0,
@@ -149,10 +160,12 @@ Predict crop yield for a specific field.
 Get historical yield predictions for a field.
 
 **Parameters:**
+
 - `seasons` (default: 5): Number of past seasons
 - `crop_code` (optional): Filter by specific crop
 
 **Response:**
+
 ```json
 {
   "field_id": "field-123",
@@ -184,11 +197,13 @@ Get historical yield predictions for a field.
 Get regional yield statistics for Yemen governorates.
 
 **Parameters:**
+
 - `crop` (optional): Filter by crop code
 
 **Example:** `GET /v1/regional-yields/ibb?crop=TOMATO`
 
 **Response:**
+
 ```json
 {
   "governorate": "ibb",
@@ -220,7 +235,9 @@ Get regional yield statistics for Yemen governorates.
 ## Model Coefficients
 
 ### NDVI-Yield Sensitivity
+
 Each crop has calibrated coefficients:
+
 ```python
 "WHEAT": {
     "k": 2.5,                    # Sensitivity coefficient
@@ -230,7 +247,9 @@ Each crop has calibrated coefficients:
 ```
 
 ### Growing Degree Days (GDD)
+
 Crop-specific thermal requirements:
+
 ```python
 "WHEAT": {
     "optimal": 2000,  # Optimal GDD for max yield
@@ -240,7 +259,9 @@ Crop-specific thermal requirements:
 ```
 
 ### Water Stress (Ky Coefficients)
+
 FAO-56 yield reduction factors:
+
 ```python
 WATER_STRESS_KY = {
     "WHEAT": 1.05,    # Moderately sensitive
@@ -252,6 +273,7 @@ WATER_STRESS_KY = {
 ## Integration with SAHOOL Services
 
 ### Data Sources
+
 1. **Sentinel-2** (Optical)
    - NDVI time series
    - Every 5 days
@@ -275,6 +297,7 @@ WATER_STRESS_KY = {
 ### Automatic Data Integration
 
 The yield predictor automatically:
+
 1. Fetches NDVI timeseries if not provided
 2. Estimates weather from location (highland vs coastal)
 3. Queries SAR processor for soil moisture
@@ -284,6 +307,7 @@ The yield predictor automatically:
 ## Usage Examples
 
 ### Basic Prediction (Minimal Input)
+
 ```bash
 curl -X POST http://localhost:8090/v1/yield-prediction \
   -H "Content-Type: application/json" \
@@ -296,6 +320,7 @@ curl -X POST http://localhost:8090/v1/yield-prediction \
 ```
 
 ### Advanced Prediction (Full Data)
+
 ```bash
 curl -X POST http://localhost:8090/v1/yield-prediction \
   -H "Content-Type: application/json" \
@@ -315,11 +340,13 @@ curl -X POST http://localhost:8090/v1/yield-prediction \
 ```
 
 ### Get History
+
 ```bash
 curl http://localhost:8090/v1/yield-history/field-001?seasons=10&crop_code=WHEAT
 ```
 
 ### Regional Statistics
+
 ```bash
 curl http://localhost:8090/v1/regional-yields/ibb
 ```
@@ -327,12 +354,14 @@ curl http://localhost:8090/v1/regional-yields/ibb
 ## Testing
 
 Run the included test script:
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service
 python3 test_yield_prediction.py
 ```
 
 Expected output includes:
+
 - Predicted yield: ~1.5-2.5 ton/ha for wheat
 - Confidence: 60-90%
 - Factor breakdown visualization
@@ -366,17 +395,20 @@ The model generates context-aware recommendations in both Arabic and English bas
 ## Technical Details
 
 ### Dependencies
+
 - Python 3.8+
 - FastAPI 0.115.6
 - Pydantic 2.10.3
 - NumPy 1.26.4
 
 ### Performance
+
 - Prediction time: < 100ms
 - Concurrent requests: 100+
 - Memory usage: ~50MB per instance
 
 ### Accuracy
+
 - Model R²: 0.75-0.85 (estimated)
 - RMSE: 15-20% of mean yield
 - Confidence intervals: 70-95%
@@ -404,12 +436,14 @@ The model generates context-aware recommendations in both Arabic and English bas
 ## Credits
 
 **Based on:**
+
 - FAO Crop Yield Response to Water (FAO-56)
 - ICRISAT crop modeling research
 - Yemen Agricultural Statistics
 - Sentinel Hub satellite data
 
 **Integration:**
+
 - SAHOOL Unified Crop Catalog
 - Satellite Service Multi-Provider System
 - SAR Soil Moisture Processor

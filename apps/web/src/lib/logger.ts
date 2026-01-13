@@ -8,7 +8,7 @@
  * - Integrates with error tracking service
  */
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === "development";
 
 export const logger = {
   /**
@@ -110,12 +110,14 @@ export const logger = {
     } else {
       // In production, send to logging service
       // This prevents exposing sensitive information in console
-      console.error(JSON.stringify({
-        level: 'error',
-        service: 'sahool-web',
-        timestamp: new Date().toISOString(),
-        message: args,
-      }));
+      console.error(
+        JSON.stringify({
+          level: "error",
+          service: "sahool-web",
+          timestamp: new Date().toISOString(),
+          message: args,
+        }),
+      );
     }
   },
 };

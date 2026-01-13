@@ -94,9 +94,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -162,9 +160,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -230,9 +226,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -290,9 +284,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
+          "calcs": ["sum"],
           "fields": "",
           "values": false
         },
@@ -435,11 +427,7 @@
       "id": 10,
       "options": {
         "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
+          "calcs": ["lastNotNull", "max", "mean"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -540,24 +528,16 @@
       },
       "id": 11,
       "options": {
-        "displayLabels": [
-          "name",
-          "value",
-          "percent"
-        ],
+        "displayLabels": ["name", "value", "percent"],
         "legend": {
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value"
-          ]
+          "values": ["value"]
         },
         "pieType": "donut",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -658,11 +638,7 @@
       "id": 20,
       "options": {
         "legend": {
-          "calcs": [
-            "sum",
-            "mean",
-            "lastNotNull"
-          ],
+          "calcs": ["sum", "mean", "lastNotNull"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -751,10 +727,7 @@
       "id": 21,
       "options": {
         "legend": {
-          "calcs": [
-            "sum",
-            "lastNotNull"
-          ],
+          "calcs": ["sum", "lastNotNull"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -856,10 +829,7 @@
       "id": 30,
       "options": {
         "legend": {
-          "calcs": [
-            "sum",
-            "lastNotNull"
-          ],
+          "calcs": ["sum", "lastNotNull"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -914,23 +884,16 @@
       },
       "id": 31,
       "options": {
-        "displayLabels": [
-          "name",
-          "percent"
-        ],
+        "displayLabels": ["name", "percent"],
         "legend": {
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value"
-          ]
+          "values": ["value"]
         },
         "pieType": "donut",
         "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
+          "calcs": ["sum"],
           "fields": "",
           "values": false
         },
@@ -1010,9 +973,7 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         },
@@ -1078,9 +1039,7 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -1211,11 +1170,7 @@
       "id": 42,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "max"
-          ],
+          "calcs": ["mean", "lastNotNull", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1351,9 +1306,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -1403,12 +1356,7 @@
   "refresh": "10s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [
-    "sahool",
-    "alerts",
-    "monitoring",
-    "incidents"
-  ],
+  "tags": ["sahool", "alerts", "monitoring", "incidents"],
   "templating": {
     "list": [
       {
@@ -1452,12 +1400,8 @@
       {
         "current": {
           "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "text": ["All"],
+          "value": ["$__all"]
         },
         "datasource": {
           "type": "prometheus",
@@ -1483,12 +1427,8 @@
       {
         "current": {
           "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "text": ["All"],
+          "value": ["$__all"]
         },
         "datasource": {
           "type": "prometheus",
@@ -1518,16 +1458,7 @@
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h"
-    ]
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h"]
   },
   "timezone": "Asia/Riyadh",
   "title": "SAHOOL Alerts Overview Dashboard - لوحة نظرة عامة على التنبيهات لسهول",

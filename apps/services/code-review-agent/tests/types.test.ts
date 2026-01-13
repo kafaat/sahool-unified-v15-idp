@@ -10,7 +10,7 @@ import {
   type ReviewResult,
   type ReviewIssue,
   type IssueSeverity,
-  type IssueCategory
+  type IssueCategory,
 } from "../src/types.js";
 
 describe("Types", () => {
@@ -23,7 +23,12 @@ describe("Types", () => {
 
   describe("IssueCategory", () => {
     it("should accept valid categories", () => {
-      const categories: IssueCategory[] = ["bug", "security", "performance", "style"];
+      const categories: IssueCategory[] = [
+        "bug",
+        "security",
+        "performance",
+        "style",
+      ];
       expect(categories).toHaveLength(4);
     });
   });
@@ -34,7 +39,7 @@ describe("Types", () => {
         severity: "high",
         category: "security",
         file: "src/auth.ts",
-        description: "SQL injection vulnerability"
+        description: "SQL injection vulnerability",
       };
 
       expect(issue.severity).toBe("high");
@@ -50,7 +55,7 @@ describe("Types", () => {
         file: "src/utils.ts",
         line: 42,
         description: "Off-by-one error in loop",
-        suggestion: "Change <= to <"
+        suggestion: "Change <= to <",
       };
 
       expect(issue.line).toBe(42);
@@ -68,17 +73,17 @@ describe("Types", () => {
             file: "src/auth.ts",
             line: 10,
             description: "Hardcoded API key",
-            suggestion: "Use environment variables"
+            suggestion: "Use environment variables",
           },
           {
             severity: "low",
             category: "style",
             file: "src/utils.ts",
-            description: "Unused variable"
-          }
+            description: "Unused variable",
+          },
         ],
         summary: "Found 2 issues in the codebase",
-        overallScore: 75
+        overallScore: 75,
       };
 
       expect(result.issues).toHaveLength(2);
@@ -90,7 +95,7 @@ describe("Types", () => {
       const result: ReviewResult = {
         issues: [],
         summary: "No issues found",
-        overallScore: 100
+        overallScore: 100,
       };
 
       expect(result.issues).toHaveLength(0);
@@ -114,7 +119,8 @@ describe("Types", () => {
     });
 
     it("should have correct severity enum", () => {
-      const severitySchema = reviewSchema.properties.issues.items.properties.severity;
+      const severitySchema =
+        reviewSchema.properties.issues.items.properties.severity;
       expect(severitySchema.enum).toContain("low");
       expect(severitySchema.enum).toContain("medium");
       expect(severitySchema.enum).toContain("high");
@@ -122,7 +128,8 @@ describe("Types", () => {
     });
 
     it("should have correct category enum", () => {
-      const categorySchema = reviewSchema.properties.issues.items.properties.category;
+      const categorySchema =
+        reviewSchema.properties.issues.items.properties.category;
       expect(categorySchema.enum).toContain("bug");
       expect(categorySchema.enum).toContain("security");
       expect(categorySchema.enum).toContain("performance");

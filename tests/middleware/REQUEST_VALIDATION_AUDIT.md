@@ -1,4 +1,5 @@
 # Request Validation Middleware Audit Report
+
 # تقرير تدقيق برمجيات التحقق من صحة الطلبات
 
 **Generated**: 2026-01-06
@@ -13,17 +14,17 @@ This comprehensive audit evaluates request validation middleware across the SAHO
 
 ### Overall Security Posture | الوضع الأمني العام
 
-| Category | Status | Notes |
-|----------|--------|-------|
-| NestJS ValidationPipe | ✅ **EXCELLENT** | Global pipes with strict configuration |
-| FastAPI Pydantic Models | ✅ **EXCELLENT** | Comprehensive model validation |
-| Input Sanitization | ✅ **EXCELLENT** | Advanced AI guardrails system |
-| Query Parameter Validation | ✅ **GOOD** | Type-safe validation present |
-| Body Validation | ✅ **EXCELLENT** | DTO-based with decorators |
-| File Upload Validation | ⚠️ **NEEDS IMPROVEMENT** | No comprehensive file upload validation found |
-| SQL Injection Protection | ✅ **EXCELLENT** | Prisma ORM with parameterized queries |
-| XSS Protection | ✅ **GOOD** | Input sanitization present |
-| CSRF Protection | ✅ **GOOD** | Implemented in web applications |
+| Category                   | Status                   | Notes                                         |
+| -------------------------- | ------------------------ | --------------------------------------------- |
+| NestJS ValidationPipe      | ✅ **EXCELLENT**         | Global pipes with strict configuration        |
+| FastAPI Pydantic Models    | ✅ **EXCELLENT**         | Comprehensive model validation                |
+| Input Sanitization         | ✅ **EXCELLENT**         | Advanced AI guardrails system                 |
+| Query Parameter Validation | ✅ **GOOD**              | Type-safe validation present                  |
+| Body Validation            | ✅ **EXCELLENT**         | DTO-based with decorators                     |
+| File Upload Validation     | ⚠️ **NEEDS IMPROVEMENT** | No comprehensive file upload validation found |
+| SQL Injection Protection   | ✅ **EXCELLENT**         | Prisma ORM with parameterized queries         |
+| XSS Protection             | ✅ **GOOD**              | Input sanitization present                    |
+| CSRF Protection            | ✅ **GOOD**              | Implemented in web applications               |
 
 ---
 
@@ -34,6 +35,7 @@ This comprehensive audit evaluates request validation middleware across the SAHO
 All NestJS services implement **global ValidationPipe** with secure settings:
 
 #### Files Audited:
+
 - `/apps/services/user-service/src/main.ts`
 - `/apps/services/marketplace-service/src/main.ts`
 - `/apps/services/research-core/src/main.ts`
@@ -45,14 +47,15 @@ All NestJS services implement **global ValidationPipe** with secure settings:
 ```typescript
 app.useGlobalPipes(
   new ValidationPipe({
-    whitelist: true,           // ✅ Strip non-whitelisted properties
-    transform: true,            // ✅ Auto-transform to DTO types
-    forbidNonWhitelisted: true  // ✅ Throw error on unknown properties (STRONG)
-  })
+    whitelist: true, // ✅ Strip non-whitelisted properties
+    transform: true, // ✅ Auto-transform to DTO types
+    forbidNonWhitelisted: true, // ✅ Throw error on unknown properties (STRONG)
+  }),
 );
 ```
 
 **Note**: `marketplace-service` is missing `forbidNonWhitelisted` option:
+
 ```typescript
 // apps/services/marketplace-service/src/main.ts (Line 53-58)
 app.useGlobalPipes(
@@ -60,7 +63,7 @@ app.useGlobalPipes(
     whitelist: true,
     transform: true,
     // ⚠️ MISSING: forbidNonWhitelisted: true
-  })
+  }),
 );
 ```
 
@@ -73,29 +76,30 @@ export class CreateUserDto {
   @IsString()
   tenantId: string;
 
-  @IsEmail()                    // ✅ Email format validation
+  @IsEmail() // ✅ Email format validation
   email: string;
 
   @IsString()
-  @MinLength(8)                 // ✅ Password strength enforcement
+  @MinLength(8) // ✅ Password strength enforcement
   password: string;
 
   @IsString()
   @MinLength(2)
-  @MaxLength(50)                // ✅ Length constraints
+  @MaxLength(50) // ✅ Length constraints
   firstName: string;
 
   @IsOptional()
-  @IsEnum(UserRole)             // ✅ Enum validation
+  @IsEnum(UserRole) // ✅ Enum validation
   role?: UserRole;
 
   @IsOptional()
-  @IsBoolean()                  // ✅ Type validation
+  @IsBoolean() // ✅ Type validation
   emailVerified?: boolean;
 }
 ```
 
 **Validation Decorators Found**:
+
 - ✅ `@IsString()`, `@IsNumber()`, `@IsBoolean()`
 - ✅ `@IsEmail()`, `@IsPhoneNumber()`
 - ✅ `@IsEnum()`, `@IsArray()`
@@ -159,13 +163,13 @@ async getProducts(
 
 ### 🔍 Findings:
 
-| Finding | Severity | Count |
-|---------|----------|-------|
-| Global ValidationPipe configured | ✅ GOOD | 15+ services |
-| `forbidNonWhitelisted` missing | ⚠️ MEDIUM | 1 service |
-| Manual query param parsing | ⚠️ LOW | Multiple controllers |
-| DTO-based validation | ✅ GOOD | All controllers |
-| Type-safe decorators | ✅ GOOD | Extensive use |
+| Finding                          | Severity  | Count                |
+| -------------------------------- | --------- | -------------------- |
+| Global ValidationPipe configured | ✅ GOOD   | 15+ services         |
+| `forbidNonWhitelisted` missing   | ⚠️ MEDIUM | 1 service            |
+| Manual query param parsing       | ⚠️ LOW    | Multiple controllers |
+| DTO-based validation             | ✅ GOOD   | All controllers      |
+| Type-safe decorators             | ✅ GOOD   | Extensive use        |
 
 ### 📊 Recommendations:
 
@@ -188,6 +192,7 @@ async getProducts(
 All FastAPI services use **Pydantic BaseModel** for request/response validation.
 
 #### Files Audited:
+
 - `/apps/services/field-ops/src/main.py`
 - `/apps/services/crop-health/src/main.py`
 - `/apps/kernel/field_ops/services/boundary_validator.py`
@@ -318,15 +323,15 @@ AREA_LIMITS = {
 
 ### 🔍 Findings:
 
-| Finding | Severity | Files Checked |
-|---------|----------|---------------|
-| Pydantic models used consistently | ✅ EXCELLENT | 120+ files |
-| Field() constraints (ge, le, gt, lt) | ✅ EXCELLENT | Widespread |
-| Nested model validation | ✅ EXCELLENT | Multiple services |
-| Type hints (Python 3.10+) | ✅ EXCELLENT | All Python files |
-| Literal types for enums | ✅ GOOD | Multiple models |
-| default_factory for mutables | ✅ GOOD | Proper usage |
-| Custom validators | ✅ GOOD | Boundary validator |
+| Finding                              | Severity     | Files Checked      |
+| ------------------------------------ | ------------ | ------------------ |
+| Pydantic models used consistently    | ✅ EXCELLENT | 120+ files         |
+| Field() constraints (ge, le, gt, lt) | ✅ EXCELLENT | Widespread         |
+| Nested model validation              | ✅ EXCELLENT | Multiple services  |
+| Type hints (Python 3.10+)            | ✅ EXCELLENT | All Python files   |
+| Literal types for enums              | ✅ GOOD      | Multiple models    |
+| default_factory for mutables         | ✅ GOOD      | Proper usage       |
+| Custom validators                    | ✅ GOOD      | Boundary validator |
 
 ### 📊 Validation Coverage:
 
@@ -358,7 +363,7 @@ The platform implements a **comprehensive input sanitization system** for AI ser
 
 #### 🛡️ Prompt Injection Detection
 
-```python
+````python
 class PromptInjectionDetector:
     """
     Detects prompt injection attacks using pattern matching and heuristics.
@@ -420,7 +425,7 @@ class PromptInjectionDetector:
             detected_patterns.append("excessive_newlines")
 
         return len(detected_patterns) > 0, detected_patterns
-```
+````
 
 #### 🔒 PII Detection & Masking
 
@@ -564,14 +569,14 @@ def sanitize_input(text: str) -> str:
 
 ### 🔍 Findings:
 
-| Feature | Status | Coverage |
-|---------|--------|----------|
-| Prompt injection detection | ✅ EXCELLENT | Multi-language patterns |
-| PII detection & masking | ✅ EXCELLENT | 8+ PII types |
-| Toxicity filtering | ✅ GOOD | Keyword-based (4 categories) |
-| Input sanitization | ✅ GOOD | Null bytes, control chars |
-| Arabic support | ✅ EXCELLENT | Patterns include Arabic |
-| Encoding attack detection | ✅ GOOD | Special char ratio check |
+| Feature                    | Status       | Coverage                     |
+| -------------------------- | ------------ | ---------------------------- |
+| Prompt injection detection | ✅ EXCELLENT | Multi-language patterns      |
+| PII detection & masking    | ✅ EXCELLENT | 8+ PII types                 |
+| Toxicity filtering         | ✅ GOOD      | Keyword-based (4 categories) |
+| Input sanitization         | ✅ GOOD      | Null bytes, control chars    |
+| Arabic support             | ✅ EXCELLENT | Patterns include Arabic      |
+| Encoding attack detection  | ✅ GOOD      | Special char ratio check     |
 
 ### 📊 Recommendations:
 
@@ -601,13 +606,13 @@ def sanitize_input(text: str) -> str:
 
 ### 📊 Current State:
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| File type validation | ❌ NOT FOUND | No MIME type checks |
-| File size limits | ❌ NOT FOUND | No size constraints |
-| Malware scanning | ❌ NOT FOUND | No antivirus integration |
+| Aspect                 | Status       | Notes                        |
+| ---------------------- | ------------ | ---------------------------- |
+| File type validation   | ❌ NOT FOUND | No MIME type checks          |
+| File size limits       | ❌ NOT FOUND | No size constraints          |
+| Malware scanning       | ❌ NOT FOUND | No antivirus integration     |
 | File name sanitization | ❌ NOT FOUND | No path traversal protection |
-| Storage validation | ❌ NOT FOUND | No temporary file cleanup |
+| Storage validation     | ❌ NOT FOUND | No temporary file cleanup    |
 
 ### 🎯 Critical Recommendations:
 
@@ -773,12 +778,12 @@ async def list_fields(
 
 ### 🔍 Findings:
 
-| Pattern | NestJS | FastAPI |
-|---------|--------|---------|
-| Type extraction | ✅ @Query decorator | ✅ Query() function |
-| Type validation | ⚠️ Manual parsing | ✅ Automatic |
-| Range constraints | ❌ Missing | ✅ ge, le, gt, lt |
-| Default values | ⚠️ In logic | ✅ In Query() |
+| Pattern              | NestJS              | FastAPI                         |
+| -------------------- | ------------------- | ------------------------------- |
+| Type extraction      | ✅ @Query decorator | ✅ Query() function             |
+| Type validation      | ⚠️ Manual parsing   | ✅ Automatic                    |
+| Range constraints    | ❌ Missing          | ✅ ge, le, gt, lt               |
+| Default values       | ⚠️ In logic         | ✅ In Query()                   |
 | Required vs Optional | ✅ TypeScript types | ✅ Query(...) vs Query(default) |
 
 ### 📊 Recommendations:
@@ -877,13 +882,13 @@ async def create_field(field: FieldCreate):
 
 ### 🔍 Findings:
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| DTO pattern usage | ✅ EXCELLENT | Consistent across services |
+| Aspect            | Status       | Notes                        |
+| ----------------- | ------------ | ---------------------------- |
+| DTO pattern usage | ✅ EXCELLENT | Consistent across services   |
 | Nested validation | ✅ EXCELLENT | Supported in both frameworks |
-| Custom validators | ✅ GOOD | Boundary validator example |
-| Error messages | ✅ GOOD | Clear validation errors |
-| Transform pipes | ✅ GOOD | NestJS transform: true |
+| Custom validators | ✅ GOOD      | Boundary validator example   |
+| Error messages    | ✅ GOOD      | Clear validation errors      |
+| Transform pipes   | ✅ GOOD      | NestJS transform: true       |
 
 ---
 
@@ -1012,20 +1017,20 @@ def sanitize_output(text: str) -> str:
 
 ```typescript
 export const CSP_DIRECTIVES = {
-  'default-src': ["'self'"],
-  'script-src': [
+  "default-src": ["'self'"],
+  "script-src": [
     "'self'",
-    "'unsafe-inline'",  // ⚠️ Should use nonces
-    "'unsafe-eval'",    // ⚠️ Avoid if possible
+    "'unsafe-inline'", // ⚠️ Should use nonces
+    "'unsafe-eval'", // ⚠️ Avoid if possible
   ],
-  'style-src': ["'self'", "'unsafe-inline'"],
-  'img-src': ["'self'", 'data:', 'https:'],
-  'connect-src': ["'self'", process.env.NEXT_PUBLIC_API_URL],
-  'font-src': ["'self'"],
-  'object-src': ["'none'"],
-  'base-uri': ["'self'"],
-  'form-action': ["'self'"],
-  'frame-ancestors': ["'none'"],
+  "style-src": ["'self'", "'unsafe-inline'"],
+  "img-src": ["'self'", "data:", "https:"],
+  "connect-src": ["'self'", process.env.NEXT_PUBLIC_API_URL],
+  "font-src": ["'self'"],
+  "object-src": ["'none'"],
+  "base-uri": ["'self'"],
+  "form-action": ["'self'"],
+  "frame-ancestors": ["'none'"],
 };
 ```
 
@@ -1034,17 +1039,20 @@ export const CSP_DIRECTIVES = {
 **File**: `/apps/web/src/app/api/csrf-token/route.ts`
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { generateCsrfToken } from '@/lib/security/csrf';
+import { NextRequest, NextResponse } from "next/server";
+import { generateCsrfToken } from "@/lib/security/csrf";
 
 export async function GET(request: NextRequest) {
   const token = await generateCsrfToken(request);
 
-  return NextResponse.json({ token }, {
-    headers: {
-      'X-CSRF-Token': token,
+  return NextResponse.json(
+    { token },
+    {
+      headers: {
+        "X-CSRF-Token": token,
+      },
     },
-  });
+  );
 }
 ```
 
@@ -1053,14 +1061,14 @@ export async function GET(request: NextRequest) {
 ```typescript
 export async function middleware(request: NextRequest) {
   // CSRF protection for state-changing requests
-  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
-    const csrfToken = request.headers.get('X-CSRF-Token');
+  if (["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) {
+    const csrfToken = request.headers.get("X-CSRF-Token");
     const isValid = await validateCsrfToken(request, csrfToken);
 
     if (!isValid) {
       return NextResponse.json(
-        { error: 'Invalid CSRF token' },
-        { status: 403 }
+        { error: "Invalid CSRF token" },
+        { status: 403 },
       );
     }
   }
@@ -1075,15 +1083,15 @@ export async function middleware(request: NextRequest) {
 
 ### 🔍 Security Summary:
 
-| Vulnerability Type | Protection | Status |
-|-------------------|------------|--------|
-| SQL Injection | Prisma ORM / SQLAlchemy | ✅ EXCELLENT |
-| NoSQL Injection | N/A (using PostgreSQL) | ✅ N/A |
-| Command Injection | No shell execution | ✅ SAFE |
-| XSS | Input/output sanitization | ✅ GOOD |
-| CSRF | Token validation | ✅ GOOD |
-| Prompt Injection | Advanced detection | ✅ EXCELLENT |
-| Path Traversal | ❌ No file uploads | ⚠️ NEEDS FILE VALIDATION |
+| Vulnerability Type | Protection                | Status                   |
+| ------------------ | ------------------------- | ------------------------ |
+| SQL Injection      | Prisma ORM / SQLAlchemy   | ✅ EXCELLENT             |
+| NoSQL Injection    | N/A (using PostgreSQL)    | ✅ N/A                   |
+| Command Injection  | No shell execution        | ✅ SAFE                  |
+| XSS                | Input/output sanitization | ✅ GOOD                  |
+| CSRF               | Token validation          | ✅ GOOD                  |
+| Prompt Injection   | Advanced detection        | ✅ EXCELLENT             |
+| Path Traversal     | ❌ No file uploads        | ⚠️ NEEDS FILE VALIDATION |
 
 ---
 
@@ -1095,19 +1103,24 @@ export async function middleware(request: NextRequest) {
 
 ```typescript
 // NestJS (user-service/main.ts)
-const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-  'https://sahool.com',
-  'https://app.sahool.com',
-  'https://admin.sahool.com',
-  'http://localhost:3000',
-  'http://localhost:8080',
+const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+  "https://sahool.com",
+  "https://app.sahool.com",
+  "https://admin.sahool.com",
+  "http://localhost:3000",
+  "http://localhost:8080",
 ];
 
 app.enableCors({
-  origin: allowedOrigins,                    // ✅ Whitelist
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Request-ID'],
-  credentials: true,                         // ✅ Cookie support
+  origin: allowedOrigins, // ✅ Whitelist
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Tenant-ID",
+    "X-Request-ID",
+  ],
+  credentials: true, // ✅ Cookie support
 });
 ```
 
@@ -1188,8 +1201,8 @@ async findOne(@Param('id') id: string, @CurrentUser() currentUser: any) {
        new ValidationPipe({
          whitelist: true,
          transform: true,
-         forbidNonWhitelisted: true,  // ADD THIS
-       })
+         forbidNonWhitelisted: true, // ADD THIS
+       }),
      );
      ```
 
@@ -1219,7 +1232,7 @@ async findOne(@Param('id') id: string, @CurrentUser() currentUser: any) {
 6. **Add Request Size Limits**
    - **Recommendation**: Configure body-parser limits
      ```typescript
-     app.use(json({ limit: '10mb' }));
+     app.use(json({ limit: "10mb" }));
      ```
 
 ---
@@ -1229,6 +1242,7 @@ async findOne(@Param('id') id: string, @CurrentUser() currentUser: any) {
 ### Frameworks Aligned:
 
 ✅ **OWASP Top 10 (2021)**
+
 - A01:2021 - Broken Access Control: ✅ Resource ownership validation
 - A02:2021 - Cryptographic Failures: ✅ Prisma with encrypted connections
 - A03:2021 - Injection: ✅ Parameterized queries, input sanitization
@@ -1241,6 +1255,7 @@ async findOne(@Param('id') id: string, @CurrentUser() currentUser: any) {
 - A10:2021 - Server-Side Request Forgery: ✅ No SSRF vectors found
 
 ✅ **OWASP LLM Top 10**
+
 - LLM01: Prompt Injection: ✅ Advanced detection
 - LLM02: Insecure Output Handling: ✅ Output filtering
 - LLM03: Training Data Poisoning: N/A
@@ -1264,16 +1279,16 @@ async findOne(@Param('id') id: string, @CurrentUser() currentUser: any) {
 
 ```typescript
 // test/validation/dto-validation.spec.ts
-describe('DTO Validation', () => {
-  it('should reject invalid email', () => {
+describe("DTO Validation", () => {
+  it("should reject invalid email", () => {
     const dto = new CreateUserDto();
-    dto.email = 'invalid-email';
+    dto.email = "invalid-email";
     expect(validate(dto)).rejects.toThrow();
   });
 
-  it('should reject short password', () => {
+  it("should reject short password", () => {
     const dto = new CreateUserDto();
-    dto.password = 'short';
+    dto.password = "short";
     expect(validate(dto)).rejects.toThrow();
   });
 });
@@ -1301,14 +1316,14 @@ describe('DTO Validation', () => {
 
 ### 📋 Action Plan:
 
-| Priority | Task | Estimated Effort | Assigned To |
-|----------|------|------------------|-------------|
-| 🔴 HIGH | Implement file upload middleware | 2-3 days | Backend Team |
-| 🔴 HIGH | Fix marketplace ValidationPipe | 15 minutes | Backend Team |
-| 🟡 MEDIUM | Refactor query param parsing | 1 day | Backend Team |
-| 🟡 MEDIUM | Update CSP configuration | 1 day | Frontend Team |
-| 🟢 LOW | Add ML-based toxicity filter | 1 week | AI Team |
-| 🟢 LOW | Add request size limits | 1 hour | Backend Team |
+| Priority  | Task                             | Estimated Effort | Assigned To   |
+| --------- | -------------------------------- | ---------------- | ------------- |
+| 🔴 HIGH   | Implement file upload middleware | 2-3 days         | Backend Team  |
+| 🔴 HIGH   | Fix marketplace ValidationPipe   | 15 minutes       | Backend Team  |
+| 🟡 MEDIUM | Refactor query param parsing     | 1 day            | Backend Team  |
+| 🟡 MEDIUM | Update CSP configuration         | 1 day            | Frontend Team |
+| 🟢 LOW    | Add ML-based toxicity filter     | 1 week           | AI Team       |
+| 🟢 LOW    | Add request size limits          | 1 hour           | Backend Team  |
 
 ---
 
@@ -1321,6 +1336,7 @@ The SAHOOL platform demonstrates **strong request validation practices** with co
 ### Security Score: **85/100** 🔒
 
 **Breakdown**:
+
 - Input Validation: 95/100
 - Output Sanitization: 85/100
 - Injection Protection: 95/100
@@ -1337,6 +1353,7 @@ The SAHOOL platform demonstrates **strong request validation practices** with co
 ## Appendix A: Code References
 
 ### NestJS Services with ValidationPipe:
+
 1. `/apps/services/user-service/src/main.ts`
 2. `/apps/services/marketplace-service/src/main.ts`
 3. `/apps/services/research-core/src/main.ts`
@@ -1344,6 +1361,7 @@ The SAHOOL platform demonstrates **strong request validation practices** with co
 5. `/apps/services/yield-prediction-service/src/main.ts`
 
 ### FastAPI Services with Pydantic:
+
 1. `/apps/services/field-ops/src/main.py`
 2. `/apps/services/crop-health/src/main.py`
 3. `/apps/services/equipment-service/src/main.py`
@@ -1351,12 +1369,14 @@ The SAHOOL platform demonstrates **strong request validation practices** with co
 5. `/apps/services/alert-service/src/main.py`
 
 ### Guardrails System:
+
 1. `/shared/guardrails/input_filter.py`
 2. `/shared/guardrails/output_filter.py`
 3. `/shared/guardrails/middleware.py`
 4. `/shared/guardrails/policies.py`
 
 ### Validation Utilities:
+
 1. `/apps/kernel/field_ops/services/boundary_validator.py`
 2. `/packages/field_suite/spatial/validation.py`
 
@@ -1365,6 +1385,7 @@ The SAHOOL platform demonstrates **strong request validation practices** with co
 ## Appendix B: Validation Patterns Catalog
 
 ### NestJS Decorators:
+
 ```typescript
 @IsString()           // String type
 @IsNumber()           // Number type
@@ -1385,6 +1406,7 @@ The SAHOOL platform demonstrates **strong request validation practices** with co
 ```
 
 ### Pydantic Constraints:
+
 ```python
 Field(...)                    # Required
 Field(default=value)          # Optional with default

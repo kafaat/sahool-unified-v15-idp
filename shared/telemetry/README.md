@@ -7,6 +7,7 @@ This directory contains comprehensive OpenTelemetry distributed tracing, metrics
 ## Features
 
 ### 🔍 Distributed Tracing
+
 - **OpenTelemetry SDK** integration for Python (FastAPI) and TypeScript (NestJS)
 - **Jaeger** as the tracing backend
 - **Auto-instrumentation** for HTTP, database, cache, and message queue operations
@@ -14,6 +15,7 @@ This directory contains comprehensive OpenTelemetry distributed tracing, metrics
 - **Custom span** creation and attribute tagging
 
 ### 📊 Metrics Collection
+
 - **Prometheus** metrics for all services
 - **OpenTelemetry Metrics API** integration
 - **Business metrics** tracking (fields created, satellite requests, AI recommendations)
@@ -21,12 +23,14 @@ This directory contains comprehensive OpenTelemetry distributed tracing, metrics
 - **Custom counters, histograms, and gauges**
 
 ### 📝 Structured Logging
+
 - **JSON logging** with trace ID correlation
 - **Automatic trace context** injection (trace_id, span_id)
 - **Log level** configuration from environment
 - **Arabic language** support in log messages
 
 ### 📈 Visualization
+
 - **Grafana** dashboards for traces and metrics
 - **Jaeger UI** for trace exploration
 - **Service dependency** visualization
@@ -135,15 +139,15 @@ SahoolMetrics.track_field_created(user_id="123", field_type="agricultural")
 
 ```typescript
 // main.ts
-import { initTracer, initMetrics } from './shared/telemetry/tracing';
-import { NestFactory } from '@nestjs/core';
+import { initTracer, initMetrics } from "./shared/telemetry/tracing";
+import { NestFactory } from "@nestjs/core";
 
 async function bootstrap() {
   // Initialize tracing
-  initTracer({ serviceName: 'chat-service' });
+  initTracer({ serviceName: "chat-service" });
 
   // Initialize metrics
-  initMetrics({ serviceName: 'chat-service' });
+  initMetrics({ serviceName: "chat-service" });
 
   const app = await NestFactory.create(AppModule);
   await app.listen(3000);
@@ -151,20 +155,20 @@ async function bootstrap() {
 bootstrap();
 
 // Use decorator for tracing
-import { Trace } from './shared/telemetry/tracing';
+import { Trace } from "./shared/telemetry/tracing";
 
 @Injectable()
 export class ChatService {
-  @Trace('sendMessage')
+  @Trace("sendMessage")
   async sendMessage(userId: string, message: string) {
     // Your code here
   }
 }
 
 // Track business metrics
-import { SahoolMetrics } from './shared/telemetry/metrics';
+import { SahoolMetrics } from "./shared/telemetry/metrics";
 
-SahoolMetrics.trackMessageSent('field-chat', 'text', userId);
+SahoolMetrics.trackMessageSent("field-chat", "text", userId);
 ```
 
 ## Access UIs
@@ -196,20 +200,24 @@ Once the telemetry stack is running:
 All 44+ SAHOOL services are instrumented with standardized service names:
 
 ### Core Services
+
 - `field_core` - Field Core Service
 - `field_ops` - Field Operations Service
 - `field_service` - Field Management Service
 
 ### Weather Services
+
 - `weather_core` - Weather Core Service
 - `weather_advanced` - Advanced Weather Service
 
 ### Satellite & Imagery
+
 - `satellite_service` - Satellite Imagery Service
 - `ndvi_engine` - NDVI Calculation Engine
 - `ndvi_processor` - NDVI Processor Service
 
 ### AI/ML Services
+
 - `crop_health_ai` - Crop Health AI Service
 - `crop_health` - Crop Health Monitoring
 - `yield_engine` - Yield Calculation Engine
@@ -218,6 +226,7 @@ All 44+ SAHOOL services are instrumented with standardized service names:
 - `crop_growth_model` - Crop Growth Model Service
 
 ### Advisory Services
+
 - `ai_advisor` - AI Agricultural Advisor
 - `agro_advisor` - Agronomy Advisor Service
 - `fertilizer_advisor` - Fertilizer Recommendation
@@ -225,16 +234,19 @@ All 44+ SAHOOL services are instrumented with standardized service names:
 - `agro_rules` - Agronomy Rules Engine
 
 ### IoT & Sensors
+
 - `iot_gateway` - IoT Gateway Service
 - `iot_service` - IoT Management Service
 - `virtual_sensors` - Virtual Sensors Service
 
 ### Analytics
+
 - `indicators_service` - Agricultural Indicators
 - `astronomical_calendar` - Astronomical Calendar
 - `disaster_assessment` - Disaster Assessment
 
 ### Communication
+
 - `notification_service` - Notification Service
 - `alert_service` - Alert Management Service
 - `chat_service` - Chat Service
@@ -242,6 +254,7 @@ All 44+ SAHOOL services are instrumented with standardized service names:
 - `field_chat` - Field Chat Service
 
 ### Business Services
+
 - `billing_core` - Billing Core Service
 - `marketplace_service` - Marketplace Service
 - `inventory_service` - Inventory Management
@@ -250,6 +263,7 @@ All 44+ SAHOOL services are instrumented with standardized service names:
 - `research_core` - Research Core Service
 
 ### Infrastructure
+
 - `ws_gateway` - WebSocket Gateway
 - `kong` - API Gateway
 
@@ -312,25 +326,25 @@ SahoolMetrics.track_irrigation_event(
 ### TypeScript (SahoolMetrics)
 
 ```typescript
-import { SahoolMetrics } from './shared/telemetry/metrics';
+import { SahoolMetrics } from "./shared/telemetry/metrics";
 
 // Track chat message
-SahoolMetrics.trackMessageSent('field-chat', 'text', userId);
+SahoolMetrics.trackMessageSent("field-chat", "text", userId);
 
 // Track notification
-SahoolMetrics.trackNotificationSent('push', 'mobile', 'delivered');
+SahoolMetrics.trackNotificationSent("push", "mobile", "delivered");
 
 // Track WebSocket connection
-SahoolMetrics.trackWebSocketConnection('connect');
+SahoolMetrics.trackWebSocketConnection("connect");
 
 // Track billing transaction
-SahoolMetrics.trackBillingTransaction('subscription', 99.99, 'completed');
+SahoolMetrics.trackBillingTransaction("subscription", 99.99, "completed");
 
 // Track marketplace listing
-SahoolMetrics.trackMarketplaceListing('equipment', 'create');
+SahoolMetrics.trackMarketplaceListing("equipment", "create");
 
 // Track inventory operation
-SahoolMetrics.trackInventoryOperation('add', 'fertilizer', 100);
+SahoolMetrics.trackInventoryOperation("add", "fertilizer", 100);
 ```
 
 ## Trace Context Propagation
@@ -403,6 +417,7 @@ OTEL_TRACES_SAMPLER=always_off
 ```
 
 **Note**: The collector also applies tail sampling to always capture:
+
 - All error traces (4xx, 5xx)
 - Slow requests (>1 second)
 - 10% of normal traffic
@@ -410,11 +425,13 @@ OTEL_TRACES_SAMPLER=always_off
 ## Performance Considerations
 
 ### Overhead
+
 - **Tracing**: ~1-5ms per traced operation
 - **Metrics**: Negligible (<1ms)
 - **Logging**: ~0.5-2ms per log statement
 
 ### Optimization
+
 1. **Use sampling** in production (10% recommended)
 2. **Batch exports** reduce network overhead
 3. **Exclude health checks** from tracing
@@ -426,11 +443,13 @@ OTEL_TRACES_SAMPLER=always_off
 ### No traces in Jaeger
 
 1. Check OpenTelemetry Collector logs:
+
    ```bash
    docker logs sahool-telemetry-otel-collector
    ```
 
 2. Verify service is sending traces:
+
    ```bash
    # Python
    OTEL_CONSOLE_EXPORT=true python app.py
@@ -451,6 +470,7 @@ OTEL_TRACES_SAMPLER=always_off
    - Verify all services are "UP"
 
 2. Check service metrics endpoint:
+
    ```bash
    curl http://field_core:9090/metrics
    ```
@@ -463,17 +483,19 @@ OTEL_TRACES_SAMPLER=always_off
 ### High memory usage
 
 1. Reduce trace sampling:
+
    ```bash
    OTEL_TRACES_SAMPLER_ARG=0.01  # 1% instead of 10%
    ```
 
 2. Increase collector memory limit:
+
    ```yaml
    # docker-compose.telemetry.yml
    deploy:
      resources:
        limits:
-         memory: 2G  # Increase from 1G
+         memory: 2G # Increase from 1G
    ```
 
 3. Reduce retention period:
@@ -508,22 +530,23 @@ shared/telemetry/
 
 The `docker-compose.telemetry.yml` includes:
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **jaeger** | 16686 | Jaeger UI |
-| | 14268 | Jaeger Collector HTTP |
-| | 4317 | OTLP gRPC |
-| | 4318 | OTLP HTTP |
-| **otel-collector** | 4317 | OTLP gRPC receiver |
-| | 4318 | OTLP HTTP receiver |
-| | 8889 | Prometheus exporter |
-| | 13133 | Health check |
-| **prometheus** | 9090 | Prometheus UI & API |
-| **grafana** | 3002 | Grafana UI |
+| Service            | Port  | Description           |
+| ------------------ | ----- | --------------------- |
+| **jaeger**         | 16686 | Jaeger UI             |
+|                    | 14268 | Jaeger Collector HTTP |
+|                    | 4317  | OTLP gRPC             |
+|                    | 4318  | OTLP HTTP             |
+| **otel-collector** | 4317  | OTLP gRPC receiver    |
+|                    | 4318  | OTLP HTTP receiver    |
+|                    | 8889  | Prometheus exporter   |
+|                    | 13133 | Health check          |
+| **prometheus**     | 9090  | Prometheus UI & API   |
+| **grafana**        | 3002  | Grafana UI            |
 
 ## Dependencies
 
 ### Python
+
 ```bash
 pip install opentelemetry-api \
             opentelemetry-sdk \
@@ -538,6 +561,7 @@ pip install opentelemetry-api \
 ```
 
 ### TypeScript/NestJS
+
 ```bash
 npm install @opentelemetry/sdk-node \
             @opentelemetry/auto-instrumentations-node \
@@ -564,13 +588,14 @@ npm install @opentelemetry/sdk-node \
 ## Security Considerations
 
 1. **Enable TLS** in production:
+
    ```yaml
    # otel-collector-config.yaml
    exporters:
      otlp/jaeger:
        endpoint: jaeger:4317
        tls:
-         insecure: false  # Enable TLS
+         insecure: false # Enable TLS
          cert_file: /certs/cert.pem
          key_file: /certs/key.pem
    ```
@@ -593,6 +618,7 @@ npm install @opentelemetry/sdk-node \
 ## Support
 
 For issues or questions:
+
 - Check the [OpenTelemetry documentation](https://opentelemetry.io/docs/)
 - Review [Jaeger documentation](https://www.jaegertracing.io/docs/)
 - Consult [Prometheus documentation](https://prometheus.io/docs/)

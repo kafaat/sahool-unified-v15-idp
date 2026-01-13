@@ -12,46 +12,51 @@
  * - Secure redirect handling
  */
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import createMiddleware from 'next-intl/middleware';
-import { generateNonce, getCSPHeader, getCSPHeaderName, getCSPConfig } from '@/lib/security/csp-config';
-import { locales, defaultLocale } from '@sahool/i18n';
-import { randomBytes } from 'crypto';
-import { validateJwtToken } from '@/lib/security/jwt-middleware';
-import { validateCsrfRequest } from '@/lib/security/csrf-server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import createMiddleware from "next-intl/middleware";
+import {
+  generateNonce,
+  getCSPHeader,
+  getCSPHeaderName,
+  getCSPConfig,
+} from "@/lib/security/csp-config";
+import { locales, defaultLocale } from "@sahool/i18n";
+import { randomBytes } from "crypto";
+import { validateJwtToken } from "@/lib/security/jwt-middleware";
+import { validateCsrfRequest } from "@/lib/security/csrf-server";
 
 // Routes that don't require authentication
 const publicRoutes = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-  '/api/auth',
-  '/',
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/api/auth",
+  "/",
 ];
 
 // Routes that require authentication
 const protectedRoutes = [
-  '/dashboard',
-  '/fields',
-  '/tasks',
-  '/weather',
-  '/analytics',
-  '/settings',
-  '/iot',
-  '/equipment',
-  '/wallet',
-  '/community',
-  '/marketplace',
-  '/crop-health',
+  "/dashboard",
+  "/fields",
+  "/tasks",
+  "/weather",
+  "/analytics",
+  "/settings",
+  "/iot",
+  "/equipment",
+  "/wallet",
+  "/community",
+  "/marketplace",
+  "/crop-health",
 ];
 
 // Create i18n middleware
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
-  localePrefix: 'as-needed', // Don't prefix default locale (ar)
+  localePrefix: "as-needed", // Don't prefix default locale (ar)
 });
 
 export async function middleware(request: NextRequest) {
@@ -61,10 +66,10 @@ export async function middleware(request: NextRequest) {
   // 1. Allow static files and Next.js internals (no security headers needed)
   // ═══════════════════════════════════════════════════════════════════════════
   if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/static') ||
-    pathname.startsWith('/api') ||
-    pathname.includes('.') // files with extensions (images, etc.)
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/static") ||
+    pathname.startsWith("/api") ||
+    pathname.includes(".") // files with extensions (images, etc.)
   ) {
     return NextResponse.next();
   }
@@ -75,7 +80,7 @@ export async function middleware(request: NextRequest) {
   const intlResponse = intlMiddleware(request);
   if (intlResponse) {
     // If i18n middleware returns a redirect, use that
-    if (intlResponse.headers.get('location')) {
+    if (intlResponse.headers.get("location")) {
       return intlResponse;
     }
   }
@@ -86,7 +91,7 @@ export async function middleware(request: NextRequest) {
   const csrfValidation = validateCsrfRequest(request);
   if (!csrfValidation.valid) {
     // Log CSRF failure in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.error(`[CSRF] Validation failed: ${csrfValidation.error}`, {
         method: request.method,
         path: pathname,
@@ -94,11 +99,11 @@ export async function middleware(request: NextRequest) {
     }
 
     // Return 403 Forbidden for CSRF validation failures
-    return new NextResponse('CSRF validation failed', {
+    return new NextResponse("CSRF validation failed", {
       status: 403,
       headers: {
-        'Content-Type': 'text/plain',
-        'X-CSRF-Error': csrfValidation.error || 'CSRF token mismatch',
+        "Content-Type": "text/plain",
+        "X-CSRF-Error": csrfValidation.error || "CSRF token mismatch",
       },
     });
   }
@@ -107,7 +112,7 @@ export async function middleware(request: NextRequest) {
   // 4. Allow public routes (without authentication)
   // ═══════════════════════════════════════════════════════════════════════════
   const isPublicRoute = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
   if (isPublicRoute) {
@@ -121,7 +126,7 @@ export async function middleware(request: NextRequest) {
   // 5. Check if route requires authentication
   // ═══════════════════════════════════════════════════════════════════════════
   const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
   if (!isProtectedRoute) {
@@ -138,24 +143,24 @@ export async function middleware(request: NextRequest) {
 
   if (!jwtValidation.valid) {
     // Log JWT failure in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.error(`[JWT] Validation failed: ${jwtValidation.error}`, {
         path: pathname,
       });
     }
 
     // Redirect to login with secure return URL
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL("/login", request.url);
 
     // Sanitize and validate return URL to prevent open redirect
     const returnTo = sanitizeReturnUrl(pathname + search, request.url);
     if (returnTo) {
-      loginUrl.searchParams.set('returnTo', returnTo);
+      loginUrl.searchParams.set("returnTo", returnTo);
     }
 
     // Add reason for development debugging
-    if (process.env.NODE_ENV === 'development' && jwtValidation.error) {
-      loginUrl.searchParams.set('reason', jwtValidation.error);
+    if (process.env.NODE_ENV === "development" && jwtValidation.error) {
+      loginUrl.searchParams.set("reason", jwtValidation.error);
     }
 
     return NextResponse.redirect(loginUrl);
@@ -170,14 +175,14 @@ export async function middleware(request: NextRequest) {
   addSecurityHeaders(response);
 
   // Generate CSRF token if not present
-  let csrfToken = request.cookies.get('csrf_token')?.value;
+  let csrfToken = request.cookies.get("csrf_token")?.value;
   if (!csrfToken) {
-    csrfToken = randomBytes(32).toString('base64url');
-    response.cookies.set('csrf_token', csrfToken, {
+    csrfToken = randomBytes(32).toString("base64url");
+    response.cookies.set("csrf_token", csrfToken, {
       httpOnly: false, // Must be readable by client JavaScript for AJAX requests
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
       maxAge: 60 * 60 * 24, // 24 hours
     });
   }
@@ -191,37 +196,37 @@ export async function middleware(request: NextRequest) {
 function addSecurityHeaders(response: NextResponse): void {
   // Generate nonce for CSP
   const nonce = generateNonce();
-  response.headers.set('X-Nonce', nonce);
+  response.headers.set("X-Nonce", nonce);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Standard Security Headers
   // ═══════════════════════════════════════════════════════════════════════════
 
   // Prevent clickjacking attacks
-  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set("X-Frame-Options", "DENY");
 
   // Prevent MIME type sniffing
-  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set("X-Content-Type-Options", "nosniff");
 
   // Control referrer information
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
   // Legacy XSS protection (modern browsers use CSP)
-  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set("X-XSS-Protection", "1; mode=block");
 
   // Permissions Policy - restrict browser features
   response.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(self), payment=()'
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(self), payment=()",
   );
 
   // ═══════════════════════════════════════════════════════════════════════════
   // HSTS - Force HTTPS in production
   // ═══════════════════════════════════════════════════════════════════════════
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     response.headers.set(
-      'Strict-Transport-Security',
-      'max-age=31536000; includeSubDomains; preload'
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains; preload",
     );
   }
 
@@ -269,6 +274,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder files
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\..*|api).*)",
   ],
 };

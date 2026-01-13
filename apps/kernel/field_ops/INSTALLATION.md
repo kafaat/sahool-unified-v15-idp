@@ -389,11 +389,13 @@ weather = WeatherData(
 ## الدعم - Support
 
 ### الوثائق
+
 - README.md - دليل شامل
 - example_usage.py - أمثلة عملية
 - test_irrigation.py - أمثلة الاختبارات
 
 ### المساعدة
+
 - البريد الإلكتروني: support@sahool.com
 - الوثائق الكاملة: https://docs.sahool.com/irrigation
 - GitHub Issues: https://github.com/sahool/irrigation-scheduler

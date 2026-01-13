@@ -72,7 +72,7 @@ Complete team management UI for managing users, roles, and permissions in the SA
 ### Import the main component
 
 ```tsx
-import { TeamManagement } from '@/features/team';
+import { TeamManagement } from "@/features/team";
 
 export default function TeamPage() {
   return <TeamManagement />;
@@ -82,7 +82,7 @@ export default function TeamPage() {
 ### Use individual components
 
 ```tsx
-import { MemberCard, InviteMemberDialog } from '@/features/team';
+import { MemberCard, InviteMemberDialog } from "@/features/team";
 
 function MyComponent() {
   const [showInvite, setShowInvite] = useState(false);
@@ -90,7 +90,10 @@ function MyComponent() {
   return (
     <>
       <MemberCard member={member} onEditRole={handleEdit} />
-      <InviteMemberDialog isOpen={showInvite} onClose={() => setShowInvite(false)} />
+      <InviteMemberDialog
+        isOpen={showInvite}
+        onClose={() => setShowInvite(false)}
+      />
     </>
   );
 }
@@ -130,6 +133,7 @@ The API layer includes comprehensive mock data for development and testing when 
 ## Styling
 
 The feature uses:
+
 - Tailwind CSS for styling
 - Custom sahool color palette (sahool-green, sahool-brown)
 - shadcn/ui components (Button, Badge, Modal, Input)
@@ -138,6 +142,7 @@ The feature uses:
 ## TypeScript Support
 
 Full TypeScript support with:
+
 - Strict type checking
 - Comprehensive interfaces
 - Type-safe API calls

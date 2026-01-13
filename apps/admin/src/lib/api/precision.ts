@@ -1,8 +1,8 @@
 // Precision Agriculture API Client
 // عميل API للزراعة الدقيقة
 
-import { apiClient, API_URLS } from '../api';
-import { logger } from '../logger';
+import { apiClient, API_URLS } from "../api";
+import { logger } from "../logger";
 
 // VRA (Variable Rate Application) Types
 export interface VRAPrescription {
@@ -11,8 +11,8 @@ export interface VRAPrescription {
   farmName: string;
   fieldName: string;
   cropType: string;
-  prescriptionType: 'fertilizer' | 'pesticide' | 'irrigation';
-  status: 'pending' | 'approved' | 'rejected' | 'applied';
+  prescriptionType: "fertilizer" | "pesticide" | "irrigation";
+  status: "pending" | "approved" | "rejected" | "applied";
   createdAt: string;
   createdBy: string;
   approvedBy?: string;
@@ -39,7 +39,7 @@ export interface GDDField {
   daysToNextStage: number;
   gddToNextStage: number;
   alerts: Array<{
-    type: 'info' | 'warning' | 'critical';
+    type: "info" | "warning" | "critical";
     message: string;
     messageAr: string;
   }>;
@@ -58,12 +58,12 @@ export interface SprayWindow {
   farmName: string;
   fieldName: string;
   cropType: string;
-  productType: 'pesticide' | 'herbicide' | 'fungicide' | 'fertilizer';
+  productType: "pesticide" | "herbicide" | "fungicide" | "fertilizer";
   productName: string;
   windowStart: string;
   windowEnd: string;
   optimalTime: string;
-  status: 'upcoming' | 'optimal' | 'missed' | 'completed';
+  status: "upcoming" | "optimal" | "missed" | "completed";
   conditions: {
     temperature: number;
     windSpeed: number;
@@ -95,10 +95,13 @@ export async function fetchVRAPrescriptions(params?: {
   limit?: number;
 }): Promise<VRAPrescription[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.fertilizer}/v1/prescriptions`, { params });
+    const response = await apiClient.get(
+      `${API_URLS.fertilizer}/v1/prescriptions`,
+      { params },
+    );
     return response.data;
   } catch (error) {
-    logger.error('Failed to fetch VRA prescriptions:', error);
+    logger.error("Failed to fetch VRA prescriptions:", error);
     // Return mock data for development
     return generateMockVRAPrescriptions();
   }
@@ -106,20 +109,24 @@ export async function fetchVRAPrescriptions(params?: {
 
 export async function approvePrescription(id: string): Promise<boolean> {
   try {
-    await apiClient.patch(`${API_URLS.fertilizer}/v1/prescriptions/${id}/approve`);
+    await apiClient.patch(
+      `${API_URLS.fertilizer}/v1/prescriptions/${id}/approve`,
+    );
     return true;
   } catch (error) {
-    logger.error('Failed to approve prescription:', error);
+    logger.error("Failed to approve prescription:", error);
     return false;
   }
 }
 
 export async function rejectPrescription(id: string): Promise<boolean> {
   try {
-    await apiClient.patch(`${API_URLS.fertilizer}/v1/prescriptions/${id}/reject`);
+    await apiClient.patch(
+      `${API_URLS.fertilizer}/v1/prescriptions/${id}/reject`,
+    );
     return true;
   } catch (error) {
-    logger.error('Failed to reject prescription:', error);
+    logger.error("Failed to reject prescription:", error);
     return false;
   }
 }
@@ -130,7 +137,7 @@ export async function fetchGDDData(): Promise<GDDField[]> {
     const response = await apiClient.get(`${API_URLS.weather}/v1/gdd`);
     return response.data;
   } catch (error) {
-    logger.error('Failed to fetch GDD data:', error);
+    logger.error("Failed to fetch GDD data:", error);
     return generateMockGDDData();
   }
 }
@@ -138,38 +145,56 @@ export async function fetchGDDData(): Promise<GDDField[]> {
 // Spray Management API Functions
 export async function fetchSprayWindows(): Promise<SprayWindow[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.weather}/v1/spray-windows`);
+    const response = await apiClient.get(
+      `${API_URLS.weather}/v1/spray-windows`,
+    );
     return response.data;
   } catch (error) {
-    logger.error('Failed to fetch spray windows:', error);
+    logger.error("Failed to fetch spray windows:", error);
     return generateMockSprayWindows();
   }
 }
 
-export async function fetchSprayHistory(params?: { limit?: number }): Promise<SprayHistory[]> {
+export async function fetchSprayHistory(params?: {
+  limit?: number;
+}): Promise<SprayHistory[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.fertilizer}/v1/spray-history`, { params });
+    const response = await apiClient.get(
+      `${API_URLS.fertilizer}/v1/spray-history`,
+      { params },
+    );
     return response.data;
   } catch (error) {
-    logger.error('Failed to fetch spray history:', error);
+    logger.error("Failed to fetch spray history:", error);
     return generateMockSprayHistory();
   }
 }
 
 // Mock Data Generators
 function generateMockVRAPrescriptions(): VRAPrescription[] {
-  const types: Array<'fertilizer' | 'pesticide' | 'irrigation'> = ['fertilizer', 'pesticide', 'irrigation'];
-  const statuses: Array<'pending' | 'approved' | 'rejected' | 'applied'> = ['pending', 'approved', 'rejected', 'applied'];
+  const types: Array<"fertilizer" | "pesticide" | "irrigation"> = [
+    "fertilizer",
+    "pesticide",
+    "irrigation",
+  ];
+  const statuses: Array<"pending" | "approved" | "rejected" | "applied"> = [
+    "pending",
+    "approved",
+    "rejected",
+    "applied",
+  ];
 
   return Array.from({ length: 15 }, (_, i) => ({
     id: `vra-${i + 1}`,
     farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
     farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
     fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
-    cropType: ['قمح', 'بن', 'قات', 'ذرة'][Math.floor(Math.random() * 4)],
+    cropType: ["قمح", "بن", "قات", "ذرة"][Math.floor(Math.random() * 4)],
     prescriptionType: types[Math.floor(Math.random() * types.length)],
     status: statuses[Math.floor(Math.random() * statuses.length)],
-    createdAt: new Date(Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(
+      Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000,
+    ).toISOString(),
     createdBy: `user-${Math.floor(Math.random() * 5) + 1}`,
     area: Math.random() * 50 + 10,
     zones: Math.floor(Math.random() * 8) + 3,
@@ -179,10 +204,10 @@ function generateMockVRAPrescriptions(): VRAPrescription[] {
 
 function generateMockGDDData(): GDDField[] {
   const stages = [
-    { en: 'Vegetative', ar: 'نمو خضري', target: 800 },
-    { en: 'Flowering', ar: 'إزهار', target: 1200 },
-    { en: 'Grain Fill', ar: 'امتلاء الحبوب', target: 1600 },
-    { en: 'Maturity', ar: 'نضج', target: 2000 },
+    { en: "Vegetative", ar: "نمو خضري", target: 800 },
+    { en: "Flowering", ar: "إزهار", target: 1200 },
+    { en: "Grain Fill", ar: "امتلاء الحبوب", target: 1600 },
+    { en: "Maturity", ar: "نضج", target: 2000 },
   ];
 
   return Array.from({ length: 8 }, (_, i) => {
@@ -203,8 +228,10 @@ function generateMockGDDData(): GDDField[] {
       farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
       farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
       fieldName: `حقل ${String.fromCharCode(65 + i)}`,
-      cropType: ['قمح', 'ذرة'][Math.floor(Math.random() * 2)],
-      plantingDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+      cropType: ["قمح", "ذرة"][Math.floor(Math.random() * 2)],
+      plantingDate: new Date(
+        Date.now() - 60 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
       currentGDD,
       targetGDD: nextStage.target,
       currentStage: currentStage.en,
@@ -213,13 +240,19 @@ function generateMockGDDData(): GDDField[] {
       nextStageAr: nextStage.ar,
       daysToNextStage: Math.floor(Math.random() * 20) + 5,
       gddToNextStage: nextStage.target - currentGDD,
-      alerts: Math.random() > 0.5 ? [
-        {
-          type: Math.random() > 0.7 ? 'critical' : 'warning' as 'info' | 'warning' | 'critical',
-          message: 'Temperature stress detected',
-          messageAr: 'تم اكتشاف إجهاد حراري',
-        },
-      ] : [],
+      alerts:
+        Math.random() > 0.5
+          ? [
+              {
+                type:
+                  Math.random() > 0.7
+                    ? "critical"
+                    : ("warning" as "info" | "warning" | "critical"),
+                message: "Temperature stress detected",
+                messageAr: "تم اكتشاف إجهاد حراري",
+              },
+            ]
+          : [],
       history,
     };
   });
@@ -227,17 +260,24 @@ function generateMockGDDData(): GDDField[] {
 
 function generateMockSprayWindows(): SprayWindow[] {
   const products = [
-    { type: 'pesticide' as const, name: 'Malathion' },
-    { type: 'herbicide' as const, name: 'Glyphosate' },
-    { type: 'fungicide' as const, name: 'Mancozeb' },
-    { type: 'fertilizer' as const, name: 'NPK 20-20-20' },
+    { type: "pesticide" as const, name: "Malathion" },
+    { type: "herbicide" as const, name: "Glyphosate" },
+    { type: "fungicide" as const, name: "Mancozeb" },
+    { type: "fertilizer" as const, name: "NPK 20-20-20" },
   ];
 
-  const statuses: Array<'upcoming' | 'optimal' | 'missed' | 'completed'> = ['upcoming', 'optimal', 'missed', 'completed'];
+  const statuses: Array<"upcoming" | "optimal" | "missed" | "completed"> = [
+    "upcoming",
+    "optimal",
+    "missed",
+    "completed",
+  ];
 
   return Array.from({ length: 12 }, (_, i) => {
     const product = products[Math.floor(Math.random() * products.length)];
-    const startDate = new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000);
+    const startDate = new Date(
+      Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000,
+    );
     const endDate = new Date(startDate.getTime() + 3 * 24 * 60 * 60 * 1000);
 
     return {
@@ -245,12 +285,14 @@ function generateMockSprayWindows(): SprayWindow[] {
       farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
       farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
       fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
-      cropType: ['قمح', 'بن', 'قات'][Math.floor(Math.random() * 3)],
+      cropType: ["قمح", "بن", "قات"][Math.floor(Math.random() * 3)],
       productType: product.type,
       productName: product.name,
       windowStart: startDate.toISOString(),
       windowEnd: endDate.toISOString(),
-      optimalTime: new Date(startDate.getTime() + 1.5 * 24 * 60 * 60 * 1000).toISOString(),
+      optimalTime: new Date(
+        startDate.getTime() + 1.5 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
       status: statuses[Math.floor(Math.random() * statuses.length)],
       conditions: {
         temperature: 20 + Math.random() * 10,
@@ -259,14 +301,14 @@ function generateMockSprayWindows(): SprayWindow[] {
         precipitation: Math.random() * 5,
       },
       recommendations: [
-        'Apply early morning or late evening',
-        'Avoid windy conditions',
-        'Check weather forecast',
+        "Apply early morning or late evening",
+        "Avoid windy conditions",
+        "Check weather forecast",
       ],
       recommendationsAr: [
-        'التطبيق في الصباح الباكر أو المساء',
-        'تجنب الظروف العاصفة',
-        'تحقق من توقعات الطقس',
+        "التطبيق في الصباح الباكر أو المساء",
+        "تجنب الظروف العاصفة",
+        "تحقق من توقعات الطقس",
       ],
     };
   });
@@ -274,10 +316,10 @@ function generateMockSprayWindows(): SprayWindow[] {
 
 function generateMockSprayHistory(): SprayHistory[] {
   const products = [
-    { type: 'pesticide', name: 'Malathion' },
-    { type: 'herbicide', name: 'Glyphosate' },
-    { type: 'fungicide', name: 'Mancozeb' },
-    { type: 'fertilizer', name: 'NPK 20-20-20' },
+    { type: "pesticide", name: "Malathion" },
+    { type: "herbicide", name: "Glyphosate" },
+    { type: "fungicide", name: "Mancozeb" },
+    { type: "fertilizer", name: "NPK 20-20-20" },
   ];
 
   return Array.from({ length: 20 }, (_, i) => {
@@ -288,7 +330,9 @@ function generateMockSprayHistory(): SprayHistory[] {
       fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
       productType: product.type,
       productName: product.name,
-      appliedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+      appliedAt: new Date(
+        Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
       area: Math.random() * 30 + 5,
       quantity: Math.random() * 50 + 10,
       cost: Math.random() * 1000 + 200,

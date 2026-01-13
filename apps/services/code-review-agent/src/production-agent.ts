@@ -13,13 +13,13 @@ import {
   query,
   type AgentDefinition,
   type HookCallback,
-  type PreToolUseHookInput
+  type PreToolUseHookInput,
 } from "@anthropic-ai/claude-agent-sdk";
 import {
   reviewSchema,
   type ReviewResult,
   type ContentBlock,
-  type ReviewAgentConfig
+  type ReviewAgentConfig,
 } from "./types.js";
 
 // ============================================================================
@@ -45,8 +45,16 @@ const blockDangerousCommands: HookCallback = async (input) => {
   if (input.hook_event_name === "PreToolUse") {
     const preInput = input as PreToolUseHookInput;
     if (preInput.tool_name === "Bash") {
-      const command = String((preInput.tool_input as Record<string, unknown>).command || "");
-      const dangerous = ["rm -rf", "sudo", "chmod 777", "curl | sh", "wget | sh"];
+      const command = String(
+        (preInput.tool_input as Record<string, unknown>).command || "",
+      );
+      const dangerous = [
+        "rm -rf",
+        "sudo",
+        "chmod 777",
+        "curl | sh",
+        "wget | sh",
+      ];
 
       for (const pattern of dangerous) {
         if (command.includes(pattern)) {
@@ -55,8 +63,8 @@ const blockDangerousCommands: HookCallback = async (input) => {
             hookSpecificOutput: {
               hookEventName: "PreToolUse",
               permissionDecision: "deny",
-              permissionDecisionReason: `Dangerous command blocked: ${pattern}`
-            }
+              permissionDecisionReason: `Dangerous command blocked: ${pattern}`,
+            },
           };
         }
       }
@@ -94,7 +102,7 @@ For each vulnerability found, provide:
 
 Be thorough but avoid false positives. Focus on actual security risks.`,
   tools: ["Read", "Grep", "Glob"],
-  model: "sonnet"
+  model: "sonnet",
 };
 
 /**
@@ -120,7 +128,7 @@ Look for:
 
 Provide actionable recommendations for improving test coverage.`,
   tools: ["Read", "Grep", "Glob"],
-  model: "haiku" // Use faster model for test analysis
+  model: "haiku", // Use faster model for test analysis
 };
 
 /**
@@ -144,7 +152,7 @@ For each issue, explain:
 2. Why it's problematic
 3. How to fix it with a code example`,
   tools: ["Read", "Grep", "Glob"],
-  model: "sonnet"
+  model: "sonnet",
 };
 
 // ============================================================================
@@ -158,13 +166,13 @@ For each issue, explain:
  * @returns Structured review result or null if failed
  */
 export async function runCodeReview(
-  config: ReviewAgentConfig
+  config: ReviewAgentConfig,
 ): Promise<ReviewResult | null> {
   const {
     directory,
     model = "opus",
     maxTurns = 250,
-    useSubagents = true
+    useSubagents = true,
   } = config;
 
   console.log(`\n${"=".repeat(60)}`);
@@ -201,10 +209,14 @@ Your review should cover:
 3. **Performance** - Inefficient patterns, N+1 queries, memory issues
 4. **Code Quality** - Maintainability, readability, best practices
 
-${useSubagents ? `Use the specialized subagents:
+${
+  useSubagents
+    ? `Use the specialized subagents:
 - security-scanner: For deep security vulnerability analysis
 - test-analyzer: For test coverage evaluation
-- performance-analyzer: For performance optimization opportunities` : ""}
+- performance-analyzer: For performance optimization opportunities`
+    : ""
+}
 
 Be thorough but focus on actionable issues. Provide specific file paths and line numbers.`,
     options: {
@@ -214,16 +226,16 @@ Be thorough but focus on actionable issues. Provide specific file paths and line
       maxTurns,
       outputFormat: {
         type: "json_schema",
-        schema: reviewSchema
+        schema: reviewSchema,
       },
       agents: useSubagents ? agents : undefined,
       hooks: {
         PreToolUse: [
           { hooks: [auditLogger] },
-          { matcher: "Bash", hooks: [blockDangerousCommands] }
-        ]
-      }
-    }
+          { matcher: "Bash", hooks: [blockDangerousCommands] },
+        ],
+      },
+    },
   })) {
     // Capture session ID
     if (message.type === "system" && message.subtype === "init") {
@@ -312,7 +324,7 @@ export function printResults(result: ReviewResult): void {
     critical: result.issues.filter((i) => i.severity === "critical"),
     high: result.issues.filter((i) => i.severity === "high"),
     medium: result.issues.filter((i) => i.severity === "medium"),
-    low: result.issues.filter((i) => i.severity === "low")
+    low: result.issues.filter((i) => i.severity === "low"),
   };
 
   for (const [severity, issues] of Object.entries(groups)) {
@@ -346,7 +358,7 @@ export function printResults(result: ReviewResult): void {
       acc[issue.category] = (acc[issue.category] || 0) + 1;
       return acc;
     },
-    {} as Record<string, number>
+    {} as Record<string, number>,
   );
 
   console.log();
@@ -369,7 +381,7 @@ function getScoreBar(score: number): string {
  */
 export function exportResults(
   result: ReviewResult,
-  format: "json" | "markdown" | "sarif"
+  format: "json" | "markdown" | "sarif",
 ): string {
   switch (format) {
     case "json":
@@ -401,20 +413,22 @@ function generateMarkdownReport(result: ReviewResult): string {
     result.summary,
     "",
     "## Issues",
-    ""
+    "",
   ];
 
   const groups = {
     critical: result.issues.filter((i) => i.severity === "critical"),
     high: result.issues.filter((i) => i.severity === "high"),
     medium: result.issues.filter((i) => i.severity === "medium"),
-    low: result.issues.filter((i) => i.severity === "low")
+    low: result.issues.filter((i) => i.severity === "low"),
   };
 
   for (const [severity, issues] of Object.entries(groups)) {
     if (issues.length === 0) continue;
 
-    lines.push(`### ${severity.charAt(0).toUpperCase() + severity.slice(1)} (${issues.length})`);
+    lines.push(
+      `### ${severity.charAt(0).toUpperCase() + severity.slice(1)} (${issues.length})`,
+    );
     lines.push("");
 
     for (const issue of issues) {
@@ -449,25 +463,25 @@ function generateSarifReport(result: ReviewResult): string {
               {
                 id: "bug",
                 name: "Bug",
-                shortDescription: { text: "Potential bug or logic error" }
+                shortDescription: { text: "Potential bug or logic error" },
               },
               {
                 id: "security",
                 name: "Security",
-                shortDescription: { text: "Security vulnerability" }
+                shortDescription: { text: "Security vulnerability" },
               },
               {
                 id: "performance",
                 name: "Performance",
-                shortDescription: { text: "Performance issue" }
+                shortDescription: { text: "Performance issue" },
               },
               {
                 id: "style",
                 name: "Style",
-                shortDescription: { text: "Code style or quality issue" }
-              }
-            ]
-          }
+                shortDescription: { text: "Code style or quality issue" },
+              },
+            ],
+          },
         },
         results: result.issues.map((issue) => ({
           ruleId: issue.category,
@@ -477,20 +491,20 @@ function generateSarifReport(result: ReviewResult): string {
             {
               physicalLocation: {
                 artifactLocation: { uri: issue.file },
-                region: issue.line ? { startLine: issue.line } : undefined
-              }
-            }
+                region: issue.line ? { startLine: issue.line } : undefined,
+              },
+            },
           ],
           fixes: issue.suggestion
             ? [
                 {
-                  description: { text: issue.suggestion }
-                }
+                  description: { text: issue.suggestion },
+                },
               ]
-            : undefined
-        }))
-      }
-    ]
+            : undefined,
+        })),
+      },
+    ],
   };
 
   return JSON.stringify(sarif, null, 2);
@@ -500,7 +514,7 @@ function generateSarifReport(result: ReviewResult): string {
  * Maps severity to SARIF level
  */
 function mapSeverityToSarif(
-  severity: string
+  severity: string,
 ): "error" | "warning" | "note" | "none" {
   switch (severity) {
     case "critical":
@@ -532,7 +546,7 @@ async function main(): Promise<void> {
   const result = await runCodeReview({
     directory,
     model: "opus",
-    useSubagents
+    useSubagents,
   });
 
   if (result) {

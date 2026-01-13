@@ -16,11 +16,13 @@ This infrastructure provides structured JSON logging for all HTTP requests with:
 ## 📁 Files
 
 ### Python (FastAPI)
+
 - **`request_logging.py`** - Main middleware implementation
 - **`examples/fastapi_example.py`** - Complete working example
 - **`REQUEST_LOGGING_GUIDE.md`** - Comprehensive usage guide
 
 ### TypeScript (NestJS)
+
 - **`../apps/services/shared/middleware/request-logging.ts`** - Main interceptor implementation
 - **`../apps/services/shared/middleware/examples/nestjs_example.ts`** - Complete working example
 
@@ -43,11 +45,11 @@ app.add_middleware(
 ### TypeScript (NestJS)
 
 ```typescript
-import { NestFactory } from '@nestjs/core';
-import { RequestLoggingInterceptor } from '../shared/middleware/request-logging';
+import { NestFactory } from "@nestjs/core";
+import { RequestLoggingInterceptor } from "../shared/middleware/request-logging";
 
 const app = await NestFactory.create(AppModule);
-app.useGlobalInterceptors(new RequestLoggingInterceptor('my-service'));
+app.useGlobalInterceptors(new RequestLoggingInterceptor("my-service"));
 ```
 
 ## 📊 Log Format
@@ -77,6 +79,7 @@ All logs are output in structured JSON format:
 ### 1. Correlation ID Tracking
 
 Correlation IDs are automatically:
+
 - Extracted from `X-Correlation-ID` or `X-Request-ID` headers
 - Generated if not provided (UUID v4)
 - Added to response headers
@@ -90,13 +93,14 @@ correlation_id = get_correlation_id(request)
 
 ```typescript
 // TypeScript
-import { getCorrelationId } from '../shared/middleware/request-logging';
+import { getCorrelationId } from "../shared/middleware/request-logging";
 const correlationId = getCorrelationId(request);
 ```
 
 ### 2. Tenant & User Tracking
 
 Automatically extracts from:
+
 - Headers: `X-Tenant-ID`, `X-User-ID`
 - JWT claims: `tid` (tenant), `sub` (user)
 - Request state (set by auth middleware)
@@ -104,6 +108,7 @@ Automatically extracts from:
 ### 3. Sensitive Data Filtering
 
 Automatically redacts:
+
 - Passwords, tokens, API keys
 - Authorization headers
 - Database connection strings
@@ -113,6 +118,7 @@ Automatically redacts:
 ### 4. Error Logging
 
 Exceptions are automatically logged with:
+
 - Error type and message
 - Stack trace
 - Request context
@@ -143,10 +149,10 @@ app.add_middleware(
 
 ```typescript
 new RequestLoggingInterceptor(
-  'my-service',        // Required: service name
-  false,               // Optional: log request body
-  false,               // Optional: log response body
-)
+  "my-service", // Required: service name
+  false, // Optional: log request body
+  false, // Optional: log response body
+);
 ```
 
 ## 🌐 Service-to-Service Communication
@@ -154,6 +160,7 @@ new RequestLoggingInterceptor(
 When calling other services, propagate the correlation ID:
 
 ### Python
+
 ```python
 async with httpx.AsyncClient() as client:
     response = await client.get(
@@ -166,14 +173,15 @@ async with httpx.AsyncClient() as client:
 ```
 
 ### TypeScript
+
 ```typescript
 const correlationId = getCorrelationId(request);
 const { tenantId } = getRequestContext(request);
 
-await fetch('http://other-service/api/endpoint', {
+await fetch("http://other-service/api/endpoint", {
   headers: {
-    'X-Correlation-ID': correlationId,
-    'X-Tenant-ID': tenantId,
+    "X-Correlation-ID": correlationId,
+    "X-Tenant-ID": tenantId,
   },
 });
 ```
@@ -210,6 +218,7 @@ kubectl logs -l app=my-service | jq -r '.tenant_id' | sort | uniq -c
 ### From Existing Logging
 
 #### Python
+
 ```python
 # Old way
 logger.info(f"Processing for tenant {tenant_id}")
@@ -221,24 +230,27 @@ logger.info("Processing request", extra=context)
 ```
 
 #### TypeScript
+
 ```typescript
 // Old way
 this.logger.log(`Processing for tenant ${tenantId}`);
 
 // New way
-import { StructuredLogger } from '../shared/middleware/request-logging';
-const logger = new StructuredLogger('my-service');
-logger.log('Processing request', { tenantId, correlationId });
+import { StructuredLogger } from "../shared/middleware/request-logging";
+const logger = new StructuredLogger("my-service");
+logger.log("Processing request", { tenantId, correlationId });
 ```
 
 ## 📦 Dependencies
 
 ### Python
+
 - `fastapi` - Web framework
 - `starlette` - ASGI middleware support
 - No additional dependencies required
 
 ### TypeScript
+
 - `@nestjs/common` - NestJS framework
 - `@nestjs/core` - NestJS interceptors
 - `rxjs` - Reactive extensions
@@ -247,6 +259,7 @@ logger.log('Processing request', { tenantId, correlationId });
 ## 🧪 Testing
 
 See example files for complete integration examples:
+
 - `examples/fastapi_example.py` - Test with `uvicorn`
 - `examples/nestjs_example.ts` - Test with `nest start`
 
@@ -261,6 +274,7 @@ SAHOOL DevOps & Backend Team
 ## 📞 Support
 
 For questions or issues:
+
 1. Check the [REQUEST_LOGGING_GUIDE.md](./REQUEST_LOGGING_GUIDE.md)
 2. Review example implementations
 3. Contact the platform team

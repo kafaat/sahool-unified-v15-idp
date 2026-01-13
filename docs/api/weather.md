@@ -1,9 +1,11 @@
 # Weather APIs
+
 # واجهات برمجة تطبيقات الطقس
 
 ## Overview | نظرة عامة
 
 Weather APIs provide comprehensive weather data and forecasts for agricultural decision-making:
+
 - Current weather conditions
 - Multi-day forecasts
 - Weather alerts and warnings
@@ -11,6 +13,7 @@ Weather APIs provide comprehensive weather data and forecasts for agricultural d
 - Multi-provider support with automatic fallback
 
 توفر واجهات الطقس بيانات وتوقعات شاملة للطقس لاتخاذ القرارات الزراعية:
+
 - ظروف الطقس الحالية
 - توقعات متعددة الأيام
 - تنبيهات وتحذيرات الطقس
@@ -44,7 +47,7 @@ Get current weather conditions for a location.
   "tenant_id": "tenant-123",
   "field_id": "field-456",
   "lat": 15.3694,
-  "lon": 44.1910
+  "lon": 44.191
 }
 ```
 
@@ -55,7 +58,7 @@ Get current weather conditions for a location.
   "field_id": "field-456",
   "location": {
     "lat": 15.3694,
-    "lon": 44.1910
+    "lon": 44.191
   },
   "provider": "Open-Meteo",
   "current": {
@@ -95,11 +98,12 @@ Get weather forecast for a location.
   "tenant_id": "tenant-123",
   "field_id": "field-456",
   "lat": 15.3694,
-  "lon": 44.1910
+  "lon": 44.191
 }
 ```
 
 **Query Parameters:**
+
 - `days` (integer, optional): Number of forecast days (1-16, default: 7)
 
 **Response:**
@@ -109,7 +113,7 @@ Get weather forecast for a location.
   "field_id": "field-456",
   "location": {
     "lat": 15.3694,
-    "lon": 44.1910
+    "lon": 44.191
   },
   "provider": "Open-Meteo",
   "forecast": [
@@ -176,6 +180,7 @@ Get irrigation adjustment recommendations based on weather.
 Quick heat stress assessment for a temperature.
 
 **Path Parameters:**
+
 - `temp_c` (number, required): Temperature in Celsius
 
 **Response:**
@@ -227,23 +232,23 @@ Get list of available weather providers.
 
 ### Alert Types
 
-| Type | Description |
-|------|-------------|
-| `heat_stress` | High temperature warning |
-| `frost_risk` | Frost warning |
-| `high_wind` | Strong wind warning |
-| `heavy_rain` | Heavy precipitation warning |
-| `low_humidity` | Low humidity alert |
+| Type           | Description                 |
+| -------------- | --------------------------- |
+| `heat_stress`  | High temperature warning    |
+| `frost_risk`   | Frost warning               |
+| `high_wind`    | Strong wind warning         |
+| `heavy_rain`   | Heavy precipitation warning |
+| `low_humidity` | Low humidity alert          |
 
 ### Severity Levels
 
-| Level | Description | Action Required |
-|-------|-------------|-----------------|
-| `none` | No risk | No action needed |
-| `low` | Minor risk | Monitor conditions |
-| `medium` | Moderate risk | Take preventive measures |
-| `high` | High risk | Immediate action required |
-| `critical` | Extreme risk | Emergency measures |
+| Level      | Description   | Action Required           |
+| ---------- | ------------- | ------------------------- |
+| `none`     | No risk       | No action needed          |
+| `low`      | Minor risk    | Monitor conditions        |
+| `medium`   | Moderate risk | Take preventive measures  |
+| `high`     | High risk     | Immediate action required |
+| `critical` | Extreme risk  | Emergency measures        |
 
 ## Data Models | نماذج البيانات
 
@@ -286,4 +291,4 @@ interface DailyForecast {
 
 ---
 
-*Last updated: 2026-01-02*
+_Last updated: 2026-01-02_

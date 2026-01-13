@@ -25,12 +25,12 @@ export const testData = {
    */
   randomName: () => {
     const names = [
-      'Ahmed Ali',
-      'Fatima Hassan',
-      'Mohammed Ibrahim',
-      'Aisha Abdullah',
-      'Omar Khalid',
-      'Noor Ahmad',
+      "Ahmed Ali",
+      "Fatima Hassan",
+      "Mohammed Ibrahim",
+      "Aisha Abdullah",
+      "Omar Khalid",
+      "Noor Ahmad",
     ];
     return names[Math.floor(Math.random() * names.length)];
   },
@@ -40,7 +40,7 @@ export const testData = {
    * إنشاء رقم هاتف عشوائي
    */
   randomPhone: () => {
-    const prefix = '+966';
+    const prefix = "+966";
     const number = Math.floor(Math.random() * 900000000) + 100000000;
     return `${prefix}${number}`;
   },
@@ -57,7 +57,9 @@ export const testData = {
       lat: 24.7136 + (Math.random() - 0.5) * 0.1,
       lng: 46.6753 + (Math.random() - 0.5) * 0.1,
     },
-    cropType: ['wheat', 'corn', 'rice', 'barley'][Math.floor(Math.random() * 4)],
+    cropType: ["wheat", "corn", "rice", "barley"][
+      Math.floor(Math.random() * 4)
+    ],
   }),
 
   /**
@@ -67,11 +69,13 @@ export const testData = {
   randomTask: () => ({
     title: `Test Task ${Date.now()}`,
     titleAr: `مهمة اختبارية ${Date.now()}`,
-    description: 'This is a test task created by E2E tests',
-    descriptionAr: 'هذه مهمة اختبارية تم إنشاؤها بواسطة اختبارات E2E',
-    priority: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)],
-    status: 'pending',
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    description: "This is a test task created by E2E tests",
+    descriptionAr: "هذه مهمة اختبارية تم إنشاؤها بواسطة اختبارات E2E",
+    priority: ["low", "medium", "high"][Math.floor(Math.random() * 3)],
+    status: "pending",
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0],
   }),
 
   /**
@@ -81,9 +85,13 @@ export const testData = {
   randomEquipment: () => ({
     name: `Test Equipment ${Date.now()}`,
     nameAr: `معدة اختبارية ${Date.now()}`,
-    type: ['tractor', 'harvester', 'irrigation', 'sprayer'][Math.floor(Math.random() * 4)],
+    type: ["tractor", "harvester", "irrigation", "sprayer"][
+      Math.floor(Math.random() * 4)
+    ],
     model: `Model-${Math.floor(Math.random() * 1000)}`,
-    purchaseDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    purchaseDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0],
   }),
 
   /**
@@ -92,9 +100,11 @@ export const testData = {
    */
   randomSensor: () => ({
     name: `Test Sensor ${Date.now()}`,
-    type: ['temperature', 'humidity', 'soil_moisture', 'light'][Math.floor(Math.random() * 4)],
+    type: ["temperature", "humidity", "soil_moisture", "light"][
+      Math.floor(Math.random() * 4)
+    ],
     value: Math.floor(Math.random() * 100),
-    unit: 'percent',
+    unit: "percent",
     timestamp: new Date().toISOString(),
   }),
 };
@@ -115,7 +125,8 @@ export const selectors = {
   // Forms
   emailInput: 'input[type="email"]',
   passwordInput: 'input[type="password"]',
-  searchInput: 'input[type="search"], input[placeholder*="Search"], input[placeholder*="بحث"]',
+  searchInput:
+    'input[type="search"], input[placeholder*="Search"], input[placeholder*="بحث"]',
 
   // Navigation
   loginLink: 'a[href="/login"]',
@@ -147,16 +158,16 @@ export const timeouts = {
  */
 export const userRoles = {
   admin: {
-    email: process.env.ADMIN_USER_EMAIL || 'admin@sahool.com',
-    password: process.env.ADMIN_USER_PASSWORD || 'Admin@123456',
+    email: process.env.ADMIN_USER_EMAIL || "admin@sahool.com",
+    password: process.env.ADMIN_USER_PASSWORD || "Admin@123456",
   },
   farmer: {
-    email: process.env.TEST_USER_EMAIL || 'test@sahool.com',
-    password: process.env.TEST_USER_PASSWORD || 'Test@123456',
+    email: process.env.TEST_USER_EMAIL || "test@sahool.com",
+    password: process.env.TEST_USER_PASSWORD || "Test@123456",
   },
   advisor: {
-    email: process.env.ADVISOR_USER_EMAIL || 'advisor@sahool.com',
-    password: process.env.ADVISOR_USER_PASSWORD || 'Advisor@123456',
+    email: process.env.ADVISOR_USER_EMAIL || "advisor@sahool.com",
+    password: process.env.ADVISOR_USER_PASSWORD || "Advisor@123456",
   },
 };
 
@@ -165,15 +176,15 @@ export const userRoles = {
  * نقاط النهاية API
  */
 export const apiEndpoints = {
-  login: '/api/auth/login',
-  logout: '/api/auth/logout',
-  profile: '/api/users/profile',
-  fields: '/api/fields',
-  tasks: '/api/tasks',
-  equipment: '/api/equipment',
-  sensors: '/api/sensors',
-  weather: '/api/weather',
-  analytics: '/api/analytics',
+  login: "/api/auth/login",
+  logout: "/api/auth/logout",
+  profile: "/api/users/profile",
+  fields: "/api/fields",
+  tasks: "/api/tasks",
+  equipment: "/api/equipment",
+  sensors: "/api/sensors",
+  weather: "/api/weather",
+  analytics: "/api/analytics",
 };
 
 /**
@@ -181,18 +192,18 @@ export const apiEndpoints = {
  * عناوين URL للصفحات
  */
 export const pages = {
-  home: '/',
-  login: '/login',
-  dashboard: '/dashboard',
-  fields: '/fields',
-  tasks: '/tasks',
-  analytics: '/analytics',
-  marketplace: '/marketplace',
-  settings: '/settings',
-  iot: '/iot',
-  weather: '/weather',
-  equipment: '/equipment',
-  cropHealth: '/crop-health',
-  community: '/community',
-  wallet: '/wallet',
+  home: "/",
+  login: "/login",
+  dashboard: "/dashboard",
+  fields: "/fields",
+  tasks: "/tasks",
+  analytics: "/analytics",
+  marketplace: "/marketplace",
+  settings: "/settings",
+  iot: "/iot",
+  weather: "/weather",
+  equipment: "/equipment",
+  cropHealth: "/crop-health",
+  community: "/community",
+  wallet: "/wallet",
 };

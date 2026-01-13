@@ -12,8 +12,8 @@
  * - Real-time sync status updates
  */
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo, { NetInfoState } from "@react-native-community/netinfo";
 import {
   SyncOperation,
   SyncOperationType,
@@ -34,17 +34,17 @@ import {
   SyncEventListener,
   ISyncStorage,
   CustomConflictResolver,
-} from '../models/syncTypes';
+} from "../models/syncTypes";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // الثوابت - Constants
 // ═══════════════════════════════════════════════════════════════════════════
 
 const STORAGE_KEYS = {
-  QUEUE: '@sahool_sync_queue',
-  LAST_SYNC: '@sahool_last_sync',
-  STATISTICS: '@sahool_sync_stats',
-  CONFIG: '@sahool_sync_config',
+  QUEUE: "@sahool_sync_queue",
+  LAST_SYNC: "@sahool_last_sync",
+  STATISTICS: "@sahool_sync_stats",
+  CONFIG: "@sahool_sync_config",
 };
 
 const DEFAULT_CONFIG: SyncConfig = {
@@ -93,10 +93,12 @@ export class SyncManager {
   private statistics: SyncStatistics = this.initializeStatistics();
 
   // المستمعون للأحداث - Event listeners
-  private eventListeners: Map<SyncEventType, Set<SyncEventListener>> = new Map();
+  private eventListeners: Map<SyncEventType, Set<SyncEventListener>> =
+    new Map();
 
   // حالي المزامنة - Custom resolvers
-  private customResolvers: Map<SyncDataType, CustomConflictResolver> = new Map();
+  private customResolvers: Map<SyncDataType, CustomConflictResolver> =
+    new Map();
 
   // التخزين - Storage
   private storage: ISyncStorage;
@@ -154,7 +156,9 @@ export class SyncManager {
       // تحميل قائمة الانتظار - Load queue
       if (this.config.persistQueue) {
         const queue = await this.storage.loadQueue();
-        this.queue = queue.filter(op => op.status !== SyncOperationStatus.COMPLETED);
+        this.queue = queue.filter(
+          (op) => op.status !== SyncOperationStatus.COMPLETED,
+        );
         console.log(`📦 تم تحميل ${this.queue.length} عملية من التخزين المحلي`);
       }
 
@@ -164,9 +168,9 @@ export class SyncManager {
         this.statistics = stats;
       }
 
-      console.log('✅ تم تحميل بيانات المزامنة المحفوظة');
+      console.log("✅ تم تحميل بيانات المزامنة المحفوظة");
     } catch (error) {
-      console.error('❌ خطأ في تحميل البيانات المحفوظة:', error);
+      console.error("❌ خطأ في تحميل البيانات المحفوظة:", error);
     }
   }
 
@@ -192,10 +196,10 @@ export class SyncManager {
     if (!this.isOnline) {
       this.networkStatus = NetworkStatus.OFFLINE;
       this.currentStatus = SyncStatus.OFFLINE;
-    } else if (state.details && 'cellularGeneration' in state.details) {
+    } else if (state.details && "cellularGeneration" in state.details) {
       // اتصال محمول - Mobile connection
       this.networkStatus = NetworkStatus.METERED;
-    } else if (state.type === 'wifi') {
+    } else if (state.type === "wifi") {
       this.networkStatus = NetworkStatus.ONLINE;
     } else {
       this.networkStatus = NetworkStatus.ONLINE;
@@ -210,7 +214,7 @@ export class SyncManager {
 
     // بدء المزامنة إذا أصبحنا متصلين - Start sync if we're now online
     if (!wasOnline && this.isOnline && this.queue.length > 0) {
-      console.log('🌐 الاتصال متاح، بدء المزامنة التلقائية');
+      console.log("🌐 الاتصال متاح، بدء المزامنة التلقائية");
       this.syncWhenOnline();
     }
   }
@@ -233,11 +237,13 @@ export class SyncManager {
       endpoint?: string;
       previousData?: Record<string, any>;
       metadata?: Record<string, any>;
-    }
+    },
   ): Promise<string> {
     // التحقق من حجم قائمة الانتظار - Check queue size
     if (this.queue.length >= this.config.maxQueueSize) {
-      throw new Error(`تجاوز الحد الأقصى لحجم قائمة الانتظار (${this.config.maxQueueSize})`);
+      throw new Error(
+        `تجاوز الحد الأقصى لحجم قائمة الانتظار (${this.config.maxQueueSize})`,
+      );
     }
 
     // إنشاء العملية - Create operation
@@ -264,7 +270,10 @@ export class SyncManager {
 
     // تحديث الإحصائيات - Update statistics
     this.statistics.totalOperations++;
-    this.statistics.peakQueueSize = Math.max(this.statistics.peakQueueSize, this.queue.length);
+    this.statistics.peakQueueSize = Math.max(
+      this.statistics.peakQueueSize,
+      this.queue.length,
+    );
 
     // حفظ قائمة الانتظار - Save queue
     if (this.config.persistQueue) {
@@ -279,7 +288,9 @@ export class SyncManager {
       data: { operation },
     });
 
-    console.log(`➕ تمت إضافة عملية ${operation.id} إلى قائمة الانتظار (${this.queue.length} عملية)`);
+    console.log(
+      `➕ تمت إضافة عملية ${operation.id} إلى قائمة الانتظار (${this.queue.length} عملية)`,
+    );
 
     // بدء المزامنة إذا كنا متصلين - Start sync if online
     if (this.isOnline && !this.isSyncing && !this.isPaused) {
@@ -296,30 +307,33 @@ export class SyncManager {
   public async processQueue(): Promise<BatchSyncResult> {
     // التحقق من الحالة - Check preconditions
     if (this.isSyncing) {
-      console.log('⏳ المزامنة قيد التنفيذ بالفعل');
+      console.log("⏳ المزامنة قيد التنفيذ بالفعل");
       return this.createEmptyBatchResult();
     }
 
     if (this.isPaused) {
-      console.log('⏸️ المزامنة متوقفة مؤقتاً');
+      console.log("⏸️ المزامنة متوقفة مؤقتاً");
       return this.createEmptyBatchResult();
     }
 
     if (!this.isOnline) {
-      console.log('📴 لا يوجد اتصال بالإنترنت');
+      console.log("📴 لا يوجد اتصال بالإنترنت");
       this.currentStatus = SyncStatus.OFFLINE;
       return this.createEmptyBatchResult();
     }
 
     if (this.queue.length === 0) {
-      console.log('✅ قائمة الانتظار فارغة');
+      console.log("✅ قائمة الانتظار فارغة");
       this.currentStatus = SyncStatus.IDLE;
       return this.createEmptyBatchResult();
     }
 
     // التحقق من نوع الاتصال - Check connection type
-    if (this.config.syncOnlyOnWifi && this.networkStatus === NetworkStatus.METERED) {
-      console.log('📱 تم تعطيل المزامنة على البيانات الخلوية');
+    if (
+      this.config.syncOnlyOnWifi &&
+      this.networkStatus === NetworkStatus.METERED
+    ) {
+      console.log("📱 تم تعطيل المزامنة على البيانات الخلوية");
       return this.createEmptyBatchResult();
     }
 
@@ -368,9 +382,11 @@ export class SyncManager {
 
     // حساب النتائج - Calculate results
     const duration = Date.now() - startTime;
-    const successCount = results.filter(r => r.success).length;
-    const failedCount = results.filter(r => !r.success && !r.conflictDetected).length;
-    const conflictCount = results.filter(r => r.conflictDetected).length;
+    const successCount = results.filter((r) => r.success).length;
+    const failedCount = results.filter(
+      (r) => !r.success && !r.conflictDetected,
+    ).length;
+    const conflictCount = results.filter((r) => r.conflictDetected).length;
 
     const batchResult: BatchSyncResult = {
       success: failedCount === 0 && conflictCount === 0,
@@ -399,7 +415,9 @@ export class SyncManager {
     // تحديث الإحصائيات - Update statistics
     this.statistics.lastSyncDuration = duration;
     this.statistics.averageSyncTime =
-      (this.statistics.averageSyncTime * (this.statistics.totalOperations - batch.length) + duration) /
+      (this.statistics.averageSyncTime *
+        (this.statistics.totalOperations - batch.length) +
+        duration) /
       this.statistics.totalOperations;
 
     // حفظ التغييرات - Save changes
@@ -420,7 +438,9 @@ export class SyncManager {
       data: batchResult,
     });
 
-    console.log(`✅ اكتملت المزامنة: ${successCount} ناجحة، ${failedCount} فاشلة، ${conflictCount} تعارض`);
+    console.log(
+      `✅ اكتملت المزامنة: ${successCount} ناجحة، ${failedCount} فاشلة، ${conflictCount} تعارض`,
+    );
 
     return batchResult;
   }
@@ -429,13 +449,17 @@ export class SyncManager {
    * معالجة عملية واحدة
    * Process a single operation
    */
-  private async processOperation(operation: SyncOperation): Promise<SyncResult> {
+  private async processOperation(
+    operation: SyncOperation,
+  ): Promise<SyncResult> {
     const startTime = Date.now();
     operation.status = SyncOperationStatus.PROCESSING;
     operation.attemptCount++;
     operation.updatedAt = new Date();
 
-    console.log(`⚙️ معالجة العملية ${operation.id} (محاولة ${operation.attemptCount}/${operation.maxAttempts})`);
+    console.log(
+      `⚙️ معالجة العملية ${operation.id} (محاولة ${operation.attemptCount}/${operation.maxAttempts})`,
+    );
 
     try {
       // تنفيذ الطلب - Execute request
@@ -445,7 +469,10 @@ export class SyncManager {
       if (response.status === 409 || response.status === 412) {
         console.log(`⚠️ تم اكتشاف تعارض للعملية ${operation.id}`);
 
-        const conflictData = await this.detectConflict(operation, response.data);
+        const conflictData = await this.detectConflict(
+          operation,
+          response.data,
+        );
         operation.conflictData = conflictData;
         operation.status = SyncOperationStatus.CONFLICT;
 
@@ -483,12 +510,17 @@ export class SyncManager {
         });
 
         console.log(`✅ نجحت العملية ${operation.id}`);
-        return this.createSyncResult(operation, startTime, true, false, response);
+        return this.createSyncResult(
+          operation,
+          startTime,
+          true,
+          false,
+          response,
+        );
       }
 
       // فشلت العملية - Operation failed
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-
     } catch (error) {
       console.error(`❌ فشلت العملية ${operation.id}:`, error);
 
@@ -519,7 +551,7 @@ export class SyncManager {
         undefined,
         error as Error,
         operation.attemptCount < operation.maxAttempts,
-        operation.scheduledAt
+        operation.scheduledAt,
       );
     }
   }
@@ -534,7 +566,7 @@ export class SyncManager {
    */
   private async detectConflict(
     operation: SyncOperation,
-    serverData: any
+    serverData: any,
   ): Promise<ConflictData> {
     const conflictingFields: string[] = [];
 
@@ -578,24 +610,29 @@ export class SyncManager {
     const customResolver = this.customResolvers.get(operation.dataType);
     if (customResolver) {
       try {
-        const resolved = await customResolver(localVersion, serverVersion, baseVersion);
+        const resolved = await customResolver(
+          localVersion,
+          serverVersion,
+          baseVersion,
+        );
         operation.data = resolved;
         operation.conflictData.resolvedData = resolved;
         operation.conflictData.resolvedAt = new Date();
-        operation.conflictData.resolvedBy = 'AUTO';
-        operation.conflictData.resolutionStrategy = ConflictResolutionStrategy.CUSTOM;
+        operation.conflictData.resolvedBy = "AUTO";
+        operation.conflictData.resolutionStrategy =
+          ConflictResolutionStrategy.CUSTOM;
 
         this.emitEvent({
           type: SyncEventType.CONFLICT_RESOLVED,
           timestamp: new Date(),
           operationId: operation.id,
-          data: { strategy: 'CUSTOM', resolved },
+          data: { strategy: "CUSTOM", resolved },
         });
 
         console.log(`✅ تم حل التعارض باستخدام محلل مخصص`);
         return true;
       } catch (error) {
-        console.error('❌ فشل المحلل المخصص:', error);
+        console.error("❌ فشل المحلل المخصص:", error);
       }
     }
 
@@ -621,13 +658,13 @@ export class SyncManager {
           localVersion,
           serverVersion,
           baseVersion,
-          operation.conflictData.conflictingFields
+          operation.conflictData.conflictingFields,
         );
         break;
 
       case ConflictResolutionStrategy.MANUAL_MERGE:
         // يتطلب تدخل المستخدم - Requires user intervention
-        console.log('👤 يتطلب حل يدوي من المستخدم');
+        console.log("👤 يتطلب حل يدوي من المستخدم");
         return false;
 
       default:
@@ -638,7 +675,7 @@ export class SyncManager {
       operation.data = resolved;
       operation.conflictData.resolvedData = resolved;
       operation.conflictData.resolvedAt = new Date();
-      operation.conflictData.resolvedBy = 'AUTO';
+      operation.conflictData.resolvedBy = "AUTO";
       operation.conflictData.resolutionStrategy = strategy;
 
       this.emitEvent({
@@ -661,10 +698,14 @@ export class SyncManager {
    */
   private resolveLastWriteWins(
     local: Record<string, any>,
-    server: Record<string, any>
+    server: Record<string, any>,
   ): Record<string, any> {
-    const localTime = new Date(local.updatedAt || local.updated_at || 0).getTime();
-    const serverTime = new Date(server.updatedAt || server.updated_at || 0).getTime();
+    const localTime = new Date(
+      local.updatedAt || local.updated_at || 0,
+    ).getTime();
+    const serverTime = new Date(
+      server.updatedAt || server.updated_at || 0,
+    ).getTime();
 
     return localTime > serverTime ? local : server;
   }
@@ -677,7 +718,7 @@ export class SyncManager {
     local: Record<string, any>,
     server: Record<string, any>,
     base: Record<string, any> | undefined,
-    conflictingFields: string[]
+    conflictingFields: string[],
   ): Record<string, any> {
     const merged = { ...server };
 
@@ -699,7 +740,7 @@ export class SyncManager {
    */
   public registerCustomResolver(
     dataType: SyncDataType,
-    resolver: CustomConflictResolver
+    resolver: CustomConflictResolver,
   ): void {
     this.customResolvers.set(dataType, resolver);
     console.log(`✅ تم تسجيل محلل مخصص لـ ${dataType}`);
@@ -721,7 +762,7 @@ export class SyncManager {
         return NetworkStatus.OFFLINE;
       }
 
-      if (state.details && 'cellularGeneration' in state.details) {
+      if (state.details && "cellularGeneration" in state.details) {
         return NetworkStatus.METERED;
       }
 
@@ -732,7 +773,7 @@ export class SyncManager {
 
       return NetworkStatus.ONLINE;
     } catch (error) {
-      console.error('خطأ في اكتشاف حالة الشبكة:', error);
+      console.error("خطأ في اكتشاف حالة الشبكة:", error);
       return NetworkStatus.OFFLINE;
     }
   }
@@ -743,7 +784,7 @@ export class SyncManager {
    */
   public async syncWhenOnline(): Promise<void> {
     if (this.isOnline && this.queue.length > 0) {
-      console.log('🌐 بدء المزامنة التلقائية');
+      console.log("🌐 بدء المزامنة التلقائية");
       await this.processQueue();
     }
   }
@@ -780,7 +821,7 @@ export class SyncManager {
       await this.storage.saveQueue(this.queue);
       console.log(`💾 تم حفظ ${this.queue.length} عملية إلى التخزين المحلي`);
     } catch (error) {
-      console.error('❌ خطأ في حفظ قائمة الانتظار:', error);
+      console.error("❌ خطأ في حفظ قائمة الانتظار:", error);
       throw error;
     }
   }
@@ -792,10 +833,12 @@ export class SyncManager {
   public async loadQueueFromStorage(): Promise<void> {
     try {
       const queue = await this.storage.loadQueue();
-      this.queue = queue.filter(op => op.status !== SyncOperationStatus.COMPLETED);
+      this.queue = queue.filter(
+        (op) => op.status !== SyncOperationStatus.COMPLETED,
+      );
       console.log(`📦 تم تحميل ${this.queue.length} عملية من التخزين المحلي`);
     } catch (error) {
-      console.error('❌ خطأ في تحميل قائمة الانتظار:', error);
+      console.error("❌ خطأ في تحميل قائمة الانتظار:", error);
       throw error;
     }
   }
@@ -806,7 +849,9 @@ export class SyncManager {
    */
   public async clearCompletedOperations(): Promise<number> {
     const beforeCount = this.queue.length;
-    this.queue = this.queue.filter(op => op.status !== SyncOperationStatus.COMPLETED);
+    this.queue = this.queue.filter(
+      (op) => op.status !== SyncOperationStatus.COMPLETED,
+    );
     const clearedCount = beforeCount - this.queue.length;
 
     if (this.config.persistQueue && clearedCount > 0) {
@@ -841,25 +886,36 @@ export class SyncManager {
    */
   public async getSyncStatus(): Promise<SyncStatusInfo> {
     const lastSyncTime = await this.getLastSyncTime();
-    const pendingOps = this.queue.filter(op => op.status === SyncOperationStatus.PENDING);
-    const failedOps = this.queue.filter(op => op.status === SyncOperationStatus.FAILED);
-    const conflictOps = this.queue.filter(op => op.status === SyncOperationStatus.CONFLICT);
-    const completedOps = this.queue.filter(op => op.status === SyncOperationStatus.COMPLETED);
+    const pendingOps = this.queue.filter(
+      (op) => op.status === SyncOperationStatus.PENDING,
+    );
+    const failedOps = this.queue.filter(
+      (op) => op.status === SyncOperationStatus.FAILED,
+    );
+    const conflictOps = this.queue.filter(
+      (op) => op.status === SyncOperationStatus.CONFLICT,
+    );
+    const completedOps = this.queue.filter(
+      (op) => op.status === SyncOperationStatus.COMPLETED,
+    );
 
     const totalDataSize = this.queue.reduce((sum, op) => {
       return sum + JSON.stringify(op.data).length;
     }, 0);
 
-    const syncProgress = this.isSyncing && this.queue.length > 0
-      ? Math.round((completedOps.length / this.queue.length) * 100)
-      : 0;
+    const syncProgress =
+      this.isSyncing && this.queue.length > 0
+        ? Math.round((completedOps.length / this.queue.length) * 100)
+        : 0;
 
     return {
       status: this.currentStatus,
       isOnline: this.isOnline,
       isSyncing: this.isSyncing,
       lastSyncTime,
-      nextSyncTime: this.syncTimer ? new Date(Date.now() + this.config.syncInterval) : undefined,
+      nextSyncTime: this.syncTimer
+        ? new Date(Date.now() + this.config.syncInterval)
+        : undefined,
       pendingCount: pendingOps.length,
       failedCount: failedOps.length,
       conflictCount: conflictOps.length,
@@ -896,7 +952,9 @@ export class SyncManager {
       }
     }, this.config.syncInterval);
 
-    console.log(`⏰ تم بدء المزامنة التلقائية كل ${this.config.syncInterval / 1000}s`);
+    console.log(
+      `⏰ تم بدء المزامنة التلقائية كل ${this.config.syncInterval / 1000}s`,
+    );
   }
 
   /**
@@ -907,7 +965,7 @@ export class SyncManager {
     if (this.syncTimer) {
       clearInterval(this.syncTimer);
       this.syncTimer = null;
-      console.log('⏹️ تم إيقاف المزامنة التلقائية');
+      console.log("⏹️ تم إيقاف المزامنة التلقائية");
     }
   }
 
@@ -918,7 +976,7 @@ export class SyncManager {
   public pause(): void {
     this.isPaused = true;
     this.currentStatus = SyncStatus.PAUSED;
-    console.log('⏸️ تم إيقاف المزامنة مؤقتاً');
+    console.log("⏸️ تم إيقاف المزامنة مؤقتاً");
   }
 
   /**
@@ -927,7 +985,7 @@ export class SyncManager {
    */
   public resume(): void {
     this.isPaused = false;
-    console.log('▶️ تم استئناف المزامنة');
+    console.log("▶️ تم استئناف المزامنة");
 
     if (this.isOnline && this.queue.length > 0) {
       this.processQueue();
@@ -939,7 +997,7 @@ export class SyncManager {
    * Force immediate sync
    */
   public async forceSync(): Promise<BatchSyncResult> {
-    console.log('🔄 بدء المزامنة الفورية');
+    console.log("🔄 بدء المزامنة الفورية");
     return await this.processQueue();
   }
 
@@ -951,7 +1009,10 @@ export class SyncManager {
    * الاستماع لحدث معين
    * Listen to a specific event
    */
-  public addEventListener(type: SyncEventType, listener: SyncEventListener): void {
+  public addEventListener(
+    type: SyncEventType,
+    listener: SyncEventListener,
+  ): void {
     if (!this.eventListeners.has(type)) {
       this.eventListeners.set(type, new Set());
     }
@@ -962,7 +1023,10 @@ export class SyncManager {
    * إزالة مستمع حدث
    * Remove event listener
    */
-  public removeEventListener(type: SyncEventType, listener: SyncEventListener): void {
+  public removeEventListener(
+    type: SyncEventType,
+    listener: SyncEventListener,
+  ): void {
     const listeners = this.eventListeners.get(type);
     if (listeners) {
       listeners.delete(listener);
@@ -976,11 +1040,11 @@ export class SyncManager {
   private emitEvent(event: SyncEvent): void {
     const listeners = this.eventListeners.get(event.type);
     if (listeners) {
-      listeners.forEach(listener => {
+      listeners.forEach((listener) => {
         try {
           listener(event);
         } catch (error) {
-          console.error('خطأ في معالج الحدث:', error);
+          console.error("خطأ في معالج الحدث:", error);
         }
       });
     }
@@ -1002,7 +1066,10 @@ export class SyncManager {
    * تحديد الأولوية بناءً على النوع
    * Determine priority based on operation and data type
    */
-  private determinePriority(type: SyncOperationType, dataType: SyncDataType): SyncPriority {
+  private determinePriority(
+    type: SyncOperationType,
+    dataType: SyncDataType,
+  ): SyncPriority {
     if (type === SyncOperationType.DELETE) {
       return SyncPriority.CRITICAL;
     }
@@ -1026,35 +1093,37 @@ export class SyncManager {
    */
   private getEndpointForDataType(dataType: SyncDataType): string {
     const endpoints: Record<SyncDataType, string> = {
-      [SyncDataType.FIELD_OBSERVATION]: '/api/field-observations',
-      [SyncDataType.SENSOR_READING]: '/api/sensor-readings',
-      [SyncDataType.TASK_COMPLETION]: '/api/task-completions',
-      [SyncDataType.IMAGE_UPLOAD]: '/api/images',
-      [SyncDataType.FIELD_UPDATE]: '/api/fields',
-      [SyncDataType.FARM_UPDATE]: '/api/farms',
-      [SyncDataType.IRRIGATION_LOG]: '/api/irrigation-logs',
-      [SyncDataType.PEST_REPORT]: '/api/pest-reports',
+      [SyncDataType.FIELD_OBSERVATION]: "/api/field-observations",
+      [SyncDataType.SENSOR_READING]: "/api/sensor-readings",
+      [SyncDataType.TASK_COMPLETION]: "/api/task-completions",
+      [SyncDataType.IMAGE_UPLOAD]: "/api/images",
+      [SyncDataType.FIELD_UPDATE]: "/api/fields",
+      [SyncDataType.FARM_UPDATE]: "/api/farms",
+      [SyncDataType.IRRIGATION_LOG]: "/api/irrigation-logs",
+      [SyncDataType.PEST_REPORT]: "/api/pest-reports",
     };
 
-    return endpoints[dataType] || '/api/sync';
+    return endpoints[dataType] || "/api/sync";
   }
 
   /**
    * الحصول على طريقة HTTP بناءً على نوع العملية
    * Get HTTP method for operation type
    */
-  private getMethodForOperationType(type: SyncOperationType): 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' {
+  private getMethodForOperationType(
+    type: SyncOperationType,
+  ): "GET" | "POST" | "PUT" | "DELETE" | "PATCH" {
     switch (type) {
       case SyncOperationType.CREATE:
-        return 'POST';
+        return "POST";
       case SyncOperationType.UPDATE:
-        return 'PUT';
+        return "PUT";
       case SyncOperationType.DELETE:
-        return 'DELETE';
+        return "DELETE";
       case SyncOperationType.UPLOAD:
-        return 'POST';
+        return "POST";
       default:
-        return 'POST';
+        return "POST";
     }
   }
 
@@ -1064,11 +1133,12 @@ export class SyncManager {
    */
   private sortQueueByPriority(): SyncOperation[] {
     return [...this.queue]
-      .filter(op =>
-        op.status === SyncOperationStatus.PENDING ||
-        op.status === SyncOperationStatus.RETRYING
+      .filter(
+        (op) =>
+          op.status === SyncOperationStatus.PENDING ||
+          op.status === SyncOperationStatus.RETRYING,
       )
-      .filter(op => !op.scheduledAt || op.scheduledAt <= new Date())
+      .filter((op) => !op.scheduledAt || op.scheduledAt <= new Date())
       .sort((a, b) => {
         // الأولوية أولاً - Priority first
         if (a.priority !== b.priority) {
@@ -1086,7 +1156,7 @@ export class SyncManager {
   private calculateRetryDelay(attemptCount: number): number {
     const delay = Math.min(
       this.config.retryDelayBase * Math.pow(2, attemptCount - 1),
-      this.config.retryDelayMax
+      this.config.retryDelayMax,
     );
 
     // إضافة عشوائية لتجنب تزامن إعادة المحاولات - Add jitter
@@ -1098,7 +1168,7 @@ export class SyncManager {
    * Remove operation from queue
    */
   private removeOperationFromQueue(operationId: string): void {
-    const index = this.queue.findIndex(op => op.id === operationId);
+    const index = this.queue.findIndex((op) => op.id === operationId);
     if (index !== -1) {
       this.queue.splice(index, 1);
     }
@@ -1112,17 +1182,18 @@ export class SyncManager {
     // هنا يتم تنفيذ الطلب الفعلي باستخدام fetch أو axios
     // This is where you'd implement the actual HTTP request using fetch or axios
 
-    const url = `${this.getBaseUrl()}${operation.endpoint}${operation.entityId ? `/${operation.entityId}` : ''}`;
+    const url = `${this.getBaseUrl()}${operation.endpoint}${operation.entityId ? `/${operation.entityId}` : ""}`;
 
     const response = await fetch(url, {
       method: operation.method,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...operation.headers,
       },
-      body: operation.method !== 'GET' && operation.method !== 'DELETE'
-        ? JSON.stringify(operation.data)
-        : undefined,
+      body:
+        operation.method !== "GET" && operation.method !== "DELETE"
+          ? JSON.stringify(operation.data)
+          : undefined,
       signal: AbortSignal.timeout(this.config.timeoutMs),
     });
 
@@ -1141,7 +1212,7 @@ export class SyncManager {
    */
   private getBaseUrl(): string {
     // يجب تعيين هذا من الإعدادات - This should be set from config
-    return process.env.API_BASE_URL || 'https://api.sahool.com';
+    return process.env.API_BASE_URL || "https://api.sahool.com";
   }
 
   /**
@@ -1156,7 +1227,7 @@ export class SyncManager {
     serverResponse?: any,
     error?: Error,
     retryScheduled?: boolean,
-    nextRetryAt?: Date
+    nextRetryAt?: Date,
   ): SyncResult {
     return {
       success,
@@ -1194,7 +1265,7 @@ export class SyncManager {
    * Cleanup and shutdown
    */
   public async shutdown(): Promise<void> {
-    console.log('🛑 إيقاف مدير المزامنة...');
+    console.log("🛑 إيقاف مدير المزامنة...");
 
     this.stopAutoSync();
 
@@ -1207,7 +1278,7 @@ export class SyncManager {
     this.eventListeners.clear();
     this.customResolvers.clear();
 
-    console.log('✅ تم إيقاف مدير المزامنة بنجاح');
+    console.log("✅ تم إيقاف مدير المزامنة بنجاح");
   }
 }
 
@@ -1235,11 +1306,15 @@ class AsyncStorageAdapter implements ISyncStorage {
       createdAt: new Date(op.createdAt),
       updatedAt: new Date(op.updatedAt),
       scheduledAt: op.scheduledAt ? new Date(op.scheduledAt) : undefined,
-      conflictData: op.conflictData ? {
-        ...op.conflictData,
-        detectedAt: new Date(op.conflictData.detectedAt),
-        resolvedAt: op.conflictData.resolvedAt ? new Date(op.conflictData.resolvedAt) : undefined,
-      } : undefined,
+      conflictData: op.conflictData
+        ? {
+            ...op.conflictData,
+            detectedAt: new Date(op.conflictData.detectedAt),
+            resolvedAt: op.conflictData.resolvedAt
+              ? new Date(op.conflictData.resolvedAt)
+              : undefined,
+          }
+        : undefined,
     }));
   }
 
@@ -1249,7 +1324,7 @@ class AsyncStorageAdapter implements ISyncStorage {
 
   async saveOperation(operation: SyncOperation): Promise<void> {
     const queue = await this.loadQueue();
-    const index = queue.findIndex(op => op.id === operation.id);
+    const index = queue.findIndex((op) => op.id === operation.id);
 
     if (index !== -1) {
       queue[index] = operation;
@@ -1262,13 +1337,16 @@ class AsyncStorageAdapter implements ISyncStorage {
 
   async removeOperation(operationId: string): Promise<void> {
     const queue = await this.loadQueue();
-    const filtered = queue.filter(op => op.id !== operationId);
+    const filtered = queue.filter((op) => op.id !== operationId);
     await this.saveQueue(filtered);
   }
 
-  async updateOperation(operationId: string, updates: Partial<SyncOperation>): Promise<void> {
+  async updateOperation(
+    operationId: string,
+    updates: Partial<SyncOperation>,
+  ): Promise<void> {
     const queue = await this.loadQueue();
-    const index = queue.findIndex(op => op.id === operationId);
+    const index = queue.findIndex((op) => op.id === operationId);
 
     if (index !== -1) {
       queue[index] = { ...queue[index], ...updates };
@@ -1278,7 +1356,7 @@ class AsyncStorageAdapter implements ISyncStorage {
 
   async getOperation(operationId: string): Promise<SyncOperation | null> {
     const queue = await this.loadQueue();
-    return queue.find(op => op.id === operationId) || null;
+    return queue.find((op) => op.id === operationId) || null;
   }
 
   async saveLastSyncTime(time: Date): Promise<void> {
@@ -1301,8 +1379,12 @@ class AsyncStorageAdapter implements ISyncStorage {
     const stats = JSON.parse(data);
     return {
       ...stats,
-      firstSyncTime: stats.firstSyncTime ? new Date(stats.firstSyncTime) : undefined,
-      lastSuccessfulSync: stats.lastSuccessfulSync ? new Date(stats.lastSuccessfulSync) : undefined,
+      firstSyncTime: stats.firstSyncTime
+        ? new Date(stats.firstSyncTime)
+        : undefined,
+      lastSuccessfulSync: stats.lastSuccessfulSync
+        ? new Date(stats.lastSuccessfulSync)
+        : undefined,
     };
   }
 }

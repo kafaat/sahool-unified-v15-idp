@@ -36,13 +36,13 @@ This policy applies to all secrets used in the SAHOOL platform, including:
 
 ### 3.1 Database Credentials
 
-| Credential Type | Rotation Frequency | Method | Downtime |
-|----------------|-------------------|--------|----------|
-| PostgreSQL application user | Every 90 days | Vault dynamic secrets or manual | None |
-| PostgreSQL admin user | Every 180 days | Manual with coordination | None |
-| PostgreSQL replication user | Every 180 days | Manual with coordination | None |
-| Redis password | Every 90 days | Manual (requires restart) | < 30 seconds |
-| Redis ACL users | Every 90 days | Manual | None |
+| Credential Type             | Rotation Frequency | Method                          | Downtime     |
+| --------------------------- | ------------------ | ------------------------------- | ------------ |
+| PostgreSQL application user | Every 90 days      | Vault dynamic secrets or manual | None         |
+| PostgreSQL admin user       | Every 180 days     | Manual with coordination        | None         |
+| PostgreSQL replication user | Every 180 days     | Manual with coordination        | None         |
+| Redis password              | Every 90 days      | Manual (requires restart)       | < 30 seconds |
+| Redis ACL users             | Every 90 days      | Manual                          | None         |
 
 **Rotation Process:**
 
@@ -52,6 +52,7 @@ This policy applies to all secrets used in the SAHOOL platform, including:
    - Old credentials revoked after grace period
 
 2. **Manual Rotation:**
+
    ```bash
    # Step 1: Generate new password
    NEW_PASSWORD=$(openssl rand -base64 32)
@@ -73,11 +74,11 @@ This policy applies to all secrets used in the SAHOOL platform, including:
 
 ### 3.2 JWT Signing Keys
 
-| Key Type | Rotation Frequency | Method | Grace Period |
-|----------|-------------------|--------|--------------|
-| HS256 secret key | Every 180 days | Manual | 7 days |
-| RS256 private key | Every 365 days | Manual | 30 days |
-| RS256 public key | When private rotates | Automatic | N/A |
+| Key Type          | Rotation Frequency   | Method    | Grace Period |
+| ----------------- | -------------------- | --------- | ------------ |
+| HS256 secret key  | Every 180 days       | Manual    | 7 days       |
+| RS256 private key | Every 365 days       | Manual    | 30 days      |
+| RS256 public key  | When private rotates | Automatic | N/A          |
 
 **Rotation Process:**
 
@@ -106,17 +107,18 @@ rm private-new.pem public-new.pem
 ```
 
 **Impact:**
+
 - Users must re-authenticate after grace period
 - Active sessions remain valid during grace period
 - Notify users 24 hours before rotation
 
 ### 3.3 Encryption Keys
 
-| Key Type | Rotation Frequency | Method | Re-encryption Required |
-|----------|-------------------|--------|----------------------|
-| Data encryption key (AES-256) | Every 365 days | Manual | Yes |
-| Backup encryption key | Every 365 days | Manual | Yes |
-| Database column encryption | Every 365 days | Manual | Yes |
+| Key Type                      | Rotation Frequency | Method | Re-encryption Required |
+| ----------------------------- | ------------------ | ------ | ---------------------- |
+| Data encryption key (AES-256) | Every 365 days     | Manual | Yes                    |
+| Backup encryption key         | Every 365 days     | Manual | Yes                    |
+| Database column encryption    | Every 365 days     | Manual | Yes                    |
 
 **Rotation Process:**
 
@@ -144,12 +146,12 @@ vault kv patch secret/sahool/encryption \
 
 ### 3.4 API Keys
 
-| API Key Type | Rotation Frequency | Method | Provider Action |
-|--------------|-------------------|--------|-----------------|
-| Internal service keys | Every 90 days | Manual | None |
-| External API keys (OpenWeather) | Every 180 days | Manual | Regenerate in provider portal |
-| Payment gateway keys (Stripe) | Every 180 days | Manual | Rotate via Stripe dashboard |
-| Cloud provider keys (AWS/Azure) | Every 90 days | Manual | Rotate via IAM |
+| API Key Type                    | Rotation Frequency | Method | Provider Action               |
+| ------------------------------- | ------------------ | ------ | ----------------------------- |
+| Internal service keys           | Every 90 days      | Manual | None                          |
+| External API keys (OpenWeather) | Every 180 days     | Manual | Regenerate in provider portal |
+| Payment gateway keys (Stripe)   | Every 180 days     | Manual | Rotate via Stripe dashboard   |
+| Cloud provider keys (AWS/Azure) | Every 90 days      | Manual | Rotate via IAM                |
 
 **Rotation Process:**
 
@@ -172,12 +174,12 @@ curl "https://api.openweathermap.org/data/2.5/weather?q=London&appid=NEW_API_KEY
 
 ### 3.5 TLS/SSL Certificates
 
-| Certificate Type | Rotation Frequency | Method | Automation |
-|-----------------|-------------------|--------|------------|
-| Internal services (Vault-issued) | Every 90 days | Automatic (Vault PKI) | Yes |
-| Public-facing (Let's Encrypt) | Every 90 days | Automatic (cert-manager) | Yes |
-| Client certificates | Every 180 days | Manual | No |
-| CA certificates | Every 5 years | Manual with planning | No |
+| Certificate Type                 | Rotation Frequency | Method                   | Automation |
+| -------------------------------- | ------------------ | ------------------------ | ---------- |
+| Internal services (Vault-issued) | Every 90 days      | Automatic (Vault PKI)    | Yes        |
+| Public-facing (Let's Encrypt)    | Every 90 days      | Automatic (cert-manager) | Yes        |
+| Client certificates              | Every 180 days     | Manual                   | No         |
+| CA certificates                  | Every 5 years      | Manual with planning     | No         |
 
 **Rotation Process (Automated):**
 
@@ -196,12 +198,12 @@ kubectl get certificates -n sahool
 
 ### 4.1 Roles and Responsibilities
 
-| Role | Responsibilities |
-|------|-----------------|
-| **Security Team** | - Define rotation policies<br>- Review audit logs<br>- Approve exceptions<br>- Incident response |
-| **DevOps Team** | - Execute rotations<br>- Maintain automation<br>- Monitor rotation jobs<br>- Update documentation |
+| Role                 | Responsibilities                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Security Team**    | - Define rotation policies<br>- Review audit logs<br>- Approve exceptions<br>- Incident response                         |
+| **DevOps Team**      | - Execute rotations<br>- Maintain automation<br>- Monitor rotation jobs<br>- Update documentation                        |
 | **Development Team** | - Test applications after rotation<br>- Implement grace periods<br>- Report rotation issues<br>- Update secret consumers |
-| **CTO/CISO** | - Policy approval<br>- Budget allocation<br>- Compliance oversight<br>- Exception approval |
+| **CTO/CISO**         | - Policy approval<br>- Budget allocation<br>- Compliance oversight<br>- Exception approval                               |
 
 ### 4.2 Rotation Workflow
 
@@ -308,11 +310,13 @@ kubectl logs -f deployment/<service> -n sahool
 ### 5.3 Incident Notification
 
 **Immediate notification to:**
+
 - Security team (via PagerDuty)
 - DevOps team (via Slack)
 - CTO/CISO (via email/phone)
 
 **Incident report must include:**
+
 - What credentials were compromised
 - When the compromise was detected
 - How the compromise occurred
@@ -326,13 +330,13 @@ kubectl logs -f deployment/<service> -n sahool
 
 ### 6.1 Compliance Requirements
 
-| Standard | Requirement | SAHOOL Implementation |
-|----------|-------------|---------------------|
-| **OWASP ASVS** | Regular credential rotation | ✅ Automated rotation every 90-365 days |
-| **PCI DSS** | Cryptographic key management | ✅ Vault with audit logging |
-| **SOC 2** | Access control and monitoring | ✅ RBAC + audit trails |
-| **GDPR** | Data encryption | ✅ AES-256-GCM encryption |
-| **ISO 27001** | Information security controls | ✅ Comprehensive secrets management |
+| Standard       | Requirement                   | SAHOOL Implementation                   |
+| -------------- | ----------------------------- | --------------------------------------- |
+| **OWASP ASVS** | Regular credential rotation   | ✅ Automated rotation every 90-365 days |
+| **PCI DSS**    | Cryptographic key management  | ✅ Vault with audit logging             |
+| **SOC 2**      | Access control and monitoring | ✅ RBAC + audit trails                  |
+| **GDPR**       | Data encryption               | ✅ AES-256-GCM encryption               |
+| **ISO 27001**  | Information security controls | ✅ Comprehensive secrets management     |
 
 ### 6.2 Audit Requirements
 
@@ -390,12 +394,12 @@ Exceptions to this policy require:
 
 ### 7.2 Common Exceptions
 
-| Scenario | Typical Duration | Approval Level |
-|----------|-----------------|----------------|
-| Testing new rotation procedure | 30 days | Manager |
-| Third-party API key (no rotation support) | Until vendor implements | CTO |
-| Legacy system integration | 90 days (with migration plan) | CISO |
-| Vendor SLA constraints | Per contract terms | Legal + CTO |
+| Scenario                                  | Typical Duration              | Approval Level |
+| ----------------------------------------- | ----------------------------- | -------------- |
+| Testing new rotation procedure            | 30 days                       | Manager        |
+| Third-party API key (no rotation support) | Until vendor implements       | CTO            |
+| Legacy system integration                 | 90 days (with migration plan) | CISO           |
+| Vendor SLA constraints                    | Per contract terms            | Legal + CTO    |
 
 ---
 
@@ -404,11 +408,13 @@ Exceptions to this policy require:
 ### 8.1 Automated Rotation (Preferred)
 
 **Vault Dynamic Secrets:**
+
 - Database credentials rotate every 24 hours
 - No manual intervention
 - Automatic revocation
 
 **Cert-manager:**
+
 - TLS certificates auto-renew 30 days before expiry
 - Let's Encrypt integration
 - Automatic deployment
@@ -416,6 +422,7 @@ Exceptions to this policy require:
 ### 8.2 Semi-Automated Rotation
 
 **Rotation Scheduler:**
+
 ```bash
 # /etc/cron.d/sahool-rotation
 # Check and rotate secrets daily at 2 AM
@@ -423,6 +430,7 @@ Exceptions to this policy require:
 ```
 
 **Features:**
+
 - Checks rotation schedules
 - Sends notifications before rotation
 - Executes rotation if due
@@ -461,13 +469,13 @@ sahool_secret_rotation_duration_seconds{secret_type}
 
 ### 9.2 Alerts
 
-| Alert | Threshold | Severity | Action |
-|-------|-----------|----------|--------|
-| Secret expires in < 7 days | Warning | Medium | Schedule rotation |
-| Secret expires in < 24 hours | Critical | High | Immediate rotation |
-| Rotation failed | Immediate | Critical | Manual intervention |
-| Secret overdue > 30 days | Immediate | High | Emergency rotation |
-| Suspicious access pattern | Immediate | Medium | Investigate |
+| Alert                        | Threshold | Severity | Action              |
+| ---------------------------- | --------- | -------- | ------------------- |
+| Secret expires in < 7 days   | Warning   | Medium   | Schedule rotation   |
+| Secret expires in < 24 hours | Critical  | High     | Immediate rotation  |
+| Rotation failed              | Immediate | Critical | Manual intervention |
+| Secret overdue > 30 days     | Immediate | High     | Emergency rotation  |
+| Suspicious access pattern    | Immediate | Medium   | Investigate         |
 
 ---
 
@@ -495,6 +503,7 @@ All personnel with secrets access must complete:
 ### 10.2 Documentation
 
 **Must maintain:**
+
 - This rotation policy (quarterly review)
 - Rotation runbooks (per secret type)
 - Incident response playbook
@@ -506,20 +515,20 @@ All personnel with secrets access must complete:
 
 ## 11. Version History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-01-06 | DevOps Team | Initial policy creation |
+| Version | Date       | Author      | Changes                 |
+| ------- | ---------- | ----------- | ----------------------- |
+| 1.0     | 2026-01-06 | DevOps Team | Initial policy creation |
 
 ---
 
 ## 12. Approval
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| **CISO** | | | |
-| **CTO** | | | |
-| **Security Lead** | | | |
-| **DevOps Lead** | | | |
+| Role              | Name | Signature | Date |
+| ----------------- | ---- | --------- | ---- |
+| **CISO**          |      |           |      |
+| **CTO**           |      |           |      |
+| **Security Lead** |      |           |      |
+| **DevOps Lead**   |      |           |      |
 
 ---
 

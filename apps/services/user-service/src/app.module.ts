@@ -9,37 +9,37 @@
  * - Health checks
  */
 
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { PrismaModule } from './prisma/prisma.module';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
-import { HealthController } from './health/health.controller';
-import { JwtService, JwtModule } from '@nestjs/jwt';
-import { Reflector } from '@nestjs/core';
+import { Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { PrismaModule } from "./prisma/prisma.module";
+import { UsersModule } from "./users/users.module";
+import { AuthModule } from "./auth/auth.module";
+import { HealthController } from "./health/health.controller";
+import { JwtService, JwtModule } from "@nestjs/jwt";
+import { Reflector } from "@nestjs/core";
 
 // Import token revocation guard from local utils
-import { TokenRevocationGuard } from './utils/token-revocation.guard';
-import { RedisTokenRevocationStore } from './utils/token-revocation';
-import { JWTConfig } from './utils/jwt.config';
+import { TokenRevocationGuard } from "./utils/token-revocation.guard";
+import { RedisTokenRevocationStore } from "./utils/token-revocation";
+import { JWTConfig } from "./utils/jwt.config";
 
 @Module({
   imports: [
     // Rate limiting configuration
     ThrottlerModule.forRoot([
       {
-        name: 'short',
+        name: "short",
         ttl: 1000, // 1 second
         limit: 10, // 10 requests per second
       },
       {
-        name: 'medium',
+        name: "medium",
         ttl: 60000, // 1 minute
         limit: 100, // 100 requests per minute
       },
       {
-        name: 'long',
+        name: "long",
         ttl: 3600000, // 1 hour
         limit: 1000, // 1000 requests per hour
       },

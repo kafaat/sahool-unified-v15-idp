@@ -3,7 +3,11 @@
  * أنواع ميزة المهام
  */
 
-import type { Task as ApiTask, TaskStatus as ApiTaskStatus, Priority as ApiPriority } from '@sahool/api-client';
+import type {
+  Task as ApiTask,
+  TaskStatus as ApiTaskStatus,
+  Priority as ApiPriority,
+} from "@sahool/api-client";
 
 // Re-export core types from API client
 export type Task = ApiTask & {

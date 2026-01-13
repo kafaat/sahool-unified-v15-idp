@@ -103,13 +103,11 @@ describe("Yield Prediction Service", () => {
 
   describe("Validation", () => {
     it("should validate prediction with actual yield", async () => {
-      const response = await request(app)
-        .post("/api/v1/validate")
-        .send({
-          field_id: "field_001",
-          predicted_yield: 4.5,
-          actual_yield: 4.3,
-        });
+      const response = await request(app).post("/api/v1/validate").send({
+        field_id: "field_001",
+        predicted_yield: 4.5,
+        actual_yield: 4.3,
+      });
       expect(response.status).toBe(200);
       expect(response.body.error_pct).toBeDefined();
     });

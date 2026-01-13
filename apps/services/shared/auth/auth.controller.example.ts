@@ -58,9 +58,10 @@ class RefreshTokenDto {
 @ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
-  constructor() // Inject your auth service here
-  // private readonly authService: AuthService,
-  {}
+  constructor() {
+    // Inject your auth service here
+    // private readonly authService: AuthService,
+  }
 
   /**
    * Login Endpoint - STRICT RATE LIMITING

@@ -140,21 +140,18 @@ function removeDangerousTagContent(input: string): string {
   let iterations = 0;
 
   // Dangerous tags whose content should be completely removed
-  // Pattern explanation:
-  // - <tagname\b - opening tag with word boundary
-  // - [\s\S]*? - any content (including newlines) non-greedy
-  // - <\/\s*tagname - closing tag with optional whitespace after </
-  // - \s* - optional whitespace after tag name
-  // - [^>]* - any other characters (handles </script\t\nbar>)
-  // - > - closing bracket
+  // Pattern: <tagname...>content</tagname...>
+  // - Opening: <tagname followed by word boundary, then any attrs until >
+  // - Content: [\s\S]*? matches anything (including newlines) non-greedy
+  // - Closing: </tagname with [^>]* to handle </script\t\n bar>, </script >, etc.
   const DANGEROUS_TAGS = [
-    /<script\b[\s\S]*?<\/\s*script\s*[^>]*>/gi,
-    /<style\b[\s\S]*?<\/\s*style\s*[^>]*>/gi,
-    /<noscript\b[\s\S]*?<\/\s*noscript\s*[^>]*>/gi,
-    /<iframe\b[\s\S]*?<\/\s*iframe\s*[^>]*>/gi,
-    /<object\b[\s\S]*?<\/\s*object\s*[^>]*>/gi,
-    /<embed\b[\s\S]*?<\/\s*embed\s*[^>]*>/gi,
-    /<applet\b[\s\S]*?<\/\s*applet\s*[^>]*>/gi,
+    /<script\b[^>]*>[\s\S]*?<\/\s*script[^>]*>/gi,
+    /<style\b[^>]*>[\s\S]*?<\/\s*style[^>]*>/gi,
+    /<noscript\b[^>]*>[\s\S]*?<\/\s*noscript[^>]*>/gi,
+    /<iframe\b[^>]*>[\s\S]*?<\/\s*iframe[^>]*>/gi,
+    /<object\b[^>]*>[\s\S]*?<\/\s*object[^>]*>/gi,
+    /<embed\b[^>]*>[\s\S]*?<\/\s*embed[^>]*>/gi,
+    /<applet\b[^>]*>[\s\S]*?<\/\s*applet[^>]*>/gi,
   ];
 
   while (result !== previous && iterations < MAX_ITERATIONS) {

@@ -500,10 +500,10 @@ jobs:
 
       - name: Start docker-compose services
         if: steps.check_compose.outputs.exists == 'true'
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           echo "🚀 Starting docker-compose services..."
-          docker compose -f ${{ matrix.compose-file.file }} up -d --wait --wait-timeout 120 || {
+          docker compose -f ${{ matrix.compose-file.file }} up -d --wait --wait-timeout 300 || {
             echo "❌ Failed to start services"
             docker compose -f ${{ matrix.compose-file.file }} logs
             exit 1

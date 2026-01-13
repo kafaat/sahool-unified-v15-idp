@@ -112,7 +112,7 @@ export function IsStrongPassword(
 
 /**
  * Simple HTML sanitization without external dependencies
- * Security: Decodes entities BEFORE stripping tags to prevent bypass attacks
+ * Security: Uses iterative approach to handle nested/encoded HTML
  */
 function sanitizePlainTextValue(input: string): string {
   if (typeof input !== "string") {
@@ -131,27 +131,38 @@ function sanitizePlainTextValue(input: string): string {
     "",
   );
 
-  // Security: Decode HTML entities FIRST, then strip tags
-  // This prevents bypass attacks like &lt;script&gt; -> <script>
-  sanitized = sanitized
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ");
+  // Security: Iteratively decode and strip to handle nested/encoded HTML
+  // Limit iterations to prevent infinite loops
+  const MAX_ITERATIONS = 5;
+  for (let i = 0; i < MAX_ITERATIONS; i++) {
+    const before = sanitized;
 
-  // Strip HTML tags AFTER decoding entities
-  sanitized = sanitized.replace(/<[^>]*>/g, "");
+    // Decode HTML entities (order matters: decode &amp; last to avoid double-decode)
+    sanitized = sanitized
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#0*39;/gi, "'")
+      .replace(/&#x0*27;/gi, "'")
+      .replace(/&apos;/gi, "'")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&#0*60;/gi, "<")
+      .replace(/&#0*62;/gi, ">")
+      .replace(/&#x0*3c;/gi, "<")
+      .replace(/&#x0*3e;/gi, ">")
+      .replace(/&amp;/gi, "&");
 
-  // Second pass: decode any remaining entities that might have been nested
-  sanitized = sanitized
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&");
+    // Strip HTML tags
+    sanitized = sanitized.replace(/<[^>]*>/g, "");
 
-  // Final pass: strip any tags that appeared after second decode
-  sanitized = sanitized.replace(/<[^>]*>/g, "");
+    // If no changes, we're done
+    if (sanitized === before) {
+      break;
+    }
+  }
+
+  // Final safety: remove any remaining angle brackets
+  sanitized = sanitized.replace(/[<>]/g, "");
 
   // Normalize whitespace
   sanitized = sanitized.replace(/\s+/g, " ");

@@ -164,6 +164,10 @@ export function IsFutureDate(validationOptions?: ValidationOptions) {
 // Sanitization Decorator
 // ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Sanitize plain text - removes all HTML and normalizes whitespace.
+ * Security: Uses iterative approach to handle nested/encoded HTML.
+ */
 function sanitizePlainTextValue(input: string): string {
   if (typeof input !== "string") {
     return input;
@@ -177,17 +181,38 @@ function sanitizePlainTextValue(input: string): string {
   // Remove control characters
   sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, "");
 
-  // Strip HTML tags
-  sanitized = sanitized.replace(/<[^>]*>/g, "");
+  // Security: Iteratively decode and strip to handle nested/encoded HTML
+  // Limit iterations to prevent infinite loops
+  const MAX_ITERATIONS = 5;
+  for (let i = 0; i < MAX_ITERATIONS; i++) {
+    const before = sanitized;
 
-  // Decode common HTML entities
-  sanitized = sanitized
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ");
+    // Decode HTML entities (order matters: decode &amp; last to avoid double-decode)
+    sanitized = sanitized
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#0*39;/gi, "'")
+      .replace(/&#x0*27;/gi, "'")
+      .replace(/&apos;/gi, "'")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&#0*60;/gi, "<")
+      .replace(/&#0*62;/gi, ">")
+      .replace(/&#x0*3c;/gi, "<")
+      .replace(/&#x0*3e;/gi, ">")
+      .replace(/&amp;/gi, "&");
+
+    // Strip HTML tags
+    sanitized = sanitized.replace(/<[^>]*>/g, "");
+
+    // If no changes, we're done
+    if (sanitized === before) {
+      break;
+    }
+  }
+
+  // Final safety: remove any remaining angle brackets
+  sanitized = sanitized.replace(/[<>]/g, "");
 
   // Normalize whitespace
   sanitized = sanitized.replace(/\s+/g, " ");

@@ -122,17 +122,30 @@ async def lifespan(app: FastAPI):
     """إدارة دورة حياة التطبيق"""
     logger.info("Starting Alert Service...")
 
+    # Check if running in CI/test environment (no database required for smoke tests)
+    environment = os.getenv("ENVIRONMENT", "development").lower()
+    is_ci_or_test = environment in ("test", "ci", "testing")
+
     # Check database connection
     try:
         db_ok = check_db_connection()
         if db_ok:
             logger.info("Database connection verified")
+            app.state.db_available = True
         else:
-            logger.error("Database connection failed")
-            raise RuntimeError("Database connection failed")
+            if is_ci_or_test:
+                logger.warning("Database not available in CI/test environment - continuing without database")
+                app.state.db_available = False
+            else:
+                logger.error("Database connection failed")
+                raise RuntimeError("Database connection failed")
     except Exception as e:
-        logger.error(f"Database connection error: {e}")
-        raise
+        if is_ci_or_test:
+            logger.warning(f"Database connection error in CI/test: {e} - continuing without database")
+            app.state.db_available = False
+        else:
+            logger.error(f"Database connection error: {e}")
+            raise
 
     # Initialize NATS publisher
     try:

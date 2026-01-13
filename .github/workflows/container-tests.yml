@@ -264,8 +264,9 @@ jobs:
           tags: |
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
+          cache-from: type=gha,scope=${{ matrix.service.name }}-v2
+          cache-to: type=gha,scope=${{ matrix.service.name }}-v2,mode=max
           build-args: |
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}

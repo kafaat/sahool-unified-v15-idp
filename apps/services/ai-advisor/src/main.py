@@ -305,9 +305,7 @@ async def health_check():
     embeddings_ok = app_state.get("embeddings") is not None
     retriever_ok = app_state.get("retriever") is not None
     agents = app_state.get("agents", {})
-    agents_count = len(
-        [a for a in agents.values() if a]
-    )
+    agents_count = len([a for a in agents.values() if a])
 
     is_healthy = embeddings_ok or retriever_ok or agents_count > 0
 

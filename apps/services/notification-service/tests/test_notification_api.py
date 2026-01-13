@@ -15,18 +15,22 @@ from fastapi.testclient import TestClient
 @pytest.fixture
 def mock_db():
     """Mock database connection"""
-    with patch("src.database.init_db", new=AsyncMock()), patch(
-        "src.database.check_db_health",
-        new=AsyncMock(return_value={"status": "healthy", "connected": True}),
-    ), patch(
-        "src.database.get_db_stats",
-        new=AsyncMock(
-            return_value={
-                "total_notifications": 100,
-                "pending_notifications": 10,
-                "total_templates": 5,
-                "total_preferences": 20,
-            }
+    with (
+        patch("src.database.init_db", new=AsyncMock()),
+        patch(
+            "src.database.check_db_health",
+            new=AsyncMock(return_value={"status": "healthy", "connected": True}),
+        ),
+        patch(
+            "src.database.get_db_stats",
+            new=AsyncMock(
+                return_value={
+                    "total_notifications": 100,
+                    "pending_notifications": 10,
+                    "total_templates": 5,
+                    "total_preferences": 20,
+                }
+            ),
         ),
     ):
         yield
@@ -376,17 +380,20 @@ class TestNotificationStats:
     @pytest.mark.asyncio
     async def test_get_notification_stats(self, app_client):
         """Test getting notification statistics"""
-        with patch(
-            "src.main.get_db_stats",
-            new=AsyncMock(
-                return_value={
-                    "total_notifications": 1000,
-                    "pending_notifications": 50,
-                    "total_templates": 10,
-                    "total_preferences": 100,
-                }
+        with (
+            patch(
+                "src.main.get_db_stats",
+                new=AsyncMock(
+                    return_value={
+                        "total_notifications": 1000,
+                        "pending_notifications": 50,
+                        "total_templates": 10,
+                        "total_preferences": 100,
+                    }
+                ),
             ),
-        ), patch("src.models.Notification") as mock_model:
+            patch("src.models.Notification") as mock_model,
+        ):
             mock_model.filter.return_value.count = AsyncMock(return_value=10)
 
             response = app_client.get("/v1/stats")

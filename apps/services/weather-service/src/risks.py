@@ -798,45 +798,55 @@ def _get_frost_protection_measures(risk_level: str, temp_c: float) -> list[dict]
     measures = []
 
     if risk_level in ["critical", "high"]:
-        measures.append({
-            "method_en": "Sprinkler irrigation",
-            "method_ar": "الري بالرشاشات",
-            "description_en": "Run sprinklers overnight - ice formation releases heat",
-            "description_ar": "تشغيل الرشاشات طوال الليل - تكوين الجليد يطلق حرارة",
-            "effectiveness": "high",
-        })
-        measures.append({
-            "method_en": "Frost cloth/blankets",
-            "method_ar": "أقمشة/بطانيات الصقيع",
-            "description_en": "Cover sensitive crops with frost protection fabric",
-            "description_ar": "تغطية المحاصيل الحساسة بأقمشة حماية الصقيع",
-            "effectiveness": "high",
-        })
+        measures.append(
+            {
+                "method_en": "Sprinkler irrigation",
+                "method_ar": "الري بالرشاشات",
+                "description_en": "Run sprinklers overnight - ice formation releases heat",
+                "description_ar": "تشغيل الرشاشات طوال الليل - تكوين الجليد يطلق حرارة",
+                "effectiveness": "high",
+            }
+        )
+        measures.append(
+            {
+                "method_en": "Frost cloth/blankets",
+                "method_ar": "أقمشة/بطانيات الصقيع",
+                "description_en": "Cover sensitive crops with frost protection fabric",
+                "description_ar": "تغطية المحاصيل الحساسة بأقمشة حماية الصقيع",
+                "effectiveness": "high",
+            }
+        )
 
     if risk_level in ["critical", "high", "moderate"]:
-        measures.append({
-            "method_en": "Mulching",
-            "method_ar": "التغطية العضوية",
-            "description_en": "Apply thick mulch around plant bases",
-            "description_ar": "وضع طبقة سميكة من التغطية حول قواعد النباتات",
-            "effectiveness": "medium",
-        })
-        measures.append({
-            "method_en": "Wind machines",
-            "method_ar": "مراوح الرياح",
-            "description_en": "Use wind machines to mix air layers",
-            "description_ar": "استخدام مراوح لخلط طبقات الهواء",
-            "effectiveness": "medium",
-        })
+        measures.append(
+            {
+                "method_en": "Mulching",
+                "method_ar": "التغطية العضوية",
+                "description_en": "Apply thick mulch around plant bases",
+                "description_ar": "وضع طبقة سميكة من التغطية حول قواعد النباتات",
+                "effectiveness": "medium",
+            }
+        )
+        measures.append(
+            {
+                "method_en": "Wind machines",
+                "method_ar": "مراوح الرياح",
+                "description_en": "Use wind machines to mix air layers",
+                "description_ar": "استخدام مراوح لخلط طبقات الهواء",
+                "effectiveness": "medium",
+            }
+        )
 
     if risk_level == "critical" and temp_c <= -3:
-        measures.append({
-            "method_en": "Heaters/smudge pots",
-            "method_ar": "سخانات/مواقد التدفئة",
-            "description_en": "Deploy orchard heaters for severe frost",
-            "description_ar": "نشر سخانات البستان للصقيع الشديد",
-            "effectiveness": "high",
-        })
+        measures.append(
+            {
+                "method_en": "Heaters/smudge pots",
+                "method_ar": "سخانات/مواقد التدفئة",
+                "description_en": "Deploy orchard heaters for severe frost",
+                "description_ar": "نشر سخانات البستان للصقيع الشديد",
+                "effectiveness": "high",
+            }
+        )
 
     return measures
 
@@ -942,59 +952,73 @@ def calculate_heat_stress_index(
     }
 
 
-def _get_heat_mitigation_measures(stress_level: str, temp_c: float, humidity_pct: float) -> list[dict]:
+def _get_heat_mitigation_measures(
+    stress_level: str, temp_c: float, humidity_pct: float
+) -> list[dict]:
     """Get heat stress mitigation measures"""
     measures = []
 
     if stress_level in ["extreme", "severe", "high"]:
-        measures.append({
-            "method_en": "Increase irrigation frequency",
-            "method_ar": "زيادة تكرار الري",
-            "description_en": "Water in early morning and late evening",
-            "description_ar": "الري في الصباح الباكر والمساء المتأخر",
-            "priority": "high",
-        })
-        measures.append({
-            "method_en": "Shade netting",
-            "method_ar": "شبكات التظليل",
-            "description_en": "Install 30-50% shade cloth for sensitive crops",
-            "description_ar": "تركيب قماش تظليل 30-50% للمحاصيل الحساسة",
-            "priority": "high",
-        })
+        measures.append(
+            {
+                "method_en": "Increase irrigation frequency",
+                "method_ar": "زيادة تكرار الري",
+                "description_en": "Water in early morning and late evening",
+                "description_ar": "الري في الصباح الباكر والمساء المتأخر",
+                "priority": "high",
+            }
+        )
+        measures.append(
+            {
+                "method_en": "Shade netting",
+                "method_ar": "شبكات التظليل",
+                "description_en": "Install 30-50% shade cloth for sensitive crops",
+                "description_ar": "تركيب قماش تظليل 30-50% للمحاصيل الحساسة",
+                "priority": "high",
+            }
+        )
 
     if stress_level in ["extreme", "severe"]:
-        measures.append({
-            "method_en": "Foliar cooling sprays",
-            "method_ar": "رش ورقي للتبريد",
-            "description_en": "Apply light water mist to reduce leaf temperature",
-            "description_ar": "رش رذاذ ماء خفيف لتخفيض حرارة الأوراق",
-            "priority": "high",
-        })
-        measures.append({
-            "method_en": "Avoid field work",
-            "method_ar": "تجنب العمل الحقلي",
-            "description_en": "No harvesting or cultivation during peak heat",
-            "description_ar": "لا حصاد أو زراعة خلال ذروة الحرارة",
-            "priority": "high",
-        })
+        measures.append(
+            {
+                "method_en": "Foliar cooling sprays",
+                "method_ar": "رش ورقي للتبريد",
+                "description_en": "Apply light water mist to reduce leaf temperature",
+                "description_ar": "رش رذاذ ماء خفيف لتخفيض حرارة الأوراق",
+                "priority": "high",
+            }
+        )
+        measures.append(
+            {
+                "method_en": "Avoid field work",
+                "method_ar": "تجنب العمل الحقلي",
+                "description_en": "No harvesting or cultivation during peak heat",
+                "description_ar": "لا حصاد أو زراعة خلال ذروة الحرارة",
+                "priority": "high",
+            }
+        )
 
     if stress_level in ["extreme", "severe", "high", "moderate"]:
-        measures.append({
-            "method_en": "Mulching",
-            "method_ar": "التغطية العضوية",
-            "description_en": "Apply organic mulch to reduce soil temperature",
-            "description_ar": "وضع تغطية عضوية لتخفيض حرارة التربة",
-            "priority": "medium",
-        })
+        measures.append(
+            {
+                "method_en": "Mulching",
+                "method_ar": "التغطية العضوية",
+                "description_en": "Apply organic mulch to reduce soil temperature",
+                "description_ar": "وضع تغطية عضوية لتخفيض حرارة التربة",
+                "priority": "medium",
+            }
+        )
 
     if humidity_pct < 40 and stress_level != "none":
-        measures.append({
-            "method_en": "Anti-transpirant sprays",
-            "method_ar": "مضادات النتح",
-            "description_en": "Apply kaolin clay or other anti-transpirants",
-            "description_ar": "رش طين الكاولين أو مضادات نتح أخرى",
-            "priority": "medium",
-        })
+        measures.append(
+            {
+                "method_en": "Anti-transpirant sprays",
+                "method_ar": "مضادات النتح",
+                "description_en": "Apply kaolin clay or other anti-transpirants",
+                "description_ar": "رش طين الكاولين أو مضادات نتح أخرى",
+                "priority": "medium",
+            }
+        )
 
     return measures
 
@@ -1121,19 +1145,23 @@ def calculate_chill_hours(
 
     for crop, req in crop_requirements.items():
         if chill_units >= req["min"]:
-            satisfied_crops.append({
-                "crop": crop,
-                "crop_ar": req["name_ar"],
-                "requirement_met_pct": min(100, round(chill_units / req["min"] * 100)),
-            })
+            satisfied_crops.append(
+                {
+                    "crop": crop,
+                    "crop_ar": req["name_ar"],
+                    "requirement_met_pct": min(100, round(chill_units / req["min"] * 100)),
+                }
+            )
         else:
-            insufficient_crops.append({
-                "crop": crop,
-                "crop_ar": req["name_ar"],
-                "required": req["min"],
-                "current": round(chill_units),
-                "deficit": round(req["min"] - chill_units),
-            })
+            insufficient_crops.append(
+                {
+                    "crop": crop,
+                    "crop_ar": req["name_ar"],
+                    "required": req["min"],
+                    "current": round(chill_units),
+                    "deficit": round(req["min"] - chill_units),
+                }
+            )
 
     return {
         "chill_units": round(chill_units, 1),
@@ -1199,7 +1227,7 @@ def calculate_drought_index(
     water_balance = precipitation_mm - et0_mm
 
     # Aridity index (P/ET0)
-    aridity_index = precipitation_mm / et0_mm if et0_mm > 0 else float('inf')
+    aridity_index = precipitation_mm / et0_mm if et0_mm > 0 else float("inf")
 
     # Drought severity
     if aridity_index >= 1.0:

@@ -112,9 +112,7 @@ class TestPerceptDistribution:
         """Test soil moisture is sent to irrigation advisor"""
         agent = MasterCoordinatorAgent()
 
-        percept = AgentPercept(
-            percept_type="soil_moisture", data={"value": 0.25}, source="sensor"
-        )
+        percept = AgentPercept(percept_type="soil_moisture", data={"value": 0.25}, source="sensor")
 
         await agent.perceive(percept)
 
@@ -142,9 +140,7 @@ class TestPerceptDistribution:
         """Test coordinator context is updated"""
         agent = MasterCoordinatorAgent()
 
-        percept = AgentPercept(
-            percept_type="test_data", data={"key": "value"}, source="test"
-        )
+        percept = AgentPercept(percept_type="test_data", data={"key": "value"}, source="test")
 
         await agent.perceive(percept)
 

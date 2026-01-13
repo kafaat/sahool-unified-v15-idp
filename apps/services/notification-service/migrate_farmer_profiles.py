@@ -44,7 +44,9 @@ async def migrate():
     if not db_url:
         logger.error("❌ DATABASE_URL environment variable not set!")
         logger.error("   Set it in .env file or export it:")
-        logger.error("   export DATABASE_URL='postgresql://user:password@localhost:5432/sahool_notifications'")
+        logger.error(
+            "   export DATABASE_URL='postgresql://user:password@localhost:5432/sahool_notifications'"
+        )
         return False
 
     logger.info(f"Database URL: {db_url.split('@')[1] if '@' in db_url else 'configured'}")
@@ -137,6 +139,7 @@ async def migrate():
     except Exception as e:
         logger.error(f"\n❌ Migration failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -165,13 +168,19 @@ async def rollback():
 
         # Drop tables in reverse order (to handle foreign keys)
         logger.info("Dropping farmer_fields table...")
-        await Tortoise.get_connection("default").execute_query("DROP TABLE IF EXISTS farmer_fields CASCADE")
+        await Tortoise.get_connection("default").execute_query(
+            "DROP TABLE IF EXISTS farmer_fields CASCADE"
+        )
 
         logger.info("Dropping farmer_crops table...")
-        await Tortoise.get_connection("default").execute_query("DROP TABLE IF EXISTS farmer_crops CASCADE")
+        await Tortoise.get_connection("default").execute_query(
+            "DROP TABLE IF EXISTS farmer_crops CASCADE"
+        )
 
         logger.info("Dropping farmer_profiles table...")
-        await Tortoise.get_connection("default").execute_query("DROP TABLE IF EXISTS farmer_profiles CASCADE")
+        await Tortoise.get_connection("default").execute_query(
+            "DROP TABLE IF EXISTS farmer_profiles CASCADE"
+        )
 
         logger.info("✅ Rollback completed - all farmer tables dropped")
 

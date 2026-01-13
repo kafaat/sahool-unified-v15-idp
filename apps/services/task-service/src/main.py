@@ -466,6 +466,7 @@ async def shutdown_event():
     # Close NDVI client
     try:
         from .ndvi_client import close_ndvi_client
+
         await close_ndvi_client()
         logger.info("✅ NDVI client closed")
     except Exception as e:
@@ -1734,9 +1735,7 @@ async def get_field_health(
 
     except Exception as e:
         logger.error(f"Error fetching field health: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch field health: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to fetch field health: {str(e)}")
 
 
 @app.post("/api/v1/tasks/auto-create", response_model=dict, status_code=201)

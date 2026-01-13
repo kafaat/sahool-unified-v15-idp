@@ -194,9 +194,7 @@ class RedisTokenRevocationStore:
         try:
             await self._redis.setex(key, expires_in, json.dumps(value.to_dict()))
 
-            logger.info(
-                f"Token revoked: jti={jti[:8]}..., reason={reason}, ttl={expires_in}s"
-            )
+            logger.info(f"Token revoked: jti={jti[:8]}..., reason={reason}, ttl={expires_in}s")
 
             return True
 
@@ -229,9 +227,7 @@ class RedisTokenRevocationStore:
             logger.error(f"Error checking token revocation: {e}")
             return False
 
-    async def revoke_all_user_tokens(
-        self, user_id: str, reason: str = "user_logout"
-    ) -> bool:
+    async def revoke_all_user_tokens(self, user_id: str, reason: str = "user_logout") -> bool:
         """
         Revoke all tokens for a user
 
@@ -266,9 +262,7 @@ class RedisTokenRevocationStore:
             logger.error(f"Failed to revoke user tokens: {e}")
             return False
 
-    async def is_user_token_revoked(
-        self, user_id: str, token_issued_at: float
-    ) -> bool:
+    async def is_user_token_revoked(self, user_id: str, token_issued_at: float) -> bool:
         """
         Check if a user's token is revoked
 
@@ -329,9 +323,7 @@ class RedisTokenRevocationStore:
             # Store for 30 days
             await self._redis.setex(key, 2592000, json.dumps(value.to_dict()))
 
-            logger.info(
-                f"All tenant tokens revoked: tenant_id={tenant_id}, reason={reason}"
-            )
+            logger.info(f"All tenant tokens revoked: tenant_id={tenant_id}, reason={reason}")
 
             return True
 
@@ -339,9 +331,7 @@ class RedisTokenRevocationStore:
             logger.error(f"Failed to revoke tenant tokens: {e}")
             return False
 
-    async def is_tenant_token_revoked(
-        self, tenant_id: str, token_issued_at: float
-    ) -> bool:
+    async def is_tenant_token_revoked(self, tenant_id: str, token_issued_at: float) -> bool:
         """
         Check if a tenant's token is revoked
 
@@ -402,9 +392,7 @@ class RedisTokenRevocationStore:
             # Store for 30 days
             await self._redis.setex(key, 2592000, json.dumps(value.to_dict()))
 
-            logger.info(
-                f"Token family revoked: family_id={family_id}, reason={reason}"
-            )
+            logger.info(f"Token family revoked: family_id={family_id}, reason={reason}")
 
             return True
 
@@ -471,16 +459,12 @@ class RedisTokenRevocationStore:
 
         # Check user-level revocation
         if user_id and issued_at and await self.is_user_token_revoked(user_id, issued_at):
-            return RevocationCheckResult(
-                is_revoked=True, reason="user_tokens_revoked"
-            )
+            return RevocationCheckResult(is_revoked=True, reason="user_tokens_revoked")
 
         # Check tenant-level revocation
         if tenant_id and issued_at:
             if await self.is_tenant_token_revoked(tenant_id, issued_at):
-                return RevocationCheckResult(
-                    is_revoked=True, reason="tenant_tokens_revoked"
-                )
+                return RevocationCheckResult(is_revoked=True, reason="tenant_tokens_revoked")
 
         return RevocationCheckResult(is_revoked=False)
 
@@ -514,13 +498,9 @@ class RedisTokenRevocationStore:
 
         try:
             # Count keys by prefix (this can be expensive on large datasets)
-            revoked_tokens = len(
-                await self._redis.keys(f"{self.TOKEN_PREFIX}*") or []
-            )
+            revoked_tokens = len(await self._redis.keys(f"{self.TOKEN_PREFIX}*") or [])
             revoked_users = len(await self._redis.keys(f"{self.USER_PREFIX}*") or [])
-            revoked_tenants = len(
-                await self._redis.keys(f"{self.TENANT_PREFIX}*") or []
-            )
+            revoked_tenants = len(await self._redis.keys(f"{self.TENANT_PREFIX}*") or [])
 
             return RevocationStats(
                 initialized=True,

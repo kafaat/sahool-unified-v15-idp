@@ -54,13 +54,16 @@ class TestHealthEndpoint:
     @pytest.mark.asyncio
     async def test_health_check_success(self, async_client):
         """Test health check returns healthy status"""
-        with patch(
-            "src.main.check_db_health",
-            new=AsyncMock(return_value={"status": "healthy", "connected": True}),
-        ), patch(
-            "src.main.get_db_stats",
-            new=AsyncMock(
-                return_value={"total_notifications": 100, "pending_notifications": 5}
+        with (
+            patch(
+                "src.main.check_db_health",
+                new=AsyncMock(return_value={"status": "healthy", "connected": True}),
+            ),
+            patch(
+                "src.main.get_db_stats",
+                new=AsyncMock(
+                    return_value={"total_notifications": 100, "pending_notifications": 5}
+                ),
             ),
         ):
             response = await async_client.get("/healthz")
@@ -206,12 +209,15 @@ class TestNotificationRetrieval:
         """Test getting notifications for a specific farmer"""
         mock_notification = MagicMock(**mock_notification_data)
 
-        with patch(
-            "src.repository.NotificationRepository.get_by_user",
-            new=AsyncMock(return_value=[mock_notification]),
-        ), patch(
-            "src.repository.NotificationRepository.get_unread_count",
-            new=AsyncMock(return_value=1),
+        with (
+            patch(
+                "src.repository.NotificationRepository.get_by_user",
+                new=AsyncMock(return_value=[mock_notification]),
+            ),
+            patch(
+                "src.repository.NotificationRepository.get_unread_count",
+                new=AsyncMock(return_value=1),
+            ),
         ):
             response = await async_client.get("/v1/notifications/farmer/farmer-123")
 
@@ -229,12 +235,15 @@ class TestNotificationRetrieval:
         """Test getting notifications with filters"""
         mock_notification = MagicMock(**mock_notification_data)
 
-        with patch(
-            "src.repository.NotificationRepository.get_by_user",
-            new=AsyncMock(return_value=[mock_notification]),
-        ), patch(
-            "src.repository.NotificationRepository.get_unread_count",
-            new=AsyncMock(return_value=1),
+        with (
+            patch(
+                "src.repository.NotificationRepository.get_by_user",
+                new=AsyncMock(return_value=[mock_notification]),
+            ),
+            patch(
+                "src.repository.NotificationRepository.get_unread_count",
+                new=AsyncMock(return_value=1),
+            ),
         ):
             response = await async_client.get(
                 "/v1/notifications/farmer/farmer-123",
@@ -286,12 +295,15 @@ class TestNotificationUpdates:
         mock_notification = MagicMock(**mock_notification_data)
         mock_notification.user_id = "farmer-123"
 
-        with patch(
-            "src.repository.NotificationRepository.get_by_id",
-            new=AsyncMock(return_value=mock_notification),
-        ), patch(
-            "src.repository.NotificationRepository.mark_as_read",
-            new=AsyncMock(return_value=True),
+        with (
+            patch(
+                "src.repository.NotificationRepository.get_by_id",
+                new=AsyncMock(return_value=mock_notification),
+            ),
+            patch(
+                "src.repository.NotificationRepository.mark_as_read",
+                new=AsyncMock(return_value=True),
+            ),
         ):
             response = await async_client.patch(
                 f"/v1/notifications/{notification_id}/read", params={"farmer_id": "farmer-123"}

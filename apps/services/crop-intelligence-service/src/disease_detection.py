@@ -300,7 +300,13 @@ def detect_diseases(
 
     # Water stress detection
     if ndwi <= -0.1:
-        severity = DiseaseSeverity.CRITICAL if ndwi <= -0.2 else DiseaseSeverity.HIGH if ndwi <= -0.15 else DiseaseSeverity.MEDIUM
+        severity = (
+            DiseaseSeverity.CRITICAL
+            if ndwi <= -0.2
+            else DiseaseSeverity.HIGH
+            if ndwi <= -0.15
+            else DiseaseSeverity.MEDIUM
+        )
         confidence = min(1.0, abs(ndwi + 0.1) * 5)  # Scale confidence
 
         rule = DISEASE_RULES["water_stress"]
@@ -323,7 +329,13 @@ def detect_diseases(
 
     # Nitrogen deficiency detection
     if ndre <= 0.22 and ndvi >= 0.4:
-        severity = DiseaseSeverity.HIGH if ndre <= 0.15 else DiseaseSeverity.MEDIUM if ndre <= 0.18 else DiseaseSeverity.LOW
+        severity = (
+            DiseaseSeverity.HIGH
+            if ndre <= 0.15
+            else DiseaseSeverity.MEDIUM
+            if ndre <= 0.18
+            else DiseaseSeverity.LOW
+        )
         confidence = min(1.0, (0.22 - ndre) * 10)
 
         rule = DISEASE_RULES["nitrogen_deficiency"]

@@ -134,14 +134,18 @@ async def lifespan(app: FastAPI):
             app.state.db_available = True
         else:
             if is_ci_or_test:
-                logger.warning("Database not available in CI/test environment - continuing without database")
+                logger.warning(
+                    "Database not available in CI/test environment - continuing without database"
+                )
                 app.state.db_available = False
             else:
                 logger.error("Database connection failed")
                 raise RuntimeError("Database connection failed")
     except Exception as e:
         if is_ci_or_test:
-            logger.warning(f"Database connection error in CI/test: {e} - continuing without database")
+            logger.warning(
+                f"Database connection error in CI/test: {e} - continuing without database"
+            )
             app.state.db_available = False
         else:
             logger.error(f"Database connection error: {e}")

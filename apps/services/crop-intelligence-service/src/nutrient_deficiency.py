@@ -546,7 +546,13 @@ def detect_nutrient_deficiencies(
 
     # Potassium deficiency detection (water stress correlation)
     if ndwi <= 0.0 and ndvi >= 0.35:
-        severity = DeficiencySeverity.SEVERELY_DEFICIENT if ndwi <= -0.15 else DeficiencySeverity.DEFICIENT if ndwi <= -0.05 else DeficiencySeverity.MARGINAL
+        severity = (
+            DeficiencySeverity.SEVERELY_DEFICIENT
+            if ndwi <= -0.15
+            else DeficiencySeverity.DEFICIENT
+            if ndwi <= -0.05
+            else DeficiencySeverity.MARGINAL
+        )
         confidence = min(0.8, abs(ndwi) * 4)
 
         sig = NUTRIENT_SIGNATURES[NutrientType.POTASSIUM]
@@ -569,7 +575,13 @@ def detect_nutrient_deficiencies(
 
     # Iron deficiency detection
     if lci <= 0.15 and ndre <= 0.18 and ndvi >= 0.35:
-        severity = DeficiencySeverity.SEVERELY_DEFICIENT if lci <= 0.08 else DeficiencySeverity.DEFICIENT if lci <= 0.12 else DeficiencySeverity.MARGINAL
+        severity = (
+            DeficiencySeverity.SEVERELY_DEFICIENT
+            if lci <= 0.08
+            else DeficiencySeverity.DEFICIENT
+            if lci <= 0.12
+            else DeficiencySeverity.MARGINAL
+        )
         confidence = min(0.9, (0.15 - lci) * 10)
 
         sig = NUTRIENT_SIGNATURES[NutrientType.IRON]
@@ -737,9 +749,12 @@ def generate_fertilizer_plan(
     priority_deficiencies = sorted(
         deficiencies,
         key=lambda d: (
-            0 if d.severity == DeficiencySeverity.SEVERELY_DEFICIENT else
-            1 if d.severity == DeficiencySeverity.DEFICIENT else 2
-        )
+            0
+            if d.severity == DeficiencySeverity.SEVERELY_DEFICIENT
+            else 1
+            if d.severity == DeficiencySeverity.DEFICIENT
+            else 2
+        ),
     )
 
     running_cost = 0
@@ -758,26 +773,40 @@ def generate_fertilizer_plan(
 
         running_cost += product_cost
 
-        plan["applications"].append({
-            "nutrient": deficiency.nutrient.value,
-            "product": rec.product_name,
-            "product_ar": rec.product_name_ar,
-            "quantity_kg": round(rec.dosage_kg_per_hectare * field_area_hectares, 1),
-            "application_method": rec.application_method,
-            "application_method_ar": rec.application_method_ar,
-            "timing": rec.timing,
-            "timing_ar": rec.timing_ar,
-            "cost_usd": round(product_cost, 2),
-        })
+        plan["applications"].append(
+            {
+                "nutrient": deficiency.nutrient.value,
+                "product": rec.product_name,
+                "product_ar": rec.product_name_ar,
+                "quantity_kg": round(rec.dosage_kg_per_hectare * field_area_hectares, 1),
+                "application_method": rec.application_method,
+                "application_method_ar": rec.application_method_ar,
+                "timing": rec.timing,
+                "timing_ar": rec.timing_ar,
+                "cost_usd": round(product_cost, 2),
+            }
+        )
 
     plan["total_cost_usd"] = round(running_cost, 2)
 
     # Generate schedule
     if plan["applications"]:
         plan["schedule"] = [
-            {"week": 1, "action_en": "Apply nitrogen and phosphorus fertilizers", "action_ar": "تطبيق أسمدة النيتروجين والفوسفور"},
-            {"week": 2, "action_en": "Apply micronutrients (foliar)", "action_ar": "تطبيق العناصر الصغرى (ورقي)"},
-            {"week": 4, "action_en": "Re-evaluate and apply potassium if needed", "action_ar": "إعادة تقييم وتطبيق البوتاسيوم إذا لزم"},
+            {
+                "week": 1,
+                "action_en": "Apply nitrogen and phosphorus fertilizers",
+                "action_ar": "تطبيق أسمدة النيتروجين والفوسفور",
+            },
+            {
+                "week": 2,
+                "action_en": "Apply micronutrients (foliar)",
+                "action_ar": "تطبيق العناصر الصغرى (ورقي)",
+            },
+            {
+                "week": 4,
+                "action_en": "Re-evaluate and apply potassium if needed",
+                "action_ar": "إعادة تقييم وتطبيق البوتاسيوم إذا لزم",
+            },
         ]
 
     return plan

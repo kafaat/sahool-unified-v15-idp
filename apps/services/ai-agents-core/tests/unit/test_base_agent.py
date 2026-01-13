@@ -276,6 +276,7 @@ class TestRuleBasedBehavior:
 
         def condition(ctx):
             return ctx.sensor_data.get("temperature", 0) > 35
+
         action = AgentAction(
             action_type="alert",
             parameters={},
@@ -295,6 +296,7 @@ class TestRuleBasedBehavior:
         # Add rule for high temperature
         def condition(ctx):
             return ctx.sensor_data.get("temperature", 0) > 20
+
         action = AgentAction(
             action_type="temperature_alert",
             parameters={},
@@ -317,6 +319,7 @@ class TestRuleBasedBehavior:
         # Add rule for very high temperature
         def condition(ctx):
             return ctx.sensor_data.get("temperature", 0) > 50
+
         action = AgentAction(
             action_type="emergency",
             parameters={},
@@ -338,6 +341,7 @@ class TestRuleBasedBehavior:
         # Rule 1
         def condition1(ctx):
             return ctx.sensor_data.get("temperature", 0) > 20
+
         action1 = AgentAction(
             action_type="action1", parameters={}, confidence=0.9, priority=1, reasoning="Rule 1"
         )
@@ -346,6 +350,7 @@ class TestRuleBasedBehavior:
         # Rule 2
         def condition2(ctx):
             return ctx.sensor_data.get("temperature", 0) > 15
+
         action2 = AgentAction(
             action_type="action2", parameters={}, confidence=0.9, priority=2, reasoning="Rule 2"
         )

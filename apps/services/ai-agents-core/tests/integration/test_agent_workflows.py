@@ -46,9 +46,7 @@ class TestDiseaseWorkflow:
         image_result = await mock_model.detect_disease({"image_path": "test.jpg"})
 
         # Step 2: Disease agent perceives image analysis
-        percept = AgentPercept(
-            percept_type="image_analysis", data=image_result, source="cnn_model"
-        )
+        percept = AgentPercept(percept_type="image_analysis", data=image_result, source="cnn_model")
 
         # Step 3: Run complete agent cycle
         result = await disease_agent.run(percept)
@@ -666,9 +664,7 @@ class TestCrossAgentCommunication:
                 data={"disease_id": "wheat_leaf_rust"},
                 source="cnn",
             ),
-            AgentPercept(
-                percept_type="soil_moisture", data={"value": 0.25}, source="sensor"
-            ),
+            AgentPercept(percept_type="soil_moisture", data={"value": 0.25}, source="sensor"),
             AgentPercept(
                 percept_type="current_weather",
                 data={"temperature": 30.0},

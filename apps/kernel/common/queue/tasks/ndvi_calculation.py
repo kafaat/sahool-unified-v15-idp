@@ -134,9 +134,7 @@ class NDVIAlert:
 # =============================================================================
 
 
-def calculate_ndvi_from_bands(
-    red_band: np.ndarray, nir_band: np.ndarray
-) -> np.ndarray:
+def calculate_ndvi_from_bands(red_band: np.ndarray, nir_band: np.ndarray) -> np.ndarray:
     """
     حساب NDVI من نطاقي الأحمر والأشعة تحت الحمراء القريبة
     Calculate NDVI from RED and NIR bands
@@ -269,9 +267,7 @@ def classify_zones(ndvi_array: np.ndarray) -> ZoneClassification:
         / total
         * 100
     )
-    healthy = (
-        np.sum(valid_values >= NDVI_THRESHOLDS["moderate_vegetation"]) / total * 100
-    )
+    healthy = np.sum(valid_values >= NDVI_THRESHOLDS["moderate_vegetation"]) / total * 100
 
     return ZoneClassification(
         healthy_percent=healthy,
@@ -320,9 +316,7 @@ def calculate_health_score(stats: NDVIStatistics, zones: ZoneClassification) -> 
     return round(score, 1)
 
 
-def generate_alerts(
-    stats: NDVIStatistics, zones: ZoneClassification
-) -> list[NDVIAlert]:
+def generate_alerts(stats: NDVIStatistics, zones: ZoneClassification) -> list[NDVIAlert]:
     """
     إنشاء تنبيهات بناءً على تحليل NDVI
     Generate alerts based on NDVI analysis
@@ -441,9 +435,7 @@ def simulate_band_data(field_id: str, image_url: str) -> tuple[np.ndarray, np.nd
     # Simulate realistic vegetation pattern
     # إنشاء خريطة أساسية للنباتات
     # Create base vegetation map
-    base_vegetation = 0.4 + 0.3 * np.sin(
-        np.linspace(0, 2 * np.pi, width)
-    ).reshape(1, -1)
+    base_vegetation = 0.4 + 0.3 * np.sin(np.linspace(0, 2 * np.pi, width)).reshape(1, -1)
     base_vegetation = np.tile(base_vegetation, (height, 1))
 
     # إضافة تباين مكاني

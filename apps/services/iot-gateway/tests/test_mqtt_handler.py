@@ -467,7 +467,6 @@ class TestMqttReconnection:
         """Test that subscribe reconnects on connection loss"""
         client = MqttClient()
 
-
         async def handler(msg: MqttMessage):
             pass
 

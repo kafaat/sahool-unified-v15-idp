@@ -135,7 +135,12 @@ PEST_DATABASE = {
         "favorable_humidity_min": 50,
         "favorable_humidity_max": 80,
         "ndvi_vulnerability_max": 0.65,  # Dense canopy favors aphids
-        "damage_symptoms_en": ["Leaf curling", "Honeydew on leaves", "Stunted growth", "Sooty mold"],
+        "damage_symptoms_en": [
+            "Leaf curling",
+            "Honeydew on leaves",
+            "Stunted growth",
+            "Sooty mold",
+        ],
         "damage_symptoms_ar": ["تجعد الأوراق", "ندوة عسلية على الأوراق", "تقزم النمو", "عفن أسود"],
         "controls": [
             PestControl(
@@ -340,19 +345,31 @@ def assess_pest_risks(
         # Temperature factor
         temp_range = pest_data.get("favorable_temp_range", (15, 35))
         if temp_range[0] <= temp_c <= temp_range[1]:
-            temp_factor = 1.0 - abs(temp_c - (temp_range[0] + temp_range[1]) / 2) / (temp_range[1] - temp_range[0])
+            temp_factor = 1.0 - abs(temp_c - (temp_range[0] + temp_range[1]) / 2) / (
+                temp_range[1] - temp_range[0]
+            )
             risk_score += 35 * temp_factor
-            favorable_conditions.append(f"Temperature in favorable range ({temp_range[0]}-{temp_range[1]}°C)")
-            favorable_conditions_ar.append(f"الحرارة في النطاق الملائم ({temp_range[0]}-{temp_range[1]} °م)")
+            favorable_conditions.append(
+                f"Temperature in favorable range ({temp_range[0]}-{temp_range[1]}°C)"
+            )
+            favorable_conditions_ar.append(
+                f"الحرارة في النطاق الملائم ({temp_range[0]}-{temp_range[1]} °م)"
+            )
 
         # Humidity factor
         humidity_min = pest_data.get("favorable_humidity_min", 40)
         humidity_max = pest_data.get("favorable_humidity_max", 80)
         if humidity_min <= humidity_pct <= humidity_max:
-            humidity_factor = 1.0 - abs(humidity_pct - (humidity_min + humidity_max) / 2) / (humidity_max - humidity_min)
+            humidity_factor = 1.0 - abs(humidity_pct - (humidity_min + humidity_max) / 2) / (
+                humidity_max - humidity_min
+            )
             risk_score += 25 * humidity_factor
-            favorable_conditions.append(f"Humidity in favorable range ({humidity_min}-{humidity_max}%)")
-            favorable_conditions_ar.append(f"الرطوبة في النطاق الملائم ({humidity_min}-{humidity_max}%)")
+            favorable_conditions.append(
+                f"Humidity in favorable range ({humidity_min}-{humidity_max}%)"
+            )
+            favorable_conditions_ar.append(
+                f"الرطوبة في النطاق الملائم ({humidity_min}-{humidity_max}%)"
+            )
 
         # NDVI/canopy factor
         ndvi_max = pest_data.get("ndvi_vulnerability_max", 0.75)

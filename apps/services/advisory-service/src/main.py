@@ -544,7 +544,9 @@ def search_crops_endpoint(q: str):
 
 @app.get("/crops")
 def list_all_crops(
-    limit: int = Query(default=100, ge=1, le=500, description="Maximum number of crops per category"),
+    limit: int = Query(
+        default=100, ge=1, le=500, description="Maximum number of crops per category"
+    ),
     offset: int = Query(default=0, ge=0, description="Number of crops to skip per category"),
 ):
     """List all crops grouped by category with pagination"""

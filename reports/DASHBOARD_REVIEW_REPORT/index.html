@@ -1201,17 +1201,17 @@
 <h3 id="_4">التوصيات<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// middleware.ts</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">middleware</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">NextRequest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">cookies</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">cookies</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;access_token&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
 
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">token</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">nextUrl</span><span class="p">.</span><span class="nx">pathname</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">url</span><span class="p">));</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">token</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">nextUrl</span><span class="p">.</span><span class="nx">pathname</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">&quot;/dashboard&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URL</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">url</span><span class="p">));</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
 <span class="p">}</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">matcher</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;/dashboard/:path*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/settings/:path*&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">matcher</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;/dashboard/:path*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/settings/:path*&quot;</span><span class="p">],</span>
 <span class="p">};</span>
 </code></pre></div>
 
@@ -1284,10 +1284,12 @@
 <span class="kd">const</span><span class="w"> </span><span class="nx">handleKPIClick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">kpi</span><span class="o">:</span><span class="w"> </span><span class="kt">KPI</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 
-<p><strong>المواقع:</strong>
-- <code>apps/web/src/components/dashboard/Cockpit.tsx</code>
-- <code>apps/web/src/hooks/useAlerts.ts</code>
-- <code>apps/web/src/components/dashboard/EventTimeline.tsx</code></p>
+<p><strong>المواقع:</strong></p>
+<ul>
+<li><code>apps/web/src/components/dashboard/Cockpit.tsx</code></li>
+<li><code>apps/web/src/hooks/useAlerts.ts</code></li>
+<li><code>apps/web/src/components/dashboard/EventTimeline.tsx</code></li>
+</ul>
 <h4 id="32-error-boundaries-dashboard">3.2 عدم استخدام Error Boundaries في Dashboard<a class="headerlink" href="#32-error-boundaries-dashboard" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">// ✅ الحل المقترح</span>
 <span class="o">&lt;</span><span class="nx">ErrorBoundary</span><span class="w"> </span><span class="nx">fallback</span><span class="o">=</span><span class="p">{</span><span class="o">&lt;</span><span class="nx">StatsCardsSkeleton</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">}</span><span class="o">&gt;</span>
@@ -1317,11 +1319,13 @@
 <hr />
 <h2 id="4-uxui">🎨 4. مراجعة UX/UI<a class="headerlink" href="#4-uxui" title="Permanent link">&para;</a></h2>
 <h3 id="accessibility-310">Accessibility (3/10) ⚠️<a class="headerlink" href="#accessibility-310" title="Permanent link">&para;</a></h3>
-<p><strong>المشاكل الرئيسية:</strong>
-- فقط 3 ملفات تستخدم <code>aria-label</code>
-- غياب ARIA Roles
-- ضعف Keyboard Navigation
-- Modal بدون Focus Management</p>
+<p><strong>المشاكل الرئيسية:</strong></p>
+<ul>
+<li>فقط 3 ملفات تستخدم <code>aria-label</code></li>
+<li>غياب ARIA Roles</li>
+<li>ضعف Keyboard Navigation</li>
+<li>Modal بدون Focus Management</li>
+</ul>
 <p><strong>التوصيات:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// إضافة aria-label لجميع الأزرار</span>
 <span class="p">&lt;</span><span class="nt">button</span><span class="w"> </span><span class="na">aria-label</span><span class="o">=</span><span class="s">&quot;الإشعارات - لديك 3 إشعارات جديدة&quot;</span><span class="p">&gt;</span>
@@ -1333,17 +1337,23 @@
 </code></pre></div>
 
 <h3 id="rtl-support-710">RTL Support (7/10) ✅<a class="headerlink" href="#rtl-support-710" title="Permanent link">&para;</a></h3>
-<p><strong>النقاط الإيجابية:</strong>
-- RTL مفعل في Root Layout
-- استخدام <code>start/end</code> في بعض المكونات</p>
-<p><strong>التحسينات المطلوبة:</strong>
-- استبدال <code>left/right</code> بـ <code>start/end</code>
-- إزالة <code>dir="rtl"</code> من المكونات الفردية</p>
+<p><strong>النقاط الإيجابية:</strong></p>
+<ul>
+<li>RTL مفعل في Root Layout</li>
+<li>استخدام <code>start/end</code> في بعض المكونات</li>
+</ul>
+<p><strong>التحسينات المطلوبة:</strong></p>
+<ul>
+<li>استبدال <code>left/right</code> بـ <code>start/end</code></li>
+<li>إزالة <code>dir="rtl"</code> من المكونات الفردية</li>
+</ul>
 <h3 id="responsive-design-510">Responsive Design (5/10) ⚠️<a class="headerlink" href="#responsive-design-510" title="Permanent link">&para;</a></h3>
-<p><strong>المشاكل:</strong>
-- Sidebar بعرض ثابت (256px)
-- استخدام محدود للـ Breakpoints
-- Dashboard غير متجاوب بشكل كامل</p>
+<p><strong>المشاكل:</strong></p>
+<ul>
+<li>Sidebar بعرض ثابت (256px)</li>
+<li>استخدام محدود للـ Breakpoints</li>
+<li>Dashboard غير متجاوب بشكل كامل</li>
+</ul>
 <p><strong>الحل:</strong> تحويل Sidebar إلى Mobile Drawer</p>
 <h3 id="loading-empty-states-910">Loading &amp; Empty States (9/10) ✅<a class="headerlink" href="#loading-empty-states-910" title="Permanent link">&para;</a></h3>
 <p><strong>ممتاز!</strong> - Skeleton loaders موجودة وEmpty states مُعرّفة</p>
@@ -1357,7 +1367,7 @@
 <span class="c1">// ... 11 ملف آخر</span>
 
 <span class="c1">// ✅ الحل: استخدام @sahool/api-client</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolApiClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/api-client&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolApiClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/api-client&quot;</span><span class="p">;</span>
 </code></pre></div>
 
 <h4 id="52">5.2 تكرار المكونات<a class="headerlink" href="#52" title="Permanent link">&para;</a></h4>
@@ -1383,9 +1393,11 @@
 </tbody>
 </table>
 <h4 id="53-sahoolapi-client">5.3 عدم استخدام @sahool/api-client<a class="headerlink" href="#53-sahoolapi-client" title="Permanent link">&para;</a></h4>
-<p>Package جاهز ومُوثّق لكن:
-- فقط 2 imports في كل المشروع
-- كل Feature يُنشئ axios instance خاص</p>
+<p>Package جاهز ومُوثّق لكن:</p>
+<ul>
+<li>فقط 2 imports في كل المشروع</li>
+<li>كل Feature يُنشئ axios instance خاص</li>
+</ul>
 <h3 id="_10">التوصيات<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>توحيد طبقة API</strong> - استخدام <code>@sahool/api-client</code> فقط</li>

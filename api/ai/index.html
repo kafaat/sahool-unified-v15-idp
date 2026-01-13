@@ -1119,20 +1119,24 @@
 <h1 id="aianalysis-apis">AI/Analysis APIs<a class="headerlink" href="#aianalysis-apis" title="Permanent link">&para;</a></h1>
 <h1 id="_1">واجهات برمجة تطبيقات الذكاء الاصطناعي<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>AI and Analysis APIs provide intelligent agricultural advisory and analysis:
-- Multi-agent AI system for agricultural questions
-- Crop health analysis and disease detection
-- Yield prediction
-- Irrigation optimization
-- Fertilizer recommendations
-- RAG-based knowledge retrieval</p>
-<p>توفر واجهات الذكاء الاصطناعي والتحليل استشارات وتحليلات زراعية ذكية:
-- نظام ذكاء اصطناعي متعدد الوكلاء للأسئلة الزراعية
-- تحليل صحة المحاصيل واكتشاف الأمراض
-- التنبؤ بالمحصول
-- تحسين الري
-- توصيات الأسمدة
-- استرجاع المعرفة القائم على RAG</p>
+<p>AI and Analysis APIs provide intelligent agricultural advisory and analysis:</p>
+<ul>
+<li>Multi-agent AI system for agricultural questions</li>
+<li>Crop health analysis and disease detection</li>
+<li>Yield prediction</li>
+<li>Irrigation optimization</li>
+<li>Fertilizer recommendations</li>
+<li>RAG-based knowledge retrieval</li>
+</ul>
+<p>توفر واجهات الذكاء الاصطناعي والتحليل استشارات وتحليلات زراعية ذكية:</p>
+<ul>
+<li>نظام ذكاء اصطناعي متعدد الوكلاء للأسئلة الزراعية</li>
+<li>تحليل صحة المحاصيل واكتشاف الأمراض</li>
+<li>التنبؤ بالمحصول</li>
+<li>تحسين الري</li>
+<li>توصيات الأسمدة</li>
+<li>استرجاع المعرفة القائم على RAG</li>
+</ul>
 <h2 id="base-urls">Base URLs<a class="headerlink" href="#base-urls" title="Permanent link">&para;</a></h2>
 <p><strong>AI Advisor:</strong> <code>http://localhost:8083</code>
 <strong>Crop Health AI:</strong> <code>http://localhost:8089</code>
@@ -1330,11 +1334,7 @@
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;analysis_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data_sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;ndvi&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;field_sensors&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;visual_inspection&quot;</span>
-<span class="w">  </span><span class="p">]</span>
+<span class="w">  </span><span class="nt">&quot;data_sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ndvi&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;field_sensors&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;visual_inspection&quot;</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1412,7 +1412,7 @@
 <h3 id="ai-question-request">AI Question Request<a class="headerlink" href="#ai-question-request" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kd">interface</span><span class="w"> </span><span class="nx">QuestionRequest</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">question</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;en&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;ar&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;en&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;ar&quot;</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">context</span><span class="o">?:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">field_id?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">location?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -1429,7 +1429,7 @@
 <span class="w">    </span><span class="nx">disease_name_en</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">disease_name_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
-<span class="w">    </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;low&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;moderate&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;high&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;critical&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;moderate&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;critical&quot;</span><span class="p">;</span>
 <span class="w">  </span><span class="p">};</span>
 <span class="w">  </span><span class="nx">treatment</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">immediate_actions</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>

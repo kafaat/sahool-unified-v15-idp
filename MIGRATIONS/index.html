@@ -1125,10 +1125,12 @@ and ensure safe deployments across all environments.</p>
 <blockquote>
 <p><strong>No migration is ever edited after merge to main.</strong></p>
 </blockquote>
-<p>Once a migration is merged:
-- It cannot be modified
-- It cannot be deleted
-- If there's an error, create a new migration to fix it</p>
+<p>Once a migration is merged:</p>
+<ul>
+<li>It cannot be modified</li>
+<li>It cannot be deleted</li>
+<li>If there's an error, create a new migration to fix it</li>
+</ul>
 <h3 id="2-sprint-prefixes">2. Sprint Prefixes<a class="headerlink" href="#2-sprint-prefixes" title="Permanent link">&para;</a></h3>
 <p>Each sprint has its own migration prefix to prevent file conflicts:</p>
 <table>
@@ -1217,10 +1219,12 @@ and ensure safe deployments across all environments.</p>
 <li><code>sequence</code>: 3-digit number (<code>001</code>, <code>002</code>, etc.)</li>
 <li><code>description</code>: snake_case, max 30 chars</li>
 </ul>
-<p>Examples:
-- <code>s1_001_initial_schema.py</code>
-- <code>s3_005_add_ndvi_column.py</code>
-- <code>s7_012_create_ai_feedback_table.py</code></p>
+<p>Examples:</p>
+<ul>
+<li><code>s1_001_initial_schema.py</code></li>
+<li><code>s3_005_add_ndvi_column.py</code></li>
+<li><code>s7_012_create_ai_feedback_table.py</code></li>
+</ul>
 <h2 id="migration-checklist">Migration Checklist<a class="headerlink" href="#migration-checklist" title="Permanent link">&para;</a></h2>
 <p>Before creating a migration:</p>
 <ul>

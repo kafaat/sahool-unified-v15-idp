@@ -1194,28 +1194,36 @@
 </ul>
 <h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
 <h3 id="alternative-1-provider-original">Alternative 1: Provider (Original)<a class="headerlink" href="#alternative-1-provider-original" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- Runtime errors for missing providers
-- Requires BuildContext for access
-- Limited caching capabilities
-- Riverpod is the successor by same author</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Runtime errors for missing providers</li>
+<li>Requires BuildContext for access</li>
+<li>Limited caching capabilities</li>
+<li>Riverpod is the successor by same author</li>
+</ul>
 <h3 id="alternative-2-bloc">Alternative 2: BLoC<a class="headerlink" href="#alternative-2-bloc" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- More boilerplate for simple state
-- Streams add complexity
-- Less intuitive for team
-- Overkill for our use case</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>More boilerplate for simple state</li>
+<li>Streams add complexity</li>
+<li>Less intuitive for team</li>
+<li>Overkill for our use case</li>
+</ul>
 <h3 id="alternative-3-getx">Alternative 3: GetX<a class="headerlink" href="#alternative-3-getx" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- Less type safety
-- Controversial patterns
-- Mixing concerns (routing, state, DI)
-- Smaller enterprise adoption</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Less type safety</li>
+<li>Controversial patterns</li>
+<li>Mixing concerns (routing, state, DI)</li>
+<li>Smaller enterprise adoption</li>
+</ul>
 <h2 id="migration-notes">Migration Notes<a class="headerlink" href="#migration-notes" title="Permanent link">&para;</a></h2>
-<p>Migrated from Provider to Riverpod in Sprint 8:
-- 47 providers converted
-- 2 weeks development time
-- Zero production regressions</p>
+<p>Migrated from Provider to Riverpod in Sprint 8:</p>
+<ul>
+<li>47 providers converted</li>
+<li>2 weeks development time</li>
+<li>Zero production regressions</li>
+</ul>
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://riverpod.dev/">Riverpod Documentation</a></li>

@@ -1142,11 +1142,15 @@
 <li><code>gitops/scripts/install-pr-previews.sh</code></li>
 </ul>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
-<p>1) Create GitHub token secret (read-only):</p>
+<ol>
+<li>Create GitHub token secret (read-only):</li>
+</ol>
 <div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>gitops/argocd/secrets/github-pr-generator-secret.yaml
 </code></pre></div>
 
-<p>2) Apply the ApplicationSet:</p>
+<ol>
+<li>Apply the ApplicationSet:</li>
+</ol>
 <div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>gitops/argocd/applicationsets/sahool-pr-previews-appset.yaml
 </code></pre></div>
 

@@ -1199,10 +1199,12 @@
 <h3 id="1">1. طرق النسخ الاحتياطي<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
 <h4 id="logical-backup">أ. النسخ الاحتياطي المنطقي (Logical Backup)<a class="headerlink" href="#logical-backup" title="Permanent link">&para;</a></h4>
 <p><strong>الأداة</strong>: <code>pg_dump</code> / <code>pg_dumpall</code></p>
-<p><strong>المزايا</strong>:
-- سهولة الاستعادة الجزئية
-- نقل البيانات بين إصدارات PostgreSQL مختلفة
-- قابلية للقراءة والتعديل (SQL format)</p>
+<p><strong>المزايا</strong>:</p>
+<ul>
+<li>سهولة الاستعادة الجزئية</li>
+<li>نقل البيانات بين إصدارات PostgreSQL مختلفة</li>
+<li>قابلية للقراءة والتعديل (SQL format)</li>
+</ul>
 <p><strong>الاستخدام</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># نسخ احتياطي كامل بصيغة مخصصة (موصى به)</span>
 pg_dump<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-F<span class="w"> </span>c<span class="w"> </span>-f<span class="w"> </span>sahool_backup.dump<span class="w"> </span>sahool
@@ -1214,16 +1216,20 @@ pg_dump<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"
 pg_dumpall<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-f<span class="w"> </span>all_databases.sql
 </code></pre></div>
 
-<p><strong>الجدول الزمني</strong>:
-- يومي: الساعة 2:00 صباحًا
-- أسبوعي: الأحد 3:00 صباحًا
-- شهري: أول يوم من الشهر 4:00 صباحًا</p>
+<p><strong>الجدول الزمني</strong>:</p>
+<ul>
+<li>يومي: الساعة 2:00 صباحًا</li>
+<li>أسبوعي: الأحد 3:00 صباحًا</li>
+<li>شهري: أول يوم من الشهر 4:00 صباحًا</li>
+</ul>
 <h4 id="physical-backup">ب. النسخ الاحتياطي الفيزيائي (Physical Backup)<a class="headerlink" href="#physical-backup" title="Permanent link">&para;</a></h4>
 <p><strong>الأداة</strong>: <code>pg_basebackup</code></p>
-<p><strong>المزايا</strong>:
-- استعادة أسرع
-- نسخ احتياطي على مستوى الملفات
-- دعم Point-in-Time Recovery (PITR)</p>
+<p><strong>المزايا</strong>:</p>
+<ul>
+<li>استعادة أسرع</li>
+<li>نسخ احتياطي على مستوى الملفات</li>
+<li>دعم Point-in-Time Recovery (PITR)</li>
+</ul>
 <p><strong>الاستخدام</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># نسخ احتياطي أساسي</span>
 pg_basebackup<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-D<span class="w"> </span>/backups/base<span class="w"> </span>-F<span class="w"> </span>tar<span class="w"> </span>-z<span class="w"> </span>-P
@@ -1232,8 +1238,10 @@ pg_basebackup<span class="w"> </span>-h<span class="w"> </span>postgres<span cla
 pg_basebackup<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-D<span class="w"> </span>/backups/base<span class="w"> </span>-X<span class="w"> </span>stream<span class="w"> </span>-P
 </code></pre></div>
 
-<p><strong>الجدول الزمني</strong>:
-- أسبوعي: السبت 1:00 صباحًا</p>
+<p><strong>الجدول الزمني</strong>:</p>
+<ul>
+<li>أسبوعي: السبت 1:00 صباحًا</li>
+</ul>
 <h3 id="2-postgresql">2. تكوين PostgreSQL للنسخ الاحتياطي<a class="headerlink" href="#2-postgresql" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- تفعيل WAL archiving</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">wal_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;replica&#39;</span><span class="p">;</span>
@@ -1359,9 +1367,11 @@ docker<span class="w"> </span>cp<span class="w"> </span>sahool-redis:/data/appen
 </code></pre></div>
 
 <h3 id="2">2. استراتيجية النسخ الاحتياطي الموصى بها<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
-<p><strong>النهج المختلط</strong>:
-- استخدام RDB للنسخ الاحتياطي اليومي (سريع، حجم أصغر)
-- استخدام AOF للتعافي من الفشل (بيانات أحدث، RPO أقل)</p>
+<p><strong>النهج المختلط</strong>:</p>
+<ul>
+<li>استخدام RDB للنسخ الاحتياطي اليومي (سريع، حجم أصغر)</li>
+<li>استخدام AOF للتعافي من الفشل (بيانات أحدث، RPO أقل)</li>
+</ul>
 <h3 id="3_1">3. الجدول الزمني<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># يومي: RDB snapshot</span>
 <span class="m">0</span><span class="w"> </span><span class="m">2</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>/scripts/backup/backup_redis.sh<span class="w"> </span>daily

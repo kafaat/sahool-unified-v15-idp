@@ -1299,28 +1299,26 @@ pytest<span class="w"> </span>tests/integration/test_kong_routes.py<span class="
 <h2 id="additional-notes">📝 ملاحظات إضافية | Additional Notes<a class="headerlink" href="#additional-notes" title="Permanent link">&para;</a></h2>
 <h3 id="_5">أفضل الممارسات<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>استخدام Environment Variables</strong> للقيم الحساسة
-   <code>yaml
+<li><strong>استخدام Environment Variables</strong> للقيم الحساسة</li>
+</ol>
+<p><code>yaml
    redis_password: ${REDIS_PASSWORD}</code></p>
-</li>
-<li>
-<p><strong>استخدام Upstreams</strong> للخدمات ذات الـ Load Balancing
-   <code>yaml
+<ol>
+<li><strong>استخدام Upstreams</strong> للخدمات ذات الـ Load Balancing</li>
+</ol>
+<p><code>yaml
    host: field-management-upstream</code></p>
-</li>
-<li>
-<p><strong>تفعيل Health Checks</strong> لجميع الخدمات
-   <code>yaml
+<ol>
+<li><strong>تفعيل Health Checks</strong> لجميع الخدمات</li>
+</ol>
+<p><code>yaml
    healthchecks:
      active:
        http_path: /healthz</code></p>
-</li>
-<li>
-<p><strong>استخدام Tags</strong> لتصنيف الخدمات
+<ol>
+<li><strong>استخدام Tags</strong> لتصنيف الخدمات
    ```yaml
-   tags:</p>
-<ul>
+   tags:<ul>
 <li>starter</li>
 <li>professional</li>
 <li>enterprise

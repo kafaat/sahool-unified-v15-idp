@@ -1122,10 +1122,12 @@
 Auto-generate updated version with: <code>python tools/compliance/generate_checklist.py</code></p>
 </blockquote>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>SAHOOL implements comprehensive compliance controls for:
-- <strong>GDPR</strong> (General Data Protection Regulation)
-- <strong>SOC 2 Type II</strong> (Service Organization Control)
-- <strong>ISO 27001</strong> (Information Security Management)</p>
+<p>SAHOOL implements comprehensive compliance controls for:</p>
+<ul>
+<li><strong>GDPR</strong> (General Data Protection Regulation)</li>
+<li><strong>SOC 2 Type II</strong> (Service Organization Control)</li>
+<li><strong>ISO 27001</strong> (Information Security Management)</li>
+</ul>
 <h2 id="audit-trail">Audit Trail<a class="headerlink" href="#audit-trail" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1476,11 +1478,13 @@ Auto-generate updated version with: <code>python tools/compliance/generate_check
 <div class="codehilite"><pre><span></span><code>make<span class="w"> </span>compliance
 </code></pre></div>
 
-<p>This runs:
-1. <code>python tools/compliance/generate_checklist.py</code> - Generate this checklist
-2. Audit service unit tests
-3. GDPR endpoint tests
-4. Security linting</p>
+<p>This runs:</p>
+<ol>
+<li><code>python tools/compliance/generate_checklist.py</code> - Generate this checklist</li>
+<li>Audit service unit tests</li>
+<li>GDPR endpoint tests</li>
+<li>Security linting</li>
+</ol>
 <h2 id="manual-review-required">Manual Review Required<a class="headerlink" href="#manual-review-required" title="Permanent link">&para;</a></h2>
 <p>The following items require periodic manual review:</p>
 <ul>

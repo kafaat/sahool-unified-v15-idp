@@ -1232,7 +1232,10 @@
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;irrigation_urgent&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;what&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;إجراء ري طارئ&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;why&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;رطوبة التربة المقدرة منخفضة (22%)&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;when&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;deadline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6 ساعات&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;optimal_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;المساء بعد غروب الشمس&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;when&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;deadline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6 ساعات&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;optimal_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;المساء بعد غروب الشمس&quot;</span>
+<span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;how&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;شغّل المضخة الرئيسية&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;اسقِ لمدة 15 دقيقة&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;راقب تشرب التربة&quot;</span><span class="p">],</span>
 <span class="w">    </span><span class="nt">&quot;fallback&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;إذا لم تتوفر المضخة: ري يدوي عميق حول الجذور&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;badge&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;virtual_estimate&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;تقدير افتراضي&quot;</span><span class="w"> </span><span class="p">},</span>
@@ -1346,10 +1349,12 @@
 </tr>
 </tbody>
 </table>
-<p><strong>المواضيع المشترك فيها | Subscribed Topics:</strong>
-- <code>sahool.analysis.completed</code>
-- <code>sahool.alerts.created</code>
-- <code>sahool.actions.acknowledged</code></p>
+<p><strong>المواضيع المشترك فيها | Subscribed Topics:</strong></p>
+<ul>
+<li><code>sahool.analysis.completed</code></li>
+<li><code>sahool.alerts.created</code></li>
+<li><code>sahool.actions.acknowledged</code></li>
+</ul>
 <hr />
 <h2 id="planned-services">📋 الخدمات المخططة | Planned Services<a class="headerlink" href="#planned-services" title="Permanent link">&para;</a></h2>
 <h3 id="1-yield-prediction-port-8091-">1. yield-prediction (Port: 8091) - الأولوية: 🔴 عالية<a class="headerlink" href="#1-yield-prediction-port-8091-" title="Permanent link">&para;</a></h3>
@@ -1414,7 +1419,10 @@
 <span class="w">      </span><span class="s2">&quot;صوّر المنطقة المتأثرة&quot;</span>
 <span class="w">    </span><span class="p">],</span>
 <span class="w">    </span><span class="nt">&quot;fallback&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;إذا لم تجد السبب: استشر المهندس الزراعي&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;badge&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;satellite_estimate&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;تقدير من القمر الصناعي&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">&quot;badge&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;satellite_estimate&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;label_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;تقدير من القمر الصناعي&quot;</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>

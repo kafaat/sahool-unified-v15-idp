@@ -1119,16 +1119,20 @@
 <h1 id="sensoriot-apis">Sensor/IoT APIs<a class="headerlink" href="#sensoriot-apis" title="Permanent link">&para;</a></h1>
 <h1 id="_1">واجهات برمجة تطبيقات أجهزة الاستشعار<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>IoT and Sensor APIs enable integration with agricultural sensors and IoT devices:
-- Real-time sensor data ingestion
-- Virtual sensors for calculated metrics
-- Sensor configuration and management
-- Historical sensor data retrieval</p>
-<p>تتيح واجهات إنترنت الأشياء والاستشعار التكامل مع أجهزة الاستشعار الزراعية:
-- استقبال بيانات الاستشعار في الوقت الفعلي
-- أجهزة استشعار افتراضية للمقاييس المحسوبة
-- تكوين وإدارة أجهزة الاستشعار
-- استرجاع البيانات التاريخية</p>
+<p>IoT and Sensor APIs enable integration with agricultural sensors and IoT devices:</p>
+<ul>
+<li>Real-time sensor data ingestion</li>
+<li>Virtual sensors for calculated metrics</li>
+<li>Sensor configuration and management</li>
+<li>Historical sensor data retrieval</li>
+</ul>
+<p>تتيح واجهات إنترنت الأشياء والاستشعار التكامل مع أجهزة الاستشعار الزراعية:</p>
+<ul>
+<li>استقبال بيانات الاستشعار في الوقت الفعلي</li>
+<li>أجهزة استشعار افتراضية للمقاييس المحسوبة</li>
+<li>تكوين وإدارة أجهزة الاستشعار</li>
+<li>استرجاع البيانات التاريخية</li>
+</ul>
 <h2 id="base-urls">Base URLs<a class="headerlink" href="#base-urls" title="Permanent link">&para;</a></h2>
 <p><strong>IoT Gateway:</strong> <code>http://localhost:8081</code>
 <strong>Virtual Sensors:</strong> <code>http://localhost:8107</code></p>
@@ -1218,10 +1222,12 @@
 
 <h3 id="get-apiv1sensorsdevice_iddata">GET /api/v1/sensors/{device_id}/data<a class="headerlink" href="#get-apiv1sensorsdevice_iddata" title="Permanent link">&para;</a></h3>
 <p>Get sensor data for a specific device.</p>
-<p><strong>Query Parameters:</strong>
-- <code>start_date</code> (string, optional): Start date (ISO 8601)
-- <code>end_date</code> (string, optional): End date (ISO 8601)
-- <code>limit</code> (integer, optional): Number of readings (default: 100)</p>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+<li><code>start_date</code> (string, optional): Start date (ISO 8601)</li>
+<li><code>end_date</code> (string, optional): End date (ISO 8601)</li>
+<li><code>limit</code> (integer, optional): Number of readings (default: 100)</li>
+</ul>
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;device-123&quot;</span><span class="p">,</span>
@@ -1239,17 +1245,19 @@
 
 <h3 id="get-apiv1virtual-sensorset0">GET /api/v1/virtual-sensors/et0<a class="headerlink" href="#get-apiv1virtual-sensorset0" title="Permanent link">&para;</a></h3>
 <p>Calculate reference evapotranspiration (ET0).</p>
-<p><strong>Query Parameters:</strong>
-- <code>lat</code> (number, required): Latitude
-- <code>lon</code> (number, required): Longitude
-- <code>date</code> (string, optional): Date (ISO 8601)</p>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+<li><code>lat</code> (number, required): Latitude</li>
+<li><code>lon</code> (number, required): Longitude</li>
+<li><code>date</code> (string, optional): Date (ISO 8601)</li>
+</ul>
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;et0_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.2</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span>
+<span class="w">    </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;penman_monteith&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>

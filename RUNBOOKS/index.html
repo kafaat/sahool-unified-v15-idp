@@ -1140,28 +1140,26 @@
 </ul>
 <h3 id="investigation-steps">Investigation Steps<a class="headerlink" href="#investigation-steps" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Check pod status</strong>
-   <code>bash
+<li><strong>Check pod status</strong></li>
+</ol>
+<p><code>bash
    kubectl get pods -l app=&lt;service-name&gt;
    kubectl describe pod &lt;pod-name&gt;</code></p>
-</li>
-<li>
-<p><strong>Check recent logs</strong>
-   <code>bash
+<ol>
+<li><strong>Check recent logs</strong></li>
+</ol>
+<p><code>bash
    kubectl logs &lt;pod-name&gt; --tail=100
    kubectl logs &lt;pod-name&gt; --previous  # If pod restarted</code></p>
-</li>
-<li>
-<p><strong>Check health endpoint</strong>
-   <code>bash
+<ol>
+<li><strong>Check health endpoint</strong></li>
+</ol>
+<p><code>bash
    curl http://&lt;service-url&gt;/health</code></p>
-</li>
-<li>
-<p><strong>Check resource usage</strong>
+<ol>
+<li><strong>Check resource usage</strong>
    <code>bash
-   kubectl top pod &lt;pod-name&gt;</code></p>
-</li>
+   kubectl top pod &lt;pod-name&gt;</code></li>
 </ol>
 <h3 id="common-causes-solutions">Common Causes &amp; Solutions<a class="headerlink" href="#common-causes-solutions" title="Permanent link">&para;</a></h3>
 <h4 id="database-connection-failure">Database Connection Failure<a class="headerlink" href="#database-connection-failure" title="Permanent link">&para;</a></h4>
@@ -1202,10 +1200,12 @@ kubectl<span class="w"> </span>edit<span class="w"> </span>deployment<span class
 </code></pre></div>
 
 <h3 id="escalation">Escalation<a class="headerlink" href="#escalation" title="Permanent link">&para;</a></h3>
-<p>If issue persists after 30 minutes:
-1. Page on-call engineer
-2. Open Slack incident channel: <code>#incident-&lt;timestamp&gt;</code>
-3. Document all investigation steps</p>
+<p>If issue persists after 30 minutes:</p>
+<ol>
+<li>Page on-call engineer</li>
+<li>Open Slack incident channel: <code>#incident-&lt;timestamp&gt;</code></li>
+<li>Document all investigation steps</li>
+</ol>
 <hr />
 <h2 id="high-error-rate">High Error Rate<a class="headerlink" href="#high-error-rate" title="Permanent link">&para;</a></h2>
 <h3 id="symptoms_1">Symptoms<a class="headerlink" href="#symptoms_1" title="Permanent link">&para;</a></h3>
@@ -1216,27 +1216,25 @@ kubectl<span class="w"> </span>edit<span class="w"> </span>deployment<span class
 </ul>
 <h3 id="investigation-steps_1">Investigation Steps<a class="headerlink" href="#investigation-steps_1" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Check error types</strong>
-   <code>promql
+<li><strong>Check error types</strong></li>
+</ol>
+<p><code>promql
    # In Prometheus
    rate(service_errors_total[5m]) by (type, severity)</code></p>
-</li>
-<li>
-<p><strong>Review error logs</strong>
-   <code>bash
+<ol>
+<li><strong>Review error logs</strong></li>
+</ol>
+<p><code>bash
    kubectl logs &lt;pod-name&gt; | grep -i error | tail -50</code></p>
-</li>
-<li>
-<p><strong>Check specific endpoint</strong>
-   <code>promql
+<ol>
+<li><strong>Check specific endpoint</strong></li>
+</ol>
+<p><code>promql
    rate(service_requests_total{status=~"5.."}[5m]) by (endpoint)</code></p>
-</li>
-<li>
-<p><strong>Review recent deployments</strong>
+<ol>
+<li><strong>Review recent deployments</strong>
    <code>bash
-   kubectl rollout history deployment/&lt;service-name&gt;</code></p>
-</li>
+   kubectl rollout history deployment/&lt;service-name&gt;</code></li>
 </ol>
 <h3 id="common-causes-solutions_1">Common Causes &amp; Solutions<a class="headerlink" href="#common-causes-solutions_1" title="Permanent link">&para;</a></h3>
 <h4 id="database-query-failures">Database Query Failures<a class="headerlink" href="#database-query-failures" title="Permanent link">&para;</a></h4>
@@ -1247,9 +1245,9 @@ curl<span class="w"> </span>http://&lt;service-url&gt;/debug/vars<span class="w"
 
 <span class="c1"># Review slow queries</span>
 kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">  SELECT query, calls, total_time, mean_time </span>
-<span class="s2">  FROM pg_stat_statements </span>
-<span class="s2">  ORDER BY total_time DESC </span>
+<span class="s2">  SELECT query, calls, total_time, mean_time</span>
+<span class="s2">  FROM pg_stat_statements</span>
+<span class="s2">  ORDER BY total_time DESC</span>
 <span class="s2">  LIMIT 10;&quot;</span>
 
 <span class="c1"># Restart service to reset connection pool</span>
@@ -1284,14 +1282,12 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>undo<span class="w
 
 <h3 id="recovery">Recovery<a class="headerlink" href="#recovery" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Immediate</strong>: Roll back to previous version
-   <code>bash
+<li><strong>Immediate</strong>: Roll back to previous version</li>
+</ol>
+<p><code>bash
    kubectl rollout undo deployment/&lt;service-name&gt;</code></p>
-</li>
-<li>
-<p><strong>Short-term</strong>: Implement fix and deploy</p>
-</li>
+<ol>
+<li><strong>Short-term</strong>: Implement fix and deploy</li>
 <li><strong>Long-term</strong>: Add monitoring/alerting for this error type</li>
 </ol>
 <hr />
@@ -1304,31 +1300,29 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>undo<span class="w
 </ul>
 <h3 id="investigation-steps_2">Investigation Steps<a class="headerlink" href="#investigation-steps_2" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Check latency by endpoint</strong>
-   <code>promql
-   histogram_quantile(0.95, 
+<li><strong>Check latency by endpoint</strong></li>
+</ol>
+<p><code>promql
+   histogram_quantile(0.95,
      rate(service_request_duration_seconds_bucket[5m])
    ) by (endpoint)</code></p>
-</li>
-<li>
-<p><strong>Check database queries</strong>
-   <code>bash
+<ol>
+<li><strong>Check database queries</strong></li>
+</ol>
+<p><code>bash
    kubectl exec -it postgres-0 -- psql -U sahool -c "
      SELECT pid, query, state, wait_event_type, wait_event
      FROM pg_stat_activity
      WHERE state != 'idle'
      ORDER BY query_start;"</code></p>
-</li>
-<li>
-<p><strong>Check cache hit rate</strong>
-   <code>promql
-   rate(cache_hits_total[5m]) / 
+<ol>
+<li><strong>Check cache hit rate</strong></li>
+</ol>
+<p><code>promql
+   rate(cache_hits_total[5m]) /
    (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m]))</code></p>
-</li>
-<li>
-<p><strong>Review traces</strong> (if OpenTelemetry enabled)</p>
-</li>
+<ol>
+<li><strong>Review traces</strong> (if OpenTelemetry enabled)</li>
 </ol>
 <h3 id="common-causes-solutions_2">Common Causes &amp; Solutions<a class="headerlink" href="#common-causes-solutions_2" title="Permanent link">&para;</a></h3>
 <h4 id="slow-database-queries">Slow Database Queries<a class="headerlink" href="#slow-database-queries" title="Permanent link">&para;</a></h4>
@@ -1381,23 +1375,21 @@ kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </spa
 </ul>
 <h3 id="investigation-steps_3">Investigation Steps<a class="headerlink" href="#investigation-steps_3" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Check connection count</strong>
-   <code>bash
+<li><strong>Check connection count</strong></li>
+</ol>
+<p><code>bash
    kubectl exec -it postgres-0 -- psql -U sahool -c "
      SELECT count(*) FROM pg_stat_activity;"</code></p>
-</li>
-<li>
-<p><strong>Check connection pool</strong>
-   <code>bash
+<ol>
+<li><strong>Check connection pool</strong></li>
+</ol>
+<p><code>bash
    curl http://&lt;service-url&gt;/debug/vars | jq '.database.pool'</code></p>
-</li>
-<li>
-<p><strong>Check database pod</strong>
+<ol>
+<li><strong>Check database pod</strong>
    <code>bash
    kubectl get pod postgres-0
-   kubectl logs postgres-0 --tail=50</code></p>
-</li>
+   kubectl logs postgres-0 --tail=50</code></li>
 </ol>
 <h3 id="solutions">Solutions<a class="headerlink" href="#solutions" title="Permanent link">&para;</a></h3>
 <h4 id="too-many-connections">Too Many Connections<a class="headerlink" href="#too-many-connections" title="Permanent link">&para;</a></h4>
@@ -1441,22 +1433,20 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class
 </ul>
 <h3 id="investigation-steps_4">Investigation Steps<a class="headerlink" href="#investigation-steps_4" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Check Redis status</strong>
-   <code>bash
+<li><strong>Check Redis status</strong></li>
+</ol>
+<p><code>bash
    kubectl get pod -l app=redis
    kubectl exec -it redis-0 -- redis-cli ping</code></p>
-</li>
-<li>
-<p><strong>Check memory usage</strong>
-   <code>bash
+<ol>
+<li><strong>Check memory usage</strong></li>
+</ol>
+<p><code>bash
    kubectl exec -it redis-0 -- redis-cli info memory</code></p>
-</li>
-<li>
-<p><strong>Check service logs</strong>
+<ol>
+<li><strong>Check service logs</strong>
    <code>bash
-   kubectl logs &lt;pod-name&gt; | grep -i redis</code></p>
-</li>
+   kubectl logs &lt;pod-name&gt; | grep -i redis</code></li>
 </ol>
 <h3 id="solutions_1">Solutions<a class="headerlink" href="#solutions_1" title="Permanent link">&para;</a></h3>
 <h4 id="redis-out-of-memory">Redis Out of Memory<a class="headerlink" href="#redis-out-of-memory" title="Permanent link">&para;</a></h4>
@@ -1491,23 +1481,21 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class
 </ul>
 <h3 id="investigation-steps_5">Investigation Steps<a class="headerlink" href="#investigation-steps_5" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Check auth service</strong>
-   <code>bash
+<li><strong>Check auth service</strong></li>
+</ol>
+<p><code>bash
    kubectl get pods -l app=auth-service
    curl http://auth-service:8001/health</code></p>
-</li>
-<li>
-<p><strong>Verify JWT secret</strong>
-   <code>bash
+<ol>
+<li><strong>Verify JWT secret</strong></li>
+</ol>
+<p><code>bash
    kubectl get secret jwt-secret -o yaml</code></p>
-</li>
-<li>
-<p><strong>Check token expiry</strong>
+<ol>
+<li><strong>Check token expiry</strong>
    <code>bash
    # Decode JWT token (use jwt.io or CLI tool)
-   echo "&lt;token&gt;" | jwt decode -</code></p>
-</li>
+   echo "&lt;token&gt;" | jwt decode -</code></li>
 </ol>
 <h3 id="solutions_2">Solutions<a class="headerlink" href="#solutions_2" title="Permanent link">&para;</a></h3>
 <h4 id="invalid-jwt-secret">Invalid JWT Secret<a class="headerlink" href="#invalid-jwt-secret" title="Permanent link">&para;</a></h4>

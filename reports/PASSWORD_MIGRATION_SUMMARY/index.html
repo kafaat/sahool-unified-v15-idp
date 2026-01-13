@@ -1318,13 +1318,13 @@ npm<span class="w"> </span>install<span class="w"> </span>argon2<span class="w">
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// TypeScript</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">hashPassword</span><span class="p">,</span><span class="w"> </span><span class="nx">verifyPassword</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/shared/auth/password-hasher&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">hashPassword</span><span class="p">,</span><span class="w"> </span><span class="nx">verifyPassword</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@/shared/auth/password-hasher&quot;</span><span class="p">;</span>
 
 <span class="c1">// Hash password</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">hashed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">hashPassword</span><span class="p">(</span><span class="s1">&#39;MyPassword123!&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">hashed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">hashPassword</span><span class="p">(</span><span class="s2">&quot;MyPassword123!&quot;</span><span class="p">);</span>
 
 <span class="c1">// Verify password</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">verifyPassword</span><span class="p">(</span><span class="s1">&#39;MyPassword123!&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">hashed</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">verifyPassword</span><span class="p">(</span><span class="s2">&quot;MyPassword123!&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">hashed</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="run-migration">Run Migration<a class="headerlink" href="#run-migration" title="Permanent link">&para;</a></h3>
@@ -1368,26 +1368,24 @@ python<span class="w"> </span>database/migrations/011_migrate_passwords_to_argon
 </ol>
 <h2 id="next-steps">📝 Next Steps / الخطوات التالية<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ol>
-<li>
-<p><strong>Install Dependencies</strong>
-   <code>bash
+<li><strong>Install Dependencies</strong></li>
+</ol>
+<p><code>bash
    pip install argon2-cffi bcrypt
    npm install argon2 bcrypt</code></p>
-</li>
-<li>
-<p><strong>Run Tests</strong>
-   <code>bash
+<ol>
+<li><strong>Run Tests</strong></li>
+</ol>
+<p><code>bash
    pytest tests/test_password_hasher.py -v
    npm test tests/test_password_hasher.test.ts</code></p>
-</li>
-<li>
-<p><strong>Apply SQL Migration</strong>
-   <code>bash
+<ol>
+<li><strong>Apply SQL Migration</strong></li>
+</ol>
+<p><code>bash
    psql -U postgres -d sahool -f database/migrations/011_migrate_passwords_to_argon2.sql</code></p>
-</li>
-<li>
-<p><strong>Update Your Code</strong></p>
-</li>
+<ol>
+<li><strong>Update Your Code</strong></li>
 <li>Replace old password hashing with new implementation</li>
 <li>See examples in <code>password_hasher_example.py</code></li>
 <li>
@@ -1409,10 +1407,12 @@ python<span class="w"> </span>database/migrations/011_migrate_passwords_to_argon
 <li><strong>Bilingual</strong>: Documentation in English and Arabic</li>
 </ul>
 <h2 id="support">📞 Support / الدعم<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>For detailed information:
-- Read: <code>/home/user/sahool-unified-v15-idp/shared/auth/PASSWORD_MIGRATION_README.md</code>
-- Examples: <code>/home/user/sahool-unified-v15-idp/shared/auth/password_hasher_example.py</code>
-- Tests: <code>/home/user/sahool-unified-v15-idp/tests/test_password_hasher.py</code></p>
+<p>For detailed information:</p>
+<ul>
+<li>Read: <code>/home/user/sahool-unified-v15-idp/shared/auth/PASSWORD_MIGRATION_README.md</code></li>
+<li>Examples: <code>/home/user/sahool-unified-v15-idp/shared/auth/password_hasher_example.py</code></li>
+<li>Tests: <code>/home/user/sahool-unified-v15-idp/tests/test_password_hasher.py</code></li>
+</ul>
 <hr />
 <p><strong>Status</strong>: ✅ COMPLETE / مكتمل<br />
 <strong>Date</strong>: 2024-12-27<br />

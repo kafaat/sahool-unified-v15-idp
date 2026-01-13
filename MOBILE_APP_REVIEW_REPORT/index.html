@@ -1247,10 +1247,12 @@
 </tr>
 </tbody>
 </table>
-<p><strong>المشكلة:</strong>
-- ثلاث تطبيقات مختلفة بمعماريات مختلفة
-- أسماء classes مختلفة: <code>NotificationNotifier</code> vs <code>NotificationsNotifier</code>
-- تعريفات <code>unreadCountProvider</code> مختلفة</p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li>ثلاث تطبيقات مختلفة بمعماريات مختلفة</li>
+<li>أسماء classes مختلفة: <code>NotificationNotifier</code> vs <code>NotificationsNotifier</code></li>
+<li>تعريفات <code>unreadCountProvider</code> مختلفة</li>
+</ul>
 <p><strong>الإصلاح المقترح:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// حذف:</span>
 <span class="o">-</span><span class="w"> </span><span class="n">features</span><span class="o">/</span><span class="n">notifications</span><span class="o">/</span><span class="n">notification_provider</span><span class="p">.</span><span class="n">dart</span>

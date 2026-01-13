@@ -1152,49 +1152,49 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 </code></pre></div>
 
-<p><strong>الميزات:</strong>
-- اتصال Redis كسول (lazy initialization)
-- تراجع تلقائي للذاكرة عند فشل Redis
-- تنظيف تلقائي للبيانات القديمة
-- دعم X-Forwarded-For للـ proxies</p>
+<p><strong>الميزات:</strong></p>
+<ul>
+<li>اتصال Redis كسول (lazy initialization)</li>
+<li>تراجع تلقائي للذاكرة عند فشل Redis</li>
+<li>تنظيف تلقائي للبيانات القديمة</li>
+<li>دعم X-Forwarded-For للـ proxies</li>
+</ul>
 <hr />
 <h3 id="2-sharedmiddlewarerate_limitpy">2. تحسين <code>shared/middleware/rate_limit.py</code><a class="headerlink" href="#2-sharedmiddlewarerate_limitpy" title="Permanent link">&para;</a></h3>
 <p><strong>الملف:</strong> <code>/home/user/sahool-unified-v15-idp/shared/middleware/rate_limit.py</code></p>
 <h4 id="decorators">Decorators جديدة:<a class="headerlink" href="#decorators" title="Permanent link">&para;</a></h4>
 <ol>
-<li>
-<p><strong><code>@rate_limit()</code></strong> - تحديد معدل مخصص
-   <code>python
+<li><strong><code>@rate_limit()</code></strong> - تحديد معدل مخصص</li>
+</ol>
+<p><code>python
    @app.get("/expensive")
    @rate_limit(requests_per_minute=10, burst_limit=2)
    async def expensive_endpoint(request: Request):
        return {"data": "..."}</code></p>
-</li>
-<li>
-<p><strong><code>@rate_limit_by_user()</code></strong> - تحديد بناءً على المستخدم
-   <code>python
+<ol>
+<li><strong><code>@rate_limit_by_user()</code></strong> - تحديد بناءً على المستخدم</li>
+</ol>
+<p><code>python
    @app.get("/user/data")
    @rate_limit_by_user(requests_per_minute=30)
    async def user_data(request: Request):
        user = request.state.user
        return {"user_id": user.id}</code></p>
-</li>
-<li>
-<p><strong><code>@rate_limit_by_api_key()</code></strong> - تحديد بناءً على API Key
-   <code>python
+<ol>
+<li><strong><code>@rate_limit_by_api_key()</code></strong> - تحديد بناءً على API Key</li>
+</ol>
+<p><code>python
    @app.get("/api/v1/data")
    @rate_limit_by_api_key(requests_per_minute=100)
    async def api_endpoint(request: Request):
        return {"data": "..."}</code></p>
-</li>
-<li>
-<p><strong><code>@rate_limit_by_tenant()</code></strong> - تحديد بناءً على Tenant
+<ol>
+<li><strong><code>@rate_limit_by_tenant()</code></strong> - تحديد بناءً على Tenant
    <code>python
    @app.get("/tenant/data")
    @rate_limit_by_tenant(requests_per_minute=200)
    async def tenant_data(request: Request):
-       return {"data": "..."}</code></p>
-</li>
+       return {"data": "..."}</code></li>
 </ol>
 <h4 id="_5">تحسينات إضافية:<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
 <ul>
@@ -1296,11 +1296,13 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<p><strong>الفوائد:</strong>
-- ✅ يعمل عبر عدة خوادم
-- ✅ دقة عالية في العد
-- ✅ أداء ممتاز
-- ✅ تراجع تلقائي للذاكرة</p>
+<p><strong>الفوائد:</strong></p>
+<ul>
+<li>✅ يعمل عبر عدة خوادم</li>
+<li>✅ دقة عالية في العد</li>
+<li>✅ أداء ممتاز</li>
+<li>✅ تراجع تلقائي للذاكرة</li>
+</ul>
 <h3 id="2">2. خوارزميات متقدمة<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
 <h4 id="token-bucket-algorithm">Token Bucket Algorithm<a class="headerlink" href="#token-bucket-algorithm" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code>- حماية من هجمات Burst السريعة

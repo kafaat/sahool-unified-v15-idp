@@ -1504,41 +1504,36 @@ POSTGRES_PASSWORD:<span class="w"> </span><span class="si">${</span><span class=
 
 <h3 id="32-short-term-1-week">3.2 Short-term (1 week)<a class="headerlink" href="#32-short-term-1-week" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Deploy Marketplace Service</strong>
-   ```bash
+<li><strong>Deploy Marketplace Service</strong></li>
+</ol>
+<p><code>bash
    # Add to main docker-compose.yml
    marketplace:
      build: ./kernel-services-v15.3/marketplace-service
-     ports:</p>
-<ul>
-<li>"8099:8099"
- depends_on:</li>
-<li>postgres</li>
-<li>redis
-   ```</li>
-</ul>
-</li>
-<li>
-<p><strong>Add Admin Authentication</strong>
-   <code>bash
+     ports:
+       - "8099:8099"
+     depends_on:
+       - postgres
+       - redis</code></p>
+<ol>
+<li><strong>Add Admin Authentication</strong></li>
+</ol>
+<p><code>bash
    cd web_admin
    npm install next-auth @auth/prisma-adapter</code></p>
-</li>
-<li>
-<p><strong>Complete Mobile App Features</strong></p>
-</li>
+<ol>
+<li><strong>Complete Mobile App Features</strong></li>
 <li>Implement wallet withdrawal dialog</li>
 <li>Add logout functionality</li>
 <li>Fix marketplace checkout flow</li>
 </ol>
 <h3 id="33-medium-term-2-4-weeks">3.3 Medium-term (2-4 weeks)<a class="headerlink" href="#33-medium-term-2-4-weeks" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Increase Test Coverage</strong>
-   ```bash
-   # Add Jest to web_admin
-   npm install -D jest @testing-library/react @testing-library/jest-dom</li>
+<li><strong>Increase Test Coverage</strong></li>
 </ol>
+<p>```bash
+   # Add Jest to web_admin
+   npm install -D jest @testing-library/react @testing-library/jest-dom</p>
 <p># Target: 60% coverage for critical paths
    ```</p>
 <ol>
@@ -1581,6 +1576,7 @@ POSTGRES_PASSWORD:<span class="w"> </span><span class="si">${</span><span class=
 <h2 id="4-deployment-checklist-">4. Deployment Checklist - قائمة التحقق للنشر<a class="headerlink" href="#4-deployment-checklist-" title="Permanent link">&para;</a></h2>
 <h3 id="pre-production-requirements">Pre-Production Requirements<a class="headerlink" href="#pre-production-requirements" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="gu">## Security</span>
+
 <span class="k">- [ ]</span> Fix WebSocket JWT validation
 <span class="k">- [ ]</span> Replace wildcard CORS
 <span class="k">- [ ]</span> Remove hardcoded credentials
@@ -1588,6 +1584,7 @@ POSTGRES_PASSWORD:<span class="w"> </span><span class="si">${</span><span class=
 <span class="k">- [ ]</span> Enable HTTPS everywhere
 
 <span class="gu">## Infrastructure</span>
+
 <span class="k">- [ ]</span> Set up Kubernetes cluster
 <span class="k">- [ ]</span> Configure Helm charts
 <span class="k">- [ ]</span> Set up CI/CD pipelines
@@ -1595,18 +1592,21 @@ POSTGRES_PASSWORD:<span class="w"> </span><span class="si">${</span><span class=
 <span class="k">- [ ]</span> Set up log aggregation
 
 <span class="gu">## Database</span>
+
 <span class="k">- [ ]</span> Enable PostgreSQL SSL
 <span class="k">- [ ]</span> Set up automated backups
 <span class="k">- [ ]</span> Configure connection limits
 <span class="k">- [ ]</span> Enable audit logging
 
 <span class="gu">## Mobile App</span>
+
 <span class="k">- [ ]</span> Generate production signing keys
 <span class="k">- [ ]</span> Update API endpoints
 <span class="k">- [ ]</span> Test offline functionality
 <span class="k">- [ ]</span> Submit to app stores
 
 <span class="gu">## Testing</span>
+
 <span class="k">- [ ]</span> Run all unit tests
 <span class="k">- [ ]</span> Complete E2E test suite
 <span class="k">- [ ]</span> Perform load testing

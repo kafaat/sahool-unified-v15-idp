@@ -1164,12 +1164,14 @@
 <h2 id="2-service-communication-patterns">2. أنماط الاتصال بين الخدمات | Service Communication Patterns<a class="headerlink" href="#2-service-communication-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="21-httprest-kong-synchronous-httprest-via-kong">2.1 المتزامن (HTTP/REST عبر Kong) | Synchronous (HTTP/REST via Kong)<a class="headerlink" href="#21-httprest-kong-synchronous-httprest-via-kong" title="Permanent link">&para;</a></h3>
 <p><strong>الوصف | Description:</strong>
-جميع طلبات HTTP الخارجية تمر عبر Kong API Gateway الذي يوفر:
-- التوجيه (Routing)
-- المصادقة (Authentication)
-- تحديد المعدل (Rate Limiting)
-- فحوصات الصحة (Health Checks)
-- تحميل التوازن (Load Balancing)</p>
+جميع طلبات HTTP الخارجية تمر عبر Kong API Gateway الذي يوفر:</p>
+<ul>
+<li>التوجيه (Routing)</li>
+<li>المصادقة (Authentication)</li>
+<li>تحديد المعدل (Rate Limiting)</li>
+<li>فحوصات الصحة (Health Checks)</li>
+<li>تحميل التوازن (Load Balancing)</li>
+</ul>
 <p>All external HTTP requests go through Kong API Gateway which provides routing, authentication, rate limiting, health checks, and load balancing.</p>
 <p><strong>الخدمات المعرضة عبر Kong | Services Exposed via Kong:</strong></p>
 <table>
@@ -1285,12 +1287,14 @@ Response ← Kong ← Service
 <p><strong>الوصف | Description:</strong>
 تستخدم المنصة NATS JetStream للاتصال القائم على الأحداث بين الخدمات.</p>
 <p>The platform uses NATS JetStream for event-based communication between services.</p>
-<p><strong>فوائد | Benefits:</strong>
-- ✅ فك الارتباط بين الخدمات | Service Decoupling
-- ✅ معالجة غير متزامنة | Asynchronous Processing
-- ✅ موثوقية الرسائل | Message Reliability
-- ✅ إمكانية التوسع | Scalability
-- ✅ تحمل الأخطاء | Fault Tolerance</p>
+<p><strong>فوائد | Benefits:</strong></p>
+<ul>
+<li>✅ فك الارتباط بين الخدمات | Service Decoupling</li>
+<li>✅ معالجة غير متزامنة | Asynchronous Processing</li>
+<li>✅ موثوقية الرسائل | Message Reliability</li>
+<li>✅ إمكانية التوسع | Scalability</li>
+<li>✅ تحمل الأخطاء | Fault Tolerance</li>
+</ul>
 <p><strong>نمط النشر/الاشتراك | Pub/Sub Pattern:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="err">┌──────────────┐</span><span class="w">         </span><span class="err">┌──────────────┐</span><span class="w">         </span><span class="err">┌──────────────┐</span>
 <span class="err">│</span><span class="w">   </span><span class="n">Publisher</span><span class="w">  </span><span class="err">│────────</span><span class="o">&gt;</span><span class="err">│</span><span class="w"> </span><span class="n">NATS</span><span class="w"> </span><span class="n">Server</span><span class="w">  </span><span class="err">│</span><span class="o">&lt;</span><span class="err">────────│</span><span class="w">  </span><span class="n">Subscriber</span><span class="w">  </span><span class="err">│</span>
@@ -1306,12 +1310,14 @@ Response ← Kong ← Service
 <p><strong>الوصف | Description:</strong>
 خدمة ws-gateway توفر اتصالات WebSocket للتحديثات الفورية.</p>
 <p>The ws-gateway service provides WebSocket connections for real-time updates.</p>
-<p><strong>حالات الاستخدام | Use Cases:</strong>
-- 📱 إشعارات فورية | Real-time Notifications
-- 💬 رسائل الدردشة | Chat Messages
-- 📊 تحديثات لوحة القيادة المباشرة | Live Dashboard Updates
-- 🌡️ بيانات المستشعرات الحية | Live Sensor Data
-- 🗺️ تتبع الموقع | Location Tracking</p>
+<p><strong>حالات الاستخدام | Use Cases:</strong></p>
+<ul>
+<li>📱 إشعارات فورية | Real-time Notifications</li>
+<li>💬 رسائل الدردشة | Chat Messages</li>
+<li>📊 تحديثات لوحة القيادة المباشرة | Live Dashboard Updates</li>
+<li>🌡️ بيانات المستشعرات الحية | Live Sensor Data</li>
+<li>🗺️ تتبع الموقع | Location Tracking</li>
+</ul>
 <p><strong>التدفق | Flow:</strong></p>
 <div class="codehilite"><pre><span></span><code>Client (Web/Mobile)
     ↓ WebSocket
@@ -1339,14 +1345,16 @@ NATS (sahool.iot.*)
 Storage + Real-time Consumers
 </code></pre></div>
 
-<p><strong>أنواع المستشعرات | Sensor Types:</strong>
-- 💧 رطوبة التربة | Soil Moisture
-- 🌡️ حرارة التربة | Soil Temperature
-- ⚡ التوصيل الكهربائي للتربة | Soil EC
-- 🌡️ حرارة الهواء | Air Temperature
-- 💨 رطوبة الهواء | Air Humidity
-- 💦 تدفق المياه | Water Flow
-- 📏 مستوى المياه | Water Level</p>
+<p><strong>أنواع المستشعرات | Sensor Types:</strong></p>
+<ul>
+<li>💧 رطوبة التربة | Soil Moisture</li>
+<li>🌡️ حرارة التربة | Soil Temperature</li>
+<li>⚡ التوصيل الكهربائي للتربة | Soil EC</li>
+<li>🌡️ حرارة الهواء | Air Temperature</li>
+<li>💨 رطوبة الهواء | Air Humidity</li>
+<li>💦 تدفق المياه | Water Flow</li>
+<li>📏 مستوى المياه | Water Level</li>
+</ul>
 <hr />
 <p><a name="data-flow-diagrams"></a></p>
 <h2 id="3-data-flow-diagrams">3. مخططات تدفق البيانات | Data Flow Diagrams<a class="headerlink" href="#3-data-flow-diagrams" title="Permanent link">&para;</a></h2>
@@ -1410,13 +1418,15 @@ Storage + Real-time Consumers
 <span class="w">    </span><span class="n">L</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">WebSocket</span><span class="o">|</span><span class="w"> </span><span class="n">K</span>
 </code></pre></div>
 
-<p><strong>الخطوات | Steps:</strong>
-1. 🛰️ تحميل صور الأقمار الصناعية | Download Satellite Imagery
-2. 📊 حساب NDVI | Calculate NDVI
-3. 🌤️ جلب بيانات الطقس | Fetch Weather Data
-4. 🤖 توليد التوصيات التلقائية | Generate Recommendations
-5. 🔔 إرسال الإشعارات | Send Notifications
-6. 📱 تحديث الوقت الفعلي | Real-time Updates</p>
+<p><strong>الخطوات | Steps:</strong></p>
+<ol>
+<li>🛰️ تحميل صور الأقمار الصناعية | Download Satellite Imagery</li>
+<li>📊 حساب NDVI | Calculate NDVI</li>
+<li>🌤️ جلب بيانات الطقس | Fetch Weather Data</li>
+<li>🤖 توليد التوصيات التلقائية | Generate Recommendations</li>
+<li>🔔 إرسال الإشعارات | Send Notifications</li>
+<li>📱 تحديث الوقت الفعلي | Real-time Updates</li>
+</ol>
 <hr />
 <h3 id="33-tharwatt-payment-flow-tharwatt">3.3 تدفق الدفع (Tharwatt) | Payment Flow (Tharwatt)<a class="headerlink" href="#33-tharwatt-payment-flow-tharwatt" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
@@ -1452,12 +1462,14 @@ Storage + Real-time Consumers
     <span class="n">end</span>
 </code></pre></div>
 
-<p><strong>مزودو الدفع | Payment Providers:</strong>
-- 💳 Stripe (International)
-- 🇾🇪 Tharwatt (Yemen)
-- 💰 Mobile Money
-- 🏦 Bank Transfer
-- 💵 Cash</p>
+<p><strong>مزودو الدفع | Payment Providers:</strong></p>
+<ul>
+<li>💳 Stripe (International)</li>
+<li>🇾🇪 Tharwatt (Yemen)</li>
+<li>💰 Mobile Money</li>
+<li>🏦 Bank Transfer</li>
+<li>💵 Cash</li>
+</ul>
 <hr />
 <h3 id="34-ai-multi-agent-advisor-flow">3.4 تدفق المستشار الذكي المتعدد الوكلاء | AI Multi-Agent Advisor Flow<a class="headerlink" href="#34-ai-multi-agent-advisor-flow" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TB</span>
@@ -1503,22 +1515,28 @@ Storage + Real-time Consumers
 <span class="w">    </span><span class="n">N</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">ai</span><span class="o">-</span><span class="n">advisor</span><span class="p">.</span><span class="n">query_completed</span><span class="o">|</span><span class="w"> </span><span class="n">O</span><span class="p">[</span><span class="n">Analytics</span><span class="p">]</span>
 </code></pre></div>
 
-<p><strong>الوكلاء | Agents:</strong>
-1. 🎯 <strong>Supervisor</strong> - ينسق بين الوكلاء | Coordinates agents
-2. 🗺️ <strong>Field Analyst</strong> - تحليل الحقول | Field analysis
-3. 🦠 <strong>Disease Expert</strong> - كشف الأمراض | Disease detection
-4. 💧 <strong>Irrigation Advisor</strong> - نصائح الري | Irrigation advice
-5. 🌾 <strong>Yield Predictor</strong> - التنبؤ بالإنتاج | Yield prediction</p>
-<p><strong>الأدوات | Tools:</strong>
-- Satellite Tool → satellite-service
-- Weather Tool → weather-core
-- Crop Health Tool → crop-health-ai
-- Agro Tool → agro-advisor
-- NDVI Tool → ndvi-engine</p>
-<p><strong>RAG (Retrieval-Augmented Generation):</strong>
-- 📚 Embeddings: <code>paraphrase-multilingual-MiniLM-L12-v2</code>
-- 🔍 Vector DB: Qdrant
-- 💡 LLM: Claude (Anthropic)</p>
+<p><strong>الوكلاء | Agents:</strong></p>
+<ol>
+<li>🎯 <strong>Supervisor</strong> - ينسق بين الوكلاء | Coordinates agents</li>
+<li>🗺️ <strong>Field Analyst</strong> - تحليل الحقول | Field analysis</li>
+<li>🦠 <strong>Disease Expert</strong> - كشف الأمراض | Disease detection</li>
+<li>💧 <strong>Irrigation Advisor</strong> - نصائح الري | Irrigation advice</li>
+<li>🌾 <strong>Yield Predictor</strong> - التنبؤ بالإنتاج | Yield prediction</li>
+</ol>
+<p><strong>الأدوات | Tools:</strong></p>
+<ul>
+<li>Satellite Tool → satellite-service</li>
+<li>Weather Tool → weather-core</li>
+<li>Crop Health Tool → crop-health-ai</li>
+<li>Agro Tool → agro-advisor</li>
+<li>NDVI Tool → ndvi-engine</li>
+</ul>
+<p><strong>RAG (Retrieval-Augmented Generation):</strong></p>
+<ul>
+<li>📚 Embeddings: <code>paraphrase-multilingual-MiniLM-L12-v2</code></li>
+<li>🔍 Vector DB: Qdrant</li>
+<li>💡 LLM: Claude (Anthropic)</li>
+</ul>
 <hr />
 <h3 id="35-iot-iot-sensor-flow">3.5 تدفق مستشعرات IoT | IoT Sensor Flow<a class="headerlink" href="#35-iot-iot-sensor-flow" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">LR</span>
@@ -1746,9 +1764,9 @@ sahool/sensors/{device_id}/water_level
 <span class="w">  </span><span class="nt">&quot;analysis_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;image_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://cdn.sahool.io/ndvi/field_xyz789_20241224.png&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;zones&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;excellent&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.7</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z3&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;poor&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;excellent&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.7</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z3&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;poor&quot;</span><span class="w"> </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1810,14 +1828,11 @@ sahool/sensors/{device_id}/water_level
 <span class="w">  </span><span class="nt">&quot;alert_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;heavy_rain&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_xyz789&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;start_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T14:00:00Z&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;end_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T20:00:00Z&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;precipitation_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;recommendations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;Postpone irrigation&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;Check drainage systems&quot;</span>
-<span class="w">  </span><span class="p">]</span>
+<span class="w">  </span><span class="nt">&quot;recommendations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Postpone irrigation&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Check drainage systems&quot;</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1955,7 +1970,7 @@ sahool/sensors/{device_id}/water_level
 <span class="w">  </span><span class="nt">&quot;sensor_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;soil_moisture&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">35.7</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;percentage&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;battery_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">87</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;signal_strength&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-65</span>
 <span class="p">}</span>
@@ -2119,16 +2134,18 @@ sahool/sensors/{device_id}/water_level
 </tr>
 </tbody>
 </table>
-<p><strong>أنواع التنبيهات | Alert Types:</strong>
-- <code>ndvi_anomaly</code> - شذوذ في NDVI
-- <code>weather_alert</code> - تنبيه طقس
-- <code>iot_threshold</code> - تجاوز حد مستشعر
-- <code>crop_health_alert</code> - تنبيه صحة المحصول
-- <code>irrigation_alert</code> - تنبيه ري
-- <code>pre_harvest</code> - ما قبل الحصاد
-- <code>harvest_readiness</code> - جاهزية الحصاد
-- <code>stress_detection</code> - كشف إجهاد
-- <code>lai_anomaly</code> - شذوذ LAI</p>
+<p><strong>أنواع التنبيهات | Alert Types:</strong></p>
+<ul>
+<li><code>ndvi_anomaly</code> - شذوذ في NDVI</li>
+<li><code>weather_alert</code> - تنبيه طقس</li>
+<li><code>iot_threshold</code> - تجاوز حد مستشعر</li>
+<li><code>crop_health_alert</code> - تنبيه صحة المحصول</li>
+<li><code>irrigation_alert</code> - تنبيه ري</li>
+<li><code>pre_harvest</code> - ما قبل الحصاد</li>
+<li><code>harvest_readiness</code> - جاهزية الحصاد</li>
+<li><code>stress_detection</code> - كشف إجهاد</li>
+<li><code>lai_anomaly</code> - شذوذ LAI</li>
+</ul>
 <hr />
 <h3 id="48-advisor-events">4.8 أحداث المستشار الزراعي | Advisor Events<a class="headerlink" href="#48-advisor-events" title="Permanent link">&para;</a></h3>
 <p><strong>المساحة | Namespace:</strong> <code>sahool.advisor.*</code></p>
@@ -2360,11 +2377,13 @@ sahool/sensors/{device_id}/water_level
 <h2 id="5-database-schema-overview">5. نظرة عامة على قاعدة البيانات | Database Schema Overview<a class="headerlink" href="#5-database-schema-overview" title="Permanent link">&para;</a></h2>
 <h3 id="51-postgresql-postgis-">5.1 PostgreSQL (PostGIS) - قاعدة البيانات الرئيسية<a class="headerlink" href="#51-postgresql-postgis-" title="Permanent link">&para;</a></h3>
 <p><strong>المحرك | Engine:</strong> PostgreSQL 16 + PostGIS 3.4</p>
-<p><strong>الامتدادات | Extensions:</strong>
-- <code>postgis</code> - بيانات جغرافية مكانية | Geospatial data
-- <code>postgis_topology</code> - طبولوجيا | Topology
-- <code>uuid-ossp</code> - UUIDs
-- <code>pg_trgm</code> - بحث نصي | Text search</p>
+<p><strong>الامتدادات | Extensions:</strong></p>
+<ul>
+<li><code>postgis</code> - بيانات جغرافية مكانية | Geospatial data</li>
+<li><code>postgis_topology</code> - طبولوجيا | Topology</li>
+<li><code>uuid-ossp</code> - UUIDs</li>
+<li><code>pg_trgm</code> - بحث نصي | Text search</li>
+</ul>
 <h4 id="511-core-tables">5.1.1 الجداول الأساسية | Core Tables<a class="headerlink" href="#511-core-tables" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -2756,12 +2775,14 @@ sahool/sensors/{device_id}/water_level
 <hr />
 <h3 id="52-redis-cache-sessions">5.2 Redis - التخزين المؤقت والجلسات | Cache &amp; Sessions<a class="headerlink" href="#52-redis-cache-sessions" title="Permanent link">&para;</a></h3>
 <p><strong>النسخة | Version:</strong> Redis 7.4</p>
-<p><strong>حالات الاستخدام | Use Cases:</strong>
-- 🔐 جلسات المستخدمين | User sessions
-- 💾 تخزين مؤقت للاستعلامات | Query caching
-- 📊 عدادات في الوقت الفعلي | Real-time counters
-- 🔒 قفل موزع | Distributed locks
-- 📝 قوائم انتظار | Job queues</p>
+<p><strong>حالات الاستخدام | Use Cases:</strong></p>
+<ul>
+<li>🔐 جلسات المستخدمين | User sessions</li>
+<li>💾 تخزين مؤقت للاستعلامات | Query caching</li>
+<li>📊 عدادات في الوقت الفعلي | Real-time counters</li>
+<li>🔒 قفل موزع | Distributed locks</li>
+<li>📝 قوائم انتظار | Job queues</li>
+</ul>
 <p><strong>مفاتيح نموذجية | Sample Keys:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nx">session</span><span class="p">:{</span><span class="nx">user_id</span><span class="p">}</span><span class="w">                    </span><span class="err">#</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="nx">session</span><span class="w"> </span><span class="p">(</span><span class="nx">TTL</span><span class="p">:</span><span class="w"> </span><span class="mi">24</span><span class="nx">h</span><span class="p">)</span>
 <span class="nx">cache</span><span class="p">:</span><span class="nx">field</span><span class="p">:{</span><span class="nx">field_id</span><span class="p">}</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">Field</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="nx">cache</span><span class="w"> </span><span class="p">(</span><span class="nx">TTL</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="nx">h</span><span class="p">)</span>
@@ -2775,10 +2796,12 @@ sahool/sensors/{device_id}/water_level
 <hr />
 <h3 id="53-qdrant-vector-database">5.3 Qdrant - قاعدة البيانات المتجهة | Vector Database<a class="headerlink" href="#53-qdrant-vector-database" title="Permanent link">&para;</a></h3>
 <p><strong>النسخة | Version:</strong> Qdrant v1.10.1</p>
-<p><strong>حالات الاستخدام | Use Cases:</strong>
-- 🤖 RAG (Retrieval-Augmented Generation) للمستشار الذكي
-- 🔍 البحث الدلالي | Semantic search
-- 📚 تخزين المعرفة الزراعية | Agricultural knowledge storage</p>
+<p><strong>حالات الاستخدام | Use Cases:</strong></p>
+<ul>
+<li>🤖 RAG (Retrieval-Augmented Generation) للمستشار الذكي</li>
+<li>🔍 البحث الدلالي | Semantic search</li>
+<li>📚 تخزين المعرفة الزراعية | Agricultural knowledge storage</li>
+</ul>
 <p><strong>المجموعات | Collections:</strong></p>
 <table>
 <thead>
@@ -2831,15 +2854,17 @@ sahool/sensors/{device_id}/water_level
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool.&gt;</span>
 <span class="w">    </span><span class="nt">Storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
 <span class="w">    </span><span class="nt">Retention</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">limits</span>
-<span class="w">    </span><span class="nt">MaxAge</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">168h</span><span class="w">  </span><span class="c1"># 7 days</span>
+<span class="w">    </span><span class="nt">MaxAge</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">168h</span><span class="w"> </span><span class="c1"># 7 days</span>
 <span class="w">    </span><span class="nt">MaxBytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10GB</span>
 <span class="w">    </span><span class="nt">Replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 
-<p><strong>المستهلكون | Consumers:</strong>
-- <code>ws-gateway</code> - يستمع لجميع الأحداث <code>sahool.&gt;</code> | Listens to all <code>sahool.&gt;</code> events
-- <code>notification-service</code> - يستمع لـ <code>sahool.analysis.*</code> و <code>sahool.actions.*</code>
-- <code>agro-rules</code> - يستمع لـ <code>sahool.ndvi.*</code>, <code>sahool.weather.*</code></p>
+<p><strong>المستهلكون | Consumers:</strong></p>
+<ul>
+<li><code>ws-gateway</code> - يستمع لجميع الأحداث <code>sahool.&gt;</code> | Listens to all <code>sahool.&gt;</code> events</li>
+<li><code>notification-service</code> - يستمع لـ <code>sahool.analysis.*</code> و <code>sahool.actions.*</code></li>
+<li><code>agro-rules</code> - يستمع لـ <code>sahool.ndvi.*</code>, <code>sahool.weather.*</code></li>
+</ul>
 <hr />
 <p><a name="integration-points"></a></p>
 <h2 id="6-integration-points">6. نقاط التكامل | Integration Points<a class="headerlink" href="#6-integration-points" title="Permanent link">&para;</a></h2>
@@ -3042,9 +3067,11 @@ THARWATT_MERCHANT_ID=your_merchant_id
 THARWATT_WEBHOOK_SECRET=your_webhook_secret
 </code></pre></div>
 
-<p><strong>نقاط النهاية | Endpoints:</strong>
-- <code>POST /api/v1/payment/deposit</code> - بدء دفع | Initiate payment
-- <code>POST /webhook/tharwatt</code> - Webhook لحالة الدفع | Payment status webhook</p>
+<p><strong>نقاط النهاية | Endpoints:</strong></p>
+<ul>
+<li><code>POST /api/v1/payment/deposit</code> - بدء دفع | Initiate payment</li>
+<li><code>POST /webhook/tharwatt</code> - Webhook لحالة الدفع | Payment status webhook</li>
+</ul>
 <hr />
 <h4 id="614-notifications">6.1.4 الإشعارات | Notifications<a class="headerlink" href="#614-notifications" title="Permanent link">&para;</a></h4>
 <table>
@@ -3106,18 +3133,22 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 <hr />
 <h3 id="62-provider-configuration">6.2 تكوين المزودين | Provider Configuration<a class="headerlink" href="#62-provider-configuration" title="Permanent link">&para;</a></h3>
 <p><strong>الخدمة | Service:</strong> <code>provider-config</code> (Port: 8104)</p>
-<p><strong>الأنواع | Types:</strong>
-- 🗺️ <code>map</code> - مزودو الخرائط | Map providers
-- 🌤️ <code>weather</code> - مزودو الطقس | Weather providers
-- 🛰️ <code>satellite</code> - مزودو الأقمار الصناعية | Satellite providers
-- 💳 <code>payment</code> - مزودو الدفع | Payment providers
-- 📱 <code>notification</code> - مزودو الإشعارات | Notification providers
-- 📲 <code>sms</code> - مزودو الرسائل النصية | SMS providers</p>
-<p><strong>الأولويات | Priorities:</strong>
-- <code>primary</code> - الأساسي | Primary
-- <code>secondary</code> - الثانوي | Secondary
-- <code>tertiary</code> - الثالث | Tertiary
-- <code>disabled</code> - معطل | Disabled</p>
+<p><strong>الأنواع | Types:</strong></p>
+<ul>
+<li>🗺️ <code>map</code> - مزودو الخرائط | Map providers</li>
+<li>🌤️ <code>weather</code> - مزودو الطقس | Weather providers</li>
+<li>🛰️ <code>satellite</code> - مزودو الأقمار الصناعية | Satellite providers</li>
+<li>💳 <code>payment</code> - مزودو الدفع | Payment providers</li>
+<li>📱 <code>notification</code> - مزودو الإشعارات | Notification providers</li>
+<li>📲 <code>sms</code> - مزودو الرسائل النصية | SMS providers</li>
+</ul>
+<p><strong>الأولويات | Priorities:</strong></p>
+<ul>
+<li><code>primary</code> - الأساسي | Primary</li>
+<li><code>secondary</code> - الثانوي | Secondary</li>
+<li><code>tertiary</code> - الثالث | Tertiary</li>
+<li><code>disabled</code> - معطل | Disabled</li>
+</ul>
 <p><strong>سلاسل الفشل | Failover Chains:</strong></p>
 <p>يتم تكوين سلاسل الفشل للتبديل التلقائي عند فشل المزود الأساسي.</p>
 <p>Failover chains are configured to automatically switch when the primary provider fails.</p>
@@ -3139,9 +3170,11 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 <hr />
 <h3 id="63-authentication-authorization">6.3 المصادقة والتفويض | Authentication &amp; Authorization<a class="headerlink" href="#63-authentication-authorization" title="Permanent link">&para;</a></h3>
 <p><strong>نوع المصادقة | Auth Type:</strong> JWT (JSON Web Tokens)</p>
-<p><strong>الخوارزميات المدعومة | Supported Algorithms:</strong>
-- <code>RS256</code> (الافتراضي) | (Default)
-- <code>HS256</code></p>
+<p><strong>الخوارزميات المدعومة | Supported Algorithms:</strong></p>
+<ul>
+<li><code>RS256</code> (الافتراضي) | (Default)</li>
+<li><code>HS256</code></li>
+</ul>
 <p><strong>تدفق المصادقة | Auth Flow:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
 <span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">User</span>
@@ -3172,26 +3205,32 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 <h3 id="64-observability">6.4 المراقبة والرصد | Observability<a class="headerlink" href="#64-observability" title="Permanent link">&para;</a></h3>
 <h4 id="641-metrics">6.4.1 المقاييس | Metrics<a class="headerlink" href="#641-metrics" title="Permanent link">&para;</a></h4>
 <p><strong>النظام | System:</strong> Prometheus + Grafana</p>
-<p><strong>المقاييس المجمعة | Collected Metrics:</strong>
-- HTTP request duration
-- Request count by endpoint
-- Error rate
-- Database connection pool
-- NATS message throughput
-- Redis cache hit/miss ratio
-- WebSocket connections
-- IoT sensor readings count</p>
-<p><strong>نقاط النهاية | Endpoints:</strong>
-- Prometheus: <code>http://localhost:9090</code>
-- Grafana: <code>http://localhost:3002</code></p>
+<p><strong>المقاييس المجمعة | Collected Metrics:</strong></p>
+<ul>
+<li>HTTP request duration</li>
+<li>Request count by endpoint</li>
+<li>Error rate</li>
+<li>Database connection pool</li>
+<li>NATS message throughput</li>
+<li>Redis cache hit/miss ratio</li>
+<li>WebSocket connections</li>
+<li>IoT sensor readings count</li>
+</ul>
+<p><strong>نقاط النهاية | Endpoints:</strong></p>
+<ul>
+<li>Prometheus: <code>http://localhost:9090</code></li>
+<li>Grafana: <code>http://localhost:3002</code></li>
+</ul>
 <h4 id="642-logs">6.4.2 السجلات | Logs<a class="headerlink" href="#642-logs" title="Permanent link">&para;</a></h4>
 <p><strong>التنسيق | Format:</strong> JSON structured logs</p>
-<p><strong>مستويات السجلات | Log Levels:</strong>
-- <code>DEBUG</code> - تطوير | Development
-- <code>INFO</code> - إنتاج | Production (default)
-- <code>WARNING</code> - تحذيرات | Warnings
-- <code>ERROR</code> - أخطاء | Errors
-- <code>CRITICAL</code> - حرجة | Critical</p>
+<p><strong>مستويات السجلات | Log Levels:</strong></p>
+<ul>
+<li><code>DEBUG</code> - تطوير | Development</li>
+<li><code>INFO</code> - إنتاج | Production (default)</li>
+<li><code>WARNING</code> - تحذيرات | Warnings</li>
+<li><code>ERROR</code> - أخطاء | Errors</li>
+<li><code>CRITICAL</code> - حرجة | Critical</li>
+</ul>
 <p><strong>مثال | Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T10:30:00Z&quot;</span><span class="p">,</span>
@@ -3208,31 +3247,43 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 <hr />
 <h2 id="7-summary">7. الخلاصة | Summary<a class="headerlink" href="#7-summary" title="Permanent link">&para;</a></h2>
 <h3 id="key-features">المميزات الرئيسية | Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
-<p>✅ <strong>بنية موزعة قابلة للتوسع | Scalable Distributed Architecture</strong>
-- 35+ خدمة صغرية | 35+ microservices
-- دعم متعدد اللغات (Python, Node.js, TypeScript) | Polyglot support</p>
-<p>✅ <strong>اتصالات متنوعة | Multiple Communication Patterns</strong>
-- متزامن (HTTP/REST) | Synchronous (HTTP/REST)
-- لامتزامن (NATS) | Asynchronous (NATS)
-- وقت فعلي (WebSocket) | Real-time (WebSocket)
-- IoT (MQTT) | IoT (MQTT)</p>
-<p>✅ <strong>هندسة موجهة بالأحداث | Event-Driven Architecture</strong>
-- 100+ نوع حدث | 100+ event types
-- مساحة أسماء موحدة <code>sahool.*</code> | Unified <code>sahool.*</code> namespace
-- دفق موثوق للأحداث | Reliable event streaming</p>
-<p>✅ <strong>تكاملات خارجية | External Integrations</strong>
-- سلاسل فشل تلقائية | Automatic failover chains
-- مزودون متعددون للطقس والأقمار الصناعية | Multiple weather/satellite providers
-- بوابات دفع متعددة | Multiple payment gateways</p>
-<p>✅ <strong>مستشار ذكي متعدد الوكلاء | Multi-Agent AI Advisor</strong>
-- 5 وكلاء متخصصين | 5 specialized agents
-- RAG مع Qdrant | RAG with Qdrant
-- دعم Claude (Anthropic) | Claude (Anthropic) support</p>
-<p>✅ <strong>رصد ومراقبة شاملة | Comprehensive Observability</strong>
-- Prometheus metrics
-- Grafana dashboards
-- Structured JSON logs
-- Health checks</p>
+<p>✅ <strong>بنية موزعة قابلة للتوسع | Scalable Distributed Architecture</strong></p>
+<ul>
+<li>35+ خدمة صغرية | 35+ microservices</li>
+<li>دعم متعدد اللغات (Python, Node.js, TypeScript) | Polyglot support</li>
+</ul>
+<p>✅ <strong>اتصالات متنوعة | Multiple Communication Patterns</strong></p>
+<ul>
+<li>متزامن (HTTP/REST) | Synchronous (HTTP/REST)</li>
+<li>لامتزامن (NATS) | Asynchronous (NATS)</li>
+<li>وقت فعلي (WebSocket) | Real-time (WebSocket)</li>
+<li>IoT (MQTT) | IoT (MQTT)</li>
+</ul>
+<p>✅ <strong>هندسة موجهة بالأحداث | Event-Driven Architecture</strong></p>
+<ul>
+<li>100+ نوع حدث | 100+ event types</li>
+<li>مساحة أسماء موحدة <code>sahool.*</code> | Unified <code>sahool.*</code> namespace</li>
+<li>دفق موثوق للأحداث | Reliable event streaming</li>
+</ul>
+<p>✅ <strong>تكاملات خارجية | External Integrations</strong></p>
+<ul>
+<li>سلاسل فشل تلقائية | Automatic failover chains</li>
+<li>مزودون متعددون للطقس والأقمار الصناعية | Multiple weather/satellite providers</li>
+<li>بوابات دفع متعددة | Multiple payment gateways</li>
+</ul>
+<p>✅ <strong>مستشار ذكي متعدد الوكلاء | Multi-Agent AI Advisor</strong></p>
+<ul>
+<li>5 وكلاء متخصصين | 5 specialized agents</li>
+<li>RAG مع Qdrant | RAG with Qdrant</li>
+<li>دعم Claude (Anthropic) | Claude (Anthropic) support</li>
+</ul>
+<p>✅ <strong>رصد ومراقبة شاملة | Comprehensive Observability</strong></p>
+<ul>
+<li>Prometheus metrics</li>
+<li>Grafana dashboards</li>
+<li>Structured JSON logs</li>
+<li>Health checks</li>
+</ul>
 <hr />
 <h2 id="8-additional-references">8. مراجع إضافية | Additional References<a class="headerlink" href="#8-additional-references" title="Permanent link">&para;</a></h2>
 <ul>

@@ -1201,11 +1201,11 @@
 <div class="codehilite"><pre><span></span><code><span class="nt">security_opt</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">no-new-privileges:true</span>
 <span class="nt">ports</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;127.0.0.1:5432:5432&quot;</span><span class="w">  </span><span class="c1"># Localhost only</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;127.0.0.1:5432:5432&quot;</span><span class="w"> </span><span class="c1"># Localhost only</span>
 <span class="nt">deploy</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2&#39;</span>
+<span class="w">      </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2&quot;</span>
 <span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2G</span>
 </code></pre></div>
 
@@ -1304,18 +1304,22 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Key Files:</strong>
-- <code>shared/observability/logging.py</code> (448 lines)
-- <code>apps/services/field-core/src/middleware/logger.ts</code> (238 lines)</p>
-<p><strong>Sensitive Data Masking Patterns:</strong>
-- API Keys &amp; Tokens
-- Passwords
-- Database URLs
-- AWS/GCP Keys
-- JWT Tokens
-- Credit Card Numbers
-- Email Addresses
-- Phone Numbers</p>
+<p><strong>Key Files:</strong></p>
+<ul>
+<li><code>shared/observability/logging.py</code> (448 lines)</li>
+<li><code>apps/services/field-core/src/middleware/logger.ts</code> (238 lines)</li>
+</ul>
+<p><strong>Sensitive Data Masking Patterns:</strong></p>
+<ul>
+<li>API Keys &amp; Tokens</li>
+<li>Passwords</li>
+<li>Database URLs</li>
+<li>AWS/GCP Keys</li>
+<li>JWT Tokens</li>
+<li>Credit Card Numbers</li>
+<li>Email Addresses</li>
+<li>Phone Numbers</li>
+</ul>
 <hr />
 <h3 id="6-backup-disaster-recovery">6. Backup &amp; Disaster Recovery<a class="headerlink" href="#6-backup-disaster-recovery" title="Permanent link">&para;</a></h3>
 <table>
@@ -1365,12 +1369,14 @@
 </tbody>
 </table>
 <p><strong>Main Backup Script:</strong> <code>scripts/backup/backup.sh</code> (487 lines)</p>
-<p><strong>Features:</strong>
-- Automated daily/weekly/monthly backups
-- S3/MinIO cloud upload
-- Email &amp; Slack notifications
-- Compression with gzip
-- Metadata JSON generation</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Automated daily/weekly/monthly backups</li>
+<li>S3/MinIO cloud upload</li>
+<li>Email &amp; Slack notifications</li>
+<li>Compression with gzip</li>
+<li>Metadata JSON generation</li>
+</ul>
 <hr />
 <h3 id="7-jwt-cookie-security">7. JWT &amp; Cookie Security<a class="headerlink" href="#7-jwt-cookie-security" title="Permanent link">&para;</a></h3>
 <table>
@@ -1482,15 +1488,19 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Key Files:</strong>
-- <code>apps/mobile/lib/core/offline/offline_sync_engine.dart</code> (548 lines)
-- <code>apps/mobile/lib/core/offline/outbox_repository.dart</code>
-- <code>apps/mobile/lib/core/sync/sync_conflict_resolver.dart</code></p>
-<p><strong>Features:</strong>
-- Queue prioritization (low, normal, high, critical)
-- Automatic sync every 2 minutes
-- Network status monitoring
-- Statistics tracking</p>
+<p><strong>Key Files:</strong></p>
+<ul>
+<li><code>apps/mobile/lib/core/offline/offline_sync_engine.dart</code> (548 lines)</li>
+<li><code>apps/mobile/lib/core/offline/outbox_repository.dart</code></li>
+<li><code>apps/mobile/lib/core/sync/sync_conflict_resolver.dart</code></li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Queue prioritization (low, normal, high, critical)</li>
+<li>Automatic sync every 2 minutes</li>
+<li>Network status monitoring</li>
+<li>Statistics tracking</li>
+</ul>
 <hr />
 <h3 id="9-iot-security-mtls">9. IoT Security (mTLS)<a class="headerlink" href="#9-iot-security-mtls" title="Permanent link">&para;</a></h3>
 <table>
@@ -1519,11 +1529,13 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Key Files:</strong>
-- <code>apps/mobile/lib/core/security/certificate_pinning_service.dart</code>
-- <code>scripts/security/generate-certs.sh</code>
-- <code>tools/security/certs/gen_ca.sh</code>
-- <code>tools/security/certs/gen_service_cert.sh</code></p>
+<p><strong>Key Files:</strong></p>
+<ul>
+<li><code>apps/mobile/lib/core/security/certificate_pinning_service.dart</code></li>
+<li><code>scripts/security/generate-certs.sh</code></li>
+<li><code>tools/security/certs/gen_ca.sh</code></li>
+<li><code>tools/security/certs/gen_service_cert.sh</code></li>
+</ul>
 <hr />
 <h3 id="10-circuit-breaker-pattern">10. Circuit Breaker Pattern<a class="headerlink" href="#10-circuit-breaker-pattern" title="Permanent link">&para;</a></h3>
 <table>
@@ -1558,11 +1570,13 @@
 </tbody>
 </table>
 <p><strong>Key File:</strong> <code>shared/python-lib/sahool_core/resilient_client.py</code> (266 lines)</p>
-<p><strong>Features:</strong>
-- States: CLOSED, OPEN, HALF_OPEN
-- Automatic recovery after timeout
-- Service-specific fallbacks
-- Cache for offline mode</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>States: CLOSED, OPEN, HALF_OPEN</li>
+<li>Automatic recovery after timeout</li>
+<li>Service-specific fallbacks</li>
+<li>Cache for offline mode</li>
+</ul>
 <hr />
 <h3 id="11-license-management">11. License Management<a class="headerlink" href="#11-license-management" title="Permanent link">&para;</a></h3>
 <table>
@@ -1768,11 +1782,13 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Managed Services via Helm:</strong>
-- field-ops, agro-advisor, crop-health
-- weather-core, satellite-service, ndvi-engine
-- billing-core, inventory-service, yield-engine
-- irrigation-smart, weather-advanced, crop-health-ai</p>
+<p><strong>Managed Services via Helm:</strong></p>
+<ul>
+<li>field-ops, agro-advisor, crop-health</li>
+<li>weather-core, satellite-service, ndvi-engine</li>
+<li>billing-core, inventory-service, yield-engine</li>
+<li>irrigation-smart, weather-advanced, crop-health-ai</li>
+</ul>
 <hr />
 <h3 id="17-dependency-management">17. Dependency Management<a class="headerlink" href="#17-dependency-management" title="Permanent link">&para;</a></h3>
 <table>

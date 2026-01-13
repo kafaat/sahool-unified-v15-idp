@@ -1156,15 +1156,19 @@
 </ul>
 <h2 id="postgis-integration">PostGIS Integration<a class="headerlink" href="#postgis-integration" title="Permanent link">&para;</a></h2>
 <h3 id="geometry-columns">Geometry Columns<a class="headerlink" href="#geometry-columns" title="Permanent link">&para;</a></h3>
-<p>Each spatial table has:
-- <code>geometry_wkt</code>: WKT string for compatibility
-- <code>geom</code>: Native PostGIS geometry(Polygon, 4326)</p>
+<p>Each spatial table has:</p>
+<ul>
+<li><code>geometry_wkt</code>: WKT string for compatibility</li>
+<li><code>geom</code>: Native PostGIS geometry(Polygon, 4326)</li>
+</ul>
 <p>A trigger automatically syncs <code>geometry_wkt</code> → <code>geom</code> on INSERT/UPDATE.</p>
 <h3 id="spatial-indexes">Spatial Indexes<a class="headerlink" href="#spatial-indexes" title="Permanent link">&para;</a></h3>
-<p>GIST indexes are created for efficient spatial queries:
-- <code>ix_fields_geom</code>
-- <code>ix_zones_geom</code>
-- <code>ix_subzones_geom</code></p>
+<p>GIST indexes are created for efficient spatial queries:</p>
+<ul>
+<li><code>ix_fields_geom</code></li>
+<li><code>ix_zones_geom</code></li>
+<li><code>ix_subzones_geom</code></li>
+</ul>
 <h3 id="common-queries">Common Queries<a class="headerlink" href="#common-queries" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">field_suite.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">fields_in_bbox</span><span class="p">,</span> <span class="n">find_containing_field</span>
 
@@ -1193,10 +1197,12 @@
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fixed: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">total_fixed</span><span class="si">}</span><span class="s2"> geometries&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<p>Fixes applied:
-- <code>ST_MakeValid</code>: Repairs invalid geometry
-- <code>ST_Force2D</code>: Ensures 2D (removes Z/M)
-- <code>ST_CollectionExtract(..., 3)</code>: Extracts polygons</p>
+<p>Fixes applied:</p>
+<ul>
+<li><code>ST_MakeValid</code>: Repairs invalid geometry</li>
+<li><code>ST_Force2D</code>: Ensures 2D (removes Z/M)</li>
+<li><code>ST_CollectionExtract(..., 3)</code>: Extracts polygons</li>
+</ul>
 <h2 id="zone-types">Zone Types<a class="headerlink" href="#zone-types" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

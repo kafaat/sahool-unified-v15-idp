@@ -1129,22 +1129,26 @@
 <p><strong>Location</strong>: <code>/home/user/sahool-unified-v15-idp/apps/kernel/common/docs/api_docs_generator.py</code>
 <strong>Size</strong>: 2,567 lines
 <strong>Language</strong>: Python</p>
-<p><strong>Features</strong>:
-- ✅ Automatic service scanning
-- ✅ Endpoint extraction with parameters
-- ✅ OpenAPI 3.0 specification generation
-- ✅ Markdown documentation generation (bilingual: EN/AR)
-- ✅ Postman collection generation
-- ✅ Automatic categorization of APIs
-- ✅ Multi-language support (English and Arabic)</p>
-<p><strong>Classes</strong>:
-- <code>APIDocsGenerator</code>: Main generator class
-- <code>Service</code>: Service metadata dataclass
-- <code>Endpoint</code>: Endpoint definition dataclass
-- <code>Parameter</code>: API parameter dataclass
-- <code>RequestBody</code>: Request body schema dataclass
-- <code>Response</code>: Response definition dataclass
-- <code>APICategory</code>: Enum for API categories</p>
+<p><strong>Features</strong>:</p>
+<ul>
+<li>✅ Automatic service scanning</li>
+<li>✅ Endpoint extraction with parameters</li>
+<li>✅ OpenAPI 3.0 specification generation</li>
+<li>✅ Markdown documentation generation (bilingual: EN/AR)</li>
+<li>✅ Postman collection generation</li>
+<li>✅ Automatic categorization of APIs</li>
+<li>✅ Multi-language support (English and Arabic)</li>
+</ul>
+<p><strong>Classes</strong>:</p>
+<ul>
+<li><code>APIDocsGenerator</code>: Main generator class</li>
+<li><code>Service</code>: Service metadata dataclass</li>
+<li><code>Endpoint</code>: Endpoint definition dataclass</li>
+<li><code>Parameter</code>: API parameter dataclass</li>
+<li><code>RequestBody</code>: Request body schema dataclass</li>
+<li><code>Response</code>: Response definition dataclass</li>
+<li><code>APICategory</code>: Enum for API categories</li>
+</ul>
 <h3 id="2-generated-documentation-files">2. Generated Documentation Files<a class="headerlink" href="#2-generated-documentation-files" title="Permanent link">&para;</a></h3>
 <p><strong>Location</strong>: <code>/home/user/sahool-unified-v15-idp/docs/api/</code></p>
 <table>
@@ -1216,24 +1220,28 @@
 <h4 id="example-usage-script-example_usagepy">Example Usage Script (<code>example_usage.py</code>)<a class="headerlink" href="#example-usage-script-example_usagepy" title="Permanent link">&para;</a></h4>
 <p><strong>Location</strong>: <code>/home/user/sahool-unified-v15-idp/apps/kernel/common/docs/example_usage.py</code>
 <strong>Purpose</strong>: Demonstrates various usage patterns</p>
-<p><strong>Examples Included</strong>:
-1. Basic usage
-2. Custom paths
-3. Single service documentation
-4. Category analysis
-5. Service list export
-6. Endpoint search
-7. Statistics generation</p>
+<p><strong>Examples Included</strong>:</p>
+<ol>
+<li>Basic usage</li>
+<li>Custom paths</li>
+<li>Single service documentation</li>
+<li>Category analysis</li>
+<li>Service list export</li>
+<li>Endpoint search</li>
+<li>Statistics generation</li>
+</ol>
 <h3 id="4-documentation">4. Documentation<a class="headerlink" href="#4-documentation" title="Permanent link">&para;</a></h3>
 <h4 id="generator-readme">Generator README<a class="headerlink" href="#generator-readme" title="Permanent link">&para;</a></h4>
 <p><strong>Location</strong>: <code>/home/user/sahool-unified-v15-idp/apps/kernel/common/docs/README.md</code>
-<strong>Content</strong>:
-- Installation instructions
-- Usage examples
-- API categories
-- Customization guide
-- CI/CD integration
-- Troubleshooting</p>
+<strong>Content</strong>:</p>
+<ul>
+<li>Installation instructions</li>
+<li>Usage examples</li>
+<li>API categories</li>
+<li>Customization guide</li>
+<li>CI/CD integration</li>
+<li>Troubleshooting</li>
+</ul>
 <h2 id="statistics">Statistics | الإحصائيات<a class="headerlink" href="#statistics" title="Permanent link">&para;</a></h2>
 <h3 id="scanned-services">Scanned Services<a class="headerlink" href="#scanned-services" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1309,30 +1317,38 @@
 </ol>
 <h2 id="implementation-highlights">Implementation Highlights | نقاط التنفيذ البارزة<a class="headerlink" href="#implementation-highlights" title="Permanent link">&para;</a></h2>
 <h3 id="1-automatic-service-discovery">1. Automatic Service Discovery<a class="headerlink" href="#1-automatic-service-discovery" title="Permanent link">&para;</a></h3>
-<p>The generator automatically finds all FastAPI services by:
-- Scanning the <code>apps/services</code> directory
-- Looking for <code>src/main.py</code> files
-- Extracting FastAPI app definitions</p>
+<p>The generator automatically finds all FastAPI services by:</p>
+<ul>
+<li>Scanning the <code>apps/services</code> directory</li>
+<li>Looking for <code>src/main.py</code> files</li>
+<li>Extracting FastAPI app definitions</li>
+</ul>
 <h3 id="2-endpoint-extraction">2. Endpoint Extraction<a class="headerlink" href="#2-endpoint-extraction" title="Permanent link">&para;</a></h3>
-<p>Endpoints are extracted by:
-- Regex pattern matching for <code>@app.get</code>, <code>@app.post</code>, etc.
-- Parsing function definitions and docstrings
-- Extracting parameters from function signatures
-- Identifying Query, Path, and Body parameters</p>
+<p>Endpoints are extracted by:</p>
+<ul>
+<li>Regex pattern matching for <code>@app.get</code>, <code>@app.post</code>, etc.</li>
+<li>Parsing function definitions and docstrings</li>
+<li>Extracting parameters from function signatures</li>
+<li>Identifying Query, Path, and Body parameters</li>
+</ul>
 <h3 id="3-bilingual-support">3. Bilingual Support<a class="headerlink" href="#3-bilingual-support" title="Permanent link">&para;</a></h3>
-<p>Full support for English and Arabic:
-- Detects Arabic text in docstrings
-- Generates bilingual summaries and descriptions
-- Uses Unicode characters correctly
-- Preserves Arabic text in JSON outputs</p>
+<p>Full support for English and Arabic:</p>
+<ul>
+<li>Detects Arabic text in docstrings</li>
+<li>Generates bilingual summaries and descriptions</li>
+<li>Uses Unicode characters correctly</li>
+<li>Preserves Arabic text in JSON outputs</li>
+</ul>
 <h3 id="4-openapi-30-compliance">4. OpenAPI 3.0 Compliance<a class="headerlink" href="#4-openapi-30-compliance" title="Permanent link">&para;</a></h3>
-<p>Generated specification includes:
-- Info section with platform metadata
-- Servers array with all service URLs
-- Paths with operations and parameters
-- Security schemes (JWT Bearer, API Key)
-- Tags for categorization
-- Custom extensions for Arabic descriptions</p>
+<p>Generated specification includes:</p>
+<ul>
+<li>Info section with platform metadata</li>
+<li>Servers array with all service URLs</li>
+<li>Paths with operations and parameters</li>
+<li>Security schemes (JWT Bearer, API Key)</li>
+<li>Tags for categorization</li>
+<li>Custom extensions for Arabic descriptions</li>
+</ul>
 <h3 id="5-postman-collection-features">5. Postman Collection Features<a class="headerlink" href="#5-postman-collection-features" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Pre-configured authentication</li>
@@ -1395,19 +1411,23 @@ python<span class="w"> </span>apps/kernel/common/docs/api_docs_generator.py<span
 </code></pre></div>
 
 <h3 id="2-documentation-sites">2. Documentation Sites<a class="headerlink" href="#2-documentation-sites" title="Permanent link">&para;</a></h3>
-<p>Generated files can be used with:
-- <strong>Swagger UI</strong>: Import <code>openapi.json</code>
-- <strong>Redoc</strong>: Use <code>openapi.json</code>
-- <strong>Stoplight</strong>: Import OpenAPI spec
-- <strong>Postman</strong>: Import collection file
-- <strong>MkDocs</strong>: Use markdown files
-- <strong>Docusaurus</strong>: Use markdown files</p>
+<p>Generated files can be used with:</p>
+<ul>
+<li><strong>Swagger UI</strong>: Import <code>openapi.json</code></li>
+<li><strong>Redoc</strong>: Use <code>openapi.json</code></li>
+<li><strong>Stoplight</strong>: Import OpenAPI spec</li>
+<li><strong>Postman</strong>: Import collection file</li>
+<li><strong>MkDocs</strong>: Use markdown files</li>
+<li><strong>Docusaurus</strong>: Use markdown files</li>
+</ul>
 <h3 id="3-api-testing">3. API Testing<a class="headerlink" href="#3-api-testing" title="Permanent link">&para;</a></h3>
-<p>The Postman collection can be used for:
-- Manual API testing
-- Automated testing with Newman
-- API monitoring
-- Integration testing</p>
+<p>The Postman collection can be used for:</p>
+<ul>
+<li>Manual API testing</li>
+<li>Automated testing with Newman</li>
+<li>API monitoring</li>
+<li>Integration testing</li>
+</ul>
 <h2 id="future-enhancements">Future Enhancements | التحسينات المستقبلية<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
 <p>Potential improvements:</p>
 <ol>
@@ -1424,24 +1444,30 @@ python<span class="w"> </span>apps/kernel/common/docs/api_docs_generator.py<span
 </ol>
 <h2 id="maintenance">Maintenance | الصيانة<a class="headerlink" href="#maintenance" title="Permanent link">&para;</a></h2>
 <h3 id="regular-updates">Regular Updates<a class="headerlink" href="#regular-updates" title="Permanent link">&para;</a></h3>
-<p>Run the generator:
-- After adding new endpoints
-- After modifying existing APIs
-- Before releases
-- As part of CI/CD pipeline</p>
+<p>Run the generator:</p>
+<ul>
+<li>After adding new endpoints</li>
+<li>After modifying existing APIs</li>
+<li>Before releases</li>
+<li>As part of CI/CD pipeline</li>
+</ul>
 <h3 id="version-control">Version Control<a class="headerlink" href="#version-control" title="Permanent link">&para;</a></h3>
-<p>Track changes to:
-- Generator script (<code>api_docs_generator.py</code>)
-- Generated documentation files
-- OpenAPI specification
-- Postman collection</p>
+<p>Track changes to:</p>
+<ul>
+<li>Generator script (<code>api_docs_generator.py</code>)</li>
+<li>Generated documentation files</li>
+<li>OpenAPI specification</li>
+<li>Postman collection</li>
+</ul>
 <h3 id="quality-checks">Quality Checks<a class="headerlink" href="#quality-checks" title="Permanent link">&para;</a></h3>
-<p>Ensure:
-- All services are discovered
-- All endpoints are documented
-- Arabic descriptions are present
-- OpenAPI spec validates
-- Postman collection imports correctly</p>
+<p>Ensure:</p>
+<ul>
+<li>All services are discovered</li>
+<li>All endpoints are documented</li>
+<li>Arabic descriptions are present</li>
+<li>OpenAPI spec validates</li>
+<li>Postman collection imports correctly</li>
+</ul>
 <h2 id="conclusion">Conclusion | الخاتمة<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
 <p>The API Documentation Generator successfully provides:</p>
 <p>✅ <strong>Automated Documentation</strong>: No manual documentation needed

@@ -1226,9 +1226,11 @@
 </code></pre></div>
 
 <h3 id="cause_3">Cause<a class="headerlink" href="#cause_3" title="Permanent link">&para;</a></h3>
-<p>Python services have two shared directories:
-- <code>/shared/</code> - Root shared modules (auth, middleware, errors_py)
-- <code>/apps/services/shared/</code> - Service-specific modules (crops.py, yemen_varieties.py)</p>
+<p>Python services have two shared directories:</p>
+<ul>
+<li><code>/shared/</code> - Root shared modules (auth, middleware, errors_py)</li>
+<li><code>/apps/services/shared/</code> - Service-specific modules (crops.py, yemen_varieties.py)</li>
+</ul>
 <h3 id="solution_3">Solution<a class="headerlink" href="#solution_3" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Update Dockerfile to copy both directories:</strong></li>
@@ -1343,9 +1345,11 @@
 <span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
 </code></pre></div>
 
-<p><strong>Affected Workflows:</strong>
-- <code>deploy-preview.yml</code> (SURGE_TOKEN, NETLIFY_AUTH_TOKEN)
-- <code>lighthouse-ci.yml</code> (optional)</p>
+<p><strong>Affected Workflows:</strong></p>
+<ul>
+<li><code>deploy-preview.yml</code> (SURGE_TOKEN, NETLIFY_AUTH_TOKEN)</li>
+<li><code>lighthouse-ci.yml</code> (optional)</li>
+</ul>
 <h3 id="72-gitleaks-false-positives">7.2 GitLeaks False Positives<a class="headerlink" href="#72-gitleaks-false-positives" title="Permanent link">&para;</a></h3>
 <p><strong>Symptom:</strong> GitLeaks reports secrets in config files.</p>
 <p><strong>Solution:</strong> Update <code>.gitleaks.toml</code> allowlist:</p>
@@ -1382,10 +1386,12 @@
 <div class="codehilite"><pre><span></span><code><span class="nt">&quot;build:packages&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npm run build --workspace=packages/shared-utils &amp;&amp; npm run build --workspace=packages/i18n &amp;&amp; npm run build --workspace=packages/shared-ui &amp;&amp; npm run build --workspace=packages/api-client &amp;&amp; npm run build --workspace=packages/shared-hooks&quot;</span>
 </code></pre></div>
 
-<p><strong>Prevention:</strong>
-- When adding new shared packages that other apps depend on, add them to <code>build:packages</code>
-- Ensure the CI workflow runs <code>build:packages</code> before building apps
-- Don't use <code>continue-on-error: true</code> on the <code>build:packages</code> step</p>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>When adding new shared packages that other apps depend on, add them to <code>build:packages</code></li>
+<li>Ensure the CI workflow runs <code>build:packages</code> before building apps</li>
+<li>Don't use <code>continue-on-error: true</code> on the <code>build:packages</code> step</li>
+</ul>
 <hr />
 <h2 id="quick-reference-common-fixes">Quick Reference: Common Fixes<a class="headerlink" href="#quick-reference-common-fixes" title="Permanent link">&para;</a></h2>
 <table>

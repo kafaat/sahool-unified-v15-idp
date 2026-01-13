@@ -1216,23 +1216,31 @@
 </ul>
 <h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
 <h3 id="alternative-1-kong-health-checks-only">Alternative 1: Kong Health Checks Only<a class="headerlink" href="#alternative-1-kong-health-checks-only" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- Only handles node-level failures
-- Client still sees errors during failover
-- No fallback data capability</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Only handles node-level failures</li>
+<li>Client still sees errors during failover</li>
+<li>No fallback data capability</li>
+</ul>
 <h3 id="alternative-2-istioenvoy-circuit-breaker">Alternative 2: Istio/Envoy Circuit Breaker<a class="headerlink" href="#alternative-2-istioenvoy-circuit-breaker" title="Permanent link">&para;</a></h3>
-<p><strong>Considered because:</strong>
-- Infrastructure-level solution
-- No application code changes</p>
-<p><strong>Rejected because:</strong>
-- Heavyweight infrastructure dependency
-- Complex configuration
-- Overkill for current deployment</p>
+<p><strong>Considered because:</strong></p>
+<ul>
+<li>Infrastructure-level solution</li>
+<li>No application code changes</li>
+</ul>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Heavyweight infrastructure dependency</li>
+<li>Complex configuration</li>
+<li>Overkill for current deployment</li>
+</ul>
 <h3 id="alternative-3-resilience4jpolly">Alternative 3: resilience4j/Polly<a class="headerlink" href="#alternative-3-resilience4jpolly" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- Not native to Python ecosystem
-- Additional dependency complexity
-- Our needs are simpler</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Not native to Python ecosystem</li>
+<li>Additional dependency complexity</li>
+<li>Our needs are simpler</li>
+</ul>
 <h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Get circuit breaker status</span>
 <span class="n">status</span> <span class="o">=</span> <span class="n">circuit_breaker</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span>

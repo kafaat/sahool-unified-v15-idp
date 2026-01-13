@@ -1200,117 +1200,151 @@
 <h3 id="1-billing-core">1. <strong>billing-core</strong> ✅<a class="headerlink" href="#1-billing-core" title="Permanent link">&para;</a></h3>
 <p><strong>Port:</strong> 8089
 <strong>Rate Limiting:</strong> Enabled
-<strong>Configuration:</strong>
-- Uses Redis-backed rate limiting when REDIS_URL is available
-- Excludes webhook endpoints from rate limiting:
-  - <code>/healthz</code>
-  - <code>/v1/webhooks/stripe</code>
-  - <code>/v1/webhooks/tharwatt</code>
-- <strong>Tier Strategy:</strong> Default tier function (IP-based, checks internal service header)</p>
-<p><strong>Rationale:</strong>
-- Payment endpoints need protection against abuse
-- Webhooks excluded to prevent payment processing delays</p>
+<strong>Configuration:</strong></p>
+<ul>
+<li>Uses Redis-backed rate limiting when REDIS_URL is available</li>
+<li>Excludes webhook endpoints from rate limiting:</li>
+<li><code>/healthz</code></li>
+<li><code>/v1/webhooks/stripe</code></li>
+<li><code>/v1/webhooks/tharwatt</code></li>
+<li><strong>Tier Strategy:</strong> Default tier function (IP-based, checks internal service header)</li>
+</ul>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Payment endpoints need protection against abuse</li>
+<li>Webhooks excluded to prevent payment processing delays</li>
+</ul>
 <hr />
 <h3 id="2-ai-advisor">2. <strong>ai-advisor</strong> ✅<a class="headerlink" href="#2-ai-advisor" title="Permanent link">&para;</a></h3>
 <p><strong>Port:</strong> 8115
 <strong>Rate Limiting:</strong> Enabled
-<strong>Configuration:</strong>
-- Uses shared rate_limit_middleware with custom rate_limiter
-- Excludes health and monitoring endpoints:
-  - <code>/healthz</code>
-  - <code>/docs</code>
-  - <code>/redoc</code>
-  - <code>/openapi.json</code>
-- <strong>Tier Strategy:</strong> Default (checks X-Internal-Service header, X-Rate-Limit-Tier header)</p>
-<p><strong>Rationale:</strong>
-- AI advisory endpoints are compute-intensive and costly
-- Need to prevent abuse and control LLM costs
-- Monitoring endpoints excluded for operational visibility</p>
+<strong>Configuration:</strong></p>
+<ul>
+<li>Uses shared rate_limit_middleware with custom rate_limiter</li>
+<li>Excludes health and monitoring endpoints:</li>
+<li><code>/healthz</code></li>
+<li><code>/docs</code></li>
+<li><code>/redoc</code></li>
+<li><code>/openapi.json</code></li>
+<li><strong>Tier Strategy:</strong> Default (checks X-Internal-Service header, X-Rate-Limit-Tier header)</li>
+</ul>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>AI advisory endpoints are compute-intensive and costly</li>
+<li>Need to prevent abuse and control LLM costs</li>
+<li>Monitoring endpoints excluded for operational visibility</li>
+</ul>
 <hr />
 <h3 id="3-ai-agents-core-newly-added">3. <strong>ai-agents-core</strong> ✅ <strong>(Newly Added)</strong><a class="headerlink" href="#3-ai-agents-core-newly-added" title="Permanent link">&para;</a></h3>
 <p><strong>Port:</strong> 8120
 <strong>Rate Limiting:</strong> Enabled
-<strong>Configuration:</strong>
-- Custom tier function based on endpoint type:
-  - <code>/api/v1/analyze</code>: STANDARD tier (60/min) - Full field analysis is resource-intensive
-  - <code>/api/v1/edge/*</code>: PREMIUM tier (120/min) - Edge endpoints need higher throughput
-  - Other endpoints: STANDARD tier (60/min)
-  - Internal services: INTERNAL tier (1000/min)
-- Excluded paths:
-  - <code>/healthz</code>
-  - <code>/api/v1/system/status</code></p>
-<p><strong>Rationale:</strong>
-- Multi-agent AI analysis is extremely resource-intensive
-- Different endpoints have different resource requirements
-- Edge endpoints (mobile, IoT) need higher limits for real-time operations
-- Analysis endpoints need stricter limits to prevent system overload</p>
+<strong>Configuration:</strong></p>
+<ul>
+<li>Custom tier function based on endpoint type:</li>
+<li><code>/api/v1/analyze</code>: STANDARD tier (60/min) - Full field analysis is resource-intensive</li>
+<li><code>/api/v1/edge/*</code>: PREMIUM tier (120/min) - Edge endpoints need higher throughput</li>
+<li>Other endpoints: STANDARD tier (60/min)</li>
+<li>Internal services: INTERNAL tier (1000/min)</li>
+<li>Excluded paths:</li>
+<li><code>/healthz</code></li>
+<li><code>/api/v1/system/status</code></li>
+</ul>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Multi-agent AI analysis is extremely resource-intensive</li>
+<li>Different endpoints have different resource requirements</li>
+<li>Edge endpoints (mobile, IoT) need higher limits for real-time operations</li>
+<li>Analysis endpoints need stricter limits to prevent system overload</li>
+</ul>
 <hr />
 <h3 id="4-iot-gateway-newly-added">4. <strong>iot-gateway</strong> ✅ <strong>(Newly Added)</strong><a class="headerlink" href="#4-iot-gateway-newly-added" title="Permanent link">&para;</a></h3>
 <p><strong>Port:</strong> 8106
 <strong>Rate Limiting:</strong> Enabled
-<strong>Configuration:</strong>
-- Custom tier function based on endpoint type:
-  - <code>/sensor/reading</code>: STANDARD tier (60/min) - Single sensor readings
-  - <code>/sensor/batch</code>: PREMIUM tier (120/min) - Batch uploads need higher limits
-  - <code>/device/*</code>: PREMIUM tier (120/min) - Device management operations
-  - Internal services: INTERNAL tier (1000/min)
-- Excluded paths:
-  - <code>/healthz</code>
-  - <code>/health</code>
-  - <code>/stats</code></p>
-<p><strong>Rationale:</strong>
-- IoT endpoints are vulnerable to sensor data flooding attacks
-- Batch endpoints need higher limits for efficient data ingestion
-- Device registration and management need protection
-- Health endpoints excluded for monitoring</p>
+<strong>Configuration:</strong></p>
+<ul>
+<li>Custom tier function based on endpoint type:</li>
+<li><code>/sensor/reading</code>: STANDARD tier (60/min) - Single sensor readings</li>
+<li><code>/sensor/batch</code>: PREMIUM tier (120/min) - Batch uploads need higher limits</li>
+<li><code>/device/*</code>: PREMIUM tier (120/min) - Device management operations</li>
+<li>Internal services: INTERNAL tier (1000/min)</li>
+<li>Excluded paths:</li>
+<li><code>/healthz</code></li>
+<li><code>/health</code></li>
+<li><code>/stats</code></li>
+</ul>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>IoT endpoints are vulnerable to sensor data flooding attacks</li>
+<li>Batch endpoints need higher limits for efficient data ingestion</li>
+<li>Device registration and management need protection</li>
+<li>Health endpoints excluded for monitoring</li>
+</ul>
 <hr />
 <h3 id="5-field-management-service">5. <strong>field-management-service</strong> ✅<a class="headerlink" href="#5-field-management-service" title="Permanent link">&para;</a></h3>
 <p><strong>Port:</strong> 8083
 <strong>Rate Limiting:</strong> Enabled
-<strong>Configuration:</strong>
-- Uses default rate limiting configuration
-- Standard middleware setup</p>
-<p><strong>Rationale:</strong>
-- Field data management needs protection against bulk operations
-- Prevents accidental or malicious mass field creation/updates</p>
+<strong>Configuration:</strong></p>
+<ul>
+<li>Uses default rate limiting configuration</li>
+<li>Standard middleware setup</li>
+</ul>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Field data management needs protection against bulk operations</li>
+<li>Prevents accidental or malicious mass field creation/updates</li>
+</ul>
 <hr />
 <h3 id="6-inventory-service">6. <strong>inventory-service</strong> ✅<a class="headerlink" href="#6-inventory-service" title="Permanent link">&para;</a></h3>
 <p><strong>Port:</strong> 8084
 <strong>Rate Limiting:</strong> Enabled
-<strong>Configuration:</strong>
-- Uses default rate limiting configuration
-- Standard middleware setup</p>
-<p><strong>Rationale:</strong>
-- Inventory operations need protection against mass updates
-- Prevents inventory manipulation attacks</p>
+<strong>Configuration:</strong></p>
+<ul>
+<li>Uses default rate limiting configuration</li>
+<li>Standard middleware setup</li>
+</ul>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Inventory operations need protection against mass updates</li>
+<li>Prevents inventory manipulation attacks</li>
+</ul>
 <hr />
 <h3 id="7-notification-service">7. <strong>notification-service</strong> ✅<a class="headerlink" href="#7-notification-service" title="Permanent link">&para;</a></h3>
 <p><strong>Port:</strong> 8085
 <strong>Rate Limiting:</strong> Enabled
-<strong>Configuration:</strong>
-- Uses default rate limiting configuration
-- Standard middleware setup</p>
-<p><strong>Rationale:</strong>
-- Critical to prevent notification spam
-- Protects against mass notification abuse
-- Prevents email/SMS quota exhaustion</p>
+<strong>Configuration:</strong></p>
+<ul>
+<li>Uses default rate limiting configuration</li>
+<li>Standard middleware setup</li>
+</ul>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Critical to prevent notification spam</li>
+<li>Protects against mass notification abuse</li>
+<li>Prevents email/SMS quota exhaustion</li>
+</ul>
 <hr />
 <h3 id="8-satellite-service">8. <strong>satellite-service</strong> ✅<a class="headerlink" href="#8-satellite-service" title="Permanent link">&para;</a></h3>
 <p><strong>Port:</strong> 8086
 <strong>Rate Limiting:</strong> Enabled
-<strong>Configuration:</strong>
-- Uses default rate limiting configuration
-- Standard middleware setup</p>
-<p><strong>Rationale:</strong>
-- Satellite data analysis is expensive (external API costs)
-- Need to prevent excessive satellite API calls
-- Protects third-party API quota</p>
+<strong>Configuration:</strong></p>
+<ul>
+<li>Uses default rate limiting configuration</li>
+<li>Standard middleware setup</li>
+</ul>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Satellite data analysis is expensive (external API costs)</li>
+<li>Need to prevent excessive satellite API calls</li>
+<li>Protects third-party API quota</li>
+</ul>
 <hr />
 <h2 id="services-without-rate-limiting">Services Without Rate Limiting<a class="headerlink" href="#services-without-rate-limiting" title="Permanent link">&para;</a></h2>
 <h3 id="services-not-requiring-rate-limiting">Services Not Requiring Rate Limiting<a class="headerlink" href="#services-not-requiring-rate-limiting" title="Permanent link">&para;</a></h3>
-<p>The following services do not exist as Python services or are not user-facing:
-- <strong>user-service</strong>: No Python implementation (handled by auth service)
-- <strong>marketplace-service</strong>: Does not exist</p>
+<p>The following services do not exist as Python services or are not user-facing:</p>
+<ul>
+<li><strong>user-service</strong>: No Python implementation (handled by auth service)</li>
+<li><strong>marketplace-service</strong>: Does not exist</li>
+</ul>
 <h2 id="rate-limiting-headers">Rate Limiting Headers<a class="headerlink" href="#rate-limiting-headers" title="Permanent link">&para;</a></h2>
 <p>All rate-limited responses include the following headers:</p>
 <div class="codehilite"><pre><span></span><code><span class="err">X-RateLimit-Limit: 60</span>

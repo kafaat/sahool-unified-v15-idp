@@ -1196,12 +1196,12 @@
 <p>Old credentials revoked after grace period</p>
 </li>
 <li>
-<p><strong>Manual Rotation:</strong>
-   ```bash
-   # Step 1: Generate new password
-   NEW_PASSWORD=$(openssl rand -base64 32)</p>
+<p><strong>Manual Rotation:</strong></p>
 </li>
 </ol>
+<p>```bash
+   # Step 1: Generate new password
+   NEW_PASSWORD=$(openssl rand -base64 32)</p>
 <p># Step 2: Update in Vault
    vault kv patch secret/sahool/database/postgres password="$NEW_PASSWORD"</p>
 <p># Step 3: Update database
@@ -1268,10 +1268,12 @@ vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </s
 rm<span class="w"> </span>private-new.pem<span class="w"> </span>public-new.pem
 </code></pre></div>
 
-<p><strong>Impact:</strong>
-- Users must re-authenticate after grace period
-- Active sessions remain valid during grace period
-- Notify users 24 hours before rotation</p>
+<p><strong>Impact:</strong></p>
+<ul>
+<li>Users must re-authenticate after grace period</li>
+<li>Active sessions remain valid during grace period</li>
+<li>Notify users 24 hours before rotation</li>
+</ul>
 <h3 id="33-encryption-keys">3.3 Encryption Keys<a class="headerlink" href="#33-encryption-keys" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1555,17 +1557,21 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </
 </code></pre></div>
 
 <h3 id="53-incident-notification">5.3 Incident Notification<a class="headerlink" href="#53-incident-notification" title="Permanent link">&para;</a></h3>
-<p><strong>Immediate notification to:</strong>
-- Security team (via PagerDuty)
-- DevOps team (via Slack)
-- CTO/CISO (via email/phone)</p>
-<p><strong>Incident report must include:</strong>
-- What credentials were compromised
-- When the compromise was detected
-- How the compromise occurred
-- What actions were taken
-- Impact assessment
-- Lessons learned</p>
+<p><strong>Immediate notification to:</strong></p>
+<ul>
+<li>Security team (via PagerDuty)</li>
+<li>DevOps team (via Slack)</li>
+<li>CTO/CISO (via email/phone)</li>
+</ul>
+<p><strong>Incident report must include:</strong></p>
+<ul>
+<li>What credentials were compromised</li>
+<li>When the compromise was detected</li>
+<li>How the compromise occurred</li>
+<li>What actions were taken</li>
+<li>Impact assessment</li>
+<li>Lessons learned</li>
+</ul>
 <hr />
 <h2 id="6-compliance-and-auditing">6. Compliance and Auditing<a class="headerlink" href="#6-compliance-and-auditing" title="Permanent link">&para;</a></h2>
 <h3 id="61-compliance-requirements">6.1 Compliance Requirements<a class="headerlink" href="#61-compliance-requirements" title="Permanent link">&para;</a></h3>
@@ -1701,14 +1707,18 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </
 <hr />
 <h2 id="8-automation">8. Automation<a class="headerlink" href="#8-automation" title="Permanent link">&para;</a></h2>
 <h3 id="81-automated-rotation-preferred">8.1 Automated Rotation (Preferred)<a class="headerlink" href="#81-automated-rotation-preferred" title="Permanent link">&para;</a></h3>
-<p><strong>Vault Dynamic Secrets:</strong>
-- Database credentials rotate every 24 hours
-- No manual intervention
-- Automatic revocation</p>
-<p><strong>Cert-manager:</strong>
-- TLS certificates auto-renew 30 days before expiry
-- Let's Encrypt integration
-- Automatic deployment</p>
+<p><strong>Vault Dynamic Secrets:</strong></p>
+<ul>
+<li>Database credentials rotate every 24 hours</li>
+<li>No manual intervention</li>
+<li>Automatic revocation</li>
+</ul>
+<p><strong>Cert-manager:</strong></p>
+<ul>
+<li>TLS certificates auto-renew 30 days before expiry</li>
+<li>Let's Encrypt integration</li>
+<li>Automatic deployment</li>
+</ul>
 <h3 id="82-semi-automated-rotation">8.2 Semi-Automated Rotation<a class="headerlink" href="#82-semi-automated-rotation" title="Permanent link">&para;</a></h3>
 <p><strong>Rotation Scheduler:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># /etc/cron.d/sahool-rotation</span>
@@ -1716,12 +1726,14 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </
 <span class="m">0</span><span class="w"> </span><span class="m">2</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>sahool<span class="w"> </span>/opt/sahool/scripts/security/automated-rotation-scheduler.sh<span class="w"> </span>--rotate-all
 </code></pre></div>
 
-<p><strong>Features:</strong>
-- Checks rotation schedules
-- Sends notifications before rotation
-- Executes rotation if due
-- Logs all actions
-- Alerts on failures</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Checks rotation schedules</li>
+<li>Sends notifications before rotation</li>
+<li>Executes rotation if due</li>
+<li>Logs all actions</li>
+<li>Alerts on failures</li>
+</ul>
 <h3 id="83-manual-rotation">8.3 Manual Rotation<a class="headerlink" href="#83-manual-rotation" title="Permanent link">&para;</a></h3>
 <p>For secrets that cannot be automated:</p>
 <ol>
@@ -1817,11 +1829,13 @@ sahool_secret_rotation_duration_seconds<span class="o">{</span>secret_type<span 
 <li>New tools and procedures</li>
 </ol>
 <h3 id="102-documentation">10.2 Documentation<a class="headerlink" href="#102-documentation" title="Permanent link">&para;</a></h3>
-<p><strong>Must maintain:</strong>
-- This rotation policy (quarterly review)
-- Rotation runbooks (per secret type)
-- Incident response playbook
-- Contact lists (on-call rotation)</p>
+<p><strong>Must maintain:</strong></p>
+<ul>
+<li>This rotation policy (quarterly review)</li>
+<li>Rotation runbooks (per secret type)</li>
+<li>Incident response playbook</li>
+<li>Contact lists (on-call rotation)</li>
+</ul>
 <p><strong>Location:</strong> <code>/docs/</code> in repository</p>
 <hr />
 <h2 id="11-version-history">11. Version History<a class="headerlink" href="#11-version-history" title="Permanent link">&para;</a></h2>

@@ -1160,19 +1160,23 @@
 <h2 id="updated-services">Updated Services<a class="headerlink" href="#updated-services" title="Permanent link">&para;</a></h2>
 <h3 id="1-crop-health-ai-service">1. Crop Health AI Service<a class="headerlink" href="#1-crop-health-ai-service" title="Permanent link">&para;</a></h3>
 <p><strong>Location:</strong> <code>/apps/services/crop-health-ai/src/main.py</code></p>
-<p><strong>Updated Endpoints:</strong>
-1. <code>POST /v1/diagnose</code> - Single plant image diagnosis
-2. <code>POST /v1/diagnose/batch</code> - Batch image diagnosis (up to 20 images)
-3. <code>POST /v1/expert-review</code> - Expert review request with image
-4. <code>POST /v1/diagnose-with-action</code> - Diagnosis with action template (uses diagnose endpoint)</p>
-<p><strong>Validation Applied:</strong>
-- ✅ File size validation (10MB limit)
-- ✅ MIME type whitelist (image types only)
-- ✅ Magic bytes validation
-- ✅ Virus scanning integration point (configurable)
-- ✅ Filename sanitization
-- ✅ Executable blocking
-- ✅ Fallback to basic validation if module unavailable</p>
+<p><strong>Updated Endpoints:</strong></p>
+<ol>
+<li><code>POST /v1/diagnose</code> - Single plant image diagnosis</li>
+<li><code>POST /v1/diagnose/batch</code> - Batch image diagnosis (up to 20 images)</li>
+<li><code>POST /v1/expert-review</code> - Expert review request with image</li>
+<li><code>POST /v1/diagnose-with-action</code> - Diagnosis with action template (uses diagnose endpoint)</li>
+</ol>
+<p><strong>Validation Applied:</strong></p>
+<ul>
+<li>✅ File size validation (10MB limit)</li>
+<li>✅ MIME type whitelist (image types only)</li>
+<li>✅ Magic bytes validation</li>
+<li>✅ Virus scanning integration point (configurable)</li>
+<li>✅ Filename sanitization</li>
+<li>✅ Executable blocking</li>
+<li>✅ Fallback to basic validation if module unavailable</li>
+</ul>
 <p><strong>Configuration:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Environment variables</span>
 <span class="n">VIRUS_SCANNER</span><span class="o">=</span><span class="n">clamav</span><span class="o">|</span><span class="n">noop</span>  <span class="c1"># Default: noop</span>
@@ -1188,25 +1192,31 @@
 <li><strong>Error message:</strong> Bilingual (English/Arabic)</li>
 </ul>
 <h3 id="2-mime-type-validation">2. MIME Type Validation<a class="headerlink" href="#2-mime-type-validation" title="Permanent link">&para;</a></h3>
-<p><strong>Allowed image types:</strong>
-- image/jpeg
-- image/jpg
-- image/png
-- image/gif
-- image/webp
-- image/bmp
-- image/tiff</p>
-<p><strong>Validation process:</strong>
-1. Check declared MIME type against whitelist
-2. Validate content using magic bytes
-3. Ensure declared type matches actual content</p>
+<p><strong>Allowed image types:</strong></p>
+<ul>
+<li>image/jpeg</li>
+<li>image/jpg</li>
+<li>image/png</li>
+<li>image/gif</li>
+<li>image/webp</li>
+<li>image/bmp</li>
+<li>image/tiff</li>
+</ul>
+<p><strong>Validation process:</strong></p>
+<ol>
+<li>Check declared MIME type against whitelist</li>
+<li>Validate content using magic bytes</li>
+<li>Ensure declared type matches actual content</li>
+</ol>
 <h3 id="3-magic-bytes-validation">3. Magic Bytes Validation<a class="headerlink" href="#3-magic-bytes-validation" title="Permanent link">&para;</a></h3>
-<p><strong>Detects actual file type by content:</strong>
-- JPEG: <code>FF D8 FF</code>
-- PNG: <code>89 50 4E 47 0D 0A 1A 0A</code>
-- GIF: <code>47 49 46 38</code>
-- PDF: <code>25 50 44 46</code>
-- And 15+ more types</p>
+<p><strong>Detects actual file type by content:</strong></p>
+<ul>
+<li>JPEG: <code>FF D8 FF</code></li>
+<li>PNG: <code>89 50 4E 47 0D 0A 1A 0A</code></li>
+<li>GIF: <code>47 49 46 38</code></li>
+<li>PDF: <code>25 50 44 46</code></li>
+<li>And 15+ more types</li>
+</ul>
 <h3 id="4-content-validation">4. Content Validation<a class="headerlink" href="#4-content-validation" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Checks first 32 bytes of file</li>
@@ -1214,25 +1224,33 @@
 <li>Strict and non-strict modes available</li>
 </ul>
 <h3 id="5-virus-scanning">5. Virus Scanning<a class="headerlink" href="#5-virus-scanning" title="Permanent link">&para;</a></h3>
-<p><strong>ClamAV Integration:</strong>
-- Async scanning via clamd
-- INSTREAM protocol for memory-safe scanning
-- Configurable timeout (30s default)
-- Health check support</p>
-<p><strong>Fallback modes:</strong>
-- Development: NoOp scanner (no actual scanning)
-- Production: ClamAV required for virus scanning</p>
+<p><strong>ClamAV Integration:</strong></p>
+<ul>
+<li>Async scanning via clamd</li>
+<li>INSTREAM protocol for memory-safe scanning</li>
+<li>Configurable timeout (30s default)</li>
+<li>Health check support</li>
+</ul>
+<p><strong>Fallback modes:</strong></p>
+<ul>
+<li>Development: NoOp scanner (no actual scanning)</li>
+<li>Production: ClamAV required for virus scanning</li>
+</ul>
 <h3 id="6-security-features">6. Security Features<a class="headerlink" href="#6-security-features" title="Permanent link">&para;</a></h3>
-<p><strong>Executable Detection:</strong>
-- Extension-based blocking (.exe, .bat, .sh, etc.)
-- Magic bytes detection (PE, ELF, scripts)
-- Prevents code execution attacks</p>
-<p><strong>Filename Sanitization:</strong>
-- Path traversal protection
-- Null byte filtering
-- Special character removal
-- Length limiting (255 chars)
-- Hidden file prevention</p>
+<p><strong>Executable Detection:</strong></p>
+<ul>
+<li>Extension-based blocking (.exe, .bat, .sh, etc.)</li>
+<li>Magic bytes detection (PE, ELF, scripts)</li>
+<li>Prevents code execution attacks</li>
+</ul>
+<p><strong>Filename Sanitization:</strong></p>
+<ul>
+<li>Path traversal protection</li>
+<li>Null byte filtering</li>
+<li>Special character removal</li>
+<li>Length limiting (255 chars)</li>
+<li>Hidden file prevention</li>
+</ul>
 <h2 id="services-analyzed-no-file-uploads-found">Services Analyzed (No File Uploads Found)<a class="headerlink" href="#services-analyzed-no-file-uploads-found" title="Permanent link">&para;</a></h2>
 <p>The following services were analyzed but no file upload endpoints were found:</p>
 <h3 id="nestjs-services">NestJS Services<a class="headerlink" href="#nestjs-services" title="Permanent link">&para;</a></h3>
@@ -1345,41 +1363,49 @@
 </code></pre></div>
 
 <h3 id="for-nestjs-services">For NestJS Services<a class="headerlink" href="#for-nestjs-services" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">UseInterceptors</span><span class="p">,</span><span class="w"> </span><span class="nx">UploadedFile</span><span class="p">,</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FileInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/platform-express&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">Controller</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Post</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">UseInterceptors</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">UploadedFile</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">BadRequestException</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FileInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/platform-express&quot;</span><span class="p">;</span>
 
-<span class="kd">@Controller</span><span class="p">(</span><span class="s1">&#39;upload&#39;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">UploadController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">@Post</span><span class="p">()</span>
 <span class="w">  </span><span class="kd">@UseInterceptors</span><span class="p">(</span>
-<span class="w">    </span><span class="nx">FileInterceptor</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">FileInterceptor</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">limits</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">fileSize</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="p">,</span><span class="w"> </span><span class="c1">// 10MB</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">fileFilter</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">file</span><span class="p">,</span><span class="w"> </span><span class="nx">cb</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">allowedMimes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">          </span><span class="s1">&#39;image/jpeg&#39;</span><span class="p">,</span>
-<span class="w">          </span><span class="s1">&#39;image/png&#39;</span><span class="p">,</span>
-<span class="w">          </span><span class="s1">&#39;image/gif&#39;</span><span class="p">,</span>
-<span class="w">          </span><span class="s1">&#39;image/webp&#39;</span>
+<span class="w">          </span><span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;image/png&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;image/gif&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;image/webp&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="p">];</span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">allowedMimes</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">mimetype</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nx">cb</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span><span class="s1">&#39;Invalid file type&#39;</span><span class="p">),</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+<span class="w">          </span><span class="nx">cb</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span><span class="s2">&quot;Invalid file type&quot;</span><span class="p">),</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">uploadFile</span><span class="p">(</span><span class="kd">@UploadedFile</span><span class="p">()</span><span class="w"> </span><span class="nx">file</span><span class="o">:</span><span class="w"> </span><span class="kt">Express.Multer.File</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Additional validation for magic bytes</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">buffer</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isPNG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0x89</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0x50</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0xFF</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0xD8</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0xff</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0xd8</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">isPNG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">mimetype</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;image/&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span><span class="s1">&#39;File content does not match declared type&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">isPNG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">mimetype</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">&quot;image/&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span>
+<span class="w">        </span><span class="s2">&quot;File content does not match declared type&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// Process validated file</span>
@@ -1484,10 +1510,12 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <li><strong>Filename Sanitization:</strong> O(n) - where n is filename length</li>
 <li><strong>Virus Scanning:</strong> O(file_size) - can be slow for large files</li>
 </ol>
-<p><strong>Recommendations:</strong>
-- Disable virus scanning for files &lt; 1MB if performance critical
-- Use async processing for large files
-- Implement rate limiting on upload endpoints</p>
+<p><strong>Recommendations:</strong></p>
+<ul>
+<li>Disable virus scanning for files &lt; 1MB if performance critical</li>
+<li>Use async processing for large files</li>
+<li>Implement rate limiting on upload endpoints</li>
+</ul>
 <h2 id="future-improvements">Future Improvements<a class="headerlink" href="#future-improvements" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Cloud Virus Scanning:</strong> Integrate AWS S3 Malware Scanning or VirusTotal</li>
@@ -1507,18 +1535,22 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <li>Processing time per validation</li>
 </ul>
 <h3 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h3>
-<p>All validation failures are logged with:
-- Timestamp
-- Endpoint
-- Filename
-- Error code
-- Client IP (if available)</p>
+<p>All validation failures are logged with:</p>
+<ul>
+<li>Timestamp</li>
+<li>Endpoint</li>
+<li>Filename</li>
+<li>Error code</li>
+<li>Client IP (if available)</li>
+</ul>
 <h2 id="compliance">Compliance<a class="headerlink" href="#compliance" title="Permanent link">&para;</a></h2>
-<p>This implementation helps meet:
-- <strong>OWASP Top 10:</strong> Addresses unrestricted file upload vulnerabilities
-- <strong>PCI DSS:</strong> File upload security requirements
-- <strong>GDPR:</strong> Data protection through security measures
-- <strong>ISO 27001:</strong> Information security controls</p>
+<p>This implementation helps meet:</p>
+<ul>
+<li><strong>OWASP Top 10:</strong> Addresses unrestricted file upload vulnerabilities</li>
+<li><strong>PCI DSS:</strong> File upload security requirements</li>
+<li><strong>GDPR:</strong> Data protection through security measures</li>
+<li><strong>ISO 27001:</strong> Information security controls</li>
+</ul>
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Full Documentation:</strong> <code>/shared/file_validation/README.md</code></li>
@@ -1526,10 +1558,12 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <li><strong>This Summary:</strong> <code>/docs/file-upload-validation-summary.md</code></li>
 </ul>
 <h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>For questions or issues:
-1. Check the README in <code>/shared/file_validation/</code>
-2. Review examples in <code>/shared/file_validation/examples.py</code>
-3. Create an issue in the SAHOOL repository</p>
+<p>For questions or issues:</p>
+<ol>
+<li>Check the README in <code>/shared/file_validation/</code></li>
+<li>Review examples in <code>/shared/file_validation/examples.py</code></li>
+<li>Create an issue in the SAHOOL repository</li>
+</ol>
 <hr />
 <p><strong>Implementation Date:</strong> January 2026
 <strong>Status:</strong> ✅ Complete

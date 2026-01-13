@@ -1119,12 +1119,14 @@
 <h1 id="sahool-model-context-protocol-mcp-integration">SAHOOL Model Context Protocol (MCP) Integration<a class="headerlink" href="#sahool-model-context-protocol-mcp-integration" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>SAHOOL now includes full support for the <strong>Model Context Protocol (MCP)</strong>, enabling AI assistants like Claude to directly interact with SAHOOL's agricultural intelligence capabilities.</p>
-<p>The MCP integration provides:
-- <strong>5 Agricultural Tools</strong> for weather, crop health, irrigation, and fertilizer recommendations
-- <strong>3 Resource Providers</strong> for field data, weather data, and crop catalogs
-- <strong>3 Prompt Templates</strong> for common agricultural tasks
-- <strong>Dual Transport Support</strong> (stdio and HTTP/SSE)
-- <strong>Production-Ready</strong> with health checks, metrics, and logging</p>
+<p>The MCP integration provides:</p>
+<ul>
+<li><strong>5 Agricultural Tools</strong> for weather, crop health, irrigation, and fertilizer recommendations</li>
+<li><strong>3 Resource Providers</strong> for field data, weather data, and crop catalogs</li>
+<li><strong>3 Prompt Templates</strong> for common agricultural tasks</li>
+<li><strong>Dual Transport Support</strong> (stdio and HTTP/SSE)</li>
+<li><strong>Production-Ready</strong> with health checks, metrics, and logging</li>
+</ul>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
 │                      AI Assistant                            │
@@ -1206,10 +1208,12 @@ open<span class="w"> </span>http://localhost:8200/docs
 <h2 id="available-tools">Available Tools<a class="headerlink" href="#available-tools" title="Permanent link">&para;</a></h2>
 <h3 id="1-get_weather_forecast">1. get_weather_forecast<a class="headerlink" href="#1-get_weather_forecast" title="Permanent link">&para;</a></h3>
 <p>Get weather forecast with agricultural advisories.</p>
-<p><strong>Parameters:</strong>
-- <code>latitude</code> (required): Latitude of the location
-- <code>longitude</code> (required): Longitude of the location
-- <code>days</code> (optional): Number of days to forecast (1-14, default: 7)</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>latitude</code> (required): Latitude of the location</li>
+<li><code>longitude</code> (required): Longitude of the location</li>
+<li><code>days</code> (optional): Number of days to forecast (1-14, default: 7)</li>
+</ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.5527</span><span class="p">,</span>
@@ -1218,17 +1222,21 @@ open<span class="w"> </span>http://localhost:8200/docs
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Returns:</strong>
-- Temperature, humidity, precipitation forecasts
-- Wind speed and direction
-- Agricultural advisories (frost risk, heat stress, etc.)
-- Irrigation recommendations based on weather</p>
+<p><strong>Returns:</strong></p>
+<ul>
+<li>Temperature, humidity, precipitation forecasts</li>
+<li>Wind speed and direction</li>
+<li>Agricultural advisories (frost risk, heat stress, etc.)</li>
+<li>Irrigation recommendations based on weather</li>
+</ul>
 <h3 id="2-analyze_crop_health">2. analyze_crop_health<a class="headerlink" href="#2-analyze_crop_health" title="Permanent link">&para;</a></h3>
 <p>Analyze crop health using satellite imagery (NDVI/NDWI).</p>
-<p><strong>Parameters:</strong>
-- <code>field_id</code> (required): Field identifier
-- <code>analysis_type</code> (optional): "ndvi", "ndwi", or "full" (default: "ndvi")
-- <code>date</code> (optional): Analysis date (YYYY-MM-DD)</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>field_id</code> (required): Field identifier</li>
+<li><code>analysis_type</code> (optional): "ndvi", "ndwi", or "full" (default: "ndvi")</li>
+<li><code>date</code> (optional): Analysis date (YYYY-MM-DD)</li>
+</ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
@@ -1236,18 +1244,22 @@ open<span class="w"> </span>http://localhost:8200/docs
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Returns:</strong>
-- NDVI average and distribution
-- Health status (healthy, stressed, diseased)
-- Stress area locations
-- Disease risk assessment
-- Recommendations</p>
+<p><strong>Returns:</strong></p>
+<ul>
+<li>NDVI average and distribution</li>
+<li>Health status (healthy, stressed, diseased)</li>
+<li>Stress area locations</li>
+<li>Disease risk assessment</li>
+<li>Recommendations</li>
+</ul>
 <h3 id="3-get_field_data">3. get_field_data<a class="headerlink" href="#3-get_field_data" title="Permanent link">&para;</a></h3>
 <p>Retrieve comprehensive field data.</p>
-<p><strong>Parameters:</strong>
-- <code>field_id</code> (required): Field identifier
-- <code>include_history</code> (optional): Include historical data (default: false)
-- <code>include_sensors</code> (optional): Include IoT sensor data (default: false)</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>field_id</code> (required): Field identifier</li>
+<li><code>include_history</code> (optional): Include historical data (default: false)</li>
+<li><code>include_sensors</code> (optional): Include IoT sensor data (default: false)</li>
+</ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
@@ -1256,20 +1268,24 @@ open<span class="w"> </span>http://localhost:8200/docs
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Returns:</strong>
-- Field boundaries (GeoJSON)
-- Area in hectares
-- Soil properties (type, pH, nutrients)
-- Current crop information
-- Historical activities (optional)
-- Sensor readings (optional)</p>
+<p><strong>Returns:</strong></p>
+<ul>
+<li>Field boundaries (GeoJSON)</li>
+<li>Area in hectares</li>
+<li>Soil properties (type, pH, nutrients)</li>
+<li>Current crop information</li>
+<li>Historical activities (optional)</li>
+<li>Sensor readings (optional)</li>
+</ul>
 <h3 id="4-calculate_irrigation">4. calculate_irrigation<a class="headerlink" href="#4-calculate_irrigation" title="Permanent link">&para;</a></h3>
 <p>Calculate optimal irrigation requirements.</p>
-<p><strong>Parameters:</strong>
-- <code>field_id</code> (required): Field identifier
-- <code>crop_type</code> (required): Type of crop
-- <code>soil_moisture</code> (required): Current soil moisture (0-100%)
-- <code>growth_stage</code> (required): "germination", "vegetative", "flowering", "fruiting", or "maturation"</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>field_id</code> (required): Field identifier</li>
+<li><code>crop_type</code> (required): Type of crop</li>
+<li><code>soil_moisture</code> (required): Current soil moisture (0-100%)</li>
+<li><code>growth_stage</code> (required): "germination", "vegetative", "flowering", "fruiting", or "maturation"</li>
+</ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
@@ -1279,19 +1295,23 @@ open<span class="w"> </span>http://localhost:8200/docs
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Returns:</strong>
-- Water amount needed (mm)
-- Duration in minutes
-- Next irrigation date
-- Soil moisture target
-- Adjustment factors (weather, growth stage, etc.)</p>
+<p><strong>Returns:</strong></p>
+<ul>
+<li>Water amount needed (mm)</li>
+<li>Duration in minutes</li>
+<li>Next irrigation date</li>
+<li>Soil moisture target</li>
+<li>Adjustment factors (weather, growth stage, etc.)</li>
+</ul>
 <h3 id="5-get_fertilizer_recommendation">5. get_fertilizer_recommendation<a class="headerlink" href="#5-get_fertilizer_recommendation" title="Permanent link">&para;</a></h3>
 <p>Get fertilizer recommendations based on soil analysis.</p>
-<p><strong>Parameters:</strong>
-- <code>field_id</code> (required): Field identifier
-- <code>crop_type</code> (required): Type of crop
-- <code>soil_test</code> (optional): NPK values, pH, organic matter
-- <code>target_yield</code> (optional): Target yield in tons/ha</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>field_id</code> (required): Field identifier</li>
+<li><code>crop_type</code> (required): Type of crop</li>
+<li><code>soil_test</code> (optional): NPK values, pH, organic matter</li>
+<li><code>target_yield</code> (optional): Target yield in tons/ha</li>
+</ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
@@ -1307,12 +1327,14 @@ open<span class="w"> </span>http://localhost:8200/docs
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Returns:</strong>
-- NPK recommendation (N-P-K ratios)
-- Application schedule
-- Total cost estimate
-- Organic alternatives
-- Warnings and precautions</p>
+<p><strong>Returns:</strong></p>
+<ul>
+<li>NPK recommendation (N-P-K ratios)</li>
+<li>Application schedule</li>
+<li>Total cost estimate</li>
+<li>Organic alternatives</li>
+<li>Warnings and precautions</li>
+</ul>
 <h2 id="resource-providers">Resource Providers<a class="headerlink" href="#resource-providers" title="Permanent link">&para;</a></h2>
 <h3 id="field-data-resources">Field Data Resources<a class="headerlink" href="#field-data-resources" title="Permanent link">&para;</a></h3>
 <p>Access field information through URI templates:</p>
@@ -1347,26 +1369,32 @@ open<span class="w"> </span>http://localhost:8200/docs
 <h2 id="prompt-templates">Prompt Templates<a class="headerlink" href="#prompt-templates" title="Permanent link">&para;</a></h2>
 <h3 id="1-field_analysis">1. field_analysis<a class="headerlink" href="#1-field_analysis" title="Permanent link">&para;</a></h3>
 <p>Comprehensive field analysis including health, weather, and recommendations.</p>
-<p><strong>Arguments:</strong>
-- <code>field_id</code> (required): Field to analyze</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>field_id</code> (required): Field to analyze</li>
+</ul>
 <p><strong>Usage:</strong></p>
 <div class="codehilite"><pre><span></span><code>Use the field_analysis prompt for field-123
 </code></pre></div>
 
 <h3 id="2-irrigation_plan">2. irrigation_plan<a class="headerlink" href="#2-irrigation_plan" title="Permanent link">&para;</a></h3>
 <p>Create irrigation plan based on weather forecast and soil conditions.</p>
-<p><strong>Arguments:</strong>
-- <code>field_id</code> (required): Field identifier
-- <code>days</code> (optional): Planning horizon (default: 7)</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>field_id</code> (required): Field identifier</li>
+<li><code>days</code> (optional): Planning horizon (default: 7)</li>
+</ul>
 <p><strong>Usage:</strong></p>
 <div class="codehilite"><pre><span></span><code>Use the irrigation_plan prompt for field-123 with 14 days
 </code></pre></div>
 
 <h3 id="3-crop_recommendation">3. crop_recommendation<a class="headerlink" href="#3-crop_recommendation" title="Permanent link">&para;</a></h3>
 <p>Recommend crops suitable for field conditions.</p>
-<p><strong>Arguments:</strong>
-- <code>field_id</code> (required): Field identifier
-- <code>season</code> (optional): Growing season</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>field_id</code> (required): Field identifier</li>
+<li><code>season</code> (optional): Growing season</li>
+</ul>
 <p><strong>Usage:</strong></p>
 <div class="codehilite"><pre><span></span><code>Use the crop_recommendation prompt for field-123 for summer season
 </code></pre></div>
@@ -1490,11 +1518,13 @@ curl<span class="w"> </span>http://localhost:8200/ready
 curl<span class="w"> </span>http://localhost:8200/metrics
 </code></pre></div>
 
-<p><strong>Available Metrics:</strong>
-- <code>mcp_requests_total{method, status}</code> - Total MCP requests
-- <code>mcp_request_duration_seconds{method}</code> - Request duration
-- <code>mcp_tool_calls_total{tool_name, status}</code> - Tool invocations
-- <code>mcp_resource_reads_total{resource_type, status}</code> - Resource reads</p>
+<p><strong>Available Metrics:</strong></p>
+<ul>
+<li><code>mcp_requests_total{method, status}</code> - Total MCP requests</li>
+<li><code>mcp_request_duration_seconds{method}</code> - Request duration</li>
+<li><code>mcp_tool_calls_total{tool_name, status}</code> - Tool invocations</li>
+<li><code>mcp_resource_reads_total{resource_type, status}</code> - Resource reads</li>
+</ul>
 <h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h3>
 <p>Structured JSON logs in production:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -1509,15 +1539,19 @@ curl<span class="w"> </span>http://localhost:8200/metrics
 
 <h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
 <h3 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h3>
-<p>MCP server currently supports:
-- No authentication (development)
-- API key authentication (coming soon)
-- JWT authentication (coming soon)</p>
+<p>MCP server currently supports:</p>
+<ul>
+<li>No authentication (development)</li>
+<li>API key authentication (coming soon)</li>
+<li>JWT authentication (coming soon)</li>
+</ul>
 <h3 id="rate-limiting">Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h3>
-<p>Configured through Kong API Gateway:
-- Free tier: 30 requests/minute
-- Standard: 60 requests/minute
-- Premium: 120 requests/minute</p>
+<p>Configured through Kong API Gateway:</p>
+<ul>
+<li>Free tier: 30 requests/minute</li>
+<li>Standard: 60 requests/minute</li>
+<li>Premium: 120 requests/minute</li>
+</ul>
 <h3 id="cors">CORS<a class="headerlink" href="#cors" title="Permanent link">&para;</a></h3>
 <p>CORS is enabled for all origins in development. Configure for production:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
@@ -1532,38 +1566,34 @@ curl<span class="w"> </span>http://localhost:8200/metrics
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="mcp-server-wont-start">MCP Server Won't Start<a class="headerlink" href="#mcp-server-wont-start" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p>Check if port 8200 is available:
-   <code>bash
+<li>Check if port 8200 is available:</li>
+</ol>
+<p><code>bash
    lsof -i :8200</code></p>
-</li>
-<li>
-<p>Verify SAHOOL API is running:
-   <code>bash
+<ol>
+<li>Verify SAHOOL API is running:</li>
+</ol>
+<p><code>bash
    curl http://localhost:8000/health</code></p>
-</li>
-<li>
-<p>Check logs:
+<ol>
+<li>Check logs:
    <code>bash
-   docker-compose logs mcp-server</code></p>
-</li>
+   docker-compose logs mcp-server</code></li>
 </ol>
 <h3 id="tool-calls-failing">Tool Calls Failing<a class="headerlink" href="#tool-calls-failing" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p>Verify SAHOOL services are running:
-   <code>bash
+<li>Verify SAHOOL services are running:</li>
+</ol>
+<p><code>bash
    docker-compose ps</code></p>
-</li>
-<li>
-<p>Check service health:
-   <code>bash
+<ol>
+<li>Check service health:</li>
+</ol>
+<p><code>bash
    curl http://localhost:8000/api/weather/health
    curl http://localhost:8000/api/fields/health</code></p>
-</li>
-<li>
-<p>Review error messages in MCP server logs</p>
-</li>
+<ol>
+<li>Review error messages in MCP server logs</li>
 </ol>
 <h3 id="resources-not-loading">Resources Not Loading<a class="headerlink" href="#resources-not-loading" title="Permanent link">&para;</a></h3>
 <ol>
@@ -1578,14 +1608,18 @@ python<span class="w"> </span>-m<span class="w"> </span>shared.mcp.examples
 </code></pre></div>
 
 <h2 id="api-documentation">API Documentation<a class="headerlink" href="#api-documentation" title="Permanent link">&para;</a></h2>
-<p>Interactive API documentation available at:
-- <strong>Swagger UI</strong>: http://localhost:8200/docs
-- <strong>ReDoc</strong>: http://localhost:8200/redoc</p>
+<p>Interactive API documentation available at:</p>
+<ul>
+<li><strong>Swagger UI</strong>: http://localhost:8200/docs</li>
+<li><strong>ReDoc</strong>: http://localhost:8200/redoc</li>
+</ul>
 <h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>For issues or questions:
-1. Check logs: <code>docker-compose logs mcp-server</code>
-2. Review documentation: <code>/docs/MCP_INTEGRATION.md</code>
-3. Contact development team</p>
+<p>For issues or questions:</p>
+<ol>
+<li>Check logs: <code>docker-compose logs mcp-server</code></li>
+<li>Review documentation: <code>/docs/MCP_INTEGRATION.md</code></li>
+<li>Contact development team</li>
+</ol>
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
 <p>Proprietary - KAFAAT</p>
 

@@ -1293,9 +1293,11 @@
 </tr>
 </tbody>
 </table>
-<p><strong>القرار:</strong> 🔄 <strong>دمج الخدمتين</strong> - إنشاء خدمة موحدة تجمع:
-- مصادر البيانات من ndvi-processor
-- خوارزميات التحليل من ndvi-engine</p>
+<p><strong>القرار:</strong> 🔄 <strong>دمج الخدمتين</strong> - إنشاء خدمة موحدة تجمع:</p>
+<ul>
+<li>مصادر البيانات من ndvi-processor</li>
+<li>خوارزميات التحليل من ndvi-engine</li>
+</ul>
 <hr />
 <h3 id="3-weather-core-vs-weather-advanced">3. Weather Core vs Weather Advanced<a class="headerlink" href="#3-weather-core-vs-weather-advanced" title="Permanent link">&para;</a></h3>
 <table>
@@ -1346,9 +1348,11 @@
 </tr>
 </tbody>
 </table>
-<p><strong>القرار:</strong> 🔄 <strong>إبقاء الخدمتين</strong> مع تحديد واضح للمسؤوليات:
-- <code>weather-core</code>: بيانات أساسية وتكامل IoT
-- <code>weather-advanced</code>: تحليلات متقدمة ونماذج زراعية</p>
+<p><strong>القرار:</strong> 🔄 <strong>إبقاء الخدمتين</strong> مع تحديد واضح للمسؤوليات:</p>
+<ul>
+<li><code>weather-core</code>: بيانات أساسية وتكامل IoT</li>
+<li><code>weather-advanced</code>: تحليلات متقدمة ونماذج زراعية</li>
+</ul>
 <hr />
 <h3 id="4-crop-health-ai-vs-agro-advisor">4. Crop Health AI vs Agro Advisor<a class="headerlink" href="#4-crop-health-ai-vs-agro-advisor" title="Permanent link">&para;</a></h3>
 <table>
@@ -1399,9 +1403,11 @@
 </tr>
 </tbody>
 </table>
-<p><strong>القرار:</strong> 🔄 <strong>دمج الخدمتين</strong> في خدمة واحدة <code>agro-intelligence</code>:
-- تشخيص الأمراض بالذكاء الاصطناعي من crop-health-ai
-- خطط التسميد والمغذيات من agro-advisor</p>
+<p><strong>القرار:</strong> 🔄 <strong>دمج الخدمتين</strong> في خدمة واحدة <code>agro-intelligence</code>:</p>
+<ul>
+<li>تشخيص الأمراض بالذكاء الاصطناعي من crop-health-ai</li>
+<li>خطط التسميد والمغذيات من agro-advisor</li>
+</ul>
 <hr />
 <h3 id="5-community-chat-vs-field-chat">5. Community Chat vs Field Chat<a class="headerlink" href="#5-community-chat-vs-field-chat" title="Permanent link">&para;</a></h3>
 <table>
@@ -1446,9 +1452,11 @@
 </tr>
 </tbody>
 </table>
-<p><strong>القرار:</strong> ✅ <strong>إبقاء الخدمتين منفصلتين</strong> - لديهما أغراض مختلفة:
-- <code>community-chat</code>: تواصل اجتماعي بين المزارعين
-- <code>field-chat</code>: تواصل فريق العمل في الحقل</p>
+<p><strong>القرار:</strong> ✅ <strong>إبقاء الخدمتين منفصلتين</strong> - لديهما أغراض مختلفة:</p>
+<ul>
+<li><code>community-chat</code>: تواصل اجتماعي بين المزارعين</li>
+<li><code>field-chat</code>: تواصل فريق العمل في الحقل</li>
+</ul>
 <hr />
 <h3 id="6-yield-engine-vs-yield-prediction">6. Yield Engine vs Yield Prediction<a class="headerlink" href="#6-yield-engine-vs-yield-prediction" title="Permanent link">&para;</a></h3>
 <table>
@@ -1538,9 +1546,11 @@
 </tr>
 </tbody>
 </table>
-<p><strong>القرار:</strong> 🔄 <strong>دمج الخدمتين</strong>:
-- <code>iot-service</code>: إدارة الأجهزة والقراءات
-- <code>iot-gateway</code>: بوابة البروتوكولات (يبقى كـ adapter)</p>
+<p><strong>القرار:</strong> 🔄 <strong>دمج الخدمتين</strong>:</p>
+<ul>
+<li><code>iot-service</code>: إدارة الأجهزة والقراءات</li>
+<li><code>iot-gateway</code>: بوابة البروتوكولات (يبقى كـ adapter)</li>
+</ul>
 <hr />
 <h2 id="legacy-">🗂️ الخدمات القديمة (Legacy) - للحذف<a class="headerlink" href="#legacy-" title="Permanent link">&para;</a></h2>
 <p>هذه الخدمات في <code>archive/kernel-legacy</code> تم استبدالها بالكامل:</p>
@@ -1674,29 +1684,27 @@
 <p><strong>المدة:</strong> -
 <strong>المهام:</strong></p>
 <ol>
-<li>
-<p>تحديث <code>equipment-service/Dockerfile</code> و <code>.env</code>:
-   <code>yaml
+<li>تحديث <code>equipment-service/Dockerfile</code> و <code>.env</code>:</li>
+</ol>
+<p><code>yaml
    PORT=8102</code></p>
-</li>
-<li>
-<p>تحديث <code>yield-engine/Dockerfile</code> و <code>.env</code>:
-   <code>yaml
+<ol>
+<li>تحديث <code>yield-engine/Dockerfile</code> و <code>.env</code>:</li>
+</ol>
+<p><code>yaml
    PORT=8103</code></p>
-</li>
-<li>
-<p>تحديث <code>crop-growth-model/Dockerfile</code> و <code>.env</code>:
-   <code>yaml
+<ol>
+<li>تحديث <code>crop-growth-model/Dockerfile</code> و <code>.env</code>:</li>
+</ol>
+<p><code>yaml
    PORT=8104</code></p>
-</li>
-<li>
-<p>تحديث <code>agro-advisor/Dockerfile</code> و <code>.env</code>:
-   <code>yaml
+<ol>
+<li>تحديث <code>agro-advisor/Dockerfile</code> و <code>.env</code>:</li>
+</ol>
+<p><code>yaml
    PORT=8105</code></p>
-</li>
-<li>
-<p>تحديث Docker Compose وKubernetes manifests</p>
-</li>
+<ol>
+<li>تحديث Docker Compose وKubernetes manifests</li>
 </ol>
 <hr />
 <h3 id="2">المرحلة 2: دمج الخدمات المتشابهة<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
@@ -1730,14 +1738,12 @@
 <h3 id="3-legacy">المرحلة 3: تنظيف Legacy<a class="headerlink" href="#3-legacy" title="Permanent link">&para;</a></h3>
 <p><strong>المهام:</strong></p>
 <ol>
-<li>
-<p><strong>مراجعة نهائية:</strong>
-   <code>bash
+<li><strong>مراجعة نهائية:</strong></li>
+</ol>
+<p><code>bash
    diff -r archive/kernel-legacy/kernel/services apps/services</code></p>
-</li>
-<li>
-<p><strong>استخراج أي كود مفيد:</strong></p>
-</li>
+<ol>
+<li><strong>استخراج أي كود مفيد:</strong></li>
 <li>التحقق من algorithms</li>
 <li>التحقق من configurations</li>
 <li>
@@ -1763,11 +1769,12 @@
 <p>Storage: S3</p>
 </li>
 <li>
-<p><strong>توحيد API Versioning:</strong>
-   <code>/api/v1/... (جميع الخدمات)</code></p>
+<p><strong>توحيد API Versioning:</strong></p>
 </li>
-<li>
-<p><strong>توحيد Error Handling:</strong>
+</ol>
+<p><code>/api/v1/... (جميع الخدمات)</code></p>
+<ol>
+<li><strong>توحيد Error Handling:</strong>
    <code>json
    {
      "error": {
@@ -1775,8 +1782,7 @@
        "message": "Field not found",
        "message_ar": "الحقل غير موجود"
      }
-   }</code></p>
-</li>
+   }</code></li>
 </ol>
 <hr />
 <h2 id="decision-matrix">📊 مصفوفة القرارات النهائية | Decision Matrix<a class="headerlink" href="#decision-matrix" title="Permanent link">&para;</a></h2>

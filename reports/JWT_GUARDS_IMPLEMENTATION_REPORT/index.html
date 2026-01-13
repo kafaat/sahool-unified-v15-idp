@@ -1139,11 +1139,13 @@
 <h4 id="1-homeusersahool-unified-v15-idpsharedauthuser_cachepy">1. <code>/home/user/sahool-unified-v15-idp/shared/auth/user_cache.py</code><a class="headerlink" href="#1-homeusersahool-unified-v15-idpsharedauthuser_cachepy" title="Permanent link">&para;</a></h4>
 <p><strong>Size:</strong> 6.4 KB
 <strong>Purpose:</strong> Redis-based user caching service
-<strong>Features:</strong>
-- User status caching with configurable TTL
-- Cache invalidation methods
-- Automatic fallback when Redis unavailable
-- Thread-safe operations</p>
+<strong>Features:</strong></p>
+<ul>
+<li>User status caching with configurable TTL</li>
+<li>Cache invalidation methods</li>
+<li>Automatic fallback when Redis unavailable</li>
+<li>Thread-safe operations</li>
+</ul>
 <p><strong>Key Functions:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UserCache</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_user_status</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
@@ -1159,11 +1161,13 @@
 <h4 id="2-homeusersahool-unified-v15-idpsharedauthuser_repositorypy">2. <code>/home/user/sahool-unified-v15-idp/shared/auth/user_repository.py</code><a class="headerlink" href="#2-homeusersahool-unified-v15-idpsharedauthuser_repositorypy" title="Permanent link">&para;</a></h4>
 <p><strong>Size:</strong> 7.4 KB
 <strong>Purpose:</strong> Database access layer for user validation
-<strong>Features:</strong>
-- Abstract repository pattern
-- User validation data structure
-- In-memory implementation for testing
-- Easy integration with any database</p>
+<strong>Features:</strong></p>
+<ul>
+<li>Abstract repository pattern</li>
+<li>User validation data structure</li>
+<li>In-memory implementation for testing</li>
+<li>Easy integration with any database</li>
+</ul>
 <p><strong>Key Classes:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UserValidationData</span><span class="p">:</span>
     <span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span>
@@ -1185,11 +1189,13 @@
 <h4 id="3-homeusersahool-unified-v15-idpsharedauthuser-validationservicets">3. <code>/home/user/sahool-unified-v15-idp/shared/auth/user-validation.service.ts</code><a class="headerlink" href="#3-homeusersahool-unified-v15-idpsharedauthuser-validationservicets" title="Permanent link">&para;</a></h4>
 <p><strong>Size:</strong> 5.7 KB
 <strong>Purpose:</strong> TypeScript user validation service
-<strong>Features:</strong>
-- NestJS injectable service
-- Redis caching integration
-- User status validation
-- Comprehensive error handling</p>
+<strong>Features:</strong></p>
+<ul>
+<li>NestJS injectable service</li>
+<li>Redis caching integration</li>
+<li>User status validation</li>
+<li>Comprehensive error handling</li>
+</ul>
 <p><strong>Key Components:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kd">interface</span><span class="w"> </span><span class="nx">UserValidationData</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -1208,57 +1214,67 @@
 
 <span class="kd">@Injectable</span><span class="p">()</span>
 <span class="kd">class</span><span class="w"> </span><span class="nx">UserValidationService</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">validateUser</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">UserValidationData</span><span class="o">&gt;</span>
-<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">invalidateUser</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span>
-<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">clearAll</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="kt">number</span><span class="o">&gt;</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">validateUser</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">UserValidationData</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">invalidateUser</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">clearAll</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="kt">number</span><span class="o">&gt;</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="documentation-files-4-files">Documentation Files (4 files)<a class="headerlink" href="#documentation-files-4-files" title="Permanent link">&para;</a></h3>
 <h4 id="1-homeusersahool-unified-v15-idpsharedauthjwt_guards_enhancementmd">1. <code>/home/user/sahool-unified-v15-idp/shared/auth/JWT_GUARDS_ENHANCEMENT.md</code><a class="headerlink" href="#1-homeusersahool-unified-v15-idpsharedauthjwt_guards_enhancementmd" title="Permanent link">&para;</a></h4>
 <p><strong>Size:</strong> 14 KB
-<strong>Content:</strong>
-- Complete feature documentation
-- Setup guides for Python and TypeScript
-- Performance metrics
-- Troubleshooting guide
-- Security considerations</p>
+<strong>Content:</strong></p>
+<ul>
+<li>Complete feature documentation</li>
+<li>Setup guides for Python and TypeScript</li>
+<li>Performance metrics</li>
+<li>Troubleshooting guide</li>
+<li>Security considerations</li>
+</ul>
 <h4 id="2-homeusersahool-unified-v15-idpsharedauthintegration_examplesmd">2. <code>/home/user/sahool-unified-v15-idp/shared/auth/INTEGRATION_EXAMPLES.md</code><a class="headerlink" href="#2-homeusersahool-unified-v15-idpsharedauthintegration_examplesmd" title="Permanent link">&para;</a></h4>
 <p><strong>Size:</strong> 19 KB
-<strong>Content:</strong>
-- Complete FastAPI application example
-- Complete NestJS application example
-- Database implementation examples
-- Cache management examples
-- Testing examples</p>
+<strong>Content:</strong></p>
+<ul>
+<li>Complete FastAPI application example</li>
+<li>Complete NestJS application example</li>
+<li>Database implementation examples</li>
+<li>Cache management examples</li>
+<li>Testing examples</li>
+</ul>
 <h4 id="3-homeusersahool-unified-v15-idpsharedauthsecurity_enhancements_summarymd">3. <code>/home/user/sahool-unified-v15-idp/shared/auth/SECURITY_ENHANCEMENTS_SUMMARY.md</code><a class="headerlink" href="#3-homeusersahool-unified-v15-idpsharedauthsecurity_enhancements_summarymd" title="Permanent link">&para;</a></h4>
 <p><strong>Size:</strong> 9 KB
-<strong>Content:</strong>
-- Overview of all enhancements
-- Before/after comparison
-- Performance metrics
-- Migration guide
-- Quick start instructions</p>
+<strong>Content:</strong></p>
+<ul>
+<li>Overview of all enhancements</li>
+<li>Before/after comparison</li>
+<li>Performance metrics</li>
+<li>Migration guide</li>
+<li>Quick start instructions</li>
+</ul>
 <h4 id="4-homeusersahool-unified-v15-idpsharedauthquick_reference_guardsmd">4. <code>/home/user/sahool-unified-v15-idp/shared/auth/QUICK_REFERENCE_GUARDS.md</code><a class="headerlink" href="#4-homeusersahool-unified-v15-idpsharedauthquick_reference_guardsmd" title="Permanent link">&para;</a></h4>
 <p><strong>Size:</strong> 7.4 KB
-<strong>Content:</strong>
-- Quick reference for common operations
-- Code snippets for Python and TypeScript
-- Environment variables
-- Troubleshooting commands</p>
+<strong>Content:</strong></p>
+<ul>
+<li>Quick reference for common operations</li>
+<li>Code snippets for Python and TypeScript</li>
+<li>Environment variables</li>
+<li>Troubleshooting commands</li>
+</ul>
 <hr />
 <h2 id="files-modified">Files Modified / الملفات المعدلة<a class="headerlink" href="#files-modified" title="Permanent link">&para;</a></h2>
 <h3 id="python-files-2-files">Python Files (2 files)<a class="headerlink" href="#python-files-2-files" title="Permanent link">&para;</a></h3>
 <h4 id="1-homeusersahool-unified-v15-idpsharedauthdependenciespy">1. <code>/home/user/sahool-unified-v15-idp/shared/auth/dependencies.py</code><a class="headerlink" href="#1-homeusersahool-unified-v15-idpsharedauthdependenciespy" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Added logging import and setup
-- ✅ Added user_cache and user_repository imports
-- ✅ Enhanced <code>get_current_user()</code> with database validation
-- ✅ Added cache checking logic
-- ✅ Added user status validation (active, verified, deleted, suspended)
-- ✅ Enhanced RateLimiter class with violation tracking
-- ✅ Enhanced <code>rate_limit_dependency()</code> with detailed logging
-- ✅ Added rate limit headers to responses</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Added logging import and setup</li>
+<li>✅ Added user_cache and user_repository imports</li>
+<li>✅ Enhanced <code>get_current_user()</code> with database validation</li>
+<li>✅ Added cache checking logic</li>
+<li>✅ Added user status validation (active, verified, deleted, suspended)</li>
+<li>✅ Enhanced RateLimiter class with violation tracking</li>
+<li>✅ Enhanced <code>rate_limit_dependency()</code> with detailed logging</li>
+<li>✅ Added rate limit headers to responses</li>
+</ul>
 <p><strong>Key Enhancements:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
     <span class="c1"># 1. Verify token</span>
@@ -1286,11 +1302,13 @@
 </code></pre></div>
 
 <h4 id="2-homeusersahool-unified-v15-idpsharedauth__init__py">2. <code>/home/user/sahool-unified-v15-idp/shared/auth/__init__.py</code><a class="headerlink" href="#2-homeusersahool-unified-v15-idpsharedauth__init__py" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Added module docstring with enhancement description
-- ✅ Added user_cache imports
-- ✅ Added user_repository imports
-- ✅ Updated <strong>all</strong> exports</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Added module docstring with enhancement description</li>
+<li>✅ Added user_cache imports</li>
+<li>✅ Added user_repository imports</li>
+<li>✅ Updated <strong>all</strong> exports</li>
+</ul>
 <p><strong>New Exports:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># User Cache</span>
 <span class="s2">&quot;UserCache&quot;</span><span class="p">,</span>
@@ -1308,14 +1326,16 @@
 
 <h3 id="typescript-files-2-files">TypeScript Files (2 files)<a class="headerlink" href="#typescript-files-2-files" title="Permanent link">&para;</a></h3>
 <h4 id="1-homeusersahool-unified-v15-idpsharedauthjwtstrategyts">1. <code>/home/user/sahool-unified-v15-idp/shared/auth/jwt.strategy.ts</code><a class="headerlink" href="#1-homeusersahool-unified-v15-idpsharedauthjwtstrategyts" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Added enhanced module docstring
-- ✅ Added Logger import
-- ✅ Added UserValidationService import
-- ✅ Added logger to JwtStrategy class
-- ✅ Enhanced <code>validate()</code> method with database validation
-- ✅ Added comprehensive error logging
-- ✅ Added cache and database integration</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Added enhanced module docstring</li>
+<li>✅ Added Logger import</li>
+<li>✅ Added UserValidationService import</li>
+<li>✅ Added logger to JwtStrategy class</li>
+<li>✅ Enhanced <code>validate()</code> method with database validation</li>
+<li>✅ Added comprehensive error logging</li>
+<li>✅ Added cache and database integration</li>
+</ul>
 <p><strong>Key Enhancements:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kd">@Injectable</span><span class="p">()</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">JwtStrategy</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">PassportStrategy</span><span class="p">(</span><span class="nx">Strategy</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1345,16 +1365,18 @@
 </code></pre></div>
 
 <h4 id="2-homeusersahool-unified-v15-idpsharedauthjwtguardts">2. <code>/home/user/sahool-unified-v15-idp/shared/auth/jwt.guard.ts</code><a class="headerlink" href="#2-homeusersahool-unified-v15-idpsharedauthjwtguardts" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Added enhanced module docstring
-- ✅ Added Logger import
-- ✅ Added logger to JwtAuthGuard class
-- ✅ Enhanced <code>handleRequest()</code> with detailed logging
-- ✅ Added request context to error logs
-- ✅ Added path and method to log messages</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Added enhanced module docstring</li>
+<li>✅ Added Logger import</li>
+<li>✅ Added logger to JwtAuthGuard class</li>
+<li>✅ Enhanced <code>handleRequest()</code> with detailed logging</li>
+<li>✅ Added request context to error logs</li>
+<li>✅ Added path and method to log messages</li>
+</ul>
 <p><strong>Key Enhancements:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kd">@Injectable</span><span class="p">()</span>
-<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">AuthGuard</span><span class="p">(</span><span class="s1">&#39;jwt&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">AuthGuard</span><span class="p">(</span><span class="s2">&quot;jwt&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Logger</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
 
 <span class="w">  </span><span class="nx">handleRequest</span><span class="p">(</span><span class="nx">err</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="kt">ExecutionContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1365,14 +1387,14 @@
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="nx">user</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Log detailed error with context</span>
 <span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span>
-<span class="w">        </span><span class="sb">`Authentication failed [</span><span class="si">${</span><span class="nx">method</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">path</span><span class="si">}</span><span class="sb">]: </span><span class="si">${</span><span class="nx">info</span><span class="o">?</span><span class="p">.</span><span class="nx">message</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">        </span><span class="sb">`Authentication failed [</span><span class="si">${</span><span class="nx">method</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">path</span><span class="si">}</span><span class="sb">]: </span><span class="si">${</span><span class="nx">info</span><span class="o">?</span><span class="p">.</span><span class="nx">message</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span>
 <span class="w">      </span><span class="p">);</span>
 <span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">();</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// Log success</span>
 <span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span>
-<span class="w">      </span><span class="sb">`Authentication successful [</span><span class="si">${</span><span class="nx">method</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">path</span><span class="si">}</span><span class="sb">]: User </span><span class="si">${</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">      </span><span class="sb">`Authentication successful [</span><span class="si">${</span><span class="nx">method</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">path</span><span class="si">}</span><span class="sb">]: User </span><span class="si">${</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span>
 <span class="w">    </span><span class="p">);</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">user</span><span class="p">;</span>
@@ -1798,28 +1820,36 @@ JWT_ALGORITHM=HS256
 <hr />
 <h2 id="changelog">Changelog / سجل التغييرات<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h2>
 <h3 id="version-100-2024-12-27">Version 1.0.0 - 2024-12-27<a class="headerlink" href="#version-100-2024-12-27" title="Permanent link">&para;</a></h3>
-<p><strong>Added:</strong>
-- ✅ User cache service with Redis
-- ✅ User repository for database access
-- ✅ Enhanced JWT strategy with validation
-- ✅ Enhanced FastAPI dependencies with validation
-- ✅ Comprehensive logging
-- ✅ Improved rate limiting
-- ✅ TypeScript user validation service
-- ✅ Complete documentation (4 files)</p>
-<p><strong>Modified:</strong>
-- ✅ dependencies.py - Added validation logic
-- ✅ <strong>init</strong>.py - Added new exports
-- ✅ jwt.strategy.ts - Added validation logic
-- ✅ jwt.guard.ts - Added logging</p>
-<p><strong>Performance:</strong>
-- ✅ 92% faster for cached requests
-- ✅ +6ms average with 95% cache hit rate</p>
-<p><strong>Security:</strong>
-- ✅ 100% security coverage
-- ✅ Database validation
-- ✅ User status checks
-- ✅ Detailed audit logs</p>
+<p><strong>Added:</strong></p>
+<ul>
+<li>✅ User cache service with Redis</li>
+<li>✅ User repository for database access</li>
+<li>✅ Enhanced JWT strategy with validation</li>
+<li>✅ Enhanced FastAPI dependencies with validation</li>
+<li>✅ Comprehensive logging</li>
+<li>✅ Improved rate limiting</li>
+<li>✅ TypeScript user validation service</li>
+<li>✅ Complete documentation (4 files)</li>
+</ul>
+<p><strong>Modified:</strong></p>
+<ul>
+<li>✅ dependencies.py - Added validation logic</li>
+<li>✅ <strong>init</strong>.py - Added new exports</li>
+<li>✅ jwt.strategy.ts - Added validation logic</li>
+<li>✅ jwt.guard.ts - Added logging</li>
+</ul>
+<p><strong>Performance:</strong></p>
+<ul>
+<li>✅ 92% faster for cached requests</li>
+<li>✅ +6ms average with 95% cache hit rate</li>
+</ul>
+<p><strong>Security:</strong></p>
+<ul>
+<li>✅ 100% security coverage</li>
+<li>✅ Database validation</li>
+<li>✅ User status checks</li>
+<li>✅ Detailed audit logs</li>
+</ul>
 <hr />
 <h2 id="conclusion">Conclusion / الخلاصة<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
 <h3 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h3>

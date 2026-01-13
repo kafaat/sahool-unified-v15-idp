@@ -1615,13 +1615,13 @@ SERVICE_PORT=8XXX
 </code></pre></div>
 
 <h3 id="docker-composeyml">docker-compose.yml<a class="headerlink" href="#docker-composeyml" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.8&quot;</span>
 
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">my-service-original</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">build</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
-<span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dockerfile</span><span class="w">  </span><span class="c1"># للخدمة الأصلية</span>
+<span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dockerfile</span><span class="w"> </span><span class="c1"># للخدمة الأصلية</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8097:8097&quot;</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
@@ -1778,10 +1778,12 @@ SERVICE_PORT=8XXX
 
 <hr />
 <h2 id="support">📞 الدعم | Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>للمساعدة أو الاستفسارات:
-- راجع <a href="./FIELD_FIRST_ARCHITECTURE.md">FIELD_FIRST_ARCHITECTURE.md</a>
-- راجع <a href="./SERVICE_ACTIVATION_MAP.md">SERVICE_ACTIVATION_MAP.md</a>
-- افتح Issue في المستودع</p>
+<p>للمساعدة أو الاستفسارات:</p>
+<ul>
+<li>راجع <a href="./FIELD_FIRST_ARCHITECTURE.md">FIELD_FIRST_ARCHITECTURE.md</a></li>
+<li>راجع <a href="./SERVICE_ACTIVATION_MAP.md">SERVICE_ACTIVATION_MAP.md</a></li>
+<li>افتح Issue في المستودع</li>
+</ul>
 <hr />
 <p><strong>آخر تحديث | Last Updated:</strong> 2024-01-20
 <strong>الإصدار | Version:</strong> 15.5.0</p>

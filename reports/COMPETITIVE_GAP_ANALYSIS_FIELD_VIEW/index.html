@@ -1337,21 +1337,25 @@
 <span class="c1">// TODO: Add interactive features like polygon editing</span>
 </code></pre></div>
 
-<p><strong>المطلوب</strong>:
-- تكامل Leaflet/MapLibre مع طبقات NDVI
-- أدوات رسم وتحرير الحدود
-- نقر على الحقل → تفاصيل فورية
-- طبقات متعددة قابلة للتبديل</p>
+<p><strong>المطلوب</strong>:</p>
+<ul>
+<li>تكامل Leaflet/MapLibre مع طبقات NDVI</li>
+<li>أدوات رسم وتحرير الحدود</li>
+<li>نقر على الحقل → تفاصيل فورية</li>
+<li>طبقات متعددة قابلة للتبديل</li>
+</ul>
 <hr />
 <h4 id="2-health-zones">🔴 فجوة 2: عرض المناطق (Health Zones) على الواجهة<a class="headerlink" href="#2-health-zones" title="Permanent link">&para;</a></h4>
 <p><strong>الوضع الحالي</strong>: Backend يحسب، لا يوجد عرض UI
 <strong>التأثير</strong>: Farmonaut يتفوق في هذه النقطة
 <strong>الأولوية</strong>: <strong>عالية</strong></p>
-<p><strong>المطلوب</strong>:
-- تقسيم الحقل بصرياً حسب صحة NDVI
-- ألوان متدرجة (أخضر → أصفر → أحمر)
-- نقر على منطقة → تفاصيل + توصيات
-- مقارنة زمنية للمناطق</p>
+<p><strong>المطلوب</strong>:</p>
+<ul>
+<li>تقسيم الحقل بصرياً حسب صحة NDVI</li>
+<li>ألوان متدرجة (أخضر → أصفر → أحمر)</li>
+<li>نقر على منطقة → تفاصيل + توصيات</li>
+<li>مقارنة زمنية للمناطق</li>
+</ul>
 <hr />
 <h4 id="3-ndvi">🔴 فجوة 3: إنشاء مهام من NDVI<a class="headerlink" href="#3-ndvi" title="Permanent link">&para;</a></h4>
 <p><strong>الوضع الحالي</strong>: لا يوجد ربط
@@ -1678,12 +1682,12 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/features/fields/hooks/useLivingFieldScore.ts</span>
 
 <span class="kd">interface</span><span class="w"> </span><span class="nx">LivingFieldScore</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">overall</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">          </span><span class="c1">// 0-100</span>
-<span class="w">  </span><span class="nx">health</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">           </span><span class="c1">// من NDVI</span>
-<span class="w">  </span><span class="nx">hydration</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">        </span><span class="c1">// من الري والتربة</span>
-<span class="w">  </span><span class="nx">attention</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">        </span><span class="c1">// من المهام المعلقة</span>
-<span class="w">  </span><span class="nx">astral</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">           </span><span class="c1">// من التقويم الفلكي</span>
-<span class="w">  </span><span class="nx">trend</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;improving&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;stable&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;declining&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">overall</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="c1">// 0-100</span>
+<span class="w">  </span><span class="nx">health</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="c1">// من NDVI</span>
+<span class="w">  </span><span class="nx">hydration</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="c1">// من الري والتربة</span>
+<span class="w">  </span><span class="nx">attention</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="c1">// من المهام المعلقة</span>
+<span class="w">  </span><span class="nx">astral</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="c1">// من التقويم الفلكي</span>
+<span class="w">  </span><span class="nx">trend</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;improving&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;stable&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;declining&quot;</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">alerts</span><span class="o">:</span><span class="w"> </span><span class="kt">FieldAlert</span><span class="p">[];</span>
 <span class="w">  </span><span class="nx">recommendations</span><span class="o">:</span><span class="w"> </span><span class="kt">Recommendation</span><span class="p">[];</span>
 <span class="p">}</span>
@@ -1701,12 +1705,11 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">attentionScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">calculateAttentionScore</span><span class="p">(</span><span class="nx">tasks</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">astralScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">calculateAstralScore</span><span class="p">(</span><span class="nx">astral</span><span class="p">);</span>
 
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">overall</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span>
-<span class="w">      </span><span class="nx">healthScore</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.35</span><span class="w"> </span><span class="o">+</span><span class="w">      </span><span class="c1">// الصحة: 35%</span>
-<span class="w">      </span><span class="nx">hydrationScore</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.25</span><span class="w"> </span><span class="o">+</span><span class="w">   </span><span class="c1">// الري: 25%</span>
-<span class="w">      </span><span class="nx">attentionScore</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.20</span><span class="w"> </span><span class="o">+</span><span class="w">   </span><span class="c1">// الاهتمام: 20%</span>
-<span class="w">      </span><span class="nx">astralScore</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.20</span><span class="w">        </span><span class="c1">// الفلكي: 20%</span>
-<span class="w">    </span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">overall</span><span class="w"> </span><span class="o">=</span>
+<span class="w">      </span><span class="nx">healthScore</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.35</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="c1">// الصحة: 35%</span>
+<span class="w">      </span><span class="nx">hydrationScore</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.25</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="c1">// الري: 25%</span>
+<span class="w">      </span><span class="nx">attentionScore</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="c1">// الاهتمام: 20%</span>
+<span class="w">      </span><span class="nx">astralScore</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.2</span><span class="p">;</span><span class="w"> </span><span class="c1">// الفلكي: 20%</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">overall</span><span class="o">:</span><span class="w"> </span><span class="kt">Math.round</span><span class="p">(</span><span class="nx">overall</span><span class="p">),</span>
@@ -1716,7 +1719,7 @@
 <span class="w">      </span><span class="nx">astral</span><span class="o">:</span><span class="w"> </span><span class="kt">astralScore</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">trend</span><span class="o">:</span><span class="w"> </span><span class="kt">calculateTrend</span><span class="p">(</span><span class="nx">fieldId</span><span class="p">),</span>
 <span class="w">      </span><span class="nx">alerts</span><span class="o">:</span><span class="w"> </span><span class="kt">generateAlerts</span><span class="p">(</span><span class="nx">ndvi</span><span class="p">,</span><span class="w"> </span><span class="nx">irrigation</span><span class="p">,</span><span class="w"> </span><span class="nx">tasks</span><span class="p">),</span>
-<span class="w">      </span><span class="nx">recommendations</span><span class="o">:</span><span class="w"> </span><span class="kt">generateRecommendations</span><span class="p">(</span><span class="nx">overall</span><span class="p">,</span><span class="w"> </span><span class="nx">astral</span><span class="p">)</span>
+<span class="w">      </span><span class="nx">recommendations</span><span class="o">:</span><span class="w"> </span><span class="kt">generateRecommendations</span><span class="p">(</span><span class="nx">overall</span><span class="p">,</span><span class="w"> </span><span class="nx">astral</span><span class="p">),</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="nx">ndvi</span><span class="p">,</span><span class="w"> </span><span class="nx">irrigation</span><span class="p">,</span><span class="w"> </span><span class="nx">tasks</span><span class="p">,</span><span class="w"> </span><span class="nx">astral</span><span class="p">,</span><span class="w"> </span><span class="nx">weather</span><span class="p">]);</span>
 <span class="p">}</span>

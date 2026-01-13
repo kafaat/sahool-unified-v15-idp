@@ -1150,7 +1150,7 @@ pip-sync<span class="w"> </span>requirements.txt
 <p>Mobile app uses <code>pubspec.yaml</code> with <code>dependency_overrides</code> for compatibility:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Fix compatibility issues</span>
 <span class="nt">dependency_overrides</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">analyzer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^6.7.0</span><span class="w">  </span><span class="c1"># For mockito compatibility</span>
+<span class="w">  </span><span class="nt">analyzer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^6.7.0</span><span class="w"> </span><span class="c1"># For mockito compatibility</span>
 </code></pre></div>
 
 <hr />
@@ -1223,17 +1223,19 @@ aiohttp&gt;=3.11.12      # Security minimum
 
 <h3 id="caret-constraints">Caret Constraints (^)<a class="headerlink" href="#caret-constraints" title="Permanent link">&para;</a></h3>
 <p>Use in <strong>Flutter/Dart</strong> for minor updates:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">flutter_riverpod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.6.1</span><span class="w">  </span><span class="c1"># Allows 2.6.x, not 3.x</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">flutter_riverpod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.6.1</span><span class="w"> </span><span class="c1"># Allows 2.6.x, not 3.x</span>
 </code></pre></div>
 
 <hr />
 <h2 id="known-constraints">🚨 Known Constraints<a class="headerlink" href="#known-constraints" title="Permanent link">&para;</a></h2>
 <h3 id="numpy-210">NumPy &lt; 2.1.0<a class="headerlink" href="#numpy-210" title="Permanent link">&para;</a></h3>
 <p><strong>Reason:</strong> TensorFlow 2.18.0 requires <code>numpy&lt;2.1.0</code></p>
-<p><strong>Affected services:</strong>
-- <code>crop-health-ai</code>
-- <code>yield-engine</code>
-- <code>virtual-sensors</code></p>
+<p><strong>Affected services:</strong></p>
+<ul>
+<li><code>crop-health-ai</code></li>
+<li><code>yield-engine</code></li>
+<li><code>virtual-sensors</code></li>
+</ul>
 <p><strong>Resolution:</strong> Upgrade to TensorFlow 2.19.x when available</p>
 <h3 id="analyzer-670-flutter">Analyzer ^6.7.0 (Flutter)<a class="headerlink" href="#analyzer-670-flutter" title="Permanent link">&para;</a></h3>
 <p><strong>Reason:</strong> mockito 5.4.5 incompatible with analyzer 7.x</p>

@@ -1117,13 +1117,17 @@
 
 
 <h1 id="multi-region-multi-cluster-hci">Multi-Region / Multi-Cluster (HCI)<a class="headerlink" href="#multi-region-multi-cluster-hci" title="Permanent link">&para;</a></h1>
-<p>Included:
-- Argo CD ApplicationSet to deploy SAHOOL to multiple clusters
-- Cluster registry pattern for on-prem HCI</p>
-<p>Approach:
-- Register clusters in Argo CD
-- Use ApplicationSet to target clusters by labels (region=tehama, region=jawf, etc.)
-- Environment overlays remain in git (<code>gitops/environments/*</code>)</p>
+<p>Included:</p>
+<ul>
+<li>Argo CD ApplicationSet to deploy SAHOOL to multiple clusters</li>
+<li>Cluster registry pattern for on-prem HCI</li>
+</ul>
+<p>Approach:</p>
+<ul>
+<li>Register clusters in Argo CD</li>
+<li>Use ApplicationSet to target clusters by labels (region=tehama, region=jawf, etc.)</li>
+<li>Environment overlays remain in git (<code>gitops/environments/*</code>)</li>
+</ul>
 <p>This is safer than Kubernetes federation for most ops teams.</p>
 
 

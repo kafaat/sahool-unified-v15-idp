@@ -1156,18 +1156,24 @@
 </code></pre></div>
 
 <h4 id="error-reports-recommendations">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations" title="Permanent link">&para;</a></h4>
-<p><strong>Error: Connection refused</strong>
-- <strong>Cause:</strong> Service not ready or network issues
-- <strong>Fix:</strong> Check healthcheck, verify network connectivity
-- <strong>Recommendation:</strong> Use healthcheck endpoint before connecting</p>
-<p><strong>Error: PostGIS extension not found</strong>
-- <strong>Cause:</strong> Extension not initialized
-- <strong>Fix:</strong> Run <code>CREATE EXTENSION postgis;</code> in init script
-- <strong>Recommendation:</strong> Include in <code>/docker-entrypoint-initdb.d/</code> scripts</p>
-<p><strong>Error: Authentication failed</strong>
-- <strong>Cause:</strong> Wrong credentials
-- <strong>Fix:</strong> Verify POSTGRES_PASSWORD in .env file
-- <strong>Recommendation:</strong> Use strong passwords, rotate regularly</p>
+<p><strong>Error: Connection refused</strong></p>
+<ul>
+<li><strong>Cause:</strong> Service not ready or network issues</li>
+<li><strong>Fix:</strong> Check healthcheck, verify network connectivity</li>
+<li><strong>Recommendation:</strong> Use healthcheck endpoint before connecting</li>
+</ul>
+<p><strong>Error: PostGIS extension not found</strong></p>
+<ul>
+<li><strong>Cause:</strong> Extension not initialized</li>
+<li><strong>Fix:</strong> Run <code>CREATE EXTENSION postgis;</code> in init script</li>
+<li><strong>Recommendation:</strong> Include in <code>/docker-entrypoint-initdb.d/</code> scripts</li>
+</ul>
+<p><strong>Error: Authentication failed</strong></p>
+<ul>
+<li><strong>Cause:</strong> Wrong credentials</li>
+<li><strong>Fix:</strong> Verify POSTGRES_PASSWORD in .env file</li>
+<li><strong>Recommendation:</strong> Use strong passwords, rotate regularly</li>
+</ul>
 <hr />
 <h3 id="2-kong-api-gateway">2. Kong API Gateway<a class="headerlink" href="#2-kong-api-gateway" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-kong</code><br />
@@ -1187,14 +1193,18 @@
 <li><strong>Config:</strong> <code>/infra/kong/kong.yml</code></li>
 </ul>
 <h4 id="error-reports-recommendations_1">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_1" title="Permanent link">&para;</a></h4>
-<p><strong>Error: Service unavailable (503)</strong>
-- <strong>Cause:</strong> Backend service not responding
-- <strong>Fix:</strong> Check backend service health
-- <strong>Recommendation:</strong> Implement circuit breakers</p>
-<p><strong>Error: Rate limit exceeded (429)</strong>
-- <strong>Cause:</strong> Too many requests
-- <strong>Fix:</strong> Adjust rate limit configuration
-- <strong>Recommendation:</strong> Implement client-side retry with exponential backoff</p>
+<p><strong>Error: Service unavailable (503)</strong></p>
+<ul>
+<li><strong>Cause:</strong> Backend service not responding</li>
+<li><strong>Fix:</strong> Check backend service health</li>
+<li><strong>Recommendation:</strong> Implement circuit breakers</li>
+</ul>
+<p><strong>Error: Rate limit exceeded (429)</strong></p>
+<ul>
+<li><strong>Cause:</strong> Too many requests</li>
+<li><strong>Fix:</strong> Adjust rate limit configuration</li>
+<li><strong>Recommendation:</strong> Implement client-side retry with exponential backoff</li>
+</ul>
 <hr />
 <h3 id="3-nats-message-broker">3. NATS Message Broker<a class="headerlink" href="#3-nats-message-broker" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-nats</code><br />
@@ -1213,10 +1223,12 @@
 <li><strong>Topics:</strong> <code>sahool.fields.*</code>, <code>sahool.operations.*</code>, etc.</li>
 </ul>
 <h4 id="error-reports-recommendations_2">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_2" title="Permanent link">&para;</a></h4>
-<p><strong>Error: Connection timeout</strong>
-- <strong>Cause:</strong> NATS not ready or network issues
-- <strong>Fix:</strong> Wait for healthcheck, verify NATS_URL
-- <strong>Recommendation:</strong> Implement reconnection logic</p>
+<p><strong>Error: Connection timeout</strong></p>
+<ul>
+<li><strong>Cause:</strong> NATS not ready or network issues</li>
+<li><strong>Fix:</strong> Wait for healthcheck, verify NATS_URL</li>
+<li><strong>Recommendation:</strong> Implement reconnection logic</li>
+</ul>
 <hr />
 <h3 id="4-redis-cache">4. Redis Cache<a class="headerlink" href="#4-redis-cache" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-redis</code><br />
@@ -1235,10 +1247,12 @@
 <li><strong>Connection:</strong> <code>redis://:PASSWORD@redis:6379/0</code></li>
 </ul>
 <h4 id="error-reports-recommendations_3">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_3" title="Permanent link">&para;</a></h4>
-<p><strong>Error: Authentication required</strong>
-- <strong>Cause:</strong> Missing or wrong password
-- <strong>Fix:</strong> Set REDIS_PASSWORD in .env
-- <strong>Recommendation:</strong> Use strong passwords</p>
+<p><strong>Error: Authentication required</strong></p>
+<ul>
+<li><strong>Cause:</strong> Missing or wrong password</li>
+<li><strong>Fix:</strong> Set REDIS_PASSWORD in .env</li>
+<li><strong>Recommendation:</strong> Use strong passwords</li>
+</ul>
 <hr />
 <h3 id="5-mqtt-broker">5. MQTT Broker<a class="headerlink" href="#5-mqtt-broker" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-mqtt</code><br />
@@ -1257,10 +1271,12 @@
 <li><strong>Topics:</strong> <code>sahool/sensors/#</code></li>
 </ul>
 <h4 id="error-reports-recommendations_4">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_4" title="Permanent link">&para;</a></h4>
-<p><strong>Error: Connection refused</strong>
-- <strong>Cause:</strong> Broker not ready or config error
-- <strong>Fix:</strong> Check mosquitto.conf, verify port mapping
-- <strong>Recommendation:</strong> Use authentication for production</p>
+<p><strong>Error: Connection refused</strong></p>
+<ul>
+<li><strong>Cause:</strong> Broker not ready or config error</li>
+<li><strong>Fix:</strong> Check mosquitto.conf, verify port mapping</li>
+<li><strong>Recommendation:</strong> Use authentication for production</li>
+</ul>
 <hr />
 <h2 id="core-services">Core Services<a class="headerlink" href="#core-services" title="Permanent link">&para;</a></h2>
 <h3 id="6-field-core-service">6. Field Core Service<a class="headerlink" href="#6-field-core-service" title="Permanent link">&para;</a></h3>
@@ -1276,15 +1292,17 @@
 <li>Multi-tenant field isolation</li>
 </ul>
 <h4 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h4>
-<p><strong>GET <code>/api/v1/fields</code></strong>
-- <strong>Description:</strong> List all fields with filtering
-- <strong>Query Parameters:</strong>
-  - <code>tenantId</code> (string, optional): Filter by tenant
-  - <code>status</code> (string, optional): Filter by status
-  - <code>cropType</code> (string, optional): Filter by crop type
-  - <code>limit</code> (number, default: 100): Pagination limit
-  - <code>offset</code> (number, default: 0): Pagination offset
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/api/v1/fields</code></strong></p>
+<ul>
+<li><strong>Description:</strong> List all fields with filtering</li>
+<li><strong>Query Parameters:</strong></li>
+<li><code>tenantId</code> (string, optional): Filter by tenant</li>
+<li><code>status</code> (string, optional): Filter by status</li>
+<li><code>cropType</code> (string, optional): Filter by crop type</li>
+<li><code>limit</code> (number, default: 100): Pagination limit</li>
+<li><code>offset</code> (number, default: 0): Pagination offset</li>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -1311,14 +1329,18 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/api/v1/fields/:id</code></strong>
-- <strong>Description:</strong> Get single field by ID
-- <strong>Response:</strong> Field object with ETag header
-- <strong>Headers:</strong>
-  - <code>ETag</code>: "field-id:version" (for optimistic locking)</p>
-<p><strong>POST <code>/api/v1/fields</code></strong>
-- <strong>Description:</strong> Create new field
-- <strong>Request Body:</strong></p>
+<p><strong>GET <code>/api/v1/fields/:id</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Get single field by ID</li>
+<li><strong>Response:</strong> Field object with ETag header</li>
+<li><strong>Headers:</strong></li>
+<li><code>ETag</code>: "field-id:version" (for optimistic locking)</li>
+</ul>
+<p><strong>POST <code>/api/v1/fields</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Create new field</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;South Field&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;tenantId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
@@ -1335,14 +1357,18 @@
 <ul>
 <li><strong>Response:</strong> Created field with ID and ETag</li>
 </ul>
-<p><strong>PUT <code>/api/v1/fields/:id</code></strong>
-- <strong>Description:</strong> Update field (requires If-Match header)
-- <strong>Headers:</strong>
-  - <code>If-Match</code>: ETag value from GET request
-- <strong>Response:</strong> Updated field with new ETag</p>
-<p><strong>DELETE <code>/api/v1/fields/:id</code></strong>
-- <strong>Description:</strong> Delete field
-- <strong>Response:</strong> 204 No Content</p>
+<p><strong>PUT <code>/api/v1/fields/:id</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Update field (requires If-Match header)</li>
+<li><strong>Headers:</strong></li>
+<li><code>If-Match</code>: ETag value from GET request</li>
+<li><strong>Response:</strong> Updated field with new ETag</li>
+</ul>
+<p><strong>DELETE <code>/api/v1/fields/:id</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Delete field</li>
+<li><strong>Response:</strong> 204 No Content</li>
+</ul>
 <h4 id="inputoutput-data-types">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types" title="Permanent link">&para;</a></h4>
 <p><strong>Field Model:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -1360,18 +1386,24 @@
 </code></pre></div>
 
 <h4 id="error-reports-recommendations_5">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_5" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 409 Conflict</strong>
-- <strong>Cause:</strong> ETag mismatch (optimistic locking conflict)
-- <strong>Fix:</strong> Fetch latest version, reapply changes
-- <strong>Recommendation:</strong> Implement conflict resolution UI</p>
-<p><strong>Error: 400 Invalid GeoJSON</strong>
-- <strong>Cause:</strong> Invalid polygon coordinates
-- <strong>Fix:</strong> Validate coordinates before sending
-- <strong>Recommendation:</strong> Use map UI for boundary drawing</p>
-<p><strong>Error: 404 Field not found</strong>
-- <strong>Cause:</strong> Field ID doesn't exist
-- <strong>Fix:</strong> Verify field ID
-- <strong>Recommendation:</strong> Refresh field list</p>
+<p><strong>Error: 409 Conflict</strong></p>
+<ul>
+<li><strong>Cause:</strong> ETag mismatch (optimistic locking conflict)</li>
+<li><strong>Fix:</strong> Fetch latest version, reapply changes</li>
+<li><strong>Recommendation:</strong> Implement conflict resolution UI</li>
+</ul>
+<p><strong>Error: 400 Invalid GeoJSON</strong></p>
+<ul>
+<li><strong>Cause:</strong> Invalid polygon coordinates</li>
+<li><strong>Fix:</strong> Validate coordinates before sending</li>
+<li><strong>Recommendation:</strong> Use map UI for boundary drawing</li>
+</ul>
+<p><strong>Error: 404 Field not found</strong></p>
+<ul>
+<li><strong>Cause:</strong> Field ID doesn't exist</li>
+<li><strong>Fix:</strong> Verify field ID</li>
+<li><strong>Recommendation:</strong> Refresh field list</li>
+</ul>
 <hr />
 <h3 id="7-field-operations-service">7. Field Operations Service<a class="headerlink" href="#7-field-operations-service" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-field-ops</code><br />
@@ -1385,12 +1417,14 @@
 <li>NATS event publishing</li>
 </ul>
 <h4 id="api-endpoints_1">API Endpoints<a class="headerlink" href="#api-endpoints_1" title="Permanent link">&para;</a></h4>
-<p><strong>GET <code>/fields</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>tenant_id</code> (required): Filter by tenant
-  - <code>skip</code> (default: 0): Pagination
-  - <code>limit</code> (default: 50, max: 100): Page size
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/fields</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>tenant_id</code> (required): Filter by tenant</li>
+<li><code>skip</code> (default: 0): Pagination</li>
+<li><code>limit</code> (default: 50, max: 100): Page size</li>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
@@ -1408,8 +1442,10 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/fields</code></strong>
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/fields</code></strong></p>
+<ul>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;New Field&quot;</span><span class="p">,</span>
@@ -1426,14 +1462,18 @@
 <ul>
 <li><strong>Response:</strong> Created field object</li>
 </ul>
-<p><strong>GET <code>/operations</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>field_id</code> (required)
-  - <code>status</code> (optional): Filter by status
-  - <code>skip</code>, <code>limit</code>: Pagination
-- <strong>Response:</strong> List of operations</p>
-<p><strong>POST <code>/operations</code></strong>
-- <strong>Request Body:</strong></p>
+<p><strong>GET <code>/operations</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>field_id</code> (required)</li>
+<li><code>status</code> (optional): Filter by status</li>
+<li><code>skip</code>, <code>limit</code>: Pagination</li>
+<li><strong>Response:</strong> List of operations</li>
+</ul>
+<p><strong>POST <code>/operations</code></strong></p>
+<ul>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
@@ -1443,9 +1483,11 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/operations/{operation_id}/complete</code></strong>
-- <strong>Description:</strong> Mark operation as completed
-- <strong>Response:</strong> Updated operation with completion date</p>
+<p><strong>POST <code>/operations/{operation_id}/complete</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Mark operation as completed</li>
+<li><strong>Response:</strong> Updated operation with completion date</li>
+</ul>
 <h4 id="inputoutput-data-types_1">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_1" title="Permanent link">&para;</a></h4>
 <p><strong>FieldCreate:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -1471,18 +1513,24 @@
 </code></pre></div>
 
 <h4 id="error-reports-recommendations_6">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_6" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 422 Validation Error</strong>
-- <strong>Cause:</strong> Invalid input data
-- <strong>Fix:</strong> Validate area_hectares &gt; 0, required fields present
-- <strong>Recommendation:</strong> Client-side validation before API call</p>
-<p><strong>Error: 404 Field not found</strong>
-- <strong>Cause:</strong> Field ID doesn't exist
-- <strong>Fix:</strong> Verify field_id before creating operation
-- <strong>Recommendation:</strong> Use field list endpoint to verify IDs</p>
-<p><strong>Error: NATS connection failed</strong>
-- <strong>Cause:</strong> NATS service unavailable
-- <strong>Fix:</strong> Check NATS health, verify NATS_URL
-- <strong>Recommendation:</strong> Make event publishing optional (graceful degradation)</p>
+<p><strong>Error: 422 Validation Error</strong></p>
+<ul>
+<li><strong>Cause:</strong> Invalid input data</li>
+<li><strong>Fix:</strong> Validate area_hectares &gt; 0, required fields present</li>
+<li><strong>Recommendation:</strong> Client-side validation before API call</li>
+</ul>
+<p><strong>Error: 404 Field not found</strong></p>
+<ul>
+<li><strong>Cause:</strong> Field ID doesn't exist</li>
+<li><strong>Fix:</strong> Verify field_id before creating operation</li>
+<li><strong>Recommendation:</strong> Use field list endpoint to verify IDs</li>
+</ul>
+<p><strong>Error: NATS connection failed</strong></p>
+<ul>
+<li><strong>Cause:</strong> NATS service unavailable</li>
+<li><strong>Fix:</strong> Check NATS health, verify NATS_URL</li>
+<li><strong>Recommendation:</strong> Make event publishing optional (graceful degradation)</li>
+</ul>
 <hr />
 <h3 id="8-task-service">8. Task Service<a class="headerlink" href="#8-task-service" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-task-service</code><br />
@@ -1496,17 +1544,19 @@
 <li>Task filtering and search</li>
 </ul>
 <h4 id="api-endpoints_2">API Endpoints<a class="headerlink" href="#api-endpoints_2" title="Permanent link">&para;</a></h4>
-<p><strong>GET <code>/api/v1/tasks</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>field_id</code> (optional): Filter by field
-  - <code>status</code> (optional): pending, in_progress, completed, cancelled, overdue
-  - <code>task_type</code> (optional): irrigation, fertilization, spraying, scouting, etc.
-  - <code>priority</code> (optional): low, medium, high, urgent
-  - <code>assigned_to</code> (optional): User ID
-  - <code>due_before</code>, <code>due_after</code> (optional): Date filters
-  - <code>limit</code> (default: 50, max: 100)
-  - <code>offset</code> (default: 0)
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/api/v1/tasks</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>field_id</code> (optional): Filter by field</li>
+<li><code>status</code> (optional): pending, in_progress, completed, cancelled, overdue</li>
+<li><code>task_type</code> (optional): irrigation, fertilization, spraying, scouting, etc.</li>
+<li><code>priority</code> (optional): low, medium, high, urgent</li>
+<li><code>assigned_to</code> (optional): User ID</li>
+<li><code>due_before</code>, <code>due_after</code> (optional): Date filters</li>
+<li><code>limit</code> (default: 50, max: 100)</li>
+<li><code>offset</code> (default: 0)</li>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
@@ -1523,7 +1573,7 @@
 <span class="w">      </span><span class="nt">&quot;scheduled_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;08:00&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">&quot;estimated_duration_minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-14T10:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;pump_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pump_2&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;water_volume_m3&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">}</span>
+<span class="w">      </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;pump_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pump_2&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;water_volume_m3&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
@@ -1532,8 +1582,10 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/api/v1/tasks</code></strong>
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/api/v1/tasks</code></strong></p>
+<ul>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pest Inspection&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;title_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;فحص الحشرات&quot;</span><span class="p">,</span>
@@ -1551,8 +1603,10 @@
 <ul>
 <li><strong>Response:</strong> Created task with task_id</li>
 </ul>
-<p><strong>POST <code>/api/v1/tasks/{task_id}/complete</code></strong>
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/api/v1/tasks/{task_id}/complete</code></strong></p>
+<ul>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;notes&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;No pests found&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;notes_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;لم يتم العثور على حشرات&quot;</span><span class="p">,</span>
@@ -1561,12 +1615,18 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/api/v1/tasks/{task_id}/start</code></strong>
-- <strong>Description:</strong> Mark task as in progress</p>
-<p><strong>GET <code>/api/v1/tasks/today</code></strong>
-- <strong>Description:</strong> Get tasks due today</p>
-<p><strong>GET <code>/api/v1/tasks/stats</code></strong>
-- <strong>Response:</strong></p>
+<p><strong>POST <code>/api/v1/tasks/{task_id}/start</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Mark task as in progress</li>
+</ul>
+<p><strong>GET <code>/api/v1/tasks/today</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Get tasks due today</li>
+</ul>
+<p><strong>GET <code>/api/v1/tasks/stats</code></strong></p>
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;pending&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
@@ -1582,21 +1642,31 @@
 </code></pre></div>
 
 <h4 id="inputoutput-data-types_2">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_2" title="Permanent link">&para;</a></h4>
-<p><strong>TaskType Enum:</strong>
-- irrigation, fertilization, spraying, scouting, maintenance, sampling, harvest, planting, other</p>
-<p><strong>TaskPriority Enum:</strong>
-- low, medium, high, urgent</p>
-<p><strong>TaskStatus Enum:</strong>
-- pending, in_progress, completed, cancelled, overdue</p>
+<p><strong>TaskType Enum:</strong></p>
+<ul>
+<li>irrigation, fertilization, spraying, scouting, maintenance, sampling, harvest, planting, other</li>
+</ul>
+<p><strong>TaskPriority Enum:</strong></p>
+<ul>
+<li>low, medium, high, urgent</li>
+</ul>
+<p><strong>TaskStatus Enum:</strong></p>
+<ul>
+<li>pending, in_progress, completed, cancelled, overdue</li>
+</ul>
 <h4 id="error-reports-recommendations_7">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_7" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 400 Task is not pending</strong>
-- <strong>Cause:</strong> Trying to start non-pending task
-- <strong>Fix:</strong> Check task status before starting
-- <strong>Recommendation:</strong> Disable start button for non-pending tasks</p>
-<p><strong>Error: 422 Validation Error</strong>
-- <strong>Cause:</strong> Invalid due_date format or missing required fields
-- <strong>Fix:</strong> Validate datetime format (ISO 8601)
-- <strong>Recommendation:</strong> Use date/time picker components</p>
+<p><strong>Error: 400 Task is not pending</strong></p>
+<ul>
+<li><strong>Cause:</strong> Trying to start non-pending task</li>
+<li><strong>Fix:</strong> Check task status before starting</li>
+<li><strong>Recommendation:</strong> Disable start button for non-pending tasks</li>
+</ul>
+<p><strong>Error: 422 Validation Error</strong></p>
+<ul>
+<li><strong>Cause:</strong> Invalid due_date format or missing required fields</li>
+<li><strong>Fix:</strong> Validate datetime format (ISO 8601)</li>
+<li><strong>Recommendation:</strong> Use date/time picker components</li>
+</ul>
 <hr />
 <h3 id="9-equipment-service">9. Equipment Service<a class="headerlink" href="#9-equipment-service" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-equipment-service</code><br />
@@ -1610,15 +1680,19 @@
 <li>QR code registration</li>
 </ul>
 <h4 id="api-endpoints_3">API Endpoints<a class="headerlink" href="#api-endpoints_3" title="Permanent link">&para;</a></h4>
-<p><strong>GET <code>/api/v1/equipment</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>equipment_type</code> (optional): tractor, pump, drone, harvester, etc.
-  - <code>status</code> (optional): operational, maintenance, inactive, repair
-  - <code>field_id</code> (optional): Filter by field
-  - <code>limit</code> (default: 50), <code>offset</code> (default: 0)
-- <strong>Response:</strong> List of equipment</p>
-<p><strong>POST <code>/api/v1/equipment</code></strong>
-- <strong>Request Body:</strong></p>
+<p><strong>GET <code>/api/v1/equipment</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>equipment_type</code> (optional): tractor, pump, drone, harvester, etc.</li>
+<li><code>status</code> (optional): operational, maintenance, inactive, repair</li>
+<li><code>field_id</code> (optional): Filter by field</li>
+<li><code>limit</code> (default: 50), <code>offset</code> (default: 0)</li>
+<li><strong>Response:</strong> List of equipment</li>
+</ul>
+<p><strong>POST <code>/api/v1/equipment</code></strong></p>
+<ul>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John Deere 8R 410&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;جون ديري 8R 410&quot;</span><span class="p">,</span>
@@ -1633,8 +1707,10 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/api/v1/equipment/alerts</code></strong>
-- <strong>Response:</strong> List of maintenance alerts</p>
+<p><strong>GET <code>/api/v1/equipment/alerts</code></strong></p>
+<ul>
+<li><strong>Response:</strong> List of maintenance alerts</li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;alerts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
@@ -1653,20 +1729,26 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/api/v1/equipment/{equipment_id}/telemetry</code></strong>
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/api/v1/equipment/{equipment_id}/telemetry</code></strong></p>
+<ul>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;fuel_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">75.0</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;hours&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1250.5</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span>
+<span class="w">  </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span>
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/api/v1/equipment/qr/{qr_code}</code></strong>
-- <strong>Description:</strong> Get equipment by QR code</p>
-<p><strong>POST <code>/api/v1/equipment/{equipment_id}/maintenance</code></strong>
-- <strong>Request Body:</strong></p>
+<p><strong>GET <code>/api/v1/equipment/qr/{qr_code}</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Get equipment by QR code</li>
+</ul>
+<p><strong>POST <code>/api/v1/equipment/{equipment_id}/maintenance</code></strong></p>
+<ul>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;maintenance_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oil_change&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Changed engine oil&quot;</span><span class="p">,</span>
@@ -1677,21 +1759,31 @@
 </code></pre></div>
 
 <h4 id="inputoutput-data-types_3">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_3" title="Permanent link">&para;</a></h4>
-<p><strong>EquipmentType Enum:</strong>
-- tractor, pump, drone, harvester, sprayer, pivot, sensor, vehicle, other</p>
-<p><strong>EquipmentStatus Enum:</strong>
-- operational, maintenance, inactive, repair</p>
-<p><strong>MaintenanceType Enum:</strong>
-- oil_change, filter_change, tire_check, battery_check, calibration, general_service, repair, other</p>
+<p><strong>EquipmentType Enum:</strong></p>
+<ul>
+<li>tractor, pump, drone, harvester, sprayer, pivot, sensor, vehicle, other</li>
+</ul>
+<p><strong>EquipmentStatus Enum:</strong></p>
+<ul>
+<li>operational, maintenance, inactive, repair</li>
+</ul>
+<p><strong>MaintenanceType Enum:</strong></p>
+<ul>
+<li>oil_change, filter_change, tire_check, battery_check, calibration, general_service, repair, other</li>
+</ul>
 <h4 id="error-reports-recommendations_8">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_8" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 404 Equipment not found</strong>
-- <strong>Cause:</strong> Invalid equipment_id or QR code
-- <strong>Fix:</strong> Verify equipment ID or scan QR code again
-- <strong>Recommendation:</strong> Implement QR scanner with error handling</p>
-<p><strong>Error: 422 Invalid telemetry data</strong>
-- <strong>Cause:</strong> Fuel percent out of range (0-100) or invalid coordinates
-- <strong>Fix:</strong> Validate ranges before sending
-- <strong>Recommendation:</strong> Client-side validation for telemetry input</p>
+<p><strong>Error: 404 Equipment not found</strong></p>
+<ul>
+<li><strong>Cause:</strong> Invalid equipment_id or QR code</li>
+<li><strong>Fix:</strong> Verify equipment ID or scan QR code again</li>
+<li><strong>Recommendation:</strong> Implement QR scanner with error handling</li>
+</ul>
+<p><strong>Error: 422 Invalid telemetry data</strong></p>
+<ul>
+<li><strong>Cause:</strong> Fuel percent out of range (0-100) or invalid coordinates</li>
+<li><strong>Fix:</strong> Validate ranges before sending</li>
+<li><strong>Recommendation:</strong> Client-side validation for telemetry input</li>
+</ul>
 <hr />
 <h2 id="application-services">Application Services<a class="headerlink" href="#application-services" title="Permanent link">&para;</a></h2>
 <h3 id="10-satellite-service">10. Satellite Service<a class="headerlink" href="#10-satellite-service" title="Permanent link">&para;</a></h3>
@@ -1707,13 +1799,15 @@
 <li>Time series analysis</li>
 </ul>
 <h4 id="api-endpoints_4">API Endpoints<a class="headerlink" href="#api-endpoints_4" title="Permanent link">&para;</a></h4>
-<p><strong>POST <code>/v1/analyze</code></strong>
-- <strong>Description:</strong> Analyze field using satellite imagery
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/analyze</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Analyze field using satellite imagery</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;satellite&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sentinel-2&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;start_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-01&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;end_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
@@ -1738,7 +1832,7 @@
 <span class="w">    </span><span class="nt">&quot;ndvi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.72</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;ndwi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.45</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;evi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.68</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;savi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.70</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;savi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;lai&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;ndmi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.38</span>
 <span class="w">  </span><span class="p">},</span>
@@ -1750,20 +1844,28 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/v1/timeseries/{field_id}</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>start_date</code> (optional)
-  - <code>end_date</code> (optional)
-  - <code>satellite</code> (optional): sentinel-2, landsat-8, landsat-9, modis
-- <strong>Response:</strong> Time series data with NDVI trends</p>
-<p><strong>GET <code>/v1/satellites</code></strong>
-- <strong>Response:</strong> List of available satellites with configurations</p>
-<p><strong>POST <code>/v1/imagery/request</code></strong>
-- <strong>Description:</strong> Request satellite imagery for specific location
-- <strong>Response:</strong> Imagery request ID and status</p>
+<p><strong>GET <code>/v1/timeseries/{field_id}</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>start_date</code> (optional)</li>
+<li><code>end_date</code> (optional)</li>
+<li><code>satellite</code> (optional): sentinel-2, landsat-8, landsat-9, modis</li>
+<li><strong>Response:</strong> Time series data with NDVI trends</li>
+</ul>
+<p><strong>GET <code>/v1/satellites</code></strong></p>
+<ul>
+<li><strong>Response:</strong> List of available satellites with configurations</li>
+</ul>
+<p><strong>POST <code>/v1/imagery/request</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Request satellite imagery for specific location</li>
+<li><strong>Response:</strong> Imagery request ID and status</li>
+</ul>
 <h4 id="inputoutput-data-types_4">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_4" title="Permanent link">&para;</a></h4>
-<p><strong>SatelliteSource Enum:</strong>
-- sentinel-2, landsat-8, landsat-9, modis</p>
+<p><strong>SatelliteSource Enum:</strong></p>
+<ul>
+<li>sentinel-2, landsat-8, landsat-9, modis</li>
+</ul>
 <p><strong>VegetationIndices:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
   <span class="s2">&quot;ndvi&quot;</span><span class="p">:</span> <span class="nb">float</span> <span class="p">(</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
@@ -1776,18 +1878,24 @@
 </code></pre></div>
 
 <h4 id="error-reports-recommendations_9">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_9" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 400 Invalid coordinates</strong>
-- <strong>Cause:</strong> Latitude or longitude out of range
-- <strong>Fix:</strong> Validate coordinates: lat [-90, 90], lon [-180, 180]
-- <strong>Recommendation:</strong> Use map picker or GPS for coordinates</p>
-<p><strong>Error: 503 Service unavailable (EO-learn not configured)</strong>
-- <strong>Cause:</strong> Sentinel Hub credentials missing
-- <strong>Fix:</strong> Set PLANET_API_KEY and PLANET_CLIENT_ID
-- <strong>Recommendation:</strong> Graceful degradation - return mock data if credentials missing</p>
-<p><strong>Error: 504 Gateway timeout</strong>
-- <strong>Cause:</strong> Satellite data processing takes too long
-- <strong>Fix:</strong> Use background task processing, return analysis_id
-- <strong>Recommendation:</strong> Implement async pattern with status polling</p>
+<p><strong>Error: 400 Invalid coordinates</strong></p>
+<ul>
+<li><strong>Cause:</strong> Latitude or longitude out of range</li>
+<li><strong>Fix:</strong> Validate coordinates: lat [-90, 90], lon [-180, 180]</li>
+<li><strong>Recommendation:</strong> Use map picker or GPS for coordinates</li>
+</ul>
+<p><strong>Error: 503 Service unavailable (EO-learn not configured)</strong></p>
+<ul>
+<li><strong>Cause:</strong> Sentinel Hub credentials missing</li>
+<li><strong>Fix:</strong> Set PLANET_API_KEY and PLANET_CLIENT_ID</li>
+<li><strong>Recommendation:</strong> Graceful degradation - return mock data if credentials missing</li>
+</ul>
+<p><strong>Error: 504 Gateway timeout</strong></p>
+<ul>
+<li><strong>Cause:</strong> Satellite data processing takes too long</li>
+<li><strong>Fix:</strong> Use background task processing, return analysis_id</li>
+<li><strong>Recommendation:</strong> Implement async pattern with status polling</li>
+</ul>
 <hr />
 <h3 id="11-weather-advanced-service">11. Weather Advanced Service<a class="headerlink" href="#11-weather-advanced-service" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-weather-advanced</code><br />
@@ -1802,14 +1910,16 @@
 <li>Crop-specific calendar</li>
 </ul>
 <h4 id="api-endpoints_5">API Endpoints<a class="headerlink" href="#api-endpoints_5" title="Permanent link">&para;</a></h4>
-<p><strong>GET <code>/v1/current/{location_id}</code></strong>
-- <strong>Description:</strong> Get current weather for Yemen location
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/v1/current/{location_id}</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Get current weather for Yemen location</li>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;location_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sanaa&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;location_name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;صنعاء&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T12:00:00Z&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;temperature_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">22.5</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;feels_like_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">21.8</span><span class="p">,</span>
@@ -1822,14 +1932,18 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/v1/forecast/{location_id}</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>days</code> (default: 7, max: 14): Forecast days
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/v1/forecast/{location_id}</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>days</code> (default: 7, max: 14): Forecast days</li>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;location_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sanaa&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;generated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T12:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;current&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* CurrentWeather object */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;current&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* CurrentWeather object */</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;hourly_forecast&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">      </span><span class="nt">&quot;datetime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T13:00:00Z&quot;</span><span class="p">,</span>
@@ -1858,24 +1972,36 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/v1/alerts/{location_id}</code></strong>
-- <strong>Response:</strong> List of weather alerts (heat waves, frost, storms, etc.)</p>
-<p><strong>GET <code>/v1/locations</code></strong>
-- <strong>Response:</strong> List of all 22 Yemen governorates with coordinates</p>
+<p><strong>GET <code>/v1/alerts/{location_id}</code></strong></p>
+<ul>
+<li><strong>Response:</strong> List of weather alerts (heat waves, frost, storms, etc.)</li>
+</ul>
+<p><strong>GET <code>/v1/locations</code></strong></p>
+<ul>
+<li><strong>Response:</strong> List of all 22 Yemen governorates with coordinates</li>
+</ul>
 <h4 id="inputoutput-data-types_5">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_5" title="Permanent link">&para;</a></h4>
-<p><strong>Yemen Locations:</strong>
-- sanaa, aden, taiz, hodeidah, ibb, dhamar, hadramaut, marib, hajjah, saadah, lahj, abyan, and 10 more</p>
-<p><strong>AlertType Enum:</strong>
-- heat_wave, frost, heavy_rain, drought, high_wind, high_humidity, low_humidity, dust_storm</p>
+<p><strong>Yemen Locations:</strong></p>
+<ul>
+<li>sanaa, aden, taiz, hodeidah, ibb, dhamar, hadramaut, marib, hajjah, saadah, lahj, abyan, and 10 more</li>
+</ul>
+<p><strong>AlertType Enum:</strong></p>
+<ul>
+<li>heat_wave, frost, heavy_rain, drought, high_wind, high_humidity, low_humidity, dust_storm</li>
+</ul>
 <h4 id="error-reports-recommendations_10">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_10" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 404 Location not found</strong>
-- <strong>Cause:</strong> Invalid location_id
-- <strong>Fix:</strong> Use <code>/v1/locations</code> to get valid location IDs
-- <strong>Recommendation:</strong> Auto-detect location from GPS or use location picker</p>
-<p><strong>Error: 503 Weather API unavailable</strong>
-- <strong>Cause:</strong> External weather API (Open-Meteo/OpenWeatherMap) down
-- <strong>Fix:</strong> Check API keys, implement fallback
-- <strong>Recommendation:</strong> Cache weather data, use last known values</p>
+<p><strong>Error: 404 Location not found</strong></p>
+<ul>
+<li><strong>Cause:</strong> Invalid location_id</li>
+<li><strong>Fix:</strong> Use <code>/v1/locations</code> to get valid location IDs</li>
+<li><strong>Recommendation:</strong> Auto-detect location from GPS or use location picker</li>
+</ul>
+<p><strong>Error: 503 Weather API unavailable</strong></p>
+<ul>
+<li><strong>Cause:</strong> External weather API (Open-Meteo/OpenWeatherMap) down</li>
+<li><strong>Fix:</strong> Check API keys, implement fallback</li>
+<li><strong>Recommendation:</strong> Cache weather data, use last known values</li>
+</ul>
 <hr />
 <h3 id="12-crop-health-ai-service-sahool-vision">12. Crop Health AI Service (Sahool Vision)<a class="headerlink" href="#12-crop-health-ai-service-sahool-vision" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-crop-health-ai</code><br />
@@ -1889,17 +2015,19 @@
 <li>Crop-specific disease database</li>
 </ul>
 <h4 id="api-endpoints_6">API Endpoints<a class="headerlink" href="#api-endpoints_6" title="Permanent link">&para;</a></h4>
-<p><strong>POST <code>/v1/diagnose</code></strong>
-- <strong>Description:</strong> Diagnose plant disease from image
-- <strong>Content-Type:</strong> <code>multipart/form-data</code>
-- <strong>Form Data:</strong>
-  - <code>image</code> (file, required): Plant image (max 10MB)
-  - <code>field_id</code> (string, optional)
-  - <code>crop_type</code> (enum, optional): tomato, wheat, coffee, etc.
-  - <code>symptoms</code> (string, optional): Description of symptoms
-  - <code>governorate</code> (string, optional): Yemen governorate
-  - <code>lat</code>, <code>lng</code> (float, optional): GPS coordinates
-- <strong>Response:</strong></p>
+<p><strong>POST <code>/v1/diagnose</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Diagnose plant disease from image</li>
+<li><strong>Content-Type:</strong> <code>multipart/form-data</code></li>
+<li><strong>Form Data:</strong></li>
+<li><code>image</code> (file, required): Plant image (max 10MB)</li>
+<li><code>field_id</code> (string, optional)</li>
+<li><code>crop_type</code> (enum, optional): tomato, wheat, coffee, etc.</li>
+<li><code>symptoms</code> (string, optional): Description of symptoms</li>
+<li><code>governorate</code> (string, optional): Yemen governorate</li>
+<li><code>lat</code>, <code>lng</code> (float, optional): GPS coordinates</li>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;diagnosis_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;diag_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
@@ -1938,40 +2066,58 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/v1/diagnose/batch</code></strong>
-- <strong>Description:</strong> Diagnose multiple images (max 20)
-- <strong>Form Data:</strong>
-  - <code>images</code> (files[]): Multiple image files
-  - <code>field_id</code> (optional)
-- <strong>Response:</strong> Array of diagnosis results</p>
-<p><strong>GET <code>/v1/crops</code></strong>
-- <strong>Response:</strong> List of supported crop types</p>
-<p><strong>GET <code>/v1/diseases</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>crop_type</code> (optional): Filter by crop
-- <strong>Response:</strong> List of diseases with details</p>
-<p><strong>GET <code>/v1/treatment/{treatment_id}</code></strong>
-- <strong>Response:</strong> Detailed treatment information</p>
+<p><strong>POST <code>/v1/diagnose/batch</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Diagnose multiple images (max 20)</li>
+<li><strong>Form Data:</strong></li>
+<li><code>images</code> (files[]): Multiple image files</li>
+<li><code>field_id</code> (optional)</li>
+<li><strong>Response:</strong> Array of diagnosis results</li>
+</ul>
+<p><strong>GET <code>/v1/crops</code></strong></p>
+<ul>
+<li><strong>Response:</strong> List of supported crop types</li>
+</ul>
+<p><strong>GET <code>/v1/diseases</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>crop_type</code> (optional): Filter by crop</li>
+<li><strong>Response:</strong> List of diseases with details</li>
+</ul>
+<p><strong>GET <code>/v1/treatment/{treatment_id}</code></strong></p>
+<ul>
+<li><strong>Response:</strong> Detailed treatment information</li>
+</ul>
 <h4 id="inputoutput-data-types_6">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_6" title="Permanent link">&para;</a></h4>
-<p><strong>CropType Enum:</strong>
-- tomato, wheat, coffee, qat, banana, cucumber, pepper, potato, corn, grapes, date_palm, mango, onion, garlic</p>
-<p><strong>Image Requirements:</strong>
-- Format: JPEG, PNG
-- Max size: 10MB
-- Recommended: Clear, well-lit photos of affected leaves/plants</p>
+<p><strong>CropType Enum:</strong></p>
+<ul>
+<li>tomato, wheat, coffee, qat, banana, cucumber, pepper, potato, corn, grapes, date_palm, mango, onion, garlic</li>
+</ul>
+<p><strong>Image Requirements:</strong></p>
+<ul>
+<li>Format: JPEG, PNG</li>
+<li>Max size: 10MB</li>
+<li>Recommended: Clear, well-lit photos of affected leaves/plants</li>
+</ul>
 <h4 id="error-reports-recommendations_11">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_11" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 400 Invalid image format</strong>
-- <strong>Cause:</strong> File is not an image or unsupported format
-- <strong>Fix:</strong> Validate image format client-side before upload
-- <strong>Recommendation:</strong> Use image picker with format validation</p>
-<p><strong>Error: 400 Image too large</strong>
-- <strong>Cause:</strong> File size &gt; 10MB
-- <strong>Fix:</strong> Compress/resize image before upload
-- <strong>Recommendation:</strong> Implement client-side image compression</p>
-<p><strong>Error: 503 Model not loaded</strong>
-- <strong>Cause:</strong> TensorFlow model failed to load
-- <strong>Fix:</strong> Check MODEL_PATH, verify model file exists
-- <strong>Recommendation:</strong> Health check should verify model loaded</p>
+<p><strong>Error: 400 Invalid image format</strong></p>
+<ul>
+<li><strong>Cause:</strong> File is not an image or unsupported format</li>
+<li><strong>Fix:</strong> Validate image format client-side before upload</li>
+<li><strong>Recommendation:</strong> Use image picker with format validation</li>
+</ul>
+<p><strong>Error: 400 Image too large</strong></p>
+<ul>
+<li><strong>Cause:</strong> File size &gt; 10MB</li>
+<li><strong>Fix:</strong> Compress/resize image before upload</li>
+<li><strong>Recommendation:</strong> Implement client-side image compression</li>
+</ul>
+<p><strong>Error: 503 Model not loaded</strong></p>
+<ul>
+<li><strong>Cause:</strong> TensorFlow model failed to load</li>
+<li><strong>Fix:</strong> Check MODEL_PATH, verify model file exists</li>
+<li><strong>Recommendation:</strong> Health check should verify model loaded</li>
+</ul>
 <hr />
 <h3 id="13-virtual-sensors-service">13. Virtual Sensors Service<a class="headerlink" href="#13-virtual-sensors-service" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-virtual-sensors</code><br />
@@ -1985,12 +2131,14 @@
 <li>Irrigation recommendations</li>
 </ul>
 <h4 id="api-endpoints_7">API Endpoints<a class="headerlink" href="#api-endpoints_7" title="Permanent link">&para;</a></h4>
-<p><strong>POST <code>/v1/et0/calculate</code></strong>
-- <strong>Description:</strong> Calculate reference evapotranspiration
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/et0/calculate</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Calculate reference evapotranspiration</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;temperature_max_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">28.0</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;temperature_min_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">18.0</span><span class="p">,</span>
@@ -2015,9 +2163,11 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/v1/etc/calculate</code></strong>
-- <strong>Description:</strong> Calculate crop evapotranspiration
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/etc/calculate</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Calculate crop evapotranspiration</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid_season&quot;</span><span class="p">,</span>
@@ -2037,9 +2187,11 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/v1/irrigation/recommend</code></strong>
-- <strong>Description:</strong> Get irrigation recommendation
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/irrigation/recommend</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Get irrigation recommendation</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
@@ -2048,7 +2200,9 @@
 <span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;last_irrigation_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-10&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;current_soil_moisture_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.0</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* optional */</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* optional */</span>
+<span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -2071,8 +2225,10 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/v1/crops</code></strong>
-- <strong>Response:</strong> List of crops with Kc coefficients</p>
+<p><strong>GET <code>/v1/crops</code></strong></p>
+<ul>
+<li><strong>Response:</strong> List of crops with Kc coefficients</li>
+</ul>
 <h4 id="inputoutput-data-types_7">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_7" title="Permanent link">&para;</a></h4>
 <p><strong>Crop Coefficients (Kc):</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -2085,14 +2241,18 @@
 </code></pre></div>
 
 <h4 id="error-reports-recommendations_12">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_12" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 422 Invalid growth stage</strong>
-- <strong>Cause:</strong> Growth stage not valid for crop
-- <strong>Fix:</strong> Use <code>/v1/crops</code> to get valid growth stages
-- <strong>Recommendation:</strong> Dropdown menu with valid stages</p>
-<p><strong>Error: 400 Invalid soil moisture</strong>
-- <strong>Cause:</strong> Soil moisture out of range (0-100%)
-- <strong>Fix:</strong> Validate input range
-- <strong>Recommendation:</strong> Use slider component (0-100%)</p>
+<p><strong>Error: 422 Invalid growth stage</strong></p>
+<ul>
+<li><strong>Cause:</strong> Growth stage not valid for crop</li>
+<li><strong>Fix:</strong> Use <code>/v1/crops</code> to get valid growth stages</li>
+<li><strong>Recommendation:</strong> Dropdown menu with valid stages</li>
+</ul>
+<p><strong>Error: 400 Invalid soil moisture</strong></p>
+<ul>
+<li><strong>Cause:</strong> Soil moisture out of range (0-100%)</li>
+<li><strong>Fix:</strong> Validate input range</li>
+<li><strong>Recommendation:</strong> Use slider component (0-100%)</li>
+</ul>
 <hr />
 <h3 id="14-irrigation-smart-service">14. Irrigation Smart Service<a class="headerlink" href="#14-irrigation-smart-service" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-irrigation-smart</code><br />
@@ -2106,9 +2266,11 @@
 <li>Water balance tracking</li>
 </ul>
 <h4 id="api-endpoints_8">API Endpoints<a class="headerlink" href="#api-endpoints_8" title="Permanent link">&para;</a></h4>
-<p><strong>POST <code>/v1/calculate</code></strong>
-- <strong>Description:</strong> Calculate irrigation needs
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/calculate</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Calculate irrigation needs</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
@@ -2142,9 +2304,11 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/v1/water-balance/{field_id}</code></strong>
-- <strong>Description:</strong> Get water balance for field
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/v1/water-balance/{field_id}</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Get water balance for field</li>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
@@ -2158,15 +2322,21 @@
 </code></pre></div>
 
 <h4 id="inputoutput-data-types_8">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_8" title="Permanent link">&para;</a></h4>
-<p><strong>IrrigationMethod Enum:</strong>
-- flood, drip, sprinkler, furrow, traditional</p>
-<p><strong>UrgencyLevel Enum:</strong>
-- low, medium, high, critical</p>
+<p><strong>IrrigationMethod Enum:</strong></p>
+<ul>
+<li>flood, drip, sprinkler, furrow, traditional</li>
+</ul>
+<p><strong>UrgencyLevel Enum:</strong></p>
+<ul>
+<li>low, medium, high, critical</li>
+</ul>
 <h4 id="error-reports-recommendations_13">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_13" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 422 Invalid crop type</strong>
-- <strong>Cause:</strong> Crop not supported
-- <strong>Fix:</strong> Use supported crop types from enum
-- <strong>Recommendation:</strong> Crop selection dropdown</p>
+<p><strong>Error: 422 Invalid crop type</strong></p>
+<ul>
+<li><strong>Cause:</strong> Crop not supported</li>
+<li><strong>Fix:</strong> Use supported crop types from enum</li>
+<li><strong>Recommendation:</strong> Crop selection dropdown</li>
+</ul>
 <hr />
 <h2 id="business-services">Business Services<a class="headerlink" href="#business-services" title="Permanent link">&para;</a></h2>
 <h3 id="15-billing-core-service">15. Billing Core Service<a class="headerlink" href="#15-billing-core-service" title="Permanent link">&para;</a></h3>
@@ -2182,10 +2352,12 @@
 <li>Payment processing (Stripe, bank transfer, mobile money)</li>
 </ul>
 <h4 id="api-endpoints_9">API Endpoints<a class="headerlink" href="#api-endpoints_9" title="Permanent link">&para;</a></h4>
-<p><strong>GET <code>/v1/plans</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>active_only</code> (default: true)
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/v1/plans</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>active_only</code> (default: true)</li>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;plans&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
@@ -2228,9 +2400,11 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/v1/tenants</code></strong>
-- <strong>Description:</strong> Create new tenant with subscription
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/tenants</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Create new tenant with subscription</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ahmed Farm&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;مزرعة أحمد&quot;</span><span class="p">,</span>
@@ -2254,8 +2428,10 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/v1/tenants/{tenant_id}/quota</code></strong>
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/v1/tenants/{tenant_id}/quota</code></strong></p>
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;plan&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Starter&quot;</span><span class="p">,</span>
@@ -2279,41 +2455,59 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/v1/tenants/{tenant_id}/invoices</code></strong>
-- <strong>Response:</strong> List of invoices</p>
-<p><strong>POST <code>/v1/payments</code></strong>
-- <strong>Description:</strong> Process payment
-- <strong>Request Body:</strong></p>
+<p><strong>GET <code>/v1/tenants/{tenant_id}/invoices</code></strong></p>
+<ul>
+<li><strong>Response:</strong> List of invoices</li>
+</ul>
+<p><strong>POST <code>/v1/payments</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Process payment</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;invoice_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;inv_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;amount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">29.0</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;credit_card&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;stripe_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tok_visa&quot;</span><span class="w">  </span><span class="c1">// Optional for Stripe</span>
+<span class="w">  </span><span class="nt">&quot;stripe_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tok_visa&quot;</span><span class="w"> </span><span class="c1">// Optional for Stripe</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h4 id="inputoutput-data-types_9">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_9" title="Permanent link">&para;</a></h4>
-<p><strong>PlanTier Enum:</strong>
-- free, starter, professional, enterprise</p>
-<p><strong>BillingCycle Enum:</strong>
-- monthly, quarterly, yearly</p>
-<p><strong>Currency Enum:</strong>
-- USD, YER (1 USD = 250 YER default)</p>
-<p><strong>PaymentMethod Enum:</strong>
-- credit_card, bank_transfer, mobile_money, cash</p>
+<p><strong>PlanTier Enum:</strong></p>
+<ul>
+<li>free, starter, professional, enterprise</li>
+</ul>
+<p><strong>BillingCycle Enum:</strong></p>
+<ul>
+<li>monthly, quarterly, yearly</li>
+</ul>
+<p><strong>Currency Enum:</strong></p>
+<ul>
+<li>USD, YER (1 USD = 250 YER default)</li>
+</ul>
+<p><strong>PaymentMethod Enum:</strong></p>
+<ul>
+<li>credit_card, bank_transfer, mobile_money, cash</li>
+</ul>
 <h4 id="error-reports-recommendations_14">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_14" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 429 Quota exceeded</strong>
-- <strong>Cause:</strong> Usage limit reached
-- <strong>Fix:</strong> Upgrade plan or wait for next billing cycle
-- <strong>Recommendation:</strong> Show upgrade prompt when limit reached</p>
-<p><strong>Error: 404 Tenant not found</strong>
-- <strong>Cause:</strong> Invalid tenant_id
-- <strong>Fix:</strong> Verify tenant_id from authentication token
-- <strong>Recommendation:</strong> Extract tenant_id from JWT token automatically</p>
-<p><strong>Error: 400 Payment failed</strong>
-- <strong>Cause:</strong> Stripe payment declined or insufficient funds
-- <strong>Fix:</strong> Verify payment method, check card details
-- <strong>Recommendation:</strong> Show user-friendly error messages</p>
+<p><strong>Error: 429 Quota exceeded</strong></p>
+<ul>
+<li><strong>Cause:</strong> Usage limit reached</li>
+<li><strong>Fix:</strong> Upgrade plan or wait for next billing cycle</li>
+<li><strong>Recommendation:</strong> Show upgrade prompt when limit reached</li>
+</ul>
+<p><strong>Error: 404 Tenant not found</strong></p>
+<ul>
+<li><strong>Cause:</strong> Invalid tenant_id</li>
+<li><strong>Fix:</strong> Verify tenant_id from authentication token</li>
+<li><strong>Recommendation:</strong> Extract tenant_id from JWT token automatically</li>
+</ul>
+<p><strong>Error: 400 Payment failed</strong></p>
+<ul>
+<li><strong>Cause:</strong> Stripe payment declined or insufficient funds</li>
+<li><strong>Fix:</strong> Verify payment method, check card details</li>
+<li><strong>Recommendation:</strong> Show user-friendly error messages</li>
+</ul>
 <hr />
 <h3 id="16-notification-service">16. Notification Service<a class="headerlink" href="#16-notification-service" title="Permanent link">&para;</a></h3>
 <p><strong>Container:</strong> <code>sahool-notification-service</code><br />
@@ -2328,15 +2522,19 @@
 <li>Irrigation reminders</li>
 </ul>
 <h4 id="api-endpoints_10">API Endpoints<a class="headerlink" href="#api-endpoints_10" title="Permanent link">&para;</a></h4>
-<p><strong>GET <code>/v1/notifications</code></strong>
-- <strong>Query Parameters:</strong>
-  - <code>page</code> (default: 1)
-  - <code>limit</code> (default: 20)
-  - <code>unread_only</code> (default: false)
-- <strong>Response:</strong> List of notifications</p>
-<p><strong>POST <code>/v1/notifications</code></strong>
-- <strong>Description:</strong> Create custom notification
-- <strong>Request Body:</strong></p>
+<p><strong>GET <code>/v1/notifications</code></strong></p>
+<ul>
+<li><strong>Query Parameters:</strong></li>
+<li><code>page</code> (default: 1)</li>
+<li><code>limit</code> (default: 20)</li>
+<li><code>unread_only</code> (default: false)</li>
+<li><strong>Response:</strong> List of notifications</li>
+</ul>
+<p><strong>POST <code>/v1/notifications</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Create custom notification</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;user_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;user_001&quot;</span><span class="p">],</span>
@@ -2348,18 +2546,24 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>GET <code>/v1/notifications/unread/count</code></strong>
-- <strong>Response:</strong></p>
+<p><strong>GET <code>/v1/notifications/unread/count</code></strong></p>
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>POST <code>/v1/notifications/{notification_id}/read</code></strong>
-- <strong>Description:</strong> Mark notification as read</p>
-<p><strong>POST <code>/push/register</code></strong>
-- <strong>Description:</strong> Register FCM token for push notifications
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/notifications/{notification_id}/read</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Mark notification as read</li>
+</ul>
+<p><strong>POST <code>/push/register</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Register FCM token for push notifications</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fcm_token_here&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;android&quot;</span><span class="p">,</span>
@@ -2368,15 +2572,21 @@
 </code></pre></div>
 
 <h4 id="inputoutput-data-types_10">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_10" title="Permanent link">&para;</a></h4>
-<p><strong>NotificationType Enum:</strong>
-- weather_alert, pest_outbreak, irrigation_reminder, crop_health, market_price, system, task_reminder</p>
-<p><strong>NotificationPriority Enum:</strong>
-- low, medium, high, critical</p>
+<p><strong>NotificationType Enum:</strong></p>
+<ul>
+<li>weather_alert, pest_outbreak, irrigation_reminder, crop_health, market_price, system, task_reminder</li>
+</ul>
+<p><strong>NotificationPriority Enum:</strong></p>
+<ul>
+<li>low, medium, high, critical</li>
+</ul>
 <h4 id="error-reports-recommendations_15">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_15" title="Permanent link">&para;</a></h4>
-<p><strong>Error: 400 Invalid FCM token</strong>
-- <strong>Cause:</strong> FCM token expired or invalid
-- <strong>Fix:</strong> Re-register token
-- <strong>Recommendation:</strong> Auto-refresh FCM token on app start</p>
+<p><strong>Error: 400 Invalid FCM token</strong></p>
+<ul>
+<li><strong>Cause:</strong> FCM token expired or invalid</li>
+<li><strong>Fix:</strong> Re-register token</li>
+<li><strong>Recommendation:</strong> Auto-refresh FCM token on app start</li>
+</ul>
 <hr />
 <h2 id="ai-analysis-services">AI &amp; Analysis Services<a class="headerlink" href="#ai-analysis-services" title="Permanent link">&para;</a></h2>
 <h3 id="17-yield-engine-service">17. Yield Engine Service<a class="headerlink" href="#17-yield-engine-service" title="Permanent link">&para;</a></h3>
@@ -2390,9 +2600,11 @@
 <li>Yield forecasting</li>
 </ul>
 <h4 id="api-endpoints_11">API Endpoints<a class="headerlink" href="#api-endpoints_11" title="Permanent link">&para;</a></h4>
-<p><strong>POST <code>/v1/predict</code></strong>
-- <strong>Description:</strong> Predict crop yield
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/predict</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Predict crop yield</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
@@ -2402,7 +2614,9 @@
 <span class="w">    </span><span class="nt">&quot;ph&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6.5</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;nitrogen_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">120.0</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* historical/forecast */</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* historical/forecast */</span>
+<span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -2434,9 +2648,11 @@
 <li>Cost estimation</li>
 </ul>
 <h4 id="api-endpoints_12">API Endpoints<a class="headerlink" href="#api-endpoints_12" title="Permanent link">&para;</a></h4>
-<p><strong>POST <code>/v1/recommend</code></strong>
-- <strong>Description:</strong> Get fertilizer recommendation
-- <strong>Request Body:</strong></p>
+<p><strong>POST <code>/v1/recommend</code></strong></p>
+<ul>
+<li><strong>Description:</strong> Get fertilizer recommendation</li>
+<li><strong>Request Body:</strong></li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
@@ -2468,7 +2684,7 @@
 <span class="w">      </span><span class="nt">&quot;application_method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;side_dressing&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">&quot;application_method_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;تسميد جانبي&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">&quot;timing_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;بعد 3 أسابيع من الزراعة&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;npk_content&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;N&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;P&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;K&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;npk_content&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;N&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;P&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;K&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;cost_estimate_yer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">150000.0</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
@@ -2505,25 +2721,33 @@
 <hr />
 <h2 id="common-error-patterns-solutions">Common Error Patterns &amp; Solutions<a class="headerlink" href="#common-error-patterns-solutions" title="Permanent link">&para;</a></h2>
 <h3 id="authentication-errors">Authentication Errors<a class="headerlink" href="#authentication-errors" title="Permanent link">&para;</a></h3>
-<p><strong>Error: 401 Unauthorized</strong>
-- <strong>Cause:</strong> Missing or invalid JWT token
-- <strong>Fix:</strong> Include <code>Authorization: Bearer &lt;token&gt;</code> header
-- <strong>Recommendation:</strong> Auto-refresh tokens before expiration</p>
+<p><strong>Error: 401 Unauthorized</strong></p>
+<ul>
+<li><strong>Cause:</strong> Missing or invalid JWT token</li>
+<li><strong>Fix:</strong> Include <code>Authorization: Bearer &lt;token&gt;</code> header</li>
+<li><strong>Recommendation:</strong> Auto-refresh tokens before expiration</li>
+</ul>
 <h3 id="rate-limiting">Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h3>
-<p><strong>Error: 429 Too Many Requests</strong>
-- <strong>Cause:</strong> API rate limit exceeded
-- <strong>Fix:</strong> Implement exponential backoff retry
-- <strong>Recommendation:</strong> Cache responses, batch requests</p>
+<p><strong>Error: 429 Too Many Requests</strong></p>
+<ul>
+<li><strong>Cause:</strong> API rate limit exceeded</li>
+<li><strong>Fix:</strong> Implement exponential backoff retry</li>
+<li><strong>Recommendation:</strong> Cache responses, batch requests</li>
+</ul>
 <h3 id="network-errors">Network Errors<a class="headerlink" href="#network-errors" title="Permanent link">&para;</a></h3>
-<p><strong>Error: Connection timeout</strong>
-- <strong>Cause:</strong> Service unavailable or network issues
-- <strong>Fix:</strong> Check service health, implement retry logic
-- <strong>Recommendation:</strong> Circuit breaker pattern for resilience</p>
+<p><strong>Error: Connection timeout</strong></p>
+<ul>
+<li><strong>Cause:</strong> Service unavailable or network issues</li>
+<li><strong>Fix:</strong> Check service health, implement retry logic</li>
+<li><strong>Recommendation:</strong> Circuit breaker pattern for resilience</li>
+</ul>
 <h3 id="validation-errors">Validation Errors<a class="headerlink" href="#validation-errors" title="Permanent link">&para;</a></h3>
-<p><strong>Error: 422 Unprocessable Entity</strong>
-- <strong>Cause:</strong> Invalid request data
-- <strong>Fix:</strong> Validate input client-side before sending
-- <strong>Recommendation:</strong> Use Pydantic models for validation</p>
+<p><strong>Error: 422 Unprocessable Entity</strong></p>
+<ul>
+<li><strong>Cause:</strong> Invalid request data</li>
+<li><strong>Fix:</strong> Validate input client-side before sending</li>
+<li><strong>Recommendation:</strong> Use Pydantic models for validation</li>
+</ul>
 <hr />
 <h2 id="api-best-practices">API Best Practices<a class="headerlink" href="#api-best-practices" title="Permanent link">&para;</a></h2>
 <ol>

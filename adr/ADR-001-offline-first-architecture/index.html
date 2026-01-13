@@ -1178,20 +1178,26 @@
 </ul>
 <h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
 <h3 id="alternative-1-online-only">Alternative 1: Online-Only<a class="headerlink" href="#alternative-1-online-only" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- Unusable in rural Yemen (60%+ of target users)
-- Data loss during connectivity issues
-- Poor UX with loading states</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Unusable in rural Yemen (60%+ of target users)</li>
+<li>Data loss during connectivity issues</li>
+<li>Poor UX with loading states</li>
+</ul>
 <h3 id="alternative-2-cache-first-read-offline-write-online">Alternative 2: Cache-First (Read Offline, Write Online)<a class="headerlink" href="#alternative-2-cache-first-read-offline-write-online" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- Cannot record field data offline
-- Partial functionality frustrates users
-- Complex UX for explaining limitations</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Cannot record field data offline</li>
+<li>Partial functionality frustrates users</li>
+<li>Complex UX for explaining limitations</li>
+</ul>
 <h3 id="alternative-3-pwa-with-service-workers">Alternative 3: PWA with Service Workers<a class="headerlink" href="#alternative-3-pwa-with-service-workers" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- Limited offline storage (quota issues)
-- Less reliable on Android (target platform)
-- Harder to implement complex sync</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Limited offline storage (quota issues)</li>
+<li>Less reliable on Android (target platform)</li>
+<li>Harder to implement complex sync</li>
+</ul>
 <h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Outbox pattern implementation</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">SyncOutbox</span><span class="w"> </span><span class="p">{</span>

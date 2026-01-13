@@ -1136,41 +1136,43 @@
 <li><strong>Common select patterns</strong> for frequently accessed entities</li>
 </ul>
 <h4 id="constants">Constants:<a class="headerlink" href="#constants" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="nx">MAX_PAGE_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100</span><span class="w">           </span><span class="c1">// Maximum items per page</span>
-<span class="nx">DEFAULT_PAGE_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">20</span><span class="w">        </span><span class="c1">// Default page size</span>
-<span class="nx">DEFAULT_QUERY_TIMEOUT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5000</span><span class="w">  </span><span class="c1">// 5 seconds for reads</span>
-<span class="nx">CRITICAL_WRITE_TIMEOUT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10000</span><span class="w"> </span><span class="c1">// 10 seconds for writes</span>
-<span class="nx">SLOW_QUERY_THRESHOLD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1000</span><span class="w">   </span><span class="c1">// 1 second for logging</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">MAX_PAGE_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100</span><span class="p">;</span><span class="w"> </span><span class="c1">// Maximum items per page</span>
+<span class="nx">DEFAULT_PAGE_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">20</span><span class="p">;</span><span class="w"> </span><span class="c1">// Default page size</span>
+<span class="nx">DEFAULT_QUERY_TIMEOUT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5000</span><span class="p">;</span><span class="w"> </span><span class="c1">// 5 seconds for reads</span>
+<span class="nx">CRITICAL_WRITE_TIMEOUT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10000</span><span class="p">;</span><span class="w"> </span><span class="c1">// 10 seconds for writes</span>
+<span class="nx">SLOW_QUERY_THRESHOLD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1000</span><span class="p">;</span><span class="w"> </span><span class="c1">// 1 second for logging</span>
 </code></pre></div>
 
 <h4 id="transaction-configurations">Transaction Configurations:<a class="headerlink" href="#transaction-configurations" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="nx">FINANCIAL_TRANSACTION_CONFIG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">isolationLevel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Serializable&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">isolationLevel</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Serializable&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">maxWait</span><span class="o">:</span><span class="w"> </span><span class="kt">5000</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">10000</span>
-<span class="p">}</span>
+<span class="w">  </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">10000</span><span class="p">,</span>
+<span class="p">};</span>
 
 <span class="nx">GENERAL_TRANSACTION_CONFIG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">isolationLevel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ReadCommitted&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">isolationLevel</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ReadCommitted&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">maxWait</span><span class="o">:</span><span class="w"> </span><span class="kt">3000</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">5000</span>
-<span class="p">}</span>
+<span class="w">  </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">5000</span><span class="p">,</span>
+<span class="p">};</span>
 
 <span class="nx">READ_TRANSACTION_CONFIG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">isolationLevel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ReadCommitted&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">isolationLevel</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ReadCommitted&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">maxWait</span><span class="o">:</span><span class="w"> </span><span class="kt">2000</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">3000</span>
-<span class="p">}</span>
+<span class="w">  </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">3000</span><span class="p">,</span>
+<span class="p">};</span>
 </code></pre></div>
 
 <h3 id="2-service-level-optimizations">2. Service-Level Optimizations<a class="headerlink" href="#2-service-level-optimizations" title="Permanent link">&para;</a></h3>
 <h4 id="user-service-appsservicesuser-servicesrcusersusersservicets">User Service (<code>apps/services/user-service/src/users/users.service.ts</code>)<a class="headerlink" href="#user-service-appsservicesuser-servicesrcusersusersservicets" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Added pagination with enforced limits to <code>findAll()</code>
-- ✅ Replaced <code>include</code> with <code>select</code> for field projection
-- ✅ Added total count and pagination metadata
-- ✅ Optimized queries in <code>create()</code>, <code>update()</code>, <code>findOne()</code>, <code>findByEmail()</code>
-- ✅ Reduced data transfer by ~60-70%</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Added pagination with enforced limits to <code>findAll()</code></li>
+<li>✅ Replaced <code>include</code> with <code>select</code> for field projection</li>
+<li>✅ Added total count and pagination metadata</li>
+<li>✅ Optimized queries in <code>create()</code>, <code>update()</code>, <code>findOne()</code>, <code>findByEmail()</code></li>
+<li>✅ Reduced data transfer by ~60-70%</li>
+</ul>
 <p><strong>Before:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="nx">findAll</span><span class="p">(</span><span class="nx">params</span><span class="o">?:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">skip?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="nx">take?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">})</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">User</span><span class="p">[]</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
@@ -1206,11 +1208,13 @@
 </code></pre></div>
 
 <h4 id="reviews-service-appsservicesmarketplace-servicesrcreviewsreviewsservicets">Reviews Service (<code>apps/services/marketplace-service/src/reviews/reviews.service.ts</code>)<a class="headerlink" href="#reviews-service-appsservicesmarketplace-servicesrcreviewsreviewsservicets" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Fixed critical N+1 query pattern in <code>updateProductSellerRating()</code>
-- ✅ Replaced 4 sequential queries with single aggregation query
-- ✅ Reduced query time from ~100ms to ~15ms (85% improvement)
-- ✅ Uses raw SQL with joins for optimal performance</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Fixed critical N+1 query pattern in <code>updateProductSellerRating()</code></li>
+<li>✅ Replaced 4 sequential queries with single aggregation query</li>
+<li>✅ Reduced query time from ~100ms to ~15ms (85% improvement)</li>
+<li>✅ Uses raw SQL with joins for optimal performance</li>
+</ul>
 <p><strong>Before (4 sequential queries):</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">updateProductSellerRating</span><span class="p">(</span><span class="nx">productId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">product</span><span class="p">.</span><span class="nx">findUnique</span><span class="p">({</span><span class="w"> </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">productId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">});</span>
@@ -1241,12 +1245,14 @@
 </code></pre></div>
 
 <h4 id="market-service-appsservicesmarketplace-servicesrcmarketmarketservicets">Market Service (<code>apps/services/marketplace-service/src/market/market.service.ts</code>)<a class="headerlink" href="#market-service-appsservicesmarketplace-servicesrcmarketmarketservicets" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Added pagination with limits to <code>findAllProducts()</code>
-- ✅ Added pagination to <code>getUserOrders()</code>
-- ✅ Added transaction timeout to <code>createOrder()</code>
-- ✅ Replaced deep <code>include</code> with <code>select</code> for field projection
-- ✅ Parallel query execution for data + count</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Added pagination with limits to <code>findAllProducts()</code></li>
+<li>✅ Added pagination to <code>getUserOrders()</code></li>
+<li>✅ Added transaction timeout to <code>createOrder()</code></li>
+<li>✅ Replaced deep <code>include</code> with <code>select</code> for field projection</li>
+<li>✅ Parallel query execution for data + count</li>
+</ul>
 <p><strong>Before:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="nx">getUserOrders</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">role</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;buyer&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;seller&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">order</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
@@ -1309,10 +1315,12 @@
 </code></pre></div>
 
 <h4 id="chat-service-appsserviceschat-servicesrcchatchatservicets">Chat Service (<code>apps/services/chat-service/src/chat/chat.service.ts</code>)<a class="headerlink" href="#chat-service-appsserviceschat-servicesrcchatchatservicets" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Added transaction timeout to <code>sendMessage()</code>
-- ✅ Already had excellent cursor-based pagination
-- ✅ Already optimized with <code>_count</code> aggregation</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Added transaction timeout to <code>sendMessage()</code></li>
+<li>✅ Already had excellent cursor-based pagination</li>
+<li>✅ Already optimized with <code>_count</code> aggregation</li>
+</ul>
 <p><strong>Before:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$transaction</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// ... message creation</span>
@@ -1326,9 +1334,11 @@
 </code></pre></div>
 
 <h4 id="research-core-service-appsservicesresearch-coresrcmodulesexperimentsexperimentsservicets">Research Core Service (<code>apps/services/research-core/src/modules/experiments/experiments.service.ts</code>)<a class="headerlink" href="#research-core-service-appsservicesresearch-coresrcmodulesexperimentsexperimentsservicets" title="Permanent link">&para;</a></h4>
-<p><strong>Changes:</strong>
-- ✅ Added pagination limit enforcement
-- ✅ Already had good pagination metadata</p>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>✅ Added pagination limit enforcement</li>
+<li>✅ Already had good pagination metadata</li>
+</ul>
 <p><strong>Before:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">filters</span><span class="o">?</span><span class="p">.</span><span class="nx">limit</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">20</span><span class="p">;</span>
 </code></pre></div>
@@ -1339,13 +1349,15 @@
 
 <h3 id="3-query-performance-logging">3. Query Performance Logging<a class="headerlink" href="#3-query-performance-logging" title="Permanent link">&para;</a></h3>
 <p>Added slow query logging to all PrismaService implementations:</p>
-<p><strong>Files Updated:</strong>
-- <code>/apps/services/user-service/src/prisma/prisma.service.ts</code>
-- <code>/apps/services/marketplace-service/src/prisma/prisma.service.ts</code>
-- <code>/apps/services/chat-service/src/prisma/prisma.service.ts</code>
-- <code>/apps/services/research-core/src/config/prisma.service.ts</code></p>
+<p><strong>Files Updated:</strong></p>
+<ul>
+<li><code>/apps/services/user-service/src/prisma/prisma.service.ts</code></li>
+<li><code>/apps/services/marketplace-service/src/prisma/prisma.service.ts</code></li>
+<li><code>/apps/services/chat-service/src/prisma/prisma.service.ts</code></li>
+<li><code>/apps/services/research-core/src/config/prisma.service.ts</code></li>
+</ul>
 <p><strong>Implementation:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-db&quot;</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">PrismaService</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Logger</span><span class="p">(</span><span class="nx">PrismaService</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
@@ -1353,10 +1365,10 @@
 <span class="w">  </span><span class="kr">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">super</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">log</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">emit</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;event&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">emit</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;stdout&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;warn&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">emit</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;stdout&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">emit</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;stdout&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">emit</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;event&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">emit</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;stdout&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">emit</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;stdout&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">emit</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;stdout&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">      </span><span class="p">],</span>
 <span class="w">    </span><span class="p">});</span>
 
@@ -1364,8 +1376,8 @@
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="nx">enableQueryLogging</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">));</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Query performance logging enabled (threshold: 1000ms)&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">));</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Query performance logging enabled (threshold: 1000ms)&quot;</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1498,7 +1510,7 @@
 <div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">FINANCIAL_TRANSACTION_CONFIG</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">GENERAL_TRANSACTION_CONFIG</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-db&quot;</span><span class="p">;</span>
 
 <span class="c1">// For financial operations</span>
 <span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$transaction</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -1512,18 +1524,18 @@
 </code></pre></div>
 
 <h3 id="using-select-helpers">Using Select Helpers<a class="headerlink" href="#using-select-helpers" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CommonSelects</span><span class="p">,</span><span class="w"> </span><span class="nx">createSelect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CommonSelects</span><span class="p">,</span><span class="w"> </span><span class="nx">createSelect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-db&quot;</span><span class="p">;</span>
 
 <span class="c1">// Use common patterns</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">findUnique</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">select</span><span class="o">:</span><span class="w"> </span><span class="kt">CommonSelects.userBasic</span>
+<span class="w">  </span><span class="nx">select</span><span class="o">:</span><span class="w"> </span><span class="kt">CommonSelects.userBasic</span><span class="p">,</span>
 <span class="p">});</span>
 
 <span class="c1">// Create custom select</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">customFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createSelect</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;email&#39;</span><span class="p">]);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">customFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createSelect</span><span class="p">([</span><span class="s2">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">]);</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">entity</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">select</span><span class="o">:</span><span class="w"> </span><span class="kt">customFields</span>
+<span class="w">  </span><span class="nx">select</span><span class="o">:</span><span class="w"> </span><span class="kt">customFields</span><span class="p">,</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1558,7 +1570,7 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// ❌ Bad - Over-fetching</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">findUnique</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">profile</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">profile</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// ✅ Good - Selective fetching</span>
@@ -1568,9 +1580,9 @@
 <span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">profile</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">select</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">avatar</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="nx">bio</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">      </span><span class="nx">select</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">avatar</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="nx">bio</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1594,7 +1606,7 @@
 <span class="c1">// ✅ Good - Parallel</span>
 <span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
 <span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">entity</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span><span class="w"> </span><span class="nx">skip</span><span class="p">,</span><span class="w"> </span><span class="nx">take</span><span class="w"> </span><span class="p">}),</span>
-<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">entity</span><span class="p">.</span><span class="nx">count</span><span class="p">()</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">entity</span><span class="p">.</span><span class="nx">count</span><span class="p">(),</span>
 <span class="p">]);</span>
 </code></pre></div>
 
@@ -1602,46 +1614,44 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// ❌ Bad - N+1 pattern</span>
 <span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">order</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">orders</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">orderItem</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">orderId</span><span class="o">:</span><span class="w"> </span><span class="kt">order.id</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">orderId</span><span class="o">:</span><span class="w"> </span><span class="kt">order.id</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">}</span>
 
 <span class="c1">// ✅ Good - Batch fetch</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">orderIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">orders</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">o</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">o</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">orderIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">orders</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">o</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">o</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">allItems</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">orderItem</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">orderId</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">in</span><span class="o">:</span><span class="w"> </span><span class="kt">orderIds</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">orderId</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">in</span><span class="o">:</span><span class="w"> </span><span class="kt">orderIds</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
 <h3 id="for-existing-services">For Existing Services<a class="headerlink" href="#for-existing-services" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Install Dependency:</strong>
-   <code>json
+<li><strong>Install Dependency:</strong></li>
+</ol>
+<p><code>json
    {
      "dependencies": {
        "@sahool/shared-db": "workspace:*"
      }
    }</code></p>
-</li>
-<li>
-<p><strong>Update Service Imports:</strong>
-   <code>typescript
+<ol>
+<li><strong>Update Service Imports:</strong></li>
+</ol>
+<p><code>typescript
    import {
      calculatePagination,
      createPaginatedResponse,
      type PaginationParams,
      type PaginatedResponse,
-   } from '@sahool/shared-db';</code></p>
-</li>
-<li>
-<p><strong>Update Method Signatures:</strong>
-   ```typescript
+   } from "@sahool/shared-db";</code></p>
+<ol>
+<li><strong>Update Method Signatures:</strong></li>
+</ol>
+<p>```typescript
    // Before
    async findAll(skip?: number, take?: number): Promise<Entity[]></p>
-</li>
-</ol>
 <p>// After
    async findAll(params?: PaginationParams): Promise<PaginatedResponse\<Entity>>
    ```</p>
@@ -1665,11 +1675,11 @@
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <h3 id="unit-tests">Unit Tests<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h3>
 <p>Update tests to expect paginated responses:</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should return paginated users&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should return paginated users&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">service</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="w"> </span><span class="p">});</span>
 
-<span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">);</span>
-<span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s1">&#39;meta&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s2">&quot;meta&quot;</span><span class="p">);</span>
 <span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">meta</span><span class="p">).</span><span class="nx">toMatchObject</span><span class="p">({</span>
 <span class="w">    </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span>
@@ -1681,7 +1691,7 @@
 
 <h3 id="integration-tests">Integration Tests<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
 <p>Test pagination limits:</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should enforce max page size&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should enforce max page size&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">service</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">200</span><span class="w"> </span><span class="p">});</span>
 <span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">).</span><span class="nx">toBeLessThanOrEqual</span><span class="p">(</span><span class="mf">100</span><span class="p">);</span><span class="w"> </span><span class="c1">// MAX_PAGE_SIZE</span>
 <span class="p">});</span>
@@ -1772,11 +1782,13 @@
 <li>✅ Reduces data over-fetching by 60-70%</li>
 <li>✅ Provides shared utilities for consistent patterns</li>
 </ul>
-<p>Expected improvements:
-- 30-40% better query performance
-- 25-30% reduction in database load
-- 20-30% faster API response times
-- Better system reliability and observability</p>
+<p>Expected improvements:</p>
+<ul>
+<li>30-40% better query performance</li>
+<li>25-30% reduction in database load</li>
+<li>20-30% faster API response times</li>
+<li>Better system reliability and observability</li>
+</ul>
 <hr />
 <p><strong>Last Updated:</strong> 2026-01-06
 <strong>Authors:</strong> Claude Code AI

@@ -1224,27 +1224,37 @@
 </ul>
 <h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
 <h3 id="alternative-1-traefik">Alternative 1: Traefik<a class="headerlink" href="#alternative-1-traefik" title="Permanent link">&para;</a></h3>
-<p><strong>Considered because:</strong>
-- Simpler configuration
-- Built into many container orchestrators
-- Lower resource footprint</p>
-<p><strong>Rejected because:</strong>
-- Less mature plugin ecosystem
-- Limited rate limiting options
-- Less enterprise adoption in our region</p>
+<p><strong>Considered because:</strong></p>
+<ul>
+<li>Simpler configuration</li>
+<li>Built into many container orchestrators</li>
+<li>Lower resource footprint</li>
+</ul>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Less mature plugin ecosystem</li>
+<li>Limited rate limiting options</li>
+<li>Less enterprise adoption in our region</li>
+</ul>
 <h3 id="alternative-2-aws-api-gateway">Alternative 2: AWS API Gateway<a class="headerlink" href="#alternative-2-aws-api-gateway" title="Permanent link">&para;</a></h3>
-<p><strong>Considered because:</strong>
-- Fully managed service
-- Tight AWS integration</p>
-<p><strong>Rejected because:</strong>
-- Vendor lock-in
-- Expensive at our projected scale
-- Less flexibility for custom plugins</p>
+<p><strong>Considered because:</strong></p>
+<ul>
+<li>Fully managed service</li>
+<li>Tight AWS integration</li>
+</ul>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Vendor lock-in</li>
+<li>Expensive at our projected scale</li>
+<li>Less flexibility for custom plugins</li>
+</ul>
 <h3 id="alternative-3-nginx-custom-lua">Alternative 3: Nginx + Custom Lua<a class="headerlink" href="#alternative-3-nginx-custom-lua" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- High development effort
-- Need to build all features from scratch
-- Maintenance burden</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>High development effort</li>
+<li>Need to build all features from scratch</li>
+<li>Maintenance burden</li>
+</ul>
 <h2 id="configuration-patterns">Configuration Patterns<a class="headerlink" href="#configuration-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="multi-tenant-routing">Multi-Tenant Routing<a class="headerlink" href="#multi-tenant-routing" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">routes</span><span class="p">:</span>

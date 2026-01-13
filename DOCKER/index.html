@@ -1504,10 +1504,12 @@ services:
 </code></pre></div>
 
 <h3 id="_5">الأسرار<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
-<p>لا تضع الأسرار في docker-compose.yml مباشرة. استخدم:
-- ملف <code>.env</code> (للتطوير)
-- Docker Secrets (للإنتاج)
-- HashiCorp Vault (موصى به)</p>
+<p>لا تضع الأسرار في docker-compose.yml مباشرة. استخدم:</p>
+<ul>
+<li>ملف <code>.env</code> (للتطوير)</li>
+<li>Docker Secrets (للإنتاج)</li>
+<li>HashiCorp Vault (موصى به)</li>
+</ul>
 <hr />
 <h2 id="backup">النسخ الاحتياطي | Backup<a class="headerlink" href="#backup" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1"># نسخ قاعدة البيانات</span>
@@ -1523,12 +1525,14 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 
 <hr />
 <h2 id="production">الإنتاج | Production<a class="headerlink" href="#production" title="Permanent link">&para;</a></h2>
-<p>للإنتاج، استخدم:
-- Kubernetes (Helm charts في <code>/helm</code>)
-- إعداد متغيرات البيئة الآمنة
-- تفعيل TLS/SSL
-- إعداد monitoring كامل
-- استخدام CDN للأصول الثابتة</p>
+<p>للإنتاج، استخدم:</p>
+<ul>
+<li>Kubernetes (Helm charts في <code>/helm</code>)</li>
+<li>إعداد متغيرات البيئة الآمنة</li>
+<li>تفعيل TLS/SSL</li>
+<li>إعداد monitoring كامل</li>
+<li>استخدام CDN للأصول الثابتة</li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="c1"># نشر Kubernetes</span>
 helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"> </span>./helm/sahool<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>

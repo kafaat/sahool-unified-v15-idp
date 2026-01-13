@@ -1215,10 +1215,12 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <li>Zone-based field analysis</li>
 <li>VRT export for precision agriculture</li>
 </ul>
-<p><strong>Key Endpoints</strong>:
-- <code>POST /crop-intelligence/disease-detection</code> - Detect diseases from images
-- <code>GET /crop-intelligence/fields/{field_id}/diagnosis</code> - Complete field diagnosis
-- <code>POST /crop-intelligence/fields/{field_id}/zones/{zone_id}/observations</code> - Submit observations</p>
+<p><strong>Key Endpoints</strong>:</p>
+<ul>
+<li><code>POST /crop-intelligence/disease-detection</code> - Detect diseases from images</li>
+<li><code>GET /crop-intelligence/fields/{field_id}/diagnosis</code> - Complete field diagnosis</li>
+<li><code>POST /crop-intelligence/fields/{field_id}/zones/{zone_id}/observations</code> - Submit observations</li>
+</ul>
 <h4 id="fertilizer-advisor">Fertilizer Advisor<a class="headerlink" href="#fertilizer-advisor" title="Permanent link">&para;</a></h4>
 <ul>
 <li>NPK recommendations</li>
@@ -1226,10 +1228,12 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <li>Crop-specific fertilization plans</li>
 <li>Nutrient deficiency diagnosis</li>
 </ul>
-<p><strong>Key Endpoints</strong>:
-- <code>POST /fertilizer/recommend</code> - Get fertilizer recommendations
-- <code>POST /fertilizer/soil-analysis/interpret</code> - Interpret soil test results
-- <code>GET /fertilizer/deficiency-symptoms/{crop}</code> - Get deficiency information</p>
+<p><strong>Key Endpoints</strong>:</p>
+<ul>
+<li><code>POST /fertilizer/recommend</code> - Get fertilizer recommendations</li>
+<li><code>POST /fertilizer/soil-analysis/interpret</code> - Interpret soil test results</li>
+<li><code>GET /fertilizer/deficiency-symptoms/{crop}</code> - Get deficiency information</li>
+</ul>
 <h4 id="yield-prediction">Yield Prediction<a class="headerlink" href="#yield-prediction" title="Permanent link">&para;</a></h4>
 <ul>
 <li>ML-powered yield forecasting</li>
@@ -1237,10 +1241,12 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <li>Weather and soil integration</li>
 <li>30+ Yemen crops supported</li>
 </ul>
-<p><strong>Key Endpoints</strong>:
-- <code>POST /yield/predict</code> - Predict crop yield
-- <code>GET /yield/crops</code> - List supported crops
-- <code>GET /yield/price/{crop_type}</code> - Get current prices</p>
+<p><strong>Key Endpoints</strong>:</p>
+<ul>
+<li><code>POST /yield/predict</code> - Predict crop yield</li>
+<li><code>GET /yield/crops</code> - List supported crops</li>
+<li><code>GET /yield/price/{crop_type}</code> - Get current prices</li>
+</ul>
 <h3 id="2-analysis-services-api">2. Analysis Services API<a class="headerlink" href="#2-analysis-services-api" title="Permanent link">&para;</a></h3>
 <p><strong>Base URL</strong>: <code>https://api.sahool.io/v1</code></p>
 <h4 id="ndvi-analysis">NDVI Analysis<a class="headerlink" href="#ndvi-analysis" title="Permanent link">&para;</a></h4>
@@ -1250,10 +1256,12 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <li>Zone-based analysis</li>
 <li>Statistical trend analysis</li>
 </ul>
-<p><strong>Key Endpoints</strong>:
-- <code>POST /ndvi/compute</code> - Compute NDVI for field
-- <code>POST /ndvi/anomaly</code> - Detect NDVI anomalies
-- <code>POST /ndvi/zones</code> - Analyze NDVI zones</p>
+<p><strong>Key Endpoints</strong>:</p>
+<ul>
+<li><code>POST /ndvi/compute</code> - Compute NDVI for field</li>
+<li><code>POST /ndvi/anomaly</code> - Detect NDVI anomalies</li>
+<li><code>POST /ndvi/zones</code> - Analyze NDVI zones</li>
+</ul>
 <h4 id="vegetation-analysis">Vegetation Analysis<a class="headerlink" href="#vegetation-analysis" title="Permanent link">&para;</a></h4>
 <ul>
 <li>17+ vegetation indices (NDVI, EVI, SAVI, LAI, NDRE, etc.)</li>
@@ -1261,9 +1269,11 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <li>Water stress detection</li>
 <li>Crop-specific interpretation</li>
 </ul>
-<p><strong>Key Endpoints</strong>:
-- <code>POST /vegetation/indices</code> - Calculate all indices
-- <code>POST /vegetation/interpret</code> - Interpret index values</p>
+<p><strong>Key Endpoints</strong>:</p>
+<ul>
+<li><code>POST /vegetation/indices</code> - Calculate all indices</li>
+<li><code>POST /vegetation/interpret</code> - Interpret index values</li>
+</ul>
 <h4 id="satellite-imagery">Satellite Imagery<a class="headerlink" href="#satellite-imagery" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Multi-source support (Sentinel-2, Landsat-8/9, MODIS)</li>
@@ -1271,10 +1281,12 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <li>Band-level data access</li>
 <li>Temporal compositing</li>
 </ul>
-<p><strong>Key Endpoints</strong>:
-- <code>POST /satellite/imagery</code> - Acquire satellite imagery
-- <code>POST /satellite/analyze</code> - Complete field analysis
-- <code>GET /satellite/sources</code> - List available sources</p>
+<p><strong>Key Endpoints</strong>:</p>
+<ul>
+<li><code>POST /satellite/imagery</code> - Acquire satellite imagery</li>
+<li><code>POST /satellite/analyze</code> - Complete field analysis</li>
+<li><code>GET /satellite/sources</code> - List available sources</li>
+</ul>
 <h4 id="lai-estimation">LAI Estimation<a class="headerlink" href="#lai-estimation" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Leaf Area Index calculation</li>
@@ -1282,9 +1294,11 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <li>Canopy development tracking</li>
 <li>Time series analysis</li>
 </ul>
-<p><strong>Key Endpoints</strong>:
-- <code>POST /lai/estimate</code> - Estimate LAI from indices
-- <code>POST /lai/timeseries</code> - Get LAI time series</p>
+<p><strong>Key Endpoints</strong>:</p>
+<ul>
+<li><code>POST /lai/estimate</code> - Estimate LAI from indices</li>
+<li><code>POST /lai/timeseries</code> - Get LAI time series</li>
+</ul>
 <h4 id="time-series">Time Series<a class="headerlink" href="#time-series" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Historical vegetation data</li>
@@ -1292,10 +1306,12 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <li>Trend analysis</li>
 <li>Data export (CSV, GeoJSON, NetCDF)</li>
 </ul>
-<p><strong>Key Endpoints</strong>:
-- <code>POST /timeseries/vegetation</code> - Get vegetation time series
-- <code>POST /timeseries/export</code> - Export data
-- <code>POST /timeseries/compare</code> - Compare multiple fields</p>
+<p><strong>Key Endpoints</strong>:</p>
+<ul>
+<li><code>POST /timeseries/vegetation</code> - Get vegetation time series</li>
+<li><code>POST /timeseries/export</code> - Export data</li>
+<li><code>POST /timeseries/compare</code> - Compare multiple fields</li>
+</ul>
 <h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
 <p>All API endpoints require authentication using JWT Bearer tokens.</p>
 <h3 id="getting-a-token">Getting a Token<a class="headerlink" href="#getting-a-token" title="Permanent link">&para;</a></h3>
@@ -1524,10 +1540,12 @@ swagger-cli<span class="w"> </span>validate<span class="w"> </span>docs/api/open
 </code></pre></div>
 
 <h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>For API support and questions:
-- Email: support@sahool.io
-- Documentation: https://docs.sahool.io
-- GitHub Issues: https://github.com/sahool/platform/issues</p>
+<p>For API support and questions:</p>
+<ul>
+<li>Email: support@sahool.io</li>
+<li>Documentation: https://docs.sahool.io</li>
+<li>GitHub Issues: https://github.com/sahool/platform/issues</li>
+</ul>
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
 <p>Proprietary - Copyright (c) 2025 SAHOOL Platform</p>
 

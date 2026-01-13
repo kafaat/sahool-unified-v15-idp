@@ -1380,40 +1380,28 @@
 <h3 id="1-foundation">المرحلة 1: البنية التحتية (Foundation)<a class="headerlink" href="#1-foundation" title="Permanent link">&para;</a></h3>
 <p><strong>المهام:</strong></p>
 <ol>
-<li><strong>إعداد المصادقة (Auth)</strong>
+<li><strong>إعداد المصادقة (Auth)</strong></li>
+</ol>
+<p><code>- تكامل مع auth service
+   - JWT handling
+   - Protected routes
+   - Session management</code></p>
+<ol>
+<li><strong>إعداد State Management</strong></li>
+</ol>
+<p><code>- Zustand stores
+   - React Query للـ API
+   - Optimistic updates</code></p>
+<ol>
+<li><strong>إعداد API Client</strong></li>
+</ol>
+<p><code>- Axios/Fetch wrapper
+   - Error handling
+   - Request interceptors
+   - Response caching</code></p>
+<ol>
+<li><strong>تحسين UI Components</strong>
    ```</li>
-<li>تكامل مع auth service</li>
-<li>JWT handling</li>
-<li>Protected routes</li>
-<li>
-<p>Session management
-   ```</p>
-</li>
-<li>
-<p><strong>إعداد State Management</strong>
-   ```</p>
-</li>
-<li>Zustand stores</li>
-<li>React Query للـ API</li>
-<li>
-<p>Optimistic updates
-   ```</p>
-</li>
-<li>
-<p><strong>إعداد API Client</strong>
-   ```</p>
-</li>
-<li>Axios/Fetch wrapper</li>
-<li>Error handling</li>
-<li>Request interceptors</li>
-<li>
-<p>Response caching
-   ```</p>
-</li>
-<li>
-<p><strong>تحسين UI Components</strong>
-   ```</p>
-</li>
 <li>تطوير Design System</li>
 <li>Responsive components</li>
 <li>RTL support</li>
@@ -1424,9 +1412,9 @@
 <h3 id="2-core-features">المرحلة 2: الميزات الأساسية (Core Features)<a class="headerlink" href="#2-core-features" title="Permanent link">&para;</a></h3>
 <p><strong>المهام:</strong></p>
 <ol>
-<li>
-<p><strong>الصفحة الرئيسية (Home/Dashboard)</strong>
-   <code>typescript
+<li><strong>الصفحة الرئيسية (Home/Dashboard)</strong></li>
+</ol>
+<p><code>typescript
    // features/home/
    ├── components/
    │   ├── DashboardStats.tsx
@@ -1437,10 +1425,10 @@
    ├── hooks/
    │   └── useDashboardData.ts
    └── index.ts</code></p>
-</li>
-<li>
-<p><strong>إدارة الحقول (Fields Management)</strong>
-   <code>typescript
+<ol>
+<li><strong>إدارة الحقول (Fields Management)</strong></li>
+</ol>
+<p><code>typescript
    // features/fields/
    ├── components/
    │   ├── FieldsList.tsx
@@ -1454,10 +1442,10 @@
    │   ├── useFieldMutations.ts
    │   └── useFieldNDVI.ts
    └── types.ts</code></p>
-</li>
-<li>
-<p><strong>إدارة المهام (Tasks)</strong>
-   <code>typescript
+<ol>
+<li><strong>إدارة المهام (Tasks)</strong></li>
+</ol>
+<p><code>typescript
    // features/tasks/
    ├── components/
    │   ├── TasksBoard.tsx      # Kanban board
@@ -1468,9 +1456,8 @@
    ├── hooks/
    │   └── useTasks.ts
    └── types.ts</code></p>
-</li>
-<li>
-<p><strong>الطقس (Weather)</strong>
+<ol>
+<li><strong>الطقس (Weather)</strong>
    <code>typescript
    // features/weather/
    ├── components/
@@ -1480,16 +1467,15 @@
    │   ├── WeatherAlerts.tsx
    │   └── AgroWeatherIndex.tsx
    └── hooks/
-       └── useWeather.ts</code></p>
-</li>
+       └── useWeather.ts</code></li>
 </ol>
 <hr />
 <h3 id="3-business-features">المرحلة 3: الميزات التجارية (Business Features)<a class="headerlink" href="#3-business-features" title="Permanent link">&para;</a></h3>
 <p><strong>المهام:</strong></p>
 <ol>
-<li>
-<p><strong>إدارة المعدات (Equipment)</strong>
-   <code>typescript
+<li><strong>إدارة المعدات (Equipment)</strong></li>
+</ol>
+<p><code>typescript
    // features/equipment/
    ├── components/
    │   ├── EquipmentList.tsx
@@ -1499,10 +1485,10 @@
    │   └── QRScanner.tsx
    └── hooks/
        └── useEquipment.ts</code></p>
-</li>
-<li>
-<p><strong>IoT والحساسات</strong>
-   <code>typescript
+<ol>
+<li><strong>IoT والحساسات</strong></li>
+</ol>
+<p><code>typescript
    // features/iot/
    ├── components/
    │   ├── SensorsDashboard.tsx
@@ -1513,10 +1499,10 @@
    └── hooks/
        ├── useSensors.ts
        └── useActuators.ts</code></p>
-</li>
-<li>
-<p><strong>السوق (Marketplace)</strong>
-   <code>typescript
+<ol>
+<li><strong>السوق (Marketplace)</strong></li>
+</ol>
+<p><code>typescript
    // features/marketplace/
    ├── components/
    │   ├── ProductsGrid.tsx
@@ -1528,9 +1514,8 @@
    └── hooks/
        ├── useProducts.ts
        └── useOrders.ts</code></p>
-</li>
-<li>
-<p><strong>المحفظة والدفع (Wallet &amp; Payment)</strong>
+<ol>
+<li><strong>المحفظة والدفع (Wallet &amp; Payment)</strong>
    <code>typescript
    // features/wallet/
    ├── components/
@@ -1539,16 +1524,15 @@
    │   ├── PaymentMethods.tsx
    │   └── TransferForm.tsx
    └── hooks/
-       └── useWallet.ts</code></p>
-</li>
+       └── useWallet.ts</code></li>
 </ol>
 <hr />
 <h3 id="4-advanced-features">المرحلة 4: الميزات المتقدمة (Advanced Features)<a class="headerlink" href="#4-advanced-features" title="Permanent link">&para;</a></h3>
 <p><strong>المهام:</strong></p>
 <ol>
-<li>
-<p><strong>التحليلات (Analytics)</strong>
-   <code>typescript
+<li><strong>التحليلات (Analytics)</strong></li>
+</ol>
+<p><code>typescript
    // features/analytics/
    ├── components/
    │   ├── AnalyticsDashboard.tsx
@@ -1556,10 +1540,10 @@
    │   ├── CostAnalysis.tsx
    │   ├── ComparisonReport.tsx
    │   └── ExportReport.tsx</code></p>
-</li>
-<li>
-<p><strong>المجتمع (Community)</strong>
-   <code>typescript
+<ol>
+<li><strong>المجتمع (Community)</strong></li>
+</ol>
+<p><code>typescript
    // features/community/
    ├── components/
    │   ├── Feed.tsx
@@ -1567,9 +1551,8 @@
    │   ├── CreatePost.tsx
    │   ├── Groups.tsx
    │   └── Chat.tsx</code></p>
-</li>
-<li>
-<p><strong>صحة المحاصيل (Crop Health)</strong>
+<ol>
+<li><strong>صحة المحاصيل (Crop Health)</strong>
    <code>typescript
    // features/crop-health/
    ├── components/
@@ -1577,8 +1560,7 @@
    │   ├── ImageUpload.tsx
    │   ├── DiagnosisResult.tsx
    │   ├── TreatmentPlan.tsx
-   │   └── HealthHistory.tsx</code></p>
-</li>
+   │   └── HealthHistory.tsx</code></li>
 </ol>
 <hr />
 <h2 id="service-integration">🔌 تكامل الخدمات | Service Integration<a class="headerlink" href="#service-integration" title="Permanent link">&para;</a></h2>
@@ -1646,19 +1628,19 @@
 </table>
 <h3 id="websocket-integration">WebSocket Integration:<a class="headerlink" href="#websocket-integration" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// lib/websocket/client.ts</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">io</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;socket.io-client&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">io</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;socket.io-client&quot;</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">wsClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">io</span><span class="p">(</span><span class="nx">WS_GATEWAY_URL</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">auth</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="kt">getAccessToken</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">transports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;websocket&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">transports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;websocket&quot;</span><span class="p">],</span>
 <span class="p">});</span>
 
 <span class="c1">// الاشتراك في الأحداث</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;field.updated&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleFieldUpdate</span><span class="p">);</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;task.created&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNewTask</span><span class="p">);</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;weather.alert&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleWeatherAlert</span><span class="p">);</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;iot.reading&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleSensorReading</span><span class="p">);</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;notification.new&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNotification</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;field.updated&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleFieldUpdate</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;task.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNewTask</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;weather.alert&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleWeatherAlert</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;iot.reading&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleSensorReading</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;notification.new&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNotification</span><span class="p">);</span>
 </code></pre></div>
 
 <hr />
@@ -1672,23 +1654,23 @@
 <p>Fluid typography and spacing</p>
 </li>
 <li>
-<p><strong>RTL Support</strong>
-   <code>css
+<p><strong>RTL Support</strong></p>
+</li>
+</ol>
+<p><code>css
    /* Tailwind RTL */
    .rtl {
      direction: rtl;
      text-align: right;
    }</code></p>
-</li>
-<li>
-<p><strong>Dark Mode</strong>
-   <code>typescript
+<ol>
+<li><strong>Dark Mode</strong></li>
+</ol>
+<p><code>typescript
    // استخدام next-themes
    const { theme, setTheme } = useTheme();</code></p>
-</li>
-<li>
-<p><strong>Accessibility (a11y)</strong></p>
-</li>
+<ol>
+<li><strong>Accessibility (a11y)</strong></li>
 <li>ARIA labels</li>
 <li>Keyboard navigation</li>
 <li>Screen reader support</li>

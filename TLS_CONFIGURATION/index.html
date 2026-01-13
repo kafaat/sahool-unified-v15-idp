@@ -1219,12 +1219,14 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Certificate Properties</strong>:
-- <strong>Validity</strong>: 825 days (~2.25 years, Apple's maximum)
-- <strong>Key Size</strong>: 2048 bits RSA
-- <strong>Signature</strong>: SHA-256
-- <strong>Key Usage</strong>: Digital Signature, Key Encipherment
-- <strong>Extended Key Usage</strong>: Server Authentication, Client Authentication</p>
+<p><strong>Certificate Properties</strong>:</p>
+<ul>
+<li><strong>Validity</strong>: 825 days (~2.25 years, Apple's maximum)</li>
+<li><strong>Key Size</strong>: 2048 bits RSA</li>
+<li><strong>Signature</strong>: SHA-256</li>
+<li><strong>Key Usage</strong>: Digital Signature, Key Encipherment</li>
+<li><strong>Extended Key Usage</strong>: Server Authentication, Client Authentication</li>
+</ul>
 <h2 id="service-configuration">Service Configuration<a class="headerlink" href="#service-configuration" title="Permanent link">&para;</a></h2>
 <h3 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h3>
 <p><strong>Configuration File</strong>: Configured via command-line arguments in <code>docker-compose.tls.yml</code></p>
@@ -1246,13 +1248,15 @@ postgresql://user:pass@postgres:5432/db?sslmode<span class="o">=</span>prefer
 <span class="nv">PGSSLROOTCERT</span><span class="o">=</span>/path/to/ca.crt
 </code></pre></div>
 
-<p><strong>SSL Modes</strong>:
-- <code>disable</code>: No SSL (not recommended)
-- <code>allow</code>: Try non-SSL first, then SSL
-- <code>prefer</code>: Try SSL first, then non-SSL (default with TLS enabled)
-- <code>require</code>: Require SSL (don't verify certificate)
-- <code>verify-ca</code>: Require SSL and verify server certificate
-- <code>verify-full</code>: Require SSL and verify hostname</p>
+<p><strong>SSL Modes</strong>:</p>
+<ul>
+<li><code>disable</code>: No SSL (not recommended)</li>
+<li><code>allow</code>: Try non-SSL first, then SSL</li>
+<li><code>prefer</code>: Try SSL first, then non-SSL (default with TLS enabled)</li>
+<li><code>require</code>: Require SSL (don't verify certificate)</li>
+<li><code>verify-ca</code>: Require SSL and verify server certificate</li>
+<li><code>verify-full</code>: Require SSL and verify hostname</li>
+</ul>
 <h3 id="pgbouncer">PgBouncer<a class="headerlink" href="#pgbouncer" title="Permanent link">&para;</a></h3>
 <p><strong>Configuration File</strong>: <code>/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/pgbouncer.ini</code></p>
 <p><strong>TLS Settings</strong>:</p>
@@ -1403,33 +1407,33 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
 
 <h4 id="nodejs-postgresql-with-pg">Node.js - PostgreSQL with pg<a class="headerlink" href="#nodejs-postgresql-with-pg" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Pool</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;pg&#39;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Pool</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">pool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Pool</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;postgres&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;postgres&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">port</span><span class="o">:</span><span class="w"> </span><span class="mf">5432</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sahool&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sahool&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;password&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">ssl</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">rejectUnauthorized</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">ca</span><span class="o">:</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s1">&#39;/app/certs/ca.crt&#39;</span><span class="p">).</span><span class="nx">toString</span><span class="p">()</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">ca</span><span class="o">:</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s2">&quot;/app/certs/ca.crt&quot;</span><span class="p">).</span><span class="nx">toString</span><span class="p">(),</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h4 id="nodejs-redis-with-ioredis">Node.js - Redis with ioredis<a class="headerlink" href="#nodejs-redis-with-ioredis" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;ioredis&#39;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;ioredis&quot;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Redis</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;redis&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;redis&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">port</span><span class="o">:</span><span class="w"> </span><span class="mf">6379</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;password&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">tls</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">ca</span><span class="o">:</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s1">&#39;/app/certs/ca.crt&#39;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">ca</span><span class="o">:</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s2">&quot;/app/certs/ca.crt&quot;</span><span class="p">),</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1486,10 +1490,12 @@ curl<span class="w"> </span>-k<span class="w"> </span>https://localhost:8443/
 <h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
 <h4 id="1-certificate-verification-failed">1. Certificate Verification Failed<a class="headerlink" href="#1-certificate-verification-failed" title="Permanent link">&para;</a></h4>
 <p><strong>Error</strong>: <code>SSL error: certificate verify failed</code></p>
-<p><strong>Causes</strong>:
-- CA certificate not provided to client
-- Certificate expired
-- Hostname mismatch</p>
+<p><strong>Causes</strong>:</p>
+<ul>
+<li>CA certificate not provided to client</li>
+<li>Certificate expired</li>
+<li>Hostname mismatch</li>
+</ul>
 <p><strong>Solutions</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Verify certificate is valid</span>
 openssl<span class="w"> </span>verify<span class="w"> </span>-CAfile<span class="w"> </span>config/certs/ca/ca.crt<span class="w"> </span>config/certs/postgres/server.crt
@@ -1503,10 +1509,12 @@ openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> <
 
 <h4 id="2-connection-refused">2. Connection Refused<a class="headerlink" href="#2-connection-refused" title="Permanent link">&para;</a></h4>
 <p><strong>Error</strong>: <code>Connection refused</code> or <code>Connection reset by peer</code></p>
-<p><strong>Causes</strong>:
-- Service not configured for TLS
-- Wrong port
-- Firewall blocking TLS port</p>
+<p><strong>Causes</strong>:</p>
+<ul>
+<li>Service not configured for TLS</li>
+<li>Wrong port</li>
+<li>Firewall blocking TLS port</li>
+</ul>
 <p><strong>Solutions</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check service logs</span>
 docker-compose<span class="w"> </span>logs<span class="w"> </span>postgres<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>ssl
@@ -1530,9 +1538,11 @@ chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>*
 
 <h4 id="4-wrong-ssl-mode">4. Wrong SSL Mode<a class="headerlink" href="#4-wrong-ssl-mode" title="Permanent link">&para;</a></h4>
 <p><strong>Error</strong>: <code>sslmode value "require" is not valid</code></p>
-<p><strong>Solution</strong>: Use correct sslmode values:
-- PostgreSQL: <code>disable</code>, <code>allow</code>, <code>prefer</code>, <code>require</code>, <code>verify-ca</code>, <code>verify-full</code>
-- Update connection string or environment variable</p>
+<p><strong>Solution</strong>: Use correct sslmode values:</p>
+<ul>
+<li>PostgreSQL: <code>disable</code>, <code>allow</code>, <code>prefer</code>, <code>require</code>, <code>verify-ca</code>, <code>verify-full</code></li>
+<li>Update connection string or environment variable</li>
+</ul>
 <h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
 <h3 id="development-environment">Development Environment<a class="headerlink" href="#development-environment" title="Permanent link">&para;</a></h3>
 <ul>

@@ -1130,12 +1130,14 @@
 </ul>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>GitHub Secrets are encrypted environment variables that you create in a repository. These secrets are used by GitHub Actions workflows to deploy and configure your application securely.</p>
-<p><strong>Security Best Practices:</strong>
-- Never commit secrets to your repository
-- Use strong, randomly generated passwords
-- Rotate secrets regularly
-- Use different secrets for staging and production
-- Limit access to secrets to necessary team members</p>
+<p><strong>Security Best Practices:</strong></p>
+<ul>
+<li>Never commit secrets to your repository</li>
+<li>Use strong, randomly generated passwords</li>
+<li>Rotate secrets regularly</li>
+<li>Use different secrets for staging and production</li>
+<li>Limit access to secrets to necessary team members</li>
+</ul>
 <h2 id="github-repository-secrets">GitHub Repository Secrets<a class="headerlink" href="#github-repository-secrets" title="Permanent link">&para;</a></h2>
 <h3 id="how-to-add-secrets-to-github">How to Add Secrets to GitHub<a class="headerlink" href="#how-to-add-secrets-to-github" title="Permanent link">&para;</a></h3>
 <ol>
@@ -1240,10 +1242,12 @@ chmod<span class="w"> </span>+x<span class="w"> </span>scripts/generate-kubeconf
 ./scripts/generate-kubeconfig.sh<span class="w"> </span>--cluster<span class="w"> </span>production<span class="w"> </span>--namespace<span class="w"> </span>sahool-production
 </code></pre></div>
 
-<p>The script will output:
-- The base64 encoded kubeconfig
-- Instructions for adding to GitHub
-- Suggested secret name</p>
+<p>The script will output:</p>
+<ul>
+<li>The base64 encoded kubeconfig</li>
+<li>Instructions for adding to GitHub</li>
+<li>Suggested secret name</li>
+</ul>
 <h4 id="method-2-manual-generation">Method 2: Manual Generation<a class="headerlink" href="#method-2-manual-generation" title="Permanent link">&para;</a></h4>
 <p><strong>Step 1: Switch to the correct cluster context</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># For staging</span>
@@ -1265,16 +1269,20 @@ cat<span class="w"> </span>kubeconfig-staging.yaml<span class="w"> </span><span 
 <span class="c1"># The content of kubeconfig-staging-base64.txt is your secret value</span>
 </code></pre></div>
 
-<p><strong>Step 4: Add to GitHub</strong>
-- Secret Name: <code>KUBE_CONFIG_STAGING</code>
-- Secret Value: Content of <code>kubeconfig-staging-base64.txt</code></p>
+<p><strong>Step 4: Add to GitHub</strong></p>
+<ul>
+<li>Secret Name: <code>KUBE_CONFIG_STAGING</code></li>
+<li>Secret Value: Content of <code>kubeconfig-staging-base64.txt</code></li>
+</ul>
 <p><strong>Step 5: Clean up</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Remove temporary files</span>
 rm<span class="w"> </span>kubeconfig-staging.yaml<span class="w"> </span>kubeconfig-staging-base64.txt
 </code></pre></div>
 
-<p><strong>Repeat for production:</strong>
-- Secret Name: <code>KUBE_CONFIG_PRODUCTION</code></p>
+<p><strong>Repeat for production:</strong></p>
+<ul>
+<li>Secret Name: <code>KUBE_CONFIG_PRODUCTION</code></li>
+</ul>
 <h4 id="verifying-kubeconfig">Verifying Kubeconfig<a class="headerlink" href="#verifying-kubeconfig" title="Permanent link">&para;</a></h4>
 <p>To verify your kubeconfig works:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Decode and test</span>
@@ -1292,40 +1300,52 @@ rm<span class="w"> </span>test-kubeconfig.yaml
 openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span>
 </code></pre></div>
 
-<p><strong>Add to GitHub:</strong>
-- Secret Name: <code>POSTGRES_PASSWORD</code>
-- Secret Value: The generated password</p>
-<p><strong>Important Notes:</strong>
-- Use the same password for both staging and production, OR
-- Create separate secrets: <code>POSTGRES_PASSWORD_STAGING</code> and <code>POSTGRES_PASSWORD_PRODUCTION</code>
-- Keep this password secure - it protects all your data
-- Store it in a password manager as backup</p>
+<p><strong>Add to GitHub:</strong></p>
+<ul>
+<li>Secret Name: <code>POSTGRES_PASSWORD</code></li>
+<li>Secret Value: The generated password</li>
+</ul>
+<p><strong>Important Notes:</strong></p>
+<ul>
+<li>Use the same password for both staging and production, OR</li>
+<li>Create separate secrets: <code>POSTGRES_PASSWORD_STAGING</code> and <code>POSTGRES_PASSWORD_PRODUCTION</code></li>
+<li>Keep this password secure - it protects all your data</li>
+<li>Store it in a password manager as backup</li>
+</ul>
 <h3 id="redis-password">Redis Password<a class="headerlink" href="#redis-password" title="Permanent link">&para;</a></h3>
 <p>Generate a strong Redis password:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Generate a secure password</span>
 openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span>
 </code></pre></div>
 
-<p><strong>Add to GitHub:</strong>
-- Secret Name: <code>REDIS_PASSWORD</code>
-- Secret Value: The generated password</p>
-<p><strong>Important Notes:</strong>
-- Redis password is used for cache authentication
-- Can use separate passwords for staging/production if needed</p>
+<p><strong>Add to GitHub:</strong></p>
+<ul>
+<li>Secret Name: <code>REDIS_PASSWORD</code></li>
+<li>Secret Value: The generated password</li>
+</ul>
+<p><strong>Important Notes:</strong></p>
+<ul>
+<li>Redis password is used for cache authentication</li>
+<li>Can use separate passwords for staging/production if needed</li>
+</ul>
 <h3 id="jwt-secret">JWT Secret<a class="headerlink" href="#jwt-secret" title="Permanent link">&para;</a></h3>
 <p>Generate a JWT signing secret:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Generate a secure JWT secret (longer for better security)</span>
 openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span>
 </code></pre></div>
 
-<p><strong>Add to GitHub:</strong>
-- Secret Name: <code>JWT_SECRET</code>
-- Secret Value: The generated secret</p>
-<p><strong>Important Notes:</strong>
-- This secret signs all authentication tokens
-- <strong>NEVER</strong> share or expose this secret
-- Changing this will invalidate all existing user sessions
-- Use different secrets for staging and production</p>
+<p><strong>Add to GitHub:</strong></p>
+<ul>
+<li>Secret Name: <code>JWT_SECRET</code></li>
+<li>Secret Value: The generated secret</li>
+</ul>
+<p><strong>Important Notes:</strong></p>
+<ul>
+<li>This secret signs all authentication tokens</li>
+<li><strong>NEVER</strong> share or expose this secret</li>
+<li>Changing this will invalidate all existing user sessions</li>
+<li>Use different secrets for staging and production</li>
+</ul>
 <h2 id="external-api-secrets">External API Secrets<a class="headerlink" href="#external-api-secrets" title="Permanent link">&para;</a></h2>
 <h3 id="openweather-api-key">OpenWeather API Key<a class="headerlink" href="#openweather-api-key" title="Permanent link">&para;</a></h3>
 <p><strong>Obtaining the API Key:</strong></p>
@@ -1336,13 +1356,17 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 <li>Generate a new API key or use the default one</li>
 <li>Wait for activation (can take up to 2 hours)</li>
 </ol>
-<p><strong>Add to GitHub:</strong>
-- Secret Name: <code>OPENWEATHER_API_KEY</code>
-- Secret Value: Your API key (e.g., <code>abc123def456...</code>)</p>
-<p><strong>Usage Notes:</strong>
-- Free tier: 60 calls/minute, 1,000,000 calls/month
-- Used for weather data in agricultural planning
-- Same key can be used for staging and production</p>
+<p><strong>Add to GitHub:</strong></p>
+<ul>
+<li>Secret Name: <code>OPENWEATHER_API_KEY</code></li>
+<li>Secret Value: Your API key (e.g., <code>abc123def456...</code>)</li>
+</ul>
+<p><strong>Usage Notes:</strong></p>
+<ul>
+<li>Free tier: 60 calls/minute, 1,000,000 calls/month</li>
+<li>Used for weather data in agricultural planning</li>
+<li>Same key can be used for staging and production</li>
+</ul>
 <h3 id="sentinel-hub-credentials">Sentinel Hub Credentials<a class="headerlink" href="#sentinel-hub-credentials" title="Permanent link">&para;</a></h3>
 <p><strong>Obtaining the Credentials:</strong></p>
 <ol>
@@ -1352,17 +1376,23 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 <li>Create a new OAuth client</li>
 <li>Copy the Client ID and Client Secret</li>
 </ol>
-<p><strong>Add to GitHub:</strong>
-- Secret Name: <code>SENTINEL_HUB_ID</code>
-- Secret Value: Your client ID</p>
+<p><strong>Add to GitHub:</strong></p>
 <ul>
-<li>Secret Name: <code>SENTINEL_HUB_SECRET</code></li>
+<li>Secret Name: <code>SENTINEL_HUB_ID</code></li>
+<li>
+<p>Secret Value: Your client ID</p>
+</li>
+<li>
+<p>Secret Name: <code>SENTINEL_HUB_SECRET</code></p>
+</li>
 <li>Secret Value: Your client secret</li>
 </ul>
-<p><strong>Usage Notes:</strong>
-- Used for satellite imagery and land analysis
-- Free tier available with limited processing units
-- Consider separate credentials for staging and production</p>
+<p><strong>Usage Notes:</strong></p>
+<ul>
+<li>Used for satellite imagery and land analysis</li>
+<li>Free tier available with limited processing units</li>
+<li>Consider separate credentials for staging and production</li>
+</ul>
 <h3 id="stripe-secret-key">Stripe Secret Key<a class="headerlink" href="#stripe-secret-key" title="Permanent link">&para;</a></h3>
 <p><strong>Obtaining the Secret Key:</strong></p>
 <ol>
@@ -1371,19 +1401,25 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 <li>Navigate to Developers &gt; API keys</li>
 <li>Copy the <strong>Secret key</strong> (starts with <code>sk_</code>)</li>
 </ol>
-<p><strong>For Production:</strong>
-- Use the <strong>Live mode</strong> secret key
-- Secret Name: <code>STRIPE_SECRET_KEY</code>
-- Secret Value: Your live secret key (e.g., <code>sk_live_...</code>)</p>
-<p><strong>For Staging:</strong>
-- Use the <strong>Test mode</strong> secret key
-- Secret Name: <code>STRIPE_TEST_SECRET_KEY</code>
-- Secret Value: Your test secret key (e.g., <code>sk_test_...</code>)</p>
-<p><strong>Important Notes:</strong>
-- <strong>NEVER</strong> expose the secret key in client-side code
-- Use test mode for staging/development
-- Monitor Stripe dashboard for suspicious activity
-- Rotate keys if compromised</p>
+<p><strong>For Production:</strong></p>
+<ul>
+<li>Use the <strong>Live mode</strong> secret key</li>
+<li>Secret Name: <code>STRIPE_SECRET_KEY</code></li>
+<li>Secret Value: Your live secret key (e.g., <code>sk_live_...</code>)</li>
+</ul>
+<p><strong>For Staging:</strong></p>
+<ul>
+<li>Use the <strong>Test mode</strong> secret key</li>
+<li>Secret Name: <code>STRIPE_TEST_SECRET_KEY</code></li>
+<li>Secret Value: Your test secret key (e.g., <code>sk_test_...</code>)</li>
+</ul>
+<p><strong>Important Notes:</strong></p>
+<ul>
+<li><strong>NEVER</strong> expose the secret key in client-side code</li>
+<li>Use test mode for staging/development</li>
+<li>Monitor Stripe dashboard for suspicious activity</li>
+<li>Rotate keys if compromised</li>
+</ul>
 <h3 id="slack-webhook-url">Slack Webhook URL<a class="headerlink" href="#slack-webhook-url" title="Permanent link">&para;</a></h3>
 <p><strong>Creating a Webhook:</strong></p>
 <ol>
@@ -1395,14 +1431,18 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 <li>Select the channel for notifications</li>
 <li>Copy the webhook URL</li>
 </ol>
-<p><strong>Add to GitHub:</strong>
-- Secret Name: <code>SLACK_WEBHOOK_URL</code>
-- Secret Value: Your webhook URL (e.g., <code>https://hooks.slack.com/services/...</code>)</p>
-<p><strong>Usage Notes:</strong>
-- Used for deployment notifications and alerts
-- Can use the same webhook for staging and production, OR
-- Create separate webhooks: <code>SLACK_WEBHOOK_STAGING</code> and <code>SLACK_WEBHOOK_PRODUCTION</code>
-- Test the webhook before deploying</p>
+<p><strong>Add to GitHub:</strong></p>
+<ul>
+<li>Secret Name: <code>SLACK_WEBHOOK_URL</code></li>
+<li>Secret Value: Your webhook URL (e.g., <code>https://hooks.slack.com/services/...</code>)</li>
+</ul>
+<p><strong>Usage Notes:</strong></p>
+<ul>
+<li>Used for deployment notifications and alerts</li>
+<li>Can use the same webhook for staging and production, OR</li>
+<li>Create separate webhooks: <code>SLACK_WEBHOOK_STAGING</code> and <code>SLACK_WEBHOOK_PRODUCTION</code></li>
+<li>Test the webhook before deploying</li>
+</ul>
 <p><strong>Testing the Webhook:</strong></p>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;text&quot;:&quot;Test message from SAHOOL&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
@@ -1483,18 +1523,24 @@ SLACK_WEBHOOK_URL=&lt;production-webhook&gt;
 </code></pre></div>
 
 <h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
-<p><strong>Secret not found:</strong>
-- Verify the secret name matches exactly (case-sensitive)
-- Check that the secret is created in the correct repository
-- Ensure you have permissions to access secrets</p>
-<p><strong>Kubeconfig not working:</strong>
-- Verify base64 encoding is correct
-- Check that cluster URL is accessible from GitHub Actions
-- Ensure cluster credentials are still valid</p>
-<p><strong>External API errors:</strong>
-- Verify API keys are active
-- Check API rate limits
-- Ensure correct API endpoints are configured</p>
+<p><strong>Secret not found:</strong></p>
+<ul>
+<li>Verify the secret name matches exactly (case-sensitive)</li>
+<li>Check that the secret is created in the correct repository</li>
+<li>Ensure you have permissions to access secrets</li>
+</ul>
+<p><strong>Kubeconfig not working:</strong></p>
+<ul>
+<li>Verify base64 encoding is correct</li>
+<li>Check that cluster URL is accessible from GitHub Actions</li>
+<li>Ensure cluster credentials are still valid</li>
+</ul>
+<p><strong>External API errors:</strong></p>
+<ul>
+<li>Verify API keys are active</li>
+<li>Check API rate limits</li>
+<li>Ensure correct API endpoints are configured</li>
+</ul>
 <h2 id="secret-rotation">Secret Rotation<a class="headerlink" href="#secret-rotation" title="Permanent link">&para;</a></h2>
 <h3 id="when-to-rotate-secrets">When to Rotate Secrets<a class="headerlink" href="#when-to-rotate-secrets" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1554,11 +1600,13 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>status<span class=
 <li><a href="https://api.slack.com/messaging/webhooks">Slack Webhooks</a></li>
 </ul>
 <h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>If you encounter issues setting up secrets:
-1. Check the troubleshooting section in <a href="../INFRASTRUCTURE/">INFRASTRUCTURE.md</a>
-2. Verify you have the correct permissions
-3. Contact the DevOps team
-4. Open an issue on GitHub with details (never include actual secret values)</p>
+<p>If you encounter issues setting up secrets:</p>
+<ol>
+<li>Check the troubleshooting section in <a href="../INFRASTRUCTURE/">INFRASTRUCTURE.md</a></li>
+<li>Verify you have the correct permissions</li>
+<li>Contact the DevOps team</li>
+<li>Open an issue on GitHub with details (never include actual secret values)</li>
+</ol>
 
 
 

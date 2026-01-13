@@ -1624,24 +1624,30 @@ Application Layer:
 </tbody>
 </table>
 <h3 id="per-service-limits">Per-Service Limits<a class="headerlink" href="#per-service-limits" title="Permanent link">&para;</a></h3>
-<p><strong>Infrastructure Services:</strong>
-- postgres: 0.5-2 CPUs, 512MB-2GB RAM
-- redis: 0.25-1 CPUs, 256MB-768MB RAM
-- nats: 0.25-1 CPUs, 128MB-512MB RAM
-- mqtt: 0.1-0.5 CPUs, 64MB-256MB RAM
-- qdrant: 0.25-1 CPUs, 256MB-1GB RAM
-- kong: 0.25-1 CPUs, 128MB-512MB RAM</p>
-<p><strong>Application Services:</strong>
-- Node.js services: 0.25-1 CPUs, 128MB-512MB RAM
-- Python services: 0.1-1 CPUs, 64MB-512MB RAM
-- AI/ML services: 0.5-2 CPUs, 512MB-2GB RAM</p>
+<p><strong>Infrastructure Services:</strong></p>
+<ul>
+<li>postgres: 0.5-2 CPUs, 512MB-2GB RAM</li>
+<li>redis: 0.25-1 CPUs, 256MB-768MB RAM</li>
+<li>nats: 0.25-1 CPUs, 128MB-512MB RAM</li>
+<li>mqtt: 0.1-0.5 CPUs, 64MB-256MB RAM</li>
+<li>qdrant: 0.25-1 CPUs, 256MB-1GB RAM</li>
+<li>kong: 0.25-1 CPUs, 128MB-512MB RAM</li>
+</ul>
+<p><strong>Application Services:</strong></p>
+<ul>
+<li>Node.js services: 0.25-1 CPUs, 128MB-512MB RAM</li>
+<li>Python services: 0.1-1 CPUs, 64MB-512MB RAM</li>
+<li>AI/ML services: 0.5-2 CPUs, 512MB-2GB RAM</li>
+</ul>
 <hr />
 <h2 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h2>
-<p>All services include health checks with:
-- <strong>Interval</strong>: 30s
-- <strong>Timeout</strong>: 10s
-- <strong>Retries</strong>: 3-5
-- <strong>Start period</strong>: 10-40s (depending on service complexity)</p>
+<p>All services include health checks with:</p>
+<ul>
+<li><strong>Interval</strong>: 30s</li>
+<li><strong>Timeout</strong>: 10s</li>
+<li><strong>Retries</strong>: 3-5</li>
+<li><strong>Start period</strong>: 10-40s (depending on service complexity)</li>
+</ul>
 <p>Check service health:</p>
 <div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>ps
 docker<span class="w"> </span>inspect<span class="w"> </span>&lt;container_name&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.[0].State.Health&#39;</span>
@@ -1662,13 +1668,15 @@ docker<span class="w"> </span>inspect<span class="w"> </span>&lt;container_name&
 </ul>
 <hr />
 <h2 id="data-persistence">Data Persistence<a class="headerlink" href="#data-persistence" title="Permanent link">&para;</a></h2>
-<p>Named volumes for persistent data:
-- <code>sahool-postgres-data</code>: PostgreSQL database
-- <code>sahool-redis-data</code>: Redis cache
-- <code>sahool-nats-data</code>: NATS JetStream
-- <code>sahool-qdrant-data</code>: Qdrant vector database
-- <code>sahool-mqtt-data</code>: MQTT broker data
-- <code>sahool-mqtt-logs</code>: MQTT logs</p>
+<p>Named volumes for persistent data:</p>
+<ul>
+<li><code>sahool-postgres-data</code>: PostgreSQL database</li>
+<li><code>sahool-redis-data</code>: Redis cache</li>
+<li><code>sahool-nats-data</code>: NATS JetStream</li>
+<li><code>sahool-qdrant-data</code>: Qdrant vector database</li>
+<li><code>sahool-mqtt-data</code>: MQTT broker data</li>
+<li><code>sahool-mqtt-logs</code>: MQTT logs</li>
+</ul>
 <h3 id="backup-commands">Backup Commands<a class="headerlink" href="#backup-commands" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Backup PostgreSQL</span>
 docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>pg_dump<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span>&gt;<span class="w"> </span>backup.sql
@@ -1760,23 +1768,29 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 
 <hr />
 <h2 id="development-vs-production">Development vs Production<a class="headerlink" href="#development-vs-production" title="Permanent link">&para;</a></h2>
-<p><strong>Development:</strong>
-- Use <code>.env</code> with development settings
-- Mount source code as volumes for hot reload
-- Enable debug logging: <code>LOG_LEVEL=DEBUG</code></p>
-<p><strong>Production:</strong>
-- Use secrets management (Vault, AWS Secrets Manager)
-- Enable TLS/HTTPS
-- Configure backups
-- Set up monitoring (Prometheus, Grafana)
-- Use orchestration (Kubernetes, Docker Swarm)
-- Implement CI/CD pipeline</p>
+<p><strong>Development:</strong></p>
+<ul>
+<li>Use <code>.env</code> with development settings</li>
+<li>Mount source code as volumes for hot reload</li>
+<li>Enable debug logging: <code>LOG_LEVEL=DEBUG</code></li>
+</ul>
+<p><strong>Production:</strong></p>
+<ul>
+<li>Use secrets management (Vault, AWS Secrets Manager)</li>
+<li>Enable TLS/HTTPS</li>
+<li>Configure backups</li>
+<li>Set up monitoring (Prometheus, Grafana)</li>
+<li>Use orchestration (Kubernetes, Docker Swarm)</li>
+<li>Implement CI/CD pipeline</li>
+</ul>
 <hr />
 <h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>For issues or questions:
-- Check service logs: <code>docker compose logs -f &lt;service&gt;</code>
-- Review health status: <code>docker compose ps</code>
-- Verify environment variables: <code>docker compose config</code></p>
+<p>For issues or questions:</p>
+<ul>
+<li>Check service logs: <code>docker compose logs -f &lt;service&gt;</code></li>
+<li>Review health status: <code>docker compose ps</code></li>
+<li>Verify environment variables: <code>docker compose config</code></li>
+</ul>
 <hr />
 <h2 id="architecture-diagram">Architecture Diagram<a class="headerlink" href="#architecture-diagram" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐

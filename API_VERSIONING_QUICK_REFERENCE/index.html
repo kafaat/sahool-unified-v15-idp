@@ -1120,21 +1120,21 @@
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <h3 id="1-enable-versioning-in-your-service">1. Enable Versioning in Your Service<a class="headerlink" href="#1-enable-versioning-in-your-service" title="Permanent link">&para;</a></h3>
 <p><strong>File:</strong> <code>src/main.ts</code></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">VersioningType</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">VersioningType</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
 
 <span class="nx">app</span><span class="p">.</span><span class="nx">enableVersioning</span><span class="p">({</span>
 <span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">VersioningType</span><span class="p">.</span><span class="nx">URI</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h3 id="2-create-v2-controller">2. Create v2 Controller<a class="headerlink" href="#2-create-v2-controller" title="Permanent link">&para;</a></h3>
 <p><strong>File:</strong> <code>src/users/users.v2.controller.ts</code></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Query</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BaseControllerV2</span><span class="p">,</span><span class="w"> </span><span class="nx">ApiV2</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/versioning&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Query</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BaseControllerV2</span><span class="p">,</span><span class="w"> </span><span class="nx">ApiV2</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/versioning&quot;</span><span class="p">;</span>
 
-<span class="kd">@ApiV2</span><span class="p">(</span><span class="s1">&#39;Users&#39;</span><span class="p">)</span>
-<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;users&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="kd">@ApiV2</span><span class="p">(</span><span class="s2">&quot;Users&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="w"> </span><span class="p">})</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">UsersV2Controller</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">BaseControllerV2</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="k">private</span><span class="w"> </span><span class="nx">usersService</span><span class="o">:</span><span class="w"> </span><span class="kt">UsersService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">super</span><span class="p">();</span>
@@ -1143,8 +1143,8 @@
 <span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">findAll</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">@RequestId</span><span class="p">()</span><span class="w"> </span><span class="nx">requestId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">@Query</span><span class="p">(</span><span class="s1">&#39;page&#39;</span><span class="p">)</span><span class="w"> </span><span class="nx">page?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">@Query</span><span class="p">(</span><span class="s1">&#39;limit&#39;</span><span class="p">)</span><span class="w"> </span><span class="nx">limit?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">@Query</span><span class="p">(</span><span class="s2">&quot;page&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">page?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">@Query</span><span class="p">(</span><span class="s2">&quot;limit&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">limit?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
 <span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="kt">p</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">l</span><span class="p">,</span><span class="w"> </span><span class="nx">skip</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">parsePaginationParams</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">users</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">usersService</span><span class="p">.</span><span class="nx">findAllWithCount</span><span class="p">(</span><span class="nx">skip</span><span class="p">,</span><span class="w"> </span><span class="nx">l</span><span class="p">);</span>
@@ -1155,16 +1155,20 @@
 
 <h3 id="3-add-deprecation-to-v1-controller-optional">3. Add Deprecation to v1 Controller (Optional)<a class="headerlink" href="#3-add-deprecation-to-v1-controller-optional" title="Permanent link">&para;</a></h3>
 <p><strong>File:</strong> <code>src/users/users.v1.controller.ts</code></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">UseInterceptors</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BaseControllerV1</span><span class="p">,</span><span class="w"> </span><span class="nx">ApiV1</span><span class="p">,</span><span class="w"> </span><span class="nx">DeprecationInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/versioning&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">UseInterceptors</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">BaseControllerV1</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">ApiV1</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">DeprecationInterceptor</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/versioning&quot;</span><span class="p">;</span>
 
-<span class="kd">@ApiV1</span><span class="p">(</span><span class="s1">&#39;Users&#39;</span><span class="p">)</span>
-<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;users&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="kd">@ApiV1</span><span class="p">(</span><span class="s2">&quot;Users&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="w"> </span><span class="p">})</span>
 <span class="kd">@UseInterceptors</span><span class="p">(</span><span class="nx">DeprecationInterceptor</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">UsersV1Controller</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">BaseControllerV1</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">findAll</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logDeprecationWarning</span><span class="p">(</span><span class="s1">&#39;GET /api/v1/users&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logDeprecationWarning</span><span class="p">(</span><span class="s2">&quot;GET /api/v1/users&quot;</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">usersService</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="nx">users</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1384,23 +1388,21 @@ DELETE /api/v2/users/:id
 <h2 id="version-negotiation">Version Negotiation<a class="headerlink" href="#version-negotiation" title="Permanent link">&para;</a></h2>
 <h3 id="priority-order">Priority Order<a class="headerlink" href="#priority-order" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>URI Version</strong> (Highest)
-   <code>GET /api/v2/users</code></p>
-</li>
-<li>
-<p><strong>X-API-Version Header</strong>
-   <code>GET /api/users
+<li><strong>URI Version</strong> (Highest)</li>
+</ol>
+<p><code>GET /api/v2/users</code></p>
+<ol>
+<li><strong>X-API-Version Header</strong></li>
+</ol>
+<p><code>GET /api/users
    X-API-Version: 2</code></p>
-</li>
-<li>
-<p><strong>Accept Header</strong>
-   <code>GET /api/users
+<ol>
+<li><strong>Accept Header</strong></li>
+</ol>
+<p><code>GET /api/users
    Accept: application/vnd.sahool.v2+json</code></p>
-</li>
-<li>
-<p><strong>Default Version</strong> (v2)</p>
-</li>
+<ol>
+<li><strong>Default Version</strong> (v2)</li>
 </ol>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <h3 id="curl-examples">cURL Examples<a class="headerlink" href="#curl-examples" title="Permanent link">&para;</a></h3>
@@ -1421,13 +1423,13 @@ curl<span class="w"> </span><span class="s2">&quot;https://api.sahool.app/api/v2
 </code></pre></div>
 
 <h3 id="unit-test-example">Unit Test Example<a class="headerlink" href="#unit-test-example" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;UsersV2Controller&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should return v2 format&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">controller</span><span class="p">.</span><span class="nx">findAll</span><span class="p">(</span><span class="s1">&#39;req_123&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;20&#39;</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;UsersV2Controller&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should return v2 format&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">controller</span><span class="p">.</span><span class="nx">findAll</span><span class="p">(</span><span class="s2">&quot;req_123&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;20&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">meta</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s1">&#39;requestId&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;req_123&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">meta</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s2">&quot;requestId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;req_123&quot;</span><span class="p">);</span>
 <span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">pagination</span><span class="p">).</span><span class="nx">toBeDefined</span><span class="p">();</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">});</span>
@@ -1539,10 +1541,10 @@ curl<span class="w"> </span><span class="s2">&quot;https://api.sahool.app/api/v2
 <span class="w">          </span><span class="nt">headers</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;X-API-Deprecated:</span><span class="nv"> </span><span class="s">true&quot;</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;X-API-Sunset-Date:</span><span class="nv"> </span><span class="s">2026-06-30&quot;</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Link:</span><span class="nv"> </span><span class="s">&lt;/api/v2/resource&gt;;</span><span class="nv"> </span><span class="s">rel=\&quot;successor-version\&quot;&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;Link:</span><span class="nv"> </span><span class="s">&lt;/api/v2/resource&gt;;</span><span class="nv"> </span><span class="s">rel=&quot;successor-version&quot;&#39;</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w">  </span><span class="c1"># Reduced from 100</span>
+<span class="w">        </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"> </span><span class="c1"># Reduced from 100</span>
 </code></pre></div>
 
 <h2 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h2>

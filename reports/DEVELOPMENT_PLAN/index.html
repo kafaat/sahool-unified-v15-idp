@@ -1122,10 +1122,12 @@
 <hr />
 <h2 id="_1">الملخص<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>لقد تم تنفيذ المراحل الثلاث (الاستقرار، الهندسة المعمارية النظيفة، حل التعارضات) بنجاح. سنقوم الآن بتنفيذ المراحل الثلاث معًا بترتيب هندسي ذكي لمنع أي تداخل أو أخطاء جديدة.</p>
-<p><strong>الهدف:</strong>
-*   تشغيل المشروع.
-*   تثبيت الأساس المعماري.
-*   الارتقاء به إلى مستوى حقيقي.</p>
+<p><strong>الهدف:</strong></p>
+<ul>
+<li>تشغيل المشروع.</li>
+<li>تثبيت الأساس المعماري.</li>
+<li>الارتقاء به إلى مستوى حقيقي.</li>
+</ul>
 <hr />
 <h2 id="stabilization-layer-a">🧱 المرحلة الأولى: طبقة الاستقرار (Stabilization Layer A)<a class="headerlink" href="#stabilization-layer-a" title="Permanent link">&para;</a></h2>
 <p>هذه المرحلة تم الانتهاء منها فعليًا:</p>
@@ -1168,9 +1170,11 @@
 <p><strong>قاعدة الهندسة المعمارية النظيفة:</strong> لا يُسمح بأي استيراد لـ <code>dart:ui</code> أو <code>flutter</code> في طبقة <strong>Domain</strong>. طبقة <strong>Domain</strong> هي <strong>منطق فقط</strong>.</p>
 </blockquote>
 <h3 id="1-weather-domain-100">1. Weather Domain (100% نظيف)<a class="headerlink" href="#1-weather-domain-100" title="Permanent link">&para;</a></h3>
-<p>تم تطبيق المبدأ بنجاح. تحتوي طبقة المجال على:
-*   المنطق الزراعي والقيم المنطقية فقط.
-*   <strong>لا</strong> ألوان ولا أيقونات.</p>
+<p>تم تطبيق المبدأ بنجاح. تحتوي طبقة المجال على:</p>
+<ul>
+<li>المنطق الزراعي والقيم المنطقية فقط.</li>
+<li><strong>لا</strong> ألوان ولا أيقونات.</li>
+</ul>
 <p><strong>الشكل الصحيح:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// lib/features/weather/domain/entities/weather_impact.dart</span>
 <span class="n">enum</span><span class="w"> </span><span class="n">WeatherImpact</span><span class="w"> </span><span class="p">{</span>
@@ -1226,10 +1230,12 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>النتيجة:</strong>
-*   انتهت جميع مشاكل الألوان.
-*   الكود قابل للتغيير دون لمس طبقة Domain.
-*   جاهز للربط مع NDVI لاحقًا.</p>
+<p><strong>النتيجة:</strong></p>
+<ul>
+<li>انتهت جميع مشاكل الألوان.</li>
+<li>الكود قابل للتغيير دون لمس طبقة Domain.</li>
+<li>جاهز للربط مع NDVI لاحقًا.</li>
+</ul>
 <hr />
 <h2 id="etag-if-match-conflict-resolution">🧱 المرحلة الثالثة: حل تعارض ETag / If-Match (Conflict Resolution)<a class="headerlink" href="#etag-if-match-conflict-resolution" title="Permanent link">&para;</a></h2>
 <p><strong>المعيار الذهبي (Gold Standard) للمؤسسات:</strong> نرفع الآن مستوى التزامن.</p>
@@ -1302,10 +1308,12 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<p><strong>النتيجة:</strong>
-*   ✔️ دون إزعاج.
-*   ✔️ دون فقدان بيانات.
-*   ✔️ دون كسر الثقة.</p>
+<p><strong>النتيجة:</strong></p>
+<ul>
+<li>✔️ دون إزعاج.</li>
+<li>✔️ دون فقدان بيانات.</li>
+<li>✔️ دون كسر الثقة.</li>
+</ul>
 <hr />
 <h2 id="ndvi-field-d-">🧱 المرحلة الرابعة: الطقس + NDVI + الحقل (Field D) - الربط الذكي<a class="headerlink" href="#ndvi-field-d-" title="Permanent link">&para;</a></h2>
 <p>نربط الآن الذكاء الزراعي.</p>
@@ -1358,11 +1366,13 @@
 </tr>
 </tbody>
 </table>
-<p><strong>صالح للعرض على:</strong>
-*   World Bank
-*   FAO
-*   IFAD
-*   Smart Ag Investors</p>
+<p><strong>صالح للعرض على:</strong></p>
+<ul>
+<li>World Bank</li>
+<li>FAO</li>
+<li>IFAD</li>
+<li>Smart Ag Investors</li>
+</ul>
 <hr />
 <h2 id="_2">🧱 الخطوة التالية (اقتراحي الذهبي)<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <p>بما أن كل شيء جاهز:</p>

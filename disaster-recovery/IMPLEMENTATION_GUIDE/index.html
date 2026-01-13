@@ -1251,19 +1251,21 @@ curl<span class="w"> </span>http://localhost:7000/stats
 ./scripts/disaster-recovery/failover-postgres.sh<span class="w"> </span>verify
 </code></pre></div>
 
-<p><strong>Expected Results:</strong>
-- ✅ 3 PostgreSQL nodes running
-- ✅ Replication lag &lt; 1MB
-- ✅ Failover completes in &lt;30 seconds
-- ✅ Zero data loss during failover</p>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>✅ 3 PostgreSQL nodes running</li>
+<li>✅ Replication lag &lt; 1MB</li>
+<li>✅ Failover completes in &lt;30 seconds</li>
+<li>✅ Zero data loss during failover</li>
+</ul>
 <hr />
 <h2 id="phase-2-wal-archiving-pitr-setup">🔄 Phase 2: WAL Archiving &amp; PITR Setup<a class="headerlink" href="#phase-2-wal-archiving-pitr-setup" title="Permanent link">&para;</a></h2>
 <h3 id="implementation-steps_1">Implementation Steps<a class="headerlink" href="#implementation-steps_1" title="Permanent link">&para;</a></h3>
 <h4 id="step-1-verify-wal-archive-configuration">Step 1: Verify WAL Archive Configuration<a class="headerlink" href="#step-1-verify-wal-archive-configuration" title="Permanent link">&para;</a></h4>
 <p>WAL archiving is already configured in <code>patroni-config.yml</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">archive_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on</span>
-<span class="nt">archive_command</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/usr/local/bin/wal-archive.sh</span><span class="nv"> </span><span class="s">%p</span><span class="nv"> </span><span class="s">%f&#39;</span>
-<span class="nt">archive_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w">  </span><span class="c1"># 5 minutes</span>
+<span class="nt">archive_command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/wal-archive.sh</span><span class="nv"> </span><span class="s">%p</span><span class="nv"> </span><span class="s">%f&quot;</span>
+<span class="nt">archive_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w"> </span><span class="c1"># 5 minutes</span>
 </code></pre></div>
 
 <h4 id="step-2-create-s3-bucket-for-wal-archive">Step 2: Create S3 Bucket for WAL Archive<a class="headerlink" href="#step-2-create-s3-bucket-for-wal-archive" title="Permanent link">&para;</a></h4>
@@ -1294,10 +1296,12 @@ sleep<span class="w"> </span><span class="m">30</span>
 mc<span class="w"> </span>ls<span class="w"> </span>minio/sahool-wal-archive/
 </code></pre></div>
 
-<p><strong>Expected Results:</strong>
-- ✅ WAL files appear in archive directory
-- ✅ WAL files uploaded to S3/MinIO
-- ✅ New WAL files every 5 minutes (or on activity)</p>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>✅ WAL files appear in archive directory</li>
+<li>✅ WAL files uploaded to S3/MinIO</li>
+<li>✅ New WAL files every 5 minutes (or on activity)</li>
+</ul>
 <hr />
 <h2 id="phase-3-cross-region-replication">🌍 Phase 3: Cross-Region Replication<a class="headerlink" href="#phase-3-cross-region-replication" title="Permanent link">&para;</a></h2>
 <h3 id="implementation-steps_2">Implementation Steps<a class="headerlink" href="#implementation-steps_2" title="Permanent link">&para;</a></h3>
@@ -1327,10 +1331,12 @@ aws<span class="w"> </span>rds<span class="w"> </span><span class="nb">wait</spa
 <span class="w">  </span>--region<span class="w"> </span>me-central-1
 </code></pre></div>
 
-<p><strong>Expected Results:</strong>
-- ✅ Backups replicated to secondary region
-- ✅ Replication lag &lt; 15 minutes
-- ✅ Read replica can be promoted</p>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>✅ Backups replicated to secondary region</li>
+<li>✅ Replication lag &lt; 15 minutes</li>
+<li>✅ Read replica can be promoted</li>
+</ul>
 <hr />
 <h2 id="phase-4-monitoring-setup">📊 Phase 4: Monitoring Setup<a class="headerlink" href="#phase-4-monitoring-setup" title="Permanent link">&para;</a></h2>
 <h3 id="implementation-steps_3">Implementation Steps<a class="headerlink" href="#implementation-steps_3" title="Permanent link">&para;</a></h3>
@@ -1368,10 +1374,12 @@ curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w">
 <span class="c1"># Navigate to: http://localhost:3000/d/sahool-dr/disaster-recovery-monitoring</span>
 </code></pre></div>
 
-<p><strong>Expected Results:</strong>
-- ✅ Prometheus alerts configured
-- ✅ Grafana dashboard showing metrics
-- ✅ Backup metrics updating every 5 minutes</p>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>✅ Prometheus alerts configured</li>
+<li>✅ Grafana dashboard showing metrics</li>
+<li>✅ Backup metrics updating every 5 minutes</li>
+</ul>
 <hr />
 <h2 id="phase-5-dr-testing">🧪 Phase 5: DR Testing<a class="headerlink" href="#phase-5-dr-testing" title="Permanent link">&para;</a></h2>
 <h3 id="implementation-steps_4">Implementation Steps<a class="headerlink" href="#implementation-steps_4" title="Permanent link">&para;</a></h3>
@@ -1403,11 +1411,13 @@ crontab<span class="w"> </span>-e
 <span class="m">0</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">1</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>/home/user/sahool-unified-v15-idp/scripts/disaster-recovery/test-failover.sh<span class="w"> </span>full<span class="w"> </span>&gt;&gt;<span class="w"> </span>/var/log/sahool/dr-drill.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
 </code></pre></div>
 
-<p><strong>Expected Results:</strong>
-- ✅ All tests pass
-- ✅ Failover completes successfully
-- ✅ Backups verified
-- ✅ Regular drills scheduled</p>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>✅ All tests pass</li>
+<li>✅ Failover completes successfully</li>
+<li>✅ Backups verified</li>
+<li>✅ Regular drills scheduled</li>
+</ul>
 <hr />
 <h2 id="verification-checklist">✅ Verification Checklist<a class="headerlink" href="#verification-checklist" title="Permanent link">&para;</a></h2>
 <h3 id="postgresql-ha">PostgreSQL HA<a class="headerlink" href="#postgresql-ha" title="Permanent link">&para;</a></h3>

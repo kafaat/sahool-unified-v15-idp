@@ -1123,20 +1123,24 @@
 <strong>Status:</strong> Production Ready ✅</p>
 <hr />
 <h2 id="overview">📋 Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>This comprehensive guide covers production deployment of the SAHOOL platform including:
-- Environment configuration
-- Database setup and optimization
-- Security hardening
-- Monitoring and logging
-- Scaling strategies
-- Backup and disaster recovery</p>
-<p>هذا الدليل الشامل يغطي النشر للإنتاج لمنصة سهول بما في ذلك:
-- تكوين البيئة
-- إعداد قاعدة البيانات والتحسين
-- تعزيز الأمان
-- المراقبة والسجلات
-- استراتيجيات التوسع
-- النسخ الاحتياطي والاسترداد من الكوارث</p>
+<p>This comprehensive guide covers production deployment of the SAHOOL platform including:</p>
+<ul>
+<li>Environment configuration</li>
+<li>Database setup and optimization</li>
+<li>Security hardening</li>
+<li>Monitoring and logging</li>
+<li>Scaling strategies</li>
+<li>Backup and disaster recovery</li>
+</ul>
+<p>هذا الدليل الشامل يغطي النشر للإنتاج لمنصة سهول بما في ذلك:</p>
+<ul>
+<li>تكوين البيئة</li>
+<li>إعداد قاعدة البيانات والتحسين</li>
+<li>تعزيز الأمان</li>
+<li>المراقبة والسجلات</li>
+<li>استراتيجيات التوسع</li>
+<li>النسخ الاحتياطي والاسترداد من الكوارث</li>
+</ul>
 <hr />
 <h2 id="environment-variables-reference">🔐 Environment Variables Reference | مرجع المتغيرات البيئية<a class="headerlink" href="#environment-variables-reference" title="Permanent link">&para;</a></h2>
 <h3 id="core-database">Core Database | قاعدة البيانات الأساسية<a class="headerlink" href="#core-database" title="Permanent link">&para;</a></h3>
@@ -1294,13 +1298,13 @@ psql<span class="w"> </span>-U<span class="w"> </span>sahool_user<span class="w"
 
 <span class="c1"># 5. Verify indexes were created</span>
 psql<span class="w"> </span>-U<span class="w"> </span>sahool_user<span class="w"> </span>-d<span class="w"> </span>sahool_db<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">SELECT </span>
+<span class="s2">SELECT</span>
 <span class="s2">  schemaname,</span>
 <span class="s2">  tablename,</span>
 <span class="s2">  indexname,</span>
 <span class="s2">  indexdef</span>
-<span class="s2">FROM pg_indexes </span>
-<span class="s2">WHERE indexname LIKE &#39;idx_%_metadata_gin&#39; </span>
+<span class="s2">FROM pg_indexes</span>
+<span class="s2">WHERE indexname LIKE &#39;idx_%_metadata_gin&#39;</span>
 <span class="s2">   OR indexname LIKE &#39;idx_sensor_readings_tenant_time&#39;</span>
 <span class="s2">ORDER BY tablename, indexname;</span>
 <span class="s2">&quot;</span>
@@ -1379,7 +1383,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"
 <h2 id="performance-optimization">📊 Performance Optimization | تحسين الأداء<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h2>
 <h3 id="database-optimization">Database Optimization | تحسين قاعدة البيانات<a class="headerlink" href="#database-optimization" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Monitor index usage</span>
-<span class="k">SELECT</span><span class="w"> </span>
+<span class="k">SELECT</span>
 <span class="w">  </span><span class="n">schemaname</span><span class="p">,</span>
 <span class="w">  </span><span class="n">tablename</span><span class="p">,</span>
 <span class="w">  </span><span class="n">indexname</span><span class="p">,</span>
@@ -1399,7 +1403,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"
 <span class="k">VACUUM</span><span class="w"> </span><span class="k">ANALYZE</span><span class="p">;</span>
 
 <span class="c1">-- Check bloat</span>
-<span class="k">SELECT</span><span class="w"> </span>
+<span class="k">SELECT</span>
 <span class="w">  </span><span class="n">schemaname</span><span class="p">,</span>
 <span class="w">  </span><span class="n">tablename</span><span class="p">,</span>
 <span class="w">  </span><span class="n">pg_size_pretty</span><span class="p">(</span><span class="n">pg_total_relation_size</span><span class="p">(</span><span class="n">schemaname</span><span class="o">||</span><span class="s1">&#39;.&#39;</span><span class="o">||</span><span class="n">tablename</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">size</span>
@@ -1524,18 +1528,18 @@ systemctl<span class="w"> </span>restart<span class="w"> </span>postgresql
 <span class="w">  </span><span class="nt">minReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">  </span><span class="nt">maxReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
 <span class="w">  </span><span class="nt">metrics</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Resource</span>
-<span class="w">    </span><span class="nt">resource</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpu</span>
-<span class="w">      </span><span class="nt">target</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Utilization</span>
-<span class="w">        </span><span class="nt">averageUtilization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">70</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Resource</span>
-<span class="w">    </span><span class="nt">resource</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span>
-<span class="w">      </span><span class="nt">target</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Utilization</span>
-<span class="w">        </span><span class="nt">averageUtilization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Resource</span>
+<span class="w">      </span><span class="nt">resource</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cpu</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Utilization</span>
+<span class="w">          </span><span class="nt">averageUtilization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">70</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Resource</span>
+<span class="w">      </span><span class="nt">resource</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Utilization</span>
+<span class="w">          </span><span class="nt">averageUtilization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
 </code></pre></div>
 
 <h3 id="load-testing">Load Testing | اختبار الحمل<a class="headerlink" href="#load-testing" title="Permanent link">&para;</a></h3>
@@ -1559,24 +1563,24 @@ k6<span class="w"> </span>run<span class="w"> </span>--vus<span class="w"> </spa
 <span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-service</span>
 <span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Egress</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Egress</span>
 <span class="w">  </span><span class="nt">ingress</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">from</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">podSelector</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">matchLabels</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong</span>
-<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
-<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8095</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">from</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">podSelector</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong</span>
+<span class="w">      </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8095</span>
 <span class="w">  </span><span class="nt">egress</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">to</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">podSelector</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">matchLabels</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
-<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
-<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">to</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">podSelector</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+<span class="w">      </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
 </code></pre></div>
 
 <h3 id="security-scanning">Security Scanning | فحص الأمان<a class="headerlink" href="#security-scanning" title="Permanent link">&para;</a></h3>
@@ -1597,7 +1601,7 @@ helm<span class="w"> </span>install<span class="w"> </span>falco<span class="w">
 <h3 id="common-issues">Common Issues | المشاكل الشائعة<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
 <h4 id="high-database-load">High Database Load | حمل عالي على قاعدة البيانات<a class="headerlink" href="#high-database-load" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Find slow queries</span>
-<span class="k">SELECT</span><span class="w"> </span>
+<span class="k">SELECT</span>
 <span class="w">  </span><span class="n">pid</span><span class="p">,</span>
 <span class="w">  </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">pg_stat_activity</span><span class="p">.</span><span class="n">query_start</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">duration</span><span class="p">,</span>
 <span class="w">  </span><span class="n">query</span><span class="p">,</span>

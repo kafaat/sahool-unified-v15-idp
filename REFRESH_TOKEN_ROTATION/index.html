@@ -1120,17 +1120,21 @@
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>This document describes the refresh token rotation security feature implemented in the SAHOOL authentication system. Refresh token rotation is a security best practice that mitigates the risk of token theft and replay attacks.</p>
 <h2 id="problem-statement">Problem Statement<a class="headerlink" href="#problem-statement" title="Permanent link">&para;</a></h2>
-<p><strong>Before:</strong> Refresh tokens could be reused indefinitely until expiration, making them vulnerable to:
-- Token theft and replay attacks
-- Unauthorized access if a token is compromised
-- No detection mechanism for token reuse</p>
+<p><strong>Before:</strong> Refresh tokens could be reused indefinitely until expiration, making them vulnerable to:</p>
+<ul>
+<li>Token theft and replay attacks</li>
+<li>Unauthorized access if a token is compromised</li>
+<li>No detection mechanism for token reuse</li>
+</ul>
 <h2 id="solution">Solution<a class="headerlink" href="#solution" title="Permanent link">&para;</a></h2>
-<p><strong>After:</strong> Implemented automatic refresh token rotation with:
-1. <strong>One-time use tokens:</strong> Each refresh token can only be used once
-2. <strong>Token family tracking:</strong> All rotated tokens share a family ID
-3. <strong>Reuse detection:</strong> Detects when a used token is replayed
-4. <strong>Family invalidation:</strong> Invalidates all tokens in a family when reuse is detected
-5. <strong>Dual storage:</strong> Tokens stored in both PostgreSQL (persistence) and Redis (fast blacklisting)</p>
+<p><strong>After:</strong> Implemented automatic refresh token rotation with:</p>
+<ol>
+<li><strong>One-time use tokens:</strong> Each refresh token can only be used once</li>
+<li><strong>Token family tracking:</strong> All rotated tokens share a family ID</li>
+<li><strong>Reuse detection:</strong> Detects when a used token is replayed</li>
+<li><strong>Family invalidation:</strong> Invalidates all tokens in a family when reuse is detected</li>
+<li><strong>Dual storage:</strong> Tokens stored in both PostgreSQL (persistence) and Redis (fast blacklisting)</li>
+</ol>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
 <h3 id="token-family-flow">Token Family Flow<a class="headerlink" href="#token-family-flow" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>Login
@@ -1163,12 +1167,14 @@ Reuse Attack (using Token 1 again)
 <h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
 <h3 id="1-database-schema-updates">1. Database Schema Updates<a class="headerlink" href="#1-database-schema-updates" title="Permanent link">&para;</a></h3>
 <p><strong>File:</strong> <code>/home/user/sahool-unified-v15-idp/apps/services/user-service/prisma/schema.prisma</code></p>
-<p>Added to <code>RefreshToken</code> model:
-- <code>jti</code>: Unique JWT ID for token identification
-- <code>family</code>: Token family ID for rotation tracking
-- <code>used</code>: Boolean flag indicating if token was used
-- <code>usedAt</code>: Timestamp of when token was used
-- <code>replacedBy</code>: JTI of the replacement token</p>
+<p>Added to <code>RefreshToken</code> model:</p>
+<ul>
+<li><code>jti</code>: Unique JWT ID for token identification</li>
+<li><code>family</code>: Token family ID for rotation tracking</li>
+<li><code>used</code>: Boolean flag indicating if token was used</li>
+<li><code>usedAt</code>: Timestamp of when token was used</li>
+<li><code>replacedBy</code>: JTI of the replacement token</li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">RefreshToken</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
 <span class="w">  </span><span class="n">userId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;user_id&quot;</span><span class="p">)</span>
@@ -1202,7 +1208,7 @@ Reuse Attack (using Token 1 again)
 <span class="w">  </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
 <span class="w">  </span><span class="nx">tid?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">jti</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
-<span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;access&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;refresh&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;access&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;refresh&quot;</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">family?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="c1">// Token family for refresh token rotation</span>
 <span class="w">  </span><span class="nx">iat?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">exp?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
@@ -1210,11 +1216,13 @@ Reuse Attack (using Token 1 again)
 </code></pre></div>
 
 <h3 id="3-token-generation-with-family">3. Token Generation with Family<a class="headerlink" href="#3-token-generation-with-family" title="Permanent link">&para;</a></h3>
-<p>Updated <code>generateTokens()</code> method:
-- Accepts optional <code>family</code> parameter
-- Generates new family ID on initial login
-- Reuses family ID on token rotation
-- Stores refresh token in PostgreSQL with family information</p>
+<p>Updated <code>generateTokens()</code> method:</p>
+<ul>
+<li>Accepts optional <code>family</code> parameter</li>
+<li>Generates new family ID on initial login</li>
+<li>Reuses family ID on token rotation</li>
+<li>Stores refresh token in PostgreSQL with family information</li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">generateTokens</span><span class="p">(</span>
 <span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">family?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
@@ -1242,10 +1250,12 @@ Reuse Attack (using Token 1 again)
 </code></pre></div>
 
 <h3 id="4-token-family-invalidation">4. Token Family Invalidation<a class="headerlink" href="#4-token-family-invalidation" title="Permanent link">&para;</a></h3>
-<p>New method <code>invalidateTokenFamily()</code>:
-- Marks all tokens in family as revoked in PostgreSQL
-- Blacklists all tokens in family in Redis
-- Logs security warning</p>
+<p>New method <code>invalidateTokenFamily()</code>:</p>
+<ul>
+<li>Marks all tokens in family as revoked in PostgreSQL</li>
+<li>Blacklists all tokens in family in Redis</li>
+<li>Logs security warning</li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">invalidateTokenFamily</span><span class="p">(</span><span class="nx">family</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Mark all tokens in family as revoked in database</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">refreshToken</span><span class="p">.</span><span class="nx">updateMany</span><span class="p">({</span>
@@ -1273,20 +1283,24 @@ Reuse Attack (using Token 1 again)
 
 <h3 id="5-refresh-token-rotation">5. Refresh Token Rotation<a class="headerlink" href="#5-refresh-token-rotation" title="Permanent link">&para;</a></h3>
 <p>Completely rewritten <code>refreshToken()</code> method:</p>
-<p><strong>Security Checks:</strong>
-1. Verify JWT signature and expiration
-2. Verify token type is 'refresh'
-3. Check token exists in database
-4. <strong>Check if token was already used (reuse detection)</strong>
-5. Check if token is revoked
-6. Check if token is expired
-7. Verify user account is still active</p>
-<p><strong>Rotation Process:</strong>
-1. Mark current token as USED in database
-2. Store <code>replacedBy</code> JTI for audit trail
-3. Blacklist old token in Redis (5 min TTL for detection window)
-4. Generate new token pair with same family
-5. Return new access and refresh tokens</p>
+<p><strong>Security Checks:</strong></p>
+<ol>
+<li>Verify JWT signature and expiration</li>
+<li>Verify token type is 'refresh'</li>
+<li>Check token exists in database</li>
+<li><strong>Check if token was already used (reuse detection)</strong></li>
+<li>Check if token is revoked</li>
+<li>Check if token is expired</li>
+<li>Verify user account is still active</li>
+</ol>
+<p><strong>Rotation Process:</strong></p>
+<ol>
+<li>Mark current token as USED in database</li>
+<li>Store <code>replacedBy</code> JTI for audit trail</li>
+<li>Blacklist old token in Redis (5 min TTL for detection window)</li>
+<li>Generate new token pair with same family</li>
+<li>Return new access and refresh tokens</li>
+</ol>
 <p><strong>Reuse Detection:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Check if token was already used (replay attack detection)</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">storedToken</span><span class="p">.</span><span class="nx">used</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1300,7 +1314,7 @@ Reuse Attack (using Token 1 again)
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span>
-<span class="w">    </span><span class="s1">&#39;Token reuse detected - all tokens in family have been invalidated&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;Token reuse detected - all tokens in family have been invalidated&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1331,12 +1345,12 @@ Reuse Attack (using Token 1 again)
 <p>Updated to store new refresh token in cookies:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Update refresh token (always rotated now)</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">refresh_token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">cookieStore</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;sahool_admin_refresh_token&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">refresh_token</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">cookieStore</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;sahool_admin_refresh_token&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">refresh_token</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">httpOnly</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">secure</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;production&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">sameSite</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;strict&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">secure</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;production&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">sameSite</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;strict&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">maxAge</span><span class="o">:</span><span class="w"> </span><span class="kt">604800</span><span class="p">,</span><span class="w"> </span><span class="c1">// 7 days</span>
-<span class="w">    </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1516,22 +1530,28 @@ Token family invalidated due to reuse detection: family=xyz789...
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="issue-token-reuse-detected-on-legitimate-requests">Issue: "Token reuse detected" on legitimate requests<a class="headerlink" href="#issue-token-reuse-detected-on-legitimate-requests" title="Permanent link">&para;</a></h3>
 <p><strong>Cause:</strong> Race condition - client made concurrent refresh requests</p>
-<p><strong>Solution:</strong>
-- Implement request queuing on client side
-- Use mutex/lock for refresh operations
-- Increase Redis TTL for detection window</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Implement request queuing on client side</li>
+<li>Use mutex/lock for refresh operations</li>
+<li>Increase Redis TTL for detection window</li>
+</ul>
 <h3 id="issue-all-user-sessions-invalidated-unexpectedly">Issue: All user sessions invalidated unexpectedly<a class="headerlink" href="#issue-all-user-sessions-invalidated-unexpectedly" title="Permanent link">&para;</a></h3>
 <p><strong>Cause:</strong> Token reuse in one session invalidated entire family</p>
-<p><strong>Solution:</strong>
-- Each login creates a NEW family
-- Different devices/sessions have different families
-- Only the compromised session is invalidated</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Each login creates a NEW family</li>
+<li>Different devices/sessions have different families</li>
+<li>Only the compromised session is invalidated</li>
+</ul>
 <h3 id="issue-high-redis-memory-usage">Issue: High Redis memory usage<a class="headerlink" href="#issue-high-redis-memory-usage" title="Permanent link">&para;</a></h3>
 <p><strong>Cause:</strong> Many used tokens in Redis</p>
-<p><strong>Solution:</strong>
-- Reduce detection window TTL (currently 5 minutes)
-- Implement Redis eviction policy (LRU)
-- Monitor and adjust based on usage patterns</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Reduce detection window TTL (currently 5 minutes)</li>
+<li>Implement Redis eviction policy (LRU)</li>
+<li>Monitor and adjust based on usage patterns</li>
+</ul>
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics">OAuth 2.0 Security Best Practices</a></li>

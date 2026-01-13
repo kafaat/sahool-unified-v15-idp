@@ -1316,10 +1316,12 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 docker<span class="w"> </span>inspect<span class="w"> </span>sahool-field-ops<span class="w"> </span>--format<span class="o">=</span><span class="s1">&#39;{{.State.ExitCode}}&#39;</span>
 </code></pre></div>
 
-<p><strong>Common Causes</strong>:
-1. Database not ready - wait for postgres healthcheck
-2. Missing environment variables
-3. Port already in use</p>
+<p><strong>Common Causes</strong>:</p>
+<ol>
+<li>Database not ready - wait for postgres healthcheck</li>
+<li>Missing environment variables</li>
+<li>Port already in use</li>
+</ol>
 <h3 id="database-connection-errors">Database Connection Errors<a class="headerlink" href="#database-connection-errors" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms</strong>: "connection refused" or timeout</p>
 <p><strong>Diagnosis</strong>:</p>
@@ -1330,9 +1332,11 @@ docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> 
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-field-ops<span class="w"> </span>nc<span class="w"> </span>-zv<span class="w"> </span>postgres<span class="w"> </span><span class="m">5432</span>
 </code></pre></div>
 
-<p><strong>Solutions</strong>:
-1. Restart postgres: <code>docker compose restart postgres</code>
-2. Check network: <code>docker network inspect sahool-network</code></p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>Restart postgres: <code>docker compose restart postgres</code></li>
+<li>Check network: <code>docker network inspect sahool-network</code></li>
+</ol>
 <h3 id="high-memory-usage">High Memory Usage<a class="headerlink" href="#high-memory-usage" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms</strong>: OOM kills, slow responses</p>
 <p><strong>Diagnosis</strong>:</p>
@@ -1340,10 +1344,12 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 docker<span class="w"> </span>compose<span class="w"> </span>top
 </code></pre></div>
 
-<p><strong>Solutions</strong>:
-1. Increase container limits in docker-compose.yml
-2. Add more replicas for load distribution
-3. Check for memory leaks in logs</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>Increase container limits in docker-compose.yml</li>
+<li>Add more replicas for load distribution</li>
+<li>Check for memory leaks in logs</li>
+</ol>
 <h3 id="nats-connection-issues">NATS Connection Issues<a class="headerlink" href="#nats-connection-issues" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms</strong>: Events not flowing</p>
 <p><strong>Diagnosis</strong>:</p>
@@ -1351,10 +1357,12 @@ docker<span class="w"> </span>compose<span class="w"> </span>top
 docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>nats<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span>
 </code></pre></div>
 
-<p><strong>Solutions</strong>:
-1. Restart NATS: <code>docker compose restart nats</code>
-2. Check JetStream is enabled
-3. Verify network connectivity</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>Restart NATS: <code>docker compose restart nats</code></li>
+<li>Check JetStream is enabled</li>
+<li>Verify network connectivity</li>
+</ol>
 <h2 id="performance-tuning">Performance Tuning<a class="headerlink" href="#performance-tuning" title="Permanent link">&para;</a></h2>
 <h3 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Connection pool size (in service env)</span>
@@ -1395,34 +1403,32 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <h2 id="disaster-recovery">Disaster Recovery<a class="headerlink" href="#disaster-recovery" title="Permanent link">&para;</a></h2>
 <h3 id="complete-system-recovery">Complete System Recovery<a class="headerlink" href="#complete-system-recovery" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Stop all services</strong>
-   <code>bash
+<li><strong>Stop all services</strong></li>
+</ol>
+<p><code>bash
    docker compose down</code></p>
-</li>
-<li>
-<p><strong>Restore database</strong>
-   <code>bash
+<ol>
+<li><strong>Restore database</strong></li>
+</ol>
+<p><code>bash
    docker compose up -d postgres
    sleep 10
    docker exec -i sahool-postgres psql -U sahool sahool &lt; backup.sql</code></p>
-</li>
-<li>
-<p><strong>Restore NATS streams</strong> (if backed up)
-   <code>bash
+<ol>
+<li><strong>Restore NATS streams</strong> (if backed up)</li>
+</ol>
+<p><code>bash
    docker compose up -d nats
    nats stream restore /backups/nats/</code></p>
-</li>
-<li>
-<p><strong>Start all services</strong>
-   <code>bash
+<ol>
+<li><strong>Start all services</strong></li>
+</ol>
+<p><code>bash
    docker compose up -d</code></p>
-</li>
-<li>
-<p><strong>Verify</strong>
+<ol>
+<li><strong>Verify</strong>
    <code>bash
-   ./tools/release/smoke_test.sh</code></p>
-</li>
+   ./tools/release/smoke_test.sh</code></li>
 </ol>
 <h3 id="rollback-deployment">Rollback Deployment<a class="headerlink" href="#rollback-deployment" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Tag current state</span>

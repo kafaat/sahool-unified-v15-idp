@@ -1223,14 +1223,18 @@
 <span class="nv">JWT_SECRET_KEY</span><span class="o">=</span>your-jwt-secret
 </code></pre></div>
 
-<p><strong>Pros:</strong>
-- Simple and straightforward
-- No external dependencies
-- Fast access</p>
-<p><strong>Cons:</strong>
-- No rotation support
-- Limited security
-- No audit trail</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Simple and straightforward</li>
+<li>No external dependencies</li>
+<li>Fast access</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>No rotation support</li>
+<li>Limited security</li>
+<li>No audit trail</li>
+</ul>
 <hr />
 <h3 id="2-hashicorp-vault-production-recommended">2. HashiCorp Vault (Production - Recommended)<a class="headerlink" href="#2-hashicorp-vault-production-recommended" title="Permanent link">&para;</a></h3>
 <p><strong>Use Cases:</strong> Production deployments, high-security environments</p>
@@ -1244,12 +1248,14 @@
 <span class="nv">VAULT_PATH_PREFIX</span><span class="o">=</span>sahool
 </code></pre></div>
 
-<p><strong>Features:</strong>
-- Dynamic secrets with automatic rotation
-- Comprehensive audit logging
-- Encryption at rest and in transit
-- High availability support
-- Fine-grained access control</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Dynamic secrets with automatic rotation</li>
+<li>Comprehensive audit logging</li>
+<li>Encryption at rest and in transit</li>
+<li>High availability support</li>
+<li>Fine-grained access control</li>
+</ul>
 <p><strong>Setup:</strong> See <a href="#vault-setup">Vault Setup</a></p>
 <hr />
 <h3 id="3-aws-secrets-manager">3. AWS Secrets Manager<a class="headerlink" href="#3-aws-secrets-manager" title="Permanent link">&para;</a></h3>
@@ -1264,11 +1270,13 @@
 <span class="c1"># AWS_SECRET_ACCESS_KEY=&lt;your-secret-key&gt;</span>
 </code></pre></div>
 
-<p><strong>Features:</strong>
-- Automatic rotation support
-- IAM-based access control
-- Integration with AWS services
-- Versioning and recovery</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Automatic rotation support</li>
+<li>IAM-based access control</li>
+<li>Integration with AWS services</li>
+<li>Versioning and recovery</li>
+</ul>
 <hr />
 <h3 id="4-azure-key-vault">4. Azure Key Vault<a class="headerlink" href="#4-azure-key-vault" title="Permanent link">&para;</a></h3>
 <p><strong>Use Cases:</strong> Azure deployments, AKS clusters</p>
@@ -1281,11 +1289,13 @@
 <span class="nv">AZURE_CLIENT_SECRET</span><span class="o">=</span>&lt;your-client-secret&gt;
 </code></pre></div>
 
-<p><strong>Features:</strong>
-- Managed identities support
-- Hardware security module (HSM) backed keys
-- Automatic key rotation
-- Azure AD integration</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Managed identities support</li>
+<li>Hardware security module (HSM) backed keys</li>
+<li>Automatic key rotation</li>
+<li>Azure AD integration</li>
+</ul>
 <hr />
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <h3 id="development-setup-environment-variables">Development Setup (Environment Variables)<a class="headerlink" href="#development-setup-environment-variables" title="Permanent link">&para;</a></h3>
@@ -1376,12 +1386,14 @@ vault<span class="w"> </span>login<span class="w"> </span>&lt;root-token&gt;
 ./infrastructure/core/vault/vault-init.sh
 </code></pre></div>
 
-<p>This script will:
-- Enable secrets engines (KV v2, Database, PKI)
-- Create SAHOOL secret structure
-- Configure authentication (AppRole, Kubernetes)
-- Enable audit logging
-- Generate AppRole credentials</p>
+<p>This script will:</p>
+<ul>
+<li>Enable secrets engines (KV v2, Database, PKI)</li>
+<li>Create SAHOOL secret structure</li>
+<li>Configure authentication (AppRole, Kubernetes)</li>
+<li>Enable audit logging</li>
+<li>Generate AppRole credentials</li>
+</ul>
 <h3 id="4-save-credentials">4. Save Credentials<a class="headerlink" href="#4-save-credentials" title="Permanent link">&para;</a></h3>
 <p>The script outputs AppRole credentials:</p>
 <div class="codehilite"><pre><span></span><code><span class="nv">VAULT_ROLE_ID</span><span class="o">=</span>&lt;role-id&gt;
@@ -1429,12 +1441,14 @@ python3<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 <h3 id="production-vault-configuration">Production Vault Configuration<a class="headerlink" href="#production-vault-configuration" title="Permanent link">&para;</a></h3>
 <p>For production, use the provided configuration:</p>
 <p><strong>File:</strong> <code>infrastructure/core/vault/vault-production.hcl</code></p>
-<p><strong>Features:</strong>
-- Raft storage (integrated HA)
-- TLS encryption
-- Auto-unseal (AWS KMS, Azure KeyVault, GCP Cloud KMS)
-- Audit logging
-- Prometheus metrics</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Raft storage (integrated HA)</li>
+<li>TLS encryption</li>
+<li>Auto-unseal (AWS KMS, Azure KeyVault, GCP Cloud KMS)</li>
+<li>Audit logging</li>
+<li>Prometheus metrics</li>
+</ul>
 <p><strong>Enable auto-unseal:</strong></p>
 <p>For AWS:</p>
 <div class="codehilite"><pre><span></span><code><span class="err">seal</span><span class="w"> </span><span class="s2">&quot;awskms&quot;</span><span class="w"> </span><span class="p">{</span>
@@ -1466,10 +1480,12 @@ helm<span class="w"> </span>install<span class="w"> </span>external-secrets<span
 <div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>gitops/secrets/external-secrets-operator.yaml
 </code></pre></div>
 
-<p>This creates:
-- <strong>SecretStore</strong> for Vault/AWS/Azure
-- <strong>ExternalSecret</strong> resources for PostgreSQL, Redis, NATS, JWT, etc.
-- Automatic secret synchronization every 1 hour</p>
+<p>This creates:</p>
+<ul>
+<li><strong>SecretStore</strong> for Vault/AWS/Azure</li>
+<li><strong>ExternalSecret</strong> resources for PostgreSQL, Redis, NATS, JWT, etc.</li>
+<li>Automatic secret synchronization every 1 hour</li>
+</ul>
 <h3 id="3-verify-secrets">3. Verify Secrets<a class="headerlink" href="#3-verify-secrets" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check ExternalSecrets status</span>
 kubectl<span class="w"> </span>get<span class="w"> </span>externalsecrets<span class="w"> </span>-n<span class="w"> </span>sahool
@@ -1606,14 +1622,18 @@ Secret: jwt
 <span class="nv">USE_VAULT_DYNAMIC_SECRETS</span><span class="o">=</span><span class="nb">true</span>
 </code></pre></div>
 
-<p>Vault will:
-- Generate new database credentials on demand
-- Automatically rotate credentials based on TTL (24h default)
-- Revoke old credentials after expiry</p>
-<p><strong>Benefits:</strong>
-- Zero-touch rotation
-- Least privilege access
-- Automatic cleanup</p>
+<p>Vault will:</p>
+<ul>
+<li>Generate new database credentials on demand</li>
+<li>Automatically rotate credentials based on TTL (24h default)</li>
+<li>Revoke old credentials after expiry</li>
+</ul>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Zero-touch rotation</li>
+<li>Least privilege access</li>
+<li>Automatic cleanup</li>
+</ul>
 <hr />
 <h2 id="audit-monitoring">Audit &amp; Monitoring<a class="headerlink" href="#audit-monitoring" title="Permanent link">&para;</a></h2>
 <h3 id="secret-access-logging">Secret Access Logging<a class="headerlink" href="#secret-access-logging" title="Permanent link">&para;</a></h3>
@@ -1649,10 +1669,12 @@ Secret: jwt
 <li><strong>Unusual access times</strong> (3-6 AM)</li>
 <li><strong>Access from new IPs</strong></li>
 </ol>
-<p><strong>Alerts are sent via:</strong>
-- Log warnings
-- Slack/Teams webhooks (configure <code>SLACK_WEBHOOK_URL</code>)
-- Email notifications</p>
+<p><strong>Alerts are sent via:</strong></p>
+<ul>
+<li>Log warnings</li>
+<li>Slack/Teams webhooks (configure <code>SLACK_WEBHOOK_URL</code>)</li>
+<li>Email notifications</li>
+</ul>
 <h3 id="prometheus-metrics">Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Permanent link">&para;</a></h3>
 <p>Available metrics:</p>
 <div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Total</span><span class="w"> </span><span class="nx">secret</span><span class="w"> </span><span class="nx">accesses</span>
@@ -1885,9 +1907,11 @@ vault<span class="w"> </span>kv<span class="w"> </span>get<span class="w"> </spa
 
 <hr />
 <h3 id="issue-external-secrets-not-syncing">Issue: "External Secrets not syncing"<a class="headerlink" href="#issue-external-secrets-not-syncing" title="Permanent link">&para;</a></h3>
-<p><strong>Symptoms:</strong>
-- ExternalSecret status shows error
-- Kubernetes secrets not created</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>ExternalSecret status shows error</li>
+<li>Kubernetes secrets not created</li>
+</ul>
 <p><strong>Solutions:</strong></p>
 <ol>
 <li>Check ExternalSecret status:</li>

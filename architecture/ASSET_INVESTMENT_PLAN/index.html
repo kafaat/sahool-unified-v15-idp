@@ -1293,11 +1293,13 @@
     <span class="n">status</span><span class="p">:</span> <span class="n">ActionStatus</span> <span class="o">=</span> <span class="n">ActionStatus</span><span class="o">.</span><span class="n">PENDING</span>
 </code></pre></div>
 
-<p><strong>الملفات المتأثرة:</strong>
-- <code>shared/contracts/action_template.py</code> (جديد)
-- <code>apps/services/fertilizer-advisor/src/main.py</code> (تحديث المخرجات)
-- <code>apps/services/irrigation-smart/src/main.py</code> (تحديث المخرجات)
-- <code>apps/services/crop-health-ai/src/main.py</code> (تحديث المخرجات)</p>
+<p><strong>الملفات المتأثرة:</strong></p>
+<ul>
+<li><code>shared/contracts/action_template.py</code> (جديد)</li>
+<li><code>apps/services/fertilizer-advisor/src/main.py</code> (تحديث المخرجات)</li>
+<li><code>apps/services/irrigation-smart/src/main.py</code> (تحديث المخرجات)</li>
+<li><code>apps/services/crop-health-ai/src/main.py</code> (تحديث المخرجات)</li>
+</ul>
 <hr />
 <h4 id="12-nats-as-notification-spine">1.2 NATS as Notification Spine<a class="headerlink" href="#12-nats-as-notification-spine" title="Permanent link">&para;</a></h4>
 <p><strong>الهدف:</strong> تفعيل NATS للتنبيهات بدلاً من REST المباشر</p>
@@ -1331,19 +1333,21 @@
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">envelope</span><span class="p">)</span>
 </code></pre></div>
 
-<p><strong>الملفات المتأثرة:</strong>
-- <code>apps/services/satellite-service/src/events.py</code> (جديد)
-- <code>apps/services/notification-service/src/subscribers.py</code> (جديد)
-- <code>docker-compose.yml</code> (تفعيل NATS)</p>
+<p><strong>الملفات المتأثرة:</strong></p>
+<ul>
+<li><code>apps/services/satellite-service/src/events.py</code> (جديد)</li>
+<li><code>apps/services/notification-service/src/subscribers.py</code> (جديد)</li>
+<li><code>docker-compose.yml</code> (تفعيل NATS)</li>
+</ul>
 <hr />
 <h4 id="13-unified-offline-ux-components">1.3 Unified Offline UX Components<a class="headerlink" href="#13-unified-offline-ux-components" title="Permanent link">&para;</a></h4>
 <p><strong>الهدف:</strong> مكونات موحدة للتعامل مع حالة عدم الاتصال</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// packages/shared-ui/src/components/offline/index.ts</span>
 
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineBanner</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./OfflineBanner&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">StaleDataBadge</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./StaleDataBadge&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SyncStatusIndicator</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./SyncStatusIndicator&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineAwareWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./OfflineAwareWrapper&#39;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineBanner</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./OfflineBanner&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">StaleDataBadge</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./StaleDataBadge&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SyncStatusIndicator</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./SyncStatusIndicator&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineAwareWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./OfflineAwareWrapper&quot;</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// packages/shared-ui/src/components/offline/OfflineAwareWrapper.tsx</span>
@@ -1375,12 +1379,14 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>الملفات الجديدة:</strong>
-- <code>packages/shared-ui/src/components/offline/OfflineBanner.tsx</code>
-- <code>packages/shared-ui/src/components/offline/StaleDataBadge.tsx</code>
-- <code>packages/shared-ui/src/components/offline/SyncStatusIndicator.tsx</code>
-- <code>packages/shared-ui/src/components/offline/OfflineAwareWrapper.tsx</code>
-- <code>packages/shared-ui/src/components/offline/index.ts</code></p>
+<p><strong>الملفات الجديدة:</strong></p>
+<ul>
+<li><code>packages/shared-ui/src/components/offline/OfflineBanner.tsx</code></li>
+<li><code>packages/shared-ui/src/components/offline/StaleDataBadge.tsx</code></li>
+<li><code>packages/shared-ui/src/components/offline/SyncStatusIndicator.tsx</code></li>
+<li><code>packages/shared-ui/src/components/offline/OfflineAwareWrapper.tsx</code></li>
+<li><code>packages/shared-ui/src/components/offline/index.ts</code></li>
+</ul>
 <hr />
 <h3 id="phase-2-medium-investment-31-60">Phase 2: Medium Investment (31-60 يوم)<a class="headerlink" href="#phase-2-medium-investment-31-60" title="Permanent link">&para;</a></h3>
 <h4 id="21-historical-geospatial-intelligence">2.1 Historical Geospatial Intelligence<a class="headerlink" href="#21-historical-geospatial-intelligence" title="Permanent link">&para;</a></h4>
@@ -1708,10 +1714,12 @@ apps/services/analytics-service/             # Operations Analytics
 </ul>
 <hr />
 <h2 id="_7">الخطوة التالية<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
-<p>ابدأ بـ <strong>Phase 1.1: Action Template Standard</strong> لأنه:
-1. أقل جهد
-2. أعلى عائد
-3. أساس لكل المراحل اللاحقة</p>
+<p>ابدأ بـ <strong>Phase 1.1: Action Template Standard</strong> لأنه:</p>
+<ol>
+<li>أقل جهد</li>
+<li>أعلى عائد</li>
+<li>أساس لكل المراحل اللاحقة</li>
+</ol>
 <hr />
 <p align="center">
   <sub>SAHOOL Asset Investment Plan v1.0.0</sub>

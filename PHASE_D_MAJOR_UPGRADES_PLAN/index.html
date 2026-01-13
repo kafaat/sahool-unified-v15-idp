@@ -1123,10 +1123,12 @@
 <strong>الحالة:</strong> 📋 مخطط</p>
 <hr />
 <h2 id="important-warning">⚠️ تحذير هام | Important Warning<a class="headerlink" href="#important-warning" title="Permanent link">&para;</a></h2>
-<p>هذه الترقيات تعتبر <strong>عالية المخاطر</strong> وتتطلب:
-- اختبارًا شاملًا قبل الدمج
-- مراجعة جميع الميزات المتأثرة
-- تخصيص وقت كافٍ للتعامل مع المشاكل غير المتوقعة</p>
+<p>هذه الترقيات تعتبر <strong>عالية المخاطر</strong> وتتطلب:</p>
+<ul>
+<li>اختبارًا شاملًا قبل الدمج</li>
+<li>مراجعة جميع الميزات المتأثرة</li>
+<li>تخصيص وقت كافٍ للتعامل مع المشاكل غير المتوقعة</li>
+</ul>
 <hr />
 <h2 id="1-overview">1. نظرة عامة | Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
 <h3 id="_1">الترقيات المخططة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
@@ -1200,8 +1202,10 @@
 </table>
 <h3 id="23-breaking-changes">2.3 التغييرات الكسرية (Breaking Changes)<a class="headerlink" href="#23-breaking-changes" title="Permanent link">&para;</a></h3>
 <h4 id="231-middlewarets-proxyts">2.3.1 middleware.ts → proxy.ts<a class="headerlink" href="#231-middlewarets-proxyts" title="Permanent link">&para;</a></h4>
-<p><strong>الملفات المتأثرة:</strong>
-- <code>apps/admin/src/middleware.ts</code></p>
+<p><strong>الملفات المتأثرة:</strong></p>
+<ul>
+<li><code>apps/admin/src/middleware.ts</code></li>
+</ul>
 <p><strong>التغييرات المطلوبة:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// قبل (Next.js 15)</span>
 <span class="c1">// apps/admin/src/middleware.ts</span>
@@ -1212,10 +1216,12 @@
 <span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">proxy</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">NextRequest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 
-<p><strong>خطة الترحيل:</strong>
-1. إعادة تسمية الملف: <code>middleware.ts</code> → <code>proxy.ts</code>
-2. تغيير اسم الدالة: <code>middleware</code> → <code>proxy</code>
-3. تحديث أي imports أو references</p>
+<p><strong>خطة الترحيل:</strong></p>
+<ol>
+<li>إعادة تسمية الملف: <code>middleware.ts</code> → <code>proxy.ts</code></li>
+<li>تغيير اسم الدالة: <code>middleware</code> → <code>proxy</code></li>
+<li>تحديث أي imports أو references</li>
+</ol>
 <h4 id="232-async-params-searchparams">2.3.2 async params &amp; searchParams<a class="headerlink" href="#232-async-params-searchparams" title="Permanent link">&para;</a></h4>
 <p><strong>الملفات المتأثرة:</strong> جميع صفحات Server Components التي تستخدم params</p>
 <p><strong>التغييرات المطلوبة:</strong></p>
@@ -1231,9 +1237,11 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>تحليل الحالة الحالية:</strong>
-- <code>apps/admin/src/app/diseases/page.tsx</code> - ✅ يستخدم <code>useSearchParams()</code> (client-side hook) - لا يحتاج تغيير
-- <code>apps/admin/src/app/login/page.tsx</code> - ✅ يستخدم <code>useSearchParams()</code> (client-side hook) - لا يحتاج تغيير</p>
+<p><strong>تحليل الحالة الحالية:</strong></p>
+<ul>
+<li><code>apps/admin/src/app/diseases/page.tsx</code> - ✅ يستخدم <code>useSearchParams()</code> (client-side hook) - لا يحتاج تغيير</li>
+<li><code>apps/admin/src/app/login/page.tsx</code> - ✅ يستخدم <code>useSearchParams()</code> (client-side hook) - لا يحتاج تغيير</li>
+</ul>
 <p><strong>الفحص المطلوب:</strong> البحث عن صفحات تستخدم <code>params</code> أو <code>searchParams</code> كـ props</p>
 <h4 id="233-amp">2.3.3 إزالة دعم AMP<a class="headerlink" href="#233-amp" title="Permanent link">&para;</a></h4>
 <p><strong>الحالة:</strong> ✅ لا نستخدم AMP في المشروع</p>
@@ -1290,9 +1298,11 @@ npm<span class="w"> </span>run<span class="w"> </span>build
 </table>
 <h3 id="33-breaking-changes">3.3 التغييرات الكسرية (Breaking Changes)<a class="headerlink" href="#33-breaking-changes" title="Permanent link">&para;</a></h3>
 <h4 id="331-import-syntax">3.3.1 Import Syntax<a class="headerlink" href="#331-import-syntax" title="Permanent link">&para;</a></h4>
-<p><strong>الملفات المتأثرة:</strong>
-- <code>apps/web/src/app/globals.css</code>
-- <code>apps/admin/src/app/globals.css</code></p>
+<p><strong>الملفات المتأثرة:</strong></p>
+<ul>
+<li><code>apps/web/src/app/globals.css</code></li>
+<li><code>apps/admin/src/app/globals.css</code></li>
+</ul>
 <p><strong>التغييرات المطلوبة:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c">/* قبل (Tailwind 3) */</span>
 <span class="p">@</span><span class="k">tailwind</span><span class="w"> </span><span class="nt">base</span><span class="p">;</span>
@@ -1304,17 +1314,21 @@ npm<span class="w"> </span>run<span class="w"> </span>build
 </code></pre></div>
 
 <h4 id="332-configuration-migration">3.3.2 Configuration Migration<a class="headerlink" href="#332-configuration-migration" title="Permanent link">&para;</a></h4>
-<p><strong>الملفات المتأثرة:</strong>
-- <code>packages/tailwind-config/index.js</code> (shared config)
-- <code>apps/web/tailwind.config.ts</code>
-- <code>apps/admin/tailwind.config.ts</code></p>
+<p><strong>الملفات المتأثرة:</strong></p>
+<ul>
+<li><code>packages/tailwind-config/index.js</code> (shared config)</li>
+<li><code>apps/web/tailwind.config.ts</code></li>
+<li><code>apps/admin/tailwind.config.ts</code></li>
+</ul>
 <p><strong>التغييرات المطلوبة:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c">/* قبل: tailwind.config.ts */</span>
 <span class="nt">module</span><span class="p">.</span><span class="nc">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">theme</span><span class="p">:</span><span class="w"> </span><span class="err">{</span>
 <span class="w">    </span><span class="n">extend</span><span class="o">:</span><span class="w"> </span><span class="err">{</span>
 <span class="w">      </span><span class="n">colors</span><span class="o">:</span><span class="w"> </span><span class="err">{</span>
-<span class="w">        </span><span class="n">sahool</span><span class="o">:</span><span class="w"> </span><span class="err">{</span><span class="w"> </span><span class="mi">500</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#22c55e&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="n">sahool</span><span class="o">:</span><span class="w"> </span><span class="err">{</span>
+<span class="w">          </span><span class="mi">500</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#22c55e&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="err">}</span>
 <span class="w">    </span><span class="err">}</span>
 <span class="w">  </span><span class="err">}</span>
@@ -1407,15 +1421,19 @@ npm<span class="w"> </span>run<span class="w"> </span>build
 <span class="err">└──</span><span class="w"> </span><span class="err">دمج</span>
 </code></pre></div>
 
-<p><strong>المميزات:</strong>
-- عزل المشاكل
-- rollback أسهل
-- اختبار مركز</p>
+<p><strong>المميزات:</strong></p>
+<ul>
+<li>عزل المشاكل</li>
+<li>rollback أسهل</li>
+<li>اختبار مركز</li>
+</ul>
 <h3 id="b">الخيار B: ترقية متزامنة<a class="headerlink" href="#b" title="Permanent link">&para;</a></h3>
-<p><strong>غير موصى به</strong> بسبب:
-- صعوبة تشخيص المشاكل
-- rollback معقد
-- احتمال تعارضات</p>
+<p><strong>غير موصى به</strong> بسبب:</p>
+<ul>
+<li>صعوبة تشخيص المشاكل</li>
+<li>rollback معقد</li>
+<li>احتمال تعارضات</li>
+</ul>
 <hr />
 <h2 id="5">5. قائمة التحقق قبل الترقية<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
 <h3 id="nextjs-16-checklist">Next.js 16 Checklist<a class="headerlink" href="#nextjs-16-checklist" title="Permanent link">&para;</a></h3>
@@ -1478,11 +1496,13 @@ npm<span class="w"> </span>run<span class="w"> </span>build
 <h2 id="7">7. التوصيات<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
 <h3 id="71">7.1 توقيت الترقية<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
 <p>🟡 <strong>التوصية:</strong> تأجيل الترقية إلى Q1 2026</p>
-<p><strong>الأسباب:</strong>
-1. Next.js 16 صدر حديثاً (أكتوبر 2025) - ينتظر استقرار
-2. Tailwind 4 يتطلب تغييرات واسعة في الـ config
-3. المشروع في حالة مستقرة حالياً
-4. الترقيات الحالية (React 19, ESLint 9) تحتاج اختباراً</p>
+<p><strong>الأسباب:</strong></p>
+<ol>
+<li>Next.js 16 صدر حديثاً (أكتوبر 2025) - ينتظر استقرار</li>
+<li>Tailwind 4 يتطلب تغييرات واسعة في الـ config</li>
+<li>المشروع في حالة مستقرة حالياً</li>
+<li>الترقيات الحالية (React 19, ESLint 9) تحتاج اختباراً</li>
+</ol>
 <h3 id="72">7.2 إذا كانت الترقية عاجلة<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
 <ol>
 <li>ابدأ بـ Next.js 16 فقط</li>

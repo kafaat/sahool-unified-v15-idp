@@ -1139,12 +1139,14 @@
 <hr />
 <h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
 <p>This runbook provides step-by-step procedures for disaster recovery scenarios in the SAHOOL agricultural platform. It covers automated and manual failover procedures, complete datacenter loss recovery, and service-specific recovery operations.</p>
-<p><strong>Critical Information:</strong>
-- <strong>RTO Target:</strong> 2 hours for database, 6 hours for full system
-- <strong>RPO Target:</strong> &lt;5 minutes (with streaming replication)
-- <strong>On-Call Escalation:</strong> +966-XXX-XXXX-XXX
-- <strong>Incident Slack Channel:</strong> #platform-incidents
-- <strong>DR Team Email:</strong> dr-team@sahool.sa</p>
+<p><strong>Critical Information:</strong></p>
+<ul>
+<li><strong>RTO Target:</strong> 2 hours for database, 6 hours for full system</li>
+<li><strong>RPO Target:</strong> &lt;5 minutes (with streaming replication)</li>
+<li><strong>On-Call Escalation:</strong> +966-XXX-XXXX-XXX</li>
+<li><strong>Incident Slack Channel:</strong> #platform-incidents</li>
+<li><strong>DR Team Email:</strong> dr-team@sahool.sa</li>
+</ul>
 <hr />
 <h2 id="emergency-contacts">Emergency Contacts<a class="headerlink" href="#emergency-contacts" title="Permanent link">&para;</a></h2>
 <h3 id="primary-dr-team">Primary DR Team<a class="headerlink" href="#primary-dr-team" title="Permanent link">&para;</a></h3>
@@ -1342,13 +1344,15 @@ Level 4: CTO / Platform Architect (60+ min)
 <h2 id="postgresql-failover-procedures">PostgreSQL Failover Procedures<a class="headerlink" href="#postgresql-failover-procedures" title="Permanent link">&para;</a></h2>
 <h3 id="scenario-1-automated-failover-primary-node-failure">Scenario 1: Automated Failover (Primary Node Failure)<a class="headerlink" href="#scenario-1-automated-failover-primary-node-failure" title="Permanent link">&para;</a></h3>
 <p><strong>Detection:</strong> Patroni automatically detects primary failure via health checks (5-10 seconds)</p>
-<p><strong>Automatic Actions:</strong>
-1. Patroni detects primary is unreachable
-2. ETCD consensus confirms failure
-3. Best replica is selected (lowest lag)
-4. Replica is promoted to primary
-5. HAProxy routes traffic to new primary
-6. Old primary rejoins as replica (when available)</p>
+<p><strong>Automatic Actions:</strong></p>
+<ol>
+<li>Patroni detects primary is unreachable</li>
+<li>ETCD consensus confirms failure</li>
+<li>Best replica is selected (lowest lag)</li>
+<li>Replica is promoted to primary</li>
+<li>HAProxy routes traffic to new primary</li>
+<li>Old primary rejoins as replica (when available)</li>
+</ol>
 <p><strong>Expected RTO:</strong> 15-30 seconds
 <strong>Expected RPO:</strong> &lt;5 seconds (synchronous replication)</p>
 <p><strong>Monitoring:</strong></p>
@@ -1359,18 +1363,22 @@ watch<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><
 curl<span class="w"> </span>http://localhost:7000/stats
 </code></pre></div>
 
-<p><strong>No manual intervention required unless:</strong>
-- Failover does not complete within 2 minutes
-- Multiple nodes fail simultaneously
-- Data corruption is suspected</p>
+<p><strong>No manual intervention required unless:</strong></p>
+<ul>
+<li>Failover does not complete within 2 minutes</li>
+<li>Multiple nodes fail simultaneously</li>
+<li>Data corruption is suspected</li>
+</ul>
 <h3 id="scenario-2-planned-switchover-maintenance">Scenario 2: Planned Switchover (Maintenance)<a class="headerlink" href="#scenario-2-planned-switchover-maintenance" title="Permanent link">&para;</a></h3>
 <p><strong>Use Case:</strong> Planned maintenance, patching, or testing</p>
-<p><strong>Prerequisites:</strong>
-- [ ] Announce maintenance window
-- [ ] Verify all replicas are healthy and synchronized
-- [ ] Verify replication lag is minimal (&lt;1MB)
-- [ ] Take backup before proceeding
-- [ ] Notify stakeholders</p>
+<p><strong>Prerequisites:</strong></p>
+<ul>
+<li>[ ] Announce maintenance window</li>
+<li>[ ] Verify all replicas are healthy and synchronized</li>
+<li>[ ] Verify replication lag is minimal (&lt;1MB)</li>
+<li>[ ] Take backup before proceeding</li>
+<li>[ ] Notify stakeholders</li>
+</ul>
 <p><strong>Procedure:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Verify cluster health</span>
 <span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
@@ -1397,11 +1405,13 @@ If issues occur, switch back to original primary:</p>
 </code></pre></div>
 
 <h3 id="scenario-3-manual-failover-emergency">Scenario 3: Manual Failover (Emergency)<a class="headerlink" href="#scenario-3-manual-failover-emergency" title="Permanent link">&para;</a></h3>
-<p><strong>When to Use:</strong>
-- Automated failover failed
-- Primary node experiencing severe performance issues
-- Data corruption suspected
-- Compliance or security incident</p>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>Automated failover failed</li>
+<li>Primary node experiencing severe performance issues</li>
+<li>Data corruption suspected</li>
+<li>Compliance or security incident</li>
+</ul>
 <p><strong>Emergency Procedure:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: Assess situation</span>
 ./scripts/disaster-recovery/failover-postgres.sh<span class="w"> </span>status<span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>/tmp/dr-status.log
@@ -1420,20 +1430,24 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT version();&quot;</span>
 </code></pre></div>
 
-<p><strong>Post-Failover Actions:</strong>
-1. Document the incident
-2. Verify application connectivity
-3. Check replication status
-4. Review logs for errors
-5. Notify stakeholders
-6. Schedule post-mortem</p>
+<p><strong>Post-Failover Actions:</strong></p>
+<ol>
+<li>Document the incident</li>
+<li>Verify application connectivity</li>
+<li>Check replication status</li>
+<li>Review logs for errors</li>
+<li>Notify stakeholders</li>
+<li>Schedule post-mortem</li>
+</ol>
 <h3 id="scenario-4-split-brain-prevention">Scenario 4: Split-Brain Prevention<a class="headerlink" href="#scenario-4-split-brain-prevention" title="Permanent link">&para;</a></h3>
 <p><strong>Detection:</strong> Multiple nodes claim to be primary</p>
-<p><strong>Prevention Mechanisms:</strong>
-- ETCD consensus requires quorum
-- Patroni uses distributed locks
-- Synchronous replication prevents data divergence
-- Watchdog timers prevent dual primary</p>
+<p><strong>Prevention Mechanisms:</strong></p>
+<ul>
+<li>ETCD consensus requires quorum</li>
+<li>Patroni uses distributed locks</li>
+<li>Synchronous replication prevents data divergence</li>
+<li>Watchdog timers prevent dual primary</li>
+</ul>
 <p><strong>If Split-Brain Occurs:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Step 1: STOP all applications immediately</span>
 docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>stop<span class="w"> </span>api-gateway<span class="w"> </span>field-service
@@ -1472,12 +1486,14 @@ Secondary Region: Jeddah (me-central-1)
 
 <h3 id="scenario-1-planned-region-failover">Scenario 1: Planned Region Failover<a class="headerlink" href="#scenario-1-planned-region-failover" title="Permanent link">&para;</a></h3>
 <p><strong>Use Case:</strong> Planned maintenance, testing, or region migration</p>
-<p><strong>Prerequisites:</strong>
-- [ ] Secondary region infrastructure is healthy
-- [ ] Database replication lag is minimal
-- [ ] DNS TTL reduced to 60 seconds (24 hours before)
-- [ ] All teams notified
-- [ ] Runbook reviewed</p>
+<p><strong>Prerequisites:</strong></p>
+<ul>
+<li>[ ] Secondary region infrastructure is healthy</li>
+<li>[ ] Database replication lag is minimal</li>
+<li>[ ] DNS TTL reduced to 60 seconds (24 hours before)</li>
+<li>[ ] All teams notified</li>
+<li>[ ] Runbook reviewed</li>
+</ul>
 <p><strong>Procedure:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Phase 1: Pre-Failover Checks (15 minutes)</span>
 <span class="c1"># ─────────────────────────────────────────</span>
@@ -1545,11 +1561,13 @@ curl<span class="w"> </span>http://prometheus.sahool.sa/api/v1/query?query<span 
 <p><strong>Expected RTO:</strong> 60 minutes
 <strong>Expected RPO:</strong> &lt;5 minutes</p>
 <h3 id="scenario-2-emergency-region-failover">Scenario 2: Emergency Region Failover<a class="headerlink" href="#scenario-2-emergency-region-failover" title="Permanent link">&para;</a></h3>
-<p><strong>When to Use:</strong>
-- Complete region outage
-- Network partition
-- Natural disaster
-- Critical security incident</p>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>Complete region outage</li>
+<li>Network partition</li>
+<li>Natural disaster</li>
+<li>Critical security incident</li>
+</ul>
 <p><strong>Fast-Track Procedure:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># EMERGENCY FAILOVER - EXECUTE IMMEDIATELY</span>
 

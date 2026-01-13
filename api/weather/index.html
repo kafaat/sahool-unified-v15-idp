@@ -1138,18 +1138,22 @@
 <h1 id="weather-apis">Weather APIs<a class="headerlink" href="#weather-apis" title="Permanent link">&para;</a></h1>
 <h1 id="_1">واجهات برمجة تطبيقات الطقس<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Weather APIs provide comprehensive weather data and forecasts for agricultural decision-making:
-- Current weather conditions
-- Multi-day forecasts
-- Weather alerts and warnings
-- Irrigation recommendations based on weather
-- Multi-provider support with automatic fallback</p>
-<p>توفر واجهات الطقس بيانات وتوقعات شاملة للطقس لاتخاذ القرارات الزراعية:
-- ظروف الطقس الحالية
-- توقعات متعددة الأيام
-- تنبيهات وتحذيرات الطقس
-- توصيات الري بناءً على الطقس
-- دعم متعدد المزودين مع احتياطي تلقائي</p>
+<p>Weather APIs provide comprehensive weather data and forecasts for agricultural decision-making:</p>
+<ul>
+<li>Current weather conditions</li>
+<li>Multi-day forecasts</li>
+<li>Weather alerts and warnings</li>
+<li>Irrigation recommendations based on weather</li>
+<li>Multi-provider support with automatic fallback</li>
+</ul>
+<p>توفر واجهات الطقس بيانات وتوقعات شاملة للطقس لاتخاذ القرارات الزراعية:</p>
+<ul>
+<li>ظروف الطقس الحالية</li>
+<li>توقعات متعددة الأيام</li>
+<li>تنبيهات وتحذيرات الطقس</li>
+<li>توصيات الري بناءً على الطقس</li>
+<li>دعم متعدد المزودين مع احتياطي تلقائي</li>
+</ul>
 <h2 id="base-urls">Base URLs<a class="headerlink" href="#base-urls" title="Permanent link">&para;</a></h2>
 <p><strong>Weather Core:</strong> <code>http://localhost:8108</code>
 <strong>Weather Advanced:</strong> <code>http://localhost:8109</code>
@@ -1169,7 +1173,7 @@
 <span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-456&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span>
+<span class="w">  </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1178,7 +1182,7 @@
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-456&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span>
+<span class="w">    </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Open-Meteo&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;current&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -1214,18 +1218,20 @@
 <span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-456&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span>
+<span class="w">  </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span>
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Query Parameters:</strong>
-- <code>days</code> (integer, optional): Number of forecast days (1-16, default: 7)</p>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+<li><code>days</code> (integer, optional): Number of forecast days (1-16, default: 7)</li>
+</ul>
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-456&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span>
+<span class="w">    </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Open-Meteo&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;forecast&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -1283,8 +1289,10 @@
 
 <h3 id="get-weatherheat-stresstemp_c">GET /weather/heat-stress/{temp_c}<a class="headerlink" href="#get-weatherheat-stresstemp_c" title="Permanent link">&para;</a></h3>
 <p>Quick heat stress assessment for a temperature.</p>
-<p><strong>Path Parameters:</strong>
-- <code>temp_c</code> (number, required): Temperature in Celsius</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>temp_c</code> (number, required): Temperature in Celsius</li>
+</ul>
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;temperature_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">38</span><span class="p">,</span>

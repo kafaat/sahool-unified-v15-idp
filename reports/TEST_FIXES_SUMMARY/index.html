@@ -1143,41 +1143,53 @@
 <h2 id="detailed-breakdown">📊 Detailed Breakdown<a class="headerlink" href="#detailed-breakdown" title="Permanent link">&para;</a></h2>
 <h3 id="tests-fixed-by-category">Tests Fixed by Category<a class="headerlink" href="#tests-fixed-by-category" title="Permanent link">&para;</a></h3>
 <h4 id="1-ndvi-tests-unit">1. NDVI Tests (Unit)<a class="headerlink" href="#1-ndvi-tests-unit" title="Permanent link">&para;</a></h4>
-<p><strong>Status:</strong> ✅ All passing (100 tests)
-- ✅ <code>test_caching.py</code> - Fixed import path
-- ✅ <code>test_cloud_cover.py</code> - Fixed import path
-- ✅ <code>test_confidence.py</code> - Fixed import path
-- ✅ <code>test_analytics.py</code> - Fixed import path</p>
+<p><strong>Status:</strong> ✅ All passing (100 tests)</p>
+<ul>
+<li>✅ <code>test_caching.py</code> - Fixed import path</li>
+<li>✅ <code>test_cloud_cover.py</code> - Fixed import path</li>
+<li>✅ <code>test_confidence.py</code> - Fixed import path</li>
+<li>✅ <code>test_analytics.py</code> - Fixed import path</li>
+</ul>
 <p><strong>Fix Applied:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;archive/kernel-legacy/kernel/services/ndvi_engine/src&quot;</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="2-ai-tests-unit">2. AI Tests (Unit)<a class="headerlink" href="#2-ai-tests-unit" title="Permanent link">&para;</a></h4>
-<p><strong>Status:</strong> ✅ All passing (22 tests)
-- ✅ <code>test_prompt_engine.py</code> - Fixed import + template path
-- ✅ <code>test_rag_pipeline_smoke.py</code> - Fixed import
-- ✅ <code>test_ranker.py</code> - Fixed import</p>
-<p><strong>Fixes Applied:</strong>
-1. Changed <code>sys.path.insert(0, ".")</code> to <code>sys.path.insert(0, "packages")</code>
-2. Fixed template path: <code>parents[2]</code> → <code>parents[3]</code></p>
+<p><strong>Status:</strong> ✅ All passing (22 tests)</p>
+<ul>
+<li>✅ <code>test_prompt_engine.py</code> - Fixed import + template path</li>
+<li>✅ <code>test_rag_pipeline_smoke.py</code> - Fixed import</li>
+<li>✅ <code>test_ranker.py</code> - Fixed import</li>
+</ul>
+<p><strong>Fixes Applied:</strong></p>
+<ol>
+<li>Changed <code>sys.path.insert(0, ".")</code> to <code>sys.path.insert(0, "packages")</code></li>
+<li>Fixed template path: <code>parents[2]</code> → <code>parents[3]</code></li>
+</ol>
 <h4 id="3-kernel-tests-unit">3. Kernel Tests (Unit)<a class="headerlink" href="#3-kernel-tests-unit" title="Permanent link">&para;</a></h4>
-<p><strong>Status:</strong> ✅ All passing (17 tests)
-- ✅ <code>test_field_ops.py</code> - Fixed import path</p>
+<p><strong>Status:</strong> ✅ All passing (17 tests)</p>
+<ul>
+<li>✅ <code>test_field_ops.py</code> - Fixed import path</li>
+</ul>
 <p><strong>Fix Applied:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;archive/kernel-legacy/kernel/services/field_ops/src&quot;</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="4-integration-tests">4. Integration Tests<a class="headerlink" href="#4-integration-tests" title="Permanent link">&para;</a></h4>
-<p><strong>Status:</strong> ✅ Mostly passing
-- ✅ <code>test_audit_flow.py</code> - Fixed parameter name (24/26 passing)
-- ✅ <code>test_field_api.py</code> - All passing (12/12)
-- ✅ <code>test_health.py</code> - All passing (9/9)
-- ✅ <code>test_outbox_event_flow.py</code> - 12/13 passing
-- ⚠️ <code>test_spatial_hierarchy.py</code> - 11/20 passing</p>
-<p><strong>Fixes Applied:</strong>
-1. Changed <code>created_at</code> → <code>created_at_iso</code> in audit tests
-2. Fixed imports in spatial hierarchy test methods
-3. Changed <code>sys.path.insert(0, "packages/field-suite")</code></p>
+<p><strong>Status:</strong> ✅ Mostly passing</p>
+<ul>
+<li>✅ <code>test_audit_flow.py</code> - Fixed parameter name (24/26 passing)</li>
+<li>✅ <code>test_field_api.py</code> - All passing (12/12)</li>
+<li>✅ <code>test_health.py</code> - All passing (9/9)</li>
+<li>✅ <code>test_outbox_event_flow.py</code> - 12/13 passing</li>
+<li>⚠️ <code>test_spatial_hierarchy.py</code> - 11/20 passing</li>
+</ul>
+<p><strong>Fixes Applied:</strong></p>
+<ol>
+<li>Changed <code>created_at</code> → <code>created_at_iso</code> in audit tests</li>
+<li>Fixed imports in spatial hierarchy test methods</li>
+<li>Changed <code>sys.path.insert(0, "packages/field-suite")</code></li>
+</ol>
 <hr />
 <h2 id="files-modified">🔧 Files Modified<a class="headerlink" href="#files-modified" title="Permanent link">&para;</a></h2>
 <h3 id="test-files-9-files">Test Files (9 files)<a class="headerlink" href="#test-files-9-files" title="Permanent link">&para;</a></h3>
@@ -1207,19 +1219,23 @@
 </ul>
 <h3 id="details">Details:<a class="headerlink" href="#details" title="Permanent link">&para;</a></h3>
 <h4 id="smoke-test-failures-13">Smoke Test Failures (13)<a class="headerlink" href="#smoke-test-failures-13" title="Permanent link">&para;</a></h4>
-<p><strong>Root Cause:</strong> Package naming incompatibility
-- <code>kernel_domain</code> package doesn't exist
-- <code>field_suite</code> can't be imported (named <code>field-suite</code> with hyphen)</p>
-<p><strong>Affected Tests:</strong>
-- test_kernel_domain_imports
-- test_field_suite_imports
-- test_legacy_auth_import
-- test_legacy_tenancy_import
-- test_legacy_users_import
-- test_legacy_field_import
-- test_module_imports_cleanly[kernel_domain]
-- test_module_imports_cleanly[kernel_domain.<em>] (3 tests)
-- test_module_imports_cleanly[field_suite.</em>] (4 tests)</p>
+<p><strong>Root Cause:</strong> Package naming incompatibility</p>
+<ul>
+<li><code>kernel_domain</code> package doesn't exist</li>
+<li><code>field_suite</code> can't be imported (named <code>field-suite</code> with hyphen)</li>
+</ul>
+<p><strong>Affected Tests:</strong></p>
+<ul>
+<li>test_kernel_domain_imports</li>
+<li>test_field_suite_imports</li>
+<li>test_legacy_auth_import</li>
+<li>test_legacy_tenancy_import</li>
+<li>test_legacy_users_import</li>
+<li>test_legacy_field_import</li>
+<li>test_module_imports_cleanly[kernel_domain]</li>
+<li>test_module_imports_cleanly[kernel_domain.*] (3 tests)</li>
+<li>test_module_imports_cleanly[field_suite.*] (4 tests)</li>
+</ul>
 <p><strong>Solution:</strong> Rename <code>field-suite</code> → <code>field_suite</code> or create compatibility layer</p>
 <h4 id="integration-test-failures-2">Integration Test Failures (2)<a class="headerlink" href="#integration-test-failures-2" title="Permanent link">&para;</a></h4>
 <ol>
@@ -1316,10 +1332,12 @@
 <li>Provided comprehensive project analysis</li>
 <li>Documented all findings and recommendations</li>
 </ul>
-<p><strong>Quality Improvement:</strong>
-- From: Tests couldn't run (9 import errors)
-- To: 266/286 tests passing (93% success rate)
-- Improvement: <strong>+100% functionality, +93% reliability</strong></p>
+<p><strong>Quality Improvement:</strong></p>
+<ul>
+<li>From: Tests couldn't run (9 import errors)</li>
+<li>To: 266/286 tests passing (93% success rate)</li>
+<li>Improvement: <strong>+100% functionality, +93% reliability</strong></li>
+</ul>
 <hr />
 <p><strong>Prepared by:</strong> GitHub Copilot<br />
 <strong>Status:</strong> Ready for Review<br />

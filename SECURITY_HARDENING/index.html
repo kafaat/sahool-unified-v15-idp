@@ -1477,8 +1477,8 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">secure-service</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">your-image:tag</span>
-<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000:1000&quot;</span><span class="w">  </span><span class="c1"># Non-root user</span>
-<span class="w">    </span><span class="nt">read_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># Read-only filesystem</span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000:1000&quot;</span><span class="w"> </span><span class="c1"># Non-root user</span>
+<span class="w">    </span><span class="nt">read_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1"># Read-only filesystem</span>
 
 <span class="w">    </span><span class="nt">security_opt</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">no-new-privileges:true</span>
@@ -1496,7 +1496,7 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server
 <span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M</span>
 <span class="w">          </span><span class="nt">pids</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
 </code></pre></div>
@@ -1936,10 +1936,12 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 </tbody>
 </table>
 <h3 id="contact">Contact<a class="headerlink" href="#contact" title="Permanent link">&para;</a></h3>
-<p>For security issues or questions:
-- Email: security@sahool.local
-- Slack: #security-team
-- On-call: security-oncall@sahool.local</p>
+<p>For security issues or questions:</p>
+<ul>
+<li>Email: security@sahool.local</li>
+<li>Slack: #security-team</li>
+<li>On-call: security-oncall@sahool.local</li>
+</ul>
 <hr />
 <p><strong>Last Updated:</strong> 2026-01-07
 <strong>Next Review:</strong> 2026-04-07</p>

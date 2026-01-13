@@ -1606,10 +1606,12 @@
 </tr>
 </tbody>
 </table>
-<p><strong>التوصية:</strong>
-- إضافة Jest للمشاريع Node.js والويب
-- زيادة اختبارات الوحدة للخدمات الحرجة
-- إضافة اختبارات التكامل بين الخدمات</p>
+<p><strong>التوصية:</strong></p>
+<ul>
+<li>إضافة Jest للمشاريع Node.js والويب</li>
+<li>زيادة اختبارات الوحدة للخدمات الحرجة</li>
+<li>إضافة اختبارات التكامل بين الخدمات</li>
+</ul>
 <h3 id="24-missing-documentation">2.4 الوثائق الناقصة (Missing Documentation)<a class="headerlink" href="#24-missing-documentation" title="Permanent link">&para;</a></h3>
 <h4 id="_7">موجود ✅<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
 <ul>
@@ -1655,21 +1657,21 @@ tortoise-orm==0.21.0
 <h3 id="32-nodejs">3.2 تبعيات Node.js<a class="headerlink" href="#32-nodejs" title="Permanent link">&para;</a></h3>
 <h4 id="web-admin-nextjs">Web Admin (Next.js)<a class="headerlink" href="#web-admin-nextjs" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;next&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14.1.0&quot;</span><span class="p">,</span><span class="w">          </span><span class="c1">// ✅ حديث</span>
-<span class="w">  </span><span class="nt">&quot;react&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.2.0&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1">// ✅ حديث</span>
-<span class="w">  </span><span class="nt">&quot;leaflet&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.9.4&quot;</span><span class="p">,</span><span class="w">       </span><span class="c1">// ✅ حديث</span>
-<span class="w">  </span><span class="nt">&quot;axios&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.6.5&quot;</span><span class="w">          </span><span class="c1">// ⚠️ يوجد تحديث أمني (1.7.9)</span>
+<span class="w">  </span><span class="nt">&quot;next&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14.1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">&quot;react&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.2.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">&quot;leaflet&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.9.4&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">&quot;axios&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.6.5&quot;</span><span class="w"> </span><span class="c1">// ⚠️ يوجد تحديث أمني (1.7.9)</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>التوصية:</strong> تحديث axios إلى 1.7.9</p>
 <h3 id="33-flutter">3.3 تبعيات Flutter<a class="headerlink" href="#33-flutter" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">flutter_riverpod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.4.10</span><span class="w">   </span><span class="c1"># ✅ حديث</span>
-<span class="w">  </span><span class="nt">drift</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.15.0</span><span class="w">              </span><span class="c1"># ✅ حديث</span>
-<span class="w">  </span><span class="nt">dio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^5.4.1</span><span class="w">                 </span><span class="c1"># ✅ حديث</span>
-<span class="w">  </span><span class="nt">workmanager</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^0.6.0</span><span class="w">         </span><span class="c1"># ✅ محدث مؤخراً</span>
-<span class="w">  </span><span class="nt">connectivity_plus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^5.0.2</span><span class="w">   </span><span class="c1"># ✅ حديث</span>
+<span class="w">  </span><span class="nt">flutter_riverpod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.4.10</span><span class="w"> </span><span class="c1"># ✅ حديث</span>
+<span class="w">  </span><span class="nt">drift</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.15.0</span><span class="w"> </span><span class="c1"># ✅ حديث</span>
+<span class="w">  </span><span class="nt">dio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^5.4.1</span><span class="w"> </span><span class="c1"># ✅ حديث</span>
+<span class="w">  </span><span class="nt">workmanager</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^0.6.0</span><span class="w"> </span><span class="c1"># ✅ محدث مؤخراً</span>
+<span class="w">  </span><span class="nt">connectivity_plus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^5.0.2</span><span class="w"> </span><span class="c1"># ✅ حديث</span>
 </code></pre></div>
 
 <p><strong>التقييم:</strong> التبعيات حديثة ومستقرة ✅</p>
@@ -1720,24 +1722,26 @@ tortoise-orm==0.21.0
 </ul>
 <h4 id="_16">التحسينات المقترحة:<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="nt">1. إضافة Connection Pooling</span><span class="p">:</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">PostgreSQL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgbouncer</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Redis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">connection pooling في العملاء</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">PostgreSQL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgbouncer</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Redis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">connection pooling في العملاء</span>
 
 <span class="nt">2. إضافة CDN</span><span class="p">:</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للأصول الثابتة (Static Assets)</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للصور والخرائط</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للأصول الثابتة (Static Assets)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للصور والخرائط</span>
 
 <span class="nt">3. Database Sharding</span><span class="p">:</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للبيانات الكبيرة (حسب المنطقة الجغرافية)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للبيانات الكبيرة (حسب المنطقة الجغرافية)</span>
 
 <span class="nt">4. Horizontal Scaling</span><span class="p">:</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تفعيل HPA (Horizontal Pod Autoscaler) في K8s</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تفعيل HPA (Horizontal Pod Autoscaler) في K8s</span>
 </code></pre></div>
 
 <h3 id="52-caching-strategy">5.2 استراتيجية التخزين المؤقت (Caching Strategy)<a class="headerlink" href="#52-caching-strategy" title="Permanent link">&para;</a></h3>
-<p><strong>الموجود حالياً:</strong>
-- Redis مُعد في docker-compose
-- بعض الخدمات تستخدمه</p>
+<p><strong>الموجود حالياً:</strong></p>
+<ul>
+<li>Redis مُعد في docker-compose</li>
+<li>بعض الخدمات تستخدمه</li>
+</ul>
 <p><strong>المطلوب:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># إضافة طبقة تخزين مؤقت موحدة</span>
 <span class="c1"># shared/cache/redis_cache.py</span>
@@ -1781,26 +1785,26 @@ tortoise-orm==0.21.0
 </ul>
 <h3 id="62">6.2 التحسينات المقترحة<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">1. إضافة مراحل CD</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">stages</span><span class="p">:</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">security-scan</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build-images</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-dev</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-staging</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-production (manual approval)</span>
+<span class="w">  </span><span class="nt">stages</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">security-scan</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build-images</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-dev</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-staging</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-production (manual approval)</span>
 
 <span class="nt">2. إضافة Automated Security Scanning</span><span class="p">:</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Trivy لفحص Docker Images</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Snyk لفحص التبعيات</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OWASP ZAP لفحص API</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Trivy لفحص Docker Images</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Snyk لفحص التبعيات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OWASP ZAP لفحص API</span>
 
 <span class="nt">3. إضافة Performance Testing</span><span class="p">:</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k6 للاختبارات</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Grafana k6 Dashboard</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k6 للاختبارات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Grafana k6 Dashboard</span>
 
 <span class="nt">4. إضافة E2E Testing في CI</span><span class="p">:</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Playwright للويب</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Appium للموبايل</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Playwright للويب</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Appium للموبايل</span>
 </code></pre></div>
 
 <hr />
@@ -1820,9 +1824,11 @@ tortoise-orm==0.21.0
 <li>❌ mTLS بين الخدمات</li>
 </ul>
 <h3 id="72-secrets-management">7.2 إدارة الأسرار (Secrets Management)<a class="headerlink" href="#72-secrets-management" title="Permanent link">&para;</a></h3>
-<p><strong>الموجود:</strong>
-- ✅ External Secrets Operator معد
-- ✅ GitOps Secrets في <code>gitops/secrets/</code></p>
+<p><strong>الموجود:</strong></p>
+<ul>
+<li>✅ External Secrets Operator معد</li>
+<li>✅ GitOps Secrets في <code>gitops/secrets/</code></li>
+</ul>
 <p><strong>التوصية:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># استخدام Vault أو AWS Secrets Manager</span>
 <span class="c1"># بدلاً من .env في الإنتاج</span>
@@ -1842,10 +1848,12 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 </code></pre></div>
 
 <h3 id="73-compliance-governance">7.3 الامتثال والحوكمة (Compliance &amp; Governance)<a class="headerlink" href="#73-compliance-governance" title="Permanent link">&para;</a></h3>
-<p><strong>الموجود:</strong>
-- ✅ <code>/governance</code> directory
-- ✅ Policies و Schemas
-- ✅ Templates</p>
+<p><strong>الموجود:</strong></p>
+<ul>
+<li>✅ <code>/governance</code> directory</li>
+<li>✅ Policies و Schemas</li>
+<li>✅ Templates</li>
+</ul>
 <p><strong>المطلوب إضافته:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">1.</span> GDPR Compliance:
 <span class="w">   </span><span class="k">-</span><span class="w"> </span>سياسة الخصوصية
@@ -2301,28 +2309,28 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 <span class="nt">Next Level</span><span class="p">:</span>
 
 <span class="nt">1. Service Mesh (Istio أو Linkerd)</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">Benefits</span><span class="p">:</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mTLS تلقائي</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Circuit Breaking</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Retry Policies</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Traffic Management</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Observability</span>
+<span class="w">  </span><span class="nt">Benefits</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mTLS تلقائي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Circuit Breaking</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Retry Policies</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Traffic Management</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Observability</span>
 
 <span class="nt">2. Event-Driven Architecture المحسّنة</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">Current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NATS</span>
-<span class="w">   </span><span class="nt">Addition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Event Sourcing + CQRS</span>
-<span class="w">   </span><span class="nt">Benefits</span><span class="p">:</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Audit Trail كامل</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Time Travel Debugging</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read/Write Optimization</span>
+<span class="w">  </span><span class="nt">Current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NATS</span>
+<span class="w">  </span><span class="nt">Addition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Event Sourcing + CQRS</span>
+<span class="w">  </span><span class="nt">Benefits</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Audit Trail كامل</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Time Travel Debugging</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read/Write Optimization</span>
 
 <span class="nt">3. API Gateway المتقدم</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">Current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Kong</span>
-<span class="w">   </span><span class="nt">Addition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GraphQL Gateway</span>
-<span class="w">   </span><span class="nt">Benefits</span><span class="p">:</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Single Query لبيانات متعددة</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reduced Over-fetching</span>
-<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Better Mobile Performance</span>
+<span class="w">  </span><span class="nt">Current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Kong</span>
+<span class="w">  </span><span class="nt">Addition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GraphQL Gateway</span>
+<span class="w">  </span><span class="nt">Benefits</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Single Query لبيانات متعددة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reduced Over-fetching</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Better Mobile Performance</span>
 </code></pre></div>
 
 <h4 id="database-strategy">Database Strategy<a class="headerlink" href="#database-strategy" title="Permanent link">&para;</a></h4>
@@ -2775,6 +2783,7 @@ npm<span class="w"> </span>run<span class="w"> </span>test:e2e
 <h2 id="appendices">المرفقات | Appendices<a class="headerlink" href="#appendices" title="Permanent link">&para;</a></h2>
 <h3 id="a-production-checklist">A. قائمة التحقق للنشر (Production Checklist)<a class="headerlink" href="#a-production-checklist" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="gu">## Security ✅</span>
+
 <span class="k">- [ ]</span> إصلاح جميع CORS wildcards
 <span class="k">- [ ]</span> إزالة كلمات المرور الافتراضية
 <span class="k">- [ ]</span> تفعيل HTTPS في كل مكان
@@ -2783,6 +2792,7 @@ npm<span class="w"> </span>run<span class="w"> </span>test:e2e
 <span class="k">- [ ]</span> Security Scan (Trivy + Snyk)
 
 <span class="gu">## Infrastructure ✅</span>
+
 <span class="k">- [ ]</span> Kubernetes Cluster جاهز
 <span class="k">- [ ]</span> Helm Charts مُختبرة
 <span class="k">- [ ]</span> CI/CD Pipelines فعالة
@@ -2791,6 +2801,7 @@ npm<span class="w"> </span>run<span class="w"> </span>test:e2e
 <span class="k">- [ ]</span> Backup Strategy مُفعلة
 
 <span class="gu">## Database ✅</span>
+
 <span class="k">- [ ]</span> PostgreSQL SSL enabled
 <span class="k">- [ ]</span> Automated Backups
 <span class="k">- [ ]</span> Connection Pooling
@@ -2798,6 +2809,7 @@ npm<span class="w"> </span>run<span class="w"> </span>test:e2e
 <span class="k">- [ ]</span> Replication (Read Replicas)
 
 <span class="gu">## Testing ✅</span>
+
 <span class="k">- [ ]</span> Unit Tests &gt; 70%
 <span class="k">- [ ]</span> Integration Tests
 <span class="k">- [ ]</span> E2E Tests
@@ -2805,12 +2817,14 @@ npm<span class="w"> </span>run<span class="w"> </span>test:e2e
 <span class="k">- [ ]</span> Security Testing
 
 <span class="gu">## Mobile App ✅</span>
+
 <span class="k">- [ ]</span> Production API endpoints
 <span class="k">- [ ]</span> Signing Keys generated
 <span class="k">- [ ]</span> Offline functionality tested
 <span class="k">- [ ]</span> App Store submission ready
 
 <span class="gu">## Documentation ✅</span>
+
 <span class="k">- [ ]</span> API Documentation complete
 <span class="k">- [ ]</span> Operations Runbook
 <span class="k">- [ ]</span> Disaster Recovery Plan
@@ -2837,7 +2851,7 @@ npm<span class="w"> </span>run<span class="w"> </span>test:e2e
 <hr />
 <p><strong>تاريخ التقرير:</strong> ديسمبر 2024<br />
 <strong>الإصدار:</strong> 1.0<br />
-<strong>الحالة:</strong> نهائي  </p>
+<strong>الحالة:</strong> نهائي</p>
 <hr />
 <div dir="rtl" align="center">
 

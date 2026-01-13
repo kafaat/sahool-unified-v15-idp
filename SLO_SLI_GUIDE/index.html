@@ -1156,10 +1156,12 @@
 <span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span>
 </code></pre></div>
 
-<p><strong>Target</strong>:
-- Critical: 99.95%
-- High: 99.9%
-- Medium: 99.5%</p>
+<p><strong>Target</strong>:</p>
+<ul>
+<li>Critical: 99.95%</li>
+<li>High: 99.9%</li>
+<li>Medium: 99.5%</li>
+</ul>
 <p><strong>Alert Threshold</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLOAvailabilityBreach</span>
 <span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
@@ -1184,10 +1186,12 @@
 <span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span>
 </code></pre></div>
 
-<p><strong>Target</strong>:
-- Critical: 99.9% success rate
-- High: 99.5% success rate<br />
-- Medium: 99% success rate</p>
+<p><strong>Target</strong>:</p>
+<ul>
+<li>Critical: 99.9% success rate</li>
+<li>High: 99.5% success rate</li>
+<li>Medium: 99% success rate</li>
+</ul>
 <p><strong>Alert Threshold</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLOSuccessRateBreach</span>
 <span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
@@ -1210,10 +1214,12 @@
 <span class="o">)</span>
 </code></pre></div>
 
-<p><strong>Target</strong>:
-- Critical (API Gateway): P95 &lt; 100ms
-- High (Application Services): P95 &lt; 1s
-- Medium (Batch Services): P95 &lt; 5s</p>
+<p><strong>Target</strong>:</p>
+<ul>
+<li>Critical (API Gateway): P95 &lt; 100ms</li>
+<li>High (Application Services): P95 &lt; 1s</li>
+<li>Medium (Batch Services): P95 &lt; 5s</li>
+</ul>
 <p><strong>Alert Threshold</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLOLatencyBreach</span>
 <span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
@@ -1232,11 +1238,13 @@
 <div class="codehilite"><pre><span></span><code><span class="kr">time</span><span class="o">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">max</span><span class="o">(</span><span class="nv">last_update_timestamp</span><span class="o">)</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">service</span><span class="p">,</span><span class="w"> </span><span class="nv">data_type</span><span class="o">)</span>
 </code></pre></div>
 
-<p><strong>Target</strong>:
-- Weather data: &lt; 1 hour
-- Satellite imagery: &lt; 24 hours
-- Field data: &lt; 5 minutes
-- Sensor data: &lt; 1 minute</p>
+<p><strong>Target</strong>:</p>
+<ul>
+<li>Weather data: &lt; 1 hour</li>
+<li>Satellite imagery: &lt; 24 hours</li>
+<li>Field data: &lt; 5 minutes</li>
+<li>Sensor data: &lt; 1 minute</li>
+</ul>
 <p><strong>Alert Threshold</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLODataFreshnessBreach</span>
 <span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
@@ -1323,26 +1331,25 @@
 <h3 id="alert-routing">Alert Routing<a class="headerlink" href="#alert-routing" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># alertmanager.yml</span>
 <span class="nt">route</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;default&#39;</span>
+<span class="w">  </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;default&quot;</span>
 <span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Critical alerts - page immediately</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pagerduty-critical&quot;</span>
+<span class="w">      </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
-<span class="w">  </span><span class="c1"># Critical alerts - page immediately</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
-<span class="w">    </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pagerduty-critical&#39;</span>
-<span class="w">    </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="c1"># High alerts - Slack + email</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">        </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slack-critical&quot;</span>
+<span class="w">      </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
-<span class="w">  </span><span class="c1"># High alerts - Slack + email</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
-<span class="w">      </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
-<span class="w">    </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;slack-critical&#39;</span>
-<span class="w">    </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-
-<span class="w">  </span><span class="c1"># Medium alerts - Slack only</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
-<span class="w">    </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;slack-warnings&#39;</span>
+<span class="w">    </span><span class="c1"># Medium alerts - Slack only</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slack-warnings&quot;</span>
 </code></pre></div>
 
 <h2 id="slo-dashboards">SLO Dashboards<a class="headerlink" href="#slo-dashboards" title="Permanent link">&para;</a></h2>
@@ -1476,46 +1483,46 @@
 
 <h3 id="alerts">Alerts<a class="headerlink" href="#alerts" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">groups</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop_health_ai_slo</span>
-<span class="w">  </span><span class="nt">rules</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_AvailabilityBreach</span>
-<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">      </span><span class="no">(</span>
-<span class="w">        </span><span class="no">avg_over_time(up{service=&quot;crop-health-ai&quot;}[30m])</span>
-<span class="w">      </span><span class="no">) &lt; 0.999</span>
-<span class="w">    </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
-<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
-<span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
-<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">availability</span><span class="nv"> </span><span class="s">below</span><span class="nv"> </span><span class="s">SLO&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop_health_ai_slo</span>
+<span class="w">    </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_AvailabilityBreach</span>
+<span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">(</span>
+<span class="w">            </span><span class="no">avg_over_time(up{service=&quot;crop-health-ai&quot;}[30m])</span>
+<span class="w">          </span><span class="no">) &lt; 0.999</span>
+<span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
+<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">availability</span><span class="nv"> </span><span class="s">below</span><span class="nv"> </span><span class="s">SLO&quot;</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_LatencyBreach</span>
-<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">      </span><span class="no">histogram_quantile(0.95,</span>
-<span class="w">        </span><span class="no">rate(service_request_duration_seconds_bucket{service=&quot;crop-health-ai&quot;}[30m])</span>
-<span class="w">      </span><span class="no">) &gt; 1</span>
-<span class="w">    </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15m</span>
-<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
-<span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
-<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">P95</span><span class="nv"> </span><span class="s">latency</span><span class="nv"> </span><span class="s">above</span><span class="nv"> </span><span class="s">1s&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_LatencyBreach</span>
+<span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">histogram_quantile(0.95,</span>
+<span class="w">            </span><span class="no">rate(service_request_duration_seconds_bucket{service=&quot;crop-health-ai&quot;}[30m])</span>
+<span class="w">          </span><span class="no">) &gt; 1</span>
+<span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15m</span>
+<span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
+<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">P95</span><span class="nv"> </span><span class="s">latency</span><span class="nv"> </span><span class="s">above</span><span class="nv"> </span><span class="s">1s&quot;</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_ErrorBudgetLow</span>
-<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">      </span><span class="no">(</span>
-<span class="w">        </span><span class="no">1 - (</span>
-<span class="w">          </span><span class="no">sum(increase(service_requests_total{service=&quot;crop-health-ai&quot;,status=~&quot;5..&quot;}[30d]))</span>
-<span class="w">          </span><span class="no">/</span>
-<span class="w">          </span><span class="no">sum(increase(service_requests_total{service=&quot;crop-health-ai&quot;}[30d]))</span>
-<span class="w">        </span><span class="no">)</span>
-<span class="w">      </span><span class="no">) / 0.001 &lt; 0.25</span>
-<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
-<span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
-<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">budget</span><span class="nv"> </span><span class="s">below</span><span class="nv"> </span><span class="s">25%&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_ErrorBudgetLow</span>
+<span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">(</span>
+<span class="w">            </span><span class="no">1 - (</span>
+<span class="w">              </span><span class="no">sum(increase(service_requests_total{service=&quot;crop-health-ai&quot;,status=~&quot;5..&quot;}[30d]))</span>
+<span class="w">              </span><span class="no">/</span>
+<span class="w">              </span><span class="no">sum(increase(service_requests_total{service=&quot;crop-health-ai&quot;}[30d]))</span>
+<span class="w">            </span><span class="no">)</span>
+<span class="w">          </span><span class="no">) / 0.001 &lt; 0.25</span>
+<span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
+<span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">budget</span><span class="nv"> </span><span class="s">below</span><span class="nv"> </span><span class="s">25%&quot;</span>
 </code></pre></div>
 
 <h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>

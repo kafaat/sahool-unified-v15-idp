@@ -1177,23 +1177,29 @@ docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.k
 <hr />
 <h2 id="configuration-files">Configuration Files | ملفات الإعداد<a class="headerlink" href="#configuration-files" title="Permanent link">&para;</a></h2>
 <h3 id="1-docker-composekong-hayml">1. docker-compose.kong-ha.yml<a class="headerlink" href="#1-docker-composekong-hayml" title="Permanent link">&para;</a></h3>
-<p>Main orchestration file defining:
-- 3 Kong nodes (primary, secondary, tertiary)
-- Nginx load balancer
-- Network configuration
-- Resource limits</p>
+<p>Main orchestration file defining:</p>
+<ul>
+<li>3 Kong nodes (primary, secondary, tertiary)</li>
+<li>Nginx load balancer</li>
+<li>Network configuration</li>
+<li>Resource limits</li>
+</ul>
 <h3 id="2-nginx-kong-haconf">2. nginx-kong-ha.conf<a class="headerlink" href="#2-nginx-kong-haconf" title="Permanent link">&para;</a></h3>
-<p>Load balancer configuration:
-- Upstream cluster definition
-- Health check endpoints
-- Timeout settings
-- Retry logic</p>
+<p>Load balancer configuration:</p>
+<ul>
+<li>Upstream cluster definition</li>
+<li>Health check endpoints</li>
+<li>Timeout settings</li>
+<li>Retry logic</li>
+</ul>
 <h3 id="3-kongdeclarativekongyml">3. kong/declarative/kong.yml<a class="headerlink" href="#3-kongdeclarativekongyml" title="Permanent link">&para;</a></h3>
-<p>Service definitions:
-- All SAHOOL API services
-- Rate limiting plugins
-- CORS configuration
-- Request transformation</p>
+<p>Service definitions:</p>
+<ul>
+<li>All SAHOOL API services</li>
+<li>Rate limiting plugins</li>
+<li>CORS configuration</li>
+<li>Request transformation</li>
+</ul>
 <hr />
 <h2 id="services-configured">Services Configured | الخدمات المُعدة<a class="headerlink" href="#services-configured" title="Permanent link">&para;</a></h2>
 <table>
@@ -1394,9 +1400,11 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 </code></pre></div>
 
 <hr />
-<p><strong>Related Documents:</strong>
-- <a href="../../engineering/ENGINEERING_RECOVERY_PLAN/">Engineering Recovery Plan</a>
-- <a href="../../architecture/SERVICE_ACTIVATION_MAP/">Service Activation Map</a></p>
+<p><strong>Related Documents:</strong></p>
+<ul>
+<li><a href="../../engineering/ENGINEERING_RECOVERY_PLAN/">Engineering Recovery Plan</a></li>
+<li><a href="../../architecture/SERVICE_ACTIVATION_MAP/">Service Activation Map</a></li>
+</ul>
 
 
 

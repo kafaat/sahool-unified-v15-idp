@@ -1178,26 +1178,32 @@ openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span cla
 <hr />
 <h3 id="2-sahol_atmosphere-missing-assets">2. sahol_atmosphere - Missing Assets (تم إصلاحه)<a class="headerlink" href="#2-sahol_atmosphere-missing-assets" title="Permanent link">&para;</a></h3>
 <p><strong>الحالة:</strong> ✅ تم إنشاء المجلدات المفقودة وتعليق الخطوط</p>
-<p><strong>التغييرات:</strong>
-- تم إنشاء <code>assets/images/</code>, <code>assets/icons/</code>, <code>assets/fonts/</code>
-- تم إنشاء ملف <code>.env</code>
-- تم تعليق مراجع الخطوط في <code>pubspec.yaml</code>
-- تم تحديث <code>atmosphere_theme.dart</code> لاستخدام خطوط النظام</p>
+<p><strong>التغييرات:</strong></p>
+<ul>
+<li>تم إنشاء <code>assets/images/</code>, <code>assets/icons/</code>, <code>assets/fonts/</code></li>
+<li>تم إنشاء ملف <code>.env</code></li>
+<li>تم تعليق مراجع الخطوط في <code>pubspec.yaml</code></li>
+<li>تم تحديث <code>atmosphere_theme.dart</code> لاستخدام خطوط النظام</li>
+</ul>
 <hr />
 <h3 id="3-admin-dashboard-http-cookie-token">3. Admin Dashboard - HTTP Cookie Token<a class="headerlink" href="#3-admin-dashboard-http-cookie-token" title="Permanent link">&para;</a></h3>
 <p><strong>الملف:</strong> <code>apps/admin/src/lib/api.ts</code></p>
 <p><strong>المشكلة:</strong> محاولة قراءة HTTP-only cookies من JavaScript</p>
-<p><strong>التوصية:</strong>
-- استخدام Next.js API routes لجميع طلبات API
-- إزالة client-side axios calls
-- استخدام <code>/api/auth/*</code> patterns</p>
+<p><strong>التوصية:</strong></p>
+<ul>
+<li>استخدام Next.js API routes لجميع طلبات API</li>
+<li>إزالة client-side axios calls</li>
+<li>استخدام <code>/api/auth/*</code> patterns</li>
+</ul>
 <hr />
 <h3 id="4-web-app-mock-authentication">4. Web App - Mock Authentication<a class="headerlink" href="#4-web-app-mock-authentication" title="Permanent link">&para;</a></h3>
 <p><strong>الملف:</strong> <code>apps/web/src/stores/auth.store.tsx</code></p>
 <p><strong>المشكلة:</strong> bypass للمصادقة في development mode</p>
-<p><strong>التوصية:</strong>
-- إزالة mock authentication من production builds
-- استخدام test fixtures بدلاً من runtime mocking</p>
+<p><strong>التوصية:</strong></p>
+<ul>
+<li>إزالة mock authentication من production builds</li>
+<li>استخدام test fixtures بدلاً من runtime mocking</li>
+</ul>
 <hr />
 <h2 id="flutter-field-app-">📱 Flutter Field App - تفاصيل المراجعة<a class="headerlink" href="#flutter-field-app-" title="Permanent link">&para;</a></h2>
 <h3 id="_4">نقاط القوة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>

@@ -1576,7 +1576,7 @@ curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> 
 <strong>Action:</strong> Check NATS container logs, restart service immediately.</p>
 <h4 id="jetstreammemorycritical">JetStreamMemoryCritical<a class="headerlink" href="#jetstreammemorycritical" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">JetStreamMemoryCritical</span>
-<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gnatsd_jetstream_memory_used &gt; 966367642</span><span class="w">  </span><span class="c1"># 900MB (90% of 1GB)</span>
+<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gnatsd_jetstream_memory_used &gt; 966367642</span><span class="w"> </span><span class="c1"># 900MB (90% of 1GB)</span>
 <span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2m</span>
 <span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
 </code></pre></div>
@@ -1623,66 +1623,74 @@ curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> 
 <h3 id="alert-handling-">Alert Handling - معالجة التنبيهات<a class="headerlink" href="#alert-handling-" title="Permanent link">&para;</a></h3>
 <h4 id="alert-routing-alertmanager-configuration">Alert Routing (Alertmanager Configuration)<a class="headerlink" href="#alert-routing-alertmanager-configuration" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="nt">route</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">group_by</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;alertname&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;component&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;severity&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">group_by</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;alertname&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;component&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;severity&quot;</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">group_wait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
 <span class="w">  </span><span class="nt">group_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
 <span class="w">  </span><span class="nt">repeat_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4h</span>
-<span class="w">  </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;default&#39;</span>
+<span class="w">  </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;default&quot;</span>
 
 <span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
 <span class="w">    </span><span class="c1"># Critical NATS alerts - page on-call</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
 <span class="w">        </span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message-queue</span>
-<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pagerduty-critical&#39;</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pagerduty-critical&quot;</span>
 <span class="w">      </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="w">    </span><span class="c1"># Warning alerts - Slack only</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
 <span class="w">        </span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message-queue</span>
-<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;slack-monitoring&#39;</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slack-monitoring&quot;</span>
 
 <span class="nt">receivers</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pagerduty-critical&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pagerduty-critical&quot;</span>
 <span class="w">    </span><span class="nt">pagerduty_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">service_key</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&lt;pagerduty-key&gt;&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">service_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;pagerduty-key&gt;&quot;</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;slack-monitoring&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slack-monitoring&quot;</span>
 <span class="w">    </span><span class="nt">slack_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;#monitoring-alerts&#39;</span>
-<span class="w">        </span><span class="nt">text</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">range</span><span class="nv"> </span><span class="s">.Alerts</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">.Annotations.summary</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">end</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;#monitoring-alerts&quot;</span>
+<span class="w">        </span><span class="nt">text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">range</span><span class="nv"> </span><span class="s">.Alerts</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">.Annotations.summary</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">end</span><span class="nv"> </span><span class="s">}}&quot;</span>
 </code></pre></div>
 
 <hr />
 <h2 id="dashboards">Dashboards<a class="headerlink" href="#dashboards" title="Permanent link">&para;</a></h2>
 <h3 id="grafana-nats-dashboard">Grafana NATS Dashboard<a class="headerlink" href="#grafana-nats-dashboard" title="Permanent link">&para;</a></h3>
 <h4 id="official-nats-dashboard-id-2279">Official NATS Dashboard (ID: 2279)<a class="headerlink" href="#official-nats-dashboard-id-2279" title="Permanent link">&para;</a></h4>
-<p><strong>Panels:</strong>
-- Server overview (connections, messages, throughput)
-- CPU and memory usage
-- Message rates (in/out)
-- Connection breakdown by client
-- Subscription statistics</p>
-<p><strong>Import Steps:</strong>
-1. Open Grafana: http://localhost:3002
-2. Navigate to: Dashboards → Import
-3. Enter Dashboard ID: <code>2279</code>
-4. Select Prometheus datasource
-5. Click Import</p>
+<p><strong>Panels:</strong></p>
+<ul>
+<li>Server overview (connections, messages, throughput)</li>
+<li>CPU and memory usage</li>
+<li>Message rates (in/out)</li>
+<li>Connection breakdown by client</li>
+<li>Subscription statistics</li>
+</ul>
+<p><strong>Import Steps:</strong></p>
+<ol>
+<li>Open Grafana: http://localhost:3002</li>
+<li>Navigate to: Dashboards → Import</li>
+<li>Enter Dashboard ID: <code>2279</code></li>
+<li>Select Prometheus datasource</li>
+<li>Click Import</li>
+</ol>
 <h4 id="jetstream-dashboard-id-14522">JetStream Dashboard (ID: 14522)<a class="headerlink" href="#jetstream-dashboard-id-14522" title="Permanent link">&para;</a></h4>
-<p><strong>Panels:</strong>
-- JetStream memory and storage usage
-- Stream list with message counts
-- Consumer lag and processing rates
-- Redelivery rates
-- Acknowledgment pending</p>
-<p><strong>Import Steps:</strong>
-1. Open Grafana: http://localhost:3002
-2. Navigate to: Dashboards → Import
-3. Enter Dashboard ID: <code>14522</code>
-4. Select Prometheus datasource
-5. Click Import</p>
+<p><strong>Panels:</strong></p>
+<ul>
+<li>JetStream memory and storage usage</li>
+<li>Stream list with message counts</li>
+<li>Consumer lag and processing rates</li>
+<li>Redelivery rates</li>
+<li>Acknowledgment pending</li>
+</ul>
+<p><strong>Import Steps:</strong></p>
+<ol>
+<li>Open Grafana: http://localhost:3002</li>
+<li>Navigate to: Dashboards → Import</li>
+<li>Enter Dashboard ID: <code>14522</code></li>
+<li>Select Prometheus datasource</li>
+<li>Click Import</li>
+</ol>
 <h3 id="custom-dashboard-panels">Custom Dashboard Panels<a class="headerlink" href="#custom-dashboard-panels" title="Permanent link">&para;</a></h3>
 <h4 id="stream-health-panel">Stream Health Panel<a class="headerlink" href="#stream-health-panel" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -1724,10 +1732,12 @@ curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> 
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="common-issues-">Common Issues - المشاكل الشائعة<a class="headerlink" href="#common-issues-" title="Permanent link">&para;</a></h3>
 <h4 id="1-nats-exporter-not-starting">1. NATS Exporter Not Starting<a class="headerlink" href="#1-nats-exporter-not-starting" title="Permanent link">&para;</a></h4>
-<p><strong>Symptoms:</strong>
-- Container exits immediately
-- No metrics at http://localhost:7777/metrics
-- Error in logs: "connection refused"</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Container exits immediately</li>
+<li>No metrics at http://localhost:7777/metrics</li>
+<li>Error in logs: "connection refused"</li>
+</ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check NATS is accessible</span>
 curl<span class="w"> </span>http://localhost:8222/varz
@@ -1739,16 +1749,20 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats-prometheus
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-nats-prometheus-exporter<span class="w"> </span>wget<span class="w"> </span>-O-<span class="w"> </span>http://nats:8222/varz
 </code></pre></div>
 
-<p><strong>Solution:</strong>
-1. Ensure NATS is running and healthy
-2. Verify NATS monitoring port (8222) is accessible
-3. Check Docker network connectivity
-4. Restart exporter: <code>docker-compose restart nats-prometheus-exporter</code></p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Ensure NATS is running and healthy</li>
+<li>Verify NATS monitoring port (8222) is accessible</li>
+<li>Check Docker network connectivity</li>
+<li>Restart exporter: <code>docker-compose restart nats-prometheus-exporter</code></li>
+</ol>
 <h4 id="2-metrics-not-appearing-in-prometheus">2. Metrics Not Appearing in Prometheus<a class="headerlink" href="#2-metrics-not-appearing-in-prometheus" title="Permanent link">&para;</a></h4>
-<p><strong>Symptoms:</strong>
-- Prometheus shows target as "down"
-- No NATS metrics in Prometheus UI
-- Queries return no data</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Prometheus shows target as "down"</li>
+<li>No NATS metrics in Prometheus UI</li>
+<li>Queries return no data</li>
+</ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check Prometheus targets</span>
 curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.activeTargets[] | select(.labels.job == &quot;nats-exporter&quot;)&#39;</span>
@@ -1760,16 +1774,20 @@ curl<span class="w"> </span>http://localhost:7777/metrics<span class="w"> </span
 docker<span class="w"> </span>logs<span class="w"> </span>sahool-monitoring-prometheus<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nats
 </code></pre></div>
 
-<p><strong>Solution:</strong>
-1. Verify scrape config in <code>prometheus.yml</code>
-2. Ensure exporter is in correct Docker network
-3. Reload Prometheus config: <code>curl -X POST http://localhost:9090/-/reload</code>
-4. Check firewall/network policies</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Verify scrape config in <code>prometheus.yml</code></li>
+<li>Ensure exporter is in correct Docker network</li>
+<li>Reload Prometheus config: <code>curl -X POST http://localhost:9090/-/reload</code></li>
+<li>Check firewall/network policies</li>
+</ol>
 <h4 id="3-high-memory-usage">3. High Memory Usage<a class="headerlink" href="#3-high-memory-usage" title="Permanent link">&para;</a></h4>
-<p><strong>Symptoms:</strong>
-- JetStream memory alerts firing
-- NATS container memory at limit
-- Messages being rejected</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>JetStream memory alerts firing</li>
+<li>NATS container memory at limit</li>
+<li>Messages being rejected</li>
+</ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check JetStream memory usage</span>
 curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.memory&#39;</span>
@@ -1781,16 +1799,20 @@ curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span
 curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="p">&amp;</span><span class="nv">streams</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.streams[] | &quot;\(.state.messages) \(.config.name)&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-rn
 </code></pre></div>
 
-<p><strong>Solution:</strong>
-1. Review retention policies on streams
-2. Purge old messages: <code>nats stream purge &lt;stream-name&gt;</code>
-3. Increase JetStream memory limit in config
-4. Archive old streams to object storage</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Review retention policies on streams</li>
+<li>Purge old messages: <code>nats stream purge &lt;stream-name&gt;</code></li>
+<li>Increase JetStream memory limit in config</li>
+<li>Archive old streams to object storage</li>
+</ol>
 <h4 id="4-slow-consumer-issues">4. Slow Consumer Issues<a class="headerlink" href="#4-slow-consumer-issues" title="Permanent link">&para;</a></h4>
-<p><strong>Symptoms:</strong>
-- <code>NATSSlowConsumersDetected</code> alert firing
-- Messages being dropped
-- Consumer lag increasing</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li><code>NATSSlowConsumersDetected</code> alert firing</li>
+<li>Messages being dropped</li>
+<li>Consumer lag increasing</li>
+</ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check slow consumers</span>
 curl<span class="w"> </span>http://localhost:8222/connz?state<span class="o">=</span>slow<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.&#39;</span>
@@ -1802,16 +1824,20 @@ docker<span class="w"> </span>ps<span class="w"> </span>--filter<span class="w">
 curl<span class="w"> </span>-G<span class="w"> </span>http://localhost:9090/api/v1/query<span class="w"> </span>--data-urlencode<span class="w"> </span><span class="s1">&#39;query=rate(nats_jetstream_consumer_delivered[5m])&#39;</span>
 </code></pre></div>
 
-<p><strong>Solution:</strong>
-1. Scale consumer service horizontally
-2. Optimize message processing logic
-3. Increase consumer max_ack_pending
-4. Review consumer configuration (batch size, timeout)</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Scale consumer service horizontally</li>
+<li>Optimize message processing logic</li>
+<li>Increase consumer max_ack_pending</li>
+<li>Review consumer configuration (batch size, timeout)</li>
+</ol>
 <h4 id="5-connection-limit-reached">5. Connection Limit Reached<a class="headerlink" href="#5-connection-limit-reached" title="Permanent link">&para;</a></h4>
-<p><strong>Symptoms:</strong>
-- New connections being rejected
-- "maximum connections exceeded" errors
-- Services can't connect to NATS</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>New connections being rejected</li>
+<li>"maximum connections exceeded" errors</li>
+<li>Services can't connect to NATS</li>
+</ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check current connections</span>
 curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;{connections, max_connections}&#39;</span>
@@ -1823,11 +1849,13 @@ curl<span class="w"> </span>http://localhost:8222/connz<span class="w"> </span><
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-nats<span class="w"> </span>nats<span class="w"> </span>server<span class="w"> </span>list<span class="w"> </span>connections
 </code></pre></div>
 
-<p><strong>Solution:</strong>
-1. Increase <code>max_connections</code> in NATS config
-2. Review services for connection leaks
-3. Implement connection pooling in clients
-4. Check for zombie connections and cleanup</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Increase <code>max_connections</code> in NATS config</li>
+<li>Review services for connection leaks</li>
+<li>Implement connection pooling in clients</li>
+<li>Check for zombie connections and cleanup</li>
+</ol>
 <hr />
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <h3 id="performance-optimization-">Performance Optimization - تحسين الأداء<a class="headerlink" href="#performance-optimization-" title="Permanent link">&para;</a></h3>
@@ -2084,11 +2112,13 @@ curl<span class="w"> </span>http://localhost:7777/metrics
 <li><strong>NATS Community</strong>: https://natsio.slack.com/</li>
 </ul>
 <h3 id="support-">Support - الدعم<a class="headerlink" href="#support-" title="Permanent link">&para;</a></h3>
-<p>For issues with NATS monitoring:
-1. Check this documentation first
-2. Review Docker logs for errors
-3. Consult NATS documentation
-4. Contact platform team: platform@sahool.io</p>
+<p>For issues with NATS monitoring:</p>
+<ol>
+<li>Check this documentation first</li>
+<li>Review Docker logs for errors</li>
+<li>Consult NATS documentation</li>
+<li>Contact platform team: platform@sahool.io</li>
+</ol>
 <hr />
 <p><strong>Document Version:</strong> 1.0.0
 <strong>Last Updated:</strong> 2026-01-07

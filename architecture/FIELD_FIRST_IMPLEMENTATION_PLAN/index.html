@@ -1166,10 +1166,12 @@
 <div class="codehilite"><pre><span></span><code><span class="gh"># إنشاء: docs/architecture/PRINCIPLES.md</span>
 </code></pre></div>
 
-<p><strong>المحتوى:</strong>
-- القواعد الذهبية الثلاث
-- تصنيف الخدمات
-- معايير قبول الميزات</p>
+<p><strong>المحتوى:</strong></p>
+<ul>
+<li>القواعد الذهبية الثلاث</li>
+<li>تصنيف الخدمات</li>
+<li>معايير قبول الميزات</li>
+</ul>
 <h4 id="12-docker-composeyml">1.2 تحديث docker-compose.yml<a class="headerlink" href="#12-docker-composeyml" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># إضافة labels للتصنيف</span>
 <span class="nt">services</span><span class="p">:</span>
@@ -1559,6 +1561,7 @@
 <div class="codehilite"><pre><span></span><code><span class="gu">## قائمة اختبار ميداني</span>
 
 <span class="gu">### سيناريو 1: لا يوجد اتصال</span>
+
 <span class="k">- [ ]</span> فتح التطبيق
 <span class="k">- [ ]</span> عرض الحقول المحفوظة
 <span class="k">- [ ]</span> إنشاء مهمة جديدة
@@ -1567,6 +1570,7 @@
 <span class="k">- [ ]</span> التحقق من Outbox
 
 <span class="gu">### سيناريو 2: اتصال متقطع</span>
+
 <span class="k">- [ ]</span> بدء sync
 <span class="k">- [ ]</span> قطع الاتصال منتصف العملية
 <span class="k">- [ ]</span> التحقق من عدم فقدان البيانات
@@ -1574,6 +1578,7 @@
 <span class="k">- [ ]</span> التحقق من استكمال sync
 
 <span class="gu">### سيناريو 3: بيانات تحليلية قديمة</span>
+
 <span class="k">- [ ]</span> عرض NDVI محفوظ
 <span class="k">- [ ]</span> التحقق من مؤشر &quot;قديم&quot;
 <span class="k">- [ ]</span> تنفيذ مهمة بناءً على بيانات قديمة

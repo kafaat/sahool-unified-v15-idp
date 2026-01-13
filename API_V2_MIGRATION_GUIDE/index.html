@@ -1175,9 +1175,11 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Required Changes:</strong>
-- Update response parsing to handle <code>version</code>, <code>timestamp</code>, and <code>meta</code> fields
-- Use <code>meta.requestId</code> for request tracing and support tickets</p>
+<p><strong>Required Changes:</strong></p>
+<ul>
+<li>Update response parsing to handle <code>version</code>, <code>timestamp</code>, and <code>meta</code> fields</li>
+<li>Use <code>meta.requestId</code> for request tracing and support tickets</li>
+</ul>
 <h4 id="error-response">Error Response<a class="headerlink" href="#error-response" title="Permanent link">&para;</a></h4>
 <p><strong>v1:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -1204,10 +1206,12 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Required Changes:</strong>
-- Update error handling to use <code>error.code</code> instead of parsing <code>message</code>
-- Use <code>error.field</code> to identify which field caused the error
-- Reference <code>meta.documentation</code> for error details</p>
+<p><strong>Required Changes:</strong></p>
+<ul>
+<li>Update error handling to use <code>error.code</code> instead of parsing <code>message</code></li>
+<li>Use <code>error.field</code> to identify which field caused the error</li>
+<li>Reference <code>meta.documentation</code> for error details</li>
+</ul>
 <h3 id="3-pagination">3. Pagination<a class="headerlink" href="#3-pagination" title="Permanent link">&para;</a></h3>
 <h4 id="query-parameters">Query Parameters<a class="headerlink" href="#query-parameters" title="Permanent link">&para;</a></h4>
 <p><strong>v1:</strong></p>
@@ -1256,18 +1260,22 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>Required Changes:</strong>
-- Use <code>meta.pagination.total</code> instead of <code>count</code>
-- Use <code>meta.pagination.hasNext</code> and <code>hasPrev</code> for navigation
-- Calculate current page using <code>meta.pagination.page</code></p>
+<p><strong>Required Changes:</strong></p>
+<ul>
+<li>Use <code>meta.pagination.total</code> instead of <code>count</code></li>
+<li>Use <code>meta.pagination.hasNext</code> and <code>hasPrev</code> for navigation</li>
+<li>Calculate current page using <code>meta.pagination.page</code></li>
+</ul>
 <h3 id="4-sorting">4. Sorting<a class="headerlink" href="#4-sorting" title="Permanent link">&para;</a></h3>
 <p><strong>v2 New Feature:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="err">GET /api/v2/users?page=1&amp;limit=20&amp;sort=createdAt&amp;order=desc</span>
 </code></pre></div>
 
-<p>Supported sort orders:
-- <code>asc</code> - Ascending
-- <code>desc</code> - Descending</p>
+<p>Supported sort orders:</p>
+<ul>
+<li><code>asc</code> - Ascending</li>
+<li><code>desc</code> - Descending</li>
+</ul>
 <h3 id="5-date-format">5. Date Format<a class="headerlink" href="#5-date-format" title="Permanent link">&para;</a></h3>
 <p><strong>v1:</strong> Mixed formats (ISO 8601, custom formats)
 <strong>v2:</strong> Strict ISO 8601 with timezone</p>
@@ -1296,20 +1304,20 @@
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// v1</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/client&#39;</span><span class="p">;</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="p">({</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;v1&#39;</span><span class="w"> </span><span class="p">});</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/client&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="p">({</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="w"> </span><span class="p">});</span>
 
 <span class="c1">// v2</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/client&#39;</span><span class="p">;</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="p">({</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;v2&#39;</span><span class="w"> </span><span class="p">});</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/client&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="p">({</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;v2&quot;</span><span class="w"> </span><span class="p">});</span>
 </code></pre></div>
 
 <h3 id="step-2-update-base-url">Step 2: Update Base URL<a class="headerlink" href="#step-2-update-base-url" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// v1</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.app/api/v1&#39;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://api.sahool.app/api/v1&quot;</span><span class="p">;</span>
 
 <span class="c1">// v2</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.app/api/v2&#39;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://api.sahool.app/api/v2&quot;</span><span class="p">;</span>
 </code></pre></div>
 
 <h3 id="step-3-update-response-handlers">Step 3: Update Response Handlers<a class="headerlink" href="#step-3-update-response-handlers" title="Permanent link">&para;</a></h3>
@@ -1406,13 +1414,13 @@
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">success</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Structured error handling</span>
 <span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;USER_NOT_FOUND&#39;</span><span class="o">:</span>
-<span class="w">        </span><span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;User not found&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;USER_NOT_FOUND&quot;</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;User not found&quot;</span><span class="p">);</span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;UNAUTHORIZED&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;UNAUTHORIZED&quot;</span><span class="o">:</span>
 <span class="w">        </span><span class="nx">redirectToLogin</span><span class="p">();</span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;VALIDATION_ERROR&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;VALIDATION_ERROR&quot;</span><span class="o">:</span>
 <span class="w">        </span><span class="nx">displayFieldError</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">field</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span>
 <span class="w">      </span><span class="nx">default</span><span class="o">:</span>
@@ -1420,7 +1428,7 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Network error:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;Network error:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1432,18 +1440,18 @@
 <span class="w">    </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="p">...</span><span class="nx">options</span><span class="p">.</span><span class="nx">headers</span><span class="p">,</span>
 <span class="w">      </span><span class="c1">// Optional: Send request ID for tracing</span>
-<span class="w">      </span><span class="s1">&#39;X-Request-ID&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">generateRequestId</span><span class="p">(),</span>
+<span class="w">      </span><span class="s2">&quot;X-Request-ID&quot;</span><span class="o">:</span><span class="w"> </span><span class="nx">generateRequestId</span><span class="p">(),</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">});</span>
 
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
 
 <span class="w">  </span><span class="c1">// Log request ID for debugging</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Request ID:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requestId</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Request ID:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requestId</span><span class="p">);</span>
 
 <span class="w">  </span><span class="c1">// Store request ID for support tickets</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">response</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">localStorage</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span><span class="s1">&#39;lastFailedRequestId&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requestId</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">localStorage</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span><span class="s2">&quot;lastFailedRequestId&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requestId</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span><span class="p">;</span>
@@ -1455,26 +1463,26 @@
 <p>Run both v1 and v2 in parallel to verify consistency:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">testMigration</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">v1Response</span><span class="p">,</span><span class="w"> </span><span class="nx">v2Response</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
-<span class="w">    </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;https://api.sahool.app/api/v1/users/123&#39;</span><span class="p">),</span>
-<span class="w">    </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;https://api.sahool.app/api/v2/users/123&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">fetch</span><span class="p">(</span><span class="s2">&quot;https://api.sahool.app/api/v1/users/123&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">fetch</span><span class="p">(</span><span class="s2">&quot;https://api.sahool.app/api/v2/users/123&quot;</span><span class="p">),</span>
 <span class="w">  </span><span class="p">]);</span>
 
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">v1Data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">v1Response</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">v2Data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">v2Response</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
 
 <span class="w">  </span><span class="c1">// Compare data (accounting for format differences)</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;v1:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">v1Data</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;v2:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">v2Data</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;v1:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">v1Data</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;v2:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">v2Data</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="2-feature-parity-check">2. Feature Parity Check<a class="headerlink" href="#2-feature-parity-check" title="Permanent link">&para;</a></h3>
 <p>Ensure all v1 features are available in v2:</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">endpoints</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">  </span><span class="s1">&#39;/users&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="s1">&#39;/fields&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="s1">&#39;/weather&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="s1">&#39;/satellite&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;/users&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;/fields&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;/weather&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;/satellite&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="c1">// ... all your endpoints</span>
 <span class="p">];</span>
 
@@ -1501,7 +1509,7 @@ k6<span class="w"> </span>run<span class="w"> </span>load-test-v2.js
 <p>If you encounter issues during migration:</p>
 <h3 id="1-quick-rollback">1. Quick Rollback<a class="headerlink" href="#1-quick-rollback" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Use environment variable for easy switching</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">API_VERSION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">API_VERSION</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;v2&#39;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">API_VERSION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">API_VERSION</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;v2&quot;</span><span class="p">;</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`https://api.sahool.app/api/</span><span class="si">${</span><span class="nx">API_VERSION</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1510,7 +1518,7 @@ k6<span class="w"> </span>run<span class="w"> </span>load-test-v2.js
 <span class="kd">function</span><span class="w"> </span><span class="nx">getApiVersion</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">rolloutPercentage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10</span><span class="p">;</span><span class="w"> </span><span class="c1">// Start with 10%</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">random</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">100</span><span class="p">;</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">random</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">rolloutPercentage</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;v2&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;v1&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">random</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">rolloutPercentage</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;v2&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getApiVersion</span><span class="p">();</span>
@@ -1525,9 +1533,7 @@ k6<span class="w"> </span>run<span class="w"> </span>load-test-v2.js
 <span class="w">  </span><span class="nx">useV2Weather</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
 <span class="p">};</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">usersUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">features</span><span class="p">.</span><span class="nx">useV2Users</span>
-<span class="w">  </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;/api/v2/users&#39;</span>
-<span class="w">  </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/api/v1/users&#39;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">usersUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">features</span><span class="p">.</span><span class="nx">useV2Users</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;/api/v2/users&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/api/v1/users&quot;</span><span class="p">;</span>
 </code></pre></div>
 
 <h2 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h2>
@@ -1539,7 +1545,7 @@ k6<span class="w"> </span>run<span class="w"> </span>load-test-v2.js
 
 <span class="c1">// For v1 dates, convert first</span>
 <span class="kd">function</span><span class="w"> </span><span class="nx">parseV1Date</span><span class="p">(</span><span class="nx">dateStr</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">dateStr</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;T&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;Z&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">dateStr</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;T&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">&quot;Z&quot;</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1568,13 +1574,13 @@ k6<span class="w"> </span>run<span class="w"> </span>load-test-v2.js
 <p><strong>Solution:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Create error code mapping</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">ERROR_MESSAGES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">USER_NOT_FOUND</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;المستخدم غير موجود&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">UNAUTHORIZED</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;غير مصرح&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">VALIDATION_ERROR</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;خطأ في التحقق&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">USER_NOT_FOUND</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;المستخدم غير موجود&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">UNAUTHORIZED</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;غير مصرح&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">VALIDATION_ERROR</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;خطأ في التحقق&quot;</span><span class="p">,</span>
 <span class="p">};</span>
 
 <span class="kd">function</span><span class="w"> </span><span class="nx">getErrorMessage</span><span class="p">(</span><span class="nx">errorCode</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">ERROR_MESSAGES</span><span class="p">[</span><span class="nx">errorCode</span><span class="p">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;حدث خطأ غير متوقع&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">ERROR_MESSAGES</span><span class="p">[</span><span class="nx">errorCode</span><span class="p">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;حدث خطأ غير متوقع&quot;</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
 

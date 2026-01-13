@@ -1257,35 +1257,40 @@
 <h2 id="3-prisma-client-setup">3. Prisma Client Setup<a class="headerlink" href="#3-prisma-client-setup" title="Permanent link">&para;</a></h2>
 <p><strong>File</strong>: <code>src/lib/prisma.ts</code> (or <code>src/prisma/prisma.service.ts</code> for NestJS)</p>
 <h3 id="expressnodejs">Express/Node.js<a class="headerlink" href="#expressnodejs" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
 
 <span class="c1">// Create Prisma Client instance</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">log</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;production&#39;</span>
-<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;warn&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">]</span>
-<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">log</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;production&quot;</span>
+<span class="w">      </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+<span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span>
 <span class="p">});</span>
 
 <span class="c1">// Graceful shutdown</span>
-<span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;beforeExit&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;beforeExit&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$disconnect</span><span class="p">();</span>
 <span class="p">});</span>
 
 <span class="c1">// Export types for convenience</span>
-<span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
 </code></pre></div>
 
 <h3 id="nestjs-module">NestJS Module<a class="headerlink" href="#nestjs-module" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleInit</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleDestroy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleInit</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleDestroy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
 
 <span class="kd">@Injectable</span><span class="p">()</span>
-<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">PrismaService</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="k">implements</span><span class="w"> </span><span class="nx">OnModuleInit</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleDestroy</span><span class="w"> </span><span class="p">{</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">PrismaService</span>
+<span class="w">  </span><span class="k">extends</span><span class="w"> </span><span class="nx">PrismaClient</span>
+<span class="w">  </span><span class="k">implements</span><span class="w"> </span><span class="nx">OnModuleInit</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleDestroy</span>
+<span class="p">{</span>
 <span class="w">  </span><span class="kr">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">super</span><span class="p">({</span>
-<span class="w">      </span><span class="nx">log</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;production&#39;</span>
-<span class="w">        </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;warn&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">]</span>
-<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">],</span>
+<span class="w">      </span><span class="nx">log</span><span class="o">:</span>
+<span class="w">        </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;production&quot;</span>
+<span class="w">          </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+<span class="w">          </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span>
 <span class="w">    </span><span class="p">});</span>
 <span class="w">  </span><span class="p">}</span>
 
@@ -1350,77 +1355,74 @@
 <hr />
 <h2 id="6-usage-examples">6. Usage Examples<a class="headerlink" href="#6-usage-examples" title="Permanent link">&para;</a></h2>
 <h3 id="basic-crud-operations">Basic CRUD Operations<a class="headerlink" href="#basic-crud-operations" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./lib/prisma&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./lib/prisma&quot;</span><span class="p">;</span>
 
 <span class="c1">// Create</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">newEntity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Example&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tenant-123&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;active&#39;</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Read - Find Unique</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">findUnique</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;entity-id&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Read - Find Many</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tenant-123&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">orderBy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createdAt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;desc&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">take</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">orderBy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createdAt</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;desc&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">take</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span>
 <span class="p">});</span>
 
 <span class="c1">// Update</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">updated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;entity-id&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Updated Name&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Updated Name&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Delete</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="ow">delete</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;entity-id&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Soft Delete (update status)</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;entity-id&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;deleted&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;deleted&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h3 id="with-relations">With Relations<a class="headerlink" href="#with-relations" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Include relations</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">entityWithRelations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">findUnique</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;entity-id&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">relatedEntities</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">otherRelation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">select</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Create with relations</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">newEntity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Example&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tenant-123&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">relatedEntities</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">create</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Related 1&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Related 2&#39;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">      </span><span class="p">]</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">      </span><span class="nx">create</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Related 1&quot;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Related 2&quot;</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">relatedEntities</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">relatedEntities</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1428,7 +1430,7 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// Simple transaction</span>
 <span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">entity1</span><span class="p">,</span><span class="w"> </span><span class="nx">entity2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$transaction</span><span class="p">([</span>
 <span class="w">  </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">data1</span><span class="w"> </span><span class="p">}),</span>
-<span class="w">  </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">data2</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">data2</span><span class="w"> </span><span class="p">}),</span>
 <span class="p">]);</span>
 
 <span class="c1">// Interactive transaction</span>
@@ -1436,9 +1438,9 @@
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">});</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">auditLog</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;create&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">entityId</span><span class="o">:</span><span class="w"> </span><span class="kt">entity.id</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">      </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;create&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">entityId</span><span class="o">:</span><span class="w"> </span><span class="kt">entity.id</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">entity</span><span class="p">;</span>
 <span class="p">});</span>
@@ -1463,15 +1465,15 @@
 <hr />
 <h2 id="7-seed-data-template">7. Seed Data Template<a class="headerlink" href="#7-seed-data-template" title="Permanent link">&para;</a></h2>
 <p><strong>File</strong>: <code>prisma/seed.ts</code></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="p">();</span>
 
 <span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Seeding database...&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Seeding database...&quot;</span><span class="p">);</span>
 
 <span class="w">  </span><span class="c1">// Clear existing data (development only)</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;development&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;development&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">deleteMany</span><span class="p">();</span>
 <span class="w">  </span><span class="p">}</span>
 
@@ -1479,18 +1481,18 @@
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
 <span class="w">    </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Example 1&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tenant-123&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;active&#39;</span>
-<span class="w">      </span><span class="p">}</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Example 1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">}),</span>
 <span class="w">    </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Example 2&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tenant-123&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;active&#39;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">})</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Example 2&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">]);</span>
 
 <span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Created </span><span class="si">${</span><span class="nx">entities</span><span class="p">.</span><span class="nx">length</span><span class="si">}</span><span class="sb"> entities`</span><span class="p">);</span>
@@ -1498,7 +1500,7 @@
 
 <span class="nx">main</span><span class="p">()</span>
 <span class="w">  </span><span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Error seeding database:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;Error seeding database:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span>
 <span class="w">    </span><span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -1541,7 +1543,7 @@
 </code></pre></div>
 
 <p><strong>File</strong>: <code>docker-compose.yml</code></p>
-<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.8&quot;</span>
 
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
@@ -1576,23 +1578,23 @@
 <h2 id="9-testing-configuration">9. Testing Configuration<a class="headerlink" href="#9-testing-configuration" title="Permanent link">&para;</a></h2>
 <p><strong>File</strong>: <code>jest.config.js</code></p>
 <div class="codehilite"><pre><span></span><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">preset</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ts-jest&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">testEnvironment</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;node&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">roots</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;&lt;rootDir&gt;/src&#39;</span><span class="p">],</span>
-<span class="w">  </span><span class="nx">testMatch</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;**/__tests__/**/*.ts&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;**/?(*.)+(spec|test).ts&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">preset</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ts-jest&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">testEnvironment</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">roots</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&lt;rootDir&gt;/src&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">testMatch</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;**/__tests__/**/*.ts&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;**/?(*.)+(spec|test).ts&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="nx">collectCoverageFrom</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s1">&#39;src/**/*.ts&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;!src/**/*.d.ts&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;!src/**/*.test.ts&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;!src/**/__tests__/**&#39;</span>
+<span class="w">    </span><span class="s2">&quot;src/**/*.ts&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;!src/**/*.d.ts&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;!src/**/*.test.ts&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;!src/**/__tests__/**&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nx">setupFilesAfterEnv</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;&lt;rootDir&gt;/src/test/setup.ts&#39;</span><span class="p">]</span>
+<span class="w">  </span><span class="nx">setupFilesAfterEnv</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&lt;rootDir&gt;/src/test/setup.ts&quot;</span><span class="p">],</span>
 <span class="p">};</span>
 </code></pre></div>
 
 <p><strong>File</strong>: <code>src/test/setup.ts</code></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mockDeep</span><span class="p">,</span><span class="w"> </span><span class="nx">DeepMockProxy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;jest-mock-extended&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mockDeep</span><span class="p">,</span><span class="w"> </span><span class="nx">DeepMockProxy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;jest-mock-extended&quot;</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">MockPrisma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">DeepMockProxy</span><span class="o">&lt;</span><span class="nx">PrismaClient</span><span class="o">&gt;</span><span class="p">;</span>
 

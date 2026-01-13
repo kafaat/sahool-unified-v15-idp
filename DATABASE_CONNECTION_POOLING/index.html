@@ -1204,10 +1204,12 @@
 }
 </code></pre></div>
 
-<p><strong>Why <code>directUrl</code>?</strong>
-- Prisma migrations require certain PostgreSQL features not supported through PgBouncer
-- <code>directUrl</code> allows migrations to connect directly to PostgreSQL
-- Runtime queries use <code>url</code> which goes through PgBouncer</p>
+<p><strong>Why <code>directUrl</code>?</strong></p>
+<ul>
+<li>Prisma migrations require certain PostgreSQL features not supported through PgBouncer</li>
+<li><code>directUrl</code> allows migrations to connect directly to PostgreSQL</li>
+<li>Runtime queries use <code>url</code> which goes through PgBouncer</li>
+</ul>
 <h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <h4 id="per-service-database_url">Per-Service DATABASE_URL<a class="headerlink" href="#per-service-database_url" title="Permanent link">&para;</a></h4>
 <p>Each service should use the appropriate connection URL based on its tier:</p>
@@ -1275,10 +1277,12 @@
 <span class="nv">keepalives_count</span><span class="o">=</span><span class="m">5</span><span class="w">        </span><span class="c1"># 5 failed probes = dead connection</span>
 </code></pre></div>
 
-<p><strong>Benefits:</strong>
-- Prevents connection drops in cloud environments
-- Early detection of network issues
-- Maintains connection health through NAT/firewalls</p>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Prevents connection drops in cloud environments</li>
+<li>Early detection of network issues</li>
+<li>Maintains connection health through NAT/firewalls</li>
+</ul>
 <h3 id="timeout-configuration">Timeout Configuration<a class="headerlink" href="#timeout-configuration" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1367,11 +1371,13 @@ prisma_client_queries_total 1547
 </code></pre></div>
 
 <h3 id="grafana-dashboard">Grafana Dashboard<a class="headerlink" href="#grafana-dashboard" title="Permanent link">&para;</a></h3>
-<p>Monitor connection pool health through Grafana dashboards:
-- Active connections per service
-- Connection wait times
-- Pool saturation alerts
-- Query performance metrics</p>
+<p>Monitor connection pool health through Grafana dashboards:</p>
+<ul>
+<li>Active connections per service</li>
+<li>Connection wait times</li>
+<li>Pool saturation alerts</li>
+<li>Query performance metrics</li>
+</ul>
 <hr />
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <h3 id="1-connection-pool-sizing">1. Connection Pool Sizing<a class="headerlink" href="#1-connection-pool-sizing" title="Permanent link">&para;</a></h3>
@@ -1379,13 +1385,17 @@ prisma_client_queries_total 1547
 <div class="codehilite"><pre><span></span><code>Pool Size = ((Core Count × 2) + Effective Spindle Count)
 </code></pre></div>
 
-<p>For containerized environments:
-- <strong>CPU-bound workloads</strong>: <code>pool_size = cores × 2</code>
-- <strong>I/O-bound workloads</strong>: <code>pool_size = cores × 4</code></p>
-<p><strong>SAHOOL Platform:</strong>
-- High traffic: 10 connections (expected high concurrency)
-- Medium traffic: 8 connections (moderate load)
-- Low traffic: 6 connections (periodic operations)</p>
+<p>For containerized environments:</p>
+<ul>
+<li><strong>CPU-bound workloads</strong>: <code>pool_size = cores × 2</code></li>
+<li><strong>I/O-bound workloads</strong>: <code>pool_size = cores × 4</code></li>
+</ul>
+<p><strong>SAHOOL Platform:</strong></p>
+<ul>
+<li>High traffic: 10 connections (expected high concurrency)</li>
+<li>Medium traffic: 8 connections (moderate load)</li>
+<li>Low traffic: 6 connections (periodic operations)</li>
+</ul>
 <h3 id="2-avoid-connection-leaks">2. Avoid Connection Leaks<a class="headerlink" href="#2-avoid-connection-leaks" title="Permanent link">&para;</a></h3>
 <p>Always use Prisma's built-in lifecycle hooks:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="nx">onModuleDestroy</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -1396,7 +1406,7 @@ prisma_client_queries_total 1547
 
 <h3 id="3-query-optimization">3. Query Optimization<a class="headerlink" href="#3-query-optimization" title="Permanent link">&para;</a></h3>
 <p>Monitor slow queries (&gt;1000ms threshold):</p>
-<div class="codehilite"><pre><span></span><code><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<div class="codehilite"><pre><span></span><code><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">duration</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="sb">`Slow query detected (</span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">duration</span><span class="si">}</span><span class="sb">ms): </span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">query</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1414,12 +1424,14 @@ prisma_client_queries_total 1547
 </code></pre></div>
 
 <h3 id="5-pgbouncer-integration">5. PgBouncer Integration<a class="headerlink" href="#5-pgbouncer-integration" title="Permanent link">&para;</a></h3>
-<p>When using PgBouncer:
-- ✅ <strong>DO</strong>: Add <code>pgbouncer=true</code> parameter
-- ✅ <strong>DO</strong>: Use session pooling mode
-- ✅ <strong>DO</strong>: Set reasonable <code>connection_limit</code>
-- ❌ <strong>DON'T</strong>: Use prepared statements across connections
-- ❌ <strong>DON'T</strong>: Use <code>SET</code> statements (not persisted)</p>
+<p>When using PgBouncer:</p>
+<ul>
+<li>✅ <strong>DO</strong>: Add <code>pgbouncer=true</code> parameter</li>
+<li>✅ <strong>DO</strong>: Use session pooling mode</li>
+<li>✅ <strong>DO</strong>: Set reasonable <code>connection_limit</code></li>
+<li>❌ <strong>DON'T</strong>: Use prepared statements across connections</li>
+<li>❌ <strong>DON'T</strong>: Use <code>SET</code> statements (not persisted)</li>
+</ul>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="issue-too-many-connections-error">Issue: "Too many connections" Error<a class="headerlink" href="#issue-too-many-connections-error" title="Permanent link">&para;</a></h3>
@@ -1427,11 +1439,13 @@ prisma_client_queries_total 1547
 <div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">P1001</span><span class="o">:</span><span class="w"> </span><span class="n">Can</span><span class="err">&#39;</span><span class="n">t</span><span class="w"> </span><span class="n">reach</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="err">`</span><span class="n">pgbouncer</span><span class="o">:</span><span class="mi">6432</span><span class="err">`</span>
 </code></pre></div>
 
-<p><strong>Solutions:</strong>
-1. Check PgBouncer max_client_conn setting
-2. Reduce per-service <code>connection_limit</code>
-3. Verify PostgreSQL <code>max_connections</code>
-4. Check for connection leaks (monitor metrics)</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Check PgBouncer max_client_conn setting</li>
+<li>Reduce per-service <code>connection_limit</code></li>
+<li>Verify PostgreSQL <code>max_connections</code></li>
+<li>Check for connection leaks (monitor metrics)</li>
+</ol>
 <p><strong>Diagnostic:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check PgBouncer status</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pgbouncer<span class="w"> </span>psql<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW POOLS;&quot;</span>
@@ -1445,11 +1459,13 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Timed</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">trying</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">acquire</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">connection</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">pool</span>
 </code></pre></div>
 
-<p><strong>Solutions:</strong>
-1. Increase <code>pool_timeout</code> (current: 20s)
-2. Optimize slow queries
-3. Increase <code>connection_limit</code> for service
-4. Check database server load</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Increase <code>pool_timeout</code> (current: 20s)</li>
+<li>Optimize slow queries</li>
+<li>Increase <code>connection_limit</code> for service</li>
+<li>Check database server load</li>
+</ol>
 <p><strong>Diagnostic:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Check pool metrics</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">metrics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prismaService</span><span class="p">.</span><span class="nx">getPoolMetrics</span><span class="p">();</span>
@@ -1461,11 +1477,13 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Connection</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="n">unexpectedly</span>
 </code></pre></div>
 
-<p><strong>Solutions:</strong>
-1. TCP keepalive is already enabled (✅)
-2. Check firewall/NAT timeout settings
-3. Verify <code>connection_lifetime</code> setting (current: 3600s)
-4. Monitor connection health</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>TCP keepalive is already enabled (✅)</li>
+<li>Check firewall/NAT timeout settings</li>
+<li>Verify <code>connection_lifetime</code> setting (current: 3600s)</li>
+<li>Monitor connection health</li>
+</ol>
 <p><strong>Diagnostic:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check PostgreSQL idle connections</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
@@ -1477,14 +1495,18 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 </code></pre></div>
 
 <h3 id="issue-high-pool-wait-times">Issue: High Pool Wait Times<a class="headerlink" href="#issue-high-pool-wait-times" title="Permanent link">&para;</a></h3>
-<p><strong>Symptoms:</strong>
-- Queries queuing for connections
-- <code>prisma_client_queries_wait</code> &gt; 0 consistently</p>
-<p><strong>Solutions:</strong>
-1. Increase <code>connection_limit</code> for service tier
-2. Optimize query performance (add indexes)
-3. Implement caching for frequent queries
-4. Consider read replicas for read-heavy workloads</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Queries queuing for connections</li>
+<li><code>prisma_client_queries_wait</code> &gt; 0 consistently</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Increase <code>connection_limit</code> for service tier</li>
+<li>Optimize query performance (add indexes)</li>
+<li>Implement caching for frequent queries</li>
+<li>Consider read replicas for read-heavy workloads</li>
+</ol>
 <hr />
 <h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
 <h3 id="running-migrations">Running Migrations<a class="headerlink" href="#running-migrations" title="Permanent link">&para;</a></h3>

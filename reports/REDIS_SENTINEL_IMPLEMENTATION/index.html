@@ -1132,40 +1132,50 @@
 <h2 id="created-files">الملفات المُنشأة | Created Files<a class="headerlink" href="#created-files" title="Permanent link">&para;</a></h2>
 <h3 id="1-docker-compose-configuration">1. Docker Compose Configuration<a class="headerlink" href="#1-docker-compose-configuration" title="Permanent link">&para;</a></h3>
 <h4 id="docker-composeredis-hayml-438"><code>/docker-compose.redis-ha.yml</code> (438 سطر)<a class="headerlink" href="#docker-composeredis-hayml-438" title="Permanent link">&para;</a></h4>
-<p>ملف Docker Compose الرئيسي يحتوي على:
-- <strong>Redis Master</strong> (1 instance) - المخدم الرئيسي
-- <strong>Redis Replicas</strong> (2 instances) - النسخ الاحتياطية
-- <strong>Redis Sentinels</strong> (3 instances) - المراقبين
-- <strong>Redis Exporter</strong> - للمراقبة عبر Prometheus</p>
-<p><strong>الميزات:</strong>
-- Health checks متقدمة
-- Resource limits محددة
-- Volume persistence
-- Network isolation
-- Environment variables validation</p>
+<p>ملف Docker Compose الرئيسي يحتوي على:</p>
+<ul>
+<li><strong>Redis Master</strong> (1 instance) - المخدم الرئيسي</li>
+<li><strong>Redis Replicas</strong> (2 instances) - النسخ الاحتياطية</li>
+<li><strong>Redis Sentinels</strong> (3 instances) - المراقبين</li>
+<li><strong>Redis Exporter</strong> - للمراقبة عبر Prometheus</li>
+</ul>
+<p><strong>الميزات:</strong></p>
+<ul>
+<li>Health checks متقدمة</li>
+<li>Resource limits محددة</li>
+<li>Volume persistence</li>
+<li>Network isolation</li>
+<li>Environment variables validation</li>
+</ul>
 <hr />
 <h3 id="2-python-client-library">2. Python Client Library<a class="headerlink" href="#2-python-client-library" title="Permanent link">&para;</a></h3>
 <h4 id="sharedcacheredis_sentinelpy-967"><code>/shared/cache/redis_sentinel.py</code> (967 سطر)<a class="headerlink" href="#sharedcacheredis_sentinelpy-967" title="Permanent link">&para;</a></h4>
 <p>مكتبة Python كاملة للاتصال بـ Redis Sentinel:</p>
-<p><strong>Classes:</strong>
-- <code>RedisSentinelConfig</code>: إدارة التكوين
-- <code>CircuitBreaker</code>: نمط Circuit Breaker للحماية
-- <code>RedisSentinelClient</code>: العميل الرئيسي</p>
-<p><strong>Features:</strong>
-- ✅ Connection pooling
-- ✅ Automatic failover handling
-- ✅ Retry logic with exponential backoff
-- ✅ Read/Write separation (Master/Slave)
-- ✅ Pipeline support
-- ✅ Health monitoring
-- ✅ Comprehensive error handling</p>
-<p><strong>Operations Supported:</strong>
-- Basic: <code>set</code>, <code>get</code>, <code>delete</code>, <code>exists</code>, <code>expire</code>, <code>ttl</code>
-- Hash: <code>hset</code>, <code>hget</code>, <code>hgetall</code>, <code>hdel</code>
-- List: <code>lpush</code>, <code>rpush</code>, <code>lpop</code>, <code>rpop</code>, <code>lrange</code>
-- Set: <code>sadd</code>, <code>smembers</code>, <code>srem</code>
-- Sorted Set: <code>zadd</code>, <code>zrange</code>, <code>zrem</code>
-- Pipeline: batch operations</p>
+<p><strong>Classes:</strong></p>
+<ul>
+<li><code>RedisSentinelConfig</code>: إدارة التكوين</li>
+<li><code>CircuitBreaker</code>: نمط Circuit Breaker للحماية</li>
+<li><code>RedisSentinelClient</code>: العميل الرئيسي</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+<li>✅ Connection pooling</li>
+<li>✅ Automatic failover handling</li>
+<li>✅ Retry logic with exponential backoff</li>
+<li>✅ Read/Write separation (Master/Slave)</li>
+<li>✅ Pipeline support</li>
+<li>✅ Health monitoring</li>
+<li>✅ Comprehensive error handling</li>
+</ul>
+<p><strong>Operations Supported:</strong></p>
+<ul>
+<li>Basic: <code>set</code>, <code>get</code>, <code>delete</code>, <code>exists</code>, <code>expire</code>, <code>ttl</code></li>
+<li>Hash: <code>hset</code>, <code>hget</code>, <code>hgetall</code>, <code>hdel</code></li>
+<li>List: <code>lpush</code>, <code>rpush</code>, <code>lpop</code>, <code>rpop</code>, <code>lrange</code></li>
+<li>Set: <code>sadd</code>, <code>smembers</code>, <code>srem</code></li>
+<li>Sorted Set: <code>zadd</code>, <code>zrange</code>, <code>zrem</code></li>
+<li>Pipeline: batch operations</li>
+</ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_redis_client</span>
 
@@ -1178,34 +1188,40 @@
 <h3 id="3-typescript-client-library">3. TypeScript Client Library<a class="headerlink" href="#3-typescript-client-library" title="Permanent link">&para;</a></h3>
 <h4 id="sharedcacheredis-sentinelts-873"><code>/shared/cache/redis-sentinel.ts</code> (873 سطر)<a class="headerlink" href="#sharedcacheredis-sentinelts-873" title="Permanent link">&para;</a></h4>
 <p>مكتبة TypeScript/Node.js كاملة:</p>
-<p><strong>Classes:</strong>
-- <code>RedisSentinelClient</code>: العميل الرئيسي
-- <code>CircuitBreaker</code>: نمط Circuit Breaker
-- <code>RateLimiter</code>: تحديد معدل الطلبات
-- <code>DistributedLock</code>: قفل موزع
-- <code>SessionManager</code>: إدارة الجلسات</p>
-<p><strong>Features:</strong>
-- ✅ Full TypeScript types
-- ✅ ioredis integration
-- ✅ Automatic reconnection
-- ✅ Event handling
-- ✅ Promise-based API</p>
+<p><strong>Classes:</strong></p>
+<ul>
+<li><code>RedisSentinelClient</code>: العميل الرئيسي</li>
+<li><code>CircuitBreaker</code>: نمط Circuit Breaker</li>
+<li><code>RateLimiter</code>: تحديد معدل الطلبات</li>
+<li><code>DistributedLock</code>: قفل موزع</li>
+<li><code>SessionManager</code>: إدارة الجلسات</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+<li>✅ Full TypeScript types</li>
+<li>✅ ioredis integration</li>
+<li>✅ Automatic reconnection</li>
+<li>✅ Event handling</li>
+<li>✅ Promise-based API</li>
+</ul>
 <p><strong>Example:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/cache&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/cache&quot;</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="p">();</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;value&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">60</span><span class="w"> </span><span class="p">});</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">60</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 </code></pre></div>
 
 <hr />
 <h3 id="4-configuration-files">4. Configuration Files<a class="headerlink" href="#4-configuration-files" title="Permanent link">&para;</a></h3>
 <h4 id="infraredis-haconfigsentinelconf"><code>/infra/redis-ha/config/sentinel.conf</code><a class="headerlink" href="#infraredis-haconfigsentinelconf" title="Permanent link">&para;</a></h4>
-<p>تكوين Sentinel الأساسي:
-- Port: 26379
-- Quorum: 2
-- Down-after: 5000ms
-- Failover timeout: 10000ms</p>
+<p>تكوين Sentinel الأساسي:</p>
+<ul>
+<li>Port: 26379</li>
+<li>Quorum: 2</li>
+<li>Down-after: 5000ms</li>
+<li>Failover timeout: 10000ms</li>
+</ul>
 <h4 id="infraredis-haenvexample"><code>/infra/redis-ha/.env.example</code><a class="headerlink" href="#infraredis-haenvexample" title="Permanent link">&para;</a></h4>
 <p>مثال متغيرات البيئة مع جميع الخيارات المتاحة</p>
 <h4 id="sharedcachepackagejson"><code>/shared/cache/package.json</code><a class="headerlink" href="#sharedcachepackagejson" title="Permanent link">&para;</a></h4>
@@ -1217,27 +1233,31 @@
 <hr />
 <h3 id="5-scripts-tools">5. Scripts &amp; Tools<a class="headerlink" href="#5-scripts-tools" title="Permanent link">&para;</a></h3>
 <h4 id="infraredis-hahealth-checksh"><code>/infra/redis-ha/health-check.sh</code> (قابل للتنفيذ)<a class="headerlink" href="#infraredis-hahealth-checksh" title="Permanent link">&para;</a></h4>
-<p>سكريبت شامل لفحص الصحة:
-- ✅ Check Redis Master
-- ✅ Check Redis Replicas
-- ✅ Check Sentinels
-- ✅ Display replication info
-- ✅ Display Sentinel master info
-- ✅ Color-coded output</p>
+<p>سكريبت شامل لفحص الصحة:</p>
+<ul>
+<li>✅ Check Redis Master</li>
+<li>✅ Check Redis Replicas</li>
+<li>✅ Check Sentinels</li>
+<li>✅ Display replication info</li>
+<li>✅ Display Sentinel master info</li>
+<li>✅ Color-coded output</li>
+</ul>
 <p><strong>Usage:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>infra/redis-ha
 ./health-check.sh
 </code></pre></div>
 
 <h4 id="infraredis-hatest-failoversh"><code>/infra/redis-ha/test-failover.sh</code> (قابل للتنفيذ)<a class="headerlink" href="#infraredis-hatest-failoversh" title="Permanent link">&para;</a></h4>
-<p>سكريبت اختبار Failover تلقائي:
-- ✅ Get current master
-- ✅ Stop master container
-- ✅ Monitor failover process
-- ✅ Verify new master
-- ✅ Test data preservation
-- ✅ Restart old master
-- ✅ Verify replication</p>
+<p>سكريبت اختبار Failover تلقائي:</p>
+<ul>
+<li>✅ Get current master</li>
+<li>✅ Stop master container</li>
+<li>✅ Monitor failover process</li>
+<li>✅ Verify new master</li>
+<li>✅ Test data preservation</li>
+<li>✅ Restart old master</li>
+<li>✅ Verify replication</li>
+</ul>
 <p><strong>Usage:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>infra/redis-ha
 ./test-failover.sh
@@ -1261,64 +1281,78 @@ make<span class="w"> </span>info<span class="w">           </span><span class="c
 <hr />
 <h3 id="6-documentation">6. Documentation<a class="headerlink" href="#6-documentation" title="Permanent link">&para;</a></h3>
 <h4 id="sharedcachereadmemd-800"><code>/shared/cache/README.md</code> (800+ سطر)<a class="headerlink" href="#sharedcachereadmemd-800" title="Permanent link">&para;</a></h4>
-<p>توثيق شامل يتضمن:
-- ✅ نظرة عامة ومخططات معمارية
-- ✅ دليل التثبيت والإعداد
-- ✅ أمثلة استخدام Python
-- ✅ أمثلة استخدام TypeScript
-- ✅ دليل اختبار Failover
-- ✅ المراقبة والصيانة
-- ✅ استكشاف الأخطاء
-- ✅ أفضل الممارسات
-- ✅ أمثلة متقدمة</p>
+<p>توثيق شامل يتضمن:</p>
+<ul>
+<li>✅ نظرة عامة ومخططات معمارية</li>
+<li>✅ دليل التثبيت والإعداد</li>
+<li>✅ أمثلة استخدام Python</li>
+<li>✅ أمثلة استخدام TypeScript</li>
+<li>✅ دليل اختبار Failover</li>
+<li>✅ المراقبة والصيانة</li>
+<li>✅ استكشاف الأخطاء</li>
+<li>✅ أفضل الممارسات</li>
+<li>✅ أمثلة متقدمة</li>
+</ul>
 <h4 id="infraredis-hareadmemd"><code>/infra/redis-ha/README.md</code><a class="headerlink" href="#infraredis-hareadmemd" title="Permanent link">&para;</a></h4>
-<p>توثيق البنية التحتية:
-- ✅ محتويات المجلد
-- ✅ الهندسة المعمارية
-- ✅ المنافذ والتكوين
-- ✅ المراقبة والصيانة
-- ✅ الأمان
-- ✅ استكشاف الأخطاء</p>
+<p>توثيق البنية التحتية:</p>
+<ul>
+<li>✅ محتويات المجلد</li>
+<li>✅ الهندسة المعمارية</li>
+<li>✅ المنافذ والتكوين</li>
+<li>✅ المراقبة والصيانة</li>
+<li>✅ الأمان</li>
+<li>✅ استكشاف الأخطاء</li>
+</ul>
 <h4 id="infraredis-haquickstartmd"><code>/infra/redis-ha/QUICKSTART.md</code><a class="headerlink" href="#infraredis-haquickstartmd" title="Permanent link">&para;</a></h4>
-<p>دليل البدء السريع:
-- ✅ التثبيت في 3 خطوات
-- ✅ أمثلة سريعة
-- ✅ الأوامر الأساسية
-- ✅ استكشاف الأخطاء السريع</p>
+<p>دليل البدء السريع:</p>
+<ul>
+<li>✅ التثبيت في 3 خطوات</li>
+<li>✅ أمثلة سريعة</li>
+<li>✅ الأوامر الأساسية</li>
+<li>✅ استكشاف الأخطاء السريع</li>
+</ul>
 <hr />
 <h3 id="7-examples">7. Examples<a class="headerlink" href="#7-examples" title="Permanent link">&para;</a></h3>
 <h4 id="sharedcacheexamplespy-600"><code>/shared/cache/examples.py</code> (600+ سطر)<a class="headerlink" href="#sharedcacheexamplespy-600" title="Permanent link">&para;</a></h4>
-<p>أمثلة Python شاملة:
-- ✅ Cache Decorator
-- ✅ Rate Limiter
-- ✅ Distributed Lock
-- ✅ Session Manager
-- ✅ Pub/Sub Event System
-- ✅ Usage examples</p>
+<p>أمثلة Python شاملة:</p>
+<ul>
+<li>✅ Cache Decorator</li>
+<li>✅ Rate Limiter</li>
+<li>✅ Distributed Lock</li>
+<li>✅ Session Manager</li>
+<li>✅ Pub/Sub Event System</li>
+<li>✅ Usage examples</li>
+</ul>
 <h4 id="sharedcacheexamplests-600"><code>/shared/cache/examples.ts</code> (600+ سطر)<a class="headerlink" href="#sharedcacheexamplests-600" title="Permanent link">&para;</a></h4>
-<p>أمثلة TypeScript شاملة:
-- ✅ Cache Decorator
-- ✅ Rate Limiter
-- ✅ Distributed Lock
-- ✅ Session Manager
-- ✅ Cache Service
-- ✅ Usage examples</p>
+<p>أمثلة TypeScript شاملة:</p>
+<ul>
+<li>✅ Cache Decorator</li>
+<li>✅ Rate Limiter</li>
+<li>✅ Distributed Lock</li>
+<li>✅ Session Manager</li>
+<li>✅ Cache Service</li>
+<li>✅ Usage examples</li>
+</ul>
 <hr />
 <h3 id="8-monitoring-configuration">8. Monitoring Configuration<a class="headerlink" href="#8-monitoring-configuration" title="Permanent link">&para;</a></h3>
 <h4 id="infraredis-haprometheus-redis-exporteryml"><code>/infra/redis-ha/prometheus-redis-exporter.yml</code><a class="headerlink" href="#infraredis-haprometheus-redis-exporteryml" title="Permanent link">&para;</a></h4>
-<p>تكوين Prometheus:
-- ✅ Scrape configs
-- ✅ Alert rules
-- ✅ Grafana queries
-- ✅ Custom metrics</p>
-<p><strong>Alert Rules:</strong>
-- Redis Down
-- High Memory Usage
-- Replication Lag
-- High Connection Count
-- Rejected Connections
-- Slow Commands
-- Sentinel Master Changed</p>
+<p>تكوين Prometheus:</p>
+<ul>
+<li>✅ Scrape configs</li>
+<li>✅ Alert rules</li>
+<li>✅ Grafana queries</li>
+<li>✅ Custom metrics</li>
+</ul>
+<p><strong>Alert Rules:</strong></p>
+<ul>
+<li>Redis Down</li>
+<li>High Memory Usage</li>
+<li>Replication Lag</li>
+<li>High Connection Count</li>
+<li>Rejected Connections</li>
+<li>Slow Commands</li>
+<li>Sentinel Master Changed</li>
+</ul>
 <hr />
 <h3 id="9-additional-files">9. Additional Files<a class="headerlink" href="#9-additional-files" title="Permanent link">&para;</a></h3>
 <h4 id="sharedcache__init__py"><code>/shared/cache/__init__.py</code><a class="headerlink" href="#sharedcache__init__py" title="Permanent link">&para;</a></h4>
@@ -1445,18 +1479,18 @@ make<span class="w"> </span>test-failover
 </code></pre></div>
 
 <h3 id="typescript-usage">TypeScript Usage<a class="headerlink" href="#typescript-usage" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/cache&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/cache&quot;</span><span class="p">;</span>
 
 <span class="c1">// Initialize client</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="p">();</span>
 
 <span class="c1">// Basic operations</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;user:1000&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Ahmed&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">3600</span><span class="w"> </span><span class="p">});</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;user:1000&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;user:1000&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Ahmed&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">3600</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;user:1000&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 
 <span class="c1">// Hash operations</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hset</span><span class="p">(</span><span class="s1">&#39;user:1000:profile&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Ahmed&#39;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hgetall</span><span class="p">(</span><span class="s1">&#39;user:1000:profile&#39;</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hset</span><span class="p">(</span><span class="s2">&quot;user:1000:profile&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Ahmed&quot;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hgetall</span><span class="p">(</span><span class="s2">&quot;user:1000:profile&quot;</span><span class="p">);</span>
 
 <span class="c1">// Health check</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">healthCheck</span><span class="p">();</span>
@@ -1543,22 +1577,30 @@ make<span class="w"> </span>test-failover
 <hr />
 <h2 id="performance">الأداء | Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
 <h3 id="resource-allocation">Resource Allocation<a class="headerlink" href="#resource-allocation" title="Permanent link">&para;</a></h3>
-<p><strong>Redis Master:</strong>
-- CPU: 0.5-2 cores
-- Memory: 512M-2G
-- Disk: Persistent volume</p>
-<p><strong>Redis Replicas:</strong>
-- CPU: 0.5-2 cores each
-- Memory: 512M-1.5G each
-- Disk: Persistent volumes</p>
-<p><strong>Sentinels:</strong>
-- CPU: 0.1-0.5 cores each
-- Memory: 64M-256M each
-- Minimal disk</p>
-<p><strong>Redis Exporter:</strong>
-- CPU: 0.05-0.25 cores
-- Memory: 32M-128M
-- No disk</p>
+<p><strong>Redis Master:</strong></p>
+<ul>
+<li>CPU: 0.5-2 cores</li>
+<li>Memory: 512M-2G</li>
+<li>Disk: Persistent volume</li>
+</ul>
+<p><strong>Redis Replicas:</strong></p>
+<ul>
+<li>CPU: 0.5-2 cores each</li>
+<li>Memory: 512M-1.5G each</li>
+<li>Disk: Persistent volumes</li>
+</ul>
+<p><strong>Sentinels:</strong></p>
+<ul>
+<li>CPU: 0.1-0.5 cores each</li>
+<li>Memory: 64M-256M each</li>
+<li>Minimal disk</li>
+</ul>
+<p><strong>Redis Exporter:</strong></p>
+<ul>
+<li>CPU: 0.05-0.25 cores</li>
+<li>Memory: 32M-128M</li>
+<li>No disk</li>
+</ul>
 <h3 id="performance-optimizations">Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Permanent link">&para;</a></h3>
 <ul>
 <li>✅ Maxmemory policy: allkeys-lru</li>
@@ -1584,14 +1626,16 @@ make<span class="w"> </span>logs
 </code></pre></div>
 
 <h3 id="automated-testing">Automated Testing<a class="headerlink" href="#automated-testing" title="Permanent link">&para;</a></h3>
-<p>يتضمن <code>test-failover.sh</code>:
-1. ✅ Get current master
-2. ✅ Stop master
-3. ✅ Monitor failover
-4. ✅ Verify new master
-5. ✅ Test data preservation
-6. ✅ Restart old master
-7. ✅ Verify replication</p>
+<p>يتضمن <code>test-failover.sh</code>:</p>
+<ol>
+<li>✅ Get current master</li>
+<li>✅ Stop master</li>
+<li>✅ Monitor failover</li>
+<li>✅ Verify new master</li>
+<li>✅ Test data preservation</li>
+<li>✅ Restart old master</li>
+<li>✅ Verify replication</li>
+</ol>
 <hr />
 <h2 id="maintenance">الصيانة | Maintenance<a class="headerlink" href="#maintenance" title="Permanent link">&para;</a></h2>
 <h3 id="backup-strategy">Backup Strategy<a class="headerlink" href="#backup-strategy" title="Permanent link">&para;</a></h3>
@@ -1624,16 +1668,20 @@ docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.r
 <h2 id="monitoring">المراقبة | Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
 <h3 id="prometheus-metrics">Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Permanent link">&para;</a></h3>
 <p>Available at: <code>http://localhost:9121/metrics</code></p>
-<p>Key metrics:
-- <code>redis_up</code>: Redis instance status
-- <code>redis_connected_clients</code>: Number of clients
-- <code>redis_used_memory_bytes</code>: Memory usage
-- <code>redis_commands_processed_total</code>: Total commands
-- <code>redis_connected_slaves</code>: Number of replicas</p>
+<p>Key metrics:</p>
+<ul>
+<li><code>redis_up</code>: Redis instance status</li>
+<li><code>redis_connected_clients</code>: Number of clients</li>
+<li><code>redis_used_memory_bytes</code>: Memory usage</li>
+<li><code>redis_commands_processed_total</code>: Total commands</li>
+<li><code>redis_connected_slaves</code>: Number of replicas</li>
+</ul>
 <h3 id="grafana-dashboards">Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Permanent link">&para;</a></h3>
-<p>Recommended dashboards:
-- <strong>11835</strong>: Redis Dashboard for Prometheus
-- <strong>763</strong>: Redis Sentinel Dashboard</p>
+<p>Recommended dashboards:</p>
+<ul>
+<li><strong>11835</strong>: Redis Dashboard for Prometheus</li>
+<li><strong>763</strong>: Redis Sentinel Dashboard</li>
+</ul>
 <h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># System health</span>
 make<span class="w"> </span>health

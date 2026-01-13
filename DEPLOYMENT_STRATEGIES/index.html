@@ -1221,10 +1221,10 @@
 <span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">canary</span>
 <span class="w">  </span><span class="nt">canary</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">2m</span><span class="p p-Indicator">}</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">5m</span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> duration</span><span class="p">:</span><span class="w"> </span><span class="nv">2m</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> duration</span><span class="p">:</span><span class="w"> </span><span class="nv">5m</span><span class="w"> </span><span class="p p-Indicator">}</span>
 <span class="w">    </span><span class="c1"># ... more steps</span>
 </code></pre></div>
 
@@ -1333,14 +1333,14 @@ kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="
 <h4 id="weight-based-routing">Weight-Based Routing<a class="headerlink" href="#weight-based-routing" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Automatically managed by Argo Rollouts</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">route</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">destination</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-canary</span>
-<span class="w">      </span><span class="nt">subset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">canary</span>
-<span class="w">    </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span><span class="w">  </span><span class="c1"># 20% to canary</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">destination</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-stable</span>
-<span class="w">      </span><span class="nt">subset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable</span>
-<span class="w">    </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span><span class="w">  </span><span class="c1"># 80% to stable</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">destination</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-canary</span>
+<span class="w">        </span><span class="nt">subset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">canary</span>
+<span class="w">      </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span><span class="w"> </span><span class="c1"># 20% to canary</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">destination</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-stable</span>
+<span class="w">        </span><span class="nt">subset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable</span>
+<span class="w">      </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span><span class="w"> </span><span class="c1"># 80% to stable</span>
 </code></pre></div>
 
 <h4 id="header-based-routing">Header-Based Routing<a class="headerlink" href="#header-based-routing" title="Permanent link">&para;</a></h4>
@@ -1408,10 +1408,10 @@ kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span 
 <p>Add custom metrics to analysis:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">analysis</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">templates</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">custom-business-metric</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">custom-business-metric</span>
 <span class="w">  </span><span class="nt">args</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metric-threshold</span>
-<span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metric-threshold</span>
+<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000&quot;</span>
 </code></pre></div>
 
 <h2 id="promotion-procedures">Promotion Procedures<a class="headerlink" href="#promotion-procedures" title="Permanent link">&para;</a></h2>
@@ -1420,11 +1420,11 @@ kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span 
 <div class="codehilite"><pre><span></span><code><span class="nt">rollout</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">canary</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
-<span class="w">    </span><span class="c1"># ... traffic steps</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">analysis</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">templates</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-success-rate</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-latency</span>
+<span class="w">      </span><span class="c1"># ... traffic steps</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">analysis</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">templates</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-success-rate</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-latency</span>
 </code></pre></div>
 
 <h3 id="manual-promotion">Manual Promotion<a class="headerlink" href="#manual-promotion" title="Permanent link">&para;</a></h3>
@@ -1507,18 +1507,16 @@ kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="
 <h3 id="critical-production-issue">Critical Production Issue<a class="headerlink" href="#critical-production-issue" title="Permanent link">&para;</a></h3>
 <p>When a critical issue is detected in production:</p>
 <ol>
-<li>
-<p><strong>Immediate Traffic Shift</strong> (&lt; 30 seconds)
-   <code>bash
+<li><strong>Immediate Traffic Shift</strong> (&lt; 30 seconds)</li>
+</ol>
+<p><code>bash
    ./scripts/deploy/rollback.sh --immediate --force --notify</code></p>
-</li>
-<li>
-<p><strong>Verify Rollback</strong>
-   ```bash
+<ol>
+<li><strong>Verify Rollback</strong></li>
+</ol>
+<p>```bash
    # Check pod status
    kubectl get pods -n sahool -l app=sahool-agent</p>
-</li>
-</ol>
 <p># Check service health
    kubectl run test-curl --rm -i --restart=Never --image=curlimages/curl -- \
      curl -f http://sahool-agent:8080/health/ready
@@ -1769,10 +1767,12 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </
 kubectl<span class="w"> </span>describe<span class="w"> </span>rollout<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
 </code></pre></div>
 
-<p><strong>Solutions</strong>:
-1. Check if analysis is running: <code>kubectl get analysisrun -n sahool</code>
-2. Check pod status: <code>kubectl get pods -n sahool -l app=sahool-agent</code>
-3. Abort and retry: <code>kubectl argo rollouts abort sahool-agent -n sahool</code></p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>Check if analysis is running: <code>kubectl get analysisrun -n sahool</code></li>
+<li>Check pod status: <code>kubectl get pods -n sahool -l app=sahool-agent</code></li>
+<li>Abort and retry: <code>kubectl argo rollouts abort sahool-agent -n sahool</code></li>
+</ol>
 <h4 id="analysis-run-failing">Analysis Run Failing<a class="headerlink" href="#analysis-run-failing" title="Permanent link">&para;</a></h4>
 <p><strong>Symptoms</strong>: Analysis runs consistently fail</p>
 <p><strong>Diagnosis</strong>:</p>
@@ -1780,11 +1780,13 @@ kubectl<span class="w"> </span>describe<span class="w"> </span>rollout<span clas
 kubectl<span class="w"> </span>describe<span class="w"> </span>analysisrun<span class="w"> </span>&lt;name&gt;<span class="w"> </span>-n<span class="w"> </span>sahool
 </code></pre></div>
 
-<p><strong>Solutions</strong>:
-1. Check Prometheus connectivity
-2. Verify metric queries are correct
-3. Review metric thresholds
-4. Check if service is receiving traffic</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>Check Prometheus connectivity</li>
+<li>Verify metric queries are correct</li>
+<li>Review metric thresholds</li>
+<li>Check if service is receiving traffic</li>
+</ol>
 <h4 id="canary-pods-not-ready">Canary Pods Not Ready<a class="headerlink" href="#canary-pods-not-ready" title="Permanent link">&para;</a></h4>
 <p><strong>Symptoms</strong>: Canary pods fail readiness probe</p>
 <p><strong>Diagnosis</strong>:</p>
@@ -1793,11 +1795,13 @@ kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w
 kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>-n<span class="w"> </span>sahool
 </code></pre></div>
 
-<p><strong>Solutions</strong>:
-1. Check application logs for errors
-2. Verify database connectivity
-3. Check secret/configmap availability
-4. Review resource limits</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>Check application logs for errors</li>
+<li>Verify database connectivity</li>
+<li>Check secret/configmap availability</li>
+<li>Review resource limits</li>
+</ol>
 <h4 id="traffic-not-routing-to-canary">Traffic Not Routing to Canary<a class="headerlink" href="#traffic-not-routing-to-canary" title="Permanent link">&para;</a></h4>
 <p><strong>Symptoms</strong>: All traffic goes to stable despite weight settings</p>
 <p><strong>Diagnosis</strong>:</p>
@@ -1805,11 +1809,13 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod-name&gt;<span
 kubectl<span class="w"> </span>get<span class="w"> </span>destinationrule<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-o<span class="w"> </span>yaml
 </code></pre></div>
 
-<p><strong>Solutions</strong>:
-1. Verify VirtualService weights are set correctly
-2. Check DestinationRule subsets match labels
-3. Verify Istio proxy is injected: <code>kubectl get pods -n sahool -o jsonpath='{.items[*].spec.containers[*].name}'</code>
-4. Check Istio pilot logs</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>Verify VirtualService weights are set correctly</li>
+<li>Check DestinationRule subsets match labels</li>
+<li>Verify Istio proxy is injected: <code>kubectl get pods -n sahool -o jsonpath='{.items[*].spec.containers[*].name}'</code></li>
+<li>Check Istio pilot logs</li>
+</ol>
 <h3 id="debug-commands">Debug Commands<a class="headerlink" href="#debug-commands" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Get rollout details</span>
 kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>get<span class="w"> </span>rollout<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool

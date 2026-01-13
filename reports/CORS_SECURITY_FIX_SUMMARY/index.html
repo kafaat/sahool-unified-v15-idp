@@ -1135,33 +1135,39 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<p><strong>Risks:</strong>
-- Cross-Site Request Forgery (CSRF) attacks
-- Credential theft
-- Unauthorized API access from malicious domains
-- Data exfiltration</p>
+<p><strong>Risks:</strong></p>
+<ul>
+<li>Cross-Site Request Forgery (CSRF) attacks</li>
+<li>Credential theft</li>
+<li>Unauthorized API access from malicious domains</li>
+<li>Data exfiltration</li>
+</ul>
 <h3 id="security-fix-after">Security Fix (After)<a class="headerlink" href="#security-fix-after" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># ✅ SECURE - Explicit origin whitelisting</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cors_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_cors_middleware</span>
 <span class="n">setup_cors_middleware</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
 
-<p><strong>Benefits:</strong>
-- Only trusted domains can access the API
-- Environment-aware configuration
-- Production safety checks
-- Automatic security warnings</p>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Only trusted domains can access the API</li>
+<li>Environment-aware configuration</li>
+<li>Production safety checks</li>
+<li>Automatic security warnings</li>
+</ul>
 <h2 id="files-created">Files Created<a class="headerlink" href="#files-created" title="Permanent link">&para;</a></h2>
 <h3 id="1-centralized-cors-configuration">1. Centralized CORS Configuration<a class="headerlink" href="#1-centralized-cors-configuration" title="Permanent link">&para;</a></h3>
 <p><strong>File:</strong> <code>/home/user/sahool-unified-v15-idp/apps/services/shared/config/cors_config.py</code>
 <strong>Lines:</strong> 293
 <strong>Purpose:</strong> Centralized, secure CORS configuration for all services</p>
-<p><strong>Key Features:</strong>
-- Environment-based origin selection (production, staging, development)
-- Explicit origin whitelisting
-- Production security enforcement (no wildcards)
-- Comprehensive logging and warnings
-- Utility functions for validation and debugging</p>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Environment-based origin selection (production, staging, development)</li>
+<li>Explicit origin whitelisting</li>
+<li>Production security enforcement (no wildcards)</li>
+<li>Comprehensive logging and warnings</li>
+<li>Utility functions for validation and debugging</li>
+</ul>
 <p><strong>Production Origins:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="n">PRODUCTION_ORIGINS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;https://sahool.app&quot;</span><span class="p">,</span>
@@ -1597,10 +1603,12 @@ grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;set
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">MDN CORS Guide</a></li>
 </ul>
 <h2 id="security-compliance">Security Compliance<a class="headerlink" href="#security-compliance" title="Permanent link">&para;</a></h2>
-<p>This fix addresses:
-- ✅ OWASP A05:2021 - Security Misconfiguration
-- ✅ OWASP A07:2021 - Identification and Authentication Failures
-- ✅ CWE-942: Permissive Cross-domain Policy with Untrusted Domains</p>
+<p>This fix addresses:</p>
+<ul>
+<li>✅ OWASP A05:2021 - Security Misconfiguration</li>
+<li>✅ OWASP A07:2021 - Identification and Authentication Failures</li>
+<li>✅ CWE-942: Permissive Cross-domain Policy with Untrusted Domains</li>
+</ul>
 <h2 id="approval-sign-off">Approval &amp; Sign-off<a class="headerlink" href="#approval-sign-off" title="Permanent link">&para;</a></h2>
 <ul>
 <li>[x] Security vulnerability identified</li>

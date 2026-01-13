@@ -1250,10 +1250,12 @@ docker<span class="w"> </span>compose<span class="w"> </span>--profile<span clas
 <span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دمج إدارة الحقول في خدمة واحدة</span>
 </code></pre></div>
 
-<p><strong>ملفات الامتداد:</strong>
-- <code>apps/services/field-service/Dockerfile</code>
-- <code>apps/services/field-service/src/</code>
-- <code>apps/services/field-service/package.json</code></p>
+<p><strong>ملفات الامتداد:</strong></p>
+<ul>
+<li><code>apps/services/field-service/Dockerfile</code></li>
+<li><code>apps/services/field-service/src/</code></li>
+<li><code>apps/services/field-service/package.json</code></li>
+</ul>
 <hr />
 <h3 id="2-field_ops">2. field_ops<a class="headerlink" href="#2-field_ops" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field_ops</span>
@@ -1264,10 +1266,12 @@ docker<span class="w"> </span>compose<span class="w"> </span>--profile<span clas
 <span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دمج عمليات الحقل مع إدارة الحقول</span>
 </code></pre></div>
 
-<p><strong>التبعيات:</strong>
-- postgres (database)
-- nats (events)
-- redis (cache)</p>
+<p><strong>التبعيات:</strong></p>
+<ul>
+<li>postgres (database)</li>
+<li>nats (events)</li>
+<li>redis (cache)</li>
+</ul>
 <hr />
 <h3 id="3-ndvi_engine">3. ndvi_engine<a class="headerlink" href="#3-ndvi_engine" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi_engine</span>
@@ -1278,14 +1282,20 @@ docker<span class="w"> </span>compose<span class="w"> </span>--profile<span clas
 <span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توسيع لدعم NDWI, EVI, SAVI</span>
 </code></pre></div>
 
-<p><strong>ملفات الامتداد:</strong>
-- <code>apps/services/ndvi-processor/Dockerfile</code>
-- <code>apps/services/ndvi-processor/src/</code>
-- <code>apps/services/ndvi-processor/requirements.txt</code></p>
-<p><strong>المخرجات القديمة:</strong>
-- NDVI only</p>
-<p><strong>المخرجات الجديدة (satellite-service):</strong>
-- NDVI, NDWI, EVI, SAVI, LAI</p>
+<p><strong>ملفات الامتداد:</strong></p>
+<ul>
+<li><code>apps/services/ndvi-processor/Dockerfile</code></li>
+<li><code>apps/services/ndvi-processor/src/</code></li>
+<li><code>apps/services/ndvi-processor/requirements.txt</code></li>
+</ul>
+<p><strong>المخرجات القديمة:</strong></p>
+<ul>
+<li>NDVI only</li>
+</ul>
+<p><strong>المخرجات الجديدة (satellite-service):</strong></p>
+<ul>
+<li>NDVI, NDWI, EVI, SAVI, LAI</li>
+</ul>
 <hr />
 <h3 id="4-weather_core">4. weather_core<a class="headerlink" href="#4-weather_core" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weather_core</span>
@@ -1296,12 +1306,16 @@ docker<span class="w"> </span>compose<span class="w"> </span>--profile<span clas
 <span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إضافة تنبؤات متقدمة وتكامل FAO</span>
 </code></pre></div>
 
-<p><strong>ملفات الامتداد:</strong>
-- <code>apps/services/weather-advanced/Dockerfile</code>
-- <code>apps/services/weather-advanced/src/</code>
-- <code>apps/services/weather-advanced/requirements.txt</code></p>
-<p><strong>API Keys المطلوبة:</strong>
-- <code>OPENWEATHER_API_KEY</code></p>
+<p><strong>ملفات الامتداد:</strong></p>
+<ul>
+<li><code>apps/services/weather-advanced/Dockerfile</code></li>
+<li><code>apps/services/weather-advanced/src/</code></li>
+<li><code>apps/services/weather-advanced/requirements.txt</code></li>
+</ul>
+<p><strong>API Keys المطلوبة:</strong></p>
+<ul>
+<li><code>OPENWEATHER_API_KEY</code></li>
+</ul>
 <hr />
 <h3 id="5-field_chat">5. field_chat<a class="headerlink" href="#5-field_chat" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field_chat</span>
@@ -1312,10 +1326,12 @@ docker<span class="w"> </span>compose<span class="w"> </span>--profile<span clas
 <span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إعادة تصميم WebSocket</span>
 </code></pre></div>
 
-<p><strong>ملفات الامتداد:</strong>
-- <code>apps/services/community-chat/Dockerfile</code>
-- <code>apps/services/community-chat/src/</code>
-- <code>apps/services/community-chat/package.json</code></p>
+<p><strong>ملفات الامتداد:</strong></p>
+<ul>
+<li><code>apps/services/community-chat/Dockerfile</code></li>
+<li><code>apps/services/community-chat/src/</code></li>
+<li><code>apps/services/community-chat/package.json</code></li>
+</ul>
 <hr />
 <h3 id="6-iot_gateway">6. iot_gateway<a class="headerlink" href="#6-iot_gateway" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iot_gateway</span>
@@ -1326,9 +1342,11 @@ docker<span class="w"> </span>compose<span class="w"> </span>--profile<span clas
 <span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين بروتوكول MQTT</span>
 </code></pre></div>
 
-<p><strong>التبعيات:</strong>
-- mqtt (broker)
-- nats (events)</p>
+<p><strong>التبعيات:</strong></p>
+<ul>
+<li>mqtt (broker)</li>
+<li>nats (events)</li>
+</ul>
 <hr />
 <h3 id="7-agro_advisor">7. agro_advisor<a class="headerlink" href="#7-agro_advisor" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agro_advisor</span>
@@ -1349,13 +1367,17 @@ docker<span class="w"> </span>compose<span class="w"> </span>--profile<span clas
 <span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توحيد قنوات الإشعارات</span>
 </code></pre></div>
 
-<p><strong>القنوات القديمة:</strong>
-- WebSocket only</p>
-<p><strong>القنوات الجديدة:</strong>
-- Push notifications
-- SMS
-- In-app
-- WebSocket</p>
+<p><strong>القنوات القديمة:</strong></p>
+<ul>
+<li>WebSocket only</li>
+</ul>
+<p><strong>القنوات الجديدة:</strong></p>
+<ul>
+<li>Push notifications</li>
+<li>SMS</li>
+<li>In-app</li>
+<li>WebSocket</li>
+</ul>
 <hr />
 <h3 id="9-crop_health">9. crop_health<a class="headerlink" href="#9-crop_health" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop_health</span>
@@ -1551,10 +1573,12 @@ docker<span class="w"> </span>compose<span class="w"> </span>--profile<span clas
 </table>
 <hr />
 <h2 id="_7">📞 الدعم<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
-<p>للترحيل من الخدمات القديمة:
-1. راجع <code>docs/architecture/PRINCIPLES.md</code>
-2. استخدم <code>config/service-registry.yaml</code> للتصنيف
-3. اختبر مع <code>docker compose --profile legacy up -d</code></p>
+<p>للترحيل من الخدمات القديمة:</p>
+<ol>
+<li>راجع <code>docs/architecture/PRINCIPLES.md</code></li>
+<li>استخدم <code>config/service-registry.yaml</code> للتصنيف</li>
+<li>اختبر مع <code>docker compose --profile legacy up -d</code></li>
+</ol>
 <hr />
 <p align="center">
   <strong>Legacy Services Archive</strong>

@@ -1213,12 +1213,14 @@
 <span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3s</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] تفعيل Kong replicas (3 instances)
-- [ ] تكوين Pod Anti-Affinity
-- [ ] إضافة Health Checks
-- [ ] تكوين Session Affinity للـ WebSockets
-- [ ] اختبار Failover Scenario</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] تفعيل Kong replicas (3 instances)</li>
+<li>[ ] تكوين Pod Anti-Affinity</li>
+<li>[ ] إضافة Health Checks</li>
+<li>[ ] تكوين Session Affinity للـ WebSockets</li>
+<li>[ ] اختبار Failover Scenario</li>
+</ul>
 <p><strong>Owner:</strong> DevOps Lead
 <strong>Deadline:</strong> Day 5
 <strong>Verification:</strong> Chaos test - kill pod, verify &lt;5s recovery</p>
@@ -1229,13 +1231,13 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// File: shared/libs/cache/ndvi-cache.service.ts</span>
 <span class="c1">// Priority: P0 - CRITICAL</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;ioredis&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;ioredis&quot;</span><span class="p">;</span>
 
 <span class="kd">interface</span><span class="w"> </span><span class="nx">NDVICacheEntry</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;satellite&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;interpolated&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;historical&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;satellite&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;interpolated&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;historical&quot;</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">ttl_hours</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="p">}</span>
@@ -1272,7 +1274,7 @@
 <span class="w">    </span><span class="c1">// 3. Try L3 (Stale from DB)</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">staleEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">getStaleFromDB</span><span class="p">(</span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">date</span><span class="p">);</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">staleEntry</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">staleEntry</span><span class="p">.</span><span class="nx">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;historical&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">staleEntry</span><span class="p">.</span><span class="nx">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;historical&quot;</span><span class="p">;</span>
 <span class="w">      </span><span class="nx">staleEntry</span><span class="p">.</span><span class="nx">confidence</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mf">0.8</span><span class="p">;</span><span class="w"> </span><span class="c1">// Reduce confidence</span>
 <span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">staleEntry</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1281,12 +1283,17 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">interpolateFromNeighbors</span><span class="p">(</span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">date</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">setNDVI</span><span class="p">(</span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">setNDVI</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">  </span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">entry</span><span class="o">:</span><span class="w"> </span><span class="kt">NDVICacheEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">value</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(),</span>
 <span class="w">      </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="kt">source</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">source</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;satellite&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">0.95</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">0.75</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">source</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;satellite&quot;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">0.95</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">0.75</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">ttl_hours</span><span class="o">:</span><span class="w"> </span><span class="kt">this.DEFAULT_TTL_HOURS</span><span class="p">,</span>
 <span class="w">    </span><span class="p">};</span>
 
@@ -1296,17 +1303,24 @@
 <span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">redis</span><span class="p">.</span><span class="nx">setex</span><span class="p">(</span>
 <span class="w">      </span><span class="nx">key</span><span class="p">,</span>
 <span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">DEFAULT_TTL_HOURS</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">3600</span><span class="p">,</span>
-<span class="w">      </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">entry</span><span class="p">)</span>
+<span class="w">      </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">entry</span><span class="p">),</span>
 <span class="w">    </span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// Set in Memory</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">memoryCache</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="sb">`ndvi:l1:</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">dateKey</span><span class="p">(</span><span class="nx">date</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">entry</span><span class="p">,</span><span class="w"> </span><span class="mf">300</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">memoryCache</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span>
+<span class="w">      </span><span class="sb">`ndvi:l1:</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">dateKey</span><span class="p">(</span><span class="nx">date</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">entry</span><span class="p">,</span>
+<span class="w">      </span><span class="mf">300</span><span class="p">,</span>
+<span class="w">    </span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// Persist to DB for stale fallback</span>
 <span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">persistToStaleDB</span><span class="p">(</span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">date</span><span class="p">,</span><span class="w"> </span><span class="nx">entry</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">interpolateFromNeighbors</span><span class="p">(</span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">NDVICacheEntry</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">interpolateFromNeighbors</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">,</span>
+<span class="w">  </span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">NDVICacheEntry</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Get spatial neighbors within 5km</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">neighbors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">getNeighborFields</span><span class="p">(</span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="mf">5000</span><span class="p">);</span>
 
@@ -1314,38 +1328,43 @@
 
 <span class="w">    </span><span class="c1">// Inverse Distance Weighting</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span>
-<span class="w">      </span><span class="nx">neighbors</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="sb">`ndvi:</span><span class="si">${</span><span class="nx">n</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">dateKey</span><span class="p">(</span><span class="nx">date</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">))</span>
+<span class="w">      </span><span class="nx">neighbors</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">n</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="sb">`ndvi:</span><span class="si">${</span><span class="nx">n</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">dateKey</span><span class="p">(</span><span class="nx">date</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">),</span>
+<span class="w">      </span><span class="p">),</span>
 <span class="w">    </span><span class="p">);</span>
 
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">validValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">values</span>
-<span class="w">      </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">v</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">v</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">v</span><span class="o">!</span><span class="p">));</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">v</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">v</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">v</span><span class="o">!</span><span class="p">));</span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">validValues</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
 
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">interpolated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">validValues</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">sum</span><span class="p">,</span><span class="w"> </span><span class="nx">v</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">sum</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">v</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">validValues</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">interpolated</span><span class="w"> </span><span class="o">=</span>
+<span class="w">      </span><span class="nx">validValues</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">sum</span><span class="p">,</span><span class="w"> </span><span class="nx">v</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">sum</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">v</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">validValues</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">interpolated</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(),</span>
-<span class="w">      </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;interpolated&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;interpolated&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">0.6</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="nx">validValues</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">neighbors</span><span class="p">.</span><span class="nx">length</span><span class="p">),</span>
 <span class="w">      </span><span class="nx">ttl_hours</span><span class="o">:</span><span class="w"> </span><span class="kt">12</span><span class="p">,</span><span class="w"> </span><span class="c1">// Shorter TTL for interpolated</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="nx">dateKey</span><span class="p">(</span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">date</span><span class="p">.</span><span class="nx">toISOString</span><span class="p">().</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">date</span><span class="p">.</span><span class="nx">toISOString</span><span class="p">().</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] إنشاء NDVICacheService
-- [ ] تكوين Redis Cluster
-- [ ] إضافة Stale DB schema
-- [ ] تنفيذ Interpolation algorithm
-- [ ] اختبار Offline scenarios</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] إنشاء NDVICacheService</li>
+<li>[ ] تكوين Redis Cluster</li>
+<li>[ ] إضافة Stale DB schema</li>
+<li>[ ] تنفيذ Interpolation algorithm</li>
+<li>[ ] اختبار Offline scenarios</li>
+</ul>
 <p><strong>Owner:</strong> Backend Lead
 <strong>Deadline:</strong> Day 7
 <strong>Verification:</strong> Network disconnect test, verify data availability</p>
@@ -1388,12 +1407,14 @@
 <span class="k">ANALYZE</span><span class="w"> </span><span class="n">weather_data</span><span class="p">;</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] تنفيذ migration في off-peak hours
-- [ ] مراقبة index creation progress
-- [ ] التحقق من query plans بعد الفهرسة
-- [ ] إضافة PGBouncer connection pooling
-- [ ] تكوين Materialized Views للتقارير</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] تنفيذ migration في off-peak hours</li>
+<li>[ ] مراقبة index creation progress</li>
+<li>[ ] التحقق من query plans بعد الفهرسة</li>
+<li>[ ] إضافة PGBouncer connection pooling</li>
+<li>[ ] تكوين Materialized Views للتقارير</li>
+</ul>
 <p><strong>Owner:</strong> DBA / Backend Lead
 <strong>Deadline:</strong> Day 4
 <strong>Verification:</strong> EXPLAIN ANALYZE على top 10 queries</p>
@@ -1439,11 +1460,13 @@
 <span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;500m&quot;</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] نشر PGBouncer deployment
-- [ ] تحديث connection strings في جميع الخدمات
-- [ ] تكوين monitoring لـ connection stats
-- [ ] اختبار load scenario</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] نشر PGBouncer deployment</li>
+<li>[ ] تحديث connection strings في جميع الخدمات</li>
+<li>[ ] تكوين monitoring لـ connection stats</li>
+<li>[ ] اختبار load scenario</li>
+</ul>
 <p><strong>Owner:</strong> DevOps Lead
 <strong>Deadline:</strong> Day 3
 <strong>Verification:</strong> 500 concurrent connections test</p>
@@ -1644,12 +1667,14 @@
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">integration_tests</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] إنشاء .platform-manifest.yml
-- [ ] كتابة manifest validator script
-- [ ] إضافة pre-commit hook
-- [ ] تكوين CI/CD للتحقق
-- [ ] توثيق في README</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] إنشاء .platform-manifest.yml</li>
+<li>[ ] كتابة manifest validator script</li>
+<li>[ ] إضافة pre-commit hook</li>
+<li>[ ] تكوين CI/CD للتحقق</li>
+<li>[ ] توثيق في README</li>
+</ul>
 <p><strong>Owner:</strong> Platform Lead
 <strong>Deadline:</strong> Day 14
 <strong>Verification:</strong> CI blocks on manifest violation</p>
@@ -1660,19 +1685,24 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// File: shared/libs/auth/src/index.ts</span>
 <span class="c1">// Priority: P1 - HIGH</span>
 
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./guards/jwt.guard&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./guards/roles.guard&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./guards/tenant.guard&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./decorators/current-user.decorator&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./decorators/requires-role.decorator&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./services/token.service&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./middleware/auth.middleware&#39;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./types&#39;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./guards/jwt.guard&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./guards/roles.guard&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./guards/tenant.guard&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./decorators/current-user.decorator&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./decorators/requires-role.decorator&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./services/token.service&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./middleware/auth.middleware&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./types&quot;</span><span class="p">;</span>
 
 <span class="c1">// File: shared/libs/auth/src/guards/jwt.guard.ts</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="p">,</span><span class="w"> </span><span class="nx">CanActivate</span><span class="p">,</span><span class="w"> </span><span class="nx">ExecutionContext</span><span class="p">,</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../services/token.service&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">Injectable</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">CanActivate</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">ExecutionContext</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">UnauthorizedException</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../services/token.service&quot;</span><span class="p">;</span>
 
 <span class="kd">@Injectable</span><span class="p">()</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">JwtGuard</span><span class="w"> </span><span class="k">implements</span><span class="w"> </span><span class="nx">CanActivate</span><span class="w"> </span><span class="p">{</span>
@@ -1683,7 +1713,7 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">extractToken</span><span class="p">(</span><span class="nx">request</span><span class="p">);</span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span><span class="s1">&#39;No token provided&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span><span class="s2">&quot;No token provided&quot;</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
@@ -1700,7 +1730,7 @@
 
 <span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span><span class="s1">&#39;Invalid token&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span><span class="s2">&quot;Invalid token&quot;</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 
@@ -1708,15 +1738,15 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">authHeader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span><span class="p">;</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">authHeader</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
 
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="kr">type</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">authHeader</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;Bearer&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">null</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="kr">type</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">authHeader</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">null</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1">// File: shared/libs/auth/src/services/token.service.ts</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">jose</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;jose&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">jose</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;jose&quot;</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">TokenPayload</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">sub</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -1736,8 +1766,8 @@
 
 <span class="w">  </span><span class="kr">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Load from environment</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">issuer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_ISSUER</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;sahool&#39;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">audience</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_AUDIENCE</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;sahool-api&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">issuer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_ISSUER</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;sahool&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">audience</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_AUDIENCE</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;sahool-api&quot;</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">verifyToken</span><span class="p">(</span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">TokenPayload</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -1749,18 +1779,20 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">payload</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">unknown</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">TokenPayload</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">generateToken</span><span class="p">(</span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;1h&#39;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">generateToken</span><span class="p">(</span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;1h&quot;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Implementation</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] إنشاء @sahool/auth package
-- [ ] Migrate جميع الخدمات لاستخدام الـ library
-- [ ] إزالة الـ duplicate auth code
-- [ ] إضافة unit tests
-- [ ] توثيق API</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] إنشاء @sahool/auth package</li>
+<li>[ ] Migrate جميع الخدمات لاستخدام الـ library</li>
+<li>[ ] إزالة الـ duplicate auth code</li>
+<li>[ ] إضافة unit tests</li>
+<li>[ ] توثيق API</li>
+</ul>
 <p><strong>Owner:</strong> Security Lead
 <strong>Deadline:</strong> Day 21
 <strong>Verification:</strong> All services using same auth lib</p>
@@ -1874,12 +1906,14 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] تعريف conflict rules لكل entity
-- [ ] تنفيذ ConflictResolver
-- [ ] إضافة UI للـ manual resolution
-- [ ] اختبار scenarios
-- [ ] توثيق القواعد</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] تعريف conflict rules لكل entity</li>
+<li>[ ] تنفيذ ConflictResolver</li>
+<li>[ ] إضافة UI للـ manual resolution</li>
+<li>[ ] اختبار scenarios</li>
+<li>[ ] توثيق القواعد</li>
+</ul>
 <p><strong>Owner:</strong> Mobile Lead
 <strong>Deadline:</strong> Day 28
 <strong>Verification:</strong> Offline sync test with conflicts</p>
@@ -1922,23 +1956,25 @@
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// File: scripts/validate-manifest.js</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;js-yaml&#39;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;js-yaml&quot;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">);</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">MANIFEST_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;.platform-manifest.yml&#39;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">MANIFEST_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;.platform-manifest.yml&quot;</span><span class="p">;</span>
 
 <span class="kd">function</span><span class="w"> </span><span class="nx">validateManifest</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Validating platform manifest...&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Validating platform manifest...&quot;</span><span class="p">);</span>
 
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">manifest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">MANIFEST_PATH</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf8&#39;</span><span class="p">));</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">manifest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">MANIFEST_PATH</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;utf8&quot;</span><span class="p">));</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
 
 <span class="w">  </span><span class="c1">// Check Node version</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">requiredNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">manifest</span><span class="p">.</span><span class="nx">runtimes</span><span class="p">.</span><span class="nx">node</span><span class="p">.</span><span class="nx">version</span><span class="p">;</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">currentNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">version</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">currentNode</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">requiredNode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">errors</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="sb">`Node version mismatch: required </span><span class="si">${</span><span class="nx">requiredNode</span><span class="si">}</span><span class="sb">, found </span><span class="si">${</span><span class="nx">currentNode</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">errors</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span>
+<span class="w">      </span><span class="sb">`Node version mismatch: required </span><span class="si">${</span><span class="nx">requiredNode</span><span class="si">}</span><span class="sb">, found </span><span class="si">${</span><span class="nx">currentNode</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span>
+<span class="w">    </span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Check service ports are unique</span>
@@ -1953,32 +1989,35 @@
 <span class="w">  </span><span class="c1">// Check dependencies exist</span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">service</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">manifest</span><span class="p">.</span><span class="nx">services</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">dep</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">service</span><span class="p">.</span><span class="nx">dependencies</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">libExists</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">manifest</span><span class="p">.</span><span class="nx">shared_libs</span><span class="p">.</span><span class="nx">typescript</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span><span class="nx">l</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">l</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">dep</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
-<span class="w">                       </span><span class="nx">manifest</span><span class="p">.</span><span class="nx">shared_libs</span><span class="p">.</span><span class="nx">python</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span><span class="nx">l</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">l</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">dep</span><span class="p">);</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">libExists</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">dep</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;@sahool/&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">libExists</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="nx">manifest</span><span class="p">.</span><span class="nx">shared_libs</span><span class="p">.</span><span class="nx">typescript</span><span class="p">.</span><span class="nx">some</span><span class="p">((</span><span class="nx">l</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">l</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">dep</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">        </span><span class="nx">manifest</span><span class="p">.</span><span class="nx">shared_libs</span><span class="p">.</span><span class="nx">python</span><span class="p">.</span><span class="nx">some</span><span class="p">((</span><span class="nx">l</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">l</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">dep</span><span class="p">);</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">libExists</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">dep</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">&quot;@sahool/&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">errors</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="sb">`Unknown dependency </span><span class="si">${</span><span class="nx">dep</span><span class="si">}</span><span class="sb"> in service </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">errors</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;❌ Manifest validation failed:&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">errors</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="sb">`  - </span><span class="si">${</span><span class="nx">e</span><span class="si">}</span><span class="sb">`</span><span class="p">));</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;❌ Manifest validation failed:&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">errors</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="sb">`  - </span><span class="si">${</span><span class="nx">e</span><span class="si">}</span><span class="sb">`</span><span class="p">));</span>
 <span class="w">    </span><span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;✅ Manifest is valid&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;✅ Manifest is valid&quot;</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="nx">validateManifest</span><span class="p">();</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] إعداد Husky
-- [ ] كتابة validation scripts
-- [ ] تكوين lint-staged
-- [ ] توثيق للمطورين
-- [ ] اختبار على PRs</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] إعداد Husky</li>
+<li>[ ] كتابة validation scripts</li>
+<li>[ ] تكوين lint-staged</li>
+<li>[ ] توثيق للمطورين</li>
+<li>[ ] اختبار على PRs</li>
+</ul>
 <p><strong>Owner:</strong> DX Lead
 <strong>Deadline:</strong> Day 35
 <strong>Verification:</strong> PR blocked on hook failure</p>
@@ -2099,12 +2138,14 @@
 <span class="w">    </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">slack</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] نشر Prometheus + Grafana
-- [ ] تكوين service metrics
-- [ ] إنشاء dashboard
-- [ ] تكوين alerts
-- [ ] توثيق runbooks</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] نشر Prometheus + Grafana</li>
+<li>[ ] تكوين service metrics</li>
+<li>[ ] إنشاء dashboard</li>
+<li>[ ] تكوين alerts</li>
+<li>[ ] توثيق runbooks</li>
+</ul>
 <p><strong>Owner:</strong> SRE Lead
 <strong>Deadline:</strong> Day 42
 <strong>Verification:</strong> Alert fires on simulated outage</p>
@@ -2117,16 +2158,21 @@
 <span class="gh"># ADR-0001: Field-First Architecture Pattern</span>
 
 <span class="gu">## Status</span>
+
 Accepted
 
 <span class="gu">## Context</span>
+
 SAHOOL is designed to serve farmers in rural Yemen where:
+
 <span class="k">-</span><span class="w"> </span>Internet connectivity is unreliable
 <span class="k">-</span><span class="w"> </span>Field workers need real-time decisions
 <span class="k">-</span><span class="w"> </span>Analysis services produce complex outputs
 
 <span class="gu">## Decision</span>
+
 We adopt Field-First Architecture where:
+
 <span class="k">1.</span> Every analysis service MUST produce an ActionTemplate
 <span class="k">2.</span> All data must be available offline within 24h TTL
 <span class="k">3.</span> Notifications use NATS event spine
@@ -2135,31 +2181,38 @@ We adopt Field-First Architecture where:
 <span class="gu">## Consequences</span>
 
 <span class="gu">### Positive</span>
+
 <span class="k">-</span><span class="w"> </span>Mobile app works offline
 <span class="k">-</span><span class="w"> </span>Field workers get actionable guidance
 <span class="k">-</span><span class="w"> </span>Clear data provenance
 
 <span class="gu">### Negative</span>
+
 <span class="k">-</span><span class="w"> </span>More complex service contracts
 <span class="k">-</span><span class="w"> </span>Higher storage requirements on device
 <span class="k">-</span><span class="w"> </span>Sync complexity increases
 
 <span class="gu">## Compliance</span>
+
 All new services MUST:
+
 <span class="k">-</span><span class="w"> </span>Implement ActionTemplate endpoints
 <span class="k">-</span><span class="w"> </span>Publish to NATS on analysis completion
 <span class="k">-</span><span class="w"> </span>Include Badge in responses
 
 <span class="gu">## Related</span>
+
 <span class="k">-</span><span class="w"> </span>ADR-0002: Offline-First Mobile Architecture
 <span class="k">-</span><span class="w"> </span>ADR-0003: NATS Event Spine Pattern
 </code></pre></div>
 
-<p><strong>المهام:</strong>
-- [ ] إنشاء ADR template
-- [ ] توثيق القرارات الحالية (10 ADRs)
-- [ ] إضافة ADR review process
-- [ ] ربط بـ PR template</p>
+<p><strong>المهام:</strong></p>
+<ul>
+<li>[ ] إنشاء ADR template</li>
+<li>[ ] توثيق القرارات الحالية (10 ADRs)</li>
+<li>[ ] إضافة ADR review process</li>
+<li>[ ] ربط بـ PR template</li>
+</ul>
 <p><strong>Owner:</strong> Architect
 <strong>Deadline:</strong> Day 56
 <strong>Verification:</strong> 10 ADRs documented</p>

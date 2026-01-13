@@ -1519,40 +1519,50 @@ curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
 </code></pre></div>
 
 <h3 id="2-cors-security-enhancements-v1601">2. CORS Security Enhancements (v16.0.1)<a class="headerlink" href="#2-cors-security-enhancements-v1601" title="Permanent link">&para;</a></h3>
-<p><strong>Security Hardening Implemented</strong>:
-- ❌ <strong>Removed</strong>: Wildcard CORS (<code>allow_origins=["*"]</code>) from all services
-- ✅ <strong>Added</strong>: Centralized CORS configuration (<code>shared/config/cors_config.py</code>)
-- ✅ <strong>Environment-Based Whitelisting</strong>:
-  - <strong>Production</strong>: <code>https://app.sahool.sa</code>, <code>https://admin.sahool.sa</code>
-  - <strong>Staging</strong>: <code>https://staging.sahool.sa</code>
-  - <strong>Development</strong>: <code>http://localhost:3000</code>, <code>http://localhost:5173</code></p>
-<p><strong>Affected Services</strong> (CORS hardened):
-1. <code>alert-service</code>
-2. <code>crop-health-ai</code>
-3. <code>field-service</code>
-4. <code>ndvi-processor</code></p>
+<p><strong>Security Hardening Implemented</strong>:</p>
+<ul>
+<li>❌ <strong>Removed</strong>: Wildcard CORS (<code>allow_origins=["*"]</code>) from all services</li>
+<li>✅ <strong>Added</strong>: Centralized CORS configuration (<code>shared/config/cors_config.py</code>)</li>
+<li>✅ <strong>Environment-Based Whitelisting</strong>:</li>
+<li><strong>Production</strong>: <code>https://app.sahool.sa</code>, <code>https://admin.sahool.sa</code></li>
+<li><strong>Staging</strong>: <code>https://staging.sahool.sa</code></li>
+<li><strong>Development</strong>: <code>http://localhost:3000</code>, <code>http://localhost:5173</code></li>
+</ul>
+<p><strong>Affected Services</strong> (CORS hardened):</p>
+<ol>
+<li><code>alert-service</code></li>
+<li><code>crop-health-ai</code></li>
+<li><code>field-service</code></li>
+<li><code>ndvi-processor</code></li>
+</ol>
 <h3 id="3-websocket-security">3. WebSocket Security<a class="headerlink" href="#3-websocket-security" title="Permanent link">&para;</a></h3>
-<p><strong>Enhanced in v16.0.1</strong>:
-- ✅ Mandatory authentication (removed <code>WS_REQUIRE_AUTH</code> bypass)
-- ✅ Comprehensive JWT validation with error logging
-- ✅ Production-grade token verification
-- ✅ Connection rejection for unauthorized clients</p>
+<p><strong>Enhanced in v16.0.1</strong>:</p>
+<ul>
+<li>✅ Mandatory authentication (removed <code>WS_REQUIRE_AUTH</code> bypass)</li>
+<li>✅ Comprehensive JWT validation with error logging</li>
+<li>✅ Production-grade token verification</li>
+<li>✅ Connection rejection for unauthorized clients</li>
+</ul>
 <h3 id="4-iot-gateway-security">4. IoT Gateway Security<a class="headerlink" href="#4-iot-gateway-security" title="Permanent link">&para;</a></h3>
-<p><strong>Multi-Layer Security Model</strong>:
-1. <strong>Device Authorization</strong>: All devices must be registered and authorized
-2. <strong>Sensor Validation</strong>: Range validation for 14 sensor types
-3. <strong>Tenant Isolation</strong>: Strict data segregation between tenants
-4. <strong>Data Validation</strong>: Pydantic models with field-level validation
-5. <strong>Registration Enforcement</strong>: Devices must register before data submission</p>
-<p><strong>Validated Sensor Types</strong>:
-- Soil Moisture (0-100%)
-- Temperature (-50°C to 70°C)
-- Humidity (0-100%)
-- pH (0-14)
-- Electrical Conductivity
-- Nitrogen, Phosphorus, Potassium levels
-- Light Intensity, CO2, Pressure
-- Wind Speed, Rainfall, Battery Voltage</p>
+<p><strong>Multi-Layer Security Model</strong>:</p>
+<ol>
+<li><strong>Device Authorization</strong>: All devices must be registered and authorized</li>
+<li><strong>Sensor Validation</strong>: Range validation for 14 sensor types</li>
+<li><strong>Tenant Isolation</strong>: Strict data segregation between tenants</li>
+<li><strong>Data Validation</strong>: Pydantic models with field-level validation</li>
+<li><strong>Registration Enforcement</strong>: Devices must register before data submission</li>
+</ol>
+<p><strong>Validated Sensor Types</strong>:</p>
+<ul>
+<li>Soil Moisture (0-100%)</li>
+<li>Temperature (-50°C to 70°C)</li>
+<li>Humidity (0-100%)</li>
+<li>pH (0-14)</li>
+<li>Electrical Conductivity</li>
+<li>Nitrogen, Phosphorus, Potassium levels</li>
+<li>Light Intensity, CO2, Pressure</li>
+<li>Wind Speed, Rainfall, Battery Voltage</li>
+</ul>
 <h3 id="5-rate-limiting-strategy">5. Rate Limiting Strategy<a class="headerlink" href="#5-rate-limiting-strategy" title="Permanent link">&para;</a></h3>
 <p>Kong implements <strong>tiered rate limiting</strong> based on service criticality and expected load:</p>
 <h4 id="high-volume-services-iot-real-time">High-Volume Services (IoT, Real-time)<a class="headerlink" href="#high-volume-services-iot-real-time" title="Permanent link">&para;</a></h4>
@@ -1756,10 +1766,12 @@ curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
 </tbody>
 </table>
 <h3 id="bypassing-rate-limits">Bypassing Rate Limits<a class="headerlink" href="#bypassing-rate-limits" title="Permanent link">&para;</a></h3>
-<p>For internal services requiring higher limits:
-1. Use the <code>sahool-internal-service</code> consumer
-2. Configure custom rate limits per service
-3. Implement Redis-based distributed rate limiting (future)</p>
+<p>For internal services requiring higher limits:</p>
+<ol>
+<li>Use the <code>sahool-internal-service</code> consumer</li>
+<li>Configure custom rate limits per service</li>
+<li>Implement Redis-based distributed rate limiting (future)</li>
+</ol>
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <h3 id="kong-gateway-environment">Kong Gateway Environment<a class="headerlink" href="#kong-gateway-environment" title="Permanent link">&para;</a></h3>
@@ -1796,7 +1808,7 @@ curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-ops-upstream</span>
 <span class="w">    </span><span class="nt">targets</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-field-ops:8080</span>
-<span class="w">        </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w">  </span><span class="c1"># Default weight</span>
+<span class="w">        </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w"> </span><span class="c1"># Default weight</span>
 </code></pre></div>
 
 <p><strong>Future Enhancement</strong>: Multi-replica deployments with automatic weight distribution.</p>
@@ -1816,11 +1828,13 @@ curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
 <li><strong>Container</strong>: <code>sahool-{service}</code></li>
 </ul>
 <h3 id="3-error-handling">3. Error Handling<a class="headerlink" href="#3-error-handling" title="Permanent link">&para;</a></h3>
-<p>Kong automatically returns standard HTTP errors:
-- <code>429 Too Many Requests</code>: Rate limit exceeded
-- <code>401 Unauthorized</code>: Missing or invalid JWT
-- <code>503 Service Unavailable</code>: All upstreams unhealthy
-- <code>504 Gateway Timeout</code>: Request timeout exceeded</p>
+<p>Kong automatically returns standard HTTP errors:</p>
+<ul>
+<li><code>429 Too Many Requests</code>: Rate limit exceeded</li>
+<li><code>401 Unauthorized</code>: Missing or invalid JWT</li>
+<li><code>503 Service Unavailable</code>: All upstreams unhealthy</li>
+<li><code>504 Gateway Timeout</code>: Request timeout exceeded</li>
+</ul>
 <h3 id="4-monitoring-observability">4. Monitoring &amp; Observability<a class="headerlink" href="#4-monitoring-observability" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Monitor Kong metrics at <code>:8001/metrics</code> (Prometheus format)</li>

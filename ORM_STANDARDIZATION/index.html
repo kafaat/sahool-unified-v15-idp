@@ -1313,26 +1313,34 @@
 <h2 id="services-requiring-migration">Services Requiring Migration<a class="headerlink" href="#services-requiring-migration" title="Permanent link">&para;</a></h2>
 <h3 id="priority-1-field-core">Priority 1: field-core<a class="headerlink" href="#priority-1-field-core" title="Permanent link">&para;</a></h3>
 <p><strong>Path</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/field-core</code></p>
-<p><strong>Current State</strong>:
-- Uses TypeORM with 3 entities: <code>Field</code>, <code>FieldBoundaryHistory</code>, <code>SyncStatus</code>
-- Prisma schema already defined (ready for migration)
-- PostGIS extension for geospatial operations
-- Complex geospatial queries using raw SQL</p>
-<p><strong>Migration Complexity</strong>: <strong>MEDIUM</strong>
-- Prisma schema already exists and mirrors TypeORM entities
-- Need to update service layer to use PrismaClient
-- PostGIS operations already use raw SQL (compatible with Prisma)</p>
+<p><strong>Current State</strong>:</p>
+<ul>
+<li>Uses TypeORM with 3 entities: <code>Field</code>, <code>FieldBoundaryHistory</code>, <code>SyncStatus</code></li>
+<li>Prisma schema already defined (ready for migration)</li>
+<li>PostGIS extension for geospatial operations</li>
+<li>Complex geospatial queries using raw SQL</li>
+</ul>
+<p><strong>Migration Complexity</strong>: <strong>MEDIUM</strong></p>
+<ul>
+<li>Prisma schema already exists and mirrors TypeORM entities</li>
+<li>Need to update service layer to use PrismaClient</li>
+<li>PostGIS operations already use raw SQL (compatible with Prisma)</li>
+</ul>
 <hr />
 <h3 id="priority-2-field-management-service">Priority 2: field-management-service<a class="headerlink" href="#priority-2-field-management-service" title="Permanent link">&para;</a></h3>
 <p><strong>Path</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/field-management-service</code></p>
-<p><strong>Current State</strong>:
-- Identical to field-core (same entities and schema)
-- Uses TypeORM with 3 entities: <code>Field</code>, <code>FieldBoundaryHistory</code>, <code>SyncStatus</code>
-- Prisma schema already defined
-- PostGIS extension for geospatial operations</p>
-<p><strong>Migration Complexity</strong>: <strong>MEDIUM</strong>
-- Can leverage migration strategy from field-core
-- Same entities and operations</p>
+<p><strong>Current State</strong>:</p>
+<ul>
+<li>Identical to field-core (same entities and schema)</li>
+<li>Uses TypeORM with 3 entities: <code>Field</code>, <code>FieldBoundaryHistory</code>, <code>SyncStatus</code></li>
+<li>Prisma schema already defined</li>
+<li>PostGIS extension for geospatial operations</li>
+</ul>
+<p><strong>Migration Complexity</strong>: <strong>MEDIUM</strong></p>
+<ul>
+<li>Can leverage migration strategy from field-core</li>
+<li>Same entities and operations</li>
+</ul>
 <hr />
 <h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
 <h3 id="phase-1-pre-migration-preparation">Phase 1: Pre-Migration Preparation<a class="headerlink" href="#phase-1-pre-migration-preparation" title="Permanent link">&para;</a></h3>
@@ -1342,12 +1350,14 @@
 cat<span class="w"> </span>prisma/schema.prisma
 </code></pre></div>
 
-<p>The schema includes:
-- ✅ PostgreSQL datasource
-- ✅ PostGIS extension support
-- ✅ All TypeORM entities (Field, FieldBoundaryHistory, SyncStatus, Task, NdviReading)
-- ✅ Proper indexes
-- ✅ Enums (FieldStatus, ChangeSource, SyncState, TaskType, Priority, TaskState)</p>
+<p>The schema includes:</p>
+<ul>
+<li>✅ PostgreSQL datasource</li>
+<li>✅ PostGIS extension support</li>
+<li>✅ All TypeORM entities (Field, FieldBoundaryHistory, SyncStatus, Task, NdviReading)</li>
+<li>✅ Proper indexes</li>
+<li>✅ Enums (FieldStatus, ChangeSource, SyncState, TaskType, Priority, TaskState)</li>
+</ul>
 <h4 id="step-2-set-up-prisma-environment">Step 2: Set Up Prisma Environment<a class="headerlink" href="#step-2-set-up-prisma-environment" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Set DATABASE_URL in .env</span>
 <span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;DATABASE_URL=postgresql://sahool:sahool@postgres:5432/sahool&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>.env
@@ -1381,17 +1391,18 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <h4 id="step-1-create-prisma-service-module">Step 1: Create Prisma Service Module<a class="headerlink" href="#step-1-create-prisma-service-module" title="Permanent link">&para;</a></h4>
 <p>Create a Prisma service for dependency injection (if using NestJS) or as a singleton:</p>
 <p><strong>File</strong>: <code>src/prisma/prisma.service.ts</code> (or <code>src/lib/prisma.ts</code> for Express)</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
 
 <span class="c1">// Express/Node.js approach</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">log</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;production&#39;</span>
-<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;info&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;warn&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">]</span>
-<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">log</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;production&quot;</span>
+<span class="w">      </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+<span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span>
 <span class="p">});</span>
 
 <span class="c1">// Graceful shutdown</span>
-<span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;beforeExit&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;beforeExit&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$disconnect</span><span class="p">();</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -1399,20 +1410,20 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <h4 id="step-2-update-data-access-layer">Step 2: Update Data Access Layer<a class="headerlink" href="#step-2-update-data-access-layer" title="Permanent link">&para;</a></h4>
 <p>Replace TypeORM repository patterns with Prisma Client:</p>
 <p><strong>Before (TypeORM)</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AppDataSource</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./data-source&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Field</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./entity/Field&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AppDataSource</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./data-source&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Field</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./entity/Field&quot;</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">fieldRepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">AppDataSource</span><span class="p">.</span><span class="nx">getRepository</span><span class="p">(</span><span class="nx">Field</span><span class="p">);</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fieldRepo</span><span class="p">.</span><span class="nx">find</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;abc123&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <p><strong>After (Prisma)</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./lib/prisma&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./lib/prisma&quot;</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;abc123&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1432,7 +1443,7 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 
 <span class="c1">// Prisma</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">saved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="p">,</span><span class="w"> </span><span class="nx">cropType</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="p">,</span><span class="w"> </span><span class="nx">cropType</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1445,7 +1456,7 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <span class="c1">// Prisma</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">updated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">newName</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">newName</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1461,7 +1472,7 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <div class="codehilite"><pre><span></span><code><span class="c1">// TypeORM</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fieldRepo</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">relations</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;boundaryHistory&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;tasks&#39;</span><span class="p">]</span>
+<span class="w">  </span><span class="nx">relations</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;boundaryHistory&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tasks&quot;</span><span class="p">],</span>
 <span class="p">});</span>
 
 <span class="c1">// Prisma</span>
@@ -1469,17 +1480,20 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">boundaryHistory</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">tasks</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">tasks</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h5 id="pattern-6-raw-sql-queries-postgis">Pattern 6: Raw SQL Queries (PostGIS)<a class="headerlink" href="#pattern-6-raw-sql-queries-postgis" title="Permanent link">&para;</a></h5>
 <div class="codehilite"><pre><span></span><code><span class="c1">// TypeORM</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">AppDataSource</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="sb">`</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">AppDataSource</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span>
+<span class="w">  </span><span class="sb">`</span>
 <span class="sb">  SELECT id, ST_AsGeoJSON(boundary) as boundary</span>
 <span class="sb">  FROM fields WHERE id = $1</span>
-<span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">id</span><span class="p">]);</span>
+<span class="sb">`</span><span class="p">,</span>
+<span class="w">  </span><span class="p">[</span><span class="nx">id</span><span class="p">],</span>
+<span class="p">);</span>
 
 <span class="c1">// Prisma (same approach - Prisma supports raw SQL)</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$queryRaw</span><span class="sb">`</span>
@@ -1498,14 +1512,14 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <span class="c1">// Prisma</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$transaction</span><span class="p">([</span>
 <span class="w">  </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">fieldData</span><span class="w"> </span><span class="p">}),</span>
-<span class="w">  </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">fieldBoundaryHistory</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">historyData</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">fieldBoundaryHistory</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">historyData</span><span class="w"> </span><span class="p">}),</span>
 <span class="p">]);</span>
 
 <span class="c1">// Or with callback for complex logic</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$transaction</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">fieldData</span><span class="w"> </span><span class="p">});</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">fieldBoundaryHistory</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">historyData</span><span class="p">,</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">field.id</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">historyData</span><span class="p">,</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">field.id</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -1514,8 +1528,8 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <h3 id="phase-4-testing">Phase 4: Testing<a class="headerlink" href="#phase-4-testing" title="Permanent link">&para;</a></h3>
 <h4 id="step-1-unit-tests">Step 1: Unit Tests<a class="headerlink" href="#step-1-unit-tests" title="Permanent link">&para;</a></h4>
 <p>Update unit tests to use Prisma Client:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mockDeep</span><span class="p">,</span><span class="w"> </span><span class="nx">DeepMockProxy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;jest-mock-extended&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mockDeep</span><span class="p">,</span><span class="w"> </span><span class="nx">DeepMockProxy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;jest-mock-extended&quot;</span><span class="p">;</span>
 
 <span class="kd">let</span><span class="w"> </span><span class="nx">prisma</span><span class="o">:</span><span class="w"> </span><span class="kt">DeepMockProxy</span><span class="o">&lt;</span><span class="nx">PrismaClient</span><span class="o">&gt;</span><span class="p">;</span>
 
@@ -1523,11 +1537,11 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <span class="w">  </span><span class="nx">prisma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">mockDeep</span><span class="o">&lt;</span><span class="nx">PrismaClient</span><span class="o">&gt;</span><span class="p">();</span>
 <span class="p">});</span>
 
-<span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should create a field&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">mockField</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Test Field&#39;</span><span class="p">,</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
+<span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should create a field&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">mockField</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Test Field&quot;</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
 <span class="w">  </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">create</span><span class="p">.</span><span class="nx">mockResolvedValue</span><span class="p">(</span><span class="nx">mockField</span><span class="p">);</span>
 
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">createField</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Test Field&#39;</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">createField</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Test Field&quot;</span><span class="w"> </span><span class="p">});</span>
 
 <span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">).</span><span class="nx">toEqual</span><span class="p">(</span><span class="nx">mockField</span><span class="p">);</span>
 <span class="w">  </span><span class="nx">expect</span><span class="p">(</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">create</span><span class="p">).</span><span class="nx">toHaveBeenCalled</span><span class="p">();</span>
@@ -1632,15 +1646,15 @@ grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;ref
 </code></pre></div>
 
 <h3 id="3-error-handling">3. Error Handling<a class="headerlink" href="#3-error-handling" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
 
 <span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">fieldData</span><span class="w"> </span><span class="p">});</span>
 <span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="w"> </span><span class="ow">instanceof</span><span class="w"> </span><span class="nx">Prisma</span><span class="p">.</span><span class="nx">PrismaClientKnownRequestError</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Handle specific Prisma errors</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;P2002&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Unique constraint violation&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;P2002&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s2">&quot;Unique constraint violation&quot;</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="nx">error</span><span class="p">;</span>
@@ -1649,10 +1663,10 @@ grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;ref
 
 <h3 id="4-type-safety">4. Type Safety<a class="headerlink" href="#4-type-safety" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Use generated types</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Field</span><span class="p">,</span><span class="w"> </span><span class="nx">Prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@prisma/client&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Field</span><span class="p">,</span><span class="w"> </span><span class="nx">Prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
 
 <span class="kr">type</span><span class="w"> </span><span class="nx">FieldWithHistory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Prisma</span><span class="p">.</span><span class="nx">FieldGetPayload</span><span class="o">&lt;</span><span class="p">{</span>
-<span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">boundaryHistory</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">boundaryHistory</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">};</span>
 <span class="p">}</span><span class="o">&gt;</span><span class="p">;</span>
 
 <span class="kd">function</span><span class="w"> </span><span class="nx">processField</span><span class="p">(</span><span class="nx">field</span><span class="o">:</span><span class="w"> </span><span class="kt">FieldWithHistory</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1825,30 +1839,36 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:migrate:status
 <h2 id="appendix-a-full-schema-comparison">Appendix A: Full Schema Comparison<a class="headerlink" href="#appendix-a-full-schema-comparison" title="Permanent link">&para;</a></h2>
 <h3 id="field-core-typeorm-entities-vs-prisma-schema">field-core TypeORM Entities vs Prisma Schema<a class="headerlink" href="#field-core-typeorm-entities-vs-prisma-schema" title="Permanent link">&para;</a></h3>
 <p>Both implementations are functionally equivalent. The Prisma schema already mirrors all TypeORM entities:</p>
-<p><strong>Entities/Models</strong>:
-- ✅ Field
-- ✅ FieldBoundaryHistory
-- ✅ SyncStatus
-- ✅ Task
-- ✅ NdviReading</p>
-<p><strong>Enums</strong>:
-- ✅ FieldStatus
-- ✅ ChangeSource
-- ✅ SyncState
-- ✅ TaskType
-- ✅ Priority
-- ✅ TaskState</p>
-<p><strong>Special Features</strong>:
-- ✅ PostGIS geometry types (via <code>Unsupported()</code>)
-- ✅ Optimistic locking (version field)
-- ✅ Cascade deletes
-- ✅ Proper indexes</p>
+<p><strong>Entities/Models</strong>:</p>
+<ul>
+<li>✅ Field</li>
+<li>✅ FieldBoundaryHistory</li>
+<li>✅ SyncStatus</li>
+<li>✅ Task</li>
+<li>✅ NdviReading</li>
+</ul>
+<p><strong>Enums</strong>:</p>
+<ul>
+<li>✅ FieldStatus</li>
+<li>✅ ChangeSource</li>
+<li>✅ SyncState</li>
+<li>✅ TaskType</li>
+<li>✅ Priority</li>
+<li>✅ TaskState</li>
+</ul>
+<p><strong>Special Features</strong>:</p>
+<ul>
+<li>✅ PostGIS geometry types (via <code>Unsupported()</code>)</li>
+<li>✅ Optimistic locking (version field)</li>
+<li>✅ Cascade deletes</li>
+<li>✅ Proper indexes</li>
+</ul>
 <hr />
 <h2 id="appendix-b-common-prisma-patterns-for-sahool">Appendix B: Common Prisma Patterns for SAHOOL<a class="headerlink" href="#appendix-b-common-prisma-patterns-for-sahool" title="Permanent link">&para;</a></h2>
 <h3 id="pattern-multi-tenant-filtering">Pattern: Multi-Tenant Filtering<a class="headerlink" href="#pattern-multi-tenant-filtering" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Always filter by tenantId for multi-tenant services</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">req.user.tenantId</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">req.user.tenantId</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1856,12 +1876,12 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:migrate:status
 <div class="codehilite"><pre><span></span><code><span class="c1">// Use status field instead of hard deletes</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;inactive&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">isDeleted</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;inactive&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">isDeleted</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Filter out soft-deleted records</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">activeFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">isDeleted</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">isDeleted</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1872,16 +1892,16 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:migrate:status
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">updateMany</span><span class="p">({</span>
 <span class="w">    </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">fieldId</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="kt">currentVersion</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="kt">currentVersion</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">newName</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">increment</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">increment</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">count</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Conflict: Field was updated by another user&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s2">&quot;Conflict: Field was updated by another user&quot;</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1889,20 +1909,20 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:migrate:status
 <h3 id="pattern-batch-operations">Pattern: Batch Operations<a class="headerlink" href="#pattern-batch-operations" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Use transactions for batch operations</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$transaction</span><span class="p">(</span>
-<span class="w">  </span><span class="nx">fields</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">field</span><span class="w"> </span><span class="p">=&gt;</span>
-<span class="w">    </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">field</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="nx">fields</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">field</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">field</span><span class="w"> </span><span class="p">})),</span>
 <span class="p">);</span>
 </code></pre></div>
 
 <hr />
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
-<p>Migrating to Prisma as the standard ORM will:
-- ✅ Unify ORM usage across all services
-- ✅ Improve type safety and developer experience
-- ✅ Reduce maintenance complexity
-- ✅ Enable better tooling and IDE support
-- ✅ Provide a clear migration path for new services</p>
+<p>Migrating to Prisma as the standard ORM will:</p>
+<ul>
+<li>✅ Unify ORM usage across all services</li>
+<li>✅ Improve type safety and developer experience</li>
+<li>✅ Reduce maintenance complexity</li>
+<li>✅ Enable better tooling and IDE support</li>
+<li>✅ Provide a clear migration path for new services</li>
+</ul>
 <p>The migration is <strong>RECOMMENDED</strong> and should be prioritized for <code>field-core</code> and <code>field-management-service</code>.</p>
 <hr />
 <p><strong>Document Version</strong>: 1.0

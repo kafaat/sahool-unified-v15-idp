@@ -1128,58 +1128,74 @@
 <h2 id="2-classification-levels">2. Classification Levels<a class="headerlink" href="#2-classification-levels" title="Permanent link">&para;</a></h2>
 <h3 id="21-public">2.1 Public<a class="headerlink" href="#21-public" title="Permanent link">&para;</a></h3>
 <p><strong>Definition:</strong> Information that can be freely shared with anyone.</p>
-<p><strong>Examples:</strong>
-- Marketing materials
-- Public documentation
-- Open source code
-- General agricultural information</p>
-<p><strong>Handling Requirements:</strong>
-- No special handling required
-- Can be published on public websites
-- No encryption required for transmission</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Marketing materials</li>
+<li>Public documentation</li>
+<li>Open source code</li>
+<li>General agricultural information</li>
+</ul>
+<p><strong>Handling Requirements:</strong></p>
+<ul>
+<li>No special handling required</li>
+<li>Can be published on public websites</li>
+<li>No encryption required for transmission</li>
+</ul>
 <h3 id="22-internal">2.2 Internal<a class="headerlink" href="#22-internal" title="Permanent link">&para;</a></h3>
 <p><strong>Definition:</strong> Information for internal use within the organization.</p>
-<p><strong>Examples:</strong>
-- Internal documentation
-- Development guidelines
-- Architecture diagrams
-- Non-sensitive configuration</p>
-<p><strong>Handling Requirements:</strong>
-- Share only with employees/contractors
-- Do not publish externally without approval
-- Standard access controls</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Internal documentation</li>
+<li>Development guidelines</li>
+<li>Architecture diagrams</li>
+<li>Non-sensitive configuration</li>
+</ul>
+<p><strong>Handling Requirements:</strong></p>
+<ul>
+<li>Share only with employees/contractors</li>
+<li>Do not publish externally without approval</li>
+<li>Standard access controls</li>
+</ul>
 <h3 id="23-sensitive">2.3 Sensitive<a class="headerlink" href="#23-sensitive" title="Permanent link">&para;</a></h3>
 <p><strong>Definition:</strong> Information that could cause harm if disclosed.</p>
-<p><strong>Examples:</strong>
-- Farm owner identifiers
-- Phone numbers and contact info
-- Internal notes and comments
-- Aggregated business metrics
-- Field boundaries (non-precise)
-- User profiles</p>
-<p><strong>Handling Requirements:</strong>
-- Access on need-to-know basis
-- Encrypt in transit (TLS)
-- Log access attempts
-- Anonymize in non-production environments
-- Mask in logs</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Farm owner identifiers</li>
+<li>Phone numbers and contact info</li>
+<li>Internal notes and comments</li>
+<li>Aggregated business metrics</li>
+<li>Field boundaries (non-precise)</li>
+<li>User profiles</li>
+</ul>
+<p><strong>Handling Requirements:</strong></p>
+<ul>
+<li>Access on need-to-know basis</li>
+<li>Encrypt in transit (TLS)</li>
+<li>Log access attempts</li>
+<li>Anonymize in non-production environments</li>
+<li>Mask in logs</li>
+</ul>
 <h3 id="24-restricted">2.4 Restricted<a class="headerlink" href="#24-restricted" title="Permanent link">&para;</a></h3>
 <p><strong>Definition:</strong> Highly sensitive information requiring strictest controls.</p>
-<p><strong>Examples:</strong>
-- Authentication secrets (JWT keys, API keys)
-- Database credentials
-- Private keys and certificates
-- Precise field ownership mapping
-- Financial data
-- Health-related crop data</p>
-<p><strong>Handling Requirements:</strong>
-- Access strictly limited
-- Never in logs (any level)
-- Never in <code>.env.example</code> or documentation
-- Store only via Vault/KMS/HSM
-- Encrypt at rest
-- Audit all access
-- Rotate regularly</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Authentication secrets (JWT keys, API keys)</li>
+<li>Database credentials</li>
+<li>Private keys and certificates</li>
+<li>Precise field ownership mapping</li>
+<li>Financial data</li>
+<li>Health-related crop data</li>
+</ul>
+<p><strong>Handling Requirements:</strong></p>
+<ul>
+<li>Access strictly limited</li>
+<li>Never in logs (any level)</li>
+<li>Never in <code>.env.example</code> or documentation</li>
+<li>Store only via Vault/KMS/HSM</li>
+<li>Encrypt at rest</li>
+<li>Audit all access</li>
+<li>Rotate regularly</li>
+</ul>
 <h2 id="3-data-inventory">3. Data Inventory<a class="headerlink" href="#3-data-inventory" title="Permanent link">&para;</a></h2>
 <h3 id="31-kernel_domain">3.1 kernel_domain<a class="headerlink" href="#31-kernel_domain" title="Permanent link">&para;</a></h3>
 <table>
@@ -1515,17 +1531,21 @@
 <li>Alert on anomalous access patterns</li>
 </ul>
 <h2 id="7-incident-response">7. Incident Response<a class="headerlink" href="#7-incident-response" title="Permanent link">&para;</a></h2>
-<p>If Restricted data is exposed:
-1. Immediately rotate all affected credentials
-2. Notify Security team within 1 hour
-3. Document incident in security log
-4. Conduct root cause analysis
-5. Implement preventive measures</p>
+<p>If Restricted data is exposed:</p>
+<ol>
+<li>Immediately rotate all affected credentials</li>
+<li>Notify Security team within 1 hour</li>
+<li>Document incident in security log</li>
+<li>Conduct root cause analysis</li>
+<li>Implement preventive measures</li>
+</ol>
 <h2 id="8-training">8. Training<a class="headerlink" href="#8-training" title="Permanent link">&para;</a></h2>
-<p>All developers must complete:
-- [ ] Data classification training (annual)
-- [ ] Secure coding practices
-- [ ] Secrets management with Vault</p>
+<p>All developers must complete:</p>
+<ul>
+<li>[ ] Data classification training (annual)</li>
+<li>[ ] Secure coding practices</li>
+<li>[ ] Secrets management with Vault</li>
+</ul>
 <h2 id="9-review">9. Review<a class="headerlink" href="#9-review" title="Permanent link">&para;</a></h2>
 <p>This policy is reviewed quarterly and updated as needed.</p>
 <table>

@@ -1123,11 +1123,13 @@
 <strong>عدد الوكلاء:</strong> 22 وكيل ذكاء اصطناعي متخصص</p>
 <hr />
 <h2 id="_1">ملخص تنفيذي<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>تم إجراء تحليل شامل ومراجعة عميقة على مستوى كل ملف للواجهة الأمامية باستخدام 22 وكيل متخصص. تم تحديد وإصلاح المشاكل المتعلقة بـ:
-- إمكانية الوصول (Accessibility - WCAG 2.1)
-- تحسين الأداء (React.memo, useCallback)
-- سلامة الأنواع (TypeScript)
-- أفضل ممارسات React</p>
+<p>تم إجراء تحليل شامل ومراجعة عميقة على مستوى كل ملف للواجهة الأمامية باستخدام 22 وكيل متخصص. تم تحديد وإصلاح المشاكل المتعلقة بـ:</p>
+<ul>
+<li>إمكانية الوصول (Accessibility - WCAG 2.1)</li>
+<li>تحسين الأداء (React.memo, useCallback)</li>
+<li>سلامة الأنواع (TypeScript)</li>
+<li>أفضل ممارسات React</li>
+</ul>
 <hr />
 <h2 id="_2">الإحصائيات العامة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <table>
@@ -1164,94 +1166,118 @@
 <h2 id="_3">المكونات المُصلحة بالتفصيل<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <h3 id="1-productcardtsx">1. ProductCard.tsx<a class="headerlink" href="#1-productcardtsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/web/src/features/marketplace/components/ProductCard.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>React.memo</code> لتحسين الأداء
-- ✅ إضافة <code>useCallback</code> للمعالجات
-- ✅ إضافة <code>useMemo</code> لـ ARIA label
-- ✅ دعم لوحة المفاتيح (Enter + Space)
-- ✅ إضافة <code>aria-label</code> وصفي</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>React.memo</code> لتحسين الأداء</li>
+<li>✅ إضافة <code>useCallback</code> للمعالجات</li>
+<li>✅ إضافة <code>useMemo</code> لـ ARIA label</li>
+<li>✅ دعم لوحة المفاتيح (Enter + Space)</li>
+<li>✅ إضافة <code>aria-label</code> وصفي</li>
+</ul>
 <h3 id="2-sensorcardtsx">2. SensorCard.tsx<a class="headerlink" href="#2-sensorcardtsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/web/src/features/iot/components/SensorCard.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>React.memo</code> لتحسين الأداء
-- ✅ إضافة <code>useCallback</code> للمعالجات
-- ✅ دعم مفتاح المسافة (Space key)
-- ✅ إضافة <code>displayName</code></p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>React.memo</code> لتحسين الأداء</li>
+<li>✅ إضافة <code>useCallback</code> للمعالجات</li>
+<li>✅ دعم مفتاح المسافة (Space key)</li>
+<li>✅ إضافة <code>displayName</code></li>
+</ul>
 <h3 id="3-equipmentcardtsx">3. EquipmentCard.tsx<a class="headerlink" href="#3-equipmentcardtsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/web/src/features/equipment/components/EquipmentCard.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>React.memo</code> لتحسين الأداء
-- ✅ إضافة <code>useMemo</code> لـ ARIA label
-- ✅ إضافة <code>aria-label</code> وصفي مع معلومات الحالة
-- ✅ إضافة <code>focus:ring</code> للتركيز المرئي
-- ✅ إضافة <code>displayName</code></p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>React.memo</code> لتحسين الأداء</li>
+<li>✅ إضافة <code>useMemo</code> لـ ARIA label</li>
+<li>✅ إضافة <code>aria-label</code> وصفي مع معلومات الحالة</li>
+<li>✅ إضافة <code>focus:ring</code> للتركيز المرئي</li>
+<li>✅ إضافة <code>displayName</code></li>
+</ul>
 <h3 id="4-eventtimelinetsx">4. EventTimeline.tsx<a class="headerlink" href="#4-eventtimelinetsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/web/src/components/dashboard/EventTimeline.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إزالة 12 استخدام لـ <code>as any</code>
-- ✅ إضافة واجهات نوع آمنة (TaskPayload, WeatherAlertPayload, etc.)
-- ✅ إضافة type guards للتحقق من الأنواع
-- ✅ تحسين سلامة الأنواع</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إزالة 12 استخدام لـ <code>as any</code></li>
+<li>✅ إضافة واجهات نوع آمنة (TaskPayload, WeatherAlertPayload, etc.)</li>
+<li>✅ إضافة type guards للتحقق من الأنواع</li>
+<li>✅ تحسين سلامة الأنواع</li>
+</ul>
 <h3 id="5-datatabletsx">5. DataTable.tsx<a class="headerlink" href="#5-datatabletsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/admin/src/components/ui/DataTable.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>onKeyDown</code> للصفوف القابلة للنقر
-- ✅ إضافة <code>tabIndex={0}</code> للتنقل بلوحة المفاتيح
-- ✅ إضافة <code>role="button"</code> للصفوف التفاعلية
-- ✅ إضافة <code>aria-label</code> للصفوف
-- ✅ إضافة <code>focus:ring</code> للتركيز المرئي</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>onKeyDown</code> للصفوف القابلة للنقر</li>
+<li>✅ إضافة <code>tabIndex={0}</code> للتنقل بلوحة المفاتيح</li>
+<li>✅ إضافة <code>role="button"</code> للصفوف التفاعلية</li>
+<li>✅ إضافة <code>aria-label</code> للصفوف</li>
+<li>✅ إضافة <code>focus:ring</code> للتركيز المرئي</li>
+</ul>
 <h3 id="6-metricsgridtsx">6. MetricsGrid.tsx<a class="headerlink" href="#6-metricsgridtsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/admin/src/components/dashboard/MetricsGrid.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ تغيير key من index إلى <code>metric.id || metric.title</code>
-- ✅ إضافة حقل <code>id</code> اختياري للواجهة</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ تغيير key من index إلى <code>metric.id || metric.title</code></li>
+<li>✅ إضافة حقل <code>id</code> اختياري للواجهة</li>
+</ul>
 <h3 id="7-alertspaneltsx">7. AlertsPanel.tsx<a class="headerlink" href="#7-alertspaneltsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/admin/src/components/dashboard/AlertsPanel.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>aria-pressed</code> لأزرار الفلترة
-- ✅ إضافة <code>role="group"</code> لمجموعة الفلاتر
-- ✅ إضافة <code>aria-label</code> للمجموعة
-- ✅ إضافة <code>aria-label</code> لأزرار الإجراءات
-- ✅ إضافة <code>aria-hidden</code> للأيقونات</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>aria-pressed</code> لأزرار الفلترة</li>
+<li>✅ إضافة <code>role="group"</code> لمجموعة الفلاتر</li>
+<li>✅ إضافة <code>aria-label</code> للمجموعة</li>
+<li>✅ إضافة <code>aria-label</code> لأزرار الإجراءات</li>
+<li>✅ إضافة <code>aria-hidden</code> للأيقونات</li>
+</ul>
 <h3 id="8-modaltsx">8. Modal.tsx<a class="headerlink" href="#8-modaltsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/web/src/components/ui/modal.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>role="dialog"</code>
-- ✅ إضافة <code>aria-modal="true"</code>
-- ✅ إضافة <code>aria-labelledby</code> مرتبط بالعنوان
-- ✅ إضافة <code>aria-describedby</code> اختياري
-- ✅ استخدام <code>React.useId()</code> للمعرفات الفريدة</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>role="dialog"</code></li>
+<li>✅ إضافة <code>aria-modal="true"</code></li>
+<li>✅ إضافة <code>aria-labelledby</code> مرتبط بالعنوان</li>
+<li>✅ إضافة <code>aria-describedby</code> اختياري</li>
+<li>✅ استخدام <code>React.useId()</code> للمعرفات الفريدة</li>
+</ul>
 <h3 id="9-admin-sidebartsx">9. Admin Sidebar.tsx<a class="headerlink" href="#9-admin-sidebartsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/admin/src/components/layout/Sidebar.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>aria-label</code> للتنقل الرئيسي
-- ✅ إضافة <code>aria-current="page"</code> للروابط النشطة
-- ✅ إضافة <code>aria-expanded</code> لأزرار القوائم المنسدلة
-- ✅ إضافة <code>aria-controls</code> للقوائم
-- ✅ إضافة <code>role="menu"</code> و <code>role="menuitem"</code>
-- ✅ إضافة <code>aria-hidden</code> للأيقونات</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>aria-label</code> للتنقل الرئيسي</li>
+<li>✅ إضافة <code>aria-current="page"</code> للروابط النشطة</li>
+<li>✅ إضافة <code>aria-expanded</code> لأزرار القوائم المنسدلة</li>
+<li>✅ إضافة <code>aria-controls</code> للقوائم</li>
+<li>✅ إضافة <code>role="menu"</code> و <code>role="menuitem"</code></li>
+<li>✅ إضافة <code>aria-hidden</code> للأيقونات</li>
+</ul>
 <h3 id="10-admin-headertsx">10. Admin Header.tsx<a class="headerlink" href="#10-admin-headertsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/admin/src/components/layout/Header.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>aria-label</code> لحقل البحث
-- ✅ إضافة <code>aria-label</code> لزر التنبيهات
-- ✅ إضافة <code>aria-expanded</code> و <code>aria-haspopup</code> لقائمة المستخدم
-- ✅ إضافة <code>role="menu"</code> للقائمة المنسدلة
-- ✅ إضافة <code>role="menuitem"</code> لعناصر القائمة
-- ✅ إضافة <code>aria-hidden</code> للأيقونات</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>aria-label</code> لحقل البحث</li>
+<li>✅ إضافة <code>aria-label</code> لزر التنبيهات</li>
+<li>✅ إضافة <code>aria-expanded</code> و <code>aria-haspopup</code> لقائمة المستخدم</li>
+<li>✅ إضافة <code>role="menu"</code> للقائمة المنسدلة</li>
+<li>✅ إضافة <code>role="menuitem"</code> لعناصر القائمة</li>
+<li>✅ إضافة <code>aria-hidden</code> للأيقونات</li>
+</ul>
 <h3 id="11-buttontsx">11. Button.tsx<a class="headerlink" href="#11-buttontsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/web/src/components/ui/button.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ إضافة <code>aria-busy</code> لحالة التحميل
-- ✅ إضافة <code>aria-disabled</code> للحالات المعطلة</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ إضافة <code>aria-busy</code> لحالة التحميل</li>
+<li>✅ إضافة <code>aria-disabled</code> للحالات المعطلة</li>
+</ul>
 <h3 id="12-inputtsx">12. Input.tsx<a class="headerlink" href="#12-inputtsx" title="Permanent link">&para;</a></h3>
 <p><strong>المسار:</strong> <code>apps/web/src/components/ui/input.tsx</code></p>
-<p><strong>التحسينات:</strong>
-- ✅ استبدال <code>Math.random()</code> بـ <code>React.useId()</code>
-- ✅ إضافة <code>aria-invalid</code> لحالة الخطأ
-- ✅ إضافة <code>aria-describedby</code> لربط الأخطاء والمساعدة
-- ✅ إضافة <code>role="alert"</code> لرسائل الخطأ
-- ✅ إضافة معرفات فريدة للأخطاء والمساعدة</p>
+<p><strong>التحسينات:</strong></p>
+<ul>
+<li>✅ استبدال <code>Math.random()</code> بـ <code>React.useId()</code></li>
+<li>✅ إضافة <code>aria-invalid</code> لحالة الخطأ</li>
+<li>✅ إضافة <code>aria-describedby</code> لربط الأخطاء والمساعدة</li>
+<li>✅ إضافة <code>role="alert"</code> لرسائل الخطأ</li>
+<li>✅ إضافة معرفات فريدة للأخطاء والمساعدة</li>
+</ul>
 <hr />
 <h2 id="_4">تحليل الوكلاء المتخصصين<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <h3 id="1-6">وكيل 1-6: تحليل البنية<a class="headerlink" href="#1-6" title="Permanent link">&para;</a></h3>
@@ -1360,15 +1386,19 @@
 </ol>
 <hr />
 <h2 id="_9">الخلاصة<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
-<p>تم إجراء تحسينات شاملة على 12 مكون رئيسي في الواجهة الأمامية، مع التركيز على:
-- <strong>إمكانية الوصول:</strong> 47 إصلاح لضمان توافق WCAG 2.1
-- <strong>الأداء:</strong> 8 تحسينات باستخدام React.memo و useCallback
-- <strong>سلامة الأنواع:</strong> 6 إصلاحات لـ TypeScript</p>
-<p>جميع المكونات الآن تدعم:
-- التنقل بلوحة المفاتيح
-- قارئات الشاشة
-- حالات التركيز المرئية
-- أوصاف ARIA المناسبة</p>
+<p>تم إجراء تحسينات شاملة على 12 مكون رئيسي في الواجهة الأمامية، مع التركيز على:</p>
+<ul>
+<li><strong>إمكانية الوصول:</strong> 47 إصلاح لضمان توافق WCAG 2.1</li>
+<li><strong>الأداء:</strong> 8 تحسينات باستخدام React.memo و useCallback</li>
+<li><strong>سلامة الأنواع:</strong> 6 إصلاحات لـ TypeScript</li>
+</ul>
+<p>جميع المكونات الآن تدعم:</p>
+<ul>
+<li>التنقل بلوحة المفاتيح</li>
+<li>قارئات الشاشة</li>
+<li>حالات التركيز المرئية</li>
+<li>أوصاف ARIA المناسبة</li>
+</ul>
 
 
 

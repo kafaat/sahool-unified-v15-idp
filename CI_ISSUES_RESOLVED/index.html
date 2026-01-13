@@ -1170,55 +1170,67 @@
 <hr />
 <h2 id="detailed-analysis">Detailed Analysis<a class="headerlink" href="#detailed-analysis" title="Permanent link">&para;</a></h2>
 <h3 id="1-services-not-registered-in-governance">1. Services Not Registered in Governance<a class="headerlink" href="#1-services-not-registered-in-governance" title="Permanent link">&para;</a></h3>
-<p><strong>Problem:</strong> 8 services existed in code but were not registered in <code>governance/services.yaml</code>:
-- mcp-server
-- agro-rules
-- crop-intelligence-service
-- equipment-service
-- task-service
-- ws-gateway
-- ndvi-processor
-- field-intelligence</p>
+<p><strong>Problem:</strong> 8 services existed in code but were not registered in <code>governance/services.yaml</code>:</p>
+<ul>
+<li>mcp-server</li>
+<li>agro-rules</li>
+<li>crop-intelligence-service</li>
+<li>equipment-service</li>
+<li>task-service</li>
+<li>ws-gateway</li>
+<li>ndvi-processor</li>
+<li>field-intelligence</li>
+</ul>
 <p><strong>Impact:</strong> CI validation failed because generators couldn't find service definitions.</p>
-<p><strong>Solution:</strong> Added all 8 services to <code>governance/services.yaml</code> with proper configuration:
-- Port assignment
-- Layer assignment
-- Category assignment
-- Events (produces/consumes)
-- Dependencies</p>
-<p><strong>Prevention:</strong> Before adding a new service directory, always:
-1. Add entry to <code>governance/services.yaml</code>
-2. Run <code>make generate-infra</code> to regenerate compose files
-3. Run validators before committing</p>
+<p><strong>Solution:</strong> Added all 8 services to <code>governance/services.yaml</code> with proper configuration:</p>
+<ul>
+<li>Port assignment</li>
+<li>Layer assignment</li>
+<li>Category assignment</li>
+<li>Events (produces/consumes)</li>
+<li>Dependencies</li>
+</ul>
+<p><strong>Prevention:</strong> Before adding a new service directory, always:</p>
+<ol>
+<li>Add entry to <code>governance/services.yaml</code></li>
+<li>Run <code>make generate-infra</code> to regenerate compose files</li>
+<li>Run validators before committing</li>
+</ol>
 <hr />
 <h3 id="2-duplicate-port-conflict">2. Duplicate Port Conflict<a class="headerlink" href="#2-duplicate-port-conflict" title="Permanent link">&para;</a></h3>
-<p><strong>Problem:</strong> Port 8095 was assigned to both:
-- <code>crop-health-ai</code> (existing deprecated service)
-- <code>crop-intelligence-service</code> (new replacement service)</p>
+<p><strong>Problem:</strong> Port 8095 was assigned to both:</p>
+<ul>
+<li><code>crop-health-ai</code> (existing deprecated service)</li>
+<li><code>crop-intelligence-service</code> (new replacement service)</li>
+</ul>
 <p><strong>Impact:</strong> Docker Compose validation failed due to port conflict.</p>
 <p><strong>Solution:</strong> Changed <code>crop-intelligence-service</code> port from 8095 to 8150.</p>
-<p><strong>Prevention:</strong>
-- CI now validates unique ports via <code>governance-ci.yml</code>
-- Use port ranges:
-  - 3000-3999: NestJS services
-  - 8000-8099: Python core services
-  - 8100-8199: Python additional services
-  - 8200+: Integration services</p>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>CI now validates unique ports via <code>governance-ci.yml</code></li>
+<li>Use port ranges:</li>
+<li>3000-3999: NestJS services</li>
+<li>8000-8099: Python core services</li>
+<li>8100-8199: Python additional services</li>
+<li>8200+: Integration services</li>
+</ul>
 <hr />
 <h3 id="3-null-port-in-agro-rules-service">3. Null Port in agro-rules Service<a class="headerlink" href="#3-null-port-in-agro-rules-service" title="Permanent link">&para;</a></h3>
 <p><strong>Problem:</strong> <code>agro-rules</code> was defined with <code>port: null</code> because it's a NATS worker without HTTP endpoint.</p>
 <p><strong>Impact:</strong> Docker Compose generator produced invalid YAML:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">ports</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None:None</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None:None</span>
 <span class="nt">healthcheck</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://localhost:NoneNone</span>
 </code></pre></div>
 
 <p><strong>Solution:</strong> Assigned port 8151 to agro-rules with HTTP healthcheck.</p>
-<p><strong>Prevention:</strong> All services must have valid ports. NATS workers should still expose HTTP for:
-- Health checks
-- Metrics endpoint
-- Debugging</p>
+<p><strong>Prevention:</strong> All services must have valid ports. NATS workers should still expose HTTP for:</p>
+<ul>
+<li>Health checks</li>
+<li>Metrics endpoint</li>
+<li>Debugging</li>
+</ul>
 <hr />
 <h3 id="4-slack-webhook-secret-missing">4. Slack Webhook Secret Missing<a class="headerlink" href="#4-slack-webhook-secret-missing" title="Permanent link">&para;</a></h3>
 <p><strong>Problem:</strong> CI workflows failed because <code>SLACK_WEBHOOK_URL</code> secret was not configured in repository.</p>
@@ -1232,25 +1244,36 @@
 </code></pre></div>
 
 <p><strong>Prevention:</strong> All optional integrations should check for secret existence before using.</p>
-<p><strong>Files Changed:</strong>
-- <code>.github/workflows/cd-staging.yml</code>
-- <code>.github/workflows/cd-production.yml</code>
-- <code>.github/workflows/security.yml</code></p>
+<p><strong>Files Changed:</strong></p>
+<ul>
+<li><code>.github/workflows/cd-staging.yml</code></li>
+<li><code>.github/workflows/cd-production.yml</code></li>
+<li><code>.github/workflows/security.yml</code></li>
+</ul>
 <hr />
 <h3 id="5-event-architecture-layers-mismatch">5. Event Architecture Layers Mismatch<a class="headerlink" href="#5-event-architecture-layers-mismatch" title="Permanent link">&para;</a></h3>
 <p><strong>Problem:</strong> New services were not listed in <code>event_architecture.layers</code> section.</p>
 <p><strong>Impact:</strong> Documentation inconsistency between layer definitions and actual services.</p>
 <p><strong>Solution:</strong> Updated <code>event_architecture.layers</code> to include all services:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">intelligence</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">services</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">agro-rules</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">crop-intelligence-service</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ndvi-processor</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">field-intelligence</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">services</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">[</span>
+<span class="w">      </span><span class="nv">...</span><span class="p p-Indicator">,</span>
+<span class="w">      </span><span class="nv">agro-rules</span><span class="p p-Indicator">,</span>
+<span class="w">      </span><span class="nv">crop-intelligence-service</span><span class="p p-Indicator">,</span>
+<span class="w">      </span><span class="nv">ndvi-processor</span><span class="p p-Indicator">,</span>
+<span class="w">      </span><span class="nv">field-intelligence</span><span class="p p-Indicator">,</span>
+<span class="w">    </span><span class="p p-Indicator">]</span>
 
 <span class="nt">business</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">services</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">mcp-server</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">task-service</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">equipment-service</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ws-gateway</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
-<p><strong>Prevention:</strong> When adding services, update both:
-1. <code>services:</code> section with full configuration
-2. <code>event_architecture.layers:</code> with service name in correct layer</p>
+<p><strong>Prevention:</strong> When adding services, update both:</p>
+<ol>
+<li><code>services:</code> section with full configuration</li>
+<li><code>event_architecture.layers:</code> with service name in correct layer</li>
+</ol>
 <hr />
 <h2 id="commits">Commits<a class="headerlink" href="#commits" title="Permanent link">&para;</a></h2>
 <table>

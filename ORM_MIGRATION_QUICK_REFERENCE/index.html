@@ -1215,7 +1215,7 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <span class="c1">// After (Prisma)</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">field</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">newName</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">newName</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1230,15 +1230,21 @@ npm<span class="w"> </span>run<span class="w"> </span>prisma:studio
 <hr />
 <h2 id="files-to-update">Files to Update<a class="headerlink" href="#files-to-update" title="Permanent link">&para;</a></h2>
 <h3 id="field-core">field-core<a class="headerlink" href="#field-core" title="Permanent link">&para;</a></h3>
-<p><strong>Create</strong>:
-- <code>src/lib/prisma.ts</code> - Prisma client singleton</p>
-<p><strong>Update</strong>:
-- <code>src/index.ts</code> - Replace all <code>AppDataSource.getRepository()</code> with <code>prisma.*</code></p>
-<p><strong>Remove</strong>:
-- <code>src/data-source.ts</code>
-- <code>src/entity/Field.ts</code>
-- <code>src/entity/FieldBoundaryHistory.ts</code>
-- <code>src/entity/SyncStatus.ts</code></p>
+<p><strong>Create</strong>:</p>
+<ul>
+<li><code>src/lib/prisma.ts</code> - Prisma client singleton</li>
+</ul>
+<p><strong>Update</strong>:</p>
+<ul>
+<li><code>src/index.ts</code> - Replace all <code>AppDataSource.getRepository()</code> with <code>prisma.*</code></li>
+</ul>
+<p><strong>Remove</strong>:</p>
+<ul>
+<li><code>src/data-source.ts</code></li>
+<li><code>src/entity/Field.ts</code></li>
+<li><code>src/entity/FieldBoundaryHistory.ts</code></li>
+<li><code>src/entity/SyncStatus.ts</code></li>
+</ul>
 <p><strong>Update package.json</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>

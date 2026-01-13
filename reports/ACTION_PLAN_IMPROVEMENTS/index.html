@@ -1134,11 +1134,13 @@
 </code></pre></div>
 
 <p><strong>الحل:</strong></p>
-<p><strong>الملفات المتأثرة:</strong>
-- <code>kernel-services-v15.3/crop-health-ai/src/main.py</code>
-- <code>kernel-services-v15.3/yield-engine/src/main.py</code>
-- <code>kernel-services-v15.3/virtual-sensors/src/main.py</code>
-- جميع الخدمات الأخرى (فحص شامل)</p>
+<p><strong>الملفات المتأثرة:</strong></p>
+<ul>
+<li><code>kernel-services-v15.3/crop-health-ai/src/main.py</code></li>
+<li><code>kernel-services-v15.3/yield-engine/src/main.py</code></li>
+<li><code>kernel-services-v15.3/virtual-sensors/src/main.py</code></li>
+<li>جميع الخدمات الأخرى (فحص شامل)</li>
+</ul>
 <p><strong>الكود الجديد:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># shared/config/cors_config.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
@@ -1214,7 +1216,7 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Ori
 <h4 id="12">1.2 إزالة كلمات المرور الافتراضية<a class="headerlink" href="#12" title="Permanent link">&para;</a></h4>
 <p><strong>المشكلة:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
-<span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${POSTGRES_PASSWORD:-sahool}</span><span class="w">  </span><span class="c1"># قيمة افتراضية خطيرة!</span>
+<span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${POSTGRES_PASSWORD:-sahool}</span><span class="w"> </span><span class="c1"># قيمة افتراضية خطيرة!</span>
 <span class="nt">REDIS_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${REDIS_PASSWORD:-changeme}</span>
 </code></pre></div>
 
@@ -1725,17 +1727,17 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// web_admin/src/__tests__/components/Dashboard.test.tsx</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">render</span><span class="p">,</span><span class="w"> </span><span class="nx">screen</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@testing-library/react&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="nx">Dashboard</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/components/Dashboard&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">render</span><span class="p">,</span><span class="w"> </span><span class="nx">screen</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@testing-library/react&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Dashboard</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@/components/Dashboard&quot;</span><span class="p">;</span>
 
-<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;Dashboard&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;renders dashboard heading&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;Dashboard&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;renders dashboard heading&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Dashboard</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">);</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">heading</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByRole</span><span class="p">(</span><span class="s1">&#39;heading&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="sr">/dashboard/i</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">heading</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByRole</span><span class="p">(</span><span class="s2">&quot;heading&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="sr">/dashboard/i</span><span class="w"> </span><span class="p">});</span>
 <span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">heading</span><span class="p">).</span><span class="nx">toBeInTheDocument</span><span class="p">();</span>
 <span class="w">  </span><span class="p">});</span>
 
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;displays field statistics&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;displays field statistics&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Dashboard</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">);</span>
 <span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">screen</span><span class="p">.</span><span class="nx">findByText</span><span class="p">(</span><span class="sr">/total fields/i</span><span class="p">)).</span><span class="nx">toBeInTheDocument</span><span class="p">();</span>
 <span class="w">  </span><span class="p">});</span>
@@ -1755,7 +1757,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v4</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install dependencies</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip install -r requirements.txt pytest pytest-cov</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests with coverage</span>
@@ -1769,7 +1771,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">subosito/flutter-action@v2</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">flutter-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.27.0&#39;</span>
+<span class="w">          </span><span class="nt">flutter-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.27.0&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cd mobile/sahool_field_app &amp;&amp; flutter test --coverage</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload coverage</span>
@@ -1781,7 +1783,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-node@v3</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;20&#39;</span>
+<span class="w">          </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;20&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cd web_admin &amp;&amp; npm ci &amp;&amp; npm test -- --coverage</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload coverage</span>
@@ -1979,7 +1981,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">  </span><span class="nt">evaluation_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
 
 <span class="nt">scrape_configs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sahool-services&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sahool-services&quot;</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field_ops:8080</span>
@@ -1987,13 +1989,13 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weather_core:8108</span>
 <span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/metrics</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;postgres&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;postgres&quot;</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;postgres-exporter:9187&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;postgres-exporter:9187&quot;</span><span class="p p-Indicator">]</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;redis&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;redis&quot;</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;redis-exporter:9121&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;redis-exporter:9121&quot;</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
 <p><strong>2. Grafana Dashboards:</strong></p>
@@ -2172,12 +2174,14 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <hr />
 <h2 id="4-3-12">المرحلة 4: رؤية طويلة الأجل (3-12 شهر) 🟢<a class="headerlink" href="#4-3-12" title="Permanent link">&para;</a></h2>
 <h3 id="41-service-mesh-istio">4.1 Service Mesh (Istio)<a class="headerlink" href="#41-service-mesh-istio" title="Permanent link">&para;</a></h3>
-<p><strong>الفوائد:</strong>
-- mTLS تلقائي بين الخدمات
-- Circuit Breaking
-- Retry Policies
-- Traffic Management
-- Observability المتقدم</p>
+<p><strong>الفوائد:</strong></p>
+<ul>
+<li>mTLS تلقائي بين الخدمات</li>
+<li>Circuit Breaking</li>
+<li>Retry Policies</li>
+<li>Traffic Management</li>
+<li>Observability المتقدم</li>
+</ul>
 <p><strong>التطبيق:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># infra/istio/install.sh</span>
 <span class="c1">#!/bin/bash</span>
@@ -2218,10 +2222,12 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 
 <hr />
 <h3 id="42-graphql-gateway">4.2 GraphQL Gateway<a class="headerlink" href="#42-graphql-gateway" title="Permanent link">&para;</a></h3>
-<p><strong>الفوائد:</strong>
-- Single query لبيانات متعددة
-- Reduced over-fetching
-- Better mobile performance</p>
+<p><strong>الفوائد:</strong></p>
+<ul>
+<li>Single query لبيانات متعددة</li>
+<li>Reduced over-fetching</li>
+<li>Better mobile performance</li>
+</ul>
 <div class="codehilite"><pre><span></span><code><span class="c"># graphql/schema.graphql</span>
 <span class="k">type</span><span class="w"> </span><span class="err">Query</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">field</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="no">ID</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">Field</span>
@@ -2320,6 +2326,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 
 <h3 id="_3">تقارير التقدم<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>Weekly Report Template:
+
 <span class="k">-</span><span class="w"> </span>✅ Completed Tasks
 <span class="k">-</span><span class="w"> </span>🔄 In Progress
 <span class="k">-</span><span class="w"> </span>🚧 Blockers
@@ -2337,11 +2344,13 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <li>🟡 <strong>الأداء</strong> - تحسينات متوسطة (شهر 2-3)</li>
 <li>🟢 <strong>التوسع</strong> - رؤية طويلة الأجل (شهر 4-12)</li>
 </ol>
-<p><strong>نتوقع بعد 4 أسابيع:</strong>
-- ✅ منصة آمنة تماماً
-- ✅ تغطية اختبارية &gt; 70%
-- ✅ جميع الميزات الأساسية مكتملة
-- ✅ جاهزة للإنتاج 100%</p>
+<p><strong>نتوقع بعد 4 أسابيع:</strong></p>
+<ul>
+<li>✅ منصة آمنة تماماً</li>
+<li>✅ تغطية اختبارية &gt; 70%</li>
+<li>✅ جميع الميزات الأساسية مكتملة</li>
+<li>✅ جاهزة للإنتاج 100%</li>
+</ul>
 <hr />
 <p><strong>آخر تحديث:</strong> ديسمبر 2024<br />
 <strong>الحالة:</strong> جاهز للتنفيذ<br />

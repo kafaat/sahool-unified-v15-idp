@@ -1202,9 +1202,11 @@
 </tbody>
 </table>
 <p><strong>Status</strong>: Compliant with standard. No immediate action required.</p>
-<p><strong>Recommendations</strong>:
-- Services with "Pending" schema should create Prisma schemas
-- Follow patterns from <code>chat-service</code> and <code>marketplace-service</code></p>
+<p><strong>Recommendations</strong>:</p>
+<ul>
+<li>Services with "Pending" schema should create Prisma schemas</li>
+<li>Follow patterns from <code>chat-service</code> and <code>marketplace-service</code></li>
+</ul>
 <hr />
 <h3 id="2-services-using-typeorm-requires-migration">2. Services Using TypeORM (Requires Migration) ⚠️<a class="headerlink" href="#2-services-using-typeorm-requires-migration" title="Permanent link">&para;</a></h3>
 <table>
@@ -1239,59 +1241,77 @@
 </table>
 <p><strong>Critical Finding</strong>: Both services have <strong>complete Prisma schemas already defined</strong> alongside TypeORM entities. This indicates migration preparation is already underway!</p>
 <h4 id="field-core-details">field-core Details<a class="headerlink" href="#field-core-details" title="Permanent link">&para;</a></h4>
-<p><strong>Current Implementation</strong>:
-- TypeORM entities: <code>Field</code>, <code>FieldBoundaryHistory</code>, <code>SyncStatus</code>
-- Active data source: <code>src/data-source.ts</code>
-- Database: PostgreSQL with PostGIS</p>
-<p><strong>Migration Ready</strong>:
-- ✅ Prisma schema complete: <code>prisma/schema.prisma</code>
-- ✅ PostGIS support configured
-- ✅ All entities mapped
-- ✅ Proper indexes defined</p>
+<p><strong>Current Implementation</strong>:</p>
+<ul>
+<li>TypeORM entities: <code>Field</code>, <code>FieldBoundaryHistory</code>, <code>SyncStatus</code></li>
+<li>Active data source: <code>src/data-source.ts</code></li>
+<li>Database: PostgreSQL with PostGIS</li>
+</ul>
+<p><strong>Migration Ready</strong>:</p>
+<ul>
+<li>✅ Prisma schema complete: <code>prisma/schema.prisma</code></li>
+<li>✅ PostGIS support configured</li>
+<li>✅ All entities mapped</li>
+<li>✅ Proper indexes defined</li>
+</ul>
 <p><strong>Complexity</strong>: Medium
 <strong>Estimated Time</strong>: 2-3 days
 <strong>Blockers</strong>: None - Ready to migrate</p>
 <h4 id="field-management-service-details">field-management-service Details<a class="headerlink" href="#field-management-service-details" title="Permanent link">&para;</a></h4>
-<p><strong>Current Implementation</strong>:
-- Identical to field-core
-- Same entities and structure</p>
-<p><strong>Migration Ready</strong>:
-- ✅ Prisma schema complete: <code>prisma/schema.prisma</code>
-- ✅ Can leverage field-core migration patterns</p>
+<p><strong>Current Implementation</strong>:</p>
+<ul>
+<li>Identical to field-core</li>
+<li>Same entities and structure</li>
+</ul>
+<p><strong>Migration Ready</strong>:</p>
+<ul>
+<li>✅ Prisma schema complete: <code>prisma/schema.prisma</code></li>
+<li>✅ Can leverage field-core migration patterns</li>
+</ul>
 <p><strong>Complexity</strong>: Medium
 <strong>Estimated Time</strong>: 1-2 days
 <strong>Blockers</strong>: Should wait for field-core migration completion</p>
 <hr />
 <h3 id="3-services-without-orm-no-action-needed-i">3. Services Without ORM (No Action Needed) ℹ️<a class="headerlink" href="#3-services-without-orm-no-action-needed-i" title="Permanent link">&para;</a></h3>
 <p>37 services have no database ORM requirements:</p>
-<p><strong>Examples</strong>:
-- <code>community-chat</code> - Uses Socket.IO, in-memory
-- <code>iot-service</code> - Stateless gateway
-- <code>advisory-service</code> - API-only
-- <code>agent-registry</code> - In-memory registry
-- ... and 33 more</p>
+<p><strong>Examples</strong>:</p>
+<ul>
+<li><code>community-chat</code> - Uses Socket.IO, in-memory</li>
+<li><code>iot-service</code> - Stateless gateway</li>
+<li><code>advisory-service</code> - API-only</li>
+<li><code>agent-registry</code> - In-memory registry</li>
+<li>... and 33 more</li>
+</ul>
 <p><strong>Status</strong>: No action required.</p>
 <hr />
 <h2 id="migration-impact-analysis">Migration Impact Analysis<a class="headerlink" href="#migration-impact-analysis" title="Permanent link">&para;</a></h2>
 <h3 id="impact-on-field-core">Impact on field-core<a class="headerlink" href="#impact-on-field-core" title="Permanent link">&para;</a></h3>
-<p><strong>Endpoints Affected</strong>: 20+ endpoints
-- ✅ All CRUD operations for Fields
-- ✅ Boundary history tracking
-- ✅ Sync status management
-- ✅ PostGIS geospatial queries
-- ✅ NDVI analysis endpoints
-- ✅ Mobile sync (delta sync)</p>
-<p><strong>Risk Level</strong>: <strong>Medium</strong>
-- Schema already defined and validated
-- PostGIS operations already use raw SQL (compatible with Prisma)
-- Good test coverage needed</p>
-<p><strong>Dependencies</strong>:
-- None identified
-- Service is standalone</p>
-<p><strong>Rollback Strategy</strong>:
-- Code is version-controlled
-- Database migrations are reversible
-- TypeORM can coexist during transition</p>
+<p><strong>Endpoints Affected</strong>: 20+ endpoints</p>
+<ul>
+<li>✅ All CRUD operations for Fields</li>
+<li>✅ Boundary history tracking</li>
+<li>✅ Sync status management</li>
+<li>✅ PostGIS geospatial queries</li>
+<li>✅ NDVI analysis endpoints</li>
+<li>✅ Mobile sync (delta sync)</li>
+</ul>
+<p><strong>Risk Level</strong>: <strong>Medium</strong></p>
+<ul>
+<li>Schema already defined and validated</li>
+<li>PostGIS operations already use raw SQL (compatible with Prisma)</li>
+<li>Good test coverage needed</li>
+</ul>
+<p><strong>Dependencies</strong>:</p>
+<ul>
+<li>None identified</li>
+<li>Service is standalone</li>
+</ul>
+<p><strong>Rollback Strategy</strong>:</p>
+<ul>
+<li>Code is version-controlled</li>
+<li>Database migrations are reversible</li>
+<li>TypeORM can coexist during transition</li>
+</ul>
 <hr />
 <h3 id="impact-on-field-management-service">Impact on field-management-service<a class="headerlink" href="#impact-on-field-management-service" title="Permanent link">&para;</a></h3>
 <p><strong>Endpoints Affected</strong>: Similar to field-core
@@ -1472,11 +1492,13 @@
 </ul>
 <hr />
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
-<p>The migration to Prisma as the standard ORM is:
-- ✅ <strong>Feasible</strong>: Schemas already prepared
-- ✅ <strong>Low Risk</strong>: Good rollback strategy
-- ✅ <strong>High Value</strong>: Long-term maintainability
-- ✅ <strong>Well-Planned</strong>: Clear migration path</p>
+<p>The migration to Prisma as the standard ORM is:</p>
+<ul>
+<li>✅ <strong>Feasible</strong>: Schemas already prepared</li>
+<li>✅ <strong>Low Risk</strong>: Good rollback strategy</li>
+<li>✅ <strong>High Value</strong>: Long-term maintainability</li>
+<li>✅ <strong>Well-Planned</strong>: Clear migration path</li>
+</ul>
 <p><strong>Status</strong>: <strong>APPROVED FOR IMPLEMENTATION</strong></p>
 <hr />
 <h2 id="documentation-index">Documentation Index<a class="headerlink" href="#documentation-index" title="Permanent link">&para;</a></h2>
@@ -1488,10 +1510,12 @@
 <hr />
 <h2 id="contact-support">Contact &amp; Support<a class="headerlink" href="#contact-support" title="Permanent link">&para;</a></h2>
 <p><strong>Questions?</strong> Contact SAHOOL Architecture Team</p>
-<p><strong>Resources</strong>:
-- Prisma Documentation: https://www.prisma.io/docs
-- Internal Examples: <code>/apps/services/chat-service</code>, <code>/apps/services/marketplace-service</code>
-- Migration Guide: <code>/docs/ORM_STANDARDIZATION.md</code></p>
+<p><strong>Resources</strong>:</p>
+<ul>
+<li>Prisma Documentation: https://www.prisma.io/docs</li>
+<li>Internal Examples: <code>/apps/services/chat-service</code>, <code>/apps/services/marketplace-service</code></li>
+<li>Migration Guide: <code>/docs/ORM_STANDARDIZATION.md</code></li>
+</ul>
 <hr />
 <p><strong>Document Version</strong>: 1.0
 <strong>Last Updated</strong>: 2025-12-31

@@ -1202,27 +1202,35 @@
 </ul>
 <h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
 <h3 id="alternative-1-isar">Alternative 1: Isar<a class="headerlink" href="#alternative-1-isar" title="Permanent link">&para;</a></h3>
-<p><strong>Considered because:</strong>
-- NoSQL (simpler for some use cases)
-- Very fast performance
-- No code generation needed</p>
-<p><strong>Rejected because:</strong>
-- Less mature than Drift
-- Complex queries harder
-- Schema migrations less robust
-- Team expertise in SQL</p>
+<p><strong>Considered because:</strong></p>
+<ul>
+<li>NoSQL (simpler for some use cases)</li>
+<li>Very fast performance</li>
+<li>No code generation needed</li>
+</ul>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Less mature than Drift</li>
+<li>Complex queries harder</li>
+<li>Schema migrations less robust</li>
+<li>Team expertise in SQL</li>
+</ul>
 <h3 id="alternative-2-hive">Alternative 2: Hive<a class="headerlink" href="#alternative-2-hive" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- No relational capabilities
-- Limited query options
-- Not suitable for complex data models
-- No migrations system</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>No relational capabilities</li>
+<li>Limited query options</li>
+<li>Not suitable for complex data models</li>
+<li>No migrations system</li>
+</ul>
 <h3 id="alternative-3-sqflite-raw">Alternative 3: sqflite (raw)<a class="headerlink" href="#alternative-3-sqflite-raw" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- No type safety
-- Manual query strings
-- No migration framework
-- Error-prone</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>No type safety</li>
+<li>Manual query strings</li>
+<li>No migration framework</li>
+<li>Error-prone</li>
+</ul>
 <h2 id="migration-strategy">Migration Strategy<a class="headerlink" href="#migration-strategy" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Migration example</span>
 <span class="n">MigrationStrategy</span><span class="w"> </span><span class="kd">get</span><span class="w"> </span><span class="n">migration</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">MigrationStrategy</span><span class="p">(</span>

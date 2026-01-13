@@ -1142,9 +1142,11 @@
 <li>✅ Extracts tenant and user IDs from headers or JWT</li>
 <li>✅ Filters sensitive data (passwords, tokens, etc.)</li>
 </ul>
-<p><strong>Location:</strong>
-- Python: <code>shared/middleware/request_logging.py</code>
-- TypeScript: <code>apps/services/shared/middleware/request-logging.ts</code></p>
+<p><strong>Location:</strong></p>
+<ul>
+<li>Python: <code>shared/middleware/request_logging.py</code></li>
+<li>TypeScript: <code>apps/services/shared/middleware/request-logging.ts</code></li>
+</ul>
 <hr />
 <h3 id="2-observabilitymiddleware">2. ObservabilityMiddleware<a class="headerlink" href="#2-observabilitymiddleware" title="Permanent link">&para;</a></h3>
 <p><strong>Tracing, Metrics &amp; Monitoring</strong></p>
@@ -1155,8 +1157,10 @@
 <li>✅ Error tracking and reporting</li>
 <li>✅ Performance monitoring</li>
 </ul>
-<p><strong>Location:</strong>
-- Python: <code>shared/observability/middleware.py</code></p>
+<p><strong>Location:</strong></p>
+<ul>
+<li>Python: <code>shared/observability/middleware.py</code></li>
+</ul>
 <hr />
 <h3 id="3-tenantcontextmiddleware">3. TenantContextMiddleware<a class="headerlink" href="#3-tenantcontextmiddleware" title="Permanent link">&para;</a></h3>
 <p><strong>Multi-Tenancy Isolation</strong></p>
@@ -1166,8 +1170,10 @@
 <li>✅ Tenant-scoped database query helpers</li>
 <li>✅ Validates tenant presence on protected endpoints</li>
 </ul>
-<p><strong>Location:</strong>
-- Python: <code>shared/middleware/tenant_context.py</code></p>
+<p><strong>Location:</strong></p>
+<ul>
+<li>Python: <code>shared/middleware/tenant_context.py</code></li>
+</ul>
 <hr />
 <h3 id="4-metricsmiddleware">4. MetricsMiddleware<a class="headerlink" href="#4-metricsmiddleware" title="Permanent link">&para;</a></h3>
 <p><strong>HTTP Metrics Collection</strong></p>
@@ -1177,8 +1183,10 @@
 <li>✅ Active connection tracking</li>
 <li>✅ Error rate monitoring</li>
 </ul>
-<p><strong>Location:</strong>
-- Python: <code>shared/observability/middleware.py</code></p>
+<p><strong>Location:</strong></p>
+<ul>
+<li>Python: <code>shared/observability/middleware.py</code></li>
+</ul>
 <hr />
 <h3 id="5-ratelimitmiddleware">5. RateLimitMiddleware<a class="headerlink" href="#5-ratelimitmiddleware" title="Permanent link">&para;</a></h3>
 <p><strong>API Rate Limiting</strong></p>
@@ -1188,8 +1196,10 @@
 <li>✅ Redis-backed distributed rate limiting</li>
 <li>✅ Customizable limits per endpoint</li>
 </ul>
-<p><strong>Location:</strong>
-- Python: <code>shared/middleware/rate_limit.py</code></p>
+<p><strong>Location:</strong></p>
+<ul>
+<li>Python: <code>shared/middleware/rate_limit.py</code></li>
+</ul>
 <hr />
 <h3 id="6-securityheadersmiddleware">6. SecurityHeadersMiddleware<a class="headerlink" href="#6-securityheadersmiddleware" title="Permanent link">&para;</a></h3>
 <p><strong>HTTP Security Headers</strong></p>
@@ -1200,8 +1210,10 @@
 <li>✅ X-Content-Type-Options</li>
 <li>✅ Referrer-Policy</li>
 </ul>
-<p><strong>Location:</strong>
-- Python: <code>shared/middleware/security_headers.py</code></p>
+<p><strong>Location:</strong></p>
+<ul>
+<li>Python: <code>shared/middleware/security_headers.py</code></li>
+</ul>
 <hr />
 <h2 id="python-fastapi-integration">Python FastAPI Integration<a class="headerlink" href="#python-fastapi-integration" title="Permanent link">&para;</a></h2>
 <h3 id="basic-setup">Basic Setup<a class="headerlink" href="#basic-setup" title="Permanent link">&para;</a></h3>
@@ -1299,22 +1311,29 @@
 <hr />
 <h2 id="typescript-nestjs-integration">TypeScript NestJS Integration<a class="headerlink" href="#typescript-nestjs-integration" title="Permanent link">&para;</a></h2>
 <h3 id="basic-setup_1">Basic Setup<a class="headerlink" href="#basic-setup_1" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NestFactory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/core&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RequestLoggingInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../shared/middleware/request-logging&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AppModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./app.module&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NestFactory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/core&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RequestLoggingInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../../shared/middleware/request-logging&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AppModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./app.module&quot;</span><span class="p">;</span>
 
 <span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">bootstrap</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">NestFactory</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">AppModule</span><span class="p">);</span>
 
 <span class="w">  </span><span class="c1">// ============== Middleware Setup ==============</span>
 <span class="w">  </span><span class="c1">// Global request logging interceptor with correlation IDs</span>
-<span class="w">  </span><span class="nx">app</span><span class="p">.</span><span class="nx">useGlobalInterceptors</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">RequestLoggingInterceptor</span><span class="p">(</span><span class="s1">&#39;my-service&#39;</span><span class="p">));</span>
+<span class="w">  </span><span class="nx">app</span><span class="p">.</span><span class="nx">useGlobalInterceptors</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">RequestLoggingInterceptor</span><span class="p">(</span><span class="s2">&quot;my-service&quot;</span><span class="p">));</span>
 
 <span class="w">  </span><span class="c1">// Enable CORS</span>
 <span class="w">  </span><span class="nx">app</span><span class="p">.</span><span class="nx">enableCors</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">origin</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.CORS_ALLOWED_ORIGINS?.split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;http://localhost:3000&#39;</span><span class="p">],</span>
-<span class="w">    </span><span class="nx">methods</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PUT&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PATCH&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;DELETE&#39;</span><span class="p">],</span>
-<span class="w">    </span><span class="nx">allowedHeaders</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;X-Tenant-ID&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;X-Correlation-ID&#39;</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">origin</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.CORS_ALLOWED_ORIGINS?.split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nx">methods</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;POST&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PUT&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PATCH&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DELETE&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">allowedHeaders</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;Authorization&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;X-Tenant-ID&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;X-Correlation-ID&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">],</span>
 <span class="w">    </span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
 
@@ -1325,34 +1344,34 @@
 </code></pre></div>
 
 <h3 id="using-in-services">Using in Services<a class="headerlink" href="#using-in-services" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">StructuredLogger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../shared/middleware/request-logging&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">StructuredLogger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../../shared/middleware/request-logging&quot;</span><span class="p">;</span>
 
 <span class="kd">@Injectable</span><span class="p">()</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">MyService</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">StructuredLogger</span><span class="p">(</span><span class="s1">&#39;my-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MyService&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">StructuredLogger</span><span class="p">(</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MyService&quot;</span><span class="p">);</span>
 
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">processData</span><span class="p">(</span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">correlationId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Processing data&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Processing data&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">correlationId</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">tenantId</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;processData&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;processData&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="p">});</span>
 
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Process data...</span>
 
-<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Data processed successfully&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Data processed successfully&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">correlationId</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">tenantId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;processData&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;processData&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">recordCount</span><span class="o">:</span><span class="w"> </span><span class="kt">data.length</span><span class="p">,</span>
 <span class="w">      </span><span class="p">});</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Failed to process data&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;Failed to process data&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">correlationId</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">tenantId</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;processData&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;processData&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="kt">error.message</span><span class="p">,</span>
 <span class="w">      </span><span class="p">});</span>
 <span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="nx">error</span><span class="p">;</span>
@@ -1362,11 +1381,14 @@
 </code></pre></div>
 
 <h3 id="using-in-controllers">Using in Controllers<a class="headerlink" href="#using-in-controllers" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Req</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Request</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getCorrelationId</span><span class="p">,</span><span class="w"> </span><span class="nx">getRequestContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../shared/middleware/request-logging&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Req</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Request</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;express&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">getCorrelationId</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">getRequestContext</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../../shared/middleware/request-logging&quot;</span><span class="p">;</span>
 
-<span class="kd">@Controller</span><span class="p">(</span><span class="s1">&#39;api/v1/items&#39;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;api/v1/items&quot;</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">ItemsController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">list</span><span class="p">(</span><span class="kd">@Req</span><span class="p">()</span><span class="w"> </span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>

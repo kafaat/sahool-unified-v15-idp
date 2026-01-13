@@ -1667,54 +1667,66 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
 </code></pre></div>
 
-<p>Returns:
-- Server version and uptime
-- Connection count
-- Message statistics
-- Memory and CPU usage</p>
+<p>Returns:</p>
+<ul>
+<li>Server version and uptime</li>
+<li>Connection count</li>
+<li>Message statistics</li>
+<li>Memory and CPU usage</li>
+</ul>
 <h4 id="cluster-routes-routez">Cluster Routes (routez)<a class="headerlink" href="#cluster-routes-routez" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/routez<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
 </code></pre></div>
 
-<p>Returns:
-- Cluster topology
-- Route connections
-- Pending messages per route</p>
+<p>Returns:</p>
+<ul>
+<li>Cluster topology</li>
+<li>Route connections</li>
+<li>Pending messages per route</li>
+</ul>
 <h4 id="connections-connz">Connections (connz)<a class="headerlink" href="#connections-connz" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/connz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
 </code></pre></div>
 
-<p>Returns:
-- Active client connections
-- IP addresses and user info
-- Pending bytes per connection</p>
+<p>Returns:</p>
+<ul>
+<li>Active client connections</li>
+<li>IP addresses and user info</li>
+<li>Pending bytes per connection</li>
+</ul>
 <h4 id="jetstream-status-jsz">JetStream Status (jsz)<a class="headerlink" href="#jetstream-status-jsz" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/jsz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
 </code></pre></div>
 
-<p>Returns:
-- JetStream enabled status
-- Stream and consumer counts
-- Memory and storage usage
-- Replica status</p>
+<p>Returns:</p>
+<ul>
+<li>JetStream enabled status</li>
+<li>Stream and consumer counts</li>
+<li>Memory and storage usage</li>
+<li>Replica status</li>
+</ul>
 <h3 id="prometheus-metrics">Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Permanent link">&para;</a></h3>
 <p>Metrics are exposed on port 7777 by the NATS exporter:</p>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:7777/metrics
 </code></pre></div>
 
-<p>Key metrics:
-- <code>nats_up</code>: Server availability
-- <code>nats_varz_connections</code>: Connection count
-- <code>nats_varz_in_msgs</code>: Inbound messages
-- <code>nats_varz_out_msgs</code>: Outbound messages
-- <code>nats_varz_mem</code>: Memory usage
-- <code>nats_varz_cpu</code>: CPU usage
-- <code>nats_jetstream_streams</code>: Stream count
-- <code>nats_jetstream_consumers</code>: Consumer count</p>
+<p>Key metrics:</p>
+<ul>
+<li><code>nats_up</code>: Server availability</li>
+<li><code>nats_varz_connections</code>: Connection count</li>
+<li><code>nats_varz_in_msgs</code>: Inbound messages</li>
+<li><code>nats_varz_out_msgs</code>: Outbound messages</li>
+<li><code>nats_varz_mem</code>: Memory usage</li>
+<li><code>nats_varz_cpu</code>: CPU usage</li>
+<li><code>nats_jetstream_streams</code>: Stream count</li>
+<li><code>nats_jetstream_consumers</code>: Consumer count</li>
+</ul>
 <h3 id="grafana-dashboards">Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Permanent link">&para;</a></h3>
-<p>Import the NATS dashboard:
-- Dashboard ID: 2279 (NATS Server)
-- Dashboard ID: 11187 (NATS JetStream)</p>
+<p>Import the NATS dashboard:</p>
+<ul>
+<li>Dashboard ID: 2279 (NATS Server)</li>
+<li>Dashboard ID: 11187 (NATS JetStream)</li>
+</ul>
 <hr />
 <h2 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h2>
 <h3 id="client-connection">Client Connection<a class="headerlink" href="#client-connection" title="Permanent link">&para;</a></h3>
@@ -1761,21 +1773,21 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 </code></pre></div>
 
 <p><strong>Node.js/TypeScript:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="p">,</span><span class="w"> </span><span class="nx">StringCodec</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;nats&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="p">,</span><span class="w"> </span><span class="nx">StringCodec</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;nats&quot;</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">connect</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="s1">&#39;nats://nats-node1:4222&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="s1">&#39;nats://nats-node2:4222&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="s1">&#39;nats://nats-node3:4222&#39;</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sahool&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">pass</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;PASSWORD&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">tls</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">minVersion</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TLSv1.2&#39;</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nx">maxReconnectAttempts</span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">reconnectTimeWait</span><span class="o">:</span><span class="w"> </span><span class="kt">2000</span>
+<span class="w">  </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;nats://nats-node1:4222&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;nats://nats-node2:4222&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;nats://nats-node3:4222&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">pass</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;PASSWORD&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">tls</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">minVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;TLSv1.2&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">maxReconnectAttempts</span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">reconnectTimeWait</span><span class="o">:</span><span class="w"> </span><span class="kt">2000</span><span class="p">,</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1830,11 +1842,13 @@ curl<span class="w"> </span>http://localhost:8222/routez
 docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats-node1<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>cluster
 </code></pre></div>
 
-<p><strong>Solution</strong>:
-- Verify network connectivity between nodes
-- Check cluster authentication credentials
-- Ensure cluster routes are correctly configured
-- Verify TLS certificates are valid</p>
+<p><strong>Solution</strong>:</p>
+<ul>
+<li>Verify network connectivity between nodes</li>
+<li>Check cluster authentication credentials</li>
+<li>Ensure cluster routes are correctly configured</li>
+<li>Verify TLS certificates are valid</li>
+</ul>
 <h4 id="2-jetstream-sync-issues">2. JetStream Sync Issues<a class="headerlink" href="#2-jetstream-sync-issues" title="Permanent link">&para;</a></h4>
 <p><strong>Symptoms</strong>: Replicas out of sync</p>
 <p><strong>Check</strong>:</p>
@@ -1845,11 +1859,13 @@ nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> <
 curl<span class="w"> </span>http://localhost:8222/jsz?streams<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.streams[].cluster&#39;</span>
 </code></pre></div>
 
-<p><strong>Solution</strong>:
-- Verify all nodes have JetStream enabled
-- Check storage capacity
-- Review logs for sync errors
-- Consider increasing <code>sync_interval</code></p>
+<p><strong>Solution</strong>:</p>
+<ul>
+<li>Verify all nodes have JetStream enabled</li>
+<li>Check storage capacity</li>
+<li>Review logs for sync errors</li>
+<li>Consider increasing <code>sync_interval</code></li>
+</ul>
 <h4 id="3-high-memory-usage">3. High Memory Usage<a class="headerlink" href="#3-high-memory-usage" title="Permanent link">&para;</a></h4>
 <p><strong>Symptoms</strong>: Memory consumption growing</p>
 <p><strong>Check</strong>:</p>
@@ -1860,11 +1876,13 @@ curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><s
 curl<span class="w"> </span>http://localhost:8222/jsz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.memory, .store&#39;</span>
 </code></pre></div>
 
-<p><strong>Solution</strong>:
-- Review stream retention policies
-- Implement message TTL
-- Increase max file storage
-- Add more nodes</p>
+<p><strong>Solution</strong>:</p>
+<ul>
+<li>Review stream retention policies</li>
+<li>Implement message TTL</li>
+<li>Increase max file storage</li>
+<li>Add more nodes</li>
+</ul>
 <h4 id="4-connection-failures">4. Connection Failures<a class="headerlink" href="#4-connection-failures" title="Permanent link">&para;</a></h4>
 <p><strong>Symptoms</strong>: Clients can't connect</p>
 <p><strong>Check</strong>:</p>
@@ -1875,11 +1893,13 @@ telnet<span class="w"> </span>localhost<span class="w"> </span><span class="m">4
 openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>localhost:4222<span class="w"> </span>-servername<span class="w"> </span>nats-node1
 </code></pre></div>
 
-<p><strong>Solution</strong>:
-- Verify credentials
-- Check TLS certificates
-- Review firewall rules
-- Check connection limits</p>
+<p><strong>Solution</strong>:</p>
+<ul>
+<li>Verify credentials</li>
+<li>Check TLS certificates</li>
+<li>Review firewall rules</li>
+<li>Check connection limits</li>
+</ul>
 <h3 id="debug-mode">Debug Mode<a class="headerlink" href="#debug-mode" title="Permanent link">&para;</a></h3>
 <p>Enable debug logging:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">debug</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
@@ -1900,10 +1920,10 @@ openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span cla
 <span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2.0&#39;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.0&quot;</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4G</span>
 <span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2G</span>
 </code></pre></div>
 
@@ -2036,19 +2056,21 @@ nats<span class="w"> </span>stream<span class="w"> </span>restore<span class="w"
 <h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
 <h3 id="migrating-from-single-node-to-cluster">Migrating from Single Node to Cluster<a class="headerlink" href="#migrating-from-single-node-to-cluster" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Backup existing data</strong>
-   <code>bash
+<li><strong>Backup existing data</strong></li>
+</ol>
+<p><code>bash
    nats stream backup --all</code></p>
-</li>
+<ol>
 <li>
 <p><strong>Deploy cluster</strong> (see Quick Start)</p>
 </li>
 <li>
-<p><strong>Restore streams with replication</strong>
-   <code>bash
-   nats stream restore field_events backup.json --replicas=3</code></p>
+<p><strong>Restore streams with replication</strong></p>
 </li>
+</ol>
+<p><code>bash
+   nats stream restore field_events backup.json --replicas=3</code></p>
+<ol>
 <li>
 <p><strong>Update application connection strings</strong> to use all nodes</p>
 </li>
@@ -2093,10 +2115,12 @@ nats<span class="w"> </span>stream<span class="w"> </span>restore<span class="w"
 <li><a href="https://github.com/nats-io/prometheus-nats-exporter">Prometheus Exporter</a></li>
 </ul>
 <h3 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h3>
-<p>For issues or questions:
-- GitHub Issues: [SAHOOL Platform Repository]
-- NATS Slack: https://slack.nats.io
-- Email: platform-team@sahool.io</p>
+<p>For issues or questions:</p>
+<ul>
+<li>GitHub Issues: [SAHOOL Platform Repository]</li>
+<li>NATS Slack: https://slack.nats.io</li>
+<li>Email: platform-team@sahool.io</li>
+</ul>
 <hr />
 <p><strong>Document Version</strong>: 1.0
 <strong>Last Updated</strong>: 2026-01-07

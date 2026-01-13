@@ -1130,14 +1130,14 @@
 <h3 id="token-structure">Token Structure<a class="headerlink" href="#token-structure" title="Permanent link">&para;</a></h3>
 <p>Access tokens contain these claims:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;sub&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-uuid&quot;</span><span class="p">,</span><span class="w">           </span><span class="c1">// User ID</span>
-<span class="w">  </span><span class="nt">&quot;tid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant-uuid&quot;</span><span class="p">,</span><span class="w">         </span><span class="c1">// Tenant ID</span>
+<span class="w">  </span><span class="nt">&quot;sub&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-uuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// User ID</span>
+<span class="w">  </span><span class="nt">&quot;tid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant-uuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Tenant ID</span>
 <span class="w">  </span><span class="nt">&quot;roles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;supervisor&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;scopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;fieldops:task.read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fieldops:task.complete&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;exp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1699999999</span><span class="p">,</span><span class="w">            </span><span class="c1">// Expiration</span>
-<span class="w">  </span><span class="nt">&quot;iat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1699990000</span><span class="p">,</span><span class="w">            </span><span class="c1">// Issued at</span>
-<span class="w">  </span><span class="nt">&quot;iss&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool-idp&quot;</span><span class="p">,</span><span class="w">          </span><span class="c1">// Issuer</span>
-<span class="w">  </span><span class="nt">&quot;aud&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool-platform&quot;</span><span class="w">      </span><span class="c1">// Audience</span>
+<span class="w">  </span><span class="nt">&quot;exp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1699999999</span><span class="p">,</span><span class="w"> </span><span class="c1">// Expiration</span>
+<span class="w">  </span><span class="nt">&quot;iat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1699990000</span><span class="p">,</span><span class="w"> </span><span class="c1">// Issued at</span>
+<span class="w">  </span><span class="nt">&quot;iss&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool-idp&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Issuer</span>
+<span class="w">  </span><span class="nt">&quot;aud&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool-platform&quot;</span><span class="w"> </span><span class="c1">// Audience</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1197,11 +1197,13 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 </table>
 <h3 id="permission-format">Permission Format<a class="headerlink" href="#permission-format" title="Permanent link">&para;</a></h3>
 <p>Permissions follow the format: <code>service:resource.action</code></p>
-<p>Examples:
-- <code>fieldops:task.read</code>
-- <code>fieldops:task.create</code>
-- <code>fieldops:task.complete</code>
-- <code>admin:users.create</code></p>
+<p>Examples:</p>
+<ul>
+<li><code>fieldops:task.read</code></li>
+<li><code>fieldops:task.create</code></li>
+<li><code>fieldops:task.complete</code></li>
+<li><code>admin:users.create</code></li>
+</ul>
 <h3 id="role-hierarchy">Role Hierarchy<a class="headerlink" href="#role-hierarchy" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>super_admin
     └── admin
@@ -1274,10 +1276,12 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 <div class="codehilite"><pre><span></span><code>./scripts/security/generate-certs.sh
 </code></pre></div>
 
-<p>This creates:
-- Root CA certificate
-- Service certificates for each component
-- Docker secrets structure</p>
+<p>This creates:</p>
+<ul>
+<li>Root CA certificate</li>
+<li>Service certificates for each component</li>
+<li>Docker secrets structure</li>
+</ul>
 <h3 id="enable-mtls">Enable mTLS<a class="headerlink" href="#enable-mtls" title="Permanent link">&para;</a></h3>
 <ol>
 <li>Set environment variable:</li>
@@ -1309,18 +1313,22 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 </code></pre></div>
 
 <h3 id="secret-storage">Secret Storage<a class="headerlink" href="#secret-storage" title="Permanent link">&para;</a></h3>
-<p>Secrets are stored in:
-- <code>secrets/jwt/</code> - JWT keys
-- <code>secrets/database/</code> - Database passwords
-- <code>secrets/nats/</code> - NATS credentials
-- <code>secrets/encryption/</code> - Encryption keys</p>
+<p>Secrets are stored in:</p>
+<ul>
+<li><code>secrets/jwt/</code> - JWT keys</li>
+<li><code>secrets/database/</code> - Database passwords</li>
+<li><code>secrets/nats/</code> - NATS credentials</li>
+<li><code>secrets/encryption/</code> - Encryption keys</li>
+</ul>
 <p><strong>Never commit secrets to git!</strong></p>
 <h3 id="production-secret-management">Production Secret Management<a class="headerlink" href="#production-secret-management" title="Permanent link">&para;</a></h3>
-<p>For production, use:
-- HashiCorp Vault
-- AWS Secrets Manager
-- Azure Key Vault
-- Kubernetes Secrets (with encryption at rest)</p>
+<p>For production, use:</p>
+<ul>
+<li>HashiCorp Vault</li>
+<li>AWS Secrets Manager</li>
+<li>Azure Key Vault</li>
+<li>Kubernetes Secrets (with encryption at rest)</li>
+</ul>
 <h2 id="security-headers">Security Headers<a class="headerlink" href="#security-headers" title="Permanent link">&para;</a></h2>
 <p>All services include these headers:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">X-Content-Type-Options</span><span class="o">:</span><span class="w"> </span><span class="nt">nosniff</span>
@@ -1383,19 +1391,19 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 <h2 id="incident-response">Incident Response<a class="headerlink" href="#incident-response" title="Permanent link">&para;</a></h2>
 <h3 id="suspected-breach">Suspected Breach<a class="headerlink" href="#suspected-breach" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Contain</strong>: Revoke affected tokens
-   <code>bash
+<li><strong>Contain</strong>: Revoke affected tokens</li>
+</ol>
+<p><code>bash
    # Rotate JWT key (invalidates all tokens)
    ./scripts/security/rotate-secrets.sh --jwt</code></p>
-</li>
-<li>
-<p><strong>Investigate</strong>: Check audit logs
-   <code>sql
+<ol>
+<li><strong>Investigate</strong>: Check audit logs</li>
+</ol>
+<p><code>sql
    SELECT * FROM security_audit_logs
    WHERE success = false
    ORDER BY created_at DESC;</code></p>
-</li>
+<ol>
 <li>
 <p><strong>Remediate</strong>: Reset affected credentials</p>
 </li>

@@ -1220,10 +1220,12 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<p><strong>Rationale:</strong>
-- Full field analysis (<code>/api/v1/analyze</code>) is extremely resource-intensive with multiple AI agents
-- Edge endpoints (mobile, IoT) need higher throughput for real-time operations
-- System status endpoints excluded for operational monitoring</p>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>Full field analysis (<code>/api/v1/analyze</code>) is extremely resource-intensive with multiple AI agents</li>
+<li>Edge endpoints (mobile, IoT) need higher throughput for real-time operations</li>
+<li>System status endpoints excluded for operational monitoring</li>
+</ul>
 <h3 id="2-iot-gateway-rate-limiting">2. IoT Gateway Rate Limiting<a class="headerlink" href="#2-iot-gateway-rate-limiting" title="Permanent link">&para;</a></h3>
 <p><strong>File:</strong> <code>/apps/services/iot-gateway/src/main.py</code></p>
 <p><strong>Changes:</strong></p>
@@ -1248,11 +1250,13 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<p><strong>Rationale:</strong>
-- IoT Gateway is vulnerable to sensor data flooding
-- Batch uploads need higher limits for efficient data collection
-- Device registration/management needs protection against mass operations
-- Health/stats endpoints excluded for monitoring</p>
+<p><strong>Rationale:</strong></p>
+<ul>
+<li>IoT Gateway is vulnerable to sensor data flooding</li>
+<li>Batch uploads need higher limits for efficient data collection</li>
+<li>Device registration/management needs protection against mass operations</li>
+<li>Health/stats endpoints excluded for monitoring</li>
+</ul>
 <h2 id="rate-limit-configuration">Rate Limit Configuration<a class="headerlink" href="#rate-limit-configuration" title="Permanent link">&para;</a></h2>
 <h3 id="default-tiers-configurable-via-environment-variables">Default Tiers (Configurable via Environment Variables)<a class="headerlink" href="#default-tiers-configurable-via-environment-variables" title="Permanent link">&para;</a></h3>
 <table>
@@ -1361,12 +1365,14 @@ locust<span class="w"> </span>-f<span class="w"> </span>load_test.py<span class=
 </code></pre></div>
 
 <h3 id="3-integration-testing">3. Integration Testing<a class="headerlink" href="#3-integration-testing" title="Permanent link">&para;</a></h3>
-<p>Verify:
-- Rate limit headers present
-- 429 responses when limit exceeded
-- Redis fallback works
-- Internal service bypass works
-- Tier function logic correct</p>
+<p>Verify:</p>
+<ul>
+<li>Rate limit headers present</li>
+<li>429 responses when limit exceeded</li>
+<li>Redis fallback works</li>
+<li>Internal service bypass works</li>
+<li>Tier function logic correct</li>
+</ul>
 <h2 id="deployment-checklist">Deployment Checklist<a class="headerlink" href="#deployment-checklist" title="Permanent link">&para;</a></h2>
 <ul>
 <li>[x] Rate limiting implemented in all critical services</li>
@@ -1467,12 +1473,14 @@ curl<span class="w"> </span>-v<span class="w"> </span>http://localhost:8120/api/
 ✅ <strong>Well Documented</strong> - Comprehensive docs and examples
 ✅ <strong>Monitored</strong> - Structured logging and metrics
 ✅ <strong>Tested</strong> - Test cases and verification procedures</p>
-<p>The platform is now protected against:
-- DoS and DDoS attacks
-- API abuse and scraping
-- Excessive resource consumption
-- Cost overruns from AI operations
-- Sensor data flooding in IoT endpoints</p>
+<p>The platform is now protected against:</p>
+<ul>
+<li>DoS and DDoS attacks</li>
+<li>API abuse and scraping</li>
+<li>Excessive resource consumption</li>
+<li>Cost overruns from AI operations</li>
+<li>Sensor data flooding in IoT endpoints</li>
+</ul>
 <hr />
 <p><strong>Implementation Date:</strong> 2026-01-08
 <strong>Implemented By:</strong> Platform Security Team

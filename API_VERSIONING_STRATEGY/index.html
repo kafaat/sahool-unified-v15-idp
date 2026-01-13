@@ -1150,16 +1150,20 @@
 <h2 id="versioning-strategy">Versioning Strategy<a class="headerlink" href="#versioning-strategy" title="Permanent link">&para;</a></h2>
 <h3 id="1-uri-based-versioning-primary">1. URI-Based Versioning (Primary)<a class="headerlink" href="#1-uri-based-versioning-primary" title="Permanent link">&para;</a></h3>
 <p><strong>Format:</strong> <code>/api/v{version}/{resource}</code></p>
-<p><strong>Examples:</strong>
-- <code>/api/v1/users</code>
-- <code>/api/v2/users</code>
-- <code>/api/v1/fields</code>
-- <code>/api/v2/fields</code></p>
-<p><strong>Advantages:</strong>
-- Clear and explicit
-- Easy to cache
-- Simple to understand
-- Browser-friendly</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li><code>/api/v1/users</code></li>
+<li><code>/api/v2/users</code></li>
+<li><code>/api/v1/fields</code></li>
+<li><code>/api/v2/fields</code></li>
+</ul>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Clear and explicit</li>
+<li>Easy to cache</li>
+<li>Simple to understand</li>
+<li>Browser-friendly</li>
+</ul>
 <h3 id="2-header-based-versioning-secondary">2. Header-Based Versioning (Secondary)<a class="headerlink" href="#2-header-based-versioning-secondary" title="Permanent link">&para;</a></h3>
 <p><strong>Header:</strong> <code>X-API-Version: {version}</code></p>
 <p><strong>Examples:</strong></p>
@@ -1169,10 +1173,12 @@
 <span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer &lt;token&gt;</span>
 </code></pre></div>
 
-<p><strong>Advantages:</strong>
-- Keeps URLs clean
-- Flexible for different clients
-- Easy to implement content negotiation</p>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Keeps URLs clean</li>
+<li>Flexible for different clients</li>
+<li>Easy to implement content negotiation</li>
+</ul>
 <h3 id="3-accept-header-versioning-alternative">3. Accept Header Versioning (Alternative)<a class="headerlink" href="#3-accept-header-versioning-alternative" title="Permanent link">&para;</a></h3>
 <p><strong>Header:</strong> <code>Accept: application/vnd.sahool.v{version}+json</code></p>
 <p><strong>Example:</strong></p>
@@ -1308,7 +1314,7 @@
 <h2 id="implementation-guidelines">Implementation Guidelines<a class="headerlink" href="#implementation-guidelines" title="Permanent link">&para;</a></h2>
 <h3 id="nestjs-configuration">NestJS Configuration<a class="headerlink" href="#nestjs-configuration" title="Permanent link">&para;</a></h3>
 <h4 id="1-enable-versioning-in-maints">1. Enable Versioning in main.ts<a class="headerlink" href="#1-enable-versioning-in-maints" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">VersioningType</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">VersioningType</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
 
 <span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">bootstrap</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">NestFactory</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">AppModule</span><span class="p">);</span>
@@ -1316,14 +1322,14 @@
 <span class="w">  </span><span class="c1">// Enable URI versioning</span>
 <span class="w">  </span><span class="nx">app</span><span class="p">.</span><span class="nx">enableVersioning</span><span class="p">({</span>
 <span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">VersioningType</span><span class="p">.</span><span class="nx">URI</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
 
 <span class="w">  </span><span class="c1">// Or enable header versioning</span>
 <span class="w">  </span><span class="nx">app</span><span class="p">.</span><span class="nx">enableVersioning</span><span class="p">({</span>
 <span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">VersioningType</span><span class="p">.</span><span class="nx">HEADER</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">header</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;X-API-Version&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">header</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;X-API-Version&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
 
 <span class="w">  </span><span class="c1">// Or enable multiple versioning types</span>
@@ -1335,15 +1341,15 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">url</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/\/api\/v(\d+)\//</span><span class="p">)[</span><span class="mf">1</span><span class="p">];</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">      </span><span class="c1">// Check header</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s1">&#39;x-api-version&#39;</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s1">&#39;x-api-version&#39;</span><span class="p">];</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s2">&quot;x-api-version&quot;</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s2">&quot;x-api-version&quot;</span><span class="p">];</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">      </span><span class="c1">// Check accept header</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">accept</span><span class="o">?</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;vnd.sahool.v&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">accept</span><span class="o">?</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s2">&quot;vnd.sahool.v&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">accept</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/vnd\.sahool\.v(\d+)/</span><span class="p">)[</span><span class="mf">1</span><span class="p">];</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">      </span><span class="c1">// Default to v2</span>
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">;</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">}</span>
@@ -1351,19 +1357,19 @@
 
 <h4 id="2-version-specific-controllers">2. Version-Specific Controllers<a class="headerlink" href="#2-version-specific-controllers" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">// V1 Controller (Deprecated)</span>
-<span class="kd">@ApiTags</span><span class="p">(</span><span class="s1">&#39;Users (v1 - Deprecated)&#39;</span><span class="p">)</span>
-<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;users&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="kd">@ApiTags</span><span class="p">(</span><span class="s2">&quot;Users (v1 - Deprecated)&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="w"> </span><span class="p">})</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">UsersV1Controller</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
-<span class="w">  </span><span class="kd">@ApiDeprecated</span><span class="p">(</span><span class="s1">&#39;Use v2 endpoint instead&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@ApiDeprecated</span><span class="p">(</span><span class="s2">&quot;Use v2 endpoint instead&quot;</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">findAll</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// v1 implementation</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1">// V2 Controller (Current)</span>
-<span class="kd">@ApiTags</span><span class="p">(</span><span class="s1">&#39;Users (v2)&#39;</span><span class="p">)</span>
-<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;users&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="kd">@ApiTags</span><span class="p">(</span><span class="s2">&quot;Users (v2)&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="w"> </span><span class="p">})</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">UsersV2Controller</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">findAll</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -1396,11 +1402,11 @@
 <span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;X-API-Deprecation-Date:</span><span class="nv"> </span><span class="s">2025-06-30&quot;</span>
 <span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;X-API-Sunset-Date:</span><span class="nv"> </span><span class="s">2026-06-30&quot;</span>
 <span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;X-API-Deprecation-Info:</span><span class="nv"> </span><span class="s">https://docs.sahool.app/api/deprecation/v1&quot;</span>
-<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Link:</span><span class="nv"> </span><span class="s">&lt;/api/v2/users&gt;;</span><span class="nv"> </span><span class="s">rel=\&quot;successor-version\&quot;&quot;</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;Link:</span><span class="nv"> </span><span class="s">&lt;/api/v2/users&gt;;</span><span class="nv"> </span><span class="s">rel=&quot;successor-version&quot;&#39;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
 <span class="w">        </span><span class="nt">config</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w">  </span><span class="c1"># Reduced from 100 for deprecated endpoints</span>
-<span class="w">          </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">  </span><span class="c1"># Reduced from 5000</span>
+<span class="w">          </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"> </span><span class="c1"># Reduced from 100 for deprecated endpoints</span>
+<span class="w">          </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w"> </span><span class="c1"># Reduced from 5000</span>
 
 <span class="w">  </span><span class="c1"># V2 Service (Current)</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-service-v2</span>
@@ -1434,11 +1440,11 @@
 
 <h4 id="step-2-update-response-handling">Step 2: Update Response Handling<a class="headerlink" href="#step-2-update-response-handling" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">// v1</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/api/v1/users&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s2">&quot;/api/v1/users&quot;</span><span class="p">);</span>
 <span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">success</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
 
 <span class="c1">// v2</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/api/v2/users&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s2">&quot;/api/v2/users&quot;</span><span class="p">);</span>
 <span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">success</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="p">,</span><span class="w"> </span><span class="nx">meta</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
 </code></pre></div>
 
@@ -1452,7 +1458,9 @@
 <span class="c1">// v2</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">response</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">error</span><span class="p">,</span><span class="w"> </span><span class="nx">meta</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
-<span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="si">}</span><span class="sb"> (RequestId: </span><span class="si">${</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requestId</span><span class="si">}</span><span class="sb">)`</span><span class="p">);</span>
+<span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span>
+<span class="w">    </span><span class="sb">`</span><span class="si">${</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="si">}</span><span class="sb"> (RequestId: </span><span class="si">${</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requestId</span><span class="si">}</span><span class="sb">)`</span><span class="p">,</span>
+<span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1503,29 +1511,27 @@
 </ul>
 <h2 id="testing-strategy">Testing Strategy<a class="headerlink" href="#testing-strategy" title="Permanent link">&para;</a></h2>
 <h3 id="unit-tests">Unit Tests<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;UserController v2&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should return v2 response format&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">request</span><span class="p">(</span><span class="nx">app</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api/v2/users&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mf">200</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;UserController v2&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should return v2 response format&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">request</span><span class="p">(</span><span class="nx">app</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;/api/v2/users&quot;</span><span class="p">).</span><span class="nx">expect</span><span class="p">(</span><span class="mf">200</span><span class="p">);</span>
 
-<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s1">&#39;meta&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">meta</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s1">&#39;requestId&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s2">&quot;meta&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">meta</span><span class="p">).</span><span class="nx">toHaveProperty</span><span class="p">(</span><span class="s2">&quot;requestId&quot;</span><span class="p">);</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h3 id="integration-tests">Integration Tests<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;Version Negotiation&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should use URI version over header version&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;Version Negotiation&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should use URI version over header version&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">request</span><span class="p">(</span><span class="nx">app</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/users&#39;</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;X-API-Version&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;/api/v1/users&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;X-API-Version&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mf">200</span><span class="p">);</span>
 
-<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s1">&#39;x-api-version&#39;</span><span class="p">]).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s1">&#39;x-api-deprecated&#39;</span><span class="p">]).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">&#39;true&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s2">&quot;x-api-version&quot;</span><span class="p">]).</span><span class="nx">toBe</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s2">&quot;x-api-deprecated&quot;</span><span class="p">]).</span><span class="nx">toBe</span><span class="p">(</span><span class="s2">&quot;true&quot;</span><span class="p">);</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">});</span>
 </code></pre></div>

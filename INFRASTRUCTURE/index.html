@@ -1199,12 +1199,14 @@ sudo<span class="w"> </span>sh<span class="w"> </span>get-docker.sh
 </code></pre></div>
 
 <h3 id="cluster-access">Cluster Access<a class="headerlink" href="#cluster-access" title="Permanent link">&para;</a></h3>
-<p>You need access to a Kubernetes cluster. Supported providers:
-- Google Kubernetes Engine (GKE)
-- Amazon Elastic Kubernetes Service (EKS)
-- Azure Kubernetes Service (AKS)
-- DigitalOcean Kubernetes
-- Self-hosted Kubernetes</p>
+<p>You need access to a Kubernetes cluster. Supported providers:</p>
+<ul>
+<li>Google Kubernetes Engine (GKE)</li>
+<li>Amazon Elastic Kubernetes Service (EKS)</li>
+<li>Azure Kubernetes Service (AKS)</li>
+<li>DigitalOcean Kubernetes</li>
+<li>Self-hosted Kubernetes</li>
+</ul>
 <p>Verify cluster access:</p>
 <div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>cluster-info
 kubectl<span class="w"> </span>get<span class="w"> </span>nodes
@@ -1373,10 +1375,12 @@ chmod<span class="w"> </span>+x<span class="w"> </span>scripts/setup-infrastruct
 ./scripts/setup-infrastructure.sh
 </code></pre></div>
 
-<p>This script will:
-1. Create the Kubernetes namespace
-2. Create all required secrets
-3. Deploy infrastructure using Helm</p>
+<p>This script will:</p>
+<ol>
+<li>Create the Kubernetes namespace</li>
+<li>Create all required secrets</li>
+<li>Deploy infrastructure using Helm</li>
+</ol>
 <h3 id="5-verify-deployment">5. Verify Deployment<a class="headerlink" href="#5-verify-deployment" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check all resources</span>
 kubectl<span class="w"> </span>get<span class="w"> </span>all<span class="w"> </span>-n<span class="w"> </span><span class="nv">$NAMESPACE</span>
@@ -1735,10 +1739,12 @@ kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </sp
 <li><a href="../SECRETS_SETUP/">SAHOOL Secrets Setup Guide</a></li>
 </ul>
 <h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>For issues or questions:
-- Open an issue on GitHub
-- Contact the DevOps team
-- Check the troubleshooting section above</p>
+<p>For issues or questions:</p>
+<ul>
+<li>Open an issue on GitHub</li>
+<li>Contact the DevOps team</li>
+<li>Check the troubleshooting section above</li>
+</ul>
 
 
 

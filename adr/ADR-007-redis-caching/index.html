@@ -1271,22 +1271,30 @@
 
 <h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
 <h3 id="alternative-1-memcached">Alternative 1: Memcached<a class="headerlink" href="#alternative-1-memcached" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- No persistence options
-- Limited data structures
-- No pub/sub capability
-- Less feature-rich</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>No persistence options</li>
+<li>Limited data structures</li>
+<li>No pub/sub capability</li>
+<li>Less feature-rich</li>
+</ul>
 <h3 id="alternative-2-application-level-cache">Alternative 2: Application-Level Cache<a class="headerlink" href="#alternative-2-application-level-cache" title="Permanent link">&para;</a></h3>
-<p><strong>Rejected because:</strong>
-- Not distributed (each node has own cache)
-- Memory duplication across instances
-- Cache invalidation complexity</p>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Not distributed (each node has own cache)</li>
+<li>Memory duplication across instances</li>
+<li>Cache invalidation complexity</li>
+</ul>
 <h3 id="alternative-3-cdn-caching-for-satellite-imagery">Alternative 3: CDN Caching (for satellite imagery)<a class="headerlink" href="#alternative-3-cdn-caching-for-satellite-imagery" title="Permanent link">&para;</a></h3>
-<p><strong>Considered for:</strong>
-- Satellite tile caching only</p>
-<p><strong>Decision:</strong>
-- Will add CDN layer in Phase 3
-- Redis remains primary cache for computed data</p>
+<p><strong>Considered for:</strong></p>
+<ul>
+<li>Satellite tile caching only</li>
+</ul>
+<p><strong>Decision:</strong></p>
+<ul>
+<li>Will add CDN layer in Phase 3</li>
+<li>Redis remains primary cache for computed data</li>
+</ul>
 <h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Cache statistics endpoint</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/v1/cache/stats&quot;</span><span class="p">)</span>

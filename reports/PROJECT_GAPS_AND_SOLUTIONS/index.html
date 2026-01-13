@@ -1124,21 +1124,27 @@
 <hr />
 <h2 id="executive-summary">Executive Summary | الملخص التنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
 <p>تم فحص المشروع وتحديد <strong>27 فجوة رئيسية</strong> موزعة على 7 فئات. معظم المشاكل تتعلق بالبنية التحتية للاختبارات، تسميات الحزم، والوثائق.</p>
-<p><strong>Test Status:</strong>
-- ✅ 270 tests passing (94.4%)
-- ❌ 16 tests failing (5.6%)
-- 📦 286 tests total collected
-- 📊 Test coverage: 46% (target: 60%)</p>
+<p><strong>Test Status:</strong></p>
+<ul>
+<li>✅ 270 tests passing (94.4%)</li>
+<li>❌ 16 tests failing (5.6%)</li>
+<li>📦 286 tests total collected</li>
+<li>📊 Test coverage: 46% (target: 60%)</li>
+</ul>
 <hr />
 <h2 id="1-package-architecture-issues">1. Package Architecture Issues | مشاكل معمارية الحزم<a class="headerlink" href="#1-package-architecture-issues" title="Permanent link">&para;</a></h2>
 <h3 id="gap-11-invalid-package-naming">Gap 1.1: Invalid Package Naming<a class="headerlink" href="#gap-11-invalid-package-naming" title="Permanent link">&para;</a></h3>
-<p><strong>المشكلة:</strong> حزم Python تستخدم أسماء غير صالحة مع شرطات (-)
-- <code>packages/field-suite</code> ← لا يمكن استيراد <code>field_suite</code>
-- <code>packages/shared</code> موجودة في مستوى الحزم ومستوى الجذر</p>
-<p><strong>التأثير:</strong> High
-- 13 smoke tests فاشلة بسبب عدم القدرة على استيراد الحزم
-- Legacy compatibility tests فاشلة
-- الاستيرادات في الكود معقدة ومربكة</p>
+<p><strong>المشكلة:</strong> حزم Python تستخدم أسماء غير صالحة مع شرطات (-)</p>
+<ul>
+<li><code>packages/field-suite</code> ← لا يمكن استيراد <code>field_suite</code></li>
+<li><code>packages/shared</code> موجودة في مستوى الحزم ومستوى الجذر</li>
+</ul>
+<p><strong>التأثير:</strong> High</p>
+<ul>
+<li>13 smoke tests فاشلة بسبب عدم القدرة على استيراد الحزم</li>
+<li>Legacy compatibility tests فاشلة</li>
+<li>الاستيرادات في الكود معقدة ومربكة</li>
+</ul>
 <p><strong>الحلول المقترحة:</strong></p>
 <h4 id="solution-a-rename-packages-preferred">Solution A: Rename Packages (Preferred)<a class="headerlink" href="#solution-a-rename-packages-preferred" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Rename packages to use underscores</span>
@@ -1148,13 +1154,17 @@ mv<span class="w"> </span>packages/field-suite<span class="w"> </span>packages/f
 find<span class="w"> </span>.<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>-exec<span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s/field-suite/field_suite/g&#39;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span>+
 </code></pre></div>
 
-<p><strong>المزايا:</strong>
-- ✅ حل نهائي ومتوافق مع معايير Python
-- ✅ يسمح باستيراد مباشر وسهل
-- ✅ يعمل مع جميع أدوات Python</p>
-<p><strong>العيوب:</strong>
-- ⚠️ يتطلب تحديث جميع المراجع
-- ⚠️ قد يكسر الكود القديم</p>
+<p><strong>المزايا:</strong></p>
+<ul>
+<li>✅ حل نهائي ومتوافق مع معايير Python</li>
+<li>✅ يسمح باستيراد مباشر وسهل</li>
+<li>✅ يعمل مع جميع أدوات Python</li>
+</ul>
+<p><strong>العيوب:</strong></p>
+<ul>
+<li>⚠️ يتطلب تحديث جميع المراجع</li>
+<li>⚠️ قد يكسر الكود القديم</li>
+</ul>
 <h4 id="solution-b-create-compatibility-layer">Solution B: Create Compatibility Layer<a class="headerlink" href="#solution-b-create-compatibility-layer" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># packages/__init__.py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -1164,12 +1174,16 @@ find<span class="w"> </span>.<span class="w"> </span>-name<span class="w"> </spa
 <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;field_suite&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s1">&#39;field-suite&#39;</span><span class="p">)</span>
 </code></pre></div>
 
-<p><strong>المزايا:</strong>
-- ✅ لا يتطلب إعادة تسمية
-- ✅ حل سريع</p>
-<p><strong>العيوب:</strong>
-- ⚠️ Hacky solution
-- ⚠️ قد يسبب مشاكل مع الأدوات</p>
+<p><strong>المزايا:</strong></p>
+<ul>
+<li>✅ لا يتطلب إعادة تسمية</li>
+<li>✅ حل سريع</li>
+</ul>
+<p><strong>العيوب:</strong></p>
+<ul>
+<li>⚠️ Hacky solution</li>
+<li>⚠️ قد يسبب مشاكل مع الأدوات</li>
+</ul>
 <p><strong>الحل الموصى به:</strong> Solution A - إعادة التسمية</p>
 <hr />
 <h3 id="gap-12-missing-kernel_domain-package">Gap 1.2: Missing kernel_domain Package<a class="headerlink" href="#gap-12-missing-kernel_domain-package" title="Permanent link">&para;</a></h3>
@@ -1186,10 +1200,12 @@ mv<span class="w"> </span>shared/domain/*<span class="w"> </span>packages/kernel
 <hr />
 <h2 id="2-test-infrastructure-issues">2. Test Infrastructure Issues | مشاكل البنية التحتية للاختبارات<a class="headerlink" href="#2-test-infrastructure-issues" title="Permanent link">&para;</a></h2>
 <h3 id="gap-21-test-import-paths-inconsistency">Gap 2.1: Test Import Paths Inconsistency<a class="headerlink" href="#gap-21-test-import-paths-inconsistency" title="Permanent link">&para;</a></h3>
-<p><strong>المشكلة:</strong> Tests تستخدم استراتيجيات استيراد مختلفة
-- بعضها يستخدم <code>sys.path.insert(0, ".")</code>
-- بعضها يستخدم <code>sys.path.insert(0, "packages")</code>
-- بعضها يستخدم <code>sys.path.insert(0, "archive/kernel-legacy/...")</code></p>
+<p><strong>المشكلة:</strong> Tests تستخدم استراتيجيات استيراد مختلفة</p>
+<ul>
+<li>بعضها يستخدم <code>sys.path.insert(0, ".")</code></li>
+<li>بعضها يستخدم <code>sys.path.insert(0, "packages")</code></li>
+<li>بعضها يستخدم <code>sys.path.insert(0, "archive/kernel-legacy/...")</code></li>
+</ul>
 <p><strong>الحل:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Create conftest.py at repository root</span>
 <span class="c1"># tests/conftest.py</span>
@@ -1207,11 +1223,13 @@ mv<span class="w"> </span>shared/domain/*<span class="w"> </span>packages/kernel
 <hr />
 <h3 id="gap-22-test-coverage-below-target">Gap 2.2: Test Coverage Below Target<a class="headerlink" href="#gap-22-test-coverage-below-target" title="Permanent link">&para;</a></h3>
 <p><strong>المشكلة:</strong> Coverage: 46% (Target: 60%)</p>
-<p><strong>Missing Coverage Areas:</strong>
-1. <code>shared/libs/</code> - 0% coverage
-2. <code>shared/security/guard.py</code> - 18% coverage
-3. <code>shared/monitoring/metrics.py</code> - 18% coverage
-4. <code>shared/security/deps.py</code> - 30% coverage</p>
+<p><strong>Missing Coverage Areas:</strong></p>
+<ol>
+<li><code>shared/libs/</code> - 0% coverage</li>
+<li><code>shared/security/guard.py</code> - 18% coverage</li>
+<li><code>shared/monitoring/metrics.py</code> - 18% coverage</li>
+<li><code>shared/security/deps.py</code> - 30% coverage</li>
+</ol>
 <p><strong>الحل:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Priority test files to create:</span>
 tests/unit/libs/test_audit.py
@@ -1221,11 +1239,13 @@ tests/unit/security/test_guard.py
 tests/unit/monitoring/test_metrics.py
 </code></pre></div>
 
-<p><strong>Action Items:</strong>
-1. Add unit tests for <code>shared/libs/audit/</code> (currently 0%)
-2. Add integration tests for event system
-3. Add security middleware tests
-4. Target: Increase coverage to 60% minimum</p>
+<p><strong>Action Items:</strong></p>
+<ol>
+<li>Add unit tests for <code>shared/libs/audit/</code> (currently 0%)</li>
+<li>Add integration tests for event system</li>
+<li>Add security middleware tests</li>
+<li>Target: Increase coverage to 60% minimum</li>
+</ol>
 <hr />
 <h3 id="gap-23-failing-tests-due-to-logic-errors">Gap 2.3: Failing Tests Due to Logic Errors<a class="headerlink" href="#gap-23-failing-tests-due-to-logic-errors" title="Permanent link">&para;</a></h3>
 <h4 id="test-test_invalid_uuid_format_fails">Test: test_invalid_uuid_format_fails<a class="headerlink" href="#test-test_invalid_uuid_format_fails" title="Permanent link">&para;</a></h4>
@@ -1255,15 +1275,19 @@ tests/unit/monitoring/test_metrics.py
 <hr />
 <h2 id="3-code-organization-issues">3. Code Organization Issues | مشاكل تنظيم الكود<a class="headerlink" href="#3-code-organization-issues" title="Permanent link">&para;</a></h2>
 <h3 id="gap-31-archive-vs-active-code-confusion">Gap 3.1: Archive vs Active Code Confusion<a class="headerlink" href="#gap-31-archive-vs-active-code-confusion" title="Permanent link">&para;</a></h3>
-<p><strong>المشكلة:</strong> 
-- Code in <code>archive/</code> still referenced by tests
-- 1.8MB of archived code
-- Unclear what's active vs deprecated</p>
-<p><strong>الحل:</strong>
-1. Document what's in archive clearly
-2. Move active code out of archive
-3. Update tests to use current code
-4. Consider removing truly unused archive</p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li>Code in <code>archive/</code> still referenced by tests</li>
+<li>1.8MB of archived code</li>
+<li>Unclear what's active vs deprecated</li>
+</ul>
+<p><strong>الحل:</strong></p>
+<ol>
+<li>Document what's in archive clearly</li>
+<li>Move active code out of archive</li>
+<li>Update tests to use current code</li>
+<li>Consider removing truly unused archive</li>
+</ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Create ARCHIVE_INVENTORY.md</span>
 <span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;# Archive Inventory&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>ARCHIVE_INVENTORY.md
 find<span class="w"> </span>archive/<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>-exec<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;- {}&quot;</span><span class="w"> </span><span class="se">\;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>ARCHIVE_INVENTORY.md
@@ -1271,9 +1295,11 @@ find<span class="w"> </span>archive/<span class="w"> </span>-name<span class="w"
 
 <hr />
 <h3 id="gap-32-duplicate-shared-packages">Gap 3.2: Duplicate Shared Packages<a class="headerlink" href="#gap-32-duplicate-shared-packages" title="Permanent link">&para;</a></h3>
-<p><strong>المشكلة:</strong> 
-- <code>shared/</code> at root (744KB, 57 files)
-- <code>packages/shared</code> (separate package)</p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li><code>shared/</code> at root (744KB, 57 files)</li>
+<li><code>packages/shared</code> (separate package)</li>
+</ul>
 <p><strong>الحل:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Consolidate to one location</span>
 <span class="c1"># Option 1: Move all to packages/shared</span>
@@ -1307,14 +1333,17 @@ rm<span class="w"> </span>-rf<span class="w"> </span>packages/shared
 <div class="codehilite"><pre><span></span><code><span class="gh"># Testing Guide</span>
 
 <span class="gu">## Quick Start</span>
+
 pytest tests/
 
 <span class="gu">## Run Specific Categories</span>
+
 pytest tests/unit/
 pytest tests/integration/
 pytest tests/smoke/
 
 <span class="gu">## Coverage</span>
+
 pytest tests/ --cov=shared --cov-report=html
 </code></pre></div>
 
@@ -1333,10 +1362,12 @@ pytest tests/ --cov=shared --cov-report=html
 <hr />
 <h2 id="5-dependency-management-issues">5. Dependency Management Issues | مشاكل إدارة التبعيات<a class="headerlink" href="#5-dependency-management-issues" title="Permanent link">&para;</a></h2>
 <h3 id="gap-51-inconsistent-dependency-versions">Gap 5.1: Inconsistent Dependency Versions<a class="headerlink" href="#gap-51-inconsistent-dependency-versions" title="Permanent link">&para;</a></h3>
-<p><strong>المشكلة:</strong> 
-- 222 lines across service requirements.txt files
-- Potential version conflicts
-- No centralized dependency management</p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li>222 lines across service requirements.txt files</li>
+<li>Potential version conflicts</li>
+<li>No centralized dependency management</li>
+</ul>
 <p><strong>الحل:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Create central requirements with version pinning</span>
 <span class="c1"># requirements/base.txt - Core dependencies</span>
@@ -1492,23 +1523,29 @@ service-specific-dep<span class="o">==</span><span class="m">1</span>.0.0
 </table>
 <hr />
 <h2 id="success-metrics">Success Metrics | معايير النجاح<a class="headerlink" href="#success-metrics" title="Permanent link">&para;</a></h2>
-<p>✅ <strong>Phase 1 Complete When:</strong>
-- [ ] All 286 tests passing
-- [ ] Test coverage ≥ 60%
-- [ ] Zero import errors
-- [ ] Package naming convention fixed</p>
-<p>✅ <strong>Phase 2 Complete When:</strong>
-- [ ] Documentation coverage ≥ 80%
-- [ ] Dependency vulnerabilities = 0
-- [ ] CI/CD blocks on test failures
-- [ ] API docs for all services</p>
+<p>✅ <strong>Phase 1 Complete When:</strong></p>
+<ul>
+<li>[ ] All 286 tests passing</li>
+<li>[ ] Test coverage ≥ 60%</li>
+<li>[ ] Zero import errors</li>
+<li>[ ] Package naming convention fixed</li>
+</ul>
+<p>✅ <strong>Phase 2 Complete When:</strong></p>
+<ul>
+<li>[ ] Documentation coverage ≥ 80%</li>
+<li>[ ] Dependency vulnerabilities = 0</li>
+<li>[ ] CI/CD blocks on test failures</li>
+<li>[ ] API docs for all services</li>
+</ul>
 <hr />
 <h2 id="conclusion">Conclusion | الخلاصة<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
-<p>المشروع في حالة جيدة عموماً مع <strong>94.4% من الاختبارات ناجحة</strong>. المشاكل الرئيسية هي:
-1. تسمية الحزم غير متوافقة مع معايير Python
-2. بنية الاختبارات تحتاج توحيد
-3. التغطية الاختبارية تحتاج تحسين من 46% إلى 60%
-4. الوثائق ناقصة</p>
+<p>المشروع في حالة جيدة عموماً مع <strong>94.4% من الاختبارات ناجحة</strong>. المشاكل الرئيسية هي:</p>
+<ol>
+<li>تسمية الحزم غير متوافقة مع معايير Python</li>
+<li>بنية الاختبارات تحتاج توحيد</li>
+<li>التغطية الاختبارية تحتاج تحسين من 46% إلى 60%</li>
+<li>الوثائق ناقصة</li>
+</ol>
 <p><strong>التوصية:</strong> البدء بـ Critical items في الأسبوع الحالي، ثم High priority items في السبرينت القادم.</p>
 <hr />
 <p><strong>Prepared by:</strong> GitHub Copilot<br />

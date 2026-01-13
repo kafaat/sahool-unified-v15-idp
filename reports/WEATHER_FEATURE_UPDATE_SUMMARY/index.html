@@ -1221,7 +1221,7 @@
 </ul>
 <h2 id="technical-implementation">🛠️ Technical Implementation | التنفيذ التقني<a class="headerlink" href="#technical-implementation" title="Permanent link">&para;</a></h2>
 <h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;http://localhost:8000&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">;</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">WEATHER_API_BASE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">API_BASE_URL</span><span class="si">}</span><span class="sb">/api/v1/weather`</span><span class="p">;</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">DEFAULT_COORDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lat</span><span class="o">:</span><span class="w"> </span><span class="kt">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nx">lon</span><span class="o">:</span><span class="w"> </span><span class="kt">44.191</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="c1">// Sana&#39;a, Yemen</span>
 </code></pre></div>
@@ -1273,8 +1273,8 @@
 <h2 id="data-transformation">📊 Data Transformation | تحويل البيانات<a class="headerlink" href="#data-transformation" title="Permanent link">&para;</a></h2>
 <p>The implementation handles multiple API response formats:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Supports nested and flat structures</span>
-<span class="nx">temperature</span><span class="o">:</span><span class="w"> </span><span class="kt">data.current?.temperature_c</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">temperature_c</span>
-<span class="nx">forecast</span><span class="o">:</span><span class="w"> </span><span class="kt">data.forecast</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">daily_forecast</span>
+<span class="nx">temperature</span><span class="o">:</span><span class="w"> </span><span class="kt">data.current?.temperature_c</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">temperature_c</span><span class="p">;</span>
+<span class="nx">forecast</span><span class="o">:</span><span class="w"> </span><span class="kt">data.forecast</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">daily_forecast</span><span class="p">;</span>
 </code></pre></div>
 
 <h3 id="wind-direction-conversion">Wind Direction Conversion<a class="headerlink" href="#wind-direction-conversion" title="Permanent link">&para;</a></h3>
@@ -1358,22 +1358,28 @@ curl<span class="w"> </span>http://localhost:8001/services/weather-service
 
 <h2 id="troubleshooting">🐛 Troubleshooting | استكشاف الأخطاء<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="issue-no-data-showing">Issue: No data showing<a class="headerlink" href="#issue-no-data-showing" title="Permanent link">&para;</a></h3>
-<p><strong>Solutions:</strong>
-- Check Kong gateway: <code>docker ps | grep kong</code>
-- Verify weather-core: <code>curl http://localhost:8108/healthz</code>
-- Check browser console for errors
-- Verify <code>NEXT_PUBLIC_API_URL</code> is set</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Check Kong gateway: <code>docker ps | grep kong</code></li>
+<li>Verify weather-core: <code>curl http://localhost:8108/healthz</code></li>
+<li>Check browser console for errors</li>
+<li>Verify <code>NEXT_PUBLIC_API_URL</code> is set</li>
+</ul>
 <h3 id="issue-always-using-mock-data">Issue: Always using mock data<a class="headerlink" href="#issue-always-using-mock-data" title="Permanent link">&para;</a></h3>
-<p><strong>Solutions:</strong>
-- Check API endpoint accessibility
-- Verify Kong routing configuration
-- Check network tab for failed requests
-- Ensure weather-core is running</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Check API endpoint accessibility</li>
+<li>Verify Kong routing configuration</li>
+<li>Check network tab for failed requests</li>
+<li>Ensure weather-core is running</li>
+</ul>
 <h3 id="issue-typescript-errors">Issue: TypeScript errors<a class="headerlink" href="#issue-typescript-errors" title="Permanent link">&para;</a></h3>
-<p><strong>Solutions:</strong>
-- Run <code>npm install</code> to update dependencies
-- Check type imports in components
-- Verify types.ts is properly exported</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Run <code>npm install</code> to update dependencies</li>
+<li>Check type imports in components</li>
+<li>Verify types.ts is properly exported</li>
+</ul>
 <h2 id="checklist-for-deployment">📋 Checklist for Deployment | قائمة التحقق للنشر<a class="headerlink" href="#checklist-for-deployment" title="Permanent link">&para;</a></h2>
 <ul>
 <li>[ ] Environment variables set correctly</li>
@@ -1441,11 +1447,13 @@ curl<span class="w"> </span>http://localhost:8001/services/weather-service
 <li>Improved data accuracy</li>
 </ul>
 <h2 id="support">📞 Support | الدعم<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>For questions or issues:
-- Review <code>/apps/web/src/features/weather/README.md</code>
-- Check weather-core service logs
-- Verify Kong gateway configuration
-- Test API endpoints directly</p>
+<p>For questions or issues:</p>
+<ul>
+<li>Review <code>/apps/web/src/features/weather/README.md</code></li>
+<li>Check weather-core service logs</li>
+<li>Verify Kong gateway configuration</li>
+<li>Test API endpoints directly</li>
+</ul>
 <hr />
 <h2 id="summary">Summary | الملخص<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
 <p>This update successfully transforms the weather feature from a mock-data-only implementation to a fully integrated real-time weather service with intelligent fallback. All requirements have been met, documentation is complete, and the code is production-ready.</p>

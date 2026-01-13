@@ -1207,8 +1207,8 @@
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.events.fields.&gt;&quot;</span>
 <span class="w">      </span><span class="nt">retention</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">limits</span>
 <span class="w">      </span><span class="nt">max_msgs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000000</span>
-<span class="w">      </span><span class="nt">max_bytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10737418240</span><span class="w">  </span><span class="c1"># 10GB</span>
-<span class="w">      </span><span class="nt">max_age</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">604800000000000</span><span class="w">  </span><span class="c1"># 7 days in nanoseconds</span>
+<span class="w">      </span><span class="nt">max_bytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10737418240</span><span class="w"> </span><span class="c1"># 10GB</span>
+<span class="w">      </span><span class="nt">max_age</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">604800000000000</span><span class="w"> </span><span class="c1"># 7 days in nanoseconds</span>
 <span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
 <span class="w">      </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">      </span><span class="nt">discard</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">old</span>
@@ -1218,7 +1218,7 @@
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.events.sync.&gt;&quot;</span>
 <span class="w">      </span><span class="nt">retention</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">workqueue</span>
 <span class="w">      </span><span class="nt">max_msgs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000000</span>
-<span class="w">      </span><span class="nt">max_bytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1073741824</span><span class="w">  </span><span class="c1"># 1GB</span>
+<span class="w">      </span><span class="nt">max_bytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1073741824</span><span class="w"> </span><span class="c1"># 1GB</span>
 <span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
 <span class="w">      </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 </code></pre></div>
@@ -1247,34 +1247,46 @@
 </ul>
 <h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
 <h3 id="alternative-1-apache-kafka">Alternative 1: Apache Kafka<a class="headerlink" href="#alternative-1-apache-kafka" title="Permanent link">&para;</a></h3>
-<p><strong>Considered because:</strong>
-- Industry standard for event streaming
-- Excellent persistence and replay
-- Rich ecosystem</p>
-<p><strong>Rejected because:</strong>
-- Operational complexity (ZooKeeper/KRaft)
-- Resource heavy (3+ GB RAM per broker)
-- Overkill for our current scale
-- Team unfamiliar with Kafka operations</p>
+<p><strong>Considered because:</strong></p>
+<ul>
+<li>Industry standard for event streaming</li>
+<li>Excellent persistence and replay</li>
+<li>Rich ecosystem</li>
+</ul>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Operational complexity (ZooKeeper/KRaft)</li>
+<li>Resource heavy (3+ GB RAM per broker)</li>
+<li>Overkill for our current scale</li>
+<li>Team unfamiliar with Kafka operations</li>
+</ul>
 <h3 id="alternative-2-rabbitmq">Alternative 2: RabbitMQ<a class="headerlink" href="#alternative-2-rabbitmq" title="Permanent link">&para;</a></h3>
-<p><strong>Considered because:</strong>
-- Mature and well-documented
-- AMQP protocol support
-- Good management UI</p>
-<p><strong>Rejected because:</strong>
-- Higher latency than NATS
-- Complex routing configuration
-- More resource intensive
-- Less suitable for high-throughput scenarios</p>
+<p><strong>Considered because:</strong></p>
+<ul>
+<li>Mature and well-documented</li>
+<li>AMQP protocol support</li>
+<li>Good management UI</li>
+</ul>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>Higher latency than NATS</li>
+<li>Complex routing configuration</li>
+<li>More resource intensive</li>
+<li>Less suitable for high-throughput scenarios</li>
+</ul>
 <h3 id="alternative-3-redis-pubsub-streams">Alternative 3: Redis Pub/Sub + Streams<a class="headerlink" href="#alternative-3-redis-pubsub-streams" title="Permanent link">&para;</a></h3>
-<p><strong>Considered because:</strong>
-- Already using Redis for caching
-- Simpler architecture</p>
-<p><strong>Rejected because:</strong>
-- No native clustering for pub/sub
-- Less mature persistence
-- Memory-bound
-- Not designed primarily for messaging</p>
+<p><strong>Considered because:</strong></p>
+<ul>
+<li>Already using Redis for caching</li>
+<li>Simpler architecture</li>
+</ul>
+<p><strong>Rejected because:</strong></p>
+<ul>
+<li>No native clustering for pub/sub</li>
+<li>Less mature persistence</li>
+<li>Memory-bound</li>
+<li>Not designed primarily for messaging</li>
+</ul>
 <h2 id="event-patterns">Event Patterns<a class="headerlink" href="#event-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="outbox-pattern-integration">Outbox Pattern Integration<a class="headerlink" href="#outbox-pattern-integration" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Outbox processor publishes to NATS</span>

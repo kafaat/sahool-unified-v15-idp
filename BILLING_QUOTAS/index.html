@@ -1126,9 +1126,11 @@
 <li>Rollouts-safe and GitOps-managed</li>
 </ul>
 <h2 id="recommended-enforcement-layers">Recommended enforcement layers<a class="headerlink" href="#recommended-enforcement-layers" title="Permanent link">&para;</a></h2>
-<p>1) <strong>Gateway</strong>: deny if over quota (HTTP 429)
-2) <strong>Async jobs</strong>: scheduler checks quota before enqueuing NDVI jobs
-3) <strong>Eventing</strong>: services emit usage signals; billing-core aggregates</p>
+<ol>
+<li><strong>Gateway</strong>: deny if over quota (HTTP 429)</li>
+<li><strong>Async jobs</strong>: scheduler checks quota before enqueuing NDVI jobs</li>
+<li><strong>Eventing</strong>: services emit usage signals; billing-core aggregates</li>
+</ol>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Replace in-memory stores with Postgres tables</li>

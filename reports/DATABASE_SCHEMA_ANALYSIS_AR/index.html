@@ -1231,10 +1231,12 @@
 <li><strong>الموقع 2:</strong> Field Core Prisma (<code>/apps/services/field-core/prisma/schema.prisma</code>)</li>
 <li><strong>الموقع 3:</strong> Field Suite SQLAlchemy (<code>/packages/field_suite/spatial/orm_models.py</code>)</li>
 </ul>
-<p><strong>المشكلة:</strong>
-- نفس اسم الجدول <code>fields</code> معرف في 3 أماكن مختلفة
-- احتمال تضارب في البنية (Schema Collision)
-- مخططات مختلفة للأعمدة قد تؤدي إلى فشل في التهيئة</p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li>نفس اسم الجدول <code>fields</code> معرف في 3 أماكن مختلفة</li>
+<li>احتمال تضارب في البنية (Schema Collision)</li>
+<li>مخططات مختلفة للأعمدة قد تؤدي إلى فشل في التهيئة</li>
+</ul>
 <p><strong>التأثير:</strong> 🔥 <strong>حرج - يمنع بدء الخدمات</strong></p>
 <hr />
 <h4 id="tasks">🔴 <strong>تعارض: جدول <code>tasks</code></strong><a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h4>
@@ -1242,9 +1244,11 @@
 <li><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code></li>
 <li><strong>الموقع 2:</strong> Field Core Prisma</li>
 </ul>
-<p><strong>المشكلة:</strong>
-- تعريف مزدوج لجدول المهام
-- احتمال اختلاف في الأعمدة والقيود</p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li>تعريف مزدوج لجدول المهام</li>
+<li>احتمال اختلاف في الأعمدة والقيود</li>
+</ul>
 <p><strong>التأثير:</strong> 🔥 <strong>حرج</strong></p>
 <hr />
 <h4 id="ndvi_readings">🟡 <strong>تعارض: جدول <code>ndvi_readings</code></strong><a class="headerlink" href="#ndvi_readings" title="Permanent link">&para;</a></h4>
@@ -1274,10 +1278,12 @@
 <li><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code></li>
 <li><strong>الموقع 2:</strong> Audit SQLAlchemy (<code>/shared/libs/audit/models.py</code>)</li>
 </ul>
-<p><strong>المشكلة:</strong>
-- بنية مختلفة للأعمدة
-- الجدول في SQL الخام لا يحتوي على hash chain
-- الجدول في SQLAlchemy يحتوي على <code>prev_hash</code> و <code>entry_hash</code> للحماية من التلاعب</p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li>بنية مختلفة للأعمدة</li>
+<li>الجدول في SQL الخام لا يحتوي على hash chain</li>
+<li>الجدول في SQLAlchemy يحتوي على <code>prev_hash</code> و <code>entry_hash</code> للحماية من التلاعب</li>
+</ul>
 <p><strong>التأثير:</strong> 🟡 <strong>متوسط - قد يؤدي إلى فقدان ميزة الأمان</strong></p>
 <hr />
 <h4 id="farms">🟢 <strong>تعارض محتمل: جدول <code>farms</code></strong><a class="headerlink" href="#farms" title="Permanent link">&para;</a></h4>
@@ -1289,16 +1295,18 @@
 <p><strong>التأثير:</strong> 🟢 <strong>منخفض - إذا كانت الـschemas منفصلة</strong></p>
 <hr />
 <h4 id="_6">🟡 <strong>تكرار كامل للجداول البحثية</strong><a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
-<p>الجداول التالية <strong>معرفة مرتين</strong> تماماً:
-- <code>experiments</code>
-- <code>research_protocols</code>
-- <code>research_plots</code>
-- <code>treatments</code>
-- <code>research_daily_logs</code>
-- <code>lab_samples</code>
-- <code>digital_signatures</code>
-- <code>experiment_collaborators</code>
-- <code>experiment_audit_log</code></p>
+<p>الجداول التالية <strong>معرفة مرتين</strong> تماماً:</p>
+<ul>
+<li><code>experiments</code></li>
+<li><code>research_protocols</code></li>
+<li><code>research_plots</code></li>
+<li><code>treatments</code></li>
+<li><code>research_daily_logs</code></li>
+<li><code>lab_samples</code></li>
+<li><code>digital_signatures</code></li>
+<li><code>experiment_collaborators</code></li>
+<li><code>experiment_audit_log</code></li>
+</ul>
 <p><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code>
 <strong>الموقع 2:</strong> Research Core Prisma</p>
 <p><strong>التأثير:</strong> 🟡 <strong>متوسط - تكرار غير ضروري</strong></p>
@@ -1365,9 +1373,11 @@
 ✅ جميع الجداول تحتوي على <code>tenant_id</code> للتمييز بين المستأجرين
 ✅ يسمح بالعزل المنطقي (Logical Isolation)</p>
 <p><strong>السلبيات:</strong>
-⚠️ <strong>عدم اتساق في نوع البيانات:</strong>
-- بعض الجداول: <code>tenant_id UUID</code>
-- بعض الجداول: <code>tenant_id VARCHAR(100)</code></p>
+⚠️ <strong>عدم اتساق في نوع البيانات:</strong></p>
+<ul>
+<li>بعض الجداول: <code>tenant_id UUID</code></li>
+<li>بعض الجداول: <code>tenant_id VARCHAR(100)</code></li>
+</ul>
 <p><strong>التأثير:</strong> 🟡 قد يسبب مشاكل في الـJOINs ومقارنة البيانات</p>
 <hr />
 <h2 id="4-missing-indexes">4. الفهارس المفقودة (Missing Indexes)<a class="headerlink" href="#4-missing-indexes" title="Permanent link">&para;</a></h2>
@@ -1492,9 +1502,11 @@
 </tr>
 </tbody>
 </table>
-<p><strong>الفرق:</strong>
-- <code>GEOMETRY</code>: يعامل الإحداثيات كـCartesian (x, y)
-- <code>GEOGRAPHY</code>: يعامل الإحداثيات كـSpherical (lat, lon) - أدق للحسابات الجغرافية</p>
+<p><strong>الفرق:</strong></p>
+<ul>
+<li><code>GEOMETRY</code>: يعامل الإحداثيات كـCartesian (x, y)</li>
+<li><code>GEOGRAPHY</code>: يعامل الإحداثيات كـSpherical (lat, lon) - أدق للحسابات الجغرافية</li>
+</ul>
 <p><strong>التأثير:</strong> 🟡 <strong>متوسط - قد يسبب اختلاف في حسابات المساحة والمسافة</strong></p>
 <hr />
 <h4 id="ndvi-value-precision"><strong>مشكلة: NDVI value precision</strong><a class="headerlink" href="#ndvi-value-precision" title="Permanent link">&para;</a></h4>
@@ -1597,11 +1609,13 @@
 <hr />
 <h2 id="6-schema-versioning">6. مشاكل إصدار المخططات (Schema Versioning)<a class="headerlink" href="#6-schema-versioning" title="Permanent link">&para;</a></h2>
 <h3 id="61">🔴 6.1 عدم وجود آلية موحدة لإدارة الهجرات<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
-<p><strong>المشكلة:</strong>
-- <strong>Prisma</strong> يستخدم مجلد <code>migrations/</code> الخاص به
-- <strong>Alembic</strong> (SQLAlchemy) يستخدم <code>versions/</code> مع تسمية <code>s{sprint}_{number}</code>
-- <strong>SQL الخام</strong> في <code>infra/postgres/</code> بدون أي tracking تلقائي
-- <strong>Tortoise ORM</strong> لا يوجد دليل على استخدام migrations</p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li><strong>Prisma</strong> يستخدم مجلد <code>migrations/</code> الخاص به</li>
+<li><strong>Alembic</strong> (SQLAlchemy) يستخدم <code>versions/</code> مع تسمية <code>s{sprint}_{number}</code></li>
+<li><strong>SQL الخام</strong> في <code>infra/postgres/</code> بدون أي tracking تلقائي</li>
+<li><strong>Tortoise ORM</strong> لا يوجد دليل على استخدام migrations</li>
+</ul>
 <p><strong>التأثير:</strong> 🔥 <strong>حرج - احتمال تطبيق هجرات متضاربة</strong></p>
 <hr />
 <h3 id="62-_migrations">🟡 6.2 جدول <code>_migrations</code> يدوي<a class="headerlink" href="#62-_migrations" title="Permanent link">&para;</a></h3>
@@ -1613,17 +1627,21 @@
 <span class="p">);</span>
 </code></pre></div>
 
-<p><strong>المشكلة:</strong>
-- لا يتتبع <strong>checksum</strong> للهجرات
-- لا يتتبع <strong>rollback</strong>
-- لا يدعم <strong>branching</strong></p>
+<p><strong>المشكلة:</strong></p>
+<ul>
+<li>لا يتتبع <strong>checksum</strong> للهجرات</li>
+<li>لا يتتبع <strong>rollback</strong></li>
+<li>لا يدعم <strong>branching</strong></li>
+</ul>
 <p><strong>التوصية:</strong> استخدام أداة موحدة مثل Flyway أو Liquibase</p>
 <hr />
 <h3 id="63">🟡 6.3 عدم وجود أرقام إصدارات منسقة<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
-<p><strong>الملاحظات:</strong>
-- Alembic: <code>s7_0001</code>, <code>s8_0001</code> (sprint-based)
-- Prisma: timestamps
-- SQL: <code>001_</code>, <code>002_</code> (sequential)</p>
+<p><strong>الملاحظات:</strong></p>
+<ul>
+<li>Alembic: <code>s7_0001</code>, <code>s8_0001</code> (sprint-based)</li>
+<li>Prisma: timestamps</li>
+<li>SQL: <code>001_</code>, <code>002_</code> (sequential)</li>
+</ul>
 <p><strong>التأثير:</strong> 🟡 صعوبة في تتبع ترتيب التطبيق عبر الأنظمة المختلفة</p>
 <hr />
 <h2 id="7-migration-order-dependencies">7. تبعيات ترتيب الهجرات (Migration Order Dependencies)<a class="headerlink" href="#7-migration-order-dependencies" title="Permanent link">&para;</a></h2>
@@ -1731,9 +1749,11 @@
 <span class="p">);</span>
 </code></pre></div>
 
-<p><strong>الاستخدام:</strong>
-- خدمة Research تشير إلى <code>shared.field_refs</code> بدلاً من <code>field_service.fields</code>
-- يتم تحديث هذه الجداول عبر <strong>CDC (Change Data Capture)</strong> أو <strong>Event Sourcing</strong></p>
+<p><strong>الاستخدام:</strong></p>
+<ul>
+<li>خدمة Research تشير إلى <code>shared.field_refs</code> بدلاً من <code>field_service.fields</code></li>
+<li>يتم تحديث هذه الجداول عبر <strong>CDC (Change Data Capture)</strong> أو <strong>Event Sourcing</strong></li>
+</ul>
 <hr />
 <h4 id="3-uuid-tenant_id"><strong>3. استخدام UUID موحد لـtenant_id</strong><a class="headerlink" href="#3-uuid-tenant_id" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- تحويل جميع tenant_id إلى UUID</span>
@@ -1805,14 +1825,14 @@ sahool-core-db (PostgreSQL)
 <h4 id="2-event-driven-architecture"><strong>2. استخدام Event-Driven Architecture للمراجع</strong><a class="headerlink" href="#2-event-driven-architecture" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">// مثال: عند تحديث field</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">publishEvent</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;field.updated&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;field.updated&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">tenant_id</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">tenant_id</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">status</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">updated_at</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">updated_at</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">updated_at</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">updated_at</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// خدمة Research تستمع وتحدث shared.field_refs</span>

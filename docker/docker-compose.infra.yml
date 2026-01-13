@@ -140,6 +140,8 @@ services:
     container_name: sahool-mqtt
     volumes:
       - ../infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ../infrastructure/core/mqtt/passwd:/mosquitto/config/passwd:ro
+      - ../infrastructure/core/mqtt/acl:/mosquitto/config/acl:ro
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
     ports:

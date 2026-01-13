@@ -327,12 +327,17 @@ jobs:
         run: |
           echo "🚀 Starting container for ${{ matrix.service.name }}..."
 
-          # Start container in detached mode
+          # Start container in detached mode with required environment variables
           CONTAINER_ID=$(docker run -d \
             --name test-${{ matrix.service.name }} \
             -p ${{ matrix.service.port }}:8000 \
             -e ENVIRONMENT=test \
             -e LOG_LEVEL=INFO \
+            -e JWT_SECRET_KEY=ci_test_jwt_secret_key_minimum_32_characters \
+            -e JWT_ALGORITHM=HS256 \
+            -e DATABASE_URL="" \
+            -e NATS_URL="" \
+            -e REDIS_URL="" \
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }})
 
           echo "container_id=$CONTAINER_ID" >> $GITHUB_OUTPUT

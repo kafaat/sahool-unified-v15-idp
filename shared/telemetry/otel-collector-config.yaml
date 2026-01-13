@@ -229,12 +229,6 @@ exporters:
     sampling_initial: 5
     sampling_thereafter: 200
 
-  # Prometheus remote write - كتابة Prometheus عن بعد
-  prometheusremotewrite:
-    endpoint: http://prometheus:9090/api/v1/write
-    tls:
-      insecure: true
-
 # Extensions - الإضافات
 # Additional capabilities
 extensions:
@@ -289,7 +283,6 @@ service:
         - batch
       exporters:
         - prometheus
-        - prometheusremotewrite
         - logging
 
     # Logs pipeline - خط معالجة السجلات

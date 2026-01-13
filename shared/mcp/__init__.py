@@ -19,27 +19,39 @@ Example:
     await server.start()
 """
 
-from .client import MCPClient
-from .resources import (
-    CropCatalogResource,
-    FieldDataResource,
-    ResourceProvider,
-    WeatherDataResource,
-)
-from .server import MCPServer
-from .skills_server import SAHOOLSkillsTools, extend_mcp_server_with_skills
-from .tools import SAHOOLTools
+# Skills server is always available (only requires httpx, pydantic)
+from .skills_server import SAHOOLSkillsTools, ToolResult, extend_mcp_server_with_skills
 
-__all__ = [
-    "MCPServer",
-    "MCPClient",
-    "SAHOOLTools",
-    "SAHOOLSkillsTools",
-    "ResourceProvider",
-    "FieldDataResource",
-    "WeatherDataResource",
-    "CropCatalogResource",
-    "extend_mcp_server_with_skills",
-]
+# Conditional imports for FastAPI-dependent modules
+try:
+    from .client import MCPClient
+    from .resources import (
+        CropCatalogResource,
+        FieldDataResource,
+        ResourceProvider,
+        WeatherDataResource,
+    )
+    from .server import MCPServer
+    from .tools import SAHOOLTools
+
+    __all__ = [
+        "MCPServer",
+        "MCPClient",
+        "SAHOOLTools",
+        "SAHOOLSkillsTools",
+        "ToolResult",
+        "ResourceProvider",
+        "FieldDataResource",
+        "WeatherDataResource",
+        "CropCatalogResource",
+        "extend_mcp_server_with_skills",
+    ]
+except ImportError:
+    # FastAPI not available - only skills_server is accessible
+    __all__ = [
+        "SAHOOLSkillsTools",
+        "ToolResult",
+        "extend_mcp_server_with_skills",
+    ]
 
 __version__ = "1.0.0"

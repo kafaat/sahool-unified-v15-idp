@@ -328,6 +328,7 @@ jobs:
           echo "🚀 Starting container for ${{ matrix.service.name }}..."
 
           # Start container in detached mode with required environment variables
+          # Use valid dummy URLs to prevent URL parsing errors (connection will fail gracefully)
           CONTAINER_ID=$(docker run -d \
             --name test-${{ matrix.service.name }} \
             -p ${{ matrix.service.port }}:8000 \
@@ -335,9 +336,9 @@ jobs:
             -e LOG_LEVEL=INFO \
             -e JWT_SECRET_KEY=ci_test_jwt_secret_key_minimum_32_characters \
             -e JWT_ALGORITHM=HS256 \
-            -e DATABASE_URL="" \
-            -e NATS_URL="" \
-            -e REDIS_URL="" \
+            -e DATABASE_URL=postgresql://localhost:5432/test \
+            -e NATS_URL=nats://localhost:4222 \
+            -e REDIS_URL=redis://localhost:6379 \
             -e ALLOW_DEV_DEFAULTS=true \
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }})
 

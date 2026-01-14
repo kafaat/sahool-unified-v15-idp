@@ -4,7 +4,7 @@
 // خريطة البيانات الفضائية
 
 import { useEffect, useRef, useState } from "react";
-import type { Map as LeafletMap, CircleMarker } from "leaflet";
+import type L from "leaflet";
 
 interface SatelliteMapProps {
   fields: Array<{
@@ -27,8 +27,8 @@ export default function SatelliteMap({
   selectedFieldId,
   onFieldClick,
 }: SatelliteMapProps) {
-  const mapRef = useRef<LeafletMap | null>(null);
-  const markersRef = useRef<Map<string, CircleMarker>>(new Map());
+  const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<globalThis.Map<string, L.CircleMarker>>(new globalThis.Map());
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {

@@ -222,7 +222,7 @@ services:
     protocol: http
     routes:
       - name: weather-service-route
-        paths: ["/weather"]
+        paths: ["/api/v1/weather", "/weather"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -359,14 +359,14 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # DEPRECATED
+  # Weather Core - Advanced weather assessment (POST-based API with lat/lon)
   - name: weather-core
     host: weather-core
     port: 8108
     protocol: http
     routes:
       - name: weather-core-route
-        paths: ["/weather-core-legacy"]
+        paths: ["/api/v1/weather-core", "/weather-core", "/weather-core-legacy"]
         strip_path: true
         protocols: ["http", "https"]
 

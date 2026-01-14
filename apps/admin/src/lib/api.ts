@@ -23,6 +23,7 @@ const PORTS = {
   satellite: 8090,
   indicators: 8091,
   weather: 8092,
+  weatherCore: 8108,
   fertilizer: 8093,
   irrigation: 8094,
   cropHealth: 8095,
@@ -52,6 +53,7 @@ export const API_URLS = {
   satellite: getServiceUrl(PORTS.satellite),
   indicators: getServiceUrl(PORTS.indicators),
   weather: getServiceUrl(PORTS.weather),
+  weatherCore: getServiceUrl(PORTS.weatherCore),
   fertilizer: getServiceUrl(PORTS.fertilizer),
   irrigation: getServiceUrl(PORTS.irrigation),
   cropHealth: getServiceUrl(PORTS.cropHealth),
@@ -291,14 +293,110 @@ export async function updateDiagnosisStatus(
   }
 }
 
-// Weather Alerts
-export async function fetchWeatherAlerts(): Promise<WeatherAlert[]> {
+// ═══════════════════════════════════════════════════════════════════════════
+// Weather API (weather-core service - POST-based with lat/lon)
+// Uses weather-core service (port 8108) for coordinate-based weather data
+// ═══════════════════════════════════════════════════════════════════════════
+
+export async function getWeatherCurrent(
+  lat: number,
+  lng: number,
+  fieldId: string = "default"
+) {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.weather}/api/v1/weather/alerts`,
+    const response = await apiClient.post(
+      `${API_URLS.weatherCore}/weather/current`,
+      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
     );
     return response.data;
   } catch (error) {
+    logger.error("Failed to fetch current weather:", error);
+    return null;
+  }
+}
+
+export async function getWeatherForecast(
+  lat: number,
+  lng: number,
+  days: number = 7,
+  fieldId: string = "default"
+) {
+  try {
+    const response = await apiClient.post(
+      `${API_URLS.weatherCore}/weather/forecast`,
+      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch weather forecast:", error);
+    return null;
+  }
+}
+
+export async function getAgriculturalReport(
+  lat: number,
+  lng: number,
+  fieldId: string = "default"
+) {
+  try {
+    const response = await apiClient.post(
+      `${API_URLS.weatherCore}/weather/agricultural-report`,
+      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch agricultural report:", error);
+    return null;
+  }
+}
+
+// Weather Advanced API (location_id based - for Yemen locations)
+// Uses weather-advanced service (port 8092) for location-based weather data
+export async function getWeatherByLocation(locationId: string) {
+  try {
+    const response = await apiClient.get(
+      `${API_URLS.weather}/v1/current/${locationId}`
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch weather by location:", error);
+    return null;
+  }
+}
+
+export async function getWeatherForecastByLocation(locationId: string, days: number = 7) {
+  try {
+    const response = await apiClient.get(
+      `${API_URLS.weather}/v1/forecast/${locationId}?days=${days}`
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch weather forecast by location:", error);
+    return null;
+  }
+}
+
+export async function getWeatherLocations() {
+  try {
+    const response = await apiClient.get(
+      `${API_URLS.weather}/v1/locations`
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch weather locations:", error);
+    return { locations: [] };
+  }
+}
+
+// Weather Alerts (from weather-advanced service)
+export async function fetchWeatherAlerts(locationId: string = "sanaa"): Promise<WeatherAlert[]> {
+  try {
+    const response = await apiClient.get(
+      `${API_URLS.weather}/v1/alerts/${locationId}`
+    );
+    return response.data?.alerts || [];
+  } catch (error) {
+    logger.error("Failed to fetch weather alerts:", error);
     return [];
   }
 }

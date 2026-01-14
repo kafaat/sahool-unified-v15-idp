@@ -548,35 +548,60 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Weather API
+  // Weather API (weather-core service - POST-based with lat/lon)
+  // Kong route: /api/v1/weather-core → strips to / → service has /weather/* endpoints
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getWeather(lat: number, lng: number) {
-    return this.request<WeatherData>("/api/v1/weather/current", {
-      params: {
-        lat: String(lat),
-        lng: String(lng),
-      },
+  async getWeather(lat: number, lng: number, fieldId: string = "default") {
+    return this.request<WeatherData>("/api/v1/weather-core/weather/current", {
+      method: "POST",
+      body: JSON.stringify({
+        tenant_id: "default",
+        field_id: fieldId,
+        lat,
+        lon: lng,
+      }),
     });
   }
 
-  async getWeatherForecast(lat: number, lng: number, days: number = 7) {
-    return this.request<WeatherForecast>("/api/v1/weather/forecast", {
-      params: {
-        lat: String(lat),
-        lng: String(lng),
-        days: String(days),
-      },
+  async getWeatherForecast(lat: number, lng: number, days: number = 7, fieldId: string = "default") {
+    return this.request<WeatherForecast>("/api/v1/weather-core/weather/forecast", {
+      method: "POST",
+      body: JSON.stringify({
+        tenant_id: "default",
+        field_id: fieldId,
+        lat,
+        lon: lng,
+      }),
     });
   }
 
-  async getAgriculturalRisks(lat: number, lng: number) {
-    return this.request<AgriculturalRisk[]>("/api/v1/weather/risks", {
-      params: {
-        lat: String(lat),
-        lng: String(lng),
-      },
+  async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return this.request<any>("/api/v1/weather-core/weather/agricultural-report", {
+      method: "POST",
+      body: JSON.stringify({
+        tenant_id: "default",
+        field_id: fieldId,
+        lat,
+        lon: lng,
+      }),
     });
+  }
+
+  // Weather Advanced API (location_id based - for Yemen locations)
+  // Kong route: /api/v1/weather → strips to / → service has /v1/* endpoints
+  async getWeatherByLocation(locationId: string) {
+    return this.request<WeatherData>(`/api/v1/weather/v1/current/${locationId}`);
+  }
+
+  async getWeatherForecastByLocation(locationId: string, days: number = 7) {
+    return this.request<WeatherForecast>(`/api/v1/weather/v1/forecast/${locationId}?days=${days}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getWeatherLocations(): Promise<ApiResponse<any>> {
+    return this.request("/api/v1/weather/v1/locations");
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -1030,7 +1030,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/skills-service"
-    port: 8170
+    port: 8121
     protocol: http
     health_endpoint: "/health"
     readiness_endpoint: "/readyz"

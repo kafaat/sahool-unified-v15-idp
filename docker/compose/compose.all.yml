@@ -403,16 +403,16 @@ services:
       context: ../../apps/services/skills-service
       dockerfile: Dockerfile
     ports:
-    - 8170:8170
+    - 8121:8121
     environment:
-    - PORT=8170
+    - PORT=8121
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8170/health
+      - http://localhost:8121/health
       interval: 30s
       timeout: 10s
       retries: 3

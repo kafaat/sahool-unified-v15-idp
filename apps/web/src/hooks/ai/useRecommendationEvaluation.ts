@@ -326,7 +326,7 @@ export function useRecommendationEvaluation() {
       [FeedbackType.UNCLEAR]: 0,
     };
 
-    let totalScores: EvaluationScore = {
+    const totalScores: EvaluationScore = {
       accuracy: 0,
       timeliness: 0,
       impact: 0,

@@ -27,15 +27,15 @@ const PORTS = {
   fertilizer: 8093,
   irrigation: 8094,
   cropHealth: 8095,
-  virtualSensors: 8096,
+  virtualSensors: 8119,
   communityChat: 8097,
   yieldEngine: 8098,
   equipment: 8101,
-  community: 8102,
+  community: 8097, // Uses community-chat service
   task: 8103,
   providerConfig: 8104,
   notifications: 8110,
-  wsGateway: 8090,
+  wsGateway: 8081,
 };
 
 // Base URL configuration

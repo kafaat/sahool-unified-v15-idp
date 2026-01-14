@@ -379,6 +379,26 @@ services:
         paths: ["/api/v1/notifications", "/api/v1/notification", "/notification"]
         strip_path: true
         protocols: ["http", "https"]
+      - name: notification-channels-route
+        paths: ["/api/v1/channels"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-preferences-route
+        paths: ["/api/v1/preferences"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-alerts-route
+        paths: ["/api/v1/notification-alerts"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-reminders-route
+        paths: ["/api/v1/reminders"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-farmers-route
+        paths: ["/api/v1/farmers"]
+        strip_path: true
+        protocols: ["http", "https"]
 
   - name: astronomical-calendar
     host: astronomical-calendar

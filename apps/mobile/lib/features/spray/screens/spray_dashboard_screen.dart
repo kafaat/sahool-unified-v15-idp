@@ -24,12 +24,11 @@ class SprayDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
-  final String _locale = 'ar'; // TODO: Get from app locale
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isArabic = _locale == 'ar';
+    final locale = Localizations.localeOf(context).languageCode;
+    final isArabic = locale == 'ar';
 
     return Scaffold(
       appBar: AppBar(

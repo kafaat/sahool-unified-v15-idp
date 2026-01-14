@@ -5,9 +5,9 @@ _transform: true
 # All services with rate limiting, health checks, and request transformation
 
 services:
-  # Field Operations Service
-  - name: field-ops
-    url: http://field-service:8080
+  # Field Management Service (Replaces field-ops)
+  - name: field-management-service
+    url: http://field-management-service:3000
     connect_timeout: 5000
     read_timeout: 60000
     write_timeout: 60000
@@ -36,8 +36,8 @@ services:
         config:
           add:
             headers:
-              - "X-Service-Name:field-ops"
-              - "X-Service-Version:15.5.0"
+              - "X-Service-Name:field-management-service"
+              - "X-Service-Version:16.0.0"
       - name: cors
         config:
           origins:
@@ -94,7 +94,7 @@ services:
 
   # Virtual Sensors Service
   - name: virtual-sensors
-    url: http://virtual-sensors:8085
+    url: http://virtual-sensors:8119
     connect_timeout: 5000
     read_timeout: 30000
     retries: 3
@@ -119,8 +119,8 @@ services:
           hide_client_headers: false
 
   # Yield Prediction Service
-  - name: yield-prediction
-    url: http://yield-prediction:8091
+  - name: yield-prediction-service
+    url: http://yield-prediction-service:8098
     connect_timeout: 5000
     read_timeout: 60000
     retries: 2
@@ -145,7 +145,7 @@ services:
 
   # LAI Estimation Service
   - name: lai-estimation
-    url: http://lai-estimation:8093
+    url: http://lai-estimation:3022
     connect_timeout: 5000
     read_timeout: 60000
     retries: 2
@@ -170,7 +170,7 @@ services:
 
   # Irrigation Smart Service
   - name: irrigation-smart
-    url: http://irrigation-smart:8086
+    url: http://irrigation-smart:8094
     connect_timeout: 5000
     read_timeout: 30000
     retries: 3
@@ -195,7 +195,7 @@ services:
 
   # Notification Service
   - name: notification-service
-    url: http://notification-service:8083
+    url: http://notification-service:8110
     connect_timeout: 3000
     read_timeout: 10000
     retries: 2
@@ -246,7 +246,7 @@ services:
 
   # Weather Service
   - name: weather-service
-    url: http://weather-advanced:8092
+    url: http://weather-service:8092
     connect_timeout: 5000
     read_timeout: 30000
     retries: 3

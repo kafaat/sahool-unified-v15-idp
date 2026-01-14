@@ -60,6 +60,16 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
+  - name: user-service
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-route
+        paths: ["/api/v1/auth", "/api/v1/users", "/auth", "/users"]
+        strip_path: true
+        protocols: ["http", "https"]
+
   - name: marketplace-service
     host: marketplace-service
     port: 3010

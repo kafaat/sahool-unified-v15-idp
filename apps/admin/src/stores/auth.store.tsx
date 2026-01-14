@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { apiClient } from "@/lib/api-client";
+import { logger } from "@/lib/logger";
 
 interface User {
   id: string;
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: "same-origin",
       });
     } catch (error) {
-      console.error("Failed to update activity:", error);
+      logger.error("Failed to update activity:", error);
     }
   }, []);
 
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const timeSinceLastActivity = now - lastActivityRef.current;
 
     if (timeSinceLastActivity >= IDLE_TIMEOUT) {
-      console.log("Session expired due to inactivity");
+      logger.log("Session expired due to inactivity");
       logout();
     }
   }, []);
@@ -82,11 +83,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        console.log("Token refresh failed, logging out");
+        logger.log("Token refresh failed, logging out");
         logout();
       }
     } catch (error) {
-      console.error("Token refresh error:", error);
+      logger.error("Token refresh error:", error);
     }
   }, []);
 
@@ -177,7 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: "same-origin",
       });
     } catch (error) {
-      console.error("Logout error:", error);
+      logger.error("Logout error:", error);
     } finally {
       apiClient.clearToken();
       setUser(null);

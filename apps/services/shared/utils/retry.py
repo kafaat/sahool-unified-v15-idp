@@ -23,7 +23,7 @@ import random
 import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, ParamSpec, TypeVar
+from typing import ParamSpec, TypeVar
 
 logger = logging.getLogger(__name__)
 

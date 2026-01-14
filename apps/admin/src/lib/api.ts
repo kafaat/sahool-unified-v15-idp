@@ -39,7 +39,8 @@ const PORTS = {
 };
 
 // Base URL configuration
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost";
+// Default to Kong gateway port 8000 for development
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 // Create service URLs

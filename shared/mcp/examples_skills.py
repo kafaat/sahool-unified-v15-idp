@@ -250,7 +250,7 @@ async def example_skill_tool_definitions():
     for tool in defs:
         logger.info(f"Tool: {tool['name']}")
         logger.info(f"Description: {tool['description']}")
-        logger.info(f"Parameters:")
+        logger.info("Parameters:")
 
         input_schema = tool.get("inputSchema", {})
         properties = input_schema.get("properties", {})

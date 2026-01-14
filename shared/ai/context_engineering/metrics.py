@@ -378,7 +378,6 @@ def track_compression(func: Callable) -> Callable:
             if hasattr(result, "tokens_saved"):
                 metrics.tokens_saved.observe(result.tokens_saved)
             if hasattr(result, "strategy"):
-                strategy_label = {"strategy": str(result.strategy)}
                 metrics.compression_by_strategy.inc()
 
             logger.info(
@@ -698,7 +697,6 @@ async def track_operation_async(operation_name: str):
         async with track_operation_async("compression"):
             # perform operation
     """
-    metrics = get_ai_metrics_registry()
     start_time = time.time()
 
     try:

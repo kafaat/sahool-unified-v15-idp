@@ -44,7 +44,7 @@ class TestKnowledgeGraphService:
         )
         result = await graph_service.add_crop(crop)
         assert result is True
-        assert f"crop:rice" in graph_service.entities
+        assert "crop:rice" in graph_service.entities
 
     @pytest.mark.asyncio
     async def test_add_disease(self, graph_service):
@@ -57,7 +57,7 @@ class TestKnowledgeGraphService:
         )
         result = await graph_service.add_disease(disease)
         assert result is True
-        assert f"disease:blast" in graph_service.entities
+        assert "disease:blast" in graph_service.entities
 
     @pytest.mark.asyncio
     async def test_get_crop(self, graph_service):

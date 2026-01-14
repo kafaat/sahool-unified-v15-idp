@@ -93,11 +93,7 @@ class SAHOOLSkillsTools:
     def _init_memory_engine(self):
         """Initialize memory query engine"""
         try:
-            from shared.ai.context_engineering.memory import (
-                FarmMemory,
-                MemoryType,
-                RelevanceScore,
-            )
+            from shared.ai.context_engineering.memory import FarmMemory
 
             self.memory = FarmMemory()
             self.memory_available = True

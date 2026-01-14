@@ -498,7 +498,6 @@ class FarmMemory:
             return 0
 
         entries = self._memory[tenant_id]
-        original_count = len(entries)
         forgotten_count = 0
 
         # Filter entries to keep

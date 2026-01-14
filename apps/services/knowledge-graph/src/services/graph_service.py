@@ -382,9 +382,6 @@ class KnowledgeGraphService:
             if relationship_type and edge_rel_type != relationship_type.value:
                 continue
 
-            target_type = successor.split(":")[0]
-            target_id = successor.split(":", 1)[1]
-
             if successor in self.entities:
                 entity_data = self.entities[successor].copy()
                 entity_data["relationship"] = {

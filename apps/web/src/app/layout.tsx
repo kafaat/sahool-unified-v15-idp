@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { getMessages, getLocale } from "next-intl/server";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import { locales, getDirection, type Locale } from "@sahool/i18n";
+import { getDirection, type Locale } from "@sahool/i18n";
 
 export const metadata: Metadata = {
   title: "سهول | SAHOOL - Smart Agriculture Platform",
@@ -22,33 +21,13 @@ export const metadata: Metadata = {
   ],
 };
 
-export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
-}
-
 export default async function RootLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale?: string }>;
 }) {
-  // In Next.js 15, params are Promises
-  const resolvedParams = await params;
-  // Default to 'ar' if no locale is provided
-  const localeStr = resolvedParams.locale || "ar";
-
-  // Type guard to check if locale is valid
-  const isValidLocale = (l: string): l is Locale => {
-    return locales.includes(l as Locale);
-  };
-
-  // Validate locale
-  if (!isValidLocale(localeStr)) {
-    notFound();
-  }
-
-  const locale: Locale = localeStr;
+  // Get locale from next-intl (configured in i18n.ts)
+  const locale = (await getLocale()) as Locale;
   const messages = await getMessages();
   const direction = getDirection(locale);
 

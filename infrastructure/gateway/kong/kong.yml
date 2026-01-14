@@ -194,15 +194,15 @@ services:
     protocol: http
     routes:
       - name: vegetation-analysis-service-route
-        paths: ["/vegetation"]
+        paths: ["/api/v1/vegetation", "/vegetation"]
         strip_path: true
         protocols: ["http", "https"]
       - name: satellite-route
-        paths: ["/satellite"]
+        paths: ["/api/v1/satellite", "/satellite"]
         strip_path: true
         protocols: ["http", "https"]
       - name: ndvi-route
-        paths: ["/ndvi"]
+        paths: ["/api/v1/ndvi", "/ndvi"]
         strip_path: true
         protocols: ["http", "https"]
 

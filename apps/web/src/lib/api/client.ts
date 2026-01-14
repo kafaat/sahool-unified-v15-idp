@@ -1100,14 +1100,16 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Satellite Service API
+  // Satellite Service API (vegetation-analysis-service)
+  // Kong route: /api/v1/satellite → strips to / → service has /v1/* endpoints
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSatelliteImagery(
     fieldId: string,
     options?: { from?: string; to?: string },
   ) {
-    return this.request<any[]>(`/api/v1/satellite/fields/${fieldId}/imagery`, {
+    // Maps to vegetation-analysis-service /v1/timeseries/{field_id}
+    return this.request<any[]>(`/api/v1/satellite/v1/timeseries/${fieldId}`, {
       params: options as Record<string, string>,
     });
   }
@@ -1116,10 +1118,21 @@ class SahoolApiClient {
     fieldId: string,
     analysisType: "ndvi" | "moisture" | "thermal",
   ) {
-    return this.request<any>(`/api/v1/satellite/fields/${fieldId}/analyze`, {
+    // Maps to vegetation-analysis-service /v1/analyze (POST)
+    return this.request<any>(`/api/v1/satellite/v1/analyze`, {
       method: "POST",
-      body: JSON.stringify({ analysisType }),
+      body: JSON.stringify({ field_id: fieldId, analysis_type: analysisType }),
     });
+  }
+
+  async getSatelliteIndices(fieldId: string) {
+    // Maps to vegetation-analysis-service /v1/indices/{field_id}
+    return this.request<any>(`/api/v1/satellite/v1/indices/${fieldId}`);
+  }
+
+  async getSatelliteSatellites() {
+    // Maps to vegetation-analysis-service /v1/satellites
+    return this.request<any>(`/api/v1/satellite/v1/satellites`);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

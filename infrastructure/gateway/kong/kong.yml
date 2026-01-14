@@ -197,6 +197,14 @@ services:
         paths: ["/vegetation"]
         strip_path: true
         protocols: ["http", "https"]
+      - name: satellite-route
+        paths: ["/satellite"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: ndvi-route
+        paths: ["/ndvi"]
+        strip_path: true
+        protocols: ["http", "https"]
 
   - name: indicators-service
     host: indicators-service

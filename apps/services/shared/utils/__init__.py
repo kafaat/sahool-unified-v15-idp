@@ -8,7 +8,13 @@ Provides:
 - Utility functions for resilience
 """
 
-from .fallback_manager import FallbackManager, fallback
+from .fallback_manager import (
+    CircuitBreaker,
+    FallbackManager,
+    circuit_breaker,
+    get_fallback_manager,
+    with_fallback,
+)
 from .retry import (
     RETRY_AGGRESSIVE,
     RETRY_DATABASE,
@@ -26,7 +32,10 @@ from .retry import (
 __all__ = [
     # Fallback
     "FallbackManager",
-    "fallback",
+    "CircuitBreaker",
+    "circuit_breaker",
+    "with_fallback",
+    "get_fallback_manager",
     # Retry
     "RetryConfig",
     "RetryContext",

@@ -1,15 +1,42 @@
 """
 SAHOOL Shared Utilities
-#/H'* E4*1C) D./E'* 3'GHD
+أدوات مشتركة لخدمات سهول
 
 Provides:
 - FallbackManager: Circuit breaker and fallback patterns
+- Retry utilities with exponential backoff
 - Utility functions for resilience
 """
 
 from .fallback_manager import FallbackManager, fallback
+from .retry import (
+    RETRY_AGGRESSIVE,
+    RETRY_DATABASE,
+    RETRY_FAST,
+    RETRY_HTTP,
+    RETRY_STANDARD,
+    RetryConfig,
+    RetryContext,
+    async_retry,
+    calculate_delay,
+    retry,
+    sync_retry,
+)
 
 __all__ = [
+    # Fallback
     "FallbackManager",
     "fallback",
+    # Retry
+    "RetryConfig",
+    "RetryContext",
+    "async_retry",
+    "sync_retry",
+    "retry",
+    "calculate_delay",
+    "RETRY_FAST",
+    "RETRY_STANDARD",
+    "RETRY_AGGRESSIVE",
+    "RETRY_DATABASE",
+    "RETRY_HTTP",
 ]

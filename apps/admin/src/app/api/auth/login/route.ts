@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { logger } from "@/lib/logger";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       user: data.user,
     });
   } catch (error) {
-    console.error("Login error:", error);
+    logger.error("Login error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

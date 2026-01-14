@@ -1116,7 +1116,7 @@ def evaluate_recommendation(plan: FertilizationPlan):
         logger = logging.getLogger(__name__)
         logger.error(f"Recommendation evaluation failed: {e}")
         return {
-            "error": str(e),
+            "error": "Recommendation evaluation failed",
             "status": "failed",
             "context_engineering_enabled": True,
         }
@@ -1162,7 +1162,7 @@ def get_recent_recommendations(field_id: str | None = None, limit: int = 5):
         logger = logging.getLogger(__name__)
         logger.error(f"Failed to retrieve recommendations: {e}")
         return {
-            "error": str(e),
+            "error": "Failed to retrieve recommendations",
             "status": "failed",
             "recommendations": [],
             "context_engineering_enabled": True,
@@ -1198,7 +1198,7 @@ def compress_soil_endpoint(analysis: SoilAnalysis):
         logger = logging.getLogger(__name__)
         logger.error(f"Soil compression failed: {e}")
         return {
-            "error": str(e),
+            "error": "Soil compression failed",
             "status": "failed",
             "context_engineering_enabled": True,
         }

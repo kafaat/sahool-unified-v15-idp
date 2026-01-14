@@ -16,35 +16,38 @@ Author: SAHOOL Platform Team
 Updated: January 2025
 """
 
+from __future__ import annotations
+
+import logging
 import os
 import sys
-import json
-import logging
 from dataclasses import asdict
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Add shared modules to path
 sys.path.insert(0, "/app")
 
 from shared.ai.context_engineering import (
-    ContextCompressor,
     CompressionStrategy,
+    ContextCompressor,
+    EvaluationCriteria,
     FarmMemory,
-    MemoryEntry,
     MemoryConfig,
+    MemoryEntry,
     MemoryType,
     RecommendationEvaluator,
-    EvaluationCriteria,
     RecommendationType,
 )
 
-from main import (
-    SoilAnalysis,
-    FertilizerRecommendation,
-    FertilizationPlan,
-    CropType,
-)
+# Use TYPE_CHECKING to avoid cyclic imports
+if TYPE_CHECKING:
+    from main import (
+        CropType,
+        FertilizationPlan,
+        FertilizerRecommendation,
+        SoilAnalysis,
+    )
 
 logger = logging.getLogger(__name__)
 

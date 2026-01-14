@@ -12,7 +12,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, HttpUrl, validator
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 
 class SecurityScheme(str, Enum):
@@ -234,8 +234,9 @@ class AgentCard(BaseModel):
         default="active", description="Agent status"
     )
 
-    @validator("version")
-    def validate_version(self, v):
+    @field_validator("version")
+    @classmethod
+    def validate_version(cls, v: str) -> str:
         """Validate semantic versioning format"""
         parts = v.split(".")
         if len(parts) != 3:
@@ -246,8 +247,9 @@ class AgentCard(BaseModel):
             raise ValueError("Version parts must be integers")
         return v
 
-    @validator("agent_id")
-    def validate_agent_id(self, v):
+    @field_validator("agent_id")
+    @classmethod
+    def validate_agent_id(cls, v: str) -> str:
         """Validate agent ID format"""
         if not v.replace("-", "").replace("_", "").isalnum():
             raise ValueError(

@@ -8,12 +8,13 @@
 import { useEffect, useRef } from "react";
 import { useEquipment } from "../hooks/useEquipment";
 import { MapPin, Loader2 } from "lucide-react";
-import type { Map as LeafletMap, Marker } from "leaflet";
 
 export function EquipmentMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<LeafletMap | null>(null);
-  const markersRef = useRef<Marker[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapInstanceRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markersRef = useRef<any[]>([]);
   const { data: equipment, isLoading } = useEquipment();
 
   useEffect(() => {

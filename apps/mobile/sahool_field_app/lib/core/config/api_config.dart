@@ -366,20 +366,25 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Notification Service Endpoints (port 8110)
   // خدمة الإشعارات
-  // Kong route: /api/v1/notifications → strips to / → service has /v1/* endpoints
+  // Kong route: /api/v1/notifications → strips to / → service has /* endpoints (no /v1 prefix)
+  // Direct access: port 8110 with /* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
   static String get _notificationsBase => useDirectServices
       ? notificationsServiceUrl
       : '$effectiveBaseUrl/api/v1/notifications';
 
-  /// Notification service endpoints
-  static String get notifications => '$_notificationsBase/v1/notifications';
-  static String notificationById(String id) => '$_notificationsBase/v1/notifications/$id';
-  static String get notificationPreferences => '$_notificationsBase/v1/preferences';
-  static String get notificationSubscribe => '$_notificationsBase/v1/subscribe';
-  static String get notificationUnsubscribe => '$_notificationsBase/v1/unsubscribe';
-  static String get notificationMarkRead => '$_notificationsBase/v1/notifications/mark-read';
+  /// Notification service endpoints (no /v1 prefix - Kong strips path)
+  static String get notifications => _notificationsBase; // POST / for create, GET /farmer/{id} for list
+  static String notificationById(String id) => '$_notificationsBase/$id';
+  static String notificationForFarmer(String farmerId) => '$_notificationsBase/farmer/$farmerId';
+  static String notificationMarkAsRead(String id) => '$_notificationsBase/$id/read';
+  static String get notificationBroadcast => '$_notificationsBase/broadcast';
+  static String get notificationPreferences => '$effectiveBaseUrl/api/v1/preferences'; // Via Kong preferences route
+  static String get notificationChannels => '$effectiveBaseUrl/api/v1/channels'; // Via Kong channels route
+  static String get notificationAlerts => '$effectiveBaseUrl/api/v1/alerts'; // Via Kong alerts route
+  static String get notificationReminders => '$effectiveBaseUrl/api/v1/reminders'; // Via Kong reminders route
+  static String get farmerRegister => '$effectiveBaseUrl/api/v1/farmers/register'; // Via Kong farmers route
   static String get notificationsHealthz => '$_notificationsBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────

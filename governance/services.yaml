@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 version: "3.0.0"
-last_updated: "2025-12-19"
+last_updated: "2026-01-14"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Architecture Layers
@@ -100,7 +100,7 @@ services:
     category: crop
     layer: decision
     path: "apps/services/crop-growth-model"
-    port: 3000
+    port: 3023
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -208,7 +208,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/disaster-assessment"
-    port: 3001
+    port: 3020
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -241,7 +241,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/lai-estimation"
-    port: 3002
+    port: 3022
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -268,7 +268,7 @@ services:
     category: analytics
     layer: decision
     path: "apps/services/yield-prediction"
-    port: 3003
+    port: 3021
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -299,7 +299,7 @@ services:
     category: community
     layer: business
     path: "apps/services/marketplace-service"
-    port: 3004
+    port: 3010
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -329,7 +329,7 @@ services:
     category: community
     layer: business
     path: "apps/services/community-chat"
-    port: 3005
+    port: 8097
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -358,7 +358,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/iot-service"
-    port: 3006
+    port: 8117
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -424,7 +424,7 @@ services:
     category: core
     layer: business
     path: "apps/services/billing-core"
-    port: 8021
+    port: 8089
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -591,7 +591,7 @@ services:
     category: analytics
     layer: acquisition
     path: "apps/services/virtual-sensors"
-    port: 8096
+    port: 8119
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -801,7 +801,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/crop-intelligence-service"
-    port: 8150
+    port: 8095
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -829,7 +829,7 @@ services:
     category: core
     layer: business
     path: "apps/services/equipment-service"
-    port: 8130
+    port: 8101
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -856,7 +856,7 @@ services:
     category: core
     layer: business
     path: "apps/services/task-service"
-    port: 8131
+    port: 8103
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -886,7 +886,7 @@ services:
     category: integration
     layer: business
     path: "apps/services/ws-gateway"
-    port: 8140
+    port: 8081
     protocol: websocket
     health_endpoint: "/health"
     status: active
@@ -911,7 +911,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/ndvi-processor"
-    port: 8141
+    port: 8118
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -937,7 +937,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/field-intelligence"
-    port: 8142
+    port: 8120
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -965,7 +965,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/vegetation-analysis-service"
-    port: 8019
+    port: 8090
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -998,7 +998,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/weather-service"
-    port: 8108
+    port: 8092
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -1132,7 +1132,7 @@ services:
     category: core
     layer: decision
     path: "apps/services/advisory-service"
-    port: 8160
+    port: 8093
     protocol: http
     health_endpoint: "/health"
     status: active

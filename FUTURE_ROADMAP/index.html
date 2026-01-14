@@ -1,0 +1,2495 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>خطة التطوير المستقبلية لمنصة سهول - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              خطة التطوير المستقبلية لمنصة سهول
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">خطة التطوير المستقبلية لمنصة سهول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-future-development-roadmap">SAHOOL Future Development Roadmap<a class="headerlink" href="#sahool-future-development-roadmap" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>الإصدار</strong>: 1.0.0
+<strong>تاريخ الإنشاء</strong>: يناير 2026
+<strong>الحالة</strong>: مسودة للمراجعة</p>
+</blockquote>
+<hr />
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>هذه الوثيقة تحدد الرؤية المستقبلية لتطوير منصة سهول بعد الإطلاق الأولي، مع التركيز على الابتكار والاستدامة وتمكين المزارعين في المنطقة العربية.</p>
+<hr />
+<h2 id="_2">المرحلة الأولى: تعزيز الذكاء الاصطناعي<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="phase-1-ai-enhancement-q2-q3-2026">Phase 1: AI Enhancement (Q2-Q3 2026)<a class="headerlink" href="#phase-1-ai-enhancement-q2-q3-2026" title="Permanent link">&para;</a></h2>
+<h3 id="11-voice-enabled-ai-advisor">1.1 المستشار الزراعي الذكي بالصوت | Voice-Enabled AI Advisor<a class="headerlink" href="#11-voice-enabled-ai-advisor" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مساعد صوتي باللهجات المحلية</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية</span>
+<span class="nt">التأثير</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تمكين المزارعين غير المتعلمين</span>
+
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التعرف على الكلام باللهجة اليمنية والخليجية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحويل النص إلى كلام طبيعي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">فهم الأسئلة الزراعية بالعامية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ردود صوتية مخصصة حسب المنطقة</span>
+
+<span class="nt">التقنيات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Whisper API للتعرف على الكلام</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نموذج لغوي مخصص للهجات العربية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تخزين مؤقت للعمل بدون إنترنت</span>
+</code></pre></div>
+
+<p><strong>مثال الاستخدام:</strong></p>
+<div class="codehilite"><pre><span></span><code>المزارع: &quot;يا سهول، ورق القمح عندي اصفر شو السبب؟&quot;
+سهول: &quot;أخي الكريم، الاصفرار غالباً بسبب نقص النيتروجين.
+        بناءً على تحليل تربتك، أنصحك بإضافة 46 كيلو يوريا
+        للهكتار خلال الـ 48 ساعة القادمة.&quot;
+</code></pre></div>
+
+<h3 id="12-deep-learning-pest-prediction">1.2 التنبؤ بالآفات باستخدام التعلم العميق | Deep Learning Pest Prediction<a class="headerlink" href="#12-deep-learning-pest-prediction" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نظام إنذار مبكر للآفات</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية</span>
+<span class="nt">التأثير</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقليل الخسائر بنسبة 30-40%</span>
+
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل صور الأقمار الصناعية للكشف المبكر</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نماذج تنبؤية تعتمد على الطقس والموسم</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شبكة استشعار تشاركية بين المزارعين</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنبيهات استباقية قبل 7-14 يوم</span>
+
+<span class="nt">البيانات المطلوبة</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">سجلات الآفات التاريخية (5 سنوات)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بيانات الطقس والرطوبة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">صور NDVI متسلسلة زمنياً</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير المزارعين الميدانية</span>
+</code></pre></div>
+
+<h3 id="13-digital-farm-twin">1.3 التوأم الرقمي للمزرعة | Digital Farm Twin<a class="headerlink" href="#13-digital-farm-twin" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محاكاة رقمية كاملة للمزرعة</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متوسطة</span>
+<span class="nt">التأثير</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين القرارات الاستراتيجية</span>
+
+<span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محاكاة سيناريوهات الري المختلفة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توقع الإنتاجية تحت ظروف مختلفة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل &quot;ماذا لو&quot; للقرارات الزراعية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تصور ثلاثي الأبعاد للحقول</span>
+</code></pre></div>
+
+<h3 id="14-ai-agents-ecosystem-25-agent">1.4 منظومة الوكلاء الذكيين | AI Agents Ecosystem (25+ Agent)<a class="headerlink" href="#14-ai-agents-ecosystem-25-agent" title="Permanent link">&para;</a></h3>
+<p>منظومة متكاملة من الوكلاء الذكيين المتخصصين يعملون بشكل متناغم لخدمة المزارع.</p>
+<h4 id="production-agents">الفئة الأولى: وكلاء الإنتاج الزراعي | Production Agents<a class="headerlink" href="#production-agents" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 1: مستشار المحاصيل الذكي</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">crop_advisor_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;مستشار</span><span class="nv"> </span><span class="s">المحاصيل</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Crop</span><span class="nv"> </span><span class="s">Advisor&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🌾</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقديم توصيات شاملة لإدارة المحاصيل من الزراعة للحصاد</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحديد أفضل وقت للزراعة بناءً على الطقس والتربة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اختيار الأصناف المناسبة للمنطقة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جدولة العمليات الزراعية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع مراحل النمو (Zadoks, BBCH)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توقع موعد الحصاد الأمثل</span>
+
+<span class="w">  </span><span class="nt">المدخلات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بيانات الحقل والتربة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التاريخ الزراعي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توقعات الطقس الموسمية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">أسعار السوق المتوقعة</span>
+
+<span class="w">  </span><span class="nt">المخرجات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خطة زراعية موسمية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنبيهات العمليات الزراعية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير تقدم المحصول</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 2: خبير الري الذكي</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">irrigation_expert_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;خبير</span><span class="nv"> </span><span class="s">الري</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Irrigation</span><span class="nv"> </span><span class="s">Expert&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">💧</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين كفاءة الري وتقليل هدر المياه</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب الاحتياج المائي الفعلي (ETc)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جدولة الري بناءً على رطوبة التربة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعديل الري حسب توقعات الطقس</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كشف تسربات المياه والأعطال</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين توزيع المياه في الحقل</span>
+
+<span class="w">  </span><span class="nt">التكامل</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساسات رطوبة التربة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محطات الطقس</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">صمامات الري الذكية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بيانات NDVI للإجهاد المائي</span>
+
+<span class="w">  </span><span class="nt">التوفير_المتوقع</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30-45% من استهلاك المياه</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 3: طبيب النبات الذكي</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">plant_doctor_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;طبيب</span><span class="nv"> </span><span class="s">النبات</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Plant</span><span class="nv"> </span><span class="s">Doctor&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🩺</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تشخيص الأمراض والآفات وتقديم العلاج المناسب</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل صور النبات للكشف عن الأمراض</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التعرف على الآفات الحشرية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تشخيص نقص العناصر الغذائية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقديم وصفات علاجية دقيقة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متابعة فعالية العلاج</span>
+
+<span class="w">  </span><span class="nt">النماذج</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CNN للتعرف على الأمراض (دقة 94%)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Object Detection للآفات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل الطيف للعناصر الغذائية</span>
+
+<span class="w">  </span><span class="nt">قاعدة_المعرفة</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">150+ مرض نباتي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200+ آفة حشرية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500+ صورة تدريب لكل فئة</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 4: أخصائي التسميد</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">fertilizer_specialist_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;أخصائي</span><span class="nv"> </span><span class="s">التسميد</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Fertilizer</span><span class="nv"> </span><span class="s">Specialist&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🧪</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين برامج التسميد لزيادة الإنتاجية</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل نتائج فحص التربة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب الاحتياج السمادي الدقيق</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توزيع الجرعات على مراحل النمو</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التوصية بأنواع الأسمدة المناسبة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقدير التكلفة والعائد</span>
+
+<span class="w">  </span><span class="nt">الخوارزميات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">معادلات Stanford للتسميد</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">موازنة العناصر الغذائية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين نسبة N:P:K</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 5: محلل الإنتاجية</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">yield_analyst_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;محلل</span><span class="nv"> </span><span class="s">الإنتاجية</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Yield</span><span class="nv"> </span><span class="s">Analyst&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">📊</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقدير وتحسين إنتاجية المحاصيل</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقدير الإنتاجية المتوقعة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل فجوة الإنتاجية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحديد العوامل المحددة للإنتاج</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مقارنة الأداء بالمزارع المشابهة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توصيات لسد فجوة الإنتاجية</span>
+
+<span class="w">  </span><span class="nt">النماذج</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">APSIM للمحاكاة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Machine Learning للتنبؤ</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل السلاسل الزمنية</span>
+</code></pre></div>
+
+<h4 id="monitoring-agents">الفئة الثانية: وكلاء المراقبة والاستشعار | Monitoring Agents<a class="headerlink" href="#monitoring-agents" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 6: محلل صور الأقمار الصناعية</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">satellite_analyst_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;محلل</span><span class="nv"> </span><span class="s">الأقمار</span><span class="nv"> </span><span class="s">الصناعية</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Satellite</span><span class="nv"> </span><span class="s">Analyst&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🛰️</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل صور الأقمار الصناعية للمراقبة الدقيقة</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب مؤشرات الغطاء النباتي (NDVI, EVI, LAI)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كشف الإجهاد المائي والحراري</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">رصد التغيرات في صحة المحصول</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحديد المناطق المتأثرة بالآفات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقدير الكتلة الحيوية</span>
+
+<span class="w">  </span><span class="nt">مصادر_البيانات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sentinel-2 (10m resolution)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Landsat-8 (30m resolution)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Planet Labs (3m resolution)</span>
+
+<span class="w">  </span><span class="nt">تردد_التحديث</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كل 5 أيام</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 7: راصد الطقس الذكي</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">weather_monitor_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;راصد</span><span class="nv"> </span><span class="s">الطقس</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Weather</span><span class="nv"> </span><span class="s">Monitor&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🌤️</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مراقبة وتحليل الظروف الجوية وتأثيرها على الزراعة</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توقعات الطقس المحلية (7-14 يوم)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب مؤشرات الطقس الزراعية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنبيهات الظواهر الجوية القاسية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب درجات النمو الحرارية (GDD)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقدير مخاطر الصقيع والموجات الحرارية</span>
+
+<span class="w">  </span><span class="nt">المؤشرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التبخر-نتح المرجعي (ETo)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ساعات البرودة (Chill Hours)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مخاطر الأمراض الفطرية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ملاءمة الرش</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 8: محلل بيانات الحساسات</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">sensor_data_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;محلل</span><span class="nv"> </span><span class="s">الحساسات</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Sensor</span><span class="nv"> </span><span class="s">Analyst&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">📡</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جمع وتحليل بيانات حساسات إنترنت الأشياء</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">معالجة بيانات الحساسات الفورية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كشف القيم الشاذة والأعطال</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التنبؤ بالاتجاهات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دمج البيانات من مصادر متعددة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إنشاء تقارير تحليلية</span>
+
+<span class="w">  </span><span class="nt">الحساسات_المدعومة</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">رطوبة التربة (متعددة الأعماق)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">درجة حرارة التربة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الموصلية الكهربائية (EC)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محطات الطقس</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مستوى المياه الجوفية</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 9: راصد الآفات</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">pest_scout_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;راصد</span><span class="nv"> </span><span class="s">الآفات</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Pest</span><span class="nv"> </span><span class="s">Scout&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🐛</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">المراقبة المستمرة للآفات والتنبؤ بانتشارها</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل صور المصائد الذكية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع أعداد الآفات زمنياً</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التنبؤ بموجات الإصابة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحديد العتبة الاقتصادية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التوصية بتوقيت المكافحة</span>
+
+<span class="w">  </span><span class="nt">الآفات_المستهدفة</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">سوسة النخيل الحمراء</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دودة الحشد الخريفية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">المن والذباب الأبيض</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">العناكب والحلم</span>
+</code></pre></div>
+
+<h4 id="planning-agents">الفئة الثالثة: وكلاء التخطيط والإدارة | Planning Agents<a class="headerlink" href="#planning-agents" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 10: مخطط الموسم الزراعي</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">season_planner_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;مخطط</span><span class="nv"> </span><span class="s">الموسم</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Season</span><span class="nv"> </span><span class="s">Planner&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">📅</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تخطيط شامل للموسم الزراعي</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إنشاء جدول زمني للموسم</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين توزيع المحاصيل على الحقول</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التخطيط للدورات الزراعية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جدولة الموارد البشرية والآلات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب التكاليف المتوقعة</span>
+
+<span class="w">  </span><span class="nt">المخرجات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خطة الموسم التفصيلية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جدول العمليات الأسبوعي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">موازنة الموسم</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 11: مدير المخزون</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">inventory_manager_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;مدير</span><span class="nv"> </span><span class="s">المخزون</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Inventory</span><span class="nv"> </span><span class="s">Manager&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">📦</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إدارة مخزون المدخلات الزراعية</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع مخزون البذور والأسمدة والمبيدات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التنبيه عند انخفاض المخزون</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التنبؤ بالاحتياجات المستقبلية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين نقاط إعادة الطلب</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع تواريخ الصلاحية</span>
+
+<span class="w">  </span><span class="nt">التكامل</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">أنظمة الشراء</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الموردين المعتمدين</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">سجلات الاستخدام</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 12: منسق المهام</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">task_coordinator_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;منسق</span><span class="nv"> </span><span class="s">المهام</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Task</span><span class="nv"> </span><span class="s">Coordinator&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✅</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنسيق وتوزيع المهام الزراعية</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إنشاء قوائم المهام اليومية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توزيع المهام على العمال</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع إنجاز المهام</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إعادة جدولة المهام المؤجلة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إرسال التذكيرات</span>
+
+<span class="w">  </span><span class="nt">التكامل</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تطبيق الموبايل للعمال</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نظام GPS لتتبع الموقع</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كاميرات التوثيق</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 13: محاسب المزرعة</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">farm_accountant_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;محاسب</span><span class="nv"> </span><span class="s">المزرعة</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Farm</span><span class="nv"> </span><span class="s">Accountant&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">💰</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إدارة الشؤون المالية للمزرعة</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تسجيل المصروفات والإيرادات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب تكلفة الإنتاج لكل حقل</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل الربحية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إعداد التقارير المالية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التنبؤ بالتدفقات النقدية</span>
+
+<span class="w">  </span><span class="nt">التقارير</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">قائمة الدخل الشهرية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل التكلفة بالحقل/المحصول</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مقارنة الموازنة بالفعلي</span>
+</code></pre></div>
+
+<h4 id="market-agents">الفئة الرابعة: وكلاء السوق والتجارة | Market Agents<a class="headerlink" href="#market-agents" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 14: محلل الأسعار</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">price_analyst_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;محلل</span><span class="nv"> </span><span class="s">الأسعار</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Price</span><span class="nv"> </span><span class="s">Analyst&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">📈</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل وتوقع أسعار المحاصيل</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مراقبة أسعار السوق الفورية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل اتجاهات الأسعار</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التنبؤ بالأسعار المستقبلية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحديد أفضل وقت للبيع</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مقارنة الأسعار بين الأسواق</span>
+
+<span class="w">  </span><span class="nt">مصادر_البيانات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">أسواق الجملة المحلية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">منصات التداول الإلكتروني</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">البيانات التاريخية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مؤشرات العرض والطلب</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 15: وسيط البيع</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">sales_broker_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;وسيط</span><span class="nv"> </span><span class="s">البيع</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Sales</span><span class="nv"> </span><span class="s">Broker&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🤝</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مساعدة المزارع في بيع منتجاته</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عرض المحاصيل للمشترين المحتملين</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التفاوض الآلي على الأسعار</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ترتيب اللوجستيات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إدارة العقود</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقييم المشترين</span>
+
+<span class="w">  </span><span class="nt">الخدمات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">البيع المباشر للمستهلك</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">البيع للتجار والموزعين</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التصدير للأسواق الخارجية</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 16: مستشار الشراء</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">procurement_advisor_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;مستشار</span><span class="nv"> </span><span class="s">الشراء</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Procurement</span><span class="nv"> </span><span class="s">Advisor&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🛒</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين شراء المدخلات الزراعية</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مقارنة أسعار الموردين</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التحقق من جودة المنتجات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تجميع الطلبات للحصول على خصومات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع الشحنات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقييم الموردين</span>
+</code></pre></div>
+
+<h4 id="support-agents">الفئة الخامسة: وكلاء الدعم والتواصل | Support Agents<a class="headerlink" href="#support-agents" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 17: المساعد الصوتي</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">voice_assistant_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;المساعد</span><span class="nv"> </span><span class="s">الصوتي</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Voice</span><span class="nv"> </span><span class="s">Assistant&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🎙️</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التفاعل الصوتي باللهجات المحلية</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">فهم الأوامر الصوتية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الرد الصوتي الطبيعي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دعم اللهجة اليمنية والخليجية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">العمل بدون اتصال (محدود)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحويل الأوامر للوكلاء المتخصصين</span>
+
+<span class="w">  </span><span class="nt">اللهجات_المدعومة</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اليمنية (صنعاني، عدني، حضرمي)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">السعودية (نجدي، حجازي)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">المصرية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الفصحى</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 18: مترجم المحتوى</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">content_translator_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;مترجم</span><span class="nv"> </span><span class="s">المحتوى</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Content</span><span class="nv"> </span><span class="s">Translator&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🌍</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ترجمة وتوطين المحتوى الزراعي</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ترجمة التوصيات للعربية البسيطة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحويل المصطلحات العلمية للمحلية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إنشاء محتوى مرئي (إنفوجرافيك)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحويل النص لصوت</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ترجمة للغات أخرى</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 19: منشئ التقارير</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">report_generator_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;منشئ</span><span class="nv"> </span><span class="s">التقارير</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Report</span><span class="nv"> </span><span class="s">Generator&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">📄</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إنشاء تقارير مخصصة للمزارعين</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير يومية/أسبوعية/شهرية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ملخصات الأداء</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير للجهات الحكومية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير للممولين</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تصدير بصيغ متعددة (PDF, Excel)</span>
+
+<span class="w">  </span><span class="nt">أنواع_التقارير</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقرير حالة الحقل</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقرير الإنتاجية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقرير المصروفات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقرير الري</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقرير صحة المحصول</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 20: وكيل الإشعارات الذكي</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">smart_notification_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;وكيل</span><span class="nv"> </span><span class="s">الإشعارات</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Notification</span><span class="nv"> </span><span class="s">Agent&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🔔</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إدارة الإشعارات والتنبيهات الذكية</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحديد أولوية الإشعارات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تجميع الإشعارات المتشابهة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اختيار قناة التوصيل المناسبة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">احترام أوقات الراحة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التعلم من تفاعل المستخدم</span>
+
+<span class="w">  </span><span class="nt">القنوات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إشعارات التطبيق</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">رسائل SMS</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مكالمات صوتية (للطوارئ)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">واتساب</span>
+</code></pre></div>
+
+<h4 id="advanced-agents">الفئة السادسة: وكلاء متقدمين | Advanced Agents<a class="headerlink" href="#advanced-agents" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 21: المنسق الرئيسي (Orchestrator)</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">orchestrator_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;المنسق</span><span class="nv"> </span><span class="s">الرئيسي</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Master</span><span class="nv"> </span><span class="s">Orchestrator&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🎯</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنسيق عمل جميع الوكلاء وتحديد الأولويات</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توزيع المهام على الوكلاء المتخصصين</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حل التعارضات بين التوصيات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحديد أولويات التنبيهات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعلم أنماط استخدام المزارع</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تخصيص التجربة</span>
+
+<span class="w">  </span><span class="nt">الذكاء</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نموذج لغوي كبير (LLM) للتنسيق</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reinforcement Learning للتحسين</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Knowledge Graph للسياق</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 22: محلل المخاطر</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">risk_analyst_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;محلل</span><span class="nv"> </span><span class="s">المخاطر</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Risk</span><span class="nv"> </span><span class="s">Analyst&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">⚠️</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقييم وإدارة المخاطر الزراعية</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقييم مخاطر الطقس</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مخاطر الآفات والأمراض</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مخاطر السوق والأسعار</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مخاطر المياه</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توصيات التخفيف</span>
+
+<span class="w">  </span><span class="nt">المخرجات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خريطة المخاطر</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنبيهات استباقية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خطط الطوارئ</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 23: مدرب المزارع</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">farmer_trainer_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;مدرب</span><span class="nv"> </span><span class="s">المزارع</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Farmer</span><span class="nv"> </span><span class="s">Trainer&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🎓</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تدريب وتأهيل المزارعين</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دورات تدريبية تفاعلية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اختبارات وتقييم</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شهادات إتمام</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محتوى مخصص لمستوى المزارع</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعلم من الأخطاء</span>
+
+<span class="w">  </span><span class="nt">المحتوى</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">أساسيات الزراعة الحديثة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">استخدام التقنية الزراعية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الممارسات المستدامة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إدارة المزرعة</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 24: وكيل الامتثال</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">compliance_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;وكيل</span><span class="nv"> </span><span class="s">الامتثال</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Compliance</span><span class="nv"> </span><span class="s">Agent&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✓</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ضمان الامتثال للمعايير والشهادات</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع متطلبات الشهادات (GAP, Organic)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توثيق العمليات الزراعية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنبيهات انتهاء الصلاحيات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إعداد ملفات التدقيق</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التحقق من سلامة المبيدات</span>
+
+<span class="w">  </span><span class="nt">الشهادات_المدعومة</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GlobalGAP</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الزراعة العضوية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التجارة العادلة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">معايير التصدير</span>
+
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># وكيل 25: وكيل الاستدامة</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
+<span class="nt">sustainability_agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">الاسم</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;وكيل</span><span class="nv"> </span><span class="s">الاستدامة</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">Sustainability</span><span class="nv"> </span><span class="s">Agent&quot;</span>
+<span class="w">  </span><span class="nt">الرمز</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">🌱</span>
+<span class="w">  </span><span class="nt">الوصف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعزيز الممارسات الزراعية المستدامة</span>
+
+<span class="w">  </span><span class="nt">القدرات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب البصمة الكربونية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع استخدام المياه</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مراقبة صحة التربة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توصيات التنوع الحيوي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير الاستدامة</span>
+
+<span class="w">  </span><span class="nt">الأهداف</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">SDG 2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">القضاء على الجوع</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">SDG 6</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">المياه النظيفة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">SDG 13</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">العمل المناخي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">SDG 15</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الحياة على الأرض</span>
+</code></pre></div>
+
+<h4 id="agent-interaction-diagram">مخطط تفاعل الوكلاء | Agent Interaction Diagram<a class="headerlink" href="#agent-interaction-diagram" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                        منظومة وكلاء سهول الذكية                              │
+│                     SAHOOL AI Agents Ecosystem                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│                        ┌─────────────────────┐                              │
+│                        │   🎯 المنسق الرئيسي  │                              │
+│                        │    Orchestrator     │                              │
+│                        └──────────┬──────────┘                              │
+│                                   │                                         │
+│            ┌──────────────────────┼──────────────────────┐                  │
+│            │                      │                      │                  │
+│    ┌───────▼───────┐     ┌───────▼───────┐     ┌───────▼───────┐           │
+│    │  وكلاء الإنتاج │     │ وكلاء المراقبة │     │  وكلاء السوق  │           │
+│    │  Production   │     │  Monitoring   │     │    Market     │           │
+│    └───────┬───────┘     └───────┬───────┘     └───────┬───────┘           │
+│            │                     │                     │                    │
+│    ┌───────┴───────┐     ┌───────┴───────┐     ┌───────┴───────┐           │
+│    │🌾 المحاصيل    │     │🛰️ الأقمار     │     │📈 الأسعار     │           │
+│    │💧 الري       │     │🌤️ الطقس      │     │🤝 البيع      │           │
+│    │🩺 صحة النبات │     │📡 الحساسات   │     │🛒 الشراء     │           │
+│    │🧪 التسميد    │     │🐛 الآفات     │     │              │           │
+│    │📊 الإنتاجية  │     │              │     │              │           │
+│    └───────────────┘     └───────────────┘     └───────────────┘           │
+│                                                                             │
+│    ┌───────────────┐     ┌───────────────┐     ┌───────────────┐           │
+│    │ وكلاء التخطيط │     │  وكلاء الدعم  │     │وكلاء متقدمين │           │
+│    │   Planning    │     │   Support     │     │   Advanced    │           │
+│    └───────┬───────┘     └───────┬───────┘     └───────┬───────┘           │
+│            │                     │                     │                    │
+│    ┌───────┴───────┐     ┌───────┴───────┐     ┌───────┴───────┐           │
+│    │📅 الموسم     │     │🎙️ الصوت      │     │⚠️ المخاطر    │           │
+│    │📦 المخزون    │     │🌍 الترجمة    │     │🎓 التدريب    │           │
+│    │✅ المهام     │     │📄 التقارير   │     │✓ الامتثال    │           │
+│    │💰 المحاسبة   │     │🔔 الإشعارات  │     │🌱 الاستدامة  │           │
+│    └───────────────┘     └───────────────┘     └───────────────┘           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h4 id="agents-summary-table">جدول ملخص الوكلاء | Agents Summary Table<a class="headerlink" href="#agents-summary-table" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الوكيل</th>
+<th>الرمز</th>
+<th>الفئة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>مستشار المحاصيل</td>
+<td>🌾</td>
+<td>إنتاج</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>2</td>
+<td>خبير الري</td>
+<td>💧</td>
+<td>إنتاج</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>3</td>
+<td>طبيب النبات</td>
+<td>🩺</td>
+<td>إنتاج</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>4</td>
+<td>أخصائي التسميد</td>
+<td>🧪</td>
+<td>إنتاج</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>5</td>
+<td>محلل الإنتاجية</td>
+<td>📊</td>
+<td>إنتاج</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>6</td>
+<td>محلل الأقمار الصناعية</td>
+<td>🛰️</td>
+<td>مراقبة</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>7</td>
+<td>راصد الطقس</td>
+<td>🌤️</td>
+<td>مراقبة</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>8</td>
+<td>محلل الحساسات</td>
+<td>📡</td>
+<td>مراقبة</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>9</td>
+<td>راصد الآفات</td>
+<td>🐛</td>
+<td>مراقبة</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>10</td>
+<td>مخطط الموسم</td>
+<td>📅</td>
+<td>تخطيط</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>11</td>
+<td>مدير المخزون</td>
+<td>📦</td>
+<td>تخطيط</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>12</td>
+<td>منسق المهام</td>
+<td>✅</td>
+<td>تخطيط</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>13</td>
+<td>محاسب المزرعة</td>
+<td>💰</td>
+<td>تخطيط</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>14</td>
+<td>محلل الأسعار</td>
+<td>📈</td>
+<td>سوق</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>15</td>
+<td>وسيط البيع</td>
+<td>🤝</td>
+<td>سوق</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>16</td>
+<td>مستشار الشراء</td>
+<td>🛒</td>
+<td>سوق</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>17</td>
+<td>المساعد الصوتي</td>
+<td>🎙️</td>
+<td>دعم</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>18</td>
+<td>مترجم المحتوى</td>
+<td>🌍</td>
+<td>دعم</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>19</td>
+<td>منشئ التقارير</td>
+<td>📄</td>
+<td>دعم</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>20</td>
+<td>وكيل الإشعارات</td>
+<td>🔔</td>
+<td>دعم</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>21</td>
+<td>المنسق الرئيسي</td>
+<td>🎯</td>
+<td>متقدم</td>
+<td>حرجة</td>
+</tr>
+<tr>
+<td>22</td>
+<td>محلل المخاطر</td>
+<td>⚠️</td>
+<td>متقدم</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>23</td>
+<td>مدرب المزارع</td>
+<td>🎓</td>
+<td>متقدم</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>24</td>
+<td>وكيل الامتثال</td>
+<td>✓</td>
+<td>متقدم</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>25</td>
+<td>وكيل الاستدامة</td>
+<td>🌱</td>
+<td>متقدم</td>
+<td>متوسطة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">المرحلة الثانية: التكامل مع إنترنت الأشياء<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="phase-2-iot-integration-q3-q4-2026">Phase 2: IoT Integration (Q3-Q4 2026)<a class="headerlink" href="#phase-2-iot-integration-q3-q4-2026" title="Permanent link">&para;</a></h2>
+<h3 id="21-low-cost-sensor-network">2.1 شبكة استشعار منخفضة التكلفة | Low-Cost Sensor Network<a class="headerlink" href="#21-low-cost-sensor-network" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساسات زراعية بأسعار معقولة</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية</span>
+<span class="nt">التكلفة المستهدفة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 50 دولار للوحدة</span>
+
+<span class="nt">المواصفات</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">حساسات_التربة</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">رطوبة التربة (capacitive)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">درجة الحرارة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الموصلية الكهربائية (EC)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">درجة الحموضة (pH)</span>
+
+<span class="w">  </span><span class="nt">حساسات_الجو</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">درجة الحرارة والرطوبة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">سرعة واتجاه الرياح</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كمية الأمطار</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شدة الإشعاع الشمسي</span>
+
+<span class="w">  </span><span class="nt">الاتصال</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LoRaWAN للمسافات الطويلة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Bluetooth للمسافات القصيرة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تخزين محلي عند انقطاع الاتصال</span>
+
+<span class="nt">عمر_البطارية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12-18 شهر (طاقة شمسية)</span>
+</code></pre></div>
+
+<h3 id="22-automated-smart-irrigation">2.2 الري الذكي الآلي | Automated Smart Irrigation<a class="headerlink" href="#22-automated-smart-irrigation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحكم آلي بالري بناءً على البيانات الفعلية</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية</span>
+<span class="nt">التوفير المتوقع</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30-50% من استهلاك المياه</span>
+
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">صمامات ذكية متصلة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جدولة آلية حسب احتياج المحصول</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعديل فوري بناءً على الطقس</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير استهلاك تفصيلية</span>
+
+<span class="nt">التكامل</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساسات رطوبة التربة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بيانات التبخر-نتح (ET)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توقعات الأمطار</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مرحلة نمو المحصول</span>
+</code></pre></div>
+
+<h3 id="23-smart-pest-traps">2.3 مصائد آفات ذكية | Smart Pest Traps<a class="headerlink" href="#23-smart-pest-traps" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">رصد آلي للآفات بالكاميرات</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متوسطة</span>
+
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كاميرات منخفضة الطاقة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعرف آلي على الحشرات بالذكاء الاصطناعي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عد تلقائي وتصنيف</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنبيهات عند تجاوز العتبة الاقتصادية</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_4">المرحلة الثالثة: الخدمات المالية الزراعية<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h2 id="phase-3-agricultural-fintech-q4-2026-q1-2027">Phase 3: Agricultural FinTech (Q4 2026 - Q1 2027)<a class="headerlink" href="#phase-3-agricultural-fintech-q4-2026-q1-2027" title="Permanent link">&para;</a></h2>
+<h3 id="31-micro-financing-for-farmers">3.1 التمويل الزراعي المصغر | Micro-Financing for Farmers<a class="headerlink" href="#31-micro-financing-for-farmers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">قروض زراعية صغيرة مبنية على البيانات</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية</span>
+<span class="nt">التأثير</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تمكين 70% من المزارعين غير المتمولين</span>
+
+<span class="nt">آلية_العمل</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">تقييم_الجدارة_الائتمانية</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">سجل الإنتاجية التاريخي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جودة إدارة المزرعة (من بيانات التطبيق)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنوع المحاصيل</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الالتزام بالتوصيات</span>
+
+<span class="w">  </span><span class="nt">منتجات_التمويل</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">قروض موسمية (للبذور والأسمدة)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">قروض المعدات (بالتقسيط)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تمويل الري (طويل الأجل)</span>
+
+<span class="w">  </span><span class="nt">الشراكات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بنوك التمويل الأصغر</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مؤسسات التمويل الإسلامي</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">صناديق التنمية الزراعية</span>
+</code></pre></div>
+
+<h3 id="32-parametric-crop-insurance">3.2 التأمين الزراعي الذكي | Parametric Crop Insurance<a class="headerlink" href="#32-parametric-crop-insurance" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تأمين آلي يعتمد على بيانات الأقمار الصناعية</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية</span>
+<span class="nt">التأثير</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حماية المزارعين من المخاطر المناخية</span>
+
+<span class="nt">المبدأ</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعويض تلقائي عند حدوث ظروف محددة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">لا حاجة لتقييم ميداني (يقلل التكاليف)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">صرف سريع خلال 72 ساعة</span>
+
+<span class="nt">المحفزات_التلقائية</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">جفاف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NDVI &lt; 0.3 لمدة 14 يوم</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">فيضان</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">هطول &gt; 100 مم في 24 ساعة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">موجة حر</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 45°م لمدة 5 أيام</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">صقيع</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 0°م لمدة ليلتين متتاليتين</span>
+
+<span class="nt">التكامل</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بيانات Sentinel-2 للتحقق</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محطات الطقس للتأكيد</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">العقود الذكية للصرف الآلي</span>
+</code></pre></div>
+
+<h3 id="33-futures-marketplace">3.3 سوق العقود الآجلة | Futures Marketplace<a class="headerlink" href="#33-futures-marketplace" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">منصة للتعاقد المسبق على المحاصيل</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متوسطة</span>
+
+<span class="nt">الفوائد</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">للمزارع</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ضمان سعر البيع مسبقاً</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقليل مخاطر تقلب الأسعار</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الحصول على تمويل بناءً على العقد</span>
+
+<span class="w">  </span><span class="nt">للمشتري</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ضمان الإمداد</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تخطيط أفضل للمخزون</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع جودة المنتج</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_5">المرحلة الرابعة: الاستدامة والبيئة<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="phase-4-sustainability-environment-q1-q2-2027">Phase 4: Sustainability &amp; Environment (Q1-Q2 2027)<a class="headerlink" href="#phase-4-sustainability-environment-q1-q2-2027" title="Permanent link">&para;</a></h2>
+<h3 id="41-carbon-footprint-calculator">4.1 حاسبة البصمة الكربونية | Carbon Footprint Calculator<a class="headerlink" href="#41-carbon-footprint-calculator" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">قياس وتقليل الانبعاثات الزراعية</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متوسطة</span>
+<span class="nt">التأثير</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الوصول لأسواق الكربون العالمية</span>
+
+<span class="nt">القياسات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">انبعاثات استخدام الأسمدة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">انبعاثات الري والضخ</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">امتصاص الكربون في التربة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">البصمة الكربونية للمنتج النهائي</span>
+
+<span class="nt">الفرص</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بيع أرصدة الكربون</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شهادات الزراعة المستدامة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">علاوة سعرية للمنتجات الخضراء</span>
+</code></pre></div>
+
+<h3 id="42-soil-health-management">4.2 إدارة صحة التربة | Soil Health Management<a class="headerlink" href="#42-soil-health-management" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مراقبة وتحسين صحة التربة طويلة المدى</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية</span>
+
+<span class="nt">المؤشرات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محتوى المادة العضوية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التنوع الحيوي للتربة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بنية التربة والتهوية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">قدرة الاحتفاظ بالماء</span>
+
+<span class="nt">التوصيات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دورات محاصيل مثلى</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إضافة المحسنات العضوية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الزراعة بدون حراثة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">المحاصيل الغطائية</span>
+</code></pre></div>
+
+<h3 id="43-smart-water-management">4.3 إدارة المياه الذكية | Smart Water Management<a class="headerlink" href="#43-smart-water-management" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين كفاءة استخدام المياه على مستوى الحوض</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية جداً (أولوية وطنية)</span>
+
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خرائط استنزاف المياه الجوفية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توصيات تغيير المحاصيل حسب المياه المتاحة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نظام حصص مائية ذكي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إعادة استخدام المياه المعالجة</span>
+
+<span class="nt">الهدف</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقليل استهلاك المياه 40%</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حماية المياه الجوفية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">زيادة إنتاجية المياه (kg/m³)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_6">المرحلة الخامسة: المجتمع والتعاون<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h2 id="phase-5-community-collaboration-q2-q3-2027">Phase 5: Community &amp; Collaboration (Q2-Q3 2027)<a class="headerlink" href="#phase-5-community-collaboration-q2-q3-2027" title="Permanent link">&para;</a></h2>
+<h3 id="51-farmer-to-farmer-network">5.1 شبكة المزارعين التشاركية | Farmer-to-Farmer Network<a class="headerlink" href="#51-farmer-to-farmer-network" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">منصة لتبادل الخبرات بين المزارعين</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متوسطة</span>
+
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">منتدى أسئلة وأجوبة مع خبراء</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مشاركة الصور والتجارب</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقييم النصائح من مزارعين آخرين</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مجموعات حسب المنطقة والمحصول</span>
+
+<span class="nt">التلعيب</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نقاط للمساهمات المفيدة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شارات للخبرة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">لوحة متصدرين</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جوائز للمساهمين المتميزين</span>
+</code></pre></div>
+
+<h3 id="52-digital-cooperatives">5.2 التعاونيات الرقمية | Digital Cooperatives<a class="headerlink" href="#52-digital-cooperatives" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إدارة التعاونيات الزراعية رقمياً</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متوسطة</span>
+
+<span class="nt">الوظائف</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الشراء الجماعي للمدخلات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التسويق المشترك للمنتجات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مشاركة المعدات والآلات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إدارة المخزون والمستودعات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توزيع الأرباح الشفاف</span>
+</code></pre></div>
+
+<h3 id="53-market-linkage-platform">5.3 ربط المزارعين بالأسواق | Market Linkage Platform<a class="headerlink" href="#53-market-linkage-platform" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ربط مباشر بين المزارع والمشتري</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عالية</span>
+
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">سوق إلكتروني للمنتجات الزراعية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نظام مزادات للمحاصيل</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع سلسلة التوريد</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقييمات الجودة والموثوقية</span>
+
+<span class="nt">الفوائد</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إلغاء الوسطاء (20-40% زيادة للمزارع)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شفافية الأسعار</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">وصول لأسواق جديدة</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_7">المرحلة السادسة: التقنيات المتقدمة<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h2 id="phase-6-advanced-technologies-q3-q4-2027">Phase 6: Advanced Technologies (Q3-Q4 2027)<a class="headerlink" href="#phase-6-advanced-technologies-q3-q4-2027" title="Permanent link">&para;</a></h2>
+<h3 id="61-agricultural-drones">6.1 الطائرات المسيّرة الزراعية | Agricultural Drones<a class="headerlink" href="#61-agricultural-drones" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خدمات الطائرات بدون طيار للمزارعين</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متوسطة</span>
+
+<span class="nt">الخدمات</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">المسح_والتصوير</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خرائط NDVI عالية الدقة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كشف مبكر للآفات والأمراض</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقدير الإنتاجية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مراقبة الري</span>
+
+<span class="w">  </span><span class="nt">الرش_الدقيق</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">رش موضعي للمبيدات</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توزيع الأسمدة الورقية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقليل استخدام الكيماويات 50-70%</span>
+
+<span class="w">  </span><span class="nt">نموذج_العمل</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خدمة مشتركة (Drone-as-a-Service)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حجز عبر التطبيق</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تسعير بالهكتار</span>
+</code></pre></div>
+
+<h3 id="62-ar-training-platform">6.2 الواقع المعزز للتدريب | AR Training Platform<a class="headerlink" href="#62-ar-training-platform" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تدريب المزارعين بالواقع المعزز</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">منخفضة</span>
+
+<span class="nt">التطبيقات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التعرف على الآفات بتوجيه الكاميرا</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دليل تشغيل المعدات التفاعلي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محاكاة عمليات الزراعة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تشخيص المشاكل خطوة بخطوة</span>
+</code></pre></div>
+
+<h3 id="63-blockchain-traceability">6.3 البلوكتشين للتتبع | Blockchain Traceability<a class="headerlink" href="#63-blockchain-traceability" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع المنتج من المزرعة للمستهلك</span>
+<span class="nt">الأولوية</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">منخفضة</span>
+
+<span class="nt">الفوائد</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إثبات المنشأ</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شهادات الجودة الموثقة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">الوصول للأسواق العالمية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">علاوة سعرية للمنتجات الموثقة</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_8">المرحلة السابعة: التوسع الإقليمي<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h2 id="phase-7-regional-expansion-2028">Phase 7: Regional Expansion (2028)<a class="headerlink" href="#phase-7-regional-expansion-2028" title="Permanent link">&para;</a></h2>
+<h3 id="71-market-localization">7.1 التوطين للأسواق الجديدة | Market Localization<a class="headerlink" href="#71-market-localization" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الأسواق_المستهدفة</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">المرحلة_1</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">السعودية (تركيز على نخيل التمر)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عُمان (الزراعة الجبلية)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">السودان (الزراعة المطرية)</span>
+
+<span class="w">  </span><span class="nt">المرحلة_2</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مصر (وادي النيل)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">المغرب (الزراعة المتوسطية)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">العراق (الزراعة المروية)</span>
+
+<span class="nt">متطلبات_التوطين</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">قواعد بيانات المحاصيل المحلية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التكامل مع الجهات الحكومية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اللهجات والمصطلحات المحلية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">موفري الخدمات المحليين</span>
+</code></pre></div>
+
+<h3 id="72-strategic-partnerships">7.2 الشراكات الاستراتيجية | Strategic Partnerships<a class="headerlink" href="#72-strategic-partnerships" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الشراكات_المستهدفة</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">حكومية</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">وزارات الزراعة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مراكز البحوث الزراعية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">صناديق التنمية الزراعية</span>
+
+<span class="w">  </span><span class="nt">القطاع_الخاص</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شركات المدخلات الزراعية</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">البنوك والتمويل</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شركات التأمين</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">موزعي المعدات</span>
+
+<span class="w">  </span><span class="nt">دولية</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FAO</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IFAD</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">World Bank</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CGIAR</span>
+</code></pre></div>
+
+<hr />
+<h2 id="timeline-summary">ملخص الجدول الزمني | Timeline Summary<a class="headerlink" href="#timeline-summary" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                     خارطة طريق تطوير سهول 2026-2028                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  2026 Q2  ████████ المرحلة 1: الذكاء الاصطناعي                              │
+│           ├─ المستشار الصوتي                                                │
+│           ├─ التنبؤ بالآفات                                                 │
+│           └─ التوأم الرقمي                                                  │
+│                                                                             │
+│  2026 Q3  ████████ المرحلة 2: إنترنت الأشياء                                │
+│           ├─ شبكة الحساسات                                                  │
+│           ├─ الري الآلي                                                     │
+│           └─ مصائد الآفات الذكية                                            │
+│                                                                             │
+│  2026 Q4  ████████ المرحلة 3: التقنية المالية                               │
+│           ├─ التمويل الأصغر                                                 │
+│           ├─ التأمين الذكي                                                  │
+│           └─ العقود الآجلة                                                  │
+│                                                                             │
+│  2027 Q1  ████████ المرحلة 4: الاستدامة                                     │
+│           ├─ البصمة الكربونية                                               │
+│           ├─ صحة التربة                                                     │
+│           └─ إدارة المياه                                                   │
+│                                                                             │
+│  2027 Q2  ████████ المرحلة 5: المجتمع                                       │
+│           ├─ شبكة المزارعين                                                 │
+│           ├─ التعاونيات الرقمية                                             │
+│           └─ ربط الأسواق                                                    │
+│                                                                             │
+│  2027 Q3  ████████ المرحلة 6: التقنيات المتقدمة                             │
+│           ├─ الطائرات المسيّرة                                              │
+│           ├─ الواقع المعزز                                                  │
+│           └─ البلوكتشين                                                     │
+│                                                                             │
+│  2028     ████████ المرحلة 7: التوسع الإقليمي                               │
+│           ├─ السعودية وعُمان                                                │
+│           ├─ السودان ومصر                                                   │
+│           └─ المغرب والعراق                                                 │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="key-performance-indicators">مؤشرات الأداء الرئيسية | Key Performance Indicators<a class="headerlink" href="#key-performance-indicators" title="Permanent link">&para;</a></h2>
+<h3 id="growth-metrics">مؤشرات النمو | Growth Metrics<a class="headerlink" href="#growth-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>2026</th>
+<th>2027</th>
+<th>2028</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>المزارعون النشطون</td>
+<td>10,000</td>
+<td>50,000</td>
+<td>200,000</td>
+</tr>
+<tr>
+<td>الحقول المسجلة</td>
+<td>25,000</td>
+<td>150,000</td>
+<td>500,000</td>
+</tr>
+<tr>
+<td>المساحة (هكتار)</td>
+<td>100,000</td>
+<td>500,000</td>
+<td>2,000,000</td>
+</tr>
+<tr>
+<td>الدول</td>
+<td>1</td>
+<td>3</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact-metrics">مؤشرات التأثير | Impact Metrics<a class="headerlink" href="#impact-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الهدف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>زيادة الإنتاجية</td>
+<td>+25%</td>
+</tr>
+<tr>
+<td>توفير المياه</td>
+<td>-35%</td>
+</tr>
+<tr>
+<td>تقليل المبيدات</td>
+<td>-40%</td>
+</tr>
+<tr>
+<td>زيادة دخل المزارع</td>
+<td>+30%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sustainability-metrics">مؤشرات الاستدامة | Sustainability Metrics<a class="headerlink" href="#sustainability-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الهدف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تقليل الانبعاثات</td>
+<td>-20%</td>
+</tr>
+<tr>
+<td>تحسين صحة التربة</td>
+<td>+15%</td>
+</tr>
+<tr>
+<td>كفاءة استخدام المياه</td>
+<td>+40%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="risks-challenges">المخاطر والتحديات | Risks &amp; Challenges<a class="headerlink" href="#risks-challenges" title="Permanent link">&para;</a></h2>
+<h3 id="technical-risks">المخاطر التقنية | Technical Risks<a class="headerlink" href="#technical-risks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">connectivity</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">المخاطر</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ضعف البنية التحتية للاتصالات</span>
+<span class="w">  </span><span class="nt">التخفيف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعزيز قدرات العمل بدون اتصال</span>
+
+<span class="nt">hardware</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">المخاطر</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تكلفة وصيانة الحساسات</span>
+<span class="w">  </span><span class="nt">التخفيف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شراكات مع مصنعين محليين</span>
+
+<span class="nt">data_quality</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">المخاطر</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">جودة البيانات من المزارعين</span>
+<span class="w">  </span><span class="nt">التخفيف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التحقق الآلي والتدريب</span>
+</code></pre></div>
+
+<h3 id="market-risks">المخاطر السوقية | Market Risks<a class="headerlink" href="#market-risks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">adoption</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">المخاطر</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مقاومة التغيير من المزارعين</span>
+<span class="w">  </span><span class="nt">التخفيف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نهج تدريجي مع إثبات القيمة</span>
+
+<span class="nt">competition</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">المخاطر</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دخول منافسين دوليين</span>
+<span class="w">  </span><span class="nt">التخفيف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">التركيز على التوطين والفهم المحلي</span>
+
+<span class="nt">regulation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">المخاطر</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تغير السياسات الحكومية</span>
+<span class="w">  </span><span class="nt">التخفيف</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شراكات استراتيجية مع الجهات الرسمية</span>
+</code></pre></div>
+
+<hr />
+<h2 id="conclusion">الخلاصة | Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>تهدف خارطة الطريق هذه إلى تحويل منصة سهول من أداة إدارة زراعية إلى <strong>منظومة متكاملة لتمكين المزارع العربي</strong>، تجمع بين:</p>
+<ol>
+<li><strong>الذكاء الاصطناعي</strong> للتوصيات الدقيقة</li>
+<li><strong>إنترنت الأشياء</strong> للمراقبة الفورية</li>
+<li><strong>التقنية المالية</strong> للتمويل والتأمين</li>
+<li><strong>الاستدامة</strong> للحفاظ على الموارد</li>
+<li><strong>المجتمع</strong> للتعلم التشاركي</li>
+</ol>
+<blockquote>
+<p><strong>الرؤية</strong>: كل مزارع عربي يملك مستشاراً زراعياً ذكياً في جيبه.</p>
+</blockquote>
+<hr />
+<p><em>آخر تحديث: يناير 2026</em>
+<em>المسؤول: فريق المنتج - كفاءات</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

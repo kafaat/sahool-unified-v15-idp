@@ -114,7 +114,7 @@ export function EquipmentMap() {
         });
 
         // Fit map to show all markers
-        if (equipmentWithLocation.length > 0) {
+        if (equipmentWithLocation.length > 0 && mapInstanceRef.current) {
           const bounds = L.latLngBounds(
             equipmentWithLocation.map((e) => [
               e.location!.latitude,

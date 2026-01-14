@@ -2640,16 +2640,16 @@ services:
       dockerfile: apps/services/skills-service/Dockerfile
     container_name: sahool-skills-service
     environment:
-      - PORT=8110
+      - PORT=8121
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8110:8110"
+      - "8121:8121"
     depends_on:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8121/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

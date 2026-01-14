@@ -313,6 +313,29 @@ class ApiConfig {
   static String get moonPhases => '$baseUrl/api/v1/astronomy/moon-phases';
   static String get prayerTimes => '$baseUrl/api/v1/astronomy/prayer-times';
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Field Intelligence Service
+  // خدمة ذكاء الحقول
+  // Kong route: /api/v1/field-intelligence → strips to / → service receives /*
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get fieldIntelligence => '$baseUrl/api/v1/field-intelligence';
+  static String get fieldRules => '$baseUrl/api/v1/field-intelligence/rules';
+  static String fieldRuleById(String ruleId) => '$baseUrl/api/v1/field-intelligence/rules/$ruleId';
+  static String get fieldEvents => '$baseUrl/api/v1/field-intelligence/events';
+  static String get fieldAutomation => '$baseUrl/api/v1/field-intelligence/automation';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Skills Service
+  // خدمة المهارات
+  // Kong route: /api/v1/skills → strips to / → service receives /*
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get skills => '$baseUrl/api/v1/skills';
+  static String skillById(String skillId) => '$baseUrl/api/v1/skills/$skillId';
+  static String get skillMemory => '$baseUrl/api/v1/skills/memory';
+  static String get skillEvaluate => '$baseUrl/api/v1/skills/evaluate';
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Timeouts Configuration
   // ═══════════════════════════════════════════════════════════════════════════
@@ -360,5 +383,7 @@ class ApiConfig {
     'equipment': healthCheck('equipment'),
     'notifications': healthCheck('notifications'),
     'marketplace': healthCheck('marketplace'),
+    'fieldIntelligence': healthCheck('field-intelligence'),
+    'skills': healthCheck('skills'),
   };
 }

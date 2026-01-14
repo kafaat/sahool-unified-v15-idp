@@ -484,6 +484,16 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
+  - name: skills-service
+    host: skills-service
+    port: 8121
+    protocol: http
+    routes:
+      - name: skills-service-route
+        paths: ["/api/v1/skills", "/skills"]
+        strip_path: true
+        protocols: ["http", "https"]
+
   # -----------------------------
   # Platform endpoints
   # -----------------------------

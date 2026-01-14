@@ -1,7 +1,7 @@
 """
 SAHOOL Skills Service - Main API
 Manages AI model skill compression, memory storage/recall, and evaluation
-Port: 8110
+Port: 8121
 """
 
 import json

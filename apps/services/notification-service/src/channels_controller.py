@@ -16,7 +16,9 @@ from .channels_service import ChannelsService
 logger = logging.getLogger("sahool-notifications.channels-controller")
 
 # Create router
-router = APIRouter(prefix="/v1/channels", tags=["Channels"])
+# Note: No prefix - Kong handles /api/v1/channels routing with strip_path: true
+# Kong strips /api/v1/channels, so service receives /add, /list, etc.
+router = APIRouter(prefix="", tags=["Channels"])
 
 
 # =============================================================================

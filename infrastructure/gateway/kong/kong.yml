@@ -388,7 +388,11 @@ services:
         strip_path: true
         protocols: ["http", "https"]
       - name: notification-alerts-route
-        paths: ["/api/v1/notification-alerts"]
+        paths: ["/api/v1/alerts", "/alerts"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-stats-route
+        paths: ["/api/v1/notification-stats"]
         strip_path: true
         protocols: ["http", "https"]
       - name: notification-reminders-route

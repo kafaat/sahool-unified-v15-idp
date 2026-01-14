@@ -32,6 +32,7 @@ import {
   hasRouteAccess,
   getUnauthorizedRedirect,
 } from "@/lib/auth/route-protection";
+import { logger } from "@/lib/logger";
 
 // Idle timeout: 30 minutes in milliseconds
 const IDLE_TIMEOUT = 30 * 60 * 1000;
@@ -91,7 +92,7 @@ export async function middleware(request: NextRequest) {
     userRole = payload.role || "viewer";
   } catch (error) {
     // Token verification failed (invalid signature, malformed, etc.)
-    console.error("Token verification failed:", error);
+    logger.error("Token verification failed:", error);
 
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("returnTo", pathname);

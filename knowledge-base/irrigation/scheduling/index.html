@@ -1,0 +1,1843 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="دليل تحديد مواعيد وكميات الري بدقة لتحقيق أفضل النتائج">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>جدولة الري - Irrigation Scheduling - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#irrigation-scheduling" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              جدولة الري - Irrigation Scheduling
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="irrigation-scheduling">جدولة الري | Irrigation Scheduling<a class="headerlink" href="#irrigation-scheduling" title="Permanent link">&para;</a></h1>
+<p>جدولة الري هي علم تحديد <strong>متى</strong> و<strong>كم</strong> نروي لتحقيق أفضل إنتاج بأقل استهلاك مياه.</p>
+<h2 id="why-scheduling-matters">أهمية الجدولة | Why Scheduling Matters<a class="headerlink" href="#why-scheduling-matters" title="Permanent link">&para;</a></h2>
+<h3 id="_1">مشاكل الري العشوائي<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المشكلة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ري مبكر</strong></td>
+<td>هدر مياه، غسل مغذيات</td>
+</tr>
+<tr>
+<td><strong>ري متأخر</strong></td>
+<td>إجهاد النبات، نقص الإنتاج</td>
+</tr>
+<tr>
+<td><strong>كمية زائدة</strong></td>
+<td>عفن جذور، [[../diseases/fungal|أمراض]]</td>
+</tr>
+<tr>
+<td><strong>كمية ناقصة</strong></td>
+<td>ذبول، ضعف نمو</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">فوائد الجدولة الصحيحة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>توفير 20-30% من المياه</li>
+<li>زيادة الإنتاج 15-25%</li>
+<li>تقليل الأمراض</li>
+<li>تحسين جودة المحصول</li>
+<li>توفير تكاليف الطاقة</li>
+</ul>
+<hr />
+<h2 id="scheduling-methods">طرق تحديد موعد الري | Scheduling Methods<a class="headerlink" href="#scheduling-methods" title="Permanent link">&para;</a></h2>
+<h3 id="1-water-balance-method">1. طريقة حساب الاحتياج المائي | Water Balance Method<a class="headerlink" href="#1-water-balance-method" title="Permanent link">&para;</a></h3>
+<h4 id="_3">المعادلة الأساسية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>الاحتياج اليومي (مم) = ETo × Kc
+
+حيث:
+ETo = التبخر-نتح المرجعي (من محطة طقس)
+Kc = معامل المحصول (حسب مرحلة النمو)
+</code></pre></div>
+
+<h4 id="kc">قيم Kc للمحاصيل الرئيسية<a class="headerlink" href="#kc" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المحصول</th>
+<th>البداية</th>
+<th>النمو</th>
+<th>الوسط</th>
+<th>النهاية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[[../crops/wheat|القمح]]</td>
+<td>0.30</td>
+<td>0.70</td>
+<td>1.15</td>
+<td>0.40</td>
+</tr>
+<tr>
+<td>[[../crops/barley|الشعير]]</td>
+<td>0.30</td>
+<td>0.70</td>
+<td>1.10</td>
+<td>0.35</td>
+</tr>
+<tr>
+<td>[[../crops/dates|التمور]]</td>
+<td>0.90</td>
+<td>0.95</td>
+<td>0.95</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>طماطم</td>
+<td>0.45</td>
+<td>0.75</td>
+<td>1.15</td>
+<td>0.80</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_4">مثال حسابي<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>مزرعة قمح في مرحلة الإزهار:
+- ETo من المحطة = 6 مم/يوم
+- Kc للقمح (إزهار) = 1.15
+
+الاحتياج اليومي = 6 × 1.15 = 6.9 مم/يوم
+
+إذا كفاءة الري = 85% (تنقيط):
+الري المطلوب = 6.9 ÷ 0.85 = 8.1 مم/يوم
+</code></pre></div>
+
+<hr />
+<h3 id="2-soil-moisture-method">2. طريقة رطوبة التربة | Soil Moisture Method<a class="headerlink" href="#2-soil-moisture-method" title="Permanent link">&para;</a></h3>
+<h4 id="_5">المبدأ<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<p>الري عندما تصل رطوبة التربة لحد معين.</p>
+<h4 id="_6">حدود الري الموصاة<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>نوع التربة</th>
+<th>بدء الري (MAD%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>رملية</td>
+<td>40-50%</td>
+</tr>
+<tr>
+<td>طينية طميية</td>
+<td>50-60%</td>
+</tr>
+<tr>
+<td>طينية</td>
+<td>60-70%</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>MAD</strong> = Maximum Allowable Depletion (نسبة الاستنزاف المسموحة)</p>
+</blockquote>
+<h4 id="_7">طرق قياس رطوبة التربة<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الطريقة</th>
+<th>الدقة</th>
+<th>التكلفة</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>اللمس والحس</strong></td>
+<td>منخفضة</td>
+<td>مجاني</td>
+<td>مبتدئ</td>
+</tr>
+<tr>
+<td><strong>Tensiometer</strong></td>
+<td>جيدة</td>
+<td>متوسطة</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td><strong>حساس إلكتروني</strong></td>
+<td>عالية</td>
+<td>عالية</td>
+<td>متقدم</td>
+</tr>
+<tr>
+<td><strong>Gravimetric</strong></td>
+<td>دقيقة جداً</td>
+<td>منخفضة</td>
+<td>بحث</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_8">طريقة اللمس والحس (للمبتدئين)<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>وصف التربة</th>
+<th>الرطوبة</th>
+<th>القرار</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تتفتت بالضغط</td>
+<td>&lt; 25%</td>
+<td>ري فوري</td>
+</tr>
+<tr>
+<td>تتماسك قليلاً</td>
+<td>25-50%</td>
+<td>ري قريب</td>
+</tr>
+<tr>
+<td>تتشكل كرة</td>
+<td>50-75%</td>
+<td>انتظر</td>
+</tr>
+<tr>
+<td>لزجة</td>
+<td>&gt; 75%</td>
+<td>لا تروِ</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="3-plant-appearance-method">3. طريقة مظهر النبات | Plant Appearance Method<a class="headerlink" href="#3-plant-appearance-method" title="Permanent link">&para;</a></h3>
+<h4 id="_9">علامات الحاجة للري<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>العلامة</th>
+<th>الشدة</th>
+<th>التصرف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تغير لون الأوراق للباهت</td>
+<td>خفيفة</td>
+<td>ري خلال يوم</td>
+</tr>
+<tr>
+<td>تدلي الأوراق صباحاً</td>
+<td>متوسطة</td>
+<td>ري فوري</td>
+</tr>
+<tr>
+<td>التفاف الأوراق</td>
+<td>شديدة</td>
+<td>ري عاجل</td>
+</tr>
+<tr>
+<td>جفاف أطراف الأوراق</td>
+<td>متأخرة</td>
+<td>ضرر حدث</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>تحذير</strong>: انتظار ظهور الأعراض يسبب خسارة في الإنتاج</p>
+</blockquote>
+<hr />
+<h3 id="4-calendar-scheduling">4. الجدولة بالتقويم | Calendar Scheduling<a class="headerlink" href="#4-calendar-scheduling" title="Permanent link">&para;</a></h3>
+<h4 id="_10">الأبسط لكن الأقل دقة<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h4>
+<h5 id="cropsdates">مثال: جدول ري [[../crops/dates|النخيل]]<a class="headerlink" href="#cropsdates" title="Permanent link">&para;</a></h5>
+<table>
+<thead>
+<tr>
+<th>الشهر</th>
+<th>التكرار</th>
+<th>الكمية/شجرة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>يناير</td>
+<td>كل 15 يوم</td>
+<td>100 لتر</td>
+<td>الشتاء</td>
+</tr>
+<tr>
+<td>فبراير</td>
+<td>كل 10 أيام</td>
+<td>120 لتر</td>
+<td>بداية النمو</td>
+</tr>
+<tr>
+<td>مارس</td>
+<td>كل 7 أيام</td>
+<td>150 لتر</td>
+<td>الربيع</td>
+</tr>
+<tr>
+<td>أبريل</td>
+<td>كل 5 أيام</td>
+<td>180 لتر</td>
+<td>ارتفاع الحرارة</td>
+</tr>
+<tr>
+<td>مايو</td>
+<td>كل 4 أيام</td>
+<td>200 لتر</td>
+<td>بداية الصيف</td>
+</tr>
+<tr>
+<td>يونيو-أغسطس</td>
+<td>كل 2-3 أيام</td>
+<td>250 لتر</td>
+<td>ذروة الصيف</td>
+</tr>
+<tr>
+<td>سبتمبر</td>
+<td>كل 4 أيام</td>
+<td>180 لتر</td>
+<td>بداية الخريف</td>
+</tr>
+<tr>
+<td>أكتوبر</td>
+<td>كل 7 أيام</td>
+<td>150 لتر</td>
+<td>الخريف</td>
+</tr>
+<tr>
+<td>نوفمبر</td>
+<td>كل 10 أيام</td>
+<td>120 لتر</td>
+<td>نهاية الخريف</td>
+</tr>
+<tr>
+<td>ديسمبر</td>
+<td>كل 15 يوم</td>
+<td>100 لتر</td>
+<td>الشتاء</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical-periods">الفترات الحرجة للري | Critical Periods<a class="headerlink" href="#critical-periods" title="Permanent link">&para;</a></h2>
+<h3 id="_11">متى الري أهم؟<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المحصول</th>
+<th>الفترة الحرجة</th>
+<th>نسبة الخسارة إذا تجاهلت</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[[../crops/wheat|القمح]]</td>
+<td>الإزهار وتكوين الحبوب</td>
+<td>40-60%</td>
+</tr>
+<tr>
+<td>[[../crops/barley|الشعير]]</td>
+<td>الإزهار</td>
+<td>35-50%</td>
+</tr>
+<tr>
+<td>[[../crops/dates|التمور]]</td>
+<td>التلقيح وتكوين الثمار</td>
+<td>30-50%</td>
+</tr>
+<tr>
+<td>طماطم</td>
+<td>الإزهار والإثمار</td>
+<td>50-70%</td>
+</tr>
+<tr>
+<td>بطاطس</td>
+<td>تكوين الدرنات</td>
+<td>40-60%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">قاعدة ذهبية<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>لا تترك المحصول يعطش في الفترة الحرجة أبداً</strong></p>
+</blockquote>
+<hr />
+<h2 id="calculating-irrigation-amount">حساب كمية الري | Calculating Irrigation Amount<a class="headerlink" href="#calculating-irrigation-amount" title="Permanent link">&para;</a></h2>
+<h3 id="_13">المعادلة العامة<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>كمية الري (مم) = (CC - الرطوبة الحالية) × عمق الجذور × معامل الأمان
+
+حيث:
+CC = السعة الحقلية (Field Capacity)
+</code></pre></div>
+
+<h3 id="_14">جداول مرجعية سريعة<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<h4 id="_15">السعة الحقلية حسب نوع التربة<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>نوع التربة</th>
+<th>CC (مم/م)</th>
+<th>PWP (مم/م)</th>
+<th>الماء المتاح</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>رملية</td>
+<td>80-120</td>
+<td>30-50</td>
+<td>50-70</td>
+</tr>
+<tr>
+<td>طينية طميية</td>
+<td>200-280</td>
+<td>80-120</td>
+<td>120-160</td>
+</tr>
+<tr>
+<td>طينية</td>
+<td>300-400</td>
+<td>150-200</td>
+<td>150-200</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_16">عمق الجذور للمحاصيل<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المحصول</th>
+<th>عمق الجذور الفعال</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[[../crops/wheat|القمح]]</td>
+<td>100-150 سم</td>
+</tr>
+<tr>
+<td>[[../crops/barley|الشعير]]</td>
+<td>100-150 سم</td>
+</tr>
+<tr>
+<td>[[../crops/dates|النخيل]]</td>
+<td>100-200 سم</td>
+</tr>
+<tr>
+<td>خضروات</td>
+<td>30-60 سم</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="special-conditions">التعامل مع ظروف خاصة | Special Conditions<a class="headerlink" href="#special-conditions" title="Permanent link">&para;</a></h2>
+<h3 id="heat-waves">الموجات الحرارية | Heat Waves<a class="headerlink" href="#heat-waves" title="Permanent link">&para;</a></h3>
+<p>عند درجة حرارة &gt; 40°م:
+1. زيادة تكرار الري 50%
+2. الري في الصباح الباكر أو المساء
+3. مراقبة علامات الإجهاد</p>
+<h3 id="dry-winds">الرياح الجافة | Dry Winds<a class="headerlink" href="#dry-winds" title="Permanent link">&para;</a></h3>
+<ul>
+<li>زيادة الاحتياج المائي 20-30%</li>
+<li>الري على دفعات قصيرة</li>
+<li>استخدام مصدات الرياح</li>
+</ul>
+<h3 id="rainfall">الأمطار | Rainfall<a class="headerlink" href="#rainfall" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>إذا كانت الأمطار &gt; 10 مم:
+    تأخير الري بعدد أيام = كمية المطر ÷ ETo اليومي
+</code></pre></div>
+
+<h3 id="salinity">الملوحة | Salinity<a class="headerlink" href="#salinity" title="Permanent link">&para;</a></h3>
+<p>للتربة المالحة، أضف 15-25% للغسيل:</p>
+<div class="codehilite"><pre><span></span><code>إجمالي الري = الاحتياج الأساسي × 1.2
+</code></pre></div>
+
+<hr />
+<h2 id="scheduling-tools">أدوات الجدولة | Scheduling Tools<a class="headerlink" href="#scheduling-tools" title="Permanent link">&para;</a></h2>
+<h3 id="1-paper-tables">1. جداول ورقية | Paper Tables<a class="headerlink" href="#1-paper-tables" title="Permanent link">&para;</a></h3>
+<ul>
+<li>بسيطة ومتاحة</li>
+<li>تحتاج تحديث يدوي</li>
+<li>مناسبة للمزارع الصغيرة</li>
+</ul>
+<h3 id="2-mobile-apps">2. تطبيقات الهاتف | Mobile Apps<a class="headerlink" href="#2-mobile-apps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>حسابات آلية</li>
+<li>تنبيهات</li>
+<li>تكامل مع الطقس</li>
+</ul>
+<h3 id="3-smart-systems">3. أنظمة ذكية | Smart Systems<a class="headerlink" href="#3-smart-systems" title="Permanent link">&para;</a></h3>
+<ul>
+<li>حساسات رطوبة</li>
+<li>تحكم آلي</li>
+<li>توفير أقصى</li>
+</ul>
+<h3 id="4-sahool-sahool-platform">4. منصة SAHOOL | SAHOOL Platform<a class="headerlink" href="#4-sahool-sahool-platform" title="Permanent link">&para;</a></h3>
+<ul>
+<li>بيانات طقس محلية</li>
+<li>حسابات ETo آلية</li>
+<li>توصيات مخصصة</li>
+<li>تنبيهات الري</li>
+<li>يعمل Offline</li>
+</ul>
+<hr />
+<h2 id="ready-schedules">جداول جاهزة للمحاصيل | Ready Schedules<a class="headerlink" href="#ready-schedules" title="Permanent link">&para;</a></h2>
+<h3 id="cropswheat-">[[../crops/wheat|القمح]] - الزراعة المروية<a class="headerlink" href="#cropswheat-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>مرحلة النمو</th>
+<th>الأسبوع</th>
+<th>الري (مم)</th>
+<th>التكرار</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الإنبات</td>
+<td>1-2</td>
+<td>30-40</td>
+<td>ري واحد</td>
+</tr>
+<tr>
+<td>التفريع</td>
+<td>3-6</td>
+<td>35-45</td>
+<td>كل 10 أيام</td>
+</tr>
+<tr>
+<td>الاستطالة</td>
+<td>7-9</td>
+<td>40-50</td>
+<td>كل 7 أيام</td>
+</tr>
+<tr>
+<td>الإزهار</td>
+<td>10-12</td>
+<td>50-60</td>
+<td>كل 5-7 أيام</td>
+</tr>
+<tr>
+<td>تكوين الحبوب</td>
+<td>13-16</td>
+<td>45-55</td>
+<td>كل 7 أيام</td>
+</tr>
+<tr>
+<td>النضج</td>
+<td>17+</td>
+<td>تقليل</td>
+<td>كل 10 أيام</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cropsbarley-">[[../crops/barley|الشعير]] - الزراعة المروية<a class="headerlink" href="#cropsbarley-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>مرحلة النمو</th>
+<th>الأسبوع</th>
+<th>الري (مم)</th>
+<th>التكرار</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الإنبات</td>
+<td>1-2</td>
+<td>25-35</td>
+<td>ري واحد</td>
+</tr>
+<tr>
+<td>التفريع</td>
+<td>3-5</td>
+<td>30-40</td>
+<td>كل 10 أيام</td>
+</tr>
+<tr>
+<td>الاستطالة</td>
+<td>6-8</td>
+<td>35-45</td>
+<td>كل 7 أيام</td>
+</tr>
+<tr>
+<td>الإزهار</td>
+<td>9-11</td>
+<td>45-55</td>
+<td>كل 5-7 أيام</td>
+</tr>
+<tr>
+<td>النضج</td>
+<td>12+</td>
+<td>تقليل</td>
+<td>كل 10 أيام</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="practical-tips">نصائح عملية | Practical Tips<a class="headerlink" href="#practical-tips" title="Permanent link">&para;</a></h2>
+<h3 id="_17">للمزارعين المبتدئين<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>ابدأ بطريقة التقويم</strong> ثم حسّن</li>
+<li><strong>راقب التربة</strong> يومياً</li>
+<li><strong>سجل الريات</strong> في دفتر</li>
+<li><strong>لاحظ النباتات</strong> لتتعلم</li>
+<li><strong>استخدم SAHOOL</strong> للتوجيه</li>
+</ol>
+<h3 id="_18">للمزارعين المتقدمين<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>استخدم حساسات رطوبة</strong></li>
+<li><strong>احسب ETo يومياً</strong></li>
+<li><strong>عدّل حسب مراحل النمو</strong></li>
+<li><strong>حلل بيانات الري</strong></li>
+<li><strong>حسّن باستمرار</strong></li>
+</ol>
+<h3 id="_19">أخطاء شائعة تجنبها<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخطأ</th>
+<th>المشكلة</th>
+<th>الحل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ري يومي خفيف</td>
+<td>جذور سطحية</td>
+<td>ري أعمق أقل تكراراً</td>
+</tr>
+<tr>
+<td>ري وقت الظهيرة</td>
+<td>فقد بالتبخر</td>
+<td>ري صباحاً أو مساءً</td>
+</tr>
+<tr>
+<td>تجاهل الأمطار</td>
+<td>هدر مياه</td>
+<td>احسب الأمطار</td>
+</tr>
+<tr>
+<td>ري ثابت</td>
+<td>لا يناسب النمو</td>
+<td>عدّل حسب المرحلة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sahool-sahool-integration">التكامل مع SAHOOL | SAHOOL Integration<a class="headerlink" href="#sahool-sahool-integration" title="Permanent link">&para;</a></h2>
+<h3 id="_20">خدمات جدولة الري<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Auto-Schedule</strong></li>
+<li>حساب ETo من weather-core</li>
+<li>معاملات Kc مبرمجة</li>
+<li>
+<p>جدول مخصص لكل حقل</p>
+</li>
+<li>
+<p><strong>Alerts</strong></p>
+</li>
+<li>تنبيه موعد الري</li>
+<li>تحذير من موجات الحرارة</li>
+<li>
+<p>تنبيه الفترات الحرجة</p>
+</li>
+<li>
+<p><strong>Tracking</strong></p>
+</li>
+<li>سجل الري</li>
+<li>تقارير الاستهلاك</li>
+<li>
+<p>تحليل الكفاءة</p>
+</li>
+<li>
+<p><strong>Offline Mode</strong></p>
+</li>
+<li>جداول محملة مسبقاً</li>
+<li>تذكيرات بدون إنترنت</li>
+<li>مزامنة عند الاتصال</li>
+</ol>
+<hr />
+<h2 id="related-topics">مراجع إضافية | Related Topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[[drip|الري بالتنقيط]]</li>
+<li>[[README|دليل الري الرئيسي]]</li>
+<li>[[../crops/wheat|ري القمح]]</li>
+<li>[[../crops/barley|ري الشعير]]</li>
+<li>[[../crops/dates|ري النخيل]]</li>
+<li>[[../best-practices/sustainable-farming|الاستدامة المائية]]</li>
+</ul>
+<hr />
+<p><em>آخر تحديث: يناير 2025</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

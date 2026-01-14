@@ -1,0 +1,1847 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="دليل شامل لتصميم وتشغيل أنظمة الري بالتنقيط">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>الري بالتنقيط - Drip Irrigation - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#drip-irrigation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              الري بالتنقيط - Drip Irrigation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="drip-irrigation">الري بالتنقيط | Drip Irrigation<a class="headerlink" href="#drip-irrigation" title="Permanent link">&para;</a></h1>
+<p>الري بالتنقيط هو أكفأ نظام ري متاح، ومثالي للمناطق شحيحة المياه في الشرق الأوسط.</p>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h3 id="_1">ما هو الري بالتنقيط؟<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>نظام يوصل المياه مباشرة لمنطقة الجذور عبر نقاطات (Emitters) بمعدلات منخفضة (2-20 لتر/ساعة).</p>
+<h3 id="advantages">المميزات | Advantages<a class="headerlink" href="#advantages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الفائدة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>كفاءة عالية</strong></td>
+<td>85-95% من المياه تصل للنبات</td>
+</tr>
+<tr>
+<td><strong>توفير المياه</strong></td>
+<td>30-50% مقارنة بالغمر</td>
+</tr>
+<tr>
+<td><strong>تقليل الأمراض</strong></td>
+<td>أوراق جافة = [[../diseases/fungal|فطريات]] أقل</td>
+</tr>
+<tr>
+<td><strong>توفير العمالة</strong></td>
+<td>أتمتة كاملة ممكنة</td>
+</tr>
+<tr>
+<td><strong>تسميد متكامل</strong></td>
+<td>Fertigation</td>
+</tr>
+<tr>
+<td><strong>أي تضاريس</strong></td>
+<td>يعمل على المنحدرات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="disadvantages">العيوب | Disadvantages<a class="headerlink" href="#disadvantages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>العيب</th>
+<th>الحل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تكلفة أولية عالية</td>
+<td>تقسيط، دعم حكومي</td>
+</tr>
+<tr>
+<td>انسداد النقاطات</td>
+<td>فلترة جيدة، صيانة</td>
+</tr>
+<tr>
+<td>تراكم الأملاح</td>
+<td>غسيل دوري</td>
+</tr>
+<tr>
+<td>تلف من القوارض</td>
+<td>حماية الخطوط</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="system-components">مكونات النظام | System Components<a class="headerlink" href="#system-components" title="Permanent link">&para;</a></h2>
+<h3 id="system-layout">المخطط العام | System Layout<a class="headerlink" href="#system-layout" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>مصدر المياه
+    ↓
+━━━━━━━━━━━━━
+  وحدة التحكم
+  (Head Unit)
+━━━━━━━━━━━━━
+    ↓
+خطوط رئيسية (Main Lines)
+    ↓
+خطوط فرعية (Sub-main)
+    ↓
+خطوط التنقيط (Laterals)
+    ↓
+النقاطات (Emitters)
+</code></pre></div>
+
+<h3 id="head-unit">وحدة التحكم | Head Unit<a class="headerlink" href="#head-unit" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th>الوظيفة</th>
+<th>الأهمية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>مضخة</strong></td>
+<td>رفع الضغط</td>
+<td>أساسي</td>
+</tr>
+<tr>
+<td><strong>فلتر رملي</strong></td>
+<td>إزالة الرمل</td>
+<td>ضروري للآبار</td>
+</tr>
+<tr>
+<td><strong>فلتر قرصي</strong></td>
+<td>إزالة الشوائب الدقيقة</td>
+<td>ضروري</td>
+</tr>
+<tr>
+<td><strong>فلتر شبكي</strong></td>
+<td>حماية إضافية</td>
+<td>موصى</td>
+</tr>
+<tr>
+<td><strong>منظم ضغط</strong></td>
+<td>ثبات الضغط</td>
+<td>مهم</td>
+</tr>
+<tr>
+<td><strong>خزان أسمدة</strong></td>
+<td>للفرتيجيشن</td>
+<td>اختياري</td>
+</tr>
+<tr>
+<td><strong>عداد مياه</strong></td>
+<td>قياس الاستهلاك</td>
+<td>موصى</td>
+</tr>
+</tbody>
+</table>
+<h3 id="drip-lines">خطوط التنقيط | Drip Lines<a class="headerlink" href="#drip-lines" title="Permanent link">&para;</a></h3>
+<h4 id="_2">أنواع خطوط التنقيط<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>الاستخدام</th>
+<th>العمر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>خراطيم PE</strong></td>
+<td>دائم، أشجار</td>
+<td>10-15 سنة</td>
+</tr>
+<tr>
+<td><strong>شرائط رقيقة</strong></td>
+<td>موسمية، خضروات</td>
+<td>1-3 مواسم</td>
+</tr>
+<tr>
+<td><strong>نقاطات خارجية</strong></td>
+<td>تعديل قديم</td>
+<td>حسب الجودة</td>
+</tr>
+<tr>
+<td><strong>خراطيم مدمجة</strong></td>
+<td>استخدام عام</td>
+<td>5-10 سنوات</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_3">مواصفات الاختيار<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المحصول</th>
+<th>قطر الخرطوم</th>
+<th>تصريف النقاط</th>
+<th>المسافة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[[../crops/dates|نخيل]]</td>
+<td>16-20 مم</td>
+<td>8-16 لتر/ساعة</td>
+<td>50-100 سم</td>
+</tr>
+<tr>
+<td>فواكه</td>
+<td>16 مم</td>
+<td>4-8 لتر/ساعة</td>
+<td>50-75 سم</td>
+</tr>
+<tr>
+<td>خضروات</td>
+<td>16 مم</td>
+<td>2-4 لتر/ساعة</td>
+<td>20-30 سم</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="system-design">تصميم النظام | System Design<a class="headerlink" href="#system-design" title="Permanent link">&para;</a></h2>
+<h3 id="design-steps">خطوات التصميم | Design Steps<a class="headerlink" href="#design-steps" title="Permanent link">&para;</a></h3>
+<h4 id="1">1. تحليل الموقع<a class="headerlink" href="#1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>مساحة الحقل</li>
+<li>مصدر المياه (كمية، ضغط، جودة)</li>
+<li>نوع المحصول</li>
+<li>نوع التربة</li>
+<li>الطبوغرافيا</li>
+</ul>
+<h4 id="2">2. حساب الاحتياجات<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>إجمالي الاحتياج (لتر/يوم) =
+    عدد النباتات × احتياج النبات × معامل الأمان
+
+مثال لـ 100 نخلة:
+= 100 × 200 لتر × 1.2 = 24,000 لتر/يوم
+</code></pre></div>
+
+<h4 id="3">3. اختيار المكونات<a class="headerlink" href="#3" title="Permanent link">&para;</a></h4>
+<p><strong>تصريف المضخة</strong>:</p>
+<div class="codehilite"><pre><span></span><code>تصريف المضخة (م³/ساعة) =
+    الاحتياج اليومي ÷ ساعات التشغيل
+
+= 24 م³ ÷ 6 ساعات = 4 م³/ساعة
+</code></pre></div>
+
+<p><strong>ضغط التشغيل</strong>:
+- النقاطات: 1-1.5 بار
+- فقد الاحتكاك: حسب طول الخطوط
+- ارتفاع: 0.1 بار لكل متر ارتفاع</p>
+<h4 id="4">4. رسم المخطط<a class="headerlink" href="#4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>خطوط رئيسية وفرعية</li>
+<li>مواقع الفلاتر والصمامات</li>
+<li>توزيع خطوط التنقيط</li>
+</ul>
+<hr />
+<h2 id="installation">تركيب النظام | Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<h3 id="required-tools">الأدوات المطلوبة | Required Tools<a class="headerlink" href="#required-tools" title="Permanent link">&para;</a></h3>
+<ul>
+<li>قاطع أنابيب</li>
+<li>مثقاب للنقاطات</li>
+<li>شريط تفلون</li>
+<li>مشابك</li>
+<li>مقياس ضغط</li>
+</ul>
+<h3 id="installation-steps">خطوات التركيب | Installation Steps<a class="headerlink" href="#installation-steps" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>تجهيز وحدة التحكم</strong></li>
+<li>تركيب المضخة</li>
+<li>توصيل الفلاتر بالترتيب</li>
+<li>
+<p>تركيب منظم الضغط</p>
+</li>
+<li>
+<p><strong>مد الخطوط الرئيسية</strong></p>
+</li>
+<li>عمق 30-40 سم للحماية</li>
+<li>
+<p>صمامات عند كل قطاع</p>
+</li>
+<li>
+<p><strong>مد الخطوط الفرعية</strong></p>
+</li>
+<li>موازية لصفوف النباتات</li>
+<li>
+<p>صمامات للتحكم</p>
+</li>
+<li>
+<p><strong>تركيب خطوط التنقيط</strong></p>
+</li>
+<li>على سطح التربة أو مدفونة قليلاً</li>
+<li>
+<p>ربط بالخطوط الفرعية</p>
+</li>
+<li>
+<p><strong>الاختبار</strong></p>
+</li>
+<li>فحص التسريبات</li>
+<li>قياس الضغط</li>
+<li>التأكد من توزيع المياه</li>
+</ol>
+<hr />
+<h2 id="operation">تشغيل النظام | Operation<a class="headerlink" href="#operation" title="Permanent link">&para;</a></h2>
+<h3 id="daily-start">البدء اليومي | Daily Start<a class="headerlink" href="#daily-start" title="Permanent link">&para;</a></h3>
+<ol>
+<li>فتح صمام المياه الرئيسي</li>
+<li>تشغيل المضخة</li>
+<li>فحص الضغط (1-1.5 بار)</li>
+<li>فتح صمامات القطاعات بالتتابع</li>
+<li>فحص عمل النقاطات</li>
+</ol>
+<h3 id="shutdown">الإيقاف | Shutdown<a class="headerlink" href="#shutdown" title="Permanent link">&para;</a></h3>
+<ol>
+<li>إغلاق صمامات الأسمدة (إن وجدت)</li>
+<li>تشغيل لمدة 5 دقائق للغسيل</li>
+<li>إغلاق صمامات القطاعات</li>
+<li>إيقاف المضخة</li>
+<li>إغلاق الصمام الرئيسي</li>
+</ol>
+<h3 id="typical-schedule">جدول التشغيل النموذجي | Typical Schedule<a class="headerlink" href="#typical-schedule" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الموسم</th>
+<th>التكرار</th>
+<th>المدة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الشتاء</td>
+<td>كل 3-4 أيام</td>
+<td>2-3 ساعات</td>
+</tr>
+<tr>
+<td>الربيع</td>
+<td>كل 2-3 أيام</td>
+<td>3-4 ساعات</td>
+</tr>
+<tr>
+<td>الصيف</td>
+<td>يومياً</td>
+<td>4-6 ساعات</td>
+</tr>
+<tr>
+<td>الخريف</td>
+<td>كل 2-3 أيام</td>
+<td>3-4 ساعات</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>راجع [[scheduling|جدولة الري]] لتفاصيل أكثر</p>
+</blockquote>
+<hr />
+<h2 id="maintenance">الصيانة | Maintenance<a class="headerlink" href="#maintenance" title="Permanent link">&para;</a></h2>
+<h3 id="regular-maintenance">الصيانة الدورية | Regular Maintenance<a class="headerlink" href="#regular-maintenance" title="Permanent link">&para;</a></h3>
+<h4 id="_4">يومياً<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] فحص الضغط</li>
+<li>[ ] فحص النقاطات عشوائياً</li>
+<li>[ ] ملاحظة أي تسريب</li>
+</ul>
+<h4 id="_5">أسبوعياً<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] غسيل نهايات الخطوط (Flushing)</li>
+<li>[ ] تنظيف الفلاتر</li>
+<li>[ ] فحص خزان الأسمدة</li>
+</ul>
+<h4 id="_6">شهرياً<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] فحص شامل للنقاطات</li>
+<li>[ ] معايرة منظم الضغط</li>
+<li>[ ] فحص الوصلات</li>
+</ul>
+<h4 id="_7">موسمياً<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] تنظيف كيميائي للنظام</li>
+<li>[ ] استبدال القطع التالفة</li>
+<li>[ ] معايرة النظام</li>
+</ul>
+<h3 id="clogging-treatment">معالجة الانسداد | Clogging Treatment<a class="headerlink" href="#clogging-treatment" title="Permanent link">&para;</a></h3>
+<h4 id="_8">أنواع الانسداد<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>السبب</th>
+<th>العلاج</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>فيزيائي</strong></td>
+<td>رمل، طين</td>
+<td>فلترة أفضل، غسيل</td>
+</tr>
+<tr>
+<td><strong>كيميائي</strong></td>
+<td>أملاح، حديد</td>
+<td>حمض، غسيل</td>
+</tr>
+<tr>
+<td><strong>بيولوجي</strong></td>
+<td>طحالب، بكتيريا</td>
+<td>كلور، تنظيف</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_9">الغسيل الكيميائي<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<p><strong>حمض الفوسفوريك</strong> (للأملاح):</p>
+<div class="codehilite"><pre><span></span><code><span class="err">تركيز</span><span class="o">:</span><span class="w"> </span><span class="mf">0.5</span><span class="o">-</span><span class="mi">1</span><span class="o">%</span>
+<span class="err">المدة</span><span class="o">:</span><span class="w"> </span><span class="mi">30</span><span class="o">-</span><span class="mi">60</span><span class="w"> </span><span class="err">دقيقة</span>
+<span class="err">غسيل</span><span class="w"> </span><span class="err">بعدها</span><span class="o">:</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="err">دقيقة</span><span class="w"> </span><span class="err">ماء</span><span class="w"> </span><span class="err">نظيف</span>
+</code></pre></div>
+
+<p><strong>هيبوكلوريت الصوديوم</strong> (للطحالب):</p>
+<div class="codehilite"><pre><span></span><code><span class="err">تركيز</span><span class="o">:</span><span class="w"> </span><span class="mi">50</span><span class="o">-</span><span class="mi">100</span><span class="w"> </span><span class="n">ppm</span><span class="w"> </span><span class="err">كلور</span>
+<span class="err">المدة</span><span class="o">:</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="err">دقيقة</span>
+<span class="err">غسيل</span><span class="w"> </span><span class="err">بعدها</span><span class="o">:</span><span class="w"> </span><span class="err">جيد</span><span class="w"> </span><span class="err">بالماء</span><span class="w"> </span><span class="err">النظيف</span>
+</code></pre></div>
+
+<hr />
+<h2 id="fertigation-fertigation">التسميد مع التنقيط (Fertigation) | Fertigation<a class="headerlink" href="#fertigation-fertigation" title="Permanent link">&para;</a></h2>
+<h3 id="principle">المبدأ | Principle<a class="headerlink" href="#principle" title="Permanent link">&para;</a></h3>
+<p>حقن الأسمدة الذائبة مع مياه الري.</p>
+<h3 id="equipment">المعدات | Equipment<a class="headerlink" href="#equipment" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المعدة</th>
+<th>الاستخدام</th>
+<th>التكلفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>خزان فنشري</td>
+<td>بسيط، صغير</td>
+<td>منخفضة</td>
+</tr>
+<tr>
+<td>مضخة حقن</td>
+<td>دقيق، متوسط</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>نظام تناسبي</td>
+<td>آلي، كبير</td>
+<td>عالية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">برنامج نموذجي للفرتيجيشن<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<h4 id="cropsdates">للنخيل ([[../crops/dates|التمور]])<a class="headerlink" href="#cropsdates" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الشهر</th>
+<th>السماد</th>
+<th>الكمية/شجرة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>فبراير-أبريل</td>
+<td>نترات البوتاسيوم</td>
+<td>500 جم/أسبوع</td>
+</tr>
+<tr>
+<td>مايو-يوليو</td>
+<td>يوريا + بوتاسيوم</td>
+<td>300+200 جم</td>
+</tr>
+<tr>
+<td>أغسطس-سبتمبر</td>
+<td>سلفات البوتاسيوم</td>
+<td>400 جم/أسبوع</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_11">نصائح الفرتيجيشن<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>ابدأ بماء نظيف</strong> - 5 دقائق</li>
+<li><strong>حقن السماد</strong> - 80% من وقت الري</li>
+<li><strong>اغسل بماء نظيف</strong> - آخر 15 دقيقة</li>
+<li><strong>لا تخلط أسمدة متعارضة</strong></li>
+<li><strong>تأكد من ذوبان كامل</strong></li>
+</ol>
+<hr />
+<h2 id="cost-analysis">حساب التكاليف | Cost Analysis<a class="headerlink" href="#cost-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="_12">التكلفة التقديرية لهكتار واحد (نخيل)<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>التكلفة (تقريبية)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>وحدة التحكم</td>
+<td>2000-5000 ريال</td>
+</tr>
+<tr>
+<td>خطوط رئيسية</td>
+<td>500-1000 ريال</td>
+</tr>
+<tr>
+<td>خطوط تنقيط</td>
+<td>1500-3000 ريال</td>
+</tr>
+<tr>
+<td>نقاطات ووصلات</td>
+<td>500-1000 ريال</td>
+</tr>
+<tr>
+<td>تركيب</td>
+<td>500-1000 ريال</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>5000-11000 ريال</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="roi">العائد على الاستثمار | ROI<a class="headerlink" href="#roi" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>الغمر</th>
+<th>التنقيط</th>
+<th>الفرق</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>استهلاك المياه</td>
+<td>100%</td>
+<td>50-60%</td>
+<td>توفير 40-50%</td>
+</tr>
+<tr>
+<td>الإنتاجية</td>
+<td>100%</td>
+<td>120-140%</td>
+<td>زيادة 20-40%</td>
+</tr>
+<tr>
+<td>فاتورة المياه</td>
+<td>100%</td>
+<td>50-60%</td>
+<td>توفير كبير</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>استرداد التكلفة خلال 2-3 سنوات عادة</p>
+</blockquote>
+<hr />
+<h2 id="drip-for-different-crops">الري بالتنقيط للمحاصيل | Drip for Different Crops<a class="headerlink" href="#drip-for-different-crops" title="Permanent link">&para;</a></h2>
+<h3 id="cropsdates_1">[[../crops/dates|النخيل]]<a class="headerlink" href="#cropsdates_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المواصفة</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>عدد النقاطات/شجرة</td>
+<td>4-8</td>
+</tr>
+<tr>
+<td>تصريف النقاط</td>
+<td>8-16 لتر/ساعة</td>
+</tr>
+<tr>
+<td>نمط التوزيع</td>
+<td>حلقي حول الجذع</td>
+</tr>
+<tr>
+<td>المسافة من الجذع</td>
+<td>50-150 سم</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">الخضروات<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المواصفة</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>نوع الخط</td>
+<td>شريط رقيق</td>
+</tr>
+<tr>
+<td>تصريف النقاط</td>
+<td>2-4 لتر/ساعة</td>
+</tr>
+<tr>
+<td>المسافة بين النقاطات</td>
+<td>20-30 سم</td>
+</tr>
+<tr>
+<td>عمر الشريط</td>
+<td>1-2 موسم</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting">استكشاف الأخطاء | Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="_14">مشاكل شائعة وحلولها<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المشكلة</th>
+<th>السبب المحتمل</th>
+<th>الحل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ضغط منخفض</td>
+<td>انسداد فلتر، تسريب</td>
+<td>تنظيف، إصلاح</td>
+</tr>
+<tr>
+<td>توزيع غير منتظم</td>
+<td>انسداد نقاطات</td>
+<td>غسيل، استبدال</td>
+</tr>
+<tr>
+<td>خطوط منتفخة</td>
+<td>ضغط زائد</td>
+<td>ضبط المنظم</td>
+</tr>
+<tr>
+<td>جفاف جزئي</td>
+<td>نقاطات مسدودة</td>
+<td>تنظيف كيميائي</td>
+</tr>
+<tr>
+<td>ملوحة</td>
+<td>غسيل غير كافٍ</td>
+<td>زيادة الغسيل</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sahool-sahool-integration">التكامل مع SAHOOL | SAHOOL Integration<a class="headerlink" href="#sahool-sahool-integration" title="Permanent link">&para;</a></h2>
+<h3 id="_15">خدمات متاحة<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Smart Irrigation</strong></li>
+<li>تشغيل آلي حسب الطقس</li>
+<li>ربط مع حساسات رطوبة</li>
+<li>
+<p>جدولة ذكية</p>
+</li>
+<li>
+<p><strong>Monitoring</strong></p>
+</li>
+<li>مراقبة الضغط</li>
+<li>تنبيه الأعطال</li>
+<li>
+<p>سجل الري</p>
+</li>
+<li>
+<p><strong>Analytics</strong></p>
+</li>
+<li>تقارير استهلاك المياه</li>
+<li>كفاءة الري</li>
+<li>مقارنات موسمية</li>
+</ol>
+<hr />
+<h2 id="related-topics">مراجع إضافية | Related Topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[[scheduling|جدولة الري]]</li>
+<li>[[README|دليل الري الرئيسي]]</li>
+<li>[[../crops/dates|ري النخيل]]</li>
+<li>[[../best-practices/sustainable-farming|الاستدامة المائية]]</li>
+</ul>
+<hr />
+<p><em>آخر تحديث: يناير 2025</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

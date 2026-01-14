@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:safe_device/safe_device.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'security_config.dart';
+import '../utils/app_logger.dart';
 
 /// Device Integrity Detection Service
 /// خدمة كشف سلامة الجهاز
@@ -99,7 +100,7 @@ class DeviceIntegrityService {
   /// إجراء فحص أمني شامل للجهاز
   Future<SecurityCheckResult> checkDeviceIntegrity() async {
     try {
-      debugPrint('🔒 Starting device integrity check...');
+      AppLogger.d('Starting device integrity check...', tag: 'Security');
 
       // Initialize detection results
       bool isJailbroken = false;
@@ -115,12 +116,12 @@ class DeviceIntegrityService {
       isDebugMode = kDebugMode;
       if (isDebugMode) {
         threats.add('Debug mode active');
-        debugPrint('⚠️ Debug mode detected');
+        AppLogger.w('Debug mode detected', tag: 'Security');
       }
 
       // Platform-specific checks
       if (Platform.isAndroid) {
-        debugPrint('🤖 Running Android security checks...');
+        AppLogger.d('Running Android security checks...', tag: 'Security');
 
         // Get Android device info
         final androidInfo = await _deviceInfo.androidInfo;
@@ -137,7 +138,7 @@ class DeviceIntegrityService {
         isEmulator = !androidInfo.isPhysicalDevice;
         if (isEmulator) {
           threats.add('Running on Android emulator');
-          debugPrint('⚠️ Android emulator detected');
+          AppLogger.w('Android emulator detected', tag: 'Security');
         }
 
         // Check for root access
@@ -145,10 +146,10 @@ class DeviceIntegrityService {
           isRooted = await SafeDevice.isJailBroken;
           if (isRooted) {
             threats.add('Android device is rooted');
-            debugPrint('🚨 Root access detected');
+            AppLogger.w('Root access detected', tag: 'Security');
           }
         } catch (e) {
-          debugPrint('⚠️ Root detection failed: $e');
+          AppLogger.w('Root detection failed: $e', tag: 'Security');
         }
 
         // Check for developer options
@@ -156,14 +157,14 @@ class DeviceIntegrityService {
           isDeveloperModeEnabled = await SafeDevice.isDevelopmentModeEnable;
           if (isDeveloperModeEnabled) {
             threats.add('Developer options enabled');
-            debugPrint('⚠️ Developer mode enabled');
+            AppLogger.w('Developer mode enabled', tag: 'Security');
           }
         } catch (e) {
-          debugPrint('⚠️ Developer mode check failed: $e');
+          AppLogger.w('Developer mode check failed: $e', tag: 'Security');
         }
 
       } else if (Platform.isIOS) {
-        debugPrint('🍎 Running iOS security checks...');
+        AppLogger.d('Running iOS security checks...', tag: 'Security');
 
         // Get iOS device info
         final iosInfo = await _deviceInfo.iosInfo;
@@ -180,7 +181,7 @@ class DeviceIntegrityService {
         isEmulator = !iosInfo.isPhysicalDevice;
         if (isEmulator) {
           threats.add('Running on iOS simulator');
-          debugPrint('⚠️ iOS simulator detected');
+          AppLogger.w('iOS simulator detected', tag: 'Security');
         }
 
         // Check for jailbreak
@@ -188,10 +189,10 @@ class DeviceIntegrityService {
           isJailbroken = await SafeDevice.isJailBroken;
           if (isJailbroken) {
             threats.add('iOS device is jailbroken');
-            debugPrint('🚨 Jailbreak detected');
+            AppLogger.w('Jailbreak detected', tag: 'Security');
           }
         } catch (e) {
-          debugPrint('⚠️ Jailbreak detection failed: $e');
+          AppLogger.w('Jailbreak detection failed: $e', tag: 'Security');
         }
       }
 
@@ -199,7 +200,7 @@ class DeviceIntegrityService {
       isFridaDetected = await _detectFrida();
       if (isFridaDetected) {
         threats.add('Frida or hooking framework detected');
-        debugPrint('🚨 Frida/hooking framework detected');
+        AppLogger.w('Frida/hooking framework detected', tag: 'Security');
       }
 
       // Calculate threat level
@@ -226,12 +227,11 @@ class DeviceIntegrityService {
 
       _lastCheckResult = result;
 
-      debugPrint('🔒 Security check complete: $result');
+      AppLogger.i('Security check complete: $result', tag: 'Security');
       return result;
 
     } catch (e, stackTrace) {
-      debugPrint('❌ Device integrity check failed: $e');
-      debugPrint('Stack trace: $stackTrace');
+      AppLogger.e('Device integrity check failed: $e', tag: 'Security', error: e, stackTrace: stackTrace);
 
       // Return safe defaults on error
       return SecurityCheckResult(
@@ -269,7 +269,7 @@ class DeviceIntegrityService {
       }
       return false;
     } catch (e) {
-      debugPrint('⚠️ Frida detection failed: $e');
+      AppLogger.w('Frida detection failed: $e', tag: 'Security');
       return false;
     }
   }
@@ -317,7 +317,7 @@ class DeviceIntegrityService {
   bool shouldBlockApp(SecurityCheckResult result, SecurityConfig securityConfig) {
     // Always allow in development mode (unless forced)
     if (kDebugMode && !securityConfig.enforceSecurityInDebug) {
-      debugPrint('🔓 Security checks bypassed in debug mode');
+      AppLogger.d('Security checks bypassed in debug mode', tag: 'Security');
       return false;
     }
 
@@ -349,11 +349,12 @@ class DeviceIntegrityService {
   /// تسجيل حدث أمني للمراقبة
   void logSecurityEvent(SecurityCheckResult result) {
     if (result.hasSecurityIssues) {
-      debugPrint('🔒 SECURITY EVENT LOGGED:');
-      debugPrint('  Platform: ${result.deviceInfo['platform']}');
-      debugPrint('  Threat Level: ${result.threatLevel}');
-      debugPrint('  Compromised: ${result.isCompromised}');
-      debugPrint('  Threats: ${result.detectedThreats}');
+      AppLogger.w('Security event logged', tag: 'Security', data: {
+        'platform': result.deviceInfo['platform'],
+        'threatLevel': result.threatLevel.toString(),
+        'compromised': result.isCompromised,
+        'threats': result.detectedThreats,
+      });
 
       // In production, send to analytics/monitoring service
       // Example: CrashReportingService().logSecurityEvent(result);

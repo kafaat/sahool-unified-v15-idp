@@ -450,6 +450,67 @@ export async function fetchEquipment(params?: {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Satellite/Vegetation Analysis API
+// خدمة تحليل الأقمار الصناعية والنباتات
+// ═══════════════════════════════════════════════════════════════════════════
+
+export async function getSatelliteTimeseries(
+  fieldId: string,
+  options?: { from?: string; to?: string }
+) {
+  try {
+    const response = await apiClient.get(
+      `${API_URLS.satellite}/v1/timeseries/${fieldId}`,
+      { params: options }
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch satellite timeseries:", error);
+    return [];
+  }
+}
+
+export async function requestSatelliteAnalysis(
+  fieldId: string,
+  analysisType: "ndvi" | "moisture" | "thermal"
+) {
+  try {
+    const response = await apiClient.post(
+      `${API_URLS.satellite}/v1/analyze`,
+      { field_id: fieldId, analysis_type: analysisType }
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to request satellite analysis:", error);
+    return null;
+  }
+}
+
+export async function getSatelliteIndices(fieldId: string) {
+  try {
+    const response = await apiClient.get(
+      `${API_URLS.satellite}/v1/indices/${fieldId}`
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch satellite indices:", error);
+    return null;
+  }
+}
+
+export async function getAvailableSatellites() {
+  try {
+    const response = await apiClient.get(
+      `${API_URLS.satellite}/v1/satellites`
+    );
+    return response.data;
+  } catch (error) {
+    logger.error("Failed to fetch available satellites:", error);
+    return { satellites: [] };
+  }
+}
+
 // Health checks
 export async function checkServicesHealth(): Promise<Record<string, boolean>> {
   const services = Object.entries(API_URLS);

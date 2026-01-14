@@ -16,7 +16,6 @@ import type {
   NdviSummary,
   WeatherData,
   WeatherForecast,
-  AgriculturalRisk,
   Sensor,
   SensorReading,
   IrrigationRecommendation,
@@ -572,6 +571,7 @@ class SahoolApiClient {
         field_id: fieldId,
         lat,
         lon: lng,
+        days,
       }),
     });
   }

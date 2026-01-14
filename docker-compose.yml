@@ -2631,6 +2631,44 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Skills Service - AI model skill compression and memory management
+  # خدمة المهارات - ضغط نماذج الذكاء الاصطناعي وإدارة الذاكرة
+  # ─────────────────────────────────────────────────────────────────────────────
+  skills-service:
+    build:
+      context: .
+      dockerfile: apps/services/skills-service/Dockerfile
+    container_name: sahool-skills-service
+    environment:
+      - PORT=8110
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8110:8110"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Demo Data Service - Simulates API data flow
   # خدمة البيانات التجريبية - تحاكي تدفق البيانات عبر واجهات API
   # ─────────────────────────────────────────────────────────────────────────────

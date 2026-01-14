@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, field-intelligence, vegetation-analysis-service]
+      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, field-intelligence, vegetation-analysis-service, skills-service]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -1016,6 +1016,110 @@ services:
       cpu: "300m"
       memory: "256Mi"
       replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SKILLS SERVICE - خدمة المهارات
+  # AI-powered farmer skills assessment and learning recommendations
+  # ═══════════════════════════════════════════════════════════════════════════
+  skills-service:
+    name: "Skills Service"
+    name_ar: "خدمة المهارات"
+    description: "AI-powered farmer skills assessment and adaptive learning recommendations"
+    description_ar: "تقييم مهارات المزارعين والتوصيات التعليمية المخصصة"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/skills-service"
+    port: 8170
+    protocol: http
+    health_endpoint: "/health"
+    readiness_endpoint: "/readyz"
+    status: active
+    version: "1.0.0"
+    events:
+      produces:
+        - FarmerSkillsAssessed.v1
+        - LearningPathRecommended.v1
+        - SkillsProgressTracked.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - TaskCompleted.v1
+        - CropHealthAssessed.v1
+        - YieldPredicted.v1
+    database:
+      type: postgresql
+      name: sahool_skills
+      schema: "skills"
+    cache:
+      type: redis
+      purpose: "skill profile caching, learning recommendations cache"
+      ttl: 3600
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    modules:
+      - id: skill-assessment
+        name: "Skill Assessment Engine"
+        name_ar: "محرك تقييم المهارات"
+        endpoint: "/assessment"
+        description: "Evaluates farmer competency levels across multiple dimensions"
+
+      - id: learning-pathway
+        name: "Learning Pathway Generator"
+        name_ar: "مولد مسار التعلم"
+        endpoint: "/learning-path"
+        description: "Generates personalized learning recommendations"
+
+      - id: skill-progress
+        name: "Progress Tracking"
+        name_ar: "تتبع التقدم"
+        endpoint: "/progress"
+        description: "Monitors skill development over time"
+
+      - id: competency-matrix
+        name: "Competency Matrix"
+        name_ar: "مصفوفة الكفاءات"
+        endpoint: "/competencies"
+        description: "Maps agricultural competencies and skill levels"
+
+      - id: adaptive-learning
+        name: "Adaptive Learning Engine"
+        name_ar: "محرك التعلم التكيفي"
+        endpoint: "/adaptive"
+        description: "Adjusts learning content based on farmer performance"
+
+      - id: peer-benchmarking
+        name: "Peer Benchmarking"
+        name_ar: "المقارنة مع الأقران"
+        endpoint: "/benchmarking"
+        description: "Compares skills against peer groups for motivation"
+
+    environment:
+      - DATABASE_URL
+      - REDIS_URL
+      - NATS_URL
+      - SKILL_ASSESSMENT_MODEL
+      - LEARNING_RECOMMENDATION_ENGINE
+    resources:
+      cpu: "400m"
+      memory: "512Mi"
+      replicas: 1
+      autoscaling:
+        enabled: true
+        min_replicas: 1
+        max_replicas: 3
+        target_cpu: 75
+    monitoring:
+      metrics:
+        - skill_assessments_total
+        - learning_paths_generated_total
+        - farmer_engagement_score
+        - skill_improvement_rate
+      alerts:
+        - "AssessmentLatencyHigh"
+        - "LearningEngineError"
+        - "SkillDataQualityIssue"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # ADVISORY SERVICE - خدمة الاستشارات

@@ -48,3 +48,6 @@ export 'offline/offline.dart';
 
 // Voice Commands
 export 'voice/voice.dart';
+
+// AI Skills Integration
+export 'ai/ai.dart';

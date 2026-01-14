@@ -19,7 +19,10 @@ from ..models.diagnosis import DiagnosisResult
 
 # Fixed relative imports - إصلاح الاستيرادات النسبية
 from ..models.disease import CropType, DiseaseSeverity
+from .context_compression import context_compression_service
 from .disease_service import disease_service
+from .evaluation_scorer import evaluation_scorer
+from .field_memory import field_memory
 from .prediction_service import prediction_service
 
 logger = logging.getLogger("sahool-vision")
@@ -154,6 +157,26 @@ class DiagnosisService:
             lng=lng,
             farmer_id=farmer_id,
             timestamp=timestamp,
+        )
+
+        # Record in field memory for pattern analysis
+        if field_id:
+            field_memory.record_diagnosis(
+                field_id=field_id,
+                diagnosis_id=diagnosis_id,
+                disease_id=disease_key,
+                disease_name_ar=disease_info["name_ar"],
+                confidence=confidence,
+                severity=severity.value,
+                affected_area_percent=min(confidence * 100, 100),
+            )
+
+        # Score prediction for evaluation
+        evaluation_scorer.score_prediction(
+            diagnosis_id=diagnosis_id,
+            predicted_disease=disease_key,
+            predicted_confidence=confidence,
+            field_id=field_id,
         )
 
         # Build result

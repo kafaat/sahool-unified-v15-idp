@@ -1,6 +1,6 @@
 /**
- * Health Check API Endpoint - Admin Dashboard
- * نقطة نهاية فحص الصحة - لوحة التحكم
+ * Health Check API Endpoint - Web Dashboard
+ * نقطة نهاية فحص الصحة - لوحة التحكم الرئيسية
  */
 
 import { NextResponse } from "next/server";
@@ -11,14 +11,15 @@ import { NextResponse } from "next/server";
 
 /**
  * GET /api/health
- * Health check endpoint for Docker and monitoring systems
+ * Health check endpoint for Kubernetes and monitoring systems
+ * نقطة نهاية لفحص صحة التطبيق لـ Kubernetes وأنظمة المراقبة
  */
 export async function GET() {
   try {
     // Basic health check - verify the app is running
     const healthStatus = {
       status: "healthy",
-      service: "sahool-admin",
+      service: "sahool-web",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       environment: process.env.NODE_ENV || "unknown",
@@ -31,7 +32,7 @@ export async function GET() {
     return NextResponse.json(
       {
         status: "unhealthy",
-        service: "sahool-admin",
+        service: "sahool-web",
         timestamp: new Date().toISOString(),
       },
       { status: 503 },

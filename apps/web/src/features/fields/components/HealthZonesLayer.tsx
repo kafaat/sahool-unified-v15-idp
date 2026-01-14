@@ -56,16 +56,17 @@ interface HealthZonesLayerProps {
  */
 const Polygon = dynamic(
   () => import("react-leaflet").then((mod) => mod.Polygon),
-  { ssr: false },
+  { ssr: false, loading: () => null },
 ) as any;
 
 const Tooltip = dynamic(
   () => import("react-leaflet").then((mod) => mod.Tooltip),
-  { ssr: false },
+  { ssr: false, loading: () => null },
 ) as any;
 
 const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
   ssr: false,
+  loading: () => null,
 }) as any;
 
 // ═══════════════════════════════════════════════════════════════════════════

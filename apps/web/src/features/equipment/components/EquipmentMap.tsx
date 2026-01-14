@@ -8,11 +8,12 @@
 import { useEffect, useRef } from "react";
 import { useEquipment } from "../hooks/useEquipment";
 import { MapPin, Loader2 } from "lucide-react";
+import type { Map as LeafletMap, Marker } from "leaflet";
 
 export function EquipmentMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const mapInstanceRef = useRef<LeafletMap | null>(null);
+  const markersRef = useRef<Marker[]>([]);
   const { data: equipment, isLoading } = useEquipment();
 
   useEffect(() => {
@@ -73,6 +74,33 @@ export function EquipmentMap() {
             iconAnchor: [15, 15],
           });
 
+          // SECURITY: Use DOM methods to prevent XSS from user data
+          const popupContent = document.createElement("div");
+          popupContent.style.cssText = "direction: rtl; text-align: right;";
+
+          const title = document.createElement("h3");
+          title.style.cssText = "font-weight: bold; margin-bottom: 8px;";
+          title.textContent = item.nameAr; // textContent prevents XSS
+
+          const nameP = document.createElement("p");
+          nameP.style.cssText = "margin: 4px 0;";
+          nameP.textContent = item.name;
+
+          popupContent.appendChild(title);
+          popupContent.appendChild(nameP);
+
+          if (item.location.fieldName) {
+            const fieldP = document.createElement("p");
+            fieldP.style.cssText = "margin: 4px 0; font-size: 0.875rem; color: #666;";
+            fieldP.textContent = `الحقل: ${item.location.fieldName}`;
+            popupContent.appendChild(fieldP);
+          }
+
+          const statusP = document.createElement("p");
+          statusP.style.cssText = "margin: 4px 0; font-size: 0.875rem;";
+          statusP.innerHTML = `الحالة: <span style="font-weight: 600;">${getStatusLabel(item.status)}</span>`;
+          popupContent.appendChild(statusP);
+
           const marker = L.marker(
             [item.location.latitude, item.location.longitude],
             {
@@ -80,22 +108,7 @@ export function EquipmentMap() {
             },
           )
             .addTo(mapInstanceRef.current)
-            .bindPopup(
-              `
-              <div style="direction: rtl; text-align: right;">
-                <h3 style="font-weight: bold; margin-bottom: 8px;">${item.nameAr}</h3>
-                <p style="margin: 4px 0;">${item.name}</p>
-                ${
-                  item.location.fieldName
-                    ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${item.location.fieldName}</p>`
-                    : ""
-                }
-                <p style="margin: 4px 0; font-size: 0.875rem;">
-                  الحالة: <span style="font-weight: 600;">${getStatusLabel(item.status)}</span>
-                </p>
-              </div>
-            `,
-            );
+            .bindPopup(popupContent);
 
           markersRef.current.push(marker);
         });

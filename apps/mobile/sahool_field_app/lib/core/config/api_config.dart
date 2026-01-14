@@ -129,9 +129,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Satellite Service Endpoints (port 8090)
   // خدمة الأقمار الصناعية
+  // Kong route: /api/v1/satellite → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _satelliteBase => useDirectServices ? satelliteServiceUrl : effectiveBaseUrl;
+  static String get _satelliteBase => useDirectServices
+      ? satelliteServiceUrl
+      : '$effectiveBaseUrl/api/v1/satellite';
 
   /// NDVI analysis endpoints
   static String get ndvi => '$_satelliteBase/v1/analyze';
@@ -144,9 +147,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Weather Service Endpoints (port 8092)
   // خدمة الطقس
+  // Kong route: /api/v1/weather → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _weatherBase => useDirectServices ? weatherServiceUrl : effectiveBaseUrl;
+  static String get _weatherBase => useDirectServices
+      ? weatherServiceUrl
+      : '$effectiveBaseUrl/api/v1/weather';
 
   /// Weather endpoints
   static String get weather => '$_weatherBase/v1/current';
@@ -161,9 +167,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Indicators Service Endpoints (port 8091)
   // خدمة المؤشرات
+  // Kong route: /api/v1/indicators → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _indicatorsBase => useDirectServices ? indicatorsServiceUrl : effectiveBaseUrl;
+  static String get _indicatorsBase => useDirectServices
+      ? indicatorsServiceUrl
+      : '$effectiveBaseUrl/api/v1/indicators';
 
   /// Indicators endpoints
   static String get indicatorDefinitions => '$_indicatorsBase/v1/indicators/definitions';
@@ -176,9 +185,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Fertilizer Advisor Endpoints (port 8093)
   // مستشار التسميد
+  // Kong route: /api/v1/fertilizer → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _fertilizerBase => useDirectServices ? fertilizerServiceUrl : effectiveBaseUrl;
+  static String get _fertilizerBase => useDirectServices
+      ? fertilizerServiceUrl
+      : '$effectiveBaseUrl/api/v1/fertilizer';
 
   /// Fertilizer recommendation endpoints
   static String get fertilizerCrops => '$_fertilizerBase/v1/crops';
@@ -191,9 +203,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Irrigation Smart Endpoints (port 8094)
   // الري الذكي
+  // Kong route: /api/v1/irrigation → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _irrigationBase => useDirectServices ? irrigationServiceUrl : effectiveBaseUrl;
+  static String get _irrigationBase => useDirectServices
+      ? irrigationServiceUrl
+      : '$effectiveBaseUrl/api/v1/irrigation';
 
   /// Irrigation planning endpoints
   static String get irrigationCrops => '$_irrigationBase/v1/crops';
@@ -207,9 +222,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Crop Health AI Service Endpoints (port 8095)
   // سهول فيجن - الذكاء الاصطناعي لصحة المحاصيل
+  // Kong route: /api/v1/crop-health → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _cropHealthBase => useDirectServices ? cropHealthServiceUrl : effectiveBaseUrl;
+  static String get _cropHealthBase => useDirectServices
+      ? cropHealthServiceUrl
+      : '$effectiveBaseUrl/api/v1/crop-health';
 
   /// Crop health AI diagnosis endpoints
   static String get diagnose => '$_cropHealthBase/v1/diagnose';
@@ -221,11 +239,14 @@ class ApiConfig {
   static String get cropHealthHealthz => '$_cropHealthBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Virtual Sensors Engine Endpoints (port 8096)
+  // Virtual Sensors Engine Endpoints (port 8119)
   // محرك المستشعرات الافتراضية
+  // Kong route: /api/v1/virtual-sensors → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _virtualSensorsBase => useDirectServices ? virtualSensorsServiceUrl : effectiveBaseUrl;
+  static String get _virtualSensorsBase => useDirectServices
+      ? virtualSensorsServiceUrl
+      : '$effectiveBaseUrl/api/v1/virtual-sensors';
 
   /// Virtual sensors endpoints
   static String get et0Calculate => '$_virtualSensorsBase/v1/et0/calculate';
@@ -242,9 +263,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Equipment Service Endpoints (port 8101)
   // خدمة المعدات
+  // Kong route: /api/v1/equipment → strips to / → service has /api/v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _equipmentBase => useDirectServices ? equipmentServiceUrl : effectiveBaseUrl;
+  static String get _equipmentBase => useDirectServices
+      ? equipmentServiceUrl
+      : '$effectiveBaseUrl/api/v1/equipment';
 
   /// Equipment endpoints
   static String get equipment => '$_equipmentBase/api/v1/equipment';
@@ -324,9 +348,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Community Chat Service Endpoints (port 8097)
   // خدمة الدردشة المجتمعية
+  // Kong route: /api/v1/community → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _chatBase => useDirectServices ? communityChatServiceUrl : effectiveBaseUrl;
+  static String get _chatBase => useDirectServices
+      ? communityChatServiceUrl
+      : '$effectiveBaseUrl/api/v1/community';
 
   /// Community chat endpoints
   static String get chatUrl => communityChatServiceUrl; // Socket.io URL
@@ -339,9 +366,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Notification Service Endpoints (port 8110)
   // خدمة الإشعارات
+  // Kong route: /api/v1/notifications → strips to / → service has /v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _notificationsBase => useDirectServices ? notificationsServiceUrl : effectiveBaseUrl;
+  static String get _notificationsBase => useDirectServices
+      ? notificationsServiceUrl
+      : '$effectiveBaseUrl/api/v1/notifications';
 
   /// Notification service endpoints
   static String get notifications => '$_notificationsBase/v1/notifications';
@@ -355,9 +385,12 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Marketplace & FinTech Service Endpoints (port 3010)
   // خدمة السوق والمحفظة المالية
+  // Kong route: /api/v1/marketplace → strips to / → service has /api/v1/* endpoints
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _marketplaceBase => useDirectServices ? marketplaceServiceUrl : effectiveBaseUrl;
+  static String get _marketplaceBase => useDirectServices
+      ? marketplaceServiceUrl
+      : '$effectiveBaseUrl/api/v1/marketplace';
 
   /// Wallet endpoints - نقاط المحفظة
   static String wallet(String userId) => '$_marketplaceBase/api/v1/fintech/wallet/$userId';

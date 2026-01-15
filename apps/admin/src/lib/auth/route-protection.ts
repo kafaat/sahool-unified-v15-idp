@@ -47,7 +47,9 @@ export const PROTECTED_ROUTES: Record<string, UserRole[]> = {
  */
 export const PUBLIC_ROUTES = [
   "/login",
+  "/register",
   "/api/auth/login",
+  "/api/auth/register",
   "/api/auth/refresh",
   "/api/health",
 ];

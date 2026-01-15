@@ -5,10 +5,48 @@
 
 import { logger } from "./logger";
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
+}
+
+/** Raw API response structure before type narrowing */
+interface RawApiResponse {
+  success?: boolean;
+  data?: unknown;
+  error?: string;
+  message?: string;
+  detail?: string;
+}
+
+/** Login request body structure */
+interface LoginRequestBody {
+  email: string;
+  password: string;
+  totp_code?: string;
+}
+
+/** Type guard to check if value is a RawApiResponse object */
+function isRawApiResponse(value: unknown): value is RawApiResponse {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value)
+  );
+}
+
+/** Extract error message from raw API response */
+function extractErrorMessage(data: unknown, fallback: string): string {
+  if (isRawApiResponse(data)) {
+    return (
+      (typeof data.error === "string" ? data.error : undefined) ||
+      (typeof data.message === "string" ? data.message : undefined) ||
+      (typeof data.detail === "string" ? data.detail : undefined) ||
+      fallback
+    );
+  }
+  return fallback;
 }
 
 interface User {
@@ -47,9 +85,62 @@ if (
 // Helper function to sanitize HTML and prevent XSS
 function sanitizeInput(input: string): string {
   if (typeof input !== "string") return input;
-  return input
-    .replace(/[<>]/g, "") // Remove < and > to prevent HTML injection
-    .trim();
+
+  let sanitized = input;
+
+  // First, decode common HTML entities to catch encoded attacks
+  const htmlEntities: Record<string, string> = {
+    "&lt;": "<",
+    "&gt;": ">",
+    "&amp;": "&",
+    "&quot;": '"',
+    "&#39;": "'",
+    "&#x27;": "'",
+    "&#x2F;": "/",
+    "&#x60;": "`",
+  };
+  for (const [entity, char] of Object.entries(htmlEntities)) {
+    sanitized = sanitized.replace(new RegExp(entity, "gi"), char);
+  }
+
+  // Decode URL-encoded characters that could be used for attacks
+  try {
+    // Only decode if it looks like it contains URL encoding
+    if (/%[0-9A-Fa-f]{2}/.test(sanitized)) {
+      sanitized = decodeURIComponent(sanitized);
+    }
+  } catch {
+    // If decoding fails, continue with the original string
+  }
+
+  // Remove HTML tags (including malformed ones)
+  sanitized = sanitized.replace(/<[^>]*>?/g, "");
+
+  // Remove javascript:, vbscript:, data: protocols (case-insensitive, handles whitespace/newlines)
+  sanitized = sanitized.replace(/\b(javascript|vbscript|data)\s*:/gi, "");
+
+  // Remove on* event handlers (onclick, onerror, onload, etc.)
+  sanitized = sanitized.replace(/\bon\w+\s*=/gi, "");
+
+  // Escape special characters that could be used for XSS
+  const escapeMap: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#x27;",
+    "/": "&#x2F;",
+    "`": "&#x60;",
+  };
+  sanitized = sanitized.replace(
+    /[&<>"'`/]/g,
+    (char) => escapeMap[char] || char,
+  );
+
+  // Remove null bytes and other control characters
+  sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+
+  return sanitized.trim();
 }
 
 // Helper function to delay for retry logic
@@ -123,7 +214,7 @@ class AdminApiClient {
         clearTimeout(timeoutId);
 
         // Parse response
-        let data: any;
+        let data: unknown;
         const contentType = response.headers.get("content-type");
 
         if (contentType && contentType.includes("application/json")) {
@@ -153,11 +244,10 @@ class AdminApiClient {
           if (response.status >= 400 && response.status < 500) {
             return {
               success: false,
-              error:
-                data.error ||
-                data.message ||
-                data.detail ||
+              error: extractErrorMessage(
+                data,
                 `Request failed with status ${response.status}`,
+              ),
             };
           }
 
@@ -169,18 +259,15 @@ class AdminApiClient {
 
           return {
             success: false,
-            error:
-              data.error ||
-              data.message ||
-              data.detail ||
-              `Server error: ${response.status}`,
+            error: extractErrorMessage(data, `Server error: ${response.status}`),
           };
         }
 
         // Successful response
-        return typeof data === "object" && data !== null
-          ? data
-          : { success: true, data: data as T };
+        if (isRawApiResponse(data)) {
+          return data as ApiResponse<T>;
+        }
+        return { success: true, data: data as T };
       } catch (error) {
         lastError = error instanceof Error ? error : new Error("Unknown error");
 
@@ -225,7 +312,7 @@ class AdminApiClient {
       };
     }
 
-    const body: any = { email: sanitizedEmail, password };
+    const body: LoginRequestBody = { email: sanitizedEmail, password };
     if (totp_code) {
       body.totp_code = totp_code;
     }
@@ -262,16 +349,16 @@ class AdminApiClient {
     return this.request<T>(endpoint, { method: "GET", params });
   }
 
-  async post<T>(endpoint: string, body?: any) {
+  async post<T, B = Record<string, unknown>>(endpoint: string, body?: B) {
     return this.request<T>(endpoint, {
       method: "POST",
       body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  async patch<T>(
+  async patch<T, B = Record<string, unknown>>(
     endpoint: string,
-    body?: any,
+    body?: B,
     params?: Record<string, string>,
   ) {
     return this.request<T>(endpoint, {
@@ -281,7 +368,7 @@ class AdminApiClient {
     });
   }
 
-  async put<T>(endpoint: string, body?: any) {
+  async put<T, B = Record<string, unknown>>(endpoint: string, body?: B) {
     return this.request<T>(endpoint, {
       method: "PUT",
       body: body ? JSON.stringify(body) : undefined,

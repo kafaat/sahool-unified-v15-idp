@@ -11,6 +11,7 @@
  */
 
 import { logger } from "./logger";
+import { API_URL } from "@/config/api";
 
 // Re-export server-side authorization utilities
 export * from "./auth/jwt-verify";
@@ -19,17 +20,8 @@ export * from "./auth/api-middleware";
 
 const AUTH_USER_KEY = "sahool_admin_user";
 
-// API URL - configurable via environment
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-
-// Enforce HTTPS in production
-if (
-  typeof window !== "undefined" &&
-  process.env.NODE_ENV === "production" &&
-  !API_URL.startsWith("https://")
-) {
-  logger.warn("Warning: API_URL should use HTTPS in production environment");
-}
+// Note: API_URL is now imported from @/config/api
+// HTTPS enforcement is handled in the centralized config file
 
 export interface User {
   id: string;

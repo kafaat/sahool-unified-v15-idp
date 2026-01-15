@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logger.log("Session expired due to inactivity");
       logout();
     }
-  }, []);
+  }, [logout]);
 
   // Attempt to refresh token
   const refreshToken = React.useCallback(async () => {
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       logger.error("Token refresh error:", error);
     }
-  }, []);
+  }, [logout]);
 
   // Setup activity tracking and idle timeout monitoring
   React.useEffect(() => {

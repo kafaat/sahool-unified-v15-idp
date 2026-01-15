@@ -5,6 +5,7 @@
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { logger } from "@/lib/logger";
 
 export async function POST() {
   try {
@@ -26,7 +27,7 @@ export async function POST() {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Activity update error:", error);
+    logger.error("Activity update error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

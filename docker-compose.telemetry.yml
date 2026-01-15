@@ -163,7 +163,8 @@ services:
       - sahool-network
       - telemetry-network
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      # Prometheus uses BusyBox - use wget -O /dev/null instead of --spider
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9090/-/healthy || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

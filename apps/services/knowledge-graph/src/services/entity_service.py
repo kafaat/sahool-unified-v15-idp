@@ -48,29 +48,29 @@ class EntityService:
             logger.error(f"Error creating treatment: {e}")
             return False
 
-    async def get_crop(self, crop_id: str) -> Optional[Crop]:
+    async def get_crop(self, crop_id: str) -> Crop | None:
         """Retrieve a crop by ID"""
         return await self.graph.get_crop(crop_id)
 
-    async def get_disease(self, disease_id: str) -> Optional[Disease]:
+    async def get_disease(self, disease_id: str) -> Disease | None:
         """Retrieve a disease by ID"""
         return await self.graph.get_disease(disease_id)
 
-    async def get_treatment(self, treatment_id: str) -> Optional[Treatment]:
+    async def get_treatment(self, treatment_id: str) -> Treatment | None:
         """Retrieve a treatment by ID"""
         return await self.graph.get_treatment(treatment_id)
 
-    async def list_crops(self, limit: int = 100) -> List[Dict[str, Any]]:
+    async def list_crops(self, limit: int = 100) -> list[dict[str, Any]]:
         """List all crops"""
         crops = await self.graph.get_all_crops(limit)
         return [self._format_crop_response(crop) for crop in crops]
 
-    async def list_diseases(self, limit: int = 100) -> List[Dict[str, Any]]:
+    async def list_diseases(self, limit: int = 100) -> list[dict[str, Any]]:
         """List all diseases"""
         diseases = await self.graph.get_all_diseases(limit)
         return [self._format_disease_response(disease) for disease in diseases]
 
-    async def list_treatments(self, limit: int = 100) -> List[Dict[str, Any]]:
+    async def list_treatments(self, limit: int = 100) -> list[dict[str, Any]]:
         """List all treatments"""
         treatments = await self.graph.get_all_treatments(limit)
         return [self._format_treatment_response(treatment) for treatment in treatments]
@@ -78,9 +78,9 @@ class EntityService:
     async def search(
         self,
         query: str,
-        entity_type: Optional[str] = None,
+        entity_type: str | None = None,
         limit: int = 20,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Search across all entity types"""
         results = await self.graph.search_entities(query, entity_type, limit)
 
@@ -103,7 +103,7 @@ class EntityService:
         }
 
     @staticmethod
-    def _format_crop_response(crop: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_crop_response(crop: dict[str, Any]) -> dict[str, Any]:
         """Format crop response"""
         entity_id = crop.get("id", "")
         if entity_id.startswith("crop:"):
@@ -120,7 +120,7 @@ class EntityService:
         }
 
     @staticmethod
-    def _format_disease_response(disease: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_disease_response(disease: dict[str, Any]) -> dict[str, Any]:
         """Format disease response"""
         entity_id = disease.get("id", "")
         if entity_id.startswith("disease:"):
@@ -140,7 +140,7 @@ class EntityService:
         }
 
     @staticmethod
-    def _format_treatment_response(treatment: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_treatment_response(treatment: dict[str, Any]) -> dict[str, Any]:
         """Format treatment response"""
         entity_id = treatment.get("id", "")
         if entity_id.startswith("treatment:"):

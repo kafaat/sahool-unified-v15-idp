@@ -5,6 +5,13 @@
 
 import DOMPurify from "dompurify";
 import { logger } from "./logger";
+import {
+  API_BASE_URL,
+  DEFAULT_TIMEOUT,
+  MAX_RETRY_ATTEMPTS,
+  RETRY_DELAY,
+  IS_PRODUCTION,
+} from "@/config/api";
 
 interface ApiResponse<T = unknown> {
   success: boolean;
@@ -65,16 +72,10 @@ interface RequestOptions extends RequestInit {
   timeout?: number;
 }
 
-// Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-const DEFAULT_TIMEOUT = 30000; // 30 seconds
-const MAX_RETRY_ATTEMPTS = 3;
-const RETRY_DELAY = 1000; // 1 second
-
 // Enforce HTTPS in production
 if (
   typeof window !== "undefined" &&
-  process.env.NODE_ENV === "production" &&
+  IS_PRODUCTION &&
   !API_BASE_URL.startsWith("https://") &&
   !API_BASE_URL.includes("localhost")
 ) {

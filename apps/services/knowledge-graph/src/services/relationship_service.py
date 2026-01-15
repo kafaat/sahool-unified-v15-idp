@@ -26,7 +26,7 @@ class RelationshipService:
         target_id: str,
         relationship_type: RelationshipType,
         confidence: float = 1.0,
-        evidence: Optional[List[str]] = None,
+        evidence: list[str] | None = None,
     ) -> bool:
         """Add a new relationship"""
         try:
@@ -55,7 +55,7 @@ class RelationshipService:
         entity_id: str,
         relationship_type: RelationshipType,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get entities related by a specific relationship type"""
         try:
             return await self.graph.get_related_entities(
@@ -73,7 +73,7 @@ class RelationshipService:
         entity_type: str,
         entity_id: str,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get all entities related to a given entity"""
         try:
             return await self.graph.get_related_entities(
@@ -92,7 +92,7 @@ class RelationshipService:
         source_id: str,
         target_type: str,
         target_id: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Find a path of relationships between two entities"""
         try:
             path = await self.graph.find_shortest_path(
@@ -112,7 +112,7 @@ class RelationshipService:
         self,
         disease_id: str,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get all crops affected by a disease"""
         return await self.get_related_by_type(
             entity_type="disease",
@@ -125,7 +125,7 @@ class RelationshipService:
         self,
         disease_id: str,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get all treatments for a disease"""
         return await self.get_related_by_type(
             entity_type="disease",
@@ -138,7 +138,7 @@ class RelationshipService:
         self,
         crop_id: str,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get treatments compatible with a crop"""
         return await self.get_related_by_type(
             entity_type="crop",
@@ -151,7 +151,7 @@ class RelationshipService:
         self,
         crop_id: str,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get diseases that affect a specific crop"""
         # Get all nodes connected to this crop
         related = await self.get_all_related(
@@ -166,7 +166,7 @@ class RelationshipService:
         self,
         disease_id: str,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get preventive treatments for a disease"""
         return await self.get_related_by_type(
             entity_type="disease",
@@ -182,7 +182,7 @@ class RelationshipService:
         target_type: str,
         target_id: str,
         relationship_type: RelationshipType,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate if a relationship exists and return its details"""
         try:
             rel_id = f"{source_type}:{source_id}--{relationship_type.value}--{target_type}:{target_id}"

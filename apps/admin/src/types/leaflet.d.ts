@@ -1,4 +1,6 @@
 // Type declaration for leaflet module
+// Empty interfaces extending parent types are required for Leaflet's type system
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 declare module "leaflet" {
   // ============================================================================
   // Core Types

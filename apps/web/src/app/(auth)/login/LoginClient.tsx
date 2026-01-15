@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Mail, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -112,13 +113,26 @@ export default function LoginClient() {
               <span className="text-sm">Login</span>
             </Button>
           </form>
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-3">
             <a
               href="#"
-              className="text-sm text-sahool-green-600 hover:text-sahool-green-700 font-medium"
+              className="text-sm text-sahool-green-600 hover:text-sahool-green-700 font-medium block"
             >
               نسيت كلمة المرور؟ • Forgot Password?
             </a>
+            <div className="border-t pt-3">
+              <p className="text-sm text-gray-600 mb-1">
+                <span>ليس لديك حساب؟</span>
+                <span className="mx-1">•</span>
+                <span className="text-xs">Don&apos;t have an account?</span>
+              </p>
+              <Link
+                href="/register"
+                className="text-sm text-sahool-green-600 hover:text-sahool-green-700 font-medium"
+              >
+                إنشاء حساب جديد • Create Account
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

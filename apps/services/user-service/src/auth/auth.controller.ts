@@ -28,9 +28,9 @@ import {
 } from "@nestjs/swagger";
 import { Throttle, SkipThrottle } from "@nestjs/throttler";
 import { Request } from "express";
-import { AuthService, LoginDto } from "./auth.service";
+import { AuthService, LoginDto, RegisterDto } from "./auth.service";
 import { JwtAuthGuard } from "./jwt-auth.guard";
-import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength } from "class-validator";
 
 // Extend Express Request to include user property set by JWT guard
 interface AuthenticatedRequest extends Request {
@@ -68,7 +68,62 @@ class RefreshTokenDto {
 }
 
 // Import ApiProperty
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+
+class RegisterRequestDto implements RegisterDto {
+  @ApiProperty({
+    description: "User email address",
+    example: "farmer@sahool.com",
+  })
+  @IsEmail({}, { message: "Invalid email format" })
+  @IsNotEmpty({ message: "Email is required" })
+  email: string;
+
+  @ApiProperty({
+    description: "User password (min 8 characters)",
+    example: "SecurePassword123!",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "Password is required" })
+  @MinLength(8, { message: "Password must be at least 8 characters long" })
+  password: string;
+
+  @ApiProperty({
+    description: "User first name",
+    example: "أحمد",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "First name is required" })
+  @MinLength(2, { message: "First name must be at least 2 characters" })
+  @MaxLength(50, { message: "First name must not exceed 50 characters" })
+  firstName: string;
+
+  @ApiProperty({
+    description: "User last name",
+    example: "محمد",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "Last name is required" })
+  @MinLength(2, { message: "Last name must be at least 2 characters" })
+  @MaxLength(50, { message: "Last name must not exceed 50 characters" })
+  lastName: string;
+
+  @ApiPropertyOptional({
+    description: "User phone number",
+    example: "+967712345678",
+  })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiPropertyOptional({
+    description: "Tenant ID (optional, defaults to 'default-tenant')",
+    example: "tenant_123",
+  })
+  @IsOptional()
+  @IsString()
+  tenantId?: string;
+}
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -130,6 +185,65 @@ export class AuthController {
     console.log(`Login attempt from IP: ${ip}`);
 
     return this.authService.login(loginDto);
+  }
+
+  /**
+   * Register endpoint - Create new user account
+   * نقطة التسجيل - إنشاء حساب مستخدم جديد
+   */
+  @Post("register")
+  @HttpCode(HttpStatus.CREATED)
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
+  @ApiOperation({
+    summary: "User registration",
+    description:
+      "Create a new user account. Returns JWT tokens for immediate login after successful registration.",
+  })
+  @ApiBody({ type: RegisterRequestDto })
+  @ApiResponse({
+    status: 201,
+    description: "Registration successful",
+    schema: {
+      type: "object",
+      properties: {
+        access_token: {
+          type: "string",
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        },
+        refresh_token: {
+          type: "string",
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        },
+        expires_in: { type: "number", example: 1800 },
+        token_type: { type: "string", example: "Bearer" },
+        user: {
+          type: "object",
+          properties: {
+            id: { type: "string", example: "usr_123456" },
+            email: { type: "string", example: "farmer@sahool.com" },
+            firstName: { type: "string", example: "أحمد" },
+            lastName: { type: "string", example: "محمد" },
+            role: { type: "string", example: "FARMER" },
+            tenantId: { type: "string", example: "default-tenant" },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid registration data",
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Email already registered",
+  })
+  @ApiResponse({ status: 429, description: "Too many registration attempts" })
+  async register(@Body() registerDto: RegisterRequestDto, @Req() request: Request) {
+    const ip = request.ip || request.socket.remoteAddress;
+    console.log(`Registration attempt from IP: ${ip}`);
+
+    return this.authService.register(registerDto);
   }
 
   /**

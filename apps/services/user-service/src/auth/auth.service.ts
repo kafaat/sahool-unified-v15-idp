@@ -28,6 +28,15 @@ export interface LoginDto {
   password: string;
 }
 
+export interface RegisterDto {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  tenantId?: string;
+}
+
 export interface TokenResponse {
   access_token: string;
   refresh_token: string;
@@ -479,5 +488,69 @@ export class AuthService {
     }
 
     return null;
+  }
+
+  /**
+   * User registration
+   * تسجيل مستخدم جديد
+   */
+  async register(registerDto: RegisterDto): Promise<TokenResponse> {
+    const { email, password, firstName, lastName, phone, tenantId } = registerDto;
+
+    // Check if user already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      this.logger.warn(
+        `Registration attempt with existing email`,
+        { email: this.sanitizeForLog(email) },
+      );
+      throw new UnauthorizedException("Email already registered");
+    }
+
+    // Hash password
+    const saltRounds = 12;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    // Create user with default tenant if not provided
+    const defaultTenantId = tenantId || "default-tenant";
+
+    const user = await this.prisma.user.create({
+      data: {
+        id: uuidv4(),
+        email,
+        passwordHash,
+        firstName,
+        lastName,
+        phone: phone || null,
+        tenantId: defaultTenantId,
+        role: "FARMER", // Default role for self-registration
+        status: UserStatus.ACTIVE, // Set to ACTIVE for immediate login
+        emailVerified: false,
+        phoneVerified: false,
+      },
+    });
+
+    this.logger.log(`User registered successfully`, {
+      userId: user.id,
+      email: this.sanitizeForLog(email),
+    });
+
+    // Generate tokens for immediate login
+    const tokens = await this.generateTokens(user);
+
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        tenantId: user.tenantId,
+      },
+    };
   }
 }

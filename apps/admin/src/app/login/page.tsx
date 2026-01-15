@@ -7,6 +7,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/stores/auth.store";
 import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from "lucide-react";
 
@@ -237,6 +238,19 @@ function LoginForm() {
               </button>
             )}
           </form>
+
+          {/* Registration Link */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-600 text-sm">
+              ليس لديك حساب؟{" "}
+              <Link
+                href="/register"
+                className="text-green-600 font-medium hover:text-green-700 hover:underline"
+              >
+                إنشاء حساب جديد
+              </Link>
+            </p>
+          </div>
 
           {/* Demo Credentials (Development Only) */}
           {process.env.NODE_ENV === "development" && (

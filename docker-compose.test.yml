@@ -12,8 +12,6 @@
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: '3.9'
-
 services:
   # ─────────────────────────────────────────────────────────────────────────────
   # Infrastructure Services - الخدمات الأساسية
@@ -62,7 +60,7 @@ services:
       - "4223:4222"  # Different port
       - "8223:8222"
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8222/healthz || exit 1"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -78,10 +76,12 @@ services:
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      # Qdrant image doesn't include curl/wget, use bash to check if port is listening
+      test: ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/localhost/6333' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 10s
     networks:
       - sahool-test-network
 
@@ -112,10 +112,12 @@ services:
       redis_test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      # Python slim image doesn't include curl, use urllib instead
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 15s
     networks:
       - sahool-test-network
 
@@ -140,10 +142,12 @@ services:
       nats_test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8107/healthz"]
+      # Python slim image doesn't include curl, use urllib instead
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8107/healthz')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 15s
     networks:
       - sahool-test-network
 
@@ -169,10 +173,12 @@ services:
       nats_test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8108/healthz"]
+      # Python slim image doesn't include curl, use urllib instead
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 15s
     networks:
       - sahool-test-network
 
@@ -198,10 +204,12 @@ services:
       redis_test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8089/healthz"]
+      # Python slim image doesn't include curl, use urllib instead
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8089/healthz')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 15s
     networks:
       - sahool-test-network
 
@@ -230,10 +238,12 @@ services:
       - qdrant_test
       - nats_test
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8112/healthz"]
+      # Python slim image doesn't include curl, use urllib instead
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')\" || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 3
+      start_period: 20s
     networks:
       - sahool-test-network
 

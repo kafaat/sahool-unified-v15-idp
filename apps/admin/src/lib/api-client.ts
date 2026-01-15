@@ -113,14 +113,18 @@ function sanitizeInput(input: string): string {
     // If decoding fails, continue with the original string
   }
 
-  // Remove HTML tags (including malformed ones)
-  sanitized = sanitized.replace(/<[^>]*>?/g, "");
-
-  // Remove javascript:, vbscript:, data: protocols (case-insensitive, handles whitespace/newlines)
-  sanitized = sanitized.replace(/\b(javascript|vbscript|data)\s*:/gi, "");
-
-  // Remove on* event handlers (onclick, onerror, onload, etc.)
-  sanitized = sanitized.replace(/\bon\w+\s*=/gi, "");
+  // Remove dangerous patterns in a loop to handle nested attacks like <scr<scriptipt>
+  // which becomes <script> after one pass
+  let previousValue: string;
+  do {
+    previousValue = sanitized;
+    // Remove HTML tags (including malformed ones)
+    sanitized = sanitized.replace(/<[^>]*>?/g, "");
+    // Remove javascript:, vbscript:, data: protocols (case-insensitive, handles whitespace/newlines)
+    sanitized = sanitized.replace(/\b(javascript|vbscript|data)\s*:/gi, "");
+    // Remove on* event handlers (onclick, onerror, onload, etc.)
+    sanitized = sanitized.replace(/\bon\w+\s*=/gi, "");
+  } while (sanitized !== previousValue);
 
   // Escape special characters that could be used for XSS
   const escapeMap: Record<string, string> = {

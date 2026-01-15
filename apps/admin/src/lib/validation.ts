@@ -215,34 +215,41 @@ export const sanitizers = {
       sanitized = sanitized.replace(/&#x0*3d;/gi, "=");
       sanitized = sanitized.replace(/&#x0*3a;/gi, ":"); // colon
 
-      // Remove HTML comments (can hide malicious content)
-      sanitized = sanitized.replace(/<!--[\s\S]*?-->/g, "");
+      // Remove dangerous patterns in a loop to handle nested attacks
+      // e.g., <!--<!--- --> becomes <!-- --> after one pass, or <scr<scriptipt> becomes <script>
+      let previousValue: string;
+      do {
+        previousValue = sanitized;
 
-      // Remove CDATA sections
-      sanitized = sanitized.replace(/<!\[CDATA\[[\s\S]*?\]\]>/gi, "");
+        // Remove HTML comments (can hide malicious content)
+        sanitized = sanitized.replace(/<!--[\s\S]*?-->/g, "");
 
-      // Remove all HTML tags (including self-closing, malformed, and SVG)
-      sanitized = sanitized.replace(/<\/?[a-z][^>]*>/gi, "");
-      sanitized = sanitized.replace(/<[a-z]/gi, ""); // Catch unclosed tags
+        // Remove CDATA sections
+        sanitized = sanitized.replace(/<!\[CDATA\[[\s\S]*?\]\]>/gi, "");
 
-      // Remove dangerous protocols (with flexible whitespace/newline/tab matching)
-      // These patterns handle obfuscation like "java\tscript:" or "java\nscript:"
-      sanitized = sanitized.replace(/j[\s\u0000]*a[\s\u0000]*v[\s\u0000]*a[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
-      sanitized = sanitized.replace(/v[\s\u0000]*b[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
-      sanitized = sanitized.replace(/l[\s\u0000]*i[\s\u0000]*v[\s\u0000]*e[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
-      sanitized = sanitized.replace(/d[\s\u0000]*a[\s\u0000]*t[\s\u0000]*a[\s\u0000]*:/gi, "");
-      sanitized = sanitized.replace(/f[\s\u0000]*i[\s\u0000]*l[\s\u0000]*e[\s\u0000]*:/gi, "");
+        // Remove all HTML tags (including self-closing, malformed, and SVG)
+        sanitized = sanitized.replace(/<\/?[a-z][^>]*>/gi, "");
+        sanitized = sanitized.replace(/<[a-z]/gi, ""); // Catch unclosed tags
 
-      // Remove additional dangerous protocols
-      sanitized = sanitized.replace(/blob\s*:/gi, "");
-      sanitized = sanitized.replace(/about\s*:/gi, "");
-      sanitized = sanitized.replace(/ws\s*:/gi, "");
-      sanitized = sanitized.replace(/wss\s*:/gi, "");
+        // Remove dangerous protocols (with flexible whitespace/newline/tab matching)
+        // These patterns handle obfuscation like "java\tscript:" or "java\nscript:"
+        sanitized = sanitized.replace(/j[\s\u0000]*a[\s\u0000]*v[\s\u0000]*a[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
+        sanitized = sanitized.replace(/v[\s\u0000]*b[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
+        sanitized = sanitized.replace(/l[\s\u0000]*i[\s\u0000]*v[\s\u0000]*e[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
+        sanitized = sanitized.replace(/d[\s\u0000]*a[\s\u0000]*t[\s\u0000]*a[\s\u0000]*:/gi, "");
+        sanitized = sanitized.replace(/f[\s\u0000]*i[\s\u0000]*l[\s\u0000]*e[\s\u0000]*:/gi, "");
 
-      // Remove event handlers (comprehensive list)
-      // Matches: onclick, onerror, onload, onmouseover, onfocus, onbegin, etc.
-      // Handles spaces/tabs/newlines between 'on' and handler name
-      sanitized = sanitized.replace(/on[\s\u0000]*[a-z]+[\s\u0000]*=/gi, "");
+        // Remove additional dangerous protocols
+        sanitized = sanitized.replace(/blob\s*:/gi, "");
+        sanitized = sanitized.replace(/about\s*:/gi, "");
+        sanitized = sanitized.replace(/ws\s*:/gi, "");
+        sanitized = sanitized.replace(/wss\s*:/gi, "");
+
+        // Remove event handlers (comprehensive list)
+        // Matches: onclick, onerror, onload, onmouseover, onfocus, onbegin, etc.
+        // Handles spaces/tabs/newlines between 'on' and handler name
+        sanitized = sanitized.replace(/on[\s\u0000]*[a-z]+[\s\u0000]*=/gi, "");
+      } while (sanitized !== previousValue);
 
       // Remove CSS expression (IE-specific XSS)
       sanitized = sanitized.replace(/expression[\s\u0000]*\(/gi, "");

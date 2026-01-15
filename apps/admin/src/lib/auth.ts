@@ -11,7 +11,6 @@
  */
 
 import { logger } from "./logger";
-import { API_URL } from "@/config/api";
 
 // Re-export server-side authorization utilities
 export * from "./auth/jwt-verify";
@@ -19,9 +18,6 @@ export * from "./auth/route-protection";
 export * from "./auth/api-middleware";
 
 const AUTH_USER_KEY = "sahool_admin_user";
-
-// Note: API_URL is now imported from @/config/api
-// HTTPS enforcement is handled in the centralized config file
 
 export interface User {
   id: string;

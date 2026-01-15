@@ -4,6 +4,7 @@ import 'package:safe_device/safe_device.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'security_config.dart';
+import '../utils/app_logger.dart';
 
 /// SAHOOL Device Security Service
 /// خدمة أمان الجهاز
@@ -240,7 +241,9 @@ class DeviceSecurityService {
     try {
       // Skip checks in debug mode if configured
       if (skipInDebugMode && kDebugMode) {
-        debugPrint('🔓 Device security checks skipped (debug mode)');
+        if (kDebugMode) {
+          debugPrint('🔓 Device security checks skipped (debug mode)');
+        }
         return const DeviceSecurityResult(
           isSecure: true,
           threats: [],
@@ -251,7 +254,9 @@ class DeviceSecurityService {
       // Check if bypass is enabled (for development/testing)
       final bypassEnabled = await _isSecurityBypassEnabled();
       if (bypassEnabled) {
-        debugPrint('🔓 Device security checks bypassed (test mode enabled)');
+        if (kDebugMode) {
+          debugPrint('🔓 Device security checks bypassed (test mode enabled)');
+        }
         return const DeviceSecurityResult(
           isSecure: true,
           threats: [],
@@ -300,7 +305,9 @@ class DeviceSecurityService {
         recommendedAction: action,
       );
     } catch (e) {
-      debugPrint('❌ Device security check error: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Device security check error: $e');
+      }
 
       // On error, take conservative approach based on security level
       if (config.level == SecurityLevel.maximum ||
@@ -355,7 +362,9 @@ class DeviceSecurityService {
 
       return null;
     } catch (e) {
-      debugPrint('⚠️ Root/Jailbreak check error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ Root/Jailbreak check error: $e');
+      }
       return null; // Don't fail on error
     }
   }
@@ -385,7 +394,9 @@ class DeviceSecurityService {
 
       return null;
     } catch (e) {
-      debugPrint('⚠️ Emulator check error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ Emulator check error: $e');
+      }
       return null;
     }
   }
@@ -406,7 +417,9 @@ class DeviceSecurityService {
 
       return null;
     } catch (e) {
-      debugPrint('⚠️ Debug mode check error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ Debug mode check error: $e');
+      }
       return null;
     }
   }
@@ -434,7 +447,9 @@ class DeviceSecurityService {
 
       return null;
     } catch (e) {
-      debugPrint('⚠️ Developer mode check error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ Developer mode check error: $e');
+      }
       return null;
     }
   }
@@ -505,21 +520,27 @@ class DeviceSecurityService {
   /// تفعيل تجاوز الأمان (للتطوير/الاختبار فقط)
   Future<void> enableSecurityBypass({required String reason}) async {
     if (kReleaseMode) {
-      debugPrint('❌ Cannot enable security bypass in release mode');
+      if (kDebugMode) {
+        debugPrint('❌ Cannot enable security bypass in release mode');
+      }
       return;
     }
 
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('security_bypass_enabled', true);
-      debugPrint('🔓 Security bypass enabled: $reason');
+      if (kDebugMode) {
+        debugPrint('🔓 Security bypass enabled: $reason');
+      }
 
       await _logSecurityEvent(
         event: 'security_bypass_enabled',
         details: reason,
       );
     } catch (e) {
-      debugPrint('❌ Failed to enable security bypass: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Failed to enable security bypass: $e');
+      }
     }
   }
 
@@ -529,11 +550,15 @@ class DeviceSecurityService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('security_bypass_enabled', false);
-      debugPrint('🔒 Security bypass disabled');
+      if (kDebugMode) {
+        debugPrint('🔒 Security bypass disabled');
+      }
 
       await _logSecurityEvent(event: 'security_bypass_disabled');
     } catch (e) {
-      debugPrint('❌ Failed to disable security bypass: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Failed to disable security bypass: $e');
+      }
     }
   }
 
@@ -565,21 +590,89 @@ class DeviceSecurityService {
         'release_mode': kReleaseMode,
       };
 
-      // Log to console
-      debugPrint('🔐 Security Event: ${logEntry['event']}');
+      // Log security event using AppLogger
+      AppLogger.i(
+        'Security Event: ${logEntry['event']}',
+        tag: 'Security',
+        data: logEntry,
+      );
 
-      // In production, send to monitoring service
-      if (kReleaseMode) {
-        // TODO: Send to crash reporting/monitoring service
-        // Example: FirebaseCrashlytics.instance.log(json.encode(logEntry));
-        // Example: Sentry.captureMessage('Security Event: ${logEntry['event']}');
+      // Report threats to monitoring service
+      if (threats != null && threats.isNotEmpty) {
+        await _reportThreatsToMonitoring(threats, logEntry);
       }
 
       // Save to local storage for debugging
       await _saveSecurityLog(logEntry);
     } catch (e) {
-      debugPrint('⚠️ Failed to log security event: $e');
+      AppLogger.w('Failed to log security event: $e', tag: 'Security');
     }
+  }
+
+  /// Report security threats to monitoring/crash reporting service
+  /// تقرير التهديدات الأمنية لخدمة المراقبة
+  ///
+  /// This method logs threats using AppLogger and prepares data for
+  /// crash reporting integration (e.g., Firebase Crashlytics, Sentry).
+  /// In release mode, critical threats are logged with higher severity.
+  Future<void> _reportThreatsToMonitoring(
+    List<SecurityThreat> threats,
+    Map<String, dynamic> logEntry,
+  ) async {
+    for (final threat in threats) {
+      final threatData = {
+        'threat_type': threat.type.toString(),
+        'severity': threat.severity.toString(),
+        'message_en': threat.messageEn,
+        'message_ar': threat.messageAr,
+        'details': threat.details,
+        'platform': Platform.operatingSystem,
+        'timestamp': logEntry['timestamp'],
+        'security_level': logEntry['security_level'],
+      };
+
+      // Log based on severity
+      switch (threat.severity) {
+        case ThreatSeverity.critical:
+          AppLogger.critical(
+            'Security Threat: ${threat.messageEn}',
+            tag: 'Security',
+            data: threatData,
+          );
+          break;
+        case ThreatSeverity.high:
+          AppLogger.e(
+            'Security Threat: ${threat.messageEn}',
+            tag: 'Security',
+            data: threatData,
+          );
+          break;
+        case ThreatSeverity.medium:
+          AppLogger.w(
+            'Security Threat: ${threat.messageEn}',
+            tag: 'Security',
+            data: threatData,
+          );
+          break;
+        case ThreatSeverity.low:
+          AppLogger.i(
+            'Security Threat: ${threat.messageEn}',
+            tag: 'Security',
+            data: threatData,
+          );
+          break;
+      }
+    }
+
+    // In release mode, this is where crash reporting services would be called
+    // The AppLogger already captures logs that can be attached to crash reports
+    // via AppLogger.getRecentLogs() or AppLogger.exportLogs()
+    //
+    // Integration examples:
+    // - Firebase Crashlytics: FirebaseCrashlytics.instance.recordError(...)
+    // - Sentry: Sentry.captureMessage(...) or Sentry.captureException(...)
+    //
+    // The threatData map is structured for easy integration with these services.
   }
 
   /// Save security log to local storage
@@ -602,7 +695,9 @@ class DeviceSecurityService {
       // Save back
       await prefs.setStringList('security_logs', logsJson);
     } catch (e) {
-      debugPrint('⚠️ Failed to save security log: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ Failed to save security log: $e');
+      }
     }
   }
 
@@ -613,7 +708,9 @@ class DeviceSecurityService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getStringList('security_logs') ?? [];
     } catch (e) {
-      debugPrint('❌ Failed to get security logs: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Failed to get security logs: $e');
+      }
       return [];
     }
   }
@@ -624,9 +721,13 @@ class DeviceSecurityService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('security_logs');
-      debugPrint('🗑️ Security logs cleared');
+      if (kDebugMode) {
+        debugPrint('🗑️ Security logs cleared');
+      }
     } catch (e) {
-      debugPrint('❌ Failed to clear security logs: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Failed to clear security logs: $e');
+      }
     }
   }
 }

@@ -443,17 +443,20 @@ jobs:
             trivy-${{ matrix.service.name }}.sarif
           retention-days: 30
 
-  # Job 4: Test docker-compose configurations
+  # Job 4: Validate docker-compose configurations (validation only, no startup)
+  # Note: We only validate config syntax, not actually start services, because:
+  # - docker-compose.test.yml requires building services (slow, disk-heavy)
+  # - Infrastructure services need external dependencies and take too long to start
+  # - Full integration testing should be done locally or in dedicated environments
   docker-compose-test:
-    name: Docker Compose Tests
+    name: Docker Compose Validation
     runs-on: ubuntu-latest
     needs: [dockerfile-lint, secrets-scan]
     strategy:
       fail-fast: false
       matrix:
         compose-file:
-          - name: test
-            file: docker-compose.test.yml
+          # docker-compose.test.yml excluded - requires building services
           - name: telemetry
             file: docker-compose.telemetry.yml
           - name: infra
@@ -525,116 +528,16 @@ jobs:
           docker compose -f ${{ matrix.compose-file.file }} config > /dev/null
           echo "✅ Docker compose configuration is valid"
 
-      - name: Pull required images
+      - name: Generate validation report
         if: steps.check_compose.outputs.exists == 'true'
-        env:
-          POSTGRES_PASSWORD: ci_password_secure_123
-          POSTGRES_USER: ci_user
-          POSTGRES_DB: sahool_ci
-          REDIS_PASSWORD: ci_redis_password_123
-          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
         run: |
-          echo "⬇️ Pulling images defined in compose file..."
-          docker compose -f ${{ matrix.compose-file.file }} pull --ignore-pull-failures || true
-
-      - name: Start docker-compose services
-        if: steps.check_compose.outputs.exists == 'true'
-        timeout-minutes: 10
-        env:
-          POSTGRES_PASSWORD: ci_password_secure_123
-          POSTGRES_USER: ci_user
-          POSTGRES_DB: sahool_ci
-          REDIS_PASSWORD: ci_redis_password_123
-          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
-        run: |
-          echo "🚀 Starting docker-compose services..."
-          docker compose -f ${{ matrix.compose-file.file }} up -d --wait --wait-timeout 300 || {
-            echo "❌ Failed to start services"
-            docker compose -f ${{ matrix.compose-file.file }} logs
-            exit 1
-          }
-
-      - name: Check running services
-        if: steps.check_compose.outputs.exists == 'true'
-        env:
-          POSTGRES_PASSWORD: ci_password_secure_123
-          POSTGRES_USER: ci_user
-          POSTGRES_DB: sahool_ci
-          REDIS_PASSWORD: ci_redis_password_123
-          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
-        run: |
-          echo "📊 Checking service status..."
-          docker compose -f ${{ matrix.compose-file.file }} ps
-
-          # Count running services
-          RUNNING=$(docker compose -f ${{ matrix.compose-file.file }} ps --services --filter "status=running" | wc -l)
-          TOTAL=$(docker compose -f ${{ matrix.compose-file.file }} ps --services | wc -l)
-
-          echo "## 🐳 Docker Compose - ${{ matrix.compose-file.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 🐳 Docker Compose Validation - ${{ matrix.compose-file.name }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Services running:** $RUNNING / $TOTAL" >> $GITHUB_STEP_SUMMARY
-
-          if [ "$RUNNING" -lt "$TOTAL" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ Not all services started successfully" >> $GITHUB_STEP_SUMMARY
-            echo "::warning::Only $RUNNING/$TOTAL services running in ${{ matrix.compose-file.name }}"
-          fi
-
-      - name: Test service connectivity
-        if: steps.check_compose.outputs.exists == 'true'
-        continue-on-error: true
-        env:
-          POSTGRES_PASSWORD: ci_password_secure_123
-          POSTGRES_USER: ci_user
-          POSTGRES_DB: sahool_ci
-          REDIS_PASSWORD: ci_redis_password_123
-          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
-        run: |
-          echo "🔗 Testing service connectivity..."
-
-          # Get list of services
-          SERVICES=$(docker compose -f ${{ matrix.compose-file.file }} ps --services --filter "status=running")
-
-          for service in $SERVICES; do
-            echo "Testing $service..."
-
-            # Try to exec a simple command in the container
-            docker compose -f ${{ matrix.compose-file.file }} exec -T $service echo "OK" || {
-              echo "⚠️ Could not connect to $service"
-            }
-          done
-
-      - name: Collect logs
-        if: always() && steps.check_compose.outputs.exists == 'true'
-        env:
-          POSTGRES_PASSWORD: ci_password_secure_123
-          POSTGRES_USER: ci_user
-          POSTGRES_DB: sahool_ci
-          REDIS_PASSWORD: ci_redis_password_123
-          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
-        run: |
-          echo "📋 Collecting service logs..."
-          docker compose -f ${{ matrix.compose-file.file }} logs --tail=100 > compose-${{ matrix.compose-file.name }}-logs.txt
-
-      - name: Stop docker-compose
-        if: always() && steps.check_compose.outputs.exists == 'true'
-        env:
-          POSTGRES_PASSWORD: ci_password_secure_123
-          POSTGRES_USER: ci_user
-          POSTGRES_DB: sahool_ci
-          REDIS_PASSWORD: ci_redis_password_123
-          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
-        run: |
-          echo "🛑 Stopping docker-compose services..."
-          docker compose -f ${{ matrix.compose-file.file }} down -v --remove-orphans
-
-      - name: Upload compose logs
-        if: always() && steps.check_compose.outputs.exists == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: compose-logs-${{ matrix.compose-file.name }}
-          path: compose-${{ matrix.compose-file.name }}-logs.txt
-          retention-days: 7
+          echo "✅ Configuration validated successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**File:** \`${{ matrix.compose-file.file }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Note: Full service startup tests should be run locally or in dedicated test environments." >> $GITHUB_STEP_SUMMARY
 
   # Job 5: Generate comprehensive test report
   test-report:

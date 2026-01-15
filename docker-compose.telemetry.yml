@@ -116,7 +116,7 @@ services:
     healthcheck:
       # OTel Collector contrib image is scratch-based with no shell
       # Disable custom healthcheck; container startup indicates readiness
-      test: ["NONE"]
+      disable: true
     deploy:
       resources:
         limits:

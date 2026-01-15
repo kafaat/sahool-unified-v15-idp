@@ -8,6 +8,8 @@ import '../constants/navigation_constants.dart';
 import '../../features/splash/ui/splash_screen.dart';
 import '../../features/auth/ui/role_selection_screen.dart';
 import '../../features/auth/ui/login_screen.dart';
+import '../../features/auth/ui/forgot_password_screen.dart';
+import '../../features/auth/ui/reset_password_screen.dart';
 
 // Features - Main Layout
 import '../../features/main_layout/main_layout.dart';
@@ -101,6 +103,24 @@ class AppRouter {
         path: '/login',
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+
+      GoRoute(
+        path: '/reset-password',
+        name: 'reset-password',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return ResetPasswordScreen(
+            token: args?['token'] ?? '',
+            identifier: args?['identifier'],
+          );
+        },
       ),
 
       // ═══════════════════════════════════════════════════════════════════════

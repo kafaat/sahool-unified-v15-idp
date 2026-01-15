@@ -134,25 +134,24 @@ class ApiConfig {
   // Kong route: /api/v1/weather-core → strips to / → service receives /*
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get weather => '$baseUrl/api/v1/weather-core/weather/current';
+  static String get _weatherBase => '$baseUrl/api/v1/weather';
+
+  static String get weather => '$_weatherBase/current';
   static String weatherByCoordinates(double lat, double lng) =>
-      '$baseUrl/api/v1/weather-core/weather/current?lat=$lat&lon=$lng';
-  /// Weather by location name (governorate)
-  static String weatherByLocation(String location) =>
-      '$baseUrl/api/v1/weather-core/weather/current?location=$location';
-  static String get forecast => '$baseUrl/api/v1/weather-core/weather/forecast';
+      '$_weatherBase/current?lat=$lat&lon=$lng';
+  /// Weather by location name (governorate) - path-based
+  static String weatherByLocation(String location) => '$_weatherBase/current/$location';
+  static String get forecast => '$_weatherBase/forecast';
   static String forecastByCoordinates(double lat, double lng, {int days = 7}) =>
-      '$baseUrl/api/v1/weather-core/weather/forecast?lat=$lat&lon=$lng&days=$days';
-  /// Forecast by location name (governorate)
-  static String forecastByLocation(String location) =>
-      '$baseUrl/api/v1/weather-core/weather/forecast?location=$location';
-  static String get weatherAlerts => '$baseUrl/api/v1/weather-core/weather/alerts';
-  /// Weather alerts by location name
-  static String weatherAlertsByLocation(String location) =>
-      '$baseUrl/api/v1/weather-core/weather/alerts?location=$location';
+      '$_weatherBase/forecast?lat=$lat&lon=$lng&days=$days';
+  /// Forecast by location name (governorate) - path-based
+  static String forecastByLocation(String location) => '$_weatherBase/forecast/$location';
+  static String get weatherAlerts => '$_weatherBase/alerts';
+  /// Weather alerts by location name - path-based
+  static String weatherAlertsByLocation(String location) => '$_weatherBase/alerts/$location';
   /// Available weather locations (governorates)
-  static String get weatherLocations => '$baseUrl/api/v1/weather-core/locations';
-  static String get agriculturalCalendar => '$baseUrl/api/v1/weather-core/agricultural-calendar';
+  static String get weatherLocations => '$_weatherBase/locations';
+  static String get agriculturalCalendar => '$_weatherBase/agricultural-calendar';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Indicators Service

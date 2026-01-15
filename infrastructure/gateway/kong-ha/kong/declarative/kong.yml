@@ -1,11 +1,59 @@
 _format_version: "3.0"
 _transform: true
 
-# SAHOOL Kong Gateway - Declarative Configuration
-# All services with rate limiting, health checks, and request transformation
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Kong Gateway - High Availability Declarative Configuration
+# تكوين Kong للتوفر العالي
+# Synced with: infrastructure/gateway/kong/kong.yml
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Global plugins
+plugins:
+  - name: correlation-id
+    config:
+      header_name: X-Request-ID
+      generator: uuid
+      echo_downstream: true
+
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Authorization
+        - Content-Length
+        - Content-Type
+        - Date
+        - X-Request-Id
+        - X-Tenant-ID
+      exposed_headers:
+        - X-Request-Id
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
+
+  - name: prometheus
+    config: {}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Services + Routes (Aligned with services.yaml)
+# ═══════════════════════════════════════════════════════════════════════════════
 
 services:
-  # Field Management Service (Replaces field-ops)
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Core Services - الخدمات الأساسية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Field Management Service (Replaces field-ops, field-core, field-service)
   - name: field-management-service
     url: http://field-management-service:3000
     connect_timeout: 5000
@@ -13,11 +61,12 @@ services:
     write_timeout: 60000
     retries: 3
     routes:
-      - name: field-ops-route
+      - name: field-management-route
         paths:
           - /api/v1/fields
+          - /api/v1/field
           - /api/field-ops
-        strip_path: false
+        strip_path: true
         preserve_host: true
     plugins:
       - name: rate-limiting
@@ -38,72 +87,20 @@ services:
             headers:
               - "X-Service-Name:field-management-service"
               - "X-Service-Version:16.0.0"
-      - name: cors
-        config:
-          origins:
-            - https://sahool.app
-            - https://admin.sahool.app
-            - https://api.sahool.app
-            - http://localhost:3000
-            - http://localhost:5173
-          methods:
-            - GET
-            - POST
-            - PUT
-            - DELETE
-            - OPTIONS
-          headers:
-            - Authorization
-            - Content-Type
-            - X-Request-ID
-            - X-Tenant-ID
-          credentials: true
-          max_age: 3600
 
-  # Satellite/NDVI Service
-  - name: satellite-service
-    url: http://satellite-service:8090
+  # User Service - Authentication and User Management
+  - name: user-service
+    url: http://user-service:3025
     connect_timeout: 5000
-    read_timeout: 120000
+    read_timeout: 60000
     write_timeout: 60000
-    retries: 2
-    routes:
-      - name: satellite-route
-        paths:
-          - /api/v1/satellite
-          - /api/v1/ndvi
-        strip_path: false
-    plugins:
-      - name: rate-limiting
-        config:
-          minute: 500
-          hour: 25000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-          hide_client_headers: false
-      - name: request-transformer
-        config:
-          add:
-            headers:
-              - "X-Service-Name:satellite-service"
-
-  # Virtual Sensors Service
-  - name: virtual-sensors
-    url: http://virtual-sensors:8119
-    connect_timeout: 5000
-    read_timeout: 30000
     retries: 3
     routes:
-      - name: virtual-sensors-route
+      - name: user-service-route
         paths:
-          - /api/v1/sensors
-          - /api/v1/virtual-sensors
-        strip_path: false
+          - /api/v1/auth
+          - /api/v1/users
+        strip_path: true
     plugins:
       - name: rate-limiting
         config:
@@ -116,11 +113,231 @@ services:
           redis_database: 1
           redis_timeout: 2000
           fault_tolerant: true
-          hide_client_headers: false
 
-  # Yield Prediction Service
-  - name: yield-prediction-service
-    url: http://yield-prediction-service:8098
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Vegetation & Satellite Services - خدمات تحليل الغطاء النباتي
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Vegetation Analysis Service (Replaces satellite-service)
+  - name: vegetation-analysis-service
+    url: http://vegetation-analysis-service:8090
+    connect_timeout: 5000
+    read_timeout: 120000
+    write_timeout: 60000
+    retries: 2
+    routes:
+      - name: vegetation-route
+        paths:
+          - /api/v1/vegetation
+          - /api/v1/satellite
+          - /api/v1/ndvi
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: request-transformer
+        config:
+          add:
+            headers:
+              - "X-Service-Name:vegetation-analysis-service"
+
+  # Virtual Sensors Service
+  - name: virtual-sensors
+    url: http://virtual-sensors:8119
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 3
+    routes:
+      - name: virtual-sensors-route
+        paths:
+          - /api/v1/sensors
+          - /api/v1/virtual-sensors
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 2000
+          hour: 100000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # NDVI Processor
+  - name: ndvi-processor
+    url: http://ndvi-processor:8118
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: ndvi-processor-route
+        paths:
+          - /api/v1/ndvi-processor
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Indicators Service
+  - name: indicators-service
+    url: http://indicators-service:8091
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 3
+    routes:
+      - name: indicators-route
+        paths:
+          - /api/v1/indicators
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Weather Services - خدمات الطقس
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Weather Service (Replaces weather-advanced)
+  - name: weather-service
+    url: http://weather-service:8092
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 3
+    routes:
+      - name: weather-route
+        paths:
+          - /api/v1/weather
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Crop Intelligence Services - خدمات ذكاء المحاصيل
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Crop Intelligence Service (Replaces crop-health-ai)
+  - name: crop-intelligence-service
+    url: http://crop-intelligence-service:8095
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: crop-intelligence-route
+        paths:
+          - /api/v1/crop-health
+          - /api/v1/crop-intelligence
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Crop Growth Model
+  - name: crop-growth-model
+    url: http://crop-growth-model:3023
+    connect_timeout: 10000
+    read_timeout: 120000
+    write_timeout: 60000
+    retries: 2
+    routes:
+      - name: crop-growth-route
+        paths:
+          - /api/v1/crop-model
+          - /api/v1/growth
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Field Intelligence
+  - name: field-intelligence
+    url: http://field-intelligence:8120
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: field-intelligence-route
+        paths:
+          - /api/v1/field-intelligence
+          - /api/v1/intelligence
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Decision Layer Services - طبقة القرار
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Yield Engine
+  - name: yield-engine
+    url: http://yield-engine:8098
     connect_timeout: 5000
     read_timeout: 60000
     retries: 2
@@ -128,7 +345,7 @@ services:
       - name: yield-route
         paths:
           - /api/v1/yield
-        strip_path: false
+        strip_path: true
     plugins:
       - name: rate-limiting
         config:
@@ -141,9 +358,32 @@ services:
           redis_database: 1
           redis_timeout: 2000
           fault_tolerant: true
-          hide_client_headers: false
 
-  # LAI Estimation Service
+  # Yield Prediction
+  - name: yield-prediction
+    url: http://yield-prediction:3021
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: yield-prediction-route
+        paths:
+          - /api/v1/yield-prediction
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 300
+          hour: 15000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # LAI Estimation
   - name: lai-estimation
     url: http://lai-estimation:3022
     connect_timeout: 5000
@@ -153,7 +393,7 @@ services:
       - name: lai-route
         paths:
           - /api/v1/lai
-        strip_path: false
+        strip_path: true
     plugins:
       - name: rate-limiting
         config:
@@ -166,9 +406,33 @@ services:
           redis_database: 1
           redis_timeout: 2000
           fault_tolerant: true
-          hide_client_headers: false
 
-  # Irrigation Smart Service
+  # Advisory Service (Replaces fertilizer-advisor)
+  - name: advisory-service
+    url: http://advisory-service:8093
+    connect_timeout: 5000
+    read_timeout: 45000
+    retries: 2
+    routes:
+      - name: advisory-route
+        paths:
+          - /api/v1/advisory
+          - /api/v1/fertilizer
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Irrigation Smart
   - name: irrigation-smart
     url: http://irrigation-smart:8094
     connect_timeout: 5000
@@ -178,7 +442,7 @@ services:
       - name: irrigation-route
         paths:
           - /api/v1/irrigation
-        strip_path: false
+        strip_path: true
     plugins:
       - name: rate-limiting
         config:
@@ -191,7 +455,58 @@ services:
           redis_database: 1
           redis_timeout: 2000
           fault_tolerant: true
-          hide_client_headers: false
+
+  # Disaster Assessment
+  - name: disaster-assessment
+    url: http://disaster-assessment:3020
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: disaster-route
+        paths:
+          - /api/v1/disaster
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 300
+          hour: 15000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Agro Advisor
+  - name: agro-advisor
+    url: http://agro-advisor:8105
+    connect_timeout: 5000
+    read_timeout: 45000
+    retries: 2
+    routes:
+      - name: agro-advisor-route
+        paths:
+          - /api/v1/agro-advisor
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Business Layer Services - طبقة الأعمال
+  # ─────────────────────────────────────────────────────────────────────────────
 
   # Notification Service
   - name: notification-service
@@ -203,7 +518,10 @@ services:
       - name: notification-route
         paths:
           - /api/v1/notifications
-        strip_path: false
+          - /api/v1/channels
+          - /api/v1/preferences
+          - /api/v1/alerts
+        strip_path: true
     plugins:
       - name: rate-limiting
         config:
@@ -216,45 +534,18 @@ services:
           redis_database: 1
           redis_timeout: 2000
           fault_tolerant: true
-          hide_client_headers: false
 
-  # Crop Growth Timing Service
-  - name: crop-growth-timing
-    url: http://crop-growth-timing:8098
-    connect_timeout: 5000
-    read_timeout: 45000
+  # Alert Service
+  - name: alert-service
+    url: http://alert-service:8113
+    connect_timeout: 3000
+    read_timeout: 10000
     retries: 2
     routes:
-      - name: crop-timing-route
+      - name: alert-service-route
         paths:
-          - /api/v1/crop-timing
-          - /api/v1/growth
-        strip_path: false
-    plugins:
-      - name: rate-limiting
-        config:
-          minute: 500
-          hour: 25000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-          hide_client_headers: false
-
-  # Weather Service
-  - name: weather-service
-    url: http://weather-service:8092
-    connect_timeout: 5000
-    read_timeout: 30000
-    retries: 3
-    routes:
-      - name: weather-route
-        paths:
-          - /api/v1/weather
-        strip_path: false
+          - /api/v1/alert-service
+        strip_path: true
     plugins:
       - name: rate-limiting
         config:
@@ -267,12 +558,434 @@ services:
           redis_database: 1
           redis_timeout: 2000
           fault_tolerant: true
-          hide_client_headers: false
 
-# Global plugins
-plugins:
-  - name: correlation-id
-    config:
-      header_name: X-Request-ID
-      generator: uuid
-      echo_downstream: true
+  # Billing Core
+  - name: billing-core
+    url: http://billing-core:8089
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: billing-route
+        paths:
+          - /api/v1/billing
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Marketplace Service
+  - name: marketplace-service
+    url: http://marketplace-service:3010
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: marketplace-route
+        paths:
+          - /api/v1/marketplace
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Research Core
+  - name: research-core
+    url: http://research-core:3015
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: research-route
+        paths:
+          - /api/v1/research
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Task Service
+  - name: task-service
+    url: http://task-service:8103
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: task-route
+        paths:
+          - /api/v1/tasks
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Equipment Service
+  - name: equipment-service
+    url: http://equipment-service:8101
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: equipment-route
+        paths:
+          - /api/v1/equipment
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Inventory Service
+  - name: inventory-service
+    url: http://inventory-service:8116
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: inventory-route
+        paths:
+          - /api/v1/inventory
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Communication Services - خدمات الاتصال
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Community Chat
+  - name: community-chat
+    url: http://community-chat:8097
+    connect_timeout: 3000
+    read_timeout: 10000
+    retries: 2
+    routes:
+      - name: community-route
+        paths:
+          - /api/v1/community
+          - /api/v1/posts
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 2000
+          hour: 100000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Field Chat
+  - name: field-chat
+    url: http://field-chat:8099
+    connect_timeout: 3000
+    read_timeout: 10000
+    retries: 2
+    routes:
+      - name: field-chat-route
+        paths:
+          - /api/v1/field-chat
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 2000
+          hour: 100000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # WebSocket Gateway
+  - name: ws-gateway
+    url: http://ws-gateway:8081
+    connect_timeout: 5000
+    read_timeout: 300000
+    retries: 1
+    routes:
+      - name: ws-route
+        paths:
+          - /ws
+          - /api/v1/ws
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 5000
+          hour: 250000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Integration & IoT Services - خدمات التكامل
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # IoT Service
+  - name: iot-service
+    url: http://iot-service:8117
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: iot-route
+        paths:
+          - /api/v1/iot
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 5000
+          hour: 250000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # IoT Gateway
+  - name: iot-gateway
+    url: http://iot-gateway:8106
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: iot-gateway-route
+        paths:
+          - /api/v1/iot-gateway
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 5000
+          hour: 250000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # MCP Server
+  - name: mcp-server
+    url: http://mcp-server:8200
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: mcp-route
+        paths:
+          - /api/v1/mcp
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Astronomical Calendar
+  - name: astronomical-calendar
+    url: http://astronomical-calendar:8111
+    connect_timeout: 3000
+    read_timeout: 10000
+    retries: 2
+    routes:
+      - name: astronomy-route
+        paths:
+          - /api/v1/astronomy
+          - /api/v1/calendar
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Provider Config
+  - name: provider-config
+    url: http://provider-config:8104
+    connect_timeout: 3000
+    read_timeout: 10000
+    retries: 2
+    routes:
+      - name: provider-config-route
+        paths:
+          - /api/v1/providers
+          - /api/v1/provider-config
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 200
+          hour: 10000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI & Skills Services - خدمات الذكاء الاصطناعي
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Skills Service
+  - name: skills-service
+    url: http://skills-service:8121
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: skills-route
+        paths:
+          - /api/v1/skills
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Agro Rules Worker (has HTTP endpoints)
+  - name: agro-rules
+    url: http://agro-rules:8151
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: agro-rules-route
+        paths:
+          - /api/v1/agro-rules
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Platform Endpoints - نقاط المنصة
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  - name: root-endpoint
+    url: http://kong:8000
+    routes:
+      - name: root-route
+        paths: ["/"]
+        strip_path: false
+        methods: ["GET"]
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          content_type: "application/json"
+          body: '{"platform":"SAHOOL","version":"16.0.0","description":"National Agricultural Intelligence Platform - منصة سهول الزراعية الوطنية","status":"operational","mode":"high-availability"}'
+
+  - name: health-check
+    url: http://kong:8000
+    routes:
+      - name: health-route
+        paths: ["/health", "/ping"]
+        strip_path: false
+        methods: ["GET"]
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          message: "SAHOOL Platform is healthy (HA Mode)"

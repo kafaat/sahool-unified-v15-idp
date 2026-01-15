@@ -48,6 +48,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const idleCheckTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const refreshTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
+  // Logout function - defined first as other callbacks depend on it
+  const logout = React.useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+    } catch (error) {
+      logger.error("Logout error:", error);
+    } finally {
+      apiClient.clearToken();
+      setUser(null);
+      // Redirect to login
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
+  }, []);
+
   // Update last activity timestamp
   const updateActivity = React.useCallback(async () => {
     lastActivityRef.current = Date.now();
@@ -170,24 +189,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     [],
   );
-
-  const logout = React.useCallback(async () => {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "same-origin",
-      });
-    } catch (error) {
-      logger.error("Logout error:", error);
-    } finally {
-      apiClient.clearToken();
-      setUser(null);
-      // Redirect to login
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
-  }, []);
 
   const checkAuth = React.useCallback(async () => {
     try {

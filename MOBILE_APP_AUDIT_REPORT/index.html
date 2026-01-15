@@ -1,0 +1,2013 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Mobile App Comprehensive Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mobile-app-comprehensive-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mobile App Comprehensive Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="mobile-app-comprehensive-audit-report">Mobile App Comprehensive Audit Report<a class="headerlink" href="#mobile-app-comprehensive-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> January 2025
+<strong>App:</strong> SAHOOL Field App (<code>apps/mobile/sahool_field_app</code>)
+<strong>Version:</strong> 15.5.0+1</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This audit verified all API services, icons, assets, feature modules, and localization files in the SAHOOL mobile application. All issues found have been fixed.</p>
+<hr />
+<h2 id="1-api-services-audit">1. API Services Audit<a class="headerlink" href="#1-api-services-audit" title="Permanent link">&para;</a></h2>
+<h3 id="11-remote-api-files-8-total">1.1 Remote API Files (8 total)<a class="headerlink" href="#11-remote-api-files-8-total" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Status</th>
+<th>Routing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>satellite_api.dart</code></td>
+<td>✅ Fixed</td>
+<td>Kong <code>/api/v1/satellite</code></td>
+</tr>
+<tr>
+<td><code>notifications_api.dart</code></td>
+<td>✅ Fixed</td>
+<td>Kong <code>/api/v1/notifications</code></td>
+</tr>
+<tr>
+<td><code>iot_sensors_api.dart</code></td>
+<td>✅ Fixed</td>
+<td>Kong <code>/api/v1/iot</code></td>
+</tr>
+<tr>
+<td><code>astronomical_api.dart</code></td>
+<td>✅ Fixed</td>
+<td>Kong <code>/api/v1/astronomy</code></td>
+</tr>
+<tr>
+<td><code>crop_health_api.dart</code></td>
+<td>✅ OK</td>
+<td>Uses <code>ApiClient</code></td>
+</tr>
+<tr>
+<td><code>fields_api.dart</code></td>
+<td>✅ OK</td>
+<td>Uses <code>ApiClient</code></td>
+</tr>
+<tr>
+<td><code>tasks_api.dart</code></td>
+<td>✅ OK</td>
+<td>Uses <code>ApiClient</code></td>
+</tr>
+<tr>
+<td><code>weather_api.dart</code></td>
+<td>✅ OK</td>
+<td>Uses <code>ApiConfig</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-issues-fixed">1.2 Issues Fixed<a class="headerlink" href="#12-issues-fixed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>satellite_api.dart</code> using port <code>:8090</code></td>
+<td>Changed to <code>/api/v1/satellite</code></td>
+</tr>
+<tr>
+<td><code>notifications_api.dart</code> using port <code>:8110</code></td>
+<td>Changed to <code>/api/v1/notifications</code></td>
+</tr>
+<tr>
+<td><code>iot_sensors_api.dart</code> using port <code>:8100</code></td>
+<td>Changed to <code>/api/v1/iot</code></td>
+</tr>
+<tr>
+<td><code>iot_sensors_api.dart</code> WebSocket <code>:8100/ws</code></td>
+<td>Changed to <code>:8081/iot</code></td>
+</tr>
+<tr>
+<td><code>astronomical_api.dart</code> using non-existent <code>astronomicalCalendarServiceUrl</code></td>
+<td>Changed to <code>ApiConfig.baseUrl/api/v1/astronomy</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-core-services-16-total">1.3 Core Services (16 total)<a class="headerlink" href="#13-core-services-16-total" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth_service.dart</code></td>
+<td>✅ OK</td>
+<td>Uses <code>ApiClient</code>, proper token management</td>
+</tr>
+<tr>
+<td><code>biometric_service.dart</code></td>
+<td>✅ OK</td>
+<td>Local auth only</td>
+</tr>
+<tr>
+<td><code>permission_service.dart</code></td>
+<td>✅ OK</td>
+<td>Permissions handling</td>
+</tr>
+<tr>
+<td><code>secure_storage_service.dart</code></td>
+<td>✅ OK</td>
+<td>Secure local storage</td>
+</tr>
+<tr>
+<td><code>certificate_pinning_service.dart</code></td>
+<td>✅ OK</td>
+<td>SSL pinning configured</td>
+</tr>
+<tr>
+<td><code>device_security_service.dart</code></td>
+<td>✅ OK</td>
+<td>Device security checks</td>
+</tr>
+<tr>
+<td><code>screen_security_service.dart</code></td>
+<td>✅ OK</td>
+<td>Screenshot prevention</td>
+</tr>
+<tr>
+<td><code>sync_service.dart</code></td>
+<td>✅ OK</td>
+<td>Offline sync</td>
+</tr>
+<tr>
+<td><code>sync_metrics_service.dart</code></td>
+<td>✅ OK</td>
+<td>Sync monitoring</td>
+</tr>
+<tr>
+<td><code>map_provider_service.dart</code></td>
+<td>✅ OK</td>
+<td>Map tiles</td>
+</tr>
+<tr>
+<td><code>weather_provider_service.dart</code></td>
+<td>✅ OK</td>
+<td>Weather data</td>
+</tr>
+<tr>
+<td><code>voice_command_service.dart</code></td>
+<td>✅ OK</td>
+<td>Voice input</td>
+</tr>
+<tr>
+<td><code>notification_service.dart</code></td>
+<td>✅ OK</td>
+<td>Push notifications</td>
+</tr>
+<tr>
+<td><code>local_notification_service.dart</code></td>
+<td>✅ OK</td>
+<td>Local notifications</td>
+</tr>
+<tr>
+<td><code>tharwatt_service.dart</code></td>
+<td>✅ OK</td>
+<td>Payment integration</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-api-configuration-audit">2. API Configuration Audit<a class="headerlink" href="#2-api-configuration-audit" title="Permanent link">&para;</a></h2>
+<h3 id="21-apiconfigdart-analysis">2.1 ApiConfig.dart Analysis<a class="headerlink" href="#21-apiconfigdart-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>lib/core/config/api_config.dart</code></p>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Value</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong Gateway Port</td>
+<td>8000</td>
+<td>✅ Correct</td>
+</tr>
+<tr>
+<td>WebSocket Gateway</td>
+<td>8081</td>
+<td>✅ Correct</td>
+</tr>
+<tr>
+<td>Production Host</td>
+<td><code>api.sahool.io</code></td>
+<td>✅ Configured</td>
+</tr>
+<tr>
+<td>Android Emulator</td>
+<td><code>10.0.2.2</code></td>
+<td>✅ Correct</td>
+</tr>
+<tr>
+<td>iOS Simulator</td>
+<td><code>localhost</code></td>
+<td>✅ Correct</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-kong-gateway-routes">2.2 Kong Gateway Routes<a class="headerlink" href="#22-kong-gateway-routes" title="Permanent link">&para;</a></h3>
+<p>All services route through Kong Gateway on port 8000:</p>
+<div class="codehilite"><pre><span></span><code>/api/v1/fields          → field-management-service
+/api/v1/tasks           → tasks-service
+/api/v1/auth            → auth-service
+/api/v1/satellite       → vegetation-analysis-service
+/api/v1/weather         → weather-core
+/api/v1/indicators      → indicators-service
+/api/v1/fertilizer      → fertilizer-advisor
+/api/v1/irrigation      → irrigation-smart
+/api/v1/crop-health     → crop-health-ai
+/api/v1/virtual-sensors → virtual-sensors-engine
+/api/v1/equipment       → equipment-service
+/api/v1/community       → community-chat
+/api/v1/notifications   → notification-service
+/api/v1/marketplace     → marketplace-service
+/api/v1/astronomy       → astronomical-calendar-service
+/api/v1/field-intelligence → field-intelligence-service
+/api/v1/skills          → skills-service
+</code></pre></div>
+
+<hr />
+<h2 id="3-icons-assets-audit">3. Icons &amp; Assets Audit<a class="headerlink" href="#3-icons-assets-audit" title="Permanent link">&para;</a></h2>
+<h3 id="31-android-icons">3.1 Android Icons<a class="headerlink" href="#31-android-icons" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Icons</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mipmap-mdpi</code></td>
+<td>ic_launcher.png, launcher_icon.png</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td><code>mipmap-hdpi</code></td>
+<td>ic_launcher.png, launcher_icon.png</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td><code>mipmap-xhdpi</code></td>
+<td>ic_launcher.png, launcher_icon.png</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td><code>mipmap-xxhdpi</code></td>
+<td>ic_launcher.png, launcher_icon.png</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td><code>mipmap-xxxhdpi</code></td>
+<td>ic_launcher.png, launcher_icon.png</td>
+<td>✅ Present</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total:</strong> 10 icons (5 sizes × 2 variants)</p>
+<h3 id="32-ios-icons">3.2 iOS Icons<a class="headerlink" href="#32-ios-icons" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Size</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Icon-App-20x20@1x, @2x, @3x</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon-App-29x29@1x, @2x, @3x</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon-App-40x40@1x, @2x, @3x</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon-App-60x60@2x, @3x</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon-App-76x76@1x, @2x</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon-App-83.5x83.5@2x</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon-App-1024x1024@1x</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>LaunchImage@1x, @2x, @3x</td>
+<td>✅ Present</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total:</strong> 18 icons</p>
+<h3 id="33-assets">3.3 Assets<a class="headerlink" href="#33-assets" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Files</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fonts</td>
+<td>7 IBMPlexSansArabic variants</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Icons</td>
+<td>app_icon.png, foreground, splash</td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Images</td>
+<td>.gitkeep (placeholder)</td>
+<td>✅ Ready</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-icon-configuration">3.4 Icon Configuration<a class="headerlink" href="#34-icon-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>flutter_launcher_icons:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">android</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;launcher_icon&quot;</span>
+<span class="nt">ios</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">image_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;assets/icon/app_icon.png&quot;</span>
+<span class="nt">adaptive_icon_background</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;#2E7D32&quot;</span>
+<span class="nt">adaptive_icon_foreground</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;assets/icon/app_icon_foreground.png&quot;</span>
+<span class="nt">min_sdk_android</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23</span>
+</code></pre></div>
+
+<p><strong>flutter_native_splash:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;#2E7D32&quot;</span>
+<span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">assets/icon/splash_logo.png</span>
+<span class="nt">android_12</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">configured</span>
+<span class="nt">ios</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4-feature-modules-audit">4. Feature Modules Audit<a class="headerlink" href="#4-feature-modules-audit" title="Permanent link">&para;</a></h2>
+<h3 id="41-feature-count">4.1 Feature Count<a class="headerlink" href="#41-feature-count" title="Permanent link">&para;</a></h3>
+<p><strong>Total:</strong> 42 feature modules</p>
+<h3 id="42-feature-list">4.2 Feature List<a class="headerlink" href="#42-feature-list" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>advisor</code></td>
+<td>AI Advisory</td>
+</tr>
+<tr>
+<td><code>alerts</code></td>
+<td>Alert Management</td>
+</tr>
+<tr>
+<td><code>analytics</code></td>
+<td>Analytics Dashboard</td>
+</tr>
+<tr>
+<td><code>astronomical_calendar</code></td>
+<td>Lunar Calendar</td>
+</tr>
+<tr>
+<td><code>auth</code></td>
+<td>Authentication</td>
+</tr>
+<tr>
+<td><code>community</code></td>
+<td>Community Features</td>
+</tr>
+<tr>
+<td><code>crop_health</code></td>
+<td>Crop Health AI</td>
+</tr>
+<tr>
+<td><code>daily_brief</code></td>
+<td>Daily Briefing</td>
+</tr>
+<tr>
+<td><code>equipment</code></td>
+<td>Equipment Management</td>
+</tr>
+<tr>
+<td><code>field</code></td>
+<td>Field Core</td>
+</tr>
+<tr>
+<td><code>field_hub</code></td>
+<td>Field Hub</td>
+</tr>
+<tr>
+<td><code>field_scout</code></td>
+<td>Field Scouting</td>
+</tr>
+<tr>
+<td><code>fields</code></td>
+<td>Fields List</td>
+</tr>
+<tr>
+<td><code>gamification</code></td>
+<td>Gamification</td>
+</tr>
+<tr>
+<td><code>home</code></td>
+<td>Home Screen</td>
+</tr>
+<tr>
+<td><code>iot</code></td>
+<td>IoT Sensors</td>
+</tr>
+<tr>
+<td><code>lab</code></td>
+<td>Lab Features</td>
+</tr>
+<tr>
+<td><code>main_layout</code></td>
+<td>Main Layout</td>
+</tr>
+<tr>
+<td><code>map_home</code></td>
+<td>Map Home</td>
+</tr>
+<tr>
+<td><code>maps</code></td>
+<td>Maps</td>
+</tr>
+<tr>
+<td><code>market</code></td>
+<td>Market</td>
+</tr>
+<tr>
+<td><code>marketplace</code></td>
+<td>Marketplace</td>
+</tr>
+<tr>
+<td><code>ndvi</code></td>
+<td>NDVI Analysis</td>
+</tr>
+<tr>
+<td><code>notifications</code></td>
+<td>Notifications</td>
+</tr>
+<tr>
+<td><code>onboarding</code></td>
+<td>Onboarding</td>
+</tr>
+<tr>
+<td><code>payment</code></td>
+<td>Payment</td>
+</tr>
+<tr>
+<td><code>polygon_editor</code></td>
+<td>Polygon Editor</td>
+</tr>
+<tr>
+<td><code>profile</code></td>
+<td>User Profile</td>
+</tr>
+<tr>
+<td><code>research</code></td>
+<td>Research</td>
+</tr>
+<tr>
+<td><code>scanner</code></td>
+<td>QR Scanner</td>
+</tr>
+<tr>
+<td><code>scouting</code></td>
+<td>Scouting</td>
+</tr>
+<tr>
+<td><code>settings</code></td>
+<td>Settings</td>
+</tr>
+<tr>
+<td><code>shared</code></td>
+<td>Shared Components</td>
+</tr>
+<tr>
+<td><code>smart_alerts</code></td>
+<td>Smart Alerts</td>
+</tr>
+<tr>
+<td><code>splash</code></td>
+<td>Splash Screen</td>
+</tr>
+<tr>
+<td><code>sync</code></td>
+<td>Sync Management</td>
+</tr>
+<tr>
+<td><code>tasks</code></td>
+<td>Tasks</td>
+</tr>
+<tr>
+<td><code>virtual_sensors</code></td>
+<td>Virtual Sensors</td>
+</tr>
+<tr>
+<td><code>wallet</code></td>
+<td>Wallet</td>
+</tr>
+<tr>
+<td><code>weather</code></td>
+<td>Weather</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-localization-audit">5. Localization Audit<a class="headerlink" href="#5-localization-audit" title="Permanent link">&para;</a></h2>
+<h3 id="51-supported-languages">5.1 Supported Languages<a class="headerlink" href="#51-supported-languages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>File</th>
+<th>Keys</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arabic (ar)</td>
+<td><code>app_ar.arb</code></td>
+<td>39</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>English (en)</td>
+<td><code>app_en.arb</code></td>
+<td>39</td>
+<td>✅ Complete</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-key-categories">5.2 Key Categories<a class="headerlink" href="#52-key-categories" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Common Actions</td>
+<td>save, cancel, delete, edit, add, close, confirm</td>
+</tr>
+<tr>
+<td>Status Messages</td>
+<td>loading, error, success, warning</td>
+</tr>
+<tr>
+<td>Authentication</td>
+<td>login, logout, email, password, forgotPassword</td>
+</tr>
+<tr>
+<td>Navigation</td>
+<td>home, settings, profile, notifications</td>
+</tr>
+<tr>
+<td>Fields</td>
+<td>fieldName, area, cropType, status</td>
+</tr>
+<tr>
+<td>Weather</td>
+<td>temperature, humidity, wind, rain</td>
+</tr>
+<tr>
+<td>Sync</td>
+<td>offline, online, sync, syncing</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>noData, search, filter, refresh, retry</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-l10n-configuration">5.3 L10n Configuration<a class="headerlink" href="#53-l10n-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">flutter</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">generate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># Enables l10n code generation</span>
+</code></pre></div>
+
+<hr />
+<h2 id="6-dependencies-audit">6. Dependencies Audit<a class="headerlink" href="#6-dependencies-audit" title="Permanent link">&para;</a></h2>
+<h3 id="61-key-dependencies">6.1 Key Dependencies<a class="headerlink" href="#61-key-dependencies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Package</th>
+<th>Version</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>State Management</td>
+<td>flutter_riverpod</td>
+<td>^2.6.1</td>
+<td>✅ Latest</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>drift</td>
+<td>^2.24.0</td>
+<td>✅ Latest</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>dio</td>
+<td>^5.7.0</td>
+<td>✅ Latest</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>flutter_secure_storage</td>
+<td>^9.2.2</td>
+<td>✅ Latest</td>
+</tr>
+<tr>
+<td>Maps</td>
+<td>flutter_map</td>
+<td>^7.0.2</td>
+<td>✅ Latest</td>
+</tr>
+<tr>
+<td>Navigation</td>
+<td>go_router</td>
+<td>^14.6.2</td>
+<td>✅ Latest</td>
+</tr>
+<tr>
+<td>Biometric</td>
+<td>local_auth</td>
+<td>^2.3.0</td>
+<td>✅ Latest</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-sdk-constraints">6.2 SDK Constraints<a class="headerlink" href="#62-sdk-constraints" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sdk</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&gt;=3.2.0</span><span class="nv"> </span><span class="s">&lt;4.0.0&#39;</span><span class="w">  </span><span class="c1"># Flutter 3.27.x compatible</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-security-audit">7. Security Audit<a class="headerlink" href="#7-security-audit" title="Permanent link">&para;</a></h2>
+<h3 id="71-security-features">7.1 Security Features<a class="headerlink" href="#71-security-features" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Certificate Pinning</td>
+<td>✅ Implemented</td>
+</tr>
+<tr>
+<td>Secure Storage</td>
+<td>✅ flutter_secure_storage</td>
+</tr>
+<tr>
+<td>Biometric Auth</td>
+<td>✅ local_auth</td>
+</tr>
+<tr>
+<td>Device Security</td>
+<td>✅ safe_device</td>
+</tr>
+<tr>
+<td>Screenshot Prevention</td>
+<td>✅ secure_application</td>
+</tr>
+<tr>
+<td>Token Management</td>
+<td>✅ Auto-refresh with retry</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-api-security">7.2 API Security<a class="headerlink" href="#72-api-security" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Authentication</td>
+<td>JWT Bearer tokens</td>
+</tr>
+<tr>
+<td>Token Refresh</td>
+<td>Automatic with exponential backoff</td>
+</tr>
+<tr>
+<td>Multi-tenant</td>
+<td>X-Tenant-Id header</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td>Certificate pinning enabled</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-summary">8. Summary<a class="headerlink" href="#8-summary" title="Permanent link">&para;</a></h2>
+<h3 id="81-issues-found-fixed">8.1 Issues Found &amp; Fixed<a class="headerlink" href="#81-issues-found-fixed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4 API services bypassing Kong Gateway</td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>1 API using non-existent config property</td>
+<td>✅ Fixed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82-audit-results">8.2 Audit Results<a class="headerlink" href="#82-audit-results" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Items</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API Services</td>
+<td>8</td>
+<td>✅ All verified</td>
+</tr>
+<tr>
+<td>Core Services</td>
+<td>16</td>
+<td>✅ All verified</td>
+</tr>
+<tr>
+<td>Android Icons</td>
+<td>10</td>
+<td>✅ All present</td>
+</tr>
+<tr>
+<td>iOS Icons</td>
+<td>18</td>
+<td>✅ All present</td>
+</tr>
+<tr>
+<td>Feature Modules</td>
+<td>42</td>
+<td>✅ All present</td>
+</tr>
+<tr>
+<td>Localization Keys</td>
+<td>39 × 2</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Dependencies</td>
+<td>30+</td>
+<td>✅ Up to date</td>
+</tr>
+<tr>
+<td>Security Features</td>
+<td>6</td>
+<td>✅ Implemented</td>
+</tr>
+</tbody>
+</table>
+<h3 id="83-commits">8.3 Commits<a class="headerlink" href="#83-commits" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Commit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>33e0ecac</code></td>
+<td>fix(mobile): route API calls through Kong Gateway</td>
+</tr>
+<tr>
+<td><code>5aba3ee1</code></td>
+<td>fix(mobile): route astronomical_api.dart through Kong Gateway</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Report generated: January 2025</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

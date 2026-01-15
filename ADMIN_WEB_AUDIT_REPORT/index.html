@@ -1,0 +1,2028 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Admin & Web Apps Comprehensive Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#admin-web-apps-comprehensive-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Admin &amp; Web Apps Comprehensive Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="admin-web-apps-comprehensive-audit-report">Admin &amp; Web Apps Comprehensive Audit Report<a class="headerlink" href="#admin-web-apps-comprehensive-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> January 2025
+<strong>Apps:</strong> Admin Portal (<code>apps/admin</code>) &amp; Web Dashboard (<code>apps/web</code>)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This audit verified all API configurations, components, pages, assets, and security features in both the Admin Portal and Web Dashboard applications. Both apps are properly configured to use Kong Gateway for API routing.</p>
+<hr />
+<h2 id="1-admin-portal-audit">1. Admin Portal Audit<a class="headerlink" href="#1-admin-portal-audit" title="Permanent link">&para;</a></h2>
+<h3 id="11-api-configuration">1.1 API Configuration<a class="headerlink" href="#11-api-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>Main Files:</strong>
+- <code>src/config/api.ts</code> - Centralized API configuration ✅
+- <code>src/lib/api.ts</code> - Main API functions ✅
+- <code>src/lib/api-client.ts</code> - API client with DOMPurify ✅</p>
+<p><strong>Configuration Status:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong Gateway URL</td>
+<td><code>http://localhost:8000</code></td>
+<td>✅ Correct</td>
+</tr>
+<tr>
+<td>WebSocket URL</td>
+<td><code>ws://localhost:8081</code></td>
+<td>✅ Correct</td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td>30 seconds</td>
+<td>✅ Configured</td>
+</tr>
+<tr>
+<td>Retry Attempts</td>
+<td>3</td>
+<td>✅ Configured</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Security Features:</strong>
+- DOMPurify for XSS sanitization ✅
+- CSRF protection headers ✅
+- Token auto-refresh ✅
+- httpOnly cookie support ✅</p>
+<h3 id="12-service-ports-mapping">1.2 Service Ports Mapping<a class="headerlink" href="#12-service-ports-mapping" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Kong Route</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-core</td>
+<td>3000</td>
+<td><code>/api/v1/fields</code></td>
+</tr>
+<tr>
+<td>auth</td>
+<td>8080</td>
+<td><code>/api/v1/auth</code></td>
+</tr>
+<tr>
+<td>ws-gateway</td>
+<td>8081</td>
+<td>WebSocket</td>
+</tr>
+<tr>
+<td>satellite</td>
+<td>8090</td>
+<td><code>/api/v1/satellite</code></td>
+</tr>
+<tr>
+<td>weather</td>
+<td>8092</td>
+<td><code>/api/v1/weather</code></td>
+</tr>
+<tr>
+<td>weather-core</td>
+<td>8108</td>
+<td><code>/api/v1/weather-core</code></td>
+</tr>
+<tr>
+<td>indicators</td>
+<td>8091</td>
+<td><code>/api/v1/indicators</code></td>
+</tr>
+<tr>
+<td>crop-health</td>
+<td>8095</td>
+<td><code>/api/v1/crop-health</code></td>
+</tr>
+<tr>
+<td>fertilizer</td>
+<td>8093</td>
+<td><code>/api/v1/fertilizer</code></td>
+</tr>
+<tr>
+<td>virtual-sensors</td>
+<td>8119</td>
+<td><code>/api/v1/virtual-sensors</code></td>
+</tr>
+<tr>
+<td>irrigation</td>
+<td>8094</td>
+<td><code>/api/v1/irrigation</code></td>
+</tr>
+<tr>
+<td>task</td>
+<td>8103</td>
+<td><code>/api/v1/tasks</code></td>
+</tr>
+<tr>
+<td>equipment</td>
+<td>8101</td>
+<td><code>/api/v1/equipment</code></td>
+</tr>
+<tr>
+<td>community</td>
+<td>8097</td>
+<td><code>/api/v1/community</code></td>
+</tr>
+<tr>
+<td>notifications</td>
+<td>8110</td>
+<td><code>/api/v1/notifications</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-pages-structure">1.3 Pages Structure<a class="headerlink" href="#13-pages-structure" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Route</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td><code>/dashboard</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Farms</td>
+<td><code>/farms</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Diseases</td>
+<td><code>/diseases</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Alerts</td>
+<td><code>/alerts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td><code>/analytics</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Irrigation</td>
+<td><code>/irrigation</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Sensors</td>
+<td><code>/sensors</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Yield</td>
+<td><code>/yield</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Precision Agriculture</td>
+<td><code>/precision-agriculture</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Lab</td>
+<td><code>/lab</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Epidemic</td>
+<td><code>/epidemic</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td><code>/settings</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Support</td>
+<td><code>/support</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Login</td>
+<td><code>/login</code></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-components">1.4 Components<a class="headerlink" href="#14-components" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Purpose</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>components/auth</code></td>
+<td>Authentication UI</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>components/common</code></td>
+<td>Shared components</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>components/dashboard</code></td>
+<td>Dashboard widgets</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>components/layout</code></td>
+<td>Layout components</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>components/maps</code></td>
+<td>Map components</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>components/ui</code></td>
+<td>UI primitives</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="15-assets">1.5 Assets<a class="headerlink" href="#15-assets" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Path</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Favicon</td>
+<td><code>public/favicon.ico</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon 192x192</td>
+<td><code>public/icon-192.png</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon 512x512</td>
+<td><code>public/icon-512.png</code></td>
+<td>✅ Present</td>
+</tr>
+</tbody>
+</table>
+<h3 id="16-environment-configuration">1.6 Environment Configuration<a class="headerlink" href="#16-environment-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>.env.example</code> ✅</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Purpose</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NEXT_PUBLIC_API_URL</code></td>
+<td>Kong Gateway URL</td>
+<td>✅ <code>http://localhost:8000</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_WS_URL</code></td>
+<td>WebSocket URL</td>
+<td>✅ <code>ws://localhost:8081</code></td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>Token verification</td>
+<td>✅ Documented</td>
+</tr>
+<tr>
+<td><code>JWT_ALGORITHM</code></td>
+<td>Algorithm</td>
+<td>✅ <code>HS256</code></td>
+</tr>
+<tr>
+<td><code>SESSION_TIMEOUT_MINUTES</code></td>
+<td>Session timeout</td>
+<td>✅ <code>30</code></td>
+</tr>
+<tr>
+<td><code>CSRF_SECRET</code></td>
+<td>CSRF protection</td>
+<td>✅ Documented</td>
+</tr>
+<tr>
+<td><code>ALLOWED_ORIGINS</code></td>
+<td>CORS origins</td>
+<td>✅ Documented</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-web-dashboard-audit">2. Web Dashboard Audit<a class="headerlink" href="#2-web-dashboard-audit" title="Permanent link">&para;</a></h2>
+<h3 id="21-api-configuration">2.1 API Configuration<a class="headerlink" href="#21-api-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>Main Files:</strong>
+- <code>src/lib/api/client.ts</code> - Main API client ✅
+- <code>src/lib/api/hooks.ts</code> - React hooks ✅
+- <code>src/lib/api/types.ts</code> - TypeScript types ✅</p>
+<p><strong>Configuration Status:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong Gateway URL</td>
+<td><code>NEXT_PUBLIC_API_URL</code></td>
+<td>✅ Environment-based</td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td>30 seconds</td>
+<td>✅ Configured</td>
+</tr>
+<tr>
+<td>Retry Attempts</td>
+<td>3</td>
+<td>✅ Configured</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Security Features:</strong>
+- Input sanitization via <code>lib/validation.ts</code> ✅
+- CSRF protection via <code>lib/security/security.ts</code> ✅
+- JWT middleware via <code>lib/security/jwt-middleware.ts</code> ✅
+- CSP configuration via <code>lib/security/csp-config.ts</code> ✅
+- Token auto-refresh with expiry check ✅
+- Secure cookie handling ✅</p>
+<h3 id="22-feature-modules-23-total">2.2 Feature Modules (23 total)<a class="headerlink" href="#22-feature-modules-23-total" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>API File</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>action-windows</td>
+<td><code>api/action-windows-api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>advisor</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>alerts</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>analytics</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>astronomical</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>community</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>crop-health</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>equipment</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>field-map</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>fields</td>
+<td><code>api.ts</code>, <code>api/field-intelligence-api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>home</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>iot</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>marketplace</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>ndvi</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>reports</td>
+<td><code>api.ts</code>, <code>api/reports-api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>scouting</td>
+<td><code>api/scouting-api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>settings</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>tasks</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>team</td>
+<td><code>api/team-api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>vra</td>
+<td><code>api/vra-api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>wallet</td>
+<td><code>api.ts</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>weather</td>
+<td>- (uses main client)</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-pages-structure">2.3 Pages Structure<a class="headerlink" href="#23-pages-structure" title="Permanent link">&para;</a></h3>
+<p><strong>Auth Routes (<code>(auth)</code>):</strong>
+- Login
+- Register
+- Forgot Password</p>
+<p><strong>Dashboard Routes (<code>(dashboard)</code>):</strong>
+- Home
+- Fields
+- Weather
+- NDVI
+- Crop Health
+- Tasks
+- Equipment
+- Community
+- Marketplace
+- Alerts
+- Reports
+- Settings
+- And more...</p>
+<h3 id="24-assets">2.4 Assets<a class="headerlink" href="#24-assets" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Path</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Favicon SVG</td>
+<td><code>public/favicon.svg</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon 192x192</td>
+<td><code>public/icon-192.png</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Icon 512x512</td>
+<td><code>public/icon-512.png</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Maskable 192</td>
+<td><code>public/icon-maskable-192.png</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Maskable 512</td>
+<td><code>public/icon-maskable-512.png</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Apple Touch</td>
+<td><code>public/apple-touch-icon.png</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Manifest</td>
+<td><code>public/manifest.json</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Site Manifest</td>
+<td><code>public/site.webmanifest</code></td>
+<td>✅ Present</td>
+</tr>
+<tr>
+<td>Robots.txt</td>
+<td><code>public/robots.txt</code></td>
+<td>✅ Present</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-environment-configuration">2.5 Environment Configuration<a class="headerlink" href="#25-environment-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>.env.example</code> ✅</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Purpose</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NEXT_PUBLIC_API_URL</code></td>
+<td>Kong Gateway URL</td>
+<td>✅ <code>http://localhost:8000</code></td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_WS_URL</code></td>
+<td>WebSocket URL</td>
+<td>✅ <code>ws://localhost:8081</code></td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>Token verification</td>
+<td>✅ Documented</td>
+</tr>
+<tr>
+<td><code>JWT_ALGORITHM</code></td>
+<td>Algorithm</td>
+<td>✅ <code>HS256</code></td>
+</tr>
+<tr>
+<td><code>CSRF_SECRET</code></td>
+<td>CSRF protection</td>
+<td>✅ Documented</td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_DEFAULT_LOCALE</code></td>
+<td>Default language</td>
+<td>✅ <code>ar</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="26-security-libraries">2.6 Security Libraries<a class="headerlink" href="#26-security-libraries" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Purpose</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lib/validation.ts</code></td>
+<td>Input sanitization</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>lib/safe-sanitizer.ts</code></td>
+<td>Safe HTML sanitization</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>lib/rate-limiter.ts</code></td>
+<td>Rate limiting</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>lib/security/security.ts</code></td>
+<td>CSRF tokens</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>lib/security/csp-config.ts</code></td>
+<td>Content Security Policy</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>lib/security/csrf-server.ts</code></td>
+<td>Server-side CSRF</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>lib/security/jwt-middleware.ts</code></td>
+<td>JWT validation</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>lib/security/nonce.ts</code></td>
+<td>Script nonces</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-comparison-summary">3. Comparison Summary<a class="headerlink" href="#3-comparison-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Admin Portal</th>
+<th>Web Dashboard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong Gateway (8000)</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>WebSocket (8081)</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>API Client</td>
+<td>✅ Axios + Fetch</td>
+<td>✅ Fetch</td>
+</tr>
+<tr>
+<td>XSS Protection</td>
+<td>✅ DOMPurify</td>
+<td>✅ Custom sanitizer</td>
+</tr>
+<tr>
+<td>CSRF Protection</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Token Auto-refresh</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Error Handling</td>
+<td>✅ Bilingual</td>
+<td>✅ Bilingual</td>
+</tr>
+<tr>
+<td>Mock Data Fallback</td>
+<td>✅ Static mocks</td>
+<td>✅ Static mocks</td>
+</tr>
+<tr>
+<td>Environment Config</td>
+<td>✅ Complete</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>PWA Assets</td>
+<td>✅ Basic</td>
+<td>✅ Complete</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-api-endpoint-patterns">4. API Endpoint Patterns<a class="headerlink" href="#4-api-endpoint-patterns" title="Permanent link">&para;</a></h2>
+<p>Both apps use consistent API endpoint patterns through Kong Gateway:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">Authentication</span><span class="o">:</span>
+<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/auth/</span><span class="n">login</span>
+<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/auth/</span><span class="n">logout</span>
+<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/auth/</span><span class="n">refresh</span>
+<span class="w">  </span><span class="n">GET</span><span class="w">  </span><span class="sr">/api/v1/auth/</span><span class="n">me</span>
+
+<span class="n">Fields</span><span class="o">:</span>
+<span class="w">  </span><span class="n">GET</span><span class="w">    </span><span class="sr">/api/v1/</span><span class="n">fields</span>
+<span class="w">  </span><span class="n">GET</span><span class="w">    </span><span class="sr">/api/v1/fields/</span><span class="o">:</span><span class="n">id</span>
+<span class="w">  </span><span class="n">POST</span><span class="w">   </span><span class="sr">/api/v1/</span><span class="n">fields</span>
+<span class="w">  </span><span class="n">PUT</span><span class="w">    </span><span class="sr">/api/v1/fields/</span><span class="o">:</span><span class="n">id</span>
+<span class="w">  </span><span class="n">DELETE</span><span class="w"> </span><span class="sr">/api/v1/fields/</span><span class="o">:</span><span class="n">id</span>
+
+<span class="n">Weather</span><span class="w"> </span><span class="o">(</span><span class="n">weather</span><span class="o">-</span><span class="n">core</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">POST</span><span class="o">-</span><span class="n">based</span><span class="o">):</span>
+<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/weather-core/weather/</span><span class="n">current</span>
+<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/weather-core/weather/</span><span class="n">forecast</span>
+<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/weather-core/weather/</span><span class="n">agricultural</span><span class="o">-</span><span class="n">report</span>
+
+<span class="n">Weather</span><span class="w"> </span><span class="o">(</span><span class="n">weather</span><span class="o">-</span><span class="n">advanced</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">GET</span><span class="o">-</span><span class="n">based</span><span class="o">):</span>
+<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/weather/v1/current/</span><span class="o">:</span><span class="n">locationId</span>
+<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/weather/v1/forecast/</span><span class="o">:</span><span class="n">locationId</span>
+<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/weather/v1/</span><span class="n">locations</span>
+
+<span class="n">Satellite</span><span class="o">:</span>
+<span class="w">  </span><span class="n">GET</span><span class="w">  </span><span class="sr">/api/v1/satellite/v1/timeseries/</span><span class="o">:</span><span class="n">fieldId</span>
+<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/satellite/v1/</span><span class="n">analyze</span>
+<span class="w">  </span><span class="n">GET</span><span class="w">  </span><span class="sr">/api/v1/satellite/v1/indices/</span><span class="o">:</span><span class="n">fieldId</span>
+
+<span class="n">IoT</span><span class="o">:</span>
+<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/iot/fields/:fieldId/s</span><span class="n">ensors</span>
+<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/iot/sensors/:sensorId/</span><span class="n">history</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5-audit-results">5. Audit Results<a class="headerlink" href="#5-audit-results" title="Permanent link">&para;</a></h2>
+<h3 id="51-issues-found">5.1 Issues Found<a class="headerlink" href="#51-issues-found" title="Permanent link">&para;</a></h3>
+<p><strong>None</strong> - Both applications are properly configured.</p>
+<h3 id="52-verification-checklist">5.2 Verification Checklist<a class="headerlink" href="#52-verification-checklist" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Admin</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong Gateway URL correct</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>WebSocket URL correct (8081)</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>No direct port access in production</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>XSS protection implemented</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CSRF protection implemented</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Token management implemented</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Environment files documented</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>PWA assets present</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Error handling bilingual</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-recommendations">6. Recommendations<a class="headerlink" href="#6-recommendations" title="Permanent link">&para;</a></h2>
+<p>All configurations are correct. For production deployment:</p>
+<ol>
+<li><strong>Set strong secrets:</strong></li>
+<li><code>JWT_SECRET</code> - minimum 32 characters</li>
+<li>
+<p><code>CSRF_SECRET</code> - minimum 32 characters</p>
+</li>
+<li>
+<p><strong>Use HTTPS in production:</strong></p>
+</li>
+<li><code>NEXT_PUBLIC_API_URL=https://api.sahool.io</code></li>
+<li>
+<p><code>NEXT_PUBLIC_WS_URL=wss://ws.sahool.io</code></p>
+</li>
+<li>
+<p><strong>Configure Sentry for monitoring:</strong></p>
+</li>
+<li>Uncomment <code>SENTRY_DSN</code> in production</li>
+</ol>
+<hr />
+<p><em>Report generated: January 2025</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

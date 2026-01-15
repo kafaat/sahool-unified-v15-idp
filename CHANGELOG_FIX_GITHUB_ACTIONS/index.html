@@ -1,0 +1,1619 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>GitHub Actions CI Fix - Change Log - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#github-actions-ci-fix-change-log" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GitHub Actions CI Fix - Change Log
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="github-actions-ci-fix-change-log">GitHub Actions CI Fix - Change Log<a class="headerlink" href="#github-actions-ci-fix-change-log" title="Permanent link">&para;</a></h1>
+<p><strong>Branch:</strong> <code>claude/fix-github-actions-SK8dL</code>
+<strong>Date:</strong> January 2025
+<strong>Status:</strong> Completed</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>This branch contains comprehensive fixes for GitHub Actions CI failures, including security improvements, configuration standardization, and code quality enhancements across the SAHOOL platform.</p>
+<hr />
+<h2 id="commits-overview">Commits Overview<a class="headerlink" href="#commits-overview" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Commit</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>33e0ecac</code></td>
+<td>fix</td>
+<td>Mobile app Kong Gateway routing</td>
+</tr>
+<tr>
+<td><code>baddedbf</code></td>
+<td>fix</td>
+<td>Admin WebSocket URL correction</td>
+</tr>
+<tr>
+<td><code>2e415913</code></td>
+<td>fix</td>
+<td>Admin/Web Kong &amp; WebSocket standardization</td>
+</tr>
+<tr>
+<td><code>c0310b53</code></td>
+<td>feat</td>
+<td>Admin environment configuration</td>
+</tr>
+<tr>
+<td><code>d52c437e</code></td>
+<td>style</td>
+<td>Knowledge-graph Ruff violations</td>
+</tr>
+<tr>
+<td><code>80eade8a</code></td>
+<td>ci</td>
+<td>Security-audit workflow</td>
+</tr>
+<tr>
+<td><code>ea84b127</code></td>
+<td>security</td>
+<td>DOMPurify XSS sanitization</td>
+</tr>
+<tr>
+<td><code>34eec352</code></td>
+<td>fix</td>
+<td>CodeQL security alerts</td>
+</tr>
+<tr>
+<td><code>92cc22f9</code></td>
+<td>fix</td>
+<td>TypeScript declaration error</td>
+</tr>
+<tr>
+<td><code>b840357e</code></td>
+<td>feat</td>
+<td>Admin security improvements</td>
+</tr>
+<tr>
+<td><code>7ca4f1fb</code></td>
+<td>perf</td>
+<td>CI optimization</td>
+</tr>
+<tr>
+<td><code>328440b4</code></td>
+<td>fix</td>
+<td>Mobile AppLogger fix</td>
+</tr>
+<tr>
+<td><code>7f47f3b9</code></td>
+<td>feat</td>
+<td>Mobile security improvements</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-changes">Detailed Changes<a class="headerlink" href="#detailed-changes" title="Permanent link">&para;</a></h2>
+<h3 id="1-mobile-app-security-code-quality-7f47f3b9">1. Mobile App Security &amp; Code Quality (<code>7f47f3b9</code>)<a class="headerlink" href="#1-mobile-app-security-code-quality-7f47f3b9" title="Permanent link">&para;</a></h3>
+<p><strong>Files Modified:</strong>
+- <code>apps/mobile/sahool_field_app/lib/core/security/certificate_pinning.dart</code>
+- <code>apps/mobile/sahool_field_app/lib/core/security/secure_storage.dart</code>
+- <code>apps/mobile/sahool_field_app/lib/features/field/data/remote/field_api.dart</code>
+- Multiple Dart files across the mobile app</p>
+<p><strong>Changes:</strong>
+- Added certificate pinning for secure API connections
+- Implemented secure storage for sensitive data
+- Fixed API error handling patterns
+- Added proper null safety checks</p>
+<hr />
+<h3 id="2-mobile-applogger-fix-328440b4">2. Mobile AppLogger Fix (<code>328440b4</code>)<a class="headerlink" href="#2-mobile-applogger-fix-328440b4" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>apps/mobile/sahool_field_app/lib/core/utils/app_logger.dart</code></p>
+<p><strong>Issue:</strong> Missing <code>error</code> parameter in <code>AppLogger.w()</code> method causing compilation errors.</p>
+<p><strong>Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Before</span>
+<span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">w</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="kt">String</span><span class="o">?</span><span class="w"> </span><span class="n">tag</span><span class="p">})</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// After</span>
+<span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">w</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="kt">String</span><span class="o">?</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="kt">Object</span><span class="o">?</span><span class="w"> </span><span class="n">error</span><span class="p">})</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-ci-optimization-7ca4f1fb">3. CI Optimization (<code>7ca4f1fb</code>)<a class="headerlink" href="#3-ci-optimization-7ca4f1fb" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>.github/workflows/docker-buildx.yml</code></p>
+<p><strong>Change:</strong> Removed <code>ai-advisor</code> from Docker build matrix to reduce CI time and resource usage.</p>
+<hr />
+<h3 id="4-admin-portal-security-improvements-b840357e">4. Admin Portal Security Improvements (<code>b840357e</code>)<a class="headerlink" href="#4-admin-portal-security-improvements-b840357e" title="Permanent link">&para;</a></h3>
+<p><strong>Files Modified:</strong>
+- <code>apps/admin/src/lib/api-client.ts</code>
+- <code>apps/admin/src/lib/validation.ts</code>
+- <code>apps/admin/src/stores/auth.store.tsx</code>
+- Multiple admin portal components</p>
+<p><strong>Changes:</strong>
+- Enhanced input validation
+- Improved error handling
+- Added security headers
+- Fixed authentication flow</p>
+<hr />
+<h3 id="5-typescript-declaration-error-fix-92cc22f9">5. TypeScript Declaration Error Fix (<code>92cc22f9</code>)<a class="headerlink" href="#5-typescript-declaration-error-fix-92cc22f9" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>apps/admin/src/stores/auth.store.tsx</code></p>
+<p><strong>Issue:</strong> "Block-scoped variable 'logout' used before its declaration"</p>
+<p><strong>Fix:</strong> Reordered <code>useCallback</code> declarations so <code>logout</code> is defined before <code>checkIdleTimeout</code> and <code>refreshToken</code> that depend on it.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Before (causing error)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">checkIdleTimeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCallback</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// ... uses logout</span>
+<span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="nx">logout</span><span class="p">]);</span><span class="w"> </span><span class="c1">// Error: logout not yet declared</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">logout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCallback</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">[]);</span>
+
+<span class="c1">// After (fixed)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">logout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCallback</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">[]);</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">checkIdleTimeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCallback</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// ... uses logout</span>
+<span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="nx">logout</span><span class="p">]);</span><span class="w"> </span><span class="c1">// Works correctly</span>
+</code></pre></div>
+
+<hr />
+<h3 id="6-codeql-security-alerts-fix-34eec352">6. CodeQL Security Alerts Fix (<code>34eec352</code>)<a class="headerlink" href="#6-codeql-security-alerts-fix-34eec352" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- <code>apps/admin/src/lib/api-client.ts</code>
+- <code>apps/admin/src/lib/validation.ts</code></p>
+<p><strong>Issue:</strong> Incomplete multi-character sanitization (CodeQL alert)</p>
+<p><strong>Initial Fix:</strong> Added loop-based sanitization to ensure complete removal:</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">sanitizeInput</span><span class="p">(</span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">input</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">patterns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="sr">/&lt;script/gi</span><span class="p">,</span><span class="w"> </span><span class="sr">/&lt;\/script&gt;/gi</span><span class="p">,</span><span class="w"> </span><span class="sr">/javascript:/gi</span><span class="p">];</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">pattern</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">patterns</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">pattern</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">result</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="7-dompurify-xss-sanitization-ea84b127">7. DOMPurify XSS Sanitization (<code>ea84b127</code>)<a class="headerlink" href="#7-dompurify-xss-sanitization-ea84b127" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- <code>apps/admin/src/lib/api-client.ts</code>
+- <code>apps/admin/src/lib/validation.ts</code>
+- <code>apps/admin/package.json</code></p>
+<p><strong>Change:</strong> Replaced manual regex sanitization with DOMPurify library for robust XSS protection.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">DOMPurify</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;dompurify&quot;</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">sanitizeInput</span><span class="p">(</span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">input</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">input</span><span class="p">;</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sanitized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">DOMPurify</span><span class="p">.</span><span class="nx">sanitize</span><span class="p">(</span><span class="nx">input</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">ALLOWED_TAGS</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">    </span><span class="nx">ALLOWED_ATTR</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">    </span><span class="nx">KEEP_CONTENT</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">sanitized</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">).</span><span class="nx">trim</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Dependencies Added:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;dompurify&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^3.2.4&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;@types/dompurify&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^3.2.0&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="8-security-audit-workflow-80eade8a">8. Security Audit Workflow (<code>80eade8a</code>)<a class="headerlink" href="#8-security-audit-workflow-80eade8a" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>.github/workflows/security-audit.yml</code></p>
+<p><strong>New Workflow:</strong> Created comprehensive Python SAST workflow with:
+- <strong>Bandit</strong>: Python security linting
+- <strong>Semgrep</strong>: Pattern-based security scanning
+- <strong>Safety</strong>: Dependency vulnerability checking
+- SARIF report upload to GitHub Security tab</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Security Audit</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">develop</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;release/**&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0</span><span class="nv"> </span><span class="s">6</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">1&#39;</span><span class="w">  </span><span class="c1"># Weekly on Monday</span>
+</code></pre></div>
+
+<hr />
+<h3 id="9-ruff-linting-violations-fix-d52c437e">9. Ruff Linting Violations Fix (<code>d52c437e</code>)<a class="headerlink" href="#9-ruff-linting-violations-fix-d52c437e" title="Permanent link">&para;</a></h3>
+<p><strong>Directory:</strong> <code>apps/services/knowledge-graph/</code></p>
+<p><strong>Issues Fixed:</strong> 93 Ruff violations
+- <strong>UP045</strong>: <code>Optional[X]</code> → <code>X | None</code>
+- <strong>UP006</strong>: <code>Dict</code>, <code>List</code>, <code>Tuple</code> → <code>dict</code>, <code>list</code>, <code>tuple</code></p>
+<p><strong>Command Used:</strong></p>
+<div class="codehilite"><pre><span></span><code>ruff<span class="w"> </span>check<span class="w"> </span>--fix<span class="w"> </span>apps/services/knowledge-graph/
+</code></pre></div>
+
+<hr />
+<h3 id="10-admin-environment-configuration-c0310b53">10. Admin Environment Configuration (<code>c0310b53</code>)<a class="headerlink" href="#10-admin-environment-configuration-c0310b53" title="Permanent link">&para;</a></h3>
+<p><strong>Files Created:</strong>
+- <code>apps/admin/.env.example</code></p>
+<p><strong>Configuration:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+<span class="gh">#</span> WebSocket Configuration
+NEXT_PUBLIC_WS_URL=ws://localhost:8081
+
+<span class="gh">#</span> Authentication
+JWT_SECRET=your-secret-key-min-32-characters
+
+<span class="gh">#</span> Environment
+NODE_ENV=development
+</code></pre></div>
+
+<hr />
+<h3 id="11-adminweb-kong-websocket-standardization-2e415913">11. Admin/Web Kong &amp; WebSocket Standardization (<code>2e415913</code>)<a class="headerlink" href="#11-adminweb-kong-websocket-standardization-2e415913" title="Permanent link">&para;</a></h3>
+<p><strong>Files Modified:</strong></p>
+<h4 id="admin-auth-routes-kong-port-fix">Admin Auth Routes (Kong port fix):<a class="headerlink" href="#admin-auth-routes-kong-port-fix" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>apps/admin/src/app/api/auth/me/route.ts:9</code></li>
+<li><code>apps/admin/src/app/api/auth/refresh/route.ts:9</code></li>
+<li><code>apps/admin/src/app/api/auth/logout/route.ts:20-21</code></li>
+</ul>
+<p><strong>Change:</strong> Fixed API URL fallbacks from port <code>3000</code> to Kong Gateway port <code>8000</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Before</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">backendUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">USER_SERVICE_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">;</span>
+
+<span class="c1">// After</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">backendUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">;</span>
+</code></pre></div>
+
+<h4 id="web-app-configuration">Web App Configuration:<a class="headerlink" href="#web-app-configuration" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Created <code>apps/web/.env.example</code></li>
+<li>Fixed <code>apps/web/next.config.js</code> to use <code>NEXT_PUBLIC_API_URL</code></li>
+</ul>
+<hr />
+<h3 id="12-admin-websocket-url-correction-baddedbf">12. Admin WebSocket URL Correction (<code>baddedbf</code>)<a class="headerlink" href="#12-admin-websocket-url-correction-baddedbf" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>apps/admin/src/lib/websocket.ts:110-121</code></p>
+<p><strong>Issue:</strong> WebSocket port was <code>8090</code> (incorrect) instead of <code>8081</code> (ws-gateway)</p>
+<p><strong>Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">getDefaultWsUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;undefined&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;ws://localhost:8081&quot;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">protocol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">protocol</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;https:&quot;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;wss:&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ws:&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hostname</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;production&quot;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;:8081&quot;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;production&quot;</span>
+<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">protocol</span><span class="si">}</span><span class="sb">//</span><span class="si">${</span><span class="nx">host</span><span class="si">}${</span><span class="nx">port</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ws://localhost:8081&quot;</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<hr />
+<h3 id="13-mobile-app-kong-gateway-routing-33e0ecac">13. Mobile App Kong Gateway Routing (<code>33e0ecac</code>)<a class="headerlink" href="#13-mobile-app-kong-gateway-routing-33e0ecac" title="Permanent link">&para;</a></h3>
+<p><strong>Files Modified:</strong></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>satellite_api.dart:16</code></td>
+<td><code>${ApiConfig.baseUrl}:8090</code></td>
+<td><code>${ApiConfig.baseUrl}/api/v1/satellite</code></td>
+</tr>
+<tr>
+<td><code>notifications_api.dart:15</code></td>
+<td><code>${ApiConfig.baseUrl}:8110</code></td>
+<td><code>${ApiConfig.baseUrl}/api/v1/notifications</code></td>
+</tr>
+<tr>
+<td><code>iot_sensors_api.dart:21</code></td>
+<td><code>${ApiConfig.baseUrl}:8100</code></td>
+<td><code>${ApiConfig.baseUrl}/api/v1/iot</code></td>
+</tr>
+<tr>
+<td><code>iot_sensors_api.dart:22</code></td>
+<td><code>ws://${ApiConfig.host}:8100/ws</code></td>
+<td><code>ws://${ApiConfig.host}:8081/iot</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why:</strong> All mobile API calls now route through:
+- <strong>Kong Gateway</strong> (port 8000) for REST APIs
+- <strong>WebSocket Gateway</strong> (port 8081) for real-time connections</p>
+<hr />
+<h2 id="architecture-standardization">Architecture Standardization<a class="headerlink" href="#architecture-standardization" title="Permanent link">&para;</a></h2>
+<h3 id="port-configuration">Port Configuration<a class="headerlink" href="#port-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong Gateway</td>
+<td>8000</td>
+<td>API Gateway (auth, rate limiting)</td>
+</tr>
+<tr>
+<td>WebSocket Gateway</td>
+<td>8081</td>
+<td>Real-time WebSocket connections</td>
+</tr>
+<tr>
+<td>PostgreSQL (PgBouncer)</td>
+<td>6432</td>
+<td>Database connection pooling</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>6379</td>
+<td>Caching and sessions</td>
+</tr>
+<tr>
+<td>NATS</td>
+<td>4222</td>
+<td>Event messaging</td>
+</tr>
+</tbody>
+</table>
+<h3 id="api-routing-pattern">API Routing Pattern<a class="headerlink" href="#api-routing-pattern" title="Permanent link">&para;</a></h3>
+<p>All frontend apps (admin, web, mobile) now use consistent routing:</p>
+<div class="codehilite"><pre><span></span><code>┌─────────────┐     ┌─────────────┐     ┌─────────────────┐
+│   Client    │────▶│    Kong     │────▶│   Microservice  │
+│  (App/Web)  │     │  (port 8000)│     │  (internal port)│
+└─────────────┘     └─────────────┘     └─────────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  Auth/Rate  │
+                    │   Limiting  │
+                    └─────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="security-improvements-summary">Security Improvements Summary<a class="headerlink" href="#security-improvements-summary" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>XSS Protection</strong>: DOMPurify library for robust sanitization</li>
+<li><strong>Certificate Pinning</strong>: Mobile app secure connections</li>
+<li><strong>SAST Scanning</strong>: Bandit, Semgrep, Safety in CI</li>
+<li><strong>CodeQL Integration</strong>: Semantic security analysis</li>
+<li><strong>Secrets Management</strong>: Environment files with proper patterns</li>
+<li><strong>Input Validation</strong>: Comprehensive sanitization across apps</li>
+</ol>
+<hr />
+<h2 id="testing-verification">Testing Verification<a class="headerlink" href="#testing-verification" title="Permanent link">&para;</a></h2>
+<p>After these changes, verify:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Build all apps</span>
+make<span class="w"> </span>build
+
+<span class="c1"># Run tests</span>
+make<span class="w"> </span><span class="nb">test</span>
+
+<span class="c1"># Check linting</span>
+make<span class="w"> </span>lint
+
+<span class="c1"># Verify health endpoints</span>
+curl<span class="w"> </span>http://localhost:8000/healthz
+</code></pre></div>
+
+<hr />
+<h2 id="merge-conflicts-resolved">Merge Conflicts Resolved<a class="headerlink" href="#merge-conflicts-resolved" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>apps/admin/.env.example</code></p>
+<p><strong>Conflict:</strong> WebSocket port discrepancy
+- <code>origin/main</code>: <code>ws://localhost:8000</code>
+- <code>HEAD</code>: <code>ws://localhost:8081</code></p>
+<p><strong>Resolution:</strong> Kept <code>8081</code> (correct ws-gateway port)</p>
+<hr />
+<h2 id="files-changed-summary">Files Changed Summary<a class="headerlink" href="#files-changed-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Files Modified</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/admin/</code></td>
+<td>12</td>
+<td>Security, Config</td>
+</tr>
+<tr>
+<td><code>apps/web/</code></td>
+<td>4</td>
+<td>Config</td>
+</tr>
+<tr>
+<td><code>apps/mobile/</code></td>
+<td>8</td>
+<td>Security, Kong routing</td>
+</tr>
+<tr>
+<td><code>apps/services/knowledge-graph/</code></td>
+<td>15</td>
+<td>Linting</td>
+</tr>
+<tr>
+<td><code>.github/workflows/</code></td>
+<td>2</td>
+<td>CI/CD</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total:</strong> ~41 files modified across 14 commits</p>
+<hr />
+<p><em>Documentation generated: January 2025</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

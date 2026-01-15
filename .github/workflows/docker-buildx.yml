@@ -175,7 +175,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [crop-intelligence-service, advisory-service, agro-advisor, alert-service, ai-advisor]
+        # ai-advisor removed - requires PyTorch/CUDA (~4.5GB), takes 25+ min to build
+        # Build ai-advisor separately or locally: docker build -f apps/services/ai-advisor/Dockerfile .
+        service: [crop-intelligence-service, advisory-service, agro-advisor, alert-service]
 
     steps:
       - name: Free up disk space

@@ -3,18 +3,43 @@
 /**
  * SAHOOL Admin Forgot Password Page
  * صفحة نسيان كلمة المرور للوحة الإدارة
+ *
+ * Supports multi-channel OTP: Email, SMS, WhatsApp, Telegram
  */
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Mail, Leaf, ArrowRight, CheckCircle } from "lucide-react";
+import { Loader2, Mail, Leaf, ArrowRight, CheckCircle, MessageSquare, MessageCircle, Send, Phone } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
+type RecoveryChannel = "email" | "sms" | "whatsapp" | "telegram";
+
+interface ChannelOption {
+  id: RecoveryChannel;
+  labelAr: string;
+  labelEn: string;
+  icon: React.ReactNode;
+}
+
+const CHANNEL_OPTIONS: ChannelOption[] = [
+  { id: "email", labelAr: "البريد الإلكتروني", labelEn: "Email", icon: <Mail className="w-5 h-5" /> },
+  { id: "sms", labelAr: "رسالة نصية", labelEn: "SMS", icon: <MessageSquare className="w-5 h-5" /> },
+  { id: "whatsapp", labelAr: "واتساب", labelEn: "WhatsApp", icon: <MessageCircle className="w-5 h-5" /> },
+  { id: "telegram", labelAr: "تيليجرام", labelEn: "Telegram", icon: <Send className="w-5 h-5" /> },
+];
+
 export default function ForgotPasswordPage() {
+  const router = useRouter();
+  const [channel, setChannel] = useState<RecoveryChannel>("email");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const isEmailChannel = channel === "email";
+  const identifier = isEmailChannel ? email : phone;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,21 +47,51 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+      if (isEmailChannel) {
+        // Email channel - use existing forgot-password endpoint
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || data.error || "فشل في إرسال طلب إعادة تعيين كلمة المرور");
+        if (!response.ok) {
+          throw new Error(data.message || data.error || "فشل في إرسال طلب إعادة تعيين كلمة المرور");
+        }
+
+        setIsSuccess(true);
+      } else {
+        // SMS/WhatsApp/Telegram - use send-otp endpoint
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/send-otp`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            identifier: phone,
+            channel,
+            purpose: "password_reset",
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || data.error || "فشل في إرسال رمز التحقق");
+        }
+
+        // Redirect to OTP verification page
+        const params = new URLSearchParams({
+          identifier: phone,
+          purpose: "password_reset",
+          channel,
+        });
+        router.push(`/verify-otp?${params.toString()}`);
       }
-
-      setIsSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "حدث خطأ غير متوقع");
     } finally {
@@ -89,7 +144,9 @@ export default function ForgotPasswordPage() {
                 نسيت كلمة المرور؟
               </h2>
               <p className="text-gray-600 text-sm mb-6 text-center">
-                أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.
+                اختر طريقة استرداد الحساب
+                <br />
+                <span className="text-xs text-gray-500">Choose your recovery method</span>
               </p>
 
               {error && (
@@ -98,29 +155,89 @@ export default function ForgotPasswordPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Email Field */}
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    البريد الإلكتروني
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                      placeholder="admin@sahool.io"
-                      required
-                      dir="ltr"
-                    />
-                  </div>
+              {/* Channel Selector */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  طريقة الاسترداد
+                  <span className="text-xs text-gray-500 mr-2">Recovery Method</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {CHANNEL_OPTIONS.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setChannel(option.id)}
+                      className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                        channel === option.id
+                          ? "border-green-600 bg-green-50 text-green-700"
+                          : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      }`}
+                    >
+                      {option.icon}
+                      <span className="text-sm font-medium">{option.labelAr}</span>
+                    </button>
+                  ))}
                 </div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Email Field (shown for email channel) */}
+                {isEmailChannel ? (
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      البريد الإلكتروني
+                      <span className="text-xs text-gray-500 mr-2">Email</span>
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                        placeholder="admin@sahool.io"
+                        required
+                        dir="ltr"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      سيتم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني
+                    </p>
+                  </div>
+                ) : (
+                  /* Phone Field (shown for SMS/WhatsApp/Telegram) */
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      رقم الهاتف
+                      <span className="text-xs text-gray-500 mr-2">Phone Number</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        id="phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                        placeholder="+966 5X XXX XXXX"
+                        required
+                        dir="ltr"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {channel === "sms" && "سيتم إرسال رمز التحقق عبر رسالة نصية"}
+                      {channel === "whatsapp" && "سيتم إرسال رمز التحقق عبر واتساب"}
+                      {channel === "telegram" && "سيتم إرسال رمز التحقق عبر تيليجرام"}
+                    </p>
+                  </div>
+                )}
 
                 {/* Submit Button */}
                 <button
@@ -134,7 +251,9 @@ export default function ForgotPasswordPage() {
                       <span>جاري الإرسال...</span>
                     </>
                   ) : (
-                    <span>إرسال رابط إعادة التعيين</span>
+                    <span>
+                      {isEmailChannel ? "إرسال رابط إعادة التعيين" : "إرسال رمز التحقق"}
+                    </span>
                   )}
                 </button>
               </form>

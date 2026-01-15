@@ -48,6 +48,19 @@ export interface ResetPasswordDto {
   newPassword: string;
 }
 
+export interface SendOtpDto {
+  identifier: string;
+  channel: "sms" | "whatsapp" | "telegram" | "email";
+  purpose: "password_reset" | "verify_phone";
+  language?: string;
+}
+
+export interface VerifyOtpDto {
+  identifier: string;
+  otpCode: string;
+  purpose: string;
+}
+
 // Account lockout configuration
 const LOCKOUT_CONFIG = {
   MAX_FAILED_ATTEMPTS: 5,
@@ -829,6 +842,224 @@ export class AuthService {
       success: true,
       message: "Password has been reset successfully. Please login with your new password.",
     };
+  }
+
+  /**
+   * Send OTP for password reset or phone verification
+   * إرسال رمز التحقق لإعادة تعيين كلمة المرور أو التحقق من الهاتف
+   */
+  async sendOtp(dto: SendOtpDto): Promise<{
+    success: boolean;
+    message: string;
+    expiresIn?: number;
+  }> {
+    const { identifier, channel, purpose, language } = dto;
+
+    // For password_reset, verify user exists (but don't reveal if not found)
+    if (purpose === "password_reset") {
+      // Check if identifier is email or phone
+      const isEmail = identifier.includes("@");
+      const user = await this.prisma.user.findFirst({
+        where: isEmail ? { email: identifier } : { phone: identifier },
+      });
+
+      if (!user) {
+        this.logger.info(`OTP requested for non-existent user`, {
+          identifier: this.sanitizeForLog(identifier),
+          purpose,
+        });
+        // Return success to prevent enumeration
+        return {
+          success: true,
+          message: "If an account exists, an OTP will be sent.",
+          expiresIn: 300,
+        };
+      }
+    }
+
+    try {
+      // Call notification service to send OTP
+      const notificationServiceUrl =
+        process.env.NOTIFICATION_SERVICE_URL || "http://notification-service:8110";
+
+      const response = await fetch(`${notificationServiceUrl}/otp/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          identifier,
+          channel,
+          purpose,
+          language: language || "en",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        this.logger.error(`Failed to send OTP via notification service`, {
+          identifier: this.sanitizeForLog(identifier),
+          status: response.status,
+          error: errorData,
+        });
+        throw new BadRequestException(
+          errorData.message || "Failed to send OTP. Please try again later.",
+        );
+      }
+
+      const result = await response.json();
+
+      this.logger.log(`OTP sent successfully`, {
+        identifier: this.sanitizeForLog(identifier),
+        channel,
+        purpose,
+      });
+
+      return {
+        success: true,
+        message: result.message || "OTP has been sent successfully.",
+        expiresIn: result.expiresIn || 300,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      this.logger.error(`Error sending OTP: ${error.message}`, error.stack);
+      throw new BadRequestException(
+        "Failed to send OTP. Please try again later.",
+      );
+    }
+  }
+
+  /**
+   * Verify OTP and return reset token for password reset
+   * التحقق من رمز OTP وإرجاع رمز إعادة التعيين لإعادة تعيين كلمة المرور
+   */
+  async verifyOtp(dto: VerifyOtpDto): Promise<{
+    success: boolean;
+    message: string;
+    resetToken?: string;
+    verified?: boolean;
+  }> {
+    const { identifier, otpCode, purpose } = dto;
+
+    try {
+      // Call notification service to verify OTP
+      const notificationServiceUrl =
+        process.env.NOTIFICATION_SERVICE_URL || "http://notification-service:8110";
+
+      const response = await fetch(`${notificationServiceUrl}/otp/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          identifier,
+          otpCode,
+          purpose,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        this.logger.warn(`OTP verification failed`, {
+          identifier: this.sanitizeForLog(identifier),
+          status: response.status,
+        });
+        throw new BadRequestException(
+          errorData.message || "Invalid or expired OTP code.",
+        );
+      }
+
+      const result = await response.json();
+
+      this.logger.log(`OTP verified successfully`, {
+        identifier: this.sanitizeForLog(identifier),
+        purpose,
+      });
+
+      // For password_reset, generate a reset token
+      if (purpose === "password_reset") {
+        // Find user by identifier
+        const isEmail = identifier.includes("@");
+        const user = await this.prisma.user.findFirst({
+          where: isEmail ? { email: identifier } : { phone: identifier },
+        });
+
+        if (!user) {
+          throw new BadRequestException("User not found.");
+        }
+
+        // Generate secure reset token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+        const resetTokenHash = crypto
+          .createHash("sha256")
+          .update(resetToken)
+          .digest("hex");
+
+        // Token expires in 15 minutes (shorter than email reset for security)
+        const resetTokenExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+        // Store hashed token in database
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            passwordResetToken: resetTokenHash,
+            passwordResetExpiry: resetTokenExpiry,
+          },
+        });
+
+        this.logger.log(`Password reset token generated via OTP`, {
+          userId: user.id,
+          identifier: this.sanitizeForLog(identifier),
+        });
+
+        return {
+          success: true,
+          message: "OTP verified successfully. Use the reset token to set a new password.",
+          resetToken,
+        };
+      }
+
+      // For verify_phone, update user's phone verification status
+      if (purpose === "verify_phone") {
+        const user = await this.prisma.user.findFirst({
+          where: { phone: identifier },
+        });
+
+        if (user) {
+          await this.prisma.user.update({
+            where: { id: user.id },
+            data: { phoneVerified: true },
+          });
+
+          this.logger.log(`Phone verified for user`, {
+            userId: user.id,
+            identifier: this.sanitizeForLog(identifier),
+          });
+        }
+
+        return {
+          success: true,
+          message: "Phone number verified successfully.",
+          verified: true,
+        };
+      }
+
+      return {
+        success: true,
+        message: result.message || "OTP verified successfully.",
+        verified: true,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      this.logger.error(`Error verifying OTP: ${error.message}`, error.stack);
+      throw new BadRequestException(
+        "Failed to verify OTP. Please try again.",
+      );
+    }
   }
 
   /**

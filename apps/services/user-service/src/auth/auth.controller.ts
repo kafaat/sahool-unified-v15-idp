@@ -28,9 +28,9 @@ import {
 } from "@nestjs/swagger";
 import { Throttle, SkipThrottle } from "@nestjs/throttler";
 import { Request } from "express";
-import { AuthService, LoginDto, RegisterDto, ForgotPasswordDto, ResetPasswordDto } from "./auth.service";
+import { AuthService, LoginDto, RegisterDto, ForgotPasswordDto, ResetPasswordDto, SendOtpDto, VerifyOtpDto } from "./auth.service";
 import { JwtAuthGuard } from "./jwt-auth.guard";
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength, IsIn } from "class-validator";
 
 // Extend Express Request to include user property set by JWT guard
 interface AuthenticatedRequest extends Request {
@@ -94,6 +94,72 @@ class ResetPasswordRequestDto implements ResetPasswordDto {
   @IsNotEmpty({ message: "New password is required" })
   @MinLength(8, { message: "Password must be at least 8 characters long" })
   newPassword: string;
+}
+
+class SendOtpRequestDto implements SendOtpDto {
+  @ApiProperty({
+    description: "User identifier (phone number or email)",
+    example: "+967712345678",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "Identifier is required" })
+  identifier: string;
+
+  @ApiProperty({
+    description: "Channel for OTP delivery",
+    example: "sms",
+    enum: ["sms", "whatsapp", "telegram", "email"],
+  })
+  @IsString()
+  @IsNotEmpty({ message: "Channel is required" })
+  @IsIn(["sms", "whatsapp", "telegram", "email"], { message: "Channel must be sms, whatsapp, telegram, or email" })
+  channel: "sms" | "whatsapp" | "telegram" | "email";
+
+  @ApiProperty({
+    description: "Purpose of OTP",
+    example: "password_reset",
+    enum: ["password_reset", "verify_phone"],
+  })
+  @IsString()
+  @IsNotEmpty({ message: "Purpose is required" })
+  @IsIn(["password_reset", "verify_phone"], { message: "Purpose must be password_reset or verify_phone" })
+  purpose: "password_reset" | "verify_phone";
+
+  @ApiPropertyOptional({
+    description: "Preferred language for OTP message",
+    example: "ar",
+  })
+  @IsOptional()
+  @IsString()
+  language?: string;
+}
+
+class VerifyOtpRequestDto implements VerifyOtpDto {
+  @ApiProperty({
+    description: "User identifier (phone number or email)",
+    example: "+967712345678",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "Identifier is required" })
+  identifier: string;
+
+  @ApiProperty({
+    description: "OTP code received",
+    example: "123456",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "OTP code is required" })
+  @MinLength(4, { message: "OTP code must be at least 4 characters" })
+  @MaxLength(8, { message: "OTP code must not exceed 8 characters" })
+  otpCode: string;
+
+  @ApiProperty({
+    description: "Purpose of OTP verification",
+    example: "password_reset",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "Purpose is required" })
+  purpose: string;
 }
 
 // Import ApiProperty
@@ -347,6 +413,90 @@ export class AuthController {
     console.log(`Password reset attempt from IP: ${ip}`);
 
     return this.authService.resetPassword(dto.token, dto.newPassword);
+  }
+
+  /**
+   * Send OTP for password reset or phone verification
+   * إرسال رمز التحقق لإعادة تعيين كلمة المرور أو التحقق من الهاتف
+   */
+  @Post("send-otp")
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute to prevent abuse
+  @ApiOperation({
+    summary: "Send OTP for password reset or verification",
+    description:
+      "Send a one-time password (OTP) to the user via SMS, WhatsApp, Telegram, or email for password reset or phone verification.",
+  })
+  @ApiBody({ type: SendOtpRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: "OTP sent successfully",
+    schema: {
+      type: "object",
+      properties: {
+        success: { type: "boolean", example: true },
+        message: {
+          type: "string",
+          example: "OTP has been sent to your phone/email.",
+        },
+        expiresIn: { type: "number", example: 300 },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid request parameters",
+  })
+  @ApiResponse({ status: 429, description: "Too many OTP requests" })
+  async sendOtp(@Body() dto: SendOtpRequestDto, @Req() request: Request) {
+    const ip = request.ip || request.socket.remoteAddress;
+    console.log(`OTP send request from IP: ${ip}`);
+
+    return this.authService.sendOtp(dto);
+  }
+
+  /**
+   * Verify OTP and get reset token
+   * التحقق من رمز OTP والحصول على رمز إعادة التعيين
+   */
+  @Post("verify-otp")
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
+  @ApiOperation({
+    summary: "Verify OTP and get reset token",
+    description:
+      "Verify the OTP code sent to the user. For password_reset purpose, returns a reset token that can be used with the reset-password endpoint.",
+  })
+  @ApiBody({ type: VerifyOtpRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: "OTP verified successfully",
+    schema: {
+      type: "object",
+      properties: {
+        success: { type: "boolean", example: true },
+        message: {
+          type: "string",
+          example: "OTP verified successfully.",
+        },
+        resetToken: {
+          type: "string",
+          example: "abc123def456...",
+          description: "Reset token (only for password_reset purpose)",
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid or expired OTP",
+  })
+  @ApiResponse({ status: 429, description: "Too many verification attempts" })
+  async verifyOtp(@Body() dto: VerifyOtpRequestDto, @Req() request: Request) {
+    const ip = request.ip || request.socket.remoteAddress;
+    console.log(`OTP verification attempt from IP: ${ip}`);
+
+    return this.authService.verifyOtp(dto);
   }
 
   /**

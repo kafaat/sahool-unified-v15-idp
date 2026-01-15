@@ -50,10 +50,13 @@ export const PUBLIC_ROUTES = [
   "/register",
   "/forgot-password",
   "/reset-password",
+  "/verify-otp",
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/forgot-password",
   "/api/auth/reset-password",
+  "/api/auth/verify-otp",
+  "/api/auth/resend-otp",
   "/api/auth/refresh",
   "/api/health",
 ];

@@ -175,8 +175,8 @@ export default function RegisterClient() {
           body: JSON.stringify({
             email: formData.email.toLowerCase().trim(),
             password: formData.password,
-            first_name: formData.firstName.trim(),
-            last_name: formData.lastName.trim(),
+            firstName: formData.firstName.trim(),
+            lastName: formData.lastName.trim(),
             phone: formData.phone.trim() || undefined,
           }),
           credentials: "include",

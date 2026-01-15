@@ -53,8 +53,8 @@ function RegisterForm() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           ...(formData.phone && { phone: formData.phone }),
         }),
       });

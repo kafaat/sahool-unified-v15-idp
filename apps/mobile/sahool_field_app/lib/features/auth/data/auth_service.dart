@@ -41,8 +41,8 @@ class RegisterRequest {
   Map<String, dynamic> toJson() => {
         'email': email,
         'password': password,
-        'first_name': firstName,
-        'last_name': lastName,
+        'firstName': firstName,
+        'lastName': lastName,
         if (phone != null && phone!.isNotEmpty) 'phone': phone,
       };
 }

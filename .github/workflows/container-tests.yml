@@ -186,10 +186,8 @@ jobs:
             path: apps/services/agro-advisor
             port: 8015
             container_port: 8105
-          - name: ai-advisor
-            path: apps/services/ai-advisor
-            port: 8016
-            container_port: 8112
+          # ai-advisor removed - requires PyTorch/CUDA (~4.5GB), exceeds CI disk space
+          # Test locally with: docker build -f apps/services/ai-advisor/Dockerfile .
           - name: alert-service
             path: apps/services/alert-service
             port: 8017

@@ -3,6 +3,8 @@
  * Comprehensive security utilities for input validation and sanitization
  */
 
+import DOMPurify from "dompurify";
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Validators
 // ═══════════════════════════════════════════════════════════════════════════
@@ -41,12 +43,39 @@ export const validators = {
 
   /**
    * Safe text (no HTML/script)
+   * Checks for: HTML tags, dangerous protocols, event handlers, encoded attacks
    * @param text - The text to validate
    * @returns true if safe, false otherwise
    */
   safeText: (text: string): boolean => {
     if (!text || typeof text !== "string") return false;
-    return !/<[^>]*>|javascript:|data:|on\w+=/i.test(text);
+
+    // Comprehensive pattern for detecting dangerous content
+    const dangerousPatterns = [
+      /<[^>]*>/i, // HTML tags
+      /javascript\s*:/i, // javascript: protocol
+      /vbscript\s*:/i, // vbscript: protocol
+      /livescript\s*:/i, // livescript: protocol
+      /data\s*:/i, // data: protocol
+      /file\s*:/i, // file: protocol
+      /blob\s*:/i, // blob: protocol
+      /on\w+\s*=/i, // Event handlers (onclick, onerror, etc.)
+      /expression\s*\(/i, // CSS expression
+      /-moz-binding\s*:/i, // Firefox binding
+      /behavior\s*:/i, // IE behavior
+      /&#x?[0-9a-f]+;/i, // Numeric/hex HTML entities (potential encoding bypass)
+      /&(lt|gt|amp|quot|apos|nbsp|tab|newline);/i, // Named HTML entities
+      /%[0-9a-f]{2}/i, // URL encoding
+      /\\x[0-9a-f]{2}/i, // Hex escapes
+      /\\u[0-9a-f]{4}/i, // Unicode escapes
+      /[\x00\u200B\u200C\u200D\uFEFF]/i, // Null bytes and zero-width chars
+      /@import/i, // CSS import
+      /xlink:href/i, // SVG xlink
+      /srcdoc\s*=/i, // iframe srcdoc
+      /formaction\s*=/i, // form hijacking
+    ];
+
+    return !dangerousPatterns.some((pattern) => pattern.test(text));
   },
 
   /**
@@ -112,51 +141,27 @@ export const validators = {
 
 export const sanitizers = {
   /**
-   * Remove all HTML tags and dangerous patterns
-   * Security: Uses iterative approach to handle encoded/nested attacks
+   * Remove all HTML tags and dangerous patterns using DOMPurify
+   * Security: Uses industry-standard DOMPurify library for comprehensive sanitization
+   * Covers: script tags, event handlers, dangerous protocols, data URIs,
+   *         encoded entities, null bytes, unicode escapes, and more
    * @param input - The input string to sanitize
-   * @returns Sanitized string
+   * @returns Sanitized string (plain text with no HTML)
    */
   html: (input: string): string => {
     if (!input || typeof input !== "string") return "";
 
-    let sanitized = input;
+    // Use DOMPurify with strict configuration - remove all HTML tags
+    // ALLOWED_TAGS: [] means no HTML tags are allowed (pure text output)
+    // ALLOWED_ATTR: [] means no attributes are allowed
+    const sanitized = DOMPurify.sanitize(input, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+      KEEP_CONTENT: true,
+    });
 
-    // Iteratively decode and strip to handle nested/encoded HTML
-    const MAX_ITERATIONS = 5;
-    for (let i = 0; i < MAX_ITERATIONS; i++) {
-      const before = sanitized;
-
-      // Decode HTML entities first
-      sanitized = sanitized
-        .replace(/&lt;/gi, "<")
-        .replace(/&gt;/gi, ">")
-        .replace(/&#0*60;/gi, "<")
-        .replace(/&#0*62;/gi, ">")
-        .replace(/&#x0*3c;/gi, "<")
-        .replace(/&#x0*3e;/gi, ">")
-        .replace(/&amp;/gi, "&");
-
-      // Remove HTML tags
-      sanitized = sanitized.replace(/<[^>]*>/g, "");
-
-      // Remove dangerous patterns (with flexible whitespace matching)
-      sanitized = sanitized.replace(/javascript\s*:/gi, ""); // Remove javascript: protocol
-      sanitized = sanitized.replace(/on\w+\s*=/gi, ""); // Remove event handlers
-      sanitized = sanitized.replace(/data\s*:/gi, ""); // Remove data: protocol
-      sanitized = sanitized.replace(/vbscript\s*:/gi, ""); // Remove vbscript: protocol
-      sanitized = sanitized.replace(/file\s*:/gi, ""); // Remove file: protocol
-
-      // If no changes, we're done
-      if (sanitized === before) {
-        break;
-      }
-    }
-
-    // Final safety: remove any remaining angle brackets
-    sanitized = sanitized.replace(/[<>]/g, "");
-
-    return sanitized.trim();
+    // Remove null bytes and control characters
+    return sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
   },
 
   /**

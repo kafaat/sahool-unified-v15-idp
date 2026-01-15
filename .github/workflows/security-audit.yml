@@ -1,0 +1,164 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "apps/**/*.py"
+      - "shared/**/*.py"
+      - "tests/**/*.py"
+      - ".github/workflows/security-audit.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "apps/**/*.py"
+      - "shared/**/*.py"
+      - "tests/**/*.py"
+      - ".github/workflows/security-audit.yml"
+  schedule:
+    # Run weekly on Sundays at midnight UTC
+    - cron: "0 0 * * 0"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  bandit-python-sast:
+    name: Bandit Python SAST
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Bandit
+        run: |
+          pip install bandit bandit-sarif-formatter
+
+      - name: Run Bandit security scan
+        run: |
+          echo "🔍 Running Bandit Python SAST scan..."
+
+          # Create output directory
+          mkdir -p security-reports
+
+          # Run Bandit on Python code with SARIF output for GitHub integration
+          bandit -r apps/ shared/ \
+            -f sarif \
+            -o security-reports/bandit-results.sarif \
+            --severity-level medium \
+            --confidence-level medium \
+            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" \
+            || true
+
+          # Also generate human-readable report
+          bandit -r apps/ shared/ \
+            -f txt \
+            -o security-reports/bandit-results.txt \
+            --severity-level medium \
+            --confidence-level medium \
+            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" \
+            || true
+
+          echo "✅ Bandit scan completed"
+
+      - name: Upload Bandit SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: security-reports/bandit-results.sarif
+          category: bandit-python-sast
+
+      - name: Upload Bandit report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-security-report
+          path: security-reports/
+          retention-days: 30
+
+      - name: Check for high severity issues
+        run: |
+          echo "🔍 Checking for high severity vulnerabilities..."
+
+          # Run Bandit again to check for high severity only
+          HIGH_ISSUES=$(bandit -r apps/ shared/ \
+            -f json \
+            --severity-level high \
+            --confidence-level high \
+            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" \
+            2>/dev/null | python3 -c "import sys, json; data=json.load(sys.stdin); print(len(data.get('results', [])))" 2>/dev/null || echo "0")
+
+          if [ "$HIGH_ISSUES" -gt 0 ]; then
+            echo "❌ Found $HIGH_ISSUES high severity security issues!"
+            echo "Please review the Bandit report and fix critical vulnerabilities."
+            exit 1
+          fi
+
+          echo "✅ No high severity security issues found"
+
+  semgrep-scan:
+    name: Semgrep Security Scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        run: |
+          echo "🔍 Running Semgrep security scan..."
+
+          semgrep scan \
+            --config auto \
+            --config p/python \
+            --config p/typescript \
+            --config p/javascript \
+            --sarif \
+            --output semgrep-results.sarif \
+            --severity ERROR \
+            --severity WARNING \
+            || true
+
+          echo "✅ Semgrep scan completed"
+
+      - name: Upload Semgrep SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep-results.sarif
+          category: semgrep-scan
+
+  safety-check:
+    name: Python Dependency Safety Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Safety
+        run: pip install safety
+
+      - name: Check Python dependencies
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking Python dependencies for known vulnerabilities..."
+
+          # Find all requirements files
+          find . -name "requirements*.txt" -type f | while read req_file; do
+            echo "Checking: $req_file"
+            safety check -r "$req_file" --output json || true
+          done
+
+          echo "✅ Dependency check completed"

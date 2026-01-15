@@ -396,8 +396,14 @@ export function setLocale(locale: Locale): void {
     document.documentElement.lang = locale;
     document.documentElement.dir = isRtl(locale) ? "rtl" : "ltr";
 
-    // Store preference
-    localStorage.setItem("sahool_locale", locale);
+    // Store language preference in localStorage (non-sensitive data).
+    // Wrapped in try-catch for SSR compatibility and to handle cases where
+    // localStorage may be unavailable (private browsing, storage quota exceeded).
+    try {
+      localStorage.setItem("sahool_locale", locale);
+    } catch {
+      // Silently ignore localStorage errors - preference won't persist but app will still work
+    }
   }
 }
 
@@ -578,11 +584,17 @@ export function formatRelativeTime(date: Date | string | number): string {
  */
 export function initializeI18n(): Locale {
   if (typeof window !== "undefined") {
-    // Check stored preference
-    const stored = localStorage.getItem("sahool_locale") as Locale | null;
-    if (stored && (stored === "ar" || stored === "en")) {
-      setLocale(stored);
-      return stored;
+    // Check stored language preference from localStorage (non-sensitive data).
+    // Wrapped in try-catch for SSR compatibility and to handle cases where
+    // localStorage may be unavailable (private browsing, storage quota exceeded).
+    try {
+      const stored = localStorage.getItem("sahool_locale") as Locale | null;
+      if (stored && (stored === "ar" || stored === "en")) {
+        setLocale(stored);
+        return stored;
+      }
+    } catch {
+      // localStorage unavailable - fall through to browser preference detection
     }
 
     // Check browser preference

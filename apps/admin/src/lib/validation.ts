@@ -3,6 +3,8 @@
  * Comprehensive security utilities for input validation and sanitization
  */
 
+import DOMPurify from "dompurify";
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Validators
 // ═══════════════════════════════════════════════════════════════════════════
@@ -139,164 +141,27 @@ export const validators = {
 
 export const sanitizers = {
   /**
-   * Remove all HTML tags and dangerous patterns
-   * Security: Uses iterative approach to handle encoded/nested attacks
+   * Remove all HTML tags and dangerous patterns using DOMPurify
+   * Security: Uses industry-standard DOMPurify library for comprehensive sanitization
    * Covers: script tags, event handlers, dangerous protocols, data URIs,
    *         encoded entities, null bytes, unicode escapes, and more
    * @param input - The input string to sanitize
-   * @returns Sanitized string
+   * @returns Sanitized string (plain text with no HTML)
    */
   html: (input: string): string => {
     if (!input || typeof input !== "string") return "";
 
-    let sanitized = input;
+    // Use DOMPurify with strict configuration - remove all HTML tags
+    // ALLOWED_TAGS: [] means no HTML tags are allowed (pure text output)
+    // ALLOWED_ATTR: [] means no attributes are allowed
+    const sanitized = DOMPurify.sanitize(input, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+      KEEP_CONTENT: true,
+    });
 
-    // Iteratively decode and strip to handle nested/encoded HTML
-    const MAX_ITERATIONS = 10;
-    for (let i = 0; i < MAX_ITERATIONS; i++) {
-      const before = sanitized;
-
-      // Remove null bytes and zero-width characters (bypass attempts)
-      sanitized = sanitized.replace(
-        /[\x00\u200B\u200C\u200D\uFEFF\u00AD]/g,
-        "",
-      );
-
-      // Remove backslash escapes that could bypass filters (e.g., \x6a for 'j')
-      sanitized = sanitized.replace(
-        /\\x[0-9a-fA-F]{2}/g,
-        "",
-      );
-
-      // Remove unicode escapes (e.g., \u006A for 'j')
-      sanitized = sanitized.replace(
-        /\\u[0-9a-fA-F]{4}/g,
-        "",
-      );
-
-      // Decode URL-encoded characters (%XX)
-      try {
-        // Only decode if it looks like URL encoding to avoid errors
-        if (/%[0-9a-fA-F]{2}/.test(sanitized)) {
-          sanitized = decodeURIComponent(sanitized);
-        }
-      } catch {
-        // If decoding fails, remove % sequences to prevent bypass
-        sanitized = sanitized.replace(/%[0-9a-fA-F]{2}/g, "");
-      }
-
-      // Decode HTML entities - standard named entities
-      sanitized = sanitized
-        .replace(/&lt;/gi, "<")
-        .replace(/&gt;/gi, ">")
-        .replace(/&amp;/gi, "&")
-        .replace(/&quot;/gi, '"')
-        .replace(/&apos;/gi, "'")
-        .replace(/&#x27;/gi, "'")
-        .replace(/&#x22;/gi, '"')
-        .replace(/&#x3d;/gi, "=")
-        .replace(/&nbsp;/gi, " ")
-        .replace(/&tab;/gi, " ")
-        .replace(/&newline;/gi, " ");
-
-      // Decode numeric HTML entities (decimal) - with variable zero padding
-      sanitized = sanitized.replace(/&#0*60;/gi, "<");
-      sanitized = sanitized.replace(/&#0*62;/gi, ">");
-      sanitized = sanitized.replace(/&#0*34;/gi, '"');
-      sanitized = sanitized.replace(/&#0*39;/gi, "'");
-      sanitized = sanitized.replace(/&#0*61;/gi, "=");
-      sanitized = sanitized.replace(/&#0*58;/gi, ":"); // colon
-
-      // Decode hex HTML entities - with variable zero padding and case insensitivity
-      sanitized = sanitized.replace(/&#x0*3c;/gi, "<");
-      sanitized = sanitized.replace(/&#x0*3e;/gi, ">");
-      sanitized = sanitized.replace(/&#x0*22;/gi, '"');
-      sanitized = sanitized.replace(/&#x0*27;/gi, "'");
-      sanitized = sanitized.replace(/&#x0*3d;/gi, "=");
-      sanitized = sanitized.replace(/&#x0*3a;/gi, ":"); // colon
-
-      // Remove dangerous patterns in a loop to handle nested attacks
-      // e.g., <!--<!--- --> becomes <!-- --> after one pass, or <scr<scriptipt> becomes <script>
-      let previousValue: string;
-      do {
-        previousValue = sanitized;
-
-        // Remove HTML comments (can hide malicious content)
-        sanitized = sanitized.replace(/<!--[\s\S]*?-->/g, "");
-
-        // Remove CDATA sections
-        sanitized = sanitized.replace(/<!\[CDATA\[[\s\S]*?\]\]>/gi, "");
-
-        // Remove all HTML tags (including self-closing, malformed, and SVG)
-        sanitized = sanitized.replace(/<\/?[a-z][^>]*>/gi, "");
-        sanitized = sanitized.replace(/<[a-z]/gi, ""); // Catch unclosed tags
-
-        // Remove dangerous protocols (with flexible whitespace/newline/tab matching)
-        // These patterns handle obfuscation like "java\tscript:" or "java\nscript:"
-        sanitized = sanitized.replace(/j[\s\u0000]*a[\s\u0000]*v[\s\u0000]*a[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
-        sanitized = sanitized.replace(/v[\s\u0000]*b[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
-        sanitized = sanitized.replace(/l[\s\u0000]*i[\s\u0000]*v[\s\u0000]*e[\s\u0000]*s[\s\u0000]*c[\s\u0000]*r[\s\u0000]*i[\s\u0000]*p[\s\u0000]*t[\s\u0000]*:/gi, "");
-        sanitized = sanitized.replace(/d[\s\u0000]*a[\s\u0000]*t[\s\u0000]*a[\s\u0000]*:/gi, "");
-        sanitized = sanitized.replace(/f[\s\u0000]*i[\s\u0000]*l[\s\u0000]*e[\s\u0000]*:/gi, "");
-
-        // Remove additional dangerous protocols
-        sanitized = sanitized.replace(/blob\s*:/gi, "");
-        sanitized = sanitized.replace(/about\s*:/gi, "");
-        sanitized = sanitized.replace(/ws\s*:/gi, "");
-        sanitized = sanitized.replace(/wss\s*:/gi, "");
-
-        // Remove event handlers (comprehensive list)
-        // Matches: onclick, onerror, onload, onmouseover, onfocus, onbegin, etc.
-        // Handles spaces/tabs/newlines between 'on' and handler name
-        sanitized = sanitized.replace(/on[\s\u0000]*[a-z]+[\s\u0000]*=/gi, "");
-      } while (sanitized !== previousValue);
-
-      // Remove CSS expression (IE-specific XSS)
-      sanitized = sanitized.replace(/expression[\s\u0000]*\(/gi, "");
-
-      // Remove CSS url() which can contain javascript:
-      sanitized = sanitized.replace(/url[\s\u0000]*\(/gi, "");
-
-      // Remove -moz-binding (Firefox-specific)
-      sanitized = sanitized.replace(/-moz-binding[\s\u0000]*:/gi, "");
-
-      // Remove behavior (IE-specific)
-      sanitized = sanitized.replace(/behavior[\s\u0000]*:/gi, "");
-
-      // Remove FSCommand (Flash)
-      sanitized = sanitized.replace(/fscommand/gi, "");
-
-      // Remove base64 in suspicious contexts
-      sanitized = sanitized.replace(/base64[\s\u0000]*,/gi, "");
-
-      // Remove @import (CSS injection)
-      sanitized = sanitized.replace(/@import/gi, "");
-
-      // Remove srcdoc attribute content
-      sanitized = sanitized.replace(/srcdoc[\s\u0000]*=/gi, "");
-
-      // Remove formaction (form hijacking)
-      sanitized = sanitized.replace(/formaction[\s\u0000]*=/gi, "");
-
-      // Remove xlink:href (SVG)
-      sanitized = sanitized.replace(/xlink:href[\s\u0000]*=/gi, "");
-
-      // Remove xmlns (namespace injection)
-      sanitized = sanitized.replace(/xmlns[\s\u0000]*=/gi, "");
-
-      // If no changes, we're done
-      if (sanitized === before) {
-        break;
-      }
-    }
-
-    // Final safety: remove any remaining angle brackets
-    sanitized = sanitized.replace(/[<>]/g, "");
-
-    // Remove any remaining equals signs followed by quotes (attribute patterns)
-    sanitized = sanitized.replace(/=\s*["']/g, "");
-
-    return sanitized.trim();
+    // Remove null bytes and control characters
+    return sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
   },
 
   /**

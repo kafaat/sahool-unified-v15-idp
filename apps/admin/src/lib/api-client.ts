@@ -3,6 +3,7 @@
  * Unified API client for admin dashboard with centralized token management
  */
 
+import DOMPurify from "dompurify";
 import { logger } from "./logger";
 
 interface ApiResponse<T = unknown> {
@@ -82,69 +83,21 @@ if (
   );
 }
 
-// Helper function to sanitize HTML and prevent XSS
+// Helper function to sanitize HTML and prevent XSS using DOMPurify
 function sanitizeInput(input: string): string {
   if (typeof input !== "string") return input;
 
-  let sanitized = input;
+  // Use DOMPurify with strict configuration - remove all HTML tags
+  // ALLOWED_TAGS: [] means no HTML tags are allowed (pure text output)
+  // ALLOWED_ATTR: [] means no attributes are allowed
+  const sanitized = DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: [],
+    KEEP_CONTENT: true,
+  });
 
-  // First, decode common HTML entities to catch encoded attacks
-  const htmlEntities: Record<string, string> = {
-    "&lt;": "<",
-    "&gt;": ">",
-    "&amp;": "&",
-    "&quot;": '"',
-    "&#39;": "'",
-    "&#x27;": "'",
-    "&#x2F;": "/",
-    "&#x60;": "`",
-  };
-  for (const [entity, char] of Object.entries(htmlEntities)) {
-    sanitized = sanitized.replace(new RegExp(entity, "gi"), char);
-  }
-
-  // Decode URL-encoded characters that could be used for attacks
-  try {
-    // Only decode if it looks like it contains URL encoding
-    if (/%[0-9A-Fa-f]{2}/.test(sanitized)) {
-      sanitized = decodeURIComponent(sanitized);
-    }
-  } catch {
-    // If decoding fails, continue with the original string
-  }
-
-  // Remove dangerous patterns in a loop to handle nested attacks like <scr<scriptipt>
-  // which becomes <script> after one pass
-  let previousValue: string;
-  do {
-    previousValue = sanitized;
-    // Remove HTML tags (including malformed ones)
-    sanitized = sanitized.replace(/<[^>]*>?/g, "");
-    // Remove javascript:, vbscript:, data: protocols (case-insensitive, handles whitespace/newlines)
-    sanitized = sanitized.replace(/\b(javascript|vbscript|data)\s*:/gi, "");
-    // Remove on* event handlers (onclick, onerror, onload, etc.)
-    sanitized = sanitized.replace(/\bon\w+\s*=/gi, "");
-  } while (sanitized !== previousValue);
-
-  // Escape special characters that could be used for XSS
-  const escapeMap: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#x27;",
-    "/": "&#x2F;",
-    "`": "&#x60;",
-  };
-  sanitized = sanitized.replace(
-    /[&<>"'`/]/g,
-    (char) => escapeMap[char] || char,
-  );
-
-  // Remove null bytes and other control characters
-  sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
-
-  return sanitized.trim();
+  // Remove null bytes and control characters
+  return sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
 }
 
 // Helper function to delay for retry logic

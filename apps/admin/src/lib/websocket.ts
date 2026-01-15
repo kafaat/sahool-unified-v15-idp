@@ -108,16 +108,16 @@ export class WebSocketClient {
     // Determine WebSocket protocol based on current page protocol (for security)
     // Use wss:// in production (HTTPS) and ws:// only in local development
     const getDefaultWsUrl = (): string => {
-      if (typeof window === "undefined") return "ws://localhost:8090";
+      if (typeof window === "undefined") return "ws://localhost:8081";
 
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const host = window.location.hostname;
-      const port = process.env.NODE_ENV === "production" ? "" : ":8090";
+      const port = process.env.NODE_ENV === "production" ? "" : ":8081";
 
       // In production, use secure WebSocket; in development, allow insecure for localhost
       return process.env.NODE_ENV === "production"
         ? `${protocol}//${host}${port}`
-        : "ws://localhost:8090";
+        : "ws://localhost:8081";
     };
 
     const baseUrl =

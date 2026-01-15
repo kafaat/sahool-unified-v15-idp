@@ -38,13 +38,13 @@ SERVICES = {
     "weather": ServiceConfig("Weather Advanced", "خدمة الطقس المتقدمة", 8092),
     "fertilizer": ServiceConfig("Fertilizer Advisor", "مستشار الأسمدة", 8093),
     "irrigation": ServiceConfig("Irrigation Smart", "الري الذكي", 8094),
-    "crop_health": ServiceConfig("Crop Health AI", "صحة المحاصيل بالذكاء الاصطناعي", 8095),
-    "virtual_sensors": ServiceConfig("Virtual Sensors", "المستشعرات الافتراضية", 8096),
+    "crop_health": ServiceConfig("Crop Intelligence Service", "صحة المحاصيل بالذكاء الاصطناعي", 8095),
+    "virtual_sensors": ServiceConfig("Virtual Sensors", "المستشعرات الافتراضية", 8119),
     "community": ServiceConfig("Community Chat", "مجتمع المزارعين", 8097),
-    "yield_engine": ServiceConfig("Yield Engine", "محرك الإنتاجية", 8098),
-    "iot_gateway": ServiceConfig("IoT Gateway", "بوابة إنترنت الأشياء", 8100),
+    "yield_engine": ServiceConfig("Yield Prediction Service", "محرك الإنتاجية", 8098),
+    "iot_gateway": ServiceConfig("IoT Gateway", "بوابة إنترنت الأشياء", 8106),
     "equipment": ServiceConfig("Equipment Manager", "إدارة المعدات", 8101),
-    "notifications": ServiceConfig("Notification Service", "خدمة الإشعارات", 8109),
+    "notifications": ServiceConfig("Notification Service", "خدمة الإشعارات", 8110),
     "astronomical": ServiceConfig("Astronomical Calendar", "التقويم الفلكي اليمني", 8111),
 }
 

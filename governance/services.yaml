@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 version: "3.0.0"
-last_updated: "2025-12-19"
+last_updated: "2026-01-14"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Architecture Layers
@@ -100,7 +100,7 @@ services:
     category: crop
     layer: decision
     path: "apps/services/crop-growth-model"
-    port: 3000
+    port: 3023
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -208,7 +208,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/disaster-assessment"
-    port: 3001
+    port: 3020
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -241,7 +241,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/lai-estimation"
-    port: 3002
+    port: 3022
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -268,7 +268,7 @@ services:
     category: analytics
     layer: decision
     path: "apps/services/yield-prediction"
-    port: 3003
+    port: 3021
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -299,7 +299,7 @@ services:
     category: community
     layer: business
     path: "apps/services/marketplace-service"
-    port: 3004
+    port: 3010
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -329,7 +329,7 @@ services:
     category: community
     layer: business
     path: "apps/services/community-chat"
-    port: 3005
+    port: 8097
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -358,7 +358,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/iot-service"
-    port: 3006
+    port: 8117
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -424,7 +424,7 @@ services:
     category: core
     layer: business
     path: "apps/services/billing-core"
-    port: 8021
+    port: 8089
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -454,7 +454,7 @@ services:
     category: analytics
     layer: acquisition
     path: "apps/services/satellite-service"
-    port: 8090
+    port: 9190  # Changed to avoid conflict with vegetation-analysis-service (9090 reserved for prometheus)
     protocol: http
     health_endpoint: "/health"
     status: deprecated
@@ -495,7 +495,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/weather-advanced"
-    port: 8092
+    port: 9092  # Changed to avoid conflict with weather-service
     protocol: http
     health_endpoint: "/health"
     status: deprecated
@@ -560,7 +560,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/crop-health-ai"
-    port: 8095
+    port: 9095  # Changed to avoid conflict with crop-intelligence-service
     protocol: http
     health_endpoint: "/health"
     status: deprecated
@@ -591,7 +591,7 @@ services:
     category: analytics
     layer: acquisition
     path: "apps/services/virtual-sensors"
-    port: 8096
+    port: 8119
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -649,7 +649,7 @@ services:
     category: core
     layer: decision
     path: "apps/services/fertilizer-advisor"
-    port: 8093
+    port: 9093  # Changed to avoid conflict with advisory-service
     protocol: http
     health_endpoint: "/health"
     status: deprecated
@@ -801,7 +801,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/crop-intelligence-service"
-    port: 8150
+    port: 8095
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -829,7 +829,7 @@ services:
     category: core
     layer: business
     path: "apps/services/equipment-service"
-    port: 8130
+    port: 8101
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -856,7 +856,7 @@ services:
     category: core
     layer: business
     path: "apps/services/task-service"
-    port: 8131
+    port: 8103
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -886,7 +886,7 @@ services:
     category: integration
     layer: business
     path: "apps/services/ws-gateway"
-    port: 8140
+    port: 8081
     protocol: websocket
     health_endpoint: "/health"
     status: active
@@ -911,7 +911,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/ndvi-processor"
-    port: 8141
+    port: 8118
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -937,7 +937,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/field-intelligence"
-    port: 8142
+    port: 8120
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -965,7 +965,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/vegetation-analysis-service"
-    port: 8019
+    port: 8090
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -998,7 +998,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/weather-service"
-    port: 8108
+    port: 8092
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -1030,7 +1030,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/skills-service"
-    port: 8170
+    port: 8121
     protocol: http
     health_endpoint: "/health"
     readiness_endpoint: "/readyz"
@@ -1132,7 +1132,7 @@ services:
     category: core
     layer: decision
     path: "apps/services/advisory-service"
-    port: 8160
+    port: 8093
     protocol: http
     health_endpoint: "/health"
     status: active
@@ -1152,6 +1152,264 @@ services:
     resources:
       cpu: "400m"
       memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD MANAGEMENT SERVICE - خدمة إدارة الحقول
+  # Consolidates: field-core, field-service, field-ops
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-management-service:
+    name: "Field Management Service"
+    name_ar: "خدمة إدارة الحقول"
+    type: nestjs
+    category: core
+    layer: business
+    path: "apps/services/field-management-service"
+    port: 3000
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    replaces: ["field-core", "field-service", "field-ops"]
+    events:
+      produces:
+        - FieldCreated.v1
+        - FieldUpdated.v1
+        - FieldDeleted.v1
+      consumes:
+        - NDVIProcessed.v1
+        - WeatherDataReady.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # USER SERVICE - خدمة المستخدمين
+  # Authentication and User Management
+  # ═══════════════════════════════════════════════════════════════════════════
+  user-service:
+    name: "User Service"
+    name_ar: "خدمة المستخدمين"
+    type: nestjs
+    category: core
+    layer: business
+    path: "apps/services/user-service"
+    port: 3025
+    protocol: http
+    health_endpoint: "/api/v1/health"
+    status: active
+    events:
+      produces:
+        - UserRegistered.v1
+        - UserAuthenticated.v1
+        - UserUpdated.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ALERT SERVICE - خدمة التنبيهات
+  # ═══════════════════════════════════════════════════════════════════════════
+  alert-service:
+    name: "Alert Service"
+    name_ar: "خدمة التنبيهات"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/alert-service"
+    port: 8113
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - AlertTriggered.v1
+        - AlertResolved.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherAlertIssued.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AGRO ADVISOR - مستشار الزراعة
+  # ═══════════════════════════════════════════════════════════════════════════
+  agro-advisor:
+    name: "Agro Advisor"
+    name_ar: "مستشار الزراعة"
+    type: python
+    category: crop
+    layer: decision
+    path: "apps/services/agro-advisor"
+    port: 8105
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - AgroAdviceGenerated.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ASTRONOMICAL CALENDAR - التقويم الفلكي
+  # ═══════════════════════════════════════════════════════════════════════════
+  astronomical-calendar:
+    name: "Astronomical Calendar"
+    name_ar: "التقويم الفلكي"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/astronomical-calendar"
+    port: 8111
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - MoonPhaseCalculated.v1
+        - PrayerTimesReady.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IOT GATEWAY - بوابة إنترنت الأشياء
+  # ═══════════════════════════════════════════════════════════════════════════
+  iot-gateway:
+    name: "IoT Gateway"
+    name_ar: "بوابة إنترنت الأشياء"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/iot-gateway"
+    port: 8106
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - IoTDataReceived.v1
+        - SensorReadingIngested.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+      - nats
+      - mqtt
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # INVENTORY SERVICE - خدمة المخزون
+  # ═══════════════════════════════════════════════════════════════════════════
+  inventory-service:
+    name: "Inventory Service"
+    name_ar: "خدمة المخزون"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/inventory-service"
+    port: 8116
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - InventoryUpdated.v1
+        - StockLevelChanged.v1
+      consumes:
+        - TaskCompleted.v1
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD CHAT - دردشة الحقل
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-chat:
+    name: "Field Chat"
+    name_ar: "دردشة الحقل"
+    type: python
+    category: community
+    layer: business
+    path: "apps/services/field-chat"
+    port: 8099
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - ChatMessageSent.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PROVIDER CONFIG - تكوين المزودين
+  # ═══════════════════════════════════════════════════════════════════════════
+  provider-config:
+    name: "Provider Config"
+    name_ar: "تكوين المزودين"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/provider-config"
+    port: 8104
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - ProviderConfigUpdated.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
       replicas: 1
 
 # ─────────────────────────────────────────────────────────────────────────────

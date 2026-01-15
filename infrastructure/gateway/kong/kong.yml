@@ -56,7 +56,17 @@ services:
     protocol: http
     routes:
       - name: field-management-service-route
-        paths: ["/field"]
+        paths: ["/api/v1/fields", "/api/v1/field", "/field"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: user-service
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-route
+        paths: ["/api/v1/auth", "/api/v1/users", "/auth", "/users"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -66,7 +76,7 @@ services:
     protocol: http
     routes:
       - name: marketplace-service-route
-        paths: ["/marketplace"]
+        paths: ["/api/v1/marketplace", "/marketplace"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -76,7 +86,7 @@ services:
     protocol: http
     routes:
       - name: research-core-route
-        paths: ["/research"]
+        paths: ["/api/v1/research", "/research"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -86,7 +96,7 @@ services:
     protocol: http
     routes:
       - name: disaster-assessment-route
-        paths: ["/disaster"]
+        paths: ["/api/v1/disaster", "/disaster"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -129,7 +139,7 @@ services:
     protocol: http
     routes:
       - name: chat-service-route
-        paths: ["/chat"]
+        paths: ["/api/v1/chat", "/chat"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -139,18 +149,18 @@ services:
     protocol: http
     routes:
       - name: iot-service-route
-        paths: ["/iot"]
+        paths: ["/api/v1/iot", "/iot"]
         strip_path: true
         protocols: ["http", "https"]
 
-  # DEPRECATED (still routable if needed)
+  # Community Chat - Posts and community features
   - name: community-chat
     host: community-chat
     port: 8097
     protocol: http
     routes:
       - name: community-chat-route
-        paths: ["/community-chat-legacy"]
+        paths: ["/api/v1/community", "/api/v1/posts", "/community", "/community-chat-legacy"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -184,7 +194,7 @@ services:
     protocol: http
     routes:
       - name: billing-core-route
-        paths: ["/billing"]
+        paths: ["/api/v1/billing", "/billing"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -194,7 +204,15 @@ services:
     protocol: http
     routes:
       - name: vegetation-analysis-service-route
-        paths: ["/vegetation"]
+        paths: ["/api/v1/vegetation", "/vegetation"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: satellite-route
+        paths: ["/api/v1/satellite", "/satellite"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: ndvi-route
+        paths: ["/api/v1/ndvi", "/ndvi"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -204,7 +222,7 @@ services:
     protocol: http
     routes:
       - name: indicators-service-route
-        paths: ["/indicators"]
+        paths: ["/api/v1/indicators", "/indicators"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -214,7 +232,7 @@ services:
     protocol: http
     routes:
       - name: weather-service-route
-        paths: ["/weather"]
+        paths: ["/api/v1/weather", "/weather"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -224,7 +242,7 @@ services:
     protocol: http
     routes:
       - name: advisory-service-route
-        paths: ["/advisory"]
+        paths: ["/api/v1/advisory", "/api/v1/fertilizer", "/advisory", "/fertilizer"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -234,7 +252,7 @@ services:
     protocol: http
     routes:
       - name: irrigation-smart-route
-        paths: ["/irrigation"]
+        paths: ["/api/v1/irrigation", "/irrigation"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -244,7 +262,7 @@ services:
     protocol: http
     routes:
       - name: crop-intelligence-service-route
-        paths: ["/crop"]
+        paths: ["/api/v1/crop-health", "/api/v1/crop", "/crop"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -254,7 +272,7 @@ services:
     protocol: http
     routes:
       - name: virtual-sensors-route
-        paths: ["/virtual-sensors"]
+        paths: ["/api/v1/virtual-sensors", "/virtual-sensors"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -264,7 +282,7 @@ services:
     protocol: http
     routes:
       - name: yield-prediction-service-route
-        paths: ["/yield"]
+        paths: ["/api/v1/yield", "/yield"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -274,7 +292,7 @@ services:
     protocol: http
     routes:
       - name: field-chat-route
-        paths: ["/field-chat"]
+        paths: ["/api/v1/field-chat", "/field-chat"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -284,7 +302,7 @@ services:
     protocol: http
     routes:
       - name: equipment-service-route
-        paths: ["/equipment"]
+        paths: ["/api/v1/equipment", "/equipment"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -295,7 +313,7 @@ services:
     protocol: http
     routes:
       - name: code-review-service-route
-        paths: ["/code-review"]
+        paths: ["/api/v1/code-review", "/code-review"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -305,7 +323,7 @@ services:
     protocol: http
     routes:
       - name: task-service-route
-        paths: ["/task"]
+        paths: ["/api/v1/tasks", "/api/v1/task", "/task"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -315,18 +333,18 @@ services:
     protocol: http
     routes:
       - name: provider-config-route
-        paths: ["/provider-config"]
+        paths: ["/api/v1/provider-config", "/provider-config"]
         strip_path: true
         protocols: ["http", "https"]
 
-  # DEPRECATED
+  # Agro Advisor - Agricultural advice and rules
   - name: agro-advisor
     host: agro-advisor
     port: 8105
     protocol: http
     routes:
       - name: agro-advisor-route
-        paths: ["/agro-advisor-legacy"]
+        paths: ["/api/v1/agro-advisor", "/api/v1/agro-rules", "/agro-advisor", "/agro-advisor-legacy"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -336,7 +354,7 @@ services:
     protocol: http
     routes:
       - name: iot-gateway-route
-        paths: ["/iot-gateway"]
+        paths: ["/api/v1/iot-gateway", "/iot-gateway"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -351,14 +369,14 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # DEPRECATED
+  # Weather Core - Advanced weather assessment (POST-based API with lat/lon)
   - name: weather-core
     host: weather-core
     port: 8108
     protocol: http
     routes:
       - name: weather-core-route
-        paths: ["/weather-core-legacy"]
+        paths: ["/api/v1/weather-core", "/weather-core", "/weather-core-legacy"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -368,7 +386,31 @@ services:
     protocol: http
     routes:
       - name: notification-service-route
-        paths: ["/notification"]
+        paths: ["/api/v1/notifications", "/api/v1/notification", "/notification"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-channels-route
+        paths: ["/api/v1/channels"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-preferences-route
+        paths: ["/api/v1/preferences"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-alerts-route
+        paths: ["/api/v1/alerts", "/alerts"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-stats-route
+        paths: ["/api/v1/notification-stats"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-reminders-route
+        paths: ["/api/v1/reminders"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-farmers-route
+        paths: ["/api/v1/farmers"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -378,7 +420,7 @@ services:
     protocol: http
     routes:
       - name: astronomical-calendar-route
-        paths: ["/astronomy"]
+        paths: ["/api/v1/astronomy", "/astronomy"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -388,7 +430,7 @@ services:
     protocol: http
     routes:
       - name: ai-advisor-route
-        paths: ["/ai-advisor"]
+        paths: ["/api/v1/ai-advisor", "/ai-advisor"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -398,7 +440,7 @@ services:
     protocol: http
     routes:
       - name: alert-service-route
-        paths: ["/alerts"]
+        paths: ["/api/v1/alerts", "/alerts"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -418,7 +460,7 @@ services:
     protocol: http
     routes:
       - name: inventory-service-route
-        paths: ["/inventory"]
+        paths: ["/api/v1/inventory", "/inventory"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -438,7 +480,7 @@ services:
     protocol: http
     routes:
       - name: field-intelligence-route
-        paths: ["/field-intelligence"]
+        paths: ["/api/v1/field-intelligence", "/api/v1/field-core", "/field-intelligence"]
         strip_path: true
         protocols: ["http", "https"]
 
@@ -448,7 +490,17 @@ services:
     protocol: http
     routes:
       - name: mcp-server-route
-        paths: ["/mcp"]
+        paths: ["/api/v1/mcp", "/mcp"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: skills-service
+    host: skills-service
+    port: 8121
+    protocol: http
+    routes:
+      - name: skills-service-route
+        paths: ["/api/v1/skills", "/skills"]
         strip_path: true
         protocols: ["http", "https"]
 

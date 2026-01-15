@@ -11,7 +11,9 @@ import { MapPin, Loader2 } from "lucide-react";
 
 export function EquipmentMap() {
   const mapRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markersRef = useRef<any[]>([]);
   const { data: equipment, isLoading } = useEquipment();
 
@@ -21,6 +23,7 @@ export function EquipmentMap() {
     // Initialize map
     const initMap = async () => {
       // Access Leaflet from window (loaded via CDN in layout)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const L = (window as typeof window & { L?: any }).L;
       if (!L) return;
 
@@ -73,6 +76,33 @@ export function EquipmentMap() {
             iconAnchor: [15, 15],
           });
 
+          // SECURITY: Use DOM methods to prevent XSS from user data
+          const popupContent = document.createElement("div");
+          popupContent.style.cssText = "direction: rtl; text-align: right;";
+
+          const title = document.createElement("h3");
+          title.style.cssText = "font-weight: bold; margin-bottom: 8px;";
+          title.textContent = item.nameAr; // textContent prevents XSS
+
+          const nameP = document.createElement("p");
+          nameP.style.cssText = "margin: 4px 0;";
+          nameP.textContent = item.name;
+
+          popupContent.appendChild(title);
+          popupContent.appendChild(nameP);
+
+          if (item.location.fieldName) {
+            const fieldP = document.createElement("p");
+            fieldP.style.cssText = "margin: 4px 0; font-size: 0.875rem; color: #666;";
+            fieldP.textContent = `الحقل: ${item.location.fieldName}`;
+            popupContent.appendChild(fieldP);
+          }
+
+          const statusP = document.createElement("p");
+          statusP.style.cssText = "margin: 4px 0; font-size: 0.875rem;";
+          statusP.innerHTML = `الحالة: <span style="font-weight: 600;">${getStatusLabel(item.status)}</span>`;
+          popupContent.appendChild(statusP);
+
           const marker = L.marker(
             [item.location.latitude, item.location.longitude],
             {
@@ -80,28 +110,13 @@ export function EquipmentMap() {
             },
           )
             .addTo(mapInstanceRef.current)
-            .bindPopup(
-              `
-              <div style="direction: rtl; text-align: right;">
-                <h3 style="font-weight: bold; margin-bottom: 8px;">${item.nameAr}</h3>
-                <p style="margin: 4px 0;">${item.name}</p>
-                ${
-                  item.location.fieldName
-                    ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${item.location.fieldName}</p>`
-                    : ""
-                }
-                <p style="margin: 4px 0; font-size: 0.875rem;">
-                  الحالة: <span style="font-weight: 600;">${getStatusLabel(item.status)}</span>
-                </p>
-              </div>
-            `,
-            );
+            .bindPopup(popupContent);
 
           markersRef.current.push(marker);
         });
 
         // Fit map to show all markers
-        if (equipmentWithLocation.length > 0) {
+        if (equipmentWithLocation.length > 0 && mapInstanceRef.current) {
           const bounds = L.latLngBounds(
             equipmentWithLocation.map((e) => [
               e.location!.latitude,

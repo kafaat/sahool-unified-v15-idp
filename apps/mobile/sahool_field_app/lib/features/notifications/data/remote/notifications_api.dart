@@ -4,7 +4,7 @@ import '../../../core/config/api_config.dart';
 /// Notifications Service API Integration
 /// تكامل خدمة الإشعارات
 ///
-/// Port: 8109
+/// Port: 8110
 /// Features: Push notifications, in-app notifications, preferences
 class NotificationsApi {
   final Dio _dio;
@@ -12,7 +12,7 @@ class NotificationsApi {
 
   NotificationsApi({Dio? dio, String? baseUrl})
       : _dio = dio ?? Dio(),
-        _baseUrl = baseUrl ?? '${ApiConfig.baseUrl}:8109';
+        _baseUrl = baseUrl ?? '${ApiConfig.baseUrl}:8110';
 
   // ─────────────────────────────────────────────────────────────────────────
   // Notifications - الإشعارات

@@ -983,6 +983,18 @@ except Exception as e:
 # =============================================================================
 # API Endpoints
 # =============================================================================
+# NOTE: Routes use no prefix (e.g., "/" instead of "/v1/notifications")
+# because Kong API Gateway uses strip_path: true.
+#
+# Kong routing table:
+#   /api/v1/notifications/*  → strips to /*  → service receives /*, /farmer/{id}, /broadcast, etc.
+#   /api/v1/alerts/*         → strips to /*  → service receives /weather, /pest
+#   /api/v1/reminders/*      → strips to /*  → service receives /irrigation
+#   /api/v1/farmers/*        → strips to /*  → service receives /register, /{id}/preferences
+#   /api/v1/channels/*       → strips to /*  → service receives /add, /list, etc. (channels_controller)
+#   /api/v1/preferences/*    → strips to /*  → service receives /, /update, etc. (preferences_controller)
+#   /api/v1/notification-stats → strips to /* → service receives /stats
+# =============================================================================
 
 
 @app.get("/healthz")
@@ -1019,7 +1031,7 @@ async def health_check():
     }
 
 
-@app.post("/v1/notifications")
+@app.post("/")
 async def create_custom_notification(
     request: CreateNotificationRequest,
     user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
@@ -1061,7 +1073,7 @@ async def create_custom_notification(
     }
 
 
-@app.post("/v1/alerts/weather")
+@app.post("/weather")
 async def create_weather_alert(request: WeatherAlertRequest, background_tasks: BackgroundTasks):
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
@@ -1100,7 +1112,7 @@ async def create_weather_alert(request: WeatherAlertRequest, background_tasks: B
     }
 
 
-@app.post("/v1/alerts/pest")
+@app.post("/pest")
 async def create_pest_alert(request: PestAlertRequest):
     """إنشاء تنبيه انتشار آفات"""
     gov_ar = GOVERNORATE_AR[request.governorate]
@@ -1139,7 +1151,7 @@ async def create_pest_alert(request: PestAlertRequest):
     }
 
 
-@app.post("/v1/reminders/irrigation")
+@app.post("/irrigation")
 async def create_irrigation_reminder(request: IrrigationReminderRequest):
     """إنشاء تذكير ري مخصص"""
     crop_ar = CROP_AR.get(request.crop, request.crop.value)
@@ -1173,7 +1185,7 @@ async def create_irrigation_reminder(request: IrrigationReminderRequest):
     }
 
 
-@app.get("/v1/notifications/farmer/{farmer_id}")
+@app.get("/farmer/{farmer_id}")
 async def get_farmer_notifications(
     farmer_id: str,
     unread_only: bool = Query(default=False),
@@ -1225,7 +1237,7 @@ async def get_farmer_notifications(
     }
 
 
-@app.patch("/v1/notifications/{notification_id}/read")
+@app.patch("/{notification_id}/read")
 async def mark_notification_read(notification_id: str, farmer_id: str = Query(...)):
     """تحديد إشعار كمقروء"""
     try:
@@ -1256,7 +1268,7 @@ async def mark_notification_read(notification_id: str, farmer_id: str = Query(..
         raise HTTPException(status_code=400, detail="Invalid notification ID format")
 
 
-@app.get("/v1/notifications/broadcast")
+@app.get("/broadcast")
 async def get_broadcast_notifications(
     governorate: Governorate | None = None,
     crop: CropType | None = None,
@@ -1297,7 +1309,7 @@ async def get_broadcast_notifications(
     }
 
 
-@app.post("/v1/farmers/register")
+@app.post("/register")
 async def register_farmer(profile: FarmerProfile):
     """تسجيل مزارع للإشعارات - Database version"""
     try:
@@ -1332,7 +1344,7 @@ async def register_farmer(profile: FarmerProfile):
         raise HTTPException(status_code=500, detail=f"Failed to register farmer: {str(e)}")
 
 
-@app.put("/v1/farmers/{farmer_id}/preferences")
+@app.put("/{farmer_id}/preferences")
 async def update_preferences(farmer_id: str, preferences: NotificationPreferences):
     """تحديث تفضيلات الإشعارات"""
     # Update preferences for each channel
@@ -1381,7 +1393,7 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
     }
 
 
-@app.get("/v1/stats")
+@app.get("/stats")
 async def get_notification_stats():
     """إحصائيات الإشعارات - Database version"""
     db_stats = await get_db_stats()

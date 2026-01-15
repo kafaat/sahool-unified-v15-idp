@@ -390,14 +390,14 @@ curl -X POST http://localhost:8119/dev/seed-demo-rules
 ## Environment Variables | متغيرات البيئة
 
 ```bash
-PORT=8119                                    # Service port
+PORT=8120                                    # Service port
 DATABASE_URL=postgresql://...                # PostgreSQL connection (future)
 NATS_URL=nats://nats:4222                   # NATS server URL (future)
 REDIS_URL=redis://redis:6379                # Redis URL (future)
 ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
 TASK_SERVICE_URL=http://task-service:8103
 ALERT_SERVICE_URL=http://alert-service:8113
-NOTIFICATION_SERVICE_URL=http://notification-service:8105
+NOTIFICATION_SERVICE_URL=http://notification-service:8110
 ```
 
 ## Future Enhancements | التحسينات المستقبلية

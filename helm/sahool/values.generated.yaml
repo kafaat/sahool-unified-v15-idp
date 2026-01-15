@@ -19,7 +19,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 2
-    port: 3000
+    port: 3023
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -35,13 +35,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '3000'
+      value: '3023'
     serviceAccount:
       create: true
       name: sahool-crop-growth-model
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3000'
+      prometheus.io/port: '3023'
       prometheus.io/path: /metrics
   disaster-assessment:
     enabled: true
@@ -51,7 +51,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 3001
+    port: 3020
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -67,13 +67,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '3001'
+      value: '3020'
     serviceAccount:
       create: true
       name: sahool-disaster-assessment
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3001'
+      prometheus.io/port: '3020'
       prometheus.io/path: /metrics
   lai-estimation:
     enabled: true
@@ -83,7 +83,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 3002
+    port: 3022
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -99,13 +99,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '3002'
+      value: '3022'
     serviceAccount:
       create: true
       name: sahool-lai-estimation
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3002'
+      prometheus.io/port: '3022'
       prometheus.io/path: /metrics
   yield-prediction:
     enabled: true
@@ -115,7 +115,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 3003
+    port: 3021
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -131,13 +131,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '3003'
+      value: '3021'
     serviceAccount:
       create: true
       name: sahool-yield-prediction
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3003'
+      prometheus.io/port: '3021'
       prometheus.io/path: /metrics
   marketplace-service:
     enabled: true
@@ -147,7 +147,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 2
-    port: 3004
+    port: 3010
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -163,13 +163,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '3004'
+      value: '3010'
     serviceAccount:
       create: true
       name: sahool-marketplace-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3004'
+      prometheus.io/port: '3010'
       prometheus.io/path: /metrics
   community-chat:
     enabled: true
@@ -179,7 +179,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 3005
+    port: 8097
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -195,13 +195,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '3005'
+      value: '8097'
     serviceAccount:
       create: true
       name: sahool-community-chat
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3005'
+      prometheus.io/port: '8097'
       prometheus.io/path: /metrics
   iot-service:
     enabled: true
@@ -211,7 +211,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 2
-    port: 3006
+    port: 8117
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -227,13 +227,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '3006'
+      value: '8117'
     serviceAccount:
       create: true
       name: sahool-iot-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3006'
+      prometheus.io/port: '8117'
       prometheus.io/path: /metrics
   research-core:
     enabled: true
@@ -275,7 +275,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8021
+    port: 8089
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -291,13 +291,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8021'
+      value: '8089'
     serviceAccount:
       create: true
       name: sahool-billing-core
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8021'
+      prometheus.io/port: '8089'
       prometheus.io/path: /metrics
   satellite-service:
     enabled: false
@@ -307,7 +307,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8090
+    port: 9190
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -323,13 +323,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8090'
+      value: '9190'
     serviceAccount:
       create: true
       name: sahool-satellite-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8090'
+      prometheus.io/port: '9190'
       prometheus.io/path: /metrics
   weather-advanced:
     enabled: false
@@ -339,7 +339,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8092
+    port: 9092
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -355,13 +355,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8092'
+      value: '9092'
     serviceAccount:
       create: true
       name: sahool-weather-advanced
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8092'
+      prometheus.io/port: '9092'
       prometheus.io/path: /metrics
   indicators-service:
     enabled: true
@@ -403,7 +403,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8095
+    port: 9095
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -419,13 +419,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8095'
+      value: '9095'
     serviceAccount:
       create: true
       name: sahool-crop-health-ai
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8095'
+      prometheus.io/port: '9095'
       prometheus.io/path: /metrics
   virtual-sensors:
     enabled: true
@@ -435,7 +435,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8096
+    port: 8119
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -451,13 +451,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8096'
+      value: '8119'
     serviceAccount:
       create: true
       name: sahool-virtual-sensors
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8096'
+      prometheus.io/port: '8119'
       prometheus.io/path: /metrics
   yield-engine:
     enabled: true
@@ -499,7 +499,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8093
+    port: 9093
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -515,13 +515,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8093'
+      value: '9093'
     serviceAccount:
       create: true
       name: sahool-fertilizer-advisor
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8093'
+      prometheus.io/port: '9093'
       prometheus.io/path: /metrics
   irrigation-smart:
     enabled: true
@@ -659,7 +659,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8150
+    port: 8095
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -675,13 +675,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8150'
+      value: '8095'
     serviceAccount:
       create: true
       name: sahool-crop-intelligence-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8150'
+      prometheus.io/port: '8095'
       prometheus.io/path: /metrics
   equipment-service:
     enabled: true
@@ -691,7 +691,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8130
+    port: 8101
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -707,13 +707,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8130'
+      value: '8101'
     serviceAccount:
       create: true
       name: sahool-equipment-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8130'
+      prometheus.io/port: '8101'
       prometheus.io/path: /metrics
   task-service:
     enabled: true
@@ -723,7 +723,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8131
+    port: 8103
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -739,13 +739,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8131'
+      value: '8103'
     serviceAccount:
       create: true
       name: sahool-task-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8131'
+      prometheus.io/port: '8103'
       prometheus.io/path: /metrics
   ws-gateway:
     enabled: true
@@ -755,7 +755,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 2
-    port: 8140
+    port: 8081
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -771,13 +771,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8140'
+      value: '8081'
     serviceAccount:
       create: true
       name: sahool-ws-gateway
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8140'
+      prometheus.io/port: '8081'
       prometheus.io/path: /metrics
   ndvi-processor:
     enabled: true
@@ -787,7 +787,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8141
+    port: 8118
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -803,13 +803,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8141'
+      value: '8118'
     serviceAccount:
       create: true
       name: sahool-ndvi-processor
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8141'
+      prometheus.io/port: '8118'
       prometheus.io/path: /metrics
   field-intelligence:
     enabled: true
@@ -819,7 +819,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8142
+    port: 8120
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -835,13 +835,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8142'
+      value: '8120'
     serviceAccount:
       create: true
       name: sahool-field-intelligence
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8142'
+      prometheus.io/port: '8120'
       prometheus.io/path: /metrics
   vegetation-analysis-service:
     enabled: true
@@ -851,7 +851,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8019
+    port: 8090
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -867,13 +867,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8019'
+      value: '8090'
     serviceAccount:
       create: true
       name: sahool-vegetation-analysis-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8019'
+      prometheus.io/port: '8090'
       prometheus.io/path: /metrics
   weather-service:
     enabled: true
@@ -883,7 +883,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8108
+    port: 8092
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -899,13 +899,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8108'
+      value: '8092'
     serviceAccount:
       create: true
       name: sahool-weather-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8108'
+      prometheus.io/port: '8092'
       prometheus.io/path: /metrics
   skills-service:
     enabled: true
@@ -915,7 +915,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8170
+    port: 8121
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -931,13 +931,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8170'
+      value: '8121'
     serviceAccount:
       create: true
       name: sahool-skills-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8170'
+      prometheus.io/port: '8121'
       prometheus.io/path: /metrics
   advisory-service:
     enabled: true
@@ -947,7 +947,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8160
+    port: 8093
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -963,13 +963,301 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8160'
+      value: '8093'
     serviceAccount:
       create: true
       name: sahool-advisory-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8160'
+      prometheus.io/port: '8093'
+      prometheus.io/path: /metrics
+  field-management-service:
+    enabled: true
+    name: field-management-service
+    image:
+      repository: ghcr.io/kafaat/sahool-field-management-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 3000
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '3000'
+    serviceAccount:
+      create: true
+      name: sahool-field-management-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '3000'
+      prometheus.io/path: /metrics
+  user-service:
+    enabled: true
+    name: user-service
+    image:
+      repository: ghcr.io/kafaat/sahool-user-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 3025
+    healthCheck:
+      path: /api/v1/health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 384Mi
+      limits:
+        cpu: 400000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '3025'
+    serviceAccount:
+      create: true
+      name: sahool-user-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '3025'
+      prometheus.io/path: /metrics
+  alert-service:
+    enabled: true
+    name: alert-service
+    image:
+      repository: ghcr.io/kafaat/sahool-alert-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8113
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 256Mi
+      limits:
+        cpu: 300000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8113'
+    serviceAccount:
+      create: true
+      name: sahool-alert-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8113'
+      prometheus.io/path: /metrics
+  agro-advisor:
+    enabled: true
+    name: agro-advisor
+    image:
+      repository: ghcr.io/kafaat/sahool-agro-advisor
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8105
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 384Mi
+      limits:
+        cpu: 400000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8105'
+    serviceAccount:
+      create: true
+      name: sahool-agro-advisor
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8105'
+      prometheus.io/path: /metrics
+  astronomical-calendar:
+    enabled: true
+    name: astronomical-calendar
+    image:
+      repository: ghcr.io/kafaat/sahool-astronomical-calendar
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8111
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8111'
+    serviceAccount:
+      create: true
+      name: sahool-astronomical-calendar
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8111'
+      prometheus.io/path: /metrics
+  iot-gateway:
+    enabled: true
+    name: iot-gateway
+    image:
+      repository: ghcr.io/kafaat/sahool-iot-gateway
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8106
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 256Mi
+      limits:
+        cpu: 300000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8106'
+    serviceAccount:
+      create: true
+      name: sahool-iot-gateway
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8106'
+      prometheus.io/path: /metrics
+  inventory-service:
+    enabled: true
+    name: inventory-service
+    image:
+      repository: ghcr.io/kafaat/sahool-inventory-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8116
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8116'
+    serviceAccount:
+      create: true
+      name: sahool-inventory-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8116'
+      prometheus.io/path: /metrics
+  field-chat:
+    enabled: true
+    name: field-chat
+    image:
+      repository: ghcr.io/kafaat/sahool-field-chat
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8099
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 256Mi
+      limits:
+        cpu: 300000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8099'
+    serviceAccount:
+      create: true
+      name: sahool-field-chat
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8099'
+      prometheus.io/path: /metrics
+  provider-config:
+    enabled: true
+    name: provider-config
+    image:
+      repository: ghcr.io/kafaat/sahool-provider-config
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8104
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8104'
+    serviceAccount:
+      create: true
+      name: sahool-provider-config
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8104'
       prometheus.io/path: /metrics
 applications:
   web:
@@ -1032,31 +1320,31 @@ ingress:
     - path: /api/v1/crop/growth/model
       pathType: Prefix
       service: crop-growth-model
-      port: 3000
+      port: 3023
     - path: /api/v1/disaster/assessment
       pathType: Prefix
       service: disaster-assessment
-      port: 3001
+      port: 3020
     - path: /api/v1/lai/estimation
       pathType: Prefix
       service: lai-estimation
-      port: 3002
+      port: 3022
     - path: /api/v1/yield/prediction
       pathType: Prefix
       service: yield-prediction
-      port: 3003
+      port: 3021
     - path: /api/v1/marketplace/service
       pathType: Prefix
       service: marketplace-service
-      port: 3004
+      port: 3010
     - path: /api/v1/community/chat
       pathType: Prefix
       service: community-chat
-      port: 3005
+      port: 8097
     - path: /api/v1/iot/service
       pathType: Prefix
       service: iot-service
-      port: 3006
+      port: 8117
     - path: /api/v1/research/core
       pathType: Prefix
       service: research-core
@@ -1064,15 +1352,15 @@ ingress:
     - path: /api/v1/billing/core
       pathType: Prefix
       service: billing-core
-      port: 8021
+      port: 8089
     - path: /api/v1/satellite/service
       pathType: Prefix
       service: satellite-service
-      port: 8090
+      port: 9190
     - path: /api/v1/weather/advanced
       pathType: Prefix
       service: weather-advanced
-      port: 8092
+      port: 9092
     - path: /api/v1/indicators/service
       pathType: Prefix
       service: indicators-service
@@ -1080,11 +1368,11 @@ ingress:
     - path: /api/v1/crop/health/ai
       pathType: Prefix
       service: crop-health-ai
-      port: 8095
+      port: 9095
     - path: /api/v1/virtual/sensors
       pathType: Prefix
       service: virtual-sensors
-      port: 8096
+      port: 8119
     - path: /api/v1/yield/engine
       pathType: Prefix
       service: yield-engine
@@ -1092,7 +1380,7 @@ ingress:
     - path: /api/v1/fertilizer/advisor
       pathType: Prefix
       service: fertilizer-advisor
-      port: 8093
+      port: 9093
     - path: /api/v1/irrigation/smart
       pathType: Prefix
       service: irrigation-smart
@@ -1112,43 +1400,79 @@ ingress:
     - path: /api/v1/crop/intelligence/service
       pathType: Prefix
       service: crop-intelligence-service
-      port: 8150
+      port: 8095
     - path: /api/v1/equipment/service
       pathType: Prefix
       service: equipment-service
-      port: 8130
+      port: 8101
     - path: /api/v1/task/service
       pathType: Prefix
       service: task-service
-      port: 8131
+      port: 8103
     - path: /api/v1/ws/gateway
       pathType: Prefix
       service: ws-gateway
-      port: 8140
+      port: 8081
     - path: /api/v1/ndvi/processor
       pathType: Prefix
       service: ndvi-processor
-      port: 8141
+      port: 8118
     - path: /api/v1/field/intelligence
       pathType: Prefix
       service: field-intelligence
-      port: 8142
+      port: 8120
     - path: /api/v1/vegetation/analysis/service
       pathType: Prefix
       service: vegetation-analysis-service
-      port: 8019
+      port: 8090
     - path: /api/v1/weather/service
       pathType: Prefix
       service: weather-service
-      port: 8108
+      port: 8092
     - path: /api/v1/skills/service
       pathType: Prefix
       service: skills-service
-      port: 8170
+      port: 8121
     - path: /api/v1/advisory/service
       pathType: Prefix
       service: advisory-service
-      port: 8160
+      port: 8093
+    - path: /api/v1/field/management/service
+      pathType: Prefix
+      service: field-management-service
+      port: 3000
+    - path: /api/v1/user/service
+      pathType: Prefix
+      service: user-service
+      port: 3025
+    - path: /api/v1/alert/service
+      pathType: Prefix
+      service: alert-service
+      port: 8113
+    - path: /api/v1/agro/advisor
+      pathType: Prefix
+      service: agro-advisor
+      port: 8105
+    - path: /api/v1/astronomical/calendar
+      pathType: Prefix
+      service: astronomical-calendar
+      port: 8111
+    - path: /api/v1/iot/gateway
+      pathType: Prefix
+      service: iot-gateway
+      port: 8106
+    - path: /api/v1/inventory/service
+      pathType: Prefix
+      service: inventory-service
+      port: 8116
+    - path: /api/v1/field/chat
+      pathType: Prefix
+      service: field-chat
+      port: 8099
+    - path: /api/v1/provider/config
+      pathType: Prefix
+      service: provider-config
+      port: 8104
   tls:
   - secretName: sahool-tls
     hosts:

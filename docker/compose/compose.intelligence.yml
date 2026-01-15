@@ -5,16 +5,16 @@ services:
       context: ../../apps/services/disaster-assessment
       dockerfile: Dockerfile
     ports:
-    - 3001:3001
+    - 3020:3020
     environment:
-    - PORT=3001
+    - PORT=3020
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3001/health
+      - http://localhost:3020/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -32,16 +32,16 @@ services:
       context: ../../apps/services/lai-estimation
       dockerfile: Dockerfile
     ports:
-    - 3002:3002
+    - 3022:3022
     environment:
-    - PORT=3002
+    - PORT=3022
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3002/health
+      - http://localhost:3022/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -84,16 +84,16 @@ services:
       context: ../../apps/services/crop-health-ai
       dockerfile: Dockerfile
     ports:
-    - 8095:8095
+    - 9095:9095
     environment:
-    - PORT=8095
+    - PORT=9095
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8095/health
+      - http://localhost:9095/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -136,16 +136,16 @@ services:
       context: ../../apps/services/crop-intelligence-service
       dockerfile: Dockerfile
     ports:
-    - 8150:8150
+    - 8095:8095
     environment:
-    - PORT=8150
+    - PORT=8095
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8150/health
+      - http://localhost:8095/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -162,16 +162,16 @@ services:
       context: ../../apps/services/ndvi-processor
       dockerfile: Dockerfile
     ports:
-    - 8141:8141
+    - 8118:8118
     environment:
-    - PORT=8141
+    - PORT=8118
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8141/health
+      - http://localhost:8118/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -188,16 +188,16 @@ services:
       context: ../../apps/services/field-intelligence
       dockerfile: Dockerfile
     ports:
-    - 8142:8142
+    - 8120:8120
     environment:
-    - PORT=8142
+    - PORT=8120
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8142/health
+      - http://localhost:8120/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -214,16 +214,16 @@ services:
       context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
     ports:
-    - 8019:8019
+    - 8090:8090
     environment:
-    - PORT=8019
+    - PORT=8090
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8019/health
+      - http://localhost:8090/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -242,16 +242,16 @@ services:
       context: ../../apps/services/skills-service
       dockerfile: Dockerfile
     ports:
-    - 8170:8170
+    - 8121:8121
     environment:
-    - PORT=8170
+    - PORT=8121
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8170/health
+      - http://localhost:8121/health
       interval: 30s
       timeout: 10s
       retries: 3

@@ -1,7 +1,7 @@
 """
 SAHOOL Skills Service - Main API
 Manages AI model skill compression, memory storage/recall, and evaluation
-Port: 8110
+Port: 8121
 """
 
 import json
@@ -80,7 +80,7 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"⚠️ Token revocation store failed (running without revocation): {e}")
 
-    print("✅ Skills Service ready on port 8110")
+    print("✅ Skills Service ready on port 8121")
     yield
 
     # Shutdown

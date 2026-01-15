@@ -25,6 +25,7 @@ import { locales, defaultLocale } from "@sahool/i18n";
 import { randomBytes } from "crypto";
 import { validateJwtToken } from "@/lib/security/jwt-middleware";
 import { validateCsrfRequest } from "@/lib/security/csrf-server";
+import { logger } from "@/lib/logger";
 
 // Routes that don't require authentication
 const publicRoutes = [
@@ -90,13 +91,11 @@ export async function middleware(request: NextRequest) {
   // ═══════════════════════════════════════════════════════════════════════════
   const csrfValidation = validateCsrfRequest(request);
   if (!csrfValidation.valid) {
-    // Log CSRF failure in development
-    if (process.env.NODE_ENV === "development") {
-      console.error(`[CSRF] Validation failed: ${csrfValidation.error}`, {
-        method: request.method,
-        path: pathname,
-      });
-    }
+    // Log CSRF failure
+    logger.error(`[CSRF] Validation failed: ${csrfValidation.error}`, {
+      method: request.method,
+      path: pathname,
+    });
 
     // Return 403 Forbidden for CSRF validation failures
     return new NextResponse("CSRF validation failed", {
@@ -142,12 +141,10 @@ export async function middleware(request: NextRequest) {
   const jwtValidation = await validateJwtToken(request);
 
   if (!jwtValidation.valid) {
-    // Log JWT failure in development
-    if (process.env.NODE_ENV === "development") {
-      console.error(`[JWT] Validation failed: ${jwtValidation.error}`, {
-        path: pathname,
-      });
-    }
+    // Log JWT failure
+    logger.error(`[JWT] Validation failed: ${jwtValidation.error}`, {
+      path: pathname,
+    });
 
     // Redirect to login with secure return URL
     const loginUrl = new URL("/login", request.url);

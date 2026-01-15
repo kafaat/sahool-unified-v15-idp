@@ -114,12 +114,12 @@ export default function LoginClient() {
             </Button>
           </form>
           <div className="mt-6 text-center space-y-3">
-            <a
-              href="#"
+            <Link
+              href="/forgot-password"
               className="text-sm text-sahool-green-600 hover:text-sahool-green-700 font-medium block"
             >
               نسيت كلمة المرور؟ • Forgot Password?
-            </a>
+            </Link>
             <div className="border-t pt-3">
               <p className="text-sm text-gray-600 mb-1">
                 <span>ليس لديك حساب؟</span>

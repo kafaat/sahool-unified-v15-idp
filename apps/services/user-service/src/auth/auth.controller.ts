@@ -28,7 +28,7 @@ import {
 } from "@nestjs/swagger";
 import { Throttle, SkipThrottle } from "@nestjs/throttler";
 import { Request } from "express";
-import { AuthService, LoginDto, RegisterDto } from "./auth.service";
+import { AuthService, LoginDto, RegisterDto, ForgotPasswordDto, ResetPasswordDto } from "./auth.service";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength } from "class-validator";
 
@@ -65,6 +65,35 @@ class RefreshTokenDto {
   @IsString()
   @IsNotEmpty({ message: "Refresh token is required" })
   refreshToken: string;
+}
+
+class ForgotPasswordRequestDto implements ForgotPasswordDto {
+  @ApiProperty({
+    description: "User email address",
+    example: "user@sahool.com",
+  })
+  @IsEmail({}, { message: "Invalid email format" })
+  @IsNotEmpty({ message: "Email is required" })
+  email: string;
+}
+
+class ResetPasswordRequestDto implements ResetPasswordDto {
+  @ApiProperty({
+    description: "Password reset token from email",
+    example: "abc123def456...",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "Reset token is required" })
+  token: string;
+
+  @ApiProperty({
+    description: "New password (min 8 characters)",
+    example: "NewSecurePassword123!",
+  })
+  @IsString()
+  @IsNotEmpty({ message: "New password is required" })
+  @MinLength(8, { message: "Password must be at least 8 characters long" })
+  newPassword: string;
 }
 
 // Import ApiProperty
@@ -244,6 +273,80 @@ export class AuthController {
     console.log(`Registration attempt from IP: ${ip}`);
 
     return this.authService.register(registerDto);
+  }
+
+  /**
+   * Forgot password - Request password reset
+   * نسيان كلمة المرور - طلب إعادة تعيين كلمة المرور
+   */
+  @Post("forgot-password")
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute to prevent abuse
+  @ApiOperation({
+    summary: "Request password reset",
+    description:
+      "Request a password reset link to be sent to the user's email address. Always returns success to prevent email enumeration.",
+  })
+  @ApiBody({ type: ForgotPasswordRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: "Password reset request processed",
+    schema: {
+      type: "object",
+      properties: {
+        success: { type: "boolean", example: true },
+        message: {
+          type: "string",
+          example: "If an account with that email exists, a password reset link has been sent.",
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 429, description: "Too many password reset requests" })
+  async forgotPassword(@Body() dto: ForgotPasswordRequestDto, @Req() request: Request) {
+    const ip = request.ip || request.socket.remoteAddress;
+    console.log(`Password reset request from IP: ${ip}`);
+
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  /**
+   * Reset password - Set new password using reset token
+   * إعادة تعيين كلمة المرور - تعيين كلمة مرور جديدة باستخدام رمز إعادة التعيين
+   */
+  @Post("reset-password")
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
+  @ApiOperation({
+    summary: "Reset password with token",
+    description:
+      "Reset user password using the token received via email. The token is valid for 1 hour.",
+  })
+  @ApiBody({ type: ResetPasswordRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: "Password reset successful",
+    schema: {
+      type: "object",
+      properties: {
+        success: { type: "boolean", example: true },
+        message: {
+          type: "string",
+          example: "Password has been reset successfully. Please login with your new password.",
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Invalid or expired reset token",
+  })
+  @ApiResponse({ status: 429, description: "Too many reset attempts" })
+  async resetPassword(@Body() dto: ResetPasswordRequestDto, @Req() request: Request) {
+    const ip = request.ip || request.socket.remoteAddress;
+    console.log(`Password reset attempt from IP: ${ip}`);
+
+    return this.authService.resetPassword(dto.token, dto.newPassword);
   }
 
   /**

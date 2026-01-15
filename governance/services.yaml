@@ -454,7 +454,7 @@ services:
     category: analytics
     layer: acquisition
     path: "apps/services/satellite-service"
-    port: 8090
+    port: 9190  # Changed to avoid conflict with vegetation-analysis-service (9090 reserved for prometheus)
     protocol: http
     health_endpoint: "/health"
     status: deprecated
@@ -495,7 +495,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/weather-advanced"
-    port: 8092
+    port: 9092  # Changed to avoid conflict with weather-service
     protocol: http
     health_endpoint: "/health"
     status: deprecated
@@ -560,7 +560,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/crop-health-ai"
-    port: 8095
+    port: 9095  # Changed to avoid conflict with crop-intelligence-service
     protocol: http
     health_endpoint: "/health"
     status: deprecated
@@ -649,7 +649,7 @@ services:
     category: core
     layer: decision
     path: "apps/services/fertilizer-advisor"
-    port: 8093
+    port: 9093  # Changed to avoid conflict with advisory-service
     protocol: http
     health_endpoint: "/health"
     status: deprecated

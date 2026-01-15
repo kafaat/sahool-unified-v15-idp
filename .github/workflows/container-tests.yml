@@ -131,98 +131,123 @@ jobs:
           - name: satellite-service
             path: apps/services/satellite-service
             port: 8001
+            container_port: 8125
           - name: crop-growth-model
             path: apps/services/crop-growth-model
             port: 8002
+            container_port: 3023
           - name: indicators-service
             path: apps/services/indicators-service
             port: 8003
+            container_port: 8091
           - name: weather-advanced
             path: apps/services/weather-advanced
             port: 8004
+            container_port: 8126
           # crop-health-ai removed - DEPRECATED (see docs/DEPRECATED_SERVICES.md)
           # Use crop-intelligence-service instead
           - name: fertilizer-advisor
             path: apps/services/fertilizer-advisor
             port: 8006
+            container_port: 8127
           - name: irrigation-smart
             path: apps/services/irrigation-smart
             port: 8007
+            container_port: 8094
           - name: yield-engine
             path: apps/services/yield-engine
             port: 8008
+            container_port: 8098
           - name: notification-service
             path: apps/services/notification-service
             port: 8009
+            container_port: 8110
           - name: marketplace-service
             path: apps/services/marketplace-service
             port: 8010
+            container_port: 3010
           - name: iot-service
             path: apps/services/iot-service
             port: 8011
+            container_port: 8117
           - name: virtual-sensors
             path: apps/services/virtual-sensors
             port: 8012
+            container_port: 8119
           - name: advisory-service
             path: apps/services/advisory-service
             port: 8013
+            container_port: 8093
           - name: agent-registry
             path: apps/services/agent-registry
             port: 8014
+            container_port: 8121
           - name: agro-advisor
             path: apps/services/agro-advisor
             port: 8015
-          - name: ai-advisor
-            path: apps/services/ai-advisor
-            port: 8016
+            container_port: 8105
+          # ai-advisor removed - requires PyTorch/CUDA (~4.5GB), exceeds CI disk space
+          # Test locally with: docker build -f apps/services/ai-advisor/Dockerfile .
           - name: alert-service
             path: apps/services/alert-service
             port: 8017
+            container_port: 8113
           - name: chat-service
             path: apps/services/chat-service
             port: 8018
+            container_port: 8000
           - name: mcp-server
             path: apps/services/mcp-server
             port: 8200
+            container_port: 8200
           - name: vegetation-analysis-service
             path: apps/services/vegetation-analysis-service
             port: 8019
+            container_port: 8090
           - name: field-service
             path: apps/services/field-service
             port: 8020
+            container_port: 8115
           - name: crop-intelligence-service
             path: apps/services/crop-intelligence-service
             port: 8021
+            container_port: 8095
           - name: equipment-service
             path: apps/services/equipment-service
             port: 8022
+            container_port: 8101
           - name: billing-core
             path: apps/services/billing-core
             port: 8023
+            container_port: 8089
           - name: ndvi-processor
             path: apps/services/ndvi-processor
             port: 8024
+            container_port: 8118
           - name: task-service
             path: apps/services/task-service
             port: 8025
+            container_port: 8103
           - name: inventory-service
             path: apps/services/inventory-service
             port: 8026
+            container_port: 8116
           - name: community-chat
             path: apps/services/community-chat
             port: 8027
+            container_port: 8097
           - name: disaster-assessment
             path: apps/services/disaster-assessment
             port: 8028
+            container_port: 3020
           - name: field-intelligence
             path: apps/services/field-intelligence
             port: 8029
-          - name: agro-rules
-            path: apps/services/agro-rules
-            port: 8030
+            container_port: 8120
           - name: ws-gateway
             path: apps/services/ws-gateway
             port: 8031
+            container_port: 8081
 
     steps:
       - name: Checkout code
@@ -329,9 +354,10 @@ jobs:
 
           # Start container in detached mode with required environment variables
           # Use valid dummy URLs to prevent URL parsing errors (connection will fail gracefully)
+          # Port mapping: host port -> container's actual internal port
           CONTAINER_ID=$(docker run -d \
             --name test-${{ matrix.service.name }} \
-            -p ${{ matrix.service.port }}:8000 \
+            -p ${{ matrix.service.port }}:${{ matrix.service.container_port }} \
             -e ENVIRONMENT=test \
             -e LOG_LEVEL=INFO \
             -e JWT_SECRET_KEY=ci_test_jwt_secret_key_minimum_32_characters \

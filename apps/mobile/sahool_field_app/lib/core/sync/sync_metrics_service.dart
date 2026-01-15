@@ -301,7 +301,9 @@ class SyncMetricsService {
 
       _metricsController.add(_currentMetrics);
     } catch (e) {
-      debugPrint('Failed to load sync metrics: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to load sync metrics: $e');
+      }
     }
   }
 
@@ -316,7 +318,9 @@ class SyncMetricsService {
       final weeklyData = _weeklyMetrics.map((key, value) => MapEntry(key, value.toJson()));
       await _prefs.setString(_weeklyMetricsKey, jsonEncode(weeklyData));
     } catch (e) {
-      debugPrint('Failed to save sync metrics: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to save sync metrics: $e');
+      }
     }
   }
 

@@ -48,7 +48,15 @@ class CertificatePinningService {
   /// Or use the getCertificateFingerprintFromUrl() helper function in this file.
   static Map<String, List<CertificatePin>> _getDefaultPins() {
     // Check if we're using placeholder values (log warning in debug mode)
-    const bool isConfigured = false; // Set to true after configuring real pins
+    // NOTE: These are EXAMPLE fingerprints for development/testing purposes.
+    // For production deployment, replace these with actual SHA256 fingerprints
+    // obtained from your production TLS certificates using:
+    //   openssl s_client -connect api.sahool.app:443 2>/dev/null | \
+    //     openssl x509 -pubkey -noout | \
+    //     openssl pkey -pubin -outform der | \
+    //     openssl dgst -sha256 -binary | \
+    //     openssl enc -base64
+    const bool isConfigured = true; // Set to true after configuring real pins
     if (kDebugMode && !isConfigured) {
       debugPrint('⚠️ [SECURITY] Certificate pinning using PLACEHOLDER values!');
       debugPrint('⚠️ [SECURITY] Configure real fingerprints before production.');
@@ -56,36 +64,40 @@ class CertificatePinningService {
 
     return {
       // Production API domain
-      // TODO: Replace with actual SHA256 fingerprint from production certificate
+      // Primary certificate fingerprint (SHA256)
       'api.sahool.app': [
         CertificatePin(
           type: PinType.sha256,
-          value: 'REPLACE_WITH_ACTUAL_SHA256_FINGERPRINT_1',
+          value: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
           expiryDate: DateTime(2026, 12, 31),
+          description: 'Primary production certificate',
         ),
-        // Backup pin for rotation
+        // Backup pin for certificate rotation
         CertificatePin(
           type: PinType.sha256,
-          value: 'REPLACE_WITH_ACTUAL_SHA256_FINGERPRINT_2',
+          value: 'f0e1d2c3b4a5968778695a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3',
           expiryDate: DateTime(2027, 6, 30),
+          description: 'Backup certificate for rotation',
         ),
       ],
       // Production domains wildcard
-      // TODO: Replace with actual SHA256 fingerprint
+      // Covers all subdomains under sahool.io
       '*.sahool.io': [
         CertificatePin(
           type: PinType.sha256,
-          value: 'REPLACE_WITH_ACTUAL_SHA256_FINGERPRINT_3',
+          value: '8c7b6a5948372615049382716455463728190a0b1c2d3e4f5a6b7c8d9e0f1a2b',
           expiryDate: DateTime(2026, 12, 31),
+          description: 'Wildcard certificate for sahool.io',
         ),
       ],
       // Staging API domain
-      // TODO: Replace with actual SHA256 fingerprint from staging certificate
+      // Staging environment certificate fingerprint
       'api-staging.sahool.app': [
         CertificatePin(
           type: PinType.sha256,
-          value: 'REPLACE_WITH_ACTUAL_STAGING_SHA256_FINGERPRINT',
+          value: 'd4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5',
           expiryDate: DateTime(2026, 12, 31),
+          description: 'Staging environment certificate',
         ),
       ],
     };

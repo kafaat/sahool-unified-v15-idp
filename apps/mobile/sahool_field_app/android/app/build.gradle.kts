@@ -40,7 +40,7 @@ android {
     // تقسيم APK حسب ABI لتقليل حجم التطبيق
     splits {
         abi {
-            isEnable = true
+            isEnabled = true
             reset()
             include("arm64-v8a", "armeabi-v7a", "x86_64")
             isUniversalApk = true  // Also generate universal APK

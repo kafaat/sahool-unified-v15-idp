@@ -56,12 +56,12 @@ class JWTConfig:
 
     @classmethod
     def get_signing_key(cls) -> str:
-        """Get the key for signing tokens"""
+        """Get the key for signing tokens (HS256 only)"""
         return cls.JWT_SECRET
 
     @classmethod
     def get_verification_key(cls) -> str:
-        """Get the key for verifying tokens"""
+        """Get the key for verifying tokens (HS256 only)"""
         return cls.JWT_SECRET
 
 

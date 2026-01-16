@@ -311,6 +311,8 @@ class TestJWTConfig:
         key = module.JWTConfig.get_verification_key()
         assert key == "test_secret_key"
 
+
+
     def test_rate_limit_disabled_from_env(self):
         """Test rate limiting can be disabled"""
         os.environ["RATE_LIMIT_ENABLED"] = "false"

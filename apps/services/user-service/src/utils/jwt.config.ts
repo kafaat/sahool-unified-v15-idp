@@ -108,31 +108,11 @@ export class JWTConfig {
   }
 
   /**
-   * Get signing key for token creation
-   */
-  static getSigningKey(): string {
-    if (!this.SECRET) {
-      throw new Error("JWT_SECRET_KEY not configured");
-    }
-    return this.SECRET;
-  }
-
-  /**
-   * Get verification key for token validation
-   */
-  static getVerificationKey(): string {
-    if (!this.SECRET) {
-      throw new Error("JWT_SECRET_KEY not configured");
-    }
-    return this.SECRET;
-  }
-
-  /**
    * Get configuration object for passport-jwt
    */
   static getJwtOptions() {
     return {
-      secret: this.getVerificationKey(),
+      secret: this.SECRET,
       signOptions: {
         expiresIn: `${this.ACCESS_TOKEN_EXPIRE_MINUTES}m`,
         issuer: this.ISSUER,

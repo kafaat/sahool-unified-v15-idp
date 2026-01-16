@@ -46,8 +46,7 @@ def _get_required_env(key: str, default: str | None = None) -> str:
 
 
 JWT_SECRET_KEY = _get_required_env("JWT_SECRET_KEY", "")
-# Note: RS256 (RSA keys) support removed - using HS256 only
-JWT_ALGORITHM = "HS256"
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")  # HS256 for symmetric encryption
 JWT_ISSUER = os.getenv("JWT_ISSUER", "sahool-idp")
 JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-platform")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30"))
@@ -99,14 +98,7 @@ class TokenPayload:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def _get_verify_key() -> str:
-    """Get the key for verification"""
-    return JWT_SECRET_KEY
 
-
-def _get_sign_key() -> str:
-    """Get the key for signing"""
-    return JWT_SECRET_KEY
 
 
 def verify_token(token: str, check_revocation: bool = True) -> dict:
@@ -145,7 +137,7 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
         # SECURITY FIX: Use hardcoded whitelist instead of environment variable
         payload = jwt.decode(
             token,
-            _get_verify_key(),
+            JWT_SECRET_KEY,
             algorithms=ALLOWED_ALGORITHMS,
             issuer=JWT_ISSUER,
             audience=JWT_AUDIENCE,
@@ -291,7 +283,7 @@ def create_token(
     if extra_claims:
         payload.update(extra_claims)
 
-    return jwt.encode(payload, _get_sign_key(), algorithm=JWT_ALGORITHM)
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
 def create_access_token(

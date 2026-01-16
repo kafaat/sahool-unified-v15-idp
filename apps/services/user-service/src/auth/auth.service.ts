@@ -103,7 +103,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly revocationStore: RedisTokenRevocationStore,
-  ) {}
+  ) { }
 
   /**
    * Sanitize user input for safe logging (prevents log injection)
@@ -444,7 +444,7 @@ export class AuthService {
     try {
       // Verify refresh token
       const payload = this.jwtService.verify(refreshToken, {
-        secret: JWTConfig.getVerificationKey(),
+        secret: JWTConfig.SECRET,
         issuer: JWTConfig.ISSUER,
         audience: JWTConfig.AUDIENCE,
       }) as JwtPayload;

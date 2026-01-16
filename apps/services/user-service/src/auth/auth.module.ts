@@ -28,7 +28,7 @@ import { JWTConfig } from "../utils/jwt.config";
     PrismaModule,
     PassportModule.register({ defaultStrategy: "jwt" }),
     JwtModule.register({
-      secret: JWTConfig.getSigningKey(),
+      secret: JWTConfig.SECRET,
       signOptions: {
         algorithm: JWTConfig.getEffectiveAlgorithm() as any,
         issuer: JWTConfig.ISSUER,
@@ -57,4 +57,4 @@ import { JWTConfig } from "../utils/jwt.config";
   ],
   exports: [AuthService, JwtAuthGuard, RedisTokenRevocationStore],
 })
-export class AuthModule {}
+export class AuthModule { }

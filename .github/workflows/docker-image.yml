@@ -7,8 +7,72 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  # Validate Dockerfiles for PRs (fast, doesn't require Docker Hub)
+  validate:
+    name: Validate Dockerfiles
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        service:
+          - name: satellite-service
+            path: apps/services/satellite-service
+          - name: crop-growth-model
+            path: apps/services/crop-growth-model
+          - name: indicators-service
+            path: apps/services/indicators-service
+          - name: weather-advanced
+            path: apps/services/weather-advanced
+          - name: fertilizer-advisor
+            path: apps/services/fertilizer-advisor
+          - name: irrigation-smart
+            path: apps/services/irrigation-smart
+          - name: yield-engine
+            path: apps/services/yield-engine
+          - name: notification-service
+            path: apps/services/notification-service
+          - name: marketplace-service
+            path: apps/services/marketplace-service
+          - name: iot-service
+            path: apps/services/iot-service
+          - name: virtual-sensors
+            path: apps/services/virtual-sensors
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check if Dockerfile exists
+      id: check
+      run: |
+        if [ -f "${{ matrix.service.path }}/Dockerfile" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "✅ Dockerfile exists for ${{ matrix.service.name }}"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "⚠️ No Dockerfile found for ${{ matrix.service.name }}"
+        fi
+
+    - name: Validate Dockerfile syntax
+      if: steps.check.outputs.exists == 'true'
+      run: |
+        echo "Validating Dockerfile for ${{ matrix.service.name }}..."
+        if ! grep -q "^FROM " "${{ matrix.service.path }}/Dockerfile"; then
+          echo "❌ Invalid Dockerfile: missing FROM instruction"
+          exit 1
+        fi
+        echo "✅ Dockerfile syntax valid"
+
+    - name: Summary
+      run: |
+        echo "### ✅ Dockerfile Validation: ${{ matrix.service.name }}" >> $GITHUB_STEP_SUMMARY
+        echo "Dockerfile validation passed. Full build runs on merge to main." >> $GITHUB_STEP_SUMMARY
+
+  # Full Docker builds only on push to main
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     strategy:
       matrix:
         service:

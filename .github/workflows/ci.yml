@@ -354,7 +354,7 @@ jobs:
 
       - name: Build Docker image
         if: steps.check-dockerfile.outputs.exists == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # Use repository root as context for shared module access
           context: .
@@ -362,7 +362,7 @@ jobs:
           push: false
           tags: sahool/${{ matrix.service.name }}:${{ github.sha }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,ignore-error=true
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Environment Validation (Sprint 1 Governance)

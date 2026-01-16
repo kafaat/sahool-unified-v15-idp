@@ -17,12 +17,14 @@ This document summarizes the iOS certificate pinning implementation added to the
 The iOS implementation uses a **two-layer approach** for maximum security:
 
 #### Layer 1: System-Level (Info.plist)
+
 - **File:** `ios/Runner/Info.plist`
 - **Technology:** NSAppTransportSecurity with NSPinnedDomains
 - **Enforcement:** iOS system level (cannot be bypassed)
 - **Use Case:** Compliance and OS-level protection
 
 #### Layer 2: Application-Level (Swift)
+
 - **File:** `ios/Runner/CertificatePinning.swift`
 - **Technology:** URLSession delegate with ServerTrust validation
 - **Enforcement:** Application level (flexible, configurable)
@@ -32,13 +34,13 @@ The iOS implementation uses a **two-layer approach** for maximum security:
 
 Certificate pinning is configured for the following domains:
 
-| Domain | Purpose | Environment |
-|--------|---------|-------------|
-| `api.sahool.io` | Main Production API | Production |
-| `api.sahool.app` | Alternative Production API | Production |
-| `api-staging.sahool.app` | Staging API | Staging |
-| `ws.sahool.app` | Production WebSocket | Production |
-| `ws-staging.sahool.app` | Staging WebSocket | Staging |
+| Domain                   | Purpose                    | Environment |
+| ------------------------ | -------------------------- | ----------- |
+| `api.sahool.io`          | Main Production API        | Production  |
+| `api.sahool.app`         | Alternative Production API | Production  |
+| `api-staging.sahool.app` | Staging API                | Staging     |
+| `ws.sahool.app`          | Production WebSocket       | Production  |
+| `ws-staging.sahool.app`  | Staging WebSocket          | Staging     |
 
 ### 3. Development Exceptions
 
@@ -113,15 +115,16 @@ The following domains are excluded from pinning to support development:
 
 The implementation uses SPKI (Subject Public Key Info) pinning instead of certificate pinning:
 
-| Aspect | Certificate Pinning | SPKI Pinning (Used) |
-|--------|-------------------|-------------------|
-| What's pinned | Entire certificate | Public key only |
-| Certificate renewal | Breaks app | Works seamlessly |
-| Rotation complexity | High | Low |
-| Apple recommendation | Not recommended | Recommended |
-| Expiry handling | App update required | Transparent |
+| Aspect               | Certificate Pinning | SPKI Pinning (Used) |
+| -------------------- | ------------------- | ------------------- |
+| What's pinned        | Entire certificate  | Public key only     |
+| Certificate renewal  | Breaks app          | Works seamlessly    |
+| Rotation complexity  | High                | Low                 |
+| Apple recommendation | Not recommended     | Recommended         |
+| Expiry handling      | App update required | Transparent         |
 
 **SPKI Hash Format:**
+
 ```
 Base64-encoded SHA256 hash of the public key
 Example: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
@@ -178,24 +181,28 @@ Example: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 ### Debug vs Release Behavior
 
 **DEBUG Mode:**
+
 ```swift
 CertificatePinningManager.shared.configure(
     enforceStrict: false,
     allowDebugBypass: true
 )
 ```
+
 - Pinning configured but bypassed
 - Allows testing with localhost
 - Logs warnings but doesn't block
 - Useful for development
 
 **RELEASE Mode:**
+
 ```swift
 CertificatePinningManager.shared.configure(
     enforceStrict: true,
     allowDebugBypass: false
 )
 ```
+
 - Pinning strictly enforced
 - Blocks invalid certificates
 - No bypass allowed
@@ -215,6 +222,7 @@ cd ios
 ```
 
 This outputs:
+
 ```
 =================================
   SPKI Hash (for iOS Pinning)
@@ -287,14 +295,14 @@ flutter run
 
 **Timeline for certificate expiring on December 31, 2026:**
 
-| Days Before | Action |
-|------------|--------|
-| 90 days | Obtain new certificate, get SPKI hash, update staging |
-| 60 days | Submit app update to App Store |
-| 30 days | Release app to production |
-| 7 days | Install new certificate on server (alongside old) |
-| 0 days (expiry) | Remove old certificate from server |
-| +30 days | Remove old pin from code (optional cleanup) |
+| Days Before     | Action                                                |
+| --------------- | ----------------------------------------------------- |
+| 90 days         | Obtain new certificate, get SPKI hash, update staging |
+| 60 days         | Submit app update to App Store                        |
+| 30 days         | Release app to production                             |
+| 7 days          | Install new certificate on server (alongside old)     |
+| 0 days (expiry) | Remove old certificate from server                    |
+| +30 days        | Remove old pin from code (optional cleanup)           |
 
 See `CERTIFICATE_ROTATION_IOS.md` for detailed procedures.
 
@@ -307,6 +315,7 @@ See `CERTIFICATE_ROTATION_IOS.md` for detailed procedures.
 The current implementation uses **placeholder SPKI hashes**. Before deploying to production:
 
 1. **Extract actual SPKI hashes** for each domain:
+
    ```bash
    cd ios
    ./get_spki_hash.sh api.sahool.io
@@ -329,6 +338,7 @@ The current implementation uses **placeholder SPKI hashes**. Before deploying to
 ### Placeholder Locations
 
 **In `ios/Runner/Info.plist`:**
+
 ```xml
 <!-- Lines 67, 72, 86, 91, 105, 119, 133 -->
 <string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
@@ -339,6 +349,7 @@ The current implementation uses **placeholder SPKI hashes**. Before deploying to
 ```
 
 **In `ios/Runner/CertificatePinning.swift`:**
+
 ```swift
 // Lines 61-99
 "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
@@ -423,13 +434,13 @@ The app automatically logs expiring certificates on startup:
 
 ### Maintenance Tasks
 
-| Task | Frequency | Action |
-|------|-----------|--------|
-| Check expiring pins | Monthly | Review expiry dates in code |
-| Test certificate rotation | Quarterly | Practice in staging |
-| Update documentation | As needed | Keep procedures current |
-| Audit pin configuration | Quarterly | Verify pins match server |
-| Review security logs | Weekly | Check for validation failures |
+| Task                      | Frequency | Action                        |
+| ------------------------- | --------- | ----------------------------- |
+| Check expiring pins       | Monthly   | Review expiry dates in code   |
+| Test certificate rotation | Quarterly | Practice in staging           |
+| Update documentation      | As needed | Keep procedures current       |
+| Audit pin configuration   | Quarterly | Verify pins match server      |
+| Review security logs      | Weekly    | Check for validation failures |
 
 ---
 
@@ -482,11 +493,13 @@ The app automatically logs expiring certificates on startup:
 #### Issue 1: All API requests failing
 
 **Symptoms:**
+
 ```
 ❌ Certificate validation failed for host: api.sahool.io
 ```
 
 **Solution:**
+
 ```bash
 # Verify server certificate
 ./ios/get_spki_hash.sh api.sahool.io
@@ -504,6 +517,7 @@ The app automatically logs expiring certificates on startup:
 #### Issue 3: Localhost not working
 
 **Solution:** Check Info.plist has localhost exception:
+
 ```xml
 <key>NSExceptionDomains</key>
 <dict>
@@ -562,6 +576,7 @@ The app automatically logs expiring certificates on startup:
 The iOS certificate pinning implementation provides robust protection against MITM attacks and compromised CAs. The dual-layer approach (system-level + application-level) ensures comprehensive security while maintaining flexibility for development and debugging.
 
 **Key Features:**
+
 - ✅ SPKI pinning (recommended by Apple)
 - ✅ Two-layer protection (Info.plist + Swift)
 - ✅ Debug bypass for development
@@ -571,6 +586,7 @@ The iOS certificate pinning implementation provides robust protection against MI
 - ✅ Detailed documentation
 
 **Before Production:**
+
 - ⚠️ Replace all placeholder SPKI hashes
 - ⚠️ Set correct expiry dates
 - ⚠️ Test thoroughly

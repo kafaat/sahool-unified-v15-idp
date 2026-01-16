@@ -239,21 +239,39 @@ def upgrade() -> None:
     )
 
     # Apply trigger to all spatial tables
-    for table in ["fields", "zones", "sub_zones"]:
-        op.execute(
-            f"""
-            CREATE TRIGGER trg_{table}_sync_geom
-            BEFORE INSERT OR UPDATE ON {table}
-            FOR EACH ROW
-            EXECUTE FUNCTION sync_geometry_from_wkt();
+    # Use explicit statements for each table to avoid SQL injection concerns
+    # (Table names are known at compile time, but explicit statements are safer)
+    op.execute(
         """
-        )
+        CREATE TRIGGER trg_fields_sync_geom
+        BEFORE INSERT OR UPDATE ON fields
+        FOR EACH ROW
+        EXECUTE FUNCTION sync_geometry_from_wkt();
+    """
+    )
+    op.execute(
+        """
+        CREATE TRIGGER trg_zones_sync_geom
+        BEFORE INSERT OR UPDATE ON zones
+        FOR EACH ROW
+        EXECUTE FUNCTION sync_geometry_from_wkt();
+    """
+    )
+    op.execute(
+        """
+        CREATE TRIGGER trg_sub_zones_sync_geom
+        BEFORE INSERT OR UPDATE ON sub_zones
+        FOR EACH ROW
+        EXECUTE FUNCTION sync_geometry_from_wkt();
+    """
+    )
 
 
 def downgrade() -> None:
-    # Drop triggers
-    for table in ["fields", "zones", "sub_zones"]:
-        op.execute(f"DROP TRIGGER IF EXISTS trg_{table}_sync_geom ON {table};")
+    # Drop triggers - use explicit statements to avoid SQL injection concerns
+    op.execute("DROP TRIGGER IF EXISTS trg_fields_sync_geom ON fields;")
+    op.execute("DROP TRIGGER IF EXISTS trg_zones_sync_geom ON zones;")
+    op.execute("DROP TRIGGER IF EXISTS trg_sub_zones_sync_geom ON sub_zones;")
 
     op.execute("DROP FUNCTION IF EXISTS sync_geometry_from_wkt();")
 

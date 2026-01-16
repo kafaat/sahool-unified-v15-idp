@@ -1,4 +1,5 @@
 # البنية المعمارية لمنصة صحول - المملكة العربية السعودية
+
 # Sahool Platform Architecture - Saudi Arabia
 
 ## نظرة عامة معمارية / Architectural Overview
@@ -55,6 +56,7 @@
 ### 1. الشبكات / Networking
 
 #### VPC (Virtual Private Cloud)
+
 - **الرياض:** 10.0.0.0/16
 - **جدة:** 10.1.0.0/16
 - **مناطق التوفر:** 3 AZs في كل منطقة
@@ -64,10 +66,12 @@
   - قواعد البيانات: شبكة منعزلة لقواعد البيانات
 
 #### NAT Gateways
+
 - NAT Gateway في كل منطقة توفر
 - توفر عالي ومرونة
 
 #### VPC Peering
+
 - اتصال آمن بين الرياض وجدة
 - تمكين التواصل بين المناطق
 
@@ -76,6 +80,7 @@
 #### Amazon EKS (Elastic Kubernetes Service)
 
 **الرياض (Primary):**
+
 ```yaml
 Cluster Name: production-sahool-riyadh
 Kubernetes Version: 1.28
@@ -92,6 +97,7 @@ Features:
 ```
 
 **جدة (Secondary):**
+
 ```yaml
 Cluster Name: production-sahool-jeddah
 Kubernetes Version: 1.28
@@ -112,6 +118,7 @@ Features:
 #### Amazon RDS PostgreSQL 15 + PostGIS
 
 **الرياض:**
+
 ```yaml
 Instance Class: db.r6g.xlarge (4 vCPUs, 32 GB RAM)
 Storage: 500 GB (gp3)
@@ -126,6 +133,7 @@ Features:
 ```
 
 **جدة:**
+
 ```yaml
 Instance Class: db.r6g.large (2 vCPUs, 16 GB RAM)
 Storage: 300 GB (gp3)
@@ -140,6 +148,7 @@ Features:
 ```
 
 **PostGIS للبيانات الجغرافية:**
+
 - تخزين حدود الحقول الزراعية
 - معالجة الصور الفضائية
 - تحليل الموقع الجغرافي
@@ -150,6 +159,7 @@ Features:
 #### Amazon ElastiCache Redis 7.0
 
 **الرياض:**
+
 ```yaml
 Node Type: cache.r6g.large (2 vCPUs, 13.07 GB RAM)
 Nodes: 3
@@ -162,6 +172,7 @@ Features:
 ```
 
 **جدة:**
+
 ```yaml
 Node Type: cache.r6g.large (2 vCPUs, 13.07 GB RAM)
 Nodes: 2
@@ -174,6 +185,7 @@ Features:
 ```
 
 **حالات الاستخدام:**
+
 - ذاكرة مؤقتة للاستعلامات
 - جلسات المستخدمين
 - قوائم انتظار المهام (Job Queues)
@@ -184,6 +196,7 @@ Features:
 #### Amazon S3
 
 **حاوية الصور الفضائية (Satellite Imagery):**
+
 ```yaml
 الرياض: sahool-satellite-imagery-riyadh-production
 جدة: sahool-satellite-imagery-jeddah-production
@@ -199,6 +212,7 @@ Features:
 ```
 
 **حاوية النماذج (AI Models):**
+
 ```yaml
 الرياض: sahool-ai-models-riyadh-production
 جدة: sahool-ai-models-jeddah-production
@@ -213,6 +227,7 @@ Features:
 ### 6. الأمان / Security
 
 #### التشفير / Encryption
+
 ```yaml
 At Rest:
   - RDS: KMS encryption
@@ -228,6 +243,7 @@ In Transit:
 ```
 
 #### مجموعات الأمان / Security Groups
+
 ```yaml
 EKS:
   - Ingress: من Load Balancers
@@ -243,6 +259,7 @@ Redis:
 ```
 
 #### IAM Roles
+
 ```yaml
 EKS Cluster Role:
   - AmazonEKSClusterPolicy
@@ -258,12 +275,14 @@ EKS Node Role:
 ## تدفق البيانات / Data Flow
 
 ### 1. تدفق الطلبات / Request Flow
+
 ```
 المستخدم → Route 53 → ALB → EKS Pods → RDS/Redis
 User → Route 53 → ALB → EKS Pods → RDS/Redis
 ```
 
 ### 2. تدفق الصور الفضائية / Satellite Imagery Flow
+
 ```
 1. تحميل إلى S3 الرياض
    Upload to S3 Riyadh
@@ -279,6 +298,7 @@ User → Route 53 → ALB → EKS Pods → RDS/Redis
 ```
 
 ### 3. النسخ الاحتياطي / Backup Flow
+
 ```
 RDS Riyadh → Automated Snapshots (30 days)
            → Manual Snapshots (on-demand)
@@ -290,11 +310,13 @@ S3 Riyadh → Cross-region replication → S3 Jeddah
 ## التوسع / Scalability
 
 ### التوسع الأفقي / Horizontal Scaling
+
 - **EKS:** توسع تلقائي من 3-10 عقد (الرياض)
 - **EKS:** توسع تلقائي من 2-8 عقد (جدة)
 - **RDS:** Read Replicas (يمكن إضافتها)
 
 ### التوسع الرأسي / Vertical Scaling
+
 - **EKS Nodes:** يمكن تغيير نوع المثيل
 - **RDS:** يمكن ترقية فئة المثيل
 - **Redis:** يمكن ترقية نوع العقدة
@@ -302,6 +324,7 @@ S3 Riyadh → Cross-region replication → S3 Jeddah
 ## التوفر العالي / High Availability
 
 ### استراتيجيات التوفر / Availability Strategies
+
 1. **Multi-AZ Deployment** في كل خدمة
 2. **منطقتين جغرافيتين** (الرياض، جدة)
 3. **نسخ متماثل** للبيانات الحرجة
@@ -309,6 +332,7 @@ S3 Riyadh → Cross-region replication → S3 Jeddah
 5. **Load Balancing** للتطبيقات
 
 ### أوقات التعافي المستهدفة / Recovery Time Objectives
+
 ```yaml
 RTO (Recovery Time Objective):
   - EKS Pods: < 5 minutes
@@ -324,6 +348,7 @@ RPO (Recovery Point Objective):
 ## المراقبة / Monitoring
 
 ### CloudWatch Metrics
+
 ```yaml
 EKS:
   - CPU Utilization
@@ -345,6 +370,7 @@ Redis:
 ```
 
 ### CloudWatch Logs
+
 ```yaml
 EKS:
   - API server logs
@@ -362,20 +388,21 @@ RDS:
 
 ### التكلفة الشهرية (بالدولار) / Monthly Cost (USD)
 
-| المكون / Component | الرياض / Riyadh | جدة / Jeddah | الإجمالي / Total |
-|-------------------|-----------------|--------------|------------------|
-| EKS Control Plane | $75 | $75 | $150 |
-| EC2 Nodes | $600 | $300 | $900 |
-| RDS PostgreSQL | $400 | $200 | $600 |
-| ElastiCache Redis | $200 | $150 | $350 |
-| NAT Gateways | $100 | $100 | $200 |
-| S3 Storage & Transfer | متغير / Variable | متغير / Variable | ~$200 |
-| Data Transfer | ~$50 | ~$50 | ~$100 |
-| **الإجمالي / Total** | **~$1,425** | **~$875** | **~$2,500** |
+| المكون / Component    | الرياض / Riyadh  | جدة / Jeddah     | الإجمالي / Total |
+| --------------------- | ---------------- | ---------------- | ---------------- |
+| EKS Control Plane     | $75              | $75              | $150             |
+| EC2 Nodes             | $600             | $300             | $900             |
+| RDS PostgreSQL        | $400             | $200             | $600             |
+| ElastiCache Redis     | $200             | $150             | $350             |
+| NAT Gateways          | $100             | $100             | $200             |
+| S3 Storage & Transfer | متغير / Variable | متغير / Variable | ~$200            |
+| Data Transfer         | ~$50             | ~$50             | ~$100            |
+| **الإجمالي / Total**  | **~$1,425**      | **~$875**        | **~$2,500**      |
 
-*ملاحظة: التكاليف تقريبية وتعتمد على الاستخدام الفعلي*
+_ملاحظة: التكاليف تقريبية وتعتمد على الاستخدام الفعلي_
 
 ### خيارات توفير التكلفة / Cost Optimization Options
+
 1. **Reserved Instances** لـ RDS و ElastiCache (توفير ~40%)
 2. **Savings Plans** لـ EC2 (توفير ~30%)
 3. **S3 Intelligent-Tiering** للصور القديمة
@@ -384,6 +411,7 @@ RDS:
 ## أفضل الممارسات المطبقة / Best Practices Applied
 
 ### الأمان / Security
+
 ✅ تشفير شامل للبيانات
 ✅ مفاتيح KMS منفصلة لكل خدمة
 ✅ شبكات خاصة معزولة
@@ -391,6 +419,7 @@ RDS:
 ✅ IAM Roles بصلاحيات محدودة
 
 ### الموثوقية / Reliability
+
 ✅ Multi-AZ deployment
 ✅ نسخ احتياطية تلقائية
 ✅ Automatic failover
@@ -398,12 +427,14 @@ RDS:
 ✅ منطقتين للـ DR
 
 ### الأداء / Performance
+
 ✅ ذاكرة مؤقتة (Redis)
 ✅ توسع تلقائي
 ✅ Read replicas (قابل للإضافة)
 ✅ أحجام مثيلات محسّنة
 
 ### الكفاءة / Efficiency
+
 ✅ موارد محسّنة حسب الحمل
 ✅ توسع تلقائي
 ✅ سياسات دورة حياة S3

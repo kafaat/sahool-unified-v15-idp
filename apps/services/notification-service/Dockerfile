@@ -15,12 +15,14 @@ RUN groupadd --system --gid 1000 sahool && \
 
 # No system dependencies needed - Using Python for healthcheck
 
-# Upgrade pip to latest version
-RUN pip install --no-cache-dir --upgrade pip
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel
 
 # Copy requirements first for better caching
 COPY apps/services/notification-service/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules
 COPY apps/services/shared ./shared/

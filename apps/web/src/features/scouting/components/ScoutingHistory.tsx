@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Scouting History Component
@@ -11,8 +11,8 @@
  * - Statistics overview
  */
 
-import React, { useState, useMemo } from 'react';
-import { useLocale } from 'next-intl';
+import React, { useState, useMemo } from "react";
+import { useLocale } from "next-intl";
 import {
   Calendar,
   MapPin,
@@ -26,20 +26,24 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Loading } from '@/components/ui/loading';
-import { useScoutingHistory, useScoutingStatistics, useGenerateReport } from '../hooks/useScouting';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Loading } from "@/components/ui/loading";
+import {
+  useScoutingHistory,
+  useScoutingStatistics,
+  useGenerateReport,
+} from "../hooks/useScouting";
 import type {
   ScoutingHistoryFilter,
   ObservationCategory,
   Severity,
-} from '../types/scouting';
-import { CATEGORY_OPTIONS, SEVERITY_LABELS } from '../types/scouting';
-import { format } from 'date-fns';
+} from "../types/scouting";
+import { CATEGORY_OPTIONS, SEVERITY_LABELS } from "../types/scouting";
+import { format } from "date-fns";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -72,7 +76,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
   showStatistics = true,
 }) => {
   const locale = useLocale();
-  const isArabic = locale === 'ar';
+  const isArabic = locale === "ar";
 
   // State
   const [filters, setFilters] = useState<FilterState>({
@@ -89,12 +93,16 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
       minSeverity: filters.minSeverity,
       startDate: filters.startDate,
       endDate: filters.endDate,
-      status: 'completed',
+      status: "completed",
     };
   }, [filters]);
 
   // Fetch data
-  const { data: sessions = [], isLoading, error } = useScoutingHistory(apiFilters);
+  const {
+    data: sessions = [],
+    isLoading,
+    error,
+  } = useScoutingHistory(apiFilters);
   const { data: statistics } = useScoutingStatistics(fieldId);
   const generateReport = useGenerateReport();
 
@@ -108,7 +116,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
         session.fieldName.toLowerCase().includes(query) ||
         session.fieldNameAr.includes(query) ||
         session.notes?.toLowerCase().includes(query) ||
-        session.notesAr?.toLowerCase().includes(query)
+        session.notesAr?.toLowerCase().includes(query),
     );
   }, [sessions, filters.searchQuery]);
 
@@ -131,17 +139,17 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
         config: {
           includePhotos: true,
           includeMap: true,
-          language: 'both',
-          format: 'pdf',
+          language: "both",
+          format: "pdf",
         },
       });
 
       // Open download in new tab
       if (result.downloadUrl) {
-        window.open(result.downloadUrl, '_blank');
+        window.open(result.downloadUrl, "_blank");
       }
     } catch (error) {
-      console.error('Failed to generate report:', error);
+      console.error("Failed to generate report:", error);
     }
   };
 
@@ -180,7 +188,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
         <CardContent className="p-6">
           <div className="flex items-center gap-3 text-red-600">
             <AlertTriangle className="w-5 h-5" />
-            <p>{isArabic ? 'فشل في تحميل السجل' : 'Failed to load history'}</p>
+            <p>{isArabic ? "فشل في تحميل السجل" : "Failed to load history"}</p>
           </div>
         </CardContent>
       </Card>
@@ -197,7 +205,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">
-                    {isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}
+                    {isArabic ? "إجمالي الجلسات" : "Total Sessions"}
                   </p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {statistics.totalSessions}
@@ -215,7 +223,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">
-                    {isArabic ? 'إجمالي الملاحظات' : 'Total Observations'}
+                    {isArabic ? "إجمالي الملاحظات" : "Total Observations"}
                   </p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {statistics.totalObservations}
@@ -233,7 +241,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">
-                    {isArabic ? 'هذا الأسبوع' : 'This Week'}
+                    {isArabic ? "هذا الأسبوع" : "This Week"}
                   </p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {statistics.sessionsThisWeek}
@@ -251,7 +259,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">
-                    {isArabic ? 'متوسط الملاحظات' : 'Avg. Observations'}
+                    {isArabic ? "متوسط الملاحظات" : "Avg. Observations"}
                   </p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {statistics.averageObservationsPerSession.toFixed(1)}
@@ -276,9 +284,13 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder={isArabic ? 'البحث في السجل...' : 'Search history...'}
-                  value={filters.searchQuery || ''}
-                  onChange={(e) => handleFilterChange('searchQuery', e.target.value)}
+                  placeholder={
+                    isArabic ? "البحث في السجل..." : "Search history..."
+                  }
+                  value={filters.searchQuery || ""}
+                  onChange={(e) =>
+                    handleFilterChange("searchQuery", e.target.value)
+                  }
                   className="pl-10"
                 />
               </div>
@@ -293,7 +305,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                   className="relative"
                 >
                   <Filter className="w-4 h-4 mr-2" />
-                  {isArabic ? 'تصفية' : 'Filter'}
+                  {isArabic ? "تصفية" : "Filter"}
                   {activeFiltersCount > 0 && (
                     <Badge
                       variant="default"
@@ -305,8 +317,12 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                 </Button>
 
                 {activeFiltersCount > 0 && (
-                  <Button variant="outline" size="sm" onClick={handleClearFilters}>
-                    {isArabic ? 'مسح' : 'Clear'}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClearFilters}
+                  >
+                    {isArabic ? "مسح" : "Clear"}
                   </Button>
                 )}
               </div>
@@ -320,16 +336,19 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                 {/* Category Filter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? 'الفئة' : 'Category'}
+                    {isArabic ? "الفئة" : "Category"}
                   </label>
                   <select
-                    value={filters.category || ''}
+                    value={filters.category || ""}
                     onChange={(e) =>
-                      handleFilterChange('category', e.target.value || undefined)
+                      handleFilterChange(
+                        "category",
+                        e.target.value || undefined,
+                      )
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent"
                   >
-                    <option value="">{isArabic ? 'الكل' : 'All'}</option>
+                    <option value="">{isArabic ? "الكل" : "All"}</option>
                     {CATEGORY_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>
                         {isArabic ? option.labelAr : option.label}
@@ -341,19 +360,19 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                 {/* Severity Filter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? 'الشدة الدنيا' : 'Min Severity'}
+                    {isArabic ? "الشدة الدنيا" : "Min Severity"}
                   </label>
                   <select
-                    value={filters.minSeverity || ''}
+                    value={filters.minSeverity || ""}
                     onChange={(e) =>
                       handleFilterChange(
-                        'minSeverity',
-                        e.target.value ? Number(e.target.value) : undefined
+                        "minSeverity",
+                        e.target.value ? Number(e.target.value) : undefined,
                       )
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent"
                   >
-                    <option value="">{isArabic ? 'الكل' : 'All'}</option>
+                    <option value="">{isArabic ? "الكل" : "All"}</option>
                     {[1, 2, 3, 4, 5].map((severity) => (
                       <option key={severity} value={severity}>
                         {isArabic
@@ -367,24 +386,31 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                 {/* Start Date */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? 'من تاريخ' : 'From Date'}
+                    {isArabic ? "من تاريخ" : "From Date"}
                   </label>
                   <Input
                     type="date"
-                    value={filters.startDate || ''}
-                    onChange={(e) => handleFilterChange('startDate', e.target.value || undefined)}
+                    value={filters.startDate || ""}
+                    onChange={(e) =>
+                      handleFilterChange(
+                        "startDate",
+                        e.target.value || undefined,
+                      )
+                    }
                   />
                 </div>
 
                 {/* End Date */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isArabic ? 'إلى تاريخ' : 'To Date'}
+                    {isArabic ? "إلى تاريخ" : "To Date"}
                   </label>
                   <Input
                     type="date"
-                    value={filters.endDate || ''}
-                    onChange={(e) => handleFilterChange('endDate', e.target.value || undefined)}
+                    value={filters.endDate || ""}
+                    onChange={(e) =>
+                      handleFilterChange("endDate", e.target.value || undefined)
+                    }
                   />
                 </div>
               </div>
@@ -400,7 +426,9 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
             <CardContent className="p-12 text-center">
               <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">
-                {isArabic ? 'لا توجد جلسات كشافة' : 'No scouting sessions found'}
+                {isArabic
+                  ? "لا توجد جلسات كشافة"
+                  : "No scouting sessions found"}
               </p>
             </CardContent>
           </Card>
@@ -410,13 +438,16 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
             const avgSeverity = session.averageSeverity || 0;
             const severityColor =
               avgSeverity >= 4
-                ? 'text-red-600 bg-red-100'
+                ? "text-red-600 bg-red-100"
                 : avgSeverity >= 3
-                ? 'text-orange-600 bg-orange-100'
-                : 'text-green-600 bg-green-100';
+                  ? "text-orange-600 bg-orange-100"
+                  : "text-green-600 bg-green-100";
 
             return (
-              <Card key={session.id} className="hover:shadow-lg transition-shadow">
+              <Card
+                key={session.id}
+                className="hover:shadow-lg transition-shadow"
+              >
                 <CardContent className="p-6">
                   {/* Session Header */}
                   <div className="flex items-start justify-between">
@@ -434,16 +465,20 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           <span>
-                            {format(new Date(session.startTime), 'MMM dd, yyyy', {
-                              locale: isArabic ? undefined : undefined,
-                            })}
+                            {format(
+                              new Date(session.startTime),
+                              "MMM dd, yyyy",
+                              {
+                                locale: isArabic ? undefined : undefined,
+                              },
+                            )}
                           </span>
                         </div>
                         {session.duration && (
                           <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
                             <span>
-                              {session.duration} {isArabic ? 'دقيقة' : 'min'}
+                              {session.duration} {isArabic ? "دقيقة" : "min"}
                             </span>
                           </div>
                         )}
@@ -451,18 +486,26 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
 
                       {/* Stats */}
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="default" className="bg-blue-100 text-blue-800">
-                          {session.observationsCount} {isArabic ? 'ملاحظة' : 'observations'}
+                        <Badge
+                          variant="default"
+                          className="bg-blue-100 text-blue-800"
+                        >
+                          {session.observationsCount}{" "}
+                          {isArabic ? "ملاحظة" : "observations"}
                         </Badge>
 
                         {avgSeverity > 0 && (
                           <Badge variant="default" className={severityColor}>
-                            {isArabic ? 'الشدة المتوسطة:' : 'Avg Severity:'} {avgSeverity.toFixed(1)}
+                            {isArabic ? "الشدة المتوسطة:" : "Avg Severity:"}{" "}
+                            {avgSeverity.toFixed(1)}
                           </Badge>
                         )}
 
                         {session.scoutName && (
-                          <Badge variant="default" className="bg-gray-100 text-gray-800">
+                          <Badge
+                            variant="default"
+                            className="bg-gray-100 text-gray-800"
+                          >
                             {session.scoutName}
                           </Badge>
                         )}
@@ -499,7 +542,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                           onClick={() => onSelectSession(session.id)}
                         >
                           <Eye className="w-4 h-4 mr-2" />
-                          {isArabic ? 'عرض' : 'View'}
+                          {isArabic ? "عرض" : "View"}
                         </Button>
                       )}
                     </div>
@@ -509,38 +552,44 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                   {isExpanded && (
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       {/* Category Breakdown */}
-                      {session.categoryCounts && Object.keys(session.categoryCounts).length > 0 && (
-                        <div className="mb-4">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                            {isArabic ? 'تفصيل الفئات' : 'Category Breakdown'}
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {Object.entries(session.categoryCounts).map(([category, count]) => {
-                              const categoryOption = CATEGORY_OPTIONS.find(
-                                (opt) => opt.value === category
-                              );
-                              return (
-                                <Badge
-                                  key={category}
-                                  variant="default"
-                                  style={{
-                                    backgroundColor: `${categoryOption?.color}20`,
-                                    color: categoryOption?.color,
-                                  }}
-                                >
-                                  {isArabic ? categoryOption?.labelAr : categoryOption?.label}: {count}
-                                </Badge>
-                              );
-                            })}
+                      {session.categoryCounts &&
+                        Object.keys(session.categoryCounts).length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                              {isArabic ? "تفصيل الفئات" : "Category Breakdown"}
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {Object.entries(session.categoryCounts).map(
+                                ([category, count]) => {
+                                  const categoryOption = CATEGORY_OPTIONS.find(
+                                    (opt) => opt.value === category,
+                                  );
+                                  return (
+                                    <Badge
+                                      key={category}
+                                      variant="default"
+                                      style={{
+                                        backgroundColor: `${categoryOption?.color}20`,
+                                        color: categoryOption?.color,
+                                      }}
+                                    >
+                                      {isArabic
+                                        ? categoryOption?.labelAr
+                                        : categoryOption?.label}
+                                      : {count}
+                                    </Badge>
+                                  );
+                                },
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {/* Notes */}
                       {(session.notes || session.notesAr) && (
                         <div>
                           <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                            {isArabic ? 'ملاحظات' : 'Notes'}
+                            {isArabic ? "ملاحظات" : "Notes"}
                           </h4>
                           <p className="text-sm text-gray-600">
                             {isArabic ? session.notesAr : session.notes}
@@ -552,17 +601,19 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
                       {session.weather && (
                         <div className="mt-3">
                           <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                            {isArabic ? 'الطقس' : 'Weather'}
+                            {isArabic ? "الطقس" : "Weather"}
                           </h4>
                           <div className="flex gap-4 text-sm text-gray-600">
                             {session.weather.temperature && (
                               <span>
-                                {isArabic ? 'الحرارة:' : 'Temperature:'} {session.weather.temperature}°C
+                                {isArabic ? "الحرارة:" : "Temperature:"}{" "}
+                                {session.weather.temperature}°C
                               </span>
                             )}
                             {session.weather.humidity && (
                               <span>
-                                {isArabic ? 'الرطوبة:' : 'Humidity:'} {session.weather.humidity}%
+                                {isArabic ? "الرطوبة:" : "Humidity:"}{" "}
+                                {session.weather.humidity}%
                               </span>
                             )}
                             {session.weather.conditions && (

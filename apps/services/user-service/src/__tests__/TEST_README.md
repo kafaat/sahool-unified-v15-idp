@@ -5,15 +5,18 @@ Comprehensive test coverage for the SAHOOL user service, including unit tests fo
 ## Test Files
 
 ### 1. `user.service.spec.ts`
+
 Comprehensive tests for the UsersService class covering all user management operations:
 
 **Test Categories:**
 
 #### User Service Initialization
+
 - Service dependency injection
 - PrismaService availability
 
 #### User Creation (`create`)
+
 - ✅ Creating new users successfully
 - ✅ Password hashing with bcrypt
 - ✅ Conflict detection for duplicate emails
@@ -22,6 +25,7 @@ Comprehensive tests for the UsersService class covering all user management oper
 - ✅ Multi-tenant user creation
 
 #### User Retrieval (`findAll`)
+
 - ✅ Paginated user listing
 - ✅ Filtering by tenant ID
 - ✅ Filtering by role
@@ -31,6 +35,7 @@ Comprehensive tests for the UsersService class covering all user management oper
 - ✅ Empty result handling
 
 #### Single User Retrieval (`findOne`, `findByEmail`)
+
 - ✅ Getting user by ID
 - ✅ Getting user by email
 - ✅ Not found error handling
@@ -38,6 +43,7 @@ Comprehensive tests for the UsersService class covering all user management oper
 - ✅ Including active sessions
 
 #### User Updates (`update`)
+
 - ✅ Updating user information
 - ✅ Password change and hashing
 - ✅ Email conflict checking
@@ -46,34 +52,41 @@ Comprehensive tests for the UsersService class covering all user management oper
 - ✅ Undefined field removal
 
 #### User Deletion
+
 - ✅ Soft delete (status change to INACTIVE)
 - ✅ Hard delete (permanent removal, admin only)
 - ✅ Not found error handling
 
 #### Password Operations (`verifyPassword`)
+
 - ✅ Correct password verification
 - ✅ Incorrect password handling
 - ✅ User not found errors
 
 #### Utility Operations
+
 - ✅ Last login timestamp updates
 - ✅ User count by tenant
 - ✅ Active users count
 
 #### Error Handling
+
 - ✅ Database connection errors
 - ✅ Bcrypt hashing errors
 - ✅ Graceful error handling
 
 #### Security & Data Sanitization
+
 - ✅ Password hash exclusion from responses
 - ✅ Sensitive data protection
 
 #### Multi-tenant Support
+
 - ✅ Tenant isolation in queries
 - ✅ Tenant ID requirement for user creation
 
 **Coverage:**
+
 - **Total Test Cases**: 55+
 - **Code Coverage**: >90%
 - **Lines Covered**: All service methods
@@ -149,20 +162,20 @@ start coverage/lcov-report/index.html  # Windows
 
 ```javascript
 module.exports = {
-  moduleFileExtensions: ['js', 'json', 'ts'],
-  rootDir: 'src',
-  testRegex: '.*\\.spec\\.ts$',
+  moduleFileExtensions: ["js", "json", "ts"],
+  rootDir: "src",
+  testRegex: ".*\\.spec\\.ts$",
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
+    "^.+\\.(t|j)s$": "ts-jest",
   },
   collectCoverageFrom: [
-    '**/*.(t|j)s',
-    '!**/*.spec.ts',
-    '!**/node_modules/**',
-    '!**/dist/**',
+    "**/*.(t|j)s",
+    "!**/*.spec.ts",
+    "!**/node_modules/**",
+    "!**/dist/**",
   ],
-  coverageDirectory: '../coverage',
-  testEnvironment: 'node',
+  coverageDirectory: "../coverage",
+  testEnvironment: "node",
   coverageThreshold: {
     global: {
       branches: 80,
@@ -213,18 +226,20 @@ Standard mock user object used across tests:
 
 ```typescript
 const mockUser = {
-  id: 'user-123',
-  tenantId: 'tenant-1',
-  email: 'test@example.com',
-  phone: '+967771234567',
-  passwordHash: 'hashed_password',
-  firstName: 'أحمد',
-  lastName: 'علي',
-  role: 'FARMER',
+  id: "user-123",
+  tenantId: "tenant-1",
+  email: "test@example.com",
+  phone: "+967771234567",
+  passwordHash: "hashed_password",
+  firstName: "أحمد",
+  lastName: "علي",
+  role: "FARMER",
   status: UserStatus.ACTIVE,
   emailVerified: true,
   phoneVerified: false,
-  profile: { /* ... */ },
+  profile: {
+    /* ... */
+  },
 };
 ```
 
@@ -233,9 +248,11 @@ const mockUser = {
 ### 1. Test Structure (AAA Pattern)
 
 ```typescript
-it('should create a new user successfully', async () => {
+it("should create a new user successfully", async () => {
   // Arrange
-  const createUserDto: CreateUserDto = { /* ... */ };
+  const createUserDto: CreateUserDto = {
+    /* ... */
+  };
   mockPrismaService.user.findUnique.mockResolvedValue(null);
   mockPrismaService.user.create.mockResolvedValue(mockUser);
 
@@ -264,7 +281,7 @@ beforeEach(async () => {
 Use `async/await` for asynchronous operations:
 
 ```typescript
-it('should handle async operations', async () => {
+it("should handle async operations", async () => {
   const result = await service.someAsyncMethod();
   expect(result).toBeDefined();
 });
@@ -275,11 +292,12 @@ it('should handle async operations', async () => {
 Test both success and error paths:
 
 ```typescript
-it('should throw NotFoundException if user not found', async () => {
+it("should throw NotFoundException if user not found", async () => {
   mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-  await expect(service.findOne('non-existent-id'))
-    .rejects.toThrow(NotFoundException);
+  await expect(service.findOne("non-existent-id")).rejects.toThrow(
+    NotFoundException,
+  );
 });
 ```
 
@@ -288,8 +306,9 @@ it('should throw NotFoundException if user not found', async () => {
 Use spies to verify function calls:
 
 ```typescript
-const hashSpy = jest.spyOn(bcrypt, 'hash')
-  .mockImplementation(() => Promise.resolve('hashed_password'));
+const hashSpy = jest
+  .spyOn(bcrypt, "hash")
+  .mockImplementation(() => Promise.resolve("hashed_password"));
 
 await service.create(createUserDto);
 
@@ -315,7 +334,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Install dependencies
         run: |
@@ -335,28 +354,38 @@ jobs:
 
 ## Coverage Goals
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Statements | >90% | 95%+ |
-| Branches | >85% | 90%+ |
-| Functions | >90% | 95%+ |
-| Lines | >90% | 95%+ |
+| Metric     | Target | Current |
+| ---------- | ------ | ------- |
+| Statements | >90%   | 95%+    |
+| Branches   | >85%   | 90%+    |
+| Functions  | >90%   | 95%+    |
+| Lines      | >90%   | 95%+    |
 
 ## Common Test Patterns
 
 ### Testing CRUD Operations
 
 ```typescript
-describe('CRUD Operations', () => {
-  describe('Create', () => {
-    it('should create entity', async () => { /* ... */ });
-    it('should validate input', async () => { /* ... */ });
-    it('should handle conflicts', async () => { /* ... */ });
+describe("CRUD Operations", () => {
+  describe("Create", () => {
+    it("should create entity", async () => {
+      /* ... */
+    });
+    it("should validate input", async () => {
+      /* ... */
+    });
+    it("should handle conflicts", async () => {
+      /* ... */
+    });
   });
 
-  describe('Read', () => {
-    it('should find entity', async () => { /* ... */ });
-    it('should handle not found', async () => { /* ... */ });
+  describe("Read", () => {
+    it("should find entity", async () => {
+      /* ... */
+    });
+    it("should handle not found", async () => {
+      /* ... */
+    });
   });
 
   // ... Update, Delete
@@ -366,28 +395,27 @@ describe('CRUD Operations', () => {
 ### Testing Validation
 
 ```typescript
-it('should validate email format', async () => {
-  const invalidDto = { email: 'invalid-email' };
+it("should validate email format", async () => {
+  const invalidDto = { email: "invalid-email" };
 
-  await expect(service.create(invalidDto))
-    .rejects.toThrow(ValidationException);
+  await expect(service.create(invalidDto)).rejects.toThrow(ValidationException);
 });
 ```
 
 ### Testing Security
 
 ```typescript
-describe('Security', () => {
-  it('should hash passwords', async () => {
-    const hashSpy = jest.spyOn(bcrypt, 'hash');
+describe("Security", () => {
+  it("should hash passwords", async () => {
+    const hashSpy = jest.spyOn(bcrypt, "hash");
 
     await service.create(createUserDto);
 
     expect(hashSpy).toHaveBeenCalled();
   });
 
-  it('should not expose password hash', async () => {
-    const result = await service.findOne('user-123');
+  it("should not expose password hash", async () => {
+    const result = await service.findOne("user-123");
 
     expect(result.passwordHash).toBeUndefined();
   });
@@ -427,6 +455,7 @@ Add to `.vscode/launch.json`:
 ### Common Issues
 
 1. **Module Not Found**
+
    ```bash
    # Clear cache and reinstall
    rm -rf node_modules package-lock.json
@@ -434,6 +463,7 @@ Add to `.vscode/launch.json`:
    ```
 
 2. **TypeScript Errors**
+
    ```bash
    # Ensure ts-jest is installed
    npm install --save-dev ts-jest @types/jest
@@ -445,7 +475,7 @@ Add to `.vscode/launch.json`:
 
 4. **Async Test Timeout**
    ```typescript
-   it('should handle long operation', async () => {
+   it("should handle long operation", async () => {
      // ...
    }, 10000); // 10 second timeout
    ```
@@ -467,21 +497,28 @@ Current metrics for `user.service.spec.ts`:
 When adding new features to UsersService:
 
 1. **Create test first** (TDD approach):
+
    ```typescript
-   it('should do new thing', async () => {
+   it("should do new thing", async () => {
      // Test implementation
    });
    ```
 
 2. **Add to appropriate describe block**:
+
    ```typescript
-   describe('New Feature', () => {
-     it('should work correctly', async () => { /* ... */ });
-     it('should handle errors', async () => { /* ... */ });
+   describe("New Feature", () => {
+     it("should work correctly", async () => {
+       /* ... */
+     });
+     it("should handle errors", async () => {
+       /* ... */
+     });
    });
    ```
 
 3. **Update mocks if needed**:
+
    ```typescript
    mockPrismaService.user.newMethod = jest.fn();
    ```

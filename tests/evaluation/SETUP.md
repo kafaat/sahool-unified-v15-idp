@@ -1,4 +1,5 @@
 # Agent Evaluation Pipeline Setup Guide
+
 # دليل إعداد خط أنابيب تقييم الوكلاء
 
 Complete setup guide for the SAHOOL Agent Evaluation Pipeline.
@@ -48,6 +49,7 @@ tree -L 2
 ```
 
 Expected structure:
+
 ```
 tests/evaluation/
 ├── README.md
@@ -77,6 +79,7 @@ python scripts/create_golden_dataset.py
 ```
 
 Output:
+
 ```
 ✅ Created golden dataset with 6 test cases
 📁 Saved to: datasets/golden_dataset.json
@@ -95,6 +98,7 @@ python scripts/validate_dataset.py
 ```
 
 You should see:
+
 ```
 ✅ Validation PASSED
 ```
@@ -164,11 +168,13 @@ pytest ../../../tests/evaluation/ \
 ### CI/CD Evaluation
 
 The GitHub Actions workflow automatically runs on:
+
 - Pull requests to main/develop
 - Changes to `apps/services/ai-advisor/**`
 - Changes to `tests/evaluation/**`
 
 Manual trigger:
+
 ```bash
 # Using GitHub CLI
 gh workflow run agent-evaluation.yml
@@ -245,6 +251,7 @@ python ../../../tests/evaluation/scripts/compare_with_baseline.py \
 ```
 
 2. Validate:
+
 ```bash
 python scripts/validate_dataset.py
 ```
@@ -284,6 +291,7 @@ class SimilarityCalculator:
 **Problem**: Cannot import evaluation modules
 
 **Solution**:
+
 ```bash
 # Add to PYTHONPATH
 export PYTHONPATH=/home/user/sahool-unified-v15-idp:$PYTHONPATH
@@ -298,6 +306,7 @@ pip install -e .
 **Problem**: Model download fails or is slow
 
 **Solution**:
+
 ```python
 # Pre-download the model
 from sentence_transformers import SentenceTransformer
@@ -305,6 +314,7 @@ model = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
 ```
 
 Or set cache directory:
+
 ```bash
 export TRANSFORMERS_CACHE=/path/to/cache
 export SENTENCE_TRANSFORMERS_HOME=/path/to/cache
@@ -315,6 +325,7 @@ export SENTENCE_TRANSFORMERS_HOME=/path/to/cache
 **Problem**: Tests fail due to API rate limits
 
 **Solution**:
+
 1. Use mocked responses for rapid testing
 2. Implement rate limiting in tests
 3. Use local models when possible
@@ -324,6 +335,7 @@ export SENTENCE_TRANSFORMERS_HOME=/path/to/cache
 **Problem**: All tests failing with low similarity
 
 **Solution**:
+
 1. Check expected outputs are realistic
 2. Verify similarity calculation method
 3. Review agent prompt quality
@@ -334,6 +346,7 @@ export SENTENCE_TRANSFORMERS_HOME=/path/to/cache
 **Problem**: Tests timeout or fail latency checks
 
 **Solution**:
+
 1. Increase timeout in `pytest.ini`
 2. Optimize agent code
 3. Check network connectivity
@@ -352,6 +365,7 @@ pytest ../../../tests/evaluation/ -v
 ### 2. Keep Golden Dataset Updated
 
 Regularly review and update golden dataset with:
+
 - New use cases
 - Edge cases
 - Real user queries
@@ -360,6 +374,7 @@ Regularly review and update golden dataset with:
 ### 3. Monitor Baseline Drift
 
 Review baseline comparisons to understand:
+
 - Performance trends
 - Impact of changes
 - Regression sources
@@ -367,6 +382,7 @@ Review baseline comparisons to understand:
 ### 4. Document Changes
 
 When modifying evaluation:
+
 - Update README.md
 - Document threshold changes
 - Explain new test cases

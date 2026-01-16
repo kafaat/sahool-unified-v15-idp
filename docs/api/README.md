@@ -1,4 +1,5 @@
 # SAHOOL Platform API Documentation
+
 ## دليل واجهات برمجة التطبيقات لمنصة SAHOOL
 
 **Version:** 16.0.0
@@ -62,9 +63,11 @@ The SAHOOL Platform provides a comprehensive set of REST APIs for managing agric
 We provide OpenAPI 3.0 specifications for all our services:
 
 ### Core Services API
+
 **File**: [`openapi/core-services.yaml`](./openapi/core-services.yaml)
 
 **Services Included**:
+
 - **Authentication API**: Login, logout, token refresh
 - **User Management API**: CRUD operations for user accounts
 - **Notification Service API**: Push notifications, SMS, email, in-app alerts
@@ -73,15 +76,77 @@ We provide OpenAPI 3.0 specifications for all our services:
 **Base URL**: `https://api.sahool.sa/v1`
 
 ### Field Services API
+
 **File**: [`openapi/field-services.yaml`](./openapi/field-services.yaml)
 
 **Services Included**:
+
 - **Field Management API**: Create, read, update, delete fields
 - **NDVI Tracking API**: Vegetation index monitoring
 - **Pest Management API**: Pest incident reporting and treatment tracking
 - **Geospatial API**: Location-based queries
 
 **Base URL**: `https://api.sahool.sa/v1`
+
+---
+
+## Platform Endpoints
+
+The SAHOOL API Gateway provides several platform-level endpoints for monitoring and information.
+
+### Root Endpoint
+
+Get information about the SAHOOL platform.
+
+**Endpoint**: `GET /`
+
+**Authentication**: None required
+
+**Example Request**:
+
+```bash
+curl -X GET http://localhost:8000/
+```
+
+**Response** (200 OK):
+
+```json
+{
+  "platform": "SAHOOL",
+  "version": "16.0.0",
+  "description": "National Agricultural Intelligence Platform",
+  "status": "operational",
+  "endpoints": {
+    "/health": "Health check",
+    "/ping": "Ping check",
+    "/api/v1": "API Gateway"
+  },
+  "documentation": "https://github.com/kafaat/sahool-unified-v15-idp"
+}
+```
+
+### Health Check Endpoints
+
+Check the health status of the API Gateway.
+
+**Endpoints**:
+
+- `GET /health`
+- `GET /ping`
+
+**Authentication**: None required
+
+**Example Request**:
+
+```bash
+curl -X GET http://localhost:8000/health
+```
+
+**Response** (200 OK):
+
+```
+SAHOOL Platform is healthy
+```
 
 ---
 
@@ -103,6 +168,7 @@ curl -X POST https://api.sahool.sa/v1/auth/login \
 ```
 
 **Response**:
+
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -157,27 +223,27 @@ Here's a complete example of authenticating and retrieving your fields:
 
 ```javascript
 // 1. Login
-const loginResponse = await fetch('https://api.sahool.sa/v1/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const loginResponse = await fetch("https://api.sahool.sa/v1/auth/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    email: 'user@sahool.com',
-    password: 'your-password'
-  })
+    email: "user@sahool.com",
+    password: "your-password",
+  }),
 });
 
 const { access_token, user } = await loginResponse.json();
 
 // 2. Get Fields
-const fieldsResponse = await fetch('https://api.sahool.sa/v1/fields', {
+const fieldsResponse = await fetch("https://api.sahool.sa/v1/fields", {
   headers: {
-    'Authorization': `Bearer ${access_token}`,
-    'X-Tenant-ID': user.tenantId
-  }
+    Authorization: `Bearer ${access_token}`,
+    "X-Tenant-ID": user.tenantId,
+  },
 });
 
 const fields = await fieldsResponse.json();
-console.log('My Fields:', fields.data);
+console.log("My Fields:", fields.data);
 ```
 
 ### Python Example
@@ -217,12 +283,12 @@ print('My Fields:', fields['data'])
 
 API requests are rate-limited based on your subscription tier:
 
-| Tier | Requests per Minute | Requests per Hour |
-|------|---------------------|-------------------|
-| Free | 30 | 1,000 |
-| Standard | 60 | 3,000 |
-| Premium | 120 | 10,000 |
-| Enterprise | Custom | Custom |
+| Tier       | Requests per Minute | Requests per Hour |
+| ---------- | ------------------- | ----------------- |
+| Free       | 30                  | 1,000             |
+| Standard   | 60                  | 3,000             |
+| Premium    | 120                 | 10,000            |
+| Enterprise | Custom              | Custom            |
 
 ### Rate Limit Headers
 
@@ -248,6 +314,7 @@ When you exceed the rate limit, you'll receive a `429 Too Many Requests` respons
 ```
 
 **Best Practices**:
+
 - Implement exponential backoff
 - Cache responses when possible
 - Use webhooks for real-time updates instead of polling
@@ -278,19 +345,19 @@ All API errors follow a consistent format:
 
 ### Common HTTP Status Codes
 
-| Code | Meaning | Description |
-|------|---------|-------------|
-| 200 | OK | Request successful |
-| 201 | Created | Resource created successfully |
-| 204 | No Content | Request successful, no content to return |
-| 400 | Bad Request | Invalid request parameters |
-| 401 | Unauthorized | Authentication required or failed |
-| 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Resource not found |
-| 409 | Conflict | Resource conflict (e.g., duplicate) |
-| 429 | Too Many Requests | Rate limit exceeded |
-| 500 | Internal Server Error | Server-side error |
-| 503 | Service Unavailable | Service temporarily unavailable |
+| Code | Meaning               | Description                              |
+| ---- | --------------------- | ---------------------------------------- |
+| 200  | OK                    | Request successful                       |
+| 201  | Created               | Resource created successfully            |
+| 204  | No Content            | Request successful, no content to return |
+| 400  | Bad Request           | Invalid request parameters               |
+| 401  | Unauthorized          | Authentication required or failed        |
+| 403  | Forbidden             | Insufficient permissions                 |
+| 404  | Not Found             | Resource not found                       |
+| 409  | Conflict              | Resource conflict (e.g., duplicate)      |
+| 429  | Too Many Requests     | Rate limit exceeded                      |
+| 500  | Internal Server Error | Server-side error                        |
+| 503  | Service Unavailable   | Service temporarily unavailable          |
 
 ---
 
@@ -355,6 +422,7 @@ curl -X POST https://api.sahool.sa/v1/pests/incidents \
 ### Swagger UI
 
 Interactive API documentation is available at:
+
 - **Production**: [https://api.sahool.sa/docs](https://api.sahool.sa/docs)
 - **Staging**: [https://staging-api.sahool.sa/docs](https://staging-api.sahool.sa/docs)
 
@@ -365,6 +433,7 @@ Import our Postman collection: [SAHOOL.postman_collection.json](./SAHOOL.postman
 ### SDKs
 
 Official SDKs:
+
 - **JavaScript/TypeScript**: [`@sahool/api-client`](../../packages/api-client)
 - **Python**: Coming soon
 
@@ -374,75 +443,81 @@ Official SDKs:
 
 ### Base URLs | عناوين URL الأساسية
 
-| Service | Port | Base URL |
-|---------|------|----------|
-| SAHOOL Field Service | 3000 | http://localhost:3000 |
-| SAHOOL Agent Registry Service | 8000 | http://localhost:8000 |
-| AI Advisor Service | 8000 | http://localhost:8000 |
-| SAHOOL Field Chat | 8000 | http://localhost:8000 |
-| Sahool Virtual Sensors Engine | 8000 | http://localhost:8000 |
-| SAHOOL Field Operations | 8080 | http://localhost:8080 |
-| SAHOOL WebSocket Gateway | 8081 | http://localhost:8081 |
-| SAHOOL Billing Core | خدمة الفوترة | 8089 | http://localhost:8089 |
-| SAHOOL Field Core | 8090 | http://localhost:8090 |
-| SAHOOL Field Core | 8090 | http://localhost:8090 |
-| SAHOOL Satellite Service | خدمة الأقمار الصناعية | 8090 | http://localhost:8090 |
-| SAHOOL Satellite Service | خدمة الأقمار الصناعية | 8090 | http://localhost:8090 |
-| SAHOOL Agricultural Indicators | خدمة المؤشرات الزراعية | 8091 | http://localhost:8091 |
-| SAHOOL Advanced Weather Service | خدمة الطقس المتقدمة | 8092 | http://localhost:8092 |
-| SAHOOL Fertilizer Advisor | مستشار السماد | 8093 | http://localhost:8093 |
-| SAHOOL Smart Irrigation Service | خدمة الري الذكي | 8094 | http://localhost:8094 |
-| SAHOOL Agro Advisor | 8095 | http://localhost:8095 |
-| SAHOOL Agro Advisor | 8095 | http://localhost:8095 |
-| سهول فيجن - Sahool Vision | 8095 | http://localhost:8095 |
-| SAHOOL Crop Health Service | 8095 | http://localhost:8095 |
-| SAHOOL NDVI Engine | 8097 | http://localhost:8097 |
-| محرك سهول للتنبؤ بالإنتاجية | 8098 | http://localhost:8098 |
-| SAHOOL Crop Health Service | 8100 | http://localhost:8100 |
-| SAHOOL Equipment Service | 8101 | http://localhost:8101 |
-| SAHOOL NDVI Processor | 8101 | http://localhost:8101 |
-| SAHOOL Task Service | 8103 | http://localhost:8103 |
-| SAHOOL Provider Configuration Service | 8104 | http://localhost:8104 |
-| SAHOOL IoT Gateway | 8106 | http://localhost:8106 |
-| SAHOOL Weather Core | 8108 | http://localhost:8108 |
-| SAHOOL Weather Core | 8108 | http://localhost:8108 |
-| SAHOOL Notification Service | خدمة الإشعارات | 8110 | http://localhost:8110 |
-| SAHOOL Astronomical Calendar Service | 8111 | http://localhost:8111 |
-| SAHOOL Alert Service | 8113 | http://localhost:8113 |
-| SAHOOL Inventory Service | 8116 | http://localhost:8116 |
-| SAHOOL GlobalGAP Compliance Service | 8120 | http://localhost:8120 |
-| SAHOOL AI Agents Core | 8120 | http://localhost:8120 |
-| SAHOOL MCP Server | 8200 | http://localhost:8200 |
+| Service                               | Port                   | Base URL              |
+| ------------------------------------- | ---------------------- | --------------------- | --------------------- |
+| SAHOOL Field Service                  | 3000                   | http://localhost:3000 |
+| SAHOOL Agent Registry Service         | 8000                   | http://localhost:8000 |
+| AI Advisor Service                    | 8000                   | http://localhost:8000 |
+| SAHOOL Field Chat                     | 8000                   | http://localhost:8000 |
+| Sahool Virtual Sensors Engine         | 8000                   | http://localhost:8000 |
+| SAHOOL Field Operations               | 8080                   | http://localhost:8080 |
+| SAHOOL WebSocket Gateway              | 8081                   | http://localhost:8081 |
+| SAHOOL Billing Core                   | خدمة الفوترة           | 8089                  | http://localhost:8089 |
+| SAHOOL Field Core                     | 8090                   | http://localhost:8090 |
+| SAHOOL Field Core                     | 8090                   | http://localhost:8090 |
+| SAHOOL Satellite Service              | خدمة الأقمار الصناعية  | 8090                  | http://localhost:8090 |
+| SAHOOL Satellite Service              | خدمة الأقمار الصناعية  | 8090                  | http://localhost:8090 |
+| SAHOOL Agricultural Indicators        | خدمة المؤشرات الزراعية | 8091                  | http://localhost:8091 |
+| SAHOOL Advanced Weather Service       | خدمة الطقس المتقدمة    | 8092                  | http://localhost:8092 |
+| SAHOOL Fertilizer Advisor             | مستشار السماد          | 8093                  | http://localhost:8093 |
+| SAHOOL Smart Irrigation Service       | خدمة الري الذكي        | 8094                  | http://localhost:8094 |
+| SAHOOL Agro Advisor                   | 8095                   | http://localhost:8095 |
+| SAHOOL Agro Advisor                   | 8095                   | http://localhost:8095 |
+| سهول فيجن - Sahool Vision             | 8095                   | http://localhost:8095 |
+| SAHOOL Crop Health Service            | 8095                   | http://localhost:8095 |
+| SAHOOL NDVI Engine                    | 8097                   | http://localhost:8097 |
+| محرك سهول للتنبؤ بالإنتاجية           | 8098                   | http://localhost:8098 |
+| SAHOOL Crop Health Service            | 8100                   | http://localhost:8100 |
+| SAHOOL Equipment Service              | 8101                   | http://localhost:8101 |
+| SAHOOL NDVI Processor                 | 8101                   | http://localhost:8101 |
+| SAHOOL Task Service                   | 8103                   | http://localhost:8103 |
+| SAHOOL Provider Configuration Service | 8104                   | http://localhost:8104 |
+| SAHOOL IoT Gateway                    | 8106                   | http://localhost:8106 |
+| SAHOOL Weather Core                   | 8108                   | http://localhost:8108 |
+| SAHOOL Weather Core                   | 8108                   | http://localhost:8108 |
+| SAHOOL Notification Service           | خدمة الإشعارات         | 8110                  | http://localhost:8110 |
+| SAHOOL Astronomical Calendar Service  | 8111                   | http://localhost:8111 |
+| SAHOOL Alert Service                  | 8113                   | http://localhost:8113 |
+| SAHOOL Inventory Service              | 8116                   | http://localhost:8116 |
+| SAHOOL GlobalGAP Compliance Service   | 8120                   | http://localhost:8120 |
+| SAHOOL AI Agents Core                 | 8120                   | http://localhost:8120 |
+| SAHOOL MCP Server                     | 8200                   | http://localhost:8200 |
 
 ## API Categories | تصنيفات API
 
 ### 1. [Authentication APIs](./authentication.md) | واجهات المصادقة
+
 - User login and registration
 - Token management
 - Password reset
 
 ### 2. [Field Management APIs](./fields.md) | واجهات إدارة الحقول
+
 - Field CRUD operations
 - Crop profitability analysis
 - Field boundaries and mapping
 
 ### 3. [Sensor/IoT APIs](./sensors.md) | واجهات أجهزة الاستشعار
+
 - IoT gateway integration
 - Virtual sensors
 - Sensor data retrieval
 
 ### 4. [Weather APIs](./weather.md) | واجهات الطقس
+
 - Current weather conditions
 - Weather forecasts
 - Weather alerts and warnings
 
 ### 5. [AI/Analysis APIs](./ai.md) | واجهات الذكاء الاصطناعي
+
 - AI advisor and recommendations
 - Crop health analysis
 - Disease detection
 - Yield prediction
 
 ### 6. [Satellite APIs](./satellite.md) | واجهات الأقمار الصناعية
+
 - NDVI analysis
 - Vegetation indices
 - Field boundary detection
@@ -472,6 +547,7 @@ GET /api/v1/resource?page=1&limit=20
 ```
 
 Response includes:
+
 ```json
 {
   "items": [],
@@ -485,11 +561,13 @@ Response includes:
 ### Rate Limiting | حدود المعدل
 
 Rate limits are enforced per user/IP:
+
 - Standard endpoints: 60 requests/minute
 - Authentication endpoints: 5 requests/minute
 - Heavy operations: 10 requests/minute
 
 Headers:
+
 - `X-RateLimit-Limit`: Maximum requests
 - `X-RateLimit-Remaining`: Remaining requests
 - `X-RateLimit-Reset`: Reset time
@@ -499,82 +577,68 @@ Headers:
 Total Services: 37
 Total Endpoints: 392
 
-
 ### Authentication
 
 Endpoints: 2
-
 
 ### Field Management
 
 Endpoints: 58
 
-
 ### Sensors
 
 Endpoints: 22
-
 
 ### Weather
 
 Endpoints: 19
 
-
 ### Ai Analysis
 
 Endpoints: 79
-
 
 ### Notifications
 
 Endpoints: 22
 
-
 ### Crop Health
 
 Endpoints: 6
-
 
 ### Irrigation
 
 Endpoints: 9
 
-
 ### Satellite
 
 Endpoints: 74
-
 
 ### Tasks
 
 Endpoints: 1
 
-
 ### Equipment
 
 Endpoints: 1
-
 
 ### Inventory
 
 Endpoints: 2
 
-
 ### Billing
 
 Endpoints: 19
 
-
 ### Misc
 
 Endpoints: 78
-
 
 ## OpenAPI Specification | مواصفات OpenAPI
 
 Full OpenAPI 3.0 specification: [openapi.json](./openapi.json)
 
 Import into:
+
 - Swagger UI
 - Postman
 - Insomnia
@@ -585,6 +649,7 @@ Import into:
 Download: [SAHOOL.postman_collection.json](./SAHOOL.postman_collection.json)
 
 Includes:
+
 - Pre-configured requests for all endpoints
 - Environment variables
 - Authentication setup
@@ -632,6 +697,7 @@ Includes:
 ## Changelog
 
 ### Version 16.0.0 (2026-01-07)
+
 - ✨ Added comprehensive OpenAPI 3.0 specifications
 - ✨ Enhanced alert service with new endpoints
 - ✨ Improved notification service with multi-channel support
@@ -639,6 +705,7 @@ Includes:
 - 📚 Complete API documentation overhaul
 
 ### Version 15.3.0 (2024-12-01)
+
 - ✨ Added geospatial query endpoints
 - ✨ Enhanced pest management API
 - 🐛 Fixed NDVI data retrieval issues

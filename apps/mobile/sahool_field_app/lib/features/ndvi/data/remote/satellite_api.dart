@@ -5,7 +5,7 @@ import '../../../core/config/api_config.dart';
 /// NDVI/Satellite Service API Integration
 /// تكامل خدمة صور الأقمار الصناعية ومؤشر NDVI
 ///
-/// Port: 8090
+/// Routes through Kong Gateway: /api/v1/satellite/*
 /// Features: Field imagery, NDVI analysis, time-series data
 class SatelliteApi {
   final Dio _dio;
@@ -13,7 +13,7 @@ class SatelliteApi {
 
   SatelliteApi({Dio? dio, String? baseUrl})
       : _dio = dio ?? Dio(),
-        _baseUrl = baseUrl ?? '${ApiConfig.baseUrl}:8090';
+        _baseUrl = baseUrl ?? '${ApiConfig.baseUrl}/api/v1/satellite';
 
   // ─────────────────────────────────────────────────────────────────────────
   // Field Imagery - صور الحقول

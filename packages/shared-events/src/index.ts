@@ -11,7 +11,7 @@ export {
   NatsClientConfig,
   initializeNatsClient,
   getNatsConnection,
-} from './nats-client';
+} from "./nats-client";
 
 // Export event type definitions
 export {
@@ -52,7 +52,7 @@ export {
   // Notification events
   NotificationEvent,
   NotificationSendEvent,
-} from './events';
+} from "./events";
 
 // Export publisher functions
 export {
@@ -84,7 +84,7 @@ export {
 
   // Notification publishers
   publishNotificationSend,
-} from './publisher';
+} from "./publisher";
 
 // Export subscriber functions
 export {
@@ -106,4 +106,4 @@ export {
 
   // Utilities
   createLoggingHandler,
-} from './subscriber';
+} from "./subscriber";

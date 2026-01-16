@@ -5,16 +5,16 @@ services:
       context: ../../apps/services/disaster-assessment
       dockerfile: Dockerfile
     ports:
-    - 3001:3001
+    - 3020:3020
     environment:
-    - PORT=3001
+    - PORT=3020
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3001/health
+      - http://localhost:3020/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -32,16 +32,16 @@ services:
       context: ../../apps/services/lai-estimation
       dockerfile: Dockerfile
     ports:
-    - 3002:3002
+    - 3022:3022
     environment:
-    - PORT=3002
+    - PORT=3022
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3002/health
+      - http://localhost:3022/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -84,6 +84,58 @@ services:
       context: ../../apps/services/crop-health-ai
       dockerfile: Dockerfile
     ports:
+    - 9095:9095
+    environment:
+    - PORT=9095
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9095/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '800'
+          memory: 1Gi
+    depends_on:
+    - satellite-service
+  agro-rules:
+    build:
+      context: ../../apps/services/agro-rules
+      dockerfile: Dockerfile
+    ports:
+    - 8151:8151
+    environment:
+    - PORT=8151
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8151/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+    depends_on:
+    - nats
+  crop-intelligence-service:
+    build:
+      context: ../../apps/services/crop-intelligence-service
+      dockerfile: Dockerfile
+    ports:
     - 8095:8095
     environment:
     - PORT=8095
@@ -101,10 +153,118 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '800'
-          memory: 1Gi
+          cpus: '500'
+          memory: 512Mi
     depends_on:
     - satellite-service
+  ndvi-processor:
+    build:
+      context: ../../apps/services/ndvi-processor
+      dockerfile: Dockerfile
+    ports:
+    - 8118:8118
+    environment:
+    - PORT=8118
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8118/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - satellite-service
+  field-intelligence:
+    build:
+      context: ../../apps/services/field-intelligence
+      dockerfile: Dockerfile
+    ports:
+    - 8120:8120
+    environment:
+    - PORT=8120
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8120/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - indicators-service
+  vegetation-analysis-service:
+    build:
+      context: ../../apps/services/vegetation-analysis-service
+      dockerfile: Dockerfile
+    ports:
+    - 8090:8090
+    environment:
+    - PORT=8090
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8090/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  skills-service:
+    build:
+      context: ../../apps/services/skills-service
+      dockerfile: Dockerfile
+    ports:
+    - 8121:8121
+    environment:
+    - PORT=8121
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8121/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
 networks:
   sahool-network:
     driver: bridge

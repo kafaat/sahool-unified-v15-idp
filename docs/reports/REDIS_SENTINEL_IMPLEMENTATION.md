@@ -1,4 +1,5 @@
 # Redis Sentinel High Availability Implementation Summary
+
 # ملخص تنفيذ Redis Sentinel للتوافر العالي
 
 ## نظرة عامة | Overview
@@ -19,13 +20,16 @@
 ### 1. Docker Compose Configuration
 
 #### `/docker-compose.redis-ha.yml` (438 سطر)
+
 ملف Docker Compose الرئيسي يحتوي على:
+
 - **Redis Master** (1 instance) - المخدم الرئيسي
 - **Redis Replicas** (2 instances) - النسخ الاحتياطية
 - **Redis Sentinels** (3 instances) - المراقبين
 - **Redis Exporter** - للمراقبة عبر Prometheus
 
 **الميزات:**
+
 - Health checks متقدمة
 - Resource limits محددة
 - Volume persistence
@@ -37,14 +41,17 @@
 ### 2. Python Client Library
 
 #### `/shared/cache/redis_sentinel.py` (967 سطر)
+
 مكتبة Python كاملة للاتصال بـ Redis Sentinel:
 
 **Classes:**
+
 - `RedisSentinelConfig`: إدارة التكوين
 - `CircuitBreaker`: نمط Circuit Breaker للحماية
 - `RedisSentinelClient`: العميل الرئيسي
 
 **Features:**
+
 - ✅ Connection pooling
 - ✅ Automatic failover handling
 - ✅ Retry logic with exponential backoff
@@ -54,6 +61,7 @@
 - ✅ Comprehensive error handling
 
 **Operations Supported:**
+
 - Basic: `set`, `get`, `delete`, `exists`, `expire`, `ttl`
 - Hash: `hset`, `hget`, `hgetall`, `hdel`
 - List: `lpush`, `rpush`, `lpop`, `rpop`, `lrange`
@@ -62,6 +70,7 @@
 - Pipeline: batch operations
 
 **Example:**
+
 ```python
 from shared.cache import get_redis_client
 
@@ -75,9 +84,11 @@ value = redis.get('key', use_slave=True)
 ### 3. TypeScript Client Library
 
 #### `/shared/cache/redis-sentinel.ts` (873 سطر)
+
 مكتبة TypeScript/Node.js كاملة:
 
 **Classes:**
+
 - `RedisSentinelClient`: العميل الرئيسي
 - `CircuitBreaker`: نمط Circuit Breaker
 - `RateLimiter`: تحديد معدل الطلبات
@@ -85,6 +96,7 @@ value = redis.get('key', use_slave=True)
 - `SessionManager`: إدارة الجلسات
 
 **Features:**
+
 - ✅ Full TypeScript types
 - ✅ ioredis integration
 - ✅ Automatic reconnection
@@ -92,12 +104,13 @@ value = redis.get('key', use_slave=True)
 - ✅ Promise-based API
 
 **Example:**
+
 ```typescript
-import { getRedisSentinelClient } from '@sahool/cache';
+import { getRedisSentinelClient } from "@sahool/cache";
 
 const redis = getRedisSentinelClient();
-await redis.set('key', 'value', { ex: 60 });
-const value = await redis.get('key', true);
+await redis.set("key", "value", { ex: 60 });
+const value = await redis.get("key", true);
 ```
 
 ---
@@ -105,22 +118,28 @@ const value = await redis.get('key', true);
 ### 4. Configuration Files
 
 #### `/infra/redis-ha/config/sentinel.conf`
+
 تكوين Sentinel الأساسي:
+
 - Port: 26379
 - Quorum: 2
 - Down-after: 5000ms
 - Failover timeout: 10000ms
 
 #### `/infra/redis-ha/.env.example`
+
 مثال متغيرات البيئة مع جميع الخيارات المتاحة
 
 #### `/shared/cache/package.json`
+
 Package definition للـ TypeScript module
 
 #### `/shared/cache/tsconfig.json`
+
 TypeScript configuration
 
 #### `/shared/cache/requirements.txt`
+
 Python dependencies
 
 ---
@@ -128,7 +147,9 @@ Python dependencies
 ### 5. Scripts & Tools
 
 #### `/infra/redis-ha/health-check.sh` (قابل للتنفيذ)
+
 سكريبت شامل لفحص الصحة:
+
 - ✅ Check Redis Master
 - ✅ Check Redis Replicas
 - ✅ Check Sentinels
@@ -137,13 +158,16 @@ Python dependencies
 - ✅ Color-coded output
 
 **Usage:**
+
 ```bash
 cd infra/redis-ha
 ./health-check.sh
 ```
 
 #### `/infra/redis-ha/test-failover.sh` (قابل للتنفيذ)
+
 سكريبت اختبار Failover تلقائي:
+
 - ✅ Get current master
 - ✅ Stop master container
 - ✅ Monitor failover process
@@ -153,13 +177,16 @@ cd infra/redis-ha
 - ✅ Verify replication
 
 **Usage:**
+
 ```bash
 cd infra/redis-ha
 ./test-failover.sh
 ```
 
 #### `/infra/redis-ha/Makefile`
+
 أوامر إدارة سهلة:
+
 ```bash
 make setup          # إعداد البيئة
 make start          # بدء النظام
@@ -179,7 +206,9 @@ make info           # معلومات النظام
 ### 6. Documentation
 
 #### `/shared/cache/README.md` (800+ سطر)
+
 توثيق شامل يتضمن:
+
 - ✅ نظرة عامة ومخططات معمارية
 - ✅ دليل التثبيت والإعداد
 - ✅ أمثلة استخدام Python
@@ -191,7 +220,9 @@ make info           # معلومات النظام
 - ✅ أمثلة متقدمة
 
 #### `/infra/redis-ha/README.md`
+
 توثيق البنية التحتية:
+
 - ✅ محتويات المجلد
 - ✅ الهندسة المعمارية
 - ✅ المنافذ والتكوين
@@ -200,7 +231,9 @@ make info           # معلومات النظام
 - ✅ استكشاف الأخطاء
 
 #### `/infra/redis-ha/QUICKSTART.md`
+
 دليل البدء السريع:
+
 - ✅ التثبيت في 3 خطوات
 - ✅ أمثلة سريعة
 - ✅ الأوامر الأساسية
@@ -211,7 +244,9 @@ make info           # معلومات النظام
 ### 7. Examples
 
 #### `/shared/cache/examples.py` (600+ سطر)
+
 أمثلة Python شاملة:
+
 - ✅ Cache Decorator
 - ✅ Rate Limiter
 - ✅ Distributed Lock
@@ -220,7 +255,9 @@ make info           # معلومات النظام
 - ✅ Usage examples
 
 #### `/shared/cache/examples.ts` (600+ سطر)
+
 أمثلة TypeScript شاملة:
+
 - ✅ Cache Decorator
 - ✅ Rate Limiter
 - ✅ Distributed Lock
@@ -233,13 +270,16 @@ make info           # معلومات النظام
 ### 8. Monitoring Configuration
 
 #### `/infra/redis-ha/prometheus-redis-exporter.yml`
+
 تكوين Prometheus:
+
 - ✅ Scrape configs
 - ✅ Alert rules
 - ✅ Grafana queries
 - ✅ Custom metrics
 
 **Alert Rules:**
+
 - Redis Down
 - High Memory Usage
 - Replication Lag
@@ -253,9 +293,11 @@ make info           # معلومات النظام
 ### 9. Additional Files
 
 #### `/shared/cache/__init__.py`
+
 Python module initialization
 
 #### `/infra/redis-ha/docker-compose.override.example.yml`
+
 مثال تخصيص التكوين
 
 ---
@@ -392,18 +434,18 @@ print(f"Status: {health['status']}")
 ### TypeScript Usage
 
 ```typescript
-import { getRedisSentinelClient } from '@sahool/cache';
+import { getRedisSentinelClient } from "@sahool/cache";
 
 // Initialize client
 const redis = getRedisSentinelClient();
 
 // Basic operations
-await redis.set('user:1000', 'Ahmed', { ex: 3600 });
-const user = await redis.get('user:1000', true);
+await redis.set("user:1000", "Ahmed", { ex: 3600 });
+const user = await redis.get("user:1000", true);
 
 // Hash operations
-await redis.hset('user:1000:profile', 'name', 'Ahmed');
-const profile = await redis.hgetall('user:1000:profile');
+await redis.hset("user:1000:profile", "name", "Ahmed");
+const profile = await redis.hgetall("user:1000:profile");
 
 // Health check
 const health = await redis.healthCheck();
@@ -415,36 +457,42 @@ console.log(`Status: ${health.status}`);
 ## الميزات الرئيسية | Key Features
 
 ### 1. Automatic Failover
+
 - ✅ Detection time: 5 seconds
 - ✅ Automatic promotion of replica
 - ✅ Zero manual intervention
 - ✅ Data preservation
 
 ### 2. Connection Pooling
+
 - ✅ Max connections: 50 (configurable)
 - ✅ Connection reuse
 - ✅ Health checks
 - ✅ Automatic reconnection
 
 ### 3. Circuit Breaker
+
 - ✅ Failure threshold: 5
 - ✅ Recovery timeout: 60s
 - ✅ Half-open state testing
 - ✅ Protection from cascading failures
 
 ### 4. Retry Logic
+
 - ✅ Max retries: 3
 - ✅ Exponential backoff
 - ✅ Configurable delays
 - ✅ Error handling
 
 ### 5. Read/Write Separation
+
 - ✅ Write to master only
 - ✅ Read from slaves (optional)
 - ✅ Load distribution
 - ✅ Better performance
 
 ### 6. Monitoring
+
 - ✅ Prometheus metrics
 - ✅ Health checks
 - ✅ Alert rules
@@ -483,21 +531,25 @@ console.log(`Status: ${health.status}`);
 ### Resource Allocation
 
 **Redis Master:**
+
 - CPU: 0.5-2 cores
 - Memory: 512M-2G
 - Disk: Persistent volume
 
 **Redis Replicas:**
+
 - CPU: 0.5-2 cores each
 - Memory: 512M-1.5G each
 - Disk: Persistent volumes
 
 **Sentinels:**
+
 - CPU: 0.1-0.5 cores each
 - Memory: 64M-256M each
 - Minimal disk
 
 **Redis Exporter:**
+
 - CPU: 0.05-0.25 cores
 - Memory: 32M-128M
 - No disk
@@ -533,6 +585,7 @@ make logs
 ### Automated Testing
 
 يتضمن `test-failover.sh`:
+
 1. ✅ Get current master
 2. ✅ Stop master
 3. ✅ Monitor failover
@@ -584,6 +637,7 @@ docker-compose -f docker-compose.redis-ha.yml up -d redis-master
 Available at: `http://localhost:9121/metrics`
 
 Key metrics:
+
 - `redis_up`: Redis instance status
 - `redis_connected_clients`: Number of clients
 - `redis_used_memory_bytes`: Memory usage
@@ -593,6 +647,7 @@ Key metrics:
 ### Grafana Dashboards
 
 Recommended dashboards:
+
 - **11835**: Redis Dashboard for Prometheus
 - **763**: Redis Sentinel Dashboard
 

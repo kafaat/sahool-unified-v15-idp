@@ -1,4 +1,5 @@
 # Volume Mount Security Report
+
 **SAHOOL Unified v15 IDP Platform**
 **Generated:** 2026-01-06
 **Scope:** All Docker Compose configurations
@@ -8,6 +9,7 @@
 ## Executive Summary
 
 This report analyzes volume mount security across all 40+ services in the SAHOOL platform. The analysis covers:
+
 - Sensitive host path exposure
 - Read-only mount verification
 - Docker socket exposure risks
@@ -17,6 +19,7 @@ This report analyzes volume mount security across all 40+ services in the SAHOOL
 ### Overall Security Score: **B+ (85/100)**
 
 **Strengths:**
+
 - ✅ Extensive use of read-only mounts (102 instances)
 - ✅ Tmpfs implemented for temporary data in critical services
 - ✅ Localhost-only port bindings for sensitive services
@@ -24,6 +27,7 @@ This report analyzes volume mount security across all 40+ services in the SAHOOL
 - ✅ Named volumes instead of host bind mounts for data
 
 **Critical Findings:**
+
 - ⚠️ Docker socket exposure in backup service
 - ⚠️ Configuration files mounted from host filesystem
 - ⚠️ Some services lack tmpfs for temporary data
@@ -38,6 +42,7 @@ This report analyzes volume mount security across all 40+ services in the SAHOOL
 **Location:** `/home/user/sahool-unified-v15-idp/scripts/backup/docker-compose.backup.yml`
 
 **Finding:** Docker socket mounted in backup scheduler service
+
 ```yaml
 volumes:
   - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -46,22 +51,26 @@ volumes:
 **Risk Level:** 🟡 **MEDIUM**
 
 **Analysis:**
+
 - **Purpose:** Required for backup scheduler to execute `docker exec` commands on database containers
 - **Mitigation:** Mount is read-only (`:ro`)
 - **Risk:** Even read-only access grants container inspection and potential privilege escalation
 
 **Recommendations:**
+
 1. **IMMEDIATE:** Implement least-privilege alternative:
    - Use Docker context/API with limited scope
    - Consider using kubectl exec for Kubernetes deployments instead
    - Implement dedicated backup sidecar containers instead of socket access
 
 2. **ALTERNATIVE SOLUTIONS:**
+
    ```yaml
    # Option 1: Use pg_dump network connection instead of docker exec
    environment:
      POSTGRES_HOST: sahool-postgres
-     BACKUP_METHOD: network  # Instead of 'docker exec'
+     BACKUP_METHOD: network # Instead of 'docker exec'
+
 
    # Option 2: Use dedicated backup user with network access
    # No docker.sock mount needed
@@ -70,6 +79,7 @@ volumes:
 3. **MONITORING:** Add alerts for any unusual container operations from backup service
 
 **Services Affected:**
+
 - `backup-scheduler` (scripts/backup/docker-compose.backup.yml:164)
 
 ---
@@ -83,6 +93,7 @@ volumes:
 All configuration mounts use read-only (`:ro`) flag:
 
 #### Infrastructure Services
+
 ```yaml
 # PostgreSQL Init Scripts
 postgres:
@@ -125,6 +136,7 @@ mqtt:
 **Risk Level:** 🟢 **LOW-MEDIUM**
 
 **Analysis:**
+
 ```yaml
 # PostgreSQL TLS
 postgres:
@@ -148,10 +160,12 @@ nats:
 ```
 
 **Recommendations:**
+
 1. ✅ All certificate mounts use `:ro` flag
 2. ⚠️ **VERIFY:** Ensure host certificate directories have proper permissions (600/700)
 3. ⚠️ **VERIFY:** Certificate files should be owned by root with 400 permissions
 4. **ENHANCE:** Consider using Docker secrets for certificate management in production:
+
    ```yaml
    secrets:
      postgres_cert:
@@ -177,7 +191,7 @@ nats:
 **Coverage by Service Type:**
 
 | Service Category | Read-Only Mounts | Total Mounts | Coverage |
-|-----------------|------------------|--------------|----------|
+| ---------------- | ---------------- | ------------ | -------- |
 | Infrastructure   | 45               | 58           | 78%      |
 | Application      | 23               | 87           | 26%      |
 | Monitoring       | 18               | 22           | 82%      |
@@ -186,6 +200,7 @@ nats:
 ### 2.2 Compliant Services
 
 **Fully Compliant (100% read-only for config mounts):**
+
 - ✅ postgres (init scripts)
 - ✅ kong (all config files)
 - ✅ nats (configuration)
@@ -199,6 +214,7 @@ nats:
 ### 2.3 Services Requiring Data Volumes (Writable - Expected)
 
 **Legitimate writable mounts:**
+
 ```yaml
 # Database data - MUST be writable
 postgres_data:/var/lib/postgresql/data
@@ -222,17 +238,19 @@ jaeger_data:/badger
 **Found:** Development override files occasionally mount source code without `:ro`
 
 **Example (docker/compose.dev.yml:43):**
+
 ```yaml
 field_core:
   volumes:
-    - ../kernel/services/field_core/src:/app/src:ro  # ✅ HAS :ro
+    - ../kernel/services/field_core/src:/app/src:ro # ✅ HAS :ro
 ```
 
 **Example (docker/compose.dev.yml:123):**
+
 ```yaml
 crop_growth_model:
   volumes:
-    - ../kernel-services-v15.3/crop-growth-model/src:/app/src:ro  # ✅ HAS :ro
+    - ../kernel-services-v15.3/crop-growth-model/src:/app/src:ro # ✅ HAS :ro
 ```
 
 **Status:** ✅ Development mounts properly use `:ro` for source code
@@ -245,13 +263,14 @@ crop_growth_model:
 
 **Found:** 1 instance
 
-| Service | File | Line | Mount | Purpose | Risk |
-|---------|------|------|-------|---------|------|
-| backup-scheduler | scripts/backup/docker-compose.backup.yml | 164 | `/var/run/docker.sock:/var/run/docker.sock:ro` | Container backup via docker exec | 🟡 MEDIUM |
+| Service          | File                                     | Line | Mount                                          | Purpose                          | Risk      |
+| ---------------- | ---------------------------------------- | ---- | ---------------------------------------------- | -------------------------------- | --------- |
+| backup-scheduler | scripts/backup/docker-compose.backup.yml | 164  | `/var/run/docker.sock:/var/run/docker.sock:ro` | Container backup via docker exec | 🟡 MEDIUM |
 
 ### 3.2 Security Assessment
 
 **Current Implementation:**
+
 ```yaml
 backup-scheduler:
   volumes:
@@ -262,12 +281,14 @@ backup-scheduler:
 ```
 
 **Attack Vectors:**
+
 1. **Container Inspection:** Can list all containers and their configurations
 2. **Image Access:** Can inspect images and potentially extract secrets
 3. **Network Discovery:** Can enumerate all networks and services
 4. **Privilege Escalation:** Read-only socket can still be leveraged for escalation
 
 **Risk Mitigation Currently Applied:**
+
 - ✅ Mount is read-only (`:ro`)
 - ✅ Service runs with `no-new-privileges` (NOT verified in backup compose)
 - ⚠️ No AppArmor/SELinux profile specified
@@ -276,6 +297,7 @@ backup-scheduler:
 **CRITICAL RECOMMENDATIONS:**
 
 1. **Remove Docker Socket Dependency:**
+
    ```yaml
    # BEFORE (Current - INSECURE)
    backup-scheduler:
@@ -294,10 +316,11 @@ backup-scheduler:
    ```
 
 2. **Alternative: Use Dedicated Backup Network:**
+
    ```yaml
    networks:
      backup-network:
-       internal: false  # Allow external backup storage access
+       internal: false # Allow external backup storage access
 
    backup-scheduler:
      networks:
@@ -318,7 +341,7 @@ backup-scheduler:
      cap_drop:
        - ALL
      cap_add:
-       - NET_BIND_SERVICE  # Only if needed
+       - NET_BIND_SERVICE # Only if needed
    ```
 
 ---
@@ -330,6 +353,7 @@ backup-scheduler:
 **Excellent implementation in critical services:**
 
 #### PostgreSQL Services
+
 ```yaml
 # Main PostgreSQL
 postgres:
@@ -351,6 +375,7 @@ field-core (db):
 ```
 
 #### Message Brokers
+
 ```yaml
 # NATS with read_only filesystem
 nats:
@@ -366,6 +391,7 @@ field-management NATS:
 ```
 
 **Benefits:**
+
 - ✅ Temporary data stored in memory (faster, more secure)
 - ✅ No sensitive data persists to disk
 - ✅ Automatic cleanup on container restart
@@ -421,6 +447,7 @@ tmpfs:
 ```
 
 **Impact:** 🟡 **MEDIUM PRIORITY**
+
 - Not critical but improves security posture
 - Prevents temporary file-based attacks
 - Reduces attack surface
@@ -434,13 +461,14 @@ tmpfs:
 **Current State:** Most services run as root (default)
 
 **Services with User Specification:**
+
 ```yaml
 # Monitoring - runs as root explicitly (not ideal)
 prometheus:
-  user: root  # Line 25, monitoring compose
+  user: root # Line 25, monitoring compose
 
 grafana:
-  user: root  # Line 69, monitoring compose
+  user: root # Line 69, monitoring compose
 ```
 
 **Concern:** 🟡 Running as root increases risk if container is compromised
@@ -448,23 +476,25 @@ grafana:
 **Recommendations:**
 
 1. **Add non-root users to critical services:**
+
    ```yaml
    postgres:
-     user: "999:999"  # postgres user
+     user: "999:999" # postgres user
      volumes:
        - postgres_data:/var/lib/postgresql/data
 
    redis:
-     user: "999:999"  # redis user
+     user: "999:999" # redis user
      volumes:
        - redis_data:/data
 
    # Application services
    field-core:
-     user: "1000:1000"  # non-root
+     user: "1000:1000" # non-root
    ```
 
 2. **Set volume ownership in entrypoint scripts:**
+
    ```bash
    # entrypoint.sh
    chown -R app:app /app/data
@@ -499,12 +529,13 @@ grafana:
 **Current State:** No explicit SELinux labels found
 
 **Recommendation for Production:**
+
 ```yaml
 # Add SELinux labels for sensitive volumes
 postgres:
   volumes:
-    - postgres_data:/var/lib/postgresql/data:z  # Private mount
-    - ./config:/etc/postgres/config:ro,Z  # Shared mount
+    - postgres_data:/var/lib/postgresql/data:z # Private mount
+    - ./config:/etc/postgres/config:ro,Z # Shared mount
 
 # Or use security_opt
 security_opt:
@@ -518,6 +549,7 @@ security_opt:
 ### 6.1 Infrastructure Services
 
 #### PostgreSQL
+
 ```yaml
 postgres:
   volumes:
@@ -529,7 +561,9 @@ postgres:
   security_opt:
     - no-new-privileges:true
 ```
+
 **Security Score:** ✅ **A+ (95/100)**
+
 - Named volume for data
 - Read-only init scripts
 - Tmpfs for temporary files
@@ -537,6 +571,7 @@ postgres:
 - **Minor improvement:** Add user specification
 
 #### Redis
+
 ```yaml
 redis:
   volumes:
@@ -545,7 +580,9 @@ redis:
   security_opt:
     - no-new-privileges:true
 ```
+
 **Security Score:** ✅ **A (90/100)**
+
 - Named volume for data
 - Read-only config
 - Security hardening enabled
@@ -553,6 +590,7 @@ redis:
 - **Missing:** User specification
 
 #### Kong Gateway
+
 ```yaml
 kong:
   volumes:
@@ -561,7 +599,9 @@ kong:
     - ./consumers.yml:/etc/kong/consumers.yml:ro
     - kong-logs:/var/log/kong
 ```
+
 **Security Score:** ✅ **A- (88/100)**
+
 - All configs read-only
 - Log volume separated
 - **Missing:** Tmpfs for temporary files
@@ -571,30 +611,36 @@ kong:
 ### 6.2 Monitoring Stack
 
 #### Prometheus
+
 ```yaml
 prometheus:
-  user: root  # ⚠️
+  user: root # ⚠️
   volumes:
     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     - ./prometheus/alerts.yml:/etc/prometheus/alerts/alerts.yml:ro
     - prometheus_data:/prometheus
 ```
+
 **Security Score:** 🟡 **B (82/100)**
+
 - Read-only configs
 - Named data volume
 - **Issue:** Runs as root
 - **Missing:** Tmpfs
 
 #### Grafana
+
 ```yaml
 grafana:
-  user: root  # ⚠️
+  user: root # ⚠️
   volumes:
     - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
     - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
     - grafana_data:/var/lib/grafana
 ```
+
 **Security Score:** 🟡 **B (82/100)**
+
 - Read-only provisioning
 - Named data volume
 - **Issue:** Runs as root
@@ -603,16 +649,19 @@ grafana:
 ### 6.3 Backup Services
 
 #### MinIO
+
 ```yaml
 minio:
   volumes:
     - minio_data:/data
     - ./minio-config:/root/.minio
   ports:
-    - "127.0.0.1:9000:9000"  # ✅ Localhost only
-    - "127.0.0.1:9001:9001"  # ✅ Localhost only
+    - "127.0.0.1:9000:9000" # ✅ Localhost only
+    - "127.0.0.1:9001:9001" # ✅ Localhost only
 ```
+
 **Security Score:** ✅ **B+ (85/100)**
+
 - Localhost-only ports
 - Named volume for data
 - **Issue:** Config directory writable
@@ -620,17 +669,20 @@ minio:
 - **Missing:** User specification
 
 #### Backup Scheduler
+
 ```yaml
 backup-scheduler:
   volumes:
     - backup_data:/backups
     - backup_logs:/var/log/backup
-    - /var/run/docker.sock:/var/run/docker.sock:ro  # ⚠️
+    - /var/run/docker.sock:/var/run/docker.sock:ro # ⚠️
     - ./backup.sh:/scripts/backup.sh:ro
     - ./restore.sh:/scripts/restore.sh:ro
     # ... multiple script mounts (all :ro) ✅
 ```
+
 **Security Score:** 🟡 **C+ (75/100)**
+
 - All scripts read-only ✅
 - **Critical Issue:** Docker socket exposure ⚠️
 - **Missing:** Security hardening options
@@ -647,18 +699,22 @@ backup-scheduler:
 **Analysis:** Kubernetes deployments use PersistentVolumeClaims instead of direct host mounts
 
 **Security Advantages:**
+
 - ✅ Abstract storage layer
 - ✅ RBAC-controlled access
 - ✅ Storage class encryption support
 - ✅ No direct host filesystem access
 
 **Recommendations:**
+
 1. **Use encrypted storage classes:**
+
    ```yaml
    storageClassName: encrypted-ssd
    ```
 
 2. **Set volume permissions:**
+
    ```yaml
    securityContext:
      fsGroup: 1000
@@ -747,50 +803,54 @@ backup-scheduler:
 
 ### CIS Docker Benchmark
 
-| Control | Requirement | Status | Notes |
-|---------|-------------|--------|-------|
-| 5.7 | Do not mount sensitive host directories | 🟡 PARTIAL | Docker socket in backup |
-| 5.9 | Do not share host network namespace | ✅ PASS | No host network mode |
-| 5.10 | Limit memory usage | ✅ PASS | All services have memory limits |
-| 5.12 | Mount container root filesystem as read-only | ✅ PASS | NATS uses read_only:true |
-| 5.15 | Do not share host user namespace | ✅ PASS | No user namespace sharing |
-| 5.16 | Do not mount Docker socket | ⚠️ FAIL | Backup service mounts socket |
-| 5.25 | Restrict container syscalls | 🟡 PARTIAL | No seccomp profiles |
+| Control | Requirement                                  | Status     | Notes                           |
+| ------- | -------------------------------------------- | ---------- | ------------------------------- |
+| 5.7     | Do not mount sensitive host directories      | 🟡 PARTIAL | Docker socket in backup         |
+| 5.9     | Do not share host network namespace          | ✅ PASS    | No host network mode            |
+| 5.10    | Limit memory usage                           | ✅ PASS    | All services have memory limits |
+| 5.12    | Mount container root filesystem as read-only | ✅ PASS    | NATS uses read_only:true        |
+| 5.15    | Do not share host user namespace             | ✅ PASS    | No user namespace sharing       |
+| 5.16    | Do not mount Docker socket                   | ⚠️ FAIL    | Backup service mounts socket    |
+| 5.25    | Restrict container syscalls                  | 🟡 PARTIAL | No seccomp profiles             |
 
 ### OWASP Container Security
 
-| Control | Status | Implementation |
-|---------|--------|----------------|
-| Minimize attack surface | ✅ GOOD | Alpine images, minimal packages |
-| Use read-only mounts | ✅ GOOD | 102 read-only mounts |
-| Implement tmpfs | 🟡 PARTIAL | PostgreSQL, NATS have tmpfs |
-| Run as non-root | ⚠️ POOR | Most services run as root |
-| Secrets management | ✅ GOOD | Environment variables, not in images |
-| Audit logging | ⚠️ MISSING | No volume access auditing |
+| Control                 | Status     | Implementation                       |
+| ----------------------- | ---------- | ------------------------------------ |
+| Minimize attack surface | ✅ GOOD    | Alpine images, minimal packages      |
+| Use read-only mounts    | ✅ GOOD    | 102 read-only mounts                 |
+| Implement tmpfs         | 🟡 PARTIAL | PostgreSQL, NATS have tmpfs          |
+| Run as non-root         | ⚠️ POOR    | Most services run as root            |
+| Secrets management      | ✅ GOOD    | Environment variables, not in images |
+| Audit logging           | ⚠️ MISSING | No volume access auditing            |
 
 ---
 
 ## 10. Remediation Plan
 
 ### Week 1: Critical Issues
+
 - [ ] Refactor backup service to remove docker.sock dependency
 - [ ] Test backup functionality with network-based approach
 - [ ] Add security_opt to backup service if socket must remain temporarily
 - [ ] Document backup security architecture
 
 ### Week 2-3: High Priority
+
 - [ ] Add tmpfs to redis, kong, mqtt, qdrant, minio
 - [ ] Test services with tmpfs enabled
 - [ ] Create non-root user specifications for all services
 - [ ] Update Dockerfiles with USER directive
 
 ### Month 2: Medium Priority
+
 - [ ] Implement Docker secrets for TLS certificates
 - [ ] Add SELinux labels to sensitive volumes
 - [ ] Audit host directory permissions
 - [ ] Create seccomp profiles for critical services
 
 ### Month 3: Long-term Improvements
+
 - [ ] Implement volume access monitoring with Falco
 - [ ] Create automated permission auditing scripts
 - [ ] Document volume security standards
@@ -805,6 +865,7 @@ backup-scheduler:
 **Implement these monitoring rules:**
 
 1. **Falco Rules for Volume Security:**
+
    ```yaml
    - rule: Sensitive File Access
      desc: Detect access to sensitive mounted files
@@ -824,6 +885,7 @@ backup-scheduler:
    ```
 
 2. **Prometheus Metrics:**
+
    ```yaml
    # Monitor volume I/O
    - alert: HighVolumeWrites
@@ -883,6 +945,7 @@ docker inspect sahool-postgres | jq -r '.[].HostConfig.SecurityOpt[]' | grep -q 
 ### Summary of Findings
 
 **Positive Security Practices:**
+
 1. ✅ Extensive use of read-only mounts (102 instances)
 2. ✅ Named volumes instead of host bind mounts
 3. ✅ Tmpfs implementation in critical services
@@ -890,6 +953,7 @@ docker inspect sahool-postgres | jq -r '.[].HostConfig.SecurityOpt[]' | grep -q 
 5. ✅ Security hardening with no-new-privileges
 
 **Areas Requiring Improvement:**
+
 1. ⚠️ Docker socket exposure in backup service
 2. ⚠️ Missing tmpfs in multiple services
 3. ⚠️ Running as root user (default)
@@ -901,6 +965,7 @@ docker inspect sahool-postgres | jq -r '.[].HostConfig.SecurityOpt[]' | grep -q 
 The SAHOOL platform demonstrates **strong foundational security** in volume mount configurations, particularly in the use of read-only mounts and named volumes. However, the Docker socket exposure in the backup service represents a **significant security risk** that should be addressed immediately.
 
 **Key Metrics:**
+
 - **Total Services Analyzed:** 40+
 - **Read-Only Mounts:** 102 (excellent)
 - **Services with Tmpfs:** 8 (needs improvement)
@@ -909,6 +974,7 @@ The SAHOOL platform demonstrates **strong foundational security** in volume moun
 - **Medium Priority Issues:** 8
 
 **Next Steps:**
+
 1. Prioritize removal of docker.sock dependency
 2. Implement tmpfs across all services
 3. Migrate to non-root users
@@ -922,6 +988,7 @@ The SAHOOL platform demonstrates **strong foundational security** in volume moun
 ### Complete Volume Mount List
 
 #### Infrastructure Services
+
 ```yaml
 postgres:
   - postgres_data:/var/lib/postgresql/data (rw, named)
@@ -955,6 +1022,7 @@ pgbouncer:
 ```
 
 #### Gateway Services
+
 ```yaml
 kong:
   - ../../../infra/kong/kong.yml:/etc/kong/kong.yml (ro, config)
@@ -969,6 +1037,7 @@ kong-database:
 ```
 
 #### Monitoring Services
+
 ```yaml
 prometheus:
   - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml (ro, config)
@@ -992,6 +1061,7 @@ otel-collector:
 ```
 
 #### Backup Services
+
 ```yaml
 minio:
   - minio_data:/data (rw, named)
@@ -1023,18 +1093,21 @@ backup-monitor:
 ## Appendix B: References
 
 ### Security Standards
+
 - CIS Docker Benchmark v1.6.0
 - OWASP Container Security Top 10
 - NIST SP 800-190: Application Container Security Guide
 - Docker Security Best Practices
 
 ### Tools
+
 - Docker Bench Security: https://github.com/docker/docker-bench-security
 - Falco: https://falco.org/
 - Trivy: https://github.com/aquasecurity/trivy
 - Anchore: https://anchore.com/
 
 ### Documentation
+
 - Docker Volume Security: https://docs.docker.com/storage/volumes/
 - Docker Secrets: https://docs.docker.com/engine/swarm/secrets/
 - Kubernetes Volume Security: https://kubernetes.io/docs/concepts/storage/volumes/

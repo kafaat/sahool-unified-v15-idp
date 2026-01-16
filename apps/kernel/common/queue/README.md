@@ -1,4 +1,5 @@
 # SAHOOL Task Queue Management System
+
 # نظام إدارة قائمة انتظار المهام SAHOOL
 
 A robust, Redis-backed task queue system for managing background jobs in the SAHOOL agricultural platform.
@@ -38,24 +39,24 @@ apps/kernel/common/queue/
 
 ## Task Types / أنواع المهام
 
-| Task Type | Priority | Timeout | Description (AR) | Description (EN) |
-|-----------|----------|---------|------------------|------------------|
-| `satellite_image_processing` | Normal (5) | 600s | معالجة صور الأقمار الصناعية | Satellite image processing |
-| `ndvi_calculation` | Normal (5) | 120s | حساب مؤشر NDVI | NDVI calculation |
-| `disease_detection` | High (8) | 120s | كشف الأمراض | Disease detection |
-| `report_generation` | Low (3) | 180s | إنشاء التقارير | Report generation |
-| `notification_send` | High (8) | 30s | إرسال الإشعارات | Send notifications |
-| `data_export` | Low (3) | 180s | تصدير البيانات | Data export |
-| `model_inference` | Normal (5) | 300s | استنتاج النموذج | Model inference |
+| Task Type                    | Priority   | Timeout | Description (AR)            | Description (EN)           |
+| ---------------------------- | ---------- | ------- | --------------------------- | -------------------------- |
+| `satellite_image_processing` | Normal (5) | 600s    | معالجة صور الأقمار الصناعية | Satellite image processing |
+| `ndvi_calculation`           | Normal (5) | 120s    | حساب مؤشر NDVI              | NDVI calculation           |
+| `disease_detection`          | High (8)   | 120s    | كشف الأمراض                 | Disease detection          |
+| `report_generation`          | Low (3)    | 180s    | إنشاء التقارير              | Report generation          |
+| `notification_send`          | High (8)   | 30s     | إرسال الإشعارات             | Send notifications         |
+| `data_export`                | Low (3)    | 180s    | تصدير البيانات              | Data export                |
+| `model_inference`            | Normal (5) | 300s    | استنتاج النموذج             | Model inference            |
 
 ## Priority Levels / مستويات الأولوية
 
-| Level | Range | Use Case (AR) | Use Case (EN) |
-|-------|-------|---------------|---------------|
-| **CRITICAL** | 10 | حالات طارئة | Emergencies |
-| **HIGH** | 7-9 | تنبيهات، وقت فعلي | Alerts, real-time |
-| **NORMAL** | 4-6 | تحليلات | Analysis |
-| **LOW** | 1-3 | تقارير، تصدير | Reports, exports |
+| Level        | Range | Use Case (AR)     | Use Case (EN)     |
+| ------------ | ----- | ----------------- | ----------------- |
+| **CRITICAL** | 10    | حالات طارئة       | Emergencies       |
+| **HIGH**     | 7-9   | تنبيهات، وقت فعلي | Alerts, real-time |
+| **NORMAL**   | 4-6   | تحليلات           | Analysis          |
+| **LOW**      | 1-3   | تقارير، تصدير     | Reports, exports  |
 
 ## Task Lifecycle / دورة حياة المهمة
 
@@ -281,14 +282,14 @@ if timed_out:
 
 The queue system uses the following Redis key patterns:
 
-| Key Pattern | Type | Description (AR) | Description (EN) |
-|-------------|------|------------------|------------------|
-| `sahool:queue:{priority}` | Sorted Set | قائمة الأولوية | Priority queue |
-| `sahool:task:{task_id}` | Hash | بيانات المهمة | Task data |
-| `sahool:dlq` | List | قائمة الرسائل الميتة | Dead letter queue |
-| `sahool:worker:{worker_id}` | Hash | حالة العامل | Worker status |
-| `sahool:processing:{worker_id}` | Set | المهام قيد المعالجة | Processing tasks |
-| `sahool:stats` | Hash | الإحصائيات | Statistics |
+| Key Pattern                     | Type       | Description (AR)     | Description (EN)  |
+| ------------------------------- | ---------- | -------------------- | ----------------- |
+| `sahool:queue:{priority}`       | Sorted Set | قائمة الأولوية       | Priority queue    |
+| `sahool:task:{task_id}`         | Hash       | بيانات المهمة        | Task data         |
+| `sahool:dlq`                    | List       | قائمة الرسائل الميتة | Dead letter queue |
+| `sahool:worker:{worker_id}`     | Hash       | حالة العامل          | Worker status     |
+| `sahool:processing:{worker_id}` | Set        | المهام قيد المعالجة  | Processing tasks  |
+| `sahool:stats`                  | Hash       | الإحصائيات           | Statistics        |
 
 ## Configuration / التكوين
 
@@ -402,20 +403,24 @@ assert task.status == TaskStatus.PENDING
 ### Common Issues / المشاكل الشائعة
 
 **Problem**: Tasks stuck in PENDING
+
 - **Solution**: Check if workers are running
 - **الحل**: تحقق من تشغيل العمال
 
 **Problem**: High DLQ size
+
 - **Solution**: Check task handlers for errors
 - **الحل**: تحقق من معالجات المهام للأخطاء
 
 **Problem**: Redis connection errors
+
 - **Solution**: Verify Redis is running and accessible
 - **الحل**: تحقق من تشغيل Redis وإمكانية الوصول إليه
 
 ## Support / الدعم
 
 For issues and questions:
+
 - Create an issue in the repository
 - Contact: sahool-platform-team@example.com
 

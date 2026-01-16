@@ -13,11 +13,11 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { AppException } from './exceptions';
-import { ErrorResponseDto, FieldErrorDto } from './error-response.dto';
-import { ErrorCode, ERROR_REGISTRY } from './error-codes';
+} from "@nestjs/common";
+import { Request, Response } from "express";
+import { AppException } from "./exceptions";
+import { ErrorResponseDto, FieldErrorDto } from "./error-response.dto";
+import { ErrorCode, ERROR_REGISTRY } from "./error-codes";
 
 /**
  * Global HTTP Exception Filter
@@ -109,18 +109,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let message = metadata.message.en;
     let messageAr = metadata.message.ar;
 
-    if (typeof exceptionResponse === 'string') {
+    if (typeof exceptionResponse === "string") {
       message = exceptionResponse;
     } else if (
-      typeof exceptionResponse === 'object' &&
-      'message' in exceptionResponse
+      typeof exceptionResponse === "object" &&
+      "message" in exceptionResponse
     ) {
       message =
-        typeof exceptionResponse.message === 'string'
+        typeof exceptionResponse.message === "string"
           ? exceptionResponse.message
           : Array.isArray(exceptionResponse.message)
-          ? exceptionResponse.message.join(', ')
-          : metadata.message.en;
+            ? exceptionResponse.message.join(", ")
+            : metadata.message.en;
     }
 
     return new ErrorResponseDto(errorCode, message, messageAr, false, {
@@ -143,7 +143,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (Array.isArray(exceptionResponse.message)) {
       exceptionResponse.message.forEach((error: any) => {
-        if (typeof error === 'object' && 'constraints' in error) {
+        if (typeof error === "object" && "constraints" in error) {
           const constraints = error.constraints;
           const messages = Object.values(constraints);
           fieldErrors.push({
@@ -152,9 +152,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
             constraint: Object.keys(constraints)[0],
             value: error.value,
           });
-        } else if (typeof error === 'string') {
+        } else if (typeof error === "string") {
           fieldErrors.push({
-            field: 'unknown',
+            field: "unknown",
             message: error,
           });
         }
@@ -181,11 +181,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
    * Handle unknown errors
    * معالجة الأخطاء غير المعروفة
    */
-  private handleUnknownError(exception: any, request: Request): ErrorResponseDto {
+  private handleUnknownError(
+    exception: any,
+    request: Request,
+  ): ErrorResponseDto {
     const metadata = ERROR_REGISTRY[ErrorCode.INTERNAL_SERVER_ERROR];
 
     // Log the full error for debugging
-    this.logger.error('Unknown error occurred', exception);
+    this.logger.error("Unknown error occurred", exception);
 
     return new ErrorResponseDto(
       ErrorCode.INTERNAL_SERVER_ERROR,
@@ -199,7 +202,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         stack: this.shouldIncludeStack() ? exception?.stack : undefined,
         details: this.shouldIncludeStack()
           ? {
-              error: exception?.message || 'Unknown error',
+              error: exception?.message || "Unknown error",
               type: exception?.constructor?.name,
             }
           : undefined,
@@ -213,12 +216,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
    */
   private isValidationError(response: any): boolean {
     return (
-      typeof response === 'object' &&
-      'message' in response &&
+      typeof response === "object" &&
+      "message" in response &&
       Array.isArray(response.message) &&
       response.message.length > 0 &&
-      (typeof response.message[0] === 'object' ||
-        (typeof response.message[0] === 'string' &&
+      (typeof response.message[0] === "object" ||
+        (typeof response.message[0] === "string" &&
           response.statusCode === HttpStatus.BAD_REQUEST))
     );
   }
@@ -251,8 +254,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
    */
   private getRequestId(request: Request): string {
     return (
-      (request.headers['x-request-id'] as string) ||
-      (request.headers['x-correlation-id'] as string) ||
+      (request.headers["x-request-id"] as string) ||
+      (request.headers["x-correlation-id"] as string) ||
       `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     );
   }
@@ -262,7 +265,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
    * هل يجب تضمين تتبع المكدس في الاستجابة
    */
   private shouldIncludeStack(): boolean {
-    return process.env.NODE_ENV === 'development' || process.env.INCLUDE_STACK_TRACE === 'true';
+    return (
+      process.env.NODE_ENV === "development" ||
+      process.env.INCLUDE_STACK_TRACE === "true"
+    );
   }
 
   /**
@@ -284,7 +290,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Log additional context in development
     if (this.shouldIncludeStack()) {
-      this.logger.debug('Request details', {
+      this.logger.debug("Request details", {
         method: request.method,
         url: request.url,
         headers: request.headers,
@@ -323,15 +329,15 @@ export class LanguageAwareExceptionFilter extends HttpExceptionFilter {
    * Get preferred language from request
    * الحصول على اللغة المفضلة من الطلب
    */
-  private getPreferredLanguage(request: Request): 'en' | 'ar' {
-    const acceptLanguage = request.headers['accept-language'];
+  private getPreferredLanguage(request: Request): "en" | "ar" {
+    const acceptLanguage = request.headers["accept-language"];
     if (!acceptLanguage) {
-      return 'en';
+      return "en";
     }
 
     // Parse Accept-Language header
-    const languages = acceptLanguage.split(',').map((lang) => {
-      const [code, priority = '1'] = lang.trim().split(';q=');
+    const languages = acceptLanguage.split(",").map((lang) => {
+      const [code, priority = "1"] = lang.trim().split(";q=");
       return { code: code.toLowerCase(), priority: parseFloat(priority) };
     });
 
@@ -340,9 +346,9 @@ export class LanguageAwareExceptionFilter extends HttpExceptionFilter {
 
     // Check for Arabic
     const hasArabic = languages.some(
-      (lang) => lang.code.startsWith('ar') || lang.code === 'ar',
+      (lang) => lang.code.startsWith("ar") || lang.code === "ar",
     );
 
-    return hasArabic ? 'ar' : 'en';
+    return hasArabic ? "ar" : "en";
   }
 }

@@ -14,17 +14,17 @@ import type {
   AllProverbs,
   ProverbOfTheDay,
   DailyWisdom,
-} from './types';
+} from "./types";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // إعداد واجهة برمجة التطبيقات - API Configuration
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // تحذير في التطوير فقط - Only warn during development
-if (!API_BASE_URL && typeof window !== 'undefined') {
-  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+if (!API_BASE_URL && typeof window !== "undefined") {
+  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
 }
 
 const ASTRONOMICAL_API_BASE = `${API_BASE_URL}/api/v1/astronomical`;
@@ -40,10 +40,10 @@ const ASTRONOMICAL_API_BASE = `${API_BASE_URL}/api/v1/astronomical`;
 async function fetchFromAPI<T>(endpoint: string): Promise<T> {
   try {
     const response = await fetch(`${ASTRONOMICAL_API_BASE}${endpoint}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
     });
 
@@ -53,7 +53,7 @@ async function fetchFromAPI<T>(endpoint: string): Promise<T> {
 
     return await response.json();
   } catch (error) {
-    console.error('خطأ في الاتصال بخدمة التقويم الفلكي:', error);
+    console.error("خطأ في الاتصال بخدمة التقويم الفلكي:", error);
     throw error;
   }
 }
@@ -67,7 +67,7 @@ async function fetchFromAPI<T>(endpoint: string): Promise<T> {
  * Get astronomical data for today
  */
 export async function getToday(): Promise<DailyAstronomicalData> {
-  return fetchFromAPI<DailyAstronomicalData>('/today');
+  return fetchFromAPI<DailyAstronomicalData>("/today");
 }
 
 /**
@@ -84,8 +84,10 @@ export async function getDate(date: string): Promise<DailyAstronomicalData> {
  * Get weekly forecast
  * @param startDate - تاريخ البداية (اختياري) بصيغة YYYY-MM-DD
  */
-export async function getWeeklyForecast(startDate?: string): Promise<WeeklyForecast> {
-  const params = startDate ? `?start_date=${startDate}` : '';
+export async function getWeeklyForecast(
+  startDate?: string,
+): Promise<WeeklyForecast> {
+  const params = startDate ? `?start_date=${startDate}` : "";
   return fetchFromAPI<WeeklyForecast>(`/week${params}`);
 }
 
@@ -95,7 +97,7 @@ export async function getWeeklyForecast(startDate?: string): Promise<WeeklyForec
  * @param date - التاريخ (اختياري) بصيغة YYYY-MM-DD
  */
 export async function getMoonPhase(date?: string): Promise<MoonPhase> {
-  const params = date ? `?date_str=${date}` : '';
+  const params = date ? `?date_str=${date}` : "";
   return fetchFromAPI<MoonPhase>(`/moon-phase${params}`);
 }
 
@@ -105,7 +107,7 @@ export async function getMoonPhase(date?: string): Promise<MoonPhase> {
  * @param date - التاريخ (اختياري) بصيغة YYYY-MM-DD
  */
 export async function getLunarMansion(date?: string): Promise<LunarMansion> {
-  const params = date ? `?date_str=${date}` : '';
+  const params = date ? `?date_str=${date}` : "";
   return fetchFromAPI<LunarMansion>(`/lunar-mansion${params}`);
 }
 
@@ -115,7 +117,7 @@ export async function getLunarMansion(date?: string): Promise<LunarMansion> {
  * @param date - التاريخ الميلادي (اختياري) بصيغة YYYY-MM-DD
  */
 export async function getHijriDate(date?: string): Promise<HijriDate> {
-  const params = date ? `?date_str=${date}` : '';
+  const params = date ? `?date_str=${date}` : "";
   return fetchFromAPI<HijriDate>(`/hijri${params}`);
 }
 
@@ -125,7 +127,9 @@ export async function getHijriDate(date?: string): Promise<HijriDate> {
  * @param crop - اسم المحصول (قمح، طماطم، بن، إلخ)
  */
 export async function getCropCalendar(crop: string): Promise<CropCalendar> {
-  return fetchFromAPI<CropCalendar>(`/crop-calendar/${encodeURIComponent(crop)}`);
+  return fetchFromAPI<CropCalendar>(
+    `/crop-calendar/${encodeURIComponent(crop)}`,
+  );
 }
 
 /**
@@ -135,8 +139,8 @@ export async function getCropCalendar(crop: string): Promise<CropCalendar> {
  * @param days - عدد الأيام للبحث (7-90)
  */
 export async function getBestDays(
-  activity: string = 'زراعة',
-  days: number = 30
+  activity: string = "زراعة",
+  days: number = 30,
 ): Promise<BestDaysResult> {
   const params = new URLSearchParams({
     activity,
@@ -154,7 +158,7 @@ export async function getBestDays(
  * Get all Yemeni farming proverbs
  */
 export async function getProverbs(): Promise<AllProverbs> {
-  return fetchFromAPI<AllProverbs>('/proverbs');
+  return fetchFromAPI<AllProverbs>("/proverbs");
 }
 
 /**
@@ -162,7 +166,7 @@ export async function getProverbs(): Promise<AllProverbs> {
  * Get proverb of the day
  */
 export async function getProverbOfTheDay(): Promise<ProverbOfTheDay> {
-  return fetchFromAPI<ProverbOfTheDay>('/proverbs/today');
+  return fetchFromAPI<ProverbOfTheDay>("/proverbs/today");
 }
 
 /**
@@ -170,5 +174,5 @@ export async function getProverbOfTheDay(): Promise<ProverbOfTheDay> {
  * Get comprehensive daily wisdom
  */
 export async function getWisdomToday(): Promise<DailyWisdom> {
-  return fetchFromAPI<DailyWisdom>('/wisdom/today');
+  return fetchFromAPI<DailyWisdom>("/wisdom/today");
 }

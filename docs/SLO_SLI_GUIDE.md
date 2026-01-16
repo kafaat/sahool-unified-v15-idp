@@ -9,6 +9,7 @@ Service Level Objectives (SLOs) and Service Level Indicators (SLIs) define the r
 Services are categorized into three tiers based on criticality:
 
 ### Critical Tier
+
 - **Kong API Gateway**
 - **PostgreSQL Database**
 - **Redis Cache**
@@ -17,6 +18,7 @@ Services are categorized into three tiers based on criticality:
 **SLO Target**: 99.95% availability (22 minutes/month downtime)
 
 ### High Tier
+
 - **Crop Growth Model**
 - **Crop Health AI**
 - **Weather Service**
@@ -26,6 +28,7 @@ Services are categorized into three tiers based on criticality:
 **SLO Target**: 99.9% availability (43 minutes/month downtime)
 
 ### Medium Tier
+
 - **Satellite Service**
 - **Marketplace Service**
 - **Analytics Service**
@@ -39,6 +42,7 @@ Services are categorized into three tiers based on criticality:
 **Definition**: Percentage of successful health checks
 
 **Measurement**:
+
 ```promql
 (
   sum(rate(up{job="sahool-services"}[5m]))
@@ -48,11 +52,13 @@ Services are categorized into three tiers based on criticality:
 ```
 
 **Target**:
+
 - Critical: 99.95%
 - High: 99.9%
 - Medium: 99.5%
 
 **Alert Threshold**:
+
 ```yaml
 - alert: SLOAvailabilityBreach
   expr: |
@@ -72,6 +78,7 @@ Services are categorized into three tiers based on criticality:
 **Definition**: Percentage of requests returning 2xx or 3xx status codes
 
 **Measurement**:
+
 ```promql
 (
   sum(rate(service_requests_total{status=~"2..|3.."}[5m]))
@@ -81,11 +88,13 @@ Services are categorized into three tiers based on criticality:
 ```
 
 **Target**:
+
 - Critical: 99.9% success rate
-- High: 99.5% success rate  
+- High: 99.5% success rate
 - Medium: 99% success rate
 
 **Alert Threshold**:
+
 ```yaml
 - alert: SLOSuccessRateBreach
   expr: |
@@ -105,6 +114,7 @@ Services are categorized into three tiers based on criticality:
 **Definition**: 95th percentile request latency
 
 **Measurement**:
+
 ```promql
 histogram_quantile(0.95,
   rate(service_request_duration_seconds_bucket[5m])
@@ -112,11 +122,13 @@ histogram_quantile(0.95,
 ```
 
 **Target**:
+
 - Critical (API Gateway): P95 < 100ms
 - High (Application Services): P95 < 1s
 - Medium (Batch Services): P95 < 5s
 
 **Alert Threshold**:
+
 ```yaml
 - alert: SLOLatencyBreach
   expr: |
@@ -134,17 +146,20 @@ histogram_quantile(0.95,
 **Definition**: Time since last successful data update
 
 **Measurement**:
+
 ```promql
 time() - max(last_update_timestamp) by (service, data_type)
 ```
 
 **Target**:
+
 - Weather data: < 1 hour
 - Satellite imagery: < 24 hours
 - Field data: < 5 minutes
 - Sensor data: < 1 minute
 
 **Alert Threshold**:
+
 ```yaml
 - alert: SLODataFreshnessBreach
   expr: |
@@ -184,18 +199,19 @@ Monitor error budget consumption:
 
 ### Error Budget Policy
 
-| Budget Remaining | Action |
-|------------------|--------|
-| > 50% | Normal development pace |
-| 25-50% | Review recent changes, increase monitoring |
-| 10-25% | Freeze non-critical deploys, focus on reliability |
-| < 10% | Deploy freeze, incident review, all-hands reliability |
+| Budget Remaining | Action                                                |
+| ---------------- | ----------------------------------------------------- |
+| > 50%            | Normal development pace                               |
+| 25-50%           | Review recent changes, increase monitoring            |
+| 10-25%           | Freeze non-critical deploys, focus on reliability     |
+| < 10%            | Deploy freeze, incident review, all-hands reliability |
 
 ## Alert Configuration
 
 ### Alert Severity Levels
 
 #### Page-Worthy (Critical)
+
 - Service completely down
 - Error rate > 50%
 - SLO breach for Critical tier services
@@ -204,6 +220,7 @@ Monitor error budget consumption:
 **Action**: Immediate response, page on-call
 
 #### High (Warning)
+
 - Availability < SLO target
 - Error rate > 5%
 - Latency > 2× SLO target
@@ -212,6 +229,7 @@ Monitor error budget consumption:
 **Action**: Investigate within 15 minutes
 
 #### Medium (Info)
+
 - Error budget < 50%
 - Latency > 1.5× SLO target
 - Cache hit rate < 50%
@@ -223,26 +241,25 @@ Monitor error budget consumption:
 ```yaml
 # alertmanager.yml
 route:
-  receiver: 'default'
+  receiver: "default"
   routes:
-  
-  # Critical alerts - page immediately
-  - match:
-      severity: critical
-    receiver: 'pagerduty-critical'
-    continue: true
-  
-  # High alerts - Slack + email
-  - match:
-      severity: warning
-      tier: critical
-    receiver: 'slack-critical'
-    continue: true
-  
-  # Medium alerts - Slack only
-  - match:
-      severity: warning
-    receiver: 'slack-warnings'
+    # Critical alerts - page immediately
+    - match:
+        severity: critical
+      receiver: "pagerduty-critical"
+      continue: true
+
+    # High alerts - Slack + email
+    - match:
+        severity: warning
+        tier: critical
+      receiver: "slack-critical"
+      continue: true
+
+    # Medium alerts - Slack only
+    - match:
+        severity: warning
+      receiver: "slack-warnings"
 ```
 
 ## SLO Dashboards
@@ -277,18 +294,21 @@ route:
 ## SLO Review Process
 
 ### Weekly Review
+
 - Check SLO compliance for past week
 - Review error budget consumption
 - Identify trends and patterns
 - Create tickets for improvements
 
 ### Monthly Review
+
 - Calculate monthly SLO achievement
 - Analyze SLO breaches
 - Review incident post-mortems
 - Adjust SLOs if needed
 
 ### Quarterly Review
+
 - Review SLO definitions
 - Adjust targets based on business needs
 - Update alert thresholds
@@ -312,26 +332,31 @@ route:
 ## Best Practices
 
 ### 1. Start Conservative
+
 - Begin with achievable SLOs (e.g., 99.5%)
 - Increase targets as reliability improves
 - Don't over-promise on new services
 
 ### 2. Measure What Matters
+
 - Focus on user-facing metrics
 - Don't create vanity metrics
 - Align SLIs with business objectives
 
 ### 3. Balance Reliability and Velocity
+
 - Use error budgets to inform decisions
 - Don't sacrifice all velocity for 100% reliability
 - 99.9% is often better than 99.99% (cost/benefit)
 
 ### 4. Learn from Incidents
+
 - Every SLO breach is a learning opportunity
 - Update runbooks after incidents
 - Adjust alerts to catch issues earlier
 
 ### 5. Communicate Clearly
+
 - Share SLO status with stakeholders
 - Explain error budget policy
 - Celebrate reliability wins
@@ -347,15 +372,15 @@ slos:
   availability:
     target: 99.9%
     window: 30d
-  
+
   latency:
     target_p95: 1s
     window: 5m
-  
+
   success_rate:
     target: 99.5%
     window: 30d
-  
+
   data_freshness:
     target: 5m
     metric: last_prediction_timestamp
@@ -365,46 +390,46 @@ slos:
 
 ```yaml
 groups:
-- name: crop_health_ai_slo
-  rules:
-  - alert: CropHealthAI_AvailabilityBreach
-    expr: |
-      (
-        avg_over_time(up{service="crop-health-ai"}[30m])
-      ) < 0.999
-    for: 5m
-    labels:
-      severity: critical
-      service: crop-health-ai
-    annotations:
-      summary: "Crop Health AI availability below SLO"
-  
-  - alert: CropHealthAI_LatencyBreach
-    expr: |
-      histogram_quantile(0.95,
-        rate(service_request_duration_seconds_bucket{service="crop-health-ai"}[30m])
-      ) > 1
-    for: 15m
-    labels:
-      severity: warning
-      service: crop-health-ai
-    annotations:
-      summary: "Crop Health AI P95 latency above 1s"
-  
-  - alert: CropHealthAI_ErrorBudgetLow
-    expr: |
-      (
-        1 - (
-          sum(increase(service_requests_total{service="crop-health-ai",status=~"5.."}[30d]))
-          /
-          sum(increase(service_requests_total{service="crop-health-ai"}[30d]))
-        )
-      ) / 0.001 < 0.25
-    labels:
-      severity: warning
-      service: crop-health-ai
-    annotations:
-      summary: "Crop Health AI error budget below 25%"
+  - name: crop_health_ai_slo
+    rules:
+      - alert: CropHealthAI_AvailabilityBreach
+        expr: |
+          (
+            avg_over_time(up{service="crop-health-ai"}[30m])
+          ) < 0.999
+        for: 5m
+        labels:
+          severity: critical
+          service: crop-health-ai
+        annotations:
+          summary: "Crop Health AI availability below SLO"
+
+      - alert: CropHealthAI_LatencyBreach
+        expr: |
+          histogram_quantile(0.95,
+            rate(service_request_duration_seconds_bucket{service="crop-health-ai"}[30m])
+          ) > 1
+        for: 15m
+        labels:
+          severity: warning
+          service: crop-health-ai
+        annotations:
+          summary: "Crop Health AI P95 latency above 1s"
+
+      - alert: CropHealthAI_ErrorBudgetLow
+        expr: |
+          (
+            1 - (
+              sum(increase(service_requests_total{service="crop-health-ai",status=~"5.."}[30d]))
+              /
+              sum(increase(service_requests_total{service="crop-health-ai"}[30d]))
+            )
+          ) / 0.001 < 0.25
+        labels:
+          severity: warning
+          service: crop-health-ai
+        annotations:
+          summary: "Crop Health AI error budget below 25%"
 ```
 
 ## Resources

@@ -1,4 +1,5 @@
 # ملخص إصلاح نقاط نهاية API
+
 # API Endpoint Configuration Fix Summary
 
 **التاريخ / Date:** 2026-01-04  
@@ -10,21 +11,23 @@
 ## المشكلة / Problem
 
 ### الوصف بالعربية
+
 كانت أربعة ملفات API تستخدم إعدادات `baseURL` غير صحيحة، مما يؤدي إلى تكرار البادئة `/api` في المسارات:
 
 ```typescript
 // الإعداد الخاطئ
-baseURL: process.env.NEXT_PUBLIC_API_URL || '/api'
+baseURL: process.env.NEXT_PUBLIC_API_URL || "/api";
 // مع نقاط النهاية التي تبدأ بـ /api/v1/...
 // النتيجة: /api/api/v1/... (تكرار)
 ```
 
 ### English Description
+
 Four API files were using incorrect `baseURL` configuration, causing duplicate `/api` prefix in paths:
 
 ```typescript
 // Incorrect configuration
-baseURL: process.env.NEXT_PUBLIC_API_URL || '/api'
+baseURL: process.env.NEXT_PUBLIC_API_URL || "/api";
 // With endpoints starting with /api/v1/...
 // Result: /api/api/v1/... (duplicate)
 ```
@@ -47,32 +50,34 @@ baseURL: process.env.NEXT_PUBLIC_API_URL || '/api'
 تم تحديث جميع الملفات من النمط القديم إلى النمط الجديد:
 
 **قبل / Before:**
+
 ```typescript
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 ```
 
 **بعد / After:**
-```typescript
-import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+```typescript
+import axios from "axios";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== 'undefined') {
-  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+if (!API_BASE_URL && typeof window !== "undefined") {
+  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
 }
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 ```
@@ -91,36 +96,90 @@ const api = axios.create({
 ### مثال على نقاط النهاية المحدثة / Example Updated Endpoints
 
 **Advisor API:**
+
 ```typescript
-/api/v1/advice/recommendations
-/api/v1/advice/ask
-/api/v1/advice/history
-/api/v1/advice/stats
+/api/1v /
+  advice /
+  recommendations /
+  api /
+  v1 /
+  advice /
+  ask /
+  api /
+  v1 /
+  advice /
+  history /
+  api /
+  v1 /
+  advice /
+  stats;
 ```
 
 **Field Map API:**
+
 ```typescript
-/api/v1/fields
-/api/v1/fields/{id}
-/api/v1/fields/geojson
-/api/v1/fields/stats
+/api/1v /
+  fields /
+  api /
+  v1 /
+  fields /
+  { id } /
+  api /
+  v1 /
+  fields /
+  geojson /
+  api /
+  v1 /
+  fields /
+  stats;
 ```
 
 **NDVI API:**
+
 ```typescript
-/api/v1/ndvi/latest
-/api/v1/ndvi/fields/{fieldId}
-/api/v1/ndvi/fields/{fieldId}/timeseries
-/api/v1/ndvi/fields/{fieldId}/map
+/api/1v /
+  ndvi /
+  latest /
+  api /
+  v1 /
+  ndvi /
+  fields /
+  { fieldId } /
+  api /
+  v1 /
+  ndvi /
+  fields /
+  { fieldId } /
+  timeseries /
+  api /
+  v1 /
+  ndvi /
+  fields /
+  { fieldId } /
+  map;
 ```
 
 **Reports API:**
+
 ```typescript
-/api/v1/reports
-/api/v1/reports/{id}
-/api/v1/reports/generate
-/api/v1/reports/templates
-/api/v1/reports/stats
+/api/1v /
+  reports /
+  api /
+  v1 /
+  reports /
+  { id } /
+  api /
+  v1 /
+  reports /
+  generate /
+  api /
+  v1 /
+  reports /
+  templates /
+  api /
+  v1 /
+  reports /
+  stats;
 ```
 
 ---

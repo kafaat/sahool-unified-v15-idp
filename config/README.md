@@ -59,39 +59,39 @@ JWT_REFRESH_TOKEN_EXPIRE_DAYS=30
 
 Local development settings:
 
-| Setting | Value | Notes |
-|---------|-------|-------|
-| `ENVIRONMENT` | development | |
-| `LOG_LEVEL` | DEBUG | Verbose logging |
-| `*_HOST` | localhost | All services local |
-| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | 1440 | 24h for convenience |
-| `MFA_ENABLED` | false | Disabled for dev |
-| `SAHOOL_AUTH_ENABLED` | false | Bypass auth |
+| Setting                           | Value       | Notes               |
+| --------------------------------- | ----------- | ------------------- |
+| `ENVIRONMENT`                     | development |                     |
+| `LOG_LEVEL`                       | DEBUG       | Verbose logging     |
+| `*_HOST`                          | localhost   | All services local  |
+| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | 1440        | 24h for convenience |
+| `MFA_ENABLED`                     | false       | Disabled for dev    |
+| `SAHOOL_AUTH_ENABLED`             | false       | Bypass auth         |
 
 ### ci.env (CI/CD)
 
 CI/CD pipeline settings:
 
-| Setting | Value | Notes |
-|---------|-------|-------|
-| `ENVIRONMENT` | ci | |
-| `LOG_LEVEL` | WARNING | Less noise |
-| Test-specific overrides | | |
+| Setting                 | Value   | Notes      |
+| ----------------------- | ------- | ---------- |
+| `ENVIRONMENT`           | ci      |            |
+| `LOG_LEVEL`             | WARNING | Less noise |
+| Test-specific overrides |         |            |
 
 ### prod.env (Production)
 
 Production security settings:
 
-| Setting | Value | Notes |
-|---------|-------|-------|
-| `ENVIRONMENT` | production | |
-| `LOG_LEVEL` | INFO | |
-| `MFA_ENABLED` | true | Required |
-| `SAHOOL_AUTH_ENABLED` | true | Required |
-| `MAX_LOGIN_ATTEMPTS` | 3 | Stricter |
-| `LOCKOUT_DURATION_MINUTES` | 60 | |
-| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | 30 | Short lived |
-| `JWT_REFRESH_TOKEN_EXPIRE_DAYS` | 7 | |
+| Setting                           | Value      | Notes       |
+| --------------------------------- | ---------- | ----------- |
+| `ENVIRONMENT`                     | production |             |
+| `LOG_LEVEL`                       | INFO       |             |
+| `MFA_ENABLED`                     | true       | Required    |
+| `SAHOOL_AUTH_ENABLED`             | true       | Required    |
+| `MAX_LOGIN_ATTEMPTS`              | 3          | Stricter    |
+| `LOCKOUT_DURATION_MINUTES`        | 60         |             |
+| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | 30         | Short lived |
+| `JWT_REFRESH_TOKEN_EXPIRE_DAYS`   | 7          |             |
 
 ---
 
@@ -103,19 +103,19 @@ Production security settings:
 
 ```yaml
 layers:
-  field-critical:   # Priority 1 - Never stops
+  field-critical: # Priority 1 - Never stops
     - field-service
     - billing-core
     - astronomical-calendar
     - notification-service
 
-  bridge:           # Priority 2 - Transform & Route
+  bridge: # Priority 2 - Transform & Route
     - indicators-service
     - yield-engine
     - irrigation-smart
     - fertilizer-advisor
 
-  analysis:         # Priority 3 - Can be delayed
+  analysis: # Priority 3 - Can be delayed
     - satellite-service
     - crop-health-ai
     - weather-advanced

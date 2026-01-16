@@ -103,8 +103,8 @@ jetstream:
         - "sahool.events.fields.>"
       retention: limits
       max_msgs: 10000000
-      max_bytes: 10737418240  # 10GB
-      max_age: 604800000000000  # 7 days in nanoseconds
+      max_bytes: 10737418240 # 10GB
+      max_age: 604800000000000 # 7 days in nanoseconds
       storage: file
       replicas: 3
       discard: old
@@ -114,7 +114,7 @@ jetstream:
         - "sahool.events.sync.>"
       retention: workqueue
       max_msgs: 1000000
-      max_bytes: 1073741824  # 1GB
+      max_bytes: 1073741824 # 1GB
       storage: file
       replicas: 3
 ```
@@ -147,11 +147,13 @@ jetstream:
 ### Alternative 1: Apache Kafka
 
 **Considered because:**
+
 - Industry standard for event streaming
 - Excellent persistence and replay
 - Rich ecosystem
 
 **Rejected because:**
+
 - Operational complexity (ZooKeeper/KRaft)
 - Resource heavy (3+ GB RAM per broker)
 - Overkill for our current scale
@@ -160,11 +162,13 @@ jetstream:
 ### Alternative 2: RabbitMQ
 
 **Considered because:**
+
 - Mature and well-documented
 - AMQP protocol support
 - Good management UI
 
 **Rejected because:**
+
 - Higher latency than NATS
 - Complex routing configuration
 - More resource intensive
@@ -173,10 +177,12 @@ jetstream:
 ### Alternative 3: Redis Pub/Sub + Streams
 
 **Considered because:**
+
 - Already using Redis for caching
 - Simpler architecture
 
 **Rejected because:**
+
 - No native clustering for pub/sub
 - Less mature persistence
 - Memory-bound

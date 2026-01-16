@@ -50,12 +50,7 @@
     },
     "payload": {
       "type": "object",
-      "required": [
-        "thread_id",
-        "scope_type",
-        "scope_id",
-        "created_by"
-      ],
+      "required": ["thread_id", "scope_type", "scope_id", "created_by"],
       "properties": {
         "thread_id": {
           "type": "string",

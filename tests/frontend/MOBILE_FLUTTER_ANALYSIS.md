@@ -15,6 +15,7 @@ The SAHOOL Flutter mobile application demonstrates **strong code quality** with 
 **Overall Grade**: A- (Excellent)
 
 ### Key Strengths
+
 - ✅ Modern state management with Riverpod 2.x
 - ✅ Offline-first architecture with encrypted SQLite/Drift
 - ✅ Comprehensive error handling and crash reporting
@@ -25,6 +26,7 @@ The SAHOOL Flutter mobile application demonstrates **strong code quality** with 
 - ✅ Extensive linting rules and code standards
 
 ### Areas for Improvement
+
 - ⚠️ Limited test coverage (17 test files for 372 source files)
 - ⚠️ High usage of null assertion operators (1,818 occurrences)
 - ⚠️ No code-generated models (freezed/json_serializable not actively used)
@@ -41,64 +43,76 @@ The SAHOOL Flutter mobile application demonstrates **strong code quality** with 
 #### Core Dependencies
 
 ##### State Management ✅ Excellent
+
 ```yaml
 flutter_riverpod: ^2.6.1
 riverpod_annotation: ^2.6.1
 ```
+
 - Modern Riverpod 2.x for reactive state management
 - Supports code generation for type-safe providers
 - Industry-standard choice for Flutter applications
 
 ##### Database (Offline-First) ✅ Excellent
+
 ```yaml
 drift: ^2.24.0
 sqlite3_flutter_libs: ^0.5.28
 sqlcipher_flutter_libs: ^0.6.1
 ```
+
 - **Drift** (formerly Moor) - Type-safe SQL ORM
 - **SQLCipher** for AES-256 database encryption
 - Excellent for offline-first applications
 - Supports complex GIS data types with custom converters
 
 ##### Networking ✅ Good
+
 ```yaml
 dio: ^5.7.0
 http: ^1.2.2
 connectivity_plus: ^6.1.1
 socket_io_client: ^2.0.3+1
-crypto: ^3.0.3  # For certificate pinning
+crypto: ^3.0.3 # For certificate pinning
 ```
+
 - Multiple HTTP clients (Dio for advanced features, http for simple requests)
 - Certificate pinning support for enhanced security
 - Real-time communication with Socket.IO
 
 ##### Navigation ✅ Excellent
+
 ```yaml
 go_router: ^14.6.2
 ```
+
 - Modern declarative routing
 - Type-safe navigation
 - Deep linking support
 - Proper ShellRoute for bottom navigation
 
 ##### Security ✅ Excellent
+
 ```yaml
 flutter_secure_storage: ^9.2.2
 flutter_jailbreak_detection: ^1.10.0
 device_info_plus: ^10.1.2
 ```
+
 - Platform-specific secure key storage (Keychain/Keystore)
 - Root/jailbreak detection
 - Device integrity verification
 
 ##### Maps & GIS ✅ Excellent
+
 ```yaml
 flutter_map: ^7.0.2
-maplibre_gl: ^0.19.0  # Open source, no API key
+maplibre_gl: ^0.19.0 # Open source, no API key
 latlong2: ^0.9.1
 vector_map_tiles: ^8.0.0
-flutter_map_tile_caching: ^9.1.0  # Offline support
+flutter_map_tile_caching: ^9.1.0 # Offline support
 ```
+
 - Multiple map provider support
 - No vendor lock-in (MapLibre is open source)
 - Offline tile caching for field operations
@@ -106,41 +120,47 @@ flutter_map_tile_caching: ^9.1.0  # Offline support
 #### Development Dependencies ⚠️ Mixed
 
 ##### Build Tools ✅ Good
+
 ```yaml
 build_runner: ^2.4.13
 drift_dev: ^2.24.0
 freezed: 2.5.8
 json_serializable: ^6.9.0
 ```
+
 - Code generation support available
 - Freezed for immutable models (pinned to compatible version)
 
 ##### Testing ⚠️ Weak
+
 ```yaml
 flutter_test: sdk: flutter
 integration_test: sdk: flutter
 # mockito removed due to incompatibility
 ```
+
 - **Critical Issue**: Mockito removed, no mocking library
 - Only 17 test files found
 - Test coverage appears minimal
 
 ##### Linting ✅ Excellent
+
 ```yaml
 flutter_lints: ^5.0.0
 ```
+
 - Latest Flutter lints package
 - Comprehensive analysis_options.yaml (332 lines)
 
 ### Dependency Risk Assessment
 
-| Category | Risk Level | Notes |
-|----------|-----------|-------|
-| Version Pinning | Low | Appropriate use of caret syntax |
-| Security | Low | Security-focused packages present |
-| Maintenance | Low | All packages actively maintained |
-| Testing | **High** | No mocking framework, limited tests |
-| Compatibility | Low | Proper Dart 3.6 compatibility matrix |
+| Category        | Risk Level | Notes                                |
+| --------------- | ---------- | ------------------------------------ |
+| Version Pinning | Low        | Appropriate use of caret syntax      |
+| Security        | Low        | Security-focused packages present    |
+| Maintenance     | Low        | All packages actively maintained     |
+| Testing         | **High**   | No mocking framework, limited tests  |
+| Compatibility   | Low        | Proper Dart 3.6 compatibility matrix |
 
 ---
 
@@ -255,13 +275,13 @@ The codebase follows **Clean Architecture** principles with clear separation:
 
 ### Code Organization Quality
 
-| Aspect | Rating | Details |
-|--------|--------|---------|
-| Feature Modularity | ⭐⭐⭐⭐⭐ | 38 feature modules, well-isolated |
-| Separation of Concerns | ⭐⭐⭐⭐⭐ | Clear data/presentation/UI layers |
-| Code Reusability | ⭐⭐⭐⭐ | Shared core modules |
-| Naming Conventions | ⭐⭐⭐⭐⭐ | Consistent, descriptive names |
-| File Size Management | ⭐⭐⭐⭐ | Largest file: 798 lines (database.dart) |
+| Aspect                 | Rating     | Details                                 |
+| ---------------------- | ---------- | --------------------------------------- |
+| Feature Modularity     | ⭐⭐⭐⭐⭐ | 38 feature modules, well-isolated       |
+| Separation of Concerns | ⭐⭐⭐⭐⭐ | Clear data/presentation/UI layers       |
+| Code Reusability       | ⭐⭐⭐⭐   | Shared core modules                     |
+| Naming Conventions     | ⭐⭐⭐⭐⭐ | Consistent, descriptive names           |
+| File Size Management   | ⭐⭐⭐⭐   | Largest file: 798 lines (database.dart) |
 
 ---
 
@@ -327,17 +347,20 @@ final allFieldsProvider =
 ### Performance Patterns Analysis
 
 #### Const Constructors ✅ Good
+
 - **323 files** use `const` constructors
 - Reduces widget rebuilds significantly
 - Well-integrated into codebase
 
 #### Widget Builders ✅ Good
+
 - **65 occurrences** of optimized list builders:
   - `ListView.builder`
   - `GridView.builder`
   - `IndexedStack` (for bottom navigation)
 
 #### Advanced Optimizations ⚠️ Limited
+
 - **25 occurrences** of performance widgets:
   - `RepaintBoundary` (isolates painting)
   - `AutomaticKeepAlive` (preserves state)
@@ -374,10 +397,10 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 ### Widget Types Distribution
 
 | Widget Type | Count (StatefulWidget) | Count (StatelessWidget) |
-|-------------|------------------------|-------------------------|
-| Stateful | 114 | - |
-| Stateless | - | 287 |
-| **Total** | **401 widget classes** |
+| ----------- | ---------------------- | ----------------------- |
+| Stateful    | 114                    | -                       |
+| Stateless   | -                      | 287                     |
+| **Total**   | **401 widget classes** |
 
 - **72% Stateless**: Excellent for performance
 - **28% Stateful**: Appropriate use for interactive widgets
@@ -385,6 +408,7 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 ### Widget Optimization Score: 7/10
 
 **Recommendations**:
+
 - Add more `RepaintBoundary` widgets around expensive renders
 - Use `AutomaticKeepAliveClientMixin` for tab content preservation
 - Consider `CustomScrollView` with slivers for complex scrolling
@@ -457,6 +481,7 @@ class Failure<T> extends ApiResult<T> {
 ```
 
 **Benefits**:
+
 - ✅ Forces exhaustive error handling with `when()` method
 - ✅ No uncaught exceptions from network calls
 - ✅ Type-safe error propagation
@@ -488,23 +513,25 @@ class ErrorBoundary extends StatefulWidget {
 
 ### Error Handling Metrics
 
-| Pattern | Usage Count | Quality |
-|---------|-------------|---------|
-| try-catch blocks | 47 | ✅ Good |
-| ApiResult pattern | Widely used | ✅ Excellent |
-| Error boundaries | 2 implementations | ✅ Good |
-| Global handlers | Complete | ✅ Excellent |
-| Null checks | 1,818 assertions | ⚠️ High |
+| Pattern           | Usage Count       | Quality      |
+| ----------------- | ----------------- | ------------ |
+| try-catch blocks  | 47                | ✅ Good      |
+| ApiResult pattern | Widely used       | ✅ Excellent |
+| Error boundaries  | 2 implementations | ✅ Good      |
+| Global handlers   | Complete          | ✅ Excellent |
+| Null checks       | 1,818 assertions  | ⚠️ High      |
 
 ### Error Handling Score: 9/10
 
 **Strengths**:
+
 - Multi-layered error handling strategy
 - User-friendly error messages (Arabic/English)
 - Comprehensive crash reporting
 - Type-safe error propagation
 
 **Concerns**:
+
 - High number of null assertion operators (`!`) - 1,818 occurrences
 - Could benefit from more defensive programming
 
@@ -518,21 +545,23 @@ class ErrorBoundary extends StatefulWidget {
 
 #### Null Safety Metrics
 
-| Metric | Count | Assessment |
-|--------|-------|------------|
-| Null assertion operator (`!`) | 1,818 | ⚠️ High |
-| Late keyword usage | 137 | ✅ Acceptable |
-| Nullable types (`?`) | Widespread | ✅ Good |
-| Null-aware operators (`?.`, `??`) | Extensive | ✅ Excellent |
+| Metric                            | Count      | Assessment    |
+| --------------------------------- | ---------- | ------------- |
+| Null assertion operator (`!`)     | 1,818      | ⚠️ High       |
+| Late keyword usage                | 137        | ✅ Acceptable |
+| Nullable types (`?`)              | Widespread | ✅ Good       |
+| Null-aware operators (`?.`, `??`) | Extensive  | ✅ Excellent  |
 
 #### Analysis of Null Assertions
 
 **Location of High Usage**:
+
 - Generated files: `.g.dart`, `.freezed.dart` (excluded from count)
 - Manual files: 1,818 occurrences across 372 files
 - Average: ~4.9 assertions per file
 
 **Example Patterns**:
+
 ```dart
 // Common pattern in route parameters
 final fieldId = state.pathParameters['id']!;  // ⚠️ Assumes key exists
@@ -562,12 +591,14 @@ linter:
 #### ✅ Good Practices Found
 
 1. **Null-aware operators**:
+
 ```dart
 widget.onError?.call(error, stackTrace);  // Safe optional callback
 final message = error?.toString() ?? 'Unknown error';  // Safe with fallback
 ```
 
 2. **Type promotion**:
+
 ```dart
 if (_error != null) {
   return _DefaultErrorWidget(error: _error!, ...);  // Type promoted
@@ -575,6 +606,7 @@ if (_error != null) {
 ```
 
 3. **Nullable return types**:
+
 ```dart
 Future<Field?> getFieldById(String fieldId);  // Clear nullable contract
 ```
@@ -582,6 +614,7 @@ Future<Field?> getFieldById(String fieldId);  // Clear nullable contract
 #### ⚠️ Areas for Improvement
 
 1. **Route parameter access**:
+
 ```dart
 // Current (unsafe)
 final id = state.pathParameters['id']!;
@@ -594,6 +627,7 @@ if (id == null) {
 ```
 
 2. **JSON parsing**:
+
 ```dart
 // Current (assumes structure)
 final coords = geometry['coordinates'][0] as List;
@@ -604,6 +638,7 @@ if (coords == null) throw FormatException('Invalid geometry');
 ```
 
 3. **Late initialization**:
+
 ```dart
 // 137 occurrences - ensure all are properly initialized
 late final AppDatabase database;  // Must be initialized before use
@@ -612,6 +647,7 @@ late final AppDatabase database;  // Must be initialized before use
 ### Null Safety Score: 7/10
 
 **Recommendations**:
+
 1. Reduce null assertions by 50% through defensive programming
 2. Add validation for route parameters
 3. Implement exhaustive null checks for external data (JSON, API responses)
@@ -728,6 +764,7 @@ core/
 **README/Guide Files Found**: 25+ markdown documentation files
 
 Examples:
+
 - `/features/field/presentation/widgets/README.md`
 - `/features/tasks/presentation/widgets/INTEGRATION_GUIDE.md`
 - `/CERTIFICATE_PINNING_IMPLEMENTATION.md`
@@ -736,26 +773,28 @@ Examples:
 
 ### Code Organization Metrics
 
-| Category | Score | Details |
-|----------|-------|---------|
-| **Modularity** | 10/10 | 38 feature modules, well-isolated |
+| Category                   | Score | Details                           |
+| -------------------------- | ----- | --------------------------------- |
+| **Modularity**             | 10/10 | 38 feature modules, well-isolated |
 | **Separation of Concerns** | 10/10 | Clear data/presentation/UI layers |
-| **Naming Conventions** | 10/10 | Consistent, descriptive |
-| **File Size** | 9/10 | Mostly <500 lines, max 798 |
-| **Documentation** | 8/10 | Good inline docs, 25+ guides |
-| **Import Organization** | 10/10 | Proper relative imports |
+| **Naming Conventions**     | 10/10 | Consistent, descriptive           |
+| **File Size**              | 9/10  | Mostly <500 lines, max 798        |
+| **Documentation**          | 8/10  | Good inline docs, 25+ guides      |
+| **Import Organization**    | 10/10 | Proper relative imports           |
 
 ### Import Management
 
 From `analysis_options.yaml`:
+
 ```yaml
 linter:
   rules:
-    - directives_ordering        # Sorted imports
-    - prefer_relative_imports    # Relative over package imports
+    - directives_ordering # Sorted imports
+    - prefer_relative_imports # Relative over package imports
 ```
 
 Example from code:
+
 ```dart
 // Core imports
 import 'package:flutter/material.dart';
@@ -804,6 +843,7 @@ LazyDatabase _openConnection() {
 ```
 
 **Features**:
+
 - ✅ AES-256 encryption
 - ✅ SQLCipher 4.x compatibility
 - ✅ Secure key storage in platform keychain/keystore
@@ -826,6 +866,7 @@ final apiClientProvider = Provider<ApiClient>((ref) {
 ```
 
 **Features**:
+
 - ✅ SSL certificate pinning for production
 - ✅ Disabled in debug for local development
 - ✅ Request signing for API authentication
@@ -855,6 +896,7 @@ if (securityConfig.deviceIntegrityPolicy != DeviceIntegrityPolicy.disabled) {
 ```
 
 **Checks**:
+
 - ✅ Root/jailbreak detection
 - ✅ Device tampering detection
 - ✅ Configurable policies (disabled/warn/block)
@@ -864,10 +906,11 @@ if (securityConfig.deviceIntegrityPolicy != DeviceIntegrityPolicy.disabled) {
 
 ```yaml
 # From pubspec.yaml
-flutter_secure_storage: ^9.2.2  # Platform keychain/keystore
+flutter_secure_storage: ^9.2.2 # Platform keychain/keystore
 ```
 
 **Usage**:
+
 - ✅ Encryption keys stored in native secure storage
 - ✅ No keys in SharedPreferences
 - ✅ Platform-specific encryption (iOS Keychain, Android Keystore)
@@ -875,18 +918,21 @@ flutter_secure_storage: ^9.2.2  # Platform keychain/keystore
 #### 5. HTTP Interceptors
 
 **Security Headers Interceptor**:
+
 ```dart
 // core/http/security_headers_interceptor.dart
 // Adds security headers to all requests
 ```
 
 **Authentication Interceptor**:
+
 ```dart
 // core/http/auth_interceptor.dart
 // Adds JWT tokens, handles token refresh
 ```
 
 **Rate Limiting**:
+
 ```dart
 // core/http/rate_limiter.dart
 // Prevents API abuse
@@ -895,6 +941,7 @@ flutter_secure_storage: ^9.2.2  # Platform keychain/keystore
 ### Security Score: 10/10
 
 **Comprehensive Security Measures**:
+
 - ✅ Database encryption (SQLCipher)
 - ✅ Certificate pinning (production)
 - ✅ Device integrity checks
@@ -917,6 +964,7 @@ flutter_secure_storage: ^9.2.2  # Platform keychain/keystore
    - Minimal memory allocations
 
 2. **IndexedStack for Bottom Navigation**
+
    ```dart
    // Preserves state, prevents rebuilds
    IndexedStack(index: _currentIndex, children: _screens)
@@ -927,6 +975,7 @@ flutter_secure_storage: ^9.2.2  # Platform keychain/keystore
    - Memory-efficient scrolling
 
 4. **Database Optimizations**
+
    ```dart
    // WAL mode for concurrent reads
    database.execute('PRAGMA journal_mode = WAL;');
@@ -955,6 +1004,7 @@ flutter_secure_storage: ^9.2.2  # Platform keychain/keystore
    - Could use deferred loading for features
 
 3. **No Performance Monitoring**
+
    ```yaml
    # Missing from pubspec.yaml
    # firebase_performance: ^0.9.0
@@ -966,14 +1016,14 @@ flutter_secure_storage: ^9.2.2  # Platform keychain/keystore
 
 ### Performance Optimization Opportunities
 
-| Optimization | Current State | Recommended Action |
-|--------------|---------------|-------------------|
-| Widget rebuilds | Good (const) | Add more RepaintBoundaries |
-| List rendering | Good (builders) | Add AutomaticKeepAlive for tabs |
-| Image loading | Good (cached) | Add placeholder shimmer |
-| Bundle size | Unknown | Analyze with `--analyze-size` |
-| Code splitting | None | Consider deferred imports |
-| Monitoring | None | Add Firebase Performance |
+| Optimization    | Current State   | Recommended Action              |
+| --------------- | --------------- | ------------------------------- |
+| Widget rebuilds | Good (const)    | Add more RepaintBoundaries      |
+| List rendering  | Good (builders) | Add AutomaticKeepAlive for tabs |
+| Image loading   | Good (cached)   | Add placeholder shimmer         |
+| Bundle size     | Unknown         | Analyze with `--analyze-size`   |
+| Code splitting  | None            | Consider deferred imports       |
+| Monitoring      | None            | Add Firebase Performance        |
 
 ### Performance Score: 7/10
 
@@ -1028,6 +1078,7 @@ analyzer:
 **Linter Rules**: 100+ rules enabled
 
 Categories:
+
 - ✅ Error Prevention (avoid_print, cancel_subscriptions, close_sinks)
 - ✅ Type Safety (always_declare_return_types, avoid_dynamic_calls)
 - ✅ Performance (prefer_const_constructors, use_string_buffers)
@@ -1038,19 +1089,21 @@ Categories:
 
 ### Code Quality Tools
 
-| Tool | Status | Score |
-|------|--------|-------|
-| Flutter Lints | ✅ Enabled | 10/10 |
-| Analysis Options | ✅ Comprehensive | 10/10 |
-| Unit Tests | ⚠️ Minimal | 2/10 |
-| Widget Tests | ⚠️ Minimal | 2/10 |
-| Integration Tests | ⚠️ Minimal | 2/10 |
-| Mocking Framework | ❌ None | 0/10 |
+| Tool              | Status           | Score |
+| ----------------- | ---------------- | ----- |
+| Flutter Lints     | ✅ Enabled       | 10/10 |
+| Analysis Options  | ✅ Comprehensive | 10/10 |
+| Unit Tests        | ⚠️ Minimal       | 2/10  |
+| Widget Tests      | ⚠️ Minimal       | 2/10  |
+| Integration Tests | ⚠️ Minimal       | 2/10  |
+| Mocking Framework | ❌ None          | 0/10  |
 
 ### Testing Score: 3/10
 
 **Critical Recommendations**:
+
 1. **Add Mocking Framework**: `mocktail` (compatible with Dart 3.x)
+
    ```yaml
    dev_dependencies:
      mocktail: ^1.0.0
@@ -1062,6 +1115,7 @@ Categories:
    - Integration tests for critical flows
 
 3. **Add Golden Tests** for UI consistency
+
    ```yaml
    dev_dependencies:
      golden_toolkit: ^0.15.0
@@ -1084,6 +1138,7 @@ Categories:
 **File**: `core/storage/database.dart`
 
 **Tables**:
+
 1. **Tasks** - Field tasks with sync status
 2. **Outbox** - Offline operations queue (ETag support)
 3. **Fields** - GIS-enabled field data with polygon boundaries
@@ -1091,6 +1146,7 @@ Categories:
 5. **SyncEvents** - Conflict notifications
 
 **Features**:
+
 - ✅ Type-safe SQL with Drift
 - ✅ GIS support (LatLng coordinates, polygons)
 - ✅ Custom type converters
@@ -1102,11 +1158,13 @@ Categories:
 #### Sync Engine
 
 **Files**:
+
 - `core/sync/sync_engine.dart`
 - `core/sync/background_sync_task.dart`
 - `core/offline/offline_sync_engine.dart`
 
 **Capabilities**:
+
 - ✅ Background sync with Workmanager
 - ✅ Periodic sync every 15 minutes
 - ✅ Conflict resolution strategies
@@ -1117,15 +1175,17 @@ Categories:
 ### GIS & Mapping ✅ Excellent
 
 **Packages**:
+
 ```yaml
 flutter_map: ^7.0.2
-maplibre_gl: ^0.19.0          # Open source
+maplibre_gl: ^0.19.0 # Open source
 latlong2: ^0.9.1
 vector_map_tiles: ^8.0.0
 flutter_map_tile_caching: ^9.1.0
 ```
 
 **Features**:
+
 - ✅ Offline tile caching
 - ✅ Polygon drawing/editing
 - ✅ GeoJSON support
@@ -1134,6 +1194,7 @@ flutter_map_tile_caching: ^9.1.0
 - ✅ Multiple map providers (no vendor lock-in)
 
 **Custom Converters**:
+
 ```dart
 // core/storage/converters/geo_converter.dart
 class GeoPolygonConverter extends TypeConverter<List<LatLng>, String> {
@@ -1144,15 +1205,17 @@ class GeoPolygonConverter extends TypeConverter<List<LatLng>, String> {
 ### Localization ✅ Good
 
 **Files**:
+
 - `l10n/app_ar.arb` (Arabic)
 - `l10n/app_en.arb` (English)
 - Generated files in `generated/l10n/`
 
 **Configuration**:
+
 ```yaml
 # pubspec.yaml
 flutter:
-  generate: true  # ARB to Dart code generation
+  generate: true # ARB to Dart code generation
 
 # l10n.yaml
 arb-dir: lib/l10n
@@ -1161,6 +1224,7 @@ output-localization-file: app_localizations.dart
 ```
 
 **Usage**:
+
 ```dart
 // RTL support built-in
 return Directionality(
@@ -1177,19 +1241,19 @@ return Directionality(
 
 ### Overall Scores by Category
 
-| Category | Score | Grade |
-|----------|-------|-------|
-| **Dependencies** | 8/10 | B+ |
-| **Code Structure** | 10/10 | A+ |
-| **State Management** | 9/10 | A |
-| **Widget Optimization** | 7/10 | B |
-| **Error Handling** | 9/10 | A |
-| **Null Safety** | 7/10 | B |
-| **Code Organization** | 10/10 | A+ |
-| **Security** | 10/10 | A+ |
-| **Performance** | 7/10 | B |
-| **Testing** | 3/10 | D |
-| **Advanced Features** | 9/10 | A |
+| Category                | Score | Grade |
+| ----------------------- | ----- | ----- |
+| **Dependencies**        | 8/10  | B+    |
+| **Code Structure**      | 10/10 | A+    |
+| **State Management**    | 9/10  | A     |
+| **Widget Optimization** | 7/10  | B     |
+| **Error Handling**      | 9/10  | A     |
+| **Null Safety**         | 7/10  | B     |
+| **Code Organization**   | 10/10 | A+    |
+| **Security**            | 10/10 | A+    |
+| **Performance**         | 7/10  | B     |
+| **Testing**             | 3/10  | D     |
+| **Advanced Features**   | 9/10  | A     |
 
 **Overall Average**: **8.1/10 (A-)**
 
@@ -1200,29 +1264,34 @@ return Directionality(
 ### 🔴 Critical Issues
 
 #### 1. Insufficient Test Coverage
+
 **Current**: 17 test files for 372 source files (~4.6%)
 **Target**: Minimum 60% code coverage
 
 **Actions**:
+
 ```yaml
 # Add to pubspec.yaml
 dev_dependencies:
-  mocktail: ^1.0.0              # Mocking (Dart 3.x compatible)
-  golden_toolkit: ^0.15.0       # Golden tests
-  bloc_test: ^9.1.0             # State testing
+  mocktail: ^1.0.0 # Mocking (Dart 3.x compatible)
+  golden_toolkit: ^0.15.0 # Golden tests
+  bloc_test: ^9.1.0 # State testing
 ```
 
 **Test Strategy**:
+
 1. Unit tests for repositories (data layer)
 2. Widget tests for custom widgets
 3. Integration tests for critical user flows
 4. Golden tests for UI consistency
 
 #### 2. High Null Assertion Usage
+
 **Current**: 1,818 `!` operators
 **Risk**: Runtime null pointer exceptions
 
 **Actions**:
+
 1. Audit top 20 files with most assertions
 2. Replace with null checks + error handling
 3. Add linter rule:
@@ -1233,10 +1302,12 @@ dev_dependencies:
    ```
 
 #### 3. Missing Code Generation
+
 **Current**: Freezed/json_serializable installed but unused
 **Benefit**: Type-safe models, reduced boilerplate
 
 **Actions**:
+
 1. Add `@freezed` annotations to models
 2. Add `@JsonSerializable` to API models
 3. Run `flutter pub run build_runner build`
@@ -1245,10 +1316,12 @@ dev_dependencies:
 ### 🟡 High Priority Improvements
 
 #### 4. Performance Monitoring
+
 **Current**: No performance tracking
 **Impact**: Cannot identify bottlenecks in production
 
 **Actions**:
+
 ```yaml
 # Add to pubspec.yaml
 dependencies:
@@ -1256,19 +1329,23 @@ dependencies:
 ```
 
 #### 5. Widget Performance Optimization
+
 **Current**: Only 25 RepaintBoundary usages
 **Target**: Add to all expensive widgets (maps, charts, images)
 
 **Actions**:
+
 1. Wrap map widgets with `RepaintBoundary`
 2. Add `AutomaticKeepAlive` to tab content
 3. Profile with DevTools to find jank
 
 #### 6. Bundle Size Optimization
+
 **Current**: Unknown app size
 **Target**: <50MB APK
 
 **Actions**:
+
 ```bash
 flutter build apk --analyze-size --target-platform android-arm64
 flutter build appbundle --analyze-size
@@ -1277,10 +1354,13 @@ flutter build appbundle --analyze-size
 ### 🟢 Nice to Have
 
 #### 7. Code Splitting
+
 **Benefit**: Faster initial load, smaller initial bundle
 
 **Actions**:
+
 1. Use deferred imports for large features:
+
    ```dart
    import 'features/satellite/satellite_screen.dart' deferred as satellite;
 
@@ -1289,10 +1369,12 @@ flutter build appbundle --analyze-size
    ```
 
 #### 8. Documentation
+
 **Current**: Good inline docs, 25+ guides
 **Target**: API documentation with `dartdoc`
 
 **Actions**:
+
 ```bash
 dart doc .
 # Generate docs/api/ folder
@@ -1329,12 +1411,14 @@ dart doc .
 ### Phase 1: Critical Fixes (Sprint 1-2)
 
 **Week 1-2**:
+
 - [ ] Add `mocktail` package
 - [ ] Write unit tests for top 5 repositories
 - [ ] Achieve 30% code coverage
 - [ ] Set up coverage reporting
 
 **Week 3-4**:
+
 - [ ] Audit files with most null assertions
 - [ ] Refactor top 10 files to reduce assertions by 50%
 - [ ] Add strict null safety linter rules
@@ -1343,12 +1427,14 @@ dart doc .
 ### Phase 2: High Priority (Sprint 3-4)
 
 **Week 5-6**:
+
 - [ ] Implement Freezed models for top 10 features
 - [ ] Add json_serializable to API models
 - [ ] Run build_runner and update code
 - [ ] Write widget tests for reusable widgets
 
 **Week 7-8**:
+
 - [ ] Add RepaintBoundary to maps, charts, images
 - [ ] Profile with DevTools
 - [ ] Optimize identified bottlenecks
@@ -1357,12 +1443,14 @@ dart doc .
 ### Phase 3: Polish (Sprint 5-6)
 
 **Week 9-10**:
+
 - [ ] Add golden tests for critical screens
 - [ ] Implement deferred loading for satellite feature
 - [ ] Analyze bundle size
 - [ ] Optimize assets (compress images, remove unused)
 
 **Week 11-12**:
+
 - [ ] Generate API documentation with dartdoc
 - [ ] Add integration tests for top 3 user flows
 - [ ] Achieve 60% code coverage
@@ -1377,6 +1465,7 @@ dart doc .
 The **SAHOOL Flutter Mobile Application** demonstrates **excellent code quality** with a solid foundation in modern Flutter best practices. The codebase exhibits:
 
 **Key Achievements**:
+
 - 🏆 Clean architecture with 38 well-organized feature modules
 - 🏆 Robust offline-first architecture with encrypted SQLite
 - 🏆 Comprehensive security measures (encryption, certificate pinning, device integrity)
@@ -1386,6 +1475,7 @@ The **SAHOOL Flutter Mobile Application** demonstrates **excellent code quality*
 - 🏆 Bilingual support (Arabic/English) with RTL
 
 **Critical Gap**:
+
 - ⚠️ **Insufficient test coverage** (4.6%) - This is the primary weakness that must be addressed urgently
 
 **Overall Assessment**: The application is **production-ready** with excellent architecture and security, but **requires significant investment in testing** to ensure long-term maintainability and reliability.
@@ -1393,6 +1483,7 @@ The **SAHOOL Flutter Mobile Application** demonstrates **excellent code quality*
 ### Final Grade: A- (Excellent with Room for Growth)
 
 **Breakdown**:
+
 - Code Quality: A+
 - Architecture: A+
 - Security: A+
@@ -1408,14 +1499,14 @@ The **SAHOOL Flutter Mobile Application** demonstrates **excellent code quality*
 
 ### Core Infrastructure Files
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `lib/main.dart` | 314 | App entry point with error handling |
-| `lib/app.dart` | 556 | Main app widget and shell |
-| `lib/core/storage/database.dart` | 798 | Drift database schema |
-| `lib/core/routes/app_router.dart` | 496 | go_router navigation config |
-| `analysis_options.yaml` | 332 | Linting rules |
-| `pubspec.yaml` | 165 | Dependencies |
+| File                              | Lines | Purpose                             |
+| --------------------------------- | ----- | ----------------------------------- |
+| `lib/main.dart`                   | 314   | App entry point with error handling |
+| `lib/app.dart`                    | 556   | Main app widget and shell           |
+| `lib/core/storage/database.dart`  | 798   | Drift database schema               |
+| `lib/core/routes/app_router.dart` | 496   | go_router navigation config         |
+| `analysis_options.yaml`           | 332   | Linting rules                       |
+| `pubspec.yaml`                    | 165   | Dependencies                        |
 
 ### Documentation Files
 
@@ -1429,6 +1520,7 @@ The **SAHOOL Flutter Mobile Application** demonstrates **excellent code quality*
 ### Generated Files Status
 
 **Expected but Missing**:
+
 - No `.freezed.dart` files (Freezed not actively used)
 - No `.g.dart` files (json_serializable not actively used)
 

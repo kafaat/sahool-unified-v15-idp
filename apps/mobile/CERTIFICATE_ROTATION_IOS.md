@@ -22,6 +22,7 @@ This document provides comprehensive guidance for managing SSL/TLS certificate p
 ### SPKI Pinning vs Certificate Pinning
 
 **SPKI (Subject Public Key Info) Pinning** (Recommended for iOS):
+
 - Pins the **public key** of the certificate
 - Public key remains the same when certificate is renewed
 - More resilient to certificate rotation
@@ -29,6 +30,7 @@ This document provides comprehensive guidance for managing SSL/TLS certificate p
 - Less likely to break app during routine certificate renewal
 
 **Certificate Pinning**:
+
 - Pins the **entire certificate**
 - Certificate changes completely when renewed
 - Requires app update when certificate is renewed
@@ -135,6 +137,7 @@ fi
 ```
 
 Usage:
+
 ```bash
 chmod +x get_spki_hash.sh
 ./get_spki_hash.sh api.sahool.io
@@ -420,11 +423,13 @@ class CertificatePinningTests: XCTestCase {
 ### Issue 1: All API Requests Failing
 
 **Symptoms:**
+
 - All network requests fail
 - Error: "The certificate for this server is invalid"
 - Console shows: "❌ Certificate validation failed"
 
 **Causes:**
+
 1. Wrong SPKI hash configured
 2. Server certificate changed
 3. Man-in-the-middle attack (legitimate)
@@ -481,6 +486,7 @@ This is expected behavior. Test with `allowDebugBypass: false` to verify pins.
 ### Issue 4: Certificate Expiry Warnings
 
 **Symptoms:**
+
 - Console shows: "⚠️ Certificate pins expired for host: api.sahool.io"
 
 **Solution:**
@@ -577,6 +583,7 @@ Implement forced update:
 **Option 3: Dynamic Pin Updates (Advanced)**
 
 Consider implementing remote pin configuration:
+
 - Store pins in secure remote config
 - Download pins on app start
 - Validate pins using signature verification
@@ -622,14 +629,15 @@ certificatePins["api-staging.sahool.app"] = [
 
 Maintain a certificate inventory:
 
-| Domain | Current Hash | Expiry Date | Backup Hash | Status |
-|--------|-------------|-------------|-------------|---------|
-| api.sahool.io | ABC...123 | 2026-12-31 | DEF...456 | Active |
-| api-staging.sahool.app | GHI...789 | 2026-06-30 | - | Active |
+| Domain                 | Current Hash | Expiry Date | Backup Hash | Status |
+| ---------------------- | ------------ | ----------- | ----------- | ------ |
+| api.sahool.io          | ABC...123    | 2026-12-31  | DEF...456   | Active |
+| api-staging.sahool.app | GHI...789    | 2026-06-30  | -           | Active |
 
 ### 5. Plan Rotation Early
 
 Start planning 90 days before expiry:
+
 - Day 90: Get new certificate
 - Day 60: Submit app update
 - Day 30: Release update

@@ -34,21 +34,25 @@
 ## تكوين الاتصال | Connection Configuration
 
 ### 1. اتصال مباشر (للتطوير فقط)
+
 ```
 DATABASE_URL=postgresql://sahool:password@postgres:5432/sahool
 ```
 
 ### 2. اتصال عبر PgBouncer (موصى به للإنتاج)
+
 ```
 DATABASE_URL=postgresql://sahool:password@pgbouncer:6432/sahool
 ```
 
 ### 3. اتصال Prisma مع PgBouncer
+
 ```
 DATABASE_URL=postgresql://sahool:password@pgbouncer:6432/sahool?pgbouncer=true&connection_limit=5
 ```
 
 ### 4. اتصال SQLAlchemy مع PgBouncer
+
 ```python
 # For async (recommended)
 DATABASE_URL=postgresql+asyncpg://sahool:password@pgbouncer:6432/sahool
@@ -59,13 +63,13 @@ DATABASE_URL=postgresql+psycopg2://sahool:password@pgbouncer:6432/sahool
 
 ## إعدادات PgBouncer | PgBouncer Settings
 
-| الإعداد | القيمة | الوصف |
-|---------|--------|-------|
-| `pool_mode` | `transaction` | أفضل لتطبيقات الويب |
-| `max_client_conn` | `500` | الحد الأقصى لاتصالات العملاء |
-| `default_pool_size` | `20` | حجم المجمع الافتراضي |
-| `max_db_connections` | `100` | الحد الأقصى لاتصالات قاعدة البيانات |
-| `query_timeout` | `120` | مهلة الاستعلام بالثواني |
+| الإعداد              | القيمة        | الوصف                               |
+| -------------------- | ------------- | ----------------------------------- |
+| `pool_mode`          | `transaction` | أفضل لتطبيقات الويب                 |
+| `max_client_conn`    | `500`         | الحد الأقصى لاتصالات العملاء        |
+| `default_pool_size`  | `20`          | حجم المجمع الافتراضي                |
+| `max_db_connections` | `100`         | الحد الأقصى لاتصالات قاعدة البيانات |
+| `query_timeout`      | `120`         | مهلة الاستعلام بالثواني             |
 
 ## تكوين الخدمات | Service Configuration
 
@@ -116,6 +120,7 @@ async_session = sessionmaker(
 تم إضافة الفهارس التالية لتحسين الأداء:
 
 ### جدول الحقول (fields)
+
 ```sql
 CREATE INDEX idx_fields_tenant_status ON fields(tenant_id, status);
 CREATE INDEX idx_fields_tenant_crop ON fields(tenant_id, crop_type);
@@ -123,6 +128,7 @@ CREATE INDEX idx_fields_location ON fields USING GIST(centroid);
 ```
 
 ### جدول المهام (tasks)
+
 ```sql
 CREATE INDEX idx_tasks_field_status ON tasks(field_id, status);
 CREATE INDEX idx_tasks_assignee_due ON tasks(assigned_to, due_date);
@@ -130,6 +136,7 @@ CREATE INDEX idx_tasks_tenant_status_date ON tasks(tenant_id, status, due_date);
 ```
 
 ### جدول المستشعرات (sensors)
+
 ```sql
 CREATE INDEX idx_sensor_readings_sensor_time ON sensor_readings(sensor_id, timestamp DESC);
 CREATE INDEX idx_devices_tenant_status ON devices(tenant_id, status);
@@ -138,17 +145,20 @@ CREATE INDEX idx_devices_tenant_status ON devices(tenant_id, status);
 ## النسخ الاحتياطي | Backup Strategy
 
 ### النسخ الاحتياطي اليومي
+
 ```bash
 # يتم تشغيله تلقائياً عبر cron
 0 2 * * * /scripts/backup_database.sh daily
 ```
 
 ### النسخ الاحتياطي الأسبوعي
+
 ```bash
 0 3 * * 0 /scripts/backup_database.sh weekly
 ```
 
 ### استعادة النسخة الاحتياطية
+
 ```bash
 ./scripts/restore_database.sh /path/to/backup.sql.gz
 ```
@@ -156,6 +166,7 @@ CREATE INDEX idx_devices_tenant_status ON devices(tenant_id, status);
 ## مراقبة الأداء | Performance Monitoring
 
 ### فحص اتصالات PgBouncer
+
 ```sql
 -- الاتصال بـ PgBouncer admin
 psql -h pgbouncer -p 6432 -U pgbouncer_admin pgbouncer
@@ -168,6 +179,7 @@ SHOW SERVERS;
 ```
 
 ### فحص الاستعلامات البطيئة
+
 ```sql
 SELECT pid, now() - pg_stat_activity.query_start AS duration, query, state
 FROM pg_stat_activity
@@ -178,6 +190,7 @@ AND state != 'idle';
 ## استكشاف الأخطاء | Troubleshooting
 
 ### خطأ: "too many connections"
+
 ```bash
 # تحقق من اتصالات PgBouncer
 docker exec sahool-pgbouncer psql -p 6432 -U pgbouncer_admin pgbouncer -c "SHOW POOLS;"
@@ -187,6 +200,7 @@ docker restart sahool-pgbouncer
 ```
 
 ### خطأ: "connection timeout"
+
 ```bash
 # تحقق من صحة PostgreSQL
 docker exec sahool-postgres pg_isready -U sahool

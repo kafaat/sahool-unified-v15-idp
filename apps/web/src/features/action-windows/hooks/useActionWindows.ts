@@ -5,20 +5,20 @@
  * React hooks for fetching and managing action windows (spray, irrigation, recommendations)
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 import {
   getSprayWindows,
   getIrrigationWindows,
   getActionRecommendations,
   actionWindowsKeys,
-} from '../api/action-windows-api';
+} from "../api/action-windows-api";
 import type {
   SprayWindow,
   IrrigationWindow,
   ActionRecommendation,
   SprayWindowCriteria,
   ActionType,
-} from '../types/action-windows';
+} from "../types/action-windows";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Hook Options
@@ -67,7 +67,7 @@ export function useSprayWindows(options: SprayWindowsOptions) {
       const response = await getSprayWindows({ fieldId, days, criteria });
 
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch spray windows');
+        throw new Error(response.error || "Failed to fetch spray windows");
       }
 
       return response.data || [];
@@ -89,7 +89,7 @@ export function useOptimalSprayWindows(options: SprayWindowsOptions) {
 
   return {
     ...query,
-    data: query.data?.filter((window) => window.status === 'optimal') || [],
+    data: query.data?.filter((window) => window.status === "optimal") || [],
   };
 }
 
@@ -102,7 +102,7 @@ export function useNextSprayWindow(options: SprayWindowsOptions) {
 
   const nextWindow = query.data?.find((window) => {
     const startTime = new Date(window.startTime);
-    return startTime > new Date() && window.status !== 'avoid';
+    return startTime > new Date() && window.status !== "avoid";
   });
 
   return {
@@ -139,7 +139,7 @@ export function useIrrigationWindows(options: ActionWindowsHookOptions) {
       const response = await getIrrigationWindows({ fieldId, days });
 
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch irrigation windows');
+        throw new Error(response.error || "Failed to fetch irrigation windows");
       }
 
       return response.data || [];
@@ -161,7 +161,10 @@ export function useUrgentIrrigationWindows(options: ActionWindowsHookOptions) {
 
   return {
     ...query,
-    data: query.data?.filter((window) => window.priority === 'urgent' || window.priority === 'high') || [],
+    data:
+      query.data?.filter(
+        (window) => window.priority === "urgent" || window.priority === "high",
+      ) || [],
   };
 }
 
@@ -203,16 +206,24 @@ export function useNextIrrigationWindow(options: ActionWindowsHookOptions) {
  * });
  * ```
  */
-export function useActionRecommendations(options: ActionRecommendationsOptions) {
+export function useActionRecommendations(
+  options: ActionRecommendationsOptions,
+) {
   const { fieldId, actionTypes, days = 7, enabled = true } = options;
 
   return useQuery({
     queryKey: actionWindowsKeys.recommendations(fieldId, days),
     queryFn: async () => {
-      const response = await getActionRecommendations({ fieldId, actionTypes, days });
+      const response = await getActionRecommendations({
+        fieldId,
+        actionTypes,
+        days,
+      });
 
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch action recommendations');
+        throw new Error(
+          response.error || "Failed to fetch action recommendations",
+        );
       }
 
       return response.data || [];
@@ -229,12 +240,17 @@ export function useActionRecommendations(options: ActionRecommendationsOptions) 
  * Hook to get high-priority recommendations
  * خطاف للحصول على التوصيات ذات الأولوية العالية
  */
-export function useHighPriorityRecommendations(options: ActionRecommendationsOptions) {
+export function useHighPriorityRecommendations(
+  options: ActionRecommendationsOptions,
+) {
   const query = useActionRecommendations(options);
 
   return {
     ...query,
-    data: query.data?.filter((rec) => rec.priority === 'urgent' || rec.priority === 'high') || [],
+    data:
+      query.data?.filter(
+        (rec) => rec.priority === "urgent" || rec.priority === "high",
+      ) || [],
   };
 }
 
@@ -244,7 +260,7 @@ export function useHighPriorityRecommendations(options: ActionRecommendationsOpt
  */
 export function useRecommendationsByType(
   options: ActionRecommendationsOptions,
-  actionType: ActionType
+  actionType: ActionType,
 ) {
   const query = useActionRecommendations(options);
 
@@ -270,8 +286,12 @@ export function useAllActionWindows(options: ActionWindowsHookOptions) {
   const irrigationWindows = useIrrigationWindows(options);
   const recommendations = useActionRecommendations(options);
 
-  const isLoading = sprayWindows.isLoading || irrigationWindows.isLoading || recommendations.isLoading;
-  const error = sprayWindows.error || irrigationWindows.error || recommendations.error;
+  const isLoading =
+    sprayWindows.isLoading ||
+    irrigationWindows.isLoading ||
+    recommendations.isLoading;
+  const error =
+    sprayWindows.error || irrigationWindows.error || recommendations.error;
 
   return {
     sprayWindows: {

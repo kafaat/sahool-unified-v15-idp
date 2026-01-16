@@ -1,36 +1,36 @@
-'use client'
+"use client";
 
 interface SkeletonProps {
-  className?: string
-  variant?: 'text' | 'rectangular' | 'circular'
-  width?: string | number
-  height?: string | number
+  className?: string;
+  variant?: "text" | "rectangular" | "circular";
+  width?: string | number;
+  height?: string | number;
 }
 
 export function Skeleton({
-  className = '',
-  variant = 'rectangular',
+  className = "",
+  variant = "rectangular",
   width,
   height,
 }: SkeletonProps) {
-  const baseStyles = 'skeleton'
+  const baseStyles = "skeleton";
   const variantStyles = {
-    text: 'h-4 rounded',
-    rectangular: 'rounded-lg',
-    circular: 'rounded-full',
-  }
+    text: "h-4 rounded",
+    rectangular: "rounded-lg",
+    circular: "rounded-full",
+  };
 
   const style: React.CSSProperties = {
-    width: width || '100%',
-    height: height || (variant === 'text' ? '1rem' : '100%'),
-  }
+    width: width || "100%",
+    height: height || (variant === "text" ? "1rem" : "100%"),
+  };
 
   return (
     <div
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       style={style}
     />
-  )
+  );
 }
 
 // Pre-built skeleton components
@@ -46,7 +46,7 @@ export function SkeletonCard() {
       </div>
       <Skeleton width={100} height={12} variant="text" />
     </div>
-  )
+  );
 }
 
 export function SkeletonTaskItem() {
@@ -62,7 +62,7 @@ export function SkeletonTaskItem() {
         <Skeleton width={24} height={24} variant="circular" />
       </div>
     </div>
-  )
+  );
 }
 
 export function SkeletonEventItem() {
@@ -75,7 +75,7 @@ export function SkeletonEventItem() {
       <Skeleton width="80%" height={12} variant="text" />
       <Skeleton width={60} height={10} variant="text" />
     </div>
-  )
+  );
 }
 
 export function SkeletonStats() {
@@ -85,5 +85,5 @@ export function SkeletonStats() {
         <SkeletonCard key={i} />
       ))}
     </div>
-  )
+  );
 }

@@ -62,10 +62,10 @@ RUN npx prisma generate || \
 COPY --from=builder /workspace/chat-service/dist ./dist
 
 # Set port environment variable
-ENV PORT=8114
+ENV PORT=8000
 
 # Expose port
-EXPOSE 8114
+EXPOSE 8000
 
 # Set ownership and switch to non-root user (use existing node user)
 RUN chown -R node:node /app
@@ -73,7 +73,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8114/api/v1/health || exit 1
+    CMD curl -f http://localhost:8000/api/v1/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

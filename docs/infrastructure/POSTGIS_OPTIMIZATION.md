@@ -1,4 +1,5 @@
 # PostGIS Performance Optimization
+
 ## تحسين أداء PostGIS
 
 **Version:** 15.5.0
@@ -19,12 +20,12 @@ This document describes the PostGIS optimization strategy for SAHOOL, including:
 
 ## Performance Targets | أهداف الأداء
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Spatial query (5km radius) | 800ms | 20ms | **97.5%** |
-| NDVI trend query | 1200ms | 5ms | **99.6%** |
-| Daily analytics | 3000ms | 50ms | **98.3%** |
-| Memory usage | 8GB | 2GB | **75%** |
+| Metric                     | Before | After | Improvement |
+| -------------------------- | ------ | ----- | ----------- |
+| Spatial query (5km radius) | 800ms  | 20ms  | **97.5%**   |
+| NDVI trend query           | 1200ms | 5ms   | **99.6%**   |
+| Daily analytics            | 3000ms | 50ms  | **98.3%**   |
+| Memory usage               | 8GB    | 2GB   | **75%**     |
 
 ---
 
@@ -57,12 +58,12 @@ WITH (pages_per_range = 128);
 
 ### When to Use
 
-| Index Type | Use Case | Storage |
-|------------|----------|---------|
-| GIST | Spatial queries (contains, intersects, distance) | Medium |
-| BRIN | Time-series with natural ordering | Very small |
-| B-tree | Exact matches, range queries | Medium |
-| GIN | Full-text search, JSONB | Large |
+| Index Type | Use Case                                         | Storage    |
+| ---------- | ------------------------------------------------ | ---------- |
+| GIST       | Spatial queries (contains, intersects, distance) | Medium     |
+| BRIN       | Time-series with natural ordering                | Very small |
+| B-tree     | Exact matches, range queries                     | Medium     |
+| GIN        | Full-text search, JSONB                          | Large      |
 
 ---
 
@@ -232,7 +233,7 @@ SELECT * FROM fields
 WHERE ST_DWithin(geom::geography, point::geography, 5000);
 ```
 
-### Bad: SELECT *
+### Bad: SELECT \*
 
 ```sql
 -- SLOW: fetches all columns including large geometry
@@ -351,5 +352,6 @@ SELECT * FROM pgstattuple('fields');
 ---
 
 **Related Documents:**
+
 - [Engineering Recovery Plan](../engineering/ENGINEERING_RECOVERY_PLAN.md)
 - [Database Architecture](../architecture/DATABASE.md)

@@ -1,4 +1,5 @@
 # دليل تكامل API لتطبيق سهول الموبايل
+
 # SAHOOL Mobile App API Integration Guide
 
 ## نظرة عامة | Overview
@@ -67,13 +68,13 @@ class ApiConfig {
 
 ### نقاط المصادقة | Auth Endpoints
 
-| Endpoint | Method | Rate Limit | Description |
-|----------|--------|------------|-------------|
-| `/api/v1/auth/login` | POST | 5/min, 20/hour | تسجيل الدخول |
-| `/api/v1/auth/register` | POST | 10/min, 50/hour | التسجيل |
-| `/api/v1/auth/refresh` | POST | 10/min, 100/hour | تجديد التوكن |
-| `/api/v1/auth/password-reset` | POST | 3/min, 10/hour | إعادة تعيين كلمة المرور |
-| `/api/v1/auth/forgot-password` | POST | 3/min, 10/hour | نسيت كلمة المرور |
+| Endpoint                       | Method | Rate Limit       | Description             |
+| ------------------------------ | ------ | ---------------- | ----------------------- |
+| `/api/v1/auth/login`           | POST   | 5/min, 20/hour   | تسجيل الدخول            |
+| `/api/v1/auth/register`        | POST   | 10/min, 50/hour  | التسجيل                 |
+| `/api/v1/auth/refresh`         | POST   | 10/min, 100/hour | تجديد التوكن            |
+| `/api/v1/auth/password-reset`  | POST   | 3/min, 10/hour   | إعادة تعيين كلمة المرور |
+| `/api/v1/auth/forgot-password` | POST   | 3/min, 10/hour   | نسيت كلمة المرور        |
 
 ### تنفيذ Dio Interceptor
 
@@ -126,64 +127,64 @@ class AuthInterceptor extends Interceptor {
 
 ### Starter Package (المزارعون الصغار)
 
-| الخدمة | Endpoint | Rate Limit | الوصف |
-|--------|----------|------------|-------|
-| **Field Core** | `/api/v1/fields` | 100/min, 5000/hour | إدارة الحقول الأساسية |
-| **Weather** | `/api/v1/weather` | 100/min | بيانات الطقس الحالية والتوقعات |
-| **Calendar** | `/api/v1/calendar` | 100/min | التقويم الفلكي اليمني |
-| **Advice** | `/api/v1/advice` | 100/min | الاستشارات الزراعية الأساسية |
-| **Notifications** | `/api/v1/notifications` | 100/min | الإشعارات |
+| الخدمة            | Endpoint                | Rate Limit         | الوصف                          |
+| ----------------- | ----------------------- | ------------------ | ------------------------------ |
+| **Field Core**    | `/api/v1/fields`        | 100/min, 5000/hour | إدارة الحقول الأساسية          |
+| **Weather**       | `/api/v1/weather`       | 100/min            | بيانات الطقس الحالية والتوقعات |
+| **Calendar**      | `/api/v1/calendar`      | 100/min            | التقويم الفلكي اليمني          |
+| **Advice**        | `/api/v1/advice`        | 100/min            | الاستشارات الزراعية الأساسية   |
+| **Notifications** | `/api/v1/notifications` | 100/min            | الإشعارات                      |
 
 ### Professional Package (المزارعون المحترفون)
 
-*يشمل جميع خدمات Starter بالإضافة إلى:*
+_يشمل جميع خدمات Starter بالإضافة إلى:_
 
-| الخدمة | Endpoint | Rate Limit | الوصف |
-|--------|----------|------------|-------|
-| **Satellite** | `/api/v1/satellite` | 1000/min, 50000/hour | صور الأقمار الصناعية |
-| **NDVI** | `/api/v1/ndvi` | 1000/min | تحليل مؤشر النباتات |
-| **NDVI Processor** | `/api/v1/ndvi-processor` | 1000/min | معالجة NDVI المتقدمة |
-| **Crop Health** | `/api/v1/crop-health` | 1000/min | تحليل صحة المحاصيل بالذكاء الاصطناعي |
-| **Irrigation** | `/api/v1/irrigation` | 1000/min | الري الذكي |
-| **Virtual Sensors** | `/api/v1/sensors/virtual` | 1000/min | المستشعرات الافتراضية (ET0) |
-| **Yield** | `/api/v1/yield` | 1000/min | توقع الإنتاجية |
-| **Fertilizer** | `/api/v1/fertilizer` | 1000/min | توصيات التسميد |
-| **Inventory** | `/api/v1/inventory` | 1000/min | إدارة المخزون |
-| **Equipment** | `/api/v1/equipment` | 1000/min | إدارة المعدات |
-| **Weather Advanced** | `/api/v1/weather/advanced` | 1000/min | الطقس المتقدم |
-| **Indicators** | `/api/v1/indicators` | 1000/min | المؤشرات الزراعية |
-| **Providers** | `/api/v1/providers` | 500/min | تكوين المزودين |
+| الخدمة               | Endpoint                   | Rate Limit           | الوصف                                |
+| -------------------- | -------------------------- | -------------------- | ------------------------------------ |
+| **Satellite**        | `/api/v1/satellite`        | 1000/min, 50000/hour | صور الأقمار الصناعية                 |
+| **NDVI**             | `/api/v1/ndvi`             | 1000/min             | تحليل مؤشر النباتات                  |
+| **NDVI Processor**   | `/api/v1/ndvi-processor`   | 1000/min             | معالجة NDVI المتقدمة                 |
+| **Crop Health**      | `/api/v1/crop-health`      | 1000/min             | تحليل صحة المحاصيل بالذكاء الاصطناعي |
+| **Irrigation**       | `/api/v1/irrigation`       | 1000/min             | الري الذكي                           |
+| **Virtual Sensors**  | `/api/v1/sensors/virtual`  | 1000/min             | المستشعرات الافتراضية (ET0)          |
+| **Yield**            | `/api/v1/yield`            | 1000/min             | توقع الإنتاجية                       |
+| **Fertilizer**       | `/api/v1/fertilizer`       | 1000/min             | توصيات التسميد                       |
+| **Inventory**        | `/api/v1/inventory`        | 1000/min             | إدارة المخزون                        |
+| **Equipment**        | `/api/v1/equipment`        | 1000/min             | إدارة المعدات                        |
+| **Weather Advanced** | `/api/v1/weather/advanced` | 1000/min             | الطقس المتقدم                        |
+| **Indicators**       | `/api/v1/indicators`       | 1000/min             | المؤشرات الزراعية                    |
+| **Providers**        | `/api/v1/providers`        | 500/min              | تكوين المزودين                       |
 
 ### Enterprise Package (الشركات الزراعية)
 
-*يشمل جميع خدمات Professional بالإضافة إلى:*
+_يشمل جميع خدمات Professional بالإضافة إلى:_
 
-| الخدمة | Endpoint | Rate Limit | الوصف |
-|--------|----------|------------|-------|
-| **AI Advisor** | `/api/v1/ai-advisor` | 10000/min, 500000/hour | المستشار الذكي متعدد الوكلاء |
-| **IoT Gateway** | `/api/v1/iot` | 10000/min | بوابة إنترنت الأشياء |
-| **IoT Service** | `/api/v1/iot-service` | 10000/min | خدمة IoT المتقدمة |
-| **Research** | `/api/v1/research` | 10000/min | إدارة الأبحاث العلمية |
-| **Marketplace** | `/api/v1/marketplace` | 10000/min | السوق الزراعي |
-| **Billing** | `/api/v1/billing` | 1000/min | الفوترة والمدفوعات |
-| **Disaster** | `/api/v1/disaster` | 10000/min | تقييم الكوارث |
-| **Crop Model** | `/api/v1/crop-model` | 10000/min | نماذج نمو المحاصيل (WOFOST) |
-| **LAI** | `/api/v1/lai` | 10000/min | تقدير مؤشر مساحة الورق |
-| **Yield Prediction** | `/api/v1/yield-prediction` | 10000/min | توقع الإنتاجية المتقدم |
+| الخدمة               | Endpoint                   | Rate Limit             | الوصف                        |
+| -------------------- | -------------------------- | ---------------------- | ---------------------------- |
+| **AI Advisor**       | `/api/v1/ai-advisor`       | 10000/min, 500000/hour | المستشار الذكي متعدد الوكلاء |
+| **IoT Gateway**      | `/api/v1/iot`              | 10000/min              | بوابة إنترنت الأشياء         |
+| **IoT Service**      | `/api/v1/iot-service`      | 10000/min              | خدمة IoT المتقدمة            |
+| **Research**         | `/api/v1/research`         | 10000/min              | إدارة الأبحاث العلمية        |
+| **Marketplace**      | `/api/v1/marketplace`      | 10000/min              | السوق الزراعي                |
+| **Billing**          | `/api/v1/billing`          | 1000/min               | الفوترة والمدفوعات           |
+| **Disaster**         | `/api/v1/disaster`         | 10000/min              | تقييم الكوارث                |
+| **Crop Model**       | `/api/v1/crop-model`       | 10000/min              | نماذج نمو المحاصيل (WOFOST)  |
+| **LAI**              | `/api/v1/lai`              | 10000/min              | تقدير مؤشر مساحة الورق       |
+| **Yield Prediction** | `/api/v1/yield-prediction` | 10000/min              | توقع الإنتاجية المتقدم       |
 
 ### Shared Services (جميع الباقات)
 
-| الخدمة | Endpoint | Rate Limit | الوصف |
-|--------|----------|------------|-------|
-| **WebSocket** | `/api/v1/ws` | 5000/min | التحديثات الفورية |
-| **Field Ops** | `/api/v1/field-ops` | 1000/min | عمليات الحقول |
-| **Field Service** | `/api/v1/field-service` | 1000/min | خدمة الحقول |
-| **Tasks** | `/api/v1/tasks` | 1000/min | إدارة المهام |
-| **Alerts** | `/api/v1/alerts` | 1000/min | التنبيهات |
-| **Chat** | `/api/v1/chat` | 2000/min | المحادثات |
-| **Community Chat** | `/api/v1/community/chat` | 2000/min | محادثة المجتمع |
-| **Field Chat** | `/api/v1/field/chat` | 2000/min | محادثة الحقل |
-| **Health Check** | `/health`, `/ping` | Unlimited | فحص صحة النظام |
+| الخدمة             | Endpoint                 | Rate Limit | الوصف             |
+| ------------------ | ------------------------ | ---------- | ----------------- |
+| **WebSocket**      | `/api/v1/ws`             | 5000/min   | التحديثات الفورية |
+| **Field Ops**      | `/api/v1/field-ops`      | 1000/min   | عمليات الحقول     |
+| **Field Service**  | `/api/v1/field-service`  | 1000/min   | خدمة الحقول       |
+| **Tasks**          | `/api/v1/tasks`          | 1000/min   | إدارة المهام      |
+| **Alerts**         | `/api/v1/alerts`         | 1000/min   | التنبيهات         |
+| **Chat**           | `/api/v1/chat`           | 2000/min   | المحادثات         |
+| **Community Chat** | `/api/v1/community/chat` | 2000/min   | محادثة المجتمع    |
+| **Field Chat**     | `/api/v1/field/chat`     | 2000/min   | محادثة الحقل      |
+| **Health Check**   | `/health`, `/ping`       | Unlimited  | فحص صحة النظام    |
 
 ---
 
@@ -528,17 +529,17 @@ class WebSocketService {
 
 ### HTTP Status Codes
 
-| Code | Description | الوصف |
-|------|-------------|-------|
-| 200 | OK | نجاح |
-| 201 | Created | تم الإنشاء |
-| 400 | Bad Request | طلب غير صالح |
-| 401 | Unauthorized | غير مصرح |
-| 403 | Forbidden | ممنوع (باقة غير كافية) |
-| 404 | Not Found | غير موجود |
-| 429 | Too Many Requests | تجاوز حد الطلبات |
-| 500 | Internal Server Error | خطأ في الخادم |
-| 503 | Service Unavailable | الخدمة غير متاحة |
+| Code | Description           | الوصف                  |
+| ---- | --------------------- | ---------------------- |
+| 200  | OK                    | نجاح                   |
+| 201  | Created               | تم الإنشاء             |
+| 400  | Bad Request           | طلب غير صالح           |
+| 401  | Unauthorized          | غير مصرح               |
+| 403  | Forbidden             | ممنوع (باقة غير كافية) |
+| 404  | Not Found             | غير موجود              |
+| 429  | Too Many Requests     | تجاوز حد الطلبات       |
+| 500  | Internal Server Error | خطأ في الخادم          |
+| 503  | Service Unavailable   | الخدمة غير متاحة       |
 
 ### Error Response Format
 
@@ -815,5 +816,5 @@ class EnvironmentConfig {
 
 ---
 
-*آخر تحديث: يناير 2026*
-*Last Updated: January 2026*
+_آخر تحديث: يناير 2026_
+_Last Updated: January 2026_

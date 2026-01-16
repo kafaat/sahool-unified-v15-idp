@@ -10,9 +10,10 @@ Provides common fixtures for all tests:
 """
 
 import sys
+from collections.abc import AsyncGenerator
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -31,7 +32,6 @@ from agents import (
     IoTAgent,
     MasterCoordinatorAgent,
 )
-
 
 # ============================================================================
 # Agent Fixtures

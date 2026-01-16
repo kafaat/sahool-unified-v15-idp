@@ -10,8 +10,8 @@
  * @author SAHOOL Team
  */
 
-import { Prisma } from '@prisma/client';
-import { encrypt, decrypt, encryptSearchable } from './field-encryption';
+import { Prisma } from "@prisma/client";
+import { encrypt, decrypt, encryptSearchable } from "./field-encryption";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types and Interfaces
@@ -20,7 +20,7 @@ import { encrypt, decrypt, encryptSearchable } from './field-encryption';
 /**
  * Encryption type for a field
  */
-export type EncryptionType = 'standard' | 'deterministic';
+export type EncryptionType = "standard" | "deterministic";
 
 /**
  * Configuration for a single field
@@ -52,7 +52,10 @@ export interface MiddlewareOptions {
   /** Log encryption/decryption operations (for debugging) */
   debug?: boolean;
   /** Custom error handler */
-  onError?: (error: Error, context: { model: string; field: string; operation: string }) => void;
+  onError?: (
+    error: Error,
+    context: { model: string; field: string; operation: string },
+  ) => void;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -67,30 +70,40 @@ function encryptField(
   config: FieldEncryptionConfig,
   modelName: string,
   fieldName: string,
-  options?: MiddlewareOptions
+  options?: MiddlewareOptions,
 ): any {
-  if (value === null || value === undefined || typeof value !== 'string') {
+  if (value === null || value === undefined || typeof value !== "string") {
     return value;
   }
 
   try {
     const encrypted =
-      config.type === 'deterministic'
+      config.type === "deterministic"
         ? encryptSearchable(value)
         : encrypt(value);
 
     if (options?.debug) {
-      console.log(`[Prisma Encryption] Encrypted ${modelName}.${fieldName} (${config.type})`);
+      console.log(
+        `[Prisma Encryption] Encrypted ${modelName}.${fieldName} (${config.type})`,
+      );
     }
 
     return encrypted;
   } catch (error) {
-    const err = error instanceof Error ? error : new Error('Unknown encryption error');
+    const err =
+      error instanceof Error ? error : new Error("Unknown encryption error");
 
     if (options?.onError) {
-      options.onError(err, { model: modelName, field: fieldName, operation: 'encrypt' });
+      options.onError(err, {
+        model: modelName,
+        field: fieldName,
+        operation: "encrypt",
+      });
     } else {
-      console.error(`[Prisma Encryption] Failed to encrypt ${modelName}.${fieldName}:`, err);
+      console.error(
+        `[Prisma Encryption] Failed to encrypt ${modelName}.${fieldName}:`,
+        err,
+      );
     }
 
     // Return original value on error to prevent data loss
@@ -106,9 +119,9 @@ function decryptField(
   config: FieldEncryptionConfig,
   modelName: string,
   fieldName: string,
-  options?: MiddlewareOptions
+  options?: MiddlewareOptions,
 ): any {
-  if (value === null || value === undefined || typeof value !== 'string') {
+  if (value === null || value === undefined || typeof value !== "string") {
     return value;
   }
 
@@ -119,7 +132,7 @@ function decryptField(
   try {
     // Deterministic encryption uses searchable which can't be decrypted without hint
     // So we keep it encrypted for search purposes
-    if (config.type === 'deterministic') {
+    if (config.type === "deterministic") {
       return value; // Keep encrypted for searching
     }
 
@@ -131,12 +144,20 @@ function decryptField(
 
     return decrypted;
   } catch (error) {
-    const err = error instanceof Error ? error : new Error('Unknown decryption error');
+    const err =
+      error instanceof Error ? error : new Error("Unknown decryption error");
 
     if (options?.onError) {
-      options.onError(err, { model: modelName, field: fieldName, operation: 'decrypt' });
+      options.onError(err, {
+        model: modelName,
+        field: fieldName,
+        operation: "decrypt",
+      });
     } else {
-      console.error(`[Prisma Encryption] Failed to decrypt ${modelName}.${fieldName}:`, err);
+      console.error(
+        `[Prisma Encryption] Failed to decrypt ${modelName}.${fieldName}:`,
+        err,
+      );
     }
 
     // Return original value on error
@@ -151,9 +172,9 @@ function encryptData(
   data: any,
   modelName: string,
   modelConfig: ModelEncryptionConfig,
-  options?: MiddlewareOptions
+  options?: MiddlewareOptions,
 ): any {
-  if (!data || typeof data !== 'object') {
+  if (!data || typeof data !== "object") {
     return data;
   }
 
@@ -166,7 +187,7 @@ function encryptData(
         fieldConfig,
         modelName,
         fieldName,
-        options
+        options,
       );
     }
   }
@@ -181,15 +202,17 @@ function decryptData(
   data: any,
   modelName: string,
   modelConfig: ModelEncryptionConfig,
-  options?: MiddlewareOptions
+  options?: MiddlewareOptions,
 ): any {
-  if (!data || typeof data !== 'object') {
+  if (!data || typeof data !== "object") {
     return data;
   }
 
   // Handle arrays (for findMany, etc.)
   if (Array.isArray(data)) {
-    return data.map((item) => decryptData(item, modelName, modelConfig, options));
+    return data.map((item) =>
+      decryptData(item, modelName, modelConfig, options),
+    );
   }
 
   const result = { ...data };
@@ -201,7 +224,7 @@ function decryptData(
         fieldConfig,
         modelName,
         fieldName,
-        options
+        options,
       );
     }
   }
@@ -220,9 +243,9 @@ function transformWhereClause(
   where: any,
   modelName: string,
   modelConfig: ModelEncryptionConfig,
-  options?: MiddlewareOptions
+  options?: MiddlewareOptions,
 ): any {
-  if (!where || typeof where !== 'object') {
+  if (!where || typeof where !== "object") {
     return where;
   }
 
@@ -230,34 +253,41 @@ function transformWhereClause(
 
   for (const [key, value] of Object.entries(result)) {
     // Handle nested conditions (AND, OR, NOT)
-    if (key === 'AND' || key === 'OR' || key === 'NOT') {
+    if (key === "AND" || key === "OR" || key === "NOT") {
       if (Array.isArray(value)) {
         result[key] = value.map((item) =>
-          transformWhereClause(item, modelName, modelConfig, options)
+          transformWhereClause(item, modelName, modelConfig, options),
         );
       } else {
-        result[key] = transformWhereClause(value, modelName, modelConfig, options);
+        result[key] = transformWhereClause(
+          value,
+          modelName,
+          modelConfig,
+          options,
+        );
       }
       continue;
     }
 
     // Check if this field should be encrypted
     const fieldConfig = modelConfig[key];
-    if (fieldConfig && fieldConfig.type === 'deterministic') {
+    if (fieldConfig && fieldConfig.type === "deterministic") {
       // Encrypt the value for searching
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         result[key] = encryptSearchable(value);
         if (options?.debug) {
-          console.log(`[Prisma Encryption] Encrypted where clause for ${modelName}.${key}`);
+          console.log(
+            `[Prisma Encryption] Encrypted where clause for ${modelName}.${key}`,
+          );
         }
-      } else if (typeof value === 'object' && value !== null) {
+      } else if (typeof value === "object" && value !== null) {
         // Handle comparison operators (equals, in, etc.)
         for (const [op, opValue] of Object.entries(value)) {
-          if (typeof opValue === 'string') {
+          if (typeof opValue === "string") {
             result[key][op] = encryptSearchable(opValue);
           } else if (Array.isArray(opValue)) {
             result[key][op] = opValue.map((v) =>
-              typeof v === 'string' ? encryptSearchable(v) : v
+              typeof v === "string" ? encryptSearchable(v) : v,
             );
           }
         }
@@ -301,7 +331,7 @@ function transformWhereClause(
  */
 export function createPrismaEncryptionMiddleware(
   config: EncryptionConfig,
-  options?: MiddlewareOptions
+  options?: MiddlewareOptions,
 ): (params: any, next: (params: any) => Promise<any>) => Promise<any> {
   return async (params: any, next: any) => {
     const { model, action } = params;
@@ -317,9 +347,14 @@ export function createPrismaEncryptionMiddleware(
     // CREATE Operations - Encrypt data before insertion
     // ═══════════════════════════════════════════════════════════════════
 
-    if (action === 'create') {
+    if (action === "create") {
       if (params.args.data) {
-        params.args.data = encryptData(params.args.data, model, modelConfig, options);
+        params.args.data = encryptData(
+          params.args.data,
+          model,
+          modelConfig,
+          options,
+        );
       }
     }
 
@@ -327,9 +362,14 @@ export function createPrismaEncryptionMiddleware(
     // UPDATE Operations - Encrypt data before update
     // ═══════════════════════════════════════════════════════════════════
 
-    if (action === 'update' || action === 'updateMany') {
+    if (action === "update" || action === "updateMany") {
       if (params.args.data) {
-        params.args.data = encryptData(params.args.data, model, modelConfig, options);
+        params.args.data = encryptData(
+          params.args.data,
+          model,
+          modelConfig,
+          options,
+        );
       }
 
       // Transform where clause for searchable fields
@@ -338,7 +378,7 @@ export function createPrismaEncryptionMiddleware(
           params.args.where,
           model,
           modelConfig,
-          options
+          options,
         );
       }
     }
@@ -347,19 +387,29 @@ export function createPrismaEncryptionMiddleware(
     // UPSERT Operations - Encrypt both create and update data
     // ═══════════════════════════════════════════════════════════════════
 
-    if (action === 'upsert') {
+    if (action === "upsert") {
       if (params.args.create) {
-        params.args.create = encryptData(params.args.create, model, modelConfig, options);
+        params.args.create = encryptData(
+          params.args.create,
+          model,
+          modelConfig,
+          options,
+        );
       }
       if (params.args.update) {
-        params.args.update = encryptData(params.args.update, model, modelConfig, options);
+        params.args.update = encryptData(
+          params.args.update,
+          model,
+          modelConfig,
+          options,
+        );
       }
       if (params.args.where) {
         params.args.where = transformWhereClause(
           params.args.where,
           model,
           modelConfig,
-          options
+          options,
         );
       }
     }
@@ -369,18 +419,18 @@ export function createPrismaEncryptionMiddleware(
     // ═══════════════════════════════════════════════════════════════════
 
     if (
-      action === 'findUnique' ||
-      action === 'findFirst' ||
-      action === 'findMany' ||
-      action === 'findFirstOrThrow' ||
-      action === 'findUniqueOrThrow'
+      action === "findUnique" ||
+      action === "findFirst" ||
+      action === "findMany" ||
+      action === "findFirstOrThrow" ||
+      action === "findUniqueOrThrow"
     ) {
       if (params.args?.where) {
         params.args.where = transformWhereClause(
           params.args.where,
           model,
           modelConfig,
-          options
+          options,
         );
       }
     }
@@ -389,13 +439,13 @@ export function createPrismaEncryptionMiddleware(
     // DELETE Operations - Transform where clause
     // ═══════════════════════════════════════════════════════════════════
 
-    if (action === 'delete' || action === 'deleteMany') {
+    if (action === "delete" || action === "deleteMany") {
       if (params.args?.where) {
         params.args.where = transformWhereClause(
           params.args.where,
           model,
           modelConfig,
-          options
+          options,
         );
       }
     }
@@ -408,14 +458,14 @@ export function createPrismaEncryptionMiddleware(
     // ═══════════════════════════════════════════════════════════════════
 
     const readActions = [
-      'findUnique',
-      'findFirst',
-      'findMany',
-      'create',
-      'update',
-      'upsert',
-      'findUniqueOrThrow',
-      'findFirstOrThrow',
+      "findUnique",
+      "findFirst",
+      "findMany",
+      "create",
+      "update",
+      "upsert",
+      "findUniqueOrThrow",
+      "findFirstOrThrow",
     ];
 
     if (readActions.includes(action) && result) {
@@ -438,13 +488,13 @@ export function createPrismaEncryptionMiddleware(
 export function createBasicEncryptionConfig(): EncryptionConfig {
   return {
     User: {
-      phone: { type: 'deterministic' },
-      email: { type: 'deterministic' },
+      phone: { type: "deterministic" },
+      email: { type: "deterministic" },
     },
     UserProfile: {
-      nationalId: { type: 'deterministic' },
-      dateOfBirth: { type: 'standard' },
-      address: { type: 'standard' },
+      nationalId: { type: "deterministic" },
+      dateOfBirth: { type: "standard" },
+      address: { type: "standard" },
     },
   };
 }
@@ -455,7 +505,9 @@ export function createBasicEncryptionConfig(): EncryptionConfig {
  * @param configs - Array of configs to merge
  * @returns Merged configuration
  */
-export function mergeEncryptionConfigs(...configs: EncryptionConfig[]): EncryptionConfig {
+export function mergeEncryptionConfigs(
+  ...configs: EncryptionConfig[]
+): EncryptionConfig {
   const result: EncryptionConfig = {};
 
   for (const config of configs) {

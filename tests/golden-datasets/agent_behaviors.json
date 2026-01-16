@@ -4,7 +4,15 @@
     "created": "2025-12-28",
     "description": "Golden dataset for AI agent agricultural advice testing",
     "total_test_cases": 55,
-    "categories": ["weather", "crop_health", "irrigation", "fertilizer", "pest_management", "harvest", "soil"]
+    "categories": [
+      "weather",
+      "crop_health",
+      "irrigation",
+      "fertilizer",
+      "pest_management",
+      "harvest",
+      "soil"
+    ]
   },
   "test_cases": [
     {
@@ -99,10 +107,7 @@
           "post_storm_assessment",
           "urgency_indicator"
         ],
-        "prohibited_elements": [
-          "downplaying_risk",
-          "vague_suggestions"
-        ]
+        "prohibited_elements": ["downplaying_risk", "vague_suggestions"]
       },
       "evaluation_criteria": {
         "urgency_appropriate": true,

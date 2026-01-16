@@ -42,9 +42,11 @@ SAHOOL's AI architecture follows a layered design that separates concerns and pr
 ## Layer Descriptions
 
 ### 1. Knowledge/Ingestion Layer
+
 **Files:** `advisor/rag/ingestion.py`
 
 Handles document processing and chunking:
+
 - Text chunking with configurable overlap
 - Sentence-boundary aware splitting
 - Batch ingestion support
@@ -62,9 +64,11 @@ ingest_document(
 ```
 
 ### 2. Vector Store Layer
+
 **Files:** `advisor/rag/doc_store.py`, `advisor/rag/qdrant_store.py`
 
 Abstract protocol for vector stores (Qdrant, Pinecone, etc.):
+
 - Pluggable implementations
 - Simple interface: `upsert_chunks`, `search`
 - In-memory store for testing
@@ -78,18 +82,22 @@ results = store.search("kb", "wheat irrigation", limit=5)
 ```
 
 ### 3. Retrieval Layer
+
 **Files:** `advisor/ai/retriever.py`
 
 Retrieves relevant chunks from vector store:
+
 - Simple retrieval with k limit
 - Threshold-based filtering
 
 ### 4. Ranking Layer
+
 **Files:** `advisor/ai/ranker.py`
 
 **Key Feature: Deterministic Ranking**
 
 Ranking is deterministic to prevent flaky tests and unpredictable behavior:
+
 - Primary: Score (descending)
 - Secondary: doc_id (alphabetical)
 - Tertiary: chunk_id (alphabetical)
@@ -102,22 +110,27 @@ ranked_chunks = rank(chunks)
 ```
 
 ### 5. Prompt Engine Layer
+
 **Files:** `advisor/ai/prompt_engine.py`
 
 Template-based prompt rendering:
+
 - Templates stored in `shared/contracts/ai/prompt_templates/`
 - Consistent formatting across the codebase
 - Easy to update without code changes
 
 ### 6. Inference Layer
+
 **Files:** `advisor/ai/llm_client.py`
 
 Abstract LLM interface:
+
 - Provider-agnostic (OpenAI, Claude, local LLMs)
 - Easy to swap implementations
 - Mock client for testing
 
 ### 7. RAG Pipeline
+
 **Files:** `advisor/ai/rag_pipeline.py`
 
 Single entry point orchestrating all layers:
@@ -151,6 +164,7 @@ print(response.confidence)  # 0.85
 **Files:** `advisor/ai/evaluation.py`
 
 Metrics for measuring RAG quality:
+
 - **Pass@K**: Whether any expected document appears in results
 - **Recall**: Proportion of expected documents retrieved
 - **Precision**: Proportion of retrieved documents that are relevant
@@ -170,6 +184,7 @@ score = pass_at_k(
 **Files:** `advisor/ai/context_builder.py`
 
 Aggregates field data from multiple sources:
+
 - NDVI data from ndvi_engine
 - Weather data from weather_core
 - Soil analysis data
@@ -201,6 +216,7 @@ open http://localhost:6333/dashboard
 ### Dependencies
 
 Required (in `requirements.txt`):
+
 ```
 qdrant-client>=1.9.0  # Optional, only for Qdrant adapter
 ```

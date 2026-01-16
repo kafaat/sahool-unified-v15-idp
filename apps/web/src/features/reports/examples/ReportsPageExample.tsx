@@ -5,23 +5,23 @@
  * This is a complete example showing how to use all report components together
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { FileText, History, Eye } from 'lucide-react';
+import React, { useState } from "react";
+import { FileText, History, Eye } from "lucide-react";
 import {
   ReportGenerator,
   ReportPreview,
   ReportHistory,
   FieldReportTemplate,
-} from '../components';
-import { useFieldReportData } from '../hooks/useReports';
+} from "../components";
+import { useFieldReportData } from "../hooks/useReports";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-type ViewMode = 'generate' | 'history' | 'preview' | 'template';
+type ViewMode = "generate" | "history" | "preview" | "template";
 
 interface ReportsPageExampleProps {
   fieldId: string;
@@ -35,28 +35,28 @@ interface ReportsPageExampleProps {
 
 export const ReportsPageExample: React.FC<ReportsPageExampleProps> = ({
   fieldId,
-  fieldName = 'Field Name',
-  fieldNameAr = 'اسم الحقل',
+  fieldName = "Field Name",
+  fieldNameAr = "اسم الحقل",
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('generate');
+  const [viewMode, setViewMode] = useState<ViewMode>("generate");
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
   // Handle report generation success
   const handleReportGenerated = (reportId: string) => {
     setSelectedReportId(reportId);
-    setViewMode('preview');
+    setViewMode("preview");
   };
 
   // Handle view report from history
   const handleViewReport = (reportId: string) => {
     setSelectedReportId(reportId);
-    setViewMode('preview');
+    setViewMode("preview");
   };
 
   // Handle share report
   const handleShareReport = (reportId: string) => {
     // In a real app, you might open a share modal
-    console.log('Share report:', reportId);
+    console.log("Share report:", reportId);
   };
 
   return (
@@ -84,23 +84,23 @@ export const ReportsPageExample: React.FC<ReportsPageExampleProps> = ({
               icon={<FileText className="w-5 h-5" />}
               label="إنشاء تقرير"
               labelEn="Generate Report"
-              active={viewMode === 'generate'}
-              onClick={() => setViewMode('generate')}
+              active={viewMode === "generate"}
+              onClick={() => setViewMode("generate")}
             />
             <TabButton
               icon={<History className="w-5 h-5" />}
               label="سجل التقارير"
               labelEn="Report History"
-              active={viewMode === 'history'}
-              onClick={() => setViewMode('history')}
+              active={viewMode === "history"}
+              onClick={() => setViewMode("history")}
             />
             {selectedReportId && (
               <TabButton
                 icon={<Eye className="w-5 h-5" />}
                 label="معاينة التقرير"
                 labelEn="Preview Report"
-                active={viewMode === 'preview'}
-                onClick={() => setViewMode('preview')}
+                active={viewMode === "preview"}
+                onClick={() => setViewMode("preview")}
               />
             )}
           </div>
@@ -108,7 +108,7 @@ export const ReportsPageExample: React.FC<ReportsPageExampleProps> = ({
 
         {/* Content Area */}
         <div className="space-y-6">
-          {viewMode === 'generate' && (
+          {viewMode === "generate" && (
             <ReportGenerator
               fieldId={fieldId}
               fieldName={fieldName}
@@ -117,7 +117,7 @@ export const ReportsPageExample: React.FC<ReportsPageExampleProps> = ({
             />
           )}
 
-          {viewMode === 'history' && (
+          {viewMode === "history" && (
             <ReportHistory
               fieldId={fieldId}
               onViewReport={handleViewReport}
@@ -126,16 +126,11 @@ export const ReportsPageExample: React.FC<ReportsPageExampleProps> = ({
             />
           )}
 
-          {viewMode === 'preview' && selectedReportId && (
-            <ReportPreview
-              reportId={selectedReportId}
-              showNavigation={true}
-            />
+          {viewMode === "preview" && selectedReportId && (
+            <ReportPreview reportId={selectedReportId} showNavigation={true} />
           )}
 
-          {viewMode === 'template' && (
-            <TemplatePreview fieldId={fieldId} />
-          )}
+          {viewMode === "template" && <TemplatePreview fieldId={fieldId} />}
         </div>
 
         {/* Help Section */}
@@ -158,7 +153,9 @@ export const ReportsPageExample: React.FC<ReportsPageExampleProps> = ({
             </li>
             <li className="flex items-start gap-2">
               <span className="font-bold">4.</span>
-              <span>اضغط على &quot;إنشاء التقرير&quot; وانتظر حتى يكتمل الإنشاء</span>
+              <span>
+                اضغط على &quot;إنشاء التقرير&quot; وانتظر حتى يكتمل الإنشاء
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-bold">5.</span>
@@ -183,14 +180,20 @@ interface TabButtonProps {
   onClick: () => void;
 }
 
-const TabButton: React.FC<TabButtonProps> = ({ icon, label, labelEn, active, onClick }) => {
+const TabButton: React.FC<TabButtonProps> = ({
+  icon,
+  label,
+  labelEn,
+  active,
+  onClick,
+}) => {
   return (
     <button
       onClick={onClick}
       className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
         active
-          ? 'bg-green-500 text-white shadow-md'
-          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+          ? "bg-green-500 text-white shadow-md"
+          : "bg-gray-50 text-gray-700 hover:bg-gray-100"
       }`}
     >
       {icon}
@@ -204,7 +207,9 @@ const TabButton: React.FC<TabButtonProps> = ({ icon, label, labelEn, active, onC
 
 // Template Preview Component
 const TemplatePreview: React.FC<{ fieldId: string }> = ({ fieldId }) => {
-  const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const startDate = new Date(
+    Date.now() - 30 * 24 * 60 * 60 * 1000,
+  ).toISOString();
   const endDate = new Date().toISOString();
 
   const { data, isLoading } = useFieldReportData(fieldId, startDate, endDate);
@@ -230,7 +235,12 @@ const TemplatePreview: React.FC<{ fieldId: string }> = ({ fieldId }) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <FieldReportTemplate
         data={data}
-        sections={['field_info', 'ndvi_trend', 'health_zones', 'recommendations']}
+        sections={[
+          "field_info",
+          "ndvi_trend",
+          "health_zones",
+          "recommendations",
+        ]}
         language="both"
         startDate={startDate}
         endDate={endDate}

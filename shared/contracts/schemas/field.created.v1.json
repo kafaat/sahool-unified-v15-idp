@@ -3,9 +3,7 @@
   "$id": "https://sahool.app/schemas/field.created.v1.json",
   "title": "Field Created Event",
   "description": "Event emitted when a new field is registered in the system",
-  "allOf": [
-    { "$ref": "base-event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "base-event.v1.json" }],
   "properties": {
     "event_type": {
       "const": "field.created"

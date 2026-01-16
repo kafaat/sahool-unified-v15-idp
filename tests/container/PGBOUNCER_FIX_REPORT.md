@@ -24,6 +24,7 @@ All issues have been resolved by updating configuration files to use a consisten
 ### 1. Authentication Type Mismatch ⚠️
 
 **Problem:**
+
 - `docker-compose.pgbouncer.yml` set `AUTH_TYPE: md5`
 - `pgbouncer.ini` used `auth_type = scram-sha-256`
 - These conflicting settings caused authentication failures
@@ -34,6 +35,7 @@ PostgreSQL 16 uses SCRAM-SHA-256 by default, but the edoburu/pgbouncer Docker im
 ### 2. Incorrect auth_query Configuration ⚠️
 
 **Problem:**
+
 - `pgbouncer.ini` used: `SELECT usename, passwd FROM pg_shadow WHERE usename=$1`
 - `docker-compose.yml` used: `SELECT usename, passwd FROM pg_shadow WHERE usename=$1`
 - This direct query to `pg_shadow` doesn't work properly with SCRAM-SHA-256 passwords
@@ -44,6 +46,7 @@ PostgreSQL 16's SCRAM-SHA-256 password hashes cannot be directly extracted from 
 ### 3. Unused pgbouncer User ℹ️
 
 **Problem:**
+
 - The error message mentioned `user 'pgbouncer'` but this user wasn't properly configured
 - The init script created a `pgbouncer` user but it wasn't being used for auth_query
 - The actual auth_user should be the main database user (`sahool`)
@@ -51,6 +54,7 @@ PostgreSQL 16's SCRAM-SHA-256 password hashes cannot be directly extracted from 
 ### 4. Placeholder Password Hashes in userlist.txt ℹ️
 
 **Problem:**
+
 - All entries in `userlist.txt` had placeholder hashes: `md5_REPLACE_WITH_ACTUAL_HASH`
 - However, this file isn't needed when using `auth_query` with `auth_user`
 
@@ -63,6 +67,7 @@ PostgreSQL 16's SCRAM-SHA-256 password hashes cannot be directly extracted from 
 **File:** `/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/pgbouncer.ini`
 
 **Changes:**
+
 ```ini
 # BEFORE:
 auth_type = scram-sha-256
@@ -76,6 +81,7 @@ auth_user = sahool
 ```
 
 **Explanation:**
+
 - Changed to `md5` auth type for compatibility with the security definer function
 - Updated auth_query to use `pgbouncer.get_auth($1)` function created in the init script
 - This function securely retrieves password hashes from PostgreSQL
@@ -85,6 +91,7 @@ auth_user = sahool
 **File:** `/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/docker-compose.pgbouncer.yml`
 
 **Changes:**
+
 ```yaml
 # BEFORE:
 DB_USER: ${POSTGRES_USER:-sahool_app}
@@ -97,6 +104,7 @@ AUTH_USER: ${POSTGRES_USER:-sahool}
 ```
 
 **Explanation:**
+
 - Fixed DB_USER to use correct default (`sahool` instead of `sahool_app`)
 - Added explicit AUTH_USER environment variable
 - Maintained AUTH_TYPE as md5 for consistency
@@ -106,6 +114,7 @@ AUTH_USER: ${POSTGRES_USER:-sahool}
 **File:** `/home/user/sahool-unified-v15-idp/docker-compose.yml`
 
 **Changes:**
+
 ```yaml
 # BEFORE:
 AUTH_USER: ${POSTGRES_USER:-sahool}
@@ -118,6 +127,7 @@ AUTH_QUERY: SELECT usename, passwd FROM pgbouncer.get_auth($1)
 ```
 
 **Explanation:**
+
 - Added explicit AUTH_TYPE: md5
 - Updated AUTH_QUERY to use the security definer function
 - Added detailed comments explaining the configuration
@@ -127,12 +137,14 @@ AUTH_QUERY: SELECT usename, passwd FROM pgbouncer.get_auth($1)
 **File:** `/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/userlist.txt`
 
 **Changes:**
+
 - Replaced all placeholder entries with comprehensive documentation
 - Explained that this file is NOT used when auth_query is configured
 - Documented how the auth_query approach works
 
 **Explanation:**
 When using `auth_query` with `auth_user`, PgBouncer:
+
 1. Accepts connection from client (e.g., marketplace-service)
 2. Uses `auth_user` credentials to connect to PostgreSQL
 3. Runs `auth_query` to retrieve the client's password hash
@@ -144,6 +156,7 @@ When using `auth_query` with `auth_user`, PgBouncer:
 **File:** `/home/user/sahool-unified-v15-idp/infrastructure/core/postgres/init/02-pgbouncer-user.sql`
 
 **Changes:**
+
 - Added clarification that the `pgbouncer` user is not actively used
 - Documented that `auth_user` is the main database user (`sahool`)
 - Updated comments to prevent confusion
@@ -210,6 +223,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
 **Why SECURITY DEFINER?**
+
 - Allows auth_user to query pg_shadow without direct permissions
 - More secure than granting direct access to pg_shadow
 - Standard approach for PgBouncer + PostgreSQL 14+ with SCRAM
@@ -220,25 +234,25 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 ### Key Environment Variables
 
-| Variable | Value | Purpose |
-|----------|-------|---------|
-| `POSTGRES_USER` | `sahool` | Main database user |
-| `POSTGRES_PASSWORD` | (from .env) | Password for main user |
-| `POSTGRES_DB` | `sahool` | Main database name |
-| `DB_USER` | `sahool` | PgBouncer connects as this user |
-| `AUTH_USER` | `sahool` | User for running auth_query |
-| `AUTH_TYPE` | `md5` | Authentication method |
+| Variable            | Value       | Purpose                         |
+| ------------------- | ----------- | ------------------------------- |
+| `POSTGRES_USER`     | `sahool`    | Main database user              |
+| `POSTGRES_PASSWORD` | (from .env) | Password for main user          |
+| `POSTGRES_DB`       | `sahool`    | Main database name              |
+| `DB_USER`           | `sahool`    | PgBouncer connects as this user |
+| `AUTH_USER`         | `sahool`    | User for running auth_query     |
+| `AUTH_TYPE`         | `md5`       | Authentication method           |
 
 ### PgBouncer Settings
 
-| Setting | Value | Reason |
-|---------|-------|--------|
-| `auth_type` | `md5` | Compatible with security definer function |
-| `auth_query` | `SELECT usename, passwd FROM pgbouncer.get_auth($1)` | Uses security definer function |
-| `auth_user` | `sahool` | Main database user with pg_monitor role |
-| `pool_mode` | `transaction` | Best for web applications |
-| `max_db_connections` | `100` | Total PostgreSQL connections |
-| `default_pool_size` | `20` | Connections per user/database pair |
+| Setting              | Value                                                | Reason                                    |
+| -------------------- | ---------------------------------------------------- | ----------------------------------------- |
+| `auth_type`          | `md5`                                                | Compatible with security definer function |
+| `auth_query`         | `SELECT usename, passwd FROM pgbouncer.get_auth($1)` | Uses security definer function            |
+| `auth_user`          | `sahool`                                             | Main database user with pg_monitor role   |
+| `pool_mode`          | `transaction`                                        | Best for web applications                 |
+| `max_db_connections` | `100`                                                | Total PostgreSQL connections              |
+| `default_pool_size`  | `20`                                                 | Connections per user/database pair        |
 
 ---
 
@@ -267,6 +281,7 @@ docker logs sahool-pgbouncer
 ```
 
 **Look for:**
+
 - ✅ No "password authentication failed" errors
 - ✅ "process up" message
 - ✅ "listening on 0.0.0.0:6432"
@@ -347,6 +362,7 @@ SHOW CLIENTS;
 ## Files Modified
 
 ### Configuration Files
+
 1. `/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/pgbouncer.ini`
    - Changed auth_type from scram-sha-256 to md5
    - Updated auth_query to use security definer function
@@ -378,6 +394,7 @@ SHOW CLIENTS;
 **Cause:** PgBouncer trying to use wrong user for auth_query
 
 **Solution:**
+
 - Ensure AUTH_USER is set to main database user (sahool)
 - Verify POSTGRES_PASSWORD is correct in .env file
 - Check that auth_user in pgbouncer.ini matches AUTH_USER env var
@@ -387,6 +404,7 @@ SHOW CLIENTS;
 **Cause:** PostgreSQL init script didn't run or function wasn't created
 
 **Solution:**
+
 ```bash
 # Recreate PostgreSQL with init scripts
 docker compose down -v
@@ -402,6 +420,7 @@ PGPASSWORD=<password> psql -h 127.0.0.1 -p 5432 -U sahool -d sahool \
 **Cause:** PostgreSQL not configured to accept connections from PgBouncer
 
 **Solution:**
+
 - Check PostgreSQL logs: `docker logs sahool-postgres`
 - Verify pg_hba.conf allows connections from PgBouncer container
 - PgBouncer and PostgreSQL should be on same Docker network
@@ -411,6 +430,7 @@ PGPASSWORD=<password> psql -h 127.0.0.1 -p 5432 -U sahool -d sahool \
 **Cause:** Service might be using wrong connection string
 
 **Solution:**
+
 ```bash
 # Check marketplace service environment
 docker exec sahool-marketplace env | grep DATABASE_URL
@@ -427,8 +447,9 @@ docker compose restart marketplace-service
 **Cause:** TLS/SSL certificates not configured
 
 **Solution:**
+
 - This is normal for development environments
-- For production, configure server_tls_* options in pgbouncer.ini
+- For production, configure server*tls*\* options in pgbouncer.ini
 - See pgbouncer.ini lines 144-151 for TLS configuration
 
 ---
@@ -438,6 +459,7 @@ docker compose restart marketplace-service
 ### Why MD5 Instead of SCRAM-SHA-256?
 
 While SCRAM-SHA-256 is more secure, using it directly with PgBouncer is complex:
+
 - Requires client-side SCRAM support
 - Password hashes can't be easily extracted from pg_shadow
 - The security definer function approach with md5 provides:
@@ -448,11 +470,13 @@ While SCRAM-SHA-256 is more secure, using it directly with PgBouncer is complex:
 ### Connection String Format
 
 Services should use this format:
+
 ```
 postgresql://username:password@pgbouncer:6432/database
 ```
 
 **NOT:**
+
 ```
 postgresql://username:password@postgres:5432/database
 ```
@@ -460,11 +484,13 @@ postgresql://username:password@postgres:5432/database
 ### Pool Size Tuning
 
 Current settings:
+
 - `max_db_connections: 100` - Total PostgreSQL connections
 - `default_pool_size: 20` - Per user/database pair
 - With 30+ services, this allows ~3 connections per service on average
 
 To increase per-service connections:
+
 ```ini
 # In pgbouncer.ini
 default_pool_size = 30  # Increase to 30
@@ -474,6 +500,7 @@ max_db_connections = 150  # Increase total accordingly
 ### Monitoring
 
 Monitor PgBouncer performance:
+
 ```bash
 # Connect to admin interface
 PGPASSWORD=<password> psql -h 127.0.0.1 -p 6432 -U sahool -d pgbouncer
@@ -496,12 +523,14 @@ SHOW STATS;
 ## References
 
 ### Documentation
+
 - [PgBouncer Official Documentation](https://www.pgbouncer.org/config.html)
 - [PostgreSQL SCRAM Authentication](https://www.postgresql.org/docs/16/auth-password.html)
 - [PgBouncer Auth Query with SCRAM](https://www.pgbouncer.org/faq.html#how-to-use-auth-query)
 - [edoburu/pgbouncer Docker Image](https://hub.docker.com/r/edoburu/pgbouncer/)
 
 ### Related Files
+
 - PostgreSQL init script: `/infrastructure/core/postgres/init/02-pgbouncer-user.sql`
 - PgBouncer configuration: `/infrastructure/core/pgbouncer/pgbouncer.ini`
 - Environment variables: `.env.example`
@@ -540,6 +569,6 @@ The marketplace service and all other services should now be able to connect to 
 
 ---
 
-*Report generated: 2026-01-06*
-*Fixed by: Claude Code Agent*
-*Review status: Ready for deployment*
+_Report generated: 2026-01-06_
+_Fixed by: Claude Code Agent_
+_Review status: Ready for deployment_

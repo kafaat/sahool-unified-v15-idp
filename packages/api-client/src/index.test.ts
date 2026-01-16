@@ -3,12 +3,12 @@
  * اختبارات عميل API الموحد
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import axios from 'axios';
-import { SahoolApiClient } from './index';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import axios from "axios";
+import { SahoolApiClient } from "./index";
 
 // Mock axios
-vi.mock('axios', () => ({
+vi.mock("axios", () => ({
   default: {
     create: vi.fn(() => ({
       request: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock('axios', () => ({
   },
 }));
 
-describe('SahoolApiClient', () => {
+describe("SahoolApiClient", () => {
   let client: SahoolApiClient;
   let mockAxiosInstance: {
     request: ReturnType<typeof vi.fn>;
@@ -45,9 +45,9 @@ describe('SahoolApiClient', () => {
     vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as never);
 
     client = new SahoolApiClient({
-      baseUrl: 'http://localhost',
+      baseUrl: "http://localhost",
       timeout: 30000,
-      locale: 'ar',
+      locale: "ar",
     });
   });
 
@@ -55,53 +55,53 @@ describe('SahoolApiClient', () => {
     vi.restoreAllMocks();
   });
 
-  describe('Constructor', () => {
-    it('should create client with default config', () => {
+  describe("Constructor", () => {
+    it("should create client with default config", () => {
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
+        baseUrl: "http://localhost",
       });
 
       expect(axios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           timeout: 30000,
           headers: expect.objectContaining({
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           }),
-        })
+        }),
       );
     });
 
-    it('should create client with custom timeout', () => {
+    it("should create client with custom timeout", () => {
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
+        baseUrl: "http://localhost",
         timeout: 60000,
       });
 
       expect(axios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           timeout: 60000,
-        })
+        }),
       );
     });
 
-    it('should create client with custom locale', () => {
+    it("should create client with custom locale", () => {
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
-        locale: 'en',
+        baseUrl: "http://localhost",
+        locale: "en",
       });
 
       expect(axios.create).toHaveBeenCalledWith(
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Accept-Language': 'en,en',
+            "Accept-Language": "en,en",
           }),
-        })
+        }),
       );
     });
 
-    it('should setup interceptors', () => {
+    it("should setup interceptors", () => {
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
+        baseUrl: "http://localhost",
       });
 
       expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
@@ -109,48 +109,48 @@ describe('SahoolApiClient', () => {
     });
   });
 
-  describe('URL Generation', () => {
-    it('should generate correct service URLs in development', () => {
+  describe("URL Generation", () => {
+    it("should generate correct service URLs in development", () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      process.env.NODE_ENV = "development";
 
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
+        baseUrl: "http://localhost",
       });
 
       const urls = client.urls;
 
-      expect(urls.fieldCore).toBe('http://localhost:3000');
-      expect(urls.satellite).toBe('http://localhost:8090');
-      expect(urls.weather).toBe('http://localhost:8092');
-      expect(urls.irrigation).toBe('http://localhost:8094');
+      expect(urls.fieldCore).toBe("http://localhost:3000");
+      expect(urls.satellite).toBe("http://localhost:8090");
+      expect(urls.weather).toBe("http://localhost:8092");
+      expect(urls.irrigation).toBe("http://localhost:8094");
 
       process.env.NODE_ENV = originalEnv;
     });
 
-    it('should use custom ports when provided', () => {
+    it("should use custom ports when provided", () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      process.env.NODE_ENV = "development";
 
       const client = new SahoolApiClient(
-        { baseUrl: 'http://localhost' },
-        { fieldCore: 4000, weather: 9000 }
+        { baseUrl: "http://localhost" },
+        { fieldCore: 4000, weather: 9000 },
       );
 
       const urls = client.urls;
 
-      expect(urls.fieldCore).toBe('http://localhost:4000');
-      expect(urls.weather).toBe('http://localhost:9000');
+      expect(urls.fieldCore).toBe("http://localhost:4000");
+      expect(urls.weather).toBe("http://localhost:9000");
 
       process.env.NODE_ENV = originalEnv;
     });
   });
 
-  describe('Tasks API', () => {
-    it('should get all tasks', async () => {
+  describe("Tasks API", () => {
+    it("should get all tasks", async () => {
       const mockTasks = [
-        { id: '1', title: 'Task 1', status: 'pending' },
-        { id: '2', title: 'Task 2', status: 'completed' },
+        { id: "1", title: "Task 1", status: "pending" },
+        { id: "2", title: "Task 2", status: "completed" },
       ];
 
       mockAxiosInstance.request.mockResolvedValue({ data: mockTasks });
@@ -159,64 +159,64 @@ describe('SahoolApiClient', () => {
 
       expect(mockAxiosInstance.request).toHaveBeenCalledWith(
         expect.objectContaining({
-          url: expect.stringContaining('/api/v1/tasks'),
-        })
+          url: expect.stringContaining("/api/v1/tasks"),
+        }),
       );
       expect(tasks).toEqual(mockTasks);
     });
 
-    it('should get tasks with filters', async () => {
-      const mockTasks = [{ id: '1', title: 'Task 1', status: 'pending' }];
+    it("should get tasks with filters", async () => {
+      const mockTasks = [{ id: "1", title: "Task 1", status: "pending" }];
 
       mockAxiosInstance.request.mockResolvedValue({ data: mockTasks });
 
       const tasks = await client.getTasks({
-        status: 'pending',
-        field_id: 'field-123',
+        status: "pending",
+        field_id: "field-123",
       });
 
       expect(mockAxiosInstance.request).toHaveBeenCalledWith(
         expect.objectContaining({
           params: {
-            status: 'pending',
-            field_id: 'field-123',
+            status: "pending",
+            field_id: "field-123",
           },
-        })
+        }),
       );
     });
 
-    it('should throw error by default', async () => {
-      mockAxiosInstance.request.mockRejectedValue(new Error('Network error'));
+    it("should throw error by default", async () => {
+      mockAxiosInstance.request.mockRejectedValue(new Error("Network error"));
 
       await expect(client.getTasks()).rejects.toThrow();
     });
 
-    it('should get single task by ID', async () => {
-      const mockTask = { id: 'task-123', title: 'Test Task' };
+    it("should get single task by ID", async () => {
+      const mockTask = { id: "task-123", title: "Test Task" };
 
       mockAxiosInstance.request.mockResolvedValue({ data: mockTask });
 
-      const task = await client.getTask('task-123');
+      const task = await client.getTask("task-123");
 
       expect(mockAxiosInstance.request).toHaveBeenCalledWith(
         expect.objectContaining({
-          url: expect.stringContaining('/api/v1/tasks/task-123'),
-        })
+          url: expect.stringContaining("/api/v1/tasks/task-123"),
+        }),
       );
       expect(task).toEqual(mockTask);
     });
 
-    it('should create new task', async () => {
+    it("should create new task", async () => {
       const newTask = {
-        tenant_id: 'tenant-123',
-        title: 'New Task',
-        description: 'Task description',
-        field_id: 'field-123',
-        type: 'irrigation',
-        priority: 'high' as const,
+        tenant_id: "tenant-123",
+        title: "New Task",
+        description: "Task description",
+        field_id: "field-123",
+        type: "irrigation",
+        priority: "high" as const,
       };
 
-      const createdTask = { id: 'task-new', ...newTask };
+      const createdTask = { id: "task-new", ...newTask };
 
       mockAxiosInstance.request.mockResolvedValue({ data: createdTask });
 
@@ -224,20 +224,20 @@ describe('SahoolApiClient', () => {
 
       expect(mockAxiosInstance.request).toHaveBeenCalledWith(
         expect.objectContaining({
-          method: 'POST',
+          method: "POST",
           data: newTask,
-        })
+        }),
       );
       expect(task).toEqual(createdTask);
     });
   });
 
-  describe('Auth Token Management', () => {
-    it('should add auth token to requests via interceptor', () => {
-      const getToken = vi.fn().mockReturnValue('test-token');
+  describe("Auth Token Management", () => {
+    it("should add auth token to requests via interceptor", () => {
+      const getToken = vi.fn().mockReturnValue("test-token");
 
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
+        baseUrl: "http://localhost",
         getToken,
       });
 
@@ -245,11 +245,11 @@ describe('SahoolApiClient', () => {
       expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
     });
 
-    it('should call onUnauthorized on 401 response', () => {
+    it("should call onUnauthorized on 401 response", () => {
       const onUnauthorized = vi.fn();
 
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
+        baseUrl: "http://localhost",
         onUnauthorized,
       });
 
@@ -258,102 +258,96 @@ describe('SahoolApiClient', () => {
     });
   });
 
-  describe('Service Ports', () => {
-    it('should have correct default ports', () => {
+  describe("Service Ports", () => {
+    it("should have correct default ports", () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      process.env.NODE_ENV = "development";
 
-      const client = new SahoolApiClient({ baseUrl: 'http://localhost' });
+      const client = new SahoolApiClient({ baseUrl: "http://localhost" });
       const urls = client.urls;
 
-      expect(urls.satellite).toContain(':8090');
-      expect(urls.indicators).toContain(':8091');
-      expect(urls.weather).toContain(':8092');
-      expect(urls.fertilizer).toContain(':8093');
-      expect(urls.irrigation).toContain(':8094');
-      expect(urls.cropHealth).toContain(':8095');
-      expect(urls.virtualSensors).toContain(':8096');
-      expect(urls.notifications).toContain(':8110');
+      expect(urls.satellite).toContain(":8090");
+      expect(urls.indicators).toContain(":8091");
+      expect(urls.weather).toContain(":8092");
+      expect(urls.fertilizer).toContain(":8093");
+      expect(urls.irrigation).toContain(":8094");
+      expect(urls.cropHealth).toContain(":8095");
+      expect(urls.virtualSensors).toContain(":8096");
+      expect(urls.notifications).toContain(":8110");
 
       process.env.NODE_ENV = originalEnv;
     });
   });
 
-  describe('Error Handling', () => {
-    it('should handle network errors gracefully in silent mode', async () => {
+  describe("Error Handling", () => {
+    it("should handle network errors gracefully in silent mode", async () => {
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
-        errorHandling: 'silent',
+        baseUrl: "http://localhost",
+        errorHandling: "silent",
       });
 
-      mockAxiosInstance.request.mockRejectedValue(
-        new Error('Network Error')
-      );
+      mockAxiosInstance.request.mockRejectedValue(new Error("Network Error"));
 
       // getTasks should return empty array on error in silent mode
       const tasks = await client.getTasks();
       expect(tasks).toEqual([]);
     });
 
-    it('should throw errors in throw mode', async () => {
+    it("should throw errors in throw mode", async () => {
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
-        errorHandling: 'throw',
+        baseUrl: "http://localhost",
+        errorHandling: "throw",
       });
 
-      mockAxiosInstance.request.mockRejectedValue(
-        new Error('Network Error')
-      );
+      mockAxiosInstance.request.mockRejectedValue(new Error("Network Error"));
 
       // getTasks should throw error in throw mode
       await expect(client.getTasks()).rejects.toThrow();
     });
 
-    it('should handle timeout errors in silent mode', async () => {
+    it("should handle timeout errors in silent mode", async () => {
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
-        errorHandling: 'silent',
+        baseUrl: "http://localhost",
+        errorHandling: "silent",
       });
 
-      const timeoutError = new Error('timeout of 30000ms exceeded');
+      const timeoutError = new Error("timeout of 30000ms exceeded");
       mockAxiosInstance.request.mockRejectedValue(timeoutError);
 
       const tasks = await client.getTasks();
       expect(tasks).toEqual([]);
     });
 
-    it('should default to throw mode', async () => {
+    it("should default to throw mode", async () => {
       const client = new SahoolApiClient({
-        baseUrl: 'http://localhost',
+        baseUrl: "http://localhost",
       });
 
-      mockAxiosInstance.request.mockRejectedValue(
-        new Error('Network Error')
-      );
+      mockAxiosInstance.request.mockRejectedValue(new Error("Network Error"));
 
       await expect(client.getTasks()).rejects.toThrow();
     });
   });
 });
 
-describe('API Client Configuration', () => {
-  it('should support Arabic locale by default', () => {
+describe("API Client Configuration", () => {
+  it("should support Arabic locale by default", () => {
     const client = new SahoolApiClient({
-      baseUrl: 'http://localhost',
+      baseUrl: "http://localhost",
     });
 
     expect(axios.create).toHaveBeenCalledWith(
       expect.objectContaining({
         headers: expect.objectContaining({
-          'Accept-Language': 'ar,en',
+          "Accept-Language": "ar,en",
         }),
-      })
+      }),
     );
   });
 
-  it('should support mock data mode', () => {
+  it("should support mock data mode", () => {
     const client = new SahoolApiClient({
-      baseUrl: 'http://localhost',
+      baseUrl: "http://localhost",
       enableMockData: true,
     });
 
@@ -361,25 +355,25 @@ describe('API Client Configuration', () => {
     expect(client).toBeDefined();
   });
 
-  it('should support custom error handling mode', () => {
+  it("should support custom error handling mode", () => {
     const client = new SahoolApiClient({
-      baseUrl: 'http://localhost',
-      errorHandling: 'silent',
+      baseUrl: "http://localhost",
+      errorHandling: "silent",
     });
 
     expect(client).toBeDefined();
   });
 
-  it('should support custom log level', () => {
+  it("should support custom log level", () => {
     const client = new SahoolApiClient({
-      baseUrl: 'http://localhost',
-      logLevel: 'debug',
+      baseUrl: "http://localhost",
+      logLevel: "debug",
     });
 
     expect(client).toBeDefined();
   });
 
-  it('should support custom logger', () => {
+  it("should support custom logger", () => {
     const customLogger = {
       error: vi.fn(),
       warn: vi.fn(),
@@ -388,7 +382,7 @@ describe('API Client Configuration', () => {
     };
 
     const client = new SahoolApiClient({
-      baseUrl: 'http://localhost',
+      baseUrl: "http://localhost",
       logger: customLogger,
     });
 

@@ -5,14 +5,14 @@
  * An integrated map component that displays both fields and their associated tasks
  */
 
-'use client';
+"use client";
 
-import { useRef, useEffect, useState } from 'react';
-import { MapPin, Loader2, Filter } from 'lucide-react';
-import { TaskMarkers } from './TaskMarkers';
-import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { useFields } from '../hooks/useFieldsList';
-import type { Priority, TaskStatus } from '@/features/tasks/types';
+import { useRef, useEffect, useState } from "react";
+import { MapPin, Loader2, Filter } from "lucide-react";
+import { TaskMarkers } from "./TaskMarkers";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
+import { useFields } from "../hooks/useFieldsList";
+import type { Priority, TaskStatus } from "@/features/tasks/types";
 
 interface FieldMapWithTasksProps {
   /** Fixed height for the map */
@@ -34,7 +34,7 @@ interface FieldMapWithTasksProps {
  * Displays an interactive map with fields and tasks
  */
 export function FieldMapWithTasks({
-  height = '500px',
+  height = "500px",
   fieldId,
   priority,
   status,
@@ -43,8 +43,12 @@ export function FieldMapWithTasks({
 }: FieldMapWithTasksProps) {
   const mapRef = useRef<any>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [filterPriority, setFilterPriority] = useState<Priority | undefined>(priority);
-  const [filterStatus, setFilterStatus] = useState<TaskStatus | undefined>(status);
+  const [filterPriority, setFilterPriority] = useState<Priority | undefined>(
+    priority,
+  );
+  const [filterStatus, setFilterStatus] = useState<TaskStatus | undefined>(
+    status,
+  );
 
   // Fetch data
   const { data: allTasks = [], isLoading: tasksLoading } = useTasks({
@@ -58,11 +62,11 @@ export function FieldMapWithTasks({
 
   // Initialize map
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapContainerRef.current) return;
+    if (typeof window === "undefined" || !mapContainerRef.current) return;
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) {
-      console.warn('Leaflet is not loaded. Include it in your layout.');
+      console.warn("Leaflet is not loaded. Include it in your layout.");
       return;
     }
 
@@ -70,8 +74,8 @@ export function FieldMapWithTasks({
     if (!mapRef.current && mapContainerRef.current) {
       const map = L.map(mapContainerRef.current).setView([15.5527, 48.5164], 6);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
         maxZoom: 19,
       }).addTo(map);
 
@@ -112,13 +116,13 @@ export function FieldMapWithTasks({
   // Calculate task statistics
   const taskStats = {
     total: allTasks.length,
-    urgent: allTasks.filter((t) => t.priority === 'urgent').length,
-    high: allTasks.filter((t) => t.priority === 'high').length,
-    medium: allTasks.filter((t) => t.priority === 'medium').length,
-    low: allTasks.filter((t) => t.priority === 'low').length,
-    open: allTasks.filter((t) => t.status === 'open').length,
-    in_progress: allTasks.filter((t) => t.status === 'in_progress').length,
-    completed: allTasks.filter((t) => t.status === 'completed').length,
+    urgent: allTasks.filter((t) => t.priority === "urgent").length,
+    high: allTasks.filter((t) => t.priority === "high").length,
+    medium: allTasks.filter((t) => t.priority === "medium").length,
+    low: allTasks.filter((t) => t.priority === "low").length,
+    open: allTasks.filter((t) => t.status === "open").length,
+    in_progress: allTasks.filter((t) => t.status === "in_progress").length,
+    completed: allTasks.filter((t) => t.status === "completed").length,
   };
 
   if (isLoading) {
@@ -139,7 +143,9 @@ export function FieldMapWithTasks({
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <MapPin className="w-5 h-5 ml-2 text-green-600" />
-            <h2 className="text-lg font-semibold text-gray-900">خريطة المهام</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              خريطة المهام
+            </h2>
           </div>
           <div className="flex gap-4 text-sm">
             <span className="text-gray-600">
@@ -182,8 +188,10 @@ export function FieldMapWithTasks({
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-gray-500" />
               <select
-                value={filterPriority || ''}
-                onChange={(e) => setFilterPriority(e.target.value as Priority || undefined)}
+                value={filterPriority || ""}
+                onChange={(e) =>
+                  setFilterPriority((e.target.value as Priority) || undefined)
+                }
                 className="text-sm border border-gray-300 rounded px-2 py-1"
               >
                 <option value="">كل الأولويات</option>
@@ -196,8 +204,10 @@ export function FieldMapWithTasks({
 
             <div>
               <select
-                value={filterStatus || ''}
-                onChange={(e) => setFilterStatus(e.target.value as TaskStatus || undefined)}
+                value={filterStatus || ""}
+                onChange={(e) =>
+                  setFilterStatus((e.target.value as TaskStatus) || undefined)
+                }
                 className="text-sm border border-gray-300 rounded px-2 py-1"
               >
                 <option value="">كل الحالات</option>

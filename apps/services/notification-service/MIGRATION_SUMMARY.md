@@ -1,4 +1,5 @@
 # Notification Service - PostgreSQL Migration Summary
+
 # ملخص ترحيل خدمة الإشعارات إلى PostgreSQL
 
 **Migration Date:** January 8, 2026
@@ -23,18 +24,21 @@ Successfully migrated the notification-service from in-memory farmer storage to 
 Added three new Tortoise ORM models:
 
 #### `FarmerProfile` Model
+
 - **Purpose:** Store main farmer information
 - **Fields:** id, tenant_id, farmer_id, name, name_ar, governorate, district, phone, email, fcm_token, language, metadata, timestamps
 - **Indexes:** farmer_id (unique), governorate, tenant_id, composite indexes
 - **Relations:** One-to-many with FarmerCrop and FarmerField
 
 #### `FarmerCrop` Model
+
 - **Purpose:** Junction table for farmer's crops
 - **Fields:** id, farmer_id (FK), crop_type, area_hectares, planting_date, harvest_date, is_active
 - **Unique Constraint:** (farmer_id, crop_type)
 - **Relations:** Many-to-one with FarmerProfile
 
 #### `FarmerField` Model
+
 - **Purpose:** Junction table for farmer's field IDs
 - **Fields:** id, farmer_id (FK), field_id, field_name, latitude, longitude, is_active
 - **Unique Constraint:** (farmer_id, field_id)
@@ -51,21 +55,22 @@ Added `FarmerProfileRepository` class with comprehensive CRUD operations:
 
 #### Methods Implemented:
 
-| Method | Description | Parameters |
-|--------|-------------|------------|
-| `create()` | Create new farmer profile with crops and fields | farmer_id, name, governorate, crops, fields, etc. |
-| `get_by_farmer_id()` | Retrieve farmer with prefetched crops/fields | farmer_id |
-| `get_by_id()` | Get farmer by UUID | profile_id |
-| `update()` | Update farmer profile and relations | farmer_id, updated fields |
-| `delete()` | Delete farmer (CASCADE to crops/fields) | farmer_id |
-| `get_all()` | Get all farmers with filters | tenant_id, governorate, limit, offset |
-| `get_count()` | Count farmers matching criteria | tenant_id, governorate, is_active |
-| `find_by_criteria()` | Find farmers by governorate/crops | governorates, crops, tenant_id |
-| `update_last_login()` | Update last login timestamp | farmer_id |
-| `get_farmer_crops()` | Get list of farmer's crops | farmer_id |
-| `get_farmer_fields()` | Get list of farmer's fields | farmer_id |
+| Method                | Description                                     | Parameters                                        |
+| --------------------- | ----------------------------------------------- | ------------------------------------------------- |
+| `create()`            | Create new farmer profile with crops and fields | farmer_id, name, governorate, crops, fields, etc. |
+| `get_by_farmer_id()`  | Retrieve farmer with prefetched crops/fields    | farmer_id                                         |
+| `get_by_id()`         | Get farmer by UUID                              | profile_id                                        |
+| `update()`            | Update farmer profile and relations             | farmer_id, updated fields                         |
+| `delete()`            | Delete farmer (CASCADE to crops/fields)         | farmer_id                                         |
+| `get_all()`           | Get all farmers with filters                    | tenant_id, governorate, limit, offset             |
+| `get_count()`         | Count farmers matching criteria                 | tenant_id, governorate, is_active                 |
+| `find_by_criteria()`  | Find farmers by governorate/crops               | governorates, crops, tenant_id                    |
+| `update_last_login()` | Update last login timestamp                     | farmer_id                                         |
+| `get_farmer_crops()`  | Get list of farmer's crops                      | farmer_id                                         |
+| `get_farmer_fields()` | Get list of farmer's fields                     | farmer_id                                         |
 
 **Key Features:**
+
 - ✅ Handles create-or-update logic
 - ✅ Manages crop and field associations automatically
 - ✅ Optimized queries with prefetch_related
@@ -84,17 +89,20 @@ Updated all endpoints and functions to use PostgreSQL:
 #### Endpoints Updated:
 
 ##### `/v1/farmers/register` (POST)
+
 - **Before:** Stored to `FARMER_PROFILES` dict
 - **After:** Calls `FarmerProfileRepository.create()`
 - **Changes:** Now async, with error handling and database storage
 - **Line:** 1309-1341
 
 ##### `/healthz` (GET)
+
 - **Before:** `len(FARMER_PROFILES)`
 - **After:** `await FarmerProfileRepository.get_count()`
 - **Line:** 1027-1030
 
 ##### `/v1/stats` (GET)
+
 - **Before:** `len(FARMER_PROFILES)`
 - **After:** `await FarmerProfileRepository.get_count()`
 - **Line:** 1429-1434
@@ -102,27 +110,32 @@ Updated all endpoints and functions to use PostgreSQL:
 #### Functions Updated:
 
 ##### `determine_recipients_by_criteria()`
+
 - **Before:** Looped through `FARMER_PROFILES` dict
 - **After:** Calls `FarmerProfileRepository.find_by_criteria()`
 - **Changes:** Now async, database query with filters
 - **Line:** 742-783
 
 ##### `send_sms_notification()`
+
 - **Before:** `FARMER_PROFILES.get(farmer_id)`
 - **After:** `await FarmerProfileRepository.get_by_farmer_id(farmer_id)`
 - **Line:** 492
 
 ##### `send_email_notification()`
+
 - **Before:** `FARMER_PROFILES.get(farmer_id)`
 - **After:** `await FarmerProfileRepository.get_by_farmer_id(farmer_id)`
 - **Line:** 550
 
 ##### `send_push_notification()`
+
 - **Before:** `FARMER_PROFILES.get(farmer_id)`
 - **After:** `await FarmerProfileRepository.get_by_farmer_id(farmer_id)`
 - **Line:** 626
 
 ##### `send_whatsapp_notification()`
+
 - **Before:** `FARMER_PROFILES.get(farmer_id)`
 - **After:** `await FarmerProfileRepository.get_by_farmer_id(farmer_id)`
 - **Line:** 699
@@ -130,6 +143,7 @@ Updated all endpoints and functions to use PostgreSQL:
 #### Removed Code:
 
 Removed in-memory dictionaries (lines 295-346):
+
 ```python
 # REMOVED:
 FARMER_PROFILES: dict[str, FarmerProfile] = {...}
@@ -149,6 +163,7 @@ Replaced with comprehensive migration notes documenting the changes.
 Created comprehensive migration tooling:
 
 #### `migrate_farmer_profiles.py`
+
 - **Purpose:** Automated Python migration script
 - **Features:**
   - Database connection testing
@@ -162,6 +177,7 @@ Created comprehensive migration tooling:
 - **File:** `/home/user/sahool-unified-v15-idp/apps/services/notification-service/migrate_farmer_profiles.py`
 
 #### `migrations/farmer_profiles_schema.sql`
+
 - **Purpose:** Manual SQL migration script
 - **Features:**
   - CREATE TABLE statements for all three tables
@@ -176,6 +192,7 @@ Created comprehensive migration tooling:
 - **File:** `/home/user/sahool-unified-v15-idp/apps/services/notification-service/migrations/farmer_profiles_schema.sql`
 
 #### `MIGRATION_GUIDE.md`
+
 - **Purpose:** Comprehensive migration documentation
 - **Sections:**
   - Overview and prerequisites
@@ -216,6 +233,7 @@ Created comprehensive migration tooling:
 ### Indexes Created: 15
 
 Optimized for common query patterns:
+
 - Single column indexes on farmer_id, governorate, crop_type, field_id
 - Composite indexes on (tenant_id, farmer_id), (governorate, is_active)
 - Timestamp indexes for sorting and filtering
@@ -229,6 +247,7 @@ Auto-update `updated_at` timestamp on row changes for all tables.
 ## Performance Improvements | تحسينات الأداء
 
 ### Before (In-Memory):
+
 - ❌ Data lost on service restart
 - ❌ No persistence
 - ❌ Limited scalability (memory bound)
@@ -236,6 +255,7 @@ Auto-update `updated_at` timestamp on row changes for all tables.
 - ❌ No query optimization
 
 ### After (PostgreSQL):
+
 - ✅ Persistent storage across restarts
 - ✅ Production-ready with ACID guarantees
 - ✅ Scalable to millions of farmers
@@ -252,11 +272,13 @@ Auto-update `updated_at` timestamp on row changes for all tables.
 ### Steps to Verify Migration:
 
 1. **Check tables exist:**
+
    ```bash
    psql sahool_notifications -c "\dt farmer_*"
    ```
 
 2. **Test farmer registration:**
+
    ```bash
    curl -X POST http://localhost:8110/v1/farmers/register \
      -H "Content-Type: application/json" \
@@ -264,6 +286,7 @@ Auto-update `updated_at` timestamp on row changes for all tables.
    ```
 
 3. **Verify in database:**
+
    ```bash
    psql sahool_notifications -c "SELECT * FROM farmer_profiles;"
    ```
@@ -281,11 +304,13 @@ Auto-update `updated_at` timestamp on row changes for all tables.
 If issues arise, rollback is simple:
 
 ### Option 1: Python Script
+
 ```bash
 python migrate_farmer_profiles.py --rollback
 ```
 
 ### Option 2: Manual SQL
+
 ```sql
 DROP TABLE IF EXISTS farmer_fields CASCADE;
 DROP TABLE IF EXISTS farmer_crops CASCADE;
@@ -296,15 +321,15 @@ DROP TABLE IF EXISTS farmer_profiles CASCADE;
 
 ## Files Changed Summary | ملخص الملفات المعدلة
 
-| File | Lines Changed | Type | Status |
-|------|---------------|------|--------|
-| `src/models.py` | +160 | Modified | ✅ |
-| `src/repository.py` | +370 | Modified | ✅ |
-| `src/main.py` | ~200 modified | Modified | ✅ |
-| `migrate_farmer_profiles.py` | +200 | New | ✅ |
-| `migrations/farmer_profiles_schema.sql` | +140 | New | ✅ |
-| `MIGRATION_GUIDE.md` | +600 | New | ✅ |
-| `MIGRATION_SUMMARY.md` | +400 | New | ✅ |
+| File                                    | Lines Changed | Type     | Status |
+| --------------------------------------- | ------------- | -------- | ------ |
+| `src/models.py`                         | +160          | Modified | ✅     |
+| `src/repository.py`                     | +370          | Modified | ✅     |
+| `src/main.py`                           | ~200 modified | Modified | ✅     |
+| `migrate_farmer_profiles.py`            | +200          | New      | ✅     |
+| `migrations/farmer_profiles_schema.sql` | +140          | New      | ✅     |
+| `MIGRATION_GUIDE.md`                    | +600          | New      | ✅     |
+| `MIGRATION_SUMMARY.md`                  | +400          | New      | ✅     |
 
 **Total:** 2,070+ lines of code and documentation
 
@@ -313,11 +338,13 @@ DROP TABLE IF EXISTS farmer_profiles CASCADE;
 ## Next Steps | الخطوات التالية
 
 1. **Run the migration:**
+
    ```bash
    python migrate_farmer_profiles.py
    ```
 
 2. **Test the service:**
+
    ```bash
    uvicorn src.main:app --reload --port 8110
    ```

@@ -3,20 +3,27 @@
  * خطافات React لميزة خريطة الحقول
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fieldMapApi, type Field, type FieldCreate, type FieldUpdate, type FieldFilters } from '../api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  fieldMapApi,
+  type Field,
+  type FieldCreate,
+  type FieldUpdate,
+  type FieldFilters,
+} from "../api";
 
 // Query Keys
 export const fieldKeys = {
-  all: ['fields'] as const,
-  lists: () => [...fieldKeys.all, 'list'] as const,
+  all: ["fields"] as const,
+  lists: () => [...fieldKeys.all, "list"] as const,
   list: (filters: FieldFilters) => [...fieldKeys.lists(), filters] as const,
-  details: () => [...fieldKeys.all, 'detail'] as const,
+  details: () => [...fieldKeys.all, "detail"] as const,
   detail: (id: string) => [...fieldKeys.details(), id] as const,
-  geojson: (filters?: FieldFilters) => [...fieldKeys.all, 'geojson', filters] as const,
-  stats: () => [...fieldKeys.all, 'stats'] as const,
+  geojson: (filters?: FieldFilters) =>
+    [...fieldKeys.all, "geojson", filters] as const,
+  stats: () => [...fieldKeys.all, "stats"] as const,
 };
 
 /**

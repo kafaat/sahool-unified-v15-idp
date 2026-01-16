@@ -104,7 +104,7 @@ class Alert(Base):
     )
 
     # Metadata
-    metadata: Mapped[dict | None] = mapped_column(
+    extra_metadata: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         default=dict,
@@ -211,7 +211,7 @@ class Alert(Base):
             "message_en": self.message_en,
             "recommendations": self.recommendations or [],
             "recommendations_en": self.recommendations_en or [],
-            "metadata": self.metadata or {},
+            "metadata": self.extra_metadata or {},
             "source_service": self.source_service,
             "correlation_id": self.correlation_id,
             "created_at": self.created_at.isoformat(),

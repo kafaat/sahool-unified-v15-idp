@@ -3,27 +3,32 @@
  * نموذج تحويل الأموال
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Send, User, DollarSign, AlertCircle } from 'lucide-react';
-import { useTransfer } from '../hooks/useWallet';
-import type { TransferFormData } from '../types';
-import { logger } from '@/lib/logger';
+import React, { useState } from "react";
+import { Send, User, DollarSign, AlertCircle } from "lucide-react";
+import { useTransfer } from "../hooks/useWallet";
+import type { TransferFormData } from "../types";
+import { logger } from "@/lib/logger";
 
 interface TransferFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel }) => {
+export const TransferForm: React.FC<TransferFormProps> = ({
+  onSuccess,
+  onCancel,
+}) => {
   const [formData, setFormData] = useState<TransferFormData>({
-    recipientId: '',
+    recipientId: "",
     amount: 0,
-    description: '',
-    descriptionAr: '',
+    description: "",
+    descriptionAr: "",
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof TransferFormData, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof TransferFormData, string>>
+  >({});
 
   const transfer = useTransfer();
 
@@ -31,11 +36,12 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
     const newErrors: Partial<Record<keyof TransferFormData, string>> = {};
 
     if (!formData.recipientId.trim()) {
-      newErrors.recipientId = 'معرف المستلم مطلوب | Recipient ID is required';
+      newErrors.recipientId = "معرف المستلم مطلوب | Recipient ID is required";
     }
 
     if (!formData.amount || formData.amount <= 0) {
-      newErrors.amount = 'المبلغ يجب أن يكون أكبر من صفر | Amount must be greater than zero';
+      newErrors.amount =
+        "المبلغ يجب أن يكون أكبر من صفر | Amount must be greater than zero";
     }
 
     setErrors(newErrors);
@@ -53,11 +59,14 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
       await transfer.mutateAsync(formData);
       onSuccess?.();
     } catch (error) {
-      logger.error('Transfer failed:', error);
+      logger.error("Transfer failed:", error);
     }
   };
 
-  const handleChange = (field: keyof TransferFormData, value: string | number) => {
+  const handleChange = (
+    field: keyof TransferFormData,
+    value: string | number,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field
     if (errors[field]) {
@@ -88,12 +97,12 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
           <input
             type="text"
             value={formData.recipientId}
-            onChange={(e) => handleChange('recipientId', e.target.value)}
+            onChange={(e) => handleChange("recipientId", e.target.value)}
             placeholder="أدخل معرف المستخدم..."
             className={`w-full pr-10 pl-4 py-3 border-2 rounded-lg focus:outline-none ${
               errors.recipientId
-                ? 'border-red-500 focus:border-red-500'
-                : 'border-gray-200 focus:border-blue-500'
+                ? "border-red-500 focus:border-red-500"
+                : "border-gray-200 focus:border-blue-500"
             }`}
           />
         </div>
@@ -116,13 +125,15 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
             type="number"
             step="0.01"
             min="0"
-            value={formData.amount || ''}
-            onChange={(e) => handleChange('amount', parseFloat(e.target.value) || 0)}
+            value={formData.amount || ""}
+            onChange={(e) =>
+              handleChange("amount", parseFloat(e.target.value) || 0)
+            }
             placeholder="0.00"
             className={`w-full pr-10 pl-4 py-3 border-2 rounded-lg focus:outline-none ${
               errors.amount
-                ? 'border-red-500 focus:border-red-500'
-                : 'border-gray-200 focus:border-blue-500'
+                ? "border-red-500 focus:border-red-500"
+                : "border-gray-200 focus:border-blue-500"
             }`}
           />
         </div>
@@ -141,8 +152,8 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
         </label>
         <input
           type="text"
-          value={formData.descriptionAr || ''}
-          onChange={(e) => handleChange('descriptionAr', e.target.value)}
+          value={formData.descriptionAr || ""}
+          onChange={(e) => handleChange("descriptionAr", e.target.value)}
           placeholder="اختياري..."
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
         />
@@ -155,8 +166,8 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
         </label>
         <input
           type="text"
-          value={formData.description || ''}
-          onChange={(e) => handleChange('description', e.target.value)}
+          value={formData.description || ""}
+          onChange={(e) => handleChange("description", e.target.value)}
           placeholder="Optional..."
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
         />
@@ -167,7 +178,9 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
         <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 space-y-2">
           <div className="flex justify-between text-sm text-gray-700">
             <span>المبلغ | Amount</span>
-            <span className="font-semibold">{formData.amount.toFixed(2)} SAR</span>
+            <span className="font-semibold">
+              {formData.amount.toFixed(2)} SAR
+            </span>
           </div>
           <div className="flex justify-between text-sm text-gray-700">
             <span>الرسوم (1%) | Fee</span>

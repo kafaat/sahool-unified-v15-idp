@@ -1,4 +1,5 @@
 # FastAPI Middleware Audit Report
+
 ## SAHOOL Agricultural Platform - Python Services
 
 **Audit Date:** 2026-01-06
@@ -15,12 +16,14 @@ This audit examines middleware implementation across all Python FastAPI services
 ### Key Findings
 
 ✅ **Strengths:**
+
 - Centralized CORS configuration with security best practices
 - Rate limiting middleware available with Redis support
 - Authentication/authorization framework in shared modules
 - Global exception handling with error sanitization
 
 ⚠️ **Areas of Concern:**
+
 - **Inconsistent middleware adoption** across services
 - **Missing authentication** on many endpoints
 - **No request validation middleware** standardization
@@ -39,11 +42,11 @@ This audit examines middleware implementation across all Python FastAPI services
 
 ### Services Using Authentication
 
-| Service | Authentication Method | Implementation |
-|---------|----------------------|----------------|
-| `billing-core` | OAuth2 + API Key | ✅ Proper JWT validation, role-based access |
-| `ws-gateway` | JWT (WebSocket) | ✅ Token validation with algorithm whitelist |
-| `alert-service` | Header-based (X-Tenant-Id) | ⚠️ Basic tenant validation only |
+| Service         | Authentication Method      | Implementation                               |
+| --------------- | -------------------------- | -------------------------------------------- |
+| `billing-core`  | OAuth2 + API Key           | ✅ Proper JWT validation, role-based access  |
+| `ws-gateway`    | JWT (WebSocket)            | ✅ Token validation with algorithm whitelist |
+| `alert-service` | Header-based (X-Tenant-Id) | ⚠️ Basic tenant validation only              |
 
 ### Available Authentication Methods
 
@@ -59,6 +62,7 @@ This audit examines middleware implementation across all Python FastAPI services
 ### Security Patterns Found
 
 #### ✅ Good Example - ws-gateway
+
 ```python
 # Hardcoded algorithm whitelist (prevents algorithm confusion)
 ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
@@ -79,6 +83,7 @@ async def validate_jwt_token(token: str) -> dict:
 ```
 
 #### ⚠️ Weak Example - alert-service
+
 ```python
 def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
     """Extract and validate tenant ID from X-Tenant-Id header"""
@@ -86,16 +91,17 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
     return x_tenant_id
 ```
+
 **Issue:** No verification that the tenant ID is valid or belongs to authenticated user.
 
 ### Critical Gaps
 
-| Gap | Severity | Impact | Services Affected |
-|-----|----------|--------|------------------|
-| No authentication on public endpoints | 🔴 High | Unauthorized access to data | 31 services |
-| Missing API key validation | 🟡 Medium | Service-to-service security | 28 services |
-| No tenant isolation enforcement | 🔴 High | Data leakage between tenants | 25 services |
-| Weak header-based auth | 🟡 Medium | Bypassable authentication | 5 services |
+| Gap                                   | Severity  | Impact                       | Services Affected |
+| ------------------------------------- | --------- | ---------------------------- | ----------------- |
+| No authentication on public endpoints | 🔴 High   | Unauthorized access to data  | 31 services       |
+| Missing API key validation            | 🟡 Medium | Service-to-service security  | 28 services       |
+| No tenant isolation enforcement       | 🔴 High   | Data leakage between tenants | 25 services       |
+| Weak header-based auth                | 🟡 Medium | Bypassable authentication    | 5 services        |
 
 ### Recommendations
 
@@ -118,6 +124,7 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
 ### CORS Configuration Quality
 
 #### ✅ Excellent - Centralized Configuration
+
 ```python
 # From shared/config/cors_config.py
 def setup_cors_middleware(app: FastAPI):
@@ -138,23 +145,24 @@ def setup_cors_middleware(app: FastAPI):
 
 #### Services Using Centralized CORS
 
-| Service | Implementation | Security Level |
-|---------|---------------|----------------|
-| `alert-service` | ✅ `setup_cors_middleware(app)` | 🟢 Secure |
-| `field-core` | ✅ Via shared module | 🟢 Secure |
-| `satellite-service` | ✅ Via shared module | 🟢 Secure |
+| Service             | Implementation                  | Security Level |
+| ------------------- | ------------------------------- | -------------- |
+| `alert-service`     | ✅ `setup_cors_middleware(app)` | 🟢 Secure      |
+| `field-core`        | ✅ Via shared module            | 🟢 Secure      |
+| `satellite-service` | ✅ Via shared module            | 🟢 Secure      |
 
 #### ⚠️ Services with Manual CORS
 
-| Service | Implementation | Issues |
-|---------|---------------|---------|
-| `inventory-service` | Manual `CORSMiddleware` | ⚠️ Environment-based origins but not using central config |
-| `weather-service` | ❌ None found | 🔴 No CORS protection |
-| `field-management-service` | ❌ None found | 🔴 No CORS protection |
+| Service                    | Implementation          | Issues                                                    |
+| -------------------------- | ----------------------- | --------------------------------------------------------- |
+| `inventory-service`        | Manual `CORSMiddleware` | ⚠️ Environment-based origins but not using central config |
+| `weather-service`          | ❌ None found           | 🔴 No CORS protection                                     |
+| `field-management-service` | ❌ None found           | 🔴 No CORS protection                                     |
 
 ### CORS Security Analysis
 
 **Production Origins Whitelist:**
+
 ```python
 PRODUCTION_ORIGINS = [
     "https://sahool.app",
@@ -165,6 +173,7 @@ PRODUCTION_ORIGINS = [
 ```
 
 **Development Origins:**
+
 ```python
 DEVELOPMENT_ORIGINS = [
     "http://localhost:3000",
@@ -207,11 +216,11 @@ allowed_headers = [
 
 ### Critical Issues
 
-| Issue | Severity | Services Affected |
-|-------|----------|------------------|
-| Missing CORS middleware | 🔴 High | 21 services |
-| Manual CORS without security checks | 🟡 Medium | 8 services |
-| Wildcard origins in development | 🟢 Low | 0 (good!) |
+| Issue                               | Severity  | Services Affected |
+| ----------------------------------- | --------- | ----------------- |
+| Missing CORS middleware             | 🔴 High   | 21 services       |
+| Manual CORS without security checks | 🟡 Medium | 8 services        |
+| Wildcard origins in development     | 🟢 Low    | 0 (good!)         |
 
 ### Recommendations
 
@@ -249,12 +258,12 @@ class AlertCreate(BaseModel):
 
 #### Request Validation Gaps
 
-| Gap | Impact | Services Affected |
-|-----|--------|------------------|
-| No input sanitization | SQL injection risk | All services with DB queries |
-| Missing length limits | DoS via large payloads | 12 services |
-| No rate limiting on validation | Validation DoS | 28 services |
-| Weak UUID validation | Invalid data processing | 15 services |
+| Gap                            | Impact                  | Services Affected            |
+| ------------------------------ | ----------------------- | ---------------------------- |
+| No input sanitization          | SQL injection risk      | All services with DB queries |
+| Missing length limits          | DoS via large payloads  | 12 services                  |
+| No rate limiting on validation | Validation DoS          | 28 services                  |
+| Weak UUID validation           | Invalid data processing | 15 services                  |
 
 ### Validation Error Handling
 
@@ -288,6 +297,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 ### Validation Patterns
 
 #### ✅ Good - Field Constraints
+
 ```python
 class LocationRequest(BaseModel):
     lat: float = Field(ge=-90, le=90)
@@ -296,6 +306,7 @@ class LocationRequest(BaseModel):
 ```
 
 #### ⚠️ Weak - No Constraints
+
 ```python
 class BasicRequest(BaseModel):
     field_id: str  # No length limit, no format validation
@@ -339,6 +350,7 @@ InternalError           # 500 - Internal error
 #### Security Features
 
 1. **Error Sanitization**
+
 ```python
 def sanitize_error_message(message: str) -> str:
     """Remove sensitive information from error messages"""
@@ -353,12 +365,14 @@ def sanitize_error_message(message: str) -> str:
 ```
 
 2. **Error ID Tracking**
+
 ```python
 error_id = str(uuid.uuid4())[:8]  # For correlation
 logger.error(f"Error [{error_id}]: {message}")
 ```
 
 3. **Structured Error Responses**
+
 ```python
 {
     "success": false,
@@ -374,24 +388,25 @@ logger.error(f"Error [{error_id}]: {message}")
 
 ### Services Using Global Exception Handler
 
-| Service | Implementation | Error ID Tracking |
-|---------|---------------|------------------|
-| `weather-service` | ✅ `setup_exception_handlers(app)` | ✅ Yes |
-| `alert-service` | ⚠️ Partial (only HTTPException) | ❌ No |
-| `billing-core` | ⚠️ Manual error handling | ⚠️ Partial |
+| Service           | Implementation                     | Error ID Tracking |
+| ----------------- | ---------------------------------- | ----------------- |
+| `weather-service` | ✅ `setup_exception_handlers(app)` | ✅ Yes            |
+| `alert-service`   | ⚠️ Partial (only HTTPException)    | ❌ No             |
+| `billing-core`    | ⚠️ Manual error handling           | ⚠️ Partial        |
 
 ### Error Handling Gaps
 
-| Gap | Severity | Services Affected |
-|-----|----------|------------------|
-| No global exception handler | 🔴 High | 36 services |
-| Stack traces in responses | 🔴 High | 15 services (estimated) |
-| No error ID correlation | 🟡 Medium | 36 services |
-| Missing error localization | 🟢 Low | 30 services |
+| Gap                         | Severity  | Services Affected       |
+| --------------------------- | --------- | ----------------------- |
+| No global exception handler | 🔴 High   | 36 services             |
+| Stack traces in responses   | 🔴 High   | 15 services (estimated) |
+| No error ID correlation     | 🟡 Medium | 36 services             |
+| Missing error localization  | 🟢 Low    | 30 services             |
 
 ### Error Response Patterns Found
 
 #### ✅ Good - weather-service
+
 ```python
 from errors_py import (
     ExternalServiceException,
@@ -412,6 +427,7 @@ raise ExternalServiceException.weather_service(
 ```
 
 #### ⚠️ Manual - Most services
+
 ```python
 # Direct HTTPException without sanitization
 raise HTTPException(status_code=404, detail="Alert not found")
@@ -451,23 +467,23 @@ logger = logging.getLogger(__name__)
 
 #### Service-Specific Logging
 
-| Service | Logger Name | Level Control | Structured Logging |
-|---------|------------|---------------|-------------------|
-| `alert-service` | `__name__` | ❌ Fixed INFO | ❌ No |
-| `billing-core` | `sahool-billing` | ❌ Fixed INFO | ❌ No |
-| `notification-service` | `sahool-notifications` | ❌ Fixed INFO | ❌ No |
-| `satellite-service` | `__name__` | ❌ Fixed INFO | ❌ No |
-| `ws-gateway` | `ws-gateway` | ❌ Fixed INFO | ❌ No |
+| Service                | Logger Name            | Level Control | Structured Logging |
+| ---------------------- | ---------------------- | ------------- | ------------------ |
+| `alert-service`        | `__name__`             | ❌ Fixed INFO | ❌ No              |
+| `billing-core`         | `sahool-billing`       | ❌ Fixed INFO | ❌ No              |
+| `notification-service` | `sahool-notifications` | ❌ Fixed INFO | ❌ No              |
+| `satellite-service`    | `__name__`             | ❌ Fixed INFO | ❌ No              |
+| `ws-gateway`           | `ws-gateway`           | ❌ Fixed INFO | ❌ No              |
 
 ### Logging Gaps
 
-| Gap | Impact | Services Affected |
-|-----|--------|------------------|
-| No request ID tracking | Difficult debugging | 36 services |
-| No correlation ID propagation | Cannot trace requests | 38 services |
-| Fixed log levels | Cannot adjust in prod | 39 services |
-| No structured logging (JSON) | Poor log analysis | 39 services |
-| Missing request/response logging | Limited observability | 35 services |
+| Gap                              | Impact                | Services Affected |
+| -------------------------------- | --------------------- | ----------------- |
+| No request ID tracking           | Difficult debugging   | 36 services       |
+| No correlation ID propagation    | Cannot trace requests | 38 services       |
+| Fixed log levels                 | Cannot adjust in prod | 39 services       |
+| No structured logging (JSON)     | Poor log analysis     | 39 services       |
+| Missing request/response logging | Limited observability | 35 services       |
 
 ### Request ID Middleware Available
 
@@ -489,6 +505,7 @@ logger.warning(
 ### Logging Best Practices Found
 
 #### ✅ Good - alert-service
+
 ```python
 logger.info(f"Created alert {alert['id']} for field {alert['field_id']}")
 logger.warning(f"NATS connection failed: {e}")
@@ -496,6 +513,7 @@ logger.error(f"Database connection error: {e}")
 ```
 
 #### ⚠️ Print Statements (Should be logging)
+
 ```python
 # Found in some services
 print("🌤️ Starting Weather Core Service...")
@@ -550,16 +568,17 @@ X-RateLimit-Reset: 42
 
 ### Services Using Rate Limiting
 
-| Service | Redis Support | Tier Detection | Excluded Paths |
-|---------|--------------|----------------|----------------|
-| `satellite-service` | ✅ Yes | Default (STANDARD) | /healthz |
-| `field-core` | ✅ Yes | Default | /healthz, /readyz |
-| `billing-core` | ✅ Yes | Default | /healthz, /v1/webhooks/* |
-| `inventory-service` | ✅ Yes | Default | /healthz, /readyz |
+| Service             | Redis Support | Tier Detection     | Excluded Paths            |
+| ------------------- | ------------- | ------------------ | ------------------------- |
+| `satellite-service` | ✅ Yes        | Default (STANDARD) | /healthz                  |
+| `field-core`        | ✅ Yes        | Default            | /healthz, /readyz         |
+| `billing-core`      | ✅ Yes        | Default            | /healthz, /v1/webhooks/\* |
+| `inventory-service` | ✅ Yes        | Default            | /healthz, /readyz         |
 
 ### Rate Limiting Patterns
 
 #### ✅ Good Implementation
+
 ```python
 from middleware.rate_limiter import setup_rate_limiting
 
@@ -571,6 +590,7 @@ setup_rate_limiting(
 ```
 
 #### Tier Detection Logic
+
 ```python
 def _default_tier_func(self, request: Request) -> RateLimitTier:
     # Check for internal service header
@@ -587,16 +607,17 @@ def _default_tier_func(self, request: Request) -> RateLimitTier:
 
 ### Rate Limiting Gaps
 
-| Gap | Severity | Impact |
-|-----|----------|--------|
-| Missing on 29 services | 🔴 High | DoS vulnerability |
-| No rate limiting on health endpoints | 🟢 Low | Could be abused |
-| Hardcoded tier detection | 🟡 Medium | Cannot customize per service |
-| No rate limit on webhooks | 🟡 Medium | Webhook flooding |
+| Gap                                  | Severity  | Impact                       |
+| ------------------------------------ | --------- | ---------------------------- |
+| Missing on 29 services               | 🔴 High   | DoS vulnerability            |
+| No rate limiting on health endpoints | 🟢 Low    | Could be abused              |
+| Hardcoded tier detection             | 🟡 Medium | Cannot customize per service |
+| No rate limit on webhooks            | 🟡 Medium | Webhook flooding             |
 
 ### Rate Limit Configuration
 
 **Environment Variables:**
+
 ```bash
 RATE_LIMIT_FREE_RPM=30
 RATE_LIMIT_FREE_RPH=500
@@ -651,13 +672,13 @@ add_request_id_middleware(app)
 
 ### Missing Middleware
 
-| Middleware Type | Availability | Priority | Justification |
-|----------------|--------------|----------|---------------|
-| Request Timeout | ❌ Missing | 🔴 High | Prevent slow loris attacks |
-| Compression (gzip) | ❌ Missing | 🟡 Medium | Reduce bandwidth |
-| Security Headers | ❌ Missing | 🔴 High | OWASP recommendations |
-| Metrics/Prometheus | ❌ Missing | 🟡 Medium | Observability |
-| Circuit Breaker | ❌ Missing | 🟢 Low | External service resilience |
+| Middleware Type    | Availability | Priority  | Justification               |
+| ------------------ | ------------ | --------- | --------------------------- |
+| Request Timeout    | ❌ Missing   | 🔴 High   | Prevent slow loris attacks  |
+| Compression (gzip) | ❌ Missing   | 🟡 Medium | Reduce bandwidth            |
+| Security Headers   | ❌ Missing   | 🔴 High   | OWASP recommendations       |
+| Metrics/Prometheus | ❌ Missing   | 🟡 Medium | Observability               |
+| Circuit Breaker    | ❌ Missing   | 🟢 Low    | External service resilience |
 
 ---
 
@@ -665,22 +686,22 @@ add_request_id_middleware(app)
 
 ### High-Risk Services (Need Immediate Attention)
 
-| Service | Port | Authentication | CORS | Rate Limit | Error Handling | Risk Level |
-|---------|------|----------------|------|------------|----------------|-----------|
-| `alert-service` | 8113 | ⚠️ Header only | ✅ Yes | ❌ No | ⚠️ Partial | 🟡 Medium |
-| `satellite-service` | 8090 | ❌ None | ✅ Yes | ✅ Yes | ❌ No | 🟡 Medium |
-| `weather-service` | 8108 | ❌ None | ❌ No | ❌ No | ✅ Yes | 🔴 High |
-| `field-management-service` | ? | ❌ None | ❌ No | ❌ No | ❌ No | 🔴 High |
-| `notification-service` | ? | ❌ None | ❌ No | ❌ No | ❌ No | 🔴 High |
-| `inventory-service` | 8116 | ❌ None | ⚠️ Manual | ✅ Yes | ❌ No | 🟡 Medium |
+| Service                    | Port | Authentication | CORS      | Rate Limit | Error Handling | Risk Level |
+| -------------------------- | ---- | -------------- | --------- | ---------- | -------------- | ---------- |
+| `alert-service`            | 8113 | ⚠️ Header only | ✅ Yes    | ❌ No      | ⚠️ Partial     | 🟡 Medium  |
+| `satellite-service`        | 8090 | ❌ None        | ✅ Yes    | ✅ Yes     | ❌ No          | 🟡 Medium  |
+| `weather-service`          | 8108 | ❌ None        | ❌ No     | ❌ No      | ✅ Yes         | 🔴 High    |
+| `field-management-service` | ?    | ❌ None        | ❌ No     | ❌ No      | ❌ No          | 🔴 High    |
+| `notification-service`     | ?    | ❌ None        | ❌ No     | ❌ No      | ❌ No          | 🔴 High    |
+| `inventory-service`        | 8116 | ❌ None        | ⚠️ Manual | ✅ Yes     | ❌ No          | 🟡 Medium  |
 
 ### Well-Protected Services
 
-| Service | Port | Authentication | CORS | Rate Limit | Error Handling | Security Score |
-|---------|------|----------------|------|------------|----------------|----------------|
-| `billing-core` | ? | ✅ OAuth2 + API Key | ✅ Yes | ✅ Yes | ⚠️ Manual | 🟢 8/10 |
-| `ws-gateway` | 8081 | ✅ JWT (secure) | ❌ N/A | ❌ No | ❌ No | 🟢 7/10 |
-| `field-core` | 8090 | ❌ None | ✅ Yes | ✅ Yes | ❌ No | 🟡 5/10 |
+| Service        | Port | Authentication      | CORS   | Rate Limit | Error Handling | Security Score |
+| -------------- | ---- | ------------------- | ------ | ---------- | -------------- | -------------- |
+| `billing-core` | ?    | ✅ OAuth2 + API Key | ✅ Yes | ✅ Yes     | ⚠️ Manual      | 🟢 8/10        |
+| `ws-gateway`   | 8081 | ✅ JWT (secure)     | ❌ N/A | ❌ No      | ❌ No          | 🟢 7/10        |
+| `field-core`   | 8090 | ❌ None             | ✅ Yes | ✅ Yes     | ❌ No          | 🟡 5/10        |
 
 ---
 
@@ -688,30 +709,30 @@ add_request_id_middleware(app)
 
 ### Critical (Implement Immediately)
 
-| Priority | Recommendation | Affected Services | Estimated Effort |
-|----------|---------------|-------------------|------------------|
-| 🔴 P0 | Add authentication to all data services | 31 services | 2-3 weeks |
-| 🔴 P0 | Implement global exception handler | 36 services | 1 week |
-| 🔴 P0 | Add rate limiting to public endpoints | 29 services | 1 week |
-| 🔴 P0 | Enforce tenant isolation | 25 services | 2 weeks |
+| Priority | Recommendation                          | Affected Services | Estimated Effort |
+| -------- | --------------------------------------- | ----------------- | ---------------- |
+| 🔴 P0    | Add authentication to all data services | 31 services       | 2-3 weeks        |
+| 🔴 P0    | Implement global exception handler      | 36 services       | 1 week           |
+| 🔴 P0    | Add rate limiting to public endpoints   | 29 services       | 1 week           |
+| 🔴 P0    | Enforce tenant isolation                | 25 services       | 2 weeks          |
 
 ### High Priority (Next Sprint)
 
-| Priority | Recommendation | Affected Services | Estimated Effort |
-|----------|---------------|-------------------|------------------|
-| 🟠 P1 | Standardize CORS configuration | 21 services | 1 week |
-| 🟠 P1 | Add request ID tracking | 36 services | 1 week |
-| 🟠 P1 | Implement structured logging | 39 services | 2 weeks |
-| 🟠 P1 | Add security headers middleware | 39 services | 1 week |
+| Priority | Recommendation                  | Affected Services | Estimated Effort |
+| -------- | ------------------------------- | ----------------- | ---------------- |
+| 🟠 P1    | Standardize CORS configuration  | 21 services       | 1 week           |
+| 🟠 P1    | Add request ID tracking         | 36 services       | 1 week           |
+| 🟠 P1    | Implement structured logging    | 39 services       | 2 weeks          |
+| 🟠 P1    | Add security headers middleware | 39 services       | 1 week           |
 
 ### Medium Priority (Within Month)
 
-| Priority | Recommendation | Affected Services | Estimated Effort |
-|----------|---------------|-------------------|------------------|
-| 🟡 P2 | Add request/response logging | 35 services | 1 week |
-| 🟡 P2 | Implement compression middleware | 39 services | 3 days |
-| 🟡 P2 | Add timeout middleware | 39 services | 3 days |
-| 🟡 P2 | Create metrics middleware | 39 services | 1 week |
+| Priority | Recommendation                   | Affected Services | Estimated Effort |
+| -------- | -------------------------------- | ----------------- | ---------------- |
+| 🟡 P2    | Add request/response logging     | 35 services       | 1 week           |
+| 🟡 P2    | Implement compression middleware | 39 services       | 3 days           |
+| 🟡 P2    | Add timeout middleware           | 39 services       | 3 days           |
+| 🟡 P2    | Create metrics middleware        | 39 services       | 1 week           |
 
 ---
 
@@ -863,24 +884,28 @@ middleware_cors_violations_total        # Counter
 ## 13. Migration Plan
 
 ### Phase 1: Critical Security (Week 1-2)
+
 - [ ] Add authentication to billing-core, inventory-service, alert-service
 - [ ] Implement global exception handler on all services
 - [ ] Add rate limiting to weather-service, satellite-service
 - [ ] Add security headers middleware
 
 ### Phase 2: Standardization (Week 3-4)
+
 - [ ] Migrate all services to centralized CORS
 - [ ] Add request ID middleware to all services
 - [ ] Implement structured logging
 - [ ] Add timeout middleware
 
 ### Phase 3: Observability (Week 5-6)
+
 - [ ] Add request/response logging
 - [ ] Implement metrics collection
 - [ ] Add health check improvements
 - [ ] Create monitoring dashboards
 
 ### Phase 4: Testing & Documentation (Week 7-8)
+
 - [ ] Write middleware tests
 - [ ] Document middleware configuration
 - [ ] Create migration guides
@@ -895,12 +920,14 @@ The SAHOOL platform has **excellent shared middleware frameworks** available but
 ### Overall Security Posture: 🟡 Medium Risk
 
 **Key Strengths:**
+
 - Well-designed shared middleware modules
 - Strong CORS security in centralized config
 - Comprehensive rate limiting framework
 - Excellent error sanitization
 
 **Critical Gaps:**
+
 - 80% of services lack proper authentication
 - 54% of services missing CORS protection
 - 74% of services have no rate limiting
@@ -919,27 +946,27 @@ The SAHOOL platform has **excellent shared middleware frameworks** available but
 
 ### Available Modules
 
-| Module | Location | Features |
-|--------|----------|----------|
-| CORS Config | `shared/config/cors_config.py` | Environment-based, secure defaults |
-| Rate Limiter | `shared/middleware/rate_limiter.py` | Redis support, multiple tiers |
-| Exception Handler | `shared/middleware/exception_handler.py` | Error sanitization, tracking |
-| Auth Dependencies | `shared/auth/dependencies.py` | OAuth2, API key, RBAC |
-| JWT Handler | `shared/auth/jwt.py` | Token validation, claims |
-| RBAC | `shared/auth/rbac.py` | Permission checking |
+| Module            | Location                                 | Features                           |
+| ----------------- | ---------------------------------------- | ---------------------------------- |
+| CORS Config       | `shared/config/cors_config.py`           | Environment-based, secure defaults |
+| Rate Limiter      | `shared/middleware/rate_limiter.py`      | Redis support, multiple tiers      |
+| Exception Handler | `shared/middleware/exception_handler.py` | Error sanitization, tracking       |
+| Auth Dependencies | `shared/auth/dependencies.py`            | OAuth2, API key, RBAC              |
+| JWT Handler       | `shared/auth/jwt.py`                     | Token validation, claims           |
+| RBAC              | `shared/auth/rbac.py`                    | Permission checking                |
 
 ---
 
 ## Appendix B: Service Contact Matrix
 
-| Service | Team | Priority | Migration Status |
-|---------|------|----------|-----------------|
-| alert-service | Backend | High | 🟡 In Progress |
-| satellite-service | ML/AI | High | ❌ Not Started |
-| weather-service | Backend | Critical | ❌ Not Started |
-| field-management-service | Backend | Critical | ❌ Not Started |
-| billing-core | Backend | Medium | 🟢 Good |
-| ws-gateway | Backend | Medium | 🟡 In Progress |
+| Service                  | Team    | Priority | Migration Status |
+| ------------------------ | ------- | -------- | ---------------- |
+| alert-service            | Backend | High     | 🟡 In Progress   |
+| satellite-service        | ML/AI   | High     | ❌ Not Started   |
+| weather-service          | Backend | Critical | ❌ Not Started   |
+| field-management-service | Backend | Critical | ❌ Not Started   |
+| billing-core             | Backend | Medium   | 🟢 Good          |
+| ws-gateway               | Backend | Medium   | 🟡 In Progress   |
 
 ---
 

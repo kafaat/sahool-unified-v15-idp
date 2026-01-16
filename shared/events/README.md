@@ -1,4 +1,5 @@
 # SAHOOL Events System
+
 # نظام الأحداث الموزع لمنصة سهول
 
 Complete event-driven architecture implementation for the SAHOOL agricultural platform using NATS messaging.
@@ -86,27 +87,33 @@ await subscriber.run()
 ### Available Event Types
 
 #### Field Events
+
 - `FieldCreatedEvent` - New field created
 - `FieldUpdatedEvent` - Field updated
 - `FieldDeletedEvent` - Field deleted
 
 #### Weather Events
+
 - `WeatherForecastEvent` - Weather forecast update
 - `WeatherAlertEvent` - Weather alert/warning
 
 #### Satellite Events
+
 - `SatelliteDataReadyEvent` - Satellite imagery processed
 - `SatelliteAnomalyEvent` - Anomaly detected in satellite data
 
 #### Health Events
+
 - `DiseaseDetectedEvent` - Crop disease detected
 - `CropStressEvent` - Crop stress detected (water, nutrient, etc.)
 
 #### Inventory Events
+
 - `LowStockEvent` - Low inventory stock alert
 - `BatchExpiredEvent` - Product batch expired/expiring
 
 #### Billing Events
+
 - `SubscriptionCreatedEvent` - New subscription created
 - `PaymentCompletedEvent` - Payment successfully processed
 - `SubscriptionRenewedEvent` - Subscription renewed
@@ -117,6 +124,7 @@ await subscriber.run()
 All subjects follow the pattern: `sahool.{domain}.{entity}.{action}`
 
 ### Field Subjects
+
 ```python
 SAHOOL_FIELD_CREATED = "sahool.field.created"
 SAHOOL_FIELD_UPDATED = "sahool.field.updated"
@@ -125,6 +133,7 @@ SAHOOL_FIELD_ALL = "sahool.field.*"  # Wildcard
 ```
 
 ### Weather Subjects
+
 ```python
 SAHOOL_WEATHER_FORECAST = "sahool.weather.forecast"
 SAHOOL_WEATHER_ALERT = "sahool.weather.alert"
@@ -132,6 +141,7 @@ SAHOOL_WEATHER_ALL = "sahool.weather.*"
 ```
 
 ### Satellite Subjects
+
 ```python
 SAHOOL_SATELLITE_DATA_READY = "sahool.satellite.data.ready"
 SAHOOL_SATELLITE_ANOMALY = "sahool.satellite.anomaly"
@@ -139,6 +149,7 @@ SAHOOL_SATELLITE_ALL = "sahool.satellite.*"
 ```
 
 ### Health Subjects
+
 ```python
 SAHOOL_HEALTH_DISEASE_DETECTED = "sahool.health.disease.detected"
 SAHOOL_HEALTH_STRESS_DETECTED = "sahool.health.stress.detected"
@@ -146,6 +157,7 @@ SAHOOL_HEALTH_ALL = "sahool.health.*"
 ```
 
 ### Inventory Subjects
+
 ```python
 SAHOOL_INVENTORY_LOW_STOCK = "sahool.inventory.low_stock"
 SAHOOL_INVENTORY_BATCH_EXPIRED = "sahool.inventory.batch.expired"
@@ -153,6 +165,7 @@ SAHOOL_INVENTORY_ALL = "sahool.inventory.*"
 ```
 
 ### Billing Subjects
+
 ```python
 SAHOOL_BILLING_SUBSCRIPTION_CREATED = "sahool.billing.subscription.created"
 SAHOOL_BILLING_PAYMENT_COMPLETED = "sahool.billing.payment.completed"
@@ -163,6 +176,7 @@ SAHOOL_BILLING_ALL = "sahool.billing.*"
 ## ⚙️ Features
 
 ### Publisher Features
+
 - ✅ Automatic JSON serialization from Pydantic models
 - ✅ JetStream support for guaranteed delivery
 - ✅ Automatic reconnection
@@ -173,6 +187,7 @@ SAHOOL_BILLING_ALL = "sahool.billing.*"
 - ✅ Statistics tracking
 
 ### Subscriber Features
+
 - ✅ Automatic JSON deserialization to Pydantic models
 - ✅ JetStream support with durable consumers
 - ✅ Automatic reconnection
@@ -294,6 +309,7 @@ async with EventSubscriber() as subscriber:
 ## 🔗 Related Services
 
 This event system is used by:
+
 - `field-core` - Field management service
 - `satellite-service` - Satellite imagery processing
 - `weather-core` - Weather data and alerts

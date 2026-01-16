@@ -5,7 +5,7 @@
  * Implements double-submit cookie pattern for CSRF protection
  */
 
-import { randomBytes, createHash, timingSafeEqual } from 'crypto';
+import { randomBytes, createHash, timingSafeEqual } from "crypto";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
@@ -14,9 +14,9 @@ import { randomBytes, createHash, timingSafeEqual } from 'crypto';
 export const CSRF_CONFIG = {
   TOKEN_LENGTH: 32, // 256-bit tokens
   TOKEN_EXPIRATION: 60 * 60 * 1000, // 1 hour in milliseconds
-  COOKIE_NAME: 'sahool_csrf_token',
-  HEADER_NAME: 'X-CSRF-Token',
-  FIELD_NAME: '_csrf',
+  COOKIE_NAME: "sahool_csrf_token",
+  HEADER_NAME: "X-CSRF-Token",
+  FIELD_NAME: "_csrf",
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -43,7 +43,7 @@ export interface CsrfValidationResult {
  * توليد رمز CSRF آمن
  */
 export function generateCsrfToken(): string {
-  return randomBytes(CSRF_CONFIG.TOKEN_LENGTH).toString('base64url');
+  return randomBytes(CSRF_CONFIG.TOKEN_LENGTH).toString("base64url");
 }
 
 /**
@@ -64,7 +64,7 @@ export function createCsrfTokenPayload(): CsrfTokenPayload {
  * تشفير الرمز للمقارنة الآمنة
  */
 export function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('base64url');
+  return createHash("sha256").update(token).digest("base64url");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -77,40 +77,40 @@ export function hashToken(token: string): string {
  */
 export function validateCsrfToken(
   providedToken: string,
-  storedPayload: CsrfTokenPayload | null
+  storedPayload: CsrfTokenPayload | null,
 ): CsrfValidationResult {
   // Check if stored payload exists
   if (!storedPayload) {
-    return { valid: false, error: 'No CSRF token found in session' };
+    return { valid: false, error: "No CSRF token found in session" };
   }
 
   // Check if token has expired
   if (Date.now() > storedPayload.expiresAt) {
-    return { valid: false, error: 'CSRF token has expired' };
+    return { valid: false, error: "CSRF token has expired" };
   }
 
   // Check if provided token is present
-  if (!providedToken || typeof providedToken !== 'string') {
-    return { valid: false, error: 'No CSRF token provided in request' };
+  if (!providedToken || typeof providedToken !== "string") {
+    return { valid: false, error: "No CSRF token provided in request" };
   }
 
   // Constant-time comparison to prevent timing attacks
   try {
-    const providedBuffer = Buffer.from(providedToken, 'utf8');
-    const storedBuffer = Buffer.from(storedPayload.token, 'utf8');
+    const providedBuffer = Buffer.from(providedToken, "utf8");
+    const storedBuffer = Buffer.from(storedPayload.token, "utf8");
 
     // If lengths differ, comparison will fail but we still use timingSafeEqual
     // to prevent timing attacks based on early exit
     if (providedBuffer.length !== storedBuffer.length) {
-      return { valid: false, error: 'Invalid CSRF token' };
+      return { valid: false, error: "Invalid CSRF token" };
     }
 
     const isValid = timingSafeEqual(providedBuffer, storedBuffer);
     return isValid
       ? { valid: true }
-      : { valid: false, error: 'Invalid CSRF token' };
+      : { valid: false, error: "Invalid CSRF token" };
   } catch {
-    return { valid: false, error: 'CSRF token validation failed' };
+    return { valid: false, error: "CSRF token validation failed" };
   }
 }
 
@@ -130,24 +130,28 @@ export function extractCsrfTokenFromHeaders(headers: Headers): string | null {
  * Extract CSRF token from form data
  * استخراج رمز CSRF من بيانات النموذج
  */
-export function extractCsrfTokenFromFormData(formData: FormData): string | null {
+export function extractCsrfTokenFromFormData(
+  formData: FormData,
+): string | null {
   const token = formData.get(CSRF_CONFIG.FIELD_NAME);
-  return typeof token === 'string' ? token : null;
+  return typeof token === "string" ? token : null;
 }
 
 /**
  * Parse CSRF token payload from cookie value
  * تحليل حمولة رمز CSRF من قيمة الكوكي
  */
-export function parseCsrfTokenPayload(cookieValue: string | undefined): CsrfTokenPayload | null {
+export function parseCsrfTokenPayload(
+  cookieValue: string | undefined,
+): CsrfTokenPayload | null {
   if (!cookieValue) return null;
 
   try {
     const payload = JSON.parse(cookieValue);
     if (
-      typeof payload.token === 'string' &&
-      typeof payload.createdAt === 'number' &&
-      typeof payload.expiresAt === 'number'
+      typeof payload.token === "string" &&
+      typeof payload.createdAt === "number" &&
+      typeof payload.expiresAt === "number"
     ) {
       return payload as CsrfTokenPayload;
     }
@@ -170,7 +174,7 @@ export function serializeCsrfTokenPayload(payload: CsrfTokenPayload): string {
  * التحقق مما إذا كان أسلوب الطلب يتطلب التحقق من CSRF
  */
 export function requiresCsrfValidation(method: string): boolean {
-  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  const safeMethods = ["GET", "HEAD", "OPTIONS"];
   return !safeMethods.includes(method.toUpperCase());
 }
 
@@ -181,15 +185,15 @@ export function requiresCsrfValidation(method: string): boolean {
 export function getCsrfCookieOptions(): {
   httpOnly: boolean;
   secure: boolean;
-  sameSite: 'strict' | 'lax' | 'none';
+  sameSite: "strict" | "lax" | "none";
   path: string;
   maxAge: number;
 } {
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
     maxAge: CSRF_CONFIG.TOKEN_EXPIRATION / 1000, // Convert to seconds
   };
 }

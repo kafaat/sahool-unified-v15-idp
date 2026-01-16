@@ -58,6 +58,7 @@ python tools/arch/check_imports.py --format json
 ```
 
 **Checks:**
+
 - Circular dependencies
 - Cross-layer imports
 - Forbidden imports
@@ -78,6 +79,7 @@ python tools/compliance/generate_checklist.py --standard soc2
 ```
 
 **Output:**
+
 - GDPR compliance checklist
 - SOC2 compliance checklist
 - Security audit checklist
@@ -143,6 +145,7 @@ python tools/events/generate_catalog.py --format json
 ```
 
 **Output:**
+
 - Event types list
 - Event schemas
 - Publisher/consumer mapping
@@ -197,12 +200,14 @@ python tools/sensor-simulator/simulator.py \
 ```
 
 **Simulates:**
+
 - Soil moisture sensors
 - Temperature sensors
 - Humidity sensors
 - Weather stations
 
 **Configuration:**
+
 ```python
 # In simulator.py
 DEVICES = [

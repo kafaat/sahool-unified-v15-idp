@@ -9,11 +9,11 @@ export {
   useAlertStream,
   useWeatherStream,
   useFieldStream,
-} from './useEventStream';
+} from "./useEventStream";
 
 export type {
   SahoolEvent,
   EventCategory,
   EventStreamOptions,
   EventStreamState,
-} from './useEventStream';
+} from "./useEventStream";

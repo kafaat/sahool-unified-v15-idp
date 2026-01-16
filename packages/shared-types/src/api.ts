@@ -41,7 +41,7 @@ export interface SuccessResponse<T = any> {
  * Type guard for successful response
  */
 export function isSuccessResponse<T>(
-  response: ApiResponse<T>
+  response: ApiResponse<T>,
 ): response is SuccessResponse<T> {
   return response.success === true && response.data !== undefined;
 }
@@ -50,7 +50,7 @@ export function isSuccessResponse<T>(
  * Type guard for error response
  */
 export function isErrorResponse(
-  response: ApiResponse<any>
+  response: ApiResponse<any>,
 ): response is ErrorResponse {
   return response.success === false;
 }

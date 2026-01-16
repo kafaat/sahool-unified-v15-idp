@@ -100,7 +100,11 @@
   },
   "naming_convention": {
     "pattern": "{Domain}.{Action}",
-    "examples": ["Satellite.SceneIngested", "Crop.HealthAssessed", "Advisor.IrrigationPlanProposed"],
+    "examples": [
+      "Satellite.SceneIngested",
+      "Crop.HealthAssessed",
+      "Advisor.IrrigationPlanProposed"
+    ],
     "versioning": "Append .v{n} to filename, use event_version field in payload"
   },
   "transport": {

@@ -19,10 +19,12 @@ This document catalogs all in-memory storage across SAHOOL services and provides
 ### Critical Priority (Data Loss = Business Impact)
 
 #### 1. billing-core
+
 **Location:** `/apps/services/billing-core/src/main.py`
 **Lines:** 550-556
 
 **In-Memory Storage:**
+
 ```python
 PLANS: Dict[str, Plan] = {}
 TENANTS: Dict[str, Tenant] = {}
@@ -34,12 +36,14 @@ INVOICE_COUNTER: int = 0
 ```
 
 **Business Impact:**
+
 - **CRITICAL:** Lost invoice/payment records = compliance violation
 - **CRITICAL:** Lost tenant data = customer churn
 - **HIGH:** Lost usage records = billing inaccuracies
 - **MEDIUM:** Lost plans = service reconfiguration needed
 
 **Migration Required:**
+
 1. ✅ `subscriptions` table - PARTIALLY DONE (database.py has model)
 2. ❌ `plans` table - Migrate from in-memory dict
 3. ❌ `tenants` table - Customer data MUST persist
@@ -48,6 +52,7 @@ INVOICE_COUNTER: int = 0
 6. ❌ `usage_records` table - Metered billing data
 
 **Database Schema:**
+
 ```sql
 -- plans table
 CREATE TABLE plans (
@@ -108,25 +113,30 @@ CREATE INDEX idx_usage_tenant_metric ON usage_records(tenant_id, metric, timesta
 ---
 
 #### 2. crop-health-ai (diagnosis_service)
+
 **Location:** `/apps/services/crop-health-ai/src/services/diagnosis_service.py`
 **Lines:** 41-90
 
 **In-Memory Storage:**
+
 ```python
 self._history: List[Dict[str, Any]] = []  # Limited to MAX_HISTORY_SIZE=1000
 ```
 
 **Business Impact:**
+
 - **CRITICAL:** Diagnosis history lost = no epidemic monitoring
 - **CRITICAL:** Limited to 1000 records = data dropped in high-volume periods
 - **HIGH:** No multi-instance support = cannot scale pods
 - **HIGH:** No spatial queries = cannot detect disease outbreaks by region
 
 **Migration Required:**
+
 1. ❌ `crop_diagnoses` table - Full diagnosis history with geospatial support
 2. ❌ DiagnosisRepository - Replace in-memory list operations
 
 **Database Schema:**
+
 ```sql
 CREATE TABLE crop_diagnoses (
     id UUID PRIMARY KEY,
@@ -165,10 +175,12 @@ CREATE TABLE crop_diagnoses_2025_q1 PARTITION OF crop_diagnoses
 ---
 
 #### 3. notification-service
+
 **Location:** `/apps/services/notification-service/src/main.py`
 **Lines:** 268-295
 
 **In-Memory Storage:**
+
 ```python
 FARMER_PROFILES: Dict[str, FarmerProfile] = {}
 NOTIFICATIONS: Dict[str, Notification] = {}  # LEGACY - Already using database
@@ -176,15 +188,18 @@ FARMER_NOTIFICATIONS: Dict[str, List[str]] = {}  # LEGACY
 ```
 
 **Business Impact:**
+
 - **HIGH:** Farmer profiles lost = cannot target notifications
 - **LOW:** NOTIFICATIONS/FARMER_NOTIFICATIONS already migrated to database (just remove)
 
 **Migration Required:**
+
 1. ❌ `farmer_profiles` table - Farmer data with crops, fields, channels
 2. ✅ `notifications` - ALREADY DONE via NotificationRepository
 3. ✅ Remove unused NOTIFICATIONS and FARMER_NOTIFICATIONS dicts
 
 **Database Schema:**
+
 ```sql
 CREATE TABLE farmer_profiles (
     farmer_id VARCHAR(100) PRIMARY KEY,
@@ -227,21 +242,25 @@ CREATE INDEX idx_farmer_governorate ON farmer_profiles(governorate);
 ### High Priority (Core Functionality)
 
 #### 4. task-service
+
 **Location:** `/apps/services/task-service/src/main.py`
 **Lines:** 214-215
 
 **In-Memory Storage:**
+
 ```python
 tasks_db: dict[str, Task] = {}
 evidence_db: dict[str, Evidence] = {}
 ```
 
 **Business Impact:**
+
 - **HIGH:** Task assignments lost = operational disruption
 - **MEDIUM:** Evidence lost = no audit trail
 - **MEDIUM:** No task history = cannot analyze worker performance
 
 **Database Schema:**
+
 ```sql
 CREATE TABLE tasks (
     task_id UUID PRIMARY KEY,
@@ -290,21 +309,25 @@ CREATE INDEX idx_evidence_task ON task_evidence(task_id);
 ---
 
 #### 5. alert-service
+
 **Location:** `/apps/services/alert-service/src/main.py`
 **Lines:** 119-120
 
 **In-Memory Storage:**
+
 ```python
 _alerts: dict[str, dict] = {}
 _rules: dict[str, dict] = {}
 ```
 
 **Business Impact:**
+
 - **HIGH:** Alert history lost = cannot analyze incident patterns
 - **HIGH:** Rules lost = manual reconfiguration needed
 - **MEDIUM:** No compliance trail for critical alerts
 
 **Database Schema:**
+
 ```sql
 CREATE TABLE alerts (
     alert_id UUID PRIMARY KEY,
@@ -356,10 +379,12 @@ CREATE INDEX idx_rules_enabled ON alert_rules(enabled);
 ---
 
 #### 6. equipment-service
+
 **Location:** `/apps/services/equipment-service/src/main.py`
 **Lines:** 246-248
 
 **In-Memory Storage:**
+
 ```python
 equipment_db: dict[str, Equipment] = {}
 maintenance_db: dict[str, MaintenanceRecord] = {}
@@ -367,11 +392,13 @@ alerts_db: dict[str, MaintenanceAlert] = {}
 ```
 
 **Business Impact:**
+
 - **HIGH:** Equipment inventory lost = asset management failure
 - **HIGH:** Maintenance history lost = compliance issues
 - **MEDIUM:** No equipment lifecycle tracking
 
 **Database Schema:**
+
 ```sql
 CREATE TABLE equipment (
     equipment_id UUID PRIMARY KEY,
@@ -440,10 +467,12 @@ CREATE INDEX idx_equipment_alerts_due ON equipment_alerts(due_at) WHERE acknowle
 ### Medium Priority (Can Defer but Recommended)
 
 #### 7. inventory-service (alerts_db, settings_db)
+
 **Location:** `/apps/services/inventory-service/src/alert_endpoints.py`
 **Line:** 289
 
 **In-Memory Storage:**
+
 ```python
 settings_db = {}  # In-memory settings storage
 ```
@@ -451,6 +480,7 @@ settings_db = {}  # In-memory settings storage
 **Note:** Main inventory data already uses database (inventory_db via Tortoise ORM). Only alert settings are in-memory.
 
 **Migration Required:**
+
 - Create `inventory_alert_settings` table
 - Migrate settings_db to database
 
@@ -459,19 +489,23 @@ settings_db = {}  # In-memory settings storage
 ---
 
 #### 8. vegetation-analysis-service (VRA prescriptions)
+
 **Location:** `/apps/services/vegetation-analysis-service/src/vra_generator.py`
 **Line:** 267
 
 **In-Memory Storage:**
+
 ```python
 self._prescription_store: Dict[str, PrescriptionMap] = {}
 ```
 
 **Business Impact:**
+
 - **MEDIUM:** Lost prescription maps = farmers need to re-request
 - **LOW:** Prescriptions are regenerated on-demand (acceptable loss)
 
 **Migration Required:**
+
 - Create `vra_prescriptions` table
 - Store generated prescription maps with geometry data (PostGIS)
 
@@ -480,10 +514,12 @@ self._prescription_store: Dict[str, PrescriptionMap] = {}
 ---
 
 #### 9. satellite-service (VRA prescriptions)
+
 **Location:** `/apps/services/satellite-service/src/vra_generator.py`
 **Line:** 267
 
 **In-Memory Storage:**
+
 ```python
 self._prescription_store: Dict[str, PrescriptionMap] = {}
 ```
@@ -497,10 +533,12 @@ self._prescription_store: Dict[str, PrescriptionMap] = {}
 ### Low Priority (Legacy / Already Migrated)
 
 #### 10. field-chat
+
 **Location:** `/apps/services/field-chat/src/main.py`
 **Lines:** 27-29, 171
 
 **Status:** ✅ Already using database (Tortoise ORM)
+
 - Falls back to in-memory SQLite for testing only
 - Connection manager is simple WebSocket state (acceptable in-memory)
 
@@ -509,16 +547,19 @@ self._prescription_store: Dict[str, PrescriptionMap] = {}
 ---
 
 #### 11. provider-config
+
 **Location:** `/apps/services/provider-config/src/main.py`
 **Line:** 621
 
 **In-Memory Storage:** Provider configurations
 
 **Business Impact:**
+
 - **LOW:** Configuration lost = manual reconfiguration (rare updates)
 - Configuration is typically static and can be version-controlled
 
 **Migration Required:**
+
 - Optional: Create `provider_configs` table for dynamic updates
 - Alternative: Keep in environment variables / config files
 
@@ -527,6 +568,7 @@ self._prescription_store: Dict[str, PrescriptionMap] = {}
 ---
 
 #### 12. field-ops
+
 **Location:** `/apps/services/field-ops/src/main.py`
 **Line:** 156
 
@@ -536,10 +578,12 @@ self._prescription_store: Dict[str, PrescriptionMap] = {}
 ---
 
 #### 13. iot-gateway (device registry)
+
 **Location:** `/apps/services/iot-gateway/src/registry.py`
 **Line:** 77
 
 **Status:** Has optional persistence layer
+
 - Supports both in-memory and persistent storage
 - Acceptable for IoT use case (device state is ephemeral)
 
@@ -550,6 +594,7 @@ self._prescription_store: Dict[str, PrescriptionMap] = {}
 ## Migration Strategy
 
 ### Phase 1: Critical Services (Week 1-2)
+
 1. **billing-core** - 4 days
    - Migrate TENANTS, INVOICES, PAYMENTS, USAGE_RECORDS
    - Load PLANS from database on startup
@@ -567,6 +612,7 @@ self._prescription_store: Dict[str, PrescriptionMap] = {}
 ---
 
 ### Phase 2: High Priority Services (Week 3-4)
+
 4. **task-service** - 2 days
 5. **alert-service** - 2 days
 6. **equipment-service** - 3 days
@@ -576,6 +622,7 @@ self._prescription_store: Dict[str, PrescriptionMap] = {}
 ---
 
 ### Phase 3: Medium Priority Services (Week 5)
+
 7. **inventory-service (settings)** - 1 day
 8. **vegetation-analysis-service** - 2 days
 9. **satellite-service** - 2 days (or deduplicate with #8)
@@ -606,6 +653,7 @@ For each service migration:
 ## Common PostgreSQL Patterns
 
 ### Tortoise ORM Model Example
+
 ```python
 from tortoise import fields
 from tortoise.models import Model
@@ -631,6 +679,7 @@ class CropDiagnosis(Model):
 ```
 
 ### Repository Pattern Example
+
 ```python
 class DiagnosisRepository:
     @staticmethod
@@ -658,11 +707,13 @@ class DiagnosisRepository:
 ## Testing Strategy
 
 ### Database Testing
+
 1. Use in-memory SQLite for unit tests (fast)
 2. Use PostgreSQL container for integration tests (realistic)
 3. Test migrations with production-like data volumes
 
 ### Example Test Setup
+
 ```python
 import pytest
 from tortoise.contrib.test import initializer, finalizer
@@ -684,13 +735,16 @@ async def initialize_tests():
 ## Performance Considerations
 
 ### Indexing Strategy
+
 1. **Single-column indexes:** For common filters (status, tenant_id, governorate)
 2. **Composite indexes:** For multi-field queries (tenant_id, created_at)
 3. **Geospatial indexes:** GIST indexes for PostGIS queries
 4. **Partial indexes:** For filtered queries (WHERE status = 'pending')
 
 ### Partitioning
+
 For high-volume tables (alerts, diagnoses):
+
 ```sql
 -- Time-based partitioning
 CREATE TABLE alerts (
@@ -704,6 +758,7 @@ CREATE TABLE alerts_2025_q1 PARTITION OF alerts
 ```
 
 ### Connection Pooling
+
 ```python
 # In database.py
 TORTOISE_ORM = {
@@ -730,12 +785,14 @@ TORTOISE_ORM = {
 ## Deployment Strategy
 
 ### Blue-Green Deployment
+
 1. Deploy new version with database support (writes to both memory + DB)
 2. Verify data consistency
 3. Switch reads to database
 4. Remove in-memory storage in next release
 
 ### Backward Compatibility
+
 ```python
 # Graceful fallback example
 async def get_diagnoses(limit: int = 50):
@@ -753,6 +810,7 @@ async def get_diagnoses(limit: int = 50):
 ## Monitoring & Alerts
 
 ### Metrics to Track
+
 - Database connection pool usage
 - Query execution time (p50, p95, p99)
 - Failed database operations
@@ -760,6 +818,7 @@ async def get_diagnoses(limit: int = 50):
 - Data consistency checks
 
 ### Example Prometheus Metrics
+
 ```python
 from prometheus_client import Counter, Histogram
 
@@ -781,6 +840,7 @@ db_errors = Counter(
 ## Rollback Plan
 
 For each service:
+
 1. Keep in-memory storage code (commented) for 1 release cycle
 2. Add feature flag: `USE_DATABASE = os.getenv("USE_DATABASE", "true") == "true"`
 3. If issues detected, set `USE_DATABASE=false` and redeploy
@@ -791,6 +851,7 @@ For each service:
 ## Success Criteria
 
 Migration is considered successful when:
+
 - ✅ All data persists across service restarts
 - ✅ Can scale to multiple pod instances
 - ✅ Query performance meets SLA (p95 < 100ms)

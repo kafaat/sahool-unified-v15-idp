@@ -1,8 +1,16 @@
 /// SAHOOL Field App Configuration
+/// تكوين تطبيق سهول الميداني
+///
+/// For physical device development, set DEV_HOST via dart-define:
+/// flutter run --dart-define=DEV_HOST=192.168.1.5
 class AppConfig {
+  // Development host - defaults to Android emulator localhost
+  // للأجهزة الحقيقية: استخدم dart-define لتعيين DEV_HOST
+  static const String _devHost = String.fromEnvironment('DEV_HOST', defaultValue: '10.0.2.2');
+
   // API Configuration (via Kong API Gateway)
-  static const String apiBaseUrl = 'http://192.168.8.89:8000/api/v1';
-  static const String wsBaseUrl = 'ws://192.168.8.89:8090';
+  static const String apiBaseUrl = 'http://$_devHost:8000/api/v1';
+  static const String wsBaseUrl = 'ws://$_devHost:8081'; // WebSocket Gateway port
 
   // Sync Configuration
   static const Duration syncInterval = Duration(seconds: 20);
@@ -50,7 +58,7 @@ class EnvConfig {
   static const development = EnvConfig(
     env: Environment.development,
     apiUrl: 'http://10.0.2.2:8000/api/v1', // Android emulator via Kong
-    wsUrl: 'ws://10.0.2.2:8090',
+    wsUrl: 'ws://10.0.2.2:8081', // WebSocket Gateway port
   );
 
   static const staging = EnvConfig(

@@ -1,4 +1,5 @@
 # Web Accessibility Audit Report
+
 # تقرير تدقيق إمكانية الوصول للويب
 
 **Application:** SAHOOL Unified v15 IDP - Web Application
@@ -16,6 +17,7 @@ The SAHOOL web application demonstrates **good foundational accessibility practi
 **Overall Grade:** B- (Good, with improvements needed)
 
 ### Statistics | الإحصائيات
+
 - **Files Audited:** 150+ React/TypeScript components
 - **ARIA Labels Found:** 109 occurrences across 34 files
 - **Role Attributes Found:** 86 occurrences across 30 files
@@ -51,6 +53,7 @@ The SAHOOL web application demonstrates **good foundational accessibility practi
 ### ❌ Issues Found | المشاكل المكتشفة
 
 #### 🔴 Critical
+
 1. **Toast Container Missing aria-live** (Priority: HIGH)
    - **File:** `/apps/web/src/components/ui/toast.tsx`
    - **Line:** 82
@@ -68,6 +71,7 @@ The SAHOOL web application demonstrates **good foundational accessibility practi
      - Consider using `<title>` and `<desc>` SVG elements
 
 #### 🟡 Medium Priority
+
 3. **Badge Component Not Semantic**
    - **File:** `/apps/web/src/components/ui/badge.tsx`
    - **Issue:** No `role` or ARIA attributes for status badges
@@ -101,6 +105,7 @@ The SAHOOL web application demonstrates **good foundational accessibility practi
 ### ❌ Issues Found | المشاكل المكتشفة
 
 #### 🟡 Medium Priority
+
 1. **Generic Alt Text** (Priority: MEDIUM)
    - **File:** `/apps/web/src/features/crop-health/components/DiagnosisTool.tsx`
    - **Line:** 164
@@ -125,6 +130,7 @@ The SAHOOL web application demonstrates **good foundational accessibility practi
    - **Recommendation:** Audit all `<img>` tags and ensure meaningful alt text
 
 #### ✅ Good Practices Found
+
 - ProductCard properly handles missing images with placeholder
 - EquipmentCard shows decorative icon when no image available
 - Icons use `aria-hidden="true"` consistently
@@ -154,6 +160,7 @@ The SAHOOL web application demonstrates **good foundational accessibility practi
 ### ❌ Issues Found | المشاكل المكتشفة
 
 #### 🟡 Medium Priority
+
 1. **Inconsistent Keyboard Support** (Priority: MEDIUM)
    - **Issue:** Not all interactive cards implement keyboard handlers
    - **Example:** Some dashboard cards with onClick lack onKeyDown
@@ -177,6 +184,7 @@ The SAHOOL web application demonstrates **good foundational accessibility practi
    - **Recommendation:** Add skip link at top of page
 
 #### 🟢 Low Priority
+
 5. **Tab Order** (Priority: LOW)
    - **Issue:** Complex layouts may have unexpected tab order
    - **Recommendation:** Test tab order in dashboard and ensure logical flow
@@ -195,6 +203,7 @@ The SAHOOL web application demonstrates **good foundational accessibility practi
 **Note:** Color contrast requires visual testing tools. The following are identified based on code inspection:
 
 #### 🟡 Medium Priority
+
 1. **Gray Text on White Background** (Priority: MEDIUM)
    - **Occurrence:** `text-gray-500` on white backgrounds throughout app
    - **Files:** Multiple components (StatsCards, TaskCard, FieldCard)
@@ -239,6 +248,7 @@ sahool-brown-500: #bfa094  // Secondary brown
 ```
 
 #### Recommendations | التوصيات
+
 1. **Use Automated Tools:**
    - Integrate `eslint-plugin-jsx-a11y` with color contrast rules
    - Run Lighthouse accessibility audits
@@ -273,6 +283,7 @@ sahool-brown-500: #bfa094  // Secondary brown
 ### ❌ Issues Found | المشاكل المكتشفة
 
 #### 🟡 Medium Priority
+
 1. **Missing h1 on Some Pages** (Priority: MEDIUM)
    - **Issue:** Some client components may not have explicit h1
    - **Files:** DashboardClient.tsx, AnalyticsDashboardClient.tsx
@@ -293,14 +304,15 @@ sahool-brown-500: #bfa094  // Secondary brown
 
 ```html
 <h1>Page Title (Dashboard)</h1>
-  <h2>Section 1 (Overview)</h2>
-    <h3>Card Title (KPI)</h3>
-    <h3>Card Title (Stats)</h3>
-  <h2>Section 2 (Recent Activity)</h2>
-    <h3>Task Title</h3>
+<h2>Section 1 (Overview)</h2>
+<h3>Card Title (KPI)</h3>
+<h3>Card Title (Stats)</h3>
+<h2>Section 2 (Recent Activity)</h2>
+<h3>Task Title</h3>
 ```
 
 #### Recommendations | التوصيات
+
 1. Add `eslint-plugin-jsx-a11y` rule: `jsx-a11y/heading-has-content`
 2. Audit page structure with headingsMap browser extension
 3. Document heading hierarchy in component guidelines
@@ -334,6 +346,7 @@ sahool-brown-500: #bfa094  // Secondary brown
 ### ❌ Issues Found | المشاكل المكتشفة
 
 #### 🔴 Critical
+
 1. **TaskForm Labels Not Associated** (Priority: HIGH)
    - **File:** `/apps/web/src/features/tasks/components/TaskForm.tsx`
    - **Lines:** 60-67, 75-83, 94-99
@@ -353,6 +366,7 @@ sahool-brown-500: #bfa094  // Secondary brown
      - Error display (line 148) doesn't use `aria-describedby`
 
 #### 🟡 Medium Priority
+
 3. **EquipmentForm Validation Feedback** (Priority: MEDIUM)
    - **File:** `/apps/web/src/features/equipment/components/EquipmentForm.tsx`
    - **Issue:** Need to verify error message implementation
@@ -363,10 +377,11 @@ sahool-brown-500: #bfa094  // Secondary brown
    - **Recommendation:** Add real-time validation with `aria-live` announcements
 
 5. **Required Field Indicators** (Priority: MEDIUM)
-   - **Issue:** Asterisks (*) used without `aria-required="true"`
+   - **Issue:** Asterisks (\*) used without `aria-required="true"`
    - **Recommendation:** Add `aria-required="true"` to required inputs
 
 #### 🟢 Low Priority
+
 6. **Field Sets for Related Inputs** (Priority: LOW)
    - **File:** ProfileForm.tsx
    - **Issue:** Location and farm details sections not wrapped in `<fieldset>`
@@ -415,19 +430,21 @@ sahool-brown-500: #bfa094  // Secondary brown
 ### ❌ Issues Found | المشاكل المكتشفة
 
 #### 🔴 High Priority
+
 1. **Modal Focus Trap Missing** (Priority: HIGH)
    - **File:** `/apps/web/src/components/ui/modal.tsx`
    - **Issue:** Focus can escape modal to background content
    - **Impact:** Keyboard users can interact with disabled content
    - **Recommendation:**
+
      ```tsx
-     import FocusLock from 'react-focus-lock';
+     import FocusLock from "react-focus-lock";
 
      <FocusLock returnFocus>
        <div role="dialog" aria-modal="true">
          {/* modal content */}
        </div>
-     </FocusLock>
+     </FocusLock>;
      ```
 
 2. **Focus Not Restored After Modal Close** (Priority: HIGH)
@@ -441,6 +458,7 @@ sahool-brown-500: #bfa094  // Secondary brown
    - **Recommendation:** Focus first menu item when dropdown opens
 
 #### 🟡 Medium Priority
+
 4. **Tab Order in Complex Layouts** (Priority: MEDIUM)
    - **File:** Dashboard layouts
    - **Issue:** Tab order may not follow visual order in grid layouts
@@ -513,6 +531,7 @@ sahool-brown-500: #bfa094  // Secondary brown
 ### ❌ Issues Found | المشاكل المكتشفة
 
 #### 🟢 Minor Issues
+
 1. **Chart Labels RTL** (Priority: LOW)
    - **File:** `/apps/web/src/features/analytics/components/YieldChart.tsx`
    - **Issue:** Recharts may not handle RTL text properly
@@ -531,17 +550,17 @@ sahool-brown-500: #bfa094  // Secondary brown
 
 ### 🌍 RTL Implementation Scorecard
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| HTML dir attribute | ✅ Excellent | Based on locale |
+| Feature                     | Status       | Notes                       |
+| --------------------------- | ------------ | --------------------------- |
+| HTML dir attribute          | ✅ Excellent | Based on locale             |
 | Tailwind logical properties | ✅ Excellent | Consistent use of start/end |
-| Bilingual labels | ✅ Excellent | Arabic + English throughout |
-| Component-level dir | ✅ Good | Most components handle RTL |
-| Form input direction | ✅ Excellent | LTR for English fields |
-| Icon positioning | ✅ Good | Uses flex and spacing |
-| Date/number localization | ✅ Good | Uses Arabic-Indic numerals |
-| Chart/graph RTL | ⚠️ Untested | Needs verification |
-| Text alignment | ✅ Good | Automatic based on dir |
+| Bilingual labels            | ✅ Excellent | Arabic + English throughout |
+| Component-level dir         | ✅ Good      | Most components handle RTL  |
+| Form input direction        | ✅ Excellent | LTR for English fields      |
+| Icon positioning            | ✅ Good      | Uses flex and spacing       |
+| Date/number localization    | ✅ Good      | Uses Arabic-Indic numerals  |
+| Chart/graph RTL             | ⚠️ Untested  | Needs verification          |
+| Text alignment              | ✅ Good      | Automatic based on dir      |
 
 ### 📋 RTL Testing Checklist
 
@@ -577,39 +596,39 @@ sahool-brown-500: #bfa094  // Secondary brown
 
 ### 🔴 Critical (Must Fix Immediately)
 
-| Issue | File | Impact | Effort |
-|-------|------|--------|--------|
-| Charts lack accessibility | YieldChart.tsx | High | Medium |
-| Toast container missing aria-live | toast.tsx | High | Low |
-| TaskForm labels not associated | TaskForm.tsx | High | Low |
+| Issue                             | File           | Impact | Effort |
+| --------------------------------- | -------------- | ------ | ------ |
+| Charts lack accessibility         | YieldChart.tsx | High   | Medium |
+| Toast container missing aria-live | toast.tsx      | High   | Low    |
+| TaskForm labels not associated    | TaskForm.tsx   | High   | Low    |
 
 ### 🟡 High Priority (Fix Soon)
 
-| Issue | File | Impact | Effort |
-|-------|------|--------|--------|
-| Modal focus trap missing | modal.tsx | Medium | Medium |
-| DiagnosisTool form issues | DiagnosisTool.tsx | Medium | Low |
-| Skip navigation links missing | layout.tsx | Medium | Low |
-| Generic alt text | DiagnosisTool.tsx, ProfileForm.tsx | Medium | Low |
-| Dropdown menu keyboard nav | header.tsx | Medium | Medium |
+| Issue                         | File                               | Impact | Effort |
+| ----------------------------- | ---------------------------------- | ------ | ------ |
+| Modal focus trap missing      | modal.tsx                          | Medium | Medium |
+| DiagnosisTool form issues     | DiagnosisTool.tsx                  | Medium | Low    |
+| Skip navigation links missing | layout.tsx                         | Medium | Low    |
+| Generic alt text              | DiagnosisTool.tsx, ProfileForm.tsx | Medium | Low    |
+| Dropdown menu keyboard nav    | header.tsx                         | Medium | Medium |
 
 ### 🟢 Medium Priority (Plan for Future Sprint)
 
-| Issue | File | Impact | Effort |
-|-------|------|--------|--------|
-| Color contrast verification | Multiple | Medium | High |
-| Heading hierarchy audit | Multiple | Low | Medium |
-| Badge component semantics | badge.tsx | Low | Low |
-| Icon-only button labels | Multiple | Low | Low |
-| Inline validation | Multiple forms | Medium | High |
+| Issue                       | File           | Impact | Effort |
+| --------------------------- | -------------- | ------ | ------ |
+| Color contrast verification | Multiple       | Medium | High   |
+| Heading hierarchy audit     | Multiple       | Low    | Medium |
+| Badge component semantics   | badge.tsx      | Low    | Low    |
+| Icon-only button labels     | Multiple       | Low    | Low    |
+| Inline validation           | Multiple forms | Medium | High   |
 
 ### ⚪ Low Priority (Nice to Have)
 
-| Issue | File | Impact | Effort |
-|-------|------|--------|--------|
-| Focus restoration | modal.tsx | Low | Low |
-| Fieldsets for grouped inputs | ProfileForm.tsx | Low | Low |
-| Chart RTL testing | YieldChart.tsx | Low | Medium |
+| Issue                        | File            | Impact | Effort |
+| ---------------------------- | --------------- | ------ | ------ |
+| Focus restoration            | modal.tsx       | Low    | Low    |
+| Fieldsets for grouped inputs | ProfileForm.tsx | Low    | Low    |
+| Chart RTL testing            | YieldChart.tsx  | Low    | Medium |
 
 ---
 
@@ -618,6 +637,7 @@ sahool-brown-500: #bfa094  // Secondary brown
 ### Immediate Actions (Sprint 1)
 
 1. **Fix Critical Accessibility Gaps**
+
    ```bash
    # Priority 1: Toast notifications
    - Add aria-live to ToastContainer
@@ -634,9 +654,11 @@ sahool-brown-500: #bfa094  // Secondary brown
    ```
 
 2. **Implement Focus Management**
+
    ```bash
    npm install react-focus-lock
    ```
+
    - Add focus trap to Modal component
    - Implement focus restoration
    - Add skip navigation links
@@ -667,12 +689,13 @@ sahool-brown-500: #bfa094  // Secondary brown
 ### Long-term Strategy
 
 1. **Accessibility Testing Integration**
+
    ```typescript
    // playwright.config.ts
-   import { injectAxe, checkA11y } from 'axe-playwright';
+   import { injectAxe, checkA11y } from "axe-playwright";
 
-   test('Dashboard accessibility', async ({ page }) => {
-     await page.goto('/dashboard');
+   test("Dashboard accessibility", async ({ page }) => {
+     await page.goto("/dashboard");
      await injectAxe(page);
      await checkA11y(page);
    });
@@ -695,6 +718,7 @@ sahool-brown-500: #bfa094  // Secondary brown
 ### Automated Testing
 
 1. **Install Testing Tools**
+
    ```bash
    npm install --save-dev @axe-core/playwright
    npm install --save-dev @testing-library/jest-dom
@@ -702,6 +726,7 @@ sahool-brown-500: #bfa094  // Secondary brown
    ```
 
 2. **Add ESLint Rules**
+
    ```javascript
    // .eslintrc.js
    {
@@ -716,13 +741,16 @@ sahool-brown-500: #bfa094  // Secondary brown
    ```
 
 3. **Playwright Accessibility Tests**
+
    ```typescript
    // e2e/accessibility.spec.ts
-   import { test, expect } from '@playwright/test';
-   import AxeBuilder from '@axe-core/playwright';
+   import { test, expect } from "@playwright/test";
+   import AxeBuilder from "@axe-core/playwright";
 
-   test('Dashboard should not have accessibility violations', async ({ page }) => {
-     await page.goto('/dashboard');
+   test("Dashboard should not have accessibility violations", async ({
+     page,
+   }) => {
+     await page.goto("/dashboard");
      const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
      expect(accessibilityScanResults.violations).toEqual([]);
    });
@@ -763,6 +791,7 @@ sahool-brown-500: #bfa094  // Secondary brown
 ### Continuous Monitoring
 
 1. **CI/CD Integration**
+
    ```yaml
    # .github/workflows/accessibility.yml
    name: Accessibility Tests
@@ -788,25 +817,29 @@ sahool-brown-500: #bfa094  // Secondary brown
 ## Resources | الموارد
 
 ### Standards and Guidelines
+
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 - [MDN Accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
 
 ### Testing Tools
+
 - [axe DevTools](https://www.deque.com/axe/devtools/)
 - [WAVE Browser Extension](https://wave.webaim.org/extension/)
 - [Lighthouse](https://developers.google.com/web/tools/lighthouse)
 - [Pa11y](https://pa11y.org/)
 
 ### Screen Readers
+
 - [NVDA (Windows)](https://www.nvaccess.org/)
 - [JAWS (Windows)](https://www.freedomscientific.com/products/software/jaws/)
 - VoiceOver (macOS/iOS) - Built-in
 - TalkBack (Android) - Built-in
 
 ### Libraries
+
 - [react-focus-lock](https://github.com/theKashey/react-focus-lock)
-- [@radix-ui/react-*](https://www.radix-ui.com/) - Accessible primitives
+- [@radix-ui/react-\*](https://www.radix-ui.com/) - Accessible primitives
 - [react-aria](https://react-spectrum.adobe.com/react-aria/) - Adobe's a11y hooks
 
 ---
@@ -814,6 +847,7 @@ sahool-brown-500: #bfa094  // Secondary brown
 ## Conclusion | الخاتمة
 
 The SAHOOL web application demonstrates **strong foundational accessibility**, particularly in:
+
 - ✅ Excellent RTL/Arabic support
 - ✅ Good ARIA attribute usage
 - ✅ Proper semantic HTML
@@ -821,12 +855,14 @@ The SAHOOL web application demonstrates **strong foundational accessibility**, p
 - ✅ Bilingual interface
 
 **Critical improvements needed:**
+
 - 🔴 Chart accessibility
 - 🔴 Toast notification announcements
 - 🔴 Form label associations
 - 🔴 Modal focus management
 
 **Recommended next steps:**
+
 1. Address all critical issues (estimated 2-3 days)
 2. Implement automated accessibility testing
 3. Conduct manual screen reader testing

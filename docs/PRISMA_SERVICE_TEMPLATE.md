@@ -156,37 +156,42 @@ model GeoEntity {
 ### Express/Node.js
 
 ```typescript
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 // Create Prisma Client instance
 export const prisma = new PrismaClient({
-  log: process.env.NODE_ENV !== 'production'
-    ? ['query', 'info', 'warn', 'error']
-    : ['error'],
+  log:
+    process.env.NODE_ENV !== "production"
+      ? ["query", "info", "warn", "error"]
+      : ["error"],
 });
 
 // Graceful shutdown
-process.on('beforeExit', async () => {
+process.on("beforeExit", async () => {
   await prisma.$disconnect();
 });
 
 // Export types for convenience
-export type { Prisma } from '@prisma/client';
+export type { Prisma } from "@prisma/client";
 ```
 
 ### NestJS Module
 
 ```typescript
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor() {
     super({
-      log: process.env.NODE_ENV !== 'production'
-        ? ['query', 'info', 'warn', 'error']
-        : ['error'],
+      log:
+        process.env.NODE_ENV !== "production"
+          ? ["query", "info", "warn", "error"]
+          : ["error"],
     });
   }
 
@@ -265,44 +270,44 @@ PORT=3000
 ### Basic CRUD Operations
 
 ```typescript
-import { prisma } from './lib/prisma';
+import { prisma } from "./lib/prisma";
 
 // Create
 const newEntity = await prisma.exampleEntity.create({
   data: {
-    name: 'Example',
-    tenantId: 'tenant-123',
-    status: 'active'
-  }
+    name: "Example",
+    tenantId: "tenant-123",
+    status: "active",
+  },
 });
 
 // Read - Find Unique
 const entity = await prisma.exampleEntity.findUnique({
-  where: { id: 'entity-id' }
+  where: { id: "entity-id" },
 });
 
 // Read - Find Many
 const entities = await prisma.exampleEntity.findMany({
-  where: { tenantId: 'tenant-123' },
-  orderBy: { createdAt: 'desc' },
-  take: 10
+  where: { tenantId: "tenant-123" },
+  orderBy: { createdAt: "desc" },
+  take: 10,
 });
 
 // Update
 const updated = await prisma.exampleEntity.update({
-  where: { id: 'entity-id' },
-  data: { name: 'Updated Name' }
+  where: { id: "entity-id" },
+  data: { name: "Updated Name" },
 });
 
 // Delete
 await prisma.exampleEntity.delete({
-  where: { id: 'entity-id' }
+  where: { id: "entity-id" },
 });
 
 // Soft Delete (update status)
 await prisma.exampleEntity.update({
-  where: { id: 'entity-id' },
-  data: { status: 'deleted' }
+  where: { id: "entity-id" },
+  data: { status: "deleted" },
 });
 ```
 
@@ -311,33 +316,30 @@ await prisma.exampleEntity.update({
 ```typescript
 // Include relations
 const entityWithRelations = await prisma.exampleEntity.findUnique({
-  where: { id: 'entity-id' },
+  where: { id: "entity-id" },
   include: {
     relatedEntities: true,
     otherRelation: {
       select: {
         id: true,
-        name: true
-      }
-    }
-  }
+        name: true,
+      },
+    },
+  },
 });
 
 // Create with relations
 const newEntity = await prisma.exampleEntity.create({
   data: {
-    name: 'Example',
-    tenantId: 'tenant-123',
+    name: "Example",
+    tenantId: "tenant-123",
     relatedEntities: {
-      create: [
-        { name: 'Related 1' },
-        { name: 'Related 2' }
-      ]
-    }
+      create: [{ name: "Related 1" }, { name: "Related 2" }],
+    },
   },
   include: {
-    relatedEntities: true
-  }
+    relatedEntities: true,
+  },
 });
 ```
 
@@ -347,7 +349,7 @@ const newEntity = await prisma.exampleEntity.create({
 // Simple transaction
 const [entity1, entity2] = await prisma.$transaction([
   prisma.exampleEntity.create({ data: data1 }),
-  prisma.exampleEntity.create({ data: data2 })
+  prisma.exampleEntity.create({ data: data2 }),
 ]);
 
 // Interactive transaction
@@ -355,9 +357,9 @@ const result = await prisma.$transaction(async (tx) => {
   const entity = await tx.exampleEntity.create({ data });
   await tx.auditLog.create({
     data: {
-      action: 'create',
-      entityId: entity.id
-    }
+      action: "create",
+      entityId: entity.id,
+    },
   });
   return entity;
 });
@@ -388,15 +390,15 @@ await prisma.$executeRaw`
 **File**: `prisma/seed.ts`
 
 ```typescript
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding database...');
+  console.log("Seeding database...");
 
   // Clear existing data (development only)
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     await prisma.exampleEntity.deleteMany();
   }
 
@@ -404,18 +406,18 @@ async function main() {
   const entities = await Promise.all([
     prisma.exampleEntity.create({
       data: {
-        name: 'Example 1',
-        tenantId: 'tenant-123',
-        status: 'active'
-      }
+        name: "Example 1",
+        tenantId: "tenant-123",
+        status: "active",
+      },
     }),
     prisma.exampleEntity.create({
       data: {
-        name: 'Example 2',
-        tenantId: 'tenant-123',
-        status: 'active'
-      }
-    })
+        name: "Example 2",
+        tenantId: "tenant-123",
+        status: "active",
+      },
+    }),
   ]);
 
   console.log(`Created ${entities.length} entities`);
@@ -423,7 +425,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('Error seeding database:', e);
+    console.error("Error seeding database:", e);
     process.exit(1);
   })
   .finally(async () => {
@@ -432,6 +434,7 @@ main()
 ```
 
 **Run seed**:
+
 ```bash
 npm run prisma:seed
 ```
@@ -473,7 +476,7 @@ CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
 **File**: `docker-compose.yml`
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -512,25 +515,25 @@ volumes:
 
 ```javascript
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: ["<rootDir>/src"],
+  testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-    '!src/**/*.test.ts',
-    '!src/**/__tests__/**'
+    "src/**/*.ts",
+    "!src/**/*.d.ts",
+    "!src/**/*.test.ts",
+    "!src/**/__tests__/**",
   ],
-  setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts']
+  setupFilesAfterEnv: ["<rootDir>/src/test/setup.ts"],
 };
 ```
 
 **File**: `src/test/setup.ts`
 
 ```typescript
-import { PrismaClient } from '@prisma/client';
-import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { PrismaClient } from "@prisma/client";
+import { mockDeep, DeepMockProxy } from "jest-mock-extended";
 
 export type MockPrisma = DeepMockProxy<PrismaClient>;
 

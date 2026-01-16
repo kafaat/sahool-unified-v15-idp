@@ -6,8 +6,8 @@
  * @description Standardized validation error responses
  */
 
-import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { ValidationError } from 'class-validator';
+import { BadRequestException, HttpException, HttpStatus } from "@nestjs/common";
+import { ValidationError } from "class-validator";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Response DTOs
@@ -55,7 +55,7 @@ export class ValidationErrorResponse {
   /**
    * Error type
    */
-  readonly error: string = 'ValidationError';
+  readonly error: string = "ValidationError";
 
   /**
    * HTTP status code
@@ -99,8 +99,8 @@ export class ValidationErrorResponse {
     path?: string,
     requestId?: string,
   ) {
-    this.message = message || 'Validation failed';
-    this.messageAr = messageAr || 'فشل التحقق من صحة البيانات';
+    this.message = message || "Validation failed";
+    this.messageAr = messageAr || "فشل التحقق من صحة البيانات";
     this.errors = errors;
     this.path = path;
     this.timestamp = new Date().toISOString();
@@ -170,13 +170,13 @@ function sanitizeErrorValue(value: any): any {
   }
 
   // Redact long strings (potential secrets)
-  if (typeof value === 'string' && value.length > 50) {
+  if (typeof value === "string" && value.length > 50) {
     return `${value.substring(0, 20)}...[REDACTED]`;
   }
 
   // Redact objects (potential sensitive data)
-  if (typeof value === 'object' && value !== null) {
-    return '[OBJECT]';
+  if (typeof value === "object" && value !== null) {
+    return "[OBJECT]";
   }
 
   // Redact arrays
@@ -270,11 +270,7 @@ export class ValidationException extends BadRequestException {
     message?: string,
     messageAr?: string,
   ) {
-    const response = new ValidationErrorResponse(
-      errors,
-      message,
-      messageAr,
-    );
+    const response = new ValidationErrorResponse(errors, message, messageAr);
     super(response);
   }
 }
@@ -290,7 +286,7 @@ export class BusinessRuleException extends HttpException {
     context?: Record<string, any>,
   ) {
     const response = {
-      error: 'BusinessRuleViolation',
+      error: "BusinessRuleViolation",
       statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       message,
       messageAr: messageAr || message,
@@ -354,11 +350,11 @@ export const BusinessRules = {
   validateDateRange(
     startDate: Date,
     endDate: Date,
-    fieldName: string = 'Date range',
+    fieldName: string = "Date range",
   ): void {
     assertBusinessRule(
       endDate > startDate,
-      'INVALID_DATE_RANGE',
+      "INVALID_DATE_RANGE",
       `${fieldName}: End date must be after start date`,
       `${fieldName}: يجب أن يكون تاريخ الانتهاء بعد تاريخ البداية`,
       { startDate, endDate },
@@ -368,10 +364,10 @@ export const BusinessRules = {
   /**
    * Validate future date
    */
-  validateFutureDate(date: Date, fieldName: string = 'Date'): void {
+  validateFutureDate(date: Date, fieldName: string = "Date"): void {
     assertBusinessRule(
       date > new Date(),
-      'DATE_MUST_BE_FUTURE',
+      "DATE_MUST_BE_FUTURE",
       `${fieldName} must be in the future`,
       `${fieldName} يجب أن يكون في المستقبل`,
       { date },
@@ -381,13 +377,10 @@ export const BusinessRules = {
   /**
    * Validate positive amount
    */
-  validatePositiveAmount(
-    amount: number,
-    fieldName: string = 'Amount',
-  ): void {
+  validatePositiveAmount(amount: number, fieldName: string = "Amount"): void {
     assertBusinessRule(
       amount > 0,
-      'AMOUNT_MUST_BE_POSITIVE',
+      "AMOUNT_MUST_BE_POSITIVE",
       `${fieldName} must be positive`,
       `${fieldName} يجب أن يكون موجباً`,
       { amount },
@@ -404,9 +397,9 @@ export const BusinessRules = {
   ): void {
     assertBusinessRule(
       available >= requested,
-      'INSUFFICIENT_STOCK',
-      `Insufficient stock${productName ? ` for ${productName}` : ''}. Available: ${available}, Requested: ${requested}`,
-      `مخزون غير كافٍ${productName ? ` لـ ${productName}` : ''}. المتاح: ${available}، المطلوب: ${requested}`,
+      "INSUFFICIENT_STOCK",
+      `Insufficient stock${productName ? ` for ${productName}` : ""}. Available: ${available}, Requested: ${requested}`,
+      `مخزون غير كافٍ${productName ? ` لـ ${productName}` : ""}. المتاح: ${available}، المطلوب: ${requested}`,
       { available, requested, productName },
     );
   },
@@ -422,7 +415,7 @@ export const BusinessRules = {
     const newBalance = currentBalance + transactionAmount;
     assertBusinessRule(
       newBalance <= creditLimit,
-      'CREDIT_LIMIT_EXCEEDED',
+      "CREDIT_LIMIT_EXCEEDED",
       `Transaction would exceed credit limit. Current: ${currentBalance}, Transaction: ${transactionAmount}, Limit: ${creditLimit}`,
       `ستتجاوز المعاملة حد الائتمان. الرصيد الحالي: ${currentBalance}، المعاملة: ${transactionAmount}، الحد: ${creditLimit}`,
       { currentBalance, transactionAmount, creditLimit, newBalance },

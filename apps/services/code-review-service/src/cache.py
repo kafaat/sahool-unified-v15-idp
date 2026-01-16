@@ -17,9 +17,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
-def generate_cache_key(
-    code: str, language: str | None = None, model: str | None = None
-) -> str:
+def generate_cache_key(code: str, language: str | None = None, model: str | None = None) -> str:
     """Generate a unique cache key for the code content"""
     content = f"{code}:{language or ''}:{model or ''}"
     return hashlib.sha256(content.encode()).hexdigest()[:32]

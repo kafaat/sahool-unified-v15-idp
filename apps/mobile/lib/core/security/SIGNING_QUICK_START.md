@@ -7,27 +7,33 @@ Request signing has been fully implemented and integrated into the SAHOOL mobile
 ## 📁 Files Created
 
 ### 1. Signing Key Service
+
 **Location**: `/lib/core/security/signing_key_service.dart`
 
 **Purpose**: Manages cryptographic keys for request signing
+
 - Secure key generation and storage
 - Automatic key rotation (every 90 days)
 - Device + user-based key derivation
 - Encrypted storage via Flutter Secure Storage
 
 ### 2. Request Signing Interceptor
+
 **Location**: `/lib/core/http/request_signing_interceptor.dart`
 
 **Purpose**: Signs all API requests with HMAC-SHA256
+
 - Automatic signature generation
 - Timestamp for replay protection (5-minute window)
 - Nonce for request uniqueness
 - Skips public endpoints (login, register, etc.)
 
 ### 3. Documentation
+
 **Location**: `/lib/core/http/REQUEST_SIGNING.md`
 
 **Purpose**: Comprehensive documentation
+
 - How signing works
 - Server-side validation guide
 - Security considerations
@@ -36,18 +42,22 @@ Request signing has been fully implemented and integrated into the SAHOOL mobile
 ## 📝 Files Modified
 
 ### 1. API Client
+
 **Location**: `/lib/core/http/api_client.dart`
 
 **Changes**:
+
 - Added `SigningKeyService` parameter
 - Added `enableRequestSigning` flag
 - Integrated `RequestSigningInterceptor` into interceptor chain
 - Added logging for signing status
 
 ### 2. Providers
+
 **Location**: `/lib/core/di/providers.dart`
 
 **Changes**:
+
 - Imported `SigningKeyService`
 - Updated `apiClientProvider` to include signing key service
 - Enabled request signing by default
@@ -55,6 +65,7 @@ Request signing has been fully implemented and integrated into the SAHOOL mobile
 ## 🚀 How to Use
 
 ### Already Enabled!
+
 Request signing is **automatically enabled** for all API requests through the provider system:
 
 ```dart
@@ -66,6 +77,7 @@ await apiClient.post('/api/tasks', taskData);
 ```
 
 ### Manual Usage (Advanced)
+
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -86,6 +98,7 @@ await signingKeyService.rotateKey();
 ## 🔐 Security Headers Added
 
 Each signed request includes:
+
 - `X-Signature`: HMAC-SHA256 signature
 - `X-Timestamp`: Request timestamp (milliseconds)
 - `X-Nonce`: Unique request identifier
@@ -94,7 +107,9 @@ Each signed request includes:
 ## 🎯 What's Protected
 
 ### ✅ Signed Requests
+
 All API requests **except** public endpoints:
+
 - POST /api/tasks
 - GET /api/fields
 - PUT /api/users/profile
@@ -102,7 +117,9 @@ All API requests **except** public endpoints:
 - etc.
 
 ### ⚠️ Unsigned Requests (Public Endpoints)
+
 These endpoints don't require signing:
+
 - `/auth/login`
 - `/auth/register`
 - `/auth/forgot-password`
@@ -113,6 +130,7 @@ These endpoints don't require signing:
 ## 🔧 Configuration
 
 ### Enable/Disable Signing
+
 ```dart
 // In lib/core/di/providers.dart
 final apiClientProvider = Provider<ApiClient>((ref) {
@@ -125,6 +143,7 @@ final apiClientProvider = Provider<ApiClient>((ref) {
 ```
 
 ### Adjust Key Rotation Period
+
 ```dart
 // In lib/core/security/signing_key_service.dart
 class SigningKeyService {
@@ -134,6 +153,7 @@ class SigningKeyService {
 ```
 
 ### Add Public Endpoints
+
 ```dart
 // In lib/core/http/request_signing_interceptor.dart
 bool _isPublicEndpoint(String path) {
@@ -159,7 +179,9 @@ bool _isPublicEndpoint(String path) {
    ```
 
 ### Verify Headers (Server-Side)
+
 Check incoming requests have these headers:
+
 ```
 X-Signature: <base64url_signature>
 X-Timestamp: 1704290000000
@@ -185,9 +207,11 @@ See `/lib/core/http/REQUEST_SIGNING.md` for detailed server implementation guide
 ## 🐛 Troubleshooting
 
 ### Requests Failing After Update
+
 **Cause**: Server not yet validating signatures
 
 **Solution**:
+
 1. Deploy backend with signature validation
 2. OR temporarily disable signing:
    ```dart
@@ -195,7 +219,9 @@ See `/lib/core/http/REQUEST_SIGNING.md` for detailed server implementation guide
    ```
 
 ### "Failed to sign request" Error
+
 **Check**:
+
 ```dart
 final key = await signingKeyService.getSigningKey();
 print('Has key: ${key.isNotEmpty}');
@@ -204,6 +230,7 @@ print('Has key: ${key.isNotEmpty}');
 **Fix**: Key should be automatically generated on first use
 
 ### Public Endpoint Being Signed
+
 **Solution**: Add to public endpoints list in `request_signing_interceptor.dart`
 
 ## 📊 Performance
@@ -216,6 +243,7 @@ print('Has key: ${key.isNotEmpty}');
 ## 🔗 Related Security Features
 
 This implementation works together with:
+
 - ✅ **Certificate Pinning**: Prevents MITM attacks
 - ✅ **Rate Limiting**: Prevents abuse
 - ✅ **Auth Interceptor**: Manages authentication

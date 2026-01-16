@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck - Example file for demonstration purposes
-'use client';
+"use client";
 
 /**
  * LayerControl Component Usage Examples
  * أمثلة استخدام مكون التحكم في الطبقات
  */
 
-import React, { useRef, useEffect } from 'react';
-import { LayerControl, useLayerControl } from './LayerControl';
-import type { LayerSettings, NDVISettings } from './LayerControl';
-import { MapContainer, TileLayer } from 'react-leaflet';
-import type { Map as LeafletMap } from 'leaflet';
+import React, { useRef, useEffect } from "react";
+import { LayerControl, useLayerControl } from "./LayerControl";
+import type { LayerSettings, NDVISettings } from "./LayerControl";
+import { MapContainer, TileLayer } from "react-leaflet";
+import type { Map as LeafletMap } from "leaflet";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Example 1: Basic Usage / الاستخدام الأساسي
@@ -19,11 +19,11 @@ import type { Map as LeafletMap } from 'leaflet';
 
 export function BasicLayerControlExample() {
   const handleLayersChange = (layers: LayerSettings) => {
-    console.log('Layers changed:', layers);
+    console.log("Layers changed:", layers);
   };
 
   const handleNDVIChange = (settings: NDVISettings) => {
-    console.log('NDVI settings changed:', settings);
+    console.log("NDVI settings changed:", settings);
   };
 
   return (
@@ -35,7 +35,7 @@ export function BasicLayerControlExample() {
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; OpenStreetMap contributors'
+          attribution="&copy; OpenStreetMap contributors"
         />
       </MapContainer>
 
@@ -63,7 +63,7 @@ export function LayerControlWithInitialSettings() {
       >
         <TileLayer
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          attribution='&copy; Esri'
+          attribution="&copy; Esri"
         />
       </MapContainer>
 
@@ -78,7 +78,7 @@ export function LayerControlWithInitialSettings() {
         }}
         initialNDVI={{
           opacity: 0.5,
-          historicalDate: new Date('2025-01-01'),
+          historicalDate: new Date("2025-01-01"),
         }}
       />
     </div>
@@ -105,7 +105,7 @@ export function LayerControlWithHook() {
   });
 
   useEffect(() => {
-    console.log('Current layer state:', state);
+    console.log("Current layer state:", state);
   }, [state]);
 
   return (
@@ -118,7 +118,7 @@ export function LayerControlWithHook() {
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; OpenStreetMap contributors'
+            attribution="&copy; OpenStreetMap contributors"
           />
         </MapContainer>
 
@@ -126,10 +126,10 @@ export function LayerControlWithHook() {
           position="top-right"
           onLayersChange={(layers) => {
             // You can use controls to update state programmatically
-            console.log('Layers updated:', layers);
+            console.log("Layers updated:", layers);
           }}
           onNDVIChange={(ndvi) => {
-            console.log('NDVI updated:', ndvi);
+            console.log("NDVI updated:", ndvi);
           }}
         />
       </div>
@@ -137,7 +137,7 @@ export function LayerControlWithHook() {
       {/* External controls / عناصر تحكم خارجية */}
       <div className="flex gap-2 flex-wrap">
         <button
-          onClick={() => controls.toggleLayer('ndvi')}
+          onClick={() => controls.toggleLayer("ndvi")}
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
           Toggle NDVI
@@ -180,9 +180,12 @@ export function LayerControlWithHook() {
 export function LayerControlPositionsExample() {
   return (
     <div className="grid grid-cols-2 gap-4">
-      {(['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const).map(
+      {(["top-left", "top-right", "bottom-left", "bottom-right"] as const).map(
         (position) => (
-          <div key={position} className="relative h-[400px] w-full border-2 border-gray-200 rounded-xl">
+          <div
+            key={position}
+            className="relative h-[400px] w-full border-2 border-gray-200 rounded-xl"
+          >
             <MapContainer
               center={[15.5527, 48.5164]}
               zoom={10}
@@ -191,7 +194,7 @@ export function LayerControlPositionsExample() {
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; OpenStreetMap'
+                attribution="&copy; OpenStreetMap"
               />
             </MapContainer>
 
@@ -201,7 +204,7 @@ export function LayerControlPositionsExample() {
               {position}
             </div>
           </div>
-        )
+        ),
       )}
     </div>
   );
@@ -219,7 +222,7 @@ export function IntegratedMapExample() {
   useEffect(() => {
     if (!mapRef.current) return;
 
-    console.log('Update map layers based on:', layerState);
+    console.log("Update map layers based on:", layerState);
     // Here you would actually control your map layers
     // For example, toggle NDVI layer visibility:
     // if (layerState.layers.ndvi) {
@@ -239,7 +242,7 @@ export function IntegratedMapExample() {
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; OpenStreetMap contributors'
+          attribution="&copy; OpenStreetMap contributors"
         />
 
         {/* Conditionally render layers based on state */}
@@ -272,19 +275,17 @@ export function IntegratedMapExample() {
         )}
 
         {layerState.layers.irrigationZones && (
-          <div>
-            {/* Your irrigation zones here */}
-          </div>
+          <div>{/* Your irrigation zones here */}</div>
         )}
       </MapContainer>
 
       <LayerControl
         position="top-right"
         onLayersChange={(layers) => {
-          console.log('Layers changed:', layers);
+          console.log("Layers changed:", layers);
         }}
         onNDVIChange={(ndvi) => {
-          console.log('NDVI changed:', ndvi);
+          console.log("NDVI changed:", ndvi);
         }}
         persistPreferences={true}
         storageKey="sahool-field-map-layers"
@@ -322,7 +323,7 @@ export function LayerControlWithoutPersistence() {
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; OpenStreetMap contributors'
+          attribution="&copy; OpenStreetMap contributors"
         />
       </MapContainer>
 
@@ -331,7 +332,7 @@ export function LayerControlWithoutPersistence() {
         persistPreferences={false}
         onLayersChange={(layers) => {
           // Handle layer changes without localStorage
-          console.log('Layers (not persisted):', layers);
+          console.log("Layers (not persisted):", layers);
         }}
       />
     </div>
@@ -346,12 +347,15 @@ export default function LayerControlDemo() {
   const [activeExample, setActiveExample] = React.useState(0);
 
   const examples = [
-    { name: 'Basic Usage', component: BasicLayerControlExample },
-    { name: 'With Initial Settings', component: LayerControlWithInitialSettings },
-    { name: 'Using Hook', component: LayerControlWithHook },
-    { name: 'All Positions', component: LayerControlPositionsExample },
-    { name: 'Integrated Map', component: IntegratedMapExample },
-    { name: 'Without Persistence', component: LayerControlWithoutPersistence },
+    { name: "Basic Usage", component: BasicLayerControlExample },
+    {
+      name: "With Initial Settings",
+      component: LayerControlWithInitialSettings,
+    },
+    { name: "Using Hook", component: LayerControlWithHook },
+    { name: "All Positions", component: LayerControlPositionsExample },
+    { name: "Integrated Map", component: IntegratedMapExample },
+    { name: "Without Persistence", component: LayerControlWithoutPersistence },
   ];
 
   const ActiveComponent = examples[activeExample].component;
@@ -375,8 +379,8 @@ export default function LayerControlDemo() {
                 onClick={() => setActiveExample(index)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   activeExample === index
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
                 {example.name}

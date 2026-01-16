@@ -9,12 +9,14 @@ Comprehensive data export functionality has been added to the SAHOOL Satellite S
 ### 1. Core Export Module (`src/data_exporter.py`)
 
 A complete data export module with support for:
+
 - **GeoJSON**: Standard geographic format for web mapping and GIS
 - **CSV**: Tabular format for spreadsheets and analysis
 - **JSON**: Complete structured data format
 - **KML**: Google Earth and mapping applications
 
 Key classes:
+
 - `ExportFormat`: Enum defining supported formats
 - `ExportResult`: Dataclass containing export metadata and data
 - `DataExporter`: Main class with export methods for all data types
@@ -24,22 +26,30 @@ Key classes:
 Four new REST API endpoints:
 
 #### `/v1/export/analysis/{field_id}`
+
 Export field analysis with vegetation indices, health scores, and recommendations.
+
 - Formats: GeoJSON, CSV, JSON, KML
 - Use case: Current field health status, GIS visualization
 
 #### `/v1/export/timeseries/{field_id}`
+
 Export time series data showing vegetation trends over time.
+
 - Formats: CSV, JSON, GeoJSON
 - Use case: Trend analysis, charting, anomaly detection
 
 #### `/v1/export/boundaries`
+
 Export field boundaries for multiple fields.
+
 - Formats: GeoJSON, JSON, KML
 - Use case: GIS mapping, Google Earth visualization
 
 #### `/v1/export/report/{field_id}`
+
 Export comprehensive reports with three report types:
+
 - **full**: Complete analysis with all data
 - **summary**: High-level health metrics
 - **changes**: Change detection vs. 7 days ago
@@ -149,11 +159,13 @@ curl "http://localhost:8090/v1/export/report/FIELD_001?lat=15.3694&lon=44.1910&r
 ### Filename Convention
 
 All files follow this pattern:
+
 ```
 sahool_{type}_{field_id}_{timestamp}.{extension}
 ```
 
 Example:
+
 ```
 sahool_field_analysis_FIELD_001_20231215_143022.geojson
 ```
@@ -163,6 +175,7 @@ sahool_field_analysis_FIELD_001_20231215_143022.geojson
 ### Unit Tests (`test_export.py`)
 
 Tests all DataExporter methods with sample data:
+
 - ✓ Field analysis export (all formats)
 - ✓ Time series export
 - ✓ Boundaries export
@@ -175,6 +188,7 @@ Run: `python test_export.py`
 ### Integration Tests (`test_export_api.py`)
 
 Tests all API endpoints:
+
 - ✓ Export analysis endpoint (all formats)
 - ✓ Export timeseries endpoint
 - ✓ Export boundaries endpoint
@@ -186,23 +200,29 @@ Run: `python test_export_api.py` (requires service running)
 ## Use Cases
 
 ### 1. GIS Integration
+
 Export field boundaries and analysis as GeoJSON/KML for QGIS, ArcGIS, or Google Earth.
 
 ### 2. Data Analysis
+
 Export timeseries as CSV for analysis in Excel, Python (pandas), or R.
 
 ### 3. Reporting
+
 Generate JSON or CSV reports for dashboards and executive summaries.
 
 ### 4. Change Detection
+
 Track vegetation health changes over time with change reports.
 
 ### 5. Multi-field Analysis
+
 Export data for multiple fields simultaneously for farm-level analysis.
 
 ## Response Headers
 
 All export endpoints include:
+
 - `Content-Disposition`: Suggested filename
 - `X-Export-Size`: File size in bytes
 - `X-Generated-At`: Generation timestamp
@@ -213,6 +233,7 @@ All export endpoints include:
 ## Error Handling
 
 Common errors:
+
 - **400**: Invalid format, dates, or parameters
 - **404**: Field not found
 - **500**: Export processing failed
@@ -229,6 +250,7 @@ All errors return JSON with `detail` field explaining the issue.
 ## Examples
 
 See `EXPORT_API_USAGE.md` for detailed examples including:
+
 - Python client code
 - pandas DataFrame integration
 - Batch export scripts
@@ -237,6 +259,7 @@ See `EXPORT_API_USAGE.md` for detailed examples including:
 ## Dependencies
 
 No new dependencies required. Uses standard library:
+
 - `json`: JSON formatting
 - `csv`: CSV generation
 - `xml`: KML/XML generation
@@ -246,6 +269,7 @@ No new dependencies required. Uses standard library:
 ## Future Enhancements
 
 Potential additions:
+
 - Shapefile export
 - GeoTIFF export for raster data
 - PDF report generation
@@ -257,6 +281,7 @@ Potential additions:
 ## Support
 
 For questions or issues:
+
 1. Check `EXPORT_API_USAGE.md` for API documentation
 2. Run tests to verify functionality
 3. Check logs for error details

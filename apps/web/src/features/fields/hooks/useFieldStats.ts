@@ -3,9 +3,9 @@
  * خطاف إحصائيات الحقول
  */
 
-import { useQuery } from '@tanstack/react-query';
-import { fieldsApi } from '../api';
-import { fieldKeys } from './queryKeys';
+import { useQuery } from "@tanstack/react-query";
+import { fieldsApi } from "../api";
+import { fieldKeys } from "./queryKeys";
 
 /**
  * Hook to fetch field statistics

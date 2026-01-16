@@ -1,4 +1,5 @@
 # SAHOOL Weather Forecast Integration Service
+
 # خدمة تكامل توقعات الطقس لـ SAHOOL
 
 ## Overview | نظرة عامة
@@ -19,6 +20,7 @@ The Weather Forecast Integration Service provides comprehensive agricultural wea
 ### 2. Agricultural Alerts | التنبيهات الزراعية
 
 #### Frost Risk Detection | كشف خطر الصقيع
+
 - **Critical**: Temperature ≤ 0°C
 - **High**: Temperature ≤ 2°C
 - **Medium**: Temperature ≤ 5°C
@@ -26,6 +28,7 @@ The Weather Forecast Integration Service provides comprehensive agricultural wea
 Provides recommendations for crop protection and frost mitigation.
 
 #### Heat Wave Detection | كشف موجات الحر
+
 - **Critical**: 3+ days with temperature ≥ 45°C
 - **High**: 3+ days with temperature ≥ 42°C
 - **Medium**: 3+ days with temperature ≥ 38°C
@@ -33,6 +36,7 @@ Provides recommendations for crop protection and frost mitigation.
 Includes irrigation and heat stress management recommendations.
 
 #### Heavy Rain Alerts | تنبيهات الأمطار الغزيرة
+
 - **Critical**: ≥ 50mm in 24 hours
 - **High**: ≥ 30mm in 24 hours
 - **Medium**: ≥ 15mm in 24 hours
@@ -40,6 +44,7 @@ Includes irrigation and heat stress management recommendations.
 Provides flood prevention and drainage recommendations.
 
 #### Drought Conditions | ظروف الجفاف
+
 - Detected when precipitation < 5mm over 14+ days
 - Includes water conservation recommendations
 - Calculates moisture deficit
@@ -47,30 +52,37 @@ Provides flood prevention and drainage recommendations.
 ### 3. Agricultural Weather Indices | المؤشرات الزراعية
 
 #### Growing Degree Days (GDD) | أيام درجة النمو
+
 ```python
 GDD = ((Tmax + Tmin) / 2) - Base Temperature (default: 10°C)
 ```
+
 - Tracks crop development stages
 - Helps predict harvest timing
 - Customizable base temperature per crop
 
 #### Chill Hours | ساعات البرودة
+
 ```python
 Hours with temperature between 0°C and 7.2°C
 ```
+
 - Essential for deciduous fruit trees
 - Tracks winter chilling requirements
 - Helps predict bloom timing
 
 #### Evapotranspiration (ET0) | التبخر والنتح
+
 ```python
 Calculated using Penman-Monteith or Hargreaves method
 ```
+
 - Determines crop water requirements
 - Helps optimize irrigation scheduling
 - Calculates moisture deficit
 
 #### Heat Stress Hours | ساعات الإجهاد الحراري
+
 - Hours with temperature > 35°C
 - Indicates crop stress periods
 - Guides protective measures
@@ -356,6 +368,7 @@ python forecast_example.py
 ```
 
 This will demonstrate:
+
 - Fetching forecast for Sana'a, Yemen
 - Detecting agricultural alerts
 - Calculating weather indices
@@ -387,6 +400,7 @@ apps/services/weather-service/src/
 ### Provider Fallback | التبديل بين المزودين
 
 The service automatically falls back to alternative providers if the primary fails:
+
 1. Open-Meteo (free, always available)
 2. OpenWeatherMap (if configured)
 3. WeatherAPI (if configured)
@@ -394,6 +408,7 @@ The service automatically falls back to alternative providers if the primary fai
 ### Rate Limiting | تحديد المعدل
 
 Configure rate limits in config.py:
+
 ```python
 ProviderConfig(
     name="OpenWeatherMap",
@@ -455,6 +470,7 @@ os.environ["WEATHER_CACHE_FORECAST_TTL"] = "120"  # 2 hours
 ## Support | الدعم
 
 For issues or questions:
+
 - GitHub Issues: [sahool-unified-v15-idp](https://github.com/kafaat/sahool-unified-v15-idp)
 - Email: support@sahool.app
 

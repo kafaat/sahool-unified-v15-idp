@@ -3,31 +3,31 @@
  * طبقة API لميزة التقارير
  */
 
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== 'undefined') {
-  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+if (!API_BASE_URL && typeof window !== "undefined") {
+  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
 }
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 10000, // 10 seconds timeout
 });
 
 // Add auth token interceptor
 // SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 api.interceptors.request.use((config) => {
   // Get token from cookie using secure cookie parser
-  if (typeof window !== 'undefined') {
-    const token = Cookies.get('access_token');
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("access_token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -37,10 +37,29 @@ api.interceptors.request.use((config) => {
 });
 
 // Types
-export type ReportType = 'field_performance' | 'yield_analysis' | 'ndvi_summary' | 'irrigation' | 'weather' | 'disease' | 'financial' | 'custom';
-export type ReportFormat = 'pdf' | 'excel' | 'csv' | 'json';
-export type ReportStatus = 'pending' | 'generating' | 'ready' | 'failed' | 'expired';
-export type ReportPeriod = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
+export type ReportType =
+  | "field_performance"
+  | "yield_analysis"
+  | "ndvi_summary"
+  | "irrigation"
+  | "weather"
+  | "disease"
+  | "financial"
+  | "custom";
+export type ReportFormat = "pdf" | "excel" | "csv" | "json";
+export type ReportStatus =
+  | "pending"
+  | "generating"
+  | "ready"
+  | "failed"
+  | "expired";
+export type ReportPeriod =
+  | "daily"
+  | "weekly"
+  | "monthly"
+  | "quarterly"
+  | "yearly"
+  | "custom";
 
 export interface Report {
   id: string;
@@ -114,11 +133,11 @@ export const reportsApi = {
    */
   getReports: async (filters?: ReportFilters): Promise<Report[]> => {
     const params = new URLSearchParams();
-    if (filters?.type) params.set('type', filters.type);
-    if (filters?.status) params.set('status', filters.status);
-    if (filters?.format) params.set('format', filters.format);
-    if (filters?.startDate) params.set('start_date', filters.startDate);
-    if (filters?.endDate) params.set('end_date', filters.endDate);
+    if (filters?.type) params.set("type", filters.type);
+    if (filters?.status) params.set("status", filters.status);
+    if (filters?.format) params.set("format", filters.format);
+    if (filters?.startDate) params.set("start_date", filters.startDate);
+    if (filters?.endDate) params.set("end_date", filters.endDate);
 
     const response = await api.get(`/api/v1/reports?${params.toString()}`);
     return response.data;
@@ -136,14 +155,16 @@ export const reportsApi = {
    * Generate a new report
    */
   generateReport: async (request: GenerateReportRequest): Promise<Report> => {
-    const response = await api.post('/api/v1/reports/generate', request);
+    const response = await api.post("/api/v1/reports/generate", request);
     return response.data;
   },
 
   /**
    * Get report download URL
    */
-  getDownloadUrl: async (id: string): Promise<{ url: string; expiresAt: string }> => {
+  getDownloadUrl: async (
+    id: string,
+  ): Promise<{ url: string; expiresAt: string }> => {
     const response = await api.get(`/api/v1/reports/${id}/download`);
     return response.data;
   },
@@ -159,7 +180,7 @@ export const reportsApi = {
    * Get available report templates
    */
   getTemplates: async (): Promise<ReportTemplate[]> => {
-    const response = await api.get('/api/v1/reports/templates');
+    const response = await api.get("/api/v1/reports/templates");
     return response.data;
   },
 
@@ -167,7 +188,7 @@ export const reportsApi = {
    * Get report statistics
    */
   getStats: async (): Promise<ReportStats> => {
-    const response = await api.get('/api/v1/reports/stats');
+    const response = await api.get("/api/v1/reports/stats");
     return response.data;
   },
 
@@ -175,25 +196,27 @@ export const reportsApi = {
    * Schedule a recurring report
    */
   scheduleReport: async (
-    request: GenerateReportRequest & { schedule: string; recipients: string[] }
+    request: GenerateReportRequest & { schedule: string; recipients: string[] },
   ): Promise<{ scheduleId: string }> => {
-    const response = await api.post('/api/v1/reports/schedule', request);
+    const response = await api.post("/api/v1/reports/schedule", request);
     return response.data;
   },
 
   /**
    * Get scheduled reports
    */
-  getScheduledReports: async (): Promise<Array<{
-    id: string;
-    report: GenerateReportRequest;
-    schedule: string;
-    recipients: string[];
-    lastRun?: string;
-    nextRun: string;
-    isActive: boolean;
-  }>> => {
-    const response = await api.get('/api/v1/reports/scheduled');
+  getScheduledReports: async (): Promise<
+    Array<{
+      id: string;
+      report: GenerateReportRequest;
+      schedule: string;
+      recipients: string[];
+      lastRun?: string;
+      nextRun: string;
+      isActive: boolean;
+    }>
+  > => {
+    const response = await api.get("/api/v1/reports/scheduled");
     return response.data;
   },
 };

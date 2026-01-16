@@ -1,4 +1,5 @@
 # SAHOOL Platform - Validation Utilities
+
 # أدوات التحقق من صحة البيانات - منصة سهول
 
 **Version:** 1.0.0
@@ -67,18 +68,20 @@ import {
   IsYemeniPhone,
   IsStrongPassword,
   SanitizePlainText,
-  IsMoneyValue
-} from '@shared/validation';
+  IsMoneyValue,
+} from "@shared/validation";
 
 // In your main.ts
-import { ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from '@shared/errors';
+import { ValidationPipe } from "@nestjs/common";
+import { HttpExceptionFilter } from "@shared/errors";
 
-app.useGlobalPipes(new ValidationPipe({
-  whitelist: true,
-  transform: true,
-  forbidNonWhitelisted: true,
-}));
+app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    forbidNonWhitelisted: true,
+  }),
+);
 
 app.useGlobalFilters(new HttpExceptionFilter());
 ```
@@ -94,6 +97,7 @@ app.useGlobalFilters(new HttpExceptionFilter());
 Validates Yemen phone numbers in multiple formats.
 
 **Supported Formats:**
+
 - `+967712345678` - International format
 - `967712345678` - Without plus sign
 - `00967712345678` - With 00 prefix
@@ -101,6 +105,7 @@ Validates Yemen phone numbers in multiple formats.
 - `77123456` or `78123456` - Common mobile prefixes
 
 **Usage:**
+
 ```typescript
 export class CreateUserDto {
   @IsYemeniPhone()
@@ -109,6 +114,7 @@ export class CreateUserDto {
 ```
 
 **Error Messages:**
+
 - EN: "Phone number must be a valid Yemeni phone number"
 - AR: "رقم الهاتف اليمني غير صالح"
 
@@ -117,6 +123,7 @@ export class CreateUserDto {
 Validates coordinates are within Yemen boundaries (12-19°N, 42-54°E).
 
 **Usage:**
+
 ```typescript
 // Option 1: Nested object
 export class CreateFieldDto {
@@ -134,12 +141,13 @@ export class CreateFieldDto {
   latitude: number;
 
   @IsLongitude()
-  @IsWithinYemen('latitude', 'longitude')
+  @IsWithinYemen("latitude", "longitude")
   longitude: number;
 }
 ```
 
 **Error Messages:**
+
 - EN: "Coordinates must be within Yemen boundaries (12-19°N, 42-54°E)"
 - AR: "يجب أن تكون الإحداثيات داخل اليمن"
 
@@ -180,6 +188,7 @@ export class CreatePostDto {
 Validates password complexity.
 
 **Requirements:**
+
 - Minimum length (default: 8)
 - At least one uppercase letter
 - At least one lowercase letter
@@ -187,6 +196,7 @@ Validates password complexity.
 - At least one special character
 
 **Usage:**
+
 ```typescript
 export class CreateUserDto {
   @IsStrongPassword(8)
@@ -195,6 +205,7 @@ export class CreateUserDto {
 ```
 
 **Error Messages:**
+
 - EN: "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character"
 - AR: "كلمة المرور ضعيفة - يجب أن تحتوي على أحرف كبيرة وصغيرة وأرقام ورموز خاصة"
 
@@ -203,18 +214,20 @@ export class CreateUserDto {
 Validates that end date is after start date (cross-field validation).
 
 **Usage:**
+
 ```typescript
 export class CreateExperimentDto {
   @IsDateString()
   startDate: string;
 
   @IsDateString()
-  @IsAfterDate('startDate')
+  @IsAfterDate("startDate")
   endDate: string;
 }
 ```
 
 **Error Messages:**
+
 - EN: "endDate must be after startDate"
 - AR: "يجب أن يكون endDate بعد التاريخ المحدد"
 
@@ -223,6 +236,7 @@ export class CreateExperimentDto {
 Validates that date is in the future.
 
 **Usage:**
+
 ```typescript
 export class CreateSubscriptionDto {
   @IsDateString()
@@ -240,6 +254,7 @@ export class CreateSubscriptionDto {
 Validates GeoJSON Polygon structure.
 
 **Checks:**
+
 - Type must be "Polygon"
 - Must have at least one ring
 - Outer ring must have at least 4 points
@@ -247,11 +262,12 @@ Validates GeoJSON Polygon structure.
 - All coordinates must be valid latitude/longitude
 
 **Usage:**
+
 ```typescript
 export class CreateFieldDto {
   @IsGeoJSONPolygon()
   boundary: {
-    type: 'Polygon';
+    type: "Polygon";
     coordinates: number[][][];
   };
 }
@@ -264,6 +280,7 @@ Validates field area in hectares.
 **Default Range:** 0.01 - 10,000 hectares (100 m² - 100 km²)
 
 **Usage:**
+
 ```typescript
 export class CreateFieldDto {
   @IsValidFieldArea(0.1, 5000)
@@ -280,11 +297,13 @@ export class CreateFieldDto {
 Validates monetary values.
 
 **Checks:**
+
 - Must be a number
 - Must be positive
 - Maximum 2 decimal places (prevents precision issues)
 
 **Usage:**
+
 ```typescript
 export class CreateProductDto {
   @IsMoneyValue()
@@ -293,6 +312,7 @@ export class CreateProductDto {
 ```
 
 **Error Messages:**
+
 - EN: "Amount must be a positive number with maximum 2 decimal places"
 - AR: "يجب أن يكون amount قيمة نقدية صالحة"
 
@@ -303,6 +323,7 @@ export class CreateProductDto {
 Validates credit card numbers using Luhn algorithm.
 
 **Usage:**
+
 ```typescript
 export class PaymentDto {
   @IsCreditCard()
@@ -319,6 +340,7 @@ export class PaymentDto {
 Validates EAN-13 barcodes.
 
 **Usage:**
+
 ```typescript
 export class CreateProductDto {
   @IsOptional()
@@ -338,6 +360,7 @@ export class CreateProductDto {
 Strips all HTML tags and normalizes whitespace.
 
 **What it does:**
+
 - Removes all HTML tags
 - Removes null bytes
 - Removes control characters (except newline and tab)
@@ -345,6 +368,7 @@ Strips all HTML tags and normalizes whitespace.
 - Trims leading/trailing spaces
 
 **Usage:**
+
 ```typescript
 export class CreateUserDto {
   @IsString()
@@ -354,6 +378,7 @@ export class CreateUserDto {
 ```
 
 **Example:**
+
 ```typescript
 // Input:  "<script>alert('xss')</script>John   Doe\x00"
 // Output: "John Doe"
@@ -364,26 +389,28 @@ export class CreateUserDto {
 Sanitizes HTML with configurable options.
 
 **Options:**
+
 ```typescript
 interface SanitizationOptions {
-  allowHtml?: boolean;           // Allow HTML tags
-  allowedTags?: string[];        // Allowed tags
-  allowedAttributes?: string[];  // Allowed attributes
-  stripHtml?: boolean;           // Strip all HTML
+  allowHtml?: boolean; // Allow HTML tags
+  allowedTags?: string[]; // Allowed tags
+  allowedAttributes?: string[]; // Allowed attributes
+  stripHtml?: boolean; // Strip all HTML
   normalizeWhitespace?: boolean; // Normalize whitespace
-  trim?: boolean;                // Trim spaces
-  removeNullBytes?: boolean;     // Remove \x00
-  removeControlChars?: boolean;  // Remove control chars
+  trim?: boolean; // Trim spaces
+  removeNullBytes?: boolean; // Remove \x00
+  removeControlChars?: boolean; // Remove control chars
 }
 ```
 
 **Usage:**
+
 ```typescript
 export class CreatePostDto {
   @SanitizeHtml({
     allowHtml: true,
-    allowedTags: ['p', 'b', 'i', 'u'],
-    allowedAttributes: ['href'],
+    allowedTags: ["p", "b", "i", "u"],
+    allowedAttributes: ["href"],
   })
   content: string;
 }
@@ -396,6 +423,7 @@ Allows safe HTML tags for rich text editors.
 **Allowed Tags:** p, br, strong, b, em, i, u, ul, ol, li, h1-h6, blockquote, pre, code, a
 
 **Usage:**
+
 ```typescript
 export class CreateArticleDto {
   @IsString()
@@ -409,12 +437,14 @@ export class CreateArticleDto {
 Prevents directory traversal attacks in file paths.
 
 **What it does:**
+
 - Removes `../` patterns
 - Removes `/` and `\` characters
 - Removes null bytes
 - Returns filename only
 
 **Usage:**
+
 ```typescript
 export class UploadDto {
   @IsString()
@@ -424,6 +454,7 @@ export class UploadDto {
 ```
 
 **Example:**
+
 ```typescript
 // Input:  "../../etc/passwd"
 // Output: "etcpasswd"
@@ -437,12 +468,14 @@ export class UploadDto {
 Prevents prompt injection in AI/LLM inputs.
 
 **What it does:**
+
 - Removes system/instruction markers
 - Removes code block delimiters with "system"
 - Normalizes excessive newlines
 - Sanitizes plain text
 
 **Usage:**
+
 ```typescript
 export class AIChatDto {
   @IsString()
@@ -458,8 +491,9 @@ export class AIChatDto {
 #### sanitizeHtml(input, options)
 
 **Usage:**
+
 ```typescript
-import { sanitizeHtml } from '@shared/validation';
+import { sanitizeHtml } from "@shared/validation";
 
 const clean = sanitizeHtml(userInput, {
   stripHtml: true,
@@ -470,8 +504,9 @@ const clean = sanitizeHtml(userInput, {
 #### sanitizePlainText(input)
 
 **Usage:**
+
 ```typescript
-import { sanitizePlainText } from '@shared/validation';
+import { sanitizePlainText } from "@shared/validation";
 
 const clean = sanitizePlainText(userInput);
 ```
@@ -481,8 +516,9 @@ const clean = sanitizePlainText(userInput);
 Prevents NoSQL injection by removing `$` operators.
 
 **Usage:**
+
 ```typescript
-import { sanitizeMongoQuery } from '@shared/validation';
+import { sanitizeMongoQuery } from "@shared/validation";
 
 const safeQuery = sanitizeMongoQuery(userQuery);
 // { $where: 'malicious' } → {}
@@ -494,15 +530,17 @@ const safeQuery = sanitizeMongoQuery(userQuery);
 Detects common prompt injection patterns.
 
 **Usage:**
+
 ```typescript
-import { detectPromptInjection } from '@shared/validation';
+import { detectPromptInjection } from "@shared/validation";
 
 if (detectPromptInjection(userInput)) {
-  throw new BadRequestException('Potential prompt injection detected');
+  throw new BadRequestException("Potential prompt injection detected");
 }
 ```
 
 **Detected Patterns:**
+
 - "ignore previous instructions"
 - "disregard all rules"
 - "forget everything"
@@ -541,36 +579,36 @@ async uploadImage(@UploadedFile() file: Express.Multer.File) {
 
 ```typescript
 ALLOWED_FILE_TYPES = {
-  IMAGES: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
-  DOCUMENTS: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv'],
-  ARCHIVES: ['zip', 'tar', 'gz', 'rar'],
-  VIDEOS: ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'],
-  AUDIO: ['mp3', 'wav', 'ogg', 'flac', 'm4a'],
-}
+  IMAGES: ["jpg", "jpeg", "png", "gif", "webp", "svg"],
+  DOCUMENTS: ["pdf", "doc", "docx", "xls", "xlsx", "txt", "csv"],
+  ARCHIVES: ["zip", "tar", "gz", "rar"],
+  VIDEOS: ["mp4", "avi", "mov", "wmv", "flv", "webm"],
+  AUDIO: ["mp3", "wav", "ogg", "flac", "m4a"],
+};
 ```
 
 ### File Size Limits
 
 ```typescript
 FILE_SIZE_LIMITS = {
-  IMAGE: 10 * 1024 * 1024,      // 10 MB
-  DOCUMENT: 50 * 1024 * 1024,   // 50 MB
-  VIDEO: 100 * 1024 * 1024,     // 100 MB
-  AUDIO: 20 * 1024 * 1024,      // 20 MB
-  ARCHIVE: 100 * 1024 * 1024,   // 100 MB
-  DEFAULT: 10 * 1024 * 1024,    // 10 MB
-}
+  IMAGE: 10 * 1024 * 1024, // 10 MB
+  DOCUMENT: 50 * 1024 * 1024, // 50 MB
+  VIDEO: 100 * 1024 * 1024, // 100 MB
+  AUDIO: 20 * 1024 * 1024, // 20 MB
+  ARCHIVE: 100 * 1024 * 1024, // 100 MB
+  DEFAULT: 10 * 1024 * 1024, // 10 MB
+};
 ```
 
 ### Validation Options
 
 ```typescript
 interface FileUploadOptions {
-  allowedExtensions?: string[];    // Allowed file extensions
-  maxSize?: number;                // Maximum file size in bytes
-  validateMimeType?: boolean;      // Validate MIME type (default: true)
-  validateMagicNumber?: boolean;   // Validate file signature (default: true)
-  checkMalicious?: boolean;        // Check for malicious content (default: true)
+  allowedExtensions?: string[]; // Allowed file extensions
+  maxSize?: number; // Maximum file size in bytes
+  validateMimeType?: boolean; // Validate MIME type (default: true)
+  validateMagicNumber?: boolean; // Validate file signature (default: true)
+  checkMalicious?: boolean; // Check for malicious content (default: true)
 }
 ```
 
@@ -607,10 +645,12 @@ async uploadDocument(@UploadedFile() file: Express.Multer.File) {
 Validates actual file type by checking file signature (first few bytes).
 
 **Prevents:**
+
 - Renaming `malware.exe` to `photo.jpg`
 - Uploading disguised executable files
 
 **Supported File Types:**
+
 - Images: JPG, PNG, GIF
 - Documents: PDF, DOCX, XLSX (ZIP-based)
 
@@ -619,6 +659,7 @@ Validates actual file type by checking file signature (first few bytes).
 Checks for dangerous patterns in filenames.
 
 **Detects:**
+
 - Path traversal (`../`, `./`)
 - Null bytes (`\x00`)
 - Executable extensions (.exe, .sh, .bat, etc.)
@@ -629,6 +670,7 @@ Checks for dangerous patterns in filenames.
 Ensures MIME type matches file extension.
 
 **Example:**
+
 ```typescript
 // File: image.jpg
 // MIME: application/pdf
@@ -642,10 +684,11 @@ Ensures MIME type matches file extension.
 Generates safe, unique filenames.
 
 **Usage:**
-```typescript
-import { generateSafeFilename } from '@shared/validation';
 
-const safeName = generateSafeFilename('My Photo!.jpg', 'user123');
+```typescript
+import { generateSafeFilename } from "@shared/validation";
+
+const safeName = generateSafeFilename("My Photo!.jpg", "user123");
 // Output: "user123_my_photo_1704556800000_a3b2c1d4.jpg"
 ```
 
@@ -654,14 +697,15 @@ const safeName = generateSafeFilename('My Photo!.jpg', 'user123');
 Calculates SHA-256 hash for duplicate detection.
 
 **Usage:**
+
 ```typescript
-import { calculateFileHash } from '@shared/validation';
+import { calculateFileHash } from "@shared/validation";
 
 const hash = calculateFileHash(file.buffer);
 // Check if hash exists in database to prevent duplicates
 const exists = await prisma.file.findUnique({ where: { hash } });
 if (exists) {
-  throw new ConflictException('File already uploaded');
+  throw new ConflictException("File already uploaded");
 }
 ```
 
@@ -677,12 +721,12 @@ Adds runtime validation at the database level.
 
 ```typescript
 // prisma.service.ts
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 import {
   createValidationMiddleware,
   USER_VALIDATION_RULES,
-  PRODUCT_VALIDATION_RULES
-} from '@shared/validation';
+  PRODUCT_VALIDATION_RULES,
+} from "@shared/validation";
 
 const prisma = new PrismaClient();
 
@@ -691,53 +735,53 @@ prisma.$use(
   createValidationMiddleware({
     User: { fields: USER_VALIDATION_RULES },
     Product: { fields: PRODUCT_VALIDATION_RULES },
-  })
+  }),
 );
 ```
 
 #### Custom Validation Rules
 
 ```typescript
-import { FieldValidationRule } from '@shared/validation';
+import { FieldValidationRule } from "@shared/validation";
 
 const CUSTOM_RULES: FieldValidationRule[] = [
   {
-    field: 'email',
-    type: 'email',
+    field: "email",
+    type: "email",
     required: true,
     maxLength: 255,
-    errorMessage: 'Invalid email address',
+    errorMessage: "Invalid email address",
     sanitize: true,
   },
   {
-    field: 'age',
-    type: 'number',
+    field: "age",
+    type: "number",
     required: true,
     min: 18,
     max: 120,
-    errorMessage: 'Age must be between 18 and 120',
+    errorMessage: "Age must be between 18 and 120",
   },
   {
-    field: 'website',
-    type: 'url',
+    field: "website",
+    type: "url",
     required: false,
-    errorMessage: 'Invalid website URL',
+    errorMessage: "Invalid website URL",
   },
   {
-    field: 'role',
-    type: 'enum',
+    field: "role",
+    type: "enum",
     required: true,
-    enumValues: ['ADMIN', 'USER', 'VIEWER'],
-    errorMessage: 'Invalid role',
+    enumValues: ["ADMIN", "USER", "VIEWER"],
+    errorMessage: "Invalid role",
   },
   {
-    field: 'creditScore',
-    type: 'number',
+    field: "creditScore",
+    type: "number",
     required: true,
     customValidator: async (value) => {
       return value >= 300 && value <= 850;
     },
-    errorMessage: 'Credit score must be between 300 and 850',
+    errorMessage: "Credit score must be between 300 and 850",
   },
 ];
 ```
@@ -749,18 +793,20 @@ const CUSTOM_RULES: FieldValidationRule[] = [
 Logs all database mutations.
 
 **Setup:**
+
 ```typescript
-import { createAuditLoggingMiddleware } from '@shared/validation';
+import { createAuditLoggingMiddleware } from "@shared/validation";
 
 prisma.$use(
   createAuditLoggingMiddleware((message, context) => {
     console.log(message, context);
     // Or use your logging service
-  })
+  }),
 );
 ```
 
 **Output:**
+
 ```
 [2026-01-06T10:30:00Z] Prisma create on User
 {
@@ -781,16 +827,18 @@ create completed for User
 Converts delete operations to updates with `deletedAt` field.
 
 **Setup:**
+
 ```typescript
-import { createSoftDeleteMiddleware } from '@shared/validation';
+import { createSoftDeleteMiddleware } from "@shared/validation";
 
 prisma.$use(createSoftDeleteMiddleware());
 ```
 
 **Behavior:**
+
 ```typescript
 // DELETE operation
-await prisma.user.delete({ where: { id: '123' } });
+await prisma.user.delete({ where: { id: "123" } });
 // Converted to:
 // UPDATE user SET deletedAt = NOW() WHERE id = '123'
 
@@ -805,8 +853,9 @@ await prisma.user.findMany();
 Automatically sets `createdAt` and `updatedAt` fields.
 
 **Setup:**
+
 ```typescript
-import { createTimestampMiddleware } from '@shared/validation';
+import { createTimestampMiddleware } from "@shared/validation";
 
 prisma.$use(createTimestampMiddleware());
 ```
@@ -873,28 +922,28 @@ BusinessRules.validateCreditLimit(
 ### Custom Business Rule Validation
 
 ```typescript
-import { assertBusinessRule, BusinessRuleException } from '@shared/validation';
+import { assertBusinessRule, BusinessRuleException } from "@shared/validation";
 
 // Simple assertion
 assertBusinessRule(
   user.age >= 18,
-  'MINIMUM_AGE_REQUIREMENT',
-  'User must be at least 18 years old',
-  'يجب أن يكون عمر المستخدم 18 عاماً على الأقل',
-  { currentAge: user.age, requiredAge: 18 }
+  "MINIMUM_AGE_REQUIREMENT",
+  "User must be at least 18 years old",
+  "يجب أن يكون عمر المستخدم 18 عاماً على الأقل",
+  { currentAge: user.age, requiredAge: 18 },
 );
 
 // Or throw directly
 if (invoice.total !== invoice.subtotal + invoice.tax) {
   throw new BusinessRuleException(
-    'INVOICE_CALCULATION_MISMATCH',
-    'Invoice total does not match subtotal + tax',
-    'إجمالي الفاتورة لا يطابق المبلغ الفرعي + الضريبة',
+    "INVOICE_CALCULATION_MISMATCH",
+    "Invoice total does not match subtotal + tax",
+    "إجمالي الفاتورة لا يطابق المبلغ الفرعي + الضريبة",
     {
       total: invoice.total,
       subtotal: invoice.subtotal,
       tax: invoice.tax,
-    }
+    },
   );
 }
 ```
@@ -906,6 +955,7 @@ if (invoice.total !== invoice.subtotal + invoice.tax) {
 ### Example 1: Enhanced User DTO
 
 **Before:**
+
 ```typescript
 export class CreateUserDto {
   @IsEmail()
@@ -924,6 +974,7 @@ export class CreateUserDto {
 ```
 
 **After:**
+
 ```typescript
 export class CreateUserDto {
   @IsEmail()
@@ -947,6 +998,7 @@ export class CreateUserDto {
 ### Example 2: Product DTO with Money Validation
 
 **Before:**
+
 ```typescript
 export class CreateProductDto {
   @IsString()
@@ -962,6 +1014,7 @@ export class CreateProductDto {
 ```
 
 **After:**
+
 ```typescript
 export class CreateProductDto {
   @IsString()
@@ -992,7 +1045,7 @@ export class CreateFieldDto {
 
   @IsGeoJSONPolygon()
   boundary: {
-    type: 'Polygon';
+    type: "Polygon";
     coordinates: number[][][];
   };
 
@@ -1022,7 +1075,7 @@ export class CreateExperimentDto {
   startDate: string;
 
   @IsDateString()
-  @IsAfterDate('startDate')
+  @IsAfterDate("startDate")
   endDate: string;
 
   @IsString()
@@ -1040,13 +1093,13 @@ import {
   generateSafeFilename,
   calculateFileHash,
   ALLOWED_FILE_TYPES,
-  FILE_SIZE_LIMITS
-} from '@shared/validation';
+  FILE_SIZE_LIMITS,
+} from "@shared/validation";
 
-@Controller('upload')
+@Controller("upload")
 export class UploadController {
-  @Post('image')
-  @UseInterceptors(FileInterceptor('file'))
+  @Post("image")
+  @UseInterceptors(FileInterceptor("file"))
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() user: User,
@@ -1069,7 +1122,7 @@ export class UploadController {
     });
 
     if (existing) {
-      return { message: 'File already exists', file: existing };
+      return { message: "File already exists", file: existing };
     }
 
     // Save file...
@@ -1088,7 +1141,7 @@ export class UploadController {
       },
     });
 
-    return { message: 'File uploaded successfully', filename };
+    return { message: "File uploaded successfully", filename };
   }
 }
 ```
@@ -1096,7 +1149,7 @@ export class UploadController {
 ### Example 6: Service with Business Rules
 
 ```typescript
-import { BusinessRules } from '@shared/validation';
+import { BusinessRules } from "@shared/validation";
 
 @Injectable()
 export class OrderService {
@@ -1110,13 +1163,13 @@ export class OrderService {
       BusinessRules.validateStockAvailability(
         product.stock,
         item.quantity,
-        product.name
+        product.name,
       );
     }
 
     // Calculate total
     const total = dto.items.reduce((sum, item) => {
-      return sum + (item.quantity * item.price);
+      return sum + item.quantity * item.price;
     }, 0);
 
     // Validate credit limit
@@ -1127,7 +1180,7 @@ export class OrderService {
     BusinessRules.validateCreditLimit(
       wallet.balance,
       total,
-      wallet.creditLimit
+      wallet.creditLimit,
     );
 
     // Create order...
@@ -1143,13 +1196,14 @@ export class OrderService {
 ### Step 1: Update Existing DTOs
 
 1. **Add imports:**
+
    ```typescript
    import {
      IsYemeniPhone,
      IsStrongPassword,
      SanitizePlainText,
-     IsMoneyValue
-   } from '@shared/validation';
+     IsMoneyValue,
+   } from "@shared/validation";
    ```
 
 2. **Replace basic validators:**
@@ -1171,7 +1225,7 @@ import {
   createTimestampMiddleware,
   USER_VALIDATION_RULES,
   PRODUCT_VALIDATION_RULES,
-} from '@shared/validation';
+} from "@shared/validation";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -1183,14 +1237,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       createValidationMiddleware({
         User: { fields: USER_VALIDATION_RULES },
         Product: { fields: PRODUCT_VALIDATION_RULES },
-      })
+      }),
     );
 
     // Add audit logging
     this.$use(
       createAuditLoggingMiddleware((message, context) => {
         this.logger.log(message, context);
-      })
+      }),
     );
 
     // Add timestamps
@@ -1202,6 +1256,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 ### Step 3: Update File Upload Endpoints
 
 **Before:**
+
 ```typescript
 @Post('upload')
 @UseInterceptors(FileInterceptor('file'))
@@ -1211,6 +1266,7 @@ async upload(@UploadedFile() file: Express.Multer.File) {
 ```
 
 **After:**
+
 ```typescript
 import { validateFileUpload, generateSafeFilename } from '@shared/validation';
 
@@ -1321,8 +1377,8 @@ validateFileUpload(file, {
 });
 
 // ❌ BAD - Only extension check
-if (!file.originalname.endsWith('.jpg')) {
-  throw new BadRequestException('Invalid file type');
+if (!file.originalname.endsWith(".jpg")) {
+  throw new BadRequestException("Invalid file type");
 }
 ```
 
@@ -1334,7 +1390,7 @@ BusinessRules.validateStockAvailability(available, requested, productName);
 
 // ❌ BAD - Manual, English only, not logged
 if (available < requested) {
-  throw new BadRequestException('Insufficient stock');
+  throw new BadRequestException("Insufficient stock");
 }
 ```
 
@@ -1368,6 +1424,7 @@ nameAr: string;
 ## Security Checklist
 
 ### Input Validation
+
 - [x] All text inputs sanitized (XSS prevention)
 - [x] Password complexity enforced
 - [x] Email format validated
@@ -1378,6 +1435,7 @@ nameAr: string;
 - [x] Cross-field validation (date ranges, etc.)
 
 ### File Upload Security
+
 - [x] File extension validation
 - [x] File size limits enforced
 - [x] MIME type validation
@@ -1387,6 +1445,7 @@ nameAr: string;
 - [x] Executable file blocking
 
 ### Data Integrity
+
 - [x] Monetary values use decimal precision
 - [x] Stock quantities cannot be negative
 - [x] Credit limits enforced
@@ -1395,6 +1454,7 @@ nameAr: string;
 - [x] Business rules enforced
 
 ### Error Handling
+
 - [x] Standardized error responses
 - [x] Bilingual error messages (EN/AR)
 - [x] Sensitive data not leaked in errors
@@ -1410,6 +1470,7 @@ nameAr: string;
 Sanitization is performant for typical inputs but may impact performance for very large texts.
 
 **Recommendation:**
+
 - Use `@SanitizePlainText()` for user inputs (< 10KB)
 - Use `@SanitizeRichText()` sparingly (< 100KB)
 - For large documents, consider background processing
@@ -1419,6 +1480,7 @@ Sanitization is performant for typical inputs but may impact performance for ver
 Magic number validation requires reading file headers (minimal overhead).
 
 **Recommendation:**
+
 - Enable magic number validation for production
 - Can disable in development if needed
 - Use streaming for large files
@@ -1428,11 +1490,13 @@ Magic number validation requires reading file headers (minimal overhead).
 Validation middleware adds minimal overhead per query.
 
 **Benchmarks:**
+
 - Simple validation: ~0.1ms per field
 - Custom validators: ~1-5ms per field
 - Recommended for critical fields only
 
 **Recommendation:**
+
 - Use for user inputs and sensitive data
 - Skip for internal/system-generated data
 - Benchmark your specific use case
@@ -1444,6 +1508,7 @@ Validation middleware adds minimal overhead per query.
 ### Error: "Cannot find module '@shared/validation'"
 
 **Solution:**
+
 ```bash
 # Check path is correct
 # From service: '../../../shared/validation'
@@ -1461,6 +1526,7 @@ Validation middleware adds minimal overhead per query.
 ### Error: "isomorphic-dompurify not found"
 
 **Solution:**
+
 ```bash
 npm install --save isomorphic-dompurify
 npm install --save-dev @types/dompurify
@@ -1470,26 +1536,31 @@ npm install --save-dev @types/dompurify
 
 **Solution:**
 Ensure `ValidationPipe` is configured:
+
 ```typescript
-app.useGlobalPipes(new ValidationPipe({
-  whitelist: true,
-  transform: true,
-  forbidNonWhitelisted: true,
-}));
+app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    forbidNonWhitelisted: true,
+  }),
+);
 ```
 
 ### Sanitization not applied
 
 **Solution:**
 Ensure `transform: true` in ValidationPipe:
+
 ```typescript
-new ValidationPipe({ transform: true })
+new ValidationPipe({ transform: true });
 ```
 
 ### Arabic error messages not showing
 
 **Solution:**
 Check `Accept-Language` header or use custom error formatter:
+
 ```typescript
 export class LanguageAwareExceptionFilter extends HttpExceptionFilter {
   // See shared/errors/http-exception.filter.ts
@@ -1501,6 +1572,7 @@ export class LanguageAwareExceptionFilter extends HttpExceptionFilter {
 ## API Reference
 
 See individual files for complete API documentation:
+
 - [Custom Validators](./custom-validators.ts)
 - [Sanitization](./sanitization.ts)
 - [File Upload](./file-upload.ts)
@@ -1512,6 +1584,7 @@ See individual files for complete API documentation:
 ## Support
 
 For issues or questions:
+
 1. Check this README
 2. Check code comments in source files
 3. Review audit document: `/tests/database/DATA_VALIDATION_AUDIT.md`
@@ -1526,6 +1599,7 @@ For issues or questions:
 **Initial Release**
 
 **Added:**
+
 - Custom validators (Yemen-specific, Arabic, business logic, geospatial, financial)
 - Input sanitization (XSS prevention, HTML sanitization, prompt injection prevention)
 - File upload validation (magic numbers, size limits, malicious file detection)
@@ -1535,6 +1609,7 @@ For issues or questions:
 - Comprehensive documentation
 
 **Security Improvements:**
+
 - Platform-wide XSS prevention ✅
 - File upload security ✅
 - Prompt injection prevention ✅
@@ -1543,6 +1618,7 @@ For issues or questions:
 - Credit card validation ✅
 
 **Audit Score:**
+
 - Previous: 7.5/10
 - Current: 9.5/10 (estimated)
 - Target: 9.5/10 ✅

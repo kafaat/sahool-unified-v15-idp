@@ -7,8 +7,6 @@
 # Components: Jaeger, OpenTelemetry Collector, Prometheus, Grafana
 # Purpose: Distributed tracing across all 44+ SAHOOL microservices
 
-version: '3.8'
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Services - الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -22,24 +20,16 @@ services:
     image: jaegertracing/all-in-one:1.53
     container_name: sahool-telemetry-jaeger
     restart: unless-stopped
+    user: root
     ports:
       # Jaeger UI - واجهة Jaeger
       - "16686:16686"
       # Collector HTTP - مجمع HTTP
       - "14268:14268"
-      # Collector gRPC - مجمع gRPC
-      - "14250:14250"
-      # Agent zipkin.thrift - وكيل Zipkin
-      - "5775:5775/udp"
-      # Agent compact - وكيل مضغوط
-      - "6831:6831/udp"
-      - "6832:6832/udp"
       # Agent binary - وكيل ثنائي
       - "5778:5778"
-      # OTLP gRPC - بروتوكول OTLP
-      - "4317:4317"
-      # OTLP HTTP - بروتوكول OTLP HTTP
-      - "4318:4318"
+      # Note: OTLP ports (4317, 4318) and gRPC (14250, 6831) are handled by otel-collector
+      # to avoid port conflicts. otel-collector forwards traces to Jaeger internally.
     environment:
       # Collector settings - إعدادات المجمع
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
@@ -68,7 +58,8 @@ services:
       - sahool-network
       - telemetry-network
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:14269/ || exit 1"]
+      # Jaeger all-in-one is Alpine-based with BusyBox wget
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:14269/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -123,11 +114,9 @@ services:
       jaeger:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:13133/ || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
+      # OTel Collector contrib image is scratch-based with no shell
+      # Disable custom healthcheck; container startup indicates readiness
+      disable: true
     deploy:
       resources:
         limits:
@@ -174,7 +163,8 @@ services:
       - sahool-network
       - telemetry-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      # Prometheus uses BusyBox - use wget -O /dev/null instead of --spider
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9090/-/healthy || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -215,7 +205,7 @@ services:
     environment:
       # Security - الأمان
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin_secure_2024}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_USERS_ALLOW_ORG_CREATE=false
 
@@ -248,7 +238,8 @@ services:
       jaeger:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      # Grafana is Alpine-based with wget available
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:3000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -273,9 +264,10 @@ services:
 
 networks:
   # Connect to main SAHOOL network - الاتصال بشبكة سهول الرئيسية
+  # Note: Creates network if it doesn't exist (for standalone testing)
   sahool-network:
-    external: true
     name: sahool-network
+    driver: bridge
 
   # Internal telemetry network - شبكة القياس عن بعد الداخلية
   telemetry-network:

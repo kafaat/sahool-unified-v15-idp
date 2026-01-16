@@ -52,35 +52,35 @@ model Product {
 In your Prisma service:
 
 ```typescript
-import { PrismaClient } from '@prisma/client';
-import { createSoftDeleteMiddleware } from '@sahool/shared-db';
+import { PrismaClient } from "@prisma/client";
+import { createSoftDeleteMiddleware } from "@sahool/shared-db";
 
 const prisma = new PrismaClient();
 
 // Apply soft delete middleware
 prisma.$use(
   createSoftDeleteMiddleware({
-    excludedModels: ['AuditLog', 'Transaction'], // Models to exclude
-    enableLogging: process.env.NODE_ENV === 'development',
-  })
+    excludedModels: ["AuditLog", "Transaction"], // Models to exclude
+    enableLogging: process.env.NODE_ENV === "development",
+  }),
 );
 ```
 
 #### 3. Use Soft Delete Operations
 
 ```typescript
-import { softDelete, restore, findWithDeleted } from '@sahool/shared-db';
+import { softDelete, restore, findWithDeleted } from "@sahool/shared-db";
 
 // Soft delete a product
 const deleted = await softDelete(
   prisma.product,
-  { id: 'product-123' },
-  { deletedBy: 'user-456' }
+  { id: "product-123" },
+  { deletedBy: "user-456" },
 );
 
 // Or use regular Prisma delete (automatically converted to soft delete)
 await prisma.product.delete({
-  where: { id: 'product-123' }
+  where: { id: "product-123" },
 });
 
 // Find active products (deleted ones are automatically excluded)
@@ -90,7 +90,7 @@ const activeProducts = await prisma.product.findMany();
 const allProducts = await findWithDeleted(prisma.product);
 
 // Restore a deleted product
-const restored = await restore(prisma.product, { id: 'product-123' });
+const restored = await restore(prisma.product, { id: "product-123" });
 ```
 
 ### For SQLAlchemy Services (Python)
@@ -195,6 +195,7 @@ def downgrade():
 Creates Prisma middleware that implements soft delete pattern.
 
 **Parameters:**
+
 - `config.excludedModels` (string[]): Models to exclude from soft delete behavior
 - `config.enableLogging` (boolean): Enable logging for debugging
 - `config.logger` (function): Custom logger function
@@ -208,6 +209,7 @@ Creates Prisma middleware that implements soft delete pattern.
 Soft delete a single record.
 
 **Parameters:**
+
 - `model`: Prisma model delegate
 - `where`: Where clause to identify the record
 - `options.deletedBy`: User ID performing the deletion
@@ -259,10 +261,12 @@ Get deletion metadata from a record.
 Mixin class that adds soft delete functionality to models.
 
 **Added Fields:**
+
 - `deleted_at`: DateTime - When the record was deleted
 - `deleted_by`: String - Who deleted the record
 
 **Methods:**
+
 - `soft_delete(deleted_by?)`: Mark this record as deleted
 - `restore()`: Restore this record
 - `is_deleted()`: Check if record is deleted
@@ -300,6 +304,7 @@ Get all soft-deleted records.
 ### 1. Choose Models Wisely
 
 Not all models should use soft delete. Exclude:
+
 - Audit logs
 - Transaction records
 - Historical data that must be permanent
@@ -308,12 +313,12 @@ Not all models should use soft delete. Exclude:
 prisma.$use(
   createSoftDeleteMiddleware({
     excludedModels: [
-      'AuditLog',
-      'Transaction',
-      'WalletAuditLog',
-      'CreditEvent',
+      "AuditLog",
+      "Transaction",
+      "WalletAuditLog",
+      "CreditEvent",
     ],
-  })
+  }),
 );
 ```
 
@@ -333,7 +338,7 @@ Always provide `deletedBy` for audit purposes:
 await softDelete(
   prisma.product,
   { id: productId },
-  { deletedBy: currentUserId } // Important for audit trail
+  { deletedBy: currentUserId }, // Important for audit trail
 );
 ```
 
@@ -365,18 +370,10 @@ await prisma.$transaction(async (tx) => {
 ```typescript
 async function cascadeDeleteOrder(orderId: string, deletedBy: string) {
   // Delete order items first (if they support soft delete)
-  await softDeleteMany(
-    prisma.orderItem,
-    { orderId },
-    { deletedBy }
-  );
+  await softDeleteMany(prisma.orderItem, { orderId }, { deletedBy });
 
   // Then delete the order
-  await softDelete(
-    prisma.order,
-    { id: orderId },
-    { deletedBy }
-  );
+  await softDelete(prisma.order, { id: orderId }, { deletedBy });
 }
 ```
 
@@ -418,7 +415,7 @@ async function getDeletionReport(startDate: Date, endDate: Date) {
     includeDeleted: true,
   });
 
-  return deletedProducts.map(p => ({
+  return deletedProducts.map((p) => ({
     id: p.id,
     name: p.name,
     deletedAt: p.deletedAt,
@@ -432,16 +429,16 @@ async function getDeletionReport(startDate: Date, endDate: Date) {
 ### Unit Tests
 
 ```typescript
-describe('Soft Delete', () => {
-  it('should soft delete a product', async () => {
+describe("Soft Delete", () => {
+  it("should soft delete a product", async () => {
     const product = await prisma.product.create({
-      data: { name: 'Test Product', price: 100 }
+      data: { name: "Test Product", price: 100 },
     });
 
     await softDelete(
       prisma.product,
       { id: product.id },
-      { deletedBy: 'test-user' }
+      { deletedBy: "test-user" },
     );
 
     const deleted = await prisma.product.findUnique({
@@ -450,13 +447,13 @@ describe('Soft Delete', () => {
     });
 
     expect(deleted.deletedAt).toBeDefined();
-    expect(deleted.deletedBy).toBe('test-user');
+    expect(deleted.deletedBy).toBe("test-user");
   });
 
-  it('should exclude deleted products from queries', async () => {
+  it("should exclude deleted products from queries", async () => {
     const products = await prisma.product.findMany();
 
-    expect(products.every(p => p.deletedAt === null)).toBe(true);
+    expect(products.every((p) => p.deletedAt === null)).toBe(true);
   });
 });
 ```

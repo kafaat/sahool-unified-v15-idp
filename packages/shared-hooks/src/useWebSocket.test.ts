@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { useWebSocket } from './useWebSocket';
-import type { WSMessage } from './useWebSocket';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { renderHook, act, waitFor } from "@testing-library/react";
+import { useWebSocket } from "./useWebSocket";
+import type { WSMessage } from "./useWebSocket";
 
 // Mock WebSocket
 class MockWebSocket {
@@ -22,24 +22,24 @@ class MockWebSocket {
     // Simulate async connection
     setTimeout(() => {
       this.readyState = MockWebSocket.OPEN;
-      this.onopen?.(new Event('open'));
+      this.onopen?.(new Event("open"));
     }, 0);
   }
 
   send(data: string) {
     if (this.readyState !== MockWebSocket.OPEN) {
-      throw new Error('WebSocket is not open');
+      throw new Error("WebSocket is not open");
     }
   }
 
   close() {
     this.readyState = MockWebSocket.CLOSED;
-    this.onclose?.(new CloseEvent('close'));
+    this.onclose?.(new CloseEvent("close"));
   }
 
   // Test helper to simulate receiving a message
   simulateMessage(data: unknown) {
-    const event = new MessageEvent('message', {
+    const event = new MessageEvent("message", {
       data: JSON.stringify(data),
     });
     this.onmessage?.(event);
@@ -47,11 +47,11 @@ class MockWebSocket {
 
   // Test helper to simulate an error
   simulateError() {
-    this.onerror?.(new Event('error'));
+    this.onerror?.(new Event("error"));
   }
 }
 
-describe('useWebSocket', () => {
+describe("useWebSocket", () => {
   let mockWebSocketInstances: MockWebSocket[] = [];
 
   beforeEach(() => {
@@ -71,14 +71,14 @@ describe('useWebSocket', () => {
     vi.restoreAllMocks();
   });
 
-  describe('connection management', () => {
-    it('should establish connection on mount', async () => {
+  describe("connection management", () => {
+    it("should establish connection on mount", async () => {
       const onConnect = vi.fn();
       const { result } = renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           onConnect,
-        })
+        }),
       );
 
       expect(result.current.isConnected).toBe(false);
@@ -91,14 +91,14 @@ describe('useWebSocket', () => {
       expect(onConnect).toHaveBeenCalledTimes(1);
     });
 
-    it('should not connect when enabled is false', async () => {
+    it("should not connect when enabled is false", async () => {
       const onConnect = vi.fn();
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           onConnect,
           enabled: false,
-        })
+        }),
       );
 
       await act(async () => {
@@ -109,11 +109,11 @@ describe('useWebSocket', () => {
       expect(mockWebSocketInstances).toHaveLength(0);
     });
 
-    it('should disconnect on unmount', async () => {
+    it("should disconnect on unmount", async () => {
       const { result, unmount } = renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
-        })
+          url: "ws://localhost:3000",
+        }),
       );
 
       await act(async () => {
@@ -122,26 +122,26 @@ describe('useWebSocket', () => {
 
       expect(result.current.isConnected).toBe(true);
 
-      const closeSpy = vi.spyOn(mockWebSocketInstances[0], 'close');
+      const closeSpy = vi.spyOn(mockWebSocketInstances[0], "close");
       unmount();
 
       expect(closeSpy).toHaveBeenCalled();
     });
   });
 
-  describe('message handling', () => {
-    it('should handle incoming messages', async () => {
+  describe("message handling", () => {
+    it("should handle incoming messages", async () => {
       const onMessage = vi.fn();
       const testMessage: WSMessage = {
-        type: 'test',
-        payload: { data: 'hello' },
+        type: "test",
+        payload: { data: "hello" },
       };
 
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           onMessage,
-        })
+        }),
       );
 
       await act(async () => {
@@ -155,15 +155,17 @@ describe('useWebSocket', () => {
       expect(onMessage).toHaveBeenCalledWith(testMessage);
     });
 
-    it('should handle malformed messages gracefully', async () => {
+    it("should handle malformed messages gracefully", async () => {
       const onMessage = vi.fn();
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           onMessage,
-        })
+        }),
       );
 
       await act(async () => {
@@ -172,8 +174,8 @@ describe('useWebSocket', () => {
 
       // Simulate receiving invalid JSON
       act(() => {
-        const event = new MessageEvent('message', {
-          data: 'invalid json',
+        const event = new MessageEvent("message", {
+          data: "invalid json",
         });
         mockWebSocketInstances[0].onmessage?.(event);
       });
@@ -184,19 +186,19 @@ describe('useWebSocket', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should send messages when connected', async () => {
+    it("should send messages when connected", async () => {
       const { result } = renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
-        })
+          url: "ws://localhost:3000",
+        }),
       );
 
       await act(async () => {
         await vi.runAllTimersAsync();
       });
 
-      const sendSpy = vi.spyOn(mockWebSocketInstances[0], 'send');
-      const testData = { type: 'test', payload: 'data' };
+      const sendSpy = vi.spyOn(mockWebSocketInstances[0], "send");
+      const testData = { type: "test", payload: "data" };
 
       act(() => {
         result.current.send(testData);
@@ -205,30 +207,30 @@ describe('useWebSocket', () => {
       expect(sendSpy).toHaveBeenCalledWith(JSON.stringify(testData));
     });
 
-    it('should not send messages when not connected', () => {
+    it("should not send messages when not connected", () => {
       const { result } = renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
-        })
+          url: "ws://localhost:3000",
+        }),
       );
 
       // Try to send before connection is established
       expect(() => {
         act(() => {
-          result.current.send({ test: 'data' });
+          result.current.send({ test: "data" });
         });
       }).not.toThrow();
     });
   });
 
-  describe('error handling', () => {
-    it('should handle connection errors', async () => {
+  describe("error handling", () => {
+    it("should handle connection errors", async () => {
       const onError = vi.fn();
       const { result } = renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           onError,
-        })
+        }),
       );
 
       await act(async () => {
@@ -240,22 +242,22 @@ describe('useWebSocket', () => {
       });
 
       expect(onError).toHaveBeenCalled();
-      expect(result.current.error).toBe('Connection error');
+      expect(result.current.error).toBe("Connection error");
     });
   });
 
-  describe('reconnection logic', () => {
-    it('should reconnect with exponential backoff', async () => {
+  describe("reconnection logic", () => {
+    it("should reconnect with exponential backoff", async () => {
       const onDisconnect = vi.fn();
       const reconnectInterval = 1000; // 1 second base interval
 
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           reconnectInterval,
           maxReconnectAttempts: 5,
           onDisconnect,
-        })
+        }),
       );
 
       // Initial connection
@@ -301,15 +303,15 @@ describe('useWebSocket', () => {
       expect(mockWebSocketInstances).toHaveLength(4);
     });
 
-    it('should cap backoff delay at MAX_RECONNECT_DELAY (30 seconds)', async () => {
+    it("should cap backoff delay at MAX_RECONNECT_DELAY (30 seconds)", async () => {
       const reconnectInterval = 5000; // 5 seconds base interval
 
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           reconnectInterval,
           maxReconnectAttempts: 20,
-        })
+        }),
       );
 
       // Initial connection
@@ -328,7 +330,7 @@ describe('useWebSocket', () => {
 
         const expectedDelay = Math.min(
           reconnectInterval * Math.pow(1.5, i),
-          30000
+          30000,
         );
 
         await act(async () => {
@@ -356,16 +358,16 @@ describe('useWebSocket', () => {
       expect(mockWebSocketInstances).toHaveLength(12);
     });
 
-    it('should stop reconnecting after maxReconnectAttempts', async () => {
+    it("should stop reconnecting after maxReconnectAttempts", async () => {
       const maxReconnectAttempts = 3;
       const reconnectInterval = 1000;
 
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           reconnectInterval,
           maxReconnectAttempts,
-        })
+        }),
       );
 
       // Initial connection
@@ -380,10 +382,7 @@ describe('useWebSocket', () => {
         });
 
         await act(async () => {
-          const delay = Math.min(
-            reconnectInterval * Math.pow(1.5, i),
-            30000
-          );
+          const delay = Math.min(reconnectInterval * Math.pow(1.5, i), 30000);
           await vi.advanceTimersByTimeAsync(delay);
         });
       }
@@ -403,17 +402,17 @@ describe('useWebSocket', () => {
       expect(mockWebSocketInstances).toHaveLength(1 + maxReconnectAttempts);
     });
 
-    it('should reset reconnect attempts after successful connection', async () => {
+    it("should reset reconnect attempts after successful connection", async () => {
       const onConnect = vi.fn();
       const reconnectInterval = 1000;
 
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           reconnectInterval,
           maxReconnectAttempts: 5,
           onConnect,
-        })
+        }),
       );
 
       // Initial connection
@@ -453,12 +452,12 @@ describe('useWebSocket', () => {
     });
   });
 
-  describe('manual control', () => {
-    it('should manually disconnect', async () => {
+  describe("manual control", () => {
+    it("should manually disconnect", async () => {
       const { result } = renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
-        })
+          url: "ws://localhost:3000",
+        }),
       );
 
       await act(async () => {
@@ -481,11 +480,11 @@ describe('useWebSocket', () => {
       expect(mockWebSocketInstances).toHaveLength(1);
     });
 
-    it('should manually reconnect', async () => {
+    it("should manually reconnect", async () => {
       const { result } = renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
-        })
+          url: "ws://localhost:3000",
+        }),
       );
 
       await act(async () => {
@@ -508,23 +507,23 @@ describe('useWebSocket', () => {
     });
   });
 
-  describe('backoff calculation tests', () => {
-    it('should calculate correct delays for first 5 attempts', async () => {
+  describe("backoff calculation tests", () => {
+    it("should calculate correct delays for first 5 attempts", async () => {
       const reconnectInterval = 1000;
       const expectedDelays = [
-        1000,  // 1000 * 1.5^0
-        1500,  // 1000 * 1.5^1
-        2250,  // 1000 * 1.5^2
-        3375,  // 1000 * 1.5^3
-        5062,  // 1000 * 1.5^4 (rounded)
+        1000, // 1000 * 1.5^0
+        1500, // 1000 * 1.5^1
+        2250, // 1000 * 1.5^2
+        3375, // 1000 * 1.5^3
+        5062, // 1000 * 1.5^4 (rounded)
       ];
 
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           reconnectInterval,
           maxReconnectAttempts: 10,
-        })
+        }),
       );
 
       // Initial connection
@@ -553,16 +552,16 @@ describe('useWebSocket', () => {
       }
     });
 
-    it('should verify MAX_RECONNECT_DELAY is enforced', async () => {
+    it("should verify MAX_RECONNECT_DELAY is enforced", async () => {
       const reconnectInterval = 10000; // 10 seconds
       // After 5 attempts: 10000 * 1.5^5 = 75,937ms (> 30,000ms)
 
       renderHook(() =>
         useWebSocket({
-          url: 'ws://localhost:3000',
+          url: "ws://localhost:3000",
           reconnectInterval,
           maxReconnectAttempts: 10,
-        })
+        }),
       );
 
       // Initial connection
@@ -578,7 +577,7 @@ describe('useWebSocket', () => {
 
         const expectedDelay = Math.min(
           reconnectInterval * Math.pow(1.5, i),
-          30000
+          30000,
         );
 
         await act(async () => {

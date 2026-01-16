@@ -3,10 +3,10 @@
  * خطاف قائمة الحقول
  */
 
-import { useQuery } from '@tanstack/react-query';
-import type { FieldFilters } from '../types';
-import { fieldsApi } from '../api';
-import { fieldKeys } from './queryKeys';
+import { useQuery } from "@tanstack/react-query";
+import type { FieldFilters } from "../types";
+import { fieldsApi } from "../api";
+import { fieldKeys } from "./queryKeys";
 
 /**
  * Hook to fetch all fields with optional filters

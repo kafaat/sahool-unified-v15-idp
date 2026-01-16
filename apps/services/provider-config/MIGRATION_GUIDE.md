@@ -24,12 +24,14 @@ Created two new tables in PostgreSQL:
 ### 2. Service Architecture
 
 **Before (In-Memory)**:
+
 ```python
 tenant_configs: dict[str, TenantProviderConfig] = {}
 provider_status_cache: dict[str, ProviderStatusResponse] = {}
 ```
 
 **After (Database + Cache)**:
+
 ```python
 # PostgreSQL for persistence
 database: Database
@@ -42,16 +44,19 @@ config_service: ProviderConfigService
 ### 3. New Features
 
 #### a. Persistent Storage
+
 - Configurations survive service restarts
 - Multi-tenant isolation
 - Atomic operations with transactions
 
 #### b. Caching Layer
+
 - Redis caching with 5-minute TTL
 - Automatic cache invalidation on updates
 - Graceful fallback if Redis unavailable
 
 #### c. Version History
+
 - Complete audit trail of all changes
 - Rollback to any previous version
 - Track who made changes and when
@@ -59,6 +64,7 @@ config_service: ProviderConfigService
 ### 4. New API Endpoints
 
 #### Version History
+
 ```bash
 # Get configuration history
 GET /config/{tenant_id}/history?provider_type=map&limit=100
@@ -106,6 +112,7 @@ psql -U sahool -d sahool -h localhost -p 5432
 ### 1. Update Environment Variables
 
 Add to `.env`:
+
 ```bash
 # Database connection (already exists)
 DATABASE_URL=postgresql://sahool:password@pgbouncer:6432/sahool
@@ -128,6 +135,7 @@ docker-compose logs -f provider-config
 ```
 
 Expected startup logs:
+
 ```
 ✓ Database initialized successfully
 ✓ Cache initialized successfully
@@ -237,12 +245,14 @@ curl http://localhost:8104/config/test-tenant/history
 ## Performance
 
 ### Before (In-Memory)
+
 - **Read**: O(1) - instant
 - **Write**: O(1) - instant
 - **Persistence**: ❌ Lost on restart
 - **Multi-instance**: ❌ No shared state
 
 ### After (Database + Cache)
+
 - **Read (cached)**: O(1) - ~5ms (Redis)
 - **Read (uncached)**: ~20-50ms (PostgreSQL)
 - **Write**: ~30-100ms (PostgreSQL + cache invalidation)
@@ -254,6 +264,7 @@ curl http://localhost:8104/config/test-tenant/history
 If issues occur, you can temporarily revert to in-memory storage:
 
 1. **Quick Rollback**: Use previous Docker image
+
    ```bash
    docker-compose down provider-config
    # Restore previous image
@@ -334,6 +345,7 @@ docker-compose logs -f provider-config | grep -E "(Cache|Database|Config)"
 **Symptoms**: Service exits immediately or shows "Database not initialized"
 
 **Solution**:
+
 1. Check database connection:
    ```bash
    docker-compose exec provider-config env | grep DATABASE_URL
@@ -357,6 +369,7 @@ docker-compose logs -f provider-config | grep -E "(Cache|Database|Config)"
 **Symptoms**: Warnings about cache failures
 
 **Solution**: Service continues without caching. To fix:
+
 1. Check Redis connection:
    ```bash
    docker-compose ps redis
@@ -382,6 +395,7 @@ docker-compose logs -f provider-config | grep -E "(Cache|Database|Config)"
 **Production Recommendations**:
 
 1. **Encrypt API keys** using application-level encryption:
+
    ```python
    from cryptography.fernet import Fernet
 
@@ -394,6 +408,7 @@ docker-compose logs -f provider-config | grep -E "(Cache|Database|Config)"
    ```
 
 2. **Use PostgreSQL encryption**:
+
    ```sql
    -- Add pgcrypto extension
    CREATE EXTENSION IF NOT EXISTS pgcrypto;

@@ -1,4 +1,5 @@
 # SAHOOL Database Backup System
+
 # نظام النسخ الاحتياطي لقاعدة بيانات SAHOOL
 
 ## Overview | نظرة عامة
@@ -51,12 +52,14 @@ chmod -R 755 /backups
 ### 3. Configuration | التكوين
 
 The script automatically loads configuration from:
+
 - `/home/user/sahool-unified-v15-idp/.env`
 - `/home/user/sahool-unified-v15-idp/config/base.env`
 
 يقوم السكريبت تلقائياً بتحميل التكوين من:
 
 Key environment variables:
+
 ```bash
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
@@ -111,16 +114,16 @@ BACKUP_DIR=/backups
 
 ### Command Line Options | خيارات سطر الأوامر
 
-| Option | Description | مثال |
-|--------|-------------|------|
-| `-t, --type TYPE` | Backup type: daily, weekly, monthly, manual | `-t weekly` |
-| `-m, --mode MODE` | Backup mode: full, incremental | `-m incremental` |
-| `-s, --schema SCHEMA` | Specific schema to backup | `-s geo` |
-| `-d, --database DB` | Database name | `-d sahool` |
-| `--pgbouncer` | Use PgBouncer connection | `--pgbouncer` |
-| `--no-compress` | Skip compression | `--no-compress` |
-| `--verify-only FILE` | Only verify backup file | `--verify-only backup.dump` |
-| `-h, --help` | Show help message | `-h` |
+| Option                | Description                                 | مثال                        |
+| --------------------- | ------------------------------------------- | --------------------------- |
+| `-t, --type TYPE`     | Backup type: daily, weekly, monthly, manual | `-t weekly`                 |
+| `-m, --mode MODE`     | Backup mode: full, incremental              | `-m incremental`            |
+| `-s, --schema SCHEMA` | Specific schema to backup                   | `-s geo`                    |
+| `-d, --database DB`   | Database name                               | `-d sahool`                 |
+| `--pgbouncer`         | Use PgBouncer connection                    | `--pgbouncer`               |
+| `--no-compress`       | Skip compression                            | `--no-compress`             |
+| `--verify-only FILE`  | Only verify backup file                     | `--verify-only backup.dump` |
+| `-h, --help`          | Show help message                           | `-h`                        |
 
 ## Automated Backups | النسخ الاحتياطي الآلي
 
@@ -209,6 +212,7 @@ sudo systemctl status sahool-backup.timer
 ### Pre-Backup Hook | خطاف ما قبل النسخ الاحتياطي
 
 The pre-backup hook (`scripts/hooks/pre-backup.sh`) runs before the backup starts. Use it to:
+
 - Check disk space
 - Run VACUUM ANALYZE
 - Pause background jobs
@@ -217,6 +221,7 @@ The pre-backup hook (`scripts/hooks/pre-backup.sh`) runs before the backup start
 يعمل خطاف ما قبل النسخ الاحتياطي قبل بدء النسخ. استخدمه لـ:
 
 Example:
+
 ```bash
 #!/bin/bash
 # Check disk space
@@ -232,6 +237,7 @@ docker exec sahool-postgres psql -U sahool -d sahool -c "CHECKPOINT;"
 ### Post-Backup Hook | خطاف ما بعد النسخ الاحتياطي
 
 The post-backup hook (`scripts/hooks/post-backup.sh`) runs after the backup completes. Use it to:
+
 - Send notifications (email, Slack, SMS)
 - Sync to remote storage (S3, NFS)
 - Generate reports
@@ -240,6 +246,7 @@ The post-backup hook (`scripts/hooks/post-backup.sh`) runs after the backup comp
 يعمل خطاف ما بعد النسخ الاحتياطي بعد اكتمال النسخ. استخدمه لـ:
 
 Example:
+
 ```bash
 #!/bin/bash
 STATUS=$4  # success or failure
@@ -357,6 +364,7 @@ docker exec sahool-postgres psql -U sahool -c "DROP DATABASE sahool_test;"
 ### Automated Verification | التحقق الآلي
 
 Add to cron for weekly verification:
+
 ```bash
 # Every Monday at 1:00 AM, verify the latest backup
 # كل يوم اثنين الساعة 1:00 صباحاً، تحقق من أحدث نسخة احتياطية
@@ -388,6 +396,7 @@ cat /backups/reports/backup_report_$(date +%Y%m%d).txt
 ### Integration with Monitoring Systems | التكامل مع أنظمة المراقبة
 
 The hooks support integration with:
+
 - Email notifications
 - Slack webhooks
 - Prometheus metrics
@@ -460,6 +469,7 @@ pg_restore --no-owner --no-privileges -d sahool backup.dump
 ## Security Best Practices | أفضل ممارسات الأمان
 
 1. **Encrypt Backups**: Consider encrypting sensitive backups (تشفير النسخ الحساسة)
+
    ```bash
    # Encrypt backup
    openssl enc -aes-256-cbc -salt -in backup.dump -out backup.dump.enc
@@ -504,11 +514,13 @@ pg_dump sahool | gzip > backup.sql.gz
 ## Support | الدعم
 
 For issues or questions:
+
 - Check logs: `/backups/logs/`
 - Review this documentation
 - Contact: SAHOOL Platform Team
 
 للمشاكل أو الأسئلة:
+
 - فحص السجلات
 - مراجعة هذه الوثائق
 - الاتصال: فريق منصة SAHOOL

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Observation Marker Component
@@ -10,19 +10,15 @@
  * - Edit/delete actions
  */
 
-import React from 'react';
-import { Marker, Popup } from 'react-leaflet';
-import { useLocale } from 'next-intl';
-import L from 'leaflet';
-import {
-  Edit2,
-  Trash2,
-  CheckCircle,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import type { Observation } from '../types/scouting';
-import { CATEGORY_OPTIONS, SEVERITY_LABELS } from '../types/scouting';
+import React from "react";
+import { Marker, Popup } from "react-leaflet";
+import { useLocale } from "next-intl";
+import L from "leaflet";
+import { Edit2, Trash2, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { Observation } from "../types/scouting";
+import { CATEGORY_OPTIONS, SEVERITY_LABELS } from "../types/scouting";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -44,8 +40,9 @@ interface ObservationMarkerProps {
  */
 function createMarkerIcon(category: string, severity: number): L.DivIcon {
   const categoryOption = CATEGORY_OPTIONS.find((opt) => opt.value === category);
-  const color = categoryOption?.color || '#64748b';
-  const severityColor = SEVERITY_LABELS[severity as 1 | 2 | 3 | 4 | 5]?.color || color;
+  const color = categoryOption?.color || "#64748b";
+  const severityColor =
+    SEVERITY_LABELS[severity as 1 | 2 | 3 | 4 | 5]?.color || color;
 
   const html = `
     <div style="
@@ -80,7 +77,7 @@ function createMarkerIcon(category: string, severity: number): L.DivIcon {
 
   return L.divIcon({
     html,
-    className: 'custom-observation-marker',
+    className: "custom-observation-marker",
     iconSize: [36, 36],
     iconAnchor: [18, 36],
     popupAnchor: [0, -36],
@@ -98,19 +95,24 @@ export const ObservationMarker: React.FC<ObservationMarkerProps> = ({
   editable = true,
 }) => {
   const locale = useLocale();
-  const isArabic = locale === 'ar';
+  const isArabic = locale === "ar";
 
   const position: [number, number] = [
     observation.location.coordinates[1],
     observation.location.coordinates[0],
   ];
 
-  const categoryOption = CATEGORY_OPTIONS.find((opt) => opt.value === observation.category);
+  const categoryOption = CATEGORY_OPTIONS.find(
+    (opt) => opt.value === observation.category,
+  );
   const severityInfo = SEVERITY_LABELS[observation.severity];
 
   // Cast to any due to incompatible Leaflet types between leaflet and react-leaflet packages
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markerIcon: any = createMarkerIcon(observation.category, observation.severity);
+  const markerIcon: any = createMarkerIcon(
+    observation.category,
+    observation.severity,
+  );
 
   return (
     <Marker position={position} icon={markerIcon} {...({} as any)}>
@@ -135,7 +137,9 @@ export const ObservationMarker: React.FC<ObservationMarkerProps> = ({
                 </p>
                 {observation.subcategory && (
                   <p className="text-xs text-gray-600">
-                    {isArabic ? observation.subcategoryAr : observation.subcategory}
+                    {isArabic
+                      ? observation.subcategoryAr
+                      : observation.subcategory}
                   </p>
                 )}
               </div>
@@ -184,25 +188,25 @@ export const ObservationMarker: React.FC<ObservationMarkerProps> = ({
           {observation.taskCreated && (
             <div className="mb-3 flex items-center gap-2 text-xs text-green-600">
               <CheckCircle className="w-4 h-4" />
-              <span>{isArabic ? 'تم إنشاء مهمة' : 'Task created'}</span>
+              <span>{isArabic ? "تم إنشاء مهمة" : "Task created"}</span>
             </div>
           )}
 
           {/* Metadata */}
           <div className="text-xs text-gray-500 mb-3">
             <p>
-              {isArabic ? 'تم التسجيل:' : 'Recorded:'}{' '}
+              {isArabic ? "تم التسجيل:" : "Recorded:"}{" "}
               {new Date(observation.createdAt).toLocaleDateString(locale, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
               })}
             </p>
             {observation.observedBy && (
               <p>
-                {isArabic ? 'بواسطة:' : 'By:'} {observation.observedBy}
+                {isArabic ? "بواسطة:" : "By:"} {observation.observedBy}
               </p>
             )}
           </div>
@@ -218,7 +222,7 @@ export const ObservationMarker: React.FC<ObservationMarkerProps> = ({
                   className="flex-1"
                 >
                   <Edit2 className="w-4 h-4 mr-2" />
-                  {isArabic ? 'تعديل' : 'Edit'}
+                  {isArabic ? "تعديل" : "Edit"}
                 </Button>
               )}
               {onDelete && (
@@ -229,7 +233,7 @@ export const ObservationMarker: React.FC<ObservationMarkerProps> = ({
                   className="flex-1 text-red-600 hover:bg-red-50 hover:border-red-300"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  {isArabic ? 'حذف' : 'Delete'}
+                  {isArabic ? "حذف" : "Delete"}
                 </Button>
               )}
             </div>

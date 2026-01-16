@@ -88,18 +88,21 @@ A comprehensive crop rotation planning tool has been added to the SAHOOL platfor
 ## Features Implemented
 
 ### 1. Crop Rotation Planning
+
 - Generate 5-year rotation plans
 - Optimize for soil health and disease prevention
 - Consider nitrogen balance
 - Evaluate diversity
 
 ### 2. Crop Suggestions
+
 - Suggest next crop based on field history
 - Rank by suitability score (0-100)
 - Provide reasons and warnings in Arabic and English
 - Check rotation rule compatibility
 
 ### 3. Rotation Evaluation
+
 - Diversity score (0-100)
 - Soil health score (0-100)
 - Disease risk score (0-100, lower is better)
@@ -107,6 +110,7 @@ A comprehensive crop rotation planning tool has been added to the SAHOOL platfor
 - Recommendations and warnings
 
 ### 4. Rotation Rules
+
 - 15 crop families with specific rules
 - Minimum years between same family
 - Good/bad predecessor families
@@ -116,6 +120,7 @@ A comprehensive crop rotation planning tool has been added to the SAHOOL platfor
 - Nutrient demand (light/medium/heavy)
 
 ### 5. Compatibility Checking
+
 - Check if proposed crop violates rotation rules
 - Assess disease risk from crop sequences
 - Evaluate nitrogen balance impact
@@ -160,6 +165,7 @@ A comprehensive crop rotation planning tool has been added to the SAHOOL platfor
 ## Example Rotation Rules
 
 ### Cereals (Wheat, Barley)
+
 - Min years between: 1
 - Good predecessors: Legumes, fodder, fallow
 - Bad predecessors: Cereals
@@ -167,6 +173,7 @@ A comprehensive crop rotation planning tool has been added to the SAHOOL platfor
 - Disease risk: Fusarium (0.3), rust (0.2)
 
 ### Legumes (Faba Bean, Lentil)
+
 - Min years between: 3
 - Good predecessors: Cereals, root crops, brassicas
 - Bad predecessors: Legumes, fodder
@@ -174,6 +181,7 @@ A comprehensive crop rotation planning tool has been added to the SAHOOL platfor
 - Disease risk: Root rot (0.4), fusarium (0.3)
 
 ### Solanaceae (Tomato, Potato, Pepper)
+
 - Min years between: 4
 - Good predecessors: Cereals, legumes, fodder
 - Bad predecessors: Solanaceae, cucurbits
@@ -229,21 +237,25 @@ pytest tests/test_rotation.py -v --cov=src
 ## Integration Points
 
 ### With Field Service
+
 - Retrieve field data and history
 - Store rotation plans
 - Update season status
 
 ### With Agro Advisor
+
 - Get crop requirements
 - Access disease and pest data
 - Fertilizer recommendations
 
 ### With Satellite Service
+
 - Track actual yields
 - Monitor crop health
 - Update season performance
 
 ### With Weather Service
+
 - Optimal planting dates
 - Season timing
 - Climate suitability
@@ -251,6 +263,7 @@ pytest tests/test_rotation.py -v --cov=src
 ## Bilingual Support
 
 All features support both Arabic and English:
+
 - Crop names
 - Recommendations
 - Warnings
@@ -260,6 +273,7 @@ All features support both Arabic and English:
 ## Database Schema
 
 5 tables with proper indexing:
+
 - `rotation_plans`: Main plans with scores
 - `season_plans`: Individual seasons within rotations
 - `field_history`: Historical crop data
@@ -297,6 +311,7 @@ All features support both Arabic and English:
 ## References
 
 This implementation is based on:
+
 - **OneSoil**: Crop rotation planning features
 - **LiteFarm**: Sustainable farming practices
 - **FAO Guidelines**: Crop rotation best practices

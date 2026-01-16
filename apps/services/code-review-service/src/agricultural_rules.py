@@ -419,19 +419,18 @@ class AgriculturalRulesEngine:
         # Rule 2: Units should be documented
         unit_vars = ["area", "weight", "volume", "distance", "flow", "rate"]
         for var in unit_vars:
-            if re.search(rf"\b{var}\b", code, re.IGNORECASE):
-                if not re.search(
-                    rf"{var}.*#.*\b(ha|m2|kg|ton|liter|mm|cm|m)\b|{var}_\w+", code, re.IGNORECASE
-                ):
-                    analysis.add_issue(
-                        AgriculturalIssue(
-                            category="general",
-                            severity="info",
-                            message_en=f"Variable '{var}' should document its unit (ha, m², kg, etc.)",
-                            message_ar=f"يجب توثيق وحدة المتغير '{var}' (هكتار، م²، كجم، إلخ)",
-                        )
+            if re.search(rf"\b{var}\b", code, re.IGNORECASE) and not re.search(
+                rf"{var}.*#.*\b(ha|m2|kg|ton|liter|mm|cm|m)\b|{var}_\w+", code, re.IGNORECASE
+            ):
+                analysis.add_issue(
+                    AgriculturalIssue(
+                        category="general",
+                        severity="info",
+                        message_en=f"Variable '{var}' should document its unit (ha, m², kg, etc.)",
+                        message_ar=f"يجب توثيق وحدة المتغير '{var}' (هكتار، م²، كجم، إلخ)",
                     )
-                    break  # Only report once
+                )
+                break  # Only report once
 
         # Rule 3: Coordinate validation for field boundaries
         if re.search(r"lat|lon|coordinate|geom|polygon|boundary", code, re.IGNORECASE):

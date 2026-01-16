@@ -1,4 +1,5 @@
 # Docker Sequential Build Troubleshooting Guide
+
 ## دليل استكشاف الأخطاء وإصلاحها لبناء Docker المتسلسل
 
 **Last Updated**: 2026-01-02  
@@ -9,6 +10,7 @@
 ## 📋 Overview | نظرة عامة
 
 The sequential build scripts (`docker-one-by-one.sh` and `docker-one-by-one.ps1`) build and start Docker containers one at a time to prevent resource conflicts. This is especially useful on:
+
 - M1/M2 Mac machines
 - Windows systems with limited resources
 - Development environments with memory constraints
@@ -22,6 +24,7 @@ The sequential build scripts (`docker-one-by-one.sh` and `docker-one-by-one.ps1`
 ### 1. Script Not Found or Permission Denied
 
 #### Symptoms
+
 ```bash
 bash: ./docker-one-by-one.sh: Permission denied
 # OR
@@ -29,6 +32,7 @@ bash: ./docker-one-by-one.sh: Permission denied
 ```
 
 #### Solution
+
 ```bash
 # Make the script executable
 chmod +x docker-one-by-one.sh
@@ -43,6 +47,7 @@ ls -l docker-one-by-one.sh
 ### 2. Docker Compose Not Found
 
 #### Symptoms
+
 ```
 ERROR: docker compose command not available
 Please ensure Docker Desktop is installed and running
@@ -51,6 +56,7 @@ Please ensure Docker Desktop is installed and running
 #### Solution
 
 **For Linux:**
+
 ```bash
 # Check if Docker is installed
 docker --version
@@ -64,6 +70,7 @@ docker compose version
 ```
 
 **For macOS:**
+
 ```bash
 # Update Docker Desktop to latest version
 # Download from: https://www.docker.com/products/docker-desktop
@@ -73,6 +80,7 @@ docker compose version
 ```
 
 **For Windows:**
+
 ```powershell
 # Update Docker Desktop to latest version
 # Download from: https://www.docker.com/products/docker-desktop
@@ -86,11 +94,13 @@ docker compose version
 ### 3. docker-compose.yml Not Found
 
 #### Symptoms
+
 ```
 ERROR: docker-compose.yml not found in current directory
 ```
 
 #### Solution
+
 ```bash
 # Ensure you're in the project root
 cd /path/to/sahool-unified-v15-idp
@@ -107,11 +117,13 @@ ls -la docker-compose*.yml
 ### 4. No Services Found
 
 #### Symptoms
+
 ```
 ERROR: No services found in docker-compose.yml
 ```
 
 #### Solution
+
 ```bash
 # Validate docker-compose.yml syntax
 docker compose config
@@ -132,6 +144,7 @@ export COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml
 ### 5. Build Failures
 
 #### Symptoms
+
 ```
 [FAIL] Failed to build: service-name
 Build failed with exit code 1
@@ -140,6 +153,7 @@ Build failed with exit code 1
 #### Solutions
 
 **Check Build Logs:**
+
 ```bash
 # View detailed build output for specific service
 docker compose build service-name --progress=plain
@@ -151,6 +165,7 @@ docker compose build service-name --progress=plain
 ```
 
 **Clear Build Cache:**
+
 ```bash
 # Remove all cached layers
 docker builder prune -af
@@ -161,6 +176,7 @@ docker compose down --rmi all
 ```
 
 **Check Dockerfile:**
+
 ```bash
 # Verify Dockerfile exists for the service
 ls -la path/to/service/Dockerfile
@@ -176,6 +192,7 @@ ls -la path/to/service/Dockerfile
 ### 6. Container Start Failures
 
 #### Symptoms
+
 ```
 [FAIL] Failed to start: service-name
 ```
@@ -183,6 +200,7 @@ ls -la path/to/service/Dockerfile
 #### Solutions
 
 **Check Container Logs:**
+
 ```bash
 # View logs for failed service
 docker compose logs service-name
@@ -194,6 +212,7 @@ docker compose logs service-name
 ```
 
 **Check Port Conflicts:**
+
 ```bash
 # Find what's using the port
 lsof -i :8080  # Replace 8080 with your port
@@ -202,6 +221,7 @@ lsof -i :8080  # Replace 8080 with your port
 ```
 
 **Check Environment Variables:**
+
 ```bash
 # Ensure .env file exists
 ls -la .env
@@ -214,6 +234,7 @@ nano .env
 ```
 
 **Check Dependencies:**
+
 ```bash
 # Ensure dependent services are running
 docker compose ps
@@ -227,6 +248,7 @@ docker compose up -d postgres redis nats
 ### 7. Memory/Resource Issues
 
 #### Symptoms
+
 ```
 ERROR: Container killed due to OOM (Out of Memory)
 # OR
@@ -238,6 +260,7 @@ Build takes extremely long time
 **Increase Docker Resources:**
 
 **For Docker Desktop (Mac/Windows):**
+
 1. Open Docker Desktop Settings
 2. Go to Resources
 3. Increase:
@@ -247,6 +270,7 @@ Build takes extremely long time
 4. Click "Apply & Restart"
 
 **For Linux:**
+
 ```bash
 # Check available memory
 free -h
@@ -256,6 +280,7 @@ free -h
 ```
 
 **Build in Smaller Batches:**
+
 ```bash
 # Build only infrastructure services first
 docker compose build postgres redis nats kong
@@ -272,6 +297,7 @@ docker compose build field-ops-service billing-core
 ### 8. Network Issues During Build
 
 #### Symptoms
+
 ```
 ERROR: Failed to download package
 ERROR: Connection timeout
@@ -280,6 +306,7 @@ ERROR: Connection timeout
 #### Solutions
 
 **Check Internet Connection:**
+
 ```bash
 # Test connectivity
 ping google.com
@@ -289,6 +316,7 @@ docker pull hello-world
 ```
 
 **Configure Docker Proxy (if behind corporate firewall):**
+
 ```bash
 # Create or edit ~/.docker/config.json
 mkdir -p ~/.docker
@@ -306,6 +334,7 @@ EOF
 ```
 
 **Use Docker Buildkit with Cache:**
+
 ```bash
 # Enable BuildKit
 export DOCKER_BUILDKIT=1
@@ -319,11 +348,13 @@ export DOCKER_BUILDKIT=1
 ### 9. PowerShell Execution Policy (Windows)
 
 #### Symptoms
+
 ```
 docker-one-by-one.ps1 cannot be loaded because running scripts is disabled
 ```
 
 #### Solution
+
 ```powershell
 # Check current policy
 Get-ExecutionPolicy
@@ -340,6 +371,7 @@ powershell -ExecutionPolicy Bypass -File .\docker-one-by-one.ps1
 ### 10. Slow Build Performance on M1/M2 Macs
 
 #### Symptoms
+
 - Builds take 10x longer than expected
 - High CPU usage
 - Docker Desktop consuming excessive resources
@@ -347,6 +379,7 @@ powershell -ExecutionPolicy Bypass -File .\docker-one-by-one.ps1
 #### Solutions
 
 **Enable Virtualization Framework:**
+
 1. Open Docker Desktop Settings
 2. Go to General
 3. Enable "Use Virtualization Framework"
@@ -354,6 +387,7 @@ powershell -ExecutionPolicy Bypass -File .\docker-one-by-one.ps1
 5. Restart Docker Desktop
 
 **Use Rosetta 2 Emulation (for x86_64 images):**
+
 ```bash
 # Install Rosetta 2 if not already installed
 softwareupdate --install-rosetta
@@ -363,6 +397,7 @@ softwareupdate --install-rosetta
 ```
 
 **Use Native ARM64 Images:**
+
 ```dockerfile
 # In Dockerfile, prefer ARM64 base images
 FROM --platform=linux/arm64 node:18-alpine
@@ -377,12 +412,14 @@ FROM --platform=linux/arm64 python:3.11-slim
 ### Enable Verbose Output
 
 **For Bash:**
+
 ```bash
 # Run with verbose mode
 bash -x ./docker-one-by-one.sh
 ```
 
 **For PowerShell:**
+
 ```powershell
 # Run with verbose mode
 $VerbosePreference = "Continue"
@@ -498,6 +535,7 @@ docker compose logs > docker-logs.txt
 ### Contact Support
 
 When reporting issues, include:
+
 1. Operating System and version
 2. Docker and Docker Compose versions
 3. Complete error message

@@ -17,6 +17,7 @@ This guide provides step-by-step instructions for setting up all required secret
 GitHub Secrets are encrypted environment variables that you create in a repository. These secrets are used by GitHub Actions workflows to deploy and configure your application securely.
 
 **Security Best Practices:**
+
 - Never commit secrets to your repository
 - Use strong, randomly generated passwords
 - Rotate secrets regularly
@@ -38,19 +39,19 @@ GitHub Secrets are encrypted environment variables that you create in a reposito
 
 Below is a complete list of all required secrets for the SAHOOL platform:
 
-| Secret Name | Description | Environment | Required |
-|-------------|-------------|-------------|----------|
-| `KUBE_CONFIG_STAGING` | Base64 encoded kubeconfig for staging cluster | Staging | Yes |
-| `KUBE_CONFIG_PRODUCTION` | Base64 encoded kubeconfig for production cluster | Production | Yes |
-| `POSTGRES_PASSWORD` | PostgreSQL database password | Both | Yes |
-| `REDIS_PASSWORD` | Redis cache password | Both | Yes |
-| `JWT_SECRET` | JWT token signing secret | Both | Yes |
-| `OPENWEATHER_API_KEY` | OpenWeather API key for weather data | Both | Yes |
-| `SENTINEL_HUB_ID` | Sentinel Hub client ID for satellite imagery | Both | Yes |
-| `SENTINEL_HUB_SECRET` | Sentinel Hub client secret | Both | Yes |
-| `STRIPE_SECRET_KEY` | Stripe payment processing secret key | Production | Yes |
-| `STRIPE_TEST_SECRET_KEY` | Stripe test mode secret key | Staging | Optional |
-| `SLACK_WEBHOOK_URL` | Slack webhook URL for notifications | Both | Optional |
+| Secret Name              | Description                                      | Environment | Required |
+| ------------------------ | ------------------------------------------------ | ----------- | -------- |
+| `KUBE_CONFIG_STAGING`    | Base64 encoded kubeconfig for staging cluster    | Staging     | Yes      |
+| `KUBE_CONFIG_PRODUCTION` | Base64 encoded kubeconfig for production cluster | Production  | Yes      |
+| `POSTGRES_PASSWORD`      | PostgreSQL database password                     | Both        | Yes      |
+| `REDIS_PASSWORD`         | Redis cache password                             | Both        | Yes      |
+| `JWT_SECRET`             | JWT token signing secret                         | Both        | Yes      |
+| `OPENWEATHER_API_KEY`    | OpenWeather API key for weather data             | Both        | Yes      |
+| `SENTINEL_HUB_ID`        | Sentinel Hub client ID for satellite imagery     | Both        | Yes      |
+| `SENTINEL_HUB_SECRET`    | Sentinel Hub client secret                       | Both        | Yes      |
+| `STRIPE_SECRET_KEY`      | Stripe payment processing secret key             | Production  | Yes      |
+| `STRIPE_TEST_SECRET_KEY` | Stripe test mode secret key                      | Staging     | Optional |
+| `SLACK_WEBHOOK_URL`      | Slack webhook URL for notifications              | Both        | Optional |
 
 ## Kubernetes Configuration Secrets
 
@@ -72,6 +73,7 @@ chmod +x scripts/generate-kubeconfig.sh
 ```
 
 The script will output:
+
 - The base64 encoded kubeconfig
 - Instructions for adding to GitHub
 - Suggested secret name
@@ -79,6 +81,7 @@ The script will output:
 #### Method 2: Manual Generation
 
 **Step 1: Switch to the correct cluster context**
+
 ```bash
 # For staging
 kubectl config use-context staging-cluster
@@ -88,12 +91,14 @@ kubectl config use-context production-cluster
 ```
 
 **Step 2: Generate kubeconfig file**
+
 ```bash
 # Get current context config
 kubectl config view --minify --flatten > kubeconfig-staging.yaml
 ```
 
 **Step 3: Encode to base64**
+
 ```bash
 # Linux/Mac
 cat kubeconfig-staging.yaml | base64 -w 0 > kubeconfig-staging-base64.txt
@@ -102,16 +107,19 @@ cat kubeconfig-staging.yaml | base64 -w 0 > kubeconfig-staging-base64.txt
 ```
 
 **Step 4: Add to GitHub**
+
 - Secret Name: `KUBE_CONFIG_STAGING`
 - Secret Value: Content of `kubeconfig-staging-base64.txt`
 
 **Step 5: Clean up**
+
 ```bash
 # Remove temporary files
 rm kubeconfig-staging.yaml kubeconfig-staging-base64.txt
 ```
 
 **Repeat for production:**
+
 - Secret Name: `KUBE_CONFIG_PRODUCTION`
 
 #### Verifying Kubeconfig
@@ -139,10 +147,12 @@ openssl rand -base64 32
 ```
 
 **Add to GitHub:**
+
 - Secret Name: `POSTGRES_PASSWORD`
 - Secret Value: The generated password
 
 **Important Notes:**
+
 - Use the same password for both staging and production, OR
 - Create separate secrets: `POSTGRES_PASSWORD_STAGING` and `POSTGRES_PASSWORD_PRODUCTION`
 - Keep this password secure - it protects all your data
@@ -158,10 +168,12 @@ openssl rand -base64 32
 ```
 
 **Add to GitHub:**
+
 - Secret Name: `REDIS_PASSWORD`
 - Secret Value: The generated password
 
 **Important Notes:**
+
 - Redis password is used for cache authentication
 - Can use separate passwords for staging/production if needed
 
@@ -175,10 +187,12 @@ openssl rand -base64 64
 ```
 
 **Add to GitHub:**
+
 - Secret Name: `JWT_SECRET`
 - Secret Value: The generated secret
 
 **Important Notes:**
+
 - This secret signs all authentication tokens
 - **NEVER** share or expose this secret
 - Changing this will invalidate all existing user sessions
@@ -197,10 +211,12 @@ openssl rand -base64 64
 5. Wait for activation (can take up to 2 hours)
 
 **Add to GitHub:**
+
 - Secret Name: `OPENWEATHER_API_KEY`
 - Secret Value: Your API key (e.g., `abc123def456...`)
 
 **Usage Notes:**
+
 - Free tier: 60 calls/minute, 1,000,000 calls/month
 - Used for weather data in agricultural planning
 - Same key can be used for staging and production
@@ -216,6 +232,7 @@ openssl rand -base64 64
 5. Copy the Client ID and Client Secret
 
 **Add to GitHub:**
+
 - Secret Name: `SENTINEL_HUB_ID`
 - Secret Value: Your client ID
 
@@ -223,6 +240,7 @@ openssl rand -base64 64
 - Secret Value: Your client secret
 
 **Usage Notes:**
+
 - Used for satellite imagery and land analysis
 - Free tier available with limited processing units
 - Consider separate credentials for staging and production
@@ -237,16 +255,19 @@ openssl rand -base64 64
 4. Copy the **Secret key** (starts with `sk_`)
 
 **For Production:**
+
 - Use the **Live mode** secret key
 - Secret Name: `STRIPE_SECRET_KEY`
 - Secret Value: Your live secret key (e.g., `sk_live_...`)
 
 **For Staging:**
+
 - Use the **Test mode** secret key
 - Secret Name: `STRIPE_TEST_SECRET_KEY`
 - Secret Value: Your test secret key (e.g., `sk_test_...`)
 
 **Important Notes:**
+
 - **NEVER** expose the secret key in client-side code
 - Use test mode for staging/development
 - Monitor Stripe dashboard for suspicious activity
@@ -265,16 +286,19 @@ openssl rand -base64 64
 7. Copy the webhook URL
 
 **Add to GitHub:**
+
 - Secret Name: `SLACK_WEBHOOK_URL`
 - Secret Value: Your webhook URL (e.g., `https://hooks.slack.com/services/...`)
 
 **Usage Notes:**
+
 - Used for deployment notifications and alerts
 - Can use the same webhook for staging and production, OR
 - Create separate webhooks: `SLACK_WEBHOOK_STAGING` and `SLACK_WEBHOOK_PRODUCTION`
 - Test the webhook before deploying
 
 **Testing the Webhook:**
+
 ```bash
 curl -X POST -H 'Content-type: application/json' \
   --data '{"text":"Test message from SAHOOL"}' \
@@ -371,16 +395,19 @@ jobs:
 ### Common Issues
 
 **Secret not found:**
+
 - Verify the secret name matches exactly (case-sensitive)
 - Check that the secret is created in the correct repository
 - Ensure you have permissions to access secrets
 
 **Kubeconfig not working:**
+
 - Verify base64 encoding is correct
 - Check that cluster URL is accessible from GitHub Actions
 - Ensure cluster credentials are still valid
 
 **External API errors:**
+
 - Verify API keys are active
 - Check API rate limits
 - Ensure correct API endpoints are configured
@@ -449,6 +476,7 @@ kubectl rollout status deployment -n sahool-staging
 ## Support
 
 If you encounter issues setting up secrets:
+
 1. Check the troubleshooting section in [INFRASTRUCTURE.md](./INFRASTRUCTURE.md)
 2. Verify you have the correct permissions
 3. Contact the DevOps team

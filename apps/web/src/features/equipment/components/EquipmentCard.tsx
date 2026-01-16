@@ -8,56 +8,59 @@
  * - ARIA labels for screen readers
  */
 
-'use client';
+"use client";
 
-import React, { useMemo } from 'react';
-import Link from 'next/link';
-import type { Equipment } from '../types';
-import { Wrench, Calendar, MapPin, TrendingUp } from 'lucide-react';
+import React, { useMemo } from "react";
+import Link from "next/link";
+import type { Equipment } from "../types";
+import { Wrench, Calendar, MapPin, TrendingUp } from "lucide-react";
 
 interface EquipmentCardProps {
   equipment: Equipment;
 }
 
 const statusColors = {
-  active: 'bg-green-100 text-green-800',
-  maintenance: 'bg-yellow-100 text-yellow-800',
-  repair: 'bg-orange-100 text-orange-800',
-  idle: 'bg-gray-100 text-gray-800',
-  retired: 'bg-red-100 text-red-800',
+  active: "bg-green-100 text-green-800",
+  maintenance: "bg-yellow-100 text-yellow-800",
+  repair: "bg-orange-100 text-orange-800",
+  idle: "bg-gray-100 text-gray-800",
+  retired: "bg-red-100 text-red-800",
 };
 
 const statusLabels = {
-  active: 'نشط',
-  maintenance: 'صيانة',
-  repair: 'إصلاح',
-  idle: 'خامل',
-  retired: 'متوقف',
+  active: "نشط",
+  maintenance: "صيانة",
+  repair: "إصلاح",
+  idle: "خامل",
+  retired: "متوقف",
 };
 
 const typeLabels = {
-  tractor: 'جرار',
-  harvester: 'حصادة',
-  irrigation_system: 'نظام ري',
-  sprayer: 'رشاش',
-  planter: 'آلة زراعة',
-  other: 'أخرى',
+  tractor: "جرار",
+  harvester: "حصادة",
+  irrigation_system: "نظام ري",
+  sprayer: "رشاش",
+  planter: "آلة زراعة",
+  other: "أخرى",
 };
 
-const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => {
+const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({
+  equipment,
+}) => {
   // Memoize maintenance check to avoid Date recreation on every render
-  const maintenanceDue = useMemo(() =>
-    equipment.nextMaintenanceDate
-      ? new Date(equipment.nextMaintenanceDate) < new Date()
-      : false,
-    [equipment.nextMaintenanceDate]
+  const maintenanceDue = useMemo(
+    () =>
+      equipment.nextMaintenanceDate
+        ? new Date(equipment.nextMaintenanceDate) < new Date()
+        : false,
+    [equipment.nextMaintenanceDate],
   );
 
   // Memoize ARIA label for accessibility
   const ariaLabel = useMemo(() => {
     const status = statusLabels[equipment.status];
     const type = typeLabels[equipment.type];
-    return `${equipment.nameAr}, ${type}, الحالة: ${status}${maintenanceDue ? ', تنبيه: الصيانة متأخرة' : ''}`;
+    return `${equipment.nameAr}, ${type}, الحالة: ${status}${maintenanceDue ? ", تنبيه: الصيانة متأخرة" : ""}`;
   }, [equipment.nameAr, equipment.status, equipment.type, maintenanceDue]);
 
   return (
@@ -70,7 +73,9 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => 
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900">{equipment.nameAr}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {equipment.nameAr}
+            </h3>
             <p className="text-sm text-gray-500">{equipment.name}</p>
           </div>
           <span
@@ -105,27 +110,30 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => 
           {equipment.location && (
             <div className="flex items-center text-sm text-gray-600">
               <MapPin className="w-4 h-4 ml-2" />
-              <span>{equipment.location.fieldName || 'موقع المعدة'}</span>
+              <span>{equipment.location.fieldName || "موقع المعدة"}</span>
             </div>
           )}
 
           {equipment.nextMaintenanceDate && (
             <div
               className={`flex items-center text-sm ${
-                maintenanceDue ? 'text-red-600' : 'text-gray-600'
+                maintenanceDue ? "text-red-600" : "text-gray-600"
               }`}
             >
               <Calendar className="w-4 h-4 ml-2" />
               <span>
-                الصيانة القادمة:{' '}
-                {new Date(equipment.nextMaintenanceDate).toLocaleDateString('ar-YE')}
+                الصيانة القادمة:{" "}
+                {new Date(equipment.nextMaintenanceDate).toLocaleDateString(
+                  "ar-YE",
+                )}
               </span>
             </div>
           )}
 
           {equipment.totalOperatingHours && (
             <div className="text-sm text-gray-600">
-              ساعات التشغيل: {equipment.totalOperatingHours.toLocaleString('ar-YE')} ساعة
+              ساعات التشغيل:{" "}
+              {equipment.totalOperatingHours.toLocaleString("ar-YE")} ساعة
             </div>
           )}
         </div>
@@ -134,7 +142,10 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => 
         {equipment.assignedTo && (
           <div className="pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500">
-              مُسند إلى: <span className="text-gray-700">{equipment.assignedTo.userName}</span>
+              مُسند إلى:{" "}
+              <span className="text-gray-700">
+                {equipment.assignedTo.userName}
+              </span>
             </p>
           </div>
         )}
@@ -151,6 +162,6 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => 
 
 // Memoize component for performance
 export const EquipmentCard = React.memo(EquipmentCardComponent);
-EquipmentCard.displayName = 'EquipmentCard';
+EquipmentCard.displayName = "EquipmentCard";
 
 export default EquipmentCard;

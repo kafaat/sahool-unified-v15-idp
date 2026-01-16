@@ -372,6 +372,7 @@ testWidgets('Creates task from selected day', (tester) async {
 ### 1. خطأ: لا يظهر الويدجت
 
 **الحل:**
+
 ```dart
 // تأكد من وجود ProviderScope في التطبيق
 void main() {
@@ -386,6 +387,7 @@ void main() {
 ### 2. خطأ: البيانات لا تحمّل
 
 **الحل:**
+
 ```dart
 // تحقق من تكوين API
 // في EnvConfig
@@ -395,6 +397,7 @@ static String get apiBaseUrl => 'https://your-api.com';
 ### 3. خطأ: التاريخ لا يعمل
 
 **الحل:**
+
 ```dart
 // تأكد من تهيئة intl
 import 'package:intl/date_symbol_data_local.dart';
@@ -421,6 +424,7 @@ void main() async {
 ## الدعم والمساعدة
 
 للأسئلة والمشاكل، راجع:
+
 - `astronomical_task_widget_README.md` - الوثائق الكاملة
 - `astronomical_task_widget_example.dart` - أمثلة الاستخدام
 - `/apps/mobile/lib/features/astronomical/` - الميزة الفلكية الأساسية

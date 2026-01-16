@@ -95,7 +95,6 @@ jobs:
   dependency-scan:
     name: Dependency Vulnerability Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
     permissions:
       security-events: write
       actions: read
@@ -113,48 +112,64 @@ jobs:
         run: pip install safety pip-audit
 
       - name: Scan Python dependencies with Safety
-        continue-on-error: true
         run: |
           echo "🔍 Scanning Python dependencies with Safety..."
-          # Note: Safety now requires API key for full functionality
-          SAFETY_ISSUES=0
+
+          CRITICAL_VULNS=0
           for req in $(find . -name "requirements.txt" -type f -not -path "./.git/*" -not -path "./archive/*"); do
             echo "Scanning: $req"
-            safety check -r "$req" --full-report 2>&1 || SAFETY_ISSUES=$((SAFETY_ISSUES + 1))
+            REPORT_FILE="safety-$(echo $req | md5sum | cut -d' ' -f1).json"
+            safety check -r "$req" --json > "$REPORT_FILE" || SAFETY_EXIT=$?
+
+            # Count critical/high vulnerabilities
+            if [ -f "$REPORT_FILE" ]; then
+              VULN_COUNT=$(python3 -c "import json; data=json.load(open('$REPORT_FILE')); print(len([v for v in data.get('vulnerabilities', []) if v.get('severity', '').upper() in ['CRITICAL', 'HIGH']]))" 2>/dev/null || echo "0")
+              CRITICAL_VULNS=$((CRITICAL_VULNS + VULN_COUNT))
+            fi
           done
-          if [ $SAFETY_ISSUES -gt 0 ]; then
-            echo "::warning::Safety found potential issues in $SAFETY_ISSUES requirements files"
+
+          if [ "$CRITICAL_VULNS" -gt 0 ]; then
+            echo "❌ Found $CRITICAL_VULNS critical/high severity vulnerabilities"
+            exit 1
           fi
-          echo "✅ Safety scan completed"
+          echo "✅ Safety scan completed - no critical vulnerabilities"
 
       - name: Scan Python dependencies with pip-audit
-        continue-on-error: true
         run: |
           echo "🔍 Scanning Python dependencies with pip-audit..."
-          AUDIT_ISSUES=0
+
+          CRITICAL_VULNS=0
           for req in $(find . -name "requirements.txt" -type f -not -path "./.git/*" -not -path "./archive/*" | head -10); do
             echo "Auditing: $req"
-            pip-audit -r "$req" 2>&1 || AUDIT_ISSUES=$((AUDIT_ISSUES + 1))
+            REPORT_FILE="audit-$(echo $req | md5sum | cut -d' ' -f1).json"
+            pip-audit -r "$req" --format json -o "$REPORT_FILE" || AUDIT_EXIT=$?
+
+            # Check for vulnerabilities with fixes available
+            if [ -f "$REPORT_FILE" ]; then
+              VULN_COUNT=$(jq '[.dependencies[]?.vulns[]? | select(.fix_versions != null)] | length' "$REPORT_FILE" 2>/dev/null || echo "0")
+              CRITICAL_VULNS=$((CRITICAL_VULNS + VULN_COUNT))
+            fi
           done
-          if [ $AUDIT_ISSUES -gt 0 ]; then
-            echo "::warning::pip-audit found potential issues in $AUDIT_ISSUES requirements files"
+
+          if [ "$CRITICAL_VULNS" -gt 5 ]; then
+            echo "❌ Found $CRITICAL_VULNS vulnerabilities with available fixes - please update dependencies"
+            exit 1
           fi
-          echo "✅ pip-audit scan completed"
+          echo "✅ pip-audit scan completed (found $CRITICAL_VULNS fixable issues)"
 
       - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@0.28.0
         id: trivy
-        continue-on-error: true
         with:
           scan-type: 'fs'
           scan-ref: '.'
           severity: 'CRITICAL,HIGH'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          exit-code: '0'
+          exit-code: '1'
 
       - name: Create empty SARIF if Trivy failed
-        if: always()
+        if: failure()
         run: |
           if [ ! -f "trivy-results.sarif" ]; then
             echo "Creating empty SARIF file..."
@@ -164,7 +179,6 @@ jobs:
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         if: always()
-        continue-on-error: true
         with:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-dependency-scan'
@@ -176,7 +190,6 @@ jobs:
             # Check if there are any results in the SARIF file
             RESULTS=$(cat trivy-results.sarif | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('runs',[{}])[0].get('results',[])))" 2>/dev/null || echo "0")
             if [ "$RESULTS" != "0" ]; then
-              echo "::warning::Trivy found $RESULTS potential security issues"
               echo "## ⚠️ Security Scan Results" >> $GITHUB_STEP_SUMMARY
               echo "Trivy detected $RESULTS potential issues. Please review the Security tab." >> $GITHUB_STEP_SUMMARY
             else
@@ -187,7 +200,6 @@ jobs:
   code-security:
     name: Code Security Analysis (SAST)
     runs-on: ubuntu-latest
-    continue-on-error: true
     permissions:
       security-events: write
       actions: read
@@ -206,20 +218,47 @@ jobs:
       - name: Run Bandit security scan
         run: |
           echo "🔍 Running Bandit security analysis..."
+
           # Check if directories exist and have Python files
           if [ -d "apps/services" ] || [ -d "shared" ]; then
-            bandit -r apps/services/ shared/ -ll -ii --format sarif -o bandit-results.sarif 2>/dev/null || true
-            bandit -r apps/services/ shared/ -ll -ii --format txt 2>/dev/null || true
+            # Run Bandit with JSON output for threshold checking
+            # Exit code 1 means findings, which we check below
+            bandit -r apps/services/ shared/ \
+              -f json \
+              -o bandit-report.json \
+              --severity-level medium \
+              --confidence-level medium \
+              -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" || BANDIT_EXIT=$?
+
+            # Run Bandit with SARIF output for GitHub
+            bandit -r apps/services/ shared/ -ll -ii --format sarif -o bandit-results.sarif \
+              -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" || true
           fi
+
           # Create empty SARIF if file doesn't exist
           if [ ! -f "bandit-results.sarif" ]; then
             echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.0.0"}},"results":[]}]}' > bandit-results.sarif
           fi
 
+          # Fail if high severity issues found
+          if [ -f "bandit-report.json" ]; then
+            HIGH_COUNT=$(python3 -c "import json; data=json.load(open('bandit-report.json')); print(len([r for r in data.get('results', []) if r.get('issue_severity') == 'HIGH']))" 2>/dev/null || echo "0")
+
+            echo "High severity issues: $HIGH_COUNT"
+
+            if [ "$HIGH_COUNT" -gt 0 ]; then
+              echo "❌ Found $HIGH_COUNT high severity security issues"
+              bandit -r apps/services/ shared/ -ll -ii --format txt \
+                -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*"
+              exit 1
+            fi
+          fi
+
+          echo "✅ Bandit scan passed"
+
       - name: Upload Bandit SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         if: always()
-        continue-on-error: true
         with:
           sarif_file: bandit-results.sarif
           category: 'bandit-sast'
@@ -227,10 +266,27 @@ jobs:
       - name: Run Semgrep SAST
         run: |
           echo "🔍 Running Semgrep SAST..."
+
           # Check if directories exist
           if [ -d "apps/services" ] || [ -d "shared" ]; then
-            # Use specific rulesets instead of auto for faster execution
-            # Focus on security-critical rules only
+            # Run with JSON for analysis
+            # Exit code 1 means findings, which we check below
+            semgrep --config=p/python \
+                    --config=p/security-audit \
+                    --config=p/secrets \
+                    --severity=ERROR \
+                    --severity=WARNING \
+                    --exclude="**/test_*.py" \
+                    --exclude="**/*_test.py" \
+                    --exclude="**/tests/**" \
+                    --exclude="**/node_modules/**" \
+                    --exclude="**/__pycache__/**" \
+                    --timeout=300 \
+                    --jobs=4 \
+                    --json -o semgrep-report.json \
+                    apps/services/ shared/ || SEMGREP_EXIT=$?
+
+            # Run with SARIF for GitHub
             semgrep --config=p/python \
                     --config=p/security-audit \
                     --config=p/secrets \
@@ -244,17 +300,31 @@ jobs:
                     --timeout=300 \
                     --jobs=4 \
                     --sarif -o semgrep-results.sarif \
-                    apps/services/ shared/ 2>/dev/null || true
+                    apps/services/ shared/ || true
           fi
+
           # Create empty SARIF if file doesn't exist
           if [ ! -f "semgrep-results.sarif" ]; then
             echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Semgrep","version":"1.0.0"}},"results":[]}]}' > semgrep-results.sarif
           fi
 
+          # Check for ERROR severity findings
+          if [ -f "semgrep-report.json" ]; then
+            ERROR_COUNT=$(python3 -c "import json; data=json.load(open('semgrep-report.json')); print(len([r for r in data.get('results', []) if r.get('extra', {}).get('severity') == 'ERROR']))" 2>/dev/null || echo "0")
+
+            echo "Error severity findings: $ERROR_COUNT"
+
+            if [ "$ERROR_COUNT" -gt 0 ]; then
+              echo "❌ Found $ERROR_COUNT error severity security issues"
+              exit 1
+            fi
+          fi
+
+          echo "✅ Semgrep scan passed"
+
       - name: Upload Semgrep SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         if: always()
-        continue-on-error: true
         with:
           sarif_file: semgrep-results.sarif
           category: 'semgrep-sast'
@@ -267,6 +337,8 @@ jobs:
           path: |
             bandit-results.sarif
             semgrep-results.sarif
+            bandit-report.json
+            semgrep-report.json
           retention-days: 30
 
   container-scan:

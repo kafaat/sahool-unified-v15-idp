@@ -1,4 +1,5 @@
 # تحليل شامل لمخططات قواعد البيانات والهجرات
+
 ## منصة سهول الموحدة v15 IDP
 
 **تاريخ التحليل:** 2025-12-24
@@ -35,6 +36,7 @@
 تم التعرف على **70+ جدول** عبر المنصة:
 
 #### الجداول الأساسية (Core Tables):
+
 - `tenants` - المستأجرين/المنظمات
 - `users` - المستخدمين
 - `fields` - الحقول الزراعية ⚠️ **تعارض**
@@ -42,6 +44,7 @@
 - `crops` - المحاصيل
 
 #### جداول البحث العلمي (Research):
+
 - `experiments` - التجارب
 - `research_protocols` - البروتوكولات
 - `research_plots` - قطع التجارب
@@ -51,12 +54,14 @@
 - `digital_signatures` - التوقيعات الرقمية
 
 #### جداول NDVI والأقمار الصناعية:
+
 - `ndvi_observations` - مشاهدات NDVI
 - `ndvi_alerts` - تنبيهات NDVI
 - `ndvi_records` - سجلات NDVI ⚠️ **تعارض مع ndvi_readings**
 - `ndvi_readings` - قراءات NDVI ⚠️ **تعارض**
 
 #### جداول السوق (Marketplace):
+
 - `products` - المنتجات
 - `orders` - الطلبات
 - `order_items` - عناصر الطلب
@@ -65,28 +70,34 @@
 - `loans` - القروض
 
 #### جداول المحادثات (Chat):
+
 - `chat_threads` - خيوط المحادثات
 - `chat_messages` - الرسائل
 - `chat_participants` - المشاركون
 - `chat_attachments` - المرفقات
 
 #### جداول IoT:
+
 - `iot_devices` - أجهزة إنترنت الأشياء
 - `iot_readings` - قراءات المستشعرات
 
 #### جداول المهام والتنبيهات:
+
 - `tasks` - المهام ⚠️ **تعارض**
 - `alerts` - التنبيهات
 - `notification_log` - سجل الإشعارات
 
 #### جداول الطقس:
+
 - `weather_records` - سجلات الطقس
 - `weather_forecasts` - توقعات الطقس
 
 #### جداول الأنواء:
+
 - `anwa_events` - أحداث الأنواء
 
 #### جداول المزامنة والتدقيق:
+
 - `sync_status` - حالة المزامنة ⚠️ **تعارض**
 - `audit_logs` - سجلات التدقيق ⚠️ **تعارض**
 - `outbox_events` - أحداث Outbox Pattern
@@ -100,11 +111,13 @@
 تم اكتشاف **تعارضات خطيرة** بين الخدمات المختلفة:
 
 #### 🔴 **تعارض حرج: جدول `fields`**
+
 - **الموقع 1:** `/infra/postgres/init/00-init-sahool.sql` (SQL الخام)
 - **الموقع 2:** Field Core Prisma (`/apps/services/field-core/prisma/schema.prisma`)
 - **الموقع 3:** Field Suite SQLAlchemy (`/packages/field_suite/spatial/orm_models.py`)
 
 **المشكلة:**
+
 - نفس اسم الجدول `fields` معرف في 3 أماكن مختلفة
 - احتمال تضارب في البنية (Schema Collision)
 - مخططات مختلفة للأعمدة قد تؤدي إلى فشل في التهيئة
@@ -114,10 +127,12 @@
 ---
 
 #### 🔴 **تعارض: جدول `tasks`**
+
 - **الموقع 1:** `/infra/postgres/init/00-init-sahool.sql`
 - **الموقع 2:** Field Core Prisma
 
 **المشكلة:**
+
 - تعريف مزدوج لجدول المهام
 - احتمال اختلاف في الأعمدة والقيود
 
@@ -126,6 +141,7 @@
 ---
 
 #### 🟡 **تعارض: جدول `ndvi_readings`**
+
 - **الموقع 1:** `/infra/postgres/init/00-init-sahool.sql`
 - **الموقع 2:** Field Core Prisma
 
@@ -136,6 +152,7 @@
 ---
 
 #### 🟡 **تعارض: جدول `sync_status`**
+
 - **الموقع 1:** `/infra/postgres/init/00-init-sahool.sql`
 - **الموقع 2:** Field Core Prisma
 
@@ -144,6 +161,7 @@
 ---
 
 #### 🟡 **تعارض: جدول `field_boundary_history`**
+
 - **الموقع 1:** `/infra/postgres/init/00-init-sahool.sql`
 - **الموقع 2:** Field Core Prisma
 
@@ -152,10 +170,12 @@
 ---
 
 #### 🟡 **تعارض: جدول `audit_logs`**
+
 - **الموقع 1:** `/infra/postgres/init/00-init-sahool.sql`
 - **الموقع 2:** Audit SQLAlchemy (`/shared/libs/audit/models.py`)
 
 **المشكلة:**
+
 - بنية مختلفة للأعمدة
 - الجدول في SQL الخام لا يحتوي على hash chain
 - الجدول في SQLAlchemy يحتوي على `prev_hash` و `entry_hash` للحماية من التلاعب
@@ -165,6 +185,7 @@
 ---
 
 #### 🟢 **تعارض محتمل: جدول `farms`**
+
 - **الموقع 1:** `/infra/postgres/migrations/002_base_tables.sql` (في schema `geo.farms`)
 - **الموقع 2:** Field Suite SQLAlchemy (في schema `public.farms`)
 
@@ -175,7 +196,9 @@
 ---
 
 #### 🟡 **تكرار كامل للجداول البحثية**
+
 الجداول التالية **معرفة مرتين** تماماً:
+
 - `experiments`
 - `research_protocols`
 - `research_plots`
@@ -194,6 +217,7 @@
 ---
 
 #### 🟡 **تكرار كامل لجداول السوق**
+
 - `products`
 - `orders`
 - `order_items`
@@ -209,6 +233,7 @@
 ---
 
 #### 🟡 **تكرار كامل لجداول المحادثات**
+
 - `chat_threads`
 - `chat_messages`
 - `chat_participants`
@@ -228,6 +253,7 @@
 تم اكتشاف **مراجع مباشرة** بين الخدمات تنتهك مبدأ Database-per-Service:
 
 #### **Field Core → Users Service**
+
 ```prisma
 // في Field Core Prisma
 field_id UUID REFERENCES fields(id)
@@ -239,6 +265,7 @@ owner_id UUID  // يشير إلى users من خدمة أخرى بدون foreign 
 ---
 
 #### **Research Core → Fields/Farms**
+
 ```prisma
 // في Research Core
 farmId String? @map("farm_id")  // لا توجد relation معرفة
@@ -249,6 +276,7 @@ farmId String? @map("farm_id")  // لا توجد relation معرفة
 ---
 
 #### **Marketplace → Users**
+
 ```prisma
 // في Marketplace
 sellerId String @map("seller_id")  // يشير إلى users
@@ -260,6 +288,7 @@ buyerId  String @map("buyer_id")   // يشير إلى users
 ---
 
 #### **Tasks → Fields**
+
 ```sql
 -- في جدول tasks
 field_id UUID REFERENCES fields(id) ON DELETE SET NULL
@@ -277,6 +306,7 @@ field_id UUID REFERENCES fields(id) ON DELETE SET NULL
 
 **السلبيات:**
 ⚠️ **عدم اتساق في نوع البيانات:**
+
 - بعض الجداول: `tenant_id UUID`
 - بعض الجداول: `tenant_id VARCHAR(100)`
 
@@ -289,22 +319,26 @@ field_id UUID REFERENCES fields(id) ON DELETE SET NULL
 ### 🔴 4.1 فهارس حرجة مفقودة
 
 #### **جدول `ndvi_observations`**
+
 ```sql
 ✅ موجود: INDEX ix_ndvi_field_date (field_id, obs_date)
 ✅ موجود: INDEX ix_ndvi_tenant_date (tenant_id, obs_date)
 ✅ موجود: UNIQUE INDEX uq_ndvi_field_date_source
 ```
+
 **الحالة:** ✅ جيدة
 
 ---
 
 #### **جدول `chat_messages`**
+
 ```sql
 ✅ موجود: INDEX idx_messages_thread (thread_id, created_at)
 ❌ مفقود: INDEX على sender_id منفرداً (للاستعلام عن رسائل المستخدم)
 ```
 
 **التوصية:**
+
 ```sql
 CREATE INDEX idx_chat_messages_sender ON chat_messages(sender_id, created_at);
 ```
@@ -312,6 +346,7 @@ CREATE INDEX idx_chat_messages_sender ON chat_messages(sender_id, created_at);
 ---
 
 #### **جدول `transactions`**
+
 ```sql
 ✅ موجود: INDEX idx_transactions_wallet
 ❌ مفقود: INDEX على (wallet_id, created_at) للاستعلامات الزمنية
@@ -319,6 +354,7 @@ CREATE INDEX idx_chat_messages_sender ON chat_messages(sender_id, created_at);
 ```
 
 **التوصية:**
+
 ```sql
 CREATE INDEX idx_transactions_wallet_date ON transactions(wallet_id, created_at);
 CREATE INDEX idx_transactions_reference ON transactions(reference_id);
@@ -327,6 +363,7 @@ CREATE INDEX idx_transactions_reference ON transactions(reference_id);
 ---
 
 #### **جدول `research_data_points`**
+
 ```sql
 ✅ موجود: INDEX idx_data_points_experiment
 ✅ موجود: INDEX idx_data_points_plot
@@ -335,6 +372,7 @@ CREATE INDEX idx_transactions_reference ON transactions(reference_id);
 ```
 
 **التوصية:**
+
 ```sql
 CREATE INDEX idx_data_points_analysis ON research_data_points(
     experiment_id, parameter_code, measurement_date
@@ -344,6 +382,7 @@ CREATE INDEX idx_data_points_analysis ON research_data_points(
 ---
 
 #### **جدول `iot_readings`**
+
 ```sql
 ✅ موجود: INDEX idx_iot_readings_device
 ❌ مفقود: INDEX على (tenant_id, recorded_at) للاستعلامات على مستوى المستأجر
@@ -351,6 +390,7 @@ CREATE INDEX idx_data_points_analysis ON research_data_points(
 ```
 
 **التوصية:**
+
 ```sql
 CREATE INDEX idx_iot_readings_tenant_time ON iot_readings(tenant_id, recorded_at DESC);
 
@@ -364,11 +404,13 @@ WHERE recorded_at > NOW() - INTERVAL '30 days';
 ### 🟡 4.2 فهارس GIST مفقودة للجداول الجغرافية
 
 #### **جدول `research_plots`**
+
 ```sql
 ❌ مفقود: GIST INDEX على boundary و centroid
 ```
 
 **التوصية:**
+
 ```sql
 CREATE INDEX idx_research_plots_boundary ON research_plots USING GIST(boundary);
 CREATE INDEX idx_research_plots_centroid ON research_plots USING GIST(centroid);
@@ -381,24 +423,27 @@ CREATE INDEX idx_research_plots_centroid ON research_plots USING GIST(centroid);
 ### 🔴 5.1 عدم اتساق أنواع البيانات
 
 #### **مشكلة: tenant_id**
-| الجدول | النوع |
-|--------|-------|
-| infra SQL | `UUID` |
+
+| الجدول            | النوع          |
+| ----------------- | -------------- |
+| infra SQL         | `UUID`         |
 | Field Core Prisma | `VARCHAR(100)` |
-| Chat Tortoise | `VARCHAR(64)` |
+| Chat Tortoise     | `VARCHAR(64)`  |
 
 **التأثير:** 🔥 **حرج - قد يمنع JOINs والمقارنات**
 
 ---
 
 #### **مشكلة: أنواع الـGeometry**
-| الجدول | النوع |
-|--------|-------|
-| fields (infra SQL) | `GEOMETRY(POLYGON, 4326)` |
+
+| الجدول                     | النوع                      |
+| -------------------------- | -------------------------- |
+| fields (infra SQL)         | `GEOMETRY(POLYGON, 4326)`  |
 | research_plots (infra SQL) | `GEOGRAPHY(POLYGON, 4326)` |
-| Field Suite | `geometry(Polygon, 4326)` |
+| Field Suite                | `geometry(Polygon, 4326)`  |
 
 **الفرق:**
+
 - `GEOMETRY`: يعامل الإحداثيات كـCartesian (x, y)
 - `GEOGRAPHY`: يعامل الإحداثيات كـSpherical (lat, lon) - أدق للحسابات الجغرافية
 
@@ -407,11 +452,12 @@ CREATE INDEX idx_research_plots_centroid ON research_plots USING GIST(centroid);
 ---
 
 #### **مشكلة: NDVI value precision**
-| الجدول | النوع |
-|--------|-------|
-| ndvi_observations | `DECIMAL(4,3)` - نطاق: -1.000 إلى 1.000 |
-| ndvi_records | `DECIMAL(6,4)` - نطاق: -10.0000 إلى 10.0000 |
-| fields.ndvi_value (infra) | `DECIMAL(5,4)` |
+
+| الجدول                    | النوع                                       |
+| ------------------------- | ------------------------------------------- |
+| ndvi_observations         | `DECIMAL(4,3)` - نطاق: -1.000 إلى 1.000     |
+| ndvi_records              | `DECIMAL(6,4)` - نطاق: -10.0000 إلى 10.0000 |
+| fields.ndvi_value (infra) | `DECIMAL(5,4)`                              |
 
 **التأثير:** 🟢 **منخفض - لكن يفضل التوحيد**
 
@@ -420,6 +466,7 @@ CREATE INDEX idx_research_plots_centroid ON research_plots USING GIST(centroid);
 ### 🟡 5.2 عدم اتساق في الـENUMs
 
 #### **مثال: field_status**
+
 ```sql
 -- في infra SQL
 CREATE TYPE field_status AS ENUM ('active', 'fallow', 'preparing', 'harvested', 'archived');
@@ -441,6 +488,7 @@ enum FieldStatus {
 ---
 
 #### **مثال: task_type**
+
 ```sql
 -- في infra SQL
 CREATE TYPE task_type AS ENUM ('irrigation', 'fertilization', 'pesticide', 'harvest', 'planting', 'soil_prep', 'pruning', 'inspection', 'maintenance', 'other');
@@ -466,6 +514,7 @@ enum TaskType {
 ### 🔴 5.3 قيود مفقودة (Missing Constraints)
 
 #### **جدول wallets**
+
 ```sql
 -- لا توجد قيود CHECK على:
 balance >= 0  -- يجب أن يكون الرصيد موجباً
@@ -474,6 +523,7 @@ credit_score BETWEEN 300 AND 850  -- نطاق التصنيف الائتماني
 ```
 
 **التوصية:**
+
 ```sql
 ALTER TABLE wallets ADD CONSTRAINT chk_wallet_balance CHECK (balance >= 0);
 ALTER TABLE wallets ADD CONSTRAINT chk_wallet_loan CHECK (current_loan <= loan_limit);
@@ -483,6 +533,7 @@ ALTER TABLE wallets ADD CONSTRAINT chk_credit_score CHECK (credit_score BETWEEN 
 ---
 
 #### **جدول loans**
+
 ```sql
 -- قيود مفقودة:
 amount > 0
@@ -493,6 +544,7 @@ term_months > 0
 ```
 
 **التوصية:**
+
 ```sql
 ALTER TABLE loans ADD CONSTRAINT chk_loan_amounts CHECK (
     amount > 0 AND
@@ -510,6 +562,7 @@ ALTER TABLE loans ADD CONSTRAINT chk_loan_amounts CHECK (
 ### 🔴 6.1 عدم وجود آلية موحدة لإدارة الهجرات
 
 **المشكلة:**
+
 - **Prisma** يستخدم مجلد `migrations/` الخاص به
 - **Alembic** (SQLAlchemy) يستخدم `versions/` مع تسمية `s{sprint}_{number}`
 - **SQL الخام** في `infra/postgres/` بدون أي tracking تلقائي
@@ -531,6 +584,7 @@ CREATE TABLE IF NOT EXISTS public._migrations (
 ```
 
 **المشكلة:**
+
 - لا يتتبع **checksum** للهجرات
 - لا يتتبع **rollback**
 - لا يدعم **branching**
@@ -542,6 +596,7 @@ CREATE TABLE IF NOT EXISTS public._migrations (
 ### 🟡 6.3 عدم وجود أرقام إصدارات منسقة
 
 **الملاحظات:**
+
 - Alembic: `s7_0001`, `s8_0001` (sprint-based)
 - Prisma: timestamps
 - SQL: `001_`, `002_` (sequential)
@@ -555,6 +610,7 @@ CREATE TABLE IF NOT EXISTS public._migrations (
 ### 🔴 7.1 تبعيات غير موثقة
 
 #### **السلسلة المطلوبة:**
+
 ```
 1. infra/postgres/migrations/001_init_extensions.sql
    ↓ (يُنشئ PostGIS و UUID extensions)
@@ -624,6 +680,7 @@ op.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
 ### ✅ 8.1 توصيات قصيرة المدى (Quick Wins)
 
 #### **1. إنشاء schemas منفصلة لكل خدمة**
+
 ```sql
 -- بدلاً من:
 CREATE TABLE public.fields (...)
@@ -653,6 +710,7 @@ CREATE TABLE chat_service.threads (...);
 ---
 
 #### **2. إنشاء جداول مرجعية مشتركة (Shared Reference Tables)**
+
 ```sql
 CREATE SCHEMA IF NOT EXISTS shared;
 
@@ -675,12 +733,14 @@ CREATE TABLE shared.field_refs (
 ```
 
 **الاستخدام:**
+
 - خدمة Research تشير إلى `shared.field_refs` بدلاً من `field_service.fields`
 - يتم تحديث هذه الجداول عبر **CDC (Change Data Capture)** أو **Event Sourcing**
 
 ---
 
 #### **3. استخدام UUID موحد لـtenant_id**
+
 ```sql
 -- تحويل جميع tenant_id إلى UUID
 ALTER TABLE chat_threads ALTER COLUMN tenant_id TYPE UUID USING tenant_id::UUID;
@@ -692,6 +752,7 @@ ALTER TABLE chat_threads ALTER COLUMN tenant_id TYPE UUID USING tenant_id::UUID;
 #### **4. توحيد ENUMs**
 
 **خيار 1: استخدام جداول lookup**
+
 ```sql
 CREATE TABLE shared.field_statuses (
     code VARCHAR(50) PRIMARY KEY,
@@ -762,14 +823,14 @@ sahool-core-db (PostgreSQL)
 ```javascript
 // مثال: عند تحديث field
 await publishEvent({
-  type: 'field.updated',
+  type: "field.updated",
   tenant_id: field.tenant_id,
   field_id: field.id,
   data: {
     name: field.name,
     status: field.status,
-    updated_at: field.updated_at
-  }
+    updated_at: field.updated_at,
+  },
 });
 
 // خدمة Research تستمع وتحدث shared.field_refs
@@ -814,6 +875,7 @@ async function createOrderSaga(order) {
 #### **1. Migrate to Separate Databases**
 
 **الهدف النهائي:**
+
 ```
 ┌─────────────────────────────────────────┐
 │         API Gateway / BFF               │
@@ -897,7 +959,7 @@ Write Model (Normalized)          Read Model (Denormalized)
 
 13. ℹ️ Functions و Triggers متكررة
 14. ℹ️ عدم اتساق دقة NDVI values
-15. ℹ️ جدول _migrations يدوي يحتاج تحسين
+15. ℹ️ جدول \_migrations يدوي يحتاج تحسين
 
 ---
 
@@ -978,6 +1040,7 @@ ALTER TABLE marketplace_service.wallets ADD CONSTRAINT chk_wallet_balance CHECK 
 ## 11. معايير النجاح (Success Metrics)
 
 ### ✅ **معايير فنية:**
+
 - ✓ صفر تعارضات في أسماء الجداول
 - ✓ 100% اتساق في أنواع البيانات
 - ✓ جميع الفهارس الحرجة موجودة
@@ -985,11 +1048,13 @@ ALTER TABLE marketplace_service.wallets ADD CONSTRAINT chk_wallet_balance CHECK 
 - ✓ آلية موحدة للهجرات
 
 ### ✅ **معايير الأداء:**
+
 - ✓ زمن استجابة الاستعلامات < 100ms (P95)
 - ✓ القدرة على scale الخدمات بشكل مستقل
 - ✓ صفر deadlocks بين الخدمات
 
 ### ✅ **معايير الصيانة:**
+
 - ✓ وثائق كاملة للمخططات
 - ✓ اختبارات integration تلقائية
 - ✓ CI/CD pipeline للهجرات
@@ -1000,15 +1065,15 @@ ALTER TABLE marketplace_service.wallets ADD CONSTRAINT chk_wallet_balance CHECK 
 
 ### 📊 **الوضع الحالي:**
 
-| المعيار | الحالة | التقييم |
-|---------|--------|---------|
-| توحيد المخططات | ❌ | تعارضات متعددة |
-| عزل البيانات | ⚠️ | schemas مشتركة |
-| الفهارس | 🟡 | جيدة جزئياً |
-| سلامة البيانات | ⚠️ | قيود مفقودة |
-| إدارة الهجرات | ❌ | غير موحدة |
-| العلاقات بين الخدمات | ❌ | FK مباشرة |
-| الأداء | 🟡 | جيد مع تحسينات مطلوبة |
+| المعيار              | الحالة | التقييم               |
+| -------------------- | ------ | --------------------- |
+| توحيد المخططات       | ❌     | تعارضات متعددة        |
+| عزل البيانات         | ⚠️     | schemas مشتركة        |
+| الفهارس              | 🟡     | جيدة جزئياً           |
+| سلامة البيانات       | ⚠️     | قيود مفقودة           |
+| إدارة الهجرات        | ❌     | غير موحدة             |
+| العلاقات بين الخدمات | ❌     | FK مباشرة             |
+| الأداء               | 🟡     | جيد مع تحسينات مطلوبة |
 
 ---
 
@@ -1049,12 +1114,14 @@ Database-per-Service with Event Bus
 ## 13. مراجع إضافية
 
 ### 📚 **وثائق ذات صلة:**
+
 - [Database Schemas Documentation](./docs/DATABASE.md)
 - [Migration Guide](./docs/MIGRATIONS.md)
 - [PostGIS Optimization](./docs/infrastructure/POSTGIS_OPTIMIZATION.md)
 - [Comprehensive Review Report (Arabic)](./COMPREHENSIVE_REVIEW_REPORT_AR.md)
 
 ### 🔧 **ملفات المخططات:**
+
 - Field Core: `/apps/services/field-core/prisma/schema.prisma`
 - Research Core: `/apps/services/research-core/prisma/schema.prisma`
 - Marketplace: `/apps/services/marketplace-service/prisma/schema.prisma`
@@ -1062,6 +1129,7 @@ Database-per-Service with Event Bus
 - Field Suite: `/packages/field_suite/spatial/orm_models.py`
 
 ### 🛠️ **ملفات الهجرات:**
+
 - Infra Migrations: `/infra/postgres/migrations/`
 - Infra Init: `/infra/postgres/init/`
 - Alembic Migrations: `*/migrations/versions/`

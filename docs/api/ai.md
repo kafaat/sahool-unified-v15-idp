@@ -1,9 +1,11 @@
 # AI/Analysis APIs
+
 # واجهات برمجة تطبيقات الذكاء الاصطناعي
 
 ## Overview | نظرة عامة
 
 AI and Analysis APIs provide intelligent agricultural advisory and analysis:
+
 - Multi-agent AI system for agricultural questions
 - Crop health analysis and disease detection
 - Yield prediction
@@ -12,6 +14,7 @@ AI and Analysis APIs provide intelligent agricultural advisory and analysis:
 - RAG-based knowledge retrieval
 
 توفر واجهات الذكاء الاصطناعي والتحليل استشارات وتحليلات زراعية ذكية:
+
 - نظام ذكاء اصطناعي متعدد الوكلاء للأسئلة الزراعية
 - تحليل صحة المحاصيل واكتشاف الأمراض
 - التنبؤ بالمحصول
@@ -249,11 +252,7 @@ Analyze crop health from satellite imagery or field data.
 {
   "field_id": "field-123",
   "analysis_date": "2024-01-15",
-  "data_sources": [
-    "ndvi",
-    "field_sensors",
-    "visual_inspection"
-  ]
+  "data_sources": ["ndvi", "field_sensors", "visual_inspection"]
 }
 ```
 
@@ -343,7 +342,7 @@ Predict crop yield based on current conditions.
 ```typescript
 interface QuestionRequest {
   question: string;
-  language: 'en' | 'ar';
+  language: "en" | "ar";
   context?: {
     field_id?: string;
     location?: string;
@@ -362,7 +361,7 @@ interface DiagnosisResult {
     disease_name_en: string;
     disease_name_ar: string;
     confidence: number;
-    severity: 'low' | 'moderate' | 'high' | 'critical';
+    severity: "low" | "moderate" | "high" | "critical";
   };
   treatment: {
     immediate_actions: string[];
@@ -379,4 +378,4 @@ interface DiagnosisResult {
 
 ---
 
-*Last updated: 2026-01-02*
+_Last updated: 2026-01-02_

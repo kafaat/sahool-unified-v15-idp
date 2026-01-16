@@ -14,9 +14,9 @@ export {
   hasAnyPermission,
   hasAllPermissions,
   getPermissionsForRoles,
-} from './permissions';
+} from "./permissions";
 
-export type { Permission, Role } from './permissions';
+export type { Permission, Role } from "./permissions";
 
 // Auth Hook
 export {
@@ -27,6 +27,11 @@ export {
   useHasRole,
   AuthContext,
   createAuthContextValue,
-} from './useAuth';
+} from "./useAuth";
 
-export type { User, AuthState, AuthContextValue, AuthProviderProps } from './useAuth';
+export type {
+  User,
+  AuthState,
+  AuthContextValue,
+  AuthProviderProps,
+} from "./useAuth";

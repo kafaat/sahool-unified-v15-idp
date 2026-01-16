@@ -1,4 +1,5 @@
 # Sahool Community Chat Service - API Documentation
+
 # توثيق خدمة الدردشة الحية لمجتمع سهول
 
 ## 📚 Overview / نظرة عامة
@@ -40,23 +41,28 @@ Once the service is running, you can access the API documentation at:
 بعد تشغيل الخدمة، يمكنك الوصول للتوثيق عبر:
 
 ### Swagger UI (Interactive)
+
 **URL:** http://localhost:8097/api-docs
 
 واجهة Swagger التفاعلية تتيح لك:
+
 - استعراض جميع endpoints
 - اختبار الـ API مباشرة من المتصفح
 - رؤية أمثلة على الطلبات والردود
 - فهم بنية البيانات (schemas)
 
 ### OpenAPI JSON
+
 **URL:** http://localhost:8097/api-docs.json
 
 مواصفات OpenAPI بصيغة JSON لاستخدامها في:
+
 - أدوات توليد الكود (code generators)
 - أدوات الاختبار (testing tools)
 - الاستيراد إلى Postman
 
 ### ReDoc (Alternative UI)
+
 **URL:** http://localhost:8097/redoc
 
 واجهة بديلة أنيقة وسهلة القراءة للتوثيق.
@@ -66,41 +72,41 @@ Once the service is running, you can access the API documentation at:
 ### Client Example / مثال للعميل
 
 ```javascript
-const io = require('socket.io-client');
+const io = require("socket.io-client");
 
 // Connect to service
-const socket = io('http://localhost:8097', {
+const socket = io("http://localhost:8097", {
   auth: {
-    token: 'your-jwt-token-here'
-  }
+    token: "your-jwt-token-here",
+  },
 });
 
 // Handle connection
-socket.on('connect', () => {
-  console.log('Connected:', socket.id);
+socket.on("connect", () => {
+  console.log("Connected:", socket.id);
 
   // Register user
-  socket.emit('register_user', {
-    userId: '12345',
-    userName: 'محمد أحمد',
-    userType: 'farmer',
-    governorate: 'القاهرة'
+  socket.emit("register_user", {
+    userId: "12345",
+    userName: "محمد أحمد",
+    userType: "farmer",
+    governorate: "القاهرة",
   });
 });
 
 // Handle registration confirmation
-socket.on('registration_confirmed', (data) => {
-  console.log('Registered successfully:', data);
+socket.on("registration_confirmed", (data) => {
+  console.log("Registered successfully:", data);
 });
 
 // Handle errors
-socket.on('error', (error) => {
-  console.error('Error:', error);
+socket.on("error", (error) => {
+  console.error("Error:", error);
 });
 
 // Disconnect
-socket.on('disconnect', () => {
-  console.log('Disconnected');
+socket.on("disconnect", () => {
+  console.log("Disconnected");
 });
 ```
 
@@ -122,12 +128,15 @@ All connections require JWT authentication. The token must include:
 ## 📡 REST API Endpoints
 
 ### Health Check
+
 ```http
 GET /healthz
 ```
+
 Check service health and get current statistics.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -141,30 +150,39 @@ Check service health and get current statistics.
 ```
 
 ### Get Support Requests
+
 ```http
 GET /v1/requests?status=pending
 ```
+
 Retrieve support requests, optionally filtered by status.
 
 **Query Parameters:**
+
 - `status` (optional): `pending`, `active`, `resolved`, `closed`
 
 ### Get Room Messages
+
 ```http
 GET /v1/rooms/{roomId}/messages
 ```
+
 Get message history for a specific room.
 
 **Path Parameters:**
+
 - `roomId` (required): Room identifier
 
 ### Get Online Experts
+
 ```http
 GET /v1/experts/online
 ```
+
 Get count of currently online experts.
 
 **Response:**
+
 ```json
 {
   "count": 5,
@@ -173,9 +191,11 @@ Get count of currently online experts.
 ```
 
 ### Get Statistics
+
 ```http
 GET /v1/stats
 ```
+
 Get comprehensive service statistics.
 
 ## 🎯 WebSocket Events
@@ -183,164 +203,180 @@ Get comprehensive service statistics.
 ### Client → Server Events
 
 #### register_user
+
 Register user on connection.
 
 ```javascript
-socket.emit('register_user', {
-  userId: '12345',
-  userName: 'محمد أحمد',
-  userType: 'farmer',
-  governorate: 'القاهرة'
+socket.emit("register_user", {
+  userId: "12345",
+  userName: "محمد أحمد",
+  userType: "farmer",
+  governorate: "القاهرة",
 });
 ```
 
 #### join_room
+
 Join a chat room.
 
 ```javascript
-socket.emit('join_room', {
-  roomId: 'support_12345_1735295400000',
-  userName: 'محمد أحمد',
-  userType: 'farmer'
+socket.emit("join_room", {
+  roomId: "support_12345_1735295400000",
+  userName: "محمد أحمد",
+  userType: "farmer",
 });
 ```
 
 #### send_message
+
 Send a message to a room.
 
 ```javascript
-socket.emit('send_message', {
-  roomId: 'support_12345_1735295400000',
-  author: 'محمد أحمد',
-  authorType: 'farmer',
-  message: 'السلام عليكم، أحتاج استشارة',
-  attachments: []
+socket.emit("send_message", {
+  roomId: "support_12345_1735295400000",
+  author: "محمد أحمد",
+  authorType: "farmer",
+  message: "السلام عليكم، أحتاج استشارة",
+  attachments: [],
 });
 ```
 
 #### typing_start / typing_stop
+
 Indicate typing status.
 
 ```javascript
-socket.emit('typing_start', {
-  roomId: 'support_12345_1735295400000',
-  userName: 'محمد أحمد'
+socket.emit("typing_start", {
+  roomId: "support_12345_1735295400000",
+  userName: "محمد أحمد",
 });
 ```
 
 #### request_expert
+
 Farmer requests expert assistance.
 
 ```javascript
-socket.emit('request_expert', {
-  farmerId: '12345',
-  farmerName: 'محمد أحمد',
-  governorate: 'القاهرة',
-  topic: 'مرض في نباتات الطماطم',
-  diagnosisId: 'diag_98765'
+socket.emit("request_expert", {
+  farmerId: "12345",
+  farmerName: "محمد أحمد",
+  governorate: "القاهرة",
+  topic: "مرض في نباتات الطماطم",
+  diagnosisId: "diag_98765",
 });
 ```
 
 #### accept_request
+
 Expert accepts a support request.
 
 ```javascript
-socket.emit('accept_request', {
-  roomId: 'support_12345_1735295400000',
-  expertId: 'expert_123',
-  expertName: 'د. أحمد الخبير'
+socket.emit("accept_request", {
+  roomId: "support_12345_1735295400000",
+  expertId: "expert_123",
+  expertName: "د. أحمد الخبير",
 });
 ```
 
 #### leave_room
+
 Leave a chat room.
 
 ```javascript
-socket.emit('leave_room', {
-  roomId: 'support_12345_1735295400000',
-  userName: 'محمد أحمد'
+socket.emit("leave_room", {
+  roomId: "support_12345_1735295400000",
+  userName: "محمد أحمد",
 });
 ```
 
 ### Server → Client Events
 
 #### registration_confirmed
+
 Confirmation of successful registration.
 
 ```javascript
-socket.on('registration_confirmed', (data) => {
+socket.on("registration_confirmed", (data) => {
   // { success: true, socketId: 'abc123', onlineExperts: 5 }
 });
 ```
 
 #### load_history
+
 Receive room message history when joining.
 
 ```javascript
-socket.on('load_history', (messages) => {
+socket.on("load_history", (messages) => {
   // Array of message objects
 });
 ```
 
 #### receive_message
+
 Receive a new message in a room.
 
 ```javascript
-socket.on('receive_message', (message) => {
+socket.on("receive_message", (message) => {
   // Message object with id, author, content, timestamp, etc.
 });
 ```
 
 #### user_joined / user_left
+
 Notification when users join or leave a room.
 
 ```javascript
-socket.on('user_joined', (data) => {
+socket.on("user_joined", (data) => {
   // { userName: 'محمد', userType: 'farmer', time: '...' }
 });
 ```
 
 #### user_typing
+
 Typing indicator for room participants.
 
 ```javascript
-socket.on('user_typing', (data) => {
+socket.on("user_typing", (data) => {
   // { userName: 'محمد', isTyping: true }
 });
 ```
 
 #### expert_online / expert_offline
+
 Expert presence notifications.
 
 ```javascript
-socket.on('expert_online', (data) => {
+socket.on("expert_online", (data) => {
   // { expertId: 'expert_123', expertName: 'د. أحمد' }
 });
 ```
 
 #### new_support_request
+
 Broadcast to all experts about new support request.
 
 ```javascript
-socket.on('new_support_request', (request) => {
+socket.on("new_support_request", (request) => {
   // Support request object
 });
 ```
 
 #### expert_joined
+
 Notification that expert has joined a support session.
 
 ```javascript
-socket.on('expert_joined', (data) => {
+socket.on("expert_joined", (data) => {
   // { expertId: '...', expertName: '...', message: '...' }
 });
 ```
 
 #### error
+
 Error notifications.
 
 ```javascript
-socket.on('error', (error) => {
+socket.on("error", (error) => {
   // { code: 'ACCESS_DENIED', message: 'لا يمكنك الوصول لهذه الغرفة' }
 });
 ```
@@ -348,22 +384,26 @@ socket.on('error', (error) => {
 ## 🔒 Security Features / الميزات الأمنية
 
 ### JWT Authentication / مصادقة JWT
+
 - Required for all connections / مطلوبة لجميع الاتصالات
 - Token must be valid and not expired / يجب أن يكون التوكن صالحاً وغير منتهي الصلاحية
 - Subject (sub) and role fields required / حقول sub و role مطلوبة
 
 ### Room Access Control / التحكم بالوصول للغرف
+
 - Support rooms: Only farmer, assigned expert, or admin / غرف الدعم: المزارع أو الخبير المعين أو المشرف فقط
 - Room ID validation / التحقق من معرف الغرفة
 - User type validation / التحقق من نوع المستخدم
 
 ### Message Validation / التحقق من الرسائل
+
 - HTML escaping (XSS prevention) / تجنب HTML لمنع هجمات XSS
 - Message length limits (10,000 chars) / حد أقصى لطول الرسالة (10,000 حرف)
 - Attachment URL validation / التحقق من روابط المرفقات
 - Maximum 10 attachments per message / حد أقصى 10 مرفقات لكل رسالة
 
 ### CORS Protection / حماية CORS
+
 - Configurable allowed origins / أصول مسموحة قابلة للتكوين
 - Credentials support / دعم بيانات الاعتماد
 
@@ -413,6 +453,7 @@ curl http://localhost:8097/v1/rooms/support_12345_1735295400000/messages
 ## 📝 Data Models / نماذج البيانات
 
 ### Message
+
 ```typescript
 {
   id: string;              // UUID
@@ -427,6 +468,7 @@ curl http://localhost:8097/v1/rooms/support_12345_1735295400000/messages
 ```
 
 ### Support Request
+
 ```typescript
 {
   roomId: string;          // Unique room ID
@@ -444,12 +486,13 @@ curl http://localhost:8097/v1/rooms/support_12345_1735295400000/messages
 ```
 
 ### Attachment
+
 ```typescript
 {
-  url: string;             // Must be from allowed domains
-  type: 'image' | 'document' | 'video' | 'audio';
-  name: string;            // Filename
-  size: number;            // Size in bytes
+  url: string; // Must be from allowed domains
+  type: "image" | "document" | "video" | "audio";
+  name: string; // Filename
+  size: number; // Size in bytes
 }
 ```
 
@@ -457,12 +500,12 @@ curl http://localhost:8097/v1/rooms/support_12345_1735295400000/messages
 
 ### Environment Variables / متغيرات البيئة
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `PORT` | Service port | 8097 | No |
-| `JWT_SECRET_KEY` | JWT secret for token verification | - | **Yes** |
-| `CHAT_REQUIRE_AUTH` | Require authentication | true | No |
-| `CORS_ORIGINS` | Allowed CORS origins (comma-separated) | See code | No |
+| Variable            | Description                            | Default  | Required |
+| ------------------- | -------------------------------------- | -------- | -------- |
+| `PORT`              | Service port                           | 8097     | No       |
+| `JWT_SECRET_KEY`    | JWT secret for token verification      | -        | **Yes**  |
+| `CHAT_REQUIRE_AUTH` | Require authentication                 | true     | No       |
+| `CORS_ORIGINS`      | Allowed CORS origins (comma-separated) | See code | No       |
 
 ### Production Recommendations / توصيات الإنتاج
 
@@ -483,15 +526,15 @@ curl http://localhost:8097/v1/rooms/support_12345_1735295400000/messages
 
 ## 🐛 Error Codes / رموز الأخطاء
 
-| Code | Description (EN) | Description (AR) |
-|------|------------------|------------------|
-| `INVALID_ROOM_ID` | Invalid room identifier | معرف الغرفة غير صالح |
-| `INVALID_USERNAME` | Invalid username | اسم المستخدم غير صالح |
-| `INVALID_USER_TYPE` | Invalid user type | نوع المستخدم غير صالح |
-| `INVALID_AUTHOR` | Invalid message author | مؤلف الرسالة غير صالح |
-| `INVALID_MESSAGE` | Invalid message content | محتوى الرسالة غير صالح |
-| `MESSAGE_TOO_LONG` | Message exceeds length limit | الرسالة طويلة جداً |
-| `ACCESS_DENIED` | No permission to access room | لا يمكنك الوصول لهذه الغرفة |
+| Code                | Description (EN)             | Description (AR)            |
+| ------------------- | ---------------------------- | --------------------------- |
+| `INVALID_ROOM_ID`   | Invalid room identifier      | معرف الغرفة غير صالح        |
+| `INVALID_USERNAME`  | Invalid username             | اسم المستخدم غير صالح       |
+| `INVALID_USER_TYPE` | Invalid user type            | نوع المستخدم غير صالح       |
+| `INVALID_AUTHOR`    | Invalid message author       | مؤلف الرسالة غير صالح       |
+| `INVALID_MESSAGE`   | Invalid message content      | محتوى الرسالة غير صالح      |
+| `MESSAGE_TOO_LONG`  | Message exceeds length limit | الرسالة طويلة جداً          |
+| `ACCESS_DENIED`     | No permission to access room | لا يمكنك الوصول لهذه الغرفة |
 
 ## 📞 Support / الدعم
 

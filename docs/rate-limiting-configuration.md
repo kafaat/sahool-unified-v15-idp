@@ -10,13 +10,13 @@ The platform uses the following rate limit tiers defined in `/apps/services/shar
 
 ### Tier Configuration
 
-| Tier | Requests/Min | Requests/Hour | Burst Limit | Use Case |
-|------|--------------|---------------|-------------|----------|
-| **FREE** | 30 | 500 | 5 | Free tier users |
-| **STANDARD** | 60 | 2,000 | 10 | Standard API endpoints |
-| **PREMIUM** | 120 | 5,000 | 20 | Premium users / High-volume endpoints |
-| **INTERNAL** | 1,000 | 50,000 | 100 | Internal service-to-service communication |
-| **UNLIMITED** | ∞ | ∞ | ∞ | No rate limiting (disabled) |
+| Tier          | Requests/Min | Requests/Hour | Burst Limit | Use Case                                  |
+| ------------- | ------------ | ------------- | ----------- | ----------------------------------------- |
+| **FREE**      | 30           | 500           | 5           | Free tier users                           |
+| **STANDARD**  | 60           | 2,000         | 10          | Standard API endpoints                    |
+| **PREMIUM**   | 120          | 5,000         | 20          | Premium users / High-volume endpoints     |
+| **INTERNAL**  | 1,000        | 50,000        | 100         | Internal service-to-service communication |
+| **UNLIMITED** | ∞            | ∞             | ∞           | No rate limiting (disabled)               |
 
 ### Environment Variables
 
@@ -54,6 +54,7 @@ REDIS_URL=redis://redis:6379/0
 **Port:** 8089
 **Rate Limiting:** Enabled
 **Configuration:**
+
 - Uses Redis-backed rate limiting when REDIS_URL is available
 - Excludes webhook endpoints from rate limiting:
   - `/healthz`
@@ -62,6 +63,7 @@ REDIS_URL=redis://redis:6379/0
 - **Tier Strategy:** Default tier function (IP-based, checks internal service header)
 
 **Rationale:**
+
 - Payment endpoints need protection against abuse
 - Webhooks excluded to prevent payment processing delays
 
@@ -72,6 +74,7 @@ REDIS_URL=redis://redis:6379/0
 **Port:** 8115
 **Rate Limiting:** Enabled
 **Configuration:**
+
 - Uses shared rate_limit_middleware with custom rate_limiter
 - Excludes health and monitoring endpoints:
   - `/healthz`
@@ -81,6 +84,7 @@ REDIS_URL=redis://redis:6379/0
 - **Tier Strategy:** Default (checks X-Internal-Service header, X-Rate-Limit-Tier header)
 
 **Rationale:**
+
 - AI advisory endpoints are compute-intensive and costly
 - Need to prevent abuse and control LLM costs
 - Monitoring endpoints excluded for operational visibility
@@ -92,6 +96,7 @@ REDIS_URL=redis://redis:6379/0
 **Port:** 8120
 **Rate Limiting:** Enabled
 **Configuration:**
+
 - Custom tier function based on endpoint type:
   - `/api/v1/analyze`: STANDARD tier (60/min) - Full field analysis is resource-intensive
   - `/api/v1/edge/*`: PREMIUM tier (120/min) - Edge endpoints need higher throughput
@@ -102,6 +107,7 @@ REDIS_URL=redis://redis:6379/0
   - `/api/v1/system/status`
 
 **Rationale:**
+
 - Multi-agent AI analysis is extremely resource-intensive
 - Different endpoints have different resource requirements
 - Edge endpoints (mobile, IoT) need higher limits for real-time operations
@@ -114,6 +120,7 @@ REDIS_URL=redis://redis:6379/0
 **Port:** 8106
 **Rate Limiting:** Enabled
 **Configuration:**
+
 - Custom tier function based on endpoint type:
   - `/sensor/reading`: STANDARD tier (60/min) - Single sensor readings
   - `/sensor/batch`: PREMIUM tier (120/min) - Batch uploads need higher limits
@@ -125,6 +132,7 @@ REDIS_URL=redis://redis:6379/0
   - `/stats`
 
 **Rationale:**
+
 - IoT endpoints are vulnerable to sensor data flooding attacks
 - Batch endpoints need higher limits for efficient data ingestion
 - Device registration and management need protection
@@ -137,10 +145,12 @@ REDIS_URL=redis://redis:6379/0
 **Port:** 8083
 **Rate Limiting:** Enabled
 **Configuration:**
+
 - Uses default rate limiting configuration
 - Standard middleware setup
 
 **Rationale:**
+
 - Field data management needs protection against bulk operations
 - Prevents accidental or malicious mass field creation/updates
 
@@ -151,10 +161,12 @@ REDIS_URL=redis://redis:6379/0
 **Port:** 8084
 **Rate Limiting:** Enabled
 **Configuration:**
+
 - Uses default rate limiting configuration
 - Standard middleware setup
 
 **Rationale:**
+
 - Inventory operations need protection against mass updates
 - Prevents inventory manipulation attacks
 
@@ -165,10 +177,12 @@ REDIS_URL=redis://redis:6379/0
 **Port:** 8085
 **Rate Limiting:** Enabled
 **Configuration:**
+
 - Uses default rate limiting configuration
 - Standard middleware setup
 
 **Rationale:**
+
 - Critical to prevent notification spam
 - Protects against mass notification abuse
 - Prevents email/SMS quota exhaustion
@@ -180,10 +194,12 @@ REDIS_URL=redis://redis:6379/0
 **Port:** 8086
 **Rate Limiting:** Enabled
 **Configuration:**
+
 - Uses default rate limiting configuration
 - Standard middleware setup
 
 **Rationale:**
+
 - Satellite data analysis is expensive (external API costs)
 - Need to prevent excessive satellite API calls
 - Protects third-party API quota
@@ -195,6 +211,7 @@ REDIS_URL=redis://redis:6379/0
 ### Services Not Requiring Rate Limiting
 
 The following services do not exist as Python services or are not user-facing:
+
 - **user-service**: No Python implementation (handled by auth service)
 - **marketplace-service**: Does not exist
 
@@ -243,6 +260,7 @@ Content-Type: application/json
 ### Internal Service Authentication
 
 Services can bypass rate limiting by including the header:
+
 ```http
 X-Internal-Service: true
 ```
@@ -252,6 +270,7 @@ X-Internal-Service: true
 ### Rate Limit Tier Header
 
 Clients can request a specific tier (if authorized):
+
 ```http
 X-Rate-Limit-Tier: premium
 ```

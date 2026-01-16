@@ -10,12 +10,14 @@
 This service has been **deprecated** and **merged** into `advisory-service`.
 
 **All functionality has been moved:**
-- Disease diagnosis → advisory-service:8093/disease/*
-- Nutrient assessment → advisory-service:8093/nutrient/*
-- Fertilizer planning → advisory-service:8093/fertilizer/*
-- Crop information → advisory-service:8093/crops/*
+
+- Disease diagnosis → advisory-service:8093/disease/\*
+- Nutrient assessment → advisory-service:8093/nutrient/\*
+- Fertilizer planning → advisory-service:8093/fertilizer/\*
+- Crop information → advisory-service:8093/crops/\*
 
 **Action Required:**
+
 1. Update all service URLs from `agro-advisor:8105` to `advisory-service:8093`
 2. Update Kong routes to use `/api/v1/advisory` instead of `/api/v1/agro-advisor`
 3. Remove this service from your docker-compose profiles
@@ -43,17 +45,20 @@ Agro Advisor provides intelligent agricultural advisory services including disea
 ## Features | الميزات
 
 ### Disease Diagnosis | تشخيص الأمراض
+
 - Image-based disease assessment
 - Symptom-based diagnosis
 - Crop-specific disease database
 - Treatment recommendations
 
 ### Nutrient Assessment | تقييم المغذيات
+
 - NDVI-based deficiency detection
 - Visual symptom analysis
 - Soil fertility evaluation
 
 ### Fertilizer Planning | تخطيط التسميد
+
 - Growth stage-based plans
 - Field size calculations
 - Irrigation type adjustments
@@ -61,43 +66,49 @@ Agro Advisor provides intelligent agricultural advisory services including disea
 ## API Endpoints
 
 ### Health
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/healthz` | Health check |
+
+| Method | Path       | Description  |
+| ------ | ---------- | ------------ |
+| GET    | `/healthz` | Health check |
 
 ### Disease
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/disease/assess` | Assess disease from image |
-| POST | `/disease/symptoms` | Assess from symptoms |
-| GET | `/disease/search?q=` | Search diseases |
-| GET | `/disease/crop/{crop}` | Get crop diseases |
-| GET | `/disease/{disease_id}` | Get disease info |
+
+| Method | Path                    | Description               |
+| ------ | ----------------------- | ------------------------- |
+| POST   | `/disease/assess`       | Assess disease from image |
+| POST   | `/disease/symptoms`     | Assess from symptoms      |
+| GET    | `/disease/search?q=`    | Search diseases           |
+| GET    | `/disease/crop/{crop}`  | Get crop diseases         |
+| GET    | `/disease/{disease_id}` | Get disease info          |
 
 ### Nutrient
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/nutrient/ndvi` | Assess from NDVI |
-| POST | `/nutrient/visual` | Assess from visual indicators |
-| GET | `/nutrient/{deficiency_id}` | Get deficiency info |
+
+| Method | Path                        | Description                   |
+| ------ | --------------------------- | ----------------------------- |
+| POST   | `/nutrient/ndvi`            | Assess from NDVI              |
+| POST   | `/nutrient/visual`          | Assess from visual indicators |
+| GET    | `/nutrient/{deficiency_id}` | Get deficiency info           |
 
 ### Fertilizer
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/fertilizer/plan` | Generate fertilizer plan |
-| GET | `/fertilizer/{fertilizer_id}` | Get fertilizer info |
-| GET | `/fertilizer/nutrient/{nutrient}` | Get fertilizers by nutrient |
+
+| Method | Path                              | Description                 |
+| ------ | --------------------------------- | --------------------------- |
+| POST   | `/fertilizer/plan`                | Generate fertilizer plan    |
+| GET    | `/fertilizer/{fertilizer_id}`     | Get fertilizer info         |
+| GET    | `/fertilizer/nutrient/{nutrient}` | Get fertilizers by nutrient |
 
 ### Crops
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/crops` | List supported crops |
-| GET | `/crops/{crop}/stages` | Get growth stages |
-| GET | `/crops/{crop}/requirements` | Get nutrient requirements |
+
+| Method | Path                         | Description               |
+| ------ | ---------------------------- | ------------------------- |
+| GET    | `/crops`                     | List supported crops      |
+| GET    | `/crops/{crop}/stages`       | Get growth stages         |
+| GET    | `/crops/{crop}/requirements` | Get nutrient requirements |
 
 ## Usage Examples | أمثلة الاستخدام
 
 ### Diagnose Disease from Symptoms
+
 ```bash
 curl -X POST http://localhost:8095/disease/symptoms \
   -H "Content-Type: application/json" \
@@ -111,6 +122,7 @@ curl -X POST http://localhost:8095/disease/symptoms \
 ```
 
 ### Generate Fertilizer Plan
+
 ```bash
 curl -X POST http://localhost:8095/fertilizer/plan \
   -H "Content-Type: application/json" \
@@ -133,10 +145,10 @@ curl -X POST http://localhost:8095/fertilizer/plan \
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Service port | `8095` |
-| `NATS_URL` | NATS server URL | - |
+| Variable   | Description     | Default |
+| ---------- | --------------- | ------- |
+| `PORT`     | Service port    | `8095`  |
+| `NATS_URL` | NATS server URL | -       |
 
 ## Events Published
 

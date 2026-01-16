@@ -15,11 +15,13 @@ Event-driven rules engine for automatic task generation based on NDVI data, weat
 ## Features | الميزات
 
 ### NDVI Rules | قواعد NDVI
+
 - Severe NDVI drop detection (urgent inspection)
 - Low NDVI warnings
 - Trend analysis (7-day)
 
 ### Weather Rules | قواعد الطقس
+
 - Heat stress alerts
 - Frost warnings
 - Heavy rain preparation
@@ -27,23 +29,25 @@ Event-driven rules engine for automatic task generation based on NDVI data, weat
 - Disease risk conditions
 
 ### Combined Rules | قواعد مركبة
+
 - Heat + NDVI decline = compound stress
 - High humidity + Low NDVI = disease risk
 
 ### Irrigation Rules | قواعد الري
+
 - Automatic adjustment recommendations
 - Dry conditions increase
 - Wet conditions reduction
 
 ## Rule Types | أنواع القواعد
 
-| Rule | Trigger | Priority | Urgency |
-|------|---------|----------|---------|
-| Severe NDVI Drop | trend ≤ -0.15 | urgent | 6 hours |
-| Heat Wave | temp critical | urgent | 2 hours |
-| Frost | frost risk | urgent | 2 hours |
-| Low NDVI | ndvi < 0.35 | medium | 48 hours |
-| Disease Risk | humidity ≥ 80% | high | 12 hours |
+| Rule             | Trigger        | Priority | Urgency  |
+| ---------------- | -------------- | -------- | -------- |
+| Severe NDVI Drop | trend ≤ -0.15  | urgent   | 6 hours  |
+| Heat Wave        | temp critical  | urgent   | 2 hours  |
+| Frost            | frost risk     | urgent   | 2 hours  |
+| Low NDVI         | ndvi < 0.35    | medium   | 48 hours |
+| Disease Risk     | humidity ≥ 80% | high     | 12 hours |
 
 ## Task Types Generated
 
@@ -57,11 +61,11 @@ Event-driven rules engine for automatic task generation based on NDVI data, weat
 ## Priority Levels
 
 | Priority | Arabic | Response Time |
-|----------|--------|---------------|
-| `urgent` | عاجل | < 6 hours |
-| `high` | مرتفع | < 24 hours |
-| `medium` | متوسط | < 48 hours |
-| `low` | منخفض | < 1 week |
+| -------- | ------ | ------------- |
+| `urgent` | عاجل   | < 6 hours     |
+| `high`   | مرتفع  | < 24 hours    |
+| `medium` | متوسط  | < 48 hours    |
+| `low`    | منخفض  | < 1 week      |
 
 ## Dependencies
 
@@ -70,10 +74,10 @@ Event-driven rules engine for automatic task generation based on NDVI data, weat
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NATS_URL` | NATS server URL | - |
-| `FIELDOPS_URL` | Field Ops service URL | - |
+| Variable       | Description           | Default |
+| -------------- | --------------------- | ------- |
+| `NATS_URL`     | NATS server URL       | -       |
+| `FIELDOPS_URL` | Field Ops service URL | -       |
 
 ## Events Consumed
 

@@ -1,4 +1,5 @@
 # 🔍 تقرير التحليل الشامل لمشروع SAHOOL v16.0.0
+
 # Comprehensive Codebase Analysis Report
 
 **تاريخ التحليل:** 2026-01-03
@@ -9,44 +10,50 @@
 
 ## 📊 ملخص تنفيذي | Executive Summary
 
-| الفئة | حرج | عالي | متوسط | منخفض |
-|-------|-----|------|--------|-------|
-| قاعدة البيانات | 3 | 6 | 4 | 3 |
-| الملفات الفارغة | 4 | 2 | 0 | 82 |
-| الكود الناقص | 9 | 13 | 6 | 15+ |
-| مشاكل الاستيراد | 3 | 21+ | 66+ | 0 |
-| **المجموع** | **19** | **42** | **76+** | **100+** |
+| الفئة           | حرج    | عالي   | متوسط   | منخفض    |
+| --------------- | ------ | ------ | ------- | -------- |
+| قاعدة البيانات  | 3      | 6      | 4       | 3        |
+| الملفات الفارغة | 4      | 2      | 0       | 82       |
+| الكود الناقص    | 9      | 13     | 6       | 15+      |
+| مشاكل الاستيراد | 3      | 21+    | 66+     | 0        |
+| **المجموع**     | **19** | **42** | **76+** | **100+** |
 
 ---
 
 ## 🗄️ الجزء الأول: تحليل قاعدة البيانات
+
 ## Part 1: Database Analysis
 
 ### 1.1 المشاكل الحرجة | Critical Issues
 
 #### 1. مشكلة Foreign Key في جدول Fields
+
 ```sql
 -- المشكلة: current_crop_id يشير إلى crops لكن يتم تعريفه بعد إنشاء الجدول
 -- الأثر: عند حذف المحاصيل، قد تبقى حقول يتيمة
 -- الملف: apps/kernel/common/database/migrations/versions/001_initial_schema.py
 ```
+
 **الحل:** استخدام `SET NULL` بدلاً من `CASCADE`
 
 #### 2. Foreign Keys مفقودة في Inventory Service
+
 ```
 الجداول المتأثرة:
 - inventory_items → inventory_categories (لا يوجد FK)
 - inventory_items → inventory_warehouses (لا يوجد FK)
 - inventory_items → inventory_suppliers (لا يوجد FK)
 ```
+
 **الأثر:** لا يوجد تكامل مرجعي عند حذف الفئات/المستودعات/الموردين
 
 #### 3. تناقض أنواع الأعمدة | Column Type Inconsistencies
-| الخدمة | نوع ID | المشكلة |
-|--------|--------|---------|
-| Field Service (Tortoise) | VARCHAR(64) | غير متوافق |
-| Core Schema (SQLAlchemy) | UUID | المعيار |
-| Billing Service | String (plan_id) | يجب أن يكون UUID |
+
+| الخدمة                   | نوع ID           | المشكلة          |
+| ------------------------ | ---------------- | ---------------- |
+| Field Service (Tortoise) | VARCHAR(64)      | غير متوافق       |
+| Core Schema (SQLAlchemy) | UUID             | المعيار          |
+| Billing Service          | String (plan_id) | يجب أن يكون UUID |
 
 ### 1.2 المشاكل العالية | High Priority Issues
 
@@ -68,29 +75,30 @@
 
 ### 1.3 Migrations مفقودة | Missing Migrations
 
-| الخدمة | ما ينقص |
-|--------|---------|
-| Inventory Service | FK constraints للعناصر |
-| Alert Service | Alert rules persistence |
-| Field Service | Zone-to-field relationships |
-| NDVI Service | Historical data tables |
-| Notification Service | Message queue tables |
+| الخدمة               | ما ينقص                     |
+| -------------------- | --------------------------- |
+| Inventory Service    | FK constraints للعناصر      |
+| Alert Service        | Alert rules persistence     |
+| Field Service        | Zone-to-field relationships |
+| NDVI Service         | Historical data tables      |
+| Notification Service | Message queue tables        |
 
 ---
 
 ## 📁 الجزء الثاني: الملفات الفارغة والناقصة
+
 ## Part 2: Empty and Incomplete Files
 
 ### 2.1 ملفات فارغة حرجة (0 bytes) | Critical Empty Files
 
-| # | الملف | الأثر |
-|---|-------|-------|
-| 1 | `apps/services/shared/globalgap/__init__.py` | فشل استيراد GlobalGAP |
-| 2 | `apps/services/shared/globalgap/integrations/__init__.py` | فشل كل تكاملات المحاصيل والري |
-| 3 | `apps/services/field-ops/src/api/__init__.py` | فشل تسجيل API routes |
-| 4 | `apps/services/field-ops/src/api/v1/__init__.py` | فشل استيراد endpoints |
-| 5 | `apps/services/shared/utils/__init__.py` | فشل Fallback/Circuit Breaker |
-| 6 | `apps/services/shared/utils/tests/__init__.py` | فشل اكتشاف الاختبارات |
+| #   | الملف                                                     | الأثر                         |
+| --- | --------------------------------------------------------- | ----------------------------- |
+| 1   | `apps/services/shared/globalgap/__init__.py`              | فشل استيراد GlobalGAP         |
+| 2   | `apps/services/shared/globalgap/integrations/__init__.py` | فشل كل تكاملات المحاصيل والري |
+| 3   | `apps/services/field-ops/src/api/__init__.py`             | فشل تسجيل API routes          |
+| 4   | `apps/services/field-ops/src/api/v1/__init__.py`          | فشل استيراد endpoints         |
+| 5   | `apps/services/shared/utils/__init__.py`                  | فشل Fallback/Circuit Breaker  |
+| 6   | `apps/services/shared/utils/tests/__init__.py`            | فشل اكتشاف الاختبارات         |
 
 ### 2.2 محتوى مقترح للملفات الفارغة
 
@@ -123,18 +131,20 @@ __all__ = ["FallbackManager", "fallback"]
 ---
 
 ## 🔧 الجزء الثالث: الكود الناقص والـ TODOs
+
 ## Part 3: Incomplete Code & TODOs
 
 ### 3.1 NotImplementedError - حرج | Critical
 
-| الملف | السطر | الوظيفة | الحالة |
-|-------|-------|---------|--------|
+| الملف                                         | السطر   | الوظيفة         | الحالة      |
+| --------------------------------------------- | ------- | --------------- | ----------- |
 | `weather-service/src/forecast_integration.py` | 178-205 | YemenMetAdapter | Placeholder |
-| `ndvi-engine/src/routes_analytics.py` | 109 | get_db() | DB غير مهيأ |
+| `ndvi-engine/src/routes_analytics.py`         | 109     | get_db()        | DB غير مهيأ |
 
 ### 3.2 TODOs عالية الأولوية | High Priority TODOs
 
 #### PostgreSQL Migration (6 خدمات):
+
 ```
 - task-service/src/main.py:182
 - crop-health-ai/src/services/diagnosis_service.py:41
@@ -144,6 +154,7 @@ __all__ = ["FallbackManager", "fallback"]
 ```
 
 #### NATS Integration (GlobalGAP):
+
 ```
 - globalgap-compliance/src/main.py:118-119 - Connect to NATS
 - globalgap-compliance/src/main.py:176-177 - Health check
@@ -151,6 +162,7 @@ __all__ = ["FallbackManager", "fallback"]
 ```
 
 #### Database Queries:
+
 ```
 - field-core/src/crop_rotation.py:945
 - field-management-service/src/crop_rotation.py:945
@@ -172,6 +184,7 @@ Line 425: logout() - TODO: Implement logout logic
 ---
 
 ## 📦 الجزء الرابع: مشاكل الاستيراد
+
 ## Part 4: Import Issues
 
 ### 4.1 Relative Imports خاطئة | Critical
@@ -190,6 +203,7 @@ from .disease_service import disease_service
 ### 4.2 CORS Config مفقود | High Priority
 
 **الخدمات المتأثرة (6 خدمات):**
+
 - crop-intelligence-service
 - equipment-service
 - crop-health
@@ -217,17 +231,18 @@ sys.path.insert(0, "../../../../shared")
 ---
 
 ## 📈 الجزء الخامس: تحليل الأثر
+
 ## Part 5: Impact Analysis
 
 ### 5.1 مصفوفة الأثر | Impact Matrix
 
-| المشكلة | أثر التشغيل | أثر البيانات | أثر الأداء |
-|---------|------------|-------------|-----------|
-| FK مفقودة | ❌ حرج | 🔴 عالي | - |
-| ملفات __init__ فارغة | 🔴 عالي | - | - |
-| TODOs حرجة | 🟡 متوسط | - | - |
-| فهارس مفقودة | - | - | 🔴 عالي |
-| Import errors | ❌ حرج | - | - |
+| المشكلة              | أثر التشغيل | أثر البيانات | أثر الأداء |
+| -------------------- | ----------- | ------------ | ---------- |
+| FK مفقودة            | ❌ حرج      | 🔴 عالي      | -          |
+| ملفات **init** فارغة | 🔴 عالي     | -            | -          |
+| TODOs حرجة           | 🟡 متوسط    | -            | -          |
+| فهارس مفقودة         | -           | -            | 🔴 عالي    |
+| Import errors        | ❌ حرج      | -            | -          |
 
 ### 5.2 سيناريوهات الفشل | Failure Scenarios
 
@@ -251,6 +266,7 @@ sys.path.insert(0, "../../../../shared")
 ---
 
 ## ✅ الجزء السادس: خطة الإصلاح
+
 ## Part 6: Remediation Plan
 
 ### المرحلة 1: فوري (قبل الإطلاق) | Immediate
@@ -290,9 +306,11 @@ touch apps/services/shared/utils/__init__.py
 ---
 
 ## 📋 ملحق: قائمة الملفات المتأثرة
+
 ## Appendix: Affected Files List
 
 ### قاعدة البيانات:
+
 ```
 apps/kernel/common/database/migrations/versions/001_initial_schema.py
 apps/kernel/common/database/migrations/versions/002_add_postgis.py
@@ -302,6 +320,7 @@ apps/services/field-service/src/migrations/
 ```
 
 ### ملفات فارغة:
+
 ```
 apps/services/shared/globalgap/__init__.py (0 bytes)
 apps/services/shared/globalgap/integrations/__init__.py (0 bytes)
@@ -312,6 +331,7 @@ apps/services/shared/utils/tests/__init__.py (0 bytes)
 ```
 
 ### TODOs حرجة:
+
 ```
 apps/services/weather-service/src/forecast_integration.py:178-205
 apps/services/ndvi-engine/src/routes_analytics.py:109
@@ -320,6 +340,7 @@ apps/services/globalgap-compliance/src/main.py:118,176,204
 ```
 
 ### Imports خاطئة:
+
 ```
 apps/services/crop-health-ai/src/services/diagnosis_service.py
 apps/services/crop-health-ai/src/services/prediction_service.py

@@ -3,23 +3,23 @@
  * اختبارات خدمة المحادثات
  */
 
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { ChatService } from '../src/chat/chat.service';
-import { PrismaService } from '../src/prisma/prisma.service';
-import { CreateConversationDto } from '../src/chat/dto/create-conversation.dto';
-import { SendMessageDto } from '../src/chat/dto/send-message.dto';
-import { MessageType } from '../src/chat/dto/send-message.dto';
+import { Test, TestingModule } from "@nestjs/testing";
+import { NotFoundException, BadRequestException } from "@nestjs/common";
+import { ChatService } from "../src/chat/chat.service";
+import { PrismaService } from "../src/prisma/prisma.service";
+import { CreateConversationDto } from "../src/chat/dto/create-conversation.dto";
+import { SendMessageDto } from "../src/chat/dto/send-message.dto";
+import { MessageType } from "../src/chat/dto/send-message.dto";
 
-describe('ChatService', () => {
+describe("ChatService", () => {
   let service: ChatService;
   let prismaService: PrismaService;
 
   // Mock data
   const mockConversation = {
-    id: 'conv-123',
-    participantIds: ['user-123', 'user-456'],
-    productId: 'prod-789',
+    id: "conv-123",
+    participantIds: ["user-123", "user-456"],
+    productId: "prod-789",
     orderId: null,
     isActive: true,
     lastMessage: null,
@@ -28,10 +28,10 @@ describe('ChatService', () => {
     updatedAt: new Date(),
     participants: [
       {
-        id: 'part-1',
-        conversationId: 'conv-123',
-        userId: 'user-123',
-        role: 'BUYER',
+        id: "part-1",
+        conversationId: "conv-123",
+        userId: "user-123",
+        role: "BUYER",
         unreadCount: 0,
         lastReadAt: null,
         isTyping: false,
@@ -41,10 +41,10 @@ describe('ChatService', () => {
         updatedAt: new Date(),
       },
       {
-        id: 'part-2',
-        conversationId: 'conv-123',
-        userId: 'user-456',
-        role: 'SELLER',
+        id: "part-2",
+        conversationId: "conv-123",
+        userId: "user-456",
+        role: "SELLER",
         unreadCount: 0,
         lastReadAt: null,
         isTyping: false,
@@ -58,14 +58,14 @@ describe('ChatService', () => {
   };
 
   const mockMessage = {
-    id: 'msg-123',
-    conversationId: 'conv-123',
-    senderId: 'user-123',
-    content: 'Hello, I am interested in buying your product',
-    messageType: 'TEXT',
+    id: "msg-123",
+    conversationId: "conv-123",
+    senderId: "user-123",
+    content: "Hello, I am interested in buying your product",
+    messageType: "TEXT",
     attachmentUrl: null,
     offerAmount: null,
-    offerCurrency: 'YER',
+    offerCurrency: "YER",
     isRead: false,
     readAt: null,
     createdAt: new Date(),
@@ -118,11 +118,11 @@ describe('ChatService', () => {
   // Create Conversation Tests - اختبارات إنشاء محادثة
   // =========================================================================
 
-  describe('createConversation - إنشاء محادثة', () => {
-    it('should create a new conversation successfully', async () => {
+  describe("createConversation - إنشاء محادثة", () => {
+    it("should create a new conversation successfully", async () => {
       const createDto: CreateConversationDto = {
-        participantIds: ['user-123', 'user-456'],
-        productId: 'prod-789',
+        participantIds: ["user-123", "user-456"],
+        productId: "prod-789",
       };
 
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
@@ -136,13 +136,13 @@ describe('ChatService', () => {
           participantIds: {
             hasEvery: createDto.participantIds,
           },
-          productId: 'prod-789',
+          productId: "prod-789",
           orderId: null,
         },
         include: {
           participants: true,
           messages: {
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: "desc" },
             take: 1,
           },
         },
@@ -150,13 +150,15 @@ describe('ChatService', () => {
       expect(mockPrismaService.conversation.create).toHaveBeenCalled();
     });
 
-    it('should return existing conversation if already exists', async () => {
+    it("should return existing conversation if already exists", async () => {
       const createDto: CreateConversationDto = {
-        participantIds: ['user-123', 'user-456'],
-        productId: 'prod-789',
+        participantIds: ["user-123", "user-456"],
+        productId: "prod-789",
       };
 
-      mockPrismaService.conversation.findFirst.mockResolvedValue(mockConversation);
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
+        mockConversation,
+      );
 
       const result = await service.createConversation(createDto);
 
@@ -164,26 +166,26 @@ describe('ChatService', () => {
       expect(mockPrismaService.conversation.create).not.toHaveBeenCalled();
     });
 
-    it('should create conversation with orderId', async () => {
+    it("should create conversation with orderId", async () => {
       const createDto: CreateConversationDto = {
-        participantIds: ['user-123', 'user-456'],
-        orderId: 'order-101',
+        participantIds: ["user-123", "user-456"],
+        orderId: "order-101",
       };
 
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue({
         ...mockConversation,
-        orderId: 'order-101',
+        orderId: "order-101",
       });
 
       const result = await service.createConversation(createDto);
 
-      expect(result.orderId).toBe('order-101');
+      expect(result.orderId).toBe("order-101");
     });
 
-    it('should create conversation with correct participant roles', async () => {
+    it("should create conversation with correct participant roles", async () => {
       const createDto: CreateConversationDto = {
-        participantIds: ['user-123', 'user-456'],
+        participantIds: ["user-123", "user-456"],
       };
 
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
@@ -198,12 +200,12 @@ describe('ChatService', () => {
             participants: {
               create: expect.arrayContaining([
                 expect.objectContaining({
-                  userId: 'user-123',
-                  role: 'BUYER',
+                  userId: "user-123",
+                  role: "BUYER",
                 }),
                 expect.objectContaining({
-                  userId: 'user-456',
-                  role: 'SELLER',
+                  userId: "user-456",
+                  role: "SELLER",
                 }),
               ]),
             },
@@ -217,16 +219,18 @@ describe('ChatService', () => {
   // Send Message Tests - اختبارات إرسال رسالة
   // =========================================================================
 
-  describe('sendMessage - إرسال رسالة', () => {
-    it('should send a message successfully', async () => {
+  describe("sendMessage - إرسال رسالة", () => {
+    it("should send a message successfully", async () => {
       const sendDto: SendMessageDto = {
-        conversationId: 'conv-123',
-        senderId: 'user-123',
-        content: 'Hello, I am interested in buying your product',
+        conversationId: "conv-123",
+        senderId: "user-123",
+        content: "Hello, I am interested in buying your product",
         messageType: MessageType.TEXT,
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(mockConversation);
+      mockPrismaService.conversation.findUnique.mockResolvedValue(
+        mockConversation,
+      );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           message: {
@@ -245,15 +249,15 @@ describe('ChatService', () => {
 
       expect(result).toBeDefined();
       expect(mockPrismaService.conversation.findUnique).toHaveBeenCalledWith({
-        where: { id: 'conv-123' },
+        where: { id: "conv-123" },
       });
     });
 
-    it('should throw NotFoundException when conversation not found', async () => {
+    it("should throw NotFoundException when conversation not found", async () => {
       const sendDto: SendMessageDto = {
-        conversationId: 'conv-999',
-        senderId: 'user-123',
-        content: 'Hello',
+        conversationId: "conv-999",
+        senderId: "user-123",
+        content: "Hello",
       };
 
       mockPrismaService.conversation.findUnique.mockResolvedValue(null);
@@ -263,30 +267,34 @@ describe('ChatService', () => {
       );
     });
 
-    it('should throw BadRequestException when sender is not a participant', async () => {
+    it("should throw BadRequestException when sender is not a participant", async () => {
       const sendDto: SendMessageDto = {
-        conversationId: 'conv-123',
-        senderId: 'user-999',
-        content: 'Hello',
+        conversationId: "conv-123",
+        senderId: "user-999",
+        content: "Hello",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(mockConversation);
+      mockPrismaService.conversation.findUnique.mockResolvedValue(
+        mockConversation,
+      );
 
       await expect(service.sendMessage(sendDto)).rejects.toThrow(
         BadRequestException,
       );
     });
 
-    it('should send message with attachment', async () => {
+    it("should send message with attachment", async () => {
       const sendDto: SendMessageDto = {
-        conversationId: 'conv-123',
-        senderId: 'user-123',
-        content: 'Check this image',
+        conversationId: "conv-123",
+        senderId: "user-123",
+        content: "Check this image",
         messageType: MessageType.IMAGE,
-        attachmentUrl: 'https://cdn.sahool.com/images/product.jpg',
+        attachmentUrl: "https://cdn.sahool.com/images/product.jpg",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(mockConversation);
+      mockPrismaService.conversation.findUnique.mockResolvedValue(
+        mockConversation,
+      );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           message: {
@@ -309,24 +317,26 @@ describe('ChatService', () => {
       expect(result).toBeDefined();
     });
 
-    it('should send message with offer amount', async () => {
+    it("should send message with offer amount", async () => {
       const sendDto: SendMessageDto = {
-        conversationId: 'conv-123',
-        senderId: 'user-123',
-        content: 'I offer 5000 YER for this product',
+        conversationId: "conv-123",
+        senderId: "user-123",
+        content: "I offer 5000 YER for this product",
         messageType: MessageType.OFFER,
         offerAmount: 5000,
-        offerCurrency: 'YER',
+        offerCurrency: "YER",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(mockConversation);
+      mockPrismaService.conversation.findUnique.mockResolvedValue(
+        mockConversation,
+      );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           message: {
             create: jest.fn().mockResolvedValue({
               ...mockMessage,
               offerAmount: 5000,
-              offerCurrency: 'YER',
+              offerCurrency: "YER",
             }),
           },
           conversation: {
@@ -343,15 +353,17 @@ describe('ChatService', () => {
       expect(result).toBeDefined();
     });
 
-    it('should increment unread count for other participants', async () => {
+    it("should increment unread count for other participants", async () => {
       const sendDto: SendMessageDto = {
-        conversationId: 'conv-123',
-        senderId: 'user-123',
-        content: 'Hello',
+        conversationId: "conv-123",
+        senderId: "user-123",
+        content: "Hello",
       };
 
       const mockUpdateMany = jest.fn().mockResolvedValue({ count: 1 });
-      mockPrismaService.conversation.findUnique.mockResolvedValue(mockConversation);
+      mockPrismaService.conversation.findUnique.mockResolvedValue(
+        mockConversation,
+      );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           message: {
@@ -371,8 +383,8 @@ describe('ChatService', () => {
       expect(mockUpdateMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
-            conversationId: 'conv-123',
-            userId: { not: 'user-123' },
+            conversationId: "conv-123",
+            userId: { not: "user-123" },
           },
           data: {
             unreadCount: { increment: 1 },
@@ -386,18 +398,18 @@ describe('ChatService', () => {
   // Get Messages Tests - اختبارات جلب الرسائل
   // =========================================================================
 
-  describe('getMessages - جلب الرسائل', () => {
-    it('should get messages for a conversation with pagination', async () => {
+  describe("getMessages - جلب الرسائل", () => {
+    it("should get messages for a conversation with pagination", async () => {
       const mockMessages = [
-        { ...mockMessage, id: 'msg-1', content: 'Message 1' },
-        { ...mockMessage, id: 'msg-2', content: 'Message 2' },
-        { ...mockMessage, id: 'msg-3', content: 'Message 3' },
+        { ...mockMessage, id: "msg-1", content: "Message 1" },
+        { ...mockMessage, id: "msg-2", content: "Message 2" },
+        { ...mockMessage, id: "msg-3", content: "Message 3" },
       ];
 
       mockPrismaService.message.findMany.mockResolvedValue(mockMessages);
       mockPrismaService.message.count.mockResolvedValue(10);
 
-      const result = await service.getMessages('conv-123', 1, 50);
+      const result = await service.getMessages("conv-123", 1, 50);
 
       expect(result).toEqual({
         messages: mockMessages.reverse(),
@@ -407,18 +419,18 @@ describe('ChatService', () => {
         totalPages: 1,
       });
       expect(mockPrismaService.message.findMany).toHaveBeenCalledWith({
-        where: { conversationId: 'conv-123' },
-        orderBy: { createdAt: 'desc' },
+        where: { conversationId: "conv-123" },
+        orderBy: { createdAt: "desc" },
         skip: 0,
         take: 50,
       });
     });
 
-    it('should handle pagination correctly for page 2', async () => {
+    it("should handle pagination correctly for page 2", async () => {
       mockPrismaService.message.findMany.mockResolvedValue([]);
       mockPrismaService.message.count.mockResolvedValue(100);
 
-      const result = await service.getMessages('conv-123', 2, 50);
+      const result = await service.getMessages("conv-123", 2, 50);
 
       expect(result.page).toBe(2);
       expect(result.totalPages).toBe(2);
@@ -430,27 +442,27 @@ describe('ChatService', () => {
       );
     });
 
-    it('should return messages in chronological order', async () => {
+    it("should return messages in chronological order", async () => {
       const mockMessages = [
-        { ...mockMessage, id: 'msg-3', createdAt: new Date('2024-01-03') },
-        { ...mockMessage, id: 'msg-2', createdAt: new Date('2024-01-02') },
-        { ...mockMessage, id: 'msg-1', createdAt: new Date('2024-01-01') },
+        { ...mockMessage, id: "msg-3", createdAt: new Date("2024-01-03") },
+        { ...mockMessage, id: "msg-2", createdAt: new Date("2024-01-02") },
+        { ...mockMessage, id: "msg-1", createdAt: new Date("2024-01-01") },
       ];
 
       mockPrismaService.message.findMany.mockResolvedValue(mockMessages);
       mockPrismaService.message.count.mockResolvedValue(3);
 
-      const result = await service.getMessages('conv-123', 1, 50);
+      const result = await service.getMessages("conv-123", 1, 50);
 
       // Messages should be reversed to chronological order
       expect(result.messages).toEqual(mockMessages.reverse());
     });
 
-    it('should calculate total pages correctly', async () => {
+    it("should calculate total pages correctly", async () => {
       mockPrismaService.message.findMany.mockResolvedValue([]);
       mockPrismaService.message.count.mockResolvedValue(75);
 
-      const result = await service.getMessages('conv-123', 1, 25);
+      const result = await service.getMessages("conv-123", 1, 25);
 
       expect(result.totalPages).toBe(3);
     });
@@ -460,25 +472,27 @@ describe('ChatService', () => {
   // Get Conversation Tests - اختبارات جلب المحادثة
   // =========================================================================
 
-  describe('getConversationById - جلب المحادثة بالمعرف', () => {
-    it('should return conversation by ID', async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(mockConversation);
+  describe("getConversationById - جلب المحادثة بالمعرف", () => {
+    it("should return conversation by ID", async () => {
+      mockPrismaService.conversation.findUnique.mockResolvedValue(
+        mockConversation,
+      );
 
-      const result = await service.getConversationById('conv-123');
+      const result = await service.getConversationById("conv-123");
 
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.findUnique).toHaveBeenCalledWith({
-        where: { id: 'conv-123' },
+        where: { id: "conv-123" },
         include: {
           participants: true,
         },
       });
     });
 
-    it('should throw NotFoundException when conversation not found', async () => {
+    it("should throw NotFoundException when conversation not found", async () => {
       mockPrismaService.conversation.findUnique.mockResolvedValue(null);
 
-      await expect(service.getConversationById('conv-999')).rejects.toThrow(
+      await expect(service.getConversationById("conv-999")).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -488,46 +502,50 @@ describe('ChatService', () => {
   // Get User Conversations Tests - اختبارات جلب محادثات المستخدم
   // =========================================================================
 
-  describe('getUserConversations - جلب محادثات المستخدم', () => {
-    it('should return all conversations for a user', async () => {
+  describe("getUserConversations - جلب محادثات المستخدم", () => {
+    it("should return all conversations for a user", async () => {
       const mockConversations = [mockConversation];
-      mockPrismaService.conversation.findMany.mockResolvedValue(mockConversations);
+      mockPrismaService.conversation.findMany.mockResolvedValue(
+        mockConversations,
+      );
       mockPrismaService.message.count.mockResolvedValue(2);
 
-      const result = await service.getUserConversations('user-123');
+      const result = await service.getUserConversations("user-123");
 
       expect(result).toHaveLength(1);
-      expect(result[0]).toHaveProperty('unreadCount');
+      expect(result[0]).toHaveProperty("unreadCount");
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith({
         where: {
           participantIds: {
-            has: 'user-123',
+            has: "user-123",
           },
           isActive: true,
         },
         include: {
           participants: {
             where: {
-              userId: 'user-123',
+              userId: "user-123",
             },
           },
           messages: {
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: "desc" },
             take: 1,
           },
         },
         orderBy: {
-          updatedAt: 'desc',
+          updatedAt: "desc",
         },
       });
     });
 
-    it('should include unread count for each conversation', async () => {
+    it("should include unread count for each conversation", async () => {
       const mockConversations = [mockConversation];
-      mockPrismaService.conversation.findMany.mockResolvedValue(mockConversations);
+      mockPrismaService.conversation.findMany.mockResolvedValue(
+        mockConversations,
+      );
       mockPrismaService.message.count.mockResolvedValue(5);
 
-      const result = await service.getUserConversations('user-123');
+      const result = await service.getUserConversations("user-123");
 
       expect(result[0].unreadCount).toBe(5);
     });
@@ -537,24 +555,26 @@ describe('ChatService', () => {
   // Mark Message as Read Tests - اختبارات تحديد الرسالة كمقروءة
   // =========================================================================
 
-  describe('markMessageAsRead - تحديد الرسالة كمقروءة', () => {
-    it('should mark message as read', async () => {
+  describe("markMessageAsRead - تحديد الرسالة كمقروءة", () => {
+    it("should mark message as read", async () => {
       const messageWithConversation = {
         ...mockMessage,
         conversation: mockConversation,
       };
 
-      mockPrismaService.message.findUnique.mockResolvedValue(messageWithConversation);
+      mockPrismaService.message.findUnique.mockResolvedValue(
+        messageWithConversation,
+      );
       mockPrismaService.message.update.mockResolvedValue({
         ...messageWithConversation,
         isRead: true,
       });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      const result = await service.markMessageAsRead('msg-123', 'user-456');
+      const result = await service.markMessageAsRead("msg-123", "user-456");
 
       expect(mockPrismaService.message.update).toHaveBeenCalledWith({
-        where: { id: 'msg-123' },
+        where: { id: "msg-123" },
         data: {
           isRead: true,
           readAt: expect.any(Date),
@@ -562,25 +582,27 @@ describe('ChatService', () => {
       });
     });
 
-    it('should not mark message as read if user is the sender', async () => {
+    it("should not mark message as read if user is the sender", async () => {
       const messageWithConversation = {
         ...mockMessage,
-        senderId: 'user-123',
+        senderId: "user-123",
         conversation: mockConversation,
       };
 
-      mockPrismaService.message.findUnique.mockResolvedValue(messageWithConversation);
+      mockPrismaService.message.findUnique.mockResolvedValue(
+        messageWithConversation,
+      );
 
-      await service.markMessageAsRead('msg-123', 'user-123');
+      await service.markMessageAsRead("msg-123", "user-123");
 
       expect(mockPrismaService.message.update).not.toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException when message not found', async () => {
+    it("should throw NotFoundException when message not found", async () => {
       mockPrismaService.message.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.markMessageAsRead('msg-999', 'user-123'),
+        service.markMessageAsRead("msg-999", "user-123"),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -589,29 +611,31 @@ describe('ChatService', () => {
   // Unread Count Tests - اختبارات عدد الرسائل غير المقروءة
   // =========================================================================
 
-  describe('getUnreadCount - عدد الرسائل غير المقروءة', () => {
-    it('should return total unread count for user', async () => {
+  describe("getUnreadCount - عدد الرسائل غير المقروءة", () => {
+    it("should return total unread count for user", async () => {
       const mockParticipants = [
         { unreadCount: 3 },
         { unreadCount: 5 },
         { unreadCount: 2 },
       ];
 
-      mockPrismaService.participant.findMany.mockResolvedValue(mockParticipants);
+      mockPrismaService.participant.findMany.mockResolvedValue(
+        mockParticipants,
+      );
 
-      const result = await service.getUnreadCount('user-123');
+      const result = await service.getUnreadCount("user-123");
 
       expect(result).toBe(10);
       expect(mockPrismaService.participant.findMany).toHaveBeenCalledWith({
-        where: { userId: 'user-123' },
+        where: { userId: "user-123" },
         select: { unreadCount: true },
       });
     });
 
-    it('should return 0 when user has no unread messages', async () => {
+    it("should return 0 when user has no unread messages", async () => {
       mockPrismaService.participant.findMany.mockResolvedValue([]);
 
-      const result = await service.getUnreadCount('user-123');
+      const result = await service.getUnreadCount("user-123");
 
       expect(result).toBe(0);
     });
@@ -621,22 +645,27 @@ describe('ChatService', () => {
   // Mark Conversation as Read Tests - اختبارات تحديد المحادثة كمقروءة
   // =========================================================================
 
-  describe('markConversationAsRead - تحديد المحادثة كمقروءة', () => {
-    it('should mark all messages in conversation as read', async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(mockConversation);
+  describe("markConversationAsRead - تحديد المحادثة كمقروءة", () => {
+    it("should mark all messages in conversation as read", async () => {
+      mockPrismaService.conversation.findUnique.mockResolvedValue(
+        mockConversation,
+      );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      const result = await service.markConversationAsRead('conv-123', 'user-456');
+      const result = await service.markConversationAsRead(
+        "conv-123",
+        "user-456",
+      );
 
       expect(result).toEqual({
         success: true,
-        conversationId: 'conv-123',
+        conversationId: "conv-123",
       });
       expect(mockPrismaService.message.updateMany).toHaveBeenCalledWith({
         where: {
-          conversationId: 'conv-123',
-          senderId: { not: 'user-456' },
+          conversationId: "conv-123",
+          senderId: { not: "user-456" },
           isRead: false,
         },
         data: {
@@ -646,17 +675,19 @@ describe('ChatService', () => {
       });
     });
 
-    it('should reset unread count for participant', async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(mockConversation);
+    it("should reset unread count for participant", async () => {
+      mockPrismaService.conversation.findUnique.mockResolvedValue(
+        mockConversation,
+      );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      await service.markConversationAsRead('conv-123', 'user-456');
+      await service.markConversationAsRead("conv-123", "user-456");
 
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
         where: {
-          conversationId: 'conv-123',
-          userId: 'user-456',
+          conversationId: "conv-123",
+          userId: "user-456",
         },
         data: {
           lastReadAt: expect.any(Date),
@@ -670,25 +701,25 @@ describe('ChatService', () => {
   // Typing Indicator Tests - اختبارات مؤشر الكتابة
   // =========================================================================
 
-  describe('updateTypingIndicator - تحديث مؤشر الكتابة', () => {
-    it('should update typing indicator', async () => {
+  describe("updateTypingIndicator - تحديث مؤشر الكتابة", () => {
+    it("should update typing indicator", async () => {
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
       const result = await service.updateTypingIndicator(
-        'conv-123',
-        'user-123',
+        "conv-123",
+        "user-123",
         true,
       );
 
       expect(result).toEqual({
-        conversationId: 'conv-123',
-        userId: 'user-123',
+        conversationId: "conv-123",
+        userId: "user-123",
         isTyping: true,
       });
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
         where: {
-          conversationId: 'conv-123',
-          userId: 'user-123',
+          conversationId: "conv-123",
+          userId: "user-123",
         },
         data: {
           isTyping: true,
@@ -701,18 +732,18 @@ describe('ChatService', () => {
   // Online Status Tests - اختبارات حالة الاتصال
   // =========================================================================
 
-  describe('updateOnlineStatus - تحديث حالة الاتصال', () => {
-    it('should update user online status', async () => {
+  describe("updateOnlineStatus - تحديث حالة الاتصال", () => {
+    it("should update user online status", async () => {
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 2 });
 
-      const result = await service.updateOnlineStatus('user-123', true);
+      const result = await service.updateOnlineStatus("user-123", true);
 
       expect(result).toEqual({
-        userId: 'user-123',
+        userId: "user-123",
         isOnline: true,
       });
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
-        where: { userId: 'user-123' },
+        where: { userId: "user-123" },
         data: {
           isOnline: true,
           lastSeenAt: expect.any(Date),
@@ -720,10 +751,10 @@ describe('ChatService', () => {
       });
     });
 
-    it('should set user offline status', async () => {
+    it("should set user offline status", async () => {
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 2 });
 
-      const result = await service.updateOnlineStatus('user-123', false);
+      const result = await service.updateOnlineStatus("user-123", false);
 
       expect(result.isOnline).toBe(false);
     });

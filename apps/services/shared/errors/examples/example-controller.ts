@@ -16,7 +16,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
@@ -24,21 +24,21 @@ import {
   ApiParam,
   ApiQuery,
   ApiBody,
-} from '@nestjs/swagger';
+} from "@nestjs/swagger";
 import {
   ErrorResponseDto,
   ValidationErrorResponseDto,
   SuccessResponseDto,
   PaginatedResponseDto,
-} from '../error-response.dto';
-import { ExampleFarmService } from './example-service';
+} from "../error-response.dto";
+import { ExampleFarmService } from "./example-service";
 
 /**
  * Example Controller
  * متحكم المثال
  */
-@ApiTags('Farms (Example)')
-@Controller('api/v1/example/farms')
+@ApiTags("Farms (Example)")
+@Controller("api/v1/example/farms")
 export class ExampleFarmController {
   constructor(private readonly farmService: ExampleFarmService) {}
 
@@ -49,39 +49,39 @@ export class ExampleFarmController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
-    summary: 'Create a new farm',
-    description: 'إنشاء مزرعة جديدة',
+    summary: "Create a new farm",
+    description: "إنشاء مزرعة جديدة",
   })
   @ApiBody({
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        name: { type: 'string', example: 'My Farm' },
-        area: { type: 'number', example: 100 },
+        name: { type: "string", example: "My Farm" },
+        area: { type: "number", example: 100 },
         location: {
-          type: 'object',
+          type: "object",
           properties: {
-            lat: { type: 'number', example: 15.5527 },
-            lng: { type: 'number', example: 48.5164 },
+            lat: { type: "number", example: 15.5527 },
+            lng: { type: "number", example: 48.5164 },
           },
         },
       },
-      required: ['name', 'area', 'location'],
+      required: ["name", "area", "location"],
     },
   })
   @ApiResponse({
     status: 201,
-    description: 'Farm created successfully',
+    description: "Farm created successfully",
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Validation error',
+    description: "Validation error",
     type: ValidationErrorResponseDto,
   })
   @ApiResponse({
     status: 500,
-    description: 'Internal server error',
+    description: "Internal server error",
     type: ErrorResponseDto,
   })
   async create(@Body() data: any) {
@@ -101,31 +101,31 @@ export class ExampleFarmController {
    */
   @Get()
   @ApiOperation({
-    summary: 'Get all farms',
-    description: 'الحصول على جميع المزارع مع التقسيم إلى صفحات',
+    summary: "Get all farms",
+    description: "الحصول على جميع المزارع مع التقسيم إلى صفحات",
   })
   @ApiQuery({
-    name: 'page',
+    name: "page",
     required: false,
     type: Number,
-    description: 'Page number (default: 1)',
+    description: "Page number (default: 1)",
     example: 1,
   })
   @ApiQuery({
-    name: 'limit',
+    name: "limit",
     required: false,
     type: Number,
-    description: 'Items per page (default: 20)',
+    description: "Items per page (default: 20)",
     example: 20,
   })
   @ApiResponse({
     status: 200,
-    description: 'Farms retrieved successfully',
+    description: "Farms retrieved successfully",
     type: PaginatedResponseDto,
   })
   async findAll(
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query("page") page: string = "1",
+    @Query("limit") limit: string = "20",
   ) {
     return this.farmService.findAll(parseInt(page, 10), parseInt(limit, 10));
   }
@@ -134,27 +134,27 @@ export class ExampleFarmController {
    * Get farm by ID
    * الحصول على مزرعة حسب المعرف
    */
-  @Get(':id')
+  @Get(":id")
   @ApiOperation({
-    summary: 'Get farm by ID',
-    description: 'الحصول على مزرعة حسب المعرف',
+    summary: "Get farm by ID",
+    description: "الحصول على مزرعة حسب المعرف",
   })
   @ApiParam({
-    name: 'id',
-    description: 'Farm ID',
-    example: 'farm-123',
+    name: "id",
+    description: "Farm ID",
+    example: "farm-123",
   })
   @ApiResponse({
     status: 200,
-    description: 'Farm found',
+    description: "Farm found",
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: 'Farm not found',
+    description: "Farm not found",
     type: ErrorResponseDto,
   })
-  async findById(@Param('id') id: string) {
+  async findById(@Param("id") id: string) {
     // This will throw NotFoundException if farm doesn't exist
     return this.farmService.getById(id);
   }
@@ -163,36 +163,36 @@ export class ExampleFarmController {
    * Update farm
    * تحديث المزرعة
    */
-  @Put(':id')
+  @Put(":id")
   @ApiOperation({
-    summary: 'Update farm',
-    description: 'تحديث بيانات المزرعة',
+    summary: "Update farm",
+    description: "تحديث بيانات المزرعة",
   })
   @ApiParam({
-    name: 'id',
-    description: 'Farm ID',
-    example: 'farm-123',
+    name: "id",
+    description: "Farm ID",
+    example: "farm-123",
   })
   @ApiBody({
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        name: { type: 'string', example: 'Updated Farm Name' },
-        area: { type: 'number', example: 150 },
+        name: { type: "string", example: "Updated Farm Name" },
+        area: { type: "number", example: 150 },
       },
     },
   })
   @ApiResponse({
     status: 200,
-    description: 'Farm updated successfully',
+    description: "Farm updated successfully",
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: 'Farm not found',
+    description: "Farm not found",
     type: ErrorResponseDto,
   })
-  async update(@Param('id') id: string, @Body() data: any) {
+  async update(@Param("id") id: string, @Body() data: any) {
     // Using the decorator-based error handling
     const farm = await this.farmService.updateWithDecorator(id, data);
     return this.farmService.getById(farm.id);
@@ -202,32 +202,32 @@ export class ExampleFarmController {
    * Delete farm
    * حذف المزرعة
    */
-  @Delete(':id')
+  @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Archive farm',
-    description: 'أرشفة المزرعة',
+    summary: "Archive farm",
+    description: "أرشفة المزرعة",
   })
   @ApiParam({
-    name: 'id',
-    description: 'Farm ID',
-    example: 'farm-123',
+    name: "id",
+    description: "Farm ID",
+    example: "farm-123",
   })
   @ApiResponse({
     status: 204,
-    description: 'Farm archived successfully',
+    description: "Farm archived successfully",
   })
   @ApiResponse({
     status: 404,
-    description: 'Farm not found',
+    description: "Farm not found",
     type: ErrorResponseDto,
   })
   @ApiResponse({
     status: 422,
-    description: 'Cannot archive farm with active crops',
+    description: "Cannot archive farm with active crops",
     type: ErrorResponseDto,
   })
-  async archive(@Param('id') id: string) {
+  async archive(@Param("id") id: string) {
     // This will throw BusinessLogicException if farm has active crops
     await this.farmService.archiveFarm(id);
   }
@@ -236,49 +236,49 @@ export class ExampleFarmController {
    * Transfer area between farms
    * نقل المساحة بين المزارع
    */
-  @Post(':fromId/transfer/:toId')
+  @Post(":fromId/transfer/:toId")
   @ApiOperation({
-    summary: 'Transfer area between farms',
-    description: 'نقل المساحة من مزرعة إلى أخرى',
+    summary: "Transfer area between farms",
+    description: "نقل المساحة من مزرعة إلى أخرى",
   })
   @ApiParam({
-    name: 'fromId',
-    description: 'Source farm ID',
-    example: 'farm-123',
+    name: "fromId",
+    description: "Source farm ID",
+    example: "farm-123",
   })
   @ApiParam({
-    name: 'toId',
-    description: 'Destination farm ID',
-    example: 'farm-456',
+    name: "toId",
+    description: "Destination farm ID",
+    example: "farm-456",
   })
   @ApiBody({
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        area: { type: 'number', example: 25 },
+        area: { type: "number", example: 25 },
       },
-      required: ['area'],
+      required: ["area"],
     },
   })
   @ApiResponse({
     status: 200,
-    description: 'Area transferred successfully',
+    description: "Area transferred successfully",
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: 'Farm not found',
+    description: "Farm not found",
     type: ErrorResponseDto,
   })
   @ApiResponse({
     status: 422,
-    description: 'Insufficient area or invalid amount',
+    description: "Insufficient area or invalid amount",
     type: ErrorResponseDto,
   })
   async transferArea(
-    @Param('fromId') fromId: string,
-    @Param('toId') toId: string,
-    @Body('area') area: number,
+    @Param("fromId") fromId: string,
+    @Param("toId") toId: string,
+    @Body("area") area: number,
   ) {
     // This will throw BusinessLogicException if:
     // 1. Amount is not positive
@@ -287,8 +287,8 @@ export class ExampleFarmController {
 
     return {
       success: true,
-      message: 'Area transferred successfully',
-      messageAr: 'تم نقل المساحة بنجاح',
+      message: "Area transferred successfully",
+      messageAr: "تم نقل المساحة بنجاح",
       timestamp: new Date().toISOString(),
     };
   }
@@ -297,40 +297,40 @@ export class ExampleFarmController {
    * Get weather data for farm
    * الحصول على بيانات الطقس للمزرعة
    */
-  @Get(':id/weather')
+  @Get(":id/weather")
   @ApiOperation({
-    summary: 'Get farm weather data',
-    description: 'الحصول على بيانات الطقس للمزرعة',
+    summary: "Get farm weather data",
+    description: "الحصول على بيانات الطقس للمزرعة",
   })
   @ApiParam({
-    name: 'id',
-    description: 'Farm ID',
-    example: 'farm-123',
+    name: "id",
+    description: "Farm ID",
+    example: "farm-123",
   })
   @ApiResponse({
     status: 200,
-    description: 'Weather data retrieved successfully',
+    description: "Weather data retrieved successfully",
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: 'Farm not found',
+    description: "Farm not found",
     type: ErrorResponseDto,
   })
   @ApiResponse({
     status: 502,
-    description: 'Weather service unavailable',
+    description: "Weather service unavailable",
     type: ErrorResponseDto,
   })
-  async getWeather(@Param('id') id: string) {
+  async getWeather(@Param("id") id: string) {
     // This will throw ExternalServiceException if weather service fails
     const weatherData = await this.farmService.fetchWeatherData(id);
 
     return {
       success: true,
       data: weatherData,
-      message: 'Weather data retrieved successfully',
-      messageAr: 'تم استرجاع بيانات الطقس بنجاح',
+      message: "Weather data retrieved successfully",
+      messageAr: "تم استرجاع بيانات الطقس بنجاح",
       timestamp: new Date().toISOString(),
     };
   }

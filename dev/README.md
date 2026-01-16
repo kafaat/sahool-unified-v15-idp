@@ -119,10 +119,10 @@ pnpm --filter sahool-admin-dashboard dev
 
 When using K3d, these ports are exposed:
 
-| Port | Service |
-|------|---------|
-| 8080 | HTTP Ingress |
-| 8443 | HTTPS Ingress |
+| Port | Service        |
+| ---- | -------------- |
+| 8080 | HTTP Ingress   |
+| 8443 | HTTPS Ingress  |
 | 6443 | Kubernetes API |
 
 ---

@@ -3,25 +3,31 @@
  * واجهة برمجية لميزة السوق الزراعي
  */
 
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import type { Product, ProductFilters, Order, OrderFilters, CartItem } from './types';
-import { logger } from '@/lib/logger';
+import axios from "axios";
+import Cookies from "js-cookie";
+import type {
+  Product,
+  ProductFilters,
+  Order,
+  OrderFilters,
+  CartItem,
+} from "./types";
+import { logger } from "@/lib/logger";
 
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 10000,
 });
 
 // Add auth token to requests
 api.interceptors.request.use((config) => {
-  const cookieValue = Cookies.get('auth');
+  const cookieValue = Cookies.get("auth");
   if (cookieValue) {
     try {
       const authData = JSON.parse(cookieValue);
@@ -39,170 +45,178 @@ api.interceptors.request.use((config) => {
 // Error messages
 export const ERROR_MESSAGES = {
   FETCH_PRODUCTS: {
-    en: 'Failed to fetch products',
-    ar: 'فشل في جلب المنتجات',
+    en: "Failed to fetch products",
+    ar: "فشل في جلب المنتجات",
   },
   FETCH_PRODUCT: {
-    en: 'Failed to fetch product details',
-    ar: 'فشل في جلب تفاصيل المنتج',
+    en: "Failed to fetch product details",
+    ar: "فشل في جلب تفاصيل المنتج",
   },
   CREATE_PRODUCT: {
-    en: 'Failed to create product',
-    ar: 'فشل في إنشاء المنتج',
+    en: "Failed to create product",
+    ar: "فشل في إنشاء المنتج",
   },
   UPDATE_PRODUCT: {
-    en: 'Failed to update product',
-    ar: 'فشل في تحديث المنتج',
+    en: "Failed to update product",
+    ar: "فشل في تحديث المنتج",
   },
   DELETE_PRODUCT: {
-    en: 'Failed to delete product',
-    ar: 'فشل في حذف المنتج',
+    en: "Failed to delete product",
+    ar: "فشل في حذف المنتج",
   },
   FETCH_ORDERS: {
-    en: 'Failed to fetch orders',
-    ar: 'فشل في جلب الطلبات',
+    en: "Failed to fetch orders",
+    ar: "فشل في جلب الطلبات",
   },
   CREATE_ORDER: {
-    en: 'Failed to create order',
-    ar: 'فشل في إنشاء الطلب',
+    en: "Failed to create order",
+    ar: "فشل في إنشاء الطلب",
   },
   CANCEL_ORDER: {
-    en: 'Failed to cancel order',
-    ar: 'فشل في إلغاء الطلب',
+    en: "Failed to cancel order",
+    ar: "فشل في إلغاء الطلب",
   },
   ADD_TO_CART: {
-    en: 'Failed to add item to cart',
-    ar: 'فشل في إضافة المنتج للسلة',
+    en: "Failed to add item to cart",
+    ar: "فشل في إضافة المنتج للسلة",
   },
   FETCH_CATEGORIES: {
-    en: 'Failed to fetch categories',
-    ar: 'فشل في جلب الفئات',
+    en: "Failed to fetch categories",
+    ar: "فشل في جلب الفئات",
   },
 };
 
 // Mock data for development/fallback
 const MOCK_PRODUCTS: Product[] = [
   {
-    id: '1',
-    name: 'Organic Wheat Seeds',
-    nameAr: 'بذور قمح عضوية',
-    description: 'High-quality organic wheat seeds, suitable for various soil types',
-    descriptionAr: 'بذور قمح عضوية عالية الجودة، مناسبة لأنواع التربة المختلفة',
-    category: 'seeds',
+    id: "1",
+    name: "Organic Wheat Seeds",
+    nameAr: "بذور قمح عضوية",
+    description:
+      "High-quality organic wheat seeds, suitable for various soil types",
+    descriptionAr: "بذور قمح عضوية عالية الجودة، مناسبة لأنواع التربة المختلفة",
+    category: "seeds",
     price: 150,
-    currency: 'SAR',
-    unit: 'kg',
-    unitAr: 'كجم',
-    status: 'available',
+    currency: "SAR",
+    unit: "kg",
+    unitAr: "كجم",
+    status: "available",
     stock: 500,
-    imageUrl: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400',
-    sellerId: 'seller1',
-    sellerName: 'مؤسسة البذور الزراعية',
+    imageUrl:
+      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400",
+    sellerId: "seller1",
+    sellerName: "مؤسسة البذور الزراعية",
     sellerRating: 4.5,
     location: {
-      city: 'Riyadh',
-      cityAr: 'الرياض',
-      region: 'Central',
-      regionAr: 'الوسطى',
+      city: "Riyadh",
+      cityAr: "الرياض",
+      region: "Central",
+      regionAr: "الوسطى",
     },
-    tags: ['organic', 'wheat', 'seeds'],
+    tags: ["organic", "wheat", "seeds"],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: '2',
-    name: 'NPK Fertilizer 20-20-20',
-    nameAr: 'سماد NPK 20-20-20',
-    description: 'Balanced NPK fertilizer for all crops',
-    descriptionAr: 'سماد NPK متوازن لجميع المحاصيل',
-    category: 'fertilizers',
+    id: "2",
+    name: "NPK Fertilizer 20-20-20",
+    nameAr: "سماد NPK 20-20-20",
+    description: "Balanced NPK fertilizer for all crops",
+    descriptionAr: "سماد NPK متوازن لجميع المحاصيل",
+    category: "fertilizers",
     price: 85,
-    currency: 'SAR',
-    unit: 'bag (25kg)',
-    unitAr: 'كيس (25 كجم)',
-    status: 'available',
+    currency: "SAR",
+    unit: "bag (25kg)",
+    unitAr: "كيس (25 كجم)",
+    status: "available",
     stock: 200,
-    imageUrl: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400',
-    sellerId: 'seller2',
-    sellerName: 'الأسمدة الحديثة',
+    imageUrl:
+      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400",
+    sellerId: "seller2",
+    sellerName: "الأسمدة الحديثة",
     sellerRating: 4.8,
     location: {
-      city: 'Jeddah',
-      cityAr: 'جدة',
-      region: 'Western',
-      regionAr: 'الغربية',
+      city: "Jeddah",
+      cityAr: "جدة",
+      region: "Western",
+      regionAr: "الغربية",
     },
-    tags: ['fertilizer', 'NPK', 'nutrients'],
+    tags: ["fertilizer", "NPK", "nutrients"],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: '3',
-    name: 'Drip Irrigation Kit',
-    nameAr: 'مجموعة الري بالتنقيط',
-    description: 'Complete drip irrigation system for 1 hectare',
-    descriptionAr: 'نظام ري بالتنقيط متكامل لمساحة هكتار واحد',
-    category: 'equipment',
+    id: "3",
+    name: "Drip Irrigation Kit",
+    nameAr: "مجموعة الري بالتنقيط",
+    description: "Complete drip irrigation system for 1 hectare",
+    descriptionAr: "نظام ري بالتنقيط متكامل لمساحة هكتار واحد",
+    category: "equipment",
     price: 2500,
-    currency: 'SAR',
-    unit: 'set',
-    unitAr: 'طقم',
-    status: 'available',
+    currency: "SAR",
+    unit: "set",
+    unitAr: "طقم",
+    status: "available",
     stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?w=400',
-    sellerId: 'seller3',
-    sellerName: 'أنظمة الري الحديثة',
+    imageUrl:
+      "https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?w=400",
+    sellerId: "seller3",
+    sellerName: "أنظمة الري الحديثة",
     sellerRating: 4.9,
     location: {
-      city: 'Dammam',
-      cityAr: 'الدمام',
-      region: 'Eastern',
-      regionAr: 'الشرقية',
+      city: "Dammam",
+      cityAr: "الدمام",
+      region: "Eastern",
+      regionAr: "الشرقية",
     },
-    tags: ['irrigation', 'drip', 'equipment'],
+    tags: ["irrigation", "drip", "equipment"],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: '4',
-    name: 'Organic Pesticide',
-    nameAr: 'مبيد حشري عضوي',
-    description: 'Safe organic pesticide for vegetable crops',
-    descriptionAr: 'مبيد حشري عضوي آمن للخضروات',
-    category: 'pesticides',
+    id: "4",
+    name: "Organic Pesticide",
+    nameAr: "مبيد حشري عضوي",
+    description: "Safe organic pesticide for vegetable crops",
+    descriptionAr: "مبيد حشري عضوي آمن للخضروات",
+    category: "pesticides",
     price: 120,
-    currency: 'SAR',
-    unit: 'liter',
-    unitAr: 'لتر',
-    status: 'available',
+    currency: "SAR",
+    unit: "liter",
+    unitAr: "لتر",
+    status: "available",
     stock: 300,
-    imageUrl: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
-    sellerId: 'seller1',
-    sellerName: 'مؤسسة البذور الزراعية',
+    imageUrl:
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400",
+    sellerId: "seller1",
+    sellerName: "مؤسسة البذور الزراعية",
     sellerRating: 4.5,
     location: {
-      city: 'Riyadh',
-      cityAr: 'الرياض',
-      region: 'Central',
-      regionAr: 'الوسطى',
+      city: "Riyadh",
+      cityAr: "الرياض",
+      region: "Central",
+      regionAr: "الوسطى",
     },
-    tags: ['organic', 'pesticide', 'safe'],
+    tags: ["organic", "pesticide", "safe"],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 ];
 
 const MOCK_CATEGORIES = [
-  { id: 'seeds', name: 'Seeds', nameAr: 'البذور', count: 45 },
-  { id: 'fertilizers', name: 'Fertilizers', nameAr: 'الأسمدة', count: 32 },
-  { id: 'pesticides', name: 'Pesticides', nameAr: 'المبيدات', count: 28 },
-  { id: 'equipment', name: 'Equipment', nameAr: 'المعدات', count: 56 },
-  { id: 'tools', name: 'Tools', nameAr: 'الأدوات', count: 89 },
-  { id: 'irrigation', name: 'Irrigation', nameAr: 'الري', count: 23 },
+  { id: "seeds", name: "Seeds", nameAr: "البذور", count: 45 },
+  { id: "fertilizers", name: "Fertilizers", nameAr: "الأسمدة", count: 32 },
+  { id: "pesticides", name: "Pesticides", nameAr: "المبيدات", count: 28 },
+  { id: "equipment", name: "Equipment", nameAr: "المعدات", count: 56 },
+  { id: "tools", name: "Tools", nameAr: "الأدوات", count: 89 },
+  { id: "irrigation", name: "Irrigation", nameAr: "الري", count: 23 },
 ];
 
 // Helper function to filter mock products
-function filterMockProducts(products: Product[], filters?: ProductFilters): Product[] {
+function filterMockProducts(
+  products: Product[],
+  filters?: ProductFilters,
+): Product[] {
   let result = [...products];
 
   if (filters?.category) {
@@ -215,7 +229,7 @@ function filterMockProducts(products: Product[], filters?: ProductFilters): Prod
       (p) =>
         p.name.toLowerCase().includes(search) ||
         p.nameAr.includes(search) ||
-        p.description.toLowerCase().includes(search)
+        p.description.toLowerCase().includes(search),
     );
   }
 
@@ -234,19 +248,22 @@ function filterMockProducts(products: Product[], filters?: ProductFilters): Prod
   // Sorting
   if (filters?.sortBy) {
     switch (filters.sortBy) {
-      case 'price_asc':
+      case "price_asc":
         result.sort((a, b) => a.price - b.price);
         break;
-      case 'price_desc':
+      case "price_desc":
         result.sort((a, b) => b.price - a.price);
         break;
-      case 'name':
+      case "name":
         result.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case 'newest':
-        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      case "newest":
+        result.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
         break;
-      case 'rating':
+      case "rating":
         result.sort((a, b) => (b.sellerRating || 0) - (a.sellerRating || 0));
         break;
     }
@@ -262,17 +279,21 @@ export const marketplaceApi = {
   async getProducts(filters?: ProductFilters): Promise<Product[]> {
     try {
       const params = new URLSearchParams();
-      if (filters?.category) params.append('category', filters.category);
-      if (filters?.search) params.append('search', filters.search);
-      if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
-      if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
-      if (filters?.status) params.append('status', filters.status);
-      if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+      if (filters?.category) params.append("category", filters.category);
+      if (filters?.search) params.append("search", filters.search);
+      if (filters?.minPrice)
+        params.append("minPrice", filters.minPrice.toString());
+      if (filters?.maxPrice)
+        params.append("maxPrice", filters.maxPrice.toString());
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.sortBy) params.append("sortBy", filters.sortBy);
 
-      const response = await api.get(`/api/v1/marketplace/products?${params.toString()}`);
+      const response = await api.get(
+        `/api/v1/marketplace/products?${params.toString()}`,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Using mock products data:', error);
+      logger.warn("Using mock products data:", error);
       return filterMockProducts(MOCK_PRODUCTS, filters);
     }
   },
@@ -285,7 +306,7 @@ export const marketplaceApi = {
       const response = await api.get(`/api/v1/marketplace/products/${id}`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Using mock product data:', error);
+      logger.warn("Using mock product data:", error);
       const product = MOCK_PRODUCTS.find((p) => p.id === id);
       if (!product) {
         throw new Error(ERROR_MESSAGES.FETCH_PRODUCT.en);
@@ -299,10 +320,10 @@ export const marketplaceApi = {
    */
   async createProduct(data: Partial<Product>): Promise<Product> {
     try {
-      const response = await api.post('/api/v1/marketplace/products', data);
+      const response = await api.post("/api/v1/marketplace/products", data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to create product:', error);
+      logger.error("Failed to create product:", error);
       throw new Error(ERROR_MESSAGES.CREATE_PRODUCT.ar);
     }
   },
@@ -312,10 +333,13 @@ export const marketplaceApi = {
    */
   async updateProduct(id: string, data: Partial<Product>): Promise<Product> {
     try {
-      const response = await api.patch(`/api/v1/marketplace/products/${id}`, data);
+      const response = await api.patch(
+        `/api/v1/marketplace/products/${id}`,
+        data,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to update product:', error);
+      logger.error("Failed to update product:", error);
       throw new Error(ERROR_MESSAGES.UPDATE_PRODUCT.ar);
     }
   },
@@ -327,7 +351,7 @@ export const marketplaceApi = {
     try {
       await api.delete(`/api/v1/marketplace/products/${id}`);
     } catch (error) {
-      logger.error('Failed to delete product:', error);
+      logger.error("Failed to delete product:", error);
       throw new Error(ERROR_MESSAGES.DELETE_PRODUCT.ar);
     }
   },
@@ -337,10 +361,10 @@ export const marketplaceApi = {
    */
   async getCategories(): Promise<typeof MOCK_CATEGORIES> {
     try {
-      const response = await api.get('/api/v1/marketplace/categories');
+      const response = await api.get("/api/v1/marketplace/categories");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Using mock categories:', error);
+      logger.warn("Using mock categories:", error);
       return MOCK_CATEGORIES;
     }
   },
@@ -350,10 +374,10 @@ export const marketplaceApi = {
    */
   async getFeaturedProducts(): Promise<Product[]> {
     try {
-      const response = await api.get('/api/v1/marketplace/products/featured');
+      const response = await api.get("/api/v1/marketplace/products/featured");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Using mock featured products:', error);
+      logger.warn("Using mock featured products:", error);
       return MOCK_PRODUCTS.slice(0, 3);
     }
   },
@@ -363,10 +387,12 @@ export const marketplaceApi = {
    */
   async getSellerProducts(sellerId: string): Promise<Product[]> {
     try {
-      const response = await api.get(`/api/v1/marketplace/sellers/${sellerId}/products`);
+      const response = await api.get(
+        `/api/v1/marketplace/sellers/${sellerId}/products`,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Using mock seller products:', error);
+      logger.warn("Using mock seller products:", error);
       return MOCK_PRODUCTS.filter((p) => p.sellerId === sellerId);
     }
   },
@@ -377,14 +403,16 @@ export const marketplaceApi = {
   async getOrders(filters?: OrderFilters): Promise<Order[]> {
     try {
       const params = new URLSearchParams();
-      if (filters?.status) params.append('status', filters.status);
-      if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
-      if (filters?.dateTo) params.append('dateTo', filters.dateTo);
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.dateFrom) params.append("dateFrom", filters.dateFrom);
+      if (filters?.dateTo) params.append("dateTo", filters.dateTo);
 
-      const response = await api.get(`/api/v1/marketplace/orders?${params.toString()}`);
+      const response = await api.get(
+        `/api/v1/marketplace/orders?${params.toString()}`,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Orders API not available:', error);
+      logger.warn("Orders API not available:", error);
       return [];
     }
   },
@@ -397,7 +425,7 @@ export const marketplaceApi = {
       const response = await api.get(`/api/v1/marketplace/orders/${id}`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to fetch order:', error);
+      logger.error("Failed to fetch order:", error);
       return null;
     }
   },
@@ -407,27 +435,27 @@ export const marketplaceApi = {
    */
   async createOrder(data: {
     items: Array<{ productId: string; quantity: number }>;
-    shippingAddress: Order['shippingAddress'];
+    shippingAddress: Order["shippingAddress"];
     notes?: string;
   }): Promise<Order> {
     try {
-      const response = await api.post('/api/v1/marketplace/orders', data);
+      const response = await api.post("/api/v1/marketplace/orders", data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to create order:', error);
+      logger.error("Failed to create order:", error);
       // Return mock order for development
       const order: Order = {
         id: Date.now().toString(),
         orderNumber: `ORD-${Date.now()}`,
-        userId: 'current-user',
+        userId: "current-user",
         items: [],
         subtotal: 0,
         tax: 0,
         shipping: 0,
         total: 0,
-        currency: 'SAR',
-        status: 'pending',
-        paymentStatus: 'pending',
+        currency: "SAR",
+        status: "pending",
+        paymentStatus: "pending",
         shippingAddress: data.shippingAddress,
         notes: data.notes,
         createdAt: new Date().toISOString(),
@@ -442,10 +470,12 @@ export const marketplaceApi = {
    */
   async cancelOrder(id: string): Promise<{ success: boolean; error?: string }> {
     try {
-      const response = await api.post(`/api/v1/marketplace/orders/${id}/cancel`);
+      const response = await api.post(
+        `/api/v1/marketplace/orders/${id}/cancel`,
+      );
       return { success: true, ...response.data };
     } catch (error) {
-      logger.error('Failed to cancel order:', error);
+      logger.error("Failed to cancel order:", error);
       return {
         success: false,
         error: ERROR_MESSAGES.CANCEL_ORDER.ar,
@@ -458,10 +488,10 @@ export const marketplaceApi = {
    */
   async getCart(): Promise<CartItem[]> {
     try {
-      const response = await api.get('/api/v1/marketplace/cart');
+      const response = await api.get("/api/v1/marketplace/cart");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Cart API not available:', error);
+      logger.warn("Cart API not available:", error);
       return [];
     }
   },
@@ -471,10 +501,13 @@ export const marketplaceApi = {
    */
   async addToCart(productId: string, quantity: number): Promise<CartItem> {
     try {
-      const response = await api.post('/api/v1/marketplace/cart', { productId, quantity });
+      const response = await api.post("/api/v1/marketplace/cart", {
+        productId,
+        quantity,
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to add to cart:', error);
+      logger.error("Failed to add to cart:", error);
       throw new Error(ERROR_MESSAGES.ADD_TO_CART.ar);
     }
   },
@@ -484,10 +517,12 @@ export const marketplaceApi = {
    */
   async updateCartItem(itemId: string, quantity: number): Promise<CartItem> {
     try {
-      const response = await api.patch(`/api/v1/marketplace/cart/${itemId}`, { quantity });
+      const response = await api.patch(`/api/v1/marketplace/cart/${itemId}`, {
+        quantity,
+      });
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to update cart item:', error);
+      logger.error("Failed to update cart item:", error);
       throw new Error(ERROR_MESSAGES.ADD_TO_CART.ar);
     }
   },
@@ -499,7 +534,7 @@ export const marketplaceApi = {
     try {
       await api.delete(`/api/v1/marketplace/cart/${itemId}`);
     } catch (error) {
-      logger.error('Failed to remove from cart:', error);
+      logger.error("Failed to remove from cart:", error);
       throw error;
     }
   },
@@ -509,9 +544,9 @@ export const marketplaceApi = {
    */
   async clearCart(): Promise<void> {
     try {
-      await api.delete('/api/v1/marketplace/cart');
+      await api.delete("/api/v1/marketplace/cart");
     } catch (error) {
-      logger.error('Failed to clear cart:', error);
+      logger.error("Failed to clear cart:", error);
       throw error;
     }
   },
@@ -521,10 +556,12 @@ export const marketplaceApi = {
    */
   async searchProducts(query: string): Promise<Product[]> {
     try {
-      const response = await api.get(`/api/v1/marketplace/products/search?q=${encodeURIComponent(query)}`);
+      const response = await api.get(
+        `/api/v1/marketplace/products/search?q=${encodeURIComponent(query)}`,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Using mock search:', error);
+      logger.warn("Using mock search:", error);
       return filterMockProducts(MOCK_PRODUCTS, { search: query });
     }
   },
@@ -532,19 +569,23 @@ export const marketplaceApi = {
   /**
    * Get product reviews
    */
-  async getProductReviews(productId: string): Promise<Array<{
-    id: string;
-    userId: string;
-    userName: string;
-    rating: number;
-    comment: string;
-    createdAt: string;
-  }>> {
+  async getProductReviews(productId: string): Promise<
+    Array<{
+      id: string;
+      userId: string;
+      userName: string;
+      rating: number;
+      comment: string;
+      createdAt: string;
+    }>
+  > {
     try {
-      const response = await api.get(`/api/v1/marketplace/products/${productId}/reviews`);
+      const response = await api.get(
+        `/api/v1/marketplace/products/${productId}/reviews`,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Reviews API not available:', error);
+      logger.warn("Reviews API not available:", error);
       return [];
     }
   },
@@ -552,11 +593,14 @@ export const marketplaceApi = {
   /**
    * Add product review
    */
-  async addProductReview(productId: string, data: { rating: number; comment: string }): Promise<void> {
+  async addProductReview(
+    productId: string,
+    data: { rating: number; comment: string },
+  ): Promise<void> {
     try {
       await api.post(`/api/v1/marketplace/products/${productId}/reviews`, data);
     } catch (error) {
-      logger.error('Failed to add review:', error);
+      logger.error("Failed to add review:", error);
       throw error;
     }
   },

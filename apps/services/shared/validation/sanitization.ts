@@ -6,8 +6,8 @@
  * @description Utilities for sanitizing user inputs to prevent XSS and injection attacks
  */
 
-import { Transform, TransformFnParams } from 'class-transformer';
-import DOMPurify from 'isomorphic-dompurify';
+import { Transform, TransformFnParams } from "class-transformer";
+import DOMPurify from "isomorphic-dompurify";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HTML Sanitization
@@ -81,7 +81,7 @@ export function sanitizeHtml(
   input: string,
   options: SanitizationOptions = {},
 ): string {
-  if (typeof input !== 'string') {
+  if (typeof input !== "string") {
     return input;
   }
 
@@ -90,7 +90,7 @@ export function sanitizeHtml(
 
   // Remove null bytes
   if (opts.removeNullBytes) {
-    sanitized = sanitized.replace(/\x00/g, '');
+    sanitized = sanitized.replace(/\x00/g, "");
   }
 
   // Remove control characters (except newline and tab)
@@ -98,7 +98,7 @@ export function sanitizeHtml(
     sanitized = sanitized.replace(
       // eslint-disable-next-line no-control-regex
       /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g,
-      '',
+      "",
     );
   }
 
@@ -118,7 +118,7 @@ export function sanitizeHtml(
 
   // Normalize whitespace
   if (opts.normalizeWhitespace) {
-    sanitized = sanitized.replace(/\s+/g, ' ');
+    sanitized = sanitized.replace(/\s+/g, " ");
   }
 
   // Trim
@@ -138,29 +138,29 @@ export function sanitizeHtml(
  */
 export function sanitizeRichText(input: string): string {
   const allowedTags = [
-    'p',
-    'br',
-    'strong',
-    'b',
-    'em',
-    'i',
-    'u',
-    'ul',
-    'ol',
-    'li',
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'blockquote',
-    'pre',
-    'code',
-    'a',
+    "p",
+    "br",
+    "strong",
+    "b",
+    "em",
+    "i",
+    "u",
+    "ul",
+    "ol",
+    "li",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "blockquote",
+    "pre",
+    "code",
+    "a",
   ];
 
-  const allowedAttributes = ['href', 'title', 'target'];
+  const allowedAttributes = ["href", "title", "target"];
 
   return sanitizeHtml(input, {
     allowHtml: true,
@@ -197,8 +197,8 @@ export function sanitizePlainText(input: string): string {
  * @returns Escaped identifier
  */
 export function escapeSqlIdentifier(identifier: string): string {
-  if (typeof identifier !== 'string') {
-    throw new Error('SQL identifier must be a string');
+  if (typeof identifier !== "string") {
+    throw new Error("SQL identifier must be a string");
   }
 
   // Remove any existing quotes and escape special characters
@@ -213,7 +213,7 @@ export function escapeSqlIdentifier(identifier: string): string {
  * @returns True if valid
  */
 export function isValidSqlIdentifier(identifier: string): boolean {
-  if (typeof identifier !== 'string') {
+  if (typeof identifier !== "string") {
     return false;
   }
 
@@ -233,7 +233,7 @@ export function isValidSqlIdentifier(identifier: string): boolean {
  * @returns Sanitized object
  */
 export function sanitizeMongoQuery(obj: any): any {
-  if (typeof obj !== 'object' || obj === null) {
+  if (typeof obj !== "object" || obj === null) {
     return obj;
   }
 
@@ -245,7 +245,7 @@ export function sanitizeMongoQuery(obj: any): any {
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       // Remove keys starting with $ (MongoDB operators)
-      if (!key.startsWith('$')) {
+      if (!key.startsWith("$")) {
         sanitized[key] = sanitizeMongoQuery(obj[key]);
       }
     }
@@ -265,7 +265,7 @@ export function sanitizeMongoQuery(obj: any): any {
  * @returns True if prompt injection is detected
  */
 export function detectPromptInjection(input: string): boolean {
-  if (typeof input !== 'string') {
+  if (typeof input !== "string") {
     return false;
   }
 
@@ -295,19 +295,19 @@ export function detectPromptInjection(input: string): boolean {
  * @returns Sanitized string
  */
 export function sanitizePromptInput(input: string): string {
-  if (typeof input !== 'string') {
+  if (typeof input !== "string") {
     return input;
   }
 
   let sanitized = input;
 
   // Remove potential system/instruction markers
-  sanitized = sanitized.replace(/system\s*:/gi, '');
-  sanitized = sanitized.replace(/instructions?\s*:/gi, '');
-  sanitized = sanitized.replace(/```[^`]*system[^`]*```/gis, '');
+  sanitized = sanitized.replace(/system\s*:/gi, "");
+  sanitized = sanitized.replace(/instructions?\s*:/gi, "");
+  sanitized = sanitized.replace(/```[^`]*system[^`]*```/gis, "");
 
   // Remove excessive newlines (potential delimiter injection)
-  sanitized = sanitized.replace(/\n{3,}/g, '\n\n');
+  sanitized = sanitized.replace(/\n{3,}/g, "\n\n");
 
   // Basic sanitization
   sanitized = sanitizePlainText(sanitized);
@@ -326,16 +326,16 @@ export function sanitizePromptInput(input: string): string {
  * @returns Sanitized path (filename only)
  */
 export function sanitizeFilePath(path: string): string {
-  if (typeof path !== 'string') {
-    return '';
+  if (typeof path !== "string") {
+    return "";
   }
 
   // Remove any path traversal attempts
-  let sanitized = path.replace(/\.\./g, '');
-  sanitized = sanitized.replace(/[/\\]/g, '');
+  let sanitized = path.replace(/\.\./g, "");
+  sanitized = sanitized.replace(/[/\\]/g, "");
 
   // Remove any null bytes
-  sanitized = sanitized.replace(/\x00/g, '');
+  sanitized = sanitized.replace(/\x00/g, "");
 
   // Only keep the filename
   const parts = sanitized.split(/[/\\]/);
@@ -355,11 +355,11 @@ export function isAllowedFileExtension(
   filename: string,
   allowedExtensions: string[],
 ): boolean {
-  if (typeof filename !== 'string') {
+  if (typeof filename !== "string") {
     return false;
   }
 
-  const extension = filename.split('.').pop()?.toLowerCase();
+  const extension = filename.split(".").pop()?.toLowerCase();
   if (!extension) {
     return false;
   }
@@ -377,7 +377,7 @@ export function isAllowedFileExtension(
  */
 export function SanitizeHtml(options: SanitizationOptions = {}) {
   return Transform((params: TransformFnParams) => {
-    if (typeof params.value !== 'string') {
+    if (typeof params.value !== "string") {
       return params.value;
     }
     return sanitizeHtml(params.value, options);
@@ -389,7 +389,7 @@ export function SanitizeHtml(options: SanitizationOptions = {}) {
  */
 export function SanitizePlainText() {
   return Transform((params: TransformFnParams) => {
-    if (typeof params.value !== 'string') {
+    if (typeof params.value !== "string") {
       return params.value;
     }
     return sanitizePlainText(params.value);
@@ -401,7 +401,7 @@ export function SanitizePlainText() {
  */
 export function SanitizeRichText() {
   return Transform((params: TransformFnParams) => {
-    if (typeof params.value !== 'string') {
+    if (typeof params.value !== "string") {
       return params.value;
     }
     return sanitizeRichText(params.value);
@@ -413,7 +413,7 @@ export function SanitizeRichText() {
  */
 export function SanitizeFilePath() {
   return Transform((params: TransformFnParams) => {
-    if (typeof params.value !== 'string') {
+    if (typeof params.value !== "string") {
       return params.value;
     }
     return sanitizeFilePath(params.value);
@@ -425,7 +425,7 @@ export function SanitizeFilePath() {
  */
 export function SanitizePrompt() {
   return Transform((params: TransformFnParams) => {
-    if (typeof params.value !== 'string') {
+    if (typeof params.value !== "string") {
       return params.value;
     }
     return sanitizePromptInput(params.value);

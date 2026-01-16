@@ -24,6 +24,7 @@ Certificate pinning is automatically disabled in debug mode, so you can develop 
 ### For Production
 
 1. **Get your certificate fingerprints**:
+
    ```bash
    openssl s_client -connect api.sahool.app:443 < /dev/null 2>/dev/null | \
      openssl x509 -fingerprint -sha256 -noout -in /dev/stdin
@@ -46,6 +47,7 @@ The security system automatically configures itself based on the build mode:
 - **Release builds** (`flutter build apk --release`): Certificate pinning enabled and enforced
 
 This is handled by `SecurityConfig.fromBuildMode()` which returns:
+
 - `SecurityConfig.development` in debug mode (pinning OFF)
 - `SecurityConfig.production` in release mode (pinning ON, strict)
 
@@ -54,12 +56,14 @@ This is handled by `SecurityConfig.fromBuildMode()` which returns:
 The certificate pinning is integrated into the `ApiClient` class in `/lib/core/http/api_client.dart`.
 
 When you create an `ApiClient` instance, it automatically:
+
 1. Detects the build mode (debug/release)
 2. Loads the appropriate security configuration
 3. Configures certificate pinning if needed
 4. Logs the security status
 
 Example initialization:
+
 ```dart
 // In your providers or main app setup
 final apiClient = ApiClient(); // Automatically configured!
@@ -68,6 +72,7 @@ final apiClient = ApiClient(); // Automatically configured!
 ## Security Features
 
 Current features:
+
 - ✅ SSL Certificate Pinning (SHA-256 fingerprints)
 - ✅ Multiple pin support (for certificate rotation)
 - ✅ Pin expiry tracking
@@ -101,6 +106,7 @@ lib/core/security/
 ## Support
 
 For questions or issues:
+
 1. Read the `CERTIFICATE_PINNING_GUIDE.md` for detailed documentation
 2. Check the examples in `certificate_pinning_example.dart`
 3. Review the troubleshooting section in the guide
@@ -111,6 +117,7 @@ For questions or issues:
 ⚠️ **IMPORTANT**: Never commit real production certificate fingerprints to public repositories!
 
 For production deployments:
+
 - Use environment variables or CI/CD secrets
 - Keep certificate configurations private
 - Rotate certificates regularly

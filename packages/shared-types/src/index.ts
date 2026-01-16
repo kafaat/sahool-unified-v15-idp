@@ -4,13 +4,16 @@
  */
 
 // Auth types
-export * from './auth';
+export * from "./auth";
 
 // API types
-export * from './api';
+export * from "./api";
 
 // Express types
-export * from './express';
+export * from "./express";
 
 // WebSocket types
-export * from './websocket';
+export * from "./websocket";
+
+// Agricultural Monitoring types (Remote Sensing + AI)
+export * from "./monitoring";

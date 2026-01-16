@@ -1,9 +1,11 @@
 # Container Status Analysis Report
+
 **Generated:** $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 
 ## Executive Summary
 
 ### Overall Status
+
 - **Total Containers:** 50+
 - **Running & Healthy:** ~40 containers
 - **Unhealthy:** 5 containers
@@ -15,6 +17,7 @@
 ## Container Status Breakdown
 
 ### ✅ Healthy & Running (40+ containers)
+
 - Infrastructure: postgres, redis, nats, kong, pgbouncer, qdrant, mqtt, ollama, etcd, milvus, minio
 - Core Services: advisory-service, agro-advisor, alert-service, field-management-service, weather-service, iot-service, etc.
 - Most services are operational
@@ -85,7 +88,9 @@
 ## Critical Issues
 
 ### 1. Kong DNS Resolution Failures
+
 **Services Affected:**
+
 - ai-advisor
 - research-core
 - marketplace-service
@@ -95,6 +100,7 @@
 - weather-service
 
 **Error Pattern:**
+
 ```
 querying dns for <service> failed: dns server error: 3 name error
 ```
@@ -103,7 +109,8 @@ querying dns for <service> failed: dns server error: 3 name error
 
 **Impact:** Kong cannot route requests to these services
 
-**Fix:** 
+**Fix:**
+
 - Ensure all services are running
 - Verify services are on the same Docker network (`sahool-network`)
 - Check service names match Kong configuration
@@ -111,18 +118,21 @@ querying dns for <service> failed: dns server error: 3 name error
 ### 2. Database Connection Issues
 
 #### PgBouncer Authentication
+
 - **Service:** notification-service
 - **Error:** `password authentication failed for user "pgbouncer"`
 - **Status:** Fixed in previous session (SCRAM auth configured)
 - **Action:** Restart notification-service to pick up new auth config
 
 #### Prisma Connection Errors
+
 - **Services:** chat-service, marketplace, research-core
 - **Error:** `PrismaClientInitializationError: Can't reach database server at pgbouncer:6432`
 - **Status:** Should be fixed with SCRAM auth changes
 - **Action:** Restart affected services
 
 ### 3. Async Driver Mismatch
+
 - **Service:** billing-core
 - **Error:** `The asyncio extension requires an async driver. The loaded 'psycopg2' is not async.`
 - **Fix:** Change database URL to use `asyncpg` or switch to sync SQLAlchemy
@@ -134,6 +144,7 @@ querying dns for <service> failed: dns server error: 3 name error
 ### Immediate Actions
 
 1. **Restart Unhealthy Services:**
+
    ```bash
    docker compose restart billing-core equipment-service provider-config task-service yield-prediction-service
    ```
@@ -143,6 +154,7 @@ querying dns for <service> failed: dns server error: 3 name error
    - Or switch billing-core to use sync SQLAlchemy
 
 3. **Verify PgBouncer Auth:**
+
    ```bash
    docker compose restart notification-service chat-service marketplace research-core
    ```
@@ -167,15 +179,15 @@ querying dns for <service> failed: dns server error: 3 name error
 
 ## Service Health Summary
 
-| Service | Status | Health | Notes |
-|---------|--------|--------|-------|
-| Infrastructure | ✅ | Healthy | All core infra services running |
-| Most Services | ✅ | Healthy | 40+ services operational |
-| billing-core | ⚠️ | Unhealthy | Async driver issue |
-| chat-service | 🔄 | Restarting | Database connection |
-| ai-advisor | 🔄 | Restarting | DNS resolution |
-| marketplace | 🔄 | Restarting | Database connection |
-| research-core | 🔄 | Restarting | Database connection |
+| Service        | Status | Health     | Notes                           |
+| -------------- | ------ | ---------- | ------------------------------- |
+| Infrastructure | ✅     | Healthy    | All core infra services running |
+| Most Services  | ✅     | Healthy    | 40+ services operational        |
+| billing-core   | ⚠️     | Unhealthy  | Async driver issue              |
+| chat-service   | 🔄     | Restarting | Database connection             |
+| ai-advisor     | 🔄     | Restarting | DNS resolution                  |
+| marketplace    | 🔄     | Restarting | Database connection             |
+| research-core  | 🔄     | Restarting | Database connection             |
 
 ---
 
@@ -186,4 +198,3 @@ querying dns for <service> failed: dns server error: 3 name error
 3. Restart affected services
 4. Monitor for stability
 5. Update health check configurations if needed
-

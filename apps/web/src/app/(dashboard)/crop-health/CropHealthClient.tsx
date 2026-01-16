@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Camera, Activity } from 'lucide-react';
-import { HealthDashboard, DiagnosisTool, DiagnosisResultView } from '@/features/crop-health';
+import React, { useState } from "react";
+import { Camera, Activity } from "lucide-react";
+import {
+  HealthDashboard,
+  DiagnosisTool,
+  DiagnosisResultView,
+} from "@/features/crop-health";
 
 export default function CropHealthClient() {
-  const [activeView, setActiveView] = useState<'dashboard' | 'diagnosis'>('dashboard');
+  const [activeView, setActiveView] = useState<"dashboard" | "diagnosis">(
+    "dashboard",
+  );
   const [diagnosisId, setDiagnosisId] = useState<string | null>(null);
 
   return (
@@ -16,13 +22,13 @@ export default function CropHealthClient() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex gap-4" dir="rtl">
               <button
-                onClick={() => setActiveView('dashboard')}
+                onClick={() => setActiveView("dashboard")}
                 className={`
                   flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-colors
                   ${
-                    activeView === 'dashboard'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    activeView === "dashboard"
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }
                 `}
               >
@@ -30,13 +36,13 @@ export default function CropHealthClient() {
                 <span>لوحة المعلومات</span>
               </button>
               <button
-                onClick={() => setActiveView('diagnosis')}
+                onClick={() => setActiveView("diagnosis")}
                 className={`
                   flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-colors
                   ${
-                    activeView === 'diagnosis'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    activeView === "diagnosis"
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }
                 `}
               >
@@ -61,12 +67,10 @@ export default function CropHealthClient() {
             </button>
             <DiagnosisResultView requestId={diagnosisId} />
           </div>
-        ) : activeView === 'dashboard' ? (
+        ) : activeView === "dashboard" ? (
           <HealthDashboard />
         ) : (
-          <DiagnosisTool
-            onDiagnosisCreated={(id) => setDiagnosisId(id)}
-          />
+          <DiagnosisTool onDiagnosisCreated={(id) => setDiagnosisId(id)} />
         )}
       </div>
     </div>

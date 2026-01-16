@@ -9,6 +9,7 @@ Successfully implemented comprehensive token revocation on logout for the SAHOOL
 ### 1. Backend Authentication Service ✅
 
 **New Auth Service with Token Revocation**
+
 - User login with JTI-enabled JWT tokens
 - Logout with immediate token revocation
 - Logout from all devices functionality
@@ -18,6 +19,7 @@ Successfully implemented comprehensive token revocation on logout for the SAHOOL
 ### 2. Token Blacklist System ✅
 
 **Redis-Based Revocation Store**
+
 - O(1) token lookup performance
 - Automatic TTL management
 - Multi-level revocation support (token/user/tenant)
@@ -26,6 +28,7 @@ Successfully implemented comprehensive token revocation on logout for the SAHOOL
 ### 3. Request Validation ✅
 
 **Global Token Revocation Guard**
+
 - Checks every authenticated request
 - Validates token against blacklist
 - Returns 401 for revoked tokens
@@ -34,6 +37,7 @@ Successfully implemented comprehensive token revocation on logout for the SAHOOL
 ### 4. Frontend Integration ✅
 
 **Updated Logout Endpoints**
+
 - Admin app calls backend revocation
 - Graceful fallback if backend unavailable
 - Cookie clearing + token revocation
@@ -41,6 +45,7 @@ Successfully implemented comprehensive token revocation on logout for the SAHOOL
 ## Files Created
 
 ### Authentication Service
+
 ```
 apps/services/user-service/src/auth/
 ├── auth.service.ts          - Core auth logic with revocation
@@ -50,12 +55,14 @@ apps/services/user-service/src/auth/
 ```
 
 ### Configuration
+
 ```
 apps/services/user-service/
 └── .env.example            - Environment variables template
 ```
 
 ### Documentation
+
 ```
 /
 ├── TOKEN_REVOCATION_IMPLEMENTATION.md  - Complete technical docs
@@ -66,6 +73,7 @@ apps/services/user-service/
 ## Files Modified
 
 ### User Service
+
 ```
 apps/services/user-service/src/
 ├── auth/jwt-auth.guard.ts   - Updated to use Passport
@@ -73,6 +81,7 @@ apps/services/user-service/src/
 ```
 
 ### Frontend
+
 ```
 apps/admin/src/app/api/auth/
 └── logout/route.ts         - Calls backend revocation API
@@ -149,6 +158,7 @@ packages/nestjs-auth/src/
 ## Key Features
 
 ### 1. Security
+
 - ✅ Immediate token invalidation on logout
 - ✅ Prevents token reuse after logout
 - ✅ Multi-level revocation (token/user/tenant)
@@ -156,6 +166,7 @@ packages/nestjs-auth/src/
 - ✅ Secure token generation with unique JTI
 
 ### 2. Performance
+
 - ✅ O(1) Redis lookups
 - ✅ ~1-2ms overhead per request
 - ✅ Automatic cleanup via TTL
@@ -163,12 +174,14 @@ packages/nestjs-auth/src/
 - ✅ Fail-open design (service continues if Redis down)
 
 ### 3. Scalability
+
 - ✅ Redis-based shared storage
 - ✅ Works across multiple service instances
 - ✅ Horizontal scaling supported
 - ✅ Memory efficient (~100KB per 1000 tokens)
 
 ### 4. Operations
+
 - ✅ Health check endpoints
 - ✅ Statistics and monitoring
 - ✅ Comprehensive logging
@@ -259,23 +272,27 @@ npm install uuid @types/uuid
 ## Setup Steps
 
 1. **Install Dependencies**
+
    ```bash
    cd apps/services/user-service
    npm install uuid @types/uuid
    ```
 
 2. **Configure Environment**
+
    ```bash
    cp .env.example .env
    # Edit .env with your settings
    ```
 
 3. **Start Redis**
+
    ```bash
    docker run --name sahool-redis -p 6379:6379 -d redis:alpine
    ```
 
 4. **Start User Service**
+
    ```bash
    npm run start:dev
    ```
@@ -328,6 +345,7 @@ TTL revoked:token:<jti>
 ## How It Works
 
 ### Token Generation
+
 ```typescript
 // Each token gets unique JTI (JWT ID)
 const jti = uuidv4(); // "550e8400-e29b-41d4-a716-446655440000"
@@ -343,6 +361,7 @@ const payload = {
 ```
 
 ### Token Revocation
+
 ```typescript
 // On logout
 const ttl = token.exp - Math.floor(Date.now() / 1000);
@@ -353,12 +372,13 @@ await redis.setEx(
   JSON.stringify({
     revokedAt: Date.now() / 1000,
     reason: "user_logout",
-    userId: "user-123"
-  })
+    userId: "user-123",
+  }),
 );
 ```
 
 ### Token Validation
+
 ```typescript
 // On each authenticated request
 const isRevoked = await redis.exists(`revoked:token:${jti}`);
@@ -366,7 +386,7 @@ const isRevoked = await redis.exists(`revoked:token:${jti}`);
 if (isRevoked) {
   throw new UnauthorizedException({
     error: "token_revoked",
-    message: "Authentication token has been revoked"
+    message: "Authentication token has been revoked",
   });
 }
 ```
@@ -374,11 +394,13 @@ if (isRevoked) {
 ## Monitoring
 
 ### Health Checks
+
 - Service: `GET /api/v1/health`
 - Revocation: `GET /api/v1/auth/revocation/health`
 - Redis: `redis-cli ping`
 
 ### Metrics to Track
+
 - Login success/failure rate
 - Logout rate
 - Revoked token access attempts
@@ -386,6 +408,7 @@ if (isRevoked) {
 - Token validation latency
 
 ### Logs to Monitor
+
 ```bash
 # Token revocations
 grep "Token revoked" logs
@@ -400,12 +423,14 @@ grep "Redis error" logs
 ## Security Improvements
 
 ### Before Implementation
+
 - ❌ Tokens valid until expiration even after logout
 - ❌ No way to forcefully terminate sessions
 - ❌ Compromised tokens remain active
 - ❌ No logout from all devices
 
 ### After Implementation
+
 - ✅ Immediate token invalidation on logout
 - ✅ Forceful session termination
 - ✅ Compromised tokens can be revoked
@@ -437,6 +462,7 @@ grep "Redis error" logs
 See `TOKEN_REVOCATION_SETUP.md` for detailed troubleshooting guide.
 
 Common issues:
+
 - Redis connection errors → Check REDIS_URL
 - Token missing JTI → Use new login endpoint
 - Module import errors → Build @sahool/nestjs-auth package
@@ -451,6 +477,7 @@ Common issues:
 ## Support
 
 For questions or issues:
+
 1. Check documentation files
 2. Review logs and Redis state
 3. Test with curl commands

@@ -90,29 +90,34 @@ All components have been successfully implemented and are ready for integration 
 ## Key Features
 
 ### 1. TOTP-Based Authentication
+
 - Industry-standard TOTP algorithm (RFC 6238)
 - Compatible with Google Authenticator, Authy, Microsoft Authenticator
 - 6-digit codes, 30-second intervals
 - QR code generation for easy setup
 
 ### 2. Backup Codes
+
 - 10 single-use backup codes generated at setup
 - Hashed storage (SHA-256)
 - Can be regenerated with TOTP verification
 - Downloadable as text file
 
 ### 3. Flexible Enforcement
+
 - **Optional**: Users can choose to enable 2FA
 - **Recommended**: Suggested but not required
 - **Required for Admin**: Enforced for admin/supervisor roles
 - **Required for All**: Platform-wide enforcement
 
 ### 4. Grace Period
+
 - Configurable grace period (default: 7-30 days)
 - Allows new admins time to set up 2FA
 - Prevents immediate lockout
 
 ### 5. Security Features
+
 - Encrypted TOTP secret storage
 - Hashed backup codes
 - Rate limiting support
@@ -122,10 +127,12 @@ All components have been successfully implemented and are ready for integration 
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/v1/auth/login` - Login with optional 2FA code
 - `GET /api/v1/auth/me` - Get current user info
 
 ### 2FA Management
+
 - `POST /admin/2fa/setup` - Initiate 2FA setup (returns QR code)
 - `POST /admin/2fa/verify` - Verify TOTP and enable 2FA
 - `POST /admin/2fa/disable` - Disable 2FA (requires code)
@@ -135,6 +142,7 @@ All components have been successfully implemented and are ready for integration 
 ## User Flows
 
 ### Setup Flow
+
 1. Admin navigates to Security Settings
 2. Clicks "Enable 2FA"
 3. Backend generates TOTP secret and QR code
@@ -144,6 +152,7 @@ All components have been successfully implemented and are ready for integration 
 7. User saves backup codes securely
 
 ### Login Flow (2FA Enabled)
+
 1. User enters email and password
 2. System checks if 2FA is enabled
 3. If enabled, user is prompted for TOTP code
@@ -152,6 +161,7 @@ All components have been successfully implemented and are ready for integration 
 6. User is logged in
 
 ### Disable Flow
+
 1. User navigates to Security Settings
 2. Clicks "Disable 2FA"
 3. Enters TOTP code or backup code for verification
@@ -160,6 +170,7 @@ All components have been successfully implemented and are ready for integration 
 ## Configuration Examples
 
 ### Production (Recommended)
+
 ```python
 from shared.auth.twofa_config import configure_twofa, TwoFAEnforcementLevel
 
@@ -173,6 +184,7 @@ configure_twofa(
 ```
 
 ### Development
+
 ```python
 configure_twofa(
     enforcement_level=TwoFAEnforcementLevel.OPTIONAL,
@@ -182,6 +194,7 @@ configure_twofa(
 ```
 
 ### Maximum Security
+
 ```python
 configure_twofa(
     enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ALL,
@@ -194,6 +207,7 @@ configure_twofa(
 ## Installation
 
 ### Backend
+
 ```bash
 # Install Python dependencies
 pip install -r /shared/auth/requirements-2fa.txt
@@ -203,6 +217,7 @@ pip install pyotp qrcode[pil]
 ```
 
 ### Database Migration
+
 ```sql
 -- Add 2FA fields to users table
 ALTER TABLE users ADD COLUMN twofa_secret TEXT;
@@ -211,11 +226,13 @@ ALTER TABLE users ADD COLUMN twofa_backup_codes TEXT[];
 ```
 
 ### Frontend
+
 No additional dependencies required. Uses existing React/Next.js setup.
 
 ## Integration Steps
 
 1. **Install Dependencies**
+
    ```bash
    pip install pyotp qrcode[pil]
    ```
@@ -224,6 +241,7 @@ No additional dependencies required. Uses existing React/Next.js setup.
    - Add 2FA fields to user table
 
 3. **Register API Routes**
+
    ```python
    from shared.auth.twofa_api import router as twofa_router
    from shared.auth.auth_api import router as auth_router
@@ -233,6 +251,7 @@ No additional dependencies required. Uses existing React/Next.js setup.
    ```
 
 4. **Configure 2FA**
+
    ```python
    from shared.auth.twofa_config import get_production_config, set_twofa_config
 
@@ -240,6 +259,7 @@ No additional dependencies required. Uses existing React/Next.js setup.
    ```
 
 5. **Set User Service**
+
    ```python
    from shared.auth.twofa_api import set_user_service
 
@@ -291,15 +311,18 @@ No additional dependencies required. Uses existing React/Next.js setup.
 ## Troubleshooting
 
 ### QR Code Not Generating
+
 - Check if `qrcode[pil]` is installed
 - Verify PIL/Pillow is working
 
 ### TOTP Verification Fails
+
 - Check server time synchronization
 - Verify 30-second window tolerance
 - Ensure user entered correct code
 
 ### Backup Codes Not Working
+
 - Check if code was already used
 - Verify hash comparison logic
 - Ensure proper format (XXXX-XXXX)
@@ -322,6 +345,7 @@ No additional dependencies required. Uses existing React/Next.js setup.
 ## Support
 
 For questions or issues:
+
 - Review `/shared/auth/2FA_IMPLEMENTATION_GUIDE.md`
 - Check application logs
 - Contact development team

@@ -14,22 +14,24 @@ Agricultural damage assessment service for natural disasters and extreme weather
 ## الميزات | Features
 
 ### أنواع الكوارث | Disaster Types
-| النوع | Type | الوصف |
-|-------|------|--------|
-| فيضان | Flood | فيضانات وسيول |
-| جفاف | Drought | موجات جفاف |
-| صقيع | Frost | موجات صقيع |
-| حرارة | Heat Wave | موجات حر |
-| رياح | Wind Storm | عواصف رملية |
-| آفات | Pest Outbreak | انتشار آفات |
+
+| النوع | Type          | الوصف         |
+| ----- | ------------- | ------------- |
+| فيضان | Flood         | فيضانات وسيول |
+| جفاف  | Drought       | موجات جفاف    |
+| صقيع  | Frost         | موجات صقيع    |
+| حرارة | Heat Wave     | موجات حر      |
+| رياح  | Wind Storm    | عواصف رملية   |
+| آفات  | Pest Outbreak | انتشار آفات   |
 
 ### التقييم | Assessment
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| تقييم صور | Image Assessment | تحليل صور الأضرار |
-| تقييم ميداني | Field Assessment | تقارير ميدانية |
-| تقييم أقمار | Satellite Assessment | صور الأقمار الصناعية |
-| تقدير الخسائر | Loss Estimation | حساب الأضرار المادية |
+
+| الميزة        | Feature              | الوصف                |
+| ------------- | -------------------- | -------------------- |
+| تقييم صور     | Image Assessment     | تحليل صور الأضرار    |
+| تقييم ميداني  | Field Assessment     | تقارير ميدانية       |
+| تقييم أقمار   | Satellite Assessment | صور الأقمار الصناعية |
+| تقدير الخسائر | Loss Estimation      | حساب الأضرار المادية |
 
 ---
 
@@ -174,6 +176,7 @@ GET /compensation/claims?disaster_id=dis-001&status=pending
 ## نماذج البيانات | Data Models
 
 ### Disaster
+
 ```json
 {
     "id": "dis-001",
@@ -197,34 +200,32 @@ GET /compensation/claims?disaster_id=dis-001&status=pending
 ```
 
 ### Assessment
+
 ```json
 {
-    "id": "assess-001",
-    "disaster_id": "dis-001",
-    "field_id": "field-001",
-    "assessment_type": "field_visit",
-    "assessor": {
-        "id": "user-001",
-        "name": "محمد علي",
-        "role": "field_agent"
-    },
-    "damage": {
-        "percent": 45,
-        "category": "partial_loss",
-        "description": "غمر جزئي للحقل"
-    },
-    "images": [
-        {
-            "url": "https://...",
-            "caption": "صورة للحقل المتضرر",
-            "taken_at": "2024-01-16T10:00:00Z"
-        }
-    ],
-    "recommendations": [
-        "تصريف المياه الراكدة",
-        "تطبيق مبيدات فطرية وقائية"
-    ],
-    "created_at": "2024-01-16T10:30:00Z"
+  "id": "assess-001",
+  "disaster_id": "dis-001",
+  "field_id": "field-001",
+  "assessment_type": "field_visit",
+  "assessor": {
+    "id": "user-001",
+    "name": "محمد علي",
+    "role": "field_agent"
+  },
+  "damage": {
+    "percent": 45,
+    "category": "partial_loss",
+    "description": "غمر جزئي للحقل"
+  },
+  "images": [
+    {
+      "url": "https://...",
+      "caption": "صورة للحقل المتضرر",
+      "taken_at": "2024-01-16T10:00:00Z"
+    }
+  ],
+  "recommendations": ["تصريف المياه الراكدة", "تطبيق مبيدات فطرية وقائية"],
+  "created_at": "2024-01-16T10:30:00Z"
 }
 ```
 

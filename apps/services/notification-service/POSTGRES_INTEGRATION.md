@@ -1,4 +1,5 @@
 # SAHOOL Notification Service - PostgreSQL Integration Guide
+
 # دليل تكامل PostgreSQL لخدمة الإشعارات
 
 ## ✅ What's Been Added | ما تم إضافته
@@ -135,6 +136,7 @@ chmod +x run_dev.sh
 ```
 
 This will:
+
 - Start PostgreSQL and Redis in Docker
 - Create virtual environment
 - Install dependencies
@@ -289,6 +291,7 @@ curl http://localhost:8110/v1/notifications/farmer/farmer-1
 ### Database Indexes
 
 The following indexes are automatically created:
+
 - `(user_id, status)` - Fast notification queries per user
 - `(user_id, created_at)` - Sorted notification lists
 - `(type, created_at)` - Type-based filtering
@@ -380,6 +383,7 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO sahool;
 ## 👥 Support | الدعم
 
 For questions or issues:
+
 - Check logs: Service logs show database operations
 - Database logs: PostgreSQL logs in Docker container
 - Health endpoint: `/healthz` shows database status

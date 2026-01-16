@@ -3,12 +3,14 @@
 ## Installation (5 minutes)
 
 ### 1. Install Python Dependencies
+
 ```bash
 cd /home/user/sahool-unified-v15-idp
 pip install pyotp qrcode[pil]
 ```
 
 ### 2. Database Migration
+
 Add 2FA fields to your users table:
 
 ```sql
@@ -21,6 +23,7 @@ ADD COLUMN twofa_backup_codes TEXT[];
 ### 3. Configure Your Application
 
 #### For FastAPI Backend:
+
 ```python
 from fastapi import FastAPI
 from shared.auth.auth_api import router as auth_router, set_user_service
@@ -50,6 +53,7 @@ app.include_router(twofa_router)
 ### For End Users (Admins)
 
 #### Enable 2FA:
+
 1. Login to admin dashboard
 2. Navigate to **Settings → Security**
 3. Click **"Enable 2FA"**
@@ -58,11 +62,13 @@ app.include_router(twofa_router)
 6. **Save backup codes securely!**
 
 #### Login with 2FA:
+
 1. Enter email and password
 2. Enter 6-digit code from authenticator app
 3. Click **"Verify"**
 
 #### Disable 2FA:
+
 1. Navigate to **Settings → Security**
 2. Click **"Disable 2FA"**
 3. Enter verification code or backup code
@@ -71,6 +77,7 @@ app.include_router(twofa_router)
 ### For Developers
 
 #### API Endpoints:
+
 ```bash
 # Setup 2FA
 POST /admin/2fa/setup
@@ -143,6 +150,7 @@ set_twofa_config(get_strict_config())
 ## Testing
 
 ### Quick Test:
+
 ```bash
 # 1. Start backend
 python shared/auth/example_integration.py
@@ -162,6 +170,7 @@ npm run dev
 ```
 
 ### Manual Testing Checklist:
+
 - [ ] Setup 2FA with QR code
 - [ ] Verify TOTP code
 - [ ] Save backup codes
@@ -174,6 +183,7 @@ npm run dev
 ## Files Overview
 
 ### Created:
+
 - `/shared/auth/twofa_service.py` - Core 2FA service
 - `/shared/auth/twofa_api.py` - API endpoints
 - `/shared/auth/auth_api.py` - Authentication with 2FA
@@ -184,6 +194,7 @@ npm run dev
 - `/apps/admin/src/app/settings/security/page.tsx` - Settings UI
 
 ### Modified:
+
 - `/shared/domain/users/models.py` - Added 2FA fields
 - `/shared/domain/users/service.py` - Added 2FA methods
 - `/apps/admin/src/app/login/page.tsx` - Added 2FA input
@@ -210,12 +221,14 @@ npm run dev
 ## Security Tips
 
 ✅ **DO:**
+
 - Save backup codes securely
 - Use unique passwords
 - Enable 2FA on all admin accounts
 - Keep authenticator app updated
 
 ❌ **DON'T:**
+
 - Share backup codes
 - Screenshot QR codes publicly
 - Disable 2FA unless necessary

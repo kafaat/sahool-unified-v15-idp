@@ -6,10 +6,10 @@
  */
 
 // Core types
-export * from './audit-types';
+export * from "./audit-types";
 
 // Logger
-export { AuditLogger } from './audit-logger';
+export { AuditLogger } from "./audit-logger";
 
 // Middleware
 export {
@@ -22,7 +22,7 @@ export {
   CorrelationId,
   type AuditContext,
   type RequestWithAudit,
-} from './audit-middleware';
+} from "./audit-middleware";
 
 // Alerts
 export {
@@ -31,7 +31,7 @@ export {
   emailAlertHandler,
   slackAlertHandler,
   createWebhookAlertHandler,
-} from './audit-alerts';
+} from "./audit-alerts";
 
 // Decorators
 export {
@@ -52,4 +52,4 @@ export {
 
   // Interceptor
   AuditInterceptor,
-} from './decorators';
+} from "./decorators";

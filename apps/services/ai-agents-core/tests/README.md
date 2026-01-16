@@ -1,4 +1,5 @@
 # AI Agents Core - Test Suite
+
 # مجموعة اختبارات نواة وكلاء الذكاء الاصطناعي
 
 Comprehensive test suite for the AI Agents Core service.
@@ -6,6 +7,7 @@ Comprehensive test suite for the AI Agents Core service.
 ## Overview
 
 This test suite provides comprehensive coverage for:
+
 - **Agent orchestration logic** - Multi-agent coordination and decision making
 - **Request/response validation** - API endpoint validation
 - **Error handling** - Graceful error recovery
@@ -35,11 +37,13 @@ tests/
 ## Running Tests
 
 ### Run All Tests
+
 ```bash
 pytest
 ```
 
 ### Run Specific Test Categories
+
 ```bash
 # Unit tests only
 pytest -m unit
@@ -58,6 +62,7 @@ pytest -m "not slow"
 ```
 
 ### Run Specific Test Files
+
 ```bash
 # Test base agent
 pytest tests/unit/test_base_agent.py
@@ -76,6 +81,7 @@ pytest tests/integration/test_agent_workflows.py
 ```
 
 ### Run with Coverage
+
 ```bash
 # Generate coverage report
 pytest --cov=src --cov-report=html
@@ -85,6 +91,7 @@ open htmlcov/index.html
 ```
 
 ### Run with Verbose Output
+
 ```bash
 pytest -v
 ```
@@ -107,6 +114,7 @@ Tests are organized using pytest markers:
 ## Test Coverage
 
 ### Base Agent Tests
+
 - Agent initialization and lifecycle
 - Perceive-Think-Act cycle
 - State management
@@ -117,6 +125,7 @@ Tests are organized using pytest markers:
 - Error handling
 
 ### IoT Agent Tests
+
 - Sensor data processing
 - Threshold detection
 - Automated irrigation triggers
@@ -126,6 +135,7 @@ Tests are organized using pytest markers:
 - Actuator control
 
 ### Disease Expert Agent Tests
+
 - Disease diagnosis from symptoms
 - Disease diagnosis from images
 - Treatment selection (utility-based)
@@ -133,6 +143,7 @@ Tests are organized using pytest markers:
 - Yemen-specific disease knowledge
 
 ### Coordinator Agent Tests
+
 - Multi-agent orchestration
 - Conflict detection and resolution
 - Priority-based decision making
@@ -140,6 +151,7 @@ Tests are organized using pytest markers:
 - Unified recommendation generation
 
 ### API Endpoint Tests
+
 - Health check endpoint
 - Analysis endpoint with validation
 - Edge agent endpoints
@@ -150,6 +162,7 @@ Tests are organized using pytest markers:
 - Request/response validation
 
 ### Integration Tests
+
 - Disease detection and treatment workflow
 - Irrigation management workflow
 - Multi-agent coordination
@@ -162,21 +175,27 @@ Tests are organized using pytest markers:
 The test suite includes comprehensive mocks for external services:
 
 ### MockAIService
+
 Generic AI service for predictions
 
 ### MockDiseaseDetectionModel
+
 Mock disease detection model for testing disease workflows
 
 ### MockYieldPredictionModel
+
 Mock yield prediction model
 
 ### MockWeatherAPI
+
 Mock weather API service
 
 ### MockIrrigationController
+
 Mock irrigation controller for testing actuator commands
 
 ### MockSensorDevice
+
 Mock sensor device for testing sensor readings
 
 ## Fixtures
@@ -184,6 +203,7 @@ Mock sensor device for testing sensor readings
 Common fixtures available in `conftest.py`:
 
 ### Agent Fixtures
+
 - `sample_context` - Sample agent context
 - `sample_percept` - Sample agent percept
 - `sample_action` - Sample agent action
@@ -192,22 +212,26 @@ Common fixtures available in `conftest.py`:
 - `coordinator_agent` - Coordinator instance
 
 ### API Fixtures
+
 - `api_client` - Synchronous test client
 - `async_api_client` - Async test client
 
 ### Mock Data Fixtures
+
 - `mock_sensor_data` - Mock sensor readings
 - `mock_weather_data` - Mock weather data
 - `mock_image_data` - Mock image analysis
 - `mock_disease_symptoms` - Mock disease symptoms
 
 ### Utility Fixtures
+
 - `reset_agent_state` - Reset agent state between tests
 - `rate_limit_headers` - Headers for rate limit testing
 
 ## Writing New Tests
 
 ### Unit Test Template
+
 ```python
 @pytest.mark.unit
 @pytest.mark.agent
@@ -225,6 +249,7 @@ async def test_new_feature():
 ```
 
 ### Integration Test Template
+
 ```python
 @pytest.mark.integration
 @pytest.mark.asyncio
@@ -255,6 +280,7 @@ async def test_new_workflow():
 ## Continuous Integration
 
 Tests are automatically run on:
+
 - Pull requests
 - Merges to main branch
 - Scheduled nightly runs
@@ -262,6 +288,7 @@ Tests are automatically run on:
 ## Performance Benchmarks
 
 ### Target Response Times
+
 - **Edge agents**: < 100ms
 - **Specialist agents**: < 500ms
 - **Coordinator**: < 2000ms
@@ -272,18 +299,21 @@ Tests are automatically run on:
 ### Common Issues
 
 **Import errors**
+
 ```bash
 # Ensure src is in PYTHONPATH
 export PYTHONPATH="${PYTHONPATH}:${PWD}/src"
 ```
 
 **Async test failures**
+
 ```bash
 # Install pytest-asyncio
 pip install pytest-asyncio
 ```
 
 **Coverage not showing**
+
 ```bash
 # Install coverage dependencies
 pip install pytest-cov
@@ -292,6 +322,7 @@ pip install pytest-cov
 ## Contributing
 
 When adding new features:
+
 1. Write tests first (TDD approach recommended)
 2. Ensure all tests pass
 3. Maintain or improve coverage

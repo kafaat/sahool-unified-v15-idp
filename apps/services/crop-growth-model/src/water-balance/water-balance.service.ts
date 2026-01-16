@@ -4,7 +4,7 @@
 // Based on FAO-56 and SWAP model concepts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crop Coefficients (Kc) - FAO-56
@@ -14,27 +14,29 @@ import { Injectable } from '@nestjs/common';
 export interface CropWaterParams {
   nameAr: string;
   nameEn: string;
-  Kc_ini: number;        // Initial stage Kc
-  Kc_mid: number;        // Mid-season Kc
-  Kc_end: number;        // Late season Kc
-  stageLengths: {        // Days for each stage
+  Kc_ini: number; // Initial stage Kc
+  Kc_mid: number; // Mid-season Kc
+  Kc_end: number; // Late season Kc
+  stageLengths: {
+    // Days for each stage
     initial: number;
     development: number;
     mid: number;
     late: number;
   };
-  rootingDepth: {        // Rooting depth (m)
+  rootingDepth: {
+    // Rooting depth (m)
     min: number;
     max: number;
   };
-  depletionFraction: number;  // Allowable depletion fraction (p)
+  depletionFraction: number; // Allowable depletion fraction (p)
   yieldResponseFactor: number; // Ky - yield response to water
 }
 
 const CROP_WATER_PARAMS: Record<string, CropWaterParams> = {
   WHEAT: {
-    nameAr: 'القمح',
-    nameEn: 'Wheat',
+    nameAr: "القمح",
+    nameEn: "Wheat",
     Kc_ini: 0.3,
     Kc_mid: 1.15,
     Kc_end: 0.25,
@@ -44,21 +46,21 @@ const CROP_WATER_PARAMS: Record<string, CropWaterParams> = {
     yieldResponseFactor: 1.0,
   },
   RICE: {
-    nameAr: 'الأرز',
-    nameEn: 'Rice',
+    nameAr: "الأرز",
+    nameEn: "Rice",
     Kc_ini: 1.05,
-    Kc_mid: 1.20,
-    Kc_end: 0.90,
+    Kc_mid: 1.2,
+    Kc_end: 0.9,
     stageLengths: { initial: 30, development: 30, mid: 60, late: 30 },
     rootingDepth: { min: 0.2, max: 0.6 },
-    depletionFraction: 0.20,
+    depletionFraction: 0.2,
     yieldResponseFactor: 1.1,
   },
   CORN: {
-    nameAr: 'الذرة',
-    nameEn: 'Corn/Maize',
+    nameAr: "الذرة",
+    nameEn: "Corn/Maize",
     Kc_ini: 0.3,
-    Kc_mid: 1.20,
+    Kc_mid: 1.2,
     Kc_end: 0.35,
     stageLengths: { initial: 25, development: 40, mid: 45, late: 30 },
     rootingDepth: { min: 0.3, max: 2.0 },
@@ -66,20 +68,20 @@ const CROP_WATER_PARAMS: Record<string, CropWaterParams> = {
     yieldResponseFactor: 1.25,
   },
   SOYBEAN: {
-    nameAr: 'فول الصويا',
-    nameEn: 'Soybean',
+    nameAr: "فول الصويا",
+    nameEn: "Soybean",
     Kc_ini: 0.4,
     Kc_mid: 1.15,
-    Kc_end: 0.50,
+    Kc_end: 0.5,
     stageLengths: { initial: 20, development: 35, mid: 45, late: 25 },
     rootingDepth: { min: 0.3, max: 1.8 },
-    depletionFraction: 0.50,
+    depletionFraction: 0.5,
     yieldResponseFactor: 0.85,
   },
   SUGARCANE: {
-    nameAr: 'قصب السكر',
-    nameEn: 'Sugarcane',
-    Kc_ini: 0.40,
+    nameAr: "قصب السكر",
+    nameEn: "Sugarcane",
+    Kc_ini: 0.4,
     Kc_mid: 1.25,
     Kc_end: 0.75,
     stageLengths: { initial: 50, development: 70, mid: 180, late: 60 },
@@ -88,14 +90,14 @@ const CROP_WATER_PARAMS: Record<string, CropWaterParams> = {
     yieldResponseFactor: 1.2,
   },
   COFFEE: {
-    nameAr: 'البن',
-    nameEn: 'Coffee',
-    Kc_ini: 0.90,
+    nameAr: "البن",
+    nameEn: "Coffee",
+    Kc_ini: 0.9,
     Kc_mid: 0.95,
     Kc_end: 0.95,
     stageLengths: { initial: 60, development: 90, mid: 120, late: 95 },
     rootingDepth: { min: 0.5, max: 3.0 },
-    depletionFraction: 0.40,
+    depletionFraction: 0.4,
     yieldResponseFactor: 0.9,
   },
 };
@@ -127,31 +129,31 @@ export class WaterBalanceService {
     if (daysAfterPlanting <= initial) {
       // Initial stage
       kc = params.Kc_ini;
-      stage = 'initial';
-      stageAr = 'المرحلة الأولية';
+      stage = "initial";
+      stageAr = "المرحلة الأولية";
       stageProgress = daysAfterPlanting / initial;
     } else if (daysAfterPlanting <= initial + development) {
       // Development stage - linear interpolation
       const dayInStage = daysAfterPlanting - initial;
       const progress = dayInStage / development;
       kc = params.Kc_ini + (params.Kc_mid - params.Kc_ini) * progress;
-      stage = 'development';
-      stageAr = 'مرحلة التطور';
+      stage = "development";
+      stageAr = "مرحلة التطور";
       stageProgress = progress;
     } else if (daysAfterPlanting <= initial + development + mid) {
       // Mid-season stage
       const dayInStage = daysAfterPlanting - initial - development;
       kc = params.Kc_mid;
-      stage = 'mid-season';
-      stageAr = 'منتصف الموسم';
+      stage = "mid-season";
+      stageAr = "منتصف الموسم";
       stageProgress = dayInStage / mid;
     } else {
       // Late stage - linear decline
       const dayInStage = daysAfterPlanting - initial - development - mid;
       const progress = Math.min(1, dayInStage / late);
       kc = params.Kc_mid - (params.Kc_mid - params.Kc_end) * progress;
-      stage = 'late';
-      stageAr = 'المرحلة المتأخرة';
+      stage = "late";
+      stageAr = "المرحلة المتأخرة";
       stageProgress = progress;
     }
 
@@ -170,9 +172,9 @@ export class WaterBalanceService {
 
   calculateETc(
     cropType: string,
-    et0: number,               // Reference ET (mm day⁻¹)
+    et0: number, // Reference ET (mm day⁻¹)
     daysAfterPlanting: number,
-    waterStress?: number,      // Ks (0-1), optional stress coefficient
+    waterStress?: number, // Ks (0-1), optional stress coefficient
   ): {
     et0: number;
     kc: number;
@@ -196,7 +198,7 @@ export class WaterBalanceService {
       ks,
       etc: Math.round(etc * 100) / 100,
       etc_adj: Math.round(etc_adj * 100) / 100,
-      unit: 'mm day⁻¹',
+      unit: "mm day⁻¹",
     };
   }
 
@@ -207,16 +209,16 @@ export class WaterBalanceService {
 
   calculateWaterBalance(
     cropType: string,
-    rootingDepth: number,        // Current rooting depth (m)
+    rootingDepth: number, // Current rooting depth (m)
     soilParams: {
-      fieldCapacity: number;     // FC (m³ m⁻³)
-      wiltingPoint: number;      // WP (m³ m⁻³)
+      fieldCapacity: number; // FC (m³ m⁻³)
+      wiltingPoint: number; // WP (m³ m⁻³)
       currentWaterContent: number; // θ (m³ m⁻³)
     },
     dailyInputs: {
-      et0: number;               // mm day⁻¹
-      precipitation: number;     // mm
-      irrigation: number;        // mm
+      et0: number; // mm day⁻¹
+      precipitation: number; // mm
+      irrigation: number; // mm
       daysAfterPlanting: number;
     },
   ): {
@@ -244,7 +246,10 @@ export class WaterBalanceService {
     const params = CROP_WATER_PARAMS[cropType] || CROP_WATER_PARAMS.WHEAT;
 
     // Total Available Water (TAW) in root zone
-    const TAW = 1000 * (soilParams.fieldCapacity - soilParams.wiltingPoint) * rootingDepth;
+    const TAW =
+      1000 *
+      (soilParams.fieldCapacity - soilParams.wiltingPoint) *
+      rootingDepth;
 
     // Readily Available Water (RAW)
     const RAW = params.depletionFraction * TAW;
@@ -275,7 +280,8 @@ export class WaterBalanceService {
     const irrigation = dailyInputs.irrigation;
 
     // Potential storage after additions
-    const potentialStorage = initialStorage + precipitation + irrigation - etc_adj;
+    const potentialStorage =
+      initialStorage + precipitation + irrigation - etc_adj;
 
     // Runoff (if exceeds field capacity)
     const runoff = Math.max(0, potentialStorage - maxStorage);
@@ -313,10 +319,10 @@ export class WaterBalanceService {
         deficit: needsIrrigation ? Math.round(Math.abs(irrigationDeficit)) : 0,
         recommendation: needsIrrigation
           ? `Apply ${Math.round(Math.abs(irrigationDeficit))} mm irrigation`
-          : 'No irrigation needed',
+          : "No irrigation needed",
         recommendationAr: needsIrrigation
           ? `قم بالري بكمية ${Math.round(Math.abs(irrigationDeficit))} ملم`
-          : 'لا حاجة للري',
+          : "لا حاجة للري",
       },
     };
   }
@@ -340,8 +346,8 @@ export class WaterBalanceService {
       initialWaterContent: number;
     },
     irrigationSystem: {
-      type: 'drip' | 'sprinkler' | 'furrow' | 'flood';
-      efficiency: number;         // 0-1
+      type: "drip" | "sprinkler" | "furrow" | "flood";
+      efficiency: number; // 0-1
       maxDailyApplication: number; // mm
     },
   ): {
@@ -379,7 +385,8 @@ export class WaterBalanceService {
     let accumulatedDeficit = 0;
 
     // Dynamic rooting depth
-    const totalSeasonLength = params.stageLengths.initial +
+    const totalSeasonLength =
+      params.stageLengths.initial +
       params.stageLengths.development +
       params.stageLengths.mid +
       params.stageLengths.late;
@@ -390,8 +397,12 @@ export class WaterBalanceService {
       date.setDate(date.getDate() + daysAfterPlanting);
 
       // Dynamic rooting depth
-      const rootProgress = Math.min(1, daysAfterPlanting / (totalSeasonLength * 0.5));
-      const rootingDepth = params.rootingDepth.min +
+      const rootProgress = Math.min(
+        1,
+        daysAfterPlanting / (totalSeasonLength * 0.5),
+      );
+      const rootingDepth =
+        params.rootingDepth.min +
         (params.rootingDepth.max - params.rootingDepth.min) * rootProgress;
 
       // Calculate ETc
@@ -403,7 +414,10 @@ export class WaterBalanceService {
       );
 
       // TAW and RAW
-      const TAW = 1000 * (soilParams.fieldCapacity - soilParams.wiltingPoint) * rootingDepth;
+      const TAW =
+        1000 *
+        (soilParams.fieldCapacity - soilParams.wiltingPoint) *
+        rootingDepth;
       const RAW = params.depletionFraction * TAW;
 
       // Update soil moisture
@@ -417,10 +431,13 @@ export class WaterBalanceService {
 
       if (needsIrrigation) {
         // Calculate net irrigation need
-        const netNeed = depletion - (RAW * 0.3); // Refill to 30% of RAW
+        const netNeed = depletion - RAW * 0.3; // Refill to 30% of RAW
         // Gross irrigation (accounting for efficiency)
         const grossNeed = netNeed / irrigationSystem.efficiency;
-        irrigationAmount = Math.min(grossNeed, irrigationSystem.maxDailyApplication);
+        irrigationAmount = Math.min(
+          grossNeed,
+          irrigationSystem.maxDailyApplication,
+        );
         irrigationEvents++;
         totalIrrigation += irrigationAmount;
       }
@@ -450,12 +467,14 @@ export class WaterBalanceService {
 
     // Calculate average irrigation interval
     const irrigationDays = schedule
-      .map((s, i) => s.irrigationNeeded ? i : -1)
-      .filter(i => i >= 0);
+      .map((s, i) => (s.irrigationNeeded ? i : -1))
+      .filter((i) => i >= 0);
 
     let avgInterval = 0;
     if (irrigationDays.length > 1) {
-      const intervals = irrigationDays.slice(1).map((day, i) => day - irrigationDays[i]);
+      const intervals = irrigationDays
+        .slice(1)
+        .map((day, i) => day - irrigationDays[i]);
       avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
     }
 
@@ -483,7 +502,7 @@ export class WaterBalanceService {
 
   calculateYieldReduction(
     cropType: string,
-    relativeETDeficit: number,  // (1 - ETa/ETm)
+    relativeETDeficit: number, // (1 - ETa/ETm)
   ): {
     yieldReduction: number;
     potentialYieldPercent: number;
@@ -503,17 +522,17 @@ export class WaterBalanceService {
     let descriptionAr: string;
 
     if (yieldReduction < 10) {
-      description = 'Minimal yield impact';
-      descriptionAr = 'تأثير ضئيل على الغلة';
+      description = "Minimal yield impact";
+      descriptionAr = "تأثير ضئيل على الغلة";
     } else if (yieldReduction < 25) {
-      description = 'Moderate yield reduction expected';
-      descriptionAr = 'انخفاض متوسط متوقع في الغلة';
+      description = "Moderate yield reduction expected";
+      descriptionAr = "انخفاض متوسط متوقع في الغلة";
     } else if (yieldReduction < 50) {
-      description = 'Significant yield loss likely';
-      descriptionAr = 'خسارة كبيرة متوقعة في الغلة';
+      description = "Significant yield loss likely";
+      descriptionAr = "خسارة كبيرة متوقعة في الغلة";
     } else {
-      description = 'Severe yield reduction - critical water stress';
-      descriptionAr = 'انخفاض شديد في الغلة - إجهاد مائي حرج';
+      description = "Severe yield reduction - critical water stress";
+      descriptionAr = "انخفاض شديد في الغلة - إجهاد مائي حرج";
     }
 
     return {
@@ -529,7 +548,9 @@ export class WaterBalanceService {
   // Get Crop Water Parameters
   // ─────────────────────────────────────────────────────────────────────────────
 
-  getCropParameters(cropType?: string): CropWaterParams | Record<string, CropWaterParams> | null {
+  getCropParameters(
+    cropType?: string,
+  ): CropWaterParams | Record<string, CropWaterParams> | null {
     if (cropType) {
       return CROP_WATER_PARAMS[cropType] || null;
     }
@@ -540,7 +561,12 @@ export class WaterBalanceService {
   // Get Available Crops
   // ─────────────────────────────────────────────────────────────────────────────
 
-  getAvailableCrops(): Array<{ id: string; nameEn: string; nameAr: string; kcMid: number }> {
+  getAvailableCrops(): Array<{
+    id: string;
+    nameEn: string;
+    nameAr: string;
+    kcMid: number;
+  }> {
     return Object.entries(CROP_WATER_PARAMS).map(([id, params]) => ({
       id,
       nameEn: params.nameEn,

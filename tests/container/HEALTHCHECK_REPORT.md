@@ -1,4 +1,5 @@
 # SAHOOL Container Health Check Configuration Report
+
 # تقرير تكوين فحص صحة الحاويات
 
 **Generated:** 2026-01-06
@@ -9,14 +10,14 @@
 
 ## Executive Summary
 
-| Category | Count | Percentage |
-|----------|-------|------------|
-| **Total Services** | 52 | 100% |
-| **Services with HEALTHCHECK** | 51 | 98.1% |
-| **Services with Health Endpoints** | 51 | 98.1% |
-| **Services Missing HEALTHCHECK** | 1 | 1.9% |
-| **Python/FastAPI Services** | 39 | 75% |
-| **Node.js/NestJS Services** | 13 | 25% |
+| Category                           | Count | Percentage |
+| ---------------------------------- | ----- | ---------- |
+| **Total Services**                 | 52    | 100%       |
+| **Services with HEALTHCHECK**      | 51    | 98.1%      |
+| **Services with Health Endpoints** | 51    | 98.1%      |
+| **Services Missing HEALTHCHECK**   | 1     | 1.9%       |
+| **Python/FastAPI Services**        | 39    | 75%        |
+| **Node.js/NestJS Services**        | 13    | 25%        |
 
 ### Health Status
 
@@ -34,80 +35,83 @@
 All Python services implement standardized health endpoints using the shared middleware at `/home/user/sahool-unified-v15-idp/apps/services/shared/middleware/health.py`.
 
 #### Health Endpoints Implemented
+
 - `/healthz` - Basic health check (Kubernetes liveness probe)
 - `/livez` - Kubernetes liveness probe (alternative)
 - `/readyz` - Kubernetes readiness probe (with dependency checks)
 
 #### Standard HEALTHCHECK Configuration
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:<PORT>/healthz')" || exit 1
 ```
 
-| Service | Port | Dockerfile HEALTHCHECK | Health Endpoint | Interval | Timeout | Start Period | Retries |
-|---------|------|------------------------|-----------------|----------|---------|--------------|---------|
-| advisory-service | 8093 | ✅ | `/healthz` | 30s | 10s | 30s | 3 |
-| agent-registry | 8030 | ✅ | `/healthz` | 30s | 5s | 10s | 3 |
-| agro-advisor | 8093 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| agro-rules | 8095 | ✅ | `/healthz` | 30s | 10s | 10s | 3 |
-| ai-advisor | 8091 | ✅ | `/healthz` | 30s | 10s | 40s | 3 |
-| ai-agents-core | 8092 | ✅ | `/healthz` | 30s | 10s | 10s | 3 |
-| alert-service | 8113 | ✅ | `/health`, `/healthz` | 30s | 10s | 15s | 3 |
-| astronomical-calendar | 8115 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| billing-core | 8120 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| code-review-service | 8123 | ✅ | `/health` | 60s | 10s | 30s | 3 |
-| crop-health | 8105 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| crop-health-ai | 8106 | ✅ | `/healthz` | 30s | 10s | 10s | 3 |
-| crop-intelligence-service | 8107 | ✅ | `/healthz` | 30s | 10s | 30s | 3 |
-| equipment-service | 8110 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| fertilizer-advisor | 8094 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| field-chat | 8090 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| field-core | 8100 | ✅ | `/healthz`, `/health` | 30s | 10s | 15s | 3 |
-| field-intelligence | 8031 | ✅ | `/health`, `/healthz` | 30s | 10s | 15s | 3 |
-| field-ops | 8101 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| field-service | 8102 | ✅ | `/health`, `/healthz` | 30s | 10s | 15s | 3 |
-| globalgap-compliance | 8125 | ✅ | `/health`, `/health/live`, `/health/ready` | 30s | 10s | 15s | 3 |
-| indicators-service | 8111 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| inventory-service | 8112 | ✅ | `/health`, `/healthz` | 30s | 10s | 30s | 3 |
-| iot-gateway | 8032 | ✅ | `/health`, `/healthz` | 30s | 10s | 90s | 5 |
-| irrigation-smart | 8096 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| mcp-server | 8121 | ✅ | `/health`, `/healthz` | 30s | 10s | 15s | 3 |
-| ndvi-engine | 8108 | ✅ | `/healthz`, `/ndvi/health/{ndvi_value}` | 30s | 10s | 15s | 3 |
-| ndvi-processor | 8109 | ✅ | `/health`, `/healthz` | 30s | 10s | 15s | 3 |
-| notification-service | 8114 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| provider-config | 8122 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| satellite-service | 8117 | ✅ | `/healthz`, `/v1/cache/health` | 30s | 10s | 15s | 3 |
-| task-service | 8116 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| vegetation-analysis-service | 8118 | ✅ | `/healthz`, `/v1/cache/health` | 30s | 10s | 15s | 3 |
-| virtual-sensors | 8119 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| weather-advanced | 8127 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| weather-core | 8126 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| weather-service | 8128 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| ws-gateway | 8129 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| yield-engine | 8124 | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
+| Service                     | Port | Dockerfile HEALTHCHECK | Health Endpoint                            | Interval | Timeout | Start Period | Retries |
+| --------------------------- | ---- | ---------------------- | ------------------------------------------ | -------- | ------- | ------------ | ------- |
+| advisory-service            | 8093 | ✅                     | `/healthz`                                 | 30s      | 10s     | 30s          | 3       |
+| agent-registry              | 8030 | ✅                     | `/healthz`                                 | 30s      | 5s      | 10s          | 3       |
+| agro-advisor                | 8093 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| agro-rules                  | 8095 | ✅                     | `/healthz`                                 | 30s      | 10s     | 10s          | 3       |
+| ai-advisor                  | 8091 | ✅                     | `/healthz`                                 | 30s      | 10s     | 40s          | 3       |
+| ai-agents-core              | 8092 | ✅                     | `/healthz`                                 | 30s      | 10s     | 10s          | 3       |
+| alert-service               | 8113 | ✅                     | `/health`, `/healthz`                      | 30s      | 10s     | 15s          | 3       |
+| astronomical-calendar       | 8115 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| billing-core                | 8120 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| code-review-service         | 8123 | ✅                     | `/health`                                  | 60s      | 10s     | 30s          | 3       |
+| crop-health                 | 8105 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| crop-health-ai              | 8106 | ✅                     | `/healthz`                                 | 30s      | 10s     | 10s          | 3       |
+| crop-intelligence-service   | 8107 | ✅                     | `/healthz`                                 | 30s      | 10s     | 30s          | 3       |
+| equipment-service           | 8110 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| fertilizer-advisor          | 8094 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| field-chat                  | 8090 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| field-core                  | 8100 | ✅                     | `/healthz`, `/health`                      | 30s      | 10s     | 15s          | 3       |
+| field-intelligence          | 8031 | ✅                     | `/health`, `/healthz`                      | 30s      | 10s     | 15s          | 3       |
+| field-ops                   | 8101 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| field-service               | 8102 | ✅                     | `/health`, `/healthz`                      | 30s      | 10s     | 15s          | 3       |
+| globalgap-compliance        | 8125 | ✅                     | `/health`, `/health/live`, `/health/ready` | 30s      | 10s     | 15s          | 3       |
+| indicators-service          | 8111 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| inventory-service           | 8112 | ✅                     | `/health`, `/healthz`                      | 30s      | 10s     | 30s          | 3       |
+| iot-gateway                 | 8032 | ✅                     | `/health`, `/healthz`                      | 30s      | 10s     | 90s          | 5       |
+| irrigation-smart            | 8096 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| mcp-server                  | 8121 | ✅                     | `/health`, `/healthz`                      | 30s      | 10s     | 15s          | 3       |
+| ndvi-engine                 | 8108 | ✅                     | `/healthz`, `/ndvi/health/{ndvi_value}`    | 30s      | 10s     | 15s          | 3       |
+| ndvi-processor              | 8109 | ✅                     | `/health`, `/healthz`                      | 30s      | 10s     | 15s          | 3       |
+| notification-service        | 8114 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| provider-config             | 8122 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| satellite-service           | 8117 | ✅                     | `/healthz`, `/v1/cache/health`             | 30s      | 10s     | 15s          | 3       |
+| task-service                | 8116 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| vegetation-analysis-service | 8118 | ✅                     | `/healthz`, `/v1/cache/health`             | 30s      | 10s     | 15s          | 3       |
+| virtual-sensors             | 8119 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| weather-advanced            | 8127 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| weather-core                | 8126 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| weather-service             | 8128 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| ws-gateway                  | 8129 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
+| yield-engine                | 8124 | ✅                     | `/healthz`                                 | 30s      | 10s     | 15s          | 3       |
 
 ### Node.js/TypeScript Services (13 services)
 
 #### Standard HEALTHCHECK Configuration (Node.js)
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD node -e "require('http').get('http://localhost:<PORT>/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 ```
 
-| Service | Port | Framework | Dockerfile HEALTHCHECK | Health Endpoint | Interval | Timeout | Start Period | Retries |
-|---------|------|-----------|------------------------|-----------------|----------|---------|--------------|---------|
-| chat-service | 8089 | NestJS | ✅ | `/api/v1/health` (HealthController) | 30s | 10s | 30s | 3 |
-| community-chat | 8097 | Express | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| crop-growth-model | 8103 | NestJS | ✅ | `/healthz` (Python bridge) | 30s | 10s | 10s | 3 |
-| disaster-assessment | 8104 | NestJS | ✅ | `/healthz` | 30s | 10s | 10s | 3 |
-| field-management-service | 3000 | NestJS | ✅ | `/healthz` | 30s | 10s | 15s | 3 |
-| iot-service | 8088 | NestJS | ✅ | `/api/v1/health` (HealthController) | 30s | 10s | 30s | 3 |
-| lai-estimation | 8098 | NestJS | ✅ | `/healthz` | 30s | 10s | 10s | 3 |
-| marketplace-service | 8099 | NestJS | ✅ | `/healthz` (AppController) | 30s | 10s | 10s | 3 |
-| research-core | 3030 | NestJS | ✅ | `/health` (HealthController) | 30s | 10s | 15s | 3 |
-| user-service | 3020 | NestJS | ✅ | `/api/v1/health` (HealthController) | 30s | 10s | 30s | 3 |
-| yield-prediction | 8133 | NestJS | ✅ | `/healthz` | 30s | 10s | 10s | 3 |
-| yield-prediction-service | 8134 | NestJS | ✅ | `/healthz` | 30s | 10s | 10s | 3 |
+| Service                  | Port | Framework | Dockerfile HEALTHCHECK | Health Endpoint                     | Interval | Timeout | Start Period | Retries |
+| ------------------------ | ---- | --------- | ---------------------- | ----------------------------------- | -------- | ------- | ------------ | ------- |
+| chat-service             | 8089 | NestJS    | ✅                     | `/api/v1/health` (HealthController) | 30s      | 10s     | 30s          | 3       |
+| community-chat           | 8097 | Express   | ✅                     | `/healthz`                          | 30s      | 10s     | 15s          | 3       |
+| crop-growth-model        | 8103 | NestJS    | ✅                     | `/healthz` (Python bridge)          | 30s      | 10s     | 10s          | 3       |
+| disaster-assessment      | 8104 | NestJS    | ✅                     | `/healthz`                          | 30s      | 10s     | 10s          | 3       |
+| field-management-service | 3000 | NestJS    | ✅                     | `/healthz`                          | 30s      | 10s     | 15s          | 3       |
+| iot-service              | 8088 | NestJS    | ✅                     | `/api/v1/health` (HealthController) | 30s      | 10s     | 30s          | 3       |
+| lai-estimation           | 8098 | NestJS    | ✅                     | `/healthz`                          | 30s      | 10s     | 10s          | 3       |
+| marketplace-service      | 8099 | NestJS    | ✅                     | `/healthz` (AppController)          | 30s      | 10s     | 10s          | 3       |
+| research-core            | 3030 | NestJS    | ✅                     | `/health` (HealthController)        | 30s      | 10s     | 15s          | 3       |
+| user-service             | 3020 | NestJS    | ✅                     | `/api/v1/health` (HealthController) | 30s      | 10s     | 30s          | 3       |
+| yield-prediction         | 8133 | NestJS    | ✅                     | `/healthz`                          | 30s      | 10s     | 10s          | 3       |
+| yield-prediction-service | 8134 | NestJS    | ✅                     | `/healthz`                          | 30s      | 10s     | 10s          | 3       |
 
 ---
 
@@ -120,11 +124,13 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 **Status:** ❌ Missing HEALTHCHECK instruction in Dockerfile
 
 **Issue:**
+
 - No HEALTHCHECK instruction in Dockerfile
 - Health endpoint implementation exists in `main.py`
 
 **Recommendation:**
 Add the following to the Dockerfile:
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8999/healthz')" || exit 1
@@ -139,6 +145,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 **Location:** `/home/user/sahool-unified-v15-idp/apps/services/shared/middleware/health.py`
 
 **Implementation:**
+
 ```python
 from apps.services.shared.middleware import setup_health_endpoints
 
@@ -151,11 +158,13 @@ health_manager.register_check("redis", create_redis_check(redis_url))
 ```
 
 **Endpoints Provided:**
+
 - `GET /healthz` - Basic health check (liveness probe)
 - `GET /livez` - Kubernetes liveness probe
 - `GET /readyz` - Kubernetes readiness probe (includes dependency checks)
 
 **Features:**
+
 - ✅ Standardized health check responses
 - ✅ Service uptime tracking
 - ✅ Pluggable dependency checks (database, Redis, etc.)
@@ -164,6 +173,7 @@ health_manager.register_check("redis", create_redis_check(redis_url))
 - ✅ Automatic 503 responses for unhealthy services
 
 **Example Response:**
+
 ```json
 {
   "status": "healthy",
@@ -190,21 +200,22 @@ health_manager.register_check("redis", create_redis_check(redis_url))
 ### 2. NestJS HealthController Pattern
 
 **Implementation Example (user-service):**
+
 ```typescript
 // src/health/health.controller.ts
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get } from "@nestjs/common";
+import { ApiTags, ApiOperation } from "@nestjs/swagger";
 
-@ApiTags('Health')
-@Controller('health')
+@ApiTags("Health")
+@Controller("health")
 export class HealthController {
   @Get()
   check() {
     return {
       success: true,
-      service: 'user-service',
-      version: '16.0.0',
-      status: 'healthy',
+      service: "user-service",
+      version: "16.0.0",
+      status: "healthy",
       timestamp: new Date().toISOString(),
     };
   }
@@ -212,6 +223,7 @@ export class HealthController {
 ```
 
 **Services Using This Pattern:**
+
 - chat-service (`/api/v1/health`)
 - iot-service (`/api/v1/health`)
 - user-service (`/api/v1/health`)
@@ -220,12 +232,13 @@ export class HealthController {
 ### 3. Express.js Pattern
 
 **Implementation Example (community-chat):**
+
 ```javascript
-app.get('/healthz', (req, res) => {
+app.get("/healthz", (req, res) => {
   res.status(200).json({
-    status: 'ok',
-    service: 'community-chat',
-    version: '1.0.0',
+    status: "ok",
+    service: "community-chat",
+    version: "1.0.0",
     timestamp: new Date().toISOString(),
   });
 });
@@ -234,6 +247,7 @@ app.get('/healthz', (req, res) => {
 ### 4. Inline FastAPI Pattern
 
 **Implementation Example:**
+
 ```python
 @app.get("/healthz")
 async def healthz():
@@ -246,6 +260,7 @@ async def healthz():
 ```
 
 **Services Using Inline Pattern:**
+
 - advisory-service
 - agro-advisor
 - crop-health
@@ -258,40 +273,40 @@ async def healthz():
 
 ### Interval Analysis
 
-| Interval | Services | Percentage | Assessment |
-|----------|----------|------------|------------|
-| 30s | 50 | 98% | ✅ Optimal for most services |
-| 60s | 1 | 2% | ✅ Acceptable for code-review-service |
+| Interval | Services | Percentage | Assessment                            |
+| -------- | -------- | ---------- | ------------------------------------- |
+| 30s      | 50       | 98%        | ✅ Optimal for most services          |
+| 60s      | 1        | 2%         | ✅ Acceptable for code-review-service |
 
 **Recommendation:** 30-second intervals are appropriate for production workloads.
 
 ### Timeout Analysis
 
-| Timeout | Services | Percentage | Assessment |
-|---------|----------|------------|------------|
-| 5s | 1 | 2% | ⚠️ May be too short |
-| 10s | 50 | 98% | ✅ Optimal |
+| Timeout | Services | Percentage | Assessment          |
+| ------- | -------- | ---------- | ------------------- |
+| 5s      | 1        | 2%         | ⚠️ May be too short |
+| 10s     | 50       | 98%        | ✅ Optimal          |
 
 **Recommendation:** 10-second timeouts are appropriate for most services.
 
 ### Start Period Analysis
 
-| Start Period | Services | Use Case | Assessment |
-|--------------|----------|----------|------------|
-| 10s | 10 | Fast-starting services | ✅ Good |
-| 15s | 36 | Standard services | ✅ Optimal |
-| 30s | 4 | Services with dependencies | ✅ Appropriate |
-| 40s | 1 | AI services with model loading | ✅ Appropriate |
-| 90s | 1 | IoT Gateway (heavy initialization) | ✅ Appropriate |
+| Start Period | Services | Use Case                           | Assessment     |
+| ------------ | -------- | ---------------------------------- | -------------- |
+| 10s          | 10       | Fast-starting services             | ✅ Good        |
+| 15s          | 36       | Standard services                  | ✅ Optimal     |
+| 30s          | 4        | Services with dependencies         | ✅ Appropriate |
+| 40s          | 1        | AI services with model loading     | ✅ Appropriate |
+| 90s          | 1        | IoT Gateway (heavy initialization) | ✅ Appropriate |
 
 **Assessment:** Start periods are well-tuned based on service initialization requirements.
 
 ### Retries Analysis
 
-| Retries | Services | Percentage | Assessment |
-|---------|----------|------------|------------|
-| 3 | 50 | 98% | ✅ Standard and appropriate |
-| 5 | 1 | 2% | ✅ IoT Gateway (needs extra resilience) |
+| Retries | Services | Percentage | Assessment                              |
+| ------- | -------- | ---------- | --------------------------------------- |
+| 3       | 50       | 98%        | ✅ Standard and appropriate             |
+| 5       | 1        | 2%         | ✅ IoT Gateway (needs extra resilience) |
 
 **Recommendation:** 3 retries is the standard across the platform.
 
@@ -302,24 +317,29 @@ async def healthz():
 ### Advanced Health Endpoints
 
 #### 1. globalgap-compliance
+
 - `/health` - Basic health check
 - `/health/live` - Liveness probe
 - `/health/ready` - Readiness probe
 
 #### 2. satellite-service & vegetation-analysis-service
+
 - `/healthz` - Basic health check
 - `/v1/cache/health` - Cache health monitoring
 
 #### 3. ndvi-engine
+
 - `/healthz` - Basic health check
 - `/ndvi/health/{ndvi_value}` - NDVI health classification endpoint
 
 #### 4. field-core & field-management-service
+
 - `/healthz` - Kubernetes health check
 - `/health` - Alternative health check endpoint
 - Rotation API: Separate health endpoints for crop rotation service
 
 #### 5. alert-service
+
 - `/health` - Basic health check
 - `/healthz` - Kubernetes health check (dual endpoint support)
 
@@ -330,6 +350,7 @@ async def healthz():
 The main docker-compose.yml also includes health checks for infrastructure services:
 
 ### PostgreSQL
+
 ```yaml
 healthcheck:
   test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool}"]
@@ -340,9 +361,11 @@ healthcheck:
 ```
 
 ### PgBouncer
+
 ```yaml
 healthcheck:
-  test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 -U ${POSTGRES_USER:-sahool}"]
+  test:
+    ["CMD-SHELL", "pg_isready -h localhost -p 6432 -U ${POSTGRES_USER:-sahool}"]
   interval: 30s
   timeout: 10s
   retries: 3
@@ -350,6 +373,7 @@ healthcheck:
 ```
 
 ### Redis
+
 ```yaml
 healthcheck:
   test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
@@ -360,6 +384,7 @@ healthcheck:
 ```
 
 ### NATS
+
 ```yaml
 healthcheck:
   test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
@@ -399,6 +424,7 @@ healthcheck:
 All services are fully prepared for Kubernetes deployment with proper probe configurations:
 
 ### Liveness Probe Configuration
+
 ```yaml
 livenessProbe:
   httpGet:
@@ -411,6 +437,7 @@ livenessProbe:
 ```
 
 ### Readiness Probe Configuration
+
 ```yaml
 readinessProbe:
   httpGet:
@@ -427,16 +454,19 @@ readinessProbe:
 ## Recommendations
 
 ### Immediate Actions
+
 1. ✅ **Add HEALTHCHECK to demo-data**: Add standard HEALTHCHECK instruction to Dockerfile
 2. ✅ **Standardize agent-registry timeout**: Change from 5s to 10s for consistency
 
 ### Optional Improvements
+
 1. **Endpoint Standardization**: Consider standardizing all services to use /healthz as primary endpoint
 2. **Health Dashboard**: Consider implementing a centralized health monitoring dashboard
 3. **Metrics Integration**: Add Prometheus metrics to health endpoints
 4. **Startup Probes**: For Kubernetes, consider adding startup probes for slow-starting services
 
 ### Monitoring Integration
+
 1. **Prometheus**: Expose health check metrics at `/metrics` endpoint
 2. **Grafana**: Create dashboards for service health visualization
 3. **AlertManager**: Configure alerts for service health degradation

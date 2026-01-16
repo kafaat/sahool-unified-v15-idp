@@ -1,4 +1,5 @@
 # Shared Crypto - Quick Reference Card
+
 ## مرجع سريع للتشفير
 
 ---
@@ -15,14 +16,14 @@ node -e "const crypto = require('crypto'); console.log('ENCRYPTION_KEY=' + crypt
 ## 🔐 Basic Encryption
 
 ```typescript
-import { encrypt, decrypt, encryptSearchable } from '@sahool/shared-crypto';
+import { encrypt, decrypt, encryptSearchable } from "@sahool/shared-crypto";
 
 // Standard (non-searchable)
-const encrypted = encrypt('sensitive data');
+const encrypted = encrypt("sensitive data");
 const decrypted = decrypt(encrypted);
 
 // Deterministic (searchable)
-const encryptedId = encryptSearchable('1234567890');
+const encryptedId = encryptSearchable("1234567890");
 ```
 
 ---
@@ -30,10 +31,10 @@ const encryptedId = encryptSearchable('1234567890');
 ## 🔒 Password Hashing
 
 ```typescript
-import { hashPassword, verifyPassword } from '@sahool/shared-crypto';
+import { hashPassword, verifyPassword } from "@sahool/shared-crypto";
 
-const hash = await hashPassword('password123');
-const isValid = await verifyPassword('password123', hash);
+const hash = await hashPassword("password123");
+const isValid = await verifyPassword("password123", hash);
 ```
 
 ---
@@ -41,10 +42,10 @@ const isValid = await verifyPassword('password123', hash);
 ## 🛡️ PII Detection
 
 ```typescript
-import { detectPII, maskPII, MaskingStrategy } from '@sahool/shared-crypto';
+import { detectPII, maskPII, MaskingStrategy } from "@sahool/shared-crypto";
 
-const detected = detectPII('My phone is 0551234567');
-const masked = maskPII('Phone: 0551234567', MaskingStrategy.PARTIAL);
+const detected = detectPII("My phone is 0551234567");
+const masked = maskPII("Phone: 0551234567", MaskingStrategy.PARTIAL);
 // Output: "Phone: 055****567"
 ```
 
@@ -53,13 +54,13 @@ const masked = maskPII('Phone: 0551234567', MaskingStrategy.PARTIAL);
 ## 🗄️ Prisma Integration
 
 ```typescript
-import { createPrismaEncryptionMiddleware } from '@sahool/shared-crypto';
+import { createPrismaEncryptionMiddleware } from "@sahool/shared-crypto";
 
 const config = {
-  User: { phone: { type: 'deterministic' } },
+  User: { phone: { type: "deterministic" } },
   UserProfile: {
-    nationalId: { type: 'deterministic' },
-    dateOfBirth: { type: 'standard' },
+    nationalId: { type: "deterministic" },
+    dateOfBirth: { type: "standard" },
   },
 };
 
@@ -94,7 +95,7 @@ CRYPTO_DEBUG=false
 ## 🔄 Key Rotation
 
 ```typescript
-import { rotateEncryption } from '@sahool/shared-crypto';
+import { rotateEncryption } from "@sahool/shared-crypto";
 
 // 1. Set PREVIOUS_ENCRYPTION_KEY in env
 // 2. Set new ENCRYPTION_KEY in env
@@ -106,10 +107,10 @@ const newEncrypted = rotateEncryption(oldEncrypted);
 
 ## 🎯 When to Use Each Type
 
-| Type | Use For | Searchable | Security |
-|------|---------|------------|----------|
-| **Standard** | dateOfBirth, address | ❌ No | ⭐⭐⭐ High |
-| **Deterministic** | nationalId, phone | ✅ Yes | ⭐⭐ Medium |
+| Type              | Use For              | Searchable | Security    |
+| ----------------- | -------------------- | ---------- | ----------- |
+| **Standard**      | dateOfBirth, address | ❌ No      | ⭐⭐⭐ High |
+| **Deterministic** | nationalId, phone    | ✅ Yes     | ⭐⭐ Medium |
 
 ---
 
@@ -118,31 +119,34 @@ const newEncrypted = rotateEncryption(oldEncrypted);
 ### Encrypt Object Fields
 
 ```typescript
-import { encryptFields } from '@sahool/shared-crypto';
+import { encryptFields } from "@sahool/shared-crypto";
 
-const data = { name: 'Ahmed', nationalId: '1234567890' };
-const encrypted = encryptFields(data, ['nationalId'], true);
+const data = { name: "Ahmed", nationalId: "1234567890" };
+const encrypted = encryptFields(data, ["nationalId"], true);
 ```
 
 ### HMAC Signature
 
 ```typescript
-import { createHMAC, verifyHMAC } from '@sahool/shared-crypto';
+import { createHMAC, verifyHMAC } from "@sahool/shared-crypto";
 
-const signature = createHMAC('data to protect');
-const isValid = verifyHMAC('data to protect', signature);
+const signature = createHMAC("data to protect");
+const isValid = verifyHMAC("data to protect", signature);
 ```
 
 ### Check if Should Encrypt
 
 ```typescript
-import { shouldEncrypt, shouldUseDeterministicEncryption } from '@sahool/shared-crypto';
+import {
+  shouldEncrypt,
+  shouldUseDeterministicEncryption,
+} from "@sahool/shared-crypto";
 
-if (shouldEncrypt('nationalId')) {
+if (shouldEncrypt("nationalId")) {
   // Encrypt this field
 }
 
-if (shouldUseDeterministicEncryption('nationalId')) {
+if (shouldUseDeterministicEncryption("nationalId")) {
   // Use deterministic encryption
 }
 ```
@@ -151,12 +155,12 @@ if (shouldUseDeterministicEncryption('nationalId')) {
 
 ## 🚨 Common Errors
 
-| Error | Solution |
-|-------|----------|
-| `ENCRYPTION_KEY not set` | Add to `.env` file |
-| `Decryption failed` | Check key, try `PREVIOUS_ENCRYPTION_KEY` |
-| `Search returns nothing` | Use deterministic encryption |
-| `Invalid key length` | Key must be 64 hex chars (32 bytes) |
+| Error                    | Solution                                 |
+| ------------------------ | ---------------------------------------- |
+| `ENCRYPTION_KEY not set` | Add to `.env` file                       |
+| `Decryption failed`      | Check key, try `PREVIOUS_ENCRYPTION_KEY` |
+| `Search returns nothing` | Use deterministic encryption             |
+| `Invalid key length`     | Key must be 64 hex chars (32 bytes)      |
 
 ---
 

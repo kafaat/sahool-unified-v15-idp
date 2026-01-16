@@ -3,21 +3,20 @@
  * صفحة الإعدادات
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   User,
   Bell,
   Shield,
-
   Eye,
   Monitor,
   Link as LinkIcon,
   CreditCard,
   Settings as SettingsIcon,
-} from 'lucide-react';
-import { ProfileForm } from './ProfileForm';
+} from "lucide-react";
+import { ProfileForm } from "./ProfileForm";
 import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
@@ -26,28 +25,43 @@ import {
   usePrivacySettings,
   useDisplayPreferences,
   useSubscriptionInfo,
-} from '../hooks/useSettings';
+} from "../hooks/useSettings";
 
 type TabType =
-  | 'profile'
-  | 'notifications'
-  | 'security'
-  | 'privacy'
-  | 'display'
-  | 'integrations'
-  | 'subscription';
+  | "profile"
+  | "notifications"
+  | "security"
+  | "privacy"
+  | "display"
+  | "integrations"
+  | "subscription";
 
 export const SettingsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('profile');
+  const [activeTab, setActiveTab] = useState<TabType>("profile");
 
   const tabs = [
-    { id: 'profile', label: 'الملف الشخصي', labelEn: 'Profile', icon: User },
-    { id: 'notifications', label: 'الإشعارات', labelEn: 'Notifications', icon: Bell },
-    { id: 'security', label: 'الأمان', labelEn: 'Security', icon: Shield },
-    { id: 'privacy', label: 'الخصوصية', labelEn: 'Privacy', icon: Eye },
-    { id: 'display', label: 'العرض', labelEn: 'Display', icon: Monitor },
-    { id: 'integrations', label: 'التكاملات', labelEn: 'Integrations', icon: LinkIcon },
-    { id: 'subscription', label: 'الاشتراك', labelEn: 'Subscription', icon: CreditCard },
+    { id: "profile", label: "الملف الشخصي", labelEn: "Profile", icon: User },
+    {
+      id: "notifications",
+      label: "الإشعارات",
+      labelEn: "Notifications",
+      icon: Bell,
+    },
+    { id: "security", label: "الأمان", labelEn: "Security", icon: Shield },
+    { id: "privacy", label: "الخصوصية", labelEn: "Privacy", icon: Eye },
+    { id: "display", label: "العرض", labelEn: "Display", icon: Monitor },
+    {
+      id: "integrations",
+      label: "التكاملات",
+      labelEn: "Integrations",
+      icon: LinkIcon,
+    },
+    {
+      id: "subscription",
+      label: "الاشتراك",
+      labelEn: "Subscription",
+      icon: CreditCard,
+    },
   ] as const;
 
   return (
@@ -82,8 +96,8 @@ export const SettingsPage: React.FC = () => {
                         w-full flex items-center gap-3 px-4 py-3 rounded-lg text-right transition-colors
                         ${
                           activeTab === tab.id
-                            ? 'bg-green-50 text-green-700 font-medium'
-                            : 'text-gray-700 hover:bg-gray-50'
+                            ? "bg-green-50 text-green-700 font-medium"
+                            : "text-gray-700 hover:bg-gray-50"
                         }
                       `}
                     >
@@ -102,7 +116,7 @@ export const SettingsPage: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              {activeTab === 'profile' && (
+              {activeTab === "profile" && (
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">
                     الملف الشخصي
@@ -111,29 +125,17 @@ export const SettingsPage: React.FC = () => {
                 </div>
               )}
 
-              {activeTab === 'notifications' && (
-                <NotificationsTab />
-              )}
+              {activeTab === "notifications" && <NotificationsTab />}
 
-              {activeTab === 'security' && (
-                <SecurityTab />
-              )}
+              {activeTab === "security" && <SecurityTab />}
 
-              {activeTab === 'privacy' && (
-                <PrivacyTab />
-              )}
+              {activeTab === "privacy" && <PrivacyTab />}
 
-              {activeTab === 'display' && (
-                <DisplayTab />
-              )}
+              {activeTab === "display" && <DisplayTab />}
 
-              {activeTab === 'integrations' && (
-                <IntegrationsTab />
-              )}
+              {activeTab === "integrations" && <IntegrationsTab />}
 
-              {activeTab === 'subscription' && (
-                <SubscriptionTab />
-              )}
+              {activeTab === "subscription" && <SubscriptionTab />}
             </div>
           </div>
         </div>
@@ -151,7 +153,11 @@ const NotificationsTab: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  const handleUpdate = async (section: keyof typeof prefs, field: string, value: boolean) => {
+  const handleUpdate = async (
+    section: keyof typeof prefs,
+    field: string,
+    value: boolean,
+  ) => {
     const updated = {
       ...prefs,
       [section]: {
@@ -164,7 +170,9 @@ const NotificationsTab: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">إعدادات الإشعارات</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        إعدادات الإشعارات
+      </h2>
       <div className="space-y-6">
         {/* Email Notifications */}
         <div>
@@ -173,12 +181,15 @@ const NotificationsTab: React.FC = () => {
           </h3>
           <div className="space-y-3">
             {Object.entries(prefs.email).map(([key, value]) => (
-              <label key={key} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+              <label
+                key={key}
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
+              >
                 <span className="text-sm text-gray-700">{key}</span>
                 <input
                   type="checkbox"
                   checked={value}
-                  onChange={(e) => handleUpdate('email', key, e.target.checked)}
+                  onChange={(e) => handleUpdate("email", key, e.target.checked)}
                   className="w-4 h-4 text-green-600"
                 />
               </label>
@@ -193,12 +204,15 @@ const NotificationsTab: React.FC = () => {
           </h3>
           <div className="space-y-3">
             {Object.entries(prefs.push).map(([key, value]) => (
-              <label key={key} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+              <label
+                key={key}
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
+              >
                 <span className="text-sm text-gray-700">{key}</span>
                 <input
                   type="checkbox"
                   checked={value}
-                  onChange={(e) => handleUpdate('push', key, e.target.checked)}
+                  onChange={(e) => handleUpdate("push", key, e.target.checked)}
                   className="w-4 h-4 text-green-600"
                 />
               </label>
@@ -215,9 +229,9 @@ const SecurityTab: React.FC = () => {
   const { data: security, isLoading } = useSecuritySettings();
   const updatePassword = useUpdatePassword();
   const [passwords, setPasswords] = useState({
-    current: '',
-    new: '',
-    confirm: '',
+    current: "",
+    new: "",
+    confirm: "",
   });
 
   if (isLoading || !security) {
@@ -227,7 +241,7 @@ const SecurityTab: React.FC = () => {
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwords.new !== passwords.confirm) {
-      alert('كلمات المرور الجديدة غير متطابقة');
+      alert("كلمات المرور الجديدة غير متطابقة");
       return;
     }
     try {
@@ -236,10 +250,10 @@ const SecurityTab: React.FC = () => {
         newPassword: passwords.new,
         confirmPassword: passwords.confirm,
       });
-      alert('تم تحديث كلمة المرور بنجاح');
-      setPasswords({ current: '', new: '', confirm: '' });
+      alert("تم تحديث كلمة المرور بنجاح");
+      setPasswords({ current: "", new: "", confirm: "" });
     } catch (err) {
-      alert('حدث خطأ أثناء تحديث كلمة المرور');
+      alert("حدث خطأ أثناء تحديث كلمة المرور");
     }
   };
 
@@ -260,7 +274,9 @@ const SecurityTab: React.FC = () => {
               <input
                 type="password"
                 value={passwords.current}
-                onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
+                onChange={(e) =>
+                  setPasswords({ ...passwords, current: e.target.value })
+                }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                 required
               />
@@ -272,7 +288,9 @@ const SecurityTab: React.FC = () => {
               <input
                 type="password"
                 value={passwords.new}
-                onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+                onChange={(e) =>
+                  setPasswords({ ...passwords, new: e.target.value })
+                }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                 required
               />
@@ -284,7 +302,9 @@ const SecurityTab: React.FC = () => {
               <input
                 type="password"
                 value={passwords.confirm}
-                onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                onChange={(e) =>
+                  setPasswords({ ...passwords, confirm: e.target.value })
+                }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                 required
               />
@@ -311,10 +331,13 @@ const SecurityTab: React.FC = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">{session.device}</p>
+                    <p className="font-medium text-gray-900">
+                      {session.device}
+                    </p>
                     <p className="text-sm text-gray-600">{session.location}</p>
                     <p className="text-xs text-gray-500">
-                      Last active: {new Date(session.lastActive).toLocaleString('ar-SA')}
+                      Last active:{" "}
+                      {new Date(session.lastActive).toLocaleString("ar-SA")}
                     </p>
                   </div>
                   {session.isCurrent ? (
@@ -394,27 +417,34 @@ const SubscriptionTab: React.FC = () => {
       <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-gray-200">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">{subscription.planAr}</h3>
-            <p className="text-sm text-gray-600 mt-1">{subscription.plan.toUpperCase()} Plan</p>
+            <h3 className="text-xl font-bold text-gray-900">
+              {subscription.planAr}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              {subscription.plan.toUpperCase()} Plan
+            </p>
             <div className="mt-4 space-y-2">
               <p className="text-sm text-gray-700">
-                الحقول: {subscription.usage.fields} / {subscription.features.maxFields}
+                الحقول: {subscription.usage.fields} /{" "}
+                {subscription.features.maxFields}
               </p>
               <p className="text-sm text-gray-700">
-                أجهزة IoT: {subscription.usage.iotDevices} / {subscription.features.maxIoTDevices}
+                أجهزة IoT: {subscription.usage.iotDevices} /{" "}
+                {subscription.features.maxIoTDevices}
               </p>
               <p className="text-sm text-gray-700">
-                التخزين: {subscription.usage.storage} GB / {subscription.features.maxStorage} GB
+                التخزين: {subscription.usage.storage} GB /{" "}
+                {subscription.features.maxStorage} GB
               </p>
             </div>
           </div>
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${
-              subscription.status === 'active'
-                ? 'bg-green-100 text-green-700'
-                : subscription.status === 'trial'
-                ? 'bg-blue-100 text-blue-700'
-                : 'bg-red-100 text-red-700'
+              subscription.status === "active"
+                ? "bg-green-100 text-green-700"
+                : subscription.status === "trial"
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-red-100 text-red-700"
             }`}
           >
             {subscription.status}

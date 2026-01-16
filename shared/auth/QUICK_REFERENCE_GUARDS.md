@@ -1,4 +1,5 @@
 # JWT Guards Quick Reference
+
 # مرجع سريع لـ JWT Guards
 
 ## Python FastAPI
@@ -68,11 +69,11 @@ await cache.clear_all()
 ### Basic Usage
 
 ```typescript
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '@shared/auth/jwt.guard';
-import { CurrentUser } from '@shared/auth/decorators';
+import { Controller, Get, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "@shared/auth/jwt.guard";
+import { CurrentUser } from "@shared/auth/decorators";
 
-@Controller('profile')
+@Controller("profile")
 @UseGuards(JwtAuthGuard)
 export class ProfileController {
   @Get()
@@ -100,8 +101,8 @@ delete(@Param('id') id: string) {
 ### Module Setup
 
 ```typescript
-import { UserValidationService } from '@shared/auth/user-validation.service';
-import { IUserRepository } from '@shared/auth/user-validation.service';
+import { UserValidationService } from "@shared/auth/user-validation.service";
+import { IUserRepository } from "@shared/auth/user-validation.service";
 
 @Module({
   providers: [
@@ -125,7 +126,7 @@ class MyUserRepository implements IUserRepository {
       email: user.email,
       isActive: true,
       isVerified: true,
-      roles: ['user'],
+      roles: ["user"],
     };
   }
 
@@ -279,10 +280,10 @@ async def test_protected_endpoint():
 ### TypeScript Test
 
 ```typescript
-it('should authenticate user', async () => {
+it("should authenticate user", async () => {
   const response = await request(app.getHttpServer())
-    .get('/profile')
-    .set('Authorization', `Bearer ${validToken}`)
+    .get("/profile")
+    .set("Authorization", `Bearer ${validToken}`)
     .expect(200);
 });
 ```
@@ -291,10 +292,10 @@ it('should authenticate user', async () => {
 
 ## Performance
 
-| Operation | Without Cache | With Cache | Improvement |
-|-----------|--------------|------------|-------------|
-| First Request | 60ms | 60ms | 0% |
-| Repeated Request | 60ms | 5ms | 92% |
+| Operation        | Without Cache | With Cache | Improvement |
+| ---------------- | ------------- | ---------- | ----------- |
+| First Request    | 60ms          | 60ms       | 0%          |
+| Repeated Request | 60ms          | 5ms        | 92%         |
 
 ---
 
@@ -313,6 +314,7 @@ it('should authenticate user', async () => {
 ## Troubleshooting
 
 ### Redis Connection Failed
+
 ```bash
 # Check Redis
 redis-cli ping  # Should return PONG
@@ -322,6 +324,7 @@ REDIS_URL=redis://localhost:6379/0
 ```
 
 ### User Not Found in DB
+
 ```python
 # Verify repository implementation
 user_data = await repository.get_user_validation_data(user_id)
@@ -329,6 +332,7 @@ assert user_data is not None
 ```
 
 ### Rate Limit Too Strict
+
 ```env
 # Increase limits
 RATE_LIMIT_REQUESTS=1000
@@ -340,6 +344,7 @@ RATE_LIMIT_WINDOW_SECONDS=60
 ## Best Practices
 
 ### ✅ Do
+
 - Initialize cache on startup
 - Implement user repository for DB
 - Invalidate cache on user updates
@@ -348,6 +353,7 @@ RATE_LIMIT_WINDOW_SECONDS=60
 - Use HTTPS in production
 
 ### ❌ Don't
+
 - Skip database validation
 - Forget to invalidate cache
 - Use weak JWT secrets

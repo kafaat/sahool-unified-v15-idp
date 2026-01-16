@@ -22,6 +22,9 @@ jobs:
   build-apk:
     name: Build Sahool APK
     runs-on: ubuntu-latest
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     defaults:
       run:
         working-directory: apps/mobile
@@ -36,12 +39,30 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Verify Android SDK
+        run: |
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+          ls -la $ANDROID_HOME || echo "ANDROID_HOME directory not found"
+          which sdkmanager || echo "sdkmanager not found"
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.27.1'
           channel: 'stable'
-          cache: false
+          cache: true
+
+      - name: Verify Flutter Setup
+        run: |
+          flutter doctor -v
+          echo "Flutter and Android SDK verification complete"
+
+      - name: Accept Android Licenses
+        run: yes | flutter doctor --android-licenses || true
 
       - name: Get Flutter dependencies
         run: flutter pub get
@@ -110,23 +131,48 @@ jobs:
       - name: Clean previous build artifacts
         run: |
           flutter clean
-          rm -rf .dart_tool/build
+          # Remove entire .dart_tool to ensure clean slate
+          rm -rf .dart_tool
+          rm -rf build
+          # Remove any existing generated files to force regeneration
+          find lib -name "*.g.dart" -delete 2>/dev/null || true
+          find lib -name "*.freezed.dart" -delete 2>/dev/null || true
           flutter pub get
 
       - name: Generate Drift database code
         run: |
           echo "Starting code generation..."
+          echo "Working directory: $(pwd)"
+          echo ""
+          echo "=== build.yaml content ==="
+          cat build.yaml
+          echo ""
           dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log
+          # Run with verbose flag to diagnose issues
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
+            echo "First attempt output:"
+            tail -50 codegen.log
+            echo "Retrying with fresh state..."
+            rm -rf .dart_tool/build
+            touch lib/core/storage/database.dart
+            dart run build_runner build --delete-conflicting-outputs --verbose
+          }
           echo ""
           echo "📊 Generated files count:"
           echo "  .g.dart files: $(find lib -name '*.g.dart' | wc -l)"
           echo "  .freezed.dart files: $(find lib -name '*.freezed.dart' | wc -l)"
           echo ""
+          echo "=== All generated .g.dart files ==="
+          find lib -name "*.g.dart" -type f 2>/dev/null || echo "No .g.dart files found"
+          echo ""
           if [ -f "lib/core/storage/database.g.dart" ]; then
             echo "✅ database.g.dart generated successfully"
+            head -10 lib/core/storage/database.g.dart
           else
             echo "❌ database.g.dart NOT found - build will fail"
+            echo "=== Searching for database.g.dart anywhere ==="
+            find . -name "database.g.dart" -type f 2>/dev/null || echo "Not found anywhere"
+            echo "=== Full codegen log ==="
             cat codegen.log
             exit 1
           fi

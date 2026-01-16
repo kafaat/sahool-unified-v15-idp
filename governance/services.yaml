@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 version: "3.0.0"
-last_updated: "2025-12-19"
+last_updated: "2026-01-14"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Architecture Layers
@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [satellite-service, iot-service, weather-advanced, virtual-sensors]
+      services: [satellite-service, iot-service, weather-advanced, virtual-sensors, weather-service]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment]
+      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, field-intelligence, vegetation-analysis-service, skills-service]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction]
+      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction, advisory-service]
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, research-core]
+      services: [notification-service, marketplace-service, billing-core, community-chat, research-core, mcp-server, task-service, equipment-service, ws-gateway]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -100,10 +100,15 @@ services:
     category: crop
     layer: decision
     path: "apps/services/crop-growth-model"
-    port: 3000
+    port: 3023
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/crop-growth-model.md
     events:
       produces:
         - GrowthStageEstimated.v1
@@ -208,10 +213,15 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/disaster-assessment"
-    port: 3001
+    port: 3020
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: analytics-team
+    team: Risk Analytics
+    slack_channel: "#disaster-alerts"
+    oncall: analytics-oncall@kafaat.com
+    documentation: docs/services/disaster-assessment.md
     events:
       produces:
         - DisasterRiskScored.v1
@@ -241,10 +251,15 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/lai-estimation"
-    port: 3002
+    port: 3022
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: remote-sensing-team
+    team: Remote Sensing
+    slack_channel: "#remote-sensing-alerts"
+    oncall: remote-sensing-oncall@kafaat.com
+    documentation: docs/services/lai-estimation.md
     events:
       produces:
         - LAIEstimated.v1
@@ -268,10 +283,15 @@ services:
     category: analytics
     layer: decision
     path: "apps/services/yield-prediction"
-    port: 3003
+    port: 3021
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#yield-prediction-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/yield-prediction.md
     events:
       produces:
         - YieldPredicted.v1
@@ -299,10 +319,15 @@ services:
     category: community
     layer: business
     path: "apps/services/marketplace-service"
-    port: 3004
+    port: 3010
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: community-team
+    team: Marketplace
+    slack_channel: "#marketplace-alerts"
+    oncall: community-oncall@kafaat.com
+    documentation: docs/services/marketplace-service.md
     events:
       produces:
         - OrderCreated.v1
@@ -329,10 +354,15 @@ services:
     category: community
     layer: business
     path: "apps/services/community-chat"
-    port: 3005
+    port: 8097
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: community-team
+    team: Community
+    slack_channel: "#community-alerts"
+    oncall: community-oncall@kafaat.com
+    documentation: docs/services/community-chat.md
     events:
       produces:
         - CommunityPostCreated.v1
@@ -358,10 +388,15 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/iot-service"
-    port: 3006
+    port: 8117
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: iot-team
+    team: IoT & Sensors
+    slack_channel: "#iot-alerts"
+    oncall: iot-oncall@kafaat.com
+    documentation: docs/services/iot-service.md
     events:
       produces:
         - SensorReadingIngested.v1
@@ -397,6 +432,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: research-team
+    team: Research & Development
+    slack_channel: "#research-alerts"
+    oncall: research-oncall@kafaat.com
+    documentation: docs/services/research-core.md
     events:
       produces:
         - TrialCreated.v1
@@ -424,10 +464,15 @@ services:
     category: core
     layer: business
     path: "apps/services/billing-core"
-    port: 8021
+    port: 8089
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: finance-team
+    team: Finance & Billing
+    slack_channel: "#billing-alerts"
+    oncall: finance-oncall@kafaat.com
+    documentation: docs/services/billing-core.md
     events:
       produces:
         - InvoiceIssued.v1
@@ -445,7 +490,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # SATELLITE SERVICE - خدمة الأقمار الصناعية
+  # SATELLITE SERVICE - خدمة الأقمار الصناعية (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   satellite-service:
     name: "Satellite Service"
@@ -454,11 +499,18 @@ services:
     category: analytics
     layer: acquisition
     path: "apps/services/satellite-service"
-    port: 8090
+    port: 9190  # Changed to avoid conflict with vegetation-analysis-service (9090 reserved for prometheus)
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: vegetation-analysis-service
+    deprecation_date: "2026-01-11"
     version: "15.4.0"
+    owner: remote-sensing-team
+    team: Remote Sensing
+    slack_channel: "#remote-sensing-alerts"
+    oncall: remote-sensing-oncall@kafaat.com
+    documentation: docs/services/satellite-service.md
     events:
       produces:
         - SatelliteSceneIngested.v1
@@ -484,7 +536,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # WEATHER ADVANCED - خدمة الطقس المتقدمة
+  # WEATHER ADVANCED - خدمة الطقس المتقدمة (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   weather-advanced:
     name: "Weather Advanced"
@@ -493,10 +545,17 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/weather-advanced"
-    port: 8092
+    port: 9092  # Changed to avoid conflict with weather-service
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: weather-service
+    deprecation_date: "2026-01-11"
+    owner: weather-team
+    team: Weather & Climate
+    slack_channel: "#weather-alerts"
+    oncall: weather-oncall@kafaat.com
+    documentation: docs/services/weather-advanced.md
     events:
       produces:
         - WeatherObserved.v1
@@ -529,6 +588,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: analytics-team
+    team: Field Analytics
+    slack_channel: "#analytics-alerts"
+    oncall: analytics-oncall@kafaat.com
+    documentation: docs/services/indicators-service.md
     events:
       produces:
         - FieldIndicatorsComputed.v1
@@ -547,7 +611,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # CROP HEALTH AI - سهول فيجن
+  # CROP HEALTH AI - سهول فيجن (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   crop-health-ai:
     name: "Crop Health AI"
@@ -556,10 +620,17 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/crop-health-ai"
-    port: 8095
+    port: 9095  # Changed to avoid conflict with crop-intelligence-service
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: crop-intelligence-service
+    deprecation_date: "2026-01-11"
+    owner: ai-ml-team
+    team: AI/ML
+    slack_channel: "#ai-ml-alerts"
+    oncall: ai-ml-oncall@kafaat.com
+    documentation: docs/services/crop-health-ai.md
     events:
       produces:
         - CropHealthAssessed.v1
@@ -585,10 +656,15 @@ services:
     category: analytics
     layer: acquisition
     path: "apps/services/virtual-sensors"
-    port: 8096
+    port: 8119
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: iot-team
+    team: IoT & Sensors
+    slack_channel: "#iot-alerts"
+    oncall: iot-oncall@kafaat.com
+    documentation: docs/services/virtual-sensors.md
     events:
       produces:
         - VirtualSensorEstimated.v1
@@ -618,6 +694,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#yield-prediction-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/yield-engine.md
     events:
       produces:
         - YieldEstimated.v1
@@ -634,7 +715,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # FERTILIZER ADVISOR - مستشار التسميد
+  # FERTILIZER ADVISOR - مستشار التسميد (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   fertilizer-advisor:
     name: "Fertilizer Advisor"
@@ -643,10 +724,17 @@ services:
     category: core
     layer: decision
     path: "apps/services/fertilizer-advisor"
-    port: 8093
+    port: 9093  # Changed to avoid conflict with advisory-service
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: advisory-service
+    deprecation_date: "2026-01-11"
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/fertilizer-advisor.md
     events:
       produces:
         - FertilizerPlanProposed.v1
@@ -679,6 +767,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: water-management-team
+    team: Water Management
+    slack_channel: "#water-mgmt-alerts"
+    oncall: water-mgmt-oncall@kafaat.com
+    documentation: docs/services/irrigation-smart.md
     events:
       produces:
         - IrrigationPlanProposed.v1
@@ -712,6 +805,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: platform-team
+    team: Notifications
+    slack_channel: "#notifications-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/notification-service.md
     events:
       produces:
         - NotificationQueued.v1
@@ -727,6 +825,783 @@ services:
       type: postgresql
       name: sahool_notifications
     dependencies: []
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # MCP SERVER - خادم بروتوكول سياق النموذج
+  # ═══════════════════════════════════════════════════════════════════════════
+  mcp-server:
+    name: "MCP Server"
+    name_ar: "خادم MCP"
+    type: python
+    category: integration
+    layer: business
+    path: "apps/services/mcp-server"
+    port: 8200
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    owner: platform-team
+    team: Integration
+    slack_channel: "#integration-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/mcp-server.md
+    events:
+      produces: []
+      consumes: []
+    dependencies:
+      - kong
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AGRO RULES - قواعد الزراعة
+  # ═══════════════════════════════════════════════════════════════════════════
+  agro-rules:
+    name: "Agro Rules Worker"
+    name_ar: "عامل القواعد الزراعية"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/agro-rules"
+    port: 8151
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/agro-rules.md
+    events:
+      produces:
+        - AgroRuleEvaluated.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - nats
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CROP INTELLIGENCE SERVICE - خدمة ذكاء المحاصيل
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop-intelligence-service:
+    name: "Crop Intelligence Service"
+    name_ar: "خدمة ذكاء المحاصيل"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/crop-intelligence-service"
+    port: 8095
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    owner: ai-ml-team
+    team: AI/ML
+    slack_channel: "#ai-ml-alerts"
+    oncall: ai-ml-oncall@kafaat.com
+    documentation: docs/services/crop-intelligence-service.md
+    events:
+      produces:
+        - CropHealthAssessed.v1
+        - DiseaseDetected.v1
+      consumes:
+        - IndexTileReady.v1
+        - SatelliteSceneIngested.v1
+    dependencies:
+      - satellite-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # EQUIPMENT SERVICE - خدمة المعدات
+  # ═══════════════════════════════════════════════════════════════════════════
+  equipment-service:
+    name: "Equipment Service"
+    name_ar: "خدمة المعدات"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/equipment-service"
+    port: 8101
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    owner: field-ops-team
+    team: Field Operations
+    slack_channel: "#field-ops-alerts"
+    oncall: field-ops-oncall@kafaat.com
+    documentation: docs/services/equipment-service.md
+    events:
+      produces:
+        - EquipmentStatusUpdated.v1
+      consumes: []
+    database:
+      type: postgresql
+      name: sahool_equipment
+    dependencies: []
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # TASK SERVICE - خدمة المهام
+  # ═══════════════════════════════════════════════════════════════════════════
+  task-service:
+    name: "Task Service"
+    name_ar: "خدمة المهام"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/task-service"
+    port: 8103
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    owner: field-ops-team
+    team: Field Operations
+    slack_channel: "#field-ops-alerts"
+    oncall: field-ops-oncall@kafaat.com
+    documentation: docs/services/task-service.md
+    events:
+      produces:
+        - TaskCreated.v1
+        - TaskCompleted.v1
+      consumes:
+        - IrrigationAlertIssued.v1
+        - FertilizerPlanProposed.v1
+    database:
+      type: postgresql
+      name: sahool_tasks
+    dependencies: []
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WS GATEWAY - بوابة WebSocket
+  # ═══════════════════════════════════════════════════════════════════════════
+  ws-gateway:
+    name: "WebSocket Gateway"
+    name_ar: "بوابة WebSocket"
+    type: python
+    category: integration
+    layer: business
+    path: "apps/services/ws-gateway"
+    port: 8081
+    protocol: websocket
+    health_endpoint: "/health"
+    status: active
+    owner: platform-team
+    team: Platform
+    slack_channel: "#platform-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/ws-gateway.md
+    events:
+      produces: []
+      consumes:
+        - NotificationSent.v1
+    dependencies:
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NDVI PROCESSOR - معالج NDVI
+  # ═══════════════════════════════════════════════════════════════════════════
+  ndvi-processor:
+    name: "NDVI Processor"
+    name_ar: "معالج NDVI"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/ndvi-processor"
+    port: 8118
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    owner: remote-sensing-team
+    team: Remote Sensing
+    slack_channel: "#remote-sensing-alerts"
+    oncall: remote-sensing-oncall@kafaat.com
+    documentation: docs/services/ndvi-processor.md
+    events:
+      produces:
+        - NDVIProcessed.v1
+      consumes:
+        - SatelliteSceneIngested.v1
+    dependencies:
+      - satellite-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD INTELLIGENCE - ذكاء الحقول
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-intelligence:
+    name: "Field Intelligence"
+    name_ar: "ذكاء الحقول"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/field-intelligence"
+    port: 8120
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    owner: analytics-team
+    team: Field Analytics
+    slack_channel: "#analytics-alerts"
+    oncall: analytics-oncall@kafaat.com
+    documentation: docs/services/field-intelligence.md
+    events:
+      produces:
+        - FieldAnalysisCompleted.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - NDVIProcessed.v1
+    dependencies:
+      - indicators-service
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # VEGETATION ANALYSIS SERVICE - خدمة تحليل الغطاء النباتي
+  # Replaces: satellite-service (deprecated)
+  # ═══════════════════════════════════════════════════════════════════════════
+  vegetation-analysis-service:
+    name: "Vegetation Analysis Service"
+    name_ar: "خدمة تحليل الغطاء النباتي"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/vegetation-analysis-service"
+    port: 8090
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    replaces: satellite-service
+    owner: remote-sensing-team
+    team: Remote Sensing
+    slack_channel: "#remote-sensing-alerts"
+    oncall: remote-sensing-oncall@kafaat.com
+    documentation: docs/services/vegetation-analysis-service.md
+    events:
+      produces:
+        - VegetationIndexCalculated.v1
+        - NDVITimeseriesReady.v1
+        - FieldBoundaryDetected.v1
+      consumes:
+        - SatelliteSceneIngested.v1
+        - WeatherDataReady.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WEATHER SERVICE - خدمة الطقس
+  # Replaces: weather-advanced (deprecated)
+  # ═══════════════════════════════════════════════════════════════════════════
+  weather-service:
+    name: "Weather Service"
+    name_ar: "خدمة الطقس"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/weather-service"
+    port: 8092
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    replaces: weather-advanced
+    owner: weather-team
+    team: Weather & Climate
+    slack_channel: "#weather-alerts"
+    oncall: weather-oncall@kafaat.com
+    documentation: docs/services/weather-service.md
+    events:
+      produces:
+        - WeatherForecastReady.v1
+        - WeatherAlertIssued.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SKILLS SERVICE - خدمة المهارات
+  # AI-powered farmer skills assessment and learning recommendations
+  # ═══════════════════════════════════════════════════════════════════════════
+  skills-service:
+    name: "Skills Service"
+    name_ar: "خدمة المهارات"
+    description: "AI-powered farmer skills assessment and adaptive learning recommendations"
+    description_ar: "تقييم مهارات المزارعين والتوصيات التعليمية المخصصة"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/skills-service"
+    port: 8121
+    protocol: http
+    health_endpoint: "/health"
+    readiness_endpoint: "/readyz"
+    status: active
+    version: "1.0.0"
+    owner: ai-ml-team
+    team: AI/ML
+    slack_channel: "#ai-ml-alerts"
+    oncall: ai-ml-oncall@kafaat.com
+    documentation: docs/services/skills-service.md
+    events:
+      produces:
+        - FarmerSkillsAssessed.v1
+        - LearningPathRecommended.v1
+        - SkillsProgressTracked.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - TaskCompleted.v1
+        - CropHealthAssessed.v1
+        - YieldPredicted.v1
+    database:
+      type: postgresql
+      name: sahool_skills
+      schema: "skills"
+    cache:
+      type: redis
+      purpose: "skill profile caching, learning recommendations cache"
+      ttl: 3600
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    modules:
+      - id: skill-assessment
+        name: "Skill Assessment Engine"
+        name_ar: "محرك تقييم المهارات"
+        endpoint: "/assessment"
+        description: "Evaluates farmer competency levels across multiple dimensions"
+
+      - id: learning-pathway
+        name: "Learning Pathway Generator"
+        name_ar: "مولد مسار التعلم"
+        endpoint: "/learning-path"
+        description: "Generates personalized learning recommendations"
+
+      - id: skill-progress
+        name: "Progress Tracking"
+        name_ar: "تتبع التقدم"
+        endpoint: "/progress"
+        description: "Monitors skill development over time"
+
+      - id: competency-matrix
+        name: "Competency Matrix"
+        name_ar: "مصفوفة الكفاءات"
+        endpoint: "/competencies"
+        description: "Maps agricultural competencies and skill levels"
+
+      - id: adaptive-learning
+        name: "Adaptive Learning Engine"
+        name_ar: "محرك التعلم التكيفي"
+        endpoint: "/adaptive"
+        description: "Adjusts learning content based on farmer performance"
+
+      - id: peer-benchmarking
+        name: "Peer Benchmarking"
+        name_ar: "المقارنة مع الأقران"
+        endpoint: "/benchmarking"
+        description: "Compares skills against peer groups for motivation"
+
+    environment:
+      - DATABASE_URL
+      - REDIS_URL
+      - NATS_URL
+      - SKILL_ASSESSMENT_MODEL
+      - LEARNING_RECOMMENDATION_ENGINE
+    resources:
+      cpu: "400m"
+      memory: "512Mi"
+      replicas: 1
+      autoscaling:
+        enabled: true
+        min_replicas: 1
+        max_replicas: 3
+        target_cpu: 75
+    monitoring:
+      metrics:
+        - skill_assessments_total
+        - learning_paths_generated_total
+        - farmer_engagement_score
+        - skill_improvement_rate
+      alerts:
+        - "AssessmentLatencyHigh"
+        - "LearningEngineError"
+        - "SkillDataQualityIssue"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ADVISORY SERVICE - خدمة الاستشارات
+  # Replaces: fertilizer-advisor (deprecated)
+  # ═══════════════════════════════════════════════════════════════════════════
+  advisory-service:
+    name: "Advisory Service"
+    name_ar: "خدمة الاستشارات"
+    type: python
+    category: core
+    layer: decision
+    path: "apps/services/advisory-service"
+    port: 8093
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    replaces: fertilizer-advisor
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/advisory-service.md
+    events:
+      produces:
+        - AdvisoryGenerated.v1
+        - FertilizerRecommendation.v1
+      consumes:
+        - SoilAnalysisCompleted.v1
+        - CropHealthAssessed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD MANAGEMENT SERVICE - خدمة إدارة الحقول
+  # Consolidates: field-core, field-service, field-ops
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-management-service:
+    name: "Field Management Service"
+    name_ar: "خدمة إدارة الحقول"
+    type: nestjs
+    category: core
+    layer: business
+    path: "apps/services/field-management-service"
+    port: 3000
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    replaces: ["field-core", "field-service", "field-ops"]
+    owner: platform-team
+    team: Field Operations
+    slack_channel: "#field-ops-alerts"
+    oncall: field-ops-oncall@kafaat.com
+    documentation: docs/services/field-management-service.md
+    events:
+      produces:
+        - FieldCreated.v1
+        - FieldUpdated.v1
+        - FieldDeleted.v1
+      consumes:
+        - NDVIProcessed.v1
+        - WeatherDataReady.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # USER SERVICE - خدمة المستخدمين
+  # Authentication and User Management
+  # ═══════════════════════════════════════════════════════════════════════════
+  user-service:
+    name: "User Service"
+    name_ar: "خدمة المستخدمين"
+    type: nestjs
+    category: core
+    layer: business
+    path: "apps/services/user-service"
+    port: 3025
+    protocol: http
+    health_endpoint: "/api/v1/health"
+    status: active
+    owner: platform-team
+    team: Identity
+    slack_channel: "#identity-alerts"
+    oncall: identity-oncall@kafaat.com
+    documentation: docs/services/user-service.md
+    events:
+      produces:
+        - UserRegistered.v1
+        - UserAuthenticated.v1
+        - UserUpdated.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ALERT SERVICE - خدمة التنبيهات
+  # ═══════════════════════════════════════════════════════════════════════════
+  alert-service:
+    name: "Alert Service"
+    name_ar: "خدمة التنبيهات"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/alert-service"
+    port: 8113
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: platform-team
+    team: Alerts
+    slack_channel: "#alerts-team"
+    oncall: alerts-oncall@kafaat.com
+    documentation: docs/services/alert-service.md
+    events:
+      produces:
+        - AlertTriggered.v1
+        - AlertResolved.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherAlertIssued.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AGRO ADVISOR - مستشار الزراعة
+  # ═══════════════════════════════════════════════════════════════════════════
+  agro-advisor:
+    name: "Agro Advisor"
+    name_ar: "مستشار الزراعة"
+    type: python
+    category: crop
+    layer: decision
+    path: "apps/services/agro-advisor"
+    port: 8105
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/agro-advisor.md
+    events:
+      produces:
+        - AgroAdviceGenerated.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ASTRONOMICAL CALENDAR - التقويم الفلكي
+  # ═══════════════════════════════════════════════════════════════════════════
+  astronomical-calendar:
+    name: "Astronomical Calendar"
+    name_ar: "التقويم الفلكي"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/astronomical-calendar"
+    port: 8111
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: platform-team
+    team: Integration
+    slack_channel: "#integration-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/astronomical-calendar.md
+    events:
+      produces:
+        - MoonPhaseCalculated.v1
+        - PrayerTimesReady.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IOT GATEWAY - بوابة إنترنت الأشياء
+  # ═══════════════════════════════════════════════════════════════════════════
+  iot-gateway:
+    name: "IoT Gateway"
+    name_ar: "بوابة إنترنت الأشياء"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/iot-gateway"
+    port: 8106
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: iot-team
+    team: IoT & Sensors
+    slack_channel: "#iot-alerts"
+    oncall: iot-oncall@kafaat.com
+    documentation: docs/services/iot-gateway.md
+    events:
+      produces:
+        - IoTDataReceived.v1
+        - SensorReadingIngested.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+      - nats
+      - mqtt
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # INVENTORY SERVICE - خدمة المخزون
+  # ═══════════════════════════════════════════════════════════════════════════
+  inventory-service:
+    name: "Inventory Service"
+    name_ar: "خدمة المخزون"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/inventory-service"
+    port: 8116
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: field-ops-team
+    team: Field Operations
+    slack_channel: "#field-ops-alerts"
+    oncall: field-ops-oncall@kafaat.com
+    documentation: docs/services/inventory-service.md
+    events:
+      produces:
+        - InventoryUpdated.v1
+        - StockLevelChanged.v1
+      consumes:
+        - TaskCompleted.v1
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD CHAT - دردشة الحقل
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-chat:
+    name: "Field Chat"
+    name_ar: "دردشة الحقل"
+    type: python
+    category: community
+    layer: business
+    path: "apps/services/field-chat"
+    port: 8099
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: community-team
+    team: Community
+    slack_channel: "#community-alerts"
+    oncall: community-oncall@kafaat.com
+    documentation: docs/services/field-chat.md
+    events:
+      produces:
+        - ChatMessageSent.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PROVIDER CONFIG - تكوين المزودين
+  # ═══════════════════════════════════════════════════════════════════════════
+  provider-config:
+    name: "Provider Config"
+    name_ar: "تكوين المزودين"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/provider-config"
+    port: 8104
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: platform-team
+    team: Platform
+    slack_channel: "#platform-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/provider-config.md
+    events:
+      produces:
+        - ProviderConfigUpdated.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
     resources:
       cpu: "200m"
       memory: "256Mi"

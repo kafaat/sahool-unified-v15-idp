@@ -186,9 +186,7 @@ class NDVIClient:
         except httpx.HTTPError as e:
             logger.warning(f"NDVI service unavailable, using local calculation: {e}")
             # Fall back to local calculation
-            return await self._calculate_locally(
-                field_id, image_url, red_band_data, nir_band_data
-            )
+            return await self._calculate_locally(field_id, image_url, red_band_data, nir_band_data)
 
         except Exception as e:
             logger.error(f"Error fetching field health: {e}")
@@ -205,7 +203,11 @@ class NDVIClient:
         """
         حساب محلي باستخدام وحدة NDVI
         Local calculation using NDVI module
+
+        NOTE: Heavy CPU-bound calculations run in executor to avoid blocking event loop
         """
+        import asyncio
+
         try:
             # Import the NDVI calculation module
             from apps.kernel.common.queue.tasks.ndvi_calculation import (
@@ -221,7 +223,9 @@ class NDVIClient:
                 payload["red_band_data"] = red_band_data
                 payload["nir_band_data"] = nir_band_data
 
-            result = handle_ndvi_calculation(payload)
+            # Run CPU-intensive NDVI calculation in thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(None, handle_ndvi_calculation, payload)
             return self._parse_ndvi_response(field_id, result)
 
         except ImportError:
@@ -231,9 +235,7 @@ class NDVIClient:
             logger.error(f"Local NDVI calculation failed: {e}")
             return self._get_simulated_health(field_id)
 
-    def _parse_ndvi_response(
-        self, field_id: str, data: dict[str, Any]
-    ) -> FieldHealthData:
+    def _parse_ndvi_response(self, field_id: str, data: dict[str, Any]) -> FieldHealthData:
         """
         تحليل استجابة NDVI
         Parse NDVI response data
@@ -255,9 +257,7 @@ class NDVIClient:
         )
 
         # Generate suggested actions based on analysis
-        suggested_actions = self._generate_suggested_actions(
-            health_score, zones, alerts
-        )
+        suggested_actions = self._generate_suggested_actions(health_score, zones, alerts)
 
         return FieldHealthData(
             field_id=field_id,
@@ -366,17 +366,17 @@ class NDVIClient:
 
         alerts = []
         if health_score < 6:
-            alerts.append({
-                "type": "low_vegetation",
-                "severity": "medium",
-                "message": "Below average vegetation health detected",
-                "message_ar": "تم اكتشاف صحة نباتية أقل من المتوسط",
-            })
+            alerts.append(
+                {
+                    "type": "low_vegetation",
+                    "severity": "medium",
+                    "message": "Below average vegetation health detected",
+                    "message_ar": "تم اكتشاف صحة نباتية أقل من المتوسط",
+                }
+            )
 
         needs_attention = health_score < HEALTH_THRESHOLDS["moderate"]
-        suggested_actions = self._generate_suggested_actions(
-            health_score, zones, alerts
-        )
+        suggested_actions = self._generate_suggested_actions(health_score, zones, alerts)
 
         return FieldHealthData(
             field_id=field_id,
@@ -432,89 +432,99 @@ def get_task_suggestions_from_health(
 
     # Critical or poor health - immediate inspection
     if health_data.health_status in [HealthStatus.CRITICAL, HealthStatus.POOR]:
-        suggestions.append({
-            "task_type": "scouting",
-            "priority": priority,
-            "title": "Urgent Field Inspection Required",
-            "title_ar": "فحص عاجل للحقل مطلوب",
-            "description": (
-                f"Field health score is {health_data.health_score}/10. "
-                f"Immediate inspection needed to identify issues. "
-                f"Critical areas: {health_data.zones.get('critical', 0):.1f}%"
-            ),
-            "description_ar": (
-                f"درجة صحة الحقل {health_data.health_score}/10. "
-                f"مطلوب فحص فوري لتحديد المشاكل. "
-                f"المناطق الحرجة: {health_data.zones.get('critical', 0):.1f}%"
-            ),
-            "reason": f"Health score: {health_data.health_score}/10",
-            "reason_ar": f"درجة الصحة: {health_data.health_score}/10",
-            "confidence": 0.9 if health_data.health_status == HealthStatus.CRITICAL else 0.8,
-            "suggested_due_days": 1 if health_data.health_status == HealthStatus.CRITICAL else 2,
-        })
+        suggestions.append(
+            {
+                "task_type": "scouting",
+                "priority": priority,
+                "title": "Urgent Field Inspection Required",
+                "title_ar": "فحص عاجل للحقل مطلوب",
+                "description": (
+                    f"Field health score is {health_data.health_score}/10. "
+                    f"Immediate inspection needed to identify issues. "
+                    f"Critical areas: {health_data.zones.get('critical', 0):.1f}%"
+                ),
+                "description_ar": (
+                    f"درجة صحة الحقل {health_data.health_score}/10. "
+                    f"مطلوب فحص فوري لتحديد المشاكل. "
+                    f"المناطق الحرجة: {health_data.zones.get('critical', 0):.1f}%"
+                ),
+                "reason": f"Health score: {health_data.health_score}/10",
+                "reason_ar": f"درجة الصحة: {health_data.health_score}/10",
+                "confidence": 0.9 if health_data.health_status == HealthStatus.CRITICAL else 0.8,
+                "suggested_due_days": 1
+                if health_data.health_status == HealthStatus.CRITICAL
+                else 2,
+            }
+        )
 
     # High stressed areas - irrigation check
     if health_data.zones.get("stressed", 0) > 20:
-        suggestions.append({
-            "task_type": "irrigation",
-            "priority": "high" if health_data.zones["stressed"] > 35 else "medium",
-            "title": "Review Irrigation Schedule",
-            "title_ar": "مراجعة جدول الري",
-            "description": (
-                f"Stressed vegetation detected in {health_data.zones['stressed']:.1f}% of field. "
-                "Consider adjusting irrigation frequency or duration."
-            ),
-            "description_ar": (
-                f"تم اكتشاف نباتات مجهدة في {health_data.zones['stressed']:.1f}% من الحقل. "
-                "فكر في تعديل تكرار الري أو مدته."
-            ),
-            "reason": f"Stressed areas: {health_data.zones['stressed']:.1f}%",
-            "reason_ar": f"المناطق المجهدة: {health_data.zones['stressed']:.1f}%",
-            "confidence": 0.75,
-            "suggested_due_days": 2,
-        })
+        suggestions.append(
+            {
+                "task_type": "irrigation",
+                "priority": "high" if health_data.zones["stressed"] > 35 else "medium",
+                "title": "Review Irrigation Schedule",
+                "title_ar": "مراجعة جدول الري",
+                "description": (
+                    f"Stressed vegetation detected in {health_data.zones['stressed']:.1f}% of field. "
+                    "Consider adjusting irrigation frequency or duration."
+                ),
+                "description_ar": (
+                    f"تم اكتشاف نباتات مجهدة في {health_data.zones['stressed']:.1f}% من الحقل. "
+                    "فكر في تعديل تكرار الري أو مدته."
+                ),
+                "reason": f"Stressed areas: {health_data.zones['stressed']:.1f}%",
+                "reason_ar": f"المناطق المجهدة: {health_data.zones['stressed']:.1f}%",
+                "confidence": 0.75,
+                "suggested_due_days": 2,
+            }
+        )
 
     # Low vegetation coverage - soil sampling
     if health_data.vegetation_coverage < 60:
-        suggestions.append({
-            "task_type": "sampling",
-            "priority": "medium",
-            "title": "Soil Nutrient Analysis",
-            "title_ar": "تحليل مغذيات التربة",
-            "description": (
-                f"Low vegetation coverage ({health_data.vegetation_coverage:.1f}%). "
-                "Recommend soil sampling to check nutrient levels."
-            ),
-            "description_ar": (
-                f"تغطية نباتية منخفضة ({health_data.vegetation_coverage:.1f}%). "
-                "يوصى بأخذ عينات التربة للتحقق من مستويات المغذيات."
-            ),
-            "reason": f"Coverage: {health_data.vegetation_coverage:.1f}%",
-            "reason_ar": f"التغطية: {health_data.vegetation_coverage:.1f}%",
-            "confidence": 0.7,
-            "suggested_due_days": 5,
-        })
+        suggestions.append(
+            {
+                "task_type": "sampling",
+                "priority": "medium",
+                "title": "Soil Nutrient Analysis",
+                "title_ar": "تحليل مغذيات التربة",
+                "description": (
+                    f"Low vegetation coverage ({health_data.vegetation_coverage:.1f}%). "
+                    "Recommend soil sampling to check nutrient levels."
+                ),
+                "description_ar": (
+                    f"تغطية نباتية منخفضة ({health_data.vegetation_coverage:.1f}%). "
+                    "يوصى بأخذ عينات التربة للتحقق من مستويات المغذيات."
+                ),
+                "reason": f"Coverage: {health_data.vegetation_coverage:.1f}%",
+                "reason_ar": f"التغطية: {health_data.vegetation_coverage:.1f}%",
+                "confidence": 0.7,
+                "suggested_due_days": 5,
+            }
+        )
 
     # High variance - investigate pattern
     if health_data.ndvi_std_dev > 0.15:
-        suggestions.append({
-            "task_type": "scouting",
-            "priority": "medium",
-            "title": "Investigate Growth Variation",
-            "title_ar": "فحص تباين النمو",
-            "description": (
-                f"High variation in vegetation (std: {health_data.ndvi_std_dev:.3f}). "
-                "Field shows non-uniform growth patterns."
-            ),
-            "description_ar": (
-                f"تباين عالي في الغطاء النباتي (الانحراف: {health_data.ndvi_std_dev:.3f}). "
-                "الحقل يُظهر أنماط نمو غير متجانسة."
-            ),
-            "reason": f"NDVI std_dev: {health_data.ndvi_std_dev:.3f}",
-            "reason_ar": f"انحراف NDVI: {health_data.ndvi_std_dev:.3f}",
-            "confidence": 0.65,
-            "suggested_due_days": 4,
-        })
+        suggestions.append(
+            {
+                "task_type": "scouting",
+                "priority": "medium",
+                "title": "Investigate Growth Variation",
+                "title_ar": "فحص تباين النمو",
+                "description": (
+                    f"High variation in vegetation (std: {health_data.ndvi_std_dev:.3f}). "
+                    "Field shows non-uniform growth patterns."
+                ),
+                "description_ar": (
+                    f"تباين عالي في الغطاء النباتي (الانحراف: {health_data.ndvi_std_dev:.3f}). "
+                    "الحقل يُظهر أنماط نمو غير متجانسة."
+                ),
+                "reason": f"NDVI std_dev: {health_data.ndvi_std_dev:.3f}",
+                "reason_ar": f"انحراف NDVI: {health_data.ndvi_std_dev:.3f}",
+                "confidence": 0.65,
+                "suggested_due_days": 4,
+            }
+        )
 
     return suggestions
 

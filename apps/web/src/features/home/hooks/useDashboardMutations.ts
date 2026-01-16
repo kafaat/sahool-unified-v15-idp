@@ -3,8 +3,8 @@
  * خطاف عمليات التعديل في لوحة التحكم
  */
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { dashboardApi } from '../api';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { dashboardApi } from "../api";
 
 /**
  * Hook for dashboard mutation operations
@@ -21,10 +21,10 @@ export function useDashboardMutations() {
       dashboardApi.markTaskComplete(taskId, notes),
     onSuccess: () => {
       // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 
@@ -36,10 +36,10 @@ export function useDashboardMutations() {
       dashboardApi.dismissAlert(alertId, reason),
     onSuccess: () => {
       // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'alerts'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['alerts'] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "alerts"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "stats"] });
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
     },
   });
 
@@ -49,8 +49,8 @@ export function useDashboardMutations() {
   const acknowledgeAlert = useMutation({
     mutationFn: (alertId: string) => dashboardApi.acknowledgeAlert(alertId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'alerts'] });
-      queryClient.invalidateQueries({ queryKey: ['alerts'] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "alerts"] });
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
     },
   });
 
@@ -58,9 +58,10 @@ export function useDashboardMutations() {
    * Mark activities as read
    */
   const markActivityRead = useMutation({
-    mutationFn: (activityIds: string[]) => dashboardApi.markActivityRead(activityIds),
+    mutationFn: (activityIds: string[]) =>
+      dashboardApi.markActivityRead(activityIds),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "activity"] });
     },
   });
 
@@ -69,7 +70,7 @@ export function useDashboardMutations() {
    */
   const refreshDashboard = useMutation({
     mutationFn: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       return { success: true };
     },
   });

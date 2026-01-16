@@ -479,6 +479,7 @@ void main() {
 **Symptom**: Widget appears blank or throws error
 
 **Solution**: Check field data validity
+
 ```dart
 // Ensure NDVI is in valid range
 assert(field.ndviCurrent >= 0 && field.ndviCurrent <= 1);
@@ -492,6 +493,7 @@ assert(field.pendingTasks >= 0);
 **Symptom**: Tapping "Create Task" does nothing
 
 **Solution**: Configure task creation route
+
 ```dart
 // In your router configuration
 GoRoute(
@@ -508,6 +510,7 @@ GoRoute(
 **Symptom**: List scrolling is laggy
 
 **Solution**: Always use compact mode in lists
+
 ```dart
 // ✅ Good
 ListView.builder(

@@ -3,11 +3,12 @@ SAHOOL Alert Service - NATS Events
 أحداث NATS لخدمة التنبيهات
 """
 
+import asyncio
 import json
 import logging
 import os
 from collections.abc import Awaitable, Callable
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import nats
@@ -84,7 +85,7 @@ class AlertEventPublisher:
         event_id = str(uuid4())
         payload = {
             "event_id": event_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "topic": topic,
             **data,
         }
@@ -254,21 +255,25 @@ class AlertEventSubscriber:
 
 _publisher: AlertEventPublisher | None = None
 _subscriber: AlertEventSubscriber | None = None
+_publisher_lock = asyncio.Lock()
+_subscriber_lock = asyncio.Lock()
 
 
 async def get_publisher() -> AlertEventPublisher:
     """الحصول على ناشر الأحداث"""
     global _publisher
-    if _publisher is None:
-        _publisher = AlertEventPublisher()
-        await _publisher.connect()
-    return _publisher
+    async with _publisher_lock:
+        if _publisher is None:
+            _publisher = AlertEventPublisher()
+            await _publisher.connect()
+        return _publisher
 
 
 async def get_subscriber() -> AlertEventSubscriber:
     """الحصول على مستقبل الأحداث"""
     global _subscriber
-    if _subscriber is None:
-        _subscriber = AlertEventSubscriber()
-        await _subscriber.connect()
-    return _subscriber
+    async with _subscriber_lock:
+        if _subscriber is None:
+            _subscriber = AlertEventSubscriber()
+            await _subscriber.connect()
+        return _subscriber

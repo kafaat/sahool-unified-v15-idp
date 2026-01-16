@@ -14,28 +14,33 @@ Comprehensive file upload validation module for SAHOOL services. Provides securi
 ## Features
 
 ### 1. File Size Validation
+
 - Configurable maximum file size (default: 10MB)
 - Empty file detection
 - Clear error messages in English and Arabic
 
 ### 2. MIME Type Validation
+
 - Whitelist-based MIME type checking
 - Pre-configured lists for images, documents, archives, videos
 - Custom MIME type lists supported
 
 ### 3. Magic Bytes Validation
+
 - Content-based file type detection
 - Prevents MIME type spoofing attacks
 - Validates declared type matches actual content
 - Strict and non-strict validation modes
 
 ### 4. Virus Scanning
+
 - Pluggable virus scanner interface
 - ClamAV integration (async)
 - No-op scanner for development
 - Cloud scanner stub for future integration
 
 ### 5. Security Features
+
 - Executable file detection and blocking
 - Path traversal protection in filenames
 - Filename sanitization
@@ -195,15 +200,15 @@ result = await validate_file_upload(
 
 ### FileValidationConfig
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `max_file_size` | int | 10MB | Maximum file size in bytes |
-| `allowed_mime_types` | List[str] | ALLOWED_IMAGE_TYPES | List of allowed MIME types |
-| `check_magic_bytes` | bool | True | Validate content using magic bytes |
-| `strict_mime_check` | bool | True | Require exact MIME match |
-| `scan_for_viruses` | bool | False | Enable virus scanning |
-| `allow_executable` | bool | False | Allow executable files |
-| `sanitize_filename` | bool | True | Sanitize uploaded filenames |
+| Parameter            | Type      | Default             | Description                        |
+| -------------------- | --------- | ------------------- | ---------------------------------- |
+| `max_file_size`      | int       | 10MB                | Maximum file size in bytes         |
+| `allowed_mime_types` | List[str] | ALLOWED_IMAGE_TYPES | List of allowed MIME types         |
+| `check_magic_bytes`  | bool      | True                | Validate content using magic bytes |
+| `strict_mime_check`  | bool      | True                | Require exact MIME match           |
+| `scan_for_viruses`   | bool      | False               | Enable virus scanning              |
+| `allow_executable`   | bool      | False               | Allow executable files             |
+| `sanitize_filename`  | bool      | True                | Sanitize uploaded filenames        |
 
 ## Predefined MIME Type Lists
 
@@ -254,6 +259,7 @@ except FileValidationError as e:
 ### Using ClamAV
 
 1. Install ClamAV daemon:
+
 ```bash
 # Ubuntu/Debian
 sudo apt-get install clamav-daemon clamav-freshclam
@@ -263,6 +269,7 @@ sudo systemctl start clamav-daemon
 ```
 
 2. Configure in your service:
+
 ```python
 virus_scanner = get_virus_scanner(
     scanner_type="clamav",
@@ -272,6 +279,7 @@ virus_scanner = get_virus_scanner(
 ```
 
 3. Set environment variables:
+
 ```bash
 export VIRUS_SCANNER=clamav
 export CLAMAV_HOST=localhost
@@ -313,21 +321,26 @@ volumes:
 ## Best Practices
 
 ### 1. Always Validate File Content
+
 Don't trust the declared MIME type or file extension. Always validate content.
 
 ### 2. Use Appropriate File Size Limits
+
 - Images: 5-10MB
 - Documents: 10-20MB
 - Videos: 50-100MB
 - Archives: 20-50MB
 
 ### 3. Enable Virus Scanning in Production
+
 Use ClamAV or cloud scanning service for production environments.
 
 ### 4. Sanitize Filenames
+
 Always enable filename sanitization to prevent path traversal attacks.
 
 ### 5. Log Validation Failures
+
 Log failed validations for security monitoring:
 
 ```python
@@ -339,9 +352,11 @@ except FileValidationError as e:
 ```
 
 ### 6. Use Strict Mode for Critical Applications
+
 Enable strict MIME checking for applications handling sensitive data.
 
 ### 7. Implement Rate Limiting
+
 Add rate limiting to file upload endpoints to prevent abuse:
 
 ```python
@@ -496,6 +511,7 @@ print(f"ClamAV available: {is_available}")
 ### MIME Type Mismatch
 
 If you're getting MIME mismatch errors for valid files:
+
 1. Use non-strict mode: `strict_mime_check=False`
 2. Check if the MIME type is in your allowed list
 3. Verify the file isn't corrupted
@@ -503,6 +519,7 @@ If you're getting MIME mismatch errors for valid files:
 ### Performance Optimization
 
 For high-volume applications:
+
 1. Disable virus scanning for small files
 2. Use async processing for large files
 3. Implement file size pre-check before full validation

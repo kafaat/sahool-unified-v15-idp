@@ -9,6 +9,7 @@ Successfully created comprehensive API client functions for field intelligence f
 ### 1. `/apps/web/src/features/fields/api/field-intelligence-api.ts` (644 lines)
 
 Complete API client module with:
+
 - 7 main API functions
 - Comprehensive TypeScript type definitions
 - Bilingual error handling
@@ -49,9 +50,11 @@ Added 7 new methods to the `SahoolApiClient` class:
 **Purpose**: Calculate comprehensive field health score
 
 **Input**:
+
 - `fieldId` (string): Field identifier
 
 **Output**:
+
 ```typescript
 {
   success: boolean;
@@ -76,9 +79,11 @@ Added 7 new methods to the `SahoolApiClient` class:
 **Purpose**: Retrieve field zones with health metrics
 
 **Input**:
+
 - `fieldId` (string): Field identifier
 
 **Output**:
+
 ```typescript
 {
   success: boolean;
@@ -95,9 +100,11 @@ Added 7 new methods to the `SahoolApiClient` class:
 **Purpose**: Get active alerts for a field
 
 **Input**:
+
 - `fieldId` (string): Field identifier
 
 **Output**:
+
 ```typescript
 {
   success: boolean;
@@ -114,10 +121,12 @@ Added 7 new methods to the `SahoolApiClient` class:
 **Purpose**: Convert an alert into an actionable task
 
 **Input**:
+
 - `alertId` (string): Alert identifier
 - `taskData` (TaskFromAlertData): Task creation parameters
 
 **Output**:
+
 ```typescript
 {
   success: boolean;
@@ -134,10 +143,12 @@ Added 7 new methods to the `SahoolApiClient` class:
 **Purpose**: Find optimal days for farming activities
 
 **Input**:
+
 - `activity` (string): Activity type (e.g., 'planting', 'irrigation')
 - `days` (number): Days to analyze (1-30, default: 14)
 
 **Output**:
+
 ```typescript
 {
   success: boolean;
@@ -154,10 +165,12 @@ Added 7 new methods to the `SahoolApiClient` class:
 **Purpose**: Check date suitability for an activity
 
 **Input**:
+
 - `date` (string): ISO 8601 date string
 - `activity` (string): Activity type
 
 **Output**:
+
 ```typescript
 {
   success: boolean;
@@ -181,9 +194,11 @@ Added 7 new methods to the `SahoolApiClient` class:
 **Purpose**: Get AI-powered field management recommendations
 
 **Input**:
+
 - `fieldId` (string): Field identifier
 
 **Output**:
+
 ```typescript
 {
   success: boolean;
@@ -250,11 +265,11 @@ fieldIntelligenceKeys = {
 ### Basic Usage
 
 ```typescript
-import { fetchLivingFieldScore } from '@/features/fields';
+import { fetchLivingFieldScore } from "@/features/fields";
 
-const response = await fetchLivingFieldScore('field-123');
+const response = await fetchLivingFieldScore("field-123");
 if (response.success) {
-  console.log('Overall Score:', response.data.overall);
+  console.log("Overall Score:", response.data.overall);
 } else {
   console.error(response.error_ar); // Arabic error
 }
@@ -295,7 +310,7 @@ export {
   fetchFieldRecommendations,
   fieldIntelligenceKeys as intelligenceQueryKeys,
   INTELLIGENCE_ERROR_MESSAGES,
-} from './api/field-intelligence-api';
+} from "./api/field-intelligence-api";
 ```
 
 ## Best Practices
@@ -325,6 +340,7 @@ The following backend API endpoints must be implemented:
 7. `GET /api/v1/fields/{fieldId}/intelligence/recommendations`
 
 All endpoints should:
+
 - Return standard `ApiResponse<T>` format
 - Support bilingual error messages (error, error_ar)
 - Implement proper authentication/authorization

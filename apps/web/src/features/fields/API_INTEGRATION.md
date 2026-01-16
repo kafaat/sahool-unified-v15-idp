@@ -11,6 +11,7 @@ The Fields feature has been updated to use **real API endpoints** instead of moc
 ## What Changed / ما الذي تغير
 
 ### 1. New API Layer (`api.ts`)
+
 - Created a dedicated API layer using **axios**
 - Connects to field-ops service endpoints
 - Automatic token authentication from cookies
@@ -18,6 +19,7 @@ The Fields feature has been updated to use **real API endpoints** instead of moc
 - Arabic and English error messages
 
 ### 2. Updated Hooks (`hooks/useFields.ts`)
+
 - All hooks now use real API calls
 - Automatic retry on failure (1 retry)
 - Fallback to mock data on API errors
@@ -25,6 +27,7 @@ The Fields feature has been updated to use **real API endpoints** instead of moc
 - Added new `useFieldStats` hook
 
 ### 3. Enhanced Types (`types.ts`)
+
 - Added complete `Field` interface (no longer importing from external package)
 - Added `GeoPolygon` and `GeoPoint` types
 - Added `FieldStats` and `FieldError` types
@@ -36,16 +39,17 @@ The Fields feature has been updated to use **real API endpoints** instead of moc
 
 The feature connects to the following field-ops endpoints:
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/fields` | List all fields with filters |
-| GET | `/api/v1/fields/{id}` | Get single field by ID |
-| POST | `/api/v1/fields` | Create a new field |
-| PUT | `/api/v1/fields/{id}` | Update existing field |
-| DELETE | `/api/v1/fields/{id}` | Delete a field |
-| GET | `/api/v1/fields/stats` | Get field statistics |
+| Method | Endpoint               | Description                  |
+| ------ | ---------------------- | ---------------------------- |
+| GET    | `/api/v1/fields`       | List all fields with filters |
+| GET    | `/api/v1/fields/{id}`  | Get single field by ID       |
+| POST   | `/api/v1/fields`       | Create a new field           |
+| PUT    | `/api/v1/fields/{id}`  | Update existing field        |
+| DELETE | `/api/v1/fields/{id}`  | Delete a field               |
+| GET    | `/api/v1/fields/stats` | Get field statistics         |
 
 ### Base URL
+
 - Default: `http://localhost:8000` (Kong Gateway)
 - Kong routes `/api/v1/fields/*` to field-ops service (port 8100)
 - Configurable via `NEXT_PUBLIC_API_URL` environment variable
@@ -55,26 +59,31 @@ The feature connects to the following field-ops endpoints:
 ## Features / الميزات
 
 ### ✅ Real API Integration
+
 - Connects to actual field-ops microservice
 - Automatic authentication with Bearer token
 - Timeout protection (10 seconds)
 
 ### ✅ Offline Support
+
 - Falls back to mock data if API is unavailable
 - Console warnings when using fallback data
 - No crashes or blank screens on network errors
 
 ### ✅ Arabic Error Messages
+
 - All error messages in both Arabic and English
 - Proper error handling with user-friendly messages
 - Structured error responses
 
 ### ✅ Smart Caching
+
 - React Query caching with 2-minute stale time
 - Automatic cache invalidation on mutations
 - Optimistic updates for better UX
 
 ### ✅ Type Safety
+
 - Full TypeScript support
 - Type mapping between API and UI models
 - No `any` types in hook signatures
@@ -84,23 +93,25 @@ The feature connects to the following field-ops endpoints:
 ## Usage Examples / أمثلة الاستخدام
 
 ### Fetching Fields
+
 ```tsx
-import { useFields } from '@/features/fields';
+import { useFields } from "@/features/fields";
 
 function MyComponent() {
   const { data: fields, isLoading, error } = useFields();
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) console.warn('API error, using cached data');
+  if (error) console.warn("API error, using cached data");
 
-  return <div>{fields?.map(f => f.name)}</div>;
+  return <div>{fields?.map((f) => f.name)}</div>;
 }
 ```
 
 ### Creating a Field
+
 ```tsx
-import { useCreateField } from '@/features/fields';
-import { useAuth } from '@/stores/auth.store';
+import { useCreateField } from "@/features/fields";
+import { useAuth } from "@/stores/auth.store";
 
 function CreateFieldButton() {
   const { user } = useAuth();
@@ -110,15 +121,15 @@ function CreateFieldButton() {
     try {
       await createField.mutateAsync({
         data: {
-          name: 'New Field',
-          nameAr: 'حقل جديد',
+          name: "New Field",
+          nameAr: "حقل جديد",
           area: 5.5,
-          crop: 'Wheat',
-          cropAr: 'قمح',
+          crop: "Wheat",
+          cropAr: "قمح",
         },
         tenantId: user?.tenant_id,
       });
-      alert('Field created!');
+      alert("Field created!");
     } catch (error) {
       const errorData = JSON.parse(error.message);
       alert(errorData.messageAr);
@@ -130,16 +141,17 @@ function CreateFieldButton() {
 ```
 
 ### Filtering Fields
+
 ```tsx
-import { useFields } from '@/features/fields';
+import { useFields } from "@/features/fields";
 
 function FilteredFields() {
   const { data: fields } = useFields({
-    search: 'wheat',
+    search: "wheat",
     minArea: 2,
     maxArea: 10,
-    status: 'active',
-    farmId: 'farm-123',
+    status: "active",
+    farmId: "farm-123",
   });
 
   return <div>{fields?.length} fields found</div>;
@@ -155,14 +167,15 @@ See `examples/usage.tsx` for more comprehensive examples.
 All error messages are available in both languages:
 
 ```typescript
-import { ERROR_MESSAGES } from '@/features/fields';
+import { ERROR_MESSAGES } from "@/features/fields";
 
 // Example:
-ERROR_MESSAGES.NETWORK_ERROR.ar // "خطأ في الاتصال. استخدام البيانات المحفوظة."
-ERROR_MESSAGES.NETWORK_ERROR.en // "Network error. Using offline data."
+ERROR_MESSAGES.NETWORK_ERROR.ar; // "خطأ في الاتصال. استخدام البيانات المحفوظة."
+ERROR_MESSAGES.NETWORK_ERROR.en; // "Network error. Using offline data."
 ```
 
 Available error messages:
+
 - `NETWORK_ERROR` - Connection failed
 - `FETCH_FAILED` - Failed to retrieve fields
 - `CREATE_FAILED` - Failed to create field
@@ -177,6 +190,7 @@ Available error messages:
 The API layer automatically maps between API fields and UI fields:
 
 ### API → UI Mapping
+
 ```typescript
 {
   id: apiField.id,
@@ -192,6 +206,7 @@ The API layer automatically maps between API fields and UI fields:
 ```
 
 ### UI → API Mapping
+
 ```typescript
 {
   name: field.name,
@@ -211,6 +226,7 @@ The API layer automatically maps between API fields and UI fields:
 ## Testing the Integration / اختبار التكامل
 
 ### 1. With API Available
+
 ```bash
 # Start the field-ops service (port 8100)
 cd services/field-ops
@@ -228,6 +244,7 @@ npm run dev
 ```
 
 ### 2. With API Unavailable (Offline Mode)
+
 ```bash
 # Don't start field-ops service
 # Only start web app
@@ -288,6 +305,7 @@ NEXT_PUBLIC_DEFAULT_TENANT_ID=tenant_1
 ## Support / الدعم
 
 For issues or questions:
+
 - Check browser console for detailed error messages
 - Verify `NEXT_PUBLIC_API_URL` is set correctly
 - Ensure field-ops service is running on port 8100

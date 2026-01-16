@@ -1,4 +1,5 @@
 # SAHOOL Weather API Integration
+
 # تكامل واجهة برمجة التطبيقات للطقس
 
 ## Overview
@@ -32,14 +33,16 @@ GET /v1/weather/forecast?lat=15.3694&lon=44.1910&days=7
 ```
 
 **Parameters:**
+
 - `lat` (required): Latitude (-90 to 90)
 - `lon` (required): Longitude (-180 to 180)
 - `days` (optional): Forecast days (1-16, default: 7)
 
 **Response:**
+
 ```json
 {
-  "location": {"lat": 15.3694, "lon": 44.1910},
+  "location": { "lat": 15.3694, "lon": 44.191 },
   "generated_at": "2024-12-25T10:30:00",
   "forecast_days": 7,
   "daily": [
@@ -56,6 +59,7 @@ GET /v1/weather/forecast?lat=15.3694&lon=44.1910&days=7
 ```
 
 **Use Cases:**
+
 - Irrigation planning
 - Harvest scheduling
 - Frost protection
@@ -70,16 +74,19 @@ GET /v1/weather/historical?lat=15.3694&lon=44.1910&start_date=2024-01-01&end_dat
 ```
 
 **Parameters:**
+
 - `lat` (required): Latitude
 - `lon` (required): Longitude
 - `start_date` (required): Start date (YYYY-MM-DD)
 - `end_date` (required): End date (YYYY-MM-DD)
 
 **Limits:**
+
 - Historical data: 1940 to ~7 days ago
 - Maximum: 365 days per request
 
 **Response:**
+
 ```json
 {
   "location": {"lat": 15.3694, "lon": 44.1910},
@@ -99,6 +106,7 @@ GET /v1/weather/historical?lat=15.3694&lon=44.1910&start_date=2024-01-01&end_dat
 ```
 
 **Use Cases:**
+
 - Analyze past growing seasons
 - Calibrate yield prediction models
 - Climate pattern analysis
@@ -113,6 +121,7 @@ GET /v1/weather/gdd?lat=15.3694&lon=44.1910&start_date=2024-03-01&end_date=2024-
 ```
 
 **Parameters:**
+
 - `lat` (required): Latitude
 - `lon` (required): Longitude
 - `start_date` (required): Start date
@@ -120,20 +129,23 @@ GET /v1/weather/gdd?lat=15.3694&lon=44.1910&start_date=2024-03-01&end_date=2024-
 - `base_temp` (optional): Base temperature (°C, default: 10)
 
 **GDD Formula:**
+
 ```
 GDD = Σ(max(0, (Tmax + Tmin)/2 - Tbase))
 ```
 
 **Base Temperatures:**
+
 - Most crops: 10°C (default)
 - Warm-season (corn, tomato): 10-12°C
 - Cool-season (wheat, barley): 5-8°C
 - Tropical (mango, banana): 12-15°C
 
 **Response:**
+
 ```json
 {
-  "location": {"lat": 15.3694, "lon": 44.1910},
+  "location": { "lat": 15.3694, "lon": 44.191 },
   "period": {
     "start_date": "2024-03-01",
     "end_date": "2024-06-30",
@@ -146,6 +158,7 @@ GDD = Σ(max(0, (Tmax + Tmin)/2 - Tbase))
 ```
 
 **Use Cases:**
+
 - Predict flowering/harvest dates
 - Track crop development stages
 - Compare seasons
@@ -160,6 +173,7 @@ GET /v1/weather/water-balance?lat=15.3694&lon=44.1910&start_date=2024-03-01&end_
 ```
 
 **Parameters:**
+
 - `lat` (required): Latitude
 - `lon` (required): Longitude
 - `start_date` (required): Start date
@@ -168,13 +182,14 @@ GET /v1/weather/water-balance?lat=15.3694&lon=44.1910&start_date=2024-03-01&end_
 
 **Crop Coefficients (Kc):**
 
-| Crop Type | Initial | Mid-Season | Late |
-|-----------|---------|------------|------|
-| Wheat, Barley | 0.3-0.5 | 1.0-1.15 | 0.3-0.5 |
-| Tomato, Potato | 0.4-0.6 | 1.05-1.25 | 0.7-0.9 |
-| Fruit Trees | 0.8-1.1 | 0.8-1.1 | 0.8-1.1 |
+| Crop Type      | Initial | Mid-Season | Late    |
+| -------------- | ------- | ---------- | ------- |
+| Wheat, Barley  | 0.3-0.5 | 1.0-1.15   | 0.3-0.5 |
+| Tomato, Potato | 0.4-0.6 | 1.05-1.25  | 0.7-0.9 |
+| Fruit Trees    | 0.8-1.1 | 0.8-1.1    | 0.8-1.1 |
 
 **Response:**
+
 ```json
 {
   "location": {"lat": 15.3694, "lon": 44.1910},
@@ -192,6 +207,7 @@ GET /v1/weather/water-balance?lat=15.3694&lon=44.1910&start_date=2024-03-01&end_
 ```
 
 **Water Balance Status:**
+
 - **Surplus** (> +50mm): Reduce irrigation
 - **Balanced** (-50 to +50mm): Optimal
 - **Deficit** (< -50mm): Increase irrigation
@@ -205,6 +221,7 @@ GET /v1/weather/irrigation-advice?lat=15.3694&lon=44.1910&crop_type=WHEAT&growth
 ```
 
 **Parameters:**
+
 - `lat` (required): Latitude
 - `lon` (required): Longitude
 - `crop_type` (required): Crop code (e.g., WHEAT, TOMATO, POTATO)
@@ -213,6 +230,7 @@ GET /v1/weather/irrigation-advice?lat=15.3694&lon=44.1910&crop_type=WHEAT&growth
 - `field_id` (optional): Field identifier
 
 **Growth Stages:**
+
 - `initial`: Germination/establishment (Kc ~0.5)
 - `development`: Vegetative growth (Kc ~0.7)
 - `mid`: Flowering/peak growth (Kc ~1.0-1.2)
@@ -220,6 +238,7 @@ GET /v1/weather/irrigation-advice?lat=15.3694&lon=44.1910&crop_type=WHEAT&growth
 - `harvest`: Pre-harvest (Kc ~0.6)
 
 **Response:**
+
 ```json
 {
   "field_id": null,
@@ -234,11 +253,12 @@ GET /v1/weather/irrigation-advice?lat=15.3694&lon=44.1910&crop_type=WHEAT&growth
   "irrigation_frequency_days": 3,
   "recommendation_ar": "ري معتدل مطلوب كل 3 أيام. مرحلة حرجة - حافظ على رطوبة ثابتة.",
   "recommendation_en": "Moderate irrigation needed every 3 days. Critical stage - maintain consistent moisture.",
-  "confidence": 0.850
+  "confidence": 0.85
 }
 ```
 
 **Yemen Crops:**
+
 - WHEAT, BARLEY, SORGHUM, MILLET
 - TOMATO, POTATO, ONION, CUCUMBER
 - COFFEE, DATE_PALM, MANGO, BANANA
@@ -253,11 +273,13 @@ GET /v1/weather/frost-risk?lat=15.3694&lon=44.1910&days=7
 ```
 
 **Parameters:**
+
 - `lat` (required): Latitude
 - `lon` (required): Longitude
 - `days` (optional): Forecast days (1-16, default: 7)
 
 **Frost Risk Levels:**
+
 - **Severe** (< -2°C, 95%+ probability): Immediate protection needed
 - **High** (-2°C to 0°C, 70-95% probability): Protect sensitive crops
 - **Moderate** (0°C to 2°C, 40-70% probability): Monitor and prepare
@@ -265,16 +287,17 @@ GET /v1/weather/frost-risk?lat=15.3694&lon=44.1910&days=7
 - **None** (> 5°C, <10% probability): No action needed
 
 **Response:**
+
 ```json
 {
-  "location": {"lat": 15.3694, "lon": 44.1910},
+  "location": { "lat": 15.3694, "lon": 44.191 },
   "forecast_days": 7,
   "max_risk_level": "moderate",
   "frost_risks": [
     {
       "date": "2024-12-26",
       "min_temp_c": 3.5,
-      "frost_probability": 0.250,
+      "frost_probability": 0.25,
       "risk_level": "low",
       "recommendation_ar": "خطر صقيع منخفض - راقب التوقعات",
       "recommendation_en": "Low frost risk - monitor forecasts"
@@ -289,12 +312,14 @@ GET /v1/weather/frost-risk?lat=15.3694&lon=44.1910&days=7
 ```
 
 **Yemen Highland Locations (Frost-Prone):**
+
 - Sanaa (1,900m): lat=15.3694, lon=44.1910
 - Ibb (2,200m): lat=13.9667, lon=44.1667
 - Dhamar (2,400m): lat=14.5439, lon=44.4053
 - Taiz (1,400m): lat=13.5795, lon=44.0202
 
 **Frost Protection Methods:**
+
 - Cover crops with plastic sheets or blankets
 - Use smoke/heating for orchards
 - Irrigate before frost (wet soil holds heat)
@@ -312,6 +337,7 @@ python test_weather_integration.py
 ```
 
 **Tests Include:**
+
 1. Weather Forecast (Sanaa)
 2. Historical Weather (Aden)
 3. Growing Degree Days (Ibb)
@@ -322,12 +348,14 @@ python test_weather_integration.py
 ### Manual API Testing
 
 Start the satellite service:
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service
 uvicorn src.main:app --host 0.0.0.0 --port 8090 --reload
 ```
 
 Test endpoints:
+
 ```bash
 # Weather forecast for Sanaa
 curl "http://localhost:8090/v1/weather/forecast?lat=15.3694&lon=44.1910&days=7"
@@ -398,6 +426,7 @@ register_weather_endpoints(app)
 ## Open-Meteo API
 
 ### Features
+
 - ✅ **Free** - No API key required
 - ✅ **Rate Limit**: 10,000 requests/day per IP
 - ✅ **Coverage**: Global, including Yemen
@@ -407,11 +436,13 @@ register_weather_endpoints(app)
 - ✅ **No Authentication**: No signup needed
 
 ### Data Sources
+
 - NOAA GFS (forecast)
 - ERA5 (historical)
 - Multiple weather models
 
 ### Documentation
+
 - Website: https://open-meteo.com
 - API Docs: https://open-meteo.com/en/docs
 - Archive API: https://open-meteo.com/en/docs/historical-weather-api
@@ -445,15 +476,15 @@ gdd = await weather_service.get_growing_degree_days(
 
 ### Major Cities
 
-| City | Elevation | Latitude | Longitude | Climate |
-|------|-----------|----------|-----------|---------|
-| Sanaa | 2,250m | 15.3694 | 44.1910 | Highland, frost risk |
-| Aden | 10m | 12.7855 | 45.0187 | Coastal, hot |
-| Taiz | 1,400m | 13.5795 | 44.0202 | Mid-elevation |
-| Hodeidah | 5m | 14.8022 | 42.9511 | Coastal, very hot |
-| Ibb | 2,200m | 13.9667 | 44.1667 | Highland, frost risk |
-| Dhamar | 2,400m | 14.5439 | 44.4053 | Highland, high frost |
-| Hajjah | 1,800m | 15.6944 | 43.6031 | Highland |
+| City     | Elevation | Latitude | Longitude | Climate              |
+| -------- | --------- | -------- | --------- | -------------------- |
+| Sanaa    | 2,250m    | 15.3694  | 44.1910   | Highland, frost risk |
+| Aden     | 10m       | 12.7855  | 45.0187   | Coastal, hot         |
+| Taiz     | 1,400m    | 13.5795  | 44.0202   | Mid-elevation        |
+| Hodeidah | 5m        | 14.8022  | 42.9511   | Coastal, very hot    |
+| Ibb      | 2,200m    | 13.9667  | 44.1667   | Highland, frost risk |
+| Dhamar   | 2,400m    | 14.5439  | 44.4053   | Highland, high frost |
+| Hajjah   | 1,800m    | 15.6944  | 43.6031   | Highland             |
 
 ### Climate Zones
 
@@ -497,6 +528,7 @@ Attribution: Weather data by [Open-Meteo.com](https://open-meteo.com/)
 ## Support
 
 For issues or questions:
+
 - Check Open-Meteo documentation: https://open-meteo.com/en/docs
 - Review test suite: `test_weather_integration.py`
 - Check endpoint documentation: `/docs` (FastAPI auto-generated)

@@ -1,4 +1,5 @@
 # Database Backup Quick Start Guide
+
 # دليل البدء السريع للنسخ الاحتياطي
 
 ## 🚀 Quick Setup (5 Minutes) | الإعداد السريع
@@ -173,11 +174,13 @@ declare -A RETENTION_COUNT=(
 ### Add Custom Hooks | إضافة خطافات مخصصة
 
 Edit pre-backup hook:
+
 ```bash
 nano /home/user/sahool-unified-v15-idp/scripts/hooks/pre-backup.sh
 ```
 
 Edit post-backup hook:
+
 ```bash
 nano /home/user/sahool-unified-v15-idp/scripts/hooks/post-backup.sh
 ```

@@ -1,4 +1,5 @@
 # Performance Testing Guide
+
 ## دليل اختبار الأداء
 
 **Version**: 1.0  
@@ -18,6 +19,7 @@ This guide provides comprehensive instructions for performance testing the SAHOO
 ## 🎯 Testing Objectives | أهداف الاختبار
 
 ### Primary Goals
+
 1. **Baseline Performance**: Establish performance benchmarks for all services
 2. **Capacity Planning**: Determine system limits under various load conditions
 3. **Regression Detection**: Identify performance degradation in new releases
@@ -25,6 +27,7 @@ This guide provides comprehensive instructions for performance testing the SAHOO
 5. **Resource Optimization**: Guide infrastructure scaling decisions
 
 ### Key Performance Indicators (KPIs)
+
 - **Response Time**: p95, p99 latency for API endpoints
 - **Throughput**: Requests per second (RPS)
 - **Error Rate**: Percentage of failed requests
@@ -62,12 +65,14 @@ tests/load/
 ### Prerequisites
 
 **Software Requirements:**
+
 - Docker & Docker Compose (v2+)
 - k6 (for local runs)
 - 8GB+ RAM recommended
 - 4+ CPU cores recommended
 
 **Infrastructure Requirements:**
+
 - SAHOOL platform running (all services)
 - PostgreSQL database
 - Redis cache
@@ -140,16 +145,19 @@ ls -la results/
 **Purpose**: Verify system works with minimal load
 
 **Configuration:**
+
 - Duration: 30 seconds
 - Virtual Users: 1-5
 - Target RPS: 10-20
 
 **Command:**
+
 ```bash
 ./run-tests.sh smoke
 ```
 
 **Success Criteria:**
+
 - ✅ 100% success rate
 - ✅ p95 latency < 500ms
 - ✅ No errors
@@ -161,16 +169,19 @@ ls -la results/
 **Purpose**: Test system under normal expected load
 
 **Configuration:**
+
 - Duration: 5-10 minutes
 - Virtual Users: 50-100
 - Target RPS: 100-500
 
 **Command:**
+
 ```bash
 ./run-tests.sh load
 ```
 
 **Success Criteria:**
+
 - ✅ 99.9% success rate
 - ✅ p95 latency < 1000ms
 - ✅ Error rate < 0.1%
@@ -184,16 +195,19 @@ ls -la results/
 **Purpose**: Find system breaking point
 
 **Configuration:**
+
 - Duration: 10-20 minutes
 - Virtual Users: 100-500+ (gradually increasing)
 - Target RPS: 500-2000+
 
 **Command:**
+
 ```bash
 ./run-tests.sh stress
 ```
 
 **Success Criteria:**
+
 - ✅ System gracefully degrades (no crashes)
 - ✅ Error messages are clear
 - ✅ Recovery after load reduction
@@ -206,16 +220,19 @@ ls -la results/
 **Purpose**: Test system behavior with sudden traffic increase
 
 **Configuration:**
+
 - Duration: 5-10 minutes
 - Virtual Users: 1 → 500 (sudden jump)
 - Target RPS: 10 → 1000
 
 **Command:**
+
 ```bash
 ./run-tests.sh spike
 ```
 
 **Success Criteria:**
+
 - ✅ System handles spike without crashes
 - ✅ Auto-scaling triggers (if configured)
 - ✅ Response times recover after spike
@@ -227,16 +244,19 @@ ls -la results/
 **Purpose**: Verify system stability over extended period
 
 **Configuration:**
+
 - Duration: 2-24 hours
 - Virtual Users: 50-100 (constant)
 - Target RPS: 100-200 (steady)
 
 **Command:**
+
 ```bash
 ./run-tests.sh soak
 ```
 
 **Success Criteria:**
+
 - ✅ No memory leaks
 - ✅ No connection pool exhaustion
 - ✅ Consistent performance
@@ -248,32 +268,32 @@ ls -la results/
 
 ### API Response Times
 
-| Endpoint Type | p50 | p95 | p99 |
-|--------------|-----|-----|-----|
-| Health Check | <50ms | <100ms | <200ms |
-| Read Operations | <100ms | <500ms | <1000ms |
+| Endpoint Type    | p50    | p95     | p99     |
+| ---------------- | ------ | ------- | ------- |
+| Health Check     | <50ms  | <100ms  | <200ms  |
+| Read Operations  | <100ms | <500ms  | <1000ms |
 | Write Operations | <200ms | <1000ms | <2000ms |
-| Complex Queries | <500ms | <2000ms | <5000ms |
-| File Uploads | <1s | <5s | <10s |
+| Complex Queries  | <500ms | <2000ms | <5000ms |
+| File Uploads     | <1s    | <5s     | <10s    |
 
 ### Throughput
 
-| Service | Target RPS | Max RPS |
-|---------|-----------|---------|
-| Field Ops | 200 | 1000 |
-| Billing | 100 | 500 |
-| Satellite | 50 | 200 |
-| Weather | 100 | 500 |
-| Notification | 500 | 2000 |
+| Service      | Target RPS | Max RPS |
+| ------------ | ---------- | ------- |
+| Field Ops    | 200        | 1000    |
+| Billing      | 100        | 500     |
+| Satellite    | 50         | 200     |
+| Weather      | 100        | 500     |
+| Notification | 500        | 2000    |
 
 ### Resource Utilization
 
 | Resource | Normal | Warning | Critical |
-|----------|--------|---------|----------|
-| CPU | <50% | 50-70% | >70% |
-| Memory | <60% | 60-80% | >80% |
-| Disk I/O | <50% | 50-75% | >75% |
-| Network | <40% | 40-60% | >60% |
+| -------- | ------ | ------- | -------- |
+| CPU      | <50%   | 50-70%  | >70%     |
+| Memory   | <60%   | 60-80%  | >80%     |
+| Disk I/O | <50%   | 50-75%  | >75%     |
+| Network  | <40%   | 40-60%  | >60%     |
 
 ---
 
@@ -282,6 +302,7 @@ ls -la results/
 ### Real-time Dashboards
 
 **Grafana Dashboards:**
+
 1. **k6 Load Testing Dashboard**
    - Request rate
    - Response times (p50, p95, p99)
@@ -304,18 +325,18 @@ ls -la results/
 
 ```sql
 -- Average response time by endpoint (with time bucketing)
-SELECT mean("value") FROM "http_req_duration" 
-WHERE time > now() - 1h 
+SELECT mean("value") FROM "http_req_duration"
+WHERE time > now() - 1h
 GROUP BY time(1m), "url"
 
 -- Error rate over time
-SELECT count("value") FROM "http_req_failed" 
+SELECT count("value") FROM "http_req_failed"
 WHERE "value" = 1 AND time > now() - 1h
 GROUP BY time(1m)
 
 -- Request rate per minute
-SELECT count("value") FROM "http_reqs" 
-WHERE time > now() - 1h 
+SELECT count("value") FROM "http_reqs"
+WHERE time > now() - 1h
 GROUP BY time(1m)
 ```
 
@@ -365,6 +386,7 @@ open report.html
 ### Common Issues
 
 #### High Response Times
+
 ```bash
 # Check database slow queries
 docker compose logs postgres | grep "duration:"
@@ -377,6 +399,7 @@ docker compose logs [service-name]
 ```
 
 #### Memory Leaks
+
 ```bash
 # Monitor memory over time
 docker stats --no-stream
@@ -389,6 +412,7 @@ curl http://localhost:9229/json
 ```
 
 #### Connection Pool Exhaustion
+
 ```bash
 # Check database connections
 SELECT count(*) FROM pg_stat_activity;
@@ -441,13 +465,13 @@ redis-cli CLIENT LIST | wc -l
 
 ### Recommended Frequency
 
-| Test Type | Frequency | Duration |
-|-----------|-----------|----------|
-| Smoke | Every commit | 1 min |
-| Load | Daily | 10 min |
-| Stress | Weekly | 30 min |
-| Spike | Weekly | 15 min |
-| Soak | Monthly | 4-24 hours |
+| Test Type | Frequency    | Duration   |
+| --------- | ------------ | ---------- |
+| Smoke     | Every commit | 1 min      |
+| Load      | Daily        | 10 min     |
+| Stress    | Weekly       | 30 min     |
+| Spike     | Weekly       | 15 min     |
+| Soak      | Monthly      | 4-24 hours |
 
 ---
 

@@ -86,9 +86,7 @@ def example_outlier_detection():
 
     # اكتشاف باستخدام Z-Score
     print("\n--- طريقة Z-Score Method ---")
-    outliers_zscore = aggregator.detect_outliers(
-        readings, method="zscore", threshold=2.5
-    )
+    outliers_zscore = aggregator.detect_outliers(readings, method="zscore", threshold=2.5)
     print(f"القيم الشاذة المكتشفة - Outliers detected: {len(outliers_zscore)}")
     for outlier in outliers_zscore:
         print(f"  القيمة - Value: {outlier.value}°C في - at {outlier.timestamp}")

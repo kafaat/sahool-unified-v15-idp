@@ -1,4 +1,5 @@
 # SAHOOL IDP - Load Testing Simulation Environment
+
 # بيئة محاكاة اختبار الحمل لمنصة سهول
 
 [![Load Test Validation](https://github.com/kafaat/sahool-unified-v15-idp/actions/workflows/load-test-validation.yml/badge.svg)](https://github.com/kafaat/sahool-unified-v15-idp/actions/workflows/load-test-validation.yml)
@@ -8,6 +9,7 @@
 بيئة محاكاة افتراضية كاملة لاختبار الحمل على نظام SAHOOL IDP مع دعم:
 
 ### الإصدار الأساسي (Standard)
+
 - **10-20 وكيل افتراضي** (Virtual Agents)
 - **3 نسخ من التطبيق** (Application Instances)
 - **Nginx Load Balancer** لتوزيع الطلبات
@@ -16,6 +18,7 @@
 - **K6** لاختبار الحمل مع **InfluxDB + Grafana** للمراقبة
 
 ### الإصدار المتقدم (Advanced) 🆕
+
 - **15-100+ وكيل افتراضي**
 - **5 نسخ من التطبيق** (High Availability)
 - **Prometheus + Alertmanager** للتنبيهات
@@ -67,6 +70,7 @@
 ## البدء السريع | Quick Start
 
 ### المتطلبات | Prerequisites
+
 - Docker 20.10+
 - Docker Compose 2.0+
 - 8GB+ RAM (للإصدار المتقدم)
@@ -128,21 +132,21 @@ cd tests\load\simulation
 
 ## أنواع الاختبارات | Test Types
 
-| النوع | الوكلاء | الوصف | الأمر |
-|-------|--------|-------|-------|
-| **Standard** | 20 | اختبار أساسي متوازن | `./run-advanced.sh standard` |
-| **Stress** | 20→100 | زيادة تدريجية للضغط | `./run-advanced.sh stress 50` |
-| **Spike** | 20→200 | ارتفاع مفاجئ في الحمل | `./run-advanced.sh spike` |
-| **Chaos** | 30+ | حقن أخطاء عشوائية | `./run-advanced.sh chaos high` |
+| النوع        | الوكلاء | الوصف                 | الأمر                          |
+| ------------ | ------- | --------------------- | ------------------------------ |
+| **Standard** | 20      | اختبار أساسي متوازن   | `./run-advanced.sh standard`   |
+| **Stress**   | 20→100  | زيادة تدريجية للضغط   | `./run-advanced.sh stress 50`  |
+| **Spike**    | 20→200  | ارتفاع مفاجئ في الحمل | `./run-advanced.sh spike`      |
+| **Chaos**    | 30+     | حقن أخطاء عشوائية     | `./run-advanced.sh chaos high` |
 
 ### مستويات Chaos Testing
 
-| المستوى | نسبة الفشل | الوصف |
-|---------|-----------|-------|
-| `low` | 5% | اختبار خفيف |
-| `medium` | 15% | اختبار متوسط |
-| `high` | 30% | اختبار شديد |
-| `extreme` | 50% | اختبار قاسي |
+| المستوى   | نسبة الفشل | الوصف        |
+| --------- | ---------- | ------------ |
+| `low`     | 5%         | اختبار خفيف  |
+| `medium`  | 15%        | اختبار متوسط |
+| `high`    | 30%        | اختبار شديد  |
+| `extreme` | 50%        | اختبار قاسي  |
 
 ---
 
@@ -150,29 +154,29 @@ cd tests\load\simulation
 
 ### الإصدار الأساسي (run-simulation)
 
-| الأمر | الوصف |
-|-------|-------|
-| `start` | تشغيل البنية التحتية (3 نسخ) |
-| `test [N]` | تشغيل المحاكاة مع N وكيل |
-| `quick [URL]` | اختبار سريع بدون بنية تحتية |
-| `status` | حالة الخدمات |
-| `logs [service]` | عرض السجلات |
-| `stop` | إيقاف الخدمات |
-| `clean` | تنظيف كامل |
+| الأمر            | الوصف                        |
+| ---------------- | ---------------------------- |
+| `start`          | تشغيل البنية التحتية (3 نسخ) |
+| `test [N]`       | تشغيل المحاكاة مع N وكيل     |
+| `quick [URL]`    | اختبار سريع بدون بنية تحتية  |
+| `status`         | حالة الخدمات                 |
+| `logs [service]` | عرض السجلات                  |
+| `stop`           | إيقاف الخدمات                |
+| `clean`          | تنظيف كامل                   |
 
 ### الإصدار المتقدم (run-advanced)
 
-| الأمر | الوصف |
-|-------|-------|
-| `start` | تشغيل البنية التحتية (5 نسخ + مراقبة) |
-| `standard` | اختبار قياسي (20 وكيل) |
-| `stress [N]` | اختبار ضغط (N وكيل أساسي) |
-| `spike` | اختبار ارتفاع مفاجئ |
-| `chaos [level]` | اختبار فوضى |
-| `all` | تشغيل جميع الاختبارات |
-| `status` | حالة الخدمات |
-| `stop` | إيقاف الخدمات |
-| `clean` | تنظيف كامل |
+| الأمر           | الوصف                                 |
+| --------------- | ------------------------------------- |
+| `start`         | تشغيل البنية التحتية (5 نسخ + مراقبة) |
+| `standard`      | اختبار قياسي (20 وكيل)                |
+| `stress [N]`    | اختبار ضغط (N وكيل أساسي)             |
+| `spike`         | اختبار ارتفاع مفاجئ                   |
+| `chaos [level]` | اختبار فوضى                           |
+| `all`           | تشغيل جميع الاختبارات                 |
+| `status`        | حالة الخدمات                          |
+| `stop`          | إيقاف الخدمات                         |
+| `clean`         | تنظيف كامل                            |
 
 ---
 
@@ -224,12 +228,12 @@ Agent Flow:
 
 ### السيناريوهات المتقدمة (Advanced)
 
-| السيناريو | النسبة | العمليات |
-|-----------|--------|----------|
-| **Auth Flow** | 20% | Login, Session persistence |
-| **Field Operations** | 40% | List, Create, Update, Delete |
-| **Weather Queries** | 25% | Current weather, Forecasts |
-| **IoT Data** | 15% | Sensor readings, History |
+| السيناريو            | النسبة | العمليات                     |
+| -------------------- | ------ | ---------------------------- |
+| **Auth Flow**        | 20%    | Login, Session persistence   |
+| **Field Operations** | 40%    | List, Create, Update, Delete |
+| **Weather Queries**  | 25%    | Current weather, Forecasts   |
+| **IoT Data**         | 15%    | Sensor readings, History     |
 
 ---
 
@@ -237,25 +241,25 @@ Agent Flow:
 
 ### فئات التنبيهات
 
-| الفئة | عدد القواعد | أمثلة |
-|-------|------------|-------|
-| Application | 4 | HighErrorRate, ServiceDown |
-| Database | 3 | HighConnections, PoolExhaustion |
-| Cache | 3 | RedisDown, HighMemory |
-| Load Balancer | 2 | AllBackendsDown |
-| Load Test | 3 | SessionLoss, RaceConditions |
-| System | 3 | HighCPU, LowDisk |
+| الفئة         | عدد القواعد | أمثلة                           |
+| ------------- | ----------- | ------------------------------- |
+| Application   | 4           | HighErrorRate, ServiceDown      |
+| Database      | 3           | HighConnections, PoolExhaustion |
+| Cache         | 3           | RedisDown, HighMemory           |
+| Load Balancer | 2           | AllBackendsDown                 |
+| Load Test     | 3           | SessionLoss, RaceConditions     |
+| System        | 3           | HighCPU, LowDisk                |
 
 ### تكوين التنبيهات
 
 ```yaml
 # monitoring/alertmanager.yml
 route:
-  receiver: 'default-receiver'
+  receiver: "default-receiver"
   routes:
     - match:
         severity: critical
-      receiver: 'critical-receiver'
+      receiver: "critical-receiver"
 ```
 
 ---
@@ -263,12 +267,14 @@ route:
 ## المقاييس | Metrics
 
 ### معدلات النجاح
+
 - `auth_success_rate` - نجاح المصادقة
 - `field_ops_success_rate` - نجاح عمليات الحقول
 - `weather_success_rate` - نجاح استعلامات الطقس
 - `session_persistence_rate` - استمرارية الجلسة
 
 ### عدادات الأخطاء
+
 - `connection_pool_errors` - استنفاد الاتصالات
 - `session_loss_errors` - فقدان الجلسات
 - `race_condition_errors` - تعارض البيانات
@@ -277,6 +283,7 @@ route:
 - `client_errors_4xx` - أخطاء العميل
 
 ### Chaos Metrics
+
 - `recovery_rate` - معدل التعافي
 - `failover_success_rate` - نجاح التجاوز
 - `graceful_degradation_rate` - التدهور المتحكم
@@ -286,14 +293,14 @@ route:
 
 ## معايير النجاح | Success Thresholds
 
-| المقياس | الهدف | الحد المقبول |
-|---------|-------|-------------|
-| p95 Response Time | <500ms | <1000ms |
-| Error Rate | <1% | <5% |
-| Login Success | >99% | >95% |
-| Session Persistence | >95% | >90% |
-| Connection Pool Errors | 0 | <50 |
-| Recovery Rate (Chaos) | >90% | >80% |
+| المقياس                | الهدف  | الحد المقبول |
+| ---------------------- | ------ | ------------ |
+| p95 Response Time      | <500ms | <1000ms      |
+| Error Rate             | <1%    | <5%          |
+| Login Success          | >99%   | >95%         |
+| Session Persistence    | >95%   | >90%         |
+| Connection Pool Errors | 0      | <50          |
+| Recovery Rate (Chaos)  | >90%   | >80%         |
 
 ---
 
@@ -301,23 +308,23 @@ route:
 
 ### الإصدار الأساسي
 
-| الخدمة | العنوان | البيانات |
-|--------|---------|----------|
-| App (LB) | http://localhost:8080 | - |
-| Grafana | http://localhost:3031 | admin/admin |
-| InfluxDB | http://localhost:8087 | See .env.influxdb.secret |
-| PostgreSQL | localhost:5433 | See .env |
-| Redis | localhost:6380 | See .env |
+| الخدمة     | العنوان               | البيانات                 |
+| ---------- | --------------------- | ------------------------ |
+| App (LB)   | http://localhost:8080 | -                        |
+| Grafana    | http://localhost:3031 | admin/admin              |
+| InfluxDB   | http://localhost:8087 | See .env.influxdb.secret |
+| PostgreSQL | localhost:5433        | See .env                 |
+| Redis      | localhost:6380        | See .env                 |
 
 ### الإصدار المتقدم
 
-| الخدمة | العنوان | البيانات |
-|--------|---------|----------|
-| App (LB) | http://localhost:8081 | - |
-| Grafana | http://localhost:3032 | admin/admin |
-| Prometheus | http://localhost:9091 | - |
-| Alertmanager | http://localhost:9094 | - |
-| InfluxDB | http://localhost:8088 | admin/advancedpassword123 |
+| الخدمة       | العنوان               | البيانات                  |
+| ------------ | --------------------- | ------------------------- |
+| App (LB)     | http://localhost:8081 | -                         |
+| Grafana      | http://localhost:3032 | admin/admin               |
+| Prometheus   | http://localhost:9091 | -                         |
+| Alertmanager | http://localhost:9094 | -                         |
+| InfluxDB     | http://localhost:8088 | admin/advancedpassword123 |
 
 ---
 
@@ -332,7 +339,7 @@ route:
 on:
   push:
     paths:
-      - 'tests/load/simulation/**'
+      - "tests/load/simulation/**"
 ```
 
 ### الاختبارات المحلية
@@ -397,4 +404,4 @@ curl http://localhost:8081/nginx-health
 
 ---
 
-*آخر تحديث | Last Updated: December 2025*
+_آخر تحديث | Last Updated: December 2025_

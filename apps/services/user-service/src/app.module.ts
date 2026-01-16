@@ -46,7 +46,7 @@ import { JWTConfig } from "./utils/jwt.config";
     ]),
     // JWT Module for token decoding in revocation guard
     JwtModule.register({
-      secret: JWTConfig.getVerificationKey(),
+      secret: JWTConfig.SECRET,
     }),
     PrismaModule,
     AuthModule, // Authentication module with token revocation
@@ -66,4 +66,4 @@ import { JWTConfig } from "./utils/jwt.config";
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

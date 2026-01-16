@@ -10,6 +10,7 @@ import '../../features/auth/ui/role_selection_screen.dart';
 import '../../features/auth/ui/login_screen.dart';
 import '../../features/auth/ui/forgot_password_screen.dart';
 import '../../features/auth/ui/reset_password_screen.dart';
+import '../../features/auth/ui/biometric_settings_screen.dart';
 
 // Features - Main Layout
 import '../../features/main_layout/main_layout.dart';
@@ -121,6 +122,12 @@ class AppRouter {
             identifier: args?['identifier'],
           );
         },
+      ),
+
+      GoRoute(
+        path: '/biometric-settings',
+        name: 'biometric-settings',
+        builder: (context, state) => const BiometricSettingsScreen(),
       ),
 
       // ═══════════════════════════════════════════════════════════════════════

@@ -1,6 +1,9 @@
 /**
  * JWT Authentication Configuration for SAHOOL Platform (TypeScript/NestJS)
  * Centralized configuration for JWT token handling
+ *
+ * Note: This configuration only supports HS256 algorithm.
+ * RS256 with RSA keys has been deprecated.
  */
 
 export interface JWTConfigInterface {
@@ -10,21 +13,19 @@ export interface JWTConfigInterface {
   refreshTokenExpireDays: number;
   issuer: string;
   audience: string;
-  publicKey?: string;
-  privateKey?: string;
 }
 
 export class JWTConfig {
   /**
-   * JWT Secret Key (required for HS256)
+   * JWT Secret Key (required)
    */
   static readonly SECRET: string =
     process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || "";
 
   /**
-   * JWT Algorithm (HS256 or RS256)
+   * JWT Algorithm - HS256 only (RS256 deprecated)
    */
-  static readonly ALGORITHM: string = process.env.JWT_ALGORITHM || "HS256";
+  static readonly ALGORITHM: string = "HS256";
 
   /**
    * Access token expiration time in minutes
@@ -51,16 +52,6 @@ export class JWTConfig {
    * JWT Audience
    */
   static readonly AUDIENCE: string = process.env.JWT_AUDIENCE || "sahool-api";
-
-  /**
-   * RSA Public Key (for RS256)
-   */
-  static readonly PUBLIC_KEY?: string = process.env.JWT_PUBLIC_KEY;
-
-  /**
-   * RSA Private Key (for RS256)
-   */
-  static readonly PRIVATE_KEY?: string = process.env.JWT_PRIVATE_KEY;
 
   /**
    * Rate limiting configuration
@@ -108,50 +99,18 @@ export class JWTConfig {
     const env = process.env.NODE_ENV || "development";
 
     if (env === "production" || env === "staging") {
-      if (this.ALGORITHM.startsWith("RS")) {
-        if (!this.PUBLIC_KEY || !this.PRIVATE_KEY) {
-          throw new Error(
-            "RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY",
-          );
-        }
-      } else {
-        if (!this.SECRET || this.SECRET.length < 32) {
-          throw new Error(
-            "JWT_SECRET must be at least 32 characters in production",
-          );
-        }
-      }
-    }
-  }
-
-  /**
-   * Get effective algorithm (falls back to HS256 if RS256 keys missing)
-   */
-  static getEffectiveAlgorithm(): string {
-    if (this.ALGORITHM.startsWith("RS")) {
-      if (!this.PRIVATE_KEY || !this.PUBLIC_KEY) {
-        console.warn(
-          `[JWT] RS256 requested but keys not configured. Falling back to HS256.`,
+      if (!this.SECRET || this.SECRET.length < 32) {
+        throw new Error(
+          "JWT_SECRET must be at least 32 characters in production",
         );
-        return "HS256";
       }
-      return this.ALGORITHM;
     }
-    return this.ALGORITHM;
   }
 
   /**
    * Get signing key for token creation
-   * Falls back to SECRET if RS256 keys are not configured
    */
   static getSigningKey(): string {
-    const effectiveAlgorithm = this.getEffectiveAlgorithm();
-    if (effectiveAlgorithm.startsWith("RS")) {
-      if (!this.PRIVATE_KEY) {
-        throw new Error("JWT_PRIVATE_KEY not configured for RS256");
-      }
-      return this.PRIVATE_KEY;
-    }
     if (!this.SECRET) {
       throw new Error("JWT_SECRET_KEY not configured");
     }
@@ -160,16 +119,8 @@ export class JWTConfig {
 
   /**
    * Get verification key for token validation
-   * Falls back to SECRET if RS256 keys are not configured
    */
   static getVerificationKey(): string {
-    const effectiveAlgorithm = this.getEffectiveAlgorithm();
-    if (effectiveAlgorithm.startsWith("RS")) {
-      if (!this.PUBLIC_KEY) {
-        throw new Error("JWT_PUBLIC_KEY not configured for RS256");
-      }
-      return this.PUBLIC_KEY;
-    }
     if (!this.SECRET) {
       throw new Error("JWT_SECRET_KEY not configured");
     }
@@ -180,19 +131,18 @@ export class JWTConfig {
    * Get configuration object for passport-jwt
    */
   static getJwtOptions() {
-    const effectiveAlgorithm = this.getEffectiveAlgorithm();
     return {
       secret: this.getVerificationKey(),
       signOptions: {
         expiresIn: `${this.ACCESS_TOKEN_EXPIRE_MINUTES}m`,
         issuer: this.ISSUER,
         audience: this.AUDIENCE,
-        algorithm: effectiveAlgorithm,
+        algorithm: this.ALGORITHM,
       },
       verifyOptions: {
         issuer: this.ISSUER,
         audience: this.AUDIENCE,
-        algorithms: [effectiveAlgorithm],
+        algorithms: [this.ALGORITHM],
       },
     };
   }
@@ -208,8 +158,6 @@ export class JWTConfig {
       refreshTokenExpireDays: this.REFRESH_TOKEN_EXPIRE_DAYS,
       issuer: this.ISSUER,
       audience: this.AUDIENCE,
-      publicKey: this.PUBLIC_KEY,
-      privateKey: this.PRIVATE_KEY,
     };
   }
 }

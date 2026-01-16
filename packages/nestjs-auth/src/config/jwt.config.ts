@@ -1,6 +1,9 @@
 /**
  * JWT Authentication Configuration for SAHOOL Platform (TypeScript/NestJS)
  * Centralized configuration for JWT token handling
+ *
+ * Note: This configuration only supports HS256 algorithm.
+ * RS256 with RSA keys has been deprecated.
  */
 
 export interface JWTConfigInterface {
@@ -10,21 +13,19 @@ export interface JWTConfigInterface {
   refreshTokenExpireDays: number;
   issuer: string;
   audience: string;
-  publicKey?: string;
-  privateKey?: string;
 }
 
 export class JWTConfig {
   /**
-   * JWT Secret Key (required for HS256)
+   * JWT Secret Key (required)
    */
   static readonly SECRET: string =
     process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || "";
 
   /**
-   * JWT Algorithm (HS256 or RS256)
+   * JWT Algorithm - HS256 only (RS256 deprecated)
    */
-  static readonly ALGORITHM: string = process.env.JWT_ALGORITHM || "HS256";
+  static readonly ALGORITHM: string = "HS256";
 
   /**
    * Access token expiration time in minutes
@@ -51,16 +52,6 @@ export class JWTConfig {
    * JWT Audience
    */
   static readonly AUDIENCE: string = process.env.JWT_AUDIENCE || "sahool-api";
-
-  /**
-   * RSA Public Key (for RS256)
-   */
-  static readonly PUBLIC_KEY?: string = process.env.JWT_PUBLIC_KEY;
-
-  /**
-   * RSA Private Key (for RS256)
-   */
-  static readonly PRIVATE_KEY?: string = process.env.JWT_PRIVATE_KEY;
 
   /**
    * Rate limiting configuration
@@ -108,18 +99,10 @@ export class JWTConfig {
     const env = process.env.NODE_ENV || "development";
 
     if (env === "production" || env === "staging") {
-      if (this.ALGORITHM.startsWith("RS")) {
-        if (!this.PUBLIC_KEY || !this.PRIVATE_KEY) {
-          throw new Error(
-            "RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY",
-          );
-        }
-      } else {
-        if (!this.SECRET || this.SECRET.length < 32) {
-          throw new Error(
-            "JWT_SECRET must be at least 32 characters in production",
-          );
-        }
+      if (!this.SECRET || this.SECRET.length < 32) {
+        throw new Error(
+          "JWT_SECRET must be at least 32 characters in production",
+        );
       }
     }
   }
@@ -128,12 +111,6 @@ export class JWTConfig {
    * Get signing key for token creation
    */
   static getSigningKey(): string {
-    if (this.ALGORITHM.startsWith("RS")) {
-      if (!this.PRIVATE_KEY) {
-        throw new Error("JWT_PRIVATE_KEY not configured for RS256");
-      }
-      return this.PRIVATE_KEY;
-    }
     return this.SECRET;
   }
 
@@ -141,12 +118,6 @@ export class JWTConfig {
    * Get verification key for token validation
    */
   static getVerificationKey(): string {
-    if (this.ALGORITHM.startsWith("RS")) {
-      if (!this.PUBLIC_KEY) {
-        throw new Error("JWT_PUBLIC_KEY not configured for RS256");
-      }
-      return this.PUBLIC_KEY;
-    }
     return this.SECRET;
   }
 
@@ -181,8 +152,6 @@ export class JWTConfig {
       refreshTokenExpireDays: this.REFRESH_TOKEN_EXPIRE_DAYS,
       issuer: this.ISSUER,
       audience: this.AUDIENCE,
-      publicKey: this.PUBLIC_KEY,
-      privateKey: this.PRIVATE_KEY,
     };
   }
 }

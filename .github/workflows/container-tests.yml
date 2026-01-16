@@ -310,7 +310,7 @@ jobs:
       - name: Build Docker image
         if: steps.check_dockerfile.outputs.exists == 'true'
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # Use repository root as context for shared module access
           context: .
@@ -320,9 +320,9 @@ jobs:
           tags: |
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:latest
-          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
+          # Use cache from GHA when available, but don't fail if cache export fails
           cache-from: type=gha,scope=${{ matrix.service.name }}-v2
-          cache-to: type=gha,scope=${{ matrix.service.name }}-v2,mode=max
+          cache-to: type=gha,scope=${{ matrix.service.name }}-v2,mode=max,ignore-error=true
           build-args: |
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}

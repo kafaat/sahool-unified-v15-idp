@@ -132,7 +132,7 @@ jobs:
 
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # Use repository root as context for shared module access
           context: .
@@ -142,7 +142,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ needs.validate.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,ignore-error=true
           labels: |
             org.opencontainers.image.title=${{ matrix.service }}
             org.opencontainers.image.version=${{ needs.validate.outputs.version }}

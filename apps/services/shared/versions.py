@@ -73,16 +73,22 @@ VERSIONS = {
 
 SERVICE_PORTS = {
     "billing-core": 8089,
-    "satellite-service": 8090,
+    "vegetation-analysis-service": 8090,  # Replaces satellite-service
     "indicators-service": 8091,
-    "weather-advanced": 8092,
-    "fertilizer-advisor": 8093,
+    "weather-service": 8092,  # Replaces weather-advanced
+    "advisory-service": 8093,  # Replaces fertilizer-advisor
     "irrigation-smart": 8094,
-    "crop-health-ai": 8095,
-    "virtual-sensors": 8096,
-    "yield-engine": 8098,
-    "notification-service": 8109,
+    "crop-intelligence-service": 8095,  # Replaces crop-health-ai
+    "yield-prediction-service": 8098,  # Replaces yield-engine
+    "notification-service": 8110,
     "astronomical-calendar": 8111,
+    "virtual-sensors": 8119,
+    "field-intelligence": 8120,
+    "skills-service": 8121,
+    "task-service": 8103,
+    "equipment-service": 8101,
+    "alert-service": 8113,
+    "field-service": 8115,
 }
 
 # =============================================================================

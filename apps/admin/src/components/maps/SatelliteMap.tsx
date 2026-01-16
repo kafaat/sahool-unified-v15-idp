@@ -26,7 +26,9 @@ export default function SatelliteMap({
   selectedFieldId,
   onFieldClick,
 }: SatelliteMapProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markersRef = useRef<Map<string, any>>(new Map());
   const [isClient, setIsClient] = useState(false);
 
@@ -89,25 +91,42 @@ export default function SatelliteMap({
           },
         );
 
-        marker.bindPopup(`
-          <div style="direction: rtl; text-align: right; min-width: 200px;">
-            <h3 style="margin: 0 0 8px 0; font-weight: bold;">${field.farmName}</h3>
-            <p style="margin: 0 0 4px 0; color: #666;">${field.fieldName}</p>
-            <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span>NDVI الحالي:</span>
-              <strong style="color: ${color}">${ndvi.toFixed(2)}</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span>المتوسط:</span>
-              <strong>${field.ndvi.average.toFixed(2)}</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span>الاتجاه:</span>
-              <strong>${field.ndvi.trend === "up" ? "↑ صاعد" : field.ndvi.trend === "down" ? "↓ هابط" : "→ ثابت"}</strong>
-            </div>
+        // SECURITY: Use DOM methods to prevent XSS from user data
+        const popupContent = document.createElement("div");
+        popupContent.style.cssText = "direction: rtl; text-align: right; min-width: 200px;";
+
+        const title = document.createElement("h3");
+        title.style.cssText = "margin: 0 0 8px 0; font-weight: bold;";
+        title.textContent = field.farmName; // textContent prevents XSS
+
+        const subtitle = document.createElement("p");
+        subtitle.style.cssText = "margin: 0 0 4px 0; color: #666;";
+        subtitle.textContent = field.fieldName;
+
+        const hr = document.createElement("hr");
+        hr.style.cssText = "margin: 8px 0; border: none; border-top: 1px solid #eee;";
+
+        const trendText = field.ndvi.trend === "up" ? "↑ صاعد" : field.ndvi.trend === "down" ? "↓ هابط" : "→ ثابت";
+
+        popupContent.innerHTML = `
+          ${title.outerHTML}
+          ${subtitle.outerHTML}
+          ${hr.outerHTML}
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span>NDVI الحالي:</span>
+            <strong style="color: ${color}">${ndvi.toFixed(2)}</strong>
           </div>
-        `);
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span>المتوسط:</span>
+            <strong>${field.ndvi.average.toFixed(2)}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>الاتجاه:</span>
+            <strong>${trendText}</strong>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
 
         marker.on("click", () => {
           if (onFieldClick) {

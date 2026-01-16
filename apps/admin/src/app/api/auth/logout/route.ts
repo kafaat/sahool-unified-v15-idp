@@ -5,6 +5,7 @@
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
     if (accessToken) {
       try {
         const backendUrl =
-          process.env.USER_SERVICE_URL || "http://localhost:3025";
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         const response = await fetch(`${backendUrl}/api/v1/auth/logout`, {
           method: "POST",
           headers: {
@@ -27,14 +28,14 @@ export async function POST(request: Request) {
         });
 
         if (!response.ok) {
-          console.error("Backend logout failed:", await response.text());
+          logger.error("Backend logout failed:", await response.text());
           // Continue with cookie deletion even if backend logout fails
         } else {
-          console.log("Token revoked successfully on backend");
+          logger.log("Token revoked successfully on backend");
         }
       } catch (backendError) {
         // Log error but continue with cookie deletion
-        console.error("Failed to revoke token on backend:", backendError);
+        logger.error("Failed to revoke token on backend:", backendError);
         // Don't fail the entire logout if backend is unreachable
       }
     }
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
       message: "Logged out successfully",
     });
   } catch (error) {
-    console.error("Logout error:", error);
+    logger.error("Logout error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

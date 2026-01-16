@@ -1,28 +1,38 @@
 "use client";
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { logger } from "../../lib/logger";
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  /** Optional component name for better error tracking */
+  componentName?: string;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
+  eventId: string | null;
 }
 
 /**
  * Error Boundary for Admin Dashboard
  * Shows more detailed error information for admin users
+ *
+ * Features:
+ * - Logs errors to console (development) and Sentry (all environments)
+ * - Provides user-friendly Arabic error messages
+ * - Includes retry mechanism
+ * - Reports to error tracking service (Sentry)
  */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
+    this.state = { hasError: false, error: null, errorInfo: null, eventId: null };
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
@@ -30,16 +40,53 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    logger.error("Admin ErrorBoundary caught an error:", error, errorInfo);
+    // Log to console (works in all environments via critical)
+    logger.critical("Admin ErrorBoundary caught an error:", {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+    });
+
     this.setState({ errorInfo });
 
+    // Call optional error callback
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
 
-    // Log to server for admin errors
+    // Report to Sentry with full context
+    this.reportToSentry(error, errorInfo);
+
+    // Also log to server for additional tracking
     this.logErrorToServer(error, errorInfo);
   }
+
+  /**
+   * Report error to Sentry with React component context
+   */
+  private reportToSentry = (error: Error, errorInfo: ErrorInfo): void => {
+    try {
+      const eventId = Sentry.captureException(error, {
+        contexts: {
+          react: {
+            componentStack: errorInfo.componentStack,
+          },
+        },
+        tags: {
+          errorBoundary: "admin",
+          componentName: this.props.componentName || "unknown",
+        },
+        extra: {
+          componentStack: errorInfo.componentStack,
+          url: typeof window !== "undefined" ? window.location.href : undefined,
+        },
+      });
+
+      this.setState({ eventId });
+    } catch (sentryError) {
+      logger.critical("Failed to report error to Sentry:", sentryError);
+    }
+  };
 
   private logErrorToServer = async (
     error: Error,
@@ -56,16 +103,17 @@ export class ErrorBoundary extends Component<Props, State> {
           url: window.location.href,
           userAgent: navigator.userAgent,
           timestamp: new Date().toISOString(),
+          eventId: this.state.eventId,
         }),
       });
     } catch (e) {
       // Silent fail in production, log in development
-      logger.error("Failed to log error:", e);
+      logger.error("Failed to log error to server:", e);
     }
   };
 
   handleRetry = (): void => {
-    this.setState({ hasError: false, error: null, errorInfo: null });
+    this.setState({ hasError: false, error: null, errorInfo: null, eventId: null });
   };
 
   render(): ReactNode {
@@ -135,6 +183,15 @@ export class ErrorBoundary extends Component<Props, State> {
                   {this.state.errorInfo.componentStack}
                 </pre>
               </details>
+            )}
+
+            {this.state.eventId && (
+              <div className="bg-gray-100 rounded-lg p-3 mb-4 text-sm">
+                <span className="text-gray-600">معرف الخطأ للدعم الفني: </span>
+                <code className="text-gray-800 font-mono select-all">
+                  {this.state.eventId}
+                </code>
+              </div>
             )}
 
             <div className="flex gap-3 justify-end pt-4 border-t">

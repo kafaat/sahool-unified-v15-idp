@@ -176,7 +176,7 @@ DATABASE_URL=postgresql://...
 REDIS_URL=redis://redis:6379
 
 # الإشعارات
-NOTIFICATION_SERVICE_URL=http://notification-service:8109
+NOTIFICATION_SERVICE_URL=http://notification-service:8110
 
 # الحدود
 MAX_ALERTS_PER_FIELD=100

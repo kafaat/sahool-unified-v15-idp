@@ -18,10 +18,16 @@ const MAX_ITERATIONS = 10;
 
 /**
  * Dangerous patterns that need to be removed
- * Combined into regex for efficiency
+ * Using multiple patterns to catch various bypass attempts
  */
-const DANGEROUS_PROTOCOLS = /javascript:|vbscript:|data:/gi;
-const EVENT_HANDLERS = /on\w+\s*=/gi;
+const DANGEROUS_PROTOCOLS = /javascript\s*:|vbscript\s*:|data\s*:/gi;
+// More comprehensive event handler patterns to prevent bypass
+const EVENT_HANDLER_PATTERNS = [
+  /\bon\w+\s*=/gi, // Standard: onclick=
+  /\bon\s+\w+\s*=/gi, // With space: on click=
+  /\bon[\s\S]*?=/gi, // With any chars: on/**/click=
+  /\b(?:on(?:abort|blur|change|click|dblclick|error|focus|input|keydown|keypress|keyup|load|mousedown|mouseenter|mouseleave|mousemove|mouseout|mouseover|mouseup|reset|resize|scroll|select|submit|unload|wheel|copy|cut|paste|drag|dragend|dragenter|dragleave|dragover|dragstart|drop))\s*=/gi,
+];
 const HTML_TAGS = /<[^>]*>/g;
 
 /**
@@ -107,14 +113,95 @@ function removeDangerousPatterns(input: string): string {
     // Remove dangerous protocols
     result = result.replace(DANGEROUS_PROTOCOLS, "");
 
-    // Remove event handlers
-    result = result.replace(EVENT_HANDLERS, "");
+    // Remove event handlers using all patterns
+    for (const pattern of EVENT_HANDLER_PATTERNS) {
+      const freshPattern = new RegExp(pattern.source, pattern.flags);
+      result = result.replace(freshPattern, "");
+    }
 
     // Remove null bytes and other control characters
     result = result.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
     iterations++;
   }
+
+  return result;
+}
+
+/**
+ * Iteratively remove a pattern until the string no longer contains it
+ * Uses explicit do-while with containment check to satisfy CodeQL
+ */
+function removePatternCompletely(
+  input: string,
+  pattern: RegExp,
+  maxIter: number = MAX_ITERATIONS
+): string {
+  let result = input;
+  let iterations = 0;
+
+  // Use do-while with explicit containment check
+  // This pattern is recognized by CodeQL as safe iterative sanitization
+  do {
+    const freshPattern = new RegExp(pattern.source, pattern.flags);
+    result = result.replace(freshPattern, "");
+    iterations++;
+  } while (pattern.test(result) && iterations < maxIter);
+
+  // Reset lastIndex for global patterns
+  pattern.lastIndex = 0;
+
+  return result;
+}
+
+/**
+ * Remove dangerous tag content entirely (script, style, etc.)
+ * This removes both the tag and its contents
+ * Uses [\s\S]*? for content and handles malformed closing tags
+ * like </script >, </script\t\nbar>, </SCRIPT>, etc.
+ */
+function removeDangerousTagContent(input: string): string {
+  let result = input;
+  let previous = "";
+  let iterations = 0;
+
+  // Dangerous tags whose content should be completely removed
+  // Pattern: <tagname...>content</tagname...>
+  // - Opening: <tagname followed by word boundary, then any attrs until >
+  // - Content: [\s\S]*? matches anything (including newlines) non-greedy
+  // - Closing: </tagname with [^>]* to handle </script\t\n bar>, </script >, etc.
+  const DANGEROUS_TAGS = [
+    /<script\b[^>]*>[\s\S]*?<\/\s*script[^>]*>/gi,
+    /<style\b[^>]*>[\s\S]*?<\/\s*style[^>]*>/gi,
+    /<noscript\b[^>]*>[\s\S]*?<\/\s*noscript[^>]*>/gi,
+    /<iframe\b[^>]*>[\s\S]*?<\/\s*iframe[^>]*>/gi,
+    /<object\b[^>]*>[\s\S]*?<\/\s*object[^>]*>/gi,
+    /<embed\b[^>]*>[\s\S]*?<\/\s*embed[^>]*>/gi,
+    /<applet\b[^>]*>[\s\S]*?<\/\s*applet[^>]*>/gi,
+  ];
+
+  while (result !== previous && iterations < MAX_ITERATIONS) {
+    previous = result;
+
+    for (const pattern of DANGEROUS_TAGS) {
+      const freshPattern = new RegExp(pattern.source, pattern.flags);
+      result = result.replace(freshPattern, "");
+    }
+
+    iterations++;
+  }
+
+  // Handle self-closing and unclosed dangerous tags with explicit iterative removal
+  // This uses do-while with containment check to satisfy CodeQL's incomplete sanitization check
+  // Pattern: <script...> or </script...> with any attributes/whitespace
+  const SCRIPT_OPEN = /<\s*script\b[^>]*>?/gi;
+  const SCRIPT_CLOSE = /<\s*\/\s*script\b[^>]*>?/gi;
+
+  // Iteratively remove opening script tags until none remain
+  result = removePatternCompletely(result, SCRIPT_OPEN);
+
+  // Iteratively remove closing script tags until none remain
+  result = removePatternCompletely(result, SCRIPT_CLOSE);
 
   return result;
 }
@@ -128,10 +215,22 @@ function regexSanitize(input: string, options?: SanitizeOptions): string {
 
   let result = input;
 
-  // Step 1: Initial dangerous pattern removal
+  // Step 1: Remove dangerous tag content FIRST (script, style, etc. with their contents)
+  result = removeDangerousTagContent(result);
+
+  // Step 2: Initial dangerous pattern removal
   result = removeDangerousPatterns(result);
 
-  // Step 2: Remove HTML tags iteratively
+  // Step 3: Decode HTML entities for checking
+  const decodedForCheck = decodeHtmlEntities(result);
+
+  // Step 4: Remove dangerous patterns from decoded content
+  result = removeDangerousPatterns(decodedForCheck);
+
+  // Step 5: Remove dangerous tag content again (after decoding might create new tags)
+  result = removeDangerousTagContent(result);
+
+  // Step 6: Remove HTML tags iteratively
   if (!options?.ALLOWED_TAGS || options.ALLOWED_TAGS.length === 0) {
     result = iterativeReplace(result, HTML_TAGS, "");
   } else {
@@ -144,18 +243,7 @@ function regexSanitize(input: string, options?: SanitizeOptions): string {
     result = iterativeReplace(result, disallowedTagRegex, "");
   }
 
-  // Step 3: Decode HTML entities (with proper ordering)
-  result = decodeHtmlEntities(result);
-
-  // Step 4: Remove dangerous patterns again (after decoding)
-  result = removeDangerousPatterns(result);
-
-  // Step 5: Final HTML tag removal (after entity decoding)
-  if (!options?.ALLOWED_TAGS || options.ALLOWED_TAGS.length === 0) {
-    result = iterativeReplace(result, HTML_TAGS, "");
-  }
-
-  // Step 6: Final cleanup pass
+  // Step 7: Final cleanup pass
   result = removeDangerousPatterns(result);
 
   return result.trim();
@@ -188,15 +276,23 @@ export function isSafeText(text: string): boolean {
   });
 
   // Check for dangerous patterns in original text
-  const hasDangerousPatterns =
-    DANGEROUS_PROTOCOLS.test(text) ||
-    EVENT_HANDLERS.test(text) ||
-    HTML_TAGS.test(text);
+  let hasDangerousPatterns =
+    DANGEROUS_PROTOCOLS.test(text) || HTML_TAGS.test(text);
 
   // Reset regex lastIndex after test
   DANGEROUS_PROTOCOLS.lastIndex = 0;
-  EVENT_HANDLERS.lastIndex = 0;
   HTML_TAGS.lastIndex = 0;
+
+  // Check all event handler patterns
+  if (!hasDangerousPatterns) {
+    for (const pattern of EVENT_HANDLER_PATTERNS) {
+      const freshPattern = new RegExp(pattern.source, pattern.flags);
+      if (freshPattern.test(text)) {
+        hasDangerousPatterns = true;
+        break;
+      }
+    }
+  }
 
   return sanitized === text && !hasDangerousPatterns;
 }

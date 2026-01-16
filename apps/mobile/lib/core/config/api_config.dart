@@ -224,7 +224,7 @@ class ApiConfig {
   // Kong route: /api/v1/sensors/virtual
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _virtualSensorsBase => useDirectServices ? virtualSensorsServiceUrl : '$effectiveBaseUrl/api/v1/sensors/virtual';
+  static String get _virtualSensorsBase => useDirectServices ? virtualSensorsServiceUrl : '$effectiveBaseUrl/api/v1/virtual-sensors';
 
   /// Virtual sensors endpoints
   static String get et0Calculate => '$_virtualSensorsBase/et0/calculate';
@@ -347,7 +347,7 @@ class ApiConfig {
   // Kong route: /api/v1/community/chat
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _communityChatBase => useDirectServices ? communityChatServiceUrl : '$effectiveBaseUrl/api/v1/community/chat';
+  static String get _communityChatBase => useDirectServices ? communityChatServiceUrl : '$effectiveBaseUrl/api/v1/community';
 
   /// Community chat endpoints
   static String get communityChatUrl => communityChatServiceUrl; // Socket.io URL

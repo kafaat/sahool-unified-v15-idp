@@ -15,7 +15,7 @@ export const logger = {
    * Log general information (development only)
    * تسجيل معلومات عامة (بيئة التطوير فقط)
    */
-  log: (...args: any[]) => {
+  log: (...args: unknown[]) => {
     if (isDev) {
       console.log(...args);
     }
@@ -25,7 +25,7 @@ export const logger = {
    * Log errors (development only)
    * تسجيل الأخطاء (بيئة التطوير فقط)
    */
-  error: (...args: any[]) => {
+  error: (...args: unknown[]) => {
     if (isDev) {
       console.error(...args);
     }
@@ -35,7 +35,7 @@ export const logger = {
    * Log warnings (development only)
    * تسجيل التحذيرات (بيئة التطوير فقط)
    */
-  warn: (...args: any[]) => {
+  warn: (...args: unknown[]) => {
     if (isDev) {
       console.warn(...args);
     }
@@ -45,7 +45,7 @@ export const logger = {
    * Log debug information (development only)
    * تسجيل معلومات التصحيح (بيئة التطوير فقط)
    */
-  debug: (...args: any[]) => {
+  debug: (...args: unknown[]) => {
     if (isDev) {
       console.debug(...args);
     }
@@ -55,7 +55,7 @@ export const logger = {
    * Log informational messages (development only)
    * تسجيل رسائل إعلامية (بيئة التطوير فقط)
    */
-  info: (...args: any[]) => {
+  info: (...args: unknown[]) => {
     if (isDev) {
       console.info(...args);
     }
@@ -65,7 +65,7 @@ export const logger = {
    * Create a console group (development only)
    * إنشاء مجموعة في وحدة التحكم (بيئة التطوير فقط)
    */
-  group: (...args: any[]) => {
+  group: (...args: unknown[]) => {
     if (isDev) {
       console.group(...args);
     }
@@ -88,7 +88,7 @@ export const logger = {
    * These are logged in both development and production,
    * and should be sent to an error tracking service.
    */
-  critical: (...args: any[]) => {
+  critical: (...args: unknown[]) => {
     // Always log critical errors
     console.error(...args);
 
@@ -104,7 +104,7 @@ export const logger = {
    * Logs errors to console in development,
    * sends structured logs in production
    */
-  production: (...args: any[]) => {
+  production: (...args: unknown[]) => {
     if (isDev) {
       console.log(...args);
     } else {

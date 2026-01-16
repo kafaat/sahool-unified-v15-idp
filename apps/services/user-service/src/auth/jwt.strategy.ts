@@ -26,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: JWTConfig.getVerificationKey(),
+      secretOrKey: JWTConfig.SECRET,
       issuer: JWTConfig.ISSUER,
       audience: JWTConfig.AUDIENCE,
       algorithms: [JWTConfig.ALGORITHM],

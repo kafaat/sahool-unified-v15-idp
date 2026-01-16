@@ -95,7 +95,8 @@ services:
     ports:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      # Use CMD-SHELL to expand environment variables
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -123,7 +124,7 @@ services:
       - "${NATS_PORT:-4222}:4222"
       - "127.0.0.1:${NATS_MONITOR_PORT:-8222}:8222"
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8222/healthz || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

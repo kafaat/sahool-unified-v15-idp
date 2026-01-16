@@ -24,7 +24,7 @@
     "next-intl": "^3.26.3"
   },
   "devDependencies": {
-    "typescript": "^5.3.0"
+    "typescript": "^5.7.3"
   },
   "peerDependencies": {
     "next": ">=14.0.0",

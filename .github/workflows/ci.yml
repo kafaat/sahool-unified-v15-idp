@@ -259,12 +259,14 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Build Docker Images
+  # Only build on main/develop to avoid Docker Hub rate limiting on feature branches
   # ─────────────────────────────────────────────────────────────────────────────
   build:
     name: Build Docker Images
     runs-on: ubuntu-latest
     needs: [test-python]
-    if: github.event_name == 'push'
+    # Only build Docker images on main/develop pushes to avoid rate limiting
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     strategy:
       fail-fast: false
       matrix:

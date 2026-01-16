@@ -1412,7 +1412,8 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
 
         pref = await NotificationPreferenceRepository.create_or_update(
             user_id=farmer_id,
-            channel=channel,
+            event_type=channel,
+            channels=[channel],
             enabled=enabled,
             quiet_hours_start=(
                 datetime.strptime(preferences.quiet_hours_start, "%H:%M").time()
@@ -1424,13 +1425,15 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
                 if preferences.quiet_hours_end
                 else None
             ),
-            min_priority=preferences.min_priority.value,
-            notification_types={
-                "weather_alerts": preferences.weather_alerts,
-                "pest_alerts": preferences.pest_alerts,
-                "irrigation_reminders": preferences.irrigation_reminders,
-                "crop_health_alerts": preferences.crop_health_alerts,
-                "market_prices": preferences.market_prices,
+            metadata={
+                "min_priority": preferences.min_priority.value,
+                "notification_types": {
+                    "weather_alerts": preferences.weather_alerts,
+                    "pest_alerts": preferences.pest_alerts,
+                    "irrigation_reminders": preferences.irrigation_reminders,
+                    "crop_health_alerts": preferences.crop_health_alerts,
+                    "market_prices": preferences.market_prices,
+                },
             },
         )
         updated_prefs.append(pref)

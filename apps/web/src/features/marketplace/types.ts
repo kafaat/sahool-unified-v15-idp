@@ -4,18 +4,24 @@
  */
 
 export type ProductCategory =
-  | 'seeds'
-  | 'fertilizers'
-  | 'pesticides'
-  | 'equipment'
-  | 'tools'
-  | 'irrigation'
-  | 'produce'
-  | 'other';
+  | "seeds"
+  | "fertilizers"
+  | "pesticides"
+  | "equipment"
+  | "tools"
+  | "irrigation"
+  | "produce"
+  | "other";
 
-export type ProductStatus = 'available' | 'out_of_stock' | 'discontinued';
-export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+export type ProductStatus = "available" | "out_of_stock" | "discontinued";
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
 export interface Product {
   id: string;
@@ -112,7 +118,7 @@ export interface ProductFilters {
   maxPrice?: number;
   sellerId?: string;
   status?: ProductStatus;
-  sortBy?: 'price_asc' | 'price_desc' | 'name' | 'newest' | 'rating';
+  sortBy?: "price_asc" | "price_desc" | "name" | "newest" | "rating";
 }
 
 export interface OrderFilters {

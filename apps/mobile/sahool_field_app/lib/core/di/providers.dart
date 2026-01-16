@@ -4,13 +4,38 @@ import '../../features/field/data/repo/fields_repo.dart';
 import '../../features/field/data/remote/fields_api.dart';
 import '../sync/network_status.dart';
 import '../http/api_client.dart';
+import '../security/security_config.dart';
+import '../security/certificate_pinning_service.dart';
+import '../security/certificate_config.dart';
 
 // Re-export database provider from main.dart
 // Note: databaseProvider is defined in main.dart and overridden at runtime
 
+/// Certificate Pinning Service Provider
+/// Provides certificate pinning based on environment
+final certificatePinningServiceProvider = Provider<CertificatePinningService>((ref) {
+  final securityConfig = ref.watch(securityConfigProvider);
+
+  // Determine environment from compile-time constant
+  const environment = String.fromEnvironment('ENV', defaultValue: 'production');
+
+  return CertificatePinningService(
+    certificatePins: CertificateConfig.getPinsForEnvironment(environment),
+    allowDebugBypass: securityConfig.allowPinningDebugBypass,
+    enforceStrict: securityConfig.strictCertificatePinning,
+  );
+});
+
 /// API Client Provider
+/// Configured with certificate pinning enabled for security
 final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient();
+  final securityConfig = ref.watch(securityConfigProvider);
+  final pinningService = ref.watch(certificatePinningServiceProvider);
+
+  return ApiClient(
+    securityConfig: securityConfig,
+    certificatePinningService: pinningService,
+  );
 });
 
 /// Fields API Provider

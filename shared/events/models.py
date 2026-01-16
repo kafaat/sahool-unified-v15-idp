@@ -23,7 +23,6 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Enums
 # ─────────────────────────────────────────────────────────────────────────────
@@ -55,6 +54,7 @@ class EventMetadata(BaseModel):
     user_id: str | None = None
     trace_id: str | None = None
     span_id: str | None = None
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Base Event Model

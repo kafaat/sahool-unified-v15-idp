@@ -3,9 +3,7 @@
   "$id": "https://sahool.app/schemas/crop.disease_detected.v1.json",
   "title": "Crop Disease Detected Event",
   "description": "Event emitted when a disease or pest is detected in a crop",
-  "allOf": [
-    { "$ref": "base-event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "base-event.v1.json" }],
   "properties": {
     "event_type": {
       "const": "crop.disease_detected"
@@ -37,7 +35,14 @@
         },
         "disease_category": {
           "type": "string",
-          "enum": ["fungal", "bacterial", "viral", "pest", "nutrient_deficiency", "environmental"]
+          "enum": [
+            "fungal",
+            "bacterial",
+            "viral",
+            "pest",
+            "nutrient_deficiency",
+            "environmental"
+          ]
         },
         "confidence_score": {
           "type": "number",

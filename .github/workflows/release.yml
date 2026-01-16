@@ -80,8 +80,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Login to Docker Hub BEFORE setup-buildx to avoid rate limiting when pulling buildkit image
+      # Configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets for better reliability
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        continue-on-error: true
+
+      # Pre-pull buildkit image with retries to avoid setup-buildx failures
+      - name: Pre-pull BuildKit image
+        run: |
+          for i in 1 2 3 4; do
+            echo "Attempt $i: Pulling moby/buildkit:v0.12.5..."
+            if docker pull moby/buildkit:v0.12.5; then
+              echo "✅ Successfully pulled buildkit image"
+              exit 0
+            fi
+            echo "⚠️ Pull failed, waiting $((i * 5)) seconds before retry..."
+            sleep $((i * 5))
+          done
+          echo "❌ Failed to pull buildkit after 4 attempts, continuing anyway..."
+        continue-on-error: true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          # Pin buildkit version for reliability and cache efficiency (avoid :latest rate limiting)
+          driver-opts: |
+            image=moby/buildkit:v0.12.5
+            network=host
+        env:
+          DOCKER_BUILD_SUMMARY: false
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -101,7 +132,7 @@ jobs:
 
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           # Use repository root as context for shared module access
           context: .
@@ -111,7 +142,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ needs.validate.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,ignore-error=true
           labels: |
             org.opencontainers.image.title=${{ matrix.service }}
             org.opencontainers.image.version=${{ needs.validate.outputs.version }}

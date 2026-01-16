@@ -1,4 +1,5 @@
 # SAHOOL Yield Prediction Ensemble Model
+
 # نموذج مجموعة التنبؤ بالإنتاج - نظام صحول
 
 ## Overview | نظرة عامة
@@ -17,6 +18,7 @@ The SAHOOL Yield Prediction Ensemble Model is a comprehensive machine learning s
 #### Supported Crops (21 Total):
 
 **Cereals (الحبوب):**
+
 - Wheat (القمح)
 - Barley (الشعير)
 - Sorghum (الذرة الرفيعة)
@@ -24,6 +26,7 @@ The SAHOOL Yield Prediction Ensemble Model is a comprehensive machine learning s
 - Pearl Millet (الدخن)
 
 **Vegetables (الخضروات):**
+
 - Tomato (الطماطم)
 - Potato (البطاطس)
 - Onion (البصل)
@@ -32,21 +35,25 @@ The SAHOOL Yield Prediction Ensemble Model is a comprehensive machine learning s
 - Eggplant (الباذنجان)
 
 **Fruits (الفواكه):**
+
 - Date Palm (نخيل التمر)
 - Mango (المانجو)
 - Banana (الموز)
 - Grape (العنب)
 
 **Cash Crops (المحاصيل النقدية):**
+
 - Coffee/Arabica (البن)
 - Qat/Khat (القات)
 - Sesame (السمسم)
 
 **Legumes (البقوليات):**
+
 - Lentil (العدس)
 - Chickpea (الحمص)
 
 **Fodder (الأعلاف):**
+
 - Alfalfa/Lucerne (البرسيم الحجازي)
 
 #### Regional Support (المناطق):
@@ -112,6 +119,7 @@ The SAHOOL Yield Prediction Ensemble Model is a comprehensive machine learning s
 #### Key Features:
 
 **Input Data**:
+
 - Field identification and location
 - Crop type and area
 - NDVI (current, peak, history)
@@ -122,6 +130,7 @@ The SAHOOL Yield Prediction Ensemble Model is a comprehensive machine learning s
 - Disease severity
 
 **Output**:
+
 - Predicted yield (kg/hectare)
 - Confidence interval (low, mid, high)
 - Overall confidence score (0-1)
@@ -131,11 +140,13 @@ The SAHOOL Yield Prediction Ensemble Model is a comprehensive machine learning s
 - Sub-model predictions breakdown
 
 **Confidence Calculation**:
+
 - `data_completeness_score()`: Measures data availability (0-1)
 - `model_agreement_score()`: Measures consensus among sub-models (0-1)
 - `historical_accuracy_adjustment()`: Adjusts based on historical data quality (0-1)
 
 **Limiting Factors Detection**:
+
 - Water stress (إجهاد مائي)
 - Nutrient deficiency (نقص العناصر الغذائية)
 - Heat stress (إجهاد حراري)
@@ -146,6 +157,7 @@ The SAHOOL Yield Prediction Ensemble Model is a comprehensive machine learning s
 - Inadequate GDD (نقص درجات الحرارة التراكمية)
 
 **Recommendations**:
+
 - Irrigation adjustments
 - Fertilization strategies
 - Soil amendments (lime, sulfur)
@@ -253,12 +265,14 @@ for rec in prediction.recommendations:
 ### FieldData
 
 #### Required Fields:
+
 - `field_id`: str
 - `crop_id`: str (must match YEMEN_CROPS keys)
 - `region`: Region enum
 - `area_hectares`: float
 
 #### Optional Fields:
+
 - `ndvi_current`, `ndvi_peak`, `ndvi_history`
 - `accumulated_gdd`, `current_temperature`, `temperature_history`
 - `soil_moisture_current`, `soil_moisture_history`
@@ -271,6 +285,7 @@ for rec in prediction.recommendations:
 ### YieldPrediction
 
 #### Attributes:
+
 - `predicted_yield_kg_per_hectare`: float
 - `confidence_interval`: Dict[str, float] (low, mid, high)
 - `confidence`: float (0-1)
@@ -318,6 +333,7 @@ Final Confidence = (
 ### Regional Adjustments
 
 Each crop has region-specific multipliers:
+
 - Yield multiplier (e.g., 1.2x for wheat in Highlands)
 - Climate suitability score (0-1)
 - Water availability factor (0-1)
@@ -329,18 +345,21 @@ Each crop has region-specific multipliers:
 ### Test Results:
 
 **Scenario 1: Water-Stressed Tomato (Tihama)**
+
 - Base yield: 25,000 kg/ha
 - Predicted: 15,015 kg/ha
 - Confidence: 39.6%
 - Correctly identified water stress and poor plant health
 
 **Scenario 2: Healthy Coffee (Highlands)**
+
 - Base yield: 800 kg/ha
 - Predicted: 1,116 kg/ha (+39.5%)
 - Confidence: 62.5%
 - No limiting factors detected
 
 **Scenario 3: Date Palm with Salinity (Hadhramaut)**
+
 - Base yield: 5,000 kg/ha
 - Predicted: 5,323 kg/ha
 - Regional multiplier: 1.3x
@@ -448,6 +467,7 @@ import numpy as np  # For numerical operations
 ## Support | الدعم
 
 For questions or issues:
+
 - Review examples in `yield_ensemble_example.py`
 - Check API reference above
 - Contact SAHOOL development team

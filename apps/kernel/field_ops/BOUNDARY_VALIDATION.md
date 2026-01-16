@@ -447,10 +447,12 @@ python test_boundary_validator.py
 ## الدعم - Support
 
 للمساعدة والأسئلة:
+
 - البريد الإلكتروني: support@sahool.ye
 - الوثائق: https://docs.sahool.ye
 
 For help and questions:
+
 - Email: support@sahool.ye
 - Documentation: https://docs.sahool.ye
 

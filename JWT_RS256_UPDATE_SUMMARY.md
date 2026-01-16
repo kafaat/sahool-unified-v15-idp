@@ -1,6 +1,7 @@
 # JWT RS256 Configuration Update Summary
 
 ## Overview
+
 Successfully updated SAHOOL Kong API Gateway to support both HS256 and RS256 JWT algorithms for enhanced security.
 
 ## Changes Made
@@ -10,6 +11,7 @@ Successfully updated SAHOOL Kong API Gateway to support both HS256 and RS256 JWT
 Updated all 5 consumers to support BOTH HS256 and RS256 algorithms:
 
 #### Consumers Updated:
+
 1. **starter-user-sample** (lines 1455-1465)
 2. **professional-user-sample** (lines 1468-1478)
 3. **enterprise-user-sample** (lines 1481-1491)
@@ -17,7 +19,9 @@ Updated all 5 consumers to support BOTH HS256 and RS256 algorithms:
 5. **admin-user-sample** (lines 1507-1517)
 
 #### Changes for Each Consumer:
+
 **Before:**
+
 ```yaml
 jwt_secrets:
   - key: {consumer}-jwt-key
@@ -26,6 +30,7 @@ jwt_secrets:
 ```
 
 **After:**
+
 ```yaml
 jwt_secrets:
   - key: {consumer}-jwt-key-hs256
@@ -47,6 +52,7 @@ JWT_PRIVATE_KEY=
 ```
 
 Also includes comprehensive Kong consumer JWT secrets:
+
 ```bash
 STARTER_JWT_SECRET=
 PROFESSIONAL_JWT_SECRET=
@@ -65,6 +71,7 @@ ADMIN_JWT_SECRET=
 ## Next Steps
 
 ### 1. Generate RSA Key Pair
+
 ```bash
 # Generate 4096-bit RSA private key
 openssl genrsa -out private.pem 4096
@@ -77,7 +84,9 @@ cat public.pem | tr -d '\n' > public_key_oneline.txt
 ```
 
 ### 2. Update .env File
+
 Copy `.env.example` to `.env` and add your generated keys:
+
 ```bash
 cp .env.example .env
 # Edit .env and add:
@@ -87,6 +96,7 @@ cp .env.example .env
 ```
 
 ### 3. Restart Kong
+
 ```bash
 docker-compose restart kong
 # or
@@ -94,13 +104,16 @@ docker-compose up -d kong
 ```
 
 ### 4. Test JWT Authentication
+
 Test both algorithms work:
+
 - HS256: Using symmetric secret
 - RS256: Using asymmetric RSA keys
 
 ## Backward Compatibility
 
 ✅ **Fully Backward Compatible**
+
 - Existing HS256 tokens will continue to work
 - Each consumer now accepts BOTH algorithms
 - Gradual migration path from HS256 to RS256
@@ -121,6 +134,7 @@ Test both algorithms work:
 ## Verification
 
 To verify the configuration is correct:
+
 ```bash
 # Check Kong configuration syntax
 docker-compose run --rm kong kong config parse /etc/kong/kong.yml
@@ -130,5 +144,6 @@ docker-compose config | grep JWT
 ```
 
 ---
+
 **Update Date**: $(date)
 **Status**: ✅ Complete

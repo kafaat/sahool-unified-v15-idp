@@ -7,36 +7,36 @@
  * Audit event severity levels
  */
 export enum AuditSeverity {
-  DEBUG = 'debug',
-  INFO = 'info',
-  WARNING = 'warning',
-  ERROR = 'error',
-  CRITICAL = 'critical',
+  DEBUG = "debug",
+  INFO = "info",
+  WARNING = "warning",
+  ERROR = "error",
+  CRITICAL = "critical",
 }
 
 /**
  * Audit event categories for classification
  */
 export enum AuditCategory {
-  SECURITY = 'security',      // Security-related events (auth, permissions)
-  DATA = 'data',              // Data modifications (CRUD operations)
-  CONFIG = 'config',          // Configuration changes
-  ACCESS = 'access',          // Resource access attempts
-  ADMIN = 'admin',            // Administrative actions
-  COMPLIANCE = 'compliance',  // Compliance-related events
-  FINANCIAL = 'financial',    // Financial transactions
-  SYSTEM = 'system',          // System events
+  SECURITY = "security", // Security-related events (auth, permissions)
+  DATA = "data", // Data modifications (CRUD operations)
+  CONFIG = "config", // Configuration changes
+  ACCESS = "access", // Resource access attempts
+  ADMIN = "admin", // Administrative actions
+  COMPLIANCE = "compliance", // Compliance-related events
+  FINANCIAL = "financial", // Financial transactions
+  SYSTEM = "system", // System events
 }
 
 /**
  * Actor types for audit events
  */
 export enum ActorType {
-  USER = 'user',
-  SERVICE = 'service',
-  SYSTEM = 'system',
-  API_KEY = 'api_key',
-  ADMIN = 'admin',
+  USER = "user",
+  SERVICE = "service",
+  SYSTEM = "system",
+  API_KEY = "api_key",
+  ADMIN = "admin",
 }
 
 /**
@@ -46,7 +46,7 @@ export interface FieldChange {
   field: string;
   oldValue: unknown;
   newValue: unknown;
-  type: 'create' | 'update' | 'delete';
+  type: "create" | "update" | "delete";
 }
 
 /**
@@ -203,7 +203,14 @@ export interface AlertRule {
  */
 export interface AlertCondition {
   field: keyof AuditEvent;
-  operator: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'matches' | 'greaterThan' | 'lessThan';
+  operator:
+    | "equals"
+    | "contains"
+    | "startsWith"
+    | "endsWith"
+    | "matches"
+    | "greaterThan"
+    | "lessThan";
   value: unknown;
 }
 
@@ -237,7 +244,7 @@ export interface AuditQueryOptions {
   endDate?: Date;
   limit?: number;
   offset?: number;
-  orderBy?: 'asc' | 'desc';
+  orderBy?: "asc" | "desc";
 }
 
 /**
@@ -259,11 +266,11 @@ export interface AuditStats {
  * Decorator metadata keys
  */
 export const AUDIT_METADATA = {
-  AUDITABLE: 'audit:auditable',
-  AUDIT_FIELD: 'audit:field',
-  AUDIT_ACTION: 'audit:action',
-  AUDIT_CATEGORY: 'audit:category',
-  AUDIT_SEVERITY: 'audit:severity',
+  AUDITABLE: "audit:auditable",
+  AUDIT_FIELD: "audit:field",
+  AUDIT_ACTION: "audit:action",
+  AUDIT_CATEGORY: "audit:category",
+  AUDIT_SEVERITY: "audit:severity",
 };
 
 /**

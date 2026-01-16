@@ -12,22 +12,24 @@ This document summarizes all fixes applied to migrate deprecated service referen
 
 The following deprecated services have been consolidated:
 
-| Deprecated Service(s) | Consolidated Service | Port | Status |
-|----------------------|---------------------|------|--------|
-| weather-core, weather-advanced | weather-service | 8092 | ✅ Fixed |
-| crop-health, crop-health-ai, crop-growth-model | crop-intelligence-service | 8095 | ✅ Fixed |
+| Deprecated Service(s)                                          | Consolidated Service        | Port | Status   |
+| -------------------------------------------------------------- | --------------------------- | ---- | -------- |
+| weather-core, weather-advanced                                 | weather-service             | 8092 | ✅ Fixed |
+| crop-health, crop-health-ai, crop-growth-model                 | crop-intelligence-service   | 8095 | ✅ Fixed |
 | satellite-service, ndvi-processor, ndvi-engine, lai-estimation | vegetation-analysis-service | 8090 | ✅ Fixed |
-| agro-advisor, fertilizer-advisor | advisory-service | 8093 | ✅ Fixed |
-| yield-engine, yield-prediction | yield-prediction-service | 8098 | ✅ Fixed |
-| field-core, field-service, field-ops | field-management-service | 3000 | ✅ Fixed |
-| community-chat | chat-service | 8114 | ✅ Fixed |
+| agro-advisor, fertilizer-advisor                               | advisory-service            | 8093 | ✅ Fixed |
+| yield-engine, yield-prediction                                 | yield-prediction-service    | 8098 | ✅ Fixed |
+| field-core, field-service, field-ops                           | field-management-service    | 3000 | ✅ Fixed |
+| community-chat                                                 | chat-service                | 8114 | ✅ Fixed |
 
 ## Files Modified
 
 ### 1. Main Docker Compose Configuration
+
 **File:** `/home/user/sahool-unified-v15-idp/docker-compose.yml`
 
 **Changes:**
+
 - ✅ Renamed `field_core` → `field-management-service` (using consolidated service directory)
 - ✅ Renamed `weather_advanced` → `weather-service` (Port 8092)
 - ✅ Renamed `fertilizer_advisor` → `advisory-service` (Port 8093)
@@ -39,6 +41,7 @@ The following deprecated services have been consolidated:
 - ✅ Updated AI Advisor environment variables to point to consolidated services
 
 **Deprecated Services Marked:**
+
 - `weather_core` - migrating to weather-service
 - `agro_advisor` - migrating to advisory-service
 - `ndvi_engine` - migrating to vegetation-analysis-service
@@ -52,18 +55,22 @@ The following deprecated services have been consolidated:
 - `community_chat` - migrating to chat-service
 
 ### 2. AI Advisor Configuration
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/services/ai-advisor/src/config.py`
 
 **Changes:**
+
 - ✅ `crop_health_ai_url`: `crop-health-ai:8095` → `crop-intelligence-service:8095`
 - ✅ `weather_core_url`: `weather-core:8108` → `weather-service:8092`
 - ✅ `satellite_service_url`: `satellite-service:8090` → `vegetation-analysis-service:8090`
 - ✅ `agro_advisor_url`: `agro-advisor:8105` → `advisory-service:8093`
 
 ### 3. Kong API Gateway Configuration
+
 **File:** `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong/kong.yml`
 
 **Changes (sed replacements):**
+
 - ✅ `http://weather-service:8108` → `http://weather-service:8092`
 - ✅ `http://agro-advisor:8105` → `http://advisory-service:8093`
 - ✅ `http://ndvi-engine:8097` → `http://vegetation-analysis-service:8090`
@@ -74,9 +81,11 @@ The following deprecated services have been consolidated:
 - ✅ `http://ndvi-processor:8101` → `http://vegetation-analysis-service:8090`
 
 ### 4. Kong Legacy Configuration
+
 **File:** `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong-legacy/kong.yml`
 
 **Changes (sed replacements):**
+
 - ✅ `sahool-weather-core:8108` → `sahool-weather-service:8092`
 - ✅ `sahool-agro-advisor:8105` → `sahool-advisory-service:8093`
 - ✅ `sahool-crop-health-ai:8095` → `sahool-crop-intelligence-service:8095`
@@ -92,17 +101,21 @@ The following deprecated services have been consolidated:
 ### 5. Package Docker Compose Files
 
 #### Starter Package
+
 **File:** `/home/user/sahool-unified-v15-idp/packages/starter/docker-compose.yml`
 
 **Changes:**
+
 - ✅ `field-core` → `field-management-service`
 - ✅ `weather-core` → `weather-service`
 - ✅ `agro-advisor` → `advisory-service`
 
 #### Professional Package
+
 **File:** `/home/user/sahool-unified-v15-idp/packages/professional/docker-compose.yml`
 
 **Changes:**
+
 - ✅ `field-core` → `field-management-service`
 - ✅ `weather-core` → `weather-service`
 - ✅ `agro-advisor` → `advisory-service`
@@ -113,9 +126,11 @@ The following deprecated services have been consolidated:
 - ✅ `fertilizer-advisor` → `advisory-service`
 
 #### Enterprise Package
+
 **File:** `/home/user/sahool-unified-v15-idp/packages/enterprise/docker-compose.yml`
 
 **Changes:**
+
 - ✅ `field-core` → `field-management-service`
 - ✅ `weather-core` → `weather-service`
 - ✅ `agro-advisor` → `advisory-service`
@@ -130,11 +145,13 @@ The following deprecated services have been consolidated:
 ### 6. Frontend Code References
 
 **Files Reviewed:**
+
 - `/home/user/sahool-unified-v15-idp/apps/web/src/lib/api/client.ts`
 - `/home/user/sahool-unified-v15-idp/apps/admin/src/lib/api.ts`
 - `/home/user/sahool-unified-v15-idp/apps/admin/src/lib/api-gateway/index.ts`
 
 **Status:** ✅ No changes required
+
 - API endpoint paths (e.g., `/api/v1/agro-advisor/advice`) are routed through Kong Gateway
 - Kong configuration has been updated to route these endpoints to consolidated services
 - Admin API gateway service ports already match consolidated service ports
@@ -143,6 +160,7 @@ The following deprecated services have been consolidated:
 ## Impact Summary
 
 ### Services Updated: 7 Consolidated Services
+
 1. ✅ weather-service (8092)
 2. ✅ crop-intelligence-service (8095)
 3. ✅ vegetation-analysis-service (8090)
@@ -152,6 +170,7 @@ The following deprecated services have been consolidated:
 7. ✅ chat-service (8114)
 
 ### Files Modified: 9 Files
+
 1. ✅ docker-compose.yml
 2. ✅ apps/services/ai-advisor/src/config.py
 3. ✅ infrastructure/gateway/kong/kong.yml
@@ -162,33 +181,37 @@ The following deprecated services have been consolidated:
 8. ✅ SERVICE_CONSOLIDATION_FIXES_SUMMARY.md (this file)
 
 ### Deprecated Services: 17 Services Marked
+
 All deprecated services have been marked with ⚠️ deprecation warnings in docker-compose.yml and are kept temporarily for backwards compatibility until v17.0.0.
 
 ## Port Changes Summary
 
-| Service Type | Old Port(s) | New Port | Notes |
-|-------------|------------|----------|-------|
-| Weather | 8108, 8092 | 8092 | Standardized to 8092 |
-| Crop Intelligence | 8095, 8100, 3023 | 8095 | Consolidated to 8095 |
-| Vegetation Analysis | 8090, 8101, 8099, 3022 | 8090 | Consolidated to 8090 |
-| Advisory | 8105, 8093 | 8093 | Standardized to 8093 |
-| Yield Prediction | 8098, 3021 | 8098 | Standardized to 8098 |
-| Field Management | 3000, 8115, 8080 | 3000 | Standardized to 3000 |
-| Chat | 8097, 8114 | 8114 | Standardized to 8114 |
+| Service Type        | Old Port(s)            | New Port | Notes                |
+| ------------------- | ---------------------- | -------- | -------------------- |
+| Weather             | 8108, 8092             | 8092     | Standardized to 8092 |
+| Crop Intelligence   | 8095, 8100, 3023       | 8095     | Consolidated to 8095 |
+| Vegetation Analysis | 8090, 8101, 8099, 3022 | 8090     | Consolidated to 8090 |
+| Advisory            | 8105, 8093             | 8093     | Standardized to 8093 |
+| Yield Prediction    | 8098, 3021             | 8098     | Standardized to 8098 |
+| Field Management    | 3000, 8115, 8080       | 3000     | Standardized to 3000 |
+| Chat                | 8097, 8114             | 8114     | Standardized to 8114 |
 
 ## Testing Recommendations
 
 1. **Docker Compose Validation:**
+
    ```bash
    docker-compose config --quiet
    ```
 
 2. **Service Startup:**
+
    ```bash
    docker-compose up -d weather-service crop-intelligence-service vegetation-analysis-service advisory-service yield-prediction-service field-management-service chat-service
    ```
 
 3. **Kong Gateway Validation:**
+
    ```bash
    cd infrastructure/gateway/kong
    docker-compose up -d

@@ -3,9 +3,7 @@
   "$id": "https://sahool.io/events/GrowthStageEstimated.v1.json",
   "title": "Growth Stage Estimated Event",
   "description": "Emitted when crop growth stage is estimated - يُنشر عند تقدير مرحلة نمو المحصول",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Crop.GrowthStageEstimated" },
     "payload": {
@@ -77,6 +75,11 @@
   "x-sahool": {
     "layer": "decision",
     "producer": "crop-growth-model",
-    "consumers": ["fertilizer-advisor", "irrigation-smart", "yield-engine", "notification-service"]
+    "consumers": [
+      "fertilizer-advisor",
+      "irrigation-smart",
+      "yield-engine",
+      "notification-service"
+    ]
   }
 }

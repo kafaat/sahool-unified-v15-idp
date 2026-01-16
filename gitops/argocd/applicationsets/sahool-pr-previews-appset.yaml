@@ -7,8 +7,8 @@ spec:
   generators:
     - pullRequest:
         github:
-          owner: REPLACE_WITH_GITHUB_OWNER
-          repo: REPLACE_WITH_GITHUB_REPO
+          owner: kafaat
+          repo: sahool-unified-v15-idp
           tokenRef:
             secretName: github-pr-generator
             key: token
@@ -21,7 +21,7 @@ spec:
     spec:
       project: sahool
       source:
-        repoURL: REPLACE_WITH_YOUR_REPO_URL
+        repoURL: https://github.com/kafaat/sahool-unified-v15-idp.git
         targetRevision: '{{head_sha}}'
         path: k8s/helm/sahool-kernel
         helm:

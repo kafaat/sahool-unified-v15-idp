@@ -99,7 +99,9 @@ class YieldRequest(BaseModel):
     soil_quality: str | None = Field("medium", description="جودة التربة: poor/medium/good")
     irrigation_type: str | None = Field("rain-fed", description="نوع الري")
     governorate: str | None = Field(None, description="المحافظة")
-    target_yield_kg_ha: float | None = Field(None, ge=0, description="الإنتاجية المستهدفة (كجم/هكتار)")
+    target_yield_kg_ha: float | None = Field(
+        None, ge=0, description="الإنتاجية المستهدفة (كجم/هكتار)"
+    )
 
 
 class YieldPrediction(BaseModel):
@@ -141,6 +143,7 @@ CROP_DATA = {
     CropType.WHEAT: {
         "name_ar": "قمح",
         "base_yield_per_hectare": 2.5,  # طن/هكتار
+        "target_yield": 3000,  # kg/ha - الإنتاجية المستهدفة
         "price_usd_per_ton": 350,
         "growing_season_days": 120,
         "optimal_rainfall": 450,  # مم
@@ -150,6 +153,7 @@ CROP_DATA = {
     CropType.CORN: {
         "name_ar": "ذرة",
         "base_yield_per_hectare": 4.0,
+        "target_yield": 4800,  # kg/ha
         "price_usd_per_ton": 280,
         "growing_season_days": 100,
         "optimal_rainfall": 500,
@@ -159,6 +163,7 @@ CROP_DATA = {
     CropType.TOMATO: {
         "name_ar": "طماطم",
         "base_yield_per_hectare": 35.0,
+        "target_yield": 42000,  # kg/ha
         "price_usd_per_ton": 400,
         "growing_season_days": 90,
         "optimal_rainfall": 600,
@@ -168,6 +173,7 @@ CROP_DATA = {
     CropType.POTATO: {
         "name_ar": "بطاطس",
         "base_yield_per_hectare": 20.0,
+        "target_yield": 24000,  # kg/ha
         "price_usd_per_ton": 320,
         "growing_season_days": 100,
         "optimal_rainfall": 500,
@@ -177,6 +183,7 @@ CROP_DATA = {
     CropType.COFFEE: {
         "name_ar": "بن يمني",
         "base_yield_per_hectare": 0.8,  # البن إنتاجيته منخفضة لكن سعره عالي
+        "target_yield": 1000,  # kg/ha
         "price_usd_per_ton": 8000,  # البن اليمني غالي جداً
         "growing_season_days": 270,
         "optimal_rainfall": 1200,
@@ -186,6 +193,7 @@ CROP_DATA = {
     CropType.DATE_PALM: {
         "name_ar": "نخيل (تمر)",
         "base_yield_per_hectare": 8.0,
+        "target_yield": 9600,  # kg/ha
         "price_usd_per_ton": 1500,
         "growing_season_days": 180,
         "optimal_rainfall": 200,
@@ -195,6 +203,7 @@ CROP_DATA = {
     CropType.MANGO: {
         "name_ar": "مانجو",
         "base_yield_per_hectare": 10.0,
+        "target_yield": 12000,  # kg/ha
         "price_usd_per_ton": 800,
         "growing_season_days": 150,
         "optimal_rainfall": 800,
@@ -204,6 +213,7 @@ CROP_DATA = {
     CropType.SORGHUM: {
         "name_ar": "ذرة رفيعة",
         "base_yield_per_hectare": 2.0,
+        "target_yield": 2400,  # kg/ha
         "price_usd_per_ton": 250,
         "growing_season_days": 110,
         "optimal_rainfall": 400,
@@ -213,6 +223,7 @@ CROP_DATA = {
     CropType.BANANA: {
         "name_ar": "موز",
         "base_yield_per_hectare": 30.0,
+        "target_yield": 36000,  # kg/ha
         "price_usd_per_ton": 500,
         "growing_season_days": 300,
         "optimal_rainfall": 1500,
@@ -222,6 +233,7 @@ CROP_DATA = {
     CropType.GRAPE: {
         "name_ar": "عنب",
         "base_yield_per_hectare": 12.0,
+        "target_yield": 14400,  # kg/ha
         "price_usd_per_ton": 700,
         "growing_season_days": 170,
         "optimal_rainfall": 600,
@@ -232,6 +244,7 @@ CROP_DATA = {
     CropType.BARLEY: {
         "name_ar": "شعير",
         "base_yield_per_hectare": 2.0,
+        "target_yield": 2400,  # kg/ha
         "price_usd_per_ton": 280,
         "growing_season_days": 100,
         "optimal_rainfall": 400,
@@ -241,6 +254,7 @@ CROP_DATA = {
     CropType.MILLET: {
         "name_ar": "دخن",
         "base_yield_per_hectare": 1.5,
+        "target_yield": 1800,  # kg/ha
         "price_usd_per_ton": 300,
         "growing_season_days": 90,
         "optimal_rainfall": 250,
@@ -251,6 +265,7 @@ CROP_DATA = {
     CropType.FABA_BEAN: {
         "name_ar": "فول",
         "base_yield_per_hectare": 2.5,
+        "target_yield": 3000,  # kg/ha
         "price_usd_per_ton": 600,
         "growing_season_days": 120,
         "optimal_rainfall": 650,
@@ -260,6 +275,7 @@ CROP_DATA = {
     CropType.LENTIL: {
         "name_ar": "عدس",
         "base_yield_per_hectare": 1.0,
+        "target_yield": 1200,  # kg/ha
         "price_usd_per_ton": 800,
         "growing_season_days": 100,
         "optimal_rainfall": 400,
@@ -269,6 +285,7 @@ CROP_DATA = {
     CropType.CHICKPEA: {
         "name_ar": "حمص",
         "base_yield_per_hectare": 1.2,
+        "target_yield": 1440,  # kg/ha
         "price_usd_per_ton": 900,
         "growing_season_days": 100,
         "optimal_rainfall": 400,
@@ -279,6 +296,7 @@ CROP_DATA = {
     CropType.ONION: {
         "name_ar": "بصل",
         "base_yield_per_hectare": 25.0,
+        "target_yield": 30000,  # kg/ha
         "price_usd_per_ton": 350,
         "growing_season_days": 120,
         "optimal_rainfall": 650,
@@ -288,6 +306,7 @@ CROP_DATA = {
     CropType.GARLIC: {
         "name_ar": "ثوم",
         "base_yield_per_hectare": 8.0,
+        "target_yield": 9600,  # kg/ha
         "price_usd_per_ton": 1500,
         "growing_season_days": 150,
         "optimal_rainfall": 400,
@@ -297,6 +316,7 @@ CROP_DATA = {
     CropType.PEPPER: {
         "name_ar": "فلفل حلو",
         "base_yield_per_hectare": 25.0,
+        "target_yield": 30000,  # kg/ha
         "price_usd_per_ton": 600,
         "growing_season_days": 90,
         "optimal_rainfall": 900,
@@ -306,6 +326,7 @@ CROP_DATA = {
     CropType.EGGPLANT: {
         "name_ar": "باذنجان",
         "base_yield_per_hectare": 30.0,
+        "target_yield": 36000,  # kg/ha
         "price_usd_per_ton": 350,
         "growing_season_days": 100,
         "optimal_rainfall": 900,
@@ -315,6 +336,7 @@ CROP_DATA = {
     CropType.CUCUMBER: {
         "name_ar": "خيار",
         "base_yield_per_hectare": 40.0,
+        "target_yield": 48000,  # kg/ha
         "price_usd_per_ton": 300,
         "growing_season_days": 60,
         "optimal_rainfall": 900,
@@ -324,6 +346,7 @@ CROP_DATA = {
     CropType.OKRA: {
         "name_ar": "بامية",
         "base_yield_per_hectare": 12.0,
+        "target_yield": 14400,  # kg/ha
         "price_usd_per_ton": 600,
         "growing_season_days": 90,
         "optimal_rainfall": 650,
@@ -334,6 +357,7 @@ CROP_DATA = {
     CropType.CITRUS_ORANGE: {
         "name_ar": "برتقال",
         "base_yield_per_hectare": 20.0,
+        "target_yield": 24000,  # kg/ha
         "price_usd_per_ton": 450,
         "growing_season_days": 300,
         "optimal_rainfall": 650,
@@ -343,6 +367,7 @@ CROP_DATA = {
     CropType.CITRUS_LEMON: {
         "name_ar": "ليمون",
         "base_yield_per_hectare": 15.0,
+        "target_yield": 18000,  # kg/ha
         "price_usd_per_ton": 500,
         "growing_season_days": 300,
         "optimal_rainfall": 650,
@@ -352,6 +377,7 @@ CROP_DATA = {
     CropType.POMEGRANATE: {
         "name_ar": "رمان",
         "base_yield_per_hectare": 12.0,
+        "target_yield": 14400,  # kg/ha
         "price_usd_per_ton": 700,
         "growing_season_days": 180,
         "optimal_rainfall": 400,
@@ -361,6 +387,7 @@ CROP_DATA = {
     CropType.FIG: {
         "name_ar": "تين",
         "base_yield_per_hectare": 8.0,
+        "target_yield": 9600,  # kg/ha
         "price_usd_per_ton": 800,
         "growing_season_days": 150,
         "optimal_rainfall": 400,
@@ -370,6 +397,7 @@ CROP_DATA = {
     CropType.GUAVA: {
         "name_ar": "جوافة",
         "base_yield_per_hectare": 25.0,
+        "target_yield": 30000,  # kg/ha
         "price_usd_per_ton": 500,
         "growing_season_days": 180,
         "optimal_rainfall": 650,
@@ -380,6 +408,7 @@ CROP_DATA = {
     CropType.SESAME: {
         "name_ar": "سمسم",
         "base_yield_per_hectare": 0.8,
+        "target_yield": 1000,  # kg/ha
         "price_usd_per_ton": 2000,
         "growing_season_days": 100,
         "optimal_rainfall": 400,
@@ -389,6 +418,7 @@ CROP_DATA = {
     CropType.COTTON: {
         "name_ar": "قطن",
         "base_yield_per_hectare": 2.5,
+        "target_yield": 3000,  # kg/ha
         "price_usd_per_ton": 1800,
         "growing_season_days": 150,
         "optimal_rainfall": 900,
@@ -399,6 +429,7 @@ CROP_DATA = {
     CropType.ALFALFA: {
         "name_ar": "برسيم حجازي",
         "base_yield_per_hectare": 15.0,
+        "target_yield": 18000,  # kg/ha
         "price_usd_per_ton": 200,
         "growing_season_days": 365,
         "optimal_rainfall": 900,
@@ -541,6 +572,21 @@ class YieldPredictor:
         )
         total_factor *= irrigation_factor
         all_factors.extend(irrigation_desc)
+
+        # معامل الإنتاجية المستهدفة
+        if request.target_yield_kg_ha is not None:
+            base_target = crop_info.get("target_yield", base_yield * 1000)
+            if request.target_yield_kg_ha > base_target:
+                # إنتاجية أعلى مستهدفة - عامل إيجابي
+                target_ratio = request.target_yield_kg_ha / base_target
+                target_factor = 1 + min(0.2, (target_ratio - 1) * 0.3)  # حد أقصى 20%
+                total_factor *= target_factor
+                all_factors.append(f"إنتاجية مستهدفة عالية (+{int((target_factor - 1) * 100)}%)")
+            elif request.target_yield_kg_ha < base_target * 0.8:
+                # إنتاجية أقل مستهدفة
+                target_factor = 0.95
+                total_factor *= target_factor
+                all_factors.append("إنتاجية مستهدفة منخفضة (-5%)")
 
         # الحساب النهائي
         yield_per_hectare = base_yield * total_factor

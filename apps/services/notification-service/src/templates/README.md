@@ -1,4 +1,5 @@
 # SAHOOL Notification Templating System
+
 # نظام قوالب الإشعارات
 
 A comprehensive bilingual notification templating system for Yemen's agricultural platform with support for multiple channels (Push, SMS, Email, WhatsApp).
@@ -51,36 +52,36 @@ templates/
 
 ### ALERT Templates (تنبيهات عاجلة)
 
-| Template ID | Description | Priority |
-|------------|-------------|----------|
-| `disease_detected` | Disease detection alert | HIGH |
-| `weather_alert` | Weather warnings (frost, storm, etc.) | HIGH |
-| `sensor_alert` | Sensor threshold violations | HIGH |
-| `pest_outbreak` | Pest outbreak warnings | CRITICAL |
-| `water_shortage` | Water shortage alerts | CRITICAL |
+| Template ID        | Description                           | Priority |
+| ------------------ | ------------------------------------- | -------- |
+| `disease_detected` | Disease detection alert               | HIGH     |
+| `weather_alert`    | Weather warnings (frost, storm, etc.) | HIGH     |
+| `sensor_alert`     | Sensor threshold violations           | HIGH     |
+| `pest_outbreak`    | Pest outbreak warnings                | CRITICAL |
+| `water_shortage`   | Water shortage alerts                 | CRITICAL |
 
 ### REMINDER Templates (تذكيرات)
 
-| Template ID | Description | Priority |
-|------------|-------------|----------|
-| `irrigation_reminder` | Irrigation schedule reminder | MEDIUM |
-| `fertilizer_reminder` | Fertilization schedule | MEDIUM |
-| `harvest_ready` | Harvest time notification | HIGH |
+| Template ID           | Description                  | Priority |
+| --------------------- | ---------------------------- | -------- |
+| `irrigation_reminder` | Irrigation schedule reminder | MEDIUM   |
+| `fertilizer_reminder` | Fertilization schedule       | MEDIUM   |
+| `harvest_ready`       | Harvest time notification    | HIGH     |
 
 ### REPORT Templates (تقارير)
 
-| Template ID | Description | Priority |
-|------------|-------------|----------|
-| `daily_report` | Daily summary of fields | LOW |
-| `weekly_report` | Weekly performance summary | LOW |
-| `yield_prediction` | Yield forecast updates | MEDIUM |
-| `market_price` | Market price updates | MEDIUM |
+| Template ID        | Description                | Priority |
+| ------------------ | -------------------------- | -------- |
+| `daily_report`     | Daily summary of fields    | LOW      |
+| `weekly_report`    | Weekly performance summary | LOW      |
+| `yield_prediction` | Yield forecast updates     | MEDIUM   |
+| `market_price`     | Market price updates       | MEDIUM   |
 
 ### RECOMMENDATION Templates (توصيات)
 
-| Template ID | Description | Priority |
-|------------|-------------|----------|
-| `ai_recommendation` | AI-powered farm recommendations | MEDIUM |
+| Template ID         | Description                     | Priority |
+| ------------------- | ------------------------------- | -------- |
+| `ai_recommendation` | AI-powered farm recommendations | MEDIUM   |
 
 ## Usage / الاستخدام
 
@@ -149,11 +150,13 @@ whatsapp_msg = manager.format_for_whatsapp(
 ### Template Methods
 
 #### 1. Get Template
+
 ```python
 template = manager.get_template("disease_detected", language="ar")
 ```
 
 #### 2. Render Template
+
 ```python
 rendered = manager.render_template(
     template_id="irrigation_reminder",
@@ -164,6 +167,7 @@ rendered = manager.render_template(
 ```
 
 #### 3. Register Custom Template
+
 ```python
 from templates import NotificationTemplate, TemplateCategory
 
@@ -179,6 +183,7 @@ manager.register_template("custom_alert", custom)
 ```
 
 #### 4. List Templates
+
 ```python
 # All templates
 all_templates = manager.list_templates()
@@ -213,34 +218,37 @@ JSON template structure:
 
 Common placeholders used across templates:
 
-| Placeholder | Description (EN) | الوصف (AR) |
-|------------|------------------|------------|
-| `{field_name}` | Field name | اسم الحقل |
-| `{field_id}` | Field identifier | معرف الحقل |
-| `{crop_type}` | Crop type | نوع المحصول |
-| `{disease_name}` | Disease name | اسم المرض |
-| `{location}` | Location/Governorate | الموقع/المحافظة |
-| `{temperature}` | Temperature | درجة الحرارة |
-| `{water_amount}` | Water quantity | كمية الماء |
-| `{confidence}` | Confidence percentage | نسبة الثقة |
-| `{date}` | Date | التاريخ |
-| `{value}` | Generic value | قيمة |
+| Placeholder      | Description (EN)      | الوصف (AR)      |
+| ---------------- | --------------------- | --------------- |
+| `{field_name}`   | Field name            | اسم الحقل       |
+| `{field_id}`     | Field identifier      | معرف الحقل      |
+| `{crop_type}`    | Crop type             | نوع المحصول     |
+| `{disease_name}` | Disease name          | اسم المرض       |
+| `{location}`     | Location/Governorate  | الموقع/المحافظة |
+| `{temperature}`  | Temperature           | درجة الحرارة    |
+| `{water_amount}` | Water quantity        | كمية الماء      |
+| `{confidence}`   | Confidence percentage | نسبة الثقة      |
+| `{date}`         | Date                  | التاريخ         |
+| `{value}`        | Generic value         | قيمة            |
 
 ## Channel-Specific Features
 
 ### Push Notifications
+
 - Full rich content (title, body, icon, action URL)
 - Priority levels (low, medium, high, critical)
 - Custom data payload
 - Sound and vibration control
 
 ### SMS
+
 - Character limit enforcement (160 chars default)
 - Emoji removal for compatibility
 - Concise title + body format
 - Fallback truncation
 
 ### Email
+
 - HTML formatting with RTL support
 - Responsive design
 - Plain text alternative
@@ -248,8 +256,9 @@ Common placeholders used across templates:
 - Action buttons
 
 ### WhatsApp
+
 - Emoji support
-- Basic markdown formatting (* for bold)
+- Basic markdown formatting (\* for bold)
 - Action URL links
 - Platform branding footer
 
@@ -304,6 +313,7 @@ python template_examples.py
 ```
 
 This will demonstrate:
+
 - All template types
 - Multi-language rendering
 - Channel-specific formatting
@@ -337,6 +347,7 @@ This will demonstrate:
 7. Test with sample context data
 
 Example:
+
 ```json
 // ar/my_template.json
 {

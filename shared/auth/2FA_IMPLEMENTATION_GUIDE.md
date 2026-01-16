@@ -88,16 +88,19 @@ configure_twofa(
 ### Enforcement Levels
 
 1. **OPTIONAL** - 2FA is completely optional
+
    ```python
    enforcement_level=TwoFAEnforcementLevel.OPTIONAL
    ```
 
 2. **RECOMMENDED** - 2FA is suggested but not enforced
+
    ```python
    enforcement_level=TwoFAEnforcementLevel.RECOMMENDED
    ```
 
 3. **REQUIRED_FOR_ADMIN** - Required for admin and supervisor roles
+
    ```python
    enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN
    ```
@@ -370,6 +373,7 @@ def test_backup_codes():
 If you're adding 2FA to an existing system:
 
 1. Add database migrations for new fields:
+
    ```sql
    ALTER TABLE users ADD COLUMN twofa_secret TEXT;
    ALTER TABLE users ADD COLUMN twofa_enabled BOOLEAN DEFAULT FALSE;
@@ -383,6 +387,7 @@ If you're adding 2FA to an existing system:
 ## Support
 
 For issues or questions:
+
 - Check logs in `/var/log/sahool/`
 - Review error messages in frontend console
 - Contact platform administrator

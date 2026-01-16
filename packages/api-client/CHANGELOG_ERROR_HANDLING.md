@@ -53,6 +53,7 @@ This implementation adds comprehensive error handling to the SAHOOL API Client, 
 ### 1. Custom Error Types
 
 All errors extend from `ApiError` base class and include:
+
 - `name` - Error class name
 - `message` - Human-readable error message
 - `code` - Machine-readable error code
@@ -77,23 +78,27 @@ All errors extend from `ApiError` base class and include:
 Two error handling modes:
 
 **Throw Mode (Default - Recommended)**
+
 ```typescript
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'throw', // default
+  baseUrl: "http://localhost",
+  errorHandling: "throw", // default
 });
 ```
+
 - Throws custom errors for callers to handle
 - More reliable and debuggable
 - Type-safe error handling
 
 **Silent Mode (Legacy)**
+
 ```typescript
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'silent',
+  baseUrl: "http://localhost",
+  errorHandling: "silent",
 });
 ```
+
 - Returns empty arrays/null on errors (old behavior)
 - Still logs errors for visibility
 - Backward compatible with existing code
@@ -128,17 +133,21 @@ All methods that previously caught and silently returned empty arrays or null no
 ### Basic Usage (Throw Mode)
 
 ```typescript
-import { SahoolApiClient, isAuthError, isNetworkError } from '@sahool/api-client';
+import {
+  SahoolApiClient,
+  isAuthError,
+  isNetworkError,
+} from "@sahool/api-client";
 
 const client = new SahoolApiClient({
   baseUrl: process.env.API_URL,
-  errorHandling: 'throw',
-  logLevel: 'error',
+  errorHandling: "throw",
+  logLevel: "error",
 });
 
 try {
   const tasks = await client.getTasks();
-  console.log('Tasks:', tasks);
+  console.log("Tasks:", tasks);
 } catch (error) {
   if (isAuthError(error)) {
     redirectToLogin();
@@ -159,21 +168,21 @@ import {
   NotFoundError,
   ServerError,
   TimeoutError,
-} from '@sahool/api-client/errors';
+} from "@sahool/api-client/errors";
 
 try {
   const task = await client.createTask(taskData);
 } catch (error) {
   if (error instanceof AuthError) {
-    window.location.href = '/login';
+    window.location.href = "/login";
   } else if (error instanceof ValidationError) {
     showValidationErrors(error.validationErrors);
   } else if (error instanceof NotFoundError) {
-    showError('Resource not found');
+    showError("Resource not found");
   } else if (error instanceof TimeoutError) {
     showError(`Request timed out after ${error.timeout}ms`);
   } else if (error instanceof ServerError) {
-    showError('Server error');
+    showError("Server error");
   }
 }
 ```
@@ -202,8 +211,8 @@ const client = new SahoolApiClient({
 ```typescript
 const client = new SahoolApiClient({
   baseUrl: process.env.API_URL,
-  errorHandling: 'silent',
-  logLevel: 'error', // Still logs errors
+  errorHandling: "silent",
+  logLevel: "error", // Still logs errors
 });
 
 // Returns empty array on error
@@ -224,9 +233,9 @@ const tasks = await client.getTasks();
 ```typescript
 // Phase 1: Keep existing behavior
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'silent', // Maintain old behavior
-  logLevel: 'error',       // But see what's failing
+  baseUrl: "http://localhost",
+  errorHandling: "silent", // Maintain old behavior
+  logLevel: "error", // But see what's failing
 });
 
 // Phase 2: Update components gradually
@@ -234,9 +243,9 @@ const client = new SahoolApiClient({
 
 // Phase 3: Switch to throw mode
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'throw',  // Now all errors are properly handled
-  logLevel: 'error',
+  baseUrl: "http://localhost",
+  errorHandling: "throw", // Now all errors are properly handled
+  logLevel: "error",
 });
 ```
 
@@ -252,12 +261,14 @@ const client = new SahoolApiClient({
 ## Testing
 
 All existing tests have been updated to work with the new error handling:
+
 - Tests for 'throw' mode
 - Tests for 'silent' mode
 - Tests for custom logger
 - Tests for log levels
 
 Run tests with:
+
 ```bash
 npm run test
 ```
@@ -265,13 +276,15 @@ npm run test
 ## Build
 
 The package exports are updated to include errors:
+
 ```typescript
-import { SahoolApiClient } from '@sahool/api-client';
-import { ApiError, NetworkError } from '@sahool/api-client/errors';
-import type { LogLevel } from '@sahool/api-client/types';
+import { SahoolApiClient } from "@sahool/api-client";
+import { ApiError, NetworkError } from "@sahool/api-client/errors";
+import type { LogLevel } from "@sahool/api-client/types";
 ```
 
 Build the package:
+
 ```bash
 npm run build
 ```
@@ -279,6 +292,7 @@ npm run build
 ## Performance Impact
 
 Minimal performance impact:
+
 - Logging only occurs when errors happen or log level permits
 - Error object creation is lightweight
 - No impact on successful requests
@@ -286,6 +300,7 @@ Minimal performance impact:
 ## Breaking Changes
 
 **None** - The default behavior is designed to be backward compatible:
+
 - Silent mode maintains old behavior
 - Throw mode is opt-in via configuration
 - All existing APIs remain unchanged

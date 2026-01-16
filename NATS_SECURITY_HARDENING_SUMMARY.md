@@ -13,15 +13,15 @@ Comprehensive security hardening has been implemented for the SAHOOL platform's 
 
 ### Key Achievements
 
-| Security Control | Before | After | Status |
-|-----------------|--------|-------|--------|
-| **TLS Enforcement** | Optional | Mandatory (verify_and_map) | ✅ Implemented |
-| **Encryption at Rest** | None | AES-256 JetStream | ✅ Implemented |
-| **Rate Limiting** | None | Per-user + Global | ✅ Implemented |
-| **System Account** | Not configured | Dedicated monitoring | ✅ Implemented |
-| **Cluster Security** | Not configured | TLS + Auth ready | ✅ Implemented |
-| **Authorization** | Basic | Granular RBAC | ✅ Enhanced |
-| **Credentials** | Weak defaults | Strong generation | ✅ Implemented |
+| Security Control       | Before         | After                      | Status         |
+| ---------------------- | -------------- | -------------------------- | -------------- |
+| **TLS Enforcement**    | Optional       | Mandatory (verify_and_map) | ✅ Implemented |
+| **Encryption at Rest** | None           | AES-256 JetStream          | ✅ Implemented |
+| **Rate Limiting**      | None           | Per-user + Global          | ✅ Implemented |
+| **System Account**     | Not configured | Dedicated monitoring       | ✅ Implemented |
+| **Cluster Security**   | Not configured | TLS + Auth ready           | ✅ Implemented |
+| **Authorization**      | Basic          | Granular RBAC              | ✅ Enhanced    |
+| **Credentials**        | Weak defaults  | Strong generation          | ✅ Implemented |
 
 ---
 
@@ -32,6 +32,7 @@ Comprehensive security hardening has been implemented for the SAHOOL platform's 
 **Issue:** TLS configured but not enforced - clients could connect without encryption
 
 **Solution:**
+
 ```conf
 tls {
     verify_and_map: true  # ⭐ NEW: Enforces TLS for ALL connections
@@ -44,6 +45,7 @@ tls {
 ```
 
 **Impact:**
+
 - ✅ All connections now require TLS encryption
 - ✅ No plaintext credential transmission
 - ✅ Prevents man-in-the-middle attacks
@@ -58,6 +60,7 @@ tls {
 **Issue:** JetStream messages stored unencrypted on disk
 
 **Solution:**
+
 ```conf
 jetstream {
     key: $NATS_JETSTREAM_KEY  # ⭐ NEW: AES-256 encryption
@@ -67,6 +70,7 @@ jetstream {
 ```
 
 **Impact:**
+
 - ✅ All persisted messages encrypted with AES-256
 - ✅ Protects data from disk-level access
 - ✅ Meets GDPR and data protection requirements
@@ -81,6 +85,7 @@ jetstream {
 **Issue:** No protection against resource exhaustion or DoS attacks
 
 **Solution:**
+
 ```conf
 # Per-user limits
 connection_limits = {
@@ -96,6 +101,7 @@ slow_consumer_timeout: 5s
 ```
 
 **Impact:**
+
 - ✅ Prevents resource exhaustion attacks
 - ✅ Limits blast radius of compromised credentials
 - ✅ Protects against slow consumer issues
@@ -110,6 +116,7 @@ slow_consumer_timeout: 5s
 **Issue:** No dedicated monitoring account, limited observability
 
 **Solution:**
+
 ```conf
 system_account: SYS
 
@@ -124,6 +131,7 @@ accounts {
 ```
 
 **Impact:**
+
 - ✅ Dedicated account for NATS internal metrics
 - ✅ Enables advanced monitoring and observability
 - ✅ Separates operational traffic from application traffic
@@ -138,6 +146,7 @@ accounts {
 **Issue:** Cluster configuration not secured for HA deployment
 
 **Solution:**
+
 ```conf
 cluster {
     name: sahool-cluster
@@ -157,6 +166,7 @@ cluster {
 ```
 
 **Impact:**
+
 - ✅ Secure inter-node communication
 - ✅ Prevents unauthorized cluster joining
 - ✅ TLS-encrypted cluster traffic
@@ -171,12 +181,14 @@ cluster {
 **Issue:** Basic authorization, potential over-privileging
 
 **Solution:**
+
 - Account-based isolation (SYS vs APP accounts)
 - Granular subject-level permissions
 - Explicit deny rules for system subjects
 - Read-only monitor user
 
 **Impact:**
+
 - ✅ Principle of least privilege enforced
 - ✅ Isolation between system and application traffic
 - ✅ Prevents accidental system subject access
@@ -191,12 +203,14 @@ cluster {
 **Issue:** Weak default passwords, manual credential generation
 
 **Solution:**
+
 - Created automated credential generator script
 - 32-character cryptographically secure passwords
 - AES-256 encryption key generation
 - Secure file permissions (600)
 
 **Impact:**
+
 - ✅ Eliminates weak default passwords
 - ✅ Cryptographically secure random generation
 - ✅ Automated and repeatable process
@@ -351,29 +365,29 @@ services:
 
 ### Before Hardening (Score: 7/10)
 
-| Category | Score | Notes |
-|----------|-------|-------|
-| Encryption in Transit | 6/10 | TLS configured but not enforced |
-| Encryption at Rest | 0/10 | No encryption |
-| Authentication | 7/10 | Password-based auth |
-| Authorization | 8/10 | Subject-level permissions |
-| Rate Limiting | 0/10 | Not configured |
-| Monitoring | 6/10 | Basic health checks |
-| Credential Management | 5/10 | Weak defaults |
-| Cluster Security | 0/10 | Not configured |
+| Category              | Score | Notes                           |
+| --------------------- | ----- | ------------------------------- |
+| Encryption in Transit | 6/10  | TLS configured but not enforced |
+| Encryption at Rest    | 0/10  | No encryption                   |
+| Authentication        | 7/10  | Password-based auth             |
+| Authorization         | 8/10  | Subject-level permissions       |
+| Rate Limiting         | 0/10  | Not configured                  |
+| Monitoring            | 6/10  | Basic health checks             |
+| Credential Management | 5/10  | Weak defaults                   |
+| Cluster Security      | 0/10  | Not configured                  |
 
 ### After Hardening (Score: 9.5/10)
 
-| Category | Score | Notes |
-|----------|-------|-------|
-| Encryption in Transit | 10/10 | ✅ TLS enforced (verify_and_map) |
-| Encryption at Rest | 10/10 | ✅ AES-256 JetStream encryption |
-| Authentication | 9/10 | ✅ Strong passwords (NKey ready) |
-| Authorization | 10/10 | ✅ Account-based RBAC |
-| Rate Limiting | 10/10 | ✅ Per-user + global limits |
-| Monitoring | 9/10 | ✅ System account (Prometheus ready) |
-| Credential Management | 10/10 | ✅ Automated secure generation |
-| Cluster Security | 10/10 | ✅ TLS + auth configured |
+| Category              | Score | Notes                                |
+| --------------------- | ----- | ------------------------------------ |
+| Encryption in Transit | 10/10 | ✅ TLS enforced (verify_and_map)     |
+| Encryption at Rest    | 10/10 | ✅ AES-256 JetStream encryption      |
+| Authentication        | 9/10  | ✅ Strong passwords (NKey ready)     |
+| Authorization         | 10/10 | ✅ Account-based RBAC                |
+| Rate Limiting         | 10/10 | ✅ Per-user + global limits          |
+| Monitoring            | 9/10  | ✅ System account (Prometheus ready) |
+| Credential Management | 10/10 | ✅ Automated secure generation       |
+| Cluster Security      | 10/10 | ✅ TLS + auth configured             |
 
 **Overall Score: 9.5/10** (+2.5 improvement)
 
@@ -474,16 +488,16 @@ services:
 
 ### Standards Compliance
 
-| Standard | Requirement | Implementation | Status |
-|----------|-------------|----------------|--------|
-| **SOC 2** | Encryption in transit | TLS 1.2+ enforced | ✅ |
-| **SOC 2** | Encryption at rest | AES-256 JetStream | ✅ |
-| **SOC 2** | Access controls | Account-based RBAC | ✅ |
-| **PCI-DSS** | Strong cryptography | TLS 1.2+, AES-256 | ✅ |
-| **GDPR** | Data protection | Encryption + access control | ✅ |
-| **ISO 27001** | Access management | Granular permissions | ✅ |
-| **OWASP** | Rate limiting | Per-user limits | ✅ |
-| **CIS** | Secure configuration | Hardened config | ✅ |
+| Standard      | Requirement           | Implementation              | Status |
+| ------------- | --------------------- | --------------------------- | ------ |
+| **SOC 2**     | Encryption in transit | TLS 1.2+ enforced           | ✅     |
+| **SOC 2**     | Encryption at rest    | AES-256 JetStream           | ✅     |
+| **SOC 2**     | Access controls       | Account-based RBAC          | ✅     |
+| **PCI-DSS**   | Strong cryptography   | TLS 1.2+, AES-256           | ✅     |
+| **GDPR**      | Data protection       | Encryption + access control | ✅     |
+| **ISO 27001** | Access management     | Granular permissions        | ✅     |
+| **OWASP**     | Rate limiting         | Per-user limits             | ✅     |
+| **CIS**       | Secure configuration  | Hardened config             | ✅     |
 
 ---
 
@@ -504,13 +518,13 @@ curl http://localhost:8222/connz
 
 ### Recommended Alerts
 
-| Metric | Threshold | Action |
-|--------|-----------|--------|
-| `nats_varz_connections` | > 900 | Scale or investigate |
-| `nats_varz_slow_consumers` | > 10 | Investigate services |
-| `nats_jetstream_storage` | > 80% | Increase limits |
-| `nats_varz_cpu` | > 80% | Scale resources |
-| `nats_varz_mem` | > 90% | Increase memory |
+| Metric                     | Threshold | Action               |
+| -------------------------- | --------- | -------------------- |
+| `nats_varz_connections`    | > 900     | Scale or investigate |
+| `nats_varz_slow_consumers` | > 10      | Investigate services |
+| `nats_jetstream_storage`   | > 80%     | Increase limits      |
+| `nats_varz_cpu`            | > 80%     | Scale resources      |
+| `nats_varz_mem`            | > 90%     | Increase memory      |
 
 ### Next Steps for Monitoring
 
@@ -555,12 +569,14 @@ docker-compose up -d nats --force-recreate
 ### Incident Response
 
 **Compromised Credentials:**
+
 1. Immediately rotate affected credentials
 2. Review NATS logs for unauthorized access
 3. Check message subjects for data exfiltration
 4. Regenerate all credentials (precaution)
 
 **Service Failure:**
+
 1. Check health: `curl http://localhost:8222/healthz`
 2. Review logs: `docker logs sahool-nats --tail=100`
 3. Check disk space: `df -h`
@@ -711,4 +727,4 @@ The hardened NATS configuration is **production-ready** and meets industry secur
 
 ---
 
-*For questions or support, refer to the comprehensive documentation in `/config/nats/SECURITY_HARDENING.md`*
+_For questions or support, refer to the comprehensive documentation in `/config/nats/SECURITY_HARDENING.md`_

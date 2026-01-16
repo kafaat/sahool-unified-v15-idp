@@ -5,12 +5,13 @@ import {
   ForbiddenException,
   Logger,
   Inject,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { PrismaService } from '@/config/prisma.service';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { PrismaService } from "@/config/prisma.service";
 
-export const BYPASS_LOCK_KEY = 'bypassScientificLock';
-export const BypassScientificLock = () => Reflect.metadata(BYPASS_LOCK_KEY, true);
+export const BYPASS_LOCK_KEY = "bypassScientificLock";
+export const BypassScientificLock = () =>
+  Reflect.metadata(BYPASS_LOCK_KEY, true);
 
 export interface ExperimentLockStatus {
   isLocked: boolean;
@@ -40,10 +41,10 @@ export class ScientificLockGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Check if endpoint bypasses lock check
-    const bypassLock = this.reflector.getAllAndOverride<boolean>(BYPASS_LOCK_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const bypassLock = this.reflector.getAllAndOverride<boolean>(
+      BYPASS_LOCK_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (bypassLock) {
       return true;
@@ -53,7 +54,7 @@ export class ScientificLockGuard implements CanActivate {
     const method = request.method;
 
     // Only check for modifying operations
-    if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    if (!["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       return true;
     }
 
@@ -75,9 +76,11 @@ export class ScientificLockGuard implements CanActivate {
 
       throw new ForbiddenException({
         statusCode: 403,
-        error: 'Experiment Locked',
-        message: 'لا يمكن تعديل البيانات في تجربة مقفلة. هذه التجربة مؤمنة للحفاظ على سلامة البيانات العلمية.',
-        messageEn: 'Cannot modify data in a locked experiment. This experiment is secured to maintain scientific data integrity.',
+        error: "Experiment Locked",
+        message:
+          "لا يمكن تعديل البيانات في تجربة مقفلة. هذه التجربة مؤمنة للحفاظ على سلامة البيانات العلمية.",
+        messageEn:
+          "Cannot modify data in a locked experiment. This experiment is secured to maintain scientific data integrity.",
         experimentId,
         lockedAt: lockStatus.lockedAt,
         lockedBy: lockStatus.lockedBy,
@@ -119,7 +122,9 @@ export class ScientificLockGuard implements CanActivate {
    * Get experiment lock status from database
    * الحصول على حالة قفل التجربة من قاعدة البيانات
    */
-  async getExperimentLockStatus(experimentId: string): Promise<ExperimentLockStatus> {
+  async getExperimentLockStatus(
+    experimentId: string,
+  ): Promise<ExperimentLockStatus> {
     try {
       const experiment = await this.prisma.experiment.findUnique({
         where: { id: experimentId },
@@ -134,23 +139,25 @@ export class ScientificLockGuard implements CanActivate {
       if (!experiment) {
         return {
           isLocked: false,
-          status: 'not_found',
+          status: "not_found",
         };
       }
 
       return {
-        isLocked: experiment.status === 'locked',
+        isLocked: experiment.status === "locked",
         lockedAt: experiment.lockedAt ?? undefined,
         lockedBy: experiment.lockedBy ?? undefined,
         status: experiment.status,
       };
     } catch (error) {
-      this.logger.error(`Error checking experiment lock status: ${error.message}`);
+      this.logger.error(
+        `Error checking experiment lock status: ${error.message}`,
+      );
       // On error, default to allowing the operation
       // but log for investigation
       return {
         isLocked: false,
-        status: 'error',
+        status: "error",
       };
     }
   }
@@ -167,7 +174,7 @@ export class ScientificLockGuard implements CanActivate {
     await this.prisma.experiment.update({
       where: { id: experimentId },
       data: {
-        status: 'locked',
+        status: "locked",
         lockedAt: new Date(),
         lockedBy: userId,
         metadata: {
@@ -180,10 +187,10 @@ export class ScientificLockGuard implements CanActivate {
     await this.prisma.experimentAuditLog.create({
       data: {
         experimentId,
-        entityType: 'experiment',
+        entityType: "experiment",
         entityId: experimentId,
-        action: 'lock',
-        newValues: { status: 'locked', lockedBy: userId, reason },
+        action: "lock",
+        newValues: { status: "locked", lockedBy: userId, reason },
         changedBy: userId,
       },
     });
@@ -205,14 +212,14 @@ export class ScientificLockGuard implements CanActivate {
       select: { status: true, lockedAt: true, lockedBy: true },
     });
 
-    if (!experiment || experiment.status !== 'locked') {
-      throw new ForbiddenException('Experiment is not locked');
+    if (!experiment || experiment.status !== "locked") {
+      throw new ForbiddenException("Experiment is not locked");
     }
 
     await this.prisma.experiment.update({
       where: { id: experimentId },
       data: {
-        status: 'active',
+        status: "active",
         lockedAt: null,
         lockedBy: null,
       },
@@ -222,19 +229,21 @@ export class ScientificLockGuard implements CanActivate {
     await this.prisma.experimentAuditLog.create({
       data: {
         experimentId,
-        entityType: 'experiment',
+        entityType: "experiment",
         entityId: experimentId,
-        action: 'unlock',
+        action: "unlock",
         oldValues: {
-          status: 'locked',
+          status: "locked",
           lockedAt: experiment.lockedAt,
           lockedBy: experiment.lockedBy,
         },
-        newValues: { status: 'active', unlockReason: reason },
+        newValues: { status: "active", unlockReason: reason },
         changedBy: userId,
       },
     });
 
-    this.logger.log(`Experiment ${experimentId} unlocked by user ${userId}. Reason: ${reason}`);
+    this.logger.log(
+      `Experiment ${experimentId} unlocked by user ${userId}. Reason: ${reason}`,
+    );
   }
 }

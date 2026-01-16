@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
 // Activity Feed Component
 // تدفق النشاطات
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Activity,
   Bug,
@@ -15,14 +15,22 @@ import {
   AlertTriangle,
   CheckCircle,
   Calendar,
-  Filter
-} from 'lucide-react';
-import { formatDate } from '@/lib/utils';
-import Link from 'next/link';
+  Filter,
+} from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import Link from "next/link";
 
 export interface ActivityItem {
   id: string;
-  type: 'diagnosis' | 'irrigation' | 'task' | 'alert' | 'farm' | 'prescription' | 'sensor' | 'general';
+  type:
+    | "diagnosis"
+    | "irrigation"
+    | "task"
+    | "alert"
+    | "farm"
+    | "prescription"
+    | "sensor"
+    | "general";
   action: string;
   actionAr: string;
   description: string;
@@ -49,19 +57,21 @@ export default function ActivityFeed({
   maxItems = 20,
   showFilters = true,
   showTimestamps = true,
-  className = ''
+  className = "",
 }: ActivityFeedProps) {
-  const [filter, setFilter] = useState<'all' | 'diagnosis' | 'irrigation' | 'task' | 'alert'>('all');
+  const [filter, setFilter] = useState<
+    "all" | "diagnosis" | "irrigation" | "task" | "alert"
+  >("all");
   const [filteredActivities, setFilteredActivities] = useState<ActivityItem[]>(
-    activities.slice(0, maxItems)
+    activities.slice(0, maxItems),
   );
 
   const handleFilterChange = (newFilter: typeof filter) => {
     setFilter(newFilter);
     let filtered = activities;
 
-    if (newFilter !== 'all') {
-      filtered = activities.filter(a => a.type === newFilter);
+    if (newFilter !== "all") {
+      filtered = activities.filter((a) => a.type === newFilter);
     }
 
     setFilteredActivities(filtered.slice(0, maxItems));
@@ -83,34 +93,36 @@ export default function ActivityFeed({
 
   const getActivityColor = (type: string) => {
     const colors: Record<string, string> = {
-      diagnosis: 'bg-purple-100 text-purple-600',
-      irrigation: 'bg-blue-100 text-blue-600',
-      task: 'bg-yellow-100 text-yellow-600',
-      alert: 'bg-red-100 text-red-600',
-      farm: 'bg-green-100 text-green-600',
-      prescription: 'bg-emerald-100 text-emerald-600',
-      sensor: 'bg-cyan-100 text-cyan-600',
-      general: 'bg-gray-100 text-gray-600',
+      diagnosis: "bg-purple-100 text-purple-600",
+      irrigation: "bg-blue-100 text-blue-600",
+      task: "bg-yellow-100 text-yellow-600",
+      alert: "bg-red-100 text-red-600",
+      farm: "bg-green-100 text-green-600",
+      prescription: "bg-emerald-100 text-emerald-600",
+      sensor: "bg-cyan-100 text-cyan-600",
+      general: "bg-gray-100 text-gray-600",
     };
-    return colors[type] || 'bg-gray-100 text-gray-600';
+    return colors[type] || "bg-gray-100 text-gray-600";
   };
 
   const getActivityTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      diagnosis: 'تشخيص',
-      irrigation: 'ري',
-      task: 'مهمة',
-      alert: 'تنبيه',
-      farm: 'مزرعة',
-      prescription: 'وصفة',
-      sensor: 'مستشعر',
-      general: 'عام',
+      diagnosis: "تشخيص",
+      irrigation: "ري",
+      task: "مهمة",
+      alert: "تنبيه",
+      farm: "مزرعة",
+      prescription: "وصفة",
+      sensor: "مستشعر",
+      general: "عام",
     };
     return labels[type] || type;
   };
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}>
+    <div
+      className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}
+    >
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
@@ -123,7 +135,9 @@ export default function ActivityFeed({
               <Filter className="w-4 h-4 text-gray-400" />
               <select
                 value={filter}
-                onChange={(e) => handleFilterChange(e.target.value as typeof filter)}
+                onChange={(e) =>
+                  handleFilterChange(e.target.value as typeof filter)
+                }
                 className="px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
               >
                 <option value="all">الكل</option>
@@ -214,16 +228,19 @@ export default function ActivityFeed({
       </div>
 
       {/* Footer */}
-      {filteredActivities.length > 0 && filteredActivities.length < activities.length && (
-        <div className="p-3 border-t border-gray-100 text-center">
-          <button
-            onClick={() => setFilteredActivities(activities.slice(0, maxItems + 10))}
-            className="text-sm text-sahool-600 hover:text-sahool-700 font-medium"
-          >
-            تحميل المزيد ←
-          </button>
-        </div>
-      )}
+      {filteredActivities.length > 0 &&
+        filteredActivities.length < activities.length && (
+          <div className="p-3 border-t border-gray-100 text-center">
+            <button
+              onClick={() =>
+                setFilteredActivities(activities.slice(0, maxItems + 10))
+              }
+              className="text-sm text-sahool-600 hover:text-sahool-700 font-medium"
+            >
+              تحميل المزيد ←
+            </button>
+          </div>
+        )}
     </div>
   );
 }

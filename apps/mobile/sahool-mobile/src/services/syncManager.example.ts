@@ -5,7 +5,7 @@
  * This file demonstrates how to use the SyncManager in your application
  */
 
-import SyncManager from './syncManager';
+import SyncManager from "./syncManager";
 import {
   SyncDataType,
   SyncOperationType,
@@ -16,7 +16,7 @@ import {
   SensorReading,
   TaskCompletion,
   ImageUpload,
-} from '../models/syncTypes';
+} from "../models/syncTypes";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // التهيئة - Initialization
@@ -36,7 +36,7 @@ export function initializeSyncManager() {
     throttleOnSlowConnection: true,
   });
 
-  console.log('✅ تم تهيئة مدير المزامنة');
+  console.log("✅ تم تهيئة مدير المزامنة");
   return syncManager;
 }
 
@@ -52,16 +52,16 @@ export async function createFieldObservation() {
   const syncManager = SyncManager.getInstance();
 
   const observation: FieldObservation = {
-    fieldId: 'field-123',
+    fieldId: "field-123",
     observedAt: new Date(),
-    observationType: 'PEST_DETECTION',
-    notes: 'لوحظ وجود آفات على النباتات في القطاع الشمالي',
-    images: ['local://image1.jpg', 'local://image2.jpg'],
+    observationType: "PEST_DETECTION",
+    notes: "لوحظ وجود آفات على النباتات في القطاع الشمالي",
+    images: ["local://image1.jpg", "local://image2.jpg"],
     location: {
       latitude: 24.7136,
       longitude: 46.6753,
     },
-    userId: 'user-456',
+    userId: "user-456",
   };
 
   try {
@@ -71,13 +71,13 @@ export async function createFieldObservation() {
       observation,
       {
         priority: SyncPriority.HIGH,
-      }
+      },
     );
 
     console.log(`✅ تمت إضافة ملاحظة الحقل للمزامنة: ${operationId}`);
     return operationId;
   } catch (error) {
-    console.error('❌ خطأ في إضافة ملاحظة الحقل:', error);
+    console.error("❌ خطأ في إضافة ملاحظة الحقل:", error);
     throw error;
   }
 }
@@ -90,15 +90,15 @@ export async function updateFieldObservation(observationId: string) {
   const syncManager = SyncManager.getInstance();
 
   const previousData = {
-    notes: 'ملاحظات قديمة',
-    updatedAt: new Date('2024-01-01'),
+    notes: "ملاحظات قديمة",
+    updatedAt: new Date("2024-01-01"),
   };
 
   const updatedData = {
     id: observationId,
-    notes: 'تم معالجة الآفات بنجاح',
+    notes: "تم معالجة الآفات بنجاح",
     updatedAt: new Date(),
-    status: 'RESOLVED',
+    status: "RESOLVED",
   };
 
   try {
@@ -110,13 +110,13 @@ export async function updateFieldObservation(observationId: string) {
         entityId: observationId,
         previousData, // للكشف عن التعارضات - For conflict detection
         priority: SyncPriority.NORMAL,
-      }
+      },
     );
 
     console.log(`✅ تم تحديث ملاحظة الحقل: ${operationId}`);
     return operationId;
   } catch (error) {
-    console.error('❌ خطأ في تحديث ملاحظة الحقل:', error);
+    console.error("❌ خطأ في تحديث ملاحظة الحقل:", error);
     throw error;
   }
 }
@@ -133,13 +133,13 @@ export async function createSensorReading() {
   const syncManager = SyncManager.getInstance();
 
   const reading: SensorReading = {
-    sensorId: 'sensor-789',
-    fieldId: 'field-123',
-    readingType: 'SOIL_MOISTURE',
+    sensorId: "sensor-789",
+    fieldId: "field-123",
+    readingType: "SOIL_MOISTURE",
     value: 45.5,
-    unit: '%',
+    unit: "%",
     timestamp: new Date(),
-    quality: 'GOOD',
+    quality: "GOOD",
     metadata: {
       batteryLevel: 85,
       signalStrength: -65,
@@ -153,13 +153,13 @@ export async function createSensorReading() {
       reading,
       {
         priority: SyncPriority.NORMAL,
-      }
+      },
     );
 
     console.log(`✅ تمت إضافة قراءة المستشعر للمزامنة: ${operationId}`);
     return operationId;
   } catch (error) {
-    console.error('❌ خطأ في إضافة قراءة المستشعر:', error);
+    console.error("❌ خطأ في إضافة قراءة المستشعر:", error);
     throw error;
   }
 }
@@ -177,11 +177,11 @@ export async function createMultipleSensorReadings(readings: SensorReading[]) {
       const id = await syncManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.SENSOR_READING,
-        reading
+        reading,
       );
       operationIds.push(id);
     } catch (error) {
-      console.error('❌ خطأ في إضافة قراءة:', error);
+      console.error("❌ خطأ في إضافة قراءة:", error);
     }
   }
 
@@ -204,9 +204,9 @@ export async function completeTask(taskId: string, userId: string) {
     taskId,
     completedAt: new Date(),
     completedBy: userId,
-    status: 'COMPLETED',
-    notes: 'تم إكمال المهمة بنجاح',
-    attachments: ['local://photo1.jpg'],
+    status: "COMPLETED",
+    notes: "تم إكمال المهمة بنجاح",
+    attachments: ["local://photo1.jpg"],
     location: {
       latitude: 24.7136,
       longitude: 46.6753,
@@ -220,13 +220,13 @@ export async function completeTask(taskId: string, userId: string) {
       completion,
       {
         priority: SyncPriority.HIGH, // أولوية عالية لإكمال المهام
-      }
+      },
     );
 
     console.log(`✅ تم تسجيل إكمال المهمة: ${operationId}`);
     return operationId;
   } catch (error) {
-    console.error('❌ خطأ في تسجيل إكمال المهمة:', error);
+    console.error("❌ خطأ في تسجيل إكمال المهمة:", error);
     throw error;
   }
 }
@@ -242,7 +242,7 @@ export async function completeTask(taskId: string, userId: string) {
 export async function uploadImage(
   localUri: string,
   entityType: SyncDataType,
-  entityId: string
+  entityId: string,
 ) {
   const syncManager = SyncManager.getInstance();
 
@@ -251,10 +251,10 @@ export async function uploadImage(
     entityType,
     entityId,
     size: 1024 * 500, // 500 KB
-    mimeType: 'image/jpeg',
+    mimeType: "image/jpeg",
     metadata: {
       capturedAt: new Date(),
-      deviceModel: 'iPhone 13',
+      deviceModel: "iPhone 13",
     },
   };
 
@@ -265,13 +265,13 @@ export async function uploadImage(
       imageUpload,
       {
         priority: SyncPriority.LOW, // أولوية منخفضة للصور
-      }
+      },
     );
 
     console.log(`✅ تمت إضافة الصورة للرفع: ${operationId}`);
     return operationId;
   } catch (error) {
-    console.error('❌ خطأ في إضافة الصورة للرفع:', error);
+    console.error("❌ خطأ في إضافة الصورة للرفع:", error);
     throw error;
   }
 }
@@ -291,22 +291,24 @@ export function registerCustomConflictResolver() {
   syncManager.registerCustomResolver(
     SyncDataType.FIELD_OBSERVATION,
     async (local, server, base) => {
-      console.log('🔧 حل تعارض ملاحظة الحقل...');
+      console.log("🔧 حل تعارض ملاحظة الحقل...");
 
       // دمج ذكي - Smart merge
       const merged = {
         ...server,
         notes: local.notes, // الملاحظات المحلية لها الأولوية
-        images: [...new Set([...(server.images || []), ...(local.images || [])])], // دمج الصور
+        images: [
+          ...new Set([...(server.images || []), ...(local.images || [])]),
+        ], // دمج الصور
         updatedAt: new Date(), // تحديث الوقت
       };
 
-      console.log('✅ تم حل التعارض بنجاح');
+      console.log("✅ تم حل التعارض بنجاح");
       return merged;
-    }
+    },
   );
 
-  console.log('✅ تم تسجيل محلل التعارض المخصص');
+  console.log("✅ تم تسجيل محلل التعارض المخصص");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -322,35 +324,38 @@ export function setupSyncEventListeners() {
 
   // الاستماع لبدء المزامنة - Listen for sync start
   syncManager.addEventListener(SyncEventType.SYNC_STARTED, (event) => {
-    console.log('🔄 بدأت المزامنة في:', event.timestamp);
+    console.log("🔄 بدأت المزامنة في:", event.timestamp);
     // تحديث واجهة المستخدم - Update UI
   });
 
   // الاستماع لإكمال المزامنة - Listen for sync completion
   syncManager.addEventListener(SyncEventType.SYNC_COMPLETED, (event) => {
-    console.log('✅ اكتملت المزامنة:', event.data);
+    console.log("✅ اكتملت المزامنة:", event.data);
     // إخطار المستخدم - Notify user
   });
 
   // الاستماع لفشل المزامنة - Listen for sync failure
   syncManager.addEventListener(SyncEventType.SYNC_FAILED, (event) => {
-    console.error('❌ فشلت المزامنة:', event.data);
+    console.error("❌ فشلت المزامنة:", event.data);
     // عرض رسالة خطأ - Show error message
   });
 
   // الاستماع لتعارضات - Listen for conflicts
   syncManager.addEventListener(SyncEventType.CONFLICT_DETECTED, (event) => {
-    console.warn('⚠️ تم اكتشاف تعارض:', event.operationId);
+    console.warn("⚠️ تم اكتشاف تعارض:", event.operationId);
     // طلب تدخل المستخدم - Request user intervention
   });
 
   // الاستماع لتغيير حالة الشبكة - Listen for network changes
-  syncManager.addEventListener(SyncEventType.NETWORK_STATUS_CHANGED, (event) => {
-    console.log('🌐 تغيرت حالة الشبكة:', event.data);
-    // تحديث شريط الحالة - Update status bar
-  });
+  syncManager.addEventListener(
+    SyncEventType.NETWORK_STATUS_CHANGED,
+    (event) => {
+      console.log("🌐 تغيرت حالة الشبكة:", event.data);
+      // تحديث شريط الحالة - Update status bar
+    },
+  );
 
-  console.log('✅ تم إعداد مستمعي الأحداث');
+  console.log("✅ تم إعداد مستمعي الأحداث");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -366,19 +371,19 @@ export function controlAutoSync() {
 
   // إيقاف المزامنة التلقائية - Stop auto sync
   syncManager.stopAutoSync();
-  console.log('⏹️ تم إيقاف المزامنة التلقائية');
+  console.log("⏹️ تم إيقاف المزامنة التلقائية");
 
   // بدء المزامنة التلقائية - Start auto sync
   syncManager.startAutoSync();
-  console.log('▶️ تم بدء المزامنة التلقائية');
+  console.log("▶️ تم بدء المزامنة التلقائية");
 
   // إيقاف مؤقت - Pause
   syncManager.pause();
-  console.log('⏸️ تم إيقاف المزامنة مؤقتاً');
+  console.log("⏸️ تم إيقاف المزامنة مؤقتاً");
 
   // استئناف - Resume
   syncManager.resume();
-  console.log('▶️ تم استئناف المزامنة');
+  console.log("▶️ تم استئناف المزامنة");
 }
 
 /**
@@ -388,7 +393,7 @@ export function controlAutoSync() {
 export async function forceSyncNow() {
   const syncManager = SyncManager.getInstance();
 
-  console.log('🔄 بدء المزامنة الفورية...');
+  console.log("🔄 بدء المزامنة الفورية...");
 
   try {
     const result = await syncManager.forceSync();
@@ -401,7 +406,7 @@ export async function forceSyncNow() {
 
     return result;
   } catch (error) {
-    console.error('❌ خطأ في المزامنة الفورية:', error);
+    console.error("❌ خطأ في المزامنة الفورية:", error);
     throw error;
   }
 }
@@ -419,10 +424,10 @@ export async function getSyncStatus() {
 
   const status = await syncManager.getSyncStatus();
 
-  console.log('📊 حالة المزامنة:');
+  console.log("📊 حالة المزامنة:");
   console.log(`   - الحالة: ${status.status}`);
-  console.log(`   - متصل: ${status.isOnline ? 'نعم' : 'لا'}`);
-  console.log(`   - جاري المزامنة: ${status.isSyncing ? 'نعم' : 'لا'}`);
+  console.log(`   - متصل: ${status.isOnline ? "نعم" : "لا"}`);
+  console.log(`   - جاري المزامنة: ${status.isSyncing ? "نعم" : "لا"}`);
   console.log(`   - معلق: ${status.pendingCount}`);
   console.log(`   - فاشل: ${status.failedCount}`);
   console.log(`   - تعارضات: ${status.conflictCount}`);
@@ -444,13 +449,15 @@ export function getStatistics() {
 
   const stats = syncManager.getStatistics();
 
-  console.log('📈 إحصائيات المزامنة:');
+  console.log("📈 إحصائيات المزامنة:");
   console.log(`   - إجمالي العمليات: ${stats.totalOperations}`);
   console.log(`   - ناجحة: ${stats.successfulOperations}`);
   console.log(`   - فاشلة: ${stats.failedOperations}`);
   console.log(`   - تعارضات: ${stats.conflictOperations}`);
   console.log(`   - متوسط الوقت: ${stats.averageSyncTime}ms`);
-  console.log(`   - إجمالي البيانات: ${(stats.totalDataSynced / 1024).toFixed(2)} KB`);
+  console.log(
+    `   - إجمالي البيانات: ${(stats.totalDataSynced / 1024).toFixed(2)} KB`,
+  );
 
   return stats;
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
 
@@ -121,7 +122,7 @@ class FieldsRepo {
       ),
     );
 
-    print(
+    debugPrint(
         '✅ Field "$name" created locally (${areaHectares.toStringAsFixed(2)} ha)');
 
     return domain.Field(
@@ -184,7 +185,7 @@ class FieldsRepo {
       ),
     );
 
-    print('✅ Field boundary updated (${areaHectares.toStringAsFixed(2)} ha)');
+    debugPrint('✅ Field boundary updated (${areaHectares.toStringAsFixed(2)} ha)');
   }
 
   /// Update field properties (name, crop type, etc.)
@@ -253,7 +254,7 @@ class FieldsRepo {
       ),
     );
 
-    print('🗑️ Field soft-deleted: $fieldId');
+    debugPrint('🗑️ Field soft-deleted: $fieldId');
   }
 
   // ============================================================
@@ -295,7 +296,7 @@ class FieldsRepo {
 
       return fieldMaps.length;
     } catch (e) {
-      print('❌ Failed to refresh fields: $e');
+      debugPrint('❌ Failed to refresh fields: $e');
       rethrow;
     }
   }

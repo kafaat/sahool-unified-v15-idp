@@ -50,10 +50,7 @@
     },
     "payload": {
       "type": "object",
-      "required": [
-        "field_id",
-        "adjustment_factor"
-      ],
+      "required": ["field_id", "adjustment_factor"],
       "properties": {
         "field_id": {
           "type": "string",

@@ -38,11 +38,13 @@ The alert-service has been successfully migrated from in-memory storage to Postg
 ### 2. Code Migration Changes (`src/main.py`)
 
 #### Removed:
+
 - ❌ In-memory dictionaries `_alerts` and `_rules`
 - ❌ Dictionary-based CRUD operations
 - ❌ Manual timestamp tracking with ISO strings
 
 #### Added:
+
 - ✅ Database session dependency injection
 - ✅ Repository function calls for all operations
 - ✅ UUID-based alert/rule identification
@@ -52,6 +54,7 @@ The alert-service has been successfully migrated from in-memory storage to Postg
 #### Updated Endpoints:
 
 **Alert CRUD:**
+
 - `POST /alerts` - Create alert (now persists to DB)
 - `GET /alerts/{alert_id}` - Get alert (UUID-based lookup)
 - `GET /alerts/field/{field_id}` - List alerts with pagination
@@ -59,19 +62,23 @@ The alert-service has been successfully migrated from in-memory storage to Postg
 - `DELETE /alerts/{alert_id}` - Delete alert
 
 **Alert Actions:**
+
 - `POST /alerts/{alert_id}/acknowledge` - Acknowledge alert
 - `POST /alerts/{alert_id}/resolve` - Resolve alert with note
 - `POST /alerts/{alert_id}/dismiss` - Dismiss alert
 
 **Alert Rules:**
+
 - `POST /alerts/rules` - Create alert rule
 - `GET /alerts/rules` - List rules with filtering
 - `DELETE /alerts/rules/{rule_id}` - Delete rule
 
 **Statistics:**
+
 - `GET /alerts/stats` - Get alert statistics (uses DB aggregation)
 
 **Health Checks:**
+
 - `GET /readyz` - Now includes database connection status
 
 ---
@@ -177,26 +184,31 @@ CREATE INDEX ix_alert_rules_enabled ON alert_rules(enabled, last_triggered_at);
 ## Benefits of Migration
 
 ### 1. **Data Persistence**
+
 - ✅ Alerts survive service restarts
 - ✅ Complete audit trail maintained
 - ✅ Historical data for analytics
 
 ### 2. **Multi-Instance Support**
+
 - ✅ Multiple service instances can run concurrently
 - ✅ Shared state via database
 - ✅ Horizontal scaling enabled
 
 ### 3. **Multi-Tenancy**
+
 - ✅ Proper tenant isolation at database level
 - ✅ UUID-based tenant identification
 - ✅ Efficient tenant-scoped queries with indexes
 
 ### 4. **Performance & Scalability**
+
 - ✅ Indexed queries for fast lookups
 - ✅ Database-level aggregations for statistics
 - ✅ Connection pooling for efficiency
 
 ### 5. **Data Integrity**
+
 - ✅ ACID transactions
 - ✅ Referential integrity
 - ✅ Type safety with SQLAlchemy models
@@ -258,17 +270,20 @@ alembic upgrade head
 ### Manual Testing Steps
 
 1. **Start the service:**
+
    ```bash
    docker-compose up alert-service
    ```
 
 2. **Check health:**
+
    ```bash
    curl http://localhost:8113/healthz
    curl http://localhost:8113/readyz
    ```
 
 3. **Create an alert:**
+
    ```bash
    curl -X POST http://localhost:8113/alerts \
      -H "Content-Type: application/json" \
@@ -296,6 +311,7 @@ alembic upgrade head
 ✅ **API remains fully compatible** - No breaking changes to endpoints or request/response formats.
 
 The only changes are:
+
 - Alert/Rule IDs are now UUIDs (was already the case in in-memory version)
 - Database must be available for service to start
 
@@ -379,38 +395,38 @@ The migration uses the following data models:
 
 ### Alert Model Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | UUID | Primary key |
-| tenant_id | UUID | Multi-tenant isolation |
-| field_id | String | Associated agricultural field |
-| type | String | Alert type (weather, pest, disease, etc.) |
-| severity | String | critical, high, medium, low, info |
-| status | String | active, acknowledged, dismissed, resolved |
-| title/title_en | String | Bilingual title |
-| message/message_en | Text | Bilingual message |
-| recommendations | JSONB | Array of recommendations (Arabic) |
-| recommendations_en | JSONB | Array of recommendations (English) |
-| metadata | JSONB | Additional data |
-| source_service | String | Originating service |
-| created_at | Timestamp | Creation time |
-| acknowledged_at | Timestamp | When acknowledged |
-| dismissed_at | Timestamp | When dismissed |
-| resolved_at | Timestamp | When resolved |
+| Field              | Type      | Description                               |
+| ------------------ | --------- | ----------------------------------------- |
+| id                 | UUID      | Primary key                               |
+| tenant_id          | UUID      | Multi-tenant isolation                    |
+| field_id           | String    | Associated agricultural field             |
+| type               | String    | Alert type (weather, pest, disease, etc.) |
+| severity           | String    | critical, high, medium, low, info         |
+| status             | String    | active, acknowledged, dismissed, resolved |
+| title/title_en     | String    | Bilingual title                           |
+| message/message_en | Text      | Bilingual message                         |
+| recommendations    | JSONB     | Array of recommendations (Arabic)         |
+| recommendations_en | JSONB     | Array of recommendations (English)        |
+| metadata           | JSONB     | Additional data                           |
+| source_service     | String    | Originating service                       |
+| created_at         | Timestamp | Creation time                             |
+| acknowledged_at    | Timestamp | When acknowledged                         |
+| dismissed_at       | Timestamp | When dismissed                            |
+| resolved_at        | Timestamp | When resolved                             |
 
 ### AlertRule Model Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | UUID | Primary key |
-| tenant_id | UUID | Multi-tenant isolation |
-| field_id | String | Associated field |
-| name/name_en | String | Bilingual rule name |
-| enabled | Boolean | Active status |
-| condition | JSONB | Trigger conditions |
-| alert_config | JSONB | Alert configuration |
-| cooldown_hours | Integer | Minimum time between triggers |
-| last_triggered_at | Timestamp | Last execution |
+| Field             | Type      | Description                   |
+| ----------------- | --------- | ----------------------------- |
+| id                | UUID      | Primary key                   |
+| tenant_id         | UUID      | Multi-tenant isolation        |
+| field_id          | String    | Associated field              |
+| name/name_en      | String    | Bilingual rule name           |
+| enabled           | Boolean   | Active status                 |
+| condition         | JSONB     | Trigger conditions            |
+| alert_config      | JSONB     | Alert configuration           |
+| cooldown_hours    | Integer   | Minimum time between triggers |
+| last_triggered_at | Timestamp | Last execution                |
 
 ---
 

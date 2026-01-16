@@ -7,7 +7,7 @@
  * Sunset Date: 2026-06-30
  */
 
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata } from "@nestjs/common";
 
 /**
  * V1 Response format
@@ -86,8 +86,8 @@ export abstract class BaseControllerV1 {
   protected logDeprecationWarning(endpoint: string): void {
     console.warn(
       `[DEPRECATION WARNING] v1 endpoint accessed: ${endpoint}. ` +
-      `This endpoint will be removed on 2026-06-30. ` +
-      `Please migrate to v2: https://docs.sahool.app/api/v2/migration`,
+        `This endpoint will be removed on 2026-06-30. ` +
+        `Please migrate to v2: https://docs.sahool.app/api/v2/migration`,
     );
   }
 }
@@ -95,4 +95,4 @@ export abstract class BaseControllerV1 {
 /**
  * Decorator to mark v1 endpoints as deprecated
  */
-export const ApiV1Deprecated = () => SetMetadata('api-v1-deprecated', true);
+export const ApiV1Deprecated = () => SetMetadata("api-v1-deprecated", true);

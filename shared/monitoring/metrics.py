@@ -3,12 +3,25 @@ SAHOOL Prometheus Metrics
 Provides standardized metrics for all services
 """
 
+from __future__ import annotations
+
 import time
 from collections.abc import Callable
 from functools import wraps
+from typing import TYPE_CHECKING
 
-from fastapi import FastAPI, Request, Response
-from fastapi.responses import PlainTextResponse
+# Conditional import for FastAPI - not required for core metrics functionality
+try:
+    from fastapi import FastAPI, Request, Response
+    from fastapi.responses import PlainTextResponse
+
+    FASTAPI_AVAILABLE = True
+except ImportError:
+    FASTAPI_AVAILABLE = False
+    # Type hints for when FastAPI is not available
+    if TYPE_CHECKING:
+        from fastapi import FastAPI, Request, Response
+        from fastapi.responses import PlainTextResponse
 
 
 class MetricsRegistry:
@@ -225,8 +238,17 @@ def get_registry(service_name: str = "sahool") -> MetricsRegistry:
     return _registry
 
 
-def setup_metrics(app: FastAPI, service_name: str = "sahool"):
-    """Setup metrics endpoint and middleware for FastAPI app"""
+def setup_metrics(app: "FastAPI", service_name: str = "sahool"):
+    """Setup metrics endpoint and middleware for FastAPI app
+
+    Note: Requires FastAPI to be installed. Will raise RuntimeError if not available.
+    """
+    if not FASTAPI_AVAILABLE:
+        raise RuntimeError(
+            "FastAPI is required for setup_metrics(). "
+            "Install it with: pip install fastapi"
+        )
+
     registry = get_registry(service_name)
 
     # Create standard metrics
@@ -251,7 +273,7 @@ def setup_metrics(app: FastAPI, service_name: str = "sahool"):
     )
 
     @app.middleware("http")
-    async def metrics_middleware(request: Request, call_next: Callable) -> Response:
+    async def metrics_middleware(request: "Request", call_next: Callable) -> "Response":
         """Middleware to collect request metrics"""
         # Skip metrics endpoint
         if request.url.path == "/metrics":

@@ -1,17 +1,18 @@
 # Multi-Stage Build Analysis Report
+
 **Generated:** 2026-01-06
 **Analyzed Services:** 54 Dockerfiles in `/apps/services/`
 
 ## Executive Summary
 
-| Metric | Count | Percentage |
-|--------|-------|------------|
-| **Total Dockerfiles** | 54 | 100% |
-| **Multi-stage builds** | 17 | 31.5% |
-| **Single-stage builds** | 37 | 68.5% |
-| **Using slim/alpine base** | 54 | 100% |
-| **With .dockerignore** | 47 | 87% |
-| **Need optimization** | 25 | 46.3% |
+| Metric                     | Count | Percentage |
+| -------------------------- | ----- | ---------- |
+| **Total Dockerfiles**      | 54    | 100%       |
+| **Multi-stage builds**     | 17    | 31.5%      |
+| **Single-stage builds**    | 37    | 68.5%      |
+| **Using slim/alpine base** | 54    | 100%       |
+| **With .dockerignore**     | 47    | 87%        |
+| **Need optimization**      | 25    | 46.3%      |
 
 ---
 
@@ -20,6 +21,7 @@
 ### ✅ Services Using Multi-Stage Builds (17 services)
 
 #### Node.js Services (13 services) - All using multi-stage builds ✅
+
 1. **chat-service** - `node:20-alpine` (builder + production)
 2. **community-chat** - `node:20-alpine` (builder + production)
 3. **crop-growth-model** - `node:20-alpine` (builder + production)
@@ -35,18 +37,21 @@
 13. **yield-prediction-service** - `node:20-alpine` (builder + production)
 
 **Benefits Achieved:**
+
 - ✅ Build dependencies (devDependencies) excluded from production
 - ✅ Smaller final image sizes
 - ✅ Prisma client generation handled in builder stage
 - ✅ TypeScript compilation artifacts separated
 
 #### Python Services (4 services) - Using multi-stage builds ✅
+
 1. **ai-advisor** - `python:3.11-slim` (builder + runtime)
 2. **crop-health-ai** - `python:3.11-slim` (builder + production)
 3. **virtual-sensors** - `python:3.11-slim` (builder + production)
 4. **yield-engine** - `python:3.11-slim` (builder + production)
 
 **Benefits Achieved:**
+
 - ✅ Build dependencies (gcc, build-essential) excluded from production
 - ✅ Virtual environment pattern used
 - ✅ Smaller final image sizes
@@ -58,6 +63,7 @@
 #### Python Services Needing Optimization (33 services)
 
 ##### High Priority - Installing Build Tools (25 services)
+
 These services install `build-essential`, `gcc`, or other build tools that remain in the final image:
 
 1. **agro-rules** - Installs `build-essential`, `ca-certificates` (line 27-33)
@@ -69,6 +75,7 @@ These services install `build-essential`, `gcc`, or other build tools that remai
 6. **iot-gateway** - Installs `curl` (line 30-31)
 
 ##### Medium Priority - Clean Single-Stage (12 services)
+
 These services have relatively clean single-stage builds but still include pip build tools:
 
 7. **advisory-service** - `python:3.11-slim`, upgrades pip/setuptools/wheel/build
@@ -85,6 +92,7 @@ These services have relatively clean single-stage builds but still include pip b
 18. **ws-gateway** - `python:3.11-slim`, upgrades pip/setuptools/wheel/build
 
 ##### Low Priority - Minimal Dependencies (8 services)
+
 These services have minimal build dependencies:
 
 19. **agent-registry** - Installs only `gcc`, simple build
@@ -104,6 +112,7 @@ These services have minimal build dependencies:
 33. **field-intelligence** - Upgrades pip/setuptools/wheel/build
 
 #### Other Services (4 services)
+
 34. **mcp-server** - `python:3.11-slim`, installs `gcc`, simple single-stage
 35. **demo-data** - `python:3.12-slim`, ultra-minimal (only httpx dependency)
 
@@ -113,19 +122,21 @@ These services have minimal build dependencies:
 
 ### ✅ Excellent - All Services Use Optimized Base Images
 
-| Base Image | Count | Services | Size Impact |
-|------------|-------|----------|-------------|
-| **python:3.11-slim** | 38 | Most Python services | ~120MB base |
-| **python:3.12-slim** | 1 | demo-data | ~125MB base |
-| **node:20-alpine** | 13 | All Node.js services | ~170MB base |
+| Base Image           | Count | Services             | Size Impact |
+| -------------------- | ----- | -------------------- | ----------- |
+| **python:3.11-slim** | 38    | Most Python services | ~120MB base |
+| **python:3.12-slim** | 1     | demo-data            | ~125MB base |
+| **node:20-alpine**   | 13    | All Node.js services | ~170MB base |
 
 **Analysis:**
+
 - ✅ No services using full/fat images (python:3.11, node:20)
 - ✅ Alpine variant used for all Node.js services (smallest)
 - ✅ Slim variant used for all Python services (good balance)
 - ⚠️ No services using distroless images (could reduce attack surface)
 
 **Potential Improvements:**
+
 - Consider `gcr.io/distroless/python3` for production Python services (even smaller, more secure)
 - Consider `gcr.io/distroless/nodejs20-debian12` for Node.js services
 
@@ -136,6 +147,7 @@ These services have minimal build dependencies:
 ### ✅ Services WITH .dockerignore (47 services)
 
 **Present and properly configured:**
+
 - advisory-service, agent-registry, agro-advisor, agro-rules, ai-advisor
 - alert-service, astronomical-calendar, billing-core, chat-service, community-chat
 - crop-growth-model, crop-health, crop-health-ai, crop-intelligence-service
@@ -149,6 +161,7 @@ These services have minimal build dependencies:
 - yield-prediction-service
 
 **Common patterns in .dockerignore:**
+
 ```
 # Node.js services
 node_modules/
@@ -175,6 +188,7 @@ venv/
 5. **user-service** - Present but service is FROZEN
 
 **Impact:** Without .dockerignore, these services may include:
+
 - Git history (.git/)
 - IDE configurations (.vscode/, .idea/)
 - Test files and coverage reports
@@ -190,27 +204,27 @@ venv/
 
 These services install build tools that bloat the final image:
 
-| Service | Current Issue | Estimated Savings | Complexity |
-|---------|---------------|-------------------|------------|
-| **agro-rules** | build-essential, ca-certificates | ~150MB | Medium |
-| **field-chat** | build-essential, gcc, libpq-dev, python3-dev, libsqlite3-dev | ~200MB | High |
-| **field-service** | build-essential | ~150MB | Medium |
-| **ndvi-processor** | libgdal-dev, gdal-bin, build-essential | ~250MB | High |
-| **task-service** | build-essential, curl, ca-certificates | ~150MB | Medium |
-| **advisory-service** | setuptools, wheel, build | ~50MB | Low |
-| **agro-advisor** | setuptools, wheel, build | ~50MB | Low |
-| **alert-service** | setuptools, wheel, build | ~50MB | Low |
-| **billing-core** | setuptools, wheel, build | ~50MB | Low |
-| **crop-health** | setuptools, wheel, build | ~50MB | Low |
-| **equipment-service** | setuptools, wheel, build | ~50MB | Low |
-| **field-ops** | setuptools, wheel, build | ~50MB | Low |
-| **ndvi-engine** | setuptools, wheel, build | ~50MB | Low |
-| **provider-config** | setuptools, wheel, build | ~50MB | Low |
-| **weather-core** | setuptools, wheel, build | ~50MB | Low |
-| **ws-gateway** | setuptools, wheel, build | ~50MB | Low |
-| **field-intelligence** | setuptools, wheel, build | ~50MB | Low |
-| **iot-gateway** | setuptools, wheel, build, curl | ~50MB | Low |
-| **mcp-server** | gcc | ~100MB | Low |
+| Service                | Current Issue                                                | Estimated Savings | Complexity |
+| ---------------------- | ------------------------------------------------------------ | ----------------- | ---------- |
+| **agro-rules**         | build-essential, ca-certificates                             | ~150MB            | Medium     |
+| **field-chat**         | build-essential, gcc, libpq-dev, python3-dev, libsqlite3-dev | ~200MB            | High       |
+| **field-service**      | build-essential                                              | ~150MB            | Medium     |
+| **ndvi-processor**     | libgdal-dev, gdal-bin, build-essential                       | ~250MB            | High       |
+| **task-service**       | build-essential, curl, ca-certificates                       | ~150MB            | Medium     |
+| **advisory-service**   | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **agro-advisor**       | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **alert-service**      | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **billing-core**       | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **crop-health**        | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **equipment-service**  | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **field-ops**          | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **ndvi-engine**        | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **provider-config**    | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **weather-core**       | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **ws-gateway**         | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **field-intelligence** | setuptools, wheel, build                                     | ~50MB             | Low        |
+| **iot-gateway**        | setuptools, wheel, build, curl                               | ~50MB             | Low        |
+| **mcp-server**         | gcc                                                          | ~100MB            | Low        |
 
 ### Medium Priority (8 services)
 
@@ -228,6 +242,7 @@ Clean builds but could still benefit from optimization:
 ### Low Priority (4 services)
 
 FROZEN/DEPRECATED services (fix if reactivated):
+
 - fertilizer-advisor
 - globalgap-compliance
 - satellite-service
@@ -242,6 +257,7 @@ FROZEN/DEPRECATED services (fix if reactivated):
 #### Python Services (25 services)
 
 **Build tools remaining in production images:**
+
 - `build-essential` (~150MB)
 - `gcc` (~100MB)
 - `python3-dev` (~50MB)
@@ -253,6 +269,7 @@ FROZEN/DEPRECATED services (fix if reactivated):
 All 25 high-priority Python services listed in Section 4.
 
 **Example - field-chat (line 30-36, 57-59):**
+
 ```dockerfile
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -274,6 +291,7 @@ RUN apt-get purge -y --auto-remove build-essential gcc python3-dev libpq-dev lib
 **Problem:** The purge command runs in the same layer as the install, so Docker includes all the build tools in the image anyway. This is a common anti-pattern.
 
 **Solution:** Use multi-stage build:
+
 ```dockerfile
 # Stage 1: Builder
 FROM python:3.11-slim AS builder
@@ -294,6 +312,7 @@ CMD ["uvicorn", "src.main:app"]
 #### Node.js Services - ✅ All Clean
 
 All 13 Node.js services properly use:
+
 - `npm install --omit=dev` in production stage
 - Multi-stage builds to exclude devDependencies
 - No build tools in final image
@@ -389,6 +408,7 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
 ### Priority 2: Add Missing .dockerignore Files
 
 **Services needing .dockerignore:**
+
 - ai-agents-core
 - code-review-service
 
@@ -444,15 +464,18 @@ data/
 ### Priority 3: Consider Distroless Base Images
 
 **Benefits of distroless:**
+
 - Smaller attack surface (no shell, no package manager)
 - Smaller image size (~50MB reduction)
 - Better security posture
 
 **Recommended for production services:**
+
 - Python: `gcr.io/distroless/python3-debian12`
 - Node.js: `gcr.io/distroless/nodejs20-debian12`
 
 **Example:**
+
 ```dockerfile
 FROM python:3.11-slim AS builder
 # ... build steps ...
@@ -467,6 +490,7 @@ CMD ["python", "-m", "uvicorn", "src.main:app"]
 ### Priority 4: Optimize Python Package Installation
 
 **Current pattern in many services:**
+
 ```dockerfile
 RUN pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 ```
@@ -481,12 +505,12 @@ RUN pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 
 ### Image Size Reductions (if all recommendations implemented)
 
-| Category | Services | Avg Reduction | Total Reduction |
-|----------|----------|---------------|-----------------|
-| High Priority (heavy build tools) | 5 | ~180MB | ~900MB |
-| Medium Priority (pip build tools) | 20 | ~50MB | ~1000MB |
-| Low Priority (minimal deps) | 8 | ~20MB | ~160MB |
-| **TOTAL** | **33** | **~62MB** | **~2.06GB** |
+| Category                          | Services | Avg Reduction | Total Reduction |
+| --------------------------------- | -------- | ------------- | --------------- |
+| High Priority (heavy build tools) | 5        | ~180MB        | ~900MB          |
+| Medium Priority (pip build tools) | 20       | ~50MB         | ~1000MB         |
+| Low Priority (minimal deps)       | 8        | ~20MB         | ~160MB          |
+| **TOTAL**                         | **33**   | **~62MB**     | **~2.06GB**     |
 
 ### Additional Benefits
 
@@ -500,6 +524,7 @@ RUN pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 ## 8. Implementation Plan
 
 ### Phase 1: High-Impact Services (Week 1)
+
 - [ ] ndvi-processor
 - [ ] field-chat
 - [ ] agro-rules
@@ -507,15 +532,18 @@ RUN pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 - [ ] task-service
 
 ### Phase 2: Medium-Impact Services (Week 2-3)
+
 - [ ] All 20 services with pip build tools
 - [ ] Add missing .dockerignore files
 
 ### Phase 3: Low-Impact & Exploration (Week 4)
+
 - [ ] Remaining 8 minimal services
 - [ ] Experiment with distroless images on 2-3 services
 - [ ] Document lessons learned
 
 ### Phase 4: Rollout & Validation (Week 5)
+
 - [ ] Performance testing
 - [ ] Size validation
 - [ ] Security scanning
@@ -603,12 +631,14 @@ Using distroless (pilot):   3 (5.6%)
 ## 11. References & Resources
 
 ### Documentation
+
 - [Docker Multi-stage builds](https://docs.docker.com/build/building/multi-stage/)
 - [Python Docker best practices](https://docs.docker.com/language/python/build-images/)
 - [Node.js Docker best practices](https://docs.docker.com/language/nodejs/build-images/)
 - [Distroless images](https://github.com/GoogleContainerTools/distroless)
 
 ### Internal Templates
+
 - `/apps/services/ai-advisor/Dockerfile` - Python multi-stage example
 - `/apps/services/chat-service/Dockerfile` - Node.js multi-stage example
 - `/apps/services/virtual-sensors/Dockerfile` - Python venv pattern
@@ -637,6 +667,7 @@ docker scan <image>
 The SAHOOL service architecture shows **excellent adoption of modern base images** (100% using slim/alpine variants) and **good .dockerignore coverage** (87%). However, there is significant opportunity for improvement:
 
 **Key Findings:**
+
 - ✅ All Node.js services (13/13) use multi-stage builds optimally
 - ⚠️ Only 4/41 Python services use multi-stage builds (9.8%)
 - ❌ 25 Python services include build tools in production images
@@ -647,6 +678,7 @@ Prioritize converting the **5 high-impact services** (ndvi-processor, field-chat
 
 **Expected Outcome:**
 After full implementation, the platform will have:
+
 - 92.6% multi-stage build adoption
 - 2GB+ storage savings
 - Improved security posture

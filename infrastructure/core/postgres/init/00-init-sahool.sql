@@ -1425,74 +1425,74 @@ ON CONFLICT DO NOTHING;
 -- Insert demo NDVI records
 INSERT INTO ndvi_records (id, field_id, tenant_id, capture_date, satellite, cloud_coverage_percent, ndvi_mean, ndvi_min, ndvi_max, classification, health_score, trend)
 VALUES
-    ('g0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Sentinel-2', 5.2, 0.72, 0.45, 0.89, 'good', 85.5, 'improving'),
-    ('g0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 14, 'Sentinel-2', 8.1, 0.68, 0.42, 0.85, 'good', 82.0, 'stable'),
-    ('g0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Landsat-8', 3.5, 0.65, 0.38, 0.82, 'moderate', 78.2, 'stable'),
-    ('g0000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Sentinel-2', 2.0, 0.85, 0.72, 0.95, 'excellent', 92.0, 'improving')
+    ('00000000-0000-0000-0001-000000000001', 'd0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Sentinel-2', 5.2, 0.72, 0.45, 0.89, 'good', 85.5, 'improving'),
+    ('00000000-0000-0000-0001-000000000002', 'd0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 14, 'Sentinel-2', 8.1, 0.68, 0.42, 0.85, 'good', 82.0, 'stable'),
+    ('00000000-0000-0000-0001-000000000003', 'd0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Landsat-8', 3.5, 0.65, 0.38, 0.82, 'moderate', 78.2, 'stable'),
+    ('00000000-0000-0000-0001-000000000004', 'd0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Sentinel-2', 2.0, 0.85, 0.72, 0.95, 'excellent', 92.0, 'improving')
 ON CONFLICT DO NOTHING;
 
 -- Insert demo IoT devices
 INSERT INTO iot_devices (id, tenant_id, field_id, device_id, device_type, name, name_ar, status, battery_level)
 VALUES
-    ('h0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'SOIL-001', 'soil_sensor', 'Soil Sensor North-1', 'مستشعر التربة شمال-1', 'online', 85.0),
-    ('h0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'WEATHER-001', 'weather_station', 'Weather Station Main', 'محطة الطقس الرئيسية', 'online', 92.0),
-    ('h0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000002', 'WATER-001', 'water_meter', 'Water Meter South', 'عداد المياه الجنوبي', 'online', 78.0),
-    ('h0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'CAM-001', 'camera', 'Greenhouse Camera', 'كاميرا البيت المحمي', 'online', 100.0)
+    ('00000000-0000-0000-0002-000000000001', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'SOIL-001', 'soil_sensor', 'Soil Sensor North-1', 'مستشعر التربة شمال-1', 'online', 85.0),
+    ('00000000-0000-0000-0002-000000000002', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'WEATHER-001', 'weather_station', 'Weather Station Main', 'محطة الطقس الرئيسية', 'online', 92.0),
+    ('00000000-0000-0000-0002-000000000003', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000002', 'WATER-001', 'water_meter', 'Water Meter South', 'عداد المياه الجنوبي', 'online', 78.0),
+    ('00000000-0000-0000-0002-000000000004', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'CAM-001', 'camera', 'Greenhouse Camera', 'كاميرا البيت المحمي', 'online', 100.0)
 ON CONFLICT DO NOTHING;
 
 -- Insert demo IoT readings
 INSERT INTO iot_readings (id, device_id, tenant_id, recorded_at, readings, soil_moisture, soil_temperature, air_temperature, humidity)
 VALUES
-    ('i0000000-0000-0000-0000-000000000001', 'h0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '1 hour', '{"moisture": 45.2, "temperature": 22.5, "ec": 1.2}', 45.2, 22.5, 28.0, 55.0),
-    ('i0000000-0000-0000-0000-000000000002', 'h0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '2 hours', '{"moisture": 44.8, "temperature": 23.0, "ec": 1.1}', 44.8, 23.0, 29.0, 52.0),
-    ('i0000000-0000-0000-0000-000000000003', 'h0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '1 hour', '{"temperature": 28.5, "humidity": 45, "pressure": 1013}', NULL, NULL, 28.5, 45.0)
+    ('00000000-0000-0000-0003-000000000001', '00000000-0000-0000-0002-000000000001', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '1 hour', '{"moisture": 45.2, "temperature": 22.5, "ec": 1.2}', 45.2, 22.5, 28.0, 55.0),
+    ('00000000-0000-0000-0003-000000000002', '00000000-0000-0000-0002-000000000001', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '2 hours', '{"moisture": 44.8, "temperature": 23.0, "ec": 1.1}', 44.8, 23.0, 29.0, 52.0),
+    ('00000000-0000-0000-0003-000000000003', '00000000-0000-0000-0002-000000000002', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '1 hour', '{"temperature": 28.5, "humidity": 45, "pressure": 1013}', NULL, NULL, 28.5, 45.0)
 ON CONFLICT DO NOTHING;
 
 -- Insert demo alerts
 INSERT INTO alerts (id, tenant_id, field_id, title, title_ar, message, message_ar, category, severity, status)
 VALUES
-    ('j0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Low Soil Moisture', 'انخفاض رطوبة التربة', 'Soil moisture in North Field has dropped below 40%', 'انخفضت رطوبة التربة في الحقل الشمالي إلى أقل من 40%', 'irrigation', 'warning', 'active'),
-    ('j0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'High Temperature Alert', 'تنبيه درجة حرارة مرتفعة', 'Greenhouse temperature exceeds 38°C', 'درجة حرارة البيت المحمي تتجاوز 38 درجة مئوية', 'weather', 'critical', 'active'),
-    ('j0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', NULL, 'Harvest Season Reminder', 'تذكير موسم الحصاد', 'Wheat harvest season approaching in 30 days', 'يقترب موسم حصاد القمح خلال 30 يوماً', 'harvest', 'info', 'active')
+    ('00000000-0000-0000-0004-000000000001', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Low Soil Moisture', 'انخفاض رطوبة التربة', 'Soil moisture in North Field has dropped below 40%', 'انخفضت رطوبة التربة في الحقل الشمالي إلى أقل من 40%', 'irrigation', 'warning', 'active'),
+    ('00000000-0000-0000-0004-000000000002', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'High Temperature Alert', 'تنبيه درجة حرارة مرتفعة', 'Greenhouse temperature exceeds 38°C', 'درجة حرارة البيت المحمي تتجاوز 38 درجة مئوية', 'weather', 'critical', 'active'),
+    ('00000000-0000-0000-0004-000000000003', 'a0000000-0000-0000-0000-000000000001', NULL, 'Harvest Season Reminder', 'تذكير موسم الحصاد', 'Wheat harvest season approaching in 30 days', 'يقترب موسم حصاد القمح خلال 30 يوماً', 'harvest', 'info', 'active')
 ON CONFLICT DO NOTHING;
 
 -- Insert demo products for marketplace
 INSERT INTO products (id, tenant_id, seller_id, name, name_ar, category, price, stock, unit, seller_type, status, governorate, quality_grade)
 VALUES
-    ('k0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Premium Wheat Seeds', 'بذور قمح ممتازة', 'seeds', 250.00, 500, 'kg', 'farmer', 'active', 'Riyadh', 'A'),
-    ('k0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Organic Fertilizer', 'سماد عضوي', 'fertilizers', 180.00, 1000, 'kg', 'supplier', 'active', 'Riyadh', 'A'),
-    ('k0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'Fresh Tomatoes', 'طماطم طازجة', 'crops', 8.50, 200, 'kg', 'farmer', 'active', 'Riyadh', 'A+'),
-    ('k0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Drip Irrigation Kit', 'طقم الري بالتنقيط', 'equipment', 1500.00, 50, 'set', 'supplier', 'active', 'Riyadh', NULL)
+    ('00000000-0000-0000-0005-000000000001', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Premium Wheat Seeds', 'بذور قمح ممتازة', 'seeds', 250.00, 500, 'kg', 'farmer', 'active', 'Riyadh', 'A'),
+    ('00000000-0000-0000-0005-000000000002', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Organic Fertilizer', 'سماد عضوي', 'fertilizers', 180.00, 1000, 'kg', 'supplier', 'active', 'Riyadh', 'A'),
+    ('00000000-0000-0000-0005-000000000003', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'Fresh Tomatoes', 'طماطم طازجة', 'crops', 8.50, 200, 'kg', 'farmer', 'active', 'Riyadh', 'A+'),
+    ('00000000-0000-0000-0005-000000000004', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Drip Irrigation Kit', 'طقم الري بالتنقيط', 'equipment', 1500.00, 50, 'set', 'supplier', 'active', 'Riyadh', NULL)
 ON CONFLICT DO NOTHING;
 
 -- Insert demo wallets
 INSERT INTO wallets (id, user_id, tenant_id, balance, credit_score, credit_tier, loan_limit, is_verified)
 VALUES
-    ('l0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 50000.00, 800, 'platinum', 100000.00, true),
-    ('l0000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 15000.00, 650, 'gold', 50000.00, true),
-    ('l0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 8500.00, 550, 'silver', 20000.00, true),
-    ('l0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 2500.00, 450, 'bronze', 5000.00, false)
+    ('00000000-0000-0000-0006-000000000001', 'b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 50000.00, 800, 'platinum', 100000.00, true),
+    ('00000000-0000-0000-0006-000000000002', 'b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 15000.00, 650, 'gold', 50000.00, true),
+    ('00000000-0000-0000-0006-000000000003', 'b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 8500.00, 550, 'silver', 20000.00, true),
+    ('00000000-0000-0000-0006-000000000004', 'b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 2500.00, 450, 'bronze', 5000.00, false)
 ON CONFLICT DO NOTHING;
 
 -- Insert demo experiment
 INSERT INTO experiments (id, tenant_id, title, title_ar, description, hypothesis, start_date, status, principal_researcher_id)
 VALUES
-    ('m0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Drought-Resistant Wheat Varieties Trial', 'تجربة أصناف القمح المقاومة للجفاف', 'Testing 5 wheat varieties for drought resistance in Al-Kharj region', 'Variety X-15 will show 20% higher yield under water stress conditions', '2025-01-01', 'active', 'b0000000-0000-0000-0000-000000000005')
+    ('00000000-0000-0000-0007-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Drought-Resistant Wheat Varieties Trial', 'تجربة أصناف القمح المقاومة للجفاف', 'Testing 5 wheat varieties for drought resistance in Al-Kharj region', 'Variety X-15 will show 20% higher yield under water stress conditions', '2025-01-01', 'active', 'b0000000-0000-0000-0000-000000000005')
 ON CONFLICT DO NOTHING;
 
 -- Insert demo Anwa events
 INSERT INTO anwa_events (id, naw_id, naw_name_ar, naw_name_en, year, start_date, end_date, season, season_ar, suitable_crops, recommendations)
 VALUES
-    ('n0000000-0000-0000-0000-000000000001', 1, 'الثريا', 'Al-Thurayya', 2025, '2025-06-07', '2025-06-19', 'summer', 'الصيف', '["dates", "grapes"]', '{"irrigation": "increase", "activities": ["harvest_dates"]}'),
-    ('n0000000-0000-0000-0000-000000000002', 2, 'الدبران', 'Al-Dabaran', 2025, '2025-06-20', '2025-07-02', 'summer', 'الصيف', '["dates", "melons"]', '{"irrigation": "maintain", "activities": ["protect_from_heat"]}'),
-    ('n0000000-0000-0000-0000-000000000003', 15, 'سعد الذابح', 'Saad Al-Thabeh', 2025, '2025-01-29', '2025-02-10', 'winter', 'الشتاء', '["wheat", "barley", "vegetables"]', '{"irrigation": "reduce", "activities": ["planting_grains"]}')
+    ('00000000-0000-0000-0008-000000000001', 1, 'الثريا', 'Al-Thurayya', 2025, '2025-06-07', '2025-06-19', 'summer', 'الصيف', '["dates", "grapes"]', '{"irrigation": "increase", "activities": ["harvest_dates"]}'),
+    ('00000000-0000-0000-0008-000000000002', 2, 'الدبران', 'Al-Dabaran', 2025, '2025-06-20', '2025-07-02', 'summer', 'الصيف', '["dates", "melons"]', '{"irrigation": "maintain", "activities": ["protect_from_heat"]}'),
+    ('00000000-0000-0000-0008-000000000003', 15, 'سعد الذابح', 'Saad Al-Thabeh', 2025, '2025-01-29', '2025-02-10', 'winter', 'الشتاء', '["wheat", "barley", "vegetables"]', '{"irrigation": "reduce", "activities": ["planting_grains"]}')
 ON CONFLICT DO NOTHING;
 
 -- Insert demo weather records
 INSERT INTO weather_records (id, tenant_id, location_id, location_name, recorded_at, temperature_celsius, humidity_percent, wind_speed_ms, conditions, conditions_ar, source)
 VALUES
-    ('o0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'al-kharj', 'Al-Kharj', NOW(), 32.5, 35.0, 4.2, 'Clear', 'صافي', 'openweather'),
-    ('o0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'al-kharj', 'Al-Kharj', NOW() - INTERVAL '1 day', 30.2, 40.0, 3.8, 'Partly Cloudy', 'غائم جزئياً', 'openweather')
+    ('00000000-0000-0000-0009-000000000001', 'a0000000-0000-0000-0000-000000000001', 'al-kharj', 'Al-Kharj', NOW(), 32.5, 35.0, 4.2, 'Clear', 'صافي', 'openweather'),
+    ('00000000-0000-0000-0009-000000000002', 'a0000000-0000-0000-0000-000000000001', 'al-kharj', 'Al-Kharj', NOW() - INTERVAL '1 day', 30.2, 40.0, 3.8, 'Partly Cloudy', 'غائم جزئياً', 'openweather')
 ON CONFLICT DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════════

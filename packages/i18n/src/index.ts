@@ -4,8 +4,8 @@
  */
 
 // Re-export locale files
-import arMessages from './locales/ar.json';
-import enMessages from './locales/en.json';
+import arMessages from "./locales/ar.json";
+import enMessages from "./locales/en.json";
 
 export const messages = {
   ar: arMessages,
@@ -15,8 +15,8 @@ export const messages = {
 export type Locale = keyof typeof messages;
 export type Messages = typeof arMessages;
 
-export const locales: Locale[] = ['ar', 'en'];
-export const defaultLocale: Locale = 'ar';
+export const locales: Locale[] = ["ar", "en"];
+export const defaultLocale: Locale = "ar";
 
 /**
  * Get messages for a specific locale
@@ -30,8 +30,8 @@ export function getMessages(locale: Locale): Messages {
  */
 export function getLocaleDisplayName(locale: Locale): string {
   const names: Record<Locale, string> = {
-    ar: 'العربية',
-    en: 'English',
+    ar: "العربية",
+    en: "English",
   };
   return names[locale];
 }
@@ -40,14 +40,14 @@ export function getLocaleDisplayName(locale: Locale): string {
  * Check if locale is RTL
  */
 export function isRTL(locale: Locale): boolean {
-  return locale === 'ar';
+  return locale === "ar";
 }
 
 /**
  * Get text direction for locale
  */
-export function getDirection(locale: Locale): 'rtl' | 'ltr' {
-  return isRTL(locale) ? 'rtl' : 'ltr';
+export function getDirection(locale: Locale): "rtl" | "ltr" {
+  return isRTL(locale) ? "rtl" : "ltr";
 }
 
 // Re-export next-intl utilities for convenience
@@ -59,6 +59,6 @@ export {
   useTimeZone,
   useFormatter,
   NextIntlClientProvider,
-} from 'next-intl';
+} from "next-intl";
 
-export type { AbstractIntlMessages } from 'next-intl';
+export type { AbstractIntlMessages } from "next-intl";

@@ -1,4 +1,5 @@
 # Circuit Breaker Pattern
+
 ## نمط قاطع الدائرة
 
 **Version:** 15.5.0
@@ -37,11 +38,11 @@ The Circuit Breaker pattern prevents cascading failures in distributed systems b
     └──────────────────────────────────────────────────────────┘
 ```
 
-| State | Description | Behavior |
-|-------|-------------|----------|
-| **CLOSED** | Normal operation | All requests pass through |
-| **OPEN** | Failure threshold exceeded | Requests return fallback immediately |
-| **HALF_OPEN** | Testing recovery | One request allowed to test service |
+| State         | Description                | Behavior                             |
+| ------------- | -------------------------- | ------------------------------------ |
+| **CLOSED**    | Normal operation           | All requests pass through            |
+| **OPEN**      | Failure threshold exceeded | Requests return fallback immediately |
+| **HALF_OPEN** | Testing recovery           | One request allowed to test service  |
 
 ---
 
@@ -120,11 +121,11 @@ print(status)
 
 ## Configuration | الإعداد
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `failure_threshold` | 5 | Failures before opening circuit |
-| `recovery_timeout` | 60 | Seconds to wait before testing |
-| `endpoints` | Kong cluster | List of Kong endpoints |
+| Parameter           | Default      | Description                     |
+| ------------------- | ------------ | ------------------------------- |
+| `failure_threshold` | 5            | Failures before opening circuit |
+| `recovery_timeout`  | 60           | Seconds to wait before testing  |
+| `endpoints`         | Kong cluster | List of Kong endpoints          |
 
 ### Environment Variables
 
@@ -141,7 +142,9 @@ export KONG_ENDPOINTS="http://kong-primary:8000,http://kong-secondary:8000"
 When circuit is open or all endpoints fail:
 
 ### 1. Cache Check
+
 Returns cached response if available:
+
 ```python
 {
     "_fallback": True,
@@ -152,10 +155,10 @@ Returns cached response if available:
 
 ### 2. Service-Specific Defaults
 
-| Service | Fallback Data |
-|---------|--------------|
-| field-ops | Empty list with message |
-| weather-service | Average temperature (25°C) |
+| Service              | Fallback Data                |
+| -------------------- | ---------------------------- |
+| field-ops            | Empty list with message      |
+| weather-service      | Average temperature (25°C)   |
 | notification-service | Queue notification for later |
 
 ### Custom Fallback
@@ -275,15 +278,16 @@ async def sync_task():
 
 ## Troubleshooting | استكشاف الأخطاء
 
-| Symptom | Cause | Solution |
-|---------|-------|----------|
-| Always returning fallback | Circuit stuck open | Check Kong health, wait for recovery |
-| Slow responses | High timeout values | Reduce timeout for non-critical calls |
-| No caching | Cache not populated | Ensure successful calls happen first |
-| All endpoints failing | Network issue | Check Docker network connectivity |
+| Symptom                   | Cause               | Solution                              |
+| ------------------------- | ------------------- | ------------------------------------- |
+| Always returning fallback | Circuit stuck open  | Check Kong health, wait for recovery  |
+| Slow responses            | High timeout values | Reduce timeout for non-critical calls |
+| No caching                | Cache not populated | Ensure successful calls happen first  |
+| All endpoints failing     | Network issue       | Check Docker network connectivity     |
 
 ---
 
 **Related Documents:**
+
 - [Kong HA Setup](./KONG_HA_SETUP.md)
 - [Engineering Recovery Plan](../engineering/ENGINEERING_RECOVERY_PLAN.md)

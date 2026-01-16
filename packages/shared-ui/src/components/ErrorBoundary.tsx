@@ -6,9 +6,9 @@
  * Optionally integrates with Sentry for error tracking when available
  */
 
-'use client';
+"use client";
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from "react";
 
 export interface ErrorBoundaryProps {
   children: ReactNode;
@@ -30,7 +30,10 @@ interface ErrorBoundaryState {
  * Can be used across all SAHOOL applications
  * مكون حدود الخطأ المشترك
  */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
@@ -49,7 +52,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       try {
         // Dynamically check if Sentry is available
         const Sentry = (window as any).Sentry;
-        if (Sentry && typeof Sentry.captureException === 'function') {
+        if (Sentry && typeof Sentry.captureException === "function") {
           Sentry.captureException(error, {
             extra: {
               componentStack: errorInfo.componentStack,
@@ -58,7 +61,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }
       } catch (sentryError) {
         // Silently fail if Sentry is not available
-        console.warn('Sentry not available:', sentryError);
+        console.warn("Sentry not available:", sentryError);
       }
     }
 
@@ -66,11 +69,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     this.props.onError?.(error, errorInfo);
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught:', error);
-      console.error('Component stack:', errorInfo.componentStack);
+    if (process.env.NODE_ENV === "development") {
+      console.error("ErrorBoundary caught:", error);
+      console.error("Component stack:", errorInfo.componentStack);
     } else {
-      console.error('ErrorBoundary caught:', error, errorInfo);
+      console.error("ErrorBoundary caught:", error, errorInfo);
     }
   }
 
@@ -84,7 +87,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     if (hasError && error) {
       // Custom fallback function
-      if (typeof fallback === 'function') {
+      if (typeof fallback === "function") {
         return fallback(error, this.handleRetry);
       }
 
@@ -168,9 +171,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
  */
 export function withErrorBoundary<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>
+  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">,
 ): React.FC<P> {
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  const displayName =
+    WrappedComponent.displayName || WrappedComponent.name || "Component";
 
   const WithErrorBoundary: React.FC<P> = (props) => (
     <ErrorBoundary {...errorBoundaryProps}>
@@ -196,7 +200,7 @@ export function AsyncErrorBoundary({
 }: {
   children: ReactNode;
   fallback?: ReactNode;
-  errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>;
+  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">;
 }): React.ReactElement {
   return (
     <ErrorBoundary fallback={fallback} {...errorBoundaryProps}>

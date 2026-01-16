@@ -6,7 +6,6 @@ This file defines the database schema for tasks and evidence.
 يحدد هذا الملف مخطط قاعدة البيانات للمهام والأدلة.
 """
 
-import os
 import sys
 import uuid
 from datetime import datetime

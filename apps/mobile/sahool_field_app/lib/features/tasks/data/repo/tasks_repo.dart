@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/storage/database.dart' as db;
@@ -62,7 +63,7 @@ class TasksRepo {
 
       return tasks.length;
     } catch (e) {
-      print('❌ Failed to refresh tasks: $e');
+      debugPrint('❌ Failed to refresh tasks: $e');
       rethrow;
     }
   }
@@ -99,7 +100,7 @@ class TasksRepo {
       }),
     );
 
-    print('✅ Task $taskId marked done locally + queued for sync');
+    debugPrint('✅ Task $taskId marked done locally + queued for sync');
   }
 
   /// Update task status with offline-first pattern

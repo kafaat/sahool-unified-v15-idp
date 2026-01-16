@@ -48,19 +48,24 @@ make load
 ## 📊 View Results
 
 ### In Terminal
+
 Results are printed after each test with key metrics:
+
 - Response times (P95, P99)
 - Error rate
 - Request rate
 - Check success rate
 
 ### In Grafana (if using Docker)
+
 1. Open http://localhost:3030
 2. Login: admin/admin
 3. Browse dashboards for real-time metrics
 
 ### In Files
+
 Results are saved in `results/` directory:
+
 ```bash
 ls -lh results/
 ```
@@ -97,6 +102,7 @@ nano .env
 ```
 
 Key settings:
+
 ```bash
 FIELD_SERVICE_URL=http://localhost:8080
 WEATHER_URL=http://localhost:8092
@@ -105,17 +111,18 @@ BILLING_URL=http://localhost:8089
 
 ## 📝 Test Types
 
-| Test | Duration | VUs | Command |
-|------|----------|-----|---------|
-| Smoke | 1 min | 1 | `make smoke` |
-| Load | 10 min | 50 | `make load` |
-| Stress | 15 min | 200 | `make stress` |
-| Spike | 8 min | 200 | `make spike` |
-| Soak | 2 hours | 20 | `make soak` |
+| Test   | Duration | VUs | Command       |
+| ------ | -------- | --- | ------------- |
+| Smoke  | 1 min    | 1   | `make smoke`  |
+| Load   | 10 min   | 50  | `make load`   |
+| Stress | 15 min   | 200 | `make stress` |
+| Spike  | 8 min    | 200 | `make spike`  |
+| Soak   | 2 hours  | 20  | `make soak`   |
 
 ## ❓ Troubleshooting
 
 **Services not reachable?**
+
 ```bash
 # Check if SAHOOL services are running
 docker ps | grep sahool
@@ -125,12 +132,14 @@ make check
 ```
 
 **Tests failing?**
+
 ```bash
 # Run in debug mode
 k6 run --http-debug scenarios/smoke.js
 ```
 
 **Need help?**
+
 ```bash
 # Show all commands
 make help
@@ -156,6 +165,7 @@ cat README.md
 ---
 
 **Ready to test?** Start with:
+
 ```bash
 make smoke
 ```

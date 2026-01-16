@@ -109,34 +109,40 @@ openapi-generator-cli generate \
 **Base URL**: `https://api.sahool.io/v1`
 
 #### Crop Intelligence
+
 - Disease detection using deep learning
 - Crop health diagnostics
 - Zone-based field analysis
 - VRT export for precision agriculture
 
 **Key Endpoints**:
+
 - `POST /crop-intelligence/disease-detection` - Detect diseases from images
 - `GET /crop-intelligence/fields/{field_id}/diagnosis` - Complete field diagnosis
 - `POST /crop-intelligence/fields/{field_id}/zones/{zone_id}/observations` - Submit observations
 
 #### Fertilizer Advisor
+
 - NPK recommendations
 - Soil analysis interpretation
 - Crop-specific fertilization plans
 - Nutrient deficiency diagnosis
 
 **Key Endpoints**:
+
 - `POST /fertilizer/recommend` - Get fertilizer recommendations
 - `POST /fertilizer/soil-analysis/interpret` - Interpret soil test results
 - `GET /fertilizer/deficiency-symptoms/{crop}` - Get deficiency information
 
 #### Yield Prediction
+
 - ML-powered yield forecasting
 - Revenue estimation
 - Weather and soil integration
 - 30+ Yemen crops supported
 
 **Key Endpoints**:
+
 - `POST /yield/predict` - Predict crop yield
 - `GET /yield/crops` - List supported crops
 - `GET /yield/price/{crop_type}` - Get current prices
@@ -146,54 +152,64 @@ openapi-generator-cli generate \
 **Base URL**: `https://api.sahool.io/v1`
 
 #### NDVI Analysis
+
 - Vegetation health monitoring
 - Anomaly detection
 - Zone-based analysis
 - Statistical trend analysis
 
 **Key Endpoints**:
+
 - `POST /ndvi/compute` - Compute NDVI for field
 - `POST /ndvi/anomaly` - Detect NDVI anomalies
 - `POST /ndvi/zones` - Analyze NDVI zones
 
 #### Vegetation Analysis
+
 - 17+ vegetation indices (NDVI, EVI, SAVI, LAI, NDRE, etc.)
 - Chlorophyll and nitrogen assessment
 - Water stress detection
 - Crop-specific interpretation
 
 **Key Endpoints**:
+
 - `POST /vegetation/indices` - Calculate all indices
 - `POST /vegetation/interpret` - Interpret index values
 
 #### Satellite Imagery
+
 - Multi-source support (Sentinel-2, Landsat-8/9, MODIS)
 - Automatic cloud filtering
 - Band-level data access
 - Temporal compositing
 
 **Key Endpoints**:
+
 - `POST /satellite/imagery` - Acquire satellite imagery
 - `POST /satellite/analyze` - Complete field analysis
 - `GET /satellite/sources` - List available sources
 
 #### LAI Estimation
+
 - Leaf Area Index calculation
 - Growth monitoring
 - Canopy development tracking
 - Time series analysis
 
 **Key Endpoints**:
+
 - `POST /lai/estimate` - Estimate LAI from indices
 - `POST /lai/timeseries` - Get LAI time series
 
 #### Time Series
+
 - Historical vegetation data
 - Multi-index time series
 - Trend analysis
 - Data export (CSV, GeoJSON, NetCDF)
 
 **Key Endpoints**:
+
 - `POST /timeseries/vegetation` - Get vegetation time series
 - `POST /timeseries/export` - Export data
 - `POST /timeseries/compare` - Compare multiple fields
@@ -225,11 +241,13 @@ curl -X GET https://api.sahool.io/v1/crop-intelligence/fields/field_123/diagnosi
 ## Rate Limits
 
 ### AI Services
+
 - **Analysis Endpoints**: 100 requests/minute per user
 - **Prediction Endpoints**: 50 requests/minute per user
 - **Batch Operations**: 1000 requests/hour per tenant
 
 ### Analysis Services
+
 - **Real-time Analysis**: 50 requests/minute per user
 - **Time Series (Cached)**: 500 requests/minute per user
 - **Data Export**: 20 requests/minute per user
@@ -459,6 +477,7 @@ print(f"Revenue: ${prediction['estimated_revenue_usd']:,.2f}")
 ## Support
 
 For API support and questions:
+
 - Email: support@sahool.io
 - Documentation: https://docs.sahool.io
 - GitHub Issues: https://github.com/sahool/platform/issues

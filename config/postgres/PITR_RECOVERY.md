@@ -97,6 +97,7 @@ docker build -f Dockerfile.walg -t sahool/postgres-walg:16-3.4 .
 ```
 
 This script will:
+
 - Validate WAL-G configuration
 - Create S3 bucket if it doesn't exist
 - Enable bucket versioning
@@ -114,6 +115,7 @@ docker-compose exec postgres psql -U sahool -c "SHOW wal_level;"
 ```
 
 Expected output:
+
 ```
 archive_mode | on
 archive_command | /usr/local/bin/wal-archive.sh %p %f
@@ -551,12 +553,14 @@ vim config/postgres/PITR_RECOVERY.md
 #### Issue: WAL Archiving Fails
 
 **Symptoms:**
+
 ```
 ERROR: could not archive WAL file
 failed_count increasing in pg_stat_archiver
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check archive logs
 docker-compose exec postgres tail -50 /var/log/postgresql/wal-archive.log
@@ -569,6 +573,7 @@ docker-compose exec postgres env | grep AWS
 ```
 
 **Solutions:**
+
 1. Verify S3 credentials in `.env`
 2. Check S3 endpoint is accessible
 3. Ensure S3 bucket exists and has write permissions
@@ -577,12 +582,14 @@ docker-compose exec postgres env | grep AWS
 #### Issue: WAL Restore Fails During Recovery
 
 **Symptoms:**
+
 ```
 FATAL: could not restore WAL segment
 WARNING: wal-restore.sh returned exit code 1
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check restore logs
 docker-compose logs postgres | grep -i restore
@@ -592,6 +599,7 @@ docker-compose exec postgres /usr/local/bin/wal-restore.sh 000000010000000000000
 ```
 
 **Solutions:**
+
 1. Verify WAL files exist in S3
 2. Check network connectivity to S3
 3. Ensure correct WALG_S3_PREFIX
@@ -600,10 +608,12 @@ docker-compose exec postgres /usr/local/bin/wal-restore.sh 000000010000000000000
 #### Issue: Backup Takes Too Long
 
 **Symptoms:**
+
 - Backup duration > 1 hour
 - High CPU/memory usage during backup
 
 **Solutions:**
+
 ```bash
 # 1. Enable delta backups
 # In .env:
@@ -625,11 +635,13 @@ SELECT pg_size_pretty(pg_database_size('sahool'));
 #### Issue: Out of Disk Space
 
 **Symptoms:**
+
 ```
 ERROR: could not extend file: No space left on device
 ```
 
 **Solutions:**
+
 ```bash
 # 1. Check disk usage
 docker-compose exec postgres df -h
@@ -666,34 +678,34 @@ For additional support:
 
 ### Environment Variables Reference
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `WALG_S3_PREFIX` | S3 path for backups | `s3://sahool-wal-archive/pg-primary` |
-| `AWS_ENDPOINT` | S3 endpoint URL | `http://minio:9000` |
-| `AWS_ACCESS_KEY_ID` | S3 access key | `${MINIO_ROOT_USER}` |
-| `AWS_SECRET_ACCESS_KEY` | S3 secret key | `${MINIO_ROOT_PASSWORD}` |
-| `AWS_REGION` | S3 region | `us-east-1` |
-| `WALG_COMPRESSION_METHOD` | Compression algorithm | `brotli` |
-| `WALG_DELTA_MAX_STEPS` | Delta backup depth | `6` |
-| `WALG_UPLOAD_CONCURRENCY` | Upload threads | `4` |
-| `WALG_DOWNLOAD_CONCURRENCY` | Download threads | `4` |
-| `WALG_RETAIN_BACKUPS` | Backup retention count | `7` |
+| Variable                    | Description            | Default                              |
+| --------------------------- | ---------------------- | ------------------------------------ |
+| `WALG_S3_PREFIX`            | S3 path for backups    | `s3://sahool-wal-archive/pg-primary` |
+| `AWS_ENDPOINT`              | S3 endpoint URL        | `http://minio:9000`                  |
+| `AWS_ACCESS_KEY_ID`         | S3 access key          | `${MINIO_ROOT_USER}`                 |
+| `AWS_SECRET_ACCESS_KEY`     | S3 secret key          | `${MINIO_ROOT_PASSWORD}`             |
+| `AWS_REGION`                | S3 region              | `us-east-1`                          |
+| `WALG_COMPRESSION_METHOD`   | Compression algorithm  | `brotli`                             |
+| `WALG_DELTA_MAX_STEPS`      | Delta backup depth     | `6`                                  |
+| `WALG_UPLOAD_CONCURRENCY`   | Upload threads         | `4`                                  |
+| `WALG_DOWNLOAD_CONCURRENCY` | Download threads       | `4`                                  |
+| `WALG_RETAIN_BACKUPS`       | Backup retention count | `7`                                  |
 
 ### Backup Size Estimates
 
 Typical backup sizes for SAHOOL database:
 
 | Database Size | Full Backup | Delta Backup | WAL per Day |
-|--------------|-------------|--------------|-------------|
-| 10 GB | 3 GB | 500 MB | 2 GB |
-| 50 GB | 15 GB | 2 GB | 10 GB |
-| 100 GB | 30 GB | 5 GB | 20 GB |
+| ------------- | ----------- | ------------ | ----------- |
+| 10 GB         | 3 GB        | 500 MB       | 2 GB        |
+| 50 GB         | 15 GB       | 2 GB         | 10 GB       |
+| 100 GB        | 30 GB       | 5 GB         | 20 GB       |
 
 ### Recovery Time Objectives
 
-| Scenario | RTO (Recovery Time Objective) |
-|----------|-------------------------------|
-| Latest state recovery | 15-30 minutes |
-| Point-in-time recovery (< 24h) | 30-60 minutes |
-| Point-in-time recovery (> 24h) | 1-4 hours |
-| Complete site recovery | 2-6 hours |
+| Scenario                       | RTO (Recovery Time Objective) |
+| ------------------------------ | ----------------------------- |
+| Latest state recovery          | 15-30 minutes                 |
+| Point-in-time recovery (< 24h) | 30-60 minutes                 |
+| Point-in-time recovery (> 24h) | 1-4 hours                     |
+| Complete site recovery         | 2-6 hours                     |

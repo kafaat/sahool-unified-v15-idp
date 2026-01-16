@@ -19,6 +19,7 @@ This comprehensive audit evaluates the database secrets management practices acr
 ### Key Findings
 
 ✅ **Strengths:**
+
 - Multi-backend secrets management infrastructure (Environment, Vault, AWS, Azure)
 - No hardcoded credentials in source code (all fixed in previous audit)
 - Comprehensive .gitignore protection
@@ -27,6 +28,7 @@ This comprehensive audit evaluates the database secrets management practices acr
 - Database credentials properly externalized
 
 ⚠️ **Areas for Improvement:**
+
 - No automated secret rotation policy
 - Limited audit logging for secret access
 - No secrets versioning (except when using Vault)
@@ -39,13 +41,13 @@ This comprehensive audit evaluates the database secrets management practices acr
 
 ### 1.1 Storage Methods
 
-| Method | Implementation | Score | Status |
-|--------|----------------|-------|--------|
-| Environment Variables | ✅ Primary method | 9/10 | Implemented |
-| HashiCorp Vault | ✅ Production-ready | 9/10 | Available |
-| AWS Secrets Manager | ✅ Implemented | 8/10 | Available |
-| Azure Key Vault | ✅ Implemented | 8/10 | Available |
-| Hardcoded Credentials | ❌ None found | 10/10 | Clean |
+| Method                | Implementation      | Score | Status      |
+| --------------------- | ------------------- | ----- | ----------- |
+| Environment Variables | ✅ Primary method   | 9/10  | Implemented |
+| HashiCorp Vault       | ✅ Production-ready | 9/10  | Available   |
+| AWS Secrets Manager   | ✅ Implemented      | 8/10  | Available   |
+| Azure Key Vault       | ✅ Implemented      | 8/10  | Available   |
+| Hardcoded Credentials | ❌ None found       | 10/10 | Clean       |
 
 **Analysis:**
 
@@ -78,12 +80,14 @@ postgres:
 ### 1.2 Database Password Complexity
 
 **Current Requirements:**
+
 - ✅ Minimum 32 characters recommended in documentation
 - ✅ Generated using `openssl rand -base64 32` (256-bit entropy)
 - ✅ Special characters supported
 - ✅ No default/weak passwords in production code
 
 **Example from .env.example:**
+
 ```bash
 POSTGRES_PASSWORD=change_this_secure_password_in_production
 # Comments indicate secure generation method
@@ -109,6 +113,7 @@ DATABASE_URL_POOLED = os.getenv(
 ```
 
 **Previous Issues (All Fixed):**
+
 - ❌ `postgresql://user:password@host/db` - **FIXED in previous audit**
 - All 11 hardcoded credential instances removed
 
@@ -121,6 +126,7 @@ DATABASE_URL_POOLED = os.getenv(
 ### 2.1 .env File Security
 
 **Files Found:**
+
 ```
 ✅ .env.example           # Template with placeholders
 ✅ .gitignore             # Properly excludes .env files
@@ -155,6 +161,7 @@ firebase-credentials.json
 **Validation Script:** `tools/env/validate_env.py` (referenced in CI/CD)
 
 **CI/CD Validation:**
+
 ```yaml
 # .github/workflows/ci.yml
 env-validation:
@@ -172,13 +179,13 @@ env-validation:
 
 **Database-Related Secrets:**
 
-| Secret Key | Location | Type | Rotation |
-|------------|----------|------|----------|
-| `DATABASE_URL` | .env | PostgreSQL connection | Manual |
-| `DATABASE_URL_POOLED` | .env | PgBouncer connection | Manual |
-| `POSTGRES_PASSWORD` | .env | Database password | Manual |
-| `POSTGRES_USER` | .env | Database username | Rarely |
-| `PGBOUNCER_AUTH_USER` | Docker | Pool auth | Manual |
+| Secret Key            | Location | Type                  | Rotation |
+| --------------------- | -------- | --------------------- | -------- |
+| `DATABASE_URL`        | .env     | PostgreSQL connection | Manual   |
+| `DATABASE_URL_POOLED` | .env     | PgBouncer connection  | Manual   |
+| `POSTGRES_PASSWORD`   | .env     | Database password     | Manual   |
+| `POSTGRES_USER`       | .env     | Database username     | Rarely   |
+| `PGBOUNCER_AUTH_USER` | Docker   | Pool auth             | Manual   |
 
 **Score: 7/10** - Good inventory, needs automated rotation
 
@@ -198,7 +205,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: sahool-postgresql-secret
-  namespace: {{ include "infra.namespace" . }}
+  namespace: { { include "infra.namespace" . } }
   annotations:
     # Add this annotation if using Sealed Secrets
     # sealedsecrets.bitnami.com/managed: "true"
@@ -211,12 +218,14 @@ data:
 ```
 
 **Analysis:**
+
 - ⚠️ Placeholder secrets with "changeme" (base64: `Y2hhbmdlbWU=`)
 - ✅ Clear documentation to replace in production
 - ✅ Annotation support for Sealed Secrets
 - ⚠️ No integration with external secrets operator
 
 **Recommendations:**
+
 1. Implement External Secrets Operator for automatic sync
 2. Use Sealed Secrets for GitOps workflows
 3. Remove placeholder values entirely from templates
@@ -275,6 +284,7 @@ class VaultClient:
 **Authentication Methods:**
 
 1. **Token-based** (Development)
+
    ```bash
    export VAULT_TOKEN=dev-root-token
    ```
@@ -287,12 +297,12 @@ class VaultClient:
 
 **Secret Paths:**
 
-| Path | Description | Access |
-|------|-------------|--------|
-| `secret/database/postgres` | PostgreSQL credentials | Read |
-| `secret/auth/jwt` | JWT signing config | Read |
-| `secret/cache/redis` | Redis connection | Read |
-| `secret/external/openweather` | Weather API | Read |
+| Path                          | Description            | Access |
+| ----------------------------- | ---------------------- | ------ |
+| `secret/database/postgres`    | PostgreSQL credentials | Read   |
+| `secret/auth/jwt`             | JWT signing config     | Read   |
+| `secret/cache/redis`          | Redis connection       | Read   |
+| `secret/external/openweather` | Weather API            | Read   |
 
 **Vault Configuration:**
 
@@ -417,18 +427,18 @@ env:
 
 Referenced in `/home/user/sahool-unified-v15-idp/docs/SECRETS_SETUP.md`:
 
-| Secret Name | Purpose | Environment |
-|-------------|---------|-------------|
-| `KUBE_CONFIG_STAGING` | K8s deployment | Staging |
-| `KUBE_CONFIG_PRODUCTION` | K8s deployment | Production |
-| `POSTGRES_PASSWORD` | Database | Both |
-| `REDIS_PASSWORD` | Cache | Both |
-| `JWT_SECRET` | Authentication | Both |
-| `CODECOV_TOKEN` | Coverage reporting | CI |
-| `STRIPE_SECRET_KEY` | Payments | Production |
-| `OPENWEATHER_API_KEY` | Weather data | Both |
-| `SENTINEL_HUB_ID` | Satellite imagery | Both |
-| `SENTINEL_HUB_SECRET` | Satellite imagery | Both |
+| Secret Name              | Purpose            | Environment |
+| ------------------------ | ------------------ | ----------- |
+| `KUBE_CONFIG_STAGING`    | K8s deployment     | Staging     |
+| `KUBE_CONFIG_PRODUCTION` | K8s deployment     | Production  |
+| `POSTGRES_PASSWORD`      | Database           | Both        |
+| `REDIS_PASSWORD`         | Cache              | Both        |
+| `JWT_SECRET`             | Authentication     | Both        |
+| `CODECOV_TOKEN`          | Coverage reporting | CI          |
+| `STRIPE_SECRET_KEY`      | Payments           | Production  |
+| `OPENWEATHER_API_KEY`    | Weather data       | Both        |
+| `SENTINEL_HUB_ID`        | Satellite imagery  | Both        |
+| `SENTINEL_HUB_SECRET`    | Satellite imagery  | Both        |
 
 **Security Features:**
 
@@ -485,13 +495,13 @@ security:
 
 **Generated Secrets:**
 
-| Component | Strength | Method |
-|-----------|----------|--------|
-| JWT RSA Keys | 4096-bit | `openssl genrsa` |
+| Component         | Strength | Method                 |
+| ----------------- | -------- | ---------------------- |
+| JWT RSA Keys      | 4096-bit | `openssl genrsa`       |
 | Database Password | 32 chars | `openssl rand -base64` |
-| NATS Credentials | 48 chars | `openssl rand -base64` |
-| API Keys | 64 chars | `openssl rand -base64` |
-| Encryption Keys | 32 bytes | `openssl rand -base64` |
+| NATS Credentials  | 48 chars | `openssl rand -base64` |
+| API Keys          | 64 chars | `openssl rand -base64` |
+| Encryption Keys   | 32 bytes | `openssl rand -base64` |
 
 **Rotation Process:**
 
@@ -519,14 +529,14 @@ chmod 600 "$jwt_dir/private.pem"
 
 **Recommended Rotation Schedule:**
 
-| Secret Type | Rotation Frequency | Current | Recommended |
-|-------------|-------------------|---------|-------------|
-| Database passwords | Every 90 days | Manual | Automated |
-| JWT signing keys | Every 180 days | Manual | Automated |
-| API keys | Every 90 days | Manual | Manual |
-| Redis passwords | Every 90 days | Manual | Automated |
-| Encryption keys | Every 365 days | Manual | Manual |
-| Service accounts | On team changes | Manual | Manual |
+| Secret Type        | Rotation Frequency | Current | Recommended |
+| ------------------ | ------------------ | ------- | ----------- |
+| Database passwords | Every 90 days      | Manual  | Automated   |
+| JWT signing keys   | Every 180 days     | Manual  | Automated   |
+| API keys           | Every 90 days      | Manual  | Manual      |
+| Redis passwords    | Every 90 days      | Manual  | Automated   |
+| Encryption keys    | Every 365 days     | Manual  | Manual      |
+| Service accounts   | On team changes    | Manual  | Manual      |
 
 **Recommended Implementation:**
 
@@ -570,6 +580,7 @@ postgres:
 **Recommendations:**
 
 1. Enable PostgreSQL SSL/TLS:
+
    ```sql
    ALTER SYSTEM SET ssl = on;
    ALTER SYSTEM SET ssl_cert_file = '/var/lib/postgresql/server.crt';
@@ -683,10 +694,10 @@ SENSITIVE_PATTERNS = [
 
 **Issues Found and Fixed:** 11 critical issues
 
-| Issue | File | Status |
-|-------|------|--------|
-| Hardcoded DB password | `config/base.env` | ✅ Fixed |
-| Hardcoded credentials | `apps/services/*/database.py` (7 files) | ✅ Fixed |
+| Issue                      | File                                           | Status   |
+| -------------------------- | ---------------------------------------------- | -------- |
+| Hardcoded DB password      | `config/base.env`                              | ✅ Fixed |
+| Hardcoded credentials      | `apps/services/*/database.py` (7 files)        | ✅ Fixed |
 | Example hardcoded password | `apps/kernel/common/database/example_usage.py` | ✅ Fixed |
 
 **Verification:** ✅ All issues resolved
@@ -721,26 +732,26 @@ SENSITIVE_PATTERNS = [
 
 ### 11.1 Security Standards
 
-| Standard | Requirement | Status | Score |
-|----------|-------------|--------|-------|
-| **OWASP Top 10** | No hardcoded secrets | ✅ Pass | 10/10 |
-| **CIS Benchmarks** | Password complexity | ✅ Pass | 9/10 |
-| **PCI DSS** | Encryption at rest | ⚠️ Partial | 7/10 |
-| **GDPR** | Data encryption | ✅ Pass | 9/10 |
-| **SOC 2** | Access logging | ⚠️ Partial | 6/10 |
-| **ISO 27001** | Key management | ✅ Pass | 8/10 |
+| Standard           | Requirement          | Status     | Score |
+| ------------------ | -------------------- | ---------- | ----- |
+| **OWASP Top 10**   | No hardcoded secrets | ✅ Pass    | 10/10 |
+| **CIS Benchmarks** | Password complexity  | ✅ Pass    | 9/10  |
+| **PCI DSS**        | Encryption at rest   | ⚠️ Partial | 7/10  |
+| **GDPR**           | Data encryption      | ✅ Pass    | 9/10  |
+| **SOC 2**          | Access logging       | ⚠️ Partial | 6/10  |
+| **ISO 27001**      | Key management       | ✅ Pass    | 8/10  |
 
 **Overall Compliance Score: 8.2/10**
 
 ### 11.2 Best Practices Adherence
 
-| Practice | Status | Evidence |
-|----------|--------|----------|
-| Principle of Least Privilege | ✅ Yes | Docker security_opt, K8s RBAC |
-| Defense in Depth | ✅ Yes | Multiple secret backends |
-| Separation of Duties | ⚠️ Partial | No separate rotation role |
-| Secure by Default | ✅ Yes | Required env vars |
-| Zero Trust | ⚠️ Partial | mTLS not fully implemented |
+| Practice                     | Status     | Evidence                      |
+| ---------------------------- | ---------- | ----------------------------- |
+| Principle of Least Privilege | ✅ Yes     | Docker security_opt, K8s RBAC |
+| Defense in Depth             | ✅ Yes     | Multiple secret backends      |
+| Separation of Duties         | ⚠️ Partial | No separate rotation role     |
+| Secure by Default            | ✅ Yes     | Required env vars             |
+| Zero Trust                   | ⚠️ Partial | mTLS not fully implemented    |
 
 **Score: 7.5/10**
 
@@ -750,17 +761,17 @@ SENSITIVE_PATTERNS = [
 
 ### 12.1 Component Scores
 
-| Component | Score | Weight | Weighted |
-|-----------|-------|--------|----------|
-| Database Credentials Management | 9/10 | 20% | 1.80 |
-| Environment Variables | 9/10 | 15% | 1.35 |
-| Kubernetes Secrets | 6/10 | 10% | 0.60 |
-| Vault Integration | 9/10 | 15% | 1.35 |
-| Cloud Secrets (AWS/Azure) | 8/10 | 10% | 0.80 |
-| CI/CD Secrets | 9/10 | 10% | 0.90 |
-| Rotation Policies | 5/10 | 10% | 0.50 |
-| Encryption | 8/10 | 5% | 0.40 |
-| Audit Logging | 5/10 | 5% | 0.25 |
+| Component                       | Score | Weight | Weighted |
+| ------------------------------- | ----- | ------ | -------- |
+| Database Credentials Management | 9/10  | 20%    | 1.80     |
+| Environment Variables           | 9/10  | 15%    | 1.35     |
+| Kubernetes Secrets              | 6/10  | 10%    | 0.60     |
+| Vault Integration               | 9/10  | 15%    | 1.35     |
+| Cloud Secrets (AWS/Azure)       | 8/10  | 10%    | 0.80     |
+| CI/CD Secrets                   | 9/10  | 10%    | 0.90     |
+| Rotation Policies               | 5/10  | 10%    | 0.50     |
+| Encryption                      | 8/10  | 5%     | 0.40     |
+| Audit Logging                   | 5/10  | 5%     | 0.25     |
 
 **Total Weighted Score: 7.95/10**
 
@@ -1036,6 +1047,7 @@ All critical vulnerabilities from the previous audit (11 hardcoded credentials) 
    # Secrets Rotation Policy
 
    ## Schedule
+
    - Database passwords: Every 90 days
    - JWT signing keys: Every 180 days
    - API keys: Every 90 days
@@ -1043,6 +1055,7 @@ All critical vulnerabilities from the previous audit (11 hardcoded credentials) 
    - Encryption keys: Every 365 days
 
    ## Process
+
    1. Generate new secret
    2. Update in secrets manager (Vault/AWS/Azure)
    3. Deploy to staging environment
@@ -1051,6 +1064,7 @@ All critical vulnerabilities from the previous audit (11 hardcoded credentials) 
    6. Revoke old secret after grace period (7 days)
 
    ## Responsible Team
+
    - Primary: DevOps Team
    - Backup: Security Team
    - Approval: CTO/CISO
@@ -1058,12 +1072,12 @@ All critical vulnerabilities from the previous audit (11 hardcoded credentials) 
 
 2. **Secret Access Control Matrix**
 
-   | Secret | Developers | DevOps | Security | CI/CD |
-   |--------|-----------|---------|----------|-------|
-   | DB Password (Dev) | ✅ Read | ✅ Write | ✅ Read | ✅ Read |
-   | DB Password (Prod) | ❌ No | ✅ Write | ✅ Read | ✅ Read |
-   | JWT Secret (Prod) | ❌ No | ✅ Write | ✅ Read | ✅ Read |
-   | API Keys (External) | ✅ Read | ✅ Write | ✅ Read | ✅ Read |
+   | Secret              | Developers | DevOps   | Security | CI/CD   |
+   | ------------------- | ---------- | -------- | -------- | ------- |
+   | DB Password (Dev)   | ✅ Read    | ✅ Write | ✅ Read  | ✅ Read |
+   | DB Password (Prod)  | ❌ No      | ✅ Write | ✅ Read  | ✅ Read |
+   | JWT Secret (Prod)   | ❌ No      | ✅ Write | ✅ Read  | ✅ Read |
+   | API Keys (External) | ✅ Read    | ✅ Write | ✅ Read  | ✅ Read |
 
 3. **Incident Response Plan**
 
@@ -1071,23 +1085,27 @@ All critical vulnerabilities from the previous audit (11 hardcoded credentials) 
    # Secret Exposure Incident Response
 
    ## Detection
+
    - GitHub secret scanning alerts
    - Manual discovery
    - Security audit findings
 
    ## Immediate Actions (Within 1 hour)
+
    1. Revoke exposed secret immediately
    2. Generate new secret
    3. Deploy new secret to all environments
    4. Notify security team
 
    ## Investigation (Within 24 hours)
+
    1. Determine exposure scope
    2. Check access logs
    3. Identify affected systems
    4. Document timeline
 
    ## Remediation (Within 48 hours)
+
    1. Rotate all related secrets
    2. Review and improve processes
    3. Update documentation
@@ -1226,6 +1244,7 @@ fi
 The SAHOOL Unified Platform demonstrates **strong foundational security** in database secrets management with a score of **7.5/10 (B+ Grade)**. The platform has successfully eliminated all hardcoded credentials, implements comprehensive encryption, and provides multiple secrets backend options suitable for various deployment scenarios.
 
 **Key Strengths:**
+
 - Multi-backend secrets architecture (Environment, Vault, AWS, Azure)
 - Zero hardcoded credentials after previous audit remediation
 - Strong encryption implementation (AES-256-GCM)
@@ -1233,6 +1252,7 @@ The SAHOOL Unified Platform demonstrates **strong foundational security** in dat
 - Comprehensive PII masking in logs
 
 **Critical Gaps:**
+
 - No automated secret rotation policy
 - Manual Kubernetes secrets management
 - Limited centralized audit logging
@@ -1245,6 +1265,7 @@ The SAHOOL Unified Platform demonstrates **strong foundational security** in dat
 The platform is **production-ready from a secrets security perspective**, but operational maturity can be improved through automation of rotation policies and enhanced monitoring.
 
 **Risk Breakdown:**
+
 - **Critical Risk:** None
 - **High Risk:** 2 items (rotation automation, K8s secrets)
 - **Medium Risk:** 4 items (audit logging, versioning, monitoring, encryption)
@@ -1253,16 +1274,19 @@ The platform is **production-ready from a secrets security perspective**, but op
 ### 17.3 Next Steps
 
 **Immediate (Week 1-2):**
+
 1. Enable Vault audit logging
 2. Implement External Secrets Operator for K8s
 3. Document current secret rotation schedule
 
 **Short-term (Month 1-3):**
+
 1. Deploy automated rotation for database credentials
 2. Set up centralized secrets monitoring dashboard
 3. Implement PostgreSQL SSL/TLS
 
 **Long-term (Month 4-6):**
+
 1. Deploy Vault in HA configuration
 2. Expand column-level encryption
 3. Implement anomaly detection for secret access
@@ -1300,33 +1324,33 @@ The platform is **production-ready from a secrets security perspective**, but op
 
 ### Database Secrets
 
-| Secret Name | Type | Storage | Rotation | Last Rotated |
-|-------------|------|---------|----------|--------------|
-| `POSTGRES_PASSWORD` | Password | Env/Vault | Manual | Unknown |
-| `POSTGRES_USER` | Username | Env/Vault | Never | N/A |
-| `DATABASE_URL` | Connection String | Env/Vault | Manual | Unknown |
-| `DATABASE_URL_POOLED` | Connection String | Env/Vault | Manual | Unknown |
-| `REDIS_PASSWORD` | Password | Env/Vault | Manual | Unknown |
-| `PGBOUNCER_AUTH_USER` | Username | Env | Never | N/A |
+| Secret Name           | Type              | Storage   | Rotation | Last Rotated |
+| --------------------- | ----------------- | --------- | -------- | ------------ |
+| `POSTGRES_PASSWORD`   | Password          | Env/Vault | Manual   | Unknown      |
+| `POSTGRES_USER`       | Username          | Env/Vault | Never    | N/A          |
+| `DATABASE_URL`        | Connection String | Env/Vault | Manual   | Unknown      |
+| `DATABASE_URL_POOLED` | Connection String | Env/Vault | Manual   | Unknown      |
+| `REDIS_PASSWORD`      | Password          | Env/Vault | Manual   | Unknown      |
+| `PGBOUNCER_AUTH_USER` | Username          | Env       | Never    | N/A          |
 
 ### Authentication Secrets
 
-| Secret Name | Type | Storage | Rotation | Last Rotated |
-|-------------|------|---------|----------|--------------|
-| `JWT_SECRET_KEY` | Signing Key | Env/Vault | Manual | Unknown |
-| `JWT_PRIVATE_KEY` | RSA Private | Vault | Manual | Unknown |
-| `JWT_PUBLIC_KEY` | RSA Public | Vault | Manual | Unknown |
-| `APP_SECRET_KEY` | Application Key | Env/Vault | Manual | Unknown |
+| Secret Name       | Type            | Storage   | Rotation | Last Rotated |
+| ----------------- | --------------- | --------- | -------- | ------------ |
+| `JWT_SECRET_KEY`  | Signing Key     | Env/Vault | Manual   | Unknown      |
+| `JWT_PRIVATE_KEY` | RSA Private     | Vault     | Manual   | Unknown      |
+| `JWT_PUBLIC_KEY`  | RSA Public      | Vault     | Manual   | Unknown      |
+| `APP_SECRET_KEY`  | Application Key | Env/Vault | Manual   | Unknown      |
 
 ### External API Secrets
 
-| Secret Name | Type | Storage | Rotation | Last Rotated |
-|-------------|------|---------|----------|--------------|
-| `OPENWEATHER_API_KEY` | API Key | Env/Vault | Manual | Unknown |
-| `SENTINEL_HUB_CLIENT_ID` | Client ID | Env/Vault | Manual | Unknown |
-| `SENTINEL_HUB_CLIENT_SECRET` | Client Secret | Env/Vault | Manual | Unknown |
-| `STRIPE_SECRET_KEY` | API Key | GitHub Secrets | Manual | Unknown |
-| `ANTHROPIC_API_KEY` | API Key | Env/Vault | Manual | Unknown |
+| Secret Name                  | Type          | Storage        | Rotation | Last Rotated |
+| ---------------------------- | ------------- | -------------- | -------- | ------------ |
+| `OPENWEATHER_API_KEY`        | API Key       | Env/Vault      | Manual   | Unknown      |
+| `SENTINEL_HUB_CLIENT_ID`     | Client ID     | Env/Vault      | Manual   | Unknown      |
+| `SENTINEL_HUB_CLIENT_SECRET` | Client Secret | Env/Vault      | Manual   | Unknown      |
+| `STRIPE_SECRET_KEY`          | API Key       | GitHub Secrets | Manual   | Unknown      |
+| `ANTHROPIC_API_KEY`          | API Key       | Env/Vault      | Manual   | Unknown      |
 
 ---
 

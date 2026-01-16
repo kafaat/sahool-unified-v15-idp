@@ -33,8 +33,8 @@ export interface RateLimitEntry {
 
 const DEFAULT_CONFIG: SecurityConfig = {
   csrfEnabled: true,
-  csrfTokenHeader: 'X-CSRF-Token',
-  csrfCookieName: 'csrf_token',
+  csrfTokenHeader: "X-CSRF-Token",
+  csrfCookieName: "csrf_token",
   rateLimitWindow: 60000, // 1 minute
   rateLimitMaxRequests: 100,
 };
@@ -67,9 +67,9 @@ export function configureSecurity(options: Partial<SecurityConfig>): void {
  * الحصول على رمز CSRF من الكوكي
  */
 export function getCsrfToken(): string | null {
-  if (typeof document === 'undefined') return null;
+  if (typeof document === "undefined") return null;
 
-  const cookieName = config.csrfCookieName || 'csrf_token';
+  const cookieName = config.csrfCookieName || "csrf_token";
   const match = document.cookie.match(new RegExp(`(^| )${cookieName}=([^;]+)`));
   return match ? (match[2] ?? null) : null;
 }
@@ -85,7 +85,7 @@ export function getCsrfHeaders(): Record<string, string> {
   if (!token) return {};
 
   return {
-    [config.csrfTokenHeader || 'X-CSRF-Token']: token,
+    [config.csrfTokenHeader || "X-CSRF-Token"]: token,
   };
 }
 
@@ -95,13 +95,13 @@ export function getCsrfHeaders(): Record<string, string> {
  */
 export function secureFetch(
   input: RequestInfo | URL,
-  init?: RequestInit
+  init?: RequestInit,
 ): Promise<Response> {
   const csrfHeaders = getCsrfHeaders();
 
   const secureInit: RequestInit = {
     ...init,
-    credentials: 'same-origin',
+    credentials: "same-origin",
     headers: {
       ...init?.headers,
       ...csrfHeaders,
@@ -116,14 +116,14 @@ export function secureFetch(
 // ═══════════════════════════════════════════════════════════════════════════
 
 const HTML_ENTITIES: Record<string, string> = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#x27;',
-  '/': '&#x2F;',
-  '`': '&#x60;',
-  '=': '&#x3D;',
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#x27;",
+  "/": "&#x2F;",
+  "`": "&#x60;",
+  "=": "&#x3D;",
 };
 
 /**
@@ -140,10 +140,10 @@ export function escapeHtml(str: string): string {
  */
 export function sanitizeInput(input: string): string {
   // Remove null bytes
-  let sanitized = input.replace(/\0/g, '');
+  let sanitized = input.replace(/\0/g, "");
 
   // Remove control characters
-  sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, '');
+  sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, "");
 
   // Escape HTML
   sanitized = escapeHtml(sanitized);
@@ -160,17 +160,17 @@ export function sanitizeUrl(url: string): string | null {
     const parsed = new URL(url, window.location.origin);
 
     // Only allow http and https protocols
-    if (!['http:', 'https:'].includes(parsed.protocol)) {
+    if (!["http:", "https:"].includes(parsed.protocol)) {
       return null;
     }
 
     // Prevent javascript: URLs
-    if (url.toLowerCase().startsWith('javascript:')) {
+    if (url.toLowerCase().startsWith("javascript:")) {
       return null;
     }
 
     // Prevent data: URLs (except safe types)
-    if (parsed.protocol === 'data:') {
+    if (parsed.protocol === "data:") {
       return null;
     }
 
@@ -185,8 +185,8 @@ export function sanitizeUrl(url: string): string | null {
  * إزالة علامات HTML من النص
  */
 export function stripHtml(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent || '';
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return doc.body.textContent || "";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -247,7 +247,7 @@ export interface CookieOptions {
   maxAge?: number;
   expires?: Date;
   secure?: boolean;
-  sameSite?: 'strict' | 'lax' | 'none';
+  sameSite?: "strict" | "lax" | "none";
   httpOnly?: boolean;
 }
 
@@ -258,17 +258,17 @@ export interface CookieOptions {
 export function setSecureCookie(
   name: string,
   value: string,
-  options: CookieOptions = {}
+  options: CookieOptions = {},
 ): void {
-  if (typeof document === 'undefined') return;
+  if (typeof document === "undefined") return;
 
   const {
-    path = '/',
+    path = "/",
     domain,
     maxAge,
     expires,
     secure = true,
-    sameSite = 'strict',
+    sameSite = "strict",
   } = options;
 
   let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
@@ -277,7 +277,7 @@ export function setSecureCookie(
   if (domain) cookieString += `; domain=${domain}`;
   if (maxAge !== undefined) cookieString += `; max-age=${maxAge}`;
   if (expires) cookieString += `; expires=${expires.toUTCString()}`;
-  if (secure) cookieString += '; secure';
+  if (secure) cookieString += "; secure";
   if (sameSite) cookieString += `; samesite=${sameSite}`;
 
   document.cookie = cookieString;
@@ -288,10 +288,10 @@ export function setSecureCookie(
  * الحصول على قيمة الكوكي
  */
 export function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null;
+  if (typeof document === "undefined") return null;
 
   const match = document.cookie.match(
-    new RegExp(`(^| )${encodeURIComponent(name)}=([^;]+)`)
+    new RegExp(`(^| )${encodeURIComponent(name)}=([^;]+)`),
   );
   return match && match[2] ? decodeURIComponent(match[2]) : null;
 }
@@ -300,8 +300,8 @@ export function getCookie(name: string): string | null {
  * Delete cookie
  * حذف الكوكي
  */
-export function deleteCookie(name: string, path: string = '/'): void {
-  if (typeof document === 'undefined') return;
+export function deleteCookie(name: string, path: string = "/"): void {
+  if (typeof document === "undefined") return;
 
   document.cookie = `${encodeURIComponent(name)}=; path=${path}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
@@ -341,9 +341,9 @@ export function safeJsonParse<T>(str: string, fallback: T): T {
  */
 export function validateSchema<T extends Record<string, unknown>>(
   obj: unknown,
-  requiredFields: (keyof T)[]
+  requiredFields: (keyof T)[],
 ): obj is T {
-  if (typeof obj !== 'object' || obj === null) return false;
+  if (typeof obj !== "object" || obj === null) return false;
 
   const record = obj as Record<string, unknown>;
   return requiredFields.every((field) => field in record);
@@ -370,31 +370,31 @@ export function checkPasswordStrength(password: string): PasswordStrength {
   if (password.length >= 8) {
     score++;
   } else {
-    feedback.push('يجب أن تكون كلمة المرور 8 أحرف على الأقل');
+    feedback.push("يجب أن تكون كلمة المرور 8 أحرف على الأقل");
   }
 
   if (/[a-z]/.test(password)) {
     score++;
   } else {
-    feedback.push('أضف أحرف صغيرة');
+    feedback.push("أضف أحرف صغيرة");
   }
 
   if (/[A-Z]/.test(password)) {
     score++;
   } else {
-    feedback.push('أضف أحرف كبيرة');
+    feedback.push("أضف أحرف كبيرة");
   }
 
   if (/[0-9]/.test(password)) {
     score++;
   } else {
-    feedback.push('أضف أرقام');
+    feedback.push("أضف أرقام");
   }
 
   if (/[^a-zA-Z0-9]/.test(password)) {
     score++;
   } else {
-    feedback.push('أضف رموز خاصة');
+    feedback.push("أضف رموز خاصة");
   }
 
   return {

@@ -3,16 +3,28 @@
 // Based on Source-Sink-Flow Assimilate Distribution Models (WOFOST/DSSAT)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody, ApiParam } from '@nestjs/swagger';
-import { BiomassService } from './biomass.service';
+import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiBody,
+  ApiParam,
+} from "@nestjs/swagger";
+import { BiomassService } from "./biomass.service";
 
 class BiomassProductionInput {
   par: number;
   fpar: number;
   cropType: string;
   temperature: number;
-  existingBiomass?: { root: number; stem: number; leaf: number; storage: number };
+  existingBiomass?: {
+    root: number;
+    stem: number;
+    leaf: number;
+    storage: number;
+  };
 }
 
 class AssimilateDistributionInput {
@@ -38,8 +50,8 @@ class YieldInput {
   moistureContent?: number;
 }
 
-@ApiTags('biomass')
-@Controller('api/v1/biomass')
+@ApiTags("biomass")
+@Controller("api/v1/biomass")
 export class BiomassController {
   constructor(private readonly biomassService: BiomassService) {}
 
@@ -48,34 +60,49 @@ export class BiomassController {
   // حساب إنتاج الكتلة الحيوية اليومي
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Post('production')
+  @Post("production")
   @ApiOperation({
-    summary: 'Calculate daily biomass production',
-    description: 'حساب إنتاج الكتلة الحيوية اليومي باستخدام نموذج RUE',
+    summary: "Calculate daily biomass production",
+    description: "حساب إنتاج الكتلة الحيوية اليومي باستخدام نموذج RUE",
   })
   @ApiBody({
-    description: 'Biomass production parameters',
+    description: "Biomass production parameters",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        par: { type: 'number', example: 10, description: 'PAR (MJ m⁻² day⁻¹)' },
-        fpar: { type: 'number', example: 0.85, description: 'Fraction of PAR intercepted (0-1)' },
-        cropType: { type: 'string', example: 'WHEAT', description: 'Crop type identifier' },
-        temperature: { type: 'number', example: 25, description: 'Temperature (°C)' },
+        par: { type: "number", example: 10, description: "PAR (MJ m⁻² day⁻¹)" },
+        fpar: {
+          type: "number",
+          example: 0.85,
+          description: "Fraction of PAR intercepted (0-1)",
+        },
+        cropType: {
+          type: "string",
+          example: "WHEAT",
+          description: "Crop type identifier",
+        },
+        temperature: {
+          type: "number",
+          example: 25,
+          description: "Temperature (°C)",
+        },
         existingBiomass: {
-          type: 'object',
+          type: "object",
           properties: {
-            root: { type: 'number' },
-            stem: { type: 'number' },
-            leaf: { type: 'number' },
-            storage: { type: 'number' },
+            root: { type: "number" },
+            stem: { type: "number" },
+            leaf: { type: "number" },
+            storage: { type: "number" },
           },
         },
       },
-      required: ['par', 'fpar', 'cropType', 'temperature'],
+      required: ["par", "fpar", "cropType", "temperature"],
     },
   })
-  @ApiResponse({ status: 200, description: 'Biomass production calculation result' })
+  @ApiResponse({
+    status: 200,
+    description: "Biomass production calculation result",
+  })
   calculateProduction(@Body() input: BiomassProductionInput) {
     const result = this.biomassService.calculateDailyBiomassProduction(
       input.par,
@@ -94,7 +121,7 @@ export class BiomassController {
         existingBiomass: input.existingBiomass,
       },
       result,
-      formula: 'Net = Gross - Maintenance_Resp - Growth_Resp',
+      formula: "Net = Gross - Maintenance_Resp - Growth_Resp",
     };
   }
 
@@ -103,24 +130,37 @@ export class BiomassController {
   // توزيع المواد المتمثلة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Post('distribute')
+  @Post("distribute")
   @ApiOperation({
-    summary: 'Distribute assimilates to plant organs',
-    description: 'توزيع المواد المتمثلة على أعضاء النبات (جذور، ساق، أوراق، حبوب)',
+    summary: "Distribute assimilates to plant organs",
+    description:
+      "توزيع المواد المتمثلة على أعضاء النبات (جذور، ساق، أوراق، حبوب)",
   })
   @ApiBody({
-    description: 'Assimilate distribution parameters',
+    description: "Assimilate distribution parameters",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        netProduction: { type: 'number', example: 15, description: 'Net production (g m⁻² day⁻¹)' },
-        cropType: { type: 'string', example: 'CORN', description: 'Crop type identifier' },
-        dvs: { type: 'number', example: 0.8, description: 'Development stage (0-2)' },
+        netProduction: {
+          type: "number",
+          example: 15,
+          description: "Net production (g m⁻² day⁻¹)",
+        },
+        cropType: {
+          type: "string",
+          example: "CORN",
+          description: "Crop type identifier",
+        },
+        dvs: {
+          type: "number",
+          example: 0.8,
+          description: "Development stage (0-2)",
+        },
       },
-      required: ['netProduction', 'cropType', 'dvs'],
+      required: ["netProduction", "cropType", "dvs"],
     },
   })
-  @ApiResponse({ status: 200, description: 'Assimilate distribution result' })
+  @ApiResponse({ status: 200, description: "Assimilate distribution result" })
   distributeAssimilates(@Body() input: AssimilateDistributionInput) {
     const result = this.biomassService.distributeAssimilates(
       input.netProduction,
@@ -135,7 +175,7 @@ export class BiomassController {
         dvs: input.dvs,
       },
       result,
-      model: 'Source-Sink-Flow (WOFOST style)',
+      model: "Source-Sink-Flow (WOFOST style)",
     };
   }
 
@@ -144,35 +184,35 @@ export class BiomassController {
   // محاكاة تراكم الكتلة الحيوية
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Post('simulate')
+  @Post("simulate")
   @ApiOperation({
-    summary: 'Simulate biomass accumulation through season',
-    description: 'محاكاة تراكم الكتلة الحيوية خلال موسم النمو',
+    summary: "Simulate biomass accumulation through season",
+    description: "محاكاة تراكم الكتلة الحيوية خلال موسم النمو",
   })
   @ApiBody({
-    description: 'Simulation parameters with daily data',
+    description: "Simulation parameters with daily data",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        cropType: { type: 'string', example: 'RICE' },
+        cropType: { type: "string", example: "RICE" },
         dailyData: {
-          type: 'array',
+          type: "array",
           items: {
-            type: 'object',
+            type: "object",
             properties: {
-              date: { type: 'string', example: '2024-05-01' },
-              par: { type: 'number', example: 12 },
-              fpar: { type: 'number', example: 0.75 },
-              temperature: { type: 'number', example: 28 },
-              dvs: { type: 'number', example: 0.5 },
+              date: { type: "string", example: "2024-05-01" },
+              par: { type: "number", example: 12 },
+              fpar: { type: "number", example: 0.75 },
+              temperature: { type: "number", example: 28 },
+              dvs: { type: "number", example: 0.5 },
             },
           },
         },
       },
-      required: ['cropType', 'dailyData'],
+      required: ["cropType", "dailyData"],
     },
   })
-  @ApiResponse({ status: 200, description: 'Biomass simulation results' })
+  @ApiResponse({ status: 200, description: "Biomass simulation results" })
   simulateBiomass(@Body() input: BiomassSimulationInput) {
     const results = this.biomassService.simulateBiomassAccumulation(
       input.cropType,
@@ -189,7 +229,7 @@ export class BiomassController {
       },
       summary: {
         finalBiomass: finalState.biomass,
-        maxLAI: Math.max(...results.map(r => r.lai)),
+        maxLAI: Math.max(...results.map((r) => r.lai)),
         totalProduction: results.reduce((sum, r) => sum + r.grossProduction, 0),
       },
       dailyResults: results,
@@ -201,24 +241,37 @@ export class BiomassController {
   // حساب الغلة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Post('yield')
+  @Post("yield")
   @ApiOperation({
-    summary: 'Calculate crop yield from total biomass',
-    description: 'حساب غلة المحصول من إجمالي الكتلة الحيوية باستخدام مؤشر الحصاد',
+    summary: "Calculate crop yield from total biomass",
+    description:
+      "حساب غلة المحصول من إجمالي الكتلة الحيوية باستخدام مؤشر الحصاد",
   })
   @ApiBody({
-    description: 'Yield calculation parameters',
+    description: "Yield calculation parameters",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        totalAbovegroundBiomass: { type: 'number', example: 1200, description: 'Total aboveground biomass (g m⁻²)' },
-        cropType: { type: 'string', example: 'WHEAT', description: 'Crop type identifier' },
-        moistureContent: { type: 'number', example: 0.14, description: 'Grain moisture content (0-1)' },
+        totalAbovegroundBiomass: {
+          type: "number",
+          example: 1200,
+          description: "Total aboveground biomass (g m⁻²)",
+        },
+        cropType: {
+          type: "string",
+          example: "WHEAT",
+          description: "Crop type identifier",
+        },
+        moistureContent: {
+          type: "number",
+          example: 0.14,
+          description: "Grain moisture content (0-1)",
+        },
       },
-      required: ['totalAbovegroundBiomass', 'cropType'],
+      required: ["totalAbovegroundBiomass", "cropType"],
     },
   })
-  @ApiResponse({ status: 200, description: 'Yield calculation result' })
+  @ApiResponse({ status: 200, description: "Yield calculation result" })
   calculateYield(@Body() input: YieldInput) {
     const result = this.biomassService.calculateYield(
       input.totalAbovegroundBiomass,
@@ -233,8 +286,8 @@ export class BiomassController {
         moistureContent: input.moistureContent ?? 0.14,
       },
       result,
-      description: 'Yield calculated using Harvest Index (HI)',
-      descriptionAr: 'تم حساب الغلة باستخدام مؤشر الحصاد',
+      description: "Yield calculated using Harvest Index (HI)",
+      descriptionAr: "تم حساب الغلة باستخدام مؤشر الحصاد",
     };
   }
 
@@ -243,17 +296,26 @@ export class BiomassController {
   // حساب مؤشر مساحة الأوراق من كتلة الأوراق
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('lai/:cropType')
+  @Get("lai/:cropType")
   @ApiOperation({
-    summary: 'Calculate LAI from leaf biomass',
-    description: 'حساب مؤشر مساحة الأوراق (LAI) من كتلة الأوراق',
+    summary: "Calculate LAI from leaf biomass",
+    description: "حساب مؤشر مساحة الأوراق (LAI) من كتلة الأوراق",
   })
-  @ApiParam({ name: 'cropType', example: 'SOYBEAN', description: 'Crop type identifier' })
-  @ApiQuery({ name: 'leafBiomass', required: true, example: 150, description: 'Leaf biomass (g m⁻²)' })
-  @ApiResponse({ status: 200, description: 'LAI calculation result' })
+  @ApiParam({
+    name: "cropType",
+    example: "SOYBEAN",
+    description: "Crop type identifier",
+  })
+  @ApiQuery({
+    name: "leafBiomass",
+    required: true,
+    example: 150,
+    description: "Leaf biomass (g m⁻²)",
+  })
+  @ApiResponse({ status: 200, description: "LAI calculation result" })
   calculateLAI(
-    @Param('cropType') cropType: string,
-    @Query('leafBiomass') leafBiomass: string,
+    @Param("cropType") cropType: string,
+    @Query("leafBiomass") leafBiomass: string,
   ) {
     const biomass = parseFloat(leafBiomass);
     const result = this.biomassService.calculateLAI(biomass, cropType);
@@ -269,17 +331,26 @@ export class BiomassController {
   // الحصول على معاملات التوزيع
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('partitioning/:cropType')
+  @Get("partitioning/:cropType")
   @ApiOperation({
-    summary: 'Get partitioning coefficients for a crop',
-    description: 'الحصول على معاملات توزيع المادة الجافة لمحصول معين',
+    summary: "Get partitioning coefficients for a crop",
+    description: "الحصول على معاملات توزيع المادة الجافة لمحصول معين",
   })
-  @ApiParam({ name: 'cropType', example: 'CORN', description: 'Crop type identifier' })
-  @ApiQuery({ name: 'dvs', required: false, example: 0.8, description: 'Development stage for current phase' })
-  @ApiResponse({ status: 200, description: 'Partitioning coefficients' })
+  @ApiParam({
+    name: "cropType",
+    example: "CORN",
+    description: "Crop type identifier",
+  })
+  @ApiQuery({
+    name: "dvs",
+    required: false,
+    example: 0.8,
+    description: "Development stage for current phase",
+  })
+  @ApiResponse({ status: 200, description: "Partitioning coefficients" })
   getPartitioning(
-    @Param('cropType') cropType: string,
-    @Query('dvs') dvs?: string,
+    @Param("cropType") cropType: string,
+    @Query("dvs") dvs?: string,
   ) {
     const dvsValue = dvs ? parseFloat(dvs) : undefined;
     return this.biomassService.getPartitioningCoefficients(cropType, dvsValue);
@@ -290,14 +361,18 @@ export class BiomassController {
   // الحصول على معاملات الكتلة الحيوية للمحصول
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('parameters/:cropType')
+  @Get("parameters/:cropType")
   @ApiOperation({
-    summary: 'Get biomass model parameters for a crop',
-    description: 'الحصول على معاملات نموذج الكتلة الحيوية للمحصول',
+    summary: "Get biomass model parameters for a crop",
+    description: "الحصول على معاملات نموذج الكتلة الحيوية للمحصول",
   })
-  @ApiParam({ name: 'cropType', example: 'RICE', description: 'Crop type identifier' })
-  @ApiResponse({ status: 200, description: 'Crop biomass parameters' })
-  getCropParameters(@Param('cropType') cropType: string) {
+  @ApiParam({
+    name: "cropType",
+    example: "RICE",
+    description: "Crop type identifier",
+  })
+  @ApiResponse({ status: 200, description: "Crop biomass parameters" })
+  getCropParameters(@Param("cropType") cropType: string) {
     const params = this.biomassService.getCropParameters(cropType);
     if (!params) {
       return {
@@ -313,12 +388,12 @@ export class BiomassController {
   // قائمة المحاصيل المتاحة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('crops')
+  @Get("crops")
   @ApiOperation({
-    summary: 'List available crops with biomass models',
-    description: 'قائمة المحاصيل المتاحة مع نماذج الكتلة الحيوية',
+    summary: "List available crops with biomass models",
+    description: "قائمة المحاصيل المتاحة مع نماذج الكتلة الحيوية",
   })
-  @ApiResponse({ status: 200, description: 'List of available crops' })
+  @ApiResponse({ status: 200, description: "List of available crops" })
   listAvailableCrops() {
     return {
       crops: this.biomassService.getAvailableCrops(),
@@ -331,19 +406,19 @@ export class BiomassController {
   // فحص صحة الخدمة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('health')
+  @Get("health")
   @ApiOperation({
-    summary: 'Biomass service health check',
-    description: 'فحص صحة خدمة الكتلة الحيوية',
+    summary: "Biomass service health check",
+    description: "فحص صحة خدمة الكتلة الحيوية",
   })
-  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  @ApiResponse({ status: 200, description: "Service is healthy" })
   healthCheck() {
     return {
-      status: 'healthy',
-      service: 'biomass',
+      status: "healthy",
+      service: "biomass",
       timestamp: new Date().toISOString(),
-      version: '1.0.0',
-      models: ['RUE', 'Source-Sink-Flow', 'Harvest Index'],
+      version: "1.0.0",
+      models: ["RUE", "Source-Sink-Flow", "Harvest Index"],
     };
   }
 }

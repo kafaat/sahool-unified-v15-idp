@@ -13,7 +13,7 @@
  * @license MIT
  */
 
-import Redis, { RedisOptions, Cluster } from 'ioredis';
+import Redis, { RedisOptions, Cluster } from "ioredis";
 
 /**
  * تكوين Redis Sentinel
@@ -45,9 +45,9 @@ export interface RedisSentinelConfig {
  * حالات Circuit Breaker
  */
 enum CircuitBreakerState {
-  CLOSED = 'CLOSED',
-  OPEN = 'OPEN',
-  HALF_OPEN = 'HALF_OPEN',
+  CLOSED = "CLOSED",
+  OPEN = "OPEN",
+  HALF_OPEN = "HALF_OPEN",
 }
 
 /**
@@ -62,7 +62,7 @@ class CircuitBreaker {
   constructor(
     private failureThreshold: number = 5,
     private recoveryTimeout: number = 60000, // 60 seconds
-    private halfOpenMaxAttempts: number = 3
+    private halfOpenMaxAttempts: number = 3,
   ) {}
 
   /**
@@ -76,9 +76,9 @@ class CircuitBreaker {
       ) {
         this.state = CircuitBreakerState.HALF_OPEN;
         this.successCount = 0;
-        console.log('Circuit breaker entering HALF_OPEN state');
+        console.log("Circuit breaker entering HALF_OPEN state");
       } else {
-        throw new Error('Circuit breaker is OPEN');
+        throw new Error("Circuit breaker is OPEN");
       }
     }
 
@@ -101,7 +101,7 @@ class CircuitBreaker {
       if (this.successCount >= this.halfOpenMaxAttempts) {
         this.state = CircuitBreakerState.CLOSED;
         this.failureCount = 0;
-        console.log('Circuit breaker closed after successful recovery');
+        console.log("Circuit breaker closed after successful recovery");
       }
     } else {
       this.failureCount = 0;
@@ -118,7 +118,7 @@ class CircuitBreaker {
     if (this.failureCount >= this.failureThreshold) {
       this.state = CircuitBreakerState.OPEN;
       console.error(
-        `Circuit breaker opened after ${this.failureCount} failures`
+        `Circuit breaker opened after ${this.failureCount} failures`,
       );
     }
   }
@@ -145,7 +145,7 @@ class CircuitBreaker {
  * معلومات صحة النظام
  */
 export interface HealthCheckResult {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   timestamp: number;
   checks: {
     masterPing?: boolean;
@@ -193,12 +193,12 @@ export class RedisSentinelClient {
    * تطبيع التكوين مع القيم الافتراضية
    */
   private normalizeConfig(
-    config: RedisSentinelConfig
+    config: RedisSentinelConfig,
   ): Required<RedisSentinelConfig> {
     return {
       sentinels: config.sentinels,
       masterName: config.masterName,
-      password: config.password || process.env.REDIS_PASSWORD || '',
+      password: config.password || process.env.REDIS_PASSWORD || "",
       db: config.db || 0,
       connectTimeout: config.connectTimeout || 10000,
       commandTimeout: config.commandTimeout || 5000,
@@ -235,11 +235,11 @@ export class RedisSentinelClient {
         return Math.min(times * 100, 3000);
       },
       // استخدام Slave للقراءة إذا تم تحديده
-      role: isSlaveRead ? 'slave' : 'master',
+      role: isSlaveRead ? "slave" : "master",
       preferredSlaves: isSlaveRead
         ? [
-            { ip: '127.0.0.1', port: '6380', flags: 'slave' },
-            { ip: '127.0.0.1', port: '6381', flags: 'slave' },
+            { ip: "127.0.0.1", port: "6380", flags: "slave" },
+            { ip: "127.0.0.1", port: "6381", flags: "slave" },
           ]
         : undefined,
     };
@@ -252,38 +252,38 @@ export class RedisSentinelClient {
    */
   private setupEventHandlers(): void {
     // Master events
-    this.masterClient.on('connect', () => {
-      console.log('Connected to Redis master');
+    this.masterClient.on("connect", () => {
+      console.log("Connected to Redis master");
     });
 
-    this.masterClient.on('ready', () => {
-      console.log('Redis master is ready');
+    this.masterClient.on("ready", () => {
+      console.log("Redis master is ready");
       this.circuitBreaker.reset();
     });
 
-    this.masterClient.on('error', (err) => {
-      console.error('Redis master error:', err);
+    this.masterClient.on("error", (err) => {
+      console.error("Redis master error:", err);
     });
 
-    this.masterClient.on('close', () => {
-      console.warn('Redis master connection closed');
+    this.masterClient.on("close", () => {
+      console.warn("Redis master connection closed");
     });
 
-    this.masterClient.on('reconnecting', () => {
-      console.log('Reconnecting to Redis master...');
+    this.masterClient.on("reconnecting", () => {
+      console.log("Reconnecting to Redis master...");
     });
 
-    this.masterClient.on('+switch-master', (data) => {
-      console.log('Master switched:', data);
+    this.masterClient.on("+switch-master", (data) => {
+      console.log("Master switched:", data);
     });
 
     // Slave events
-    this.slaveClient.on('connect', () => {
-      console.log('Connected to Redis slave');
+    this.slaveClient.on("connect", () => {
+      console.log("Connected to Redis slave");
     });
 
-    this.slaveClient.on('error', (err) => {
-      console.error('Redis slave error:', err);
+    this.slaveClient.on("error", (err) => {
+      console.error("Redis slave error:", err);
     });
   }
 
@@ -293,7 +293,7 @@ export class RedisSentinelClient {
   private async executeWithRetry<T>(
     func: () => Promise<T>,
     maxRetries: number = 3,
-    retryDelay: number = 500
+    retryDelay: number = 500,
   ): Promise<T> {
     return this.circuitBreaker.call(async () => {
       let lastError: Error | null = null;
@@ -306,7 +306,7 @@ export class RedisSentinelClient {
 
           if (attempt < maxRetries - 1) {
             const delay = retryDelay * Math.pow(2, attempt); // Exponential backoff
-            console.warn('Retry attempt after delay due to error', {
+            console.warn("Retry attempt after delay due to error", {
               attempt: attempt + 1,
               maxRetries,
               delayMs: delay,
@@ -317,7 +317,7 @@ export class RedisSentinelClient {
         }
       }
 
-      throw lastError || new Error('All retries failed');
+      throw lastError || new Error("All retries failed");
     });
   }
 
@@ -336,15 +336,15 @@ export class RedisSentinelClient {
       px?: number; // Milliseconds
       nx?: boolean; // Only set if not exists
       xx?: boolean; // Only set if exists
-    }
-  ): Promise<'OK' | null> {
+    },
+  ): Promise<"OK" | null> {
     return this.executeWithRetry(async () => {
       const args: any[] = [key, value];
 
-      if (options?.ex) args.push('EX', options.ex);
-      if (options?.px) args.push('PX', options.px);
-      if (options?.nx) args.push('NX');
-      if (options?.xx) args.push('XX');
+      if (options?.ex) args.push("EX", options.ex);
+      if (options?.px) args.push("PX", options.px);
+      if (options?.nx) args.push("NX");
+      if (options?.xx) args.push("XX");
 
       return this.masterClient.set(...args);
     });
@@ -393,8 +393,14 @@ export class RedisSentinelClient {
   /**
    * تعيين قيمة في Hash
    */
-  async hset(name: string, key: string, value: string | number): Promise<number> {
-    return this.executeWithRetry(() => this.masterClient.hset(name, key, value));
+  async hset(
+    name: string,
+    key: string,
+    value: string | number,
+  ): Promise<number> {
+    return this.executeWithRetry(() =>
+      this.masterClient.hset(name, key, value),
+    );
   }
 
   /**
@@ -403,7 +409,7 @@ export class RedisSentinelClient {
   async hget(
     name: string,
     key: string,
-    useSlave: boolean = true
+    useSlave: boolean = true,
   ): Promise<string | null> {
     const client = useSlave ? this.slaveClient : this.masterClient;
     return this.executeWithRetry(() => client.hget(name, key));
@@ -414,7 +420,7 @@ export class RedisSentinelClient {
    */
   async hgetall(
     name: string,
-    useSlave: boolean = true
+    useSlave: boolean = true,
   ): Promise<Record<string, string>> {
     const client = useSlave ? this.slaveClient : this.masterClient;
     return this.executeWithRetry(() => client.hgetall(name));
@@ -435,14 +441,18 @@ export class RedisSentinelClient {
    * إضافة عناصر في بداية القائمة
    */
   async lpush(name: string, ...values: (string | number)[]): Promise<number> {
-    return this.executeWithRetry(() => this.masterClient.lpush(name, ...values));
+    return this.executeWithRetry(() =>
+      this.masterClient.lpush(name, ...values),
+    );
   }
 
   /**
    * إضافة عناصر في نهاية القائمة
    */
   async rpush(name: string, ...values: (string | number)[]): Promise<number> {
-    return this.executeWithRetry(() => this.masterClient.rpush(name, ...values));
+    return this.executeWithRetry(() =>
+      this.masterClient.rpush(name, ...values),
+    );
   }
 
   /**
@@ -466,7 +476,7 @@ export class RedisSentinelClient {
     name: string,
     start: number,
     end: number,
-    useSlave: boolean = true
+    useSlave: boolean = true,
   ): Promise<string[]> {
     const client = useSlave ? this.slaveClient : this.masterClient;
     return this.executeWithRetry(() => client.lrange(name, start, end));
@@ -520,11 +530,11 @@ export class RedisSentinelClient {
     start: number,
     end: number,
     withScores: boolean = false,
-    useSlave: boolean = true
+    useSlave: boolean = true,
   ): Promise<string[]> {
     const client = useSlave ? this.slaveClient : this.masterClient;
     const args: any[] = [name, start, end];
-    if (withScores) args.push('WITHSCORES');
+    if (withScores) args.push("WITHSCORES");
     return this.executeWithRetry(() => client.zrange(...args));
   }
 
@@ -569,9 +579,9 @@ export class RedisSentinelClient {
   async ping(): Promise<boolean> {
     try {
       const result = await this.masterClient.ping();
-      return result === 'PONG';
+      return result === "PONG";
     } catch (error) {
-      console.error('Ping failed:', error);
+      console.error("Ping failed:", error);
       return false;
     }
   }
@@ -585,8 +595,8 @@ export class RedisSentinelClient {
         ? await this.masterClient.info(section)
         : await this.masterClient.info();
     } catch (error) {
-      console.error('Failed to get info:', error);
-      return '';
+      console.error("Failed to get info:", error);
+      return "";
     }
   }
 
@@ -596,15 +606,15 @@ export class RedisSentinelClient {
   async getSentinelInfo(): Promise<SentinelInfo> {
     try {
       const sentinelNodes = await this.masterClient.sentinelSentinels(
-        this.config.masterName
+        this.config.masterName,
       );
 
       const masterNode = await this.masterClient.sentinelMaster(
-        this.config.masterName
+        this.config.masterName,
       );
 
       const slaveNodes = await this.masterClient.sentinelSlaves(
-        this.config.masterName
+        this.config.masterName,
       );
 
       return {
@@ -621,7 +631,7 @@ export class RedisSentinelClient {
         circuitBreakerState: this.circuitBreaker.getState(),
       };
     } catch (error) {
-      console.error('Failed to get sentinel info:', error);
+      console.error("Failed to get sentinel info:", error);
       throw error;
     }
   }
@@ -631,7 +641,7 @@ export class RedisSentinelClient {
    */
   async healthCheck(): Promise<HealthCheckResult> {
     const health: HealthCheckResult = {
-      status: 'healthy',
+      status: "healthy",
       timestamp: Date.now(),
       checks: {},
     };
@@ -640,11 +650,11 @@ export class RedisSentinelClient {
     try {
       health.checks.masterPing = await this.ping();
       if (!health.checks.masterPing) {
-        health.status = 'unhealthy';
+        health.status = "unhealthy";
       }
     } catch (error) {
       health.checks.masterPing = false;
-      health.status = 'unhealthy';
+      health.status = "unhealthy";
       health.error = (error as Error).message;
     }
 
@@ -652,13 +662,13 @@ export class RedisSentinelClient {
     try {
       health.checks.sentinelInfo = await this.getSentinelInfo();
     } catch (error) {
-      health.status = 'degraded';
+      health.status = "degraded";
     }
 
     // Check circuit breaker
     health.checks.circuitBreaker = this.circuitBreaker.getState();
     if (this.circuitBreaker.getState() === CircuitBreakerState.OPEN) {
-      health.status = 'degraded';
+      health.status = "degraded";
     }
 
     return health;
@@ -670,9 +680,9 @@ export class RedisSentinelClient {
   async close(): Promise<void> {
     try {
       await Promise.all([this.masterClient.quit(), this.slaveClient.quit()]);
-      console.log('Redis connections closed');
+      console.log("Redis connections closed");
     } catch (error) {
-      console.error('Error closing connections:', error);
+      console.error("Error closing connections:", error);
       // Force disconnect
       this.masterClient.disconnect();
       this.slaveClient.disconnect();
@@ -690,18 +700,18 @@ let redisClientInstance: RedisSentinelClient | null = null;
  * الحصول على Redis Client (Singleton)
  */
 export function getRedisSentinelClient(
-  config?: RedisSentinelConfig
+  config?: RedisSentinelConfig,
 ): RedisSentinelClient {
   if (!redisClientInstance) {
     const defaultConfig: RedisSentinelConfig = {
       sentinels: [
-        { host: process.env.REDIS_SENTINEL_HOST_1 || 'localhost', port: 26379 },
-        { host: process.env.REDIS_SENTINEL_HOST_2 || 'localhost', port: 26380 },
-        { host: process.env.REDIS_SENTINEL_HOST_3 || 'localhost', port: 26381 },
+        { host: process.env.REDIS_SENTINEL_HOST_1 || "localhost", port: 26379 },
+        { host: process.env.REDIS_SENTINEL_HOST_2 || "localhost", port: 26380 },
+        { host: process.env.REDIS_SENTINEL_HOST_3 || "localhost", port: 26381 },
       ],
-      masterName: process.env.REDIS_MASTER_NAME || 'sahool-master',
+      masterName: process.env.REDIS_MASTER_NAME || "sahool-master",
       password: process.env.REDIS_PASSWORD,
-      db: parseInt(process.env.REDIS_DB || '0'),
+      db: parseInt(process.env.REDIS_DB || "0"),
     };
 
     redisClientInstance = new RedisSentinelClient(config || defaultConfig);

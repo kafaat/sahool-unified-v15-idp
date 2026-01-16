@@ -7,14 +7,14 @@
 
 // CRITICAL: reflect-metadata must be imported FIRST before any NestJS imports
 // Required for decorators and dependency injection to work
-import 'reflect-metadata';
+import "reflect-metadata";
 
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './utils/http-exception.filter';
-import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { AppModule } from "./app.module";
+import { HttpExceptionFilter } from "./utils/http-exception.filter";
+import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,19 +26,20 @@ async function bootstrap() {
 
   // ============== Middleware Setup ==============
   // Global request logging interceptor with correlation IDs
-  app.useGlobalInterceptors(new RequestLoggingInterceptor('lai-estimation'));
+  app.useGlobalInterceptors(new RequestLoggingInterceptor("lai-estimation"));
 
   // CORS
-  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-    'https://sahool.com',
-    'http://localhost:3000',
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+    "https://sahool.com",
+    "http://localhost:3000",
   ];
   app.enableCors({ origin: allowedOrigins, credentials: true });
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('SAHOOL LAI Estimation API')
-    .setDescription(`
+    .setTitle("SAHOOL LAI Estimation API")
+    .setDescription(
+      `
       خدمة تقدير مؤشر مساحة الأوراق (LAI)
 
       Leaf Area Index Estimation Service based on LAI-TransNet research providing:
@@ -63,13 +64,14 @@ async function bootstrap() {
       - PROSAIL radiative transfer model
       - CNN-TL transfer learning (R²=0.81)
       - CycleGAN domain alignment
-    `)
-    .setVersion('16.0.0')
+    `,
+    )
+    .setVersion("16.0.0")
     .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup("docs", app, document);
 
   const port = process.env.PORT || 3022;
   await app.listen(port);

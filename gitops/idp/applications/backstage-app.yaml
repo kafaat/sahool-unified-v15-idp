@@ -6,7 +6,7 @@ metadata:
 spec:
   project: sahool
   source:
-    repoURL: REPLACE_WITH_YOUR_REPO_URL
+    repoURL: https://github.com/kafaat/sahool-unified-v15-idp.git
     targetRevision: main
     path: idp/backstage/k8s
   destination:

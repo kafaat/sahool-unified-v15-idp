@@ -3,15 +3,18 @@
 ## 📋 الملفات التي تم إنشاؤها
 
 ### 1. Database Models & Configuration
+
 - ✅ `src/db_models.py` - Tortoise ORM models للجداول
 - ✅ `src/database.py` - TORTOISE_ORM configuration
 
 ### 2. Migration Files
+
 - ✅ `src/migrations/__init__.py`
 - ✅ `src/migrations/models/__init__.py`
 - ✅ `src/migrations/models/0_20251227000000_init.py` - Initial migration
 
 ### 3. Configuration Files
+
 - ✅ `aerich.ini` - Aerich configuration (النسخة القصيرة)
 - ✅ `pyproject.toml` - Project configuration مع aerich section
 
@@ -139,6 +142,7 @@ aerich downgrade
 ### مشكلة: `ModuleNotFoundError: No module named 'src'`
 
 **الحل:**
+
 ```bash
 # تأكد من أنك في المجلد الصحيح
 cd /app  # أو apps/services/field-service
@@ -150,6 +154,7 @@ export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 ### مشكلة: `Connection refused` عند الاتصال بـ PostgreSQL
 
 **الحل:**
+
 ```bash
 # تأكد من أن PostgreSQL يعمل
 docker-compose ps postgres
@@ -164,6 +169,7 @@ echo $DATABASE_URL
 ### مشكلة: `aerich.exceptions.NotSupportError`
 
 **الحل:**
+
 ```bash
 # امسح ملفات aerich القديمة
 rm -rf .aerich
@@ -207,6 +213,7 @@ aerich init-db
 4. **إضافة في Docker**: أضف `aerich upgrade` في startup command
 
 مثال في `docker-compose.yml`:
+
 ```yaml
 field-service:
   command: sh -c "aerich upgrade && uvicorn src.main:app --host 0.0.0.0 --port 3000"
@@ -215,5 +222,6 @@ field-service:
 ## 📞 دعم
 
 إذا واجهت مشاكل، راجع:
+
 - [Tortoise ORM Documentation](https://tortoise.github.io/)
 - [Aerich Documentation](https://github.com/tortoise/aerich)

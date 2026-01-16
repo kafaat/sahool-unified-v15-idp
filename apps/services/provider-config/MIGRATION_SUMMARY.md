@@ -84,6 +84,7 @@ CREATE TABLE provider_configs (
 ```
 
 **Indexes**:
+
 - `idx_provider_configs_tenant` on (tenant_id)
 - `idx_provider_configs_type` on (provider_type)
 - `idx_provider_configs_tenant_type` on (tenant_id, provider_type)
@@ -114,6 +115,7 @@ CREATE TABLE config_versions (
 ```
 
 **Indexes**:
+
 - `idx_config_versions_config` on (config_id)
 - `idx_config_versions_tenant` on (tenant_id)
 - `idx_config_versions_config_version` on (config_id, version)
@@ -133,9 +135,11 @@ All existing endpoints remain compatible but now use database storage:
 ### New Endpoints
 
 1. **Get Configuration History**
+
    ```
    GET /config/{tenant_id}/history?provider_type=map&limit=100
    ```
+
    Returns version history for audit and compliance.
 
 2. **Rollback Configuration**
@@ -147,24 +151,26 @@ All existing endpoints remain compatible but now use database storage:
 
 ## Performance Characteristics
 
-| Operation | Before (In-Memory) | After (Database + Cache) | Impact |
-|-----------|-------------------|--------------------------|--------|
-| Read (cached) | ~1ms | ~5ms | Minimal |
-| Read (uncached) | ~1ms | ~30ms | Acceptable |
-| Write | ~1ms | ~100ms | Expected |
-| Persistence | ❌ Lost on restart | ✅ Survives restarts | Critical |
-| Multi-instance | ❌ No shared state | ✅ Shared via DB | Important |
-| Audit trail | ❌ None | ✅ Full history | Compliance |
+| Operation       | Before (In-Memory) | After (Database + Cache) | Impact     |
+| --------------- | ------------------ | ------------------------ | ---------- |
+| Read (cached)   | ~1ms               | ~5ms                     | Minimal    |
+| Read (uncached) | ~1ms               | ~30ms                    | Acceptable |
+| Write           | ~1ms               | ~100ms                   | Expected   |
+| Persistence     | ❌ Lost on restart | ✅ Survives restarts     | Critical   |
+| Multi-instance  | ❌ No shared state | ✅ Shared via DB         | Important  |
+| Audit trail     | ❌ None            | ✅ Full history          | Compliance |
 
 ## Caching Strategy
 
 ### Redis Cache Configuration
+
 - **TTL**: 5 minutes (300 seconds)
 - **Key Pattern**: `provider_config:{tenant_id}:{provider_type}`
 - **Invalidation**: Automatic on create/update/delete
 - **Fallback**: Service continues if Redis unavailable
 
 ### Cache Benefits
+
 - **Reduced database load**: 80-90% of reads served from cache
 - **Fast response times**: 5ms vs 30ms for cached reads
 - **High availability**: Graceful degradation without Redis
@@ -172,6 +178,7 @@ All existing endpoints remain compatible but now use database storage:
 ## Version History Features
 
 ### Automatic Tracking
+
 - **Created**: When new configuration is added
 - **Updated**: When configuration is modified
 - **Deleted**: When configuration is removed
@@ -179,6 +186,7 @@ All existing endpoints remain compatible but now use database storage:
 - **Disabled**: When provider is disabled
 
 ### Use Cases
+
 1. **Audit Compliance**: Track all configuration changes
 2. **Troubleshooting**: Identify when issues started
 3. **Rollback**: Restore previous working configuration
@@ -202,12 +210,14 @@ All existing endpoints remain compatible but now use database storage:
 ## Testing Instructions
 
 ### 1. Quick Test
+
 ```bash
 # Run automated test script
 ./apps/services/provider-config/test_persistence.sh
 ```
 
 ### 2. Manual Test - Persistence
+
 ```bash
 # Create configuration
 curl -X POST http://localhost:8104/config/test-tenant \
@@ -223,6 +233,7 @@ curl http://localhost:8104/config/test-tenant
 ```
 
 ### 3. Manual Test - Version History
+
 ```bash
 # Create initial config
 curl -X POST http://localhost:8104/config/demo-tenant \
@@ -241,6 +252,7 @@ curl http://localhost:8104/config/demo-tenant/history
 If issues are encountered after migration:
 
 ### Option 1: Quick Rollback (Use Previous Image)
+
 ```bash
 docker-compose down provider-config
 docker tag sahool-provider-config:previous sahool-provider-config:latest
@@ -248,13 +260,16 @@ docker-compose up -d provider-config
 ```
 
 ### Option 2: Database Rollback (Keep New Code)
+
 The service will use default configurations if database is unavailable. To disable database:
+
 ```bash
 # Temporarily disable database connection
 docker-compose exec provider-config env -u DATABASE_URL uvicorn main:app
 ```
 
 ### Option 3: Full Rollback
+
 ```bash
 # Restore previous code version
 git checkout main -- apps/services/provider-config
@@ -303,11 +318,13 @@ SELECT pg_size_pretty(pg_total_relation_size('provider_configs')) as configs_siz
 ## Security Considerations
 
 ### Current Implementation
+
 - API keys stored in plain text (database)
 - No encryption at rest
 - Basic access control
 
 ### Production Recommendations
+
 1. **Encrypt API keys** using application-level encryption
 2. **Enable PostgreSQL encryption** at rest
 3. **Use HashiCorp Vault** for sensitive credentials
@@ -340,6 +357,7 @@ SELECT pg_size_pretty(pg_total_relation_size('provider_configs')) as configs_siz
 ## Support
 
 For issues or questions:
+
 1. Check logs: `docker-compose logs provider-config`
 2. Review migration guide: `MIGRATION_GUIDE.md`
 3. Run test script: `./test_persistence.sh`
@@ -349,6 +367,7 @@ For issues or questions:
 ## Conclusion
 
 The migration from in-memory to PostgreSQL storage is **complete and ready for testing**. All critical features are implemented:
+
 - ✅ Database persistence
 - ✅ Redis caching
 - ✅ Version history

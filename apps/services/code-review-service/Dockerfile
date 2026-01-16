@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     procps \
     && rm -rf /var/lib/apt/lists/*
@@ -14,7 +14,12 @@ RUN groupadd --system sahool && \
 
 # Install Python dependencies
 COPY apps/services/code-review-service/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules
 COPY apps/services/shared/ ./shared/

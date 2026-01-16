@@ -2,37 +2,45 @@
 // LAI DTOs - أنماط البيانات لمؤشر مساحة الأوراق
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsEnum, IsArray, Min, Max } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  Min,
+  Max,
+} from "class-validator";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Enums
 // ─────────────────────────────────────────────────────────────────────────────
 
 export enum DataSource {
-  UAV = 'UAV',                    // الطائرات بدون طيار
-  PLANETSCOPE = 'PLANETSCOPE',   // PlanetScope (3m)
-  SENTINEL2 = 'SENTINEL2',       // Sentinel-2 (10m)
-  LANDSAT = 'LANDSAT',           // Landsat (30m)
-  FUSION = 'FUSION',             // Multi-source fusion
+  UAV = "UAV", // الطائرات بدون طيار
+  PLANETSCOPE = "PLANETSCOPE", // PlanetScope (3m)
+  SENTINEL2 = "SENTINEL2", // Sentinel-2 (10m)
+  LANDSAT = "LANDSAT", // Landsat (30m)
+  FUSION = "FUSION", // Multi-source fusion
 }
 
 export enum CropType {
-  SOYBEAN = 'SOYBEAN',           // فول الصويا
-  WHEAT = 'WHEAT',               // القمح
-  CORN = 'CORN',                 // الذرة
-  RICE = 'RICE',                 // الأرز
-  COTTON = 'COTTON',             // القطن
-  COFFEE = 'COFFEE',             // البن
-  SORGHUM = 'SORGHUM',           // الذرة الرفيعة
+  SOYBEAN = "SOYBEAN", // فول الصويا
+  WHEAT = "WHEAT", // القمح
+  CORN = "CORN", // الذرة
+  RICE = "RICE", // الأرز
+  COTTON = "COTTON", // القطن
+  COFFEE = "COFFEE", // البن
+  SORGHUM = "SORGHUM", // الذرة الرفيعة
 }
 
 export enum GrowthStage {
-  EMERGENCE = 'EMERGENCE',           // الإنبات
-  VEGETATIVE = 'VEGETATIVE',         // النمو الخضري
-  FLOWERING = 'FLOWERING',           // الإزهار
-  POD_DEVELOPMENT = 'POD_DEVELOPMENT', // تطور القرون
-  MATURITY = 'MATURITY',             // النضج
+  EMERGENCE = "EMERGENCE", // الإنبات
+  VEGETATIVE = "VEGETATIVE", // النمو الخضري
+  FLOWERING = "FLOWERING", // الإزهار
+  POD_DEVELOPMENT = "POD_DEVELOPMENT", // تطور القرون
+  MATURITY = "MATURITY", // النضج
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -40,7 +48,7 @@ export enum GrowthStage {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class EstimateLAIDto {
-  @ApiProperty({ description: 'Field ID' })
+  @ApiProperty({ description: "Field ID" })
   @IsString()
   fieldId: string;
 
@@ -54,32 +62,32 @@ export class EstimateLAIDto {
   @IsOptional()
   cropType?: CropType;
 
-  @ApiPropertyOptional({ description: 'Date for LAI estimation (ISO format)' })
+  @ApiPropertyOptional({ description: "Date for LAI estimation (ISO format)" })
   @IsString()
   @IsOptional()
   date?: string;
 }
 
 export class SpectralBandsDto {
-  @ApiProperty({ description: 'Green band reflectance (0-1)' })
+  @ApiProperty({ description: "Green band reflectance (0-1)" })
   @IsNumber()
   @Min(0)
   @Max(1)
   green: number;
 
-  @ApiProperty({ description: 'Red band reflectance (0-1)' })
+  @ApiProperty({ description: "Red band reflectance (0-1)" })
   @IsNumber()
   @Min(0)
   @Max(1)
   red: number;
 
-  @ApiProperty({ description: 'Red Edge band reflectance (0-1)' })
+  @ApiProperty({ description: "Red Edge band reflectance (0-1)" })
   @IsNumber()
   @Min(0)
   @Max(1)
   redEdge: number;
 
-  @ApiProperty({ description: 'Near-Infrared band reflectance (0-1)' })
+  @ApiProperty({ description: "Near-Infrared band reflectance (0-1)" })
   @IsNumber()
   @Min(0)
   @Max(1)
@@ -102,16 +110,16 @@ export class CalculateLAIFromBandsDto {
 }
 
 export class TimeSeriesLAIDto {
-  @ApiProperty({ description: 'Field ID' })
+  @ApiProperty({ description: "Field ID" })
   @IsString()
   fieldId: string;
 
-  @ApiPropertyOptional({ description: 'Start date (ISO format)' })
+  @ApiPropertyOptional({ description: "Start date (ISO format)" })
   @IsString()
   @IsOptional()
   startDate?: string;
 
-  @ApiPropertyOptional({ description: 'End date (ISO format)' })
+  @ApiPropertyOptional({ description: "End date (ISO format)" })
   @IsString()
   @IsOptional()
   endDate?: string;
@@ -127,25 +135,25 @@ export class TimeSeriesLAIDto {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class LAIEstimationResult {
-  @ApiProperty({ description: 'Leaf Area Index value (m²/m²)' })
+  @ApiProperty({ description: "Leaf Area Index value (m²/m²)" })
   lai: number;
 
-  @ApiProperty({ description: 'LAI Arabic label' })
+  @ApiProperty({ description: "LAI Arabic label" })
   laiAr: string;
 
-  @ApiProperty({ description: 'Confidence score (0-1)' })
+  @ApiProperty({ description: "Confidence score (0-1)" })
   confidence: number;
 
-  @ApiProperty({ description: 'Model used for estimation' })
+  @ApiProperty({ description: "Model used for estimation" })
   model: string;
 
-  @ApiProperty({ description: 'Data source used' })
+  @ApiProperty({ description: "Data source used" })
   dataSource: DataSource;
 
-  @ApiProperty({ description: 'Estimation date' })
+  @ApiProperty({ description: "Estimation date" })
   date: string;
 
-  @ApiProperty({ description: 'Vegetation indices used' })
+  @ApiProperty({ description: "Vegetation indices used" })
   indices: {
     ndvi: number;
     evi2: number;
@@ -153,7 +161,7 @@ export class LAIEstimationResult {
     savi: number;
   };
 
-  @ApiProperty({ description: 'Quality metrics' })
+  @ApiProperty({ description: "Quality metrics" })
   quality: {
     cloudCover: number;
     pixelPurity: number;

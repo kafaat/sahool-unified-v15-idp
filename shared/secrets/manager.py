@@ -47,8 +47,6 @@ class SecretKey(str, Enum):
 
     # JWT
     JWT_SECRET = "auth/jwt_secret"
-    JWT_PRIVATE_KEY = "auth/jwt_private_key"
-    JWT_PUBLIC_KEY = "auth/jwt_public_key"
 
     # API Keys
     OPENWEATHER_API_KEY = "external/openweather_api_key"

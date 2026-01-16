@@ -11,16 +11,21 @@
  * @version 16.0.0
  */
 
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { WalletService } from './wallet.service';
-import { CreditService, FarmData, CreditFactors, CreditReport } from './credit.service';
-import { LoanService } from './loan.service';
-import { EscrowService } from './escrow.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { WalletService } from "./wallet.service";
+import {
+  CreditService,
+  FarmData,
+  CreditFactors,
+  CreditReport,
+} from "./credit.service";
+import { LoanService } from "./loan.service";
+import { EscrowService } from "./escrow.service";
 
 // Re-export types for backward compatibility
-export { FarmData, CreditFactors, CreditReport } from './credit.service';
-export { CreditRecommendation } from './credit.service';
+export { FarmData, CreditFactors, CreditReport } from "./credit.service";
+export { CreditRecommendation } from "./credit.service";
 
 interface RecordCreditEventDto {
   walletId: string;
@@ -61,7 +66,7 @@ export class FintechService {
   // المحفظة - Wallet (delegated to WalletService)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getWallet(userId: string, userType: string = 'farmer') {
+  async getWallet(userId: string, userType: string = "farmer") {
     return this.walletService.getWallet(userId, userType);
   }
 
@@ -73,7 +78,14 @@ export class FintechService {
     userId?: string,
     ipAddress?: string,
   ) {
-    return this.walletService.deposit(walletId, amount, description, idempotencyKey, userId, ipAddress);
+    return this.walletService.deposit(
+      walletId,
+      amount,
+      description,
+      idempotencyKey,
+      userId,
+      ipAddress,
+    );
   }
 
   async withdraw(
@@ -84,7 +96,14 @@ export class FintechService {
     userId?: string,
     ipAddress?: string,
   ) {
-    return this.walletService.withdraw(walletId, amount, description, idempotencyKey, userId, ipAddress);
+    return this.walletService.withdraw(
+      walletId,
+      amount,
+      description,
+      idempotencyKey,
+      userId,
+      ipAddress,
+    );
   }
 
   async getTransactions(walletId: string, limit: number = 20) {
@@ -146,7 +165,13 @@ export class FintechService {
     userId?: string,
     ipAddress?: string,
   ) {
-    return this.loanService.repayLoan(loanId, amount, idempotencyKey, userId, ipAddress);
+    return this.loanService.repayLoan(
+      loanId,
+      amount,
+      idempotencyKey,
+      userId,
+      ipAddress,
+    );
   }
 
   async getUserLoans(walletId: string) {
@@ -167,7 +192,13 @@ export class FintechService {
     descriptionAr?: string,
   ) {
     return this.loanService.createScheduledPayment(
-      walletId, amount, frequency, nextPaymentDate, loanId, description, descriptionAr
+      walletId,
+      amount,
+      frequency,
+      nextPaymentDate,
+      loanId,
+      description,
+      descriptionAr,
     );
   }
 
@@ -198,7 +229,14 @@ export class FintechService {
     ipAddress?: string,
   ) {
     return this.escrowService.createEscrow(
-      orderId, buyerWalletId, sellerWalletId, amount, notes, idempotencyKey, userId, ipAddress
+      orderId,
+      buyerWalletId,
+      sellerWalletId,
+      amount,
+      notes,
+      idempotencyKey,
+      userId,
+      ipAddress,
     );
   }
 
@@ -209,7 +247,13 @@ export class FintechService {
     userId?: string,
     ipAddress?: string,
   ) {
-    return this.escrowService.releaseEscrow(escrowId, notes, idempotencyKey, userId, ipAddress);
+    return this.escrowService.releaseEscrow(
+      escrowId,
+      notes,
+      idempotencyKey,
+      userId,
+      ipAddress,
+    );
   }
 
   async refundEscrow(
@@ -219,7 +263,13 @@ export class FintechService {
     userId?: string,
     ipAddress?: string,
   ) {
-    return this.escrowService.refundEscrow(escrowId, reason, idempotencyKey, userId, ipAddress);
+    return this.escrowService.refundEscrow(
+      escrowId,
+      reason,
+      idempotencyKey,
+      userId,
+      ipAddress,
+    );
   }
 
   async getEscrowByOrder(orderId: string) {
@@ -235,12 +285,13 @@ export class FintechService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFinanceStats() {
-    const [totalWallets, totalBalance, activeLoans, paidLoans] = await Promise.all([
-      this.prisma.wallet.count(),
-      this.prisma.wallet.aggregate({ _sum: { balance: true } }),
-      this.prisma.loan.count({ where: { status: 'ACTIVE' } }),
-      this.prisma.loan.count({ where: { status: 'PAID' } }),
-    ]);
+    const [totalWallets, totalBalance, activeLoans, paidLoans] =
+      await Promise.all([
+        this.prisma.wallet.count(),
+        this.prisma.wallet.aggregate({ _sum: { balance: true } }),
+        this.prisma.loan.count({ where: { status: "ACTIVE" } }),
+        this.prisma.loan.count({ where: { status: "PAID" } }),
+      ]);
 
     const avgCreditScore = await this.prisma.wallet.aggregate({
       _avg: { creditScore: true },

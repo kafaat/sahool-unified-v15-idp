@@ -3,7 +3,7 @@
 // اتصال WebSocket للتحديثات الفورية
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState } from "react";
 
 // Maximum delay between reconnection attempts (30 seconds)
 const MAX_RECONNECT_DELAY = 30000;
@@ -46,11 +46,13 @@ export function useWebSocket({
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const reconnectAttemptsRef = useRef(0);
 
   const connect = useCallback(() => {
-    if (!enabled || typeof window === 'undefined') return;
+    if (!enabled || typeof window === "undefined") return;
 
     try {
       wsRef.current = new WebSocket(url);
@@ -67,7 +69,7 @@ export function useWebSocket({
           const message: WSMessage = JSON.parse(event.data);
           onMessage?.(message);
         } catch (err) {
-          console.error('Failed to parse WebSocket message:', err);
+          console.error("Failed to parse WebSocket message:", err);
         }
       };
 
@@ -79,7 +81,7 @@ export function useWebSocket({
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
           const delay = Math.min(
             reconnectInterval * Math.pow(1.5, reconnectAttemptsRef.current),
-            MAX_RECONNECT_DELAY
+            MAX_RECONNECT_DELAY,
           );
           reconnectAttemptsRef.current++;
           reconnectTimeoutRef.current = setTimeout(connect, delay);
@@ -87,13 +89,22 @@ export function useWebSocket({
       };
 
       wsRef.current.onerror = (event) => {
-        setError('Connection error');
+        setError("Connection error");
         onError?.(event);
       };
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to connect');
+      setError(err instanceof Error ? err.message : "Failed to connect");
     }
-  }, [url, onMessage, onConnect, onDisconnect, onError, reconnectInterval, maxReconnectAttempts, enabled]);
+  }, [
+    url,
+    onMessage,
+    onConnect,
+    onDisconnect,
+    onError,
+    reconnectInterval,
+    maxReconnectAttempts,
+    enabled,
+  ]);
 
   useEffect(() => {
     if (enabled) {

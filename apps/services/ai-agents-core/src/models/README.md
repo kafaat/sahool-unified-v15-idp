@@ -1,4 +1,5 @@
 # SAHOOL Disease Detection CNN Model
+
 # نموذج CNN لاكتشاف أمراض المحاصيل في SAHOOL
 
 ## Overview / نظرة عامة
@@ -267,5 +268,6 @@ Copyright © 2024 SAHOOL. All rights reserved.
 
 For questions and support:
 للأسئلة والدعم:
+
 - Email: support@sahool.com
 - Documentation: https://docs.sahool.com

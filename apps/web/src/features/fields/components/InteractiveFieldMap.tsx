@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Interactive Field Map Component
@@ -15,7 +15,7 @@
  * - Interactive click handlers / معالجات النقر التفاعلية
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -26,19 +26,13 @@ import {
   ZoomControl,
   useMapEvents,
   Circle,
-} from 'react-leaflet';
-import type { LatLngExpression, LatLngTuple } from 'leaflet';
-import L from 'leaflet';
-import {
-  Layers,
-  Cloud,
-  Droplets,
-  Thermometer,
-  Wind,
-} from 'lucide-react';
-import type { Field, GeoPolygon, GeoPoint } from '../types';
-import type { Task, TaskStatus, Priority } from '../../tasks/types';
-import type { WeatherData } from '@sahool/api-client';
+} from "react-leaflet";
+import type { LatLngExpression, LatLngTuple } from "leaflet";
+import L from "leaflet";
+import { Layers, Cloud, Droplets, Thermometer, Wind } from "lucide-react";
+import type { Field, GeoPolygon, GeoPoint } from "../types";
+import type { Task, TaskStatus, Priority } from "../../tasks/types";
+import type { WeatherData } from "@sahool/api-client";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types & Interfaces / الأنواع والواجهات
@@ -55,7 +49,7 @@ export interface HealthZone {
   radius: number; // in meters / بالأمتار
   healthScore: number; // 0-100
   ndviValue?: number;
-  status: 'healthy' | 'moderate' | 'stressed' | 'critical';
+  status: "healthy" | "moderate" | "stressed" | "critical";
   color: string;
 }
 
@@ -122,7 +116,7 @@ export interface InteractiveFieldMapProps {
  */
 const geoPolygonToLatLng = (polygon: GeoPolygon): LatLngExpression[][] => {
   return polygon.coordinates.map((ring) =>
-    ring.map(([lng, lat]) => [lat, lng] as LatLngTuple)
+    ring.map(([lng, lat]) => [lat, lng] as LatLngTuple),
   );
 };
 
@@ -140,11 +134,11 @@ const geoPointToLatLng = (point: GeoPoint): LatLngTuple => {
  * الحصول على اللون بناءً على قيمة NDVI
  */
 const getNDVIColor = (ndvi: number): string => {
-  if (ndvi >= 0.6) return '#00ff00'; // Healthy green / أخضر صحي
-  if (ndvi >= 0.4) return '#90ee90'; // Light green / أخضر فاتح
-  if (ndvi >= 0.2) return '#ffff00'; // Yellow / أصفر
-  if (ndvi >= 0.0) return '#ffa500'; // Orange / برتقالي
-  return '#ff0000'; // Red / أحمر
+  if (ndvi >= 0.6) return "#00ff00"; // Healthy green / أخضر صحي
+  if (ndvi >= 0.4) return "#90ee90"; // Light green / أخضر فاتح
+  if (ndvi >= 0.2) return "#ffff00"; // Yellow / أصفر
+  if (ndvi >= 0.0) return "#ffa500"; // Orange / برتقالي
+  return "#ff0000"; // Red / أحمر
 };
 
 /**
@@ -152,10 +146,10 @@ const getNDVIColor = (ndvi: number): string => {
  * الحصول على اللون بناءً على درجة الصحة
  */
 const getHealthColor = (score: number): string => {
-  if (score >= 80) return '#22c55e'; // Green / أخضر
-  if (score >= 60) return '#eab308'; // Yellow / أصفر
-  if (score >= 40) return '#f97316'; // Orange / برتقالي
-  return '#ef4444'; // Red / أحمر
+  if (score >= 80) return "#22c55e"; // Green / أخضر
+  if (score >= 60) return "#eab308"; // Yellow / أصفر
+  if (score >= 40) return "#f97316"; // Orange / برتقالي
+  return "#ef4444"; // Red / أحمر
 };
 
 /**
@@ -163,20 +157,20 @@ const getHealthColor = (score: number): string => {
  * الحصول على لون علامة المهمة بناءً على الأولوية والحالة
  */
 const getTaskColor = (priority: Priority, status: TaskStatus): string => {
-  if (status === 'completed') return '#22c55e'; // Green / أخضر
-  if (status === 'cancelled') return '#6b7280'; // Gray / رمادي
+  if (status === "completed") return "#22c55e"; // Green / أخضر
+  if (status === "cancelled") return "#6b7280"; // Gray / رمادي
 
   switch (priority) {
-    case 'urgent':
-      return '#dc2626'; // Red / أحمر
-    case 'high':
-      return '#f97316'; // Orange / برتقالي
-    case 'medium':
-      return '#eab308'; // Yellow / أصفر
-    case 'low':
-      return '#3b82f6'; // Blue / أزرق
+    case "urgent":
+      return "#dc2626"; // Red / أحمر
+    case "high":
+      return "#f97316"; // Orange / برتقالي
+    case "medium":
+      return "#eab308"; // Yellow / أصفر
+    case "low":
+      return "#3b82f6"; // Blue / أزرق
     default:
-      return '#6b7280'; // Gray / رمادي
+      return "#6b7280"; // Gray / رمادي
   }
 };
 
@@ -187,7 +181,7 @@ const getTaskColor = (priority: Priority, status: TaskStatus): string => {
 const createTaskIcon = (priority: Priority, status: TaskStatus): L.DivIcon => {
   const color = getTaskColor(priority, status);
   return new L.DivIcon({
-    className: 'custom-task-marker',
+    className: "custom-task-marker",
     html: `
       <div style="
         background-color: ${color};
@@ -203,7 +197,7 @@ const createTaskIcon = (priority: Priority, status: TaskStatus): L.DivIcon => {
         font-weight: bold;
         font-size: 18px;
       ">
-        ${status === 'completed' ? '✓' : '!'}
+        ${status === "completed" ? "✓" : "!"}
       </div>
     `,
     iconSize: [30, 30],
@@ -311,7 +305,9 @@ const LayerControlPanel: React.FC<LayerControlPanelProps> = ({
 
       {isOpen && (
         <div className="mt-2 bg-white rounded-lg shadow-lg p-4 min-w-[200px]">
-          <h3 className="font-bold text-gray-900 mb-3 text-sm">طبقات الخريطة</h3>
+          <h3 className="font-bold text-gray-900 mb-3 text-sm">
+            طبقات الخريطة
+          </h3>
 
           <div className="space-y-2">
             {(Object.keys(layers) as Array<keyof LayerConfig>).map((layer) => (
@@ -326,11 +322,11 @@ const LayerControlPanel: React.FC<LayerControlPanelProps> = ({
                   className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-700">
-                  {layer === 'fields' && 'حدود الحقول'}
-                  {layer === 'ndvi' && 'طبقة NDVI'}
-                  {layer === 'healthZones' && 'مناطق الصحة'}
-                  {layer === 'tasks' && 'المهام'}
-                  {layer === 'weather' && 'الطقس'}
+                  {layer === "fields" && "حدود الحقول"}
+                  {layer === "ndvi" && "طبقة NDVI"}
+                  {layer === "healthZones" && "مناطق الصحة"}
+                  {layer === "tasks" && "المهام"}
+                  {layer === "weather" && "الطقس"}
                 </span>
               </label>
             ))}
@@ -351,7 +347,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
   tasks = [],
   healthZones = [],
   weather,
-  height = '600px',
+  height = "600px",
   center,
   zoom = 13,
   enableLayerControl = true,
@@ -359,7 +355,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
   onTaskClick,
   onHealthZoneClick,
   onMapClick,
-  className = '',
+  className = "",
 }) => {
   // ─────────────────────────────────────────────────────────────────────────
   // State Management / إدارة الحالة
@@ -425,7 +421,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
         onFieldClick(clickedField);
       }
     },
-    [onFieldClick]
+    [onFieldClick],
   );
 
   const handleTaskClick = useCallback(
@@ -434,7 +430,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
         onTaskClick(clickedTask);
       }
     },
-    [onTaskClick]
+    [onTaskClick],
   );
 
   const handleHealthZoneClick = useCallback(
@@ -443,7 +439,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
         onHealthZoneClick(zone);
       }
     },
-    [onHealthZoneClick]
+    [onHealthZoneClick],
   );
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -461,12 +457,16 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
         zoom={zoom}
         zoomControl={false}
         className="w-full h-full"
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: "100%", width: "100%" }}
         {...({} as any)}
       >
         {/* Base Map Tiles / خرائط الأساس */}
         <LayersControl position="topright" {...({} as any)}>
-          <LayersControl.BaseLayer checked name="خريطة الشوارع" {...({} as any)}>
+          <LayersControl.BaseLayer
+            checked
+            name="خريطة الشوارع"
+            {...({} as any)}
+          >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -495,9 +495,10 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
             if (!fieldItem.polygon) return null;
 
             const positions = geoPolygonToLatLng(fieldItem.polygon);
-            const color = activeLayers.ndvi && fieldItem.ndviValue
-              ? getNDVIColor(fieldItem.ndviValue)
-              : '#3b82f6';
+            const color =
+              activeLayers.ndvi && fieldItem.ndviValue
+                ? getNDVIColor(fieldItem.ndviValue)
+                : "#3b82f6";
 
             return (
               <Polygon
@@ -522,7 +523,9 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">المساحة:</span>
-                        <span className="font-semibold">{fieldItem.area} هكتار</span>
+                        <span className="font-semibold">
+                          {fieldItem.area} هكتار
+                        </span>
                       </div>
                       {fieldItem.crop && (
                         <div className="flex justify-between">
@@ -532,14 +535,15 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                           </span>
                         </div>
                       )}
-                      {activeLayers.ndvi && fieldItem.ndviValue !== undefined && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">NDVI:</span>
-                          <span className="font-semibold">
-                            {fieldItem.ndviValue.toFixed(2)}
-                          </span>
-                        </div>
-                      )}
+                      {activeLayers.ndvi &&
+                        fieldItem.ndviValue !== undefined && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">NDVI:</span>
+                            <span className="font-semibold">
+                              {fieldItem.ndviValue.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
                       {fieldItem.healthScore !== undefined && (
                         <div className="flex justify-between">
                           <span className="text-gray-600">الصحة:</span>
@@ -586,7 +590,9 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">درجة الصحة:</span>
-                        <span className="font-semibold">{zone.healthScore}%</span>
+                        <span className="font-semibold">
+                          {zone.healthScore}%
+                        </span>
                       </div>
                       {zone.ndviValue !== undefined && (
                         <div className="flex justify-between">
@@ -632,11 +638,11 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                         <span className="text-gray-600">الحالة:</span>
                         <span
                           className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                            task.status === 'completed'
-                              ? 'bg-green-100 text-green-800'
-                              : task.status === 'in_progress'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-gray-100 text-gray-800'
+                            task.status === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : task.status === "in_progress"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-gray-100 text-gray-800"
                           }`}
                         >
                           {task.status}
@@ -646,13 +652,13 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                         <span className="text-gray-600">الأولوية:</span>
                         <span
                           className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                            task.priority === 'urgent'
-                              ? 'bg-red-100 text-red-800'
-                              : task.priority === 'high'
-                              ? 'bg-orange-100 text-orange-800'
-                              : task.priority === 'medium'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-blue-100 text-blue-800'
+                            task.priority === "urgent"
+                              ? "bg-red-100 text-red-800"
+                              : task.priority === "high"
+                                ? "bg-orange-100 text-orange-800"
+                                : task.priority === "medium"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-blue-100 text-blue-800"
                           }`}
                         >
                           {task.priority}
@@ -662,7 +668,9 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                         <div className="flex justify-between">
                           <span className="text-gray-600">موعد الاستحقاق:</span>
                           <span className="font-semibold">
-                            {new Date(task.due_date).toLocaleDateString('ar-EG')}
+                            {new Date(task.due_date).toLocaleDateString(
+                              "ar-EG",
+                            )}
                           </span>
                         </div>
                       )}
@@ -691,23 +699,38 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
           <h4 className="font-bold text-xs text-gray-900 mb-2">مفتاح NDVI</h4>
           <div className="space-y-1 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#00ff00' }} />
+              <div
+                className="w-4 h-4 rounded"
+                style={{ backgroundColor: "#00ff00" }}
+              />
               <span>صحي جداً (&gt; 0.6)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#90ee90' }} />
+              <div
+                className="w-4 h-4 rounded"
+                style={{ backgroundColor: "#90ee90" }}
+              />
               <span>صحي (0.4-0.6)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ffff00' }} />
+              <div
+                className="w-4 h-4 rounded"
+                style={{ backgroundColor: "#ffff00" }}
+              />
               <span>متوسط (0.2-0.4)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ffa500' }} />
+              <div
+                className="w-4 h-4 rounded"
+                style={{ backgroundColor: "#ffa500" }}
+              />
               <span>ضعيف (0-0.2)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ff0000' }} />
+              <div
+                className="w-4 h-4 rounded"
+                style={{ backgroundColor: "#ff0000" }}
+              />
               <span>حرج (&lt; 0)</span>
             </div>
           </div>

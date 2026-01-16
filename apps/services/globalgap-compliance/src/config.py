@@ -51,8 +51,8 @@ class Settings(BaseSettings):
     checklist_language: str = "ar"  # ar, en | عربي، إنجليزي
 
     # External Services | الخدمات الخارجية
-    field_service_url: str = "http://field-service:8080"
-    notification_service_url: str = "http://notification-service:8086"
+    field_service_url: str = "http://field-service:8115"
+    notification_service_url: str = "http://notification-service:8110"
 
     # Cache Settings | إعدادات التخزين المؤقت
     enable_cache: bool = True

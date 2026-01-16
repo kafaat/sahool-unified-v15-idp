@@ -1,4 +1,5 @@
 # SAHOOL Mobile App - Integration Test Analysis Report
+
 # تقرير تحليل اختبارات التكامل لتطبيق سهول
 
 **Generated:** 2026-01-06
@@ -13,13 +14,13 @@ The SAHOOL mobile Flutter application has a **comprehensive integration test sui
 
 ### Overall Assessment
 
-| Category | Rating | Details |
-|----------|--------|---------|
-| **Test Coverage** | ⭐⭐⭐⭐☆ (4/5) | Good breadth across features, but depth is inconsistent |
-| **Test Quality** | ⭐⭐⭐☆☆ (3/5) | Well-structured but many incomplete implementations |
-| **Test Reliability** | ⭐⭐☆☆☆ (2/5) | High flakiness risk due to conditional assertions |
-| **Maintainability** | ⭐⭐⭐⭐☆ (4/5) | Good organization with helpers and fixtures |
-| **Documentation** | ⭐⭐⭐⭐⭐ (5/5) | Excellent README with bilingual documentation |
+| Category             | Rating           | Details                                                 |
+| -------------------- | ---------------- | ------------------------------------------------------- |
+| **Test Coverage**    | ⭐⭐⭐⭐☆ (4/5)  | Good breadth across features, but depth is inconsistent |
+| **Test Quality**     | ⭐⭐⭐☆☆ (3/5)   | Well-structured but many incomplete implementations     |
+| **Test Reliability** | ⭐⭐☆☆☆ (2/5)    | High flakiness risk due to conditional assertions       |
+| **Maintainability**  | ⭐⭐⭐⭐☆ (4/5)  | Good organization with helpers and fixtures             |
+| **Documentation**    | ⭐⭐⭐⭐⭐ (5/5) | Excellent README with bilingual documentation           |
 
 ---
 
@@ -27,31 +28,32 @@ The SAHOOL mobile Flutter application has a **comprehensive integration test sui
 
 ### 1.1 Test Files Overview
 
-| File | Lines of Code | Test Cases (Approx.) | Status |
-|------|---------------|---------------------|---------|
-| `app_test.dart` | 497 | 20 | ✅ Core functionality covered |
-| `features/auth_test.dart` | 558 | 25 | ⚠️ Some incomplete mocking |
-| `features/fields_test.dart` | 597 | 26 | ⚠️ Many conditional assertions |
-| `features/satellite_test.dart` | 503 | 23 | ⚠️ Missing actual data verification |
-| `features/vra_test.dart` | 534 | 22 | ⚠️ Workflow tests incomplete |
-| `features/inventory_test.dart` | 610 | 27 | ⚠️ Missing barcode integration |
-| `helpers/test_helpers.dart` | 502 | N/A | ✅ Well-structured utilities |
-| `fixtures/test_data.dart` | 395 | N/A | ✅ Comprehensive test data |
+| File                           | Lines of Code | Test Cases (Approx.) | Status                              |
+| ------------------------------ | ------------- | -------------------- | ----------------------------------- |
+| `app_test.dart`                | 497           | 20                   | ✅ Core functionality covered       |
+| `features/auth_test.dart`      | 558           | 25                   | ⚠️ Some incomplete mocking          |
+| `features/fields_test.dart`    | 597           | 26                   | ⚠️ Many conditional assertions      |
+| `features/satellite_test.dart` | 503           | 23                   | ⚠️ Missing actual data verification |
+| `features/vra_test.dart`       | 534           | 22                   | ⚠️ Workflow tests incomplete        |
+| `features/inventory_test.dart` | 610           | 27                   | ⚠️ Missing barcode integration      |
+| `helpers/test_helpers.dart`    | 502           | N/A                  | ✅ Well-structured utilities        |
+| `fixtures/test_data.dart`      | 395           | N/A                  | ✅ Comprehensive test data          |
 
 **Total Test Cases:** ~143 test scenarios
 
 ### 1.2 Feature Coverage Matrix
 
-| Feature Area | Basic CRUD | Search/Filter | Offline | Export | Maps | UI/UX | Performance |
-|--------------|------------|---------------|---------|---------|------|-------|-------------|
-| **Authentication** | ✅ | ⚠️ | ✅ | N/A | N/A | ✅ | ⚠️ |
-| **Fields Management** | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ❌ |
-| **Satellite Imagery** | ✅ | ⚠️ | ✅ | ✅ | ⚠️ | ✅ | ❌ |
-| **VRA Prescriptions** | ✅ | ✅ | ✅ | ✅ | ⚠️ | ✅ | ❌ |
-| **Inventory** | ✅ | ✅ | ✅ | ✅ | N/A | ✅ | ❌ |
-| **Navigation** | ✅ | N/A | N/A | N/A | N/A | ✅ | ✅ |
+| Feature Area          | Basic CRUD | Search/Filter | Offline | Export | Maps | UI/UX | Performance |
+| --------------------- | ---------- | ------------- | ------- | ------ | ---- | ----- | ----------- |
+| **Authentication**    | ✅         | ⚠️            | ✅      | N/A    | N/A  | ✅    | ⚠️          |
+| **Fields Management** | ✅         | ✅            | ✅      | ⚠️     | ⚠️   | ✅    | ❌          |
+| **Satellite Imagery** | ✅         | ⚠️            | ✅      | ✅     | ⚠️   | ✅    | ❌          |
+| **VRA Prescriptions** | ✅         | ✅            | ✅      | ✅     | ⚠️   | ✅    | ❌          |
+| **Inventory**         | ✅         | ✅            | ✅      | ✅     | N/A  | ✅    | ❌          |
+| **Navigation**        | ✅         | N/A           | N/A     | N/A    | N/A  | ✅    | ✅          |
 
 **Legend:**
+
 - ✅ Fully tested
 - ⚠️ Partially tested or incomplete
 - ❌ Not tested
@@ -59,6 +61,7 @@ The SAHOOL mobile Flutter application has a **comprehensive integration test sui
 ### 1.3 Critical User Flows
 
 #### ✅ Covered Flows
+
 1. **User Authentication Flow**
    - Login with email/phone ✅
    - Login validation ✅
@@ -85,6 +88,7 @@ The SAHOOL mobile Flutter application has a **comprehensive integration test sui
    - Barcode scanning ⚠️
 
 #### ❌ Missing Flows
+
 1. **Payment & Billing Flow** - No tests found
 2. **Marketplace Transactions** - Not tested
 3. **Community Features** - Not tested
@@ -100,6 +104,7 @@ The SAHOOL mobile Flutter application has a **comprehensive integration test sui
 ### 2.1 Strengths
 
 #### ✅ Well-Structured Test Organization
+
 ```dart
 // Good: Clear test grouping with bilingual labels
 group('Authentication Tests - اختبارات المصادقة', () {
@@ -110,12 +115,14 @@ group('Authentication Tests - اختبارات المصادقة', () {
 ```
 
 #### ✅ Comprehensive Helper Functions
+
 - **468 lines** of reusable helper methods
 - Clear separation of concerns (auth, navigation, assertions)
 - Bilingual debug messages
 - Screenshot capture utilities
 
 #### ✅ Rich Test Data Fixtures
+
 - Realistic Arabic test data
 - Multiple test users (valid, invalid, admin, demo)
 - Sample fields with geospatial data
@@ -123,6 +130,7 @@ group('Authentication Tests - اختبارات المصادقة', () {
 - VRA prescriptions with zones
 
 #### ✅ Excellent Documentation
+
 - 400-line comprehensive README
 - Usage examples in both Arabic and English
 - CI/CD integration guidance
@@ -136,6 +144,7 @@ group('Authentication Tests - اختبارات المصادقة', () {
 **Instances:** 60+ occurrences across all test files
 
 **Problem:**
+
 ```dart
 // BAD: Test passes even if button doesn't exist
 final addButton = find.byIcon(Icons.add);
@@ -146,17 +155,20 @@ if (addButton.evaluate().isEmpty) {
 ```
 
 **Impact:**
+
 - Tests pass when features are broken
 - False sense of test coverage
 - Production bugs can slip through
 
 **Example Locations:**
+
 - `fields_test.dart`: Lines 117, 139, 213, 247, 268
 - `satellite_test.dart`: Lines 42, 219, 238, 268
 - `vra_test.dart`: Lines 126, 213, 239, 269, 324
 - `inventory_test.dart`: Lines 112, 149, 442
 
 **Recommendation:** Replace with proper mocking and assertions:
+
 ```dart
 // GOOD: Fail test if button doesn't exist
 final addButton = find.byIcon(Icons.add);
@@ -197,6 +209,7 @@ testWidgets('Select different date from timeline', (tester) async {
 ```
 
 **Impact:**
+
 - Tests report success but don't actually verify functionality
 - Missing validation of critical features
 - Misleading test metrics
@@ -207,6 +220,7 @@ testWidgets('Select different date from timeline', (tester) async {
 **Affected Areas:** Network calls, biometric auth, map interactions, camera/barcode
 
 **Problem:**
+
 ```dart
 // auth_test.dart:258 - Biometric requires device support
 testWidgets('Biometric login flow works', (tester) async {
@@ -217,6 +231,7 @@ testWidgets('Biometric login flow works', (tester) async {
 ```
 
 **Missing Mocks:**
+
 1. ✗ Network layer (HTTP client)
 2. ✗ Biometric authentication service
 3. ✗ Location/GPS services
@@ -226,6 +241,7 @@ testWidgets('Biometric login flow works', (tester) async {
 7. ✗ Push notifications
 
 **Recommendation:** Implement mocks using `mockito` or `mocktail`:
+
 ```dart
 class MockBiometricService extends Mock implements BiometricService {}
 class MockHttpClient extends Mock implements HttpClient {}
@@ -238,17 +254,20 @@ class MockLocationService extends Mock implements LocationService {}
 **Instances:** 15+ occurrences
 
 **Problem:**
+
 ```dart
 // auth_test.dart:319 - Arbitrary 5-second wait
 await helpers.wait(const Duration(seconds: 5));
 ```
 
 **Impact:**
+
 - Tests are slower than necessary
 - Still flaky if operation takes longer
 - Wastes CI/CD time
 
 **Better Approach:**
+
 ```dart
 // Wait for specific condition
 await tester.pumpAndSettle();
@@ -260,6 +279,7 @@ await helpers.waitForElement(find.text('Sync Complete'));
 **Severity:** MEDIUM
 
 **Current Coverage:**
+
 - ✅ Invalid credentials
 - ✅ Empty form validation
 - ⚠️ Network errors (not properly tested)
@@ -270,6 +290,7 @@ await helpers.waitForElement(find.text('Sync Complete'));
 - ❌ Storage full scenarios
 
 **Example Missing Test:**
+
 ```dart
 testWidgets('Handles network timeout gracefully', (tester) async {
   // Mock network timeout
@@ -286,6 +307,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 ### 3.1 Critical Missing Tests
 
 #### Authentication & Security
+
 - [ ] **Multi-device session management** - What happens when user logs in from different device?
 - [ ] **Password strength validation** - Is weak password rejected?
 - [ ] **Account lockout after failed attempts** - Security feature verification
@@ -294,6 +316,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 - [ ] **Deep link authentication** - Password reset links, magic links
 
 #### Data Integrity
+
 - [ ] **Concurrent field editing** - Two users editing same field
 - [ ] **Data validation on save** - Invalid lat/lng coordinates
 - [ ] **Image upload failures** - Network issues during upload
@@ -301,6 +324,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 - [ ] **Data migration scenarios** - App version updates
 
 #### Offline & Sync
+
 - [ ] **Conflict resolution** - Offline changes vs server changes
 - [ ] **Partial sync failures** - Some items sync, others fail
 - [ ] **Storage quota exceeded** - Device runs out of space
@@ -308,6 +332,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 - [ ] **Background sync** - App in background during sync
 
 #### Edge Cases
+
 - [ ] **Empty state interactions** - User has no data yet
 - [ ] **Maximum limits** - Field name too long, too many zones
 - [ ] **Special characters in Arabic** - Unicode handling
@@ -317,6 +342,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 - [ ] **Low memory scenarios** - Device under memory pressure
 
 #### Map & Geospatial
+
 - [ ] **GPS accuracy warnings** - Low accuracy signal
 - [ ] **Location permission denied** - User denies location
 - [ ] **Drawing field boundaries** - Polygon creation, validation
@@ -325,6 +351,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 - [ ] **Map tile loading failures** - No internet for tiles
 
 #### Satellite & NDVI
+
 - [ ] **Cloudy imagery handling** - >50% cloud coverage
 - [ ] **Missing imagery dates** - No recent satellite pass
 - [ ] **NDVI calculation validation** - Verify math is correct
@@ -333,6 +360,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 - [ ] **Cache management** - Old imagery cleanup
 
 #### VRA Prescriptions
+
 - [ ] **Zone overlap detection** - Invalid zone geometry
 - [ ] **Application rate validation** - Negative or excessive rates
 - [ ] **Shapefile export validation** - File format correctness
@@ -341,6 +369,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 - [ ] **Prescription approval workflow** - Multi-user approval chain
 
 #### Inventory
+
 - [ ] **Negative stock prevention** - Can't use more than available
 - [ ] **Expired item warnings** - Items past expiry date
 - [ ] **Barcode duplicate handling** - Same barcode for different items
@@ -351,6 +380,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 ### 3.2 Integration Tests
 
 **Missing Integration Points:**
+
 - [ ] Payment gateway integration (if applicable)
 - [ ] Push notification delivery
 - [ ] Background job processing
@@ -364,6 +394,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 ### 3.3 Platform-Specific Tests
 
 **iOS-Specific:**
+
 - [ ] Face ID / Touch ID authentication
 - [ ] iOS permissions (camera, location, notifications)
 - [ ] iOS-specific UI (Cupertino widgets)
@@ -371,6 +402,7 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 - [ ] App Store screenshot requirements
 
 **Android-Specific:**
+
 - [ ] Fingerprint authentication
 - [ ] Android permissions handling
 - [ ] Material Design 3 components
@@ -386,7 +418,9 @@ testWidgets('Handles network timeout gracefully', (tester) async {
 **File:** `fixtures/test_data.dart` (395 lines)
 
 #### Strengths:
+
 1. **Realistic Arabic Data**
+
    ```dart
    static const field1 = {
      'name': 'حقل القمح التجريبي',
@@ -415,12 +449,14 @@ testWidgets('Handles network timeout gracefully', (tester) async {
    - `ArabicStrings` - 60+ UI labels
 
 #### Gaps:
+
 - ❌ No error response fixtures (404, 500, etc.)
 - ❌ No performance test data (large datasets)
 - ❌ No boundary value fixtures (min/max values)
 - ❌ Missing validation error messages
 
 **Recommendation:**
+
 ```dart
 class TestErrorResponses {
   static const networkTimeout = {
@@ -453,12 +489,14 @@ class TestBoundaryData {
 #### Well-Implemented Helpers:
 
 **Authentication Helpers** (Lines 20-93)
+
 ```dart
 ✅ login() - Flexible with email/biometric options
 ✅ logout() - Handles confirmation dialog
 ```
 
 **Navigation Helpers** (Lines 95-130)
+
 ```dart
 ✅ navigateToBottomNavItem()
 ✅ navigateBack()
@@ -466,6 +504,7 @@ class TestBoundaryData {
 ```
 
 **Widget Interaction Helpers** (Lines 132-208)
+
 ```dart
 ✅ tapElement()
 ✅ longPressElement()
@@ -476,6 +515,7 @@ class TestBoundaryData {
 ```
 
 **Assertion Helpers** (Lines 254-285)
+
 ```dart
 ✅ verifyElementExists()
 ✅ verifyTextExists()
@@ -484,6 +524,7 @@ class TestBoundaryData {
 ```
 
 **Screenshot Helpers** (Lines 287-327)
+
 ```dart
 ✅ takeScreenshot()
 ✅ captureOnFailure()
@@ -491,6 +532,7 @@ class TestBoundaryData {
 ```
 
 **Field Management Helpers** (Lines 329-413)
+
 ```dart
 ✅ createField()
 ✅ editField()
@@ -498,6 +540,7 @@ class TestBoundaryData {
 ```
 
 #### Missing Helpers:
+
 - ❌ `verifyNetworkRequest()` - Mock HTTP verification
 - ❌ `setupMockResponse()` - Configure mock server
 - ❌ `simulateNetworkError()` - Test error handling
@@ -510,6 +553,7 @@ class TestBoundaryData {
 #### Issues in Current Helpers:
 
 **Issue 1: toggleOfflineMode() Not Implemented**
+
 ```dart
 // Line 422
 Future<void> toggleOfflineMode() async {
@@ -520,6 +564,7 @@ Future<void> toggleOfflineMode() async {
 ```
 
 **Issue 2: No Error Handling in Many Helpers**
+
 ```dart
 // createField() doesn't handle if add button is missing
 Future<void> createField(Map<String, dynamic> fieldData) async {
@@ -530,6 +575,7 @@ Future<void> createField(Map<String, dynamic> fieldData) async {
 ```
 
 **Recommended Additions:**
+
 ```dart
 /// Assert widget has specific property value
 void verifyWidgetProperty<T extends Widget>(
@@ -563,6 +609,7 @@ void mockHttpResponse(String endpoint, Map<String, dynamic> response) {
 ### 6.1 Anti-Patterns Identified
 
 #### Pattern 1: "Skip If Not Found"
+
 **Occurrences:** 60+ times
 **Risk:** HIGH
 
@@ -575,6 +622,7 @@ if (addButton.evaluate().isEmpty) {
 ```
 
 #### Pattern 2: "Optional Assertions"
+
 **Occurrences:** 40+ times
 **Risk:** MEDIUM
 
@@ -586,6 +634,7 @@ if (lowStockIndicator.evaluate().isNotEmpty) {
 ```
 
 #### Pattern 3: "Arbitrary Waits"
+
 **Occurrences:** 15+ times
 **Risk:** MEDIUM
 
@@ -595,6 +644,7 @@ await helpers.wait(const Duration(seconds: 5));
 ```
 
 #### Pattern 4: "Debug-Only Verification"
+
 **Occurrences:** 25+ times
 **Risk:** HIGH
 
@@ -606,6 +656,7 @@ await helpers.takeScreenshot('satellite_export_pdf');
 ```
 
 #### Pattern 5: "Missing Cleanup"
+
 **Occurrences:** Most tests
 **Risk:** MEDIUM
 
@@ -618,18 +669,19 @@ tearDown(() async {
 
 ### 6.2 Flakiness Risk Score by File
 
-| File | Risk Score | Issues |
-|------|-----------|---------|
-| `fields_test.dart` | 🔴 HIGH (8/10) | 20+ conditional skips, no cleanup |
-| `satellite_test.dart` | 🔴 HIGH (8/10) | Many incomplete verifications |
-| `vra_test.dart` | 🟡 MEDIUM (6/10) | 15+ conditional tests |
-| `inventory_test.dart` | 🟡 MEDIUM (6/10) | Missing negative tests |
-| `auth_test.dart` | 🟡 MEDIUM (5/10) | Biometric tests incomplete |
-| `app_test.dart` | 🟢 LOW (3/10) | Better assertions, but performance tests weak |
+| File                  | Risk Score       | Issues                                        |
+| --------------------- | ---------------- | --------------------------------------------- |
+| `fields_test.dart`    | 🔴 HIGH (8/10)   | 20+ conditional skips, no cleanup             |
+| `satellite_test.dart` | 🔴 HIGH (8/10)   | Many incomplete verifications                 |
+| `vra_test.dart`       | 🟡 MEDIUM (6/10) | 15+ conditional tests                         |
+| `inventory_test.dart` | 🟡 MEDIUM (6/10) | Missing negative tests                        |
+| `auth_test.dart`      | 🟡 MEDIUM (5/10) | Biometric tests incomplete                    |
+| `app_test.dart`       | 🟢 LOW (3/10)    | Better assertions, but performance tests weak |
 
 ### 6.3 Recommendations to Reduce Flakiness
 
 1. **Replace Conditional Logic with Mocks**
+
    ```dart
    // Instead of:
    if (widget.evaluate().isEmpty) return;
@@ -640,6 +692,7 @@ tearDown(() async {
    ```
 
 2. **Implement Proper Wait Conditions**
+
    ```dart
    // Instead of:
    await Future.delayed(Duration(seconds: 3));
@@ -650,6 +703,7 @@ tearDown(() async {
    ```
 
 3. **Add Cleanup in tearDown**
+
    ```dart
    tearDown(() async {
      // Reset mocks
@@ -684,6 +738,7 @@ tearDown(() async {
 **File:** `run_tests.sh` (451 lines)
 
 #### Strengths:
+
 - ✅ Comprehensive CLI with multiple options
 - ✅ Colored output for readability
 - ✅ Device detection and emulator management
@@ -693,6 +748,7 @@ tearDown(() async {
 - ✅ Both Arabic and English messages
 
 #### Features:
+
 ```bash
 ./run_tests.sh --all                    # Run all tests
 ./run_tests.sh --test <file>            # Run specific test
@@ -702,6 +758,7 @@ tearDown(() async {
 ```
 
 #### HTML Report Generation:
+
 - Basic RTL-aware HTML template
 - Summary statistics
 - Timestamp tracking
@@ -710,11 +767,13 @@ tearDown(() async {
 ### 7.2 Missing Infrastructure
 
 #### CI/CD Configuration
+
 **Status:** ❌ Not Found
 
 The README provides example GitHub Actions config, but no actual `.github/workflows/` files exist.
 
 **Recommended:** Create `.github/workflows/flutter-integration-tests.yml`:
+
 ```yaml
 name: Flutter Integration Tests
 
@@ -736,7 +795,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: "3.27.0"
           cache: true
 
       - name: Install dependencies
@@ -767,9 +826,11 @@ jobs:
 ```
 
 #### Code Coverage
+
 **Status:** ❌ Not Configured
 
 **Recommendation:** Add coverage reporting:
+
 ```bash
 # In run_tests.sh
 flutter test integration_test/ --coverage --coverage-path=coverage/lcov.info
@@ -782,9 +843,11 @@ codecov -f coverage/lcov.info
 ```
 
 #### Test Driver
+
 **Status:** ❌ Missing
 
 For `flutter drive` tests, need to create `test_driver/integration_test.dart`:
+
 ```dart
 import 'package:integration_test/integration_test_driver.dart';
 
@@ -792,9 +855,11 @@ Future<void> main() => integrationDriver();
 ```
 
 #### Docker Support
+
 **Status:** ❌ Not Present
 
 For consistent testing environments:
+
 ```dockerfile
 FROM cirrusci/flutter:3.27.0
 
@@ -812,6 +877,7 @@ RUN flutter test integration_test/
 ### 8.1 Accessibility Testing: ⚠️ Minimal
 
 **Current Coverage:**
+
 ```dart
 // app_test.dart:464
 testWidgets('Semantic labels are present', (tester) async {
@@ -826,6 +892,7 @@ testWidgets('Buttons have sufficient touch targets', (tester) async {
 ```
 
 **Missing Tests:**
+
 - [ ] Screen reader navigation flow
 - [ ] Semantic labels accuracy (not just presence)
 - [ ] Contrast ratio verification
@@ -839,12 +906,14 @@ testWidgets('Buttons have sufficient touch targets', (tester) async {
 ### 8.2 Internationalization: ✅ Good
 
 **Arabic Support:**
+
 - ✅ RTL layout verification
 - ✅ Arabic fonts display
 - ✅ Bilingual test data
 - ✅ Arabic string matching
 
 **Missing:**
+
 - [ ] Number formatting (Arabic vs Western numerals)
 - [ ] Date/time formatting (Hijri calendar support?)
 - [ ] Currency formatting (SAR, YER)
@@ -858,6 +927,7 @@ testWidgets('Buttons have sufficient touch targets', (tester) async {
 ### 9.1 Current Performance Tests: ⚠️ Basic
 
 **Existing Tests:**
+
 ```dart
 // app_test.dart:399
 testWidgets('App loads within acceptable time', (tester) async {
@@ -887,6 +957,7 @@ testWidgets('No memory leaks during navigation', (tester) async {
 ### 9.2 Missing Performance Tests
 
 **Critical Performance Scenarios:**
+
 - [ ] Large dataset rendering (1000+ fields)
 - [ ] Map performance with complex polygons
 - [ ] Image loading/caching performance
@@ -899,6 +970,7 @@ testWidgets('No memory leaks during navigation', (tester) async {
 - [ ] Network bandwidth usage
 
 **Recommended Performance Framework:**
+
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
@@ -934,6 +1006,7 @@ testWidgets('Field list scrolling is smooth (60 FPS)', (tester) async {
 ### 10.1 Current Security Tests: ⚠️ Basic
 
 **Existing:**
+
 ```dart
 // auth_test.dart:486
 testWidgets('Password field obscures text', (tester) async {
@@ -952,6 +1025,7 @@ testWidgets('Multiple failed login attempts handled', (tester) async {
 ### 10.2 Missing Security Tests
 
 **Critical Security Scenarios:**
+
 - [ ] SQL injection prevention (if using raw queries)
 - [ ] XSS prevention in user inputs
 - [ ] Token storage security (not in SharedPreferences plain text)
@@ -965,6 +1039,7 @@ testWidgets('Multiple failed login attempts handled', (tester) async {
 - [ ] Code obfuscation verification
 
 **Recommended Security Tests:**
+
 ```dart
 testWidgets('Sensitive data not logged', (tester) async {
   // Enable debug logging
@@ -1001,9 +1076,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 ### Priority 1: Critical (Fix Immediately)
 
 #### 1. Fix Conditional Test Logic ⚠️
+
 **Impact:** HIGH - False positive test results
 
 **Action Items:**
+
 1. Audit all tests for `if (widget.evaluate().isEmpty) return;` pattern
 2. Replace with proper assertions or mocks
 3. Create linter rule to prevent future occurrences
@@ -1011,9 +1088,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 **Estimated Effort:** 3-5 days
 
 #### 2. Implement Mock Infrastructure 🔧
+
 **Impact:** HIGH - Enable proper unit testing
 
 **Action Items:**
+
 1. Add `mockito` or `mocktail` dependency
 2. Create mock classes for all services
 3. Implement mock HTTP client
@@ -1022,9 +1101,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 **Estimated Effort:** 1 week
 
 #### 3. Complete Incomplete Tests ⚠️
+
 **Impact:** MEDIUM - Improve actual coverage
 
 **Action Items:**
+
 1. Identify all tests with "⚠️ requires mocking" messages
 2. Implement proper test logic for each
 3. Remove placeholder implementations
@@ -1034,9 +1115,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 ### Priority 2: High (Address Soon)
 
 #### 4. Add CI/CD Integration 🚀
+
 **Impact:** MEDIUM - Automated quality gates
 
 **Action Items:**
+
 1. Create GitHub Actions workflow
 2. Set up Android emulator runner
 3. Configure test reporting
@@ -1045,9 +1128,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 **Estimated Effort:** 2-3 days
 
 #### 5. Improve Test Data Quality 📊
+
 **Impact:** MEDIUM - More reliable tests
 
 **Action Items:**
+
 1. Add error response fixtures
 2. Create boundary value test data
 3. Add performance test datasets
@@ -1056,9 +1141,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 **Estimated Effort:** 3-4 days
 
 #### 6. Implement Proper tearDown Logic 🧹
+
 **Impact:** MEDIUM - Prevent test pollution
 
 **Action Items:**
+
 1. Add mock reset in tearDown
 2. Clear local storage between tests
 3. Reset app state to login screen
@@ -1068,9 +1155,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 ### Priority 3: Medium (Nice to Have)
 
 #### 7. Add Golden File Testing 🎨
+
 **Impact:** LOW-MEDIUM - Visual regression testing
 
 **Action Items:**
+
 1. Create golden files for key screens
 2. Add screenshot comparison tests
 3. Set up golden file updating workflow
@@ -1078,9 +1167,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 **Estimated Effort:** 1 week
 
 #### 8. Implement Performance Profiling 📈
+
 **Impact:** MEDIUM - Catch performance regressions
 
 **Action Items:**
+
 1. Add frame timing measurements
 2. Create performance benchmarks
 3. Set up performance regression alerts
@@ -1088,9 +1179,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 **Estimated Effort:** 1 week
 
 #### 9. Expand Security Testing 🔒
+
 **Impact:** MEDIUM - Improve security posture
 
 **Action Items:**
+
 1. Add token security tests
 2. Implement session timeout tests
 3. Create data protection tests
@@ -1100,9 +1193,11 @@ testWidgets('Secure storage used for tokens', (tester) async {
 ### Priority 4: Low (Future Enhancement)
 
 #### 10. Add More Feature Coverage 📱
+
 **Impact:** LOW - Test additional features
 
 **Action Items:**
+
 1. Add payment/billing tests
 2. Test marketplace features
 3. Test community interactions
@@ -1117,6 +1212,7 @@ testWidgets('Secure storage used for tokens', (tester) async {
 ### 12.1 Running Tests
 
 **Local Development:**
+
 ```bash
 # Run all tests
 cd apps/mobile
@@ -1133,6 +1229,7 @@ cd apps/mobile
 ```
 
 **Expected Duration:**
+
 - Full test suite: ~20-30 minutes
 - Single feature: ~3-5 minutes
 - Quick smoke test: ~2-3 minutes
@@ -1140,21 +1237,25 @@ cd apps/mobile
 ### 12.2 Test Maintenance Schedule
 
 **Daily:**
+
 - [ ] Run smoke tests on main branch
 - [ ] Review test failures from CI
 
 **Weekly:**
+
 - [ ] Run full integration test suite
 - [ ] Review flaky test reports
 - [ ] Update test data if needed
 
 **Monthly:**
+
 - [ ] Audit test coverage
 - [ ] Update golden files
 - [ ] Review and remove obsolete tests
 - [ ] Performance baseline updates
 
 **Quarterly:**
+
 - [ ] Major test infrastructure upgrades
 - [ ] Dependency updates (Flutter, packages)
 - [ ] Security test review
@@ -1165,16 +1266,16 @@ cd apps/mobile
 
 ### 13.1 Current Test Metrics
 
-| Metric | Current Value | Target | Status |
-|--------|--------------|--------|--------|
-| **Total Test Cases** | 143 | 200+ | 🟡 |
-| **Test Files** | 6 | 10+ | 🟡 |
-| **Lines of Test Code** | 3,700+ | 5,000+ | 🟢 |
-| **Test Coverage** | Unknown | >80% | ⚠️ |
-| **Flaky Tests** | ~30% | <5% | 🔴 |
-| **Avg Test Duration** | ~25 min | <15 min | 🔴 |
-| **CI Integration** | No | Yes | 🔴 |
-| **Documentation** | Excellent | Excellent | 🟢 |
+| Metric                 | Current Value | Target    | Status |
+| ---------------------- | ------------- | --------- | ------ |
+| **Total Test Cases**   | 143           | 200+      | 🟡     |
+| **Test Files**         | 6             | 10+       | 🟡     |
+| **Lines of Test Code** | 3,700+        | 5,000+    | 🟢     |
+| **Test Coverage**      | Unknown       | >80%      | ⚠️     |
+| **Flaky Tests**        | ~30%          | <5%       | 🔴     |
+| **Avg Test Duration**  | ~25 min       | <15 min   | 🔴     |
+| **CI Integration**     | No            | Yes       | 🔴     |
+| **Documentation**      | Excellent     | Excellent | 🟢     |
 
 ### 13.2 Recommended KPIs to Track
 
@@ -1211,6 +1312,7 @@ The SAHOOL mobile integration test suite demonstrates **excellent organization a
 However, there are **significant quality concerns** that need immediate attention:
 
 **Critical Issues:**
+
 1. ⚠️ **High flakiness risk** - 60+ conditional test assertions
 2. ⚠️ **Missing mock infrastructure** - No proper service mocking
 3. ⚠️ **Incomplete implementations** - 30+ placeholder tests
@@ -1218,6 +1320,7 @@ However, there are **significant quality concerns** that need immediate attentio
 5. ⚠️ **Unknown coverage** - No code coverage tracking
 
 **Strengths:**
+
 1. ✅ Excellent bilingual documentation
 2. ✅ Well-organized test structure
 3. ✅ Comprehensive test helpers
@@ -1228,29 +1331,32 @@ However, there are **significant quality concerns** that need immediate attentio
 
 **Overall Test Suite Risk Level: 🟡 MEDIUM-HIGH**
 
-| Risk Area | Level | Mitigation Priority |
-|-----------|-------|-------------------|
-| Flaky Tests | 🔴 HIGH | CRITICAL |
-| Missing Mocks | 🔴 HIGH | CRITICAL |
-| Incomplete Tests | 🟡 MEDIUM | HIGH |
-| No CI/CD | 🟡 MEDIUM | HIGH |
-| Limited Performance Tests | 🟡 MEDIUM | MEDIUM |
-| Security Testing Gaps | 🟡 MEDIUM | MEDIUM |
+| Risk Area                 | Level     | Mitigation Priority |
+| ------------------------- | --------- | ------------------- |
+| Flaky Tests               | 🔴 HIGH   | CRITICAL            |
+| Missing Mocks             | 🔴 HIGH   | CRITICAL            |
+| Incomplete Tests          | 🟡 MEDIUM | HIGH                |
+| No CI/CD                  | 🟡 MEDIUM | HIGH                |
+| Limited Performance Tests | 🟡 MEDIUM | MEDIUM              |
+| Security Testing Gaps     | 🟡 MEDIUM | MEDIUM              |
 
 ### 14.3 Immediate Actions Required
 
 **This Week:**
+
 1. ✅ Audit and fix all conditional test logic
 2. ✅ Set up mockito/mocktail infrastructure
 3. ✅ Configure CI/CD with GitHub Actions
 
 **This Month:**
+
 1. ✅ Complete all placeholder test implementations
 2. ✅ Add code coverage tracking
 3. ✅ Implement proper tearDown logic
 4. ✅ Create performance test framework
 
 **This Quarter:**
+
 1. ✅ Expand to 200+ test cases
 2. ✅ Achieve >80% code coverage
 3. ✅ Reduce flaky tests to <5%
@@ -1266,6 +1372,7 @@ However, there are **significant quality concerns** that need immediate attentio
 4. Integrate with CI/CD for automated quality gates
 
 **Estimated Effort to Production-Ready:**
+
 - **Team Size:** 2 QA engineers
 - **Timeline:** 6-8 weeks
 - **Investment:** ~640-800 engineering hours
@@ -1311,7 +1418,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
-# Recommended additions:
+  # Recommended additions:
   mockito: ^5.4.0
   mocktail: ^1.0.0
   golden_toolkit: ^0.15.0
@@ -1321,18 +1428,21 @@ dev_dependencies:
 ### 15.3 Useful Resources
 
 **Flutter Testing:**
+
 - https://docs.flutter.dev/testing/integration-tests
 - https://api.flutter.dev/flutter/flutter_test/flutter_test-library.html
 
 **Test Patterns:**
+
 - https://testing.googleblog.com/
 - https://martinfowler.com/articles/practical-test-pyramid.html
 
 **Arabic/RTL Testing:**
+
 - https://flutter.dev/docs/development/accessibility-and-localization/internationalization
 
 ---
 
 **Report End**
 
-*For questions or clarifications about this report, please contact the QA team or refer to the test README at `/home/user/sahool-unified-v15-idp/apps/mobile/integration_test/README.md`*
+_For questions or clarifications about this report, please contact the QA team or refer to the test README at `/home/user/sahool-unified-v15-idp/apps/mobile/integration_test/README.md`_

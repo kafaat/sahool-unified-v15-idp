@@ -3,12 +3,13 @@
  * Utilities for protecting API routes with role-based authorization
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { verifyToken, getUserFromToken } from './jwt-verify';
-import { hasAnyRole } from './jwt-verify';
-import type { UserRole } from './route-protection';
-import type { User } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { verifyToken, getUserFromToken } from "./jwt-verify";
+import { hasAnyRole } from "./jwt-verify";
+import type { UserRole } from "./route-protection";
+import type { User } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 /**
  * Context object passed to API route handlers
@@ -23,7 +24,7 @@ export interface AuthenticatedContext {
  */
 export type AuthenticatedHandler<T = any> = (
   request: NextRequest,
-  context: AuthenticatedContext
+  context: AuthenticatedContext,
 ) => Promise<NextResponse<T>>;
 
 /**
@@ -39,16 +40,16 @@ export type AuthenticatedHandler<T = any> = (
  * });
  */
 export function withAuth<T = any>(
-  handler: AuthenticatedHandler<T>
+  handler: AuthenticatedHandler<T>,
 ): (request: NextRequest) => Promise<NextResponse<T>> {
   return async (request: NextRequest) => {
     const cookieStore = await cookies();
-    const token = cookieStore.get('sahool_admin_token')?.value;
+    const token = cookieStore.get("sahool_admin_token")?.value;
 
     if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401 }
+        { error: "Unauthorized", message: "Authentication required" },
+        { status: 401 },
       ) as NextResponse<T>;
     }
 
@@ -58,18 +59,18 @@ export function withAuth<T = any>(
 
       if (!user) {
         return NextResponse.json(
-          { error: 'Unauthorized', message: 'Invalid token' },
-          { status: 401 }
+          { error: "Unauthorized", message: "Invalid token" },
+          { status: 401 },
         ) as NextResponse<T>;
       }
 
       // Call handler with authenticated context
       return handler(request, { user, token });
     } catch (error) {
-      console.error('Authentication error:', error);
+      logger.error("Authentication error:", error);
       return NextResponse.json(
-        { error: 'Unauthorized', message: 'Token verification failed' },
-        { status: 401 }
+        { error: "Unauthorized", message: "Token verification failed" },
+        { status: 401 },
       ) as NextResponse<T>;
     }
   };
@@ -97,7 +98,7 @@ export function withAuth<T = any>(
  */
 export function withRole<T = any>(
   allowedRoles: UserRole[],
-  handler: AuthenticatedHandler<T>
+  handler: AuthenticatedHandler<T>,
 ): (request: NextRequest) => Promise<NextResponse<T>> {
   return withAuth<T>(async (request, context) => {
     const { user } = context;
@@ -106,12 +107,12 @@ export function withRole<T = any>(
     if (!hasAnyRole(user.role, allowedRoles)) {
       return NextResponse.json(
         {
-          error: 'Forbidden',
-          message: 'You do not have permission to access this resource',
+          error: "Forbidden",
+          message: "You do not have permission to access this resource",
           required_roles: allowedRoles,
           your_role: user.role,
         },
-        { status: 403 }
+        { status: 403 },
       ) as NextResponse<T>;
     }
 
@@ -134,9 +135,9 @@ export function withRole<T = any>(
  * });
  */
 export function withAdmin<T = any>(
-  handler: AuthenticatedHandler<T>
+  handler: AuthenticatedHandler<T>,
 ): (request: NextRequest) => Promise<NextResponse<T>> {
-  return withRole<T>(['admin'], handler);
+  return withRole<T>(["admin"], handler);
 }
 
 /**
@@ -153,9 +154,9 @@ export function withAdmin<T = any>(
  * });
  */
 export function withSupervisor<T = any>(
-  handler: AuthenticatedHandler<T>
+  handler: AuthenticatedHandler<T>,
 ): (request: NextRequest) => Promise<NextResponse<T>> {
-  return withRole<T>(['admin', 'supervisor'], handler);
+  return withRole<T>(["admin", "supervisor"], handler);
 }
 
 /**
@@ -175,11 +176,11 @@ export function withSupervisor<T = any>(
  * }
  */
 export async function getAuthenticatedUser(
-  request?: NextRequest
+  request?: NextRequest,
 ): Promise<User | null> {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('sahool_admin_token')?.value;
+    const token = cookieStore.get("sahool_admin_token")?.value;
 
     if (!token) {
       return null;
@@ -187,7 +188,7 @@ export async function getAuthenticatedUser(
 
     return await getUserFromToken(token);
   } catch (error) {
-    console.error('Failed to get authenticated user:', error);
+    logger.error("Failed to get authenticated user:", error);
     return null;
   }
 }
@@ -217,7 +218,7 @@ export function checkUserRole(user: User, allowedRoles: UserRole[]): boolean {
 export function errorResponse(
   message: string,
   status: number = 400,
-  additionalData?: Record<string, any>
+  additionalData?: Record<string, any>,
 ): NextResponse {
   return NextResponse.json(
     {
@@ -225,7 +226,7 @@ export function errorResponse(
       message,
       ...additionalData,
     },
-    { status }
+    { status },
   );
 }
 
@@ -235,22 +236,22 @@ export function errorResponse(
 function getErrorType(status: number): string {
   switch (status) {
     case 400:
-      return 'Bad Request';
+      return "Bad Request";
     case 401:
-      return 'Unauthorized';
+      return "Unauthorized";
     case 403:
-      return 'Forbidden';
+      return "Forbidden";
     case 404:
-      return 'Not Found';
+      return "Not Found";
     case 409:
-      return 'Conflict';
+      return "Conflict";
     case 422:
-      return 'Validation Error';
+      return "Validation Error";
     case 429:
-      return 'Too Many Requests';
+      return "Too Many Requests";
     case 500:
-      return 'Internal Server Error';
+      return "Internal Server Error";
     default:
-      return 'Error';
+      return "Error";
   }
 }

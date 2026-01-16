@@ -7,6 +7,7 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
 ## 📁 Files Created
 
 ### Core Implementation
+
 1. **`src/spray_advisor.py`** (1,089 lines)
    - `SprayAdvisor` class with full weather-based spray recommendations
    - `SprayProduct` enum (herbicide, insecticide, fungicide, foliar_fertilizer, growth_regulator)
@@ -27,11 +28,13 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
    - Yemen-specific regional considerations
 
 ### Integration
+
 3. **`src/main.py`** (Modified)
    - Added spray endpoints registration
    - Endpoints now available at service startup
 
 ### Documentation
+
 4. **`SPRAY_ADVISOR.md`** (520 lines)
    - Complete feature documentation
    - API reference with examples
@@ -43,6 +46,7 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
    - Integration notes
 
 ### Testing
+
 5. **`test_spray_advisor.py`** (465 lines)
    - Comprehensive integration tests
    - Tests for all three Yemen regions (Sanaa, Hodeidah, Taiz)
@@ -60,6 +64,7 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
    - ✅ All tests passing (100% success rate)
 
 ### Examples
+
 7. **`examples/spray_advisor_usage.py`** (343 lines)
    - 5 practical usage examples
    - API integration examples
@@ -69,6 +74,7 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
 ## 🎯 Features Implemented
 
 ### Weather Monitoring
+
 - ✅ Temperature (10-30°C ideal range, product-specific adjustments)
 - ✅ Humidity (40-80% ideal range)
 - ✅ Wind Speed (< 15 km/h general, < 10 km/h for insecticides)
@@ -76,6 +82,7 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
 - ✅ Delta-T calculation (2-8°C optimal range)
 
 ### Product-Specific Recommendations
+
 - ✅ Herbicide (15-28°C, 6h rain-free period)
 - ✅ Insecticide (low wind < 10 km/h)
 - ✅ Fungicide (humidity < 70%)
@@ -83,6 +90,7 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
 - ✅ Growth Regulator (moderate conditions)
 
 ### Risk Assessment
+
 - ✅ Spray drift detection (high wind)
 - ✅ Wash-off risk (rain forecast)
 - ✅ Evaporation risk (low humidity + high temp)
@@ -92,12 +100,14 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
 - ✅ Temperature inversion (low Delta-T)
 
 ### Spray Condition Scoring
+
 - ✅ 0-100 score calculation
 - ✅ 5 condition levels (excellent, good, marginal, poor, dangerous)
 - ✅ Automatic risk aggregation
 - ✅ Product-specific score adjustments
 
 ### Recommendations
+
 - ✅ Bilingual support (Arabic/English)
 - ✅ Condition-specific advice
 - ✅ Risk-specific mitigation strategies
@@ -105,6 +115,7 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
 - ✅ Safety reminders
 
 ### Regional Optimization
+
 - ✅ Yemen highlands (Sanaa, Ibb, Dhamar)
   - Best time: 10 AM - 3 PM
   - Frost risk awareness
@@ -122,32 +133,41 @@ A comprehensive spray time recommendation system has been added to the SAHOOL sa
 ## 📊 API Endpoints
 
 ### 1. Spray Forecast
+
 ```
 GET /v1/spray/forecast?lat={lat}&lon={lon}&days=7&product_type=herbicide
 ```
+
 Returns 7-day forecast with optimal spray windows for each day.
 
 ### 2. Best Spray Time
+
 ```
 GET /v1/spray/best-time?lat={lat}&lon={lon}&product_type=insecticide&within_days=3
 ```
+
 Finds the single best spray window in next N days.
 
 ### 3. Evaluate Specific Time
+
 ```
 POST /v1/spray/evaluate?lat={lat}&lon={lon}&target_datetime=2024-12-26T09:00:00&product_type=fungicide
 ```
+
 Checks if a specific time is suitable for spraying.
 
 ### 4. Spray Conditions Info
+
 ```
 GET /v1/spray/conditions
 ```
+
 Returns reference information about ideal conditions, risks, and regional guidelines.
 
 ## 🧪 Test Results
 
 ### Logic Tests (test_spray_logic.py)
+
 ✅ Spray score calculation - PASSED
 ✅ Product-specific conditions - PASSED
 ✅ Risk identification - PASSED
@@ -158,6 +178,7 @@ Returns reference information about ideal conditions, risks, and regional guidel
 **Success Rate**: 100%
 
 ### Sample Test Output
+
 ```
 Conditions                               Score      Level           Status
 --------------------------------------------------------------------------------
@@ -170,6 +191,7 @@ Hot, dry, windy, rain                       0.0/100  DANGEROUS       ✅
 ## 🔧 Technical Implementation
 
 ### Architecture
+
 - **Clean separation**: Logic in `spray_advisor.py`, API in `spray_endpoints.py`
 - **Async/await**: Full async support for weather API calls
 - **Type hints**: Complete type annotations for better IDE support
@@ -177,6 +199,7 @@ Hot, dry, windy, rain                       0.0/100  DANGEROUS       ✅
 - **Enums**: Type-safe product and condition definitions
 
 ### Weather Data Source
+
 - **API**: Open-Meteo free weather API
 - **Coverage**: Hourly forecasts up to 16 days ahead
 - **Data**: Temperature, humidity, wind speed, precipitation probability
@@ -184,6 +207,7 @@ Hot, dry, windy, rain                       0.0/100  DANGEROUS       ✅
 - **Authentication**: None required
 
 ### Algorithms
+
 1. **Spray Score Calculation**
    - Base score: 100
    - Temperature penalty: (deviation × 5) capped at 40
@@ -207,6 +231,7 @@ Hot, dry, windy, rain                       0.0/100  DANGEROUS       ✅
 ## 🌍 Real-World Use Cases
 
 ### Wheat Farm in Sanaa
+
 ```python
 # Get weekly forecast for herbicide application
 forecast = await advisor.get_spray_forecast(
@@ -219,6 +244,7 @@ forecast = await advisor.get_spray_forecast(
 ```
 
 ### Vegetable Farm in Hodeidah
+
 ```python
 # Find best time for insecticide in next 3 days
 best_time = await advisor.get_best_spray_time(
@@ -231,6 +257,7 @@ best_time = await advisor.get_best_spray_time(
 ```
 
 ### Planned Spray Time Check
+
 ```python
 # Farmer wants to spray tomorrow at 9 AM
 evaluation = await advisor.evaluate_spray_time(
@@ -260,6 +287,7 @@ evaluation = await advisor.evaluate_spray_time(
 ## 🚀 Integration Points
 
 The spray advisor integrates with:
+
 - **Weather Service**: Real-time and forecast data
 - **Field Management**: Per-field spray recommendations
 - **Crop Calendar**: Growth stage-aware timing
@@ -270,6 +298,7 @@ The spray advisor integrates with:
 ## 📝 Next Steps
 
 Potential enhancements:
+
 1. Soil moisture integration
 2. Historical spray efficacy tracking
 3. Machine learning for location optimization
@@ -281,6 +310,7 @@ Potential enhancements:
 ## 🎓 Educational Value
 
 The implementation includes:
+
 - Detailed inline comments
 - Bilingual documentation
 - Scientific references
@@ -304,23 +334,27 @@ The implementation includes:
 ## 📞 Usage
 
 ### Start Service
+
 ```bash
 cd apps/services/satellite-service
 python -m uvicorn src.main:app --port 8090
 ```
 
 ### Run Tests
+
 ```bash
 python test_spray_logic.py
 python test_spray_advisor.py  # Requires API access
 ```
 
 ### Try Examples
+
 ```bash
 python examples/spray_advisor_usage.py
 ```
 
 ### API Access
+
 ```bash
 # Get forecast
 curl "http://localhost:8090/v1/spray/forecast?lat=15.37&lon=44.19&days=7&product_type=herbicide"

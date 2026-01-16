@@ -18,35 +18,43 @@ This directory contains the complete configuration for PostgreSQL WAL (Write-Ahe
 ### 2. WAL-G Scripts
 
 #### Archive Script
+
 **File:** `/config/postgres/scripts/wal-archive.sh`
 
 Multi-tiered archiving strategy:
+
 1. Primary: WAL-G to S3/MinIO
 2. Fallback: AWS CLI to S3/MinIO
 3. Emergency: Local filesystem only
 
 Features:
+
 - Comprehensive logging
 - Error handling with fallback methods
 - Local cache for quick recovery
 
 #### Restore Script
+
 **File:** `/config/postgres/scripts/wal-restore.sh`
 
 Multi-source restore strategy:
+
 1. Local archive (fastest)
 2. WAL-G from S3/MinIO
 3. AWS CLI from S3/MinIO
 
 Features:
+
 - Automatic caching to local archive
 - Multiple S3 path attempts
 - Comprehensive logging
 
 #### Initialization Script
+
 **File:** `/config/postgres/scripts/init-walg.sh`
 
 Automated setup script that:
+
 - Validates configuration
 - Creates S3 bucket if needed
 - Enables bucket versioning
@@ -54,9 +62,11 @@ Automated setup script that:
 - Tests WAL-G connectivity
 
 #### Test Script
+
 **File:** `/config/postgres/scripts/test-walg-setup.sh`
 
 Comprehensive test suite that validates:
+
 - PostgreSQL status
 - WAL-G installation
 - Configuration correctness
@@ -64,9 +74,11 @@ Comprehensive test suite that validates:
 - WAL archiving functionality
 
 #### Maintenance Script
+
 **File:** `/config/postgres/scripts/walg-maintenance.sh`
 
 Maintenance operations:
+
 - Create backups
 - Clean up old backups
 - Verify backup integrity
@@ -75,24 +87,29 @@ Maintenance operations:
 ### 3. Docker Configuration
 
 #### Custom Docker Image
+
 **File:** `/config/postgres/Dockerfile.walg`
 
 Custom PostgreSQL image with:
+
 - PostgreSQL 16 + PostGIS 3.4
 - WAL-G v2.0.1
 - AWS CLI v2
 - Pre-configured scripts
 
 #### Docker Compose Override
+
 **File:** `/docker-compose.walg.yml`
 
 Overlay configuration that adds:
+
 - WAL-G environment variables
 - S3/MinIO connection settings
 - Additional volumes for WAL archive
 - Custom PostgreSQL configuration
 
 Usage:
+
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.walg.yml up -d
 ```
@@ -102,6 +119,7 @@ docker-compose -f docker-compose.yml -f docker-compose.walg.yml up -d
 **File:** `/config/postgres/k8s-walg-example.yaml`
 
 Complete Kubernetes manifests including:
+
 - StatefulSet for PostgreSQL with WAL-G
 - Secrets for S3 credentials
 - ConfigMaps for configuration
@@ -114,6 +132,7 @@ Complete Kubernetes manifests including:
 **File:** `/.env.example` (lines 774-842)
 
 Added comprehensive WAL-G configuration:
+
 - `WALG_S3_PREFIX` - S3 bucket path
 - `WALG_COMPRESSION_METHOD` - Compression algorithm
 - `WALG_DELTA_MAX_STEPS` - Delta backup depth
@@ -125,9 +144,11 @@ Added comprehensive WAL-G configuration:
 ### 6. Documentation
 
 #### Complete PITR Guide
+
 **File:** `/config/postgres/PITR_RECOVERY.md`
 
 Comprehensive 500+ line guide covering:
+
 - Architecture and components
 - Initial setup procedures
 - Creating and managing backups
@@ -137,9 +158,11 @@ Comprehensive 500+ line guide covering:
 - Troubleshooting common issues
 
 #### Quick Start Guide
+
 **File:** `/config/postgres/WAL_ARCHIVING_QUICKSTART.md`
 
 Quick 5-step setup guide:
+
 1. Update environment variables
 2. Deploy PostgreSQL with WAL-G
 3. Initialize WAL-G
@@ -215,30 +238,35 @@ docker-compose.walg.yml               # Docker Compose overlay
 ## Key Features
 
 ### Continuous WAL Archiving
+
 - Automatic archiving of WAL files to S3/MinIO
 - Local cache for quick recovery
 - Multi-tier fallback strategy
 - Comprehensive logging
 
 ### Base Backups
+
 - Full and incremental (delta) backups
 - Automated retention management
 - Backup verification
 - Performance optimization
 
 ### Point-in-Time Recovery
+
 - Restore to latest state
 - Restore to specific timestamp
 - Restore to transaction ID
 - Restore to named restore point
 
 ### Disaster Recovery
+
 - Complete site failure recovery
 - Database corruption recovery
 - Geographic redundancy with S3
 - Tested recovery procedures
 
 ### Monitoring & Maintenance
+
 - Automated backup scheduling
 - Health checks and alerts
 - Storage usage monitoring
@@ -247,31 +275,37 @@ docker-compose.walg.yml               # Docker Compose overlay
 ## Common Operations
 
 ### Create Backup
+
 ```bash
 docker-compose exec postgres wal-g backup-push /var/lib/postgresql/data
 ```
 
 ### List Backups
+
 ```bash
 docker-compose exec postgres wal-g backup-list
 ```
 
 ### Clean Up Old Backups
+
 ```bash
 docker-compose exec postgres wal-g delete retain 7 --confirm
 ```
 
 ### Monitor WAL Archiving
+
 ```bash
 docker-compose exec postgres psql -U sahool -c "SELECT * FROM pg_stat_archiver;"
 ```
 
 ### Check Logs
+
 ```bash
 docker-compose exec postgres tail -f /var/log/postgresql/wal-archive.log
 ```
 
 ### Run Maintenance
+
 ```bash
 ./config/postgres/scripts/walg-maintenance.sh status
 ./config/postgres/scripts/walg-maintenance.sh backup
@@ -445,6 +479,7 @@ For complete troubleshooting guide, see [PITR_RECOVERY.md](./PITR_RECOVERY.md#tr
 ## Support
 
 For issues or questions:
+
 - Review documentation in this directory
 - Check logs: `docker-compose logs postgres`
 - Run diagnostics: `./config/postgres/scripts/test-walg-setup.sh`

@@ -38,7 +38,7 @@
  * ```
  */
 
-import { randomUUID } from 'crypto';
+import { randomUUID } from "crypto";
 
 // Type definition for nestjs-pino Params (to avoid hard dependency)
 interface PinoHttpOptions {
@@ -67,21 +67,22 @@ interface Params {
  */
 export function createPinoLoggerConfig(serviceName: string): Params {
   const isDevelopment =
-    process.env.NODE_ENV !== 'production' && process.env.ENVIRONMENT !== 'production';
-  const logLevel = process.env.LOG_LEVEL || 'info';
+    process.env.NODE_ENV !== "production" &&
+    process.env.ENVIRONMENT !== "production";
+  const logLevel = process.env.LOG_LEVEL || "info";
 
   return {
     pinoHttp: {
       // Use pretty printing in development, JSON in production
       transport: isDevelopment
         ? {
-            target: 'pino-pretty',
+            target: "pino-pretty",
             options: {
               colorize: true,
-              translateTime: 'SYS:standard',
-              ignore: 'pid,hostname',
+              translateTime: "SYS:standard",
+              ignore: "pid,hostname",
               singleLine: false,
-              messageFormat: '{service} [{levelLabel}] {msg}',
+              messageFormat: "{service} [{levelLabel}] {msg}",
             },
           }
         : undefined,
@@ -101,19 +102,19 @@ export function createPinoLoggerConfig(serviceName: string): Params {
           remotePort: req.remotePort,
           headers: {
             host: req.headers.host,
-            'user-agent': req.headers['user-agent'],
-            'content-type': req.headers['content-type'],
-            'x-correlation-id': req.headers['x-correlation-id'],
-            'x-request-id': req.headers['x-request-id'],
-            'x-tenant-id': req.headers['x-tenant-id'],
-            'x-user-id': req.headers['x-user-id'],
+            "user-agent": req.headers["user-agent"],
+            "content-type": req.headers["content-type"],
+            "x-correlation-id": req.headers["x-correlation-id"],
+            "x-request-id": req.headers["x-request-id"],
+            "x-tenant-id": req.headers["x-tenant-id"],
+            "x-user-id": req.headers["x-user-id"],
           },
         }),
         res: (res: any) => ({
           statusCode: res.statusCode,
           headers: {
-            'content-type': res.headers?.['content-type'],
-            'x-correlation-id': res.headers?.['x-correlation-id'],
+            "content-type": res.headers?.["content-type"],
+            "x-correlation-id": res.headers?.["x-correlation-id"],
           },
         }),
         err: (err: any) => ({
@@ -129,13 +130,13 @@ export function createPinoLoggerConfig(serviceName: string): Params {
       genReqId: (req: any, res: any) => {
         // Use existing correlation ID from headers, or generate new one
         const correlationId =
-          req.headers['x-correlation-id'] ||
-          req.headers['x-request-id'] ||
+          req.headers["x-correlation-id"] ||
+          req.headers["x-request-id"] ||
           randomUUID();
 
         // Set correlation ID in response header
-        res.setHeader('X-Correlation-ID', correlationId);
-        res.setHeader('X-Request-ID', correlationId);
+        res.setHeader("X-Correlation-ID", correlationId);
+        res.setHeader("X-Request-ID", correlationId);
 
         return correlationId;
       },
@@ -143,7 +144,8 @@ export function createPinoLoggerConfig(serviceName: string): Params {
       // Base logger configuration
       base: {
         service: serviceName,
-        environment: process.env.ENVIRONMENT || process.env.NODE_ENV || 'development',
+        environment:
+          process.env.ENVIRONMENT || process.env.NODE_ENV || "development",
       },
 
       // Custom log message formatter
@@ -160,13 +162,13 @@ export function createPinoLoggerConfig(serviceName: string): Params {
         ignore: (req: any) => {
           // Don't log health check endpoints
           const healthPaths = [
-            '/health',
-            '/healthz',
-            '/health/live',
-            '/health/ready',
-            '/readyz',
-            '/livez',
-            '/metrics',
+            "/health",
+            "/healthz",
+            "/health/live",
+            "/health/ready",
+            "/readyz",
+            "/livez",
+            "/metrics",
           ];
           return healthPaths.some((path) => req.url?.startsWith(path));
         },
@@ -174,10 +176,10 @@ export function createPinoLoggerConfig(serviceName: string): Params {
 
       // Custom attributes for each log
       customAttributeKeys: {
-        req: 'request',
-        res: 'response',
-        err: 'error',
-        responseTime: 'duration_ms',
+        req: "request",
+        res: "response",
+        err: "error",
+        responseTime: "duration_ms",
       },
 
       // Custom props added to each log
@@ -185,21 +187,21 @@ export function createPinoLoggerConfig(serviceName: string): Params {
         return {
           correlationId: req.id,
           traceId: req.id, // Alias for OpenTelemetry compatibility
-          tenantId: req.headers['x-tenant-id'],
-          userId: req.headers['x-user-id'],
+          tenantId: req.headers["x-tenant-id"],
+          userId: req.headers["x-user-id"],
         };
       },
 
       // Redact sensitive information
       redact: {
         paths: [
-          'request.headers.authorization',
-          'request.headers.cookie',
+          "request.headers.authorization",
+          "request.headers.cookie",
           'request.headers["x-api-key"]',
           'request.headers["x-auth-token"]',
-          'request.body.password',
-          'request.body.token',
-          'request.body.secret',
+          "request.body.password",
+          "request.body.token",
+          "request.body.secret",
           'response.headers["set-cookie"]',
         ],
         remove: true,
@@ -215,24 +217,26 @@ export function createPinoLoggerConfig(serviceName: string): Params {
  * @returns Pino logger instance
  */
 export function createPinoLogger(serviceName: string) {
-  const pino = require('pino');
+  const pino = require("pino");
   const isDevelopment =
-    process.env.NODE_ENV !== 'production' && process.env.ENVIRONMENT !== 'production';
-  const logLevel = process.env.LOG_LEVEL || 'info';
+    process.env.NODE_ENV !== "production" &&
+    process.env.ENVIRONMENT !== "production";
+  const logLevel = process.env.LOG_LEVEL || "info";
 
   return pino({
     level: logLevel,
     base: {
       service: serviceName,
-      environment: process.env.ENVIRONMENT || process.env.NODE_ENV || 'development',
+      environment:
+        process.env.ENVIRONMENT || process.env.NODE_ENV || "development",
     },
     transport: isDevelopment
       ? {
-          target: 'pino-pretty',
+          target: "pino-pretty",
           options: {
             colorize: true,
-            translateTime: 'SYS:standard',
-            ignore: 'pid,hostname',
+            translateTime: "SYS:standard",
+            ignore: "pid,hostname",
           },
         }
       : undefined,
@@ -251,15 +255,15 @@ export function createPinoLogger(serviceName: string) {
  */
 export function correlationIdMiddleware(req: any, res: any, next: any) {
   const correlationId =
-    req.headers['x-correlation-id'] ||
-    req.headers['x-request-id'] ||
+    req.headers["x-correlation-id"] ||
+    req.headers["x-request-id"] ||
     randomUUID();
 
   req.correlationId = correlationId;
   req.id = correlationId;
 
-  res.setHeader('X-Correlation-ID', correlationId);
-  res.setHeader('X-Request-ID', correlationId);
+  res.setHeader("X-Correlation-ID", correlationId);
+  res.setHeader("X-Request-ID", correlationId);
 
   next();
 }

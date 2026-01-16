@@ -3,21 +3,23 @@
  * خطافات React لمنشورات المجتمع
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Post, CommunityFilters } from '../types';
-import { communityApi } from '../api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Post, CommunityFilters } from "../types";
+import { communityApi } from "../api";
 
 // Query Keys
 const COMMUNITY_KEYS = {
-  all: ['community'] as const,
-  posts: (filters?: CommunityFilters) => [...COMMUNITY_KEYS.all, 'posts', filters] as const,
-  post: (id: string) => [...COMMUNITY_KEYS.all, 'post', id] as const,
-  comments: (postId: string) => [...COMMUNITY_KEYS.all, 'comments', postId] as const,
-  trending: () => [...COMMUNITY_KEYS.all, 'trending'] as const,
-  saved: () => [...COMMUNITY_KEYS.all, 'saved'] as const,
-  myPosts: () => [...COMMUNITY_KEYS.all, 'my-posts'] as const,
+  all: ["community"] as const,
+  posts: (filters?: CommunityFilters) =>
+    [...COMMUNITY_KEYS.all, "posts", filters] as const,
+  post: (id: string) => [...COMMUNITY_KEYS.all, "post", id] as const,
+  comments: (postId: string) =>
+    [...COMMUNITY_KEYS.all, "comments", postId] as const,
+  trending: () => [...COMMUNITY_KEYS.all, "trending"] as const,
+  saved: () => [...COMMUNITY_KEYS.all, "saved"] as const,
+  myPosts: () => [...COMMUNITY_KEYS.all, "my-posts"] as const,
 };
 
 /**
@@ -191,7 +193,9 @@ export function useAddComment() {
       parentId?: string;
     }) => communityApi.addComment(postId, content, parentId),
     onSuccess: (_, { postId }) => {
-      queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.comments(postId) });
+      queryClient.invalidateQueries({
+        queryKey: COMMUNITY_KEYS.comments(postId),
+      });
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(postId) });
     },
   });
@@ -204,10 +208,17 @@ export function useLikeComment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ postId, commentId }: { postId: string; commentId: string }) =>
-      communityApi.likeComment(postId, commentId),
+    mutationFn: ({
+      postId,
+      commentId,
+    }: {
+      postId: string;
+      commentId: string;
+    }) => communityApi.likeComment(postId, commentId),
     onSuccess: (_, { postId }) => {
-      queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.comments(postId) });
+      queryClient.invalidateQueries({
+        queryKey: COMMUNITY_KEYS.comments(postId),
+      });
     },
   });
 }

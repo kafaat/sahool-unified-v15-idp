@@ -3,6 +3,7 @@
 **تحديث ميزة الطقس - ملخص التغييرات**
 
 ## Date | التاريخ
+
 2025-12-24
 
 ## Summary | الملخص
@@ -30,6 +31,7 @@ Updated the weather feature to use real API calls to the weather-core service in
 - ✅ Improved error handling with console warnings in Arabic
 
 **New Functions:**
+
 - `fetchCurrentWeather(lat?, lon?)` - Fetches from real API with fallback
 - `fetchWeatherForecast(lat?, lon?, days?)` - Fetches forecast with fallback
 - `fetchWeatherAlerts(lat?, lon?)` - Fetches alerts with fallback
@@ -45,6 +47,7 @@ Updated the weather feature to use real API calls to the weather-core service in
 **Hook Changes:**
 
 **Before:**
+
 ```typescript
 useCurrentWeather(location?: string)
 useWeatherForecast(location?: string)
@@ -52,6 +55,7 @@ useWeatherAlerts(location?: string)
 ```
 
 **After:**
+
 ```typescript
 useCurrentWeather(options?: { lat?, lon?, enabled? })
 useWeatherForecast(options?: { lat?, lon?, days?, enabled? })
@@ -68,6 +72,7 @@ useWeatherAlerts(options?: { lat?, lon?, enabled? })
 - ✅ Ensured compatibility with weather-core API responses
 
 **Updated Types:**
+
 - `WeatherData` - Now matches frontend requirements
 - `WeatherAlert` - Updated with `startTime`, `endTime`, `isActive` fields
 - `ForecastDataPoint` - Unchanged but now properly typed
@@ -91,7 +96,7 @@ useWeatherAlerts(options?: { lat?, lon?, enabled? })
 ### Service Configuration
 
 ```typescript
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const WEATHER_API_BASE = `${API_BASE_URL}/api/v1/weather`;
 ```
 
@@ -104,6 +109,7 @@ const DEFAULT_COORDS = { lat: 15.3694, lon: 44.191 }; // Sana'a, Yemen
 ### Request Format
 
 All requests use:
+
 - **Method**: GET
 - **Headers**:
   - `Content-Type: application/json`
@@ -116,8 +122,8 @@ The feature handles multiple response formats from the API:
 
 ```typescript
 // Supports both formats:
-data.current?.temperature_c || data.temperature_c
-data.forecast || data.daily_forecast
+data.current?.temperature_c || data.temperature_c;
+data.forecast || data.daily_forecast;
 ```
 
 ## Error Handling | معالجة الأخطاء
@@ -145,19 +151,22 @@ data.forecast || data.daily_forecast
 If your components were using the weather hooks, update them as follows:
 
 **Before:**
+
 ```typescript
-const { data: weather } = useCurrentWeather('Sana\'a');
+const { data: weather } = useCurrentWeather("Sana'a");
 ```
 
 **After (with coordinates):**
+
 ```typescript
 const { data: weather } = useCurrentWeather({
   lat: 15.3694,
-  lon: 44.191
+  lon: 44.191,
 });
 ```
 
 **After (default coordinates):**
+
 ```typescript
 const { data: weather } = useCurrentWeather();
 // Uses default Sana'a coordinates
@@ -170,7 +179,7 @@ const { data: weather } = useCurrentWeather();
 const { data: weather } = useCurrentWeather({
   lat: field?.coordinates?.lat,
   lon: field?.coordinates?.lon,
-  enabled: !!field?.coordinates
+  enabled: !!field?.coordinates,
 });
 ```
 
@@ -199,6 +208,7 @@ curl "http://localhost:8000/api/v1/weather/alerts?lat=15.3694&lon=44.191"
 ### Test with Mock Data (Development)
 
 Set environment variable in weather-core:
+
 ```bash
 export USE_MOCK_WEATHER=true
 ```
@@ -268,6 +278,7 @@ Types are now defined locally instead of imported from `@sahool/api-client`.
 ## Support | الدعم
 
 For issues or questions:
+
 - Check the README: `/apps/web/src/features/weather/README.md`
 - Review API docs: `/apps/services/weather-core/README.md`
 - Check Kong gateway: `/infra/kong/kong.yml` (line 776-789)

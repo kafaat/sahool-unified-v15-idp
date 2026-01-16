@@ -21,7 +21,7 @@
 export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
   func: T,
   wait: number,
-  options: { leading?: boolean; trailing?: boolean; maxWait?: number } = {}
+  options: { leading?: boolean; trailing?: boolean; maxWait?: number } = {},
 ): T & { cancel: () => void; flush: () => void } {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
   let lastArgs: Parameters<T> | null = null;
@@ -30,7 +30,7 @@ export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
   let result: ReturnType<T>;
 
   const { leading = false, trailing = true, maxWait } = options;
-  const maxing = typeof maxWait === 'number';
+  const maxing = typeof maxWait === "number";
   const maxWaitValue = maxing ? Math.max(maxWait, wait) : 0;
 
   function invokeFunc(time: number): ReturnType<T> {
@@ -85,7 +85,10 @@ export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
     return leading ? invokeFunc(time) : undefined;
   }
 
-  function debounced(this: unknown, ...args: Parameters<T>): ReturnType<T> | undefined {
+  function debounced(
+    this: unknown,
+    ...args: Parameters<T>
+  ): ReturnType<T> | undefined {
     const time = Date.now();
     const isInvoking = shouldInvoke(time);
 
@@ -132,7 +135,7 @@ export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
 export function throttle<T extends (...args: Parameters<T>) => ReturnType<T>>(
   func: T,
   wait: number,
-  options: { leading?: boolean; trailing?: boolean } = {}
+  options: { leading?: boolean; trailing?: boolean } = {},
 ): T & { cancel: () => void } {
   const { leading = true, trailing = true } = options;
   return debounce(func, wait, { leading, trailing, maxWait: wait });
@@ -152,9 +155,18 @@ export function memoize<T extends (...args: Parameters<T>) => ReturnType<T>>(
     maxSize?: number;
     ttl?: number;
     keyGenerator?: (...args: Parameters<T>) => string;
-  } = {}
-): T & { cache: Map<string, { value: ReturnType<T>; timestamp: number }>; clear: () => void } {
-  const { maxSize = 100, ttl, keyGenerator = ((...a: unknown[]) => JSON.stringify(a)) as (...args: Parameters<T>) => string } = options;
+  } = {},
+): T & {
+  cache: Map<string, { value: ReturnType<T>; timestamp: number }>;
+  clear: () => void;
+} {
+  const {
+    maxSize = 100,
+    ttl,
+    keyGenerator = ((...a: unknown[]) => JSON.stringify(a)) as (
+      ...args: Parameters<T>
+    ) => string,
+  } = options;
   const cache = new Map<string, { value: ReturnType<T>; timestamp: number }>();
 
   function memoized(this: unknown, ...args: Parameters<T>): ReturnType<T> {
@@ -184,7 +196,10 @@ export function memoize<T extends (...args: Parameters<T>) => ReturnType<T>>(
   memoized.cache = cache;
   memoized.clear = () => cache.clear();
 
-  return memoized as T & { cache: Map<string, { value: ReturnType<T>; timestamp: number }>; clear: () => void };
+  return memoized as T & {
+    cache: Map<string, { value: ReturnType<T>; timestamp: number }>;
+    clear: () => void;
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -206,7 +221,7 @@ const REQUEST_DEDUP_WINDOW = 100; // ms
 export async function deduplicateRequest<T>(
   key: string,
   requestFn: () => Promise<T>,
-  options: { window?: number } = {}
+  options: { window?: number } = {},
 ): Promise<T> {
   const { window = REQUEST_DEDUP_WINDOW } = options;
   const now = Date.now();
@@ -253,7 +268,7 @@ export interface VirtualScrollResult {
  */
 export function calculateVirtualScroll(
   scrollTop: number,
-  config: VirtualScrollConfig
+  config: VirtualScrollConfig,
 ): VirtualScrollResult {
   const { totalItems, itemHeight, containerHeight, overscan = 3 } = config;
 
@@ -280,7 +295,7 @@ export function calculateVirtualScroll(
   const offsetY = startIndex * itemHeight;
   const visibleItems = Array.from(
     { length: Math.max(0, endIndex - startIndex + 1) },
-    (_, i) => startIndex + i
+    (_, i) => startIndex + i,
   );
 
   return {
@@ -317,16 +332,16 @@ export function getOptimalImageSize(containerWidth: number): number {
  */
 export function generateSrcSet(
   baseUrl: string,
-  widths: number[] = [320, 640, 768, 1024, 1280, 1536]
+  widths: number[] = [320, 640, 768, 1024, 1280, 1536],
 ): string {
   return widths
     .map((width) => {
-      const url = baseUrl.includes('?')
+      const url = baseUrl.includes("?")
         ? `${baseUrl}&w=${width}`
         : `${baseUrl}?w=${width}`;
       return `${url} ${width}w`;
     })
-    .join(', ');
+    .join(", ");
 }
 
 /**
@@ -336,7 +351,7 @@ export function generateSrcSet(
 export function generateBlurPlaceholder(
   width: number = 10,
   height: number = 10,
-  color: string = '#e5e7eb'
+  color: string = "#e5e7eb",
 ): string {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -361,7 +376,7 @@ const observerRefCounts = new Map<string, number>();
  * إنشاء أو الحصول على مراقب التقاطع المشترك
  */
 export function getIntersectionObserver(
-  options: IntersectionObserverInit = {}
+  options: IntersectionObserverInit = {},
 ): IntersectionObserver {
   const key = JSON.stringify(options);
 
@@ -386,7 +401,7 @@ export function getIntersectionObserver(
 export function observeElement(
   element: Element,
   callback: ObserverCallback,
-  options: IntersectionObserverInit = {}
+  options: IntersectionObserverInit = {},
 ): () => void {
   const key = JSON.stringify(options);
   const observer = getIntersectionObserver(options);
@@ -432,7 +447,7 @@ export function cleanupIntersectionObservers(): void {
  * تحديد قياس الأداء
  */
 export function markPerformance(name: string): void {
-  if (typeof performance !== 'undefined' && performance.mark) {
+  if (typeof performance !== "undefined" && performance.mark) {
     performance.mark(name);
   }
 }
@@ -444,9 +459,9 @@ export function markPerformance(name: string): void {
 export function measurePerformance(
   name: string,
   startMark: string,
-  endMark: string
+  endMark: string,
 ): PerformanceEntry | null {
-  if (typeof performance !== 'undefined' && performance.measure) {
+  if (typeof performance !== "undefined" && performance.measure) {
     try {
       performance.measure(name, startMark, endMark);
       const entries = performance.getEntriesByName(name);

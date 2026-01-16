@@ -225,7 +225,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ],
 
-              const SizedBox(height: 48),
+              const SizedBox(height: 32),
+
+              // Register link
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'ليس لديك حساب؟',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                    TextButton(
+                      onPressed: () => context.go('/register'),
+                      child: const Text(
+                        'إنشاء حساب',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
 
               // Help text
               Center(

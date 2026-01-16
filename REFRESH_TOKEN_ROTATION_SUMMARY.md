@@ -9,26 +9,31 @@ Refresh token rotation has been successfully implemented for the SAHOOL authenti
 ## 🎯 What Was Implemented
 
 ### 1. **Token Family Tracking**
+
 - Each login creates a unique token family
 - All rotated tokens share the same family ID
 - Family relationships tracked for security auditing
 
 ### 2. **One-Time Use Tokens**
+
 - Each refresh token can only be used once
 - Used tokens marked in PostgreSQL database
 - Used tokens blacklisted in Redis (5-min detection window)
 
 ### 3. **Reuse Detection**
+
 - Detects when a used token is replayed
 - Triggers immediate security response
 - Invalidates entire token family on detection
 
 ### 4. **Automatic Rotation**
+
 - New refresh token issued on each refresh request
 - Old token immediately invalidated
 - Client receives both new access and refresh tokens
 
 ### 5. **Dual Storage Strategy**
+
 - **PostgreSQL:** Persistent storage for audit trail
 - **Redis:** Fast blacklisting for real-time detection
 
@@ -39,32 +44,40 @@ Refresh token rotation has been successfully implemented for the SAHOOL authenti
 ### Backend (User Service)
 
 **1. Prisma Schema**
+
 ```
 /home/user/sahool-unified-v15-idp/apps/services/user-service/prisma/schema.prisma
 ```
+
 Added fields: `jti`, `family`, `used`, `usedAt`, `replacedBy`
 
 **2. Auth Service**
+
 ```
 /home/user/sahool-unified-v15-idp/apps/services/user-service/src/auth/auth.service.ts
 ```
+
 - Updated `JwtPayload` interface to include `family` field
 - Modified `generateTokens()` to accept family parameter
 - Implemented `invalidateTokenFamily()` method
 - Completely rewrote `refreshToken()` method with rotation logic
 
 **3. Auth Controller**
+
 ```
 /home/user/sahool-unified-v15-idp/apps/services/user-service/src/auth/auth.controller.ts
 ```
+
 Updated API documentation to reflect new refresh token response
 
 ### Frontend (Admin App)
 
 **4. Refresh Route**
+
 ```
 /home/user/sahool-unified-v15-idp/apps/admin/src/app/api/auth/refresh/route.ts
 ```
+
 Updated to store new rotated refresh token in cookies
 
 ---
@@ -72,14 +85,17 @@ Updated to store new rotated refresh token in cookies
 ## 📝 Files Created
 
 **1. Migration Script**
+
 ```
 /home/user/sahool-unified-v15-idp/apps/services/user-service/prisma/migrations/add_refresh_token_rotation.sql
 ```
 
 **2. Documentation**
+
 ```
 /home/user/sahool-unified-v15-idp/docs/REFRESH_TOKEN_ROTATION.md
 ```
+
 Complete documentation with architecture, testing, and troubleshooting
 
 ---
@@ -130,6 +146,7 @@ Complete documentation with architecture, testing, and troubleshooting
 ## 🚀 How It Works
 
 ### Token Generation (Login)
+
 ```typescript
 // Initial login creates a new token family
 const tokens = await generateTokens(user);
@@ -148,6 +165,7 @@ const tokens = await generateTokens(user);
 ```
 
 ### Token Refresh (Rotation)
+
 ```typescript
 // Client sends old refresh token
 const result = await refreshToken(oldToken);
@@ -167,6 +185,7 @@ const result = await refreshToken(oldToken);
 ```
 
 ### Reuse Detection
+
 ```typescript
 if (storedToken.used) {
   // SECURITY ALERT: Token was already used!
@@ -177,7 +196,7 @@ if (storedToken.used) {
 
   // All tokens in family are now revoked
   throw new UnauthorizedException(
-    'Token reuse detected - all tokens invalidated'
+    "Token reuse detected - all tokens invalidated",
   );
 }
 ```
@@ -188,21 +207,22 @@ if (storedToken.used) {
 
 ### RefreshToken Table
 
-| Field       | Type      | Description                              |
-|-------------|-----------|------------------------------------------|
-| id          | String    | Primary key (UUID)                       |
-| userId      | String    | User who owns this token                 |
-| jti         | String    | JWT ID (unique token identifier)         |
-| **family**  | String    | **Token family for rotation tracking**   |
-| token       | String    | The actual JWT token                     |
-| expiresAt   | DateTime  | When token expires                       |
-| revoked     | Boolean   | Token revoked (manual or family)         |
-| **used**    | Boolean   | **Token already used (reuse detection)** |
-| **usedAt**  | DateTime  | **When token was used**                  |
-| **replacedBy** | String | **JTI of replacement token**             |
-| createdAt   | DateTime  | Token creation time                      |
+| Field          | Type     | Description                              |
+| -------------- | -------- | ---------------------------------------- |
+| id             | String   | Primary key (UUID)                       |
+| userId         | String   | User who owns this token                 |
+| jti            | String   | JWT ID (unique token identifier)         |
+| **family**     | String   | **Token family for rotation tracking**   |
+| token          | String   | The actual JWT token                     |
+| expiresAt      | DateTime | When token expires                       |
+| revoked        | Boolean  | Token revoked (manual or family)         |
+| **used**       | Boolean  | **Token already used (reuse detection)** |
+| **usedAt**     | DateTime | **When token was used**                  |
+| **replacedBy** | String   | **JTI of replacement token**             |
+| createdAt      | DateTime | Token creation time                      |
 
 **Indexes:**
+
 - `userId` - Fast user lookups
 - `jti` - Fast token verification
 - **`family`** - Fast family invalidation
@@ -214,6 +234,7 @@ if (storedToken.used) {
 ## 🔧 API Changes
 
 ### Before (No Rotation)
+
 ```http
 POST /api/v1/auth/refresh
 Content-Type: application/json
@@ -232,6 +253,7 @@ Response:
 ```
 
 ### After (With Rotation)
+
 ```http
 POST /api/v1/auth/refresh
 Content-Type: application/json
@@ -253,20 +275,21 @@ Response:
 
 ## ✅ Security Benefits
 
-| Feature | Benefit |
-|---------|---------|
-| **One-time use** | Token can't be reused even if stolen |
-| **Reuse detection** | Alerts to potential security breach |
+| Feature                 | Benefit                                   |
+| ----------------------- | ----------------------------------------- |
+| **One-time use**        | Token can't be reused even if stolen      |
+| **Reuse detection**     | Alerts to potential security breach       |
 | **Family invalidation** | Compromised session completely terminated |
-| **Redis blacklist** | Fast detection of concurrent reuse |
-| **Audit trail** | Complete history of token rotation |
-| **Dual storage** | PostgreSQL (persistence) + Redis (speed) |
+| **Redis blacklist**     | Fast detection of concurrent reuse        |
+| **Audit trail**         | Complete history of token rotation        |
+| **Dual storage**        | PostgreSQL (persistence) + Redis (speed)  |
 
 ---
 
 ## 🧪 Testing
 
 ### Test Successful Rotation
+
 ```bash
 # 1. Login
 curl -X POST http://localhost:3000/api/v1/auth/login \
@@ -282,6 +305,7 @@ curl -X POST http://localhost:3000/api/v1/auth/refresh \
 ```
 
 ### Test Reuse Detection
+
 ```bash
 # 3. Try to reuse old token again
 curl -X POST http://localhost:3000/api/v1/auth/refresh \
@@ -293,6 +317,7 @@ curl -X POST http://localhost:3000/api/v1/auth/refresh \
 ```
 
 ### Check Database
+
 ```sql
 -- View token rotation history
 SELECT jti, family, used, used_at, replaced_by, revoked
@@ -312,6 +337,7 @@ ORDER BY created_at;
 ## 📋 Next Steps
 
 ### 1. Run Database Migration
+
 ```bash
 cd apps/services/user-service
 npx prisma migrate dev --name add_refresh_token_rotation
@@ -319,6 +345,7 @@ npx prisma generate
 ```
 
 ### 2. Update Environment Variables
+
 ```bash
 # Ensure Redis is configured
 REDIS_URL=redis://localhost:6379/0
@@ -328,6 +355,7 @@ REDIS_PORT=6379
 ```
 
 ### 3. Restart Services
+
 ```bash
 docker-compose restart user-service
 # OR
@@ -335,9 +363,11 @@ npm run dev
 ```
 
 ### 4. Update Client Code
+
 Ensure all clients (web, mobile) store and use the new refresh token returned from `/auth/refresh` endpoint.
 
 ### 5. Monitor Security Logs
+
 Watch for "Token reuse detected" warnings in logs.
 
 ---
@@ -351,6 +381,7 @@ Watch for "Token reuse detected" warnings in logs.
 `/home/user/sahool-unified-v15-idp/apps/services/user-service/prisma/migrations/add_refresh_token_rotation.sql`
 
 **Modified Files:**
+
 1. `apps/services/user-service/prisma/schema.prisma`
 2. `apps/services/user-service/src/auth/auth.service.ts`
 3. `apps/services/user-service/src/auth/auth.controller.ts`
@@ -361,6 +392,7 @@ Watch for "Token reuse detected" warnings in logs.
 ## 🎉 Summary
 
 Refresh token rotation is now fully implemented in SAHOOL with:
+
 - ✅ Automatic token rotation on each refresh
 - ✅ One-time use tokens
 - ✅ Token family tracking

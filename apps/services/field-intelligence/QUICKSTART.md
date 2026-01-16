@@ -1,4 +1,5 @@
 # Field Intelligence Service - Quick Start Guide
+
 # دليل البدء السريع - خدمة ذكاء الحقول
 
 ## Quick Setup | الإعداد السريع
@@ -139,6 +140,7 @@ curl http://localhost:8119/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",

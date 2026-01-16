@@ -1,4 +1,5 @@
 # Kong API Gateway Configuration for SAHOOL Platform
+
 # تكوين بوابة Kong API لمنصة سهول الزراعية
 
 ## Overview | نظرة عامة
@@ -10,7 +11,9 @@ This directory contains the complete Kong API Gateway configuration for the SAHO
 ## Configuration Files | ملفات التكوين
 
 ### 1. kong.yml
+
 Main declarative Kong configuration containing:
+
 - All 39 microservices definitions
 - Routes with proper path prefixes
 - JWT authentication plugin
@@ -20,6 +23,7 @@ Main declarative Kong configuration containing:
 - Global plugins (CORS, logging, Prometheus)
 
 التكوين الأساسي التصريحي لـ Kong ويحتوي على:
+
 - تعريفات جميع الخدمات المصغرة الـ 39
 - المسارات مع البادئات المناسبة
 - إضافة مصادقة JWT
@@ -29,7 +33,9 @@ Main declarative Kong configuration containing:
 - الإضافات العامة (CORS، التسجيل، Prometheus)
 
 ### 2. kong-packages.yml
+
 Package-specific routes configuration:
+
 - `/api/v1/starter/*` → Starter package services (100 req/min)
 - `/api/v1/professional/*` → Professional package services (1000 req/min)
 - `/api/v1/enterprise/*` → Enterprise package services (10000 req/min)
@@ -37,6 +43,7 @@ Package-specific routes configuration:
 - `/api/v1/shared/*` → Shared services for all packages
 
 تكوين المسارات الخاصة بالباقات:
+
 - `/api/v1/starter/*` → خدمات الباقة الأساسية (100 طلب/دقيقة)
 - `/api/v1/professional/*` → خدمات الباقة المتوسطة (1000 طلب/دقيقة)
 - `/api/v1/enterprise/*` → خدمات الباقة المتقدمة (10000 طلب/دقيقة)
@@ -44,7 +51,9 @@ Package-specific routes configuration:
 - `/api/v1/shared/*` → الخدمات المشتركة لجميع الباقات
 
 ### 3. consumers.yml
+
 Consumer groups and ACL configuration:
+
 - Starter users (starter-users group)
 - Professional users (professional-users group)
 - Enterprise users (enterprise-users group)
@@ -54,6 +63,7 @@ Consumer groups and ACL configuration:
 - Trial users (trial-users group)
 
 تكوين مجموعات المستهلكين وACL:
+
 - المستخدمون الأساسيون (مجموعة starter-users)
 - المستخدمون المحترفون (مجموعة professional-users)
 - المستخدمون المؤسسيون (مجموعة enterprise-users)
@@ -65,6 +75,7 @@ Consumer groups and ACL configuration:
 ## Service Port Registry | سجل منافذ الخدمات
 
 ### Infrastructure Services | الخدمات الأساسية
+
 ```yaml
 postgres: 5432
 redis: 6379
@@ -73,68 +84,72 @@ kong: 8000 (proxy), 8001 (admin)
 ```
 
 ### Starter Package Services | خدمات الباقة الأساسية
+
 ```yaml
-field_core: 3000              # إدارة الحقول
-weather_core: 8108            # الطقس
-astronomical_calendar: 8111   # التقويم الفلكي
-agro_advisor: 8105           # المستشار الزراعي
-notification_service: 8110    # الإشعارات
+field_core: 3000 # إدارة الحقول
+weather_core: 8108 # الطقس
+astronomical_calendar: 8111 # التقويم الفلكي
+agro_advisor: 8105 # المستشار الزراعي
+notification_service: 8110 # الإشعارات
 ```
 
 ### Professional Package Services | خدمات الباقة المتوسطة
+
 ```yaml
-satellite_service: 8090       # الأقمار الصناعية
-ndvi_engine: 8107            # محرك NDVI
-crop_health_ai: 8095         # صحة المحاصيل AI
-irrigation_smart: 8094       # الري الذكي
-virtual_sensors: 8096        # المستشعرات الافتراضية
-yield_engine: 8098           # توقع الإنتاجية
-fertilizer_advisor: 8093     # مستشار التسميد
-inventory_service: 8116      # إدارة المخزون
-equipment_service: 8101      # خدمة المعدات
-weather_advanced: 8092       # الطقس المتقدم
-ndvi_processor: 8118         # معالج NDVI
+satellite_service: 8090 # الأقمار الصناعية
+ndvi_engine: 8107 # محرك NDVI
+crop_health_ai: 8095 # صحة المحاصيل AI
+irrigation_smart: 8094 # الري الذكي
+virtual_sensors: 8096 # المستشعرات الافتراضية
+yield_engine: 8098 # توقع الإنتاجية
+fertilizer_advisor: 8093 # مستشار التسميد
+inventory_service: 8116 # إدارة المخزون
+equipment_service: 8101 # خدمة المعدات
+weather_advanced: 8092 # الطقس المتقدم
+ndvi_processor: 8118 # معالج NDVI
 ```
 
 ### Enterprise Package Services | خدمات الباقة المتقدمة
+
 ```yaml
-ai_advisor: 8112             # المستشار الذكي
-iot_gateway: 8106            # بوابة IoT
-research_core: 3015          # الأبحاث
-marketplace_service: 3010    # السوق
-billing_core: 8089           # الفوترة
-disaster_assessment: 3020    # تقييم الكوارث
-crop_growth_model: 3023      # نماذج نمو المحاصيل
-lai_estimation: 3022         # تقدير LAI
-yield_prediction: 3021       # توقع الإنتاجية
-iot_service: 8117            # خدمة IoT
+ai_advisor: 8112 # المستشار الذكي
+iot_gateway: 8106 # بوابة IoT
+research_core: 3015 # الأبحاث
+marketplace_service: 3010 # السوق
+billing_core: 8089 # الفوترة
+disaster_assessment: 3020 # تقييم الكوارث
+crop_growth_model: 3023 # نماذج نمو المحاصيل
+lai_estimation: 3022 # تقدير LAI
+yield_prediction: 3021 # توقع الإنتاجية
+iot_service: 8117 # خدمة IoT
 ```
 
 ### Shared Services | الخدمات المشتركة
+
 ```yaml
-field_ops: 8080              # عمليات الحقول
-ws_gateway: 8081             # بوابة WebSocket
-indicators_service: 8091     # المؤشرات
-community_chat: 8097         # محادثة المجتمع
-field_chat: 8099             # محادثة الحقل
-task_service: 8103           # المهام
-provider_config: 8104        # تكوين المزودين
-admin_dashboard: 3001        # لوحة التحكم
-alert_service: 8113          # التنبيهات
-chat_service: 8114           # المحادثة
-field_service: 8115          # خدمة الحقول
+field_ops: 8080 # عمليات الحقول
+ws_gateway: 8081 # بوابة WebSocket
+indicators_service: 8091 # المؤشرات
+community_chat: 8097 # محادثة المجتمع
+field_chat: 8099 # محادثة الحقل
+task_service: 8103 # المهام
+provider_config: 8104 # تكوين المزودين
+admin_dashboard: 3001 # لوحة التحكم
+alert_service: 8113 # التنبيهات
+chat_service: 8114 # المحادثة
+field_service: 8115 # خدمة الحقول
 ```
 
 ## Rate Limiting Tiers | مستويات تحديد المعدل
 
-| Package | Requests/Min | Requests/Hour | Requests/Day |
-|---------|--------------|---------------|--------------|
-| Trial | 50 | 2,000 | 30,000 |
-| Starter | 100 | 5,000 | 100,000 |
-| Professional | 1,000 | 50,000 | 1,000,000 |
-| Enterprise | 10,000 | 500,000 | 10,000,000 |
-| Research | 10,000 | 500,000 | 10,000,000 |
-| Admin | 50,000 | 2,000,000 | Unlimited |
+| Package      | Requests/Min | Requests/Hour | Requests/Day |
+| ------------ | ------------ | ------------- | ------------ |
+| Trial        | 50           | 2,000         | 30,000       |
+| Starter      | 100          | 5,000         | 100,000      |
+| Professional | 1,000        | 50,000        | 1,000,000    |
+| Enterprise   | 10,000       | 500,000       | 10,000,000   |
+| Research     | 10,000       | 500,000       | 10,000,000   |
+| Admin        | 50,000       | 2,000,000     | Unlimited    |
 
 ## Setup Instructions | تعليمات الإعداد
 
@@ -305,6 +320,7 @@ curl http://localhost:8001/metrics
 ### Grafana Dashboard
 
 Import the Kong dashboard into Grafana:
+
 1. Go to Grafana → Dashboards → Import
 2. Use dashboard ID: 7424 (Official Kong Dashboard)
 3. Configure Prometheus data source
@@ -355,7 +371,7 @@ Protect against large payloads:
 plugins:
   - name: request-size-limiting
     config:
-      allowed_payload_size: 10  # MB
+      allowed_payload_size: 10 # MB
 ```
 
 ## Troubleshooting | استكشاف الأخطاء
@@ -440,9 +456,9 @@ Protect services from cascading failures:
 plugins:
   - name: circuit-breaker
     config:
-      threshold: 10  # Number of failures before opening circuit
-      window_size: 60  # Time window in seconds
-      failure_rate: 0.5  # Failure rate to trigger circuit breaker
+      threshold: 10 # Number of failures before opening circuit
+      window_size: 60 # Time window in seconds
+      failure_rate: 0.5 # Failure rate to trigger circuit breaker
 ```
 
 ### Caching | التخزين المؤقت
@@ -456,7 +472,7 @@ plugins:
       strategy: memory
       content_type:
         - application/json
-      cache_ttl: 300  # 5 minutes
+      cache_ttl: 300 # 5 minutes
       cache_control: true
 ```
 
@@ -472,6 +488,7 @@ plugins:
 ## Support | الدعم
 
 For SAHOOL platform-specific questions:
+
 - Email: support@sahool.platform
 - Documentation: https://docs.sahool.platform
 - GitHub: https://github.com/sahool-platform

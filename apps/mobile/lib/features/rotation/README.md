@@ -5,6 +5,7 @@ A comprehensive Flutter feature for managing crop rotation plans with focus on Y
 ## Overview
 
 The Crop Rotation feature helps farmers optimize their planting schedules by:
+
 - **Planning multi-year rotations** with different crop families
 - **Analyzing soil health** trends over time
 - **Checking crop compatibility** to avoid diseases and pests
@@ -14,6 +15,7 @@ The Crop Rotation feature helps farmers optimize their planting schedules by:
 ## Features
 
 ### 1. **Rotation Plan Screen** (`rotation_plan_screen.dart`)
+
 - Multi-year rotation view with timeline
 - Year-by-year crop selection
 - Soil health indicators (before/after planting)
@@ -21,24 +23,28 @@ The Crop Rotation feature helps farmers optimize their planting schedules by:
 - Generate new rotation plans with preferences
 
 ### 2. **Rotation Calendar Screen** (`rotation_calendar_screen.dart`)
+
 - Timeline view of rotation plan
 - Visual distinction between past, current, and future rotations
 - Planting and harvest dates
 - Crop details and yield information
 
 ### 3. **Crop Compatibility Screen** (`crop_compatibility_screen.dart`)
+
 - Interactive compatibility matrix
 - Color-coded compatibility ratings (green=good, red=avoid)
 - Detailed compatibility explanations in English and Arabic
 - Select two crops to check their compatibility
 
 ### 4. **Soil Health Chart Widget** (`soil_health_chart.dart`)
+
 - Radar chart visualization of N, P, K, organic matter, water retention
 - Trend indicators showing improvement/decline over time
 - pH level indicator with visual scale
 - Overall soil health score
 
 ### 5. **Rotation Timeline Widget** (`rotation_timeline_widget.dart`)
+
 - Horizontal scrolling timeline
 - Crop icons with family-specific colors
 - Season indicators
@@ -47,8 +53,9 @@ The Crop Rotation feature helps farmers optimize their planting schedules by:
 ## Data Models
 
 ### Crop Families (15 families)
+
 1. **Solanaceae** (الباذنجانيات) - Tomatoes, Potatoes, Peppers
-2. **Fabaceae** (البقوليات) - Fava Beans, Lentils, Peas - *Nitrogen fixers!*
+2. **Fabaceae** (البقوليات) - Fava Beans, Lentils, Peas - _Nitrogen fixers!_
 3. **Poaceae** (النجيليات) - Wheat, Sorghum, Corn
 4. **Brassicaceae** (الصليبيات) - Cabbage, Broccoli, Cauliflower
 5. **Cucurbitaceae** (القرعيات) - Cucumber, Squash, Melon
@@ -64,6 +71,7 @@ The Crop Rotation feature helps farmers optimize their planting schedules by:
 15. **Lamiaceae** (الشفويات) - Basil, Mint
 
 ### Yemen-Specific Crops
+
 - **قمح (Wheat)** - Poaceae family, 120 days, Winter season
 - **ذرة رفيعة (Sorghum)** - Poaceae family, 100 days, Summer season
 - **بن (Coffee)** - Rubiaceae family, Perennial
@@ -75,14 +83,17 @@ The Crop Rotation feature helps farmers optimize their planting schedules by:
 ### Rotation Principles
 
 #### Excellent Compatibility (90%+)
+
 - Legume → Heavy Feeder (e.g., Fava Beans → Tomato)
 - Heavy Feeder → Legume (e.g., Tomato → Fava Beans)
 
 #### Good Compatibility (70-89%)
+
 - Different families with diverse nutrient needs
 - Light feeder after heavy feeder
 
 #### Poor Compatibility (<50%)
+
 - Same family in consecutive years
 - Increases disease and pest pressure
 
@@ -199,6 +210,7 @@ rotation/
 ## Key Components
 
 ### Models
+
 - `CropFamily` - Enum with 15 crop families
 - `CropFamilyInfo` - Metadata for each family
 - `Crop` - Individual crop information
@@ -209,6 +221,7 @@ rotation/
 - `CropRecommendation` - Recommended crops with scores
 
 ### Services
+
 - `RotationService` - Main service class with methods:
   - `getRotationPlan(fieldId)` - Fetch existing plan
   - `generateRotationPlan(fieldId, years, preferences)` - Generate new plan
@@ -217,6 +230,7 @@ rotation/
   - `getRecommendedCrops(fieldId, year)` - Get suggestions
 
 ### Providers
+
 - `rotationPlanProvider` - Fetch rotation plan
 - `soilHealthTrendProvider` - Get soil health history
 - `cropCompatibilityProvider` - Check crop compatibility
@@ -227,6 +241,7 @@ rotation/
 ## Best Practices
 
 ### Rotation Guidelines
+
 1. **Diversify crop families** - Never plant the same family consecutively
 2. **Include nitrogen fixers** - Plant legumes every 2-3 years
 3. **Follow heavy feeders with light feeders** - Or nitrogen fixers
@@ -234,6 +249,7 @@ rotation/
 5. **Respect rotation cycles** - Most families need 2-4 year gaps
 
 ### Soil Health Management
+
 - **Nitrogen (N)** - Depleted by heavy feeders, fixed by legumes
 - **Phosphorus (P)** - Slowly depleted, replenish regularly
 - **Potassium (K)** - Important for fruit crops
@@ -254,6 +270,7 @@ rotation/
 ## Dependencies
 
 Required packages (add to `pubspec.yaml`):
+
 ```yaml
 dependencies:
   flutter:

@@ -3,7 +3,7 @@
 // خطاف التأخير
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from "react";
 
 /**
  * Debounce a value
@@ -31,7 +31,7 @@ export function useDebounce<T>(value: T, delay: number = 500): T {
  */
 export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
-  delay: number = 500
+  delay: number = 500,
 ): T {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -45,7 +45,7 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
         callback(...args);
       }, delay);
     },
-    [callback, delay]
+    [callback, delay],
   ) as T;
 
   // Cleanup on unmount

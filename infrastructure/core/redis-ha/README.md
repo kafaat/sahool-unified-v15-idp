@@ -1,4 +1,5 @@
 # Redis High Availability Infrastructure
+
 # البنية التحتية للتوافر العالي لـ Redis
 
 ## نظرة عامة | Overview
@@ -50,7 +51,9 @@ make health
 ## الملفات الرئيسية | Main Files
 
 ### docker-compose.redis-ha.yml
+
 ملف Docker Compose الرئيسي الذي يحتوي على:
+
 - Redis Master (1)
 - Redis Replicas (2)
 - Redis Sentinels (3)
@@ -59,7 +62,9 @@ make health
 **الموقع:** `/docker-compose.redis-ha.yml` (في جذر المشروع)
 
 ### health-check.sh
+
 سكريبت شامل لفحص صحة النظام:
+
 - فحص Master
 - فحص Replicas
 - فحص Sentinels
@@ -70,7 +75,9 @@ make health
 ```
 
 ### test-failover.sh
+
 سكريبت اختبار تلقائي لعملية Failover:
+
 - إيقاف Master
 - مراقبة Failover
 - التحقق من البيانات
@@ -81,6 +88,7 @@ make health
 ```
 
 ### Makefile
+
 أوامر سهلة لإدارة النظام:
 
 ```bash
@@ -131,15 +139,15 @@ Application Layer
 
 ## المنافذ | Ports
 
-| الخدمة | المنفذ | الوصف |
-|--------|--------|-------|
-| Redis Master | 6379 | Master الرئيسي |
-| Redis Replica 1 | 6380 | نسخة احتياطية 1 |
-| Redis Replica 2 | 6381 | نسخة احتياطية 2 |
-| Sentinel 1 | 26379 | مراقب 1 |
-| Sentinel 2 | 26380 | مراقب 2 |
-| Sentinel 3 | 26381 | مراقب 3 |
-| Redis Exporter | 9121 | مقاييس Prometheus |
+| الخدمة          | المنفذ | الوصف             |
+| --------------- | ------ | ----------------- |
+| Redis Master    | 6379   | Master الرئيسي    |
+| Redis Replica 1 | 6380   | نسخة احتياطية 1   |
+| Redis Replica 2 | 6381   | نسخة احتياطية 2   |
+| Sentinel 1      | 26379  | مراقب 1           |
+| Sentinel 2      | 26380  | مراقب 2           |
+| Sentinel 3      | 26381  | مراقب 3           |
+| Redis Exporter  | 9121   | مقاييس Prometheus |
 
 ---
 
@@ -184,9 +192,9 @@ cp docker-compose.override.example.yml docker-compose.override.yml
 
 ```yaml
 scrape_configs:
-  - job_name: 'redis'
+  - job_name: "redis"
     static_configs:
-      - targets: ['localhost:9121']
+      - targets: ["localhost:9121"]
 ```
 
 راجع [prometheus-redis-exporter.yml](./prometheus-redis-exporter.yml) للتكوين الكامل.
@@ -194,6 +202,7 @@ scrape_configs:
 ### Grafana
 
 استورد لوحة Redis Dashboard:
+
 - Dashboard ID: 11835 (Redis Dashboard for Prometheus)
 - Dashboard ID: 763 (Redis Sentinel)
 
@@ -248,14 +257,16 @@ make restart
 ### أفضل الممارسات
 
 1. **كلمة مرور قوية**: استخدم كلمة مرور قوية ومعقدة
+
    ```bash
    REDIS_PASSWORD=$(openssl rand -base64 32)
    ```
 
 2. **تقييد الوصول**: استخدم localhost فقط في الإنتاج
+
    ```yaml
    ports:
-     - "127.0.0.1:6379:6379"  # ✓ آمن
+     - "127.0.0.1:6379:6379" # ✓ آمن
    ```
 
 3. **تشفير الاتصال**: فعّل TLS في الإنتاج (يتطلب تكوين إضافي)
@@ -310,6 +321,7 @@ redis-cli -a $REDIS_PASSWORD FLUSHDB
 ## الدعم | Support
 
 للمساعدة أو الإبلاغ عن مشكلة:
+
 - 📧 Email: support@sahool.platform
 - 📝 GitHub Issues
 - 📖 Documentation: docs.sahool.platform

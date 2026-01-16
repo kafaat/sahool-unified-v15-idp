@@ -1,4 +1,5 @@
 # Shared Error Handling Module
+
 # وحدة معالجة الأخطاء المشتركة
 
 ## نظرة عامة | Overview
@@ -38,7 +39,7 @@ Add to your `tsconfig.json`:
 In your `main.ts`:
 
 ```typescript
-import { HttpExceptionFilter } from '@sahool/shared/errors';
+import { HttpExceptionFilter } from "@sahool/shared/errors";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -96,47 +97,47 @@ async withdraw(walletId: string, amount: number) {
 
 Error codes are organized into categories:
 
-| Category | Range | Description |
-|----------|-------|-------------|
-| Validation | 1000-1999 | Input validation errors - أخطاء التحقق من المدخلات |
-| Authentication | 2000-2999 | Authentication failures - فشل المصادقة |
-| Authorization | 3000-3999 | Permission/access errors - أخطاء الصلاحيات |
-| Not Found | 4000-4999 | Resource not found - الموارد غير الموجودة |
-| Conflict | 5000-5999 | Resource conflicts - تعارض الموارد |
-| Business Logic | 6000-6999 | Business rule violations - انتهاك قواعد العمل |
-| External Service | 7000-7999 | External API errors - أخطاء الخدمات الخارجية |
-| Database | 8000-8999 | Database errors - أخطاء قاعدة البيانات |
-| Internal | 9000-9999 | Internal server errors - أخطاء الخادم الداخلي |
-| Rate Limit | 10000-10999 | Rate limiting - تجاوز الحد المسموح |
+| Category         | Range       | Description                                        |
+| ---------------- | ----------- | -------------------------------------------------- |
+| Validation       | 1000-1999   | Input validation errors - أخطاء التحقق من المدخلات |
+| Authentication   | 2000-2999   | Authentication failures - فشل المصادقة             |
+| Authorization    | 3000-3999   | Permission/access errors - أخطاء الصلاحيات         |
+| Not Found        | 4000-4999   | Resource not found - الموارد غير الموجودة          |
+| Conflict         | 5000-5999   | Resource conflicts - تعارض الموارد                 |
+| Business Logic   | 6000-6999   | Business rule violations - انتهاك قواعد العمل      |
+| External Service | 7000-7999   | External API errors - أخطاء الخدمات الخارجية       |
+| Database         | 8000-8999   | Database errors - أخطاء قاعدة البيانات             |
+| Internal         | 9000-9999   | Internal server errors - أخطاء الخادم الداخلي      |
+| Rate Limit       | 10000-10999 | Rate limiting - تجاوز الحد المسموح                 |
 
 ### Common Error Codes
 
 ```typescript
 // Validation
-ErrorCode.VALIDATION_ERROR       // ERR_1000
-ErrorCode.INVALID_INPUT          // ERR_1001
-ErrorCode.INVALID_EMAIL          // ERR_1004
+ErrorCode.VALIDATION_ERROR; // ERR_1000
+ErrorCode.INVALID_INPUT; // ERR_1001
+ErrorCode.INVALID_EMAIL; // ERR_1004
 
 // Authentication
-ErrorCode.AUTHENTICATION_FAILED  // ERR_2000
-ErrorCode.TOKEN_EXPIRED          // ERR_2002
-ErrorCode.TOKEN_INVALID          // ERR_2003
+ErrorCode.AUTHENTICATION_FAILED; // ERR_2000
+ErrorCode.TOKEN_EXPIRED; // ERR_2002
+ErrorCode.TOKEN_INVALID; // ERR_2003
 
 // Authorization
-ErrorCode.FORBIDDEN              // ERR_3000
-ErrorCode.INSUFFICIENT_PERMISSIONS // ERR_3001
-ErrorCode.QUOTA_EXCEEDED         // ERR_3006
+ErrorCode.FORBIDDEN; // ERR_3000
+ErrorCode.INSUFFICIENT_PERMISSIONS; // ERR_3001
+ErrorCode.QUOTA_EXCEEDED; // ERR_3006
 
 // Not Found
-ErrorCode.RESOURCE_NOT_FOUND     // ERR_4000
-ErrorCode.USER_NOT_FOUND         // ERR_4001
-ErrorCode.FARM_NOT_FOUND         // ERR_4002
-ErrorCode.WALLET_NOT_FOUND       // ERR_4008
+ErrorCode.RESOURCE_NOT_FOUND; // ERR_4000
+ErrorCode.USER_NOT_FOUND; // ERR_4001
+ErrorCode.FARM_NOT_FOUND; // ERR_4002
+ErrorCode.WALLET_NOT_FOUND; // ERR_4008
 
 // Business Logic
-ErrorCode.INSUFFICIENT_BALANCE   // ERR_6001
-ErrorCode.AMOUNT_MUST_BE_POSITIVE // ERR_6004
-ErrorCode.OPERATION_NOT_ALLOWED  // ERR_6003
+ErrorCode.INSUFFICIENT_BALANCE; // ERR_6001
+ErrorCode.AMOUNT_MUST_BE_POSITIVE; // ERR_6004
+ErrorCode.OPERATION_NOT_ALLOWED; // ERR_6003
 ```
 
 ---
@@ -146,49 +147,57 @@ ErrorCode.OPERATION_NOT_ALLOWED  // ERR_6003
 ### Base Exception
 
 ```typescript
-import { AppException, ErrorCode } from '@sahool/shared/errors';
+import { AppException, ErrorCode } from "@sahool/shared/errors";
 
 throw new AppException(
   ErrorCode.VALIDATION_ERROR,
-  { en: 'Custom message', ar: 'رسالة مخصصة' },
-  { customField: 'value' }
+  { en: "Custom message", ar: "رسالة مخصصة" },
+  { customField: "value" },
 );
 ```
 
 ### Validation Exception
 
 ```typescript
-import { ValidationException } from '@sahool/shared/errors';
+import { ValidationException } from "@sahool/shared/errors";
 
 // Simple validation error
 throw new ValidationException(ErrorCode.INVALID_EMAIL);
 
 // With field errors
 throw ValidationException.fromFieldErrors([
-  { field: 'email', message: 'Invalid email format', messageAr: 'تنسيق البريد الإلكتروني غير صالح' },
-  { field: 'phone', message: 'Invalid phone number', messageAr: 'رقم هاتف غير صالح' }
+  {
+    field: "email",
+    message: "Invalid email format",
+    messageAr: "تنسيق البريد الإلكتروني غير صالح",
+  },
+  {
+    field: "phone",
+    message: "Invalid phone number",
+    messageAr: "رقم هاتف غير صالح",
+  },
 ]);
 ```
 
 ### Not Found Exception
 
 ```typescript
-import { NotFoundException } from '@sahool/shared/errors';
+import { NotFoundException } from "@sahool/shared/errors";
 
 // Generic
 throw new NotFoundException();
 
 // Specific resource types (recommended)
-throw NotFoundException.farm('farm-123');
-throw NotFoundException.user('user-456');
-throw NotFoundException.wallet('wallet-789');
-throw NotFoundException.conversation('conv-abc');
+throw NotFoundException.farm("farm-123");
+throw NotFoundException.user("user-456");
+throw NotFoundException.wallet("wallet-789");
+throw NotFoundException.conversation("conv-abc");
 ```
 
 ### Business Logic Exception
 
 ```typescript
-import { BusinessLogicException } from '@sahool/shared/errors';
+import { BusinessLogicException } from "@sahool/shared/errors";
 
 // Insufficient balance
 throw BusinessLogicException.insufficientBalance(100, 150);
@@ -199,16 +208,19 @@ throw BusinessLogicException.insufficientBalance(100, 150);
 throw BusinessLogicException.amountMustBePositive(-50);
 
 // State transition
-throw BusinessLogicException.invalidStateTransition('PENDING', 'COMPLETED');
+throw BusinessLogicException.invalidStateTransition("PENDING", "COMPLETED");
 
 // Operation not allowed
-throw BusinessLogicException.operationNotAllowed('delete', 'Order is already shipped');
+throw BusinessLogicException.operationNotAllowed(
+  "delete",
+  "Order is already shipped",
+);
 ```
 
 ### External Service Exception
 
 ```typescript
-import { ExternalServiceException } from '@sahool/shared/errors';
+import { ExternalServiceException } from "@sahool/shared/errors";
 
 try {
   await weatherService.getCurrentWeather(location);
@@ -226,7 +238,7 @@ throw ExternalServiceException.emailService(error);
 ### Database Exception
 
 ```typescript
-import { DatabaseException } from '@sahool/shared/errors';
+import { DatabaseException } from "@sahool/shared/errors";
 
 try {
   await prisma.user.create({ data });
@@ -372,7 +384,7 @@ Paginated response format:
 ### Error Handling Decorator
 
 ```typescript
-import { HandleErrors } from '@sahool/shared/errors';
+import { HandleErrors } from "@sahool/shared/errors";
 
 export class FarmService {
   @HandleErrors(ErrorCode.DATABASE_ERROR)
@@ -386,7 +398,7 @@ export class FarmService {
 ### Retry with Backoff
 
 ```typescript
-import { retryWithBackoff } from '@sahool/shared/errors';
+import { retryWithBackoff } from "@sahool/shared/errors";
 
 const result = await retryWithBackoff(
   async () => {
@@ -396,15 +408,15 @@ const result = await retryWithBackoff(
     maxRetries: 3,
     initialDelay: 1000,
     maxDelay: 10000,
-    shouldRetry: (error) => error.retryable
-  }
+    shouldRetry: (error) => error.retryable,
+  },
 );
 ```
 
 ### Circuit Breaker
 
 ```typescript
-import { CircuitBreaker } from '@sahool/shared/errors';
+import { CircuitBreaker } from "@sahool/shared/errors";
 
 const breaker = new CircuitBreaker(5, 60000, 30000);
 
@@ -424,19 +436,19 @@ const state = breaker.getState();
 ### Timeout Wrapper
 
 ```typescript
-import { withTimeout } from '@sahool/shared/errors';
+import { withTimeout } from "@sahool/shared/errors";
 
 const result = await withTimeout(
   slowOperation(),
   5000, // 5 seconds
-  'Operation took too long'
+  "Operation took too long",
 );
 ```
 
 ### Error Aggregation
 
 ```typescript
-import { ErrorAggregator } from '@sahool/shared/errors';
+import { ErrorAggregator } from "@sahool/shared/errors";
 
 const aggregator = new ErrorAggregator();
 
@@ -470,7 +482,7 @@ The module supports bilingual error messages (English and Arabic). The response 
 For language-aware filtering based on `Accept-Language` header:
 
 ```typescript
-import { LanguageAwareExceptionFilter } from '@sahool/shared/errors';
+import { LanguageAwareExceptionFilter } from "@sahool/shared/errors";
 
 // In main.ts
 app.useGlobalFilters(new LanguageAwareExceptionFilter());
@@ -493,6 +505,7 @@ NODE_ENV=development
 ### Custom Request ID Header
 
 The filter automatically extracts request IDs from these headers (in order):
+
 - `x-request-id`
 - `x-correlation-id`
 - Auto-generated if not present
@@ -524,22 +537,22 @@ async getFarm(@Param('id') id: string) {
 ### Unit Testing Exceptions
 
 ```typescript
-import { NotFoundException, ErrorCode } from '@sahool/shared/errors';
+import { NotFoundException, ErrorCode } from "@sahool/shared/errors";
 
-describe('FarmService', () => {
-  it('should throw NotFoundException when farm not found', async () => {
-    await expect(service.findById('invalid-id')).rejects.toThrow(
-      NotFoundException
+describe("FarmService", () => {
+  it("should throw NotFoundException when farm not found", async () => {
+    await expect(service.findById("invalid-id")).rejects.toThrow(
+      NotFoundException,
     );
   });
 
-  it('should include correct error code', async () => {
+  it("should include correct error code", async () => {
     try {
-      await service.findById('invalid-id');
+      await service.findById("invalid-id");
     } catch (error) {
       expect(error.errorCode).toBe(ErrorCode.FARM_NOT_FOUND);
-      expect(error.messageEn).toBe('Farm not found');
-      expect(error.messageAr).toBe('المزرعة غير موجودة');
+      expect(error.messageEn).toBe("Farm not found");
+      expect(error.messageAr).toBe("المزرعة غير موجودة");
     }
   });
 });
@@ -553,18 +566,18 @@ See the complete list of error codes in [`error-codes.ts`](./error-codes.ts).
 
 ### Quick Reference
 
-| Code | English | Arabic | HTTP Status |
-|------|---------|--------|-------------|
-| ERR_1000 | Validation error | خطأ في التحقق | 400 |
-| ERR_2000 | Authentication failed | فشل المصادقة | 401 |
-| ERR_3000 | Forbidden | محظور | 403 |
-| ERR_4000 | Resource not found | المورد غير موجود | 404 |
-| ERR_5000 | Resource already exists | المورد موجود بالفعل | 409 |
-| ERR_6000 | Business rule violation | انتهاك قاعدة عمل | 422 |
-| ERR_7000 | External service error | خطأ في خدمة خارجية | 502 |
-| ERR_8000 | Database error | خطأ في قاعدة البيانات | 500 |
-| ERR_9000 | Internal server error | خطأ داخلي في الخادم | 500 |
-| ERR_10000 | Rate limit exceeded | تجاوز الحد المسموح | 429 |
+| Code      | English                 | Arabic                | HTTP Status |
+| --------- | ----------------------- | --------------------- | ----------- |
+| ERR_1000  | Validation error        | خطأ في التحقق         | 400         |
+| ERR_2000  | Authentication failed   | فشل المصادقة          | 401         |
+| ERR_3000  | Forbidden               | محظور                 | 403         |
+| ERR_4000  | Resource not found      | المورد غير موجود      | 404         |
+| ERR_5000  | Resource already exists | المورد موجود بالفعل   | 409         |
+| ERR_6000  | Business rule violation | انتهاك قاعدة عمل      | 422         |
+| ERR_7000  | External service error  | خطأ في خدمة خارجية    | 502         |
+| ERR_8000  | Database error          | خطأ في قاعدة البيانات | 500         |
+| ERR_9000  | Internal server error   | خطأ داخلي في الخادم   | 500         |
+| ERR_10000 | Rate limit exceeded     | تجاوز الحد المسموح    | 429         |
 
 ---
 
@@ -573,11 +586,13 @@ See the complete list of error codes in [`error-codes.ts`](./error-codes.ts).
 ### 1. Use Specific Exception Types
 
 ❌ **Bad:**
+
 ```typescript
 throw new AppException(ErrorCode.RESOURCE_NOT_FOUND);
 ```
 
 ✅ **Good:**
+
 ```typescript
 throw NotFoundException.farm(farmId);
 ```
@@ -585,27 +600,26 @@ throw NotFoundException.farm(farmId);
 ### 2. Include Context in Error Details
 
 ❌ **Bad:**
+
 ```typescript
 throw BusinessLogicException.insufficientBalance(balance, amount);
 ```
 
 ✅ **Better:**
+
 ```typescript
-throw new BusinessLogicException(
-  ErrorCode.INSUFFICIENT_BALANCE,
-  undefined,
-  {
-    available: balance,
-    required: amount,
-    currency: 'YER',
-    walletId: wallet.id
-  }
-);
+throw new BusinessLogicException(ErrorCode.INSUFFICIENT_BALANCE, undefined, {
+  available: balance,
+  required: amount,
+  currency: "YER",
+  walletId: wallet.id,
+});
 ```
 
 ### 3. Don't Catch and Rethrow Generic Errors
 
 ❌ **Bad:**
+
 ```typescript
 try {
   await operation();
@@ -615,6 +629,7 @@ try {
 ```
 
 ✅ **Good:**
+
 ```typescript
 try {
   await operation();
@@ -629,18 +644,21 @@ try {
 ### 4. Use Success Response DTOs
 
 ❌ **Bad:**
+
 ```typescript
 return { data: farms };
 ```
 
 ✅ **Good:**
+
 ```typescript
-return createSuccessResponse(farms, 'Success', 'نجح');
+return createSuccessResponse(farms, "Success", "نجح");
 ```
 
 ### 5. Validate Business Rules Before Database Operations
 
 ✅ **Good:**
+
 ```typescript
 async createOrder(data: CreateOrderDto) {
   // Validate business rules first
@@ -660,6 +678,7 @@ async createOrder(data: CreateOrderDto) {
 ### Problem: Stack traces not showing in development
 
 **Solution:** Set environment variable:
+
 ```bash
 INCLUDE_STACK_TRACE=true
 NODE_ENV=development
@@ -670,11 +689,13 @@ NODE_ENV=development
 **Solution:** Make sure you're using `class-validator` DTOs and the global ValidationPipe:
 
 ```typescript
-app.useGlobalPipes(new ValidationPipe({
-  whitelist: true,
-  forbidNonWhitelisted: true,
-  transform: true,
-}));
+app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }),
+);
 ```
 
 ### Problem: Custom error messages not showing
@@ -682,13 +703,10 @@ app.useGlobalPipes(new ValidationPipe({
 **Solution:** Pass custom messages to the exception constructor:
 
 ```typescript
-throw new NotFoundException(
-  ErrorCode.FARM_NOT_FOUND,
-  {
-    en: `Farm with ID ${farmId} was not found`,
-    ar: `المزرعة ذات المعرف ${farmId} غير موجودة`
-  }
-);
+throw new NotFoundException(ErrorCode.FARM_NOT_FOUND, {
+  en: `Farm with ID ${farmId} was not found`,
+  ar: `المزرعة ذات المعرف ${farmId} غير موجودة`,
+});
 ```
 
 ---
@@ -696,6 +714,7 @@ throw new NotFoundException(
 ## 📞 Support | الدعم
 
 For questions or issues:
+
 - Check the [examples](./examples/) directory
 - Review the [error codes reference](./error-codes.ts)
 - Contact the SAHOOL development team

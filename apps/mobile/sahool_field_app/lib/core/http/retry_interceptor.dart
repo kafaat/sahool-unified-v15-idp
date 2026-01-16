@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:dio/dio.dart';
@@ -38,11 +39,11 @@ class RetryInterceptor extends Interceptor {
       final delay = initialDelay * pow(2, retryCount);
 
       if (kDebugMode) {
-        print('🔄 Retrying request (attempt $nextRetryCount/$maxRetries)');
-        print('   Path: ${err.requestOptions.path}');
-        print('   Method: ${err.requestOptions.method}');
-        print('   Error: ${err.type}');
-        print('   Delay: ${delay.inSeconds}s');
+        debugPrint('🔄 Retrying request (attempt $nextRetryCount/$maxRetries)');
+        debugPrint('   Path: ${err.requestOptions.path}');
+        debugPrint('   Method: ${err.requestOptions.method}');
+        debugPrint('   Error: ${err.type}');
+        debugPrint('   Delay: ${delay.inSeconds}s');
       }
 
       // Wait before retrying
@@ -80,10 +81,10 @@ class RetryInterceptor extends Interceptor {
         );
 
         if (kDebugMode) {
-          print('✅ Retry successful');
-          print('   Path: ${requestOptions.path}');
-          print('   Attempt: $nextRetryCount');
-          print('   Status: ${response.statusCode}');
+          debugPrint('✅ Retry successful');
+          debugPrint('   Path: ${requestOptions.path}');
+          debugPrint('   Attempt: $nextRetryCount');
+          debugPrint('   Status: ${response.statusCode}');
         }
 
         return handler.resolve(response);
@@ -95,10 +96,10 @@ class RetryInterceptor extends Interceptor {
     } else {
       // Max retries exceeded or shouldn't retry
       if (retryCount >= maxRetries && kDebugMode) {
-        print('❌ Max retries exceeded');
-        print('   Path: ${err.requestOptions.path}');
-        print('   Attempts: $retryCount');
-        print('   Error: ${err.type}');
+        debugPrint('❌ Max retries exceeded');
+        debugPrint('   Path: ${err.requestOptions.path}');
+        debugPrint('   Attempts: $retryCount');
+        debugPrint('   Error: ${err.type}');
       }
 
       return super.onError(err, handler);
@@ -112,7 +113,7 @@ class RetryInterceptor extends Interceptor {
       final statusCode = error.response!.statusCode ?? 0;
       if (statusCode >= 400 && statusCode < 500) {
         if (kDebugMode) {
-          print('⏭️  Skipping retry for client error (${statusCode})');
+          debugPrint('⏭️  Skipping retry for client error (${statusCode})');
         }
         return false;
       }
@@ -124,7 +125,7 @@ class RetryInterceptor extends Interceptor {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         if (kDebugMode) {
-          print('⏱️  Timeout error - will retry');
+          debugPrint('⏱️  Timeout error - will retry');
         }
         return true;
 
@@ -132,14 +133,14 @@ class RetryInterceptor extends Interceptor {
         // Check if it's a network error (SocketException)
         if (error.error is SocketException) {
           if (kDebugMode) {
-            print('🔌 Socket error - will retry');
+            debugPrint('🔌 Socket error - will retry');
           }
           return true;
         }
         // Check for timeout exceptions
         if (error.error is TimeoutException) {
           if (kDebugMode) {
-            print('⏱️  Timeout exception - will retry');
+            debugPrint('⏱️  Timeout exception - will retry');
           }
           return true;
         }
@@ -151,9 +152,9 @@ class RetryInterceptor extends Interceptor {
         final shouldRetry = statusCode >= 500;
         if (kDebugMode) {
           if (shouldRetry) {
-            print('🔧 Server error (${statusCode}) - will retry');
+            debugPrint('🔧 Server error (${statusCode}) - will retry');
           } else {
-            print('⏭️  Bad response (${statusCode}) - will not retry');
+            debugPrint('⏭️  Bad response (${statusCode}) - will not retry');
           }
         }
         return shouldRetry;
@@ -161,13 +162,13 @@ class RetryInterceptor extends Interceptor {
       case DioExceptionType.cancel:
         // Don't retry cancelled requests
         if (kDebugMode) {
-          print('🚫 Request cancelled - will not retry');
+          debugPrint('🚫 Request cancelled - will not retry');
         }
         return false;
 
       default:
         if (kDebugMode) {
-          print('❓ Unknown error type - will not retry');
+          debugPrint('❓ Unknown error type - will not retry');
         }
         return false;
     }

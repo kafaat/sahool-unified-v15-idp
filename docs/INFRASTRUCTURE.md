@@ -90,6 +90,7 @@ sudo sh get-docker.sh
 ### Cluster Access
 
 You need access to a Kubernetes cluster. Supported providers:
+
 - Google Kubernetes Engine (GKE)
 - Amazon Elastic Kubernetes Service (EKS)
 - Azure Kubernetes Service (AKS)
@@ -97,6 +98,7 @@ You need access to a Kubernetes cluster. Supported providers:
 - Self-hosted Kubernetes
 
 Verify cluster access:
+
 ```bash
 kubectl cluster-info
 kubectl get nodes
@@ -109,6 +111,7 @@ kubectl get nodes
 The following secrets must be configured in your Kubernetes cluster:
 
 #### 1. PostgreSQL Secret (`sahool-postgresql-secret`)
+
 - **postgres-password** - PostgreSQL admin password
 - **password** - Application user password
 
@@ -120,6 +123,7 @@ kubectl create secret generic sahool-postgresql-secret \
 ```
 
 #### 2. Redis Secret (`sahool-redis-secret`)
+
 - **redis-password** - Redis authentication password
 
 ```bash
@@ -129,6 +133,7 @@ kubectl create secret generic sahool-redis-secret \
 ```
 
 #### 3. JWT Secret (`sahool-jwt-secret`)
+
 - **jwt-secret** - Secret key for JWT token signing
 
 ```bash
@@ -141,6 +146,7 @@ kubectl create secret generic sahool-jwt-secret \
 #### 4. External API Secrets
 
 **OpenWeather API:**
+
 ```bash
 kubectl create secret generic sahool-openweather-secret \
   --namespace=sahool-staging \
@@ -148,6 +154,7 @@ kubectl create secret generic sahool-openweather-secret \
 ```
 
 **Sentinel Hub:**
+
 ```bash
 kubectl create secret generic sahool-sentinel-secret \
   --namespace=sahool-staging \
@@ -156,6 +163,7 @@ kubectl create secret generic sahool-sentinel-secret \
 ```
 
 **Stripe:**
+
 ```bash
 kubectl create secret generic sahool-stripe-secret \
   --namespace=sahool-staging \
@@ -163,6 +171,7 @@ kubectl create secret generic sahool-stripe-secret \
 ```
 
 **Slack Webhook:**
+
 ```bash
 kubectl create secret generic sahool-slack-secret \
   --namespace=sahool-staging \
@@ -173,18 +182,18 @@ kubectl create secret generic sahool-slack-secret \
 
 The following secrets must be added to your GitHub repository:
 
-| Secret Name | Description | Required For |
-|-------------|-------------|--------------|
-| `KUBE_CONFIG_STAGING` | Base64 encoded kubeconfig for staging cluster | Staging deployments |
+| Secret Name              | Description                                      | Required For           |
+| ------------------------ | ------------------------------------------------ | ---------------------- |
+| `KUBE_CONFIG_STAGING`    | Base64 encoded kubeconfig for staging cluster    | Staging deployments    |
 | `KUBE_CONFIG_PRODUCTION` | Base64 encoded kubeconfig for production cluster | Production deployments |
-| `POSTGRES_PASSWORD` | PostgreSQL password | Database setup |
-| `REDIS_PASSWORD` | Redis password | Cache setup |
-| `JWT_SECRET` | JWT signing secret | Authentication |
-| `OPENWEATHER_API_KEY` | OpenWeather API key | Weather data |
-| `SENTINEL_HUB_ID` | Sentinel Hub client ID | Satellite imagery |
-| `SENTINEL_HUB_SECRET` | Sentinel Hub client secret | Satellite imagery |
-| `STRIPE_SECRET_KEY` | Stripe secret key | Payment processing |
-| `SLACK_WEBHOOK_URL` | Slack webhook URL | Notifications |
+| `POSTGRES_PASSWORD`      | PostgreSQL password                              | Database setup         |
+| `REDIS_PASSWORD`         | Redis password                                   | Cache setup            |
+| `JWT_SECRET`             | JWT signing secret                               | Authentication         |
+| `OPENWEATHER_API_KEY`    | OpenWeather API key                              | Weather data           |
+| `SENTINEL_HUB_ID`        | Sentinel Hub client ID                           | Satellite imagery      |
+| `SENTINEL_HUB_SECRET`    | Sentinel Hub client secret                       | Satellite imagery      |
+| `STRIPE_SECRET_KEY`      | Stripe secret key                                | Payment processing     |
+| `SLACK_WEBHOOK_URL`      | Slack webhook URL                                | Notifications          |
 
 See [SECRETS_SETUP.md](./SECRETS_SETUP.md) for detailed instructions on setting up GitHub secrets.
 
@@ -202,12 +211,14 @@ cd sahool-unified-v15-idp
 Set environment variables for your target environment:
 
 **For Staging:**
+
 ```bash
 export NAMESPACE=sahool-staging
 export ENVIRONMENT=staging
 ```
 
 **For Production:**
+
 ```bash
 export NAMESPACE=sahool-production
 export ENVIRONMENT=production
@@ -218,6 +229,7 @@ export ENVIRONMENT=production
 You can either:
 
 **A. Auto-generate secure secrets:**
+
 ```bash
 export POSTGRES_PASSWORD=$(openssl rand -base64 32)
 export REDIS_PASSWORD=$(openssl rand -base64 32)
@@ -225,6 +237,7 @@ export JWT_SECRET=$(openssl rand -base64 64)
 ```
 
 **B. Use existing secrets:**
+
 ```bash
 export POSTGRES_PASSWORD="your-existing-password"
 export REDIS_PASSWORD="your-existing-password"
@@ -242,6 +255,7 @@ chmod +x scripts/setup-infrastructure.sh
 ```
 
 This script will:
+
 1. Create the Kubernetes namespace
 2. Create all required secrets
 3. Deploy infrastructure using Helm
@@ -288,6 +302,7 @@ Or use GitHub Actions for automated deployment (push to main or staging branch).
 The infrastructure can be customized using Helm values:
 
 **values-staging.yaml:**
+
 ```yaml
 environment: staging
 namespace: sahool-staging
@@ -318,6 +333,7 @@ redis:
 ```
 
 **values-production.yaml:**
+
 ```yaml
 environment: production
 namespace: sahool-production
@@ -436,6 +452,7 @@ kubectl exec -it -n $NAMESPACE <redis-pod-name> -- redis-cli -a <password> FLUSH
 **Symptom:** Pods in `Pending` or `CrashLoopBackOff` state
 
 **Solutions:**
+
 ```bash
 # Check pod events
 kubectl describe pod <pod-name> -n $NAMESPACE
@@ -453,6 +470,7 @@ kubectl describe nodes
 **Symptom:** Services can't connect to PostgreSQL
 
 **Solutions:**
+
 ```bash
 # Verify PostgreSQL is running
 kubectl get pods -n $NAMESPACE -l app=postgresql
@@ -473,6 +491,7 @@ kubectl get secret sahool-postgresql-secret -n $NAMESPACE
 **Symptom:** Services can't connect to Redis
 
 **Solutions:**
+
 ```bash
 # Verify Redis is running
 kubectl get pods -n $NAMESPACE -l app=redis
@@ -493,6 +512,7 @@ kubectl get secret sahool-redis-secret -n $NAMESPACE
 **Symptom:** Can't access services externally
 
 **Solutions:**
+
 ```bash
 # Check ingress
 kubectl get ingress -n $NAMESPACE
@@ -510,6 +530,7 @@ kubectl get endpoints -n $NAMESPACE
 **Symptom:** `ImagePullBackOff` or `ErrImagePull`
 
 **Solutions:**
+
 ```bash
 # Check image name and tag
 kubectl describe pod <pod-name> -n $NAMESPACE
@@ -526,6 +547,7 @@ kubectl get secrets -n $NAMESPACE
 **Symptom:** Pods evicted or nodes under pressure
 
 **Solutions:**
+
 ```bash
 # Check node resources
 kubectl top nodes
@@ -545,6 +567,7 @@ helm upgrade sahool-infra ./helm/infra \
 **Symptom:** Services can't access secrets
 
 **Solutions:**
+
 ```bash
 # List secrets
 kubectl get secrets -n $NAMESPACE
@@ -649,6 +672,7 @@ kubectl exec -it -n $NAMESPACE <postgres-pod-name> -- \
 ## Support
 
 For issues or questions:
+
 - Open an issue on GitHub
 - Contact the DevOps team
 - Check the troubleshooting section above

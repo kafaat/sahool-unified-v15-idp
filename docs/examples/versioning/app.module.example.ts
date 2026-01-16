@@ -3,27 +3,27 @@
  * Demonstrates how to structure modules for multiple API versions
  */
 
-import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { DeprecationInterceptor } from '@sahool/versioning';
+import { Module } from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { DeprecationInterceptor } from "@sahool/versioning";
 
 // V1 Controllers (Deprecated)
-import { UsersV1Controller } from './users/users.v1.controller';
-import { FieldsV1Controller } from './fields/fields.v1.controller';
-import { WeatherV1Controller } from './weather/weather.v1.controller';
+import { UsersV1Controller } from "./users/users.v1.controller";
+import { FieldsV1Controller } from "./fields/fields.v1.controller";
+import { WeatherV1Controller } from "./weather/weather.v1.controller";
 
 // V2 Controllers (Current)
-import { UsersV2Controller } from './users/users.v2.controller';
-import { FieldsV2Controller } from './fields/fields.v2.controller';
-import { WeatherV2Controller } from './weather/weather.v2.controller';
+import { UsersV2Controller } from "./users/users.v2.controller";
+import { FieldsV2Controller } from "./fields/fields.v2.controller";
+import { WeatherV2Controller } from "./weather/weather.v2.controller";
 
 // Services (Shared between versions)
-import { UsersService } from './users/users.service';
-import { FieldsService } from './fields/fields.service';
-import { WeatherService } from './weather/weather.service';
+import { UsersService } from "./users/users.service";
+import { FieldsService } from "./fields/fields.service";
+import { WeatherService } from "./weather/weather.service";
 
 // Database modules
-import { PrismaModule } from './prisma/prisma.module';
+import { PrismaModule } from "./prisma/prisma.module";
 
 /**
  * Main Application Module

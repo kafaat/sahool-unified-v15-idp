@@ -1,4 +1,5 @@
 # SAHOOL Push Notifications Infrastructure
+
 # بنية الإشعارات الفورية لسهول
 
 ## Overview / نظرة عامة
@@ -61,36 +62,42 @@ This directory contains the complete push notifications infrastructure for the S
 The app supports the following notification channels:
 
 ### 1. Alerts / التنبيهات
+
 - **Channel ID**: `alerts`
 - **Priority**: High
 - **Use Case**: Farm and field alerts, urgent notifications
 - **الاستخدام**: تنبيهات المزرعة والحقول
 
 ### 2. Tasks / المهام
+
 - **Channel ID**: `tasks`
 - **Priority**: Default
 - **Use Case**: Task reminders and due dates
 - **الاستخدام**: تذكيرات المهام والمواعيد النهائية
 
 ### 3. NDVI
+
 - **Channel ID**: `ndvi`
 - **Priority**: Default
 - **Use Case**: Crop health changes and NDVI updates
 - **الاستخدام**: تغييرات صحة المحصول وتحديثات NDVI
 
 ### 4. Irrigation / الري
+
 - **Channel ID**: `irrigation`
 - **Priority**: High
 - **Use Case**: Irrigation scheduling and reminders
 - **الاستخدام**: جدولة الري والتذكيرات
 
 ### 5. Weather / الطقس
+
 - **Channel ID**: `weather`
 - **Priority**: High
 - **Use Case**: Weather alerts and warnings
 - **الاستخدام**: تحذيرات الطقس والتنبيهات
 
 ### 6. System / النظام
+
 - **Channel ID**: `system`
 - **Priority**: Low
 - **Use Case**: Sync notifications and system updates
@@ -289,6 +296,7 @@ await localService.showNotification(
 ### Test Push Notification
 
 Use Firebase Console to send test messages:
+
 1. Go to Firebase Console > Cloud Messaging
 2. Click "Send test message"
 3. Enter FCM token
@@ -326,6 +334,7 @@ Use Firebase Console to send test messages:
 ## Example Implementation
 
 See `notification_integration_example.dart` for comprehensive examples of:
+
 - Service initialization
 - Local notifications
 - Push notifications
@@ -337,6 +346,7 @@ See `notification_integration_example.dart` for comprehensive examples of:
 ## Support
 
 For issues or questions:
+
 - Check Firebase documentation: https://firebase.google.com/docs/cloud-messaging
 - Flutter local notifications: https://pub.dev/packages/flutter_local_notifications
 - SAHOOL project documentation

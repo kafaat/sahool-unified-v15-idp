@@ -124,50 +124,50 @@ apps/mobile/
 **التقنية:** Python + FastAPI
 **الغرض:** خدمات API الخلفية
 
-| الخدمة | المنفذ | الوظيفة |
-|--------|--------|---------|
-| `satellite-service` | 8090 | تحليل صور الأقمار الصناعية (Sentinel-2, Landsat) |
-| `indicators-service` | 8091 | المؤشرات الزراعية (20+ مؤشر) |
-| `weather-advanced` | 8092 | التنبؤات الجوية والتقويم الزراعي |
-| `fertilizer-advisor` | 8093 | توصيات التسميد (12+ محصول) |
-| `irrigation-smart` | 8094 | الري الذكي وإدارة المياه |
-| `crop-health-ai` | - | تحليل صحة المحاصيل بالذكاء الاصطناعي |
-| `yield-engine` | - | التنبؤ بالمحصول |
-| `yield-prediction` | - | نماذج التنبؤ |
-| `notification-service` | - | خدمة الإشعارات |
-| `billing-core` | - | نظام الفوترة |
-| `virtual-sensors` | - | المستشعرات الافتراضية |
-| `alert-service` | - | خدمة التنبيهات |
-| `field-service` | - | إدارة الحقول |
-| `iot-service` | - | خدمة IoT |
-| `ndvi-processor` | - | معالجة NDVI |
-| `lai-estimation` | - | تقدير مساحة الأوراق |
-| `disaster-assessment` | - | تقييم الكوارث |
-| `crop-growth-model` | - | نموذج نمو المحاصيل |
-| `community-chat` | - | دردشة المجتمع |
-| `marketplace-service` | - | السوق الإلكتروني |
-| `research-core` | - | البحث العلمي |
+| الخدمة                 | المنفذ | الوظيفة                                          |
+| ---------------------- | ------ | ------------------------------------------------ |
+| `satellite-service`    | 8090   | تحليل صور الأقمار الصناعية (Sentinel-2, Landsat) |
+| `indicators-service`   | 8091   | المؤشرات الزراعية (20+ مؤشر)                     |
+| `weather-advanced`     | 8092   | التنبؤات الجوية والتقويم الزراعي                 |
+| `fertilizer-advisor`   | 8093   | توصيات التسميد (12+ محصول)                       |
+| `irrigation-smart`     | 8094   | الري الذكي وإدارة المياه                         |
+| `crop-health-ai`       | -      | تحليل صحة المحاصيل بالذكاء الاصطناعي             |
+| `yield-engine`         | -      | التنبؤ بالمحصول                                  |
+| `yield-prediction`     | -      | نماذج التنبؤ                                     |
+| `notification-service` | -      | خدمة الإشعارات                                   |
+| `billing-core`         | -      | نظام الفوترة                                     |
+| `virtual-sensors`      | -      | المستشعرات الافتراضية                            |
+| `alert-service`        | -      | خدمة التنبيهات                                   |
+| `field-service`        | -      | إدارة الحقول                                     |
+| `iot-service`          | -      | خدمة IoT                                         |
+| `ndvi-processor`       | -      | معالجة NDVI                                      |
+| `lai-estimation`       | -      | تقدير مساحة الأوراق                              |
+| `disaster-assessment`  | -      | تقييم الكوارث                                    |
+| `crop-growth-model`    | -      | نموذج نمو المحاصيل                               |
+| `community-chat`       | -      | دردشة المجتمع                                    |
+| `marketplace-service`  | -      | السوق الإلكتروني                                 |
+| `research-core`        | -      | البحث العلمي                                     |
 
 ---
 
 ## 2. مجلد `packages/` - الحزم المشتركة (NPM)
 
-| الحزمة | الوظيفة |
-|--------|---------|
-| `shared-utils` | دوال مساعدة مشتركة |
-| `shared-ui` | مكونات UI مشتركة |
-| `shared-hooks` | React Hooks مشتركة |
-| `api-client` | عميل API موحد |
-| `design-system` | نظام التصميم |
-| `tailwind-config` | إعدادات Tailwind CSS |
-| `typescript-config` | إعدادات TypeScript |
-| `i18n` | الترجمة والتعريب |
-| `mock-data` | بيانات وهمية للاختبار |
-| `advisor` | منطق المستشار الزراعي |
-| `field_suite` | أدوات إدارة الحقول |
-| `kernel_domain` | نماذج المجال الأساسية |
-| `sahool-eo` | Earth Observation tools |
-| `shared` | كود مشترك عام |
+| الحزمة              | الوظيفة                 |
+| ------------------- | ----------------------- |
+| `shared-utils`      | دوال مساعدة مشتركة      |
+| `shared-ui`         | مكونات UI مشتركة        |
+| `shared-hooks`      | React Hooks مشتركة      |
+| `api-client`        | عميل API موحد           |
+| `design-system`     | نظام التصميم            |
+| `tailwind-config`   | إعدادات Tailwind CSS    |
+| `typescript-config` | إعدادات TypeScript      |
+| `i18n`              | الترجمة والتعريب        |
+| `mock-data`         | بيانات وهمية للاختبار   |
+| `advisor`           | منطق المستشار الزراعي   |
+| `field_suite`       | أدوات إدارة الحقول      |
+| `kernel_domain`     | نماذج المجال الأساسية   |
+| `sahool-eo`         | Earth Observation tools |
+| `shared`            | كود مشترك عام           |
 
 ---
 
@@ -237,6 +237,7 @@ governance/
 ```
 
 **السياسات المفروضة:**
+
 - `restrict-latest-tag`: منع استخدام `image:latest`
 - `require-resource-limits`: فرض تحديد CPU/Memory
 - `require-governance-labels`: فرض labels الحوكمة
@@ -315,49 +316,50 @@ tests/
 
 ## 12. مجلد `.github/workflows/` - GitHub Actions
 
-| Workflow | الوظيفة |
-|----------|---------|
-| `ci.yml` | CI الرئيسي |
-| `frontend-ci.yml` | CI للواجهات الأمامية |
-| `test.yml` | تشغيل الاختبارات |
-| `security-checks.yml` | فحوصات الأمان (Trivy, Bandit, Semgrep) |
-| `quality-gates.yml` | بوابات الجودة |
-| `governance-ci.yml` | فحوصات الحوكمة |
-| `governance-structure.yml` | التحقق من الهيكل |
-| `event-contracts-guard.yml` | حماية عقود الأحداث |
-| `generator-guard.yml` | حماية المولدات |
-| `flutter-apk.yml` | بناء تطبيق Android |
-| `docker-image.yml` | بناء Docker images |
-| `release.yml` | الإصدار |
-| `release-candidate.yml` | مرشح الإصدار |
-| `infra-sync.yml` | مزامنة البنية التحتية |
+| Workflow                    | الوظيفة                                |
+| --------------------------- | -------------------------------------- |
+| `ci.yml`                    | CI الرئيسي                             |
+| `frontend-ci.yml`           | CI للواجهات الأمامية                   |
+| `test.yml`                  | تشغيل الاختبارات                       |
+| `security-checks.yml`       | فحوصات الأمان (Trivy, Bandit, Semgrep) |
+| `quality-gates.yml`         | بوابات الجودة                          |
+| `governance-ci.yml`         | فحوصات الحوكمة                         |
+| `governance-structure.yml`  | التحقق من الهيكل                       |
+| `event-contracts-guard.yml` | حماية عقود الأحداث                     |
+| `generator-guard.yml`       | حماية المولدات                         |
+| `flutter-apk.yml`           | بناء تطبيق Android                     |
+| `docker-image.yml`          | بناء Docker images                     |
+| `release.yml`               | الإصدار                                |
+| `release-candidate.yml`     | مرشح الإصدار                           |
+| `infra-sync.yml`            | مزامنة البنية التحتية                  |
 
 ---
 
 ## 13. الملفات الجذرية
 
-| الملف | الوظيفة |
-|-------|---------|
-| `package.json` | إعدادات NPM Monorepo |
-| `package-lock.json` | قفل التبعيات |
-| `pyproject.toml` | إعدادات Python |
-| `pytest.ini` | إعدادات pytest |
-| `conftest.py` | إعدادات الاختبار |
-| `vitest.config.ts` | إعدادات Vitest |
-| `tsconfig.base.json` | إعدادات TypeScript الأساسية |
-| `.eslintrc.base.json` | إعدادات ESLint الأساسية |
-| `.pre-commit-config.yaml` | إعدادات pre-commit hooks |
-| `.secrets.baseline` | خط أساس detect-secrets |
-| `docker-compose.yml` | تشغيل الخدمات محلياً |
-| `Makefile` | أوامر make |
-| `.env.example` | مثال متغيرات البيئة |
-| `.gitignore` | الملفات المتجاهلة |
+| الملف                     | الوظيفة                     |
+| ------------------------- | --------------------------- |
+| `package.json`            | إعدادات NPM Monorepo        |
+| `package-lock.json`       | قفل التبعيات                |
+| `pyproject.toml`          | إعدادات Python              |
+| `pytest.ini`              | إعدادات pytest              |
+| `conftest.py`             | إعدادات الاختبار            |
+| `vitest.config.ts`        | إعدادات Vitest              |
+| `tsconfig.base.json`      | إعدادات TypeScript الأساسية |
+| `.eslintrc.base.json`     | إعدادات ESLint الأساسية     |
+| `.pre-commit-config.yaml` | إعدادات pre-commit hooks    |
+| `.secrets.baseline`       | خط أساس detect-secrets      |
+| `docker-compose.yml`      | تشغيل الخدمات محلياً        |
+| `Makefile`                | أوامر make                  |
+| `.env.example`            | مثال متغيرات البيئة         |
+| `.gitignore`              | الملفات المتجاهلة           |
 
 ---
 
 ## 14. التبعيات الرئيسية
 
 ### Frontend (Node.js)
+
 - **Runtime:** Node.js >= 20.0.0
 - **Package Manager:** NPM 10.9.0
 - **Framework:** Next.js 15.5.9
@@ -367,6 +369,7 @@ tests/
 - **Testing:** Vitest 3.1.3
 
 ### Backend (Python)
+
 - **Runtime:** Python 3.11
 - **Framework:** FastAPI
 - **ORM:** SQLAlchemy
@@ -375,10 +378,12 @@ tests/
 - **Caching:** Redis 7
 
 ### Mobile (Flutter)
+
 - **SDK:** Flutter Stable
 - **Language:** Dart 3.6.0
 
 ### Infrastructure
+
 - **Container Runtime:** Docker
 - **Orchestration:** Kubernetes
 - **GitOps:** ArgoCD

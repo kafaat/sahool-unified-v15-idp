@@ -3,9 +3,7 @@
   "$id": "https://sahool.io/events/FieldIndicatorsComputed.v1.json",
   "title": "Field Indicators Computed Event",
   "description": "Emitted when field vegetation indices are computed - يُنشر عند حساب مؤشرات الحقل",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Analytics.FieldIndicatorsComputed" },
     "payload": {
@@ -85,6 +83,12 @@
   "x-sahool": {
     "layer": "intelligence",
     "producer": "indicators-service",
-    "consumers": ["crop-health-ai", "crop-growth-model", "yield-engine", "fertilizer-advisor", "research-core"]
+    "consumers": [
+      "crop-health-ai",
+      "crop-growth-model",
+      "yield-engine",
+      "fertilizer-advisor",
+      "research-core"
+    ]
   }
 }

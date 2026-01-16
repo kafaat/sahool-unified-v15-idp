@@ -1,4 +1,5 @@
 # خطة العمل للتحسينات والترقيات
+
 # Action Plan for Improvements and Upgrades
 
 **المشروع:** SAHOOL Unified Platform v15.3.2  
@@ -20,6 +21,7 @@
 #### 1.1 إصلاح CORS Wildcard في جميع الخدمات
 
 **المشكلة:**
+
 ```python
 # في 3+ خدمات:
 allow_origins=["*"]  # خطر أمني!
@@ -28,12 +30,14 @@ allow_origins=["*"]  # خطر أمني!
 **الحل:**
 
 **الملفات المتأثرة:**
+
 - `kernel-services-v15.3/crop-health-ai/src/main.py`
 - `kernel-services-v15.3/yield-engine/src/main.py`
 - `kernel-services-v15.3/virtual-sensors/src/main.py`
 - جميع الخدمات الأخرى (فحص شامل)
 
 **الكود الجديد:**
+
 ```python
 # shared/config/cors_config.py
 from typing import List
@@ -41,20 +45,20 @@ from pydantic_settings import BaseSettings
 
 class CORSSettings(BaseSettings):
     """Centralized CORS configuration"""
-    
+
     allowed_origins: List[str] = [
         "https://admin.sahool.io",
         "https://app.sahool.io",
         "https://dashboard.sahool.io",
     ]
-    
+
     # Development only
     dev_origins: List[str] = [
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:8080",
     ]
-    
+
     @property
     def all_origins(self) -> List[str]:
         """Get all allowed origins based on environment"""
@@ -78,6 +82,7 @@ app.add_middleware(
 ```
 
 **خطوات التنفيذ:**
+
 ```bash
 # 1. إنشاء ملف التهيئة المشترك
 mkdir -p shared/config
@@ -98,6 +103,7 @@ git push
 ```
 
 **التحقق:**
+
 ```bash
 # اختبار CORS
 curl -H "Origin: https://malicious-site.com" \
@@ -112,26 +118,29 @@ curl -H "Origin: https://malicious-site.com" \
 #### 1.2 إزالة كلمات المرور الافتراضية
 
 **المشكلة:**
+
 ```yaml
 # docker-compose.yml
-POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool}  # قيمة افتراضية خطيرة!
+POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool} # قيمة افتراضية خطيرة!
 REDIS_PASSWORD: ${REDIS_PASSWORD:-changeme}
 ```
 
 **الحل:**
 
 **1. تحديث docker-compose.yml:**
+
 ```yaml
 services:
   postgres:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Error: POSTGRES_PASSWORD not set}
-      
+
   redis:
     command: redis-server --requirepass ${REDIS_PASSWORD:?Error: REDIS_PASSWORD not set}
 ```
 
 **2. إنشاء .env.template:**
+
 ```bash
 # .env.template
 # ═══════════════════════════════════════════════════════════════
@@ -172,6 +181,7 @@ NATS_URL=nats://nats:4222
 ```
 
 **3. إنشاء سكربت لتوليد كلمات مرور آمنة:**
+
 ```bash
 #!/bin/bash
 # scripts/security/generate-env.sh
@@ -214,6 +224,7 @@ echo "  - JWT Secret: ${JWT_SECRET:0:8}..."
 ```
 
 **خطوات التنفيذ:**
+
 ```bash
 # 1. إنشاء سكربت التوليد
 chmod +x scripts/security/generate-env.sh
@@ -238,6 +249,7 @@ git commit -m "Security: Remove default passwords, add secure env generation"
 #### 1.3 تحسين مصادقة WebSocket
 
 **المشكلة:**
+
 ```python
 # kernel/services/ws_gateway/src/main.py
 # TODO: Implement proper JWT validation
@@ -246,6 +258,7 @@ git commit -m "Security: Remove default passwords, add secure env generation"
 **الحل:**
 
 **1. إنشاء وحدة مصادقة JWT:**
+
 ```python
 # shared/auth/jwt_validator.py
 from typing import Optional, Dict
@@ -257,26 +270,26 @@ from pydantic_settings import BaseSettings
 class JWTSettings(BaseSettings):
     jwt_secret: str
     jwt_algorithm: str = "HS256"
-    
+
     class Config:
         env_file = ".env"
 
 class JWTValidator:
     """Centralized JWT validation for all services"""
-    
+
     def __init__(self):
         self.settings = JWTSettings()
-    
+
     async def validate_token(self, token: str) -> Dict:
         """
         Validate JWT token and return payload
-        
+
         Args:
             token: JWT token string
-            
+
         Returns:
             Dict with user information
-            
+
         Raises:
             WebSocketDisconnect: If token is invalid
         """
@@ -292,7 +305,7 @@ class JWTValidator:
                     "verify_iat": True,
                 }
             )
-            
+
             # Validate required fields
             required_fields = ["user_id", "role", "tenant_id"]
             for field in required_fields:
@@ -301,9 +314,9 @@ class JWTValidator:
                         code=4002,
                         reason=f"Missing required field: {field}"
                     )
-            
+
             return payload
-            
+
         except ExpiredSignatureError:
             raise WebSocketDisconnect(
                 code=4001,
@@ -319,24 +332,25 @@ class JWTValidator:
                 code=4000,
                 reason=f"Authentication error: {str(e)}"
             )
-    
+
     def extract_token_from_query(self, query_params: str) -> Optional[str]:
         """Extract token from WebSocket query parameters"""
         from urllib.parse import parse_qs
-        
+
         params = parse_qs(query_params)
         token = params.get("token", [None])[0]
-        
+
         if not token:
             raise WebSocketDisconnect(
                 code=4004,
                 reason="Missing authentication token"
             )
-        
+
         return token
 ```
 
 **2. تحديث ws_gateway:**
+
 ```python
 # kernel/services/ws_gateway/src/main.py
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -354,7 +368,7 @@ connections: Dict[str, Dict] = {}
 async def websocket_endpoint(websocket: WebSocket):
     """
     WebSocket endpoint with JWT authentication
-    
+
     Usage: ws://localhost:8089/ws?token=<jwt_token>
     """
     try:
@@ -362,13 +376,13 @@ async def websocket_endpoint(websocket: WebSocket):
         token = jwt_validator.extract_token_from_query(
             websocket.scope.get("query_string", b"").decode()
         )
-        
+
         # 2. Validate token before accepting connection
         user_context = await jwt_validator.validate_token(token)
-        
+
         # 3. Accept WebSocket connection
         await websocket.accept()
-        
+
         # 4. Store connection with user context
         connection_id = f"{user_context['user_id']}_{user_context['tenant_id']}"
         connections[connection_id] = {
@@ -377,17 +391,17 @@ async def websocket_endpoint(websocket: WebSocket):
             "role": user_context["role"],
             "tenant_id": user_context["tenant_id"],
         }
-        
+
         logger.info(
             f"WebSocket connected: {connection_id} "
             f"(role={user_context['role']})"
         )
-        
+
         # 5. Handle messages
         try:
             while True:
                 data = await websocket.receive_json()
-                
+
                 # Validate tenant isolation
                 if data.get("tenant_id") != user_context["tenant_id"]:
                     await websocket.send_json({
@@ -395,17 +409,17 @@ async def websocket_endpoint(websocket: WebSocket):
                         "code": "TENANT_MISMATCH"
                     })
                     continue
-                
+
                 # Process message
                 await process_message(data, user_context)
-                
+
         except WebSocketDisconnect:
             logger.info(f"WebSocket disconnected: {connection_id}")
         finally:
             # Cleanup
             if connection_id in connections:
                 del connections[connection_id]
-                
+
     except WebSocketDisconnect as e:
         logger.warning(f"WebSocket authentication failed: {e.reason}")
         await websocket.close(code=e.code, reason=e.reason)
@@ -418,7 +432,7 @@ async def process_message(data: Dict, user_context: Dict):
     # Add user context to message
     data["_user_id"] = user_context["user_id"]
     data["_tenant_id"] = user_context["tenant_id"]
-    
+
     # Publish to NATS for processing
     await nats_client.publish(
         subject=f"ws.{data['type']}.{user_context['tenant_id']}",
@@ -427,6 +441,7 @@ async def process_message(data: Dict, user_context: Dict):
 ```
 
 **3. اختبارات الوحدة:**
+
 ```python
 # tests/security/test_jwt_validation.py
 import pytest
@@ -465,10 +480,10 @@ async def test_expired_token(jwt_validator):
         "exp": datetime.utcnow() - timedelta(hours=1),  # Expired
     }
     expired_token = jwt.encode(expired_payload, "test_secret", algorithm="HS256")
-    
+
     with pytest.raises(WebSocketDisconnect) as exc_info:
         await jwt_validator.validate_token(expired_token)
-    
+
     assert exc_info.value.code == 4001
     assert "expired" in exc_info.value.reason.lower()
 
@@ -477,14 +492,15 @@ async def test_invalid_signature(jwt_validator):
     """Test validation of token with invalid signature"""
     payload = {"user_id": "user123"}
     invalid_token = jwt.encode(payload, "wrong_secret", algorithm="HS256")
-    
+
     with pytest.raises(WebSocketDisconnect) as exc_info:
         await jwt_validator.validate_token(invalid_token)
-    
+
     assert exc_info.value.code == 4003
 ```
 
 **خطوات التنفيذ:**
+
 ```bash
 # 1. إنشاء الوحدات
 mkdir -p shared/auth tests/security
@@ -614,12 +630,12 @@ import 'package:sahool_field_app/features/field/data/repo/field_repository.dart'
 void main() {
   late FieldRepository repository;
   late MockDio mockDio;
-  
+
   setUp(() {
     mockDio = MockDio();
     repository = FieldRepository(dio: mockDio);
   });
-  
+
   group('FieldRepository', () {
     test('should fetch fields successfully', () async {
       // Arrange
@@ -628,15 +644,15 @@ void main() {
                 data: {'fields': []},
                 statusCode: 200,
               ));
-      
+
       // Act
       final result = await repository.getFields();
-      
+
       // Assert
       expect(result.isSuccess, true);
       verify(mockDio.get('/api/v1/fields')).called(1);
     });
-    
+
     test('should handle network errors', () async {
       // Test implementation
     });
@@ -655,17 +671,17 @@ npm install -D jest @testing-library/react @testing-library/jest-dom \
 
 ```javascript
 // web_admin/src/__tests__/components/Dashboard.test.tsx
-import { render, screen } from '@testing-library/react';
-import Dashboard from '@/components/Dashboard';
+import { render, screen } from "@testing-library/react";
+import Dashboard from "@/components/Dashboard";
 
-describe('Dashboard', () => {
-  it('renders dashboard heading', () => {
+describe("Dashboard", () => {
+  it("renders dashboard heading", () => {
     render(<Dashboard />);
-    const heading = screen.getByRole('heading', { name: /dashboard/i });
+    const heading = screen.getByRole("heading", { name: /dashboard/i });
     expect(heading).toBeInTheDocument();
   });
-  
-  it('displays field statistics', async () => {
+
+  it("displays field statistics", async () => {
     render(<Dashboard />);
     expect(await screen.findByText(/total fields/i)).toBeInTheDocument();
   });
@@ -687,33 +703,33 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - name: Install dependencies
         run: pip install -r requirements.txt pytest pytest-cov
       - name: Run tests with coverage
         run: pytest --cov=kernel --cov-report=xml --cov-report=html
       - name: Upload coverage
         uses: codecov/codecov-action@v3
-        
+
   flutter-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: "3.27.0"
       - name: Run tests
         run: cd mobile/sahool_field_app && flutter test --coverage
       - name: Upload coverage
         uses: codecov/codecov-action@v3
-        
+
   web-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
       - name: Run tests
         run: cd web_admin && npm ci && npm test -- --coverage
       - name: Upload coverage
@@ -734,9 +750,9 @@ import 'package:flutter/material.dart';
 
 class WithdrawDialog extends StatefulWidget {
   final double availableBalance;
-  
+
   const WithdrawDialog({required this.availableBalance});
-  
+
   @override
   State<WithdrawDialog> createState() => _WithdrawDialogState();
 }
@@ -745,13 +761,13 @@ class _WithdrawDialogState extends State<WithdrawDialog> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   String? _selectedMethod;
-  
+
   final List<String> _withdrawMethods = [
     'Bank Transfer',
     'Mobile Money',
     'Cash Pickup',
   ];
-  
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -821,7 +837,7 @@ class _WithdrawDialogState extends State<WithdrawDialog> {
       ],
     );
   }
-  
+
   void _handleWithdraw() {
     if (_formKey.currentState!.validate()) {
       final amount = double.parse(_amountController.text);
@@ -861,7 +877,7 @@ Future<void> _handleLogout(BuildContext context) async {
       ],
     ),
   );
-  
+
   if (confirmed == true) {
     // Show loading
     showDialog(
@@ -869,22 +885,22 @@ Future<void> _handleLogout(BuildContext context) async {
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
-    
+
     try {
       // 1. Clear local database
       await ref.read(databaseProvider).deleteAll();
-      
+
       // 2. Clear secure storage (tokens)
       final storage = FlutterSecureStorage();
       await storage.deleteAll();
-      
+
       // 3. Clear shared preferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
-      
+
       // 4. Cancel background sync
       await Workmanager().cancelAll();
-      
+
       // 5. Navigate to login
       if (context.mounted) {
         Navigator.pop(context); // Close loading
@@ -924,21 +940,21 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'sahool-services'
+  - job_name: "sahool-services"
     static_configs:
       - targets:
           - field_ops:8080
           - ndvi_engine:8107
           - weather_core:8108
     metrics_path: /metrics
-    
-  - job_name: 'postgres'
+
+  - job_name: "postgres"
     static_configs:
-      - targets: ['postgres-exporter:9187']
-      
-  - job_name: 'redis'
+      - targets: ["postgres-exporter:9187"]
+
+  - job_name: "redis"
     static_configs:
-      - targets: ['redis-exporter:9121']
+      - targets: ["redis-exporter:9121"]
 ```
 
 **2. Grafana Dashboards:**
@@ -993,7 +1009,7 @@ groups:
         annotations:
           summary: "High error rate detected"
           description: "Error rate is {{ $value }} requests/sec"
-          
+
       - alert: SlowResponses
         expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
         for: 10m
@@ -1020,7 +1036,7 @@ import hashlib
 
 class CacheStrategy:
     """Unified caching strategy for all services"""
-    
+
     # TTL configurations (in seconds)
     TTL_CONFIGS = {
         "weather_current": 900,      # 15 minutes
@@ -1030,10 +1046,10 @@ class CacheStrategy:
         "user_profile": 3600,        # 1 hour
         "crop_recommendations": 7200, # 2 hours
     }
-    
+
     def __init__(self, redis_client: Redis):
         self.redis = redis_client
-    
+
     def cache(
         self,
         key_prefix: str,
@@ -1042,7 +1058,7 @@ class CacheStrategy:
     ):
         """
         Decorator for caching function results
-        
+
         Usage:
             @cache_strategy.cache(key_prefix="weather", ttl=900)
             async def get_weather(lat: float, lon: float):
@@ -1056,27 +1072,27 @@ class CacheStrategy:
                 cache_key = self._generate_key(
                     key_prefix, func.__name__, args, kwargs
                 )
-                
+
                 # Try to get from cache
                 cached = await self._get(cache_key)
                 if cached is not None:
                     return cached
-                
+
                 # Execute function
                 result = await func(*args, **kwargs)
-                
+
                 # Store in cache
                 await self._set(
                     cache_key,
                     result,
                     ttl or self.TTL_CONFIGS.get(key_prefix, 3600)
                 )
-                
+
                 return result
-            
+
             return wrapper
         return decorator
-    
+
     def _generate_key(
         self,
         prefix: str,
@@ -1088,16 +1104,16 @@ class CacheStrategy:
         # Create hash of arguments
         args_str = json.dumps({"args": args, "kwargs": kwargs}, sort_keys=True)
         args_hash = hashlib.md5(args_str.encode()).hexdigest()[:8]
-        
+
         return f"sahool:{prefix}:{func_name}:{args_hash}"
-    
+
     async def _get(self, key: str) -> Optional[Any]:
         """Get value from cache"""
         data = self.redis.get(key)
         if data:
             return json.loads(data)
         return None
-    
+
     async def _set(self, key: str, value: Any, ttl: int):
         """Set value in cache"""
         self.redis.setex(
@@ -1105,7 +1121,7 @@ class CacheStrategy:
             ttl,
             json.dumps(value)
         )
-    
+
     async def invalidate(self, pattern: str):
         """Invalidate cache by pattern"""
         keys = self.redis.keys(f"sahool:{pattern}:*")
@@ -1129,6 +1145,7 @@ async def get_current_weather(lat: float, lon: float):
 ### 4.1 Service Mesh (Istio)
 
 **الفوائد:**
+
 - mTLS تلقائي بين الخدمات
 - Circuit Breaking
 - Retry Policies
@@ -1180,6 +1197,7 @@ EOF
 ### 4.2 GraphQL Gateway
 
 **الفوائد:**
+
 - Single query لبيانات متعددة
 - Reduced over-fetching
 - Better mobile performance
@@ -1271,12 +1289,12 @@ Technical KPIs:
     - Critical Vulnerabilities: 0
     - Security Scan Frequency: Weekly
     - Incident Response Time: < 15 minutes
-  
+
   Quality:
     - Test Coverage: > 70%
     - Code Review: 100% of PRs
     - Build Success Rate: > 95%
-  
+
   Performance:
     - API Response Time P95: < 300ms
     - Uptime: > 99.9%
@@ -1292,6 +1310,7 @@ Business KPIs:
 
 ```markdown
 Weekly Report Template:
+
 - ✅ Completed Tasks
 - 🔄 In Progress
 - 🚧 Blockers
@@ -1306,12 +1325,14 @@ Weekly Report Template:
 هذه الخطة توفر **مسار واضح ومنظم** لتحسين منصة سهول من حالتها الحالية (8.1/10) إلى **مستوى الإنتاج الكامل (9.5/10+)**.
 
 ### الأولويات:
+
 1. 🔴 **الأمان** - إصلاحات فورية (أسبوع 1)
 2. 🟠 **الجودة** - زيادة الاختبارات (أسبوع 2-4)
 3. 🟡 **الأداء** - تحسينات متوسطة (شهر 2-3)
 4. 🟢 **التوسع** - رؤية طويلة الأجل (شهر 4-12)
 
 **نتوقع بعد 4 أسابيع:**
+
 - ✅ منصة آمنة تماماً
 - ✅ تغطية اختبارية > 70%
 - ✅ جميع الميزات الأساسية مكتملة

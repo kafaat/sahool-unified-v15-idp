@@ -5,11 +5,13 @@ Agricultural inventory management with advanced analytics and forecasting.
 ## Features
 
 ### Core Functionality
+
 - **Inventory Management**: Multi-tenant inventory tracking with categories, warehouses, and suppliers
 - **Stock Movements**: Receipt, issue, transfer, adjustment, return, write-off tracking
 - **Transaction Recording**: Purchase, sale, use, waste, and return transactions
 
 ### Analytics & Forecasting
+
 - **Consumption Forecasting**: Moving average-based forecasting with seasonal adjustment
 - **Inventory Valuation**: FIFO and weighted average cost valuation
 - **ABC/Pareto Analysis**: Classify items by value contribution

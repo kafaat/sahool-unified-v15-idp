@@ -80,8 +80,8 @@ All events are wrapped in a standard envelope:
 
 ## Owners
 
-| Owner | Events |
-|-------|--------|
-| field_suite | field.*, farm.*, crop.* |
-| advisor | advisor.* |
-| kernel_domain | user.*, tenant.* |
+| Owner         | Events                   |
+| ------------- | ------------------------ |
+| field_suite   | field._, farm._, crop.\* |
+| advisor       | advisor.\*               |
+| kernel_domain | user._, tenant._         |

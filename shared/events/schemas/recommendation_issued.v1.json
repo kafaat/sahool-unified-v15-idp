@@ -20,7 +20,13 @@
     },
     "category": {
       "type": "string",
-      "enum": ["disease", "pest", "nutrient_deficiency", "irrigation", "general"],
+      "enum": [
+        "disease",
+        "pest",
+        "nutrient_deficiency",
+        "irrigation",
+        "general"
+      ],
       "description": "Category of the recommendation"
     },
     "severity": {

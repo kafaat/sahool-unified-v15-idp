@@ -1,4 +1,5 @@
 # SAHOOL Platform - Disaster Recovery System
+
 # نظام التعافي من الكوارث لمنصة سهول
 
 ![DR Status](https://img.shields.io/badge/DR_Readiness-9.0%2F10-green)
@@ -193,35 +194,35 @@ echo "*/5 * * * * /home/user/sahool-unified-v15-idp/scripts/disaster-recovery/ba
 
 ## 🎯 RTO/RPO Targets
 
-| Scenario | RTO Target | RPO Target | Status |
-|----------|-----------|-----------|---------|
-| PostgreSQL primary failure | 30 seconds | <5 seconds | ✅ Met |
-| Redis master failure | 15 seconds | 0 | ✅ Met |
-| Single AZ failure | 5 minutes | <5 seconds | ✅ Met |
-| Region failure | 2 hours | <5 minutes | ✅ Met |
-| Complete datacenter loss | 6 hours | <15 minutes | ✅ Met |
+| Scenario                   | RTO Target | RPO Target  | Status |
+| -------------------------- | ---------- | ----------- | ------ |
+| PostgreSQL primary failure | 30 seconds | <5 seconds  | ✅ Met |
+| Redis master failure       | 15 seconds | 0           | ✅ Met |
+| Single AZ failure          | 5 minutes  | <5 seconds  | ✅ Met |
+| Region failure             | 2 hours    | <5 minutes  | ✅ Met |
+| Complete datacenter loss   | 6 hours    | <15 minutes | ✅ Met |
 
 ## ✅ Audit Improvements
 
 ### Before Implementation (Score: 5.5/10)
 
-| Category | Before | Issues |
-|----------|--------|---------|
-| Database Replication | 3/10 | No replication, single instance |
-| Automated Failover | 4.5/10 | Manual only for PostgreSQL |
-| Multi-Region | 5/10 | Planned but not deployed |
-| RPO Compliance | 5/10 | 24-hour RPO (target: 1 hour) |
-| DR Testing | 2/10 | No drills conducted |
+| Category             | Before | Issues                          |
+| -------------------- | ------ | ------------------------------- |
+| Database Replication | 3/10   | No replication, single instance |
+| Automated Failover   | 4.5/10 | Manual only for PostgreSQL      |
+| Multi-Region         | 5/10   | Planned but not deployed        |
+| RPO Compliance       | 5/10   | 24-hour RPO (target: 1 hour)    |
+| DR Testing           | 2/10   | No drills conducted             |
 
 ### After Implementation (Score: 9.0/10)
 
-| Category | After | Improvements |
-|----------|-------|-------------|
-| Database Replication | 9/10 | ✅ 3-node cluster with streaming replication |
-| Automated Failover | 9.5/10 | ✅ <30 second automated failover |
-| Multi-Region | 8/10 | ✅ Cross-region replication configured |
-| RPO Compliance | 9.5/10 | ✅ <5 second RPO achieved |
-| DR Testing | 8/10 | ✅ Automated testing suite + monthly drills |
+| Category             | After  | Improvements                                 |
+| -------------------- | ------ | -------------------------------------------- |
+| Database Replication | 9/10   | ✅ 3-node cluster with streaming replication |
+| Automated Failover   | 9.5/10 | ✅ <30 second automated failover             |
+| Multi-Region         | 8/10   | ✅ Cross-region replication configured       |
+| RPO Compliance       | 9.5/10 | ✅ <5 second RPO achieved                    |
+| DR Testing           | 8/10   | ✅ Automated testing suite + monthly drills  |
 
 ## 🔐 Security Considerations
 
@@ -307,9 +308,9 @@ echo "*/5 * * * * /home/user/sahool-unified-v15-idp/scripts/disaster-recovery/ba
 
 ## 📝 Change Log
 
-| Version | Date | Changes | Author |
-|---------|------|---------|--------|
-| 1.0.0 | 2026-01-06 | Initial DR implementation | DR Team |
+| Version | Date       | Changes                   | Author  |
+| ------- | ---------- | ------------------------- | ------- |
+| 1.0.0   | 2026-01-06 | Initial DR implementation | DR Team |
 
 ## 🔗 Related Links
 
@@ -332,4 +333,4 @@ echo "*/5 * * * * /home/user/sahool-unified-v15-idp/scripts/disaster-recovery/ba
 
 ---
 
-*For questions or support, contact: dr-team@sahool.sa*
+_For questions or support, contact: dr-team@sahool.sa_

@@ -1,4 +1,5 @@
 # Field Boundary Detection - Quick Start Guide
+
 # دليل البدء السريع - كشف حدود الحقول
 
 Quick reference for using the Field Boundary Detection API.
@@ -27,16 +28,19 @@ python examples/boundary_detection_example.py
 **Endpoint:** `POST /v1/boundaries/detect`
 
 **Simplest Request:**
+
 ```bash
 curl -X POST "http://localhost:8090/v1/boundaries/detect?lat=15.5527&lon=44.2075"
 ```
 
 **With All Options:**
+
 ```bash
 curl -X POST "http://localhost:8090/v1/boundaries/detect?lat=15.5527&lon=44.2075&radius_m=500&date=2024-01-15"
 ```
 
 **Python:**
+
 ```python
 import httpx
 
@@ -49,6 +53,7 @@ async with httpx.AsyncClient() as client:
 ```
 
 **Response:**
+
 ```json
 {
   "type": "FeatureCollection",
@@ -67,6 +72,7 @@ async with httpx.AsyncClient() as client:
 **Endpoint:** `POST /v1/boundaries/refine`
 
 **Request:**
+
 ```bash
 curl -X POST "http://localhost:8090/v1/boundaries/refine" \
   -d "coords=[[44.207, 15.552], [44.208, 15.552], [44.208, 15.553], [44.207, 15.553]]" \
@@ -74,6 +80,7 @@ curl -X POST "http://localhost:8090/v1/boundaries/refine" \
 ```
 
 **Python:**
+
 ```python
 coords = [[44.207, 15.552], [44.208, 15.552], [44.208, 15.553], [44.207, 15.553]]
 
@@ -86,6 +93,7 @@ async with httpx.AsyncClient() as client:
 ```
 
 **Response:**
+
 ```json
 {
   "refined_boundary": {...},
@@ -103,11 +111,13 @@ async with httpx.AsyncClient() as client:
 **Endpoint:** `GET /v1/boundaries/{field_id}/changes`
 
 **Request:**
+
 ```bash
 curl "http://localhost:8090/v1/boundaries/field_12345/changes?since_date=2023-07-01&previous_coords=[[44.207,15.552],[44.208,15.552],[44.208,15.553],[44.207,15.553]]"
 ```
 
 **Python:**
+
 ```python
 previous = [[44.207, 15.552], [44.208, 15.552], [44.208, 15.553], [44.207, 15.553]]
 
@@ -123,6 +133,7 @@ async with httpx.AsyncClient() as client:
 ```
 
 **Response:**
+
 ```json
 {
   "change_analysis": {
@@ -160,20 +171,22 @@ lat, lon = 14.7978, 42.9545
 ## 📊 Response Fields
 
 ### FieldBoundary Properties
+
 ```json
 {
   "field_id": "unique identifier",
   "area_hectares": 2.47,
   "perimeter_meters": 628.5,
   "centroid": [44.207, 15.552],
-  "detection_confidence": 0.85,      // 0-1 (higher is better)
-  "quality_score": 0.80,             // 0-1 (shape regularity)
-  "mean_ndvi": 0.65,                 // 0-1 (vegetation health)
-  "method": "ndvi_edge"              // detection method used
+  "detection_confidence": 0.85, // 0-1 (higher is better)
+  "quality_score": 0.8, // 0-1 (shape regularity)
+  "mean_ndvi": 0.65, // 0-1 (vegetation health)
+  "method": "ndvi_edge" // detection method used
 }
 ```
 
 ### Change Types
+
 - `"stable"` - No significant change (< 5%)
 - `"expansion"` - Field has grown
 - `"contraction"` - Field has shrunk
@@ -206,6 +219,7 @@ detector.simplify_tolerance = 0.00005  # Lower = more detail
 ## 🎯 Use Case Examples
 
 ### 1. Farmer Field Registration
+
 ```python
 # Farmer provides location
 boundaries = await detect_boundary(lat=15.5527, lon=44.2075)
@@ -219,6 +233,7 @@ selected = boundaries[0]
 ```
 
 ### 2. Monitor Field Expansion
+
 ```python
 # Check if field has expanded
 change = await detect_boundary_change(
@@ -232,6 +247,7 @@ if change.change_type == "expansion":
 ```
 
 ### 3. Improve Hand-Drawn Boundary
+
 ```python
 # User draws rough boundary on map
 user_drawn = [[44.207, 15.552], [44.208, 15.553], ...]
@@ -246,11 +262,13 @@ print(f"Refined to {refined.area_hectares} hectares")
 ## 🧪 Testing
 
 Run unit tests:
+
 ```bash
 pytest tests/test_boundary_detector.py -v
 ```
 
 Run all examples:
+
 ```bash
 python examples/boundary_detection_example.py
 ```
@@ -260,6 +278,7 @@ python examples/boundary_detection_example.py
 ## 🐛 Troubleshooting
 
 ### Service won't start
+
 ```bash
 # Check if port 8090 is available
 lsof -i :8090
@@ -269,12 +288,14 @@ pip install -r requirements.txt
 ```
 
 ### No boundaries detected
+
 - Increase `radius_m` parameter
 - Try different date (better weather/season)
 - Lower detection thresholds
 - Check if location has agricultural fields
 
 ### Low confidence scores
+
 - Use boundary refinement
 - Try different satellite imagery date
 - Manually adjust boundaries

@@ -1,4 +1,5 @@
 # API Fallback Manager - Quick Start
+
 # البداية السريعة - مدير الاحتياطي
 
 ## 🚀 5-Minute Quick Start
@@ -49,13 +50,13 @@ print(f"Failures: {status['failure_count']}/{status['failure_threshold']}")
 
 Just use these service names with the global manager:
 
-| Service | Name | Threshold | Timeout |
-|---------|------|-----------|---------|
-| Weather | `"weather"` | 5 | 30s |
-| Satellite | `"satellite"` | 3 | 60s |
-| AI | `"ai"` | 5 | 30s |
-| Crop Health | `"crop_health"` | 4 | 45s |
-| Irrigation | `"irrigation"` | 4 | 45s |
+| Service     | Name            | Threshold | Timeout |
+| ----------- | --------------- | --------- | ------- |
+| Weather     | `"weather"`     | 5         | 30s     |
+| Satellite   | `"satellite"`   | 3         | 60s     |
+| AI          | `"ai"`          | 5         | 30s     |
+| Crop Health | `"crop_health"` | 4         | 45s     |
+| Irrigation  | `"irrigation"`  | 4         | 45s     |
 
 ## 🔍 Circuit States
 
@@ -94,12 +95,14 @@ python3 fallback_examples.py
 ## 💡 Common Patterns
 
 ### Pattern 1: Simple Fallback
+
 ```python
 fm = get_fallback_manager()
 result = fm.execute_with_fallback("weather", api_call)
 ```
 
 ### Pattern 2: Decorators
+
 ```python
 @circuit_breaker(failure_threshold=5)
 def my_function():
@@ -107,6 +110,7 @@ def my_function():
 ```
 
 ### Pattern 3: Custom Service
+
 ```python
 fm = FallbackManager()
 fm.register_fallback("my_service", my_fallback_fn)

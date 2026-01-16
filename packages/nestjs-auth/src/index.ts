@@ -6,8 +6,8 @@
  */
 
 // Export main module
-export { AuthModule } from './auth.module';
-export type { AuthModuleOptions } from './auth.module';
+export { AuthModule } from "./auth.module";
+export type { AuthModuleOptions } from "./auth.module";
 
 // Export guards
 export {
@@ -17,32 +17,32 @@ export {
   FarmAccessGuard,
   OptionalAuthGuard,
   ActiveAccountGuard,
-} from './guards/jwt.guard';
+} from "./guards/jwt.guard";
 
 export {
   TokenRevocationGuard,
   TokenRevocationInterceptor,
   SkipRevocationCheck,
   SKIP_REVOCATION_CHECK_KEY,
-} from './guards/token-revocation.guard';
+} from "./guards/token-revocation.guard";
 
 // Export strategy
-export { JwtStrategy } from './strategies/jwt.strategy';
-export type { JwtPayload, AuthenticatedUser } from './strategies/jwt.strategy';
+export { JwtStrategy } from "./strategies/jwt.strategy";
+export type { JwtPayload, AuthenticatedUser } from "./strategies/jwt.strategy";
 
 // Export services
-export { UserValidationService } from './services/user-validation.service';
+export { UserValidationService } from "./services/user-validation.service";
 export type {
   IUserRepository,
   UserValidationData,
-} from './services/user-validation.service';
+} from "./services/user-validation.service";
 
-export { RedisTokenRevocationStore } from './services/token-revocation';
+export { RedisTokenRevocationStore } from "./services/token-revocation";
 export type {
   RevocationInfo,
   RevocationCheckResult,
   RevocationStats,
-} from './services/token-revocation';
+} from "./services/token-revocation";
 
 // Export decorators
 export {
@@ -60,7 +60,7 @@ export {
   hasAnyRole,
   hasPermission,
   hasAnyPermission,
-} from './decorators';
+} from "./decorators";
 
 // Export config
 export {
@@ -68,7 +68,7 @@ export {
   JWTConfigInterface,
   AuthErrors,
   AuthErrorMessage,
-} from './config/jwt.config';
+} from "./config/jwt.config";
 
 // Export types
-export * from './interfaces';
+export * from "./interfaces";

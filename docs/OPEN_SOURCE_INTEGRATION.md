@@ -3,10 +3,12 @@
 ## Priority 1: Immediate Integration (High Value, Low Effort)
 
 ### 1. pyETo - ET0 Calculation
+
 - **Repository**: https://github.com/woodcrafty/PyETo
 - **License**: MIT
 - **Integration Point**: `water-balance` service
 - **Benefit**: Replace custom ET0 calculation with FAO-56 compliant library
+
 ```python
 # Installation
 pip install pyeto
@@ -17,16 +19,19 @@ et0 = fao.et0(net_rad, temp, ws, svp, avp, delta_svp, psy, shf=0.0)
 ```
 
 ### 2. Open-Meteo API
+
 - **API**: https://open-meteo.com/
 - **License**: Free for non-commercial, CC-BY for commercial
 - **Integration Point**: `weather-service`
 - **Benefit**: Free weather forecasts, historical data, no API key needed
+
 ```python
 # Example endpoint
 GET https://api.open-meteo.com/v1/forecast?latitude=15.35&longitude=44.21&hourly=temperature_2m,precipitation
 ```
 
 ### 3. BrAPI Standard
+
 - **Repository**: https://github.com/plantbreeding/BrAPI
 - **License**: MIT
 - **Integration Point**: `research-core` API
@@ -41,10 +46,12 @@ GET https://api.open-meteo.com/v1/forecast?latitude=15.35&longitude=44.21&hourly
 ## Priority 2: Medium-Term Integration (2-4 weeks)
 
 ### 4. WOFOST Crop Growth Model
+
 - **Repository**: https://github.com/ajwdewit/pcse
 - **License**: EUPL
 - **Integration Point**: `crop-growth-model` service
 - **Benefit**: Scientifically validated crop growth simulation
+
 ```python
 # Installation
 pip install pcse
@@ -57,10 +64,12 @@ output = wofost.get_output()
 ```
 
 ### 5. eo-learn for Satellite Processing
+
 - **Repository**: https://github.com/sentinel-hub/eo-learn
 - **License**: MIT
 - **Integration Point**: `satellite-service`
 - **Benefit**: Efficient Sentinel-2 data processing pipelines
+
 ```python
 # Key features
 - NDVI calculation workflows
@@ -70,6 +79,7 @@ output = wofost.get_output()
 ```
 
 ### 6. PlantVillage Disease Dataset
+
 - **Dataset**: https://github.com/spMohanty/PlantVillage-Dataset
 - **License**: CC0 1.0
 - **Integration Point**: `disease-detection` (new service)
@@ -81,6 +91,7 @@ output = wofost.get_output()
 ## Priority 3: Long-Term Considerations (1-3 months)
 
 ### 7. farmOS Data Model
+
 - **Repository**: https://github.com/farmOS/farmOS
 - **License**: GPL-2.0
 - **Study Points**:
@@ -90,12 +101,14 @@ output = wofost.get_output()
   - Location hierarchy
 
 ### 8. OpenDroneMap for UAV Processing
+
 - **Repository**: https://github.com/OpenDroneMap/ODM
 - **License**: AGPL-3.0
 - **Integration Point**: `drone-service` (future)
 - **Benefit**: Generate orthophotos, DEMs, NDVI from drone imagery
 
 ### 9. GRIN-Global for Genebank
+
 - **Repository**: https://github.com/USDA/GRIN-Global
 - **License**: Public Domain
 - **Integration Point**: `research-core` seed bank module
@@ -145,21 +158,25 @@ output = wofost.get_output()
 ## Implementation Roadmap
 
 ### Phase 1: Foundation (Week 1-2)
+
 - [ ] Integrate pyETo in water-balance service
 - [ ] Add Open-Meteo as weather data source
 - [ ] Update requirements.txt files
 
 ### Phase 2: Research Standards (Week 3-4)
+
 - [ ] Implement BrAPI v2.1 endpoints in research-core
 - [ ] Add MIAPPE-compliant export for experiments
 - [ ] Update API documentation
 
 ### Phase 3: Advanced Models (Week 5-8)
+
 - [ ] Integrate PCSE/WOFOST for crop growth simulation
 - [ ] Add eo-learn pipeline for satellite processing
 - [ ] Create disease detection service with PlantVillage model
 
 ### Phase 4: Ecosystem (Week 9-12)
+
 - [ ] Study farmOS data model for potential adoption
 - [ ] Evaluate GRIN-Global for genebank management
 - [ ] Consider OpenDroneMap for UAV support
@@ -168,17 +185,17 @@ output = wofost.get_output()
 
 ## License Compatibility Matrix
 
-| Library | License | Compatible with SAHOOL? |
-|---------|---------|------------------------|
-| pyETo | MIT | ✅ Yes |
-| Open-Meteo | CC-BY | ✅ Yes (with attribution) |
-| BrAPI | MIT | ✅ Yes |
-| PCSE/WOFOST | EUPL | ✅ Yes |
-| eo-learn | MIT | ✅ Yes |
-| PlantVillage | CC0 | ✅ Yes |
-| farmOS | GPL-2.0 | ⚠️ Study only |
-| OpenDroneMap | AGPL-3.0 | ⚠️ Separate service only |
-| GRIN-Global | Public Domain | ✅ Yes |
+| Library      | License       | Compatible with SAHOOL?   |
+| ------------ | ------------- | ------------------------- |
+| pyETo        | MIT           | ✅ Yes                    |
+| Open-Meteo   | CC-BY         | ✅ Yes (with attribution) |
+| BrAPI        | MIT           | ✅ Yes                    |
+| PCSE/WOFOST  | EUPL          | ✅ Yes                    |
+| eo-learn     | MIT           | ✅ Yes                    |
+| PlantVillage | CC0           | ✅ Yes                    |
+| farmOS       | GPL-2.0       | ⚠️ Study only             |
+| OpenDroneMap | AGPL-3.0      | ⚠️ Separate service only  |
+| GRIN-Global  | Public Domain | ✅ Yes                    |
 
 ---
 
@@ -453,5 +470,5 @@ pcse>=5.5.0
 
 ---
 
-*Document created: 2025-12-25*
-*For SAHOOL Agricultural Platform v15*
+_Document created: 2025-12-25_
+_For SAHOOL Agricultural Platform v15_

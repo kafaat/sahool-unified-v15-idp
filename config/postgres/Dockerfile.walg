@@ -15,7 +15,7 @@ LABEL description="PostgreSQL 16 with PostGIS 3.4 and WAL-G for S3 archiving"
 LABEL version="1.0.0"
 
 # Install dependencies and WAL-G
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
     ca-certificates \

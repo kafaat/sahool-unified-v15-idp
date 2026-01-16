@@ -5,6 +5,7 @@ This service has been deprecated. All chat functionality is now handled by `chat
 ## Migration Guide
 
 The `chat-service` provides:
+
 - Persistent message storage (PostgreSQL)
 - Real-time messaging (Socket.IO)
 - Read receipts and typing indicators
@@ -15,6 +16,7 @@ Please update your references to use `chat-service` instead.
 ---
 
 # 🌿 Sahool Community Chat Service
+
 # خدمة الدردشة الحية لمجتمع سهول
 
 [![Service Status](https://img.shields.io/badge/status-active-success)](http://localhost:8097/healthz)
@@ -45,6 +47,7 @@ Real-time chat service connecting farmers with agricultural experts on the Sahoo
 ## ✨ Features / الميزات
 
 ### Core Features / الميزات الأساسية
+
 - 🔌 **Real-time Communication** - Socket.io for instant messaging
 - 👥 **Farmer-Expert Matching** - Connect farmers with agricultural experts
 - 💬 **Group Chat Rooms** - Multi-participant support sessions
@@ -56,6 +59,7 @@ Real-time chat service connecting farmers with agricultural experts on the Sahoo
 - 🌐 **Bilingual Support** - Arabic and English
 
 ### Technical Features / الميزات التقنية
+
 - ⚡ **High Performance** - Optimized for concurrent connections
 - 🔒 **Security First** - Input validation, XSS prevention, access control
 - 📊 **Real-time Stats** - Service metrics and monitoring
@@ -90,11 +94,11 @@ open http://localhost:8097/api-docs
 
 ### Interactive Documentation / التوثيق التفاعلي
 
-| Documentation | URL | Description |
-|---------------|-----|-------------|
-| **Swagger UI** | http://localhost:8097/api-docs | Interactive API testing |
-| **ReDoc** | http://localhost:8097/redoc | Clean, readable docs |
-| **OpenAPI JSON** | http://localhost:8097/api-docs.json | Machine-readable spec |
+| Documentation    | URL                                 | Description             |
+| ---------------- | ----------------------------------- | ----------------------- |
+| **Swagger UI**   | http://localhost:8097/api-docs      | Interactive API testing |
+| **ReDoc**        | http://localhost:8097/redoc         | Clean, readable docs    |
+| **OpenAPI JSON** | http://localhost:8097/api-docs.json | Machine-readable spec   |
 
 ### REST API Endpoints
 
@@ -109,6 +113,7 @@ GET  /v1/stats                         # Get statistics
 ### WebSocket Events
 
 **Client → Server:**
+
 - `register_user` - Register user
 - `join_room` - Join chat room
 - `send_message` - Send message
@@ -116,6 +121,7 @@ GET  /v1/stats                         # Get statistics
 - `accept_request` - Accept request
 
 **Server → Client:**
+
 - `receive_message` - New message
 - `user_joined` - User joined
 - `expert_online` - Expert online
@@ -130,23 +136,23 @@ GET  /v1/stats                         # Get statistics
 ### Node.js Client
 
 ```javascript
-const io = require('socket.io-client');
+const io = require("socket.io-client");
 
-const socket = io('http://localhost:8097', {
-  auth: { token: 'your-jwt-token' }
+const socket = io("http://localhost:8097", {
+  auth: { token: "your-jwt-token" },
 });
 
-socket.on('connect', () => {
-  socket.emit('register_user', {
-    userId: '12345',
-    userName: 'محمد أحمد',
-    userType: 'farmer',
-    governorate: 'القاهرة'
+socket.on("connect", () => {
+  socket.emit("register_user", {
+    userId: "12345",
+    userName: "محمد أحمد",
+    userType: "farmer",
+    governorate: "القاهرة",
   });
 });
 
-socket.on('receive_message', (message) => {
-  console.log('New message:', message);
+socket.on("receive_message", (message) => {
+  console.log("New message:", message);
 });
 ```
 
@@ -157,16 +163,19 @@ socket.on('receive_message', (message) => {
 ## 🔒 Security / الأمان
 
 ### Authentication / المصادقة
+
 - ✅ JWT token required
 - ✅ Token validation
 - ✅ Role verification
 
 ### Input Validation / التحقق
+
 - ✅ XSS prevention
 - ✅ Length limits
 - ✅ URL whitelisting
 
 ### Network Security / أمان الشبكة
+
 - ✅ CORS protection
 - ✅ Rate limiting (recommended)
 - ✅ HTTPS (production)
@@ -176,12 +185,14 @@ socket.on('receive_message', (message) => {
 ## 📞 Support / الدعم
 
 ### Documentation / التوثيق
+
 - 📖 [API Documentation](./API_DOCUMENTATION.md) - Complete reference
 - 🚀 [Quick Start](./QUICK_START.md) - 5-minute setup
 - 💡 [Examples](./examples/README.md) - Integration examples
 - 📝 [Changelog](./CHANGELOG.md) - Version history
 
 ### Links / الروابط
+
 - 🔧 Swagger UI: http://localhost:8097/api-docs
 - 💚 Health Check: http://localhost:8097/healthz
 - 📧 Email: support@sahool.io

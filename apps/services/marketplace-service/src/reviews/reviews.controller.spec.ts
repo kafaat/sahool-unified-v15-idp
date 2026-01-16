@@ -3,19 +3,19 @@
  * اختبارات وحدة التحكم في تقييمات المنتجات
  */
 
-import { Test, TestingModule } from '@nestjs/testing';
-import { ReviewsController } from './reviews.controller';
-import { ReviewsService } from './reviews.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Test, TestingModule } from "@nestjs/testing";
+import { ReviewsController } from "./reviews.controller";
+import { ReviewsService } from "./reviews.service";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   CreateProductReviewDto,
   UpdateProductReviewDto,
   MarkReviewHelpfulDto,
   GetProductReviewsQueryDto,
   PaginationQueryDto,
-} from '../dto/reviews.dto';
+} from "../dto/reviews.dto";
 
-describe('ReviewsController', () => {
+describe("ReviewsController", () => {
   let controller: ReviewsController;
   let service: ReviewsService;
 
@@ -62,23 +62,23 @@ describe('ReviewsController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('createProductReview', () => {
-    it('should create a new review', async () => {
+  describe("createProductReview", () => {
+    it("should create a new review", async () => {
       const dto: CreateProductReviewDto = {
-        productId: 'prod-123',
-        buyerId: 'buyer-456',
-        orderId: 'order-789',
+        productId: "prod-123",
+        buyerId: "buyer-456",
+        orderId: "order-789",
         rating: 5,
-        title: 'منتج ممتاز',
-        comment: 'جودة عالية',
+        title: "منتج ممتاز",
+        comment: "جودة عالية",
       };
 
       const expectedResult = {
-        id: 'review-123',
+        id: "review-123",
         ...dto,
         createdAt: new Date(),
       };
@@ -92,9 +92,9 @@ describe('ReviewsController', () => {
     });
   });
 
-  describe('getProductReviewStats', () => {
-    it('should return review statistics before getting reviews', async () => {
-      const productId = 'prod-123';
+  describe("getProductReviewStats", () => {
+    it("should return review statistics before getting reviews", async () => {
+      const productId = "prod-123";
       const expectedStats = {
         totalReviews: 10,
         averageRating: 4.5,
@@ -110,9 +110,9 @@ describe('ReviewsController', () => {
     });
   });
 
-  describe('getProductReviews', () => {
-    it('should return product reviews with filters', async () => {
-      const productId = 'prod-123';
+  describe("getProductReviews", () => {
+    it("should return product reviews with filters", async () => {
+      const productId = "prod-123";
       const query: GetProductReviewsQueryDto = {
         minRating: 3,
         maxRating: 5,
@@ -124,10 +124,10 @@ describe('ReviewsController', () => {
       const expectedResult = {
         reviews: [
           {
-            id: 'review-123',
+            id: "review-123",
             productId,
             rating: 4,
-            title: 'جيد',
+            title: "جيد",
             verified: true,
           },
         ],
@@ -150,14 +150,14 @@ describe('ReviewsController', () => {
     });
   });
 
-  describe('getReviewById', () => {
-    it('should return a single review by ID', async () => {
-      const reviewId = 'review-123';
+  describe("getReviewById", () => {
+    it("should return a single review by ID", async () => {
+      const reviewId = "review-123";
       const expectedReview = {
         id: reviewId,
-        productId: 'prod-123',
+        productId: "prod-123",
         rating: 5,
-        title: 'ممتاز',
+        title: "ممتاز",
       };
 
       mockReviewsService.getReviewById.mockResolvedValue(expectedReview);
@@ -169,9 +169,9 @@ describe('ReviewsController', () => {
     });
   });
 
-  describe('getBuyerReviews', () => {
-    it('should return buyer reviews with pagination', async () => {
-      const buyerId = 'buyer-456';
+  describe("getBuyerReviews", () => {
+    it("should return buyer reviews with pagination", async () => {
+      const buyerId = "buyer-456";
       const query: PaginationQueryDto = {
         limit: 10,
         offset: 0,
@@ -179,7 +179,7 @@ describe('ReviewsController', () => {
 
       const expectedReviews = [
         {
-          id: 'review-123',
+          id: "review-123",
           buyerId,
           rating: 4,
         },
@@ -198,13 +198,13 @@ describe('ReviewsController', () => {
     });
   });
 
-  describe('updateProductReview', () => {
-    it('should update a review', async () => {
-      const reviewId = 'review-123';
-      const buyerId = 'buyer-456';
+  describe("updateProductReview", () => {
+    it("should update a review", async () => {
+      const reviewId = "review-123";
+      const buyerId = "buyer-456";
       const dto: UpdateProductReviewDto = {
         rating: 5,
-        title: 'ممتاز جداً',
+        title: "ممتاز جداً",
       };
 
       const expectedResult = {
@@ -216,7 +216,11 @@ describe('ReviewsController', () => {
 
       mockReviewsService.updateProductReview.mockResolvedValue(expectedResult);
 
-      const result = await controller.updateProductReview(reviewId, buyerId, dto);
+      const result = await controller.updateProductReview(
+        reviewId,
+        buyerId,
+        dto,
+      );
 
       expect(result).toEqual(expectedResult);
       expect(service.updateProductReview).toHaveBeenCalledWith(
@@ -227,24 +231,27 @@ describe('ReviewsController', () => {
     });
   });
 
-  describe('deleteProductReview', () => {
-    it('should delete a review', async () => {
-      const reviewId = 'review-123';
-      const buyerId = 'buyer-456';
-      const expectedResult = { message: 'Review deleted successfully' };
+  describe("deleteProductReview", () => {
+    it("should delete a review", async () => {
+      const reviewId = "review-123";
+      const buyerId = "buyer-456";
+      const expectedResult = { message: "Review deleted successfully" };
 
       mockReviewsService.deleteProductReview.mockResolvedValue(expectedResult);
 
       const result = await controller.deleteProductReview(reviewId, buyerId);
 
       expect(result).toEqual(expectedResult);
-      expect(service.deleteProductReview).toHaveBeenCalledWith(reviewId, buyerId);
+      expect(service.deleteProductReview).toHaveBeenCalledWith(
+        reviewId,
+        buyerId,
+      );
     });
   });
 
-  describe('markReviewHelpful', () => {
-    it('should mark review as helpful', async () => {
-      const reviewId = 'review-123';
+  describe("markReviewHelpful", () => {
+    it("should mark review as helpful", async () => {
+      const reviewId = "review-123";
       const dto: MarkReviewHelpfulDto = {
         helpful: true,
       };
@@ -266,11 +273,11 @@ describe('ReviewsController', () => {
     });
   });
 
-  describe('reportReview', () => {
-    it('should report a review', async () => {
-      const reviewId = 'review-123';
+  describe("reportReview", () => {
+    it("should report a review", async () => {
+      const reviewId = "review-123";
       const dto = {
-        reason: 'محتوى غير مناسب',
+        reason: "محتوى غير مناسب",
       };
 
       const expectedResult = {
@@ -287,9 +294,9 @@ describe('ReviewsController', () => {
     });
   });
 
-  describe('getSellerResponses', () => {
-    it('should return seller responses with pagination', async () => {
-      const sellerId = 'seller-789';
+  describe("getSellerResponses", () => {
+    it("should return seller responses with pagination", async () => {
+      const sellerId = "seller-789";
       const query: PaginationQueryDto = {
         limit: 20,
         offset: 0,
@@ -297,13 +304,15 @@ describe('ReviewsController', () => {
 
       const expectedResponses = [
         {
-          id: 'response-123',
+          id: "response-123",
           sellerId,
-          response: 'شكراً لتقييمك',
+          response: "شكراً لتقييمك",
         },
       ];
 
-      mockReviewsService.getSellerResponses.mockResolvedValue(expectedResponses);
+      mockReviewsService.getSellerResponses.mockResolvedValue(
+        expectedResponses,
+      );
 
       const result = await controller.getSellerResponses(sellerId, query);
 

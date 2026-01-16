@@ -9,8 +9,12 @@
  * - Daily limits and transaction limits
  */
 
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class WalletService {
@@ -19,7 +23,7 @@ export class WalletService {
   /**
    * الحصول على محفظة المستخدم (إنشاء إذا لم توجد)
    */
-  async getWallet(userId: string, userType: string = 'farmer') {
+  async getWallet(userId: string, userType: string = "farmer") {
     let wallet = await this.prisma.wallet.findUnique({
       where: { userId },
     });
@@ -31,7 +35,7 @@ export class WalletService {
           userType,
           balance: 0,
           creditScore: 300,
-          creditTier: 'BRONZE',
+          creditTier: "BRONZE",
         },
       });
     }
@@ -48,10 +52,10 @@ export class WalletService {
    */
   getCreditTierAr(tier: string): string {
     const tiers: Record<string, string> = {
-      BRONZE: 'برونزي',
-      SILVER: 'فضي',
-      GOLD: 'ذهبي',
-      PLATINUM: 'بلاتيني',
+      BRONZE: "برونزي",
+      SILVER: "فضي",
+      GOLD: "ذهبي",
+      PLATINUM: "بلاتيني",
     };
     return tiers[tier] || tier;
   }
@@ -69,7 +73,7 @@ export class WalletService {
     ipAddress?: string,
   ) {
     if (amount <= 0) {
-      throw new BadRequestException('المبلغ يجب أن يكون أكبر من صفر');
+      throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
 
     // Check for duplicate transaction using idempotency key
@@ -94,7 +98,7 @@ export class WalletService {
         `;
 
         if (!wallet || wallet.length === 0) {
-          throw new NotFoundException('المحفظة غير موجودة');
+          throw new NotFoundException("المحفظة غير موجودة");
         }
 
         const currentWallet = wallet[0];
@@ -119,13 +123,13 @@ export class WalletService {
         const transaction = await tx.transaction.create({
           data: {
             walletId,
-            type: 'DEPOSIT',
+            type: "DEPOSIT",
             amount,
             balanceAfter: newBalance,
             balanceBefore,
-            description: description || 'Deposit',
-            descriptionAr: description || 'إيداع في المحفظة',
-            status: 'COMPLETED',
+            description: description || "Deposit",
+            descriptionAr: description || "إيداع في المحفظة",
+            status: "COMPLETED",
             idempotencyKey,
             userId,
             ipAddress,
@@ -138,7 +142,7 @@ export class WalletService {
             walletId,
             transactionId: transaction.id,
             userId,
-            operation: 'DEPOSIT',
+            operation: "DEPOSIT",
             balanceBefore,
             balanceAfter: newBalance,
             amount,
@@ -152,7 +156,7 @@ export class WalletService {
         return { wallet: updatedWallet, transaction, duplicate: false };
       },
       {
-        isolationLevel: 'Serializable',
+        isolationLevel: "Serializable",
         maxWait: 5000,
         timeout: 10000,
       },
@@ -172,7 +176,7 @@ export class WalletService {
     ipAddress?: string,
   ) {
     if (amount <= 0) {
-      throw new BadRequestException('المبلغ يجب أن يكون أكبر من صفر');
+      throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
 
     // Check for duplicate transaction using idempotency key
@@ -197,7 +201,7 @@ export class WalletService {
         `;
 
         if (!walletRows || walletRows.length === 0) {
-          throw new NotFoundException('المحفظة غير موجودة');
+          throw new NotFoundException("المحفظة غير موجودة");
         }
 
         const wallet = walletRows[0];
@@ -236,13 +240,13 @@ export class WalletService {
         const transaction = await tx.transaction.create({
           data: {
             walletId,
-            type: 'WITHDRAWAL',
+            type: "WITHDRAWAL",
             amount: -amount,
             balanceAfter: newBalance,
             balanceBefore,
-            description: description || 'Withdrawal',
-            descriptionAr: description || 'سحب من المحفظة',
-            status: 'COMPLETED',
+            description: description || "Withdrawal",
+            descriptionAr: description || "سحب من المحفظة",
+            status: "COMPLETED",
             idempotencyKey,
             userId,
             ipAddress,
@@ -255,7 +259,7 @@ export class WalletService {
             walletId,
             transactionId: transaction.id,
             userId,
-            operation: 'WITHDRAWAL',
+            operation: "WITHDRAWAL",
             balanceBefore,
             balanceAfter: newBalance,
             amount: -amount,
@@ -273,7 +277,7 @@ export class WalletService {
         return { wallet: updatedWallet, transaction, duplicate: false };
       },
       {
-        isolationLevel: 'Serializable',
+        isolationLevel: "Serializable",
         maxWait: 5000,
         timeout: 10000,
       },
@@ -317,7 +321,9 @@ export class WalletService {
     const needsReset = !lastReset || this.isNewDay(lastReset, now);
 
     return {
-      dailyWithdrawnToday: needsReset ? amount : wallet.dailyWithdrawnToday + amount,
+      dailyWithdrawnToday: needsReset
+        ? amount
+        : wallet.dailyWithdrawnToday + amount,
       lastWithdrawReset: needsReset ? now : wallet.lastWithdrawReset,
     };
   }
@@ -339,7 +345,7 @@ export class WalletService {
   async getTransactions(walletId: string, limit: number = 20) {
     return this.prisma.transaction.findMany({
       where: { walletId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: limit,
     });
   }
@@ -353,7 +359,7 @@ export class WalletService {
     });
 
     if (!wallet) {
-      throw new NotFoundException('المحفظة غير موجودة');
+      throw new NotFoundException("المحفظة غير موجودة");
     }
 
     const now = new Date();
@@ -381,7 +387,7 @@ export class WalletService {
     });
 
     if (!wallet) {
-      throw new NotFoundException('المحفظة غير موجودة');
+      throw new NotFoundException("المحفظة غير موجودة");
     }
 
     let dailyLimit: number;
@@ -389,17 +395,17 @@ export class WalletService {
     let pinAmount: number;
 
     switch (wallet.creditTier) {
-      case 'PLATINUM':
+      case "PLATINUM":
         dailyLimit = 100000;
         singleLimit = 500000;
         pinAmount = 50000;
         break;
-      case 'GOLD':
+      case "GOLD":
         dailyLimit = 50000;
         singleLimit = 200000;
         pinAmount = 20000;
         break;
-      case 'SILVER':
+      case "SILVER":
         dailyLimit = 20000;
         singleLimit = 100000;
         pinAmount = 10000;
@@ -429,20 +435,20 @@ export class WalletService {
     });
 
     if (!wallet) {
-      throw new NotFoundException('المحفظة غير موجودة');
+      throw new NotFoundException("المحفظة غير موجودة");
     }
 
     const [buyerEscrows, sellerEscrows] = await Promise.all([
       this.prisma.escrow.findMany({
         where: {
           buyerWalletId: walletId,
-          status: 'HELD',
+          status: "HELD",
         },
       }),
       this.prisma.escrow.findMany({
         where: {
           sellerWalletId: walletId,
-          status: 'HELD',
+          status: "HELD",
         },
       }),
     ]);
@@ -460,7 +466,10 @@ export class WalletService {
       },
     });
 
-    const totalPendingPayments = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
+    const totalPendingPayments = pendingPayments.reduce(
+      (sum, p) => sum + p.amount,
+      0,
+    );
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const transactions = await this.prisma.transaction.findMany({
@@ -468,13 +477,16 @@ export class WalletService {
         walletId,
         createdAt: { gte: thirtyDaysAgo },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
 
-    const dailyStats: Record<string, { date: string; income: number; expense: number }> = {};
+    const dailyStats: Record<
+      string,
+      { date: string; income: number; expense: number }
+    > = {};
 
     transactions.forEach((tx) => {
-      const dateKey = tx.createdAt.toISOString().split('T')[0];
+      const dateKey = tx.createdAt.toISOString().split("T")[0];
       if (!dailyStats[dateKey]) {
         dailyStats[dateKey] = { date: dateKey, income: 0, expense: 0 };
       }

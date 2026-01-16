@@ -17,21 +17,25 @@ This directory contains Alembic database migrations for the Inventory Service.
 ## Running Migrations
 
 ### Upgrade to Latest Version
+
 ```bash
 alembic upgrade head
 ```
 
 ### Downgrade One Version
+
 ```bash
 alembic downgrade -1
 ```
 
 ### View Migration History
+
 ```bash
 alembic history
 ```
 
 ### Generate New Migration
+
 ```bash
 alembic revision -m "description of changes"
 ```

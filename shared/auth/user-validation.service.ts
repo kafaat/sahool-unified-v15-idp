@@ -8,10 +8,10 @@
  * - User status validation (active, verified, deleted, suspended)
  */
 
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
-import { AuthErrors } from './config';
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+import { InjectRedis } from "@liaoliaots/nestjs-redis";
+import Redis from "ioredis";
+import { AuthErrors } from "./config";
 
 /**
  * User validation data interface
@@ -49,7 +49,7 @@ export interface IUserRepository {
 @Injectable()
 export class UserValidationService {
   private readonly logger = new Logger(UserValidationService.name);
-  private readonly cacheKeyPrefix = 'user_auth:';
+  private readonly cacheKeyPrefix = "user_auth:";
   private readonly cacheTTL = 300; // 5 minutes
 
   constructor(
@@ -74,11 +74,13 @@ export class UserValidationService {
 
     // Cache miss - get from database
     if (!this.userRepository) {
-      this.logger.warn('No user repository configured - skipping database validation');
+      this.logger.warn(
+        "No user repository configured - skipping database validation",
+      );
       // Return minimal validation data
       return {
         userId,
-        email: '',
+        email: "",
         isActive: true,
         isVerified: true,
         roles: [],
@@ -199,7 +201,7 @@ export class UserValidationService {
   async clearAll(): Promise<number> {
     try {
       const pattern = `${this.cacheKeyPrefix}*`;
-      let cursor = '0';
+      let cursor = "0";
       let totalDeleted = 0;
       const batchSize = 100;
 
@@ -207,9 +209,9 @@ export class UserValidationService {
       do {
         const result = await this.redis.scan(
           cursor,
-          'MATCH',
+          "MATCH",
           pattern,
-          'COUNT',
+          "COUNT",
           batchSize,
         );
 
@@ -221,7 +223,7 @@ export class UserValidationService {
           totalDeleted += deleted;
           this.logger.debug(`Deleted ${deleted} keys in batch`);
         }
-      } while (cursor !== '0');
+      } while (cursor !== "0");
 
       this.logger.log(`Cleared ${totalDeleted} cached users using SCAN`);
       return totalDeleted;

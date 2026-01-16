@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * Root Error Boundary
  * حد الخطأ الرئيسي
  */
 
-import { useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { logger } from '@/lib/logger';
+import { useEffect } from "react";
+import { AlertTriangle } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 export default function Error({
   error,
@@ -18,7 +18,7 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    logger.error('Application error:', error);
+    logger.error("Application error:", error);
   }, [error]);
 
   return (

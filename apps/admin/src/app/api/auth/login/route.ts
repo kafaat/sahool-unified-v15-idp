@@ -3,10 +3,10 @@
  * Sets httpOnly cookies for security
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { logger } from "@/lib/logger";
+import { API_URL, API_ENDPOINTS } from "@/config/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,10 +14,10 @@ export async function POST(request: NextRequest) {
     const { email, password, totp_code } = body;
 
     // Forward to backend auth API
-    const response = await fetch(`${API_URL}/api/v1/auth/login`, {
-      method: 'POST',
+    const response = await fetch(`${API_URL}${API_ENDPOINTS.auth.login}`, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         email,
@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || data.detail || 'Login failed' },
-        { status: response.status }
+        { error: data.message || data.detail || "Login failed" },
+        { status: response.status },
       );
     }
 
@@ -47,32 +47,32 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
 
     // Access token - 1 day expiry
-    cookieStore.set('sahool_admin_token', data.access_token, {
+    cookieStore.set("sahool_admin_token", data.access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 86400, // 1 day in seconds
-      path: '/',
+      path: "/",
     });
 
     // Refresh token if provided - 7 days expiry
     if (data.refresh_token) {
-      cookieStore.set('sahool_admin_refresh_token', data.refresh_token, {
+      cookieStore.set("sahool_admin_refresh_token", data.refresh_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
         maxAge: 604800, // 7 days in seconds
-        path: '/',
+        path: "/",
       });
     }
 
     // Last activity timestamp for idle timeout tracking
-    cookieStore.set('sahool_admin_last_activity', Date.now().toString(), {
+    cookieStore.set("sahool_admin_last_activity", Date.now().toString(), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 86400, // 1 day
-      path: '/',
+      path: "/",
     });
 
     return NextResponse.json({
@@ -80,10 +80,10 @@ export async function POST(request: NextRequest) {
       user: data.user,
     });
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error("Login error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

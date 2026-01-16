@@ -11,18 +11,19 @@
 
 ### Overview Statistics
 
-| Metric | Count |
-|--------|-------|
-| **Total Services with Prisma Schemas** | 9 |
-| **Total Models** | 70 |
-| **Total Enums** | 38 |
-| **Total Relationships** | 92 |
-| **Total Indexes** | 156 |
-| **Services with Migrations** | 3 |
+| Metric                                 | Count |
+| -------------------------------------- | ----- |
+| **Total Services with Prisma Schemas** | 9     |
+| **Total Models**                       | 70    |
+| **Total Enums**                        | 38    |
+| **Total Relationships**                | 92    |
+| **Total Indexes**                      | 156   |
+| **Services with Migrations**           | 3     |
 
 ### Health Score: 82/100
 
 **Breakdown:**
+
 - Index Coverage: 85% ✅
 - Relationship Integrity: 90% ✅
 - Migration Health: 70% ⚠️
@@ -38,21 +39,25 @@
 **Schema:** `/apps/services/chat-service/prisma/schema.prisma`
 
 **Models:** 3
+
 - Conversation (Main)
 - Message
 - Participant
 
 **Enums:** 2
+
 - MessageType (TEXT, IMAGE, OFFER, SYSTEM)
 - ParticipantRole (BUYER, SELLER)
 
 **Relationships:**
+
 ```
 Conversation (1) ─┬─> (N) Message
                   └─> (N) Participant
 ```
 
 **Indexes:** 10
+
 - ✅ conversationId indexed on messages
 - ✅ senderId indexed
 - ✅ Composite indexes for optimization
@@ -60,15 +65,18 @@ Conversation (1) ─┬─> (N) Message
 - ✅ `[conversationId, createdAt]` - Message pagination
 
 **Cascading Deletes:**
+
 - ✅ Message → Conversation (onDelete: Cascade)
 - ✅ Participant → Conversation (onDelete: Cascade)
 
 **Issues Found:**
+
 1. ⚠️ **Missing Index** - `productId` and `orderId` are indexed but not foreign keys (cross-service references)
 2. ⚠️ **N+1 Risk** - Fetching conversations with participants could cause N+1 queries
 3. ✅ **Good Practice** - Unique constraint on `[conversationId, userId]` prevents duplicates
 
 **Recommendations:**
+
 1. Add `@@index([participantIds])` if querying by participant array
 2. Consider adding `lastMessageBy` field to avoid join for conversation lists
 3. Add migration history
@@ -80,6 +88,7 @@ Conversation (1) ─┬─> (N) Message
 **Schema:** `/apps/services/field-core/prisma/schema.prisma`
 
 **Models:** 8
+
 - Farm
 - Field (Main with PostGIS)
 - FieldBoundaryHistory
@@ -90,6 +99,7 @@ Conversation (1) ─┬─> (N) Message
 - PestTreatment
 
 **Enums:** 6
+
 - FieldStatus (active, fallow, harvested, preparing, inactive)
 - ChangeSource (mobile, web, api, system)
 - SyncState (idle, syncing, error, conflict)
@@ -100,6 +110,7 @@ Conversation (1) ─┬─> (N) Message
 - IncidentStatus (5 states)
 
 **Relationships:**
+
 ```
 Farm (1) ───> (N) Field
 Field (1) ──┬─> (N) FieldBoundaryHistory
@@ -109,6 +120,7 @@ PestIncident (1) ───> (N) PestTreatment
 ```
 
 **Indexes:** 27 + 2 GIST indexes for geospatial
+
 - ✅ Excellent tenant-based indexing
 - ✅ Sync optimization indexes (serverUpdatedAt)
 - ✅ PostGIS GIST indexes for spatial queries
@@ -116,6 +128,7 @@ PestIncident (1) ───> (N) PestTreatment
 - ✅ Status, crop type, and date indexes
 
 **Cascading Deletes:**
+
 - ✅ FieldBoundaryHistory → Field (onDelete: Cascade)
 - ✅ NdviReading → Field (onDelete: Cascade)
 - ✅ PestTreatment → PestIncident (onDelete: Cascade)
@@ -123,24 +136,28 @@ PestIncident (1) ───> (N) PestTreatment
 - ✅ Field → Farm (onDelete: SetNull) - Safe for orphaned fields
 
 **PostGIS Integration:** ⭐ Excellent
+
 - Extensions enabled: postgis, postgis_topology
 - Geometry types: Point(4326), Polygon(4326)
 - Auto-calculation triggers for area and centroid
 - Geospatial indexes with GIST
 
 **Migration Health:** ✅ Excellent
+
 - 2 migrations found
 - Well-structured with triggers
 - Helper functions for auto-updates
 - Views for common queries
 
 **Issues Found:**
+
 1. ✅ **Excellent Practices** - Optimistic locking with version field
 2. ✅ **Sync Support** - etag, serverUpdatedAt for offline-first
 3. ⚠️ **Missing Index** - `ownerId` on Farm and Field not indexed (only Farm.ownerId indexed)
 4. ⚠️ **Foreign Key** - Farm.ownerId and Field.ownerId are String but no FK to User service
 
 **Recommendations:**
+
 1. Add `@@index([ownerId])` on Field model
 2. Consider partitioning FieldBoundaryHistory by date for large datasets
 3. Add retention policy for old NDVI readings
@@ -153,6 +170,7 @@ PestIncident (1) ───> (N) PestTreatment
 **Schema:** `/apps/services/field-management-service/prisma/schema.prisma`
 
 **Models:** 6 (Simplified duplicate of field-core)
+
 - Field
 - FieldBoundaryHistory
 - SyncStatus
@@ -162,11 +180,13 @@ PestIncident (1) ───> (N) PestTreatment
 **Enums:** 5 (Same as field-core subset)
 
 **Issues Found:**
+
 1. ❌ **Critical** - Duplicate schema with field-core
 2. ❌ **Inconsistency** - Missing Farm model compared to field-core
 3. ⚠️ **Missing Migrations** - No migration directory found
 
 **Recommendations:**
+
 1. **CONSOLIDATE** - Merge with field-core or remove duplication
 2. Use shared database or implement proper service boundaries
 3. If keeping separate, add migration history
@@ -178,6 +198,7 @@ PestIncident (1) ───> (N) PestTreatment
 **Schema:** `/apps/services/inventory-service/prisma/schema.prisma`
 
 **Models:** 9
+
 - InventoryItem (Main)
 - InventoryMovement
 - InventoryAlert
@@ -188,6 +209,7 @@ PestIncident (1) ───> (N) PestTreatment
 - StockTransfer
 
 **Enums:** 7
+
 - ItemCategory (12 types)
 - MovementType (9 types)
 - AlertType (7 types)
@@ -199,6 +221,7 @@ PestIncident (1) ───> (N) PestTreatment
 - TransferStatus (5 states)
 
 **Relationships:**
+
 ```
 InventoryItem (1) ──┬─> (N) InventoryMovement
                     └─> (N) InventoryAlert
@@ -211,6 +234,7 @@ Zone (1) ───> (N) StorageLocation
 ```
 
 **Indexes:** 22
+
 - ✅ Good tenant-based indexing
 - ✅ Category and quantity indexes for filtering
 - ✅ Expiry date index for alerts
@@ -218,12 +242,14 @@ Zone (1) ───> (N) StorageLocation
 - ✅ Warehouse bidirectional transfer indexes
 
 **Cascading Deletes:**
+
 - ✅ InventoryMovement → InventoryItem (implicit)
 - ✅ InventoryAlert → InventoryItem (implicit)
 - ✅ Zone → Warehouse (onDelete: Cascade)
 - ✅ StorageLocation → Zone (onDelete: Cascade)
 
 **Issues Found:**
+
 1. ⚠️ **Missing FK** - InventoryMovement and InventoryAlert missing explicit relation to InventoryItem
 2. ⚠️ **N+1 Risk** - Fetching items with movements/alerts could cause N+1
 3. ✅ **Good Practice** - Unique locationCode on StorageLocation
@@ -231,6 +257,7 @@ Zone (1) ───> (N) StorageLocation
 5. ⚠️ **Missing Cascade** - No onDelete specified for InventoryMovement/Alert relations
 
 **Recommendations:**
+
 1. Add explicit `@relation` with `onDelete: Cascade` for inventory movements and alerts
 2. Add `@@index([tenantId, status])` composite on InventoryAlert
 3. Add soft delete fields to InventoryItem
@@ -244,6 +271,7 @@ Zone (1) ───> (N) StorageLocation
 **Schema:** `/apps/services/iot-service/prisma/schema.prisma`
 
 **Models:** 6
+
 - Device (Main)
 - Sensor
 - SensorReading
@@ -252,6 +280,7 @@ Zone (1) ───> (N) StorageLocation
 - DeviceAlert
 
 **Enums:** 6
+
 - DeviceType (11 types)
 - DeviceStatus (5 states)
 - SensorType (13 types)
@@ -260,6 +289,7 @@ Zone (1) ───> (N) StorageLocation
 - CommandStatus (6 states)
 
 **Relationships:**
+
 ```
 Device (1) ──┬─> (N) Sensor
              ├─> (N) SensorReading
@@ -271,6 +301,7 @@ Actuator (1) ───> (N) ActuatorCommand
 ```
 
 **Indexes:** 23 ⭐
+
 - ✅ **Excellent** - Composite indexes for time-series queries
 - ✅ `[tenantId, deviceId]` unique constraint
 - ✅ `[sensorId, timestamp]` for time-series data
@@ -279,6 +310,7 @@ Actuator (1) ───> (N) ActuatorCommand
 - ✅ Status and severity indexes for filtering
 
 **Cascading Deletes:**
+
 - ✅ Sensor → Device (onDelete: Cascade)
 - ✅ SensorReading → Device (onDelete: Cascade)
 - ✅ SensorReading → Sensor (onDelete: Cascade)
@@ -287,12 +319,14 @@ Actuator (1) ───> (N) ActuatorCommand
 - ✅ DeviceAlert → Device (onDelete: Cascade)
 
 **Issues Found:**
+
 1. ✅ **Excellent Practices** - Comprehensive indexing strategy
 2. ⚠️ **Time-Series Data** - No partitioning strategy for SensorReading table
 3. ⚠️ **Retention Policy** - SensorReading could grow unbounded
 4. ✅ **Good Practice** - Quality field for data validation
 
 **Recommendations:**
+
 1. Implement time-based partitioning for SensorReading (by month)
 2. Add data retention policy (archive old readings)
 3. Consider TimescaleDB extension for IoT time-series optimization
@@ -306,6 +340,7 @@ Actuator (1) ───> (N) ActuatorCommand
 **Schema:** `/apps/services/marketplace-service/prisma/schema.prisma`
 
 **Models:** 17 ⭐ (Largest service)
+
 - Product
 - Order
 - OrderItem
@@ -322,6 +357,7 @@ Actuator (1) ───> (N) ActuatorCommand
 - ReviewResponse
 
 **Enums:** 15
+
 - ProductCategory (7 types)
 - SellerType (3 types)
 - ProductStatus (4 states)
@@ -338,6 +374,7 @@ Actuator (1) ───> (N) ActuatorCommand
 - BusinessType (5 types)
 
 **Relationships:**
+
 ```
 Product (1) ───> (N) OrderItem
 Order (1) ──┬─> (N) OrderItem
@@ -357,6 +394,7 @@ ProductReview (1) ───> (1) ReviewResponse
 ```
 
 **Indexes:** 35 ⭐ Excellent
+
 - ✅ Composite indexes for optimization
 - ✅ `[sellerId, status]` on Product
 - ✅ `[category, status]` for filtering
@@ -367,12 +405,14 @@ ProductReview (1) ───> (1) ReviewResponse
 - ✅ Wallet audit trail indexes
 
 **Cascading Deletes:**
+
 - ✅ OrderItem → Order (implicit)
 - ✅ OrderItem → Product (implicit)
 - ✅ Transaction → Wallet (implicit)
 - ✅ ReviewResponse → ProductReview (onDelete: Cascade)
 
 **Financial Security Features:** ⭐⭐⭐
+
 - ✅ **Optimistic Locking** - Version field on Wallet
 - ✅ **Idempotency** - idempotencyKey on Transaction
 - ✅ **Audit Trail** - WalletAuditLog with before/after balances
@@ -382,11 +422,13 @@ ProductReview (1) ───> (1) ReviewResponse
 - ✅ **Credit Scoring** - CreditEvent tracking
 
 **Migration Health:** ✅ Good
+
 - 2 migrations found
 - Soft delete implementation
 - Audit log implementation
 
 **Issues Found:**
+
 1. ✅ **Excellent Financial Controls** - Industry-standard practices
 2. ⚠️ **N+1 Risk** - Order → OrderItems → Products (eager loading needed)
 3. ⚠️ **Missing Index** - `referenceId` on Transaction not indexed
@@ -395,6 +437,7 @@ ProductReview (1) ───> (1) ReviewResponse
 6. ⚠️ **Missing FK** - Transaction.referenceId is optional String (no FK)
 
 **Recommendations:**
+
 1. Add `@@index([referenceId])` on Transaction
 2. Add CHECK constraint: `amount > 0` on Transaction and Wallet
 3. Add `@@index([orderId, productId])` on OrderItem
@@ -410,6 +453,7 @@ ProductReview (1) ───> (1) ReviewResponse
 **Schema:** `/apps/services/research-core/prisma/schema.prisma`
 
 **Models:** 12 ⭐
+
 - Germplasm (Seed bank)
 - SeedLot
 - Planting
@@ -424,6 +468,7 @@ ProductReview (1) ───> (1) ReviewResponse
 - ExperimentAuditLog
 
 **Enums:** 8
+
 - GermplasmType (5 types)
 - SeedQualityGrade (6 grades) ⭐
 - ExperimentStatus (5 states)
@@ -432,6 +477,7 @@ ProductReview (1) ───> (1) ReviewResponse
 - LogCategory (9 categories)
 
 **Relationships:**
+
 ```
 Experiment (1) ──┬─> (N) ResearchProtocol
                  ├─> (N) ResearchPlot
@@ -453,6 +499,7 @@ SeedLot (1) ───> (N) Planting
 ```
 
 **Indexes:** 16
+
 - ✅ Unique constraints on critical fields
 - ✅ `[experimentId, plotCode]` unique
 - ✅ `offlineId` unique for sync support
@@ -460,6 +507,7 @@ SeedLot (1) ───> (N) Planting
 - ⚠️ Missing composite indexes for common queries
 
 **Cascading Deletes:**
+
 - ✅ SeedLot → Germplasm (onDelete: Cascade)
 - ✅ ResearchProtocol → Experiment (onDelete: Cascade)
 - ✅ ResearchPlot → Experiment (onDelete: Cascade)
@@ -471,6 +519,7 @@ SeedLot (1) ───> (N) Planting
 - ✅ ExperimentAuditLog → Experiment (onDelete: SetNull) - Safe for audit
 
 **Scientific Data Features:** ⭐⭐⭐
+
 - ✅ **MIAPPE/BrAPI Compliance** - Germplasm standards
 - ✅ **Digital Signatures** - Data integrity
 - ✅ **Audit Trail** - Complete change tracking
@@ -479,6 +528,7 @@ SeedLot (1) ───> (N) Planting
 - ✅ **Collaboration** - Multi-user experiments
 
 **Issues Found:**
+
 1. ✅ **Excellent Scientific Practices** - Standards-compliant
 2. ⚠️ **Missing Index** - `[experimentId, logDate]` on ResearchDailyLog
 3. ⚠️ **Missing Index** - `[germplasmId]` on SeedLot
@@ -486,6 +536,7 @@ SeedLot (1) ───> (N) Planting
 5. ✅ **Good Practice** - Digital signature validation
 
 **Recommendations:**
+
 1. Add `@@index([experimentId, logDate])` on ResearchDailyLog
 2. Add `@@index([germplasmId])` on SeedLot
 3. Add `@@index([experimentId, status])` for filtering
@@ -501,6 +552,7 @@ SeedLot (1) ───> (N) Planting
 **Schema:** `/apps/services/user-service/prisma/schema.prisma`
 
 **Models:** 5
+
 - User (Main)
 - UserProfile
 - UserRole
@@ -508,10 +560,12 @@ SeedLot (1) ───> (N) Planting
 - RefreshToken
 
 **Enums:** 2
+
 - UserRole (5 roles)
 - UserStatus (4 states)
 
 **Relationships:**
+
 ```
 User (1) ──┬─> (1) UserProfile
            ├─> (N) UserSession
@@ -520,6 +574,7 @@ User (1) ──┬─> (1) UserProfile
 ```
 
 **Indexes:** 15
+
 - ✅ Unique constraints: email, nationalId
 - ✅ Tenant-based indexing
 - ✅ Token indexes for quick lookup
@@ -527,11 +582,13 @@ User (1) ──┬─> (1) UserProfile
 - ✅ Session expiry index for cleanup
 
 **Cascading Deletes:**
+
 - ✅ UserProfile → User (onDelete: Cascade)
 - ✅ UserSession → User (onDelete: Cascade)
 - ✅ RefreshToken → User (onDelete: Cascade)
 
 **Security Features:** ⭐⭐⭐
+
 - ✅ **Token Rotation** - JTI, family tracking
 - ✅ **Reuse Detection** - used, usedAt, replacedBy fields
 - ✅ **Session Management** - IP, user agent tracking
@@ -539,10 +596,12 @@ User (1) ──┬─> (1) UserProfile
 - ✅ **Password Security** - passwordHash (not plain text)
 
 **Migration Health:** ✅ Good
+
 - 1 migration found
 - Token rotation implementation
 
 **Issues Found:**
+
 1. ✅ **Excellent Security Practices** - OAuth2/JWT standards
 2. ⚠️ **Missing Index** - `[userId, expiresAt]` composite on UserSession
 3. ⚠️ **No Cleanup** - Expired sessions/tokens retention policy
@@ -550,6 +609,7 @@ User (1) ──┬─> (1) UserProfile
 5. ⚠️ **Missing** - Login attempt tracking (rate limiting)
 
 **Recommendations:**
+
 1. Add `@@index([userId, expiresAt])` on UserSession
 2. Add scheduled job to clean expired tokens/sessions
 3. Add LoginAttempt model for rate limiting
@@ -565,16 +625,19 @@ User (1) ──┬─> (1) UserProfile
 **Schema:** `/apps/services/weather-service/prisma/schema.prisma`
 
 **Models:** 4
+
 - WeatherObservation (Time-series)
 - WeatherForecast
 - WeatherAlert
 - LocationConfig
 
 **Enums:** 2
+
 - AlertType (8 types)
 - AlertSeverity (5 levels)
 
 **Relationships:**
+
 ```
 LocationConfig (1) ─── (configured for) ──> (N) WeatherObservation
 LocationConfig (1) ─── (configured for) ──> (N) WeatherForecast
@@ -582,6 +645,7 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 ```
 
 **Indexes:** 15 ⭐
+
 - ✅ **Excellent Time-Series** - `timestamp(sort: Desc)` indexes
 - ✅ Composite: `[locationId, timestamp(sort: Desc)]`
 - ✅ Composite: `[tenantId, timestamp(sort: Desc)]`
@@ -590,9 +654,11 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 - ✅ Cleanup indexes: `[endTime(sort: Desc)]`, `[fetchedAt(sort: Desc)]`
 
 **Cascading Deletes:**
+
 - ⚠️ No explicit relations defined (external references by locationId)
 
 **Issues Found:**
+
 1. ✅ **Excellent Time-Series Design** - Optimized for queries
 2. ⚠️ **No FK Relations** - locationId, tenantId are strings (cross-service refs)
 3. ⚠️ **Unbounded Growth** - No retention policy mentioned
@@ -600,6 +666,7 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 5. ⚠️ **Missing Partitioning** - Time-series data needs partitioning
 
 **Recommendations:**
+
 1. Implement time-based partitioning (by month) for observations
 2. Add retention policy (e.g., keep 90 days of observations)
 3. Add `@@index([createdAt(sort: Desc)])` for data ingestion monitoring
@@ -616,14 +683,14 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 
 **Critical Issues:**
 
-| Service | Model | Foreign Key | Missing Index |
-|---------|-------|-------------|---------------|
-| chat-service | Message | conversationId | ✅ Indexed |
-| chat-service | Participant | conversationId | ✅ Indexed |
-| inventory-service | InventoryMovement | itemId | ⚠️ Not explicit FK |
-| inventory-service | InventoryAlert | itemId | ⚠️ Not explicit FK |
-| research-core | SeedLot | germplasmId | ❌ Missing |
-| field-core | Field | farmId | ✅ Indexed |
+| Service           | Model             | Foreign Key    | Missing Index      |
+| ----------------- | ----------------- | -------------- | ------------------ |
+| chat-service      | Message           | conversationId | ✅ Indexed         |
+| chat-service      | Participant       | conversationId | ✅ Indexed         |
+| inventory-service | InventoryMovement | itemId         | ⚠️ Not explicit FK |
+| inventory-service | InventoryAlert    | itemId         | ⚠️ Not explicit FK |
+| research-core     | SeedLot           | germplasmId    | ❌ Missing         |
+| field-core        | Field             | farmId         | ✅ Indexed         |
 
 **Score:** 85/100 - Most foreign keys are properly indexed
 
@@ -645,6 +712,7 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
    - Device → Sensors → SensorReadings (time-series)
 
 **Mitigation Strategies:**
+
 - ✅ Use Prisma's `include` with `select` carefully
 - ✅ Implement GraphQL DataLoader pattern
 - ✅ Use database views for complex joins
@@ -655,6 +723,7 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 ### 2.3 Cascading Delete Analysis
 
 **Well-Implemented:**
+
 - ✅ Chat Service: All cascades defined
 - ✅ IoT Service: Comprehensive cascade rules
 - ✅ User Service: Proper cleanup on user deletion
@@ -662,6 +731,7 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 - ✅ Research Core: Audit trails use SET NULL (correct)
 
 **Missing/Risky:**
+
 - ⚠️ Inventory Service: No explicit cascade on movements
 - ⚠️ Marketplace: Transaction cascades not defined
 - ⚠️ Weather Service: No relations (external references)
@@ -671,15 +741,18 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 ### 2.4 Index Coverage Analysis
 
 **Excellent Coverage (90%+):**
+
 - ✅ IoT Service: 23 indexes, comprehensive
 - ✅ Marketplace: 35 indexes, financial queries optimized
 - ✅ Weather Service: Time-series optimized
 
 **Good Coverage (70-89%):**
+
 - ✅ Field Core: 27+ indexes including GIST
 - ✅ User Service: 15 indexes, security focused
 
 **Needs Improvement (<70%):**
+
 - ⚠️ Chat Service: 10 indexes, basic coverage
 - ⚠️ Inventory Service: 22 indexes but missing FKs
 - ⚠️ Research Core: 16 indexes, missing composites
@@ -691,11 +764,13 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 **Total Enums:** 38
 
 **Best Practices:**
+
 - ✅ Descriptive names (e.g., SeedQualityGrade)
 - ✅ Comprehensive coverage (TransactionType: 16 values)
 - ✅ Mapped names: `@@map("snake_case")`
 
 **Issues:**
+
 - ⚠️ Inconsistent naming (some UPPER_CASE, some lowercase)
 - ⚠️ No enum versioning strategy
 
@@ -707,23 +782,24 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 
 ### 3.1 Services with Migrations
 
-| Service | Migrations | Status |
-|---------|-----------|--------|
-| field-core | 2 | ✅ Excellent |
-| marketplace | 2 | ✅ Good |
-| user-service | 1 | ✅ Good |
-| chat-service | 0 | ❌ Missing |
-| inventory | 0 | ❌ Missing |
-| iot-service | 0 | ❌ Missing |
-| research-core | 0 | ❌ Missing |
-| weather | 0 | ❌ Missing |
-| field-management | 0 | ❌ Missing |
+| Service          | Migrations | Status       |
+| ---------------- | ---------- | ------------ |
+| field-core       | 2          | ✅ Excellent |
+| marketplace      | 2          | ✅ Good      |
+| user-service     | 1          | ✅ Good      |
+| chat-service     | 0          | ❌ Missing   |
+| inventory        | 0          | ❌ Missing   |
+| iot-service      | 0          | ❌ Missing   |
+| research-core    | 0          | ❌ Missing   |
+| weather          | 0          | ❌ Missing   |
+| field-management | 0          | ❌ Missing   |
 
 **Score:** 70/100 - Only 3/9 services have migrations
 
 ### 3.2 Migration Quality Analysis
 
 **field-core/0001_init_postgis:**
+
 - ✅ Extensions enabled (postgis, uuid-ossp)
 - ✅ Helper functions for auto-updates
 - ✅ Triggers for calculated fields
@@ -732,17 +808,20 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 - ⭐ **Best Practice Example**
 
 **marketplace/20260101000000_add_soft_delete_fields:**
+
 - ✅ Soft delete pattern implementation
 - ✅ Comprehensive comments (bilingual)
 - ✅ Example queries included
 - ✅ Indexes for soft delete queries
 
 **user-service/add_refresh_token_rotation:**
+
 - ✅ Token rotation security
 - ✅ Data migration for existing tokens
 - ✅ Comments explaining purpose
 
 **Recommendations:**
+
 1. Generate migrations for all services
 2. Use field-core migration as template
 3. Add down migrations for rollback
@@ -755,17 +834,20 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 ### 4.1 Constraints
 
 **Excellent:**
+
 - ✅ CHECK constraints on health_score (0-1 range)
 - ✅ CHECK constraints on NDVI values (-1 to 1)
 - ✅ UNIQUE constraints on critical fields
 - ✅ Foreign key constraints with cascade rules
 
 **Missing:**
+
 - ⚠️ No CHECK on monetary fields (can be negative)
 - ⚠️ No CHECK on quantity fields in inventory
 - ⚠️ No email format validation (regex)
 
 **Recommendations:**
+
 1. Add CHECK constraints for business rules:
    ```sql
    CHECK (amount >= 0) -- Monetary fields
@@ -776,6 +858,7 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 ### 4.2 Unique Constraints
 
 **Well-Implemented:**
+
 - ✅ User.email unique
 - ✅ Product SKU unique
 - ✅ Order number unique
@@ -790,11 +873,13 @@ LocationConfig (1) ─── (configured for) ──> (N) WeatherAlert
 ### 4.3 Optimistic Locking
 
 **Implemented:**
+
 - ✅ Field Core: version field with auto-increment trigger
 - ✅ Marketplace Wallet: version field for double-spend prevention
 - ✅ Research Experiment: version field for collaboration
 
 **Missing:**
+
 - ⚠️ Inventory items (concurrent updates possible)
 - ⚠️ Order status changes (race conditions)
 
@@ -839,6 +924,7 @@ CREATE INDEX idx_user_session_composite ON user_sessions(user_id, expires_at);
 **Time-Series Tables to Partition:**
 
 1. **IoT Service - SensorReading:**
+
    ```sql
    -- Partition by month
    CREATE TABLE sensor_readings_2026_01 PARTITION OF sensor_readings
@@ -846,6 +932,7 @@ CREATE INDEX idx_user_session_composite ON user_sessions(user_id, expires_at);
    ```
 
 2. **Weather Service - WeatherObservation:**
+
    ```sql
    -- Partition by month
    CREATE TABLE weather_observations_2026_01 PARTITION OF weather_observations
@@ -853,6 +940,7 @@ CREATE INDEX idx_user_session_composite ON user_sessions(user_id, expires_at);
    ```
 
 3. **Field Core - FieldBoundaryHistory:**
+
    ```sql
    -- Partition by year (less frequent changes)
    CREATE TABLE field_boundary_history_2026 PARTITION OF field_boundary_history
@@ -869,19 +957,20 @@ CREATE INDEX idx_user_session_composite ON user_sessions(user_id, expires_at);
 
 **Recommended Retention:**
 
-| Service | Table | Retention | Archive Strategy |
-|---------|-------|-----------|------------------|
-| iot-service | SensorReading | 90 days | Archive to cold storage |
-| weather | WeatherObservation | 90 days | Archive to cold storage |
-| weather | WeatherForecast | 30 days | Delete after expiry |
-| weather | WeatherAlert | 30 days after end | Archive |
-| marketplace | Transaction | Indefinite | Audit requirement |
-| user-service | UserSession | Auto-delete on expiry | - |
-| user-service | RefreshToken | Auto-delete on expiry | - |
-| field-core | NdviReading | 2 years | Archive older |
-| research-core | ResearchDailyLog | Indefinite | Research data |
+| Service       | Table              | Retention             | Archive Strategy        |
+| ------------- | ------------------ | --------------------- | ----------------------- |
+| iot-service   | SensorReading      | 90 days               | Archive to cold storage |
+| weather       | WeatherObservation | 90 days               | Archive to cold storage |
+| weather       | WeatherForecast    | 30 days               | Delete after expiry     |
+| weather       | WeatherAlert       | 30 days after end     | Archive                 |
+| marketplace   | Transaction        | Indefinite            | Audit requirement       |
+| user-service  | UserSession        | Auto-delete on expiry | -                       |
+| user-service  | RefreshToken       | Auto-delete on expiry | -                       |
+| field-core    | NdviReading        | 2 years               | Archive older           |
+| research-core | ResearchDailyLog   | Indefinite            | Research data           |
 
 **Implementation:**
+
 ```sql
 -- Example cleanup job
 DELETE FROM sensor_readings WHERE timestamp < NOW() - INTERVAL '90 days';
@@ -897,6 +986,7 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 ### 6.1 Financial Security (Marketplace)
 
 **Strengths:**
+
 - ✅ Optimistic locking prevents double-spend
 - ✅ Idempotency keys prevent duplicate transactions
 - ✅ Audit trail with before/after balances
@@ -904,6 +994,7 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 - ✅ Soft delete for compliance
 
 **Recommendations:**
+
 1. Add CHECK constraints for positive balances
 2. Add rate limiting tracking in WalletAuditLog
 3. Add transaction limits per user tier
@@ -913,12 +1004,14 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 ### 6.2 Authentication Security (User Service)
 
 **Strengths:**
+
 - ✅ Token rotation with family tracking
 - ✅ Reuse detection prevents token replay
 - ✅ Session tracking with IP/user agent
 - ✅ Password hashing (not plain text)
 
 **Recommendations:**
+
 1. Add login attempt tracking
 2. Add account lockout mechanism
 3. Add 2FA support
@@ -928,12 +1021,14 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 ### 6.3 Data Integrity (Research Core)
 
 **Strengths:**
+
 - ✅ Digital signatures for data integrity
 - ✅ Audit trail for all changes
 - ✅ Version control with locking
 - ✅ Offline sync with hash validation
 
 **Recommendations:**
+
 1. Add cryptographic chain for experiments
 2. Add WORM (Write Once Read Many) for completed experiments
 3. Add metadata validation schemas
@@ -947,28 +1042,32 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 
 **Cross-Service References (String IDs):**
 
-| Service | Field | References | Issue |
-|---------|-------|------------|-------|
-| chat-service | Conversation.productId | marketplace.Product | No FK |
-| chat-service | Conversation.orderId | marketplace.Order | No FK |
-| field-core | Field.ownerId | user-service.User | No FK |
-| field-core | Farm.ownerId | user-service.User | No FK |
-| inventory | InventoryItem.tenantId | user-service.User | No FK |
-| iot-service | Device.tenantId | user-service.User | No FK |
-| weather | WeatherObservation.tenantId | user-service.User | No FK |
+| Service      | Field                       | References          | Issue |
+| ------------ | --------------------------- | ------------------- | ----- |
+| chat-service | Conversation.productId      | marketplace.Product | No FK |
+| chat-service | Conversation.orderId        | marketplace.Order   | No FK |
+| field-core   | Field.ownerId               | user-service.User   | No FK |
+| field-core   | Farm.ownerId                | user-service.User   | No FK |
+| inventory    | InventoryItem.tenantId      | user-service.User   | No FK |
+| iot-service  | Device.tenantId             | user-service.User   | No FK |
+| weather      | WeatherObservation.tenantId | user-service.User   | No FK |
 
 **Impact:**
+
 - ⚠️ No referential integrity across services
 - ⚠️ Orphaned records possible
 - ⚠️ Cascading deletes not automatic
 
 **Solutions:**
+
 1. **Event-Driven Cleanup:**
+
    ```
    User Deleted → Publish Event → All services clean up
    ```
 
 2. **Soft Delete Pattern:**
+
    ```
    Never hard delete users, just mark as deleted
    ```
@@ -981,6 +1080,7 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 ### 7.2 Tenant Isolation
 
 **Services with tenantId:**
+
 - ✅ chat-service
 - ✅ field-core
 - ✅ inventory-service
@@ -992,6 +1092,7 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 **All services implement multi-tenancy - Excellent!**
 
 **Recommendations:**
+
 1. Add Row-Level Security (RLS) policies
 2. Add tenant isolation validation in middleware
 3. Add cross-tenant query prevention
@@ -1005,17 +1106,19 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 
 **CRITICAL:**
 
-| Schema 1 | Schema 2 | Overlap |
-|----------|----------|---------|
+| Schema 1                 | Schema 2                               | Overlap       |
+| ------------------------ | -------------------------------------- | ------------- |
 | field-core/schema.prisma | field-management-service/schema.prisma | 95% identical |
 
 **Issues:**
+
 1. ❌ Maintenance nightmare (update in two places)
 2. ❌ Potential data inconsistency
 3. ❌ Wasted resources (duplicate databases)
 4. ❌ Confusion for developers
 
 **Recommendations:**
+
 1. **CONSOLIDATE** into single service
 2. If separate needed, use shared Prisma schema package
 3. Consider database per bounded context pattern
@@ -1028,6 +1131,7 @@ DELETE FROM refresh_tokens WHERE expires_at < NOW() AND used = true;
 ### 9.1 Binary Targets
 
 **All services include:**
+
 ```prisma
 binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
 ```
@@ -1037,6 +1141,7 @@ binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
 ### 9.2 Preview Features
 
 **field-core uses:**
+
 ```prisma
 previewFeatures = ["postgresqlExtensions"]
 ```
@@ -1044,6 +1149,7 @@ previewFeatures = ["postgresqlExtensions"]
 ✅ **Good** - PostGIS extension support
 
 **Recommendation:** Enable preview features consistently:
+
 ```prisma
 previewFeatures = ["postgresqlExtensions", "fullTextSearch", "metrics"]
 ```
@@ -1051,6 +1157,7 @@ previewFeatures = ["postgresqlExtensions", "fullTextSearch", "metrics"]
 ### 9.3 Database Type Precision
 
 **Excellent:**
+
 - ✅ `@db.Uuid` for ID fields
 - ✅ `@db.VarChar(length)` for sized strings
 - ✅ `@db.Text` for long content
@@ -1103,6 +1210,7 @@ previewFeatures = ["postgresqlExtensions", "fullTextSearch", "metrics"]
 ### Overall Health: 82/100 ✅
 
 **Strengths:**
+
 - ✅ Comprehensive indexing in most services
 - ✅ Excellent financial security (marketplace)
 - ✅ Strong authentication (user-service)
@@ -1112,6 +1220,7 @@ previewFeatures = ["postgresqlExtensions", "fullTextSearch", "metrics"]
 - ✅ Proper use of Prisma features
 
 **Weaknesses:**
+
 - ❌ Schema duplication (field services)
 - ⚠️ Missing migrations (6 services)
 - ⚠️ No partitioning strategy
@@ -1119,6 +1228,7 @@ previewFeatures = ["postgresqlExtensions", "fullTextSearch", "metrics"]
 - ⚠️ Missing data retention policies
 
 **Priority Actions:**
+
 1. Consolidate duplicate schemas
 2. Generate missing migrations
 3. Add partitioning for time-series

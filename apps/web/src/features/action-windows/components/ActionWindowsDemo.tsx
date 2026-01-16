@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Action Windows Demo Component
@@ -7,15 +7,19 @@
  * Example usage of Action Windows feature with one-click task creation
  */
 
-import React, { useState } from 'react';
-import { SprayWindowsPanel } from './SprayWindowsPanel';
-import { IrrigationWindowsPanel } from './IrrigationWindowsPanel';
-import { ActionRecommendation } from './ActionRecommendation';
-import { useActionRecommendations } from '../hooks/useActionWindows';
-import { useCreateTask } from '@/features/tasks/hooks/useTasks';
-import type { SprayWindow, IrrigationWindow, ActionRecommendation as ActionRec } from '../types/action-windows';
-import type { TaskFormData } from '@/features/tasks/types';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { SprayWindowsPanel } from "./SprayWindowsPanel";
+import { IrrigationWindowsPanel } from "./IrrigationWindowsPanel";
+import { ActionRecommendation } from "./ActionRecommendation";
+import { useActionRecommendations } from "../hooks/useActionWindows";
+import { useCreateTask } from "@/features/tasks/hooks/useTasks";
+import type {
+  SprayWindow,
+  IrrigationWindow,
+  ActionRecommendation as ActionRec,
+} from "../types/action-windows";
+import type { TaskFormData } from "@/features/tasks/types";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 interface ActionWindowsDemoProps {
   fieldId: string;
@@ -35,13 +39,15 @@ interface ActionWindowsDemoProps {
  */
 export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
   fieldId,
-  fieldName = 'Field',
-  fieldNameAr = 'الحقل',
+  fieldName = "Field",
+  fieldNameAr = "الحقل",
   days = 7,
 }) => {
-  const [activeTab, setActiveTab] = useState<'spray' | 'irrigation' | 'recommendations'>('spray');
-  const [successMessage, setSuccessMessage] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<
+    "spray" | "irrigation" | "recommendations"
+  >("spray");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const createTaskMutation = useCreateTask();
   const { data: recommendations } = useActionRecommendations({ fieldId, days });
@@ -57,23 +63,25 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
     const taskData: TaskFormData = {
       title: `Spray Application - ${fieldName}`,
       title_ar: `رش المبيدات - ${fieldNameAr}`,
-      description: `Optimal spray window available\n\nConditions:\n- Wind: ${window.conditions.windSpeed} km/h\n- Temperature: ${window.conditions.temperature}°C\n- Humidity: ${window.conditions.humidity}%\n- Rain Probability: ${window.conditions.rainProbability}%\n\nScore: ${window.score}/100\n\nRecommendations:\n${window.recommendations.join('\n')}`,
-      description_ar: `نافذة رش مثالية متاحة\n\nالظروف:\n- الرياح: ${window.conditions.windSpeed} كم/س\n- الحرارة: ${window.conditions.temperature}°م\n- الرطوبة: ${window.conditions.humidity}%\n- احتمال المطر: ${window.conditions.rainProbability}%\n\nالنتيجة: ${window.score}/100\n\nالتوصيات:\n${window.recommendationsAr.join('\n')}`,
+      description: `Optimal spray window available\n\nConditions:\n- Wind: ${window.conditions.windSpeed} km/h\n- Temperature: ${window.conditions.temperature}°C\n- Humidity: ${window.conditions.humidity}%\n- Rain Probability: ${window.conditions.rainProbability}%\n\nScore: ${window.score}/100\n\nRecommendations:\n${window.recommendations.join("\n")}`,
+      description_ar: `نافذة رش مثالية متاحة\n\nالظروف:\n- الرياح: ${window.conditions.windSpeed} كم/س\n- الحرارة: ${window.conditions.temperature}°م\n- الرطوبة: ${window.conditions.humidity}%\n- احتمال المطر: ${window.conditions.rainProbability}%\n\nالنتيجة: ${window.score}/100\n\nالتوصيات:\n${window.recommendationsAr.join("\n")}`,
       due_date: window.startTime,
-      priority: window.score >= 90 ? 'high' : 'medium',
+      priority: window.score >= 90 ? "high" : "medium",
       field_id: fieldId,
-      status: 'open',
+      status: "open",
     };
 
     try {
       await createTaskMutation.mutateAsync(taskData);
-      setSuccessMessage(`تم إنشاء مهمة الرش بنجاح لـ ${formatDate(window.startTime)}`);
-      setErrorMessage('');
-      setTimeout(() => setSuccessMessage(''), 5000);
+      setSuccessMessage(
+        `تم إنشاء مهمة الرش بنجاح لـ ${formatDate(window.startTime)}`,
+      );
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 5000);
     } catch (error) {
-      setErrorMessage('فشل إنشاء مهمة الرش. حاول مرة أخرى.');
-      setSuccessMessage('');
-      console.error('Failed to create spray task:', error);
+      setErrorMessage("فشل إنشاء مهمة الرش. حاول مرة أخرى.");
+      setSuccessMessage("");
+      console.error("Failed to create spray task:", error);
     }
   };
 
@@ -84,23 +92,28 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
     const taskData: TaskFormData = {
       title: `Irrigation - ${window.waterAmount}mm - ${fieldName}`,
       title_ar: `ري - ${window.waterAmount}ملم - ${fieldNameAr}`,
-      description: `${window.reason}\n\nDetails:\n- Soil Moisture: ${window.soilMoisture.current.toFixed(1)}% (Target: ${window.soilMoisture.target.toFixed(1)}%)\n- Water Deficit: ${window.soilMoisture.deficit.toFixed(1)}mm\n- Water Amount: ${window.waterAmount}mm\n- Duration: ${window.duration} hours\n- ET₀: ${window.et.et0.toFixed(2)} mm/day\n- ETc: ${window.et.etc.toFixed(2)} mm/day\n\nRecommendations:\n${window.recommendations.join('\n')}`,
-      description_ar: `${window.reasonAr}\n\nالتفاصيل:\n- رطوبة التربة: ${window.soilMoisture.current.toFixed(1)}% (المستهدف: ${window.soilMoisture.target.toFixed(1)}%)\n- عجز الماء: ${window.soilMoisture.deficit.toFixed(1)}ملم\n- كمية الماء: ${window.waterAmount}ملم\n- المدة: ${window.duration} ساعة\n- ET₀: ${window.et.et0.toFixed(2)} ملم/يوم\n- ETc: ${window.et.etc.toFixed(2)} ملم/يوم\n\nالتوصيات:\n${window.recommendationsAr.join('\n')}`,
+      description: `${window.reason}\n\nDetails:\n- Soil Moisture: ${window.soilMoisture.current.toFixed(1)}% (Target: ${window.soilMoisture.target.toFixed(1)}%)\n- Water Deficit: ${window.soilMoisture.deficit.toFixed(1)}mm\n- Water Amount: ${window.waterAmount}mm\n- Duration: ${window.duration} hours\n- ET₀: ${window.et.et0.toFixed(2)} mm/day\n- ETc: ${window.et.etc.toFixed(2)} mm/day\n\nRecommendations:\n${window.recommendations.join("\n")}`,
+      description_ar: `${window.reasonAr}\n\nالتفاصيل:\n- رطوبة التربة: ${window.soilMoisture.current.toFixed(1)}% (المستهدف: ${window.soilMoisture.target.toFixed(1)}%)\n- عجز الماء: ${window.soilMoisture.deficit.toFixed(1)}ملم\n- كمية الماء: ${window.waterAmount}ملم\n- المدة: ${window.duration} ساعة\n- ET₀: ${window.et.et0.toFixed(2)} ملم/يوم\n- ETc: ${window.et.etc.toFixed(2)} ملم/يوم\n\nالتوصيات:\n${window.recommendationsAr.join("\n")}`,
       due_date: window.startTime,
-      priority: window.priority === 'urgent' || window.priority === 'high' ? 'high' : 'medium',
+      priority:
+        window.priority === "urgent" || window.priority === "high"
+          ? "high"
+          : "medium",
       field_id: fieldId,
-      status: 'open',
+      status: "open",
     };
 
     try {
       await createTaskMutation.mutateAsync(taskData);
-      setSuccessMessage(`تم إنشاء مهمة الري بنجاح لـ ${formatDate(window.date)}`);
-      setErrorMessage('');
-      setTimeout(() => setSuccessMessage(''), 5000);
+      setSuccessMessage(
+        `تم إنشاء مهمة الري بنجاح لـ ${formatDate(window.date)}`,
+      );
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 5000);
     } catch (error) {
-      setErrorMessage('فشل إنشاء مهمة الري. حاول مرة أخرى.');
-      setSuccessMessage('');
-      console.error('Failed to create irrigation task:', error);
+      setErrorMessage("فشل إنشاء مهمة الري. حاول مرة أخرى.");
+      setSuccessMessage("");
+      console.error("Failed to create irrigation task:", error);
     }
   };
 
@@ -111,23 +124,27 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
     const taskData: TaskFormData = {
       title: recommendation.title,
       title_ar: recommendation.titleAr,
-      description: `${recommendation.description}\n\nReason:\n${recommendation.reason}\n\nBenefits:\n${recommendation.benefits.join('\n')}\n${recommendation.warnings ? `\nWarnings:\n${recommendation.warnings.join('\n')}` : ''}`,
-      description_ar: `${recommendation.descriptionAr}\n\nالسبب:\n${recommendation.reasonAr}\n\nالفوائد:\n${recommendation.benefitsAr.join('\n')}\n${recommendation.warningsAr ? `\nتحذيرات:\n${recommendation.warningsAr.join('\n')}` : ''}`,
+      description: `${recommendation.description}\n\nReason:\n${recommendation.reason}\n\nBenefits:\n${recommendation.benefits.join("\n")}\n${recommendation.warnings ? `\nWarnings:\n${recommendation.warnings.join("\n")}` : ""}`,
+      description_ar: `${recommendation.descriptionAr}\n\nالسبب:\n${recommendation.reasonAr}\n\nالفوائد:\n${recommendation.benefitsAr.join("\n")}\n${recommendation.warningsAr ? `\nتحذيرات:\n${recommendation.warningsAr.join("\n")}` : ""}`,
       due_date: recommendation.window.startTime,
-      priority: recommendation.priority === 'urgent' || recommendation.priority === 'high' ? 'high' : 'medium',
+      priority:
+        recommendation.priority === "urgent" ||
+        recommendation.priority === "high"
+          ? "high"
+          : "medium",
       field_id: fieldId,
-      status: 'open',
+      status: "open",
     };
 
     try {
       await createTaskMutation.mutateAsync(taskData);
       setSuccessMessage(`تم إنشاء المهمة بنجاح: ${recommendation.titleAr}`);
-      setErrorMessage('');
-      setTimeout(() => setSuccessMessage(''), 5000);
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 5000);
     } catch (error) {
-      setErrorMessage('فشل إنشاء المهمة. حاول مرة أخرى.');
-      setSuccessMessage('');
-      console.error('Failed to create recommendation task:', error);
+      setErrorMessage("فشل إنشاء المهمة. حاول مرة أخرى.");
+      setSuccessMessage("");
+      console.error("Failed to create recommendation task:", error);
     }
   };
 
@@ -137,11 +154,11 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-EG', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleDateString("ar-EG", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -153,16 +170,26 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
     <div className="space-y-6">
       {/* Success/Error Messages */}
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3" role="alert">
+        <div
+          className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3"
+          role="alert"
+        >
           <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-          <p className="text-green-800 font-medium" dir="rtl">{successMessage}</p>
+          <p className="text-green-800 font-medium" dir="rtl">
+            {successMessage}
+          </p>
         </div>
       )}
 
       {errorMessage && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3" role="alert">
+        <div
+          className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3"
+          role="alert"
+        >
           <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-          <p className="text-red-800 font-medium" dir="rtl">{errorMessage}</p>
+          <p className="text-red-800 font-medium" dir="rtl">
+            {errorMessage}
+          </p>
         </div>
       )}
 
@@ -170,33 +197,33 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
       <div className="bg-white rounded-lg border border-gray-200 p-1">
         <div className="grid grid-cols-3 gap-1">
           <button
-            onClick={() => setActiveTab('spray')}
+            onClick={() => setActiveTab("spray")}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              activeTab === 'spray'
-                ? 'bg-blue-600 text-white'
-                : 'bg-transparent text-gray-700 hover:bg-gray-100'
+              activeTab === "spray"
+                ? "bg-blue-600 text-white"
+                : "bg-transparent text-gray-700 hover:bg-gray-100"
             }`}
             dir="rtl"
           >
             نوافذ الرش
           </button>
           <button
-            onClick={() => setActiveTab('irrigation')}
+            onClick={() => setActiveTab("irrigation")}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              activeTab === 'irrigation'
-                ? 'bg-blue-600 text-white'
-                : 'bg-transparent text-gray-700 hover:bg-gray-100'
+              activeTab === "irrigation"
+                ? "bg-blue-600 text-white"
+                : "bg-transparent text-gray-700 hover:bg-gray-100"
             }`}
             dir="rtl"
           >
             نوافذ الري
           </button>
           <button
-            onClick={() => setActiveTab('recommendations')}
+            onClick={() => setActiveTab("recommendations")}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              activeTab === 'recommendations'
-                ? 'bg-blue-600 text-white'
-                : 'bg-transparent text-gray-700 hover:bg-gray-100'
+              activeTab === "recommendations"
+                ? "bg-blue-600 text-white"
+                : "bg-transparent text-gray-700 hover:bg-gray-100"
             }`}
             dir="rtl"
           >
@@ -207,7 +234,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
 
       {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === 'spray' && (
+        {activeTab === "spray" && (
           <SprayWindowsPanel
             fieldId={fieldId}
             days={days}
@@ -216,7 +243,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
           />
         )}
 
-        {activeTab === 'irrigation' && (
+        {activeTab === "irrigation" && (
           <IrrigationWindowsPanel
             fieldId={fieldId}
             days={days}
@@ -225,19 +252,23 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
           />
         )}
 
-        {activeTab === 'recommendations' && (
+        {activeTab === "recommendations" && (
           <div className="space-y-4">
             {recommendations && recommendations.length > 0 ? (
               recommendations.map((recommendation) => (
                 <ActionRecommendation
                   key={recommendation.id}
                   recommendation={recommendation}
-                  onCreateTask={() => handleCreateRecommendationTask(recommendation)}
+                  onCreateTask={() =>
+                    handleCreateRecommendationTask(recommendation)
+                  }
                 />
               ))
             ) : (
               <div className="bg-gray-50 rounded-lg border border-gray-200 p-8 text-center">
-                <p className="text-gray-600" dir="rtl">لا توجد توصيات متاحة</p>
+                <p className="text-gray-600" dir="rtl">
+                  لا توجد توصيات متاحة
+                </p>
               </div>
             )}
           </div>
@@ -245,7 +276,10 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
       </div>
 
       {/* Usage Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6" dir="rtl">
+      <div
+        className="bg-blue-50 border border-blue-200 rounded-lg p-6"
+        dir="rtl"
+      >
         <h3 className="font-semibold text-blue-900 mb-3">كيفية الاستخدام:</h3>
         <ul className="space-y-2 text-sm text-blue-800">
           <li>• اختر علامة التبويب (الرش، الري، أو التوصيات)</li>

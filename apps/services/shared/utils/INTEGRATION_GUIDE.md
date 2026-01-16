@@ -1,4 +1,5 @@
 # Fallback Manager Integration Guide for SAHOOL Services
+
 # دليل دمج مدير الاحتياطي لخدمات سهول
 
 Quick guide for integrating the Fallback Manager into existing SAHOOL microservices.
@@ -503,6 +504,7 @@ fm.register_fallback("flaky_service", fallback,
 ### Migrating Existing Try-Catch Blocks / نقل كتل Try-Catch الموجودة
 
 **Before**:
+
 ```python
 def get_weather(location):
     try:
@@ -512,6 +514,7 @@ def get_weather(location):
 ```
 
 **After**:
+
 ```python
 from shared.utils.fallback_manager import get_fallback_manager
 
@@ -525,6 +528,7 @@ def get_weather(location):
 ```
 
 Benefits:
+
 - ✅ Automatic circuit breaking
 - ✅ State tracking
 - ✅ Logging
@@ -533,6 +537,7 @@ Benefits:
 ## Support / الدعم
 
 Questions? Issues?
+
 - Check README.md for detailed documentation
 - See fallback_examples.py for working examples
 - Run tests: `pytest tests/test_fallback_manager.py -v`

@@ -5,27 +5,23 @@
  * Main panel for generating and managing VRA prescription maps.
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Loader2, Sprout, TrendingDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { useGeneratePrescription } from '../hooks/useVRA';
+import React, { useState } from "react";
+import { Loader2, Sprout, TrendingDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useGeneratePrescription } from "../hooks/useVRA";
 import type {
   VRAType,
   VRAMethod,
   PrescriptionRequest,
   PrescriptionResponse,
-} from '../types/vra';
-import {
-  VRA_TYPES,
-  ZONE_METHODS,
-  ZONE_COUNT_OPTIONS,
-} from '../types/vra';
-import { PrescriptionMap } from './PrescriptionMap';
-import { PrescriptionTable } from './PrescriptionTable';
+} from "../types/vra";
+import { VRA_TYPES, ZONE_METHODS, ZONE_COUNT_OPTIONS } from "../types/vra";
+import { PrescriptionMap } from "./PrescriptionMap";
+import { PrescriptionTable } from "./PrescriptionTable";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Component Props
@@ -53,13 +49,14 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
   onPrescriptionGenerated,
 }) => {
   // State
-  const [vraType, setVraType] = useState<VRAType>('fertilizer');
+  const [vraType, setVraType] = useState<VRAType>("fertilizer");
   const [targetRate, setTargetRate] = useState<number>(100);
   const [numZones, setNumZones] = useState<number>(3);
-  const [zoneMethod, setZoneMethod] = useState<VRAMethod>('ndvi');
+  const [zoneMethod, setZoneMethod] = useState<VRAMethod>("ndvi");
   const [productPrice, setProductPrice] = useState<number | undefined>();
-  const [notes, setNotes] = useState<string>('');
-  const [currentPrescription, setCurrentPrescription] = useState<PrescriptionResponse | null>(null);
+  const [notes, setNotes] = useState<string>("");
+  const [currentPrescription, setCurrentPrescription] =
+    useState<PrescriptionResponse | null>(null);
 
   // Hooks
   const generateMutation = useGeneratePrescription();
@@ -86,7 +83,7 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
         onPrescriptionGenerated(prescription);
       }
     } catch (error) {
-      console.error('Failed to generate prescription:', error);
+      console.error("Failed to generate prescription:", error);
     }
   };
 
@@ -152,7 +149,10 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
             </label>
             <div className="flex gap-4">
               {ZONE_COUNT_OPTIONS.map((count) => (
-                <label key={count} className="flex items-center gap-2 cursor-pointer">
+                <label
+                  key={count}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <input
                     type="radio"
                     name="numZones"
@@ -161,7 +161,9 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
                     onChange={() => setNumZones(count)}
                     className="w-4 h-4 text-green-600"
                   />
-                  <span>{count} Zones | {count} مناطق</span>
+                  <span>
+                    {count} Zones | {count} مناطق
+                  </span>
                 </label>
               ))}
             </div>
@@ -195,8 +197,12 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
             </label>
             <Input
               type="number"
-              value={productPrice || ''}
-              onChange={(e) => setProductPrice(e.target.value ? Number(e.target.value) : undefined)}
+              value={productPrice || ""}
+              onChange={(e) =>
+                setProductPrice(
+                  e.target.value ? Number(e.target.value) : undefined,
+                )
+              }
               min={0}
               step={0.01}
               placeholder="0.00"
@@ -244,7 +250,8 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
           {generateMutation.isError && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-md">
               <p className="text-sm text-red-600">
-                {generateMutation.error?.message || 'Failed to generate prescription'}
+                {generateMutation.error?.message ||
+                  "Failed to generate prescription"}
               </p>
             </div>
           )}
@@ -265,11 +272,15 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <p className="text-sm text-gray-600">Total Product | إجمالي المنتج</p>
+                  <p className="text-sm text-gray-600">
+                    Total Product | إجمالي المنتج
+                  </p>
                   <p className="text-2xl font-bold text-green-700">
                     {currentPrescription.totalProductNeeded.toFixed(2)}
                   </p>
-                  <p className="text-xs text-gray-500">{currentPrescription.unit}</p>
+                  <p className="text-xs text-gray-500">
+                    {currentPrescription.unit}
+                  </p>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-gray-600">Savings | التوفير</p>
@@ -277,12 +288,15 @@ export const VRAPanel: React.FC<VRAPanelProps> = ({
                     {currentPrescription.savingsPercent.toFixed(1)}%
                   </p>
                   <p className="text-xs text-gray-500">
-                    {currentPrescription.savingsAmount.toFixed(2)} {currentPrescription.unit}
+                    {currentPrescription.savingsAmount.toFixed(2)}{" "}
+                    {currentPrescription.unit}
                   </p>
                 </div>
                 {currentPrescription.costSavings && (
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <p className="text-sm text-gray-600">Cost Savings | توفير التكلفة</p>
+                    <p className="text-sm text-gray-600">
+                      Cost Savings | توفير التكلفة
+                    </p>
                     <p className="text-2xl font-bold text-purple-700">
                       ${currentPrescription.costSavings.toFixed(2)}
                     </p>

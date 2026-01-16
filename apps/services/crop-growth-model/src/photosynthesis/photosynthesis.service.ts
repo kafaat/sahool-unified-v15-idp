@@ -3,7 +3,7 @@
 // Based on Farquhar-von Caemmerer-Berry (FvCB) Model and Light Use Efficiency
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants and Parameters
@@ -13,24 +13,24 @@ import { Injectable } from '@nestjs/common';
 export interface PhotosynthesisParams {
   nameAr: string;
   nameEn: string;
-  pathway: 'C3' | 'C4' | 'CAM';
-  LUE: number;                  // Light Use Efficiency (g MJ⁻¹)
-  Vcmax25: number;              // Max Rubisco carboxylation rate at 25°C (μmol m⁻² s⁻¹)
-  Jmax25: number;               // Max electron transport rate at 25°C (μmol m⁻² s⁻¹)
-  Rd25: number;                 // Dark respiration at 25°C (μmol m⁻² s⁻¹)
-  Kc25: number;                 // Michaelis-Menten constant for CO2 (μmol mol⁻¹)
-  Ko25: number;                 // Michaelis-Menten constant for O2 (mmol mol⁻¹)
-  gammastar25: number;          // CO2 compensation point (μmol mol⁻¹)
-  optimalTemp: number;          // Optimal temperature for photosynthesis (°C)
-  tempMin: number;              // Minimum temperature for photosynthesis (°C)
-  tempMax: number;              // Maximum temperature for photosynthesis (°C)
+  pathway: "C3" | "C4" | "CAM";
+  LUE: number; // Light Use Efficiency (g MJ⁻¹)
+  Vcmax25: number; // Max Rubisco carboxylation rate at 25°C (μmol m⁻² s⁻¹)
+  Jmax25: number; // Max electron transport rate at 25°C (μmol m⁻² s⁻¹)
+  Rd25: number; // Dark respiration at 25°C (μmol m⁻² s⁻¹)
+  Kc25: number; // Michaelis-Menten constant for CO2 (μmol mol⁻¹)
+  Ko25: number; // Michaelis-Menten constant for O2 (mmol mol⁻¹)
+  gammastar25: number; // CO2 compensation point (μmol mol⁻¹)
+  optimalTemp: number; // Optimal temperature for photosynthesis (°C)
+  tempMin: number; // Minimum temperature for photosynthesis (°C)
+  tempMax: number; // Maximum temperature for photosynthesis (°C)
 }
 
 const CROP_PHOTOSYNTHESIS: Record<string, PhotosynthesisParams> = {
   WHEAT: {
-    nameAr: 'القمح',
-    nameEn: 'Wheat',
-    pathway: 'C3',
+    nameAr: "القمح",
+    nameEn: "Wheat",
+    pathway: "C3",
     LUE: 2.8,
     Vcmax25: 120,
     Jmax25: 180,
@@ -43,9 +43,9 @@ const CROP_PHOTOSYNTHESIS: Record<string, PhotosynthesisParams> = {
     tempMax: 35,
   },
   RICE: {
-    nameAr: 'الأرز',
-    nameEn: 'Rice',
-    pathway: 'C3',
+    nameAr: "الأرز",
+    nameEn: "Rice",
+    pathway: "C3",
     LUE: 2.5,
     Vcmax25: 110,
     Jmax25: 165,
@@ -58,9 +58,9 @@ const CROP_PHOTOSYNTHESIS: Record<string, PhotosynthesisParams> = {
     tempMax: 40,
   },
   CORN: {
-    nameAr: 'الذرة',
-    nameEn: 'Corn/Maize',
-    pathway: 'C4',
+    nameAr: "الذرة",
+    nameEn: "Corn/Maize",
+    pathway: "C4",
     LUE: 3.8,
     Vcmax25: 50,
     Jmax25: 120,
@@ -73,9 +73,9 @@ const CROP_PHOTOSYNTHESIS: Record<string, PhotosynthesisParams> = {
     tempMax: 42,
   },
   SOYBEAN: {
-    nameAr: 'فول الصويا',
-    nameEn: 'Soybean',
-    pathway: 'C3',
+    nameAr: "فول الصويا",
+    nameEn: "Soybean",
+    pathway: "C3",
     LUE: 2.4,
     Vcmax25: 100,
     Jmax25: 150,
@@ -88,9 +88,9 @@ const CROP_PHOTOSYNTHESIS: Record<string, PhotosynthesisParams> = {
     tempMax: 38,
   },
   SUGARCANE: {
-    nameAr: 'قصب السكر',
-    nameEn: 'Sugarcane',
-    pathway: 'C4',
+    nameAr: "قصب السكر",
+    nameEn: "Sugarcane",
+    pathway: "C4",
     LUE: 4.2,
     Vcmax25: 55,
     Jmax25: 130,
@@ -103,9 +103,9 @@ const CROP_PHOTOSYNTHESIS: Record<string, PhotosynthesisParams> = {
     tempMax: 45,
   },
   COFFEE: {
-    nameAr: 'البن',
-    nameEn: 'Coffee',
-    pathway: 'C3',
+    nameAr: "البن",
+    nameEn: "Coffee",
+    pathway: "C3",
     LUE: 2.0,
     Vcmax25: 80,
     Jmax25: 120,
@@ -127,8 +127,8 @@ export class PhotosynthesisService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   calculateGrossPrimaryProduction(
-    par: number,            // Photosynthetically Active Radiation (MJ m⁻² day⁻¹)
-    fpar: number,           // Fraction of PAR absorbed (0-1)
+    par: number, // Photosynthetically Active Radiation (MJ m⁻² day⁻¹)
+    fpar: number, // Fraction of PAR absorbed (0-1)
     cropType: string,
     temperature?: number,
   ): {
@@ -156,7 +156,7 @@ export class PhotosynthesisService {
 
     return {
       gpp: Math.round(gpp * 100) / 100,
-      unit: 'g C m⁻² day⁻¹',
+      unit: "g C m⁻² day⁻¹",
       efficiency: effectiveLUE,
       temperatureScalar: Math.round(tempScalar * 100) / 100,
     };
@@ -178,9 +178,12 @@ export class PhotosynthesisService {
     }
 
     // Beta function for temperature response
-    const alpha = Math.log(2) / Math.log((maxTemp - minTemp) / (optTemp - minTemp));
+    const alpha =
+      Math.log(2) / Math.log((maxTemp - minTemp) / (optTemp - minTemp));
     const scalar =
-      (2 * Math.pow(temp - minTemp, alpha) * Math.pow(optTemp - minTemp, alpha) -
+      (2 *
+        Math.pow(temp - minTemp, alpha) *
+        Math.pow(optTemp - minTemp, alpha) -
         Math.pow(temp - minTemp, 2 * alpha)) /
       Math.pow(optTemp - minTemp, 2 * alpha);
 
@@ -193,7 +196,7 @@ export class PhotosynthesisService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   calculateRubiscoLimited(
-    ci: number,            // Intercellular CO2 concentration (μmol mol⁻¹)
+    ci: number, // Intercellular CO2 concentration (μmol mol⁻¹)
     cropType: string,
     temperature: number = 25,
   ): {
@@ -204,25 +207,27 @@ export class PhotosynthesisService {
     const params = CROP_PHOTOSYNTHESIS[cropType] || CROP_PHOTOSYNTHESIS.WHEAT;
 
     // Temperature adjustment for Vcmax
-    const Vcmax = params.Vcmax25 * this.temperatureAdjustment(temperature, 25, 65.33);
+    const Vcmax =
+      params.Vcmax25 * this.temperatureAdjustment(temperature, 25, 65.33);
 
     // Temperature adjustment for Kc and Ko
     const Kc = params.Kc25 * this.temperatureAdjustment(temperature, 25, 79.43);
     const Ko = params.Ko25 * this.temperatureAdjustment(temperature, 25, 36.38);
 
     // Temperature adjustment for Gamma*
-    const gammastar = params.gammastar25 * this.temperatureAdjustment(temperature, 25, 37.83);
+    const gammastar =
+      params.gammastar25 * this.temperatureAdjustment(temperature, 25, 37.83);
 
     // O2 partial pressure (mmol mol⁻¹)
     const O = 210;
 
     // Rubisco-limited rate
-    const Ac = Vcmax * (ci - gammastar) / (ci + Kc * (1 + O / Ko));
+    const Ac = (Vcmax * (ci - gammastar)) / (ci + Kc * (1 + O / Ko));
 
     return {
       Ac: Math.round(Math.max(0, Ac) * 100) / 100,
-      unit: 'μmol CO₂ m⁻² s⁻¹',
-      description: 'Rubisco-limited photosynthesis rate (Ac)',
+      unit: "μmol CO₂ m⁻² s⁻¹",
+      description: "Rubisco-limited photosynthesis rate (Ac)",
     };
   }
 
@@ -232,8 +237,8 @@ export class PhotosynthesisService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   calculateLightLimited(
-    ci: number,            // Intercellular CO2 concentration (μmol mol⁻¹)
-    par: number,           // PAR (μmol m⁻² s⁻¹)
+    ci: number, // Intercellular CO2 concentration (μmol mol⁻¹)
+    par: number, // PAR (μmol m⁻² s⁻¹)
     cropType: string,
     temperature: number = 25,
   ): {
@@ -244,25 +249,33 @@ export class PhotosynthesisService {
     const params = CROP_PHOTOSYNTHESIS[cropType] || CROP_PHOTOSYNTHESIS.WHEAT;
 
     // Temperature adjustment for Jmax
-    const Jmax = params.Jmax25 * this.temperatureAdjustment(temperature, 25, 43.9);
+    const Jmax =
+      params.Jmax25 * this.temperatureAdjustment(temperature, 25, 43.9);
 
     // Temperature adjustment for Gamma*
-    const gammastar = params.gammastar25 * this.temperatureAdjustment(temperature, 25, 37.83);
+    const gammastar =
+      params.gammastar25 * this.temperatureAdjustment(temperature, 25, 37.83);
 
     // Quantum yield of electron transport
-    const phi = params.pathway === 'C4' ? 0.06 : 0.385;
+    const phi = params.pathway === "C4" ? 0.06 : 0.385;
 
     // Electron transport rate (rectangular hyperbola)
-    const theta = 0.7;  // Curvature parameter
-    const J = (phi * par + Jmax - Math.sqrt(Math.pow(phi * par + Jmax, 2) - 4 * theta * phi * par * Jmax)) / (2 * theta);
+    const theta = 0.7; // Curvature parameter
+    const J =
+      (phi * par +
+        Jmax -
+        Math.sqrt(
+          Math.pow(phi * par + Jmax, 2) - 4 * theta * phi * par * Jmax,
+        )) /
+      (2 * theta);
 
     // RuBP-limited rate
-    const Aj = J * (ci - gammastar) / (4 * ci + 8 * gammastar);
+    const Aj = (J * (ci - gammastar)) / (4 * ci + 8 * gammastar);
 
     return {
       Aj: Math.round(Math.max(0, Aj) * 100) / 100,
-      unit: 'μmol CO₂ m⁻² s⁻¹',
-      description: 'RuBP/Light-limited photosynthesis rate (Aj)',
+      unit: "μmol CO₂ m⁻² s⁻¹",
+      description: "RuBP/Light-limited photosynthesis rate (Aj)",
     };
   }
 
@@ -272,8 +285,8 @@ export class PhotosynthesisService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   calculateNetPhotosynthesis(
-    ci: number,            // Intercellular CO2 concentration (μmol mol⁻¹)
-    par: number,           // PAR (μmol m⁻² s⁻¹)
+    ci: number, // Intercellular CO2 concentration (μmol mol⁻¹)
+    par: number, // PAR (μmol m⁻² s⁻¹)
     cropType: string,
     temperature: number = 25,
   ): {
@@ -305,9 +318,9 @@ export class PhotosynthesisService {
       Ac: Math.round(Ac * 100) / 100,
       Aj: Math.round(Aj * 100) / 100,
       Rd: Math.round(Rd * 100) / 100,
-      limitingFactor: isRubiscoLimited ? 'Rubisco (Ac)' : 'RuBP/Light (Aj)',
-      limitingFactorAr: isRubiscoLimited ? 'روبيسكو (Ac)' : 'الضوء/RuBP (Aj)',
-      unit: 'μmol CO₂ m⁻² s⁻¹',
+      limitingFactor: isRubiscoLimited ? "Rubisco (Ac)" : "RuBP/Light (Aj)",
+      limitingFactorAr: isRubiscoLimited ? "روبيسكو (Ac)" : "الضوء/RuBP (Aj)",
+      unit: "μmol CO₂ m⁻² s⁻¹",
     };
   }
 
@@ -324,10 +337,17 @@ export class PhotosynthesisService {
     par: number;
     An: number;
   }> {
-    const parValues = [0, 50, 100, 200, 400, 600, 800, 1000, 1200, 1500, 1800, 2000];
+    const parValues = [
+      0, 50, 100, 200, 400, 600, 800, 1000, 1200, 1500, 1800, 2000,
+    ];
 
     return parValues.map((par) => {
-      const { An } = this.calculateNetPhotosynthesis(ci, par, cropType, temperature);
+      const { An } = this.calculateNetPhotosynthesis(
+        ci,
+        par,
+        cropType,
+        temperature,
+      );
       return { par, An };
     });
   }
@@ -349,7 +369,12 @@ export class PhotosynthesisService {
     const ciValues = [50, 100, 150, 200, 300, 400, 500, 600, 800, 1000, 1200];
 
     return ciValues.map((ci) => {
-      const result = this.calculateNetPhotosynthesis(ci, par, cropType, temperature);
+      const result = this.calculateNetPhotosynthesis(
+        ci,
+        par,
+        cropType,
+        temperature,
+      );
       return {
         ci,
         An: result.An,
@@ -376,7 +401,12 @@ export class PhotosynthesisService {
     const params = CROP_PHOTOSYNTHESIS[cropType] || CROP_PHOTOSYNTHESIS.WHEAT;
 
     return temps.map((temperature) => {
-      const { An } = this.calculateNetPhotosynthesis(ci, par, cropType, temperature);
+      const { An } = this.calculateNetPhotosynthesis(
+        ci,
+        par,
+        cropType,
+        temperature,
+      );
       const temperatureScalar = this.calculateTemperatureScalar(
         temperature,
         params.optimalTemp,
@@ -405,7 +435,9 @@ export class PhotosynthesisService {
     const tempK = temp + 273.15;
     const refTempK = refTemp + 273.15;
 
-    return Math.exp((activationEnergy * 1000 * (tempK - refTempK)) / (refTempK * R * tempK));
+    return Math.exp(
+      (activationEnergy * 1000 * (tempK - refTempK)) / (refTempK * R * tempK),
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -413,7 +445,9 @@ export class PhotosynthesisService {
   // الحصول على معاملات التمثيل الضوئي للمحصول
   // ─────────────────────────────────────────────────────────────────────────────
 
-  getCropParameters(cropType?: string): PhotosynthesisParams | Record<string, PhotosynthesisParams> | null {
+  getCropParameters(
+    cropType?: string,
+  ): PhotosynthesisParams | Record<string, PhotosynthesisParams> | null {
     if (cropType) {
       return CROP_PHOTOSYNTHESIS[cropType] || null;
     }
@@ -425,7 +459,12 @@ export class PhotosynthesisService {
   // الحصول على المحاصيل المتاحة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  getAvailableCrops(): Array<{ id: string; nameEn: string; nameAr: string; pathway: string }> {
+  getAvailableCrops(): Array<{
+    id: string;
+    nameEn: string;
+    nameAr: string;
+    pathway: string;
+  }> {
     return Object.entries(CROP_PHOTOSYNTHESIS).map(([id, params]) => ({
       id,
       nameEn: params.nameEn,

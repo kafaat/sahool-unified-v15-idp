@@ -13,15 +13,15 @@
 
 // CRITICAL: reflect-metadata must be imported FIRST before any NestJS imports
 // Required for decorators and dependency injection to work
-import 'reflect-metadata';
+import "reflect-metadata";
 
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { Logger } from 'nestjs-pino';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './utils/http-exception.filter';
-import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { Logger } from "nestjs-pino";
+import { AppModule } from "./app.module";
+import { HttpExceptionFilter } from "./utils/http-exception.filter";
+import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -45,28 +45,34 @@ async function bootstrap() {
   );
 
   // CORS - Secure configuration using environment variable
-  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-    'https://sahool.com',
-    'https://app.sahool.com',
-    'https://admin.sahool.com',
-    'http://localhost:3000',
-    'http://localhost:8080',
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+    "https://sahool.com",
+    "https://app.sahool.com",
+    "https://admin.sahool.com",
+    "http://localhost:3000",
+    "http://localhost:8080",
   ];
 
   app.enableCors({
     origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Request-ID'],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Tenant-ID",
+      "X-Request-ID",
+    ],
     credentials: true,
   });
 
   // Global prefix
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix("api/v1");
 
   // Swagger/OpenAPI Documentation
   const config = new DocumentBuilder()
-    .setTitle('SAHOOL Chat Service API')
-    .setDescription(`
+    .setTitle("SAHOOL Chat Service API")
+    .setDescription(
+      `
       خدمة المحادثات للسوق الزراعي
 
       ## Features
@@ -87,25 +93,34 @@ async function bootstrap() {
       - \`read_receipt\` - Mark messages as read
       - \`user_online\` - User online status
       - \`user_offline\` - User offline status
-    `)
-    .setVersion('16.0.0')
-    .addTag('Chat', 'Chat conversation management')
-    .addTag('Messages', 'Message operations')
+    `,
+    )
+    .setVersion("16.0.0")
+    .addTag("Chat", "Chat conversation management")
+    .addTag("Messages", "Message operations")
     .addBearerAuth()
-    .addApiKey({ type: 'apiKey', name: 'X-Tenant-ID', in: 'header' }, 'tenant-id')
+    .addApiKey(
+      { type: "apiKey", name: "X-Tenant-ID", in: "header" },
+      "tenant-id",
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup("docs", app, document);
 
   const port = process.env.PORT || 8114;
   await app.listen(port);
 
   const logger = app.get(Logger);
-  logger.log({ msg: 'SAHOOL Chat Service started', port, version: '16.0.0', docs: `http://localhost:${port}/docs` });
+  logger.log({
+    msg: "SAHOOL Chat Service started",
+    port,
+    version: "16.0.0",
+    docs: `http://localhost:${port}/docs`,
+  });
 }
 
 bootstrap().catch((err) => {
-  console.error('Failed to start Chat Service:', err);
+  console.error("Failed to start Chat Service:", err);
   process.exit(1);
 });

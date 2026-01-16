@@ -3,7 +3,7 @@
  * اختبارات تحسين الأداء
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   debounce,
   throttle,
@@ -12,12 +12,18 @@ import {
   getOptimalImageSize,
   deduplicateRequest,
   Performance,
-} from './optimization';
+} from "./optimization";
 
-describe('Performance Optimization', () => {
+describe("Performance Optimization", () => {
   beforeEach(() => {
     vi.useFakeTimers({
-      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
+      toFake: [
+        "setTimeout",
+        "clearTimeout",
+        "setInterval",
+        "clearInterval",
+        "Date",
+      ],
     });
   });
 
@@ -26,8 +32,8 @@ describe('Performance Optimization', () => {
     vi.restoreAllMocks();
   });
 
-  describe('debounce', () => {
-    it('should debounce function calls', () => {
+  describe("debounce", () => {
+    it("should debounce function calls", () => {
       const fn = vi.fn();
       const debouncedFn = debounce(fn, 100);
 
@@ -42,17 +48,17 @@ describe('Performance Optimization', () => {
       expect(fn).toHaveBeenCalledTimes(1);
     });
 
-    it('should pass arguments correctly', () => {
+    it("should pass arguments correctly", () => {
       const fn = vi.fn();
       const debouncedFn = debounce(fn, 100);
 
-      debouncedFn('arg1', 'arg2');
+      debouncedFn("arg1", "arg2");
       vi.advanceTimersByTime(100);
 
-      expect(fn).toHaveBeenCalledWith('arg1', 'arg2');
+      expect(fn).toHaveBeenCalledWith("arg1", "arg2");
     });
 
-    it('should handle leading option', () => {
+    it("should handle leading option", () => {
       const fn = vi.fn();
       const debouncedFn = debounce(fn, 100, { leading: true });
 
@@ -66,7 +72,7 @@ describe('Performance Optimization', () => {
       expect(fn).toHaveBeenCalledTimes(2);
     });
 
-    it('should have cancel method', () => {
+    it("should have cancel method", () => {
       const fn = vi.fn();
       const debouncedFn = debounce(fn, 100);
 
@@ -77,7 +83,7 @@ describe('Performance Optimization', () => {
       expect(fn).not.toHaveBeenCalled();
     });
 
-    it('should have flush method', () => {
+    it("should have flush method", () => {
       const fn = vi.fn();
       const debouncedFn = debounce(fn, 100);
 
@@ -88,8 +94,8 @@ describe('Performance Optimization', () => {
     });
   });
 
-  describe('throttle', () => {
-    it('should throttle function calls', () => {
+  describe("throttle", () => {
+    it("should throttle function calls", () => {
       const fn = vi.fn();
       const throttledFn = throttle(fn, 100, { leading: true, trailing: false });
 
@@ -105,31 +111,31 @@ describe('Performance Optimization', () => {
       expect(fn).toHaveBeenCalledTimes(2);
     });
 
-    it('should pass arguments correctly', () => {
+    it("should pass arguments correctly", () => {
       const fn = vi.fn();
       const throttledFn = throttle(fn, 100);
 
-      throttledFn('arg1');
-      expect(fn).toHaveBeenCalledWith('arg1');
+      throttledFn("arg1");
+      expect(fn).toHaveBeenCalledWith("arg1");
     });
 
-    it('should handle trailing option', () => {
+    it("should handle trailing option", () => {
       const fn = vi.fn();
       const throttledFn = throttle(fn, 100, { trailing: true });
 
-      throttledFn('first');
-      throttledFn('second');
-      throttledFn('third');
+      throttledFn("first");
+      throttledFn("second");
+      throttledFn("third");
 
       expect(fn).toHaveBeenCalledTimes(1);
 
       vi.advanceTimersByTime(100);
 
       expect(fn).toHaveBeenCalledTimes(2);
-      expect(fn).toHaveBeenLastCalledWith('third');
+      expect(fn).toHaveBeenLastCalledWith("third");
     });
 
-    it('should have cancel method', () => {
+    it("should have cancel method", () => {
       const fn = vi.fn();
       const throttledFn = throttle(fn, 100, { trailing: true });
 
@@ -142,8 +148,8 @@ describe('Performance Optimization', () => {
     });
   });
 
-  describe('memoize', () => {
-    it('should cache function results', () => {
+  describe("memoize", () => {
+    it("should cache function results", () => {
       const fn = vi.fn((x: number) => x * 2);
       const memoizedFn = memoize(fn);
 
@@ -153,7 +159,7 @@ describe('Performance Optimization', () => {
       expect(fn).toHaveBeenCalledTimes(1);
     });
 
-    it('should respect maxSize option', () => {
+    it("should respect maxSize option", () => {
       const fn = vi.fn((x: number) => x * 2);
       const memoizedFn = memoize(fn, { maxSize: 2 });
 
@@ -170,7 +176,7 @@ describe('Performance Optimization', () => {
       expect(fn).toHaveBeenCalledTimes(4);
     });
 
-    it('should use custom key generator', () => {
+    it("should use custom key generator", () => {
       const fn = vi.fn((obj: { id: number }) => obj.id * 2);
       const memoizedFn = memoize(fn, {
         keyGenerator: (obj) => String(obj.id),
@@ -183,8 +189,8 @@ describe('Performance Optimization', () => {
     });
   });
 
-  describe('calculateVirtualScroll', () => {
-    it('should calculate visible items correctly', () => {
+  describe("calculateVirtualScroll", () => {
+    it("should calculate visible items correctly", () => {
       const result = calculateVirtualScroll(0, {
         totalItems: 1000,
         itemHeight: 50,
@@ -197,7 +203,7 @@ describe('Performance Optimization', () => {
       expect(result.offsetY).toBe(0);
     });
 
-    it('should handle scroll position', () => {
+    it("should handle scroll position", () => {
       const result = calculateVirtualScroll(500, {
         totalItems: 1000,
         itemHeight: 50,
@@ -209,7 +215,7 @@ describe('Performance Optimization', () => {
       expect(result.offsetY).toBeGreaterThan(0);
     });
 
-    it('should calculate total height correctly', () => {
+    it("should calculate total height correctly", () => {
       const result = calculateVirtualScroll(0, {
         totalItems: 100,
         itemHeight: 50,
@@ -220,7 +226,7 @@ describe('Performance Optimization', () => {
       expect(result.totalHeight).toBe(5000);
     });
 
-    it('should handle empty list', () => {
+    it("should handle empty list", () => {
       const result = calculateVirtualScroll(0, {
         totalItems: 0,
         itemHeight: 50,
@@ -234,55 +240,55 @@ describe('Performance Optimization', () => {
     });
   });
 
-  describe('getOptimalImageSize', () => {
-    it('should return optimal image size for width', () => {
+  describe("getOptimalImageSize", () => {
+    it("should return optimal image size for width", () => {
       const result = getOptimalImageSize(400);
       expect(result).toBeGreaterThanOrEqual(400);
     });
 
-    it('should cap at maximum size', () => {
+    it("should cap at maximum size", () => {
       const result = getOptimalImageSize(3000);
       expect(result).toBeLessThanOrEqual(1920);
     });
 
-    it('should return smallest size for small widths', () => {
+    it("should return smallest size for small widths", () => {
       const result = getOptimalImageSize(100);
       expect(result).toBe(320);
     });
   });
 
-  describe('deduplicateRequest', () => {
-    it('should deduplicate concurrent requests', async () => {
+  describe("deduplicateRequest", () => {
+    it("should deduplicate concurrent requests", async () => {
       vi.useRealTimers();
 
-      const fn = vi.fn().mockResolvedValue('result');
+      const fn = vi.fn().mockResolvedValue("result");
 
-      const promise1 = deduplicateRequest('key1', fn);
-      const promise2 = deduplicateRequest('key1', fn);
+      const promise1 = deduplicateRequest("key1", fn);
+      const promise2 = deduplicateRequest("key1", fn);
 
       const [result1, result2] = await Promise.all([promise1, promise2]);
 
-      expect(result1).toBe('result');
-      expect(result2).toBe('result');
+      expect(result1).toBe("result");
+      expect(result2).toBe("result");
       expect(fn).toHaveBeenCalledTimes(1);
     });
 
-    it('should make new request after window expires', async () => {
+    it("should make new request after window expires", async () => {
       vi.useRealTimers();
 
-      const fn = vi.fn().mockResolvedValue('result');
+      const fn = vi.fn().mockResolvedValue("result");
 
-      await deduplicateRequest('key2', fn, { window: 10 });
+      await deduplicateRequest("key2", fn, { window: 10 });
       // Wait for dedup window to expire
-      await new Promise(resolve => setTimeout(resolve, 20));
-      await deduplicateRequest('key2', fn, { window: 10 });
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      await deduplicateRequest("key2", fn, { window: 10 });
 
       expect(fn).toHaveBeenCalledTimes(2);
     });
   });
 
-  describe('Performance export', () => {
-    it('should export all functions', () => {
+  describe("Performance export", () => {
+    it("should export all functions", () => {
       expect(Performance.debounce).toBeDefined();
       expect(Performance.throttle).toBeDefined();
       expect(Performance.memoize).toBeDefined();

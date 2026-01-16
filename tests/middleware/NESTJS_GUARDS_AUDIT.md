@@ -13,6 +13,7 @@ This audit reviews the implementation of guards, middleware, interceptors, excep
 ### Overall Security Posture: **GOOD with RECOMMENDATIONS**
 
 **Strengths:**
+
 - Strong JWT authentication with algorithm whitelisting
 - Global rate limiting implemented across all NestJS services
 - Comprehensive validation using class-validator DTOs
@@ -20,6 +21,7 @@ This audit reviews the implementation of guards, middleware, interceptors, excep
 - Role-based access control (RBAC) in user-service
 
 **Areas for Improvement:**
+
 - Request logging interceptor available but not implemented
 - Missing global guards registration in some services
 - Inconsistent validation pipe configuration
@@ -33,12 +35,14 @@ This audit reviews the implementation of guards, middleware, interceptors, excep
 ### 1.1 JwtAuthGuard Analysis
 
 **Location:**
+
 - `/home/user/sahool-unified-v15-idp/apps/services/marketplace-service/src/auth/jwt-auth.guard.ts`
 - `/home/user/sahool-unified-v15-idp/apps/services/user-service/src/auth/jwt-auth.guard.ts`
 
 **Status:** ✅ **SECURE**
 
 **Implementation Details:**
+
 ```typescript
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -55,6 +59,7 @@ export class JwtAuthGuard implements CanActivate {
 ```
 
 **Security Strengths:**
+
 1. **Algorithm Protection**: Hardcoded whitelist prevents algorithm confusion attacks (CVE-2015-9235)
 2. **Explicit 'none' Rejection**: Prevents bypass attempts using 'none' algorithm
 3. **Pre-verification Checks**: Decodes header to validate algorithm before verification
@@ -62,12 +67,14 @@ export class JwtAuthGuard implements CanActivate {
 5. **User Context Extraction**: Properly extracts user_id, email, roles, tenant_id from JWT payload
 
 **Security Concerns:**
+
 1. **Secret Management**: JWT secret loaded from environment variables without rotation mechanism
 2. **No Token Revocation**: No check against revocation list or blacklist
 3. **No Expiry Validation Logging**: Token expiry errors caught but not logged for monitoring
 4. **Error Messages**: Generic error messages could leak information about token structure
 
 **Recommendations:**
+
 - [ ] Implement JWT token revocation/blacklist mechanism
 - [ ] Add token rotation support
 - [ ] Log authentication failures for security monitoring
@@ -95,16 +102,17 @@ export class JwtAuthGuard implements CanActivate {
 **Status:** ✅ **FUNCTIONAL** but ⚠️ **BASIC**
 
 **Implementation:**
+
 ```typescript
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
     if (!requiredRoles) {
       return true; // No roles required
     }
@@ -115,6 +123,7 @@ export class RolesGuard implements CanActivate {
 ```
 
 **Security Analysis:**
+
 - ✅ Uses `getAllAndOverride` to check both handler and class level decorators
 - ✅ Returns true if no roles required (allows pass-through)
 - ✅ Checks if user has ANY of the required roles (OR logic)
@@ -123,12 +132,14 @@ export class RolesGuard implements CanActivate {
 - ⚠️ Assumes roles are already in user object from JWT
 
 **Decorator:**
+
 ```typescript
-export const ROLES_KEY = 'roles';
+export const ROLES_KEY = "roles";
 export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);
 ```
 
 **Usage Example:**
+
 ```typescript
 @Delete(':id/hard')
 @UseGuards(RolesGuard)
@@ -139,6 +150,7 @@ async hardDelete(@Param('id') id: string) {
 ```
 
 **Recommendations:**
+
 - [ ] Add null check for user object with proper error message
 - [ ] Log authorization failures for security audit trail
 - [ ] Consider implementing permission-based access control (PBAC) for finer granularity
@@ -148,37 +160,38 @@ async hardDelete(@Param('id') id: string) {
 ### 2.2 Guard Registration
 
 **Marketplace Service:**
+
 ```typescript
 // Guards registered as providers but NOT globally applied
 providers: [
   JwtAuthGuard,
   OptionalJwtAuthGuard,
   { provide: APP_GUARD, useClass: ThrottlerGuard }, // Only ThrottlerGuard is global
-]
+];
 ```
 
 **User Service:**
+
 ```typescript
 // Only ThrottlerGuard is global
-providers: [
-  { provide: APP_GUARD, useClass: ThrottlerGuard },
-]
+providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }];
 ```
 
 **Chat Service:**
+
 ```typescript
 // Only ThrottlerGuard is global
-providers: [
-  { provide: APP_GUARD, useClass: ThrottlerGuard },
-]
+providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }];
 ```
 
 **Finding:** ⚠️ **Guards are not globally registered**
+
 - JwtAuthGuard must be manually applied to each controller/route using `@UseGuards(JwtAuthGuard)`
 - This is flexible but risks missing authentication on new endpoints
 - Good practice: Use global guards with public route exceptions
 
 **Recommendation:**
+
 - [ ] Consider registering JwtAuthGuard globally with `@Public()` decorator for exceptions
 - [ ] Implement whitelist of public routes
 - [ ] Add unit tests to verify all sensitive endpoints are protected
@@ -190,28 +203,31 @@ providers: [
 ### 3.1 Global ValidationPipe Setup
 
 **Marketplace Service:**
+
 ```typescript
 app.useGlobalPipes(
   new ValidationPipe({
-    whitelist: true,        // Strip non-whitelisted properties
-    transform: true,        // Auto-transform payloads to DTO instances
+    whitelist: true, // Strip non-whitelisted properties
+    transform: true, // Auto-transform payloads to DTO instances
     // Missing: forbidNonWhitelisted
   }),
 );
 ```
 
 **User Service:**
+
 ```typescript
 app.useGlobalPipes(
   new ValidationPipe({
     whitelist: true,
     transform: true,
-    forbidNonWhitelisted: true,  // Throw error if non-whitelisted properties present
+    forbidNonWhitelisted: true, // Throw error if non-whitelisted properties present
   }),
 );
 ```
 
 **Chat Service:**
+
 ```typescript
 app.useGlobalPipes(
   new ValidationPipe({
@@ -224,18 +240,20 @@ app.useGlobalPipes(
 
 **Analysis:**
 
-| Feature | Marketplace | User | Chat | Security Impact |
-|---------|-------------|------|------|-----------------|
-| `whitelist` | ✅ | ✅ | ✅ | Prevents mass assignment attacks |
-| `transform` | ✅ | ✅ | ✅ | Type safety |
-| `forbidNonWhitelisted` | ❌ | ✅ | ✅ | Explicit validation - rejects unknown fields |
+| Feature                | Marketplace | User | Chat | Security Impact                              |
+| ---------------------- | ----------- | ---- | ---- | -------------------------------------------- |
+| `whitelist`            | ✅          | ✅   | ✅   | Prevents mass assignment attacks             |
+| `transform`            | ✅          | ✅   | ✅   | Type safety                                  |
+| `forbidNonWhitelisted` | ❌          | ✅   | ✅   | Explicit validation - rejects unknown fields |
 
 **Security Finding:**
+
 - ⚠️ **Marketplace service** silently strips unknown properties instead of rejecting them
 - This could mask API misuse or attacks
 - **User and Chat services** have stronger validation by rejecting invalid payloads
 
 **Recommendations:**
+
 - [ ] Add `forbidNonWhitelisted: true` to marketplace-service
 - [ ] Consider adding `transform: true` with `enableImplicitConversion: false` for explicit type conversion
 - [ ] Add `disableErrorMessages: false` in production (already default, but verify)
@@ -244,6 +262,7 @@ app.useGlobalPipes(
 ### 3.2 DTO Validation Examples
 
 **User Service - CreateUserDto:**
+
 ```typescript
 export class CreateUserDto {
   @IsEmail()
@@ -265,6 +284,7 @@ export class CreateUserDto {
 ```
 
 **Chat Service - SendMessageDto:**
+
 ```typescript
 export class SendMessageDto {
   @IsNotEmpty()
@@ -284,17 +304,20 @@ export class SendMessageDto {
 ```
 
 **Validation Strengths:**
+
 - ✅ Comprehensive use of class-validator decorators
 - ✅ Length limits prevent buffer overflow/DoS attacks
 - ✅ Type validation enforced
 - ✅ Optional fields properly marked
 
 **Validation Gaps:**
+
 - ⚠️ No custom sanitization for XSS prevention
 - ⚠️ No rate limiting on expensive validation operations
 - ⚠️ Missing business logic validation (e.g., password complexity)
 
 **Recommendations:**
+
 - [ ] Add password strength validator
 - [ ] Implement custom sanitization for user input
 - [ ] Add max length limits on all string fields
@@ -311,6 +334,7 @@ export class SendMessageDto {
 **Status:** ✅ **AVAILABLE** but ❌ **NOT IMPLEMENTED**
 
 **Features:**
+
 - Structured JSON logging
 - Request/response timing
 - Correlation ID propagation
@@ -319,6 +343,7 @@ export class SendMessageDto {
 - Sensitive header redaction
 
 **Implementation:**
+
 ```typescript
 @Injectable()
 export class RequestLoggingInterceptor implements NestInterceptor {
@@ -336,6 +361,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 ```
 
 **Finding:** ⚠️ **Critical Logging Gap**
+
 - Interceptor is built but NOT registered in any service
 - No request/response logging in production
 - No correlation ID tracking
@@ -344,6 +370,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 **Current Usage:** NONE
 
 **Recommendations:**
+
 - [ ] **HIGH PRIORITY**: Register RequestLoggingInterceptor globally in all services
 - [ ] Add to main.ts: `app.useGlobalInterceptors(new RequestLoggingInterceptor('service-name'))`
 - [ ] Configure centralized logging (e.g., ELK stack, CloudWatch)
@@ -353,6 +380,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 ### 4.2 Missing Interceptors
 
 **Not Implemented:**
+
 - ❌ Response transformation interceptor
 - ❌ Caching interceptor
 - ❌ Timeout interceptor
@@ -360,6 +388,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 - ❌ Audit logging interceptor
 
 **Recommendations:**
+
 - [ ] Implement timeout interceptor for long-running requests
 - [ ] Add response caching for frequently accessed data
 - [ ] Create audit logging interceptor for sensitive operations
@@ -381,13 +410,15 @@ class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse();
     const request = ctx.getRequest();
 
-    const status = exception instanceof HttpException
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message = exception instanceof HttpException
-      ? exception.message
-      : 'خطأ داخلي في الخادم';
+    const message =
+      exception instanceof HttpException
+        ? exception.message
+        : "خطأ داخلي في الخادم";
 
     response.status(status).json({
       success: false,
@@ -403,6 +434,7 @@ class HttpExceptionFilter implements ExceptionFilter {
 ```
 
 **Registration:**
+
 ```typescript
 app.useGlobalFilters(new HttpExceptionFilter());
 ```
@@ -410,6 +442,7 @@ app.useGlobalFilters(new HttpExceptionFilter());
 **Analysis:**
 
 **Strengths:**
+
 - ✅ Catches all exceptions (`@Catch()`)
 - ✅ Consistent error response format
 - ✅ Includes timestamp and path
@@ -417,6 +450,7 @@ app.useGlobalFilters(new HttpExceptionFilter());
 - ✅ Registered globally in all services
 
 **Weaknesses:**
+
 - ⚠️ No correlation ID in error responses
 - ⚠️ Generic error codes (`ERR_${status}`)
 - ⚠️ No stack traces in development (debugging harder)
@@ -430,6 +464,7 @@ app.useGlobalFilters(new HttpExceptionFilter());
 **Status:** ✅ **COMPREHENSIVE** but ❌ **NOT USED**
 
 **Features:**
+
 - AppException handling (custom exceptions)
 - Validation error formatting
 - Field-level error details
@@ -441,6 +476,7 @@ app.useGlobalFilters(new HttpExceptionFilter());
 - Category-based error classification
 
 **Example Error Response:**
+
 ```json
 {
   "errorCode": "AUTH_001",
@@ -457,6 +493,7 @@ app.useGlobalFilters(new HttpExceptionFilter());
 ```
 
 **Validation Error Handling:**
+
 ```typescript
 private handleValidationError(exceptionResponse: any, request: Request): ErrorResponseDto {
   const fieldErrors: FieldErrorDto[] = [];
@@ -475,12 +512,14 @@ private handleValidationError(exceptionResponse: any, request: Request): ErrorRe
 ```
 
 **Finding:** ⚠️ **Better Filter Available but Unused**
+
 - Shared filter is more comprehensive than local implementations
 - Provides standardized error codes across services
 - Better debugging with request IDs
 - Field-level validation error details
 
 **Recommendations:**
+
 - [ ] **HIGH PRIORITY**: Replace local filters with shared HttpExceptionFilter
 - [ ] Import from `@sahool/shared-errors` or shared module
 - [ ] Standardize error codes across all services
@@ -494,32 +533,41 @@ private handleValidationError(exceptionResponse: any, request: Request): ErrorRe
 ### 6.1 NestJS Middleware
 
 **Marketplace Service:**
+
 - ❌ No custom middleware registered
 - ✅ CORS enabled globally
 - ✅ Global prefix: `/api/v1`
 
 **User Service:**
+
 - ❌ No custom middleware registered
 - ✅ CORS enabled globally
 - ✅ Global prefix: `/api/v1`
 
 **Chat Service:**
+
 - ❌ No custom middleware registered
 - ✅ CORS enabled globally
 - ✅ Global prefix: `/api/v1`
 
 **CORS Configuration (Consistent across services):**
+
 ```typescript
 app.enableCors({
-  origin: process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-    'https://sahool.com',
-    'https://app.sahool.com',
-    'https://admin.sahool.com',
-    'http://localhost:3000',
-    'http://localhost:8080',
+  origin: process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+    "https://sahool.com",
+    "https://app.sahool.com",
+    "https://admin.sahool.com",
+    "http://localhost:3000",
+    "http://localhost:8080",
   ],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Request-ID'],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Tenant-ID",
+    "X-Request-ID",
+  ],
   credentials: true,
 });
 ```
@@ -527,6 +575,7 @@ app.enableCors({
 **CORS Analysis:**
 
 **Strengths:**
+
 - ✅ Whitelist-based origin validation
 - ✅ Environment-variable driven (production safety)
 - ✅ Credentials enabled for authenticated requests
@@ -534,11 +583,13 @@ app.enableCors({
 - ✅ Includes custom headers (X-Tenant-ID, X-Request-ID)
 
 **Concerns:**
+
 - ⚠️ Localhost origins in production config (should be environment-specific)
 - ⚠️ No preflight caching (`maxAge` not set)
 - ⚠️ Wildcard methods could be more restrictive per endpoint
 
 **Recommendations:**
+
 - [ ] Set different CORS configs per environment
 - [ ] Add `maxAge: 86400` for preflight caching
 - [ ] Remove localhost from production origins
@@ -547,48 +598,51 @@ app.enableCors({
 ### 6.2 Rate Limiting (ThrottlerGuard)
 
 **Configuration (Consistent across all services):**
+
 ```typescript
 ThrottlerModule.forRoot([
   {
-    name: 'short',
-    ttl: 1000,        // 1 second
-    limit: 10,        // 10 requests per second
+    name: "short",
+    ttl: 1000, // 1 second
+    limit: 10, // 10 requests per second
   },
   {
-    name: 'medium',
-    ttl: 60000,       // 1 minute
-    limit: 100,       // 100 requests per minute
+    name: "medium",
+    ttl: 60000, // 1 minute
+    limit: 100, // 100 requests per minute
   },
   {
-    name: 'long',
-    ttl: 3600000,     // 1 hour
-    limit: 1000,      // 1000 requests per hour
+    name: "long",
+    ttl: 3600000, // 1 hour
+    limit: 1000, // 1000 requests per hour
   },
-])
+]);
 ```
 
 **Global Registration:**
+
 ```typescript
-providers: [
-  { provide: APP_GUARD, useClass: ThrottlerGuard },
-]
+providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }];
 ```
 
 **Analysis:**
 
 **Strengths:**
+
 - ✅ Multi-tier rate limiting (short, medium, long)
 - ✅ Globally applied to all endpoints
 - ✅ Prevents brute force attacks
 - ✅ DoS/DDoS mitigation
 
 **Weaknesses:**
+
 - ⚠️ Same limits for all endpoints (no per-endpoint customization)
 - ⚠️ In-memory storage (doesn't scale across multiple instances)
 - ⚠️ No user-based rate limiting (only IP-based)
-- ⚠️ No rate limit headers in responses (X-RateLimit-*)
+- ⚠️ No rate limit headers in responses (X-RateLimit-\*)
 
 **Recommendations:**
+
 - [ ] Implement Redis-based storage for distributed rate limiting
 - [ ] Add per-endpoint custom limits using `@Throttle()` decorator
 - [ ] Implement user-based rate limiting for authenticated endpoints
@@ -599,6 +653,7 @@ providers: [
 ### 6.3 Notification Service (FastAPI) Middleware
 
 **Rate Limiting Setup:**
+
 ```python
 try:
     from middleware.rate_limiter import setup_rate_limiting
@@ -609,6 +664,7 @@ except ImportError as e:
 ```
 
 **Analysis:**
+
 - ✅ Redis support for distributed rate limiting
 - ✅ Graceful degradation if Redis unavailable
 - ⚠️ Different middleware from NestJS services (inconsistent approach)
@@ -622,6 +678,7 @@ except ImportError as e:
 **Location:** `/home/user/sahool-unified-v15-idp/apps/services/chat-service/src/chat/chat.gateway.ts`
 
 **CORS Configuration:**
+
 ```typescript
 @WebSocketGateway({
   cors: {
@@ -638,6 +695,7 @@ except ImportError as e:
 ```
 
 **Authentication Flow:**
+
 ```typescript
 async handleConnection(client: Socket) {
   // 1. Verify authentication
@@ -659,6 +717,7 @@ async handleConnection(client: Socket) {
 ```
 
 **Token Verification:**
+
 ```typescript
 private verifyAuthentication(client: Socket): string | null {
   // Extract token from auth or query parameters
@@ -684,6 +743,7 @@ private verifyAuthentication(client: Socket): string | null {
 ```
 
 **Event Authorization:**
+
 ```typescript
 @SubscribeMessage('send_message')
 async handleSendMessage(@MessageBody() data: SendMessageDto, @ConnectedSocket() client: Socket) {
@@ -702,6 +762,7 @@ async handleSendMessage(@MessageBody() data: SendMessageDto, @ConnectedSocket() 
 **Security Analysis:**
 
 **Strengths:**
+
 - ✅ JWT authentication on connection
 - ✅ Same algorithm protection as REST guards
 - ✅ Disconnects unauthenticated connections
@@ -711,6 +772,7 @@ async handleSendMessage(@MessageBody() data: SendMessageDto, @ConnectedSocket() 
 - ✅ Prevents user impersonation (compares client.data.userId vs payload.senderId)
 
 **Weaknesses:**
+
 - ⚠️ Token can be passed in query string (visible in logs)
 - ⚠️ No token refresh mechanism for long-lived connections
 - ⚠️ No rate limiting on WebSocket events
@@ -718,6 +780,7 @@ async handleSendMessage(@MessageBody() data: SendMessageDto, @ConnectedSocket() 
 - ⚠️ No audit logging of connection attempts
 
 **Recommendations:**
+
 - [ ] Prefer auth header over query string for tokens
 - [ ] Implement token refresh for long-lived connections
 - [ ] Add rate limiting per user on message events
@@ -729,6 +792,7 @@ async handleSendMessage(@MessageBody() data: SendMessageDto, @ConnectedSocket() 
 ### 7.2 Chat REST Controller Authentication
 
 **Custom Authentication:**
+
 ```typescript
 private extractUserId(headers: any): string {
   const userId = headers['x-user-id'];
@@ -747,11 +811,13 @@ private async verifyConversationAccess(conversationId: string, userId: string) {
 ```
 
 **Analysis:**
+
 - ⚠️ Uses header-based authentication instead of JwtAuthGuard
 - ⚠️ No actual token verification (trusts X-User-ID header)
 - ⚠️ Vulnerable to header spoofing
 
 **Critical Security Issue:**
+
 ```typescript
 // VULNERABLE: Anyone can set X-User-ID header
 @Get('conversations/user/:userId')
@@ -765,6 +831,7 @@ async getUserConversations(@Param('userId') userId: string, @Headers() headers: 
 ```
 
 **Recommendation:**
+
 - [ ] **CRITICAL**: Replace custom header auth with JwtAuthGuard
 - [ ] Use `@UseGuards(JwtAuthGuard)` on all chat endpoints
 - [ ] Remove extractUserId() and use request.user from guard
@@ -803,18 +870,21 @@ async findOne(@Param('id') id: string, @CurrentUser() currentUser: any) {
 **Analysis:**
 
 **Strengths:**
+
 - ✅ Implements resource-level authorization
 - ✅ Admin override for privileged operations
 - ✅ Prevents horizontal privilege escalation (user A accessing user B's data)
 - ✅ Clear separation between authentication (guard) and authorization (method)
 
 **Weaknesses:**
+
 - ⚠️ Manual validation in each method (could miss some endpoints)
 - ⚠️ No centralized authorization policy
 - ⚠️ Hardcoded 'admin' role check
 - ⚠️ No audit logging of authorization failures
 
 **Recommendations:**
+
 - [ ] Create a reusable AuthorizationGuard or decorator
 - [ ] Implement CASL or similar authorization library
 - [ ] Add audit logging for authorization denials
@@ -841,12 +911,14 @@ async getUserOrders(@Req() request: any, @Param('userId') userId: string) {
 ```
 
 **Analysis:**
+
 - ✅ Proper ownership validation
 - ✅ Admin override
 - ⚠️ Inconsistent pattern with user-service
 - ⚠️ Should be extracted to reusable method
 
 **Recommendation:**
+
 - [ ] Standardize authorization patterns across services
 - [ ] Create shared authorization utilities
 - [ ] Document authorization strategy
@@ -857,61 +929,64 @@ async getUserOrders(@Req() request: any, @Param('userId') userId: string) {
 
 ### 9.1 Marketplace Service
 
-| Component | Status | Grade | Notes |
-|-----------|--------|-------|-------|
-| **AuthGuard** | ✅ Implemented | A | Strong JWT validation, algorithm protection |
-| **RolesGuard** | ❌ Not Used | N/A | Available but not applied |
-| **ValidationPipe** | ⚠️ Partial | B | Missing `forbidNonWhitelisted` |
-| **Exception Filter** | ⚠️ Basic | C | Local filter, no correlation IDs |
-| **Interceptors** | ❌ None | F | No logging interceptor |
-| **Rate Limiting** | ✅ Global | A | ThrottlerGuard enabled |
-| **CORS** | ✅ Configured | A | Whitelist-based |
-| **Resource Auth** | ✅ Manual | B | Ownership checks present |
+| Component            | Status         | Grade | Notes                                       |
+| -------------------- | -------------- | ----- | ------------------------------------------- |
+| **AuthGuard**        | ✅ Implemented | A     | Strong JWT validation, algorithm protection |
+| **RolesGuard**       | ❌ Not Used    | N/A   | Available but not applied                   |
+| **ValidationPipe**   | ⚠️ Partial     | B     | Missing `forbidNonWhitelisted`              |
+| **Exception Filter** | ⚠️ Basic       | C     | Local filter, no correlation IDs            |
+| **Interceptors**     | ❌ None        | F     | No logging interceptor                      |
+| **Rate Limiting**    | ✅ Global      | A     | ThrottlerGuard enabled                      |
+| **CORS**             | ✅ Configured  | A     | Whitelist-based                             |
+| **Resource Auth**    | ✅ Manual      | B     | Ownership checks present                    |
 
 **Overall Grade: B-**
 
 **Critical Actions:**
+
 1. Add `forbidNonWhitelisted: true` to ValidationPipe
 2. Register RequestLoggingInterceptor
 3. Replace local exception filter with shared filter
 
 ### 9.2 User Service
 
-| Component | Status | Grade | Notes |
-|-----------|--------|-------|-------|
-| **AuthGuard** | ✅ Implemented | A | Strong JWT validation |
-| **RolesGuard** | ✅ Implemented | B+ | Used on admin endpoints |
-| **ValidationPipe** | ✅ Full | A | All options enabled |
-| **Exception Filter** | ⚠️ Basic | C | Local filter |
-| **Interceptors** | ❌ None | F | No logging |
-| **Rate Limiting** | ✅ Global | A | ThrottlerGuard enabled |
-| **CORS** | ✅ Configured | A | Whitelist-based |
-| **Resource Auth** | ✅ Systematic | A | Validation helper method |
+| Component            | Status         | Grade | Notes                    |
+| -------------------- | -------------- | ----- | ------------------------ |
+| **AuthGuard**        | ✅ Implemented | A     | Strong JWT validation    |
+| **RolesGuard**       | ✅ Implemented | B+    | Used on admin endpoints  |
+| **ValidationPipe**   | ✅ Full        | A     | All options enabled      |
+| **Exception Filter** | ⚠️ Basic       | C     | Local filter             |
+| **Interceptors**     | ❌ None        | F     | No logging               |
+| **Rate Limiting**    | ✅ Global      | A     | ThrottlerGuard enabled   |
+| **CORS**             | ✅ Configured  | A     | Whitelist-based          |
+| **Resource Auth**    | ✅ Systematic  | A     | Validation helper method |
 
 **Overall Grade: B+**
 
 **Critical Actions:**
+
 1. Register RequestLoggingInterceptor
 2. Replace local exception filter with shared filter
 3. Add audit logging for sensitive operations
 
 ### 9.3 Chat Service
 
-| Component | Status | Grade | Notes |
-|-----------|--------|-------|-------|
-| **AuthGuard (REST)** | ⚠️ Custom | D | **VULNERABLE** - trusts headers |
-| **AuthGuard (WebSocket)** | ✅ JWT | A | Proper verification |
-| **RolesGuard** | ❌ Not Used | N/A | No RBAC |
-| **ValidationPipe** | ✅ Full | A | All options enabled |
-| **Exception Filter** | ⚠️ Basic | C | Local filter |
-| **Interceptors** | ❌ None | F | No logging |
-| **Rate Limiting** | ✅ Global | A | ThrottlerGuard enabled |
-| **CORS** | ✅ Configured | A | REST + WebSocket |
-| **Resource Auth** | ✅ Implemented | B | Conversation access checks |
+| Component                 | Status         | Grade | Notes                           |
+| ------------------------- | -------------- | ----- | ------------------------------- |
+| **AuthGuard (REST)**      | ⚠️ Custom      | D     | **VULNERABLE** - trusts headers |
+| **AuthGuard (WebSocket)** | ✅ JWT         | A     | Proper verification             |
+| **RolesGuard**            | ❌ Not Used    | N/A   | No RBAC                         |
+| **ValidationPipe**        | ✅ Full        | A     | All options enabled             |
+| **Exception Filter**      | ⚠️ Basic       | C     | Local filter                    |
+| **Interceptors**          | ❌ None        | F     | No logging                      |
+| **Rate Limiting**         | ✅ Global      | A     | ThrottlerGuard enabled          |
+| **CORS**                  | ✅ Configured  | A     | REST + WebSocket                |
+| **Resource Auth**         | ✅ Implemented | B     | Conversation access checks      |
 
 **Overall Grade: C+** (pulled down by REST auth vulnerability)
 
 **CRITICAL Actions:**
+
 1. **URGENT**: Replace custom header auth with JwtAuthGuard
 2. Register RequestLoggingInterceptor
 3. Add rate limiting on WebSocket events
@@ -919,20 +994,21 @@ async getUserOrders(@Req() request: any, @Param('userId') userId: string) {
 
 ### 9.4 Notification Service (FastAPI)
 
-| Component | Status | Grade | Notes |
-|-----------|--------|-------|-------|
-| **Middleware** | ⚠️ Rate Limiting | B | Redis-based when available |
-| **Validation** | ✅ Pydantic | A | Strong type validation |
-| **Exception Handling** | ✅ Built-in | B | FastAPI defaults |
-| **CORS** | ❌ Not visible | N/A | Not in code reviewed |
-| **Authentication** | ❌ Not visible | N/A | Endpoint-level needed |
-| **Rate Limiting** | ✅ Middleware | A | Redis support |
+| Component              | Status           | Grade | Notes                      |
+| ---------------------- | ---------------- | ----- | -------------------------- |
+| **Middleware**         | ⚠️ Rate Limiting | B     | Redis-based when available |
+| **Validation**         | ✅ Pydantic      | A     | Strong type validation     |
+| **Exception Handling** | ✅ Built-in      | B     | FastAPI defaults           |
+| **CORS**               | ❌ Not visible   | N/A   | Not in code reviewed       |
+| **Authentication**     | ❌ Not visible   | N/A   | Endpoint-level needed      |
+| **Rate Limiting**      | ✅ Middleware    | A     | Redis support              |
 
 **Overall Grade: B-**
 
 **Note:** Notification service is Python/FastAPI, not NestJS. Different security model.
 
 **Actions:**
+
 1. Verify CORS configuration
 2. Implement authentication middleware
 3. Add request logging
@@ -947,6 +1023,7 @@ async getUserOrders(@Req() request: any, @Param('userId') userId: string) {
 **Location:** `/home/user/sahool-unified-v15-idp/apps/services/chat-service/src/chat/chat.controller.ts`
 
 **Issue:**
+
 ```typescript
 // VULNERABLE CODE
 private extractUserId(headers: any): string {
@@ -959,18 +1036,21 @@ private extractUserId(headers: any): string {
 ```
 
 **Impact:**
+
 - Any user can set X-User-ID header to impersonate others
 - Access other users' conversations
 - Send messages as other users
 - Read private message history
 
 **Exploit:**
+
 ```bash
 curl -H "X-User-ID: victim-user-123" \
   https://api.sahool.com/api/v1/chat/conversations/user/victim-user-123
 ```
 
 **Fix:**
+
 ```typescript
 // SECURE CODE
 @Get('conversations/user/:userId')
@@ -989,6 +1069,7 @@ async getUserConversations(
 ```
 
 **Recommended Actions:**
+
 1. **IMMEDIATE**: Deploy hotfix to use JwtAuthGuard
 2. Audit chat-service logs for suspicious X-User-ID patterns
 3. Notify users if unauthorized access detected
@@ -1055,32 +1136,32 @@ async getUserConversations(
 
 ### 12.1 OWASP Top 10 (2021)
 
-| Risk | Status | Mitigations |
-|------|--------|-------------|
-| A01: Broken Access Control | ⚠️ | JWT auth, but chat REST API vulnerable |
-| A02: Cryptographic Failures | ✅ | JWT with strong algorithms, HTTPS enforced |
-| A03: Injection | ✅ | ORMs (Prisma), parameterized queries, ValidationPipe |
-| A04: Insecure Design | ⚠️ | Authorization patterns inconsistent |
-| A05: Security Misconfiguration | ⚠️ | Exception filters expose errors, stack traces |
-| A06: Vulnerable Components | ⚠️ | Regular updates needed |
-| A07: Authentication Failures | ⚠️ | No rate limiting on auth, no MFA |
-| A08: Software and Data Integrity | ✅ | Code reviews, version control |
-| A09: Logging & Monitoring Failures | ❌ | **CRITICAL**: No logging interceptor active |
-| A10: Server-Side Request Forgery | N/A | Not applicable to current architecture |
+| Risk                               | Status | Mitigations                                          |
+| ---------------------------------- | ------ | ---------------------------------------------------- |
+| A01: Broken Access Control         | ⚠️     | JWT auth, but chat REST API vulnerable               |
+| A02: Cryptographic Failures        | ✅     | JWT with strong algorithms, HTTPS enforced           |
+| A03: Injection                     | ✅     | ORMs (Prisma), parameterized queries, ValidationPipe |
+| A04: Insecure Design               | ⚠️     | Authorization patterns inconsistent                  |
+| A05: Security Misconfiguration     | ⚠️     | Exception filters expose errors, stack traces        |
+| A06: Vulnerable Components         | ⚠️     | Regular updates needed                               |
+| A07: Authentication Failures       | ⚠️     | No rate limiting on auth, no MFA                     |
+| A08: Software and Data Integrity   | ✅     | Code reviews, version control                        |
+| A09: Logging & Monitoring Failures | ❌     | **CRITICAL**: No logging interceptor active          |
+| A10: Server-Side Request Forgery   | N/A    | Not applicable to current architecture               |
 
 ### 12.2 Security Best Practices
 
-| Practice | Status | Notes |
-|----------|--------|-------|
-| Principle of Least Privilege | ⚠️ | RBAC implemented but not consistently |
-| Defense in Depth | ⚠️ | Multiple layers but gaps in logging |
-| Fail Securely | ✅ | Exceptions default to deny |
-| Secure by Default | ⚠️ | Some endpoints lack auth guards |
-| Separation of Duties | ❌ | No separation between dev/prod access |
-| Input Validation | ✅ | Strong DTO validation |
-| Output Encoding | ⚠️ | No explicit XSS prevention |
-| Audit Logging | ❌ | Not implemented |
-| Error Handling | ⚠️ | Inconsistent error messages |
+| Practice                     | Status | Notes                                 |
+| ---------------------------- | ------ | ------------------------------------- |
+| Principle of Least Privilege | ⚠️     | RBAC implemented but not consistently |
+| Defense in Depth             | ⚠️     | Multiple layers but gaps in logging   |
+| Fail Securely                | ✅     | Exceptions default to deny            |
+| Secure by Default            | ⚠️     | Some endpoints lack auth guards       |
+| Separation of Duties         | ❌     | No separation between dev/prod access |
+| Input Validation             | ✅     | Strong DTO validation                 |
+| Output Encoding              | ⚠️     | No explicit XSS prevention            |
+| Audit Logging                | ❌     | Not implemented                       |
+| Error Handling               | ⚠️     | Inconsistent error messages           |
 
 ---
 
@@ -1090,26 +1171,26 @@ async getUserConversations(
 
 ```typescript
 // Example: Guard Unit Tests
-describe('JwtAuthGuard', () => {
+describe("JwtAuthGuard", () => {
   it('should reject tokens with "none" algorithm', () => {
     // Test algorithm protection
   });
 
-  it('should reject expired tokens', () => {
+  it("should reject expired tokens", () => {
     // Test expiry validation
   });
 
-  it('should reject tokens with invalid signature', () => {
+  it("should reject tokens with invalid signature", () => {
     // Test signature validation
   });
 });
 
-describe('RolesGuard', () => {
-  it('should allow access with required role', () => {
+describe("RolesGuard", () => {
+  it("should allow access with required role", () => {
     // Test role validation
   });
 
-  it('should deny access without required role', () => {
+  it("should deny access without required role", () => {
     // Test authorization
   });
 });
@@ -1118,25 +1199,25 @@ describe('RolesGuard', () => {
 ### 13.2 Integration Tests Needed
 
 ```typescript
-describe('Chat Service Authentication', () => {
-  it('should reject unauthenticated requests', async () => {
+describe("Chat Service Authentication", () => {
+  it("should reject unauthenticated requests", async () => {
     const response = await request(app.getHttpServer())
-      .get('/api/v1/chat/conversations/user/123')
+      .get("/api/v1/chat/conversations/user/123")
       .expect(401);
   });
 
-  it('should reject requests with invalid token', async () => {
+  it("should reject requests with invalid token", async () => {
     const response = await request(app.getHttpServer())
-      .get('/api/v1/chat/conversations/user/123')
-      .set('Authorization', 'Bearer invalid-token')
+      .get("/api/v1/chat/conversations/user/123")
+      .set("Authorization", "Bearer invalid-token")
       .expect(401);
   });
 
-  it('should prevent access to other users conversations', async () => {
-    const token = generateToken({ id: 'user-A' });
+  it("should prevent access to other users conversations", async () => {
+    const token = generateToken({ id: "user-A" });
     const response = await request(app.getHttpServer())
-      .get('/api/v1/chat/conversations/user/user-B')
-      .set('Authorization', `Bearer ${token}`)
+      .get("/api/v1/chat/conversations/user/user-B")
+      .set("Authorization", `Bearer ${token}`)
       .expect(403);
   });
 });
@@ -1178,11 +1259,13 @@ describe('Chat Service Authentication', () => {
 The SAHOOL platform demonstrates **strong foundational security** with JWT authentication, comprehensive validation, and rate limiting. However, several **critical gaps** require immediate attention:
 
 ### Critical Issues:
+
 1. 🔴 **Chat REST API authentication bypass** - Immediate fix required
 2. 🟠 **No request/response logging** - Blind to security incidents
 3. 🟠 **Inconsistent exception handling** - Better shared filter available but unused
 
 ### Strengths:
+
 - ✅ Strong JWT implementation with algorithm protection
 - ✅ Comprehensive DTO validation using class-validator
 - ✅ Global rate limiting across all services
@@ -1192,6 +1275,7 @@ The SAHOOL platform demonstrates **strong foundational security** with JWT authe
 ### Overall Security Posture: **B-** (Good with Critical Gaps)
 
 **Next Steps:**
+
 1. Apply hotfix for chat service authentication (this week)
 2. Enable request logging across all services (this week)
 3. Migrate to shared exception filter (this month)
@@ -1239,13 +1323,13 @@ healthCheck() {
 
 ```typescript
 // main.ts
-import { RequestLoggingInterceptor } from './shared/middleware/request-logging';
+import { RequestLoggingInterceptor } from "./shared/middleware/request-logging";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Register logging interceptor
-  app.useGlobalInterceptors(new RequestLoggingInterceptor('service-name'));
+  app.useGlobalInterceptors(new RequestLoggingInterceptor("service-name"));
 
   // ... rest of bootstrap
 }
@@ -1255,7 +1339,7 @@ async function bootstrap() {
 
 ```typescript
 // main.ts
-import { HttpExceptionFilter } from '@sahool/shared-errors';
+import { HttpExceptionFilter } from "@sahool/shared-errors";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -1272,11 +1356,13 @@ async function bootstrap() {
 ## Appendix B: Security Contacts
 
 **Security Team:**
+
 - Security Lead: [TBD]
 - DevSecOps: [TBD]
 - Incident Response: security@sahool.com
 
 **Responsible Disclosure:**
+
 - Email: security@sahool.com
 - PGP Key: [TBD]
 - Bug Bounty: [TBD]

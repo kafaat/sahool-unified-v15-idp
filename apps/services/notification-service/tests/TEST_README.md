@@ -5,7 +5,9 @@ Comprehensive test coverage for the SAHOOL notification service, including unit 
 ## Test Files
 
 ### 1. `test_notification_controller.py`
+
 Tests for FastAPI REST API endpoints:
+
 - Health check endpoints
 - Notification creation (custom, weather alerts, pest alerts, irrigation reminders)
 - Notification retrieval (farmer notifications, broadcast notifications)
@@ -14,6 +16,7 @@ Tests for FastAPI REST API endpoints:
 - Statistics endpoints
 
 **Coverage:**
+
 - ✅ API endpoint validation
 - ✅ Request/response handling
 - ✅ Error handling and HTTP status codes
@@ -21,7 +24,9 @@ Tests for FastAPI REST API endpoints:
 - ✅ Query parameter validation
 
 ### 2. `test_notification_service_comprehensive.py`
+
 Tests for business logic and service layer:
+
 - Notification creation with user preferences
 - Multi-channel notification delivery
 - Recipient targeting (by governorate, crop, farmer)
@@ -30,6 +35,7 @@ Tests for business logic and service layer:
 - Error handling and retry logic
 
 **Coverage:**
+
 - ✅ Notification creation logic
 - ✅ User preference checking
 - ✅ Channel delivery (SMS, Email, Push)
@@ -38,7 +44,9 @@ Tests for business logic and service layer:
 - ✅ Error handling and logging
 
 ### 3. `test_push_service.py`
+
 Tests for Firebase Cloud Messaging integration:
+
 - Client initialization (credentials file, dictionary, environment)
 - Single device notifications
 - Topic-based notifications
@@ -48,6 +56,7 @@ Tests for Firebase Cloud Messaging integration:
 - Priority handling (Android/iOS)
 
 **Coverage:**
+
 - ✅ Firebase client initialization
 - ✅ Push notification sending
 - ✅ Topic management
@@ -57,7 +66,9 @@ Tests for Firebase Cloud Messaging integration:
 - ✅ Error handling
 
 ### 4. `test_email_sms_services.py`
+
 Tests for Email (SendGrid) and SMS (Twilio) integrations:
+
 - Client initialization
 - Email sending (HTML, plain text, templates)
 - SMS sending (single, bulk)
@@ -66,6 +77,7 @@ Tests for Email (SendGrid) and SMS (Twilio) integrations:
 - Bilingual content selection
 
 **Coverage:**
+
 - ✅ Email client (SendGrid)
 - ✅ SMS client (Twilio)
 - ✅ Bulk operations
@@ -74,7 +86,9 @@ Tests for Email (SendGrid) and SMS (Twilio) integrations:
 - ✅ Error handling
 
 ### 5. `conftest.py`
+
 Shared test fixtures and configurations:
+
 - Mock objects (notifications, farmers, clients)
 - Test clients (async, sync)
 - Sample test data
@@ -235,7 +249,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -265,6 +279,7 @@ All external services are mocked in tests:
 - **NATS**: Mocked for event subscription tests
 
 No real API calls are made during tests to ensure:
+
 - Fast test execution
 - No external dependencies
 - No costs incurred
@@ -286,6 +301,7 @@ No real API calls are made during tests to ensure:
 ### Common Issues
 
 1. **Import Errors**
+
    ```bash
    # Ensure you're in the correct directory
    cd apps/services/notification-service
@@ -294,6 +310,7 @@ No real API calls are made during tests to ensure:
    ```
 
 2. **Async Test Errors**
+
    ```bash
    # Install pytest-asyncio
    pip install pytest-asyncio

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Field Alerts Panel Component
@@ -8,7 +8,7 @@
  * يعرض تنبيهات الحقل مع التحديثات الفورية والفلترة وأزرار الإجراءات
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   AlertTriangle,
   Cloud,
@@ -24,21 +24,25 @@ import {
   Filter,
   Bell,
   BellOff,
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Modal } from '@/components/ui/modal';
-import { TaskForm } from '@/features/tasks/components/TaskForm';
-import { useWebSocket } from '@/hooks/useWebSocket';
-import type { TaskFormData } from '@/features/tasks/types';
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Modal } from "@/components/ui/modal";
+import { TaskForm } from "@/features/tasks/components/TaskForm";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import type { TaskFormData } from "@/features/tasks/types";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types & Interfaces
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type AlertType = 'ndvi_drop' | 'weather_warning' | 'soil_moisture' | 'task_overdue';
-export type AlertSeverity = 'critical' | 'warning' | 'info';
+export type AlertType =
+  | "ndvi_drop"
+  | "weather_warning"
+  | "soil_moisture"
+  | "task_overdue";
+export type AlertSeverity = "critical" | "warning" | "info";
 
 export interface FieldAlert {
   id: string;
@@ -68,57 +72,63 @@ interface AlertsPanelProps {
 // Constants & Helpers
 // ═══════════════════════════════════════════════════════════════════════════
 
-const ALERT_TYPE_CONFIG: Record<AlertType, {
-  icon: typeof AlertTriangle;
-  label: string;
-  labelAr: string;
-  color: string;
-}> = {
+const ALERT_TYPE_CONFIG: Record<
+  AlertType,
+  {
+    icon: typeof AlertTriangle;
+    label: string;
+    labelAr: string;
+    color: string;
+  }
+> = {
   ndvi_drop: {
     icon: TrendingDown,
-    label: 'NDVI Drop',
-    labelAr: 'انخفاض NDVI',
-    color: 'text-orange-600',
+    label: "NDVI Drop",
+    labelAr: "انخفاض NDVI",
+    color: "text-orange-600",
   },
   weather_warning: {
     icon: Cloud,
-    label: 'Weather Warning',
-    labelAr: 'تحذير جوي',
-    color: 'text-blue-600',
+    label: "Weather Warning",
+    labelAr: "تحذير جوي",
+    color: "text-blue-600",
   },
   soil_moisture: {
     icon: Droplet,
-    label: 'Soil Moisture',
-    labelAr: 'رطوبة التربة',
-    color: 'text-cyan-600',
+    label: "Soil Moisture",
+    labelAr: "رطوبة التربة",
+    color: "text-cyan-600",
   },
   task_overdue: {
     icon: Clock,
-    label: 'Task Overdue',
-    labelAr: 'مهمة متأخرة',
-    color: 'text-red-600',
+    label: "Task Overdue",
+    labelAr: "مهمة متأخرة",
+    color: "text-red-600",
   },
 };
 
-const SEVERITY_CONFIG: Record<AlertSeverity, {
-  variant: 'danger' | 'warning' | 'info';
-  label: string;
-  labelAr: string;
-}> = {
+const SEVERITY_CONFIG: Record<
+  AlertSeverity,
+  {
+    variant: "danger" | "warning" | "info";
+    label: string;
+    labelAr: string;
+  }
+> = {
   critical: {
-    variant: 'danger',
-    label: 'Critical',
-    labelAr: 'حرج',
+    variant: "danger",
+    label: "Critical",
+    labelAr: "حرج",
   },
   warning: {
-    variant: 'warning',
-    label: 'Warning',
-    labelAr: 'تحذير',
+    variant: "warning",
+    label: "Warning",
+    labelAr: "تحذير",
   },
   info: {
-    variant: 'info',
-    label: 'Info',
-    labelAr: 'معلومة',
+    variant: "info",
+    label: "Info",
+    labelAr: "معلومة",
   },
 };
 
@@ -150,12 +160,12 @@ const AlertItem: React.FC<AlertItemProps> = ({
   const Icon = typeConfig.icon;
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('ar-EG', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Intl.DateTimeFormat("ar-EG", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
   };
 
@@ -163,7 +173,7 @@ const AlertItem: React.FC<AlertItemProps> = ({
     <Card
       variant="bordered"
       padding="none"
-      className={`transition-all ${alert.acknowledged ? 'opacity-60' : ''}`}
+      className={`transition-all ${alert.acknowledged ? "opacity-60" : ""}`}
     >
       {/* Alert Header */}
       <div
@@ -240,10 +250,10 @@ const AlertItem: React.FC<AlertItemProps> = ({
                     className="flex items-start justify-between gap-2 text-sm"
                   >
                     <span className="text-gray-600 capitalize">
-                      {key.replace(/_/g, ' ')}:
+                      {key.replace(/_/g, " ")}:
                     </span>
                     <span className="font-medium text-gray-900 text-left">
-                      {typeof value === 'object'
+                      {typeof value === "object"
                         ? JSON.stringify(value)
                         : String(value)}
                     </span>
@@ -283,7 +293,7 @@ const AlertItem: React.FC<AlertItemProps> = ({
               className="gap-2 text-gray-600 hover:text-red-600"
             >
               <X className="w-4 h-4" />
-              <span>{isDismissing ? 'جاري الإغلاق...' : 'إغلاق'}</span>
+              <span>{isDismissing ? "جاري الإغلاق..." : "إغلاق"}</span>
             </Button>
           </div>
         </div>
@@ -305,16 +315,19 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
   enableWebSocket = false,
   wsUrl,
   pollingInterval = 30000, // 30 seconds default
-  className = '',
+  className = "",
 }) => {
   // State
   const [alerts, setAlerts] = useState<FieldAlert[]>(initialAlerts);
   const [expandedAlertId, setExpandedAlertId] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState<AlertType | 'all'>('all');
+  const [filterType, setFilterType] = useState<AlertType | "all">("all");
   const [showAcknowledged, setShowAcknowledged] = useState(false);
-  const [dismissingAlertId, setDismissingAlertId] = useState<string | null>(null);
+  const [dismissingAlertId, setDismissingAlertId] = useState<string | null>(
+    null,
+  );
   const [taskModalOpen, setTaskModalOpen] = useState(false);
-  const [selectedAlertForTask, setSelectedAlertForTask] = useState<FieldAlert | null>(null);
+  const [selectedAlertForTask, setSelectedAlertForTask] =
+    useState<FieldAlert | null>(null);
   const [isSubmittingTask, setIsSubmittingTask] = useState(false);
 
   // Update alerts when initialAlerts prop changes
@@ -323,26 +336,32 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
   }, [initialAlerts]);
 
   // WebSocket for real-time updates
-  const handleWebSocketMessage = useCallback((message: any) => {
-    if (message.type === 'field_alert' && message.fieldId === fieldId) {
-      const newAlert: FieldAlert = {
-        ...message.data,
-        createdAt: new Date(message.data.createdAt),
-      };
-      setAlerts((prev) => [newAlert, ...prev]);
-    } else if (message.type === 'alert_dismissed' && message.fieldId === fieldId) {
-      setAlerts((prev) =>
-        prev.map((alert) =>
-          alert.id === message.alertId
-            ? { ...alert, acknowledged: true }
-            : alert
-        )
-      );
-    }
-  }, [fieldId]);
+  const handleWebSocketMessage = useCallback(
+    (message: any) => {
+      if (message.type === "field_alert" && message.fieldId === fieldId) {
+        const newAlert: FieldAlert = {
+          ...message.data,
+          createdAt: new Date(message.data.createdAt),
+        };
+        setAlerts((prev) => [newAlert, ...prev]);
+      } else if (
+        message.type === "alert_dismissed" &&
+        message.fieldId === fieldId
+      ) {
+        setAlerts((prev) =>
+          prev.map((alert) =>
+            alert.id === message.alertId
+              ? { ...alert, acknowledged: true }
+              : alert,
+          ),
+        );
+      }
+    },
+    [fieldId],
+  );
 
   useWebSocket({
-    url: wsUrl || '',
+    url: wsUrl || "",
     onMessage: handleWebSocketMessage,
     enabled: enableWebSocket && !!wsUrl,
   });
@@ -355,7 +374,7 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
       // Fetch fresh alerts here
       // This would typically call an API endpoint to get updated alerts
       // For now, we'll just use the initial alerts
-      console.log('Polling for alerts...');
+      console.log("Polling for alerts...");
     }, pollingInterval);
 
     return () => clearInterval(interval);
@@ -369,16 +388,16 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
         await onDismiss?.(alertId);
         setAlerts((prev) =>
           prev.map((alert) =>
-            alert.id === alertId ? { ...alert, acknowledged: true } : alert
-          )
+            alert.id === alertId ? { ...alert, acknowledged: true } : alert,
+          ),
         );
       } catch (error) {
-        console.error('Failed to dismiss alert:', error);
+        console.error("Failed to dismiss alert:", error);
       } finally {
         setDismissingAlertId(null);
       }
     },
-    [onDismiss]
+    [onDismiss],
   );
 
   const handleCreateTask = useCallback((alert: FieldAlert) => {
@@ -398,28 +417,28 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
           await handleDismiss(selectedAlertForTask.id);
         }
       } catch (error) {
-        console.error('Failed to create task:', error);
+        console.error("Failed to create task:", error);
       } finally {
         setIsSubmittingTask(false);
       }
     },
-    [onCreateTask, selectedAlertForTask, handleDismiss]
+    [onCreateTask, selectedAlertForTask, handleDismiss],
   );
 
   const handleViewDetails = useCallback(
     (alert: FieldAlert) => {
       onViewDetails?.(alert);
     },
-    [onViewDetails]
+    [onViewDetails],
   );
 
   // Pre-fill task form data from alert
   const getTaskFormDataFromAlert = useCallback(
     (alert: FieldAlert): Partial<TaskFormData> => {
-      const priorityMap: Record<AlertSeverity, 'low' | 'medium' | 'high'> = {
-        critical: 'high',
-        warning: 'medium',
-        info: 'low',
+      const priorityMap: Record<AlertSeverity, "low" | "medium" | "high"> = {
+        critical: "high",
+        warning: "medium",
+        info: "low",
       };
 
       return {
@@ -429,19 +448,19 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
         description_ar: alert.message,
         field_id: alert.fieldId,
         priority: priorityMap[alert.severity],
-        status: 'open',
+        status: "open",
         due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
           .toISOString()
-          .split('T')[0], // 7 days from now
+          .split("T")[0], // 7 days from now
       };
     },
-    []
+    [],
   );
 
   // Filtered alerts
   const filteredAlerts = useMemo(() => {
     return alerts.filter((alert) => {
-      if (filterType !== 'all' && alert.type !== filterType) return false;
+      if (filterType !== "all" && alert.type !== filterType) return false;
       if (!showAcknowledged && alert.acknowledged) return false;
       return true;
     });
@@ -452,12 +471,22 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
     return {
       total: alerts.length,
       active: alerts.filter((a) => !a.acknowledged).length,
-      critical: alerts.filter((a) => a.severity === 'critical' && !a.acknowledged).length,
+      critical: alerts.filter(
+        (a) => a.severity === "critical" && !a.acknowledged,
+      ).length,
       byType: {
-        ndvi_drop: alerts.filter((a) => a.type === 'ndvi_drop' && !a.acknowledged).length,
-        weather_warning: alerts.filter((a) => a.type === 'weather_warning' && !a.acknowledged).length,
-        soil_moisture: alerts.filter((a) => a.type === 'soil_moisture' && !a.acknowledged).length,
-        task_overdue: alerts.filter((a) => a.type === 'task_overdue' && !a.acknowledged).length,
+        ndvi_drop: alerts.filter(
+          (a) => a.type === "ndvi_drop" && !a.acknowledged,
+        ).length,
+        weather_warning: alerts.filter(
+          (a) => a.type === "weather_warning" && !a.acknowledged,
+        ).length,
+        soil_moisture: alerts.filter(
+          (a) => a.type === "soil_moisture" && !a.acknowledged,
+        ).length,
+        task_overdue: alerts.filter(
+          (a) => a.type === "task_overdue" && !a.acknowledged,
+        ).length,
       },
     };
   }, [alerts]);
@@ -482,7 +511,7 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
                   <p className="text-sm text-gray-600 mt-1">
                     {stats.active > 0
                       ? `${stats.active} تنبيه نشط`
-                      : 'لا توجد تنبيهات نشطة'}
+                      : "لا توجد تنبيهات نشطة"}
                     {stats.critical > 0 && (
                       <span className="text-red-600 font-semibold mr-2">
                         ({stats.critical} حرج)
@@ -493,7 +522,10 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <Badge variant={stats.active > 0 ? 'danger' : 'success'} size="lg">
+                <Badge
+                  variant={stats.active > 0 ? "danger" : "success"}
+                  size="lg"
+                >
                   {stats.total} إجمالي
                 </Badge>
               </div>
@@ -509,11 +541,11 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
               </div>
 
               <button
-                onClick={() => setFilterType('all')}
+                onClick={() => setFilterType("all")}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  filterType === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  filterType === "all"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 الكل ({stats.total})
@@ -525,8 +557,8 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
                   onClick={() => setFilterType(type)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     filterType === type
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   {ALERT_TYPE_CONFIG[type].labelAr} ({stats.byType[type]})
@@ -538,8 +570,8 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
                   onClick={() => setShowAcknowledged(!showAcknowledged)}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     showAcknowledged
-                      ? 'bg-gray-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? "bg-gray-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   {showAcknowledged ? (
@@ -547,7 +579,7 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
                   ) : (
                     <BellOff className="w-4 h-4" />
                   )}
-                  {showAcknowledged ? 'إخفاء المغلقة' : 'إظهار المغلقة'}
+                  {showAcknowledged ? "إخفاء المغلقة" : "إظهار المغلقة"}
                 </button>
               </div>
             </div>
@@ -564,7 +596,7 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
                 isExpanded={expandedAlertId === alert.id}
                 onToggle={() =>
                   setExpandedAlertId(
-                    expandedAlertId === alert.id ? null : alert.id
+                    expandedAlertId === alert.id ? null : alert.id,
                   )
                 }
                 onDismiss={() => handleDismiss(alert.id)}
@@ -581,14 +613,14 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
                   <CheckCircle2 className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {filterType === 'all'
-                    ? 'لا توجد تنبيهات'
+                  {filterType === "all"
+                    ? "لا توجد تنبيهات"
                     : `لا توجد تنبيهات من نوع "${ALERT_TYPE_CONFIG[filterType as AlertType]?.labelAr}"`}
                 </h3>
                 <p className="text-gray-600">
                   {showAcknowledged
-                    ? 'جميع التنبيهات تم الاطلاع عليها'
-                    : 'حقلك في حالة جيدة'}
+                    ? "جميع التنبيهات تم الاطلاع عليها"
+                    : "حقلك في حالة جيدة"}
                 </p>
               </div>
             </Card>

@@ -8,10 +8,10 @@
  * - User status validation (active, verified, deleted, suspended)
  */
 
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
-import { AuthErrors } from '../config/jwt.config';
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+import { InjectRedis } from "@liaoliaots/nestjs-redis";
+import Redis from "ioredis";
+import { AuthErrors } from "../config/jwt.config";
 
 /**
  * User validation data interface
@@ -49,7 +49,7 @@ export interface IUserRepository {
 @Injectable()
 export class UserValidationService {
   private readonly logger = new Logger(UserValidationService.name);
-  private readonly cacheKeyPrefix = 'user_auth:';
+  private readonly cacheKeyPrefix = "user_auth:";
   private readonly cacheTTL = 300; // 5 minutes
 
   constructor(
@@ -74,11 +74,13 @@ export class UserValidationService {
 
     // Cache miss - get from database
     if (!this.userRepository) {
-      this.logger.warn('No user repository configured - skipping database validation');
+      this.logger.warn(
+        "No user repository configured - skipping database validation",
+      );
       // Return minimal validation data
       return {
         userId,
-        email: '',
+        email: "",
         isActive: true,
         isVerified: true,
         roles: [],

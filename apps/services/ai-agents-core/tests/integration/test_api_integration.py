@@ -9,10 +9,10 @@ End-to-end API integration tests:
 - Performance testing
 """
 
-import pytest
 from datetime import datetime
-from fastapi.testclient import TestClient
 
+import pytest
+from fastapi.testclient import TestClient
 
 # ============================================================================
 # Test Complete Analysis Workflow via API
@@ -72,10 +72,7 @@ class TestAnalysisWorkflowAPI:
 
     def test_multiple_sequential_analyses(self, api_client):
         """Test multiple sequential analysis requests"""
-        fields = [
-            {"field_id": f"field_{i}", "crop_type": "wheat"}
-            for i in range(3)
-        ]
+        fields = [{"field_id": f"field_{i}", "crop_type": "wheat"} for i in range(3)]
 
         responses = []
         for field_data in fields:
@@ -344,7 +341,11 @@ class TestConcurrentRequests:
         """Test handling multiple sensor readings concurrently"""
         # Note: TestClient is synchronous, but simulates concurrent load
         readings = [
-            {"device_id": f"sensor_{i:03d}", "sensor_type": "soil_moisture", "value": 0.30 + (i * 0.01)}
+            {
+                "device_id": f"sensor_{i:03d}",
+                "sensor_type": "soil_moisture",
+                "value": 0.30 + (i * 0.01),
+            }
             for i in range(10)
         ]
 
@@ -358,10 +359,7 @@ class TestConcurrentRequests:
 
     def test_concurrent_analysis_requests(self, api_client):
         """Test handling concurrent analysis requests"""
-        requests = [
-            {"field_id": f"field_{i:03d}", "crop_type": "wheat"}
-            for i in range(5)
-        ]
+        requests = [{"field_id": f"field_{i:03d}", "crop_type": "wheat"} for i in range(5)]
 
         responses = []
         for req in requests:

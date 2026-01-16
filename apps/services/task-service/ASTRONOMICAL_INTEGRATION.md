@@ -1,4 +1,5 @@
 # Astronomical Calendar Integration for Task Service
+
 # تكامل التقويم الفلكي مع خدمة المهام
 
 ## Overview | نظرة عامة
@@ -10,19 +11,25 @@ The Task Service now integrates with the Astronomical Calendar Service to provid
 ## Features | الميزات
 
 ### 1. Best Days Recommendation | توصية أفضل الأيام
+
 Get optimal days for agricultural activities based on:
+
 - Moon phases (مراحل القمر)
 - Lunar mansions (المنازل القمرية)
 - Traditional farming wisdom (الحكمة الزراعية التقليدية)
 
 ### 2. Automatic Task Scheduling | الجدولة التلقائية للمهام
+
 Create tasks that are automatically scheduled on astronomically optimal dates.
 
 ### 3. Date Validation | التحقق من التاريخ
+
 Validate if a specific date is suitable for an agricultural activity.
 
 ### 4. Task Enrichment | إثراء المهام
+
 All tasks with due dates are automatically enriched with astronomical data:
+
 - Astronomical suitability score (1-10)
 - Moon phase at due date
 - Lunar mansion at due date
@@ -34,22 +41,26 @@ All tasks with due dates are automatically enriched with astronomical data:
 ## API Endpoints
 
 ### 1. GET /api/v1/tasks/best-days/{activity}
+
 **الحصول على أفضل الأيام للنشاط الزراعي**
 
 Get the best days for a specific agricultural activity.
 
 **Parameters:**
+
 - `activity` (path): زراعة، ري، حصاد، تسميد، تقليم، غرس
 - `days` (query): Number of days to search (7-90, default: 30)
 - `min_score` (query): Minimum suitability score (1-10, default: 7)
 
 **Example Request:**
+
 ```bash
 curl -X GET "http://localhost:8103/api/v1/tasks/best-days/زراعة?days=30&min_score=7" \
   -H "X-Tenant-Id: tenant_demo"
 ```
 
 **Example Response:**
+
 ```json
 {
   "activity": "planting",
@@ -82,11 +93,13 @@ curl -X GET "http://localhost:8103/api/v1/tasks/best-days/زراعة?days=30&min
 ---
 
 ### 2. POST /api/v1/tasks/create-with-astronomical
+
 **إنشاء مهمة مع توصية فلكية**
 
 Create a task with automatic astronomical scheduling.
 
 **Request Body:**
+
 ```json
 {
   "field_id": "field_001",
@@ -106,6 +119,7 @@ Create a task with automatic astronomical scheduling.
 ```
 
 **Example Request:**
+
 ```bash
 curl -X POST "http://localhost:8103/api/v1/tasks/create-with-astronomical" \
   -H "Content-Type: application/json" \
@@ -122,6 +136,7 @@ curl -X POST "http://localhost:8103/api/v1/tasks/create-with-astronomical" \
 ```
 
 **Example Response:**
+
 ```json
 {
   "task_id": "task_abc123def456",
@@ -159,11 +174,13 @@ curl -X POST "http://localhost:8103/api/v1/tasks/create-with-astronomical" \
 ---
 
 ### 3. POST /api/v1/tasks/validate-date
+
 **التحقق من ملاءمة تاريخ للنشاط**
 
 Validate if a specific date is suitable for an agricultural activity.
 
 **Request Body:**
+
 ```json
 {
   "date": "2024-03-20",
@@ -172,6 +189,7 @@ Validate if a specific date is suitable for an agricultural activity.
 ```
 
 **Example Request:**
+
 ```bash
 curl -X POST "http://localhost:8103/api/v1/tasks/validate-date" \
   -H "Content-Type: application/json" \
@@ -183,6 +201,7 @@ curl -X POST "http://localhost:8103/api/v1/tasks/validate-date" \
 ```
 
 **Example Response (Suitable Date):**
+
 ```json
 {
   "date": "2024-03-20",
@@ -202,6 +221,7 @@ curl -X POST "http://localhost:8103/api/v1/tasks/validate-date" \
 ```
 
 **Example Response (Non-Suitable Date):**
+
 ```json
 {
   "date": "2024-03-25",
@@ -216,11 +236,7 @@ curl -X POST "http://localhost:8103/api/v1/tasks/validate-date" \
   "recommendation": "Not optimal for planting during waning moon",
   "recommendation_ar": "ليس مثالياً للزراعة خلال القمر المتناقص",
   "best_time": null,
-  "alternative_dates": [
-    "2024-03-28",
-    "2024-03-29",
-    "2024-04-01"
-  ]
+  "alternative_dates": ["2024-03-28", "2024-03-29", "2024-04-01"]
 }
 ```
 
@@ -228,14 +244,14 @@ curl -X POST "http://localhost:8103/api/v1/tasks/validate-date" \
 
 ## Supported Activities | الأنشطة المدعومة
 
-| Arabic | English | Best Moon Phase |
-|--------|---------|-----------------|
-| زراعة | planting | Waxing Crescent (الهلال المتزايد) |
-| ري | irrigation | Any (جميع المراحل) |
-| حصاد | harvest | Full Moon (البدر) |
-| تسميد | fertilization | Waxing (المتزايد) |
-| تقليم | pruning | Waning (المتناقص) |
-| غرس | transplanting | Waxing Crescent (الهلال المتزايد) |
+| Arabic | English       | Best Moon Phase                   |
+| ------ | ------------- | --------------------------------- |
+| زراعة  | planting      | Waxing Crescent (الهلال المتزايد) |
+| ري     | irrigation    | Any (جميع المراحل)                |
+| حصاد   | harvest       | Full Moon (البدر)                 |
+| تسميد  | fertilization | Waxing (المتزايد)                 |
+| تقليم  | pruning       | Waning (المتناقص)                 |
+| غرس    | transplanting | Waxing Crescent (الهلال المتزايد) |
 
 ---
 
@@ -244,6 +260,7 @@ curl -X POST "http://localhost:8103/api/v1/tasks/validate-date" \
 All tasks with due dates are automatically enriched with:
 
 ### Task Model Fields:
+
 ```typescript
 {
   astronomical_score?: number;           // 1-10 suitability score
@@ -261,6 +278,7 @@ All tasks with due dates are automatically enriched with:
 ## Caching | التخزين المؤقت
 
 Astronomical data is cached for 60 minutes to improve performance:
+
 - Cache key: (activity, search_days)
 - TTL: 60 minutes
 - Automatic cache invalidation
@@ -297,13 +315,16 @@ POST /api/v1/tasks
 ## Error Handling | معالجة الأخطاء
 
 ### Service Unavailable
+
 If the astronomical calendar service is unavailable:
+
 - Tasks are still created successfully
 - Astronomical fields are set to null
 - No warnings are generated
 - HTTP 502/504 errors are returned for astronomical-specific endpoints
 
 ### Invalid Dates
+
 ```json
 {
   "detail": "تنسيق تاريخ غير صحيح. استخدم YYYY-MM-DD - Invalid date format. Use YYYY-MM-DD"
@@ -315,11 +336,13 @@ If the astronomical calendar service is unavailable:
 ## Configuration | الإعدادات
 
 ### Environment Variables
+
 ```env
 ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
 ```
 
 ### Service Dependencies
+
 - Astronomical Calendar Service (Port 8111)
 - Must be running and healthy for astronomical features to work
 
@@ -328,6 +351,7 @@ ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
 ## Example Use Cases | أمثلة على حالات الاستخدام
 
 ### Use Case 1: Planning Planting Schedule
+
 **التخطيط لجدول الزراعة**
 
 ```bash
@@ -344,6 +368,7 @@ POST /api/v1/tasks/create-with-astronomical
 ```
 
 ### Use Case 2: Validate Existing Schedule
+
 **التحقق من جدول موجود**
 
 ```bash
@@ -358,6 +383,7 @@ POST /api/v1/tasks/validate-date
 ```
 
 ### Use Case 3: Harvest Planning
+
 **التخطيط للحصاد**
 
 ```bash
@@ -379,6 +405,7 @@ POST /api/v1/tasks/create-with-astronomical
 ## Testing | الاختبار
 
 ### Test Astronomical Integration
+
 ```bash
 # Test best days endpoint
 curl -X GET "http://localhost:8103/api/v1/tasks/best-days/زراعة?days=30" \
@@ -431,6 +458,7 @@ curl -X POST "http://localhost:8103/api/v1/tasks/validate-date" \
 ## Support | الدعم
 
 For questions or issues:
+
 - Review documentation: `/docs` endpoint
 - Check service health: `GET /healthz`
 - Contact support: support@sahool.io

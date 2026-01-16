@@ -1,4 +1,5 @@
 # Quick Start Guide - SAHOOL Notification Templates
+
 # دليل البدء السريع - قوالب الإشعارات
 
 ## 5-Minute Integration / التكامل في 5 دقائق
@@ -153,6 +154,7 @@ await send_push(push)
 ## Available Templates / القوالب المتاحة
 
 ### ALERT (High/Critical Priority)
+
 - `disease_detected` - Disease detection
 - `weather_alert` - Weather warnings
 - `sensor_alert` - Sensor threshold violations
@@ -160,17 +162,20 @@ await send_push(push)
 - `water_shortage` - Water shortage alerts
 
 ### REMINDER (Medium/High Priority)
+
 - `irrigation_reminder` - Irrigation schedule
 - `fertilizer_reminder` - Fertilization schedule
 - `harvest_ready` - Harvest time notification
 
 ### REPORT (Low/Medium Priority)
+
 - `daily_report` - Daily summary
 - `weekly_report` - Weekly summary
 - `yield_prediction` - Yield forecast
 - `market_price` - Market price updates
 
 ### RECOMMENDATION (Medium Priority)
+
 - `ai_recommendation` - AI-powered recommendations
 
 ## Integration with Existing Service
@@ -291,6 +296,7 @@ python3 template_examples.py
 ## Adding Custom Templates
 
 1. Create `ar/my_template.json`:
+
 ```json
 {
   "template_id": "my_template",
@@ -308,6 +314,7 @@ python3 template_examples.py
 3. Restart the service to load new template
 
 4. Use it:
+
 ```python
 manager.format_for_push("my_template", {"placeholder": "value"}, "ar")
 ```
@@ -325,6 +332,7 @@ manager.format_for_push("my_template", {"placeholder": "value"}, "ar")
 ## Troubleshooting / استكشاف الأخطاء
 
 ### Template not found
+
 ```python
 template = manager.get_template("my_template")
 if not template:
@@ -333,6 +341,7 @@ if not template:
 ```
 
 ### Missing context value
+
 ```python
 # Template will show {placeholder} if missing
 # Use safe defaults:
@@ -343,6 +352,7 @@ context = {
 ```
 
 ### SMS too long
+
 ```python
 # Automatic truncation happens at max_length
 sms = manager.format_for_sms(template_id, context, "ar", max_length=160)

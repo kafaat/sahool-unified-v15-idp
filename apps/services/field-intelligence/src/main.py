@@ -1,7 +1,7 @@
 """
 SAHOOL Field Intelligence Service - Main API
 خدمة ذكاء الحقول والقواعد الآلية
-Port: 8119
+Port: 8120
 Version: 16.0.0
 
 Features:
@@ -42,9 +42,27 @@ except ImportError:
         pass
 
 
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+except ImportError:
+    # Fallback إذا لم يكن الموديول متاح
+    def setup_exception_handlers(app):
+        pass
+
+    def add_request_id_middleware(app):
+        pass
+
+
 from .api.routes import router
 from .services.event_processor import EventProcessor
 from .services.rules_engine import RulesEngine
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Configuration
+# الإعدادات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Logging Configuration
@@ -112,10 +130,6 @@ app = FastAPI(
     **Features:**
     - 🤖 محرك القواعد للأتمتة الحقلية - Rules engine for field automation
     - 📊 معالجة الأحداث - Event processing (NDVI drop, weather alert, soil moisture)
-
-# Setup unified error handling
-setup_exception_handlers(app)
-add_request_id_middleware(app)
     - ✅ إنشاء المهام التلقائية - Auto task creation from events
     - 🔔 تفعيل الإشعارات - Notification triggers
     - 🌙 التكامل مع التقويم الفلكي - Integration with astronomical calendar
@@ -143,6 +157,10 @@ add_request_id_middleware(app)
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS - استخدام الإعداد المركزي الآمن
 setup_cors_middleware(app)
@@ -238,198 +256,200 @@ def root():
 # بذر بيانات تجريبية (Development Only)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Only register dev endpoint in development/test environments
+if ENVIRONMENT in ("development", "dev", "test"):
 
-@app.post("/dev/seed-demo-rules", tags=["Development"], include_in_schema=False)
-async def seed_demo_rules():
-    """
-    بذر قواعد تجريبية - Seed demo rules (Development only)
-    Creates sample automation rules for testing
-    """
-    from uuid import uuid4
+    @app.post("/dev/seed-demo-rules", tags=["Development"], include_in_schema=False)
+    async def seed_demo_rules():
+        """
+        بذر قواعد تجريبية - Seed demo rules (Development only)
+        Creates sample automation rules for testing
+        """
+        from uuid import uuid4
 
-    from .api.routes import rules_db
-    from .models.rules import (
-        ActionConfig,
-        ActionType,
-        ConditionOperator,
-        NotificationConfig,
-        Rule,
-        RuleCondition,
-        RuleConditionGroup,
-        RuleStatus,
-        TaskConfig,
-    )
+        from .api.routes import rules_db
+        from .models.rules import (
+            ActionConfig,
+            ActionType,
+            ConditionOperator,
+            NotificationConfig,
+            Rule,
+            RuleCondition,
+            RuleConditionGroup,
+            RuleStatus,
+            TaskConfig,
+        )
 
-    demo_rules = []
+        demo_rules = []
 
-    # قاعدة 1: إنشاء مهمة فحص عند انخفاض NDVI
-    rule1 = Rule(
-        rule_id=str(uuid4()),
-        tenant_id="demo_tenant",
-        name="NDVI Drop - Create Inspection Task",
-        name_ar="انخفاض NDVI - إنشاء مهمة فحص",
-        description="Create field inspection task when NDVI drops significantly",
-        description_ar="إنشاء مهمة فحص الحقل عند انخفاض NDVI بشكل كبير",
-        status=RuleStatus.ACTIVE,
-        field_ids=[],  # ينطبق على جميع الحقول
-        event_types=["ndvi_drop", "ndvi_anomaly"],
-        conditions=RuleConditionGroup(
-            logic="AND",
-            conditions=[
-                RuleCondition(
-                    field="metadata.drop_percentage",
-                    operator=ConditionOperator.GREATER_THAN,
-                    value=15.0,
-                    value_type="number",
+        # قاعدة 1: إنشاء مهمة فحص عند انخفاض NDVI
+        rule1 = Rule(
+            rule_id=str(uuid4()),
+            tenant_id="demo_tenant",
+            name="NDVI Drop - Create Inspection Task",
+            name_ar="انخفاض NDVI - إنشاء مهمة فحص",
+            description="Create field inspection task when NDVI drops significantly",
+            description_ar="إنشاء مهمة فحص الحقل عند انخفاض NDVI بشكل كبير",
+            status=RuleStatus.ACTIVE,
+            field_ids=[],  # ينطبق على جميع الحقول
+            event_types=["ndvi_drop", "ndvi_anomaly"],
+            conditions=RuleConditionGroup(
+                logic="AND",
+                conditions=[
+                    RuleCondition(
+                        field="metadata.drop_percentage",
+                        operator=ConditionOperator.GREATER_THAN,
+                        value=15.0,
+                        value_type="number",
+                    ),
+                    RuleCondition(
+                        field="severity",
+                        operator=ConditionOperator.IN,
+                        value=["high", "critical"],
+                        value_type="list",
+                    ),
+                ],
+            ),
+            actions=[
+                ActionConfig(
+                    action_type=ActionType.CREATE_TASK,
+                    enabled=True,
+                    task_config=TaskConfig(
+                        title="Field Inspection Required",
+                        title_ar="مطلوب فحص الحقل",
+                        description="NDVI drop detected. Inspect field for issues.",
+                        description_ar="تم اكتشاف انخفاض في NDVI. فحص الحقل للمشاكل.",
+                        task_type="scouting",
+                        priority="high",
+                        due_hours=24,
+                    ),
                 ),
-                RuleCondition(
-                    field="severity",
-                    operator=ConditionOperator.IN,
-                    value=["high", "critical"],
-                    value_type="list",
+                ActionConfig(
+                    action_type=ActionType.SEND_NOTIFICATION,
+                    enabled=True,
+                    notification_config=NotificationConfig(
+                        channels=["push", "sms"],
+                        recipients=["field_owner"],
+                        title="NDVI Alert",
+                        title_ar="تنبيه NDVI",
+                        message="NDVI drop detected in your field. Immediate inspection recommended.",
+                        message_ar="تم اكتشاف انخفاض في NDVI في حقلك. يوصى بالفحص الفوري.",
+                        priority="high",
+                    ),
                 ),
             ],
-        ),
-        actions=[
-            ActionConfig(
-                action_type=ActionType.CREATE_TASK,
-                enabled=True,
-                task_config=TaskConfig(
-                    title="Field Inspection Required",
-                    title_ar="مطلوب فحص الحقل",
-                    description="NDVI drop detected. Inspect field for issues.",
-                    description_ar="تم اكتشاف انخفاض في NDVI. فحص الحقل للمشاكل.",
-                    task_type="scouting",
-                    priority="high",
-                    due_hours=24,
-                ),
-            ),
-            ActionConfig(
-                action_type=ActionType.SEND_NOTIFICATION,
-                enabled=True,
-                notification_config=NotificationConfig(
-                    channels=["push", "sms"],
-                    recipients=["field_owner"],
-                    title="NDVI Alert",
-                    title_ar="تنبيه NDVI",
-                    message="NDVI drop detected in your field. Immediate inspection recommended.",
-                    message_ar="تم اكتشاف انخفاض في NDVI في حقلك. يوصى بالفحص الفوري.",
-                    priority="high",
-                ),
-            ),
-        ],
-        cooldown_minutes=120,
-        priority=10,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
-    )
+            cooldown_minutes=120,
+            priority=10,
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
+        )
 
-    # قاعدة 2: إشعار الطقس القاسي
-    rule2 = Rule(
-        rule_id=str(uuid4()),
-        tenant_id="demo_tenant",
-        name="Severe Weather - Notification",
-        name_ar="طقس قاسي - إشعار",
-        description="Send urgent notification for severe weather alerts",
-        description_ar="إرسال إشعار عاجل لتنبيهات الطقس القاسي",
-        status=RuleStatus.ACTIVE,
-        field_ids=[],
-        event_types=["weather_alert"],
-        conditions=RuleConditionGroup(
-            logic="OR",
-            conditions=[
-                RuleCondition(
-                    field="metadata.alert_type",
-                    operator=ConditionOperator.IN,
-                    value=["frost", "heatwave", "storm"],
-                    value_type="list",
-                ),
-                RuleCondition(
-                    field="severity",
-                    operator=ConditionOperator.EQUALS,
-                    value="critical",
-                    value_type="string",
+        # قاعدة 2: إشعار الطقس القاسي
+        rule2 = Rule(
+            rule_id=str(uuid4()),
+            tenant_id="demo_tenant",
+            name="Severe Weather - Notification",
+            name_ar="طقس قاسي - إشعار",
+            description="Send urgent notification for severe weather alerts",
+            description_ar="إرسال إشعار عاجل لتنبيهات الطقس القاسي",
+            status=RuleStatus.ACTIVE,
+            field_ids=[],
+            event_types=["weather_alert"],
+            conditions=RuleConditionGroup(
+                logic="OR",
+                conditions=[
+                    RuleCondition(
+                        field="metadata.alert_type",
+                        operator=ConditionOperator.IN,
+                        value=["frost", "heatwave", "storm"],
+                        value_type="list",
+                    ),
+                    RuleCondition(
+                        field="severity",
+                        operator=ConditionOperator.EQUALS,
+                        value="critical",
+                        value_type="string",
+                    ),
+                ],
+            ),
+            actions=[
+                ActionConfig(
+                    action_type=ActionType.SEND_NOTIFICATION,
+                    enabled=True,
+                    notification_config=NotificationConfig(
+                        channels=["push", "sms", "whatsapp"],
+                        recipients=["field_owner"],
+                        title="Severe Weather Alert",
+                        title_ar="تنبيه طقس قاسي",
+                        message="Severe weather conditions expected. Take protective measures.",
+                        message_ar="ظروف طقس قاسية متوقعة. اتخذ التدابير الوقائية.",
+                        priority="urgent",
+                    ),
                 ),
             ],
-        ),
-        actions=[
-            ActionConfig(
-                action_type=ActionType.SEND_NOTIFICATION,
-                enabled=True,
-                notification_config=NotificationConfig(
-                    channels=["push", "sms", "whatsapp"],
-                    recipients=["field_owner"],
-                    title="Severe Weather Alert",
-                    title_ar="تنبيه طقس قاسي",
-                    message="Severe weather conditions expected. Take protective measures.",
-                    message_ar="ظروف طقس قاسية متوقعة. اتخذ التدابير الوقائية.",
-                    priority="urgent",
-                ),
-            ),
-        ],
-        cooldown_minutes=60,
-        priority=5,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
-    )
+            cooldown_minutes=60,
+            priority=5,
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
+        )
 
-    # قاعدة 3: رطوبة منخفضة - مهمة ري
-    rule3 = Rule(
-        rule_id=str(uuid4()),
-        tenant_id="demo_tenant",
-        name="Low Soil Moisture - Irrigation Task",
-        name_ar="رطوبة منخفضة - مهمة ري",
-        description="Create irrigation task when soil moisture is low",
-        description_ar="إنشاء مهمة ري عند انخفاض رطوبة التربة",
-        status=RuleStatus.ACTIVE,
-        field_ids=[],
-        event_types=["soil_moisture_low"],
-        conditions=RuleConditionGroup(
-            logic="AND",
-            conditions=[
-                RuleCondition(
-                    field="metadata.current_moisture_percent",
-                    operator=ConditionOperator.LESS_THAN,
-                    value=30.0,
-                    value_type="number",
+        # قاعدة 3: رطوبة منخفضة - مهمة ري
+        rule3 = Rule(
+            rule_id=str(uuid4()),
+            tenant_id="demo_tenant",
+            name="Low Soil Moisture - Irrigation Task",
+            name_ar="رطوبة منخفضة - مهمة ري",
+            description="Create irrigation task when soil moisture is low",
+            description_ar="إنشاء مهمة ري عند انخفاض رطوبة التربة",
+            status=RuleStatus.ACTIVE,
+            field_ids=[],
+            event_types=["soil_moisture_low"],
+            conditions=RuleConditionGroup(
+                logic="AND",
+                conditions=[
+                    RuleCondition(
+                        field="metadata.current_moisture_percent",
+                        operator=ConditionOperator.LESS_THAN,
+                        value=30.0,
+                        value_type="number",
+                    ),
+                ],
+            ),
+            actions=[
+                ActionConfig(
+                    action_type=ActionType.CREATE_TASK,
+                    enabled=True,
+                    task_config=TaskConfig(
+                        title="Irrigation Required",
+                        title_ar="ري مطلوب",
+                        description="Soil moisture is low. Irrigate the field.",
+                        description_ar="رطوبة التربة منخفضة. قم بري الحقل.",
+                        task_type="irrigation",
+                        priority="medium",
+                        due_hours=12,
+                    ),
                 ),
             ],
-        ),
-        actions=[
-            ActionConfig(
-                action_type=ActionType.CREATE_TASK,
-                enabled=True,
-                task_config=TaskConfig(
-                    title="Irrigation Required",
-                    title_ar="ري مطلوب",
-                    description="Soil moisture is low. Irrigate the field.",
-                    description_ar="رطوبة التربة منخفضة. قم بري الحقل.",
-                    task_type="irrigation",
-                    priority="medium",
-                    due_hours=12,
-                ),
-            ),
-        ],
-        cooldown_minutes=240,  # 4 ساعات
-        priority=20,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
-    )
+            cooldown_minutes=240,  # 4 ساعات
+            priority=20,
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
+        )
 
-    demo_rules = [rule1, rule2, rule3]
+        demo_rules = [rule1, rule2, rule3]
 
-    # حفظ القواعد
-    for rule in demo_rules:
-        rules_db[rule.rule_id] = rule
+        # حفظ القواعد
+        for rule in demo_rules:
+            rules_db[rule.rule_id] = rule
 
-    logger.info(f"✓ تم بذر {len(demo_rules)} قاعدة تجريبية")
+        logger.info(f"✓ تم بذر {len(demo_rules)} قاعدة تجريبية")
 
-    return {
-        "status": "success",
-        "message": "Demo rules created",
-        "rules_created": len(demo_rules),
-        "rule_ids": [r.rule_id for r in demo_rules],
-    }
+        return {
+            "status": "success",
+            "message": "Demo rules created",
+            "rules_created": len(demo_rules),
+            "rule_ids": [r.rule_id for r in demo_rules],
+        }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

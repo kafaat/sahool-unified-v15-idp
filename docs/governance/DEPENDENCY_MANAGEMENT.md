@@ -1,4 +1,5 @@
 # SAHOOL Dependency Management
+
 # إدارة المكتبات والتبعيات
 
 ## Overview | نظرة عامة
@@ -46,7 +47,7 @@ Mobile app uses `pubspec.yaml` with `dependency_overrides` for compatibility:
 ```yaml
 # Fix compatibility issues
 dependency_overrides:
-  analyzer: ^6.7.0  # For mockito compatibility
+  analyzer: ^6.7.0 # For mockito compatibility
 ```
 
 ---
@@ -55,13 +56,13 @@ dependency_overrides:
 
 Dependabot is configured in `.github/dependabot.yml`:
 
-| Ecosystem | Schedule | Day | Groups |
-|-----------|----------|-----|--------|
-| Python (pip) | Weekly | Monday | Minor/Patch together |
-| Node.js (npm) | Weekly | Tuesday | React, Next, Testing |
-| Flutter (pub) | Weekly | Wednesday | Core, UI packages |
-| GitHub Actions | Weekly | Thursday | All actions |
-| Docker | Monthly | - | Base images |
+| Ecosystem      | Schedule | Day       | Groups               |
+| -------------- | -------- | --------- | -------------------- |
+| Python (pip)   | Weekly   | Monday    | Minor/Patch together |
+| Node.js (npm)  | Weekly   | Tuesday   | React, Next, Testing |
+| Flutter (pub)  | Weekly   | Wednesday | Core, UI packages    |
+| GitHub Actions | Weekly   | Thursday  | All actions          |
+| Docker         | Monthly  | -         | Base images          |
 
 ### Review Process
 
@@ -99,7 +100,7 @@ aiohttp>=3.11.12      # Security minimum
 Use in **Flutter/Dart** for minor updates:
 
 ```yaml
-flutter_riverpod: ^2.6.1  # Allows 2.6.x, not 3.x
+flutter_riverpod: ^2.6.1 # Allows 2.6.x, not 3.x
 ```
 
 ---
@@ -111,6 +112,7 @@ flutter_riverpod: ^2.6.1  # Allows 2.6.x, not 3.x
 **Reason:** TensorFlow 2.18.0 requires `numpy<2.1.0`
 
 **Affected services:**
+
 - `crop-health-ai`
 - `yield-engine`
 - `virtual-sensors`
@@ -129,33 +131,33 @@ flutter_riverpod: ^2.6.1  # Allows 2.6.x, not 3.x
 
 ### Python Services (Active)
 
-| Package | Version | Updated |
-|---------|---------|---------|
-| fastapi | 0.126.0 | Dec 2025 |
-| uvicorn | 0.34.0 | Dec 2025 |
-| pydantic | 2.10.3 | Dec 2025 |
-| httpx | 0.28.1 | Dec 2025 |
-| asyncpg | 0.30.0 | Dec 2025 |
-| redis | 5.2.1 | Dec 2025 |
-| nats-py | 2.9.0 | Dec 2025 |
+| Package  | Version | Updated  |
+| -------- | ------- | -------- |
+| fastapi  | 0.126.0 | Dec 2025 |
+| uvicorn  | 0.34.0  | Dec 2025 |
+| pydantic | 2.10.3  | Dec 2025 |
+| httpx    | 0.28.1  | Dec 2025 |
+| asyncpg  | 0.30.0  | Dec 2025 |
+| redis    | 5.2.1   | Dec 2025 |
+| nats-py  | 2.9.0   | Dec 2025 |
 
 ### Frontend (Node.js)
 
-| Package | Version | Updated |
-|---------|---------|---------|
-| next | 15.1.2 | Dec 2025 |
-| react | 19.0.0 | Dec 2025 |
-| typescript | 5.7.2 | Dec 2025 |
-| tailwindcss | 3.4.17 | Dec 2025 |
+| Package     | Version | Updated  |
+| ----------- | ------- | -------- |
+| next        | 15.1.2  | Dec 2025 |
+| react       | 19.0.0  | Dec 2025 |
+| typescript  | 5.7.2   | Dec 2025 |
+| tailwindcss | 3.4.17  | Dec 2025 |
 
 ### Mobile (Flutter)
 
-| Package | Version | Updated |
-|---------|---------|---------|
-| flutter | 3.27.1 | Dec 2025 |
-| dart | 3.6.0 | Dec 2025 |
-| drift | 2.22.1 | Dec 2025 |
-| riverpod | 2.6.1 | Dec 2025 |
+| Package  | Version | Updated  |
+| -------- | ------- | -------- |
+| flutter  | 3.27.1  | Dec 2025 |
+| dart     | 3.6.0   | Dec 2025 |
+| drift    | 2.22.1  | Dec 2025 |
+| riverpod | 2.6.1   | Dec 2025 |
 
 ---
 

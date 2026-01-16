@@ -1,5 +1,7 @@
 # 📚 أرشيف التحولات المعمارية
+
 ## SAHOOL Platform Architecture Changelog
+
 ### Version 15.5.0 - December 2025
 
 ---
@@ -15,15 +17,17 @@
 ### 2025-12-21: اعتماد ميثاق Field-First
 
 #### القرار المعماري الرئيسي:
+
 > **المنصة ميدانية، والتحليل يخدم الميدان.**
 
 #### الملفات المنشأة:
-| الملف | الوصف |
-|-------|-------|
-| `docs/architecture/PRINCIPLES.md` | المبادئ المعمارية الأساسية |
-| `docs/architecture/FIELD_FIRST_ASSESSMENT.md` | تقرير تقييم الخبير |
-| `docs/architecture/FIELD_FIRST_IMPLEMENTATION_PLAN.md` | خطة التنفيذ |
-| `config/service-registry.yaml` | سجل الخدمات والتصنيفات |
+
+| الملف                                                  | الوصف                      |
+| ------------------------------------------------------ | -------------------------- |
+| `docs/architecture/PRINCIPLES.md`                      | المبادئ المعمارية الأساسية |
+| `docs/architecture/FIELD_FIRST_ASSESSMENT.md`          | تقرير تقييم الخبير         |
+| `docs/architecture/FIELD_FIRST_IMPLEMENTATION_PLAN.md` | خطة التنفيذ                |
+| `config/service-registry.yaml`                         | سجل الخدمات والتصنيفات     |
 
 ---
 
@@ -56,32 +60,35 @@
 ### 2. تصنيف الخدمات الجديد
 
 #### 🟢 Field-Critical (الأولوية 1)
-| الخدمة | المنفذ | السبب |
-|--------|--------|-------|
-| billing_core | 8089 | الاشتراك يحدد الصلاحيات |
-| astronomical_calendar | 8111 | التوقيت الزراعي اليمني |
-| notification_service | 8110 | التنبيهات الحرجة |
+
+| الخدمة                | المنفذ | السبب                   |
+| --------------------- | ------ | ----------------------- |
+| billing_core          | 8089   | الاشتراك يحدد الصلاحيات |
+| astronomical_calendar | 8111   | التوقيت الزراعي اليمني  |
+| notification_service  | 8110   | التنبيهات الحرجة        |
 
 #### 🟡 Bridge Layer (الأولوية 2)
-| الخدمة | المنفذ | التحويل |
-|--------|--------|---------|
-| indicators_service | 8091 | NDVI → مؤشر خطر |
-| yield_engine | 8098 | بيانات → توصية إنتاج |
-| irrigation_smart | 8094 | ET0 → جدول ري |
-| fertilizer_advisor | 8093 | تحليل → خطة تسميد |
-| virtual_sensors | 8096 | طقس → ET0 |
-| disaster_assessment | 3020 | كشف → تحذير |
+
+| الخدمة              | المنفذ | التحويل              |
+| ------------------- | ------ | -------------------- |
+| indicators_service  | 8091   | NDVI → مؤشر خطر      |
+| yield_engine        | 8098   | بيانات → توصية إنتاج |
+| irrigation_smart    | 8094   | ET0 → جدول ري        |
+| fertilizer_advisor  | 8093   | تحليل → خطة تسميد    |
+| virtual_sensors     | 8096   | طقس → ET0            |
+| disaster_assessment | 3020   | كشف → تحذير          |
 
 #### 🔵 Analysis Layer (الأولوية 3)
-| الخدمة | المنفذ | المخرج |
-|--------|--------|--------|
-| satellite_service | 8090 | NDVI, NDWI |
-| crop_health_ai | 8095 | تشخيص أمراض |
-| weather_advanced | 8092 | تنبؤات جوية |
-| lai_estimation | 3022 | LAI |
-| crop_growth_model | 3023 | نماذج نمو |
-| yield_prediction | 3021 | توقع إنتاج |
-| research_core | 3015 | بحث علمي |
+
+| الخدمة            | المنفذ | المخرج      |
+| ----------------- | ------ | ----------- |
+| satellite_service | 8090   | NDVI, NDWI  |
+| crop_health_ai    | 8095   | تشخيص أمراض |
+| weather_advanced  | 8092   | تنبؤات جوية |
+| lai_estimation    | 3022   | LAI         |
+| crop_growth_model | 3023   | نماذج نمو   |
+| yield_prediction  | 3021   | توقع إنتاج  |
+| research_core     | 3015   | بحث علمي    |
 
 ### 3. قواعد Offline الجديدة
 
@@ -120,6 +127,7 @@ Audit Trail
 ### إصلاحات Docker
 
 #### 1. إزالة field_core dependency
+
 ```yaml
 # docker-compose.yml
 # قبل:
@@ -135,6 +143,7 @@ admin_dashboard:
 ```
 
 #### 2. إصلاح USER directive في Dockerfiles
+
 ```dockerfile
 # Node.js Alpine (استخدام node user الموجود)
 RUN chown -R node:node /app
@@ -147,6 +156,7 @@ USER sahool
 ```
 
 #### 3. إصلاح COPY path في billing-core
+
 ```dockerfile
 # قبل:
 COPY ../shared /app/shared/  # ❌ خارج build context
@@ -158,6 +168,7 @@ COPY ../shared /app/shared/  # ❌ خارج build context
 ### إصلاحات CI/CD
 
 #### 1. GitHub Actions permissions
+
 ```yaml
 permissions:
   contents: read
@@ -166,22 +177,23 @@ permissions:
 ```
 
 #### 2. Flutter dependencies
+
 ```yaml
 # pubspec.yaml
-intl: ^0.19.0  # للتوافق مع flutter_localizations
-mockito: ^5.4.5  # للتوافق مع Dart 3.6.0
+intl: ^0.19.0 # للتوافق مع flutter_localizations
+mockito: ^5.4.5 # للتوافق مع Dart 3.6.0
 ```
 
 ---
 
 ## 📊 مقاييس ما قبل وبعد
 
-| المقياس | قبل | المتوقع بعد |
-|---------|-----|-------------|
-| Offline Success Rate | ~70% | >95% |
-| Field Response Time | 3-5s | <2s |
-| Sync Failure Rate | ~5% | <1% |
-| Analysis-to-Task Time | manual | automated |
+| المقياس               | قبل    | المتوقع بعد |
+| --------------------- | ------ | ----------- |
+| Offline Success Rate  | ~70%   | >95%        |
+| Field Response Time   | 3-5s   | <2s         |
+| Sync Failure Rate     | ~5%    | <1%         |
+| Analysis-to-Task Time | manual | automated   |
 
 ---
 
@@ -228,11 +240,13 @@ config/
 ## 🔗 المراجع
 
 ### الملفات المعمارية
+
 - [المبادئ](./architecture/PRINCIPLES.md)
 - [التقييم](./architecture/FIELD_FIRST_ASSESSMENT.md)
 - [خطة التنفيذ](./architecture/FIELD_FIRST_IMPLEMENTATION_PLAN.md)
 
 ### الملفات التقنية
+
 - [دليل Docker](./DOCKER.md)
 - [خريطة الخدمات](./SERVICES_MAP.md)
 - [سجل الخدمات](../config/service-registry.yaml)
@@ -268,11 +282,11 @@ config/
 
 ## 🏷️ الإصدارات
 
-| الإصدار | التاريخ | الوصف |
-|---------|---------|-------|
-| 15.5.0 | 2025-12-21 | اعتماد Field-First Architecture |
-| 15.4.0 | 2025-12 | إضافة billing-core, weather-advanced |
-| 15.3.2 | 2025-12 | إصلاحات Docker و CI/CD |
+| الإصدار | التاريخ    | الوصف                                |
+| ------- | ---------- | ------------------------------------ |
+| 15.5.0  | 2025-12-21 | اعتماد Field-First Architecture      |
+| 15.4.0  | 2025-12    | إضافة billing-core, weather-advanced |
+| 15.3.2  | 2025-12    | إصلاحات Docker و CI/CD               |
 
 ---
 

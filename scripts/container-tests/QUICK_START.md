@@ -3,6 +3,7 @@
 ## 🚀 Quick Commands
 
 ### Test Everything
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/scripts/container-tests
 
@@ -35,6 +36,7 @@ cd /home/user/sahool-unified-v15-idp/scripts/container-tests
 ## 📋 Common Workflows
 
 ### Development Testing
+
 ```bash
 # Quick validation
 ./lint-dockerfiles.sh --strict
@@ -43,6 +45,7 @@ cd /home/user/sahool-unified-v15-idp/scripts/container-tests
 ```
 
 ### CI/CD Pipeline
+
 ```bash
 # Full automated test
 ./lint-dockerfiles.sh --strict && \
@@ -53,6 +56,7 @@ cd /home/user/sahool-unified-v15-idp/scripts/container-tests
 ```
 
 ### Production Release
+
 ```bash
 # Build, scan, test, and push
 ./lint-dockerfiles.sh --strict
@@ -64,6 +68,7 @@ cd /home/user/sahool-unified-v15-idp/scripts/container-tests
 ```
 
 ### Parallel Build (Faster)
+
 ```bash
 # Build all images in parallel
 ./build-all.sh -t latest --parallel --max-jobs 8
@@ -72,11 +77,13 @@ cd /home/user/sahool-unified-v15-idp/scripts/container-tests
 ## 🔍 Troubleshooting
 
 ### Script not executable?
+
 ```bash
 chmod +x *.sh
 ```
 
 ### Docker not running?
+
 ```bash
 # Linux
 sudo systemctl start docker
@@ -86,6 +93,7 @@ docker info
 ```
 
 ### Out of disk space?
+
 ```bash
 # Check usage
 ./cleanup.sh --show-usage
@@ -95,6 +103,7 @@ docker info
 ```
 
 ### Want to see what will happen?
+
 ```bash
 # Dry run
 ./cleanup.sh --dry-run -a
@@ -102,13 +111,13 @@ docker info
 
 ## 📊 Quick Reference
 
-| Script | Purpose | Key Options |
-|--------|---------|-------------|
-| `lint-dockerfiles.sh` | Lint Dockerfiles | `--strict`, `--generate` |
-| `build-all.sh` | Build images | `-t TAG`, `--parallel`, `--push` |
-| `security-scan.sh` | Security scan | `--severity LEVELS`, `--format json` |
-| `smoke-test.sh` | Health checks | `-s SERVICES`, `-t TIMEOUT` |
-| `cleanup.sh` | Cleanup | `-a`, `-f`, `--dry-run` |
+| Script                | Purpose          | Key Options                          |
+| --------------------- | ---------------- | ------------------------------------ |
+| `lint-dockerfiles.sh` | Lint Dockerfiles | `--strict`, `--generate`             |
+| `build-all.sh`        | Build images     | `-t TAG`, `--parallel`, `--push`     |
+| `security-scan.sh`    | Security scan    | `--severity LEVELS`, `--format json` |
+| `smoke-test.sh`       | Health checks    | `-s SERVICES`, `-t TIMEOUT`          |
+| `cleanup.sh`          | Cleanup          | `-a`, `-f`, `--dry-run`              |
 
 ## 🎯 First Time Setup
 

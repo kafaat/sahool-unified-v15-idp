@@ -13,6 +13,7 @@
 The comprehensive scan of all container configuration files revealed **NO CRITICAL SECRETS EXPOSURE** in Dockerfiles themselves. However, **3 docker-compose files contain hardcoded credentials** that pose a security risk for development and testing environments.
 
 ### Key Findings:
+
 - ✅ **NO hardcoded API keys or tokens** in any Dockerfile
 - ✅ **NO .env files** being copied into images
 - ✅ **NO private keys** being copied into images
@@ -27,9 +28,11 @@ The comprehensive scan of all container configuration files revealed **NO CRITIC
 ### ❌ ISSUES FOUND: 3 Files
 
 #### 1.1 Field Core - Profitability Service
+
 **File:** `/apps/services/field-core/docker-compose.profitability.yml`
 
 **Issues:**
+
 ```yaml
 # Line 17: Hardcoded database credentials in connection string
 DATABASE_URL=${DATABASE_URL:-postgresql://sahool:sahool@db:5432/sahool_fields}
@@ -50,9 +53,11 @@ POSTGRES_DB=sahool_fields
 ---
 
 #### 1.2 Field Management Service - Profitability
+
 **File:** `/apps/services/field-management-service/docker-compose.profitability.yml`
 
 **Issues:**
+
 ```yaml
 # Line 17: Hardcoded database credentials
 DATABASE_URL=${DATABASE_URL:-postgresql://sahool:sahool@db:5432/sahool_fields}
@@ -73,9 +78,11 @@ POSTGRES_DB=sahool_fields
 ---
 
 #### 1.3 Notification Service - Development Environment
+
 **File:** `/apps/services/notification-service/docker-compose.dev.yml`
 
 **Issues:**
+
 ```yaml
 # Lines 11-14: Hardcoded PostgreSQL credentials
 POSTGRES_DB: sahool_notifications
@@ -90,6 +97,7 @@ PGADMIN_DEFAULT_PASSWORD: admin123
 **Risk Level:** MEDIUM
 **Impact:** Development credentials exposed. While marked as "dev", these could be accidentally used in production.
 **Recommendation:**
+
 - Use `.env` files (not committed to git)
 - Add `.env` to `.gitignore`
 - Document credential requirements without hardcoding them
@@ -103,6 +111,7 @@ PGADMIN_DEFAULT_PASSWORD: admin123
 **Result:** No Dockerfile contains `COPY .env` or similar instructions.
 
 **Analysis:** All 54 Dockerfiles were scanned for patterns:
+
 - `COPY .env`
 - `COPY *.env`
 - `COPY **/.env`
@@ -117,11 +126,13 @@ None found. This is excellent security practice.
 ### ✅ NO CRITICAL ISSUES FOUND
 
 **Result:** All ENV variables in Dockerfiles are either:
+
 1. Configuration values (ports, paths, Python settings)
 2. Placeholders expecting runtime values
 3. Non-sensitive system settings
 
 ### Examples of SAFE ENV usage:
+
 ```dockerfile
 # Configuration values (safe)
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -144,6 +155,7 @@ ENV NATS_URL=${NATS_URL}
 **Result:** No private keys, SSH keys, or SSL certificates are being copied into any container images.
 
 **Scanned patterns:**
+
 - `*.key`
 - `*.pem`
 - `id_rsa`
@@ -162,6 +174,7 @@ ENV NATS_URL=${NATS_URL}
 **Result:** ARG instructions only contain build-time configuration values, not credentials.
 
 ### Examples of SAFE ARG usage found:
+
 ```dockerfile
 ARG PYTHON_VERSION=3.11
 ARG NODE_VERSION=20
@@ -180,6 +193,7 @@ ARG SERVICE_VERSION=16.0.0
 1. **Non-Root Users (100% compliance)**
    - All 54 services create and use non-root users
    - Example pattern:
+
    ```dockerfile
    RUN groupadd --system sahool && \
        useradd --system --gid sahool sahool
@@ -212,72 +226,72 @@ ARG SERVICE_VERSION=16.0.0
 
 ### Total Services Scanned: 54
 
-| Service | Dockerfile | Secrets Found | Risk Level |
-|---------|-----------|---------------|------------|
-| advisory-service | ✅ Clean | None | LOW |
-| agent-registry | ✅ Clean | None | LOW |
-| agro-advisor | ✅ Clean | None | LOW |
-| agro-rules | ✅ Clean | None | LOW |
-| ai-advisor | ✅ Clean | None | LOW |
-| ai-agents-core | ✅ Clean | None | LOW |
-| alert-service | ✅ Clean | None | LOW |
-| astronomical-calendar | ✅ Clean | None | LOW |
-| billing-core | ✅ Clean | None | LOW |
-| chat-service | ✅ Clean | None | LOW |
-| code-review-service | ✅ Clean | None | LOW |
-| community-chat | ✅ Clean | None | LOW |
-| crop-growth-model | ✅ Clean | None | LOW |
-| crop-health | ✅ Clean | None | LOW |
-| crop-health-ai | ✅ Clean | None | LOW |
-| crop-intelligence-service | ✅ Clean | None | LOW |
-| demo-data | ✅ Clean | None | LOW |
-| disaster-assessment | ✅ Clean | None | LOW |
-| equipment-service | ✅ Clean | None | LOW |
-| fertilizer-advisor | ✅ Clean | None | LOW |
-| field-chat | ✅ Clean | None | LOW |
-| field-core | ✅ Clean | None | LOW |
-| field-core (Python) | ✅ Clean | None | LOW |
-| field-intelligence | ✅ Clean | None | LOW |
-| field-management-service | ✅ Clean | None | LOW |
-| field-management (Python) | ✅ Clean | None | LOW |
-| field-ops | ✅ Clean | None | LOW |
-| field-service | ✅ Clean | None | LOW |
-| globalgap-compliance | ✅ Clean | None | LOW |
-| indicators-service | ✅ Clean | None | LOW |
-| inventory-service | ✅ Clean | None | LOW |
-| iot-gateway | ✅ Clean | None | LOW |
-| iot-service | ✅ Clean | None | LOW |
-| irrigation-smart | ✅ Clean | None | LOW |
-| lai-estimation | ✅ Clean | None | LOW |
-| marketplace-service | ✅ Clean | None | LOW |
-| mcp-server | ✅ Clean | None | LOW |
-| ndvi-engine | ✅ Clean | None | LOW |
-| ndvi-processor | ✅ Clean | None | LOW |
-| notification-service | ✅ Clean | None | LOW |
-| provider-config | ✅ Clean | None | LOW |
-| research-core | ✅ Clean | None | LOW |
-| satellite-service | ✅ Clean | None | LOW |
-| task-service | ✅ Clean | None | LOW |
-| user-service | ✅ Clean | None | LOW |
-| vegetation-analysis-service | ✅ Clean | None | LOW |
-| virtual-sensors | ✅ Clean | None | LOW |
-| weather-advanced | ✅ Clean | None | LOW |
-| weather-core | ✅ Clean | None | LOW |
-| weather-service | ✅ Clean | None | LOW |
-| ws-gateway | ✅ Clean | None | LOW |
-| yield-engine | ✅ Clean | None | LOW |
-| yield-prediction | ✅ Clean | None | LOW |
-| yield-prediction-service | ✅ Clean | None | LOW |
+| Service                     | Dockerfile | Secrets Found | Risk Level |
+| --------------------------- | ---------- | ------------- | ---------- |
+| advisory-service            | ✅ Clean   | None          | LOW        |
+| agent-registry              | ✅ Clean   | None          | LOW        |
+| agro-advisor                | ✅ Clean   | None          | LOW        |
+| agro-rules                  | ✅ Clean   | None          | LOW        |
+| ai-advisor                  | ✅ Clean   | None          | LOW        |
+| ai-agents-core              | ✅ Clean   | None          | LOW        |
+| alert-service               | ✅ Clean   | None          | LOW        |
+| astronomical-calendar       | ✅ Clean   | None          | LOW        |
+| billing-core                | ✅ Clean   | None          | LOW        |
+| chat-service                | ✅ Clean   | None          | LOW        |
+| code-review-service         | ✅ Clean   | None          | LOW        |
+| community-chat              | ✅ Clean   | None          | LOW        |
+| crop-growth-model           | ✅ Clean   | None          | LOW        |
+| crop-health                 | ✅ Clean   | None          | LOW        |
+| crop-health-ai              | ✅ Clean   | None          | LOW        |
+| crop-intelligence-service   | ✅ Clean   | None          | LOW        |
+| demo-data                   | ✅ Clean   | None          | LOW        |
+| disaster-assessment         | ✅ Clean   | None          | LOW        |
+| equipment-service           | ✅ Clean   | None          | LOW        |
+| fertilizer-advisor          | ✅ Clean   | None          | LOW        |
+| field-chat                  | ✅ Clean   | None          | LOW        |
+| field-core                  | ✅ Clean   | None          | LOW        |
+| field-core (Python)         | ✅ Clean   | None          | LOW        |
+| field-intelligence          | ✅ Clean   | None          | LOW        |
+| field-management-service    | ✅ Clean   | None          | LOW        |
+| field-management (Python)   | ✅ Clean   | None          | LOW        |
+| field-ops                   | ✅ Clean   | None          | LOW        |
+| field-service               | ✅ Clean   | None          | LOW        |
+| globalgap-compliance        | ✅ Clean   | None          | LOW        |
+| indicators-service          | ✅ Clean   | None          | LOW        |
+| inventory-service           | ✅ Clean   | None          | LOW        |
+| iot-gateway                 | ✅ Clean   | None          | LOW        |
+| iot-service                 | ✅ Clean   | None          | LOW        |
+| irrigation-smart            | ✅ Clean   | None          | LOW        |
+| lai-estimation              | ✅ Clean   | None          | LOW        |
+| marketplace-service         | ✅ Clean   | None          | LOW        |
+| mcp-server                  | ✅ Clean   | None          | LOW        |
+| ndvi-engine                 | ✅ Clean   | None          | LOW        |
+| ndvi-processor              | ✅ Clean   | None          | LOW        |
+| notification-service        | ✅ Clean   | None          | LOW        |
+| provider-config             | ✅ Clean   | None          | LOW        |
+| research-core               | ✅ Clean   | None          | LOW        |
+| satellite-service           | ✅ Clean   | None          | LOW        |
+| task-service                | ✅ Clean   | None          | LOW        |
+| user-service                | ✅ Clean   | None          | LOW        |
+| vegetation-analysis-service | ✅ Clean   | None          | LOW        |
+| virtual-sensors             | ✅ Clean   | None          | LOW        |
+| weather-advanced            | ✅ Clean   | None          | LOW        |
+| weather-core                | ✅ Clean   | None          | LOW        |
+| weather-service             | ✅ Clean   | None          | LOW        |
+| ws-gateway                  | ✅ Clean   | None          | LOW        |
+| yield-engine                | ✅ Clean   | None          | LOW        |
+| yield-prediction            | ✅ Clean   | None          | LOW        |
+| yield-prediction-service    | ✅ Clean   | None          | LOW        |
 
 ---
 
 ## Docker Compose Files Analysis
 
-| File | Issues | Risk Level |
-|------|--------|------------|
-| field-core/docker-compose.profitability.yml | ⚠️ Hardcoded DB credentials | MEDIUM |
-| field-management-service/docker-compose.profitability.yml | ⚠️ Hardcoded DB credentials | MEDIUM |
-| notification-service/docker-compose.dev.yml | ⚠️ Hardcoded DB & pgAdmin credentials | MEDIUM |
+| File                                                      | Issues                                | Risk Level |
+| --------------------------------------------------------- | ------------------------------------- | ---------- |
+| field-core/docker-compose.profitability.yml               | ⚠️ Hardcoded DB credentials           | MEDIUM     |
+| field-management-service/docker-compose.profitability.yml | ⚠️ Hardcoded DB credentials           | MEDIUM     |
+| notification-service/docker-compose.dev.yml               | ⚠️ Hardcoded DB & pgAdmin credentials | MEDIUM     |
 
 ---
 
@@ -286,6 +300,7 @@ ARG SERVICE_VERSION=16.0.0
 ### Immediate Actions Required:
 
 1. **Remove Hardcoded Credentials from docker-compose files**
+
    ```yaml
    # BEFORE (BAD):
    environment:
@@ -297,6 +312,7 @@ ARG SERVICE_VERSION=16.0.0
    ```
 
 2. **Create .env.example files**
+
    ```bash
    # .env.example (committed to git)
    POSTGRES_USER=your_username
@@ -310,6 +326,7 @@ ARG SERVICE_VERSION=16.0.0
    ```
 
 3. **Update .gitignore**
+
    ```gitignore
    # Environment files
    .env
@@ -319,6 +336,7 @@ ARG SERVICE_VERSION=16.0.0
    ```
 
 4. **Use Docker Secrets for Production**
+
    ```yaml
    # docker-compose.yml
    secrets:
@@ -388,6 +406,7 @@ ARG SERVICE_VERSION=16.0.0
    - Reviewed health check implementations
 
 ### Files Scanned:
+
 ```
 /apps/services/*/Dockerfile
 /apps/services/*/Dockerfile.*
@@ -402,6 +421,7 @@ ARG SERVICE_VERSION=16.0.0
 **Overall Security Posture:** GOOD ✅
 
 The container configuration demonstrates **excellent security practices** for Dockerfiles:
+
 - No secrets baked into images
 - Proper user isolation
 - Minimal attack surface
@@ -410,6 +430,7 @@ The container configuration demonstrates **excellent security practices** for Do
 **Action Required:** Address the 3 docker-compose files with hardcoded credentials before using them in any production-like environment.
 
 **Next Steps:**
+
 1. ✅ Review this report with security team
 2. ⚠️ Fix hardcoded credentials in docker-compose files
 3. ✅ Implement secret management solution
@@ -421,6 +442,7 @@ The container configuration demonstrates **excellent security practices** for Do
 ## Appendix: Scanned File Inventory
 
 ### Dockerfiles (54 files):
+
 ```
 /apps/services/advisory-service/Dockerfile
 /apps/services/agent-registry/Dockerfile
@@ -479,6 +501,7 @@ The container configuration demonstrates **excellent security practices** for Do
 ```
 
 ### Docker Compose Files (3 files):
+
 ```
 /apps/services/field-core/docker-compose.profitability.yml
 /apps/services/field-management-service/docker-compose.profitability.yml

@@ -24,6 +24,16 @@ if not SHARED_PATH.exists():
     SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
+
+# Add services_shared modules to path (crops.py, yemen_varieties.py)
+# In Docker, services_shared is at /app/services_shared
+SERVICES_SHARED_PATH = Path("/app/services_shared")
+if not SERVICES_SHARED_PATH.exists():
+    # Fallback for local development - apps/services/shared/
+    SERVICES_SHARED_PATH = Path(__file__).parent.parent.parent.parent / "shared"
+if str(SERVICES_SHARED_PATH) not in sys.path:
+    sys.path.insert(0, str(SERVICES_SHARED_PATH))
+
 # Import shared crop catalogs
 from crops import (
     ALL_CROPS,

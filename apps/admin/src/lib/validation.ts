@@ -3,6 +3,8 @@
  * Comprehensive security utilities for input validation and sanitization
  */
 
+import DOMPurify from "dompurify";
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Validators
 // ═══════════════════════════════════════════════════════════════════════════
@@ -14,7 +16,7 @@ export const validators = {
    * @returns true if valid, false otherwise
    */
   twoFactorCode: (code: string): boolean => {
-    if (!code || typeof code !== 'string') return false;
+    if (!code || typeof code !== "string") return false;
     return /^\d{6}$/.test(code.trim());
   },
 
@@ -24,7 +26,7 @@ export const validators = {
    * @returns true if valid, false otherwise
    */
   email: (email: string): boolean => {
-    if (!email || typeof email !== 'string') return false;
+    if (!email || typeof email !== "string") return false;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email.trim()) && email.length <= 254;
   },
@@ -35,18 +37,45 @@ export const validators = {
    * @returns true if valid, false otherwise
    */
   phone: (phone: string): boolean => {
-    if (!phone || typeof phone !== 'string') return false;
+    if (!phone || typeof phone !== "string") return false;
     return /^\+?[\d\s-]{10,}$/.test(phone.trim());
   },
 
   /**
    * Safe text (no HTML/script)
+   * Checks for: HTML tags, dangerous protocols, event handlers, encoded attacks
    * @param text - The text to validate
    * @returns true if safe, false otherwise
    */
   safeText: (text: string): boolean => {
-    if (!text || typeof text !== 'string') return false;
-    return !/<[^>]*>|javascript:|data:|on\w+=/i.test(text);
+    if (!text || typeof text !== "string") return false;
+
+    // Comprehensive pattern for detecting dangerous content
+    const dangerousPatterns = [
+      /<[^>]*>/i, // HTML tags
+      /javascript\s*:/i, // javascript: protocol
+      /vbscript\s*:/i, // vbscript: protocol
+      /livescript\s*:/i, // livescript: protocol
+      /data\s*:/i, // data: protocol
+      /file\s*:/i, // file: protocol
+      /blob\s*:/i, // blob: protocol
+      /on\w+\s*=/i, // Event handlers (onclick, onerror, etc.)
+      /expression\s*\(/i, // CSS expression
+      /-moz-binding\s*:/i, // Firefox binding
+      /behavior\s*:/i, // IE behavior
+      /&#x?[0-9a-f]+;/i, // Numeric/hex HTML entities (potential encoding bypass)
+      /&(lt|gt|amp|quot|apos|nbsp|tab|newline);/i, // Named HTML entities
+      /%[0-9a-f]{2}/i, // URL encoding
+      /\\x[0-9a-f]{2}/i, // Hex escapes
+      /\\u[0-9a-f]{4}/i, // Unicode escapes
+      /[\x00\u200B\u200C\u200D\uFEFF]/i, // Null bytes and zero-width chars
+      /@import/i, // CSS import
+      /xlink:href/i, // SVG xlink
+      /srcdoc\s*=/i, // iframe srcdoc
+      /formaction\s*=/i, // form hijacking
+    ];
+
+    return !dangerousPatterns.some((pattern) => pattern.test(text));
   },
 
   /**
@@ -55,10 +84,10 @@ export const validators = {
    * @returns true if valid, false otherwise
    */
   url: (url: string): boolean => {
-    if (!url || typeof url !== 'string') return false;
+    if (!url || typeof url !== "string") return false;
     try {
       const urlObj = new URL(url);
-      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+      return urlObj.protocol === "http:" || urlObj.protocol === "https:";
     } catch {
       return false;
     }
@@ -71,13 +100,17 @@ export const validators = {
    * @returns true if strong enough, false otherwise
    */
   password: (password: string): boolean => {
-    if (!password || typeof password !== 'string') return false;
+    if (!password || typeof password !== "string") return false;
     const minLength = password.length >= 8;
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumber = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-    return minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+      password,
+    );
+    return (
+      minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar
+    );
   },
 
   /**
@@ -86,8 +119,8 @@ export const validators = {
    * @returns true if valid number, false otherwise
    */
   number: (value: string | number): boolean => {
-    if (typeof value === 'number') return !isNaN(value) && isFinite(value);
-    if (typeof value === 'string') return /^-?\d+\.?\d*$/.test(value.trim());
+    if (typeof value === "number") return !isNaN(value) && isFinite(value);
+    if (typeof value === "string") return /^-?\d+\.?\d*$/.test(value.trim());
     return false;
   },
 
@@ -97,7 +130,7 @@ export const validators = {
    * @returns true if alphanumeric, false otherwise
    */
   alphanumeric: (value: string): boolean => {
-    if (!value || typeof value !== 'string') return false;
+    if (!value || typeof value !== "string") return false;
     return /^[a-zA-Z0-9]+$/.test(value);
   },
 };
@@ -108,20 +141,27 @@ export const validators = {
 
 export const sanitizers = {
   /**
-   * Remove all HTML tags and dangerous patterns
+   * Remove all HTML tags and dangerous patterns using DOMPurify
+   * Security: Uses industry-standard DOMPurify library for comprehensive sanitization
+   * Covers: script tags, event handlers, dangerous protocols, data URIs,
+   *         encoded entities, null bytes, unicode escapes, and more
    * @param input - The input string to sanitize
-   * @returns Sanitized string
+   * @returns Sanitized string (plain text with no HTML)
    */
   html: (input: string): string => {
-    if (!input || typeof input !== 'string') return '';
-    return input
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
-      .replace(/javascript:/gi, '') // Remove javascript: protocol
-      .replace(/on\w+=/gi, '') // Remove event handlers
-      .replace(/data:/gi, '') // Remove data: protocol
-      .replace(/vbscript:/gi, '') // Remove vbscript: protocol
-      .replace(/file:/gi, '') // Remove file: protocol
-      .trim();
+    if (!input || typeof input !== "string") return "";
+
+    // Use DOMPurify with strict configuration - remove all HTML tags
+    // ALLOWED_TAGS: [] means no HTML tags are allowed (pure text output)
+    // ALLOWED_ATTR: [] means no attributes are allowed
+    const sanitized = DOMPurify.sanitize(input, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+      KEEP_CONTENT: true,
+    });
+
+    // Remove null bytes and control characters
+    return sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
   },
 
   /**
@@ -130,19 +170,19 @@ export const sanitizers = {
    * @returns Escaped string safe for HTML display
    */
   escape: (input: string): string => {
-    if (!input || typeof input !== 'string') return '';
-    if (typeof window === 'undefined') {
+    if (!input || typeof input !== "string") return "";
+    if (typeof window === "undefined") {
       // Server-side fallback
       return input
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        .replace(/\//g, '&#x2F;');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;")
+        .replace(/\//g, "&#x2F;");
     }
     // Client-side using DOM
-    const div = document.createElement('div');
+    const div = document.createElement("div");
     div.textContent = input;
     return div.innerHTML;
   },
@@ -153,11 +193,11 @@ export const sanitizers = {
    * @returns Sanitized email
    */
   email: (email: string): string => {
-    if (!email || typeof email !== 'string') return '';
+    if (!email || typeof email !== "string") return "";
     return email
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s@.+-]/g, ''); // Keep only valid email characters
+      .replace(/[^\w\s@.+-]/g, ""); // Keep only valid email characters
   },
 
   /**
@@ -166,8 +206,8 @@ export const sanitizers = {
    * @returns Sanitized phone number
    */
   phone: (phone: string): string => {
-    if (!phone || typeof phone !== 'string') return '';
-    return phone.replace(/[^\d+\s-]/g, '').trim();
+    if (!phone || typeof phone !== "string") return "";
+    return phone.replace(/[^\d+\s-]/g, "").trim();
   },
 
   /**
@@ -176,8 +216,8 @@ export const sanitizers = {
    * @returns Sanitized numeric string
    */
   number: (value: string): string => {
-    if (!value || typeof value !== 'string') return '';
-    return value.replace(/[^\d.-]/g, '').trim();
+    if (!value || typeof value !== "string") return "";
+    return value.replace(/[^\d.-]/g, "").trim();
   },
 
   /**
@@ -186,8 +226,8 @@ export const sanitizers = {
    * @returns Sanitized alphanumeric string
    */
   alphanumeric: (value: string): string => {
-    if (!value || typeof value !== 'string') return '';
-    return value.replace(/[^a-zA-Z0-9]/g, '').trim();
+    if (!value || typeof value !== "string") return "";
+    return value.replace(/[^a-zA-Z0-9]/g, "").trim();
   },
 
   /**
@@ -196,10 +236,10 @@ export const sanitizers = {
    * @returns Safe filename
    */
   filename: (filename: string): string => {
-    if (!filename || typeof filename !== 'string') return '';
+    if (!filename || typeof filename !== "string") return "";
     return filename
-      .replace(/\.\./g, '') // Remove path traversal
-      .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace special chars with underscore
+      .replace(/\.\./g, "") // Remove path traversal
+      .replace(/[^a-zA-Z0-9._-]/g, "_") // Replace special chars with underscore
       .slice(0, 255); // Limit length
   },
 };
@@ -208,18 +248,22 @@ export const sanitizers = {
 // Error Messages (Arabic)
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const validationErrors: Record<keyof typeof validators | 'required' | 'tooLong' | 'tooShort', string> = {
-  twoFactorCode: 'الرجاء إدخال رمز صحيح مكون من 6 أرقام',
-  email: 'الرجاء إدخال بريد إلكتروني صحيح',
-  phone: 'الرجاء إدخال رقم هاتف صحيح',
-  safeText: 'النص يحتوي على محتوى غير آمن',
-  url: 'الرجاء إدخال رابط صحيح',
-  password: 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم، ورمز خاص',
-  number: 'الرجاء إدخال رقم صحيح',
-  alphanumeric: 'يجب أن يحتوي على أحرف وأرقام فقط',
-  required: 'هذا الحقل مطلوب',
-  tooLong: 'النص طويل جداً',
-  tooShort: 'النص قصير جداً',
+export const validationErrors: Record<
+  keyof typeof validators | "required" | "tooLong" | "tooShort",
+  string
+> = {
+  twoFactorCode: "الرجاء إدخال رمز صحيح مكون من 6 أرقام",
+  email: "الرجاء إدخال بريد إلكتروني صحيح",
+  phone: "الرجاء إدخال رقم هاتف صحيح",
+  safeText: "النص يحتوي على محتوى غير آمن",
+  url: "الرجاء إدخال رابط صحيح",
+  password:
+    "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم، ورمز خاص",
+  number: "الرجاء إدخال رقم صحيح",
+  alphanumeric: "يجب أن يحتوي على أحرف وأرقام فقط",
+  required: "هذا الحقل مطلوب",
+  tooLong: "النص طويل جداً",
+  tooShort: "النص قصير جداً",
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -234,24 +278,26 @@ export const validationErrors: Record<keyof typeof validators | 'required' | 'to
  */
 export function validateInput(
   value: string,
-  type: keyof typeof validators
+  type: keyof typeof validators,
 ): { isValid: boolean; value: string; error?: string } {
   if (!value) {
     return {
       isValid: false,
-      value: '',
+      value: "",
       error: validationErrors.required,
     };
   }
 
   const isValid = validators[type](value);
   const sanitizedValue =
-    type in sanitizers ? sanitizers[type as keyof typeof sanitizers](value) : value;
+    type in sanitizers
+      ? sanitizers[type as keyof typeof sanitizers](value)
+      : value;
 
   return {
     isValid,
     value: sanitizedValue,
-    error: isValid ? undefined : validationErrors[type] || 'إدخال غير صحيح',
+    error: isValid ? undefined : validationErrors[type] || "إدخال غير صحيح",
   };
 }
 
@@ -263,9 +309,12 @@ export function validateInput(
  */
 export function validateForm(
   inputs: Record<string, string>,
-  rules: Record<string, keyof typeof validators>
+  rules: Record<string, keyof typeof validators>,
 ): Record<string, { isValid: boolean; value: string; error?: string }> {
-  const results: Record<string, { isValid: boolean; value: string; error?: string }> = {};
+  const results: Record<
+    string,
+    { isValid: boolean; value: string; error?: string }
+  > = {};
 
   // ES5-compatible iteration
   for (const field in inputs) {
@@ -287,7 +336,10 @@ export function validateForm(
  * @returns true if all fields are valid
  */
 export function isFormValid(
-  validationResults: Record<string, { isValid: boolean; value: string; error?: string }>
+  validationResults: Record<
+    string,
+    { isValid: boolean; value: string; error?: string }
+  >,
 ): boolean {
   // ES5-compatible iteration
   for (const field in validationResults) {

@@ -3,4 +3,4 @@
  * تصدير واجهات برمجة التطبيقات للحقول
  */
 
-export * from './field-intelligence-api';
+export * from "./field-intelligence-api";

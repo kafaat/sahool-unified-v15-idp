@@ -17,19 +17,21 @@ This document describes the CSRF (Cross-Site Request Forgery) protection impleme
 All authentication cookies are set with `sameSite: 'strict'`:
 
 ```typescript
-Cookies.set('access_token', access_token, {
+Cookies.set("access_token", access_token, {
   expires: 7,
-  secure: true,        // HTTPS only
-  sameSite: 'strict'   // CSRF protection
+  secure: true, // HTTPS only
+  sameSite: "strict", // CSRF protection
 });
 ```
 
 **How it works:**
+
 - `sameSite: 'strict'` prevents browsers from sending cookies on cross-site requests
 - This blocks most CSRF attacks at the browser level
 - Supported by all modern browsers (98%+ coverage as of 2024)
 
 **Security Level:** HIGH
+
 - Protects against: Cross-origin POST, PUT, DELETE requests
 - Browser support: Chrome 51+, Firefox 60+, Safari 12+, Edge 16+
 
@@ -66,20 +68,21 @@ CSRF tokens provide defense-in-depth for state-changing requests.
 
 ```typescript
 // Generate CSRF token if not present
-let csrfToken = request.cookies.get('csrf_token')?.value;
+let csrfToken = request.cookies.get("csrf_token")?.value;
 if (!csrfToken) {
-  csrfToken = randomBytes(32).toString('base64url');
-  response.cookies.set('csrf_token', csrfToken, {
+  csrfToken = randomBytes(32).toString("base64url");
+  response.cookies.set("csrf_token", csrfToken, {
     httpOnly: false, // Must be readable by client JavaScript
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
     maxAge: 60 * 60 * 24, // 24 hours
   });
 }
 ```
 
 **When it runs:**
+
 - On every authenticated request to protected routes
 - Token persists for 24 hours
 - Regenerated if missing or expired
@@ -90,14 +93,15 @@ if (!csrfToken) {
 
 ```typescript
 // Add CSRF headers for state-changing requests
-const method = (fetchOptions.method || 'GET').toUpperCase();
-if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+const method = (fetchOptions.method || "GET").toUpperCase();
+if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
   const csrfHeaders = getCsrfHeaders();
   Object.assign(headers, csrfHeaders);
 }
 ```
 
 **Automatic Protection:**
+
 - All POST, PUT, DELETE, PATCH requests include CSRF token
 - GET requests do not include token (not required for safe methods)
 - File uploads also protected
@@ -112,9 +116,10 @@ if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
 ```
 
 **Usage:**
+
 ```typescript
 // Fetch a new CSRF token
-const response = await fetch('/api/csrf-token');
+const response = await fetch("/api/csrf-token");
 const { token } = await response.json();
 // Token automatically set in cookie
 ```
@@ -131,7 +136,10 @@ export function getCsrfToken(): string | null;
 export function getCsrfHeaders(): Record<string, string>;
 
 // Secure fetch wrapper with CSRF
-export function secureFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+export function secureFetch(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response>;
 ```
 
 ---
@@ -164,24 +172,24 @@ def validate_csrf_token(request: Request):
 ```javascript
 // Example for Node.js/Express
 function validateCsrfToken(req, res, next) {
-  const headerToken = req.headers['x-csrf-token'];
+  const headerToken = req.headers["x-csrf-token"];
   const cookieToken = req.cookies.csrf_token;
 
   if (!headerToken || !cookieToken) {
-    return res.status(403).json({ error: 'CSRF token missing' });
+    return res.status(403).json({ error: "CSRF token missing" });
   }
 
   if (headerToken !== cookieToken) {
-    return res.status(403).json({ error: 'CSRF token mismatch' });
+    return res.status(403).json({ error: "CSRF token mismatch" });
   }
 
   next();
 }
 
 // Apply to state-changing routes
-app.post('/api/*', validateCsrfToken, handler);
-app.put('/api/*', validateCsrfToken, handler);
-app.delete('/api/*', validateCsrfToken, handler);
+app.post("/api/*", validateCsrfToken, handler);
+app.put("/api/*", validateCsrfToken, handler);
+app.delete("/api/*", validateCsrfToken, handler);
 ```
 
 ---
@@ -191,11 +199,13 @@ app.delete('/api/*', validateCsrfToken, handler);
 ### Manual Testing
 
 1. **Test CSRF Token Generation:**
+
    ```bash
    curl -c cookies.txt http://localhost:3000/api/csrf-token
    ```
 
 2. **Test Protected Request:**
+
    ```bash
    # Get token
    TOKEN=$(curl -c cookies.txt http://localhost:3000/api/csrf-token | jq -r '.token')
@@ -218,16 +228,16 @@ app.delete('/api/*', validateCsrfToken, handler);
 See `/src/lib/security/security.test.ts` for unit tests:
 
 ```typescript
-describe('CSRF Protection', () => {
-  it('should get CSRF token from cookie', () => {
+describe("CSRF Protection", () => {
+  it("should get CSRF token from cookie", () => {
     // Test implementation
   });
 
-  it('should generate CSRF headers', () => {
+  it("should generate CSRF headers", () => {
     // Test implementation
   });
 
-  it('should include CSRF in state-changing requests', () => {
+  it("should include CSRF in state-changing requests", () => {
     // Test implementation
   });
 });
@@ -281,10 +291,10 @@ describe('CSRF Protection', () => {
 
 ## Browser Compatibility / توافق المتصفحات
 
-| Feature | Chrome | Firefox | Safari | Edge | Mobile |
-|---------|--------|---------|--------|------|--------|
-| SameSite Cookies | ✅ 51+ | ✅ 60+ | ✅ 12+ | ✅ 16+ | ✅ |
-| CSRF Tokens | ✅ All | ✅ All | ✅ All | ✅ All | ✅ |
+| Feature          | Chrome | Firefox | Safari | Edge   | Mobile |
+| ---------------- | ------ | ------- | ------ | ------ | ------ |
+| SameSite Cookies | ✅ 51+ | ✅ 60+  | ✅ 12+ | ✅ 16+ | ✅     |
+| CSRF Tokens      | ✅ All | ✅ All  | ✅ All | ✅ All | ✅     |
 
 **Coverage:** 99.8% of global users (2024)
 
@@ -293,6 +303,7 @@ describe('CSRF Protection', () => {
 ## Fallback Strategy / استراتيجية الاحتياطية
 
 If CSRF token is missing:
+
 1. Middleware generates new token on next authenticated request
 2. SameSite cookies continue to provide protection
 3. Application remains functional
@@ -333,6 +344,7 @@ If you have existing CSRF protection:
 **Symptom:** Requests fail with "CSRF token missing"
 
 **Solutions:**
+
 1. Check browser cookies - `csrf_token` should be present
 2. Verify middleware is running (check authenticated routes)
 3. Try manual token fetch: `GET /api/csrf-token`
@@ -343,6 +355,7 @@ If you have existing CSRF protection:
 **Symptom:** Requests fail with "CSRF token mismatch"
 
 **Solutions:**
+
 1. Clear browser cookies and re-login
 2. Check for token expiration (24 hours)
 3. Verify no proxy/CDN modifying cookies
@@ -353,6 +366,7 @@ If you have existing CSRF protection:
 **Symptom:** CSRF header not sent with requests
 
 **Solutions:**
+
 1. Verify using API client (not raw fetch)
 2. Check request method (POST/PUT/DELETE)
 3. Ensure security library imported
@@ -371,6 +385,7 @@ If you have existing CSRF protection:
 ## Changelog / سجل التغييرات
 
 ### 2026-01-06
+
 - ✅ Implemented CSRF token generation in middleware
 - ✅ Integrated CSRF headers into API client
 - ✅ Created CSRF token API endpoint
@@ -379,6 +394,7 @@ If you have existing CSRF protection:
 - ✅ Added tests for CSRF functionality
 
 ### 2025-12-28
+
 - ✅ Implemented SameSite cookies for auth tokens
 - ✅ Security audit completed (9/10 score)
 
@@ -387,6 +403,7 @@ If you have existing CSRF protection:
 ## Contact / الاتصال
 
 For security issues or questions:
+
 - Security Team: security@sahool.com
 - Documentation: See `/docs/security/`
 - Tests: See `/src/lib/security/security.test.ts`

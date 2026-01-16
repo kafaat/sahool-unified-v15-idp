@@ -10,8 +10,8 @@
  */
 
 // API
-export { fieldMapApi } from './api';
-export type { Field, FieldCreate, FieldUpdate, FieldFilters } from './api';
+export { fieldMapApi } from "./api";
+export type { Field, FieldCreate, FieldUpdate, FieldFilters } from "./api";
 
 // Hooks
 export {
@@ -23,7 +23,7 @@ export {
   useUpdateField,
   useDeleteField,
   fieldKeys,
-} from './hooks/useFields';
+} from "./hooks/useFields";
 
 // Components (to be added)
 // export { FieldMap } from './components/FieldMap';

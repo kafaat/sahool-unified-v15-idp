@@ -12,18 +12,21 @@ This implementation provides a robust Content Security Policy for the SAHOOL web
 ## Security Improvements
 
 ### Before
+
 ```
 script-src 'self' 'unsafe-inline' 'unsafe-eval'
 style-src 'self' 'unsafe-inline'
 ```
 
 ### After (Production)
+
 ```
 script-src 'self' 'nonce-{random}' 'strict-dynamic'
 style-src 'self' 'nonce-{random}' https://fonts.googleapis.com
 ```
 
 ### After (Development)
+
 ```
 script-src 'self' 'nonce-{random}' 'unsafe-eval'  # Only for HMR
 style-src 'self' 'nonce-{random}' https://fonts.googleapis.com
@@ -32,11 +35,13 @@ style-src 'self' 'nonce-{random}' https://fonts.googleapis.com
 ## Files Created/Modified
 
 ### New Files
+
 1. `/src/lib/security/csp-config.ts` - CSP configuration and nonce generation
 2. `/src/lib/security/nonce.ts` - Nonce utilities for React components
 3. `/src/app/api/csp-report/route.ts` - CSP violation reporting endpoint
 
 ### Modified Files
+
 1. `/src/middleware.ts` - Updated to use new CSP with nonce support
 2. `/next.config.js` - Enhanced security headers
 
@@ -45,7 +50,7 @@ style-src 'self' 'nonce-{random}' https://fonts.googleapis.com
 ### 1. Server Components with Inline Scripts
 
 ```tsx
-import { getNonce, createInlineScript } from '@/lib/security/nonce';
+import { getNonce, createInlineScript } from "@/lib/security/nonce";
 
 export default async function MyComponent() {
   const nonce = await getNonce();
@@ -54,10 +59,7 @@ export default async function MyComponent() {
     <>
       <div id="map"></div>
       <script
-        {...createInlineScript(
-          `console.log('Initializing map...');`,
-          nonce
-        )}
+        {...createInlineScript(`console.log('Initializing map...');`, nonce)}
       />
     </>
   );
@@ -67,7 +69,7 @@ export default async function MyComponent() {
 ### 2. Server Components with Inline Styles
 
 ```tsx
-import { getNonce, createInlineStyle } from '@/lib/security/nonce';
+import { getNonce, createInlineStyle } from "@/lib/security/nonce";
 
 export default async function MyComponent() {
   const nonce = await getNonce();
@@ -75,12 +77,7 @@ export default async function MyComponent() {
   return (
     <>
       <div className="custom-styled">Content</div>
-      <style
-        {...createInlineStyle(
-          `.custom-styled { color: red; }`,
-          nonce
-        )}
-      />
+      <style {...createInlineStyle(`.custom-styled { color: red; }`, nonce)} />
     </>
   );
 }
@@ -155,12 +152,14 @@ CSP violations are automatically reported to `/api/csp-report` and logged:
 ### Viewing Violations
 
 In development:
+
 ```bash
 # Check console output
 npm run dev
 ```
 
 In production:
+
 ```bash
 # Check container logs
 docker logs sahool-web
@@ -171,12 +170,14 @@ docker logs sahool-web
 ## Environment Configuration
 
 ### Development Mode
+
 - Allows `unsafe-eval` for Next.js Hot Module Replacement (HMR)
 - Allows `unsafe-inline` for faster iteration
 - Allows localhost connections for API and WebSocket
 - Can use report-only mode by setting `CSP_REPORT_ONLY=true`
 
 ### Production Mode
+
 - Strict nonce-based policy
 - No `unsafe-inline` or `unsafe-eval` (except Next.js internals)
 - Enforces HTTPS with `upgrade-insecure-requests`
@@ -197,6 +198,7 @@ This will report violations without blocking resources.
 ### 2. Check Browser Console
 
 Open DevTools Console to see CSP violations:
+
 ```
 Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'self' 'nonce-...'".
 ```
@@ -258,10 +260,11 @@ curl -I https://sahool.ye/dashboard
 ## Next.js Specific Considerations
 
 ### Server Components (Recommended)
+
 Server Components can use the nonce utilities directly:
 
 ```tsx
-import { getNonce } from '@/lib/security/nonce';
+import { getNonce } from "@/lib/security/nonce";
 
 export default async function Page() {
   const nonce = await getNonce();
@@ -270,12 +273,15 @@ export default async function Page() {
 ```
 
 ### Client Components
+
 Client components should avoid inline scripts. Use:
+
 - External script files
 - `next/script` component
 - CSS modules for styles
 
 ### Dynamic Routes
+
 CSP nonce is generated per request, so it works automatically with dynamic routes.
 
 ## Security Checklist
@@ -290,7 +296,7 @@ CSP nonce is generated per request, so it works automatically with dynamic route
 - [x] Use `strict-dynamic` with nonces
 - [x] Whitelist only necessary external sources
 - [x] Configure CORS headers properly
-- [x] Add Cross-Origin-* headers
+- [x] Add Cross-Origin-\* headers
 
 ## Resources
 
@@ -302,6 +308,7 @@ CSP nonce is generated per request, so it works automatically with dynamic route
 ## Support
 
 For issues or questions about CSP implementation:
+
 1. Check browser console for CSP violations
 2. Review `/api/csp-report` logs
 3. Test with `CSP_REPORT_ONLY=true` first

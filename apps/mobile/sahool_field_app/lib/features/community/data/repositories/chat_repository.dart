@@ -2,6 +2,7 @@
 // مستودع الدردشة لسهول
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../../../core/config/api_config.dart';
@@ -84,7 +85,7 @@ class ChatRepository {
 
     // Mock connection for now
     _isConnected = true;
-    print('📱 Chat connected (mock mode)');
+    debugPrint('📱 Chat connected (mock mode)');
   }
 
   /// الانضمام لغرفة محادثة
@@ -100,7 +101,7 @@ class ChatRepository {
       'userType': userType,
     });
     */
-    print('🚪 Joined room: $roomId');
+    debugPrint('🚪 Joined room: $roomId');
   }
 
   /// إرسال رسالة
@@ -192,14 +193,14 @@ class ChatRepository {
       'userName': userName,
     });
     */
-    print('👋 Left room: $roomId');
+    debugPrint('👋 Left room: $roomId');
   }
 
   /// قطع الاتصال
   void disconnect() {
     // _socket?.disconnect();
     _isConnected = false;
-    print('🔌 Chat disconnected');
+    debugPrint('🔌 Chat disconnected');
   }
 
   /// تنظيف الموارد

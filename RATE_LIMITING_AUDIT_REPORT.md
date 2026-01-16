@@ -26,16 +26,16 @@ This report documents the comprehensive audit and implementation of rate limitin
 
 ### ✅ Services with Rate Limiting (8/8)
 
-| Service | Port | Status | Tier Strategy | Notes |
-|---------|------|--------|---------------|-------|
-| **billing-core** | 8089 | ✅ Existing | Default | Excludes webhooks |
-| **ai-advisor** | 8115 | ✅ Existing | Custom | AI-specific middleware |
-| **ai-agents-core** | 8120 | ✅ **NEW** | Custom | Endpoint-based routing |
-| **iot-gateway** | 8106 | ✅ **NEW** | Custom | IoT-optimized |
-| **field-management** | 8083 | ✅ Existing | Default | Standard protection |
-| **inventory-service** | 8084 | ✅ Existing | Default | Standard protection |
-| **notification-service** | 8085 | ✅ Existing | Default | Prevents spam |
-| **satellite-service** | 8086 | ✅ Existing | Default | Protects API quota |
+| Service                  | Port | Status      | Tier Strategy | Notes                  |
+| ------------------------ | ---- | ----------- | ------------- | ---------------------- |
+| **billing-core**         | 8089 | ✅ Existing | Default       | Excludes webhooks      |
+| **ai-advisor**           | 8115 | ✅ Existing | Custom        | AI-specific middleware |
+| **ai-agents-core**       | 8120 | ✅ **NEW**  | Custom        | Endpoint-based routing |
+| **iot-gateway**          | 8106 | ✅ **NEW**  | Custom        | IoT-optimized          |
+| **field-management**     | 8083 | ✅ Existing | Default       | Standard protection    |
+| **inventory-service**    | 8084 | ✅ Existing | Default       | Standard protection    |
+| **notification-service** | 8085 | ✅ Existing | Default       | Prevents spam          |
+| **satellite-service**    | 8086 | ✅ Existing | Default       | Protects API quota     |
 
 ### 📊 Service Types Not Requiring Rate Limiting
 
@@ -83,14 +83,15 @@ rate_limiter = setup_rate_limiting(
 
 #### Rate Limit Configuration
 
-| Endpoint Pattern | Tier | Requests/Min | Rationale |
-|------------------|------|--------------|-----------|
-| `/api/v1/analyze` | STANDARD | 60 | Full multi-agent analysis is resource-intensive |
-| `/api/v1/edge/*` | PREMIUM | 120 | Edge operations need higher throughput |
-| Other endpoints | STANDARD | 60 | Default protection |
-| Internal services | INTERNAL | 1000 | Service-to-service communication |
+| Endpoint Pattern  | Tier     | Requests/Min | Rationale                                       |
+| ----------------- | -------- | ------------ | ----------------------------------------------- |
+| `/api/v1/analyze` | STANDARD | 60           | Full multi-agent analysis is resource-intensive |
+| `/api/v1/edge/*`  | PREMIUM  | 120          | Edge operations need higher throughput          |
+| Other endpoints   | STANDARD | 60           | Default protection                              |
+| Internal services | INTERNAL | 1000         | Service-to-service communication                |
 
 #### Excluded Paths
+
 - `/healthz` - Health checks
 - `/api/v1/system/status` - System monitoring
 
@@ -135,15 +136,16 @@ rate_limiter = setup_rate_limiting(
 
 #### Rate Limit Configuration
 
-| Endpoint Pattern | Tier | Requests/Min | Rationale |
-|------------------|------|--------------|-----------|
-| `/sensor/reading` | STANDARD | 60 | Single sensor data points |
-| `/sensor/batch` | PREMIUM | 120 | Batch uploads need higher limits |
-| `/device/*` | PREMIUM | 120 | Device management operations |
-| Other endpoints | STANDARD | 60 | Default protection |
-| Internal services | INTERNAL | 1000 | Service-to-service communication |
+| Endpoint Pattern  | Tier     | Requests/Min | Rationale                        |
+| ----------------- | -------- | ------------ | -------------------------------- |
+| `/sensor/reading` | STANDARD | 60           | Single sensor data points        |
+| `/sensor/batch`   | PREMIUM  | 120          | Batch uploads need higher limits |
+| `/device/*`       | PREMIUM  | 120          | Device management operations     |
+| Other endpoints   | STANDARD | 60           | Default protection               |
+| Internal services | INTERNAL | 1000         | Service-to-service communication |
 
 #### Excluded Paths
+
 - `/healthz` - Kubernetes health checks
 - `/health` - Docker health checks
 - `/stats` - Monitoring and metrics
@@ -154,13 +156,13 @@ rate_limiter = setup_rate_limiting(
 
 ### Configuration
 
-| Tier | RPM | RPH | Burst | Environment Variable | Use Case |
-|------|-----|-----|-------|---------------------|----------|
-| FREE | 30 | 500 | 5 | `RATE_LIMIT_FREE_RPM` | Free tier users |
-| STANDARD | 60 | 2,000 | 10 | `RATE_LIMIT_STANDARD_RPM` | Regular API usage |
-| PREMIUM | 120 | 5,000 | 20 | `RATE_LIMIT_PREMIUM_RPM` | High-volume operations |
-| INTERNAL | 1,000 | 50,000 | 100 | `RATE_LIMIT_INTERNAL_RPM` | Service-to-service |
-| UNLIMITED | ∞ | ∞ | ∞ | N/A | No limits (disabled) |
+| Tier      | RPM   | RPH    | Burst | Environment Variable      | Use Case               |
+| --------- | ----- | ------ | ----- | ------------------------- | ---------------------- |
+| FREE      | 30    | 500    | 5     | `RATE_LIMIT_FREE_RPM`     | Free tier users        |
+| STANDARD  | 60    | 2,000  | 10    | `RATE_LIMIT_STANDARD_RPM` | Regular API usage      |
+| PREMIUM   | 120   | 5,000  | 20    | `RATE_LIMIT_PREMIUM_RPM`  | High-volume operations |
+| INTERNAL  | 1,000 | 50,000 | 100   | `RATE_LIMIT_INTERNAL_RPM` | Service-to-service     |
+| UNLIMITED | ∞     | ∞      | ∞     | N/A                       | No limits (disabled)   |
 
 ### Architecture
 
@@ -221,6 +223,7 @@ rate_limiter = setup_rate_limiting(
 ### Test Script
 
 A comprehensive test script has been created at:
+
 ```
 /scripts/test-rate-limiting.sh
 ```
@@ -283,6 +286,7 @@ curl -v http://localhost:8120/healthz 2>&1 | grep -i "x-ratelimit"
 ### Internal Service Authentication
 
 Services can bypass rate limiting using:
+
 ```http
 X-Internal-Service: true
 ```
@@ -292,6 +296,7 @@ X-Internal-Service: true
 ### Tier Selection
 
 Clients can request specific tiers:
+
 ```http
 X-Rate-Limit-Tier: premium
 ```
@@ -431,6 +436,7 @@ rate_limiter_fallback_active
 **Symptoms:** Legitimate users getting 429 errors
 
 **Solutions:**
+
 ```bash
 # Increase limits via environment variables
 export RATE_LIMIT_STANDARD_RPM=120
@@ -445,6 +451,7 @@ export RATE_LIMIT_PREMIUM_RPM=240
 **Symptoms:** Logs show "Redis connection failed, falling back to in-memory"
 
 **Solutions:**
+
 ```bash
 # Verify Redis is running
 redis-cli ping
@@ -461,6 +468,7 @@ telnet redis 6379
 **Symptoms:** No 429 errors even after many requests
 
 **Solutions:**
+
 ```bash
 # Check if rate limiting is initialized
 docker logs ai-agents-core | grep -i "rate limiting"
@@ -495,6 +503,7 @@ Rate limiting has been successfully implemented across all critical services wit
 ✅ **Monitored:** Structured logging and metrics collection
 
 The platform is now protected against:
+
 - DoS and DDoS attacks
 - API abuse and scraping
 - Excessive resource consumption
@@ -511,4 +520,4 @@ The platform is now protected against:
 
 ---
 
-*For questions or issues, contact the Platform Security Team or refer to the documentation.*
+_For questions or issues, contact the Platform Security Team or refer to the documentation._

@@ -3,9 +3,9 @@
  * خطافات إدارة الفريق
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { teamApi } from '../api/team-api';
-import type { InviteRequest, Role, TeamFilters } from '../types/team';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { teamApi } from "../api/team-api";
+import type { InviteRequest, Role, TeamFilters } from "../types/team";
 
 /**
  * Query Hooks - For reading data
@@ -18,7 +18,7 @@ import type { InviteRequest, Role, TeamFilters } from '../types/team';
  */
 export function useTeamMembers(filters?: TeamFilters) {
   return useQuery({
-    queryKey: ['team', 'members', filters],
+    queryKey: ["team", "members", filters],
     queryFn: () => teamApi.getTeamMembers(filters),
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
@@ -30,7 +30,7 @@ export function useTeamMembers(filters?: TeamFilters) {
  */
 export function useTeamMember(id: string) {
   return useQuery({
-    queryKey: ['team', 'member', id],
+    queryKey: ["team", "member", id],
     queryFn: () => teamApi.getMember(id),
     enabled: !!id,
     staleTime: 2 * 60 * 1000,
@@ -43,7 +43,7 @@ export function useTeamMember(id: string) {
  */
 export function useRoles() {
   return useQuery({
-    queryKey: ['team', 'roles'],
+    queryKey: ["team", "roles"],
     queryFn: () => teamApi.getRoles(),
     staleTime: 10 * 60 * 1000, // 10 minutes - roles don't change often
   });
@@ -55,7 +55,7 @@ export function useRoles() {
  */
 export function usePermissions(role: Role) {
   return useQuery({
-    queryKey: ['team', 'permissions', role],
+    queryKey: ["team", "permissions", role],
     queryFn: () => teamApi.getPermissions(role),
     enabled: !!role,
     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -68,7 +68,7 @@ export function usePermissions(role: Role) {
  */
 export function useTeamStats() {
   return useQuery({
-    queryKey: ['team', 'stats'],
+    queryKey: ["team", "stats"],
     queryFn: () => teamApi.getStats(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -90,8 +90,8 @@ export function useInviteMember() {
     mutationFn: (data: InviteRequest) => teamApi.inviteMember(data),
     onSuccess: () => {
       // Invalidate and refetch team data
-      queryClient.invalidateQueries({ queryKey: ['team', 'members'] });
-      queryClient.invalidateQueries({ queryKey: ['team', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ["team", "members"] });
+      queryClient.invalidateQueries({ queryKey: ["team", "stats"] });
     },
   });
 }
@@ -108,9 +108,11 @@ export function useUpdateRole() {
       teamApi.updateMemberRole(userId, role),
     onSuccess: (_, variables) => {
       // Invalidate specific member and list
-      queryClient.invalidateQueries({ queryKey: ['team', 'members'] });
-      queryClient.invalidateQueries({ queryKey: ['team', 'member', variables.userId] });
-      queryClient.invalidateQueries({ queryKey: ['team', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ["team", "members"] });
+      queryClient.invalidateQueries({
+        queryKey: ["team", "member", variables.userId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["team", "stats"] });
     },
   });
 }
@@ -126,8 +128,8 @@ export function useRemoveMember() {
     mutationFn: (userId: string) => teamApi.removeMember(userId),
     onSuccess: () => {
       // Invalidate team data
-      queryClient.invalidateQueries({ queryKey: ['team', 'members'] });
-      queryClient.invalidateQueries({ queryKey: ['team', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ["team", "members"] });
+      queryClient.invalidateQueries({ queryKey: ["team", "stats"] });
     },
   });
 }

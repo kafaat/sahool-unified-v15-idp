@@ -235,6 +235,7 @@ EOF
 ### 3. Update NATS Configuration
 
 The NKey configuration is already created at:
+
 ```
 /home/user/sahool-unified-v15-idp/config/nats/nats-nkey.conf
 ```
@@ -259,9 +260,9 @@ services:
     env_file:
       - ./config/nats/.env.nkey
     ports:
-      - "4222:4222"  # Client connections
-      - "8222:8222"  # HTTP monitoring
-      - "6222:6222"  # Cluster connections
+      - "4222:4222" # Client connections
+      - "8222:8222" # HTTP monitoring
+      - "6222:6222" # Cluster connections
     networks:
       - sahool-network
     restart: unless-stopped
@@ -355,51 +356,51 @@ spec:
         app: nats
     spec:
       containers:
-      - name: nats
-        image: nats:2.10-alpine
-        command:
-          - "nats-server"
-          - "-c"
-          - "/etc/nats/nats-nkey.conf"
-        ports:
-        - containerPort: 4222
-          name: client
-        - containerPort: 8222
-          name: monitoring
-        - containerPort: 6222
-          name: cluster
-        volumeMounts:
+        - name: nats
+          image: nats:2.10-alpine
+          command:
+            - "nats-server"
+            - "-c"
+            - "/etc/nats/nats-nkey.conf"
+          ports:
+            - containerPort: 4222
+              name: client
+            - containerPort: 8222
+              name: monitoring
+            - containerPort: 6222
+              name: cluster
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nats
+            - name: resolver
+              mountPath: /etc/nats/resolver
+            - name: data
+              mountPath: /data
+          envFrom:
+            - secretRef:
+                name: nats-env
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      volumes:
         - name: config
-          mountPath: /etc/nats
+          configMap:
+            name: nats-config
         - name: resolver
-          mountPath: /etc/nats/resolver
-        - name: data
-          mountPath: /data
-        envFrom:
-        - secretRef:
-            name: nats-env
+          secret:
+            secretName: nats-resolver
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-      volumes:
-      - name: config
-        configMap:
-          name: nats-config
-      - name: resolver
-        secret:
-          secretName: nats-resolver
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 10Gi
+            storage: 10Gi
 ```
 
 ---
@@ -417,51 +418,55 @@ npm install nats
 #### Connection Example
 
 ```typescript
-import { connect, NatsConnection } from 'nats';
+import { connect, NatsConnection } from "nats";
 
 async function connectToNATS(): Promise<NatsConnection> {
-    const nc = await connect({
-        servers: 'nats://localhost:4222',
-        userCreds: '/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds',
+  const nc = await connect({
+    servers: "nats://localhost:4222",
+    userCreds:
+      "/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds",
 
-        // Optional: TLS configuration
-        tls: {
-            caFile: '/etc/nats/certs/ca.crt',
-            certFile: '/etc/nats/certs/client.crt',
-            keyFile: '/etc/nats/certs/client.key',
-        },
+    // Optional: TLS configuration
+    tls: {
+      caFile: "/etc/nats/certs/ca.crt",
+      certFile: "/etc/nats/certs/client.crt",
+      keyFile: "/etc/nats/certs/client.key",
+    },
 
-        // Connection options
-        maxReconnectAttempts: -1,
-        reconnectTimeWait: 2000,
-        timeout: 10000,
-    });
+    // Connection options
+    maxReconnectAttempts: -1,
+    reconnectTimeWait: 2000,
+    timeout: 10000,
+  });
 
-    console.log(`Connected to ${nc.getServer()}`);
+  console.log(`Connected to ${nc.getServer()}`);
 
-    // Handle connection events
-    nc.closed().then((err) => {
-        if (err) {
-            console.error('Connection closed with error:', err);
-        }
-    });
+  // Handle connection events
+  nc.closed().then((err) => {
+    if (err) {
+      console.error("Connection closed with error:", err);
+    }
+  });
 
-    return nc;
+  return nc;
 }
 
 // Usage
 const nc = await connectToNATS();
 
 // Publish
-await nc.publish('field.operation.created', JSON.stringify({
-    id: '123',
-    type: 'harvest'
-}));
+await nc.publish(
+  "field.operation.created",
+  JSON.stringify({
+    id: "123",
+    type: "harvest",
+  }),
+);
 
 // Subscribe
-const sub = nc.subscribe('field.>');
+const sub = nc.subscribe("field.>");
 for await (const msg of sub) {
-    console.log(`Received: ${msg.subject}`, msg.data);
+  console.log(`Received: ${msg.subject}`, msg.data);
 }
 ```
 
@@ -770,6 +775,7 @@ system_account_events: {
 **Problem**: Client cannot authenticate
 
 **Solutions**:
+
 ```bash
 # 1. Verify credential file exists and is readable
 ls -la /home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds
@@ -795,6 +801,7 @@ nats pub -s nats://localhost:4222 \
 **Problem**: User doesn't have permission to publish/subscribe
 
 **Solutions**:
+
 ```bash
 # 1. Check user permissions
 nsc describe user -a APP -n field-service
@@ -817,6 +824,7 @@ nsc describe account APP -J > resolver/APP.jwt
 **Problem**: NATS server can't find account JWTs
 
 **Solutions**:
+
 ```bash
 # 1. Verify resolver directory path in config
 grep "dir:" /home/user/sahool-unified-v15-idp/config/nats/nats-nkey.conf

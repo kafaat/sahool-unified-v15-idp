@@ -11,13 +11,13 @@ import {
   Logger,
   NestInterceptor,
   CallHandler,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import { Observable } from 'rxjs';
-import { RedisTokenRevocationStore } from './token-revocation';
-import { AuthErrors } from './jwt.config';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { JwtService } from "@nestjs/jwt";
+import { Request } from "express";
+import { Observable } from "rxjs";
+import { RedisTokenRevocationStore } from "./token-revocation";
+import { AuthErrors } from "./jwt.config";
 
 /**
  * JWT Payload interface
@@ -34,7 +34,7 @@ export interface JwtPayload {
 /**
  * Metadata key for skipping revocation check
  */
-export const SKIP_REVOCATION_CHECK_KEY = 'skipRevocationCheck';
+export const SKIP_REVOCATION_CHECK_KEY = "skipRevocationCheck";
 
 /**
  * Decorator to skip token revocation check
@@ -108,7 +108,8 @@ export class TokenRevocationGuard implements CanActivate {
         throw error;
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       this.logger.error(`Error checking token revocation: ${errorMessage}`);
       return true;
     }
@@ -124,9 +125,9 @@ export class TokenRevocationGuard implements CanActivate {
       return null;
     }
 
-    const [scheme, token] = authorization.split(' ');
+    const [scheme, token] = authorization.split(" ");
 
-    if (scheme?.toLowerCase() !== 'bearer' || !token) {
+    if (scheme?.toLowerCase() !== "bearer" || !token) {
       return null;
     }
 
@@ -183,7 +184,8 @@ export class TokenRevocationInterceptor implements NestInterceptor {
           throw error;
         }
 
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
         this.logger.error(`Error checking token revocation: ${errorMessage}`);
       }
     }
@@ -198,9 +200,9 @@ export class TokenRevocationInterceptor implements NestInterceptor {
       return null;
     }
 
-    const [scheme, token] = authorization.split(' ');
+    const [scheme, token] = authorization.split(" ");
 
-    if (scheme?.toLowerCase() !== 'bearer' || !token) {
+    if (scheme?.toLowerCase() !== "bearer" || !token) {
       return null;
     }
 

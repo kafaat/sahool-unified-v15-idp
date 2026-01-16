@@ -3,8 +3,8 @@
  * Server-side JWT validation and role extraction
  */
 
-import { jwtVerify, decodeJwt, JWTPayload } from 'jose';
-import { User } from '@/lib/auth';
+import { jwtVerify, decodeJwt, JWTPayload } from "jose";
+import { User } from "@/lib/auth";
 
 /**
  * Extended JWT payload with user information
@@ -12,7 +12,7 @@ import { User } from '@/lib/auth';
 export interface TokenPayload extends JWTPayload {
   sub: string; // user ID
   email: string;
-  role: 'admin' | 'supervisor' | 'viewer';
+  role: "admin" | "supervisor" | "viewer";
   name?: string;
   tenant_id?: string;
 }
@@ -30,32 +30,32 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
     const secret = process.env.JWT_SECRET;
 
     if (!secret) {
-      throw new Error('JWT_SECRET is not configured');
+      throw new Error("JWT_SECRET is not configured");
     }
 
     // Verify token signature and expiry
     const { payload } = await jwtVerify(
       token,
-      new TextEncoder().encode(secret)
+      new TextEncoder().encode(secret),
     );
 
     // Validate required fields
     if (!payload.sub || !payload.email) {
-      throw new Error('Invalid token payload: missing required fields');
+      throw new Error("Invalid token payload: missing required fields");
     }
 
     return payload as TokenPayload;
   } catch (error) {
     if (error instanceof Error) {
       // Handle specific JWT errors
-      if (error.message.includes('expired')) {
-        throw new Error('Token has expired');
+      if (error.message.includes("expired")) {
+        throw new Error("Token has expired");
       }
-      if (error.message.includes('signature')) {
-        throw new Error('Invalid token signature');
+      if (error.message.includes("signature")) {
+        throw new Error("Invalid token signature");
       }
     }
-    throw new Error('Token verification failed');
+    throw new Error("Token verification failed");
   }
 }
 
@@ -84,8 +84,8 @@ export function decodeTokenUnsafe(token: string): TokenPayload | null {
  */
 export async function getUserRole(
   token: string,
-  verified: boolean = true
-): Promise<'admin' | 'supervisor' | 'viewer' | null> {
+  verified: boolean = true,
+): Promise<"admin" | "supervisor" | "viewer" | null> {
   try {
     if (verified) {
       const payload = await verifyToken(token);
@@ -112,7 +112,7 @@ export async function getUserFromToken(token: string): Promise<User | null> {
       id: payload.sub,
       email: payload.email,
       name: payload.name || payload.email,
-      role: payload.role || 'viewer',
+      role: payload.role || "viewer",
       tenant_id: payload.tenant_id,
     };
   } catch {
@@ -147,10 +147,10 @@ export function isTokenExpired(token: string): boolean {
  * @returns true if user has sufficient permissions
  */
 export function hasRequiredRole(
-  userRole: 'admin' | 'supervisor' | 'viewer',
-  requiredRole: 'admin' | 'supervisor' | 'viewer'
+  userRole: "admin" | "supervisor" | "viewer",
+  requiredRole: "admin" | "supervisor" | "viewer",
 ): boolean {
-  const roleHierarchy: Record<'admin' | 'supervisor' | 'viewer', number> = {
+  const roleHierarchy: Record<"admin" | "supervisor" | "viewer", number> = {
     admin: 3,
     supervisor: 2,
     viewer: 1,
@@ -166,8 +166,8 @@ export function hasRequiredRole(
  * @returns true if user has one of the allowed roles
  */
 export function hasAnyRole(
-  userRole: 'admin' | 'supervisor' | 'viewer',
-  allowedRoles: Array<'admin' | 'supervisor' | 'viewer'>
+  userRole: "admin" | "supervisor" | "viewer",
+  allowedRoles: Array<"admin" | "supervisor" | "viewer">,
 ): boolean {
-  return allowedRoles.some(role => hasRequiredRole(userRole, role));
+  return allowedRoles.some((role) => hasRequiredRole(userRole, role));
 }

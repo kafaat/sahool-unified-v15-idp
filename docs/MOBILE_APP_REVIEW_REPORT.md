@@ -12,30 +12,33 @@
 ## ✅ الإصلاحات المنجزة
 
 ### الملفات المحذوفة (8 ملفات):
-| الملف | السبب |
-|-------|-------|
-| `core/notifications/notification_provider.dart` | مكرر |
-| `core/services/auth_service.dart` | مكرر |
-| `features/notifications/notification_provider.dart` | مكرر |
-| `features/wallet/ui/wallet_screen.dart` | مكرر |
-| `features/profile/presentation/screens/profile_screen.dart` | مكرر |
-| `features/home_v16/home_screen.dart` | مهجور |
-| `features/home_v16/state/home_controller.dart` | مهجور |
-| `features/home_v16/state/home_state.dart` | مهجور |
+
+| الملف                                                       | السبب |
+| ----------------------------------------------------------- | ----- |
+| `core/notifications/notification_provider.dart`             | مكرر  |
+| `core/services/auth_service.dart`                           | مكرر  |
+| `features/notifications/notification_provider.dart`         | مكرر  |
+| `features/wallet/ui/wallet_screen.dart`                     | مكرر  |
+| `features/profile/presentation/screens/profile_screen.dart` | مكرر  |
+| `features/home_v16/home_screen.dart`                        | مهجور |
+| `features/home_v16/state/home_controller.dart`              | مهجور |
+| `features/home_v16/state/home_state.dart`                   | مهجور |
 
 ### الملفات المضافة (1 ملف):
-| الملف | الغرض |
-|-------|-------|
+
+| الملف                                 | الغرض                   |
+| ------------------------------------- | ----------------------- |
 | `core/domain/models/credit_tier.dart` | نموذج CreditTier الموحد |
 
 ### الملفات المُحدَّثة (5 ملفات):
-| الملف | التغيير |
-|-------|---------|
-| `core/auth/auth_service.dart` | إضافة authProvider للتوافق |
-| `core/core.dart` | تصدير CreditTier |
-| `features/notifications/notification_badge.dart` | تحديث الاستيرادات |
-| `features/wallet/wallet_provider.dart` | استخدام CreditTier الموحد |
-| `features/market/data/market_models.dart` | استخدام CreditTier الموحد |
+
+| الملف                                            | التغيير                    |
+| ------------------------------------------------ | -------------------------- |
+| `core/auth/auth_service.dart`                    | إضافة authProvider للتوافق |
+| `core/core.dart`                                 | تصدير CreditTier           |
+| `features/notifications/notification_badge.dart` | تحديث الاستيرادات          |
+| `features/wallet/wallet_provider.dart`           | استخدام CreditTier الموحد  |
+| `features/market/data/market_models.dart`        | استخدام CreditTier الموحد  |
 
 ---
 
@@ -51,18 +54,20 @@
 
 **الخطورة: عالية** - **الحالة: تم الإصلاح ✅**
 
-| المسار | النوع | الحالة |
-|--------|-------|--------|
+| المسار                                                                     | النوع      | الحالة   |
+| -------------------------------------------------------------------------- | ---------- | -------- |
 | `features/notifications/presentation/providers/notification_provider.dart` | تطبيق كامل | مستخدم ✓ |
-| `features/notifications/notification_provider.dart` | تطبيق كامل | مكرر ❌ |
-| `core/notifications/notification_provider.dart` | بسيط | مكرر ❌ |
+| `features/notifications/notification_provider.dart`                        | تطبيق كامل | مكرر ❌  |
+| `core/notifications/notification_provider.dart`                            | بسيط       | مكرر ❌  |
 
 **المشكلة:**
+
 - ثلاث تطبيقات مختلفة بمعماريات مختلفة
 - أسماء classes مختلفة: `NotificationNotifier` vs `NotificationsNotifier`
 - تعريفات `unreadCountProvider` مختلفة
 
 **الإصلاح المقترح:**
+
 ```dart
 // حذف:
 - features/notifications/notification_provider.dart
@@ -78,12 +83,13 @@
 
 **الخطورة: عالية** - **الحالة: تم الإصلاح ✅**
 
-| المسار | النوع | المعمارية |
-|--------|-------|-----------|
-| `features/wallet/wallet_screen.dart` | نشط | Riverpod (ConsumerWidget) |
-| `features/wallet/ui/wallet_screen.dart` | مكرر | StatefulWidget |
+| المسار                                  | النوع | المعمارية                 |
+| --------------------------------------- | ----- | ------------------------- |
+| `features/wallet/wallet_screen.dart`    | نشط   | Riverpod (ConsumerWidget) |
+| `features/wallet/ui/wallet_screen.dart` | مكرر  | StatefulWidget            |
 
 **الإصلاح المقترح:**
+
 ```dart
 // حذف:
 - features/wallet/ui/wallet_screen.dart
@@ -98,12 +104,13 @@
 
 **الخطورة: متوسطة-عالية**
 
-| المسار | النوع | يستخدم GoRouter |
-|--------|-------|-----------------|
-| `features/profile/presentation/screens/profile_screen.dart` | نشط | لا |
-| `features/profile/ui/profile_screen.dart` | مكرر | نعم |
+| المسار                                                      | النوع | يستخدم GoRouter |
+| ----------------------------------------------------------- | ----- | --------------- |
+| `features/profile/presentation/screens/profile_screen.dart` | نشط   | لا              |
+| `features/profile/ui/profile_screen.dart`                   | مكرر  | نعم             |
 
 **مشكلة إضافية:**
+
 ```dart
 // في profile_screen.dart السطر 693:
 await ref.read(authProvider.notifier).logout();
@@ -116,19 +123,20 @@ await ref.read(authProvider.notifier).logout();
 
 **الخطورة: عالية**
 
-| المسار | الميزات |
-|--------|---------|
-| `core/auth/auth_service.dart` | Token refresh تلقائي، تخزين آمن، Biometric |
-| `core/services/auth_service.dart` | بسيط، SharedPreferences فقط |
+| المسار                            | الميزات                                    |
+| --------------------------------- | ------------------------------------------ |
+| `core/auth/auth_service.dart`     | Token refresh تلقائي، تخزين آمن، Biometric |
+| `core/services/auth_service.dart` | بسيط، SharedPreferences فقط                |
 
-| الميزة | core/auth | core/services |
-|--------|-----------|---------------|
-| تجديد Token | تلقائي | يدوي |
-| التخزين | آمن | SharedPreferences |
-| Biometric | نعم | لا |
-| اسم Provider | `authStateProvider` | `authProvider` |
+| الميزة       | core/auth           | core/services     |
+| ------------ | ------------------- | ----------------- |
+| تجديد Token  | تلقائي              | يدوي              |
+| التخزين      | آمن                 | SharedPreferences |
+| Biometric    | نعم                 | لا                |
+| اسم Provider | `authStateProvider` | `authProvider`    |
 
 **الإصلاح المقترح:**
+
 ```dart
 // دمج في:
 + core/auth/auth_service.dart (الأكمل)
@@ -156,6 +164,7 @@ features/field/                    features/fields/
 ```
 
 **الاستخدام:**
+
 ```dart
 // app_router.dart يستورد من fields/ فقط:
 import '../../features/fields/presentation/screens/fields_list_screen.dart';
@@ -165,6 +174,7 @@ import '../../features/fields/presentation/screens/field_details_screen.dart';
 ```
 
 **الإصلاح المقترح:**
+
 ```dart
 // نقل الملفات المفيدة:
 + features/field/ui/field_form_screen.dart → features/fields/
@@ -180,12 +190,13 @@ import '../../features/fields/presentation/screens/field_details_screen.dart';
 
 **الخطورة: متوسطة** - كود مهجور
 
-| الوحدة | الملفات | مستخدم |
-|--------|---------|--------|
-| `features/home/` | 10 ملفات | نعم ✓ |
-| `features/home_v16/` | 3 ملفات | لا ❌ |
+| الوحدة               | الملفات  | مستخدم |
+| -------------------- | -------- | ------ |
+| `features/home/`     | 10 ملفات | نعم ✓  |
+| `features/home_v16/` | 3 ملفات  | لا ❌  |
 
 **الإصلاح المقترح:**
+
 ```dart
 // حذف:
 - features/home_v16/ (كامل المجلد)
@@ -206,6 +217,7 @@ features/market/                   features/marketplace/
 ```
 
 **مشكلة إضافية - CreditTier مكرر:**
+
 ```dart
 // في features/market/data/market_models.dart:
 enum CreditTier {
@@ -221,6 +233,7 @@ enum CreditTier {
 ```
 
 **الإصلاح المقترح:**
+
 ```dart
 // دمج في:
 + features/market/ (البيانات والمنطق)
@@ -236,18 +249,18 @@ enum CreditTier {
 
 ### المشكلة 8: تسميات غير متسقة
 
-| النمط الحالي | المقترح |
-|--------------|---------|
+| النمط الحالي                                      | المقترح                |
+| ------------------------------------------------- | ---------------------- |
 | `NotificationNotifier` vs `NotificationsNotifier` | `NotificationNotifier` |
-| `authProvider` vs `authStateProvider` | `authProvider` |
-| `WalletState` (مكرر) | تعريف واحد |
+| `authProvider` vs `authStateProvider`             | `authProvider`         |
+| `WalletState` (مكرر)                              | تعريف واحد             |
 
 ### المشكلة 9: Imports مفقودة
 
-| الملف | المشكلة |
-|-------|---------|
-| `profile_screen.dart` | يستورد الملف لكن لا يصدّر Provider |
-| `notification_badge.dart` | يشير إلى provider خاطئ |
+| الملف                     | المشكلة                            |
+| ------------------------- | ---------------------------------- |
+| `profile_screen.dart`     | يستورد الملف لكن لا يصدّر Provider |
+| `notification_badge.dart` | يشير إلى provider خاطئ             |
 
 ---
 
@@ -255,28 +268,28 @@ enum CreditTier {
 
 ### المرحلة 1: عالية الأولوية (يجب إصلاحها فوراً)
 
-| # | الإجراء | الملفات المتأثرة |
-|---|---------|------------------|
-| 1 | دمج Notification Providers | 3 ملفات → 1 |
-| 2 | دمج Auth Services | 2 ملفات → 1 |
-| 3 | حذف Wallet Screen المكرر | 1 ملف |
+| #   | الإجراء                    | الملفات المتأثرة |
+| --- | -------------------------- | ---------------- |
+| 1   | دمج Notification Providers | 3 ملفات → 1      |
+| 2   | دمج Auth Services          | 2 ملفات → 1      |
+| 3   | حذف Wallet Screen المكرر   | 1 ملف            |
 
 ### المرحلة 2: متوسطة الأولوية
 
-| # | الإجراء | الملفات المتأثرة |
-|---|---------|------------------|
-| 4 | حذف home_v16 | 3 ملفات |
-| 5 | دمج/حذف field module | 8 ملفات |
-| 6 | دمج Profile Screens | 2 ملفات → 1 |
-| 7 | توحيد CreditTier enum | 2 ملفات → 1 |
+| #   | الإجراء               | الملفات المتأثرة |
+| --- | --------------------- | ---------------- |
+| 4   | حذف home_v16          | 3 ملفات          |
+| 5   | دمج/حذف field module  | 8 ملفات          |
+| 6   | دمج Profile Screens   | 2 ملفات → 1      |
+| 7   | توحيد CreditTier enum | 2 ملفات → 1      |
 
 ### المرحلة 3: تحسينات
 
-| # | الإجراء |
-|---|---------|
-| 8 | توحيد تسميات Providers |
-| 9 | إضافة barrel files للتصدير |
-| 10 | توثيق المعمارية |
+| #   | الإجراء                    |
+| --- | -------------------------- |
+| 8   | توحيد تسميات Providers     |
+| 9   | إضافة barrel files للتصدير |
+| 10  | توثيق المعمارية            |
 
 ---
 
@@ -305,15 +318,15 @@ apps/mobile/lib/features/profile/ui/profile_screen.dart
 
 ## ملخص الإحصائيات
 
-| المقياس | القيمة |
-|---------|--------|
-| إجمالي الملفات | 219 |
-| الملفات المكررة | 12 |
-| الوحدات المهجورة | 2 |
-| Imports معطوبة | 3 |
-| Enums مكررة | 1 |
-| **إجمالي الملفات للحذف** | ~15 |
-| **إجمالي الملفات للتعديل** | ~8 |
+| المقياس                    | القيمة |
+| -------------------------- | ------ |
+| إجمالي الملفات             | 219    |
+| الملفات المكررة            | 12     |
+| الوحدات المهجورة           | 2      |
+| Imports معطوبة             | 3      |
+| Enums مكررة                | 1      |
+| **إجمالي الملفات للحذف**   | ~15    |
+| **إجمالي الملفات للتعديل** | ~8     |
 
 ---
 

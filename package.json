@@ -51,6 +51,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:packages": "vitest run --project packages",
     "clean": "rm -rf node_modules **/node_modules **/dist",
     "docs": "./scripts/generate-docs.sh",
     "docs:web": "npm run docs --workspace=apps/web",

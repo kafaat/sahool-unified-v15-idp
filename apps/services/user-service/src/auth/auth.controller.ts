@@ -25,6 +25,8 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiProperty,
+  ApiPropertyOptional,
 } from "@nestjs/swagger";
 import { Throttle, SkipThrottle } from "@nestjs/throttler";
 import { Request } from "express";
@@ -161,9 +163,6 @@ class VerifyOtpRequestDto implements VerifyOtpDto {
   @IsNotEmpty({ message: "Purpose is required" })
   purpose: string;
 }
-
-// Import ApiProperty
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 class RegisterRequestDto implements RegisterDto {
   @ApiProperty({

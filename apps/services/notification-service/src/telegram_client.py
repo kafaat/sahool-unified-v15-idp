@@ -14,7 +14,6 @@ import asyncio
 import logging
 import os
 from dataclasses import dataclass
-from enum import Enum
 from typing import Any
 
 import httpx
@@ -175,15 +174,19 @@ class TelegramClient:
 
                 if data.get("ok"):
                     message_id = data["result"]["message_id"]
-                    logger.info(f"📱 Telegram sent to {chat_id}: message_id={message_id}")
+                    # Sanitize chat_id for logging (prevent log injection)
+                    safe_id = str(chat_id).replace('\n', '').replace('\r', '')[:20]
+                    logger.info(f"📱 Telegram sent to {safe_id}: message_id={message_id}")
                     return message_id
                 else:
                     logger.error(f"Telegram API error: {data}")
                     return None
 
         except httpx.HTTPStatusError as e:
+            # Sanitize chat_id for logging
+            safe_id = str(chat_id).replace('\n', '').replace('\r', '')[:20]
             if e.response.status_code == 403:
-                logger.warning(f"User {chat_id} has blocked the bot")
+                logger.warning(f"User {safe_id} has blocked the bot")
             elif e.response.status_code == 400:
                 error_data = e.response.json()
                 logger.error(f"Telegram bad request: {error_data}")

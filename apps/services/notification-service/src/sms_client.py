@@ -156,7 +156,9 @@ class SMSClient:
         try:
             # Validate phone number format
             if not to.startswith("+"):
-                logger.warning(f"Phone number {to} should be in E.164 format (+country_code...)")
+                # Mask phone for safe logging (prevent log injection)
+                masked_phone = f"***{to[-4:]}" if len(to) >= 4 else "****"
+                logger.warning(f"Phone number {masked_phone} should be in E.164 format (+country_code...)")
                 to = f"+{to}"  # Try to fix
 
             # Select content based on language

@@ -225,7 +225,7 @@ jobs:
 
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: apps/services/${{ matrix.service }}/Dockerfile
@@ -233,9 +233,10 @@ jobs:
           push: ${{ github.event.inputs.push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
+          # Use cache from GHA when available, but don't fail if cache export fails
+          # This makes builds resilient to GitHub Actions Cache service outages
           cache-from: type=gha,scope=${{ matrix.service }}-v2
-          cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max
+          cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max,ignore-error=true
           build-args: |
             SERVICE_NAME=${{ matrix.service }}
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
@@ -397,7 +398,7 @@ jobs:
 
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: apps/services/${{ matrix.service }}/Dockerfile
@@ -405,9 +406,10 @@ jobs:
           push: ${{ github.event.inputs.push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
+          # Use cache from GHA when available, but don't fail if cache export fails
+          # This makes builds resilient to GitHub Actions Cache service outages
           cache-from: type=gha,scope=${{ matrix.service }}-v2
-          cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max
+          cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max,ignore-error=true
 
   build-summary:
     name: Build Summary

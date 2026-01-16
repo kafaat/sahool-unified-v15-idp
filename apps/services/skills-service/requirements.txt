@@ -1,0 +1,25 @@
+# SAHOOL Skills Service Dependencies
+# Updated: January 2026
+# Version: 16.0.0
+
+# Base requirements
+fastapi==0.115.5
+uvicorn[standard]>=0.30.0,<1.0.0
+pydantic==2.9.2
+httpx==0.28.1
+python-dotenv==1.0.1
+
+# Testing requirements
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+
+# Service-specific dependencies
+structlog>=24.1.0
+
+# Redis for token revocation and caching
+redis[hiredis]==5.2.1
+
+# In-memory cache support
+cachetools>=5.3.0

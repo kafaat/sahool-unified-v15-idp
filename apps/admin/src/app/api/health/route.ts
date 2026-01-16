@@ -25,14 +25,14 @@ export async function GET() {
     };
 
     return NextResponse.json(healthStatus, { status: 200 });
-  } catch (error) {
+  } catch {
     // If we reach here, something is wrong
+    // SECURITY: Don't expose internal error details to clients
     return NextResponse.json(
       {
         status: "unhealthy",
         service: "sahool-admin",
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 503 },
     );

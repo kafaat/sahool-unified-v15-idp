@@ -25,8 +25,11 @@ WORKDIR /app
 # Copy requirements first for caching | نسخ المتطلبات أولاً للتخزين المؤقت
 COPY apps/services/globalgap-compliance/requirements.txt .
 
-# Install Python dependencies | تثبيت تبعيات Python
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+# Upgrade pip and install build tools | ترقية pip وتثبيت أدوات البناء
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules (required for imports from shared/) | نسخ الوحدات المشتركة
 COPY apps/services/shared/ ./shared/

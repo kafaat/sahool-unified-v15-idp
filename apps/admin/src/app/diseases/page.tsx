@@ -521,12 +521,27 @@ function DiseasesContent() {
                   </button>
                 )}
                 <button
-                  onClick={() =>
-                    window.open(
-                      `https://maps.google.com/?q=${selectedDiagnosis.location.lat},${selectedDiagnosis.location.lng}`,
-                      "_blank",
-                    )
-                  }
+                  onClick={() => {
+                    const lat = selectedDiagnosis.location.lat;
+                    const lng = selectedDiagnosis.location.lng;
+                    if (
+                      typeof lat === "number" &&
+                      typeof lng === "number" &&
+                      !isNaN(lat) &&
+                      !isNaN(lng) &&
+                      lat >= -90 &&
+                      lat <= 90 &&
+                      lng >= -180 &&
+                      lng <= 180
+                    ) {
+                      const coords = encodeURIComponent(`${lat},${lng}`);
+                      window.open(
+                        `https://maps.google.com/?q=${coords}`,
+                        "_blank",
+                        "noopener,noreferrer",
+                      );
+                    }
+                  }}
                   className="px-4 py-3 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
                 >
                   <MapPin className="w-5 h-5" />

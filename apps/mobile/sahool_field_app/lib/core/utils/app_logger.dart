@@ -40,8 +40,21 @@ class AppLogger {
   }
 
   /// Warning log - تحذيرات
-  static void w(String message, {String? tag, Map<String, dynamic>? data}) {
-    _log(LogLevel.warning, message, tag: tag, data: data);
+  static void w(
+    String message, {
+    String? tag,
+    Object? error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? data,
+  }) {
+    _log(
+      LogLevel.warning,
+      message,
+      tag: tag,
+      error: error,
+      stackTrace: stackTrace,
+      data: data,
+    );
   }
 
   /// Error log - أخطاء
@@ -346,8 +359,8 @@ mixin LoggerMixin {
     AppLogger.i(message, tag: logTag, data: data);
   }
 
-  void logWarning(String message, {Map<String, dynamic>? data}) {
-    AppLogger.w(message, tag: logTag, data: data);
+  void logWarning(String message, {Object? error, StackTrace? stackTrace, Map<String, dynamic>? data}) {
+    AppLogger.w(message, tag: logTag, error: error, stackTrace: stackTrace, data: data);
   }
 
   void logError(String message, {Object? error, StackTrace? stackTrace}) {

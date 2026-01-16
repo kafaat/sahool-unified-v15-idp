@@ -16,7 +16,9 @@ from .preferences_service import PreferencesService
 logger = logging.getLogger("sahool-notifications.preferences-controller")
 
 # Create router
-router = APIRouter(prefix="/v1/preferences", tags=["Preferences"])
+# Note: No prefix - Kong handles /api/v1/preferences routing with strip_path: true
+# Kong strips /api/v1/preferences, so service receives /, /update, etc.
+router = APIRouter(prefix="", tags=["Preferences"])
 
 
 # =============================================================================

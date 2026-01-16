@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { apiClient } from "@/lib/api-client";
+import { logger } from "@/lib/logger";
 
 interface User {
   id: string;
@@ -47,6 +48,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const idleCheckTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const refreshTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
+  // Logout function - defined first as other callbacks depend on it
+  const logout = React.useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+    } catch (error) {
+      logger.error("Logout error:", error);
+    } finally {
+      apiClient.clearToken();
+      setUser(null);
+      // Redirect to login
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
+  }, []);
+
   // Update last activity timestamp
   const updateActivity = React.useCallback(async () => {
     lastActivityRef.current = Date.now();
@@ -58,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: "same-origin",
       });
     } catch (error) {
-      console.error("Failed to update activity:", error);
+      logger.error("Failed to update activity:", error);
     }
   }, []);
 
@@ -68,10 +88,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const timeSinceLastActivity = now - lastActivityRef.current;
 
     if (timeSinceLastActivity >= IDLE_TIMEOUT) {
-      console.log("Session expired due to inactivity");
+      logger.log("Session expired due to inactivity");
       logout();
     }
-  }, []);
+  }, [logout]);
 
   // Attempt to refresh token
   const refreshToken = React.useCallback(async () => {
@@ -82,13 +102,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        console.log("Token refresh failed, logging out");
+        logger.log("Token refresh failed, logging out");
         logout();
       }
     } catch (error) {
-      console.error("Token refresh error:", error);
+      logger.error("Token refresh error:", error);
     }
-  }, []);
+  }, [logout]);
 
   // Setup activity tracking and idle timeout monitoring
   React.useEffect(() => {
@@ -169,24 +189,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     [],
   );
-
-  const logout = React.useCallback(async () => {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "same-origin",
-      });
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      apiClient.clearToken();
-      setUser(null);
-      // Redirect to login
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
-  }, []);
 
   const checkAuth = React.useCallback(async () => {
     try {

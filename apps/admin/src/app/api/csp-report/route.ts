@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -172,9 +173,9 @@ export async function POST(request: NextRequest) {
 
     // Log to console (in production, send to logging service)
     if (process.env.NODE_ENV === "production") {
-      console.error(JSON.stringify(logEntry));
+      logger.critical(JSON.stringify(logEntry));
     } else {
-      console.warn("[CSP Violation]", logEntry);
+      logger.warn("[CSP Violation]", logEntry);
     }
 
     // Return 204 No Content (success, no body)
@@ -186,7 +187,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[CSP Report] Parse error:", error);
+    logger.critical("[CSP Report] Parse error:", error);
     return NextResponse.json(
       { error: "Failed to process CSP report" },
       {

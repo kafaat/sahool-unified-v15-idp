@@ -20,26 +20,34 @@ export interface BaseFarmData {
   status?: string;
 }
 
+// Loading fallback component for map imports
+const MapLoadingFallback = () => (
+  <div className="h-full bg-gray-100 animate-pulse flex items-center justify-center min-h-[100px]">
+    <p className="text-gray-500 text-sm">جاري تحميل...</p>
+  </div>
+);
+
 // Dynamic import for Leaflet (SSR not supported)
 // Using type assertions to preserve react-leaflet prop types
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false },
+  { ssr: false, loading: () => <MapLoadingFallback /> },
 ) as any;
 const TileLayer = dynamic(
   () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false },
+  { ssr: false, loading: () => null },
 ) as any;
 const Marker = dynamic(
   () => import("react-leaflet").then((mod) => mod.Marker),
-  { ssr: false },
+  { ssr: false, loading: () => null },
 ) as any;
 const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
   ssr: false,
+  loading: () => null,
 }) as any;
 const CircleMarker = dynamic(
   () => import("react-leaflet").then((mod) => mod.CircleMarker),
-  { ssr: false },
+  { ssr: false, loading: () => null },
 ) as any;
 
 interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {

@@ -205,6 +205,328 @@ class AlertThreshold:
     description_en: str = ""  # الوصف بالإنجليزية
 
 
+# =============================================================================
+# مواصفات دقة المستشعرات الزراعية (من معايير ISO ومقالة الاستشعار الزراعي)
+# Agricultural Sensor Accuracy Specifications (based on ISO standards and
+# agricultural sensing article specifications)
+# =============================================================================
+
+
+@dataclass
+class SensorAccuracySpec:
+    """
+    مواصفات دقة المستشعر
+    Sensor accuracy specification based on agricultural sensing standards
+
+    Reference: Chinese Agricultural Sensing Technology Article (2025)
+    """
+
+    sensor_type: str
+    accuracy: float  # قيمة الدقة - Accuracy value
+    accuracy_unit: str  # وحدة الدقة - Accuracy unit (e.g., "%" for percentage, "abs" for absolute)
+    measurement_range_min: float  # الحد الأدنى للقياس - Minimum measurement
+    measurement_range_max: float  # الحد الأقصى للقياس - Maximum measurement
+    measurement_unit: str  # وحدة القياس - Measurement unit
+    response_time_seconds: float  # زمن الاستجابة بالثواني - Response time in seconds
+    operating_temp_min: float  # درجة حرارة التشغيل الدنيا - Min operating temp (°C)
+    operating_temp_max: float  # درجة حرارة التشغيل القصوى - Max operating temp (°C)
+    protection_rating: str  # تصنيف الحماية (IP) - IP protection rating
+    calibration_interval_months: int  # فترة المعايرة بالأشهر - Calibration interval
+    drift_threshold_percent: float  # عتبة الانحراف المسموحة - Allowed drift threshold
+    description_ar: str
+    description_en: str
+
+
+# مواصفات دقة المستشعرات الزراعية وفقاً لمعايير المقالة
+# Agricultural sensor accuracy specs based on article standards
+SENSOR_ACCURACY_SPECS = {
+    "soil_moisture": SensorAccuracySpec(
+        sensor_type="soil_moisture",
+        accuracy=2.0,  # ±2% حجم - ±2% vol
+        accuracy_unit="%",
+        measurement_range_min=0.0,
+        measurement_range_max=100.0,
+        measurement_unit="% vol",
+        response_time_seconds=30.0,  # حسب تقنية FDR
+        operating_temp_min=-20.0,
+        operating_temp_max=60.0,
+        protection_rating="IP68",
+        calibration_interval_months=12,
+        drift_threshold_percent=5.0,
+        description_ar="مستشعر رطوبة التربة بتقنية انعكاس مجال التردد (FDR)",
+        description_en="Soil moisture sensor using Frequency Domain Reflectometry (FDR)",
+    ),
+    "soil_ec": SensorAccuracySpec(
+        sensor_type="soil_ec",
+        accuracy=0.01,  # ±0.01 mS/cm
+        accuracy_unit="mS/cm",
+        measurement_range_min=0.0,
+        measurement_range_max=10.0,
+        measurement_unit="mS/cm",
+        response_time_seconds=2.0,
+        operating_temp_min=0.0,
+        operating_temp_max=60.0,
+        protection_rating="IP68",
+        calibration_interval_months=6,
+        drift_threshold_percent=2.0,
+        description_ar="مستشعر الموصلية الكهربائية للتربة (الملوحة)",
+        description_en="Soil Electrical Conductivity (EC/Salinity) sensor",
+    ),
+    "soil_ph": SensorAccuracySpec(
+        sensor_type="soil_ph",
+        accuracy=0.02,  # ±0.02 pH
+        accuracy_unit="pH",
+        measurement_range_min=4.0,
+        measurement_range_max=8.0,
+        measurement_unit="pH",
+        response_time_seconds=2.0,
+        operating_temp_min=0.0,
+        operating_temp_max=60.0,
+        protection_rating="IP68",
+        calibration_interval_months=6,
+        drift_threshold_percent=1.0,
+        description_ar="مستشعر حموضة التربة مع تعويض تلقائي لدرجة الحرارة",
+        description_en="Soil pH sensor with automatic temperature compensation",
+    ),
+    "air_temperature": SensorAccuracySpec(
+        sensor_type="air_temperature",
+        accuracy=0.2,  # ±0.2°C
+        accuracy_unit="°C",
+        measurement_range_min=-40.0,
+        measurement_range_max=85.0,
+        measurement_unit="°C",
+        response_time_seconds=8.0,
+        operating_temp_min=-40.0,
+        operating_temp_max=85.0,
+        protection_rating="IP65",
+        calibration_interval_months=12,
+        drift_threshold_percent=1.0,
+        description_ar="مستشعر درجة حرارة الهواء عالي الدقة",
+        description_en="High-precision air temperature sensor",
+    ),
+    "soil_temperature": SensorAccuracySpec(
+        sensor_type="soil_temperature",
+        accuracy=0.2,  # ±0.2°C
+        accuracy_unit="°C",
+        measurement_range_min=-20.0,
+        measurement_range_max=60.0,
+        measurement_unit="°C",
+        response_time_seconds=10.0,
+        operating_temp_min=-40.0,
+        operating_temp_max=85.0,
+        protection_rating="IP68",
+        calibration_interval_months=12,
+        drift_threshold_percent=1.0,
+        description_ar="مستشعر درجة حرارة التربة مقاوم لدرجات الحرارة المنخفضة",
+        description_en="Low-temperature resistant soil temperature sensor",
+    ),
+    "air_humidity": SensorAccuracySpec(
+        sensor_type="air_humidity",
+        accuracy=2.0,  # ±2% RH
+        accuracy_unit="% RH",
+        measurement_range_min=0.0,
+        measurement_range_max=100.0,
+        measurement_unit="% RH",
+        response_time_seconds=8.0,
+        operating_temp_min=-40.0,
+        operating_temp_max=85.0,
+        protection_rating="IP65",
+        calibration_interval_months=12,
+        drift_threshold_percent=2.0,
+        description_ar="مستشعر رطوبة الهواء السعوي مع تصميم مضاد للتلوث",
+        description_en="Capacitive air humidity sensor with anti-pollution design",
+    ),
+    "light_intensity": SensorAccuracySpec(
+        sensor_type="light_intensity",
+        accuracy=5.0,  # ±5%
+        accuracy_unit="%",
+        measurement_range_min=0.0,
+        measurement_range_max=200000.0,
+        measurement_unit="lux",
+        response_time_seconds=1.0,
+        operating_temp_min=-20.0,
+        operating_temp_max=60.0,
+        protection_rating="IP65",
+        calibration_interval_months=12,
+        drift_threshold_percent=3.0,
+        description_ar="مستشعر شدة الضوء بنطاق طيف 400-700nm (PAR)",
+        description_en="Light intensity sensor with 400-700nm spectral response (PAR)",
+    ),
+    "co2_concentration": SensorAccuracySpec(
+        sensor_type="co2_concentration",
+        accuracy=50.0,  # ±50ppm + 2% FS
+        accuracy_unit="ppm",
+        measurement_range_min=0.0,
+        measurement_range_max=5000.0,
+        measurement_unit="ppm",
+        response_time_seconds=10.0,
+        operating_temp_min=-10.0,
+        operating_temp_max=50.0,
+        protection_rating="IP54",
+        calibration_interval_months=12,
+        drift_threshold_percent=2.0,
+        description_ar="مستشعر تركيز ثاني أكسيد الكربون بتقنية الأشعة تحت الحمراء",
+        description_en="CO2 concentration sensor using infrared detection technology",
+    ),
+    "water_flow": SensorAccuracySpec(
+        sensor_type="water_flow",
+        accuracy=1.0,  # ±1% FS
+        accuracy_unit="% FS",
+        measurement_range_min=0.0,
+        measurement_range_max=50.0,
+        measurement_unit="m³/h",
+        response_time_seconds=1.0,
+        operating_temp_min=-10.0,
+        operating_temp_max=60.0,
+        protection_rating="IP68",
+        calibration_interval_months=12,
+        drift_threshold_percent=2.0,
+        description_ar="مستشعر تدفق مياه الري مع فلتر مقاوم للانسداد",
+        description_en="Irrigation water flow sensor with anti-clogging filter",
+    ),
+    "chlorophyll": SensorAccuracySpec(
+        sensor_type="chlorophyll",
+        accuracy=1.0,  # ±1 SPAD
+        accuracy_unit="SPAD",
+        measurement_range_min=0.0,
+        measurement_range_max=99.9,
+        measurement_unit="SPAD",
+        response_time_seconds=2.0,
+        operating_temp_min=5.0,
+        operating_temp_max=40.0,
+        protection_rating="IP54",
+        calibration_interval_months=6,
+        drift_threshold_percent=2.0,
+        description_ar="مستشعر الكلوروفيل لمراقبة الحالة الغذائية النيتروجينية",
+        description_en="Chlorophyll sensor for nitrogen nutritional status monitoring",
+    ),
+    "leaf_moisture": SensorAccuracySpec(
+        sensor_type="leaf_moisture",
+        accuracy=2.0,  # ±2% RH
+        accuracy_unit="% RH",
+        measurement_range_min=0.0,
+        measurement_range_max=100.0,
+        measurement_unit="% RH",
+        response_time_seconds=5.0,
+        operating_temp_min=-10.0,
+        operating_temp_max=50.0,
+        protection_rating="IP65",
+        calibration_interval_months=6,
+        drift_threshold_percent=3.0,
+        description_ar="مستشعر رطوبة الأوراق للإنذار المبكر بالأمراض الفطرية",
+        description_en="Leaf moisture sensor for early warning of fungal diseases",
+    ),
+    "soil_npk": SensorAccuracySpec(
+        sensor_type="soil_npk",
+        accuracy=5.0,  # ±5% FS
+        accuracy_unit="% FS",
+        measurement_range_min=0.0,
+        measurement_range_max=500.0,
+        measurement_unit="mg/kg",
+        response_time_seconds=30.0,
+        operating_temp_min=-10.0,
+        operating_temp_max=50.0,
+        protection_rating="IP68",
+        calibration_interval_months=6,
+        drift_threshold_percent=5.0,
+        description_ar="مستشعر خصوبة التربة (النيتروجين والفوسفور والبوتاسيوم)",
+        description_en="Soil fertility sensor (Nitrogen, Phosphorus, Potassium)",
+    ),
+    "wind_speed": SensorAccuracySpec(
+        sensor_type="wind_speed",
+        accuracy=0.3,  # ±0.3 m/s
+        accuracy_unit="m/s",
+        measurement_range_min=0.0,
+        measurement_range_max=60.0,
+        measurement_unit="m/s",
+        response_time_seconds=1.0,
+        operating_temp_min=-40.0,
+        operating_temp_max=60.0,
+        protection_rating="IP65",
+        calibration_interval_months=12,
+        drift_threshold_percent=2.0,
+        description_ar="مستشعر سرعة الرياح بتصميم مقاوم للعواصف الرملية",
+        description_en="Wind speed sensor with sandstorm-resistant design",
+    ),
+    "rainfall": SensorAccuracySpec(
+        sensor_type="rainfall",
+        accuracy=0.2,  # ±0.2mm
+        accuracy_unit="mm",
+        measurement_range_min=0.0,
+        measurement_range_max=500.0,
+        measurement_unit="mm",
+        response_time_seconds=1.0,
+        operating_temp_min=-20.0,
+        operating_temp_max=60.0,
+        protection_rating="IP68",
+        calibration_interval_months=12,
+        drift_threshold_percent=2.0,
+        description_ar="مستشعر هطول الأمطار",
+        description_en="Rainfall sensor",
+    ),
+}
+
+
+def get_sensor_accuracy_spec(sensor_type: str) -> SensorAccuracySpec | None:
+    """
+    الحصول على مواصفات دقة المستشعر
+    Get sensor accuracy specification
+
+    Args:
+        sensor_type: نوع المستشعر - Sensor type
+
+    Returns:
+        SensorAccuracySpec or None if not found
+    """
+    return SENSOR_ACCURACY_SPECS.get(sensor_type.lower())
+
+
+def validate_reading_accuracy(
+    sensor_type: str, value: float, reference_value: float | None = None
+) -> tuple[bool, float | None, str]:
+    """
+    التحقق من دقة القراءة مقارنة بالمواصفات
+    Validate reading accuracy against specifications
+
+    Args:
+        sensor_type: نوع المستشعر
+        value: القيمة المقاسة
+        reference_value: القيمة المرجعية (للمعايرة)
+
+    Returns:
+        (is_valid, deviation, message)
+    """
+    spec = get_sensor_accuracy_spec(sensor_type)
+    if not spec:
+        return True, None, "No accuracy spec defined"
+
+    # Check if value is in range
+    if value < spec.measurement_range_min or value > spec.measurement_range_max:
+        return (
+            False,
+            None,
+            f"Value {value} out of range [{spec.measurement_range_min}, {spec.measurement_range_max}]",
+        )
+
+    # If reference value provided, check deviation
+    if reference_value is not None:
+        if spec.accuracy_unit == "%":
+            deviation = abs(value - reference_value)
+            is_valid = deviation <= spec.accuracy
+        elif spec.accuracy_unit == "% FS":
+            full_scale = spec.measurement_range_max - spec.measurement_range_min
+            deviation = abs(value - reference_value)
+            is_valid = deviation <= (spec.accuracy / 100) * full_scale
+        else:
+            deviation = abs(value - reference_value)
+            is_valid = deviation <= spec.accuracy
+
+        status = "valid" if is_valid else "deviation exceeds spec"
+        return is_valid, deviation, status
+
+    return True, None, "Within specification range"
+
+
 # عتبات التنبيه لمناخ اليمن
 # Alert thresholds for Yemen climate
 YEMEN_THRESHOLDS = {

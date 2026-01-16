@@ -154,27 +154,27 @@ void main() {
 
   group('ApiConfig Endpoints - Weather Service', () {
     test('should have correct current weather endpoint', () {
-      expect(ApiConfig.weather, contains('/v1/current'));
+      expect(ApiConfig.weather, contains('/weather/current'));
     });
 
     test('should generate correct weather by location endpoint', () {
-      expect(ApiConfig.weatherByLocation('sanaa'), contains('/v1/current/sanaa'));
+      expect(ApiConfig.weatherByLocation('sanaa'), contains('/weather/current/sanaa'));
     });
 
     test('should have correct forecast endpoint', () {
-      expect(ApiConfig.forecast, contains('/v1/forecast'));
+      expect(ApiConfig.forecast, contains('/weather/forecast'));
     });
 
     test('should have correct weather alerts endpoint', () {
-      expect(ApiConfig.weatherAlerts, contains('/v1/alerts'));
+      expect(ApiConfig.weatherAlerts, contains('/weather/alerts'));
     });
 
     test('should have correct weather locations endpoint', () {
-      expect(ApiConfig.weatherLocations, contains('/v1/locations'));
+      expect(ApiConfig.weatherLocations, contains('/weather/locations'));
     });
 
     test('should have correct agricultural calendar endpoint', () {
-      expect(ApiConfig.agriculturalCalendar, contains('/v1/agricultural-calendar'));
+      expect(ApiConfig.agriculturalCalendar, contains('/weather/agricultural-calendar'));
     });
   });
 
@@ -292,29 +292,29 @@ void main() {
     });
 
     test('should have correct maintenance alerts endpoint', () {
-      expect(ApiConfig.maintenanceAlerts, contains('/api/v1/maintenance/alerts'));
+      expect(ApiConfig.maintenanceAlerts, contains('/equipment/maintenance/alerts'));
     });
   });
 
   group('ApiConfig Endpoints - Marketplace', () {
     test('should generate correct wallet endpoint', () {
-      expect(ApiConfig.wallet('user-123'), contains('/api/v1/fintech/wallet/user-123'));
+      expect(ApiConfig.wallet('user-123'), contains('/marketplace/fintech/wallet/user-123'));
     });
 
     test('should have correct credit score endpoint', () {
-      expect(ApiConfig.calculateCreditScore, contains('/api/v1/fintech/calculate-score'));
+      expect(ApiConfig.calculateCreditScore, contains('/marketplace/fintech/calculate-score'));
     });
 
     test('should have correct loans endpoint', () {
-      expect(ApiConfig.loans, contains('/api/v1/fintech/loans'));
+      expect(ApiConfig.loans, contains('/marketplace/fintech/loans'));
     });
 
     test('should have correct market products endpoint', () {
-      expect(ApiConfig.marketProducts, contains('/api/v1/market/products'));
+      expect(ApiConfig.marketProducts, contains('/marketplace/products'));
     });
 
     test('should have correct list harvest endpoint', () {
-      expect(ApiConfig.listHarvest, contains('/api/v1/market/harvest'));
+      expect(ApiConfig.listHarvest, contains('/marketplace/harvest'));
     });
   });
 

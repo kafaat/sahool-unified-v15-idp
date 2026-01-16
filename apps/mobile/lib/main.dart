@@ -11,6 +11,7 @@ import 'core/services/crash_reporting_service.dart';
 import 'core/security/device_integrity_service.dart';
 import 'core/security/device_security_screen.dart';
 import 'core/security/security_config.dart';
+import 'core/utils/app_logger.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized first
@@ -42,7 +43,7 @@ void main() async {
     try {
       await EnvConfig.load();
     } catch (e) {
-      debugPrint('⚠️ EnvConfig load failed: $e');
+      AppLogger.w('EnvConfig load failed: $e', tag: 'Main');
       // Continue anyway - defaults will be used
     }
 
@@ -61,15 +62,15 @@ void main() async {
         level: BreadcrumbLevel.info,
       );
 
-      debugPrint('✅ Crash reporting initialized');
+      AppLogger.i('Crash reporting initialized', tag: 'Main');
     } catch (e) {
-      debugPrint('⚠️ Crash reporting init failed (non-critical): $e');
+      AppLogger.w('Crash reporting init failed (non-critical): $e', tag: 'Main');
     }
 
     // Device Integrity Check - Security Feature
     // فحص سلامة الجهاز - ميزة أمنية
     final securityConfig = SecurityConfig.fromBuildMode();
-    debugPrint('🔒 Security config: $securityConfig');
+    AppLogger.d('Security config: $securityConfig', tag: 'Security');
 
     // Perform device integrity check if enabled
     if (securityConfig.deviceIntegrityPolicy != DeviceIntegrityPolicy.disabled) {
@@ -106,7 +107,7 @@ void main() async {
             (securityConfig.deviceIntegrityPolicy == DeviceIntegrityPolicy.warn &&
              securityResult.hasSecurityIssues)) {
 
-          debugPrint('🚨 Security check failed - showing security screen');
+          AppLogger.w('Security check failed - showing security screen', tag: 'Security');
           crashReporting.recordBreadcrumb(
             message: 'Security check failed - blocking app',
             category: 'security',
@@ -124,7 +125,7 @@ void main() async {
                     ? null
                     : () {
                         // User chose to continue anyway
-                        debugPrint('⚠️ User bypassed security warning');
+                        AppLogger.w('User bypassed security warning', tag: 'Security');
                         crashReporting.recordBreadcrumb(
                           message: 'User bypassed security warning',
                           category: 'security',
@@ -139,14 +140,14 @@ void main() async {
           return; // Stop app initialization
         }
 
-        debugPrint('✅ Device security check passed');
+        AppLogger.i('Device security check passed', tag: 'Security');
         crashReporting.recordBreadcrumb(
           message: 'Device security check passed',
           category: 'security',
           level: BreadcrumbLevel.info,
         );
       } catch (e, stackTrace) {
-        debugPrint('⚠️ Device integrity check failed (non-critical): $e');
+        AppLogger.w('Device integrity check failed (non-critical): $e', tag: 'Security');
         // Continue anyway - don't block app if security check fails
         crashReporting.reportError(
           e,
@@ -157,7 +158,7 @@ void main() async {
         );
       }
     } else {
-      debugPrint('🔓 Device integrity checks disabled');
+      AppLogger.d('Device integrity checks disabled', tag: 'Security');
       crashReporting.recordBreadcrumb(
         message: 'Device integrity checks disabled',
         category: 'security',
@@ -181,7 +182,7 @@ void main() async {
         level: BreadcrumbLevel.info,
       );
     } catch (e, stackTrace) {
-      debugPrint('❌ Database initialization failed: $e');
+      AppLogger.critical('Database initialization failed: $e', tag: 'Main', error: e, stackTrace: stackTrace);
       crashReporting.reportError(
         e,
         stackTrace,
@@ -207,7 +208,7 @@ void main() async {
         level: BreadcrumbLevel.info,
       );
     } catch (e, stackTrace) {
-      debugPrint('❌ SyncEngine initialization failed: $e');
+      AppLogger.critical('SyncEngine initialization failed: $e', tag: 'Main', error: e, stackTrace: stackTrace);
       crashReporting.reportError(
         e,
         stackTrace,
@@ -227,7 +228,7 @@ void main() async {
       );
       await BackgroundSyncManager.initialize();
       await BackgroundSyncManager.registerPeriodicSync();
-      debugPrint('✅ Background sync initialized');
+      AppLogger.i('Background sync initialized', tag: 'Main');
       crashReporting.recordBreadcrumb(
         message: 'Background sync initialized successfully',
         category: 'lifecycle',
@@ -235,7 +236,7 @@ void main() async {
       );
     } catch (e, stackTrace) {
       // Non-critical - app can work without background sync
-      debugPrint('⚠️ Background sync init failed (non-critical): $e');
+      AppLogger.w('Background sync init failed (non-critical): $e', tag: 'Main');
       crashReporting.reportError(
         e,
         stackTrace,
@@ -271,7 +272,7 @@ void main() async {
       );
       syncEngine.startPeriodic();
     } catch (e, stackTrace) {
-      debugPrint('⚠️ Foreground sync start failed: $e');
+      AppLogger.w('Foreground sync start failed: $e', tag: 'Main');
       crashReporting.reportError(
         e,
         stackTrace,
@@ -282,8 +283,7 @@ void main() async {
     }
   }, (error, stackTrace) {
     // Global zone error handler - catches all uncaught async errors
-    debugPrint('❌ Uncaught error: $error');
-    debugPrint('Stack trace: $stackTrace');
+    AppLogger.critical('Uncaught error: $error', tag: 'Main', error: error, stackTrace: stackTrace);
 
     // Report to crash reporting service
     final crashReporting = CrashReportingService();

@@ -14,7 +14,12 @@ RUN groupadd --system sahool && \
 
 # Install Python dependencies
 COPY apps/services/code-review-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules
 COPY apps/services/shared/ ./shared/

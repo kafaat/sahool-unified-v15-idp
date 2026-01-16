@@ -23,7 +23,6 @@ class SprayCalendarScreen extends ConsumerStatefulWidget {
 }
 
 class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
-  final String _locale = 'ar'; // TODO: Get from app locale
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   List<SprayWindow> _allWindows = [];
@@ -37,7 +36,8 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isArabic = _locale == 'ar';
+    final locale = Localizations.localeOf(context).languageCode;
+    final isArabic = locale == 'ar';
 
     // Calculate days from now to end of next month
     final now = DateTime.now();
@@ -68,7 +68,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
               const Divider(),
               // Selected Day Windows
               Expanded(
-                child: _buildSelectedDayWindows(theme, isArabic),
+                child: _buildSelectedDayWindows(theme, isArabic, locale),
               ),
             ],
           );
@@ -271,7 +271,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
     );
   }
 
-  Widget _buildSelectedDayWindows(ThemeData theme, bool isArabic) {
+  Widget _buildSelectedDayWindows(ThemeData theme, bool isArabic, String locale) {
     if (_selectedDay == null) {
       return Center(
         child: Text(
@@ -314,8 +314,8 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
         final window = dayWindows[index];
         return SprayWindowTimelineItem(
           window: window,
-          locale: _locale,
-          onTap: () => _showWindowDetails(window, theme, isArabic),
+          locale: locale,
+          onTap: () => _showWindowDetails(window, theme, isArabic, locale),
         );
       },
     );
@@ -358,7 +358,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
     }
   }
 
-  void _showWindowDetails(SprayWindow window, ThemeData theme, bool isArabic) {
+  void _showWindowDetails(SprayWindow window, ThemeData theme, bool isArabic, String locale) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -395,7 +395,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                SprayWindowCard(window: window, locale: _locale),
+                SprayWindowCard(window: window, locale: locale),
               ],
             ),
           ),

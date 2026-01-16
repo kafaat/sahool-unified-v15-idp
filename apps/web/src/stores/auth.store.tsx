@@ -2,6 +2,7 @@
 import * as React from "react";
 import Cookies from "js-cookie";
 import { apiClient } from "@/lib/api/client";
+import { logger } from "@/lib/logger";
 
 /**
  * Fetch CSRF token from the server
@@ -15,7 +16,7 @@ async function fetchCsrfToken(): Promise<void> {
       // No need to manually set it here
     }
   } catch (error) {
-    console.warn("Failed to fetch CSRF token:", error);
+    logger.warn("Failed to fetch CSRF token:", error);
     // Non-fatal error - continue without CSRF token
     // The middleware will generate one on next authenticated request
   }
@@ -89,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     } catch (error) {
       // Continue with logout even if API call fails
-      console.error("Failed to clear session cookies:", error);
+      logger.error("Failed to clear session cookies:", error);
     }
 
     // Clear CSRF token

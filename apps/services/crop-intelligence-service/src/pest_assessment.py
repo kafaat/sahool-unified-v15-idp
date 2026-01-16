@@ -14,28 +14,128 @@ from typing import Any
 
 
 class PestType(str, Enum):
-    """أنواع الآفات الشائعة"""
+    """
+    أنواع الآفات الشائعة - Extended pest types database
+    Based on Agricultural Sensing Technology Article (50+ types)
+    مرجع: مقالة تكنولوجيا الاستشعار الزراعي (2025)
+    """
 
-    # Insects - حشرات
+    # =========================================================================
+    # Sucking Insects - الحشرات الماصة
+    # =========================================================================
     APHIDS = "aphids"  # من
     WHITEFLY = "whitefly"  # ذبابة بيضاء
     THRIPS = "thrips"  # تربس
+    MEALYBUG = "mealybug"  # البق الدقيقي
+    SCALE_INSECTS = "scale_insects"  # الحشرات القشرية
+    PSYLLIDS = "psyllids"  # سيليد
+    LEAFHOPPERS = "leafhoppers"  # نطاطات الأوراق
+    PLANT_BUGS = "plant_bugs"  # بق النبات
+
+    # =========================================================================
+    # Mites & Acarids - الأكاروسات والعناكب
+    # =========================================================================
     MITES = "mites"  # أكاروس
+    SPIDER_MITES = "spider_mites"  # العنكبوت الأحمر
+    RUST_MITES = "rust_mites"  # أكاروس الصدأ
+    BROAD_MITES = "broad_mites"  # الأكاروس العريض
+
+    # =========================================================================
+    # Chewing Insects - الحشرات القارضة
+    # =========================================================================
     LOCUST = "locust"  # جراد
     ARMYWORM = "armyworm"  # دودة الجيش
     BOLLWORM = "bollworm"  # دودة اللوز
-    FRUIT_FLY = "fruit_fly"  # ذبابة الفاكهة
-    LEAF_MINER = "leaf_miner"  # صانعة الأنفاق
+    CUTWORM = "cutworm"  # الدودة القارضة
+    CORN_BORER = "corn_borer"  # حفار الذرة
+    SUGARCANE_BORER = "sugarcane_borer"  # حفار قصب السكر
+    PINK_BOLLWORM = "pink_bollworm"  # دودة اللوز القرنفلية
+    TOMATO_LEAFMINER = "tomato_leafminer"  # توتا أبسلوتا
+    CABBAGE_LOOPER = "cabbage_looper"  # دودة ورق الملفوف
+    DIAMONDBACK_MOTH = "diamondback_moth"  # فراشة الظهر الماسي
+    GRASSHOPPERS = "grasshoppers"  # الجنادب
+    BEETLES = "beetles"  # الخنافس
+
+    # =========================================================================
+    # Borers - الحفارات
+    # =========================================================================
     STEM_BORER = "stem_borer"  # حفار الساق
+    FRUIT_BORER = "fruit_borer"  # حفار الثمار
+    SHOOT_BORER = "shoot_borer"  # حفار البراعم
+    ROOT_BORER = "root_borer"  # حفار الجذور
 
-    # Nematodes - نيماتودا
+    # =========================================================================
+    # Leaf Miners - صانعات الأنفاق
+    # =========================================================================
+    LEAF_MINER = "leaf_miner"  # صانعة الأنفاق
+    CITRUS_LEAFMINER = "citrus_leafminer"  # صانعة أنفاق الحمضيات
+    VEGETABLE_LEAFMINER = "vegetable_leafminer"  # صانعة أنفاق الخضر
+
+    # =========================================================================
+    # Flies - الذباب
+    # =========================================================================
+    FRUIT_FLY = "fruit_fly"  # ذبابة الفاكهة
+    MEDITERRANEAN_FRUIT_FLY = "mediterranean_fruit_fly"  # ذبابة فاكهة البحر المتوسط
+    OLIVE_FRUIT_FLY = "olive_fruit_fly"  # ذبابة ثمار الزيتون
+    ONION_FLY = "onion_fly"  # ذبابة البصل
+    CARROT_FLY = "carrot_fly"  # ذبابة الجزر
+    BEAN_FLY = "bean_fly"  # ذبابة الفاصوليا
+
+    # =========================================================================
+    # Date Palm Pests - آفات النخيل
+    # =========================================================================
+    RED_PALM_WEEVIL = "red_palm_weevil"  # سوسة النخيل الحمراء
+    DATE_MOTH = "date_moth"  # فراشة التمر
+    DUBAS_BUG = "dubas_bug"  # دوباس النخيل
+    LESSER_DATE_MOTH = "lesser_date_moth"  # فراشة التمر الصغرى
+    PARLATORIA_SCALE = "parlatoria_scale"  # بارلاتوريا النخيل
+
+    # =========================================================================
+    # Coffee & Qat Pests - آفات البن والقات
+    # =========================================================================
+    COFFEE_BERRY_BORER = "coffee_berry_borer"  # حفار ثمار البن
+    COFFEE_LEAF_RUST = "coffee_leaf_rust"  # صدأ أوراق البن
+    COFFEE_MEALYBUG = "coffee_mealybug"  # البق الدقيقي للبن
+
+    # =========================================================================
+    # Nematodes - النيماتودا
+    # =========================================================================
     ROOT_KNOT_NEMATODE = "root_knot_nematode"  # نيماتودا تعقد الجذور
+    CYST_NEMATODE = "cyst_nematode"  # نيماتودا الأكياس
+    ROOT_LESION_NEMATODE = "root_lesion_nematode"  # نيماتودا تقرح الجذور
+    BURROWING_NEMATODE = "burrowing_nematode"  # نيماتودا الجذور الحفارة
 
-    # Rodents - قوارض
+    # =========================================================================
+    # Soil Pests - آفات التربة
+    # =========================================================================
+    WIREWORMS = "wireworms"  # الديدان السلكية
+    WHITE_GRUBS = "white_grubs"  # اليرقات البيضاء
+    TERMITES = "termites"  # النمل الأبيض
+    ANTS = "ants"  # النمل
+    MOLE_CRICKETS = "mole_crickets"  # الحفارات
+
+    # =========================================================================
+    # Storage Pests - آفات المخازن
+    # =========================================================================
+    GRAIN_WEEVIL = "grain_weevil"  # سوسة الحبوب
+    FLOUR_BEETLE = "flour_beetle"  # خنفساء الدقيق
+    RICE_WEEVIL = "rice_weevil"  # سوسة الأرز
+    KHAPRA_BEETLE = "khapra_beetle"  # خنفساء الخابرا
+
+    # =========================================================================
+    # Vertebrate Pests - الآفات الفقارية
+    # =========================================================================
     RATS = "rats"  # فئران
-
-    # Birds - طيور
+    MICE = "mice"  # فأر
     BIRDS = "birds"  # طيور
+    QUELEA_BIRDS = "quelea_birds"  # طيور الكيليا
+    WILD_BOAR = "wild_boar"  # الخنزير البري
+
+    # =========================================================================
+    # Mollusks - الرخويات
+    # =========================================================================
+    SNAILS = "snails"  # القواقع
+    SLUGS = "slugs"  # البزاقات
 
 
 class RiskLevel(str, Enum):
@@ -307,6 +407,206 @@ PEST_DATABASE = {
         ],
         "monitoring_advice_en": "Install McPhail traps 6 weeks before harvest",
         "monitoring_advice_ar": "ركب مصائد ماكفيل قبل 6 أسابيع من الحصاد",
+    },
+    # ==========================================================================
+    # آفات إضافية من مقالة الاستشعار الزراعي
+    # Additional pests from Agricultural Sensing Article
+    # ==========================================================================
+    PestType.RED_PALM_WEEVIL: {
+        "name_en": "Red Palm Weevil",
+        "name_ar": "سوسة النخيل الحمراء",
+        "description_en": "Lethal pest of date palms, requires 24-48h response",
+        "description_ar": "آفة قاتلة للنخيل، تتطلب استجابة خلال 24-48 ساعة",
+        "favorable_temp_range": (25, 38),
+        "favorable_humidity_min": 50,
+        "favorable_humidity_max": 90,
+        "seasonal_peak": ["spring", "summer", "fall"],
+        "damage_symptoms_en": [
+            "Wilting of crown leaves",
+            "Brown frass at trunk base",
+            "Fermented odor",
+            "Trunk collapse",
+        ],
+        "damage_symptoms_ar": [
+            "ذبول أوراق التاج",
+            "نشارة بنية عند قاعدة الجذع",
+            "رائحة تخمر",
+            "انهيار الجذع",
+        ],
+        "controls": [
+            PestControl(
+                method=ControlMethod.CHEMICAL,
+                product_name="Emamectin benzoate 5% injection",
+                product_name_ar="حقن إيمامكتين بنزوات 5%",
+                dosage="50-100ml per injection point (4-6 points/tree)",
+                dosage_ar="50-100 مل لكل نقطة حقن (4-6 نقاط/شجرة)",
+                timing="At detection, within 24-48 hours",
+                timing_ar="عند الاكتشاف، خلال 24-48 ساعة",
+                effectiveness="high",
+                safety_interval_days=30,
+            ),
+            PestControl(
+                method=ControlMethod.MECHANICAL,
+                product_name="Pheromone traps (aggregation pheromone)",
+                product_name_ar="مصائد الفرمونات (فرمون التجميع)",
+                dosage="5 traps per hectare",
+                dosage_ar="5 مصائد لكل هكتار",
+                timing="Preventive year-round",
+                timing_ar="وقائي طوال العام",
+                effectiveness="medium",
+                safety_interval_days=0,
+            ),
+        ],
+        "monitoring_advice_en": "Weekly visual inspection, check for frass and wilting. Report to Ministry immediately.",
+        "monitoring_advice_ar": "فحص بصري أسبوعي، ابحث عن النشارة والذبول. أبلغ الوزارة فوراً.",
+    },
+    PestType.SPIDER_MITES: {
+        "name_en": "Spider Mites (Two-spotted)",
+        "name_ar": "العنكبوت الأحمر ذو البقعتين",
+        "description_en": "Tiny mites that cause stippling and webbing on leaves",
+        "description_ar": "أكاروسات دقيقة تسبب تنقيط الأوراق وظهور خيوط عنكبوتية",
+        "favorable_temp_range": (25, 35),
+        "favorable_humidity_min": 20,
+        "favorable_humidity_max": 50,
+        "damage_symptoms_en": ["Stippling on leaves", "Webbing", "Bronzing", "Leaf drop"],
+        "damage_symptoms_ar": ["تنقيط الأوراق", "خيوط عنكبوتية", "تبرنز", "سقوط أوراق"],
+        "controls": [
+            PestControl(
+                method=ControlMethod.BIOLOGICAL,
+                product_name="Phytoseiulus persimilis",
+                product_name_ar="فيتوسيولوس بيرسيميلس",
+                dosage="2-5 per plant",
+                dosage_ar="2-5 لكل نبات",
+                timing="At first detection",
+                timing_ar="عند أول اكتشاف",
+                effectiveness="high",
+                safety_interval_days=0,
+            ),
+            PestControl(
+                method=ControlMethod.CHEMICAL,
+                product_name="Abamectin (Vertimec)",
+                product_name_ar="أبامكتين (فيرتيمك)",
+                dosage="0.5-1 L/ha",
+                dosage_ar="0.5-1 لتر/هكتار",
+                timing="When population builds",
+                timing_ar="عند ازدياد الأعداد",
+                effectiveness="high",
+                safety_interval_days=7,
+            ),
+        ],
+        "monitoring_advice_en": "Check underside of leaves with hand lens, especially in hot dry periods",
+        "monitoring_advice_ar": "افحص أسفل الأوراق بعدسة مكبرة، خاصة في الفترات الحارة الجافة",
+    },
+    PestType.TOMATO_LEAFMINER: {
+        "name_en": "Tomato Leafminer (Tuta absoluta)",
+        "name_ar": "توتا أبسلوتا (حافرة أوراق الطماطم)",
+        "description_en": "Devastating pest of tomatoes, causes extensive leaf and fruit damage",
+        "description_ar": "آفة مدمرة للطماطم، تسبب أضراراً كبيرة للأوراق والثمار",
+        "favorable_temp_range": (20, 30),
+        "favorable_humidity_min": 60,
+        "favorable_humidity_max": 90,
+        "seasonal_peak": ["spring", "summer"],
+        "damage_symptoms_en": [
+            "Blotch mines in leaves",
+            "Holes in fruits",
+            "Galleries in stems",
+            "Frass in mines",
+        ],
+        "damage_symptoms_ar": [
+            "أنفاق بقعية في الأوراق",
+            "ثقوب في الثمار",
+            "أنفاق في السيقان",
+            "براز في الأنفاق",
+        ],
+        "controls": [
+            PestControl(
+                method=ControlMethod.MECHANICAL,
+                product_name="Delta traps with pheromone",
+                product_name_ar="مصائد دلتا مع فرمون",
+                dosage="20-40 traps/ha",
+                dosage_ar="20-40 مصيدة/هكتار",
+                timing="From transplanting",
+                timing_ar="من الشتل",
+                effectiveness="medium",
+                safety_interval_days=0,
+            ),
+            PestControl(
+                method=ControlMethod.BIOLOGICAL,
+                product_name="Bacillus thuringiensis (Bt)",
+                product_name_ar="باسيلوس ثورينجينسيس",
+                dosage="1-2 kg/ha",
+                dosage_ar="1-2 كجم/هكتار",
+                timing="At first detection",
+                timing_ar="عند أول اكتشاف",
+                effectiveness="medium",
+                safety_interval_days=0,
+            ),
+        ],
+        "monitoring_advice_en": "Check traps twice weekly, inspect leaves for mines",
+        "monitoring_advice_ar": "افحص المصائد مرتين أسبوعياً، فتش الأوراق عن الأنفاق",
+    },
+    PestType.MEALYBUG: {
+        "name_en": "Mealybug",
+        "name_ar": "البق الدقيقي",
+        "description_en": "Soft-bodied insects covered in white waxy coating",
+        "description_ar": "حشرات رخوة مغطاة بطبقة شمعية بيضاء",
+        "favorable_temp_range": (22, 32),
+        "favorable_humidity_min": 50,
+        "favorable_humidity_max": 80,
+        "damage_symptoms_en": ["White cottony masses", "Honeydew", "Sooty mold", "Distorted growth"],
+        "damage_symptoms_ar": ["كتل قطنية بيضاء", "ندوة عسلية", "عفن أسود", "نمو مشوه"],
+        "controls": [
+            PestControl(
+                method=ControlMethod.BIOLOGICAL,
+                product_name="Cryptolaemus montrouzieri",
+                product_name_ar="كريبتوليموس مونتروزييري",
+                dosage="5-10 per plant",
+                dosage_ar="5-10 لكل نبات",
+                timing="Early season",
+                timing_ar="بداية الموسم",
+                effectiveness="high",
+                safety_interval_days=0,
+            ),
+        ],
+        "monitoring_advice_en": "Check leaf axils and stem joints for cottony masses",
+        "monitoring_advice_ar": "افحص آباط الأوراق ومفاصل السيقان للكتل القطنية",
+    },
+    PestType.DUBAS_BUG: {
+        "name_en": "Dubas Bug (Date Palm Hopper)",
+        "name_ar": "دوباس النخيل",
+        "description_en": "Major pest of date palms in Middle East, causes honeydew and sooty mold",
+        "description_ar": "آفة رئيسية للنخيل في الشرق الأوسط، تسبب الندوة العسلية والعفن الأسود",
+        "favorable_temp_range": (25, 40),
+        "favorable_humidity_min": 30,
+        "favorable_humidity_max": 70,
+        "seasonal_peak": ["spring", "fall"],
+        "damage_symptoms_en": [
+            "Honeydew on fronds",
+            "Sooty mold",
+            "Reduced photosynthesis",
+            "Fruit quality decline",
+        ],
+        "damage_symptoms_ar": [
+            "ندوة عسلية على السعف",
+            "عفن أسود",
+            "انخفاض التمثيل الضوئي",
+            "تدهور جودة الثمار",
+        ],
+        "controls": [
+            PestControl(
+                method=ControlMethod.CHEMICAL,
+                product_name="Diflubenzuron (Dimilin)",
+                product_name_ar="ديفلوبنزورون (ديميلين)",
+                dosage="0.5-1 L/ha",
+                dosage_ar="0.5-1 لتر/هكتار",
+                timing="At nymph emergence (spring/fall)",
+                timing_ar="عند ظهور الحوريات (ربيع/خريف)",
+                effectiveness="high",
+                safety_interval_days=14,
+            ),
+        ],
+        "monitoring_advice_en": "Monitor nymph populations on lower fronds in spring and fall",
+        "monitoring_advice_ar": "راقب الحوريات على السعف السفلي في الربيع والخريف",
     },
 }
 

@@ -21,7 +21,9 @@ import 'package:flutter/foundation.dart';
 /// ```
 Future<CertificateInfo?> getCertificateInfo(String url) async {
   if (!kDebugMode) {
-    debugPrint('⚠️ Certificate tools should only be used in debug mode');
+    if (kDebugMode) {
+      debugPrint('⚠️ Certificate tools should only be used in debug mode');
+    }
     return null;
   }
 
@@ -30,7 +32,9 @@ Future<CertificateInfo?> getCertificateInfo(String url) async {
     final host = uri.host;
     final port = uri.port == 0 ? 443 : uri.port;
 
-    debugPrint('Connecting to $host:$port...');
+    if (kDebugMode) {
+      debugPrint('Connecting to $host:$port...');
+    }
 
     final socket = await SecureSocket.connect(
       host,
@@ -42,7 +46,9 @@ Future<CertificateInfo?> getCertificateInfo(String url) async {
     final cert = socket.peerCertificate;
     if (cert == null) {
       socket.close();
-      debugPrint('❌ No certificate found');
+      if (kDebugMode) {
+        debugPrint('❌ No certificate found');
+      }
       return null;
     }
 
@@ -51,7 +57,9 @@ Future<CertificateInfo?> getCertificateInfo(String url) async {
     socket.close();
     return certInfo;
   } catch (e) {
-    debugPrint('❌ Error getting certificate info: $e');
+    if (kDebugMode) {
+      debugPrint('❌ Error getting certificate info: $e');
+    }
     return null;
   }
 }
@@ -76,7 +84,9 @@ Future<List<CertificateInfo>> getCertificateInfoBatch(
   final results = <CertificateInfo>[];
 
   for (final url in urls) {
-    debugPrint('\n--- Fetching certificate for $url ---');
+    if (kDebugMode) {
+      debugPrint('\n--- Fetching certificate for $url ---');
+    }
     final info = await getCertificateInfo(url);
     if (info != null) {
       results.add(info);
@@ -96,34 +106,38 @@ Future<List<CertificateInfo>> getCertificateInfoBatch(
 /// printCertificateConfigCode(info);
 /// ```
 void printCertificateConfigCode(CertificateInfo info) {
-  debugPrint('\n=== Certificate Configuration Code ===');
-  debugPrint("'${info.host}': [");
-  debugPrint('  CertificatePin(');
-  debugPrint('    type: PinType.sha256,');
-  debugPrint("    value: '${info.sha256Fingerprint}',");
-  debugPrint('    expiryDate: DateTime(${info.validUntil.year}, ${info.validUntil.month}, ${info.validUntil.day}),');
-  debugPrint("    description: 'Certificate for ${info.host}',");
-  debugPrint('  ),');
-  debugPrint('],');
-  debugPrint('=====================================\n');
+  if (kDebugMode) {
+    debugPrint('\n=== Certificate Configuration Code ===');
+    debugPrint("'${info.host}': [");
+    debugPrint('  CertificatePin(');
+    debugPrint('    type: PinType.sha256,');
+    debugPrint("    value: '${info.sha256Fingerprint}',");
+    debugPrint('    expiryDate: DateTime(${info.validUntil.year}, ${info.validUntil.month}, ${info.validUntil.day}),');
+    debugPrint("    description: 'Certificate for ${info.host}',");
+    debugPrint('  ),');
+    debugPrint('],');
+    debugPrint('=====================================\n');
+  }
 }
 
 /// Generate configuration for multiple certificates
 void generateBulkConfiguration(List<CertificateInfo> certificates) {
-  debugPrint('\n╔════════════════════════════════════════════════════╗');
-  debugPrint('║  Certificate Pin Configuration - Copy This Code   ║');
-  debugPrint('╚════════════════════════════════════════════════════╝\n');
+  if (kDebugMode) {
+    debugPrint('\n╔════════════════════════════════════════════════════╗');
+    debugPrint('║  Certificate Pin Configuration - Copy This Code   ║');
+    debugPrint('╚════════════════════════════════════════════════════╝\n');
 
-  for (final cert in certificates) {
-    debugPrint("  '${cert.host}': [");
-    debugPrint('    CertificatePin(');
-    debugPrint('      type: PinType.sha256,');
-    debugPrint("      value: '${cert.sha256Fingerprint}',");
-    debugPrint('      expiryDate: DateTime(${cert.validUntil.year}, ${cert.validUntil.month}, ${cert.validUntil.day}),');
-    debugPrint("      description: 'Certificate for ${cert.host}',");
-    debugPrint('    ),');
-    debugPrint('  ],');
-    debugPrint('');
+    for (final cert in certificates) {
+      debugPrint("  '${cert.host}': [");
+      debugPrint('    CertificatePin(');
+      debugPrint('      type: PinType.sha256,');
+      debugPrint("      value: '${cert.sha256Fingerprint}',");
+      debugPrint('      expiryDate: DateTime(${cert.validUntil.year}, ${cert.validUntil.month}, ${cert.validUntil.day}),');
+      debugPrint("      description: 'Certificate for ${cert.host}',");
+      debugPrint('    ),');
+      debugPrint('  ],');
+      debugPrint('');
+    }
   }
 }
 
@@ -138,12 +152,14 @@ Future<bool> verifyCertificateFingerprint({
   final matches = info.sha256Fingerprint.toLowerCase() ==
       expectedFingerprint.toLowerCase();
 
-  if (matches) {
-    debugPrint('✅ Certificate fingerprint matches!');
-  } else {
-    debugPrint('❌ Certificate fingerprint does NOT match!');
-    debugPrint('   Expected: $expectedFingerprint');
-    debugPrint('   Actual:   ${info.sha256Fingerprint}');
+  if (kDebugMode) {
+    if (matches) {
+      debugPrint('✅ Certificate fingerprint matches!');
+    } else {
+      debugPrint('❌ Certificate fingerprint does NOT match!');
+      debugPrint('   Expected: $expectedFingerprint');
+      debugPrint('   Actual:   ${info.sha256Fingerprint}');
+    }
   }
 
   return matches;

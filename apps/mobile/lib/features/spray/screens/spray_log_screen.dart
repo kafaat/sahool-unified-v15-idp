@@ -27,7 +27,6 @@ class SprayLogScreen extends ConsumerStatefulWidget {
 
 class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
   final _formKey = GlobalKey<FormState>();
-  final String _locale = 'ar'; // TODO: Get from app locale
 
   // Form fields
   SprayType? _selectedSprayType;
@@ -56,7 +55,8 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isArabic = _locale == 'ar';
+    final locale = Localizations.localeOf(context).languageCode;
+    final isArabic = locale == 'ar';
 
     return Scaffold(
       appBar: AppBar(

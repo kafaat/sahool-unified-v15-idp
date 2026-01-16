@@ -293,7 +293,6 @@ def predict_yield(
 
     base_yield = params["base_yield_kg_ha"]
     max_yield = params["max_yield_kg_ha"]
-    ndvi_coef = params["ndvi_coefficient"]
     water_sens = params["water_sensitivity"]
     optimal_ndvi = params["optimal_ndvi_range"]
     price = params["price_usd_per_kg"]
@@ -355,7 +354,6 @@ def predict_yield(
     # Use historical data if available for calibration
     if historical_yield_kg_ha:
         # Blend with historical (30% weight to current prediction)
-        historical_ratio = historical_yield_kg_ha / base_yield
         predicted_yield = predicted_yield * 0.7 + historical_yield_kg_ha * combined_factor * 0.3
 
     # Calculate confidence and range

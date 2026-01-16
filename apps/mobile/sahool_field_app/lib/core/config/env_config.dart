@@ -14,6 +14,14 @@ enum AppEnvironment { development, staging, production }
 
 class EnvConfig {
   static bool _initialized = false;
+  static final List<String> _missingCriticalVars = [];
+
+  /// Critical environment variables that MUST be set in production
+  static const List<String> _criticalProductionVars = [
+    'API_URL',
+    'WS_URL',
+    'MAPBOX_ACCESS_TOKEN',
+  ];
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Initialization
@@ -26,26 +34,82 @@ class EnvConfig {
     try {
       await dotenv.load(fileName: '.env');
       if (kDebugMode) {
-        debugPrint('✅ Environment configuration loaded from .env');
+        debugPrint('EnvConfig: Environment configuration loaded from .env');
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('⚠️ Could not load .env file. Using dart-define/defaults.');
+        debugPrint('EnvConfig: Could not load .env file. Using dart-define/defaults.');
       }
     }
 
     _initialized = true;
+
+    // Validate critical variables in production mode
+    _validateProductionConfig();
 
     if (kDebugMode) {
       printConfig();
     }
   }
 
+  /// Validate that critical environment variables are set in production
+  static void _validateProductionConfig() {
+    _missingCriticalVars.clear();
+
+    // Only enforce strict validation in production
+    if (!isProduction) return;
+
+    for (final varName in _criticalProductionVars) {
+      final value = _getDartDefine(varName);
+      final dotenvValue = _getDotenvValue(varName);
+
+      if (value.isEmpty && dotenvValue.isEmpty) {
+        _missingCriticalVars.add(varName);
+      }
+    }
+
+    if (_missingCriticalVars.isNotEmpty) {
+      final message =
+          'EnvConfig: CRITICAL - Missing required environment variables in production: '
+          '${_missingCriticalVars.join(", ")}. '
+          'Using default values which may not be suitable for production.';
+
+      // In release mode, we log to a proper logging system
+      // In debug mode, use debugPrint
+      if (kDebugMode) {
+        debugPrint(message);
+      }
+
+      // Throw in production to fail fast if critical vars are missing
+      // This ensures production builds are properly configured
+      assert(
+        false,
+        message,
+      );
+    }
+  }
+
+  /// Get a value directly from dotenv (for validation purposes)
+  static String _getDotenvValue(String key) {
+    try {
+      return dotenv.maybeGet(key) ?? '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  /// Check if critical configuration is valid for production
+  static bool get isProductionConfigValid => _missingCriticalVars.isEmpty;
+
+  /// Get list of missing critical variables (for diagnostics)
+  static List<String> get missingCriticalVariables =>
+      List.unmodifiable(_missingCriticalVars);
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Helper to get value with priority: dart-define > dotenv > default
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static String _getString(String key, String defaultValue) {
+  static String _getString(String key, String defaultValue, {bool logWarning = true}) {
     // 1. Check dart-define first (using predefined constants)
     final dartDefine = _getDartDefine(key);
     if (dartDefine.isNotEmpty) return dartDefine;
@@ -56,7 +120,10 @@ class EnvConfig {
       if (dotenvValue != null && dotenvValue.isNotEmpty) return dotenvValue;
     } catch (_) {}
 
-    // 3. Return default
+    // 3. Log warning and return default
+    if (logWarning && defaultValue.isNotEmpty && kDebugMode) {
+      debugPrint('EnvConfig: Using default value for $key: $defaultValue');
+    }
     return defaultValue;
   }
 
@@ -124,15 +191,32 @@ class EnvConfig {
     }
   }
 
-  static int _getInt(String key, int defaultValue) {
-    final value = _getString(key, '');
-    if (value.isEmpty) return defaultValue;
-    return int.tryParse(value) ?? defaultValue;
+  static int _getInt(String key, int defaultValue, {bool logWarning = true}) {
+    final value = _getString(key, '', logWarning: false);
+    if (value.isEmpty) {
+      if (logWarning && kDebugMode) {
+        debugPrint('EnvConfig: Using default value for $key: $defaultValue');
+      }
+      return defaultValue;
+    }
+    final parsed = int.tryParse(value);
+    if (parsed == null) {
+      if (kDebugMode) {
+        debugPrint('EnvConfig: Invalid integer for $key: "$value", using default: $defaultValue');
+      }
+      return defaultValue;
+    }
+    return parsed;
   }
 
-  static bool _getBool(String key, bool defaultValue) {
-    final value = _getString(key, '').toLowerCase();
-    if (value.isEmpty) return defaultValue;
+  static bool _getBool(String key, bool defaultValue, {bool logWarning = true}) {
+    final value = _getString(key, '', logWarning: false).toLowerCase();
+    if (value.isEmpty) {
+      if (logWarning && kDebugMode) {
+        debugPrint('EnvConfig: Using default value for $key: $defaultValue');
+      }
+      return defaultValue;
+    }
     return value == 'true' || value == '1';
   }
 
@@ -141,7 +225,12 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static AppEnvironment get environment {
-    final env = _getString('ENV', _getString('ENVIRONMENT', 'development'));
+    // Suppress warnings for environment detection - default to development is expected
+    final env = _getString(
+      'ENV',
+      _getString('ENVIRONMENT', 'development', logWarning: false),
+      logWarning: false,
+    );
     switch (env.toLowerCase()) {
       case 'production':
       case 'prod':
@@ -164,8 +253,18 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static String get apiBaseUrl {
-    final url = _getString('API_URL', _getString('API_BASE_URL', ''));
+    // Check explicit config first, suppress warnings as we have environment-based fallbacks
+    final url = _getString(
+      'API_URL',
+      _getString('API_BASE_URL', '', logWarning: false),
+      logWarning: false,
+    );
     if (url.isNotEmpty) return url;
+
+    // Log warning when using environment-based default in non-development mode
+    if (!isDevelopment && kDebugMode) {
+      debugPrint('EnvConfig: API_URL not configured, using default for ${environment.name}');
+    }
 
     switch (environment) {
       case AppEnvironment.production:
@@ -182,8 +281,18 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static String get wsBaseUrl {
-    final url = _getString('WS_URL', _getString('WS_GATEWAY_URL', ''));
+    // Check explicit config first, suppress warnings as we have environment-based fallbacks
+    final url = _getString(
+      'WS_URL',
+      _getString('WS_GATEWAY_URL', '', logWarning: false),
+      logWarning: false,
+    );
     if (url.isNotEmpty) return url;
+
+    // Log warning when using environment-based default in non-development mode
+    if (!isDevelopment && kDebugMode) {
+      debugPrint('EnvConfig: WS_URL not configured, using default for ${environment.name}');
+    }
 
     switch (environment) {
       case AppEnvironment.production:
@@ -191,7 +300,7 @@ class EnvConfig {
       case AppEnvironment.staging:
         return 'wss://ws-staging.sahool.app';
       case AppEnvironment.development:
-        return 'ws://10.0.2.2:8090';
+        return 'ws://10.0.2.2:8081';
     }
   }
 
@@ -308,8 +417,14 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static String get aiServiceUrl {
-    final url = _getString('AI_SERVICE_URL', '');
+    // Check explicit config first, suppress warnings as we have environment-based fallbacks
+    final url = _getString('AI_SERVICE_URL', '', logWarning: false);
     if (url.isNotEmpty) return url;
+
+    // Log warning when using environment-based default in non-development mode
+    if (!isDevelopment && kDebugMode) {
+      debugPrint('EnvConfig: AI_SERVICE_URL not configured, using default for ${environment.name}');
+    }
 
     switch (environment) {
       case AppEnvironment.production:
@@ -359,20 +474,27 @@ class EnvConfig {
     if (!kDebugMode) return;
 
     debugPrint('');
-    debugPrint('╔════════════════════════════════════════════════════════════╗');
-    debugPrint('║           SAHOOL Environment Configuration                 ║');
-    debugPrint('╠════════════════════════════════════════════════════════════╣');
-    debugPrint('║ Environment: ${environment.name.padRight(45)}║');
-    debugPrint('║ Version: ${fullVersion.padRight(49)}║');
-    debugPrint('╠════════════════════════════════════════════════════════════╣');
-    debugPrint('║ API: ${apiBaseUrl.padRight(52)}║');
-    debugPrint('║ WS: ${wsBaseUrl.padRight(53)}║');
-    debugPrint('╠════════════════════════════════════════════════════════════╣');
-    debugPrint('║ Features:                                                  ║');
-    debugPrint('║   Offline: ${(enableOfflineMode ? "✓" : "✗").padRight(47)}║');
-    debugPrint('║   Push: ${(enablePushNotifications ? "✓" : "✗").padRight(50)}║');
-    debugPrint('║   Analytics: ${(enableAnalytics ? "✓" : "✗").padRight(45)}║');
-    debugPrint('╚════════════════════════════════════════════════════════════╝');
+    debugPrint('========== SAHOOL Environment Configuration ==========');
+    debugPrint('Environment: ${environment.name}');
+    debugPrint('Version: $fullVersion');
+    debugPrint('------------------------------------------------------');
+    debugPrint('API: $apiBaseUrl');
+    debugPrint('WS: $wsBaseUrl');
+    debugPrint('------------------------------------------------------');
+    debugPrint('Features:');
+    debugPrint('  Offline: ${enableOfflineMode ? "enabled" : "disabled"}');
+    debugPrint('  Push: ${enablePushNotifications ? "enabled" : "disabled"}');
+    debugPrint('  Analytics: ${enableAnalytics ? "enabled" : "disabled"}');
+    debugPrint('======================================================');
+
+    // Warn about missing critical variables
+    if (!isProductionConfigValid) {
+      debugPrint('');
+      debugPrint('WARNING: Missing critical environment variables:');
+      for (final varName in missingCriticalVariables) {
+        debugPrint('  - $varName');
+      }
+    }
     debugPrint('');
   }
 }

@@ -48,9 +48,9 @@ logger = logging.getLogger(__name__)
 # Service URLs Configuration - إعدادات عناوين الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
 
-TASK_SERVICE_URL = os.getenv("TASK_SERVICE_URL", "http://task-service:8080")
-NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8080")
-ALERT_SERVICE_URL = os.getenv("ALERT_SERVICE_URL", "http://alert-service:8080")
+TASK_SERVICE_URL = os.getenv("TASK_SERVICE_URL", "http://task-service:8103")
+NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8110")
+ALERT_SERVICE_URL = os.getenv("ALERT_SERVICE_URL", "http://alert-service:8113")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

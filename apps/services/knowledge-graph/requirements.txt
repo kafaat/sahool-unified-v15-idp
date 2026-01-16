@@ -1,0 +1,32 @@
+# Knowledge Graph Service - Requirements
+# خدمة الرسم البياني للمعرفة
+# Updated: January 2026
+
+# Web Framework
+fastapi==0.115.5
+uvicorn[standard]>=0.30.0,<1.0.0
+python-multipart==0.0.18
+
+# Database
+asyncpg==0.30.0
+tortoise-orm==0.21.7
+
+# Data Validation
+pydantic==2.9.2
+
+# Graph/Relationship Management
+networkx==3.2.1
+
+# HTTP Client
+httpx==0.28.1
+
+# Logging
+structlog==24.4.0
+
+# Utilities
+python-dotenv==1.0.1
+orjson>=3.9.15
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0

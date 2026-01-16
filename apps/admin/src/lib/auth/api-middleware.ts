@@ -9,6 +9,7 @@ import { verifyToken, getUserFromToken } from "./jwt-verify";
 import { hasAnyRole } from "./jwt-verify";
 import type { UserRole } from "./route-protection";
 import type { User } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 /**
  * Context object passed to API route handlers
@@ -66,7 +67,7 @@ export function withAuth<T = any>(
       // Call handler with authenticated context
       return handler(request, { user, token });
     } catch (error) {
-      console.error("Authentication error:", error);
+      logger.error("Authentication error:", error);
       return NextResponse.json(
         { error: "Unauthorized", message: "Token verification failed" },
         { status: 401 },
@@ -187,7 +188,7 @@ export async function getAuthenticatedUser(
 
     return await getUserFromToken(token);
   } catch (error) {
-    console.error("Failed to get authenticated user:", error);
+    logger.error("Failed to get authenticated user:", error);
     return null;
   }
 }

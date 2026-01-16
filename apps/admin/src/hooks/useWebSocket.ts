@@ -144,7 +144,7 @@ export function useWebSocket(
 
   // Setup error listener
   useEffect(() => {
-    const unsubscribe = clientRef.current.on("error", (data: any) => {
+    const unsubscribe = clientRef.current.on("error", (data: { error?: unknown }) => {
       setError(
         data?.error instanceof Error
           ? data.error

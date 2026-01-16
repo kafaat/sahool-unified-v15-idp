@@ -28,6 +28,14 @@ interface BatchSummary {
   collectionDate: string;
 }
 
+interface StatusConfigValue {
+  label: string;
+  color: string;
+  icon: string;
+}
+
+type StatusConfig = Record<Sample["status"], StatusConfigValue>;
+
 // Demo data - في الواقع تأتي من API
 const demoSamples: Sample[] = [
   {
@@ -331,7 +339,7 @@ function KanbanView({
   statusConfig,
 }: {
   samples: Sample[];
-  statusConfig: any;
+  statusConfig: StatusConfig;
 }) {
   const columns: Array<keyof typeof statusConfig> = [
     "pending",
@@ -410,7 +418,7 @@ function ListView({
   statusConfig,
 }: {
   samples: Sample[];
-  statusConfig: any;
+  statusConfig: StatusConfig;
 }) {
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">

@@ -30,7 +30,9 @@ class GeoPolygonConverter extends TypeConverter<List<LatLng>, String> {
         return const LatLng(0, 0);
       }).toList();
     } catch (e) {
-      debugPrint('GeoPolygonConverter: Failed to parse polygon: $e');
+      if (kDebugMode) {
+        debugPrint('GeoPolygonConverter: Failed to parse polygon: $e');
+      }
       return [];
     }
   }
@@ -68,7 +70,9 @@ class GeoPointConverter extends TypeConverter<LatLng?, String?> {
       }
       return null;
     } catch (e) {
-      debugPrint('GeoPointConverter: Failed to parse point: $e');
+      if (kDebugMode) {
+        debugPrint('GeoPointConverter: Failed to parse point: $e');
+      }
       return null;
     }
   }

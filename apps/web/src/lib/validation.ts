@@ -3,7 +3,7 @@
  * Comprehensive security utilities for input validation and sanitization
  */
 
-import DOMPurify from "isomorphic-dompurify";
+import { sanitize as safeSanitize, isSafeText } from "./safe-sanitizer";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Validators
@@ -43,23 +43,12 @@ export const validators = {
 
   /**
    * Safe text (no HTML/script)
-   * Uses DOMPurify to detect dangerous content
+   * Uses safe sanitizer to detect dangerous content
    * @param text - The text to validate
    * @returns true if safe, false otherwise
    */
   safeText: (text: string): boolean => {
-    if (!text || typeof text !== "string") return false;
-    // Use DOMPurify to sanitize and check if anything was removed
-    const sanitized = DOMPurify.sanitize(text, {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-    });
-    // If the sanitized version differs from the original, it contained unsafe content
-    // Also check for dangerous patterns in plain text (without HTML context)
-    const hasDangerousPatterns = /javascript:|data:|vbscript:|on\w+=/i.test(
-      text,
-    );
-    return sanitized === text && !hasDangerousPatterns;
+    return isSafeText(text);
   },
 
   /**
@@ -125,15 +114,15 @@ export const validators = {
 
 export const sanitizers = {
   /**
-   * Remove all HTML tags and dangerous patterns using DOMPurify
+   * Remove all HTML tags and dangerous patterns
    * Provides robust XSS protection against bypass attempts
    * @param input - The input string to sanitize
    * @returns Sanitized string with all HTML stripped
    */
   html: (input: string): string => {
     if (!input || typeof input !== "string") return "";
-    // Use DOMPurify with strict configuration to strip all HTML
-    return DOMPurify.sanitize(input, {
+    // Use safe sanitizer with strict configuration to strip all HTML
+    return safeSanitize(input, {
       ALLOWED_TAGS: [], // Strip all HTML tags
       ALLOWED_ATTR: [], // Strip all attributes
       KEEP_CONTENT: true, // Keep text content

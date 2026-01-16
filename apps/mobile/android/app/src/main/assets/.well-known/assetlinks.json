@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.sahool.mobile",
+      "sha256_cert_fingerprints": [
+        "TODO:REPLACE_WITH_DEBUG_SHA256_FINGERPRINT",
+        "TODO:REPLACE_WITH_RELEASE_SHA256_FINGERPRINT"
+      ]
+    }
+  }
+]

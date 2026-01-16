@@ -7,6 +7,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/stores/auth.store";
 import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from "lucide-react";
 
@@ -136,12 +137,20 @@ function LoginForm() {
 
                 {/* Password Field */}
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    كلمة المرور
-                  </label>
+                  <div className="flex justify-between items-center mb-2">
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      كلمة المرور
+                    </label>
+                    <Link
+                      href="/forgot-password"
+                      className="text-sm text-green-600 hover:text-green-700 hover:underline"
+                    >
+                      نسيت كلمة المرور؟
+                    </Link>
+                  </div>
                   <div className="relative">
                     <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
@@ -237,6 +246,19 @@ function LoginForm() {
               </button>
             )}
           </form>
+
+          {/* Registration Link */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-600 text-sm">
+              ليس لديك حساب؟{" "}
+              <Link
+                href="/register"
+                className="text-green-600 font-medium hover:text-green-700 hover:underline"
+              >
+                إنشاء حساب جديد
+              </Link>
+            </p>
+          </div>
 
           {/* Demo Credentials (Development Only) */}
           {process.env.NODE_ENV === "development" && (

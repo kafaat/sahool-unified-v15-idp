@@ -51,6 +51,14 @@ model User {
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
+  // Account lockout fields for security
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockoutUntil        DateTime? @map("lockout_until")
+
+  // Password reset fields
+  passwordResetToken  String?   @map("password_reset_token")
+  passwordResetExpiry DateTime? @map("password_reset_expiry")
+
   // Relations
   profile         UserProfile?
   sessions        UserSession[]

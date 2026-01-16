@@ -731,7 +731,7 @@ export class AuthService {
 
     // Always return success to prevent email enumeration
     if (!user) {
-      this.logger.info(`Password reset requested for non-existent email`, {
+      this.logger.log(`Password reset requested for non-existent email`, {
         email: this.sanitizeForLog(email),
       });
       return {
@@ -864,7 +864,7 @@ export class AuthService {
       });
 
       if (!user) {
-        this.logger.info(`OTP requested for non-existent user`, {
+        this.logger.log(`OTP requested for non-existent user`, {
           identifier: this.sanitizeForLog(identifier),
           purpose,
         });

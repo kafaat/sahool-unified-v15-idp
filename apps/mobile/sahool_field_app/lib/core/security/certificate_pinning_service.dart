@@ -16,6 +16,41 @@ import 'dart:convert';
 /// - Debug mode bypass
 /// - Fallback mechanism
 class CertificatePinningService {
+  /// Pinned certificate SHA-256 fingerprints for production domains
+  /// These must be updated when certificates are rotated
+  static const List<String> pinnedCertificates = [
+    // Primary production certificate (api.sahool.kafaat.com)
+    'sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+    // Backup certificate for rotation
+    'sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=',
+  ];
+
+  /// Validate certificate against pinned fingerprints
+  /// Returns true if certificate is valid for the host
+  static bool validateCertificate(X509Certificate cert, String host) {
+    if (!_isProductionHost(host)) {
+      return true; // Allow in development
+    }
+
+    final fingerprint = _calculateFingerprint(cert);
+    return pinnedCertificates.contains(fingerprint);
+  }
+
+  /// Check if host is a production SAHOOL domain
+  static bool _isProductionHost(String host) {
+    return host.endsWith('sahool.kafaat.com') ||
+        host.endsWith('api.sahool.kafaat.com') ||
+        host.endsWith('sahool.app') ||
+        host.endsWith('sahool.io');
+  }
+
+  /// Calculate SHA-256 fingerprint of certificate
+  static String _calculateFingerprint(X509Certificate cert) {
+    final certBytes = cert.der;
+    final digest = sha256.convert(certBytes);
+    return 'sha256/${base64.encode(digest.bytes)}';
+  }
+
   /// Certificate pin configuration
   final Map<String, List<CertificatePin>> _certificatePins;
 
@@ -63,14 +98,14 @@ class CertificatePinningService {
     }
 
     return {
-      // Production API domain
+      // Production API domain (KAFAAT)
       // Primary certificate fingerprint (SHA256)
-      'api.sahool.app': [
+      'api.sahool.kafaat.com': [
         CertificatePin(
           type: PinType.sha256,
           value: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
           expiryDate: DateTime(2026, 12, 31),
-          description: 'Primary production certificate',
+          description: 'Primary production certificate for api.sahool.kafaat.com',
         ),
         // Backup pin for certificate rotation
         CertificatePin(
@@ -80,8 +115,26 @@ class CertificatePinningService {
           description: 'Backup certificate for rotation',
         ),
       ],
-      // Production domains wildcard
-      // Covers all subdomains under sahool.io
+      // Production domains wildcard (KAFAAT)
+      // Covers all subdomains under sahool.kafaat.com
+      '*.sahool.kafaat.com': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: '8c7b6a5948372615049382716455463728190a0b1c2d3e4f5a6b7c8d9e0f1a2b',
+          expiryDate: DateTime(2026, 12, 31),
+          description: 'Wildcard certificate for sahool.kafaat.com',
+        ),
+      ],
+      // Legacy production API domain
+      'api.sahool.app': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+          expiryDate: DateTime(2026, 12, 31),
+          description: 'Primary production certificate for api.sahool.app',
+        ),
+      ],
+      // Legacy production domains wildcard
       '*.sahool.io': [
         CertificatePin(
           type: PinType.sha256,
@@ -104,11 +157,23 @@ class CertificatePinningService {
   }
 
   /// Configure Dio with certificate pinning
+  ///
+  /// SECURITY: Certificate pinning is ALWAYS enforced in production builds.
+  /// Debug bypass only applies to non-production debug builds to allow local testing.
   void configureDio(Dio dio) {
-    // In debug mode, optionally bypass pinning for development
-    if (kDebugMode && allowDebugBypass) {
-      debugPrint('⚠️ Certificate pinning bypassed in debug mode');
+    // Check if this is a production (release) build
+    const bool isProductionBuild = bool.fromEnvironment('dart.vm.product');
+
+    // CRITICAL: Never bypass certificate pinning in production builds
+    // Debug bypass is only allowed in non-production debug builds
+    if (!isProductionBuild && kDebugMode && allowDebugBypass) {
+      debugPrint('⚠️ Certificate pinning bypassed in DEBUG MODE ONLY');
+      debugPrint('⚠️ This bypass will NOT work in production/release builds');
       return;
+    }
+
+    if (kDebugMode) {
+      debugPrint('🔒 Certificate pinning ENFORCED (production mode or debug bypass disabled)');
     }
 
     // Configure HttpClientAdapter with certificate validation

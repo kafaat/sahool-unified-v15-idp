@@ -104,6 +104,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/crop-growth-model.md
     events:
       produces:
         - GrowthStageEstimated.v1
@@ -212,6 +217,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: analytics-team
+    team: Risk Analytics
+    slack_channel: "#disaster-alerts"
+    oncall: analytics-oncall@kafaat.com
+    documentation: docs/services/disaster-assessment.md
     events:
       produces:
         - DisasterRiskScored.v1
@@ -245,6 +255,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: remote-sensing-team
+    team: Remote Sensing
+    slack_channel: "#remote-sensing-alerts"
+    oncall: remote-sensing-oncall@kafaat.com
+    documentation: docs/services/lai-estimation.md
     events:
       produces:
         - LAIEstimated.v1
@@ -272,6 +287,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#yield-prediction-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/yield-prediction.md
     events:
       produces:
         - YieldPredicted.v1
@@ -303,6 +323,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: community-team
+    team: Marketplace
+    slack_channel: "#marketplace-alerts"
+    oncall: community-oncall@kafaat.com
+    documentation: docs/services/marketplace-service.md
     events:
       produces:
         - OrderCreated.v1
@@ -333,6 +358,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: community-team
+    team: Community
+    slack_channel: "#community-alerts"
+    oncall: community-oncall@kafaat.com
+    documentation: docs/services/community-chat.md
     events:
       produces:
         - CommunityPostCreated.v1
@@ -362,6 +392,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: iot-team
+    team: IoT & Sensors
+    slack_channel: "#iot-alerts"
+    oncall: iot-oncall@kafaat.com
+    documentation: docs/services/iot-service.md
     events:
       produces:
         - SensorReadingIngested.v1
@@ -397,6 +432,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: research-team
+    team: Research & Development
+    slack_channel: "#research-alerts"
+    oncall: research-oncall@kafaat.com
+    documentation: docs/services/research-core.md
     events:
       produces:
         - TrialCreated.v1
@@ -428,6 +468,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: finance-team
+    team: Finance & Billing
+    slack_channel: "#billing-alerts"
+    oncall: finance-oncall@kafaat.com
+    documentation: docs/services/billing-core.md
     events:
       produces:
         - InvoiceIssued.v1
@@ -461,6 +506,11 @@ services:
     replaced_by: vegetation-analysis-service
     deprecation_date: "2026-01-11"
     version: "15.4.0"
+    owner: remote-sensing-team
+    team: Remote Sensing
+    slack_channel: "#remote-sensing-alerts"
+    oncall: remote-sensing-oncall@kafaat.com
+    documentation: docs/services/satellite-service.md
     events:
       produces:
         - SatelliteSceneIngested.v1
@@ -501,6 +551,11 @@ services:
     status: deprecated
     replaced_by: weather-service
     deprecation_date: "2026-01-11"
+    owner: weather-team
+    team: Weather & Climate
+    slack_channel: "#weather-alerts"
+    oncall: weather-oncall@kafaat.com
+    documentation: docs/services/weather-advanced.md
     events:
       produces:
         - WeatherObserved.v1
@@ -533,6 +588,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: analytics-team
+    team: Field Analytics
+    slack_channel: "#analytics-alerts"
+    oncall: analytics-oncall@kafaat.com
+    documentation: docs/services/indicators-service.md
     events:
       produces:
         - FieldIndicatorsComputed.v1
@@ -566,6 +626,11 @@ services:
     status: deprecated
     replaced_by: crop-intelligence-service
     deprecation_date: "2026-01-11"
+    owner: ai-ml-team
+    team: AI/ML
+    slack_channel: "#ai-ml-alerts"
+    oncall: ai-ml-oncall@kafaat.com
+    documentation: docs/services/crop-health-ai.md
     events:
       produces:
         - CropHealthAssessed.v1
@@ -595,6 +660,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: iot-team
+    team: IoT & Sensors
+    slack_channel: "#iot-alerts"
+    oncall: iot-oncall@kafaat.com
+    documentation: docs/services/virtual-sensors.md
     events:
       produces:
         - VirtualSensorEstimated.v1
@@ -624,6 +694,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#yield-prediction-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/yield-engine.md
     events:
       produces:
         - YieldEstimated.v1
@@ -655,6 +730,11 @@ services:
     status: deprecated
     replaced_by: advisory-service
     deprecation_date: "2026-01-11"
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/fertilizer-advisor.md
     events:
       produces:
         - FertilizerPlanProposed.v1
@@ -687,6 +767,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: water-management-team
+    team: Water Management
+    slack_channel: "#water-mgmt-alerts"
+    oncall: water-mgmt-oncall@kafaat.com
+    documentation: docs/services/irrigation-smart.md
     events:
       produces:
         - IrrigationPlanProposed.v1
@@ -720,6 +805,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: platform-team
+    team: Notifications
+    slack_channel: "#notifications-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/notification-service.md
     events:
       produces:
         - NotificationQueued.v1
@@ -754,6 +844,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: platform-team
+    team: Integration
+    slack_channel: "#integration-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/mcp-server.md
     events:
       produces: []
       consumes: []
@@ -778,6 +873,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/agro-rules.md
     events:
       produces:
         - AgroRuleEvaluated.v1
@@ -805,6 +905,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: ai-ml-team
+    team: AI/ML
+    slack_channel: "#ai-ml-alerts"
+    oncall: ai-ml-oncall@kafaat.com
+    documentation: docs/services/crop-intelligence-service.md
     events:
       produces:
         - CropHealthAssessed.v1
@@ -833,6 +938,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: field-ops-team
+    team: Field Operations
+    slack_channel: "#field-ops-alerts"
+    oncall: field-ops-oncall@kafaat.com
+    documentation: docs/services/equipment-service.md
     events:
       produces:
         - EquipmentStatusUpdated.v1
@@ -860,6 +970,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: field-ops-team
+    team: Field Operations
+    slack_channel: "#field-ops-alerts"
+    oncall: field-ops-oncall@kafaat.com
+    documentation: docs/services/task-service.md
     events:
       produces:
         - TaskCreated.v1
@@ -890,6 +1005,11 @@ services:
     protocol: websocket
     health_endpoint: "/health"
     status: active
+    owner: platform-team
+    team: Platform
+    slack_channel: "#platform-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/ws-gateway.md
     events:
       produces: []
       consumes:
@@ -915,6 +1035,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: remote-sensing-team
+    team: Remote Sensing
+    slack_channel: "#remote-sensing-alerts"
+    oncall: remote-sensing-oncall@kafaat.com
+    documentation: docs/services/ndvi-processor.md
     events:
       produces:
         - NDVIProcessed.v1
@@ -941,6 +1066,11 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    owner: analytics-team
+    team: Field Analytics
+    slack_channel: "#analytics-alerts"
+    oncall: analytics-oncall@kafaat.com
+    documentation: docs/services/field-intelligence.md
     events:
       produces:
         - FieldAnalysisCompleted.v1
@@ -970,6 +1100,11 @@ services:
     health_endpoint: "/health"
     status: active
     replaces: satellite-service
+    owner: remote-sensing-team
+    team: Remote Sensing
+    slack_channel: "#remote-sensing-alerts"
+    oncall: remote-sensing-oncall@kafaat.com
+    documentation: docs/services/vegetation-analysis-service.md
     events:
       produces:
         - VegetationIndexCalculated.v1
@@ -1003,6 +1138,11 @@ services:
     health_endpoint: "/health"
     status: active
     replaces: weather-advanced
+    owner: weather-team
+    team: Weather & Climate
+    slack_channel: "#weather-alerts"
+    oncall: weather-oncall@kafaat.com
+    documentation: docs/services/weather-service.md
     events:
       produces:
         - WeatherForecastReady.v1
@@ -1036,6 +1176,11 @@ services:
     readiness_endpoint: "/readyz"
     status: active
     version: "1.0.0"
+    owner: ai-ml-team
+    team: AI/ML
+    slack_channel: "#ai-ml-alerts"
+    oncall: ai-ml-oncall@kafaat.com
+    documentation: docs/services/skills-service.md
     events:
       produces:
         - FarmerSkillsAssessed.v1
@@ -1137,6 +1282,11 @@ services:
     health_endpoint: "/health"
     status: active
     replaces: fertilizer-advisor
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/advisory-service.md
     events:
       produces:
         - AdvisoryGenerated.v1
@@ -1170,6 +1320,11 @@ services:
     health_endpoint: "/healthz"
     status: active
     replaces: ["field-core", "field-service", "field-ops"]
+    owner: platform-team
+    team: Field Operations
+    slack_channel: "#field-ops-alerts"
+    oncall: field-ops-oncall@kafaat.com
+    documentation: docs/services/field-management-service.md
     events:
       produces:
         - FieldCreated.v1
@@ -1202,6 +1357,11 @@ services:
     protocol: http
     health_endpoint: "/api/v1/health"
     status: active
+    owner: platform-team
+    team: Identity
+    slack_channel: "#identity-alerts"
+    oncall: identity-oncall@kafaat.com
+    documentation: docs/services/user-service.md
     events:
       produces:
         - UserRegistered.v1
@@ -1230,6 +1390,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: platform-team
+    team: Alerts
+    slack_channel: "#alerts-team"
+    oncall: alerts-oncall@kafaat.com
+    documentation: docs/services/alert-service.md
     events:
       produces:
         - AlertTriggered.v1
@@ -1260,6 +1425,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: crop-intelligence-team
+    team: Crop Intelligence
+    slack_channel: "#crop-modeling-alerts"
+    oncall: crop-intelligence-oncall@kafaat.com
+    documentation: docs/services/agro-advisor.md
     events:
       produces:
         - AgroAdviceGenerated.v1
@@ -1289,6 +1459,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: platform-team
+    team: Integration
+    slack_channel: "#integration-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/astronomical-calendar.md
     events:
       produces:
         - MoonPhaseCalculated.v1
@@ -1316,6 +1491,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: iot-team
+    team: IoT & Sensors
+    slack_channel: "#iot-alerts"
+    oncall: iot-oncall@kafaat.com
+    documentation: docs/services/iot-gateway.md
     events:
       produces:
         - IoTDataReceived.v1
@@ -1345,6 +1525,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: field-ops-team
+    team: Field Operations
+    slack_channel: "#field-ops-alerts"
+    oncall: field-ops-oncall@kafaat.com
+    documentation: docs/services/inventory-service.md
     events:
       produces:
         - InventoryUpdated.v1
@@ -1373,6 +1558,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: community-team
+    team: Community
+    slack_channel: "#community-alerts"
+    oncall: community-oncall@kafaat.com
+    documentation: docs/services/field-chat.md
     events:
       produces:
         - ChatMessageSent.v1
@@ -1400,6 +1590,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    owner: platform-team
+    team: Platform
+    slack_channel: "#platform-alerts"
+    oncall: platform-oncall@kafaat.com
+    documentation: docs/services/provider-config.md
     events:
       produces:
         - ProviderConfigUpdated.v1

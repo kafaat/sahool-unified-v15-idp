@@ -29,9 +29,10 @@ infrastructure = [
 ]
 observability = [
     "prometheus-client==0.21.1",
-    "opentelemetry-api==1.29.0",
-    "opentelemetry-sdk==1.29.0",
-    "opentelemetry-instrumentation-fastapi==0.50b0",
+    "opentelemetry-api>=1.27.0",
+    "opentelemetry-sdk>=1.27.0",
+    "opentelemetry-instrumentation-fastapi>=0.48b0",
+    "opentelemetry-exporter-otlp>=1.27.0",
     "structlog==24.4.0",
 ]
 testing = [

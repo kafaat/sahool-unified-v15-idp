@@ -7,8 +7,10 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 
-# Upgrade pip to latest version
-RUN pip install --no-cache-dir --upgrade pip
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel
 
 # Install dependencies
 COPY apps/services/indicators-service/requirements.txt .

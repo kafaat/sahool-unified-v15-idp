@@ -304,17 +304,12 @@ jobs:
                     apps/services/ shared/ || true
           fi
 
-      - name: Ensure Semgrep SARIF exists
-        if: always()
-        run: |
           # Create empty SARIF if file doesn't exist
           if [ ! -f "semgrep-results.sarif" ]; then
             echo "Creating empty SARIF file..."
             echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Semgrep","version":"1.0.0"}},"results":[]}]}' > semgrep-results.sarif
           fi
 
-      - name: Check Semgrep results
-        run: |
           # Check for ERROR severity findings
           if [ -f "semgrep-report.json" ]; then
             ERROR_COUNT=$(python3 -c "import json; data=json.load(open('semgrep-report.json')); print(len([r for r in data.get('results', []) if r.get('extra', {}).get('severity') == 'ERROR']))" 2>/dev/null || echo "0")

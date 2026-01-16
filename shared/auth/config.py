@@ -23,10 +23,6 @@ class JWTConfig:
     JWT_ISSUER: str = os.getenv("JWT_ISSUER", "sahool-platform")
     JWT_AUDIENCE: str = os.getenv("JWT_AUDIENCE", "sahool-api")
 
-    # RSA Keys (optional, for RS256)
-    JWT_PUBLIC_KEY: str | None = os.getenv("JWT_PUBLIC_KEY")
-    JWT_PRIVATE_KEY: str | None = os.getenv("JWT_PRIVATE_KEY")
-
     # Token header name
     TOKEN_HEADER: str = "Authorization"
     TOKEN_PREFIX: str = "Bearer"
@@ -52,29 +48,17 @@ class JWTConfig:
         env = os.getenv("ENVIRONMENT", "development")
 
         if env in ("production", "staging"):
-            if cls.JWT_ALGORITHM.startswith("RS"):
-                if not cls.JWT_PUBLIC_KEY or not cls.JWT_PRIVATE_KEY:
-                    raise ValueError("RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY")
-            else:
-                if not cls.JWT_SECRET or len(cls.JWT_SECRET) < 32:
-                    raise ValueError("JWT_SECRET must be at least 32 characters in production")
+            if not cls.JWT_SECRET or len(cls.JWT_SECRET) < 32:
+                raise ValueError("JWT_SECRET must be at least 32 characters in production")
 
     @classmethod
     def get_signing_key(cls) -> str:
-        """Get the key for signing tokens"""
-        if cls.JWT_ALGORITHM.startswith("RS"):
-            if not cls.JWT_PRIVATE_KEY:
-                raise ValueError("JWT_PRIVATE_KEY not configured for RS256")
-            return cls.JWT_PRIVATE_KEY
+        """Get the key for signing tokens (HS256 only)"""
         return cls.JWT_SECRET
 
     @classmethod
     def get_verification_key(cls) -> str:
-        """Get the key for verifying tokens"""
-        if cls.JWT_ALGORITHM.startswith("RS"):
-            if not cls.JWT_PUBLIC_KEY:
-                raise ValueError("JWT_PUBLIC_KEY not configured for RS256")
-            return cls.JWT_PUBLIC_KEY
+        """Get the key for verifying tokens (HS256 only)"""
         return cls.JWT_SECRET
 
 

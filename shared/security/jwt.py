@@ -44,9 +44,7 @@ def _get_required_env(key: str, default: str | None = None) -> str:
 
 
 JWT_SECRET_KEY = _get_required_env("JWT_SECRET_KEY", "")
-JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY", "")
-JWT_PRIVATE_KEY = os.getenv("JWT_PRIVATE_KEY", "")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "RS256")  # RS256 is more secure
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")  # HS256 for symmetric encryption
 JWT_ISSUER = os.getenv("JWT_ISSUER", "sahool-idp")
 JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-platform")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30"))
@@ -62,12 +60,8 @@ def validate_jwt_configuration() -> bool:
     env = os.getenv("ENVIRONMENT", "development")
 
     if env in ("production", "staging"):
-        if JWT_ALGORITHM.startswith("RS"):
-            if not JWT_PUBLIC_KEY or not JWT_PRIVATE_KEY:
-                raise RuntimeError("RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY")
-        else:
-            if not JWT_SECRET_KEY or len(JWT_SECRET_KEY) < 32:
-                raise RuntimeError("JWT_SECRET_KEY must be at least 32 characters in production")
+        if not JWT_SECRET_KEY or len(JWT_SECRET_KEY) < 32:
+            raise RuntimeError("JWT_SECRET_KEY must be at least 32 characters in production")
 
     return True
 
@@ -102,18 +96,7 @@ class TokenPayload:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def _get_verify_key() -> str:
-    """Get the key for verification"""
-    if JWT_ALGORITHM.startswith("RS"):
-        return JWT_PUBLIC_KEY
-    return JWT_SECRET_KEY
 
-
-def _get_sign_key() -> str:
-    """Get the key for signing"""
-    if JWT_ALGORITHM.startswith("RS"):
-        return JWT_PRIVATE_KEY
-    return JWT_SECRET_KEY
 
 
 def verify_token(token: str, check_revocation: bool = True) -> dict:
@@ -152,7 +135,7 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
         # SECURITY FIX: Use hardcoded whitelist instead of environment variable
         payload = jwt.decode(
             token,
-            _get_verify_key(),
+            JWT_SECRET_KEY,
             algorithms=ALLOWED_ALGORITHMS,
             issuer=JWT_ISSUER,
             audience=JWT_AUDIENCE,
@@ -298,7 +281,7 @@ def create_token(
     if extra_claims:
         payload.update(extra_claims)
 
-    return jwt.encode(payload, _get_sign_key(), algorithm=JWT_ALGORITHM)
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
 def create_access_token(

@@ -24,8 +24,6 @@ class TestJWTConfig:
             "JWT_REFRESH_TOKEN_EXPIRE_DAYS",
             "JWT_ISSUER",
             "JWT_AUDIENCE",
-            "JWT_PUBLIC_KEY",
-            "JWT_PRIVATE_KEY",
             "RATE_LIMIT_ENABLED",
             "RATE_LIMIT_REQUESTS",
             "RATE_LIMIT_WINDOW_SECONDS",
@@ -313,33 +311,7 @@ class TestJWTConfig:
         key = module.JWTConfig.get_verification_key()
         assert key == "test_secret_key"
 
-    def test_get_signing_key_rs256_no_key(self):
-        """Test get_signing_key raises for RS256 without key"""
-        os.environ["JWT_ALGORITHM"] = "RS256"
-        os.environ.pop("JWT_PRIVATE_KEY", None)
-        import importlib.util
 
-        spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
-        )
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        with pytest.raises(ValueError, match="JWT_PRIVATE_KEY"):
-            module.JWTConfig.get_signing_key()
-
-    def test_get_verification_key_rs256_no_key(self):
-        """Test get_verification_key raises for RS256 without key"""
-        os.environ["JWT_ALGORITHM"] = "RS256"
-        os.environ.pop("JWT_PUBLIC_KEY", None)
-        import importlib.util
-
-        spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
-        )
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        with pytest.raises(ValueError, match="JWT_PUBLIC_KEY"):
-            module.JWTConfig.get_verification_key()
 
     def test_rate_limit_disabled_from_env(self):
         """Test rate limiting can be disabled"""

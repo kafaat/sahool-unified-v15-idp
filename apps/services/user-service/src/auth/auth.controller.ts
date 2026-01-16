@@ -37,6 +37,7 @@ import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength, IsIn }
 // Extend Express Request to include user property set by JWT guard
 interface AuthenticatedRequest extends Request {
   user?: { id: string; email: string; tenantId?: string };
+  headers: Request['headers'];
 }
 
 // DTOs

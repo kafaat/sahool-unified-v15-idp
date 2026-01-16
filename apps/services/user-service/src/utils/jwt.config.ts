@@ -125,27 +125,53 @@ export class JWTConfig {
   }
 
   /**
+   * Get effective algorithm (falls back to HS256 if RS256 keys missing)
+   */
+  static getEffectiveAlgorithm(): string {
+    if (this.ALGORITHM.startsWith("RS")) {
+      if (!this.PRIVATE_KEY || !this.PUBLIC_KEY) {
+        console.warn(
+          `[JWT] RS256 requested but keys not configured. Falling back to HS256.`,
+        );
+        return "HS256";
+      }
+      return this.ALGORITHM;
+    }
+    return this.ALGORITHM;
+  }
+
+  /**
    * Get signing key for token creation
+   * Falls back to SECRET if RS256 keys are not configured
    */
   static getSigningKey(): string {
-    if (this.ALGORITHM.startsWith("RS")) {
+    const effectiveAlgorithm = this.getEffectiveAlgorithm();
+    if (effectiveAlgorithm.startsWith("RS")) {
       if (!this.PRIVATE_KEY) {
         throw new Error("JWT_PRIVATE_KEY not configured for RS256");
       }
       return this.PRIVATE_KEY;
+    }
+    if (!this.SECRET) {
+      throw new Error("JWT_SECRET_KEY not configured");
     }
     return this.SECRET;
   }
 
   /**
    * Get verification key for token validation
+   * Falls back to SECRET if RS256 keys are not configured
    */
   static getVerificationKey(): string {
-    if (this.ALGORITHM.startsWith("RS")) {
+    const effectiveAlgorithm = this.getEffectiveAlgorithm();
+    if (effectiveAlgorithm.startsWith("RS")) {
       if (!this.PUBLIC_KEY) {
         throw new Error("JWT_PUBLIC_KEY not configured for RS256");
       }
       return this.PUBLIC_KEY;
+    }
+    if (!this.SECRET) {
+      throw new Error("JWT_SECRET_KEY not configured");
     }
     return this.SECRET;
   }
@@ -154,18 +180,19 @@ export class JWTConfig {
    * Get configuration object for passport-jwt
    */
   static getJwtOptions() {
+    const effectiveAlgorithm = this.getEffectiveAlgorithm();
     return {
       secret: this.getVerificationKey(),
       signOptions: {
         expiresIn: `${this.ACCESS_TOKEN_EXPIRE_MINUTES}m`,
         issuer: this.ISSUER,
         audience: this.AUDIENCE,
-        algorithm: this.ALGORITHM,
+        algorithm: effectiveAlgorithm,
       },
       verifyOptions: {
         issuer: this.ISSUER,
         audience: this.AUDIENCE,
-        algorithms: [this.ALGORITHM],
+        algorithms: [effectiveAlgorithm],
       },
     };
   }

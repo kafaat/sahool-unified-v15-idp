@@ -273,6 +273,13 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          # Pin buildkit version for reliability and cache efficiency (avoid :latest rate limiting)
+          driver-opts: |
+            image=moby/buildkit:v0.12.5
+            network=host
+        env:
+          DOCKER_BUILD_SUMMARY: false
 
       - name: Check if Dockerfile exists
         id: check_dockerfile
@@ -495,6 +502,13 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          # Pin buildkit version for reliability and cache efficiency (avoid :latest rate limiting)
+          driver-opts: |
+            image=moby/buildkit:v0.12.5
+            network=host
+        env:
+          DOCKER_BUILD_SUMMARY: false
 
       - name: Create CI environment file
         run: |

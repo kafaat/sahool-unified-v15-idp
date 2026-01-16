@@ -126,9 +126,13 @@ jobs:
         if: steps.check.outputs.exists == 'true'
         uses: docker/setup-buildx-action@v3
         with:
+          # Pin buildkit version for reliability and cache efficiency (avoid :latest rate limiting)
           driver-opts: |
-            image=moby/buildkit:latest
+            image=moby/buildkit:v0.12.5
             network=host
+        env:
+          # Increase timeout for buildkit image pull
+          DOCKER_BUILD_SUMMARY: false
 
       - name: Login to GitHub Container Registry
         if: steps.check.outputs.exists == 'true' && github.event_name != 'pull_request'
@@ -231,6 +235,13 @@ jobs:
       - name: Set up Docker Buildx
         if: steps.check.outputs.exists == 'true'
         uses: docker/setup-buildx-action@v3
+        with:
+          # Pin buildkit version for reliability and cache efficiency (avoid :latest rate limiting)
+          driver-opts: |
+            image=moby/buildkit:v0.12.5
+            network=host
+        env:
+          DOCKER_BUILD_SUMMARY: false
 
       - name: Login to GitHub Container Registry
         if: steps.check.outputs.exists == 'true' && github.event_name != 'pull_request'

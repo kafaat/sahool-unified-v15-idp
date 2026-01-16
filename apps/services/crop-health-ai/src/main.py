@@ -765,7 +765,7 @@ async def diagnose_with_action(
 
     # Get disease info
     disease_name_ar = getattr(diagnosis, "disease_name_ar", "مرض غير محدد")
-    disease_name_en = getattr(diagnosis, "disease_name_en", "Unknown disease")
+    disease_name_en = getattr(diagnosis, "disease_name", "Unknown disease")
     diagnosis_id = getattr(diagnosis, "diagnosis_id", None)
 
     # Create inspection action first
@@ -791,9 +791,9 @@ async def diagnose_with_action(
         spray_action = ActionTemplateFactory.create_spray_action(
             field_id=field_id or "unknown",
             pesticide_type=pesticide_type,
-            pesticide_name_ar=getattr(treatment, "pesticide_name_ar", "مبيد فطري"),
-            pesticide_name_en=getattr(treatment, "pesticide_name_en", "Fungicide"),
-            concentration=getattr(treatment, "concentration", "0.2%"),
+            pesticide_name_ar=getattr(treatment, "product_name_ar", "مبيد فطري"),
+            pesticide_name_en=getattr(treatment, "product_name", "Fungicide"),
+            concentration=getattr(treatment, "dosage", "0.2%"),
             area_hectares=1.0,  # Default
             urgency=urgency,
             confidence=confidence,

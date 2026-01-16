@@ -271,6 +271,21 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         continue-on-error: true
 
+      # Pre-pull buildkit image with retries to avoid setup-buildx failures
+      - name: Pre-pull BuildKit image
+        run: |
+          for i in 1 2 3 4; do
+            echo "Attempt $i: Pulling moby/buildkit:v0.12.5..."
+            if docker pull moby/buildkit:v0.12.5; then
+              echo "✅ Successfully pulled buildkit image"
+              exit 0
+            fi
+            echo "⚠️ Pull failed, waiting $((i * 5)) seconds before retry..."
+            sleep $((i * 5))
+          done
+          echo "❌ Failed to pull buildkit after 4 attempts, continuing anyway..."
+        continue-on-error: true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -498,6 +513,21 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+        continue-on-error: true
+
+      # Pre-pull buildkit image with retries to avoid setup-buildx failures
+      - name: Pre-pull BuildKit image
+        run: |
+          for i in 1 2 3 4; do
+            echo "Attempt $i: Pulling moby/buildkit:v0.12.5..."
+            if docker pull moby/buildkit:v0.12.5; then
+              echo "✅ Successfully pulled buildkit image"
+              exit 0
+            fi
+            echo "⚠️ Pull failed, waiting $((i * 5)) seconds before retry..."
+            sleep $((i * 5))
+          done
+          echo "❌ Failed to pull buildkit after 4 attempts, continuing anyway..."
         continue-on-error: true
 
       - name: Set up Docker Buildx

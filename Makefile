@@ -7,7 +7,22 @@
 # Reference: governance/services.yaml, REPO_MAP.md
 # ═══════════════════════════════════════════════════════════════════════════════
 
-.PHONY: help dev build up down restart logs clean test health
+# Comprehensive .PHONY declarations for all targets
+.PHONY: help dev dev-starter dev-professional dev-enterprise
+.PHONY: build build-python build-node up down down-volumes restart logs logs-service
+.PHONY: db-migrate db-seed db-reset db-shell db-backup
+.PHONY: test test-python test-node test-integration test-unit test-coverage test-docker
+.PHONY: clean status health shell ps
+.PHONY: monitoring-up monitoring-down monitoring-logs
+.PHONY: lint fmt
+.PHONY: infra-up kong-reload vault-up vault-down
+.PHONY: starter-up professional-up enterprise-up
+.PHONY: network-create network-inspect
+.PHONY: dev-install generate-tokens
+.PHONY: security-scan env-check
+.PHONY: docs start stop rebuild quickstart
+.PHONY: ci ci-full stats watch
+
 .DEFAULT_GOAL := help
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -77,24 +92,24 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 
 dev: ## بدء بيئة التطوير الكاملة - Start full development environment
 	@echo "$(GREEN)🚀 بدء بيئة التطوير - Starting Development Environment...$(RESET)"
-	docker compose -f $(COMPOSE_BASE) up -d
+	@docker compose -f $(COMPOSE_BASE) up -d || (echo "$(RED)Failed to start development environment!$(RESET)" && exit 1)
 	@$(MAKE) --no-print-directory status
 	@echo "$(GREEN)✅ بيئة التطوير جاهزة - Development environment ready!$(RESET)"
 
 dev-starter: ## بدء حزمة المبتدئين فقط - Start only starter package services
 	@echo "$(GREEN)🌱 بدء حزمة المبتدئين - Starting Starter Package...$(RESET)"
-	docker compose -f $(COMPOSE_STARTER) up -d
+	@docker compose -f $(COMPOSE_STARTER) up -d || (echo "$(RED)Failed to start starter package!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ حزمة المبتدئين جاهزة - Starter package ready!$(RESET)"
 	@echo "$(BLUE)Services: PostgreSQL, Redis, NATS, Field Core, Weather, Advisory$(RESET)"
 
 dev-professional: ## بدء حزمة الاحترافية - Start professional package
 	@echo "$(GREEN)🏢 بدء حزمة الاحترافية - Starting Professional Package...$(RESET)"
-	docker compose -f $(COMPOSE_PROFESSIONAL) up -d
+	@docker compose -f $(COMPOSE_PROFESSIONAL) up -d || (echo "$(RED)Failed to start professional package!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ حزمة الاحترافية جاهزة - Professional package ready!$(RESET)"
 
 dev-enterprise: ## بدء جميع الخدمات المتقدمة - Start all enterprise services
 	@echo "$(GREEN)🏭 بدء حزمة المؤسسات - Starting Enterprise Package...$(RESET)"
-	docker compose -f $(COMPOSE_ENTERPRISE) up -d
+	@docker compose -f $(COMPOSE_ENTERPRISE) up -d || (echo "$(RED)Failed to start enterprise package!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ حزمة المؤسسات جاهزة - Enterprise package ready!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -103,7 +118,7 @@ dev-enterprise: ## بدء جميع الخدمات المتقدمة - Start all e
 
 build: ## بناء جميع صور Docker - Build all Docker images
 	@echo "$(YELLOW)🔨 بناء جميع الصور - Building all Docker images...$(RESET)"
-	docker compose -f $(COMPOSE_BASE) build --parallel
+	@docker compose -f $(COMPOSE_BASE) build --parallel || (echo "$(RED)Build failed!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ اكتمل البناء - Build complete!$(RESET)"
 
 build-python: ## بناء خدمات Python فقط - Build only Python services
@@ -122,7 +137,7 @@ build-python: ## بناء خدمات Python فقط - Build only Python services
 		fertilizer_advisor \
 		crop_health \
 		ai_advisor \
-		agro_rules
+		agro_rules || (echo "$(RED)Python services build failed!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ خدمات Python جاهزة - Python services built!$(RESET)"
 
 build-node: ## بناء خدمات Node.js فقط - Build only Node.js services
@@ -135,23 +150,23 @@ build-node: ## بناء خدمات Node.js فقط - Build only Node.js services
 		marketplace_service \
 		community_chat \
 		field_core \
-		iot_service
+		iot_service || (echo "$(RED)Node.js services build failed!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ خدمات Node.js جاهزة - Node.js services built!$(RESET)"
 
 up: ## تشغيل جميع الخدمات - Start all services
 	@echo "$(GREEN)🚀 تشغيل جميع الخدمات - Starting all services...$(RESET)"
-	docker compose -f $(COMPOSE_BASE) up -d
+	@docker compose -f $(COMPOSE_BASE) up -d || (echo "$(RED)Failed to start services!$(RESET)" && exit 1)
 	@$(MAKE) --no-print-directory status
 	@echo "$(GREEN)✅ جميع الخدمات قيد التشغيل - All services running!$(RESET)"
 
 down: ## إيقاف جميع الخدمات - Stop all services
 	@echo "$(RED)🛑 إيقاف جميع الخدمات - Stopping all services...$(RESET)"
-	docker compose -f $(COMPOSE_BASE) down
+	@docker compose -f $(COMPOSE_BASE) down || (echo "$(RED)Failed to stop services!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ تم إيقاف الخدمات - Services stopped!$(RESET)"
 
 down-volumes: ## إيقاف وحذف البيانات - Stop services and remove volumes
 	@echo "$(RED)🗑️  إيقاف وحذف البيانات - Stopping services and removing volumes...$(RESET)"
-	docker compose -f $(COMPOSE_BASE) down -v
+	@docker compose -f $(COMPOSE_BASE) down -v || (echo "$(RED)Failed to stop services and remove volumes!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ تم حذف الخدمات والبيانات - Services and volumes removed!$(RESET)"
 
 restart: ## إعادة تشغيل جميع الخدمات - Restart all services
@@ -179,21 +194,32 @@ endif
 
 db-migrate: ## تشغيل ترحيل قاعدة البيانات - Run database migrations (Prisma)
 	@echo "$(YELLOW)📦 تشغيل الترحيل - Running migrations...$(RESET)"
+	@if [ -z "$$DATABASE_URL" ]; then \
+		echo "$(RED)Error: DATABASE_URL is not set$(RESET)"; \
+		exit 1; \
+	fi
 	@if [ -d "apps/services/field-core" ]; then \
-		cd apps/services/field-core && npx prisma migrate deploy; \
+		echo "Migrating field-core..."; \
+		cd apps/services/field-core && npx prisma migrate deploy || (echo "$(RED)field-core migration failed!$(RESET)" && exit 1); \
 	fi
 	@if [ -d "apps/services/crop-growth-model" ]; then \
-		cd apps/services/crop-growth-model && npx prisma migrate deploy; \
+		echo "Migrating crop-growth-model..."; \
+		cd apps/services/crop-growth-model && npx prisma migrate deploy || (echo "$(RED)crop-growth-model migration failed!$(RESET)" && exit 1); \
 	fi
 	@if [ -d "apps/services/disaster-assessment" ]; then \
-		cd apps/services/disaster-assessment && npx prisma migrate deploy; \
+		echo "Migrating disaster-assessment..."; \
+		cd apps/services/disaster-assessment && npx prisma migrate deploy || (echo "$(RED)disaster-assessment migration failed!$(RESET)" && exit 1); \
 	fi
 	@echo "$(GREEN)✅ اكتمل الترحيل - Migrations complete!$(RESET)"
 
 db-seed: ## ملء قاعدة البيانات بالبيانات التجريبية - Seed database with sample data
 	@echo "$(YELLOW)🌱 ملء قاعدة البيانات - Seeding database...$(RESET)"
+	@if [ -z "$$DATABASE_URL" ]; then \
+		echo "$(RED)Error: DATABASE_URL is not set$(RESET)"; \
+		exit 1; \
+	fi
 	@if [ -d "apps/services/field-core" ]; then \
-		cd apps/services/field-core && npx prisma db seed; \
+		cd apps/services/field-core && npx prisma db seed || (echo "$(RED)Database seeding failed!$(RESET)" && exit 1); \
 	fi
 	@echo "$(GREEN)✅ تم ملء البيانات - Database seeded!$(RESET)"
 
@@ -214,12 +240,12 @@ db-reset: ## إعادة تعيين قاعدة البيانات - Reset database 
 
 db-shell: ## الاتصال بطرفية قاعدة البيانات - Connect to PostgreSQL shell
 	@echo "$(BLUE)🗄️  الاتصال بقاعدة البيانات - Connecting to database...$(RESET)"
-	docker exec -it sahool-postgres psql -U sahool -d sahool
+	@docker exec -it sahool-postgres psql -U sahool -d sahool || (echo "$(RED)Failed to connect to database! Is PostgreSQL running?$(RESET)" && exit 1)
 
 db-backup: ## نسخ احتياطي لقاعدة البيانات - Backup database
 	@echo "$(YELLOW)💾 إنشاء نسخة احتياطية - Creating database backup...$(RESET)"
-	@mkdir -p backups
-	docker exec sahool-postgres pg_dump -U sahool sahool > backups/backup_$(shell date +%Y%m%d_%H%M%S).sql
+	@mkdir -p backups || (echo "$(RED)Failed to create backups directory!$(RESET)" && exit 1)
+	@docker exec sahool-postgres pg_dump -U sahool sahool > backups/backup_$(shell date +%Y%m%d_%H%M%S).sql || (echo "$(RED)Database backup failed! Is PostgreSQL running?$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ تم إنشاء النسخة الاحتياطية - Backup created in backups/ directory!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -233,42 +259,58 @@ test: ## تشغيل جميع الاختبارات - Run all tests
 	@echo "$(GREEN)✅ اكتملت جميع الاختبارات - All tests complete!$(RESET)"
 
 test-python: ## تشغيل اختبارات Python - Run Python tests
-	@echo "$(BLUE)🐍 تشغيل اختبارات Python - Running Python tests...$(RESET)"
-	python -m pytest tests/ -v --tb=short || true
-	@echo "$(GREEN)✅ اكتملت اختبارات Python - Python tests complete!$(RESET)"
+	@echo "$(BLUE)Running Python tests...$(RESET)"
+	@set -e; \
+	python -m pytest tests/ -v --tb=short || { \
+		echo "$(RED)Python tests failed! Please fix failing tests before proceeding.$(RESET)"; \
+		exit 1; \
+	}
+	@echo "$(GREEN)Python tests passed!$(RESET)"
 
 test-node: ## تشغيل اختبارات Node.js - Run Node.js tests
-	@echo "$(BLUE)📦 تشغيل اختبارات Node.js - Running Node.js tests...$(RESET)"
-	@if [ -d "apps/services/field-core" ]; then \
-		cd apps/services/field-core && npm test; \
+	@echo "$(BLUE)Running Node.js tests...$(RESET)"
+	@set -e; \
+	if [ -d "apps/services/field-core" ]; then \
+		echo "Testing field-core..."; \
+		cd apps/services/field-core && npm test || { echo "$(RED)field-core tests failed!$(RESET)"; exit 1; }; \
+	fi; \
+	if [ -d "apps/services/crop-growth-model" ]; then \
+		echo "Testing crop-growth-model..."; \
+		cd apps/services/crop-growth-model && npm test || { echo "$(RED)crop-growth-model tests failed!$(RESET)"; exit 1; }; \
+	fi; \
+	if [ -d "apps/web" ]; then \
+		echo "Testing web app..."; \
+		cd apps/web && npm test || { echo "$(RED)web tests failed!$(RESET)"; exit 1; }; \
 	fi
-	@if [ -d "apps/services/crop-growth-model" ]; then \
-		cd apps/services/crop-growth-model && npm test; \
-	fi
-	@if [ -d "apps/web" ]; then \
-		cd apps/web && npm test; \
-	fi
-	@echo "$(GREEN)✅ اكتملت اختبارات Node.js - Node.js tests complete!$(RESET)"
+	@echo "$(GREEN)Node.js tests passed!$(RESET)"
 
 test-integration: ## تشغيل اختبارات التكامل - Run integration tests
-	@echo "$(BLUE)🔗 تشغيل اختبارات التكامل - Running integration tests...$(RESET)"
-	pytest tests/integration -v
-	@echo "$(GREEN)✅ اكتملت اختبارات التكامل - Integration tests complete!$(RESET)"
+	@echo "$(BLUE)Running integration tests...$(RESET)"
+	@set -e; \
+	pytest tests/integration -v || { \
+		echo "$(RED)Integration tests failed! Please fix failing tests.$(RESET)"; \
+		exit 1; \
+	}
+	@echo "$(GREEN)Integration tests passed!$(RESET)"
 
 test-unit: ## تشغيل اختبارات الوحدة - Run unit tests
-	@echo "$(BLUE)⚡ تشغيل اختبارات الوحدة - Running unit tests...$(RESET)"
-	pytest tests/unit -v
-	@echo "$(GREEN)✅ اكتملت اختبارات الوحدة - Unit tests complete!$(RESET)"
+	@echo "$(BLUE)Running unit tests...$(RESET)"
+	@set -e; \
+	pytest tests/unit -v || { \
+		echo "$(RED)Unit tests failed! Please fix failing tests.$(RESET)"; \
+		exit 1; \
+	}
+	@echo "$(GREEN)Unit tests passed!$(RESET)"
 
 test-coverage: ## تشغيل الاختبارات مع تقرير التغطية - Run tests with coverage report
 	@echo "$(BLUE)📊 تشغيل الاختبارات مع التغطية - Running tests with coverage...$(RESET)"
-	pytest tests/ --cov=shared --cov=packages --cov-report=html:coverage_html --cov-report=term
+	@pytest tests/ --cov=shared --cov=packages --cov-report=html:coverage_html --cov-report=term || (echo "$(RED)Tests with coverage failed!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ تقرير التغطية: coverage_html/index.html - Coverage report: coverage_html/index.html$(RESET)"
 
 test-docker: ## تشغيل الاختبارات داخل Docker - Run tests in Docker containers
 	@echo "$(BLUE)🐳 تشغيل الاختبارات في Docker - Running tests in Docker...$(RESET)"
-	docker compose -f $(COMPOSE_TEST) up --build --abort-on-container-exit
-	docker compose -f $(COMPOSE_TEST) down
+	@docker compose -f $(COMPOSE_TEST) up --build --abort-on-container-exit || (echo "$(RED)Docker tests failed!$(RESET)" && docker compose -f $(COMPOSE_TEST) down && exit 1)
+	@docker compose -f $(COMPOSE_TEST) down
 	@echo "$(GREEN)✅ اكتملت اختبارات Docker - Docker tests complete!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -277,8 +319,8 @@ test-docker: ## تشغيل الاختبارات داخل Docker - Run tests in D
 
 clean: ## تنظيف الحاويات والبيانات - Clean up containers, volumes, and build artifacts
 	@echo "$(RED)🧹 التنظيف - Cleaning up...$(RESET)"
-	docker compose -f $(COMPOSE_BASE) down -v --remove-orphans
-	docker system prune -f --volumes
+	@docker compose -f $(COMPOSE_BASE) down -v --remove-orphans || echo "$(YELLOW)Warning: Some containers may not have been removed$(RESET)"
+	@docker system prune -f --volumes || echo "$(YELLOW)Warning: Docker prune encountered issues$(RESET)"
 	@rm -rf coverage_html .pytest_cache __pycache__ node_modules/.cache
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@find . -type d -name "node_modules/.cache" -exec rm -rf {} + 2>/dev/null || true
@@ -345,11 +387,11 @@ ps: ## قائمة الحاويات قيد التشغيل - List running containe
 monitoring-up: ## تشغيل Prometheus/Grafana - Start monitoring stack (Prometheus/Grafana)
 	@echo "$(GREEN)📊 تشغيل المراقبة - Starting monitoring stack...$(RESET)"
 	@if [ ! -f .env ]; then \
-		echo "$(RED)❌ Error: .env file not found$(RESET)"; \
+		echo "$(RED)Error: .env file not found$(RESET)"; \
 		echo "$(YELLOW)Please create .env from .env.example and set GRAFANA_ADMIN_PASSWORD$(RESET)"; \
 		exit 1; \
 	fi
-	docker compose -f $(COMPOSE_MONITORING) up -d
+	@docker compose -f $(COMPOSE_MONITORING) up -d || (echo "$(RED)Failed to start monitoring stack!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ المراقبة جاهزة - Monitoring stack ready!$(RESET)"
 	@echo "$(BLUE)Prometheus:$(RESET) http://localhost:9090"
 	@echo "$(BLUE)Grafana:$(RESET)    http://localhost:3002"
@@ -357,7 +399,7 @@ monitoring-up: ## تشغيل Prometheus/Grafana - Start monitoring stack (Promet
 
 monitoring-down: ## إيقاف المراقبة - Stop monitoring stack
 	@echo "$(RED)🛑 إيقاف المراقبة - Stopping monitoring stack...$(RESET)"
-	docker compose -f $(COMPOSE_MONITORING) down
+	@docker compose -f $(COMPOSE_MONITORING) down || (echo "$(RED)Failed to stop monitoring stack!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ تم إيقاف المراقبة - Monitoring stopped!$(RESET)"
 
 monitoring-logs: ## عرض سجلات المراقبة - View monitoring logs
@@ -371,17 +413,21 @@ monitoring-logs: ## عرض سجلات المراقبة - View monitoring logs
 lint: ## فحص جودة الكود - Check code style and linting
 	@echo "$(BLUE)🔍 فحص الكود - Running linters...$(RESET)"
 	@echo "$(YELLOW)Python:$(RESET)"
-	python -m ruff format . --check
-	python -m ruff check .
+	@python -m ruff format . --check || (echo "$(RED)Python formatting check failed!$(RESET)" && exit 1)
+	@python -m ruff check . || (echo "$(RED)Python linting failed!$(RESET)" && exit 1)
 	@echo "$(YELLOW)TypeScript/JavaScript:$(RESET)"
-	@cd apps/web && npm run lint || true
-	@echo "$(GREEN)✅ فحص الكود مكتمل - Linting complete!$(RESET)"
+	@if [ -d "apps/web" ]; then \
+		cd apps/web && npm run lint || (echo "$(RED)TypeScript/JavaScript linting failed!$(RESET)" && exit 1); \
+	fi
+	@echo "$(GREEN)✅ فحص الكود مكتمل - Linting passed!$(RESET)"
 
 fmt: ## تنسيق الكود - Format code
 	@echo "$(BLUE)✨ تنسيق الكود - Formatting code...$(RESET)"
-	python -m ruff format .
-	python -m ruff check . --fix
-	@cd apps/web && npm run format || true
+	@python -m ruff format . || (echo "$(RED)Python formatting failed!$(RESET)" && exit 1)
+	@python -m ruff check . --fix || (echo "$(RED)Python auto-fix failed!$(RESET)" && exit 1)
+	@if [ -d "apps/web" ]; then \
+		cd apps/web && npm run format || (echo "$(RED)TypeScript/JavaScript formatting failed!$(RESET)" && exit 1); \
+	fi
 	@echo "$(GREEN)✅ تم تنسيق الكود - Code formatted!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -390,7 +436,7 @@ fmt: ## تنسيق الكود - Format code
 
 infra-up: ## تشغيل البنية التحتية فقط - Start infrastructure only (postgres, redis, nats, kong)
 	@echo "$(GREEN)🏗️  تشغيل البنية التحتية - Starting infrastructure...$(RESET)"
-	docker compose -f $(COMPOSE_BASE) up -d postgres redis nats kong
+	@docker compose -f $(COMPOSE_BASE) up -d postgres redis nats kong || (echo "$(RED)Failed to start infrastructure!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ البنية التحتية جاهزة - Infrastructure ready!$(RESET)"
 	@echo "$(BLUE)PostgreSQL:$(RESET) localhost:5432"
 	@echo "$(BLUE)Redis:$(RESET)      localhost:6379"
@@ -399,19 +445,19 @@ infra-up: ## تشغيل البنية التحتية فقط - Start infrastructur
 
 kong-reload: ## إعادة تحميل إعدادات Kong - Reload Kong configuration
 	@echo "$(YELLOW)🔄 إعادة تحميل Kong - Reloading Kong...$(RESET)"
-	docker exec sahool-kong kong reload
+	@docker exec sahool-kong kong reload || (echo "$(RED)Failed to reload Kong! Is Kong running?$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ تم إعادة تحميل Kong - Kong reloaded!$(RESET)"
 
 vault-up: ## تشغيل Vault - Start HashiCorp Vault
 	@echo "$(GREEN)🔐 تشغيل Vault - Starting Vault...$(RESET)"
-	docker compose -f infra/vault/docker-compose.vault.yml up -d
+	@docker compose -f infra/vault/docker-compose.vault.yml up -d || (echo "$(RED)Failed to start Vault!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ Vault جاهز - Vault ready!$(RESET)"
 	@echo "$(BLUE)Vault:$(RESET) http://localhost:8200"
 	@echo "$(YELLOW)Token:$(RESET) dev-root-token"
 
 vault-down: ## إيقاف Vault - Stop Vault
 	@echo "$(RED)🛑 إيقاف Vault - Stopping Vault...$(RESET)"
-	docker compose -f infra/vault/docker-compose.vault.yml down
+	@docker compose -f infra/vault/docker-compose.vault.yml down || (echo "$(RED)Failed to stop Vault!$(RESET)" && exit 1)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Package-Specific Commands - أوامر الحزم
@@ -442,16 +488,20 @@ network-inspect: ## فحص شبكة SAHOOL - Inspect SAHOOL network
 
 dev-install: ## تثبيت أدوات التطوير - Install development dependencies
 	@echo "$(YELLOW)📦 تثبيت أدوات التطوير - Installing dev dependencies...$(RESET)"
-	python -m pip install -U pip
-	pip install -r requirements/dev.txt
-	pre-commit install
-	@if [ -d "apps/web" ]; then cd apps/web && npm install; fi
-	@if [ -d "apps/admin" ]; then cd apps/admin && npm install; fi
+	@python -m pip install -U pip || (echo "$(RED)Failed to upgrade pip!$(RESET)" && exit 1)
+	@pip install -r requirements/dev.txt || (echo "$(RED)Failed to install Python dev dependencies!$(RESET)" && exit 1)
+	@pre-commit install || (echo "$(RED)Failed to install pre-commit hooks!$(RESET)" && exit 1)
+	@if [ -d "apps/web" ]; then \
+		cd apps/web && npm install || (echo "$(RED)Failed to install web app dependencies!$(RESET)" && exit 1); \
+	fi
+	@if [ -d "apps/admin" ]; then \
+		cd apps/admin && npm install || (echo "$(RED)Failed to install admin app dependencies!$(RESET)" && exit 1); \
+	fi
 	@echo "$(GREEN)✅ بيئة التطوير جاهزة - Dev environment ready!$(RESET)"
 
 generate-tokens: ## توليد رموز التصميم - Generate design tokens
 	@echo "$(BLUE)🎨 توليد رموز التصميم - Generating design tokens...$(RESET)"
-	python3 scripts/generators/generate_design_tokens.py
+	@python3 scripts/generators/generate_design_tokens.py || (echo "$(RED)Failed to generate design tokens!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ تم توليد الرموز - Tokens generated!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -460,7 +510,7 @@ generate-tokens: ## توليد رموز التصميم - Generate design tokens
 
 security-scan: ## فحص الأمان - Run security scans
 	@echo "$(BLUE)🔒 فحص الأمان - Running security scans...$(RESET)"
-	detect-secrets scan --baseline .secrets.baseline
+	@detect-secrets scan --baseline .secrets.baseline || (echo "$(RED)Security scan failed!$(RESET)" && exit 1)
 	@echo "$(GREEN)✅ فحص الأمان مكتمل - Security scan complete!$(RESET)"
 
 env-check: ## التحقق من متغيرات البيئة - Validate environment variables

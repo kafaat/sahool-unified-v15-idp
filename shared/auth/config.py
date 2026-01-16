@@ -12,7 +12,7 @@ import os
 class JWTConfig:
     """JWT Configuration Settings - HS256 Only"""
 
-    # JWT Secret Key (required)
+    # JWT Secret Key (required in production)
     JWT_SECRET: str = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
 
     # JWT Algorithm - HS256 only (RS256 deprecated)
@@ -47,7 +47,7 @@ class JWTConfig:
 
     @classmethod
     def validate(cls) -> None:
-        """Validate JWT configuration"""
+        """Validate JWT configuration - only enforced in production/staging"""
         env = os.getenv("ENVIRONMENT", "development")
 
         if env in ("production", "staging"):

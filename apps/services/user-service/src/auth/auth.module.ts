@@ -30,7 +30,7 @@ import { JWTConfig } from "../utils/jwt.config";
     JwtModule.register({
       secret: JWTConfig.SECRET,
       signOptions: {
-        algorithm: JWTConfig.getEffectiveAlgorithm() as any,
+        algorithm: JWTConfig.ALGORITHM as any,
         issuer: JWTConfig.ISSUER,
         audience: JWTConfig.AUDIENCE,
       },

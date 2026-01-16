@@ -29,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: JWTConfig.SECRET,
       issuer: JWTConfig.ISSUER,
       audience: JWTConfig.AUDIENCE,
-      algorithms: [JWTConfig.getEffectiveAlgorithm()],
+      algorithms: [JWTConfig.ALGORITHM],
     });
   }
 

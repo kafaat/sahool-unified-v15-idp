@@ -45,3 +45,6 @@ export 'offline/offline.dart';
 
 // Voice Commands
 export 'voice/voice.dart';
+
+// Deep Linking
+export 'deeplink/deeplink_handler.dart';

@@ -260,7 +260,7 @@ async def create_treatment(
 async def search_entities(
     request,
     q: str = Query(..., description="Search query"),
-    entity_type: Optional[str] = Query(None, description="Filter by type (crop, disease, treatment)"),
+    entity_type: str | None = Query(None, description="Filter by type (crop, disease, treatment)"),
     limit: int = Query(20, ge=1, le=100, description="Maximum results"),
 ):
     """

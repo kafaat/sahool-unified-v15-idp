@@ -37,8 +37,8 @@ class KnowledgeGraphService:
     def __init__(self):
         """Initialize the knowledge graph"""
         self.graph: nx.DiGraph = nx.DiGraph()
-        self.entities: Dict[str, Dict[str, Any]] = {}
-        self.relationships: Dict[str, Relationship] = {}
+        self.entities: dict[str, dict[str, Any]] = {}
+        self.relationships: dict[str, Relationship] = {}
         logger.info("Knowledge Graph Service initialized")
 
     async def initialize(self):
@@ -303,7 +303,7 @@ class KnowledgeGraphService:
         target_id: str,
         relationship_type: RelationshipType,
         confidence: float = 1.0,
-        evidence: Optional[List[str]] = None,
+        evidence: list[str] | None = None,
     ) -> bool:
         """Add a relationship between two entities"""
         source_node = f"{source_type}:{source_id}"
@@ -337,21 +337,21 @@ class KnowledgeGraphService:
         logger.info(f"Added relationship: {rel_id}")
         return True
 
-    async def get_crop(self, crop_id: str) -> Optional[Crop]:
+    async def get_crop(self, crop_id: str) -> Crop | None:
         """Get a crop by ID"""
         node_id = f"crop:{crop_id}"
         if node_id in self.entities:
             return Crop(**self.entities[node_id])
         return None
 
-    async def get_disease(self, disease_id: str) -> Optional[Disease]:
+    async def get_disease(self, disease_id: str) -> Disease | None:
         """Get a disease by ID"""
         node_id = f"disease:{disease_id}"
         if node_id in self.entities:
             return Disease(**self.entities[node_id])
         return None
 
-    async def get_treatment(self, treatment_id: str) -> Optional[Treatment]:
+    async def get_treatment(self, treatment_id: str) -> Treatment | None:
         """Get a treatment by ID"""
         node_id = f"treatment:{treatment_id}"
         if node_id in self.entities:
@@ -362,9 +362,9 @@ class KnowledgeGraphService:
         self,
         entity_type: str,
         entity_id: str,
-        relationship_type: Optional[RelationshipType] = None,
+        relationship_type: RelationshipType | None = None,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get entities related to a given entity"""
         node_id = f"{entity_type}:{entity_id}"
 
@@ -401,7 +401,7 @@ class KnowledgeGraphService:
         source_id: str,
         target_type: str,
         target_id: str,
-    ) -> Optional[PathResponse]:
+    ) -> PathResponse | None:
         """Find shortest path between two entities"""
         source_node = f"{source_type}:{source_id}"
         target_node = f"{target_type}:{target_id}"
@@ -465,9 +465,9 @@ class KnowledgeGraphService:
     async def search_entities(
         self,
         query: str,
-        entity_type: Optional[str] = None,
+        entity_type: str | None = None,
         limit: int = 20,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search for entities by name or description"""
         results = []
         query_lower = query.lower()
@@ -498,7 +498,7 @@ class KnowledgeGraphService:
 
         return results
 
-    async def get_all_crops(self, limit: int = 100) -> List[Dict[str, Any]]:
+    async def get_all_crops(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get all crops"""
         crops = []
         for node_id, data in self.entities.items():
@@ -510,7 +510,7 @@ class KnowledgeGraphService:
                     break
         return crops
 
-    async def get_all_diseases(self, limit: int = 100) -> List[Dict[str, Any]]:
+    async def get_all_diseases(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get all diseases"""
         diseases = []
         for node_id, data in self.entities.items():
@@ -522,7 +522,7 @@ class KnowledgeGraphService:
                     break
         return diseases
 
-    async def get_all_treatments(self, limit: int = 100) -> List[Dict[str, Any]]:
+    async def get_all_treatments(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get all treatments"""
         treatments = []
         for node_id, data in self.entities.items():
@@ -534,7 +534,7 @@ class KnowledgeGraphService:
                     break
         return treatments
 
-    async def get_graph_stats(self) -> Dict[str, Any]:
+    async def get_graph_stats(self) -> dict[str, Any]:
         """Get graph statistics"""
         crop_count = sum(1 for node in self.graph.nodes() if node.startswith("crop:"))
         disease_count = sum(

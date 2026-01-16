@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: billing-core
-          image: REPLACE_WITH_IMAGE_REPO/billing-core:0.1.0
+          image: ghcr.io/kafaat/sahool/billing-core:0.1.0
           ports: [{ containerPort: 8087 }]
           readinessProbe:
             httpGet: { path: /readyz, port: 8087 }

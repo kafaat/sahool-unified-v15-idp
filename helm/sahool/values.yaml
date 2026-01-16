@@ -228,7 +228,8 @@ services:
     image:
       repository: field-core
       tag: "15.3.2"
-    port: 3000
+    port: 3001
+    targetPort: 3001
     replicaCount: 2
     resources:
       limits:
@@ -265,6 +266,7 @@ services:
       repository: weather-core
       tag: "15.3.2"
     port: 8108
+    targetPort: 8108
     replicaCount: 2
     resources:
       limits:
@@ -296,6 +298,7 @@ services:
       repository: astronomical-calendar
       tag: "15.3.2"
     port: 8111
+    targetPort: 8111
     replicaCount: 1
     resources:
       limits:
@@ -321,6 +324,7 @@ services:
       repository: agro-advisor
       tag: "15.3.2"
     port: 8105
+    targetPort: 8105
     replicaCount: 2
     resources:
       limits:
@@ -351,7 +355,8 @@ services:
     image:
       repository: notification-service
       tag: "15.3.2"
-    port: 8110
+    port: 8000
+    targetPort: 8000
     replicaCount: 2
     resources:
       limits:
@@ -375,6 +380,80 @@ services:
       updateMode: "Initial"  # Only update on pod creation
       controlledValues: "RequestsAndLimits"
 
+  userService:
+    enabled: true
+    name: user-service
+    package: starter
+    image:
+      repository: user-service
+      tag: "16.0.0"
+    port: 3000
+    targetPort: 3000
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+    env:
+      - name: NODE_ENV
+        value: production
+      - name: PORT
+        value: "3000"
+    # VPA Configuration for User Service (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
+
+  fieldManagementService:
+    enabled: true
+    name: field-management-service
+    package: starter
+    image:
+      repository: field-management-service
+      tag: "16.0.0"
+    port: 3000
+    targetPort: 3000
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 5
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+    env:
+      - name: NODE_ENV
+        value: production
+      - name: PORT
+        value: "3000"
+    # VPA Configuration for Field Management Service (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
+
   # ═════════════════════════════════════════════════════════════════════════════
   # 🚜 PROFESSIONAL PACKAGE - Additional Services
   # ═════════════════════════════════════════════════════════════════════════════
@@ -386,7 +465,8 @@ services:
     image:
       repository: satellite-service
       tag: "15.3.2"
-    port: 8090
+    port: 8125
+    targetPort: 8125
     replicaCount: 2
     resources:
       limits:
@@ -418,6 +498,7 @@ services:
       repository: ndvi-engine
       tag: "15.3.2"
     port: 8107
+    targetPort: 8107
     replicaCount: 2
     resources:
       limits:
@@ -448,7 +529,8 @@ services:
     image:
       repository: crop-health-ai
       tag: "15.3.2"
-    port: 8095
+    port: 8128
+    targetPort: 8128
     replicaCount: 2
     resources:
       limits:
@@ -480,6 +562,7 @@ services:
       repository: irrigation-smart
       tag: "15.3.2"
     port: 8094
+    targetPort: 8094
     replicaCount: 1
     resources:
       limits:
@@ -504,7 +587,8 @@ services:
     image:
       repository: virtual-sensors
       tag: "15.3.2"
-    port: 8096
+    port: 8119
+    targetPort: 8119
     replicaCount: 1
     resources:
       limits:
@@ -530,6 +614,7 @@ services:
       repository: yield-engine
       tag: "15.3.2"
     port: 8098
+    targetPort: 8098
     replicaCount: 1
     resources:
       limits:
@@ -554,7 +639,8 @@ services:
     image:
       repository: fertilizer-advisor
       tag: "15.3.2"
-    port: 8093
+    port: 8127
+    targetPort: 8127
     replicaCount: 1
     resources:
       limits:
@@ -580,6 +666,7 @@ services:
       repository: inventory-service
       tag: "15.3.2"
     port: 8116
+    targetPort: 8116
     replicaCount: 2
     resources:
       limits:
@@ -615,6 +702,7 @@ services:
       repository: ai-advisor
       tag: "15.3.2"
     port: 8112
+    targetPort: 8112
     replicaCount: 2
     resources:
       limits:
@@ -646,6 +734,7 @@ services:
       repository: iot-gateway
       tag: "15.3.2"
     port: 8106
+    targetPort: 8106
     replicaCount: 2
     resources:
       limits:
@@ -677,6 +766,7 @@ services:
       repository: research-core
       tag: "15.3.2"
     port: 3015
+    targetPort: 3015
     replicaCount: 1
     resources:
       limits:
@@ -702,6 +792,7 @@ services:
       repository: marketplace-service
       tag: "15.3.2"
     port: 3010
+    targetPort: 3010
     replicaCount: 2
     resources:
       limits:
@@ -733,6 +824,7 @@ services:
       repository: billing-core
       tag: "15.3.2"
     port: 8089
+    targetPort: 8089
     replicaCount: 2
     resources:
       limits:
@@ -764,6 +856,7 @@ services:
       repository: disaster-assessment
       tag: "15.3.2"
     port: 3020
+    targetPort: 3020
     replicaCount: 1
     resources:
       limits:
@@ -789,6 +882,7 @@ services:
       repository: crop-growth-model
       tag: "15.3.2"
     port: 3023
+    targetPort: 3023
     replicaCount: 1
     resources:
       limits:
@@ -814,6 +908,7 @@ services:
       repository: lai-estimation
       tag: "15.3.2"
     port: 3022
+    targetPort: 3022
     replicaCount: 1
     resources:
       limits:
@@ -825,6 +920,38 @@ services:
     autoscaling:
       enabled: false
     # VPA Configuration for LAI Estimation (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  # DEPRECATED SERVICES (kept for backward compatibility)
+  # ═════════════════════════════════════════════════════════════════════════════
+
+  fieldOps:
+    enabled: false  # DEPRECATED: Use fieldCore instead
+    name: field-ops
+    package: starter
+    image:
+      repository: field-ops
+      tag: "15.3.2"
+    port: 8080
+    targetPort: 8080
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    autoscaling:
+      enabled: false
+    pdb:
+      enabled: false
+    # VPA Configuration for Field Ops (Database-connected service)
     # "Initial" mode - Safe for services with persistent database connections
     vpa:
       enabled: true
@@ -853,7 +980,7 @@ ingress:
         - path: /api/v1/fields
           pathType: Prefix
           service: field-core
-          port: 3000
+          port: 3001
         - path: /api/v1/weather
           pathType: Prefix
           service: weather-core
@@ -869,12 +996,20 @@ ingress:
         - path: /api/v1/notifications
           pathType: Prefix
           service: notification-service
-          port: 8110
+          port: 8000
+        - path: /api/v1/users
+          pathType: Prefix
+          service: user-service
+          port: 3000
+        - path: /api/v1/field-management
+          pathType: Prefix
+          service: field-management-service
+          port: 3000
         # Professional Package Routes
         - path: /api/v1/satellite
           pathType: Prefix
           service: satellite-service
-          port: 8090
+          port: 8125
         - path: /api/v1/ndvi
           pathType: Prefix
           service: ndvi-engine
@@ -882,7 +1017,7 @@ ingress:
         - path: /api/v1/crop-health
           pathType: Prefix
           service: crop-health-ai
-          port: 8095
+          port: 8128
         - path: /api/v1/inventory
           pathType: Prefix
           service: inventory-service

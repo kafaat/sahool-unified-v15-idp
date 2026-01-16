@@ -51,7 +51,7 @@ services:
 
   # PostgreSQL with PostGIS
   db:
-    image: postgis/postgis:15-3.3-alpine
+    image: postgis/postgis:16-3.4
     environment:
       - POSTGRES_USER=sahool
       - POSTGRES_PASSWORD=sahool
@@ -71,7 +71,7 @@ services:
 
   # NATS (optional - for event streaming)
   nats:
-    image: nats:2.10-alpine
+    image: nats:2.10.24-alpine
     ports:
       - "4222:4222"
       - "8222:8222"

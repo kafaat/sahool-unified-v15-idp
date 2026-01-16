@@ -13,6 +13,7 @@ import {
   getCsrfCookieOptions,
   CSRF_CONFIG,
 } from "@/lib/csrf";
+import { logger } from "@/lib/logger";
 
 /**
  * GET /api/csrf-token
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("[CSRF] Token generation error:", error);
+    logger.error("[CSRF] Token generation error:", error);
     return NextResponse.json(
       { error: "Failed to generate CSRF token" },
       { status: 500 },
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("[CSRF] Token refresh error:", error);
+    logger.error("[CSRF] Token refresh error:", error);
     return NextResponse.json(
       { error: "Failed to refresh CSRF token" },
       { status: 500 },

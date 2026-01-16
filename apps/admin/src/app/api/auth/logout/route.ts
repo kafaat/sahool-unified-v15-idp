@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     if (accessToken) {
       try {
         const backendUrl =
-          process.env.USER_SERVICE_URL || "http://localhost:3025";
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         const response = await fetch(`${backendUrl}/api/v1/auth/logout`, {
           method: "POST",
           headers: {

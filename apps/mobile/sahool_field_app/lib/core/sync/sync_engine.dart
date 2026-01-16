@@ -43,7 +43,9 @@ class SyncEngine {
     // Also sync when network comes back online
     _networkStatus.onlineStream.listen((online) {
       if (online) {
-        debugPrint('📶 Network restored - triggering sync');
+        if (kDebugMode) {
+          debugPrint('📶 Network restored - triggering sync');
+        }
         runOnce();
       }
     });
@@ -131,7 +133,9 @@ class SyncEngine {
         await database.markOutboxDone(item.id);
         processed++;
       } catch (e) {
-        debugPrint('❌ Outbox item failed: ${item.id} - $e');
+        if (kDebugMode) {
+          debugPrint('❌ Outbox item failed: ${item.id} - $e');
+        }
         await database.bumpOutboxRetry(item.id);
         failed++;
 
@@ -292,7 +296,9 @@ class SyncEngine {
         }
       }
     } catch (e) {
-      debugPrint('⚠️ Failed to pull tasks: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ Failed to pull tasks: $e');
+      }
 
       // Record failure
       if (operationId != null) {

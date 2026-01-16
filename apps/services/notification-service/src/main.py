@@ -62,6 +62,7 @@ except ImportError:
 from .channels_controller import router as channels_router
 from .database import check_db_health, close_db, get_db_stats, init_db
 from .email_client import get_email_client
+from .otp_controller import router as otp_router
 from .preferences_controller import router as preferences_router
 from .preferences_service import PreferencesService
 from .repository import (
@@ -73,6 +74,9 @@ from .repository import (
 
 # Notification clients
 from .sms_client import get_sms_client
+from .whatsapp_client import get_whatsapp_client
+from .telegram_client import get_telegram_client
+from .sms_providers import get_multi_sms_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -683,29 +687,46 @@ async def send_whatsapp_notification(notification, farmer_id: str):
             )
             return
 
-        # For now, WhatsApp integration is a placeholder
-        # In production, you would integrate with WhatsApp Business API or Twilio WhatsApp
-        logger.info(
-            f"WhatsApp notification placeholder for ***{farmer_profile.phone[-4:] if farmer_profile.phone else '****'}"
+        # Get WhatsApp client
+        whatsapp_client = get_whatsapp_client()
+        if not whatsapp_client._initialized:
+            logger.warning("WhatsApp client not initialized, skipping WhatsApp notification")
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="whatsapp",
+                status="pending",
+                error_message="WhatsApp client not configured",
+            )
+            return
+
+        # Send WhatsApp message
+        language = farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
+        message_sid = await whatsapp_client.send_message(
+            to=farmer_profile.phone,
+            body=notification.title + "\n" + notification.body,
+            body_ar=notification.title_ar + "\n" + notification.body_ar,
+            language=language,
         )
 
-        # Placeholder: Log as pending until WhatsApp client is implemented
-        await NotificationLogRepository.create_log(
-            notification_id=notification.id,
-            channel="whatsapp",
-            status="pending",
-            error_message="WhatsApp client not yet implemented",
-        )
-
-        # TODO: Implement WhatsApp Business API integration
-        # Example using Twilio:
-        # from twilio.rest import Client
-        # client = Client(account_sid, auth_token)
-        # message = client.messages.create(
-        #     from_='whatsapp:+14155238886',
-        #     body=notification.title + "\n" + notification.body,
-        #     to=f'whatsapp:{farmer_profile.phone}'
-        # )
+        if message_sid:
+            # Update notification status
+            await NotificationRepository.update_status(
+                notification.id,
+                status="sent",
+                sent_at=datetime.utcnow(),
+            )
+            # Log success
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="whatsapp",
+                status="sent",
+                provider_message_id=message_sid,
+            )
+            logger.info(
+                f"✅ WhatsApp sent to ***{farmer_profile.phone[-4:] if farmer_profile.phone else '****'}: {message_sid}"
+            )
+        else:
+            raise Exception("Failed to send WhatsApp message (no message_sid returned)")
 
     except Exception as e:
         logger.error(f"Error sending WhatsApp notification: {e}")
@@ -924,6 +945,35 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize Email client: {e}")
 
+    # Initialize WhatsApp client (optional)
+    try:
+        whatsapp_client = get_whatsapp_client()
+        if whatsapp_client._initialized:
+            logger.info("✅ WhatsApp client initialized")
+        else:
+            logger.info("ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)")
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to initialize WhatsApp client: {e}")
+
+    # Initialize Telegram client (optional)
+    try:
+        telegram_client = get_telegram_client()
+        if telegram_client._initialized:
+            logger.info("✅ Telegram client initialized")
+        else:
+            logger.info("ℹ️  Telegram client not configured (set TELEGRAM_BOT_TOKEN env var)")
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to initialize Telegram client: {e}")
+
+    # Initialize multi-provider SMS client
+    try:
+        multi_sms = get_multi_sms_client()
+        if multi_sms._initialized:
+            available = multi_sms.get_available_providers()
+            logger.info(f"✅ Multi-provider SMS initialized with: {', '.join(available)}")
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to initialize multi-provider SMS: {e}")
+
     logger.info("✅ Notification Service ready")
 
     yield
@@ -967,6 +1017,7 @@ add_request_id_middleware(app)
 # Include routers for multi-channel support
 app.include_router(channels_router)
 app.include_router(preferences_router)
+app.include_router(otp_router)
 
 # Setup rate limiting middleware
 try:
@@ -1361,7 +1412,8 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
 
         pref = await NotificationPreferenceRepository.create_or_update(
             user_id=farmer_id,
-            channel=channel,
+            event_type=channel,
+            channels=[channel],
             enabled=enabled,
             quiet_hours_start=(
                 datetime.strptime(preferences.quiet_hours_start, "%H:%M").time()
@@ -1373,13 +1425,15 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
                 if preferences.quiet_hours_end
                 else None
             ),
-            min_priority=preferences.min_priority.value,
-            notification_types={
-                "weather_alerts": preferences.weather_alerts,
-                "pest_alerts": preferences.pest_alerts,
-                "irrigation_reminders": preferences.irrigation_reminders,
-                "crop_health_alerts": preferences.crop_health_alerts,
-                "market_prices": preferences.market_prices,
+            metadata={
+                "min_priority": preferences.min_priority.value,
+                "notification_types": {
+                    "weather_alerts": preferences.weather_alerts,
+                    "pest_alerts": preferences.pest_alerts,
+                    "irrigation_reminders": preferences.irrigation_reminders,
+                    "crop_health_alerts": preferences.crop_health_alerts,
+                    "market_prices": preferences.market_prices,
+                },
             },
         )
         updated_prefs.append(pref)

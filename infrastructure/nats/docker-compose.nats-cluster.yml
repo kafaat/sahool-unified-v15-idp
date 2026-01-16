@@ -39,7 +39,7 @@ services:
   # NATS Node 1 - Primary Node
   # ─────────────────────────────────────────────────────────────────────────────
   nats-node1:
-    image: nats:2.10-alpine
+    image: nats:2.10.24-alpine
     container_name: sahool-nats-node1
     hostname: nats-node1
     restart: unless-stopped
@@ -122,7 +122,7 @@ services:
   # NATS Node 2 - Secondary Node
   # ─────────────────────────────────────────────────────────────────────────────
   nats-node2:
-    image: nats:2.10-alpine
+    image: nats:2.10.24-alpine
     container_name: sahool-nats-node2
     hostname: nats-node2
     restart: unless-stopped
@@ -191,7 +191,7 @@ services:
   # NATS Node 3 - Tertiary Node
   # ─────────────────────────────────────────────────────────────────────────────
   nats-node3:
-    image: nats:2.10-alpine
+    image: nats:2.10.24-alpine
     container_name: sahool-nats-node3
     hostname: nats-node3
     restart: unless-stopped

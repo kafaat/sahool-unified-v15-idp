@@ -6,8 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+import { API_URL, API_ENDPOINTS } from "@/config/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +14,7 @@ export async function POST(request: NextRequest) {
     const { email, password, totp_code } = body;
 
     // Forward to backend auth API
-    const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+    const response = await fetch(`${API_URL}${API_ENDPOINTS.auth.login}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

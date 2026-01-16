@@ -18,6 +18,8 @@ import os
 from dataclasses import dataclass
 from typing import Any
 
+from .security_utils import mask_email, sanitize_for_log
+
 logger = logging.getLogger(__name__)
 
 # SendGrid SDK imports
@@ -194,7 +196,7 @@ class EmailClient:
         try:
             # Validate email
             if not self._validate_email(to):
-                logger.error(f"Invalid email address: {to}")
+                logger.error(f"Invalid email address: {mask_email(to)}")
                 return None
 
             # Select content based on language
@@ -253,19 +255,15 @@ class EmailClient:
 
             if response:
                 logger.info(
-                    f"📧 Email sent successfully to ***@{to.split('@')[-1] if to and '@' in to else '***'}: {response}"
+                    f"📧 Email sent successfully to {mask_email(to)}: {sanitize_for_log(response)}"
                 )
                 return response
             else:
-                logger.error(
-                    f"Failed to send email to ***@{to.split('@')[-1] if to and '@' in to else '***'}"
-                )
+                logger.error(f"Failed to send email to {mask_email(to)}")
                 return None
 
         except Exception as e:
-            logger.error(
-                f"Error sending email to ***@{to.split('@')[-1] if to and '@' in to else '***'}: {e}"
-            )
+            logger.error(f"Error sending email to {mask_email(to)}: {sanitize_for_log(e)}")
             return None
 
     def _send_sync(self, mail: Mail) -> str | None:
@@ -379,10 +377,14 @@ class EmailClient:
                 return result
 
             if attempt < max_retries - 1:
-                logger.warning(f"Retry {attempt + 1}/{max_retries} for {to}...")
+                # Mask email for safe logging
+                masked = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
+                logger.warning(f"Retry {attempt + 1}/{max_retries} for {masked}...")
                 await asyncio.sleep(retry_delay)
 
-        logger.error(f"Failed to send email to {to} after {max_retries} attempts")
+        # Mask email for safe logging
+        masked = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
+        logger.error(f"Failed to send email to {masked} after {max_retries} attempts")
         return None
 
     async def send_template_email(
@@ -428,15 +430,20 @@ class EmailClient:
             # Send email
             response = await asyncio.to_thread(self._send_sync, mail=mail)
 
+            # Mask email for safe logging
+            masked = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
+
             if response:
-                logger.info(f"📧 Template email sent to {to}: {response}")
+                logger.info(f"📧 Template email sent to {masked}: {response}")
                 return response
             else:
-                logger.error(f"Failed to send template email to {to}")
+                logger.error(f"Failed to send template email to {masked}")
                 return None
 
         except Exception as e:
-            logger.error(f"Error sending template email to {to}: {e}")
+            # Mask email for safe logging
+            masked = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
+            logger.error(f"Error sending template email to {masked}: {e}")
             return None
 
     def _validate_email(self, email: str) -> bool:

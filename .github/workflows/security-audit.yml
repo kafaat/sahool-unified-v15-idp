@@ -47,14 +47,22 @@ jobs:
           # Create output directory
           mkdir -p security-reports
 
+          # Run Bandit on Python code with JSON output for threshold checking
+          # Exit code 1 means findings, which we check below
+          bandit -r apps/ shared/ \
+            -f json \
+            -o security-reports/bandit-report.json \
+            --severity-level medium \
+            --confidence-level medium \
+            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" || BANDIT_EXIT=$?
+
           # Run Bandit on Python code with SARIF output for GitHub integration
           bandit -r apps/ shared/ \
             -f sarif \
             -o security-reports/bandit-results.sarif \
             --severity-level medium \
             --confidence-level medium \
-            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" \
-            || true
+            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" || true
 
           # Also generate human-readable report
           bandit -r apps/ shared/ \
@@ -62,10 +70,22 @@ jobs:
             -o security-reports/bandit-results.txt \
             --severity-level medium \
             --confidence-level medium \
-            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" \
-            || true
+            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" || true
 
-          echo "✅ Bandit scan completed"
+          # Check for high severity issues - these MUST fail the build
+          if [ -f "security-reports/bandit-report.json" ]; then
+            HIGH_COUNT=$(python3 -c "import json; data=json.load(open('security-reports/bandit-report.json')); print(len([r for r in data.get('results', []) if r.get('issue_severity') == 'HIGH']))" 2>/dev/null || echo "0")
+
+            echo "High severity issues found: $HIGH_COUNT"
+
+            if [ "$HIGH_COUNT" -gt 0 ]; then
+              echo "❌ Bandit found $HIGH_COUNT high severity security issues"
+              cat security-reports/bandit-results.txt
+              exit 1
+            fi
+          fi
+
+          echo "✅ Bandit scan completed - no high severity issues"
 
       - name: Upload Bandit SARIF results
         uses: github/codeql-action/upload-sarif@v3
@@ -115,6 +135,19 @@ jobs:
         run: |
           echo "🔍 Running Semgrep security scan..."
 
+          # Run with JSON for analysis
+          # Exit code 1 means findings, which we check below
+          semgrep scan \
+            --config auto \
+            --config p/python \
+            --config p/typescript \
+            --config p/javascript \
+            --json \
+            --output semgrep-report.json \
+            --severity ERROR \
+            --severity WARNING || SEMGREP_EXIT=$?
+
+          # Run with SARIF for GitHub integration
           semgrep scan \
             --config auto \
             --config p/python \
@@ -123,10 +156,27 @@ jobs:
             --sarif \
             --output semgrep-results.sarif \
             --severity ERROR \
-            --severity WARNING \
-            || true
+            --severity WARNING || true
 
-          echo "✅ Semgrep scan completed"
+          # Create empty SARIF if it doesn't exist
+          if [ ! -f "semgrep-results.sarif" ]; then
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Semgrep","version":"1.0.0"}},"results":[]}]}' > semgrep-results.sarif
+          fi
+
+          # Check for ERROR severity findings - these MUST fail the build
+          if [ -f "semgrep-report.json" ]; then
+            ERROR_COUNT=$(python3 -c "import json; data=json.load(open('semgrep-report.json')); print(len([r for r in data.get('results', []) if r.get('extra', {}).get('severity') == 'ERROR']))" 2>/dev/null || echo "0")
+
+            echo "Error severity findings: $ERROR_COUNT"
+
+            if [ "$ERROR_COUNT" -gt 0 ]; then
+              echo "❌ Semgrep found $ERROR_COUNT error severity security issues"
+              python3 -c "import json; data=json.load(open('semgrep-report.json')); [print(f\"{r['path']}:{r['start']['line']}: {r['check_id']}\") for r in data.get('results', []) if r.get('extra', {}).get('severity') == 'ERROR']" 2>/dev/null || true
+              exit 1
+            fi
+          fi
+
+          echo "✅ Semgrep scan completed - no error severity issues"
 
       - name: Upload Semgrep SARIF results
         uses: github/codeql-action/upload-sarif@v3
@@ -151,14 +201,32 @@ jobs:
         run: pip install safety
 
       - name: Check Python dependencies
-        continue-on-error: true
         run: |
           echo "🔍 Checking Python dependencies for known vulnerabilities..."
 
+          CRITICAL_VULNS=0
+
           # Find all requirements files
-          find . -name "requirements*.txt" -type f | while read req_file; do
+          for req_file in $(find . -name "requirements*.txt" -type f -not -path "./.git/*" -not -path "./archive/*"); do
             echo "Checking: $req_file"
-            safety check -r "$req_file" --output json || true
+            REPORT_FILE="safety-$(echo $req_file | md5sum | cut -d' ' -f1).json"
+
+            safety check -r "$req_file" --output json > "$REPORT_FILE" || SAFETY_EXIT=$?
+
+            # Count critical/high severity vulnerabilities
+            if [ -f "$REPORT_FILE" ]; then
+              VULN_COUNT=$(python3 -c "import json; data=json.load(open('$REPORT_FILE')); print(len([v for v in data.get('vulnerabilities', []) if v.get('severity', '').upper() in ['CRITICAL', 'HIGH']]))" 2>/dev/null || echo "0")
+              CRITICAL_VULNS=$((CRITICAL_VULNS + VULN_COUNT))
+
+              if [ "$VULN_COUNT" -gt 0 ]; then
+                echo "⚠️ Found $VULN_COUNT critical/high vulnerabilities in $req_file"
+              fi
+            fi
           done
 
-          echo "✅ Dependency check completed"
+          if [ "$CRITICAL_VULNS" -gt 0 ]; then
+            echo "❌ Found $CRITICAL_VULNS total critical/high severity vulnerabilities"
+            exit 1
+          fi
+
+          echo "✅ Dependency check completed - no critical vulnerabilities"

@@ -1,11 +1,18 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# SAHOOL Platform - Monitoring Stack Docker Compose
-# تكوين Docker Compose لمجموعة المراقبة
+# SAHOOL Platform - Monitoring Stack Docker Compose (High Availability)
+# تكوين Docker Compose لمجموعة المراقبة (عالية التوفر)
 # ═══════════════════════════════════════════════════════════════════════════════
-# Version: 1.0.0
+# Version: 1.1.0
 # Date: 2025-12-25
-# Components: Prometheus, Grafana, Alertmanager
+# Components: Prometheus (HA), Grafana, Alertmanager (HA)
 # Services Monitored: 39 microservices + infrastructure
+# ─────────────────────────────────────────────────────────────────────────────
+# High Availability Features:
+# - 2x Prometheus replicas with federation
+# - 2x Alertmanager replicas with gossip clustering
+# - Shared configuration across replicas
+# - Automatic failover and load distribution
+# ─────────────────────────────────────────────────────────────────────────────
 
 version: '3.8'
 
@@ -15,12 +22,12 @@ version: '3.8'
 
 services:
   # ─────────────────────────────────────────────────────────────────────────────
-  # Prometheus - Time Series Database & Metrics Collection
-  # قاعدة البيانات الزمنية وجمع المقاييس
+  # Prometheus Replica 1 - Time Series Database & Metrics Collection (HA)
+  # النسخة الأولى من قاعدة البيانات الزمنية (عالية التوفر)
   # ─────────────────────────────────────────────────────────────────────────────
-  prometheus:
+  prometheus-1:
     image: prom/prometheus:v2.48.0
-    container_name: sahool-monitoring-prometheus
+    container_name: sahool-monitoring-prometheus-1
     restart: unless-stopped
     user: root
     command:
@@ -32,17 +39,19 @@ services:
       - '--storage.tsdb.retention.size=10GB'
       - '--web.enable-lifecycle'
       - '--web.enable-admin-api'
-      - '--web.external-url=http://localhost:9090'
+      - '--web.external-url=http://prometheus-1:9090'
     ports:
       - "9090:9090"
     volumes:
       # Configuration files - ملفات الإعدادات
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alerts.yml:/etc/prometheus/alerts/alerts.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
       # Data persistence - استمرارية البيانات
-      - prometheus_data:/prometheus
+      - prometheus_data_1:/prometheus
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-production}
+      - POD_NAME=prometheus-1
     networks:
       - sahool-network
       - monitoring-network
@@ -55,8 +64,58 @@ services:
     labels:
       com.sahool.service: "prometheus"
       com.sahool.tier: "monitoring"
-      com.sahool.description: "Prometheus Time Series Database"
-      com.sahool.description_ar: "قاعدة بيانات المقاييس الزمنية"
+      com.sahool.replica: "1"
+      com.sahool.ha: "true"
+      com.sahool.description: "Prometheus Time Series Database (Replica 1)"
+      com.sahool.description_ar: "قاعدة بيانات المقاييس الزمنية (النسخة 1)"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Prometheus Replica 2 - Time Series Database & Metrics Collection (HA)
+  # النسخة الثانية من قاعدة البيانات الزمنية (عالية التوفر)
+  # ─────────────────────────────────────────────────────────────────────────────
+  prometheus-2:
+    image: prom/prometheus:v2.48.0
+    container_name: sahool-monitoring-prometheus-2
+    restart: unless-stopped
+    user: root
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--web.external-url=http://prometheus-2:9090'
+    ports:
+      - "9091:9090"
+    volumes:
+      # Configuration files - ملفات الإعدادات
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts/alerts.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      # Data persistence - استمرارية البيانات
+      - prometheus_data_2:/prometheus
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - POD_NAME=prometheus-2
+    networks:
+      - sahool-network
+      - monitoring-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      com.sahool.service: "prometheus"
+      com.sahool.tier: "monitoring"
+      com.sahool.replica: "2"
+      com.sahool.ha: "true"
+      com.sahool.description: "Prometheus Time Series Database (Replica 2)"
+      com.sahool.description_ar: "قاعدة بيانات المقاييس الزمنية (النسخة 2)"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Grafana - Visualization & Dashboards
@@ -118,7 +177,9 @@ services:
     networks:
       - monitoring-network
     depends_on:
-      prometheus:
+      prometheus-1:
+        condition: service_healthy
+      prometheus-2:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
@@ -133,26 +194,32 @@ services:
       com.sahool.description_ar: "لوحات المراقبة والتصور"
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Alertmanager - Alert Routing & Notifications
-  # توجيه التنبيهات والإشعارات
+  # Alertmanager Replica 1 - Alert Routing & Notifications (HA)
+  # النسخة الأولى من مدير التنبيهات (عالية التوفر)
   # ─────────────────────────────────────────────────────────────────────────────
-  alertmanager:
+  alertmanager-1:
     image: prom/alertmanager:v0.26.0
-    container_name: sahool-monitoring-alertmanager
+    container_name: sahool-monitoring-alertmanager-1
     restart: unless-stopped
     user: root
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
-      - '--web.external-url=http://localhost:9093'
-      - '--cluster.advertise-address=0.0.0.0:9093'
+      - '--web.external-url=http://alertmanager-1:9093'
+      - '--cluster.advertise-address=alertmanager-1:9094'
+      - '--cluster.listen-address=0.0.0.0:9094'
+      - '--cluster.peer=alertmanager-2:9094'
+      - '--cluster.reconnect-timeout=5m'
+      - '--cluster.gossip-interval=200ms'
+      - '--cluster.pushpull-interval=1m'
     ports:
       - "9093:9093"
+      - "9094:9094"
     volumes:
       # Configuration - الإعدادات
       - ./alertmanager:/etc/alertmanager:ro
       # Data persistence - استمرارية البيانات
-      - alertmanager_data:/alertmanager
+      - alertmanager_data_1:/alertmanager
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-production}
     networks:
@@ -166,8 +233,55 @@ services:
     labels:
       com.sahool.service: "alertmanager"
       com.sahool.tier: "monitoring"
-      com.sahool.description: "Prometheus Alertmanager"
-      com.sahool.description_ar: "مدير التنبيهات"
+      com.sahool.replica: "1"
+      com.sahool.ha: "true"
+      com.sahool.description: "Prometheus Alertmanager (Replica 1)"
+      com.sahool.description_ar: "مدير التنبيهات (النسخة 1)"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Alertmanager Replica 2 - Alert Routing & Notifications (HA)
+  # النسخة الثانية من مدير التنبيهات (عالية التوفر)
+  # ─────────────────────────────────────────────────────────────────────────────
+  alertmanager-2:
+    image: prom/alertmanager:v0.26.0
+    container_name: sahool-monitoring-alertmanager-2
+    restart: unless-stopped
+    user: root
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://alertmanager-2:9093'
+      - '--cluster.advertise-address=alertmanager-2:9094'
+      - '--cluster.listen-address=0.0.0.0:9094'
+      - '--cluster.peer=alertmanager-1:9094'
+      - '--cluster.reconnect-timeout=5m'
+      - '--cluster.gossip-interval=200ms'
+      - '--cluster.pushpull-interval=1m'
+    ports:
+      - "9095:9093"
+      - "9096:9094"
+    volumes:
+      # Configuration - الإعدادات
+      - ./alertmanager:/etc/alertmanager:ro
+      # Data persistence - استمرارية البيانات
+      - alertmanager_data_2:/alertmanager
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    networks:
+      - monitoring-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    labels:
+      com.sahool.service: "alertmanager"
+      com.sahool.tier: "monitoring"
+      com.sahool.replica: "2"
+      com.sahool.ha: "true"
+      com.sahool.description: "Prometheus Alertmanager (Replica 2)"
+      com.sahool.description_ar: "مدير التنبيهات (النسخة 2)"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Optional: PostgreSQL Exporter - Database Metrics
@@ -322,9 +436,13 @@ networks:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 volumes:
-  # Prometheus data - بيانات Prometheus
-  prometheus_data:
-    name: sahool-monitoring-prometheus-data
+  # Prometheus HA data - بيانات Prometheus (عالية التوفر)
+  prometheus_data_1:
+    name: sahool-monitoring-prometheus-data-1
+    driver: local
+
+  prometheus_data_2:
+    name: sahool-monitoring-prometheus-data-2
     driver: local
 
   # Grafana data - بيانات Grafana
@@ -332,9 +450,13 @@ volumes:
     name: sahool-monitoring-grafana-data
     driver: local
 
-  # Alertmanager data - بيانات Alertmanager
-  alertmanager_data:
-    name: sahool-monitoring-alertmanager-data
+  # Alertmanager HA data - بيانات Alertmanager (عالية التوفر)
+  alertmanager_data_1:
+    name: sahool-monitoring-alertmanager-data-1
+    driver: local
+
+  alertmanager_data_2:
+    name: sahool-monitoring-alertmanager-data-2
     driver: local
 
   # Pushgateway data - بيانات Pushgateway

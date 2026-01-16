@@ -52,7 +52,7 @@ services:
   # تجميع اتصالات قاعدة البيانات
   # OPTIMIZED: Enhanced pool settings based on PgBouncer audit (score 7/10 -> 9/10)
   pgbouncer:
-    image: edoburu/pgbouncer:latest
+    image: pgbouncer/pgbouncer:1.22.1
     container_name: sahool-pgbouncer
     environment:
       # Database connection (using individual vars to avoid credential pattern detection)
@@ -1320,24 +1320,31 @@ services:
   # Python Services (29)
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # ⚠️ DEPRECATED: field_ops - Migrating to field-management-service
-  # This service is being consolidated into field-management-service (Port 3000)
-  # Kept temporarily for backwards compatibility
   # ============================================================================
-  # DEPRECATED: field-ops service - Migrated to field-management-service
+  # DEPRECATED: This service has been replaced by field-management-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/field-ops.md
   # ============================================================================
-  # ⚠️ This service is DEPRECATED and only included for backward compatibility
-  # ⚠️ All functionality has been migrated to field-management-service:3000
-  # ⚠️ To enable this service, run: docker-compose --profile deprecated up
+  # All functionality has been migrated to field-management-service:3000
+  # To enable this service, run: docker-compose --profile deprecated up
   # ============================================================================
   field-ops:
     profiles:
-      - deprecated  # Only runs when explicitly enabled
+      - deprecated
+      - legacy
     build:
       context: .
       dockerfile: apps/services/field-ops/Dockerfile
     container_name: sahool-field-ops-deprecated
+    labels:
+      - "com.sahool.deprecated=true"
+      - "com.sahool.replacement=field-management-service"
+      - "com.sahool.replacement.port=3000"
+      - "com.sahool.deprecation.reason=Consolidated into field-management-service"
+      - "com.sahool.deprecation.date=2026-01-06"
+      - "com.sahool.removal.version=v17.0.0"
     environment:
+      - DEPRECATED=true
       - PORT=8080
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -1961,13 +1968,15 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: agro_advisor - Use advisory-service instead
-  # This service has been deprecated and merged into advisory-service (Port 8093)
+  # ============================================================================
+  # DEPRECATED: This service has been replaced by advisory-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/agro-advisor.md
+  # ============================================================================
   # All functionality (disease diagnosis, nutrient assessment, fertilizer planning)
-  # is now available in advisory-service
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
-  # Migration Date: 2025-01-06
-  # Removal Target: v17.0.0
+  # is now available in advisory-service:8093
+  # To enable this service, run: docker-compose --profile deprecated up
+  # ============================================================================
   agro-advisor:
     build:
       context: .
@@ -1984,6 +1993,7 @@ services:
       - deprecated
       - legacy
     environment:
+      - DEPRECATED=true
       - PORT=8105
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -2066,18 +2076,18 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: ndvi_engine - Migrating to vegetation-analysis-service
-  # This service is being consolidated into vegetation-analysis-service (Port 8090)
-  # Deprecation Date: 2026-01-06 | Sunset Date: 2026-06-01
-  #
+  # ============================================================================
+  # DEPRECATED: This service has been replaced by vegetation-analysis-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/ndvi-engine.md
+  # ============================================================================
   # Migration Path:
   # - NDVI computation → vegetation-analysis-service
   # - Vegetation indices (NDVI, EVI, NDRE, NDWI) → vegetation-analysis-service
   # - Zone analysis → vegetation-analysis-service
   # - Anomaly detection → vegetation-analysis-service
-  #
-  # To disable this service, start without the 'deprecated' profile
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
+  # To enable this service, run: docker-compose --profile deprecated up
+  # ============================================================================
   ndvi-engine:
     build:
       context: .
@@ -2093,6 +2103,7 @@ services:
       - deprecated
       - legacy
     environment:
+      - DEPRECATED=true
       - PORT=8107
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -2127,11 +2138,14 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: weather-core - Use weather-service instead
-  # This service has been deprecated and merged into weather-service (Port 8092)
-  # All functionality is available in weather-service
-  # This service will be removed in the next major release
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
+  # ============================================================================
+  # DEPRECATED: This service has been replaced by weather-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/weather-core.md
+  # ============================================================================
+  # All functionality is now available in weather-service:8092
+  # To enable this service, run: docker-compose --profile deprecated up
+  # ============================================================================
   weather-core:
     build:
       context: .
@@ -2140,11 +2154,15 @@ services:
     labels:
       - "com.sahool.deprecated=true"
       - "com.sahool.replacement=weather-service"
+      - "com.sahool.replacement.port=8092"
       - "com.sahool.deprecation.reason=Consolidated into unified weather-service"
+      - "com.sahool.deprecation.date=2026-01-06"
+      - "com.sahool.removal.version=v17.0.0"
     profiles:
       - deprecated
       - legacy
     environment:
+      - DEPRECATED=true
       - PORT=8108
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -2543,17 +2561,17 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: crop_health - Migrating to crop-intelligence-service
-  # This service is being consolidated into crop-intelligence-service (Port 8095)
-  # Deprecation Date: 2026-01-06 | Sunset Date: 2026-06-01
-  #
+  # ============================================================================
+  # DEPRECATED: This service has been replaced by crop-intelligence-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/crop-health.md
+  # ============================================================================
   # Migration Path:
   # - All zone-based health monitoring → crop-intelligence-service
   # - Vegetation indices (NDVI, EVI, NDRE, etc.) → crop-intelligence-service
   # - VRT export functionality → crop-intelligence-service
-  #
-  # To disable this service, start without the 'deprecated' profile
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
+  # To enable this service, run: docker-compose --profile deprecated up
+  # ============================================================================
   crop-health:
     build:
       context: .
@@ -2569,6 +2587,7 @@ services:
       - deprecated
       - legacy
     environment:
+      - DEPRECATED=true
       - PORT=8100
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -2741,6 +2760,12 @@ services:
         condition: service_healthy
     profiles:
       - demo
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

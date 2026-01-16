@@ -15,11 +15,11 @@ class TestJWTConfig:
     def setup(self):
         """Setup and teardown for each test"""
         # Store original env vars
+        # Note: JWT_PUBLIC_KEY and JWT_PRIVATE_KEY removed - RS256 deprecated
         self.original_env = {}
         env_vars = [
             "JWT_SECRET_KEY",
             "JWT_SECRET",
-            "JWT_ALGORITHM",
             "JWT_ACCESS_TOKEN_EXPIRE_MINUTES",
             "JWT_REFRESH_TOKEN_EXPIRE_DAYS",
             "JWT_ISSUER",
@@ -213,9 +213,8 @@ class TestJWTConfig:
         spec.loader.exec_module(module)
         assert module.JWTConfig.REDIS_DB == 0
 
-    def test_jwt_algorithm_from_env(self):
-        """Test JWT algorithm from environment"""
-        os.environ["JWT_ALGORITHM"] = "RS256"
+    def test_jwt_algorithm_is_hs256_only(self):
+        """Test JWT algorithm is always HS256 (RS256 deprecated)"""
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -223,7 +222,8 @@ class TestJWTConfig:
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        assert module.JWTConfig.JWT_ALGORITHM == "RS256"
+        # RS256 is deprecated - algorithm is always HS256
+        assert module.JWTConfig.JWT_ALGORITHM == "HS256"
 
     def test_access_token_expire_from_env(self):
         """Test access token expiry from environment"""

@@ -1,19 +1,22 @@
 """
 JWT Authentication Configuration for SAHOOL Platform
 Centralized configuration for JWT token handling
+
+Note: This configuration only supports HS256 algorithm.
+RS256 with RSA keys has been deprecated.
 """
 
 import os
 
 
 class JWTConfig:
-    """JWT Configuration Settings"""
+    """JWT Configuration Settings - HS256 Only"""
 
-    # JWT Secret Key (required for HS256)
+    # JWT Secret Key (required)
     JWT_SECRET: str = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
 
-    # JWT Algorithm
-    JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+    # JWT Algorithm - HS256 only (RS256 deprecated)
+    JWT_ALGORITHM: str = "HS256"
 
     # Token expiration times
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))

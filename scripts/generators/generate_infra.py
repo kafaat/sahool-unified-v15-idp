@@ -140,7 +140,7 @@ def generate_infrastructure_services() -> dict[str, Any]:
             "restart": "unless-stopped",
         },
         "nats": {
-            "image": "nats:2.10-alpine",
+            "image": "nats:2.10.24-alpine",
             "container_name": "sahool-nats",
             "command": ["--jetstream", "--store_dir", "/data"],
             "volumes": ["nats_data:/data"],

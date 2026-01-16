@@ -24,7 +24,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python dependencies with retry logic for network resilience
 COPY apps/services/virtual-sensors/requirements.txt .
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel && \
     pip install --no-cache-dir \
     --timeout=300 \
     --retries=10 \

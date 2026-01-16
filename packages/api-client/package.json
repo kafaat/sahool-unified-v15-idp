@@ -30,13 +30,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@sahool/shared-types": "*",
+    "@sahool/shared-types": "^1.0.0",
     "axios": "^1.7.9"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "tsup": "^8.0.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.3"
   },
   "peerDependencies": {
     "react": ">=18.0.0"

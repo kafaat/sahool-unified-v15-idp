@@ -132,7 +132,7 @@ services:
   # - Connection timeout to prevent resource exhaustion
   # - TLS/SSL ready (uncomment TLS settings in redis.conf)
   redis:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis
     command: [
       "redis-server",
@@ -193,7 +193,7 @@ services:
   # SECURITY: NATS credentials MUST be set in .env file
   # HARDENED: TLS enforced, encryption at rest, rate limiting enabled
   nats:
-    image: nats:2.10-alpine
+    image: nats:2.10.24-alpine
     container_name: sahool-nats
     # Use non-TLS config for development (switch to nats-secure.conf when TLS certs are available)
     command: ["-c", "/etc/nats/nats.conf"]

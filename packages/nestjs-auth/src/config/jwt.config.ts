@@ -1,6 +1,9 @@
 /**
  * JWT Authentication Configuration for SAHOOL Platform (TypeScript/NestJS)
  * Centralized configuration for JWT token handling
+ *
+ * Note: This configuration only supports HS256 algorithm.
+ * RS256 with RSA keys has been deprecated.
  */
 
 export interface JWTConfigInterface {
@@ -14,15 +17,15 @@ export interface JWTConfigInterface {
 
 export class JWTConfig {
   /**
-   * JWT Secret Key (required for HS256)
+   * JWT Secret Key (required)
    */
   static readonly SECRET: string =
     process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || "";
 
   /**
-   * JWT Algorithm (HS256 or RS256)
+   * JWT Algorithm - HS256 only (RS256 deprecated)
    */
-  static readonly ALGORITHM: string = process.env.JWT_ALGORITHM || "HS256";
+  static readonly ALGORITHM: string = "HS256";
 
   /**
    * Access token expiration time in minutes

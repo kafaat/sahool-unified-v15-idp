@@ -1,11 +1,13 @@
 """
 JWT Token Verification and Creation
-RS256/HS256 support with standard claims
+HS256 support with standard claims
+
+Note: RS256 with RSA keys has been deprecated. Only HS256 is supported.
 
 Security Features:
 - JTI (Token ID) for revocation support
 - Integration with TokenRevocationService
-- RS256 asymmetric encryption support
+- HS256 symmetric encryption
 """
 
 import logging
@@ -51,8 +53,8 @@ JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30
 JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRE_DAYS", "7"))
 
 # SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
-# Never trust algorithm from environment variables or token header
-ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
+# Only HS256 is allowed - RS256 has been deprecated
+ALLOWED_ALGORITHMS = ["HS256"]
 
 
 def validate_jwt_configuration() -> bool:
@@ -128,7 +130,7 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
         if algorithm.lower() == "none":
             raise AuthError("Invalid token: none algorithm not allowed", "invalid_token")
 
-        # Verify algorithm is in whitelist
+        # Verify algorithm is in whitelist (HS256 only)
         if algorithm not in ALLOWED_ALGORITHMS:
             raise AuthError(f"Invalid token: unsupported algorithm {algorithm}", "invalid_token")
 
@@ -208,7 +210,7 @@ def _get_unsafe_decode_options() -> dict:
 
 def decode_token_unsafe(token: str) -> dict:
     """
-    ⚠️ UNSAFE: Decode token WITHOUT signature verification.
+    UNSAFE: Decode token WITHOUT signature verification.
 
     SECURITY WARNING: This function does NOT verify the token signature!
     - NEVER use for authorization decisions

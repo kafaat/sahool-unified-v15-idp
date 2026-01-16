@@ -22,7 +22,7 @@ services:
   # Redis Master
   # ─────────────────────────────────────────────────────────────────────────────
   redis-master:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis-master
     command: >
       redis-server
@@ -72,7 +72,7 @@ services:
   # Redis Replica 1
   # ─────────────────────────────────────────────────────────────────────────────
   redis-replica-1:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis-replica-1
     command: >
       redis-server
@@ -131,7 +131,7 @@ services:
   # Redis Replica 2
   # ─────────────────────────────────────────────────────────────────────────────
   redis-replica-2:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis-replica-2
     command: >
       redis-server
@@ -190,7 +190,7 @@ services:
   # Sentinel 1
   # ─────────────────────────────────────────────────────────────────────────────
   redis-sentinel-1:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-1
     command: >
       sh -c "echo '
@@ -242,7 +242,7 @@ services:
   # Sentinel 2
   # ─────────────────────────────────────────────────────────────────────────────
   redis-sentinel-2:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-2
     command: >
       sh -c "echo '
@@ -294,7 +294,7 @@ services:
   # Sentinel 3
   # ─────────────────────────────────────────────────────────────────────────────
   redis-sentinel-3:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-3
     command: >
       sh -c "echo '

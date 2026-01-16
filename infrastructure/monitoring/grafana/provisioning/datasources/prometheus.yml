@@ -1,16 +1,21 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Grafana Datasource Configuration - Prometheus
-# إعدادات مصدر البيانات Prometheus
+# Grafana Datasource Configuration - Prometheus (High Availability)
+# إعدادات مصدر البيانات Prometheus (عالية التوفر)
+# ═══════════════════════════════════════════════════════════════════════════════
+# HA Configuration Notes:
+# - Primary datasource points to prometheus-1
+# - Secondary datasource points to prometheus-2 for failover
+# - Both replicas share the same configuration and should have identical data
 # ═══════════════════════════════════════════════════════════════════════════════
 
 apiVersion: 1
 
 datasources:
-  # Primary Prometheus Datasource - مصدر البيانات الرئيسي
+  # Primary Prometheus Datasource (Replica 1) - مصدر البيانات الرئيسي (النسخة 1)
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: http://prometheus:9090
+    url: http://prometheus-1:9090
     isDefault: true
     editable: false
     jsonData:
@@ -24,11 +29,29 @@ datasources:
       exemplarTraceIdDestinations: []
     version: 1
 
+  # Secondary Prometheus Datasource (Replica 2) - مصدر البيانات الثانوي (النسخة 2)
+  - name: Prometheus-HA-Replica-2
+    type: prometheus
+    access: proxy
+    url: http://prometheus-2:9090
+    isDefault: false
+    editable: false
+    jsonData:
+      httpMethod: POST
+      timeInterval: 15s
+      queryTimeout: 60s
+      customQueryParameters: ''
+      manageAlerts: false
+      prometheusType: Prometheus
+      prometheusVersion: 2.48.0
+      exemplarTraceIdDestinations: []
+    version: 1
+
   # Prometheus for Alerting - مصدر البيانات للتنبيهات
   - name: Prometheus-Alerts
     type: prometheus
     access: proxy
-    url: http://prometheus:9090
+    url: http://prometheus-1:9090
     isDefault: false
     editable: false
     jsonData:

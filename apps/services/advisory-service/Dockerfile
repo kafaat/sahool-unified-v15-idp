@@ -25,8 +25,10 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 
-# Upgrade pip (non-fatal in case of network issues)
-RUN pip install --no-cache-dir --upgrade pip || true
+# Upgrade pip and install build tools (non-fatal in case of network issues)
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel || true
 
 # Install dependencies (using shared requirements)
 COPY apps/services/advisory-service/requirements.txt .

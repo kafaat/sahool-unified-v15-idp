@@ -33,23 +33,24 @@ jobs:
   # Job 1: Next.js Web App Testing
   # =============================================================================
   web-app-tests:
-    name: Web App - ${{ matrix.test-type }}
+    name: Web App - ${{ matrix.test-type }} (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     strategy:
       fail-fast: false
       matrix:
+        node-version: ['20', '22']
         test-type: ['lint', 'typecheck', 'unit-tests', 'build']
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Cache node_modules
@@ -59,9 +60,9 @@ jobs:
             node_modules
             apps/web/node_modules
             packages/*/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node${{ matrix.node-version }}-
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -101,7 +102,7 @@ jobs:
         if: matrix.test-type == 'unit-tests'
         uses: actions/upload-artifact@v4
         with:
-          name: web-coverage
+          name: web-coverage-node${{ matrix.node-version }}
           path: apps/web/coverage/
           retention-days: 7
 
@@ -117,7 +118,7 @@ jobs:
         if: matrix.test-type == 'build'
         uses: actions/upload-artifact@v4
         with:
-          name: web-build
+          name: web-build-node${{ matrix.node-version }}
           path: apps/web/.next
           retention-days: 7
           if-no-files-found: warn
@@ -126,23 +127,24 @@ jobs:
   # Job 2: Admin Dashboard Testing
   # =============================================================================
   admin-dashboard-tests:
-    name: Admin - ${{ matrix.test-type }}
+    name: Admin - ${{ matrix.test-type }} (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     strategy:
       fail-fast: false
       matrix:
+        node-version: ['20', '22']
         test-type: ['lint', 'typecheck', 'unit-tests', 'build']
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Cache node_modules
@@ -152,10 +154,10 @@ jobs:
             node_modules
             apps/admin/node_modules
             packages/*/node_modules
-          key: ${{ runner.os }}-node-admin-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node${{ matrix.node-version }}-admin-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-admin-
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node${{ matrix.node-version }}-admin-
+            ${{ runner.os }}-node${{ matrix.node-version }}-
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps

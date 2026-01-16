@@ -73,6 +73,36 @@ provider "aws" {
 }
 
 # ======================================================================
+# التحقق من صحة التكوين متعدد المناطق
+# Multi-Region Configuration Validation
+# ======================================================================
+# التأكد من أن المنطقتين الرئيسية والثانوية مختلفتين
+# Ensure primary and secondary regions are different
+check "regions_must_be_different" {
+  assert {
+    condition     = var.primary_region != var.secondary_region
+    error_message = "Secondary region (${var.secondary_region}) must be different from primary region (${var.primary_region}) for proper disaster recovery."
+  }
+}
+
+# ======================================================================
+# مصادر البيانات لمناطق التوفر
+# Data Sources for Availability Zones
+# ======================================================================
+# جلب مناطق التوفر للمنطقة الرئيسية
+# Fetch availability zones for primary region
+data "aws_availability_zones" "primary" {
+  state = "available"
+}
+
+# جلب مناطق التوفر للمنطقة الثانوية
+# Fetch availability zones for secondary region
+data "aws_availability_zones" "secondary" {
+  provider = aws.secondary
+  state    = "available"
+}
+
+# ======================================================================
 # المنطقة الرئيسية - الرياض (Primary Region - Riyadh)
 # ======================================================================
 # البنية التحتية الكاملة للمنطقة الرئيسية تشمل:
@@ -94,7 +124,7 @@ module "riyadh_region" {
   # تكوين الشبكة
   # Network configuration
   vpc_cidr           = var.riyadh_vpc_cidr
-  availability_zones = ["me-south-1a", "me-south-1b", "me-south-1c"]
+  availability_zones = slice(data.aws_availability_zones.primary.names, 0, 3)
 
   # تكوين مجموعة EKS
   # EKS cluster configuration
@@ -161,7 +191,7 @@ module "jeddah_region" {
   # تكوين الشبكة
   # Network configuration
   vpc_cidr           = var.jeddah_vpc_cidr
-  availability_zones = ["me-south-1a", "me-south-1b", "me-south-1c"]
+  availability_zones = slice(data.aws_availability_zones.secondary.names, 0, 3)
 
   # تكوين مجموعة EKS
   # EKS cluster configuration
@@ -235,6 +265,32 @@ resource "aws_vpc_peering_connection_accepter" "jeddah" {
     Name        = "sahool-jeddah-accepts-riyadh"
     Environment = var.environment
   }
+}
+
+# ======================================================================
+# مسارات VPC Peering (VPC Peering Routes)
+# ======================================================================
+# مسارات من الرياض إلى جدة عبر VPC Peering
+# Routes from Riyadh to Jeddah via VPC Peering
+resource "aws_route" "riyadh_to_jeddah" {
+  count                     = length(module.riyadh_region.private_route_table_ids)
+  route_table_id            = module.riyadh_region.private_route_table_ids[count.index]
+  destination_cidr_block    = var.jeddah_vpc_cidr
+  vpc_peering_connection_id = aws_vpc_peering_connection.riyadh_jeddah.id
+
+  depends_on = [aws_vpc_peering_connection_accepter.jeddah]
+}
+
+# مسارات من جدة إلى الرياض عبر VPC Peering
+# Routes from Jeddah to Riyadh via VPC Peering
+resource "aws_route" "jeddah_to_riyadh" {
+  provider                  = aws.secondary
+  count                     = length(module.jeddah_region.private_route_table_ids)
+  route_table_id            = module.jeddah_region.private_route_table_ids[count.index]
+  destination_cidr_block    = var.riyadh_vpc_cidr
+  vpc_peering_connection_id = aws_vpc_peering_connection.riyadh_jeddah.id
+
+  depends_on = [aws_vpc_peering_connection_accepter.jeddah]
 }
 
 # ======================================================================

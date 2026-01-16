@@ -146,25 +146,53 @@ jobs:
         run: |
           echo "🔍 Scanning Python dependencies with Safety..."
 
+          CRITICAL_VULNS=0
           for req in $(find . -name "requirements.txt" -type f -not -path "./archive/*"); do
             echo "Scanning: $req"
-            safety check -r "$req" --full-report --json > safety-report-$(echo $req | md5sum | cut -d' ' -f1).json || true
+            REPORT_FILE="safety-report-$(echo $req | md5sum | cut -d' ' -f1).json"
+            safety check -r "$req" --full-report --json > "$REPORT_FILE" || SAFETY_EXIT=$?
+
+            # Count critical vulnerabilities
+            if [ -f "$REPORT_FILE" ]; then
+              VULN_COUNT=$(python3 -c "import json; data=json.load(open('$REPORT_FILE')); print(len([v for v in data.get('vulnerabilities', []) if v.get('severity', '').upper() in ['CRITICAL', 'HIGH']]))" 2>/dev/null || echo "0")
+              CRITICAL_VULNS=$((CRITICAL_VULNS + VULN_COUNT))
+            fi
           done
 
           # Check pyproject.toml
           if [ -f "pyproject.toml" ]; then
-            pip install -e ".[base,infrastructure,testing]" || true
-            safety check --json > safety-report-pyproject.json || true
+            pip install -e ".[base,infrastructure,testing]" 2>/dev/null || echo "Skipping pyproject install"
+            safety check --json > safety-report-pyproject.json || SAFETY_EXIT=$?
           fi
+
+          if [ "$CRITICAL_VULNS" -gt 0 ]; then
+            echo "❌ Found $CRITICAL_VULNS critical/high severity vulnerabilities"
+            exit 1
+          fi
+          echo "✅ No critical vulnerabilities found in Python dependencies"
 
       - name: Scan with pip-audit
         run: |
           echo "🔍 Scanning Python dependencies with pip-audit..."
 
+          CRITICAL_VULNS=0
           for req in $(find . -name "requirements.txt" -type f -not -path "./archive/*"); do
             echo "Auditing: $req"
-            pip-audit -r "$req" --format json > audit-report-$(echo $req | md5sum | cut -d' ' -f1).json || true
+            REPORT_FILE="audit-report-$(echo $req | md5sum | cut -d' ' -f1).json"
+            pip-audit -r "$req" --format json -o "$REPORT_FILE" || AUDIT_EXIT=$?
+
+            # Check for critical vulnerabilities
+            if [ -f "$REPORT_FILE" ]; then
+              HIGH_COUNT=$(jq '[.dependencies[]?.vulns[]? | select(.fix_versions != null)] | length' "$REPORT_FILE" 2>/dev/null || echo "0")
+              CRITICAL_VULNS=$((CRITICAL_VULNS + HIGH_COUNT))
+            fi
           done
+
+          if [ "$CRITICAL_VULNS" -gt 5 ]; then
+            echo "❌ Found $CRITICAL_VULNS vulnerabilities with available fixes - please update dependencies"
+            exit 1
+          fi
+          echo "✅ pip-audit scan completed (found $CRITICAL_VULNS fixable issues)"
 
       - name: Upload Python scan results
         uses: actions/upload-artifact@v4
@@ -188,16 +216,39 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Run npm audit
-        continue-on-error: true
         run: |
           echo "🔍 Scanning Node.js dependencies..."
-          npm audit --json > npm-audit-report.json || true
-          npm audit || true
+          npm audit --json > npm-audit-report.json || NPM_AUDIT_EXIT=$?
+
+          # Parse and check for critical/high vulnerabilities
+          if [ -f "npm-audit-report.json" ]; then
+            CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' npm-audit-report.json 2>/dev/null || echo "0")
+            HIGH=$(jq '.metadata.vulnerabilities.high // 0' npm-audit-report.json 2>/dev/null || echo "0")
+
+            echo "Critical vulnerabilities: $CRITICAL"
+            echo "High vulnerabilities: $HIGH"
+
+            if [ "$CRITICAL" -gt 0 ]; then
+              echo "❌ Found $CRITICAL critical vulnerabilities in Node.js dependencies"
+              npm audit --audit-level=critical
+              exit 1
+            fi
+
+            if [ "$HIGH" -gt 5 ]; then
+              echo "❌ Found $HIGH high vulnerabilities (threshold: 5)"
+              exit 1
+            fi
+          fi
+
+          echo "✅ npm audit completed successfully"
 
       - name: Run Snyk scan
+        if: ${{ secrets.SNYK_TOKEN != '' }}
         uses: snyk/actions/node@master
-        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -219,7 +270,6 @@ jobs:
   sast-python:
     name: SAST - Python (Bandit)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -236,24 +286,54 @@ jobs:
         run: |
           echo "🔍 Running Bandit SAST..."
 
-          # Create default SARIF if scan fails
-          echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.0.0"}},"results":[]}]}' > bandit-results.sarif
+          # Run Bandit with JSON output for threshold checking
+          # Exit code 1 means findings, which we handle below
+          bandit -r apps/services/ shared/ \
+            -f json \
+            -o bandit-report.json \
+            --severity-level medium \
+            --confidence-level medium \
+            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" || BANDIT_EXIT=$?
 
+          # Also generate SARIF for GitHub Security tab
           bandit -r apps/services/ shared/ \
             -ll \
             -ii \
             --format sarif \
-            -o bandit-results.sarif 2>/dev/null || true
+            -o bandit-results.sarif \
+            -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*" || true
 
-          bandit -r apps/services/ shared/ \
-            -ll \
-            -ii \
-            --format txt || true
+          # Create empty SARIF if it doesn't exist
+          if [ ! -f "bandit-results.sarif" ]; then
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.0.0"}},"results":[]}]}' > bandit-results.sarif
+          fi
+
+          # Fail if high severity issues found
+          if [ -f "bandit-report.json" ]; then
+            HIGH_COUNT=$(python3 -c "import json; data=json.load(open('bandit-report.json')); print(len([r for r in data.get('results', []) if r.get('issue_severity') == 'HIGH']))" 2>/dev/null || echo "0")
+            MEDIUM_COUNT=$(python3 -c "import json; data=json.load(open('bandit-report.json')); print(len([r for r in data.get('results', []) if r.get('issue_severity') == 'MEDIUM']))" 2>/dev/null || echo "0")
+
+            echo "High severity issues: $HIGH_COUNT"
+            echo "Medium severity issues: $MEDIUM_COUNT"
+
+            if [ "$HIGH_COUNT" -gt 0 ]; then
+              echo "❌ Found $HIGH_COUNT high severity security issues"
+              bandit -r apps/services/ shared/ -ll -ii --format txt -x "*/tests/*,*/__pycache__/*,*/migrations/*,*/.venv/*"
+              exit 1
+            fi
+
+            # Warn but don't fail for medium severity (threshold of 10)
+            if [ "$MEDIUM_COUNT" -gt 10 ]; then
+              echo "⚠️ Found $MEDIUM_COUNT medium severity issues (threshold: 10)"
+              exit 1
+            fi
+          fi
+
+          echo "✅ Bandit scan passed"
 
       - name: Upload Bandit SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
-        continue-on-error: true
         with:
           sarif_file: bandit-results.sarif
           category: bandit-sast
@@ -261,27 +341,79 @@ jobs:
   sast-semgrep:
     name: SAST - Multi-language (Semgrep)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
-        continue-on-error: true
-        with:
-          config: >-
-            p/security-audit
-            p/python
-            p/javascript
-            p/typescript
-            p/secrets
-          generateSarif: true
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Run Semgrep scan
+        run: |
+          echo "🔍 Running Semgrep SAST..."
+
+          # Run Semgrep with JSON output for analysis
+          # Exit code 1 means findings, which we handle below
+          semgrep scan \
+            --config=p/security-audit \
+            --config=p/python \
+            --config=p/javascript \
+            --config=p/typescript \
+            --config=p/secrets \
+            --json \
+            --output=semgrep-report.json \
+            --severity=ERROR \
+            --severity=WARNING \
+            --exclude="**/test_*.py" \
+            --exclude="**/*_test.py" \
+            --exclude="**/tests/**" \
+            --exclude="**/node_modules/**" \
+            --exclude="**/__pycache__/**" \
+            --timeout=300 \
+            apps/ shared/ || SEMGREP_EXIT=$?
+
+          # Also generate SARIF
+          semgrep scan \
+            --config=p/security-audit \
+            --config=p/python \
+            --config=p/javascript \
+            --config=p/typescript \
+            --config=p/secrets \
+            --sarif \
+            --output=semgrep.sarif \
+            --severity=ERROR \
+            --severity=WARNING \
+            --exclude="**/test_*.py" \
+            --exclude="**/*_test.py" \
+            --exclude="**/tests/**" \
+            --exclude="**/node_modules/**" \
+            --exclude="**/__pycache__/**" \
+            --timeout=300 \
+            apps/ shared/ || true
+
+          # Create empty SARIF if it doesn't exist
+          if [ ! -f "semgrep.sarif" ]; then
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Semgrep","version":"1.0.0"}},"results":[]}]}' > semgrep.sarif
+          fi
+
+          # Check for critical findings
+          if [ -f "semgrep-report.json" ]; then
+            ERROR_COUNT=$(python3 -c "import json; data=json.load(open('semgrep-report.json')); print(len([r for r in data.get('results', []) if r.get('extra', {}).get('severity') == 'ERROR']))" 2>/dev/null || echo "0")
+
+            echo "Error severity findings: $ERROR_COUNT"
+
+            if [ "$ERROR_COUNT" -gt 0 ]; then
+              echo "❌ Found $ERROR_COUNT error severity security issues"
+              python3 -c "import json; data=json.load(open('semgrep-report.json')); [print(f\"{r['path']}:{r['start']['line']}: {r['check_id']} - {r['extra']['message']}\") for r in data.get('results', []) if r.get('extra', {}).get('severity') == 'ERROR']" 2>/dev/null || true
+              exit 1
+            fi
+          fi
+
+          echo "✅ Semgrep scan passed"
 
       - name: Upload Semgrep SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
-        continue-on-error: true
         with:
           sarif_file: semgrep.sarif
           category: semgrep-sast
@@ -289,7 +421,6 @@ jobs:
   sast-codeql:
     name: SAST - CodeQL
     runs-on: ubuntu-latest
-    continue-on-error: true
     permissions:
       security-events: write
       actions: read
@@ -304,18 +435,15 @@ jobs:
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
-        continue-on-error: true
         with:
           languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
-        continue-on-error: true
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-        continue-on-error: true
         with:
           category: "/language:${{ matrix.language }}"
 
@@ -325,7 +453,6 @@ jobs:
   container-scan:
     name: Container Security Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
     if: github.event_name == 'push' || github.event_name == 'schedule'
     strategy:
       fail-fast: false
@@ -351,7 +478,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-${{ matrix.service }}.sarif'
           severity: 'CRITICAL,HIGH'
-          exit-code: '0'
+          exit-code: '1'
 
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v3
@@ -364,55 +491,63 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           image: ${{ matrix.service }}:scan
-          fail-build: false
-          severity-cutoff: high
+          fail-build: true
+          severity-cutoff: critical
 
   dockerfile-scan:
     name: Dockerfile Security Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Hadolint
         uses: hadolint/hadolint-action@v3.1.0
-        continue-on-error: true
         with:
           dockerfile: "**/Dockerfile"
           recursive: true
           failure-threshold: error
 
       - name: Check Dockerfile best practices
-        continue-on-error: true
         run: |
           echo "🔍 Checking Dockerfile security best practices..."
+
+          CRITICAL_ISSUES=0
+          WARNING_COUNT=0
 
           for dockerfile in $(find . -name "Dockerfile" -type f -not -path "./archive/*"); do
             echo "Checking: $dockerfile"
 
-            # Check for root user
+            # Check for root user - warning only
             if ! grep -q "USER [^r]" "$dockerfile"; then
               echo "⚠️  WARNING: No non-root USER directive in $dockerfile"
+              WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-            # Check for latest tag
+            # Check for latest tag - warning only
             if grep -qE "FROM .+:latest" "$dockerfile"; then
               echo "⚠️  WARNING: Using :latest tag in $dockerfile"
+              WARNING_COUNT=$((WARNING_COUNT + 1))
             fi
 
-            # Check for COPY without --chown
-            if grep -q "^COPY " "$dockerfile" && ! grep -q "COPY --chown" "$dockerfile"; then
-              echo "ℹ️  INFO: Consider using COPY --chown in $dockerfile"
-            fi
-
-            # Check for hardcoded secrets
-            if grep -qE "(PASSWORD|SECRET|KEY|TOKEN)=" "$dockerfile"; then
-              echo "❌ ERROR: Potential hardcoded secrets in $dockerfile (informational only)"
+            # Check for hardcoded secrets - CRITICAL
+            if grep -qE "(PASSWORD|SECRET|KEY|TOKEN)=['\"]?[a-zA-Z0-9]+" "$dockerfile"; then
+              echo "❌ CRITICAL: Hardcoded secrets in $dockerfile"
+              CRITICAL_ISSUES=$((CRITICAL_ISSUES + 1))
             fi
           done
 
-          echo "✅ Dockerfile security check complete"
+          if [ "$CRITICAL_ISSUES" -gt 0 ]; then
+            echo "❌ Found $CRITICAL_ISSUES critical Dockerfile security issues"
+            exit 1
+          fi
+
+          if [ "$WARNING_COUNT" -gt 10 ]; then
+            echo "⚠️ Found $WARNING_COUNT Dockerfile warnings (threshold: 10)"
+            exit 1
+          fi
+
+          echo "✅ Dockerfile security check complete (warnings: $WARNING_COUNT)"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Infrastructure as Code Security
@@ -420,7 +555,6 @@ jobs:
   iac-scan:
     name: IaC Security Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -430,9 +564,11 @@ jobs:
         with:
           directory: .
           framework: kubernetes,dockerfile,secrets
-          soft_fail: true
+          soft_fail: false
           output_format: sarif
           output_file_path: checkov-results.sarif
+          # Only fail on high/critical severity
+          check: CKV_K8S_1,CKV_K8S_2,CKV_K8S_3,CKV_K8S_4,CKV_K8S_5,CKV_K8S_6,CKV_K8S_7,CKV_K8S_8,CKV_K8S_9,CKV_SECRET_1,CKV_SECRET_2
 
       - name: Upload Checkov SARIF
         uses: github/codeql-action/upload-sarif@v3
@@ -445,16 +581,37 @@ jobs:
         run: |
           echo "🔍 Scanning Kubernetes manifests..."
 
+          CRITICAL_ISSUES=0
+          WARNING_COUNT=0
+
           # Check for security contexts
-          for file in $(find . -name "*.yaml" -o -name "*.yml" | grep -E "(k8s|kubernetes|helm)"); do
-            if grep -q "kind: Pod\|kind: Deployment" "$file"; then
-              if ! grep -q "securityContext" "$file"; then
+          for file in $(find . -name "*.yaml" -o -name "*.yml" | grep -E "(k8s|kubernetes|helm)" 2>/dev/null || true); do
+            if grep -q "kind: Pod\|kind: Deployment" "$file" 2>/dev/null; then
+              if ! grep -q "securityContext" "$file" 2>/dev/null; then
                 echo "⚠️  WARNING: No securityContext in $file"
+                WARNING_COUNT=$((WARNING_COUNT + 1))
+              fi
+
+              # Check for privileged containers - CRITICAL
+              if grep -q "privileged: true" "$file" 2>/dev/null; then
+                echo "❌ CRITICAL: Privileged container in $file"
+                CRITICAL_ISSUES=$((CRITICAL_ISSUES + 1))
+              fi
+
+              # Check for hostNetwork - CRITICAL
+              if grep -q "hostNetwork: true" "$file" 2>/dev/null; then
+                echo "❌ CRITICAL: hostNetwork enabled in $file"
+                CRITICAL_ISSUES=$((CRITICAL_ISSUES + 1))
               fi
             fi
           done
 
-          echo "✅ Kubernetes manifest scan complete"
+          if [ "$CRITICAL_ISSUES" -gt 0 ]; then
+            echo "❌ Found $CRITICAL_ISSUES critical Kubernetes security issues"
+            exit 1
+          fi
+
+          echo "✅ Kubernetes manifest scan complete (warnings: $WARNING_COUNT)"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Dependabot Configuration Check

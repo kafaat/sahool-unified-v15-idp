@@ -1,0 +1,1874 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Authentication UX Audit Report | تقرير فحص تجربة المستخدم للمصادقة - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#authentication-ux-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Authentication UX Audit Report | تقرير فحص تجربة المستخدم للمصادقة
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="authentication-ux-audit-report">Authentication UX Audit Report | تقرير فحص تجربة المستخدم للمصادقة<a class="headerlink" href="#authentication-ux-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date | التاريخ</strong>: January 2025
+<strong>Version | الإصدار</strong>: 16.0.0
+<strong>Platforms Audited | المنصات المفحوصة</strong>: Admin Portal, Web Dashboard, Backend User Service</p>
+<hr />
+<h2 id="executive-summary">Executive Summary | الملخص التنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This report provides a comprehensive audit of the authentication user experience across SAHOOL platform applications, covering login, registration, session management, and security mechanisms.</p>
+<p>يقدم هذا التقرير فحصاً شاملاً لتجربة المستخدم في المصادقة عبر تطبيقات منصة سهول، ويشمل تسجيل الدخول والتسجيل وإدارة الجلسات وآليات الأمان.</p>
+<hr />
+<h2 id="1-authentication-flows">1. Authentication Flows | تدفقات المصادقة<a class="headerlink" href="#1-authentication-flows" title="Permanent link">&para;</a></h2>
+<h3 id="11-login-flow">1.1 Login Flow | تدفق تسجيل الدخول<a class="headerlink" href="#11-login-flow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
+<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="n">User</span><span class="w"> </span><span class="n">opens</span><span class="w"> </span><span class="o">/</span><span class="n">login</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="p">{</span><span class="n">Has</span><span class="w"> </span><span class="n">valid</span><span class="w"> </span><span class="n">token</span><span class="o">?</span><span class="p">}</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yes</span><span class="o">|</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="n">Redirect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="o">/</span><span class="n">dashboard</span><span class="p">]</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">No</span><span class="o">|</span><span class="w"> </span><span class="n">D</span><span class="p">[</span><span class="n">Show</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">form</span><span class="p">]</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="n">User</span><span class="w"> </span><span class="n">enters</span><span class="w"> </span><span class="n">credentials</span><span class="p">]</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span><span class="p">[</span><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="n">login</span><span class="p">]</span>
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G</span><span class="p">{</span><span class="n">Valid</span><span class="w"> </span><span class="n">credentials</span><span class="o">?</span><span class="p">}</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">No</span><span class="o">|</span><span class="w"> </span><span class="n">H</span><span class="p">[</span><span class="n">Show</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">message</span><span class="p">]</span>
+<span class="w">    </span><span class="n">H</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yes</span><span class="o">|</span><span class="w"> </span><span class="n">I</span><span class="p">{</span><span class="mf">2F</span><span class="n">A</span><span class="w"> </span><span class="n">enabled</span><span class="o">?</span><span class="p">}</span>
+<span class="w">    </span><span class="n">I</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yes</span><span class="o">|</span><span class="w"> </span><span class="n">J</span><span class="p">[</span><span class="n">Show</span><span class="w"> </span><span class="mf">2F</span><span class="n">A</span><span class="w"> </span><span class="n">form</span><span class="p">]</span>
+<span class="w">    </span><span class="n">J</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">K</span><span class="p">[</span><span class="n">User</span><span class="w"> </span><span class="n">enters</span><span class="w"> </span><span class="n">TOTP</span><span class="w"> </span><span class="n">code</span><span class="p">]</span>
+<span class="w">    </span><span class="n">K</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">L</span><span class="p">{</span><span class="n">Valid</span><span class="w"> </span><span class="n">code</span><span class="o">?</span><span class="p">}</span>
+<span class="w">    </span><span class="n">L</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">No</span><span class="o">|</span><span class="w"> </span><span class="n">M</span><span class="p">[</span><span class="n">Show</span><span class="w"> </span><span class="n">error</span><span class="p">]</span>
+<span class="w">    </span><span class="n">M</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">J</span>
+<span class="w">    </span><span class="n">L</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yes</span><span class="o">|</span><span class="w"> </span><span class="n">N</span><span class="p">[</span><span class="n">Set</span><span class="w"> </span><span class="n">httpOnly</span><span class="w"> </span><span class="n">cookies</span><span class="p">]</span>
+<span class="w">    </span><span class="n">I</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">No</span><span class="o">|</span><span class="w"> </span><span class="n">N</span>
+<span class="w">    </span><span class="n">N</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O</span><span class="p">[</span><span class="n">Redirect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">dashboard</span><span class="p">]</span>
+</code></pre></div>
+
+<h4 id="supported-features">Supported Features | الميزات المدعومة:<a class="headerlink" href="#supported-features" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Admin</th>
+<th>Web</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Email/Password login</td>
+<td>✅</td>
+<td>✅</td>
+<td>Working</td>
+</tr>
+<tr>
+<td>Two-Factor Auth (TOTP)</td>
+<td>✅</td>
+<td>✅</td>
+<td>Working</td>
+</tr>
+<tr>
+<td>Remember return URL</td>
+<td>✅</td>
+<td>✅</td>
+<td>Working</td>
+</tr>
+<tr>
+<td>Show/Hide password</td>
+<td>✅</td>
+<td>✅</td>
+<td>Working</td>
+</tr>
+<tr>
+<td>Demo credentials (dev)</td>
+<td>✅</td>
+<td>❌</td>
+<td>Admin only</td>
+</tr>
+</tbody>
+</table>
+<h4 id="files-involved">Files Involved | الملفات المعنية:<a class="headerlink" href="#files-involved" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>apps/admin/src/app/login/page.tsx</code> - Admin login UI</li>
+<li><code>apps/web/src/app/(auth)/login/LoginClient.tsx</code> - Web login UI</li>
+<li><code>apps/admin/src/app/api/auth/login/route.ts</code> - API proxy route</li>
+<li><code>apps/services/user-service/src/auth/auth.controller.ts</code> - Backend endpoint</li>
+<li><code>apps/services/user-service/src/auth/auth.service.ts</code> - Authentication logic</li>
+</ul>
+<hr />
+<h3 id="12-registration-flow">1.2 Registration Flow | تدفق التسجيل<a class="headerlink" href="#12-registration-flow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
+<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="n">User</span><span class="w"> </span><span class="n">opens</span><span class="w"> </span><span class="o">/</span><span class="k">register</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">Show</span><span class="w"> </span><span class="n">registration</span><span class="w"> </span><span class="n">form</span><span class="p">]</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="n">User</span><span class="w"> </span><span class="n">fills</span><span class="w"> </span><span class="n">form</span><span class="p">]</span>
+<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span><span class="p">[</span><span class="n">Client</span><span class="o">-</span><span class="n">side</span><span class="w"> </span><span class="n">validation</span><span class="p">]</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Invalid</span><span class="o">|</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="n">Show</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="n">errors</span><span class="p">]</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Valid</span><span class="o">|</span><span class="w"> </span><span class="n">F</span><span class="p">[</span><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="k">register</span><span class="p">]</span>
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G</span><span class="p">{</span><span class="n">Email</span><span class="w"> </span><span class="n">exists</span><span class="o">?</span><span class="p">}</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yes</span><span class="o">|</span><span class="w"> </span><span class="n">H</span><span class="p">[</span><span class="n">Show</span><span class="w"> </span><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="n">Email</span><span class="w"> </span><span class="n">registered</span><span class="p">]</span>
+<span class="w">    </span><span class="n">H</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">No</span><span class="o">|</span><span class="w"> </span><span class="n">I</span><span class="p">[</span><span class="n">Create</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="n">account</span><span class="p">]</span>
+<span class="w">    </span><span class="n">I</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">J</span><span class="p">[</span><span class="n">Generate</span><span class="w"> </span><span class="n">JWT</span><span class="w"> </span><span class="n">tokens</span><span class="p">]</span>
+<span class="w">    </span><span class="n">J</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">K</span><span class="p">[</span><span class="n">Return</span><span class="w"> </span><span class="n">tokens</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="n">data</span><span class="p">]</span>
+<span class="w">    </span><span class="n">K</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">L</span><span class="p">[</span><span class="n">Auto</span><span class="o">-</span><span class="n">login</span><span class="w"> </span><span class="n">user</span><span class="p">]</span>
+<span class="w">    </span><span class="n">L</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M</span><span class="p">[</span><span class="n">Redirect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="o">/</span><span class="n">dashboard</span><span class="p">]</span>
+</code></pre></div>
+
+<h4 id="registration-fields">Registration Fields | حقول التسجيل:<a class="headerlink" href="#registration-fields" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Admin</th>
+<th>Web</th>
+<th>Required</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First Name</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>min 2 chars</td>
+</tr>
+<tr>
+<td>Last Name</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>min 2 chars</td>
+</tr>
+<tr>
+<td>Email</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>Valid email format</td>
+</tr>
+<tr>
+<td>Password</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>min 8 chars</td>
+</tr>
+<tr>
+<td>Confirm Password</td>
+<td>❌</td>
+<td>✅</td>
+<td>Web only</td>
+<td>Must match password</td>
+</tr>
+<tr>
+<td>Phone</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>Optional, valid format</td>
+</tr>
+</tbody>
+</table>
+<h4 id="password-requirements">Password Requirements | متطلبات كلمة المرور:<a class="headerlink" href="#password-requirements" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Admin</strong>: Minimum 8 characters</li>
+<li><strong>Web</strong>: Minimum 8 characters + uppercase + lowercase + number</li>
+</ul>
+<hr />
+<h3 id="13-forgot-password-flow">1.3 Forgot Password Flow | تدفق نسيان كلمة المرور<a class="headerlink" href="#13-forgot-password-flow" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Forgot password page</td>
+<td>❌ Not Implemented</td>
+<td>No <code>/forgot-password</code> route exists</td>
+</tr>
+<tr>
+<td>Password reset email</td>
+<td>❌ Not Implemented</td>
+<td>Backend endpoint not created</td>
+</tr>
+<tr>
+<td>Reset password page</td>
+<td>❌ Not Implemented</td>
+<td>No <code>/reset-password</code> route exists</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommendation | التوصية</strong>: Implement forgot password functionality for production use.</p>
+<hr />
+<h3 id="14-logout-flow">1.4 Logout Flow | تدفق تسجيل الخروج<a class="headerlink" href="#14-logout-flow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
+<span class="w">    </span><span class="n">A</span><span class="o">[</span><span class="n">User clicks logout</span><span class="o">]</span><span class="w"> </span><span class="c1">--&gt; B[POST /api/auth/logout]</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="c1">--&gt; C[Get token from httpOnly cookie]</span>
+<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="c1">--&gt; D{Token exists?}</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="c1">--&gt;|Yes| E[POST /api/v1/auth/logout to backend]</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="c1">--&gt; F[Revoke token in Redis]</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="c1">--&gt;|No| G[Continue]</span>
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="c1">--&gt; G</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="c1">--&gt; H[Delete all auth cookies]</span>
+<span class="w">    </span><span class="n">H</span><span class="w"> </span><span class="c1">--&gt; I[Redirect to /login]</span>
+</code></pre></div>
+
+<h4 id="cookies-cleared">Cookies Cleared | الكوكيز المحذوفة:<a class="headerlink" href="#cookies-cleared" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>sahool_admin_token</code> - Access token</li>
+<li><code>sahool_admin_refresh_token</code> - Refresh token</li>
+<li><code>sahool_admin_last_activity</code> - Activity timestamp</li>
+</ul>
+<hr />
+<h2 id="2-session-management">2. Session Management | إدارة الجلسات<a class="headerlink" href="#2-session-management" title="Permanent link">&para;</a></h2>
+<h3 id="21-token-configuration">2.1 Token Configuration | تكوين التوكنات<a class="headerlink" href="#21-token-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Token Type</th>
+<th>Expiry</th>
+<th>Storage</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Access Token</td>
+<td>30 minutes</td>
+<td>httpOnly cookie</td>
+<td>API authentication</td>
+</tr>
+<tr>
+<td>Refresh Token</td>
+<td>7 days</td>
+<td>httpOnly cookie</td>
+<td>Token renewal</td>
+</tr>
+<tr>
+<td>CSRF Token</td>
+<td>24 hours</td>
+<td>Regular cookie</td>
+<td>CSRF protection</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-idle-timeout">2.2 Idle Timeout | مهلة الخمول<a class="headerlink" href="#22-idle-timeout" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Timeout Period</strong>: 30 minutes of inactivity</li>
+<li><strong>Activity Tracking</strong>: Mouse, keyboard, scroll, touch events</li>
+<li><strong>Server Update</strong>: Every 30 seconds when active</li>
+<li><strong>Check Interval</strong>: Every 60 seconds</li>
+</ul>
+<h3 id="23-token-refresh">2.3 Token Refresh | تحديث التوكن<a class="headerlink" href="#23-token-refresh" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Automatic Refresh</strong>: Every 5 minutes</li>
+<li><strong>Rotation</strong>: New refresh token on each use</li>
+<li><strong>Reuse Detection</strong>: Token family invalidation on replay attack</li>
+</ul>
+<hr />
+<h2 id="3-route-protection">3. Route Protection | حماية المسارات<a class="headerlink" href="#3-route-protection" title="Permanent link">&para;</a></h2>
+<h3 id="31-public-routes-no-auth-required">3.1 Public Routes (No Auth Required) | المسارات العامة<a class="headerlink" href="#31-public-routes-no-auth-required" title="Permanent link">&para;</a></h3>
+<p><strong>Admin App</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">/</span><span class="n">login</span>
+<span class="o">/</span><span class="n">register</span>
+<span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="n">login</span>
+<span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="n">register</span>
+<span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="n">refresh</span>
+<span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">health</span>
+</code></pre></div>
+
+<p><strong>Web App</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">/</span><span class="n">login</span>
+<span class="o">/</span><span class="n">register</span>
+<span class="o">/</span><span class="n">forgot</span><span class="o">-</span><span class="n">password</span>
+<span class="o">/</span><span class="n">reset</span><span class="o">-</span><span class="n">password</span>
+<span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">auth</span>
+<span class="o">/</span>
+</code></pre></div>
+
+<h3 id="32-protected-routes-by-role">3.2 Protected Routes by Role | المسارات المحمية حسب الدور<a class="headerlink" href="#32-protected-routes-by-role" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Admin</th>
+<th>Supervisor</th>
+<th>Viewer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/dashboard</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>/analytics</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>/farms</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>/settings</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>/api/users</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-security-features">4. Security Features | ميزات الأمان<a class="headerlink" href="#4-security-features" title="Permanent link">&para;</a></h2>
+<h3 id="41-implemented-security-measures">4.1 Implemented Security Measures | إجراءات الأمان المطبقة<a class="headerlink" href="#41-implemented-security-measures" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>httpOnly Cookies</td>
+<td>✅</td>
+<td>Tokens stored in httpOnly cookies</td>
+</tr>
+<tr>
+<td>CSRF Protection</td>
+<td>✅</td>
+<td>Token validation on state-changing requests</td>
+</tr>
+<tr>
+<td>JWT Verification</td>
+<td>✅</td>
+<td>Signature verification with secret key</td>
+</tr>
+<tr>
+<td>Password Hashing</td>
+<td>✅</td>
+<td>bcrypt with 12 rounds</td>
+</tr>
+<tr>
+<td>Rate Limiting</td>
+<td>✅</td>
+<td>5 login attempts/minute, 10 register attempts/minute</td>
+</tr>
+<tr>
+<td>Token Revocation</td>
+<td>✅</td>
+<td>Redis-based blacklist</td>
+</tr>
+<tr>
+<td>Security Headers</td>
+<td>✅</td>
+<td>CSP, HSTS, X-Frame-Options, etc.</td>
+</tr>
+<tr>
+<td>Role-based Access</td>
+<td>✅</td>
+<td>Admin/Supervisor/Viewer hierarchy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-security-headers">4.2 Security Headers | رؤوس الأمان<a class="headerlink" href="#42-security-headers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">X-Frame-Options</span><span class="o">:</span><span class="w"> </span><span class="nt">DENY</span>
+<span class="nt">X-Content-Type-Options</span><span class="o">:</span><span class="w"> </span><span class="nt">nosniff</span>
+<span class="nt">Referrer-Policy</span><span class="o">:</span><span class="w"> </span><span class="nt">strict-origin-when-cross-origin</span>
+<span class="nt">X-XSS-Protection</span><span class="o">:</span><span class="w"> </span><span class="nt">1</span><span class="o">;</span><span class="w"> </span><span class="nt">mode</span><span class="o">=</span><span class="nt">block</span>
+<span class="nt">Strict-Transport-Security</span><span class="o">:</span><span class="w"> </span><span class="nt">max-age</span><span class="o">=</span><span class="nt">31536000</span><span class="o">;</span><span class="w"> </span><span class="nt">includeSubDomains</span>
+<span class="nt">Content-Security-Policy</span><span class="o">:</span><span class="w"> </span><span class="cp">[</span><span class="nx">nonce</span><span class="na">-based</span><span class="w"> </span><span class="nx">policy</span><span class="cp">]</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5-issues-found">5. Issues Found | المشاكل المكتشفة<a class="headerlink" href="#5-issues-found" title="Permanent link">&para;</a></h2>
+<h3 id="51-critical-issues">5.1 Critical Issues | مشاكل حرجة<a class="headerlink" href="#51-critical-issues" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Impact</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>~~<code>/register</code> not in PUBLIC_ROUTES~~</td>
+<td>Registration redirect to login</td>
+<td>✅ Fixed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-missing-features">5.2 Missing Features | الميزات الناقصة<a class="headerlink" href="#52-missing-features" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Feature</th>
+<th>Priority</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Forgot Password</td>
+<td>High</td>
+<td>Implement email-based password reset</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Email Verification</td>
+<td>Medium</td>
+<td>Add email verification after registration</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Account Lockout</td>
+<td>Medium</td>
+<td>Lock account after N failed attempts</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Password Strength Meter</td>
+<td>Low</td>
+<td>Visual feedback during password entry</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Social Login</td>
+<td>Low</td>
+<td>OAuth with Google/Apple (optional)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-ux-improvements">5.3 UX Improvements | تحسينات تجربة المستخدم<a class="headerlink" href="#53-ux-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Improvement</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Loading States</td>
+<td>Add skeleton loading for better perceived performance</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Error Messages</td>
+<td>Standardize error message format across apps</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Success Feedback</td>
+<td>Add toast notifications after successful actions</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Form Validation</td>
+<td>Real-time validation feedback as user types</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Accessibility</td>
+<td>Add ARIA labels and keyboard navigation support</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-user-journey-scenarios">6. User Journey Scenarios | سيناريوهات رحلة المستخدم<a class="headerlink" href="#6-user-journey-scenarios" title="Permanent link">&para;</a></h2>
+<h3 id="scenario-1-new-user-registration">Scenario 1: New User Registration | تسجيل مستخدم جديد<a class="headerlink" href="#scenario-1-new-user-registration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="n">visits</span><span class="w"> </span><span class="o">/</span><span class="n">register</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Fills</span><span class="w"> </span><span class="n">registration</span><span class="w"> </span><span class="kr">for</span><span class="n">m</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Submits</span><span class="w"> </span><span class="kr">for</span><span class="n">m</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Account</span><span class="w"> </span><span class="n">created</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">FARMER</span><span class="w"> </span><span class="n">role</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Auto</span><span class="o">-</span><span class="nb">log</span><span class="n">in</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">JWT</span><span class="w"> </span><span class="kr">to</span><span class="n">kens</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">Redirected</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="o">/</span><span class="n">dashboard</span>
+</code></pre></div>
+
+<p><strong>Status</strong>: ✅ Working</p>
+<h3 id="scenario-2-returning-user-login">Scenario 2: Returning User Login | تسجيل دخول مستخدم عائد<a class="headerlink" href="#scenario-2-returning-user-login" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="n">visits</span><span class="w"> </span><span class="o">/</span><span class="nb">log</span><span class="n">in</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Enters</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">password</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Credentials</span><span class="w"> </span><span class="nb">val</span><span class="n">idated</span>
+<span class="mf">4.</span><span class="w"> </span><span class="kr">If</span><span class="w"> </span><span class="mf">2</span><span class="n">FA</span><span class="w"> </span><span class="n">enabled</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Enter</span><span class="w"> </span><span class="kr">TO</span><span class="n">TP</span><span class="w"> </span><span class="n">code</span>
+<span class="mf">5.</span><span class="w"> </span><span class="kr">To</span><span class="n">kens</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">httpOnly</span><span class="w"> </span><span class="n">cookies</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">Redirected</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="o">/</span><span class="n">dashboard</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="kr">returnTo</span><span class="w"> </span><span class="n">URL</span>
+</code></pre></div>
+
+<p><strong>Status</strong>: ✅ Working</p>
+<h3 id="scenario-3-session-expiry">Scenario 3: Session Expiry | انتهاء الجلسة<a class="headerlink" href="#scenario-3-session-expiry" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="n">inactive</span><span class="w"> </span><span class="kr">for</span><span class="w"> </span><span class="mf">30</span><span class="w"> </span><span class="n">minutes</span>
+<span class="mf">2.</span><span class="w"> </span><span class="kr">Next</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">triggers</span><span class="w"> </span><span class="n">middleware</span><span class="w"> </span><span class="n">check</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Idle</span><span class="w"> </span><span class="n">timeout</span><span class="w"> </span><span class="n">detected</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Cookies</span><span class="w"> </span><span class="n">cleared</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Redirected</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="o">/</span><span class="nb">log</span><span class="n">in</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">reason</span><span class="o">=</span><span class="n">session_expired</span>
+</code></pre></div>
+
+<p><strong>Status</strong>: ✅ Working</p>
+<h3 id="scenario-4-token-refresh">Scenario 4: Token Refresh | تحديث التوكن<a class="headerlink" href="#scenario-4-token-refresh" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">Access</span><span class="w"> </span><span class="kr">to</span><span class="n">ken</span><span class="w"> </span><span class="nb">exp</span><span class="n">ires</span><span class="w"> </span><span class="p">(</span><span class="mf">30</span><span class="w"> </span><span class="n">min</span><span class="p">)</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Frontend</span><span class="w"> </span><span class="n">calls</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="n">refresh</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Refresh</span><span class="w"> </span><span class="kr">to</span><span class="n">ken</span><span class="w"> </span><span class="nb">val</span><span class="n">idated</span>
+<span class="mf">4.</span><span class="w"> </span><span class="kr">New</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">refresh</span><span class="w"> </span><span class="kr">to</span><span class="n">kens</span><span class="w"> </span><span class="n">generated</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Old</span><span class="w"> </span><span class="n">refresh</span><span class="w"> </span><span class="kr">to</span><span class="n">ken</span><span class="w"> </span><span class="n">marked</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">used</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="kr">cont</span><span class="n">inues</span><span class="w"> </span><span class="n">seamlessly</span>
+</code></pre></div>
+
+<p><strong>Status</strong>: ✅ Working</p>
+<h3 id="scenario-5-unauthorized-access">Scenario 5: Unauthorized Access | وصول غير مصرح<a class="headerlink" href="#scenario-5-unauthorized-access" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">Viewer</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="n">tries</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="o">/</span><span class="n">settings</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Middleware</span><span class="w"> </span><span class="n">checks</span><span class="w"> </span><span class="n">role</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="n">role</span><span class="w"> </span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="n">roles</span><span class="w"> </span><span class="p">(</span><span class="n">admin</span><span class="p">)</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Redirected</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="o">/</span><span class="n">dashboard</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">error</span><span class="o">=</span><span class="n">unauthorized</span>
+</code></pre></div>
+
+<p><strong>Status</strong>: ✅ Working</p>
+<h3 id="scenario-6-password-reset">Scenario 6: Password Reset | إعادة تعيين كلمة المرور<a class="headerlink" href="#scenario-6-password-reset" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="n">clicks</span><span class="w"> </span><span class="s">&quot;Forgot Password&quot;</span>
+<span class="mf">2.</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Feature</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">implemented</span>
+</code></pre></div>
+
+<p><strong>Status</strong>: ❌ Not Implemented</p>
+<hr />
+<h2 id="7-api-endpoints">7. API Endpoints | نقاط الواجهة البرمجية<a class="headerlink" href="#7-api-endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="authentication-endpoints">Authentication Endpoints | نقاط المصادقة<a class="headerlink" href="#authentication-endpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+<th>Auth Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/auth/login</code></td>
+<td>User login</td>
+<td>No</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/auth/register</code></td>
+<td>User registration</td>
+<td>No</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/auth/refresh</code></td>
+<td>Refresh tokens</td>
+<td>No (uses refresh token)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/auth/logout</code></td>
+<td>Logout (revoke token)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/auth/logout-all</code></td>
+<td>Logout all devices</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/auth/me</code></td>
+<td>Get current user</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rate-limits">Rate Limits | حدود المعدل<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Limit</th>
+<th>Period</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/auth/login</code></td>
+<td>5 requests</td>
+<td>60 seconds</td>
+</tr>
+<tr>
+<td><code>/auth/register</code></td>
+<td>10 requests</td>
+<td>60 seconds</td>
+</tr>
+<tr>
+<td><code>/auth/refresh</code></td>
+<td>10 requests</td>
+<td>60 seconds</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-recommendations">8. Recommendations | التوصيات<a class="headerlink" href="#8-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="high-priority">High Priority | أولوية عالية<a class="headerlink" href="#high-priority" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Implement Forgot Password Flow</strong></li>
+<li>Add <code>/forgot-password</code> and <code>/reset-password</code> routes</li>
+<li>Create backend endpoints for password reset</li>
+<li>
+<p>Implement secure token-based email verification</p>
+</li>
+<li>
+<p><strong>Add Account Lockout</strong></p>
+</li>
+<li>Lock account after 5 failed login attempts</li>
+<li>Implement progressive delays between attempts</li>
+<li>Send notification email on lockout</li>
+</ol>
+<h3 id="medium-priority">Medium Priority | أولوية متوسطة<a class="headerlink" href="#medium-priority" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Email Verification</strong></li>
+<li>Send verification email on registration</li>
+<li>Add <code>/verify-email</code> route</li>
+<li>
+<p>Optional: Require verification before full access</p>
+</li>
+<li>
+<p><strong>Enhanced Logging</strong></p>
+</li>
+<li>Log all authentication events</li>
+<li>Track failed login attempts by IP</li>
+<li>Alert on suspicious patterns</li>
+</ol>
+<h3 id="low-priority">Low Priority | أولوية منخفضة<a class="headerlink" href="#low-priority" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>UI Enhancements</strong></li>
+<li>Password strength indicator</li>
+<li>"Remember me" checkbox</li>
+<li>Social login buttons (Google, Apple)</li>
+</ol>
+<hr />
+<h2 id="9-testing-checklist">9. Testing Checklist | قائمة الاختبار<a class="headerlink" href="#9-testing-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="manual-testing">Manual Testing | الاختبار اليدوي<a class="headerlink" href="#manual-testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Login with valid credentials</li>
+<li>[ ] Login with invalid credentials</li>
+<li>[ ] Login with 2FA enabled</li>
+<li>[ ] Register new account</li>
+<li>[ ] Register with existing email</li>
+<li>[ ] Navigate to protected route without auth</li>
+<li>[ ] Test idle timeout (wait 30 min)</li>
+<li>[ ] Test role-based access (admin vs viewer)</li>
+<li>[ ] Logout and verify cookies cleared</li>
+<li>[ ] Test "Back" button after logout</li>
+</ul>
+<h3 id="automated-testing">Automated Testing | الاختبار الآلي<a class="headerlink" href="#automated-testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Unit tests for auth service</li>
+<li>[ ] Integration tests for login/register API</li>
+<li>[ ] E2E tests for complete auth flows</li>
+<li>[ ] Security tests for CSRF, XSS protection</li>
+</ul>
+<hr />
+<h2 id="10-conclusion">10. Conclusion | الخلاصة<a class="headerlink" href="#10-conclusion" title="Permanent link">&para;</a></h2>
+<p>The authentication system in SAHOOL platform is well-implemented with modern security practices including:
+- JWT-based authentication with httpOnly cookies
+- Token rotation and revocation
+- Role-based access control
+- CSRF protection
+- Comprehensive security headers</p>
+<p>The main gap is the missing forgot password functionality which should be prioritized for production deployment.</p>
+<p>نظام المصادقة في منصة سهول مطبق بشكل جيد مع ممارسات أمان حديثة تشمل:
+- المصادقة المستندة إلى JWT مع كوكيز httpOnly
+- تدوير وإلغاء التوكنات
+- التحكم في الوصول القائم على الأدوار
+- حماية CSRF
+- رؤوس أمان شاملة</p>
+<p>الفجوة الرئيسية هي وظيفة نسيان كلمة المرور الناقصة والتي يجب إعطاؤها الأولوية للنشر في الإنتاج.</p>
+<hr />
+<p><strong>Report Generated</strong>: January 2025
+<strong>Auditor</strong>: Claude AI
+<strong>Platform Version</strong>: 16.0.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

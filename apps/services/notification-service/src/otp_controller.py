@@ -25,6 +25,8 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel, Field, field_validator
 
+from .security_utils import sanitize_for_log
+
 # Import rate limiting decorator
 try:
     from shared.middleware.rate_limit import rate_limit
@@ -587,11 +589,11 @@ async def send_otp_via_channel(
             return result is not None
 
         else:
-            logger.error(f"Unknown OTP channel: {channel}")
+            logger.error(f"Unknown OTP channel: {sanitize_for_log(channel)}")
             return False
 
     except Exception as e:
-        logger.error(f"Failed to send OTP via {channel.value}: {e}")
+        logger.error(f"Failed to send OTP via {sanitize_for_log(channel.value)}: {sanitize_for_log(e)}")
         return False
 
 
@@ -706,7 +708,8 @@ async def send_otp(request: Request, body: SendOTPRequest):
     masked = _otp_storage._mask_identifier(body.identifier)
 
     logger.info(
-        f"OTP sent to {masked} via {body.channel.value} for {body.purpose.value}"
+        f"OTP sent to {sanitize_for_log(masked)} via {sanitize_for_log(body.channel.value)} "
+        f"for {sanitize_for_log(body.purpose.value)}"
     )
 
     return SendOTPResponse(
@@ -750,7 +753,7 @@ async def verify_otp(body: VerifyOTPRequest):
         # Generate a secure reset token
         reset_token = secrets.token_urlsafe(32)
         # In production, store this token and associate with user
-        logger.info(f"Password reset token generated for {_otp_storage._mask_identifier(body.identifier)}")
+        logger.info(f"Password reset token generated for {sanitize_for_log(_otp_storage._mask_identifier(body.identifier))}")
 
     if not success:
         # Return 200 with success=False for invalid OTP (not 401)
@@ -764,8 +767,8 @@ async def verify_otp(body: VerifyOTPRequest):
         )
 
     logger.info(
-        f"OTP verified for {_otp_storage._mask_identifier(body.identifier)} "
-        f"purpose={body.purpose.value}"
+        f"OTP verified for {sanitize_for_log(_otp_storage._mask_identifier(body.identifier))} "
+        f"purpose={sanitize_for_log(body.purpose.value)}"
     )
 
     return VerifyOTPResponse(

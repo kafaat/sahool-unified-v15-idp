@@ -24,6 +24,8 @@ from typing import Any
 
 import httpx
 
+from .security_utils import mask_phone, sanitize_for_log
+
 logger = logging.getLogger(__name__)
 
 
@@ -447,7 +449,7 @@ class WhatsAppClient:
                     logger.info(f"WhatsApp failover to {prov.value} successful")
                     return result
 
-        logger.error(f"All WhatsApp providers failed for {to[-4:]}")
+        logger.error(f"All WhatsApp providers failed for {mask_phone(to)}")
         return None
 
     async def send_otp(

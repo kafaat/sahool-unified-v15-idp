@@ -18,6 +18,8 @@ import os
 from dataclasses import dataclass
 from typing import Any
 
+from .security_utils import mask_email, sanitize_for_log
+
 logger = logging.getLogger(__name__)
 
 # SendGrid SDK imports
@@ -194,9 +196,7 @@ class EmailClient:
         try:
             # Validate email
             if not self._validate_email(to):
-                # Mask email for safe logging (prevent log injection)
-                masked_email = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
-                logger.error(f"Invalid email address: {masked_email}")
+                logger.error(f"Invalid email address: {mask_email(to)}")
                 return None
 
             # Select content based on language
@@ -255,19 +255,15 @@ class EmailClient:
 
             if response:
                 logger.info(
-                    f"📧 Email sent successfully to ***@{to.split('@')[-1] if to and '@' in to else '***'}: {response}"
+                    f"📧 Email sent successfully to {mask_email(to)}: {sanitize_for_log(response)}"
                 )
                 return response
             else:
-                logger.error(
-                    f"Failed to send email to ***@{to.split('@')[-1] if to and '@' in to else '***'}"
-                )
+                logger.error(f"Failed to send email to {mask_email(to)}")
                 return None
 
         except Exception as e:
-            logger.error(
-                f"Error sending email to ***@{to.split('@')[-1] if to and '@' in to else '***'}: {e}"
-            )
+            logger.error(f"Error sending email to {mask_email(to)}: {sanitize_for_log(e)}")
             return None
 
     def _send_sync(self, mail: Mail) -> str | None:

@@ -39,7 +39,6 @@ export default function ForgotPasswordPage() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const isEmailChannel = channel === "email";
-  const identifier = isEmailChannel ? email : phone;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

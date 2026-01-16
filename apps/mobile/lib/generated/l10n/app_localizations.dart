@@ -363,17 +363,17 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get share;
 
-  /// No description provided for @export.
+  /// No description provided for @export_.
   ///
   /// In en, this message translates to:
   /// **'Export'**
-  String get export;
+  String get export_;
 
-  /// No description provided for @import.
+  /// No description provided for @import_.
   ///
   /// In en, this message translates to:
   /// **'Import'**
-  String get import;
+  String get import_;
 
   /// No description provided for @download.
   ///
@@ -10191,6 +10191,192 @@ abstract class AppLocalizations {
   /// **'EC'**
   String get ec;
 
+  /// No description provided for @securityWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Warning'**
+  String get securityWarning;
+
+  /// No description provided for @securityAlert_.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Alert'**
+  String get securityAlert_;
+
+  /// No description provided for @unsafeDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsafe Device'**
+  String get unsafeDevice;
+
+  /// No description provided for @deviceCompromised.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Compromised'**
+  String get deviceCompromised;
+
+  /// No description provided for @deviceSecurityCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Security Check'**
+  String get deviceSecurityCheck;
+
+  /// No description provided for @deviceIntegrity.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Integrity'**
+  String get deviceIntegrity;
+
+  /// No description provided for @rootDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Root Detected'**
+  String get rootDetected;
+
+  /// No description provided for @jailbreakDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Jailbreak Detected'**
+  String get jailbreakDetected;
+
+  /// No description provided for @rootedDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Rooted Device'**
+  String get rootedDevice;
+
+  /// No description provided for @jailbrokenDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Jailbroken Device'**
+  String get jailbrokenDevice;
+
+  /// No description provided for @emulatorDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Emulator Detected'**
+  String get emulatorDetected;
+
+  /// No description provided for @debugModeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug Mode Active'**
+  String get debugModeActive;
+
+  /// No description provided for @developerOptionsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer Options Enabled'**
+  String get developerOptionsEnabled;
+
+  /// No description provided for @hookingFrameworkDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Hooking Framework Detected'**
+  String get hookingFrameworkDetected;
+
+  /// No description provided for @securityThreatDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Threat Detected'**
+  String get securityThreatDetected;
+
+  /// No description provided for @cannotRunOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry, this app cannot run on this device'**
+  String get cannotRunOnDevice;
+
+  /// No description provided for @securityIssuesDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Security issues detected on your device'**
+  String get securityIssuesDetected;
+
+  /// No description provided for @detectedThreats.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected Threats'**
+  String get detectedThreats;
+
+  /// No description provided for @whyBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is the app blocked?'**
+  String get whyBlocked;
+
+  /// No description provided for @deviceModifiedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device has been modified (rooted or jailbroken). Modified devices pose a security risk to your sensitive agricultural data.'**
+  String get deviceModifiedWarning;
+
+  /// No description provided for @continueAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Anyway'**
+  String get continueAnyway;
+
+  /// No description provided for @continueAtOwnRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue at Your Own Risk'**
+  String get continueAtOwnRisk;
+
+  /// No description provided for @exitApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit App'**
+  String get exitApp;
+
+  /// No description provided for @closeApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Close App'**
+  String get closeApp;
+
+  /// No description provided for @securityCheckPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Check Passed'**
+  String get securityCheckPassed;
+
+  /// No description provided for @securityCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Check Failed'**
+  String get securityCheckFailed;
+
+  /// No description provided for @threatLevelCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical Security Threat'**
+  String get threatLevelCritical;
+
+  /// No description provided for @threatLevelHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High Security Threat'**
+  String get threatLevelHigh;
+
+  /// No description provided for @threatLevelMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium Security Threat'**
+  String get threatLevelMedium;
+
+  /// No description provided for @threatLevelLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor Security Warning'**
+  String get threatLevelLow;
+
+  /// No description provided for @threatLevelNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No Security Threats'**
+  String get threatLevelNone;
+
   /// No description provided for @all.
   ///
   /// In en, this message translates to:
@@ -10257,11 +10443,11 @@ abstract class AppLocalizations {
   /// **'Beta'**
   String get beta;
 
-  /// No description provided for @newStatus.
+  /// No description provided for @newItem.
   ///
   /// In en, this message translates to:
   /// **'New'**
-  String get newStatus;
+  String get newItem;
 
   /// No description provided for @updated.
   ///

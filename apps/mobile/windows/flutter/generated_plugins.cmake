@@ -3,12 +3,17 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  app_links
   connectivity_plus
   file_selector_windows
+  firebase_core
   flutter_secure_storage_windows
   objectbox_flutter_libs
+  share_plus
+  smart_auth
   sqlcipher_flutter_libs
   sqlite3_flutter_libs
+  url_launcher_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

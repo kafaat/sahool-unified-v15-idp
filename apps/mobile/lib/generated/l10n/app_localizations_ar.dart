@@ -145,10 +145,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get share => 'مشاركة';
 
   @override
-  String get export => 'تصدير';
+  String get export_ => 'تصدير';
 
   @override
-  String get import => 'استيراد';
+  String get import_ => 'استيراد';
 
   @override
   String get download => 'تنزيل';
@@ -5061,6 +5061,100 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ec => 'EC';
 
   @override
+  String get securityWarning => 'تحذير أمني';
+
+  @override
+  String get securityAlert_ => 'تنبيه أمني';
+
+  @override
+  String get unsafeDevice => 'جهاز غير آمن';
+
+  @override
+  String get deviceCompromised => 'جهاز مخترق';
+
+  @override
+  String get deviceSecurityCheck => 'فحص أمان الجهاز';
+
+  @override
+  String get deviceIntegrity => 'سلامة الجهاز';
+
+  @override
+  String get rootDetected => 'تم اكتشاف صلاحيات الروت';
+
+  @override
+  String get jailbreakDetected => 'تم اكتشاف الجلبريك';
+
+  @override
+  String get rootedDevice => 'جهاز به صلاحيات روت';
+
+  @override
+  String get jailbrokenDevice => 'جهاز مكسور الحماية';
+
+  @override
+  String get emulatorDetected => 'تم اكتشاف المحاكي';
+
+  @override
+  String get debugModeActive => 'وضع التطوير نشط';
+
+  @override
+  String get developerOptionsEnabled => 'خيارات المطور مفعّلة';
+
+  @override
+  String get hookingFrameworkDetected => 'تم اكتشاف أدوات اختراق';
+
+  @override
+  String get securityThreatDetected => 'تم اكتشاف تهديد أمني';
+
+  @override
+  String get cannotRunOnDevice => 'عذراً، لا يمكن تشغيل التطبيق على هذا الجهاز';
+
+  @override
+  String get securityIssuesDetected => 'تم اكتشاف مشاكل أمنية على جهازك';
+
+  @override
+  String get detectedThreats => 'التهديدات المكتشفة';
+
+  @override
+  String get whyBlocked => 'لماذا يتم حظر التطبيق؟';
+
+  @override
+  String get deviceModifiedWarning =>
+      'تم اكتشاف أن جهازك معدّل (روت أو جلبريك). الأجهزة المعدلة تشكل خطراً أمنياً على بياناتك الزراعية الحساسة.';
+
+  @override
+  String get continueAnyway => 'المتابعة على مسؤوليتي';
+
+  @override
+  String get continueAtOwnRisk => 'المتابعة على مسؤوليتك الخاصة';
+
+  @override
+  String get exitApp => 'إغلاق التطبيق';
+
+  @override
+  String get closeApp => 'إغلاق التطبيق';
+
+  @override
+  String get securityCheckPassed => 'نجح الفحص الأمني';
+
+  @override
+  String get securityCheckFailed => 'فشل الفحص الأمني';
+
+  @override
+  String get threatLevelCritical => 'تهديد أمني حرج';
+
+  @override
+  String get threatLevelHigh => 'تهديد أمني عالي';
+
+  @override
+  String get threatLevelMedium => 'تهديد أمني متوسط';
+
+  @override
+  String get threatLevelLow => 'تحذير أمني بسيط';
+
+  @override
+  String get threatLevelNone => 'لا توجد تهديدات أمنية';
+
+  @override
   String get all => 'الكل';
 
   @override
@@ -5094,7 +5188,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get beta => 'تجريبي';
 
   @override
-  String get newStatus => 'جديد';
+  String get newItem => 'جديد';
 
   @override
   String get updated => 'محدّث';

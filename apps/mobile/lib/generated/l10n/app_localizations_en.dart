@@ -146,10 +146,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get share => 'Share';
 
   @override
-  String get export => 'Export';
+  String get export_ => 'Export';
 
   @override
-  String get import => 'Import';
+  String get import_ => 'Import';
 
   @override
   String get download => 'Download';
@@ -5065,6 +5065,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ec => 'EC';
 
   @override
+  String get securityWarning => 'Security Warning';
+
+  @override
+  String get securityAlert_ => 'Security Alert';
+
+  @override
+  String get unsafeDevice => 'Unsafe Device';
+
+  @override
+  String get deviceCompromised => 'Device Compromised';
+
+  @override
+  String get deviceSecurityCheck => 'Device Security Check';
+
+  @override
+  String get deviceIntegrity => 'Device Integrity';
+
+  @override
+  String get rootDetected => 'Root Detected';
+
+  @override
+  String get jailbreakDetected => 'Jailbreak Detected';
+
+  @override
+  String get rootedDevice => 'Rooted Device';
+
+  @override
+  String get jailbrokenDevice => 'Jailbroken Device';
+
+  @override
+  String get emulatorDetected => 'Emulator Detected';
+
+  @override
+  String get debugModeActive => 'Debug Mode Active';
+
+  @override
+  String get developerOptionsEnabled => 'Developer Options Enabled';
+
+  @override
+  String get hookingFrameworkDetected => 'Hooking Framework Detected';
+
+  @override
+  String get securityThreatDetected => 'Security Threat Detected';
+
+  @override
+  String get cannotRunOnDevice => 'Sorry, this app cannot run on this device';
+
+  @override
+  String get securityIssuesDetected =>
+      'Security issues detected on your device';
+
+  @override
+  String get detectedThreats => 'Detected Threats';
+
+  @override
+  String get whyBlocked => 'Why is the app blocked?';
+
+  @override
+  String get deviceModifiedWarning =>
+      'Your device has been modified (rooted or jailbroken). Modified devices pose a security risk to your sensitive agricultural data.';
+
+  @override
+  String get continueAnyway => 'Continue Anyway';
+
+  @override
+  String get continueAtOwnRisk => 'Continue at Your Own Risk';
+
+  @override
+  String get exitApp => 'Exit App';
+
+  @override
+  String get closeApp => 'Close App';
+
+  @override
+  String get securityCheckPassed => 'Security Check Passed';
+
+  @override
+  String get securityCheckFailed => 'Security Check Failed';
+
+  @override
+  String get threatLevelCritical => 'Critical Security Threat';
+
+  @override
+  String get threatLevelHigh => 'High Security Threat';
+
+  @override
+  String get threatLevelMedium => 'Medium Security Threat';
+
+  @override
+  String get threatLevelLow => 'Minor Security Warning';
+
+  @override
+  String get threatLevelNone => 'No Security Threats';
+
+  @override
   String get all => 'All';
 
   @override
@@ -5098,7 +5193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get beta => 'Beta';
 
   @override
-  String get newStatus => 'New';
+  String get newItem => 'New';
 
   @override
   String get updated => 'Updated';

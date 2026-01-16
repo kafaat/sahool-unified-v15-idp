@@ -151,7 +151,7 @@ jobs:
             fi
           done
 
-          if [ "$CRITICAL_VULNS" -gt 30 ]; then
+          if [ "$CRITICAL_VULNS" -gt 5 ]; then
             echo "❌ Found $CRITICAL_VULNS vulnerabilities with available fixes - please update dependencies"
             exit 1
           fi

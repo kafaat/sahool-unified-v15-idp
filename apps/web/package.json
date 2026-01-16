@@ -24,11 +24,11 @@
     "docs": "typedoc --options typedoc.json"
   },
   "dependencies": {
-    "@sahool/api-client": "*",
-    "@sahool/i18n": "*",
-    "@sahool/shared-hooks": "*",
-    "@sahool/shared-ui": "*",
-    "@sahool/shared-utils": "*",
+    "@sahool/api-client": "workspace:*",
+    "@sahool/i18n": "workspace:*",
+    "@sahool/shared-hooks": "workspace:*",
+    "@sahool/shared-ui": "workspace:*",
+    "@sahool/shared-utils": "workspace:*",
     "@sentry/nextjs": "^8.0.0",
     "@tanstack/react-query": "^5.64.2",
     "axios": "1.13.2",

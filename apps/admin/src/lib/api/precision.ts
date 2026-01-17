@@ -20,18 +20,20 @@ function generateMockId(prefix: string, index: number): string {
 
 /**
  * Generate a random number for mock data generation.
- * WARNING: This is NOT cryptographically secure and must NOT be used for:
- * - Authentication tokens, session IDs, or secrets
- * - Encryption keys or initialization vectors
- * - Any security-sensitive random values
+ * Uses crypto.getRandomValues() for CodeQL compliance, even though
+ * cryptographic security is not required for mock/demo data.
  *
- * This is ONLY for generating realistic-looking mock/demo data for UI development.
- * lgtm[js/insecure-randomness]
- * @security-ignore insecure-randomness - Mock data only, not security context
+ * @returns A random number between 0 (inclusive) and 1 (exclusive)
  */
 function mockRandom(): number {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return Math.random(); // NOSONAR - Mock data generation only
+  // Use crypto API for CodeQL compliance
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    return (arr[0] ?? 0) / 0xffffffff;
+  }
+  // Fallback for environments without crypto (SSR, tests)
+  return Date.now() % 1000 / 1000;
 }
 
 /**

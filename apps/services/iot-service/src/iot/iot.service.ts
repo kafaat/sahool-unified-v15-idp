@@ -17,6 +17,8 @@ import {
 } from "@nestjs/common";
 import Redis from "ioredis";
 import * as mqtt from "mqtt";
+import { v4 as uuidv4 } from "uuid";
+import { publishNotificationSend } from "@sahool/shared-events";
 
 // =============================================================================
 // Types & Interfaces
@@ -704,14 +706,82 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn(
         `⚠️ Low ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
-      // TODO: Send push notification
+      this.sendSensorAlertNotification(reading, "low", threshold.low);
     }
 
     if (threshold.high && reading.value > threshold.high) {
       this.logger.warn(
         `⚠️ High ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
-      // TODO: Send push notification
+      this.sendSensorAlertNotification(reading, "high", threshold.high);
     }
+  }
+
+  /**
+   * Send push notification for sensor alerts
+   * إرسال إشعار للتنبيهات الحساسية
+   */
+  private sendSensorAlertNotification(
+    reading: SensorReading,
+    alertType: "low" | "high",
+    threshold: number,
+  ): void {
+    const alertTypeAr = alertType === "low" ? "منخفض" : "مرتفع";
+    const sensorTypeAr = this.getSensorTypeArabic(reading.sensorType);
+
+    const subject =
+      alertType === "low"
+        ? `تنبيه: ${sensorTypeAr} منخفض في الحقل ${reading.fieldId}`
+        : `تنبيه: ${sensorTypeAr} مرتفع في الحقل ${reading.fieldId}`;
+
+    const message =
+      alertType === "low"
+        ? `قيمة ${sensorTypeAr} (${reading.value}${reading.unit}) أقل من الحد الأدنى (${threshold}${reading.unit}) في الحقل ${reading.fieldId}`
+        : `قيمة ${sensorTypeAr} (${reading.value}${reading.unit}) أعلى من الحد الأقصى (${threshold}${reading.unit}) في الحقل ${reading.fieldId}`;
+
+    // Fire-and-forget: publish notification without blocking
+    publishNotificationSend({
+      notificationId: uuidv4(),
+      recipientId: reading.fieldId, // Field owner will be resolved by notification service
+      recipientType: "group",
+      channel: "push",
+      priority: "high",
+      subject,
+      message,
+      data: {
+        alertType,
+        sensorType: reading.sensorType,
+        fieldId: reading.fieldId,
+        deviceId: reading.deviceId,
+        value: reading.value,
+        unit: reading.unit,
+        threshold,
+        timestamp: reading.timestamp.toISOString(),
+      },
+    }).catch((error) => {
+      this.logger.error(
+        `Failed to send push notification for ${reading.sensorType} alert: ${error.message}`,
+      );
+    });
+  }
+
+  /**
+   * Get Arabic translation for sensor type
+   */
+  private getSensorTypeArabic(type: SensorType): string {
+    const translations: Record<SensorType, string> = {
+      [SensorType.SOIL_MOISTURE]: "رطوبة التربة",
+      [SensorType.SOIL_TEMPERATURE]: "درجة حرارة التربة",
+      [SensorType.AIR_TEMPERATURE]: "درجة حرارة الهواء",
+      [SensorType.AIR_HUMIDITY]: "رطوبة الهواء",
+      [SensorType.LIGHT_INTENSITY]: "شدة الإضاءة",
+      [SensorType.WATER_LEVEL]: "مستوى المياه",
+      [SensorType.WATER_FLOW]: "تدفق المياه",
+      [SensorType.PH_LEVEL]: "مستوى الحموضة",
+      [SensorType.EC_LEVEL]: "الموصلية الكهربائية",
+      [SensorType.WIND_SPEED]: "سرعة الرياح",
+      [SensorType.RAIN_GAUGE]: "كمية الأمطار",
+    };
+    return translations[type] || type;
   }
 }

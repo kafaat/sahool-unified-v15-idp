@@ -92,7 +92,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
   Widget _buildMapView() {
     // Placeholder for MapLibre map
-    // In production, use maplibre_gl package
+    // In production, use flutter_map with vector_map_tiles
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(

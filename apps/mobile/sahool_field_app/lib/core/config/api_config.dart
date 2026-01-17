@@ -14,9 +14,9 @@ class ServicePorts {
   static const int weather = 8092;
   static const int fertilizer = 8093;
   static const int irrigation = 8094;
-  static const int cropHealth = 8095;
-  static const int virtualSensors = 8119;
-  static const int communityChat = 8097;
+  static const int cropHealth = 8095; // Sahool Vision AI
+  static const int virtualSensors = 8119; // Virtual Sensors Engine (Kong route)
+  static const int communityChat = 8097; // Community Chat (Socket.io)
   static const int equipment = 8101;
   static const int notifications = 8110;
   static const int astronomicalCalendar = 8111;

@@ -368,7 +368,7 @@ def cached(
             else:
                 # Default key: function name + arguments hash
                 args_str = json.dumps({"args": args, "kwargs": kwargs}, sort_keys=True)
-                args_hash = hashlib.md5(args_str.encode()).hexdigest()
+                args_hash = hashlib.md5(args_str.encode(), usedforsecurity=False).hexdigest()
                 key = f"{func.__name__}:{args_hash}"
 
             # Add prefix

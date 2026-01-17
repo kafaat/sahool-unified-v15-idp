@@ -566,6 +566,32 @@ jobs:
           echo "GRAFANA_ADMIN_PASSWORD=ci_grafana_password" >> .env
           echo "✅ Created .env file for CI"
 
+      - name: Create CI environment file
+        run: |
+          echo "# CI Environment Variables" > .env
+          echo "POSTGRES_USER=ci_user" >> .env
+          echo "POSTGRES_PASSWORD=ci_password_secure_123" >> .env
+          echo "POSTGRES_DB=sahool_ci" >> .env
+          echo "REDIS_PASSWORD=ci_redis_password_123" >> .env
+          echo "JWT_SECRET_KEY=ci_jwt_secret_key_32_characters_min" >> .env
+          echo "NATS_USER=ci_nats" >> .env
+          echo "NATS_PASSWORD=ci_nats_password_123" >> .env
+          echo "NATS_ADMIN_USER=ci_admin" >> .env
+          echo "NATS_ADMIN_PASSWORD=ci_admin_password_123" >> .env
+          echo "NATS_MONITOR_USER=ci_monitor" >> .env
+          echo "NATS_MONITOR_PASSWORD=ci_monitor_password_123" >> .env
+          echo "NATS_CLUSTER_USER=ci_cluster" >> .env
+          echo "NATS_CLUSTER_PASSWORD=ci_cluster_password_123" >> .env
+          echo "NATS_SYSTEM_USER=ci_system" >> .env
+          echo "NATS_SYSTEM_PASSWORD=ci_system_password_123" >> .env
+          echo "NATS_JETSTREAM_KEY=ci_jetstream_key_32_chars_min_xx" >> .env
+          echo "ETCD_ROOT_USERNAME=root" >> .env
+          echo "ETCD_ROOT_PASSWORD=ci_etcd_password_123" >> .env
+          echo "MINIO_ROOT_USER=ci_minio_admin_user" >> .env
+          echo "MINIO_ROOT_PASSWORD=ci_minio_password_secure_123" >> .env
+          echo "GRAFANA_ADMIN_PASSWORD=ci_grafana_password" >> .env
+          echo "✅ Created .env file for CI"
+
       - name: Check if compose file exists
         id: check_compose
         run: |

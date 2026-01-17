@@ -49,11 +49,12 @@ export interface CsrfConfig {
  */
 const DEFAULT_CONFIG: Required<CsrfConfig> = {
   cookieName: "sahool_admin_csrf",
-  headerName: "x-csrf-token",
+  headerName: "X-CSRF-Token",
   excludePaths: [
     "/api/auth/login",
     "/api/auth/logout",
     "/api/health",
+    "/api/csrf-token",
     "/login",
   ],
 };

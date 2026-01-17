@@ -4,6 +4,59 @@ import Cookies from "js-cookie";
 import { apiClient } from "@/lib/api/client";
 import { logger } from "@/lib/logger";
 
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  name_ar?: string;
+  role: string;
+  tenant_id?: string;
+}
+
+/**
+ * SECURITY: Mock authentication is only enabled when BOTH conditions are true:
+ * 1. NODE_ENV is "development"
+ * 2. NEXT_PUBLIC_ENABLE_MOCK_AUTH is explicitly set to "true"
+ *
+ * This double-check prevents accidental exposure in production deployments.
+ */
+const MOCK_AUTH_ENABLED =
+  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === "true";
+
+/**
+ * Attempt to load mock user from cookie for E2E testing.
+ * Returns the mock user if valid, null otherwise.
+ */
+function tryLoadMockUser(): User | null {
+  if (!MOCK_AUTH_ENABLED) {
+    return null;
+  }
+
+  const mockSession = Cookies.get("user_session");
+  if (!mockSession) {
+    return null;
+  }
+
+  try {
+    const mockUser = JSON.parse(mockSession);
+    logger.warn(
+      "⚠️ Using mock authentication - NOT FOR PRODUCTION. " +
+        "Disable by removing NEXT_PUBLIC_ENABLE_MOCK_AUTH environment variable.",
+    );
+    return {
+      id: mockUser.id || "test-user",
+      email: mockUser.email || "test@sahool.com",
+      name: mockUser.name || "Test User",
+      name_ar: mockUser.nameAr || "مستخدم اختباري",
+      role: mockUser.role || "user",
+    };
+  } catch {
+    logger.warn("Invalid mock session cookie - ignoring");
+    return null;
+  }
+}
+
 /**
  * Fetch CSRF token from the server
  * جلب رمز CSRF من الخادم
@@ -20,15 +73,6 @@ async function fetchCsrfToken(): Promise<void> {
     // Non-fatal error - continue without CSRF token
     // The middleware will generate one on next authenticated request
   }
-}
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  name_ar?: string;
-  role: string;
-  tenant_id?: string;
 }
 
 interface AuthState {
@@ -119,56 +163,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // User type from API matches our User interface
         setUser(response.data);
       } else {
-        // SECURITY: Mock authentication bypass for E2E tests
-        // This MUST only be enabled in development environments
-        // WARNING: Allowing mock sessions in production is a critical security vulnerability
-        // that would allow anyone to bypass authentication by setting a cookie
-        if (process.env.NODE_ENV === "development") {
-          const mockSession = Cookies.get("user_session");
-          if (mockSession) {
-            try {
-              const mockUser = JSON.parse(mockSession);
-              setUser({
-                id: mockUser.id || "test-user",
-                email: mockUser.email || "test@sahool.com",
-                name: mockUser.name || "Test User",
-                name_ar: mockUser.nameAr || "مستخدم اختباري",
-                role: mockUser.role || "user",
-              });
-              return;
-            } catch {
-              // Invalid mock session
-            }
-          }
+        // SECURITY: Mock authentication bypass for E2E tests only
+        // Requires both NODE_ENV=development AND NEXT_PUBLIC_ENABLE_MOCK_AUTH=true
+        const mockUser = tryLoadMockUser();
+        if (mockUser) {
+          setUser(mockUser);
+          return;
         }
+
         setUser(null);
         apiClient.clearToken();
         // Clear session via API
         await fetch("/api/auth/session", { method: "DELETE" });
       }
     } catch {
-      // SECURITY: Mock authentication bypass for E2E tests
-      // This MUST only be enabled in development environments
-      // WARNING: Allowing mock sessions in production is a critical security vulnerability
-      // that would allow anyone to bypass authentication by setting a cookie
-      if (process.env.NODE_ENV === "development") {
-        const mockSession = Cookies.get("user_session");
-        if (mockSession) {
-          try {
-            const mockUser = JSON.parse(mockSession);
-            setUser({
-              id: mockUser.id || "test-user",
-              email: mockUser.email || "test@sahool.com",
-              name: mockUser.name || "Test User",
-              name_ar: mockUser.nameAr || "مستخدم اختباري",
-              role: mockUser.role || "user",
-            });
-            return;
-          } catch {
-            // Invalid mock session
-          }
-        }
+      // SECURITY: Mock authentication bypass for E2E tests only
+      // Requires both NODE_ENV=development AND NEXT_PUBLIC_ENABLE_MOCK_AUTH=true
+      const mockUser = tryLoadMockUser();
+      if (mockUser) {
+        setUser(mockUser);
+        return;
       }
+
       setUser(null);
       apiClient.clearToken();
       // Clear session via API

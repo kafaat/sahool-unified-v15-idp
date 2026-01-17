@@ -5,16 +5,21 @@
  * صفحة تسجيل الدخول للوحة الإدارة
  */
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/stores/auth.store";
 import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from "lucide-react";
+import { sanitizeReturnTo } from "@/lib/security/url-validation";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get("returnTo") || "/dashboard";
+  // Validate returnTo to prevent open redirect attacks
+  const returnTo = useMemo(
+    () => sanitizeReturnTo(searchParams.get("returnTo")),
+    [searchParams],
+  );
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");

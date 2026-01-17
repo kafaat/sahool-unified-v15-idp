@@ -17,3 +17,7 @@ export { default as CSP } from "./csp-config";
 // Nonce utilities
 export * from "./nonce";
 export { default as Nonce } from "./nonce";
+
+// URL sanitization utilities
+export * from "./url-sanitizer";
+export { default as UrlSanitizer } from "./url-sanitizer";

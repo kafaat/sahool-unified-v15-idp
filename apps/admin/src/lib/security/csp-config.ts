@@ -98,18 +98,22 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       ...(isDevelopment ? ["'unsafe-inline'"] : []),
     ],
 
-    // Image sources
+    // Image sources - Restricted to specific trusted domains
     "img-src": [
       "'self'",
       "data:",
       "blob:",
-      "https:",
-      // SAHOOL API servers
-      "https://api.sahool.io",
-      "https://api.sahool.app",
       // OpenStreetMap tiles for Leaflet maps
       "https://tile.openstreetmap.org",
       "https://*.tile.openstreetmap.org",
+      // Sentinel Hub satellite imagery
+      "https://sentinel-hub.com",
+      "https://*.sentinel-hub.com",
+      // SAHOOL CDN and storage
+      "https://cdn.sahool.ye",
+      "https://storage.sahool.ye",
+      "https://cdn.sahool.io",
+      "https://cdn.sahool.app",
       // Leaflet markers from unpkg
       "https://unpkg.com",
     ],

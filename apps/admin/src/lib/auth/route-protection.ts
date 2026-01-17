@@ -59,6 +59,7 @@ export const PUBLIC_ROUTES = [
   "/api/auth/resend-otp",
   "/api/auth/refresh",
   "/api/health",
+  "/api/csrf-token",
 ];
 
 /**

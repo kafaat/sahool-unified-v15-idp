@@ -33,6 +33,7 @@ Sentry.init({
       delete headers["cookie"];
       delete headers["authorization"];
       delete headers["x-csrf-token"];
+      delete headers["X-CSRF-Token"];
     }
 
     return event;

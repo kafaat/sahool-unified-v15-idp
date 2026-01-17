@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Forecast Chart Component
  * مكون مخطط التنبؤ
  */
 
-import React from 'react';
-import { Calendar, TrendingUp } from 'lucide-react';
-import { useWeatherForecast } from '../hooks/useWeather';
+import React from "react";
+import { Calendar, TrendingUp } from "lucide-react";
+import { useWeatherForecast } from "../hooks/useWeather";
 
 interface ForecastChartProps {
   lat?: number;
@@ -16,8 +16,18 @@ interface ForecastChartProps {
   enabled?: boolean;
 }
 
-export const ForecastChart: React.FC<ForecastChartProps> = ({ lat, lon, days = 7, enabled }) => {
-  const { data: forecast, isLoading } = useWeatherForecast({ lat, lon, days, enabled });
+export const ForecastChart: React.FC<ForecastChartProps> = ({
+  lat,
+  lon,
+  days = 7,
+  enabled,
+}) => {
+  const { data: forecast, isLoading } = useWeatherForecast({
+    lat,
+    lon,
+    days,
+    enabled,
+  });
 
   if (isLoading) {
     return (
@@ -59,10 +69,13 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ lat, lon, days = 7
               {/* Date */}
               <div className="w-24 text-sm">
                 <p className="font-medium text-gray-900">
-                  {date.toLocaleDateString('ar-EG', { weekday: 'short' })}
+                  {date.toLocaleDateString("ar-EG", { weekday: "short" })}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {date.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' })}
+                  {date.toLocaleDateString("ar-EG", {
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </p>
               </div>
 
@@ -76,7 +89,9 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ lat, lon, days = 7
                 <div className="h-8 bg-gray-100 rounded-lg overflow-hidden relative">
                   <div
                     className="h-full bg-gradient-to-r from-blue-400 to-red-400 rounded-lg transition-all"
-                    style={{ width: `${Math.max(20, Math.min(100, tempPercent))}%` }}
+                    style={{
+                      width: `${Math.max(20, Math.min(100, tempPercent))}%`,
+                    }}
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-sm font-semibold text-gray-900">

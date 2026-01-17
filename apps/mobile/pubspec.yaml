@@ -36,6 +36,10 @@ dependencies:
   # Notifications
   flutter_local_notifications: ^18.0.1
 
+  # OTP & SMS
+  pinput: ^3.0.1
+  sms_autofill: ^2.4.0
+
   # Storage
   shared_preferences: ^2.3.3
   flutter_secure_storage: ^9.2.2
@@ -66,6 +70,10 @@ dependencies:
   # Navigation
   go_router: ^14.6.2
 
+  # Deep Linking
+  app_links: ^3.5.1
+  firebase_dynamic_links: ^5.4.7
+
   # Camera & Photos
   image_picker: ^1.1.2
   camera: ^0.11.0+2
@@ -80,11 +88,15 @@ dependencies:
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
 
+  # Sharing & URLs
+  share_plus: ^7.2.1
+  url_launcher: ^6.2.2
+
   # Date/Time
   jiffy: ^6.3.1
 
   # Security - Root/Jailbreak Detection
-  flutter_jailbreak_detection: ^1.10.0
+  safe_device: ^1.1.7
   device_info_plus: ^10.1.2
   package_info_plus: ^8.1.0
 

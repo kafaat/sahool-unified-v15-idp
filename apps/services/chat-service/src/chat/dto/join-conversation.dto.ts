@@ -3,7 +3,7 @@
  * بيانات الانضمام للمحادثة عبر WebSocket
  */
 
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class JoinConversationDto {
   @IsNotEmpty()

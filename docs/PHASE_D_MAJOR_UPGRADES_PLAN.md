@@ -1,4 +1,5 @@
 # خطة المرحلة D - ترقية Next.js 16 و Tailwind CSS 4
+
 # Phase D Plan - Next.js 16 & Tailwind CSS 4 Upgrades
 
 **التاريخ:** 20 ديسمبر 2025
@@ -10,6 +11,7 @@
 ## ⚠️ تحذير هام | Important Warning
 
 هذه الترقيات تعتبر **عالية المخاطر** وتتطلب:
+
 - اختبارًا شاملًا قبل الدمج
 - مراجعة جميع الميزات المتأثرة
 - تخصيص وقت كافٍ للتعامل مع المشاكل غير المتوقعة
@@ -20,11 +22,11 @@
 
 ### الترقيات المخططة
 
-| الحزمة | الحالي | المستهدف | مستوى المخاطر |
-|--------|--------|----------|---------------|
-| Next.js | 15.1.2 | 16.x | 🔴 مرتفع |
-| Tailwind CSS | 3.4.17 | 4.x | 🔴 مرتفع |
-| eslint-config-next | 15.1.2 | 16.x | 🟡 متوسط |
+| الحزمة             | الحالي | المستهدف | مستوى المخاطر |
+| ------------------ | ------ | -------- | ------------- |
+| Next.js            | 15.1.2 | 16.x     | 🔴 مرتفع      |
+| Tailwind CSS       | 3.4.17 | 4.x      | 🔴 مرتفع      |
+| eslint-config-next | 15.1.2 | 16.x     | 🟡 متوسط      |
 
 ---
 
@@ -39,22 +41,24 @@
 
 ### 2.2 الميزات الجديدة
 
-| الميزة | الوصف |
-|--------|-------|
-| **Cache Components** | تخزين مؤقت صريح باستخدام "use cache" directive |
-| **Turbopack (Stable)** | أسرع 10x في Fast Refresh، 2-5x في Production builds |
-| **Next.js DevTools MCP** | تكامل AI لتشخيص المشاكل |
-| **proxy.ts** | بديل middleware.ts مع Node.js runtime |
-| **Incremental Prefetching** | تحسين prefetch للروابط |
+| الميزة                      | الوصف                                               |
+| --------------------------- | --------------------------------------------------- |
+| **Cache Components**        | تخزين مؤقت صريح باستخدام "use cache" directive      |
+| **Turbopack (Stable)**      | أسرع 10x في Fast Refresh، 2-5x في Production builds |
+| **Next.js DevTools MCP**    | تكامل AI لتشخيص المشاكل                             |
+| **proxy.ts**                | بديل middleware.ts مع Node.js runtime               |
+| **Incremental Prefetching** | تحسين prefetch للروابط                              |
 
 ### 2.3 التغييرات الكسرية (Breaking Changes)
 
 #### 2.3.1 middleware.ts → proxy.ts
 
 **الملفات المتأثرة:**
+
 - `apps/admin/src/middleware.ts`
 
 **التغييرات المطلوبة:**
+
 ```typescript
 // قبل (Next.js 15)
 // apps/admin/src/middleware.ts
@@ -66,6 +70,7 @@ export function proxy(request: NextRequest) { ... }
 ```
 
 **خطة الترحيل:**
+
 1. إعادة تسمية الملف: `middleware.ts` → `proxy.ts`
 2. تغيير اسم الدالة: `middleware` → `proxy`
 3. تحديث أي imports أو references
@@ -75,6 +80,7 @@ export function proxy(request: NextRequest) { ... }
 **الملفات المتأثرة:** جميع صفحات Server Components التي تستخدم params
 
 **التغييرات المطلوبة:**
+
 ```typescript
 // قبل
 export default function Page({ params }: { params: { id: string } }) {
@@ -89,6 +95,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 ```
 
 **تحليل الحالة الحالية:**
+
 - `apps/admin/src/app/diseases/page.tsx` - ✅ يستخدم `useSearchParams()` (client-side hook) - لا يحتاج تغيير
 - `apps/admin/src/app/login/page.tsx` - ✅ يستخدم `useSearchParams()` (client-side hook) - لا يحتاج تغيير
 
@@ -130,22 +137,24 @@ npm run build
 
 ### 3.2 الميزات الجديدة
 
-| الميزة | الوصف |
-|--------|-------|
-| **Oxide Engine (Rust)** | أسرع 5x في full builds، 100x+ في incremental |
-| **CSS-First Config** | إعدادات CSS بدلاً من JavaScript |
-| **Modern CSS** | cascade layers, @property, color-mix() |
-| **Auto Content Detection** | لا حاجة لتحديد مسارات content |
+| الميزة                     | الوصف                                        |
+| -------------------------- | -------------------------------------------- |
+| **Oxide Engine (Rust)**    | أسرع 5x في full builds، 100x+ في incremental |
+| **CSS-First Config**       | إعدادات CSS بدلاً من JavaScript              |
+| **Modern CSS**             | cascade layers, @property, color-mix()       |
+| **Auto Content Detection** | لا حاجة لتحديد مسارات content                |
 
 ### 3.3 التغييرات الكسرية (Breaking Changes)
 
 #### 3.3.1 Import Syntax
 
 **الملفات المتأثرة:**
+
 - `apps/web/src/app/globals.css`
 - `apps/admin/src/app/globals.css`
 
 **التغييرات المطلوبة:**
+
 ```css
 /* قبل (Tailwind 3) */
 @tailwind base;
@@ -159,18 +168,22 @@ npm run build
 #### 3.3.2 Configuration Migration
 
 **الملفات المتأثرة:**
+
 - `packages/tailwind-config/index.js` (shared config)
 - `apps/web/tailwind.config.ts`
 - `apps/admin/tailwind.config.ts`
 
 **التغييرات المطلوبة:**
+
 ```css
 /* قبل: tailwind.config.ts */
 module.exports = {
   theme: {
     extend: {
       colors: {
-        sahool: { 500: '#22c55e' }
+        sahool: {
+          500: "#22c55e";
+        }
       }
     }
   }
@@ -186,12 +199,12 @@ module.exports = {
 
 #### 3.3.3 Breaking Utility Changes
 
-| Utility | Tailwind 3 | Tailwind 4 |
-|---------|------------|------------|
-| border color | gray-200 | currentColor |
-| ring width | 3px | 1px |
-| ring color | blue-500 | currentColor |
-| placeholder | gray-400 | 50% opacity |
+| Utility      | Tailwind 3 | Tailwind 4   |
+| ------------ | ---------- | ------------ |
+| border color | gray-200   | currentColor |
+| ring width   | 3px        | 1px          |
+| ring color   | blue-500   | currentColor |
+| placeholder  | gray-400   | 50% opacity  |
 
 **التأثير:** يجب مراجعة جميع استخدامات `border`, `ring`, `placeholder` في الكود
 
@@ -253,6 +266,7 @@ npm run build
 ```
 
 **المميزات:**
+
 - عزل المشاكل
 - rollback أسهل
 - اختبار مركز
@@ -260,6 +274,7 @@ npm run build
 ### الخيار B: ترقية متزامنة
 
 **غير موصى به** بسبب:
+
 - صعوبة تشخيص المشاكل
 - rollback معقد
 - احتمال تعارضات
@@ -290,12 +305,12 @@ npm run build
 
 ## 6. المخاطر والتخفيف
 
-| المخاطر | الاحتمال | التأثير | التخفيف |
-|---------|----------|---------|---------|
-| middleware breakage | متوسط | مرتفع | اختبار auth flow شامل |
-| UI visual regressions | مرتفع | متوسط | مقارنة screenshots |
-| Third-party plugin incompatibility | منخفض | متوسط | فحص compatibility قبل الترقية |
-| Build failures | متوسط | مرتفع | feature branch + CI checks |
+| المخاطر                            | الاحتمال | التأثير | التخفيف                       |
+| ---------------------------------- | -------- | ------- | ----------------------------- |
+| middleware breakage                | متوسط    | مرتفع   | اختبار auth flow شامل         |
+| UI visual regressions              | مرتفع    | متوسط   | مقارنة screenshots            |
+| Third-party plugin incompatibility | منخفض    | متوسط   | فحص compatibility قبل الترقية |
+| Build failures                     | متوسط    | مرتفع   | feature branch + CI checks    |
 
 ---
 
@@ -306,6 +321,7 @@ npm run build
 🟡 **التوصية:** تأجيل الترقية إلى Q1 2026
 
 **الأسباب:**
+
 1. Next.js 16 صدر حديثاً (أكتوبر 2025) - ينتظر استقرار
 2. Tailwind 4 يتطلب تغييرات واسعة في الـ config
 3. المشروع في حالة مستقرة حالياً
@@ -327,15 +343,17 @@ npm run build
 ## 8. المراجع | References
 
 ### Next.js 16
+
 - [Next.js 16 Blog](https://nextjs.org/blog/next-16)
 - [Next.js 16 Migration](https://nextjs.org/docs/app/building-your-application/upgrading)
 - [InfoQ: Next.js 16 Release](https://www.infoq.com/news/2025/12/nextjs-16-release/)
 
 ### Tailwind CSS 4
+
 - [Tailwind CSS 4.0 Blog](https://tailwindcss.com/blog/tailwindcss-v4)
 - [Official Upgrade Guide](https://tailwindcss.com/docs/upgrade-guide)
 - [Migration Guide (DEV Community)](https://dev.to/kasenda/whats-new-and-migration-guide-tailwind-css-v40-3kag)
 
 ---
 
-*تم إنشاء هذا التقرير بواسطة Claude في 20 ديسمبر 2025*
+_تم إنشاء هذا التقرير بواسطة Claude في 20 ديسمبر 2025_

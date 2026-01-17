@@ -17,19 +17,19 @@ This document provides practical examples of using `@sahool/nestjs-auth` in your
 
 ```typescript
 // src/app.module.ts
-import { Module } from '@nestjs/common';
-import { AuthModule } from '@sahool/nestjs-auth';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { Module } from "@nestjs/common";
+import { AuthModule } from "@sahool/nestjs-auth";
+import { RedisModule } from "@liaoliaots/nestjs-redis";
 
 @Module({
   imports: [
     // Redis module (required for user validation and token revocation)
     RedisModule.forRoot({
       config: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
+        host: process.env.REDIS_HOST || "localhost",
+        port: parseInt(process.env.REDIS_PORT || "6379"),
         password: process.env.REDIS_PASSWORD,
-        db: parseInt(process.env.REDIS_DB || '0'),
+        db: parseInt(process.env.REDIS_DB || "0"),
       },
     }),
 
@@ -47,8 +47,8 @@ export class AppModule {}
 
 ```typescript
 // src/app.module.ts
-import { Module } from '@nestjs/common';
-import { AuthModule } from '@sahool/nestjs-auth';
+import { Module } from "@nestjs/common";
+import { AuthModule } from "@sahool/nestjs-auth";
 
 @Module({
   imports: [
@@ -65,8 +65,8 @@ export class AppModule {}
 
 ```typescript
 // src/app.module.ts
-import { Module } from '@nestjs/common';
-import { AuthModule } from '@sahool/nestjs-auth';
+import { Module } from "@nestjs/common";
+import { AuthModule } from "@sahool/nestjs-auth";
 
 @Module({
   imports: [
@@ -74,9 +74,9 @@ import { AuthModule } from '@sahool/nestjs-auth';
       jwtOptions: {
         secret: process.env.JWT_SECRET,
         signOptions: {
-          expiresIn: '2h',
-          issuer: 'my-service',
-          audience: 'my-api',
+          expiresIn: "2h",
+          issuer: "my-service",
+          audience: "my-api",
         },
       },
     }),
@@ -91,11 +91,11 @@ export class AppModule {}
 
 ```typescript
 // src/farms/farms.controller.ts
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, CurrentUser, UserId } from '@sahool/nestjs-auth';
-import { FarmsService } from './farms.service';
+import { Controller, Get, Post, Body, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard, CurrentUser, UserId } from "@sahool/nestjs-auth";
+import { FarmsService } from "./farms.service";
 
-@Controller('farms')
+@Controller("farms")
 @UseGuards(JwtAuthGuard) // Protect all routes in this controller
 export class FarmsController {
   constructor(private readonly farmsService: FarmsService) {}
@@ -107,7 +107,7 @@ export class FarmsController {
   }
 
   // Get full user object
-  @Get('user-info')
+  @Get("user-info")
   async getUserInfo(@CurrentUser() user: any) {
     return {
       id: user.id,
@@ -119,10 +119,7 @@ export class FarmsController {
 
   // Create farm
   @Post()
-  async createFarm(
-    @Body() createFarmDto: any,
-    @UserId() userId: string,
-  ) {
+  async createFarm(@Body() createFarmDto: any, @UserId() userId: string) {
     return this.farmsService.create({
       ...createFarmDto,
       ownerId: userId,
@@ -135,41 +132,41 @@ export class FarmsController {
 
 ```typescript
 // src/admin/admin.controller.ts
-import { Controller, Get, Delete, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Delete, Param, UseGuards } from "@nestjs/common";
 import {
   JwtAuthGuard,
   RolesGuard,
   Roles,
-  UserRoles
-} from '@sahool/nestjs-auth';
+  UserRoles,
+} from "@sahool/nestjs-auth";
 
-@Controller('admin')
+@Controller("admin")
 @UseGuards(JwtAuthGuard, RolesGuard) // Apply guards to all routes
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   // Only admins can access
-  @Roles('admin')
-  @Get('users')
+  @Roles("admin")
+  @Get("users")
   async getAllUsers() {
     return this.adminService.findAllUsers();
   }
 
   // Admins and managers can access
-  @Roles('admin', 'manager')
-  @Get('reports')
+  @Roles("admin", "manager")
+  @Get("reports")
   async getReports(@UserRoles() roles: string[]) {
     // Customize based on role
-    if (roles.includes('admin')) {
+    if (roles.includes("admin")) {
       return this.adminService.getFullReports();
     }
     return this.adminService.getBasicReports();
   }
 
   // Only super admins can delete
-  @Roles('super_admin')
-  @Delete('users/:id')
-  async deleteUser(@Param('id') id: string) {
+  @Roles("super_admin")
+  @Delete("users/:id")
+  async deleteUser(@Param("id") id: string) {
     return this.adminService.deleteUser(id);
   }
 }
@@ -179,40 +176,40 @@ export class AdminController {
 
 ```typescript
 // src/resources/resources.controller.ts
-import { Controller, Get, Post, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, UseGuards } from "@nestjs/common";
 import {
   JwtAuthGuard,
   PermissionsGuard,
   RequirePermissions,
-  UserPermissions
-} from '@sahool/nestjs-auth';
+  UserPermissions,
+} from "@sahool/nestjs-auth";
 
-@Controller('resources')
+@Controller("resources")
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class ResourcesController {
   constructor(private readonly resourcesService: ResourcesService) {}
 
-  @RequirePermissions('resource:read')
+  @RequirePermissions("resource:read")
   @Get()
   async findAll(@UserPermissions() permissions: string[]) {
     return this.resourcesService.findAll(permissions);
   }
 
-  @RequirePermissions('resource:create')
+  @RequirePermissions("resource:create")
   @Post()
   async create(@Body() data: any) {
     return this.resourcesService.create(data);
   }
 
-  @RequirePermissions('resource:update')
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() data: any) {
+  @RequirePermissions("resource:update")
+  @Put(":id")
+  async update(@Param("id") id: string, @Body() data: any) {
     return this.resourcesService.update(id, data);
   }
 
-  @RequirePermissions('resource:delete')
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
+  @RequirePermissions("resource:delete")
+  @Delete(":id")
+  async remove(@Param("id") id: string) {
     return this.resourcesService.remove(id);
   }
 }
@@ -222,28 +219,28 @@ export class ResourcesController {
 
 ```typescript
 // src/content/content.controller.ts
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from "@nestjs/common";
 import {
   JwtAuthGuard,
   OptionalAuthGuard,
   Public,
-  CurrentUser
-} from '@sahool/nestjs-auth';
+  CurrentUser,
+} from "@sahool/nestjs-auth";
 
-@Controller('content')
+@Controller("content")
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
 
   // Completely public - no auth required
   @Public()
-  @Get('public')
+  @Get("public")
   async getPublicContent() {
     return this.contentService.getPublicContent();
   }
 
   // Optional auth - different content based on authentication
   @UseGuards(OptionalAuthGuard)
-  @Get('mixed')
+  @Get("mixed")
   async getMixedContent(@CurrentUser() user?: any) {
     if (user) {
       return this.contentService.getAuthenticatedContent(user.id);
@@ -253,7 +250,7 @@ export class ContentController {
 
   // Protected route
   @UseGuards(JwtAuthGuard)
-  @Get('premium')
+  @Get("premium")
   async getPremiumContent(@CurrentUser() user: any) {
     return this.contentService.getPremiumContent(user.id);
   }
@@ -264,14 +261,10 @@ export class ContentController {
 
 ```typescript
 // src/data/data.controller.ts
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import {
-  JwtAuthGuard,
-  TenantId,
-  CurrentUser
-} from '@sahool/nestjs-auth';
+import { Controller, Get, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard, TenantId, CurrentUser } from "@sahool/nestjs-auth";
 
-@Controller('data')
+@Controller("data")
 @UseGuards(JwtAuthGuard)
 export class DataController {
   constructor(private readonly dataService: DataService) {}
@@ -283,7 +276,7 @@ export class DataController {
   }
 
   // Access tenant from user object
-  @Get('tenant-info')
+  @Get("tenant-info")
   async getTenantInfo(@CurrentUser() user: any) {
     return {
       tenantId: user.tenantId,
@@ -300,18 +293,18 @@ export class DataController {
 
 ```typescript
 // src/farms/farms.service.ts
-import { Injectable, ForbiddenException } from '@nestjs/common';
-import { hasRole, hasPermission } from '@sahool/nestjs-auth';
+import { Injectable, ForbiddenException } from "@nestjs/common";
+import { hasRole, hasPermission } from "@sahool/nestjs-auth";
 
 @Injectable()
 export class FarmsService {
   // Check permissions in service logic
   async deleteFarm(farmId: string, user: any) {
     // Check if user is admin or farm owner
-    if (!hasRole(user, 'admin')) {
+    if (!hasRole(user, "admin")) {
       const farm = await this.findOne(farmId);
       if (farm.ownerId !== user.id) {
-        throw new ForbiddenException('You can only delete your own farms');
+        throw new ForbiddenException("You can only delete your own farms");
       }
     }
 
@@ -320,14 +313,14 @@ export class FarmsService {
 
   // Check multiple permissions
   async performSensitiveAction(user: any) {
-    const requiredPermissions = ['farm:delete', 'farm:manage'];
+    const requiredPermissions = ["farm:delete", "farm:manage"];
 
-    const hasPermissions = requiredPermissions.every(perm =>
-      hasPermission(user, perm)
+    const hasPermissions = requiredPermissions.every((perm) =>
+      hasPermission(user, perm),
     );
 
     if (!hasPermissions) {
-      throw new ForbiddenException('Insufficient permissions');
+      throw new ForbiddenException("Insufficient permissions");
     }
 
     // Perform action
@@ -339,15 +332,17 @@ export class FarmsService {
 
 ```typescript
 // src/users/user.repository.ts
-import { Injectable } from '@nestjs/common';
-import { IUserRepository, UserValidationData } from '@sahool/nestjs-auth';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { IUserRepository, UserValidationData } from "@sahool/nestjs-auth";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserValidationData(userId: string): Promise<UserValidationData | null> {
+  async getUserValidationData(
+    userId: string,
+  ): Promise<UserValidationData | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -387,7 +382,7 @@ export class UserRepository implements IUserRepository {
 }
 
 // In app.module.ts
-import { UserRepository } from './users/user.repository';
+import { UserRepository } from "./users/user.repository";
 
 @Module({
   imports: [
@@ -404,9 +399,9 @@ export class AppModule {}
 
 ```typescript
 // src/auth/auth.service.ts
-import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { RedisTokenRevocationStore } from '@sahool/nestjs-auth';
+import { Injectable } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { RedisTokenRevocationStore } from "@sahool/nestjs-auth";
 
 @Injectable()
 export class AuthService {
@@ -421,20 +416,20 @@ export class AuthService {
 
     await this.revocationStore.revokeToken(decoded.jti, {
       expiresIn: decoded.exp - Math.floor(Date.now() / 1000),
-      reason: 'User logout',
+      reason: "User logout",
       userId: decoded.sub,
     });
 
-    return { message: 'Logged out successfully' };
+    return { message: "Logged out successfully" };
   }
 
   // Logout all sessions
   async logoutAllDevices(userId: string) {
     await this.revocationStore.revokeAllUserTokens(userId, {
-      reason: 'Logout all devices',
+      reason: "Logout all devices",
     });
 
-    return { message: 'Logged out from all devices' };
+    return { message: "Logged out from all devices" };
   }
 
   // Revoke on password change
@@ -444,20 +439,20 @@ export class AuthService {
 
     // Revoke all existing tokens
     await this.revocationStore.revokeAllUserTokens(userId, {
-      reason: 'Password changed',
+      reason: "Password changed",
     });
 
-    return { message: 'Password changed. Please login again.' };
+    return { message: "Password changed. Please login again." };
   }
 
   // Revoke on security incident
   async handleSecurityIncident(userId: string) {
     await this.revocationStore.revokeAllUserTokens(userId, {
-      reason: 'Security incident',
+      reason: "Security incident",
     });
 
     // Notify user
-    await this.notifyUser(userId, 'Security alert: All sessions terminated');
+    await this.notifyUser(userId, "Security alert: All sessions terminated");
   }
 
   // Check if token is revoked
@@ -482,12 +477,12 @@ export class AuthService {
 
 ```typescript
 // src/farms/farms.controller.spec.ts
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthModule } from '@sahool/nestjs-auth';
-import { FarmsController } from './farms.controller';
-import { FarmsService } from './farms.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { AuthModule } from "@sahool/nestjs-auth";
+import { FarmsController } from "./farms.controller";
+import { FarmsService } from "./farms.service";
 
-describe('FarmsController', () => {
+describe("FarmsController", () => {
   let controller: FarmsController;
   let service: FarmsService;
 
@@ -517,16 +512,16 @@ describe('FarmsController', () => {
     service = module.get<FarmsService>(FarmsService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('getMyFarms', () => {
-    it('should return user farms', async () => {
-      const userId = 'user-123';
-      const farms = [{ id: 'farm-1', name: 'Test Farm' }];
+  describe("getMyFarms", () => {
+    it("should return user farms", async () => {
+      const userId = "user-123";
+      const farms = [{ id: "farm-1", name: "Test Farm" }];
 
-      jest.spyOn(service, 'findByUser').mockResolvedValue(farms);
+      jest.spyOn(service, "findByUser").mockResolvedValue(farms);
 
       const result = await controller.getMyFarms(userId);
 
@@ -541,12 +536,12 @@ describe('FarmsController', () => {
 
 ```typescript
 // test/auth.e2e-spec.ts
-import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { Test } from "@nestjs/testing";
+import { INestApplication } from "@nestjs/common";
+import * as request from "supertest";
+import { AppModule } from "../src/app.module";
 
-describe('Authentication (e2e)', () => {
+describe("Authentication (e2e)", () => {
   let app: INestApplication;
   let authToken: string;
 
@@ -563,12 +558,12 @@ describe('Authentication (e2e)', () => {
     await app.close();
   });
 
-  it('/auth/login (POST) - should login and return token', async () => {
+  it("/auth/login (POST) - should login and return token", async () => {
     const response = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post("/auth/login")
       .send({
-        email: 'test@example.com',
-        password: 'password123',
+        email: "test@example.com",
+        password: "password123",
       })
       .expect(200);
 
@@ -576,23 +571,21 @@ describe('Authentication (e2e)', () => {
     expect(authToken).toBeDefined();
   });
 
-  it('/farms (GET) - should fail without token', async () => {
-    await request(app.getHttpServer())
-      .get('/farms')
-      .expect(401);
+  it("/farms (GET) - should fail without token", async () => {
+    await request(app.getHttpServer()).get("/farms").expect(401);
   });
 
-  it('/farms (GET) - should succeed with token', async () => {
+  it("/farms (GET) - should succeed with token", async () => {
     await request(app.getHttpServer())
-      .get('/farms')
-      .set('Authorization', `Bearer ${authToken}`)
+      .get("/farms")
+      .set("Authorization", `Bearer ${authToken}`)
       .expect(200);
   });
 
-  it('/admin/users (GET) - should fail without admin role', async () => {
+  it("/admin/users (GET) - should fail without admin role", async () => {
     await request(app.getHttpServer())
-      .get('/admin/users')
-      .set('Authorization', `Bearer ${authToken}`)
+      .get("/admin/users")
+      .set("Authorization", `Bearer ${authToken}`)
       .expect(403);
   });
 });

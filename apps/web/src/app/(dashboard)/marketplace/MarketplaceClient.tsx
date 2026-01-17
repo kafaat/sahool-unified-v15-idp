@@ -1,12 +1,16 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Marketplace Page Client Component
  * صفحة السوق الزراعي
  */
 
-import React, { useState } from 'react';
-import { ShoppingCart as ShoppingCartIcon, Package, TrendingUp } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  ShoppingCart as ShoppingCartIcon,
+  Package,
+  TrendingUp,
+} from "lucide-react";
 import {
   ProductsGrid,
   CartSidebar,
@@ -14,8 +18,8 @@ import {
   useCart,
   useProducts,
   useOrders,
-} from '@/features/marketplace';
-import { ErrorTracking } from '@/lib/monitoring/error-tracking';
+} from "@/features/marketplace";
+import { ErrorTracking } from "@/lib/monitoring/error-tracking";
 
 function MarketplaceContent() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -31,23 +35,23 @@ function MarketplaceContent() {
   const handleCheckout = () => {
     try {
       ErrorTracking.addBreadcrumb({
-        type: 'click',
-        category: 'ui',
-        message: 'Checkout initiated',
+        type: "click",
+        category: "ui",
+        message: "Checkout initiated",
         data: {
           itemsCount: cart.items.length,
           total: cart.total,
-          currency: cart.currency
+          currency: cart.currency,
         },
       });
       // TODO: Implement checkout flow
-      alert('ميزة الدفع قيد التطوير | Checkout feature coming soon');
+      alert("ميزة الدفع قيد التطوير | Checkout feature coming soon");
       setIsCartOpen(false);
     } catch (error) {
       ErrorTracking.captureError(
-        error instanceof Error ? error : new Error('Checkout failed'),
+        error instanceof Error ? error : new Error("Checkout failed"),
         undefined,
-        { cart }
+        { cart },
       );
     }
   };
@@ -84,8 +88,12 @@ function MarketplaceContent() {
               <Package className="w-6 h-6 text-blue-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">{totalProducts}</h3>
-          <p className="text-sm text-gray-600">منتجات متاحة | Available Products</p>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">
+            {totalProducts}
+          </h3>
+          <p className="text-sm text-gray-600">
+            منتجات متاحة | Available Products
+          </p>
         </div>
 
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -94,8 +102,12 @@ function MarketplaceContent() {
               <ShoppingCartIcon className="w-6 h-6 text-green-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">{cartItemsCount}</h3>
-          <p className="text-sm text-gray-600">منتجات في السلة | Items in Cart</p>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">
+            {cartItemsCount}
+          </h3>
+          <p className="text-sm text-gray-600">
+            منتجات في السلة | Items in Cart
+          </p>
         </div>
 
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -104,7 +116,9 @@ function MarketplaceContent() {
               <TrendingUp className="w-6 h-6 text-orange-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">{totalOrders}</h3>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">
+            {totalOrders}
+          </h3>
           <p className="text-sm text-gray-600">طلباتي | My Orders</p>
         </div>
       </div>
@@ -114,7 +128,9 @@ function MarketplaceContent() {
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-bold mb-1">لديك {cartItemsCount} منتجات في السلة</h3>
+              <h3 className="text-xl font-bold mb-1">
+                لديك {cartItemsCount} منتجات في السلة
+              </h3>
               <p className="text-blue-100">
                 الإجمالي: {cart.total.toFixed(2)} {cart.currency}
               </p>

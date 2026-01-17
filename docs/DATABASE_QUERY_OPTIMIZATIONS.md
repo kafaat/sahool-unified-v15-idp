@@ -15,6 +15,7 @@ This document outlines the comprehensive database query optimizations implemente
 Created a comprehensive query utilities module in `/packages/shared-db/src/query-utils.ts` with:
 
 #### Features:
+
 - **Pagination utilities** with enforced limits (MAX_PAGE_SIZE: 100)
 - **Transaction configuration presets** (Financial, General, Read-only)
 - **Cursor-based pagination helpers** for infinite scroll
@@ -24,33 +25,35 @@ Created a comprehensive query utilities module in `/packages/shared-db/src/query
 - **Common select patterns** for frequently accessed entities
 
 #### Constants:
+
 ```typescript
-MAX_PAGE_SIZE = 100           // Maximum items per page
-DEFAULT_PAGE_SIZE = 20        // Default page size
-DEFAULT_QUERY_TIMEOUT = 5000  // 5 seconds for reads
-CRITICAL_WRITE_TIMEOUT = 10000 // 10 seconds for writes
-SLOW_QUERY_THRESHOLD = 1000   // 1 second for logging
+MAX_PAGE_SIZE = 100; // Maximum items per page
+DEFAULT_PAGE_SIZE = 20; // Default page size
+DEFAULT_QUERY_TIMEOUT = 5000; // 5 seconds for reads
+CRITICAL_WRITE_TIMEOUT = 10000; // 10 seconds for writes
+SLOW_QUERY_THRESHOLD = 1000; // 1 second for logging
 ```
 
 #### Transaction Configurations:
+
 ```typescript
 FINANCIAL_TRANSACTION_CONFIG = {
-  isolationLevel: 'Serializable',
+  isolationLevel: "Serializable",
   maxWait: 5000,
-  timeout: 10000
-}
+  timeout: 10000,
+};
 
 GENERAL_TRANSACTION_CONFIG = {
-  isolationLevel: 'ReadCommitted',
+  isolationLevel: "ReadCommitted",
   maxWait: 3000,
-  timeout: 5000
-}
+  timeout: 5000,
+};
 
 READ_TRANSACTION_CONFIG = {
-  isolationLevel: 'ReadCommitted',
+  isolationLevel: "ReadCommitted",
   maxWait: 2000,
-  timeout: 3000
-}
+  timeout: 3000,
+};
 ```
 
 ### 2. Service-Level Optimizations
@@ -58,6 +61,7 @@ READ_TRANSACTION_CONFIG = {
 #### User Service (`apps/services/user-service/src/users/users.service.ts`)
 
 **Changes:**
+
 - ✅ Added pagination with enforced limits to `findAll()`
 - ✅ Replaced `include` with `select` for field projection
 - ✅ Added total count and pagination metadata
@@ -65,6 +69,7 @@ READ_TRANSACTION_CONFIG = {
 - ✅ Reduced data transfer by ~60-70%
 
 **Before:**
+
 ```typescript
 async findAll(params?: { skip?: number; take?: number }): Promise<User[]> {
   return this.prisma.user.findMany({
@@ -76,6 +81,7 @@ async findAll(params?: { skip?: number; take?: number }): Promise<User[]> {
 ```
 
 **After:**
+
 ```typescript
 async findAll(params?: PaginationParams): Promise<PaginatedResponse<User>> {
   const { skip, take, page } = calculatePagination(params);
@@ -103,12 +109,14 @@ async findAll(params?: PaginationParams): Promise<PaginatedResponse<User>> {
 #### Reviews Service (`apps/services/marketplace-service/src/reviews/reviews.service.ts`)
 
 **Changes:**
+
 - ✅ Fixed critical N+1 query pattern in `updateProductSellerRating()`
 - ✅ Replaced 4 sequential queries with single aggregation query
 - ✅ Reduced query time from ~100ms to ~15ms (85% improvement)
 - ✅ Uses raw SQL with joins for optimal performance
 
 **Before (4 sequential queries):**
+
 ```typescript
 private async updateProductSellerRating(productId: string) {
   const product = await this.prisma.product.findUnique({ where: { id: productId } });
@@ -120,6 +128,7 @@ private async updateProductSellerRating(productId: string) {
 ```
 
 **After (1 aggregation query):**
+
 ```typescript
 private async updateProductSellerRating(productId: string) {
   const result = await this.prisma.$queryRaw`
@@ -142,6 +151,7 @@ private async updateProductSellerRating(productId: string) {
 #### Market Service (`apps/services/marketplace-service/src/market/market.service.ts`)
 
 **Changes:**
+
 - ✅ Added pagination with limits to `findAllProducts()`
 - ✅ Added pagination to `getUserOrders()`
 - ✅ Added transaction timeout to `createOrder()`
@@ -149,6 +159,7 @@ private async updateProductSellerRating(productId: string) {
 - ✅ Parallel query execution for data + count
 
 **Before:**
+
 ```typescript
 async getUserOrders(userId: string, role: 'buyer' | 'seller') {
   return this.prisma.order.findMany({
@@ -160,6 +171,7 @@ async getUserOrders(userId: string, role: 'buyer' | 'seller') {
 ```
 
 **After:**
+
 ```typescript
 async getUserOrders(
   userId: string,
@@ -206,6 +218,7 @@ async getUserOrders(
 ```
 
 **Transaction Timeout Added:**
+
 ```typescript
 return this.prisma.$transaction(async (tx) => {
   // ... order creation logic
@@ -215,11 +228,13 @@ return this.prisma.$transaction(async (tx) => {
 #### Chat Service (`apps/services/chat-service/src/chat/chat.service.ts`)
 
 **Changes:**
+
 - ✅ Added transaction timeout to `sendMessage()`
 - ✅ Already had excellent cursor-based pagination
 - ✅ Already optimized with `_count` aggregation
 
 **Before:**
+
 ```typescript
 const message = await this.prisma.$transaction(async (tx) => {
   // ... message creation
@@ -227,6 +242,7 @@ const message = await this.prisma.$transaction(async (tx) => {
 ```
 
 **After:**
+
 ```typescript
 const message = await this.prisma.$transaction(async (tx) => {
   // ... message creation
@@ -236,15 +252,18 @@ const message = await this.prisma.$transaction(async (tx) => {
 #### Research Core Service (`apps/services/research-core/src/modules/experiments/experiments.service.ts`)
 
 **Changes:**
+
 - ✅ Added pagination limit enforcement
 - ✅ Already had good pagination metadata
 
 **Before:**
+
 ```typescript
 const limit = filters?.limit || 20;
 ```
 
 **After:**
+
 ```typescript
 const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
 ```
@@ -254,14 +273,16 @@ const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
 Added slow query logging to all PrismaService implementations:
 
 **Files Updated:**
+
 - `/apps/services/user-service/src/prisma/prisma.service.ts`
 - `/apps/services/marketplace-service/src/prisma/prisma.service.ts`
 - `/apps/services/chat-service/src/prisma/prisma.service.ts`
 - `/apps/services/research-core/src/config/prisma.service.ts`
 
 **Implementation:**
+
 ```typescript
-import { createQueryLogger } from '@sahool/shared-db';
+import { createQueryLogger } from "@sahool/shared-db";
 
 export class PrismaService extends PrismaClient {
   private readonly logger = new Logger(PrismaService.name);
@@ -269,10 +290,10 @@ export class PrismaService extends PrismaClient {
   constructor() {
     super({
       log: [
-        { level: 'query', emit: 'event' },
-        { level: 'error', emit: 'stdout' },
-        { level: 'warn', emit: 'stdout' },
-        { level: 'info', emit: 'stdout' },
+        { level: "query", emit: "event" },
+        { level: "error", emit: "stdout" },
+        { level: "warn", emit: "stdout" },
+        { level: "info", emit: "stdout" },
       ],
     });
 
@@ -280,8 +301,8 @@ export class PrismaService extends PrismaClient {
   }
 
   private enableQueryLogging() {
-    this.$on('query', createQueryLogger(this.logger));
-    this.logger.log('Query performance logging enabled (threshold: 1000ms)');
+    this.$on("query", createQueryLogger(this.logger));
+    this.logger.log("Query performance logging enabled (threshold: 1000ms)");
   }
 }
 ```
@@ -290,13 +311,13 @@ export class PrismaService extends PrismaClient {
 
 ### Expected Gains:
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Query Performance | Baseline | +30-40% | Better |
-| Database Load | 100% | 70-75% | 25-30% reduction |
-| API Response Time | Baseline | +20-30% | Faster |
-| Data Transfer | 100% | 30-40% | 60-70% reduction |
-| N+1 Query Time (Reviews) | ~100ms | ~15ms | 85% faster |
+| Metric                   | Before   | After   | Improvement      |
+| ------------------------ | -------- | ------- | ---------------- |
+| Query Performance        | Baseline | +30-40% | Better           |
+| Database Load            | 100%     | 70-75%  | 25-30% reduction |
+| API Response Time        | Baseline | +20-30% | Faster           |
+| Data Transfer            | 100%     | 30-40%  | 60-70% reduction |
+| N+1 Query Time (Reviews) | ~100ms   | ~15ms   | 85% faster       |
 
 ### Specific Improvements:
 
@@ -377,7 +398,7 @@ async findWithCursor(
 import {
   FINANCIAL_TRANSACTION_CONFIG,
   GENERAL_TRANSACTION_CONFIG,
-} from '@sahool/shared-db';
+} from "@sahool/shared-db";
 
 // For financial operations
 await this.prisma.$transaction(async (tx) => {
@@ -393,18 +414,18 @@ await this.prisma.$transaction(async (tx) => {
 ### Using Select Helpers
 
 ```typescript
-import { CommonSelects, createSelect } from '@sahool/shared-db';
+import { CommonSelects, createSelect } from "@sahool/shared-db";
 
 // Use common patterns
 const user = await this.prisma.user.findUnique({
   where: { id },
-  select: CommonSelects.userBasic
+  select: CommonSelects.userBasic,
 });
 
 // Create custom select
-const customFields = createSelect(['id', 'name', 'email']);
+const customFields = createSelect(["id", "name", "email"]);
 const entity = await this.prisma.entity.findMany({
-  select: customFields
+  select: customFields,
 });
 ```
 
@@ -448,7 +469,7 @@ const users = await this.prisma.user.findMany({ skip, take });
 // ❌ Bad - Over-fetching
 const user = await this.prisma.user.findUnique({
   where: { id },
-  include: { profile: true }
+  include: { profile: true },
 });
 
 // ✅ Good - Selective fetching
@@ -458,9 +479,9 @@ const user = await this.prisma.user.findUnique({
     id: true,
     email: true,
     profile: {
-      select: { avatar: true, bio: true }
-    }
-  }
+      select: { avatar: true, bio: true },
+    },
+  },
 });
 ```
 
@@ -488,7 +509,7 @@ const total = await this.prisma.entity.count();
 // ✅ Good - Parallel
 const [data, total] = await Promise.all([
   this.prisma.entity.findMany({ skip, take }),
-  this.prisma.entity.count()
+  this.prisma.entity.count(),
 ]);
 ```
 
@@ -498,14 +519,14 @@ const [data, total] = await Promise.all([
 // ❌ Bad - N+1 pattern
 for (const order of orders) {
   const items = await this.prisma.orderItem.findMany({
-    where: { orderId: order.id }
+    where: { orderId: order.id },
   });
 }
 
 // ✅ Good - Batch fetch
-const orderIds = orders.map(o => o.id);
+const orderIds = orders.map((o) => o.id);
 const allItems = await this.prisma.orderItem.findMany({
-  where: { orderId: { in: orderIds } }
+  where: { orderId: { in: orderIds } },
 });
 ```
 
@@ -514,6 +535,7 @@ const allItems = await this.prisma.orderItem.findMany({
 ### For Existing Services
 
 1. **Install Dependency:**
+
    ```json
    {
      "dependencies": {
@@ -523,16 +545,18 @@ const allItems = await this.prisma.orderItem.findMany({
    ```
 
 2. **Update Service Imports:**
+
    ```typescript
    import {
      calculatePagination,
      createPaginatedResponse,
      type PaginationParams,
      type PaginatedResponse,
-   } from '@sahool/shared-db';
+   } from "@sahool/shared-db";
    ```
 
 3. **Update Method Signatures:**
+
    ```typescript
    // Before
    async findAll(skip?: number, take?: number): Promise<Entity[]>
@@ -568,11 +592,11 @@ const response = await this.usersService.findAll(query);
 Update tests to expect paginated responses:
 
 ```typescript
-it('should return paginated users', async () => {
+it("should return paginated users", async () => {
   const result = await service.findAll({ page: 1, limit: 10 });
 
-  expect(result).toHaveProperty('data');
-  expect(result).toHaveProperty('meta');
+  expect(result).toHaveProperty("data");
+  expect(result).toHaveProperty("meta");
   expect(result.meta).toMatchObject({
     page: 1,
     limit: 10,
@@ -587,7 +611,7 @@ it('should return paginated users', async () => {
 Test pagination limits:
 
 ```typescript
-it('should enforce max page size', async () => {
+it("should enforce max page size", async () => {
   const result = await service.findAll({ limit: 200 });
   expect(result.data.length).toBeLessThanOrEqual(100); // MAX_PAGE_SIZE
 });
@@ -596,18 +620,21 @@ it('should enforce max page size', async () => {
 ## Future Improvements
 
 ### High Priority
+
 1. ✅ ~~Fix N+1 queries~~ (Completed)
 2. ✅ ~~Add pagination limits~~ (Completed)
 3. ✅ ~~Add query timeouts~~ (Completed)
 4. ✅ ~~Add query logging~~ (Completed)
 
 ### Medium Priority
+
 5. Add Redis caching for frequently accessed data
 6. Implement read replica support
 7. Add APM integration (New Relic, DataDog)
 8. Create database indexes based on query patterns
 
 ### Low Priority
+
 9. Implement query result caching
 10. Add database connection pool monitoring
 11. Create query performance dashboard
@@ -616,15 +643,15 @@ it('should enforce max page size', async () => {
 
 ### Requirements Addressed:
 
-| Requirement | Status | Implementation |
-|-------------|--------|----------------|
-| Pagination with limits | ✅ | All services |
-| Cursor-based pagination | ✅ | Chat service |
-| Select vs Include | ✅ | All services |
-| Query timeouts | ✅ | All transactions |
-| N+1 query fixes | ✅ | Reviews service |
-| Query logging | ✅ | All PrismaServices |
-| Shared utilities | ✅ | @sahool/shared-db |
+| Requirement             | Status | Implementation     |
+| ----------------------- | ------ | ------------------ |
+| Pagination with limits  | ✅     | All services       |
+| Cursor-based pagination | ✅     | Chat service       |
+| Select vs Include       | ✅     | All services       |
+| Query timeouts          | ✅     | All transactions   |
+| N+1 query fixes         | ✅     | Reviews service    |
+| Query logging           | ✅     | All PrismaServices |
+| Shared utilities        | ✅     | @sahool/shared-db  |
 
 ### Projected Score Improvement:
 
@@ -644,6 +671,7 @@ These optimizations address all high-priority items from the Query Patterns Audi
 - ✅ Provides shared utilities for consistent patterns
 
 Expected improvements:
+
 - 30-40% better query performance
 - 25-30% reduction in database load
 - 20-30% faster API response times

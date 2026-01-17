@@ -1,4 +1,5 @@
 # SAHOOL Platform - Database TLS/SSL Configuration Guide
+
 # دليل تكوين TLS/SSL لقواعد البيانات في منصة سهول
 
 **Document Version:** 1.0
@@ -470,6 +471,7 @@ Error: permission denied reading certificate
 ```
 
 **Solution:**
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/config/certs
 chmod 644 *.crt
@@ -483,6 +485,7 @@ Error: certificate verify failed
 ```
 
 **Solution:**
+
 ```bash
 # Verify certificate chain
 openssl verify -CAfile ca.crt server.crt
@@ -499,6 +502,7 @@ Error: connection timeout
 ```
 
 **Solution:**
+
 ```bash
 # Check if TLS ports are accessible
 netstat -tlnp | grep 6380  # Redis TLS
@@ -631,6 +635,7 @@ docker-compose restart postgres redis nats pgbouncer
 ## Contact
 
 For security issues or questions:
+
 - Create a security issue in the repository
 - Contact the security team
 

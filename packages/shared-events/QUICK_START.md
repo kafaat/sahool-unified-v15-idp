@@ -28,14 +28,14 @@ npm install
 **In your main application file (e.g., `main.ts` or `index.ts`):**
 
 ```typescript
-import { initializeNatsClient } from '@sahool/shared-events';
+import { initializeNatsClient } from "@sahool/shared-events";
 
 async function bootstrap() {
   // Initialize NATS before starting your service
   await initializeNatsClient({
-    servers: process.env.NATS_URL || 'nats://localhost:4222',
-    name: 'your-service-name',
-    debug: process.env.NODE_ENV !== 'production',
+    servers: process.env.NATS_URL || "nats://localhost:4222",
+    name: "your-service-name",
+    debug: process.env.NODE_ENV !== "production",
   });
 
   // ... rest of your app initialization
@@ -49,7 +49,7 @@ bootstrap();
 **Example: Publishing a field created event**
 
 ```typescript
-import { publishFieldCreated } from '@sahool/shared-events';
+import { publishFieldCreated } from "@sahool/shared-events";
 
 async function createField(data: any) {
   // Create the field in your database
@@ -72,7 +72,7 @@ async function createField(data: any) {
 **Example: Publishing an order placed event**
 
 ```typescript
-import { publishOrderPlaced } from '@sahool/shared-events';
+import { publishOrderPlaced } from "@sahool/shared-events";
 
 async function createOrder(orderData: any) {
   const order = await db.order.create(orderData);
@@ -86,7 +86,7 @@ async function createOrder(orderData: any) {
       price: item.price,
     })),
     totalAmount: order.totalAmount,
-    currency: 'YER',
+    currency: "YER",
   });
 
   return order;
@@ -98,11 +98,11 @@ async function createOrder(orderData: any) {
 **Example: Subscribe to a specific event**
 
 ```typescript
-import { subscribe, EventSubjects } from '@sahool/shared-events';
+import { subscribe, EventSubjects } from "@sahool/shared-events";
 
 // Subscribe to field created events
 await subscribe(EventSubjects.FIELD_CREATED, async (event) => {
-  console.log('Field created:', event.payload.fieldId);
+  console.log("Field created:", event.payload.fieldId);
 
   // Do something with the event
   await updateAnalytics(event.payload);
@@ -112,20 +112,20 @@ await subscribe(EventSubjects.FIELD_CREATED, async (event) => {
 **Example: Subscribe to all events of a type**
 
 ```typescript
-import { subscribeToOrderEvents } from '@sahool/shared-events';
+import { subscribeToOrderEvents } from "@sahool/shared-events";
 
 // Subscribe to all order events (placed, completed, cancelled)
 await subscribeToOrderEvents(async (event) => {
-  console.log('Order event:', event.eventType);
+  console.log("Order event:", event.eventType);
 
   switch (event.eventType) {
-    case 'order.placed':
+    case "order.placed":
       await handleOrderPlaced(event.payload);
       break;
-    case 'order.completed':
+    case "order.completed":
       await handleOrderCompleted(event.payload);
       break;
-    case 'order.cancelled':
+    case "order.cancelled":
       await handleOrderCancelled(event.payload);
       break;
   }
@@ -135,7 +135,7 @@ await subscribeToOrderEvents(async (event) => {
 **Example: Subscribe with queue group (for load balancing)**
 
 ```typescript
-import { subscribe, EventSubjects } from '@sahool/shared-events';
+import { subscribe, EventSubjects } from "@sahool/shared-events";
 
 // Multiple instances will share the work
 await subscribe(
@@ -144,70 +144,76 @@ await subscribe(
     await processSensorReading(event.payload);
   },
   {
-    queue: 'sensor-processors' // All instances in this queue share the load
-  }
+    queue: "sensor-processors", // All instances in this queue share the load
+  },
 );
 ```
 
 **Example: Subscribe to pattern**
 
 ```typescript
-import { subscribePattern } from '@sahool/shared-events';
+import { subscribePattern } from "@sahool/shared-events";
 
 // Subscribe to all field events
-await subscribePattern('field.*', async (event) => {
-  console.log('Field event:', event.eventType);
+await subscribePattern("field.*", async (event) => {
+  console.log("Field event:", event.eventType);
 });
 
 // Subscribe to all creation events
-await subscribePattern('*.created', async (event) => {
-  console.log('Something was created:', event.eventType);
+await subscribePattern("*.created", async (event) => {
+  console.log("Something was created:", event.eventType);
 });
 
 // Subscribe to ALL events
-await subscribePattern('>', async (event) => {
-  console.log('Event:', event.eventType);
+await subscribePattern(">", async (event) => {
+  console.log("Event:", event.eventType);
 });
 ```
 
 ## Available Events
 
 ### Field Events
+
 ```typescript
-publishFieldCreated(payload)
-publishFieldUpdated(payload)
-publishFieldDeleted(payload)
+publishFieldCreated(payload);
+publishFieldUpdated(payload);
+publishFieldDeleted(payload);
 ```
 
 ### Order Events
+
 ```typescript
-publishOrderPlaced(payload)
-publishOrderCompleted(payload)
-publishOrderCancelled(payload)
+publishOrderPlaced(payload);
+publishOrderCompleted(payload);
+publishOrderCancelled(payload);
 ```
 
 ### Sensor Events
+
 ```typescript
-publishSensorReading(payload)
-publishDeviceConnected(payload)
-publishDeviceDisconnected(payload)
+publishSensorReading(payload);
+publishDeviceConnected(payload);
+publishDeviceDisconnected(payload);
 ```
 
 ### User Events
+
 ```typescript
-publishUserCreated(payload)
-publishUserUpdated(payload)
+publishUserCreated(payload);
+publishUserUpdated(payload);
 ```
 
 ### Inventory Events
+
 ```typescript
-publishInventoryLowStock(payload)
-publishInventoryMovement(payload)
+publishInventoryLowStock(payload);
+publishInventoryMovement(payload);
 ```
 
 ### Notification Events
+
 ```typescript
-publishNotificationSend(payload)
+publishNotificationSend(payload);
 ```
 
 ## NestJS Integration Example
@@ -216,8 +222,8 @@ publishNotificationSend(payload)
 
 ```typescript
 // events/events.module.ts
-import { Module, OnModuleInit } from '@nestjs/common';
-import { EventsService } from './events.service';
+import { Module, OnModuleInit } from "@nestjs/common";
+import { EventsService } from "./events.service";
 
 @Module({
   providers: [EventsService],
@@ -236,13 +242,13 @@ export class EventsModule implements OnModuleInit {
 
 ```typescript
 // events/events.service.ts
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 import {
   initializeNatsClient,
   publishOrderPlaced,
   subscribeAll,
   createLoggingHandler,
-} from '@sahool/shared-events';
+} from "@sahool/shared-events";
 
 @Injectable()
 export class EventsService {
@@ -251,15 +257,15 @@ export class EventsService {
   async connect() {
     await initializeNatsClient({
       servers: process.env.NATS_URL,
-      name: 'my-service',
+      name: "my-service",
     });
 
     // Subscribe to events for logging in development
-    if (process.env.NODE_ENV !== 'production') {
-      await subscribeAll(createLoggingHandler('[MyService]'));
+    if (process.env.NODE_ENV !== "production") {
+      await subscribeAll(createLoggingHandler("[MyService]"));
     }
 
-    this.logger.log('Connected to NATS event bus');
+    this.logger.log("Connected to NATS event bus");
   }
 
   async publishOrder(orderData: any) {
@@ -272,8 +278,8 @@ export class EventsService {
 
 ```typescript
 // app.module.ts
-import { Module } from '@nestjs/common';
-import { EventsModule } from './events/events.module';
+import { Module } from "@nestjs/common";
+import { EventsModule } from "./events/events.module";
 
 @Module({
   imports: [EventsModule],
@@ -287,7 +293,7 @@ export class AppModule {}
 Events are published asynchronously and won't block your application if NATS is unavailable:
 
 ```typescript
-import { publishOrderPlaced } from '@sahool/shared-events';
+import { publishOrderPlaced } from "@sahool/shared-events";
 
 async function createOrder(data: any) {
   const order = await db.order.create(data);
@@ -300,10 +306,10 @@ async function createOrder(data: any) {
       userId: order.buyerId,
       items: order.items,
       totalAmount: order.totalAmount,
-      currency: 'YER',
+      currency: "YER",
     });
   } catch (error) {
-    console.error('Failed to publish order event:', error);
+    console.error("Failed to publish order event:", error);
     // Order is still created, event can be re-published later
   }
 
@@ -318,7 +324,7 @@ Enable debug logging in development:
 ```typescript
 await initializeNatsClient({
   servers: process.env.NATS_URL,
-  name: 'my-service',
+  name: "my-service",
   debug: true, // Will log all connection events and published messages
 });
 ```
@@ -326,10 +332,10 @@ await initializeNatsClient({
 Or use the logging handler:
 
 ```typescript
-import { subscribeAll, createLoggingHandler } from '@sahool/shared-events';
+import { subscribeAll, createLoggingHandler } from "@sahool/shared-events";
 
 // Subscribe to all events and log them
-await subscribeAll(createLoggingHandler('[MyService]'));
+await subscribeAll(createLoggingHandler("[MyService]"));
 ```
 
 ## Best Practices
@@ -345,16 +351,19 @@ await subscribeAll(createLoggingHandler('[MyService]'));
 ## Troubleshooting
 
 **NATS connection failed:**
+
 - Check that NATS is running: `docker-compose ps nats`
 - Verify NATS_URL environment variable
 - Check network connectivity
 
 **Events not received:**
+
 - Verify subscription is active before events are published
 - Check subject/pattern matches the event type
 - Ensure NATS connection is established
 
 **Multiple event deliveries:**
+
 - Use queue groups to ensure single delivery across instances
 - Check for duplicate subscriptions
 

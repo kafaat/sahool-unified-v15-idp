@@ -89,6 +89,7 @@ class FieldsScreen extends ConsumerWidget {
 ### Alternative 1: Provider (Original)
 
 **Rejected because:**
+
 - Runtime errors for missing providers
 - Requires BuildContext for access
 - Limited caching capabilities
@@ -97,6 +98,7 @@ class FieldsScreen extends ConsumerWidget {
 ### Alternative 2: BLoC
 
 **Rejected because:**
+
 - More boilerplate for simple state
 - Streams add complexity
 - Less intuitive for team
@@ -105,6 +107,7 @@ class FieldsScreen extends ConsumerWidget {
 ### Alternative 3: GetX
 
 **Rejected because:**
+
 - Less type safety
 - Controversial patterns
 - Mixing concerns (routing, state, DI)
@@ -113,6 +116,7 @@ class FieldsScreen extends ConsumerWidget {
 ## Migration Notes
 
 Migrated from Provider to Riverpod in Sprint 8:
+
 - 47 providers converted
 - 2 weeks development time
 - Zero production regressions

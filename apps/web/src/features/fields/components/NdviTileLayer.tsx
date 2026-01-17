@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * NDVI Tile Layer Component
@@ -8,10 +8,10 @@
  * Renders NDVI data as a colored tile overlay on the map
  */
 
-import { useEffect, useRef, useState } from 'react';
-import type { Map as MaplibreMap } from 'maplibre-gl';
-import { useNDVIMap } from '@/features/ndvi';
-import { logger } from '@/lib/logger';
+import { useEffect, useRef, useState } from "react";
+import type { Map as MaplibreMap } from "maplibre-gl";
+import { useNDVIMap } from "@/features/ndvi";
+import { logger } from "@/lib/logger";
 
 /**
  * خصائص مكون طبقة NDVI
@@ -47,24 +47,24 @@ export interface NdviTileLayerProps {
  * Red (منخفض/Low) -> Yellow (متوسط/Medium) -> Green (عالي/High)
  */
 const NDVI_COLOR_STOPS = [
-  { value: -1.0, color: '#8B4513' },  // تربة جافة / Bare soil (brown)
-  { value: 0.0, color: '#FF0000' },   // بدون غطاء نباتي / No vegetation (red)
-  { value: 0.2, color: '#FF6600' },   // غطاء نباتي ضعيف جداً / Very poor vegetation (orange-red)
-  { value: 0.3, color: '#FFAA00' },   // غطاء نباتي ضعيف / Poor vegetation (orange)
-  { value: 0.4, color: '#FFFF00' },   // غطاء نباتي متوسط / Moderate vegetation (yellow)
-  { value: 0.5, color: '#AAFF00' },   // غطاء نباتي جيد / Good vegetation (yellow-green)
-  { value: 0.6, color: '#55FF00' },   // غطاء نباتي جيد جداً / Very good vegetation (light green)
-  { value: 0.7, color: '#00FF00' },   // غطاء نباتي ممتاز / Excellent vegetation (green)
-  { value: 0.8, color: '#00CC00' },   // غطاء نباتي كثيف / Dense vegetation (dark green)
-  { value: 1.0, color: '#006600' },   // غطاء نباتي كثيف جداً / Very dense vegetation (very dark green)
+  { value: -1.0, color: "#8B4513" }, // تربة جافة / Bare soil (brown)
+  { value: 0.0, color: "#FF0000" }, // بدون غطاء نباتي / No vegetation (red)
+  { value: 0.2, color: "#FF6600" }, // غطاء نباتي ضعيف جداً / Very poor vegetation (orange-red)
+  { value: 0.3, color: "#FFAA00" }, // غطاء نباتي ضعيف / Poor vegetation (orange)
+  { value: 0.4, color: "#FFFF00" }, // غطاء نباتي متوسط / Moderate vegetation (yellow)
+  { value: 0.5, color: "#AAFF00" }, // غطاء نباتي جيد / Good vegetation (yellow-green)
+  { value: 0.6, color: "#55FF00" }, // غطاء نباتي جيد جداً / Very good vegetation (light green)
+  { value: 0.7, color: "#00FF00" }, // غطاء نباتي ممتاز / Excellent vegetation (green)
+  { value: 0.8, color: "#00CC00" }, // غطاء نباتي كثيف / Dense vegetation (dark green)
+  { value: 1.0, color: "#006600" }, // غطاء نباتي كثيف جداً / Very dense vegetation (very dark green)
 ];
 
 /**
  * معرفات فريدة لطبقة NDVI
  * Unique identifiers for NDVI layer
  */
-const LAYER_ID = 'ndvi-raster-layer';
-const SOURCE_ID = 'ndvi-raster-source';
+const LAYER_ID = "ndvi-raster-layer";
+const SOURCE_ID = "ndvi-raster-source";
 
 /**
  * مكون طبقة NDVI للخريطة
@@ -83,7 +83,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   onError,
 }) => {
   // تنسيق التاريخ للـ API - Format date for API
-  const dateString = date ? date.toISOString().split('T')[0] : undefined;
+  const dateString = date ? date.toISOString().split("T")[0] : undefined;
 
   // جلب بيانات خريطة NDVI - Fetch NDVI map data
   const { data: ndviMapData, error } = useNDVIMap(fieldId, dateString);
@@ -119,8 +119,8 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
       // التحقق من وجود URL للبيانات
       // Check for raster data URL
       if (!rasterUrl) {
-        logger.warn('No raster URL provided for NDVI layer');
-        onError?.(new Error('No NDVI data available'));
+        logger.warn("No raster URL provided for NDVI layer");
+        onError?.(new Error("No NDVI data available"));
         return;
       }
 
@@ -136,39 +136,43 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
       // إضافة مصدر البيانات النقطية
       // Add raster data source
       mapInstance.addSource(SOURCE_ID, {
-        type: 'raster',
+        type: "raster",
         tiles: [rasterUrl],
         tileSize: 256,
-        bounds: bounds ? [
-          bounds[0][0], // غرب / west
-          bounds[0][1], // جنوب / south
-          bounds[1][0], // شرق / east
-          bounds[1][1], // شمال / north
-        ] : undefined,
+        bounds: bounds
+          ? [
+              bounds[0][0], // غرب / west
+              bounds[0][1], // جنوب / south
+              bounds[1][0], // شرق / east
+              bounds[1][1], // شمال / north
+            ]
+          : undefined,
       });
 
       // إضافة طبقة العرض النقطي
       // Add raster layer with color gradient
       mapInstance.addLayer({
         id: LAYER_ID,
-        type: 'raster',
+        type: "raster",
         source: SOURCE_ID,
         paint: {
           // التحكم في الشفافية - Opacity control
-          'raster-opacity': opacity,
+          "raster-opacity": opacity,
 
           // تحسين جودة العرض - Improve rendering quality
-          'raster-resampling': 'linear',
+          "raster-resampling": "linear",
 
           // تطبيق التدرج اللوني إذا كان متاحاً
           // Apply color scale if available
           ...(colorScale && {
-            'raster-color': [
-              'interpolate',
-              ['linear'],
-              ['raster-value'],
-              colorScale.min, colorScale.colors[0] || '#FF0000',
-              colorScale.max, colorScale.colors[colorScale.colors.length - 1] || '#00FF00',
+            "raster-color": [
+              "interpolate",
+              ["linear"],
+              ["raster-value"],
+              colorScale.min,
+              colorScale.colors[0] || "#FF0000",
+              colorScale.max,
+              colorScale.colors[colorScale.colors.length - 1] || "#00FF00",
             ],
           }),
         },
@@ -185,18 +189,21 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
           {
             padding: 50,
             duration: 1000,
-          }
+          },
         );
       }
 
       setIsLayerLoaded(true);
       onLoad?.();
 
-      logger.info('NDVI tile layer added successfully', { fieldId, date: dateString });
-
+      logger.info("NDVI tile layer added successfully", {
+        fieldId,
+        date: dateString,
+      });
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to add NDVI layer');
-      logger.error('Error adding NDVI tile layer:', error);
+      const error =
+        err instanceof Error ? err : new Error("Failed to add NDVI layer");
+      logger.error("Error adding NDVI tile layer:", error);
       onError?.(error);
       setIsLayerLoaded(false);
     }
@@ -213,11 +220,21 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
             mapInstance.removeSource(SOURCE_ID);
           }
         } catch (err) {
-          logger.warn('Error removing NDVI layer during cleanup:', err);
+          logger.warn("Error removing NDVI layer during cleanup:", err);
         }
       }
     };
-  }, [map, ndviMapData, visible, opacity, fieldId, dateString, onLoad, onError, isLayerLoaded]);
+  }, [
+    map,
+    ndviMapData,
+    visible,
+    opacity,
+    fieldId,
+    dateString,
+    onLoad,
+    onError,
+    isLayerLoaded,
+  ]);
 
   /**
    * تحديث الشفافية عند تغييرها
@@ -230,10 +247,10 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
     try {
       if (mapInstance.getLayer(LAYER_ID)) {
         // @ts-expect-error - MapLibre GL types may be incomplete
-        mapInstance.setPaintProperty(LAYER_ID, 'raster-opacity', opacity);
+        mapInstance.setPaintProperty(LAYER_ID, "raster-opacity", opacity);
       }
     } catch (err) {
-      logger.warn('Error updating NDVI layer opacity:', err);
+      logger.warn("Error updating NDVI layer opacity:", err);
     }
   }, [opacity, map, isLayerLoaded]);
 
@@ -250,12 +267,12 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
         // @ts-expect-error - MapLibre GL types may be incomplete
         mapInstance.setLayoutProperty(
           LAYER_ID,
-          'visibility',
-          visible ? 'visible' : 'none'
+          "visibility",
+          visible ? "visible" : "none",
         );
       }
     } catch (err) {
-      logger.warn('Error updating NDVI layer visibility:', err);
+      logger.warn("Error updating NDVI layer visibility:", err);
     }
   }, [visible, map, isLayerLoaded]);
 
@@ -265,8 +282,9 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
    */
   useEffect(() => {
     if (error) {
-      const errorObj = error instanceof Error ? error : new Error('Failed to load NDVI data');
-      logger.error('NDVI data fetch error:', errorObj);
+      const errorObj =
+        error instanceof Error ? error : new Error("Failed to load NDVI data");
+      logger.error("NDVI data fetch error:", errorObj);
       onError?.(errorObj);
     }
   }, [error, onError]);
@@ -282,9 +300,13 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
  * مكون مساعد لعرض مفتاح التدرج اللوني
  * Helper component to display NDVI color legend
  */
-export const NdviColorLegend: React.FC<{ className?: string }> = ({ className = '' }) => {
+export const NdviColorLegend: React.FC<{ className?: string }> = ({
+  className = "",
+}) => {
   return (
-    <div className={`bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 ${className}`}>
+    <div
+      className={`bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 ${className}`}
+    >
       <h4 className="text-xs font-bold text-gray-700 mb-2 text-right">
         مؤشر NDVI
       </h4>
@@ -295,24 +317,34 @@ export const NdviColorLegend: React.FC<{ className?: string }> = ({ className = 
           className="absolute inset-0"
           style={{
             background: `linear-gradient(to right, ${NDVI_COLOR_STOPS.map(
-              (stop) => stop.color
-            ).join(', ')})`,
+              (stop) => stop.color,
+            ).join(", ")})`,
           }}
         />
       </div>
 
       {/* تسميات القيم - Value labels */}
       <div className="flex justify-between text-xs text-gray-600">
-        <span className="text-left">1.0<br/>كثيف</span>
-        <span className="text-center">0.5<br/>متوسط</span>
-        <span className="text-right">0.0<br/>ضعيف</span>
+        <span className="text-left">
+          1.0
+          <br />
+          كثيف
+        </span>
+        <span className="text-center">
+          0.5
+          <br />
+          متوسط
+        </span>
+        <span className="text-right">
+          0.0
+          <br />
+          ضعيف
+        </span>
       </div>
 
       {/* وصف - Description */}
       <div className="mt-2 pt-2 border-t border-gray-200">
-        <p className="text-xs text-gray-500 text-right">
-          كثافة الغطاء النباتي
-        </p>
+        <p className="text-xs text-gray-500 text-right">كثافة الغطاء النباتي</p>
       </div>
     </div>
   );
@@ -325,11 +357,13 @@ export const NdviColorLegend: React.FC<{ className?: string }> = ({ className = 
 export const NdviLoadingOverlay: React.FC<{
   isLoading: boolean;
   className?: string;
-}> = ({ isLoading, className = '' }) => {
+}> = ({ isLoading, className = "" }) => {
   if (!isLoading) return null;
 
   return (
-    <div className={`absolute inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center ${className}`}>
+    <div
+      className={`absolute inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center ${className}`}
+    >
       <div className="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3">
         {/* دائرة التحميل - Loading spinner */}
         <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 border-t-green-600" />

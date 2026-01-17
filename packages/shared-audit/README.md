@@ -23,8 +23,8 @@ npm install @sahool/shared-audit
 ### 1. Configure the Audit Logger
 
 ```typescript
-import { AuditLogger } from '@sahool/shared-audit';
-import { PrismaClient } from '@prisma/client';
+import { AuditLogger } from "@sahool/shared-audit";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -41,15 +41,15 @@ const auditLogger = new AuditLogger({
 ### 2. Add Middleware to Your NestJS App
 
 ```typescript
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { AuditMiddleware, AuditLogger } from '@sahool/shared-audit';
+import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
+import { AuditMiddleware, AuditLogger } from "@sahool/shared-audit";
 
 @Module({
   providers: [AuditLogger],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuditMiddleware).forRoutes('*');
+    consumer.apply(AuditMiddleware).forRoutes("*");
   }
 }
 ```
@@ -62,27 +62,30 @@ import {
   AuditUpdate,
   AuditDelete,
   Audit,
-} from '@sahool/shared-audit';
+} from "@sahool/shared-audit";
 
-@Controller('products')
+@Controller("products")
 export class ProductsController {
   @Post()
-  @AuditCreate('product')
-  async createProduct(@Body() dto: CreateProductDto, @Audit() audit: AuditContext) {
+  @AuditCreate("product")
+  async createProduct(
+    @Body() dto: CreateProductDto,
+    @Audit() audit: AuditContext,
+  ) {
     // Your code here
     return this.productsService.create(dto);
   }
 
-  @Put(':id')
-  @AuditUpdate('product', { trackChanges: true })
-  async updateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+  @Put(":id")
+  @AuditUpdate("product", { trackChanges: true })
+  async updateProduct(@Param("id") id: string, @Body() dto: UpdateProductDto) {
     // Your code here
     return this.productsService.update(id, dto);
   }
 
-  @Delete(':id')
-  @AuditDelete('product')
-  async deleteProduct(@Param('id') id: string) {
+  @Delete(":id")
+  @AuditDelete("product")
+  async deleteProduct(@Param("id") id: string) {
     // Your code here
     return this.productsService.delete(id);
   }
@@ -92,8 +95,8 @@ export class ProductsController {
 ### 4. Add Global Interceptor
 
 ```typescript
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { AuditInterceptor } from '@sahool/shared-audit';
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { AuditInterceptor } from "@sahool/shared-audit";
 
 @Module({
   providers: [
@@ -111,43 +114,47 @@ export class AppModule {}
 You can also log audit events manually:
 
 ```typescript
-import { AuditLogger, AuditCategory, AuditSeverity } from '@sahool/shared-audit';
+import {
+  AuditLogger,
+  AuditCategory,
+  AuditSeverity,
+} from "@sahool/shared-audit";
 
 // Simple log
 await auditLogger.log({
-  tenantId: 'tenant-123',
-  actorId: 'user-456',
+  tenantId: "tenant-123",
+  actorId: "user-456",
   actorType: ActorType.USER,
-  action: 'product.create',
+  action: "product.create",
   category: AuditCategory.DATA,
   severity: AuditSeverity.INFO,
-  resourceType: 'product',
-  resourceId: 'product-789',
-  correlationId: 'request-abc',
+  resourceType: "product",
+  resourceId: "product-789",
+  correlationId: "request-abc",
   success: true,
 });
 
 // Log with change tracking
 await auditLogger.logWithChanges(
   {
-    tenantId: 'tenant-123',
-    actorId: 'user-456',
+    tenantId: "tenant-123",
+    actorId: "user-456",
     actorType: ActorType.USER,
-    action: 'product.update',
+    action: "product.update",
     category: AuditCategory.DATA,
     severity: AuditSeverity.INFO,
-    resourceType: 'product',
-    resourceId: 'product-789',
-    correlationId: 'request-abc',
+    resourceType: "product",
+    resourceId: "product-789",
+    correlationId: "request-abc",
     success: true,
   },
-  { name: 'Old Product', price: 100 }, // Old value
-  { name: 'New Product', price: 150 }, // New value
+  { name: "Old Product", price: 100 }, // Old value
+  { name: "New Product", price: 150 }, // New value
   {
     trackChanges: true,
     generateDiff: true,
-    excludeFields: ['updatedAt'],
-    redactFields: ['internalNotes'],
+    excludeFields: ["updatedAt"],
+    redactFields: ["internalNotes"],
   },
 );
 ```
@@ -157,7 +164,11 @@ await auditLogger.logWithChanges(
 Mark sensitive fields in your DTOs:
 
 ```typescript
-import { AuditField, SensitiveField, ExcludeFromAudit } from '@sahool/shared-audit';
+import {
+  AuditField,
+  SensitiveField,
+  ExcludeFromAudit,
+} from "@sahool/shared-audit";
 
 class UpdateProductDto {
   @AuditField()
@@ -180,19 +191,21 @@ import {
   AuditLogger,
   AlertHandler,
   createWebhookAlertHandler,
-} from '@sahool/shared-audit';
+} from "@sahool/shared-audit";
 
 // Custom handler
 const customHandler: AlertHandler = {
-  name: 'custom',
+  name: "custom",
   async handle(alert) {
-    console.log('Custom alert:', alert);
+    console.log("Custom alert:", alert);
     // Send to your monitoring system
   },
 };
 
 // Webhook handler
-const webhookHandler = createWebhookAlertHandler('https://your-webhook-url.com');
+const webhookHandler = createWebhookAlertHandler(
+  "https://your-webhook-url.com",
+);
 
 const auditLogger = new AuditLogger({
   prisma,
@@ -207,11 +220,11 @@ const auditLogger = new AuditLogger({
 
 ```typescript
 const logs = await auditLogger.query({
-  tenantId: 'tenant-123',
-  actorId: 'user-456',
+  tenantId: "tenant-123",
+  actorId: "user-456",
   category: AuditCategory.SECURITY,
-  startDate: new Date('2024-01-01'),
-  endDate: new Date('2024-12-31'),
+  startDate: new Date("2024-01-01"),
+  endDate: new Date("2024-12-31"),
   limit: 100,
 });
 ```
@@ -219,7 +232,7 @@ const logs = await auditLogger.query({
 ## Get Statistics
 
 ```typescript
-const stats = await auditLogger.getStats('tenant-123', new Date());
+const stats = await auditLogger.getStats("tenant-123", new Date());
 console.log(stats);
 // {
 //   totalEvents: 1234,
@@ -233,9 +246,9 @@ console.log(stats);
 ## Validate Hash Chain
 
 ```typescript
-const validation = await auditLogger.validateHashChain('tenant-123');
+const validation = await auditLogger.validateHashChain("tenant-123");
 if (!validation.valid) {
-  console.error('Hash chain validation failed:', validation.errors);
+  console.error("Hash chain validation failed:", validation.errors);
 }
 ```
 

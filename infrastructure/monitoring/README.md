@@ -1,4 +1,5 @@
 # SAHOOL Platform Monitoring Stack
+
 # مجموعة المراقبة لمنصة سهول الزراعية
 
 ## Overview | نظرة عامة
@@ -10,22 +11,26 @@ This monitoring stack provides comprehensive observability for the SAHOOL agricu
 ## Components | المكونات
 
 ### 1. Prometheus
+
 - **Time-series database** for metrics collection
 - **Scrapes metrics** from all 39 services every 15 seconds
 - **Retention**: 30 days, max 10GB
 - **Port**: 9090
 
 ### 2. Grafana
+
 - **Visualization platform** with pre-configured dashboards
 - **Port**: 3002
 - **Default credentials**: admin / (set via GRAFANA_ADMIN_PASSWORD)
 
 ### 3. Alertmanager
+
 - **Alert routing and notifications**
 - Supports Email, Slack, PagerDuty
 - **Port**: 9093
 
 ### 4. Exporters | المُصدِّرات
+
 - **PostgreSQL Exporter**: Database metrics (port 9187)
 - **Redis Exporter**: Cache metrics (port 9121)
 - **Node Exporter**: System metrics (port 9100)
@@ -33,6 +38,7 @@ This monitoring stack provides comprehensive observability for the SAHOOL agricu
 ## Monitored Services | الخدمات المراقبة
 
 ### Infrastructure Services (6)
+
 - PostgreSQL (PostGIS)
 - Redis
 - NATS
@@ -41,6 +47,7 @@ This monitoring stack provides comprehensive observability for the SAHOOL agricu
 - Kong API Gateway
 
 ### Core Services (33)
+
 - field-core, field-ops, field-chat
 - ndvi-engine, weather-core, weather-advanced
 - crop-health, crop-health-ai, crop-growth-model
@@ -138,9 +145,11 @@ ENVIRONMENT=production
 ## Dashboards | لوحات المراقبة
 
 ### SAHOOL Platform Overview
+
 **Path**: Grafana → SAHOOL Platform Overview
 
 **Panels**:
+
 1. **Service Health Status** - حالة صحة الخدمات
    - Visual status of all 39 services
 
@@ -176,6 +185,7 @@ ENVIRONMENT=production
 ### Alert Categories | فئات التنبيهات
 
 #### 1. Availability Alerts | تنبيهات التوفر
+
 - **ServiceDown**: Service unavailable for >2 minutes
 - **MultipleServicesDown**: >3 services down
 - **PostgreSQLDown**: Critical database outage
@@ -183,25 +193,30 @@ ENVIRONMENT=production
 - **NATSDown**: Message queue unavailable
 
 #### 2. Performance Alerts | تنبيهات الأداء
+
 - **HighLatencyP95**: P95 latency >500ms for 5 minutes
 - **HighLatencyP99**: P99 latency >1s for 3 minutes
 - **HighAverageLatency**: Average latency >300ms
 
 #### 3. Error Rate Alerts | تنبيهات معدل الأخطاء
+
 - **HighErrorRate**: Error rate >1% for 3 minutes
 - **CriticalErrorRate**: Error rate >5% for 1 minute
 
 #### 4. Database Alerts | تنبيهات قاعدة البيانات
+
 - **DatabaseConnectionPoolExhausted**: >85% connections used
 - **DatabaseSlowQueries**: Queries running >30 seconds
 - **DatabaseDeadlocks**: Deadlocks detected
 
 #### 5. Redis Alerts | تنبيهات Redis
+
 - **RedisMemoryHigh**: >85% memory usage
 - **RedisCriticalMemory**: >95% memory usage
 - **RedisHighEvictionRate**: >100 keys/sec evicted
 
 #### 6. NATS Alerts | تنبيهات NATS
+
 - **NATSQueueBacklog**: >10,000 pending messages
 - **NATSCriticalBacklog**: >50,000 pending messages
 - **NATSConsumerLag**: >1,000 unacked messages
@@ -317,6 +332,7 @@ curl -X POST http://localhost:9093/api/v1/alerts \
 ## Support | الدعم
 
 For issues or questions:
+
 - **Documentation**: `/docs/monitoring`
 - **Email**: devops@sahool.io
 - **Slack**: #sahool-monitoring

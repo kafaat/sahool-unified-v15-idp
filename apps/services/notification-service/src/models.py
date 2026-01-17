@@ -376,7 +376,9 @@ class FarmerProfile(Model):
     )
 
     # Status
-    is_active = fields.BooleanField(default=True, index=True, description="Whether profile is active")
+    is_active = fields.BooleanField(
+        default=True, index=True, description="Whether profile is active"
+    )
 
     # Metadata
     metadata = fields.JSONField(null=True, description="Additional farmer metadata")

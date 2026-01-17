@@ -46,6 +46,7 @@ This is a comprehensive, production-ready authentication module for SAHOOL NestJ
 ## Key Features
 
 ### 1. Guards (6 types)
+
 - **JwtAuthGuard**: Basic JWT authentication
 - **RolesGuard**: Role-based access control
 - **PermissionsGuard**: Permission-based access control
@@ -54,6 +55,7 @@ This is a comprehensive, production-ready authentication module for SAHOOL NestJ
 - **ActiveAccountGuard**: Active account validation
 
 ### 2. Decorators (14 types)
+
 - `@Public()` - Mark routes as public
 - `@Roles()` - Require specific roles
 - `@RequirePermissions()` - Require specific permissions
@@ -67,10 +69,12 @@ This is a comprehensive, production-ready authentication module for SAHOOL NestJ
 - Plus helper functions: `hasRole()`, `hasAnyRole()`, `hasPermission()`, `hasAnyPermission()`
 
 ### 3. Services (2 types)
+
 - **UserValidationService**: Validates users with Redis caching
 - **RedisTokenRevocationStore**: Manages token revocation
 
 ### 4. Configuration
+
 - Environment-based JWT config
 - Support for HS256 and RS256 algorithms
 - Configurable token expiration
@@ -78,6 +82,7 @@ This is a comprehensive, production-ready authentication module for SAHOOL NestJ
 - Rate limiting support
 
 ### 5. Documentation
+
 - 5 comprehensive markdown files
 - 100+ code examples
 - Complete API reference
@@ -106,7 +111,7 @@ npm install
 
 ```typescript
 // app.module.ts
-import { AuthModule } from '@sahool/nestjs-auth';
+import { AuthModule } from "@sahool/nestjs-auth";
 
 @Module({
   imports: [
@@ -119,12 +124,12 @@ import { AuthModule } from '@sahool/nestjs-auth';
 export class AppModule {}
 
 // controller.ts
-import { JwtAuthGuard, CurrentUser, UserId } from '@sahool/nestjs-auth';
+import { JwtAuthGuard, CurrentUser, UserId } from "@sahool/nestjs-auth";
 
-@Controller('api')
+@Controller("api")
 @UseGuards(JwtAuthGuard)
 export class ApiController {
-  @Get('profile')
+  @Get("profile")
   getProfile(@CurrentUser() user: any) {
     return user;
   }
@@ -134,6 +139,7 @@ export class ApiController {
 ## Files Summary
 
 ### Source Files (10 TypeScript files)
+
 1. `auth.module.ts` (240 lines) - Main module
 2. `index.ts` (70 lines) - Public API
 3. `guards/jwt.guard.ts` (334 lines) - 6 guards
@@ -146,6 +152,7 @@ export class ApiController {
 10. `interfaces/index.ts` (6 lines) - Type exports
 
 ### Documentation Files (5 files)
+
 1. `README.md` (500+ lines) - Main documentation
 2. `USAGE_EXAMPLES.md` (600+ lines) - Code examples
 3. `MIGRATION_GUIDE.md` (500+ lines) - Migration guide
@@ -157,6 +164,7 @@ export class ApiController {
 ## Comparison: Before vs After
 
 ### Before (marketplace-service)
+
 ```typescript
 // Custom auth guard (100 lines)
 src/auth/jwt-auth.guard.ts
@@ -171,6 +179,7 @@ src/auth/jwt-auth.guard.ts
 ```
 
 ### After (shared module)
+
 ```typescript
 // Just import and use
 import { AuthModule } from '@sahool/nestjs-auth';
@@ -193,6 +202,7 @@ import { AuthModule } from '@sahool/nestjs-auth';
 ## Dependencies
 
 ### Required Peer Dependencies
+
 - @nestjs/common ^10.0.0
 - @nestjs/core ^10.0.0
 - @nestjs/jwt ^10.0.0
@@ -205,6 +215,7 @@ import { AuthModule } from '@sahool/nestjs-auth';
 - rxjs ^7.0.0
 
 ### Why These Dependencies?
+
 - **NestJS**: Core framework
 - **Passport**: Authentication middleware
 - **JWT**: Token handling
@@ -216,9 +227,11 @@ import { AuthModule } from '@sahool/nestjs-auth';
 This module can be used by all NestJS services in the SAHOOL platform:
 
 ### Currently Migrated
+
 - ✅ marketplace-service (example provided)
 
 ### Can Be Migrated
+
 - 🔄 field-service
 - 🔄 alert-service
 - 🔄 notification-service
@@ -254,8 +267,9 @@ TOKEN_REVOCATION_ENABLED=true
 ## Testing
 
 ### Unit Tests
+
 ```typescript
-import { AuthModule } from '@sahool/nestjs-auth';
+import { AuthModule } from "@sahool/nestjs-auth";
 
 const module = await Test.createTestingModule({
   imports: [
@@ -269,12 +283,13 @@ const module = await Test.createTestingModule({
 ```
 
 ### E2E Tests
+
 ```typescript
 // Test authentication flow
-it('should authenticate with valid token', () => {
+it("should authenticate with valid token", () => {
   return request(app.getHttpServer())
-    .get('/protected')
-    .set('Authorization', `Bearer ${validToken}`)
+    .get("/protected")
+    .set("Authorization", `Bearer ${validToken}`)
     .expect(200);
 });
 ```
@@ -316,6 +331,7 @@ it('should authenticate with valid token', () => {
 ## Support & Maintenance
 
 ### Documentation
+
 - README.md - Getting started
 - USAGE_EXAMPLES.md - Code patterns
 - MIGRATION_GUIDE.md - Migration help
@@ -323,6 +339,7 @@ it('should authenticate with valid token', () => {
 - CHANGELOG.md - Version history
 
 ### Getting Help
+
 1. Check documentation files
 2. Review example implementations
 3. Check `/shared/auth/` for more examples
@@ -331,6 +348,7 @@ it('should authenticate with valid token', () => {
 ## Future Enhancements
 
 Planned features:
+
 - Refresh token support
 - Rate limiting middleware
 - API key authentication

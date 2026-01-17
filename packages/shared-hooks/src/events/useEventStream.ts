@@ -5,24 +5,24 @@
  * Connects to SAHOOL event streams for real-time updates
  */
 
-'use client';
+"use client";
 
-import { useEffect, useCallback, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useCallback, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export type EventCategory =
-  | 'field'
-  | 'ndvi'
-  | 'alert'
-  | 'weather'
-  | 'irrigation'
-  | 'crop_health'
-  | 'yield'
-  | 'system';
+  | "field"
+  | "ndvi"
+  | "alert"
+  | "weather"
+  | "irrigation"
+  | "crop_health"
+  | "yield"
+  | "system";
 
 export interface SahoolEvent<T = unknown> {
   id: string;
@@ -110,7 +110,7 @@ export function useEventStream(
     onConnect?: () => void;
     onDisconnect?: () => void;
     onError?: (error: Error) => void;
-  } = {}
+  } = {},
 ) {
   const {
     categories,
@@ -140,17 +140,17 @@ export function useEventStream(
 
   // Build stream URL with filters
   const buildStreamUrl = useCallback(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
     const params = new URLSearchParams();
 
     if (categories?.length) {
-      params.set('categories', categories.join(','));
+      params.set("categories", categories.join(","));
     }
     if (fieldId) {
-      params.set('field_id', fieldId);
+      params.set("field_id", fieldId);
     }
     if (governorate) {
-      params.set('governorate', governorate);
+      params.set("governorate", governorate);
     }
 
     return `${baseUrl}/v1/events/stream?${params.toString()}`;
@@ -166,30 +166,30 @@ export function useEventStream(
 
       // Invalidate relevant queries based on event category
       switch (event.category) {
-        case 'field':
-          queryClient.invalidateQueries({ queryKey: ['fields'] });
+        case "field":
+          queryClient.invalidateQueries({ queryKey: ["fields"] });
           break;
-        case 'ndvi':
-          queryClient.invalidateQueries({ queryKey: ['ndvi'] });
+        case "ndvi":
+          queryClient.invalidateQueries({ queryKey: ["ndvi"] });
           break;
-        case 'alert':
-          queryClient.invalidateQueries({ queryKey: ['alerts'] });
+        case "alert":
+          queryClient.invalidateQueries({ queryKey: ["alerts"] });
           break;
-        case 'weather':
-          queryClient.invalidateQueries({ queryKey: ['weather'] });
+        case "weather":
+          queryClient.invalidateQueries({ queryKey: ["weather"] });
           break;
-        case 'irrigation':
-          queryClient.invalidateQueries({ queryKey: ['irrigation'] });
+        case "irrigation":
+          queryClient.invalidateQueries({ queryKey: ["irrigation"] });
           break;
-        case 'crop_health':
-          queryClient.invalidateQueries({ queryKey: ['crop-health'] });
+        case "crop_health":
+          queryClient.invalidateQueries({ queryKey: ["crop-health"] });
           break;
-        case 'yield':
-          queryClient.invalidateQueries({ queryKey: ['yield'] });
+        case "yield":
+          queryClient.invalidateQueries({ queryKey: ["yield"] });
           break;
       }
     },
-    [onEvent, queryClient]
+    [onEvent, queryClient],
   );
 
   // Connect to event stream
@@ -219,12 +219,12 @@ export function useEventStream(
         const event: SahoolEvent = JSON.parse(messageEvent.data);
         handleEvent(event);
       } catch (e) {
-        console.error('Failed to parse event:', e);
+        console.error("Failed to parse event:", e);
       }
     };
 
     eventSource.onerror = () => {
-      const error = new Error('Event stream connection lost');
+      const error = new Error("Event stream connection lost");
       setState((prev) => ({
         ...prev,
         isConnected: false,
@@ -245,9 +245,9 @@ export function useEventStream(
             const cappedAttempts = Math.min(prev.reconnectAttempts, 10);
             const exponentialDelay = Math.min(
               reconnectDelay * (1 << cappedAttempts),
-              maxReconnectDelay
+              maxReconnectDelay,
             );
-            
+
             reconnectTimeoutRef.current = setTimeout(() => {
               connect();
             }, exponentialDelay);
@@ -311,10 +311,10 @@ export function useEventStream(
  */
 export function useNDVIStream(
   fieldId?: string,
-  onUpdate?: (event: SahoolEvent) => void
+  onUpdate?: (event: SahoolEvent) => void,
 ) {
   return useEventStream({
-    categories: ['ndvi'],
+    categories: ["ndvi"],
     fieldId,
     onEvent: onUpdate,
   });
@@ -325,7 +325,7 @@ export function useNDVIStream(
  */
 export function useAlertStream(onAlert?: (event: SahoolEvent) => void) {
   return useEventStream({
-    categories: ['alert'],
+    categories: ["alert"],
     onEvent: onAlert,
   });
 }
@@ -335,10 +335,10 @@ export function useAlertStream(onAlert?: (event: SahoolEvent) => void) {
  */
 export function useWeatherStream(
   governorate?: string,
-  onUpdate?: (event: SahoolEvent) => void
+  onUpdate?: (event: SahoolEvent) => void,
 ) {
   return useEventStream({
-    categories: ['weather'],
+    categories: ["weather"],
     governorate,
     onEvent: onUpdate,
   });
@@ -349,10 +349,10 @@ export function useWeatherStream(
  */
 export function useFieldStream(
   fieldId?: string,
-  onUpdate?: (event: SahoolEvent) => void
+  onUpdate?: (event: SahoolEvent) => void,
 ) {
   return useEventStream({
-    categories: ['field', 'ndvi', 'crop_health', 'irrigation'],
+    categories: ["field", "ndvi", "crop_health", "irrigation"],
     fieldId,
     onEvent: onUpdate,
   });

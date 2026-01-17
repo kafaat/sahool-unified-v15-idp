@@ -10,4 +10,4 @@ export {
   getCorrelationId,
   getRequestContext,
   StructuredLogger,
-} from './request-logging';
+} from "./request-logging";

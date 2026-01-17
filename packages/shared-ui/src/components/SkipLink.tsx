@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 export interface SkipLinkProps {
   href?: string;
@@ -12,8 +12,8 @@ export interface SkipLinkProps {
  * مكون تخطي الروابط لإمكانية الوصول
  */
 export function SkipLink({
-  href = '#main-content',
-  children = 'تخطي إلى المحتوى الرئيسي',
+  href = "#main-content",
+  children = "تخطي إلى المحتوى الرئيسي",
 }: SkipLinkProps) {
   return (
     <a

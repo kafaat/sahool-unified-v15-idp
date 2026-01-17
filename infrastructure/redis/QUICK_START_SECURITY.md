@@ -1,4 +1,5 @@
 # Redis Security Quick Start Guide
+
 # دليل البدء السريع لأمان Redis
 
 **Platform:** SAHOOL Unified Agricultural Platform v15-IDP
@@ -26,6 +27,7 @@ This is a quick-start guide for enabling Redis security features. For complete d
 ## 1. Current Status
 
 **✅ Already Configured:**
+
 - ✅ Strong password authentication (`REDIS_PASSWORD`)
 - ✅ Dangerous commands renamed (FLUSHDB, FLUSHALL, etc.)
 - ✅ Memory limits and eviction policy
@@ -36,6 +38,7 @@ This is a quick-start guide for enabling Redis security features. For complete d
 - ✅ Kubernetes maxmemory settings
 
 **⚠️ Optional (Ready to Enable):**
+
 - ⚠️ TLS/SSL encryption (configured, disabled by default)
 - ⚠️ ACL (Access Control Lists) with 4 user roles (configured, disabled by default)
 
@@ -61,27 +64,36 @@ ls -la config/redis/certs/
 ```yaml
 redis:
   command: [
-    "redis-server",
-    "/usr/local/etc/redis/redis.conf",
-    "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
-    "--maxmemory", "512mb",
-    # UNCOMMENT THESE LINES FOR TLS:
-    "--port", "0",
-    "--tls-port", "6379",
-    "--tls-cert-file", "/etc/redis/certs/server.crt",
-    "--tls-key-file", "/etc/redis/certs/server.key",
-    "--tls-ca-cert-file", "/etc/redis/certs/ca.crt",
-    "--tls-auth-clients", "optional"
-  ]
+      "redis-server",
+      "/usr/local/etc/redis/redis.conf",
+      "--requirepass",
+      "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
+      "--maxmemory",
+      "512mb",
+      # UNCOMMENT THESE LINES FOR TLS:
+      "--port",
+      "0",
+      "--tls-port",
+      "6379",
+      "--tls-cert-file",
+      "/etc/redis/certs/server.crt",
+      "--tls-key-file",
+      "/etc/redis/certs/server.key",
+      "--tls-ca-cert-file",
+      "/etc/redis/certs/ca.crt",
+      "--tls-auth-clients",
+      "optional",
+    ]
   volumes:
     - redis_data:/data
     - ./infrastructure/redis/redis-secure.conf:/usr/local/etc/redis/redis.conf:ro
-    - ./config/redis/certs:/etc/redis/certs:ro  # UNCOMMENT THIS LINE
+    - ./config/redis/certs:/etc/redis/certs:ro # UNCOMMENT THIS LINE
 ```
 
 **For HA Redis (`docker-compose.redis-ha.yml`):**
 
 Add the same TLS arguments and volume mount to:
+
 - `redis-master`
 - `redis-replica-1`
 - `redis-replica-2`
@@ -89,11 +101,13 @@ Add the same TLS arguments and volume mount to:
 ### Step 3: Update Connection Strings
 
 **Before:**
+
 ```
 redis://:${REDIS_PASSWORD}@redis:6379/0
 ```
 
 **After:**
+
 ```
 rediss://:${REDIS_PASSWORD}@redis:6379/0
 ```
@@ -349,6 +363,7 @@ docker-compose restart redis
 ### Services Can't Connect
 
 **Symptoms:**
+
 - Connection timeout
 - Authentication failed
 - ERR unknown command
@@ -437,12 +452,14 @@ docker exec sahool-redis-sentinel-1 redis-cli -p 26379 SENTINEL SENTINELS sahool
 ## Need Help?
 
 **Documentation:**
+
 - Full guide: `REDIS_SECURITY_HARDENING_SUMMARY.md`
 - Audit report: `tests/database/REDIS_AUDIT.md`
 - Security details: `infrastructure/redis/REDIS_SECURITY.md`
 - TLS setup: `config/redis/REDIS_TLS_SETUP.md`
 
 **Support:**
+
 - DevOps Team: For general questions
 - Security Team: For security-related issues
 - Platform Architect: For architecture decisions
@@ -454,4 +471,4 @@ docker exec sahool-redis-sentinel-1 redis-cli -p 26379 SENTINEL SENTINELS sahool
 
 ---
 
-*End of Quick Start Guide*
+_End of Quick Start Guide_

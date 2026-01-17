@@ -6,9 +6,9 @@
  * يوضح هذا الملف كيفية استخدام nonces في سيناريوهات مختلفة
  */
 
-import { getNonce, createInlineScript, createInlineStyle } from './nonce';
+import { getNonce, createInlineScript, createInlineStyle } from "./nonce";
 // Logger is used dynamically in the inline script example below
-import { logger as _logger } from '@/lib/logger';
+import { logger as _logger } from "@/lib/logger";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Example 1: Server Component with Inline Script
@@ -65,14 +65,17 @@ interface DynamicStyledProps {
   secondaryColor: string;
 }
 
-export function ExampleWithCSSVariables({ primaryColor, secondaryColor }: DynamicStyledProps) {
+export function ExampleWithCSSVariables({
+  primaryColor,
+  secondaryColor,
+}: DynamicStyledProps) {
   return (
     <div
       className="dynamic-theme"
       style={
         {
-          '--primary-color': primaryColor,
-          '--secondary-color': secondaryColor,
+          "--primary-color": primaryColor,
+          "--secondary-color": secondaryColor,
         } as React.CSSProperties
       }
     >
@@ -106,7 +109,7 @@ export async function ExampleMapComponent() {
 
   return (
     <div>
-      <div id="map" style={{ height: '400px', width: '100%' }}></div>
+      <div id="map" style={{ height: "400px", width: "100%" }}></div>
       <script {...createInlineScript(mapInitScript, nonce)} />
     </div>
   );
@@ -152,7 +155,9 @@ interface ConditionalScriptProps {
   enableFeature: boolean;
 }
 
-export async function ExampleConditionalScript({ enableFeature }: ConditionalScriptProps) {
+export async function ExampleConditionalScript({
+  enableFeature,
+}: ConditionalScriptProps) {
   const nonce = await getNonce();
 
   if (!enableFeature) {
@@ -221,9 +226,7 @@ export async function ExampleErrorLogging() {
     });
   `;
 
-  return (
-    <script {...createInlineScript(errorLoggingScript, nonce)} />
-  );
+  return <script {...createInlineScript(errorLoggingScript, nonce)} />;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

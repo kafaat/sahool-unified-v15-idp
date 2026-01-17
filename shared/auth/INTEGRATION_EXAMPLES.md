@@ -1,4 +1,5 @@
 # JWT Guards Integration Examples
+
 # أمثلة على تكامل JWT Guards
 
 ## Table of Contents / جدول المحتويات
@@ -308,19 +309,19 @@ if __name__ == "__main__":
 
 ```typescript
 // app.module.ts
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { AuthModule } from './auth/auth.module';
-import { FarmsModule } from './farms/farms.module';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { RedisModule } from "@liaoliaots/nestjs-redis";
+import { AuthModule } from "./auth/auth.module";
+import { FarmsModule } from "./farms/farms.module";
 
 @Module({
   imports: [
     // Database
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
+      type: "postgres",
+      host: process.env.DB_HOST || "localhost",
+      port: parseInt(process.env.DB_PORT || "5432"),
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
@@ -331,8 +332,8 @@ import { FarmsModule } from './farms/farms.module';
     // Redis
     RedisModule.forRoot({
       config: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
+        host: process.env.REDIS_HOST || "localhost",
+        port: parseInt(process.env.REDIS_PORT || "6379"),
         password: process.env.REDIS_PASSWORD,
       },
     }),
@@ -346,34 +347,30 @@ export class AppModule {}
 
 ```typescript
 // auth/auth.module.ts
-import { Module } from '@nestjs/common';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtStrategy } from '@shared/auth/jwt.strategy';
-import { UserValidationService } from '@shared/auth/user-validation.service';
-import { JWTConfig } from '@shared/auth/config';
-import { User } from './entities/user.entity';
-import { UserRepository } from './repositories/user.repository';
+import { Module } from "@nestjs/common";
+import { PassportModule } from "@nestjs/passport";
+import { JwtModule } from "@nestjs/jwt";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { JwtStrategy } from "@shared/auth/jwt.strategy";
+import { UserValidationService } from "@shared/auth/user-validation.service";
+import { JWTConfig } from "@shared/auth/config";
+import { User } from "./entities/user.entity";
+import { UserRepository } from "./repositories/user.repository";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: "jwt" }),
     JwtModule.register({
       secret: JWTConfig.JWT_SECRET,
       signOptions: {
-        expiresIn: '30m',
+        expiresIn: "30m",
         issuer: JWTConfig.ISSUER,
         audience: JWTConfig.AUDIENCE,
       },
     }),
   ],
-  providers: [
-    JwtStrategy,
-    UserValidationService,
-    UserRepository,
-  ],
+  providers: [JwtStrategy, UserValidationService, UserRepository],
   exports: [JwtStrategy, UserValidationService],
 })
 export class AuthModule {}
@@ -381,11 +378,17 @@ export class AuthModule {}
 
 ```typescript
 // auth/entities/user.entity.ts
-import { Entity, Column, PrimaryColumn, UpdateDateColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  UpdateDateColumn,
+  CreateDateColumn,
+} from "typeorm";
 
-@Entity('users')
+@Entity("users")
 export class User {
-  @PrimaryColumn('uuid')
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column({ unique: true })
@@ -406,7 +409,7 @@ export class User {
   @Column({ default: false })
   isSuspended: boolean;
 
-  @Column('simple-array')
+  @Column("simple-array")
   roles: string[];
 
   @Column({ nullable: true })
@@ -422,11 +425,14 @@ export class User {
 
 ```typescript
 // auth/repositories/user.repository.ts
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
-import { IUserRepository, UserValidationData } from '@shared/auth/user-validation.service';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User } from "../entities/user.entity";
+import {
+  IUserRepository,
+  UserValidationData,
+} from "@shared/auth/user-validation.service";
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -435,18 +441,20 @@ export class UserRepository implements IUserRepository {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  async getUserValidationData(userId: string): Promise<UserValidationData | null> {
+  async getUserValidationData(
+    userId: string,
+  ): Promise<UserValidationData | null> {
     const user = await this.userRepo.findOne({
       where: { id: userId },
       select: [
-        'id',
-        'email',
-        'isActive',
-        'isVerified',
-        'isDeleted',
-        'isSuspended',
-        'roles',
-        'tenantId',
+        "id",
+        "email",
+        "isActive",
+        "isVerified",
+        "isDeleted",
+        "isSuspended",
+        "roles",
+        "tenantId",
       ],
     });
 
@@ -474,12 +482,12 @@ export class UserRepository implements IUserRepository {
 
 ```typescript
 // farms/farms.controller.ts
-import { Controller, Get, Post, UseGuards, Body } from '@nestjs/common';
-import { JwtAuthGuard, RolesGuard } from '@shared/auth/jwt.guard';
-import { CurrentUser } from '@shared/auth/decorators';
-import { Roles } from '@shared/auth/decorators';
+import { Controller, Get, Post, UseGuards, Body } from "@nestjs/common";
+import { JwtAuthGuard, RolesGuard } from "@shared/auth/jwt.guard";
+import { CurrentUser } from "@shared/auth/decorators";
+import { Roles } from "@shared/auth/decorators";
 
-@Controller('farms')
+@Controller("farms")
 @UseGuards(JwtAuthGuard)
 export class FarmsController {
   @Get()
@@ -491,7 +499,7 @@ export class FarmsController {
     };
   }
 
-  @Get('profile')
+  @Get("profile")
   async getProfile(@CurrentUser() user: any) {
     return {
       userId: user.id,
@@ -502,11 +510,11 @@ export class FarmsController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles('admin', 'manager')
+  @Roles("admin", "manager")
   async create(@CurrentUser() user: any, @Body() createDto: any) {
     // Only admin or manager can create farms
     return {
-      message: 'Farm created',
+      message: "Farm created",
       userId: user.id,
     };
   }
@@ -515,24 +523,24 @@ export class FarmsController {
 
 ```typescript
 // admin/cache.controller.ts
-import { Controller, Delete, Param, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, RolesGuard } from '@shared/auth/jwt.guard';
-import { Roles } from '@shared/auth/decorators';
-import { UserValidationService } from '@shared/auth/user-validation.service';
+import { Controller, Delete, Param, Post, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard, RolesGuard } from "@shared/auth/jwt.guard";
+import { Roles } from "@shared/auth/decorators";
+import { UserValidationService } from "@shared/auth/user-validation.service";
 
-@Controller('admin/cache')
+@Controller("admin/cache")
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
+@Roles("admin")
 export class CacheController {
   constructor(private readonly validationService: UserValidationService) {}
 
-  @Post('invalidate/:userId')
-  async invalidateUser(@Param('userId') userId: string) {
+  @Post("invalidate/:userId")
+  async invalidateUser(@Param("userId") userId: string) {
     await this.validationService.invalidateUser(userId);
     return { message: `Cache invalidated for user ${userId}` };
   }
 
-  @Delete('clear')
+  @Delete("clear")
   async clearAll() {
     const count = await this.validationService.clearAll();
     return { message: `Cleared ${count} cached users` };
@@ -589,6 +597,7 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE
 ### Invalidate Cache on User Update
 
 **Python:**
+
 ```python
 from shared.auth.user_cache import get_user_cache
 
@@ -603,6 +612,7 @@ async def update_user_status(user_id: str, is_active: bool):
 ```
 
 **TypeScript:**
+
 ```typescript
 @Injectable()
 class UserService {
@@ -674,7 +684,7 @@ async def test_protected_endpoint():
 ### TypeScript Test Example
 
 ```typescript
-describe('FarmsController', () => {
+describe("FarmsController", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -686,17 +696,15 @@ describe('FarmsController', () => {
     await app.init();
   });
 
-  it('/farms (GET) - unauthorized', () => {
-    return request(app.getHttpServer())
-      .get('/farms')
-      .expect(401);
+  it("/farms (GET) - unauthorized", () => {
+    return request(app.getHttpServer()).get("/farms").expect(401);
   });
 
-  it('/farms (GET) - authorized', () => {
-    const token = 'valid_jwt_token';
+  it("/farms (GET) - authorized", () => {
+    const token = "valid_jwt_token";
     return request(app.getHttpServer())
-      .get('/farms')
-      .set('Authorization', `Bearer ${token}`)
+      .get("/farms")
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
   });
 });
@@ -707,6 +715,7 @@ describe('FarmsController', () => {
 ## Summary / الخلاصة
 
 These examples show how to:
+
 - ✅ Implement user repository with database
 - ✅ Initialize caching service
 - ✅ Use enhanced authentication guards

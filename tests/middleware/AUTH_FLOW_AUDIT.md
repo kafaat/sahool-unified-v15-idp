@@ -1,4 +1,5 @@
 # Authentication Flow Audit Report
+
 ## SAHOOL Unified Platform v15 IDP
 
 **Audit Date:** 2026-01-06
@@ -20,6 +21,7 @@ The platform demonstrates strong security practices with modern authentication s
 ## 1. JWT Token Generation (User Service)
 
 ### Location
+
 - **Primary Service:** `/apps/services/user-service/`
 - **Shared Library:** `/shared/auth/`
 
@@ -30,6 +32,7 @@ The platform demonstrates strong security practices with modern authentication s
 **File:** `/shared/auth/jwt_handler.py`
 
 **Strengths:** ✅
+
 - Uses PyJWT library with proper algorithm whitelisting
 - Implements both access and refresh tokens
 - Includes JTI (JWT ID) for token revocation support
@@ -39,11 +42,13 @@ The platform demonstrates strong security practices with modern authentication s
 - SECURITY FIX: Hardcoded algorithm whitelist prevents algorithm confusion attacks
 
 **Algorithm Whitelist:**
+
 ```python
 ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
 ```
 
 **Token Payload Structure:**
+
 ```python
 {
     "sub": user_id,           # Subject (user identifier)
@@ -60,6 +65,7 @@ ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
 ```
 
 **Security Features:**
+
 - Explicit rejection of 'none' algorithm
 - Algorithm header validation before verification
 - Required claims enforcement: `["sub", "exp", "iat"]`
@@ -71,12 +77,14 @@ ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
 **File:** `/shared/auth/service_auth.ts`
 
 **Strengths:** ✅
+
 - Service-to-service authentication with JWT
 - Communication matrix for authorized service calls
 - Algorithm confusion attack prevention (same as Python)
 - Comprehensive error handling with bilingual messages
 
 **Service Communication Matrix:**
+
 - Defined allowed service-to-service calls
 - Prevents unauthorized inter-service communication
 - Special 'service' token type for microservices
@@ -89,6 +97,7 @@ ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
    - Token generation logic not found in user-service
 
 **Recommendation:**
+
 ```
 CRITICAL: Implement AuthService in user-service with proper JWT token generation:
 - Create apps/services/user-service/src/auth/auth.service.ts
@@ -101,6 +110,7 @@ CRITICAL: Implement AuthService in user-service with proper JWT token generation
 **File:** `/shared/auth/config.ts`
 
 **Configuration:**
+
 ```typescript
 JWT_SECRET_KEY: string (required, min 32 chars in production)
 JWT_ALGORITHM: "HS256" (default) or "RS256"
@@ -111,12 +121,14 @@ JWT_AUDIENCE: "sahool-api"
 ```
 
 **Strengths:** ✅
+
 - Environment-based configuration
 - Validation for production environments
 - Support for both HS256 and RS256 algorithms
 - Separate signing and verification keys for RS256
 
 **Issues:** ⚠️
+
 - No key rotation mechanism documented
 - Missing JWT_SECRET validation in development mode
 - No automated secret strength verification
@@ -126,6 +138,7 @@ JWT_AUDIENCE: "sahool-api"
 ## 2. JWT Validation in Kong
 
 ### Location
+
 - **Configuration:** `/infrastructure/gateway/kong/kong.yml`
 
 ### Implementation Analysis
@@ -133,6 +146,7 @@ JWT_AUDIENCE: "sahool-api"
 #### 2.1 Kong JWT Plugin Configuration
 
 **Global JWT Configuration:**
+
 ```yaml
 plugins:
   - name: jwt
@@ -142,12 +156,14 @@ plugins:
 ```
 
 **Strengths:** ✅
+
 - JWT plugin enabled on all protected services
 - Expiration claim verification
 - Per-service ACL groups for role-based access
 - Rate limiting integrated with JWT validation
 
 **Service-Level Configuration:**
+
 ```yaml
 services:
   - name: field-core
@@ -167,6 +183,7 @@ services:
 #### 2.2 Consumer Configuration
 
 **JWT Secrets per Consumer:**
+
 ```yaml
 consumers:
   - username: starter-user-sample
@@ -217,6 +234,7 @@ MEDIUM PRIORITY:
 #### 2.3 ACL Groups
 
 **ACL Configuration:**
+
 ```yaml
 acls:
   - consumer: starter-user-sample
@@ -232,11 +250,13 @@ acls:
 ```
 
 **Service-Level ACL:**
+
 - Starter services: All user groups
 - Professional services: professional-users, enterprise-users
 - Enterprise services: enterprise-users, research-users, admin-users
 
 **Strengths:** ✅
+
 - Clear role-based access control
 - Hierarchical access (enterprise users get professional access)
 - Separate admin group with IP restrictions
@@ -246,6 +266,7 @@ acls:
 ## 3. JWT Validation in Services
 
 ### Location
+
 - **Shared Guards:** `/shared/auth/jwt.guard.ts`, `/shared/auth/jwt.strategy.ts`
 - **Service Guards:** `/apps/services/*/src/auth/jwt-auth.guard.ts`
 
@@ -256,6 +277,7 @@ acls:
 **File:** `/shared/auth/jwt.strategy.ts`
 
 **Strengths:** ✅
+
 - Implements Passport JWT strategy properly
 - Database user validation with caching
 - User status checks (active, verified, not deleted/suspended)
@@ -263,6 +285,7 @@ acls:
 - Detailed error messages with bilingual support
 
 **Validation Flow:**
+
 ```typescript
 1. Extract JWT from Authorization header (Bearer token)
 2. Verify JWT signature with secret/public key
@@ -274,6 +297,7 @@ acls:
 ```
 
 **User Validation Service:**
+
 - Optional database lookup for user existence
 - User status verification (active, verified)
 - Redis caching for performance
@@ -317,6 +341,7 @@ acls:
    - Prevents suspended/disabled account access
 
 **Strengths:** ✅
+
 - Comprehensive guard coverage for different scenarios
 - Proper error handling with meaningful messages
 - Support for optional authentication
@@ -328,6 +353,7 @@ acls:
 **File:** `/apps/services/marketplace-service/src/auth/jwt-auth.guard.ts`
 
 **Implementation:**
+
 - Direct JWT verification without Passport
 - Hardcoded algorithm whitelist (same security fix)
 - Attaches user to request object
@@ -346,6 +372,7 @@ acls:
    - Potential performance impact
 
 **Recommendations:**
+
 ```
 MEDIUM PRIORITY:
 1. Standardize on Passport strategy for all NestJS services
@@ -359,6 +386,7 @@ MEDIUM PRIORITY:
 ## 4. Token Refresh Flow
 
 ### Location
+
 - **Frontend:** `/apps/admin/src/app/api/auth/refresh/route.ts`
 - **Backend:** `/shared/auth/jwt_handler.py`
 
@@ -369,6 +397,7 @@ MEDIUM PRIORITY:
 **File:** `/apps/admin/src/app/api/auth/refresh/route.ts`
 
 **Flow:**
+
 ```typescript
 1. Get refresh token from httpOnly cookie
 2. Call backend /api/v1/auth/refresh endpoint
@@ -380,6 +409,7 @@ MEDIUM PRIORITY:
 ```
 
 **Strengths:** ✅
+
 - Uses httpOnly cookies for token storage (prevents XSS)
 - Secure flag enabled in production
 - SameSite: strict (prevents CSRF)
@@ -387,6 +417,7 @@ MEDIUM PRIORITY:
 - Last activity tracking for idle timeout
 
 **Cookie Configuration:**
+
 ```typescript
 Access Token:
 - httpOnly: true
@@ -408,6 +439,7 @@ Refresh Token:
 **Function:** `refresh_access_token(refresh_token, roles, permissions)`
 
 **Flow:**
+
 ```python
 1. Verify refresh token (signature, expiration, issuer, audience)
 2. Extract user_id and tenant_id from token
@@ -418,6 +450,7 @@ Refresh Token:
 ```
 
 **Strengths:** ✅
+
 - Refresh token type validation
 - Fresh role/permission lookup from database
 - Maintains tenant context
@@ -441,6 +474,7 @@ Refresh Token:
    - Could refresh token for deleted/suspended users
 
 **Recommendations:**
+
 ```
 HIGH PRIORITY:
 1. Implement Refresh Token Rotation (RTR)
@@ -469,6 +503,7 @@ MEDIUM PRIORITY:
 ## 5. Session Management
 
 ### Location
+
 - **Database Schema:** `/apps/services/user-service/prisma/schema.prisma`
 - **Service:** `/apps/services/user-service/src/users/users.service.ts`
 
@@ -498,6 +533,7 @@ model UserSession {
 ```
 
 **Strengths:** ✅
+
 - Proper indexing on userId, token, and expiresAt
 - Cascade delete on user deletion
 - IP address and user agent tracking
@@ -543,6 +579,7 @@ model RefreshToken {
 ```
 
 **Strengths:** ✅
+
 - Revocation flag for token invalidation
 - Proper indexing
 - Token uniqueness enforced
@@ -563,6 +600,7 @@ model RefreshToken {
 #### 5.3 Last Login Tracking
 
 **Implementation:**
+
 ```typescript
 async updateLastLogin(userId: string): Promise<void> {
   await this.prisma.user.update({
@@ -575,15 +613,18 @@ async updateLastLogin(userId: string): Promise<void> {
 ```
 
 **Strengths:** ✅
+
 - Simple and effective
 - Tracks last login per user
 - Can be used for security monitoring
 
 **Issues:** ⚠️
+
 - No call to this method in authentication flow
 - Feature exists but not utilized
 
 **Recommendations:**
+
 ```
 HIGH PRIORITY:
 1. Implement Active Session Management
@@ -620,6 +661,7 @@ MEDIUM PRIORITY:
 ## 6. Password Handling
 
 ### Location
+
 - **Primary:** `/shared/auth/password-hasher.ts`
 - **Legacy:** `/shared/auth/password_hasher.py`
 - **Service:** `/apps/services/user-service/src/users/users.service.ts`
@@ -633,15 +675,17 @@ MEDIUM PRIORITY:
 **Algorithm:** Argon2id (OWASP recommended)
 
 **Configuration:**
+
 ```typescript
-timeCost: 2         // OWASP minimum iterations
-memoryCost: 65536   // 64 MB memory
-parallelism: 4      // 4 parallel threads
-hashLength: 32      // 256 bits
-saltLength: 16      // 128 bits
+timeCost: 2; // OWASP minimum iterations
+memoryCost: 65536; // 64 MB memory
+parallelism: 4; // 4 parallel threads
+hashLength: 32; // 256 bits
+saltLength: 16; // 128 bits
 ```
 
 **Strengths:** ✅
+
 - Uses Argon2id (winner of Password Hashing Competition)
 - OWASP-recommended parameters
 - Backward compatibility with bcrypt and PBKDF2
@@ -650,6 +694,7 @@ saltLength: 16      // 128 bits
 - Comprehensive algorithm detection
 
 **Migration Support:**
+
 ```typescript
 Supported Algorithms:
 1. Argon2id (primary)
@@ -658,6 +703,7 @@ Supported Algorithms:
 ```
 
 **Password Verification Flow:**
+
 ```typescript
 1. Detect algorithm from hash format
 2. Verify password with appropriate algorithm
@@ -667,6 +713,7 @@ Supported Algorithms:
 ```
 
 **Security Features:**
+
 - Automatic rehashing on parameter changes
 - Graceful fallback chain (Argon2 → bcrypt → PBKDF2)
 - Safe handling of missing dependencies
@@ -677,6 +724,7 @@ Supported Algorithms:
 **File:** `/apps/services/user-service/src/users/users.service.ts`
 
 **Implementation:**
+
 ```typescript
 // Password hashing on user creation
 const passwordHash = await bcrypt.hash(createUserDto.password, 10);
@@ -790,12 +838,14 @@ MEDIUM PRIORITY:
 **Database Migration:** `/database/migrations/011_migrate_passwords_to_argon2.py`
 
 **Strengths:** ✅
+
 - Migration script exists for batch password rehashing
 - Supports dry-run mode
 - Comprehensive error handling
 - Progress tracking
 
 **Issues:** ⚠️
+
 - Migration only runs on existing passwords
 - New users still get bcrypt (from user service)
 - Inconsistent hashing between new and migrated users
@@ -805,6 +855,7 @@ MEDIUM PRIORITY:
 ## 7. 2FA Implementation
 
 ### Location
+
 - **Service:** `/shared/auth/twofa_service.py`
 - **API:** `/shared/auth/auth_api.py`
 - **Configuration:** `/shared/auth/twofa_config.py`
@@ -818,6 +869,7 @@ MEDIUM PRIORITY:
 **Implementation:** pyotp library (TOTP - Time-based One-Time Password)
 
 **Configuration:**
+
 ```python
 TOTP_ISSUER: "SAHOOL Agricultural Platform"
 TOTP_ALGORITHM: "SHA1"
@@ -826,6 +878,7 @@ TOTP_INTERVAL: 30  # seconds
 ```
 
 **Strengths:** ✅
+
 - Industry-standard TOTP implementation
 - Compatible with Google Authenticator, Authy, Microsoft Authenticator
 - QR code generation for easy setup
@@ -863,6 +916,7 @@ TOTP_INTERVAL: 30  # seconds
 **File:** `/shared/auth/auth_api.py`
 
 **Flow:**
+
 ```python
 # Initial Login
 POST /api/v1/auth/login
@@ -904,6 +958,7 @@ POST /api/v1/auth/login/2fa
 ```
 
 **Strengths:** ✅
+
 - Temporary token for 2FA step (5-minute expiry)
 - Supports both TOTP and backup codes
 - Backup code removed after use
@@ -911,6 +966,7 @@ POST /api/v1/auth/login/2fa
 - Graceful handling of disabled 2FA
 
 **Security Features:**
+
 - TOTP verification with time window
 - Backup code hashing (SHA256)
 - Single-use backup codes
@@ -1048,12 +1104,14 @@ MEDIUM PRIORITY:
 #### 7.4 2FA Security Considerations
 
 **Strengths:** ✅
+
 - Standard TOTP implementation
 - Compatible with major authenticator apps
 - Secure backup code generation
 - Proper hashing of backup codes
 
 **Weaknesses:** ⚠️
+
 - No rate limiting on 2FA attempts
 - No account lockout after failed attempts
 - Backup codes not time-limited
@@ -1071,6 +1129,7 @@ MEDIUM PRIORITY:
 Comprehensive search across the codebase reveals:
 
 **Files Searched:**
+
 - `/apps/services/user-service/`
 - `/shared/auth/`
 - `/apps/admin/`
@@ -1079,6 +1138,7 @@ Comprehensive search across the codebase reveals:
 - Environment configurations
 
 **Findings:**
+
 - ❌ No Passport OAuth strategies found
 - ❌ No Google OAuth configuration
 - ❌ No Facebook OAuth configuration
@@ -1089,13 +1149,14 @@ Comprehensive search across the codebase reveals:
 - ❌ No OAuth state management
 
 **Limited Social Integration:**
+
 - Google Maps API key found (for maps, not auth)
 - Google Gemini API key (for AI, not auth)
 - No OAuth 2.0 client configurations
 
 ### Recommendations
 
-```
+````
 MEDIUM PRIORITY: Implement OAuth/Social Login
 
 1. Choose OAuth Providers
@@ -1159,11 +1220,12 @@ MEDIUM PRIORITY: Implement OAuth/Social Login
        done(null, user);
      }
    }
-   ```
+````
 
 3. OAuth User Model Extension
 
    Update User schema:
+
    ```prisma
    model User {
      // ... existing fields
@@ -1189,21 +1251,24 @@ MEDIUM PRIORITY: Implement OAuth/Social Login
    - GET /api/v1/auth/apple/callback
 
    Controller:
+
    ```typescript
-   @Controller('auth')
+   @Controller("auth")
    export class OAuthController {
-     @Get('google')
-     @UseGuards(AuthGuard('google'))
+     @Get("google")
+     @UseGuards(AuthGuard("google"))
      googleAuth() {}
 
-     @Get('google/callback')
-     @UseGuards(AuthGuard('google'))
+     @Get("google/callback")
+     @UseGuards(AuthGuard("google"))
      async googleAuthCallback(@Req() req, @Res() res) {
        // Generate JWT token
        const tokens = await this.authService.login(req.user);
 
        // Redirect to frontend with tokens
-       res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${tokens.access_token}`);
+       res.redirect(
+         `${process.env.FRONTEND_URL}/auth/callback?token=${tokens.access_token}`,
+       );
      }
    }
    ```
@@ -1211,6 +1276,7 @@ MEDIUM PRIORITY: Implement OAuth/Social Login
 5. Frontend Integration
 
    Social login buttons:
+
    ```tsx
    // apps/admin/src/components/SocialLogin.tsx
    export function SocialLogin() {
@@ -1231,7 +1297,6 @@ MEDIUM PRIORITY: Implement OAuth/Social Login
    ```
 
 6. Security Considerations
-
    - Implement PKCE for mobile OAuth flows
    - Use state parameter to prevent CSRF
    - Validate OAuth redirect URIs
@@ -1244,6 +1309,7 @@ MEDIUM PRIORITY: Implement OAuth/Social Login
 7. Account Linking
 
    Handle case where user has both password and OAuth:
+
    ```typescript
    async validateOAuthUser(oauthProfile) {
      // Check if user exists by email
@@ -1264,6 +1330,7 @@ MEDIUM PRIORITY: Implement OAuth/Social Login
 8. Configuration
 
    Environment variables:
+
    ```env
    # Google OAuth
    GOOGLE_CLIENT_ID=your_client_id
@@ -1284,7 +1351,6 @@ MEDIUM PRIORITY: Implement OAuth/Social Login
    ```
 
 9. Testing
-
    - Test OAuth flow for each provider
    - Test account linking scenarios
    - Test OAuth token refresh
@@ -1293,11 +1359,11 @@ MEDIUM PRIORITY: Implement OAuth/Social Login
    - Test mobile OAuth flows (PKCE)
 
 10. Documentation
-
     - Document OAuth setup for each provider
     - Document account linking behavior
     - Document security considerations
     - Create user guide for social login
+
 ```
 
 ---
@@ -1688,3 +1754,4 @@ While the platform has good security foundations, the critical gaps in password 
 **Report Generated:** 2026-01-06
 **Next Review:** 2026-02-06
 **Version:** 1.0.0
+```

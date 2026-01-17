@@ -1,11 +1,13 @@
 # Sync Metrics Migration Guide
 
 ## Overview
+
 This guide helps you integrate the new sync metrics monitoring system into your existing SAHOOL Field App.
 
 ## Prerequisites
 
 Ensure you have these dependencies in `pubspec.yaml` (already present):
+
 ```yaml
 dependencies:
   shared_preferences: ^2.3.3
@@ -19,6 +21,7 @@ dependencies:
 ### Step 1: Update main.dart (5 minutes)
 
 **Before:**
+
 ```dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +37,7 @@ void main() async {
 ```
 
 **After:**
+
 ```dart
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/sync/sync_metrics_providers.dart';
@@ -64,11 +68,13 @@ void main() async {
 ### Step 2: Update SyncEngine Initialization (2 minutes)
 
 **Before:**
+
 ```dart
 final syncEngine = SyncEngine(database: database);
 ```
 
 **After:**
+
 ```dart
 // Option A: Use the provider (recommended)
 final syncEngine = ref.watch(syncEngineWithMetricsProvider);
@@ -84,11 +90,13 @@ final syncEngine = SyncEngine(
 ### Step 3: Update QueueManager Initialization (2 minutes)
 
 **Before:**
+
 ```dart
 final queueManager = QueueManager(database: database);
 ```
 
 **After:**
+
 ```dart
 // Option A: Use the provider (recommended)
 final queueManager = ref.watch(queueManagerWithMetricsProvider);
@@ -106,6 +114,7 @@ final queueManager = QueueManager(
 #### Option A: Compact View in Dashboard
 
 Add to your home screen:
+
 ```dart
 import 'features/sync/ui/sync_metrics_widget.dart';
 
@@ -130,6 +139,7 @@ class HomeScreen extends StatelessWidget {
 #### Option B: Full Metrics Screen
 
 Create a new screen:
+
 ```dart
 import 'package:flutter/material.dart';
 import 'features/sync/ui/sync_metrics_widget.dart';
@@ -152,6 +162,7 @@ class SyncMetricsScreen extends StatelessWidget {
 ```
 
 Add navigation to this screen:
+
 ```dart
 // In your settings or sync screen
 IconButton(
@@ -170,6 +181,7 @@ IconButton(
 ### Step 5: Test the Integration (15 minutes)
 
 1. **Run the app**:
+
 ```bash
 cd /apps/mobile/sahool_field_app
 flutter run
@@ -185,6 +197,7 @@ flutter run
    - Metrics should be retained
 
 4. **Use the demo screen** (optional):
+
 ```dart
 // Add to your debug menu or settings
 Navigator.push(
@@ -214,12 +227,14 @@ Navigator.push(
 ### Issue 1: Provider Not Found Error
 
 **Error:**
+
 ```
 ProviderNotFoundException: Error: Could not find the correct Provider<SyncMetricsService>
 ```
 
 **Solution:**
 Ensure you've overridden the provider in main.dart:
+
 ```dart
 syncMetricsServiceProvider.overrideWith((ref) {
   return ref.watch(syncMetricsServiceProviderImpl);
@@ -231,6 +246,7 @@ syncMetricsServiceProvider.overrideWith((ref) {
 **Error:** Metrics widget shows zeros or doesn't update
 
 **Solution:**
+
 1. Check that SyncEngine has metricsService parameter set
 2. Verify sync operations are actually running
 3. Check for null metricsService (it's optional, should handle null safely)
@@ -238,12 +254,14 @@ syncMetricsServiceProvider.overrideWith((ref) {
 ### Issue 3: SharedPreferences Error
 
 **Error:**
+
 ```
 MissingPluginException(No implementation found for method getAll)
 ```
 
 **Solution:**
 Ensure SharedPreferences is initialized before creating ProviderScope:
+
 ```dart
 final sharedPreferences = await SharedPreferences.getInstance();
 ```
@@ -253,6 +271,7 @@ final sharedPreferences = await SharedPreferences.getInstance();
 **Error:** Empty space where charts should be
 
 **Solution:**
+
 1. Ensure daily metrics have data (run some sync operations)
 2. Check that fl_chart dependency is installed
 3. Try running demo to populate data
@@ -262,6 +281,7 @@ final sharedPreferences = await SharedPreferences.getInstance();
 If you need to rollback the changes:
 
 1. **Remove provider overrides** from main.dart:
+
 ```dart
 runApp(
   ProviderScope(
@@ -271,11 +291,13 @@ runApp(
 ```
 
 2. **Remove metricsService** from SyncEngine:
+
 ```dart
 final syncEngine = SyncEngine(database: database);
 ```
 
 3. **Remove metricsService** from QueueManager:
+
 ```dart
 final queueManager = QueueManager(database: database);
 ```
@@ -288,14 +310,14 @@ The existing sync functionality will continue to work without metrics.
 
 Expected impact after migration:
 
-| Metric | Impact | Notes |
-|--------|--------|-------|
-| App Size | +80KB | New code added |
-| Memory | +100KB | Metrics in memory |
-| Storage | +50-100KB | SharedPreferences data |
-| Startup Time | +50-100ms | Load metrics from storage |
-| Battery | Negligible | Queue check every 30s |
-| Network | None | All local processing |
+| Metric       | Impact     | Notes                     |
+| ------------ | ---------- | ------------------------- |
+| App Size     | +80KB      | New code added            |
+| Memory       | +100KB     | Metrics in memory         |
+| Storage      | +50-100KB  | SharedPreferences data    |
+| Startup Time | +50-100ms  | Load metrics from storage |
+| Battery      | Negligible | Queue check every 30s     |
+| Network      | None       | All local processing      |
 
 ## Post-Migration
 
@@ -360,14 +382,14 @@ If you encounter issues during migration:
 
 Estimated migration time:
 
-| Task | Time | Difficulty |
-|------|------|------------|
-| Update main.dart | 5 min | Easy |
-| Update SyncEngine | 2 min | Easy |
-| Update QueueManager | 2 min | Easy |
-| Add UI widgets | 10 min | Easy |
-| Testing | 15 min | Easy |
-| **Total** | **~35 min** | **Easy** |
+| Task                | Time        | Difficulty |
+| ------------------- | ----------- | ---------- |
+| Update main.dart    | 5 min       | Easy       |
+| Update SyncEngine   | 2 min       | Easy       |
+| Update QueueManager | 2 min       | Easy       |
+| Add UI widgets      | 10 min      | Easy       |
+| Testing             | 15 min      | Easy       |
+| **Total**           | **~35 min** | **Easy**   |
 
 ## Success Criteria
 

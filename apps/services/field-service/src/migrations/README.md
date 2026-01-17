@@ -5,6 +5,7 @@
 ### المتطلبات الأولية
 
 تأكد من تثبيت المكتبات المطلوبة:
+
 ```bash
 pip install tortoise-orm aerich asyncpg
 ```
@@ -30,6 +31,7 @@ field-service/
 #### 1. متغيرات البيئة
 
 تأكد من تعيين `DATABASE_URL`:
+
 ```bash
 export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/sahool"
 ```
@@ -42,6 +44,7 @@ aerich init-db
 ```
 
 هذا الأمر سينشئ:
+
 - الجداول في قاعدة البيانات
 - ملف `aerich.txt` لتتبع حالة migrations
 
@@ -74,56 +77,60 @@ aerich downgrade
 ### الجداول المنشأة
 
 #### 1. fields
+
 حقول زراعية مع معلومات الموقع والحدود الجغرافية
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | معرف الحقل |
-| tenant_id | VARCHAR(64) | معرف المستأجر |
-| user_id | VARCHAR(64) | معرف المزارع |
-| name | VARCHAR(200) | اسم الحقل |
-| location | JSONB | موقع الحقل |
-| boundary | JSONB | حدود الحقل (GeoJSON) |
-| area_hectares | FLOAT | المساحة بالهكتار |
-| soil_type | VARCHAR(30) | نوع التربة |
-| irrigation_source | VARCHAR(30) | مصدر الري |
+| Column            | Type         | Description          |
+| ----------------- | ------------ | -------------------- |
+| id                | UUID         | معرف الحقل           |
+| tenant_id         | VARCHAR(64)  | معرف المستأجر        |
+| user_id           | VARCHAR(64)  | معرف المزارع         |
+| name              | VARCHAR(200) | اسم الحقل            |
+| location          | JSONB        | موقع الحقل           |
+| boundary          | JSONB        | حدود الحقل (GeoJSON) |
+| area_hectares     | FLOAT        | المساحة بالهكتار     |
+| soil_type         | VARCHAR(30)  | نوع التربة           |
+| irrigation_source | VARCHAR(30)  | مصدر الري            |
 
 #### 2. crop_seasons
+
 مواسم المحاصيل المزروعة
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | معرف الموسم |
-| field_id | UUID | معرف الحقل |
-| crop_type | VARCHAR(100) | نوع المحصول |
-| planting_date | DATE | تاريخ الزراعة |
-| harvest_date | DATE | تاريخ الحصاد |
-| status | VARCHAR(20) | حالة الموسم |
-| actual_yield_kg | FLOAT | الإنتاج الفعلي |
+| Column          | Type         | Description    |
+| --------------- | ------------ | -------------- |
+| id              | UUID         | معرف الموسم    |
+| field_id        | UUID         | معرف الحقل     |
+| crop_type       | VARCHAR(100) | نوع المحصول    |
+| planting_date   | DATE         | تاريخ الزراعة  |
+| harvest_date    | DATE         | تاريخ الحصاد   |
+| status          | VARCHAR(20)  | حالة الموسم    |
+| actual_yield_kg | FLOAT        | الإنتاج الفعلي |
 
 #### 3. zones
+
 مناطق فرعية داخل الحقول
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | معرف المنطقة |
-| field_id | UUID | معرف الحقل |
-| name | VARCHAR(100) | اسم المنطقة |
-| boundary | JSONB | حدود المنطقة |
-| purpose | VARCHAR(50) | غرض التقسيم |
+| Column   | Type         | Description  |
+| -------- | ------------ | ------------ |
+| id       | UUID         | معرف المنطقة |
+| field_id | UUID         | معرف الحقل   |
+| name     | VARCHAR(100) | اسم المنطقة  |
+| boundary | JSONB        | حدود المنطقة |
+| purpose  | VARCHAR(50)  | غرض التقسيم  |
 
 #### 4. ndvi_records
+
 سجلات قياسات NDVI
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | معرف السجل |
-| field_id | UUID | معرف الحقل |
-| date | DATE | تاريخ القياس |
-| mean | FLOAT | متوسط NDVI |
-| min | FLOAT | أدنى NDVI |
-| max | FLOAT | أقصى NDVI |
-| source | VARCHAR(50) | مصدر البيانات |
+| Column   | Type        | Description   |
+| -------- | ----------- | ------------- |
+| id       | UUID        | معرف السجل    |
+| field_id | UUID        | معرف الحقل    |
+| date     | DATE        | تاريخ القياس  |
+| mean     | FLOAT       | متوسط NDVI    |
+| min      | FLOAT       | أدنى NDVI     |
+| max      | FLOAT       | أقصى NDVI     |
+| source   | VARCHAR(50) | مصدر البيانات |
 
 ### استخدام Models في الكود
 
@@ -178,6 +185,7 @@ aerich init-db
 ### التكامل مع Docker
 
 في `docker-compose.yml`:
+
 ```yaml
 services:
   field-service:

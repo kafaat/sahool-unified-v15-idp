@@ -5,26 +5,26 @@
  * Map visualization for VRA prescription zones with color-coded rates using Leaflet.
  */
 
-'use client';
+"use client";
 
-import React, { useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import { Map as MapIcon, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { PrescriptionResponse } from '../types/vra';
+import React, { useMemo } from "react";
+import dynamic from "next/dynamic";
+import { Map as MapIcon, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { PrescriptionResponse } from "../types/vra";
 
 // Dynamically import Leaflet components to avoid SSR issues
 const MapContainer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
-  { ssr: false, loading: () => <MapLoadingFallback /> }
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false, loading: () => <MapLoadingFallback /> },
 );
 const TileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
-  { ssr: false }
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false },
 );
 const GeoJSON = dynamic(
-  () => import('react-leaflet').then((mod) => mod.GeoJSON),
-  { ssr: false }
+  () => import("react-leaflet").then((mod) => mod.GeoJSON),
+  { ssr: false },
 );
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -45,7 +45,9 @@ function MapLoadingFallback() {
     <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg">
       <div className="flex flex-col items-center gap-2">
         <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-        <p className="text-sm text-gray-600">Loading map... | جاري تحميل الخريطة...</p>
+        <p className="text-sm text-gray-600">
+          Loading map... | جاري تحميل الخريطة...
+        </p>
       </div>
     </div>
   );
@@ -57,14 +59,14 @@ function MapLoadingFallback() {
 
 export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
   prescription,
-  height = '500px',
+  height = "500px",
 }) => {
   // Convert zones to GeoJSON FeatureCollection
   const geoJsonData = useMemo(() => {
     const features = prescription.zones
       .filter((zone) => zone.polygon && zone.polygon.length > 0)
       .map((zone) => ({
-        type: 'Feature' as const,
+        type: "Feature" as const,
         id: zone.zoneId,
         properties: {
           zoneId: zone.zoneId,
@@ -81,13 +83,13 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
           color: zone.color,
         },
         geometry: {
-          type: 'Polygon' as const,
+          type: "Polygon" as const,
           coordinates: zone.polygon,
         },
       }));
 
     return {
-      type: 'FeatureCollection' as const,
+      type: "FeatureCollection" as const,
       features,
     };
   }, [prescription.zones]);
@@ -176,7 +178,8 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
           <span>Prescription Map | خريطة الوصفة</span>
         </CardTitle>
         <p className="text-sm text-gray-600 mt-1">
-          {prescription.vraType.toUpperCase()} Application - {prescription.numZones} Management Zones
+          {prescription.vraType.toUpperCase()} Application -{" "}
+          {prescription.numZones} Management Zones
         </p>
       </CardHeader>
       <CardContent>
@@ -189,7 +192,7 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
           <MapContainer
             center={mapConfig.center}
             zoom={mapConfig.zoom}
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: "100%", width: "100%" }}
             className="z-0"
             {...({} as any)}
           >
@@ -214,14 +217,16 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
           <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-xs z-10">
             <div className="space-y-1 text-xs">
               <p className="font-bold text-gray-800">
-                Total Area | إجمالي المساحة: {prescription.totalAreaHa.toFixed(2)} ha
+                Total Area | إجمالي المساحة:{" "}
+                {prescription.totalAreaHa.toFixed(2)} ha
               </p>
               <p className="text-gray-700">
-                Target Rate | المعدل المستهدف: {prescription.targetRate} {prescription.unit}
+                Target Rate | المعدل المستهدف: {prescription.targetRate}{" "}
+                {prescription.unit}
               </p>
               <p className="text-green-700 font-semibold">
-                Savings | التوفير: {prescription.savingsPercent.toFixed(1)}%
-                ({prescription.savingsAmount.toFixed(2)} {prescription.unit})
+                Savings | التوفير: {prescription.savingsPercent.toFixed(1)}% (
+                {prescription.savingsAmount.toFixed(2)} {prescription.unit})
               </p>
             </div>
           </div>
@@ -268,12 +273,19 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
                 </h5>
               </div>
               <div className="space-y-1 text-xs text-gray-600">
-                <p>NDVI: {zone.ndviMin.toFixed(2)} - {zone.ndviMax.toFixed(2)}</p>
-                <p>Area: {zone.areaHa.toFixed(2)} ha ({zone.percentage.toFixed(1)}%)</p>
+                <p>
+                  NDVI: {zone.ndviMin.toFixed(2)} - {zone.ndviMax.toFixed(2)}
+                </p>
+                <p>
+                  Area: {zone.areaHa.toFixed(2)} ha (
+                  {zone.percentage.toFixed(1)}%)
+                </p>
                 <p className="font-medium text-green-700">
                   Rate: {zone.recommendedRate.toFixed(2)} {zone.unit}
                 </p>
-                <p>Total: {zone.totalProduct.toFixed(2)} {zone.unit}</p>
+                <p>
+                  Total: {zone.totalProduct.toFixed(2)} {zone.unit}
+                </p>
               </div>
             </div>
           ))}

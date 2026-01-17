@@ -3,6 +3,7 @@
 ## 🚀 Quick Start
 
 ### Import Guards and Decorators
+
 ```typescript
 import {
   JwtAuthGuard,
@@ -13,13 +14,14 @@ import {
   Public,
   CurrentUser,
   UserId,
-} from '@sahool/nestjs-auth';
-import { Throttle, SkipThrottle } from '@nestjs/throttler';
+} from "@sahool/nestjs-auth";
+import { Throttle, SkipThrottle } from "@nestjs/throttler";
 ```
 
 ## 📋 Common Patterns
 
 ### Public Route
+
 ```typescript
 @Get('public-data')
 @Public()
@@ -29,6 +31,7 @@ getData() {
 ```
 
 ### Protected Route (Authenticated Users Only)
+
 ```typescript
 @Get('profile')
 @UseGuards(JwtAuthGuard)
@@ -38,6 +41,7 @@ getProfile(@CurrentUser() user: any) {
 ```
 
 ### Admin Only Route
+
 ```typescript
 @Get('admin/users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -48,6 +52,7 @@ getAllUsers() {
 ```
 
 ### Multiple Roles
+
 ```typescript
 @Post('products')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -58,6 +63,7 @@ createProduct(@Body() dto: CreateProductDto) {
 ```
 
 ### Permission-Based Access
+
 ```typescript
 @Delete('farms/:id')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -68,6 +74,7 @@ deleteFarm(@Param('id') id: string) {
 ```
 
 ### Multiple Permissions
+
 ```typescript
 @Put('settings')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -78,6 +85,7 @@ updateSettings(@Body() dto: any) {
 ```
 
 ### Custom Rate Limiting
+
 ```typescript
 @Post('login')
 @Public()
@@ -88,6 +96,7 @@ login(@Body() credentials: LoginDto) {
 ```
 
 ### Skip Rate Limiting
+
 ```typescript
 @Post('logout')
 @UseGuards(JwtAuthGuard)
@@ -98,6 +107,7 @@ logout() {
 ```
 
 ### Optional Authentication
+
 ```typescript
 @Get('content')
 @UseGuards(OptionalAuthGuard)
@@ -112,6 +122,7 @@ getContent(@CurrentUser() user?: any) {
 ## 🎯 User Data Extraction
 
 ### Get User ID
+
 ```typescript
 @Get('my-data')
 @UseGuards(JwtAuthGuard)
@@ -121,6 +132,7 @@ getMyData(@UserId() userId: string) {
 ```
 
 ### Get Full User Object
+
 ```typescript
 @Get('profile')
 @UseGuards(JwtAuthGuard)
@@ -134,6 +146,7 @@ getProfile(@CurrentUser() user: any) {
 ```
 
 ### Get User Roles
+
 ```typescript
 @Get('dashboard')
 @UseGuards(JwtAuthGuard)
@@ -146,6 +159,7 @@ getDashboard(@UserRoles() roles: string[]) {
 ```
 
 ### Get Specific User Property
+
 ```typescript
 @Get('email')
 @UseGuards(JwtAuthGuard)
@@ -155,6 +169,7 @@ getEmail(@CurrentUser('email') email: string) {
 ```
 
 ### Get Tenant ID
+
 ```typescript
 @Get('data')
 @UseGuards(JwtAuthGuard)
@@ -164,6 +179,7 @@ getData(@TenantId() tenantId: string) {
 ```
 
 ### Get User Permissions
+
 ```typescript
 @Get('features')
 @UseGuards(JwtAuthGuard)
@@ -175,6 +191,7 @@ getFeatures(@UserPermissions() permissions: string[]) {
 ## 🔒 Security Patterns
 
 ### Admin or Owner
+
 ```typescript
 @Put('farms/:id')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -191,6 +208,7 @@ updateFarm(
 ```
 
 ### Resource Ownership Check (in service)
+
 ```typescript
 // In service
 async updateFarm(farmId: string, dto: UpdateFarmDto, userId: string) {
@@ -205,6 +223,7 @@ async updateFarm(farmId: string, dto: UpdateFarmDto, userId: string) {
 ```
 
 ### Combine Guards
+
 ```typescript
 @Delete('products/:id')
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
@@ -220,6 +239,7 @@ deleteProduct(@Param('id') id: string) {
 ## 📊 Rate Limiting Patterns
 
 ### Authentication Endpoints
+
 ```typescript
 // Login - Strict limit
 @Post('login')
@@ -239,6 +259,7 @@ deleteProduct(@Param('id') id: string) {
 ```
 
 ### Data Operations
+
 ```typescript
 // Read operations - Relaxed
 @Get('data')
@@ -256,51 +277,53 @@ deleteProduct(@Param('id') id: string) {
 ## 🎭 Controller-Level Guards
 
 ### Apply to All Routes
+
 ```typescript
-@Controller('admin')
+@Controller("admin")
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
+@Roles("admin")
 export class AdminController {
   // All routes require admin role
 
-  @Get('users')
-  getUsers() { }
+  @Get("users")
+  getUsers() {}
 
-  @Get('stats')
-  getStats() { }
+  @Get("stats")
+  getStats() {}
 }
 ```
 
 ### Override for Specific Route
-```typescript
-@Controller('admin')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
-export class AdminController {
 
-  @Get('users')
-  getUsers() { }
+```typescript
+@Controller("admin")
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles("admin")
+export class AdminController {
+  @Get("users")
+  getUsers() {}
 
   // Public endpoint in admin controller
-  @Get('public-stats')
+  @Get("public-stats")
   @Public()
-  getPublicStats() { }
+  getPublicStats() {}
 
   // Super admin only
-  @Delete('system')
-  @Roles('super_admin')
-  deleteSystem() { }
+  @Delete("system")
+  @Roles("super_admin")
+  deleteSystem() {}
 }
 ```
 
 ## 🧪 Testing Guards
 
 ### Mock JwtAuthGuard
+
 ```typescript
 const mockJwtAuthGuard = {
   canActivate: jest.fn((context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
-    request.user = { id: 'test-user', roles: ['admin'] };
+    request.user = { id: "test-user", roles: ["admin"] };
     return true;
   }),
 };
@@ -314,6 +337,7 @@ const module = await Test.createTestingModule({
 ```
 
 ### Mock RolesGuard
+
 ```typescript
 const mockRolesGuard = {
   canActivate: jest.fn(() => true),
@@ -330,50 +354,53 @@ const module = await Test.createTestingModule({
 ## 🚨 Common Errors
 
 ### 401 Unauthorized
+
 - Missing `Authorization` header
 - Invalid JWT token
 - Expired token
 - Token not yet valid (nbf claim)
 
 ### 403 Forbidden
+
 - User doesn't have required role
 - User doesn't have required permission
 - Account is disabled or not verified
 
 ### 429 Too Many Requests
+
 - Rate limit exceeded
 - Wait for TTL to reset
 
 ## 📚 Standard Roles
 
-| Role | Description |
-|------|-------------|
+| Role          | Description                  |
+| ------------- | ---------------------------- |
 | `super_admin` | Platform super administrator |
-| `admin` | Tenant administrator |
-| `manager` | Farm/Business manager |
-| `farmer` | Farm owner |
-| `seller` | Marketplace seller |
-| `buyer` | Marketplace buyer |
-| `agronomist` | Agricultural expert |
-| `researcher` | Research scientist |
-| `worker` | Farm worker |
-| `viewer` | Read-only user |
+| `admin`       | Tenant administrator         |
+| `manager`     | Farm/Business manager        |
+| `farmer`      | Farm owner                   |
+| `seller`      | Marketplace seller           |
+| `buyer`       | Marketplace buyer            |
+| `agronomist`  | Agricultural expert          |
+| `researcher`  | Research scientist           |
+| `worker`      | Farm worker                  |
+| `viewer`      | Read-only user               |
 
 ## 🔑 Standard Permissions
 
-| Permission | Description |
-|------------|-------------|
-| `farm:read` | View farms |
-| `farm:write` | Create/update farms |
-| `farm:delete` | Delete farms |
-| `product:read` | View products |
-| `product:write` | Create/update products |
-| `product:delete` | Delete products |
-| `user:read` | View users |
-| `user:write` | Create/update users |
-| `user:delete` | Delete users |
-| `settings:read` | View settings |
-| `settings:write` | Update settings |
+| Permission       | Description            |
+| ---------------- | ---------------------- |
+| `farm:read`      | View farms             |
+| `farm:write`     | Create/update farms    |
+| `farm:delete`    | Delete farms           |
+| `product:read`   | View products          |
+| `product:write`  | Create/update products |
+| `product:delete` | Delete products        |
+| `user:read`      | View users             |
+| `user:write`     | Create/update users    |
+| `user:delete`    | Delete users           |
+| `settings:read`  | View settings          |
+| `settings:write` | Update settings        |
 
 ## 💡 Pro Tips
 

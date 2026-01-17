@@ -97,11 +97,13 @@ class FieldDao extends DatabaseAccessor<AppDatabase> with _$FieldDaoMixin {
 ### Alternative 1: Isar
 
 **Considered because:**
+
 - NoSQL (simpler for some use cases)
 - Very fast performance
 - No code generation needed
 
 **Rejected because:**
+
 - Less mature than Drift
 - Complex queries harder
 - Schema migrations less robust
@@ -110,6 +112,7 @@ class FieldDao extends DatabaseAccessor<AppDatabase> with _$FieldDaoMixin {
 ### Alternative 2: Hive
 
 **Rejected because:**
+
 - No relational capabilities
 - Limited query options
 - Not suitable for complex data models
@@ -118,6 +121,7 @@ class FieldDao extends DatabaseAccessor<AppDatabase> with _$FieldDaoMixin {
 ### Alternative 3: sqflite (raw)
 
 **Rejected because:**
+
 - No type safety
 - Manual query strings
 - No migration framework

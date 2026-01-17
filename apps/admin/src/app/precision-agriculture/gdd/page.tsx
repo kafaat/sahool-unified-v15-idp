@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 // GDD (Growing Degree Days) Monitoring
 // مراقبة درجات النمو الحرارية
 
-import { useEffect, useState } from 'react';
-import Header from '@/components/layout/Header';
-import StatCard from '@/components/ui/StatCard';
-import AlertBadge from '@/components/ui/AlertBadge';
-import { fetchGDDData } from '@/lib/api/precision';
+import { useEffect, useState } from "react";
+import Header from "@/components/layout/Header";
+import StatCard from "@/components/ui/StatCard";
+import AlertBadge from "@/components/ui/AlertBadge";
+import { fetchGDDData } from "@/lib/api/precision";
 import {
   Thermometer,
   Sprout,
@@ -15,10 +15,10 @@ import {
   TrendingUp,
   Calendar,
   MapPin,
-  Clock
-} from 'lucide-react';
-import { formatDate } from '@/lib/utils';
-import { logger } from '../../../lib/logger';
+  Clock,
+} from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import { logger } from "../../../lib/logger";
 import {
   LineChart,
   Line,
@@ -28,8 +28,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   BarChart,
-  Bar
-} from 'recharts';
+  Bar,
+} from "recharts";
 
 interface GDDField {
   id: string;
@@ -47,7 +47,7 @@ interface GDDField {
   daysToNextStage: number;
   gddToNextStage: number;
   alerts: Array<{
-    type: 'info' | 'warning' | 'critical';
+    type: "info" | "warning" | "critical";
     message: string;
     messageAr: string;
   }>;
@@ -60,10 +60,10 @@ interface GDDField {
 }
 
 const CHART_COLORS = {
-  primary: '#2E7D32',
-  secondary: '#4CAF50',
-  accent: '#81C784',
-  warning: '#FF9800',
+  primary: "#2E7D32",
+  secondary: "#4CAF50",
+  accent: "#81C784",
+  warning: "#FF9800",
 };
 
 export default function GDDPage() {
@@ -84,7 +84,7 @@ export default function GDDPage() {
         setSelectedField(data[0]);
       }
     } catch (error) {
-      logger.error('Failed to load GDD data:', error);
+      logger.error("Failed to load GDD data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -93,15 +93,20 @@ export default function GDDPage() {
   const stats = {
     totalFields: fields.length,
     activeMonitoring: fields.length,
-    criticalAlerts: fields.filter(f => f.alerts.some(a => a.type === 'critical')).length,
-    nearTransition: fields.filter(f => f.daysToNextStage <= 7).length,
+    criticalAlerts: fields.filter((f) =>
+      f.alerts.some((a) => a.type === "critical"),
+    ).length,
+    nearTransition: fields.filter((f) => f.daysToNextStage <= 7).length,
   };
 
-  const stageDistribution = fields.reduce((acc, field) => {
-    const stage = field.currentStageAr;
-    acc[stage] = (acc[stage] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const stageDistribution = fields.reduce(
+    (acc, field) => {
+      const stage = field.currentStageAr;
+      acc[stage] = (acc[stage] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const stageData = Object.entries(stageDistribution).map(([stage, count]) => ({
     stage,
@@ -152,16 +157,26 @@ export default function GDDPage() {
               <BarChart data={stageData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis type="number" tick={{ fontSize: 12 }} />
-                <YAxis dataKey="stage" type="category" tick={{ fontSize: 11 }} width={80} />
+                <YAxis
+                  dataKey="stage"
+                  type="category"
+                  tick={{ fontSize: 11 }}
+                  width={80}
+                />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    direction: 'rtl',
+                    backgroundColor: "#fff",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    direction: "rtl",
                   }}
                 />
-                <Bar dataKey="count" fill={CHART_COLORS.primary} radius={[0, 4, 4, 0]} name="عدد الحقول" />
+                <Bar
+                  dataKey="count"
+                  fill={CHART_COLORS.primary}
+                  radius={[0, 4, 4, 0]}
+                  name="عدد الحقول"
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -175,12 +190,12 @@ export default function GDDPage() {
               <select
                 value={selectedField.id}
                 onChange={(e) => {
-                  const field = fields.find(f => f.id === e.target.value);
+                  const field = fields.find((f) => f.id === e.target.value);
                   if (field) setSelectedField(field);
                 }}
                 className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
               >
-                {fields.map(field => (
+                {fields.map((field) => (
                   <option key={field.id} value={field.id}>
                     {field.farmName} - {field.fieldName}
                   </option>
@@ -196,15 +211,20 @@ export default function GDDPage() {
                   <XAxis
                     dataKey="date"
                     tick={{ fontSize: 11 }}
-                    tickFormatter={(value) => new Date(value).toLocaleDateString('ar-YE', { month: 'short', day: 'numeric' })}
+                    tickFormatter={(value) =>
+                      new Date(value).toLocaleDateString("ar-YE", {
+                        month: "short",
+                        day: "numeric",
+                      })
+                    }
                   />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e0e0e0',
-                      borderRadius: '8px',
-                      direction: 'rtl',
+                      backgroundColor: "#fff",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "8px",
+                      direction: "rtl",
                     }}
                     labelFormatter={(value) => formatDate(value)}
                   />
@@ -245,7 +265,9 @@ export default function GDDPage() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-900">{field.farmName}</h3>
-                  <p className="text-sm text-gray-500">{field.fieldName} - {field.cropType}</p>
+                  <p className="text-sm text-gray-500">
+                    {field.fieldName} - {field.cropType}
+                  </p>
                 </div>
                 <Sprout className="w-6 h-6 text-sahool-600" />
               </div>
@@ -261,7 +283,9 @@ export default function GDDPage() {
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-sahool-600 rounded-full transition-all"
-                    style={{ width: `${Math.min((field.currentGDD / field.targetGDD) * 100, 100)}%` }}
+                    style={{
+                      width: `${Math.min((field.currentGDD / field.targetGDD) * 100, 100)}%`,
+                    }}
                   ></div>
                 </div>
               </div>
@@ -270,11 +294,15 @@ export default function GDDPage() {
               <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">المرحلة الحالية</p>
-                  <p className="font-medium text-gray-900">{field.currentStageAr}</p>
+                  <p className="font-medium text-gray-900">
+                    {field.currentStageAr}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">المرحلة القادمة</p>
-                  <p className="font-medium text-gray-900">{field.nextStageAr}</p>
+                  <p className="font-medium text-gray-900">
+                    {field.nextStageAr}
+                  </p>
                 </div>
               </div>
 
@@ -297,11 +325,11 @@ export default function GDDPage() {
                     <div
                       key={index}
                       className={`flex items-start gap-2 p-2 rounded-lg text-sm ${
-                        alert.type === 'critical'
-                          ? 'bg-red-50 text-red-700'
-                          : alert.type === 'warning'
-                          ? 'bg-yellow-50 text-yellow-700'
-                          : 'bg-blue-50 text-blue-700'
+                        alert.type === "critical"
+                          ? "bg-red-50 text-red-700"
+                          : alert.type === "warning"
+                            ? "bg-yellow-50 text-yellow-700"
+                            : "bg-blue-50 text-blue-700"
                       }`}
                     >
                       <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />

@@ -24,15 +24,23 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Upgrade pip (non-fatal in case of network issues)
-RUN pip install --upgrade pip || true
+# Upgrade pip and install build tools (non-fatal in case of network issues)
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip || true
+RUN pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel || true
 
 # Install dependencies
 COPY apps/services/inventory-service/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared libraries
 COPY shared/ ./shared/
+
+# Copy services shared modules (needed for errors_py module)
+COPY apps/services/shared/ ./apps/services/shared/
+
+# Create compatibility layer: copy errors_py to shared/errors_py so imports work
+RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
 
 # Copy source
 COPY apps/services/inventory-service/src/ ./src/

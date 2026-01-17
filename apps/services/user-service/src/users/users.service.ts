@@ -8,12 +8,12 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import * as bcrypt from 'bcryptjs';
-import { UserStatus } from '../utils/validation';
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import * as bcrypt from "bcryptjs";
+import { UserStatus } from "../utils/validation";
 
 // User type - use when Prisma types are generated
 type User = any;
@@ -23,7 +23,7 @@ import {
   CommonSelects,
   type PaginationParams,
   type PaginatedResponse,
-} from '../utils/db-utils';
+} from "../utils/db-utils";
 
 @Injectable()
 export class UsersService {
@@ -41,7 +41,7 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException("User with this email already exists");
     }
 
     // Hash password
@@ -56,8 +56,8 @@ export class UsersService {
         passwordHash,
         firstName: createUserDto.firstName,
         lastName: createUserDto.lastName,
-        role: createUserDto.role,
-        status: createUserDto.status || UserStatus.PENDING,
+        role: createUserDto.role as any, // Cast to Prisma UserRole enum
+        status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
         emailVerified: createUserDto.emailVerified || false,
         phoneVerified: createUserDto.phoneVerified || false,
       },
@@ -66,9 +66,10 @@ export class UsersService {
         profile: {
           select: {
             id: true,
-            avatar: true,
-            bio: true,
-            location: true,
+            avatarUrl: true,
+            address: true,
+            city: true,
+            region: true,
           },
         },
       },
@@ -81,11 +82,13 @@ export class UsersService {
    * Get all users with optional filtering and pagination
    * الحصول على جميع المستخدمين مع إمكانية التصفية والترقيم
    */
-  async findAll(params?: {
-    tenantId?: string;
-    role?: string;
-    status?: string;
-  } & PaginationParams): Promise<PaginatedResponse<User>> {
+  async findAll(
+    params?: {
+      tenantId?: string;
+      role?: string;
+      status?: string;
+    } & PaginationParams,
+  ): Promise<PaginatedResponse<User>> {
     const { tenantId, role, status, ...paginationParams } = params || {};
 
     // Calculate pagination with enforced limits
@@ -107,16 +110,17 @@ export class UsersService {
           profile: {
             select: {
               id: true,
-              avatar: true,
-              bio: true,
-              location: true,
+              avatarUrl: true,
+              address: true,
+              city: true,
+              region: true,
             },
           },
         },
         skip,
         take,
         orderBy: {
-          createdAt: 'desc',
+          createdAt: "desc",
         },
       }),
       this.prisma.user.count({ where }),
@@ -142,11 +146,11 @@ export class UsersService {
         profile: {
           select: {
             id: true,
-            avatar: true,
-            bio: true,
-            location: true,
+            avatarUrl: true,
+            address: true,
+            city: true,
+            region: true,
             dateOfBirth: true,
-            language: true,
           },
         },
         sessions: {
@@ -158,7 +162,7 @@ export class UsersService {
           select: {
             id: true,
             expiresAt: true,
-            deviceInfo: true,
+            userAgent: true,
             ipAddress: true,
           },
         },
@@ -189,9 +193,10 @@ export class UsersService {
         profile: {
           select: {
             id: true,
-            avatar: true,
-            bio: true,
-            location: true,
+            avatarUrl: true,
+            address: true,
+            city: true,
+            region: true,
           },
         },
       },
@@ -223,7 +228,7 @@ export class UsersService {
       });
 
       if (emailExists) {
-        throw new ConflictException('Email already in use');
+        throw new ConflictException("Email already in use");
       }
     }
 
@@ -262,9 +267,10 @@ export class UsersService {
         profile: {
           select: {
             id: true,
-            avatar: true,
-            bio: true,
-            location: true,
+            avatarUrl: true,
+            address: true,
+            city: true,
+            region: true,
           },
         },
       },

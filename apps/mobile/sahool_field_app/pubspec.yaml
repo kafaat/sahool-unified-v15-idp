@@ -33,8 +33,9 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: ^18.0.1
-  firebase_core: ^3.8.1
-  firebase_messaging: ^15.1.5
+  # Firebase disabled: requires google-services.json and GoogleService-Info.plist
+  # firebase_core: ^3.8.1
+  # firebase_messaging: ^15.1.5
 
   # Storage
   shared_preferences: ^2.3.3
@@ -44,8 +45,8 @@ dependencies:
   local_auth: ^2.3.0
 
   # Device Security
-  flutter_jailbreak_detection: ^1.10.0
-  secure_application: ^3.7.1  # Screenshot prevention
+  safe_device: ^1.1.7
+  secure_application: ^4.1.0  # Screenshot prevention (upgraded for rxdart compatibility)
 
   # UI
   cupertino_icons: ^1.0.8

@@ -3,7 +3,7 @@
  * نقطة نهاية فحص الصحة - لوحة التحكم
  */
 
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Health Check Handler
@@ -17,24 +17,24 @@ export async function GET() {
   try {
     // Basic health check - verify the app is running
     const healthStatus = {
-      status: 'healthy',
-      service: 'sahool-admin',
+      status: "healthy",
+      service: "sahool-admin",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'unknown',
+      environment: process.env.NODE_ENV || "unknown",
     };
 
     return NextResponse.json(healthStatus, { status: 200 });
-  } catch (error) {
+  } catch {
     // If we reach here, something is wrong
+    // SECURITY: Don't expose internal error details to clients
     return NextResponse.json(
       {
-        status: 'unhealthy',
-        service: 'sahool-admin',
+        status: "unhealthy",
+        service: "sahool-admin",
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 }

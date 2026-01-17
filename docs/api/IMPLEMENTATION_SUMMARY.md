@@ -1,4 +1,5 @@
 # API Documentation Generator - Implementation Summary
+
 # ملخص تنفيذ مولد توثيق API
 
 **Date**: 2026-01-02
@@ -20,6 +21,7 @@ A comprehensive API documentation generator has been successfully implemented fo
 **Language**: Python
 
 **Features**:
+
 - ✅ Automatic service scanning
 - ✅ Endpoint extraction with parameters
 - ✅ OpenAPI 3.0 specification generation
@@ -29,6 +31,7 @@ A comprehensive API documentation generator has been successfully implemented fo
 - ✅ Multi-language support (English and Arabic)
 
 **Classes**:
+
 - `APIDocsGenerator`: Main generator class
 - `Service`: Service metadata dataclass
 - `Endpoint`: Endpoint definition dataclass
@@ -41,16 +44,16 @@ A comprehensive API documentation generator has been successfully implemented fo
 
 **Location**: `/home/user/sahool-unified-v15-idp/docs/api/`
 
-| File | Size | Description |
-|------|------|-------------|
-| `README.md` | 7.2 KB | Main API documentation index |
-| `authentication.md` | 8.5 KB | Authentication APIs documentation |
-| `fields.md` | 25 KB | Field management APIs documentation |
-| `sensors.md` | 2.9 KB | IoT/Sensor APIs documentation |
-| `weather.md` | 6.1 KB | Weather APIs documentation |
-| `ai.md` | 8.3 KB | AI/Analysis APIs documentation |
-| `openapi.json` | 234 KB | OpenAPI 3.0 specification |
-| `SAHOOL.postman_collection.json` | 297 KB | Postman collection |
+| File                             | Size   | Description                         |
+| -------------------------------- | ------ | ----------------------------------- |
+| `README.md`                      | 7.2 KB | Main API documentation index        |
+| `authentication.md`              | 8.5 KB | Authentication APIs documentation   |
+| `fields.md`                      | 25 KB  | Field management APIs documentation |
+| `sensors.md`                     | 2.9 KB | IoT/Sensor APIs documentation       |
+| `weather.md`                     | 6.1 KB | Weather APIs documentation          |
+| `ai.md`                          | 8.3 KB | AI/Analysis APIs documentation      |
+| `openapi.json`                   | 234 KB | OpenAPI 3.0 specification           |
+| `SAHOOL.postman_collection.json` | 297 KB | Postman collection                  |
 
 ### 3. Helper Scripts
 
@@ -60,6 +63,7 @@ A comprehensive API documentation generator has been successfully implemented fo
 **Purpose**: Convenient shell script for running the generator
 
 **Usage**:
+
 ```bash
 # Generate all documentation
 ./scripts/generate-api-docs.sh
@@ -77,6 +81,7 @@ A comprehensive API documentation generator has been successfully implemented fo
 **Purpose**: Demonstrates various usage patterns
 
 **Examples Included**:
+
 1. Basic usage
 2. Custom paths
 3. Single service documentation
@@ -91,6 +96,7 @@ A comprehensive API documentation generator has been successfully implemented fo
 
 **Location**: `/home/user/sahool-unified-v15-idp/apps/kernel/common/docs/README.md`
 **Content**:
+
 - Installation instructions
 - Usage examples
 - API categories
@@ -178,6 +184,7 @@ The generator automatically categorizes endpoints into:
 ### 1. Automatic Service Discovery
 
 The generator automatically finds all FastAPI services by:
+
 - Scanning the `apps/services` directory
 - Looking for `src/main.py` files
 - Extracting FastAPI app definitions
@@ -185,6 +192,7 @@ The generator automatically finds all FastAPI services by:
 ### 2. Endpoint Extraction
 
 Endpoints are extracted by:
+
 - Regex pattern matching for `@app.get`, `@app.post`, etc.
 - Parsing function definitions and docstrings
 - Extracting parameters from function signatures
@@ -193,6 +201,7 @@ Endpoints are extracted by:
 ### 3. Bilingual Support
 
 Full support for English and Arabic:
+
 - Detects Arabic text in docstrings
 - Generates bilingual summaries and descriptions
 - Uses Unicode characters correctly
@@ -201,6 +210,7 @@ Full support for English and Arabic:
 ### 4. OpenAPI 3.0 Compliance
 
 Generated specification includes:
+
 - Info section with platform metadata
 - Servers array with all service URLs
 - Paths with operations and parameters
@@ -283,6 +293,7 @@ Can be integrated into GitHub Actions, GitLab CI, or other CI/CD pipelines:
 ### 2. Documentation Sites
 
 Generated files can be used with:
+
 - **Swagger UI**: Import `openapi.json`
 - **Redoc**: Use `openapi.json`
 - **Stoplight**: Import OpenAPI spec
@@ -293,6 +304,7 @@ Generated files can be used with:
 ### 3. API Testing
 
 The Postman collection can be used for:
+
 - Manual API testing
 - Automated testing with Newman
 - API monitoring
@@ -318,6 +330,7 @@ Potential improvements:
 ### Regular Updates
 
 Run the generator:
+
 - After adding new endpoints
 - After modifying existing APIs
 - Before releases
@@ -326,6 +339,7 @@ Run the generator:
 ### Version Control
 
 Track changes to:
+
 - Generator script (`api_docs_generator.py`)
 - Generated documentation files
 - OpenAPI specification
@@ -334,6 +348,7 @@ Track changes to:
 ### Quality Checks
 
 Ensure:
+
 - All services are discovered
 - All endpoints are documented
 - Arabic descriptions are present

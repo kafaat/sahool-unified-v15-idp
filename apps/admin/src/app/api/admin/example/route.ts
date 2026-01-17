@@ -3,8 +3,8 @@
  * Demonstrates server-side role verification
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { withAdmin, withRole, withAuth } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { withAdmin, withRole, withAuth } from "@/lib/auth";
 
 /**
  * GET - Admin only endpoint
@@ -15,7 +15,7 @@ export const GET = withAdmin(async (request, { user }) => {
   // The withAdmin wrapper ensures server-side role verification
 
   return NextResponse.json({
-    message: 'Admin access granted',
+    message: "Admin access granted",
     user: {
       id: user.id,
       email: user.email,
@@ -25,7 +25,7 @@ export const GET = withAdmin(async (request, { user }) => {
       // Admin-only data
       total_users: 100,
       total_farms: 50,
-      system_health: 'good',
+      system_health: "good",
     },
   });
 });
@@ -34,18 +34,21 @@ export const GET = withAdmin(async (request, { user }) => {
  * POST - Admin or Supervisor endpoint
  * Example: Create a new resource
  */
-export const POST = withRole(['admin', 'supervisor'], async (request, { user }) => {
-  // Both admins and supervisors can access this endpoint
+export const POST = withRole(
+  ["admin", "supervisor"],
+  async (request, { user }) => {
+    // Both admins and supervisors can access this endpoint
 
-  const body = await request.json();
+    const body = await request.json();
 
-  return NextResponse.json({
-    message: 'Resource created successfully',
-    created_by: user.email,
-    role: user.role,
-    data: body,
-  });
-});
+    return NextResponse.json({
+      message: "Resource created successfully",
+      created_by: user.email,
+      role: user.role,
+      data: body,
+    });
+  },
+);
 
 /**
  * PATCH - Any authenticated user
@@ -58,7 +61,7 @@ export const PATCH = withAuth(async (request, { user }) => {
   const body = await request.json();
 
   return NextResponse.json({
-    message: 'Profile updated',
+    message: "Profile updated",
     user_id: user.id,
     updated_fields: Object.keys(body),
   });
@@ -73,17 +76,17 @@ export const DELETE = withAdmin(async (request, { user }) => {
   // Returns 403 Forbidden for non-admin users
 
   const { searchParams } = request.nextUrl;
-  const resourceId = searchParams.get('id');
+  const resourceId = searchParams.get("id");
 
   if (!resourceId) {
     return NextResponse.json(
-      { error: 'Bad Request', message: 'Resource ID required' },
-      { status: 400 }
+      { error: "Bad Request", message: "Resource ID required" },
+      { status: 400 },
     ) as any;
   }
 
   return NextResponse.json({
-    message: 'Resource deleted successfully',
+    message: "Resource deleted successfully",
     deleted_by: user.email,
     resource_id: resourceId,
   }) as any;

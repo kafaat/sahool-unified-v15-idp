@@ -1,4 +1,5 @@
 # MinIO Security Hardening - Implementation Summary
+
 ## SAHOOL Platform | منصة سهول
 
 **Date:** 2026-01-06
@@ -35,57 +36,64 @@ This document provides a comprehensive summary of the MinIO security hardening i
 
 ### Critical Issues Resolved ✅
 
-| Issue | Severity | Before | After | Status |
-|-------|----------|--------|-------|--------|
-| **No TLS/SSL encryption** | 🔴 Critical | HTTP only | HTTPS with TLS 1.2+ | ✅ Fixed |
-| **No server-side encryption** | 🔴 Critical | Disabled | SSE-S3 enabled | ✅ Fixed |
-| **Public bucket policies** | 🟡 High | Public download | Private only | ✅ Fixed |
-| **Public Prometheus metrics** | 🟡 High | No auth | JWT required | ✅ Fixed |
-| **Shared root credentials** | 🟡 High | Root everywhere | Service accounts | ✅ Fixed |
-| **Console enabled in production** | 🟠 Medium | Always on | Disabled by default | ✅ Fixed |
-| **No audit logging** | 🟡 High | Disabled | Enabled | ✅ Fixed |
-| **No lifecycle policies** | 🟠 Medium | None | Configured | ✅ Fixed |
-| **Backup encryption disabled** | 🟡 High | Disabled | Enabled by default | ✅ Fixed |
+| Issue                             | Severity    | Before          | After               | Status   |
+| --------------------------------- | ----------- | --------------- | ------------------- | -------- |
+| **No TLS/SSL encryption**         | 🔴 Critical | HTTP only       | HTTPS with TLS 1.2+ | ✅ Fixed |
+| **No server-side encryption**     | 🔴 Critical | Disabled        | SSE-S3 enabled      | ✅ Fixed |
+| **Public bucket policies**        | 🟡 High     | Public download | Private only        | ✅ Fixed |
+| **Public Prometheus metrics**     | 🟡 High     | No auth         | JWT required        | ✅ Fixed |
+| **Shared root credentials**       | 🟡 High     | Root everywhere | Service accounts    | ✅ Fixed |
+| **Console enabled in production** | 🟠 Medium   | Always on       | Disabled by default | ✅ Fixed |
+| **No audit logging**              | 🟡 High     | Disabled        | Enabled             | ✅ Fixed |
+| **No lifecycle policies**         | 🟠 Medium   | None            | Configured          | ✅ Fixed |
+| **Backup encryption disabled**    | 🟡 High     | Disabled        | Enabled by default  | ✅ Fixed |
 
 ### Security Controls Implemented
 
 #### 1. **TLS/SSL Encryption** ✅
+
 - **What:** HTTPS encryption for all MinIO connections
 - **How:** Generated TLS certificates with RSA 4096-bit keys
 - **Impact:** Prevents man-in-the-middle attacks, credential interception
 - **Compliance:** Required for PCI-DSS, HIPAA, GDPR
 
 #### 2. **Server-Side Encryption (SSE)** ✅
+
 - **What:** AES-256-GCM encryption at rest for all data
 - **How:** Configured SSE-S3 (MinIO-managed keys)
 - **Impact:** Protects data if storage is compromised
 - **Compliance:** Required for PCI-DSS, HIPAA, GDPR
 
 #### 3. **Private Bucket Policies** ✅
+
 - **What:** Removed public access from all buckets
 - **How:** Set `anonymous set none` for all buckets
 - **Impact:** Prevents unauthorized data access
 - **Compliance:** Required for all security standards
 
 #### 4. **IAM Service Accounts** ✅
+
 - **What:** Dedicated service accounts with least privilege
 - **How:** Created Milvus service account with bucket-specific access
 - **Impact:** Limits blast radius of credential compromise
 - **Compliance:** Required for SOC 2, ISO 27001
 
 #### 5. **Audit Logging** ✅
+
 - **What:** Comprehensive logging of all MinIO operations
 - **How:** Enabled audit webhook logging
 - **Impact:** Security event tracking, compliance reporting
 - **Compliance:** Required for PCI-DSS, HIPAA, SOC 2
 
 #### 6. **Lifecycle Policies** ✅
+
 - **What:** Automatic data retention and cleanup
 - **How:** Configured expiration rules per bucket
 - **Impact:** Reduces storage costs, enforces retention policies
 - **Compliance:** Required for data governance
 
 #### 7. **Backup Encryption** ✅
+
 - **What:** AES-256-CBC encryption for all backups
 - **How:** Enabled by default in backup scripts
 - **Impact:** Protects backup data in transit and at rest
@@ -96,9 +104,11 @@ This document provides a comprehensive summary of the MinIO security hardening i
 ## 📁 Files Modified
 
 ### 1. Production Docker Compose
+
 **File:** `/home/user/sahool-unified-v15-idp/docker-compose.yml`
 
 **Changes:**
+
 - Updated MinIO image to `RELEASE.2024-01-16T16-07-38Z` (from 2023 version)
 - Added TLS certificate volume mounts
 - Configured SSE encryption with KMS
@@ -112,9 +122,11 @@ This document provides a comprehensive summary of the MinIO security hardening i
 **Lines Modified:** 508-586
 
 ### 2. Backup Docker Compose
+
 **File:** `/home/user/sahool-unified-v15-idp/scripts/backup/docker-compose.backup.yml`
 
 **Changes:**
+
 - Added TLS certificate volume mounts
 - Configured SSE encryption with KMS
 - Disabled browser console (MINIO_BROWSER=off)
@@ -130,9 +142,11 @@ This document provides a comprehensive summary of the MinIO security hardening i
 **Lines Modified:** 32-154
 
 ### 3. Environment Configuration
+
 **File:** `/home/user/sahool-unified-v15-idp/.env.example`
 
 **Changes:**
+
 - Updated endpoints from HTTP to HTTPS
 - Added comprehensive encryption configuration
 - Added TLS/SSL configuration section
@@ -146,9 +160,11 @@ This document provides a comprehensive summary of the MinIO security hardening i
 **Lines Modified:** 183-278
 
 ### 4. Backup MinIO Script
+
 **File:** `/home/user/sahool-unified-v15-idp/scripts/backup/backup_minio.sh`
 
 **Changes:**
+
 - Updated default endpoint from HTTP to HTTPS
 - Added `--insecure` flag for self-signed certificates
 - Added backup encryption configuration variables
@@ -161,11 +177,13 @@ This document provides a comprehensive summary of the MinIO security hardening i
 ## 📄 New Files Created
 
 ### 1. MinIO Security Setup Script ⭐
+
 **File:** `/home/user/sahool-unified-v15-idp/scripts/security/setup-minio-security.sh`
 
 **Purpose:** Automated security hardening script
 
 **Features:**
+
 - Generates TLS certificates for both MinIO instances
 - Creates CA and server certificates with RSA 4096-bit
 - Configures Subject Alternative Names (SANs)
@@ -175,23 +193,27 @@ This document provides a comprehensive summary of the MinIO security hardening i
 - Provides detailed deployment instructions
 
 **Usage:**
+
 ```bash
 cd /home/user/sahool-unified-v15-idp
 ./scripts/security/setup-minio-security.sh
 ```
 
 **Output:**
+
 - `secrets/minio-certs/production/` - Production TLS certificates
 - `secrets/minio-certs/backup/` - Backup TLS certificates
 - `scripts/security/minio-init.sh` - Bucket initialization script
 - `docs/MINIO_SECURITY_HARDENING.md` - Detailed security documentation
 
 ### 2. MinIO Initialization Script
+
 **File:** `/home/user/sahool-unified-v15-idp/scripts/security/minio-init.sh`
 
 **Purpose:** Automated bucket and security configuration
 
 **Features:**
+
 - Creates production and backup buckets
 - Sets private bucket policies
 - Enables versioning for critical buckets
@@ -204,11 +226,13 @@ cd /home/user/sahool-unified-v15-idp
 **Generated By:** setup-minio-security.sh
 
 ### 3. Security Documentation
+
 **File:** `/home/user/sahool-unified-v15-idp/docs/MINIO_SECURITY_HARDENING.md`
 
 **Purpose:** Comprehensive security implementation guide
 
 **Contents:**
+
 - Executive summary
 - TLS/SSL configuration details
 - Server-side encryption guide
@@ -257,18 +281,20 @@ BACKUP_ENCRYPTION_ALGORITHM=aes-256-cbc
 ### Docker Volume Mounts Added
 
 **Production MinIO:**
+
 ```yaml
 volumes:
   - minio_data:/minio_data
-  - ./secrets/minio-certs/production/certs:/root/.minio/certs:ro  # NEW
-  - ./scripts/security/minio-init.sh:/scripts/minio-init.sh:ro   # NEW
+  - ./secrets/minio-certs/production/certs:/root/.minio/certs:ro # NEW
+  - ./scripts/security/minio-init.sh:/scripts/minio-init.sh:ro # NEW
 ```
 
 **Backup MinIO:**
+
 ```yaml
 volumes:
   - minio_data:/data
-  - ../../secrets/minio-certs/backup/certs:/root/.minio/certs:ro  # NEW
+  - ../../secrets/minio-certs/backup/certs:/root/.minio/certs:ro # NEW
   - ../../scripts/security/minio-init.sh:/scripts/minio-init.sh:ro # NEW
 ```
 
@@ -279,13 +305,16 @@ volumes:
 ### Pre-Deployment (Required)
 
 - [ ] **1. Generate TLS Certificates**
+
   ```bash
   cd /home/user/sahool-unified-v15-idp
   ./scripts/security/setup-minio-security.sh
   ```
+
   Expected output: Certificates in `secrets/minio-certs/`
 
 - [ ] **2. Generate Encryption Keys**
+
   ```bash
   # Master encryption key
   openssl rand -base64 32
@@ -295,6 +324,7 @@ volumes:
   ```
 
 - [ ] **3. Update .env File**
+
   ```bash
   cp .env.example .env
   # Edit .env and set:
@@ -305,11 +335,13 @@ volumes:
   ```
 
 - [ ] **4. Review Security Documentation**
+
   ```bash
   cat docs/MINIO_SECURITY_HARDENING.md
   ```
 
 - [ ] **5. Backup Current Configuration**
+
   ```bash
   # Backup docker-compose files
   cp docker-compose.yml docker-compose.yml.backup.$(date +%Y%m%d)
@@ -322,12 +354,14 @@ volumes:
 ### Deployment Steps
 
 - [ ] **1. Stop MinIO Services**
+
   ```bash
   docker compose stop minio
   docker compose -f scripts/backup/docker-compose.backup.yml stop minio
   ```
 
 - [ ] **2. Verify Certificates Exist**
+
   ```bash
   ls -la secrets/minio-certs/production/certs/
   ls -la secrets/minio-certs/backup/certs/
@@ -336,6 +370,7 @@ volumes:
   ```
 
 - [ ] **3. Start MinIO Services**
+
   ```bash
   # Start production MinIO
   docker compose up -d minio
@@ -345,6 +380,7 @@ volumes:
   ```
 
 - [ ] **4. Wait for Health Checks**
+
   ```bash
   # Wait 30 seconds for MinIO to start
   sleep 30
@@ -355,6 +391,7 @@ volumes:
   ```
 
 - [ ] **5. Initialize Security Configuration**
+
   ```bash
   # Production MinIO
   docker exec -it sahool-minio /scripts/minio-init.sh
@@ -364,6 +401,7 @@ volumes:
   ```
 
 - [ ] **6. Verify MinIO Client Initialization**
+
   ```bash
   # Check backup MinIO client logs
   docker compose -f scripts/backup/docker-compose.backup.yml logs minio-client
@@ -374,6 +412,7 @@ volumes:
 ### Post-Deployment Verification
 
 - [ ] **1. Test TLS Connection**
+
   ```bash
   # Test from host
   curl -v -k https://localhost:9000/minio/health/live
@@ -382,6 +421,7 @@ volumes:
   ```
 
 - [ ] **2. Verify MinIO Alias**
+
   ```bash
   docker exec -it sahool-minio mc alias list
 
@@ -389,6 +429,7 @@ volumes:
   ```
 
 - [ ] **3. Check Bucket Encryption**
+
   ```bash
   docker exec -it sahool-minio mc encrypt info primary/uploads
 
@@ -396,6 +437,7 @@ volumes:
   ```
 
 - [ ] **4. Verify Bucket Policies**
+
   ```bash
   docker exec -it sahool-minio mc anonymous list primary/uploads
 
@@ -403,6 +445,7 @@ volumes:
   ```
 
 - [ ] **5. Check Lifecycle Rules**
+
   ```bash
   docker exec -it sahool-backup-minio mc ilm list sahool/postgres-backups
 
@@ -410,6 +453,7 @@ volumes:
   ```
 
 - [ ] **6. Verify Service Account Created**
+
   ```bash
   # Check for credentials file
   cat secrets/minio-milvus-credentials.txt
@@ -418,6 +462,7 @@ volumes:
   ```
 
 - [ ] **7. Test Milvus Connection**
+
   ```bash
   # Restart Milvus to use new credentials (after updating docker-compose.yml)
   docker compose restart milvus
@@ -429,6 +474,7 @@ volumes:
   ```
 
 - [ ] **8. Verify Audit Logging**
+
   ```bash
   docker exec -it sahool-minio mc admin trace primary --verbose
 
@@ -436,6 +482,7 @@ volumes:
   ```
 
 - [ ] **9. Check Prometheus Metrics Security**
+
   ```bash
   # Without auth - should fail
   curl http://localhost:9000/minio/v2/metrics/cluster
@@ -444,6 +491,7 @@ volumes:
   ```
 
 - [ ] **10. Backup Encryption Test**
+
   ```bash
   # Run a test backup
   docker exec -it sahool-backup-scheduler ./scripts/backup_minio.sh daily
@@ -668,7 +716,9 @@ docker compose logs milvus | grep -i minio
 ### Common Issues
 
 #### Issue: MinIO won't start after TLS update
+
 **Solution:**
+
 ```bash
 # Check certificate permissions
 ls -la secrets/minio-certs/production/certs/
@@ -684,7 +734,9 @@ docker compose logs minio | grep -i error
 ```
 
 #### Issue: "x509: certificate signed by unknown authority"
+
 **Solution:**
+
 ```bash
 # Use --insecure flag for self-signed certificates
 mc alias set primary https://minio:9000 ${USER} ${PASS} --insecure
@@ -695,7 +747,9 @@ update-ca-certificates
 ```
 
 #### Issue: Milvus can't connect to MinIO
+
 **Solution:**
+
 ```bash
 # Verify service account exists
 docker exec -it sahool-minio mc admin user list primary
@@ -708,7 +762,9 @@ cat secrets/minio-milvus-credentials.txt
 ```
 
 #### Issue: Backup encryption failing
+
 **Solution:**
+
 ```bash
 # Check encryption key is set
 docker exec -it sahool-backup-scheduler env | grep BACKUP_ENCRYPTION_KEY
@@ -745,6 +801,7 @@ docker compose -f scripts/backup/docker-compose.backup.yml logs backup-scheduler
 ## 📝 Change Log
 
 ### Version 1.0.0 (2026-01-06)
+
 - ✅ Initial implementation complete
 - ✅ TLS/SSL enabled for both MinIO instances
 - ✅ Server-side encryption (SSE-S3) enabled
@@ -771,6 +828,7 @@ docker compose -f scripts/backup/docker-compose.backup.yml logs backup-scheduler
 ## 🎯 Success Criteria
 
 ### Deployment Success
+
 - ✅ All MinIO services start successfully with TLS enabled
 - ✅ All buckets created with private policies
 - ✅ SSE-S3 encryption enabled on all buckets
@@ -781,6 +839,7 @@ docker compose -f scripts/backup/docker-compose.backup.yml logs backup-scheduler
 - ✅ No production downtime
 
 ### Security Validation
+
 - ✅ No public bucket access possible
 - ✅ TLS certificates valid and trusted
 - ✅ Encryption verified on all data
@@ -793,7 +852,7 @@ docker compose -f scripts/backup/docker-compose.backup.yml logs backup-scheduler
 
 **🎉 IMPLEMENTATION COMPLETE - READY FOR PRODUCTION DEPLOYMENT**
 
-*For detailed deployment instructions, refer to the [Deployment Checklist](#deployment-checklist) above.*
+_For detailed deployment instructions, refer to the [Deployment Checklist](#deployment-checklist) above._
 
 ---
 

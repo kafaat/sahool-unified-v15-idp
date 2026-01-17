@@ -3,9 +3,7 @@
   "$id": "https://sahool.io/events/IrrigationPlanProposed.v1.json",
   "title": "Irrigation Plan Proposed Event",
   "description": "Emitted when irrigation recommendation is generated - يُنشر عند توليد توصية الري",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Advisor.IrrigationPlanProposed" },
     "payload": {
@@ -31,7 +29,12 @@
           "properties": {
             "action": {
               "type": "string",
-              "enum": ["irrigate_now", "irrigate_soon", "no_irrigation_needed", "reduce_irrigation"]
+              "enum": [
+                "irrigate_now",
+                "irrigate_soon",
+                "no_irrigation_needed",
+                "reduce_irrigation"
+              ]
             },
             "water_amount_mm": {
               "type": "number",

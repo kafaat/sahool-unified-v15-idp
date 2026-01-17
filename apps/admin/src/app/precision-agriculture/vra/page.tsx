@@ -1,14 +1,18 @@
-'use client';
+"use client";
 
 // VRA (Variable Rate Application) Management
 // إدارة التطبيق المتغير
 
-import { useEffect, useState } from 'react';
-import Header from '@/components/layout/Header';
-import StatCard from '@/components/ui/StatCard';
-import StatusBadge from '@/components/ui/StatusBadge';
-import DataTable from '@/components/ui/DataTable';
-import { fetchVRAPrescriptions, approvePrescription, rejectPrescription } from '@/lib/api/precision';
+import { useEffect, useState } from "react";
+import Header from "@/components/layout/Header";
+import StatCard from "@/components/ui/StatCard";
+import StatusBadge from "@/components/ui/StatusBadge";
+import DataTable from "@/components/ui/DataTable";
+import {
+  fetchVRAPrescriptions,
+  approvePrescription,
+  rejectPrescription,
+} from "@/lib/api/precision";
 import {
   MapPin,
   FileText,
@@ -18,11 +22,11 @@ import {
   TrendingUp,
   Calendar,
   Filter,
-  Download
-} from 'lucide-react';
-import Link from 'next/link';
-import { formatDate } from '@/lib/utils';
-import { logger } from '../../../lib/logger';
+  Download,
+} from "lucide-react";
+import Link from "next/link";
+import { formatDate } from "@/lib/utils";
+import { logger } from "../../../lib/logger";
 
 interface VRAPrescription {
   id: string;
@@ -30,8 +34,8 @@ interface VRAPrescription {
   farmName: string;
   fieldName: string;
   cropType: string;
-  prescriptionType: 'fertilizer' | 'pesticide' | 'irrigation';
-  status: 'pending' | 'approved' | 'rejected' | 'applied';
+  prescriptionType: "fertilizer" | "pesticide" | "irrigation";
+  status: "pending" | "approved" | "rejected" | "applied";
   createdAt: string;
   createdBy: string;
   approvedBy?: string;
@@ -44,9 +48,9 @@ interface VRAPrescription {
 export default function VRAPage() {
   const [prescriptions, setPrescriptions] = useState<VRAPrescription[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [selectedFarm, setSelectedFarm] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [selectedType, setSelectedType] = useState<string>("all");
+  const [selectedFarm, setSelectedFarm] = useState<string>("all");
 
   useEffect(() => {
     loadPrescriptions();
@@ -56,13 +60,13 @@ export default function VRAPage() {
     setIsLoading(true);
     try {
       const data = await fetchVRAPrescriptions({
-        status: selectedStatus !== 'all' ? selectedStatus : undefined,
-        type: selectedType !== 'all' ? selectedType : undefined,
-        farmId: selectedFarm !== 'all' ? selectedFarm : undefined,
+        status: selectedStatus !== "all" ? selectedStatus : undefined,
+        type: selectedType !== "all" ? selectedType : undefined,
+        farmId: selectedFarm !== "all" ? selectedFarm : undefined,
       });
       setPrescriptions(data);
     } catch (error) {
-      logger.error('Failed to load VRA prescriptions:', error);
+      logger.error("Failed to load VRA prescriptions:", error);
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +77,7 @@ export default function VRAPage() {
       await approvePrescription(id);
       loadPrescriptions();
     } catch (error) {
-      logger.error('Failed to approve prescription:', error);
+      logger.error("Failed to approve prescription:", error);
     }
   }
 
@@ -82,22 +86,22 @@ export default function VRAPage() {
       await rejectPrescription(id);
       loadPrescriptions();
     } catch (error) {
-      logger.error('Failed to reject prescription:', error);
+      logger.error("Failed to reject prescription:", error);
     }
   }
 
   const stats = {
     total: prescriptions.length,
-    pending: prescriptions.filter(p => p.status === 'pending').length,
-    approved: prescriptions.filter(p => p.status === 'approved').length,
-    applied: prescriptions.filter(p => p.status === 'applied').length,
+    pending: prescriptions.filter((p) => p.status === "pending").length,
+    approved: prescriptions.filter((p) => p.status === "approved").length,
+    applied: prescriptions.filter((p) => p.status === "applied").length,
   };
 
   const getPrescriptionTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      fertilizer: 'سماد',
-      pesticide: 'مبيد',
-      irrigation: 'ري'
+      fertilizer: "سماد",
+      pesticide: "مبيد",
+      irrigation: "ري",
     };
     return labels[type] || type;
   };
@@ -181,14 +185,30 @@ export default function VRAPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المزرعة / الحقل</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">النوع</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المساحة</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المناطق</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">التكلفة</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">التاريخ</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجراءات</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  المزرعة / الحقل
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  النوع
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  المساحة
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  المناطق
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  التكلفة
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  الحالة
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  التاريخ
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  إجراءات
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -202,22 +222,34 @@ export default function VRAPage() {
                 </tr>
               ) : prescriptions.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                  <td
+                    colSpan={8}
+                    className="px-6 py-12 text-center text-gray-500"
+                  >
                     لا توجد وصفات متاحة
                   </td>
                 </tr>
               ) : (
                 prescriptions.map((prescription) => (
-                  <tr key={prescription.id} className="hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={prescription.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-medium text-gray-900">{prescription.farmName}</p>
-                        <p className="text-sm text-gray-500">{prescription.fieldName}</p>
+                        <p className="font-medium text-gray-900">
+                          {prescription.farmName}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {prescription.fieldName}
+                        </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm text-gray-900">
-                        {getPrescriptionTypeLabel(prescription.prescriptionType)}
+                        {getPrescriptionTypeLabel(
+                          prescription.prescriptionType,
+                        )}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
@@ -237,7 +269,7 @@ export default function VRAPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        {prescription.status === 'pending' && (
+                        {prescription.status === "pending" && (
                           <>
                             <button
                               onClick={() => handleApprove(prescription.id)}

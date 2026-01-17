@@ -23,14 +23,14 @@ vault status
 
 ## Secret Paths
 
-| Path | Description |
-|------|-------------|
-| `secret/database/postgres` | PostgreSQL credentials |
-| `secret/auth/jwt` | JWT signing configuration |
-| `secret/messaging/nats` | NATS connection |
-| `secret/cache/redis` | Redis connection |
-| `secret/external/openweather` | OpenWeather API |
-| `secret/external/sentinel` | Sentinel Hub API |
+| Path                          | Description               |
+| ----------------------------- | ------------------------- |
+| `secret/database/postgres`    | PostgreSQL credentials    |
+| `secret/auth/jwt`             | JWT signing configuration |
+| `secret/messaging/nats`       | NATS connection           |
+| `secret/cache/redis`          | Redis connection          |
+| `secret/external/openweather` | OpenWeather API           |
+| `secret/external/sentinel`    | Sentinel Hub API          |
 
 ## Usage in Code
 

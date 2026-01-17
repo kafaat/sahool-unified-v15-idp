@@ -1,4 +1,5 @@
 # SAHOOL API Rate Limiting Middleware
+
 # ميدلوير حد معدل طلبات API لنظام سهول
 
 Advanced rate limiting middleware for SAHOOL services with Redis-backed distributed storage and multiple limiting strategies.
@@ -8,6 +9,7 @@ Advanced rate limiting middleware for SAHOOL services with Redis-backed distribu
 ## Features | المميزات
 
 ### English
+
 - **Multiple Rate Limiting Strategies**:
   - Fixed Window: Simple and fast
   - Sliding Window: Accurate and fair
@@ -16,11 +18,12 @@ Advanced rate limiting middleware for SAHOOL services with Redis-backed distribu
 - **Per-Endpoint Configuration**: Different rate limits for different endpoints
 - **Distributed Storage**: Redis-backed for multi-instance deployments
 - **Flexible Client Identification**: API Key, User ID, or IP Address
-- **Standard Headers**: X-RateLimit-* headers on all responses
+- **Standard Headers**: X-RateLimit-\* headers on all responses
 - **Decorator Pattern**: Easy to apply custom limits to specific endpoints
 - **Arabic Support**: Full bilingual support with Arabic comments
 
 ### العربية
+
 - **استراتيجيات متعددة للحد من المعدل**:
   - النافذة الثابتة: بسيطة وسريعة
   - النافذة المنزلقة: دقيقة وعادلة
@@ -29,7 +32,7 @@ Advanced rate limiting middleware for SAHOOL services with Redis-backed distribu
 - **تكوين لكل نقطة نهاية**: حدود مختلفة لنقاط نهاية مختلفة
 - **تخزين موزع**: قائم على Redis للنشر متعدد الحالات
 - **تحديد هوية مرن للعميل**: مفتاح API، معرف المستخدم، أو عنوان IP
-- **رؤوس قياسية**: رؤوس X-RateLimit-* على جميع الاستجابات
+- **رؤوس قياسية**: رؤوس X-RateLimit-\* على جميع الاستجابات
 - **نمط الديكوريتر**: سهل لتطبيق حدود مخصصة على نقاط نهاية محددة
 - **دعم العربية**: دعم كامل ثنائي اللغة مع تعليقات عربية
 
@@ -98,13 +101,13 @@ Default configurations are defined in `ENDPOINT_CONFIGS`:
 
 التكوينات الافتراضية معرفة في `ENDPOINT_CONFIGS`:
 
-| Endpoint | Requests | Period | Strategy | Use Case |
-|----------|----------|---------|----------|----------|
-| `/api/v1/analyze` | 10 | 60s | token_bucket | Heavy processing |
-| `/api/v1/field-health` | 30 | 60s | sliding_window | Medium load |
-| `/api/v1/weather` | 60 | 60s | sliding_window | High frequency |
-| `/api/v1/sensors` | 100 | 60s | fixed_window | Very high frequency |
-| `/healthz` | unlimited | - | - | Health checks |
+| Endpoint               | Requests  | Period | Strategy       | Use Case            |
+| ---------------------- | --------- | ------ | -------------- | ------------------- |
+| `/api/v1/analyze`      | 10        | 60s    | token_bucket   | Heavy processing    |
+| `/api/v1/field-health` | 30        | 60s    | sliding_window | Medium load         |
+| `/api/v1/weather`      | 60        | 60s    | sliding_window | High frequency      |
+| `/api/v1/sensors`      | 100       | 60s    | fixed_window   | Very high frequency |
+| `/healthz`             | unlimited | -      | -              | Health checks       |
 
 ### Custom Configuration | تكوين مخصص
 
@@ -129,15 +132,18 @@ ENDPOINT_CONFIGS["/api/v1/custom"] = EndpointConfig(
 **الأفضل لـ**: نقاط النهاية عالية التردد مع متطلبات بسيطة
 
 **Pros**:
+
 - Fastest performance
 - Lowest memory usage
 - Simple implementation
 
 **Cons**:
+
 - Can allow 2x requests at window boundaries
 - Less accurate
 
 **Example**:
+
 ```python
 @rate_limit(requests=100, period=60, strategy="fixed_window")
 async def high_frequency_endpoint():
@@ -151,15 +157,18 @@ async def high_frequency_endpoint():
 **الأفضل لـ**: معظم حالات الاستخدام العامة التي تتطلب الدقة
 
 **Pros**:
+
 - Very accurate
 - Fair for all users
 - No window boundary issues
 
 **Cons**:
+
 - Higher memory usage (stores all requests)
 - Slightly slower
 
 **Example**:
+
 ```python
 @rate_limit(requests=30, period=60, strategy="sliding_window")
 async def standard_endpoint():
@@ -173,15 +182,18 @@ async def standard_endpoint():
 **الأفضل لـ**: نقاط النهاية منخفضة المعدل مع السماح بالطلبات المتتالية
 
 **Pros**:
+
 - Allows burst traffic
 - Smooth rate limiting
 - Flexible
 
 **Cons**:
+
 - More complex
 - Requires more Redis operations
 
 **Example**:
+
 ```python
 @rate_limit(requests=10, period=60, strategy="token_bucket", burst=5)
 async def heavy_processing_endpoint():
@@ -340,6 +352,7 @@ await limiter.reset_limits(client_id="user:123")
 ### Data Storage in Redis | تخزين البيانات في Redis
 
 #### Fixed Window
+
 ```
 Key: ratelimit:fixed:{client_id}:{endpoint}:{window_start}
 Type: String (counter)
@@ -347,6 +360,7 @@ TTL: 2 × period
 ```
 
 #### Sliding Window
+
 ```
 Key: ratelimit:sliding:{client_id}:{endpoint}
 Type: Sorted Set (timestamp → request_id)
@@ -354,6 +368,7 @@ TTL: 2 × period
 ```
 
 #### Token Bucket
+
 ```
 Key: ratelimit:bucket:{client_id}:{endpoint}
 Type: Hash {tokens, last_update}
@@ -400,11 +415,11 @@ ab -n 200 -c 20 http://localhost:8000/api/v1/sensors
 
 Tested on: 4 CPU, 8GB RAM, Redis 7.0
 
-| Strategy | Requests/sec | Latency (p95) | Memory/client |
-|----------|--------------|---------------|---------------|
-| Fixed Window | 5000 | 2ms | 100 bytes |
-| Sliding Window | 3000 | 5ms | 500 bytes |
-| Token Bucket | 4000 | 3ms | 200 bytes |
+| Strategy       | Requests/sec | Latency (p95) | Memory/client |
+| -------------- | ------------ | ------------- | ------------- |
+| Fixed Window   | 5000         | 2ms           | 100 bytes     |
+| Sliding Window | 3000         | 5ms           | 500 bytes     |
+| Token Bucket   | 4000         | 3ms           | 200 bytes     |
 
 ### Recommendations | التوصيات
 
@@ -441,6 +456,7 @@ logging.getLogger("apps.kernel.common.middleware.rate_limiter").setLevel(logging
 ### Common Issues | المشاكل الشائعة
 
 #### Rate limiting not working
+
 ```python
 # Check Redis connection
 await limiter.redis.ping()
@@ -450,6 +466,7 @@ print(app.middleware)
 ```
 
 #### Too many 429 errors
+
 ```python
 # Increase limits for endpoint
 ENDPOINT_CONFIGS["/api/v1/endpoint"].requests = 100
@@ -459,6 +476,7 @@ await limiter.reset_limits("client:id")
 ```
 
 #### Memory usage too high
+
 ```python
 # Use Fixed Window instead of Sliding Window
 config.strategy = "fixed_window"
@@ -485,6 +503,7 @@ Copyright © 2026 SAHOOL. All rights reserved.
 ## Support | الدعم
 
 For issues and questions:
+
 - GitHub Issues: [sahool-unified-v15-idp/issues](https://github.com/kafaat/sahool-unified-v15-idp/issues)
 - Documentation: [docs.sahool.ai](https://docs.sahool.ai)
 - Email: dev@sahool.ai

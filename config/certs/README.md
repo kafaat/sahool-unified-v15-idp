@@ -57,6 +57,7 @@ cd config/certs
 ```
 
 This will:
+
 - Create a Root CA valid for 10 years
 - Generate service certificates valid for ~2.25 years (825 days)
 - Verify all certificates
@@ -166,6 +167,7 @@ openssl verify -CAfile ca/ca.crt postgres/server.crt
 Certificates expire after 825 days (~2.25 years). Plan rotation before expiration:
 
 1. **Check expiration dates:**
+
    ```bash
    for cert in */server.crt; do
      echo "=== $cert ==="
@@ -174,6 +176,7 @@ Certificates expire after 825 days (~2.25 years). Plan rotation before expiratio
    ```
 
 2. **Generate new certificates:**
+
    ```bash
    ./generate-internal-tls.sh --force
    ```
@@ -191,6 +194,7 @@ Certificates expire after 825 days (~2.25 years). Plan rotation before expiratio
 ## Security Best Practices
 
 ### DO:
+
 - ✅ Keep `*.key` files secure (never commit to git)
 - ✅ Use `sslmode=require` or higher in production
 - ✅ Rotate certificates before expiration
@@ -200,6 +204,7 @@ Certificates expire after 825 days (~2.25 years). Plan rotation before expiratio
 - ✅ Keep the CA private key (`ca.key`) extremely secure
 
 ### DON'T:
+
 - ❌ Never commit `*.key` files to version control
 - ❌ Never use these self-signed certs for public-facing services
 - ❌ Never share the CA private key
@@ -214,6 +219,7 @@ Certificates expire after 825 days (~2.25 years). Plan rotation before expiratio
 **Problem**: `certificate verify failed`
 
 **Solution**: Ensure the CA certificate is properly configured:
+
 ```bash
 # Check if CA cert is accessible
 ls -la ca/ca.crt
@@ -227,6 +233,7 @@ openssl verify -CAfile ca/ca.crt postgres/server.crt
 **Problem**: Service refuses TLS connection
 
 **Solution**: Check service configuration:
+
 ```bash
 # Check if TLS is enabled in service
 docker-compose logs postgres | grep -i ssl
@@ -239,6 +246,7 @@ docker-compose logs nats | grep -i tls
 **Problem**: Cannot read certificate files
 
 **Solution**: Fix file permissions:
+
 ```bash
 # Set proper permissions
 chmod 600 */server.key
@@ -250,6 +258,7 @@ chmod 644 */server.crt ca/ca.crt
 **Problem**: Certificate has expired
 
 **Solution**: Regenerate certificates:
+
 ```bash
 ./generate-internal-tls.sh --force
 docker-compose restart
@@ -307,34 +316,34 @@ client = redis.Redis(
 ### Node.js (PostgreSQL)
 
 ```javascript
-const { Pool } = require('pg');
+const { Pool } = require("pg");
 
 const pool = new Pool({
-  host: 'postgres',
+  host: "postgres",
   port: 5432,
-  database: 'sahool',
-  user: 'sahool',
-  password: 'password',
+  database: "sahool",
+  user: "sahool",
+  password: "password",
   ssl: {
     rejectUnauthorized: true,
-    ca: fs.readFileSync('/app/certs/ca.crt').toString(),
-  }
+    ca: fs.readFileSync("/app/certs/ca.crt").toString(),
+  },
 });
 ```
 
 ### Node.js (Redis)
 
 ```javascript
-const redis = require('redis');
+const redis = require("redis");
 
 const client = redis.createClient({
   socket: {
-    host: 'redis',
+    host: "redis",
     port: 6379,
     tls: true,
-    ca: fs.readFileSync('/app/certs/ca.crt'),
+    ca: fs.readFileSync("/app/certs/ca.crt"),
   },
-  password: 'password'
+  password: "password",
 });
 ```
 
@@ -376,6 +385,7 @@ const client = redis.createClient({
 ## Support
 
 For issues or questions:
+
 1. Check service logs: `docker-compose logs <service>`
 2. Verify certificates: `./generate-internal-tls.sh --verify`
 3. Review this documentation

@@ -13,14 +13,14 @@
 
 // CRITICAL: reflect-metadata must be imported FIRST before any NestJS imports
 // Required for decorators and dependency injection to work
-import 'reflect-metadata';
+import "reflect-metadata";
 
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './utils/http-exception.filter';
-import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { AppModule } from "./app.module";
+import { HttpExceptionFilter } from "./utils/http-exception.filter";
+import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -39,35 +39,35 @@ async function bootstrap() {
 
   // ============== Middleware Setup ==============
   // Global request logging interceptor with correlation IDs
-  app.useGlobalInterceptors(new RequestLoggingInterceptor('user-service'));
+  app.useGlobalInterceptors(new RequestLoggingInterceptor("user-service"));
 
   // CORS - Secure configuration using environment variable
-  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-    'https://sahool.com',
-    'https://app.sahool.com',
-    'https://admin.sahool.com',
-    'http://localhost:3000',
-    'http://localhost:8080',
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+    "https://sahool.com",
+    "https://app.sahool.com",
+    "https://admin.sahool.com",
+    "http://localhost:3000",
+    "http://localhost:8080",
   ];
 
   app.enableCors({
     origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Tenant-ID',
-      'X-Request-ID',
+      "Content-Type",
+      "Authorization",
+      "X-Tenant-ID",
+      "X-Request-ID",
     ],
     credentials: true,
   });
 
   // Global prefix
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix("api/v1");
 
   // Swagger/OpenAPI Documentation
   const config = new DocumentBuilder()
-    .setTitle('SAHOOL User Service API')
+    .setTitle("SAHOOL User Service API")
     .setDescription(
       `
       خدمة إدارة المستخدمين
@@ -97,17 +97,17 @@ async function bootstrap() {
       - **PENDING**: User registration pending approval
     `,
     )
-    .setVersion('16.0.0')
-    .addTag('Users', 'User management operations')
+    .setVersion("16.0.0")
+    .addTag("Users", "User management operations")
     .addBearerAuth()
     .addApiKey(
-      { type: 'apiKey', name: 'X-Tenant-ID', in: 'header' },
-      'tenant-id',
+      { type: "apiKey", name: "X-Tenant-ID", in: "header" },
+      "tenant-id",
     )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup("docs", app, document);
 
   const port = process.env.PORT || 3025;
   await app.listen(port);
@@ -141,16 +141,16 @@ async function bootstrap() {
       // - Close all connections
       await app.close();
 
-      console.log('User Service shutdown complete');
+      console.log("User Service shutdown complete");
       process.exit(0);
     } catch (error) {
-      console.error('Error during graceful shutdown:', error);
+      console.error("Error during graceful shutdown:", error);
       process.exit(1);
     }
   }
 
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 }
 
 bootstrap();

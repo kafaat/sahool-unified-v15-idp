@@ -1,4 +1,5 @@
 # خدمات مجمدة / متوقفة - SAHOOL Platform
+
 # Frozen / Deprecated Services
 
 ## ملخص - Summary
@@ -15,11 +16,11 @@ This document lists services that are frozen, deprecated, or replaced in the SAH
 
 هذه الخدمات لا تزال تعمل لكنها ستُزال في المستقبل.
 
-| الخدمة القديمة | البديل | المنفذ | تاريخ الإيقاف |
-|---------------|--------|--------|---------------|
-| `weather-advanced` | `weather-service` | 8092 → 8108 | 2025-06-01 |
-| `crop-health-ai` | `crop-intelligence-service` | 8095 | 2025-06-01 |
-| `satellite-service` | `vegetation-analysis-service` | 8090 | 2025-06-01 |
+| الخدمة القديمة      | البديل                        | المنفذ      | تاريخ الإيقاف |
+| ------------------- | ----------------------------- | ----------- | ------------- |
+| `weather-advanced`  | `weather-service`             | 8092 → 8108 | 2025-06-01    |
+| `crop-health-ai`    | `crop-intelligence-service`   | 8095        | 2025-06-01    |
+| `satellite-service` | `vegetation-analysis-service` | 8090        | 2025-06-01    |
 
 ---
 
@@ -27,33 +28,33 @@ This document lists services that are frozen, deprecated, or replaced in the SAH
 
 هذه الخدمات موجودة في الكود لكنها غير مفعّلة في docker-compose.yml:
 
-| الخدمة | السبب | الحالة |
-|--------|-------|--------|
-| `fertilizer-advisor` | تم دمجها في `advisory-service` | مجمدة |
-| `agent-registry` | قيد التطوير | مجمدة |
-| `ai-agents-core` | قيد التطوير | مجمدة |
-| `field-core` | تم استبدالها بـ `field-management-service` | مجمدة |
-| `globalgap-compliance` | قيد التطوير | مجمدة |
-| `user-service` | تم دمجها في `billing-core` | مجمدة |
-| `yield-engine` | تم دمجها في `yield-prediction-service` | مجمدة |
+| الخدمة                 | السبب                                      | الحالة |
+| ---------------------- | ------------------------------------------ | ------ |
+| `fertilizer-advisor`   | تم دمجها في `advisory-service`             | مجمدة  |
+| `agent-registry`       | قيد التطوير                                | مجمدة  |
+| `ai-agents-core`       | قيد التطوير                                | مجمدة  |
+| `field-core`           | تم استبدالها بـ `field-management-service` | مجمدة  |
+| `globalgap-compliance` | قيد التطوير                                | مجمدة  |
+| `user-service`         | تم دمجها في `billing-core`                 | مجمدة  |
+| `yield-engine`         | تم دمجها في `yield-prediction-service`     | مجمدة  |
 
 ---
 
 ## 3. خدمات مشتركة (Shared)
 
-| المجلد | الوصف |
-|--------|-------|
+| المجلد    | الوصف                                        |
+| --------- | -------------------------------------------- |
 | `shared/` | مكتبات مشتركة بين الخدمات - ليست خدمة مستقلة |
 
 ---
 
 ## 4. ملفات أرشيفية
 
-| الملف | الوصف |
-|-------|-------|
-| `docker-compose.yml.deprecated` | ملف compose قديم للمرجع |
-| `DEPRECATION_SUMMARY.md` | توثيق الخدمات المهجورة |
-| `IN_MEMORY_STORAGE_MIGRATION.md` | توثيق ترحيل التخزين |
+| الملف                            | الوصف                   |
+| -------------------------------- | ----------------------- |
+| `docker-compose.yml.deprecated`  | ملف compose قديم للمرجع |
+| `DEPRECATION_SUMMARY.md`         | توثيق الخدمات المهجورة  |
+| `IN_MEMORY_STORAGE_MIGRATION.md` | توثيق ترحيل التخزين     |
 
 ---
 

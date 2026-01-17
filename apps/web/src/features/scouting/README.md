@@ -10,12 +10,14 @@ The Scouting feature provides a comprehensive web interface for field scouts to 
 ## Features
 
 ### 🗺️ Interactive Map Scouting
+
 - Click on map to add observation points
 - Real-time marker visualization
 - Custom color-coded markers by category and severity
 - Field boundary overlays
 
 ### 📸 Observation Management
+
 - Photo upload with drag & drop
 - 6 observation categories (pests, diseases, weeds, nutrients, water, other)
 - Subcategory classification
@@ -24,12 +26,14 @@ The Scouting feature provides a comprehensive web interface for field scouts to 
 - Optional task creation
 
 ### 📊 Session Tracking
+
 - Start/end scouting sessions
 - Session duration tracking
 - Real-time observation counting
 - Session summary statistics
 
 ### 📜 History & Analytics
+
 - Past session viewing
 - Advanced filtering (date, category, severity)
 - Statistics dashboard
@@ -60,15 +64,11 @@ The Scouting feature provides a comprehensive web interface for field scouts to 
 ### Basic Implementation
 
 ```tsx
-import { ScoutingMode } from '@/features/scouting';
+import { ScoutingMode } from "@/features/scouting";
 
 function FieldPage() {
   return (
-    <ScoutingMode
-      fieldId="field-123"
-      center={[24.7136, 46.6753]}
-      zoom={15}
-    />
+    <ScoutingMode fieldId="field-123" center={[24.7136, 46.6753]} zoom={15} />
   );
 }
 ```
@@ -98,7 +98,7 @@ function FieldPage() {
 ### View Scouting History
 
 ```tsx
-import { ScoutingHistory } from '@/features/scouting';
+import { ScoutingHistory } from "@/features/scouting";
 
 function HistoryPage() {
   return (
@@ -118,7 +118,7 @@ function HistoryPage() {
 ### Using Hooks Directly
 
 ```tsx
-import { useScoutingSessionManager } from '@/features/scouting';
+import { useScoutingSessionManager } from "@/features/scouting";
 
 function CustomScoutingComponent() {
   const {
@@ -129,10 +129,10 @@ function CustomScoutingComponent() {
     startSession,
     endSession,
     addObservation,
-  } = useScoutingSessionManager('field-123');
+  } = useScoutingSessionManager("field-123");
 
   const handleStart = async () => {
-    await startSession('Starting inspection');
+    await startSession("Starting inspection");
   };
 
   const handleObservation = async (data) => {
@@ -141,9 +141,7 @@ function CustomScoutingComponent() {
 
   return (
     <div>
-      {!session && (
-        <button onClick={handleStart}>Start Session</button>
-      )}
+      {!session && <button onClick={handleStart}>Start Session</button>}
 
       {session && (
         <div>
@@ -163,18 +161,18 @@ function CustomScoutingComponent() {
 ```typescript
 // Observation Categories
 type ObservationCategory =
-  | 'pest'      // حشرات
-  | 'disease'   // فطريات/أمراض
-  | 'weed'      // أعشاب ضارة
-  | 'nutrient'  // نقص غذائي
-  | 'water'     // جفاف/ري
-  | 'other';    // أخرى
+  | "pest" // حشرات
+  | "disease" // فطريات/أمراض
+  | "weed" // أعشاب ضارة
+  | "nutrient" // نقص غذائي
+  | "water" // جفاف/ري
+  | "other"; // أخرى
 
 // Severity Level (1-5)
 type Severity = 1 | 2 | 3 | 4 | 5;
 
 // Session Status
-type SessionStatus = 'active' | 'completed' | 'cancelled';
+type SessionStatus = "active" | "completed" | "cancelled";
 
 // Observation
 interface Observation {
@@ -258,7 +256,7 @@ The feature includes built-in offline support:
 ### Manual Sync
 
 ```tsx
-import { useSyncOfflineData } from '@/features/scouting';
+import { useSyncOfflineData } from "@/features/scouting";
 
 function SyncButton() {
   const sync = useSyncOfflineData();
@@ -284,10 +282,10 @@ All components support Arabic and English:
 ```tsx
 // Automatic locale detection
 const locale = useLocale();
-const isArabic = locale === 'ar';
+const isArabic = locale === "ar";
 
 // Display localized content
-<p>{isArabic ? labelAr : label}</p>
+<p>{isArabic ? labelAr : label}</p>;
 ```
 
 ## Map Integration
@@ -295,15 +293,15 @@ const isArabic = locale === 'ar';
 Built with Leaflet and React Leaflet:
 
 ```tsx
-import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer } from "react-leaflet";
 
 // Custom marker icons
-import L from 'leaflet';
+import L from "leaflet";
 
 const customIcon = L.divIcon({
   html: `<div style="...">...</div>`,
-  className: 'custom-observation-marker',
+  className: "custom-observation-marker",
   iconSize: [36, 36],
   iconAnchor: [18, 36],
   popupAnchor: [0, -36],
@@ -345,14 +343,14 @@ Categories are defined in `types/scouting.ts`:
 ```typescript
 export const CATEGORY_OPTIONS: CategoryOption[] = [
   {
-    value: 'pest',
-    label: 'Pest',
-    labelAr: 'حشرات',
-    icon: 'Bug',
-    color: '#ef4444',
+    value: "pest",
+    label: "Pest",
+    labelAr: "حشرات",
+    icon: "Bug",
+    color: "#ef4444",
     subcategories: [
-      { value: 'aphid', label: 'Aphids', labelAr: 'من' },
-      { value: 'caterpillar', label: 'Caterpillars', labelAr: 'دودة' },
+      { value: "aphid", label: "Aphids", labelAr: "من" },
+      { value: "caterpillar", label: "Caterpillars", labelAr: "دودة" },
       // ...
     ],
   },

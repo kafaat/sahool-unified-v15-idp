@@ -5,6 +5,7 @@
 A production-ready Flutter widget for displaying field health zones on an interactive map.
 
 ### Files Created:
+
 ```
 ✅ zones_map_layer.dart (900 lines)
    - Main widget implementation
@@ -29,12 +30,14 @@ A production-ready Flutter widget for displaying field health zones on an intera
 ## 🚀 Instant Usage
 
 ### 1. Import the widget
+
 ```dart
 import 'package:mobile/features/field/presentation/widgets/zones_map_layer.dart';
 import 'package:latlong2/latlong.dart';
 ```
 
 ### 2. Create zone data
+
 ```dart
 final zones = [
   ZoneHealth(
@@ -54,6 +57,7 @@ final zones = [
 ```
 
 ### 3. Use the widget
+
 ```dart
 ZonesMapLayer(
   zones: zones,
@@ -65,18 +69,18 @@ ZonesMapLayer(
 
 ## 🎨 Features
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| Color-coded zones | ✅ | Green (>0.6), Yellow (0.4-0.6), Red (<0.4) |
-| Zone labels | ✅ | Name + NDVI value on map |
-| Tap to select | ✅ | Interactive zone selection |
-| Details popup | ✅ | Name, area, NDVI, trend, recommendations |
-| Animated highlight | ✅ | Pulse effect on selected zone |
-| Bilingual | ✅ | Arabic/English with RTL support |
-| Loading state | ✅ | Spinner while fetching data |
-| Empty state | ✅ | Helpful message when no zones |
-| Map controls | ✅ | Zoom in/out buttons |
-| Legend | ✅ | Health status color key |
+| Feature            | Status | Description                                |
+| ------------------ | ------ | ------------------------------------------ |
+| Color-coded zones  | ✅     | Green (>0.6), Yellow (0.4-0.6), Red (<0.4) |
+| Zone labels        | ✅     | Name + NDVI value on map                   |
+| Tap to select      | ✅     | Interactive zone selection                 |
+| Details popup      | ✅     | Name, area, NDVI, trend, recommendations   |
+| Animated highlight | ✅     | Pulse effect on selected zone              |
+| Bilingual          | ✅     | Arabic/English with RTL support            |
+| Loading state      | ✅     | Spinner while fetching data                |
+| Empty state        | ✅     | Helpful message when no zones              |
+| Map controls       | ✅     | Zoom in/out buttons                        |
+| Legend             | ✅     | Health status color key                    |
 
 ## 📱 Where to Use
 
@@ -185,6 +189,7 @@ lib/features/field/presentation/widgets/zones_map_layer_example.dart
 ## 📚 Full Documentation
 
 See `/apps/mobile/lib/features/field/presentation/widgets/ZONES_MAP_LAYER_README.md` for:
+
 - Complete API reference
 - Advanced integration patterns
 - Performance optimization

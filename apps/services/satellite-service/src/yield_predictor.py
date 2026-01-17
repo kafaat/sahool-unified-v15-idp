@@ -18,14 +18,36 @@ import math
 import sys
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 
-sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+
+# Define CropInfo first as fallback (with all needed attributes)
+@dataclass
+class CropInfo:
+    code: str = ""
+    name_en: str = ""
+    name_ar: str = ""
+    base_yield_ton_ha: float = 0.0
+    growing_season_days: int = 120
+    kc_mid: float = 1.0
+
+
+# Try multiple possible shared paths (local dev vs Docker container)
+SHARED_PATHS = [
+    Path(__file__).parent.parent.parent / "shared",  # Local dev
+    Path(__file__).parent.parent / "shared",  # Docker: /app/shared
+    Path("/app/shared"),  # Absolute Docker path
+]
+
+for shared_path in SHARED_PATHS:
+    if shared_path.exists() and str(shared_path) not in sys.path:
+        sys.path.insert(0, str(shared_path))
+        break
+
 try:
-    from apps.services.shared.crops import ALL_CROPS, CropInfo, get_crop
+    from crops import CropInfo, get_crop
 except ImportError:
     # Fallback for standalone testing
-    ALL_CROPS = {}
-
     def get_crop(code: str):
         return None
 

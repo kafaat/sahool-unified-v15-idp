@@ -33,19 +33,22 @@ logger = logging.getLogger("sahool-billing")
 # Database URL from environment
 # TLS/SSL: DATABASE_URL must include sslmode=require for production
 # Example: postgresql+asyncpg://user:pass@host:5432/db?sslmode=require
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_billing",
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # Build from individual environment variables for flexibility
+    db_host = os.getenv("POSTGRES_HOST", "localhost")
+    db_port = os.getenv("POSTGRES_PORT", "5432")
+    db_user = os.getenv("POSTGRES_USER", "postgres")
+    db_password = os.getenv("POSTGRES_PASSWORD", "postgres")
+    db_name = os.getenv("POSTGRES_DB", "sahool_billing")
+    DATABASE_URL = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
 # Ensure async driver
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 elif DATABASE_URL.startswith("postgresql+psycopg2://"):
     # Convert sync driver to async
-    DATABASE_URL = DATABASE_URL.replace(
-        "postgresql+psycopg2://", "postgresql+asyncpg://", 1
-    )
+    DATABASE_URL = DATABASE_URL.replace("postgresql+psycopg2://", "postgresql+asyncpg://", 1)
 
 # Environment settings
 ENVIRONMENT = os.getenv("ENVIRONMENT", "production").lower()

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Role Selector Component
  * مكون اختيار الدور
  */
 
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
-import { Role, ROLE_CONFIGS } from '../types/team';
+import React from "react";
+import { ChevronDown } from "lucide-react";
+import { Role, ROLE_CONFIGS } from "../types/team";
 
 interface RoleSelectorProps {
   value: Role;
@@ -20,7 +20,7 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
   value,
   onChange,
   disabled = false,
-  className = '',
+  className = "",
 }) => {
   return (
     <div className={`relative ${className}`}>

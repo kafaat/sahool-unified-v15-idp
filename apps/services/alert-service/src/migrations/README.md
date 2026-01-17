@@ -19,9 +19,11 @@ migrations/
 ### Tables
 
 #### alerts
+
 Stores agricultural alerts and warnings.
 
 **Key Fields:**
+
 - `id` (UUID): Primary key
 - `tenant_id` (UUID): Multi-tenancy support
 - `field_id` (String): Field reference
@@ -35,6 +37,7 @@ Stores agricultural alerts and warnings.
 - Timestamps: `created_at`, `expires_at`, `acknowledged_at`, `dismissed_at`, `resolved_at`
 
 **Indexes:**
+
 - `ix_alerts_field_status`: Field + status + created_at
 - `ix_alerts_tenant_created`: Tenant-wide queries
 - `ix_alerts_type_severity`: Type and severity filtering
@@ -42,9 +45,11 @@ Stores agricultural alerts and warnings.
 - `ix_alerts_source`: Source tracking
 
 #### alert_rules
+
 Stores automated alert rule configurations.
 
 **Key Fields:**
+
 - `id` (UUID): Primary key
 - `tenant_id` (UUID): Multi-tenancy support
 - `field_id` (String): Field reference
@@ -57,6 +62,7 @@ Stores automated alert rule configurations.
 - Timestamps: `created_at`, `updated_at`
 
 **Indexes:**
+
 - `ix_alert_rules_field`: Field + enabled
 - `ix_alert_rules_tenant`: Tenant + enabled
 - `ix_alert_rules_enabled`: Active rules query
@@ -127,6 +133,7 @@ alembic upgrade head
 ### Migration fails with "relation already exists"
 
 This usually means the table was created manually. Either:
+
 1. Drop the table and run migration
 2. Mark migration as run: `alembic stamp head`
 

@@ -150,20 +150,24 @@ sahool-unified-v15-idp/
 ## Key Changes by Category
 
 ### Backend Authentication (5 files)
+
 - Complete auth service with token revocation
 - Login, logout, refresh endpoints
 - JWT strategy with user validation
 - Module integration with guards
 
 ### Configuration (1 file)
+
 - Environment variables template
 - JWT and Redis configuration
 
 ### Frontend Integration (1 file)
+
 - Logout endpoint calls backend revocation
 - Graceful error handling
 
 ### Documentation (4 files)
+
 - Complete technical documentation
 - Setup and deployment guide
 - Implementation summary
@@ -172,6 +176,7 @@ sahool-unified-v15-idp/
 ## Dependencies Added
 
 Add to `apps/services/user-service/package.json`:
+
 ```json
 {
   "dependencies": {

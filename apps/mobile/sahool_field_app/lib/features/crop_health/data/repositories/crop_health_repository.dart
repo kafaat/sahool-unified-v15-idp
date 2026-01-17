@@ -17,9 +17,9 @@ class CropHealthRepository {
   final http.Client _client;
   final String? _authToken;
 
-  /// Base URL for crop health service (port 8095)
+  /// Base URL for crop health service (port 8095 - Kong route /crop)
   static String get _baseUrl => ApiConfig.useDirectServices
-      ? 'http://${ApiConfig.useDirectServices ? "localhost" : "10.0.2.2"}:8095'
+      ? ApiConfig.cropHealthServiceUrl
       : ApiConfig.effectiveBaseUrl;
 
   CropHealthRepository({

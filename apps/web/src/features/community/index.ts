@@ -11,10 +11,10 @@
  */
 
 // Component exports
-export { Feed } from './components/Feed';
-export { PostCard } from './components/PostCard';
-export { CreatePost } from './components/CreatePost';
-export { Groups } from './components/Groups';
+export { Feed } from "./components/Feed";
+export { PostCard } from "./components/PostCard";
+export { CreatePost } from "./components/CreatePost";
+export { Groups } from "./components/Groups";
 
 // Hook exports
 export {
@@ -32,7 +32,7 @@ export {
   useComments,
   useAddComment,
   useLikeComment,
-} from './hooks/useCommunity';
+} from "./hooks/useCommunity";
 
 export {
   useGroups,
@@ -48,7 +48,7 @@ export {
   useAskExpert,
   useExpertQuestions,
   useRateExpertAnswer,
-} from './hooks/useGroups';
+} from "./hooks/useGroups";
 
 // Type exports
 export type {
@@ -65,6 +65,6 @@ export type {
   CommunityFilters,
   GroupFilters,
   CommunityNotification,
-} from './types';
+} from "./types";
 
-export const COMMUNITY_FEATURE = 'community' as const;
+export const COMMUNITY_FEATURE = "community" as const;

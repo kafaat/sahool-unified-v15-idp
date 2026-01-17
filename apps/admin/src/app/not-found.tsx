@@ -1,6 +1,6 @@
-import Link from 'next/link';
+import Link from "next/link";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 /**
@@ -9,7 +9,10 @@ export const revalidate = 0;
  */
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
+    <div
+      className="min-h-screen flex items-center justify-center bg-gray-50"
+      dir="rtl"
+    >
       <div className="text-center px-4">
         <h1 className="text-9xl font-bold text-gray-200">404</h1>
         <h2 className="text-2xl font-semibold text-gray-800 mt-4">

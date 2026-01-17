@@ -25,9 +25,9 @@ from fastapi import FastAPI, HTTPException
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
 from shared.middleware import setup_cors
 
 # Configure logging
@@ -50,8 +50,8 @@ setup_cors(app)
 
 # Rate Limiting - Critical for AI agent endpoints
 try:
-    from shared.middleware.rate_limiter import setup_rate_limiting, RateLimitTier
     from fastapi import Request
+    from shared.middleware.rate_limiter import RateLimitTier, setup_rate_limiting
 
     def ai_agents_tier_func(request: Request) -> RateLimitTier:
         """Determine rate limit tier for AI agents endpoints"""

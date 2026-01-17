@@ -1,4 +1,5 @@
 # SAHOOL Platform Services Registry
+
 # سجل خدمات منصة سهول
 
 ## Service Overview | نظرة عامة على الخدمات
@@ -8,13 +9,13 @@ Total Services: 39 microservices
 
 ## Package Distribution | توزيع الباقات
 
-| Package | Services Count | Rate Limit | Price (SAR/month) |
-|---------|---------------|------------|-------------------|
-| Trial | 5 | 50/min | Free |
-| Starter | 5 | 100/min | 99 SAR |
-| Professional | 13 (+Starter) | 1000/min | 399 SAR |
-| Enterprise | 21 (+Professional) | 10000/min | 999 SAR |
-| Research | 14 (+Shared) | 10000/min | Custom |
+| Package      | Services Count     | Rate Limit | Price (SAR/month) |
+| ------------ | ------------------ | ---------- | ----------------- |
+| Trial        | 5                  | 50/min     | Free              |
+| Starter      | 5                  | 100/min    | 99 SAR            |
+| Professional | 13 (+Starter)      | 1000/min   | 399 SAR           |
+| Enterprise   | 21 (+Professional) | 10000/min  | 999 SAR           |
+| Research     | 14 (+Shared)       | 10000/min  | Custom            |
 
 ---
 
@@ -24,6 +25,7 @@ Total Services: 39 microservices
 **المستخدمون المستهدفون:** المزارعون الصغار وملاك الأراضي الجدد
 
 ### 1. Field Core | إدارة الحقول
+
 - **Service Name:** `field-core`
 - **Port:** 3000
 - **Route:** `/api/v1/starter/fields`
@@ -38,6 +40,7 @@ Total Services: 39 microservices
   - Basic field statistics
 
 ### 2. Weather Core | الطقس الأساسي
+
 - **Service Name:** `weather-core`
 - **Port:** 8108
 - **Route:** `/api/v1/starter/weather`
@@ -52,6 +55,7 @@ Total Services: 39 microservices
   - Basic alerts
 
 ### 3. Astronomical Calendar | التقويم الفلكي
+
 - **Service Name:** `astronomical-calendar`
 - **Port:** 8111
 - **Route:** `/api/v1/starter/calendar`
@@ -65,6 +69,7 @@ Total Services: 39 microservices
   - Traditional knowledge integration
 
 ### 4. Agro Advisor | المستشار الزراعي
+
 - **Service Name:** `agro-advisor`
 - **Port:** 8105
 - **Route:** `/api/v1/starter/advice`
@@ -78,6 +83,7 @@ Total Services: 39 microservices
   - Seasonal tips
 
 ### 5. Notification Service | خدمة الإشعارات
+
 - **Service Name:** `notification-service`
 - **Port:** 8110
 - **Route:** `/api/v1/starter/notifications`
@@ -99,6 +105,7 @@ Total Services: 39 microservices
 **تشمل الباقة الأساسية + الخدمات التالية**
 
 ### 6. Satellite Service | خدمة الأقمار الصناعية
+
 - **Service Name:** `satellite-service`
 - **Port:** 8090
 - **Route:** `/api/v1/professional/satellite`
@@ -113,6 +120,7 @@ Total Services: 39 microservices
   - Historical archive
 
 ### 7. NDVI Engine | محرك NDVI
+
 - **Service Name:** `ndvi-engine`
 - **Port:** 8107
 - **Route:** `/api/v1/professional/ndvi`
@@ -126,6 +134,7 @@ Total Services: 39 microservices
   - Health scoring
 
 ### 8. Crop Health AI | الذكاء الاصطناعي لصحة المحاصيل
+
 - **Service Name:** `crop-health-ai`
 - **Port:** 8095
 - **Route:** `/api/v1/professional/crop-health`
@@ -140,6 +149,7 @@ Total Services: 39 microservices
   - Confidence scoring
 
 ### 9. Irrigation Smart | الري الذكي
+
 - **Service Name:** `irrigation-smart`
 - **Port:** 8094
 - **Route:** `/api/v1/professional/irrigation`
@@ -153,6 +163,7 @@ Total Services: 39 microservices
   - Water balance
 
 ### 10. Virtual Sensors | المستشعرات الافتراضية
+
 - **Service Name:** `virtual-sensors`
 - **Port:** 8096
 - **Route:** `/api/v1/professional/sensors/virtual`
@@ -167,6 +178,7 @@ Total Services: 39 microservices
   - Data interpolation
 
 ### 11. Yield Engine | محرك توقع الإنتاجية
+
 - **Service Name:** `yield-engine`
 - **Port:** 8098
 - **Route:** `/api/v1/professional/yield`
@@ -180,6 +192,7 @@ Total Services: 39 microservices
   - Risk assessment
 
 ### 12. Fertilizer Advisor | مستشار التسميد
+
 - **Service Name:** `fertilizer-advisor`
 - **Port:** 8093
 - **Route:** `/api/v1/professional/fertilizer`
@@ -193,6 +206,7 @@ Total Services: 39 microservices
   - Cost optimization
 
 ### 13. Inventory Service | إدارة المخزون
+
 - **Service Name:** `inventory-service`
 - **Port:** 8116
 - **Route:** `/api/v1/professional/inventory`
@@ -206,6 +220,7 @@ Total Services: 39 microservices
   - Batch tracking
 
 ### 14. Equipment Service | خدمة المعدات
+
 - **Service Name:** `equipment-service`
 - **Port:** 8101
 - **Route:** `/api/v1/professional/equipment`
@@ -219,6 +234,7 @@ Total Services: 39 microservices
   - Cost tracking
 
 ### 15. Weather Advanced | الطقس المتقدم
+
 - **Service Name:** `weather-advanced`
 - **Port:** 8092
 - **Route:** `/api/v1/professional/weather/advanced`
@@ -232,6 +248,7 @@ Total Services: 39 microservices
   - Frost predictions
 
 ### 16. NDVI Processor | معالج NDVI
+
 - **Service Name:** `ndvi-processor`
 - **Port:** 8118
 - **Route:** `/api/v1/professional/ndvi-processor`
@@ -245,6 +262,7 @@ Total Services: 39 microservices
   - Export capabilities
 
 ### 17. Indicators Service | خدمة المؤشرات
+
 - **Service Name:** `indicators-service`
 - **Port:** 8091
 - **Route:** `/api/v1/professional/indicators`
@@ -258,6 +276,7 @@ Total Services: 39 microservices
   - Custom indicators
 
 ### 18. Task Service | خدمة المهام
+
 - **Service Name:** `task-service`
 - **Port:** 8103
 - **Route:** `/api/v1/professional/tasks`
@@ -278,6 +297,7 @@ Total Services: 39 microservices
 **تشمل الباقة المتوسطة + الخدمات التالية**
 
 ### 19. AI Advisor | المستشار الذكي
+
 - **Service Name:** `ai-advisor`
 - **Port:** 8112
 - **Route:** `/api/v1/enterprise/ai-advisor`
@@ -292,6 +312,7 @@ Total Services: 39 microservices
   - Decision support
 
 ### 20. IoT Gateway | بوابة إنترنت الأشياء
+
 - **Service Name:** `iot-gateway`
 - **Port:** 8106
 - **Route:** `/api/v1/enterprise/iot`
@@ -306,6 +327,7 @@ Total Services: 39 microservices
   - Edge computing
 
 ### 21. Research Core | إدارة الأبحاث
+
 - **Service Name:** `research-core`
 - **Port:** 3015
 - **Route:** `/api/v1/enterprise/research`
@@ -319,6 +341,7 @@ Total Services: 39 microservices
   - Statistical analysis
 
 ### 22. Marketplace Service | السوق الزراعي
+
 - **Service Name:** `marketplace-service`
 - **Port:** 3010
 - **Route:** `/api/v1/enterprise/marketplace`
@@ -332,6 +355,7 @@ Total Services: 39 microservices
   - Transaction management
 
 ### 23. Billing Core | الفوترة والمدفوعات
+
 - **Service Name:** `billing-core`
 - **Port:** 8089
 - **Route:** `/api/v1/enterprise/billing`
@@ -346,6 +370,7 @@ Total Services: 39 microservices
   - Usage tracking
 
 ### 24. Disaster Assessment | تقييم الكوارث
+
 - **Service Name:** `disaster-assessment`
 - **Port:** 3020
 - **Route:** `/api/v1/enterprise/disaster`
@@ -359,6 +384,7 @@ Total Services: 39 microservices
   - Recovery planning
 
 ### 25. Crop Growth Model | نماذج نمو المحاصيل
+
 - **Service Name:** `crop-growth-model`
 - **Port:** 3023
 - **Route:** `/api/v1/enterprise/crop-model`
@@ -373,6 +399,7 @@ Total Services: 39 microservices
   - Climate impact
 
 ### 26. LAI Estimation | تقدير مؤشر مساحة الورق
+
 - **Service Name:** `lai-estimation`
 - **Port:** 3022
 - **Route:** `/api/v1/enterprise/lai`
@@ -386,6 +413,7 @@ Total Services: 39 microservices
   - Biomass estimation
 
 ### 27. Yield Prediction | توقع الإنتاجية المتقدم
+
 - **Service Name:** `yield-prediction`
 - **Port:** 3021
 - **Route:** `/api/v1/enterprise/yield-prediction`
@@ -399,6 +427,7 @@ Total Services: 39 microservices
   - What-if scenarios
 
 ### 28. IoT Service | خدمة IoT
+
 - **Service Name:** `iot-service`
 - **Port:** 8117
 - **Route:** `/api/v1/enterprise/iot-service`
@@ -419,12 +448,14 @@ Total Services: 39 microservices
 **متاحة لجميع مستويات الباقات**
 
 ### 29. Field Operations | عمليات الحقول
+
 - **Service Name:** `field-ops`
 - **Port:** 8080
 - **Route:** `/api/v1/shared/field-ops`
 - **Technology:** Python/FastAPI
 
 ### 30. WebSocket Gateway | بوابة WebSocket
+
 - **Service Name:** `ws-gateway`
 - **Port:** 8081
 - **Route:** `/api/v1/shared/ws`
@@ -432,36 +463,42 @@ Total Services: 39 microservices
 - **Features:** Real-time updates
 
 ### 31. Community Chat | محادثة المجتمع
+
 - **Service Name:** `community-chat`
 - **Port:** 8097
 - **Route:** `/api/v1/shared/community/chat`
 - **Technology:** Python/FastAPI
 
 ### 32. Field Chat | محادثة الحقل
+
 - **Service Name:** `field-chat`
 - **Port:** 8099
 - **Route:** `/api/v1/shared/field/chat`
 - **Technology:** Python/FastAPI
 
 ### 33. Provider Config | تكوين المزودين
+
 - **Service Name:** `provider-config`
 - **Port:** 8104
 - **Route:** `/api/v1/shared/providers`
 - **Technology:** Python/FastAPI
 
 ### 34. Alert Service | خدمة التنبيهات
+
 - **Service Name:** `alert-service`
 - **Port:** 8113
 - **Route:** `/api/v1/shared/alerts`
 - **Technology:** Python/FastAPI
 
 ### 35. Chat Service | خدمة المحادثة
+
 - **Service Name:** `chat-service`
 - **Port:** 8114
 - **Route:** `/api/v1/shared/chat`
 - **Technology:** Python/FastAPI
 
 ### 36. Field Service | خدمة الحقول
+
 - **Service Name:** `field-service`
 - **Port:** 8115
 - **Route:** `/api/v1/shared/field-service`
@@ -472,6 +509,7 @@ Total Services: 39 microservices
 ## Administrative Services | الخدمات الإدارية
 
 ### 37. Admin Dashboard | لوحة التحكم
+
 - **Service Name:** `admin-dashboard`
 - **Port:** 3001
 - **Route:** `/api/v1/admin`
@@ -483,21 +521,25 @@ Total Services: 39 microservices
 ## Infrastructure Services | الخدمات الأساسية
 
 ### 38. PostgreSQL Database
+
 - **Port:** 5432
 - **Version:** 16 with PostGIS
 - **Purpose:** Main data storage
 
 ### 39. Redis Cache
+
 - **Port:** 6379
 - **Version:** 7
 - **Purpose:** Caching and sessions
 
 ### NATS Event Bus
+
 - **Port:** 4222
 - **Version:** 2.10
 - **Purpose:** Event-driven messaging
 
 ### Kong API Gateway
+
 - **Proxy:** 8000 (HTTP), 8443 (HTTPS)
 - **Admin:** 8001
 - **Purpose:** API Gateway and routing
@@ -519,29 +561,29 @@ GET /metrics         # Prometheus metrics
 
 ## Package Access Matrix | مصفوفة الوصول حسب الباقات
 
-| Service | Trial | Starter | Professional | Enterprise | Research |
-|---------|-------|---------|-------------|-----------|----------|
-| Field Core | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Weather Core | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Astronomical Calendar | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Agro Advisor | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Notification Service | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Satellite Service | - | - | ✓ | ✓ | ✓ |
-| NDVI Engine | - | - | ✓ | ✓ | ✓ |
-| Crop Health AI | - | - | ✓ | ✓ | ✓ |
-| Irrigation Smart | - | - | ✓ | ✓ | ✓ |
-| Virtual Sensors | - | - | ✓ | ✓ | ✓ |
-| Yield Engine | - | - | ✓ | ✓ | ✓ |
-| Fertilizer Advisor | - | - | ✓ | ✓ | ✓ |
-| Inventory Service | - | - | ✓ | ✓ | ✓ |
-| AI Advisor | - | - | - | ✓ | ✓ |
-| IoT Gateway | - | - | - | ✓ | - |
-| Research Core | - | - | - | ✓ | ✓ |
-| Marketplace Service | - | - | - | ✓ | - |
-| Billing Core | - | - | - | ✓ | - |
-| Disaster Assessment | - | - | - | ✓ | ✓ |
-| Crop Growth Model | - | - | - | ✓ | ✓ |
-| LAI Estimation | - | - | - | ✓ | ✓ |
+| Service               | Trial | Starter | Professional | Enterprise | Research |
+| --------------------- | ----- | ------- | ------------ | ---------- | -------- |
+| Field Core            | ✓     | ✓       | ✓            | ✓          | ✓        |
+| Weather Core          | ✓     | ✓       | ✓            | ✓          | ✓        |
+| Astronomical Calendar | ✓     | ✓       | ✓            | ✓          | ✓        |
+| Agro Advisor          | ✓     | ✓       | ✓            | ✓          | ✓        |
+| Notification Service  | ✓     | ✓       | ✓            | ✓          | ✓        |
+| Satellite Service     | -     | -       | ✓            | ✓          | ✓        |
+| NDVI Engine           | -     | -       | ✓            | ✓          | ✓        |
+| Crop Health AI        | -     | -       | ✓            | ✓          | ✓        |
+| Irrigation Smart      | -     | -       | ✓            | ✓          | ✓        |
+| Virtual Sensors       | -     | -       | ✓            | ✓          | ✓        |
+| Yield Engine          | -     | -       | ✓            | ✓          | ✓        |
+| Fertilizer Advisor    | -     | -       | ✓            | ✓          | ✓        |
+| Inventory Service     | -     | -       | ✓            | ✓          | ✓        |
+| AI Advisor            | -     | -       | -            | ✓          | ✓        |
+| IoT Gateway           | -     | -       | -            | ✓          | -        |
+| Research Core         | -     | -       | -            | ✓          | ✓        |
+| Marketplace Service   | -     | -       | -            | ✓          | -        |
+| Billing Core          | -     | -       | -            | ✓          | -        |
+| Disaster Assessment   | -     | -       | -            | ✓          | ✓        |
+| Crop Growth Model     | -     | -       | -            | ✓          | ✓        |
+| LAI Estimation        | -     | -       | -            | ✓          | ✓        |
 
 ---
 

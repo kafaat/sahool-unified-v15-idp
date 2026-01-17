@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
 // Map Overview Component
 // نظرة عامة على الخريطة
 
-import { useState } from 'react';
-import dynamic from 'next/dynamic';
-import { MapPin, Layers, Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import { MapPin, Layers, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 // Dynamic import for map (no SSR)
-const InteractiveMap = dynamic(() => import('@/components/maps/FarmsMap'), {
+const InteractiveMap = dynamic(() => import("@/components/maps/FarmsMap"), {
   ssr: false,
   loading: () => (
     <div className="h-full bg-gray-100 animate-pulse flex items-center justify-center">
@@ -46,22 +46,26 @@ interface MapOverviewProps {
 
 export default function MapOverview({
   farms,
-  height = '500px',
+  height = "500px",
   showHealthOverlay = true,
   showControls = true,
   onFarmClick,
   selectedFarmId,
-  className = ''
+  className = "",
 }: MapOverviewProps) {
   const [overlayEnabled, setOverlayEnabled] = useState(showHealthOverlay);
-  const [mapView, setMapView] = useState<'satellite' | 'standard'>('standard');
+  const [mapView, setMapView] = useState<"satellite" | "standard">("standard");
 
-  const healthyFarms = farms.filter(f => f.healthScore >= 70).length;
-  const warningFarms = farms.filter(f => f.healthScore >= 50 && f.healthScore < 70).length;
-  const criticalFarms = farms.filter(f => f.healthScore < 50).length;
+  const healthyFarms = farms.filter((f) => f.healthScore >= 70).length;
+  const warningFarms = farms.filter(
+    (f) => f.healthScore >= 50 && f.healthScore < 70,
+  ).length;
+  const criticalFarms = farms.filter((f) => f.healthScore < 50).length;
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className}`}>
+    <div
+      className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className}`}
+    >
       {/* Header */}
       <div className="p-4 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -75,18 +79,24 @@ export default function MapOverview({
               onClick={() => setOverlayEnabled(!overlayEnabled)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 ${
                 overlayEnabled
-                  ? 'bg-sahool-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? "bg-sahool-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
-              title={overlayEnabled ? 'إخفاء طبقة الصحة' : 'عرض طبقة الصحة'}
+              title={overlayEnabled ? "إخفاء طبقة الصحة" : "عرض طبقة الصحة"}
             >
-              {overlayEnabled ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+              {overlayEnabled ? (
+                <Eye className="w-3 h-3" />
+              ) : (
+                <EyeOff className="w-3 h-3" />
+              )}
               طبقة الصحة
             </button>
 
             <select
               value={mapView}
-              onChange={(e) => setMapView(e.target.value as 'satellite' | 'standard')}
+              onChange={(e) =>
+                setMapView(e.target.value as "satellite" | "standard")
+              }
               className="px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
             >
               <option value="standard">خريطة عادية</option>
@@ -109,18 +119,34 @@ export default function MapOverview({
           <div className="flex items-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <span className="text-gray-600">صحي: <span className="font-medium text-gray-900">{healthyFarms}</span></span>
+              <span className="text-gray-600">
+                صحي:{" "}
+                <span className="font-medium text-gray-900">
+                  {healthyFarms}
+                </span>
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <span className="text-gray-600">تحذير: <span className="font-medium text-gray-900">{warningFarms}</span></span>
+              <span className="text-gray-600">
+                تحذير:{" "}
+                <span className="font-medium text-gray-900">
+                  {warningFarms}
+                </span>
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
-              <span className="text-gray-600">حرج: <span className="font-medium text-gray-900">{criticalFarms}</span></span>
+              <span className="text-gray-600">
+                حرج:{" "}
+                <span className="font-medium text-gray-900">
+                  {criticalFarms}
+                </span>
+              </span>
             </div>
             <div className="mr-auto text-gray-500">
-              إجمالي المزارع: <span className="font-medium text-gray-900">{farms.length}</span>
+              إجمالي المزارع:{" "}
+              <span className="font-medium text-gray-900">{farms.length}</span>
             </div>
           </div>
         </div>

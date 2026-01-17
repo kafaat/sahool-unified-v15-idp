@@ -12,95 +12,103 @@ This comprehensive Docker Compose configuration deploys the complete SAHOOL agri
 
 ## Infrastructure Services (6)
 
-| Service | Image | Ports | Description |
-|---------|-------|-------|-------------|
-| **postgres** | postgis/postgis:16-3.4 | 5432 | PostGIS spatial database |
-| **redis** | redis:7-alpine | 6379 | Cache and session store |
-| **nats** | nats:2.10-alpine | 4222, 8222 | Message queue with JetStream |
-| **mqtt** | eclipse-mosquitto:2 | 1883, 9001 | IoT device communication |
-| **qdrant** | qdrant/qdrant:latest | 6333, 6334 | Vector database for RAG/AI |
-| **kong** | kong:3.4 | 8000, 8001 | API Gateway |
+| Service      | Image                  | Ports      | Description                  |
+| ------------ | ---------------------- | ---------- | ---------------------------- |
+| **postgres** | postgis/postgis:16-3.4 | 5432       | PostGIS spatial database     |
+| **redis**    | redis:7-alpine         | 6379       | Cache and session store      |
+| **nats**     | nats:2.10-alpine       | 4222, 8222 | Message queue with JetStream |
+| **mqtt**     | eclipse-mosquitto:2    | 1883, 9001 | IoT device communication     |
+| **qdrant**   | qdrant/qdrant:latest   | 6333, 6334 | Vector database for RAG/AI   |
+| **kong**     | kong:3.4               | 8000, 8001 | API Gateway                  |
 
 ---
 
 ## Node.js Application Services (10)
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **field_core** | 3000 | Geospatial field management (PostGIS + Prisma) |
-| **marketplace_service** | 3010 | Agricultural marketplace & FinTech |
-| **research_core** | 3015 | Scientific research management |
-| **disaster_assessment** | 3020 | Agricultural disaster assessment |
-| **yield_prediction** | 3021 | ML-based yield prediction |
-| **lai_estimation** | 3022 | Leaf Area Index estimation (LAI-TransNet) |
-| **crop_growth_model** | 3023 | Crop growth simulation (WOFOST/DSSAT/APSIM) |
-| **chat_service** | 8114 | Agricultural chat & messaging |
-| **iot_service** | 8117 | IoT device & sensor management |
-| **community_chat** | 8097 | Real-time community messaging (Socket.io) |
+| Service                 | Port | Description                                    |
+| ----------------------- | ---- | ---------------------------------------------- |
+| **field_core**          | 3000 | Geospatial field management (PostGIS + Prisma) |
+| **marketplace_service** | 3010 | Agricultural marketplace & FinTech             |
+| **research_core**       | 3015 | Scientific research management                 |
+| **disaster_assessment** | 3020 | Agricultural disaster assessment               |
+| **yield_prediction**    | 3021 | ML-based yield prediction                      |
+| **lai_estimation**      | 3022 | Leaf Area Index estimation (LAI-TransNet)      |
+| **crop_growth_model**   | 3023 | Crop growth simulation (WOFOST/DSSAT/APSIM)    |
+| **chat_service**        | 8114 | Agricultural chat & messaging                  |
+| **iot_service**         | 8117 | IoT device & sensor management                 |
+| **community_chat**      | 8097 | Real-time community messaging (Socket.io)      |
 
 ---
 
 ## Python Application Services (28)
 
 ### Core Services
-| Service | Port | Description |
-|---------|------|-------------|
-| **field_ops** | 8080 | Field operations management |
-| **ws_gateway** | 8081 | WebSocket gateway for real-time updates |
+
+| Service          | Port | Description                                          |
+| ---------------- | ---- | ---------------------------------------------------- |
+| **field_ops**    | 8080 | Field operations management                          |
+| **ws_gateway**   | 8081 | WebSocket gateway for real-time updates              |
 | **billing_core** | 8089 | Subscription & payment management (Stripe, Tharwatt) |
 
 ### Satellite & Weather Services
-| Service | Port | Description |
-|---------|------|-------------|
-| **satellite_service** | 8090 | Multi-provider satellite imagery (Sentinel Hub, NASA, Planet) |
-| **ndvi_engine** | 8107 | NDVI calculation engine |
-| **ndvi_processor** | 8118 | NDVI image processing |
-| **weather_core** | 8108 | Multi-provider weather data (OpenWeather, WeatherAPI) |
-| **weather_advanced** | 8092 | Advanced weather forecasting |
-| **astronomical_calendar** | 8111 | Yemeni agricultural astronomical calendar |
+
+| Service                   | Port | Description                                                   |
+| ------------------------- | ---- | ------------------------------------------------------------- |
+| **satellite_service**     | 8090 | Multi-provider satellite imagery (Sentinel Hub, NASA, Planet) |
+| **ndvi_engine**           | 8107 | NDVI calculation engine                                       |
+| **ndvi_processor**        | 8118 | NDVI image processing                                         |
+| **weather_core**          | 8108 | Multi-provider weather data (OpenWeather, WeatherAPI)         |
+| **weather_advanced**      | 8092 | Advanced weather forecasting                                  |
+| **astronomical_calendar** | 8111 | Yemeni agricultural astronomical calendar                     |
 
 ### Analytics & Advisory Services
-| Service | Port | Description |
-|---------|------|-------------|
-| **indicators_service** | 8091 | Agricultural KPIs & analytics |
-| **agro_advisor** | 8105 | Agricultural advisory recommendations |
-| **ai_advisor** | 8112 | Multi-agent AI system with RAG (Claude, GPT, Gemini) |
-| **fertilizer_advisor** | 8093 | Smart fertilization recommendations |
-| **irrigation_smart** | 8094 | Smart irrigation management (FAO-56) |
-| **virtual_sensors** | 8096 | FAO-56 ET0 calculations |
-| **yield_engine** | 8098 | ML crop yield prediction engine |
+
+| Service                | Port | Description                                          |
+| ---------------------- | ---- | ---------------------------------------------------- |
+| **indicators_service** | 8091 | Agricultural KPIs & analytics                        |
+| **agro_advisor**       | 8105 | Agricultural advisory recommendations                |
+| **ai_advisor**         | 8112 | Multi-agent AI system with RAG (Claude, GPT, Gemini) |
+| **fertilizer_advisor** | 8093 | Smart fertilization recommendations                  |
+| **irrigation_smart**   | 8094 | Smart irrigation management (FAO-56)                 |
+| **virtual_sensors**    | 8096 | FAO-56 ET0 calculations                              |
+| **yield_engine**       | 8098 | ML crop yield prediction engine                      |
 
 ### AI/ML Services
-| Service | Port | Description |
-|---------|------|-------------|
+
+| Service            | Port | Description                        |
+| ------------------ | ---- | ---------------------------------- |
 | **crop_health_ai** | 8095 | Crop health detection (TensorFlow) |
-| **crop_health** | 8100 | Crop health diagnostics |
+| **crop_health**    | 8100 | Crop health diagnostics            |
 
 ### Communication Services
-| Service | Port | Description |
-|---------|------|-------------|
-| **field_chat** | 8099 | Field-specific chat service |
+
+| Service                  | Port | Description                                   |
+| ------------------------ | ---- | --------------------------------------------- |
+| **field_chat**           | 8099 | Field-specific chat service                   |
 | **notification_service** | 8110 | Push notifications & alerts (Email, FCM, SMS) |
-| **alert_service** | 8113 | Agricultural alerts and warnings |
+| **alert_service**        | 8113 | Agricultural alerts and warnings              |
 
 ### Management Services
-| Service | Port | Description |
-|---------|------|-------------|
-| **equipment_service** | 8101 | Equipment management |
-| **task_service** | 8103 | Agricultural task management |
+
+| Service               | Port | Description                    |
+| --------------------- | ---- | ------------------------------ |
+| **equipment_service** | 8101 | Equipment management           |
+| **task_service**      | 8103 | Agricultural task management   |
 | **inventory_service** | 8116 | Inventory tracking & analytics |
-| **field_service** | 8115 | Field management service |
+| **field_service**     | 8115 | Field management service       |
 
 ### IoT & Integration Services
-| Service | Port | Description |
-|---------|------|-------------|
-| **iot_gateway** | 8106 | IoT gateway (MQTT bridge to NATS) |
+
+| Service             | Port | Description                             |
+| ------------------- | ---- | --------------------------------------- |
+| **iot_gateway**     | 8106 | IoT gateway (MQTT bridge to NATS)       |
 | **provider_config** | 8104 | Multi-provider configuration management |
 
 ### Worker Services
-| Service | Port | Description |
-|---------|------|-------------|
-| **agro_rules** | - | NATS event-driven worker (no HTTP port) |
+
+| Service        | Port | Description                             |
+| -------------- | ---- | --------------------------------------- |
+| **agro_rules** | -    | NATS event-driven worker (no HTTP port) |
 
 ---
 
@@ -160,6 +168,7 @@ docker compose down -v
 ## Required Environment Variables
 
 ### Critical (Must be set)
+
 ```env
 POSTGRES_USER=sahool
 POSTGRES_PASSWORD=<secure_password>
@@ -170,6 +179,7 @@ MQTT_PASSWORD=<secure_mqtt_password>
 ```
 
 ### Optional API Keys
+
 ```env
 # Weather Providers
 OPENWEATHERMAP_API_KEY=
@@ -238,16 +248,17 @@ Application Layer:
 
 ### Total Resource Requirements
 
-| Resource | Minimum | Recommended |
-|----------|---------|-------------|
-| **CPU** | 8 cores | 16 cores |
-| **RAM** | 16GB | 32GB |
-| **Disk** | 50GB | 100GB SSD |
-| **Network** | 100Mbps | 1Gbps |
+| Resource    | Minimum | Recommended |
+| ----------- | ------- | ----------- |
+| **CPU**     | 8 cores | 16 cores    |
+| **RAM**     | 16GB    | 32GB        |
+| **Disk**    | 50GB    | 100GB SSD   |
+| **Network** | 100Mbps | 1Gbps       |
 
 ### Per-Service Limits
 
 **Infrastructure Services:**
+
 - postgres: 0.5-2 CPUs, 512MB-2GB RAM
 - redis: 0.25-1 CPUs, 256MB-768MB RAM
 - nats: 0.25-1 CPUs, 128MB-512MB RAM
@@ -256,6 +267,7 @@ Application Layer:
 - kong: 0.25-1 CPUs, 128MB-512MB RAM
 
 **Application Services:**
+
 - Node.js services: 0.25-1 CPUs, 128MB-512MB RAM
 - Python services: 0.1-1 CPUs, 64MB-512MB RAM
 - AI/ML services: 0.5-2 CPUs, 512MB-2GB RAM
@@ -265,12 +277,14 @@ Application Layer:
 ## Health Checks
 
 All services include health checks with:
+
 - **Interval**: 30s
 - **Timeout**: 10s
 - **Retries**: 3-5
 - **Start period**: 10-40s (depending on service complexity)
 
 Check service health:
+
 ```bash
 docker compose ps
 docker inspect <container_name> | jq '.[0].State.Health'
@@ -295,6 +309,7 @@ docker inspect <container_name> | jq '.[0].State.Health'
 ## Data Persistence
 
 Named volumes for persistent data:
+
 - `sahool-postgres-data`: PostgreSQL database
 - `sahool-redis-data`: Redis cache
 - `sahool-nats-data`: NATS JetStream
@@ -320,6 +335,7 @@ docker compose exec -T postgres psql -U sahool sahool < backup.sql
 ## Monitoring & Observability
 
 ### Logs
+
 ```bash
 # All services
 docker compose logs -f
@@ -332,6 +348,7 @@ docker compose logs --tail=100 field_core
 ```
 
 ### Metrics
+
 - Prometheus integration available (configure separately)
 - All services expose `/healthz` endpoints
 - Resource usage: `docker stats`
@@ -354,6 +371,7 @@ docker compose logs --tail=100 field_core
 ### Common Issues
 
 **Services won't start:**
+
 ```bash
 # Check logs
 docker compose logs <service_name>
@@ -366,6 +384,7 @@ docker compose restart <service_name>
 ```
 
 **Database connection issues:**
+
 ```bash
 # Verify PostgreSQL is healthy
 docker compose ps postgres
@@ -378,6 +397,7 @@ docker compose exec postgres psql -U sahool -d sahool -c "SELECT 1"
 ```
 
 **Memory issues:**
+
 ```bash
 # Check resource usage
 docker stats
@@ -387,6 +407,7 @@ docker stats
 ```
 
 **Port conflicts:**
+
 ```bash
 # Check which ports are in use
 netstat -tuln | grep -E "5432|6379|4222|1883|8000"
@@ -399,6 +420,7 @@ netstat -tuln | grep -E "5432|6379|4222|1883|8000"
 ## Scaling Services
 
 Scale horizontally:
+
 ```bash
 # Scale specific service
 docker compose up -d --scale field_ops=3
@@ -411,11 +433,13 @@ docker compose up -d --scale field_ops=3
 ## Development vs Production
 
 **Development:**
+
 - Use `.env` with development settings
 - Mount source code as volumes for hot reload
 - Enable debug logging: `LOG_LEVEL=DEBUG`
 
 **Production:**
+
 - Use secrets management (Vault, AWS Secrets Manager)
 - Enable TLS/HTTPS
 - Configure backups
@@ -428,6 +452,7 @@ docker compose up -d --scale field_ops=3
 ## Support
 
 For issues or questions:
+
 - Check service logs: `docker compose logs -f <service>`
 - Review health status: `docker compose ps`
 - Verify environment variables: `docker compose config`

@@ -48,6 +48,7 @@ cp e2e/.env.example e2e/.env
 ```
 
 Update the following variables:
+
 - `TEST_USER_EMAIL`: Test user email
 - `TEST_USER_PASSWORD`: Test user password
 - `PLAYWRIGHT_BASE_URL`: Application URL (default: http://localhost:3000)
@@ -101,6 +102,7 @@ npm run test:e2e:report
 ## Test Categories | فئات الاختبارات
 
 ### 1. Authentication Tests (`auth.spec.ts`)
+
 - Login functionality
 - Logout functionality
 - Session persistence
@@ -108,6 +110,7 @@ npm run test:e2e:report
 - Password reset flow
 
 ### 2. Navigation Tests (`navigation.spec.ts`)
+
 - Page navigation
 - Browser back/forward buttons
 - Active navigation indicators
@@ -115,6 +118,7 @@ npm run test:e2e:report
 - 404 handling
 
 ### 3. Form Tests (`forms.spec.ts`)
+
 - Field management forms
 - Task management forms
 - Equipment management forms
@@ -123,6 +127,7 @@ npm run test:e2e:report
 - File uploads (if applicable)
 
 ### 4. Dashboard Tests (`dashboard.spec.ts`)
+
 - Dashboard layout
 - Statistics widgets
 - Recent activity
@@ -133,6 +138,7 @@ npm run test:e2e:report
 - Responsive design
 
 ### 5. Settings Tests (`settings.spec.ts`)
+
 - Profile settings
 - Password change
 - Notification preferences
@@ -146,10 +152,10 @@ npm run test:e2e:report
 ### Authentication Helpers (`helpers/auth.helpers.ts`)
 
 ```typescript
-import { login, logout, clearAuth } from './helpers/auth.helpers';
+import { login, logout, clearAuth } from "./helpers/auth.helpers";
 
 // Login
-await login(page, { email: 'test@example.com', password: 'password' });
+await login(page, { email: "test@example.com", password: "password" });
 
 // Logout
 await logout(page);
@@ -161,16 +167,20 @@ await clearAuth(page);
 ### Page Helpers (`helpers/page.helpers.ts`)
 
 ```typescript
-import { navigateAndWait, waitForToast, fillFieldByLabel } from './helpers/page.helpers';
+import {
+  navigateAndWait,
+  waitForToast,
+  fillFieldByLabel,
+} from "./helpers/page.helpers";
 
 // Navigate and wait for page to load
-await navigateAndWait(page, '/dashboard');
+await navigateAndWait(page, "/dashboard");
 
 // Wait for toast message
-await waitForToast(page, 'Success');
+await waitForToast(page, "Success");
 
 // Fill form field by label
-await fillFieldByLabel(page, 'Email', 'test@example.com');
+await fillFieldByLabel(page, "Email", "test@example.com");
 ```
 
 ## Custom Fixtures | الإعدادات المخصصة
@@ -180,9 +190,9 @@ await fillFieldByLabel(page, 'Email', 'test@example.com');
 Use the `authenticatedPage` fixture to automatically log in before tests:
 
 ```typescript
-test('should access protected page', async ({ page, authenticatedPage }) => {
+test("should access protected page", async ({ page, authenticatedPage }) => {
   // User is already logged in
-  await page.goto('/dashboard');
+  await page.goto("/dashboard");
   // Your test code
 });
 ```
@@ -229,6 +239,7 @@ CI=true npm run test:e2e
 ```
 
 This will:
+
 - Run tests with 2 retries
 - Run tests sequentially (workers=1)
 - Generate HTML and JSON reports

@@ -57,8 +57,8 @@ Make sure you have these installed in your service:
 
 ```typescript
 // app.module.ts
-import { Module } from '@nestjs/common';
-import { AuthModule } from '@sahool/nestjs-auth';
+import { Module } from "@nestjs/common";
+import { AuthModule } from "@sahool/nestjs-auth";
 
 @Module({
   imports: [
@@ -73,9 +73,9 @@ export class AppModule {}
 
 ```typescript
 // app.module.ts
-import { Module } from '@nestjs/common';
-import { AuthModule } from '@sahool/nestjs-auth';
-import { UserRepository } from './users/user.repository';
+import { Module } from "@nestjs/common";
+import { AuthModule } from "@sahool/nestjs-auth";
+import { UserRepository } from "./users/user.repository";
 
 @Module({
   imports: [
@@ -92,14 +92,19 @@ export class AppModule {}
 
 ```typescript
 // farms.controller.ts
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, RolesGuard, Roles, CurrentUser } from '@sahool/nestjs-auth';
+import { Controller, Get, UseGuards } from "@nestjs/common";
+import {
+  JwtAuthGuard,
+  RolesGuard,
+  Roles,
+  CurrentUser,
+} from "@sahool/nestjs-auth";
 
-@Controller('farms')
+@Controller("farms")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class FarmsController {
   @Get()
-  @Roles('farmer', 'admin')
+  @Roles("farmer", "admin")
   async findAll(@CurrentUser() user: any) {
     return this.farmsService.findByUser(user.id);
   }
@@ -109,12 +114,7 @@ export class FarmsController {
 ### 4. Use Decorators
 
 ```typescript
-import {
-  Controller,
-  Get,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from "@nestjs/common";
 import {
   JwtAuthGuard,
   Public,
@@ -124,42 +124,42 @@ import {
   Roles,
   RequirePermissions,
   PermissionsGuard,
-} from '@sahool/nestjs-auth';
+} from "@sahool/nestjs-auth";
 
-@Controller('api')
+@Controller("api")
 @UseGuards(JwtAuthGuard)
 export class ApiController {
   // Public route (no authentication required)
   @Public()
-  @Get('public')
+  @Get("public")
   getPublic() {
-    return { message: 'Public data' };
+    return { message: "Public data" };
   }
 
   // Protected route
-  @Get('profile')
+  @Get("profile")
   getProfile(@CurrentUser() user: any) {
     return user;
   }
 
   // Get just the user ID
-  @Get('me')
+  @Get("me")
   getMe(@UserId() userId: string) {
     return { userId };
   }
 
   // Role-based access
-  @Roles('admin', 'manager')
+  @Roles("admin", "manager")
   @UseGuards(RolesGuard)
-  @Get('admin')
+  @Get("admin")
   adminOnly(@UserRoles() roles: string[]) {
     return { roles };
   }
 
   // Permission-based access
-  @RequirePermissions('farm:delete')
+  @RequirePermissions("farm:delete")
   @UseGuards(PermissionsGuard)
-  @Post('delete-farm')
+  @Post("delete-farm")
   deleteFarm() {
     return { deleted: true };
   }
@@ -234,22 +234,22 @@ Make all routes protected by default:
 ```typescript
 AuthModule.forRoot({
   enableGlobalGuard: true,
-})
+});
 ```
 
 Then use `@Public()` decorator for public routes:
 
 ```typescript
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   @Public()
-  @Post('login')
+  @Post("login")
   login(@Body() credentials: LoginDto) {
     return this.authService.login(credentials);
   }
 
   @Public()
-  @Post('register')
+  @Post("register")
   register(@Body() data: RegisterDto) {
     return this.authService.register(data);
   }
@@ -261,7 +261,7 @@ export class AuthController {
 Use async configuration when you need to inject dependencies:
 
 ```typescript
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from "@nestjs/config";
 
 @Module({
   imports: [
@@ -269,9 +269,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         jwtOptions: {
-          secret: configService.get('JWT_SECRET'),
+          secret: configService.get("JWT_SECRET"),
           signOptions: {
-            expiresIn: configService.get('JWT_EXPIRES_IN'),
+            expiresIn: configService.get("JWT_EXPIRES_IN"),
           },
         },
         enableUserValidation: true,
@@ -288,15 +288,17 @@ export class AppModule {}
 The `IUserRepository` interface needs to be implemented for user validation:
 
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { IUserRepository, UserValidationData } from '@sahool/nestjs-auth';
-import { PrismaService } from './prisma.service';
+import { Injectable } from "@nestjs/common";
+import { IUserRepository, UserValidationData } from "@sahool/nestjs-auth";
+import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(private prisma: PrismaService) {}
 
-  async getUserValidationData(userId: string): Promise<UserValidationData | null> {
+  async getUserValidationData(
+    userId: string,
+  ): Promise<UserValidationData | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -341,20 +343,18 @@ export class UserRepository implements IUserRepository {
 To use token revocation:
 
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { RedisTokenRevocationStore } from '@sahool/nestjs-auth';
+import { Injectable } from "@nestjs/common";
+import { RedisTokenRevocationStore } from "@sahool/nestjs-auth";
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private revocationStore: RedisTokenRevocationStore,
-  ) {}
+  constructor(private revocationStore: RedisTokenRevocationStore) {}
 
   async logout(token: string, userId: string) {
     // Revoke specific token
-    await this.revocationStore.revokeToken('token-jti', {
+    await this.revocationStore.revokeToken("token-jti", {
       expiresIn: 3600,
-      reason: 'User logout',
+      reason: "User logout",
       userId,
     });
   }
@@ -362,14 +362,14 @@ export class AuthService {
   async logoutAllDevices(userId: string) {
     // Revoke all user tokens
     await this.revocationStore.revokeAllUserTokens(userId, {
-      reason: 'Logout all devices',
+      reason: "Logout all devices",
     });
   }
 
   async changePassword(userId: string) {
     // Revoke all user tokens after password change
     await this.revocationStore.revokeAllUserTokens(userId, {
-      reason: 'Password changed',
+      reason: "Password changed",
     });
   }
 }
@@ -378,6 +378,7 @@ export class AuthService {
 ## Available Guards
 
 ### JwtAuthGuard
+
 Basic JWT authentication guard. Validates JWT token and attaches user to request.
 
 ```typescript
@@ -389,6 +390,7 @@ getProtected(@CurrentUser() user: any) {
 ```
 
 ### RolesGuard
+
 Checks if user has required roles. Use with `@Roles()` decorator.
 
 ```typescript
@@ -401,6 +403,7 @@ adminOnly() {
 ```
 
 ### PermissionsGuard
+
 Checks if user has required permissions. Use with `@RequirePermissions()` decorator.
 
 ```typescript
@@ -413,6 +416,7 @@ deleteFarm(@Param('id') id: string) {
 ```
 
 ### FarmAccessGuard
+
 Checks if user has access to specific farm (domain-specific guard).
 
 ```typescript
@@ -424,6 +428,7 @@ getFields(@Param('farmId') farmId: string) {
 ```
 
 ### OptionalAuthGuard
+
 Allows both authenticated and unauthenticated requests.
 
 ```typescript
@@ -438,6 +443,7 @@ getContent(@CurrentUser() user?: any) {
 ```
 
 ### ActiveAccountGuard
+
 Ensures user account is active and verified.
 
 ```typescript
@@ -449,6 +455,7 @@ getProfile(@CurrentUser() user: any) {
 ```
 
 ### TokenRevocationGuard
+
 Checks if token has been revoked (use globally or per-route).
 
 ```typescript
@@ -511,6 +518,7 @@ All errors are available in English and Arabic:
 If you're migrating from the marketplace-service implementation:
 
 **Before:**
+
 ```typescript
 // marketplace-service/src/auth/jwt-auth.guard.ts
 import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
@@ -521,6 +529,7 @@ import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
 ```
 
 **After:**
+
 ```typescript
 import { AuthModule, JwtAuthGuard, OptionalAuthGuard } from '@sahool/nestjs-auth';
 
@@ -532,10 +541,10 @@ import { AuthModule, JwtAuthGuard, OptionalAuthGuard } from '@sahool/nestjs-auth
 ## Testing
 
 ```typescript
-import { Test } from '@nestjs/testing';
-import { AuthModule } from '@sahool/nestjs-auth';
+import { Test } from "@nestjs/testing";
+import { AuthModule } from "@sahool/nestjs-auth";
 
-describe('MyService', () => {
+describe("MyService", () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       imports: [
@@ -550,7 +559,7 @@ describe('MyService', () => {
     service = module.get<MyService>(MyService);
   });
 
-  it('should work', () => {
+  it("should work", () => {
     expect(service).toBeDefined();
   });
 });
@@ -596,6 +605,7 @@ describe('MyService', () => {
 ## Support
 
 For issues or questions:
+
 - Check the shared auth documentation in `/shared/auth/`
 - Review example implementations in other services
 - Contact the SAHOOL platform team

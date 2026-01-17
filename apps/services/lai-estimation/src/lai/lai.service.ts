@@ -5,8 +5,8 @@
 // Field-First Architecture - Early Stress Detection
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { Injectable } from "@nestjs/common";
+import { v4 as uuidv4 } from "uuid";
 import {
   DataSource,
   CropType,
@@ -15,7 +15,7 @@ import {
   LAITimeSeriesPoint,
   LAIComparisonResult,
   SpectralBandsDto,
-} from './lai.dto';
+} from "./lai.dto";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Field-First Types
@@ -96,7 +96,7 @@ const CROP_LAI_PARAMS: Record<
   }
 > = {
   SOYBEAN: {
-    nameAr: 'فول الصويا',
+    nameAr: "فول الصويا",
     minLAI: 0.5,
     maxLAI: 8.0,
     optimalLAI: 4.5,
@@ -110,7 +110,7 @@ const CROP_LAI_PARAMS: Record<
     },
   },
   WHEAT: {
-    nameAr: 'القمح',
+    nameAr: "القمح",
     minLAI: 0.3,
     maxLAI: 7.0,
     optimalLAI: 5.0,
@@ -124,11 +124,11 @@ const CROP_LAI_PARAMS: Record<
     },
   },
   CORN: {
-    nameAr: 'الذرة',
+    nameAr: "الذرة",
     minLAI: 0.4,
     maxLAI: 6.5,
     optimalLAI: 4.0,
-    extinctionCoef: 0.70,
+    extinctionCoef: 0.7,
     stages: {
       EMERGENCE: { minLAI: 0.4, maxLAI: 1.2 },
       VEGETATIVE: { minLAI: 1.2, maxLAI: 4.0 },
@@ -138,11 +138,11 @@ const CROP_LAI_PARAMS: Record<
     },
   },
   RICE: {
-    nameAr: 'الأرز',
+    nameAr: "الأرز",
     minLAI: 0.5,
     maxLAI: 8.5,
     optimalLAI: 5.5,
-    extinctionCoef: 0.60,
+    extinctionCoef: 0.6,
     stages: {
       EMERGENCE: { minLAI: 0.5, maxLAI: 1.5 },
       VEGETATIVE: { minLAI: 1.5, maxLAI: 4.5 },
@@ -152,11 +152,11 @@ const CROP_LAI_PARAMS: Record<
     },
   },
   COFFEE: {
-    nameAr: 'البن',
+    nameAr: "البن",
     minLAI: 2.0,
     maxLAI: 9.0,
     optimalLAI: 6.0,
-    extinctionCoef: 0.50,
+    extinctionCoef: 0.5,
     stages: {
       EMERGENCE: { minLAI: 2.0, maxLAI: 3.0 },
       VEGETATIVE: { minLAI: 3.0, maxLAI: 5.5 },
@@ -166,7 +166,7 @@ const CROP_LAI_PARAMS: Record<
     },
   },
   SORGHUM: {
-    nameAr: 'الذرة الرفيعة',
+    nameAr: "الذرة الرفيعة",
     minLAI: 0.3,
     maxLAI: 5.5,
     optimalLAI: 3.5,
@@ -185,9 +185,9 @@ const CROP_LAI_PARAMS: Record<
 // Model accuracy metrics from LAI-TransNet research
 // ─────────────────────────────────────────────────────────────────────────────
 const MODEL_METRICS = {
-  'CNN-TL': { r2: 0.81, rmse: 0.64, rrmse: 0.115 },
-  'LAI-TransNet': { r2: 0.96, rmse: 0.11, rrmse: 0.068 },
-  'LAI-TransNet-CrossScale': { r2: 0.69, rmse: 0.45, rrmse: 0.12 },
+  "CNN-TL": { r2: 0.81, rmse: 0.64, rrmse: 0.115 },
+  "LAI-TransNet": { r2: 0.96, rmse: 0.11, rrmse: 0.068 },
+  "LAI-TransNet-CrossScale": { r2: 0.69, rmse: 0.45, rrmse: 0.12 },
   RF: { r2: 0.4, rmse: 1.24, rrmse: 0.323 },
   MLP: { r2: 0.53, rmse: 0.98, rrmse: 0.286 },
 };
@@ -228,8 +228,7 @@ export class LAIService {
 
     // MTVI2 - Modified Triangular Vegetation Index 2
     const mtvi2 =
-      (1.5 *
-        (1.2 * (nir - green) - 2.5 * (red - green))) /
+      (1.5 * (1.2 * (nir - green) - 2.5 * (red - green))) /
       Math.sqrt((2 * nir + 1) ** 2 - (6 * nir - 5 * Math.sqrt(red)) - 0.5);
 
     return {
@@ -281,7 +280,7 @@ export class LAIService {
     return {
       lai: Math.round(lai * 100) / 100,
       confidence: Math.round(confidence * 100) / 100,
-      model: 'LAI-TransNet',
+      model: "LAI-TransNet",
     };
   }
 
@@ -307,7 +306,7 @@ export class LAIService {
     );
 
     const cropParams = CROP_LAI_PARAMS[crop];
-    const modelMetrics = MODEL_METRICS['LAI-TransNet'];
+    const modelMetrics = MODEL_METRICS["LAI-TransNet"];
 
     // Determine quality based on data source
     const qualityMultiplier = this.getQualityMultiplier(dataSource);
@@ -318,7 +317,7 @@ export class LAIService {
       confidence: confidence * qualityMultiplier,
       model,
       dataSource,
-      date: date || new Date().toISOString().split('T')[0],
+      date: date || new Date().toISOString().split("T")[0],
       indices: {
         ndvi: Math.round(indices.ndvi * 1000) / 1000,
         evi2: Math.round(indices.evi2 * 1000) / 1000,
@@ -345,16 +344,24 @@ export class LAIService {
     endDate?: string,
     dataSource: DataSource = DataSource.PLANETSCOPE,
   ): Promise<LAITimeSeriesPoint[]> {
-    const start = startDate ? new Date(startDate) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+    const start = startDate
+      ? new Date(startDate)
+      : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
     const end = endDate ? new Date(endDate) : new Date();
 
     const points: LAITimeSeriesPoint[] = [];
-    const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
+    const daysDiff = Math.ceil(
+      (end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000),
+    );
     const interval = dataSource === DataSource.PLANETSCOPE ? 1 : 5; // Daily for PlanetScope
 
-    for (let i = 0; i <= daysDiff; i += interval) {
+    // Security: Limit maximum iterations to prevent DoS from large date ranges
+    const MAX_ITERATIONS = 365; // Maximum 1 year of data
+    const maxDays = Math.min(daysDiff, MAX_ITERATIONS * interval);
+
+    for (let i = 0; i <= maxDays; i += interval) {
       const date = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = date.toISOString().split("T")[0];
 
       // Simulate LAI growth curve (sigmoid function)
       const dayOfYear = this.getDayOfYear(date);
@@ -381,7 +388,11 @@ export class LAIService {
     fieldId: string,
     cropType: CropType = CropType.SOYBEAN,
   ): Promise<LAIComparisonResult> {
-    const estimation = await this.estimateLAI(fieldId, DataSource.FUSION, cropType);
+    const estimation = await this.estimateLAI(
+      fieldId,
+      DataSource.FUSION,
+      cropType,
+    );
     const cropParams = CROP_LAI_PARAMS[cropType];
     const deviation = estimation.lai - cropParams.optimalLAI;
     const deviationPercent = (deviation / cropParams.optimalLAI) * 100;
@@ -390,20 +401,30 @@ export class LAIService {
     let recommendationAr: string;
 
     if (deviationPercent < -20) {
-      recommendation = 'LAI is significantly below optimal. Consider increasing nitrogen fertilization and irrigation.';
-      recommendationAr = 'مؤشر مساحة الأوراق أقل من المستوى المثالي بشكل كبير. يُنصح بزيادة التسميد النيتروجيني والري.';
+      recommendation =
+        "LAI is significantly below optimal. Consider increasing nitrogen fertilization and irrigation.";
+      recommendationAr =
+        "مؤشر مساحة الأوراق أقل من المستوى المثالي بشكل كبير. يُنصح بزيادة التسميد النيتروجيني والري.";
     } else if (deviationPercent < -10) {
-      recommendation = 'LAI is below optimal. Monitor crop growth and consider supplemental fertilization.';
-      recommendationAr = 'مؤشر مساحة الأوراق أقل من المستوى المثالي. راقب نمو المحصول وفكر في التسميد التكميلي.';
+      recommendation =
+        "LAI is below optimal. Monitor crop growth and consider supplemental fertilization.";
+      recommendationAr =
+        "مؤشر مساحة الأوراق أقل من المستوى المثالي. راقب نمو المحصول وفكر في التسميد التكميلي.";
     } else if (deviationPercent > 20) {
-      recommendation = 'LAI is above optimal. Risk of lodging and disease. Consider growth regulators.';
-      recommendationAr = 'مؤشر مساحة الأوراق أعلى من المستوى المثالي. خطر الرقاد والأمراض. فكر في منظمات النمو.';
+      recommendation =
+        "LAI is above optimal. Risk of lodging and disease. Consider growth regulators.";
+      recommendationAr =
+        "مؤشر مساحة الأوراق أعلى من المستوى المثالي. خطر الرقاد والأمراض. فكر في منظمات النمو.";
     } else if (deviationPercent > 10) {
-      recommendation = 'LAI is slightly above optimal. Monitor for lodging and ensure adequate air circulation.';
-      recommendationAr = 'مؤشر مساحة الأوراق أعلى قليلاً من المستوى المثالي. راقب الرقاد وتأكد من التهوية الكافية.';
+      recommendation =
+        "LAI is slightly above optimal. Monitor for lodging and ensure adequate air circulation.";
+      recommendationAr =
+        "مؤشر مساحة الأوراق أعلى قليلاً من المستوى المثالي. راقب الرقاد وتأكد من التهوية الكافية.";
     } else {
-      recommendation = 'LAI is within optimal range. Continue current management practices.';
-      recommendationAr = 'مؤشر مساحة الأوراق ضمن النطاق المثالي. استمر في ممارسات الإدارة الحالية.';
+      recommendation =
+        "LAI is within optimal range. Continue current management practices.";
+      recommendationAr =
+        "مؤشر مساحة الأوراق ضمن النطاق المثالي. استمر في ممارسات الإدارة الحالية.";
     }
 
     return {
@@ -423,31 +444,31 @@ export class LAIService {
 
   getModelInfo(): Record<string, unknown> {
     return {
-      name: 'LAI-TransNet',
-      nameAr: 'شبكة تقدير مؤشر مساحة الأوراق بالتعلم الانتقالي',
-      description: 'Two-stage transfer learning framework for LAI estimation',
-      descriptionAr: 'إطار تعلم انتقالي على مرحلتين لتقدير مؤشر مساحة الأوراق',
-      reference: 'Artificial Intelligence in Agriculture Journal (2025)',
+      name: "LAI-TransNet",
+      nameAr: "شبكة تقدير مؤشر مساحة الأوراق بالتعلم الانتقالي",
+      description: "Two-stage transfer learning framework for LAI estimation",
+      descriptionAr: "إطار تعلم انتقالي على مرحلتين لتقدير مؤشر مساحة الأوراق",
+      reference: "Artificial Intelligence in Agriculture Journal (2025)",
       impactFactor: 12.4,
       metrics: MODEL_METRICS,
       stages: {
         stage1: {
-          name: 'UAV Baseline Model',
-          nameAr: 'نموذج خط الأساس للطائرات بدون طيار',
-          description: 'CNN-TL trained on UAV-Sim + field measurements',
+          name: "UAV Baseline Model",
+          nameAr: "نموذج خط الأساس للطائرات بدون طيار",
+          description: "CNN-TL trained on UAV-Sim + field measurements",
           r2: 0.81,
           rmse: 0.64,
         },
         stage2: {
-          name: 'Cross-Scale Optimization',
-          nameAr: 'التحسين عبر المقاييس',
-          description: 'CycleGAN domain alignment for satellite data',
+          name: "Cross-Scale Optimization",
+          nameAr: "التحسين عبر المقاييس",
+          description: "CycleGAN domain alignment for satellite data",
           r2: 0.96,
           rmse: 0.11,
         },
       },
       supportedDataSources: Object.values(DataSource),
-      supportedCrops: Object.keys(CROP_LAI_PARAMS).map(key => ({
+      supportedCrops: Object.keys(CROP_LAI_PARAMS).map((key) => ({
         type: key,
         nameAr: CROP_LAI_PARAMS[key].nameAr,
         optimalLAI: CROP_LAI_PARAMS[key].optimalLAI,
@@ -459,9 +480,12 @@ export class LAIService {
   // Helper Methods
   // ─────────────────────────────────────────────────────────────────────────────
 
-  private simulateSpectralBands(fieldId: string, date?: string): SpectralBandsDto {
+  private simulateSpectralBands(
+    fieldId: string,
+    date?: string,
+  ): SpectralBandsDto {
     // Simulate realistic spectral bands based on field hash
-    const hash = this.simpleHash(fieldId + (date || ''));
+    const hash = this.simpleHash(fieldId + (date || ""));
     const baseGreen = 0.05 + (hash % 100) / 1000;
     const baseRed = 0.03 + ((hash >> 8) % 100) / 1000;
     const baseNIR = 0.3 + ((hash >> 16) % 200) / 500;
@@ -478,7 +502,7 @@ export class LAIService {
     const multipliers: Record<DataSource, number> = {
       [DataSource.UAV]: 1.0,
       [DataSource.PLANETSCOPE]: 0.95,
-      [DataSource.SENTINEL2]: 0.90,
+      [DataSource.SENTINEL2]: 0.9,
       [DataSource.LANDSAT]: 0.85,
       [DataSource.FUSION]: 0.98,
     };
@@ -491,7 +515,7 @@ export class LAIService {
 
   private standardDeviation(values: number[]): number {
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
-    const squareDiffs = values.map(value => Math.pow(value - mean, 2));
+    const squareDiffs = values.map((value) => Math.pow(value - mean, 2));
     return Math.sqrt(squareDiffs.reduce((a, b) => a + b, 0) / values.length);
   }
 
@@ -503,7 +527,9 @@ export class LAIService {
 
   private simpleHash(str: string): number {
     let hash = 0;
-    for (let i = 0; i < str.length; i++) {
+    // Security: Limit string length to prevent DoS from long strings
+    const maxLength = Math.min(str.length, 1000);
+    for (let i = 0; i < maxLength; i++) {
       const char = str.charCodeAt(i);
       hash = (hash << 5) - hash + char;
       hash = hash & hash;
@@ -526,7 +552,11 @@ export class LAIService {
     tenantId?: string,
   ): Promise<StressDetectionResponse> {
     // Get LAI estimation and comparison
-    const estimation = await this.estimateLAI(fieldId, DataSource.FUSION, cropType);
+    const estimation = await this.estimateLAI(
+      fieldId,
+      DataSource.FUSION,
+      cropType,
+    );
     const comparison = await this.compareLAI(fieldId, cropType);
 
     const currentLAI = estimation.lai;
@@ -543,84 +573,80 @@ export class LAIService {
     let urgencyColor: string;
 
     if (deviationPercent < -20) {
-      stressLevel = 'severe';
+      stressLevel = "severe";
       stressDetected = true;
-      urgencyLevel = 'critical';
-      urgencyLabelAr = 'حرج';
-      urgencyColor = '#EF4444';
+      urgencyLevel = "critical";
+      urgencyLabelAr = "حرج";
+      urgencyColor = "#EF4444";
     } else if (deviationPercent < -10) {
-      stressLevel = 'moderate';
+      stressLevel = "moderate";
       stressDetected = true;
-      urgencyLevel = 'high';
-      urgencyLabelAr = 'عالي';
-      urgencyColor = '#F97316';
+      urgencyLevel = "high";
+      urgencyLabelAr = "عالي";
+      urgencyColor = "#F97316";
     } else if (deviationPercent < -5) {
-      stressLevel = 'mild';
+      stressLevel = "mild";
       stressDetected = true;
-      urgencyLevel = 'medium';
-      urgencyLabelAr = 'متوسط';
-      urgencyColor = '#EAB308';
+      urgencyLevel = "medium";
+      urgencyLabelAr = "متوسط";
+      urgencyColor = "#EAB308";
     } else {
-      stressLevel = 'none';
+      stressLevel = "none";
       stressDetected = false;
-      urgencyLevel = 'low';
-      urgencyLabelAr = 'منخفض';
-      urgencyColor = '#22C55E';
+      urgencyLevel = "low";
+      urgencyLabelAr = "منخفض";
+      urgencyColor = "#22C55E";
     }
 
     // Create ActionTemplate
     const actionTemplate: ActionTemplate = {
       action_id: actionId,
-      action_type: stressDetected ? 'early_stress_alert' : 'monitoring',
-      what: stressDetected ? 'Inspect for early stress' : 'Continue monitoring',
-      what_ar: stressDetected ? 'فحص إجهاد مبكر' : 'استمر في المراقبة',
-      why: `LAI ${stressDetected ? 'below' : 'within'} expected range (${currentLAI} vs ${expectedLAI})`,
+      action_type: stressDetected ? "early_stress_alert" : "monitoring",
+      what: stressDetected ? "Inspect for early stress" : "Continue monitoring",
+      what_ar: stressDetected ? "فحص إجهاد مبكر" : "استمر في المراقبة",
+      why: `LAI ${stressDetected ? "below" : "within"} expected range (${currentLAI} vs ${expectedLAI})`,
       why_ar: stressDetected
         ? `LAI أقل من المتوقع بنسبة ${Math.abs(deviationPercent)}% - علامات إجهاد مبكر`
         : `LAI ضمن النطاق المثالي (${currentLAI})`,
       when: {
-        deadline: stressDetected ? '48 hours' : 'Weekly check',
-        optimal_window: 'Morning inspection',
-        optimal_window_ar: stressDetected ? 'خلال 48 ساعة - صباحاً' : 'فحص أسبوعي',
+        deadline: stressDetected ? "48 hours" : "Weekly check",
+        optimal_window: "Morning inspection",
+        optimal_window_ar: stressDetected
+          ? "خلال 48 ساعة - صباحاً"
+          : "فحص أسبوعي",
       },
       how: stressDetected
         ? [
-            'Inspect leaf color and condition',
-            'Check soil moisture levels',
-            'Look for pest or disease signs',
-            'Photograph affected areas',
-            'Compare with healthy areas',
+            "Inspect leaf color and condition",
+            "Check soil moisture levels",
+            "Look for pest or disease signs",
+            "Photograph affected areas",
+            "Compare with healthy areas",
           ]
-        : [
-            'Continue regular monitoring',
-            'Maintain current practices',
-          ],
+        : ["Continue regular monitoring", "Maintain current practices"],
       how_ar: stressDetected
         ? [
-            'افحص لون الأوراق وحالتها',
-            'تحقق من رطوبة التربة',
-            'ابحث عن علامات آفات أو أمراض',
-            'صوّر المنطقة المتأثرة',
-            'قارن مع المناطق السليمة',
+            "افحص لون الأوراق وحالتها",
+            "تحقق من رطوبة التربة",
+            "ابحث عن علامات آفات أو أمراض",
+            "صوّر المنطقة المتأثرة",
+            "قارن مع المناطق السليمة",
           ]
-        : [
-            'استمر في المراقبة المنتظمة',
-            'حافظ على الممارسات الحالية',
-          ],
+        : ["استمر في المراقبة المنتظمة", "حافظ على الممارسات الحالية"],
       fallback: stressDetected
-        ? 'If you cannot find the cause: consult agricultural engineer'
-        : 'No action needed at this time',
+        ? "If you cannot find the cause: consult agricultural engineer"
+        : "No action needed at this time",
       fallback_ar: stressDetected
-        ? 'إذا لم تجد السبب: استشر المهندس الزراعي'
-        : 'لا يلزم إجراء في الوقت الحالي',
+        ? "إذا لم تجد السبب: استشر المهندس الزراعي"
+        : "لا يلزم إجراء في الوقت الحالي",
       badge: {
-        type: 'satellite_estimate',
-        label_ar: 'تقدير من القمر الصناعي',
-        label_en: 'Satellite Estimate',
-        color: '#0EA5E9',
+        type: "satellite_estimate",
+        label_ar: "تقدير من القمر الصناعي",
+        label_en: "Satellite Estimate",
+        color: "#0EA5E9",
       },
       confidence: estimation.confidence,
-      source_service: 'lai-estimation',
+      source_service: "lai-estimation",
       field_id: fieldId,
       farmer_id: farmerId,
       tenant_id: tenantId,
@@ -633,7 +659,7 @@ export class LAIService {
         stress_detected: stressDetected,
         indices: estimation.indices,
         data_source: estimation.dataSource,
-        model: 'LAI-TransNet',
+        model: "LAI-TransNet",
         r2: estimation.quality.r2,
         rmse: estimation.quality.rmse,
       },
@@ -643,7 +669,7 @@ export class LAIService {
     // Create task card for mobile app
     const taskCard = {
       id: actionId,
-      type: stressDetected ? 'early_stress_alert' : 'monitoring',
+      type: stressDetected ? "early_stress_alert" : "monitoring",
       title_ar: stressDetected
         ? `تنبيه إجهاد - LAI ${Math.abs(deviationPercent)}% أقل`
         : `LAI طبيعي - ${currentLAI}`,
@@ -671,7 +697,7 @@ export class LAIService {
       },
       action_template: actionTemplate,
       task_card: taskCard,
-      nats_topic: 'sahool.alerts.stress_detection',
+      nats_topic: "sahool.alerts.stress_detection",
     };
   }
 
@@ -686,12 +712,17 @@ export class LAIService {
   ) {
     // Get time series to detect anomalies
     const timeSeries = await this.getLAITimeSeries(fieldId);
-    const estimation = await this.estimateLAI(fieldId, DataSource.FUSION, cropType);
+    const estimation = await this.estimateLAI(
+      fieldId,
+      DataSource.FUSION,
+      cropType,
+    );
     const actionId = uuidv4();
 
     // Calculate trend and detect anomalies
     const recentPoints = timeSeries.slice(-7); // Last 7 points
-    const avgRecent = recentPoints.reduce((sum, p) => sum + p.lai, 0) / recentPoints.length;
+    const avgRecent =
+      recentPoints.reduce((sum, p) => sum + p.lai, 0) / recentPoints.length;
     const currentLAI = estimation.lai;
 
     // Detect sudden drop (anomaly)
@@ -703,28 +734,28 @@ export class LAIService {
     let urgencyColor: string;
 
     if (dropPercent > 25) {
-      urgencyLevel = 'critical';
-      urgencyLabelAr = 'حرج';
-      urgencyColor = '#EF4444';
+      urgencyLevel = "critical";
+      urgencyLabelAr = "حرج";
+      urgencyColor = "#EF4444";
     } else if (dropPercent > 15) {
-      urgencyLevel = 'high';
-      urgencyLabelAr = 'عالي';
-      urgencyColor = '#F97316';
+      urgencyLevel = "high";
+      urgencyLabelAr = "عالي";
+      urgencyColor = "#F97316";
     } else if (dropPercent > 10) {
-      urgencyLevel = 'medium';
-      urgencyLabelAr = 'متوسط';
-      urgencyColor = '#EAB308';
+      urgencyLevel = "medium";
+      urgencyLabelAr = "متوسط";
+      urgencyColor = "#EAB308";
     } else {
-      urgencyLevel = 'low';
-      urgencyLabelAr = 'منخفض';
-      urgencyColor = '#22C55E';
+      urgencyLevel = "low";
+      urgencyLabelAr = "منخفض";
+      urgencyColor = "#22C55E";
     }
 
     const actionTemplate: ActionTemplate = {
       action_id: actionId,
-      action_type: isAnomaly ? 'lai_anomaly_alert' : 'monitoring',
-      what: isAnomaly ? 'Investigate sudden LAI drop' : 'LAI trend normal',
-      what_ar: isAnomaly ? 'تحقق من انخفاض LAI المفاجئ' : 'اتجاه LAI طبيعي',
+      action_type: isAnomaly ? "lai_anomaly_alert" : "monitoring",
+      what: isAnomaly ? "Investigate sudden LAI drop" : "LAI trend normal",
+      what_ar: isAnomaly ? "تحقق من انخفاض LAI المفاجئ" : "اتجاه LAI طبيعي",
       why: isAnomaly
         ? `Sudden ${dropPercent.toFixed(0)}% drop in LAI detected`
         : `LAI stable at ${currentLAI}`,
@@ -732,42 +763,42 @@ export class LAIService {
         ? `انخفاض مفاجئ ${dropPercent.toFixed(0)}% في LAI - يتطلب تحقيق`
         : `LAI مستقر عند ${currentLAI}`,
       when: {
-        deadline: isAnomaly ? 'Immediate' : 'Weekly',
-        optimal_window: 'Morning',
-        optimal_window_ar: isAnomaly ? 'فوري - الصباح الباكر' : 'أسبوعي',
+        deadline: isAnomaly ? "Immediate" : "Weekly",
+        optimal_window: "Morning",
+        optimal_window_ar: isAnomaly ? "فوري - الصباح الباكر" : "أسبوعي",
       },
       how: isAnomaly
         ? [
-            'Field inspection of affected zone',
-            'Check for disease outbreak',
-            'Check for pest damage',
-            'Verify irrigation system',
-            'Take soil samples',
+            "Field inspection of affected zone",
+            "Check for disease outbreak",
+            "Check for pest damage",
+            "Verify irrigation system",
+            "Take soil samples",
           ]
-        : ['Continue regular monitoring'],
+        : ["Continue regular monitoring"],
       how_ar: isAnomaly
         ? [
-            'فحص ميداني للمنطقة المتأثرة',
-            'تحقق من وجود أمراض',
-            'تحقق من أضرار الآفات',
-            'تأكد من نظام الري',
-            'خذ عينات تربة',
+            "فحص ميداني للمنطقة المتأثرة",
+            "تحقق من وجود أمراض",
+            "تحقق من أضرار الآفات",
+            "تأكد من نظام الري",
+            "خذ عينات تربة",
           ]
-        : ['استمر في المراقبة المنتظمة'],
+        : ["استمر في المراقبة المنتظمة"],
       fallback: isAnomaly
-        ? 'If cause unknown: Contact agricultural extension office'
-        : 'No action needed',
+        ? "If cause unknown: Contact agricultural extension office"
+        : "No action needed",
       fallback_ar: isAnomaly
-        ? 'إذا لم تعرف السبب: اتصل بمكتب الإرشاد الزراعي'
-        : 'لا يلزم إجراء',
+        ? "إذا لم تعرف السبب: اتصل بمكتب الإرشاد الزراعي"
+        : "لا يلزم إجراء",
       badge: {
-        type: 'satellite_anomaly',
-        label_ar: 'كشف شذوذ',
-        label_en: 'Anomaly Detection',
-        color: '#DC2626',
+        type: "satellite_anomaly",
+        label_ar: "كشف شذوذ",
+        label_en: "Anomaly Detection",
+        color: "#DC2626",
       },
       confidence: estimation.confidence,
-      source_service: 'lai-estimation',
+      source_service: "lai-estimation",
       field_id: fieldId,
       farmer_id: farmerId,
       data: {
@@ -791,10 +822,16 @@ export class LAIService {
       action_template: actionTemplate,
       time_series_summary: {
         points_analyzed: recentPoints.length,
-        trend: dropPercent > 5 ? 'declining' : dropPercent < -5 ? 'increasing' : 'stable',
-        trend_ar: dropPercent > 5 ? 'تراجع' : dropPercent < -5 ? 'تحسن' : 'مستقر',
+        trend:
+          dropPercent > 5
+            ? "declining"
+            : dropPercent < -5
+              ? "increasing"
+              : "stable",
+        trend_ar:
+          dropPercent > 5 ? "تراجع" : dropPercent < -5 ? "تحسن" : "مستقر",
       },
-      nats_topic: 'sahool.alerts.lai_anomaly',
+      nats_topic: "sahool.alerts.lai_anomaly",
     };
   }
 }

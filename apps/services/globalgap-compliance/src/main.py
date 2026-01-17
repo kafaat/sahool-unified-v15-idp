@@ -189,19 +189,24 @@ def health():
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
         nats_status = "connected" if app.state.nats_publisher.connected else "disconnected"
 
+    # Check in-memory store status | فحص حالة التخزين المؤقت
+    storage_records = len(_compliance_records) + len(_checklists) + len(_assessments) + len(_certificates)
+
     return {
         "status": "healthy",
         "service": settings.service_name,
         "version": settings.service_version,
         "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
-            "database": "disconnected",  # TODO: Implement database health check
+            "storage": "in_memory",  # Using in-memory storage
+            "storage_records": storage_records,
             "nats": nats_status,
         },
     }
 
 
 @app.get("/health/live")
+@app.get("/healthz")
 def liveness():
     """
     Kubernetes liveness probe
@@ -215,6 +220,7 @@ def liveness():
 
 
 @app.get("/health/ready")
+@app.get("/readyz")
 def readiness():
     """
     Kubernetes readiness probe
@@ -228,7 +234,7 @@ def readiness():
     return {
         "status": "ready",
         "service": settings.service_name,
-        "database": False,  # TODO: Implement database readiness check
+        "database": False,  # In-memory storage currently used
         "nats": nats_ready,
     }
 

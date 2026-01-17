@@ -10,52 +10,52 @@
  * - Navigation to task details on click
  */
 
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import type { Task } from '@/features/tasks/types';
-import type { Field } from '../types';
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import type { Task } from "@/features/tasks/types";
+import type { Field } from "../types";
 
 // Task type labels in Arabic
 const TASK_TYPE_LABELS: Record<string, string> = {
-  irrigation: 'ري',
-  inspection: 'فحص',
-  fertilization: 'تسميد',
-  planting: 'زراعة',
-  harvesting: 'حصاد',
-  pest_control: 'مكافحة آفات',
-  maintenance: 'صيانة',
-  other: 'أخرى',
+  irrigation: "ري",
+  inspection: "فحص",
+  fertilization: "تسميد",
+  planting: "زراعة",
+  harvesting: "حصاد",
+  pest_control: "مكافحة آفات",
+  maintenance: "صيانة",
+  other: "أخرى",
 };
 
 // Task type icons (Unicode emojis as fallback, can be replaced with custom icons)
 const TASK_TYPE_ICONS: Record<string, string> = {
-  irrigation: '💧',
-  inspection: '🔍',
-  fertilization: '🌱',
-  planting: '🌾',
-  harvesting: '🌽',
-  pest_control: '🐛',
-  maintenance: '🔧',
-  other: '📋',
+  irrigation: "💧",
+  inspection: "🔍",
+  fertilization: "🌱",
+  planting: "🌾",
+  harvesting: "🌽",
+  pest_control: "🐛",
+  maintenance: "🔧",
+  other: "📋",
 };
 
 // Priority colors
 const PRIORITY_COLORS: Record<string, string> = {
-  urgent: '#dc2626', // red-600
-  high: '#ef4444', // red-500
-  medium: '#eab308', // yellow-500
-  low: '#22c55e', // green-500
+  urgent: "#dc2626", // red-600
+  high: "#ef4444", // red-500
+  medium: "#eab308", // yellow-500
+  low: "#22c55e", // green-500
 };
 
 // Status labels in Arabic
 const STATUS_LABELS: Record<string, string> = {
-  open: 'مفتوح',
-  pending: 'معلق',
-  in_progress: 'قيد التنفيذ',
-  completed: 'مكتمل',
-  cancelled: 'ملغي',
+  open: "مفتوح",
+  pending: "معلق",
+  in_progress: "قيد التنفيذ",
+  completed: "مكتمل",
+  cancelled: "ملغي",
 };
 
 interface TaskMarkersProps {
@@ -87,11 +87,13 @@ export function TaskMarkers({
   const clusterGroupRef = useRef<any>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapRef.current) return;
+    if (typeof window === "undefined" || !mapRef.current) return;
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) {
-      console.warn('Leaflet is not loaded. Make sure it is loaded via CDN in layout.');
+      console.warn(
+        "Leaflet is not loaded. Make sure it is loaded via CDN in layout.",
+      );
       return;
     }
 
@@ -151,7 +153,8 @@ export function TaskMarkers({
           let clusterColor = PRIORITY_COLORS.low;
           if (priorityCounts.urgent > 0) clusterColor = PRIORITY_COLORS.urgent;
           else if (priorityCounts.high > 0) clusterColor = PRIORITY_COLORS.high;
-          else if (priorityCounts.medium > 0) clusterColor = PRIORITY_COLORS.medium;
+          else if (priorityCounts.medium > 0)
+            clusterColor = PRIORITY_COLORS.medium;
 
           return L.divIcon({
             html: `
@@ -172,7 +175,7 @@ export function TaskMarkers({
                 ${count}
               </div>
             `,
-            className: 'task-cluster-marker',
+            className: "task-cluster-marker",
             iconSize: [40, 40],
           });
         },
@@ -185,8 +188,8 @@ export function TaskMarkers({
       if (!field || !field.centroid) return;
 
       const [lng, lat] = field.centroid.coordinates;
-      const taskType = task.type || 'other';
-      const priority = task.priority || 'low';
+      const taskType = task.type || "other";
+      const priority = task.priority || "low";
       const icon = TASK_TYPE_ICONS[taskType] || TASK_TYPE_ICONS.other;
       const color = PRIORITY_COLORS[priority] || PRIORITY_COLORS.low;
 
@@ -210,34 +213,33 @@ export function TaskMarkers({
             ${icon}
           </div>
         `,
-        className: 'custom-task-marker',
+        className: "custom-task-marker",
         iconSize: [36, 36],
         iconAnchor: [18, 18],
       });
 
       // Format due date
       const dueDate = task.due_date
-        ? new Date(task.due_date).toLocaleDateString('ar-YE', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+        ? new Date(task.due_date).toLocaleDateString("ar-YE", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
           })
-        : 'غير محدد';
+        : "غير محدد";
 
       // Check if task is overdue
       const isOverdue =
         task.due_date &&
         new Date(task.due_date) < new Date() &&
-        task.status !== 'completed' &&
-        task.status !== 'cancelled';
+        task.status !== "completed" &&
+        task.status !== "cancelled";
 
       // Create marker
       const marker = L.marker([lat, lng], {
         icon: customIcon,
         taskPriority: priority, // Store for cluster color calculation
-      })
-        .bindPopup(
-          `
+      }).bindPopup(
+        `
           <div style="direction: rtl; text-align: right; min-width: 250px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             <div style="border-bottom: 2px solid ${color}; padding-bottom: 8px; margin-bottom: 8px;">
               <h3 style="font-weight: bold; margin: 0 0 4px 0; font-size: 16px; color: #111;">
@@ -273,15 +275,15 @@ export function TaskMarkers({
                   background-color: ${color};
                   color: white;
                 ">
-                  ${priority === 'urgent' ? 'عاجل' : priority === 'high' ? 'عالية' : priority === 'medium' ? 'متوسطة' : 'منخفضة'}
+                  ${priority === "urgent" ? "عاجل" : priority === "high" ? "عالية" : priority === "medium" ? "متوسطة" : "منخفضة"}
                 </span>
               </div>
 
               <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                 <span style="font-size: 13px; color: #666;">الموعد النهائي:</span>
-                <span style="font-size: 13px; font-weight: 600; color: ${isOverdue ? '#dc2626' : '#111'};">
+                <span style="font-size: 13px; font-weight: 600; color: ${isOverdue ? "#dc2626" : "#111"};">
                   ${dueDate}
-                  ${isOverdue ? ' <span style="color: #dc2626;">⚠️ متأخر</span>' : ''}
+                  ${isOverdue ? ' <span style="color: #dc2626;">⚠️ متأخر</span>' : ""}
                 </span>
               </div>
 
@@ -308,7 +310,7 @@ export function TaskMarkers({
                 </p>
               </div>
             `
-                : ''
+                : ""
             }
 
             <button
@@ -334,11 +336,11 @@ export function TaskMarkers({
             </button>
           </div>
         `,
-          {
-            maxWidth: 300,
-            className: 'task-marker-popup',
-          }
-        );
+        {
+          maxWidth: 300,
+          className: "task-marker-popup",
+        },
+      );
 
       // Add to cluster group or directly to map
       if (clusterGroupRef.current) {
@@ -365,11 +367,11 @@ export function TaskMarkers({
       }
     };
 
-    window.addEventListener('task-marker-click', handleTaskClick);
+    window.addEventListener("task-marker-click", handleTaskClick);
 
     // Cleanup
     return () => {
-      window.removeEventListener('task-marker-click', handleTaskClick);
+      window.removeEventListener("task-marker-click", handleTaskClick);
       if (clusterGroupRef.current) {
         mapRef.current?.removeLayer(clusterGroupRef.current);
         clusterGroupRef.current = null;

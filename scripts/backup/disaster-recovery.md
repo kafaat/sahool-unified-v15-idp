@@ -1,4 +1,5 @@
 # SAHOOL Platform Disaster Recovery Plan
+
 # خطة التعافي من الكوارث لمنصة سهول
 
 **Version:** 1.0.0
@@ -49,21 +50,21 @@ This Disaster Recovery (DR) plan outlines procedures to restore the SAHOOL agric
 
 ### RTO (Recovery Time Objective) - هدف وقت التعافي
 
-| Component | RTO | Priority |
-|-----------|-----|----------|
-| Database (PostgreSQL) | 2 hours | Critical |
-| Cache (Redis) | 30 minutes | High |
-| Message Queue (NATS) | 1 hour | High |
-| File Storage | 4 hours | Medium |
-| Full System | 6 hours | Critical |
+| Component             | RTO        | Priority |
+| --------------------- | ---------- | -------- |
+| Database (PostgreSQL) | 2 hours    | Critical |
+| Cache (Redis)         | 30 minutes | High     |
+| Message Queue (NATS)  | 1 hour     | High     |
+| File Storage          | 4 hours    | Medium   |
+| Full System           | 6 hours    | Critical |
 
 ### RPO (Recovery Point Objective) - هدف نقطة التعافي
 
-| Backup Type | Frequency | Retention | RPO |
-|-------------|-----------|-----------|-----|
-| Daily | 02:00 AM | 7 days | 24 hours |
-| Weekly | Sunday 03:00 AM | 4 weeks | 1 week |
-| Monthly | 1st day 04:00 AM | 12 months | 1 month |
+| Backup Type | Frequency        | Retention | RPO      |
+| ----------- | ---------------- | --------- | -------- |
+| Daily       | 02:00 AM         | 7 days    | 24 hours |
+| Weekly      | Sunday 03:00 AM  | 4 weeks   | 1 week   |
+| Monthly     | 1st day 04:00 AM | 12 months | 1 month  |
 
 **Maximum Acceptable Data Loss:** 24 hours
 **الحد الأقصى المقبول لفقدان البيانات:** 24 ساعة
@@ -272,12 +273,12 @@ docker logs -f sahool-postgres
 
 ### Primary Team - الفريق الأساسي
 
-| Role | Name | Phone | Email | Availability |
-|------|------|-------|-------|--------------|
-| Platform Lead | [Name] | +967-XXX-XXX-XXX | lead@sahool.com | 24/7 |
-| Database Admin | [Name] | +967-XXX-XXX-XXX | dba@sahool.com | 24/7 |
-| DevOps Engineer | [Name] | +967-XXX-XXX-XXX | devops@sahool.com | 24/7 |
-| Security Officer | [Name] | +967-XXX-XXX-XXX | security@sahool.com | 24/7 |
+| Role             | Name   | Phone            | Email               | Availability |
+| ---------------- | ------ | ---------------- | ------------------- | ------------ |
+| Platform Lead    | [Name] | +967-XXX-XXX-XXX | lead@sahool.com     | 24/7         |
+| Database Admin   | [Name] | +967-XXX-XXX-XXX | dba@sahool.com      | 24/7         |
+| DevOps Engineer  | [Name] | +967-XXX-XXX-XXX | devops@sahool.com   | 24/7         |
+| Security Officer | [Name] | +967-XXX-XXX-XXX | security@sahool.com | 24/7         |
 
 ### Escalation Path - مسار التصعيد
 
@@ -288,11 +289,11 @@ docker logs -f sahool-postgres
 
 ### External Vendors - الموردين الخارجيين
 
-| Service | Contact | Phone | Email |
-|---------|---------|-------|-------|
-| Cloud Provider | [Provider] | [Phone] | [Email] |
+| Service             | Contact      | Phone   | Email   |
+| ------------------- | ------------ | ------- | ------- |
+| Cloud Provider      | [Provider]   | [Phone] | [Email] |
 | Database Consulting | [Consultant] | [Phone] | [Email] |
-| Security Firm | [Firm] | [Phone] | [Email] |
+| Security Firm       | [Firm]       | [Phone] | [Email] |
 
 ---
 
@@ -372,12 +373,12 @@ docker logs -f sahool-postgres
 
 ### DR Drill Schedule - جدول تمارين التعافي
 
-| Drill Type | Frequency | Participants | Duration |
-|------------|-----------|--------------|----------|
-| Database Restore | Monthly | DBA, DevOps | 1 hour |
-| Partial Recovery | Quarterly | Full DR Team | 2 hours |
-| Full System Recovery | Semi-annually | All Teams | 4 hours |
-| Disaster Simulation | Annually | Organization-wide | 8 hours |
+| Drill Type           | Frequency     | Participants      | Duration |
+| -------------------- | ------------- | ----------------- | -------- |
+| Database Restore     | Monthly       | DBA, DevOps       | 1 hour   |
+| Partial Recovery     | Quarterly     | Full DR Team      | 2 hours  |
+| Full System Recovery | Semi-annually | All Teams         | 4 hours  |
+| Disaster Simulation  | Annually      | Organization-wide | 8 hours  |
 
 ### Testing Checklist - قائمة الاختبار
 
@@ -459,6 +460,7 @@ docker exec sahool-backup-scheduler crontab -l
 ### Issue 1: Backup Fails with Disk Space Error
 
 **Solution:**
+
 ```bash
 # Check disk space
 df -h /backups
@@ -473,6 +475,7 @@ DAILY_RETENTION=7  # Reduce if needed
 ### Issue 2: PostgreSQL Restore Fails
 
 **Solution:**
+
 ```bash
 # Check PostgreSQL logs
 docker logs sahool-postgres
@@ -487,6 +490,7 @@ docker exec -i sahool-postgres psql -U sahool -d sahool < backup.sql
 ### Issue 3: Services Won't Start After Restore
 
 **Solution:**
+
 ```bash
 # Check service dependencies
 docker compose ps
@@ -504,9 +508,9 @@ docker compose up -d
 
 ## Document History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | 2024-12-26 | SAHOOL Team | Initial version |
+| Version | Date       | Author      | Changes         |
+| ------- | ---------- | ----------- | --------------- |
+| 1.0.0   | 2024-12-26 | SAHOOL Team | Initial version |
 
 ---
 

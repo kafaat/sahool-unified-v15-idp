@@ -21,7 +21,13 @@
             "mode": "thresholds"
           },
           "mappings": [
-            { "options": { "0": { "color": "red", "text": "Down" }, "1": { "color": "green", "text": "Up" } }, "type": "value" }
+            {
+              "options": {
+                "0": { "color": "red", "text": "Down" },
+                "1": { "color": "green", "text": "Up" }
+              },
+              "type": "value"
+            }
           ],
           "thresholds": {
             "mode": "absolute",

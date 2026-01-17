@@ -1,4 +1,5 @@
 # GlobalGAP IFA v6 Checklist
+
 # قائمة التحقق GlobalGAP IFA v6
 
 Complete Integrated Farm Assurance (IFA) version 6 checklist implementation for Fruit & Vegetables certification.
@@ -17,21 +18,21 @@ This module provides a comprehensive implementation of the GlobalGAP IFA v6 cont
 
 ## Categories / الفئات
 
-| Code | Name (EN) | Name (AR) | Items |
-|------|-----------|-----------|-------|
-| `SITE_HISTORY` | Site History and Management | تاريخ الموقع والإدارة | 3 |
-| `RECORD_KEEPING` | Record Keeping and Documentation | حفظ السجلات والتوثيق | 4 |
-| `WORKERS_HEALTH` | Workers Health, Safety and Welfare | صحة وسلامة ورفاهية العمال | 7 |
-| `TRACEABILITY` | Product Traceability and Segregation | تتبع المنتجات والفصل | 4 |
-| `PLANT_PROPAGATION` | Plant Propagation Material | مواد التكاثر النباتي | 2 |
-| `SOIL_MANAGEMENT` | Soil and Substrate Management | إدارة التربة والركيزة | 3 |
-| `FERTILIZER` | Fertilizer Application | تطبيق الأسمدة | 4 |
-| `IRRIGATION` | Irrigation and Water Management | الري وإدارة المياه | 4 |
-| `IPM` | Integrated Pest Management | الإدارة المتكاملة للآفات | 3 |
-| `PLANT_PROTECTION` | Plant Protection Products | منتجات وقاية النباتات | 6 |
-| `HARVEST` | Harvesting Procedures | إجراءات الحصاد | 4 |
-| `PRODUCE_HANDLING` | Produce Handling and Post-Harvest | معالجة المنتجات وما بعد الحصاد | 4 |
-| `ENVIRONMENT` | Environmental Management | الإدارة البيئية | 4 |
+| Code                | Name (EN)                            | Name (AR)                      | Items |
+| ------------------- | ------------------------------------ | ------------------------------ | ----- |
+| `SITE_HISTORY`      | Site History and Management          | تاريخ الموقع والإدارة          | 3     |
+| `RECORD_KEEPING`    | Record Keeping and Documentation     | حفظ السجلات والتوثيق           | 4     |
+| `WORKERS_HEALTH`    | Workers Health, Safety and Welfare   | صحة وسلامة ورفاهية العمال      | 7     |
+| `TRACEABILITY`      | Product Traceability and Segregation | تتبع المنتجات والفصل           | 4     |
+| `PLANT_PROPAGATION` | Plant Propagation Material           | مواد التكاثر النباتي           | 2     |
+| `SOIL_MANAGEMENT`   | Soil and Substrate Management        | إدارة التربة والركيزة          | 3     |
+| `FERTILIZER`        | Fertilizer Application               | تطبيق الأسمدة                  | 4     |
+| `IRRIGATION`        | Irrigation and Water Management      | الري وإدارة المياه             | 4     |
+| `IPM`               | Integrated Pest Management           | الإدارة المتكاملة للآفات       | 3     |
+| `PLANT_PROTECTION`  | Plant Protection Products            | منتجات وقاية النباتات          | 6     |
+| `HARVEST`           | Harvesting Procedures                | إجراءات الحصاد                 | 4     |
+| `PRODUCE_HANDLING`  | Produce Handling and Post-Harvest    | معالجة المنتجات وما بعد الحصاد | 4     |
+| `ENVIRONMENT`       | Environmental Management             | الإدارة البيئية                | 4     |
 
 ## Compliance Levels / مستويات الامتثال
 
@@ -269,6 +270,7 @@ audit.recommendation = compliance_result['certification_recommendation']
 ### Certification Decision / قرار الشهادة
 
 A farm is recommended for certification if:
+
 - MAJOR_MUST compliance ≥ 100%
 - MINOR_MUST compliance ≥ 95%
 
@@ -277,6 +279,7 @@ Non-applicable (N/A) items are excluded from percentage calculation.
 ## Sample Control Points / نقاط تحكم نموذجية
 
 ### AF.1.1.1 - Site History and Risk Assessment
+
 **تاريخ الموقع وتقييم المخاطر**
 
 - **Level**: MAJOR_MUST
@@ -284,6 +287,7 @@ Non-applicable (N/A) items are excluded from percentage calculation.
 - **Guidance**: Maintain records of previous land use, identify potential contamination sources
 
 ### AF.3.6.1 - No Child Labor
+
 **عدم عمالة الأطفال**
 
 - **Level**: MAJOR_MUST
@@ -291,6 +295,7 @@ Non-applicable (N/A) items are excluded from percentage calculation.
 - **Guidance**: Verify age through documentation; minimum age 15 years
 
 ### AF.10.1.1 - Only Authorized PPP Used
+
 **استخدام منتجات وقاية النباتات المصرح بها فقط**
 
 - **Level**: MAJOR_MUST

@@ -5,7 +5,6 @@ Please update your references to use `yield-prediction-service` on port 8103.
 
 ---
 
-
 # Yield Prediction - توقع الإنتاجية
 
 ## نظرة عامة | Overview
@@ -22,21 +21,23 @@ Crop yield prediction service using historical data and machine learning models.
 ## الميزات | Features
 
 ### أنواع التوقع | Prediction Types
-| النوع | Type | الوصف |
-|-------|------|--------|
-| توقع فردي | Single Field | توقع لحقل واحد |
-| توقع إقليمي | Regional | توقع للمنطقة |
-| توقع وطني | National | توقع على مستوى الدولة |
-| توقع مقارن | Comparative | مقارنة بين سيناريوهات |
+
+| النوع       | Type         | الوصف                 |
+| ----------- | ------------ | --------------------- |
+| توقع فردي   | Single Field | توقع لحقل واحد        |
+| توقع إقليمي | Regional     | توقع للمنطقة          |
+| توقع وطني   | National     | توقع على مستوى الدولة |
+| توقع مقارن  | Comparative  | مقارنة بين سيناريوهات |
 
 ### المحاصيل المدعومة | Supported Crops
-| المحصول | Crop | دقة النموذج |
-|---------|------|-------------|
-| القمح | Wheat | 92% |
-| الذرة | Sorghum | 89% |
-| البن | Coffee | 87% |
-| الطماطم | Tomato | 91% |
-| البصل | Onion | 88% |
+
+| المحصول | Crop    | دقة النموذج |
+| ------- | ------- | ----------- |
+| القمح   | Wheat   | 92%         |
+| الذرة   | Sorghum | 89%         |
+| البن    | Coffee  | 87%         |
+| الطماطم | Tomato  | 91%         |
+| البصل   | Onion   | 88%         |
 
 ---
 
@@ -252,54 +253,56 @@ Response:
 ## نماذج البيانات | Data Models
 
 ### FieldPrediction
+
 ```json
 {
-    "id": "pred-001",
-    "field_id": "field-001",
-    "crop_type": "wheat",
-    "season": "2024_winter",
-    "planting_date": "2024-01-15",
-    "prediction_date": "2024-03-01",
-    "prediction": {
-        "yield_kg_ha": 3750,
-        "total_yield_kg": 19500,
-        "area_ha": 5.2,
-        "confidence": 0.88
-    },
-    "model": {
-        "name": "yield_rf_v3",
-        "version": "3.1.0"
-    },
-    "inputs": {
-        "weather_data": true,
-        "satellite_data": true,
-        "soil_data": true,
-        "historical_data": true
-    },
-    "created_at": "2024-03-01T10:00:00Z"
+  "id": "pred-001",
+  "field_id": "field-001",
+  "crop_type": "wheat",
+  "season": "2024_winter",
+  "planting_date": "2024-01-15",
+  "prediction_date": "2024-03-01",
+  "prediction": {
+    "yield_kg_ha": 3750,
+    "total_yield_kg": 19500,
+    "area_ha": 5.2,
+    "confidence": 0.88
+  },
+  "model": {
+    "name": "yield_rf_v3",
+    "version": "3.1.0"
+  },
+  "inputs": {
+    "weather_data": true,
+    "satellite_data": true,
+    "soil_data": true,
+    "historical_data": true
+  },
+  "created_at": "2024-03-01T10:00:00Z"
 }
 ```
 
 ### RegionalForecast
+
 ```json
 {
-    "id": "forecast-001",
-    "region": "صنعاء",
-    "crop_type": "wheat",
-    "season": "2024_winter",
-    "forecast_date": "2024-03-01",
-    "summary": {
-        "total_area_ha": 12500,
-        "avg_yield_kg_ha": 3450,
-        "total_production_tons": 43125
-    },
-    "confidence": 0.82,
-    "vs_last_season": {
-        "area_change": "+5%",
-        "yield_change": "+8%",
-        "production_change": "+13%"
-    },
-    "updated_at": "2024-03-01T12:00:00Z"
+  "id": "forecast-001",
+  "region": "صنعاء",
+  "crop_type": "wheat",
+  "season": "2024_winter",
+  "forecast_date": "2024-03-01",
+  "summary": {
+    "total_area_ha": 12500,
+    "avg_yield_kg_ha": 3450,
+    "total_production_tons": 43125
+  },
+  "confidence": 0.82,
+  "vs_last_season": {
+    "area_change": "+5%",
+    "yield_change": "+8%",
+    "production_change": "+13%"
+  },
+  "updated_at": "2024-03-01T12:00:00Z"
 }
 ```
 

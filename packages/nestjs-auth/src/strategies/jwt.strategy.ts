@@ -9,23 +9,23 @@
  * - Failed authentication logging
  */
 
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { JWTConfig, AuthErrors } from '../config/jwt.config';
-import { UserValidationService } from '../services/user-validation.service';
+import { Injectable, UnauthorizedException, Logger } from "@nestjs/common";
+import { PassportStrategy } from "@nestjs/passport";
+import { ExtractJwt, Strategy } from "passport-jwt";
+import { JWTConfig, AuthErrors } from "../config/jwt.config";
+import { UserValidationService } from "../services/user-validation.service";
 
 /**
  * JWT Token Payload Interface
  */
 export interface JwtPayload {
-  sub: string;           // user_id
+  sub: string; // user_id
   roles: string[];
   exp: number;
   iat: number;
-  tid?: string;          // tenant_id
-  jti?: string;          // token_id
-  type?: string;         // access or refresh
+  tid?: string; // tenant_id
+  jti?: string; // token_id
+  type?: string; // access or refresh
   permissions?: string[];
 }
 
@@ -79,7 +79,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!userValidationService) {
       this.logger.warn(
-        'UserValidationService not provided - database validation disabled',
+        "UserValidationService not provided - database validation disabled",
       );
     }
   }
@@ -100,7 +100,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     // Ensure required fields exist
     if (!payload.sub) {
-      this.logger.warn('JWT validation failed: Missing subject (user ID)');
+      this.logger.warn("JWT validation failed: Missing subject (user ID)");
       throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
     }
 
@@ -109,8 +109,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     try {
       // Validate user with database lookup and caching
       if (this.userValidationService) {
-        const userData =
-          await this.userValidationService.validateUser(userId);
+        const userData = await this.userValidationService.validateUser(userId);
 
         this.logger.debug(
           `JWT validated successfully for user ${userId} (${userData.email})`,

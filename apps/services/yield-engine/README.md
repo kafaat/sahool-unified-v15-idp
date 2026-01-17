@@ -5,7 +5,6 @@ Please update your references to use `yield-prediction-service` on port 8103.
 
 ---
 
-
 # Yield Engine - محرك الإنتاجية
 
 ## نظرة عامة | Overview
@@ -22,20 +21,22 @@ Machine learning engine for crop yield prediction in Yemen.
 ## الميزات | Features
 
 ### التوقع | Prediction
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
+
+| الميزة     | Feature           | الوصف                |
+| ---------- | ----------------- | -------------------- |
 | توقع موسمي | Seasonal Forecast | توقع الإنتاج الموسمي |
-| توقع مبكر | Early Prediction | توقع قبل الحصاد |
-| سيناريوهات | Scenarios | ماذا لو؟ |
-| عدم اليقين | Uncertainty | فترات الثقة |
+| توقع مبكر  | Early Prediction  | توقع قبل الحصاد      |
+| سيناريوهات | Scenarios         | ماذا لو؟             |
+| عدم اليقين | Uncertainty       | فترات الثقة          |
 
 ### النماذج | Models
-| النموذج | Model | الدقة |
-|---------|-------|--------|
-| Random Forest | RF | 88% |
-| XGBoost | XGB | 91% |
-| LSTM | LSTM | 89% |
-| Ensemble | Ensemble | 93% |
+
+| النموذج       | Model    | الدقة |
+| ------------- | -------- | ----- |
+| Random Forest | RF       | 88%   |
+| XGBoost       | XGB      | 91%   |
+| LSTM          | LSTM     | 89%   |
+| Ensemble      | Ensemble | 93%   |
 
 ---
 
@@ -222,58 +223,60 @@ GET /reports/seasonal?region=sanaa&crop=wheat&season=2024
 ## نماذج البيانات | Data Models
 
 ### YieldPrediction
+
 ```json
 {
-    "id": "pred-001",
-    "field_id": "field-001",
-    "crop_type": "wheat",
-    "season": "2024_winter",
-    "prediction_date": "2024-03-15",
-    "days_after_planting": 60,
-    "prediction": {
-        "yield_kg_ha": 3850,
-        "yield_total_kg": 20020,
-        "confidence_interval": {
-            "p10": 3200,
-            "p50": 3850,
-            "p90": 4400
-        },
-        "confidence_percent": 85
+  "id": "pred-001",
+  "field_id": "field-001",
+  "crop_type": "wheat",
+  "season": "2024_winter",
+  "prediction_date": "2024-03-15",
+  "days_after_planting": 60,
+  "prediction": {
+    "yield_kg_ha": 3850,
+    "yield_total_kg": 20020,
+    "confidence_interval": {
+      "p10": 3200,
+      "p50": 3850,
+      "p90": 4400
     },
-    "model": {
-        "name": "ensemble",
-        "version": "3.2",
-        "features_used": 45
-    },
-    "inputs": {
-        "ndvi_current": 0.72,
-        "lai_current": 3.2,
-        "cumulative_gdd": 1250,
-        "cumulative_rainfall_mm": 180,
-        "soil_moisture_avg": 42
-    }
+    "confidence_percent": 85
+  },
+  "model": {
+    "name": "ensemble",
+    "version": "3.2",
+    "features_used": 45
+  },
+  "inputs": {
+    "ndvi_current": 0.72,
+    "lai_current": 3.2,
+    "cumulative_gdd": 1250,
+    "cumulative_rainfall_mm": 180,
+    "soil_moisture_avg": 42
+  }
 }
 ```
 
 ### SeasonalForecast
+
 ```json
 {
-    "region": "صنعاء",
-    "crop_type": "wheat",
-    "season": "2024_winter",
-    "forecast_date": "2024-03-01",
-    "summary": {
-        "total_area_ha": 15000,
-        "predicted_production_tons": 52500,
-        "avg_yield_kg_ha": 3500,
-        "vs_last_season_percent": 8
-    },
-    "distribution": {
-        "excellent": {"percent": 15, "yield_range": [4000, 5000]},
-        "good": {"percent": 45, "yield_range": [3500, 4000]},
-        "average": {"percent": 30, "yield_range": [3000, 3500]},
-        "poor": {"percent": 10, "yield_range": [2000, 3000]}
-    }
+  "region": "صنعاء",
+  "crop_type": "wheat",
+  "season": "2024_winter",
+  "forecast_date": "2024-03-01",
+  "summary": {
+    "total_area_ha": 15000,
+    "predicted_production_tons": 52500,
+    "avg_yield_kg_ha": 3500,
+    "vs_last_season_percent": 8
+  },
+  "distribution": {
+    "excellent": { "percent": 15, "yield_range": [4000, 5000] },
+    "good": { "percent": 45, "yield_range": [3500, 4000] },
+    "average": { "percent": 30, "yield_range": [3000, 3500] },
+    "poor": { "percent": 10, "yield_range": [2000, 3000] }
+  }
 }
 ```
 

@@ -9,36 +9,38 @@ import {
   ReportGenerator,
   ReportPreview,
   ReportHistory,
-} from '@/features/reports';
+} from "@/features/reports";
 ```
 
 ### Step 2: Add to Your Page
 
 ```tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ReportGenerator, ReportHistory } from '@/features/reports';
+import { useState } from "react";
+import { ReportGenerator, ReportHistory } from "@/features/reports";
 
 export default function FieldReportsPage({ fieldId }: { fieldId: string }) {
-  const [activeTab, setActiveTab] = useState<'generate' | 'history'>('generate');
+  const [activeTab, setActiveTab] = useState<"generate" | "history">(
+    "generate",
+  );
 
   return (
     <div className="p-8" dir="rtl">
       {/* Tab Buttons */}
       <div className="flex gap-4 mb-6">
         <button
-          onClick={() => setActiveTab('generate')}
+          onClick={() => setActiveTab("generate")}
           className={`px-6 py-3 rounded-lg ${
-            activeTab === 'generate' ? 'bg-green-500 text-white' : 'bg-gray-200'
+            activeTab === "generate" ? "bg-green-500 text-white" : "bg-gray-200"
           }`}
         >
           إنشاء تقرير جديد
         </button>
         <button
-          onClick={() => setActiveTab('history')}
+          onClick={() => setActiveTab("history")}
           className={`px-6 py-3 rounded-lg ${
-            activeTab === 'history' ? 'bg-green-500 text-white' : 'bg-gray-200'
+            activeTab === "history" ? "bg-green-500 text-white" : "bg-gray-200"
           }`}
         >
           سجل التقارير
@@ -46,21 +48,21 @@ export default function FieldReportsPage({ fieldId }: { fieldId: string }) {
       </div>
 
       {/* Content */}
-      {activeTab === 'generate' ? (
+      {activeTab === "generate" ? (
         <ReportGenerator
           fieldId={fieldId}
           fieldName="My Field"
           fieldNameAr="حقلي"
           onReportGenerated={(reportId) => {
-            console.log('Report generated:', reportId);
-            setActiveTab('history');
+            console.log("Report generated:", reportId);
+            setActiveTab("history");
           }}
         />
       ) : (
         <ReportHistory
           fieldId={fieldId}
           onViewReport={(reportId) => {
-            console.log('View report:', reportId);
+            console.log("View report:", reportId);
           }}
           showFilters={true}
         />
@@ -73,6 +75,7 @@ export default function FieldReportsPage({ fieldId }: { fieldId: string }) {
 ### Step 3: That's It! 🎉
 
 Your reports feature is now working with:
+
 - ✅ Report generation UI
 - ✅ Field/Season report types
 - ✅ Arabic/English/Both language options
@@ -86,7 +89,7 @@ Your reports feature is now working with:
 ### Use Case 1: Simple Report Button
 
 ```tsx
-import { useGenerateFieldReport } from '@/features/reports';
+import { useGenerateFieldReport } from "@/features/reports";
 
 function FieldCard({ fieldId }: { fieldId: string }) {
   const generateReport = useGenerateFieldReport();
@@ -94,10 +97,10 @@ function FieldCard({ fieldId }: { fieldId: string }) {
   const handleGenerateReport = async () => {
     const report = await generateReport.mutateAsync({
       fieldId,
-      sections: ['field_info', 'ndvi_trend', 'recommendations'],
+      sections: ["field_info", "ndvi_trend", "recommendations"],
       options: {
-        format: 'pdf',
-        language: 'both',
+        format: "pdf",
+        language: "both",
         includeCharts: true,
       },
     });
@@ -112,7 +115,7 @@ function FieldCard({ fieldId }: { fieldId: string }) {
       disabled={generateReport.isPending}
       className="px-4 py-2 bg-green-500 text-white rounded-lg"
     >
-      {generateReport.isPending ? 'جاري الإنشاء...' : 'إنشاء تقرير'}
+      {generateReport.isPending ? "جاري الإنشاء..." : "إنشاء تقرير"}
     </button>
   );
 }
@@ -121,17 +124,15 @@ function FieldCard({ fieldId }: { fieldId: string }) {
 ### Use Case 2: Modal with Report Generator
 
 ```tsx
-import { useState } from 'react';
-import { ReportGenerator } from '@/features/reports';
+import { useState } from "react";
+import { ReportGenerator } from "@/features/reports";
 
 function FieldPage({ fieldId }: { fieldId: string }) {
   const [showModal, setShowModal] = useState(false);
 
   return (
     <>
-      <button onClick={() => setShowModal(true)}>
-        إنشاء تقرير
-      </button>
+      <button onClick={() => setShowModal(true)}>إنشاء تقرير</button>
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -158,7 +159,7 @@ function FieldPage({ fieldId }: { fieldId: string }) {
 ### Use Case 3: Standalone Preview Page
 
 ```tsx
-import { ReportPreview } from '@/features/reports';
+import { ReportPreview } from "@/features/reports";
 
 export default function ReportPage({ params }: { params: { id: string } }) {
   return (
@@ -172,12 +173,12 @@ export default function ReportPage({ params }: { params: { id: string } }) {
 ### Use Case 4: Dashboard Widget
 
 ```tsx
-import { useReportHistory } from '@/features/reports';
-import { FileText } from 'lucide-react';
+import { useReportHistory } from "@/features/reports";
+import { FileText } from "lucide-react";
 
 function RecentReportsWidget() {
   const { data: reports, isLoading } = useReportHistory({
-    status: 'ready',
+    status: "ready",
   });
 
   if (isLoading) return <div>Loading...</div>;
@@ -198,13 +199,11 @@ function RecentReportsWidget() {
               <div>
                 <div className="font-medium">{report.titleAr}</div>
                 <div className="text-sm text-gray-600">
-                  {new Date(report.createdAt).toLocaleDateString('ar-SA')}
+                  {new Date(report.createdAt).toLocaleDateString("ar-SA")}
                 </div>
               </div>
             </div>
-            <button className="text-green-500 hover:text-green-600">
-              عرض
-            </button>
+            <button className="text-green-500 hover:text-green-600">عرض</button>
           </div>
         ))}
       </div>
@@ -225,6 +224,7 @@ function RecentReportsWidget() {
 ```
 
 The user can select from these sections:
+
 - `field_info` - Field information (required)
 - `ndvi_trend` - NDVI analysis
 - `health_zones` - Health zones map
@@ -241,7 +241,7 @@ The user can select from these sections:
 <ReportHistory
   fieldId={fieldId}
   // Pre-filter to specific type
-  filters={{ type: 'field', status: 'ready' }}
+  filters={{ type: "field", status: "ready" }}
   showFilters={false}
   compact={true}
 />
@@ -255,11 +255,11 @@ The user can select from these sections:
 const generate = useGenerateFieldReport();
 
 generate.mutate({
-  fieldId: 'field-123',
-  sections: ['field_info', 'ndvi_trend'],
+  fieldId: "field-123",
+  sections: ["field_info", "ndvi_trend"],
   options: {
-    format: 'pdf',
-    language: 'both',
+    format: "pdf",
+    language: "both",
     includeCharts: true,
     includeMaps: true,
   },
@@ -270,10 +270,10 @@ generate.mutate({
 
 ```tsx
 const { data, isLoading, error } = useReportHistory({
-  fieldId: 'field-123',
-  type: 'field',
-  status: 'ready',
-  search: 'query',
+  fieldId: "field-123",
+  type: "field",
+  status: "ready",
+  search: "query",
 });
 ```
 
@@ -291,8 +291,8 @@ download.mutate(reportId); // Opens in new tab
 const share = useShareReport();
 
 const result = await share.mutateAsync({
-  reportId: 'report-123',
-  method: 'link', // 'link' | 'email' | 'whatsapp'
+  reportId: "report-123",
+  method: "link", // 'link' | 'email' | 'whatsapp'
 });
 
 console.log(result.shareUrl); // Copy this URL
@@ -311,9 +311,9 @@ deleteReport.mutate(reportId);
 All components support three language modes:
 
 ```tsx
-language="ar"    // Arabic only
-language="en"    // English only
-language="both"  // Bilingual (default)
+language = "ar"; // Arabic only
+language = "en"; // English only
+language = "both"; // Bilingual (default)
 ```
 
 RTL is automatically applied for Arabic mode.
@@ -336,6 +336,7 @@ RTL is automatically applied for Arabic mode.
 ### Reports not generating?
 
 Check if `NEXT_PUBLIC_API_URL` is set in your `.env`:
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
@@ -347,6 +348,7 @@ The download feature opens a new tab. Check browser popup settings.
 ### RTL not working?
 
 Make sure the parent container has `dir="rtl"`:
+
 ```tsx
 <div dir="rtl">
   <ReportGenerator ... />
@@ -356,6 +358,7 @@ Make sure the parent container has `dir="rtl"`:
 ## 📞 Support
 
 For issues or questions:
+
 1. Check the full [README.md](./README.md)
 2. Review the [examples](./examples/ReportsPageExample.tsx)
 3. See [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) for details

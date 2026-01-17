@@ -3,18 +3,18 @@
  * SAHOOL Platform - Utility Functions
  */
 
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { Rate, Trend, Counter } from 'k6/metrics';
-import { config, yemenLocations, cropTypes, operationTypes } from './config.js';
+import http from "k6/http";
+import { check, sleep } from "k6";
+import { Rate, Trend, Counter } from "k6/metrics";
+import { config, yemenLocations, cropTypes, operationTypes } from "./config.js";
 
 // Custom metrics
-export const authSuccessRate = new Rate('auth_success_rate');
-export const fieldCreationTrend = new Trend('field_creation_duration');
-export const satelliteAnalysisTrend = new Trend('satellite_analysis_duration');
-export const weatherForecastTrend = new Trend('weather_forecast_duration');
-export const apiErrors = new Counter('api_errors');
-export const quotaExceeded = new Counter('quota_exceeded_errors');
+export const authSuccessRate = new Rate("auth_success_rate");
+export const fieldCreationTrend = new Trend("field_creation_duration");
+export const satelliteAnalysisTrend = new Trend("satellite_analysis_duration");
+export const weatherForecastTrend = new Trend("weather_forecast_duration");
+export const apiErrors = new Counter("api_errors");
+export const quotaExceeded = new Counter("quota_exceeded_errors");
 
 /**
  * Authentication Helper
@@ -49,16 +49,18 @@ export function authenticate(email = null, password = null) {
  * In production, replace with actual JWT from auth service
  */
 function generateMockToken(email) {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    sub: `user_${randomString(8)}`,
-    email: email,
-    tenant_id: config.tenantId,
-    roles: ['farmer'],
-    permissions: ['field:read', 'field:write'],
-    exp: Math.floor(Date.now() / 1000) + 3600,
-    iat: Math.floor(Date.now() / 1000),
-  }));
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const payload = btoa(
+    JSON.stringify({
+      sub: `user_${randomString(8)}`,
+      email: email,
+      tenant_id: config.tenantId,
+      roles: ["farmer"],
+      permissions: ["field:read", "field:write"],
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      iat: Math.floor(Date.now() / 1000),
+    }),
+  );
   const signature = randomString(32);
 
   return `${header}.${payload}.${signature}`;
@@ -67,14 +69,20 @@ function generateMockToken(email) {
 /**
  * HTTP Request wrapper with authentication
  */
-export function authenticatedRequest(method, url, body = null, token = null, params = {}) {
+export function authenticatedRequest(
+  method,
+  url,
+  body = null,
+  token = null,
+  params = {},
+) {
   const headers = {
-    'Content-Type': 'application/json',
-    'X-Tenant-Id': config.tenantId,
+    "Content-Type": "application/json",
+    "X-Tenant-Id": config.tenantId,
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const requestParams = {
@@ -85,16 +93,24 @@ export function authenticatedRequest(method, url, body = null, token = null, par
 
   let response;
   switch (method.toUpperCase()) {
-    case 'GET':
+    case "GET":
       response = http.get(url, requestParams);
       break;
-    case 'POST':
-      response = http.post(url, body ? JSON.stringify(body) : null, requestParams);
+    case "POST":
+      response = http.post(
+        url,
+        body ? JSON.stringify(body) : null,
+        requestParams,
+      );
       break;
-    case 'PUT':
-      response = http.put(url, body ? JSON.stringify(body) : null, requestParams);
+    case "PUT":
+      response = http.put(
+        url,
+        body ? JSON.stringify(body) : null,
+        requestParams,
+      );
       break;
-    case 'DELETE':
+    case "DELETE":
       response = http.del(url, null, requestParams);
       break;
     default:
@@ -116,9 +132,14 @@ export function authenticatedRequest(method, url, body = null, token = null, par
 /**
  * Validate response helper
  */
-export function validateResponse(response, expectedStatus = 200, checkName = 'response') {
+export function validateResponse(
+  response,
+  expectedStatus = 200,
+  checkName = "response",
+) {
   const checks = {};
-  checks[`${checkName}: status is ${expectedStatus}`] = response.status === expectedStatus;
+  checks[`${checkName}: status is ${expectedStatus}`] =
+    response.status === expectedStatus;
 
   if (response.status === expectedStatus && response.body) {
     try {
@@ -152,11 +173,11 @@ export function generateRandomField(tenantId = null) {
     crop_type: crop,
     area_hectares: randomFloat(1.0, 20.0),
     geometry: {
-      type: 'Polygon',
+      type: "Polygon",
       coordinates: [coordinates],
     },
-    soil_type: randomElement(['loamy', 'sandy', 'clay', 'silty']),
-    irrigation_type: randomElement(['drip', 'sprinkler', 'flood', 'furrow']),
+    soil_type: randomElement(["loamy", "sandy", "clay", "silty"]),
+    irrigation_type: randomElement(["drip", "sprinkler", "flood", "furrow"]),
     planting_date: randomPastDate(90), // within last 90 days
     metadata: {
       test: true,
@@ -168,7 +189,12 @@ export function generateRandomField(tenantId = null) {
 /**
  * Generate random polygon coordinates
  */
-function generateRandomPolygon(centerLat, centerLon, points = 4, radius = 0.01) {
+function generateRandomPolygon(
+  centerLat,
+  centerLon,
+  points = 4,
+  radius = 0.01,
+) {
   const coordinates = [];
   const angleStep = (2 * Math.PI) / points;
 
@@ -217,7 +243,7 @@ export function generateRandomTask(fieldId, tenantId = null) {
     title_ar: `مهمة اختبار الحمل: ${taskType}`,
     description: `Automated load testing task`,
     task_type: taskType,
-    priority: randomElement(['low', 'medium', 'high', 'urgent']),
+    priority: randomElement(["low", "medium", "high", "urgent"]),
     field_id: fieldId,
     assigned_to: `user_${randomString(8)}`,
     due_date: randomFutureDate(7),
@@ -238,12 +264,12 @@ export function generateRandomEquipment(fieldId = null, tenantId = null) {
     name: `Test ${equipmentType} ${randomString(4)}`,
     name_ar: `${equipmentType} اختبار ${randomString(4)}`,
     equipment_type: equipmentType,
-    brand: randomElement(['John Deere', 'Case IH', 'New Holland', 'Kubota']),
+    brand: randomElement(["John Deere", "Case IH", "New Holland", "Kubota"]),
     model: `Model-${randomString(6)}`,
     serial_number: `SN-${randomString(10)}`,
     year: randomInt(2018, 2025),
     field_id: fieldId,
-    status: 'operational',
+    status: "operational",
   };
 }
 
@@ -251,8 +277,8 @@ export function generateRandomEquipment(fieldId = null, tenantId = null) {
  * Random string generator
  */
 export function randomString(length = 8) {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -286,8 +312,10 @@ export function randomElement(array) {
  */
 export function randomPastDate(daysAgo = 30) {
   const now = new Date();
-  const past = new Date(now.getTime() - randomInt(0, daysAgo) * 24 * 60 * 60 * 1000);
-  return past.toISOString().split('T')[0];
+  const past = new Date(
+    now.getTime() - randomInt(0, daysAgo) * 24 * 60 * 60 * 1000,
+  );
+  return past.toISOString().split("T")[0];
 }
 
 /**
@@ -295,7 +323,9 @@ export function randomPastDate(daysAgo = 30) {
  */
 export function randomFutureDate(daysAhead = 30) {
   const now = new Date();
-  const future = new Date(now.getTime() + randomInt(1, daysAhead) * 24 * 60 * 60 * 1000);
+  const future = new Date(
+    now.getTime() + randomInt(1, daysAhead) * 24 * 60 * 60 * 1000,
+  );
   return future.toISOString();
 }
 
@@ -313,11 +343,11 @@ export function verifyJsonStructure(data, requiredFields) {
   const checks = {};
 
   for (const field of requiredFields) {
-    const fieldPath = field.split('.');
+    const fieldPath = field.split(".");
     let value = data;
 
     for (const part of fieldPath) {
-      if (value && typeof value === 'object') {
+      if (value && typeof value === "object") {
         value = value[part];
       } else {
         value = undefined;
@@ -369,16 +399,20 @@ export function createWeatherAnalysisRequest(locationId = null) {
 /**
  * Create satellite analysis request
  */
-export function createSatelliteAnalysisRequest(fieldId, lat = null, lon = null) {
+export function createSatelliteAnalysisRequest(
+  fieldId,
+  lat = null,
+  lon = null,
+) {
   const location = randomElement(yemenLocations);
 
   return {
     field_id: fieldId,
     latitude: lat || location.lat,
     longitude: lon || location.lon,
-    satellite: randomElement(['sentinel-2', 'landsat-8', 'landsat-9']),
+    satellite: randomElement(["sentinel-2", "landsat-8", "landsat-9"]),
     start_date: randomPastDate(30),
-    end_date: new Date().toISOString().split('T')[0],
+    end_date: new Date().toISOString().split("T")[0],
     cloud_cover_max: randomFloat(10, 30),
   };
 }
@@ -390,10 +424,15 @@ export function createIrrigationRequest(fieldId) {
   return {
     field_id: fieldId,
     crop: randomElement(cropTypes),
-    growth_stage: randomElement(['initial', 'development', 'mid_season', 'late_season']),
+    growth_stage: randomElement([
+      "initial",
+      "development",
+      "mid_season",
+      "late_season",
+    ]),
     area_hectares: randomFloat(1.0, 20.0),
-    soil_type: randomElement(['loamy', 'sandy', 'clay', 'silty']),
-    irrigation_method: randomElement(['drip', 'sprinkler', 'flood', 'furrow']),
+    soil_type: randomElement(["loamy", "sandy", "clay", "silty"]),
+    irrigation_method: randomElement(["drip", "sprinkler", "flood", "furrow"]),
     current_soil_moisture: randomFloat(30, 70),
     last_irrigation_date: randomPastDate(7),
   };
@@ -404,12 +443,12 @@ export function createIrrigationRequest(fieldId) {
  */
 export function validateFieldResponse(field) {
   return verifyJsonStructure(field, [
-    'id',
-    'tenant_id',
-    'name',
-    'crop_type',
-    'area_hectares',
-    'created_at',
+    "id",
+    "tenant_id",
+    "name",
+    "crop_type",
+    "area_hectares",
+    "created_at",
   ]);
 }
 
@@ -418,18 +457,18 @@ export function validateFieldResponse(field) {
  */
 export function validateOperationResponse(operation) {
   return verifyJsonStructure(operation, [
-    'id',
-    'tenant_id',
-    'field_id',
-    'operation_type',
-    'scheduled_date',
+    "id",
+    "tenant_id",
+    "field_id",
+    "operation_type",
+    "scheduled_date",
   ]);
 }
 
 /**
  * Error handler
  */
-export function handleError(response, context = '') {
+export function handleError(response, context = "") {
   if (response.status >= 400) {
     console.error(`[ERROR ${response.status}] ${context}: ${response.body}`);
     return false;

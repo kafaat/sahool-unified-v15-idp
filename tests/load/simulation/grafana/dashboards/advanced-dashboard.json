@@ -98,9 +98,7 @@
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              { "color": "blue", "value": null }
-            ]
+            "steps": [{ "color": "blue", "value": null }]
           },
           "unit": "short"
         }
@@ -131,9 +129,7 @@
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
           "unit": "short"
         }
@@ -145,7 +141,11 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
       },
       "targets": [
         {
@@ -351,7 +351,11 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
       "id": 20,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom" },
+        "legend": {
+          "calcs": ["sum"],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "targets": [
@@ -557,7 +561,11 @@
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 23 },
       "id": 30,
       "options": {
-        "legend": { "calcs": ["mean", "max", "p95"], "displayMode": "table", "placement": "right" },
+        "legend": {
+          "calcs": ["mean", "max", "p95"],
+          "displayMode": "table",
+          "placement": "right"
+        },
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "targets": [

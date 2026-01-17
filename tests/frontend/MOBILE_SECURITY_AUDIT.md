@@ -15,6 +15,7 @@ This security audit evaluated the Flutter mobile application located at `/home/u
 ### Overall Security Score: 7.5/10
 
 **Strengths:**
+
 - Comprehensive certificate pinning implementation (iOS & Android)
 - Secure storage using platform-native solutions
 - Strong authentication flow with biometric support
@@ -23,6 +24,7 @@ This security audit evaluated the Flutter mobile application located at `/home/u
 - Proper network security configurations
 
 **Critical Issues Requiring Immediate Attention:**
+
 - Certificate pins use placeholder values (MUST be replaced before production)
 - Missing `android:allowBackup` configuration in AndroidManifest
 - No Firebase/Google Services configuration (if push notifications are required)
@@ -35,9 +37,11 @@ This security audit evaluated the Flutter mobile application located at `/home/u
 ### Status: ✅ IMPLEMENTED (Configuration Required)
 
 ### Android (Dart/Dio)
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/mobile/lib/core/security/certificate_pinning_service.dart`
 
 **Implementation Details:**
+
 - Uses SHA-256 certificate fingerprinting
 - Configured via `HttpClient.badCertificateCallback`
 - Support for multiple pins per domain (rotation ready)
@@ -46,11 +50,13 @@ This security audit evaluated the Flutter mobile application located at `/home/u
 - Expiry tracking and monitoring
 
 **Configured Domains:**
+
 - `api.sahool.app` (3 pins configured)
 - `*.sahool.io` (2 pins configured)
 - `api-staging.sahool.app` (2 pins configured)
 
 **Configuration Status:**
+
 ```dart
 // CRITICAL: Current pins are placeholder examples
 // Line 220-276 in certificate_pinning_service.dart
@@ -63,15 +69,18 @@ CertificatePin(
 ```
 
 ### iOS (Native Swift)
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/Info.plist`
 
 **Implementation Details:**
+
 - Uses SPKI (Subject Public Key Info) pinning
 - Configured via `NSPinnedDomains` in Info.plist
 - Additional programmatic validation via `CertificatePinning.swift`
 - Initialized in `AppDelegate.swift`
 
 **Configured Domains:**
+
 - `api.sahool.io`
 - `api.sahool.app`
 - `api-staging.sahool.app`
@@ -79,6 +88,7 @@ CertificatePin(
 - `ws-staging.sahool.app`
 
 **Configuration Status:**
+
 ```xml
 <!-- Lines 66-67 in Info.plist -->
 <key>SPKI-SHA256-BASE64</key>
@@ -97,6 +107,7 @@ CertificatePin(
      - `ios/Runner/Info.plist` (lines 64-135)
 
    **Required Actions:**
+
    ```bash
    # For Android (SHA-256 fingerprints):
    openssl s_client -connect api.sahool.app:443 -servername api.sahool.app < /dev/null 2>/dev/null | \
@@ -135,12 +146,14 @@ CertificatePin(
 **Location:** `/home/user/sahool-unified-v15-idp/apps/mobile/lib/core/auth/secure_storage_service.dart`
 
 **Implementation Details:**
+
 - Uses `flutter_secure_storage` package (version 9.2.2)
 - Platform-specific encryption:
   - **Android:** EncryptedSharedPreferences with custom prefix (`sahool_`)
   - **iOS:** Keychain with accessibility level `first_unlock_this_device`
 
 **Stored Sensitive Data:**
+
 ```dart
 // All properly encrypted via platform secure storage
 - Access tokens (_keyAccessToken)
@@ -153,6 +166,7 @@ CertificatePin(
 ```
 
 **Android Configuration:**
+
 ```dart
 aOptions: AndroidOptions(
   encryptedSharedPreferences: true,
@@ -162,6 +176,7 @@ aOptions: AndroidOptions(
 ```
 
 **iOS Configuration:**
+
 ```dart
 iOptions: IOSOptions(
   accessibility: KeychainAccessibility.first_unlock_this_device,
@@ -244,6 +259,7 @@ iOptions: IOSOptions(
 ### Status: ✅ PROPERLY CONFIGURED
 
 ### Android Network Security Config
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/src/main/res/xml/network_security_config.xml`
 
 **Configuration Analysis:**
@@ -258,11 +274,13 @@ iOptions: IOSOptions(
 ```
 
 **Cleartext Traffic:**
+
 - ✅ Disabled globally (`cleartextTrafficPermitted="false"`)
 - ✅ Enabled only for localhost/development IPs
 - ✅ Properly scoped to development hosts
 
 **Development Exceptions:**
+
 ```xml
 <domain-config cleartextTrafficPermitted="true">
   <domain includeSubdomains="true">localhost</domain>
@@ -274,6 +292,7 @@ iOptions: IOSOptions(
 ```
 
 ### iOS App Transport Security
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/Info.plist`
 
 **Configuration Analysis:**
@@ -301,9 +320,11 @@ iOptions: IOSOptions(
 ```
 
 ### AndroidManifest Security
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/src/main/AndroidManifest.xml`
 
 **Configuration:**
+
 ```xml
 <application
   android:usesCleartextTraffic="false"  <!-- ✅ Disabled -->
@@ -318,6 +339,7 @@ iOptions: IOSOptions(
    - **Risk:** Sensitive data could be backed up to insecure locations
    - **Location:** `android/app/src/main/AndroidManifest.xml`
    - **Recommendation:**
+
    ```xml
    <application
      android:allowBackup="false"
@@ -369,11 +391,13 @@ buildTypes {
 ### ProGuard Rules Analysis:
 
 1. **Optimization Level:**
+
    ```proguard
    -optimizationpasses 5  # ✅ Aggressive optimization
    ```
 
 2. **Logging Removal:**
+
    ```proguard
    -assumenosideeffects class android.util.Log {
      public static *** d(...);  # ✅ Debug logs removed
@@ -385,6 +409,7 @@ buildTypes {
    ```
 
 3. **Source File Obfuscation:**
+
    ```proguard
    -renamesourcefileattribute SourceFile
    # ✅ Original file names and line numbers hidden
@@ -397,6 +422,7 @@ buildTypes {
    - Crypto libraries protected
 
 5. **Security-Specific Rules:**
+
    ```proguard
    # Secure Storage
    -keep class com.it_nomads.fluttersecurestorage.** { *; }
@@ -422,6 +448,7 @@ buildTypes {
 1. **Custom App Classes May Need Review** (Low - P3)
    - **Lines 356-363:** Generic package name rules
    - **Recommendation:** Update package names to match actual structure
+
    ```proguard
    # Current (generic):
    -keep class io.sahool.sahool_field_app.MainActivity { *; }
@@ -441,6 +468,7 @@ buildTypes {
 ### Implementation Analysis:
 
 1. **Three-Tier Configuration Priority:**
+
    ```dart
    // Priority: dart-define > .env file > default values
    static String _getString(String key, String defaultValue) {
@@ -458,6 +486,7 @@ buildTypes {
    ```
 
 2. **Build-Time Injection:**
+
    ```bash
    # Example: Compile-time secrets injection
    flutter build apk --release \
@@ -532,6 +561,7 @@ AuthService
 ### Token Management:
 
 1. **Token Storage:**
+
    ```dart
    // Lines 318-324
    await secureStorage.setAccessToken(tokens.accessToken);
@@ -539,11 +569,13 @@ AuthService
    final expiry = DateTime.now().add(Duration(seconds: tokens.expiresIn));
    await secureStorage.setTokenExpiry(expiry);
    ```
+
    - ✅ All tokens stored in secure storage
    - ✅ Expiry tracked for automatic refresh
    - ✅ No tokens stored in SharedPreferences
 
 2. **Automatic Token Refresh:**
+
    ```dart
    // Lines 333-352
    void _scheduleTokenRefresh(int expiresInSeconds) {
@@ -553,11 +585,13 @@ AuthService
      });
    }
    ```
+
    - ✅ Proactive refresh before expiration
-   - ✅ 5-minute buffer (_tokenRefreshBuffer)
+   - ✅ 5-minute buffer (\_tokenRefreshBuffer)
    - ✅ Automatic cleanup on logout
 
 3. **Session Validation:**
+
    ```dart
    // Lines 246-265
    Future<bool> isLoggedIn() async {
@@ -573,6 +607,7 @@ AuthService
      return true;
    }
    ```
+
    - ✅ Validates token existence and expiry
    - ✅ Automatic refresh on expiry
    - ✅ Logout on refresh failure
@@ -591,6 +626,7 @@ AuthService
    ```
 
    **Headers Added:**
+
    ```dart
    'X-Signature': signature,        // HMAC-SHA256 signature
    'X-Timestamp': timestamp,         // Request timestamp
@@ -630,6 +666,7 @@ enum AuthStatus {
 1. **Simulated Authentication in Code** (Critical - P0)
    - **Location:** auth_service.dart (lines 159-195)
    - **Issue:** Login uses simulated/mock response
+
    ```dart
    // Line 166-170: Simulated response for development
    final tokens = TokenPair(
@@ -638,6 +675,7 @@ enum AuthStatus {
      expiresIn: 3600,
    );
    ```
+
    - **Impact:** Production API integration required
    - **Recommendation:**
      - Uncomment actual API client calls (lines 160-163)
@@ -680,6 +718,7 @@ enum AuthStatus {
    - Fallback to device credentials (PIN/pattern/password)
 
 2. **Availability Checks:**
+
    ```dart
    // Lines 32-43
    Future<bool> isAvailable() async {
@@ -688,10 +727,12 @@ enum AuthStatus {
      return canCheckBiometrics || isDeviceSupported;
    }
    ```
+
    - ✅ Checks both biometric capability and device support
    - ✅ Platform exception handling
 
 3. **Authentication Options:**
+
    ```dart
    // Lines 115-123
    final authenticated = await _localAuth.authenticate(
@@ -706,6 +747,7 @@ enum AuthStatus {
    ```
 
 4. **User Settings Persistence:**
+
    ```dart
    // Lines 72-101
    Future<bool> enable() async {
@@ -726,10 +768,12 @@ enum AuthStatus {
      return false;
    }
    ```
+
    - ✅ Requires biometric verification before enabling
    - ✅ Setting stored in secure storage
 
 5. **Error Handling:**
+
    ```dart
    // Lines 135-149
    switch (e.code) {
@@ -745,11 +789,13 @@ enum AuthStatus {
        throw BiometricException('حدث خطأ في التحقق من البصمة');
    }
    ```
+
    - ✅ Comprehensive error code mapping
    - ✅ Arabic error messages for user feedback
    - ✅ Appropriate responses to lockout scenarios
 
 6. **Biometric Login Flow:**
+
    ```dart
    // auth_service.dart lines 198-230
    Future<User?> loginWithBiometric() async {
@@ -879,18 +925,18 @@ None identified - strong overall security posture
 
 ### OWASP Mobile Top 10 (2024) Compliance:
 
-| Risk | Status | Notes |
-|------|--------|-------|
-| M1: Improper Platform Usage | ✅ PASS | Proper use of secure storage, keychain, biometrics |
-| M2: Insecure Data Storage | ✅ PASS | All sensitive data in platform secure storage |
-| M3: Insecure Communication | ⚠️ PARTIAL | Certificate pinning implemented but needs real pins |
-| M4: Insecure Authentication | ✅ PASS | Strong auth flow with token refresh and biometrics |
-| M5: Insufficient Cryptography | ✅ PASS | HMAC-SHA256, AES encryption, proper key storage |
-| M6: Insecure Authorization | ✅ PASS | Token-based auth with proper validation |
-| M7: Client Code Quality | ✅ PASS | ProGuard obfuscation, no hardcoded secrets |
-| M8: Code Tampering | ✅ PASS | ProGuard, APK signing required |
-| M9: Reverse Engineering | ✅ PASS | Aggressive ProGuard, debug info removed |
-| M10: Extraneous Functionality | ✅ PASS | Debug bypass properly scoped |
+| Risk                          | Status     | Notes                                               |
+| ----------------------------- | ---------- | --------------------------------------------------- |
+| M1: Improper Platform Usage   | ✅ PASS    | Proper use of secure storage, keychain, biometrics  |
+| M2: Insecure Data Storage     | ✅ PASS    | All sensitive data in platform secure storage       |
+| M3: Insecure Communication    | ⚠️ PARTIAL | Certificate pinning implemented but needs real pins |
+| M4: Insecure Authentication   | ✅ PASS    | Strong auth flow with token refresh and biometrics  |
+| M5: Insufficient Cryptography | ✅ PASS    | HMAC-SHA256, AES encryption, proper key storage     |
+| M6: Insecure Authorization    | ✅ PASS    | Token-based auth with proper validation             |
+| M7: Client Code Quality       | ✅ PASS    | ProGuard obfuscation, no hardcoded secrets          |
+| M8: Code Tampering            | ✅ PASS    | ProGuard, APK signing required                      |
+| M9: Reverse Engineering       | ✅ PASS    | Aggressive ProGuard, debug info removed             |
+| M10: Extraneous Functionality | ✅ PASS    | Debug bypass properly scoped                        |
 
 ### Industry Best Practices:
 
@@ -912,6 +958,7 @@ None identified - strong overall security posture
 ### Immediate Actions (Before Production):
 
 1. **Generate and Configure Real Certificate Pins**
+
    ```bash
    # Android (SHA-256)
    openssl s_client -connect api.sahool.app:443 -servername api.sahool.app < /dev/null 2>/dev/null | \
@@ -929,6 +976,7 @@ None identified - strong overall security posture
    - Test token refresh flow end-to-end
 
 3. **Configure Android Backup Settings**
+
    ```xml
    <application
      android:allowBackup="false"
@@ -962,6 +1010,7 @@ None identified - strong overall security posture
 ## Security Configuration Summary
 
 ### Current Environment Detection:
+
 ```dart
 Environment: development
 Certificate Pinning: Enabled (debug bypass ON)
@@ -972,6 +1021,7 @@ Request Signing: Enabled
 ```
 
 ### Production Configuration Requirements:
+
 ```dart
 Environment: production
 Certificate Pinning: Enabled (strict enforcement, actual pins)
@@ -1022,6 +1072,7 @@ Enable Security Logging: false
 The SAHOOL mobile application demonstrates a **strong security foundation** with comprehensive implementations of modern mobile security best practices. The application uses industry-standard approaches for certificate pinning, secure storage, authentication, and code obfuscation.
 
 **Key Strengths:**
+
 - Dual-platform certificate pinning (iOS SPKI + Android SHA-256)
 - Secure token storage using platform-native encryption
 - Comprehensive biometric authentication with proper error handling
@@ -1031,6 +1082,7 @@ The SAHOOL mobile application demonstrates a **strong security foundation** with
 - No hardcoded secrets or API keys
 
 **Critical Requirements Before Production:**
+
 1. Replace placeholder certificate pins with actual production values
 2. Remove simulated authentication and integrate production API
 3. Configure Android backup prevention

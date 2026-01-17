@@ -7,7 +7,7 @@ uvicorn[standard]>=0.30.0,<1.0.0
 
 # Data Validation
 pydantic==2.9.2
-pydantic-settings==2.6.1
+pydantic-settings==2.7.1
 
 # Database
 tortoise-orm==0.21.7

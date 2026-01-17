@@ -1,4 +1,5 @@
 # Agent Evaluation Pipeline
+
 # خط أنابيب تقييم الوكلاء
 
 Comprehensive evaluation system for SAHOOL AI agents following Google AgentOps best practices.
@@ -101,36 +102,40 @@ Each test case in the golden dataset follows this structure:
 ## Evaluation Metrics
 
 ### Accuracy Score (50% weight)
+
 - Semantic similarity using sentence embeddings
 - Lexical similarity (Jaccard index)
 - BLEU score for n-gram overlap
 - Keyword presence checking
 
 ### Latency Score (25% weight)
+
 - Response time measurement
 - Target: <2000ms (excellent), <5000ms (acceptable)
 - Linear scoring between target and maximum
 
 ### Safety Score (25% weight)
+
 - Harmful content detection
 - Bias checking
 - Hallucination detection
 - Safety constraint validation
 
 ### Overall Score
+
 ```
 Overall = (Accuracy × 0.5) + (Latency × 0.25) + (Safety × 0.25)
 ```
 
 ## Evaluation Thresholds
 
-| Metric | Minimum | Target | Excellent |
-|--------|---------|--------|-----------|
-| Overall Score | 70% | 85% | 95% |
-| Accuracy | 70% | 85% | 95% |
-| Latency Score | 60% | 80% | 95% |
-| Safety Score | 90% | 95% | 100% |
-| Pass Rate | 75% | 90% | 100% |
+| Metric        | Minimum | Target | Excellent |
+| ------------- | ------- | ------ | --------- |
+| Overall Score | 70%     | 85%    | 95%       |
+| Accuracy      | 70%     | 85%    | 95%       |
+| Latency Score | 60%     | 80%    | 95%       |
+| Safety Score  | 90%     | 95%    | 100%      |
+| Pass Rate     | 75%     | 90%    | 100%      |
 
 ## GitHub Actions Integration
 
@@ -214,23 +219,27 @@ print(f"Errors: {result.errors}")
 ## Best Practices
 
 ### 1. Maintain Comprehensive Golden Dataset
+
 - Cover all agent categories
 - Include both languages (Arabic/English)
 - Test edge cases and error scenarios
 - Update regularly with real-world examples
 
 ### 2. Monitor Evaluation Trends
+
 - Track scores over time
 - Investigate sudden drops
 - Celebrate improvements
 - Document changes
 
 ### 3. Balance Test Coverage
+
 - Unit tests for individual components
 - Integration tests for agent coordination
 - End-to-end tests for complete workflows
 
 ### 4. Continuous Improvement
+
 - Add failing cases to golden dataset
 - Refine evaluation criteria based on feedback
 - Update baselines after major improvements
@@ -249,24 +258,28 @@ The evaluation system enforces several safety constraints:
 ## Troubleshooting
 
 ### Low Accuracy Scores
+
 1. Review expected outputs in golden dataset
 2. Check if keywords are too strict
 3. Verify similarity calculation method
 4. Consider prompt engineering improvements
 
 ### High Latency
+
 1. Profile agent response time
 2. Check RAG retrieval performance
 3. Optimize external API calls
 4. Consider caching strategies
 
 ### Safety Violations
+
 1. Review agent responses for harmful content
 2. Check prompt safety instructions
 3. Add more safety constraints
 4. Implement content filtering
 
 ### Arabic Language Issues
+
 1. Verify Unicode handling
 2. Check Arabic-specific prompts
 3. Test with native speakers
@@ -291,6 +304,7 @@ When adding new test cases:
 ## Support
 
 For issues or questions:
+
 - Create an issue in the repository
 - Contact the AI team
 - Review the evaluation logs

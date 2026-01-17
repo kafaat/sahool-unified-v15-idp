@@ -11,9 +11,14 @@
  * - High-performance async operations
  */
 
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { createClient, RedisClientType } from 'redis';
-import { JWTConfig } from './config';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from "@nestjs/common";
+import { createClient, RedisClientType } from "redis";
+import { JWTConfig } from "./config";
 
 /**
  * Revocation information interface
@@ -63,13 +68,15 @@ export interface RevocationStats {
  * ```
  */
 @Injectable()
-export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy {
+export class RedisTokenRevocationStore
+  implements OnModuleInit, OnModuleDestroy
+{
   private readonly logger = new Logger(RedisTokenRevocationStore.name);
 
   // Redis key prefixes
-  private readonly TOKEN_PREFIX = 'revoked:token:';
-  private readonly USER_PREFIX = 'revoked:user:';
-  private readonly TENANT_PREFIX = 'revoked:tenant:';
+  private readonly TOKEN_PREFIX = "revoked:token:";
+  private readonly USER_PREFIX = "revoked:user:";
+  private readonly TENANT_PREFIX = "revoked:tenant:";
 
   private redis: RedisClientType | null = null;
   private initialized = false;
@@ -135,16 +142,16 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
       });
 
       // Error handling
-      this.redis.on('error', (err) => {
+      this.redis.on("error", (err) => {
         this.logger.error(`Redis error: ${err.message}`);
       });
 
-      this.redis.on('connect', () => {
-        this.logger.log('Redis connected');
+      this.redis.on("connect", () => {
+        this.logger.log("Redis connected");
       });
 
-      this.redis.on('ready', () => {
-        this.logger.log('Redis ready');
+      this.redis.on("ready", () => {
+        this.logger.log("Redis ready");
       });
 
       // Connect to Redis
@@ -154,7 +161,7 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
       await this.redis.ping();
 
       this.initialized = true;
-      this.logger.log('Redis token revocation store initialized');
+      this.logger.log("Redis token revocation store initialized");
     } catch (error) {
       this.logger.error(`Failed to initialize Redis: ${error.message}`);
       throw error;
@@ -170,7 +177,7 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
       await this.redis.quit();
       this.redis = null;
       this.initialized = false;
-      this.logger.log('Redis token revocation store closed');
+      this.logger.log("Redis token revocation store closed");
     }
   }
 
@@ -214,7 +221,7 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
 
     // Default TTL: 24 hours
     const ttl = options.expiresIn || 86400;
-    const reason = options.reason || 'manual';
+    const reason = options.reason || "manual";
 
     // Store revocation info
     const key = `${this.TOKEN_PREFIX}${jti}`;
@@ -325,7 +332,7 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
    */
   async revokeAllUserTokens(
     userId: string,
-    reason: string = 'user_logout',
+    reason: string = "user_logout",
   ): Promise<boolean> {
     if (!this.initialized) {
       await this.initialize();
@@ -451,7 +458,7 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
    */
   async revokeAllTenantTokens(
     tenantId: string,
-    reason: string = 'security',
+    reason: string = "security",
   ): Promise<boolean> {
     if (!this.initialized) {
       await this.initialize();
@@ -558,20 +565,20 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
 
     // Check JTI revocation
     if (options.jti && (await this.isTokenRevoked(options.jti))) {
-      return { isRevoked: true, reason: 'token_revoked' };
+      return { isRevoked: true, reason: "token_revoked" };
     }
 
     // Check user revocation
     if (options.userId && options.issuedAt) {
       if (await this.isUserTokenRevoked(options.userId, options.issuedAt)) {
-        return { isRevoked: true, reason: 'user_tokens_revoked' };
+        return { isRevoked: true, reason: "user_tokens_revoked" };
       }
     }
 
     // Check tenant revocation
     if (options.tenantId && options.issuedAt) {
       if (await this.isTenantTokenRevoked(options.tenantId, options.issuedAt)) {
-        return { isRevoked: true, reason: 'tenant_tokens_revoked' };
+        return { isRevoked: true, reason: "tenant_tokens_revoked" };
       }
     }
 
@@ -604,7 +611,7 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
         revokedTokens: tokenKeys.length,
         revokedUsers: userKeys.length,
         revokedTenants: tenantKeys.length,
-        redisUrl: this.buildRedisUrl().split('@').pop(), // Hide password
+        redisUrl: this.buildRedisUrl().split("@").pop(), // Hide password
       };
     } catch (error) {
       this.logger.error(`Error getting stats: ${error.message}`);
@@ -653,7 +660,7 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
  * export class AppModule {}
  * ```
  */
-import { Module, Global } from '@nestjs/common';
+import { Module, Global } from "@nestjs/common";
 
 @Global()
 @Module({

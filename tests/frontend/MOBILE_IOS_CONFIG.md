@@ -1,4 +1,5 @@
 # iOS Configuration Analysis Report
+
 ## SAHOOL Field App - Mobile Application
 
 **Analysis Date:** 2026-01-06
@@ -17,6 +18,7 @@ This report provides a comprehensive analysis of the iOS configuration for the S
 ### Overall Status: ⚠️ REQUIRES PRODUCTION UPDATES
 
 The iOS app is well-configured with robust security implementations but requires the following actions before production deployment:
+
 1. Replace placeholder SPKI certificate hashes with actual values
 2. Add privacy permission descriptions for required features
 3. Update bundle identifier from example domain
@@ -27,39 +29,44 @@ The iOS app is well-configured with robust security implementations but requires
 ## 1. Info.plist Configuration
 
 ### File Location
+
 `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/Info.plist`
 
 ### Basic App Information
 
-| Key | Value | Status |
-|-----|-------|--------|
-| `CFBundleDisplayName` | Sahool Field App | ✅ Configured |
-| `CFBundleName` | sahool_field_app | ✅ Configured |
-| `CFBundleIdentifier` | `$(PRODUCT_BUNDLE_IDENTIFIER)` | ⚠️ See Build Settings |
-| `CFBundleShortVersionString` | `$(FLUTTER_BUILD_NAME)` | ✅ Dynamic from Flutter |
-| `CFBundleVersion` | `$(FLUTTER_BUILD_NUMBER)` | ✅ Dynamic from Flutter |
-| `CFBundleExecutable` | `$(EXECUTABLE_NAME)` | ✅ Standard |
-| `CFBundlePackageType` | APPL | ✅ Application |
-| `CFBundleDevelopmentRegion` | `$(DEVELOPMENT_LANGUAGE)` | ✅ Standard |
+| Key                          | Value                          | Status                  |
+| ---------------------------- | ------------------------------ | ----------------------- |
+| `CFBundleDisplayName`        | Sahool Field App               | ✅ Configured           |
+| `CFBundleName`               | sahool_field_app               | ✅ Configured           |
+| `CFBundleIdentifier`         | `$(PRODUCT_BUNDLE_IDENTIFIER)` | ⚠️ See Build Settings   |
+| `CFBundleShortVersionString` | `$(FLUTTER_BUILD_NAME)`        | ✅ Dynamic from Flutter |
+| `CFBundleVersion`            | `$(FLUTTER_BUILD_NUMBER)`      | ✅ Dynamic from Flutter |
+| `CFBundleExecutable`         | `$(EXECUTABLE_NAME)`           | ✅ Standard             |
+| `CFBundlePackageType`        | APPL                           | ✅ Application          |
+| `CFBundleDevelopmentRegion`  | `$(DEVELOPMENT_LANGUAGE)`      | ✅ Standard             |
 
 ### Device & Interface Support
 
 **Supported Platforms:**
+
 - iPhone: ✅ (`LSRequiresIPhoneOS` = true)
 - iPad: ✅ (TARGETED_DEVICE_FAMILY = "1,2")
 
 **Supported Orientations (iPhone):**
+
 - Portrait: ✅
 - Landscape Left: ✅
 - Landscape Right: ✅
 
 **Supported Orientations (iPad):**
+
 - Portrait: ✅
 - Portrait Upside Down: ✅
 - Landscape Left: ✅
 - Landscape Right: ✅
 
 **UI Configuration:**
+
 - Launch Storyboard: `LaunchScreen`
 - Main Storyboard: `Main`
 - Supports Indirect Input Events: ✅ (iOS 13.4+)
@@ -81,13 +88,13 @@ The iOS app implements a **dual-layer certificate pinning architecture** using S
 
 #### Protected Domains
 
-| Domain | Purpose | Subdomains | Pin Count | Status |
-|--------|---------|------------|-----------|--------|
-| `api.sahool.io` | Production API | ✅ Included | 2 (Primary + Backup) | ⚠️ Placeholder |
-| `api.sahool.app` | Alt Production API | ✅ Included | 2 (Primary + Backup) | ⚠️ Placeholder |
-| `api-staging.sahool.app` | Staging API | ✅ Included | 1 | ⚠️ Placeholder |
-| `ws.sahool.app` | Production WebSocket | ✅ Included | 1 | ⚠️ Placeholder |
-| `ws-staging.sahool.app` | Staging WebSocket | ✅ Included | 1 | ⚠️ Placeholder |
+| Domain                   | Purpose              | Subdomains  | Pin Count            | Status         |
+| ------------------------ | -------------------- | ----------- | -------------------- | -------------- |
+| `api.sahool.io`          | Production API       | ✅ Included | 2 (Primary + Backup) | ⚠️ Placeholder |
+| `api.sahool.app`         | Alt Production API   | ✅ Included | 2 (Primary + Backup) | ⚠️ Placeholder |
+| `api-staging.sahool.app` | Staging API          | ✅ Included | 1                    | ⚠️ Placeholder |
+| `ws.sahool.app`          | Production WebSocket | ✅ Included | 1                    | ⚠️ Placeholder |
+| `ws-staging.sahool.app`  | Staging WebSocket    | ✅ Included | 1                    | ⚠️ Placeholder |
 
 #### Current SPKI Hashes (PLACEHOLDERS)
 
@@ -160,6 +167,7 @@ pinExpiry["api.sahool.io"] = Date(timeIntervalSince1970: 1735689600)  // 2026-12
 **Location:** `/home/user/sahool-unified-v15-idp/apps/mobile/ios/get_spki_hash.sh`
 
 **Features:**
+
 - Extracts SPKI hashes from live servers
 - Generates code snippets for Info.plist and Swift
 - Displays certificate information
@@ -167,6 +175,7 @@ pinExpiry["api.sahool.io"] = Date(timeIntervalSince1970: 1735689600)  // 2026-12
 - Validates connectivity before extraction
 
 **Usage:**
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/mobile/ios
 ./get_spki_hash.sh api.sahool.io
@@ -239,6 +248,7 @@ Before deploying to production, complete these tasks:
 - [ ] Create certificate rotation schedule
 
 **Reference Documentation:**
+
 - `/home/user/sahool-unified-v15-idp/apps/mobile/ios/README_CERTIFICATE_PINNING.md`
 - `/home/user/sahool-unified-v15-idp/apps/mobile/CERTIFICATE_ROTATION_IOS.md`
 - `/home/user/sahool-unified-v15-idp/apps/mobile/IOS_CERTIFICATE_PINNING_IMPLEMENTATION.md`
@@ -249,16 +259,17 @@ Before deploying to production, complete these tasks:
 
 ### Deployment Target Analysis
 
-| Configuration | Version | Status |
-|---------------|---------|--------|
-| `IPHONEOS_DEPLOYMENT_TARGET` | 13.0 | ✅ Good |
-| `MinimumOSVersion` (AppFrameworkInfo.plist) | 13.0 | ✅ Consistent |
-| Flutter SDK Requirement | >=3.2.0 <4.0.0 | ✅ Compatible |
-| Swift Version | 5.0 | ✅ Modern |
+| Configuration                               | Version        | Status        |
+| ------------------------------------------- | -------------- | ------------- |
+| `IPHONEOS_DEPLOYMENT_TARGET`                | 13.0           | ✅ Good       |
+| `MinimumOSVersion` (AppFrameworkInfo.plist) | 13.0           | ✅ Consistent |
+| Flutter SDK Requirement                     | >=3.2.0 <4.0.0 | ✅ Compatible |
+| Swift Version                               | 5.0            | ✅ Modern     |
 
 ### iOS 13.0 Considerations
 
 **Supported Devices (as of 2026):**
+
 - iPhone 6s and later
 - iPad Air 2 and later
 - iPad (5th generation) and later
@@ -266,10 +277,12 @@ Before deploying to production, complete these tasks:
 - iPod touch (7th generation)
 
 **Market Coverage:**
+
 - iOS 13+ coverage: ~95% of active devices (as of 2025-2026)
 - Reasonable minimum for modern apps
 
 **Features Available:**
+
 - Dark Mode support
 - Sign in with Apple
 - SwiftUI (basic support)
@@ -285,12 +298,14 @@ Before deploying to production, complete these tasks:
 ### Status: ❌ NO ENTITLEMENTS FILE FOUND
 
 **Searched Locations:**
+
 - `/home/user/sahool-unified-v15-idp/apps/mobile/ios/**/*.entitlements`
 - No entitlements file present in the iOS project
 
 ### Impact
 
 **What This Means:**
+
 - No advanced capabilities enabled (App Groups, iCloud, Push Notifications with certificates, etc.)
 - Basic app functionality only
 - May limit some iOS-specific features
@@ -300,12 +315,14 @@ Before deploying to production, complete these tasks:
 Based on the app's dependencies in `pubspec.yaml`, consider adding entitlements for:
 
 #### 1. Push Notifications (if using)
+
 ```xml
 <key>aps-environment</key>
 <string>production</string>
 ```
 
 #### 2. Background Modes (for workmanager)
+
 ```xml
 <key>UIBackgroundModes</key>
 <array>
@@ -315,6 +332,7 @@ Based on the app's dependencies in `pubspec.yaml`, consider adding entitlements 
 ```
 
 #### 3. App Groups (for shared data)
+
 ```xml
 <key>com.apple.security.application-groups</key>
 <array>
@@ -323,6 +341,7 @@ Based on the app's dependencies in `pubspec.yaml`, consider adding entitlements 
 ```
 
 #### 4. Keychain Sharing (for flutter_secure_storage)
+
 ```xml
 <key>keychain-access-groups</key>
 <array>
@@ -333,6 +352,7 @@ Based on the app's dependencies in `pubspec.yaml`, consider adding entitlements 
 ### Recommendation
 
 ⚠️ Create entitlements file if needed:
+
 1. Create file: `Runner/Runner.entitlements`
 2. Add to Xcode project
 3. Enable required capabilities in Xcode project settings
@@ -376,6 +396,7 @@ Based on the app's dependencies in `pubspec.yaml`, consider adding entitlements 
 
 **Purpose:** Allow HTTP connections to localhost during development
 **Domains:**
+
 - `localhost` - iOS Simulator
 - `10.0.2.2` - Android emulator IP (when testing on same machine)
 
@@ -387,20 +408,21 @@ Based on the app's dependencies in `pubspec.yaml`, consider adding entitlements 
 See [Section 2: Certificate Pinning Setup](#2-certificate-pinning-setup) for full details.
 
 **Summary:**
+
 - ✅ NSPinnedDomains configured for 5 production/staging domains
 - ✅ Includes subdomains
 - ⚠️ Uses placeholder SPKI hashes (needs update)
 
 ### ATS Best Practices Compliance
 
-| Best Practice | Status | Notes |
-|---------------|--------|-------|
-| Disable arbitrary loads | ✅ | NSAllowsArbitraryLoads = false |
-| Use HTTPS only | ✅ | No production HTTP exceptions |
-| Implement certificate pinning | ✅ | NSPinnedDomains configured |
-| Limit exceptions to development | ✅ | Only localhost exceptions |
-| Use TLS 1.2+ | ✅ | iOS 13+ requires TLS 1.2+ by default |
-| Forward secrecy | ✅ | Enforced by iOS for all connections |
+| Best Practice                   | Status | Notes                                |
+| ------------------------------- | ------ | ------------------------------------ |
+| Disable arbitrary loads         | ✅     | NSAllowsArbitraryLoads = false       |
+| Use HTTPS only                  | ✅     | No production HTTP exceptions        |
+| Implement certificate pinning   | ✅     | NSPinnedDomains configured           |
+| Limit exceptions to development | ✅     | Only localhost exceptions            |
+| Use TLS 1.2+                    | ✅     | iOS 13+ requires TLS 1.2+ by default |
+| Forward secrecy                 | ✅     | Enforced by iOS for all connections  |
 
 ### Overall ATS Rating: ✅ EXCELLENT
 
@@ -413,6 +435,7 @@ The App Transport Security configuration follows Apple's best practices and prov
 ### Status: ⚠️ PODFILE NOT PRESENT (FLUTTER MANAGED)
 
 **Analysis:**
+
 - No Podfile found in: `/home/user/sahool-unified-v15-idp/apps/mobile/ios/`
 - No Podfile.lock found
 - No Pods directory present
@@ -425,26 +448,31 @@ Flutter manages iOS dependencies via CocoaPods automatically. Dependencies are d
 ### Key Flutter Dependencies (from pubspec.yaml)
 
 #### Security
+
 - `flutter_secure_storage: ^9.2.2` - Secure keychain storage
 - `flutter_jailbreak_detection: ^1.10.0` - Root/jailbreak detection
 - `crypto: ^3.0.3` - Certificate pinning support
 
 #### Database & Storage
+
 - `drift: ^2.24.0` - Offline database
 - `sqlcipher_flutter_libs: ^0.6.1` - Encrypted database
 - `path_provider: ^2.1.5` - File system access
 
 #### Network
+
 - `dio: ^5.7.0` - HTTP client
 - `connectivity_plus: ^6.1.1` - Network state
 - `socket_io_client: ^2.0.3+1` - WebSocket
 
 #### Maps & Location
+
 - `flutter_map: ^7.0.2` - Map display
 - `maplibre_gl: ^0.19.0` - MapLibre (no API key)
 - `flutter_map_tile_caching: ^9.1.0` - Offline maps
 
 #### Media
+
 - `camera: ^0.11.0+2` - Camera access
 - `image_picker: ^1.1.2` - Photo picker
 - `mobile_scanner: ^6.0.2` - QR/Barcode scanner
@@ -452,6 +480,7 @@ Flutter manages iOS dependencies via CocoaPods automatically. Dependencies are d
 - `image: ^4.3.0` - WebP compression
 
 #### Background
+
 - `workmanager: ^0.6.0` - Background tasks
 - `flutter_local_notifications: ^18.0.1` - Local notifications
 
@@ -469,6 +498,7 @@ When `flutter pub get` and `pod install` are run, the following native iOS pods 
 ### To Generate Podfile
 
 Run the following commands:
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/mobile
 flutter pub get
@@ -477,6 +507,7 @@ pod install
 ```
 
 This will:
+
 1. Generate Podfile (based on Flutter plugins)
 2. Create Podfile.lock
 3. Install dependencies in Pods/ directory
@@ -487,6 +518,7 @@ This will:
 ✅ **Current approach is standard for Flutter apps.** No action needed unless custom CocoaPods dependencies are required.
 
 If custom native iOS dependencies are needed:
+
 1. Create a custom Podfile
 2. Add dependencies in a way that preserves Flutter's auto-generated configuration
 3. Use post-install hooks if needed
@@ -510,6 +542,7 @@ PRODUCT_BUNDLE_IDENTIFIER = com.example.sahoolFieldApp;
 **Current Bundle ID:** `com.example.sahoolFieldApp`
 
 **Issues:**
+
 - ⚠️ Uses `com.example` domain (placeholder/example domain)
 - Should be updated to actual organization domain
 
@@ -520,19 +553,20 @@ Based on the app name and domain references in the codebase:
 **Recommended:** `io.sahool.field` or `app.sahool.field`
 
 **Rationale:**
+
 - Matches API domains (`api.sahool.io`, `api.sahool.app`)
 - Professional reverse-DNS format
 - Consistent with web domain ownership
 
 ### Bundle ID Best Practices
 
-| Aspect | Current | Recommended |
-|--------|---------|-------------|
-| Format | com.example.sahoolFieldApp | io.sahool.field |
-| Organization | example (placeholder) | sahool (actual) |
-| TLD | .com | .io or .app |
-| Uniqueness | May conflict | Unique to organization |
-| App Store | Not publishable | Publishable |
+| Aspect       | Current                    | Recommended            |
+| ------------ | -------------------------- | ---------------------- |
+| Format       | com.example.sahoolFieldApp | io.sahool.field        |
+| Organization | example (placeholder)      | sahool (actual)        |
+| TLD          | .com                       | .io or .app            |
+| Uniqueness   | May conflict               | Unique to organization |
+| App Store    | Not publishable            | Publishable            |
 
 ### Update Required Before:
 
@@ -571,6 +605,7 @@ Also needs updating to match main app bundle ID pattern.
 Based on the app's dependencies and functionality, the following privacy permissions are likely needed:
 
 #### 1. Camera Access
+
 **Required by:** `camera: ^0.11.0+2`, `image_picker: ^1.1.2`, `mobile_scanner: ^6.0.2`
 
 ```xml
@@ -579,6 +614,7 @@ Based on the app's dependencies and functionality, the following privacy permiss
 ```
 
 #### 2. Photo Library Access
+
 **Required by:** `image_picker: ^1.1.2`
 
 ```xml
@@ -590,6 +626,7 @@ Based on the app's dependencies and functionality, the following privacy permiss
 ```
 
 #### 3. Location Access (if using maps with user location)
+
 **Required by:** `flutter_map`, `maplibre_gl` (if location features used)
 
 ```xml
@@ -601,6 +638,7 @@ Based on the app's dependencies and functionality, the following privacy permiss
 ```
 
 #### 4. Local Network (for development/debugging)
+
 **May be required by:** Development servers, local testing
 
 ```xml
@@ -609,6 +647,7 @@ Based on the app's dependencies and functionality, the following privacy permiss
 ```
 
 #### 5. Notifications (if using push notifications)
+
 **Required by:** `flutter_local_notifications: ^18.0.1`
 
 ```xml
@@ -623,6 +662,7 @@ Based on the app's dependencies and functionality, the following privacy permiss
 ### Impact
 
 **If permissions are not added:**
+
 - ✅ App will compile successfully
 - ❌ App will crash when accessing camera/photos/location
 - ❌ App Store review will reject the app
@@ -631,6 +671,7 @@ Based on the app's dependencies and functionality, the following privacy permiss
 ### Privacy Best Practices
 
 **What to Include in Usage Descriptions:**
+
 1. **What** feature needs the permission
 2. **Why** the app needs it
 3. **How** user data will be used
@@ -656,6 +697,7 @@ Since the app supports Arabic (based on `IBMPlexSansArabic` fonts), consider add
 ### Recommendation: ⚠️ HIGH PRIORITY
 
 **Action Required:** Add all required privacy permission descriptions to Info.plist before:
+
 1. Testing camera/photo features
 2. App Store submission
 3. TestFlight distribution
@@ -712,6 +754,7 @@ MARKETING_VERSION = 1.0
 **Status:** ✅ Set, but should be updated to match app version (15.5.0 in pubspec.yaml)
 
 **Recommendation:** Sync with Flutter version:
+
 ```
 MARKETING_VERSION = 15.5.0
 ```
@@ -728,6 +771,7 @@ MARKETING_VERSION = 15.5.0
 **Location:** `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/`
 
 **Configuration:**
+
 - Managed by `flutter_launcher_icons: ^0.14.2`
 - Source: `assets/icon/app_icon.png`
 - Adaptive icon configured
@@ -743,6 +787,7 @@ MARKETING_VERSION = 15.5.0
 **Status:** ⚠️ No meaningful tests implemented
 
 **Recommendation:** Add tests for:
+
 - Certificate pinning validation
 - Security features
 - Critical business logic
@@ -753,28 +798,30 @@ MARKETING_VERSION = 15.5.0
 
 ### Security Features Implemented
 
-| Feature | Status | Grade |
-|---------|--------|-------|
-| Certificate Pinning (System) | ⚠️ Configured, needs hashes | A- |
-| Certificate Pinning (App) | ⚠️ Configured, needs hashes | A- |
-| App Transport Security | ✅ Properly configured | A+ |
-| Encrypted Database | ✅ SQLCipher enabled | A |
-| Secure Storage | ✅ flutter_secure_storage | A |
-| Jailbreak Detection | ✅ Implemented | B+ |
-| TLS 1.2+ Enforcement | ✅ iOS 13+ default | A |
-| No Arbitrary Loads | ✅ Disabled | A+ |
-| Bundle Identifier | ⚠️ Example domain | C |
-| Privacy Permissions | ❌ Not configured | F |
+| Feature                      | Status                      | Grade |
+| ---------------------------- | --------------------------- | ----- |
+| Certificate Pinning (System) | ⚠️ Configured, needs hashes | A-    |
+| Certificate Pinning (App)    | ⚠️ Configured, needs hashes | A-    |
+| App Transport Security       | ✅ Properly configured      | A+    |
+| Encrypted Database           | ✅ SQLCipher enabled        | A     |
+| Secure Storage               | ✅ flutter_secure_storage   | A     |
+| Jailbreak Detection          | ✅ Implemented              | B+    |
+| TLS 1.2+ Enforcement         | ✅ iOS 13+ default          | A     |
+| No Arbitrary Loads           | ✅ Disabled                 | A+    |
+| Bundle Identifier            | ⚠️ Example domain           | C     |
+| Privacy Permissions          | ❌ Not configured           | F     |
 
 ### Overall Security Grade: B+
 
 **Strengths:**
+
 - ✅ Excellent network security (ATS + certificate pinning)
 - ✅ Data encryption at rest (SQLCipher)
 - ✅ Secure credential storage
 - ✅ Jailbreak detection
 
 **Weaknesses:**
+
 - ⚠️ Certificate pinning uses placeholder hashes
 - ⚠️ No privacy permission descriptions
 - ⚠️ Using example bundle identifier
@@ -893,23 +940,23 @@ MARKETING_VERSION = 15.5.0
 
 ### Configuration Files Analyzed
 
-| File | Path | Status |
-|------|------|--------|
-| Info.plist | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/Info.plist` | ⚠️ Needs updates |
-| AppDelegate.swift | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/AppDelegate.swift` | ✅ Good |
-| CertificatePinning.swift | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/CertificatePinning.swift` | ⚠️ Needs hashes |
-| project.pbxproj | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner.xcodeproj/project.pbxproj` | ⚠️ Bundle ID issue |
-| get_spki_hash.sh | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/get_spki_hash.sh` | ✅ Ready to use |
-| AppFrameworkInfo.plist | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Flutter/AppFrameworkInfo.plist` | ✅ Good |
-| pubspec.yaml | `/home/user/sahool-unified-v15-idp/apps/mobile/pubspec.yaml` | ✅ Good |
+| File                     | Path                                                                                 | Status             |
+| ------------------------ | ------------------------------------------------------------------------------------ | ------------------ |
+| Info.plist               | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/Info.plist`                | ⚠️ Needs updates   |
+| AppDelegate.swift        | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/AppDelegate.swift`         | ✅ Good            |
+| CertificatePinning.swift | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner/CertificatePinning.swift`  | ⚠️ Needs hashes    |
+| project.pbxproj          | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Runner.xcodeproj/project.pbxproj` | ⚠️ Bundle ID issue |
+| get_spki_hash.sh         | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/get_spki_hash.sh`                 | ✅ Ready to use    |
+| AppFrameworkInfo.plist   | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/Flutter/AppFrameworkInfo.plist`   | ✅ Good            |
+| pubspec.yaml             | `/home/user/sahool-unified-v15-idp/apps/mobile/pubspec.yaml`                         | ✅ Good            |
 
 ### Documentation Available
 
-| Document | Path | Purpose |
-|----------|------|---------|
-| Certificate Pinning README | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/README_CERTIFICATE_PINNING.md` | Quick reference |
-| Certificate Rotation Guide | `/home/user/sahool-unified-v15-idp/apps/mobile/CERTIFICATE_ROTATION_IOS.md` | Rotation procedures |
-| Implementation Summary | `/home/user/sahool-unified-v15-idp/apps/mobile/IOS_CERTIFICATE_PINNING_IMPLEMENTATION.md` | Full implementation details |
+| Document                   | Path                                                                                      | Purpose                     |
+| -------------------------- | ----------------------------------------------------------------------------------------- | --------------------------- |
+| Certificate Pinning README | `/home/user/sahool-unified-v15-idp/apps/mobile/ios/README_CERTIFICATE_PINNING.md`         | Quick reference             |
+| Certificate Rotation Guide | `/home/user/sahool-unified-v15-idp/apps/mobile/CERTIFICATE_ROTATION_IOS.md`               | Rotation procedures         |
+| Implementation Summary     | `/home/user/sahool-unified-v15-idp/apps/mobile/IOS_CERTIFICATE_PINNING_IMPLEMENTATION.md` | Full implementation details |
 
 ---
 
@@ -918,6 +965,7 @@ MARKETING_VERSION = 15.5.0
 The iOS configuration for the SAHOOL Field App demonstrates **strong security architecture** with dual-layer certificate pinning, proper App Transport Security configuration, and encrypted data storage. However, several **critical updates are required before production deployment**.
 
 ### Strengths
+
 - Excellent network security implementation
 - Comprehensive certificate pinning framework
 - Modern iOS minimum version (13.0)
@@ -925,6 +973,7 @@ The iOS configuration for the SAHOOL Field App demonstrates **strong security ar
 - Utility scripts for certificate management
 
 ### Areas Requiring Attention
+
 - Certificate pinning hashes are placeholders
 - Privacy permissions not configured
 - Bundle identifier uses example domain

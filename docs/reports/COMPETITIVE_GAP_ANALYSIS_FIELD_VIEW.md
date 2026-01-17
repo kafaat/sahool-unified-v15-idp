@@ -1,4 +1,5 @@
 # تحليل الفجوات التنافسية - View Field
+
 # Competitive Gap Analysis - Field View Feature
 
 > **التاريخ**: 2026-01-05
@@ -20,6 +21,7 @@
 ```
 
 ### الميزة التنافسية الفريدة لـ Sahool:
+
 - **Field-centric Intelligence**: الحقل كنواة لكل شيء
 - **Astral Agriculture**: التقويم الفلكي اليمني (ميزة فريدة عالمياً)
 - **Offline-first**: مصمم لبيئات الاتصال الضعيف
@@ -31,38 +33,38 @@
 
 ### 2.1 ميزات View Field الأساسية
 
-| الميزة | John Deere | Farmonaut | Sahool | الفجوة |
-|--------|:----------:|:---------:|:------:|:------:|
-| حدود الحقل (Boundary) | ✅ | ✅ | ✅ | - |
-| طبقات NDVI | 🟡 محدود | ✅ قوي | ✅ | - |
-| مناطق داخل الحقل (Zones) | ❌ | ✅ | 🟡 Backend فقط | **فجوة UI** |
-| المهام على الخريطة | ❌ | ❌ | 🟡 جزئي | **فرصة تفوق** |
-| Weather Overlay | 🟡 | ✅ | ✅ | - |
-| سياق الري | ❌ | 🟡 | ✅ | - |
-| Offline Mode | ❌ | ❌ | ✅ موبايل | **ميزة فريدة** |
-| Timeline/History | 🟡 عمليات | ❌ | ✅ | - |
-| التقويم الفلكي | ❌ | ❌ | ✅ | **ميزة فريدة** |
+| الميزة                   | John Deere | Farmonaut |     Sahool     |     الفجوة     |
+| ------------------------ | :--------: | :-------: | :------------: | :------------: |
+| حدود الحقل (Boundary)    |     ✅     |    ✅     |       ✅       |       -        |
+| طبقات NDVI               |  🟡 محدود  |  ✅ قوي   |       ✅       |       -        |
+| مناطق داخل الحقل (Zones) |     ❌     |    ✅     | 🟡 Backend فقط |  **فجوة UI**   |
+| المهام على الخريطة       |     ❌     |    ❌     |    🟡 جزئي     | **فرصة تفوق**  |
+| Weather Overlay          |     🟡     |    ✅     |       ✅       |       -        |
+| سياق الري                |     ❌     |    🟡     |       ✅       |       -        |
+| Offline Mode             |     ❌     |    ❌     |   ✅ موبايل    | **ميزة فريدة** |
+| Timeline/History         | 🟡 عمليات  |    ❌     |       ✅       |       -        |
+| التقويم الفلكي           |     ❌     |    ❌     |       ✅       | **ميزة فريدة** |
 
 ### 2.2 تحليل صحة المحصول
 
-| الميزة | John Deere | Farmonaut | Sahool | الفجوة |
-|--------|:----------:|:---------:|:------:|:------:|
-| NDVI Analysis | 🟡 | ✅ | ✅ | - |
-| NDRE/EVI/SAVI | ❌ | ✅ | ✅ | - |
-| Health Zones | ❌ | ✅ | 🟡 Backend | **فجوة UI** |
-| Anomaly Detection | ❌ | 🟡 | ✅ | - |
-| Disease Diagnosis | ❌ | ❌ | ✅ | **ميزة فريدة** |
-| AI Recommendations | ❌ | 🟡 | ✅ | - |
+| الميزة             | John Deere | Farmonaut |   Sahool   |     الفجوة     |
+| ------------------ | :--------: | :-------: | :--------: | :------------: |
+| NDVI Analysis      |     🟡     |    ✅     |     ✅     |       -        |
+| NDRE/EVI/SAVI      |     ❌     |    ✅     |     ✅     |       -        |
+| Health Zones       |     ❌     |    ✅     | 🟡 Backend |  **فجوة UI**   |
+| Anomaly Detection  |     ❌     |    🟡     |     ✅     |       -        |
+| Disease Diagnosis  |     ❌     |    ❌     |     ✅     | **ميزة فريدة** |
+| AI Recommendations |     ❌     |    🟡     |     ✅     |       -        |
 
 ### 2.3 التكامل والأتمتة
 
-| الميزة | John Deere | Farmonaut | Sahool | الفجوة |
-|--------|:----------:|:---------:|:------:|:------:|
-| Task Automation | 🟡 معدات | ❌ | ✅ | - |
-| Event-Driven Actions | ❌ | ❌ | 🟡 جزئي | **فرصة تفوق** |
-| NDVI → Task Creation | ❌ | ❌ | ❌ | **فجوة حرجة** |
-| Weather → Irrigation | ❌ | ❌ | ✅ | - |
-| Alerts → Notifications | 🟡 | 🟡 | ✅ | - |
+| الميزة                 | John Deere | Farmonaut | Sahool  |    الفجوة     |
+| ---------------------- | :--------: | :-------: | :-----: | :-----------: |
+| Task Automation        |  🟡 معدات  |    ❌     |   ✅    |       -       |
+| Event-Driven Actions   |     ❌     |    ❌     | 🟡 جزئي | **فرصة تفوق** |
+| NDVI → Task Creation   |     ❌     |    ❌     |   ❌    | **فجوة حرجة** |
+| Weather → Irrigation   |     ❌     |    ❌     |   ✅    |       -       |
+| Alerts → Notifications |     🟡     |    🟡     |   ✅    |       -       |
 
 ---
 
@@ -71,6 +73,7 @@
 ### 3.1 الفجوات الحرجة (Critical Gaps)
 
 #### 🔴 فجوة 1: الخريطة التفاعلية على الويب
+
 **الوضع الحالي**: Placeholder - لا يوجد تنفيذ فعلي
 **التأثير**: تجربة مستخدم ضعيفة مقارنة بالمنافسين
 **الأولوية**: **عالية جداً**
@@ -82,6 +85,7 @@
 ```
 
 **المطلوب**:
+
 - تكامل Leaflet/MapLibre مع طبقات NDVI
 - أدوات رسم وتحرير الحدود
 - نقر على الحقل → تفاصيل فورية
@@ -90,11 +94,13 @@
 ---
 
 #### 🔴 فجوة 2: عرض المناطق (Health Zones) على الواجهة
+
 **الوضع الحالي**: Backend يحسب، لا يوجد عرض UI
 **التأثير**: Farmonaut يتفوق في هذه النقطة
 **الأولوية**: **عالية**
 
 **المطلوب**:
+
 - تقسيم الحقل بصرياً حسب صحة NDVI
 - ألوان متدرجة (أخضر → أصفر → أحمر)
 - نقر على منطقة → تفاصيل + توصيات
@@ -103,11 +109,13 @@
 ---
 
 #### 🔴 فجوة 3: إنشاء مهام من NDVI
+
 **الوضع الحالي**: لا يوجد ربط
 **التأثير**: فرصة ضائعة للأتمتة
 **الأولوية**: **عالية**
 
 **المطلوب**:
+
 ```
 NDVI ↓ في منطقة → تنبيه → زر "إنشاء مهمة فحص"
 ```
@@ -117,6 +125,7 @@ NDVI ↓ في منطقة → تنبيه → زر "إنشاء مهمة فحص"
 ### 3.2 الفجوات المتوسطة (Medium Gaps)
 
 #### 🟡 فجوة 4: Dashboard الحقل الموحد
+
 **الوضع الحالي**: معلومات موزعة على صفحات مختلفة
 **المطلوب**: View Field واحد يجمع:
 
@@ -138,12 +147,14 @@ NDVI ↓ في منطقة → تنبيه → زر "إنشاء مهمة فحص"
 ---
 
 #### 🟡 فجوة 5: الربط مع التقويم الفلكي
+
 **الوضع الحالي**: التقويم منفصل عن الحقول والمهام
 **المطلوب**: عرض التوصيات الفلكية في سياق الحقل
 
 ---
 
 #### 🟡 فجوة 6: Offline على الويب
+
 **الوضع الحالي**: Mock data فقط عند فشل API
 **المطلوب**: PWA مع Service Worker + IndexedDB
 
@@ -152,6 +163,7 @@ NDVI ↓ في منطقة → تنبيه → زر "إنشاء مهمة فحص"
 ### 3.3 فرص التفوق (Opportunities)
 
 #### 🟢 فرصة 1: Living Field (الحقل الحي)
+
 **ما يميز Sahool**: إمكانية تحويل الحقل إلى Digital Twin
 
 ```
@@ -171,6 +183,7 @@ NDVI ↓ في منطقة → تنبيه → زر "إنشاء مهمة فحص"
 ---
 
 #### 🟢 فرصة 2: Astral Agriculture Dashboard
+
 **ميزة فريدة عالمياً**: لا يوجد منافس يقدمها
 
 ```
@@ -191,6 +204,7 @@ NDVI ↓ في منطقة → تنبيه → زر "إنشاء مهمة فحص"
 ---
 
 #### 🟢 فرصة 3: Event-Driven Field Intelligence
+
 **الهدف**: الحقل يتخذ قرارات ذكية
 
 ```python
@@ -225,11 +239,11 @@ rules = [
 
 ### المرحلة 1: الأساسيات الحرجة (4 أسابيع)
 
-| الأسبوع | المهمة | المخرج |
-|---------|--------|--------|
-| 1-2 | تنفيذ الخريطة التفاعلية | MapView with Leaflet + NDVI layers |
-| 3 | عرض Health Zones | Zone visualization component |
-| 4 | Field Dashboard الموحد | Unified field view page |
+| الأسبوع | المهمة                  | المخرج                             |
+| ------- | ----------------------- | ---------------------------------- |
+| 1-2     | تنفيذ الخريطة التفاعلية | MapView with Leaflet + NDVI layers |
+| 3       | عرض Health Zones        | Zone visualization component       |
+| 4       | Field Dashboard الموحد  | Unified field view page            |
 
 #### التنفيذ التقني - الخريطة التفاعلية:
 
@@ -305,12 +319,12 @@ export function InteractiveFieldMap({
 
 ### المرحلة 2: التكامل الذكي (4 أسابيع)
 
-| الأسبوع | المهمة | المخرج |
-|---------|--------|--------|
-| 5 | ربط NDVI → Tasks | Auto task creation from NDVI alerts |
-| 6 | ربط التقويم الفلكي | Astral recommendations in field view |
-| 7 | Event Rules Engine | Configurable automation rules |
-| 8 | Notifications Integration | Push notifications for field events |
+| الأسبوع | المهمة                    | المخرج                               |
+| ------- | ------------------------- | ------------------------------------ |
+| 5       | ربط NDVI → Tasks          | Auto task creation from NDVI alerts  |
+| 6       | ربط التقويم الفلكي        | Astral recommendations in field view |
+| 7       | Event Rules Engine        | Configurable automation rules        |
+| 8       | Notifications Integration | Push notifications for field events  |
 
 #### التنفيذ التقني - Event Rules Engine:
 
@@ -379,12 +393,12 @@ class FieldRulesEngine:
 
 ### المرحلة 3: الميزات المتقدمة (4 أسابيع)
 
-| الأسبوع | المهمة | المخرج |
-|---------|--------|--------|
-| 9 | Living Field Dashboard | Real-time field health score |
-| 10 | PWA + Offline Web | Service Worker + IndexedDB |
-| 11 | Advanced Analytics | Field performance insights |
-| 12 | Testing + Polish | E2E tests + UI refinement |
+| الأسبوع | المهمة                 | المخرج                       |
+| ------- | ---------------------- | ---------------------------- |
+| 9       | Living Field Dashboard | Real-time field health score |
+| 10      | PWA + Offline Web      | Service Worker + IndexedDB   |
+| 11      | Advanced Analytics     | Field performance insights   |
+| 12      | Testing + Polish       | E2E tests + UI refinement    |
 
 #### التنفيذ التقني - Living Field Score:
 
@@ -392,12 +406,12 @@ class FieldRulesEngine:
 // apps/web/src/features/fields/hooks/useLivingFieldScore.ts
 
 interface LivingFieldScore {
-  overall: number;          // 0-100
-  health: number;           // من NDVI
-  hydration: number;        // من الري والتربة
-  attention: number;        // من المهام المعلقة
-  astral: number;           // من التقويم الفلكي
-  trend: 'improving' | 'stable' | 'declining';
+  overall: number; // 0-100
+  health: number; // من NDVI
+  hydration: number; // من الري والتربة
+  attention: number; // من المهام المعلقة
+  astral: number; // من التقويم الفلكي
+  trend: "improving" | "stable" | "declining";
   alerts: FieldAlert[];
   recommendations: Recommendation[];
 }
@@ -415,12 +429,11 @@ export function useLivingFieldScore(fieldId: string): LivingFieldScore {
     const attentionScore = calculateAttentionScore(tasks);
     const astralScore = calculateAstralScore(astral);
 
-    const overall = (
-      healthScore * 0.35 +      // الصحة: 35%
-      hydrationScore * 0.25 +   // الري: 25%
-      attentionScore * 0.20 +   // الاهتمام: 20%
-      astralScore * 0.20        // الفلكي: 20%
-    );
+    const overall =
+      healthScore * 0.35 + // الصحة: 35%
+      hydrationScore * 0.25 + // الري: 25%
+      attentionScore * 0.2 + // الاهتمام: 20%
+      astralScore * 0.2; // الفلكي: 20%
 
     return {
       overall: Math.round(overall),
@@ -430,7 +443,7 @@ export function useLivingFieldScore(fieldId: string): LivingFieldScore {
       astral: astralScore,
       trend: calculateTrend(fieldId),
       alerts: generateAlerts(ndvi, irrigation, tasks),
-      recommendations: generateRecommendations(overall, astral)
+      recommendations: generateRecommendations(overall, astral),
     };
   }, [ndvi, irrigation, tasks, astral, weather]);
 }
@@ -442,15 +455,15 @@ export function useLivingFieldScore(fieldId: string): LivingFieldScore {
 
 ### قبل وبعد:
 
-| الميزة | قبل | بعد | المنافسين |
-|--------|:---:|:---:|:---------:|
-| Interactive Map | 🟡 | ✅✅ | ✅ |
-| Health Zones UI | ❌ | ✅✅ | ✅ |
-| NDVI → Tasks | ❌ | ✅✅ | ❌ |
-| Astral Integration | 🟡 | ✅✅ | ❌ |
-| Living Field | ❌ | ✅✅ | ❌ |
-| Event Automation | 🟡 | ✅✅ | 🟡 |
-| Offline Web | ❌ | ✅ | ❌ |
+| الميزة             | قبل | بعد  | المنافسين |
+| ------------------ | :-: | :--: | :-------: |
+| Interactive Map    | 🟡  | ✅✅ |    ✅     |
+| Health Zones UI    | ❌  | ✅✅ |    ✅     |
+| NDVI → Tasks       | ❌  | ✅✅ |    ❌     |
+| Astral Integration | 🟡  | ✅✅ |    ❌     |
+| Living Field       | ❌  | ✅✅ |    ❌     |
+| Event Automation   | 🟡  | ✅✅ |    🟡     |
+| Offline Web        | ❌  |  ✅  |    ❌     |
 
 ### الموقع التنافسي المتوقع:
 
@@ -475,14 +488,16 @@ export function useLivingFieldScore(fieldId: string): LivingFieldScore {
 ## 6. الموارد المطلوبة
 
 ### الفريق:
-| الدور | العدد | المدة |
-|-------|-------|-------|
-| Frontend Developer | 2 | 12 أسبوع |
-| Backend Developer | 1 | 8 أسابيع |
-| UI/UX Designer | 1 | 6 أسابيع |
-| QA Engineer | 1 | 4 أسابيع |
+
+| الدور              | العدد | المدة    |
+| ------------------ | ----- | -------- |
+| Frontend Developer | 2     | 12 أسبوع |
+| Backend Developer  | 1     | 8 أسابيع |
+| UI/UX Designer     | 1     | 6 أسابيع |
+| QA Engineer        | 1     | 4 أسابيع |
 
 ### التقنيات:
+
 - **Frontend**: React + Leaflet/MapLibre GL + TanStack Query
 - **Backend**: FastAPI + NATS Events
 - **Mobile**: Flutter (existing)
@@ -492,13 +507,13 @@ export function useLivingFieldScore(fieldId: string): LivingFieldScore {
 
 ## 7. مؤشرات النجاح (KPIs)
 
-| المؤشر | الهدف | القياس |
-|--------|-------|--------|
-| استخدام الخريطة التفاعلية | 80% من المستخدمين | Analytics |
-| إنشاء مهام من NDVI | 50% من التنبيهات | Task source tracking |
-| استخدام التقويم الفلكي | 60% من المزارعين | Feature usage |
-| Living Field Score adoption | 70% | Dashboard views |
-| وقت الوصول للمعلومة | < 3 ثوان | Performance monitoring |
+| المؤشر                      | الهدف             | القياس                 |
+| --------------------------- | ----------------- | ---------------------- |
+| استخدام الخريطة التفاعلية   | 80% من المستخدمين | Analytics              |
+| إنشاء مهام من NDVI          | 50% من التنبيهات  | Task source tracking   |
+| استخدام التقويم الفلكي      | 60% من المزارعين  | Feature usage          |
+| Living Field Score adoption | 70%               | Dashboard views        |
+| وقت الوصول للمعلومة         | < 3 ثوان          | Performance monitoring |
 
 ---
 
@@ -512,6 +527,7 @@ export function useLivingFieldScore(fieldId: string): LivingFieldScore {
 > Sahool يرى الحقل ككائن حي ذكي يتنفس ويحتاج رعاية.
 
 ### الخطوة التالية:
+
 1. اعتماد خطة المرحلة 1 (الخريطة التفاعلية)
 2. تخصيص الموارد
 3. بدء التنفيذ

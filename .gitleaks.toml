@@ -18,14 +18,14 @@ paths = [
     '''\.txt$''',
     '''CHANGELOG''',
     '''README''',
-    
+
     # Lock files and dependencies
     '''package-lock\.json$''',
     '''yarn\.lock$''',
     '''poetry\.lock$''',
     '''Pipfile\.lock$''',
     '''go\.sum$''',
-    
+
     # Build artifacts and generated files
     '''/node_modules/''',
     '''/dist/''',
@@ -34,7 +34,7 @@ paths = [
     '''\.next/''',
     '''\.nuxt/''',
     '''\.output/''',
-    
+
     # Test files and fixtures
     '''/test/''',
     '''/tests/''',
@@ -44,30 +44,45 @@ paths = [
     '''/fixtures/''',
     '''/mocks/''',
     '''/mock-data/''',
-    
+
     # Git and version control
     '''\.git/''',
     '''\.gitkeep$''',
-    
+
     # Archives and backups
     '''/archive/''',
     '''\.backup''',
-    
+
     # IDE and editor files
     '''\.vscode/''',
     '''\.idea/''',
-    
+
     # Example and template files
     '''\.example$''',
     '''\.template$''',
     '''env\.example$''',
-    
+    '''\.env\.example$''',
+
     # Configuration baselines
     '''\.secrets\.baseline$''',
     '''\.gitleaks\.toml$''',
-    
+
     # Prisma generated files
     '''\.prisma/client/''',
+
+    # Infrastructure development configuration files
+    # These contain expected development credentials (not production secrets)
+    '''infrastructure/core/mqtt/passwd''',
+    '''infrastructure/core/mqtt/passwd\.template''',
+    '''config/nats/.*\.conf$''',
+    '''infrastructure/nats/''',
+
+    # CI/CD workflow files (contain ${{ secrets.* }} template references)
+    '''\.github/workflows/''',
+
+    # Docker Compose files (contain development environment variable defaults)
+    '''docker-compose.*\.yml$''',
+    '''docker/docker-compose.*\.yml$''',
 ]
 
 # Regexes to ignore
@@ -95,6 +110,19 @@ stopwords = [
     "your-",
     "insert-",
     "replace-",
+    "change_this",
+    "CHANGE_ME",
+    "change_me",
+    "changeme",
+    "dev_",
+    "_dev_",
+    "_dev",
+    "development",
+    "localhost",
+    "127.0.0.1",
+    "ci_",
+    "_ci_",
+    "sahool_",
 ]
 
 # ═══════════════════════════════════════════════════════════════════════════════

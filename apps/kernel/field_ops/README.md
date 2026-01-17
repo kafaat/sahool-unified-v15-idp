@@ -9,12 +9,15 @@ Advanced irrigation scheduling and water optimization system for Yemen crops usi
 ## الميزات الرئيسية - Key Features
 
 ### 1. حساب التبخر المرجعي (ET0)
+
 - طريقة Penman-Monteith الكاملة (FAO-56)
 - مراعاة جميع العوامل الجوية (حرارة، رطوبة، رياح، إشعاع)
 - حسابات دقيقة للموقع الجغرافي والارتفاع
 
 ### 2. معاملات المحاصيل اليمنية (Kc)
+
 محاصيل مدعومة:
+
 - **الحبوب**: قمح، شعير، ذرة رفيعة، دخن
 - **البقوليات**: عدس، فول، حمص
 - **الخضروات**: طماطم، بطاطس، بصل، خيار، باذنجان، فلفل
@@ -23,18 +26,21 @@ Advanced irrigation scheduling and water optimization system for Yemen crops usi
 - **المحاصيل العطرية**: بن، قات
 
 ### 3. توازن المياه
+
 - تتبع محتوى المياه في التربة
 - حساب العجز المائي
 - الأمطار الفعالة (طريقة USDA)
 - أنواع التربة اليمنية (رملية، طينية، صخرية...)
 
 ### 4. تحسين الجدول
+
 - تقليل هدر المياه
 - ري ليلي لتوفير تكاليف الكهرباء (خصم 30%)
 - مراعاة توقعات الطقس
 - أولويات الري حسب احتياجات المحصول
 
 ### 5. أنظمة الري المدعومة
+
 - ري بالتنقيط (90% كفاءة)
 - ري بالرش (75%)
 - ري سطحي (60%)
@@ -51,6 +57,7 @@ pip install pydantic
 ## الاستخدام - Usage
 
 ### مثال 1: حساب احتياجات المياه
+
 ```python
 from datetime import date
 from apps.kernel.field_ops.services.irrigation_scheduler import IrrigationScheduler
@@ -76,6 +83,7 @@ print(f"الاحتياج المائي: {water_requirement:.2f} مم/يوم")
 ```
 
 ### مثال 2: حساب التبخر المرجعي (ET0)
+
 ```python
 from apps.kernel.field_ops.models.irrigation import WeatherData
 
@@ -98,6 +106,7 @@ print(f"التبخر المرجعي: {et0:.2f} مم/يوم")
 ```
 
 ### مثال 3: إنشاء جدول ري محسّن
+
 ```python
 from datetime import date, timedelta
 
@@ -145,6 +154,7 @@ for event in schedule.events:
 ```
 
 ### مثال 4: توازن المياه
+
 ```python
 from apps.kernel.field_ops.models.irrigation import SoilProperties
 
@@ -181,6 +191,7 @@ print(f"  العجز المائي: {balance.water_deficit:.1f} مم")
 ```
 
 ### مثال 5: توصية الري
+
 ```python
 # الحصول على توصية
 recommendation = scheduler.get_irrigation_recommendation(
@@ -218,29 +229,37 @@ apps/kernel/field_ops/
 ## النماذج - Models
 
 ### IrrigationEvent
+
 حدث ري واحد مع التوقيت والكمية والأولوية
 
 ### IrrigationSchedule
+
 جدول ري كامل مع الإحصائيات والتكاليف
 
 ### WaterBalance
+
 توازن المياه في التربة
 
 ### WeatherData
+
 بيانات الطقس للحسابات
 
 ### SoilProperties
+
 خصائص التربة (السعة الحقلية، نقطة الذبول، إلخ)
 
 ### CropCoefficient
+
 معاملات المحصول حسب مرحلة النمو
 
 ### IrrigationRecommendation
+
 توصية الري مع الأسباب
 
 ## المعادلات - Equations
 
 ### التبخر المرجعي (Penman-Monteith)
+
 ```
 ET0 = [0.408 * Δ * (Rn - G) + γ * (900/(T+273)) * u2 * (es - ea)] /
       [Δ + γ * (1 + 0.34 * u2)]
@@ -257,6 +276,7 @@ ET0 = [0.408 * Δ * (Rn - G) + γ * (900/(T+273)) * u2 * (es - ea)] /
 ```
 
 ### تبخر المحصول
+
 ```
 ETc = ET0 × Kc
 
@@ -267,6 +287,7 @@ ETc = ET0 × Kc
 ```
 
 ### توازن المياه
+
 ```
 SWC_new = SWC_prev + I + Pe - ETc
 
@@ -278,6 +299,7 @@ SWC_new = SWC_prev + I + Pe - ETc
 ```
 
 ### عتبة الري
+
 ```
 Irrigation Threshold = p × TAW
 
@@ -290,18 +312,19 @@ Irrigation Threshold = p × TAW
 ## المراجع - References
 
 1. **FAO-56**: Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998).
-   *Crop evapotranspiration - Guidelines for computing crop water requirements*.
+   _Crop evapotranspiration - Guidelines for computing crop water requirements_.
    FAO Irrigation and drainage paper 56.
 
 2. **USDA SCS**: United States Department of Agriculture, Soil Conservation Service.
-   *Effective rainfall calculation methods*.
+   _Effective rainfall calculation methods_.
 
 3. **Yemen Agriculture**: Ministry of Agriculture and Irrigation, Republic of Yemen.
-   *Crop water requirements for Yemen conditions*.
+   _Crop water requirements for Yemen conditions_.
 
 ## الدعم - Support
 
 للمزيد من المعلومات أو المساعدة:
+
 - البريد الإلكتروني: support@sahool.com
 - الوثائق: https://docs.sahool.com/irrigation
 

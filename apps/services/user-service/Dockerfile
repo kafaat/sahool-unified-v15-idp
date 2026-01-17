@@ -43,9 +43,12 @@ WORKDIR /app
 # Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
 RUN apk add --no-cache curl openssl openssl-dev
 
-# Copy package files
-COPY apps/services/user-service/package.json ./
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Copy package files from builder (includes generated package-lock.json)
+# NOTE: Using npm ci for deterministic builds
+COPY --from=builder /workspace/user-service/package.json ./
+COPY --from=builder /workspace/user-service/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
 COPY --from=builder /workspace/user-service/prisma ./prisma/

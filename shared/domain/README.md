@@ -4,11 +4,11 @@
 
 ## Modules
 
-| Module | Description |
-|--------|-------------|
-| `auth/` | Password hashing, JWT utilities |
-| `users/` | User models and service |
-| `tenancy/` | Multi-tenant support |
+| Module     | Description                     |
+| ---------- | ------------------------------- |
+| `auth/`    | Password hashing, JWT utilities |
+| `users/`   | User models and service         |
+| `tenancy/` | Multi-tenant support            |
 
 ## Usage
 
@@ -26,6 +26,7 @@ Always use secure password hashing (bcrypt/argon2).
 ## Consumers
 
 All services that require authentication:
+
 - `kernel/services/field_ops/`
 - `kernel-services-v15.3/marketplace-service/`
 - `kernel-services-v15.3/research-core/`

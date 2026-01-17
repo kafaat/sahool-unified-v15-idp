@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Living Field Card Component
@@ -15,7 +15,7 @@
  * - Color coding: green (>70), yellow (40-70), red (<40)
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -28,12 +28,17 @@ import {
   Eye,
   Moon,
   Info,
-} from 'lucide-react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useLivingFieldScore, type FieldAlert, type Recommendation, type LivingFieldScore } from '../hooks/useLivingFieldScore';
+} from "lucide-react";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  useLivingFieldScore,
+  type FieldAlert,
+  type Recommendation,
+  type LivingFieldScore,
+} from "../hooks/useLivingFieldScore";
 
-type TrendType = LivingFieldScore['trend'];
+type TrendType = LivingFieldScore["trend"];
 
 interface LivingFieldCardProps {
   fieldId: string;
@@ -52,25 +57,25 @@ function getScoreColor(score: number): {
 } {
   if (score >= 70) {
     return {
-      border: 'border-green-500',
-      bg: 'bg-green-50',
-      text: 'text-green-700',
-      fill: 'stroke-green-500',
+      border: "border-green-500",
+      bg: "bg-green-50",
+      text: "text-green-700",
+      fill: "stroke-green-500",
     };
   }
   if (score >= 40) {
     return {
-      border: 'border-yellow-500',
-      bg: 'bg-yellow-50',
-      text: 'text-yellow-700',
-      fill: 'stroke-yellow-500',
+      border: "border-yellow-500",
+      bg: "bg-yellow-50",
+      text: "text-yellow-700",
+      fill: "stroke-yellow-500",
     };
   }
   return {
-    border: 'border-red-500',
-    bg: 'bg-red-50',
-    text: 'text-red-700',
-    fill: 'stroke-red-500',
+    border: "border-red-500",
+    bg: "bg-red-50",
+    text: "text-red-700",
+    fill: "stroke-red-500",
   };
 }
 
@@ -84,26 +89,26 @@ function getTrendIcon(trend: TrendType): {
   labelAr: string;
 } {
   switch (trend) {
-    case 'improving':
+    case "improving":
       return {
         icon: <TrendingUp className="w-5 h-5" />,
-        color: 'text-green-600',
-        label: 'Improving',
-        labelAr: 'يتحسن',
+        color: "text-green-600",
+        label: "Improving",
+        labelAr: "يتحسن",
       };
-    case 'declining':
+    case "declining":
       return {
         icon: <TrendingDown className="w-5 h-5" />,
-        color: 'text-red-600',
-        label: 'Declining',
-        labelAr: 'يتراجع',
+        color: "text-red-600",
+        label: "Declining",
+        labelAr: "يتراجع",
       };
     default:
       return {
         icon: <Minus className="w-5 h-5" />,
-        color: 'text-gray-600',
-        label: 'Stable',
-        labelAr: 'مستقر',
+        color: "text-gray-600",
+        label: "Stable",
+        labelAr: "مستقر",
       };
   }
 }
@@ -111,16 +116,18 @@ function getTrendIcon(trend: TrendType): {
 /**
  * Get alert severity badge variant
  */
-function getAlertVariant(severity: string): 'default' | 'success' | 'warning' | 'danger' {
+function getAlertVariant(
+  severity: string,
+): "default" | "success" | "warning" | "danger" {
   switch (severity) {
-    case 'critical':
-    case 'emergency':
-      return 'danger';
-    case 'warning':
-      return 'warning';
-    case 'info':
+    case "critical":
+    case "emergency":
+      return "danger";
+    case "warning":
+      return "warning";
+    case "info":
     default:
-      return 'default';
+      return "default";
   }
 }
 
@@ -227,7 +234,7 @@ const SubScore: React.FC<SubScoreProps> = ({ score, icon, label, labelAr }) => {
   return (
     <div
       className="relative flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-200 hover:shadow-md cursor-help"
-      style={{ borderColor: colors.border.replace('border-', '') }}
+      style={{ borderColor: colors.border.replace("border-", "") }}
       onMouseEnter={() => setShowInfo(true)}
       onMouseLeave={() => setShowInfo(false)}
     >
@@ -254,14 +261,20 @@ const SubScore: React.FC<SubScoreProps> = ({ score, icon, label, labelAr }) => {
 const AlertItem: React.FC<{ alert: FieldAlert }> = ({ alert }) => {
   return (
     <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-      <AlertCircle className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
-        alert.severity === 'critical' || alert.severity === 'emergency' ? 'text-red-600' :
-        alert.severity === 'warning' ? 'text-yellow-600' :
-        'text-gray-600'
-      }`} />
+      <AlertCircle
+        className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
+          alert.severity === "critical" || alert.severity === "emergency"
+            ? "text-red-600"
+            : alert.severity === "warning"
+              ? "text-yellow-600"
+              : "text-gray-600"
+        }`}
+      />
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-gray-900 text-sm">{alert.titleAr}</h4>
-        <p className="text-xs text-gray-600 mt-1">{alert.messageAr || alert.message}</p>
+        <p className="text-xs text-gray-600 mt-1">
+          {alert.messageAr || alert.message}
+        </p>
       </div>
       <Badge variant={getAlertVariant(alert.severity)} size="sm">
         {alert.severity}
@@ -273,15 +286,18 @@ const AlertItem: React.FC<{ alert: FieldAlert }> = ({ alert }) => {
 /**
  * Recommendation item component
  */
-const RecommendationItem: React.FC<{ recommendation: Recommendation }> = ({ recommendation }) => {
+const RecommendationItem: React.FC<{ recommendation: Recommendation }> = ({
+  recommendation,
+}) => {
   const priorityColorMap: Record<string, string> = {
-    urgent: 'border-l-red-500 bg-red-50',
-    high: 'border-l-orange-500 bg-orange-50',
-    medium: 'border-l-yellow-500 bg-yellow-50',
-    low: 'border-l-blue-500 bg-blue-50',
+    urgent: "border-l-red-500 bg-red-50",
+    high: "border-l-orange-500 bg-orange-50",
+    medium: "border-l-yellow-500 bg-yellow-50",
+    low: "border-l-blue-500 bg-blue-50",
   };
 
-  const priorityColors = priorityColorMap[recommendation.priority] || 'border-l-gray-500 bg-gray-50';
+  const priorityColors =
+    priorityColorMap[recommendation.priority] || "border-l-gray-500 bg-gray-50";
 
   return (
     <div className={`border-l-4 p-3 rounded-r-lg ${priorityColors}`}>
@@ -290,24 +306,39 @@ const RecommendationItem: React.FC<{ recommendation: Recommendation }> = ({ reco
           <Info className="w-4 h-4" />
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-gray-900 text-sm">{recommendation.titleAr || recommendation.title}</h4>
-          <p className="text-xs text-gray-600 mt-1">{recommendation.descriptionAr || recommendation.description}</p>
-          {recommendation.actionItems && recommendation.actionItems.length > 0 && (
-            <ul className="text-xs text-gray-500 mt-2 list-disc list-inside">
-              {recommendation.actionItems.slice(0, 3).map((item, idx) => (
-                <li key={idx}>{item}</li>
-              ))}
-            </ul>
-          )}
+          <h4 className="font-semibold text-gray-900 text-sm">
+            {recommendation.titleAr || recommendation.title}
+          </h4>
+          <p className="text-xs text-gray-600 mt-1">
+            {recommendation.descriptionAr || recommendation.description}
+          </p>
+          {recommendation.actionItems &&
+            recommendation.actionItems.length > 0 && (
+              <ul className="text-xs text-gray-500 mt-2 list-disc list-inside">
+                {recommendation.actionItems.slice(0, 3).map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            )}
         </div>
-        <Badge size="sm" variant={
-          recommendation.priority === 'urgent' || recommendation.priority === 'high' ? 'danger' :
-          recommendation.priority === 'medium' ? 'warning' :
-          'default'
-        }>
-          {recommendation.priority === 'urgent' ? 'عاجل' :
-           recommendation.priority === 'high' ? 'عالي' :
-           recommendation.priority === 'medium' ? 'متوسط' : 'منخفض'}
+        <Badge
+          size="sm"
+          variant={
+            recommendation.priority === "urgent" ||
+            recommendation.priority === "high"
+              ? "danger"
+              : recommendation.priority === "medium"
+                ? "warning"
+                : "default"
+          }
+        >
+          {recommendation.priority === "urgent"
+            ? "عاجل"
+            : recommendation.priority === "high"
+              ? "عالي"
+              : recommendation.priority === "medium"
+                ? "متوسط"
+                : "منخفض"}
         </Badge>
       </div>
     </div>
@@ -337,7 +368,7 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
             <div className="w-32 h-32 bg-gray-200 rounded-full" />
           </div>
           <div className="grid grid-cols-4 gap-4 mb-6">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded-lg" />
             ))}
           </div>
@@ -355,7 +386,9 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               خطأ في تحميل البيانات
             </h3>
-            <p className="text-sm text-gray-600">حدث خطأ أثناء تحميل بيانات الحقل</p>
+            <p className="text-sm text-gray-600">
+              حدث خطأ أثناء تحميل بيانات الحقل
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -371,10 +404,10 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h2 className="text-xl font-bold text-gray-900">
-              {fieldNameAr || fieldName || 'الحقل الحي'}
+              {fieldNameAr || fieldName || "الحقل الحي"}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {fieldName && fieldNameAr ? fieldName : 'Living Field Score'}
+              {fieldName && fieldNameAr ? fieldName : "Living Field Score"}
             </p>
           </div>
 
@@ -390,7 +423,8 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
           <div className="mt-3 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-orange-600" />
             <span className="text-sm text-gray-700">
-              {score.alerts.length} {score.alerts.length === 1 ? 'تنبيه' : 'تنبيهات'}
+              {score.alerts.length}{" "}
+              {score.alerts.length === 1 ? "تنبيه" : "تنبيهات"}
             </span>
           </div>
         )}
@@ -472,7 +506,9 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
         {score.recommendations.length > 0 && (
           <div className="border-t border-gray-200 pt-4">
             <button
-              onClick={() => setExpandedRecommendations(!expandedRecommendations)}
+              onClick={() =>
+                setExpandedRecommendations(!expandedRecommendations)
+              }
               className="w-full flex items-center justify-between text-sm font-semibold text-gray-900 hover:text-gray-700 transition-colors duration-200"
             >
               <span className="flex items-center gap-2">
@@ -489,12 +525,17 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
             {/* Animated expansion */}
             <div
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                expandedRecommendations ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0'
+                expandedRecommendations
+                  ? "max-h-96 opacity-100 mt-3"
+                  : "max-h-0 opacity-0"
               }`}
             >
               <div className="space-y-2 overflow-y-auto max-h-80">
                 {score.recommendations.map((recommendation) => (
-                  <RecommendationItem key={recommendation.id} recommendation={recommendation} />
+                  <RecommendationItem
+                    key={recommendation.id}
+                    recommendation={recommendation}
+                  />
                 ))}
               </div>
             </div>

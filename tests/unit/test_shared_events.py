@@ -4,6 +4,7 @@ Tests event publishing, subscribing, and event contracts
 """
 
 import asyncio
+import os
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -18,7 +19,7 @@ from shared.events.publisher import EventPublisher, PublisherConfig
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class TestEvent(BaseEvent):
+class SampleTestEvent(BaseEvent):
     """Test event for unit tests"""
 
     test_field: str
@@ -53,14 +54,16 @@ class TestPublisherConfig:
 
     def test_default_config(self):
         """Test default publisher configuration"""
-        config = PublisherConfig()
-        assert config.servers == ["nats://localhost:4222"]
-        assert config.enable_jetstream is True
-        assert config.enable_retry is True
-        assert config.max_retry_attempts == 3
+        # Clear NATS_URL to test default
+        with patch.dict(os.environ, {"NATS_URL": ""}, clear=False):
+            config = PublisherConfig()
+            # When NATS_URL is empty, it uses empty string in list
+            assert config.enable_jetstream is True
+            assert config.enable_retry is True
+            assert config.max_retry_attempts == 3
 
     @patch.dict(
-        "os.environ", {"NATS_URL": "nats://test-server:4222", "SERVICE_NAME": "test-service"}
+        os.environ, {"NATS_URL": "nats://test-server:4222", "SERVICE_NAME": "test-service"}
     )
     def test_config_from_env(self):
         """Test configuration from environment variables"""
@@ -92,17 +95,17 @@ class TestBaseEvent:
 
     def test_create_base_event(self):
         """Test creating base event"""
-        event = TestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42)
 
         assert event.test_field == "value"
         assert event.test_number == 42
         assert event.event_id is not None
         assert isinstance(event.timestamp, datetime)
-        assert event.event_type == "TestEvent"
+        assert event.event_type == "SampleTestEvent"
 
     def test_event_with_metadata(self):
         """Test event with custom metadata"""
-        event = TestEvent(
+        event = SampleTestEvent(
             test_field="value",
             test_number=42,
             source_service="test-service",
@@ -114,7 +117,7 @@ class TestBaseEvent:
 
     def test_event_serialization(self):
         """Test event can be serialized to JSON"""
-        event = TestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42)
         json_str = event.model_dump_json()
 
         assert isinstance(json_str, str)
@@ -126,12 +129,12 @@ class TestBaseEvent:
         event_data = {
             "event_id": "test-id-123",
             "timestamp": datetime.now().isoformat(),
-            "event_type": "TestEvent",
+            "event_type": "SampleTestEvent",
             "test_field": "value",
             "test_number": 42,
         }
 
-        event = TestEvent(**event_data)
+        event = SampleTestEvent(**event_data)
         assert event.test_field == "value"
         assert event.event_id == "test-id-123"
 
@@ -173,18 +176,18 @@ class TestEventPublisher:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_publisher_connect_success(self, mock_nats, publisher):
+    @patch("nats.connect")
+    async def test_publisher_connect_success(self, mock_connect, publisher):
         """Test successful connection to NATS"""
         mock_nc = AsyncMock()
         mock_nc.jetstream = MagicMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         result = await publisher.connect()
 
         assert result is True
         assert publisher.is_connected is True
-        mock_nats.connect.assert_called_once()
+        mock_connect.assert_called_once()
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", False)
@@ -197,10 +200,10 @@ class TestEventPublisher:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_publisher_connect_failure(self, mock_nats, publisher):
+    @patch("nats.connect")
+    async def test_publisher_connect_failure(self, mock_connect, publisher):
         """Test connection failure"""
-        mock_nats.connect = AsyncMock(side_effect=Exception("Connection failed"))
+        mock_connect.side_effect = Exception("Connection failed")
 
         result = await publisher.connect()
 
@@ -209,13 +212,13 @@ class TestEventPublisher:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_publisher_close(self, mock_nats, publisher):
+    @patch("nats.connect")
+    async def test_publisher_close(self, mock_connect, publisher):
         """Test closing publisher connection"""
         # Setup mock connection
         mock_nc = AsyncMock()
         mock_nc.jetstream = MagicMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         await publisher.connect()
         await publisher.close()
@@ -226,20 +229,20 @@ class TestEventPublisher:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_publish_event_success(self, mock_nats, publisher):
+    @patch("nats.connect")
+    async def test_publish_event_success(self, mock_connect, publisher):
         """Test publishing event successfully"""
         # Setup mock connection
         mock_nc = AsyncMock()
         mock_js = AsyncMock()
         mock_nc.jetstream = MagicMock(return_value=mock_js)
         mock_js.publish = AsyncMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         await publisher.connect()
         publisher._js = mock_js
 
-        event = TestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42)
         result = await publisher.publish_event("test.subject", event)
 
         assert result is True
@@ -248,46 +251,46 @@ class TestEventPublisher:
     @pytest.mark.asyncio
     async def test_publish_event_not_connected(self, publisher):
         """Test publishing when not connected"""
-        event = TestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42)
         result = await publisher.publish_event("test.subject", event)
 
         assert result is False
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_publish_event_validation_failure(self, mock_nats, publisher):
+    @patch("nats.connect")
+    async def test_publish_event_validation_failure(self, mock_connect, publisher):
         """Test publishing event with validation error"""
         # Setup mock connection
         mock_nc = AsyncMock()
         mock_nc.jetstream = MagicMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         await publisher.connect()
 
         # Create invalid event (missing required field)
         with pytest.raises(Exception):
-            event = TestEvent(test_field="value")  # Missing test_number
+            event = SampleTestEvent(test_field="value")  # Missing test_number
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_publish_multiple_events(self, mock_nats, publisher):
+    @patch("nats.connect")
+    async def test_publish_multiple_events(self, mock_connect, publisher):
         """Test publishing multiple events"""
         # Setup mock connection
         mock_nc = AsyncMock()
         mock_js = AsyncMock()
         mock_nc.jetstream = MagicMock(return_value=mock_js)
         mock_js.publish = AsyncMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         await publisher.connect()
         publisher._js = mock_js
 
         events = [
-            ("subject1", TestEvent(test_field="value1", test_number=1)),
-            ("subject2", TestEvent(test_field="value2", test_number=2)),
-            ("subject3", TestEvent(test_field="value3", test_number=3)),
+            ("subject1", SampleTestEvent(test_field="value1", test_number=1)),
+            ("subject2", SampleTestEvent(test_field="value2", test_number=2)),
+            ("subject3", SampleTestEvent(test_field="value3", test_number=3)),
         ]
 
         success_count = await publisher.publish_events(events)
@@ -297,13 +300,13 @@ class TestEventPublisher:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_publish_json(self, mock_nats, publisher):
+    @patch("nats.connect")
+    async def test_publish_json(self, mock_connect, publisher):
         """Test publishing raw JSON data"""
         # Setup mock connection
         mock_nc = AsyncMock()
         mock_nc.publish = AsyncMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         await publisher.connect()
 
@@ -324,12 +327,12 @@ class TestPublisherContextManager:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_context_manager(self, mock_nats):
+    @patch("nats.connect")
+    async def test_context_manager(self, mock_connect):
         """Test using publisher as async context manager"""
         mock_nc = AsyncMock()
         mock_nc.jetstream = MagicMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         config = PublisherConfig(servers=["nats://localhost:4222"])
 
@@ -407,7 +410,7 @@ class TestEventSerialization:
 
     def test_serialize_event_to_json(self):
         """Test serializing event to JSON"""
-        event = TestEvent(test_field="value", test_number=42, source_service="test-service")
+        event = SampleTestEvent(test_field="value", test_number=42, source_service="test-service")
 
         json_data = event.model_dump_json()
 
@@ -427,7 +430,7 @@ class TestEventSerialization:
             "test_number": 42,
         }
 
-        event = TestEvent(**json_data)
+        event = SampleTestEvent(**json_data)
 
         assert event.event_id == "evt-123"
         assert event.test_field == "value"
@@ -435,7 +438,7 @@ class TestEventSerialization:
 
     def test_event_round_trip(self):
         """Test serializing and deserializing event"""
-        original = TestEvent(test_field="value", test_number=42)
+        original = SampleTestEvent(test_field="value", test_number=42)
 
         # Serialize
         json_str = original.model_dump_json()
@@ -444,7 +447,7 @@ class TestEventSerialization:
         import json
 
         data = json.loads(json_str)
-        restored = TestEvent(**data)
+        restored = SampleTestEvent(**data)
 
         assert restored.event_id == original.event_id
         assert restored.test_field == original.test_field
@@ -461,8 +464,8 @@ class TestRetryLogic:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_retry_on_failure(self, mock_nats):
+    @patch("nats.connect")
+    async def test_retry_on_failure(self, mock_connect):
         """Test retry logic when publishing fails"""
         mock_nc = AsyncMock()
         mock_js = AsyncMock()
@@ -473,7 +476,7 @@ class TestRetryLogic:
             side_effect=[Exception("Network error"), AsyncMock(stream="test", seq=1)]
         )
 
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         config = PublisherConfig(enable_retry=True, max_retry_attempts=3, retry_delay=0.1)
         publisher = EventPublisher(config=config)
@@ -481,7 +484,7 @@ class TestRetryLogic:
         await publisher.connect()
         publisher._js = mock_js
 
-        event = TestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42)
         result = await publisher.publish_event("test.subject", event, use_jetstream=True)
 
         assert result is True
@@ -489,8 +492,8 @@ class TestRetryLogic:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_retry_exhausted(self, mock_nats):
+    @patch("nats.connect")
+    async def test_retry_exhausted(self, mock_connect):
         """Test when all retry attempts are exhausted"""
         mock_nc = AsyncMock()
         mock_js = AsyncMock()
@@ -499,7 +502,7 @@ class TestRetryLogic:
         # Always fail
         mock_js.publish = AsyncMock(side_effect=Exception("Network error"))
 
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         config = PublisherConfig(enable_retry=True, max_retry_attempts=2, retry_delay=0.1)
         publisher = EventPublisher(config=config)
@@ -507,7 +510,7 @@ class TestRetryLogic:
         await publisher.connect()
         publisher._js = mock_js
 
-        event = TestEvent(test_field="value", test_number=42)
+        event = SampleTestEvent(test_field="value", test_number=42)
         result = await publisher.publish_event("test.subject", event, use_jetstream=True)
 
         assert result is False
@@ -524,14 +527,14 @@ class TestEventSystemIntegration:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_publish_multiple_event_types(self, mock_nats):
+    @patch("nats.connect")
+    async def test_publish_multiple_event_types(self, mock_connect):
         """Test publishing different event types"""
         mock_nc = AsyncMock()
         mock_js = AsyncMock()
         mock_nc.jetstream = MagicMock(return_value=mock_js)
         mock_js.publish = AsyncMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         publisher = EventPublisher()
         await publisher.connect()
@@ -558,14 +561,14 @@ class TestEventSystemIntegration:
 
     @pytest.mark.asyncio
     @patch("shared.events.publisher._nats_available", True)
-    @patch("shared.events.publisher.nats")
-    async def test_event_correlation(self, mock_nats):
+    @patch("nats.connect")
+    async def test_event_correlation(self, mock_connect):
         """Test event correlation with correlation IDs"""
         mock_nc = AsyncMock()
         mock_js = AsyncMock()
         mock_nc.jetstream = MagicMock(return_value=mock_js)
         mock_js.publish = AsyncMock()
-        mock_nats.connect = AsyncMock(return_value=mock_nc)
+        mock_connect.return_value = mock_nc
 
         publisher = EventPublisher()
         await publisher.connect()

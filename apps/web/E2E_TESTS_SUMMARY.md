@@ -1,4 +1,5 @@
 # E2E Tests Implementation Summary
+
 # ملخص تنفيذ اختبارات E2E
 
 ## Overview | نظرة عامة
@@ -12,6 +13,7 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 ### 1. Configuration Files | ملفات الإعداد
 
 #### `playwright.config.ts`
+
 - تكوين شامل لـ Playwright
 - دعم متصفحات متعددة (Chromium, Firefox, WebKit)
 - دعم الأجهزة المحمولة (Mobile Chrome, Mobile Safari)
@@ -19,7 +21,9 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - خادم ويب تلقائي للاختبارات
 
 #### `package.json` (Updated)
+
 تم إضافة npm scripts التالية:
+
 - `test:e2e` - تشغيل جميع اختبارات E2E
 - `test:e2e:ui` - تشغيل الاختبارات في وضع UI
 - `test:e2e:headed` - تشغيل الاختبارات مع المتصفح المرئي
@@ -29,7 +33,9 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 ### 2. Helper Functions | الدوال المساعدة
 
 #### `e2e/helpers/auth.helpers.ts` (133 lines)
+
 دوال مساعدة للمصادقة:
+
 - `login()` - تسجيل الدخول
 - `logout()` - تسجيل الخروج
 - `isLoggedIn()` - التحقق من تسجيل الدخول
@@ -38,7 +44,9 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - `saveAuthState()` - حفظ حالة المصادقة
 
 #### `e2e/helpers/page.helpers.ts` (177 lines)
+
 دوال مساعدة للتفاعل مع الصفحات:
+
 - `waitForPageLoad()` - انتظار تحميل الصفحة
 - `navigateAndWait()` - التنقل والانتظار
 - `isElementVisible()` - التحقق من رؤية العنصر
@@ -50,7 +58,9 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - والمزيد...
 
 #### `e2e/helpers/test-data.ts` (208 lines)
+
 بيانات اختبار ومساعدات:
+
 - `testData.randomEmail()` - بريد إلكتروني عشوائي
 - `testData.randomName()` - اسم عشوائي
 - `testData.randomField()` - بيانات حقل عشوائية
@@ -61,14 +71,18 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - `apiEndpoints` - نقاط النهاية API
 
 #### `e2e/fixtures/test-fixtures.ts` (47 lines)
+
 إعدادات اختبار مخصصة:
+
 - `authenticatedPage` - تسجيل دخول تلقائي قبل الاختبار
 - `testUser` - بيانات المستخدم الاختباري
 
 ### 3. Test Specifications | ملفات الاختبارات
 
 #### `e2e/auth.spec.ts` (196 lines, 13 tests)
+
 اختبارات المصادقة:
+
 - ✅ عرض صفحة تسجيل الدخول بشكل صحيح
 - ✅ إظهار خطأ لبيانات اعتماد غير صالحة
 - ✅ تسجيل دخول ناجح ببيانات صحيحة
@@ -83,7 +97,9 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - ⏭️ الانتقال لصفحة إعادة تعيين كلمة المرور (تم التخطي)
 
 #### `e2e/navigation.spec.ts` (313 lines, 22 tests)
+
 اختبارات التنقل:
+
 - ✅ التنقل إلى لوحة التحكم من أي صفحة
 - ✅ التنقل إلى صفحة الحقول
 - ✅ التنقل إلى صفحة التحليلات
@@ -106,7 +122,9 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - ⏭️ فتح وإغلاق قائمة الجوال (تم التخطي)
 
 #### `e2e/forms.spec.ts` (367 lines, 20+ tests)
+
 اختبارات النماذج:
+
 - ✅ عرض زر إضافة حقل
 - ✅ فتح نموذج إضافة حقل
 - ✅ التحقق من الحقول المطلوبة
@@ -131,7 +149,9 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - ⏭️ تصفية اقتراحات الإكمال التلقائي
 
 #### `e2e/dashboard.spec.ts` (369 lines, 30+ tests)
+
 اختبارات لوحة التحكم:
+
 - ✅ عرض صفحة لوحة التحكم بشكل صحيح
 - ✅ عرض معلومات المستخدم
 - ✅ عرض بطاقات الإحصائيات
@@ -158,7 +178,9 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - ✅ عرض واجهة مستخدم احتياطية للمكونات الفاشلة
 
 #### `e2e/settings.spec.ts` (491 lines, 40+ tests)
+
 اختبارات الإعدادات:
+
 - ✅ عرض صفحة الإعدادات بشكل صحيح
 - ✅ عرض قسم معلومات الملف الشخصي
 - ✅ عرض اسم المستخدم
@@ -194,10 +216,13 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 ### 4. Additional Files | ملفات إضافية
 
 #### `e2e/.env.example`
+
 ملف نموذجي لمتغيرات البيئة مع القيم المطلوبة للاختبارات
 
 #### `e2e/README.md`
+
 دليل شامل باللغتين العربية والإنجليزية يشرح:
+
 - بنية المشروع
 - كيفية الإعداد
 - كيفية تشغيل الاختبارات
@@ -210,14 +235,18 @@ A comprehensive suite of End-to-End (E2E) tests has been implemented for the SAH
 - حل المشاكل
 
 #### `.github/workflows/e2e-tests.yml`
+
 GitHub Actions workflow لتشغيل اختبارات E2E تلقائياً:
+
 - يعمل على push و pull requests
 - يختبر على ثلاثة متصفحات (Chromium, Firefox, WebKit)
 - يرفع التقارير والصور
 - ينشر نتائج الاختبارات
 
 #### `.gitignore`
+
 تم تحديثه لاستبعاد:
+
 - تقارير Playwright
 - نتائج الاختبارات
 - ذاكرة التخزين المؤقت
@@ -225,6 +254,7 @@ GitHub Actions workflow لتشغيل اختبارات E2E تلقائياً:
 ## Statistics | الإحصائيات
 
 ### Total Files Created | إجمالي الملفات المنشأة
+
 - **11 ملف TypeScript/JavaScript**
 - **2 ملف تكوين** (playwright.config.ts, .gitignore)
 - **2 ملف توثيق** (README.md, E2E_TESTS_SUMMARY.md)
@@ -232,12 +262,14 @@ GitHub Actions workflow لتشغيل اختبارات E2E تلقائياً:
 - **1 ملف بيئة** (.env.example)
 
 ### Total Lines of Code | إجمالي أسطر الكود
+
 - **اختبارات E2E**: ~1,736 سطر
 - **دوال مساعدة**: ~518 سطر
 - **إعدادات**: ~159 سطر
 - **الإجمالي**: ~2,413+ سطر
 
 ### Test Coverage | تغطية الاختبارات
+
 - **اختبارات المصادقة**: 13 اختبار
 - **اختبارات التنقل**: 22 اختبار
 - **اختبارات النماذج**: 20+ اختبار
@@ -248,6 +280,7 @@ GitHub Actions workflow لتشغيل اختبارات E2E تلقائياً:
 ## How to Run | كيفية التشغيل
 
 ### 1. Install Dependencies
+
 ```bash
 cd apps/web
 npm install
@@ -255,12 +288,14 @@ npx playwright install
 ```
 
 ### 2. Setup Environment
+
 ```bash
 cp e2e/.env.example e2e/.env
 # Edit e2e/.env with your test credentials
 ```
 
 ### 3. Run Tests
+
 ```bash
 # Run all tests
 npm run test:e2e
@@ -279,6 +314,7 @@ npx playwright test --project=chromium
 ```
 
 ### 4. View Reports
+
 ```bash
 npm run test:e2e:report
 ```
@@ -286,6 +322,7 @@ npm run test:e2e:report
 ## Key Features | الميزات الرئيسية
 
 ### ✅ Comprehensive Coverage
+
 - Authentication flows
 - Navigation patterns
 - Form interactions
@@ -293,6 +330,7 @@ npm run test:e2e:report
 - Settings management
 
 ### ✅ Multi-Browser Support
+
 - Chromium
 - Firefox
 - WebKit
@@ -300,18 +338,21 @@ npm run test:e2e:report
 - Mobile Safari
 
 ### ✅ Developer-Friendly
+
 - Helper functions for common tasks
 - Custom fixtures for authentication
 - Test data generators
 - Detailed documentation in Arabic and English
 
 ### ✅ CI/CD Ready
+
 - GitHub Actions workflow
 - Automatic test execution
 - Report generation and upload
 - Screenshot capture on failure
 
 ### ✅ Bilingual Support
+
 - All tests support Arabic and English text
 - Comments in both languages
 - Documentation in both languages
@@ -321,6 +362,7 @@ npm run test:e2e:report
 ### Recommended Actions:
 
 1. **Install Playwright**
+
    ```bash
    cd apps/web
    npm install
@@ -332,6 +374,7 @@ npm run test:e2e:report
    - Update `e2e/.env` with credentials
 
 3. **Run Initial Tests**
+
    ```bash
    npm run test:e2e:ui
    ```
@@ -356,6 +399,7 @@ npm run test:e2e:report
 ## Support | الدعم
 
 For issues or questions:
+
 - Review the `e2e/README.md` file
 - Check Playwright documentation: https://playwright.dev
 - Review test examples in the spec files

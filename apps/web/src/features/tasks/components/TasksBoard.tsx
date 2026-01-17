@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Tasks Board Component (Kanban)
  * مكون لوحة المهام (كانبان)
  */
 
-import React, { useMemo, useState } from 'react';
-import { useTasks, useUpdateTaskStatus } from '../hooks/useTasks';
-import { TaskCard } from './TaskCard';
-import type { TaskBoardColumn, TaskStatus } from '../types';
+import React, { useMemo, useState } from "react";
+import { useTasks, useUpdateTaskStatus } from "../hooks/useTasks";
+import { TaskCard } from "./TaskCard";
+import type { TaskBoardColumn, TaskStatus } from "../types";
 
 interface TasksBoardProps {
   onTaskClick?: (taskId: string) => void;
@@ -16,25 +16,25 @@ interface TasksBoardProps {
 
 const columns: TaskBoardColumn[] = [
   {
-    id: 'open',
-    title: 'Open',
-    title_ar: 'جديدة',
+    id: "open",
+    title: "Open",
+    title_ar: "جديدة",
     tasks: [],
-    color: 'bg-gray-50 border-gray-200',
+    color: "bg-gray-50 border-gray-200",
   },
   {
-    id: 'in_progress',
-    title: 'In Progress',
-    title_ar: 'قيد التنفيذ',
+    id: "in_progress",
+    title: "In Progress",
+    title_ar: "قيد التنفيذ",
     tasks: [],
-    color: 'bg-blue-50 border-blue-200',
+    color: "bg-blue-50 border-blue-200",
   },
   {
-    id: 'completed',
-    title: 'Completed',
-    title_ar: 'مكتملة',
+    id: "completed",
+    title: "Completed",
+    title_ar: "مكتملة",
     tasks: [],
-    color: 'bg-green-50 border-green-200',
+    color: "bg-green-50 border-green-200",
   },
 ];
 
@@ -44,16 +44,18 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
 
   // State for drag-drop visual feedback
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
-  const [dropTargetColumn, setDropTargetColumn] = useState<TaskStatus | null>(null);
+  const [dropTargetColumn, setDropTargetColumn] = useState<TaskStatus | null>(
+    null,
+  );
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
-    e.dataTransfer.setData('taskId', taskId);
-    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData("taskId", taskId);
+    e.dataTransfer.effectAllowed = "move";
     setDraggedTaskId(taskId);
 
     // Add ARIA attribute for accessibility
     const target = e.currentTarget as HTMLElement;
-    target.setAttribute('aria-grabbed', 'true');
+    target.setAttribute("aria-grabbed", "true");
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
@@ -62,12 +64,12 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
 
     // Reset ARIA attribute
     const target = e.currentTarget as HTMLElement;
-    target.setAttribute('aria-grabbed', 'false');
+    target.setAttribute("aria-grabbed", "false");
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    e.dataTransfer.dropEffect = "move";
   };
 
   const handleDragEnter = (status: TaskStatus) => {
@@ -77,14 +79,17 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
   const handleDragLeave = (e: React.DragEvent) => {
     // Only clear if we're leaving the column entirely
     const relatedTarget = e.relatedTarget as HTMLElement;
-    if (!relatedTarget || !(e.currentTarget as HTMLElement).contains(relatedTarget)) {
+    if (
+      !relatedTarget ||
+      !(e.currentTarget as HTMLElement).contains(relatedTarget)
+    ) {
       setDropTargetColumn(null);
     }
   };
 
   const handleDrop = async (e: React.DragEvent, status: TaskStatus) => {
     e.preventDefault();
-    const taskId = e.dataTransfer.getData('taskId');
+    const taskId = e.dataTransfer.getData("taskId");
     if (taskId) {
       await updateStatus.mutateAsync({ id: taskId, status });
     }
@@ -94,11 +99,11 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
 
   // Performance optimization: Memoize grouped tasks
   const boardColumns = useMemo(() => {
-    if (!tasks) return columns.map(col => ({ ...col, tasks: [] }));
+    if (!tasks) return columns.map((col) => ({ ...col, tasks: [] }));
 
-    return columns.map(column => ({
+    return columns.map((column) => ({
       ...column,
-      tasks: tasks.filter(t => t.status === column.id),
+      tasks: tasks.filter((t) => t.status === column.id),
     }));
   }, [tasks]);
 
@@ -161,15 +166,22 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           />
         </svg>
-        <h3 className="text-lg font-semibold text-red-900 mb-2">خطأ في تحميل المهام</h3>
+        <h3 className="text-lg font-semibold text-red-900 mb-2">
+          خطأ في تحميل المهام
+        </h3>
         <p className="text-red-700 text-center">Error loading tasks</p>
-        <p className="text-sm text-red-600 mt-2">{error.message || 'An unknown error occurred'}</p>
+        <p className="text-sm text-red-600 mt-2">
+          {error.message || "An unknown error occurred"}
+        </p>
       </div>
     );
   }
 
   // Empty state (no tasks at all)
-  const totalTasks = boardColumns.reduce((sum, col) => sum + col.tasks.length, 0);
+  const totalTasks = boardColumns.reduce(
+    (sum, col) => sum + col.tasks.length,
+    0,
+  );
   if (totalTasks === 0) {
     return (
       <div
@@ -191,7 +203,9 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
           />
         </svg>
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">لا توجد مهام حتى الآن</h3>
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+          لا توجد مهام حتى الآن
+        </h3>
         <p className="text-gray-500 text-center max-w-md">
           No tasks yet. Create your first task to get started!
         </p>
@@ -220,8 +234,8 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             className={`
               rounded-xl border-2 p-4 min-h-[500px] transition-all duration-200
               ${column.color}
-              ${isDropTarget ? 'ring-4 ring-blue-300 ring-opacity-50 scale-[1.02] shadow-lg' : ''}
-              ${hasTasksBeingDragged && !isDropTarget ? 'opacity-75' : ''}
+              ${isDropTarget ? "ring-4 ring-blue-300 ring-opacity-50 scale-[1.02] shadow-lg" : ""}
+              ${hasTasksBeingDragged && !isDropTarget ? "opacity-75" : ""}
             `}
             role="region"
             aria-label={`${column.title_ar} column with ${column.tasks.length} tasks`}
@@ -236,16 +250,13 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
               >
                 {column.title_ar}
               </h3>
-              <p
-                className="text-sm text-gray-500"
-                dir="ltr"
-                lang="en"
-              >
+              <p className="text-sm text-gray-500" dir="ltr" lang="en">
                 {column.title}
               </p>
               <div className="mt-2 text-sm font-medium text-gray-600">
                 <span dir="rtl" lang="ar">
-                  {column.tasks.length} {column.tasks.length === 1 ? 'مهمة' : 'مهام'}
+                  {column.tasks.length}{" "}
+                  {column.tasks.length === 1 ? "مهمة" : "مهام"}
                 </span>
               </div>
             </div>
@@ -288,8 +299,12 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
                       d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                     />
                   </svg>
-                  <p className="text-sm font-medium" dir="rtl">لا توجد مهام</p>
-                  <p className="text-xs mt-1" dir="ltr">No tasks</p>
+                  <p className="text-sm font-medium" dir="rtl">
+                    لا توجد مهام
+                  </p>
+                  <p className="text-xs mt-1" dir="ltr">
+                    No tasks
+                  </p>
                 </div>
               ) : (
                 column.tasks.map((task) => {
@@ -303,12 +318,12 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
                       onDragEnd={handleDragEnd}
                       className={`
                         transition-all duration-200
-                        ${isBeingDragged ? 'opacity-40 scale-95 rotate-2' : 'opacity-100 scale-100'}
-                        ${!isBeingDragged && hasTasksBeingDragged ? 'hover:scale-105' : ''}
+                        ${isBeingDragged ? "opacity-40 scale-95 rotate-2" : "opacity-100 scale-100"}
+                        ${!isBeingDragged && hasTasksBeingDragged ? "hover:scale-105" : ""}
                       `}
                       role="button"
                       aria-grabbed={isBeingDragged}
-                      aria-label={`Task: ${task.title || 'Untitled task'}. Draggable.`}
+                      aria-label={`Task: ${task.title || "Untitled task"}. Draggable.`}
                       tabIndex={0}
                     >
                       <TaskCard

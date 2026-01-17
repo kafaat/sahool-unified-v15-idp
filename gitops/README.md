@@ -74,20 +74,20 @@ gitops/
 
 ### Core Infrastructure
 
-| Application | Description |
-|-------------|-------------|
-| `cert-manager-app` | TLS certificate management |
-| `ingress-nginx-app` | Ingress controller |
-| `external-secrets-app` | External secrets operator |
-| `argo-rollouts-app` | Progressive delivery |
+| Application            | Description                |
+| ---------------------- | -------------------------- |
+| `cert-manager-app`     | TLS certificate management |
+| `ingress-nginx-app`    | Ingress controller         |
+| `external-secrets-app` | External secrets operator  |
+| `argo-rollouts-app`    | Progressive delivery       |
 
 ### SAHOOL Services
 
-| Application | Description |
-|-------------|-------------|
-| `billing-core-app` | Billing service deployment |
-| `feature-flags-app` | Feature flag service |
-| `idp-root-app` | Internal Developer Portal |
+| Application         | Description                |
+| ------------------- | -------------------------- |
+| `billing-core-app`  | Billing service deployment |
+| `feature-flags-app` | Feature flag service       |
+| `idp-root-app`      | Internal Developer Portal  |
 
 ---
 

@@ -3,13 +3,17 @@
  * مكون نموذج الملف الشخصي
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { User, MapPin, Building2, Upload, Loader2, Check } from 'lucide-react';
-import { useUserProfile, useUpdateProfile, useUploadAvatar } from '../hooks/useSettings';
-import type { UpdateProfilePayload } from '../types';
-import { logger } from '@/lib/logger';
+import React, { useState, useEffect } from "react";
+import { User, MapPin, Building2, Upload, Loader2, Check } from "lucide-react";
+import {
+  useUserProfile,
+  useUpdateProfile,
+  useUploadAvatar,
+} from "../hooks/useSettings";
+import type { UpdateProfilePayload } from "../types";
+import { logger } from "@/lib/logger";
 
 export const ProfileForm: React.FC = () => {
   const { data: profile, isLoading } = useUserProfile();
@@ -18,7 +22,7 @@ export const ProfileForm: React.FC = () => {
 
   const [formData, setFormData] = useState<UpdateProfilePayload>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
 
   useEffect(() => {
     if (profile) {
@@ -68,9 +72,9 @@ export const ProfileForm: React.FC = () => {
         avatar: avatarUrl,
       });
 
-      alert('تم تحديث الملف الشخصي بنجاح');
+      alert("تم تحديث الملف الشخصي بنجاح");
     } catch (err) {
-      alert('حدث خطأ أثناء تحديث الملف الشخصي');
+      alert("حدث خطأ أثناء تحديث الملف الشخصي");
       logger.error(err);
     }
   };
@@ -135,8 +139,10 @@ export const ProfileForm: React.FC = () => {
           </label>
           <input
             type="text"
-            value={formData.nameAr || ''}
-            onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
+            value={formData.nameAr || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, nameAr: e.target.value })
+            }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
             disabled={isSaving}
@@ -149,7 +155,7 @@ export const ProfileForm: React.FC = () => {
           </label>
           <input
             type="text"
-            value={formData.name || ''}
+            value={formData.name || ""}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
@@ -164,8 +170,10 @@ export const ProfileForm: React.FC = () => {
           </label>
           <input
             type="tel"
-            value={formData.phone || ''}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            value={formData.phone || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             disabled={isSaving}
             dir="ltr"
@@ -177,9 +185,12 @@ export const ProfileForm: React.FC = () => {
             اللغة المفضلة
           </label>
           <select
-            value={formData.language || 'ar'}
+            value={formData.language || "ar"}
             onChange={(e) =>
-              setFormData({ ...formData, language: e.target.value as 'ar' | 'en' | 'both' })
+              setFormData({
+                ...formData,
+                language: e.target.value as "ar" | "en" | "both",
+              })
             }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             disabled={isSaving}
@@ -197,7 +208,7 @@ export const ProfileForm: React.FC = () => {
           نبذة عنك
         </label>
         <textarea
-          value={formData.bioAr || ''}
+          value={formData.bioAr || ""}
           onChange={(e) => setFormData({ ...formData, bioAr: e.target.value })}
           rows={4}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -219,7 +230,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="text"
-              value={formData.location?.cityAr || ''}
+              value={formData.location?.cityAr || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -237,7 +248,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="text"
-              value={formData.location?.regionAr || ''}
+              value={formData.location?.regionAr || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -255,11 +266,14 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="text"
-              value={formData.location?.countryAr || ''}
+              value={formData.location?.countryAr || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  location: { ...formData.location!, countryAr: e.target.value },
+                  location: {
+                    ...formData.location!,
+                    countryAr: e.target.value,
+                  },
                 })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -282,11 +296,14 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="text"
-              value={formData.farmDetails?.nameAr || ''}
+              value={formData.farmDetails?.nameAr || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  farmDetails: { ...formData.farmDetails!, nameAr: e.target.value },
+                  farmDetails: {
+                    ...formData.farmDetails!,
+                    nameAr: e.target.value,
+                  },
                 })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -300,7 +317,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="number"
-              value={formData.farmDetails?.totalArea || ''}
+              value={formData.farmDetails?.totalArea || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -322,9 +339,13 @@ export const ProfileForm: React.FC = () => {
               نوع المزرعة
             </label>
             <select
-              value={formData.farmDetails?.farmType || 'individual'}
+              value={formData.farmDetails?.farmType || "individual"}
               onChange={(e) => {
-                type FarmType = 'individual' | 'family' | 'company' | 'cooperative';
+                type FarmType =
+                  | "individual"
+                  | "family"
+                  | "company"
+                  | "cooperative";
                 const value = e.target.value as FarmType;
                 setFormData({
                   ...formData,
@@ -350,7 +371,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="number"
-              value={formData.farmDetails?.establishedYear || ''}
+              value={formData.farmDetails?.establishedYear || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
@@ -385,7 +406,7 @@ export const ProfileForm: React.FC = () => {
                 farmDetails: profile.farmDetails,
               });
               setAvatarFile(null);
-              setAvatarPreview(profile.avatar || '');
+              setAvatarPreview(profile.avatar || "");
             }
           }}
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"

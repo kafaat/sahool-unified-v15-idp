@@ -7,11 +7,13 @@ This directory contains comprehensive test coverage for the SAHOOL IoT Gateway s
 ## Test Files
 
 ### 1. test_iot_api.py (529 lines, 19KB)
+
 **FastAPI Endpoint Testing**
 
 Tests all HTTP API endpoints including health checks, sensor readings, device management, and field operations.
 
 **Test Classes:**
+
 - `TestHealthEndpoints` - Health check and readiness endpoints
 - `TestSensorEndpoints` - Sensor reading submission (single and batch)
 - `TestDeviceEndpoints` - Device registration, retrieval, status, and deletion
@@ -21,6 +23,7 @@ Tests all HTTP API endpoints including health checks, sensor readings, device ma
 - `TestAsyncEndpoints` - Async client behavior
 
 **Key Features Tested:**
+
 - ✅ Health check endpoints (`/health`, `/healthz`)
 - ✅ Sensor reading submission (`POST /sensor/reading`)
 - ✅ Batch sensor readings (`POST /sensor/batch`)
@@ -35,11 +38,13 @@ Tests all HTTP API endpoints including health checks, sensor readings, device ma
 - ✅ Async client testing with httpx
 
 ### 2. test_sensor_data.py (833 lines, 28KB)
+
 **Sensor Data Normalization Testing**
 
 Comprehensive tests for sensor data normalization, format conversion, and validation.
 
 **Test Classes:**
+
 - `TestNormalizedReading` - NormalizedReading dataclass
 - `TestBasicNormalization` - Standard payload normalization
 - `TestSensorTypeNormalization` - Sensor type alias mapping (30+ aliases)
@@ -54,6 +59,7 @@ Comprehensive tests for sensor data normalization, format conversion, and valida
 - `TestEdgeCases` - Boundary conditions and special cases
 
 **Key Features Tested:**
+
 - ✅ Standard and compact payload formats
 - ✅ Sensor type alias mapping (soil_moisture, temperature, EC, etc.)
 - ✅ Unit normalization (%, °C, mS/cm, etc.)
@@ -67,11 +73,13 @@ Comprehensive tests for sensor data normalization, format conversion, and valida
 - ✅ Edge cases (zero values, negative values, Unicode)
 
 ### 3. test_device_management.py (841 lines, 27KB)
+
 **Device Registry and Management Testing**
 
 Comprehensive tests for device lifecycle management, status tracking, and registry operations.
 
 **Test Classes:**
+
 - `TestDevice` - Device dataclass and online/offline detection
 - `TestDeviceStatus` - Status enum values
 - `TestDeviceType` - Device type enum values
@@ -87,6 +95,7 @@ Comprehensive tests for device lifecycle management, status tracking, and regist
 - `TestEdgeCases` - Boundary conditions
 
 **Key Features Tested:**
+
 - ✅ Device registration with required and optional fields
 - ✅ Device updates and field changes
 - ✅ Device retrieval by ID, field, tenant, and type
@@ -105,11 +114,13 @@ Comprehensive tests for device lifecycle management, status tracking, and regist
 - ✅ Unicode support in device names
 
 ### 4. test_mqtt_handler.py (781 lines, 25KB)
+
 **MQTT Message Handling Testing**
 
 Comprehensive tests for MQTT connectivity, message processing, and error recovery.
 
 **Test Classes:**
+
 - `TestMqttMessage` - MqttMessage dataclass
 - `TestMqttClient` - MQTT client connectivity
 - `TestMockMqttClient` - Mock client for testing
@@ -123,6 +134,7 @@ Comprehensive tests for MQTT connectivity, message processing, and error recover
 - `TestMqttErrorRecovery` - Error recovery mechanisms
 
 **Key Features Tested:**
+
 - ✅ MQTT client initialization and configuration
 - ✅ MQTT connection (success and failure)
 - ✅ MQTT publish with QoS levels (0, 1, 2)
@@ -159,6 +171,7 @@ pip install -r requirements.txt
 ```
 
 The requirements.txt includes:
+
 - pytest==8.3.4
 - pytest-asyncio==0.24.0
 - pytest-cov==4.1.0
@@ -243,6 +256,7 @@ pytest tests/test_mqtt_handler.py::TestMqttSecurity -v
 ## Test Coverage Summary
 
 ### API Endpoints
+
 - ✅ All HTTP endpoints tested
 - ✅ Request validation
 - ✅ Error handling
@@ -250,6 +264,7 @@ pytest tests/test_mqtt_handler.py::TestMqttSecurity -v
 - ✅ Tenant isolation
 
 ### Sensor Data Processing
+
 - ✅ 30+ sensor type aliases
 - ✅ 15+ unit conversions
 - ✅ Multiple payload formats
@@ -258,6 +273,7 @@ pytest tests/test_mqtt_handler.py::TestMqttSecurity -v
 - ✅ Batch processing
 
 ### Device Management
+
 - ✅ Full CRUD operations
 - ✅ Status tracking
 - ✅ Battery monitoring
@@ -266,6 +282,7 @@ pytest tests/test_mqtt_handler.py::TestMqttSecurity -v
 - ✅ Type inference
 
 ### MQTT Integration
+
 - ✅ Client connectivity
 - ✅ Message processing
 - ✅ Topic patterns
@@ -276,34 +293,38 @@ pytest tests/test_mqtt_handler.py::TestMqttSecurity -v
 
 ## Test Statistics
 
-| Metric | Value |
-|--------|-------|
-| **Total Test Files** | 4 |
-| **Total Test Classes** | 43 |
-| **Total Test Functions** | 143 |
-| **Total Lines of Code** | ~3,000 |
-| **Coverage Areas** | API, Sensors, Devices, MQTT |
+| Metric                   | Value                       |
+| ------------------------ | --------------------------- |
+| **Total Test Files**     | 4                           |
+| **Total Test Classes**   | 43                          |
+| **Total Test Functions** | 143                         |
+| **Total Lines of Code**  | ~3,000                      |
+| **Coverage Areas**       | API, Sensors, Devices, MQTT |
 
 ## Key Testing Features
 
 ### Mocking Strategy
+
 - NATS client mocked for all tests
 - MQTT broker mocked with MockMqttClient
 - Registry and publisher fixtures for isolation
 - Async mock support for FastAPI endpoints
 
 ### Test Fixtures
+
 - `test_client` - FastAPI TestClient
 - `mock_registry` - Populated DeviceRegistry
 - `mock_publisher` - Mocked IoTPublisher
 - `populated_registry` - Registry with test data
 
 ### Async Testing
+
 - All async endpoints tested with pytest-asyncio
 - AsyncClient for real async behavior
 - Mock async functions for NATS/MQTT
 
 ### Error Handling
+
 - Invalid JSON payloads
 - Missing required fields
 - Out-of-range values
@@ -312,6 +333,7 @@ pytest tests/test_mqtt_handler.py::TestMqttSecurity -v
 - Malformed messages
 
 ### Security Testing
+
 - Tenant isolation validation
 - Device authorization checks
 - MQTT authentication
@@ -338,6 +360,7 @@ These tests are designed to run in CI/CD pipelines:
 ## Test Maintenance
 
 ### Adding New Tests
+
 1. Follow existing test class patterns
 2. Use descriptive test function names (test_verb_noun_condition)
 3. Include docstrings for complex tests
@@ -345,6 +368,7 @@ These tests are designed to run in CI/CD pipelines:
 5. Use fixtures for common setup
 
 ### Best Practices
+
 - ✅ One assertion focus per test
 - ✅ Clear test names describing behavior
 - ✅ Mock external services
@@ -358,24 +382,28 @@ These tests are designed to run in CI/CD pipelines:
 ### Common Issues
 
 **Import Errors:**
+
 ```bash
 # Ensure PYTHONPATH includes the project root
 export PYTHONPATH=/home/user/sahool-unified-v15-idp:$PYTHONPATH
 ```
 
 **Async Test Warnings:**
+
 ```bash
 # Ignore async warnings
 pytest tests/ -W ignore::DeprecationWarning
 ```
 
 **NATS/MQTT Connection Errors:**
+
 - Tests mock these services, no real brokers needed
 - Check that mocking is applied before imports
 
 ## Contributing
 
 When adding new features to the IoT Gateway:
+
 1. Write tests first (TDD approach)
 2. Ensure tests cover success and failure cases
 3. Update this README with new test information

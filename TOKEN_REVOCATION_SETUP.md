@@ -51,16 +51,19 @@ TOKEN_REVOCATION_ENABLED="true"
 ### 3. Start Redis
 
 **Using Docker:**
+
 ```bash
 docker run --name sahool-redis -p 6379:6379 -d redis:alpine
 ```
 
 **Using local Redis:**
+
 ```bash
 redis-server
 ```
 
 **Verify Redis is running:**
+
 ```bash
 redis-cli ping
 # Should return: PONG
@@ -143,12 +146,12 @@ To enable token revocation in other services (e.g., marketplace-service, iot-ser
 **Update the service's `app.module.ts`:**
 
 ```typescript
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
-import { TokenRevocationGuard } from '@sahool/nestjs-auth/guards/token-revocation.guard';
-import { RedisTokenRevocationStore } from '@sahool/nestjs-auth/services/token-revocation';
-import { JWTConfig } from '@sahool/nestjs-auth/config/jwt.config';
+import { Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
+import { JwtModule } from "@nestjs/jwt";
+import { TokenRevocationGuard } from "@sahool/nestjs-auth/guards/token-revocation.guard";
+import { RedisTokenRevocationStore } from "@sahool/nestjs-auth/services/token-revocation";
+import { JWTConfig } from "@sahool/nestjs-auth/config/jwt.config";
 
 @Module({
   imports: [
@@ -169,7 +172,7 @@ import { JWTConfig } from '@sahool/nestjs-auth/config/jwt.config';
       useFactory: () => {
         const redisUrl =
           process.env.REDIS_URL ||
-          `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
+          `redis://${process.env.REDIS_HOST || "localhost"}:${process.env.REDIS_PORT || 6379}`;
         return new RedisTokenRevocationStore(redisUrl);
       },
     },
@@ -191,11 +194,13 @@ TOKEN_REVOCATION_ENABLED="true"
 For admin and web apps, add backend URL:
 
 **`apps/admin/.env.local`:**
+
 ```env
 USER_SERVICE_URL="http://localhost:3020"
 ```
 
 **`apps/web/.env.local`:**
+
 ```env
 USER_SERVICE_URL="http://localhost:3020"
 ```
@@ -219,6 +224,7 @@ USER_SERVICE_URL="http://localhost:3020"
 **Error:** `Failed to initialize Redis: connect ECONNREFUSED`
 
 **Solution:**
+
 1. Ensure Redis is running: `redis-cli ping`
 2. Check Redis connection string in `.env`
 3. Verify firewall allows connection to Redis port
@@ -229,6 +235,7 @@ USER_SERVICE_URL="http://localhost:3020"
 
 **Solution:**
 Generate a secure secret:
+
 ```bash
 # Generate random secret
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
@@ -243,6 +250,7 @@ JWT_SECRET_KEY="<generated_secret>"
 
 **Solution:**
 Ensure you're using the new auth service for login. Old tokens won't have JTI.
+
 1. Use POST `/api/v1/auth/login` endpoint
 2. Verify token payload includes `jti` field
 
@@ -251,6 +259,7 @@ Ensure you're using the new auth service for login. Old tokens won't have JTI.
 **Error:** `Cannot find module '@sahool/nestjs-auth'`
 
 **Solution:**
+
 ```bash
 # Install the package
 cd packages/nestjs-auth
@@ -269,6 +278,7 @@ npm link @sahool/nestjs-auth
 ### Redis Configuration
 
 **High Availability Setup:**
+
 ```env
 # Redis Sentinel or Cluster
 REDIS_URL="redis://sentinel1:26379,sentinel2:26379,sentinel3:26379"
@@ -343,6 +353,7 @@ redis-cli ping
 ### Logging
 
 Check logs for:
+
 ```bash
 # Token revocations
 grep "Token revoked" /var/log/user-service.log
@@ -367,6 +378,7 @@ grep "Redis error" /var/log/user-service.log
 ## Support
 
 For issues or questions:
+
 1. Check logs: `docker logs sahool-user-service`
 2. Check Redis: `redis-cli` and use `KEYS *` to inspect
 3. Review documentation: `TOKEN_REVOCATION_IMPLEMENTATION.md`
@@ -375,6 +387,7 @@ For issues or questions:
 ## Summary
 
 Your token revocation system is now set up! Users can:
+
 - ✅ Login and receive tokens with unique JTI
 - ✅ Access protected resources with valid tokens
 - ✅ Logout and immediately revoke tokens

@@ -236,6 +236,7 @@ print(f"Treatment: {result.result['treatment_recommendations']}")
 ## Troubleshooting
 
 ### Agent Not Discovered
+
 ```python
 # Check if service is running
 curl http://localhost:8001/a2a/.well-known/agent-card.json
@@ -245,6 +246,7 @@ tail -f logs/ai-advisor.log
 ```
 
 ### Task Failed
+
 ```python
 # Check task status
 result = await client.send_task(...)
@@ -253,6 +255,7 @@ if result.state == TaskState.FAILED:
 ```
 
 ### WebSocket Issues
+
 ```python
 # Ensure agent supports streaming
 if not agent_card.supports_streaming:
@@ -266,6 +269,7 @@ else:
 ## Configuration
 
 ### Client Timeout
+
 ```python
 client = A2AClient(
     sender_agent_id="my-app",
@@ -275,6 +279,7 @@ client = A2AClient(
 ```
 
 ### Agent Cleanup
+
 ```python
 # Clean old conversations periodically
 removed = agent.cleanup_old_conversations(max_age_hours=24)
@@ -282,6 +287,7 @@ print(f"Removed {removed} old conversations")
 ```
 
 ### Agent Stats
+
 ```python
 stats = agent.get_stats()
 print(f"Tasks completed: {stats['tasks_completed']}")
@@ -299,6 +305,7 @@ print(f"Avg time: {stats['average_execution_time_ms']:.0f}ms")
 ## Support
 
 For questions or issues, refer to:
+
 - `/shared/a2a/README.md` - Full documentation
 - `/shared/a2a/examples.py` - Working examples
 - `/tests/a2a/test_protocol.py` - Test cases

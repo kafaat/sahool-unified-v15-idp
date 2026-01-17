@@ -1,4 +1,5 @@
 # SAHOOL Kubernetes Helm Chart
+
 # E.77 Helm DEF5) 3GHD 'D21'9J)
 
 Version: 15.3.2
@@ -6,13 +7,15 @@ Version: 15.3.2
 ## Overview | F81) 9'E)
 
 This Helm chart deploys the SAHOOL Agricultural Platform on Kubernetes with support for three deployment tiers:
+
 - **Starter**: Basic agricultural services
 - **Professional**: Advanced monitoring and AI features
 - **Enterprise**: Full platform with marketplace, billing, and research tools
 
 G0' 'DE.77 JF41 EF5) 3GHD 'D21'9J) 9DI Kubernetes E9 /9E D+D'+ -2E:
-- **'D#3'3J)**: 'D./E'* 'D21'9J) 'D#3'3J)
-- **'DE-*1A)**: EJ2'* 'DE1'B() H'D0C'! 'D'57F'9J 'DE*B/E)
+
+- **'D#3'3J)**: 'D./E'\* 'D21'9J) 'D#3'3J)
+- **'DE-\*1A)**: EJ2'* 'DE1'B() H'D0C'! 'D'57F'9J 'DE*B/E)
 - **'DE$33J)**: 'DEF5) 'DC'ED) E9 'D3HB H'DAH*1) H#/H'* 'D(-+
 
 ## Prerequisites | 'DE*7D('* 'D#3'3J)
@@ -74,7 +77,7 @@ helm install sahool ./helm/sahool \
   --create-namespace
 ```
 
-#### Professional Package | 'D-2E) 'DE-*1A)
+#### Professional Package | 'D-2E) 'DE-\*1A)
 
 ```bash
 helm install sahool ./helm/sahool \
@@ -95,15 +98,15 @@ helm install sahool ./helm/sahool \
   --create-namespace
 ```
 
-## Configuration | 'D%9/'/'*
+## Configuration | 'D%9/'/'\*
 
 ### Package Tiers | E3*HJ'* 'D-2E
 
-| Tier | Services | Replicas | Resource Profile |
-|------|----------|----------|------------------|
-| Starter | 5 core services | 1-2 | Low (4GB RAM) |
-| Professional | 13 services | 1-3 | Medium (12GB RAM) |
-| Enterprise | 21 services | 2-3+ | High (32GB+ RAM) |
+| Tier         | Services        | Replicas | Resource Profile  |
+| ------------ | --------------- | -------- | ----------------- |
+| Starter      | 5 core services | 1-2      | Low (4GB RAM)     |
+| Professional | 13 services     | 1-3      | Medium (12GB RAM) |
+| Enterprise   | 21 services     | 2-3+     | High (32GB+ RAM)  |
 
 ### Starter Package Services
 
@@ -135,7 +138,7 @@ helm install sahool ./helm/sahool \
 - crop-growth-model (3023)
 - lai-estimation (3022)
 
-## Values Configuration | *CHJF 'DBJE
+## Values Configuration | \*CHJF 'DBJE
 
 ### Global Settings
 
@@ -145,7 +148,7 @@ global:
   environment: "production"
   storageClass: "standard"
 
-packageTier: "starter"  # starter, professional, enterprise
+packageTier: "starter" # starter, professional, enterprise
 ```
 
 ### Infrastructure
@@ -219,7 +222,7 @@ ingress:
         - api.sahool.ag
 ```
 
-## Upgrading | 'D*1BJ)
+## Upgrading | 'D\*1BJ)
 
 ```bash
 # Upgrade to Professional tier
@@ -255,7 +258,7 @@ Access Grafana:
 kubectl port-forward svc/sahool-grafana 3000:80 -n sahool-prod
 ```
 
-## Troubleshooting | '3*C4'A 'D#.7'!
+## Troubleshooting | '3\*C4'A 'D#.7'!
 
 ### Check Pod Status
 
@@ -292,8 +295,8 @@ Enable automated backups (Production):
 ```yaml
 backup:
   enabled: true
-  schedule: "0 2 * * *"  # Daily at 2 AM
-  retention: 90  # days
+  schedule: "0 2 * * *" # Daily at 2 AM
+  retention: 90 # days
   size: 200Gi
 ```
 
@@ -315,6 +318,7 @@ Network policies are enabled by default to restrict traffic between pods.
 ### Pod Security
 
 All pods run with:
+
 - Non-root user (UID 1000)
 - Read-only root filesystem
 - Dropped capabilities
@@ -323,6 +327,7 @@ All pods run with:
 ### Secrets Management
 
 Use external secret management solutions:
+
 - Sealed Secrets
 - External Secrets Operator
 - Vault
@@ -330,6 +335,7 @@ Use external secret management solutions:
 ## Support | 'D/9E
 
 For issues and questions:
+
 - Email: support@sahool.ag
 - GitHub: https://github.com/sahool/platform/issues
 

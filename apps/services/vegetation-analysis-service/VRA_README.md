@@ -1,4 +1,5 @@
 # Variable Rate Application (VRA) Prescription Maps
+
 # خرائط وصفات التطبيق المتغير المعدل
 
 ## Overview | نظرة عامة
@@ -59,6 +60,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": "abc-123-def",
@@ -141,6 +143,7 @@ GET /v1/vra/zones/field_123?lat=15.5&lon=44.2&num_zones=3
 ```
 
 **Response:**
+
 ```json
 {
   "field_id": "field_123",
@@ -165,6 +168,7 @@ GET /v1/vra/prescriptions/field_123?limit=10
 ```
 
 **Response:**
+
 ```json
 {
   "field_id": "field_123",
@@ -206,6 +210,7 @@ GET /v1/vra/export/abc-123-def?format=isoxml
 ```
 
 **GeoJSON Response:**
+
 ```json
 {
   "type": "FeatureCollection",
@@ -245,6 +250,7 @@ DELETE /v1/vra/prescription/abc-123-def
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -265,6 +271,7 @@ GET /v1/vra/info
 ## VRA Types and Strategies | أنواع واستراتيجيات التطبيق
 
 ### 1. Fertilizer (تسميد)
+
 **Strategy:** More fertilizer to low-vigor areas, less to high-vigor areas.
 
 - **Low Vigor Zones (منخفض):** 130% of target rate
@@ -274,6 +281,7 @@ GET /v1/vra/info
 **Rationale:** Low-vigor areas need more nutrients to catch up, while high-vigor areas already have sufficient nutrients.
 
 ### 2. Seed (بذار)
+
 **Strategy:** More seeds to high-potential areas.
 
 - **Low Potential (منخفض):** 80% of target rate
@@ -283,6 +291,7 @@ GET /v1/vra/info
 **Rationale:** Maximize productivity in areas with good conditions.
 
 ### 3. Lime (جير)
+
 **Strategy:** More lime to acidic areas (low NDVI indicates poor soil).
 
 - **Low NDVI (منخفض):** 140% of target rate
@@ -292,6 +301,7 @@ GET /v1/vra/info
 **Rationale:** Correct soil pH in problem areas.
 
 ### 4. Pesticide (مبيدات)
+
 **Strategy:** Target high-vigor areas where pests thrive.
 
 - **Low Vigor (منخفض):** 70% of target rate
@@ -301,6 +311,7 @@ GET /v1/vra/info
 **Rationale:** Focus pest control where infestations are likely.
 
 ### 5. Irrigation (ري)
+
 **Strategy:** More water to stressed areas.
 
 - **Low Vigor/Stressed (منخفض):** 130% of target rate
@@ -413,11 +424,13 @@ curl "http://localhost:8090/v1/vra/zones/field_123?lat=15.5&lon=44.2&num_zones=3
 ### NDVI Thresholds
 
 **3-Zone System:**
+
 - Low: 0.0 - 0.4
 - Medium: 0.4 - 0.6
 - High: 0.6 - 1.0
 
 **5-Zone System:**
+
 - Very Low: 0.0 - 0.3
 - Low: 0.3 - 0.45
 - Medium: 0.45 - 0.55
@@ -427,18 +440,21 @@ curl "http://localhost:8090/v1/vra/zones/field_123?lat=15.5&lon=44.2&num_zones=3
 ### Export Format Specifications
 
 #### GeoJSON
+
 - Standard GeoJSON FeatureCollection
 - Each zone is a Polygon feature
 - Properties include rate, area, color
 - Compatible with QGIS, ArcGIS, Leaflet, Mapbox
 
 #### Shapefile
+
 - Standard ESRI Shapefile format
 - Includes .shp, .shx, .dbf components
 - EPSG:4326 (WGS84) coordinate system
 - Compatible with all GIS software
 
 #### ISO-XML
+
 - ISO 11783-10 compliant
 - ISOBUS Task Data format
 - Compatible with modern agricultural equipment
@@ -450,28 +466,28 @@ curl "http://localhost:8090/v1/vra/zones/field_123?lat=15.5&lon=44.2&num_zones=3
 
 ```javascript
 // Fetch VRA prescription
-const response = await fetch('/v1/vra/generate', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("/v1/vra/generate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     field_id: fieldId,
     latitude: field.lat,
     longitude: field.lon,
-    vra_type: 'fertilizer',
+    vra_type: "fertilizer",
     target_rate: 100,
-    unit: 'kg/ha',
-    num_zones: 3
-  })
+    unit: "kg/ha",
+    num_zones: 3,
+  }),
 });
 
 const prescription = await response.json();
 
 // Display zones on map
-prescription.zones.forEach(zone => {
+prescription.zones.forEach((zone) => {
   addPolygonToMap(zone.polygon, {
     color: zone.color,
     label: zone.zone_name_ar,
-    rate: zone.recommended_rate
+    rate: zone.recommended_rate,
   });
 });
 ```

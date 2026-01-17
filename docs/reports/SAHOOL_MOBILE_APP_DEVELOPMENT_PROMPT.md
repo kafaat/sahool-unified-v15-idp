@@ -15,6 +15,7 @@ Build a comprehensive agricultural mobile application (Android/iOS) that integra
 ## Architecture Requirements
 
 ### Technology Stack Recommendations
+
 - **Framework:** React Native, Flutter, or native (Swift/Kotlin)
 - **State Management:** Redux/MobX (React Native) or Provider/Bloc (Flutter)
 - **HTTP Client:** Axios/Fetch or Dio (Flutter)
@@ -24,6 +25,7 @@ Build a comprehensive agricultural mobile application (Android/iOS) that integra
 - **Push Notifications:** Firebase Cloud Messaging (FCM)
 
 ### Core Architecture Patterns
+
 1. **Repository Pattern:** Separate API calls from UI logic
 2. **MVVM/MVP:** Clear separation of concerns
 3. **Offline-First:** Cache data locally for offline access
@@ -35,14 +37,17 @@ Build a comprehensive agricultural mobile application (Android/iOS) that integra
 ## Authentication & Authorization
 
 ### Screen 1: Login Screen
+
 **Purpose:** User authentication
 
 **API Endpoint:** (Note: Authentication service not in docker-compose, but typically)
+
 ```
 POST /api/v1/auth/login
 ```
 
 **Request:**
+
 ```json
 {
   "email": "farmer@example.com",
@@ -52,6 +57,7 @@ POST /api/v1/auth/login
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -70,6 +76,7 @@ POST /api/v1/auth/login
 ```
 
 **UI Components:**
+
 - Email/Phone input field (Arabic RTL support)
 - Password input (show/hide toggle)
 - Login button
@@ -77,11 +84,13 @@ POST /api/v1/auth/login
 - Language switcher (Arabic/English)
 
 **Error Handling:**
+
 - **401 Unauthorized:** Show "البريد الإلكتروني أو كلمة المرور غير صحيحة"
 - **Network Error:** Show "تحقق من اتصال الإنترنت"
 - **Validation:** Show inline errors for empty fields
 
 **Store Token:**
+
 - Save JWT token securely (Keychain/Keystore)
 - Store tenant_id for API calls
 - Save refresh_token for auto-login
@@ -89,13 +98,17 @@ POST /api/v1/auth/login
 ---
 
 ### Screen 2: Registration Screen
+
 **Purpose:** New user registration
 
 **API Integration:**
+
 1. **Get Available Plans:**
+
    ```
    GET /v1/plans
    ```
+
    Display plan cards (Free, Starter, Professional)
 
 2. **Create Tenant:**
@@ -114,6 +127,7 @@ POST /api/v1/auth/login
    ```
 
 **UI Flow:**
+
 1. Personal info form (name, email, phone)
 2. Farm info form (farm name, governorate selection)
 3. Plan selection (show pricing in USD and YER)
@@ -125,9 +139,11 @@ POST /api/v1/auth/login
 ## Main Dashboard Screen
 
 ### Screen 3: Home/Dashboard
+
 **Purpose:** Overview of farm operations
 
 **Data to Display:**
+
 1. **Weather Widget** (from Weather Advanced Service)
    - Current temperature and condition
    - Today's forecast
@@ -146,22 +162,20 @@ POST /api/v1/auth/login
    - Unread notifications count
 
 **API Calls:**
+
 ```javascript
 // Parallel API calls for dashboard
-const [
-  weatherData,
-  taskStats,
-  fieldStats,
-  notificationsCount
-] = await Promise.all([
-  fetch('/v1/current/sanaa'),
-  fetch('/api/v1/tasks/stats'),
-  fetch('/stats/tenant/{tenant_id}'),
-  fetch('/v1/notifications/unread/count')
-]);
+const [weatherData, taskStats, fieldStats, notificationsCount] =
+  await Promise.all([
+    fetch("/v1/current/sanaa"),
+    fetch("/api/v1/tasks/stats"),
+    fetch("/stats/tenant/{tenant_id}"),
+    fetch("/v1/notifications/unread/count"),
+  ]);
 ```
 
 **UI Layout:**
+
 - Header with user name and profile picture
 - Weather card (top section)
 - Quick stats grid (Tasks, Fields, Alerts)
@@ -173,20 +187,24 @@ const [
 ## Field Management Screens
 
 ### Screen 4: Fields List Screen
+
 **Purpose:** Display all fields
 
 **API Endpoint:**
+
 ```
 GET /api/v1/fields?tenantId={tenant_id}&limit=50&offset=0
 ```
 
 **Request Headers:**
+
 ```
 Authorization: Bearer {token}
 X-Tenant-Id: {tenant_id}
 ```
 
 **Response Parsing:**
+
 ```json
 {
   "success": true,
@@ -214,6 +232,7 @@ X-Tenant-Id: {tenant_id}
 ```
 
 **UI Components:**
+
 - Search bar (filter by name or crop type)
 - Filter buttons (All, Active, Inactive)
 - Field cards showing:
@@ -227,6 +246,7 @@ X-Tenant-Id: {tenant_id}
 - FAB button to add new field
 
 **Display Format:**
+
 ```
 ┌─────────────────────────────┐
 │ 🗺️  الحقل الشمالي          │
@@ -240,16 +260,21 @@ X-Tenant-Id: {tenant_id}
 ---
 
 ### Screen 5: Field Detail Screen
+
 **Purpose:** Detailed field information
 
 **API Endpoints:**
+
 1. **Get Field:**
+
    ```
    GET /api/v1/fields/{field_id}
    ```
+
    Save ETag from response header for updates
 
 2. **Get Field Operations:**
+
    ```
    GET /operations?field_id={field_id}
    ```
@@ -260,6 +285,7 @@ X-Tenant-Id: {tenant_id}
    ```
 
 **UI Tabs/Sections:**
+
 1. **Overview Tab:**
    - Field name and crop type
    - Area and location (map view)
@@ -281,6 +307,7 @@ X-Tenant-Id: {tenant_id}
    - Create task button
 
 **Actions:**
+
 - Edit field (requires ETag)
 - Delete field
 - Request satellite analysis
@@ -289,20 +316,24 @@ X-Tenant-Id: {tenant_id}
 ---
 
 ### Screen 6: Create/Edit Field Screen
+
 **Purpose:** Add or modify field
 
 **API Endpoint (Create):**
+
 ```
 POST /api/v1/fields
 ```
 
 **API Endpoint (Update):**
+
 ```
 PUT /api/v1/fields/{field_id}
 Headers: If-Match: {etag}
 ```
 
 **Form Fields:**
+
 1. **Basic Info:**
    - Field name (Arabic and English)
    - Crop type (dropdown)
@@ -321,6 +352,7 @@ Headers: If-Match: {etag}
    - Irrigation type (dropdown)
 
 **Request Body:**
+
 ```json
 {
   "name": "South Field",
@@ -328,11 +360,11 @@ Headers: If-Match: {etag}
   "cropType": "tomato",
   "coordinates": [
     [
-      [15.3694, 44.1910],
-      [15.3700, 44.1910],
-      [15.3700, 44.1920],
-      [15.3694, 44.1920],
-      [15.3694, 44.1910]
+      [15.3694, 44.191],
+      [15.37, 44.191],
+      [15.37, 44.192],
+      [15.3694, 44.192],
+      [15.3694, 44.191]
     ]
   ],
   "ownerId": "user_001",
@@ -344,6 +376,7 @@ Headers: If-Match: {etag}
 ```
 
 **Validation:**
+
 - Field name required
 - Crop type required
 - Area must be > 0
@@ -351,6 +384,7 @@ Headers: If-Match: {etag}
 - Polygon must be closed (first point = last point)
 
 **Error Handling:**
+
 - **409 Conflict (ETag mismatch):** Show "تم تحديث الحقل بواسطة مستخدم آخر. يرجى تحديث الصفحة."
 - **422 Validation Error:** Show field-specific errors
 
@@ -359,14 +393,17 @@ Headers: If-Match: {etag}
 ## Task Management Screens
 
 ### Screen 7: Tasks List Screen
+
 **Purpose:** Display all tasks
 
 **API Endpoint:**
+
 ```
 GET /api/v1/tasks?tenant_id={tenant_id}&status=pending&limit=50&offset=0
 ```
 
 **Query Parameters:**
+
 - `field_id` (optional): Filter by field
 - `status` (optional): pending, in_progress, completed, overdue
 - `task_type` (optional): irrigation, fertilization, spraying, etc.
@@ -375,6 +412,7 @@ GET /api/v1/tasks?tenant_id={tenant_id}&status=pending&limit=50&offset=0
 - `due_before`, `due_after` (optional): Date filters
 
 **Response:**
+
 ```json
 {
   "tasks": [
@@ -398,6 +436,7 @@ GET /api/v1/tasks?tenant_id={tenant_id}&status=pending&limit=50&offset=0
 ```
 
 **UI Layout:**
+
 - Filter chips (Today, This Week, All, Overdue)
 - Task type filter (dropdown)
 - Priority filter (dropdown)
@@ -420,15 +459,19 @@ GET /api/v1/tasks?tenant_id={tenant_id}&status=pending&limit=50&offset=0
 ---
 
 ### Screen 8: Task Detail Screen
+
 **Purpose:** View and manage task
 
 **API Endpoints:**
+
 1. **Get Task:**
+
    ```
    GET /api/v1/tasks/{task_id}
    ```
 
 2. **Start Task:**
+
    ```
    POST /api/v1/tasks/{task_id}/start
    ```
@@ -439,6 +482,7 @@ GET /api/v1/tasks?tenant_id={tenant_id}&status=pending&limit=50&offset=0
    ```
 
 **UI Sections:**
+
 1. **Header:**
    - Task title (Arabic/English)
    - Priority badge (color-coded)
@@ -466,14 +510,17 @@ GET /api/v1/tasks?tenant_id={tenant_id}&status=pending&limit=50&offset=0
 ---
 
 ### Screen 9: Create Task Screen
+
 **Purpose:** Create new task
 
 **API Endpoint:**
+
 ```
 POST /api/v1/tasks
 ```
 
 **Form Fields:**
+
 1. **Basic Info:**
    - Title (Arabic and English)
    - Description (optional)
@@ -490,6 +537,7 @@ POST /api/v1/tasks
    - Estimated duration (minutes)
 
 **Request Body:**
+
 ```json
 {
   "title": "Pest Inspection",
@@ -506,6 +554,7 @@ POST /api/v1/tasks
 ```
 
 **Validation:**
+
 - Title required
 - Task type required
 - Field ID required
@@ -516,15 +565,18 @@ POST /api/v1/tasks
 ## Crop Health & Diagnosis Screens
 
 ### Screen 10: Disease Diagnosis Screen
+
 **Purpose:** AI-powered plant disease diagnosis
 
 **API Endpoint:**
+
 ```
 POST /v1/diagnose
 Content-Type: multipart/form-data
 ```
 
 **Request Form Data:**
+
 ```
 image: (file, required, max 10MB)
 field_id: (string, optional)
@@ -536,6 +588,7 @@ lng: (float, optional)
 ```
 
 **UI Flow:**
+
 1. **Camera/Gallery Selection:**
    - Button: "Take Photo" (opens camera)
    - Button: "Choose from Gallery" (opens image picker)
@@ -560,10 +613,7 @@ lng: (float, optional)
        "severity": "moderate"
      },
      "treatment": {
-       "recommendations_ar": [
-         "رش مبيد فطري مانكوزيب",
-         "إزالة الأوراق المصابة"
-       ],
+       "recommendations_ar": ["رش مبيد فطري مانكوزيب", "إزالة الأوراق المصابة"],
        "chemicals": [
          {
            "name_ar": "مانكوزيب",
@@ -575,6 +625,7 @@ lng: (float, optional)
    ```
 
 **UI Components:**
+
 - Disease name and confidence percentage
 - Severity indicator (color-coded: green/yellow/red)
 - Treatment recommendations list
@@ -583,6 +634,7 @@ lng: (float, optional)
 - Share results button
 
 **Error Handling:**
+
 - **400 Invalid image:** Show "يرجى اختيار صورة صحيحة"
 - **400 Image too large:** Show "حجم الصورة كبير جداً. الحد الأقصى 10 ميجابايت"
 - **Network Error:** Show retry button
@@ -590,21 +642,25 @@ lng: (float, optional)
 ---
 
 ### Screen 11: Batch Diagnosis Screen
+
 **Purpose:** Diagnose multiple images at once
 
 **API Endpoint:**
+
 ```
 POST /v1/diagnose/batch
 Content-Type: multipart/form-data
 ```
 
 **Form Data:**
+
 ```
 images: (files[], max 20 images)
 field_id: (optional)
 ```
 
 **UI:**
+
 - Image grid (selected images)
 - Add more button (up to 20)
 - Remove image (X button on each)
@@ -617,15 +673,19 @@ field_id: (optional)
 ## Weather & Forecast Screens
 
 ### Screen 12: Weather Dashboard
+
 **Purpose:** Weather information and forecasts
 
 **API Endpoints:**
+
 1. **Current Weather:**
+
    ```
    GET /v1/current/{location_id}
    ```
 
 2. **Forecast:**
+
    ```
    GET /v1/forecast/{location_id}?days=7
    ```
@@ -636,6 +696,7 @@ field_id: (optional)
    ```
 
 **UI Layout:**
+
 1. **Current Weather Card:**
    - Location name (Arabic)
    - Current temperature (large display)
@@ -674,6 +735,7 @@ field_id: (optional)
    - Irrigation recommendation
 
 **Location Selection:**
+
 - Dropdown with all 22 Yemen governorates
 - Auto-detect from GPS (optional)
 
@@ -682,10 +744,13 @@ field_id: (optional)
 ## Irrigation Management Screens
 
 ### Screen 13: Irrigation Dashboard
+
 **Purpose:** Irrigation scheduling and recommendations
 
 **API Endpoints:**
+
 1. **Calculate Irrigation:**
+
    ```
    POST /v1/calculate
    ```
@@ -696,6 +761,7 @@ field_id: (optional)
    ```
 
 **UI Sections:**
+
 1. **Upcoming Irrigation:**
    - List of scheduled irrigation:
      ```
@@ -723,6 +789,7 @@ field_id: (optional)
      - Deficit
 
 **Request Body for Calculation:**
+
 ```json
 {
   "field_id": "field_001",
@@ -739,15 +806,19 @@ field_id: (optional)
 ---
 
 ### Screen 14: Virtual Sensors Screen
+
 **Purpose:** ET0 and soil moisture calculations (without physical sensors)
 
 **API Endpoints:**
+
 1. **Calculate ET0:**
+
    ```
    POST /v1/et0/calculate
    ```
 
 2. **Calculate ETc:**
+
    ```
    POST /v1/etc/calculate
    ```
@@ -758,6 +829,7 @@ field_id: (optional)
    ```
 
 **UI Form:**
+
 - Location (GPS or manual)
 - Date selector
 - Weather inputs (if not auto-filled):
@@ -770,6 +842,7 @@ field_id: (optional)
 - Calculate button
 
 **Results Display:**
+
 - ET0 value (mm/day)
 - ETc value (mm/day)
 - Kc coefficient
@@ -781,19 +854,23 @@ field_id: (optional)
 ## Equipment Management Screens
 
 ### Screen 15: Equipment List
+
 **Purpose:** View all equipment
 
 **API Endpoint:**
+
 ```
 GET /api/v1/equipment?tenant_id={tenant_id}&equipment_type=tractor
 ```
 
 **Query Parameters:**
+
 - `equipment_type` (optional): tractor, pump, drone, harvester, etc.
 - `status` (optional): operational, maintenance, inactive
 - `field_id` (optional)
 
 **UI:**
+
 - Filter chips (All, Tractors, Pumps, Drones)
 - Equipment cards:
   ```
@@ -810,15 +887,19 @@ GET /api/v1/equipment?tenant_id={tenant_id}&equipment_type=tractor
 ---
 
 ### Screen 16: Equipment Detail
+
 **Purpose:** Equipment information and maintenance
 
 **API Endpoints:**
+
 1. **Get Equipment:**
+
    ```
    GET /api/v1/equipment/{equipment_id}
    ```
 
 2. **Get Maintenance Alerts:**
+
    ```
    GET /api/v1/equipment/alerts?overdue_only=true
    ```
@@ -829,6 +910,7 @@ GET /api/v1/equipment?tenant_id={tenant_id}&equipment_type=tractor
    ```
 
 **UI Tabs:**
+
 1. **Overview:**
    - Equipment name and photo
    - Brand, model, serial number
@@ -855,6 +937,7 @@ GET /api/v1/equipment?tenant_id={tenant_id}&equipment_type=tractor
    - Update telemetry button
 
 **Actions:**
+
 - Scan QR code (if available)
 - Update status
 - Update location
@@ -863,14 +946,17 @@ GET /api/v1/equipment?tenant_id={tenant_id}&equipment_type=tractor
 ---
 
 ### Screen 17: Add Maintenance Record
+
 **Purpose:** Log maintenance activity
 
 **API Endpoint:**
+
 ```
 POST /api/v1/equipment/{equipment_id}/maintenance
 ```
 
 **Form Fields:**
+
 - Maintenance type (picker):
   - Oil change
   - Filter change
@@ -886,6 +972,7 @@ POST /api/v1/equipment/{equipment_id}/maintenance
 - Date/time (default: now)
 
 **Request Body:**
+
 ```json
 {
   "maintenance_type": "oil_change",
@@ -902,10 +989,13 @@ POST /api/v1/equipment/{equipment_id}/maintenance
 ## Satellite Analysis Screens
 
 ### Screen 18: Satellite Analysis Screen
+
 **Purpose:** View NDVI and vegetation health analysis
 
 **API Endpoints:**
+
 1. **Request Analysis:**
+
    ```
    POST /v1/analyze
    ```
@@ -916,6 +1006,7 @@ POST /api/v1/equipment/{equipment_id}/maintenance
    ```
 
 **UI Flow:**
+
 1. **Field Selection:**
    - Dropdown to select field
    - Or select from map
@@ -943,11 +1034,12 @@ POST /api/v1/equipment/{equipment_id}/maintenance
    - Y-axis: NDVI values (0-1)
 
 **Request Body:**
+
 ```json
 {
   "field_id": "field_001",
   "latitude": 15.3694,
-  "longitude": 44.1910,
+  "longitude": 44.191,
   "satellite": "sentinel-2",
   "start_date": "2025-01-01",
   "end_date": "2025-01-15",
@@ -960,10 +1052,13 @@ POST /api/v1/equipment/{equipment_id}/maintenance
 ## Billing & Subscription Screens
 
 ### Screen 19: Subscription Screen
+
 **Purpose:** View and manage subscription
 
 **API Endpoints:**
+
 1. **Get Subscription:**
+
    ```
    GET /v1/tenants/{tenant_id}/subscription
    ```
@@ -974,6 +1069,7 @@ POST /api/v1/equipment/{equipment_id}/maintenance
    ```
 
 **UI Sections:**
+
 1. **Current Plan:**
    - Plan name and tier badge
    - Billing cycle
@@ -1000,14 +1096,17 @@ POST /api/v1/equipment/{equipment_id}/maintenance
 ---
 
 ### Screen 20: Invoice Detail Screen
+
 **Purpose:** View invoice and payment
 
 **API Endpoint:**
+
 ```
 GET /v1/invoices/{invoice_id}
 ```
 
 **UI:**
+
 - Invoice number and date
 - Line items table
 - Subtotal, tax, total
@@ -1017,6 +1116,7 @@ GET /v1/invoices/{invoice_id}
 - Download PDF button
 
 **Payment Flow:**
+
 1. Select payment method:
    - Credit card (Stripe)
    - Bank transfer
@@ -1031,14 +1131,17 @@ GET /v1/invoices/{invoice_id}
 ## Notifications Screen
 
 ### Screen 21: Notifications List
+
 **Purpose:** View all notifications
 
 **API Endpoint:**
+
 ```
 GET /v1/notifications?page=1&limit=20&unread_only=false
 ```
 
 **UI:**
+
 - Filter tabs: All, Unread, Alerts, Tasks
 - Notification cards:
   ```
@@ -1054,6 +1157,7 @@ GET /v1/notifications?page=1&limit=20&unread_only=false
 - Mark all as read button
 
 **Notification Types:**
+
 - Weather alerts (🌤️)
 - Irrigation reminders (💧)
 - Task reminders (📋)
@@ -1066,9 +1170,11 @@ GET /v1/notifications?page=1&limit=20&unread_only=false
 ## Marketplace Screens (Future)
 
 ### Screen 22: Marketplace Screen
+
 **Note:** Marketplace service exists but not detailed in current APIs
 
 **Features:**
+
 - Browse products
 - Sell crops
 - View prices
@@ -1079,9 +1185,11 @@ GET /v1/notifications?page=1&limit=20&unread_only=false
 ## Settings Screen
 
 ### Screen 23: Settings
+
 **Purpose:** App configuration
 
 **Sections:**
+
 1. **Profile:**
    - Edit name, email, phone
    - Change password
@@ -1111,6 +1219,7 @@ GET /v1/notifications?page=1&limit=20&unread_only=false
 ### 1. HTTP Client Setup
 
 **React Native Example (Axios):**
+
 ```javascript
 import axios from 'axios';
 
@@ -1152,24 +1261,25 @@ apiClient.interceptors.response.use(
 ### 2. State Management
 
 **Redux Example:**
+
 ```javascript
 // Actions
 export const fetchFields = () => async (dispatch) => {
-  dispatch({ type: 'FIELDS_LOADING' });
+  dispatch({ type: "FIELDS_LOADING" });
   try {
-    const response = await apiClient.get('/api/v1/fields');
-    dispatch({ type: 'FIELDS_SUCCESS', payload: response.data.data });
+    const response = await apiClient.get("/api/v1/fields");
+    dispatch({ type: "FIELDS_SUCCESS", payload: response.data.data });
   } catch (error) {
-    dispatch({ type: 'FIELDS_ERROR', payload: error.message });
+    dispatch({ type: "FIELDS_ERROR", payload: error.message });
   }
 };
 
 // Reducer
 const fieldsReducer = (state = { items: [], loading: false }, action) => {
   switch (action.type) {
-    case 'FIELDS_LOADING':
+    case "FIELDS_LOADING":
       return { ...state, loading: true };
-    case 'FIELDS_SUCCESS':
+    case "FIELDS_SUCCESS":
       return { items: action.payload, loading: false };
     default:
       return state;
@@ -1185,28 +1295,28 @@ const handleApiError = (error) => {
     // Server responded with error
     const status = error.response.status;
     const message = error.response.data?.detail || error.response.data?.error;
-    
+
     switch (status) {
       case 400:
-        return 'بيانات غير صحيحة. يرجى التحقق من المدخلات.';
+        return "بيانات غير صحيحة. يرجى التحقق من المدخلات.";
       case 401:
-        return 'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.';
+        return "انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.";
       case 404:
-        return 'البيانات المطلوبة غير موجودة.';
+        return "البيانات المطلوبة غير موجودة.";
       case 422:
-        return message || 'بيانات غير صحيحة.';
+        return message || "بيانات غير صحيحة.";
       case 429:
-        return 'تم تجاوز عدد الطلبات المسموح. يرجى المحاولة لاحقاً.';
+        return "تم تجاوز عدد الطلبات المسموح. يرجى المحاولة لاحقاً.";
       case 500:
-        return 'خطأ في الخادم. يرجى المحاولة لاحقاً.';
+        return "خطأ في الخادم. يرجى المحاولة لاحقاً.";
       default:
-        return message || 'حدث خطأ غير متوقع.';
+        return message || "حدث خطأ غير متوقع.";
     }
   } else if (error.request) {
     // Request made but no response
-    return 'تحقق من اتصال الإنترنت.';
+    return "تحقق من اتصال الإنترنت.";
   } else {
-    return 'حدث خطأ أثناء إعداد الطلب.';
+    return "حدث خطأ أثناء إعداد الطلب.";
   }
 };
 ```
@@ -1214,26 +1324,27 @@ const handleApiError = (error) => {
 ### 4. Image Upload
 
 **React Native Example:**
+
 ```javascript
-import ImagePicker from 'react-native-image-picker';
-import FormData from 'form-data';
+import ImagePicker from "react-native-image-picker";
+import FormData from "form-data";
 
 const uploadDiagnosisImage = async (imageUri, cropType, fieldId) => {
   const formData = new FormData();
-  formData.append('image', {
+  formData.append("image", {
     uri: imageUri,
-    type: 'image/jpeg',
-    name: 'diagnosis.jpg',
+    type: "image/jpeg",
+    name: "diagnosis.jpg",
   });
-  if (cropType) formData.append('crop_type', cropType);
-  if (fieldId) formData.append('field_id', fieldId);
+  if (cropType) formData.append("crop_type", cropType);
+  if (fieldId) formData.append("field_id", fieldId);
 
-  const response = await apiClient.post('/v1/diagnose', formData, {
+  const response = await apiClient.post("/v1/diagnose", formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
-  
+
   return response.data;
 };
 ```
@@ -1241,15 +1352,18 @@ const uploadDiagnosisImage = async (imageUri, cropType, fieldId) => {
 ### 5. Offline Support
 
 ```javascript
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 
 // Cache API responses
 const cacheResponse = async (key, data) => {
-  await AsyncStorage.setItem(key, JSON.stringify({
-    data,
-    timestamp: Date.now(),
-  }));
+  await AsyncStorage.setItem(
+    key,
+    JSON.stringify({
+      data,
+      timestamp: Date.now(),
+    }),
+  );
 };
 
 // Get cached data
@@ -1267,14 +1381,14 @@ const getCachedData = async (key, maxAge = 3600000) => {
 // Check network and use cache if offline
 const fetchWithCache = async (endpoint, cacheKey) => {
   const netInfo = await NetInfo.fetch();
-  
+
   if (!netInfo.isConnected) {
     // Return cached data if offline
     const cached = await getCachedData(cacheKey);
     if (cached) return cached;
-    throw new Error('No internet connection and no cached data');
+    throw new Error("No internet connection and no cached data");
   }
-  
+
   try {
     const response = await apiClient.get(endpoint);
     await cacheResponse(cacheKey, response.data);
@@ -1291,13 +1405,14 @@ const fetchWithCache = async (endpoint, cacheKey) => {
 ### 6. Push Notifications
 
 **Firebase Cloud Messaging Setup:**
+
 ```javascript
-import messaging from '@react-native-firebase/messaging';
+import messaging from "@react-native-firebase/messaging";
 
 // Register FCM token
 const registerFCMToken = async () => {
   const token = await messaging().getToken();
-  await apiClient.post('/push/register', {
+  await apiClient.post("/push/register", {
     token,
     platform: Platform.OS,
     device_id: DeviceInfo.getUniqueId(),
@@ -1317,8 +1432,8 @@ messaging().onMessage(async (remoteMessage) => {
 messaging().onNotificationOpenedApp((remoteMessage) => {
   // Navigate to relevant screen
   if (remoteMessage.data.field_id) {
-    navigation.navigate('FieldDetail', { 
-      fieldId: remoteMessage.data.field_id 
+    navigation.navigate("FieldDetail", {
+      fieldId: remoteMessage.data.field_id,
     });
   }
 });
@@ -1329,12 +1444,14 @@ messaging().onNotificationOpenedApp((remoteMessage) => {
 ## UI/UX Guidelines
 
 ### Arabic (RTL) Support
+
 - All text should support RTL layout
 - Use `flexDirection: 'row-reverse'` for RTL
 - Mirror icons and images for RTL
 - Use Arabic numerals (٠-٩) optionally
 
 ### Color Scheme
+
 - Primary: Green (#2E7D32) - Agriculture theme
 - Secondary: Orange (#F57C00) - Alerts
 - Success: Green (#4CAF50)
@@ -1343,11 +1460,13 @@ messaging().onNotificationOpenedApp((remoteMessage) => {
 - Info: Blue (#2196F3)
 
 ### Typography
+
 - Arabic font: Tajawal, Cairo, or Noto Sans Arabic
 - English font: Roboto or Inter
 - Font sizes: 12px (small), 14px (body), 16px (title), 20px (heading), 24px (large heading)
 
 ### Icons
+
 - Use Material Icons or FontAwesome
 - Common icons:
   - 🌾 Fields
@@ -1458,4 +1577,3 @@ messaging().onNotificationOpenedApp((remoteMessage) => {
 ---
 
 **End of Mobile App Development Prompt**
-

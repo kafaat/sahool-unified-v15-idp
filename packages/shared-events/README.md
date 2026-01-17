@@ -22,12 +22,12 @@ npm install @sahool/shared-events
 ### Initialize NATS Connection
 
 ```typescript
-import { initializeNatsClient } from '@sahool/shared-events';
+import { initializeNatsClient } from "@sahool/shared-events";
 
 // Initialize at application startup
 await initializeNatsClient({
-  servers: process.env.NATS_URL || 'nats://localhost:4222',
-  name: 'my-service',
+  servers: process.env.NATS_URL || "nats://localhost:4222",
+  name: "my-service",
   debug: true,
 });
 ```
@@ -35,46 +35,56 @@ await initializeNatsClient({
 ### Publishing Events
 
 ```typescript
-import { publishFieldCreated, publishOrderPlaced } from '@sahool/shared-events';
+import { publishFieldCreated, publishOrderPlaced } from "@sahool/shared-events";
 
 // Publish a field creation event
 await publishFieldCreated({
-  fieldId: 'field-123',
-  userId: 'user-456',
-  name: 'North Field',
+  fieldId: "field-123",
+  userId: "user-456",
+  name: "North Field",
   area: 1000,
   location: {
-    type: 'Polygon',
-    coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]],
+    type: "Polygon",
+    coordinates: [
+      [
+        [0, 0],
+        [0, 1],
+        [1, 1],
+        [1, 0],
+        [0, 0],
+      ],
+    ],
   },
-  cropType: 'wheat',
+  cropType: "wheat",
 });
 
 // Publish an order event
 await publishOrderPlaced({
-  orderId: 'order-789',
-  userId: 'user-456',
-  items: [
-    { productId: 'product-1', quantity: 2, price: 50.0 },
-  ],
+  orderId: "order-789",
+  userId: "user-456",
+  items: [{ productId: "product-1", quantity: 2, price: 50.0 }],
   totalAmount: 100.0,
-  currency: 'USD',
+  currency: "USD",
 });
 ```
 
 ### Subscribing to Events
 
 ```typescript
-import { subscribe, subscribeToFieldEvents, EventSubjects } from '@sahool/shared-events';
+import {
+  subscribe,
+  subscribeToFieldEvents,
+  EventSubjects,
+} from "@sahool/shared-events";
 
 // Subscribe to a specific event
 await subscribe(EventSubjects.FIELD_CREATED, async (event) => {
-  console.log('Field created:', event.payload);
+  console.log("Field created:", event.payload);
 });
 
 // Subscribe to all field events using pattern
 await subscribeToFieldEvents(async (event) => {
-  console.log('Field event:', event.eventType, event.payload);
+  console.log("Field event:", event.eventType, event.payload);
 });
 
 // Subscribe with queue group for load balancing
@@ -83,45 +93,51 @@ await subscribe(
   async (event) => {
     // Process order
   },
-  { queue: 'order-processors' }
+  { queue: "order-processors" },
 );
 ```
 
 ### Using Logging Handler
 
 ```typescript
-import { subscribeAll, createLoggingHandler } from '@sahool/shared-events';
+import { subscribeAll, createLoggingHandler } from "@sahool/shared-events";
 
 // Log all events for debugging
-await subscribeAll(createLoggingHandler('[EventBus]'));
+await subscribeAll(createLoggingHandler("[EventBus]"));
 ```
 
 ## Event Types
 
 ### Field Events
+
 - `field.created` - New field created
 - `field.updated` - Field information updated
 - `field.deleted` - Field deleted
 
 ### Order Events
+
 - `order.placed` - New order placed
 - `order.completed` - Order completed
 - `order.cancelled` - Order cancelled
 
 ### Sensor Events
+
 - `sensor.reading` - Sensor data reading
 - `device.connected` - Device connected
 - `device.disconnected` - Device disconnected
 
 ### User Events
+
 - `user.created` - New user registered
 - `user.updated` - User information updated
 
 ### Inventory Events
+
 - `inventory.low_stock` - Stock level below threshold
 - `inventory.movement` - Inventory movement recorded
 
 ### Notification Events
+
 - `notification.send` - Notification to be sent
 
 ## Advanced Usage
@@ -129,31 +145,35 @@ await subscribeAll(createLoggingHandler('[EventBus]'));
 ### Custom Event Publishing
 
 ```typescript
-import { publishEvent } from '@sahool/shared-events';
+import { publishEvent } from "@sahool/shared-events";
 
-await publishEvent('custom.event', {
-  customField: 'value',
-}, {
-  version: '2.0',
-  metadata: {
-    source: 'my-service',
+await publishEvent(
+  "custom.event",
+  {
+    customField: "value",
   },
-});
+  {
+    version: "2.0",
+    metadata: {
+      source: "my-service",
+    },
+  },
+);
 ```
 
 ### Pattern Subscriptions
 
 ```typescript
-import { subscribePattern } from '@sahool/shared-events';
+import { subscribePattern } from "@sahool/shared-events";
 
 // Subscribe to all creation events
-await subscribePattern('*.created', async (event) => {
-  console.log('Something was created:', event);
+await subscribePattern("*.created", async (event) => {
+  console.log("Something was created:", event);
 });
 
 // Subscribe to all events
-await subscribePattern('>', async (event) => {
-  console.log('Event received:', event);
+await subscribePattern(">", async (event) => {
+  console.log("Event received:", event);
 });
 ```
 

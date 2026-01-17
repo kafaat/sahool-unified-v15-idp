@@ -9,13 +9,13 @@ Total registered events: **5**
 
 ## Event Registry
 
-| Ref | Topic | Version | Owner | Breaking Policy |
-|-----|-------|--------:|-------|-----------------|
-| `events.field.created:v1` | `field.created` | 1 | field_suite | new_version |
-| `events.field.updated:v1` | `field.updated` | 1 | field_suite | new_version |
-| `events.farm.created:v1` | `farm.created` | 1 | field_suite | new_version |
-| `events.crop.planted:v1` | `crop.planted` | 1 | field_suite | new_version |
-| `events.advisor.recommendation:v1` | `advisor.recommendation` | 1 | advisor | new_version |
+| Ref                                | Topic                    | Version | Owner       | Breaking Policy |
+| ---------------------------------- | ------------------------ | ------: | ----------- | --------------- |
+| `events.field.created:v1`          | `field.created`          |       1 | field_suite | new_version     |
+| `events.field.updated:v1`          | `field.updated`          |       1 | field_suite | new_version     |
+| `events.farm.created:v1`           | `farm.created`           |       1 | field_suite | new_version     |
+| `events.crop.planted:v1`           | `crop.planted`           |       1 | field_suite | new_version     |
+| `events.advisor.recommendation:v1` | `advisor.recommendation` |       1 | advisor     | new_version     |
 
 ## Event Details
 
@@ -32,6 +32,7 @@ Total registered events: **5**
 Event emitted when AI advisor generates a recommendation
 
 **Required Fields:**
+
 - `recommendation_id`
 - `tenant_id`
 - `recommendation_type`
@@ -40,17 +41,17 @@ Event emitted when AI advisor generates a recommendation
 
 **Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `recommendation_id` ✓ | string (uuid) | Unique identifier of the recommendation |
-| `tenant_id` ✓ | string (uuid) | Tenant that received the recommendation |
-| `field_id`  | string (uuid) | Optional field the recommendation applies to |
-| `recommendation_type` ✓ | string | Type of recommendation |
-| `summary` ✓ | string | Summary of the recommendation |
-| `summary_ar`  | string | Summary in Arabic |
-| `confidence`  | string | Confidence level of the recommendation |
-| `actions_count`  | integer | Number of recommended actions |
-| `created_at` ✓ | string (date-time) | Timestamp when the recommendation was created |
+| Field                   | Type               | Description                                   |
+| ----------------------- | ------------------ | --------------------------------------------- |
+| `recommendation_id` ✓   | string (uuid)      | Unique identifier of the recommendation       |
+| `tenant_id` ✓           | string (uuid)      | Tenant that received the recommendation       |
+| `field_id`              | string (uuid)      | Optional field the recommendation applies to  |
+| `recommendation_type` ✓ | string             | Type of recommendation                        |
+| `summary` ✓             | string             | Summary of the recommendation                 |
+| `summary_ar`            | string             | Summary in Arabic                             |
+| `confidence`            | string             | Confidence level of the recommendation        |
+| `actions_count`         | integer            | Number of recommended actions                 |
+| `created_at` ✓          | string (date-time) | Timestamp when the recommendation was created |
 
 ### field_suite
 
@@ -65,6 +66,7 @@ Event emitted when AI advisor generates a recommendation
 Event emitted when a new field is created
 
 **Required Fields:**
+
 - `field_id`
 - `farm_id`
 - `name`
@@ -73,17 +75,17 @@ Event emitted when a new field is created
 
 **Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `field_id` ✓ | string (uuid) | Unique identifier of the field |
-| `farm_id` ✓ | string (uuid) | Parent farm identifier |
-| `name` ✓ | string | Field name |
-| `name_ar`  | string | Field name in Arabic |
-| `geometry_wkt` ✓ | string | Field boundary in WKT format |
-| `area_hectares`  | number | Field area in hectares |
-| `soil_type`  | string | Soil classification |
-| `irrigation_type`  | string | Irrigation method |
-| `created_at` ✓ | string (date-time) | Timestamp when the field was created |
+| Field             | Type               | Description                          |
+| ----------------- | ------------------ | ------------------------------------ |
+| `field_id` ✓      | string (uuid)      | Unique identifier of the field       |
+| `farm_id` ✓       | string (uuid)      | Parent farm identifier               |
+| `name` ✓          | string             | Field name                           |
+| `name_ar`         | string             | Field name in Arabic                 |
+| `geometry_wkt` ✓  | string             | Field boundary in WKT format         |
+| `area_hectares`   | number             | Field area in hectares               |
+| `soil_type`       | string             | Soil classification                  |
+| `irrigation_type` | string             | Irrigation method                    |
+| `created_at` ✓    | string (date-time) | Timestamp when the field was created |
 
 #### `field.updated`
 
@@ -96,17 +98,18 @@ Event emitted when a new field is created
 Event emitted when a field is updated
 
 **Required Fields:**
+
 - `field_id`
 - `updated_at`
 - `changes`
 
 **Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `field_id` ✓ | string (uuid) | Unique identifier of the field |
+| Field          | Type               | Description                          |
+| -------------- | ------------------ | ------------------------------------ |
+| `field_id` ✓   | string (uuid)      | Unique identifier of the field       |
 | `updated_at` ✓ | string (date-time) | Timestamp when the field was updated |
-| `changes` ✓ | object | Changed fields |
+| `changes` ✓    | object             | Changed fields                       |
 
 #### `farm.created`
 
@@ -119,6 +122,7 @@ Event emitted when a field is updated
 Event emitted when a new farm is created
 
 **Required Fields:**
+
 - `farm_id`
 - `tenant_id`
 - `name`
@@ -127,16 +131,16 @@ Event emitted when a new farm is created
 
 **Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `farm_id` ✓ | string (uuid) | Unique identifier of the farm |
-| `tenant_id` ✓ | string (uuid) | Tenant that owns the farm |
-| `name` ✓ | string | Farm name |
-| `name_ar`  | string | Farm name in Arabic |
-| `location` ✓ | object |  |
-| `total_area_hectares`  | number | Total farm area in hectares |
-| `owner_id`  | string (uuid) | User ID of the farm owner |
-| `created_at` ✓ | string (date-time) | Timestamp when the farm was created |
+| Field                 | Type               | Description                         |
+| --------------------- | ------------------ | ----------------------------------- |
+| `farm_id` ✓           | string (uuid)      | Unique identifier of the farm       |
+| `tenant_id` ✓         | string (uuid)      | Tenant that owns the farm           |
+| `name` ✓              | string             | Farm name                           |
+| `name_ar`             | string             | Farm name in Arabic                 |
+| `location` ✓          | object             |                                     |
+| `total_area_hectares` | number             | Total farm area in hectares         |
+| `owner_id`            | string (uuid)      | User ID of the farm owner           |
+| `created_at` ✓        | string (date-time) | Timestamp when the farm was created |
 
 #### `crop.planted`
 
@@ -149,6 +153,7 @@ Event emitted when a new farm is created
 Event emitted when a crop is planted in a field
 
 **Required Fields:**
+
 - `crop_id`
 - `field_id`
 - `crop_type`
@@ -157,16 +162,16 @@ Event emitted when a crop is planted in a field
 
 **Fields:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `crop_id` ✓ | string (uuid) | Unique identifier of the crop |
-| `field_id` ✓ | string (uuid) | Field where the crop is planted |
-| `crop_type` ✓ | string | Type of crop (wheat, barley, coffee, etc.) |
-| `variety`  | string | Crop variety |
-| `variety_ar`  | string | Crop variety in Arabic |
-| `planting_date` ✓ | string (date) | Date when the crop was planted |
-| `expected_harvest_date`  | string (date) | Expected harvest date |
-| `created_at` ✓ | string (date-time) | Timestamp when the event was created |
+| Field                   | Type               | Description                                |
+| ----------------------- | ------------------ | ------------------------------------------ |
+| `crop_id` ✓             | string (uuid)      | Unique identifier of the crop              |
+| `field_id` ✓            | string (uuid)      | Field where the crop is planted            |
+| `crop_type` ✓           | string             | Type of crop (wheat, barley, coffee, etc.) |
+| `variety`               | string             | Crop variety                               |
+| `variety_ar`            | string             | Crop variety in Arabic                     |
+| `planting_date` ✓       | string (date)      | Date when the crop was planted             |
+| `expected_harvest_date` | string (date)      | Expected harvest date                      |
+| `created_at` ✓          | string (date-time) | Timestamp when the event was created       |
 
 ---
 

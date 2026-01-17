@@ -358,6 +358,7 @@ Result: All logs across both services share the SAME correlation_id,
 ## Middleware Order of Execution
 
 ### FastAPI (Python)
+
 ```
 Client Request
     │
@@ -414,6 +415,7 @@ Client Request
 ```
 
 ### NestJS (TypeScript)
+
 ```
 Client Request
     │

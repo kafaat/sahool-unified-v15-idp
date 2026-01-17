@@ -45,8 +45,15 @@ RUN mkdir -p /root/.pip && \
 COPY apps/services/agro-advisor/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
-# Copy shared libraries
-COPY apps/services/shared/ ./shared/
+# Copy shared libraries (from repo root)
+COPY shared/ ./shared/
+
+# Copy services-shared modules (crops.py, yemen_varieties.py, etc.)
+COPY apps/services/shared/ ./services_shared/
+
+# Make errors_py available as shared.errors_py for imports
+RUN mkdir -p ./shared/errors_py && \
+    cp -r ./services_shared/errors_py/* ./shared/errors_py/
 
 # Copy source
 COPY apps/services/agro-advisor/src/ ./src/

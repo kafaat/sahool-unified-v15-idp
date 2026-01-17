@@ -9,32 +9,38 @@ This directory contains SQL migrations for the GlobalGAP Compliance tracking sys
 ## Migration Files
 
 ### 001_initial_schema.sql
+
 **Initial database schema creation**
 **إنشاء مخطط قاعدة البيانات الأولي**
 
 Creates the following tables:
+
 - `globalgap_registrations` - Farm GlobalGAP registrations and certifications
 - `compliance_records` - Audit results and compliance scores
 - `checklist_responses` - Individual checklist item responses
 - `non_conformances` - Non-conformances and corrective actions
 
 ينشئ الجداول التالية:
+
 - `globalgap_registrations` - تسجيلات وشهادات GlobalGAP للمزارع
 - `compliance_records` - نتائج التدقيق ودرجات الامتثال
 - `checklist_responses` - استجابات عناصر قائمة التحقق الفردية
 - `non_conformances` - عدم المطابقات والإجراءات التصحيحية
 
 ### 002_add_indexes.sql
+
 **Performance indexes for efficient querying**
 **فهارس الأداء للاستعلام الفعال**
 
 Adds indexes for:
+
 - Fast lookups by farm, GGN, and status
 - Chronological queries by audit dates
 - Filtering by compliance scores
 - Non-conformance tracking
 
 يضيف فهارس لـ:
+
 - البحث السريع حسب المزرعة، GGN، والحالة
 - الاستعلامات الزمنية حسب تواريخ التدقيق
 - التصفية حسب درجات الامتثال
@@ -96,6 +102,7 @@ globalgap_registrations (1) ──→ (*) compliance_records
 6. **Bilingual Comments**: All schema elements have English and Arabic descriptions
 
 ### Certificate Status Values
+
 - `ACTIVE` - Active certificate
 - `SUSPENDED` - Suspended certificate
 - `EXPIRED` - Expired certificate
@@ -103,17 +110,20 @@ globalgap_registrations (1) ──→ (*) compliance_records
 - `PENDING` - Pending registration
 
 ### Response Values
+
 - `COMPLIANT` - Item is compliant
 - `NON_COMPLIANT` - Item is not compliant
 - `NOT_APPLICABLE` - Item is not applicable
 - `RECOMMENDATION` - Recommended improvement
 
 ### Non-Conformance Severity
+
 - `MAJOR` - Major non-conformance
 - `MINOR` - Minor non-conformance
 - `RECOMMENDATION` - Recommendation for improvement
 
 ### Non-Conformance Status
+
 - `OPEN` - Open issue
 - `IN_PROGRESS` - Corrective action in progress
 - `RESOLVED` - Issue resolved
@@ -161,11 +171,13 @@ expiring = await registrations_repo.get_expiring_soon(days=30)
 ## Database Backup
 
 ### Backup Command
+
 ```bash
 pg_dump -h host -U user -d sahool_globalgap -F c -f backup_$(date +%Y%m%d).dump
 ```
 
 ### Restore Command
+
 ```bash
 pg_restore -h host -U user -d sahool_globalgap -c backup_20231228.dump
 ```
@@ -173,7 +185,9 @@ pg_restore -h host -U user -d sahool_globalgap -c backup_20231228.dump
 ## Maintenance
 
 ### Analyze Tables
+
 Run after bulk inserts or updates:
+
 ```sql
 ANALYZE globalgap_registrations;
 ANALYZE compliance_records;
@@ -182,7 +196,9 @@ ANALYZE non_conformances;
 ```
 
 ### Vacuum Tables
+
 Reclaim space and update statistics:
+
 ```sql
 VACUUM ANALYZE globalgap_registrations;
 VACUUM ANALYZE compliance_records;
@@ -193,6 +209,7 @@ VACUUM ANALYZE non_conformances;
 ## Monitoring
 
 Check table sizes:
+
 ```sql
 SELECT
     schemaname,

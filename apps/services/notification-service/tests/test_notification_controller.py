@@ -54,13 +54,16 @@ class TestHealthEndpoint:
     @pytest.mark.asyncio
     async def test_health_check_success(self, async_client):
         """Test health check returns healthy status"""
-        with patch(
-            "src.main.check_db_health",
-            new=AsyncMock(return_value={"status": "healthy", "connected": True}),
-        ), patch(
-            "src.main.get_db_stats",
-            new=AsyncMock(
-                return_value={"total_notifications": 100, "pending_notifications": 5}
+        with (
+            patch(
+                "src.main.check_db_health",
+                new=AsyncMock(return_value={"status": "healthy", "connected": True}),
+            ),
+            patch(
+                "src.main.get_db_stats",
+                new=AsyncMock(
+                    return_value={"total_notifications": 100, "pending_notifications": 5}
+                ),
             ),
         ):
             response = await async_client.get("/healthz")
@@ -108,7 +111,7 @@ class TestNotificationCreation:
             "src.main.create_notification",
             new=AsyncMock(return_value=MagicMock(**mock_notification_data)),
         ):
-            response = await async_client.post("/v1/notifications", json=notification_request)
+            response = await async_client.post("/", json=notification_request)
 
             assert response.status_code == 200
             data = response.json()
@@ -125,7 +128,7 @@ class TestNotificationCreation:
             "body": "Test body",
         }
 
-        response = await async_client.post("/v1/notifications", json=invalid_request)
+        response = await async_client.post("/", json=invalid_request)
 
         # Should return validation error
         assert response.status_code == 422
@@ -145,7 +148,7 @@ class TestNotificationCreation:
             "src.main.create_notification",
             new=AsyncMock(return_value=MagicMock(**mock_notification_data)),
         ):
-            response = await async_client.post("/v1/alerts/weather", json=weather_alert_request)
+            response = await async_client.post("/weather", json=weather_alert_request)
 
             assert response.status_code == 200
             data = response.json()
@@ -169,7 +172,7 @@ class TestNotificationCreation:
             "src.main.create_notification",
             new=AsyncMock(return_value=MagicMock(**mock_notification_data)),
         ):
-            response = await async_client.post("/v1/alerts/pest", json=pest_alert_request)
+            response = await async_client.post("/pest", json=pest_alert_request)
 
             assert response.status_code == 200
             data = response.json()
@@ -191,7 +194,7 @@ class TestNotificationCreation:
             "src.main.create_notification",
             new=AsyncMock(return_value=MagicMock(**mock_notification_data)),
         ):
-            response = await async_client.post("/v1/reminders/irrigation", json=irrigation_request)
+            response = await async_client.post("/irrigation", json=irrigation_request)
 
             assert response.status_code == 200
             data = response.json()
@@ -206,14 +209,17 @@ class TestNotificationRetrieval:
         """Test getting notifications for a specific farmer"""
         mock_notification = MagicMock(**mock_notification_data)
 
-        with patch(
-            "src.repository.NotificationRepository.get_by_user",
-            new=AsyncMock(return_value=[mock_notification]),
-        ), patch(
-            "src.repository.NotificationRepository.get_unread_count",
-            new=AsyncMock(return_value=1),
+        with (
+            patch(
+                "src.repository.NotificationRepository.get_by_user",
+                new=AsyncMock(return_value=[mock_notification]),
+            ),
+            patch(
+                "src.repository.NotificationRepository.get_unread_count",
+                new=AsyncMock(return_value=1),
+            ),
         ):
-            response = await async_client.get("/v1/notifications/farmer/farmer-123")
+            response = await async_client.get("//farmer/farmer-123")
 
             assert response.status_code == 200
             data = response.json()
@@ -229,15 +235,18 @@ class TestNotificationRetrieval:
         """Test getting notifications with filters"""
         mock_notification = MagicMock(**mock_notification_data)
 
-        with patch(
-            "src.repository.NotificationRepository.get_by_user",
-            new=AsyncMock(return_value=[mock_notification]),
-        ), patch(
-            "src.repository.NotificationRepository.get_unread_count",
-            new=AsyncMock(return_value=1),
+        with (
+            patch(
+                "src.repository.NotificationRepository.get_by_user",
+                new=AsyncMock(return_value=[mock_notification]),
+            ),
+            patch(
+                "src.repository.NotificationRepository.get_unread_count",
+                new=AsyncMock(return_value=1),
+            ),
         ):
             response = await async_client.get(
-                "/v1/notifications/farmer/farmer-123",
+                "//farmer/farmer-123",
                 params={"unread_only": True, "type": "weather_alert", "limit": 10, "offset": 0},
             )
 
@@ -254,7 +263,7 @@ class TestNotificationRetrieval:
             "src.repository.NotificationRepository.get_broadcast_notifications",
             new=AsyncMock(return_value=[mock_notification]),
         ):
-            response = await async_client.get("/v1/notifications/broadcast")
+            response = await async_client.get("//broadcast")
 
             assert response.status_code == 200
             data = response.json()
@@ -269,7 +278,7 @@ class TestNotificationRetrieval:
             new=AsyncMock(return_value=[]),
         ):
             response = await async_client.get(
-                "/v1/notifications/broadcast",
+                "//broadcast",
                 params={"governorate": "sanaa", "crop": "tomato", "limit": 20},
             )
 
@@ -286,15 +295,18 @@ class TestNotificationUpdates:
         mock_notification = MagicMock(**mock_notification_data)
         mock_notification.user_id = "farmer-123"
 
-        with patch(
-            "src.repository.NotificationRepository.get_by_id",
-            new=AsyncMock(return_value=mock_notification),
-        ), patch(
-            "src.repository.NotificationRepository.mark_as_read",
-            new=AsyncMock(return_value=True),
+        with (
+            patch(
+                "src.repository.NotificationRepository.get_by_id",
+                new=AsyncMock(return_value=mock_notification),
+            ),
+            patch(
+                "src.repository.NotificationRepository.mark_as_read",
+                new=AsyncMock(return_value=True),
+            ),
         ):
             response = await async_client.patch(
-                f"/v1/notifications/{notification_id}/read", params={"farmer_id": "farmer-123"}
+                f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
             )
 
             assert response.status_code == 200
@@ -314,7 +326,7 @@ class TestNotificationUpdates:
             new=AsyncMock(return_value=mock_notification),
         ):
             response = await async_client.patch(
-                f"/v1/notifications/{notification_id}/read", params={"farmer_id": "wrong-farmer"}
+                f"//{notification_id}/read", params={"farmer_id": "wrong-farmer"}
             )
 
             assert response.status_code == 403
@@ -328,7 +340,7 @@ class TestNotificationUpdates:
             "src.repository.NotificationRepository.get_by_id", new=AsyncMock(return_value=None)
         ):
             response = await async_client.patch(
-                f"/v1/notifications/{notification_id}/read", params={"farmer_id": "farmer-123"}
+                f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
             )
 
             assert response.status_code == 404
@@ -340,7 +352,7 @@ class TestFarmerRegistration:
     @pytest.mark.asyncio
     async def test_register_farmer(self, async_client, mock_farmer_profile):
         """Test registering a new farmer"""
-        response = await async_client.post("/v1/farmers/register", json=mock_farmer_profile)
+        response = await async_client.post("/register", json=mock_farmer_profile)
 
         assert response.status_code == 200
         data = response.json()
@@ -367,7 +379,7 @@ class TestFarmerRegistration:
             new=AsyncMock(return_value=MagicMock()),
         ):
             response = await async_client.put(
-                "/v1/farmers/farmer-123/preferences", json=preferences
+                "/farmer-123/preferences", json=preferences
             )
 
             assert response.status_code == 200
@@ -392,7 +404,7 @@ class TestNotificationStats:
             with patch("src.models.Notification.filter") as mock_filter:
                 mock_filter.return_value.count = AsyncMock(return_value=50)
 
-                response = await async_client.get("/v1/stats")
+                response = await async_client.get("/stats")
 
                 assert response.status_code == 200
                 data = response.json()

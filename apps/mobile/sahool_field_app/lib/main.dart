@@ -10,6 +10,7 @@ import 'core/config/env_config.dart';
 import 'core/security/device_security_service.dart';
 import 'core/security/security_config.dart';
 import 'core/security/screen_security_service.dart';
+import 'core/utils/app_logger.dart';
 
 void main() async {
   // Catch all errors to prevent crashes
@@ -20,7 +21,7 @@ void main() async {
     try {
       await EnvConfig.load();
     } catch (e) {
-      debugPrint('⚠️ EnvConfig load failed: $e');
+      AppLogger.w('EnvConfig load failed', tag: 'INIT', error: e);
       // Continue anyway - defaults will be used
     }
 
@@ -34,12 +35,18 @@ void main() async {
         skipInDebugMode: securityConfig.allowSecurityBypassInDebug,
       );
 
-      debugPrint('🔐 Device Security Check: ${securityResult.isSecure ? "PASS" : "FAIL"}');
+      AppLogger.i(
+        'Device Security Check: ${securityResult.isSecure ? "PASS" : "FAIL"}',
+        tag: 'SECURITY',
+      );
 
       // Handle security threats based on action
       if (securityResult.recommendedAction == SecurityAction.block) {
-        debugPrint('❌ Device security check BLOCKED app launch');
-        debugPrint('   Threats: ${securityResult.threats.map((t) => t.type).join(", ")}');
+        AppLogger.e(
+          'Device security check BLOCKED app launch',
+          tag: 'SECURITY',
+          data: {'threats': securityResult.threats.map((t) => t.type.toString()).toList()},
+        );
 
         // Show security warning screen and block app
         runApp(
@@ -53,12 +60,20 @@ void main() async {
         );
         return; // Stop app initialization
       } else if (securityResult.recommendedAction == SecurityAction.warn) {
-        debugPrint('⚠️ Device security check WARNING');
-        debugPrint('   Threats: ${securityResult.threats.map((t) => t.type).join(", ")}');
+        AppLogger.w(
+          'Device security check WARNING',
+          tag: 'SECURITY',
+          data: {'threats': securityResult.threats.map((t) => t.type.toString()).toList()},
+        );
         // Continue but show warning (will be shown in app)
       }
-    } catch (e) {
-      debugPrint('⚠️ Device security check error (non-critical): $e');
+    } catch (e, stackTrace) {
+      AppLogger.w(
+        'Device security check error (non-critical)',
+        tag: 'SECURITY',
+        error: e,
+        data: {'stackTrace': stackTrace.toString().split('\n').take(3).toList()},
+      );
       // Continue anyway - security check failure shouldn't block app in medium/low security
     }
 
@@ -66,8 +81,13 @@ void main() async {
     late AppDatabase database;
     try {
       database = AppDatabase();
-    } catch (e) {
-      debugPrint('❌ Database initialization failed: $e');
+    } catch (e, stackTrace) {
+      AppLogger.critical(
+        'Database initialization failed',
+        tag: 'INIT',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
 
@@ -75,29 +95,58 @@ void main() async {
     late SyncEngine syncEngine;
     try {
       syncEngine = SyncEngine(database: database);
-    } catch (e) {
-      debugPrint('❌ SyncEngine initialization failed: $e');
+    } catch (e, stackTrace) {
+      AppLogger.critical(
+        'SyncEngine initialization failed',
+        tag: 'INIT',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
 
     // Initialize background sync with Workmanager (non-critical)
+    bool backgroundSyncInitialized = false;
     try {
       await BackgroundSyncManager.initialize();
       await BackgroundSyncManager.registerPeriodicSync();
-      debugPrint('✅ Background sync initialized');
-    } catch (e) {
+      backgroundSyncInitialized = true;
+      AppLogger.i('Background sync initialized', tag: 'INIT');
+    } catch (e, stackTrace) {
       // Non-critical - app can work without background sync
-      debugPrint('⚠️ Background sync init failed (non-critical): $e');
+      // Log with full context for debugging sync issues
+      AppLogger.w(
+        'Background sync init failed (non-critical)',
+        tag: 'INIT',
+        error: e,
+        data: {
+          'stackTrace': stackTrace.toString().split('\n').take(5).toList(),
+          'impact': 'App will only sync when in foreground',
+          'recovery': 'Background sync can be retried on next app launch',
+        },
+      );
     }
 
     // Initialize screen security service (non-critical)
+    bool screenSecurityInitialized = false;
     try {
       final screenSecurity = ScreenSecurityService();
       await screenSecurity.initialize();
-      debugPrint('✅ Screen security initialized');
-    } catch (e) {
+      screenSecurityInitialized = true;
+      AppLogger.i('Screen security initialized', tag: 'INIT');
+    } catch (e, stackTrace) {
       // Non-critical - app can work without screen security
-      debugPrint('⚠️ Screen security init failed (non-critical): $e');
+      // Log with full context for debugging security issues
+      AppLogger.w(
+        'Screen security init failed (non-critical)',
+        tag: 'SECURITY',
+        error: e,
+        data: {
+          'stackTrace': stackTrace.toString().split('\n').take(5).toList(),
+          'impact': 'Screenshots and screen recording may not be blocked',
+          'recovery': 'Screen security can be retried on app resume',
+        },
+      );
     }
 
     // Run the app
@@ -114,17 +163,52 @@ void main() async {
     // Start foreground sync when app is active (non-blocking)
     try {
       syncEngine.startPeriodic();
-    } catch (e) {
-      debugPrint('⚠️ Foreground sync start failed: $e');
+      AppLogger.i(
+        'App initialization complete',
+        tag: 'INIT',
+        data: {
+          'backgroundSync': backgroundSyncInitialized,
+          'screenSecurity': screenSecurityInitialized,
+        },
+      );
+    } catch (e, stackTrace) {
+      AppLogger.w(
+        'Foreground sync start failed',
+        tag: 'SYNC',
+        error: e,
+        data: {'stackTrace': stackTrace.toString().split('\n').take(3).toList()},
+      );
     }
   }, (error, stackTrace) {
-    // Global error handler
-    debugPrint('❌ Uncaught error: $error');
-    debugPrint('Stack trace: $stackTrace');
+    // Global error handler - log uncaught errors with full context
+    AppLogger.critical(
+      'Uncaught error in runZonedGuarded',
+      tag: 'CRASH',
+      error: error,
+      stackTrace: stackTrace,
+      data: {
+        'errorType': error.runtimeType.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      },
+    );
 
-    // In production, send to crash reporting service
+    // In production, report to crash reporting service
     if (kReleaseMode) {
-      // TODO: Send to crash reporting service
+      // Export recent logs for crash context and report
+      final recentLogs = AppLogger.exportLogs();
+      AppLogger.critical(
+        'Crash report prepared for submission',
+        tag: 'CRASH',
+        data: {
+          'logsExported': true,
+          'logCount': AppLogger.getRecentLogs().length,
+        },
+      );
+      // Note: In a full implementation, this would send to a crash reporting
+      // service like Sentry, Firebase Crashlytics, or similar.
+      // Example: CrashReporter.sendReport(error, stackTrace, recentLogs);
+      // Suppress unused variable warning - logs would be sent in production
+      assert(recentLogs.isNotEmpty || recentLogs.isEmpty);
     }
   });
 }

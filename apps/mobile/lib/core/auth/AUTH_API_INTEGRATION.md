@@ -86,6 +86,7 @@ The authentication service expects the following response format from the API:
 ```
 
 Alternative formats are also supported:
+
 - `accessToken` (camelCase)
 - `expiresIn` (camelCase)
 - `tenantId` (camelCase)
@@ -104,12 +105,12 @@ Alternative formats are also supported:
 
 The service handles various API errors and converts them to user-friendly Arabic messages:
 
-| HTTP Status | Arabic Message | English |
-|-------------|----------------|---------|
-| 401/403 | البريد الإلكتروني أو كلمة المرور غير صحيحة | Invalid credentials |
-| Network Error | لا يوجد اتصال بالإنترنت | No internet connection |
-| 500+ | حدث خطأ في الخادم | Server error |
-| Timeout | انتهت مهلة الاتصال | Connection timeout |
+| HTTP Status   | Arabic Message                             | English                |
+| ------------- | ------------------------------------------ | ---------------------- |
+| 401/403       | البريد الإلكتروني أو كلمة المرور غير صحيحة | Invalid credentials    |
+| Network Error | لا يوجد اتصال بالإنترنت                    | No internet connection |
+| 500+          | حدث خطأ في الخادم                          | Server error           |
+| Timeout       | انتهت مهلة الاتصال                         | Connection timeout     |
 
 ## Environment Configuration
 
@@ -165,12 +166,14 @@ testWidgets('Login with valid credentials', (tester) async {
 ### Manual Testing
 
 1. **Test with Real API**:
+
    ```bash
    # Ensure backend is running
    flutter run
    ```
 
 2. **Test with Mock Mode**:
+
    ```bash
    flutter run --dart-define=USE_MOCK_AUTH=true
    ```
@@ -196,6 +199,7 @@ The authentication service provides detailed logging:
 ```
 
 In case of fallback to mock mode:
+
 ```
 [AUTH] Login attempt (email: user@example.com)
 [AUTH] Logging in via API
@@ -230,6 +234,7 @@ Ensure your API endpoints match the expected format:
 **Cause**: Backend API is not accessible
 
 **Solutions**:
+
 1. Check if backend server is running
 2. Verify `DEV_HOST` in `.env` matches your local IP
 3. For Android emulator, use `10.0.2.2`
@@ -241,6 +246,7 @@ Ensure your API endpoints match the expected format:
 **Cause**: SSL certificate mismatch (production only)
 
 **Solutions**:
+
 1. Verify you're connecting to the correct domain
 2. Check if certificate pins in `CertificateConfig` are up to date
 3. In development, certificate pinning is disabled by default
@@ -250,6 +256,7 @@ Ensure your API endpoints match the expected format:
 **Cause**: API response format mismatch
 
 **Solutions**:
+
 1. Check API response matches expected format
 2. Verify token field names (`access_token` or `accessToken`)
 3. Check backend logs for errors
@@ -266,6 +273,7 @@ Ensure your API endpoints match the expected format:
 ## Support
 
 For issues or questions:
+
 - Check logs for detailed error messages
 - Verify environment configuration in `.env`
 - Test API endpoints with Postman/curl

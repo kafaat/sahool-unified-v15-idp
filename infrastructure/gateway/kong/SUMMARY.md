@@ -1,4 +1,5 @@
 # Kong API Gateway Configuration Summary
+
 # ملخص تكوين بوابة Kong API
 
 ## Created Files | الملفات المنشأة
@@ -173,12 +174,14 @@
 ## Key Features | المميزات الرئيسية
 
 ### 1. Complete Service Coverage | تغطية كاملة للخدمات
+
 - ✅ All 39 microservices configured
 - ✅ Proper port assignments (no conflicts)
 - ✅ Health check endpoints for all services
 - ✅ Service-to-service communication
 
 ### 2. Package-Based Access Control | التحكم في الوصول حسب الباقات
+
 - ✅ Starter Package (100 req/min)
 - ✅ Professional Package (1000 req/min)
 - ✅ Enterprise Package (10000 req/min)
@@ -186,6 +189,7 @@
 - ✅ Trial Package (50 req/min)
 
 ### 3. Security | الأمان
+
 - ✅ JWT authentication
 - ✅ ACL-based authorization
 - ✅ Rate limiting per package
@@ -194,6 +198,7 @@
 - ✅ CORS configuration
 
 ### 4. Monitoring & Observability | المراقبة والمتابعة
+
 - ✅ Prometheus metrics
 - ✅ Grafana dashboards
 - ✅ Health checks
@@ -202,6 +207,7 @@
 - ✅ Performance tracking
 
 ### 5. Developer Experience | تجربة المطور
+
 - ✅ Automated setup script
 - ✅ Makefile with 40+ commands
 - ✅ Comprehensive documentation
@@ -210,6 +216,7 @@
 - ✅ Debugging helpers
 
 ### 6. Production Ready | جاهز للإنتاج
+
 - ✅ Database migrations
 - ✅ Health checks
 - ✅ Resource limits
@@ -218,6 +225,7 @@
 - ✅ Security hardening
 
 ### 7. Bilingual Support | دعم ثنائي اللغة
+
 - ✅ English documentation
 - ✅ Arabic documentation (العربية)
 - ✅ Bilingual comments
@@ -260,13 +268,13 @@ deck sync -s kong.yml
 
 ## Service URLs | روابط الخدمات
 
-| Service | URL | Purpose |
-|---------|-----|---------|
-| Kong Proxy | http://localhost:8000 | API Gateway |
-| Kong Admin | http://localhost:8001 | Admin API |
-| Konga UI | http://localhost:1337 | Web Interface |
-| Prometheus | http://localhost:9090 | Metrics |
-| Grafana | http://localhost:3002 | Dashboards |
+| Service    | URL                   | Purpose       |
+| ---------- | --------------------- | ------------- |
+| Kong Proxy | http://localhost:8000 | API Gateway   |
+| Kong Admin | http://localhost:8001 | Admin API     |
+| Konga UI   | http://localhost:1337 | Web Interface |
+| Prometheus | http://localhost:9090 | Metrics       |
+| Grafana    | http://localhost:3002 | Dashboards    |
 
 ## Testing | الاختبار
 
@@ -289,21 +297,22 @@ curl -H "Authorization: Bearer $ENTERPRISE_TOKEN" \
 
 ## Package Comparison | مقارنة الباقات
 
-| Feature | Starter | Professional | Enterprise |
-|---------|---------|-------------|-----------|
-| **Services** | 5 | 18 | 29 |
-| **Rate Limit** | 100/min | 1,000/min | 10,000/min |
-| **Fields** | Up to 5 | Up to 50 | Unlimited |
-| **Weather** | 7 days | 14 days | 30 days |
-| **Satellite** | ❌ | ✅ | ✅ |
-| **AI Advisor** | ❌ | ❌ | ✅ |
-| **IoT** | ❌ | ❌ | ✅ |
-| **Marketplace** | ❌ | ❌ | ✅ |
-| **Price** | 99 SAR | 399 SAR | 999 SAR |
+| Feature         | Starter | Professional | Enterprise |
+| --------------- | ------- | ------------ | ---------- |
+| **Services**    | 5       | 18           | 29         |
+| **Rate Limit**  | 100/min | 1,000/min    | 10,000/min |
+| **Fields**      | Up to 5 | Up to 50     | Unlimited  |
+| **Weather**     | 7 days  | 14 days      | 30 days    |
+| **Satellite**   | ❌      | ✅           | ✅         |
+| **AI Advisor**  | ❌      | ❌           | ✅         |
+| **IoT**         | ❌      | ❌           | ✅         |
+| **Marketplace** | ❌      | ❌           | ✅         |
+| **Price**       | 99 SAR  | 399 SAR      | 999 SAR    |
 
 ## Next Steps | الخطوات التالية
 
 1. **Setup Kong**
+
    ```bash
    cd /home/user/sahool-unified-v15-idp/infrastructure/kong
    ./setup.sh
@@ -334,21 +343,25 @@ curl -H "Authorization: Bearer $ENTERPRISE_TOKEN" \
 ## Support & Resources | الدعم والموارد
 
 ### Documentation
+
 - Main README: `README.md`
 - Quick Start: `QUICKSTART.md`
 - Service Registry: `SERVICES.md`
 
 ### Commands
+
 - Setup: `./setup.sh`
 - Make commands: `make help`
 - Docker commands: `docker-compose --help`
 
 ### Monitoring
+
 - Prometheus: http://localhost:9090
 - Grafana: http://localhost:3002
 - Kong Metrics: http://localhost:8001/metrics
 
 ### Troubleshooting
+
 - Check logs: `make logs`
 - Verify config: `make validate`
 - Test services: `make test`

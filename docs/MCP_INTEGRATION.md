@@ -5,6 +5,7 @@
 SAHOOL now includes full support for the **Model Context Protocol (MCP)**, enabling AI assistants like Claude to directly interact with SAHOOL's agricultural intelligence capabilities.
 
 The MCP integration provides:
+
 - **5 Agricultural Tools** for weather, crop health, irrigation, and fertilizer recommendations
 - **3 Resource Providers** for field data, weather data, and crop catalogs
 - **3 Prompt Templates** for common agricultural tasks
@@ -113,11 +114,13 @@ Add to `claude_desktop_config.json`:
 Get weather forecast with agricultural advisories.
 
 **Parameters:**
+
 - `latitude` (required): Latitude of the location
 - `longitude` (required): Longitude of the location
 - `days` (optional): Number of days to forecast (1-14, default: 7)
 
 **Example:**
+
 ```json
 {
   "latitude": 15.5527,
@@ -127,6 +130,7 @@ Get weather forecast with agricultural advisories.
 ```
 
 **Returns:**
+
 - Temperature, humidity, precipitation forecasts
 - Wind speed and direction
 - Agricultural advisories (frost risk, heat stress, etc.)
@@ -137,11 +141,13 @@ Get weather forecast with agricultural advisories.
 Analyze crop health using satellite imagery (NDVI/NDWI).
 
 **Parameters:**
+
 - `field_id` (required): Field identifier
 - `analysis_type` (optional): "ndvi", "ndwi", or "full" (default: "ndvi")
 - `date` (optional): Analysis date (YYYY-MM-DD)
 
 **Example:**
+
 ```json
 {
   "field_id": "field-123",
@@ -150,6 +156,7 @@ Analyze crop health using satellite imagery (NDVI/NDWI).
 ```
 
 **Returns:**
+
 - NDVI average and distribution
 - Health status (healthy, stressed, diseased)
 - Stress area locations
@@ -161,11 +168,13 @@ Analyze crop health using satellite imagery (NDVI/NDWI).
 Retrieve comprehensive field data.
 
 **Parameters:**
+
 - `field_id` (required): Field identifier
 - `include_history` (optional): Include historical data (default: false)
 - `include_sensors` (optional): Include IoT sensor data (default: false)
 
 **Example:**
+
 ```json
 {
   "field_id": "field-123",
@@ -175,6 +184,7 @@ Retrieve comprehensive field data.
 ```
 
 **Returns:**
+
 - Field boundaries (GeoJSON)
 - Area in hectares
 - Soil properties (type, pH, nutrients)
@@ -187,12 +197,14 @@ Retrieve comprehensive field data.
 Calculate optimal irrigation requirements.
 
 **Parameters:**
+
 - `field_id` (required): Field identifier
 - `crop_type` (required): Type of crop
 - `soil_moisture` (required): Current soil moisture (0-100%)
 - `growth_stage` (required): "germination", "vegetative", "flowering", "fruiting", or "maturation"
 
 **Example:**
+
 ```json
 {
   "field_id": "field-123",
@@ -203,6 +215,7 @@ Calculate optimal irrigation requirements.
 ```
 
 **Returns:**
+
 - Water amount needed (mm)
 - Duration in minutes
 - Next irrigation date
@@ -214,12 +227,14 @@ Calculate optimal irrigation requirements.
 Get fertilizer recommendations based on soil analysis.
 
 **Parameters:**
+
 - `field_id` (required): Field identifier
 - `crop_type` (required): Type of crop
 - `soil_test` (optional): NPK values, pH, organic matter
 - `target_yield` (optional): Target yield in tons/ha
 
 **Example:**
+
 ```json
 {
   "field_id": "field-123",
@@ -236,6 +251,7 @@ Get fertilizer recommendations based on soil analysis.
 ```
 
 **Returns:**
+
 - NPK recommendation (N-P-K ratios)
 - Application schedule
 - Total cost estimate
@@ -254,6 +270,7 @@ Access field information through URI templates:
 - `field://{field_id}/activities` - Historical activities
 
 **Example:**
+
 ```python
 resource = await client.read_resource("field://field-123/boundaries")
 ```
@@ -285,9 +302,11 @@ Access crop information:
 Comprehensive field analysis including health, weather, and recommendations.
 
 **Arguments:**
+
 - `field_id` (required): Field to analyze
 
 **Usage:**
+
 ```
 Use the field_analysis prompt for field-123
 ```
@@ -297,10 +316,12 @@ Use the field_analysis prompt for field-123
 Create irrigation plan based on weather forecast and soil conditions.
 
 **Arguments:**
+
 - `field_id` (required): Field identifier
 - `days` (optional): Planning horizon (default: 7)
 
 **Usage:**
+
 ```
 Use the irrigation_plan prompt for field-123 with 14 days
 ```
@@ -310,10 +331,12 @@ Use the irrigation_plan prompt for field-123 with 14 days
 Recommend crops suitable for field conditions.
 
 **Arguments:**
+
 - `field_id` (required): Field identifier
 - `season` (optional): Growing season
 
 **Usage:**
+
 ```
 Use the crop_recommendation prompt for field-123 for summer season
 ```
@@ -375,12 +398,12 @@ prompt = await client.get_prompt(
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SAHOOL_API_URL` | Base URL for SAHOOL API | `http://localhost:8000` |
-| `MCP_SERVER_PORT` | MCP server port | `8200` |
-| `MCP_SERVER_HOST` | MCP server host | `0.0.0.0` |
-| `LOG_LEVEL` | Logging level | `INFO` |
+| Variable          | Description             | Default                 |
+| ----------------- | ----------------------- | ----------------------- |
+| `SAHOOL_API_URL`  | Base URL for SAHOOL API | `http://localhost:8000` |
+| `MCP_SERVER_PORT` | MCP server port         | `8200`                  |
+| `MCP_SERVER_HOST` | MCP server host         | `0.0.0.0`               |
+| `LOG_LEVEL`       | Logging level           | `INFO`                  |
 
 ### Docker Compose Configuration
 
@@ -428,6 +451,7 @@ curl http://localhost:8200/metrics
 ```
 
 **Available Metrics:**
+
 - `mcp_requests_total{method, status}` - Total MCP requests
 - `mcp_request_duration_seconds{method}` - Request duration
 - `mcp_tool_calls_total{tool_name, status}` - Tool invocations
@@ -453,6 +477,7 @@ Structured JSON logs in production:
 ### Authentication
 
 MCP server currently supports:
+
 - No authentication (development)
 - API key authentication (coming soon)
 - JWT authentication (coming soon)
@@ -460,6 +485,7 @@ MCP server currently supports:
 ### Rate Limiting
 
 Configured through Kong API Gateway:
+
 - Free tier: 30 requests/minute
 - Standard: 60 requests/minute
 - Premium: 120 requests/minute
@@ -483,11 +509,13 @@ app.add_middleware(
 ### MCP Server Won't Start
 
 1. Check if port 8200 is available:
+
    ```bash
    lsof -i :8200
    ```
 
 2. Verify SAHOOL API is running:
+
    ```bash
    curl http://localhost:8000/health
    ```
@@ -500,11 +528,13 @@ app.add_middleware(
 ### Tool Calls Failing
 
 1. Verify SAHOOL services are running:
+
    ```bash
    docker-compose ps
    ```
 
 2. Check service health:
+
    ```bash
    curl http://localhost:8000/api/weather/health
    curl http://localhost:8000/api/fields/health
@@ -530,12 +560,14 @@ python -m shared.mcp.examples
 ## API Documentation
 
 Interactive API documentation available at:
+
 - **Swagger UI**: http://localhost:8200/docs
 - **ReDoc**: http://localhost:8200/redoc
 
 ## Support
 
 For issues or questions:
+
 1. Check logs: `docker-compose logs mcp-server`
 2. Review documentation: `/docs/MCP_INTEGRATION.md`
 3. Contact development team

@@ -3,30 +3,31 @@
  * خطافات React لميزة التنبيهات
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useCallback, useState, useRef } from 'react';
-import { alertsApi } from '../api';
-import { logger } from '@/lib/logger';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useCallback, useState, useRef } from "react";
+import { alertsApi } from "../api";
+import { logger } from "@/lib/logger";
 import type {
   Alert,
   AlertFilters,
   CreateAlertPayload,
   UpdateAlertPayload,
-} from '../types';
+} from "../types";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const alertKeys = {
-  all: ['alerts'] as const,
-  lists: () => [...alertKeys.all, 'list'] as const,
+  all: ["alerts"] as const,
+  lists: () => [...alertKeys.all, "list"] as const,
   list: (filters?: AlertFilters) => [...alertKeys.lists(), filters] as const,
-  detail: (id: string) => [...alertKeys.all, 'detail', id] as const,
-  count: () => [...alertKeys.all, 'count'] as const,
-  stats: (governorate?: string) => [...alertKeys.all, 'stats', governorate] as const,
+  detail: (id: string) => [...alertKeys.all, "detail", id] as const,
+  count: () => [...alertKeys.all, "count"] as const,
+  stats: (governorate?: string) =>
+    [...alertKeys.all, "stats", governorate] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -116,8 +117,13 @@ export function useUpdateAlert() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateAlertPayload }) =>
-      alertsApi.updateAlert(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: UpdateAlertPayload;
+    }) => alertsApi.updateAlert(id, payload),
     onSuccess: (updatedAlert: Alert) => {
       queryClient.invalidateQueries({ queryKey: alertKeys.lists() });
       queryClient.setQueryData(alertKeys.detail(updatedAlert.id), updatedAlert);
@@ -223,8 +229,13 @@ export function useBulkDismissAlerts() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ alertIds, reason }: { alertIds: string[]; reason?: string }) =>
-      alertsApi.bulkDismiss(alertIds, reason),
+    mutationFn: ({
+      alertIds,
+      reason,
+    }: {
+      alertIds: string[];
+      reason?: string;
+    }) => alertsApi.bulkDismiss(alertIds, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: alertKeys.lists() });
       queryClient.invalidateQueries({ queryKey: alertKeys.count() });
@@ -241,12 +252,17 @@ export function useBulkDismissAlerts() {
  * Hook for real-time alert streaming using Server-Sent Events (SSE)
  * خطاف للبث المباشر للتنبيهات باستخدام أحداث الخادم المرسلة
  */
-export function useAlertStream(onAlert: (alert: Alert) => void, enabled = true) {
+export function useAlertStream(
+  onAlert: (alert: Alert) => void,
+  enabled = true,
+) {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const queryClient = useQueryClient();
   const eventSourceRef = useRef<EventSource | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const connect = useCallback(() => {
     if (!enabled) return;
@@ -271,7 +287,7 @@ export function useAlertStream(onAlert: (alert: Alert) => void, enabled = true) 
       eventSource.onopen = () => {
         setIsConnected(true);
         setError(null);
-        logger.info('Alert stream connected');
+        logger.info("Alert stream connected");
       };
 
       eventSource.onmessage = (event) => {
@@ -284,28 +300,28 @@ export function useAlertStream(onAlert: (alert: Alert) => void, enabled = true) 
           queryClient.invalidateQueries({ queryKey: alertKeys.count() });
           queryClient.setQueryData(alertKeys.detail(alert.id), alert);
         } catch (e) {
-          logger.error('Failed to parse alert from stream:', e);
+          logger.error("Failed to parse alert from stream:", e);
         }
       };
 
       eventSource.onerror = (e) => {
         setIsConnected(false);
-        const errorObj = new Error('Alert stream connection lost');
+        const errorObj = new Error("Alert stream connection lost");
         setError(errorObj);
-        logger.error('Alert stream error:', e);
+        logger.error("Alert stream error:", e);
 
         eventSource.close();
 
         // Reconnect after 5 seconds
         if (enabled) {
           reconnectTimeoutRef.current = setTimeout(() => {
-            logger.info('Attempting to reconnect alert stream...');
+            logger.info("Attempting to reconnect alert stream...");
             connect();
           }, 5000);
         }
       };
     } catch (e) {
-      logger.error('Failed to create EventSource:', e);
+      logger.error("Failed to create EventSource:", e);
       setError(e as Error);
     }
   }, [onAlert, queryClient, enabled]);
@@ -324,7 +340,7 @@ export function useAlertStream(onAlert: (alert: Alert) => void, enabled = true) 
     }
 
     setIsConnected(false);
-    logger.info('Alert stream disconnected');
+    logger.info("Alert stream disconnected");
   }, []);
 
   useEffect(() => {

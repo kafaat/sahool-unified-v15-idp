@@ -22,20 +22,20 @@ The `NdviTileLayer` component renders NDVI (Normalized Difference Vegetation Ind
 The component is already included in the fields feature. Just import it:
 
 ```typescript
-import { NdviTileLayer, NdviColorLegend } from '@/features/fields/components';
+import { NdviTileLayer, NdviColorLegend } from "@/features/fields/components";
 ```
 
 ## Props / الخصائص
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `fieldId` | `string` | ✅ | - | معرف الحقل / Field ID |
-| `map` | `RefObject<Map \| null>` | ✅ | - | مرجع خريطة MapLibre / MapLibre map reference |
-| `date` | `Date` | ❌ | `undefined` | التاريخ للبيانات التاريخية / Date for historical data |
-| `opacity` | `number` | ❌ | `0.7` | مستوى الشفافية (0-1) / Opacity level (0-1) |
-| `visible` | `boolean` | ❌ | `true` | حالة الظهور / Visibility state |
-| `onLoad` | `() => void` | ❌ | - | دالة تنفذ عند التحميل / Callback on load |
-| `onError` | `(error: Error) => void` | ❌ | - | دالة تنفذ عند الخطأ / Callback on error |
+| Prop      | Type                     | Required | Default     | Description                                           |
+| --------- | ------------------------ | -------- | ----------- | ----------------------------------------------------- |
+| `fieldId` | `string`                 | ✅       | -           | معرف الحقل / Field ID                                 |
+| `map`     | `RefObject<Map \| null>` | ✅       | -           | مرجع خريطة MapLibre / MapLibre map reference          |
+| `date`    | `Date`                   | ❌       | `undefined` | التاريخ للبيانات التاريخية / Date for historical data |
+| `opacity` | `number`                 | ❌       | `0.7`       | مستوى الشفافية (0-1) / Opacity level (0-1)            |
+| `visible` | `boolean`                | ❌       | `true`      | حالة الظهور / Visibility state                        |
+| `onLoad`  | `() => void`             | ❌       | -           | دالة تنفذ عند التحميل / Callback on load              |
+| `onError` | `(error: Error) => void` | ❌       | -           | دالة تنفذ عند الخطأ / Callback on error               |
 
 ## Basic Usage / الاستخدام الأساسي
 
@@ -186,21 +186,21 @@ Shows a loading overlay while NDVI data is being fetched.
 
 The component uses the following color scale for NDVI values:
 
-| NDVI Value | Color | Description (AR) | Description (EN) |
-|------------|-------|------------------|------------------|
-| -1.0 to 0.0 | Brown to Red | تربة جافة / بدون غطاء | Bare soil / No vegetation |
-| 0.0 to 0.2 | Red to Orange-Red | غطاء ضعيف جداً | Very poor vegetation |
-| 0.2 to 0.4 | Orange to Yellow | غطاء ضعيف إلى متوسط | Poor to moderate vegetation |
-| 0.4 to 0.6 | Yellow to Yellow-Green | غطاء متوسط إلى جيد | Moderate to good vegetation |
-| 0.6 to 0.8 | Light Green to Green | غطاء جيد جداً إلى ممتاز | Very good to excellent vegetation |
-| 0.8 to 1.0 | Green to Dark Green | غطاء كثيف جداً | Very dense vegetation |
+| NDVI Value  | Color                  | Description (AR)        | Description (EN)                  |
+| ----------- | ---------------------- | ----------------------- | --------------------------------- |
+| -1.0 to 0.0 | Brown to Red           | تربة جافة / بدون غطاء   | Bare soil / No vegetation         |
+| 0.0 to 0.2  | Red to Orange-Red      | غطاء ضعيف جداً          | Very poor vegetation              |
+| 0.2 to 0.4  | Orange to Yellow       | غطاء ضعيف إلى متوسط     | Poor to moderate vegetation       |
+| 0.4 to 0.6  | Yellow to Yellow-Green | غطاء متوسط إلى جيد      | Moderate to good vegetation       |
+| 0.6 to 0.8  | Light Green to Green   | غطاء جيد جداً إلى ممتاز | Very good to excellent vegetation |
+| 0.8 to 1.0  | Green to Dark Green    | غطاء كثيف جداً          | Very dense vegetation             |
 
 ## API Integration / التكامل مع API
 
 The component automatically fetches NDVI data using the `useNDVIMap` hook from the NDVI feature:
 
 ```typescript
-import { useNDVIMap } from '@/features/ndvi';
+import { useNDVIMap } from "@/features/ndvi";
 
 const { data, isLoading, error } = useNDVIMap(fieldId, dateString);
 ```
@@ -211,8 +211,8 @@ The expected API response format:
 interface NDVIMapData {
   fieldId: string;
   date: string;
-  rasterUrl: string;  // URL template for tiles: https://example.com/{z}/{x}/{y}.png
-  bounds: [[number, number], [number, number]];  // [[west, south], [east, north]]
+  rasterUrl: string; // URL template for tiles: https://example.com/{z}/{x}/{y}.png
+  bounds: [[number, number], [number, number]]; // [[west, south], [east, north]]
   colorScale: {
     min: number;
     max: number;

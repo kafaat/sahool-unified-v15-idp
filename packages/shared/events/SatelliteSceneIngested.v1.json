@@ -3,14 +3,18 @@
   "$id": "https://sahool.io/events/SatelliteSceneIngested.v1.json",
   "title": "Satellite Scene Ingested Event",
   "description": "Emitted when a new satellite scene is ingested - يُنشر عند استيعاب مشهد قمر صناعي جديد",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Satellite.SceneIngested" },
     "payload": {
       "type": "object",
-      "required": ["scene_id", "satellite", "acquisition_date", "cloud_cover_percent", "bounds"],
+      "required": [
+        "scene_id",
+        "satellite",
+        "acquisition_date",
+        "cloud_cover_percent",
+        "bounds"
+      ],
       "properties": {
         "scene_id": {
           "type": "string",

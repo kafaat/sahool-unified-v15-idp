@@ -1,4 +1,5 @@
 # SAHOOL Integration Tests
+
 # اختبارات التكامل لتطبيق سهول
 
 Comprehensive end-to-end integration tests for the SAHOOL Flutter mobile application.
@@ -44,17 +45,20 @@ integration_test/
 ## Installation
 
 1. Ensure Flutter is installed and in your PATH:
+
 ```bash
 flutter --version
 ```
 
 2. Install dependencies:
+
 ```bash
 cd /path/to/sahool-unified-v15-idp/apps/mobile
 flutter pub get
 ```
 
 3. Make the test runner executable:
+
 ```bash
 chmod +x integration_test/run_tests.sh
 ```
@@ -64,26 +68,31 @@ chmod +x integration_test/run_tests.sh
 ### Option 1: Using the Test Runner Script (Recommended)
 
 **Run all tests:**
+
 ```bash
 ./integration_test/run_tests.sh --all
 ```
 
 **Run all tests with emulator and report:**
+
 ```bash
 ./integration_test/run_tests.sh --all --emulator --report
 ```
 
 **Run specific test file:**
+
 ```bash
 ./integration_test/run_tests.sh --test integration_test/features/auth_test.dart
 ```
 
 **Run on specific device:**
+
 ```bash
 ./integration_test/run_tests.sh --all --device emulator-5554
 ```
 
 **Show help:**
+
 ```bash
 ./integration_test/run_tests.sh --help
 ```
@@ -91,16 +100,19 @@ chmod +x integration_test/run_tests.sh
 ### Option 2: Using Flutter Command Directly
 
 **Run all integration tests:**
+
 ```bash
 flutter test integration_test/
 ```
 
 **Run specific test file:**
+
 ```bash
 flutter test integration_test/features/auth_test.dart
 ```
 
 **Run on specific device:**
+
 ```bash
 flutter test -d emulator-5554 integration_test/app_test.dart
 ```
@@ -257,9 +269,9 @@ name: Integration Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   integration_tests:
@@ -269,7 +281,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: "3.27.0"
 
       - name: Install dependencies
         run: flutter pub get
@@ -328,6 +340,7 @@ flutter test integration_test/app_test.dart 2>&1 | tee test_output.log
 ### Common Issues
 
 **1. No devices found**
+
 ```bash
 # Check connected devices
 flutter devices
@@ -340,21 +353,25 @@ emulator -avd Pixel_4_API_30
 ```
 
 **2. Test timeout**
+
 - Increase timeout in `TestConfig`
 - Check device performance
 - Verify network connectivity
 
 **3. Element not found**
+
 - Check Arabic text encoding
 - Verify widget hierarchy
 - Use `find.textContaining()` for partial matches
 
 **4. Screenshot failures**
+
 - Ensure directory exists: `mkdir -p screenshots/integration`
 - Check write permissions
 - Disable on web platform (not supported)
 
 **5. Flaky tests**
+
 - Add appropriate waits: `await helpers.wait(TestConfig.shortDelay)`
 - Use `pumpAndSettle()` after interactions
 - Check for animation completion

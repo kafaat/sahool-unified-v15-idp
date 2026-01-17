@@ -89,12 +89,15 @@ docker run -d \
 ## API Documentation
 
 ### Base URL
+
 ```
 http://localhost:8080
 ```
 
 ### Authentication
+
 Most endpoints require an API key:
+
 ```
 X-API-Key: your-secret-api-key
 ```
@@ -180,23 +183,23 @@ curl -X POST http://localhost:8080/v1/registry/discover/tags \
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SERVICE_NAME` | Service name | `agent-registry` |
-| `SERVICE_PORT` | HTTP port | `8080` |
-| `LOG_LEVEL` | Logging level | `INFO` |
-| `ENVIRONMENT` | Environment (development/production) | `production` |
-| `REDIS_HOST` | Redis hostname | `localhost` |
-| `REDIS_PORT` | Redis port | `6379` |
-| `REDIS_DB` | Redis database | `0` |
-| `REDIS_PASSWORD` | Redis password | - |
-| `REDIS_PREFIX` | Key prefix | `sahool:registry:` |
-| `HEALTH_CHECK_INTERVAL_SECONDS` | Health check interval | `60` |
-| `HEALTH_CHECK_TIMEOUT_SECONDS` | Health check timeout | `5` |
-| `AGENT_TTL_SECONDS` | Agent registration TTL | `3600` |
-| `REQUIRE_API_KEY` | Require API key auth | `true` |
-| `API_KEY` | API key for auth | - |
-| `CORS_ORIGINS` | Allowed CORS origins | - |
+| Variable                        | Description                          | Default            |
+| ------------------------------- | ------------------------------------ | ------------------ |
+| `SERVICE_NAME`                  | Service name                         | `agent-registry`   |
+| `SERVICE_PORT`                  | HTTP port                            | `8080`             |
+| `LOG_LEVEL`                     | Logging level                        | `INFO`             |
+| `ENVIRONMENT`                   | Environment (development/production) | `production`       |
+| `REDIS_HOST`                    | Redis hostname                       | `localhost`        |
+| `REDIS_PORT`                    | Redis port                           | `6379`             |
+| `REDIS_DB`                      | Redis database                       | `0`                |
+| `REDIS_PASSWORD`                | Redis password                       | -                  |
+| `REDIS_PREFIX`                  | Key prefix                           | `sahool:registry:` |
+| `HEALTH_CHECK_INTERVAL_SECONDS` | Health check interval                | `60`               |
+| `HEALTH_CHECK_TIMEOUT_SECONDS`  | Health check timeout                 | `5`                |
+| `AGENT_TTL_SECONDS`             | Agent registration TTL               | `3600`             |
+| `REQUIRE_API_KEY`               | Require API key auth                 | `true`             |
+| `API_KEY`                       | API key for auth                     | -                  |
+| `CORS_ORIGINS`                  | Allowed CORS origins                 | -                  |
 
 ## Architecture
 
@@ -276,6 +279,7 @@ MIT License - See LICENSE file for details
 ## Support
 
 For issues and questions:
+
 - GitHub: https://github.com/sahool/sahool-unified-v15-idp
 - Documentation: https://docs.sahool.app/agent-registry
 - Email: support@sahool.app

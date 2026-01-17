@@ -1,4 +1,5 @@
 # دليل الإعداد والتشغيل - Setup and Deployment Guide
+
 ## SAHOOL Platform v15.3 - Complete Setup Instructions
 
 **التاريخ / Date:** 2026-01-05  
@@ -22,11 +23,13 @@ node --version           # يجب أن يكون >= 18.0
 ### 2. إعداد ملف البيئة - Environment Setup
 
 **الخطوة 1: نسخ ملف القالب**
+
 ```bash
 cp .env.example .env
 ```
 
 **الخطوة 2: توليد كلمات المرور الآمنة**
+
 ```bash
 # توليد كلمة مرور PostgreSQL
 python3 -c "import secrets, base64; print('POSTGRES_PASSWORD=' + base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"
@@ -83,6 +86,7 @@ docker compose build <service-name>
 ### تشغيل البيئة - Start Environment
 
 #### بيئة التطوير الكاملة - Full Development
+
 ```bash
 make dev
 # أو
@@ -90,16 +94,19 @@ docker compose up -d
 ```
 
 #### حزمة المبتدئين - Starter Package
+
 ```bash
 make dev-starter
 ```
 
 #### حزمة الاحترافية - Professional Package
+
 ```bash
 make dev-professional
 ```
 
 #### حزمة المؤسسات - Enterprise Package
+
 ```bash
 make dev-enterprise
 ```
@@ -109,21 +116,25 @@ make dev-enterprise
 ## 🧪 الاختبارات - Testing
 
 ### تشغيل جميع الاختبارات - Run All Tests
+
 ```bash
 make test
 ```
 
 ### اختبارات Python فقط
+
 ```bash
 make test-python
 ```
 
 ### اختبارات Node.js فقط
+
 ```bash
 make test-node
 ```
 
 ### اختبارات التكامل - Integration Tests
+
 ```bash
 make test-integration
 ```
@@ -133,6 +144,7 @@ make test-integration
 ## 🔍 المراقبة والفحص - Monitoring and Health Checks
 
 ### فحص صحة الخدمات - Health Check
+
 ```bash
 make health
 ```
@@ -151,6 +163,7 @@ make watch
 ```
 
 ### التحقق من حالة الخدمات - Service Status
+
 ```bash
 make status
 ```
@@ -190,6 +203,7 @@ make rebuild
 ## 📊 المنافذ المستخدمة - Ports Reference
 
 ### الخدمات الأساسية - Core Services
+
 - **PostgreSQL**: 5432
 - **Redis**: 6379
 - **NATS**: 4222
@@ -197,6 +211,7 @@ make rebuild
 - **PgBouncer**: 6432
 
 ### خدمات التطبيق - Application Services
+
 - **Field Management**: 3000
 - **Weather Service**: 8092
 - **Astronomical Calendar**: 8111
@@ -207,7 +222,7 @@ make rebuild
 - **AI Advisor**: 8112
 - **Crop Intelligence**: 8095
 
-*(راجع `docker-compose.yml` للقائمة الكاملة)*
+_(راجع `docker-compose.yml` للقائمة الكاملة)_
 
 ---
 
@@ -237,6 +252,7 @@ make rebuild
 ### المشاكل الشائعة - Common Issues
 
 #### 1. فشل بناء Docker
+
 ```bash
 # التحقق من المساحة المتاحة
 df -h
@@ -249,6 +265,7 @@ docker compose build --no-cache
 ```
 
 #### 2. مشاكل الاتصال بقاعدة البيانات
+
 ```bash
 # التحقق من تشغيل PostgreSQL
 docker compose ps postgres
@@ -261,6 +278,7 @@ docker compose restart postgres
 ```
 
 #### 3. تعارضات المنافذ
+
 ```bash
 # التحقق من المنافذ المستخدمة
 netstat -tulpn | grep LISTEN
@@ -270,6 +288,7 @@ sudo systemctl stop <service-name>
 ```
 
 #### 4. مشاكل الذاكرة
+
 ```bash
 # التحقق من استخدام الذاكرة
 docker stats
@@ -283,12 +302,14 @@ docker stats
 ## 📚 الموارد الإضافية - Additional Resources
 
 ### الوثائق
+
 - `README.md` - نظرة عامة على المشروع
 - `BUILD_GUIDE.md` - دليل البناء التفصيلي
 - `PROJECT_REVIEW_REPORT.md` - تقرير المراجعة الشاملة
 - `MERGE_CONFLICT_RESOLUTION.md` - حل التعارضات
 
 ### الأوامر المفيدة
+
 ```bash
 # قائمة جميع الأوامر المتاحة
 make help
@@ -326,11 +347,13 @@ make performance-check
 بعد إكمال الإعداد الأساسي:
 
 1. **تكوين المراقبة**
+
    ```bash
    docker compose -f docker-compose.telemetry.yml up -d
    ```
 
 2. **إعداد النسخ الاحتياطي التلقائي**
+
    ```bash
    # إضافة cron job للنسخ الاحتياطي اليومي
    0 2 * * * cd /path/to/project && make db-backup

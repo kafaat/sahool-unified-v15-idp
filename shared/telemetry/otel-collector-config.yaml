@@ -209,14 +209,9 @@ processors:
 # Send telemetry data to backends
 exporters:
   # OTLP exporter to Jaeger - مُصدِّر OTLP إلى Jaeger
+  # Note: Native jaeger exporter is deprecated, use OTLP instead
   otlp/jaeger:
     endpoint: jaeger:4317
-    tls:
-      insecure: true
-
-  # Jaeger exporter - مُصدِّر Jaeger
-  jaeger:
-    endpoint: jaeger:14250
     tls:
       insecure: true
 
@@ -233,12 +228,6 @@ exporters:
     loglevel: info
     sampling_initial: 5
     sampling_thereafter: 200
-
-  # Prometheus remote write - كتابة Prometheus عن بعد
-  prometheusremotewrite:
-    endpoint: http://prometheus:9090/api/v1/write
-    tls:
-      insecure: true
 
 # Extensions - الإضافات
 # Additional capabilities
@@ -280,7 +269,6 @@ service:
         - batch
       exporters:
         - otlp/jaeger
-        - jaeger
         - logging
 
     # Metrics pipeline - خط معالجة المقاييس
@@ -295,7 +283,6 @@ service:
         - batch
       exporters:
         - prometheus
-        - prometheusremotewrite
         - logging
 
     # Logs pipeline - خط معالجة السجلات

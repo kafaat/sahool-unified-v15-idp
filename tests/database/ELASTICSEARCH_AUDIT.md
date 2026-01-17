@@ -38,13 +38,13 @@ This report analyzes the **actual search infrastructure** implemented in the pla
 
 ### 1.1 Technology Stack
 
-| Component | Purpose | Version | Status |
-|-----------|---------|---------|--------|
-| **Qdrant** | Vector search, RAG, semantic search | v1.7.4 | ✅ Primary |
-| **Milvus** | Alternative vector database | v2.3.3 | ⚠️ Configured, not actively used |
-| **Etcd** | Metadata storage for Milvus | v3.5.5 | ✅ Active |
-| **MinIO** | Object storage for Milvus | 2023-03-20 | ✅ Active |
-| **PostgreSQL + PostGIS** | Spatial queries, text search | v16.3.4 | ✅ Primary Database |
+| Component                | Purpose                             | Version    | Status                           |
+| ------------------------ | ----------------------------------- | ---------- | -------------------------------- |
+| **Qdrant**               | Vector search, RAG, semantic search | v1.7.4     | ✅ Primary                       |
+| **Milvus**               | Alternative vector database         | v2.3.3     | ⚠️ Configured, not actively used |
+| **Etcd**                 | Metadata storage for Milvus         | v3.5.5     | ✅ Active                        |
+| **MinIO**                | Object storage for Milvus           | 2023-03-20 | ✅ Active                        |
+| **PostgreSQL + PostGIS** | Spatial queries, text search        | v16.3.4    | ✅ Primary Database              |
 
 ### 1.2 Search Use Cases
 
@@ -108,24 +108,25 @@ qdrant:
   volumes:
     - qdrant_data:/qdrant/storage
   ports:
-    - "127.0.0.1:6333:6333"  # HTTP API
-    - "127.0.0.1:6334:6334"  # gRPC
+    - "127.0.0.1:6333:6333" # HTTP API
+    - "127.0.0.1:6334:6334" # gRPC
   environment:
     - QDRANT__SERVICE__GRPC_PORT=6334
     - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
     - QDRANT__LOG_LEVEL=INFO
   resources:
     limits:
-      cpus: '1.0'
+      cpus: "1.0"
       memory: 1G
     reservations:
-      cpus: '0.25'
+      cpus: "0.25"
       memory: 256M
 ```
 
 ### 2.2 Qdrant Features
 
 **Strengths:**
+
 - ✅ Modern vector database optimized for neural embeddings
 - ✅ Fast similarity search with HNSW (Hierarchical Navigable Small World) algorithm
 - ✅ Support for filtering and payload-based queries
@@ -136,15 +137,15 @@ qdrant:
 
 **Configuration Analysis:**
 
-| Aspect | Configuration | Assessment |
-|--------|---------------|------------|
-| **Port Binding** | 127.0.0.1 only | ✅ Excellent - localhost only |
-| **API Authentication** | Optional API key | ⚠️ Warning - not enforced in dev |
-| **Persistence** | Named volume | ✅ Good - data persists |
-| **Resource Limits** | 1GB memory, 1 CPU | ⚠️ May be low for production |
-| **Health Checks** | TCP check on port 6333 | ✅ Good |
-| **Log Level** | INFO | ✅ Appropriate |
-| **Security Options** | no-new-privileges:true | ✅ Good |
+| Aspect                 | Configuration          | Assessment                       |
+| ---------------------- | ---------------------- | -------------------------------- |
+| **Port Binding**       | 127.0.0.1 only         | ✅ Excellent - localhost only    |
+| **API Authentication** | Optional API key       | ⚠️ Warning - not enforced in dev |
+| **Persistence**        | Named volume           | ✅ Good - data persists          |
+| **Resource Limits**    | 1GB memory, 1 CPU      | ⚠️ May be low for production     |
+| **Health Checks**      | TCP check on port 6333 | ✅ Good                          |
+| **Log Level**          | INFO                   | ✅ Appropriate                   |
+| **Security Options**   | no-new-privileges:true | ✅ Good                          |
 
 ### 2.3 Qdrant Usage Pattern
 
@@ -160,6 +161,7 @@ results = store.search("agricultural_kb", "wheat irrigation", limit=5)
 ```
 
 **Collections:**
+
 - `agricultural_kb` - Agricultural knowledge base for RAG
 - Embedding model: `paraphrase-multilingual-MiniLM-L12-v2`
 
@@ -185,10 +187,10 @@ milvus:
     MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
   resources:
     limits:
-      cpus: '2'
+      cpus: "2"
       memory: 4G
     reservations:
-      cpus: '0.5'
+      cpus: "0.5"
       memory: 512M
 ```
 
@@ -202,10 +204,11 @@ etcd:
   environment:
     - ETCD_AUTO_COMPACTION_MODE=revision
     - ETCD_AUTO_COMPACTION_RETENTION=1000
-    - ETCD_QUOTA_BACKEND_BYTES=4294967296  # 4GB
+    - ETCD_QUOTA_BACKEND_BYTES=4294967296 # 4GB
 ```
 
 **Security Features:**
+
 - ✅ Authentication enabled via init script
 - ✅ Root user with password
 - ✅ Auth initialization script (`/home/user/sahool-unified-v15-idp/infrastructure/core/etcd/init-auth.sh`)
@@ -216,11 +219,11 @@ etcd:
 minio:
   image: minio/minio:RELEASE.2023-03-20T20-16-18Z
   environment:
-    MINIO_ROOT_USER: ${MINIO_ROOT_USER}  # Min 16 chars
-    MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}  # Min 16 chars
+    MINIO_ROOT_USER: ${MINIO_ROOT_USER} # Min 16 chars
+    MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD} # Min 16 chars
   ports:
-    - "127.0.0.1:9000:9000"  # API
-    - "127.0.0.1:9090:9090"  # Console
+    - "127.0.0.1:9000:9000" # API
+    - "127.0.0.1:9090:9090" # Console
 ```
 
 ### 3.3 Milvus Status
@@ -228,6 +231,7 @@ minio:
 **Current State:** ⚠️ **Configured but NOT Actively Used**
 
 **Evidence:**
+
 - No application code references to Milvus client
 - No collections or indexes found
 - Qdrant is the primary vector database
@@ -245,15 +249,15 @@ minio:
 
 #### 4.2.1 Qdrant Security
 
-| Security Control | Status | Score | Notes |
-|------------------|--------|-------|-------|
-| **Authentication** | ⚠️ Optional | 5/10 | API key optional, not enforced |
-| **Network Exposure** | ✅ Localhost only | 10/10 | Bound to 127.0.0.1 |
-| **TLS/Encryption** | ❌ Not configured | 0/10 | No in-transit encryption |
-| **Access Control** | ⚠️ Basic | 5/10 | No RBAC or fine-grained control |
-| **Data Encryption at Rest** | ❌ Not configured | 0/10 | No volume encryption |
-| **Container Security** | ✅ Good | 8/10 | no-new-privileges enabled |
-| **Secrets Management** | ⚠️ Environment vars | 6/10 | API key in .env file |
+| Security Control            | Status              | Score | Notes                           |
+| --------------------------- | ------------------- | ----- | ------------------------------- |
+| **Authentication**          | ⚠️ Optional         | 5/10  | API key optional, not enforced  |
+| **Network Exposure**        | ✅ Localhost only   | 10/10 | Bound to 127.0.0.1              |
+| **TLS/Encryption**          | ❌ Not configured   | 0/10  | No in-transit encryption        |
+| **Access Control**          | ⚠️ Basic            | 5/10  | No RBAC or fine-grained control |
+| **Data Encryption at Rest** | ❌ Not configured   | 0/10  | No volume encryption            |
+| **Container Security**      | ✅ Good             | 8/10  | no-new-privileges enabled       |
+| **Secrets Management**      | ⚠️ Environment vars | 6/10  | API key in .env file            |
 
 **Qdrant Security Issues:**
 
@@ -272,14 +276,14 @@ minio:
 
 #### 4.2.2 Milvus Security
 
-| Security Control | Status | Score | Notes |
-|------------------|--------|-------|-------|
-| **Authentication** | ✅ Required | 9/10 | Etcd & MinIO both require creds |
-| **Network Exposure** | ✅ Localhost only | 10/10 | Bound to 127.0.0.1 |
-| **TLS/Encryption** | ⚠️ Disabled | 3/10 | ETCD_USE_SSL: "false" |
-| **Access Control** | ✅ Good | 8/10 | Etcd auth enabled |
-| **Secrets Management** | ✅ Required | 8/10 | Required environment variables |
-| **Container Security** | ✅ Good | 8/10 | no-new-privileges enabled |
+| Security Control       | Status            | Score | Notes                           |
+| ---------------------- | ----------------- | ----- | ------------------------------- |
+| **Authentication**     | ✅ Required       | 9/10  | Etcd & MinIO both require creds |
+| **Network Exposure**   | ✅ Localhost only | 10/10 | Bound to 127.0.0.1              |
+| **TLS/Encryption**     | ⚠️ Disabled       | 3/10  | ETCD_USE_SSL: "false"           |
+| **Access Control**     | ✅ Good           | 8/10  | Etcd auth enabled               |
+| **Secrets Management** | ✅ Required       | 8/10  | Required environment variables  |
+| **Container Security** | ✅ Good           | 8/10  | no-new-privileges enabled       |
 
 **Milvus Security Issues:**
 
@@ -294,6 +298,7 @@ minio:
 #### 4.2.3 Etcd Security
 
 **Positive Security Controls:**
+
 - ✅ Authentication initialization script
 - ✅ Root user with password
 - ✅ Auth enabled by default
@@ -308,6 +313,7 @@ etcdctl auth enable
 ```
 
 **Issues:**
+
 - ❌ TLS not enabled for client connections
 - ⚠️ No audit logging configured
 - ⚠️ No connection limits or rate limiting
@@ -315,17 +321,20 @@ etcdctl auth enable
 #### 4.2.4 MinIO Security
 
 **Configuration:**
+
 ```yaml
-MINIO_ROOT_USER: ${MINIO_ROOT_USER:?...}  # Minimum 16 chars required
-MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?...}  # Minimum 16 chars required
+MINIO_ROOT_USER: ${MINIO_ROOT_USER:?...} # Minimum 16 chars required
+MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?...} # Minimum 16 chars required
 ```
 
 **Positive:**
+
 - ✅ Strong password requirement (16+ chars)
 - ✅ Required environment variables
 - ✅ Localhost-only binding
 
 **Issues:**
+
 - ⚠️ No TLS encryption
 - ❌ Outdated image (2023)
 - ⚠️ Default bucket configuration may be too permissive
@@ -335,6 +344,7 @@ MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?...}  # Minimum 16 chars required
 #### Critical (Fix Immediately)
 
 1. **Enforce Qdrant API Key Authentication**
+
    ```yaml
    # Change from optional to required
    QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:?QDRANT_API_KEY is required}
@@ -350,11 +360,13 @@ MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?...}  # Minimum 16 chars required
 #### High Priority
 
 3. **Upgrade MinIO to Latest Version**
+
    ```yaml
-   image: minio/minio:latest  # Or specific recent version
+   image: minio/minio:latest # Or specific recent version
    ```
 
 4. **Enable Qdrant TLS**
+
    ```yaml
    QDRANT__SERVICE__ENABLE_TLS: "true"
    QDRANT__SERVICE__TLS_CERT: /certs/qdrant.crt
@@ -394,28 +406,30 @@ MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?...}  # Minimum 16 chars required
 ```yaml
 resources:
   limits:
-    cpus: '1.0'
+    cpus: "1.0"
     memory: 1G
   reservations:
-    cpus: '0.25'
+    cpus: "0.25"
     memory: 256M
 ```
 
 **Analysis:**
 
-| Metric | Configured | Recommendation | Assessment |
-|--------|-----------|----------------|------------|
-| **Memory Limit** | 1GB | 2-4GB | ⚠️ Low for production |
-| **CPU Limit** | 1 core | 2-4 cores | ⚠️ May cause latency |
-| **Memory Reservation** | 256MB | 512MB | ⚠️ Too low |
-| **CPU Reservation** | 0.25 cores | 0.5-1 cores | ⚠️ Too low |
+| Metric                 | Configured | Recommendation | Assessment            |
+| ---------------------- | ---------- | -------------- | --------------------- |
+| **Memory Limit**       | 1GB        | 2-4GB          | ⚠️ Low for production |
+| **CPU Limit**          | 1 core     | 2-4 cores      | ⚠️ May cause latency  |
+| **Memory Reservation** | 256MB      | 512MB          | ⚠️ Too low            |
+| **CPU Reservation**    | 0.25 cores | 0.5-1 cores    | ⚠️ Too low            |
 
 **Impact:**
+
 - 1GB memory may be insufficient for large vector collections
 - Single CPU core limits concurrent query performance
 - Low reservations may cause resource contention
 
 **Typical Qdrant Memory Usage:**
+
 - Index overhead: ~10-20 bytes per vector
 - For 1M vectors (384 dims): ~500MB-1GB just for index
 - Plus payload data, working memory, and caches
@@ -425,49 +439,53 @@ resources:
 ```yaml
 resources:
   limits:
-    cpus: '2'
+    cpus: "2"
     memory: 4G
   reservations:
-    cpus: '0.5'
+    cpus: "0.5"
     memory: 512M
 ```
 
 **Analysis:**
+
 - ✅ Better resourced than Qdrant (2 CPUs, 4GB RAM)
 - ❌ Wasted resources since Milvus is not actively used
 - **Recommendation:** Remove or scale down to free resources
 
 #### 5.2.3 Supporting Services
 
-| Service | Memory Limit | CPU Limit | Status |
-|---------|-------------|-----------|--------|
-| **Etcd** | 256M | 0.5 | ✅ Appropriate |
-| **MinIO** | 512M | 0.5 | ✅ Appropriate |
+| Service   | Memory Limit | CPU Limit | Status         |
+| --------- | ------------ | --------- | -------------- |
+| **Etcd**  | 256M         | 0.5       | ✅ Appropriate |
+| **MinIO** | 512M         | 0.5       | ✅ Appropriate |
 
 ### 5.3 Performance Optimization Opportunities
 
 #### 5.3.1 Qdrant Optimizations
 
 1. **Increase Memory Allocation**
+
    ```yaml
    resources:
      limits:
-       cpus: '2'
-       memory: 4G  # Increased from 1G
+       cpus: "2"
+       memory: 4G # Increased from 1G
      reservations:
-       cpus: '0.5'
+       cpus: "0.5"
        memory: 1G
    ```
 
 2. **Enable HNSW Index Optimization**
+
    ```yaml
    environment:
-     - QDRANT__STORAGE__HNSW_INDEX__M=16  # Connections per node
-     - QDRANT__STORAGE__HNSW_INDEX__EF_CONSTRUCT=100  # Build quality
-     - QDRANT__STORAGE__ON_DISK_PAYLOAD=true  # Reduce memory usage
+     - QDRANT__STORAGE__HNSW_INDEX__M=16 # Connections per node
+     - QDRANT__STORAGE__HNSW_INDEX__EF_CONSTRUCT=100 # Build quality
+     - QDRANT__STORAGE__ON_DISK_PAYLOAD=true # Reduce memory usage
    ```
 
 3. **Configure Caching**
+
    ```yaml
    environment:
      - QDRANT__STORAGE__MMAP_THRESHOLD=512MB
@@ -483,11 +501,13 @@ resources:
 #### 5.3.2 Query Performance
 
 **Expected Performance (Qdrant):**
+
 - **Latency:** <10ms for most queries (50k-100k vectors)
 - **Throughput:** 1000+ QPS per core
 - **Scalability:** Linear with CPU cores
 
 **Current Limitations:**
+
 - 1 CPU core → ~1000 QPS maximum
 - 1GB memory → ~500k-1M vectors maximum
 - No query caching configured
@@ -510,17 +530,19 @@ resources:
    - Network throughput
 
 **Monitoring Stack:**
+
 - ✅ Platform has Prometheus + Grafana configured
 - ⚠️ Need to add Qdrant exporter
 
 **Recommended Dashboard:**
+
 ```yaml
 # Add to Prometheus scrape config
 scrape_configs:
-  - job_name: 'qdrant'
+  - job_name: "qdrant"
     static_configs:
-      - targets: ['qdrant:6333']
-    metrics_path: '/metrics'
+      - targets: ["qdrant:6333"]
+    metrics_path: "/metrics"
 ```
 
 ---
@@ -532,6 +554,7 @@ scrape_configs:
 ### 6.2 Current State
 
 **Vector Collections:**
+
 - `agricultural_kb` - Agricultural knowledge base
 - Embedding model: `paraphrase-multilingual-MiniLM-L12-v2`
 - Vector dimension: 384
@@ -539,6 +562,7 @@ scrape_configs:
 **Index Configuration:** ❌ **Not Explicitly Configured**
 
 **Issues:**
+
 1. No index lifecycle management (ILM)
 2. No index templates defined
 3. No collection naming conventions
@@ -556,6 +580,7 @@ results = store.search("agricultural_kb", query, limit=5)
 ```
 
 **Missing:**
+
 - Collection versioning (e.g., `agricultural_kb_v1`)
 - Index aliases for zero-downtime updates
 - Shard/replica configuration
@@ -646,6 +671,7 @@ client.create_payload_index(
    - Lower HNSW settings acceptable
 
 **Implementation:**
+
 ```python
 # Pseudocode for ILM
 def archive_old_documents():
@@ -692,6 +718,7 @@ mc cp /backups/qdrant_*.snapshot minio/backups/qdrant/
 ```
 
 **Backup Schedule:**
+
 - **Daily:** Incremental snapshots
 - **Weekly:** Full collection export
 - **Monthly:** Long-term archival to cloud storage
@@ -732,14 +759,17 @@ collection_config = {
 **Priority: CRITICAL** 🔴
 
 1. **Enforce Qdrant Authentication**
+
    ```diff
    - QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:-}
    + QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:?QDRANT_API_KEY is required}
    ```
+
    **Impact:** Prevents unauthorized access
    **Effort:** 5 minutes
 
 2. **Generate and Set Qdrant API Key**
+
    ```bash
    # Generate strong API key
    openssl rand -base64 32 > .qdrant_api_key
@@ -747,10 +777,12 @@ collection_config = {
    # Add to .env
    echo "QDRANT_API_KEY=$(cat .qdrant_api_key)" >> .env
    ```
+
    **Impact:** Secures vector database
    **Effort:** 10 minutes
 
 3. **Document Current Collections**
+
    ```bash
    # List all collections
    curl http://localhost:6333/collections | jq
@@ -758,6 +790,7 @@ collection_config = {
    # Document in README
    echo "## Qdrant Collections" >> docs/SEARCH_INFRASTRUCTURE.md
    ```
+
    **Impact:** Improves operational visibility
    **Effort:** 30 minutes
 
@@ -766,29 +799,34 @@ collection_config = {
 **Priority: HIGH** 🟠
 
 4. **Increase Qdrant Resources**
+
    ```yaml
    resources:
      limits:
-       cpus: '2'
+       cpus: "2"
        memory: 4G
      reservations:
-       cpus: '0.5'
+       cpus: "0.5"
        memory: 1G
    ```
+
    **Impact:** Prevents performance degradation as data grows
    **Effort:** 15 minutes + testing
 
 5. **Remove Milvus Stack (If Not Needed)**
+
    ```yaml
    # Comment out or remove:
    # - milvus service
    # - etcd service
    # - minio service (if only used by Milvus)
    ```
+
    **Impact:** Frees 4GB RAM, 2 CPUs, reduces attack surface
    **Effort:** 1 hour (includes verification)
 
 6. **Implement Backup Strategy**
+
    ```bash
    # Create backup script
    cat > scripts/backup/qdrant-backup.sh <<'EOF'
@@ -801,6 +839,7 @@ collection_config = {
    # Add to cron
    echo "0 2 * * * /app/scripts/backup/qdrant-backup.sh" >> /etc/crontab
    ```
+
    **Impact:** Prevents data loss
    **Effort:** 2 hours
 
@@ -808,9 +847,9 @@ collection_config = {
    ```yaml
    # Add Qdrant metrics to Prometheus
    scrape_configs:
-     - job_name: 'qdrant'
+     - job_name: "qdrant"
        static_configs:
-         - targets: ['qdrant:6333']
+         - targets: ["qdrant:6333"]
    ```
    **Impact:** Enables proactive performance management
    **Effort:** 2 hours
@@ -847,6 +886,7 @@ collection_config = {
     **Effort:** 1 week
 
 11. **Implement Collection Aliases**
+
     ```python
     # Enable zero-downtime reindexing
     client.create_alias("agricultural_kb", "agricultural_kb_v2")
@@ -854,6 +894,7 @@ collection_config = {
     # After validation
     client.update_alias("agricultural_kb", "agricultural_kb_v3")
     ```
+
     **Impact:** Enables safe schema migrations
     **Effort:** 1 week
 
@@ -893,6 +934,7 @@ collection_config = {
 **If Considering Elasticsearch Migration:**
 
 **Pros of Staying with Qdrant:**
+
 - ✅ Purpose-built for vector search
 - ✅ Lower memory footprint than ES
 - ✅ Simpler operational model
@@ -900,6 +942,7 @@ collection_config = {
 - ✅ Already integrated with AI architecture
 
 **When to Consider Elasticsearch:**
+
 - Need full-text search with complex analyzers
 - Require advanced aggregations
 - Need mature ecosystem (Kibana, beats, etc.)
@@ -914,16 +957,16 @@ collection_config = {
 
 ### 8.1 Feature Comparison
 
-| Feature | Qdrant | Milvus | Elasticsearch | Best For |
-|---------|--------|--------|---------------|----------|
-| **Vector Search** | ✅ Excellent | ✅ Excellent | ⚠️ Basic (via plugin) | Qdrant |
-| **Full-Text Search** | ⚠️ Limited | ⚠️ Limited | ✅ Excellent | Elasticsearch |
-| **Memory Efficiency** | ✅ Excellent | ✅ Good | ⚠️ High usage | Qdrant |
-| **Latency** | ✅ <10ms | ✅ <20ms | ⚠️ 50-100ms | Qdrant |
-| **Scalability** | ✅ Horizontal | ✅ Horizontal | ✅ Horizontal | Tie |
-| **Operational Complexity** | ✅ Low | ⚠️ Medium | ❌ High | Qdrant |
-| **Ecosystem** | ⚠️ Growing | ⚠️ Growing | ✅ Mature | Elasticsearch |
-| **Cost (Infra)** | ✅ Low | ⚠️ Medium | ❌ High | Qdrant |
+| Feature                    | Qdrant        | Milvus        | Elasticsearch         | Best For      |
+| -------------------------- | ------------- | ------------- | --------------------- | ------------- |
+| **Vector Search**          | ✅ Excellent  | ✅ Excellent  | ⚠️ Basic (via plugin) | Qdrant        |
+| **Full-Text Search**       | ⚠️ Limited    | ⚠️ Limited    | ✅ Excellent          | Elasticsearch |
+| **Memory Efficiency**      | ✅ Excellent  | ✅ Good       | ⚠️ High usage         | Qdrant        |
+| **Latency**                | ✅ <10ms      | ✅ <20ms      | ⚠️ 50-100ms           | Qdrant        |
+| **Scalability**            | ✅ Horizontal | ✅ Horizontal | ✅ Horizontal         | Tie           |
+| **Operational Complexity** | ✅ Low        | ⚠️ Medium     | ❌ High               | Qdrant        |
+| **Ecosystem**              | ⚠️ Growing    | ⚠️ Growing    | ✅ Mature             | Elasticsearch |
+| **Cost (Infra)**           | ✅ Low        | ⚠️ Medium     | ❌ High               | Qdrant        |
 
 ### 8.2 Use Case Alignment
 
@@ -936,6 +979,7 @@ collection_config = {
 5. **Full-Text Search** → ⚠️ PostgreSQL pg_trgm (adequate)
 
 **If Platform Needs Change:**
+
 - Complex text analysis → Consider Elasticsearch
 - Log analytics → Elasticsearch + Kibana
 - Multiple search types → Hybrid architecture
@@ -944,18 +988,18 @@ collection_config = {
 
 **For Similar Workload (1M vectors, 384 dims):**
 
-| Database | Memory | CPU | Disk | Complexity |
-|----------|--------|-----|------|------------|
-| **Qdrant** | 2-4GB | 2 cores | 5GB | Low |
-| **Milvus** | 4-8GB | 4 cores | 10GB | Medium |
-| **Elasticsearch** | 8-16GB | 4-8 cores | 20GB | High |
+| Database          | Memory | CPU       | Disk | Complexity |
+| ----------------- | ------ | --------- | ---- | ---------- |
+| **Qdrant**        | 2-4GB  | 2 cores   | 5GB  | Low        |
+| **Milvus**        | 4-8GB  | 4 cores   | 10GB | Medium     |
+| **Elasticsearch** | 8-16GB | 4-8 cores | 20GB | High       |
 
 **Current Allocation vs. Recommended:**
 
-| Service | Current | Recommended | Gap |
-|---------|---------|-------------|-----|
-| Qdrant | 1GB / 1 CPU | 4GB / 2 CPUs | ⚠️ Under-provisioned |
-| Milvus | 4GB / 2 CPUs | Remove or 2GB / 1 CPU | ⚠️ Over-provisioned for unused service |
+| Service | Current      | Recommended           | Gap                                    |
+| ------- | ------------ | --------------------- | -------------------------------------- |
+| Qdrant  | 1GB / 1 CPU  | 4GB / 2 CPUs          | ⚠️ Under-provisioned                   |
+| Milvus  | 4GB / 2 CPUs | Remove or 2GB / 1 CPU | ⚠️ Over-provisioned for unused service |
 
 ---
 
@@ -985,14 +1029,14 @@ collection_config = {
 
 ### 9.2 Overall Assessment
 
-| Category | Score | Grade | Status |
-|----------|-------|-------|--------|
-| **Security** | 6.5/10 | D+ | ⚠️ Needs Improvement |
-| **Performance** | 7.0/10 | C+ | ⚠️ Adequate but Risky |
-| **Index Management** | 5.0/10 | F | ❌ Poor |
-| **Operational Readiness** | 6.0/10 | D | ⚠️ Not Production-Ready |
-| **Architecture** | 8.5/10 | B+ | ✅ Good Design |
-| **Overall** | **6.6/10** | **D+** | ⚠️ **Not Production-Ready** |
+| Category                  | Score      | Grade  | Status                      |
+| ------------------------- | ---------- | ------ | --------------------------- |
+| **Security**              | 6.5/10     | D+     | ⚠️ Needs Improvement        |
+| **Performance**           | 7.0/10     | C+     | ⚠️ Adequate but Risky       |
+| **Index Management**      | 5.0/10     | F      | ❌ Poor                     |
+| **Operational Readiness** | 6.0/10     | D      | ⚠️ Not Production-Ready     |
+| **Architecture**          | 8.5/10     | B+     | ✅ Good Design              |
+| **Overall**               | **6.6/10** | **D+** | ⚠️ **Not Production-Ready** |
 
 ### 9.3 Production Readiness Checklist
 
@@ -1017,12 +1061,12 @@ collection_config = {
 
 **To Reach Production Readiness:**
 
-| Phase | Effort | Timeline | Priority |
-|-------|--------|----------|----------|
-| **Critical Security Fixes** | 1 day | Week 1 | 🔴 Critical |
-| **Basic Operations** | 1 week | Week 2 | 🟠 High |
-| **Performance Tuning** | 2 weeks | Month 1 | 🟡 Medium |
-| **Advanced Features** | 2 months | Quarter 1 | 🟢 Low |
+| Phase                       | Effort   | Timeline  | Priority    |
+| --------------------------- | -------- | --------- | ----------- |
+| **Critical Security Fixes** | 1 day    | Week 1    | 🔴 Critical |
+| **Basic Operations**        | 1 week   | Week 2    | 🟠 High     |
+| **Performance Tuning**      | 2 weeks  | Month 1   | 🟡 Medium   |
+| **Advanced Features**       | 2 months | Quarter 1 | 🟢 Low      |
 
 **Total Estimated Effort:** 2.5 months of dedicated work
 
@@ -1031,6 +1075,7 @@ collection_config = {
 ## Appendix A: Environment Variables Reference
 
 **Required for Qdrant:**
+
 ```bash
 QDRANT_HOST=qdrant
 QDRANT_PORT=6333
@@ -1039,6 +1084,7 @@ EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
 ```
 
 **Required for Milvus (if used):**
+
 ```bash
 ETCD_ROOT_USERNAME=root
 ETCD_ROOT_PASSWORD=<secure-password>
@@ -1051,6 +1097,7 @@ MINIO_ROOT_PASSWORD=<16-char-min-password>
 ## Appendix B: Quick Reference Commands
 
 **Qdrant Operations:**
+
 ```bash
 # List collections
 curl http://localhost:6333/collections
@@ -1066,6 +1113,7 @@ curl http://localhost:6333/healthz
 ```
 
 **Backup Commands:**
+
 ```bash
 # Manual snapshot
 docker exec sahool-qdrant \
@@ -1116,9 +1164,11 @@ docker exec sahool-qdrant ls -la /qdrant/storage/snapshots/
 **Owner:** Platform Engineering Team
 
 **Change Log:**
+
 - 2026-01-06: Initial audit report created
 
 **Related Documents:**
+
 - `/home/user/sahool-unified-v15-idp/docs/AI_ARCHITECTURE.md`
 - `/home/user/sahool-unified-v15-idp/infrastructure/core/README.md`
 - `/home/user/sahool-unified-v15-idp/docker-compose.yml`

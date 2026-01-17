@@ -3,6 +3,7 @@
 ## Overview
 
 This implementation adds HMAC-SHA256 request signing to all API requests for enhanced security. It protects against:
+
 - **Request tampering**: Ensures requests haven't been modified in transit
 - **Replay attacks**: Timestamp validation prevents request reuse
 - **Man-in-the-middle attacks**: Combined with certificate pinning for complete security
@@ -54,6 +55,7 @@ This implementation adds HMAC-SHA256 request signing to all API requests for enh
 ### Key Management
 
 #### Key Generation
+
 ```dart
 // Keys are derived from:
 // - Random base key (32 bytes)
@@ -68,11 +70,13 @@ final derivedKey = HMAC-SHA256(
 ```
 
 #### Key Rotation
+
 - **Automatic**: Keys rotate every 90 days
 - **Version-based**: Keys rotate when version changes
 - **Manual**: Call `signingKeyService.rotateKey()` to force rotation
 
 #### Key Storage
+
 - Stored in **Flutter Secure Storage** (encrypted)
 - Platform-specific security:
   - **Android**: EncryptedSharedPreferences + AES encryption
@@ -142,6 +146,7 @@ await signingKeyService.rotateKey();
 ### Public Endpoints
 
 These endpoints **do not** require signing:
+
 - `/auth/login`
 - `/auth/register`
 - `/auth/forgot-password`
@@ -159,6 +164,7 @@ To add more public endpoints, edit `_isPublicEndpoint()` in `request_signing_int
 The backend must validate request signatures. Here's the validation algorithm:
 
 ### 1. Extract Headers
+
 ```
 X-Signature: <signature>
 X-Timestamp: <timestamp>
@@ -167,37 +173,40 @@ X-Signature-Version: <version>
 ```
 
 ### 2. Validate Timestamp (Replay Protection)
+
 ```javascript
 const MAX_DRIFT_SECONDS = 300; // 5 minutes
-const requestTime = parseInt(headers['x-timestamp']);
+const requestTime = parseInt(headers["x-timestamp"]);
 const now = Date.now();
 
 if (Math.abs(now - requestTime) > MAX_DRIFT_SECONDS * 1000) {
-  throw new Error('Request timestamp expired');
+  throw new Error("Request timestamp expired");
 }
 ```
 
 ### 3. Check Nonce (Prevent Duplicates)
+
 ```javascript
 // Store used nonces in Redis with TTL
-const nonceKey = `nonce:${headers['x-nonce']}`;
+const nonceKey = `nonce:${headers["x-nonce"]}`;
 const exists = await redis.exists(nonceKey);
 
 if (exists) {
-  throw new Error('Duplicate request detected');
+  throw new Error("Duplicate request detected");
 }
 
 // Store nonce for 5 minutes
-await redis.setex(nonceKey, 300, '1');
+await redis.setex(nonceKey, 300, "1");
 ```
 
 ### 4. Rebuild Canonical Request
+
 ```javascript
 const method = req.method;
 const path = req.path;
 const queryParams = sortQueryParams(req.query);
-const timestamp = headers['x-timestamp'];
-const nonce = headers['x-nonce'];
+const timestamp = headers["x-timestamp"];
+const nonce = headers["x-nonce"];
 const bodyHash = sha256(JSON.stringify(req.body));
 
 const canonicalRequest = [
@@ -206,35 +215,39 @@ const canonicalRequest = [
   queryParams,
   timestamp,
   nonce,
-  bodyHash
-].join('\n');
+  bodyHash,
+].join("\n");
 ```
 
 ### 5. Verify Signature
+
 ```javascript
-const crypto = require('crypto');
+const crypto = require("crypto");
 
 // Get user's signing key from database
 const signingKey = await getUserSigningKey(req.user.id);
 
 // Calculate expected signature
 const expectedSignature = crypto
-  .createHmac('sha256', signingKey)
+  .createHmac("sha256", signingKey)
   .update(canonicalRequest)
-  .digest('base64url');
+  .digest("base64url");
 
 // Compare signatures (constant-time comparison)
-if (!crypto.timingSafeEqual(
-  Buffer.from(expectedSignature),
-  Buffer.from(headers['x-signature'])
-)) {
-  throw new Error('Invalid signature');
+if (
+  !crypto.timingSafeEqual(
+    Buffer.from(expectedSignature),
+    Buffer.from(headers["x-signature"]),
+  )
+) {
+  throw new Error("Invalid signature");
 }
 ```
 
 ## Security Considerations
 
 ### ✅ Strengths
+
 - **HMAC-SHA256**: Industry-standard cryptographic algorithm
 - **Device binding**: Keys derived from device information
 - **User binding**: Keys include user ID for per-user keys
@@ -244,12 +257,14 @@ if (!crypto.timingSafeEqual(
 - **Tamper protection**: Any modification invalidates signature
 
 ### ⚠️ Limitations
+
 - **Not end-to-end encryption**: Use HTTPS/TLS for transport security
 - **Server key management**: Server must securely store user keys
 - **Clock synchronization**: Requires reasonably synchronized clocks
 - **Key compromise**: If device is rooted/jailbroken, keys may be exposed
 
 ### 🔒 Best Practices
+
 1. **Always use HTTPS**: Signing complements, not replaces, TLS
 2. **Enable certificate pinning**: Prevents MITM attacks
 3. **Implement server-side validation**: Client signing is useless without server verification
@@ -261,32 +276,41 @@ if (!crypto.timingSafeEqual(
 ## Troubleshooting
 
 ### Request signing failed
+
 ```
 Error: Failed to sign request
 ```
+
 **Solution**: Check if signing key exists and is valid
+
 ```dart
 final key = await signingKeyService.getSigningKey();
 print('Key exists: ${key.isNotEmpty}');
 ```
 
 ### Signature validation failed (server)
+
 **Possible causes**:
+
 1. Clock drift between client and server (>5 minutes)
 2. Request was modified in transit
 3. Key mismatch between client and server
 4. Incorrect canonical request building
 
 **Debug**:
+
 - Log canonical request on both client and server
 - Compare timestamps
 - Verify key versions match
 
 ### Public endpoint being signed
+
 **Solution**: Add endpoint to `_isPublicEndpoint()` list
 
 ### Keys not rotating
+
 **Check**:
+
 ```dart
 final daysLeft = await signingKeyService.getDaysUntilRotation();
 print('Days left: $daysLeft'); // Should be < 90
@@ -295,6 +319,7 @@ print('Days left: $daysLeft'); // Should be < 90
 ## Testing
 
 ### Unit Tests
+
 ```dart
 test('Signs request correctly', () async {
   final signingKeyService = SigningKeyService(mockSecureStorage);
@@ -315,6 +340,7 @@ test('Signs request correctly', () async {
 ```
 
 ### Integration Tests
+
 ```dart
 testWidgets('API requests are signed', (tester) async {
   // Make API call
@@ -335,6 +361,7 @@ testWidgets('API requests are signed', (tester) async {
 ## Migration Guide
 
 ### Disabling Signing (Not Recommended)
+
 ```dart
 final apiClient = ApiClient(
   enableRequestSigning: false,
@@ -342,6 +369,7 @@ final apiClient = ApiClient(
 ```
 
 ### Gradual Rollout
+
 1. Deploy backend with optional signature validation
 2. Enable signing in mobile app
 3. Monitor signature success rate

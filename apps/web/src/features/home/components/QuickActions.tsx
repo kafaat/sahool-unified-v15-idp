@@ -1,13 +1,20 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Quick Actions Component
  * مكون الإجراءات السريعة
  */
 
-import React from 'react';
-import { Plus, MapPin, ListTodo, CloudSun, FileText, Settings } from 'lucide-react';
-import Link from 'next/link';
+import React from "react";
+import {
+  Plus,
+  MapPin,
+  ListTodo,
+  CloudSun,
+  FileText,
+  Settings,
+} from "lucide-react";
+import Link from "next/link";
 
 interface ActionButtonProps {
   icon: React.ReactNode;
@@ -17,7 +24,13 @@ interface ActionButtonProps {
   color: string;
 }
 
-const ActionButton: React.FC<ActionButtonProps> = ({ icon, label, labelAr, href, color }) => {
+const ActionButton: React.FC<ActionButtonProps> = ({
+  icon,
+  label,
+  labelAr,
+  href,
+  color,
+}) => {
   return (
     <Link
       href={href}
@@ -36,45 +49,45 @@ export const QuickActions: React.FC = () => {
   const actions: ActionButtonProps[] = [
     {
       icon: <MapPin className="w-6 h-6 text-blue-600" />,
-      label: 'Add Field',
-      labelAr: 'إضافة حقل',
-      href: '/fields?action=new',
-      color: 'border-blue-200',
+      label: "Add Field",
+      labelAr: "إضافة حقل",
+      href: "/fields?action=new",
+      color: "border-blue-200",
     },
     {
       icon: <Plus className="w-6 h-6 text-green-600" />,
-      label: 'New Task',
-      labelAr: 'مهمة جديدة',
-      href: '/tasks?action=new',
-      color: 'border-green-200',
+      label: "New Task",
+      labelAr: "مهمة جديدة",
+      href: "/tasks?action=new",
+      color: "border-green-200",
     },
     {
       icon: <CloudSun className="w-6 h-6 text-cyan-600" />,
-      label: 'Weather',
-      labelAr: 'الطقس',
-      href: '/weather',
-      color: 'border-cyan-200',
+      label: "Weather",
+      labelAr: "الطقس",
+      href: "/weather",
+      color: "border-cyan-200",
     },
     {
       icon: <FileText className="w-6 h-6 text-purple-600" />,
-      label: 'Reports',
-      labelAr: 'التقارير',
-      href: '/reports',
-      color: 'border-purple-200',
+      label: "Reports",
+      labelAr: "التقارير",
+      href: "/reports",
+      color: "border-purple-200",
     },
     {
       icon: <ListTodo className="w-6 h-6 text-orange-600" />,
-      label: 'All Tasks',
-      labelAr: 'جميع المهام',
-      href: '/tasks',
-      color: 'border-orange-200',
+      label: "All Tasks",
+      labelAr: "جميع المهام",
+      href: "/tasks",
+      color: "border-orange-200",
     },
     {
       icon: <Settings className="w-6 h-6 text-gray-600" />,
-      label: 'Settings',
-      labelAr: 'الإعدادات',
-      href: '/settings',
-      color: 'border-gray-200',
+      label: "Settings",
+      labelAr: "الإعدادات",
+      href: "/settings",
+      color: "border-gray-200",
     },
   ];
 

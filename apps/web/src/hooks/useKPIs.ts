@@ -3,58 +3,58 @@
  * جلب مؤشرات الأداء الرئيسية - محدث لاستخدام API Client الجديد
  */
 
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api';
-import { logger } from '@/lib/logger';
-import type { KPI } from '../types';
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
+import { logger } from "@/lib/logger";
+import type { KPI } from "../types";
 
 // Default KPIs for fallback
 const DEFAULT_KPIS: KPI[] = [
   {
-    id: '1',
-    label: 'Average NDVI',
-    labelAr: 'متوسط NDVI',
+    id: "1",
+    label: "Average NDVI",
+    labelAr: "متوسط NDVI",
     value: 0.65,
-    unit: '',
-    trend: 'up',
+    unit: "",
+    trend: "up",
     trendValue: 5,
-    status: 'good',
-    icon: 'leaf',
+    status: "good",
+    icon: "leaf",
   },
   {
-    id: '2',
-    label: 'Active Fields',
-    labelAr: 'الحقول النشطة',
+    id: "2",
+    label: "Active Fields",
+    labelAr: "الحقول النشطة",
     value: 24,
-    unit: 'حقل',
-    trend: 'stable',
+    unit: "حقل",
+    trend: "stable",
     trendValue: 0,
-    status: 'good',
-    icon: 'leaf',
+    status: "good",
+    icon: "leaf",
   },
   {
-    id: '3',
-    label: 'Irrigation Due',
-    labelAr: 'ري مستحق',
+    id: "3",
+    label: "Irrigation Due",
+    labelAr: "ري مستحق",
     value: 3,
-    unit: 'حقول',
-    trend: 'up',
+    unit: "حقول",
+    trend: "up",
     trendValue: 2,
-    status: 'warning',
-    icon: 'water',
+    status: "warning",
+    icon: "water",
   },
   {
-    id: '4',
-    label: 'Open Alerts',
-    labelAr: 'تنبيهات مفتوحة',
+    id: "4",
+    label: "Open Alerts",
+    labelAr: "تنبيهات مفتوحة",
     value: 5,
-    unit: '',
-    trend: 'down',
+    unit: "",
+    trend: "down",
     trendValue: -20,
-    status: 'warning',
-    icon: 'alert',
+    status: "warning",
+    icon: "alert",
   },
 ];
 
@@ -74,45 +74,50 @@ async function fetchKPIs(tenantId?: string): Promise<KPI[]> {
     if (ndviSummary?.success && ndviSummary.data) {
       const avgNdvi = ndviSummary.data.averageNdvi || 0;
       kpis.push({
-        id: '1',
-        label: 'Average NDVI',
-        labelAr: 'متوسط NDVI',
+        id: "1",
+        label: "Average NDVI",
+        labelAr: "متوسط NDVI",
         value: Number(avgNdvi.toFixed(2)),
-        unit: '',
-        trend: avgNdvi > 0.5 ? 'up' : 'down',
+        unit: "",
+        trend: avgNdvi > 0.5 ? "up" : "down",
         trendValue: 0,
-        status: avgNdvi > 0.6 ? 'good' : avgNdvi > 0.4 ? 'warning' : 'critical',
-        icon: 'leaf',
+        status: avgNdvi > 0.6 ? "good" : avgNdvi > 0.4 ? "warning" : "critical",
+        icon: "leaf",
       });
     }
 
     // Fields KPI
     if (fields?.success && fields.data) {
-      const activeFields = fields.data.filter(f => f.status === 'active').length;
-      const totalArea = fields.data.reduce((sum, f) => sum + (f.area_hectares || f.area || 0), 0);
+      const activeFields = fields.data.filter(
+        (f) => f.status === "active",
+      ).length;
+      const totalArea = fields.data.reduce(
+        (sum, f) => sum + (f.area_hectares || f.area || 0),
+        0,
+      );
 
       kpis.push({
-        id: '2',
-        label: 'Active Fields',
-        labelAr: 'الحقول النشطة',
+        id: "2",
+        label: "Active Fields",
+        labelAr: "الحقول النشطة",
         value: activeFields,
-        unit: 'حقل',
-        trend: 'stable',
+        unit: "حقل",
+        trend: "stable",
         trendValue: 0,
-        status: 'good',
-        icon: 'leaf',
+        status: "good",
+        icon: "leaf",
       });
 
       kpis.push({
-        id: '5',
-        label: 'Total Area',
-        labelAr: 'المساحة الكلية',
+        id: "5",
+        label: "Total Area",
+        labelAr: "المساحة الكلية",
         value: Number(totalArea.toFixed(1)),
-        unit: 'هكتار',
-        trend: 'stable',
+        unit: "هكتار",
+        trend: "stable",
         trendValue: 0,
-        status: 'good',
-        icon: 'map',
+        status: "good",
+        icon: "map",
       });
     }
 
@@ -123,14 +128,14 @@ async function fetchKPIs(tenantId?: string): Promise<KPI[]> {
 
     return kpis.length > 0 ? kpis : DEFAULT_KPIS;
   } catch {
-    logger.warn('[useKPIs] API unavailable, using default KPIs');
+    logger.warn("[useKPIs] API unavailable, using default KPIs");
     return DEFAULT_KPIS;
   }
 }
 
 export function useKPIs(tenantId?: string) {
   const query = useQuery({
-    queryKey: ['kpis', tenantId],
+    queryKey: ["kpis", tenantId],
     queryFn: () => fetchKPIs(tenantId),
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes

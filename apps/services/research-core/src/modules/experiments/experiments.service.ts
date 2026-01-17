@@ -1,8 +1,8 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { Prisma } from '@prisma/client';
-import { CreateExperimentDto, UpdateExperimentDto } from './dto/experiment.dto';
-import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from '../../utils/db-utils';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import { Prisma } from "@prisma/client";
+import { CreateExperimentDto, UpdateExperimentDto } from "./dto/experiment.dto";
+import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from "../../utils/db-utils";
 
 @Injectable()
 export class ExperimentsService {
@@ -55,7 +55,7 @@ export class ExperimentsService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           _count: {
             select: {
@@ -118,7 +118,10 @@ export class ExperimentsService {
         startDate: dto.startDate ? new Date(dto.startDate) : undefined,
         endDate: dto.endDate ? new Date(dto.endDate) : undefined,
         version: { increment: 1 },
-        metadata: metadata !== undefined ? (metadata as Prisma.InputJsonValue) : undefined,
+        metadata:
+          metadata !== undefined
+            ? (metadata as Prisma.InputJsonValue)
+            : undefined,
       },
     });
   }
@@ -137,7 +140,7 @@ export class ExperimentsService {
     return this.prisma.experiment.update({
       where: { id },
       data: {
-        status: 'locked',
+        status: "locked",
         lockedAt: new Date(),
         lockedBy: userId,
       },
@@ -156,7 +159,7 @@ export class ExperimentsService {
       }),
       this.prisma.researchDailyLog.findFirst({
         where: { experimentId: id },
-        orderBy: { logDate: 'desc' },
+        orderBy: { logDate: "desc" },
         select: { logDate: true, title: true },
       }),
     ]);

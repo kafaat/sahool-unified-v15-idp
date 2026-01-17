@@ -3,7 +3,7 @@
  * Manages connection lifecycle with automatic reconnection
  */
 
-import { connect, NatsConnection, ConnectionOptions, Events } from 'nats';
+import { connect, NatsConnection, ConnectionOptions, Events } from "nats";
 
 export interface NatsClientConfig {
   servers: string | string[];
@@ -37,7 +37,9 @@ export class NatsClient {
   public static getInstance(config?: NatsClientConfig): NatsClient {
     if (!NatsClient.instance) {
       if (!config) {
-        throw new Error('NatsClient configuration is required for first initialization');
+        throw new Error(
+          "NatsClient configuration is required for first initialization",
+        );
       }
       NatsClient.instance = new NatsClient(config);
     }
@@ -65,16 +67,16 @@ export class NatsClient {
     try {
       const connectionOptions: ConnectionOptions = {
         servers: this.config.servers,
-        name: this.config.name || 'sahool-service',
+        name: this.config.name || "sahool-service",
         maxReconnectAttempts: this.config.maxReconnectAttempts,
         reconnectTimeWait: this.config.reconnectTimeWait,
         timeout: this.config.timeout,
         debug: this.config.debug,
       };
 
-      this.log('Connecting to NATS server...');
+      this.log("Connecting to NATS server...");
       this.connection = await connect(connectionOptions);
-      this.log('Successfully connected to NATS server');
+      this.log("Successfully connected to NATS server");
 
       this.setupEventHandlers();
       this.isConnecting = false;
@@ -82,7 +84,7 @@ export class NatsClient {
       return this.connection;
     } catch (error) {
       this.isConnecting = false;
-      this.log('Failed to connect to NATS server:', error);
+      this.log("Failed to connect to NATS server:", error);
 
       // Schedule reconnection
       this.scheduleReconnect();
@@ -115,10 +117,10 @@ export class NatsClient {
     }
 
     if (this.connection && !this.connection.isClosed()) {
-      this.log('Disconnecting from NATS server...');
+      this.log("Disconnecting from NATS server...");
       await this.connection.drain();
       await this.connection.close();
-      this.log('Disconnected from NATS server');
+      this.log("Disconnected from NATS server");
     }
 
     this.connection = null;
@@ -130,7 +132,7 @@ export class NatsClient {
   public static reset(): void {
     if (NatsClient.instance) {
       NatsClient.instance.disconnect().catch((err) => {
-        console.error('Error during disconnect:', err);
+        console.error("Error during disconnect:", err);
       });
     }
     NatsClient.instance = null;
@@ -149,28 +151,28 @@ export class NatsClient {
 
         switch (type) {
           case Events.Disconnect:
-            this.log('Disconnected from NATS server');
+            this.log("Disconnected from NATS server");
             break;
 
           case Events.Reconnect:
-            this.log('Reconnected to NATS server');
+            this.log("Reconnected to NATS server");
             break;
 
           case Events.Update:
-            this.log('NATS connection updated');
+            this.log("NATS connection updated");
             break;
 
           case Events.LDM:
-            this.log('NATS Lame Duck Mode activated');
+            this.log("NATS Lame Duck Mode activated");
             break;
 
           case Events.Error:
-            this.log('NATS connection error:', status.data);
+            this.log("NATS connection error:", status.data);
             break;
         }
       }
     })().catch((err) => {
-      this.log('Error in status monitoring:', err);
+      this.log("Error in status monitoring:", err);
     });
   }
 
@@ -182,12 +184,14 @@ export class NatsClient {
       return; // Already scheduled
     }
 
-    this.log(`Scheduling reconnection in ${this.config.reconnectTimeWait}ms...`);
+    this.log(
+      `Scheduling reconnection in ${this.config.reconnectTimeWait}ms...`,
+    );
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       this.connect().catch((err) => {
-        this.log('Reconnection failed:', err);
+        this.log("Reconnection failed:", err);
       });
     }, this.config.reconnectTimeWait);
   }
@@ -216,11 +220,13 @@ export class NatsClient {
 /**
  * Helper function to initialize NATS client
  */
-export async function initializeNatsClient(config?: NatsClientConfig): Promise<NatsConnection> {
+export async function initializeNatsClient(
+  config?: NatsClientConfig,
+): Promise<NatsConnection> {
   const defaultConfig: NatsClientConfig = {
-    servers: process.env.NATS_URL || 'nats://localhost:4222',
-    name: process.env.SERVICE_NAME || 'sahool-service',
-    debug: process.env.NODE_ENV !== 'production',
+    servers: process.env.NATS_URL || "nats://localhost:4222",
+    name: process.env.SERVICE_NAME || "sahool-service",
+    debug: process.env.NODE_ENV !== "production",
   };
 
   const client = NatsClient.getInstance(config || defaultConfig);
@@ -232,7 +238,7 @@ export async function initializeNatsClient(config?: NatsClientConfig): Promise<N
  */
 export function getNatsConnection(): NatsConnection | null {
   const client = NatsClient.getInstance({
-    servers: process.env.NATS_URL || 'nats://localhost:4222',
+    servers: process.env.NATS_URL || "nats://localhost:4222",
   });
   return client.getConnection();
 }

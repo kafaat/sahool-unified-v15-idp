@@ -327,8 +327,10 @@ class _CertificateMonitorWidgetState extends State<CertificateMonitorWidget> {
                 buffer.writeln('],');
               }
 
-              debugPrint('=== Certificate Configuration ===');
-              debugPrint(buffer.toString());
+              if (kDebugMode) {
+                debugPrint('=== Certificate Configuration ===');
+                debugPrint(buffer.toString());
+              }
 
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

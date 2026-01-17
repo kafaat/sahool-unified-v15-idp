@@ -3,17 +3,21 @@
  * خدمة المحادثات - منطق الأعمال
  */
 
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateConversationDto } from './dto/create-conversation.dto';
-import { SendMessageDto } from './dto/send-message.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateConversationDto } from "./dto/create-conversation.dto";
+import { SendMessageDto } from "./dto/send-message.dto";
 import {
   GENERAL_TRANSACTION_CONFIG,
   READ_TRANSACTION_CONFIG,
-} from '../utils/db-utils';
+} from "../utils/db-utils";
 
 // Define ParticipantRole locally to avoid Prisma client generation dependency
-type ParticipantRole = 'BUYER' | 'SELLER' | 'ADMIN';
+type ParticipantRole = "BUYER" | "SELLER" | "ADMIN";
 
 @Injectable()
 export class ChatService {
@@ -36,7 +40,7 @@ export class ChatService {
       include: {
         participants: true,
         messages: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: 1,
         },
       },
@@ -55,7 +59,7 @@ export class ChatService {
         participants: {
           create: dto.participantIds.map((userId, index) => ({
             userId,
-            role: index === 0 ? 'BUYER' : 'SELLER',
+            role: index === 0 ? "BUYER" : "SELLER",
           })),
         },
       },
@@ -87,7 +91,7 @@ export class ChatService {
           },
         },
         messages: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: 1,
         },
         _count: {
@@ -102,7 +106,7 @@ export class ChatService {
         },
       },
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
 
@@ -134,7 +138,7 @@ export class ChatService {
     });
 
     if (!conversation) {
-      throw new NotFoundException('Conversation not found');
+      throw new NotFoundException("Conversation not found");
     }
 
     return conversation;
@@ -144,13 +148,17 @@ export class ChatService {
    * Get messages for a conversation with pagination
    * الحصول على رسائل المحادثة مع الترقيم
    */
-  async getMessages(conversationId: string, page: number = 1, limit: number = 50) {
+  async getMessages(
+    conversationId: string,
+    page: number = 1,
+    limit: number = 50,
+  ) {
     const skip = (page - 1) * limit;
 
     const [messages, total] = await Promise.all([
       this.prisma.message.findMany({
         where: { conversationId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
@@ -179,7 +187,7 @@ export class ChatService {
   ) {
     const messages = await this.prisma.message.findMany({
       where: { conversationId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: limit + 1, // Fetch one extra to determine if there are more
       ...(cursor && {
         cursor: { id: cursor },
@@ -210,12 +218,14 @@ export class ChatService {
       });
 
       if (!conversation) {
-        throw new NotFoundException('Conversation not found');
+        throw new NotFoundException("Conversation not found");
       }
 
       // Verify sender is a participant
       if (!conversation.participantIds.includes(dto.senderId)) {
-        throw new BadRequestException('User is not a participant in this conversation');
+        throw new BadRequestException(
+          "User is not a participant in this conversation",
+        );
       }
 
       // Use transaction with timeout to ensure atomicity
@@ -226,10 +236,10 @@ export class ChatService {
             conversationId: dto.conversationId,
             senderId: dto.senderId,
             content: dto.content,
-            messageType: dto.messageType || 'TEXT',
+            messageType: dto.messageType || "TEXT",
             attachmentUrl: dto.attachmentUrl,
             offerAmount: dto.offerAmount,
-            offerCurrency: dto.offerCurrency || 'YER',
+            offerCurrency: dto.offerCurrency || "YER",
           },
         });
 
@@ -260,10 +270,13 @@ export class ChatService {
       return message;
     } catch (error) {
       // Sanitize error messages - don't expose internal details
-      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
-      throw new BadRequestException('Failed to send message');
+      throw new BadRequestException("Failed to send message");
     }
   }
 
@@ -278,7 +291,7 @@ export class ChatService {
     });
 
     if (!message) {
-      throw new NotFoundException('Message not found');
+      throw new NotFoundException("Message not found");
     }
 
     // Only mark as read if user is not the sender
@@ -346,7 +359,11 @@ export class ChatService {
    * Update typing indicator
    * تحديث مؤشر الكتابة
    */
-  async updateTypingIndicator(conversationId: string, userId: string, isTyping: boolean) {
+  async updateTypingIndicator(
+    conversationId: string,
+    userId: string,
+    isTyping: boolean,
+  ) {
     await this.prisma.participant.updateMany({
       where: {
         conversationId,

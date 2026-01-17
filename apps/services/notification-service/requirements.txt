@@ -22,6 +22,9 @@ sendgrid==6.11.0
 # Redis for distributed notification queue
 redis==5.2.1
 
+# NATS messaging
+nats-py==2.9.0
+
 # APScheduler for scheduled notifications
 apscheduler==3.10.4
 

@@ -10,12 +10,14 @@ FROM python:3.11-slim
 WORKDIR /app
 
 
-# Upgrade pip to latest version
-RUN pip install --no-cache-dir --upgrade pip
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel
 
 # Install dependencies
 COPY apps/services/fertilizer-advisor/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules
 COPY apps/services/shared ./shared/
@@ -28,11 +30,11 @@ RUN useradd --create-home --shell /bin/bash --uid 1000 appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-# Expose port
-EXPOSE 8093
+# Expose port (changed from 8093 to avoid conflict with advisory-service)
+EXPOSE 8127
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8093/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8127/healthz')" || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8093"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8127"]

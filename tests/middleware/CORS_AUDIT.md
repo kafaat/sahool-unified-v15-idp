@@ -1,4 +1,5 @@
 # CORS Configuration Audit Report
+
 # تقرير تدقيق تكوين CORS
 
 **Platform:** SAHOOL Unified Agricultural Platform v16.0.0
@@ -11,6 +12,7 @@
 ## Executive Summary | الملخص التنفيذي
 
 This audit examines Cross-Origin Resource Sharing (CORS) configurations across the SAHOOL platform, including:
+
 - Kong API Gateway (global CORS plugin)
 - Next.js frontend middleware (Web & Admin dashboards)
 - FastAPI backend services (Python microservices)
@@ -22,6 +24,7 @@ This audit examines Cross-Origin Resource Sharing (CORS) configurations across t
 **Status:** ✅ **SECURE** - No critical vulnerabilities found
 
 **Strengths:**
+
 - ✅ No wildcard (`*`) origins in production
 - ✅ Explicit origin whitelisting
 - ✅ Credentials properly handled
@@ -29,6 +32,7 @@ This audit examines Cross-Origin Resource Sharing (CORS) configurations across t
 - ✅ Environment-based origin management
 
 **Areas for Improvement:**
+
 - ⚠️ Domain inconsistency between services (sahool.app vs sahool.com)
 - ⚠️ Some hardcoded defaults could be eliminated
 - ⚠️ Missing www subdomain in some configurations
@@ -79,13 +83,13 @@ plugins:
 
 ### Analysis
 
-| Aspect | Status | Details |
-|--------|--------|---------|
-| **Origins** | ✅ Secure | Explicit whitelist, no wildcards |
-| **Methods** | ✅ Appropriate | All standard REST methods |
-| **Headers** | ✅ Appropriate | Standard + custom headers |
-| **Credentials** | ✅ Required | Enabled for authentication |
-| **Max Age** | ✅ Standard | 1 hour preflight cache |
+| Aspect          | Status         | Details                          |
+| --------------- | -------------- | -------------------------------- |
+| **Origins**     | ✅ Secure      | Explicit whitelist, no wildcards |
+| **Methods**     | ✅ Appropriate | All standard REST methods        |
+| **Headers**     | ✅ Appropriate | Standard + custom headers        |
+| **Credentials** | ✅ Required    | Enabled for authentication       |
+| **Max Age**     | ✅ Standard    | 1 hour preflight cache           |
 
 ### Issues Found
 
@@ -110,6 +114,7 @@ plugins:
 **CORS Configuration:** None (relies on Kong API Gateway)
 
 The web dashboard middleware focuses on:
+
 - Authentication checks
 - CSP (Content Security Policy) headers
 - CSRF token generation
@@ -120,6 +125,7 @@ The web dashboard middleware focuses on:
 **CORS Configuration:** None (relies on Kong API Gateway)
 
 The admin dashboard middleware focuses on:
+
 - Authentication checks
 - Session timeout (30 minutes)
 - CSP headers
@@ -127,13 +133,14 @@ The admin dashboard middleware focuses on:
 
 ### Analysis
 
-| Aspect | Status | Details |
-|--------|--------|---------|
-| **CORS Policy** | ✅ Appropriate | Delegated to Kong Gateway |
-| **Security Headers** | ✅ Excellent | Comprehensive security headers |
-| **CSP Integration** | ✅ Good | Nonce-based CSP implemented |
+| Aspect               | Status         | Details                        |
+| -------------------- | -------------- | ------------------------------ |
+| **CORS Policy**      | ✅ Appropriate | Delegated to Kong Gateway      |
+| **Security Headers** | ✅ Excellent   | Comprehensive security headers |
+| **CSP Integration**  | ✅ Good        | Nonce-based CSP implemented    |
 
 **Architecture Decision:** ✅ CORRECT
+
 - Next.js apps correctly delegate CORS to the API Gateway layer
 - Focuses on application-level security (CSP, CSRF, authentication)
 - Follows microservices best practices
@@ -198,6 +205,7 @@ STAGING_ORIGINS = [
 ### Security Features
 
 ✅ **Wildcard Protection**
+
 ```python
 if "*" in origins and environment == "production":
     logger.critical(
@@ -209,14 +217,14 @@ if "*" in origins and environment == "production":
 
 ### Analysis
 
-| Aspect | Status | Details |
-|--------|--------|---------|
-| **Environment Management** | ✅ Excellent | Separate configs per environment |
-| **Wildcard Protection** | ✅ Excellent | Active detection and prevention |
-| **Allowed Methods** | ✅ Appropriate | GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD |
-| **Allowed Headers** | ✅ Comprehensive | Standard + custom headers |
-| **Credentials** | ✅ Required | Enabled by default |
-| **Max Age** | ✅ Standard | 3600 seconds (1 hour) |
+| Aspect                     | Status           | Details                                      |
+| -------------------------- | ---------------- | -------------------------------------------- |
+| **Environment Management** | ✅ Excellent     | Separate configs per environment             |
+| **Wildcard Protection**    | ✅ Excellent     | Active detection and prevention              |
+| **Allowed Methods**        | ✅ Appropriate   | GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD |
+| **Allowed Headers**        | ✅ Comprehensive | Standard + custom headers                    |
+| **Credentials**            | ✅ Required      | Enabled by default                           |
+| **Max Age**                | ✅ Standard      | 3600 seconds (1 hour)                        |
 
 ### Issues Found
 
@@ -236,69 +244,76 @@ if "*" in origins and environment == "production":
 ### Service Examples
 
 **User Service** (`/apps/services/user-service/src/main.ts`)
+
 ```typescript
-const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-  'https://sahool.com',
-  'https://app.sahool.com',
-  'https://admin.sahool.com',
-  'http://localhost:3000',
-  'http://localhost:8080',
+const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+  "https://sahool.com",
+  "https://app.sahool.com",
+  "https://admin.sahool.com",
+  "http://localhost:3000",
+  "http://localhost:8080",
 ];
 
 app.enableCors({
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Tenant-ID',
-    'X-Request-ID',
+    "Content-Type",
+    "Authorization",
+    "X-Tenant-ID",
+    "X-Request-ID",
   ],
   credentials: true,
 });
 ```
 
 **Chat Service** (`/apps/services/chat-service/src/main.ts`)
+
 ```typescript
-const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-  'https://sahool.com',
-  'https://app.sahool.com',
-  'https://admin.sahool.com',
-  'http://localhost:3000',
-  'http://localhost:8080',
+const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+  "https://sahool.com",
+  "https://app.sahool.com",
+  "https://admin.sahool.com",
+  "http://localhost:3000",
+  "http://localhost:8080",
 ];
 
 app.enableCors({
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Request-ID'],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Tenant-ID",
+    "X-Request-ID",
+  ],
   credentials: true,
 });
 ```
 
 ### Analysis
 
-| Aspect | Status | Details |
-|--------|--------|---------|
-| **Environment Variables** | ✅ Good | Uses CORS_ALLOWED_ORIGINS |
-| **Fallback Origins** | ⚠️ Inconsistent | Uses sahool.com instead of sahool.app |
-| **Methods** | ✅ Appropriate | Standard REST methods |
-| **Headers** | ✅ Appropriate | Auth + tenant headers |
-| **Credentials** | ✅ Required | Enabled |
+| Aspect                    | Status          | Details                               |
+| ------------------------- | --------------- | ------------------------------------- |
+| **Environment Variables** | ✅ Good         | Uses CORS_ALLOWED_ORIGINS             |
+| **Fallback Origins**      | ⚠️ Inconsistent | Uses sahool.com instead of sahool.app |
+| **Methods**               | ✅ Appropriate  | Standard REST methods                 |
+| **Headers**               | ✅ Appropriate  | Auth + tenant headers                 |
+| **Credentials**           | ✅ Required     | Enabled                               |
 
 ### Services Audited
 
-| Service | Port | CORS Config | Status |
-|---------|------|-------------|--------|
-| user-service | 3020 | ✅ Environment-based | Secure |
-| chat-service | 8114 | ✅ Environment-based | Secure |
-| marketplace-service | 3010 | ✅ Environment-based | Secure |
-| research-core | 3015 | ✅ Environment-based | Secure |
-| disaster-assessment | 3020 | ✅ Environment-based | Secure |
-| iot-service | 8117 | ✅ Environment-based | Secure |
-| lai-estimation | 3022 | ✅ Environment-based | Secure |
-| crop-growth-model | 3023 | ✅ Environment-based | Secure |
-| yield-prediction | 3021 | ✅ Environment-based | Secure |
+| Service                  | Port | CORS Config          | Status |
+| ------------------------ | ---- | -------------------- | ------ |
+| user-service             | 3020 | ✅ Environment-based | Secure |
+| chat-service             | 8114 | ✅ Environment-based | Secure |
+| marketplace-service      | 3010 | ✅ Environment-based | Secure |
+| research-core            | 3015 | ✅ Environment-based | Secure |
+| disaster-assessment      | 3020 | ✅ Environment-based | Secure |
+| iot-service              | 8117 | ✅ Environment-based | Secure |
+| lai-estimation           | 3022 | ✅ Environment-based | Secure |
+| crop-growth-model        | 3023 | ✅ Environment-based | Secure |
+| yield-prediction         | 3021 | ✅ Environment-based | Secure |
 | yield-prediction-service | 8098 | ✅ Environment-based | Secure |
 
 ### Issues Found
@@ -332,12 +347,12 @@ app.enableCors({
 
 ### Analysis
 
-| Aspect | Status | Details |
-|--------|--------|---------|
-| **Environment Variables** | ✅ Good | Uses CORS_ALLOWED_ORIGINS |
-| **Fallback Origins** | ⚠️ Inconsistent | Uses sahool.com |
-| **Credentials** | ✅ Required | Enabled |
-| **Namespace** | ✅ Good | Isolated /chat namespace |
+| Aspect                    | Status          | Details                   |
+| ------------------------- | --------------- | ------------------------- |
+| **Environment Variables** | ✅ Good         | Uses CORS_ALLOWED_ORIGINS |
+| **Fallback Origins**      | ⚠️ Inconsistent | Uses sahool.com           |
+| **Credentials**           | ✅ Required     | Enabled                   |
+| **Namespace**             | ✅ Good         | Isolated /chat namespace  |
 
 ---
 
@@ -370,12 +385,12 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhos
 
 ### Analysis
 
-| File | Status | Issues |
-|------|--------|--------|
-| `.env.example` | ✅ Good | Uses sahool.app |
-| `config/base.env` | ✅ Good | Development origins |
-| `config/local.env` | ✅ Good | Includes 127.0.0.1 |
-| `config/prod.env` | ⚠️ Commented | Should be uncommented with production values |
+| File               | Status       | Issues                                       |
+| ------------------ | ------------ | -------------------------------------------- |
+| `.env.example`     | ✅ Good      | Uses sahool.app                              |
+| `config/base.env`  | ✅ Good      | Development origins                          |
+| `config/local.env` | ✅ Good      | Includes 127.0.0.1                           |
+| `config/prod.env`  | ⚠️ Commented | Should be uncommented with production values |
 
 ---
 
@@ -383,17 +398,18 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhos
 
 ### Across All Services
 
-| Method | Kong | FastAPI | NestJS | Security Assessment |
-|--------|------|---------|--------|---------------------|
-| GET | ✅ | ✅ | ✅ | Safe |
-| POST | ✅ | ✅ | ✅ | Safe with auth |
-| PUT | ✅ | ✅ | ✅ | Safe with auth |
-| PATCH | ✅ | ✅ | ✅ | Safe with auth |
-| DELETE | ✅ | ✅ | ✅ | Safe with auth |
-| OPTIONS | ✅ | ✅ | ✅ | Required for CORS |
-| HEAD | ❌ | ✅ | ❌ | Minor inconsistency |
+| Method  | Kong | FastAPI | NestJS | Security Assessment |
+| ------- | ---- | ------- | ------ | ------------------- |
+| GET     | ✅   | ✅      | ✅     | Safe                |
+| POST    | ✅   | ✅      | ✅     | Safe with auth      |
+| PUT     | ✅   | ✅      | ✅     | Safe with auth      |
+| PATCH   | ✅   | ✅      | ✅     | Safe with auth      |
+| DELETE  | ✅   | ✅      | ✅     | Safe with auth      |
+| OPTIONS | ✅   | ✅      | ✅     | Required for CORS   |
+| HEAD    | ❌   | ✅      | ❌     | Minor inconsistency |
 
 **Analysis:**
+
 - ✅ All necessary methods are allowed
 - ⚠️ HEAD method inconsistency (FastAPI includes it, Kong/NestJS don't)
 - ✅ All write operations require authentication (enforced by Kong JWT plugin)
@@ -437,27 +453,28 @@ headers = [
 
 ```typescript
 allowedHeaders: [
-  'Content-Type',
-  'Authorization',
-  'X-Tenant-ID',
-  'X-Request-ID',
-]
+  "Content-Type",
+  "Authorization",
+  "X-Tenant-ID",
+  "X-Request-ID",
+];
 ```
 
 ### Analysis
 
-| Header | Kong | FastAPI | NestJS | Purpose |
-|--------|------|---------|--------|---------|
-| Accept | ✅ | ✅ | ❌ | Content negotiation |
-| Accept-Language | ❌ | ✅ | ❌ | i18n support |
-| Authorization | ✅ | ✅ | ✅ | Authentication |
-| Content-Type | ✅ | ✅ | ✅ | Request format |
-| X-Request-ID | ❌ | ✅ | ✅ | Request tracing |
-| X-Correlation-ID | ❌ | ✅ | ❌ | Distributed tracing |
-| X-Tenant-ID | ❌ | ✅ | ✅ | Multi-tenancy |
-| X-API-Key | ❌ | ✅ | ❌ | API authentication |
+| Header           | Kong | FastAPI | NestJS | Purpose             |
+| ---------------- | ---- | ------- | ------ | ------------------- |
+| Accept           | ✅   | ✅      | ❌     | Content negotiation |
+| Accept-Language  | ❌   | ✅      | ❌     | i18n support        |
+| Authorization    | ✅   | ✅      | ✅     | Authentication      |
+| Content-Type     | ✅   | ✅      | ✅     | Request format      |
+| X-Request-ID     | ❌   | ✅      | ✅     | Request tracing     |
+| X-Correlation-ID | ❌   | ✅      | ❌     | Distributed tracing |
+| X-Tenant-ID      | ❌   | ✅      | ✅     | Multi-tenancy       |
+| X-API-Key        | ❌   | ✅      | ❌     | API authentication  |
 
 **Findings:**
+
 - ⚠️ Header inconsistency between layers
 - 💡 Kong should include X-Tenant-ID, X-Request-ID for consistency
 - ✅ All critical headers (Authorization, Content-Type) are allowed
@@ -468,24 +485,26 @@ allowedHeaders: [
 
 ### Configuration Across Services
 
-| Layer | Credentials Enabled | Analysis |
-|-------|-------------------|----------|
-| Kong | ✅ Yes | Required for JWT auth |
-| FastAPI | ✅ Yes | Required for cookies/auth |
-| NestJS | ✅ Yes | Required for session management |
-| WebSocket | ✅ Yes | Required for authenticated connections |
+| Layer     | Credentials Enabled | Analysis                               |
+| --------- | ------------------- | -------------------------------------- |
+| Kong      | ✅ Yes              | Required for JWT auth                  |
+| FastAPI   | ✅ Yes              | Required for cookies/auth              |
+| NestJS    | ✅ Yes              | Required for session management        |
+| WebSocket | ✅ Yes              | Required for authenticated connections |
 
 ### Security Analysis
 
 ✅ **CORRECT CONFIGURATION**
 
 When `credentials: true`:
+
 - Cookies are sent with requests
 - Authorization headers are included
 - Origin must be explicit (no wildcards) ✅
 - Allows JWT tokens in headers ✅
 
 **Critical Security Rule:**
+
 > When `Access-Control-Allow-Credentials: true`, the `Access-Control-Allow-Origin` header MUST NOT be `*`
 
 ✅ **VERIFIED:** All configurations use explicit origins with credentials enabled.
@@ -504,6 +523,7 @@ When `credentials: true`:
 ```
 
 **Verification:**
+
 - ✅ Kong: No wildcards
 - ✅ FastAPI: Active wildcard detection and blocking
 - ✅ NestJS: Environment-based explicit origins
@@ -512,6 +532,7 @@ When `credentials: true`:
 ### Security Enforcement
 
 **FastAPI Example:**
+
 ```python
 if "*" in origins and environment == "production":
     logger.critical("🚨 SECURITY ALERT: Wildcard CORS detected!")
@@ -524,32 +545,32 @@ if "*" in origins and environment == "production":
 
 ## 11. Summary of Issues
 
-| ID | Issue | Severity | Layer | Recommendation |
-|----|-------|----------|-------|----------------|
-| ISSUE-001 | Domain inconsistency (sahool.app vs sahool.com) | Medium | All | Standardize on sahool.app |
-| ISSUE-002 | Development origins in production config | Low | Kong | Use environment variables |
-| ISSUE-003 | Multiple domain variants in Python configs | Medium | FastAPI | Unify to sahool.app |
-| ISSUE-004 | NestJS default domain mismatch | Medium | NestJS | Update defaults to sahool.app |
-| ISSUE-005 | Header inconsistency across layers | Low | All | Align header configurations |
-| ISSUE-006 | HEAD method inconsistency | Low | Kong/NestJS | Add HEAD to all configs |
-| ISSUE-007 | Production env commented out | Low | Config | Uncomment prod config |
+| ID        | Issue                                           | Severity | Layer       | Recommendation                |
+| --------- | ----------------------------------------------- | -------- | ----------- | ----------------------------- |
+| ISSUE-001 | Domain inconsistency (sahool.app vs sahool.com) | Medium   | All         | Standardize on sahool.app     |
+| ISSUE-002 | Development origins in production config        | Low      | Kong        | Use environment variables     |
+| ISSUE-003 | Multiple domain variants in Python configs      | Medium   | FastAPI     | Unify to sahool.app           |
+| ISSUE-004 | NestJS default domain mismatch                  | Medium   | NestJS      | Update defaults to sahool.app |
+| ISSUE-005 | Header inconsistency across layers              | Low      | All         | Align header configurations   |
+| ISSUE-006 | HEAD method inconsistency                       | Low      | Kong/NestJS | Add HEAD to all configs       |
+| ISSUE-007 | Production env commented out                    | Low      | Config      | Uncomment prod config         |
 
 ---
 
 ## 12. Security Best Practices Compliance
 
-| Practice | Status | Evidence |
-|----------|--------|----------|
-| No wildcard origins in production | ✅ PASS | Verified across all layers |
-| Explicit origin whitelisting | ✅ PASS | All configs use explicit lists |
-| Credentials properly configured | ✅ PASS | Enabled with explicit origins |
-| Environment-based configuration | ✅ PASS | CORS_ALLOWED_ORIGINS used |
-| Appropriate HTTP methods | ✅ PASS | Standard REST methods only |
-| Secure headers allowed | ✅ PASS | Auth + custom headers |
-| Max-age configured | ✅ PASS | 3600s (1 hour) across all |
-| Multiple environment support | ✅ PASS | Dev, staging, prod configs |
-| Wildcard detection/prevention | ✅ PASS | Active in FastAPI layer |
-| Logging and monitoring | ✅ PASS | CORS config logged on startup |
+| Practice                          | Status  | Evidence                       |
+| --------------------------------- | ------- | ------------------------------ |
+| No wildcard origins in production | ✅ PASS | Verified across all layers     |
+| Explicit origin whitelisting      | ✅ PASS | All configs use explicit lists |
+| Credentials properly configured   | ✅ PASS | Enabled with explicit origins  |
+| Environment-based configuration   | ✅ PASS | CORS_ALLOWED_ORIGINS used      |
+| Appropriate HTTP methods          | ✅ PASS | Standard REST methods only     |
+| Secure headers allowed            | ✅ PASS | Auth + custom headers          |
+| Max-age configured                | ✅ PASS | 3600s (1 hour) across all      |
+| Multiple environment support      | ✅ PASS | Dev, staging, prod configs     |
+| Wildcard detection/prevention     | ✅ PASS | Active in FastAPI layer        |
+| Logging and monitoring            | ✅ PASS | CORS config logged on startup  |
 
 **Overall Compliance:** ✅ **10/10 PASS**
 
@@ -644,22 +665,22 @@ curl -H "Origin: https://sahool.app" \
 
 ### Production Origins
 
-| Service Type | sahool.app | admin.sahool.app | api.sahool.app | www.sahool.app | staging.sahool.app |
-|-------------|------------|------------------|----------------|----------------|-------------------|
-| Kong | ✅ | ✅ | ✅ | ✅ | ✅ |
-| FastAPI (shared) | ✅ | ✅ | ✅ | ✅ | ❌ |
-| FastAPI (services) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| NestJS | ⚠️ (.com) | ⚠️ (.com) | ❌ | ❌ | ❌ |
-| WebSocket | ⚠️ (.com) | ⚠️ (.com) | ❌ | ❌ | ❌ |
+| Service Type       | sahool.app | admin.sahool.app | api.sahool.app | www.sahool.app | staging.sahool.app |
+| ------------------ | ---------- | ---------------- | -------------- | -------------- | ------------------ |
+| Kong               | ✅         | ✅               | ✅             | ✅             | ✅                 |
+| FastAPI (shared)   | ✅         | ✅               | ✅             | ✅             | ❌                 |
+| FastAPI (services) | ✅         | ✅               | ✅             | ✅             | ✅                 |
+| NestJS             | ⚠️ (.com)  | ⚠️ (.com)        | ❌             | ❌             | ❌                 |
+| WebSocket          | ⚠️ (.com)  | ⚠️ (.com)        | ❌             | ❌             | ❌                 |
 
 ### Development Origins
 
 | Service Type | localhost:3000 | localhost:3001 | localhost:5173 | localhost:8080 | 127.0.0.1 variants |
-|-------------|----------------|----------------|----------------|----------------|-------------------|
-| Kong | ✅ | ❌ | ✅ | ✅ | ❌ |
-| FastAPI | ✅ | ✅ | ✅ | ✅ | ✅ |
-| NestJS | ✅ | ❌ | ❌ | ✅ | ❌ |
-| WebSocket | ✅ | ❌ | ❌ | ✅ | ❌ |
+| ------------ | -------------- | -------------- | -------------- | -------------- | ------------------ |
+| Kong         | ✅             | ❌             | ✅             | ✅             | ❌                 |
+| FastAPI      | ✅             | ✅             | ✅             | ✅             | ✅                 |
+| NestJS       | ✅             | ❌             | ❌             | ✅             | ❌                 |
+| WebSocket    | ✅             | ❌             | ❌             | ✅             | ❌                 |
 
 ---
 
@@ -670,6 +691,7 @@ curl -H "Origin: https://sahool.app" \
 The SAHOOL platform demonstrates **excellent CORS security practices** with:
 
 **Strengths:**
+
 1. ✅ No wildcard origins in production
 2. ✅ Comprehensive environment-based configuration
 3. ✅ Active wildcard detection and prevention (FastAPI)
@@ -677,6 +699,7 @@ The SAHOOL platform demonstrates **excellent CORS security practices** with:
 5. ✅ Layered security (Kong + Service-level CORS)
 
 **Areas for Improvement:**
+
 1. ⚠️ Domain standardization (sahool.app vs sahool.com)
 2. ⚠️ Header configuration consistency
 3. ⚠️ Method alignment (HEAD support)
@@ -689,10 +712,10 @@ The platform is production-ready from a CORS security perspective. The identifie
 
 ## 17. Sign-off
 
-| Role | Name | Date | Status |
-|------|------|------|--------|
-| Security Auditor | System Review | 2026-01-06 | ✅ Approved |
-| Platform Status | Production Ready | 2026-01-06 | ✅ Secure |
+| Role             | Name             | Date       | Status      |
+| ---------------- | ---------------- | ---------- | ----------- |
+| Security Auditor | System Review    | 2026-01-06 | ✅ Approved |
+| Platform Status  | Production Ready | 2026-01-06 | ✅ Secure   |
 
 ---
 
@@ -705,23 +728,28 @@ The platform is production-ready from a CORS security perspective. The identifie
 ## Appendix A: Configuration File Locations
 
 ### Kong
+
 - `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong/kong.yml`
 
 ### Next.js
+
 - `/home/user/sahool-unified-v15-idp/apps/web/src/middleware.ts`
 - `/home/user/sahool-unified-v15-idp/apps/admin/src/middleware.ts`
 
 ### FastAPI
+
 - `/home/user/sahool-unified-v15-idp/shared/middleware/cors.py`
 - `/home/user/sahool-unified-v15-idp/apps/services/shared/config/cors_config.py`
 
 ### NestJS Services
+
 - `/home/user/sahool-unified-v15-idp/apps/services/user-service/src/main.ts`
 - `/home/user/sahool-unified-v15-idp/apps/services/chat-service/src/main.ts`
 - `/home/user/sahool-unified-v15-idp/apps/services/marketplace-service/src/main.ts`
 - And 7 additional NestJS services
 
 ### Environment
+
 - `/home/user/sahool-unified-v15-idp/.env.example`
 - `/home/user/sahool-unified-v15-idp/config/base.env`
 - `/home/user/sahool-unified-v15-idp/config/local.env`

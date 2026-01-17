@@ -50,7 +50,7 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY apps/services/field-chat/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Remove build-time packages to keep the runtime image small
@@ -58,10 +58,11 @@ RUN apt-get purge -y --auto-remove build-essential gcc python3-dev libpq-dev lib
     && rm -rf /var/lib/apt/lists/* \
     || true
 
-# Copy shared libraries
+# Copy shared libraries (required for shared.errors_py, shared.cors_config)
+COPY shared/ ./shared/
 
 # Copy source
-COPY src/ ./src/
+COPY apps/services/field-chat/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app

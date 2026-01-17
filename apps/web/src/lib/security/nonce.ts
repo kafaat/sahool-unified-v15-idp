@@ -6,8 +6,8 @@
  * أدوات للعمل مع nonces في مكونات React
  */
 
-import { headers } from 'next/headers';
-import { logger } from '@/lib/logger';
+import { headers } from "next/headers";
+import { logger } from "@/lib/logger";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Server-side Nonce Retrieval
@@ -23,7 +23,7 @@ import { logger } from '@/lib/logger';
 export async function getNonce(): Promise<string | null> {
   try {
     const headersList = await headers();
-    return headersList.get('x-nonce');
+    return headersList.get("x-nonce");
   } catch {
     // Headers not available (e.g., in static generation)
     return null;
@@ -89,7 +89,7 @@ export function cssVars(vars: Record<string, string>): Record<string, string> {
  * التحقق مما إذا كان الكود يعمل على الخادم
  */
 export function isServer(): boolean {
-  return typeof window === 'undefined';
+  return typeof window === "undefined";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -173,8 +173,8 @@ export function validateScriptCode(code: string): ValidationResult {
   const warnings: string[] = [];
 
   // Check for empty or invalid input
-  if (!code || typeof code !== 'string') {
-    errors.push('Script code must be a non-empty string');
+  if (!code || typeof code !== "string") {
+    errors.push("Script code must be a non-empty string");
     return { isValid: false, errors, warnings };
   }
 
@@ -183,7 +183,7 @@ export function validateScriptCode(code: string): ValidationResult {
     const match = code.match(pattern);
     if (match) {
       errors.push(
-        `Dangerous pattern detected: "${match[0]}" - This could lead to code injection or XSS vulnerabilities`
+        `Dangerous pattern detected: "${match[0]}" - This could lead to code injection or XSS vulnerabilities`,
       );
     }
   }
@@ -193,26 +193,29 @@ export function validateScriptCode(code: string): ValidationResult {
     const match = code.match(pattern);
     if (match) {
       warnings.push(
-        `Suspicious pattern detected: "${match[0]}" - Ensure this is intentional and from a trusted source`
+        `Suspicious pattern detected: "${match[0]}" - Ensure this is intentional and from a trusted source`,
       );
     }
   }
 
   // Check for potential template injection
-  if (code.includes('${') || code.includes('`')) {
+  if (code.includes("${") || code.includes("`")) {
     warnings.push(
-      'Template literals detected - Ensure no user input is interpolated into this code'
+      "Template literals detected - Ensure no user input is interpolated into this code",
     );
   }
 
   // Log warnings in development
-  if (warnings.length > 0 && process.env.NODE_ENV !== 'production') {
-    logger.warn('[Security Warning] Inline script validation warnings:', warnings);
+  if (warnings.length > 0 && process.env.NODE_ENV !== "production") {
+    logger.warn(
+      "[Security Warning] Inline script validation warnings:",
+      warnings,
+    );
   }
 
   // Log errors
   if (errors.length > 0) {
-    logger.error('[Security Error] Inline script validation failed:', errors);
+    logger.error("[Security Error] Inline script validation failed:", errors);
   }
 
   return {
@@ -235,16 +238,16 @@ function sanitizeScriptCode(code: string): string {
   let sanitized = code;
 
   // Remove HTML tags that might be injected
-  sanitized = sanitized.replace(/<script[\s\S]*?<\/script>/gi, '');
-  sanitized = sanitized.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
-  sanitized = sanitized.replace(/<embed[\s\S]*?>/gi, '');
-  sanitized = sanitized.replace(/<object[\s\S]*?<\/object>/gi, '');
+  sanitized = sanitized.replace(/<script[\s\S]*?<\/script>/gi, "");
+  sanitized = sanitized.replace(/<iframe[\s\S]*?<\/iframe>/gi, "");
+  sanitized = sanitized.replace(/<embed[\s\S]*?>/gi, "");
+  sanitized = sanitized.replace(/<object[\s\S]*?<\/object>/gi, "");
 
   // Remove javascript: protocol
-  sanitized = sanitized.replace(/javascript:/gi, '');
+  sanitized = sanitized.replace(/javascript:/gi, "");
 
   // Remove data: URIs
-  sanitized = sanitized.replace(/data:text\/html[^"'\s]*/gi, '');
+  sanitized = sanitized.replace(/data:text\/html[^"'\s]*/gi, "");
 
   return sanitized;
 }
@@ -298,26 +301,28 @@ export function createInlineScript(
   options?: {
     skipValidation?: boolean;
     allowSanitization?: boolean;
-  }
+  },
 ) {
   // Apply sanitization if requested
-  const codeToValidate = options?.allowSanitization ? sanitizeScriptCode(code) : code;
+  const codeToValidate = options?.allowSanitization
+    ? sanitizeScriptCode(code)
+    : code;
 
   // Validate unless explicitly skipped
   if (!options?.skipValidation) {
     const validation = validateScriptCode(codeToValidate);
 
     if (!validation.isValid) {
-      const errorMessage = `[Security] Inline script validation failed:\n${validation.errors.join('\n')}`;
+      const errorMessage = `[Security] Inline script validation failed:\n${validation.errors.join("\n")}`;
 
       // In production, we should fail closed (reject the script)
-      if (process.env.NODE_ENV === 'production') {
+      if (process.env.NODE_ENV === "production") {
         throw new Error(errorMessage);
       }
 
       // In development, log the error but allow it (for debugging)
       logger.error(errorMessage);
-      logger.error('Script code:', code);
+      logger.error("Script code:", code);
     }
   }
 

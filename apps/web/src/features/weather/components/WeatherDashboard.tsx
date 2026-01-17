@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Weather Dashboard Component
  * مكون لوحة الطقس
  */
 
-import React from 'react';
-import { CurrentWeather } from './CurrentWeather';
-import { ForecastChart } from './ForecastChart';
-import { WeatherAlerts } from './WeatherAlerts';
+import React from "react";
+import { CurrentWeather } from "./CurrentWeather";
+import { ForecastChart } from "./ForecastChart";
+import { WeatherAlerts } from "./WeatherAlerts";
 
 interface WeatherDashboardProps {
   lat?: number;
@@ -16,7 +16,11 @@ interface WeatherDashboardProps {
   enabled?: boolean;
 }
 
-export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({ lat, lon, enabled }) => {
+export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({
+  lat,
+  lon,
+  enabled,
+}) => {
   return (
     <div className="space-y-6">
       {/* Header */}

@@ -230,6 +230,7 @@
 Start these services one at a time, waiting for health checks:
 
 1. [ ] **PostgreSQL** (Port 5432)
+
    ```bash
    docker-compose up -d postgres
    sleep 30  # Wait for startup
@@ -238,6 +239,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 2. [ ] **Redis** (Port 6379)
+
    ```bash
    docker-compose up -d redis
    sleep 15
@@ -246,6 +248,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 3. [ ] **PgBouncer** (Port 6432) - for production only
+
    ```bash
    docker-compose up -d pgbouncer
    sleep 15
@@ -254,6 +257,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 4. [ ] **NATS JetStream** (Ports 4222, 8222)
+
    ```bash
    docker-compose up -d nats
    sleep 15
@@ -262,6 +266,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 5. [ ] **MQTT Broker** (Ports 1883, 9001)
+
    ```bash
    docker-compose up -d mqtt
    sleep 10
@@ -270,6 +275,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 6. [ ] **Qdrant Vector DB** (Ports 6333, 6334)
+
    ```bash
    docker-compose up -d qdrant
    sleep 20
@@ -278,6 +284,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 7. [ ] **etcd** (Ports 2379, 2380)
+
    ```bash
    docker-compose up -d etcd
    sleep 15
@@ -286,6 +293,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 8. [ ] **Minio** (Ports 9000, 9001)
+
    ```bash
    docker-compose up -d minio
    sleep 15
@@ -294,6 +302,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 9. [ ] **Milvus** (Ports 19530, 9091)
+
    ```bash
    docker-compose up -d milvus
    sleep 30
@@ -302,6 +311,7 @@ Start these services one at a time, waiting for health checks:
    ```
 
 10. [ ] **Ollama** (Port 11434)
+
     ```bash
     docker-compose up -d ollama
     sleep 20
@@ -320,6 +330,7 @@ Start these services one at a time, waiting for health checks:
 ### Phase 2: API Gateway & Routing (30-45s)
 
 12. [ ] **Kong API Gateway** (Ports 8000, 8001, 8443, 8444)
+
     ```bash
     docker-compose up -d kong
     sleep 20
@@ -353,6 +364,7 @@ docker-compose up -d \
 ```
 
 Then verify each:
+
 - [ ] field-management-service (8100): `curl http://localhost:8100/healthz`
 - [ ] marketplace-service (8101): `curl http://localhost:8101/healthz`
 - [ ] research-core (8102): `curl http://localhost:8102/healthz`
@@ -442,12 +454,14 @@ curl http://localhost:8150/api/demo/status
 ### 1. Infrastructure Health Checks
 
 - [ ] **All Services Running**
+
   ```bash
   docker-compose ps
   # Verify: All services show "Up" status, 0 errors
   ```
 
 - [ ] **Container Health Status**
+
   ```bash
   docker-compose ps --services | while read service; do
     echo "Checking $service..."
@@ -473,12 +487,14 @@ curl http://localhost:8150/api/demo/status
 ### 2. API Gateway Validation
 
 - [ ] **Kong Status**
+
   ```bash
   curl http://localhost:8001/status
   # Verify: database=connected, server=online
   ```
 
 - [ ] **Routes Configured**
+
   ```bash
   curl http://localhost:8001/routes | jq '.data | length'
   # Verify: >10 routes configured
@@ -538,6 +554,7 @@ done
   - [ ] Active size: Check that DEFAULT_POOL_SIZE (20) is reasonable
 
 - [ ] **Resource Utilization**
+
   ```bash
   docker stats --no-stream | tail -20
   # Record CPU and memory for each service
@@ -589,6 +606,7 @@ These services must respond with HTTP 200 to `/readyz` endpoint:
 ### 4. Log Aggregation Verification
 
 - [ ] **Check Service Logs**
+
   ```bash
   docker-compose logs --tail=100 | grep -i "error\|warn"
   # Should be minimal warnings, no errors
@@ -809,13 +827,13 @@ Issue Detected?
 
 ---
 
-**Deployment Status**: _______________
-**Date Deployed**: ________________
-**Deployed By**: ________________
-**Approved By**: ________________
+**Deployment Status**: ******\_\_\_******
+**Date Deployed**: ******\_\_\_\_******
+**Deployed By**: ******\_\_\_\_******
+**Approved By**: ******\_\_\_\_******
 **Rollback Executed**: Yes / No
-**Issues Encountered**: ______________
-**Notes**: ______________________________________________
+**Issues Encountered**: ******\_\_******
+**Notes**: **********************\_\_**********************
 
 ---
 

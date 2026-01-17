@@ -50,13 +50,13 @@ Comprehensive caching solution for the SAHOOL platform with Redis Sentinel suppo
 ### 1. TypeScript/NestJS
 
 ```typescript
-import { CacheManager, CacheTTL } from '@shared/cache/cache-manager';
-import { getRedisSentinelClient } from '@shared/cache/redis-sentinel';
+import { CacheManager, CacheTTL } from "@shared/cache/cache-manager";
+import { getRedisSentinelClient } from "@shared/cache/redis-sentinel";
 
 // Initialize
 const redis = getRedisSentinelClient();
 const cacheManager = new CacheManager(redis, {
-  keyPrefix: 'myapp:',
+  keyPrefix: "myapp:",
   defaultTTL: CacheTTL.USER_VALIDATION,
   enableStampedeProtection: true,
   enableMetrics: true,
@@ -118,15 +118,15 @@ await cache.invalidate_pattern("user:*")
 
 ```typescript
 export const CacheTTL = {
-  TOKEN_REVOCATION: 86400,    // 24 hours
-  USER_VALIDATION: 300,       // 5 minutes
-  SESSION: 3600,              // 1 hour
-  RATE_LIMIT: 60,             // 1 minute
-  FIELD_DATA: 120,            // 2 minutes
-  NDVI_DATA: 60,              // 1 minute
-  WEATHER_DATA: 300,          // 5 minutes
-  SENSOR_DATA: 30,            // 30 seconds
-  FORECAST_DATA: 3600,        // 1 hour
+  TOKEN_REVOCATION: 86400, // 24 hours
+  USER_VALIDATION: 300, // 5 minutes
+  SESSION: 3600, // 1 hour
+  RATE_LIMIT: 60, // 1 minute
+  FIELD_DATA: 120, // 2 minutes
+  NDVI_DATA: 60, // 1 minute
+  WEATHER_DATA: 300, // 5 minutes
+  SENSOR_DATA: 30, // 30 seconds
+  FORECAST_DATA: 3600, // 1 hour
 };
 ```
 
@@ -172,13 +172,13 @@ CACHE_KEY_PREFIX=sahool:
 
 ```typescript
 // Frequently changing data
-CacheTTL.SENSOR_DATA      // 30 seconds
+CacheTTL.SENSOR_DATA; // 30 seconds
 
 // Semi-static data
-CacheTTL.USER_VALIDATION  // 5 minutes
+CacheTTL.USER_VALIDATION; // 5 minutes
 
 // Static reference data
-CacheTTL.FORECAST_DATA    // 1 hour
+CacheTTL.FORECAST_DATA; // 1 hour
 ```
 
 ### 3. Use Pattern-Based Keys
@@ -196,13 +196,13 @@ user_profile_123
 
 ## Performance Benchmarks
 
-| Operation | Expected | Actual (Avg) | Status |
-|-----------|----------|--------------|--------|
-| Redis GET | < 1ms | ~0.5ms | ✅ |
-| Redis SET | < 1ms | ~0.7ms | ✅ |
-| Cache Hit | < 5ms | ~2ms | ✅ |
-| Cache Miss | < 100ms | ~50ms | ✅ |
-| Pattern Invalidation | < 2s | ~1.2s | ✅ |
+| Operation            | Expected | Actual (Avg) | Status |
+| -------------------- | -------- | ------------ | ------ |
+| Redis GET            | < 1ms    | ~0.5ms       | ✅     |
+| Redis SET            | < 1ms    | ~0.7ms       | ✅     |
+| Cache Hit            | < 5ms    | ~2ms         | ✅     |
+| Cache Miss           | < 100ms  | ~50ms        | ✅     |
+| Pattern Invalidation | < 2s     | ~1.2s        | ✅     |
 
 ## License
 

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/auth/biometric_service.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/utils/input_validator.dart';
+import 'biometric_login_widget.dart';
 
 /// OTP Login Screen - تسجيل الدخول برقم الهاتف
 /// تصميم بسيط للمزارعين الذين لا يحفظون كلمات المرور
-class LoginScreen extends StatefulWidget {
+/// يدعم تسجيل الدخول بالبصمة إذا كانت مفعّلة
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phoneController = TextEditingController();
   final List<TextEditingController> _otpControllers = List.generate(
     4,
@@ -26,6 +30,57 @@ class _LoginScreenState extends State<LoginScreen> {
   int _resendTimer = 0;
   String? _phoneErrorMessage;
   String? _otpErrorMessage;
+
+  // Biometric state
+  bool _isBiometricAvailable = false;
+  bool _isBiometricEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBiometricStatus();
+  }
+
+  Future<void> _checkBiometricStatus() async {
+    final biometricService = ref.read(biometricServiceProvider);
+    final available = await biometricService.isAvailable();
+    final enabled = await biometricService.isEnabled();
+
+    if (mounted) {
+      setState(() {
+        _isBiometricAvailable = available;
+        _isBiometricEnabled = enabled;
+      });
+
+      // Auto-trigger biometric if available and enabled
+      if (available && enabled) {
+        _authenticateWithBiometric();
+      }
+    }
+  }
+
+  Future<void> _authenticateWithBiometric() async {
+    try {
+      final biometricService = ref.read(biometricServiceProvider);
+      final authenticated = await biometricService.authenticate(
+        reason: 'قم بالتحقق لتسجيل الدخول إلى سهول',
+      );
+
+      if (authenticated && mounted) {
+        context.go('/map');
+      }
+    } on BiometricException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      // Silent fail - user can use phone/OTP
+    }
+  }
 
   @override
   void dispose() {
@@ -250,7 +305,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
 
-              const SizedBox(height: 48),
+              const SizedBox(height: 32),
+
+              // Biometric login option
+              if (_isBiometricAvailable && _isBiometricEnabled && !_isOtpSent)
+                BiometricLoginWidget(
+                  onAuthenticated: () {
+                    if (mounted) {
+                      context.go('/map');
+                    }
+                  },
+                ),
+
+              const SizedBox(height: 24),
 
               // Help text
               Center(

@@ -1,45 +1,42 @@
-import type { Metadata } from 'next';
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
-import { notFound } from 'next/navigation';
-import './globals.css';
-import { Providers } from './providers';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { locales, getDirection, type Locale } from '@sahool/i18n';
+import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, getLocale } from "next-intl/server";
+import "./globals.css";
+import { Providers } from "./providers";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { getDirection, type Locale } from "@sahool/i18n";
 
 export const metadata: Metadata = {
-  title: 'سهول | SAHOOL - Smart Agriculture Platform',
-  description: 'منصة سهول الزراعية الذكية - SAHOOL Smart Agricultural Platform for Yemen',
-  keywords: ['سهول', 'زراعة', 'اليمن', 'sahool', 'agriculture', 'yemen', 'smart farming'],
+  title: "سهول | SAHOOL - Smart Agriculture Platform",
+  description:
+    "منصة سهول الزراعية الذكية - SAHOOL Smart Agricultural Platform for Yemen",
+  keywords: [
+    "سهول",
+    "زراعة",
+    "اليمن",
+    "sahool",
+    "agriculture",
+    "yemen",
+    "smart farming",
+  ],
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  manifest: "/manifest.json",
 };
-
-export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
-}
 
 export default async function RootLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale?: string }>;
 }) {
-  // In Next.js 15, params are Promises
-  const resolvedParams = await params;
-  // Default to 'ar' if no locale is provided
-  const localeStr = resolvedParams.locale || 'ar';
-
-  // Type guard to check if locale is valid
-  const isValidLocale = (l: string): l is Locale => {
-    return locales.includes(l as Locale);
-  };
-
-  // Validate locale
-  if (!isValidLocale(localeStr)) {
-    notFound();
-  }
-
-  const locale: Locale = localeStr;
+  // Get locale from next-intl (configured in i18n.ts)
+  const locale = (await getLocale()) as Locale;
   const messages = await getMessages();
   const direction = getDirection(locale);
 
@@ -62,7 +59,9 @@ export default async function RootLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg"
         >
-          {direction === 'rtl' ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'}
+          {direction === "rtl"
+            ? "انتقل إلى المحتوى الرئيسي"
+            : "Skip to main content"}
         </a>
         <ErrorBoundary>
           <NextIntlClientProvider messages={messages} locale={locale}>

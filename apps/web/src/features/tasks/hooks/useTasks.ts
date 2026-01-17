@@ -3,9 +3,9 @@
  * خطافات المهام
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tasksApi } from '../api';
-import type { TaskFormData, TaskFilters, TaskStatus } from '../types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { tasksApi } from "../api";
+import type { TaskFormData, TaskFilters, TaskStatus } from "../types";
 
 /**
  * Query Hooks - For reading data
@@ -18,7 +18,7 @@ import type { TaskFormData, TaskFilters, TaskStatus } from '../types';
  */
 export function useTasks(filters?: TaskFilters) {
   return useQuery({
-    queryKey: ['tasks', filters],
+    queryKey: ["tasks", filters],
     queryFn: () => tasksApi.getTasks(filters),
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
@@ -30,7 +30,7 @@ export function useTasks(filters?: TaskFilters) {
  */
 export function useTask(id: string) {
   return useQuery({
-    queryKey: ['tasks', id],
+    queryKey: ["tasks", id],
     queryFn: () => tasksApi.getTask(id),
     enabled: !!id,
     staleTime: 2 * 60 * 1000,
@@ -43,7 +43,7 @@ export function useTask(id: string) {
  */
 export function useTasksByField(fieldId: string) {
   return useQuery({
-    queryKey: ['tasks', 'field', fieldId],
+    queryKey: ["tasks", "field", fieldId],
     queryFn: () => tasksApi.getTasksByField(fieldId),
     enabled: !!fieldId,
     staleTime: 2 * 60 * 1000,
@@ -56,7 +56,7 @@ export function useTasksByField(fieldId: string) {
  */
 export function useTasksByUser(userId: string) {
   return useQuery({
-    queryKey: ['tasks', 'user', userId],
+    queryKey: ["tasks", "user", userId],
     queryFn: () => tasksApi.getTasksByUser(userId),
     enabled: !!userId,
     staleTime: 2 * 60 * 1000,
@@ -69,7 +69,7 @@ export function useTasksByUser(userId: string) {
  */
 export function useTasksByStatus(status: TaskStatus) {
   return useQuery({
-    queryKey: ['tasks', 'status', status],
+    queryKey: ["tasks", "status", status],
     queryFn: () => tasksApi.getTasksByStatus(status),
     enabled: !!status,
     staleTime: 2 * 60 * 1000,
@@ -82,7 +82,7 @@ export function useTasksByStatus(status: TaskStatus) {
  */
 export function useOverdueTasks() {
   return useQuery({
-    queryKey: ['tasks', 'overdue'],
+    queryKey: ["tasks", "overdue"],
     queryFn: () => tasksApi.getOverdueTasks(),
     staleTime: 1 * 60 * 1000, // 1 minute - check more frequently
   });
@@ -103,8 +103,8 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: tasksApi.createTask,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -120,9 +120,9 @@ export function useUpdateTask() {
     mutationFn: ({ id, data }: { id: string; data: Partial<TaskFormData> }) =>
       tasksApi.updateTask(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -137,8 +137,8 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: tasksApi.deleteTask,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -159,9 +159,9 @@ export function useCompleteTask() {
       evidence?: { notes?: string; photos?: string[] };
     }) => tasksApi.completeTask(id, evidence),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -177,9 +177,9 @@ export function useUpdateTaskStatus() {
     mutationFn: ({ id, status }: { id: string; status: TaskStatus }) =>
       tasksApi.updateTaskStatus(id, status),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -195,9 +195,9 @@ export function useAssignTask() {
     mutationFn: ({ id, userId }: { id: string; userId: string }) =>
       tasksApi.assignTask(id, userId),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }

@@ -225,5 +225,18 @@
 	<string>يحتاج التطبيق لموقعك لتحديد موقع الحقول على الخريطة</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>يحتاج التطبيق لموقعك لتتبع مواقع الحقول وتقديم توصيات محلية</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>sahool</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

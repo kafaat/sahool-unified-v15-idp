@@ -38,11 +38,11 @@ await nats.publish("field.updated", event.json())
 ### TypeScript Services
 
 ```typescript
-import { FieldUpdatedEvent } from '@sahool/contracts';
+import { FieldUpdatedEvent } from "@sahool/contracts";
 
 const event: FieldUpdatedEvent = {
-  fieldId: '123',
-  ndvi: 0.65
+  fieldId: "123",
+  ndvi: 0.65,
 };
 ```
 

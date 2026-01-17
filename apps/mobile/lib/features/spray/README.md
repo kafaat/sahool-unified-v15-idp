@@ -7,12 +7,14 @@ The Spray Advisor feature provides farmers with intelligent recommendations for 
 ## Features - المميزات
 
 ### 1. **Dashboard** - لوحة المعلومات
+
 - Current weather conditions display
 - Next 7-day spray windows timeline
 - Active spray recommendations
 - Quick actions (log spray, view calendar, history, products)
 
 ### 2. **Calendar View** - عرض التقويم
+
 - Monthly calendar with color-coded spray windows:
   - **Green**: Optimal spray conditions
   - **Orange**: Caution - check conditions
@@ -21,6 +23,7 @@ The Spray Advisor feature provides farmers with intelligent recommendations for 
 - Visual timeline for selected day
 
 ### 3. **Spray Log** - سجل الرش
+
 - Form to log spray applications
 - Product selection by spray type
 - Rate, area, and application date
@@ -50,23 +53,27 @@ lib/features/spray/
 ## Models - النماذج
 
 ### SprayType Enum
+
 - `herbicide` - مبيد أعشاب
 - `fungicide` - مبيد فطري
 - `insecticide` - مبيد حشري
 - `foliar` - سماد ورقي
 
 ### SprayWindowStatus Enum
+
 - `optimal` - مثالي
 - `caution` - حذر
 - `avoid` - تجنب
 
 ### RecommendationStatus Enum
+
 - `active` - نشط
 - `completed` - مكتمل
 - `expired` - منتهي
 - `cancelled` - ملغي
 
 ### Main Models
+
 1. **WeatherCondition** - الظروف الجوية
    - Temperature, humidity, wind speed, rain probability
    - Spray suitability score (0-100)
@@ -101,23 +108,28 @@ lib/features/spray/
 The service communicates with a backend spray advisor API (port 8098). Main endpoints:
 
 ### Recommendations
+
 - `GET /v1/spray/recommendations` - Get spray recommendations
 - `POST /v1/spray/recommendations` - Create recommendation
 - `PUT /v1/spray/recommendations/:id/status` - Update status
 
 ### Spray Windows
+
 - `GET /v1/spray/windows` - Get optimal spray windows
 - `GET /v1/spray/windows/:id` - Get specific window
 
 ### Weather
+
 - `GET /v1/spray/weather/current` - Current weather
 - `GET /v1/spray/weather/forecast` - Weather forecast
 
 ### Products
+
 - `GET /v1/spray/products` - Get spray products
 - `GET /v1/spray/products/:id` - Get product details
 
 ### Logs
+
 - `POST /v1/spray/logs` - Log spray application
 - `GET /v1/spray/logs` - Get spray logs
 - `POST /v1/spray/upload` - Upload photo
@@ -133,11 +145,12 @@ dependencies:
   flutter_riverpod: ^2.4.0
   dio: ^5.3.2
   intl: ^0.18.1
-  table_calendar: ^3.0.9  # For calendar view
-  image_picker: ^1.0.4    # For photo upload
+  table_calendar: ^3.0.9 # For calendar view
+  image_picker: ^1.0.4 # For photo upload
 ```
 
 Then run:
+
 ```bash
 flutter pub get
 ```
@@ -145,16 +158,21 @@ flutter pub get
 ## Setup - الإعداد
 
 ### 1. Update API Config
+
 The API configuration has been updated in `/home/user/sahool-unified-v15-idp/apps/mobile/lib/core/config/api_config.dart`:
+
 - Added `spray` service port (8098)
 - Added `sprayServiceUrl` getter
 - Added spray service to health checks
 
 ### 2. Backend Integration
+
 Ensure the Spray Advisor backend service is running on port 8098. The service should implement all the endpoints listed above.
 
 ### 3. Yemen-Specific Products
+
 The system supports Yemen-specific agricultural products. Populate the backend database with:
+
 - Local pesticides and fertilizers
 - Arabic translations for product names
 - Local manufacturer information
@@ -162,6 +180,7 @@ The system supports Yemen-specific agricultural products. Populate the backend d
 ## Usage Examples - أمثلة الاستخدام
 
 ### Opening the Dashboard
+
 ```dart
 Navigator.push(
   context,
@@ -172,6 +191,7 @@ Navigator.push(
 ```
 
 ### Opening the Calendar
+
 ```dart
 Navigator.push(
   context,
@@ -182,6 +202,7 @@ Navigator.push(
 ```
 
 ### Logging a Spray Application
+
 ```dart
 Navigator.push(
   context,
@@ -195,6 +216,7 @@ Navigator.push(
 ```
 
 ### Using Providers Directly
+
 ```dart
 // Get current weather
 final weatherAsync = ref.watch(currentWeatherProvider('field_123'));
@@ -228,6 +250,7 @@ final log = await controller.logSprayApplication(
 ## Localization - الترجمة
 
 The feature supports both Arabic and English:
+
 - All UI text is bilingual
 - Models include both `name` and `nameAr` fields
 - Weather conditions, product names, and warnings are localized
@@ -236,6 +259,7 @@ The feature supports both Arabic and English:
 ## Features to Implement - مميزات للتنفيذ
 
 The following features are referenced but need implementation:
+
 1. Navigation between screens (currently commented out)
 2. Detailed recommendation view
 3. Product catalog screen
@@ -247,6 +271,7 @@ The following features are referenced but need implementation:
 ## Testing - الاختبار
 
 ### Mock Data
+
 For testing without a backend, you can create mock providers:
 
 ```dart

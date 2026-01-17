@@ -9,9 +9,14 @@
  * - Historical data storage
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import Redis from 'ioredis';
-import * as mqtt from 'mqtt';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from "@nestjs/common";
+import Redis from "ioredis";
+import * as mqtt from "mqtt";
 
 // =============================================================================
 // Types & Interfaces
@@ -24,45 +29,45 @@ export interface SensorReading {
   value: number;
   unit: string;
   timestamp: Date;
-  quality: 'good' | 'warning' | 'error';
+  quality: "good" | "warning" | "error";
 }
 
 export enum SensorType {
-  SOIL_MOISTURE = 'soil_moisture',
-  SOIL_TEMPERATURE = 'soil_temperature',
-  AIR_TEMPERATURE = 'air_temperature',
-  AIR_HUMIDITY = 'air_humidity',
-  LIGHT_INTENSITY = 'light_intensity',
-  WATER_LEVEL = 'water_level',
-  WATER_FLOW = 'water_flow',
-  PH_LEVEL = 'ph_level',
-  EC_LEVEL = 'ec_level', // Electrical Conductivity
-  WIND_SPEED = 'wind_speed',
-  RAIN_GAUGE = 'rain_gauge',
+  SOIL_MOISTURE = "soil_moisture",
+  SOIL_TEMPERATURE = "soil_temperature",
+  AIR_TEMPERATURE = "air_temperature",
+  AIR_HUMIDITY = "air_humidity",
+  LIGHT_INTENSITY = "light_intensity",
+  WATER_LEVEL = "water_level",
+  WATER_FLOW = "water_flow",
+  PH_LEVEL = "ph_level",
+  EC_LEVEL = "ec_level", // Electrical Conductivity
+  WIND_SPEED = "wind_speed",
+  RAIN_GAUGE = "rain_gauge",
 }
 
 export enum ActuatorType {
-  PUMP = 'pump',
-  VALVE = 'valve',
-  MOTOR = 'motor',
-  SPRINKLER = 'sprinkler',
-  FAN = 'fan',
+  PUMP = "pump",
+  VALVE = "valve",
+  MOTOR = "motor",
+  SPRINKLER = "sprinkler",
+  FAN = "fan",
 }
 
 export interface ActuatorCommand {
   deviceId: string;
   fieldId: string;
   actuatorType: ActuatorType;
-  command: 'ON' | 'OFF' | 'AUTO';
+  command: "ON" | "OFF" | "AUTO";
   value?: number; // For variable speed/flow
 }
 
 export interface DeviceStatus {
   deviceId: string;
   fieldId: string;
-  type: 'sensor' | 'actuator';
+  type: "sensor" | "actuator";
   name: string;
-  status: 'online' | 'offline' | 'error';
+  status: "online" | "offline" | "error";
   lastSeen: Date;
   batteryLevel?: number;
 }
@@ -81,16 +86,46 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private readonly DEVICE_STATUS_TTL = 600; // 10 minutes
   private readonly ACTUATOR_STATE_TTL = 3600; // 1 hour
 
-  private readonly redis: Redis;
+  private redis: Redis | null = null;
+  private redisConnected = false;
+  private readonly isTestEnvironment: boolean;
+
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
 
   constructor() {
-    this.redis = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379', 10),
-      password: process.env.REDIS_PASSWORD || undefined,
-      db: parseInt(process.env.REDIS_DB || '0', 10),
-      lazyConnect: true,
-    });
+    this.isTestEnvironment = ["test", "ci", "testing"].includes(
+      (process.env.ENVIRONMENT || process.env.NODE_ENV || "").toLowerCase(),
+    );
+
+    // Only create Redis client if not in test environment or if REDIS_HOST is explicitly set
+    if (!this.isTestEnvironment || process.env.REDIS_HOST) {
+      this.redis = new Redis({
+        host: process.env.REDIS_HOST || "localhost",
+        port: parseInt(process.env.REDIS_PORT || "6379", 10),
+        password: process.env.REDIS_PASSWORD || undefined,
+        db: parseInt(process.env.REDIS_DB || "0", 10),
+        lazyConnect: true,
+        retryStrategy: (times) => {
+          if (this.isTestEnvironment && times > 1) {
+            // In test/CI, don't retry more than once
+            return null;
+          }
+          return Math.min(times * 100, 3000);
+        },
+      });
+
+      // Handle Redis errors gracefully
+      this.redis.on("error", (err) => {
+        this.logger.warn(`Redis connection error: ${err.message}`);
+        this.redisConnected = false;
+      });
+    }
   }
 
   // ==========================================================================
@@ -98,18 +133,52 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   // ==========================================================================
 
   async onModuleInit() {
-    await this.redis.connect();
-    this.logger.log('Connected to Redis');
-    await this.connectToMqtt();
+    // Try to connect to Redis
+    if (this.redis) {
+      try {
+        await this.redis.connect();
+        this.redisConnected = true;
+        this.logger.log("Connected to Redis");
+      } catch (error) {
+        this.logger.warn(`Failed to connect to Redis: ${error.message}`);
+        if (this.isTestEnvironment) {
+          this.logger.warn(
+            "Running in test environment - continuing without Redis",
+          );
+          this.redisConnected = false;
+        } else {
+          throw error;
+        }
+      }
+    } else {
+      this.logger.warn(
+        "Redis client not initialized - running in degraded mode",
+      );
+    }
+
+    // Try to connect to MQTT (non-blocking in test environment)
+    try {
+      await this.connectToMqtt();
+    } catch (error) {
+      if (this.isTestEnvironment) {
+        this.logger.warn(
+          `MQTT connection failed in test environment: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   async onModuleDestroy() {
     if (this.client) {
       this.client.end();
-      this.logger.log('Disconnected from MQTT broker');
+      this.logger.log("Disconnected from MQTT broker");
     }
-    await this.redis.quit();
-    this.logger.log('Disconnected from Redis');
+    if (this.redis && this.redisConnected) {
+      await this.redis.quit();
+      this.logger.log("Disconnected from Redis");
+    }
   }
 
   // ==========================================================================
@@ -117,7 +186,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   // ==========================================================================
 
   private async connectToMqtt(): Promise<void> {
-    const brokerUrl = process.env.MQTT_BROKER_URL || 'mqtt://mqtt:1883';
+    const brokerUrl = process.env.MQTT_BROKER_URL || "mqtt://mqtt:1883";
     const username = process.env.MQTT_USER;
     const password = process.env.MQTT_PASSWORD;
 
@@ -138,21 +207,21 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
 
     this.client = mqtt.connect(brokerUrl, connectOptions);
 
-    this.client.on('connect', () => {
-      this.logger.log('📡 Connected to MQTT Broker');
+    this.client.on("connect", () => {
+      this.logger.log("📡 Connected to MQTT Broker");
       this.subscribeToTopics();
     });
 
-    this.client.on('message', (topic, message) => {
+    this.client.on("message", (topic, message) => {
       this.handleMessage(topic, message.toString());
     });
 
-    this.client.on('error', (error) => {
-      this.logger.error('MQTT Error:', error.message);
+    this.client.on("error", (error) => {
+      this.logger.error("MQTT Error:", error.message);
     });
 
-    this.client.on('reconnect', () => {
-      this.logger.log('Reconnecting to MQTT broker...');
+    this.client.on("reconnect", () => {
+      this.logger.log("Reconnecting to MQTT broker...");
     });
   }
 
@@ -160,9 +229,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     // Subscribe to all sensor data from all farms
     // Topic pattern: sahool/{tenantId}/farm/{farmId}/field/{fieldId}/sensor/{sensorType}
     const topics = [
-      'sahool/+/farm/+/field/+/sensor/#',
-      'sahool/+/farm/+/field/+/actuator/#',
-      'sahool/+/farm/+/device/status',
+      "sahool/+/farm/+/field/+/sensor/#",
+      "sahool/+/farm/+/field/+/actuator/#",
+      "sahool/+/farm/+/device/status",
     ];
 
     topics.forEach((topic) => {
@@ -183,21 +252,24 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private handleMessage(topic: string, payload: string): void {
     try {
       // Parse topic: sahool/{tenant}/farm/{farmId}/field/{fieldId}/sensor/{sensorType}
-      const parts = topic.split('/');
+      const parts = topic.split("/");
 
-      if (parts.includes('sensor')) {
+      if (parts.includes("sensor")) {
         this.handleSensorData(parts, payload);
-      } else if (parts.includes('actuator')) {
+      } else if (parts.includes("actuator")) {
         this.handleActuatorStatus(parts, payload);
-      } else if (parts.includes('status')) {
+      } else if (parts.includes("status")) {
         this.handleDeviceStatus(parts, payload);
       }
     } catch (error) {
-      this.logger.error(`Error processing message from ${topic}:`, error);
+      this.logger.error("Error processing message", { topic: this.sanitizeForLog(topic) }, error);
     }
   }
 
-  private async handleSensorData(topicParts: string[], payload: string): Promise<void> {
+  private async handleSensorData(
+    topicParts: string[],
+    payload: string,
+  ): Promise<void> {
     const fieldId = topicParts[5];
     const sensorType = topicParts[7] as SensorType;
 
@@ -230,29 +302,35 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     this.checkSensorAlerts(reading);
   }
 
-  private async handleActuatorStatus(topicParts: string[], payload: string): Promise<void> {
+  private async handleActuatorStatus(
+    topicParts: string[],
+    payload: string,
+  ): Promise<void> {
     const fieldId = topicParts[5];
     const actuatorType = topicParts[7];
 
     const data = JSON.parse(payload);
     const key = `actuator:${fieldId}:${actuatorType}`;
 
-    await this.cacheActuatorState(key, data.status === 'ON');
+    await this.cacheActuatorState(key, data.status === "ON");
 
     this.logger.debug(
       `🔌 Actuator ${actuatorType} @ ${fieldId}: ${data.status}`,
     );
   }
 
-  private async handleDeviceStatus(topicParts: string[], payload: string): Promise<void> {
+  private async handleDeviceStatus(
+    topicParts: string[],
+    payload: string,
+  ): Promise<void> {
     const data = JSON.parse(payload);
 
     const status: DeviceStatus = {
       deviceId: data.deviceId,
-      fieldId: topicParts[5] || 'unknown',
-      type: data.type || 'sensor',
+      fieldId: topicParts[5] || "unknown",
+      type: data.type || "sensor",
       name: data.name || data.deviceId,
-      status: data.status || 'online',
+      status: data.status || "online",
       lastSeen: new Date(),
       batteryLevel: data.battery,
     };
@@ -276,7 +354,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   async togglePump(
     fieldId: string,
-    status: 'ON' | 'OFF',
+    status: "ON" | "OFF",
     options?: { duration?: number },
   ): Promise<{ success: boolean; message: string }> {
     const topic = `sahool/default/farm/farm-1/field/${fieldId}/actuator/pump/command`;
@@ -285,20 +363,20 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       command: status,
       timestamp: new Date().toISOString(),
       duration: options?.duration, // Auto-off after duration (minutes)
-      source: 'mobile-app',
+      source: "mobile-app",
     };
 
     this.client.publish(topic, JSON.stringify(payload), { qos: 1 });
 
     // Update Redis state
-    await this.cacheActuatorState(`actuator:${fieldId}:pump`, status === 'ON');
+    await this.cacheActuatorState(`actuator:${fieldId}:pump`, status === "ON");
 
     const message =
-      status === 'ON'
-        ? `تم تشغيل مضخة الحقل ${fieldId} ${options?.duration ? `لمدة ${options.duration} دقيقة` : ''}`
-        : `تم إيقاف مضخة الحقل ${fieldId}`;
+      status === "ON"
+        ? `تم تشغيل مضخة الحقل ${this.sanitizeForLog(fieldId)} ${options?.duration ? `لمدة ${options.duration} دقيقة` : ""}`
+        : `تم إيقاف مضخة الحقل ${this.sanitizeForLog(fieldId)}`;
 
-    this.logger.log(`💧 ${message}`);
+    this.logger.log("💧 Pump control", { fieldId: this.sanitizeForLog(fieldId), status, message });
 
     return {
       success: true,
@@ -313,21 +391,21 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   toggleValve(
     fieldId: string,
     valveId: string,
-    status: 'ON' | 'OFF',
+    status: "ON" | "OFF",
   ): { success: boolean; message: string } {
     const topic = `sahool/default/farm/farm-1/field/${fieldId}/actuator/valve/${valveId}/command`;
 
     const payload = {
       command: status,
       timestamp: new Date().toISOString(),
-      source: 'mobile-app',
+      source: "mobile-app",
     };
 
     this.client.publish(topic, JSON.stringify(payload), { qos: 1 });
 
     return {
       success: true,
-      message: `تم ${status === 'ON' ? 'فتح' : 'إغلاق'} الصمام ${valveId}`,
+      message: `تم ${status === "ON" ? "فتح" : "إغلاق"} الصمام ${valveId}`,
     };
   }
 
@@ -353,7 +431,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
 
     return {
       success: true,
-      message: `تم ${schedule.enabled ? 'تفعيل' : 'إيقاف'} جدولة الري`,
+      message: `تم ${schedule.enabled ? "تفعيل" : "إيقاف"} جدولة الري`,
     };
   }
 
@@ -365,17 +443,18 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Get latest sensor readings for a field
    */
   async getFieldSensorData(fieldId: string): Promise<SensorReading[]> {
+    if (!this.redis || !this.redisConnected) return [];
     const readings: SensorReading[] = [];
     const pattern = `sensor:${fieldId}:*`;
 
     try {
-      let cursor = '0';
+      let cursor = "0";
       do {
         const [newCursor, keys] = await this.redis.scan(
           cursor,
-          'MATCH',
+          "MATCH",
           pattern,
-          'COUNT',
+          "COUNT",
           100,
         );
         cursor = newCursor;
@@ -386,7 +465,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
             readings.push(JSON.parse(data));
           }
         }
-      } while (cursor !== '0');
+      } while (cursor !== "0");
     } catch (error) {
       this.logger.error(`Error fetching field sensor data: ${error.message}`);
     }
@@ -401,6 +480,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     sensorType: SensorType,
   ): Promise<SensorReading | null> {
+    if (!this.redis || !this.redisConnected) return null;
     const key = `sensor:${fieldId}:${sensorType}`;
 
     try {
@@ -415,18 +495,21 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get actuator states for a field
    */
-  async getFieldActuatorStates(fieldId: string): Promise<Record<string, boolean>> {
+  async getFieldActuatorStates(
+    fieldId: string,
+  ): Promise<Record<string, boolean>> {
     const states: Record<string, boolean> = {};
+    if (!this.redis || !this.redisConnected) return states;
     const pattern = `actuator:${fieldId}:*`;
 
     try {
-      let cursor = '0';
+      let cursor = "0";
       do {
         const [newCursor, keys] = await this.redis.scan(
           cursor,
-          'MATCH',
+          "MATCH",
           pattern,
-          'COUNT',
+          "COUNT",
           100,
         );
         cursor = newCursor;
@@ -434,11 +517,11 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         for (const key of keys) {
           const data = await this.redis.get(key);
           if (data !== null) {
-            const actuatorType = key.split(':')[2];
-            states[actuatorType] = data === 'true';
+            const actuatorType = key.split(":")[2];
+            states[actuatorType] = data === "true";
           }
         }
-      } while (cursor !== '0');
+      } while (cursor !== "0");
     } catch (error) {
       this.logger.error(`Error fetching actuator states: ${error.message}`);
     }
@@ -450,17 +533,18 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Get all connected devices
    */
   async getConnectedDevices(): Promise<DeviceStatus[]> {
+    if (!this.redis || !this.redisConnected) return [];
     const devices: DeviceStatus[] = [];
-    const pattern = 'device:*';
+    const pattern = "device:*";
 
     try {
-      let cursor = '0';
+      let cursor = "0";
       do {
         const [newCursor, keys] = await this.redis.scan(
           cursor,
-          'MATCH',
+          "MATCH",
           pattern,
-          'COUNT',
+          "COUNT",
           100,
         );
         cursor = newCursor;
@@ -471,7 +555,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
             devices.push(JSON.parse(data));
           }
         }
-      } while (cursor !== '0');
+      } while (cursor !== "0");
     } catch (error) {
       this.logger.error(`Error fetching connected devices: ${error.message}`);
     }
@@ -482,7 +566,11 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get device count by status
    */
-  async getDeviceStats(): Promise<{ online: number; offline: number; error: number }> {
+  async getDeviceStats(): Promise<{
+    online: number;
+    offline: number;
+    error: number;
+  }> {
     let online = 0,
       offline = 0,
       error = 0;
@@ -490,8 +578,8 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       const devices = await this.getConnectedDevices();
       devices.forEach((device) => {
-        if (device.status === 'online') online++;
-        else if (device.status === 'offline') offline++;
+        if (device.status === "online") online++;
+        else if (device.status === "offline") offline++;
         else error++;
       });
     } catch (err) {
@@ -508,9 +596,17 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Cache sensor reading in Redis
    */
-  private async cacheSensorReading(key: string, reading: SensorReading): Promise<void> {
+  private async cacheSensorReading(
+    key: string,
+    reading: SensorReading,
+  ): Promise<void> {
+    if (!this.redis || !this.redisConnected) return;
     try {
-      await this.redis.setex(key, this.SENSOR_READING_TTL, JSON.stringify(reading));
+      await this.redis.setex(
+        key,
+        this.SENSOR_READING_TTL,
+        JSON.stringify(reading),
+      );
     } catch (error) {
       this.logger.error(`Failed to cache sensor reading: ${error.message}`);
     }
@@ -520,9 +616,14 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Cache device status in Redis
    */
   private async cacheDeviceStatus(status: DeviceStatus): Promise<void> {
+    if (!this.redis || !this.redisConnected) return;
     try {
       const key = `device:${status.deviceId}`;
-      await this.redis.setex(key, this.DEVICE_STATUS_TTL, JSON.stringify(status));
+      await this.redis.setex(
+        key,
+        this.DEVICE_STATUS_TTL,
+        JSON.stringify(status),
+      );
     } catch (error) {
       this.logger.error(`Failed to cache device status: ${error.message}`);
     }
@@ -532,6 +633,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Cache actuator state in Redis
    */
   private async cacheActuatorState(key: string, isOn: boolean): Promise<void> {
+    if (!this.redis || !this.redisConnected) return;
     try {
       await this.redis.setex(key, this.ACTUATOR_STATE_TTL, isOn.toString());
     } catch (error) {
@@ -545,25 +647,25 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
 
   private getUnitForSensorType(type: SensorType): string {
     const units: Record<SensorType, string> = {
-      [SensorType.SOIL_MOISTURE]: '%',
-      [SensorType.SOIL_TEMPERATURE]: '°C',
-      [SensorType.AIR_TEMPERATURE]: '°C',
-      [SensorType.AIR_HUMIDITY]: '%',
-      [SensorType.LIGHT_INTENSITY]: 'lux',
-      [SensorType.WATER_LEVEL]: 'cm',
-      [SensorType.WATER_FLOW]: 'L/min',
-      [SensorType.PH_LEVEL]: 'pH',
-      [SensorType.EC_LEVEL]: 'mS/cm',
-      [SensorType.WIND_SPEED]: 'km/h',
-      [SensorType.RAIN_GAUGE]: 'mm',
+      [SensorType.SOIL_MOISTURE]: "%",
+      [SensorType.SOIL_TEMPERATURE]: "°C",
+      [SensorType.AIR_TEMPERATURE]: "°C",
+      [SensorType.AIR_HUMIDITY]: "%",
+      [SensorType.LIGHT_INTENSITY]: "lux",
+      [SensorType.WATER_LEVEL]: "cm",
+      [SensorType.WATER_FLOW]: "L/min",
+      [SensorType.PH_LEVEL]: "pH",
+      [SensorType.EC_LEVEL]: "mS/cm",
+      [SensorType.WIND_SPEED]: "km/h",
+      [SensorType.RAIN_GAUGE]: "mm",
     };
-    return units[type] || '';
+    return units[type] || "";
   }
 
   private assessReadingQuality(
     type: SensorType,
     value: number,
-  ): 'good' | 'warning' | 'error' {
+  ): "good" | "warning" | "error" {
     // Define acceptable ranges for each sensor type
     const ranges: Record<SensorType, { min: number; max: number }> = {
       [SensorType.SOIL_MOISTURE]: { min: 0, max: 100 },
@@ -580,10 +682,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     };
 
     const range = ranges[type];
-    if (!range) return 'good';
+    if (!range) return "good";
 
-    if (value < range.min || value > range.max) return 'error';
-    return 'good';
+    if (value < range.min || value > range.max) return "error";
+    return "good";
   }
 
   private checkSensorAlerts(reading: SensorReading): void {

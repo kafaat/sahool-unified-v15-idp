@@ -332,7 +332,7 @@ CREATE INDEX IF NOT EXISTS idx_stats_type ON statistical_analyses(analysis_type)
 -- Insert demo research site
 INSERT INTO research_sites (id, tenant_id, name, name_ar, code, climate_zone, is_active)
 VALUES (
-    'rs000000-0000-0000-0000-000000000001',
+    'a5000000-0000-0000-0000-000000000001',
     'a0000000-0000-0000-0000-000000000001',
     'Al-Kharj Research Station',
     'محطة الخرج البحثية',
@@ -344,7 +344,7 @@ VALUES (
 -- Insert demo laboratory
 INSERT INTO laboratories (id, tenant_id, name, name_ar, code, lab_type, capabilities, is_internal, is_active)
 VALUES (
-    'lab00000-0000-0000-0000-000000000001',
+    '1ab00000-0000-0000-0000-000000000001',
     'a0000000-0000-0000-0000-000000000001',
     'Sahool Central Laboratory',
     'مختبر سهول المركزي',
@@ -358,7 +358,7 @@ VALUES (
 -- Insert demo protocol template
 INSERT INTO protocol_templates (id, tenant_id, name, name_ar, code, category, governance_level)
 VALUES (
-    'pt000000-0000-0000-0000-000000000001',
+    'a6000000-0000-0000-0000-000000000001',
     'a0000000-0000-0000-0000-000000000001',
     'Standard Crop Yield Trial Protocol',
     'بروتوكول تجربة إنتاجية المحاصيل القياسي',
@@ -370,20 +370,20 @@ VALUES (
 -- Insert demo analysis types
 INSERT INTO analysis_types (id, code, name, name_ar, category, sample_types, unit)
 VALUES
-    ('at000000-0000-0000-0000-000000000001', 'SOIL-NPK', 'Soil NPK Analysis', 'تحليل NPK للتربة', 'soil', ARRAY['soil']::sample_type[], 'mg/kg'),
-    ('at000000-0000-0000-0000-000000000002', 'SOIL-PH', 'Soil pH Test', 'اختبار حموضة التربة', 'soil', ARRAY['soil']::sample_type[], 'pH'),
-    ('at000000-0000-0000-0000-000000000003', 'LEAF-CHLOROPHYLL', 'Leaf Chlorophyll Content', 'محتوى الكلوروفيل في الأوراق', 'plant', ARRAY['plant_tissue']::sample_type[], 'SPAD'),
-    ('at000000-0000-0000-0000-000000000004', 'WATER-EC', 'Water Electrical Conductivity', 'التوصيل الكهربائي للماء', 'water', ARRAY['water']::sample_type[], 'dS/m')
+    ('a7000000-0000-0000-0000-000000000001', 'SOIL-NPK', 'Soil NPK Analysis', 'تحليل NPK للتربة', 'soil', ARRAY['soil']::sample_type[], 'mg/kg'),
+    ('a7000000-0000-0000-0000-000000000002', 'SOIL-PH', 'Soil pH Test', 'اختبار حموضة التربة', 'soil', ARRAY['soil']::sample_type[], 'pH'),
+    ('a7000000-0000-0000-0000-000000000003', 'LEAF-CHLOROPHYLL', 'Leaf Chlorophyll Content', 'محتوى الكلوروفيل في الأوراق', 'plant', ARRAY['plant_tissue']::sample_type[], 'SPAD'),
+    ('a7000000-0000-0000-0000-000000000004', 'WATER-EC', 'Water Electrical Conductivity', 'التوصيل الكهربائي للماء', 'water', ARRAY['water']::sample_type[], 'dS/m')
 ON CONFLICT (code) DO NOTHING;
 
 -- Insert demo sample batch
 INSERT INTO sample_batches (id, tenant_id, experiment_id, batch_code, laboratory_id, status, sample_count, collection_date)
 VALUES (
-    'sb000000-0000-0000-0000-000000000001',
+    '5b000000-0000-0000-0000-000000000001',
     'a0000000-0000-0000-0000-000000000001',
-    'm0000000-0000-0000-0000-000000000001',
+    'ae000000-0000-0000-0000-000000000001',
     'BATCH-2025-001',
-    'lab00000-0000-0000-0000-000000000001',
+    '1ab00000-0000-0000-0000-000000000001',
     'received',
     10,
     CURRENT_DATE - 3
@@ -391,17 +391,17 @@ VALUES (
 
 -- Update existing lab samples with batch info
 UPDATE lab_samples
-SET batch_id = 'sb000000-0000-0000-0000-000000000001',
+SET batch_id = '5b000000-0000-0000-0000-000000000001',
     barcode = 'SOIL-' || LPAD((ROW_NUMBER() OVER())::TEXT, 4, '0')
 WHERE batch_id IS NULL;
 
 -- Insert demo research data points
 INSERT INTO research_data_points (id, experiment_id, measurement_date, parameter_name, parameter_code, value, unit, recorded_by)
 VALUES
-    ('rdp00000-0000-0000-0000-000000000001', 'm0000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Plant Height', 'PLANT_HEIGHT', 45.5, 'cm', 'b0000000-0000-0000-0000-000000000005'),
-    ('rdp00000-0000-0000-0000-000000000002', 'm0000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Leaf Count', 'LEAF_COUNT', 12, 'count', 'b0000000-0000-0000-0000-000000000005'),
-    ('rdp00000-0000-0000-0000-000000000003', 'm0000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Plant Height', 'PLANT_HEIGHT', 52.3, 'cm', 'b0000000-0000-0000-0000-000000000005'),
-    ('rdp00000-0000-0000-0000-000000000004', 'm0000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Chlorophyll Index', 'SPAD', 42.8, 'SPAD', 'b0000000-0000-0000-0000-000000000005')
+    ('ad000000-0000-0000-0000-000000000001', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Plant Height', 'PLANT_HEIGHT', 45.5, 'cm', 'b0000000-0000-0000-0000-000000000005'),
+    ('ad000000-0000-0000-0000-000000000002', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Leaf Count', 'LEAF_COUNT', 12, 'count', 'b0000000-0000-0000-0000-000000000005'),
+    ('ad000000-0000-0000-0000-000000000003', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Plant Height', 'PLANT_HEIGHT', 52.3, 'cm', 'b0000000-0000-0000-0000-000000000005'),
+    ('ad000000-0000-0000-0000-000000000004', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Chlorophyll Index', 'SPAD', 42.8, 'SPAD', 'b0000000-0000-0000-0000-000000000005')
 ON CONFLICT DO NOTHING;
 
 -- Summary

@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Admin Security Settings - Two-Factor Authentication
  * إعدادات الأمان - المصادقة الثنائية
  */
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/stores/auth.store';
-import { apiClient } from '@/lib/api-client';
-import { validators, validationErrors } from '@/lib/validation';
-import { logger } from '../../../lib/logger';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/stores/auth.store";
+import { apiClient } from "@/lib/api-client";
+import { validators, validationErrors } from "@/lib/validation";
+import { logger } from "../../../lib/logger";
 import {
   Shield,
   Smartphone,
@@ -20,7 +20,7 @@ import {
   RefreshCw,
   XCircle,
   Loader2,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface TwoFASetup {
   secret: string;
@@ -47,8 +47,8 @@ interface BackupCode {
 export default function SecuritySettingsPage() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // 2FA status
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
@@ -57,13 +57,13 @@ export default function SecuritySettingsPage() {
   // Setup flow
   const [showSetup, setShowSetup] = useState(false);
   const [setupData, setSetupData] = useState<TwoFASetup | null>(null);
-  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationCode, setVerificationCode] = useState("");
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
 
   // Disable flow
   const [showDisable, setShowDisable] = useState(false);
-  const [disableCode, setDisableCode] = useState('');
+  const [disableCode, setDisableCode] = useState("");
 
   // Load 2FA status
   useEffect(() => {
@@ -72,30 +72,30 @@ export default function SecuritySettingsPage() {
 
   const loadTwoFAStatus = async () => {
     try {
-      const response = await apiClient.get<TwoFAStatus>('/admin/2fa/status');
+      const response = await apiClient.get<TwoFAStatus>("/admin/2fa/status");
       if (response.success && response.data) {
         setTwoFAEnabled(response.data.enabled);
         setBackupCodesRemaining(response.data.backup_codes_remaining);
       }
     } catch (err) {
-      logger.error('Error loading 2FA status:', err);
+      logger.error("Error loading 2FA status:", err);
     }
   };
 
   const handleSetupStart = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await apiClient.post<TwoFASetup>('/admin/2fa/setup');
+      const response = await apiClient.post<TwoFASetup>("/admin/2fa/setup");
       if (response.success && response.data) {
         setSetupData(response.data);
         setShowSetup(true);
       } else {
-        setError(response.error || 'فشل في بدء إعداد المصادقة الثنائية');
+        setError(response.error || "فشل في بدء إعداد المصادقة الثنائية");
       }
     } catch (err) {
-      setError('حدث خطأ أثناء إعداد المصادقة الثنائية');
+      setError("حدث خطأ أثناء إعداد المصادقة الثنائية");
     } finally {
       setIsLoading(false);
     }
@@ -109,25 +109,28 @@ export default function SecuritySettingsPage() {
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await apiClient.post<TwoFAVerifyResponse>('/admin/2fa/verify', {
-        token: verificationCode,
-      });
+      const response = await apiClient.post<TwoFAVerifyResponse>(
+        "/admin/2fa/verify",
+        {
+          token: verificationCode,
+        },
+      );
 
       if (response.success && response.data) {
         setBackupCodes(response.data.backup_codes);
         setShowBackupCodes(true);
-        setSuccess('تم تفعيل المصادقة الثنائية بنجاح!');
+        setSuccess("تم تفعيل المصادقة الثنائية بنجاح!");
         setTwoFAEnabled(true);
         setShowSetup(false);
         await loadTwoFAStatus();
       } else {
-        setError(response.error || 'رمز التحقق غير صحيح');
+        setError(response.error || "رمز التحقق غير صحيح");
       }
     } catch (err) {
-      setError('حدث خطأ أثناء التحقق من الرمز');
+      setError("حدث خطأ أثناء التحقق من الرمز");
     } finally {
       setIsLoading(false);
     }
@@ -135,36 +138,36 @@ export default function SecuritySettingsPage() {
 
   const handleDisable = async () => {
     if (!disableCode) {
-      setError('الرجاء إدخال رمز التحقق');
+      setError("الرجاء إدخال رمز التحقق");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await apiClient.post('/admin/2fa/disable', {
+      const response = await apiClient.post("/admin/2fa/disable", {
         token: disableCode,
       });
 
       if (response.success) {
-        setSuccess('تم تعطيل المصادقة الثنائية');
+        setSuccess("تم تعطيل المصادقة الثنائية");
         setTwoFAEnabled(false);
         setShowDisable(false);
-        setDisableCode('');
+        setDisableCode("");
         await loadTwoFAStatus();
       } else {
-        setError(response.error || 'رمز التحقق غير صحيح');
+        setError(response.error || "رمز التحقق غير صحيح");
       }
     } catch (err) {
-      setError('حدث خطأ أثناء تعطيل المصادقة الثنائية');
+      setError("حدث خطأ أثناء تعطيل المصادقة الثنائية");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRegenerateBackupCodes = async () => {
-    const code = prompt('أدخل رمز التحقق من تطبيق المصادقة:');
+    const code = prompt("أدخل رمز التحقق من تطبيق المصادقة:");
     if (!code) return;
 
     // Validate 2FA code format before sending
@@ -174,35 +177,38 @@ export default function SecuritySettingsPage() {
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await apiClient.post<TwoFAVerifyResponse>('/admin/2fa/backup-codes', {
-        token: code,
-      });
+      const response = await apiClient.post<TwoFAVerifyResponse>(
+        "/admin/2fa/backup-codes",
+        {
+          token: code,
+        },
+      );
 
       if (response.success && response.data) {
         setBackupCodes(response.data.backup_codes);
         setShowBackupCodes(true);
-        setSuccess('تم إنشاء رموز النسخ الاحتياطي الجديدة');
+        setSuccess("تم إنشاء رموز النسخ الاحتياطي الجديدة");
         await loadTwoFAStatus();
       } else {
-        setError(response.error || 'رمز التحقق غير صحيح');
+        setError(response.error || "رمز التحقق غير صحيح");
       }
     } catch (err) {
-      setError('حدث خطأ أثناء إنشاء رموز النسخ الاحتياطي');
+      setError("حدث خطأ أثناء إنشاء رموز النسخ الاحتياطي");
     } finally {
       setIsLoading(false);
     }
   };
 
   const downloadBackupCodes = () => {
-    const text = backupCodes.join('\n');
-    const blob = new Blob([text], { type: 'text/plain' });
+    const text = backupCodes.join("\n");
+    const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'sahool-backup-codes.txt';
+    a.download = "sahool-backup-codes.txt";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -343,7 +349,7 @@ export default function SecuritySettingsPage() {
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(setupData.manual_entry_key);
-                      setSuccess('تم النسخ إلى الحافظة');
+                      setSuccess("تم النسخ إلى الحافظة");
                     }}
                     className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50"
                   >
@@ -364,7 +370,9 @@ export default function SecuritySettingsPage() {
                   value={verificationCode}
                   onChange={(e) => {
                     // Only allow digits, max 6 characters
-                    const sanitized = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    const sanitized = e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 6);
                     setVerificationCode(sanitized);
                   }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-widest"
@@ -381,13 +389,13 @@ export default function SecuritySettingsPage() {
                   disabled={isLoading || verificationCode.length !== 6}
                   className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
                 >
-                  {isLoading ? 'جاري التحقق...' : 'تحقق وفعّل'}
+                  {isLoading ? "جاري التحقق..." : "تحقق وفعّل"}
                 </button>
                 <button
                   onClick={() => {
                     setShowSetup(false);
                     setSetupData(null);
-                    setVerificationCode('');
+                    setVerificationCode("");
                   }}
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
@@ -408,8 +416,8 @@ export default function SecuritySettingsPage() {
                   رموز النسخ الاحتياطي
                 </h2>
                 <p className="text-gray-600">
-                  احفظ هذه الرموز في مكان آمن. يمكنك استخدام كل رمز مرة واحدة فقط
-                  للدخول إذا فقدت الوصول لتطبيق المصادقة.
+                  احفظ هذه الرموز في مكان آمن. يمكنك استخدام كل رمز مرة واحدة
+                  فقط للدخول إذا فقدت الوصول لتطبيق المصادقة.
                 </p>
               </div>
             </div>
@@ -454,7 +462,8 @@ export default function SecuritySettingsPage() {
 
             <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
               <p className="text-yellow-800">
-                سيؤدي تعطيل المصادقة الثنائية إلى تقليل أمان حسابك. هل أنت متأكد؟
+                سيؤدي تعطيل المصادقة الثنائية إلى تقليل أمان حسابك. هل أنت
+                متأكد؟
               </p>
             </div>
 
@@ -478,12 +487,12 @@ export default function SecuritySettingsPage() {
                 disabled={isLoading || !disableCode}
                 className="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
               >
-                {isLoading ? 'جاري التعطيل...' : 'تعطيل المصادقة الثنائية'}
+                {isLoading ? "جاري التعطيل..." : "تعطيل المصادقة الثنائية"}
               </button>
               <button
                 onClick={() => {
                   setShowDisable(false);
-                  setDisableCode('');
+                  setDisableCode("");
                 }}
                 className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
               >

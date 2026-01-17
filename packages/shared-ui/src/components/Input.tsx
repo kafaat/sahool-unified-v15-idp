@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Input Component
@@ -7,16 +7,18 @@
  * A flexible form input component with label, error, and hint support
  */
 
-import * as React from 'react';
-import { AlertCircle } from 'lucide-react';
-import { cn } from '@sahool/shared-utils';
+import * as React from "react";
+import { AlertCircle } from "lucide-react";
+import { cn } from "@sahool/shared-utils";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   /** Input label */
   label?: string;
   /** Error message */
@@ -24,7 +26,7 @@ export interface InputProps
   /** Hint text */
   hint?: string;
   /** Input size */
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   /** Left icon */
   leftIcon?: React.ReactNode;
   /** Right icon */
@@ -43,7 +45,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       label,
       error,
       hint,
-      size = 'md',
+      size = "md",
       leftIcon,
       rightIcon,
       fullWidth = true,
@@ -53,32 +55,32 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       required,
       ...props
     },
-    ref
+    ref,
   ) => {
     const inputId = id || React.useId();
     const errorId = `${inputId}-error`;
     const hintId = `${inputId}-hint`;
 
     const sizeClasses = {
-      sm: 'px-2.5 py-1.5 text-sm',
-      md: 'px-3 py-2 text-base',
-      lg: 'px-4 py-3 text-lg',
+      sm: "px-2.5 py-1.5 text-sm",
+      md: "px-3 py-2 text-base",
+      lg: "px-4 py-3 text-lg",
     };
 
     const iconSizeClasses = {
-      sm: 'w-4 h-4',
-      md: 'w-5 h-5',
-      lg: 'w-6 h-6',
+      sm: "w-4 h-4",
+      md: "w-5 h-5",
+      lg: "w-6 h-6",
     };
 
     return (
-      <div className={cn('flex flex-col gap-1.5', fullWidth && 'w-full')}>
+      <div className={cn("flex flex-col gap-1.5", fullWidth && "w-full")}>
         {label && (
           <label
             htmlFor={inputId}
             className={cn(
-              'text-sm font-medium text-gray-700',
-              disabled && 'text-gray-400'
+              "text-sm font-medium text-gray-700",
+              disabled && "text-gray-400",
             )}
           >
             {label}
@@ -90,8 +92,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {leftIcon && (
             <div
               className={cn(
-                'absolute start-3 top-1/2 -translate-y-1/2 text-gray-400',
-                iconSizeClasses[size]
+                "absolute start-3 top-1/2 -translate-y-1/2 text-gray-400",
+                iconSizeClasses[size],
               )}
             >
               {leftIcon}
@@ -104,22 +106,20 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             disabled={disabled}
             required={required}
             aria-invalid={!!error}
-            aria-describedby={
-              error ? errorId : hint ? hintId : undefined
-            }
+            aria-describedby={error ? errorId : hint ? hintId : undefined}
             className={cn(
-              'block rounded-lg border bg-white text-gray-900 transition-colors',
-              'placeholder:text-gray-400',
-              'focus:outline-none focus:ring-2 focus:ring-offset-0',
+              "block rounded-lg border bg-white text-gray-900 transition-colors",
+              "placeholder:text-gray-400",
+              "focus:outline-none focus:ring-2 focus:ring-offset-0",
               sizeClasses[size],
-              leftIcon && 'ps-10',
-              (rightIcon || error) && 'pe-10',
+              leftIcon && "ps-10",
+              (rightIcon || error) && "pe-10",
               error
-                ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
-                : 'border-gray-300 focus:border-sahool-500 focus:ring-sahool-200',
-              disabled && 'bg-gray-100 text-gray-500 cursor-not-allowed',
-              fullWidth && 'w-full',
-              className
+                ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                : "border-gray-300 focus:border-sahool-500 focus:ring-sahool-200",
+              disabled && "bg-gray-100 text-gray-500 cursor-not-allowed",
+              fullWidth && "w-full",
+              className,
             )}
             {...props}
           />
@@ -127,9 +127,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {(rightIcon || error) && (
             <div
               className={cn(
-                'absolute end-3 top-1/2 -translate-y-1/2',
+                "absolute end-3 top-1/2 -translate-y-1/2",
                 iconSizeClasses[size],
-                error ? 'text-red-500' : 'text-gray-400'
+                error ? "text-red-500" : "text-gray-400",
               )}
             >
               {error ? <AlertCircle /> : rightIcon}
@@ -138,11 +138,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error && (
-          <p
-            id={errorId}
-            role="alert"
-            className="text-sm text-red-600"
-          >
+          <p id={errorId} role="alert" className="text-sm text-red-600">
             {error}
           </p>
         )}
@@ -154,9 +150,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
-Input.displayName = 'Input';
+Input.displayName = "Input";
 
 export default Input;

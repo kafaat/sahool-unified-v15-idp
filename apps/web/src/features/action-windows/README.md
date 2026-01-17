@@ -1,4 +1,5 @@
 # Action Windows Feature
+
 # ميزة نوافذ العمل
 
 A comprehensive weather-based action windows system for optimal agricultural timing decisions.
@@ -10,6 +11,7 @@ The Action Windows feature provides farmers with intelligent recommendations for
 ## Features
 
 ### 1. Spray Windows (نوافذ الرش)
+
 - **7-day forecast** of optimal spray timing
 - **Real-time weather monitoring** (wind speed, temperature, humidity, rain probability)
 - **Color-coded status** indicators (Optimal, Marginal, Avoid)
@@ -19,6 +21,7 @@ The Action Windows feature provides farmers with intelligent recommendations for
 - **Customizable criteria** for wind speed, temperature, humidity, rain probability
 
 ### 2. Irrigation Windows (نوافذ الري)
+
 - **Smart irrigation scheduling** based on soil moisture and weather
 - **ET (Evapotranspiration) calculations** (ET₀, ETc, Kc)
 - **Soil moisture monitoring** (current, target, deficit)
@@ -29,6 +32,7 @@ The Action Windows feature provides farmers with intelligent recommendations for
 - **One-click task creation** for urgent/high priority windows
 
 ### 3. Action Recommendations (توصيات العمل)
+
 - **AI-driven recommendations** for various agricultural activities
 - **Priority-based sorting** (Urgent → High → Medium → Low)
 - **Comprehensive reasoning** for each recommendation
@@ -37,6 +41,7 @@ The Action Windows feature provides farmers with intelligent recommendations for
 - **One-click task creation**
 
 ### 4. Visual Timeline (الجدول الزمني)
+
 - **Interactive timeline visualization** of all windows
 - **Color-coded blocks** for easy identification
 - **Click-to-select** for detailed information
@@ -72,7 +77,10 @@ The Action Windows feature provides farmers with intelligent recommendations for
 ### Basic Usage
 
 ```tsx
-import { SprayWindowsPanel, IrrigationWindowsPanel } from '@/features/action-windows';
+import {
+  SprayWindowsPanel,
+  IrrigationWindowsPanel,
+} from "@/features/action-windows";
 
 function MyFieldPage({ fieldId }: { fieldId: string }) {
   return (
@@ -82,7 +90,7 @@ function MyFieldPage({ fieldId }: { fieldId: string }) {
         fieldId={fieldId}
         days={7}
         onCreateTask={(window) => {
-          console.log('Create spray task:', window);
+          console.log("Create spray task:", window);
         }}
         showTimeline={true}
       />
@@ -92,7 +100,7 @@ function MyFieldPage({ fieldId }: { fieldId: string }) {
         fieldId={fieldId}
         days={7}
         onCreateTask={(window) => {
-          console.log('Create irrigation task:', window);
+          console.log("Create irrigation task:", window);
         }}
         showTimeline={true}
       />
@@ -107,28 +115,28 @@ function MyFieldPage({ fieldId }: { fieldId: string }) {
 import {
   useSprayWindows,
   useIrrigationWindows,
-  useActionRecommendations
-} from '@/features/action-windows';
+  useActionRecommendations,
+} from "@/features/action-windows";
 
 function MyComponent({ fieldId }: { fieldId: string }) {
   const { data: sprayWindows, isLoading } = useSprayWindows({
     fieldId,
     days: 7,
     criteria: {
-      windSpeedMax: 12,  // Custom criteria
-      temperatureMax: 28
-    }
+      windSpeedMax: 12, // Custom criteria
+      temperatureMax: 28,
+    },
   });
 
   const { data: irrigationWindows } = useIrrigationWindows({
     fieldId,
-    days: 7
+    days: 7,
   });
 
   const { data: recommendations } = useActionRecommendations({
     fieldId,
-    actionTypes: ['spray', 'irrigate'],
-    days: 7
+    actionTypes: ["spray", "irrigate"],
+    days: 7,
   });
 
   // ... use the data
@@ -138,9 +146,9 @@ function MyComponent({ fieldId }: { fieldId: string }) {
 ### One-Click Task Creation
 
 ```tsx
-import { SprayWindowsPanel } from '@/features/action-windows';
-import { useCreateTask } from '@/features/tasks/hooks/useTasks';
-import type { TaskFormData } from '@/features/tasks/types';
+import { SprayWindowsPanel } from "@/features/action-windows";
+import { useCreateTask } from "@/features/tasks/hooks/useTasks";
+import type { TaskFormData } from "@/features/tasks/types";
 
 function SprayWindowsWithTasks({ fieldId }: { fieldId: string }) {
   const createTask = useCreateTask();
@@ -152,19 +160,16 @@ function SprayWindowsWithTasks({ fieldId }: { fieldId: string }) {
       description: `Optimal spray conditions: Wind ${window.conditions.windSpeed} km/h, Temp ${window.conditions.temperature}°C`,
       description_ar: `ظروف رش مثالية: رياح ${window.conditions.windSpeed} كم/س، حرارة ${window.conditions.temperature}°م`,
       due_date: window.startTime,
-      priority: window.score >= 90 ? 'high' : 'medium',
+      priority: window.score >= 90 ? "high" : "medium",
       field_id: fieldId,
-      status: 'open',
+      status: "open",
     };
 
     await createTask.mutateAsync(taskData);
   };
 
   return (
-    <SprayWindowsPanel
-      fieldId={fieldId}
-      onCreateTask={handleCreateTask}
-    />
+    <SprayWindowsPanel fieldId={fieldId} onCreateTask={handleCreateTask} />
   );
 }
 ```
@@ -172,9 +177,15 @@ function SprayWindowsWithTasks({ fieldId }: { fieldId: string }) {
 ### Complete Demo Example
 
 ```tsx
-import { ActionWindowsDemo } from '@/features/action-windows/components/ActionWindowsDemo';
+import { ActionWindowsDemo } from "@/features/action-windows/components/ActionWindowsDemo";
 
-function FieldDetailsPage({ fieldId, fieldName }: { fieldId: string; fieldName: string }) {
+function FieldDetailsPage({
+  fieldId,
+  fieldName,
+}: {
+  fieldId: string;
+  fieldName: string;
+}) {
   return (
     <ActionWindowsDemo
       fieldId={fieldId}
@@ -191,6 +202,7 @@ function FieldDetailsPage({ fieldId, fieldName }: { fieldId: string; fieldName: 
 ### Types
 
 #### `SprayWindow`
+
 ```typescript
 interface SprayWindow {
   id: string;
@@ -198,7 +210,7 @@ interface SprayWindow {
   startTime: string;
   endTime: string;
   duration: number; // hours
-  status: 'optimal' | 'marginal' | 'avoid';
+  status: "optimal" | "marginal" | "avoid";
   score: number; // 0-100
   conditions: WeatherCondition;
   suitability: {
@@ -216,6 +228,7 @@ interface SprayWindow {
 ```
 
 #### `IrrigationWindow`
+
 ```typescript
 interface IrrigationWindow {
   id: string;
@@ -223,15 +236,15 @@ interface IrrigationWindow {
   date: string;
   startTime: string;
   endTime: string;
-  status: 'optimal' | 'marginal' | 'avoid';
-  priority: 'urgent' | 'high' | 'medium' | 'low';
+  status: "optimal" | "marginal" | "avoid";
+  priority: "urgent" | "high" | "medium" | "low";
   waterAmount: number; // mm
   duration: number; // hours
   soilMoisture: {
     current: number; // %
     target: number; // %
     deficit: number; // mm
-    status: 'critical' | 'low' | 'optimal' | 'high';
+    status: "critical" | "low" | "optimal" | "high";
     statusAr: string;
   };
   et: {
@@ -250,9 +263,11 @@ interface IrrigationWindow {
 ### Hooks
 
 #### `useSprayWindows(options)`
+
 Fetch spray windows for a field.
 
 **Options:**
+
 - `fieldId: string` - Required field ID
 - `days?: number` - Number of days to forecast (default: 7)
 - `criteria?: Partial<SprayWindowCriteria>` - Custom spray criteria
@@ -261,9 +276,11 @@ Fetch spray windows for a field.
 **Returns:** React Query result with `SprayWindow[]`
 
 #### `useIrrigationWindows(options)`
+
 Fetch irrigation windows for a field.
 
 **Options:**
+
 - `fieldId: string` - Required field ID
 - `days?: number` - Number of days to forecast (default: 7)
 - `enabled?: boolean` - Enable/disable query (default: true)
@@ -271,9 +288,11 @@ Fetch irrigation windows for a field.
 **Returns:** React Query result with `IrrigationWindow[]`
 
 #### `useActionRecommendations(options)`
+
 Fetch action recommendations for a field.
 
 **Options:**
+
 - `fieldId: string` - Required field ID
 - `actionTypes?: ActionType[]` - Filter by action types
 - `days?: number` - Number of days to forecast (default: 7)
@@ -284,18 +303,22 @@ Fetch action recommendations for a field.
 ### Utility Functions
 
 #### `calculateSprayWindow(weather, criteria?)`
+
 Calculate if weather conditions are suitable for spraying.
 
 **Parameters:**
+
 - `weather: WeatherCondition` - Current weather conditions
 - `criteria?: Partial<SprayWindowCriteria>` - Custom criteria
 
 **Returns:** `WindowCalculationResult` with status, score, warnings, and recommendations
 
 #### `calculateIrrigationNeed(soilMoisture, et, fieldAreaHectares?)`
+
 Calculate irrigation needs based on soil moisture and ET.
 
 **Parameters:**
+
 - `soilMoisture: SoilMoistureData` - Current soil moisture data
 - `et: ETData` - Evapotranspiration data
 - `fieldAreaHectares?: number` - Field area in hectares
@@ -303,9 +326,11 @@ Calculate irrigation needs based on soil moisture and ET.
 **Returns:** `IrrigationNeed` with urgency, amount, duration, and reasoning
 
 #### `getOptimalWindow(conditions, actionType, criteria?)`
+
 Find the optimal window from a list of weather conditions.
 
 **Parameters:**
+
 - `conditions: WeatherCondition[]` - Array of weather conditions
 - `actionType: 'spray' | 'irrigate'` - Type of action
 - `criteria?: Partial<SprayWindowCriteria>` - Custom criteria
@@ -330,18 +355,22 @@ Find the optimal window from a list of weather conditions.
 ## Scoring System
 
 ### Spray Windows Score (0-100)
+
 - **Wind Speed:** 25 points (3-15 km/h)
 - **Temperature:** 25 points (10-30°C)
 - **Humidity:** 25 points (50-90%)
 - **Rain:** 25 points (<20% probability)
 
 **Status:**
+
 - **Optimal:** ≥75 points
 - **Marginal:** 50-74 points
 - **Avoid:** <50 points
 
 ### Irrigation Priority
+
 Based on soil moisture stress level:
+
 - **Critical:** Stress level < 0.3
 - **High:** Stress level < 0.5
 - **Medium:** Stress level < 0.7
@@ -351,6 +380,7 @@ Based on soil moisture stress level:
 ## Bilingual Support
 
 All components, messages, and recommendations are available in:
+
 - **English** (primary)
 - **Arabic** (عربي)
 
@@ -359,6 +389,7 @@ Field names with `_ar` suffix contain Arabic translations.
 ## Backend Integration
 
 The feature attempts to fetch data from the backend API at:
+
 - `/api/v1/action-windows/spray`
 - `/api/v1/action-windows/irrigation`
 - `/api/v1/action-windows/recommendations`
@@ -375,6 +406,7 @@ npm test action-windows
 ## Contributing
 
 When contributing to this feature:
+
 1. Follow the existing code patterns
 2. Add both English and Arabic translations
 3. Update TypeScript types

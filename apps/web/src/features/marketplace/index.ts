@@ -10,7 +10,7 @@
  */
 
 // API
-export { marketplaceApi } from './api';
+export { marketplaceApi } from "./api";
 
 // Types
 export type {
@@ -24,7 +24,7 @@ export type {
   OrderStatus,
   PaymentStatus,
   OrderFilters,
-} from './types';
+} from "./types";
 
 // Hooks - Products
 export {
@@ -35,12 +35,12 @@ export {
   useCreateOrder,
   useCancelOrder,
   marketplaceKeys,
-} from './hooks/useProducts';
+} from "./hooks/useProducts";
 
 // Hooks - Cart
-export { useCart, CartProvider } from './hooks/useCart';
+export { useCart, CartProvider } from "./hooks/useCart";
 
 // Components
-export { ProductsGrid } from './components/ProductsGrid';
-export { ProductCard } from './components/ProductCard';
-export { Cart as CartSidebar } from './components/Cart';
+export { ProductsGrid } from "./components/ProductsGrid";
+export { ProductCard } from "./components/ProductCard";
+export { Cart as CartSidebar } from "./components/Cart";

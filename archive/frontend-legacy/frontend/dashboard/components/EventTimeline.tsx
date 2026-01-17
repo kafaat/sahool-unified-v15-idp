@@ -1,74 +1,85 @@
-'use client'
+"use client";
 
-import { useEffect, useState, useRef } from 'react'
-import { TimelineEvent, getEventIcon, getEventColor, formatEventType } from '@/lib/ws'
+import { useEffect, useState, useRef } from "react";
+import {
+  TimelineEvent,
+  getEventIcon,
+  getEventColor,
+  formatEventType,
+} from "@/lib/ws";
 
 // Sample events for demo (will be replaced with WebSocket)
 const SAMPLE_EVENTS: TimelineEvent[] = [
   {
-    event_id: 'evt_001',
-    event_type: 'task_created',
-    aggregate_id: 'task_001',
-    tenant_id: 'tenant_1',
+    event_id: "evt_001",
+    event_type: "task_created",
+    aggregate_id: "task_001",
+    tenant_id: "tenant_1",
     timestamp: new Date().toISOString(),
-    payload: { title: 'ري الطماطم', field_id: 'field_001' },
+    payload: { title: "ري الطماطم", field_id: "field_001" },
   },
   {
-    event_id: 'evt_002',
-    event_type: 'weather_alert_issued',
-    aggregate_id: 'alert_001',
-    tenant_id: 'tenant_1',
+    event_id: "evt_002",
+    event_type: "weather_alert_issued",
+    aggregate_id: "alert_001",
+    tenant_id: "tenant_1",
     timestamp: new Date(Date.now() - 300000).toISOString(),
-    payload: { type: 'heat_wave', severity: 'warning', location: 'صنعاء' },
+    payload: { type: "heat_wave", severity: "warning", location: "صنعاء" },
   },
   {
-    event_id: 'evt_003',
-    event_type: 'image_diagnosed',
-    aggregate_id: 'diag_001',
-    tenant_id: 'tenant_1',
+    event_id: "evt_003",
+    event_type: "image_diagnosed",
+    aggregate_id: "diag_001",
+    tenant_id: "tenant_1",
     timestamp: new Date(Date.now() - 600000).toISOString(),
-    payload: { disease_detected: true, confidence: 0.87, disease: 'البياض الدقيقي' },
+    payload: {
+      disease_detected: true,
+      confidence: 0.87,
+      disease: "البياض الدقيقي",
+    },
   },
   {
-    event_id: 'evt_004',
-    event_type: 'task_completed',
-    aggregate_id: 'task_005',
-    tenant_id: 'tenant_1',
+    event_id: "evt_004",
+    event_type: "task_completed",
+    aggregate_id: "task_005",
+    tenant_id: "tenant_1",
     timestamp: new Date(Date.now() - 900000).toISOString(),
-    payload: { title: 'تقليم القات', field_id: 'field_003' },
+    payload: { title: "تقليم القات", field_id: "field_003" },
   },
   {
-    event_id: 'evt_005',
-    event_type: 'ndvi_processed',
-    aggregate_id: 'ndvi_001',
-    tenant_id: 'tenant_1',
+    event_id: "evt_005",
+    event_type: "ndvi_processed",
+    aggregate_id: "ndvi_001",
+    tenant_id: "tenant_1",
     timestamp: new Date(Date.now() - 1200000).toISOString(),
-    payload: { field_id: 'field_002', ndvi: 0.45, status: 'warning' },
+    payload: { field_id: "field_002", ndvi: 0.45, status: "warning" },
   },
-]
+];
 
 function formatTimeAgo(timestamp: string): string {
-  const now = new Date()
-  const then = new Date(timestamp)
-  const diff = now.getTime() - then.getTime()
+  const now = new Date();
+  const then = new Date(timestamp);
+  const diff = now.getTime() - then.getTime();
 
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
 
-  if (seconds < 60) return 'الآن'
-  if (minutes < 60) return `منذ ${minutes} دقيقة`
-  if (hours < 24) return `منذ ${hours} ساعة`
-  return then.toLocaleDateString('ar-YE')
+  if (seconds < 60) return "الآن";
+  if (minutes < 60) return `منذ ${minutes} دقيقة`;
+  if (hours < 24) return `منذ ${hours} ساعة`;
+  return then.toLocaleDateString("ar-YE");
 }
 
 function EventCard({ event }: { event: TimelineEvent }) {
-  const icon = getEventIcon(event.event_type)
-  const colorClass = getEventColor(event.event_type)
-  const label = formatEventType(event.event_type)
+  const icon = getEventIcon(event.event_type);
+  const colorClass = getEventColor(event.event_type);
+  const label = formatEventType(event.event_type);
 
   return (
-    <div className={`p-3 rounded-lg border ${colorClass} transition-all hover:shadow-sm`}>
+    <div
+      className={`p-3 rounded-lg border ${colorClass} transition-all hover:shadow-sm`}
+    >
       <div className="flex items-start gap-3">
         {/* Icon */}
         <span className="text-xl">{icon}</span>
@@ -77,40 +88,49 @@ function EventCard({ event }: { event: TimelineEvent }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium text-gray-800">{label}</span>
-            <span className="text-xs text-gray-400">{formatTimeAgo(event.timestamp)}</span>
+            <span className="text-xs text-gray-400">
+              {formatTimeAgo(event.timestamp)}
+            </span>
           </div>
 
           {/* Payload details */}
           <div className="mt-1 text-xs text-gray-500">
-            {event.event_type === 'task_created' && (
+            {event.event_type === "task_created" && (
               <span>📋 {(event.payload as any).title}</span>
             )}
-            {event.event_type === 'task_completed' && (
+            {event.event_type === "task_completed" && (
               <span>✅ {(event.payload as any).title}</span>
             )}
-            {event.event_type === 'weather_alert_issued' && (
-              <span>⚠️ {(event.payload as any).type} - {(event.payload as any).location}</span>
-            )}
-            {event.event_type === 'image_diagnosed' && (
+            {event.event_type === "weather_alert_issued" && (
               <span>
-                {(event.payload as any).disease_detected ? '🔴' : '🟢'}
-                {' '}
-                {(event.payload as any).disease || 'لا يوجد مرض'}
-                {' '}
-                ({Math.round((event.payload as any).confidence * 100)}%)
+                ⚠️ {(event.payload as any).type} -{" "}
+                {(event.payload as any).location}
               </span>
             )}
-            {event.event_type === 'ndvi_processed' && (
+            {event.event_type === "image_diagnosed" && (
               <span>
-                🛰️ NDVI: {(event.payload as any).ndvi}
-                {' '}
-                <span className={`px-1 rounded ${
-                  (event.payload as any).status === 'healthy' ? 'bg-green-100 text-green-700' :
-                  (event.payload as any).status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-700'
-                }`}>
-                  {(event.payload as any).status === 'healthy' ? 'صحي' :
-                   (event.payload as any).status === 'warning' ? 'تحذير' : 'حرج'}
+                {(event.payload as any).disease_detected ? "🔴" : "🟢"}{" "}
+                {(event.payload as any).disease || "لا يوجد مرض"} (
+                {Math.round((event.payload as any).confidence * 100)}%)
+              </span>
+            )}
+            {event.event_type === "ndvi_processed" && (
+              <span>
+                🛰️ NDVI: {(event.payload as any).ndvi}{" "}
+                <span
+                  className={`px-1 rounded ${
+                    (event.payload as any).status === "healthy"
+                      ? "bg-green-100 text-green-700"
+                      : (event.payload as any).status === "warning"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {(event.payload as any).status === "healthy"
+                    ? "صحي"
+                    : (event.payload as any).status === "warning"
+                      ? "تحذير"
+                      : "حرج"}
                 </span>
               </span>
             )}
@@ -123,84 +143,97 @@ function EventCard({ event }: { event: TimelineEvent }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function EventTimeline() {
-  const [events, setEvents] = useState<TimelineEvent[]>(SAMPLE_EVENTS)
-  const [connected, setConnected] = useState(false)
-  const wsRef = useRef<WebSocket | null>(null)
+  const [events, setEvents] = useState<TimelineEvent[]>(SAMPLE_EVENTS);
+  const [connected, setConnected] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     // Try to connect to WebSocket
     const connect = () => {
       try {
-        const ws = new WebSocket(`${process.env.WS_URL || 'ws://localhost:8081'}/events`)
+        const ws = new WebSocket(
+          `${process.env.WS_URL || "ws://localhost:8081"}/events`,
+        );
 
         ws.onopen = () => {
-          setConnected(true)
-          ws.send(JSON.stringify({
-            type: 'subscribe',
-            subjects: ['tasks.*', 'diagnosis.*', 'weather.*', 'ndvi.*'],
-          }))
-        }
+          setConnected(true);
+          ws.send(
+            JSON.stringify({
+              type: "subscribe",
+              subjects: ["tasks.*", "diagnosis.*", "weather.*", "ndvi.*"],
+            }),
+          );
+        };
 
         ws.onmessage = (msg) => {
           try {
-            const message = JSON.parse(msg.data)
-            if (message.type === 'event' && message.data) {
-              setEvents((prev) => [message.data, ...prev].slice(0, 50))
+            const message = JSON.parse(msg.data);
+            if (message.type === "event" && message.data) {
+              setEvents((prev) => [message.data, ...prev].slice(0, 50));
             }
           } catch {}
-        }
+        };
 
         ws.onclose = () => {
-          setConnected(false)
-        }
+          setConnected(false);
+        };
 
-        wsRef.current = ws
+        wsRef.current = ws;
       } catch (error) {
-        console.log('WebSocket not available, using sample data')
-        setConnected(false)
+        console.log("WebSocket not available, using sample data");
+        setConnected(false);
       }
-    }
+    };
 
-    connect()
+    connect();
 
     // Simulate new events for demo
     const interval = setInterval(() => {
       if (!connected) {
         const newEvent: TimelineEvent = {
           event_id: `evt_${Date.now()}`,
-          event_type: ['task_created', 'task_completed', 'weather_alert_issued', 'ndvi_processed'][
-            Math.floor(Math.random() * 4)
-          ],
+          event_type: [
+            "task_created",
+            "task_completed",
+            "weather_alert_issued",
+            "ndvi_processed",
+          ][Math.floor(Math.random() * 4)],
           aggregate_id: `agg_${Math.random().toString(36).substr(2, 9)}`,
-          tenant_id: 'tenant_1',
+          tenant_id: "tenant_1",
           timestamp: new Date().toISOString(),
           payload: {
-            title: 'حدث جديد',
-            field_id: 'field_001',
+            title: "حدث جديد",
+            field_id: "field_001",
           },
-        }
-        setEvents((prev) => [newEvent, ...prev].slice(0, 50))
+        };
+        setEvents((prev) => [newEvent, ...prev].slice(0, 50));
       }
-    }, 15000) // Every 15 seconds
+    }, 15000); // Every 15 seconds
 
     return () => {
-      clearInterval(interval)
-      wsRef.current?.close()
-    }
-  }, [connected])
+      clearInterval(interval);
+      wsRef.current?.close();
+    };
+  }, [connected]);
 
   return (
     <div className="space-y-3">
       {/* Connection status */}
-      <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded-full w-fit ${
-        connected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-      }`}>
-        <span className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 live-indicator' : 'bg-gray-400'}`}></span>
-        {connected ? 'متصل بالأحداث المباشرة' : 'وضع العرض التوضيحي'}
+      <div
+        className={`flex items-center gap-2 text-xs px-2 py-1 rounded-full w-fit ${
+          connected
+            ? "bg-green-100 text-green-700"
+            : "bg-gray-100 text-gray-500"
+        }`}
+      >
+        <span
+          className={`w-2 h-2 rounded-full ${connected ? "bg-green-500 live-indicator" : "bg-gray-400"}`}
+        ></span>
+        {connected ? "متصل بالأحداث المباشرة" : "وضع العرض التوضيحي"}
       </div>
 
       {/* Events list */}
@@ -217,5 +250,5 @@ export function EventTimeline() {
         </div>
       )}
     </div>
-  )
+  );
 }

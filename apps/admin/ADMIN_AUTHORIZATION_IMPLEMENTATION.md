@@ -46,19 +46,20 @@ Centralized route-to-role mapping:
 ```typescript
 const PROTECTED_ROUTES = {
   // Admin only
-  '/settings': ['admin'],
-  '/api/admin': ['admin'],
+  "/settings": ["admin"],
+  "/api/admin": ["admin"],
 
   // Admin + Supervisor
-  '/farms': ['admin', 'supervisor'],
-  '/api/farms': ['admin', 'supervisor'],
+  "/farms": ["admin", "supervisor"],
+  "/api/farms": ["admin", "supervisor"],
 
   // All authenticated users
-  '/dashboard': ['admin', 'supervisor', 'viewer'],
+  "/dashboard": ["admin", "supervisor", "viewer"],
 };
 ```
 
 Helper functions:
+
 - `getRequiredRoles(pathname)` - Get required roles for a route
 - `isPublicRoute(pathname)` - Check if route is public
 - `hasRouteAccess(pathname, userRole)` - Verify user access
@@ -105,10 +106,13 @@ export const GET = withAuth(async (request, { user }) => {
 Requires specific role(s):
 
 ```typescript
-export const POST = withRole(['admin', 'supervisor'], async (request, { user }) => {
-  // Only admins and supervisors
-  return NextResponse.json({ message: 'Access granted' });
-});
+export const POST = withRole(
+  ["admin", "supervisor"],
+  async (request, { user }) => {
+    // Only admins and supervisors
+    return NextResponse.json({ message: "Access granted" });
+  },
+);
 ```
 
 #### `withAdmin(handler)`
@@ -118,7 +122,7 @@ Admin-only shortcut:
 ```typescript
 export const DELETE = withAdmin(async (request, { user }) => {
   // Only admins can delete
-  return NextResponse.json({ message: 'Deleted' });
+  return NextResponse.json({ message: "Deleted" });
 });
 ```
 
@@ -129,7 +133,7 @@ Admin or Supervisor shortcut:
 ```typescript
 export const PATCH = withSupervisor(async (request, { user }) => {
   // Admins and supervisors only
-  return NextResponse.json({ message: 'Updated' });
+  return NextResponse.json({ message: "Updated" });
 });
 ```
 
@@ -166,12 +170,14 @@ Higher roles inherit permissions of lower roles.
 ### Protected Routes by Role
 
 #### Admin Only
+
 - `/settings/*` - System settings
 - `/api/settings/*` - Settings API
 - `/api/users/*` - User management API
 - `/api/admin/*` - Admin-specific APIs
 
 #### Admin + Supervisor
+
 - `/farms/*` - Farm management
 - `/diseases/*` - Disease tracking
 - `/alerts/*` - Alert management
@@ -180,6 +186,7 @@ Higher roles inherit permissions of lower roles.
 - `/yield/*` - Yield prediction
 
 #### All Authenticated Users
+
 - `/dashboard` - Main dashboard
 - `/analytics/*` - Analytics pages
 - `/precision-agriculture/*` - PA features
@@ -190,12 +197,14 @@ Higher roles inherit permissions of lower roles.
 ### Invalid/Expired Token
 
 **Request:**
+
 ```
 GET /dashboard
 Cookie: sahool_admin_token=expired_or_invalid_token
 ```
 
 **Response:**
+
 ```
 302 Redirect to /login?returnTo=/dashboard&reason=invalid_token
 Set-Cookie: sahool_admin_token=; Max-Age=0 (deleted)
@@ -204,12 +213,14 @@ Set-Cookie: sahool_admin_token=; Max-Age=0 (deleted)
 ### Insufficient Role (API)
 
 **Request:**
+
 ```
 POST /api/admin/settings
 Cookie: sahool_admin_token=valid_supervisor_token
 ```
 
 **Response:**
+
 ```json
 {
   "error": "Forbidden",
@@ -218,17 +229,20 @@ Cookie: sahool_admin_token=valid_supervisor_token
   "your_role": "supervisor"
 }
 ```
+
 Status: 403 Forbidden
 
 ### Insufficient Role (Page)
 
 **Request:**
+
 ```
 GET /settings
 Cookie: sahool_admin_token=valid_viewer_token
 ```
 
 **Response:**
+
 ```
 302 Redirect to /dashboard?error=unauthorized&attempted_route=/settings
 ```
@@ -252,7 +266,7 @@ const PROTECTED_ROUTES = {
 
 ```typescript
 // /app/api/admin/users/route.ts
-import { withAdmin } from '@/lib/auth';
+import { withAdmin } from "@/lib/auth";
 
 export const GET = withAdmin(async (request, { user }) => {
   // Fetch all users (admin only)
@@ -270,10 +284,10 @@ export const POST = withAdmin(async (request, { user }) => {
 export const DELETE = withAdmin(async (request, { user }) => {
   // Delete user (admin only)
   const { searchParams } = request.nextUrl;
-  const userId = searchParams.get('id');
+  const userId = searchParams.get("id");
 
   await deleteUser(userId);
-  return NextResponse.json({ message: 'User deleted' });
+  return NextResponse.json({ message: "User deleted" });
 });
 ```
 
@@ -281,7 +295,7 @@ export const DELETE = withAdmin(async (request, { user }) => {
 
 ```typescript
 // /app/api/farms/route.ts
-import { withSupervisor } from '@/lib/auth';
+import { withSupervisor } from "@/lib/auth";
 
 // Admins and supervisors can access
 export const GET = withSupervisor(async (request, { user }) => {
@@ -294,7 +308,7 @@ export const GET = withSupervisor(async (request, { user }) => {
 
 ```typescript
 // /app/api/profile/route.ts
-import { withAuth } from '@/lib/auth';
+import { withAuth } from "@/lib/auth";
 
 // Any authenticated user can access their own profile
 export const GET = withAuth(async (request, { user }) => {
@@ -307,21 +321,22 @@ export const GET = withAuth(async (request, { user }) => {
 
 ```typescript
 // /app/api/custom/route.ts
-import { getAuthenticatedUser, checkUserRole, errorResponse } from '@/lib/auth';
+import { getAuthenticatedUser, checkUserRole, errorResponse } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   const user = await getAuthenticatedUser();
 
   if (!user) {
-    return errorResponse('Authentication required', 401);
+    return errorResponse("Authentication required", 401);
   }
 
   // Custom role logic
   const body = await request.json();
-  const requiredRole = body.action === 'delete' ? ['admin'] : ['admin', 'supervisor'];
+  const requiredRole =
+    body.action === "delete" ? ["admin"] : ["admin", "supervisor"];
 
   if (!checkUserRole(user, requiredRole)) {
-    return errorResponse('Insufficient permissions', 403, {
+    return errorResponse("Insufficient permissions", 403, {
       required_roles: requiredRole,
       your_role: user.role,
     });
@@ -356,8 +371,8 @@ To add new protected routes, edit `/lib/auth/route-protection.ts`:
 ```typescript
 export const PROTECTED_ROUTES: Record<string, UserRole[]> = {
   // Add your route here
-  '/new-feature': ['admin', 'supervisor'], // Example: supervisors can access
-  '/api/new-feature': ['admin'],           // Example: admin-only API
+  "/new-feature": ["admin", "supervisor"], // Example: supervisors can access
+  "/api/new-feature": ["admin"], // Example: admin-only API
 };
 ```
 
@@ -366,12 +381,14 @@ export const PROTECTED_ROUTES: Record<string, UserRole[]> = {
 ### Manual Testing Checklist
 
 #### Authentication Tests
+
 - [ ] Access protected route without token → Redirects to login
 - [ ] Access protected route with expired token → Redirects to login with reason
 - [ ] Access protected route with invalid token → Redirects to login
 - [ ] Access protected route with valid token → Grants access
 
 #### Authorization Tests
+
 - [ ] Admin accesses admin-only route → Success
 - [ ] Supervisor accesses admin-only route → 403 Forbidden
 - [ ] Viewer accesses admin-only route → 403 Forbidden
@@ -380,6 +397,7 @@ export const PROTECTED_ROUTES: Record<string, UserRole[]> = {
 - [ ] All roles access viewer+ route → Success
 
 #### API Route Tests
+
 - [ ] Call admin API with admin token → 200 OK
 - [ ] Call admin API with supervisor token → 403 Forbidden (JSON)
 - [ ] Call admin API without token → 401 Unauthorized (JSON)
@@ -392,48 +410,48 @@ export const PROTECTED_ROUTES: Record<string, UserRole[]> = {
 Test file location: `/src/__tests__/auth.test.ts` (to be created)
 
 ```typescript
-import { verifyToken, hasRequiredRole } from '@/lib/auth/jwt-verify';
-import { getRequiredRoles, hasRouteAccess } from '@/lib/auth/route-protection';
+import { verifyToken, hasRequiredRole } from "@/lib/auth/jwt-verify";
+import { getRequiredRoles, hasRouteAccess } from "@/lib/auth/route-protection";
 
-describe('JWT Verification', () => {
-  it('should verify valid token', async () => {
-    const token = 'valid-jwt-token';
+describe("JWT Verification", () => {
+  it("should verify valid token", async () => {
+    const token = "valid-jwt-token";
     const payload = await verifyToken(token);
     expect(payload.role).toBeDefined();
   });
 
-  it('should reject expired token', async () => {
-    const token = 'expired-jwt-token';
+  it("should reject expired token", async () => {
+    const token = "expired-jwt-token";
     await expect(verifyToken(token)).rejects.toThrow();
   });
 });
 
-describe('Role Authorization', () => {
-  it('should allow admin to access admin routes', () => {
-    expect(hasRequiredRole('admin', 'admin')).toBe(true);
+describe("Role Authorization", () => {
+  it("should allow admin to access admin routes", () => {
+    expect(hasRequiredRole("admin", "admin")).toBe(true);
   });
 
-  it('should deny viewer from admin routes', () => {
-    expect(hasRequiredRole('viewer', 'admin')).toBe(false);
+  it("should deny viewer from admin routes", () => {
+    expect(hasRequiredRole("viewer", "admin")).toBe(false);
   });
 
-  it('should allow supervisor to access supervisor routes', () => {
-    expect(hasRequiredRole('supervisor', 'supervisor')).toBe(true);
+  it("should allow supervisor to access supervisor routes", () => {
+    expect(hasRequiredRole("supervisor", "supervisor")).toBe(true);
   });
 });
 
-describe('Route Protection', () => {
-  it('should require admin role for settings', () => {
-    const roles = getRequiredRoles('/settings');
-    expect(roles).toEqual(['admin']);
+describe("Route Protection", () => {
+  it("should require admin role for settings", () => {
+    const roles = getRequiredRoles("/settings");
+    expect(roles).toEqual(["admin"]);
   });
 
-  it('should allow supervisor to access farms', () => {
-    expect(hasRouteAccess('/farms', 'supervisor')).toBe(true);
+  it("should allow supervisor to access farms", () => {
+    expect(hasRouteAccess("/farms", "supervisor")).toBe(true);
   });
 
-  it('should deny viewer from settings', () => {
-    expect(hasRouteAccess('/settings', 'viewer')).toBe(false);
+  it("should deny viewer from settings", () => {
+    expect(hasRouteAccess("/settings", "viewer")).toBe(false);
   });
 });
 ```
@@ -473,6 +491,7 @@ describe('Route Protection', () => {
 **Cause:** JWT secret mismatch between admin app and backend
 
 **Solution:**
+
 1. Verify `JWT_SECRET` in admin `.env.local` matches backend
 2. Restart Next.js dev server after changing env vars
 
@@ -481,6 +500,7 @@ describe('Route Protection', () => {
 **Cause:** Token doesn't contain role or role is not 'admin'
 
 **Solution:**
+
 1. Check JWT payload using jwt.io
 2. Verify backend is including role in token
 3. Check role spelling (case-sensitive)
@@ -490,6 +510,7 @@ describe('Route Protection', () => {
 **Cause:** Login page is being protected by middleware
 
 **Solution:**
+
 1. Verify `/login` is in `PUBLIC_ROUTES`
 2. Check middleware config matcher patterns
 
@@ -498,9 +519,10 @@ describe('Route Protection', () => {
 **Cause:** Missing type exports
 
 **Solution:**
+
 ```typescript
-import type { UserRole } from '@/lib/auth';
-import { withAdmin } from '@/lib/auth';
+import type { UserRole } from "@/lib/auth";
+import { withAdmin } from "@/lib/auth";
 ```
 
 ## Performance Impact
@@ -522,6 +544,7 @@ import { withAdmin } from '@/lib/auth';
 ### For Existing API Routes
 
 **Before:**
+
 ```typescript
 export async function GET(request: NextRequest) {
   // No authorization
@@ -531,8 +554,9 @@ export async function GET(request: NextRequest) {
 ```
 
 **After:**
+
 ```typescript
-import { withAuth } from '@/lib/auth';
+import { withAuth } from "@/lib/auth";
 
 export const GET = withAuth(async (request, { user }) => {
   // Automatically authorized
@@ -544,6 +568,7 @@ export const GET = withAuth(async (request, { user }) => {
 ### For Admin-Only Routes
 
 **Before:**
+
 ```typescript
 export async function DELETE(request: NextRequest) {
   // No protection
@@ -553,8 +578,9 @@ export async function DELETE(request: NextRequest) {
 ```
 
 **After:**
+
 ```typescript
-import { withAdmin } from '@/lib/auth';
+import { withAdmin } from "@/lib/auth";
 
 export const DELETE = withAdmin(async (request, { user }) => {
   // Only admins can access
@@ -568,6 +594,7 @@ export const DELETE = withAdmin(async (request, { user }) => {
 This implementation provides comprehensive server-side role-based authorization for the SAHOOL Admin Dashboard, addressing the critical security gap identified in the audit. All routes are now protected with JWT verification and role checks, ensuring that authorization cannot be bypassed through client-side manipulation.
 
 **Key Achievements:**
+
 - ✅ Server-side JWT verification on all requests
 - ✅ Role-based route protection
 - ✅ API middleware for easy route protection
@@ -579,6 +606,7 @@ This implementation provides comprehensive server-side role-based authorization 
 **Security Score Improvement:** 6.5/10 → 8.5/10
 
 **Next Steps:**
+
 1. Add audit logging for authorization events
 2. Implement rate limiting
 3. Add CSRF protection

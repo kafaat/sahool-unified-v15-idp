@@ -1,4 +1,5 @@
 # SAHOOL Web & Dashboard API Integration Guide
+
 # دليل تكامل API للويب ولوحة التحكم
 
 **Version:** 1.0.0
@@ -81,14 +82,14 @@ SAHOOL Platform uses Kong API Gateway to manage all microservices. This guide co
 
 ```typescript
 interface JWTPayload {
-  sub: string;              // User ID
-  email: string;            // User email
-  role: string;             // User role (admin, supervisor, viewer, farmer)
-  tenant_id?: string;       // Tenant ID for multi-tenancy
-  subscription: string;     // Subscription tier: starter, professional, enterprise, research
-  acl_groups: string[];     // ACL groups: starter-users, professional-users, etc.
-  iat: number;              // Issued at timestamp
-  exp: number;              // Expiration timestamp
+  sub: string; // User ID
+  email: string; // User email
+  role: string; // User role (admin, supervisor, viewer, farmer)
+  tenant_id?: string; // Tenant ID for multi-tenancy
+  subscription: string; // Subscription tier: starter, professional, enterprise, research
+  acl_groups: string[]; // ACL groups: starter-users, professional-users, etc.
+  iat: number; // Issued at timestamp
+  exp: number; // Expiration timestamp
 }
 ```
 
@@ -96,23 +97,24 @@ interface JWTPayload {
 
 ```typescript
 // lib/api.ts
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.sahool.app';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://api.sahool.app";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 10000,
 });
 
 // Request interceptor for auth
 api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = Cookies.get('access_token');
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -125,11 +127,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      Cookies.remove('access_token');
-      window.location.href = '/login';
+      Cookies.remove("access_token");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -160,20 +162,21 @@ class AdminApiClient {
       user: User;
       requires_2fa?: boolean;
       temp_token?: string;
-    }>('/api/v1/auth/login', {
-      method: 'POST',
+    }>("/api/v1/auth/login", {
+      method: "POST",
       body: JSON.stringify(body),
     });
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}) {
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      'Accept-Language': 'ar,en',
+      "Content-Type": "application/json",
+      "Accept-Language": "ar,en",
     };
 
     if (this.token) {
-      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`;
+      (headers as Record<string, string>)["Authorization"] =
+        `Bearer ${this.token}`;
     }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
@@ -208,20 +211,20 @@ NEXT_PUBLIC_ADMIN_WS_URL=wss://admin.sahool.app/api/v1/ws
 
 ```typescript
 // features/fields/api.ts
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
   timeout: 10000,
 });
 
 api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = Cookies.get('access_token');
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -232,15 +235,15 @@ api.interceptors.request.use((config) => {
 export const fieldsApi = {
   getFields: async (filters?: FieldFilters): Promise<Field[]> => {
     const params = new URLSearchParams();
-    if (filters?.search) params.set('search', filters.search);
-    if (filters?.farmId) params.set('tenantId', filters.farmId);
+    if (filters?.search) params.set("search", filters.search);
+    if (filters?.farmId) params.set("tenantId", filters.farmId);
 
     const response = await api.get(`/api/v1/fields?${params.toString()}`);
     return response.data.data || response.data;
   },
 
   createField: async (data: FieldFormData): Promise<Field> => {
-    const response = await api.post('/api/v1/fields', data);
+    const response = await api.post("/api/v1/fields", data);
     return response.data.data || response.data;
   },
 };
@@ -251,72 +254,76 @@ export const fieldsApi = {
 ## Service Endpoints
 
 ### Starter Package Services
+
 Available for all subscription tiers.
 
-| Service | Route | Description | Description (AR) |
-|---------|-------|-------------|------------------|
-| Field Core | `/api/v1/fields` | Field management | إدارة الحقول |
-| Weather Core | `/api/v1/weather` | Weather data | بيانات الطقس |
-| Astronomical Calendar | `/api/v1/calendar` | Yemeni calendar | التقويم الفلكي |
-| Agro Advisor | `/api/v1/advice` | Agricultural advice | النصائح الزراعية |
-| Notifications | `/api/v1/notifications` | Push notifications | الإشعارات |
+| Service               | Route                   | Description         | Description (AR) |
+| --------------------- | ----------------------- | ------------------- | ---------------- |
+| Field Core            | `/api/v1/fields`        | Field management    | إدارة الحقول     |
+| Weather Core          | `/api/v1/weather`       | Weather data        | بيانات الطقس     |
+| Astronomical Calendar | `/api/v1/calendar`      | Yemeni calendar     | التقويم الفلكي   |
+| Agro Advisor          | `/api/v1/advice`        | Agricultural advice | النصائح الزراعية |
+| Notifications         | `/api/v1/notifications` | Push notifications  | الإشعارات        |
 
 ### Professional Package Services
+
 Available for Professional, Enterprise, and Research tiers.
 
-| Service | Route | Description | Description (AR) |
-|---------|-------|-------------|------------------|
-| Satellite | `/api/v1/satellite` | Satellite imagery | صور الأقمار الصناعية |
-| NDVI Engine | `/api/v1/ndvi` | Vegetation indices | مؤشرات الغطاء النباتي |
-| Crop Health AI | `/api/v1/crop-health` | Disease detection | كشف الأمراض |
-| Smart Irrigation | `/api/v1/irrigation` | Irrigation management | إدارة الري |
-| Virtual Sensors | `/api/v1/sensors/virtual` | ET0 calculations | حسابات التبخر |
-| Yield Engine | `/api/v1/yield` | Yield prediction | توقع الإنتاجية |
-| Fertilizer Advisor | `/api/v1/fertilizer` | Fertilizer recommendations | توصيات التسميد |
-| Inventory | `/api/v1/inventory` | Inventory management | إدارة المخزون |
-| Equipment | `/api/v1/equipment` | Equipment management | إدارة المعدات |
+| Service            | Route                     | Description                | Description (AR)      |
+| ------------------ | ------------------------- | -------------------------- | --------------------- |
+| Satellite          | `/api/v1/satellite`       | Satellite imagery          | صور الأقمار الصناعية  |
+| NDVI Engine        | `/api/v1/ndvi`            | Vegetation indices         | مؤشرات الغطاء النباتي |
+| Crop Health AI     | `/api/v1/crop-health`     | Disease detection          | كشف الأمراض           |
+| Smart Irrigation   | `/api/v1/irrigation`      | Irrigation management      | إدارة الري            |
+| Virtual Sensors    | `/api/v1/sensors/virtual` | ET0 calculations           | حسابات التبخر         |
+| Yield Engine       | `/api/v1/yield`           | Yield prediction           | توقع الإنتاجية        |
+| Fertilizer Advisor | `/api/v1/fertilizer`      | Fertilizer recommendations | توصيات التسميد        |
+| Inventory          | `/api/v1/inventory`       | Inventory management       | إدارة المخزون         |
+| Equipment          | `/api/v1/equipment`       | Equipment management       | إدارة المعدات         |
 
 ### Enterprise Package Services
+
 Available for Enterprise and Research tiers only.
 
-| Service | Route | Description | Description (AR) |
-|---------|-------|-------------|------------------|
-| AI Advisor | `/api/v1/ai-advisor` | Multi-agent AI | المستشار الذكي |
-| IoT Gateway | `/api/v1/iot` | IoT device management | إدارة أجهزة IoT |
-| IoT Service | `/api/v1/iot-service` | Sensor data | بيانات المستشعرات |
-| Research Core | `/api/v1/research` | Research data | بيانات البحث |
-| Marketplace | `/api/v1/marketplace` | Market listings | السوق |
-| Billing Core | `/api/v1/billing` | Billing & payments | الفوترة |
-| Disaster Assessment | `/api/v1/disaster` | Disaster analysis | تقييم الكوارث |
-| Crop Growth Model | `/api/v1/crop-model` | WOFOST modeling | نماذج النمو |
-| LAI Estimation | `/api/v1/lai` | Leaf area index | مؤشر المساحة الورقية |
-| Yield Prediction | `/api/v1/yield-prediction` | Advanced predictions | التوقعات المتقدمة |
+| Service             | Route                      | Description           | Description (AR)     |
+| ------------------- | -------------------------- | --------------------- | -------------------- |
+| AI Advisor          | `/api/v1/ai-advisor`       | Multi-agent AI        | المستشار الذكي       |
+| IoT Gateway         | `/api/v1/iot`              | IoT device management | إدارة أجهزة IoT      |
+| IoT Service         | `/api/v1/iot-service`      | Sensor data           | بيانات المستشعرات    |
+| Research Core       | `/api/v1/research`         | Research data         | بيانات البحث         |
+| Marketplace         | `/api/v1/marketplace`      | Market listings       | السوق                |
+| Billing Core        | `/api/v1/billing`          | Billing & payments    | الفوترة              |
+| Disaster Assessment | `/api/v1/disaster`         | Disaster analysis     | تقييم الكوارث        |
+| Crop Growth Model   | `/api/v1/crop-model`       | WOFOST modeling       | نماذج النمو          |
+| LAI Estimation      | `/api/v1/lai`              | Leaf area index       | مؤشر المساحة الورقية |
+| Yield Prediction    | `/api/v1/yield-prediction` | Advanced predictions  | التوقعات المتقدمة    |
 
 ### Shared Services
+
 Available based on feature requirements.
 
-| Service | Route | Description | Description (AR) |
-|---------|-------|-------------|------------------|
-| Field Operations | `/api/v1/field-ops` | Field tasks | عمليات الحقل |
-| WebSocket Gateway | `/api/v1/ws` | Real-time updates | التحديثات الفورية |
-| Indicators | `/api/v1/indicators` | Analytics indicators | المؤشرات |
-| Weather Advanced | `/api/v1/weather/advanced` | Advanced weather | الطقس المتقدم |
-| Community Chat | `/api/v1/community/chat` | Community messaging | محادثة المجتمع |
-| Field Chat | `/api/v1/field/chat` | Field messaging | محادثة الحقل |
-| Tasks | `/api/v1/tasks` | Task management | إدارة المهام |
-| Providers | `/api/v1/providers` | Provider config | تكوين المزودين |
-| Alerts | `/api/v1/alerts` | Alert management | إدارة التنبيهات |
-| Chat Service | `/api/v1/chat` | General chat | المحادثة |
+| Service           | Route                      | Description          | Description (AR)  |
+| ----------------- | -------------------------- | -------------------- | ----------------- |
+| Field Operations  | `/api/v1/field-ops`        | Field tasks          | عمليات الحقل      |
+| WebSocket Gateway | `/api/v1/ws`               | Real-time updates    | التحديثات الفورية |
+| Indicators        | `/api/v1/indicators`       | Analytics indicators | المؤشرات          |
+| Weather Advanced  | `/api/v1/weather/advanced` | Advanced weather     | الطقس المتقدم     |
+| Community Chat    | `/api/v1/community/chat`   | Community messaging  | محادثة المجتمع    |
+| Field Chat        | `/api/v1/field/chat`       | Field messaging      | محادثة الحقل      |
+| Tasks             | `/api/v1/tasks`            | Task management      | إدارة المهام      |
+| Providers         | `/api/v1/providers`        | Provider config      | تكوين المزودين    |
+| Alerts            | `/api/v1/alerts`           | Alert management     | إدارة التنبيهات   |
+| Chat Service      | `/api/v1/chat`             | General chat         | المحادثة          |
 
 ### Authentication Endpoints
 
-| Endpoint | Method | Rate Limit | Description |
-|----------|--------|------------|-------------|
-| `/api/v1/auth/login` | POST | 5/min, 20/hr | User login |
-| `/api/v1/auth/register` | POST | 10/min, 50/hr | User registration |
-| `/api/v1/auth/refresh` | POST | 10/min, 100/hr | Token refresh |
-| `/api/v1/auth/password-reset` | POST | 3/min, 10/hr | Password reset |
-| `/api/v1/auth/forgot-password` | POST | 3/min, 10/hr | Forgot password |
+| Endpoint                       | Method | Rate Limit     | Description       |
+| ------------------------------ | ------ | -------------- | ----------------- |
+| `/api/v1/auth/login`           | POST   | 5/min, 20/hr   | User login        |
+| `/api/v1/auth/register`        | POST   | 10/min, 50/hr  | User registration |
+| `/api/v1/auth/refresh`         | POST   | 10/min, 100/hr | Token refresh     |
+| `/api/v1/auth/password-reset`  | POST   | 3/min, 10/hr   | Password reset    |
+| `/api/v1/auth/forgot-password` | POST   | 3/min, 10/hr   | Forgot password   |
 
 ---
 
@@ -324,18 +331,18 @@ Available based on feature requirements.
 
 ### Limits by Subscription Tier
 
-| Tier | Requests/Minute | Requests/Hour | Notes |
-|------|-----------------|---------------|-------|
-| Starter | 100 | 5,000 | Basic services only |
-| Professional | 1,000 | 50,000 | All professional services |
-| Enterprise | 10,000 | 500,000 | All services + priority |
-| Research | 10,000 | 500,000 | Full access + research APIs |
+| Tier         | Requests/Minute | Requests/Hour | Notes                       |
+| ------------ | --------------- | ------------- | --------------------------- |
+| Starter      | 100             | 5,000         | Basic services only         |
+| Professional | 1,000           | 50,000        | All professional services   |
+| Enterprise   | 10,000          | 500,000       | All services + priority     |
+| Research     | 10,000          | 500,000       | Full access + research APIs |
 
 ### Handling Rate Limits (TypeScript)
 
 ```typescript
 // lib/rate-limit-handler.ts
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError } from "axios";
 
 interface RateLimitInfo {
   limit: number;
@@ -343,10 +350,12 @@ interface RateLimitInfo {
   reset: number;
 }
 
-export function getRateLimitInfo(headers: Record<string, string>): RateLimitInfo | null {
-  const limit = headers['x-ratelimit-limit'];
-  const remaining = headers['x-ratelimit-remaining'];
-  const reset = headers['x-ratelimit-reset'];
+export function getRateLimitInfo(
+  headers: Record<string, string>,
+): RateLimitInfo | null {
+  const limit = headers["x-ratelimit-limit"];
+  const remaining = headers["x-ratelimit-remaining"];
+  const reset = headers["x-ratelimit-reset"];
 
   if (limit && remaining && reset) {
     return {
@@ -360,7 +369,7 @@ export function getRateLimitInfo(headers: Record<string, string>): RateLimitInfo
 
 export async function handleRateLimitError(error: AxiosError): Promise<void> {
   if (error.response?.status === 429) {
-    const retryAfter = error.response.headers['retry-after'];
+    const retryAfter = error.response.headers["retry-after"];
     const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000;
 
     console.warn(`Rate limited. Waiting ${waitTime / 1000} seconds...`);
@@ -379,42 +388,42 @@ export async function handleRateLimitError(error: AxiosError): Promise<void> {
 // lib/error-messages.ts
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: 'Network error. Please check your connection.',
-    ar: 'خطأ في الاتصال. يرجى التحقق من اتصالك.',
+    en: "Network error. Please check your connection.",
+    ar: "خطأ في الاتصال. يرجى التحقق من اتصالك.",
   },
   UNAUTHORIZED: {
-    en: 'Session expired. Please log in again.',
-    ar: 'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.',
+    en: "Session expired. Please log in again.",
+    ar: "انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.",
   },
   FORBIDDEN: {
-    en: 'You do not have permission to access this resource.',
-    ar: 'ليس لديك صلاحية للوصول إلى هذا المورد.',
+    en: "You do not have permission to access this resource.",
+    ar: "ليس لديك صلاحية للوصول إلى هذا المورد.",
   },
   NOT_FOUND: {
-    en: 'Resource not found.',
-    ar: 'المورد غير موجود.',
+    en: "Resource not found.",
+    ar: "المورد غير موجود.",
   },
   RATE_LIMITED: {
-    en: 'Too many requests. Please wait and try again.',
-    ar: 'طلبات كثيرة جداً. يرجى الانتظار والمحاولة مرة أخرى.',
+    en: "Too many requests. Please wait and try again.",
+    ar: "طلبات كثيرة جداً. يرجى الانتظار والمحاولة مرة أخرى.",
   },
   SERVER_ERROR: {
-    en: 'Server error. Please try again later.',
-    ar: 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.',
+    en: "Server error. Please try again later.",
+    ar: "خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.",
   },
   VALIDATION_ERROR: {
-    en: 'Please check your input and try again.',
-    ar: 'يرجى التحقق من المدخلات والمحاولة مرة أخرى.',
+    en: "Please check your input and try again.",
+    ar: "يرجى التحقق من المدخلات والمحاولة مرة أخرى.",
   },
   FETCH_FAILED: {
-    en: 'Failed to fetch data. Using cached data.',
-    ar: 'فشل في جلب البيانات. استخدام البيانات المخزنة.',
+    en: "Failed to fetch data. Using cached data.",
+    ar: "فشل في جلب البيانات. استخدام البيانات المخزنة.",
   },
 };
 
 export function getErrorMessage(
   code: keyof typeof ERROR_MESSAGES,
-  locale: 'en' | 'ar' = 'ar'
+  locale: "en" | "ar" = "ar",
 ): string {
   return ERROR_MESSAGES[code]?.[locale] || ERROR_MESSAGES.SERVER_ERROR[locale];
 }
@@ -424,20 +433,21 @@ export function getErrorMessage(
 
 ```typescript
 // lib/error-interceptor.ts
-import axios, { AxiosError } from 'axios';
-import { getErrorMessage } from './error-messages';
+import axios, { AxiosError } from "axios";
+import { getErrorMessage } from "./error-messages";
 
 export function setupErrorInterceptor(api: typeof axios) {
   api.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-      const locale = typeof window !== 'undefined'
-        ? (localStorage.getItem('locale') as 'en' | 'ar') || 'ar'
-        : 'ar';
+      const locale =
+        typeof window !== "undefined"
+          ? (localStorage.getItem("locale") as "en" | "ar") || "ar"
+          : "ar";
 
       if (!error.response) {
         return Promise.reject({
-          message: getErrorMessage('NETWORK_ERROR', locale),
+          message: getErrorMessage("NETWORK_ERROR", locale),
           originalError: error,
         });
       }
@@ -447,36 +457,36 @@ export function setupErrorInterceptor(api: typeof axios) {
       switch (status) {
         case 401:
           return Promise.reject({
-            message: getErrorMessage('UNAUTHORIZED', locale),
+            message: getErrorMessage("UNAUTHORIZED", locale),
             originalError: error,
           });
         case 403:
           return Promise.reject({
-            message: getErrorMessage('FORBIDDEN', locale),
+            message: getErrorMessage("FORBIDDEN", locale),
             originalError: error,
           });
         case 404:
           return Promise.reject({
-            message: getErrorMessage('NOT_FOUND', locale),
+            message: getErrorMessage("NOT_FOUND", locale),
             originalError: error,
           });
         case 429:
           return Promise.reject({
-            message: getErrorMessage('RATE_LIMITED', locale),
+            message: getErrorMessage("RATE_LIMITED", locale),
             originalError: error,
           });
         case 422:
           return Promise.reject({
-            message: getErrorMessage('VALIDATION_ERROR', locale),
+            message: getErrorMessage("VALIDATION_ERROR", locale),
             originalError: error,
           });
         default:
           return Promise.reject({
-            message: getErrorMessage('SERVER_ERROR', locale),
+            message: getErrorMessage("SERVER_ERROR", locale),
             originalError: error,
           });
       }
-    }
+    },
   );
 }
 ```
@@ -514,7 +524,7 @@ class SahoolWebSocket {
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
-        console.log('WebSocket connected');
+        console.log("WebSocket connected");
         this.reconnectAttempts = 0;
         resolve();
       };
@@ -524,17 +534,17 @@ class SahoolWebSocket {
           const message: WebSocketMessage = JSON.parse(event.data);
           this.emit(message.type, message.payload);
         } catch (error) {
-          console.error('Failed to parse WebSocket message:', error);
+          console.error("Failed to parse WebSocket message:", error);
         }
       };
 
       this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error("WebSocket error:", error);
         reject(error);
       };
 
       this.ws.onclose = () => {
-        console.log('WebSocket closed');
+        console.log("WebSocket closed");
         this.handleReconnect();
       };
     });
@@ -577,17 +587,18 @@ class SahoolWebSocket {
 }
 
 // Usage
-const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://api.sahool.app/api/v1/ws';
-const token = Cookies.get('access_token') || '';
+const wsUrl =
+  process.env.NEXT_PUBLIC_WS_URL || "wss://api.sahool.app/api/v1/ws";
+const token = Cookies.get("access_token") || "";
 const socket = new SahoolWebSocket(wsUrl, token);
 
 // Subscribe to events
-socket.subscribe('sensor_reading', (data) => {
-  console.log('New sensor reading:', data);
+socket.subscribe("sensor_reading", (data) => {
+  console.log("New sensor reading:", data);
 });
 
-socket.subscribe('alert', (data) => {
-  console.log('New alert:', data);
+socket.subscribe("alert", (data) => {
+  console.log("New alert:", data);
 });
 
 socket.connect();
@@ -597,8 +608,8 @@ socket.connect();
 
 ```typescript
 // hooks/useWebSocket.ts
-import { useEffect, useRef, useCallback, useState } from 'react';
-import Cookies from 'js-cookie';
+import { useEffect, useRef, useCallback, useState } from "react";
+import Cookies from "js-cookie";
 
 interface UseWebSocketOptions {
   onMessage?: (data: any) => void;
@@ -610,7 +621,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const wsRef = useRef<WebSocket | null>(null);
 
   const connect = useCallback(() => {
-    const token = Cookies.get('access_token');
+    const token = Cookies.get("access_token");
     if (!token) return;
 
     const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`;
@@ -620,10 +631,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       setIsConnected(true);
       // Subscribe to specific events
       if (options.events?.length) {
-        wsRef.current?.send(JSON.stringify({
-          type: 'subscribe',
-          events: options.events,
-        }));
+        wsRef.current?.send(
+          JSON.stringify({
+            type: "subscribe",
+            events: options.events,
+          }),
+        );
       }
     };
 
@@ -632,7 +645,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         const data = JSON.parse(event.data);
         options.onMessage?.(data);
       } catch (error) {
-        console.error('Failed to parse message:', error);
+        console.error("Failed to parse message:", error);
       }
     };
 
@@ -669,7 +682,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
 ```typescript
 // lib/query-client.ts
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -692,17 +705,17 @@ export const queryClient = new QueryClient({
 
 ```typescript
 // features/fields/hooks.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fieldsApi } from './api';
-import type { Field, FieldFormData, FieldFilters } from './types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fieldsApi } from "./api";
+import type { Field, FieldFormData, FieldFilters } from "./types";
 
 export const fieldKeys = {
-  all: ['fields'] as const,
-  lists: () => [...fieldKeys.all, 'list'] as const,
+  all: ["fields"] as const,
+  lists: () => [...fieldKeys.all, "list"] as const,
   list: (filters: FieldFilters) => [...fieldKeys.lists(), filters] as const,
-  details: () => [...fieldKeys.all, 'detail'] as const,
+  details: () => [...fieldKeys.all, "detail"] as const,
   detail: (id: string) => [...fieldKeys.details(), id] as const,
-  stats: () => [...fieldKeys.all, 'stats'] as const,
+  stats: () => [...fieldKeys.all, "stats"] as const,
 };
 
 export function useFields(filters?: FieldFilters) {
@@ -778,16 +791,16 @@ export function useToggleAlertRule() {
       alertRulesApi.toggleAlertRule(id, enabled),
     onMutate: async ({ id, enabled }) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['alert-rules'] });
+      await queryClient.cancelQueries({ queryKey: ["alert-rules"] });
 
       // Snapshot previous value
-      const previousRules = queryClient.getQueryData<AlertRule[]>(['alert-rules']);
+      const previousRules = queryClient.getQueryData<AlertRule[]>([
+        "alert-rules",
+      ]);
 
       // Optimistically update
-      queryClient.setQueryData<AlertRule[]>(['alert-rules'], (old) =>
-        old?.map((rule) =>
-          rule.id === id ? { ...rule, enabled } : rule
-        )
+      queryClient.setQueryData<AlertRule[]>(["alert-rules"], (old) =>
+        old?.map((rule) => (rule.id === id ? { ...rule, enabled } : rule)),
       );
 
       return { previousRules };
@@ -795,11 +808,11 @@ export function useToggleAlertRule() {
     onError: (err, _, context) => {
       // Rollback on error
       if (context?.previousRules) {
-        queryClient.setQueryData(['alert-rules'], context.previousRules);
+        queryClient.setQueryData(["alert-rules"], context.previousRules);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['alert-rules'] });
+      queryClient.invalidateQueries({ queryKey: ["alert-rules"] });
     },
   });
 }
@@ -818,25 +831,25 @@ The admin dashboard implements a circuit breaker pattern for service resilience:
 interface CircuitBreakerState {
   failures: number;
   lastFailure: number;
-  state: 'closed' | 'open' | 'half-open';
+  state: "closed" | "open" | "half-open";
 }
 
 class CircuitBreaker {
   private state: CircuitBreakerState = {
     failures: 0,
     lastFailure: 0,
-    state: 'closed',
+    state: "closed",
   };
 
   private failureThreshold = 5;
   private recoveryTimeout = 30000; // 30 seconds
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
-    if (this.state.state === 'open') {
+    if (this.state.state === "open") {
       if (Date.now() - this.state.lastFailure > this.recoveryTimeout) {
-        this.state.state = 'half-open';
+        this.state.state = "half-open";
       } else {
-        throw new Error('Circuit breaker is open');
+        throw new Error("Circuit breaker is open");
       }
     }
 
@@ -854,7 +867,7 @@ class CircuitBreaker {
     this.state = {
       failures: 0,
       lastFailure: 0,
-      state: 'closed',
+      state: "closed",
     };
   }
 
@@ -863,7 +876,7 @@ class CircuitBreaker {
     this.state.lastFailure = Date.now();
 
     if (this.state.failures >= this.failureThreshold) {
-      this.state.state = 'open';
+      this.state.state = "open";
     }
   }
 }
@@ -875,19 +888,21 @@ class CircuitBreaker {
 // lib/api-gateway/index.ts
 export interface ServiceHealth {
   name: string;
-  status: 'healthy' | 'unhealthy' | 'degraded';
+  status: "healthy" | "unhealthy" | "degraded";
   latency?: number;
   lastCheck: string;
   error?: string;
 }
 
-export async function checkServiceHealth(serviceName: string): Promise<ServiceHealth> {
+export async function checkServiceHealth(
+  serviceName: string,
+): Promise<ServiceHealth> {
   const startTime = Date.now();
 
   try {
     const config = getServiceConfig(serviceName);
     const response = await fetch(`${config.baseUrl}/healthz`, {
-      method: 'GET',
+      method: "GET",
       signal: AbortSignal.timeout(5000),
     });
 
@@ -896,7 +911,7 @@ export async function checkServiceHealth(serviceName: string): Promise<ServiceHe
     if (response.ok) {
       return {
         name: serviceName,
-        status: latency > 2000 ? 'degraded' : 'healthy',
+        status: latency > 2000 ? "degraded" : "healthy",
         latency,
         lastCheck: new Date().toISOString(),
       };
@@ -904,7 +919,7 @@ export async function checkServiceHealth(serviceName: string): Promise<ServiceHe
 
     return {
       name: serviceName,
-      status: 'unhealthy',
+      status: "unhealthy",
       latency,
       lastCheck: new Date().toISOString(),
       error: `HTTP ${response.status}`,
@@ -912,9 +927,9 @@ export async function checkServiceHealth(serviceName: string): Promise<ServiceHe
   } catch (error) {
     return {
       name: serviceName,
-      status: 'unhealthy',
+      status: "unhealthy",
       lastCheck: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -982,20 +997,20 @@ export function AuthGuard({ children, requiredRoles }: AuthGuardProps) {
 
 ```typescript
 // features/iot/api.ts
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
   timeout: 10000,
 });
 
 api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = Cookies.get('access_token');
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -1006,9 +1021,9 @@ api.interceptors.request.use((config) => {
 export const sensorsApi = {
   getSensors: async (filters?: SensorFilters): Promise<Sensor[]> => {
     const params = new URLSearchParams();
-    if (filters?.type) params.set('type', filters.type);
-    if (filters?.status) params.set('status', filters.status);
-    if (filters?.fieldId) params.set('field_id', filters.fieldId);
+    if (filters?.type) params.set("type", filters.type);
+    if (filters?.status) params.set("status", filters.status);
+    if (filters?.fieldId) params.set("field_id", filters.fieldId);
 
     const response = await api.get(`/api/v1/iot/sensors?${params.toString()}`);
     return response.data.data || response.data;
@@ -1020,39 +1035,44 @@ export const sensorsApi = {
   },
 
   createSensor: async (data: CreateSensorData): Promise<Sensor> => {
-    const response = await api.post('/api/v1/iot/sensors', data);
+    const response = await api.post("/api/v1/iot/sensors", data);
     return response.data.data || response.data;
   },
 
   getSensorReadings: async (query: ReadingsQuery): Promise<SensorReading[]> => {
     const params = new URLSearchParams();
-    params.set('sensor_id', query.sensorId);
-    if (query.startDate) params.set('start_date', query.startDate);
-    if (query.endDate) params.set('end_date', query.endDate);
+    params.set("sensor_id", query.sensorId);
+    if (query.startDate) params.set("start_date", query.startDate);
+    if (query.endDate) params.set("end_date", query.endDate);
 
-    const response = await api.get(`/api/v1/iot/sensors/readings?${params.toString()}`);
+    const response = await api.get(
+      `/api/v1/iot/sensors/readings?${params.toString()}`,
+    );
     return response.data.data || response.data;
   },
 
   getStreamUrl: (sensorId?: string): string => {
-    const params = sensorId ? `?sensor_id=${sensorId}` : '';
+    const params = sensorId ? `?sensor_id=${sensorId}` : "";
     return `${api.defaults.baseURL}/api/v1/iot/sensors/stream${params}`;
   },
 };
 
 export const actuatorsApi = {
   getActuators: async (fieldId?: string): Promise<Actuator[]> => {
-    const params = fieldId ? `?field_id=${fieldId}` : '';
+    const params = fieldId ? `?field_id=${fieldId}` : "";
     const response = await api.get(`/api/v1/iot/actuators${params}`);
     return response.data.data || response.data;
   },
 
   controlActuator: async (data: ActuatorControlData): Promise<Actuator> => {
-    const response = await api.post(`/api/v1/iot/actuators/${data.actuatorId}/control`, {
-      action: data.action,
-      mode: data.mode,
-      duration: data.duration,
-    });
+    const response = await api.post(
+      `/api/v1/iot/actuators/${data.actuatorId}/control`,
+      {
+        action: data.action,
+        mode: data.mode,
+        duration: data.duration,
+      },
+    );
     return response.data.data || response.data;
   },
 };
@@ -1064,16 +1084,16 @@ export const actuatorsApi = {
 
 Kong is configured to allow requests from:
 
-| Origin | Environment |
-|--------|-------------|
-| `https://sahool.app` | Production |
-| `https://www.sahool.app` | Production |
-| `https://admin.sahool.app` | Admin Production |
-| `https://api.sahool.app` | API Production |
-| `https://staging.sahool.app` | Staging |
-| `http://localhost:3000` | Development |
-| `http://localhost:5173` | Development (Vite) |
-| `http://localhost:8080` | Development |
+| Origin                       | Environment        |
+| ---------------------------- | ------------------ |
+| `https://sahool.app`         | Production         |
+| `https://www.sahool.app`     | Production         |
+| `https://admin.sahool.app`   | Admin Production   |
+| `https://api.sahool.app`     | API Production     |
+| `https://staging.sahool.app` | Staging            |
+| `http://localhost:3000`      | Development        |
+| `http://localhost:5173`      | Development (Vite) |
+| `http://localhost:8080`      | Development        |
 
 ### Allowed Headers
 
@@ -1112,7 +1132,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 const fields = await fieldsApi.getFields(filters);
 
 // Bad - avoid untyped fetch
-const response = await fetch('/api/v1/fields');
+const response = await fetch("/api/v1/fields");
 ```
 
 ### 2. Handle Loading and Error States
@@ -1137,7 +1157,7 @@ try {
   await fieldsApi.createField(data);
 } catch (error) {
   const msg = JSON.parse(error.message);
-  showToast(locale === 'ar' ? msg.messageAr : msg.message);
+  showToast(locale === "ar" ? msg.messageAr : msg.message);
 }
 ```
 
@@ -1150,7 +1170,7 @@ export const fieldsApi = {
       const response = await api.get(`/api/v1/fields`);
       return response.data.data || response.data;
     } catch (error) {
-      console.warn('Failed to fetch fields, using mock data');
+      console.warn("Failed to fetch fields, using mock data");
       return MOCK_FIELDS;
     }
   },
@@ -1165,10 +1185,10 @@ Kong adds `X-Request-ID` to all requests. Include it in error reports:
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const requestId = error.response?.headers?.['x-request-id'];
+    const requestId = error.response?.headers?.["x-request-id"];
     console.error(`Request failed [${requestId}]:`, error);
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -1178,31 +1198,32 @@ api.interceptors.response.use(
 
 ### API Base URLs
 
-| Environment | URL |
-|-------------|-----|
-| Production | `https://api.sahool.app` |
-| Admin | `https://admin.sahool.app/api` |
-| Staging | `https://staging.api.sahool.app` |
-| Development | `http://localhost:8000` |
+| Environment | URL                              |
+| ----------- | -------------------------------- |
+| Production  | `https://api.sahool.app`         |
+| Admin       | `https://admin.sahool.app/api`   |
+| Staging     | `https://staging.api.sahool.app` |
+| Development | `http://localhost:8000`          |
 
 ### Common HTTP Status Codes
 
-| Code | Meaning | Action |
-|------|---------|--------|
-| 200 | Success | Process response |
-| 201 | Created | Process response |
-| 400 | Bad Request | Show validation errors |
-| 401 | Unauthorized | Redirect to login |
-| 403 | Forbidden | Show access denied |
-| 404 | Not Found | Show not found message |
-| 429 | Rate Limited | Wait and retry |
-| 500 | Server Error | Show error, retry |
+| Code | Meaning      | Action                 |
+| ---- | ------------ | ---------------------- |
+| 200  | Success      | Process response       |
+| 201  | Created      | Process response       |
+| 400  | Bad Request  | Show validation errors |
+| 401  | Unauthorized | Redirect to login      |
+| 403  | Forbidden    | Show access denied     |
+| 404  | Not Found    | Show not found message |
+| 429  | Rate Limited | Wait and retry         |
+| 500  | Server Error | Show error, retry      |
 
 ---
 
 ## Support
 
 For API issues or questions:
+
 - GitHub Issues: https://github.com/kafaat/sahool-unified/issues
 - Documentation: https://docs.sahool.app
 - Email: api-support@sahool.app

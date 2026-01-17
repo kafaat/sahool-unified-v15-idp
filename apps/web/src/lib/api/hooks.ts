@@ -3,8 +3,8 @@
  * Custom hooks for data fetching with React Query
  */
 
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { apiClient } from './client';
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { apiClient } from "./client";
 import type {
   Field,
   NdviData,
@@ -14,24 +14,25 @@ import type {
   AgriculturalRisk,
   Sensor,
   IrrigationRecommendation,
-} from './types';
+} from "./types";
 
 // Query Keys - Centralized key management for cache invalidation
 export const apiQueryKeys = {
-  fields: (tenantId: string | null) => ['fields', tenantId] as const,
-  field: (fieldId: string | null) => ['field', fieldId] as const,
+  fields: (tenantId: string | null) => ["fields", tenantId] as const,
+  field: (fieldId: string | null) => ["field", fieldId] as const,
   nearbyFields: (lat: number | null, lng: number | null, radius: number) =>
-    ['nearbyFields', lat, lng, radius] as const,
-  fieldNdvi: (fieldId: string | null) => ['fieldNdvi', fieldId] as const,
-  ndviSummary: (tenantId: string | null) => ['ndviSummary', tenantId] as const,
-  weather: (lat: number | null, lng: number | null) => ['weather', lat, lng] as const,
+    ["nearbyFields", lat, lng, radius] as const,
+  fieldNdvi: (fieldId: string | null) => ["fieldNdvi", fieldId] as const,
+  ndviSummary: (tenantId: string | null) => ["ndviSummary", tenantId] as const,
+  weather: (lat: number | null, lng: number | null) =>
+    ["weather", lat, lng] as const,
   weatherForecast: (lat: number | null, lng: number | null, days: number) =>
-    ['weatherForecast', lat, lng, days] as const,
+    ["weatherForecast", lat, lng, days] as const,
   agriculturalRisks: (lat: number | null, lng: number | null) =>
-    ['agriculturalRisks', lat, lng] as const,
-  sensorData: (fieldId: string | null) => ['sensorData', fieldId] as const,
+    ["agriculturalRisks", lat, lng] as const,
+  sensorData: (fieldId: string | null) => ["sensorData", fieldId] as const,
   irrigationRecommendation: (fieldId: string | null) =>
-    ['irrigationRecommendation', fieldId] as const,
+    ["irrigationRecommendation", fieldId] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -45,7 +46,7 @@ export const apiQueryKeys = {
  */
 export function useFields(
   tenantId: string | null,
-  options?: Omit<UseQueryOptions<Field[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Field[], Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<Field[], Error>({
     queryKey: apiQueryKeys.fields(tenantId),
@@ -53,7 +54,7 @@ export function useFields(
       if (!tenantId) return [];
       const response = await apiClient.getFields(tenantId);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch fields');
+        throw new Error(response.error || "Failed to fetch fields");
       }
       return response.data || [];
     },
@@ -72,15 +73,15 @@ export function useFields(
  */
 export function useField(
   fieldId: string | null,
-  options?: Omit<UseQueryOptions<Field, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Field, Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<Field, Error>({
     queryKey: apiQueryKeys.field(fieldId),
     queryFn: async () => {
-      if (!fieldId) throw new Error('Field ID is required');
+      if (!fieldId) throw new Error("Field ID is required");
       const response = await apiClient.getField(fieldId);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to fetch field');
+        throw new Error(response.error || "Failed to fetch field");
       }
       return response.data;
     },
@@ -103,7 +104,7 @@ export function useNearbyFields(
   lat: number | null,
   lng: number | null,
   radius: number = 5000,
-  options?: Omit<UseQueryOptions<Field[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Field[], Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<Field[], Error>({
     queryKey: apiQueryKeys.nearbyFields(lat, lng, radius),
@@ -111,7 +112,7 @@ export function useNearbyFields(
       if (!lat || !lng) return [];
       const response = await apiClient.getNearbyFields(lat, lng, radius);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch nearby fields');
+        throw new Error(response.error || "Failed to fetch nearby fields");
       }
       return response.data || [];
     },
@@ -134,15 +135,15 @@ export function useNearbyFields(
  */
 export function useFieldNdvi(
   fieldId: string | null,
-  options?: Omit<UseQueryOptions<NdviData, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<NdviData, Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<NdviData, Error>({
     queryKey: apiQueryKeys.fieldNdvi(fieldId),
     queryFn: async () => {
-      if (!fieldId) throw new Error('Field ID is required');
+      if (!fieldId) throw new Error("Field ID is required");
       const response = await apiClient.getFieldNdvi(fieldId);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to fetch NDVI data');
+        throw new Error(response.error || "Failed to fetch NDVI data");
       }
       return response.data;
     },
@@ -162,15 +163,15 @@ export function useFieldNdvi(
  */
 export function useNdviSummary(
   tenantId: string | null,
-  options?: Omit<UseQueryOptions<NdviSummary, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<NdviSummary, Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<NdviSummary, Error>({
     queryKey: apiQueryKeys.ndviSummary(tenantId),
     queryFn: async () => {
-      if (!tenantId) throw new Error('Tenant ID is required');
+      if (!tenantId) throw new Error("Tenant ID is required");
       const response = await apiClient.getNdviSummary(tenantId);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to fetch NDVI summary');
+        throw new Error(response.error || "Failed to fetch NDVI summary");
       }
       return response.data;
     },
@@ -195,15 +196,15 @@ export function useNdviSummary(
 export function useWeather(
   lat: number | null,
   lng: number | null,
-  options?: Omit<UseQueryOptions<WeatherData, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<WeatherData, Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<WeatherData, Error>({
     queryKey: apiQueryKeys.weather(lat, lng),
     queryFn: async () => {
-      if (!lat || !lng) throw new Error('Coordinates are required');
+      if (!lat || !lng) throw new Error("Coordinates are required");
       const response = await apiClient.getWeather(lat, lng);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to fetch weather data');
+        throw new Error(response.error || "Failed to fetch weather data");
       }
       return response.data;
     },
@@ -227,15 +228,18 @@ export function useWeatherForecast(
   lat: number | null,
   lng: number | null,
   days: number = 7,
-  options?: Omit<UseQueryOptions<WeatherForecast, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<WeatherForecast, Error>,
+    "queryKey" | "queryFn"
+  >,
 ) {
   return useQuery<WeatherForecast, Error>({
     queryKey: apiQueryKeys.weatherForecast(lat, lng, days),
     queryFn: async () => {
-      if (!lat || !lng) throw new Error('Coordinates are required');
+      if (!lat || !lng) throw new Error("Coordinates are required");
       const response = await apiClient.getWeatherForecast(lat, lng, days);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to fetch weather forecast');
+        throw new Error(response.error || "Failed to fetch weather forecast");
       }
       return response.data;
     },
@@ -257,15 +261,18 @@ export function useWeatherForecast(
 export function useAgriculturalRisks(
   lat: number | null,
   lng: number | null,
-  options?: Omit<UseQueryOptions<AgriculturalRisk[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<AgriculturalRisk[], Error>,
+    "queryKey" | "queryFn"
+  >,
 ) {
   return useQuery<AgriculturalRisk[], Error>({
     queryKey: apiQueryKeys.agriculturalRisks(lat, lng),
     queryFn: async () => {
-      if (!lat || !lng) throw new Error('Coordinates are required');
+      if (!lat || !lng) throw new Error("Coordinates are required");
       const response = await apiClient.getAgriculturalRisks(lat, lng);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch agricultural risks');
+        throw new Error(response.error || "Failed to fetch agricultural risks");
       }
       return response.data || [];
     },
@@ -288,15 +295,15 @@ export function useAgriculturalRisks(
  */
 export function useSensorData(
   fieldId: string | null,
-  options?: Omit<UseQueryOptions<Sensor[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<Sensor[], Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<Sensor[], Error>({
     queryKey: apiQueryKeys.sensorData(fieldId),
     queryFn: async () => {
-      if (!fieldId) throw new Error('Field ID is required');
+      if (!fieldId) throw new Error("Field ID is required");
       const response = await apiClient.getSensorData(fieldId);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch sensor data');
+        throw new Error(response.error || "Failed to fetch sensor data");
       }
       return response.data || [];
     },
@@ -320,15 +327,20 @@ export function useSensorData(
  */
 export function useIrrigationRecommendation(
   fieldId: string | null,
-  options?: Omit<UseQueryOptions<IrrigationRecommendation, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<IrrigationRecommendation, Error>,
+    "queryKey" | "queryFn"
+  >,
 ) {
   return useQuery<IrrigationRecommendation, Error>({
     queryKey: apiQueryKeys.irrigationRecommendation(fieldId),
     queryFn: async () => {
-      if (!fieldId) throw new Error('Field ID is required');
+      if (!fieldId) throw new Error("Field ID is required");
       const response = await apiClient.getIrrigationRecommendation(fieldId);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to fetch irrigation recommendation');
+        throw new Error(
+          response.error || "Failed to fetch irrigation recommendation",
+        );
       }
       return response.data;
     },

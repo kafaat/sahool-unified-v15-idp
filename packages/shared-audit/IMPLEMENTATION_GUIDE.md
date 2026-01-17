@@ -81,15 +81,15 @@ Add to your service's `package.json`:
 Create `src/audit/audit.module.ts`:
 
 ```typescript
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 import {
   AuditLogger,
   AuditMiddleware,
   AuditInterceptor,
   consoleAlertHandler,
-} from '@sahool/shared-audit';
-import { PrismaService } from '../prisma/prisma.service';
+} from "@sahool/shared-audit";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Module({
   providers: [
@@ -116,7 +116,7 @@ import { PrismaService } from '../prisma/prisma.service';
 })
 export class AuditModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuditMiddleware).forRoutes('*');
+    consumer.apply(AuditMiddleware).forRoutes("*");
   }
 }
 ```
@@ -126,7 +126,7 @@ export class AuditModule implements NestModule {
 Update `app.module.ts`:
 
 ```typescript
-import { AuditModule } from './audit/audit.module';
+import { AuditModule } from "./audit/audit.module";
 
 @Module({
   imports: [
@@ -150,32 +150,32 @@ psql -d your_database -f prisma/migrations/20260101_add_audit_logs/migration.sql
 ### Example 1: Automatic Audit with Decorators
 
 ```typescript
-import { Controller, Post, Put, Delete, Body, Param } from '@nestjs/common';
-import { AuditCreate, AuditUpdate, AuditDelete } from '@sahool/shared-audit';
+import { Controller, Post, Put, Delete, Body, Param } from "@nestjs/common";
+import { AuditCreate, AuditUpdate, AuditDelete } from "@sahool/shared-audit";
 
-@Controller('products')
+@Controller("products")
 export class ProductsController {
   @Post()
-  @AuditCreate('product', { trackChanges: true })
+  @AuditCreate("product", { trackChanges: true })
   async createProduct(@Body() dto: CreateProductDto) {
     // Audit log created automatically
     return this.service.create(dto);
   }
 
-  @Put(':id')
-  @AuditUpdate('product', {
+  @Put(":id")
+  @AuditUpdate("product", {
     trackChanges: true,
     generateDiff: true,
-    redactFields: ['costPrice']
+    redactFields: ["costPrice"],
   })
-  async updateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+  async updateProduct(@Param("id") id: string, @Body() dto: UpdateProductDto) {
     // Field-level changes tracked automatically
     return this.service.update(id, dto);
   }
 
-  @Delete(':id')
-  @AuditDelete('product')
-  async deleteProduct(@Param('id') id: string) {
+  @Delete(":id")
+  @AuditDelete("product")
+  async deleteProduct(@Param("id") id: string) {
     // Deletion logged with WARNING severity
     return this.service.delete(id);
   }
@@ -185,13 +185,13 @@ export class ProductsController {
 ### Example 2: Manual Audit Logging
 
 ```typescript
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 import {
   AuditLogger,
   AuditCategory,
   AuditSeverity,
-  ActorType
-} from '@sahool/shared-audit';
+  ActorType,
+} from "@sahool/shared-audit";
 
 @Injectable()
 export class PaymentService {
@@ -203,10 +203,10 @@ export class PaymentService {
       tenantId: payment.tenantId,
       actorId: payment.userId,
       actorType: ActorType.USER,
-      action: 'payment.process',
+      action: "payment.process",
       category: AuditCategory.FINANCIAL,
       severity: AuditSeverity.WARNING,
-      resourceType: 'payment',
+      resourceType: "payment",
       resourceId: payment.id,
       correlationId: payment.correlationId,
       metadata: {
@@ -266,13 +266,13 @@ async updateProduct(id: string, updates: Partial<Product>) {
 ### Example 4: Security Alerts
 
 ```typescript
-@Controller('admin')
+@Controller("admin")
 export class AdminController {
-  @Post('users/:id/promote')
-  @AuditSecurity('user.promote_admin', {
-    severity: AuditSeverity.CRITICAL
+  @Post("users/:id/promote")
+  @AuditSecurity("user.promote_admin", {
+    severity: AuditSeverity.CRITICAL,
   })
-  async promoteToAdmin(@Param('id') id: string) {
+  async promoteToAdmin(@Param("id") id: string) {
     // This will trigger security alerts
     return this.userService.promoteToAdmin(id);
   }
@@ -331,14 +331,14 @@ The system includes default alert rules for:
 ### Custom Alert Handlers
 
 ```typescript
-import { AlertHandler, createWebhookAlertHandler } from '@sahool/shared-audit';
+import { AlertHandler, createWebhookAlertHandler } from "@sahool/shared-audit";
 
 // Email handler
 const emailHandler: AlertHandler = {
-  name: 'email',
+  name: "email",
   async handle(alert) {
     await emailService.send({
-      to: 'security@example.com',
+      to: "security@example.com",
       subject: `Security Alert: ${alert.rule}`,
       body: alert.message,
     });
@@ -347,7 +347,7 @@ const emailHandler: AlertHandler = {
 
 // Webhook handler
 const slackWebhook = createWebhookAlertHandler(
-  'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'
+  "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
 );
 
 // Configure in AuditModule
@@ -363,14 +363,14 @@ new AuditLogger({
 ### Custom Alert Rules
 
 ```typescript
-import { AlertRule, AuditSeverity } from '@sahool/shared-audit';
+import { AlertRule, AuditSeverity } from "@sahool/shared-audit";
 
 const customRule: AlertRule = {
-  name: 'high_value_transaction',
-  description: 'Transaction over $10,000',
+  name: "high_value_transaction",
+  description: "Transaction over $10,000",
   conditions: [
-    { field: 'action', operator: 'equals', value: 'payment.process' },
-    { field: 'category', operator: 'equals', value: AuditCategory.FINANCIAL },
+    { field: "action", operator: "equals", value: "payment.process" },
+    { field: "category", operator: "equals", value: AuditCategory.FINANCIAL },
   ],
   severity: AuditSeverity.WARNING,
   batchSimilar: false,
@@ -463,6 +463,7 @@ The audit system supports:
 ### Issue: Audit logs not appearing
 
 Check:
+
 1. AuditModule is imported in app.module.ts
 2. Database table exists (run migration)
 3. PrismaService is configured correctly
@@ -471,6 +472,7 @@ Check:
 ### Issue: Hash chain validation failing
 
 Possible causes:
+
 1. Manual modification of audit_logs table
 2. Clock skew between servers
 3. Database triggers interfering
@@ -478,6 +480,7 @@ Possible causes:
 ### Issue: Performance degradation
 
 Solutions:
+
 1. Reduce logging verbosity for GET requests
 2. Enable batch alerts
 3. Archive old audit logs
@@ -495,6 +498,7 @@ The existing Python-based audit system (`shared/libs/audit/`) can coexist with t
 ## Support
 
 For issues or questions:
+
 - Check README.md for basic usage
 - Review examples in `apps/services/marketplace-service/src/examples/`
 - See integration in marketplace-service for complete example
@@ -502,6 +506,7 @@ For issues or questions:
 ## Future Enhancements
 
 Planned features:
+
 - [ ] Real-time audit log streaming
 - [ ] Advanced analytics dashboard
 - [ ] Machine learning for anomaly detection

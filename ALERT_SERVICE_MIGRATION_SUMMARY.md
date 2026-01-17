@@ -53,6 +53,7 @@ The alert-service already had the complete database infrastructure:
 #### What Was Changed:
 
 1. **Removed In-Memory Storage:**
+
    ```python
    # REMOVED:
    _alerts: dict[str, dict] = {}
@@ -60,6 +61,7 @@ The alert-service already had the complete database infrastructure:
    ```
 
 2. **Added Database Imports:**
+
    ```python
    from .database import SessionLocal, check_db_connection, get_db
    from .db_models import Alert as DBAlert, AlertRule as DBAlertRule
@@ -115,6 +117,7 @@ The alert-service already had the complete database infrastructure:
 **Purpose:** Store agricultural alerts and warnings
 
 **Key Fields:**
+
 - `id` (UUID) - Primary key
 - `tenant_id` (UUID) - Multi-tenant isolation
 - `field_id` (String) - Associated field
@@ -128,6 +131,7 @@ The alert-service already had the complete database infrastructure:
 - `created_at`, `acknowledged_at`, `dismissed_at`, `resolved_at` - Timestamps
 
 **Indexes:**
+
 - `ix_alerts_field_status` - (field_id, status, created_at)
 - `ix_alerts_tenant_created` - (tenant_id, created_at)
 - `ix_alerts_type_severity` - (type, severity)
@@ -139,6 +143,7 @@ The alert-service already had the complete database infrastructure:
 **Purpose:** Store automated alert rule configurations
 
 **Key Fields:**
+
 - `id` (UUID) - Primary key
 - `tenant_id` (UUID) - Multi-tenant isolation
 - `field_id` (String) - Associated field
@@ -150,6 +155,7 @@ The alert-service already had the complete database infrastructure:
 - `last_triggered_at` (Timestamp) - Last execution
 
 **Indexes:**
+
 - `ix_alert_rules_field` - (field_id, enabled)
 - `ix_alert_rules_tenant` - (tenant_id, enabled)
 - `ix_alert_rules_enabled` - (enabled, last_triggered_at)
@@ -159,26 +165,31 @@ The alert-service already had the complete database infrastructure:
 ## Benefits Achieved
 
 ### 1. Data Persistence ✅
+
 - Alerts survive service restarts
 - Complete audit trail maintained
 - Historical data available for analytics
 
 ### 2. Multi-Instance Support ✅
+
 - Multiple service instances can run concurrently
 - Shared state via database
 - Horizontal scaling enabled
 
 ### 3. Multi-Tenancy ✅
+
 - Proper tenant isolation at database level
 - UUID-based tenant identification
 - Efficient tenant-scoped queries
 
 ### 4. Performance & Scalability ✅
+
 - Indexed queries for fast lookups
 - Database-level aggregations
 - Connection pooling (10 base + 20 overflow)
 
 ### 5. Data Integrity ✅
+
 - ACID transactions
 - Type safety with SQLAlchemy
 - Automatic timestamp management
@@ -322,14 +333,17 @@ curl -X GET "http://localhost:8113/alerts/field/field-001" \
 ## Files Created/Modified
 
 ### Created:
+
 1. `/home/user/sahool-unified-v15-idp/apps/services/alert-service/POSTGRESQL_MIGRATION_COMPLETE.md` - Detailed migration documentation
 2. `/home/user/sahool-unified-v15-idp/apps/services/alert-service/test_migration.py` - Verification script
 3. `/home/user/sahool-unified-v15-idp/ALERT_SERVICE_MIGRATION_SUMMARY.md` - This summary
 
 ### Modified:
+
 1. `/home/user/sahool-unified-v15-idp/apps/services/alert-service/src/main.py` - Complete migration to database
 
 ### Already Existed (No Changes Needed):
+
 1. `src/db_models.py` - Database models
 2. `src/repository.py` - Repository layer
 3. `src/database.py` - Database configuration
@@ -344,6 +358,7 @@ curl -X GET "http://localhost:8113/alerts/field/field-001" \
 If issues arise:
 
 1. **Quick Rollback:**
+
    ```bash
    git revert <commit-hash>
    docker-compose restart alert-service
@@ -361,12 +376,14 @@ Note: Database data will be preserved even if code is rolled back.
 ## Next Steps & Recommendations
 
 ### Immediate (Required):
+
 1. ✅ Run database migration: `alembic upgrade head`
 2. ✅ Test service startup and health endpoints
 3. ✅ Verify alert creation and retrieval
 4. ✅ Test service restart persistence
 
 ### Short-term (Recommended):
+
 1. **Monitoring:**
    - Add database query performance metrics
    - Monitor connection pool usage
@@ -382,6 +399,7 @@ Note: Database data will be preserved even if code is rolled back.
    - Document backup/restore procedures
 
 ### Long-term (Nice to have):
+
 1. **Performance:**
    - Implement query result caching (Redis)
    - Add database read replicas for scaling
@@ -426,6 +444,7 @@ This migration resolves the following critical issues:
 **The alert-service has been successfully migrated from in-memory storage to PostgreSQL.**
 
 **Key Achievements:**
+
 - ✅ 13 API endpoints migrated to use database
 - ✅ 100% backward compatible
 - ✅ Full data persistence
@@ -443,16 +462,19 @@ This migration resolves the following critical issues:
 ### Common Issues:
 
 **1. Service won't start:**
+
 - Check DATABASE_URL is set correctly
 - Verify PostgreSQL is running
 - Check database credentials
 
 **2. Connection pool exhausted:**
+
 - Increase `pool_size` in database.py
 - Check for connection leaks
 - Monitor active connections
 
 **3. Slow queries:**
+
 - Check query execution plans
 - Verify indexes are being used
 - Consider adding more indexes

@@ -3,8 +3,8 @@
  * Extracts request ID from headers or generates a new one
  */
 
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Decorator to extract or generate request ID
@@ -16,9 +16,9 @@ export const RequestId = createParamDecorator(
 
     // Check for existing request ID in headers
     const existingRequestId =
-      request.headers['x-request-id'] ||
-      request.headers['x-correlation-id'] ||
-      request.headers['request-id'];
+      request.headers["x-request-id"] ||
+      request.headers["x-correlation-id"] ||
+      request.headers["request-id"];
 
     if (existingRequestId) {
       return existingRequestId;

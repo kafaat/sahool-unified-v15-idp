@@ -9,14 +9,14 @@ import {
   ConflictException,
   BadRequestException,
   ForbiddenException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 import {
   CreateProductReviewDto,
   UpdateProductReviewDto,
   CreateReviewResponseDto,
   UpdateReviewResponseDto,
-} from '../dto/reviews.dto';
+} from "../dto/reviews.dto";
 
 @Injectable()
 export class ReviewsService {
@@ -36,7 +36,7 @@ export class ReviewsService {
     });
 
     if (!buyerProfile) {
-      throw new NotFoundException('Buyer profile not found');
+      throw new NotFoundException("Buyer profile not found");
     }
 
     // Check if buyer has already reviewed this product for this order
@@ -50,7 +50,7 @@ export class ReviewsService {
 
     if (existingReview) {
       throw new ConflictException(
-        'You have already reviewed this product for this order',
+        "You have already reviewed this product for this order",
       );
     }
 
@@ -61,7 +61,7 @@ export class ReviewsService {
     });
 
     if (!order) {
-      throw new NotFoundException('Order not found');
+      throw new NotFoundException("Order not found");
     }
 
     const orderContainsProduct = order.items.some(
@@ -69,7 +69,7 @@ export class ReviewsService {
     );
 
     if (!orderContainsProduct) {
-      throw new BadRequestException('Product not found in this order');
+      throw new BadRequestException("Product not found in this order");
     }
 
     // Create the review
@@ -82,7 +82,7 @@ export class ReviewsService {
         title: dto.title,
         comment: dto.comment,
         photos: dto.photos || [],
-        verified: order.status === 'DELIVERED', // Verify if order is delivered
+        verified: order.status === "DELIVERED", // Verify if order is delivered
       },
       include: {
         buyer: true,
@@ -112,7 +112,7 @@ export class ReviewsService {
     });
 
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException("Review not found");
     }
 
     return review;
@@ -155,7 +155,7 @@ export class ReviewsService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: filters?.limit || 20,
       skip: filters?.offset || 0,
     });
@@ -222,7 +222,7 @@ export class ReviewsService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: limit,
       skip: offset,
     });
@@ -231,18 +231,22 @@ export class ReviewsService {
   /**
    * تحديث تقييم
    */
-  async updateProductReview(id: string, buyerId: string, dto: UpdateProductReviewDto) {
+  async updateProductReview(
+    id: string,
+    buyerId: string,
+    dto: UpdateProductReviewDto,
+  ) {
     const review = await this.prisma.productReview.findUnique({
       where: { id },
     });
 
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException("Review not found");
     }
 
     // Ensure the buyer owns this review
     if (review.buyerId !== buyerId) {
-      throw new ForbiddenException('You can only edit your own reviews');
+      throw new ForbiddenException("You can only edit your own reviews");
     }
 
     const updatedReview = await this.prisma.productReview.update({
@@ -280,12 +284,12 @@ export class ReviewsService {
     });
 
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException("Review not found");
     }
 
     // Ensure the buyer owns this review
     if (review.buyerId !== buyerId) {
-      throw new ForbiddenException('You can only delete your own reviews');
+      throw new ForbiddenException("You can only delete your own reviews");
     }
 
     const productId = review.productId;
@@ -297,7 +301,7 @@ export class ReviewsService {
     // Update product seller's rating
     await this.updateProductSellerRating(productId);
 
-    return { message: 'Review deleted successfully' };
+    return { message: "Review deleted successfully" };
   }
 
   /**
@@ -309,7 +313,7 @@ export class ReviewsService {
     });
 
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException("Review not found");
     }
 
     return this.prisma.productReview.update({
@@ -329,7 +333,7 @@ export class ReviewsService {
     });
 
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException("Review not found");
     }
 
     return this.prisma.productReview.update({
@@ -399,7 +403,7 @@ export class ReviewsService {
     });
 
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException("Review not found");
     }
 
     // Check if response already exists
@@ -408,7 +412,7 @@ export class ReviewsService {
     });
 
     if (existingResponse) {
-      throw new ConflictException('Response already exists for this review');
+      throw new ConflictException("Response already exists for this review");
     }
 
     // Verify seller profile exists
@@ -417,7 +421,7 @@ export class ReviewsService {
     });
 
     if (!sellerProfile) {
-      throw new NotFoundException('Seller profile not found');
+      throw new NotFoundException("Seller profile not found");
     }
 
     return this.prisma.reviewResponse.create({
@@ -436,18 +440,22 @@ export class ReviewsService {
   /**
    * تحديث رد على تقييم
    */
-  async updateReviewResponse(id: string, sellerId: string, dto: UpdateReviewResponseDto) {
+  async updateReviewResponse(
+    id: string,
+    sellerId: string,
+    dto: UpdateReviewResponseDto,
+  ) {
     const response = await this.prisma.reviewResponse.findUnique({
       where: { id },
     });
 
     if (!response) {
-      throw new NotFoundException('Review response not found');
+      throw new NotFoundException("Review response not found");
     }
 
     // Ensure the seller owns this response
     if (response.sellerId !== sellerId) {
-      throw new ForbiddenException('You can only edit your own responses');
+      throw new ForbiddenException("You can only edit your own responses");
     }
 
     return this.prisma.reviewResponse.update({
@@ -469,19 +477,19 @@ export class ReviewsService {
     });
 
     if (!response) {
-      throw new NotFoundException('Review response not found');
+      throw new NotFoundException("Review response not found");
     }
 
     // Ensure the seller owns this response
     if (response.sellerId !== sellerId) {
-      throw new ForbiddenException('You can only delete your own responses');
+      throw new ForbiddenException("You can only delete your own responses");
     }
 
     await this.prisma.reviewResponse.delete({
       where: { id },
     });
 
-    return { message: 'Review response deleted successfully' };
+    return { message: "Review response deleted successfully" };
   }
 
   /**
@@ -497,7 +505,7 @@ export class ReviewsService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: limit,
       skip: offset,
     });

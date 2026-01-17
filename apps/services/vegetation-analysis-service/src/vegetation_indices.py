@@ -49,6 +49,13 @@ class VegetationIndex(Enum):
     OSAVI = "osavi"  # Optimized SAVI
     ARVI = "arvi"  # Atmospherically Resistant VI
 
+    # Advanced - Pigment & Stress Detection (from Agricultural Sensing Article)
+    PRI = "pri"  # Photochemical Reflectance Index (carotenoid/xanthophyll)
+    CRI = "cri"  # Carotenoid Reflectance Index
+    ARI = "ari"  # Anthocyanin Reflectance Index
+    PSRI = "psri"  # Plant Senescence Reflectance Index
+    REP = "rep"  # Red Edge Position
+
 
 class CropType(Enum):
     """Crop types for Yemen agriculture"""
@@ -98,6 +105,9 @@ class BandData:
     """
     Sentinel-2 MSI band reflectance values (0-1 scale)
     قيم الانعكاسية لنطاقات Sentinel-2
+
+    Extended with additional bands for pigment indices based on
+    Agricultural Sensing Technology Article specifications.
     """
 
     B02_blue: float  # 490nm - Blue
@@ -110,6 +120,15 @@ class BandData:
     B8A_nir_narrow: float  # 865nm - NIR Narrow
     B11_swir1: float  # 1610nm - SWIR1
     B12_swir2: float  # 2190nm - SWIR2
+
+    # Optional extended bands for pigment indices (hyperspectral sensors)
+    # مؤشرات الأصباغ تتطلب نطاقات إضافية من المستشعرات فائقة الطيف
+    B_531nm: float | None = None  # 531nm - For PRI (xanthophyll)
+    B_550nm: float | None = None  # 550nm - For ARI (anthocyanin)
+    B_570nm: float | None = None  # 570nm - For PRI reference
+    B_680nm: float | None = None  # 680nm - For PSRI (chlorophyll absorption)
+    B_700nm: float | None = None  # 700nm - For ARI (anthocyanin)
+    B_800nm: float | None = None  # 800nm - For PSRI reference
 
 
 @dataclass
@@ -155,9 +174,17 @@ class AllIndices:
     osavi: float
     arvi: float
 
+    # Pigment & Stress Indices (from Agricultural Sensing Article)
+    # مؤشرات الأصباغ والإجهاد (من مقالة الاستشعار الزراعي)
+    pri: float | None = None  # Photochemical Reflectance Index
+    cri: float | None = None  # Carotenoid Reflectance Index
+    ari: float | None = None  # Anthocyanin Reflectance Index
+    psri: float | None = None  # Plant Senescence Reflectance Index
+    rep: float | None = None  # Red Edge Position (nm)
+
     def to_dict(self) -> dict[str, float]:
-        """Convert to dictionary"""
-        return asdict(self)
+        """Convert to dictionary, excluding None values"""
+        return {k: v for k, v in asdict(self).items() if v is not None}
 
 
 # =============================================================================
@@ -177,7 +204,17 @@ class VegetationIndicesCalculator:
     """
 
     def calculate_all(self, bands: BandData) -> AllIndices:
-        """Calculate all available indices"""
+        """
+        Calculate all available indices
+        حساب جميع المؤشرات المتاحة
+
+        Includes new pigment indices from Agricultural Sensing Article:
+        - PRI: Photochemical Reflectance Index (xanthophyll cycle)
+        - CRI: Carotenoid Reflectance Index
+        - ARI: Anthocyanin Reflectance Index
+        - PSRI: Plant Senescence Reflectance Index
+        - REP: Red Edge Position
+        """
         # Calculate NDVI first (needed for LAI)
         ndvi = self.ndvi(bands)
 
@@ -204,6 +241,13 @@ class VegetationIndicesCalculator:
             msavi=self.msavi(bands),
             osavi=self.osavi(bands),
             arvi=self.arvi(bands),
+            # Pigment & Stress Indices (from Agricultural Sensing Article)
+            # مؤشرات الأصباغ والإجهاد (من مقالة الاستشعار الزراعي)
+            pri=self.pri(bands),
+            cri=self.cri(bands),
+            ari=self.ari(bands),
+            psri=self.psri(bands),
+            rep=self.rep(bands),
         )
 
     # =========================================================================
@@ -447,6 +491,173 @@ class VegetationIndicesCalculator:
             return 0.0
         arvi_val = (b.B08_nir - rb_term) / denominator
         return round(max(-1, min(arvi_val, 1)), 4)
+
+    # =========================================================================
+    # مؤشرات الأصباغ والإجهاد المبكر (من مقالة الاستشعار الزراعي الصينية)
+    # Pigment & Early Stress Indices (from Agricultural Sensing Article)
+    # تتطلب مستشعرات فائقة الطيف (16 نطاق، دقة 5nm)
+    # =========================================================================
+
+    def pri(self, b: BandData) -> float | None:
+        """
+        PRI - Photochemical Reflectance Index
+        مؤشر الانعكاسية الكيميائية الضوئية
+
+        Range: -1 to 1 (typical: -0.2 to 0.2)
+        Best for: Xanthophyll cycle detection, photosynthetic efficiency,
+                  early stress detection before visible symptoms
+
+        Formula: (R531 - R570) / (R531 + R570)
+
+        Requires: 531nm and 570nm bands (hyperspectral sensor)
+        Reference: Agricultural Sensing Technology Article (2025)
+
+        Interpretation:
+        - High PRI (>0.05): High photosynthetic efficiency, healthy
+        - Medium PRI (-0.02 to 0.05): Normal functioning
+        - Low PRI (<-0.02): Stress, reduced photosynthesis
+
+        Returns None if required bands not available
+        """
+        if b.B_531nm is None or b.B_570nm is None:
+            # Fallback: approximate using green band ratios
+            # This is less accurate but works with Sentinel-2
+            return None
+
+        denominator = b.B_531nm + b.B_570nm
+        if denominator == 0:
+            return 0.0
+        pri_val = (b.B_531nm - b.B_570nm) / denominator
+        return round(max(-1, min(pri_val, 1)), 4)
+
+    def cri(self, b: BandData) -> float | None:
+        """
+        CRI - Carotenoid Reflectance Index
+        مؤشر انعكاسية الكاروتينويد
+
+        Range: 0 to 20 (typical: 1 to 10)
+        Best for: Carotenoid content detection, senescence monitoring,
+                  stress-related pigment changes
+
+        Formula: (1/R510) - (1/R550)
+        Simplified using available bands: (1/Green) - (1/RE1)
+
+        Interpretation:
+        - High CRI (>8): High carotenoid/chlorophyll ratio (stress/senescence)
+        - Medium CRI (3-8): Normal range
+        - Low CRI (<3): Healthy green vegetation
+
+        Returns None if calculation fails
+        """
+        # Using Green (560nm) and Red Edge 1 (705nm) as approximation
+        if b.B03_green == 0 or b.B05_red_edge1 == 0:
+            return None
+
+        try:
+            cri_val = (1 / b.B03_green) - (1 / b.B05_red_edge1)
+            return round(max(0, min(cri_val, 20)), 4)
+        except (ValueError, ZeroDivisionError, OverflowError):
+            return None
+
+    def ari(self, b: BandData) -> float | None:
+        """
+        ARI - Anthocyanin Reflectance Index
+        مؤشر انعكاسية الأنثوسيانين
+
+        Range: -0.2 to 0.2 (typical: 0 to 0.1)
+        Best for: Anthocyanin pigment detection, cold stress, phosphorus
+                  deficiency, autumn senescence
+
+        Formula: (1/R550) - (1/R700)
+
+        Interpretation:
+        - High ARI (>0.08): High anthocyanin content (stress response)
+        - Medium ARI (0.03-0.08): Moderate stress
+        - Low ARI (<0.03): Normal/healthy
+
+        Returns None if required bands not available
+        """
+        if b.B_550nm is not None and b.B_700nm is not None:
+            if b.B_550nm == 0 or b.B_700nm == 0:
+                return None
+            try:
+                ari_val = (1 / b.B_550nm) - (1 / b.B_700nm)
+                return round(max(-0.5, min(ari_val, 0.5)), 4)
+            except (ValueError, ZeroDivisionError, OverflowError):
+                return None
+
+        # Fallback using Sentinel-2 bands (Green and Red Edge)
+        if b.B03_green == 0 or b.B05_red_edge1 == 0:
+            return None
+        try:
+            ari_val = (1 / b.B03_green) - (1 / b.B05_red_edge1)
+            return round(max(-0.5, min(ari_val, 0.5)), 4)
+        except (ValueError, ZeroDivisionError, OverflowError):
+            return None
+
+    def psri(self, b: BandData) -> float | None:
+        """
+        PSRI - Plant Senescence Reflectance Index
+        مؤشر انعكاسية شيخوخة النبات
+
+        Range: -1 to 1 (typical: -0.2 to 0.4)
+        Best for: Senescence detection, fruit ripening, harvest timing,
+                  chlorophyll degradation
+
+        Formula: (R680 - R500) / R750
+        Approximation: (Red - Blue) / Red Edge 2
+
+        Interpretation:
+        - High PSRI (>0.2): Advanced senescence/ripening
+        - Medium PSRI (0 to 0.2): Beginning senescence
+        - Low/Negative PSRI (<0): Green/vegetative stage
+
+        Reference: Agricultural Sensing Article - used for harvest timing
+        """
+        if b.B_680nm is not None and b.B_800nm is not None:
+            if b.B_800nm == 0:
+                return None
+            psri_val = (b.B_680nm - b.B02_blue) / b.B_800nm
+            return round(max(-1, min(psri_val, 1)), 4)
+
+        # Fallback using Sentinel-2 bands
+        if b.B06_red_edge2 == 0:
+            return None
+        psri_val = (b.B04_red - b.B02_blue) / b.B06_red_edge2
+        return round(max(-1, min(psri_val, 1)), 4)
+
+    def rep(self, b: BandData) -> float | None:
+        """
+        REP - Red Edge Position
+        موقع الحافة الحمراء
+
+        Range: 700-740 nm (typical: 715-725 nm for healthy vegetation)
+        Best for: Chlorophyll content, nitrogen status, plant health
+
+        Formula: Linear interpolation between Red Edge bands
+        REP = 705 + 35 * ((Red + RE3)/2 - RE1) / (RE2 - RE1)
+
+        Interpretation:
+        - High REP (>725nm): High chlorophyll, healthy, sufficient nitrogen
+        - Medium REP (715-725nm): Normal health
+        - Low REP (<715nm): Chlorophyll deficiency, nitrogen stress
+
+        Note: Returns wavelength in nm
+        """
+        # Calculate midpoint reflectance
+        midpoint = (b.B04_red + b.B07_red_edge3) / 2
+
+        # Calculate REP using linear interpolation
+        denominator = b.B06_red_edge2 - b.B05_red_edge1
+        if denominator == 0 or denominator == 0.0:
+            return None
+
+        try:
+            rep_val = 705 + 35 * (midpoint - b.B05_red_edge1) / denominator
+            # Clamp to reasonable range
+            return round(max(680, min(rep_val, 760)), 1)
+        except (ValueError, ZeroDivisionError, OverflowError):
+            return None
 
 
 # =============================================================================

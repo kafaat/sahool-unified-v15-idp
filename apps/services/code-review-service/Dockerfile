@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     procps \
     && rm -rf /var/lib/apt/lists/*
@@ -14,7 +14,12 @@ RUN groupadd --system sahool && \
 
 # Install Python dependencies
 COPY apps/services/code-review-service/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules
 COPY apps/services/shared/ ./shared/
@@ -30,15 +35,15 @@ COPY apps/services/code-review-service/config/ ./config/
 # Ensure ownership is correct after copying
 RUN chown -R sahool:sahool /app
 
-# Expose API port
-EXPOSE 8096
+# Expose API port (changed from 8096 to avoid conflict with virtual-sensors)
+EXPOSE 8124
 
 # Switch to non-root user
 USER sahool
 
 # Health check - verify API is responding
 HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8096/health').read()" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8124/health').read()" || exit 1
 
 # Run the service
 CMD ["python", "-m", "src.main"]

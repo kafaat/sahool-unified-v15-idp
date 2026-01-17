@@ -8,16 +8,21 @@
  * - Order processing
  */
 
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { EventsService } from '../events/events.service';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { EventsService } from "../events/events.service";
 import {
   calculatePagination,
   createPaginatedResponse,
   GENERAL_TRANSACTION_CONFIG,
   type PaginationParams,
   type PaginatedResponse,
-} from '../utils/db-utils';
+} from "../utils/db-utils";
 
 // Types
 interface YieldData {
@@ -72,20 +77,29 @@ export class MarketService {
   /**
    * الحصول على جميع المنتجات
    */
-  async findAllProducts(filters?: {
-    category?: string;
-    governorate?: string;
-    sellerId?: string;
-    minPrice?: number;
-    maxPrice?: number;
-  } & PaginationParams): Promise<PaginatedResponse<any>> {
-    const { category, governorate, sellerId, minPrice, maxPrice, ...paginationParams } = filters || {};
+  async findAllProducts(
+    filters?: {
+      category?: string;
+      governorate?: string;
+      sellerId?: string;
+      minPrice?: number;
+      maxPrice?: number;
+    } & PaginationParams,
+  ): Promise<PaginatedResponse<any>> {
+    const {
+      category,
+      governorate,
+      sellerId,
+      minPrice,
+      maxPrice,
+      ...paginationParams
+    } = filters || {};
 
     // Calculate pagination with enforced limits
     const { skip, take, page } = calculatePagination(paginationParams);
 
     // Build where clause
-    const where: any = { status: 'AVAILABLE' };
+    const where: any = { status: "AVAILABLE" };
 
     if (category) where.category = category;
     if (governorate) where.governorate = governorate;
@@ -122,7 +136,7 @@ export class MarketService {
         },
         skip,
         take,
-        orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
       }),
       this.prisma.product.count({ where }),
     ]);
@@ -135,7 +149,7 @@ export class MarketService {
    */
   async findProductById(id: string) {
     const product = await this.prisma.product.findUnique({ where: { id } });
-    if (!product) throw new NotFoundException('المنتج غير موجود');
+    if (!product) throw new NotFoundException("المنتج غير موجود");
     return product;
   }
 
@@ -176,17 +190,17 @@ export class MarketService {
         nameAr: `حصاد ${yieldData.cropAr} عالي الجودة - موسم ${currentYear}`,
         description: `High-quality ${yieldData.crop} harvest with predicted yield of ${yieldData.predictedYieldTons} tons. Verified SAHOOL farmer.`,
         descriptionAr: `محصول ${yieldData.cropAr} عالي الجودة بإنتاجية متوقعة ${yieldData.predictedYieldTons} طن. مزارع موثق عبر منصة سهول.`,
-        category: 'HARVEST',
+        category: "HARVEST",
         price: yieldData.pricePerTon,
         stock: yieldData.predictedYieldTons,
-        unit: 'ton',
+        unit: "ton",
         sellerId: userId,
-        sellerType: 'FARMER',
+        sellerType: "FARMER",
         cropType: yieldData.crop,
         harvestDate: yieldData.harvestDate
           ? new Date(yieldData.harvestDate)
           : null,
-        qualityGrade: yieldData.qualityGrade || 'A',
+        qualityGrade: yieldData.qualityGrade || "A",
         governorate: yieldData.governorate,
         district: yieldData.district,
         imageUrl: this.getCropImageUrl(yieldData.crop),
@@ -199,16 +213,19 @@ export class MarketService {
    */
   private getCropImageUrl(crop: string): string {
     const cropImages: Record<string, string> = {
-      wheat: 'https://cdn.sahool.io/crops/wheat.jpg',
-      coffee: 'https://cdn.sahool.io/crops/coffee.jpg',
-      tomato: 'https://cdn.sahool.io/crops/tomato.jpg',
-      banana: 'https://cdn.sahool.io/crops/banana.jpg',
-      mango: 'https://cdn.sahool.io/crops/mango.jpg',
-      grapes: 'https://cdn.sahool.io/crops/grapes.jpg',
-      corn: 'https://cdn.sahool.io/crops/corn.jpg',
-      potato: 'https://cdn.sahool.io/crops/potato.jpg',
+      wheat: "https://cdn.sahool.io/crops/wheat.jpg",
+      coffee: "https://cdn.sahool.io/crops/coffee.jpg",
+      tomato: "https://cdn.sahool.io/crops/tomato.jpg",
+      banana: "https://cdn.sahool.io/crops/banana.jpg",
+      mango: "https://cdn.sahool.io/crops/mango.jpg",
+      grapes: "https://cdn.sahool.io/crops/grapes.jpg",
+      corn: "https://cdn.sahool.io/crops/corn.jpg",
+      potato: "https://cdn.sahool.io/crops/potato.jpg",
     };
-    return cropImages[crop.toLowerCase()] || 'https://cdn.sahool.io/crops/default.jpg';
+    return (
+      cropImages[crop.toLowerCase()] ||
+      "https://cdn.sahool.io/crops/default.jpg"
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -229,8 +246,10 @@ export class MarketService {
       });
 
       // Create a typed map for quick lookup
-      type ProductType = typeof products[number];
-      const productMap = new Map<string, ProductType>(products.map((p) => [p.id, p]));
+      type ProductType = (typeof products)[number];
+      const productMap = new Map<string, ProductType>(
+        products.map((p) => [p.id, p]),
+      );
 
       // حساب المبالغ
       let subtotal = 0;
@@ -245,7 +264,9 @@ export class MarketService {
         }
 
         if (product.stock < item.quantity) {
-          throw new Error(`الكمية المطلوبة غير متوفرة للمنتج: ${product.nameAr}`);
+          throw new Error(
+            `الكمية المطلوبة غير متوفرة للمنتج: ${product.nameAr}`,
+          );
         }
 
         const totalPrice = product.price * item.quantity;
@@ -291,7 +312,7 @@ export class MarketService {
         }),
       ).catch((err) => {
         // Log error but don't fail the order
-        console.error('Error publishing inventory low stock events:', err);
+        console.error("Error publishing inventory low stock events:", err);
       });
 
       const serviceFee = subtotal * 0.02; // 2% رسوم خدمة
@@ -331,7 +352,7 @@ export class MarketService {
           price: item.unitPrice,
         })),
         totalAmount: order.totalAmount,
-        currency: 'YER', // Yemeni Rial
+        currency: "YER", // Yemeni Rial
       });
 
       return order;
@@ -343,22 +364,23 @@ export class MarketService {
    */
   async getUserOrders(
     userId: string,
-    role: 'buyer' | 'seller',
-    params?: PaginationParams
+    role: "buyer" | "seller",
+    params?: PaginationParams,
   ): Promise<PaginatedResponse<any>> {
     // Calculate pagination with enforced limits
     const { skip, take, page } = calculatePagination(params);
 
     // Build where clause based on role
-    const where = role === 'buyer'
-      ? { buyerId: userId }
-      : {
-          items: {
-            some: {
-              product: { sellerId: userId },
+    const where =
+      role === "buyer"
+        ? { buyerId: userId }
+        : {
+            items: {
+              some: {
+                product: { sellerId: userId },
+              },
             },
-          },
-        };
+          };
 
     // Execute queries in parallel
     const [data, total] = await Promise.all([
@@ -402,7 +424,7 @@ export class MarketService {
         },
         skip,
         take,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
       this.prisma.order.count({ where }),
     ]);
@@ -416,14 +438,14 @@ export class MarketService {
   async getMarketStats() {
     const [totalProducts, totalHarvests, totalOrders, recentProducts] =
       await Promise.all([
-        this.prisma.product.count({ where: { status: 'AVAILABLE' } }),
+        this.prisma.product.count({ where: { status: "AVAILABLE" } }),
         this.prisma.product.count({
-          where: { category: 'HARVEST', status: 'AVAILABLE' },
+          where: { category: "HARVEST", status: "AVAILABLE" },
         }),
         this.prisma.order.count(),
         this.prisma.product.findMany({
-          where: { status: 'AVAILABLE' },
-          orderBy: { createdAt: 'desc' },
+          where: { status: "AVAILABLE" },
+          orderBy: { createdAt: "desc" },
           take: 5,
         }),
       ]);

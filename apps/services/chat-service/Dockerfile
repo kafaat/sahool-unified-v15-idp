@@ -43,9 +43,12 @@ WORKDIR /app
 # Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
 RUN apk add --no-cache curl openssl openssl-dev
 
-# Copy package files
-COPY apps/services/chat-service/package.json ./
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Copy package files from builder (includes generated package-lock.json)
+# NOTE: Using npm ci for deterministic builds with package-lock.json
+COPY --from=builder /workspace/chat-service/package.json ./
+COPY --from=builder /workspace/chat-service/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
 COPY --from=builder /workspace/chat-service/prisma ./prisma/
@@ -59,10 +62,10 @@ RUN npx prisma generate || \
 COPY --from=builder /workspace/chat-service/dist ./dist
 
 # Set port environment variable
-ENV PORT=8114
+ENV PORT=8000
 
 # Expose port
-EXPOSE 8114
+EXPOSE 8000
 
 # Set ownership and switch to non-root user (use existing node user)
 RUN chown -R node:node /app
@@ -70,7 +73,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8114/api/v1/health || exit 1
+    CMD curl -f http://localhost:8000/api/v1/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

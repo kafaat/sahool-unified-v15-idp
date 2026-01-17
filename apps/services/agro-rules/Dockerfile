@@ -51,13 +51,11 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY apps/services/agro-rules/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
-# Copy shared libraries
-
 # Copy source
-COPY src/ ./src/
+COPY apps/services/agro-rules/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app

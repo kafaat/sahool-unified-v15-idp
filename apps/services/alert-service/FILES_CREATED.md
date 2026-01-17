@@ -1,4 +1,5 @@
 # ملفات Migrations المُنشأة
+
 # Created Migration Files
 
 ## تاريخ الإنشاء: 2025-12-27
@@ -8,11 +9,13 @@
 ## الملفات الجديدة (15 ملف)
 
 ### 1. نماذج وإعدادات قاعدة البيانات
+
 - ✅ `src/db_models.py` (11KB) - نماذج SQLAlchemy
 - ✅ `src/database.py` (4KB) - إعدادات قاعدة البيانات
 - ✅ `src/repository.py` (14KB) - طبقة الوصول للبيانات
 
 ### 2. Alembic Migrations
+
 - ✅ `alembic.ini` - إعدادات Alembic
 - ✅ `src/migrations/__init__.py`
 - ✅ `src/migrations/env.py` - بيئة Alembic
@@ -21,16 +24,19 @@
 - ✅ `src/migrations/versions/s16_0001_alerts_initial.py` - Initial Migration
 
 ### 3. التوثيق
+
 - ✅ `MIGRATIONS.md` (5KB) - دليل شامل
 - ✅ `QUICKSTART.md` (3KB) - دليل البدء السريع
 - ✅ `MIGRATION_SUMMARY.md` (8KB) - ملخص كامل
 - ✅ `src/migrations/README.md` - توثيق Migrations
 
 ### 4. أمثلة وأدوات
+
 - ✅ `example_usage.py` (3KB) - أمثلة عملية
 - ✅ `verify_setup.py` (2KB) - التحقق من الإعداد
 
 ### 5. تحديثات
+
 - ✅ `requirements.txt` - محدّث (أضيف SQLAlchemy, Alembic, psycopg2)
 
 ---
@@ -69,12 +75,14 @@ alert-service/
 ## الجداول المُنشأة في قاعدة البيانات
 
 ### 1. جدول `alerts`
+
 - 20+ حقل
 - 5 فهارس
 - دعم multi-tenancy
 - دعم bilingual (عربي/إنجليزي)
 
 ### 2. جدول `alert_rules`
+
 - 10+ حقل
 - 3 فهارس
 - JSONB للشروط والإعدادات
@@ -103,22 +111,26 @@ alert-service/
 ## الخطوات التالية
 
 1. **تثبيت المكتبات:**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 2. **إعداد قاعدة البيانات:**
+
    ```bash
    createdb sahool_alerts
    export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/sahool_alerts"
    ```
 
 3. **تطبيق Migrations:**
+
    ```bash
    alembic upgrade head
    ```
 
 4. **التحقق:**
+
    ```bash
    python verify_setup.py
    ```

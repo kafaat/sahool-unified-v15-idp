@@ -11,17 +11,22 @@ global:
   evaluation_interval: 15s    # معدل تقييم القواعد - Rule evaluation interval
   scrape_timeout: 10s         # مهلة جمع البيانات - Scrape timeout
   external_labels:
-    cluster: 'sahool-platform'
+    cluster: 'sahool-production'
     environment: '${ENVIRONMENT:-production}'
     platform: 'agriculture'
     region: 'yemen'
+    replica: '${POD_NAME:-prometheus-1}'  # HA replica identifier - معرف النسخة المتماثلة
 
-# Alertmanager configuration - إعدادات مدير التنبيهات
+# Alertmanager HA configuration - إعدادات مدير التنبيهات عالية التوفر
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-            - 'alertmanager:9093'
+            - 'alertmanager-1:9093'
+            - 'alertmanager-2:9093'
+      scheme: http
+      timeout: 10s
+      api_version: v2
 
 # Alert rules - قواعد التنبيهات
 rule_files:
@@ -43,6 +48,57 @@ scrape_configs:
         labels:
           tier: 'monitoring'
           component: 'prometheus'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Prometheus HA Federation - تجميع النسخ المتماثلة عالية التوفر
+  # Enables cross-replica metric collection for HA setup
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'prometheus-federation'
+    honor_labels: true
+    metrics_path: '/federate'
+    params:
+      'match[]':
+        - '{job!=""}'
+        - '{__name__=~"job:.*"}'
+        - '{__name__=~"instance:.*"}'
+    static_configs:
+      - targets:
+          - 'prometheus-1:9090'
+          - 'prometheus-2:9090'
+        labels:
+          tier: 'monitoring'
+          component: 'prometheus-federation'
+    relabel_configs:
+      # Avoid scraping self - تجنب جمع البيانات من النسخة الحالية
+      - source_labels: [__address__]
+        regex: '${POD_NAME:-prometheus-1}:9090'
+        action: drop
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Prometheus HA Replicas Monitoring - مراقبة النسخ المتماثلة
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'prometheus-replicas'
+    static_configs:
+      - targets:
+          - 'prometheus-1:9090'
+          - 'prometheus-2:9090'
+        labels:
+          tier: 'monitoring'
+          component: 'prometheus-ha'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Alertmanager HA Cluster Monitoring - مراقبة مجموعة Alertmanager
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'alertmanager-cluster'
+    static_configs:
+      - targets:
+          - 'alertmanager-1:9093'
+          - 'alertmanager-2:9093'
+        labels:
+          tier: 'monitoring'
+          component: 'alertmanager-ha'
+    metrics_path: /metrics
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Infrastructure Services - خدمات البنية التحتية
@@ -603,19 +659,8 @@ scrape_configs:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Monitoring & Observability - المراقبة والرصد
+  # Note: Alertmanager HA cluster monitoring is defined in the HA section above
   # ─────────────────────────────────────────────────────────────────────────────
-
-  # Alertmanager - مدير التنبيهات
-  - job_name: 'alertmanager'
-    static_configs:
-      - targets: ['alertmanager:9093']
-        labels:
-          tier: 'monitoring'
-          component: 'alerting'
-          service: 'alertmanager'
-          description: 'Prometheus Alertmanager'
-          description_ar: 'مدير التنبيهات'
-    metrics_path: /metrics
 
   # Grafana - لوحات المراقبة
   - job_name: 'grafana'

@@ -50,11 +50,7 @@
     },
     "payload": {
       "type": "object",
-      "required": [
-        "field_id",
-        "alert_type",
-        "severity"
-      ],
+      "required": ["field_id", "alert_type", "severity"],
       "properties": {
         "field_id": {
           "type": "string",

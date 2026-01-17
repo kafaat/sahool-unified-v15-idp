@@ -5,7 +5,6 @@ Please update your references to use `crop-intelligence-service` on port 8095.
 
 ---
 
-
 # Crop Health AI - صحة المحاصيل بالذكاء الاصطناعي
 
 ## نظرة عامة | Overview
@@ -22,20 +21,22 @@ AI-powered crop disease diagnosis and plant health analysis service.
 ## الميزات | Features
 
 ### التشخيص | Diagnosis
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| تشخيص من الصور | Image Diagnosis | تحليل صور المحاصيل |
-| تشخيص دفعي | Batch Diagnosis | معالجة صور متعددة |
-| مراجعة الخبراء | Expert Review | مراجعة بشرية للحالات المعقدة |
-| سجل التشخيص | Diagnosis History | تاريخ التشخيصات |
+
+| الميزة         | Feature           | الوصف                        |
+| -------------- | ----------------- | ---------------------------- |
+| تشخيص من الصور | Image Diagnosis   | تحليل صور المحاصيل           |
+| تشخيص دفعي     | Batch Diagnosis   | معالجة صور متعددة            |
+| مراجعة الخبراء | Expert Review     | مراجعة بشرية للحالات المعقدة |
+| سجل التشخيص    | Diagnosis History | تاريخ التشخيصات              |
 
 ### التحليل | Analysis
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| مؤشرات NDVI | NDVI Indicators | تحليل الغطاء النباتي |
-| تحليل المناطق | Zone Analysis | تقسيم الحقل لمناطق |
-| الجدول الزمني | Timeline | تطور صحة المحصول |
-| تصدير VRT | VRT Export | للمعالجة المتغيرة |
+
+| الميزة        | Feature         | الوصف                |
+| ------------- | --------------- | -------------------- |
+| مؤشرات NDVI   | NDVI Indicators | تحليل الغطاء النباتي |
+| تحليل المناطق | Zone Analysis   | تقسيم الحقل لمناطق   |
+| الجدول الزمني | Timeline        | تطور صحة المحصول     |
+| تصدير VRT     | VRT Export      | للمعالجة المتغيرة    |
 
 ---
 
@@ -108,61 +109,64 @@ GET /fields/{field_id}/vrt/export?format=geotiff
 ## نماذج البيانات | Data Models
 
 ### DiagnosisResult
+
 ```json
 {
-    "id": "diag-001",
-    "field_id": "field-001",
-    "image_url": "https://...",
-    "diagnosis": {
-        "disease": "صدأ القمح",
-        "disease_en": "Wheat Rust",
-        "confidence": 0.92,
-        "severity": "moderate",
-        "affected_area_percent": 15.5
-    },
-    "recommendations": [
-        {
-            "action": "رش مبيد فطري",
-            "product": "Propiconazole",
-            "dosage": "250 مل/هكتار",
-            "timing": "فوري"
-        }
-    ],
-    "created_at": "2024-01-15T10:30:00Z",
-    "expert_review": null
+  "id": "diag-001",
+  "field_id": "field-001",
+  "image_url": "https://...",
+  "diagnosis": {
+    "disease": "صدأ القمح",
+    "disease_en": "Wheat Rust",
+    "confidence": 0.92,
+    "severity": "moderate",
+    "affected_area_percent": 15.5
+  },
+  "recommendations": [
+    {
+      "action": "رش مبيد فطري",
+      "product": "Propiconazole",
+      "dosage": "250 مل/هكتار",
+      "timing": "فوري"
+    }
+  ],
+  "created_at": "2024-01-15T10:30:00Z",
+  "expert_review": null
 }
 ```
 
 ### ZoneObservation
+
 ```json
 {
-    "id": "obs-001",
-    "zone_id": "zone-001",
-    "type": "disease",
-    "description": "بقع بنية على الأوراق السفلية",
-    "severity": "low",
-    "images": ["https://..."],
-    "coordinates": {
-        "lat": 15.3694,
-        "lng": 44.1910
-    },
-    "observed_at": "2024-01-15T10:30:00Z"
+  "id": "obs-001",
+  "zone_id": "zone-001",
+  "type": "disease",
+  "description": "بقع بنية على الأوراق السفلية",
+  "severity": "low",
+  "images": ["https://..."],
+  "coordinates": {
+    "lat": 15.3694,
+    "lng": 44.191
+  },
+  "observed_at": "2024-01-15T10:30:00Z"
 }
 ```
 
 ### VegetationIndices
+
 ```json
 {
-    "field_id": "field-001",
-    "date": "2024-01-15",
-    "indices": {
-        "ndvi": 0.72,
-        "ndwi": 0.35,
-        "evi": 0.65,
-        "savi": 0.68
-    },
-    "health_score": 78.5,
-    "trend": "stable"
+  "field_id": "field-001",
+  "date": "2024-01-15",
+  "indices": {
+    "ndvi": 0.72,
+    "ndwi": 0.35,
+    "evi": 0.65,
+    "savi": 0.68
+  },
+  "health_score": 78.5,
+  "trend": "stable"
 }
 ```
 
@@ -171,22 +175,26 @@ GET /fields/{field_id}/vrt/export?format=geotiff
 ## الأمراض المدعومة | Supported Diseases
 
 ### القمح | Wheat
+
 - صدأ القمح (Wheat Rust)
 - البياض الدقيقي (Powdery Mildew)
 - التبقع السبتوري (Septoria)
 - اللفحة (Blight)
 
 ### الذرة | Corn
+
 - صدأ الذرة (Corn Rust)
 - لفحة الأوراق (Leaf Blight)
 - تعفن الساق (Stalk Rot)
 
 ### البن | Coffee
+
 - صدأ أوراق البن (Coffee Leaf Rust)
 - مرض التوت (Berry Disease)
 - الأنثراكنوز (Anthracnose)
 
 ### الخضروات | Vegetables
+
 - البياض الزغبي (Downy Mildew)
 - الذبول الفيوزاريومي (Fusarium Wilt)
 - العفن الرمادي (Gray Mold)
@@ -225,13 +233,13 @@ DIAGNOSIS_CACHE_HOURS=24
 
 ## دقة النموذج | Model Accuracy
 
-| المحصول | Crop | الدقة | عدد الأمراض |
-|---------|------|-------|-------------|
-| القمح | Wheat | 94.2% | 12 |
-| الذرة | Corn | 92.8% | 10 |
-| البن | Coffee | 91.5% | 8 |
-| الطماطم | Tomato | 93.1% | 15 |
-| الخيار | Cucumber | 90.7% | 11 |
+| المحصول | Crop     | الدقة | عدد الأمراض |
+| ------- | -------- | ----- | ----------- |
+| القمح   | Wheat    | 94.2% | 12          |
+| الذرة   | Corn     | 92.8% | 10          |
+| البن    | Coffee   | 91.5% | 8           |
+| الطماطم | Tomato   | 93.1% | 15          |
+| الخيار  | Cucumber | 90.7% | 11          |
 
 ---
 
@@ -259,12 +267,14 @@ Response:
 ## التغييرات | Changelog
 
 ### v15.4.0
+
 - تحديث نموذج التشخيص (v3.2.1)
 - إضافة 20 مرض جديد
 - تحسين دقة التشخيص بنسبة 8%
 - دعم تصدير VRT
 
 ### v15.3.0
+
 - إضافة التشخيص الدفعي
 - دعم مراجعة الخبراء
 - تحسين واجهة المناطق

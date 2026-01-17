@@ -1,13 +1,21 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Field Details Component
  * مكون تفاصيل الحقل
  */
 
-import React from 'react';
-import { X, MapPin, Sprout, Maximize2, Calendar, Edit2, Trash2 } from 'lucide-react';
-import type { Field } from '../types';
+import React from "react";
+import {
+  X,
+  MapPin,
+  Sprout,
+  Maximize2,
+  Calendar,
+  Edit2,
+  Trash2,
+} from "lucide-react";
+import type { Field } from "../types";
 
 interface FieldDetailsProps {
   field: Field;
@@ -65,7 +73,9 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
               </div>
               <div>
                 <p className="text-sm text-gray-600">المحصول</p>
-                <p className="font-semibold text-gray-900">{field.cropAr || field.crop}</p>
+                <p className="font-semibold text-gray-900">
+                  {field.cropAr || field.crop}
+                </p>
               </div>
             </div>
           )}
@@ -77,7 +87,9 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
             <div>
               <p className="text-sm text-gray-600">تاريخ الإضافة</p>
               <p className="font-semibold text-gray-900">
-                {field.createdAt ? new Date(field.createdAt).toLocaleDateString('ar-EG') : 'N/A'}
+                {field.createdAt
+                  ? new Date(field.createdAt).toLocaleDateString("ar-EG")
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -89,7 +101,7 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
             <div>
               <p className="text-sm text-gray-600">الموقع</p>
               <p className="font-semibold text-gray-900">
-                {field.polygon ? 'تم تحديد الموقع' : 'لم يتم التحديد'}
+                {field.polygon ? "تم تحديد الموقع" : "لم يتم التحديد"}
               </p>
             </div>
           </div>

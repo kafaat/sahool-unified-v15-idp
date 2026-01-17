@@ -4,21 +4,23 @@
 
 Place the following PNG files in this directory:
 
-| File Name | Size | Description |
-|-----------|------|-------------|
-| `app_icon.png` | 1024x1024 | Main app icon (square) |
-| `app_icon_foreground.png` | 1024x1024 | Adaptive icon foreground (Android 8+) |
-| `splash_logo.png` | 512x512 | Splash screen logo (white on transparent) |
+| File Name                 | Size      | Description                               |
+| ------------------------- | --------- | ----------------------------------------- |
+| `app_icon.png`            | 1024x1024 | Main app icon (square)                    |
+| `app_icon_foreground.png` | 1024x1024 | Adaptive icon foreground (Android 8+)     |
+| `splash_logo.png`         | 512x512   | Splash screen logo (white on transparent) |
 
 ## Design Guidelines - إرشادات التصميم
 
 ### App Icon (app_icon.png)
+
 - **Shape**: Square with rounded corners (automatically applied)
 - **Background**: Forest Green (#2E7D32)
 - **Foreground**: White SAHOOL logo/icon
 - **Safe Zone**: Keep logo within 66% center area for adaptive icons
 
 ### Splash Logo (splash_logo.png)
+
 - **Background**: Transparent
 - **Color**: White (#FFFFFF)
 - **Size**: Should fit comfortably within 512x512 with padding
@@ -54,11 +56,11 @@ dart run flutter_native_splash:create
 
 ## Color Reference - مرجع الألوان
 
-| Color Name | Hex Code | Usage |
-|------------|----------|-------|
-| Forest Green | `#2E7D32` | Primary brand color |
-| Dark Green | `#1B5E20` | Dark mode background |
-| White | `#FFFFFF` | Logo/text on colored backgrounds |
+| Color Name   | Hex Code  | Usage                            |
+| ------------ | --------- | -------------------------------- |
+| Forest Green | `#2E7D32` | Primary brand color              |
+| Dark Green   | `#1B5E20` | Dark mode background             |
+| White        | `#FFFFFF` | Logo/text on colored backgrounds |
 
 ## Notes - ملاحظات
 

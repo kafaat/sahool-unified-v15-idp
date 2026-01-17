@@ -4,7 +4,15 @@
   "title": "AlertCreated",
   "description": "Event emitted when a new alert is created",
   "type": "object",
-  "required": ["event_id", "timestamp", "alert_id", "field_id", "type", "severity", "message"],
+  "required": [
+    "event_id",
+    "timestamp",
+    "alert_id",
+    "field_id",
+    "type",
+    "severity",
+    "message"
+  ],
   "properties": {
     "event_id": {
       "type": "string",

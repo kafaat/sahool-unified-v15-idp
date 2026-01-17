@@ -11,11 +11,11 @@ import {
   ExecutionContext,
   CallHandler,
   Logger,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
-import { Request, Response } from 'express';
-import { randomUUID } from 'crypto';
+} from "@nestjs/common";
+import { Observable } from "rxjs";
+import { tap, catchError } from "rxjs/operators";
+import { Request, Response } from "express";
+import { randomUUID } from "crypto";
 
 /**
  * Extended Express Request with custom properties
@@ -43,7 +43,7 @@ interface ExtendedRequest {
 interface LogEntry {
   timestamp: string;
   service: string;
-  type: 'request' | 'response' | 'error';
+  type: "request" | "response" | "error";
   correlation_id: string;
   http: {
     method: string;
@@ -74,14 +74,14 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 
   // Paths to exclude from logging
   private readonly excludePaths: string[] = [
-    '/healthz',
-    '/readyz',
-    '/livez',
-    '/health',
-    '/metrics',
-    '/docs',
-    '/api-docs',
-    '/api/v1/healthz',
+    "/healthz",
+    "/readyz",
+    "/livez",
+    "/health",
+    "/metrics",
+    "/docs",
+    "/api-docs",
+    "/api/v1/healthz",
   ];
 
   constructor(
@@ -113,7 +113,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     request.userId = userId;
 
     // Add correlation ID to response headers
-    response.setHeader('X-Correlation-ID', correlationId);
+    response.setHeader("X-Correlation-ID", correlationId);
 
     // Record start time
     const startTime = Date.now();
@@ -124,30 +124,47 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap(() => {
         const duration = Date.now() - startTime;
-        this.logResponse(request, response, correlationId, tenantId, userId, duration);
+        this.logResponse(
+          request,
+          response,
+          correlationId,
+          tenantId,
+          userId,
+          duration,
+        );
       }),
       catchError((error) => {
         const duration = Date.now() - startTime;
-        this.logError(request, response, error, correlationId, tenantId, userId, duration);
+        this.logError(
+          request,
+          response,
+          error,
+          correlationId,
+          tenantId,
+          userId,
+          duration,
+        );
         throw error;
       }),
     );
   }
 
   private shouldExclude(path: string): boolean {
-    return this.excludePaths.some((excludePath) => path.startsWith(excludePath));
+    return this.excludePaths.some((excludePath) =>
+      path.startsWith(excludePath),
+    );
   }
 
   private getOrCreateCorrelationId(request: ExtendedRequest): string {
     return (
-      (request.headers['x-correlation-id'] as string) ||
-      (request.headers['x-request-id'] as string) ||
+      (request.headers["x-correlation-id"] as string) ||
+      (request.headers["x-request-id"] as string) ||
       randomUUID()
     );
   }
 
   private extractTenantId(request: ExtendedRequest): string | undefined {
-    let tenantId = request.headers['x-tenant-id'] as string;
+    let tenantId = request.headers["x-tenant-id"] as string;
     if (!tenantId && request.user?.tenantId) {
       tenantId = request.user.tenantId;
     }
@@ -155,7 +172,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
   }
 
   private extractUserId(request: ExtendedRequest): string | undefined {
-    let userId = request.headers['x-user-id'] as string;
+    let userId = request.headers["x-user-id"] as string;
     if (!userId && request.user?.sub) {
       userId = request.user.sub;
     }
@@ -174,13 +191,14 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       service: this.serviceName,
-      type: 'request',
+      type: "request",
       correlation_id: correlationId,
       http: {
         method: request.method,
         path: request.path,
-        query: Object.keys(request.query).length > 0 ? request.query : undefined,
-        user_agent: request.headers['user-agent'] as string | undefined,
+        query:
+          Object.keys(request.query).length > 0 ? request.query : undefined,
+        user_agent: request.headers["user-agent"] as string | undefined,
       },
       tenant_id: tenantId,
       user_id: userId,
@@ -203,7 +221,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       service: this.serviceName,
-      type: 'response',
+      type: "response",
       correlation_id: correlationId,
       http: {
         method: request.method,
@@ -239,7 +257,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       service: this.serviceName,
-      type: 'error',
+      type: "error",
       correlation_id: correlationId,
       http: {
         method: request.method,
@@ -250,8 +268,8 @@ export class RequestLoggingInterceptor implements NestInterceptor {
       tenant_id: tenantId,
       user_id: userId,
       error: {
-        type: error.name || 'Error',
-        message: error.message || 'Unknown error',
+        type: error.name || "Error",
+        message: error.message || "Unknown error",
         stack: error.stack,
       },
       message: `Request failed: ${request.method} ${request.path} - ${error.message}`,

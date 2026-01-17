@@ -5,10 +5,10 @@
  * React Query hooks for VRA prescription maps and variable rate application features.
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/lib/logger';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { logger } from "@/lib/logger";
 import {
   generatePrescription,
   getPrescriptionHistory,
@@ -16,13 +16,13 @@ import {
   exportPrescription,
   deletePrescription,
   vraKeys,
-} from '../api/vra-api';
+} from "../api/vra-api";
 import type {
   PrescriptionRequest,
   PrescriptionResponse,
   PrescriptionHistoryResponse,
   ExportFormat,
-} from '../types/vra';
+} from "../types/vra";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Re-export Types for Convenience
@@ -77,7 +77,7 @@ export { vraKeys };
  */
 export function usePrescriptionHistory(
   fieldId: string,
-  options?: HistoryOptions
+  options?: HistoryOptions,
 ) {
   const { enabled = true, limit = 10 } = options || {};
 
@@ -86,7 +86,9 @@ export function usePrescriptionHistory(
     queryFn: async () => {
       const response = await getPrescriptionHistory(fieldId, limit);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch prescription history');
+        throw new Error(
+          response.error || "Failed to fetch prescription history",
+        );
       }
       return response.data as PrescriptionHistoryResponse;
     },
@@ -109,7 +111,7 @@ export function usePrescriptionHistory(
  */
 export function usePrescriptionDetails(
   prescriptionId: string,
-  options?: HookOptions
+  options?: HookOptions,
 ) {
   const { enabled = true } = options || {};
 
@@ -118,7 +120,9 @@ export function usePrescriptionDetails(
     queryFn: async () => {
       const response = await getPrescriptionDetails(prescriptionId);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch prescription details');
+        throw new Error(
+          response.error || "Failed to fetch prescription details",
+        );
       }
       return response.data as PrescriptionResponse;
     },
@@ -149,19 +153,19 @@ export function useGeneratePrescription() {
     mutationFn: async (request: PrescriptionRequest) => {
       const response = await generatePrescription(request);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to generate prescription');
+        throw new Error(response.error || "Failed to generate prescription");
       }
       return response.data;
     },
     onMutate: async (variables) => {
       logger.info(
-        `Generating VRA prescription for field ${variables.fieldId}, type=${variables.vraType}`
+        `Generating VRA prescription for field ${variables.fieldId}, type=${variables.vraType}`,
       );
     },
     onError: (error, variables) => {
       logger.error(
         `Failed to generate prescription for field ${variables.fieldId}:`,
-        error
+        error,
       );
     },
     onSuccess: (prescription, variables) => {
@@ -173,11 +177,11 @@ export function useGeneratePrescription() {
       // Cache the new prescription details
       queryClient.setQueryData(
         vraKeys.prescription(prescription.id),
-        prescription
+        prescription,
       );
 
       logger.info(
-        `Prescription ${prescription.id} generated successfully for field ${variables.fieldId}, savings=${prescription.savingsPercent}%`
+        `Prescription ${prescription.id} generated successfully for field ${variables.fieldId}, savings=${prescription.savingsPercent}%`,
       );
     },
     onSettled: () => {
@@ -208,28 +212,28 @@ export function useExportPrescription() {
     }) => {
       const response = await exportPrescription(prescriptionId, format);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to export prescription');
+        throw new Error(response.error || "Failed to export prescription");
       }
       return response.data;
     },
     onMutate: async (variables) => {
       logger.info(
-        `Exporting prescription ${variables.prescriptionId} as ${variables.format}`
+        `Exporting prescription ${variables.prescriptionId} as ${variables.format}`,
       );
     },
     onError: (error, variables) => {
       logger.error(
         `Failed to export prescription ${variables.prescriptionId} as ${variables.format}:`,
-        error
+        error,
       );
     },
     onSuccess: (_data, variables) => {
       logger.info(
-        `Prescription ${variables.prescriptionId} exported successfully as ${variables.format}`
+        `Prescription ${variables.prescriptionId} exported successfully as ${variables.format}`,
       );
 
       // For GeoJSON, CSV, and other downloadable formats, trigger download
-      if (variables.format === 'geojson' || variables.format === 'csv') {
+      if (variables.format === "geojson" || variables.format === "csv") {
         // The component will handle the actual download
         // This is just for logging and potential side effects
       }
@@ -252,7 +256,7 @@ export function useDeletePrescription() {
     mutationFn: async (prescriptionId: string) => {
       const response = await deletePrescription(prescriptionId);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to delete prescription');
+        throw new Error(response.error || "Failed to delete prescription");
       }
       return response.data;
     },
@@ -264,7 +268,7 @@ export function useDeletePrescription() {
 
       // Snapshot the previous value
       const previousPrescription = queryClient.getQueryData(
-        vraKeys.prescription(prescriptionId)
+        vraKeys.prescription(prescriptionId),
       );
 
       logger.info(`Deleting prescription ${prescriptionId}`);
@@ -277,7 +281,7 @@ export function useDeletePrescription() {
       if (context?.previousPrescription) {
         queryClient.setQueryData(
           vraKeys.prescription(prescriptionId),
-          context.previousPrescription
+          context.previousPrescription,
         );
       }
 

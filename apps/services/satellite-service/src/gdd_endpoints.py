@@ -325,14 +325,14 @@ def register_gdd_endpoints(app):
 
             return requirements.to_dict()
 
-        except ValueError:
+        except ValueError as ve:
             tracker = get_gdd_tracker()
             available_crops = tracker.get_all_crops()
             crop_codes = [c["crop_code"] for c in available_crops]
             raise HTTPException(
                 status_code=404,
                 detail=f"Crop '{crop_code}' not found. Available crops: {', '.join(crop_codes[:15])}...",
-            ) from e
+            ) from ve
         except Exception as e:
             logger.error(f"Failed to get crop requirements: {e}")
             raise HTTPException(status_code=500, detail=f"Error: {str(e)}") from e
@@ -456,14 +456,14 @@ def register_gdd_endpoints(app):
                 "total_gdd_required": round(total_gdd, 1),
             }
 
-        except ValueError:
+        except ValueError as ve:
             tracker = get_gdd_tracker()
             available_crops = tracker.get_all_crops()
             crop_codes = [c["crop_code"] for c in available_crops]
             raise HTTPException(
                 status_code=404,
                 detail=f"Crop '{crop_code}' not found. Available: {', '.join(crop_codes[:10])}...",
-            ) from e
+            ) from ve
         except Exception as e:
             logger.error(f"Failed to get growth stage: {e}")
             raise HTTPException(status_code=500, detail=f"Error: {str(e)}") from e

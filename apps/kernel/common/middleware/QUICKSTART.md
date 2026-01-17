@@ -1,4 +1,5 @@
 # SAHOOL Rate Limiter - Quick Start Guide
+
 # دليل البدء السريع لحد معدل الطلبات
 
 Get started with SAHOOL's advanced rate limiting in 5 minutes!
@@ -43,6 +44,7 @@ async def health():
 ```
 
 Run it:
+
 ```bash
 uvicorn app:app --reload
 ```
@@ -89,19 +91,25 @@ async def quick_query(request: Request):
 ## Step 4: Choose Your Strategy | الخطوة 4: اختر استراتيجيتك
 
 ### Fixed Window (النافذة الثابتة)
+
 **Best for**: High-frequency endpoints
+
 ```python
 @rate_limit(requests=100, period=60, strategy="fixed_window")
 ```
 
 ### Sliding Window (النافذة المنزلقة) - **DEFAULT**
+
 **Best for**: Most use cases
+
 ```python
 @rate_limit(requests=60, period=60, strategy="sliding_window")
 ```
 
 ### Token Bucket (دلو الرموز)
+
 **Best for**: Bursty traffic
+
 ```python
 @rate_limit(requests=10, period=60, strategy="token_bucket", burst=5)
 ```
@@ -127,6 +135,7 @@ curl http://localhost:8000/api/data
 ## Step 6: Monitor & Manage | الخطوة 6: راقب وأدر
 
 ### Get Statistics
+
 ```python
 from apps.kernel.common.middleware import get_rate_limit_stats, ClientIdentifier
 
@@ -138,6 +147,7 @@ async def my_stats(request: Request):
 ```
 
 ### Reset Limits (Admin)
+
 ```python
 @app.post("/admin/reset-limits")
 async def reset_limits(client_id: str):
@@ -224,6 +234,7 @@ REDIS_URL=redis://localhost:6379/0
 ## Troubleshooting | استكشاف الأخطاء
 
 ### Issue: Rate limiting not working
+
 ```python
 # Check Redis connection
 import redis.asyncio as redis
@@ -232,6 +243,7 @@ await client.ping()  # Should return True
 ```
 
 ### Issue: All requests are rate limited
+
 ```python
 # Check your limits are reasonable
 ENDPOINT_CONFIGS["/api/endpoint"] = EndpointConfig(
@@ -241,6 +253,7 @@ ENDPOINT_CONFIGS["/api/endpoint"] = EndpointConfig(
 ```
 
 ### Issue: Need to clear limits for testing
+
 ```python
 # Reset all limits for a client
 await limiter.reset_limits("ip:127.0.0.1")
@@ -342,6 +355,7 @@ That's it! You're now using advanced rate limiting in your SAHOOL service! 🚀
 ---
 
 **Need Help?** | **تحتاج مساعدة؟**
+
 - Read the [README](README.md)
 - Check [example_usage.py](example_usage.py)
 - Review [test_rate_limiter.py](test_rate_limiter.py)

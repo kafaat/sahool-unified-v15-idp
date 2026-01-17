@@ -121,11 +121,13 @@ services:
 ### Alternative 1: Traefik
 
 **Considered because:**
+
 - Simpler configuration
 - Built into many container orchestrators
 - Lower resource footprint
 
 **Rejected because:**
+
 - Less mature plugin ecosystem
 - Limited rate limiting options
 - Less enterprise adoption in our region
@@ -133,10 +135,12 @@ services:
 ### Alternative 2: AWS API Gateway
 
 **Considered because:**
+
 - Fully managed service
 - Tight AWS integration
 
 **Rejected because:**
+
 - Vendor lock-in
 - Expensive at our projected scale
 - Less flexibility for custom plugins
@@ -144,6 +148,7 @@ services:
 ### Alternative 3: Nginx + Custom Lua
 
 **Rejected because:**
+
 - High development effort
 - Need to build all features from scratch
 - Maintenance burden

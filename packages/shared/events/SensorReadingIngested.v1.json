@@ -3,14 +3,18 @@
   "$id": "https://sahool.io/events/SensorReadingIngested.v1.json",
   "title": "Sensor Reading Ingested Event",
   "description": "Emitted when IoT sensor data is received - يُنشر عند استلام قراءة من حساس",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "IoT.SensorReadingIngested" },
     "payload": {
       "type": "object",
-      "required": ["device_id", "sensor_type", "value", "unit", "reading_timestamp"],
+      "required": [
+        "device_id",
+        "sensor_type",
+        "value",
+        "unit",
+        "reading_timestamp"
+      ],
       "properties": {
         "device_id": {
           "type": "string",
@@ -18,7 +22,16 @@
         },
         "sensor_type": {
           "type": "string",
-          "enum": ["soil_moisture", "soil_temperature", "air_temperature", "humidity", "wind_speed", "rainfall", "solar_radiation", "leaf_wetness"],
+          "enum": [
+            "soil_moisture",
+            "soil_temperature",
+            "air_temperature",
+            "humidity",
+            "wind_speed",
+            "rainfall",
+            "solar_radiation",
+            "leaf_wetness"
+          ],
           "description": "Type of sensor"
         },
         "value": {
@@ -52,6 +65,10 @@
   "x-sahool": {
     "layer": "acquisition",
     "producer": "iot-service",
-    "consumers": ["virtual-sensors", "indicators-service", "notification-service"]
+    "consumers": [
+      "virtual-sensors",
+      "indicators-service",
+      "notification-service"
+    ]
   }
 }

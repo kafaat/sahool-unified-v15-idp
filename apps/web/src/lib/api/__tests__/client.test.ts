@@ -253,7 +253,7 @@ describe("SahoolApiClient", () => {
   });
 
   describe("Weather API", () => {
-    it("should fetch current weather", async () => {
+    it("should fetch current weather via POST with lat/lon in body", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         headers: new Headers({ "content-type": "application/json" }),
@@ -265,12 +265,15 @@ describe("SahoolApiClient", () => {
 
       await apiClient.getWeather(15.3694, 44.191);
 
-      const callUrl = mockFetch.mock.calls[0][0];
-      expect(callUrl).toContain("lat=15.3694");
-      expect(callUrl).toContain("lng=44.191");
+      const [callUrl, options] = mockFetch.mock.calls[0];
+      expect(callUrl).toContain("/weather/current");
+      expect(options.method).toBe("POST");
+      const body = JSON.parse(options.body);
+      expect(body.lat).toBe(15.3694);
+      expect(body.lon).toBe(44.191);
     });
 
-    it("should fetch weather forecast", async () => {
+    it("should fetch weather forecast via POST with days in body", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         headers: new Headers({ "content-type": "application/json" }),
@@ -282,11 +285,16 @@ describe("SahoolApiClient", () => {
 
       await apiClient.getWeatherForecast(15.3694, 44.191, 14);
 
-      const callUrl = mockFetch.mock.calls[0][0];
-      expect(callUrl).toContain("days=14");
+      const [callUrl, options] = mockFetch.mock.calls[0];
+      expect(callUrl).toContain("/weather/forecast");
+      expect(options.method).toBe("POST");
+      const body = JSON.parse(options.body);
+      expect(body.days).toBe(14);
+      expect(body.lat).toBe(15.3694);
+      expect(body.lon).toBe(44.191);
     });
 
-    it("should fetch agricultural risks", async () => {
+    it("should fetch agricultural risks via POST", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         headers: new Headers({ "content-type": "application/json" }),
@@ -298,8 +306,12 @@ describe("SahoolApiClient", () => {
 
       await apiClient.getAgriculturalRisks(15.3694, 44.191);
 
-      const callUrl = mockFetch.mock.calls[0][0];
-      expect(callUrl).toContain("/weather/risks");
+      const [callUrl, options] = mockFetch.mock.calls[0];
+      expect(callUrl).toContain("/weather/agricultural-report");
+      expect(options.method).toBe("POST");
+      const body = JSON.parse(options.body);
+      expect(body.lat).toBe(15.3694);
+      expect(body.lon).toBe(44.191);
     });
   });
 

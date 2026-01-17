@@ -48,7 +48,7 @@ function mockRandomInt(min: number, max: number): number {
  * Pick a random element from an array for mock data.
  * See mockRandom() for security notes.
  */
-function mockRandomPick<T>(arr: readonly T[]): T | undefined {
+function _mockRandomPick<T>(arr: readonly T[]): T | undefined {
   return arr[Math.floor(mockRandom() * arr.length)];
 }
 

@@ -24,7 +24,7 @@ infrastructure = [
     "aerich==0.7.2",
     "nats-py==2.9.0",
     "redis==5.2.1",
-    "python-jose[cryptography]==3.4.0",  # CVE-2024-33663, CVE-2024-33664
+    "PyJWT==2.10.1",  # Security update: replaced python-jose
     "passlib[bcrypt]==1.7.4",
 ]
 observability = [

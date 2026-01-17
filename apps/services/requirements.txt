@@ -37,7 +37,7 @@ opentelemetry-instrumentation-fastapi==0.50b0
 
 # Utilities
 python-multipart==0.0.18
-python-jose[cryptography]==3.4.0
+PyJWT==2.10.1  # Security update: replaced python-jose
 passlib[bcrypt]==1.7.4
 
 # Testing

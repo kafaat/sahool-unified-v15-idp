@@ -17,7 +17,7 @@ import crypto from "crypto";
 export function generateETag(id: string, version: number): string {
   const data = `field:${id}:v${version}`;
   const hash = crypto
-    .createHash("md5")
+    .createHash("sha256")
     .update(data)
     .digest("hex")
     .substring(0, 16);

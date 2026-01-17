@@ -12,6 +12,6 @@ prometheus-client==0.21.1
 structlog==24.4.0
 
 # Security
-# Updated to 3.4.0 to fix CVE-2024-33663 and CVE-2024-33664
-python-jose[cryptography]==3.4.0
+# Replaced python-jose with PyJWT for better maintenance and security
+PyJWT==2.10.1
 passlib[bcrypt]==1.7.4

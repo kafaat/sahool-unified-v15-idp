@@ -48,9 +48,9 @@ RUN apt-get update && \
     && apt-get clean
 
 # Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+# Security update: setuptools>=78.1.1 for CVE fixes
 RUN pip install --upgrade pip && \
-    pip install --upgrade "setuptools>=68.0" wheel build
+    pip install --upgrade "setuptools>=78.1.1" wheel build
 
 # Configure pip for better network resilience
 # Also configure pip to prefer system-installed packages during build isolation

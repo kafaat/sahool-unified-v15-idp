@@ -240,7 +240,7 @@ class ContextCompressionService:
 
             # 9. Create metadata hash
             metadata_str = f"{field_id}_{crop_type}_{temporal_pattern}"
-            metadata_hash = hashlib.md5(metadata_str.encode(), usedforsecurity=False).hexdigest()[:12]
+            metadata_hash = hashlib.sha256(metadata_str.encode(), usedforsecurity=False).hexdigest()[:12]
 
             logger.info(
                 f"🌾 Field context compressed: {field_id} "
@@ -357,7 +357,7 @@ class ContextCompressionService:
 
         # Round to 2 decimal places (≈1km precision)
         location_str = f"{lat:.2f}_{lng:.2f}"
-        return hashlib.md5(location_str.encode(), usedforsecurity=False).hexdigest()[:8]
+        return hashlib.sha256(location_str.encode(), usedforsecurity=False).hexdigest()[:8]
 
     def _analyze_temporal_pattern(self, disease_history: list[dict]) -> str:
         """

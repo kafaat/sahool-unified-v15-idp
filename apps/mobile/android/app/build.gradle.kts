@@ -162,7 +162,10 @@ android {
                 releaseConfig
             } else {
                 // CI builds can use debug signing for verification purposes
-                println("⚠️ WARNING: Using debug signing for CI release build. NOT suitable for production!")
+                // Only show warning when actually building release variant
+                if (gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }) {
+                    println("⚠️ WARNING: Using debug signing for CI release build. NOT suitable for production!")
+                }
                 signingConfigs.getByName("debug")
             }
 

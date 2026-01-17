@@ -129,12 +129,15 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     // Connect sources (API, WebSocket, etc.)
     "connect-src": [
       "'self'",
-      // Backend API
-      "https://api.sahool.io",
-      "https://api.sahool.app",
+      // Backend API - use environment variable if set
+      ...(process.env.NEXT_PUBLIC_API_URL
+        ? [process.env.NEXT_PUBLIC_API_URL]
+        : isDevelopment
+          ? ["http://localhost:8000"]
+          : ["https://api.sahool.io", "https://api.sahool.app"]),
       // WebSocket for real-time features
       ...(isDevelopment
-        ? ["ws://localhost:*", "http://localhost:*", "http://localhost:8000"]
+        ? ["ws://localhost:*", "http://localhost:*"]
         : ["wss:"]),
     ],
 

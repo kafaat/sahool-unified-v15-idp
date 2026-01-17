@@ -7,6 +7,8 @@
 # FastAPI Framework Stack
 fastapi==0.126.0
 uvicorn[standard]==0.27.0
+starlette>=0.41.3  # Security fix for CVEs
+jinja2>=3.1.5  # Security fix for CVEs
 pydantic==2.9.2
 
 # Async HTTP Client

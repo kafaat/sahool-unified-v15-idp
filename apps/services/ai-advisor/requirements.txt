@@ -3,6 +3,8 @@
 # Updated: December 2025 - Unified versions across all services
 fastapi==0.115.5
 uvicorn[standard]>=0.30.0,<1.0.0
+starlette>=0.41.3  # Security fix
+jinja2>=3.1.5  # Security fix
 httpx==0.28.1
 pydantic==2.9.2
 pydantic-settings==2.7.1

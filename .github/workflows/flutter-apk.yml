@@ -109,24 +109,67 @@ jobs:
 
       - name: Create .env file
         run: |
-          # Use placeholder values if secrets are not configured
-          WEATHER_KEY="${{ secrets.WEATHER_API_KEY }}"
-          MAPS_KEY="${{ secrets.MAPS_API_KEY }}"
-
-          if [ -z "$WEATHER_KEY" ]; then
-            WEATHER_KEY="placeholder_weather_key_for_ci_build"
+          # Copy from .env.example if available, otherwise create comprehensive .env
+          if [ -f ".env.example" ]; then
+            echo "Using .env.example as base..."
+            cp .env.example .env
           fi
 
-          if [ -z "$MAPS_KEY" ]; then
-            MAPS_KEY="placeholder_maps_key_for_ci_build"
-          fi
-
-          cat > .env << EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=$WEATHER_KEY
-          MAPS_API_KEY=$MAPS_KEY
+          # Create/override with CI-specific configuration
+          cat > .env << 'ENVEOF'
+          # SAHOOL Field App - CI Build Environment
           ENV=production
-          EOF
+          ENVIRONMENT=production
+
+          # API Configuration
+          API_URL=https://api.sahool.app/api/v1
+          API_BASE_URL=https://api.sahool.app/api/v1
+
+          # WebSocket Configuration
+          WS_URL=wss://ws.sahool.app
+          WS_GATEWAY_URL=wss://ws.sahool.app
+
+          # Maps Configuration (placeholder - override with secrets)
+          MAPBOX_ACCESS_TOKEN=
+          MAPBOX_STYLE_URL=mapbox://styles/mapbox/satellite-streets-v12
+          MAP_TILE_URL=https://tiles.sahool.app/{z}/{x}/{y}.png
+
+          # Feature Flags
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_OFFLINE_MAPS=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=true
+          ENABLE_PUSH=true
+          ENABLE_ANALYTICS=true
+          ENABLE_CRASH_REPORTING=true
+          ENABLE_EDGE_AI=false
+          ENABLE_VOICE=false
+          ENABLE_AR=false
+
+          # Sync Configuration
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=5
+          OUTBOX_BATCH_SIZE=50
+
+          # App Info
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+
+          # Tenant Configuration
+          DEFAULT_TENANT_ID=sahool-prod
+
+          # AI Service
+          AI_SERVICE_URL=https://ai.sahool.app
+          ENVEOF
+
+          # Copy .env to sahool_field_app subfolder for integration tests
+          if [ -d "sahool_field_app" ]; then
+            cp .env sahool_field_app/.env
+            echo "Copied .env to sahool_field_app/"
+          fi
+
+          echo "Created .env file with CI configuration"
 
       - name: Clean previous build artifacts
         run: |

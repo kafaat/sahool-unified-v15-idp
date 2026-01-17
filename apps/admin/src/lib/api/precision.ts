@@ -44,8 +44,6 @@ function mockRandomInt(min: number, max: number): number {
   return Math.floor(mockRandom() * (max - min + 1)) + min;
 }
 
-
-
 // VRA (Variable Rate Application) Types
 export interface VRAPrescription {
   id: string;

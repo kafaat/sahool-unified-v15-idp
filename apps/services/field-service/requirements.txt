@@ -2,7 +2,7 @@
 # خدمة الحقول الزراعية
 
 # Web Framework
-fastapi==0.115.5
+fastapi==0.126.0
 uvicorn[standard]>=0.30.0,<1.0.0
 starlette>=0.41.3  # Security fix
 jinja2>=3.1.5  # Security fix

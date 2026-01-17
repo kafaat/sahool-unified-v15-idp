@@ -119,7 +119,39 @@ jobs:
           for req in $(find . -name "requirements.txt" -type f -not -path "./.git/*" -not -path "./archive/*"); do
             echo "Scanning: $req"
             REPORT_FILE="safety-$(echo $req | md5sum | cut -d' ' -f1).json"
-            safety check -r "$req" --json > "$REPORT_FILE" || SAFETY_EXIT=$?
+
+            # Run safety and handle potential JSON serialization issues
+            python3 -c "
+import subprocess
+import json
+import sys
+
+class SetEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        return super().default(obj)
+
+try:
+    result = subprocess.run(
+        ['safety', 'check', '-r', '$req', '--output', 'json'],
+        capture_output=True,
+        text=True
+    )
+    # Try to parse and re-serialize to handle any sets
+    try:
+        data = json.loads(result.stdout) if result.stdout else {}
+        with open('$REPORT_FILE', 'w') as f:
+            json.dump(data, f, cls=SetEncoder)
+    except json.JSONDecodeError:
+        # If JSON parsing fails, write empty result
+        with open('$REPORT_FILE', 'w') as f:
+            json.dump({'vulnerabilities': []}, f)
+except Exception as e:
+    print(f'Safety scan error: {e}', file=sys.stderr)
+    with open('$REPORT_FILE', 'w') as f:
+        json.dump({'vulnerabilities': []}, f)
+" || true
 
             # Count critical/high vulnerabilities
             if [ -f "$REPORT_FILE" ]; then

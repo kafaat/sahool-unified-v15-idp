@@ -24,6 +24,7 @@
 .env
 .env.*
 !.env.example
+!.env.development.template
 *.pem
 *.key
 *.crt
@@ -220,3 +221,7 @@ config/nats/.env.nkey.backup.*
 config/nats/generated/
 *.creds
 .env.test
+
+# Analysis reports
+analysis_report.txt
+analysis_report.json

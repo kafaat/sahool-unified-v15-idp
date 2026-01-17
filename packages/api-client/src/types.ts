@@ -4,19 +4,24 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Import shared types
-import type { UserRole } from '@sahool/shared-types/auth';
+import type { UserRole } from "@sahool/shared-types/auth";
 export type { UserRole };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Core Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type Locale = 'ar' | 'en';
-export type Priority = 'urgent' | 'high' | 'medium' | 'low';
-export type Severity = 'low' | 'medium' | 'high' | 'critical';
-export type TaskStatus = 'open' | 'pending' | 'in_progress' | 'completed' | 'cancelled';
-export type DiagnosisStatus = 'pending' | 'confirmed' | 'rejected' | 'treated';
-export type FarmStatus = 'active' | 'inactive' | 'suspended';
+export type Locale = "ar" | "en";
+export type Priority = "urgent" | "high" | "medium" | "low";
+export type Severity = "low" | "medium" | "high" | "critical";
+export type TaskStatus =
+  | "open"
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+export type DiagnosisStatus = "pending" | "confirmed" | "rejected" | "treated";
+export type FarmStatus = "active" | "inactive" | "suspended";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Geometry Types (GeoJSON-compatible)
@@ -32,42 +37,52 @@ export type GeoPosition = [number, number] | [number, number, number];
 
 /** GeoJSON Point */
 export interface GeoPoint {
-  type: 'Point';
+  type: "Point";
   coordinates: GeoPosition;
 }
 
 /** GeoJSON Polygon */
 export interface GeoPolygon {
-  type: 'Polygon';
+  type: "Polygon";
   coordinates: GeoPosition[][] | number[][][];
 }
 
 /** GeoJSON MultiPolygon */
 export interface GeoMultiPolygon {
-  type: 'MultiPolygon';
+  type: "MultiPolygon";
   coordinates: GeoPosition[][][];
 }
 
 /** GeoJSON LineString */
 export interface GeoLineString {
-  type: 'LineString';
+  type: "LineString";
   coordinates: GeoPosition[];
 }
 
 /** Union of all GeoJSON geometry types used in SAHOOL */
-export type GeoGeometry = GeoPoint | GeoPolygon | GeoMultiPolygon | GeoLineString;
+export type GeoGeometry =
+  | GeoPoint
+  | GeoPolygon
+  | GeoMultiPolygon
+  | GeoLineString;
 
 /** GeoJSON Feature */
-export interface GeoFeature<G extends GeoGeometry = GeoGeometry, P = Record<string, unknown>> {
-  type: 'Feature';
+export interface GeoFeature<
+  G extends GeoGeometry = GeoGeometry,
+  P = Record<string, unknown>,
+> {
+  type: "Feature";
   geometry: G;
   properties: P;
   id?: string | number;
 }
 
 /** GeoJSON FeatureCollection */
-export interface GeoFeatureCollection<G extends GeoGeometry = GeoGeometry, P = Record<string, unknown>> {
-  type: 'FeatureCollection';
+export interface GeoFeatureCollection<
+  G extends GeoGeometry = GeoGeometry,
+  P = Record<string, unknown>,
+> {
+  type: "FeatureCollection";
   features: GeoFeature<G, P>[];
 }
 
@@ -293,7 +308,7 @@ export interface Indicator {
   value: number;
   unit?: string;
   status: string;
-  trend?: 'up' | 'down' | 'stable';
+  trend?: "up" | "down" | "stable";
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -360,9 +375,15 @@ export interface CommunityPost {
 // Alert Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type AlertSeverity = 'info' | 'warning' | 'critical' | 'emergency';
-export type AlertCategory = 'ndvi' | 'weather' | 'irrigation' | 'pest' | 'disease' | 'system';
-export type AlertStatus = 'active' | 'acknowledged' | 'resolved' | 'dismissed';
+export type AlertSeverity = "info" | "warning" | "critical" | "emergency";
+export type AlertCategory =
+  | "ndvi"
+  | "weather"
+  | "irrigation"
+  | "pest"
+  | "disease"
+  | "system";
+export type AlertStatus = "active" | "acknowledged" | "resolved" | "dismissed";
 
 export interface Alert {
   id: string;
@@ -448,8 +469,14 @@ export interface LoginResponse {
 // KPI Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type TrendDirection = 'up' | 'down' | 'stable';
-export type HealthStatus = 'good' | 'warning' | 'critical' | 'healthy' | 'moderate' | 'stressed';
+export type TrendDirection = "up" | "down" | "stable";
+export type HealthStatus =
+  | "good"
+  | "warning"
+  | "critical"
+  | "healthy"
+  | "moderate"
+  | "stressed";
 
 export interface KPI {
   id: string;
@@ -487,7 +514,7 @@ export interface Treatment {
   recommendation: string;
   recommendationAr?: string;
   appliedAt?: string;
-  status: 'pending' | 'applied' | 'effective' | 'ineffective';
+  status: "pending" | "applied" | "effective" | "ineffective";
   notes?: string;
 }
 
@@ -514,7 +541,7 @@ export interface PaginatedResponse<T> {
 // Configuration Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug';
+export type LogLevel = "none" | "error" | "warn" | "info" | "debug";
 
 export interface ApiClientConfig {
   baseUrl: string;
@@ -531,7 +558,7 @@ export interface ApiClientConfig {
    * - 'silent': Return empty arrays/null on errors (legacy behavior)
    * @default 'throw'
    */
-  errorHandling?: 'throw' | 'silent';
+  errorHandling?: "throw" | "silent";
 
   /**
    * Error logging configuration

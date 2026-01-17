@@ -13,25 +13,30 @@
  * VRA Application Types
  * أنواع التطبيق المتغير
  */
-export type VRAType = 'fertilizer' | 'seed' | 'lime' | 'pesticide' | 'irrigation';
+export type VRAType =
+  | "fertilizer"
+  | "seed"
+  | "lime"
+  | "pesticide"
+  | "irrigation";
 
 /**
  * Zone Classification Methods
  * طرق تصنيف المناطق
  */
-export type VRAMethod = 'ndvi' | 'yield' | 'soil' | 'combined';
+export type VRAMethod = "ndvi" | "yield" | "soil" | "combined";
 
 /**
  * Zone Level Classification
  * تصنيف مستوى المنطقة
  */
-export type ZoneLevel = 'very_low' | 'low' | 'medium' | 'high' | 'very_high';
+export type ZoneLevel = "very_low" | "low" | "medium" | "high" | "very_high";
 
 /**
  * Export Format Types
  * أنواع تنسيق التصدير
  */
-export type ExportFormat = 'geojson' | 'csv' | 'shapefile' | 'isoxml';
+export type ExportFormat = "geojson" | "csv" | "shapefile" | "isoxml";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Request/Response Models
@@ -223,54 +228,54 @@ export interface ZoneMethodConfig {
  */
 export const VRA_TYPES: Record<VRAType, VRATypeConfig> = {
   fertilizer: {
-    type: 'fertilizer',
-    name: 'Fertilizer',
-    nameAr: 'تسميد',
-    description: 'Variable nitrogen/fertilizer application based on crop vigor',
-    descriptionAr: 'تطبيق النيتروجين/الأسمدة المتغير بناءً على قوة المحصول',
-    defaultUnit: 'kg/ha',
-    strategy: 'More to low-vigor areas, less to high-vigor areas',
-    strategyAr: 'المزيد للمناطق منخفضة النشاط، والأقل للمناطق عالية النشاط',
+    type: "fertilizer",
+    name: "Fertilizer",
+    nameAr: "تسميد",
+    description: "Variable nitrogen/fertilizer application based on crop vigor",
+    descriptionAr: "تطبيق النيتروجين/الأسمدة المتغير بناءً على قوة المحصول",
+    defaultUnit: "kg/ha",
+    strategy: "More to low-vigor areas, less to high-vigor areas",
+    strategyAr: "المزيد للمناطق منخفضة النشاط، والأقل للمناطق عالية النشاط",
   },
   seed: {
-    type: 'seed',
-    name: 'Seed',
-    nameAr: 'بذار',
-    description: 'Variable seeding rates based on field potential',
-    descriptionAr: 'معدلات البذر المتغيرة بناءً على إمكانات الحقل',
-    defaultUnit: 'seeds/ha',
-    strategy: 'More seeds to high-potential areas',
-    strategyAr: 'المزيد من البذور للمناطق ذات الإمكانات العالية',
+    type: "seed",
+    name: "Seed",
+    nameAr: "بذار",
+    description: "Variable seeding rates based on field potential",
+    descriptionAr: "معدلات البذر المتغيرة بناءً على إمكانات الحقل",
+    defaultUnit: "seeds/ha",
+    strategy: "More seeds to high-potential areas",
+    strategyAr: "المزيد من البذور للمناطق ذات الإمكانات العالية",
   },
   lime: {
-    type: 'lime',
-    name: 'Lime',
-    nameAr: 'جير',
-    description: 'Variable lime application for pH correction',
-    descriptionAr: 'تطبيق الجير المتغير لتصحيح الحموضة',
-    defaultUnit: 'kg/ha',
-    strategy: 'More lime to acidic (low NDVI) areas',
-    strategyAr: 'المزيد من الجير للمناطق الحمضية (NDVI منخفض)',
+    type: "lime",
+    name: "Lime",
+    nameAr: "جير",
+    description: "Variable lime application for pH correction",
+    descriptionAr: "تطبيق الجير المتغير لتصحيح الحموضة",
+    defaultUnit: "kg/ha",
+    strategy: "More lime to acidic (low NDVI) areas",
+    strategyAr: "المزيد من الجير للمناطق الحمضية (NDVI منخفض)",
   },
   pesticide: {
-    type: 'pesticide',
-    name: 'Pesticide',
-    nameAr: 'مبيدات',
-    description: 'Variable pesticide application targeting problem areas',
-    descriptionAr: 'تطبيق المبيدات المتغير لاستهداف المناطق المشكلة',
-    defaultUnit: 'L/ha',
-    strategy: 'Target high-vigor areas where pests thrive',
-    strategyAr: 'استهداف المناطق عالية النشاط حيث تزدهر الآفات',
+    type: "pesticide",
+    name: "Pesticide",
+    nameAr: "مبيدات",
+    description: "Variable pesticide application targeting problem areas",
+    descriptionAr: "تطبيق المبيدات المتغير لاستهداف المناطق المشكلة",
+    defaultUnit: "L/ha",
+    strategy: "Target high-vigor areas where pests thrive",
+    strategyAr: "استهداف المناطق عالية النشاط حيث تزدهر الآفات",
   },
   irrigation: {
-    type: 'irrigation',
-    name: 'Irrigation',
-    nameAr: 'ري',
-    description: 'Variable water application based on stress indicators',
-    descriptionAr: 'تطبيق الماء المتغير بناءً على مؤشرات الإجهاد',
-    defaultUnit: 'mm/ha',
-    strategy: 'More water to stressed (low NDVI) areas',
-    strategyAr: 'المزيد من الماء للمناطق المجهدة (NDVI منخفض)',
+    type: "irrigation",
+    name: "Irrigation",
+    nameAr: "ري",
+    description: "Variable water application based on stress indicators",
+    descriptionAr: "تطبيق الماء المتغير بناءً على مؤشرات الإجهاد",
+    defaultUnit: "mm/ha",
+    strategy: "More water to stressed (low NDVI) areas",
+    strategyAr: "المزيد من الماء للمناطق المجهدة (NDVI منخفض)",
   },
 };
 
@@ -280,32 +285,34 @@ export const VRA_TYPES: Record<VRAType, VRATypeConfig> = {
  */
 export const ZONE_METHODS: Record<VRAMethod, ZoneMethodConfig> = {
   ndvi: {
-    method: 'ndvi',
-    name: 'NDVI-Based',
-    nameAr: 'بناءً على NDVI',
-    description: 'Zones based on vegetation index from satellite imagery',
-    descriptionAr: 'مناطق بناءً على مؤشر الغطاء النباتي من صور الأقمار الصناعية',
+    method: "ndvi",
+    name: "NDVI-Based",
+    nameAr: "بناءً على NDVI",
+    description: "Zones based on vegetation index from satellite imagery",
+    descriptionAr:
+      "مناطق بناءً على مؤشر الغطاء النباتي من صور الأقمار الصناعية",
   },
   yield: {
-    method: 'yield',
-    name: 'Yield-Based',
-    nameAr: 'بناءً على الإنتاج',
-    description: 'Zones based on historical yield data',
-    descriptionAr: 'مناطق بناءً على بيانات الإنتاج التاريخية',
+    method: "yield",
+    name: "Yield-Based",
+    nameAr: "بناءً على الإنتاج",
+    description: "Zones based on historical yield data",
+    descriptionAr: "مناطق بناءً على بيانات الإنتاج التاريخية",
   },
   soil: {
-    method: 'soil',
-    name: 'Soil-Based',
-    nameAr: 'بناءً على التربة',
-    description: 'Zones based on soil analysis and properties',
-    descriptionAr: 'مناطق بناءً على تحليل التربة وخصائصها',
+    method: "soil",
+    name: "Soil-Based",
+    nameAr: "بناءً على التربة",
+    description: "Zones based on soil analysis and properties",
+    descriptionAr: "مناطق بناءً على تحليل التربة وخصائصها",
   },
   combined: {
-    method: 'combined',
-    name: 'Combined',
-    nameAr: 'مجمع',
-    description: 'Multi-factor zone classification combining NDVI, yield, and soil',
-    descriptionAr: 'تصنيف المناطق متعدد العوامل يجمع بين NDVI والإنتاج والتربة',
+    method: "combined",
+    name: "Combined",
+    nameAr: "مجمع",
+    description:
+      "Multi-factor zone classification combining NDVI, yield, and soil",
+    descriptionAr: "تصنيف المناطق متعدد العوامل يجمع بين NDVI والإنتاج والتربة",
   },
 };
 
@@ -313,12 +320,15 @@ export const ZONE_METHODS: Record<VRAMethod, ZoneMethodConfig> = {
  * Zone Level Names
  * أسماء مستويات المناطق
  */
-export const ZONE_LEVEL_NAMES: Record<ZoneLevel, { name: string; nameAr: string }> = {
-  very_low: { name: 'Very Low', nameAr: 'منخفض جداً' },
-  low: { name: 'Low', nameAr: 'منخفض' },
-  medium: { name: 'Medium', nameAr: 'متوسط' },
-  high: { name: 'High', nameAr: 'عالي' },
-  very_high: { name: 'Very High', nameAr: 'عالي جداً' },
+export const ZONE_LEVEL_NAMES: Record<
+  ZoneLevel,
+  { name: string; nameAr: string }
+> = {
+  very_low: { name: "Very Low", nameAr: "منخفض جداً" },
+  low: { name: "Low", nameAr: "منخفض" },
+  medium: { name: "Medium", nameAr: "متوسط" },
+  high: { name: "High", nameAr: "عالي" },
+  very_high: { name: "Very High", nameAr: "عالي جداً" },
 };
 
 /**
@@ -326,11 +336,11 @@ export const ZONE_LEVEL_NAMES: Record<ZoneLevel, { name: string; nameAr: string 
  * ألوان المناطق الافتراضية
  */
 export const ZONE_COLORS: Record<ZoneLevel, string> = {
-  very_low: '#d62728', // Red
-  low: '#ff7f0e', // Orange
-  medium: '#ffdd00', // Yellow
-  high: '#98df8a', // Light green
-  very_high: '#2ca02c', // Dark green
+  very_low: "#d62728", // Red
+  low: "#ff7f0e", // Orange
+  medium: "#ffdd00", // Yellow
+  high: "#98df8a", // Light green
+  very_high: "#2ca02c", // Dark green
 };
 
 /**
@@ -343,9 +353,12 @@ export const ZONE_COUNT_OPTIONS = [3, 5] as const;
  * Export Format Labels
  * تسميات تنسيقات التصدير
  */
-export const EXPORT_FORMAT_LABELS: Record<ExportFormat, { name: string; nameAr: string }> = {
-  geojson: { name: 'GeoJSON', nameAr: 'GeoJSON' },
-  csv: { name: 'CSV', nameAr: 'CSV' },
-  shapefile: { name: 'Shapefile', nameAr: 'Shapefile' },
-  isoxml: { name: 'ISO-XML', nameAr: 'ISO-XML' },
+export const EXPORT_FORMAT_LABELS: Record<
+  ExportFormat,
+  { name: string; nameAr: string }
+> = {
+  geojson: { name: "GeoJSON", nameAr: "GeoJSON" },
+  csv: { name: "CSV", nameAr: "CSV" },
+  shapefile: { name: "Shapefile", nameAr: "Shapefile" },
+  isoxml: { name: "ISO-XML", nameAr: "ISO-XML" },
 };

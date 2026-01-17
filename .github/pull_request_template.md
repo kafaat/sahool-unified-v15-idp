@@ -17,14 +17,15 @@
 
 ## Changes Made
 
-<!-- Bullet list of specific changes -->
--
+## <!-- Bullet list of specific changes -->
+
 -
 -
 
 ## Testing
 
 <!-- How was this tested? -->
+
 - [ ] Unit tests pass (`make test`)
 - [ ] Lint checks pass (`make lint`)
 - [ ] ENV validation passes (`make env-check`)
@@ -33,22 +34,26 @@
 ## Checklist
 
 ### Code Quality
+
 - [ ] Code follows project style guidelines
 - [ ] Self-review of code completed
 - [ ] No hardcoded secrets or credentials
 - [ ] No `.env` files included
 
 ### Documentation
+
 - [ ] Code comments added where needed
 - [ ] Documentation updated (if applicable)
 - [ ] CHANGELOG.md updated (for features/fixes)
 
 ### Database (if applicable)
+
 - [ ] Migration follows sprint prefix convention (`s{sprint}_`)
 - [ ] Migration has working `downgrade()`
 - [ ] No edits to existing migrations
 
 ### Environment (if applicable)
+
 - [ ] New ENV vars added to `.env.example`
 - [ ] New ENV vars documented in `docs/ENVIRONMENT.md`
 - [ ] `make env-scan` passes

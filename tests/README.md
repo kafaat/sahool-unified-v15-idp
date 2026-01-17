@@ -72,14 +72,14 @@ pytest tests/integration/test_identity_flows.py
 
 **Integration Tests:**
 
-| Test | Description |
-|------|-------------|
-| `test_audit_flow.py` | Audit logging flow |
-| `test_field_api.py` | Field API endpoints |
-| `test_health.py` | Health check endpoints |
-| `test_identity_flows.py` | Authentication flows |
-| `test_outbox_event_flow.py` | Event outbox pattern |
-| `test_spatial_hierarchy.py` | Spatial queries |
+| Test                        | Description            |
+| --------------------------- | ---------------------- |
+| `test_audit_flow.py`        | Audit logging flow     |
+| `test_field_api.py`         | Field API endpoints    |
+| `test_health.py`            | Health check endpoints |
+| `test_identity_flows.py`    | Authentication flows   |
+| `test_outbox_event_flow.py` | Event outbox pattern   |
+| `test_spatial_hierarchy.py` | Spatial queries        |
 
 ### Smoke Tests
 

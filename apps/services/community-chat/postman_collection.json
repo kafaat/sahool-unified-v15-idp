@@ -228,7 +228,12 @@
                 "url": {
                   "raw": "{{base_url}}/v1/rooms/support_12345_1735295400000/messages",
                   "host": ["{{base_url}}"],
-                  "path": ["v1", "rooms", "support_12345_1735295400000", "messages"]
+                  "path": [
+                    "v1",
+                    "rooms",
+                    "support_12345_1735295400000",
+                    "messages"
+                  ]
                 }
               },
               "status": "OK",

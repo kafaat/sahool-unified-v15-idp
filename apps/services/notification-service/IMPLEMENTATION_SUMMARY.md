@@ -1,4 +1,5 @@
 # SAHOOL Notification Service - PostgreSQL Implementation Summary
+
 # ملخص تنفيذ PostgreSQL لخدمة الإشعارات
 
 ## 📋 Overview | نظرة عامة
@@ -368,6 +369,7 @@ curl http://localhost:8110/healthz
 ## 📝 Files Created/Modified | الملفات المنشأة/المعدلة
 
 ### Created (9 files):
+
 1. `src/models.py` - Database models
 2. `src/repository.py` - Data access layer
 3. `src/database.py` - Database configuration
@@ -383,6 +385,7 @@ curl http://localhost:8110/healthz
 13. `IMPLEMENTATION_SUMMARY.md` - This file
 
 ### Modified (2 files):
+
 1. `requirements.txt` - Added PostgreSQL dependencies
 2. `src/main.py` - Updated to use database
 

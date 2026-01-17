@@ -3,11 +3,16 @@
  * خطاف التوثيق
  */
 
-'use client';
+"use client";
 
-import { createContext, useContext, useCallback, useMemo } from 'react';
-import type { Role, Permission } from './permissions';
-import { hasPermission, hasAnyPermission, hasAllPermissions, getPermissionsForRoles } from './permissions';
+import { createContext, useContext, useCallback, useMemo } from "react";
+import type { Role, Permission } from "./permissions";
+import {
+  hasPermission,
+  hasAnyPermission,
+  hasAllPermissions,
+  getPermissionsForRoles,
+} from "./permissions";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -64,7 +69,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -121,7 +126,7 @@ export function createAuthContextValue(
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     refreshToken: () => Promise<void>;
-  }
+  },
 ): AuthContextValue {
   const roles = user?.roles ?? [];
   const permissions = getPermissionsForRoles(roles);

@@ -14,11 +14,11 @@ This guide documents the complete upgrade of PgBouncer authentication from MD5 t
 
 ### What Changed
 
-| Component | Before | After |
-|-----------|--------|-------|
-| **PgBouncer auth_type** | `md5` | `scram-sha-256` |
+| Component                          | Before          | After                       |
+| ---------------------------------- | --------------- | --------------------------- |
+| **PgBouncer auth_type**            | `md5`           | `scram-sha-256`             |
 | **PostgreSQL password_encryption** | `scram-sha-256` | `scram-sha-256` (no change) |
-| **pg_hba.conf auth method** | `scram-sha-256` | `scram-sha-256` (no change) |
+| **pg_hba.conf auth method**        | `scram-sha-256` | `scram-sha-256` (no change) |
 
 ### Security Benefits
 
@@ -142,6 +142,7 @@ docker exec sahool-postgres psql -U sahool -d sahool -f \
 ```
 
 This script will:
+
 - ✓ Verify PostgreSQL password_encryption is `scram-sha-256`
 - ✓ Audit all user passwords (identify MD5 vs SCRAM)
 - ✓ Grant necessary permissions (pg_monitor to sahool user)
@@ -177,6 +178,7 @@ docker compose stop pgbouncer
 ### Step 4: Update Configuration Files
 
 The configuration files have already been updated:
+
 - ✅ `docker-compose.pgbouncer.yml` - AUTH_TYPE changed to scram-sha-256
 - ✅ `pgbouncer.ini` - auth_type changed to scram-sha-256
 
@@ -196,6 +198,7 @@ docker logs sahool-pgbouncer --tail 50
 ```
 
 Look for:
+
 ```
 LOG kernel file descriptor limit: 1048576 (hard: 1048576); max_client_conn: 500, max expected fd use: 512
 LOG listening on 0.0.0.0:6432
@@ -269,6 +272,7 @@ SHOW STATS;
 ```
 
 Expected output for `SHOW POOLS`:
+
 ```
  database |   user   | cl_active | cl_waiting | sv_active | sv_idle | sv_used
 ----------+----------+-----------+------------+-----------+---------+---------
@@ -317,12 +321,14 @@ docker compose -f infrastructure/core/pgbouncer/docker-compose.pgbouncer.yml dow
 ### Step 2: Revert Configuration Changes
 
 **File:** `docker-compose.pgbouncer.yml`
+
 ```yaml
 # Revert line 43
 AUTH_TYPE: md5
 ```
 
 **File:** `pgbouncer.ini`
+
 ```ini
 # Revert line 32
 auth_type = md5
@@ -343,16 +349,19 @@ docker compose -f infrastructure/core/pgbouncer/docker-compose.pgbouncer.yml up 
 ### Issue 1: Authentication Failed for User
 
 **Symptom:**
+
 ```
 FATAL: password authentication failed for user "sahool"
 ```
 
 **Causes:**
+
 1. User password is not SCRAM-SHA-256 encoded
 2. auth_user (sahool) doesn't have pg_monitor role
 3. pgbouncer.get_auth() function missing or has wrong permissions
 
 **Solution:**
+
 ```sql
 -- 1. Verify user password encryption
 SELECT usename, passwd FROM pg_shadow WHERE usename = 'sahool';
@@ -371,16 +380,19 @@ GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO sahool;
 ### Issue 2: PgBouncer Can't Connect to PostgreSQL
 
 **Symptom:**
+
 ```
 LOG C-0x12345: sahool/sahool@localhost:6432 login failed: password authentication failed
 ```
 
 **Causes:**
+
 1. auth_user credentials incorrect in environment variables
 2. PostgreSQL pg_hba.conf doesn't allow PgBouncer connection
 3. Network connectivity issues
 
 **Solution:**
+
 ```bash
 # 1. Check environment variables
 docker inspect sahool-pgbouncer | grep -A 10 Env
@@ -395,16 +407,19 @@ docker exec sahool-pgbouncer psql -h postgres -U sahool -d sahool
 ### Issue 3: Connection Timeout
 
 **Symptom:**
+
 ```
 timeout: could not connect to server
 ```
 
 **Causes:**
+
 1. PgBouncer not running
 2. Network configuration issue
 3. Port not exposed
 
 **Solution:**
+
 ```bash
 # 1. Check PgBouncer is running
 docker ps | grep pgbouncer
@@ -420,16 +435,19 @@ docker port sahool-pgbouncer
 ### Issue 4: Too Many Connections
 
 **Symptom:**
+
 ```
 FATAL: sorry, too many clients already
 ```
 
 **Causes:**
+
 1. max_client_conn reached
 2. Connection leak in application
 3. Pool size too small
 
 **Solution:**
+
 ```bash
 # Check current connections
 docker exec sahool-pgbouncer psql -h localhost -p 6432 -U sahool -d pgbouncer \
@@ -444,16 +462,19 @@ docker exec sahool-pgbouncer psql -h localhost -p 6432 -U sahool -d pgbouncer \
 ### Issue 5: SSL/TLS Issues
 
 **Symptom:**
+
 ```
 FATAL: no pg_hba.conf entry for host
 ```
 
 **Causes:**
+
 1. SSL certificates missing
 2. pg_hba.conf requires SSL but client doesn't use it
 3. Certificate verification failed
 
 **Solution:**
+
 ```bash
 # Check if SSL is required
 docker exec sahool-postgres cat /var/lib/postgresql/data/pg_hba.conf | grep hostssl
@@ -530,6 +551,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
 **Key Points:**
+
 - `SECURITY DEFINER` - Runs with owner privileges (can read pg_shadow)
 - Returns password hash from `pg_shadow` system catalog
 - Hash format: `SCRAM-SHA-256$<iteration-count>:<salt>$<stored-key>:<server-key>`
@@ -546,6 +568,7 @@ SCRAM-SHA-256$4096:Aa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8==$StoredKey:ServerKey
 ```
 
 **Components:**
+
 - **Algorithm:** SCRAM-SHA-256 (SHA-256 based)
 - **Iterations:** 4096 (default, prevents brute force)
 - **Salt:** Random bytes, prevents rainbow tables
@@ -554,15 +577,15 @@ SCRAM-SHA-256$4096:Aa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8==$StoredKey:ServerKey
 
 ### Performance Comparison: MD5 vs SCRAM-SHA-256
 
-| Metric | MD5 | SCRAM-SHA-256 | Impact |
-|--------|-----|---------------|--------|
-| **Hash Time** | ~0.1 ms | ~1-2 ms | +10-20x (negligible for auth) |
-| **Security** | Weak (deprecated) | Strong (modern) | ✓ Significant improvement |
-| **Salt** | No | Yes | ✓ Prevents rainbow tables |
-| **Challenge-Response** | No | Yes | ✓ Prevents replay attacks |
-| **Password Transmission** | Hash sent | Never sent | ✓ Enhanced security |
-| **Connection Overhead** | Minimal | Slightly higher | ~1-2ms per connection |
-| **PgBouncer Compatibility** | Full | Full (v1.18+) | ✓ No compatibility issues |
+| Metric                      | MD5               | SCRAM-SHA-256   | Impact                        |
+| --------------------------- | ----------------- | --------------- | ----------------------------- |
+| **Hash Time**               | ~0.1 ms           | ~1-2 ms         | +10-20x (negligible for auth) |
+| **Security**                | Weak (deprecated) | Strong (modern) | ✓ Significant improvement     |
+| **Salt**                    | No                | Yes             | ✓ Prevents rainbow tables     |
+| **Challenge-Response**      | No                | Yes             | ✓ Prevents replay attacks     |
+| **Password Transmission**   | Hash sent         | Never sent      | ✓ Enhanced security           |
+| **Connection Overhead**     | Minimal           | Slightly higher | ~1-2ms per connection         |
+| **PgBouncer Compatibility** | Full              | Full (v1.18+)   | ✓ No compatibility issues     |
 
 ### Security Considerations
 
@@ -697,6 +720,7 @@ The SCRAM-SHA-256 authentication upgrade provides significantly enhanced securit
 **Migration Status:** ✅ COMPLETE
 
 **Security Improvements:**
+
 - ✓ Strong password hashing (SCRAM-SHA-256 vs MD5)
 - ✓ Salt-based protection against rainbow tables
 - ✓ Challenge-response prevents replay attacks

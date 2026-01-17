@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:secure_application/secure_application.dart';
 import 'security_config.dart';
 
+// Re-export securityConfigProvider for screens that use SecureScreen
+export 'security_config.dart' show securityConfigProvider, SecurityConfig;
+
 /// SAHOOL Screen Security Service
 /// خدمة حماية الشاشة من لقطات الشاشة والتسجيل
 ///
@@ -29,11 +32,17 @@ class ScreenSecurityService {
     if (_isInitialized) return;
 
     try {
-      debugPrint('🔒 Initializing Screen Security Service...');
+      if (kDebugMode) {
+        debugPrint('🔒 Initializing Screen Security Service...');
+      }
       _isInitialized = true;
-      debugPrint('✅ Screen Security Service initialized');
+      if (kDebugMode) {
+        debugPrint('✅ Screen Security Service initialized');
+      }
     } catch (e) {
-      debugPrint('❌ Screen Security initialization failed: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Screen Security initialization failed: $e');
+      }
     }
   }
 
@@ -44,15 +53,21 @@ class ScreenSecurityService {
     if (_isProtectionEnabled) return;
 
     try {
-      debugPrint('🔒 Enabling screenshot protection...');
+      if (kDebugMode) {
+        debugPrint('🔒 Enabling screenshot protection...');
+      }
 
       // Note: The actual protection is applied via SecureApplication widget
       // This method is for service-level tracking
       _isProtectionEnabled = true;
 
-      debugPrint('✅ Screenshot protection enabled');
+      if (kDebugMode) {
+        debugPrint('✅ Screenshot protection enabled');
+      }
     } catch (e) {
-      debugPrint('❌ Failed to enable screenshot protection: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Failed to enable screenshot protection: $e');
+      }
     }
   }
 
@@ -61,11 +76,17 @@ class ScreenSecurityService {
     if (!_isProtectionEnabled) return;
 
     try {
-      debugPrint('🔓 Disabling screenshot protection...');
+      if (kDebugMode) {
+        debugPrint('🔓 Disabling screenshot protection...');
+      }
       _isProtectionEnabled = false;
-      debugPrint('✅ Screenshot protection disabled');
+      if (kDebugMode) {
+        debugPrint('✅ Screenshot protection disabled');
+      }
     } catch (e) {
-      debugPrint('❌ Failed to disable screenshot protection: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Failed to disable screenshot protection: $e');
+      }
     }
   }
 
@@ -167,7 +188,7 @@ class SecureScreen extends ConsumerStatefulWidget {
 }
 
 class _SecureScreenState extends ConsumerState<SecureScreen> {
-  final _secureApplicationController = SecureApplicationController();
+  final _secureApplicationController = SecureApplicationController(SecureApplicationState());
   bool _isSecured = false;
 
   @override
@@ -199,14 +220,18 @@ class _SecureScreenState extends ConsumerState<SecureScreen> {
       _secureApplicationController.secure();
       setState(() => _isSecured = true);
 
-      debugPrint('🔒 Screen secured: ${widget.screenType.nameEn}');
+      if (kDebugMode) {
+        debugPrint('🔒 Screen secured: ${widget.screenType.nameEn}');
+      }
 
       // Show warning if requested
       if (widget.showWarning && mounted) {
         _showSecurityWarning();
       }
     } catch (e) {
-      debugPrint('❌ Failed to secure screen: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Failed to secure screen: $e');
+      }
     }
   }
 
@@ -216,9 +241,13 @@ class _SecureScreenState extends ConsumerState<SecureScreen> {
     try {
       _secureApplicationController.open();
       setState(() => _isSecured = false);
-      debugPrint('🔓 Screen unsecured: ${widget.screenType.nameEn}');
+      if (kDebugMode) {
+        debugPrint('🔓 Screen unsecured: ${widget.screenType.nameEn}');
+      }
     } catch (e) {
-      debugPrint('❌ Failed to unsecure screen: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Failed to unsecure screen: $e');
+      }
     }
   }
 

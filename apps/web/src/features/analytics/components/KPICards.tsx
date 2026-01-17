@@ -3,9 +3,9 @@
  * بطاقات مؤشرات الأداء الرئيسية
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -14,8 +14,8 @@ import {
   Sprout,
   DollarSign,
   BarChart,
-} from 'lucide-react';
-import type { KPIMetric } from '../types';
+} from "lucide-react";
+import type { KPIMetric } from "../types";
 
 interface KPICardsProps {
   kpis: KPIMetric[];
@@ -30,23 +30,23 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 const statusColors = {
-  good: 'bg-green-50 border-green-200',
-  warning: 'bg-yellow-50 border-yellow-200',
-  critical: 'bg-red-50 border-red-200',
+  good: "bg-green-50 border-green-200",
+  warning: "bg-yellow-50 border-yellow-200",
+  critical: "bg-red-50 border-red-200",
 };
 
 const trendColors = {
-  up: 'text-green-600',
-  down: 'text-red-600',
-  stable: 'text-gray-600',
+  up: "text-green-600",
+  down: "text-red-600",
+  stable: "text-gray-600",
 };
 
 export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
-  const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
+  const getTrendIcon = (trend: "up" | "down" | "stable") => {
     switch (trend) {
-      case 'up':
+      case "up":
         return TrendingUp;
-      case 'down':
+      case "down":
         return TrendingDown;
       default:
         return Minus;
@@ -73,7 +73,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
               <div className={`flex items-center gap-1 ${trendColor}`}>
                 <TrendIcon className="w-5 h-5" />
                 <span className="text-sm font-medium">
-                  {kpi.change > 0 ? '+' : ''}
+                  {kpi.change > 0 ? "+" : ""}
                   {kpi.change.toFixed(1)}%
                 </span>
               </div>
@@ -83,7 +83,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
               <p className="text-sm text-gray-600">{kpi.nameAr}</p>
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-3xl font-bold text-gray-900">
-                  {kpi.value.toLocaleString('ar-SA')}
+                  {kpi.value.toLocaleString("ar-SA")}
                 </span>
                 <span className="text-sm text-gray-500">{kpi.unitAr}</span>
               </div>

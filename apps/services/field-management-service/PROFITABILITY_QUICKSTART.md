@@ -1,4 +1,5 @@
 # Crop Profitability Analysis - Quick Start Guide
+
 # دليل البدء السريع - تحليل ربحية المحاصيل
 
 ## Overview | نظرة عامة
@@ -76,6 +77,7 @@ curl -X POST "http://localhost:8090/v1/profitability/analyze" \
 ```
 
 **Result:**
+
 - Total costs: 1,425,000 YER
 - Total revenue: 4,125,000 YER
 - Net profit: 2,700,000 YER
@@ -118,6 +120,7 @@ curl -X POST "http://localhost:8090/v1/profitability/season" \
 ```
 
 **Result:**
+
 - Total area: 6.0 hectares
 - Overall profitability
 - Best performing crop
@@ -135,6 +138,7 @@ curl "http://localhost:8090/v1/profitability/break-even?crop_code=wheat&area_ha=
 ```
 
 **Result:**
+
 - Break-even yield: 1,218 kg (487 kg/ha)
 - Regional average: 2,800 kg/ha
 - Safety margin: 81%
@@ -150,6 +154,7 @@ curl "http://localhost:8090/v1/profitability/benchmarks/coffee?region=sanaa"
 ```
 
 **Result:**
+
 - Regional average costs per category
 - Expected yields
 - Market prices
@@ -160,12 +165,14 @@ curl "http://localhost:8090/v1/profitability/benchmarks/coffee?region=sanaa"
 ## Supported Crops | المحاصيل المدعومة
 
 ### Grains | الحبوب
+
 - **Wheat (قمح)** - Staple grain, 2,800 kg/ha, 550 YER/kg
 - **Barley (شعير)** - Feed grain, 2,500 kg/ha, 480 YER/kg
 - **Sorghum (ذرة رفيعة)** - Drought-tolerant, 2,200 kg/ha, 400 YER/kg
 - **Maize (ذرة شامية)** - Corn, 3,200 kg/ha, 520 YER/kg
 
 ### Vegetables | الخضروات
+
 - **Tomato (طماطم)** - High value, 25,000 kg/ha, 280 YER/kg
 - **Potato (بطاطس)** - Root crop, 18,000 kg/ha, 350 YER/kg
 - **Onion (بصل)** - Storage crop, 22,000 kg/ha, 300 YER/kg
@@ -173,6 +180,7 @@ curl "http://localhost:8090/v1/profitability/benchmarks/coffee?region=sanaa"
 - **Watermelon (بطيخ)** - Fruit crop, 30,000 kg/ha, 180 YER/kg
 
 ### Cash Crops | المحاصيل النقدية
+
 - **Coffee (بن)** - Premium Yemen coffee, 800 kg/ha, 8,500 YER/kg
 - **Qat (قات)** - High value, 3,500 kg/ha, 3,500 YER/kg
 - **Mango (مانجو)** - Tree crop, 12,000 kg/ha, 800 YER/kg
@@ -182,27 +190,35 @@ curl "http://localhost:8090/v1/profitability/benchmarks/coffee?region=sanaa"
 ## API Reference | مرجع الـ API
 
 ### GET `/v1/crops/list`
+
 List all available crops with regional data.
 
 ### POST `/v1/profitability/analyze`
+
 Analyze single crop with custom costs and revenues.
 
 ### POST `/v1/profitability/season`
+
 Analyze entire season with multiple crops.
 
 ### GET `/v1/profitability/compare`
+
 Compare multiple crops for planning.
 
 ### GET `/v1/profitability/break-even`
+
 Calculate break-even yield and price.
 
 ### GET `/v1/profitability/benchmarks/{crop_code}`
+
 Get regional benchmarks for a crop.
 
 ### GET `/v1/profitability/cost-breakdown/{crop_code}`
+
 Get detailed cost breakdown by category.
 
 ### GET `/v1/profitability/history/{field_id}/{crop_code}`
+
 Get historical profitability trends.
 
 ---
@@ -210,28 +226,35 @@ Get historical profitability trends.
 ## Understanding the Metrics | فهم المقاييس
 
 ### Gross Profit | إجمالي الربح
+
 Revenue minus direct costs (seeds, fertilizer, labor, etc.)
 
 الإيرادات ناقص التكاليف المباشرة
 
 ### Gross Margin % | هامش الربح الإجمالي %
+
 Gross profit as a percentage of revenue. Higher is better.
+
 - < 20%: Low profitability
 - 20-40%: Moderate profitability
 - > 40%: High profitability
 
 ### ROI (Return on Investment) | العائد على الاستثمار
+
 Net profit as a percentage of total costs invested.
+
 - < 30%: Low return
 - 30-70%: Good return
 - > 70%: Excellent return
 
 ### Break-even Yield | إنتاجية التعادل
+
 Minimum yield (kg/ha) needed to cover all costs at expected price.
 
 الحد الأدنى من الإنتاج المطلوب لتغطية جميع التكاليف
 
 ### Profit per Hectare | الربح لكل هكتار
+
 Net profit divided by area - useful for comparing crops.
 
 صافي الربح مقسوماً على المساحة
@@ -241,6 +264,7 @@ Net profit divided by area - useful for comparing crops.
 ## Running with Docker | التشغيل مع Docker
 
 ### Build and Run
+
 ```bash
 # Build
 docker build -f Dockerfile.python -t sahool-profitability .
@@ -250,6 +274,7 @@ docker run -p 8090:8090 sahool-profitability
 ```
 
 ### Docker Compose
+
 ```bash
 # Start all services (field-core + profitability)
 docker-compose -f docker-compose.profitability.yml up -d
@@ -266,6 +291,7 @@ docker-compose -f docker-compose.profitability.yml down
 ## Testing | الاختبار
 
 ### Run Tests
+
 ```bash
 # Install test dependencies
 pip install pytest pytest-asyncio httpx
@@ -278,6 +304,7 @@ pytest tests/ --cov=src --cov-report=html
 ```
 
 ### Manual Testing
+
 ```bash
 # Start service
 python src/main.py
@@ -292,6 +319,7 @@ curl http://localhost:8090/v1/crops/list
 ## Integration Examples | أمثلة التكامل
 
 ### Python
+
 ```python
 import httpx
 
@@ -311,15 +339,17 @@ async def analyze_wheat_crop():
 ```
 
 ### JavaScript/TypeScript
+
 ```javascript
 const response = await fetch(
-  'http://localhost:8090/v1/profitability/compare?crops=wheat,tomato,coffee&area_ha=2.5'
+  "http://localhost:8090/v1/profitability/compare?crops=wheat,tomato,coffee&area_ha=2.5",
 );
 const data = await response.json();
 console.log(`Best crop: ${data.best_crop.crop_name_en}`);
 ```
 
 ### cURL
+
 ```bash
 #!/bin/bash
 # Analyze all fields
@@ -333,6 +363,7 @@ done
 ## Troubleshooting | استكشاف الأخطاء
 
 ### Service won't start
+
 ```bash
 # Check if port 8090 is available
 lsof -i :8090
@@ -345,6 +376,7 @@ pip list | grep fastapi
 ```
 
 ### Database connection issues
+
 ```bash
 # Verify DATABASE_URL environment variable
 echo $DATABASE_URL
@@ -354,6 +386,7 @@ psql $DATABASE_URL -c "SELECT 1"
 ```
 
 ### API returns errors
+
 ```bash
 # Check service logs
 tail -f logs/field-core.log

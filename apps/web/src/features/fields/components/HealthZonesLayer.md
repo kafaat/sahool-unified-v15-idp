@@ -11,31 +11,37 @@ A React component for displaying field health zones on a map using react-leaflet
 ## Features - الميزات
 
 ✅ **NDVI-based color coding** - ترميز الألوان بناءً على NDVI
+
 - Green (>0.6): Excellent health
 - Yellow (0.4-0.6): Moderate health
 - Red (<0.4): Poor health
 
 ✅ **Interactive zones** - مناطق تفاعلية
+
 - Click handling for zone details
 - Selection highlighting
 - Hover effects
 
 ✅ **Rich tooltips** - تلميحات غنية
+
 - Zone name and NDVI value
 - Health status in Arabic
 - Area information
 
 ✅ **Comprehensive popups** - نوافذ منبثقة شاملة
+
 - Full zone details
 - Color-coded health status
 - Action button for more details
 
 ✅ **Error handling** - معالجة الأخطاء
+
 - Validation of zone boundaries
 - NDVI value validation
 - Development mode error display
 
 ✅ **RTL support** - دعم RTL
+
 - Full Arabic language support
 - Right-to-left layout
 
@@ -44,49 +50,49 @@ A React component for displaying field health zones on a map using react-leaflet
 The component is part of the fields feature and is already exported:
 
 ```typescript
-import { HealthZonesLayer, type FieldZone } from '@/features/fields';
+import { HealthZonesLayer, type FieldZone } from "@/features/fields";
 ```
 
 ## Props - الخصائص
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `zones` | `FieldZone[]` | ✅ Yes | - | Array of field zones to display |
-| `selectedZoneId` | `string` | No | - | ID of currently selected zone |
-| `onZoneClick` | `(zone: FieldZone) => void` | No | - | Callback when zone is clicked |
-| `showLabels` | `boolean` | No | `true` | Show zone labels on map |
-| `showTooltips` | `boolean` | No | `true` | Show tooltips on hover |
+| Prop             | Type                        | Required | Default | Description                     |
+| ---------------- | --------------------------- | -------- | ------- | ------------------------------- |
+| `zones`          | `FieldZone[]`               | ✅ Yes   | -       | Array of field zones to display |
+| `selectedZoneId` | `string`                    | No       | -       | ID of currently selected zone   |
+| `onZoneClick`    | `(zone: FieldZone) => void` | No       | -       | Callback when zone is clicked   |
+| `showLabels`     | `boolean`                   | No       | `true`  | Show zone labels on map         |
+| `showTooltips`   | `boolean`                   | No       | `true`  | Show tooltips on hover          |
 
 ## FieldZone Type - نوع FieldZone
 
 ```typescript
 interface FieldZone {
-  id: string;                    // Unique identifier
-  name: string;                   // Zone name (supports Arabic)
-  boundary: [number, number][];   // Array of [lat, lng] coordinates
-  ndviValue: number;              // NDVI value (-1 to 1)
-  healthStatus: 'excellent' | 'good' | 'moderate' | 'poor' | 'critical';
-  area: number;                   // Area in hectares
+  id: string; // Unique identifier
+  name: string; // Zone name (supports Arabic)
+  boundary: [number, number][]; // Array of [lat, lng] coordinates
+  ndviValue: number; // NDVI value (-1 to 1)
+  healthStatus: "excellent" | "good" | "moderate" | "poor" | "critical";
+  area: number; // Area in hectares
 }
 ```
 
 ## Basic Usage - الاستخدام الأساسي
 
 ```tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import dynamic from 'next/dynamic';
-import { HealthZonesLayer, type FieldZone } from '@/features/fields';
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import { HealthZonesLayer, type FieldZone } from "@/features/fields";
 
 // Dynamic imports to avoid SSR issues
 const MapContainer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
-  { ssr: false }
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false },
 );
 const TileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
-  { ssr: false }
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false },
 );
 
 export default function MyMap() {
@@ -94,15 +100,15 @@ export default function MyMap() {
 
   const zones: FieldZone[] = [
     {
-      id: 'zone-1',
-      name: 'المنطقة الشمالية',
+      id: "zone-1",
+      name: "المنطقة الشمالية",
       boundary: [
         [15.5527, 48.5164],
         [15.5537, 48.5174],
         [15.5527, 48.5184],
       ],
       ndviValue: 0.75,
-      healthStatus: 'excellent',
+      healthStatus: "excellent",
       area: 2.5,
     },
     // ... more zones
@@ -127,8 +133,8 @@ export default function MyMap() {
 ### With API Data - مع بيانات API
 
 ```tsx
-import { useFieldNDVI } from '@/features/ndvi';
-import { HealthZonesLayer } from '@/features/fields';
+import { useFieldNDVI } from "@/features/ndvi";
+import { HealthZonesLayer } from "@/features/fields";
 
 export default function FieldHealthMap({ fieldId }: { fieldId: string }) {
   const { data: ndviData, isLoading } = useFieldNDVI(fieldId);
@@ -137,14 +143,15 @@ export default function FieldHealthMap({ fieldId }: { fieldId: string }) {
   if (isLoading) return <div>Loading...</div>;
 
   // Transform API data to FieldZone format
-  const zones: FieldZone[] = ndviData?.zones.map((zone) => ({
-    id: zone.id,
-    name: zone.nameAr || zone.name,
-    boundary: zone.coordinates,
-    ndviValue: zone.ndvi,
-    healthStatus: getHealthStatus(zone.ndvi),
-    area: zone.areaHectares,
-  })) || [];
+  const zones: FieldZone[] =
+    ndviData?.zones.map((zone) => ({
+      id: zone.id,
+      name: zone.nameAr || zone.name,
+      boundary: zone.coordinates,
+      ndviValue: zone.ndvi,
+      healthStatus: getHealthStatus(zone.ndvi),
+      area: zone.areaHectares,
+    })) || [];
 
   const handleZoneClick = (zone: FieldZone) => {
     setSelectedZone(zone.id);
@@ -167,12 +174,12 @@ export default function FieldHealthMap({ fieldId }: { fieldId: string }) {
   );
 }
 
-function getHealthStatus(ndvi: number): FieldZone['healthStatus'] {
-  if (ndvi > 0.7) return 'excellent';
-  if (ndvi > 0.6) return 'good';
-  if (ndvi > 0.4) return 'moderate';
-  if (ndvi > 0.2) return 'poor';
-  return 'critical';
+function getHealthStatus(ndvi: number): FieldZone["healthStatus"] {
+  if (ndvi > 0.7) return "excellent";
+  if (ndvi > 0.6) return "good";
+  if (ndvi > 0.4) return "moderate";
+  if (ndvi > 0.2) return "poor";
+  return "critical";
 }
 ```
 
@@ -199,11 +206,11 @@ function getHealthStatus(ndvi: number): FieldZone['healthStatus'] {
 
 ## Color Coding Reference - مرجع ترميز الألوان
 
-| NDVI Range | Color | Health Status | Arabic |
-|------------|-------|---------------|--------|
-| > 0.6 | 🟢 Green (#22c55e) | Excellent | ممتازة |
-| 0.4 - 0.6 | 🟡 Yellow (#eab308) | Moderate | متوسطة |
-| < 0.4 | 🔴 Red (#ef4444) | Poor | ضعيفة |
+| NDVI Range | Color               | Health Status | Arabic |
+| ---------- | ------------------- | ------------- | ------ |
+| > 0.6      | 🟢 Green (#22c55e)  | Excellent     | ممتازة |
+| 0.4 - 0.6  | 🟡 Yellow (#eab308) | Moderate      | متوسطة |
+| < 0.4      | 🔴 Red (#ef4444)    | Poor          | ضعيفة  |
 
 ## Validation Rules - قواعد التحقق
 
@@ -226,11 +233,11 @@ The component validates zones and logs errors in development mode:
 // في وضع التطوير، يتم عرض الأخطاء
 
 const invalidZone = {
-  id: 'invalid',
-  name: 'Invalid Zone',
+  id: "invalid",
+  name: "Invalid Zone",
   boundary: [[200, 300]], // ❌ Invalid coordinates
-  ndviValue: 2.5,          // ❌ Out of range
-  healthStatus: 'good',
+  ndviValue: 2.5, // ❌ Out of range
+  healthStatus: "good",
   area: 1.0,
 };
 
@@ -274,22 +281,26 @@ const invalidZone = {
 ## Example Files - ملفات الأمثلة
 
 See the complete working example:
+
 - `/apps/web/src/features/fields/examples/HealthZonesLayerExample.tsx`
 
 ## Troubleshooting - استكشاف الأخطاء
 
 ### Zones not displaying
+
 - ✓ Check that coordinates are in [lat, lng] format
 - ✓ Verify NDVI values are between -1 and 1
 - ✓ Ensure at least 3 coordinate pairs per zone
 - ✓ Check browser console for validation errors
 
 ### SSR Errors
+
 - ✓ Use dynamic imports for all react-leaflet components
 - ✓ Ensure 'use client' directive is present
 - ✓ Check that isMounted state is properly handled
 
 ### Styling Issues
+
 - ✓ Import Leaflet CSS in your layout
 - ✓ Check z-index values for overlapping elements
 - ✓ Verify Tailwind classes are not being purged
@@ -297,6 +308,7 @@ See the complete working example:
 ## Contributing - المساهمة
 
 When modifying this component:
+
 1. Maintain TypeScript type safety
 2. Add Arabic translations for new text
 3. Update this documentation

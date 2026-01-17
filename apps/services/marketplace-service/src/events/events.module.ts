@@ -3,8 +3,8 @@
  * Provides EventsService as a module when shared packages are not available
  */
 
-import { Module, OnModuleInit, OnModuleDestroy, Global } from '@nestjs/common';
-import { EventsService } from './events.service';
+import { Module, OnModuleInit, OnModuleDestroy, Global } from "@nestjs/common";
+import { EventsService } from "./events.service";
 
 @Global()
 @Module({

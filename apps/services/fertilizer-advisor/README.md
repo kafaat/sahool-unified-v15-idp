@@ -5,7 +5,6 @@ Please update your references to use `advisory-service` on port 8093.
 
 ---
 
-
 # Fertilizer Advisor - مستشار التسميد
 
 ## نظرة عامة | Overview
@@ -22,22 +21,24 @@ Smart fertilizer recommendation service based on soil analysis and crop requirem
 ## الميزات | Features
 
 ### التحليل | Analysis
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| تحليل التربة | Soil Analysis | تحليل خصائص التربة |
-| احتياجات المحصول | Crop Needs | حساب الاحتياجات |
-| توصيات مخصصة | Custom Recommendations | خطط تسميد فردية |
-| جدولة التسميد | Fertilization Schedule | مواعيد التطبيق |
+
+| الميزة           | Feature                | الوصف              |
+| ---------------- | ---------------------- | ------------------ |
+| تحليل التربة     | Soil Analysis          | تحليل خصائص التربة |
+| احتياجات المحصول | Crop Needs             | حساب الاحتياجات    |
+| توصيات مخصصة     | Custom Recommendations | خطط تسميد فردية    |
+| جدولة التسميد    | Fertilization Schedule | مواعيد التطبيق     |
 
 ### العناصر | Nutrients
-| العنصر | Element | الرمز |
-|--------|---------|--------|
-| نيتروجين | Nitrogen | N |
-| فوسفور | Phosphorus | P |
-| بوتاسيوم | Potassium | K |
-| كالسيوم | Calcium | Ca |
-| مغنيسيوم | Magnesium | Mg |
-| كبريت | Sulfur | S |
+
+| العنصر     | Element        | الرمز             |
+| ---------- | -------------- | ----------------- |
+| نيتروجين   | Nitrogen       | N                 |
+| فوسفور     | Phosphorus     | P                 |
+| بوتاسيوم   | Potassium      | K                 |
+| كالسيوم    | Calcium        | Ca                |
+| مغنيسيوم   | Magnesium      | Mg                |
+| كبريت      | Sulfur         | S                 |
 | عناصر صغرى | Micronutrients | Fe, Zn, Mn, Cu, B |
 
 ---
@@ -215,51 +216,53 @@ Response:
 ## نماذج البيانات | Data Models
 
 ### SoilAnalysis
+
 ```json
 {
-    "id": "analysis-001",
-    "field_id": "field-001",
-    "analysis_date": "2024-01-15",
-    "results": {
-        "ph": 7.2,
-        "ec_ds_m": 1.5,
-        "organic_matter_percent": 2.1,
-        "nutrients": {
-            "N": {"value": 45, "unit": "ppm", "status": "low"},
-            "P": {"value": 22, "unit": "ppm", "status": "adequate"},
-            "K": {"value": 180, "unit": "ppm", "status": "adequate"}
-        },
-        "texture": {
-            "sand_percent": 55,
-            "silt_percent": 30,
-            "clay_percent": 15,
-            "class": "sandy_loam"
-        }
+  "id": "analysis-001",
+  "field_id": "field-001",
+  "analysis_date": "2024-01-15",
+  "results": {
+    "ph": 7.2,
+    "ec_ds_m": 1.5,
+    "organic_matter_percent": 2.1,
+    "nutrients": {
+      "N": { "value": 45, "unit": "ppm", "status": "low" },
+      "P": { "value": 22, "unit": "ppm", "status": "adequate" },
+      "K": { "value": 180, "unit": "ppm", "status": "adequate" }
     },
-    "interpretation": {
-        "ph_status": "قلوي قليلاً",
-        "salinity_status": "طبيعي",
-        "fertility_rating": "متوسطة"
+    "texture": {
+      "sand_percent": 55,
+      "silt_percent": 30,
+      "clay_percent": 15,
+      "class": "sandy_loam"
     }
+  },
+  "interpretation": {
+    "ph_status": "قلوي قليلاً",
+    "salinity_status": "طبيعي",
+    "fertility_rating": "متوسطة"
+  }
 }
 ```
 
 ### FertilizerRecommendation
+
 ```json
 {
-    "nutrient": "N",
-    "deficiency_kg_ha": 50,
-    "recommended_source": {
-        "id": "urea-46",
-        "name": "يوريا 46%",
-        "name_en": "Urea 46%"
-    },
-    "application": {
-        "amount_kg_ha": 108.7,
-        "method": "fertigation",
-        "timing": "مرحلة التفريع",
-        "splits": 2
-    }
+  "nutrient": "N",
+  "deficiency_kg_ha": 50,
+  "recommended_source": {
+    "id": "urea-46",
+    "name": "يوريا 46%",
+    "name_en": "Urea 46%"
+  },
+  "application": {
+    "amount_kg_ha": 108.7,
+    "method": "fertigation",
+    "timing": "مرحلة التفريع",
+    "splits": 2
+  }
 }
 ```
 

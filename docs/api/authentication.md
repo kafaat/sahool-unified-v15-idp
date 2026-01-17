@@ -1,4 +1,5 @@
 # Authentication APIs
+
 # واجهات برمجة تطبيقات المصادقة
 
 ## Overview | نظرة عامة
@@ -22,12 +23,14 @@ sequenceDiagram
 ## Token Types | أنواع الرموز
 
 ### Access Token
+
 - **Purpose:** Authenticate API requests
 - **Lifetime:** 1 hour (3600 seconds)
 - **Format:** JWT
 - **Usage:** Include in `Authorization: Bearer <token>` header
 
 ### Refresh Token
+
 - **Purpose:** Obtain new access tokens
 - **Lifetime:** 7 days
 - **Format:** JWT
@@ -70,11 +73,11 @@ sequenceDiagram
 
 #### Error Responses
 
-| Status | Error Code | Description |
-|--------|------------|-------------|
-| 401 | `invalid_credentials` | Invalid email or password |
-| 429 | `rate_limit_exceeded` | Too many login attempts |
-| 400 | `invalid_request` | Missing or invalid fields |
+| Status | Error Code            | Description               |
+| ------ | --------------------- | ------------------------- |
+| 401    | `invalid_credentials` | Invalid email or password |
+| 429    | `rate_limit_exceeded` | Too many login attempts   |
+| 400    | `invalid_request`     | Missing or invalid fields |
 
 #### Example
 
@@ -222,18 +225,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### Token Claims
 
-| Claim | Description |
-|-------|-------------|
-| `sub` | User ID (subject) |
-| `type` | Token type (access/refresh) |
-| `email` | User email |
-| `tenant_id` | Organization/tenant ID |
-| `roles` | User roles array |
-| `permissions` | User permissions array |
-| `iat` | Issued at timestamp |
-| `exp` | Expiration timestamp |
-| `iss` | Issuer (sahool-auth) |
-| `aud` | Audience (sahool-api) |
+| Claim         | Description                 |
+| ------------- | --------------------------- |
+| `sub`         | User ID (subject)           |
+| `type`        | Token type (access/refresh) |
+| `email`       | User email                  |
+| `tenant_id`   | Organization/tenant ID      |
+| `roles`       | User roles array            |
+| `permissions` | User permissions array      |
+| `iat`         | Issued at timestamp         |
+| `exp`         | Expiration timestamp        |
+| `iss`         | Issuer (sahool-auth)        |
+| `aud`         | Audience (sahool-api)       |
 
 ## Using Tokens | استخدام الرموز
 
@@ -247,13 +250,13 @@ curl -X GET http://localhost:8090/v1/fields \
 ### In JavaScript/TypeScript
 
 ```typescript
-const token = localStorage.getItem('access_token');
+const token = localStorage.getItem("access_token");
 
-const response = await fetch('http://localhost:8090/v1/fields', {
+const response = await fetch("http://localhost:8090/v1/fields", {
   headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  }
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
 });
 ```
 
@@ -316,13 +319,13 @@ curl -X GET http://localhost:8090/v1/internal/metrics \
 
 Authentication endpoints have strict rate limits:
 
-| Endpoint | Rate Limit | Window |
-|----------|------------|--------|
-| `/auth/login` | 5 requests | 1 minute |
-| `/auth/register` | 10 requests | 1 minute |
-| `/auth/forgot-password` | 3 requests | 1 minute |
-| `/auth/reset-password` | 5 requests | 1 minute |
-| `/auth/refresh` | 10 requests | 1 minute |
+| Endpoint                | Rate Limit  | Window   |
+| ----------------------- | ----------- | -------- |
+| `/auth/login`           | 5 requests  | 1 minute |
+| `/auth/register`        | 10 requests | 1 minute |
+| `/auth/forgot-password` | 3 requests  | 1 minute |
+| `/auth/reset-password`  | 5 requests  | 1 minute |
+| `/auth/refresh`         | 10 requests | 1 minute |
 
 ### Rate Limit Headers
 
@@ -347,18 +350,19 @@ X-RateLimit-Reset: 45
 
 ### Roles
 
-| Role | Description |
-|------|-------------|
-| `farmer` | Regular farmer user |
-| `agronomist` | Agricultural expert |
-| `admin` | Platform administrator |
-| `service` | Service account for integrations |
+| Role         | Description                      |
+| ------------ | -------------------------------- |
+| `farmer`     | Regular farmer user              |
+| `agronomist` | Agricultural expert              |
+| `admin`      | Platform administrator           |
+| `service`    | Service account for integrations |
 
 ### Permissions
 
 Permissions follow the pattern: `action:resource`
 
 Examples:
+
 - `read:fields` - View field information
 - `write:fields` - Create/update fields
 - `delete:fields` - Delete fields
@@ -367,4 +371,4 @@ Examples:
 
 ---
 
-*Last updated: {datetime.now().strftime('%Y-%m-%d')}*
+_Last updated: {datetime.now().strftime('%Y-%m-%d')}_

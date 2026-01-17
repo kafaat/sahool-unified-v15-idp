@@ -17,16 +17,19 @@ Real-time chat service for field workers, agronomists, and farm managers. Suppor
 ## Features | الميزات
 
 ### Real-time Messaging | الرسائل الفورية
+
 - WebSocket-based communication
 - Field-specific chat channels
 - Instant message delivery
 
 ### Message Management | إدارة الرسائل
+
 - Message history retrieval
 - Read receipts
 - Message search
 
 ### Channel Management | إدارة القنوات
+
 - Field-based channels
 - User presence tracking
 - Channel membership
@@ -34,30 +37,35 @@ Real-time chat service for field workers, agronomists, and farm managers. Suppor
 ## API Endpoints
 
 ### Health
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/healthz` | Health check |
+
+| Method | Path       | Description  |
+| ------ | ---------- | ------------ |
+| GET    | `/healthz` | Health check |
 
 ### Messages
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/v1/fields/{field_id}/messages` | Get message history |
-| POST | `/api/v1/fields/{field_id}/messages` | Send message |
-| GET | `/api/v1/messages/{message_id}` | Get message |
+
+| Method | Path                                 | Description         |
+| ------ | ------------------------------------ | ------------------- |
+| GET    | `/api/v1/fields/{field_id}/messages` | Get message history |
+| POST   | `/api/v1/fields/{field_id}/messages` | Send message        |
+| GET    | `/api/v1/messages/{message_id}`      | Get message         |
 
 ### WebSocket
-| Path | Description |
-|------|-------------|
+
+| Path             | Description                         |
+| ---------------- | ----------------------------------- |
 | `/ws/{field_id}` | WebSocket connection for field chat |
 
 ## WebSocket Protocol
 
 ### Connect
+
 ```javascript
-const ws = new WebSocket('ws://localhost:8091/ws/field_001?token=JWT_TOKEN');
+const ws = new WebSocket("ws://localhost:8091/ws/field_001?token=JWT_TOKEN");
 ```
 
 ### Send Message
+
 ```json
 {
   "type": "message",
@@ -67,6 +75,7 @@ const ws = new WebSocket('ws://localhost:8091/ws/field_001?token=JWT_TOKEN');
 ```
 
 ### Receive Message
+
 ```json
 {
   "type": "message",
@@ -81,11 +90,13 @@ const ws = new WebSocket('ws://localhost:8091/ws/field_001?token=JWT_TOKEN');
 ## Usage Examples | أمثلة الاستخدام
 
 ### Get Message History
+
 ```bash
 curl "http://localhost:8091/api/v1/fields/field_001/messages?limit=50"
 ```
 
 ### Send Message
+
 ```bash
 curl -X POST http://localhost:8091/api/v1/fields/field_001/messages \
   -H "Content-Type: application/json" \
@@ -105,15 +116,16 @@ curl -X POST http://localhost:8091/api/v1/fields/field_001/messages \
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Service port | `8091` |
-| `DATABASE_URL` | PostgreSQL connection | - |
-| `JWT_SECRET` | JWT signing key | - |
+| Variable       | Description           | Default |
+| -------------- | --------------------- | ------- |
+| `PORT`         | Service port          | `8091`  |
+| `DATABASE_URL` | PostgreSQL connection | -       |
+| `JWT_SECRET`   | JWT signing key       | -       |
 
 ## Database Models
 
 ### Message
+
 - `id` - Unique identifier
 - `field_id` - Associated field
 - `sender_id` - Message author

@@ -7,9 +7,11 @@ Complete CI/CD pipeline infrastructure has been successfully created for the SAH
 ## Files Created
 
 ### 1. **ci.yml** (16 KB)
+
 **Location**: `/home/user/sahool-unified-v15-idp/.github/workflows/ci.yml`
 
 Comprehensive continuous integration pipeline with:
+
 - **Code Quality**: Ruff, Black, isort (Python), ESLint (Node.js)
 - **Type Checking**: mypy (Python), tsc (TypeScript)
 - **Unit Tests**: Matrix-based parallel testing for all services
@@ -18,6 +20,7 @@ Comprehensive continuous integration pipeline with:
 - **Coverage Reporting**: Codecov integration
 
 **Matrix Groups**:
+
 - Core Services (agro-advisor, weather-core, field-ops, agro-rules)
 - AI Services (crop-health-ai, fertilizer-advisor, irrigation-smart, yield-engine)
 - Advanced Services (satellite-service, indicators-service, weather-advanced)
@@ -25,9 +28,11 @@ Comprehensive continuous integration pipeline with:
 - Node.js Services (community-chat, crop-growth-model, disaster-assessment, field-core, iot-service)
 
 ### 2. **cd-staging.yml** (23 KB)
+
 **Location**: `/home/user/sahool-unified-v15-idp/.github/workflows/cd-staging.yml`
 
 Staging deployment pipeline with phased rollout:
+
 - **Deployment Order**: Starter → Professional → Enterprise
 - **Testing Between Phases**: Integration tests after each package
 - **Infrastructure Setup**: PostgreSQL, Redis, NATS auto-deployment
@@ -36,14 +41,17 @@ Staging deployment pipeline with phased rollout:
 - **Notifications**: Slack integration for deployment status
 
 **Deployment Phases**:
+
 1. **Starter Package**: field-ops, weather-core, agro-advisor
 2. **Professional Package**: crop-health, ndvi-engine, irrigation-smart
 3. **Enterprise Package**: satellite-service, weather-advanced, crop-health-ai, yield-engine, billing-core, inventory-service
 
 ### 3. **cd-production.yml** (25 KB)
+
 **Location**: `/home/user/sahool-unified-v15-idp/.github/workflows/cd-production.yml`
 
 Production deployment with blue-green strategy:
+
 - **Manual Approval Gate**: Required before deployment
 - **State Backup**: Full backup of deployments, services, configs
 - **Blue-Green Deployment**: Zero-downtime deployment
@@ -54,6 +62,7 @@ Production deployment with blue-green strategy:
 - **Security Scanning**: Pre-deployment security checks
 
 **Safety Features**:
+
 - Deployment ID tracking
 - Database backups
 - Configuration snapshots
@@ -61,11 +70,13 @@ Production deployment with blue-green strategy:
 - Failure detection and rollback
 
 ### 4. **security.yml** (21 KB)
+
 **Location**: `/home/user/sahool-unified-v15-idp/.github/workflows/security.yml`
 
 Comprehensive security scanning:
 
 **Secrets Detection**:
+
 - TruffleHog secret scanning
 - Hardcoded credential detection
 - API key verification
@@ -73,12 +84,14 @@ Comprehensive security scanning:
 - Sensitive file detection
 
 **Dependency Scanning**:
+
 - Python: Safety, pip-audit
 - Node.js: npm audit, Snyk
 - Vulnerability database checks
 - Severity thresholds (HIGH, CRITICAL)
 
 **SAST (Static Analysis)**:
+
 - Bandit (Python security linting)
 - Semgrep (multi-language patterns)
 - CodeQL (semantic analysis)
@@ -86,12 +99,14 @@ Comprehensive security scanning:
 - GitHub Security integration
 
 **Container Security**:
+
 - Trivy vulnerability scanning
 - Grype container analysis
 - Hadolint Dockerfile linting
 - Best practices verification
 
 **Infrastructure as Code**:
+
 - Checkov IaC scanning
 - Kubernetes manifest validation
 - Security context verification
@@ -99,16 +114,19 @@ Comprehensive security scanning:
 **Schedule**: Daily at 2 AM UTC + on push/PR
 
 ### 5. **docs.yml** (23 KB)
+
 **Location**: `/home/user/sahool-unified-v15-idp/.github/workflows/docs.yml`
 
 Documentation generation and deployment:
 
 **OpenAPI Specification**:
+
 - Auto-generated from FastAPI services
 - Validation with @ibm/openapi-validator
 - JSON format with full schema
 
 **API Documentation**:
+
 - Redoc interactive docs
 - Beautiful HTML interface
 - Organized by package tier
@@ -116,6 +134,7 @@ Documentation generation and deployment:
 - Service catalog with badges
 
 **Developer Documentation**:
+
 - MkDocs Material theme
 - Getting started guides
 - Architecture documentation
@@ -123,14 +142,17 @@ Documentation generation and deployment:
 - Development guides
 
 **Deployment**:
+
 - GitHub Pages integration
 - Auto-deployment on main
 - Custom domain support (docs.sahool.io)
 
 ### 6. **README.md** (Documentation)
+
 **Location**: `/home/user/sahool-unified-v15-idp/.github/workflows/README.md`
 
 Comprehensive documentation covering:
+
 - Workflow descriptions
 - Trigger conditions
 - Job dependencies
@@ -141,9 +163,11 @@ Comprehensive documentation covering:
 - Mermaid diagrams
 
 ### 7. **dependabot.yml** (Already Exists)
+
 **Location**: `/home/user/sahool-unified-v15-idp/.github/dependabot.yml`
 
 Pre-existing comprehensive Dependabot configuration for:
+
 - Python dependencies (pip)
 - Node.js dependencies (npm)
 - Flutter dependencies (pub)
@@ -230,6 +254,7 @@ Pre-existing comprehensive Dependabot configuration for:
 ### Repository Secrets
 
 #### Staging Environment
+
 ```
 KUBE_CONFIG_STAGING          # Kubernetes configuration
 JWT_SECRET_STAGING           # JWT signing secret
@@ -242,6 +267,7 @@ STAGING_API_KEY              # API key for integration tests
 ```
 
 #### Production Environment
+
 ```
 KUBE_CONFIG_PRODUCTION       # Production Kubernetes config
 JWT_SECRET_PRODUCTION        # Production JWT secret
@@ -254,6 +280,7 @@ PRODUCTION_API_KEY           # Production API key
 ```
 
 #### Optional Secrets
+
 ```
 CODECOV_TOKEN                # Codecov integration
 SNYK_TOKEN                   # Snyk security scanning
@@ -264,11 +291,13 @@ TEST_USER_PASSWORD           # E2E testing credentials
 ### How to Set Secrets
 
 **Via GitHub CLI:**
+
 ```bash
 gh secret set SECRET_NAME --body "secret-value"
 ```
 
 **Via GitHub UI:**
+
 1. Navigate to repository Settings
 2. Secrets and variables → Actions
 3. Click "New repository secret"
@@ -280,22 +309,27 @@ gh secret set SECRET_NAME --body "secret-value"
 ### GitHub Environments
 
 #### `staging-starter`
+
 - URL: https://staging.sahool.io
 - Auto-deploy on main branch
 
 #### `staging-professional`
+
 - URL: https://staging.sahool.io/professional
 - Requires starter deployment
 
 #### `staging-enterprise`
+
 - URL: https://staging.sahool.io/enterprise
 - Requires professional deployment
 
 #### `production-approval`
+
 - Manual approval required
 - Reviewers: DevOps team
 
 #### `production`
+
 - URL: https://sahool.io
 - Protected environment
 - Deployment branches: Release tags only
@@ -303,6 +337,7 @@ gh secret set SECRET_NAME --body "secret-value"
 ### Setup Instructions
 
 1. **Create Environments**:
+
    ```
    Settings → Environments → New environment
    ```
@@ -319,6 +354,7 @@ gh secret set SECRET_NAME --body "secret-value"
 ## Features
 
 ### CI Pipeline Features
+
 ✅ Parallel testing with matrix strategy
 ✅ Multi-platform Docker builds (amd64, arm64)
 ✅ Build caching for faster builds
@@ -329,6 +365,7 @@ gh secret set SECRET_NAME --body "secret-value"
 ✅ Concurrency control
 
 ### CD Pipeline Features
+
 ✅ Phased deployment (Starter → Professional → Enterprise)
 ✅ Integration testing between phases
 ✅ Blue-Green deployment for zero downtime
@@ -340,6 +377,7 @@ gh secret set SECRET_NAME --body "secret-value"
 ✅ Deployment tracking with IDs
 
 ### Security Features
+
 ✅ Daily automated scans
 ✅ Secrets detection (TruffleHog)
 ✅ Dependency vulnerability scanning
@@ -350,6 +388,7 @@ gh secret set SECRET_NAME --body "secret-value"
 ✅ Critical alert notifications
 
 ### Documentation Features
+
 ✅ Auto-generated OpenAPI specs
 ✅ Beautiful API documentation
 ✅ Developer documentation site
@@ -384,18 +423,21 @@ gh secret set SECRET_NAME --body "secret-value"
 ## Monitoring and Observability
 
 ### GitHub Actions Dashboard
+
 - Workflow run history
 - Job duration metrics
 - Success/failure rates
 - Artifact downloads
 
 ### Slack Notifications
+
 - Deployment success/failure
 - Security alerts
 - Rollback notifications
 - Custom webhook integration
 
 ### Security Dashboard
+
 - SARIF integration
 - GitHub Security tab
 - Vulnerability tracking
@@ -441,18 +483,23 @@ gh secret set SECRET_NAME --body "secret-value"
 ## Next Steps
 
 ### 1. Configure Secrets
+
 Set up all required secrets in GitHub repository settings.
 
 ### 2. Set Up Environments
+
 Create and configure GitHub environments with protection rules.
 
 ### 3. Configure Kubernetes
+
 Ensure Helm charts exist for all services in `/helm/services/`.
 
 ### 4. Set Up Monitoring
+
 Configure monitoring dashboards and alerting.
 
 ### 5. Test Workflows
+
 1. Create a feature branch
 2. Make a small change
 3. Create a pull request
@@ -463,12 +510,15 @@ Configure monitoring dashboards and alerting.
 8. Verify production deployment
 
 ### 6. Configure Notifications
+
 Set up Slack webhook for team notifications.
 
 ### 7. Review Security Reports
+
 Check GitHub Security tab for any findings.
 
 ### 8. Update Documentation
+
 Customize MkDocs content in `/docs/` directory.
 
 ## Troubleshooting
@@ -476,6 +526,7 @@ Customize MkDocs content in `/docs/` directory.
 ### Common Issues
 
 **Issue**: CI failing on lint
+
 ```bash
 # Fix locally
 ruff check --fix apps/services/ shared/
@@ -485,12 +536,14 @@ npm run lint:all -- --fix
 ```
 
 **Issue**: Docker build failing
+
 ```bash
 # Test locally
 docker build -t test apps/services/SERVICE_NAME
 ```
 
 **Issue**: Deployment failing
+
 ```bash
 # Check logs
 kubectl logs -n sahool-staging deployment/SERVICE_NAME
@@ -499,6 +552,7 @@ helm rollback SERVICE_NAME -n sahool-staging
 ```
 
 **Issue**: Security scan failures
+
 - Review findings in GitHub Security tab
 - Update vulnerable dependencies
 - Fix security issues in code
@@ -514,18 +568,21 @@ helm rollback SERVICE_NAME -n sahool-staging
 ## Maintenance
 
 ### Weekly Tasks
+
 - Review Dependabot PRs
 - Check security scan results
 - Monitor deployment metrics
 - Review failed workflows
 
 ### Monthly Tasks
+
 - Audit secrets rotation
 - Review workflow performance
 - Update documentation
 - Security audit
 
 ### Quarterly Tasks
+
 - Major dependency updates
 - Workflow optimization
 - Infrastructure review
@@ -546,6 +603,7 @@ Track these metrics for CI/CD health:
 ## Compliance
 
 This CI/CD implementation includes:
+
 - ✅ Audit trails for all deployments
 - ✅ Approval gates for production
 - ✅ Security scanning at every stage

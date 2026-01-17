@@ -10,14 +10,14 @@
 
 Successfully implemented PostgreSQL High Availability configuration for the SAHOOL platform addressing all critical issues identified in the database audit:
 
-| Issue | Status | Implementation |
-|-------|--------|----------------|
-| ❌ No replication/HA | ✅ **FIXED** | Streaming replication with hot standby configured |
-| ❌ TLS not enforced | ✅ **FIXED** | TLS 1.3 required for all connections |
-| ❌ Insufficient connections | ✅ **FIXED** | Increased from 100 to 300 max_connections |
-| ❌ No performance tuning | ✅ **FIXED** | Production-optimized for 8GB RAM, SSD storage |
-| ❌ Missing connection keepalive | ✅ **FIXED** | TCP keepalive and timeout settings added |
-| ⚠️ Limited monitoring | ✅ **FIXED** | pg_stat_statements and auto_explain enabled |
+| Issue                           | Status       | Implementation                                    |
+| ------------------------------- | ------------ | ------------------------------------------------- |
+| ❌ No replication/HA            | ✅ **FIXED** | Streaming replication with hot standby configured |
+| ❌ TLS not enforced             | ✅ **FIXED** | TLS 1.3 required for all connections              |
+| ❌ Insufficient connections     | ✅ **FIXED** | Increased from 100 to 300 max_connections         |
+| ❌ No performance tuning        | ✅ **FIXED** | Production-optimized for 8GB RAM, SSD storage     |
+| ❌ Missing connection keepalive | ✅ **FIXED** | TCP keepalive and timeout settings added          |
+| ⚠️ Limited monitoring           | ✅ **FIXED** | pg_stat_statements and auto_explain enabled       |
 
 ---
 
@@ -26,8 +26,10 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 ### Configuration Files
 
 #### 1. `/home/user/sahool-unified-v15-idp/config/postgres/postgresql.conf`
+
 **Purpose:** Production-ready PostgreSQL primary configuration
 **Key Features:**
+
 - Max connections: 300 (increased from default 100)
 - Shared buffers: 2GB (25% of 8GB RAM)
 - Effective cache size: 6GB (75% of RAM)
@@ -41,8 +43,10 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 - Auto-vacuum: Aggressive settings for high-write workload
 
 #### 2. `/home/user/sahool-unified-v15-idp/config/postgres/pg_hba.conf`
+
 **Purpose:** Host-based authentication with TLS enforcement
 **Key Features:**
+
 - All remote connections require SSL/TLS (`hostssl`)
 - SCRAM-SHA-256 authentication (strongest available)
 - Replication connections from Docker networks allowed
@@ -50,8 +54,10 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 - Support for Docker network ranges: 172.16.0.0/12, 10.0.0.0/8, 192.168.0.0/16
 
 #### 3. `/home/user/sahool-unified-v15-idp/config/postgres/postgresql-replica.conf`
+
 **Purpose:** Replica-specific configuration overrides
 **Key Features:**
+
 - Includes base postgresql.conf settings
 - Hot standby enabled (allows read-only queries)
 - Hot standby feedback (prevents query conflicts)
@@ -59,8 +65,10 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 - WAL receiver timeout: 60s
 
 #### 4. `/home/user/sahool-unified-v15-idp/docker-compose.ha.yml`
+
 **Purpose:** High Availability deployment configuration
 **Key Features:**
+
 - Primary PostgreSQL container (sahool-postgres-primary)
 - Replica PostgreSQL container (sahool-postgres-replica)
 - Automatic replica initialization via pg_basebackup
@@ -72,8 +80,10 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 - Network aliases for service discovery
 
 #### 5. `/home/user/sahool-unified-v15-idp/config/postgres/.env.ha.example`
+
 **Purpose:** Environment variable template for HA setup
 **Key Features:**
+
 - Database credentials
 - Replication user credentials
 - Volume path configurations
@@ -87,8 +97,10 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 ### Scripts
 
 #### 6. `/home/user/sahool-unified-v15-idp/config/postgres/scripts/01-setup-replication.sh`
+
 **Purpose:** Initialize replication on primary server
 **Key Features:**
+
 - Creates replication user with REPLICATION privilege
 - Creates physical replication slot 'replica_slot'
 - Enables pg_stat_statements extension
@@ -96,8 +108,10 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 - Provides status output
 
 #### 7. `/home/user/sahool-unified-v15-idp/config/postgres/scripts/setup-replica.sh`
+
 **Purpose:** Initialize replica from primary
 **Key Features:**
+
 - Waits for primary database availability
 - Performs pg_basebackup from primary
 - Creates standby.signal file
@@ -109,8 +123,10 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 ### Documentation
 
 #### 8. `/home/user/sahool-unified-v15-idp/config/postgres/POSTGRESQL_HA_SETUP.md`
+
 **Purpose:** Comprehensive deployment and operations guide
 **Sections:**
+
 1. Overview and architecture
 2. Configuration files explanation
 3. Prerequisites and setup
@@ -129,6 +145,7 @@ Successfully implemented PostgreSQL High Availability configuration for the SAHO
 ### 1. `/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/pgbouncer.ini`
 
 **Changes:**
+
 ```ini
 # BEFORE:
 max_db_connections = 150
@@ -146,6 +163,7 @@ max_client_conn = 800           # +300 (60% increase)
 ```
 
 **Rationale:**
+
 - 39+ microservices require ~234 connections (39 × 6 avg connections/service)
 - Previous limit of 150 was insufficient for production load
 - New limit of 250 provides 15% headroom for peak traffic
@@ -156,45 +174,45 @@ max_client_conn = 800           # +300 (60% increase)
 
 ### Connection & Performance Settings
 
-| Setting | Default | Previous | New | Improvement |
-|---------|---------|----------|-----|-------------|
-| max_connections | 100 | 100 | 300 | +200% |
-| shared_buffers | 128MB | 128MB | 2GB | +1,472% |
-| effective_cache_size | 4GB | 4GB | 6GB | +50% |
-| work_mem | 4MB | 4MB | 20MB | +400% |
-| PgBouncer max_db_connections | N/A | 150 | 250 | +67% |
-| PgBouncer max_client_conn | N/A | 500 | 800 | +60% |
+| Setting                      | Default | Previous | New  | Improvement |
+| ---------------------------- | ------- | -------- | ---- | ----------- |
+| max_connections              | 100     | 100      | 300  | +200%       |
+| shared_buffers               | 128MB   | 128MB    | 2GB  | +1,472%     |
+| effective_cache_size         | 4GB     | 4GB      | 6GB  | +50%        |
+| work_mem                     | 4MB     | 4MB      | 20MB | +400%       |
+| PgBouncer max_db_connections | N/A     | 150      | 250  | +67%        |
+| PgBouncer max_client_conn    | N/A     | 500      | 800  | +60%        |
 
 ### Replication Settings
 
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| wal_level | replica | Enable streaming replication |
-| max_wal_senders | 10 | Support up to 10 replicas |
-| max_replication_slots | 10 | Physical replication slots |
-| hot_standby | on | Read-only queries on replica |
-| wal_keep_size | 2GB | Keep WAL for replica lag |
-| archive_mode | on | Enable WAL archiving for PITR |
+| Setting               | Value   | Purpose                       |
+| --------------------- | ------- | ----------------------------- |
+| wal_level             | replica | Enable streaming replication  |
+| max_wal_senders       | 10      | Support up to 10 replicas     |
+| max_replication_slots | 10      | Physical replication slots    |
+| hot_standby           | on      | Read-only queries on replica  |
+| wal_keep_size         | 2GB     | Keep WAL for replica lag      |
+| archive_mode          | on      | Enable WAL archiving for PITR |
 
 ### Security Settings
 
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| ssl | on | Enable TLS/SSL |
-| ssl_min_protocol_version | TLSv1.3 | Enforce modern TLS |
-| password_encryption | scram-sha-256 | Strong password hashing |
-| row_security | on | Enable row-level security |
-| pg_hba.conf | hostssl only | Require SSL for remote connections |
+| Setting                  | Value         | Purpose                            |
+| ------------------------ | ------------- | ---------------------------------- |
+| ssl                      | on            | Enable TLS/SSL                     |
+| ssl_min_protocol_version | TLSv1.3       | Enforce modern TLS                 |
+| password_encryption      | scram-sha-256 | Strong password hashing            |
+| row_security             | on            | Enable row-level security          |
+| pg_hba.conf              | hostssl only  | Require SSL for remote connections |
 
 ### Timeout & Keepalive Settings
 
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| tcp_keepalives_idle | 60s | Start keepalives after 60s |
-| tcp_keepalives_interval | 10s | Send keepalive every 10s |
-| tcp_keepalives_count | 6 | Drop after 6 failed keepalives |
-| client_connection_check_interval | 10s | Check client connection |
-| idle_in_transaction_session_timeout | 10min | Kill idle transactions |
+| Setting                             | Value | Purpose                        |
+| ----------------------------------- | ----- | ------------------------------ |
+| tcp_keepalives_idle                 | 60s   | Start keepalives after 60s     |
+| tcp_keepalives_interval             | 10s   | Send keepalive every 10s       |
+| tcp_keepalives_count                | 6     | Drop after 6 failed keepalives |
+| client_connection_check_interval    | 10s   | Check client connection        |
+| idle_in_transaction_session_timeout | 10min | Kill idle transactions         |
 
 ---
 
@@ -249,6 +267,7 @@ FROM pg_stat_replication;"
 ```
 
 **Expected Output:**
+
 ```
  application_name | client_addr | state     | sync_state | lag_bytes
 ------------------+-------------+-----------+------------+-----------
@@ -263,6 +282,7 @@ docker exec -it sahool-pgbouncer psql -h localhost -p 6432 -U pgbouncer_admin pg
 ```
 
 **Expected Output:**
+
 ```
  database | user   | cl_active | cl_waiting | sv_active | sv_idle | sv_used | maxwait | pool_mode
 ----------+--------+-----------+------------+-----------+---------+---------+---------+-----------
@@ -300,6 +320,7 @@ SELECT query, calls, mean_exec_time FROM pg_stat_statements ORDER BY mean_exec_t
 ### Key Metrics to Monitor
 
 1. **Connection Pool Utilization**
+
    ```sql
    SELECT count(*) as current,
           setting::int as max,
@@ -309,12 +330,14 @@ SELECT query, calls, mean_exec_time FROM pg_stat_statements ORDER BY mean_exec_t
    ```
 
 2. **Replication Lag**
+
    ```sql
    SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn)) AS lag
    FROM pg_stat_replication;
    ```
 
 3. **Cache Hit Ratio** (should be >99%)
+
    ```sql
    SELECT round(100.0 * sum(blks_hit) / (sum(blks_hit) + sum(blks_read)), 2) AS cache_hit_ratio
    FROM pg_stat_database;
@@ -349,6 +372,7 @@ SELECT query, calls, mean_exec_time FROM pg_stat_statements ORDER BY mean_exec_t
 ### Emergency Procedures
 
 **Scenario: Primary Database Failure**
+
 ```bash
 # 1. Promote replica to primary
 docker exec -it sahool-postgres-replica pg_ctl promote
@@ -482,4 +506,3 @@ The PostgreSQL High Availability configuration has been successfully implemented
 **Implemented By:** Claude (AI Assistant)
 **Documentation Status:** Complete
 **Production Readiness:** 95% (pending TLS certificates and testing)
-

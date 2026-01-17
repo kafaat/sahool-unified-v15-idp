@@ -1,4 +1,5 @@
 # Kong DB-less Mode Setup
+
 # إعداد Kong في وضع بدون قاعدة بيانات
 
 ## Overview | نظرة عامة
@@ -24,11 +25,13 @@ Kong has been configured to run in **DB-less mode** for simplicity and better pe
 **Problem:** Konga requires its own database, but it wasn't being created.
 
 **Solution:**
+
 - Created `init-konga-db.sh` script to initialize the Konga database
 - Script is automatically executed when PostgreSQL container starts
 - Mounted in docker-compose.yml at `/docker-entrypoint-initdb.d/init-konga-db.sh`
 
 **Files Changed:**
+
 - `/home/user/sahool-unified-v15-idp/infrastructure/kong/init-konga-db.sh` (NEW)
 - `/home/user/sahool-unified-v15-idp/infrastructure/kong/docker-compose.yml` (UPDATED)
 
@@ -37,11 +40,13 @@ Kong has been configured to run in **DB-less mode** for simplicity and better pe
 **Problem:** `sahool-network` was marked as external, causing failures if the network didn't exist.
 
 **Solution:**
+
 - Changed `sahool-net` from external to local bridge network
 - Added comments explaining how to switch back to external mode if needed
 - Network is now created automatically by docker-compose
 
 **Files Changed:**
+
 - `/home/user/sahool-unified-v15-idp/infrastructure/kong/docker-compose.yml` (UPDATED)
 
 ### 3. Declarative Config Loading | تحميل التكوين التصريحي
@@ -49,22 +54,26 @@ Kong has been configured to run in **DB-less mode** for simplicity and better pe
 **Problem:** Kong was using database mode but declarative config was commented out.
 
 **Solution:**
+
 - Switched Kong to DB-less mode (`KONG_DATABASE=off`)
 - Enabled `KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yml`
 - Removed `kong-migrations` and `kong-migrations-up` services (not needed in DB-less mode)
 - Kept PostgreSQL database for Konga only
 
 **Files Changed:**
+
 - `/home/user/sahool-unified-v15-idp/infrastructure/kong/docker-compose.yml` (UPDATED)
 
 ### 4. Additional Improvements | تحسينات إضافية
 
 **Health Checks Added:**
+
 - Konga: HTTP check on port 1337
 - Prometheus: HTTP check on `/-/healthy` endpoint
 - Grafana: HTTP check on `/api/health` endpoint
 
 **Volume Consolidation:**
+
 - All volumes now defined in a single section at the top
 - Removed duplicate volume definitions
 
@@ -105,6 +114,7 @@ Kong has been configured to run in **DB-less mode** for simplicity and better pe
 ### Kong Service Changes
 
 **Before:**
+
 ```yaml
 environment:
   KONG_DATABASE: postgres
@@ -118,6 +128,7 @@ depends_on:
 ```
 
 **After:**
+
 ```yaml
 environment:
   KONG_DATABASE: "off"
@@ -128,12 +139,14 @@ environment:
 ### PostgreSQL Service Changes
 
 **Before:**
+
 ```yaml
 volumes:
   - kong-postgres-data:/var/lib/postgresql/data
 ```
 
 **After:**
+
 ```yaml
 volumes:
   - kong-postgres-data:/var/lib/postgresql/data
@@ -159,11 +172,13 @@ To update Kong configuration:
    - `consumers.yml` - JWT consumers and credentials
 
 2. Reload Kong configuration:
+
    ```bash
    docker exec kong-gateway kong reload
    ```
 
    Or restart Kong:
+
    ```bash
    docker-compose restart kong
    ```
@@ -186,14 +201,14 @@ curl http://localhost:8001/routes
 
 ## Service URLs | روابط الخدمات
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| Kong Proxy | http://localhost:8000 | API Gateway proxy endpoint |
-| Kong Admin API | http://localhost:8001 | Admin API for management |
-| Konga UI | http://localhost:1337 | Web-based admin interface |
-| Prometheus | http://localhost:9090 | Metrics and monitoring |
-| Grafana | http://localhost:3002 | Visualization dashboard |
-| PostgreSQL | localhost:5433 | Database (Konga only) |
+| Service        | URL                   | Description                |
+| -------------- | --------------------- | -------------------------- |
+| Kong Proxy     | http://localhost:8000 | API Gateway proxy endpoint |
+| Kong Admin API | http://localhost:8001 | Admin API for management   |
+| Konga UI       | http://localhost:1337 | Web-based admin interface  |
+| Prometheus     | http://localhost:9090 | Metrics and monitoring     |
+| Grafana        | http://localhost:3002 | Visualization dashboard    |
+| PostgreSQL     | localhost:5433        | Database (Konga only)      |
 
 ## Important Notes | ملاحظات مهمة
 
@@ -213,6 +228,7 @@ curl http://localhost:8001/routes
 If you need to switch back to database mode:
 
 1. Edit `docker-compose.yml`:
+
    ```yaml
    kong:
      environment:
@@ -229,6 +245,7 @@ If you need to switch back to database mode:
 2. Uncomment the migration services in docker-compose.yml
 
 3. Restart services:
+
    ```bash
    docker-compose down
    docker-compose up -d
@@ -276,6 +293,7 @@ docker network create sahool-network
 If you have existing Kong database configuration:
 
 1. Export current configuration:
+
    ```bash
    deck dump --kong-addr http://localhost:8001 --output-file kong-backup.yml
    ```
@@ -300,6 +318,7 @@ All services now have proper health checks:
 ## Support | الدعم
 
 For issues or questions:
+
 - Check logs: `docker-compose logs [service-name]`
 - Verify config: `docker exec kong-gateway kong config parse /etc/kong/kong.yml`
 - Review Kong documentation: https://docs.konghq.com/gateway/latest/production/deployment-topologies/db-less-and-declarative-config/

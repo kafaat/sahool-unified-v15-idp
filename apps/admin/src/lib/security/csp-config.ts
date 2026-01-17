@@ -11,25 +11,25 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface CSPDirectives {
-  'default-src'?: string[];
-  'script-src'?: string[];
-  'style-src'?: string[];
-  'img-src'?: string[];
-  'font-src'?: string[];
-  'connect-src'?: string[];
-  'media-src'?: string[];
-  'object-src'?: string[];
-  'frame-src'?: string[];
-  'worker-src'?: string[];
-  'child-src'?: string[];
-  'frame-ancestors'?: string[];
-  'form-action'?: string[];
-  'base-uri'?: string[];
-  'manifest-src'?: string[];
-  'upgrade-insecure-requests'?: boolean;
-  'block-all-mixed-content'?: boolean;
-  'report-uri'?: string[];
-  'report-to'?: string;
+  "default-src"?: string[];
+  "script-src"?: string[];
+  "style-src"?: string[];
+  "img-src"?: string[];
+  "font-src"?: string[];
+  "connect-src"?: string[];
+  "media-src"?: string[];
+  "object-src"?: string[];
+  "frame-src"?: string[];
+  "worker-src"?: string[];
+  "child-src"?: string[];
+  "frame-ancestors"?: string[];
+  "form-action"?: string[];
+  "base-uri"?: string[];
+  "manifest-src"?: string[];
+  "upgrade-insecure-requests"?: boolean;
+  "block-all-mixed-content"?: boolean;
+  "report-uri"?: string[];
+  "report-to"?: string;
 }
 
 export interface CSPConfig {
@@ -61,8 +61,8 @@ export function generateNonce(): string {
 // Environment Detection
 // ═══════════════════════════════════════════════════════════════════════════
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === "development";
+const isProduction = process.env.NODE_ENV === "production";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CSP Directives Configuration
@@ -74,10 +74,10 @@ const isProduction = process.env.NODE_ENV === 'production';
  */
 export function getCSPDirectives(nonce?: string): CSPDirectives {
   const directives: CSPDirectives = {
-    'default-src': ["'self'"],
+    "default-src": ["'self'"],
 
     // Script sources - Use nonce in production, allow unsafe-eval only in dev
-    'script-src': [
+    "script-src": [
       "'self'",
       ...(nonce ? [`'nonce-${nonce}'`] : []),
       // Next.js requires 'unsafe-eval' for hot reloading in development
@@ -87,88 +87,88 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     ],
 
     // Style sources - Use nonce in production
-    'style-src': [
+    "style-src": [
       "'self'",
       ...(nonce ? [`'nonce-${nonce}'`] : []),
       // Google Fonts
-      'https://fonts.googleapis.com',
+      "https://fonts.googleapis.com",
       // Leaflet CSS from unpkg (used in admin for maps)
-      'https://unpkg.com',
+      "https://unpkg.com",
       // Allow inline styles only in development
       ...(isDevelopment ? ["'unsafe-inline'"] : []),
     ],
 
     // Image sources
-    'img-src': [
+    "img-src": [
       "'self'",
-      'data:',
-      'blob:',
-      'https:',
+      "data:",
+      "blob:",
+      "https:",
       // SAHOOL API servers
-      'https://api.sahool.io',
-      'https://api.sahool.app',
+      "https://api.sahool.io",
+      "https://api.sahool.app",
       // OpenStreetMap tiles for Leaflet maps
-      'https://tile.openstreetmap.org',
-      'https://*.tile.openstreetmap.org',
+      "https://tile.openstreetmap.org",
+      "https://*.tile.openstreetmap.org",
       // Leaflet markers from unpkg
-      'https://unpkg.com',
+      "https://unpkg.com",
     ],
 
     // Font sources
-    'font-src': [
+    "font-src": [
       "'self'",
-      'data:',
+      "data:",
       // Google Fonts for Tajawal font
-      'https://fonts.gstatic.com',
+      "https://fonts.gstatic.com",
     ],
 
     // Connect sources (API, WebSocket, etc.)
-    'connect-src': [
+    "connect-src": [
       "'self'",
       // Backend API
-      'https://api.sahool.io',
-      'https://api.sahool.app',
+      "https://api.sahool.io",
+      "https://api.sahool.app",
       // WebSocket for real-time features
       ...(isDevelopment
-        ? ['ws://localhost:*', 'http://localhost:*', 'http://localhost:8000']
-        : ['wss:']),
+        ? ["ws://localhost:*", "http://localhost:*", "http://localhost:8000"]
+        : ["wss:"]),
     ],
 
     // Media sources
-    'media-src': ["'self'"],
+    "media-src": ["'self'"],
 
     // Object sources - Block all
-    'object-src': ["'none'"],
+    "object-src": ["'none'"],
 
     // Frame sources
-    'frame-src': ["'none'"],
+    "frame-src": ["'none'"],
 
     // Worker sources (for service workers, web workers)
-    'worker-src': ["'self'", 'blob:'],
+    "worker-src": ["'self'", "blob:"],
 
     // Child sources
-    'child-src': ["'self'", 'blob:'],
+    "child-src": ["'self'", "blob:"],
 
     // Frame ancestors - Prevent clickjacking
-    'frame-ancestors': ["'none'"],
+    "frame-ancestors": ["'none'"],
 
     // Form action - Only allow same origin
-    'form-action': ["'self'"],
+    "form-action": ["'self'"],
 
     // Base URI - Restrict base tag
-    'base-uri': ["'self'"],
+    "base-uri": ["'self'"],
 
     // Manifest source
-    'manifest-src': ["'self'"],
+    "manifest-src": ["'self'"],
 
     // Upgrade insecure requests in production
-    'upgrade-insecure-requests': isProduction,
+    "upgrade-insecure-requests": isProduction,
 
     // Block mixed content in production
-    'block-all-mixed-content': isProduction,
+    "block-all-mixed-content": isProduction,
 
     // CSP reporting endpoint
-    'report-uri': ['/api/csp-report'],
+    "report-uri": ["/api/csp-report"],
   };
 
   return directives;
@@ -183,7 +183,7 @@ export function buildCSPHeader(directives: CSPDirectives): string {
 
   for (const [key, value] of Object.entries(directives)) {
     // Handle boolean directives
-    if (typeof value === 'boolean') {
+    if (typeof value === "boolean") {
       if (value) {
         policies.push(key);
       }
@@ -192,16 +192,16 @@ export function buildCSPHeader(directives: CSPDirectives): string {
 
     // Handle array directives
     if (Array.isArray(value) && value.length > 0) {
-      policies.push(`${key} ${value.join(' ')}`);
+      policies.push(`${key} ${value.join(" ")}`);
     }
 
     // Handle string directives
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       policies.push(`${key} ${value}`);
     }
   }
 
-  return policies.join('; ');
+  return policies.join("; ");
 }
 
 /**
@@ -212,7 +212,7 @@ export function getCSPConfig(nonce?: string): CSPConfig {
   return {
     directives: getCSPDirectives(nonce),
     // Use report-only mode in development for testing
-    reportOnly: isDevelopment && process.env.CSP_REPORT_ONLY === 'true',
+    reportOnly: isDevelopment && process.env.CSP_REPORT_ONLY === "true",
   };
 }
 
@@ -231,8 +231,8 @@ export function getCSPHeader(nonce?: string): string {
  */
 export function getCSPHeaderName(reportOnly = false): string {
   return reportOnly
-    ? 'Content-Security-Policy-Report-Only'
-    : 'Content-Security-Policy';
+    ? "Content-Security-Policy-Report-Only"
+    : "Content-Security-Policy";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -240,19 +240,19 @@ export function getCSPHeaderName(reportOnly = false): string {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface CSPViolationReport {
-  'document-uri': string;
-  'violated-directive': string;
-  'effective-directive': string;
-  'original-policy': string;
-  'blocked-uri': string;
-  'status-code': number;
-  'source-file'?: string;
-  'line-number'?: number;
-  'column-number'?: number;
+  "document-uri": string;
+  "violated-directive": string;
+  "effective-directive": string;
+  "original-policy": string;
+  "blocked-uri": string;
+  "status-code": number;
+  "source-file"?: string;
+  "line-number"?: number;
+  "column-number"?: number;
 }
 
 export interface CSPReportBody {
-  'csp-report': CSPViolationReport;
+  "csp-report": CSPViolationReport;
 }
 
 /**
@@ -260,22 +260,22 @@ export interface CSPReportBody {
  * التحقق من صحة تقرير انتهاك CSP
  */
 export function isValidCSPReport(body: unknown): body is CSPReportBody {
-  if (typeof body !== 'object' || body === null) return false;
+  if (typeof body !== "object" || body === null) return false;
 
   const report = body as Record<string, unknown>;
 
-  if (!('csp-report' in report)) return false;
+  if (!("csp-report" in report)) return false;
 
-  const cspReport = report['csp-report'];
-  if (typeof cspReport !== 'object' || cspReport === null) return false;
+  const cspReport = report["csp-report"];
+  if (typeof cspReport !== "object" || cspReport === null) return false;
 
   const violation = cspReport as Record<string, unknown>;
 
   // Required fields
   return (
-    typeof violation['document-uri'] === 'string' &&
-    typeof violation['violated-directive'] === 'string' &&
-    typeof violation['blocked-uri'] === 'string'
+    typeof violation["document-uri"] === "string" &&
+    typeof violation["violated-directive"] === "string" &&
+    typeof violation["blocked-uri"] === "string"
   );
 }
 
@@ -284,18 +284,18 @@ export function isValidCSPReport(body: unknown): body is CSPReportBody {
  * تنظيف تقرير CSP للتسجيل
  */
 export function sanitizeCSPReport(
-  report: CSPViolationReport
+  report: CSPViolationReport,
 ): Record<string, unknown> {
   return {
     timestamp: new Date().toISOString(),
-    documentUri: report['document-uri'],
-    violatedDirective: report['violated-directive'],
-    effectiveDirective: report['effective-directive'],
-    blockedUri: report['blocked-uri'],
-    statusCode: report['status-code'],
-    sourceFile: report['source-file'],
-    lineNumber: report['line-number'],
-    columnNumber: report['column-number'],
+    documentUri: report["document-uri"],
+    violatedDirective: report["violated-directive"],
+    effectiveDirective: report["effective-directive"],
+    blockedUri: report["blocked-uri"],
+    statusCode: report["status-code"],
+    sourceFile: report["source-file"],
+    lineNumber: report["line-number"],
+    columnNumber: report["column-number"],
   };
 }
 

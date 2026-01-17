@@ -1,4 +1,5 @@
 # Redis Security Hardening - Deployment Checklist
+
 # قائمة التحقق من نشر تعزيز أمان Redis
 
 **Platform:** SAHOOL Unified Agricultural Platform v15-IDP
@@ -12,6 +13,7 @@
 ### 1. Environment Preparation
 
 - [ ] **Backup Current Redis Data**
+
   ```bash
   docker exec sahool-redis redis-cli -a $REDIS_PASSWORD SAVE
   docker cp sahool-redis:/data/sahool-dump.rdb ./backup/redis-$(date +%Y%m%d).rdb
@@ -19,6 +21,7 @@
   ```
 
 - [ ] **Verify Environment Variables**
+
   ```bash
   # Check .env file has all required variables
   grep "REDIS_PASSWORD" .env
@@ -73,6 +76,7 @@
 **Goal:** Use enhanced configuration without breaking changes
 
 - [ ] **Step 1.1: Update Configuration File**
+
   ```bash
   # Verify new config file
   cat infrastructure/redis/redis-secure.conf | head -50
@@ -86,11 +90,13 @@
   - [ ] TLS settings remain commented
 
 - [ ] **Step 1.3: Restart Redis**
+
   ```bash
   docker-compose restart redis
   ```
 
 - [ ] **Step 1.4: Verify Operation**
+
   ```bash
   # Basic connectivity
   docker exec sahool-redis redis-cli -a $REDIS_PASSWORD PING
@@ -123,6 +129,7 @@
 #### Staging Deployment
 
 - [ ] **Step 2.1: Generate TLS Certificates**
+
   ```bash
   ./scripts/generate-redis-certs.sh
 
@@ -142,12 +149,14 @@
   - [ ] Verify client libraries support TLS
 
 - [ ] **Step 2.4: Deploy to Staging**
+
   ```bash
   docker-compose down
   docker-compose up -d
   ```
 
 - [ ] **Step 2.5: Verify TLS**
+
   ```bash
   # Test TLS connection
   redis-cli --tls \
@@ -186,6 +195,7 @@
   - [ ] On-call team ready
 
 - [ ] **Step 2.9: Deploy TLS to Production**
+
   ```bash
   # Backup current state
   docker exec sahool-redis redis-cli -a $REDIS_PASSWORD SAVE
@@ -215,6 +225,7 @@
 #### Preparation
 
 - [ ] **Step 3.1: Generate ACL Passwords**
+
   ```bash
   # Generate strong passwords
   REDIS_APP_PASSWORD=$(openssl rand -base64 32)
@@ -242,11 +253,13 @@
 #### Staging Deployment
 
 - [ ] **Step 3.4: Deploy ACL to Staging**
+
   ```bash
   docker-compose restart redis
   ```
 
 - [ ] **Step 3.5: Verify ACL Users**
+
   ```bash
   # List ACL users
   docker exec sahool-redis redis-cli -a $REDIS_PASSWORD ACL LIST
@@ -267,6 +280,7 @@
   - [ ] Operations scripts: Use `sahool_admin` user
 
 - [ ] **Step 3.7: Test ACL Permissions**
+
   ```bash
   # Test app user can read/write sessions
   redis-cli --user sahool_app --pass $REDIS_APP_PASSWORD \
@@ -324,11 +338,13 @@
   - [ ] Test Sentinel-aware client libraries
 
 - [ ] **Step 4.3: Deploy Sentinel**
+
   ```bash
   docker-compose -f docker-compose.redis-ha.yml up -d
   ```
 
 - [ ] **Step 4.4: Verify HA Setup**
+
   ```bash
   # Check master
   docker exec sahool-redis-sentinel-1 redis-cli -p 26379 \
@@ -346,6 +362,7 @@
   ```
 
 - [ ] **Step 4.5: Test Failover**
+
   ```bash
   # Simulate master failure
   docker stop sahool-redis-master
@@ -371,6 +388,7 @@
 **Goal:** Deploy with maxmemory settings
 
 - [ ] **Step 5.1: Update Helm Values**
+
   ```yaml
   redis:
     master:
@@ -379,11 +397,13 @@
   ```
 
 - [ ] **Step 5.2: Deploy Helm Chart**
+
   ```bash
   helm upgrade --install sahool-infra helm/infra -f helm/infra/values.yaml
   ```
 
 - [ ] **Step 5.3: Verify Deployment**
+
   ```bash
   kubectl get pods -l app.kubernetes.io/component=redis
   kubectl logs -l app.kubernetes.io/component=redis
@@ -464,6 +484,7 @@
 ### If Issues Occur
 
 - [ ] **Immediate Rollback (< 5 minutes)**
+
   ```bash
   # Revert to previous docker-compose configuration
   git checkout HEAD~1 docker-compose.yml
@@ -474,6 +495,7 @@
   ```
 
 - [ ] **Restore from Backup**
+
   ```bash
   # Stop Redis
   docker-compose stop redis
@@ -531,19 +553,21 @@
 ## Sign-Off
 
 **Deployment Team:**
-- [ ] DevOps Lead: _______________ Date: _______
-- [ ] Security Lead: _______________ Date: _______
-- [ ] Platform Architect: _______________ Date: _______
+
+- [ ] DevOps Lead: ******\_\_\_****** Date: **\_\_\_**
+- [ ] Security Lead: ******\_\_\_****** Date: **\_\_\_**
+- [ ] Platform Architect: ******\_\_\_****** Date: **\_\_\_**
 
 **Approval:**
-- [ ] CTO/Engineering Manager: _______________ Date: _______
+
+- [ ] CTO/Engineering Manager: ******\_\_\_****** Date: **\_\_\_**
 
 ---
 
-**Deployment Date:** __________
-**Deployment Time:** __________
-**Deployed By:** __________
+**Deployment Date:** ****\_\_****
+**Deployment Time:** ****\_\_****
+**Deployed By:** ****\_\_****
 
 ---
 
-*End of Deployment Checklist*
+_End of Deployment Checklist_

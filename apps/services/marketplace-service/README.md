@@ -14,20 +14,22 @@ Agricultural marketplace service for buying and selling products and supplies.
 ## الميزات | Features
 
 ### المنتجات | Products
-| النوع | Type | الوصف |
-|-------|------|--------|
-| محاصيل | Crops | منتجات زراعية |
-| مستلزمات | Supplies | بذور وأسمدة |
-| معدات | Equipment | آلات ومعدات |
-| خدمات | Services | خدمات زراعية |
+
+| النوع    | Type      | الوصف         |
+| -------- | --------- | ------------- |
+| محاصيل   | Crops     | منتجات زراعية |
+| مستلزمات | Supplies  | بذور وأسمدة   |
+| معدات    | Equipment | آلات ومعدات   |
+| خدمات    | Services  | خدمات زراعية  |
 
 ### العمليات | Operations
-| العملية | Operation | الوصف |
-|---------|-----------|--------|
-| بيع | Sell | عرض للبيع |
-| شراء | Buy | طلب شراء |
-| مزاد | Auction | مزاد علني |
-| عقود | Contracts | عقود مستقبلية |
+
+| العملية | Operation | الوصف         |
+| ------- | --------- | ------------- |
+| بيع     | Sell      | عرض للبيع     |
+| شراء    | Buy       | طلب شراء      |
+| مزاد    | Auction   | مزاد علني     |
+| عقود    | Contracts | عقود مستقبلية |
 
 ---
 
@@ -249,51 +251,53 @@ POST /search
 ## نماذج البيانات | Data Models
 
 ### Product
+
 ```json
 {
-    "id": "prod-001",
-    "seller_id": "user-001",
-    "title": "قمح يمني فاخر",
-    "title_en": "Premium Yemeni Wheat",
-    "category": "crops",
-    "subcategory": "wheat",
-    "description": "قمح محلي عالي الجودة من مرتفعات صنعاء",
-    "quantity": 5000,
-    "unit": "kg",
-    "price_sar_per_unit": 3.5,
-    "total_price_sar": 17500,
-    "location": {
-        "region": "صنعاء",
-        "coordinates": {"lat": 15.35, "lng": 44.15}
-    },
-    "images": ["https://..."],
-    "status": "active",
-    "views": 156,
-    "created_at": "2024-01-15T10:00:00Z"
+  "id": "prod-001",
+  "seller_id": "user-001",
+  "title": "قمح يمني فاخر",
+  "title_en": "Premium Yemeni Wheat",
+  "category": "crops",
+  "subcategory": "wheat",
+  "description": "قمح محلي عالي الجودة من مرتفعات صنعاء",
+  "quantity": 5000,
+  "unit": "kg",
+  "price_sar_per_unit": 3.5,
+  "total_price_sar": 17500,
+  "location": {
+    "region": "صنعاء",
+    "coordinates": { "lat": 15.35, "lng": 44.15 }
+  },
+  "images": ["https://..."],
+  "status": "active",
+  "views": 156,
+  "created_at": "2024-01-15T10:00:00Z"
 }
 ```
 
 ### Order
+
 ```json
 {
-    "id": "order-001",
-    "product_id": "prod-001",
-    "buyer_id": "user-002",
-    "seller_id": "user-001",
-    "quantity": 500,
-    "unit_price_sar": 3.5,
-    "total_price_sar": 1750,
-    "status": "confirmed",
-    "delivery": {
-        "address": "عدن، شارع المعلا",
-        "method": "shipping",
-        "estimated_date": "2024-01-20"
-    },
-    "payment": {
-        "method": "bank_transfer",
-        "status": "paid"
-    },
-    "created_at": "2024-01-16T10:00:00Z"
+  "id": "order-001",
+  "product_id": "prod-001",
+  "buyer_id": "user-002",
+  "seller_id": "user-001",
+  "quantity": 500,
+  "unit_price_sar": 3.5,
+  "total_price_sar": 1750,
+  "status": "confirmed",
+  "delivery": {
+    "address": "عدن، شارع المعلا",
+    "method": "shipping",
+    "estimated_date": "2024-01-20"
+  },
+  "payment": {
+    "method": "bank_transfer",
+    "status": "paid"
+  },
+  "created_at": "2024-01-16T10:00:00Z"
 }
 ```
 

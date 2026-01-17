@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
 // Data Table Component
 // جدول البيانات
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 interface Column<T> {
   key: string;
@@ -27,17 +27,25 @@ export default function DataTable<T>({
   data,
   keyExtractor,
   onRowClick,
-  emptyMessage = 'لا توجد بيانات',
-  className = '',
+  emptyMessage = "لا توجد بيانات",
+  className = "",
   isLoading = false,
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className={cn('bg-white rounded-xl shadow-sm overflow-hidden', className)}>
+      <div
+        className={cn(
+          "bg-white rounded-xl shadow-sm overflow-hidden",
+          className,
+        )}
+      >
         <div className="animate-pulse">
           <div className="h-12 bg-gray-100"></div>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 border-t border-gray-100 bg-gray-50"></div>
+            <div
+              key={i}
+              className="h-16 border-t border-gray-100 bg-gray-50"
+            ></div>
           ))}
         </div>
       </div>
@@ -46,14 +54,21 @@ export default function DataTable<T>({
 
   if (data.length === 0) {
     return (
-      <div className={cn('bg-white rounded-xl shadow-sm p-8 text-center', className)}>
+      <div
+        className={cn(
+          "bg-white rounded-xl shadow-sm p-8 text-center",
+          className,
+        )}
+      >
         <p className="text-gray-500">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className={cn('bg-white rounded-xl shadow-sm overflow-hidden', className)}>
+    <div
+      className={cn("bg-white rounded-xl shadow-sm overflow-hidden", className)}
+    >
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-100">
@@ -62,8 +77,8 @@ export default function DataTable<T>({
                 <th
                   key={col.key}
                   className={cn(
-                    'px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider',
-                    col.className
+                    "px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider",
+                    col.className,
                   )}
                 >
                   {col.header}
@@ -77,22 +92,29 @@ export default function DataTable<T>({
                 key={keyExtractor(item)}
                 onClick={() => onRowClick?.(item)}
                 onKeyDown={(e) => {
-                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                  if (onRowClick && (e.key === "Enter" || e.key === " ")) {
                     e.preventDefault();
                     onRowClick(item);
                   }
                 }}
                 tabIndex={onRowClick ? 0 : undefined}
-                role={onRowClick ? 'button' : undefined}
-                aria-label={onRowClick ? 'اضغط للتفاصيل' : undefined}
+                role={onRowClick ? "button" : undefined}
+                aria-label={onRowClick ? "اضغط للتفاصيل" : undefined}
                 className={cn(
-                  'hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset',
-                  onRowClick && 'cursor-pointer'
+                  "hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset",
+                  onRowClick && "cursor-pointer",
                 )}
               >
                 {columns.map((col) => (
-                  <td key={col.key} className={cn('px-6 py-4 text-sm', col.className)}>
-                    {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? '')}
+                  <td
+                    key={col.key}
+                    className={cn("px-6 py-4 text-sm", col.className)}
+                  >
+                    {col.render
+                      ? col.render(item)
+                      : String(
+                          (item as Record<string, unknown>)[col.key] ?? "",
+                        )}
                   </td>
                 ))}
               </tr>

@@ -1,4 +1,5 @@
 # Database Connection Pooling Optimization
+
 # تحسين تجميع الاتصالات بقاعدة البيانات
 
 **Date:** 2026-01-06
@@ -65,17 +66,20 @@ SAHOOL platform uses a two-tier connection pooling strategy:
 Services are categorized by traffic patterns and allocated connection pool sizes accordingly:
 
 ### High Traffic Services (10 connections)
+
 - **user-service**: Authentication, user management (frequent queries)
 - **chat-service**: Real-time messaging (high read/write)
 - **marketplace-service**: Marketplace transactions (high concurrency)
 
 ### Medium Traffic Services (8 connections)
+
 - **research-core**: Research data management
 - **inventory-service**: Inventory tracking and alerts
 - **field-management-service**: Field operations
 - **field-core**: Field and farm management
 
 ### Low Traffic Services (6 connections)
+
 - **weather-service**: Periodic weather data fetching
 - **iot-service**: IoT device data collection
 
@@ -97,6 +101,7 @@ datasource db {
 ```
 
 **Why `directUrl`?**
+
 - Prisma migrations require certain PostgreSQL features not supported through PgBouncer
 - `directUrl` allows migrations to connect directly to PostgreSQL
 - Runtime queries use `url` which goes through PgBouncer
@@ -123,14 +128,14 @@ DATABASE_URL_DIRECT="postgresql://user:pass@postgres:5432/db?sslmode=require&con
 
 #### Connection Pool Parameters
 
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| `connection_limit` | 6-10 | Max connections per Prisma Client instance |
-| `pool_timeout` | 20s | Max time to wait for available connection |
-| `connect_timeout` | 10s | Max time to establish initial connection |
-| `statement_timeout` | 30000ms | Max query execution time |
-| `sslmode` | require | Enforce TLS/SSL connections |
-| `pgbouncer` | true | Enable PgBouncer compatibility mode |
+| Parameter           | Value   | Description                                |
+| ------------------- | ------- | ------------------------------------------ |
+| `connection_limit`  | 6-10    | Max connections per Prisma Client instance |
+| `pool_timeout`      | 20s     | Max time to wait for available connection  |
+| `connect_timeout`   | 10s     | Max time to establish initial connection   |
+| `statement_timeout` | 30000ms | Max query execution time                   |
+| `sslmode`           | require | Enforce TLS/SSL connections                |
+| `pgbouncer`         | true    | Enable PgBouncer compatibility mode        |
 
 ### TCP Keepalive Configuration
 
@@ -145,19 +150,20 @@ keepalives_count=5        # 5 failed probes = dead connection
 ```
 
 **Benefits:**
+
 - Prevents connection drops in cloud environments
 - Early detection of network issues
 - Maintains connection health through NAT/firewalls
 
 ### Timeout Configuration
 
-| Timeout Type | Value | Purpose |
-|--------------|-------|---------|
-| Connection Timeout | 10s | Fail fast on connection issues |
-| Pool Timeout | 20s | Wait for available connection |
-| Query Timeout | 30s | Prevent long-running queries |
-| Idle Timeout | 600s | Close unused connections |
-| Connection Lifetime | 3600s | Prevent stale connections |
+| Timeout Type        | Value | Purpose                        |
+| ------------------- | ----- | ------------------------------ |
+| Connection Timeout  | 10s   | Fail fast on connection issues |
+| Pool Timeout        | 20s   | Wait for available connection  |
+| Query Timeout       | 30s   | Prevent long-running queries   |
+| Idle Timeout        | 600s  | Close unused connections       |
+| Connection Lifetime | 3600s | Prevent stale connections      |
 
 ---
 
@@ -223,6 +229,7 @@ prisma_client_queries_total 1547
 ### Grafana Dashboard
 
 Monitor connection pool health through Grafana dashboards:
+
 - Active connections per service
 - Connection wait times
 - Pool saturation alerts
@@ -235,15 +242,18 @@ Monitor connection pool health through Grafana dashboards:
 ### 1. Connection Pool Sizing
 
 **Rule of Thumb:**
+
 ```
 Pool Size = ((Core Count × 2) + Effective Spindle Count)
 ```
 
 For containerized environments:
+
 - **CPU-bound workloads**: `pool_size = cores × 2`
 - **I/O-bound workloads**: `pool_size = cores × 4`
 
 **SAHOOL Platform:**
+
 - High traffic: 10 connections (expected high concurrency)
 - Medium traffic: 8 connections (moderate load)
 - Low traffic: 6 connections (periodic operations)
@@ -264,7 +274,7 @@ async onModuleDestroy() {
 Monitor slow queries (>1000ms threshold):
 
 ```typescript
-this.$on('query', (e: any) => {
+this.$on("query", (e: any) => {
   if (e.duration > 1000) {
     this.logger.warn(`Slow query detected (${e.duration}ms): ${e.query}`);
   }
@@ -286,6 +296,7 @@ this.$on('query', (e: any) => {
 ### 5. PgBouncer Integration
 
 When using PgBouncer:
+
 - ✅ **DO**: Add `pgbouncer=true` parameter
 - ✅ **DO**: Use session pooling mode
 - ✅ **DO**: Set reasonable `connection_limit`
@@ -299,17 +310,20 @@ When using PgBouncer:
 ### Issue: "Too many connections" Error
 
 **Symptoms:**
+
 ```
 Error: P1001: Can't reach database server at `pgbouncer:6432`
 ```
 
 **Solutions:**
+
 1. Check PgBouncer max_client_conn setting
 2. Reduce per-service `connection_limit`
 3. Verify PostgreSQL `max_connections`
 4. Check for connection leaks (monitor metrics)
 
 **Diagnostic:**
+
 ```bash
 # Check PgBouncer status
 docker exec pgbouncer psql -p 6432 -d pgbouncer -c "SHOW POOLS;"
@@ -321,17 +335,20 @@ docker exec postgres psql -U sahool -c "SELECT count(*) FROM pg_stat_activity;"
 ### Issue: Connection Timeouts
 
 **Symptoms:**
+
 ```
 Error: Timed out trying to acquire a connection from the pool
 ```
 
 **Solutions:**
+
 1. Increase `pool_timeout` (current: 20s)
 2. Optimize slow queries
 3. Increase `connection_limit` for service
 4. Check database server load
 
 **Diagnostic:**
+
 ```typescript
 // Check pool metrics
 const metrics = await prismaService.getPoolMetrics();
@@ -341,17 +358,20 @@ console.log(metrics.waitingConnections); // High number indicates pool exhaustio
 ### Issue: Stale Connections
 
 **Symptoms:**
+
 ```
 Error: Connection terminated unexpectedly
 ```
 
 **Solutions:**
+
 1. TCP keepalive is already enabled (✅)
 2. Check firewall/NAT timeout settings
 3. Verify `connection_lifetime` setting (current: 3600s)
 4. Monitor connection health
 
 **Diagnostic:**
+
 ```bash
 # Check PostgreSQL idle connections
 docker exec postgres psql -U sahool -c "
@@ -365,10 +385,12 @@ docker exec postgres psql -U sahool -c "
 ### Issue: High Pool Wait Times
 
 **Symptoms:**
+
 - Queries queuing for connections
 - `prisma_client_queries_wait` > 0 consistently
 
 **Solutions:**
+
 1. Increase `connection_limit` for service tier
 2. Optimize query performance (add indexes)
 3. Implement caching for frequent queries
@@ -409,6 +431,7 @@ When updating connection pool settings:
 ## Performance Impact
 
 ### Before Optimization
+
 - ❌ Unlimited connections per service
 - ❌ No connection pooling at application level
 - ❌ Direct PostgreSQL connections
@@ -416,6 +439,7 @@ When updating connection pool settings:
 - ❌ No pool metrics
 
 ### After Optimization
+
 - ✅ Tiered connection limits (6-10 per service)
 - ✅ Application-level pooling (Prisma)
 - ✅ Infrastructure-level pooling (PgBouncer)
@@ -424,6 +448,7 @@ When updating connection pool settings:
 - ✅ Automatic pool health logging
 
 ### Expected Benefits
+
 - **30-50% reduction** in database connections
 - **Improved query latency** (reduced connection overhead)
 - **Better resource utilization** (connection reuse)
@@ -444,6 +469,7 @@ When updating connection pool settings:
 ## Changelog
 
 ### 2026-01-06 - Initial Implementation
+
 - ✅ Updated all 9 Prisma schemas with `directUrl` support
 - ✅ Configured connection pools by service tier (6-10 connections)
 - ✅ Added TCP keepalive to `DATABASE_URL_DIRECT`

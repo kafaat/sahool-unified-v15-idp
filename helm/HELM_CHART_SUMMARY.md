@@ -1,4 +1,5 @@
 # SAHOOL Kubernetes Helm Charts - Complete Implementation Summary
+
 # ملخص شامل لمخططات Helm لمنصة سهول
 
 **Created:** 2025-12-26
@@ -20,7 +21,8 @@
 ### ✅ Template Files
 
 #### Core Templates
-- **_helpers.tpl** (270 lines) - Template helper functions including:
+
+- **\_helpers.tpl** (270 lines) - Template helper functions including:
   - Service-specific naming functions
   - Label generators
   - Image name builders
@@ -45,6 +47,7 @@
 - **ingress.yaml** - API Gateway with TLS support
 
 #### Service Deployments
+
 - **deployments.yaml** (175 lines) - Dynamic deployment template that:
   - Creates Deployments for all enabled services
   - Creates ClusterIP Services
@@ -53,6 +56,7 @@
   - Handles all 21 services automatically based on package tier
 
 #### Infrastructure Templates
+
 - **postgres-statefulset.yaml** - PostgreSQL with PostGIS
 - **redis-deployment.yaml** - Redis cache
 - **nats-statefulset.yaml** - NATS messaging with JetStream
@@ -61,6 +65,7 @@
 ### ✅ Service Organization
 
 #### 🌱 Starter Package (5 services)
+
 - field-core (Node.js, port 3000)
 - weather-core (Python, port 8108)
 - astronomical-calendar (Python, port 8111)
@@ -68,6 +73,7 @@
 - notification-service (Python, port 8110)
 
 #### 🚜 Professional Package (8 additional services)
+
 - satellite-service (Python, port 8090)
 - ndvi-engine (Python, port 8107)
 - crop-health-ai (Python, port 8095)
@@ -78,6 +84,7 @@
 - inventory-service (Python, port 8116)
 
 #### 🏢 Enterprise Package (8 additional services)
+
 - ai-advisor (Python, port 8112)
 - iot-gateway (Python, port 8106)
 - research-core (Node.js, port 3015)
@@ -92,17 +99,20 @@
 ## 🎯 Key Features | الميزات الرئيسية
 
 ### 1. Package Tier System
+
 - **Automatic service enablement** based on `packageTier` value
 - **Starter** → Professional → Enterprise upgrade path
 - Services automatically deployed based on tier selection
 
 ### 2. High Availability
+
 - **Horizontal Pod Autoscaling** (HPA) for critical services
 - **Pod Disruption Budgets** (PDB) for zero-downtime updates
 - **Rolling updates** with configurable max surge/unavailable
 - **Multiple replicas** for production workloads
 
 ### 3. Security
+
 - **Pod Security Context**:
   - Non-root user (UID 1000)
   - Read-only root filesystem
@@ -114,6 +124,7 @@
 - **TLS/SSL** via cert-manager integration
 
 ### 4. Resource Management
+
 - **CPU/Memory limits** for all services
 - **Storage classes** for persistent volumes
 - **Resource quotas** per service
@@ -123,6 +134,7 @@
   - Production: High resources (Enterprise tier)
 
 ### 5. Observability
+
 - **Health checks**: Liveness and readiness probes
 - **Prometheus metrics** (optional)
 - **Grafana dashboards** (optional)
@@ -130,6 +142,7 @@
 - **ConfigMap checksums** for automatic restarts on config changes
 
 ### 6. Infrastructure as Code
+
 - **StatefulSets** for databases (PostgreSQL, NATS)
 - **Deployments** for stateless services
 - **PersistentVolumeClaims** for data persistence
@@ -151,16 +164,16 @@ global:
 packageTier: "starter|professional|enterprise"
 
 infrastructure:
-  postgresql: {...}  # 20-100Gi storage
-  redis: {...}       # 5-10Gi storage
-  nats: {...}        # 10-50Gi storage
-  kong: {...}        # API Gateway
-  qdrant: {...}      # Vector DB (Enterprise only)
+  postgresql: { ... } # 20-100Gi storage
+  redis: { ... } # 5-10Gi storage
+  nats: { ... } # 10-50Gi storage
+  kong: { ... } # API Gateway
+  qdrant: { ... } # Vector DB (Enterprise only)
 
 services:
   # 21 services with individual configs
-  fieldCore: {...}
-  weatherCore: {...}
+  fieldCore: { ... }
+  weatherCore: { ... }
   # ... all other services
 
 ingress:
@@ -171,13 +184,13 @@ ingress:
 
 monitoring:
   enabled: true|false
-  prometheus: {...}
-  grafana: {...}
+  prometheus: { ... }
+  grafana: { ... }
 
 security:
-  jwt: {...}
-  rbac: {...}
-  networkPolicy: {...}
+  jwt: { ... }
+  rbac: { ... }
+  networkPolicy: { ... }
 ```
 
 ---
@@ -185,6 +198,7 @@ security:
 ## 🚀 Quick Start Examples
 
 ### Deploy Starter Package
+
 ```bash
 helm install sahool ./helm/sahool \
   --set packageTier=starter \
@@ -193,6 +207,7 @@ helm install sahool ./helm/sahool \
 ```
 
 ### Deploy Professional Package (Staging)
+
 ```bash
 helm install sahool ./helm/sahool \
   --values helm/sahool/values-staging.yaml \
@@ -201,6 +216,7 @@ helm install sahool ./helm/sahool \
 ```
 
 ### Deploy Enterprise Package (Production)
+
 ```bash
 helm install sahool ./helm/sahool \
   --values helm/sahool/values-production.yaml \
@@ -246,6 +262,7 @@ helm/sahool/
 ## 🔧 Resource Requirements
 
 ### Starter Package
+
 - **CPU**: 4-6 cores
 - **Memory**: 8-12 GB RAM
 - **Storage**: 30 GB PV
@@ -253,6 +270,7 @@ helm/sahool/
 - **Services**: 5 application + 3 infrastructure
 
 ### Professional Package
+
 - **CPU**: 8-12 cores
 - **Memory**: 16-24 GB RAM
 - **Storage**: 60 GB PV
@@ -260,6 +278,7 @@ helm/sahool/
 - **Services**: 13 application + 3 infrastructure
 
 ### Enterprise Package
+
 - **CPU**: 16-32 cores
 - **Memory**: 32-64 GB RAM
 - **Storage**: 150 GB PV
@@ -271,26 +290,34 @@ helm/sahool/
 ## ✨ Special Features
 
 ### 1. Dynamic Service Deployment
+
 The `deployments.yaml` template uses Go templating to iterate over all services and automatically create:
+
 - Deployment manifests
 - Service (ClusterIP) resources
 - HorizontalPodAutoscaler (if enabled)
 - PodDisruptionBudget (if enabled)
 
 ### 2. Package Tier Logic
+
 Helper function `sahool.shouldDeploy` determines if a service should be deployed based on:
+
 - Service enabled flag
 - Service package tier
 - Global packageTier setting
 
 ### 3. Environment-Specific Values
+
 Three values files for different environments:
+
 - `values.yaml`: Development/Starter (minimal resources)
 - `values-staging.yaml`: Staging/Professional (medium resources)
 - `values-production.yaml`: Production/Enterprise (HA, replicas, monitoring)
 
 ### 4. Security by Default
+
 All services include:
+
 - Non-root containers
 - Read-only filesystems
 - Dropped capabilities
@@ -298,7 +325,9 @@ All services include:
 - Network policies
 
 ### 5. Ingress with TLS
+
 Complete ingress configuration with:
+
 - cert-manager integration
 - Multiple paths per service
 - Rate limiting
@@ -320,6 +349,7 @@ Complete ingress configuration with:
 ## 🎓 Usage Patterns
 
 ### Development
+
 ```bash
 helm install sahool-dev ./helm/sahool \
   --set packageTier=starter \
@@ -328,18 +358,21 @@ helm install sahool-dev ./helm/sahool \
 ```
 
 ### Staging
+
 ```bash
 helm install sahool-staging ./helm/sahool \
   -f helm/sahool/values-staging.yaml
 ```
 
 ### Production
+
 ```bash
 helm install sahool-prod ./helm/sahool \
   -f helm/sahool/values-production.yaml
 ```
 
 ### Upgrade to Higher Tier
+
 ```bash
 # From Starter to Professional
 helm upgrade sahool ./helm/sahool \
@@ -379,6 +412,7 @@ helm upgrade sahool ./helm/sahool \
 ## 📦 Dependencies
 
 The chart manages all dependencies through:
+
 - Inline infrastructure templates (PostgreSQL, Redis, NATS, Kong)
 - No external chart dependencies
 - All components defined within this chart

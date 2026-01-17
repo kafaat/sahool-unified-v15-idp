@@ -18,14 +18,14 @@ Access tokens contain these claims:
 
 ```json
 {
-  "sub": "user-uuid",           // User ID
-  "tid": "tenant-uuid",         // Tenant ID
+  "sub": "user-uuid", // User ID
+  "tid": "tenant-uuid", // Tenant ID
   "roles": ["worker", "supervisor"],
   "scopes": ["fieldops:task.read", "fieldops:task.complete"],
-  "exp": 1699999999,            // Expiration
-  "iat": 1699990000,            // Issued at
-  "iss": "sahool-idp",          // Issuer
-  "aud": "sahool-platform"      // Audience
+  "exp": 1699999999, // Expiration
+  "iat": 1699990000, // Issued at
+  "iss": "sahool-idp", // Issuer
+  "aud": "sahool-platform" // Audience
 }
 ```
 
@@ -48,20 +48,21 @@ curl -X POST http://localhost:8080/auth/refresh \
 
 ### Roles
 
-| Role | Description | Typical Permissions |
-|------|-------------|---------------------|
-| `viewer` | Read-only access | View tasks, fields, reports |
-| `worker` | Field operations | Complete tasks, send chat messages |
-| `supervisor` | Team lead | Create/assign tasks |
-| `manager` | Full operations | All CRUD, exports |
-| `admin` | Tenant admin | User management, audit logs |
-| `super_admin` | Platform admin | Cross-tenant access |
+| Role          | Description      | Typical Permissions                |
+| ------------- | ---------------- | ---------------------------------- |
+| `viewer`      | Read-only access | View tasks, fields, reports        |
+| `worker`      | Field operations | Complete tasks, send chat messages |
+| `supervisor`  | Team lead        | Create/assign tasks                |
+| `manager`     | Full operations  | All CRUD, exports                  |
+| `admin`       | Tenant admin     | User management, audit logs        |
+| `super_admin` | Platform admin   | Cross-tenant access                |
 
 ### Permission Format
 
 Permissions follow the format: `service:resource.action`
 
 Examples:
+
 - `fieldops:task.read`
 - `fieldops:task.create`
 - `fieldops:task.complete`
@@ -152,6 +153,7 @@ events = await get_security_events(tenant_id="tenant-uuid")
 ```
 
 This creates:
+
 - Root CA certificate
 - Service certificates for each component
 - Docker secrets structure
@@ -159,11 +161,13 @@ This creates:
 ### Enable mTLS
 
 1. Set environment variable:
+
 ```bash
 ENABLE_MTLS=true
 ```
 
 2. Mount certificates in Docker Compose:
+
 ```yaml
 services:
   field_ops:
@@ -191,6 +195,7 @@ services:
 ### Secret Storage
 
 Secrets are stored in:
+
 - `secrets/jwt/` - JWT keys
 - `secrets/database/` - Database passwords
 - `secrets/nats/` - NATS credentials
@@ -201,6 +206,7 @@ Secrets are stored in:
 ### Production Secret Management
 
 For production, use:
+
 - HashiCorp Vault
 - AWS Secrets Manager
 - Azure Key Vault
@@ -222,12 +228,12 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 Default limits:
 
-| Endpoint Type | Limit |
-|--------------|-------|
-| Authentication | 10/minute/IP |
-| API reads | 100/minute/user |
-| API writes | 30/minute/user |
-| WebSocket | 50 connections/user |
+| Endpoint Type  | Limit               |
+| -------------- | ------------------- |
+| Authentication | 10/minute/IP        |
+| API reads      | 100/minute/user     |
+| API writes     | 30/minute/user      |
+| WebSocket      | 50 connections/user |
 
 ## Security Checklist
 
@@ -257,12 +263,14 @@ Default limits:
 ### Suspected Breach
 
 1. **Contain**: Revoke affected tokens
+
    ```bash
    # Rotate JWT key (invalidates all tokens)
    ./scripts/security/rotate-secrets.sh --jwt
    ```
 
 2. **Investigate**: Check audit logs
+
    ```sql
    SELECT * FROM security_audit_logs
    WHERE success = false

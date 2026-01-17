@@ -55,6 +55,7 @@ dependencies:
 ```
 
 Run:
+
 ```bash
 flutter pub get
 ```
@@ -324,6 +325,7 @@ if (kDebugMode) {
 **Cause**: Certificate fingerprint doesn't match configured pins.
 
 **Solutions**:
+
 1. Extract actual fingerprint and update config
 2. Check if certificate was recently rotated
 3. Verify domain name matches exactly
@@ -334,6 +336,7 @@ if (kDebugMode) {
 **Cause**: Domain not in configuration.
 
 **Solutions**:
+
 1. Add domain to `certificate_config.dart`
 2. Check for typos in domain name
 3. Use wildcard if appropriate
@@ -343,6 +346,7 @@ if (kDebugMode) {
 **Cause**: All configured pins have passed their expiry date.
 
 **Solutions**:
+
 1. Update certificate configuration with new pins
 2. Check actual certificate on server
 3. Implement monitoring for expiring pins
@@ -352,6 +356,7 @@ if (kDebugMode) {
 **Cause**: Debug bypass is enabled, release enforces pinning.
 
 **Solutions**:
+
 1. This is expected behavior for security
 2. Update pins to match actual certificates
 3. Temporarily use Medium security level if needed
@@ -361,6 +366,7 @@ if (kDebugMode) {
 **Cause**: Certificate chain or pinning mismatch.
 
 **Solutions**:
+
 1. Verify you're pinning the correct certificate in chain
 2. Check if intermediate certificates are involved
 3. Use `getCertificateInfo()` tool to inspect
@@ -396,12 +402,12 @@ void debugCertificateConfig() {
 
 ## Security Levels Summary
 
-| Level | Pinning | Strict | Debug Bypass | Use Case |
-|-------|---------|--------|--------------|----------|
-| Low | ❌ | ❌ | ✅ | Development |
-| Medium | ❌ | ❌ | ✅ | Testing |
-| High | ✅ | ❌ | ✅ | Production |
-| Maximum | ✅ | ✅ | ❌ | High Security |
+| Level   | Pinning | Strict | Debug Bypass | Use Case      |
+| ------- | ------- | ------ | ------------ | ------------- |
+| Low     | ❌      | ❌     | ✅           | Development   |
+| Medium  | ❌      | ❌     | ✅           | Testing       |
+| High    | ✅      | ❌     | ✅           | Production    |
+| Maximum | ✅      | ✅     | ❌           | High Security |
 
 ---
 

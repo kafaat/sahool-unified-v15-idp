@@ -3,21 +3,14 @@
  * Demonstrates how to create a v2 controller with enhanced features
  */
 
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Query,
-} from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import {
   BaseControllerV2,
   ApiV2,
   RequestId,
   SortOrder,
-} from '@sahool/versioning';
+} from "@sahool/versioning";
 
 // DTO imports
 interface CreateUserV2Dto {
@@ -43,8 +36,8 @@ interface User {
  * Users V2 Controller
  * Enhanced version with improved pagination and response format
  */
-@ApiV2('Users')
-@Controller({ path: 'users', version: '2' })
+@ApiV2("Users")
+@Controller({ path: "users", version: "2" })
 export class UsersV2Controller extends BaseControllerV2 {
   constructor(private readonly usersService: any) {
     super();
@@ -55,24 +48,25 @@ export class UsersV2Controller extends BaseControllerV2 {
    */
   @Post()
   @ApiOperation({
-    summary: 'Create a new user (v2)',
-    description: 'Creates a new user with enhanced validation and response format',
+    summary: "Create a new user (v2)",
+    description:
+      "Creates a new user with enhanced validation and response format",
   })
   @ApiResponse({
     status: 201,
-    description: 'User created successfully',
+    description: "User created successfully",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        success: { type: 'boolean', example: true },
-        data: { type: 'object' },
-        message: { type: 'string', example: 'User created successfully' },
-        version: { type: 'string', example: '2' },
-        timestamp: { type: 'string', example: '2026-01-06T10:30:00Z' },
+        success: { type: "boolean", example: true },
+        data: { type: "object" },
+        message: { type: "string", example: "User created successfully" },
+        version: { type: "string", example: "2" },
+        timestamp: { type: "string", example: "2026-01-06T10:30:00Z" },
         meta: {
-          type: 'object',
+          type: "object",
           properties: {
-            requestId: { type: 'string', example: 'req_123456' },
+            requestId: { type: "string", example: "req_123456" },
           },
         },
       },
@@ -86,7 +80,7 @@ export class UsersV2Controller extends BaseControllerV2 {
     const user = await this.usersService.create(createUserDto);
 
     // Return v2 format response
-    return this.success(user, requestId, 'User created successfully');
+    return this.success(user, requestId, "User created successfully");
   }
 
   /**
@@ -94,67 +88,68 @@ export class UsersV2Controller extends BaseControllerV2 {
    */
   @Get()
   @ApiOperation({
-    summary: 'Get all users (v2)',
-    description: 'Retrieves a list of all users with enhanced pagination and sorting',
+    summary: "Get all users (v2)",
+    description:
+      "Retrieves a list of all users with enhanced pagination and sorting",
   })
   @ApiQuery({
-    name: 'page',
+    name: "page",
     required: false,
     type: Number,
     example: 1,
-    description: 'Page number (starts at 1)',
+    description: "Page number (starts at 1)",
   })
   @ApiQuery({
-    name: 'limit',
+    name: "limit",
     required: false,
     type: Number,
     example: 20,
-    description: 'Number of items per page (max 100)',
+    description: "Number of items per page (max 100)",
   })
   @ApiQuery({
-    name: 'sort',
+    name: "sort",
     required: false,
     type: String,
-    example: 'createdAt',
-    description: 'Field to sort by',
+    example: "createdAt",
+    description: "Field to sort by",
   })
   @ApiQuery({
-    name: 'order',
+    name: "order",
     required: false,
-    enum: ['asc', 'desc'],
-    example: 'desc',
-    description: 'Sort order',
+    enum: ["asc", "desc"],
+    example: "desc",
+    description: "Sort order",
   })
   @ApiQuery({
-    name: 'status',
+    name: "status",
     required: false,
     type: String,
-    example: 'active',
-    description: 'Filter by user status',
+    example: "active",
+    description: "Filter by user status",
   })
   @ApiResponse({
     status: 200,
-    description: 'Users retrieved successfully',
+    description: "Users retrieved successfully",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        success: { type: 'boolean', example: true },
-        data: { type: 'array', items: { type: 'object' } },
-        version: { type: 'string', example: '2' },
-        timestamp: { type: 'string', example: '2026-01-06T10:30:00Z' },
+        success: { type: "boolean", example: true },
+        data: { type: "array", items: { type: "object" } },
+        version: { type: "string", example: "2" },
+        timestamp: { type: "string", example: "2026-01-06T10:30:00Z" },
         meta: {
-          type: 'object',
+          type: "object",
           properties: {
-            requestId: { type: 'string', example: 'req_123456' },
+            requestId: { type: "string", example: "req_123456" },
             pagination: {
-              type: 'object',
+              type: "object",
               properties: {
-                page: { type: 'number', example: 1 },
-                limit: { type: 'number', example: 20 },
-                total: { type: 'number', example: 100 },
-                totalPages: { type: 'number', example: 5 },
-                hasNext: { type: 'boolean', example: true },
-                hasPrev: { type: 'boolean', example: false },
+                page: { type: "number", example: 1 },
+                limit: { type: "number", example: 20 },
+                total: { type: "number", example: 100 },
+                totalPages: { type: "number", example: 5 },
+                hasNext: { type: "boolean", example: true },
+                hasPrev: { type: "boolean", example: false },
               },
             },
           },
@@ -164,11 +159,11 @@ export class UsersV2Controller extends BaseControllerV2 {
   })
   async findAll(
     @RequestId() requestId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-    @Query('sort') sort?: string,
-    @Query('order') order?: string,
-    @Query('status') status?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("sort") sort?: string,
+    @Query("order") order?: string,
+    @Query("status") status?: string,
   ) {
     // Parse v2 pagination parameters
     const { page: p, limit: l, skip } = this.parsePaginationParams(page, limit);
@@ -186,7 +181,8 @@ export class UsersV2Controller extends BaseControllerV2 {
     };
 
     // Fetch users with count
-    const [users, total] = await this.usersService.findAllWithCount(filterOptions);
+    const [users, total] =
+      await this.usersService.findAllWithCount(filterOptions);
 
     // Return v2 format paginated response
     return this.paginated(users, p, l, total, requestId);
@@ -195,25 +191,26 @@ export class UsersV2Controller extends BaseControllerV2 {
   /**
    * Get user by ID (v2)
    */
-  @Get(':id')
+  @Get(":id")
   @ApiOperation({
-    summary: 'Get user by ID (v2)',
-    description: 'Retrieves a single user by their ID with enhanced error handling',
+    summary: "Get user by ID (v2)",
+    description:
+      "Retrieves a single user by their ID with enhanced error handling",
   })
   @ApiResponse({
     status: 200,
-    description: 'User retrieved successfully',
+    description: "User retrieved successfully",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        success: { type: 'boolean', example: true },
-        data: { type: 'object' },
-        version: { type: 'string', example: '2' },
-        timestamp: { type: 'string', example: '2026-01-06T10:30:00Z' },
+        success: { type: "boolean", example: true },
+        data: { type: "object" },
+        version: { type: "string", example: "2" },
+        timestamp: { type: "string", example: "2026-01-06T10:30:00Z" },
         meta: {
-          type: 'object',
+          type: "object",
           properties: {
-            requestId: { type: 'string', example: 'req_123456' },
+            requestId: { type: "string", example: "req_123456" },
           },
         },
       },
@@ -221,49 +218,46 @@ export class UsersV2Controller extends BaseControllerV2 {
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: "User not found",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        success: { type: 'boolean', example: false },
+        success: { type: "boolean", example: false },
         error: {
-          type: 'object',
+          type: "object",
           properties: {
-            code: { type: 'string', example: 'USER_NOT_FOUND' },
-            message: { type: 'string', example: 'User not found' },
-            details: { type: 'string', example: 'No user exists with ID: 123' },
-            timestamp: { type: 'string', example: '2026-01-06T10:30:00Z' },
+            code: { type: "string", example: "USER_NOT_FOUND" },
+            message: { type: "string", example: "User not found" },
+            details: { type: "string", example: "No user exists with ID: 123" },
+            timestamp: { type: "string", example: "2026-01-06T10:30:00Z" },
           },
         },
-        version: { type: 'string', example: '2' },
+        version: { type: "string", example: "2" },
         meta: {
-          type: 'object',
+          type: "object",
           properties: {
-            requestId: { type: 'string', example: 'req_123456' },
+            requestId: { type: "string", example: "req_123456" },
             documentation: {
-              type: 'string',
-              example: 'https://docs.sahool.app/errors/USER_NOT_FOUND'
+              type: "string",
+              example: "https://docs.sahool.app/errors/USER_NOT_FOUND",
             },
           },
         },
       },
     },
   })
-  async findOne(
-    @Param('id') id: string,
-    @RequestId() requestId: string,
-  ) {
+  async findOne(@Param("id") id: string, @RequestId() requestId: string) {
     // Fetch user
     const user = await this.usersService.findOne(id);
 
     if (!user) {
       // Return v2 format error response
       return this.error(
-        'USER_NOT_FOUND',
-        'User not found',
+        "USER_NOT_FOUND",
+        "User not found",
         requestId,
         `No user exists with ID: ${id}`,
-        'userId',
+        "userId",
       );
     }
 
@@ -274,19 +268,19 @@ export class UsersV2Controller extends BaseControllerV2 {
   /**
    * Get user statistics (v2 only)
    */
-  @Get('stats/summary')
+  @Get("stats/summary")
   @ApiOperation({
-    summary: 'Get user statistics (v2 only)',
-    description: 'New endpoint available only in v2',
+    summary: "Get user statistics (v2 only)",
+    description: "New endpoint available only in v2",
   })
   @ApiResponse({
     status: 200,
-    description: 'Statistics retrieved successfully',
+    description: "Statistics retrieved successfully",
   })
   async getStatistics(@RequestId() requestId: string) {
     const stats = await this.usersService.getStatistics();
 
-    return this.success(stats, requestId, 'Statistics retrieved successfully');
+    return this.success(stats, requestId, "Statistics retrieved successfully");
   }
 }
 

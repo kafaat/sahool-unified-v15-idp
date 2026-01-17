@@ -14,13 +14,15 @@ External provider management service for Maps, Weather, and Satellite imagery.
 ## الميزات | Features
 
 ### أنواع المزودين | Provider Types
-| النوع | Type | المزودون |
-|-------|------|----------|
-| خرائط | Maps | OSM, Google, Mapbox, ESRI |
-| طقس | Weather | Open-Meteo, OpenWeatherMap, WeatherAPI |
-| أقمار صناعية | Satellite | Sentinel Hub, Planet Labs, Landsat |
+
+| النوع        | Type      | المزودون                               |
+| ------------ | --------- | -------------------------------------- |
+| خرائط        | Maps      | OSM, Google, Mapbox, ESRI              |
+| طقس          | Weather   | Open-Meteo, OpenWeatherMap, WeatherAPI |
+| أقمار صناعية | Satellite | Sentinel Hub, Planet Labs, Landsat     |
 
 ### إدارة التكوين | Configuration Management
+
 - تكوين لكل مستأجر (Tenant-based config)
 - أولويات المزودين (Primary, Secondary, Tertiary)
 - فحص صحة المزودين (Health checks)
@@ -30,33 +32,33 @@ External provider management service for Maps, Weather, and Satellite imagery.
 
 ## مزودو الخرائط | Map Providers
 
-| المزود | Provider | API Key | التكلفة/1000 | Offline |
-|--------|----------|---------|--------------|---------|
-| OpenStreetMap | ❌ | مجاني | ✅ |
-| Google Maps | ✅ | $7.00 | ❌ |
-| Google Satellite | ✅ | $7.00 | ❌ |
-| Mapbox Streets | ✅ | $0.50 | ✅ |
-| Mapbox Satellite | ✅ | $0.50 | ✅ |
-| ESRI Satellite | ❌ | مجاني | ✅ |
-| OpenTopoMap | ❌ | مجاني | ✅ |
+| المزود           | Provider | API Key | التكلفة/1000 | Offline |
+| ---------------- | -------- | ------- | ------------ | ------- |
+| OpenStreetMap    | ❌       | مجاني   | ✅           |
+| Google Maps      | ✅       | $7.00   | ❌           |
+| Google Satellite | ✅       | $7.00   | ❌           |
+| Mapbox Streets   | ✅       | $0.50   | ✅           |
+| Mapbox Satellite | ✅       | $0.50   | ✅           |
+| ESRI Satellite   | ❌       | مجاني   | ✅           |
+| OpenTopoMap      | ❌       | مجاني   | ✅           |
 
 ## مزودو الطقس | Weather Providers
 
-| المزود | Provider | API Key | التوقعات | التاريخي |
-|--------|----------|---------|----------|----------|
-| Open-Meteo | ❌ | 16 يوم | ✅ |
-| OpenWeatherMap | ✅ | 8 أيام | ❌ |
-| WeatherAPI | ✅ | 14 يوم | ✅ |
-| Visual Crossing | ✅ | 15 يوم | ✅ |
+| المزود          | Provider | API Key | التوقعات | التاريخي |
+| --------------- | -------- | ------- | -------- | -------- |
+| Open-Meteo      | ❌       | 16 يوم  | ✅       |
+| OpenWeatherMap  | ✅       | 8 أيام  | ❌       |
+| WeatherAPI      | ✅       | 14 يوم  | ✅       |
+| Visual Crossing | ✅       | 15 يوم  | ✅       |
 
 ## مزودو الأقمار الصناعية | Satellite Providers
 
-| المزود | Provider | الدقة | التكرار | المؤشرات |
-|--------|----------|-------|---------|----------|
-| Sentinel Hub | 10m | 5 أيام | NDVI, NDWI, EVI, LAI |
-| Planet Labs | 3m | يومي | NDVI, NDWI, EVI |
-| Landsat | 30m | 16 يوم | NDVI, NDWI, EVI, SAVI |
-| Maxar | 30cm | 3 أيام | NDVI |
+| المزود       | Provider | الدقة  | التكرار               | المؤشرات |
+| ------------ | -------- | ------ | --------------------- | -------- |
+| Sentinel Hub | 10m      | 5 أيام | NDVI, NDWI, EVI, LAI  |
+| Planet Labs  | 3m       | يومي   | NDVI, NDWI, EVI       |
+| Landsat      | 30m      | 16 يوم | NDVI, NDWI, EVI, SAVI |
+| Maxar        | 30cm     | 3 أيام | NDVI                  |
 
 ---
 
@@ -157,13 +159,13 @@ Response:
 
 ## حالات المزود | Provider Status
 
-| الحالة | Status | الوصف |
-|--------|--------|--------|
-| `available` | متاح | يعمل بشكل طبيعي |
-| `unavailable` | غير متاح | لا يستجيب |
-| `rate_limited` | محدود | تجاوز الحد |
-| `error` | خطأ | مشكلة تقنية |
-| `checking` | قيد الفحص | جاري التحقق |
+| الحالة         | Status    | الوصف           |
+| -------------- | --------- | --------------- |
+| `available`    | متاح      | يعمل بشكل طبيعي |
+| `unavailable`  | غير متاح  | لا يستجيب       |
+| `rate_limited` | محدود     | تجاوز الحد      |
+| `error`        | خطأ       | مشكلة تقنية     |
+| `checking`     | قيد الفحص | جاري التحقق     |
 
 ---
 

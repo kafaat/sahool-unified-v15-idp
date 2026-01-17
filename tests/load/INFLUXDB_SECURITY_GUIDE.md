@@ -1,4 +1,5 @@
 # InfluxDB Security Configuration Guide
+
 # دليل تكوين أمان قاعدة بيانات InfluxDB
 
 **SAHOOL Agricultural Platform v15-IDP**
@@ -35,13 +36,13 @@ This guide provides comprehensive instructions for securing InfluxDB instances a
 
 ### Security Score Improvement
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Overall Security | 4.0/10 | 8.5/10 | +112% |
-| Authentication | 3/10 | 9/10 | +200% |
-| Encryption | 0/10 | 9/10 | +∞ |
-| Credential Management | 2/10 | 9/10 | +350% |
-| Production Readiness | 45% | 85% | +89% |
+| Metric                | Before | After  | Improvement |
+| --------------------- | ------ | ------ | ----------- |
+| Overall Security      | 4.0/10 | 8.5/10 | +112%       |
+| Authentication        | 3/10   | 9/10   | +200%       |
+| Encryption            | 0/10   | 9/10   | +∞          |
+| Credential Management | 2/10   | 9/10   | +350%       |
+| Production Readiness  | 45%    | 85%    | +89%        |
 
 ---
 
@@ -94,14 +95,17 @@ docker-compose -f docker-compose.load.yml up -d
 ### 1. Authentication and Authorization
 
 ✅ **Removed Hardcoded Credentials**
+
 - All credentials now use environment variables from `.env.influxdb.secret`
 - Secrets file excluded from version control
 
 ✅ **Strong Password Generation**
+
 - Admin password: 32-byte random (base64 encoded)
 - Admin token: 64-byte random (base64 encoded)
 
 ✅ **Role-Based Access Control (RBAC)**
+
 - Read-only token for Grafana (query access only)
 - Write-only token for k6 (metrics ingestion only)
 - Admin token used only for management tasks
@@ -109,12 +113,14 @@ docker-compose -f docker-compose.load.yml up -d
 ### 2. Encryption (TLS/SSL)
 
 ✅ **TLS Certificate Support**
+
 - Automated certificate generation script
 - Support for self-signed (development) and CA-signed (production) certificates
 - 4096-bit RSA keys
 - 365-day validity (configurable)
 
 ✅ **Encrypted Communication**
+
 - HTTPS enabled for InfluxDB API
 - TLS for client connections (k6, Grafana)
 - Certificate validation configurable
@@ -122,21 +128,25 @@ docker-compose -f docker-compose.load.yml up -d
 ### 3. Network Security
 
 ✅ **Port Binding Restrictions**
+
 - All ports bound to `127.0.0.1` (localhost only)
 - No external exposure unless explicitly configured
 
 ✅ **Docker Network Isolation**
+
 - Dedicated networks per environment
 - Services cannot cross-communicate between environments
 
 ### 4. Resource Management
 
 ✅ **Resource Limits**
+
 - Memory limit: 2GB
 - CPU limit: 2 cores
 - Prevents resource exhaustion attacks
 
 ✅ **Performance Tuning**
+
 - Cache size: 1GB
 - Query concurrency: 100
 - Optimized for high-throughput scenarios
@@ -144,22 +154,26 @@ docker-compose -f docker-compose.load.yml up -d
 ### 5. Backup and Disaster Recovery
 
 ✅ **Automated Backups**
+
 - Daily backup script with retention policy
 - Compression for storage efficiency
 - Optional S3/MinIO integration
 - Backup verification
 
 ✅ **Retention Policies**
+
 - 30-day retention for backups (configurable)
 - Automatic cleanup of old backups
 
 ### 6. Monitoring
 
 ✅ **Metrics Endpoint**
+
 - Prometheus metrics exposed at `/metrics`
 - Integration with existing monitoring stack
 
 ✅ **Audit Logging**
+
 - Request logging enabled
 - Access patterns tracked
 
@@ -189,6 +203,7 @@ ls -lh ssl/
 ```
 
 **Certificate Details:**
+
 - **Type:** Self-signed RSA 4096-bit
 - **Validity:** 365 days
 - **Subject Alt Names:** DNS:influxdb, DNS:localhost, IP:127.0.0.1
@@ -359,6 +374,7 @@ The `generate-influxdb-certs.sh` script creates self-signed certificates suitabl
 ```
 
 **What it does:**
+
 1. Generates 4096-bit RSA private keys
 2. Creates certificate signing requests (CSR)
 3. Self-signs certificates with 365-day validity
@@ -433,11 +449,11 @@ cp /path/to/signed-cert.pem ssl/influxdb-load-cert.pem
 
 InfluxDB uses token-based authentication with fine-grained permissions:
 
-| Token Type | Permissions | Used By | Scope |
-|------------|-------------|---------|-------|
-| Admin Token | Full access | Administrators | All operations |
-| Read Token | Read bucket | Grafana | Query only |
-| Write Token | Write bucket | k6 | Write metrics only |
+| Token Type  | Permissions  | Used By        | Scope              |
+| ----------- | ------------ | -------------- | ------------------ |
+| Admin Token | Full access  | Administrators | All operations     |
+| Read Token  | Read bucket  | Grafana        | Query only         |
+| Write Token | Write bucket | k6             | Write metrics only |
 
 ### Creating Custom Tokens
 
@@ -642,9 +658,9 @@ curl http://localhost:8086/metrics
 
 ```yaml
 scrape_configs:
-  - job_name: 'influxdb'
+  - job_name: "influxdb"
     static_configs:
-      - targets: ['sahool-influxdb:8086']
+      - targets: ["sahool-influxdb:8086"]
     metrics_path: /metrics
 ```
 
@@ -721,6 +737,7 @@ docker exec sahool-loadtest-influxdb influx bucket update \
 #### 1. InfluxDB Container Won't Start
 
 **Symptoms:**
+
 - Container exits immediately
 - Health check fails
 
@@ -755,6 +772,7 @@ docker run --rm -v influxdb-data:/data alpine ls -la /data
 #### 2. Authentication Failures
 
 **Symptoms:**
+
 - "unauthorized access" errors
 - Token validation failures
 
@@ -787,6 +805,7 @@ docker-compose -f docker-compose.load.yml config | grep INFLUXDB
 #### 3. TLS Certificate Errors
 
 **Symptoms:**
+
 - "certificate verify failed" errors
 - "x509: certificate is valid for X, not Y"
 
@@ -816,6 +835,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 #### 4. k6 Cannot Write Metrics
 
 **Symptoms:**
+
 - k6 reports "failed to send metrics to InfluxDB"
 - No data in Grafana
 
@@ -855,6 +875,7 @@ docker exec sahool-loadtest-influxdb influx auth list --org sahool --json | \
 #### 5. Grafana Shows No Data
 
 **Symptoms:**
+
 - Grafana datasource test fails
 - "Empty response" in dashboards
 
@@ -890,6 +911,7 @@ docker-compose -f docker-compose.load.yml restart grafana
 #### 6. High Memory Usage
 
 **Symptoms:**
+
 - InfluxDB container using >2GB RAM
 - System running out of memory
 
@@ -926,6 +948,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 ### 1. Credential Management
 
 ✅ **DO:**
+
 - Use strong, randomly-generated passwords (≥32 characters)
 - Store credentials in `.env.influxdb.secret` (not committed to git)
 - Rotate tokens every 90 days
@@ -933,6 +956,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 - Use secrets management systems (HashiCorp Vault, AWS Secrets Manager) in production
 
 ❌ **DON'T:**
+
 - Hardcode credentials in docker-compose files
 - Share admin tokens with applications
 - Commit `.env.influxdb.secret` to version control
@@ -942,6 +966,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 ### 2. TLS/SSL
 
 ✅ **DO:**
+
 - Always use TLS in production
 - Use CA-signed certificates in production
 - Validate certificates (set `tlsSkipVerify: false`)
@@ -949,6 +974,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 - Use strong cipher suites (TLS 1.2+)
 
 ❌ **DON'T:**
+
 - Use self-signed certificates in production
 - Disable certificate validation in production
 - Use expired certificates
@@ -957,6 +983,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 ### 3. Network Security
 
 ✅ **DO:**
+
 - Bind ports to `127.0.0.1` (localhost only)
 - Use Docker networks for service isolation
 - Implement firewall rules
@@ -964,6 +991,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 - Monitor network traffic
 
 ❌ **DON'T:**
+
 - Expose InfluxDB ports to `0.0.0.0`
 - Allow cross-environment communication
 - Disable firewall
@@ -972,6 +1000,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 ### 4. Backup and Recovery
 
 ✅ **DO:**
+
 - Automate daily backups
 - Test restore procedures regularly
 - Store backups off-site (S3, MinIO)
@@ -979,6 +1008,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 - Document recovery time objectives (RTO)
 
 ❌ **DON'T:**
+
 - Rely on manual backups only
 - Store backups on same host
 - Skip backup verification
@@ -987,6 +1017,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 ### 5. Access Control
 
 ✅ **DO:**
+
 - Use least-privilege principle
 - Create service-specific tokens
 - Audit token usage regularly
@@ -994,6 +1025,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 - Log authentication attempts
 
 ❌ **DON'T:**
+
 - Share admin tokens
 - Grant unnecessary permissions
 - Skip access audits
@@ -1002,6 +1034,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 ### 6. Monitoring and Logging
 
 ✅ **DO:**
+
 - Monitor disk space usage
 - Set up alerts for anomalies
 - Log all administrative actions
@@ -1009,6 +1042,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 - Track query performance
 
 ❌ **DON'T:**
+
 - Ignore monitoring alerts
 - Disable logging for "performance"
 - Skip log reviews
@@ -1017,6 +1051,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 ### 7. Update and Patch Management
 
 ✅ **DO:**
+
 - Keep InfluxDB updated to latest stable version
 - Subscribe to security advisories
 - Test updates in non-production first
@@ -1024,6 +1059,7 @@ docker-compose -f docker-compose.load.yml restart influxdb
 - Document update procedures
 
 ❌ **DON'T:**
+
 - Run outdated versions
 - Apply updates directly to production
 - Skip security patches
@@ -1219,6 +1255,7 @@ This security implementation addresses all critical vulnerabilities identified i
 ### Support and Feedback
 
 For issues or questions:
+
 - Review this guide
 - Check troubleshooting section
 - Consult audit report: `/tests/database/INFLUXDB_AUDIT.md`

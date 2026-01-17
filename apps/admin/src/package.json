@@ -1,0 +1,7 @@
+{
+  "name": "sahool-admin-src",
+  "version": "16.0.0",
+  "description": "Source code for SAHOOL admin dashboard - references parent package.json",
+  "private": true,
+  "description_note": "This is a Next.js application. All dependencies are managed in the parent package.json at apps/admin/package.json. This file is created to satisfy build tooling requirements."
+}

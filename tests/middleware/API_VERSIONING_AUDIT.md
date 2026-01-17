@@ -1,4 +1,5 @@
 # API Versioning Strategy Audit Report
+
 **SAHOOL Platform - Unified IDP v15**
 
 ---
@@ -12,14 +13,14 @@
 
 ### Key Findings Summary
 
-| Category | Status | Score |
-|----------|--------|-------|
-| Kong Route Versioning | ✅ Implemented | 85% |
-| Service-Level Versioning | ✅ Implemented | 80% |
-| Version Headers | ⚠️ Partial | 60% |
-| Backward Compatibility | ✅ Implemented | 85% |
-| Deprecation Headers | ⚠️ Partial | 65% |
-| Version Documentation | ⚠️ Needs Improvement | 55% |
+| Category                 | Status               | Score |
+| ------------------------ | -------------------- | ----- |
+| Kong Route Versioning    | ✅ Implemented       | 85%   |
+| Service-Level Versioning | ✅ Implemented       | 80%   |
+| Version Headers          | ⚠️ Partial           | 60%   |
+| Backward Compatibility   | ✅ Implemented       | 85%   |
+| Deprecation Headers      | ⚠️ Partial           | 65%   |
+| Version Documentation    | ⚠️ Needs Improvement | 55%   |
 
 ### Critical Gaps Identified
 
@@ -53,14 +54,15 @@ routes:
 
 ### 1.3 Current Version Distribution
 
-| API Version | Services | Percentage |
-|-------------|----------|------------|
-| v1 | 30+ services | 100% |
-| v2 | 0 services | 0% |
+| API Version | Services     | Percentage |
+| ----------- | ------------ | ---------- |
+| v1          | 30+ services | 100%       |
+| v2          | 0 services   | 0%         |
 
 ### 1.4 Route Examples by Service Category
 
 #### Core Services
+
 ```yaml
 # Field Management
 - /api/v1/fields
@@ -76,6 +78,7 @@ routes:
 ```
 
 #### AI & Analytics Services
+
 ```yaml
 # Satellite & NDVI
 - /api/v1/ndvi
@@ -93,6 +96,7 @@ routes:
 ```
 
 #### Communication Services
+
 ```yaml
 # Chat & Messaging
 - /api/v1/chat
@@ -105,6 +109,7 @@ routes:
 ```
 
 #### Specialized Services
+
 ```yaml
 # IoT & Sensors
 - /api/v1/iot
@@ -145,18 +150,18 @@ routes:
 # Example: Advisory Service legacy paths
 - /api/v1/advice
 - /api/v1/advisory
-- /api/v1/agro-advisor  # Legacy path for backwards compatibility
+- /api/v1/agro-advisor # Legacy path for backwards compatibility
 ```
 
 ### 1.7 Recommendations
 
-| Priority | Recommendation | Impact |
-|----------|----------------|--------|
-| **HIGH** | Define v2 API roadmap and migration strategy | Future-proofing |
-| **HIGH** | Document which paths are canonical vs legacy | Clarity |
-| **MEDIUM** | Add version info to Kong response headers globally | Observability |
-| **MEDIUM** | Implement version sunset timeline for legacy paths | Technical debt |
-| **LOW** | Consider semantic versioning for breaking changes | Standards compliance |
+| Priority   | Recommendation                                     | Impact               |
+| ---------- | -------------------------------------------------- | -------------------- |
+| **HIGH**   | Define v2 API roadmap and migration strategy       | Future-proofing      |
+| **HIGH**   | Document which paths are canonical vs legacy       | Clarity              |
+| **MEDIUM** | Add version info to Kong response headers globally | Observability        |
+| **MEDIUM** | Implement version sunset timeline for legacy paths | Technical debt       |
+| **LOW**    | Consider semantic versioning for breaking changes  | Standards compliance |
 
 ---
 
@@ -171,6 +176,7 @@ The platform implements a sophisticated Python-based API versioning middleware f
 ### 2.2 Architecture Components
 
 #### 2.2.1 APIVersion Enum
+
 ```python
 class APIVersion(str, Enum):
     """Supported API versions"""
@@ -184,12 +190,14 @@ class APIVersion(str, Enum):
 ```
 
 **Status:**
+
 - ✅ V1 defined and active
 - ⚠️ V2 defined but not implemented
 - ✅ Default version: V1
 - ✅ Deprecated versions list: [] (empty)
 
 #### 2.2.2 Version Pattern Matching
+
 ```python
 # Pattern to match /api/v1/, /api/v2/, etc.
 VERSION_PATTERN = re.compile(r"^/api/(v\d+)(/.*)?$", re.IGNORECASE)
@@ -199,12 +207,14 @@ UNVERSIONED_API_PATTERN = re.compile(r"^/api(/.*)?$", re.IGNORECASE)
 ```
 
 **Features:**
+
 - ✅ Case-insensitive matching
 - ✅ Extracts version from URL path
 - ✅ Handles unversioned paths (defaults to latest)
 - ✅ Flexible regex pattern supports any vN format
 
 #### 2.2.3 APIVersionMiddleware
+
 ```python
 class APIVersionMiddleware(BaseHTTPMiddleware):
     """
@@ -217,6 +227,7 @@ class APIVersionMiddleware(BaseHTTPMiddleware):
 ```
 
 **Excluded Paths (No Versioning Required):**
+
 ```python
 EXCLUDED_PATHS = {
     "/",
@@ -231,6 +242,7 @@ EXCLUDED_PATHS = {
 ```
 
 **Functionality:**
+
 1. ✅ Extracts version from path
 2. ✅ Stores version in `request.state.api_version`
 3. ✅ Adds `X-API-Version` response header
@@ -257,6 +269,7 @@ router = VersionedRouter(
 ```
 
 **Features:**
+
 - ✅ Automatic version prefix generation
 - ✅ Automatic version tagging for OpenAPI
 - ✅ Multi-version router factory
@@ -276,6 +289,7 @@ def require_version(
 ```
 
 **Usage Example:**
+
 ```python
 @router.get(
     "/new-feature",
@@ -326,6 +340,7 @@ async def new_feature():
 ### 2.8 Adoption Status
 
 **Services Using VersionedRouter:**
+
 ```bash
 # Found in limited services:
 - field-ops (examples)
@@ -334,18 +349,19 @@ async def new_feature():
 ```
 
 **Services NOT Using VersionedRouter:**
+
 - Most microservices still use manual route registration
 - Legacy services use direct FastAPI routers
 
 ### 2.9 Recommendations
 
-| Priority | Recommendation | Implementation Effort |
-|----------|----------------|----------------------|
-| **HIGH** | Mandate VersionedRouter usage across all services | Medium |
-| **HIGH** | Implement v2 for at least one pilot service | High |
-| **MEDIUM** | Add Accept-Version header support | Medium |
-| **MEDIUM** | Create migration guide for service developers | Low |
-| **LOW** | Add content negotiation (application/vnd.sahool.v1+json) | High |
+| Priority   | Recommendation                                           | Implementation Effort |
+| ---------- | -------------------------------------------------------- | --------------------- |
+| **HIGH**   | Mandate VersionedRouter usage across all services        | Medium                |
+| **HIGH**   | Implement v2 for at least one pilot service              | High                  |
+| **MEDIUM** | Add Accept-Version header support                        | Medium                |
+| **MEDIUM** | Create migration guide for service developers            | Low                   |
+| **LOW**    | Add content negotiation (application/vnd.sahool.v1+json) | High                  |
 
 ---
 
@@ -364,6 +380,7 @@ if version:
 ```
 
 **Example Response:**
+
 ```http
 HTTP/1.1 200 OK
 X-API-Version: v1
@@ -399,6 +416,7 @@ Link: <https://docs.sahool.app/migration-guide>; rel="deprecation"
 ```
 
 **Services with Sunset Headers:**
+
 - agro-advisor (deprecated, sunset 2026-06-01)
 - fertilizer-advisor (deprecated, sunset 2026-06-01)
 
@@ -416,7 +434,7 @@ plugins:
     config:
       headers:
         - Accept
-        - Accept-Version  # ← Listed but not implemented
+        - Accept-Version # ← Listed but not implemented
         - Content-Type
         - Authorization
 ```
@@ -455,22 +473,22 @@ plugins:
 
 ### 3.5 ⚠️ Issues Identified
 
-| Issue | Severity | Impact |
-|-------|----------|--------|
-| No Accept-Version processing | HIGH | Clients can't request specific versions via headers |
-| X-API-Sunset not in responses | MEDIUM | Deprecated endpoints don't warn clients |
-| No Deprecation header standard | MEDIUM | Inconsistent deprecation signaling |
-| Kong doesn't add version headers | LOW | Requires service-level implementation |
+| Issue                            | Severity | Impact                                              |
+| -------------------------------- | -------- | --------------------------------------------------- |
+| No Accept-Version processing     | HIGH     | Clients can't request specific versions via headers |
+| X-API-Sunset not in responses    | MEDIUM   | Deprecated endpoints don't warn clients             |
+| No Deprecation header standard   | MEDIUM   | Inconsistent deprecation signaling                  |
+| Kong doesn't add version headers | LOW      | Requires service-level implementation               |
 
 ### 3.6 Recommendations
 
-| Priority | Recommendation | Details |
-|----------|----------------|---------|
-| **HIGH** | Implement Accept-Version header processing | Allow clients to request versions via headers |
-| **HIGH** | Add X-API-Sunset to deprecated endpoint responses | Automate sunset date injection |
-| **MEDIUM** | Add global X-API-Version via Kong | Centralize version header at gateway |
-| **MEDIUM** | Implement Deprecation header (RFC 8594) | Standardize deprecation notices |
-| **LOW** | Add Link header for migration docs | Point to version migration guides |
+| Priority   | Recommendation                                    | Details                                       |
+| ---------- | ------------------------------------------------- | --------------------------------------------- |
+| **HIGH**   | Implement Accept-Version header processing        | Allow clients to request versions via headers |
+| **HIGH**   | Add X-API-Sunset to deprecated endpoint responses | Automate sunset date injection                |
+| **MEDIUM** | Add global X-API-Version via Kong                 | Centralize version header at gateway          |
+| **MEDIUM** | Implement Deprecation header (RFC 8594)           | Standardize deprecation notices               |
+| **LOW**    | Add Link header for migration docs                | Point to version migration guides             |
 
 ---
 
@@ -490,24 +508,25 @@ The platform implements several backward compatibility strategies:
   routes:
     - name: advisory-route
       paths:
-        - /api/v1/advice          # New canonical path
-        - /api/v1/advisory        # Alias
-        - /api/v1/agro-advisor    # Legacy path for backwards compatibility
+        - /api/v1/advice # New canonical path
+        - /api/v1/advisory # Alias
+        - /api/v1/agro-advisor # Legacy path for backwards compatibility
 ```
 
 **Other Examples:**
+
 ```yaml
 # Field Intelligence
-- /api/v1/field-intelligence  # Canonical
-- /api/v1/intelligence        # Alias
+- /api/v1/field-intelligence # Canonical
+- /api/v1/intelligence # Alias
 
 # Field Chat
-- /api/v1/field/chat         # Canonical
-- /api/v1/field-chat         # Alias
+- /api/v1/field/chat # Canonical
+- /api/v1/field-chat # Alias
 
 # Disaster Assessment
-- /api/v1/disaster           # Canonical
-- /api/v1/disasters          # Plural alias
+- /api/v1/disaster # Canonical
+- /api/v1/disasters # Plural alias
 ```
 
 #### 4.1.2 Service Consolidation with Compatibility
@@ -524,7 +543,7 @@ The platform implements several backward compatibility strategies:
   url: http://advisory-service:8093
   routes:
     - paths:
-        - /api/v1/agro-advisor  # Maintained for backwards compatibility
+        - /api/v1/agro-advisor # Maintained for backwards compatibility
 ```
 
 **Documentation:** `/home/user/sahool-unified-v15-idp/AGRO_ADVISOR_MIGRATION_SUMMARY.md`
@@ -545,6 +564,7 @@ if version is None and UNVERSIONED_API_PATTERN.match(path):
 ```
 
 **Examples:**
+
 - `/api/fields` → defaults to `/api/v1/fields`
 - `/api/weather` → defaults to `/api/v1/weather`
 
@@ -553,6 +573,7 @@ if version is None and UNVERSIONED_API_PATTERN.match(path):
 #### Example 1: Advisory Service Migration
 
 **Timeline:**
+
 - **Before:** Separate services (agro-advisor, fertilizer-advisor)
 - **After:** Consolidated to advisory-service
 - **Compatibility:** All old paths still work, route to new service
@@ -561,6 +582,7 @@ if version is None and UNVERSIONED_API_PATTERN.match(path):
 #### Example 2: Weather Service Consolidation
 
 **Kong Routes:**
+
 ```yaml
 # Weather Core
 - name: weather-service
@@ -594,23 +616,23 @@ if version is None and UNVERSIONED_API_PATTERN.match(path):
 
 ### 4.5 Compatibility Score by Category
 
-| Category | Score | Notes |
-|----------|-------|-------|
-| Path Compatibility | 95% | Multiple paths route correctly |
-| Service Migration | 90% | Clean consolidation with backward compat |
-| Default Version Handling | 85% | Unversioned paths default to v1 |
-| Client Impact | 100% | Zero breaking changes reported |
-| Sunset Process | 60% | Documented but not enforced |
+| Category                 | Score | Notes                                    |
+| ------------------------ | ----- | ---------------------------------------- |
+| Path Compatibility       | 95%   | Multiple paths route correctly           |
+| Service Migration        | 90%   | Clean consolidation with backward compat |
+| Default Version Handling | 85%   | Unversioned paths default to v1          |
+| Client Impact            | 100%  | Zero breaking changes reported           |
+| Sunset Process           | 60%   | Documented but not enforced              |
 
 ### 4.6 Recommendations
 
-| Priority | Recommendation | Benefit |
-|----------|----------------|---------|
-| **HIGH** | Implement sunset date enforcement | Prevent indefinite legacy support |
-| **HIGH** | Add legacy path usage metrics | Track migration progress |
-| **MEDIUM** | Create unified compatibility matrix | Central documentation |
-| **MEDIUM** | Implement client identification for legacy paths | Proactive migration support |
-| **LOW** | Add warning headers to legacy paths | Educate clients about deprecation |
+| Priority   | Recommendation                                   | Benefit                           |
+| ---------- | ------------------------------------------------ | --------------------------------- |
+| **HIGH**   | Implement sunset date enforcement                | Prevent indefinite legacy support |
+| **HIGH**   | Add legacy path usage metrics                    | Track migration progress          |
+| **MEDIUM** | Create unified compatibility matrix              | Central documentation             |
+| **MEDIUM** | Implement client identification for legacy paths | Proactive migration support       |
+| **LOW**    | Add warning headers to legacy paths              | Educate clients about deprecation |
 
 ---
 
@@ -657,6 +679,7 @@ Sunset: Sat, 01 Jun 2026 00:00:00 GMT
 ```
 
 **Applies to:**
+
 - `agro-advisor` service
 - `fertilizer-advisor` service
 
@@ -668,11 +691,11 @@ Sunset: Sat, 01 Jun 2026 00:00:00 GMT
 
 #### 5.3.1 Required Headers
 
-| Header | Required | Implemented | Notes |
-|--------|----------|-------------|-------|
-| `Sunset` | Yes | ⚠️ Partial | Format: HTTP-date (GMT) |
-| `Deprecation` | Recommended | ⚠️ Partial | Boolean or date |
-| `Link` | Recommended | ❌ No | Should link to migration guide |
+| Header        | Required    | Implemented | Notes                          |
+| ------------- | ----------- | ----------- | ------------------------------ |
+| `Sunset`      | Yes         | ⚠️ Partial  | Format: HTTP-date (GMT)        |
+| `Deprecation` | Recommended | ⚠️ Partial  | Boolean or date                |
+| `Link`        | Recommended | ❌ No       | Should link to migration guide |
 
 #### 5.3.2 Correct Sunset Format
 
@@ -687,6 +710,7 @@ X-API-Sunset: 2026-06-01
 ### 5.4 Deprecation Documentation
 
 **Files with Deprecation Info:**
+
 - `DEPRECATED_SERVICES_CLEANUP_SUMMARY.md`
 - `DEPRECATED_AI_SERVICES_CLEANUP_REPORT.md`
 - `AGRO_ADVISOR_MIGRATION_SUMMARY.md`
@@ -702,14 +726,14 @@ X-API-Sunset: 2026-06-01
 
 ### 5.6 ⚠️ Issues Identified
 
-| Issue | Severity | Impact |
-|-------|----------|--------|
-| DEPRECATED_VERSIONS list empty | HIGH | No versions actually marked deprecated |
-| Sunset header not in responses | HIGH | Clients don't receive sunset warnings |
-| Non-standard header format | MEDIUM | X-API-Sunset vs Sunset (RFC 8594) |
-| No Link header for migration docs | MEDIUM | Clients can't easily find migration guides |
-| Deprecation headers only documented | MEDIUM | Not verified in actual API responses |
-| No automated sunset enforcement | LOW | Manual process required |
+| Issue                               | Severity | Impact                                     |
+| ----------------------------------- | -------- | ------------------------------------------ |
+| DEPRECATED_VERSIONS list empty      | HIGH     | No versions actually marked deprecated     |
+| Sunset header not in responses      | HIGH     | Clients don't receive sunset warnings      |
+| Non-standard header format          | MEDIUM   | X-API-Sunset vs Sunset (RFC 8594)          |
+| No Link header for migration docs   | MEDIUM   | Clients can't easily find migration guides |
+| Deprecation headers only documented | MEDIUM   | Not verified in actual API responses       |
+| No automated sunset enforcement     | LOW      | Manual process required                    |
 
 ### 5.7 Recommended Deprecation Header Set
 
@@ -727,14 +751,14 @@ Warning: 299 - "API version v1 is deprecated and will be removed on 2026-06-01"
 
 ### 5.8 Recommendations
 
-| Priority | Recommendation | Implementation |
-|----------|----------------|----------------|
-| **CRITICAL** | Activate deprecation headers for legacy paths | Update DEPRECATED_VERSIONS list |
-| **HIGH** | Implement RFC 8594 Sunset header | Add to middleware |
-| **HIGH** | Add Link header to migration docs | Configure per deprecated endpoint |
-| **MEDIUM** | Standardize header naming (Sunset vs X-API-Sunset) | Follow RFC 8594 |
-| **MEDIUM** | Add Warning header with human-readable message | Improve DX |
-| **LOW** | Create automated sunset date checker | CI/CD integration |
+| Priority     | Recommendation                                     | Implementation                    |
+| ------------ | -------------------------------------------------- | --------------------------------- |
+| **CRITICAL** | Activate deprecation headers for legacy paths      | Update DEPRECATED_VERSIONS list   |
+| **HIGH**     | Implement RFC 8594 Sunset header                   | Add to middleware                 |
+| **HIGH**     | Add Link header to migration docs                  | Configure per deprecated endpoint |
+| **MEDIUM**   | Standardize header naming (Sunset vs X-API-Sunset) | Follow RFC 8594                   |
+| **MEDIUM**   | Add Warning header with human-readable message     | Improve DX                        |
+| **LOW**      | Create automated sunset date checker               | CI/CD integration                 |
 
 ---
 
@@ -747,8 +771,10 @@ Warning: 299 - "API version v1 is deprecated and will be removed on 2026-06-01"
 **File:** `/home/user/sahool-unified-v15-idp/docs/API_GATEWAY.md`
 
 **Content:**
+
 ```markdown
 ### 1. API Versioning
+
 All routes include API version in the path:
 /api/v1/resource
 /api/v2/resource (when available)
@@ -761,6 +787,7 @@ All routes include API version in the path:
 **File:** `/home/user/sahool-unified-v15-idp/shared/middleware/api_versioning.py`
 
 **Content:** Comprehensive docstrings:
+
 - Module-level documentation (20+ lines)
 - Class docstrings for APIVersion, VersionedRouter, Middleware
 - Function docstrings with examples
@@ -793,6 +820,7 @@ paths:
 **File:** `/home/user/sahool-unified-v15-idp/tests/unit/shared/test_api_versioning.py`
 
 18 unit tests covering:
+
 - Version extraction
 - VersionedRouter behavior
 - get_version_info() output
@@ -802,21 +830,22 @@ paths:
 
 ### 6.2 Missing Documentation
 
-| Document | Status | Priority |
-|----------|--------|----------|
-| **API Versioning Policy** | ❌ Missing | CRITICAL |
-| **Version Lifecycle Guide** | ❌ Missing | HIGH |
-| **Migration Guide (v1→v2)** | ❌ Missing | HIGH |
-| **Deprecation Process** | ⚠️ Scattered | HIGH |
-| **Client Integration Guide** | ⚠️ Minimal | MEDIUM |
-| **Version Negotiation Spec** | ❌ Missing | MEDIUM |
-| **Breaking Change Policy** | ❌ Missing | MEDIUM |
+| Document                     | Status       | Priority |
+| ---------------------------- | ------------ | -------- |
+| **API Versioning Policy**    | ❌ Missing   | CRITICAL |
+| **Version Lifecycle Guide**  | ❌ Missing   | HIGH     |
+| **Migration Guide (v1→v2)**  | ❌ Missing   | HIGH     |
+| **Deprecation Process**      | ⚠️ Scattered | HIGH     |
+| **Client Integration Guide** | ⚠️ Minimal   | MEDIUM   |
+| **Version Negotiation Spec** | ❌ Missing   | MEDIUM   |
+| **Breaking Change Policy**   | ❌ Missing   | MEDIUM   |
 
 ### 6.3 Documentation Quality by Audience
 
 #### 6.3.1 For API Consumers
 
 **Current State:**
+
 - ✅ Basic versioning in API Gateway docs (1 paragraph)
 - ✅ OpenAPI specs include version in paths
 - ❌ No version negotiation guide
@@ -828,6 +857,7 @@ paths:
 #### 6.3.2 For Service Developers
 
 **Current State:**
+
 - ✅ Excellent middleware inline documentation
 - ✅ Code examples in docstrings
 - ✅ Unit tests as documentation
@@ -840,6 +870,7 @@ paths:
 #### 6.3.3 For Operations/DevOps
 
 **Current State:**
+
 - ✅ Kong configuration well-documented
 - ✅ Health check standardization
 - ❌ No version rollout procedures
@@ -861,6 +892,7 @@ paths:
 #### Gap 1: No API Versioning Policy
 
 **Missing Content:**
+
 - When to create a new version
 - What constitutes a breaking change
 - Supported version policy (how many concurrent versions)
@@ -870,6 +902,7 @@ paths:
 #### Gap 2: No Version Lifecycle Documentation
 
 **Missing Content:**
+
 - Version states: Draft → Beta → Stable → Deprecated → Sunset → Removed
 - Lifecycle duration per state
 - Support commitments per state
@@ -878,6 +911,7 @@ paths:
 #### Gap 3: No Client Migration Guides
 
 **Missing Content:**
+
 - How to upgrade from v1 to v2
 - Breaking changes by version
 - Feature availability matrix
@@ -887,6 +921,7 @@ paths:
 #### Gap 4: No Deprecation Process
 
 **Missing Content:**
+
 - How deprecation is announced
 - Minimum notice period
 - Deprecation header standards
@@ -895,15 +930,15 @@ paths:
 
 ### 6.6 Recommendations
 
-| Priority | Recommendation | Effort | Impact |
-|----------|----------------|--------|--------|
-| **CRITICAL** | Create API Versioning Policy Document | Medium | Very High |
-| **HIGH** | Write Version Lifecycle Guide | Medium | High |
-| **HIGH** | Develop v1→v2 Migration Guide Template | Low | High |
-| **HIGH** | Document Deprecation Process | Low | High |
-| **MEDIUM** | Create Client Integration Guide | Medium | Medium |
-| **MEDIUM** | Add Version Negotiation Examples | Low | Medium |
-| **LOW** | Create Version Monitoring Dashboard Docs | Medium | Low |
+| Priority     | Recommendation                           | Effort | Impact    |
+| ------------ | ---------------------------------------- | ------ | --------- |
+| **CRITICAL** | Create API Versioning Policy Document    | Medium | Very High |
+| **HIGH**     | Write Version Lifecycle Guide            | Medium | High      |
+| **HIGH**     | Develop v1→v2 Migration Guide Template   | Low    | High      |
+| **HIGH**     | Document Deprecation Process             | Low    | High      |
+| **MEDIUM**   | Create Client Integration Guide          | Medium | Medium    |
+| **MEDIUM**   | Add Version Negotiation Examples         | Low    | Medium    |
+| **LOW**      | Create Version Monitoring Dashboard Docs | Medium | Low       |
 
 ### 6.7 Proposed Documentation Structure
 
@@ -928,14 +963,14 @@ docs/api/versioning/
 
 ### 7.1 Overall Assessment
 
-| Category | Implementation | Documentation | Score |
-|----------|----------------|---------------|-------|
-| Kong Route Versioning | ✅ Excellent | ⚠️ Adequate | 85% |
-| Service-Level Versioning | ✅ Good | ✅ Good | 80% |
-| Version Headers | ⚠️ Partial | ⚠️ Minimal | 60% |
-| Backward Compatibility | ✅ Excellent | ⚠️ Scattered | 85% |
-| Deprecation Headers | ⚠️ Infrastructure Only | ⚠️ Partial | 65% |
-| Version Documentation | ⚠️ Code-Level Only | ⚠️ Inadequate | 55% |
+| Category                 | Implementation         | Documentation | Score |
+| ------------------------ | ---------------------- | ------------- | ----- |
+| Kong Route Versioning    | ✅ Excellent           | ⚠️ Adequate   | 85%   |
+| Service-Level Versioning | ✅ Good                | ✅ Good       | 80%   |
+| Version Headers          | ⚠️ Partial             | ⚠️ Minimal    | 60%   |
+| Backward Compatibility   | ✅ Excellent           | ⚠️ Scattered  | 85%   |
+| Deprecation Headers      | ⚠️ Infrastructure Only | ⚠️ Partial    | 65%   |
+| Version Documentation    | ⚠️ Code-Level Only     | ⚠️ Inadequate | 55%   |
 
 **Overall Platform Score:** **72% (C+)**
 
@@ -984,6 +1019,7 @@ docs/api/versioning/
 **Task:** Create core versioning documentation
 
 **Deliverables:**
+
 1. `docs/api/versioning/VERSIONING_POLICY.md`
    - Version naming conventions
    - Breaking change criteria
@@ -1010,7 +1046,9 @@ docs/api/versioning/
 **Task:** Enable deprecation warnings for legacy paths
 
 **Changes Required:**
+
 1. Update `/home/user/sahool-unified-v15-idp/shared/middleware/api_versioning.py`:
+
    ```python
    # Mark legacy paths as deprecated
    DEPRECATED_PATHS = [
@@ -1035,7 +1073,9 @@ docs/api/versioning/
 **Task:** Add metrics for version and legacy path usage
 
 **Implementation:**
+
 1. Add Prometheus metrics to middleware:
+
    ```python
    from prometheus_client import Counter
 
@@ -1059,6 +1099,7 @@ docs/api/versioning/
 **Task:** Add header-based version negotiation
 
 **Implementation:**
+
 1. Update middleware to check Accept-Version header
 2. Priority: Header > URL > Default
 3. Add tests for header-based negotiation
@@ -1072,6 +1113,7 @@ docs/api/versioning/
 **Task:** Implement v2 for one pilot service (e.g., fields service)
 
 **Steps:**
+
 1. Choose pilot service (recommend: field-core)
 2. Design v2 API with breaking changes (if any)
 3. Implement v2 routes using VersionedRouter
@@ -1088,6 +1130,7 @@ docs/api/versioning/
 **Task:** Mandate VersionedRouter usage across all services
 
 **Implementation:**
+
 1. Create service developer guide
 2. Migrate top 5 services to VersionedRouter
 3. Add linting/CI checks for VersionedRouter usage
@@ -1104,6 +1147,7 @@ docs/api/versioning/
 **Task:** Automatically enforce sunset dates
 
 **Features:**
+
 1. CI/CD check: Fail build if current date > sunset date
 2. Automated removal of deprecated routes
 3. Grace period configuration
@@ -1118,6 +1162,7 @@ docs/api/versioning/
 **Task:** Add media type versioning
 
 **Implementation:**
+
 ```http
 Accept: application/vnd.sahool.v1+json
 Accept: application/vnd.sahool.v2+json
@@ -1132,6 +1177,7 @@ Accept: application/vnd.sahool.v2+json
 **Task:** Create comprehensive version monitoring
 
 **Metrics:**
+
 - Requests by version (v1, v2, unversioned)
 - Legacy path usage
 - Deprecated endpoint calls
@@ -1144,12 +1190,12 @@ Accept: application/vnd.sahool.v2+json
 
 ### 8.4 Investment Summary
 
-| Timeframe | Tasks | Total Effort | Expected Impact |
-|-----------|-------|--------------|-----------------|
-| **Immediate (0-30 days)** | 3 tasks | 1-2 weeks | Very High |
-| **Short-Term (1-3 months)** | 3 tasks | 6-10 weeks | High |
-| **Long-Term (3-6 months)** | 3 tasks | 4-7 weeks | Medium |
-| **Total** | 9 tasks | 11-19 weeks | Platform Maturity |
+| Timeframe                   | Tasks   | Total Effort | Expected Impact   |
+| --------------------------- | ------- | ------------ | ----------------- |
+| **Immediate (0-30 days)**   | 3 tasks | 1-2 weeks    | Very High         |
+| **Short-Term (1-3 months)** | 3 tasks | 6-10 weeks   | High              |
+| **Long-Term (3-6 months)**  | 3 tasks | 4-7 weeks    | Medium            |
+| **Total**                   | 9 tasks | 11-19 weeks  | Platform Maturity |
 
 ---
 
@@ -1176,6 +1222,7 @@ Draft → Beta → Stable → Deprecated → Sunset → Removed
 ```
 
 **State Definitions:**
+
 - **Draft:** Internal development only
 - **Beta:** Limited external access, may change
 - **Stable:** Production-ready, supported
@@ -1205,6 +1252,7 @@ Warning: 299 - "API version v1 will be removed on 2026-06-01. Migrate to v2."
 ### 9.5 Breaking Change Examples
 
 **What Requires New Version:**
+
 - Removing fields from responses
 - Changing field types
 - Removing endpoints
@@ -1213,6 +1261,7 @@ Warning: 299 - "API version v1 will be removed on 2026-06-01. Migrate to v2."
 - Changing error response formats
 
 **What Can Stay Same Version:**
+
 - Adding new optional fields
 - Adding new endpoints
 - Deprecating fields (still returning them)
@@ -1227,12 +1276,14 @@ Warning: 299 - "API version v1 will be removed on 2026-06-01. Migrate to v2."
 ### 10.1 Current State Summary
 
 The SAHOOL platform has established a **solid foundation** for API versioning with:
+
 - ✅ **100% consistent URL-based versioning** across 30+ services
 - ✅ **Well-architected Python middleware** for version management
 - ✅ **Perfect backward compatibility** record
 - ✅ **Centralized Kong routing** configuration
 
 However, the platform **lacks maturity** in several critical areas:
+
 - ❌ **No second API version** implemented yet
 - ❌ **Limited deprecation header usage**
 - ❌ **Inadequate documentation** for API consumers
@@ -1240,17 +1291,18 @@ However, the platform **lacks maturity** in several critical areas:
 
 ### 10.2 Readiness Assessment
 
-| Scenario | Readiness | Gap |
-|----------|-----------|-----|
-| **Launch v2 API** | ⚠️ 60% | Need: v2 implementation, migration docs, canary deployment |
-| **Deprecate v1 Endpoints** | ⚠️ 70% | Need: Active headers, usage tracking, enforcement |
-| **Support Multiple Concurrent Versions** | ⚠️ 65% | Need: Policy, testing, monitoring |
-| **Client Migration** | ⚠️ 55% | Need: Guides, timelines, support process |
-| **Breaking Change Management** | ⚠️ 60% | Need: Policy, approval process, communication |
+| Scenario                                 | Readiness | Gap                                                        |
+| ---------------------------------------- | --------- | ---------------------------------------------------------- |
+| **Launch v2 API**                        | ⚠️ 60%    | Need: v2 implementation, migration docs, canary deployment |
+| **Deprecate v1 Endpoints**               | ⚠️ 70%    | Need: Active headers, usage tracking, enforcement          |
+| **Support Multiple Concurrent Versions** | ⚠️ 65%    | Need: Policy, testing, monitoring                          |
+| **Client Migration**                     | ⚠️ 55%    | Need: Guides, timelines, support process                   |
+| **Breaking Change Management**           | ⚠️ 60%    | Need: Policy, approval process, communication              |
 
 ### 10.3 Final Grade: **C+ (72%)**
 
 **Justification:**
+
 - Strong technical implementation (middleware, Kong)
 - Weak operational maturity (enforcement, monitoring)
 - Incomplete documentation (policy, guides)
@@ -1275,18 +1327,22 @@ To achieve **A-grade (90%+)** API versioning maturity:
 ### 11.1 Tested Files
 
 **Kong Configuration:**
+
 - `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong/kong.yml` (1,880 lines)
 - `/home/user/sahool-unified-v15-idp/infra/kong/kong.yml` (mirror)
 
 **Middleware:**
+
 - `/home/user/sahool-unified-v15-idp/shared/middleware/api_versioning.py` (373 lines)
 - `/home/user/sahool-unified-v15-idp/tests/unit/shared/test_api_versioning.py` (181 lines)
 
 **Documentation:**
+
 - `/home/user/sahool-unified-v15-idp/docs/API_GATEWAY.md` (599 lines)
 - `/home/user/sahool-unified-v15-idp/apps/services/crop-health/openapi.yaml` (560 lines)
 
 **Service Examples:**
+
 - `/home/user/sahool-unified-v15-idp/apps/services/field-ops/src/api/v1/field_health.py`
 
 ### 11.2 Version Coverage Statistics
@@ -1307,10 +1363,12 @@ To achieve **A-grade (90%+)** API versioning maturity:
 ### 11.4 References
 
 **Standards:**
+
 - [RFC 8594 - The Sunset HTTP Header Field](https://datatracker.ietf.org/doc/html/rfc8594)
 - [Semantic Versioning 2.0.0](https://semver.org/)
 
 **Internal Documentation:**
+
 - AGRO_ADVISOR_MIGRATION_SUMMARY.md
 - DEPRECATED_SERVICES_CLEANUP_SUMMARY.md
 - DEPRECATED_AI_SERVICES_CLEANUP_REPORT.md
@@ -1318,6 +1376,7 @@ To achieve **A-grade (90%+)** API versioning maturity:
 ### 11.5 Contact & Ownership
 
 **API Versioning Ownership:**
+
 - Backend Team: Middleware implementation
 - DevOps Team: Kong configuration, monitoring
 - Product Team: Deprecation decisions, timelines

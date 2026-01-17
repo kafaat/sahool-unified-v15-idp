@@ -1,4 +1,5 @@
 # Kong API Gateway Performance Audit Report
+
 # تقرير تدقيق أداء بوابة Kong API
 
 **Project**: SAHOOL Agricultural Intelligence Platform
@@ -15,7 +16,9 @@ This audit evaluates Kong API Gateway performance settings across three deployme
 **Overall Performance Score**: 72/100
 
 ### Key Findings:
+
 ✅ **Strengths**:
+
 - DNS caching properly configured with extended TTL
 - Rate limiting implemented with Redis backend
 - Health checks configured for all upstreams
@@ -23,6 +26,7 @@ This audit evaluates Kong API Gateway performance settings across three deployme
 - Security hardening in place
 
 ⚠️ **Areas for Improvement**:
+
 - Missing Nginx worker connection limits
 - No upstream keepalive configuration
 - Inconsistent settings across deployments
@@ -61,27 +65,30 @@ Memory Limits:
 ```
 
 **Analysis**:
+
 - CPU allocation is adequate for development/staging
 - Memory limit of 1GB is reasonable but may be insufficient for production workloads with heavy caching
 - Low reservation (128MB) allows flexible resource allocation
 
 **Recommendation**:
+
 - Production: Increase memory limit to 2-4GB
 - Production: Set CPU reservation to 1.0 core minimum
 
 #### DNS Configuration ✅ OPTIMIZED
 
 ```yaml
-KONG_DNS_RESOLVER: 127.0.0.11:53  # Docker internal DNS
+KONG_DNS_RESOLVER: 127.0.0.11:53 # Docker internal DNS
 KONG_DNS_ORDER: LAST,A,CNAME
-KONG_DNS_CACHE_TTL: 300           # 5 minutes
-KONG_DNS_STALE_TTL: 30            # 30 seconds
-KONG_DNS_ERROR_TTL: 30            # 30 seconds
-KONG_DNS_NOT_FOUND_TTL: 30        # 30 seconds
+KONG_DNS_CACHE_TTL: 300 # 5 minutes
+KONG_DNS_STALE_TTL: 30 # 30 seconds
+KONG_DNS_ERROR_TTL: 30 # 30 seconds
+KONG_DNS_NOT_FOUND_TTL: 30 # 30 seconds
 KONG_DNS_NO_SYNC: "off"
 ```
 
 **Status**: ✅ **EXCELLENT**
+
 - Recent optimization applied (increased from 60s to 300s)
 - Reduces DNS query overhead significantly
 - Improves resilience for temporary service unavailability
@@ -99,14 +106,16 @@ Missing Settings:
 **Status**: ❌ **CRITICAL ISSUE**
 
 **Impact**:
+
 - Default Nginx worker connections is 1024
 - Insufficient for high-concurrency scenarios
 - May cause connection queuing under load
 
 **Recommendation**:
+
 ```yaml
 KONG_NGINX_WORKER_PROCESSES: auto
-KONG_NGINX_WORKER_CONNECTIONS: 4096  # Or 10000 for production
+KONG_NGINX_WORKER_CONNECTIONS: 4096 # Or 10000 for production
 ```
 
 #### Plugins Configuration ⚠️ MINIMAL
@@ -118,11 +127,13 @@ Current: KONG_PLUGINS: "bundled,prometheus"
 **Status**: ⚠️ **LIMITED**
 
 **Issues**:
+
 - Only basic plugins enabled
 - Missing performance-critical plugins (proxy-cache, response-ratelimiting)
 - Contrast with infrastructure setup which includes extensive plugins
 
 **Recommendation**:
+
 ```yaml
 KONG_PLUGINS: "bundled,prometheus,rate-limiting,proxy-cache,request-size-limiting,correlation-id"
 ```
@@ -141,12 +152,14 @@ Missing Global Timeouts:
 **Status**: ❌ **CRITICAL ISSUE**
 
 **Impact**:
+
 - New connections created for each request
 - Increased latency and overhead
 - Poor connection reuse
 - Higher resource consumption
 
 **Recommendation**:
+
 ```yaml
 KONG_UPSTREAM_KEEPALIVE: 320
 KONG_UPSTREAM_KEEPALIVE_TIMEOUT: 60
@@ -202,6 +215,7 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m  ✅
 **Status**: ✅ **GOOD** but incomplete
 
 **Missing**:
+
 - Worker connections limit
 - Keepalive settings
 - Upstream connection pooling
@@ -210,12 +224,13 @@ KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m  ✅
 
 ```yaml
 KONG_PLUGINS: bundled,prometheus,rate-limiting,jwt,acl,cors,
-              request-transformer,response-transformer,ip-restriction,
-              bot-detection,request-size-limiting,response-ratelimiting,
-              correlation-id,file-log,proxy-cache
+  request-transformer,response-transformer,ip-restriction,
+  bot-detection,request-size-limiting,response-ratelimiting,
+  correlation-id,file-log,proxy-cache
 ```
 
 **Status**: ✅ **EXCELLENT**
+
 - Comprehensive plugin set
 - Includes proxy-cache for performance
 - All security and monitoring plugins enabled
@@ -232,6 +247,7 @@ PostgreSQL Settings:
 **Status**: ⚠️ **NEEDS OPTIMIZATION**
 
 **Recommendation**:
+
 ```yaml
 KONG_PG_MAX_CONCURRENT_QUERIES: 100
 KONG_PG_POOL_SIZE: 50
@@ -309,15 +325,18 @@ Retry Logic:
 ```
 
 **Status**: ✅ **EXCELLENT**
+
 - Proper failover configuration
 - Keepalive connections (64) configured
 - Smart retry logic
 - WebSocket support included
 
 **Issue**: ⚠️
+
 - Worker connections: 1024 (should be 4096+)
 
 **Recommendation**:
+
 ```nginx
 events {
     worker_connections 4096;  # Increase from 1024
@@ -362,6 +381,7 @@ Example Configuration:
 ```
 
 **Status**: ✅ **EXCELLENT**
+
 - Active health checks every 10 seconds
 - Passive health monitoring enabled
 - Appropriate failure thresholds
@@ -378,16 +398,18 @@ Missing from all upstreams:
 **Status**: ❌ **NEEDS IMPROVEMENT**
 
 **Impact**:
+
 - No connection pooling at upstream level
 - Inefficient connection reuse
 - Potential connection exhaustion
 
 **Recommendation**: Add to each upstream:
+
 ```yaml
 upstreams:
   - name: example-upstream
     algorithm: round-robin
-    slots: 10000  # Target slots
+    slots: 10000 # Target slots
     hash_on: none
     hash_fallback: none
     targets:
@@ -398,6 +420,7 @@ upstreams:
 ### 2.2 Redis Connection Pool (Rate Limiting)
 
 **Configuration**:
+
 ```yaml
 Rate Limiting Plugin:
   policy: redis
@@ -411,10 +434,12 @@ Rate Limiting Plugin:
 **Status**: ✅ **GOOD**
 
 **Missing**:
+
 - redis_pool_size: Not configured
 - redis_backlog: Not configured
 
 **Recommendation**:
+
 ```yaml
 redis_pool_size: 30
 redis_backlog: 100
@@ -433,11 +458,12 @@ Missing Settings:
 ```
 
 **Recommendation**:
+
 ```yaml
-KONG_PG_POOL_SIZE: 50  # Connection pool size
+KONG_PG_POOL_SIZE: 50 # Connection pool size
 KONG_PG_MAX_CONCURRENT_QUERIES: 100
-KONG_PG_TIMEOUT: 5000  # ms
-KONG_PG_CONNECT_TIMEOUT: 10000  # ms
+KONG_PG_TIMEOUT: 5000 # ms
+KONG_PG_CONNECT_TIMEOUT: 10000 # ms
 ```
 
 ---
@@ -468,6 +494,7 @@ Enterprise Services:
 ```
 
 **Status**: ✅ **EXCELLENT**
+
 - Timeouts appropriate for service complexity
 - Longer timeouts for AI/ML services
 - Consistent retry configuration
@@ -475,6 +502,7 @@ Enterprise Services:
 ### 3.2 Global Nginx Timeouts ❌ NOT SET
 
 **Missing Configuration**:
+
 ```yaml
 KONG_NGINX_HTTP_CLIENT_BODY_TIMEOUT: Not set (default: 60s)
 KONG_NGINX_HTTP_CLIENT_HEADER_TIMEOUT: Not set (default: 60s)
@@ -485,6 +513,7 @@ KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT: Not set (default: 75s)
 **Status**: ❌ **NEEDS CONFIGURATION**
 
 **Recommendation**:
+
 ```yaml
 KONG_NGINX_HTTP_CLIENT_BODY_TIMEOUT: 60s
 KONG_NGINX_HTTP_CLIENT_HEADER_TIMEOUT: 30s
@@ -499,6 +528,7 @@ redis_timeout: 2000ms  ✅ GOOD
 ```
 
 **Status**: ✅ **GOOD**
+
 - Appropriate for rate limiting operations
 - Prevents hanging on Redis failures
 - Fault tolerant mode enabled
@@ -515,12 +545,14 @@ redis_timeout: 2000ms  ✅ GOOD
 **Status**: ⚠️ **PLUGIN AVAILABLE BUT NOT APPLIED**
 
 **Current State**:
+
 ```yaml
 Plugins list includes: proxy-cache
 Services using it: NONE ❌
 ```
 
 **Impact**:
+
 - No response caching
 - Increased backend load
 - Higher latency for repeated requests
@@ -536,7 +568,7 @@ Example for weather service:
         strategy: memory
         content_type:
           - application/json
-        cache_ttl: 300  # 5 minutes for weather data
+        cache_ttl: 300 # 5 minutes for weather data
         cache_control: true
         request_method:
           - GET
@@ -553,6 +585,7 @@ Example for weather service:
 ```
 
 **Recommended Services for Caching**:
+
 1. **Weather Service**: 5-15 min TTL
 2. **Astronomical Calendar**: 24 hour TTL
 3. **Indicators Service**: 10 min TTL
@@ -571,8 +604,9 @@ Status: Properly configured (recently optimized)
 **PostgreSQL Setup**: No query caching configuration
 
 **Recommendation**:
+
 ```yaml
-KONG_DB_CACHE_TTL: 3600  # 1 hour for DB entities
+KONG_DB_CACHE_TTL: 3600 # 1 hour for DB entities
 KONG_DB_CACHE_WARMUP_ENTITIES: services,routes,plugins
 ```
 
@@ -589,6 +623,7 @@ KONG_DB_CACHE_WARMUP_ENTITIES: services,routes,plugins
 **Status**: ❌ **CRITICAL MISSING CONFIGURATION**
 
 **Impact**:
+
 - New TCP connection for every upstream request
 - Increased latency (TCP handshake overhead)
 - Higher CPU usage
@@ -596,23 +631,26 @@ KONG_DB_CACHE_WARMUP_ENTITIES: services,routes,plugins
 - Slower response times
 
 **Current Behavior**:
+
 ```
 Request → Kong → New Connection → Backend Service
          ← Response ← Connection Closed ←
 ```
 
 **Desired Behavior**:
+
 ```
 Request → Kong → Reused Connection → Backend Service
          ← Response ← Kept Alive ←
 ```
 
 **Recommendation**:
+
 ```yaml
 Environment Variables:
-  KONG_UPSTREAM_KEEPALIVE: 320  # Pool size per worker
-  KONG_UPSTREAM_KEEPALIVE_TIMEOUT: 60  # Seconds
-  KONG_UPSTREAM_KEEPALIVE_POOL_SIZE: 64  # Connections per upstream
+  KONG_UPSTREAM_KEEPALIVE: 320 # Pool size per worker
+  KONG_UPSTREAM_KEEPALIVE_TIMEOUT: 60 # Seconds
+  KONG_UPSTREAM_KEEPALIVE_POOL_SIZE: 64 # Connections per upstream
   KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS: 1000
 ```
 
@@ -621,14 +659,16 @@ Environment Variables:
 ### 5.2 Client Keepalive ❌ NOT CONFIGURED
 
 **Missing Configuration**:
+
 ```yaml
 KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT: Not set (default: 75s)
 KONG_NGINX_HTTP_KEEPALIVE_REQUESTS: Not set (default: 100)
 ```
 
 **Recommendation**:
+
 ```yaml
-KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT: 65s  # Slightly less than upstream
+KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT: 65s # Slightly less than upstream
 KONG_NGINX_HTTP_KEEPALIVE_REQUESTS: 1000
 ```
 
@@ -704,14 +744,14 @@ keepalive 64;  ✅ GOOD
 
 **Based on configuration analysis**:
 
-| Metric | Current Estimate | Optimized Estimate | Improvement |
-|--------|-----------------|-------------------|-------------|
-| Requests/sec (single node) | ~1,000 | ~3,000 | 200% |
-| Avg Response Time | ~100ms | ~60ms | 40% |
-| P95 Response Time | ~500ms | ~200ms | 60% |
-| Concurrent Connections | ~1,024 | ~4,096 | 300% |
-| Memory Usage | ~400MB | ~800MB | Controlled |
-| Connection Reuse | 0% | 80% | New capability |
+| Metric                     | Current Estimate | Optimized Estimate | Improvement    |
+| -------------------------- | ---------------- | ------------------ | -------------- |
+| Requests/sec (single node) | ~1,000           | ~3,000             | 200%           |
+| Avg Response Time          | ~100ms           | ~60ms              | 40%            |
+| P95 Response Time          | ~500ms           | ~200ms             | 60%            |
+| Concurrent Connections     | ~1,024           | ~4,096             | 300%           |
+| Memory Usage               | ~400MB           | ~800MB             | Controlled     |
+| Connection Reuse           | 0%               | 80%                | New capability |
 
 ### 6.3 Scalability Limits
 
@@ -792,6 +832,7 @@ HA Kong: info  ✅
 ```
 
 **Status**: ✅ **APPROPRIATE**
+
 - Production-safe log levels
 - Balance between visibility and performance
 - Not overly verbose
@@ -799,16 +840,18 @@ HA Kong: info  ✅
 ### 7.4 Performance Impact Analysis
 
 **Current Logging Overhead**:
+
 - Stdout/stderr logging: Minimal impact (~2-3% overhead)
 - File logging: ~5% overhead
 - No buffering configured
 
 **Recommendation**: Add buffering for file logs
+
 ```yaml
 file-log plugin:
   config:
     reopen: true
-    custom_fields_by_lua: {}  # Minimize custom processing
+    custom_fields_by_lua: {} # Minimize custom processing
 ```
 
 ### 7.5 Missing Log Rotation ⚠️
@@ -816,12 +859,14 @@ file-log plugin:
 **Issue**: No explicit log rotation for volume-mounted logs
 
 **Recommendation**: Add logrotate configuration
+
 ```yaml
 volumes:
   - ./logrotate.conf:/etc/logrotate.d/kong:ro
 ```
 
 **logrotate.conf**:
+
 ```
 /var/log/kong/*.log {
     daily
@@ -844,11 +889,13 @@ volumes:
 ### 8.1 Immediate Actions (Week 1)
 
 #### 1. Configure Worker Connections 🔴 CRITICAL
+
 **Priority**: P0
 **Impact**: High
 **Effort**: Low (5 minutes)
 
 **Main docker-compose.yml**:
+
 ```yaml
 kong:
   environment:
@@ -857,6 +904,7 @@ kong:
 ```
 
 **Infrastructure docker-compose.yml**:
+
 ```yaml
 kong:
   environment:
@@ -865,6 +913,7 @@ kong:
 ```
 
 **HA nginx config**:
+
 ```nginx
 events {
     worker_connections 4096;
@@ -874,11 +923,13 @@ events {
 ```
 
 #### 2. Enable Upstream Keepalive 🔴 CRITICAL
+
 **Priority**: P0
 **Impact**: Very High (20-40% latency reduction)
 **Effort**: Low (5 minutes)
 
 **Add to all Kong instances**:
+
 ```yaml
 environment:
   KONG_UPSTREAM_KEEPALIVE: 320
@@ -890,6 +941,7 @@ environment:
 ```
 
 #### 3. Increase Memory for Main Kong 🔴 CRITICAL
+
 **Priority**: P0
 **Impact**: High
 **Effort**: Low (2 minutes)
@@ -899,14 +951,15 @@ kong:
   deploy:
     resources:
       limits:
-        memory: 2G  # Increase from 1G
+        memory: 2G # Increase from 1G
       reservations:
-        memory: 512M  # Increase from 128M
+        memory: 512M # Increase from 128M
 ```
 
 ### 8.2 Short-term Actions (Week 2-3)
 
 #### 4. Apply Proxy Caching 🟡 HIGH
+
 **Priority**: P1
 **Impact**: High
 **Effort**: Medium (2-4 hours)
@@ -931,22 +984,24 @@ services:
       - name: proxy-cache
         config:
           strategy: memory
-          cache_ttl: 86400  # 24 hours
+          cache_ttl: 86400 # 24 hours
 
   - name: provider-config
     plugins:
       - name: proxy-cache
         config:
           strategy: memory
-          cache_ttl: 3600  # 1 hour
+          cache_ttl: 3600 # 1 hour
 ```
 
 #### 5. Optimize PostgreSQL Connection Pool 🟡 HIGH
+
 **Priority**: P1
 **Impact**: Medium
 **Effort**: Low (5 minutes)
 
 **Infrastructure Kong**:
+
 ```yaml
 kong:
   environment:
@@ -958,6 +1013,7 @@ kong:
 ```
 
 **PostgreSQL**:
+
 ```yaml
 kong-database:
   environment:
@@ -971,11 +1027,13 @@ kong-database:
 ```
 
 #### 6. Standardize Configuration 🟡 HIGH
+
 **Priority**: P1
 **Impact**: Medium
 **Effort**: High (4-8 hours)
 
 **Action Items**:
+
 1. Create shared environment file for common Kong settings
 2. Use consistent Kong version across all deployments (3.9)
 3. Align plugin lists between main and infrastructure
@@ -984,11 +1042,13 @@ kong-database:
 ### 8.3 Medium-term Actions (Month 1-2)
 
 #### 7. Implement Advanced Monitoring 🟢 MEDIUM
+
 **Priority**: P2
 **Impact**: Medium
 **Effort**: High (8-16 hours)
 
 **Add Kong-specific Grafana dashboards**:
+
 ```yaml
 - Request rate per service
 - Latency percentiles (P50, P95, P99)
@@ -1000,16 +1060,18 @@ kong-database:
 ```
 
 **Configure Prometheus scraping intervals**:
+
 ```yaml
 prometheus:
   scrape_configs:
-    - job_name: 'kong'
+    - job_name: "kong"
       scrape_interval: 15s
       static_configs:
-        - targets: ['kong:8001']
+        - targets: ["kong:8001"]
 ```
 
 #### 8. Implement Request/Response Size Optimization 🟢 MEDIUM
+
 **Priority**: P2
 **Impact**: Low-Medium
 **Effort**: Medium (2-4 hours)
@@ -1028,17 +1090,20 @@ kong:
 ```
 
 #### 9. Setup Load Testing CI/CD 🟢 MEDIUM
+
 **Priority**: P2
 **Impact**: Medium
 **Effort**: High (8-16 hours)
 
 **Action Items**:
+
 1. Create load testing scripts using k6 or Locust
 2. Integrate into CI/CD pipeline
 3. Define performance SLOs (Service Level Objectives)
 4. Setup automated alerts for performance degradation
 
 **Example SLOs**:
+
 ```yaml
 SLOs:
   Availability: 99.9%
@@ -1051,22 +1116,26 @@ SLOs:
 ### 8.4 Long-term Improvements (Month 3+)
 
 #### 10. Consider Kong Hybrid Mode
+
 **Priority**: P3
 **Impact**: High (for scale)
 **Effort**: Very High
 
 **Benefits**:
+
 - Separate control plane and data plane
 - Better scalability
 - Improved security
 - Centralized management
 
 #### 11. Implement Circuit Breaker Pattern
+
 **Priority**: P3
 **Impact**: Medium
 **Effort**: Medium
 
 **Add to critical services**:
+
 ```yaml
 services:
   - name: ai-advisor
@@ -1075,10 +1144,11 @@ services:
         config:
           max_failures: 10
           window_size: 60
-          failure_threshold: 50  # percentage
+          failure_threshold: 50 # percentage
 ```
 
 #### 12. Setup Multi-Region Deployment
+
 **Priority**: P3
 **Impact**: High
 **Effort**: Very High
@@ -1122,22 +1192,22 @@ services:
 
 ## 10. Configuration Comparison Matrix
 
-| Configuration Item | Main Kong | Infrastructure Kong | HA Kong | Recommended |
-|-------------------|-----------|-------------------|---------|-------------|
-| **Kong Version** | 3.4 | 3.5-alpine | 3.9 | 3.9 (latest stable) |
-| **Database Mode** | DB-less | PostgreSQL | DB-less | DB-less (better performance) |
-| **Memory Limit** | 1GB ❌ | 2GB ✅ | 512MB ⚠️ | 2-4GB |
-| **CPU Limit** | 2 cores ✅ | 2 cores ✅ | 1 core ⚠️ | 2-4 cores |
-| **Worker Processes** | Not set ❌ | auto ✅ | Not set ❌ | auto |
-| **Worker Connections** | Not set ❌ | Not set ❌ | 1024 ⚠️ | 4096-10000 |
-| **Upstream Keepalive** | Not set ❌ | Not set ❌ | 64 (LB) ⚠️ | 320 |
-| **Proxy Cache** | Not enabled ❌ | Enabled ⚠️ | Not enabled ❌ | Enabled + Applied |
-| **DNS Cache TTL** | 300s ✅ | Not set ⚠️ | Not set ⚠️ | 300s |
-| **Plugins** | Minimal ⚠️ | Comprehensive ✅ | Basic ⚠️ | Comprehensive |
-| **Health Checks** | Via config ✅ | Via config ✅ | Via config ✅ | ✅ Good |
-| **Monitoring** | Prometheus ✅ | Full stack ✅ | None ❌ | Full stack |
-| **Rate Limiting** | Via config ✅ | Via config ✅ | Via config ✅ | ✅ Good |
-| **Connection Pool** | N/A | Not set ❌ | N/A | 50+ |
+| Configuration Item     | Main Kong      | Infrastructure Kong | HA Kong        | Recommended                  |
+| ---------------------- | -------------- | ------------------- | -------------- | ---------------------------- |
+| **Kong Version**       | 3.4            | 3.5-alpine          | 3.9            | 3.9 (latest stable)          |
+| **Database Mode**      | DB-less        | PostgreSQL          | DB-less        | DB-less (better performance) |
+| **Memory Limit**       | 1GB ❌         | 2GB ✅              | 512MB ⚠️       | 2-4GB                        |
+| **CPU Limit**          | 2 cores ✅     | 2 cores ✅          | 1 core ⚠️      | 2-4 cores                    |
+| **Worker Processes**   | Not set ❌     | auto ✅             | Not set ❌     | auto                         |
+| **Worker Connections** | Not set ❌     | Not set ❌          | 1024 ⚠️        | 4096-10000                   |
+| **Upstream Keepalive** | Not set ❌     | Not set ❌          | 64 (LB) ⚠️     | 320                          |
+| **Proxy Cache**        | Not enabled ❌ | Enabled ⚠️          | Not enabled ❌ | Enabled + Applied            |
+| **DNS Cache TTL**      | 300s ✅        | Not set ⚠️          | Not set ⚠️     | 300s                         |
+| **Plugins**            | Minimal ⚠️     | Comprehensive ✅    | Basic ⚠️       | Comprehensive                |
+| **Health Checks**      | Via config ✅  | Via config ✅       | Via config ✅  | ✅ Good                      |
+| **Monitoring**         | Prometheus ✅  | Full stack ✅       | None ❌        | Full stack                   |
+| **Rate Limiting**      | Via config ✅  | Via config ✅       | Via config ✅  | ✅ Good                      |
+| **Connection Pool**    | N/A            | Not set ❌          | N/A            | 50+                          |
 
 **Legend**: ✅ Good | ⚠️ Needs Improvement | ❌ Critical Issue
 
@@ -1148,6 +1218,7 @@ services:
 ### Expected Performance After Optimizations
 
 #### Single Kong Node (2GB, optimized):
+
 ```
 Concurrent Connections: 4,096
 Requests per Second: 5,000-8,000
@@ -1160,6 +1231,7 @@ Memory Usage: 1.2-1.6GB at peak
 ```
 
 #### HA Cluster (3 nodes, optimized):
+
 ```
 Total Concurrent Connections: 12,288
 Total Requests per Second: 15,000-24,000
@@ -1174,6 +1246,7 @@ Failover Time: < 1 second
 ### Load Test Scenarios
 
 #### Scenario 1: Normal Load
+
 ```yaml
 Duration: 10 minutes
 Virtual Users: 500
@@ -1182,6 +1255,7 @@ Expected Latency: < 80ms (P95)
 ```
 
 #### Scenario 2: Peak Load
+
 ```yaml
 Duration: 5 minutes
 Virtual Users: 2,000
@@ -1190,6 +1264,7 @@ Expected Latency: < 200ms (P95)
 ```
 
 #### Scenario 3: Stress Test
+
 ```yaml
 Duration: 2 minutes
 Virtual Users: 5,000
@@ -1215,11 +1290,13 @@ The SAHOOL Kong API Gateway configuration demonstrates **strong fundamentals** w
 ### Priority Actions
 
 **Immediate** (implement within 1 week):
+
 - Configure worker connections (5 min effort, high impact)
 - Enable upstream keepalive (5 min effort, very high impact)
 - Increase memory limits (2 min effort, high impact)
 
 **Short-term** (implement within 2-3 weeks):
+
 - Apply proxy caching to services (medium effort, high impact)
 - Optimize PostgreSQL connection pool (low effort, medium impact)
 - Standardize configurations (high effort, medium impact)
@@ -1227,6 +1304,7 @@ The SAHOOL Kong API Gateway configuration demonstrates **strong fundamentals** w
 ### Expected Outcomes
 
 After implementing all recommendations:
+
 - **3x improvement** in concurrent connection capacity
 - **40% reduction** in average latency
 - **60% reduction** in P95 latency
@@ -1258,12 +1336,12 @@ Enterprise-Grade (98/100)
 
 ## Change Log
 
-| Date | Changes | Impact |
-|------|---------|--------|
-| 2026-01-06 | Initial comprehensive audit | Baseline established |
-| - | DNS TTL optimization identified | Already implemented ✅ |
-| - | Critical missing configurations identified | Action items created |
+| Date       | Changes                                    | Impact                 |
+| ---------- | ------------------------------------------ | ---------------------- |
+| 2026-01-06 | Initial comprehensive audit                | Baseline established   |
+| -          | DNS TTL optimization identified            | Already implemented ✅ |
+| -          | Critical missing configurations identified | Action items created   |
 
 ---
 
-*End of Report | نهاية التقرير*
+_End of Report | نهاية التقرير_

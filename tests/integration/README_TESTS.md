@@ -1,4 +1,5 @@
 # SAHOOL Integration Tests
+
 # اختبارات التكامل لمنصة سهول
 
 ## Overview / نظرة عامة
@@ -247,6 +248,7 @@ Each test should be independent and not rely on other tests' data.
 ### Common Issues / المشاكل الشائعة
 
 1. **Services not ready**
+
    ```bash
    # Wait longer for services
    sleep 60
@@ -255,12 +257,14 @@ Each test should be independent and not rely on other tests' data.
    ```
 
 2. **Database connection errors**
+
    ```bash
    # Restart PostgreSQL
    docker-compose -f docker-compose.test.yml restart postgres_test
    ```
 
 3. **NATS connection errors**
+
    ```bash
    # Check NATS health
    curl http://localhost:8223/healthz
@@ -353,6 +357,7 @@ When adding new integration tests:
 ## Support / الدعم
 
 For issues or questions:
+
 - Create an issue in the repository
 - Contact the platform team
 - Check existing test examples

@@ -1,7 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { Prisma } from '@prisma/client';
-import { CreateTreatmentDto, UpdateTreatmentDto } from './dto/treatment.dto';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import { Prisma } from "@prisma/client";
+import { CreateTreatmentDto, UpdateTreatmentDto } from "./dto/treatment.dto";
 
 @Injectable()
 export class TreatmentsService {
@@ -9,8 +9,16 @@ export class TreatmentsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
   async create(dto: CreateTreatmentDto) {
-    this.logger.log(`Creating treatment: ${dto.name}`);
+    this.logger.log("Creating treatment", { name: this.sanitizeForLog(dto.name) });
 
     const { parameters, ...restDto } = dto;
 
@@ -71,7 +79,7 @@ export class TreatmentsService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           experiment: {
             select: {
@@ -156,7 +164,10 @@ export class TreatmentsService {
         ...restDto,
         startDate: dto.startDate ? new Date(dto.startDate) : undefined,
         endDate: dto.endDate ? new Date(dto.endDate) : undefined,
-        parameters: parameters !== undefined ? (parameters as Prisma.InputJsonValue) : undefined,
+        parameters:
+          parameters !== undefined
+            ? (parameters as Prisma.InputJsonValue)
+            : undefined,
       },
       include: {
         experiment: {
@@ -191,7 +202,7 @@ export class TreatmentsService {
         experimentId,
         plotId,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 }

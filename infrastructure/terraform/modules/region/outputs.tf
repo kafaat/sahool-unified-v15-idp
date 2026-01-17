@@ -31,6 +31,11 @@ output "database_subnet_ids" {
   value       = aws_subnet.database[*].id
 }
 
+output "private_route_table_ids" {
+  description = "معرّفات جداول توجيه الشبكات الخاصة / Private route table IDs"
+  value       = aws_route_table.private[*].id
+}
+
 # ======================================================================
 # مخرجات EKS Cluster
 # ======================================================================

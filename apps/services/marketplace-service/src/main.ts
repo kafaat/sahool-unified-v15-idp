@@ -9,13 +9,13 @@
  * - Agricultural loans (Islamic finance compatible)
  */
 
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './utils/http-exception.filter';
-import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
+import "reflect-metadata";
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { AppModule } from "./app.module";
+import { HttpExceptionFilter } from "./utils/http-exception.filter";
+import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,31 +33,39 @@ async function bootstrap() {
 
   // ============== Middleware Setup ==============
   // Global request logging interceptor with correlation IDs
-  app.useGlobalInterceptors(new RequestLoggingInterceptor('marketplace-service'));
+  app.useGlobalInterceptors(
+    new RequestLoggingInterceptor("marketplace-service"),
+  );
 
   // CORS - Secure configuration using environment variable
-  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
-    'https://sahool.com',
-    'https://app.sahool.com',
-    'https://admin.sahool.com',
-    'http://localhost:3000',
-    'http://localhost:8080',
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
+    "https://sahool.com",
+    "https://app.sahool.com",
+    "https://admin.sahool.com",
+    "http://localhost:3000",
+    "http://localhost:8080",
   ];
 
   app.enableCors({
     origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Request-ID'],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Tenant-ID",
+      "X-Request-ID",
+    ],
     credentials: true,
   });
 
   // Global prefix
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix("api/v1");
 
   // Swagger/OpenAPI Documentation
   const config = new DocumentBuilder()
-    .setTitle('SAHOOL Marketplace & FinTech API')
-    .setDescription(`
+    .setTitle("SAHOOL Marketplace & FinTech API")
+    .setDescription(
+      `
       سوق سهول والخدمات المالية
 
       ## Features
@@ -65,17 +73,21 @@ async function bootstrap() {
       - **Wallet**: Digital wallet management for farmers
       - **Credit Scoring**: Farm data-based credit scoring
       - **Loans**: Islamic finance compatible agricultural loans
-    `)
-    .setVersion('16.0.0')
-    .addTag('Market', 'Marketplace operations')
-    .addTag('Wallet', 'Digital wallet management')
-    .addTag('Loans', 'Agricultural loan services')
+    `,
+    )
+    .setVersion("16.0.0")
+    .addTag("Market", "Marketplace operations")
+    .addTag("Wallet", "Digital wallet management")
+    .addTag("Loans", "Agricultural loan services")
     .addBearerAuth()
-    .addApiKey({ type: 'apiKey', name: 'X-Tenant-ID', in: 'header' }, 'tenant-id')
+    .addApiKey(
+      { type: "apiKey", name: "X-Tenant-ID", in: "header" },
+      "tenant-id",
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup("docs", app, document);
 
   const port = process.env.PORT || 3010;
   await app.listen(port);
@@ -108,16 +120,16 @@ async function bootstrap() {
       // - Close all connections
       await app.close();
 
-      console.log('Marketplace & FinTech Service shutdown complete');
+      console.log("Marketplace & FinTech Service shutdown complete");
       process.exit(0);
     } catch (error) {
-      console.error('Error during graceful shutdown:', error);
+      console.error("Error during graceful shutdown:", error);
       process.exit(1);
     }
   }
 
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 }
 
 bootstrap();

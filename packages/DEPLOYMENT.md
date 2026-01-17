@@ -25,6 +25,7 @@ SAHOOL platform offers three main deployment packages designed to meet the needs
 **مناسبة لـ:** المزارعين الصغار والمزارع العائلية (1-50 هكتار)
 
 **الخدمات المتضمنة:**
+
 - **البنية التحتية:**
   - PostgreSQL/PostGIS - قاعدة بيانات جغرافية مكانية
   - Redis - ذاكرة تخزين مؤقت وجلسات
@@ -38,6 +39,7 @@ SAHOOL platform offers three main deployment packages designed to meet the needs
   - `notification_service` - خدمة الإشعارات والتنبيهات
 
 **حدود الموارد:**
+
 - CPU: 0.25-1.0 نواة لكل خدمة
 - Memory: 128MB-512MB لكل خدمة
 - PostgreSQL: 512MB RAM
@@ -75,6 +77,7 @@ SAHOOL platform offers three main deployment packages designed to meet the needs
   - `inventory_service` - إدارة المخزون
 
 **حدود الموارد:**
+
 - CPU: 0.5-2.0 نواة لكل خدمة
 - Memory: 512MB-2GB لكل خدمة
 - PostgreSQL: 2GB RAM
@@ -121,6 +124,7 @@ SAHOOL platform offers three main deployment packages designed to meet the needs
   - `grafana` - لوحات المراقبة والتحليلات
 
 **حدود الموارد:**
+
 - CPU: 1.0-4.0 نواة لكل خدمة
 - Memory: 1GB-4GB لكل خدمة
 - PostgreSQL: 4GB RAM
@@ -149,6 +153,7 @@ SAHOOL platform offers three main deployment packages designed to meet the needs
 **Suitable for:** Small farmers and family farms (1-50 hectares)
 
 **Included Services:**
+
 - **Infrastructure:**
   - PostgreSQL/PostGIS - Spatial database
   - Redis - Cache and sessions
@@ -162,6 +167,7 @@ SAHOOL platform offers three main deployment packages designed to meet the needs
   - `notification_service` - Alerts and notifications
 
 **Resource Limits:**
+
 - CPU: 0.25-1.0 cores per service
 - Memory: 128MB-512MB per service
 - PostgreSQL: 512MB RAM
@@ -199,6 +205,7 @@ SAHOOL platform offers three main deployment packages designed to meet the needs
   - `inventory_service` - Inventory management
 
 **Resource Limits:**
+
 - CPU: 0.5-2.0 cores per service
 - Memory: 512MB-2GB per service
 - PostgreSQL: 2GB RAM
@@ -245,6 +252,7 @@ SAHOOL platform offers three main deployment packages designed to meet the needs
   - `grafana` - Monitoring dashboards and analytics
 
 **Resource Limits:**
+
 - CPU: 1.0-4.0 cores per service
 - Memory: 1GB-4GB per service
 - PostgreSQL: 4GB RAM
@@ -298,24 +306,24 @@ docker-compose up -d
 
 ## 📊 Comparison Table | جدول المقارنة
 
-| Feature | Starter | Professional | Enterprise |
-|---------|---------|--------------|------------|
-| **Basic Services** | ✅ | ✅ | ✅ |
-| **Weather Forecasts** | ✅ | ✅ | ✅ |
-| **Agricultural Calendar** | ✅ | ✅ | ✅ |
-| **Satellite Imagery** | ❌ | ✅ | ✅ |
-| **NDVI Analysis** | ❌ | ✅ | ✅ |
-| **AI Disease Detection** | ❌ | ✅ | ✅ |
-| **Smart Irrigation** | ❌ | ✅ | ✅ |
-| **Yield Prediction** | ❌ | ✅ | ✅ |
-| **Advanced AI Advisor** | ❌ | ❌ | ✅ |
-| **IoT Integration** | ❌ | ❌ | ✅ |
-| **Research Tools** | ❌ | ❌ | ✅ |
-| **Marketplace** | ❌ | ❌ | ✅ |
-| **Monitoring Stack** | ❌ | ❌ | ✅ |
-| **Max Fields** | 10 | 100 | Unlimited |
-| **API Calls/hour** | 500 | 2,000 | 50,000 |
-| **Support** | Community | Email | 24/7 Dedicated |
+| Feature                   | Starter   | Professional | Enterprise     |
+| ------------------------- | --------- | ------------ | -------------- |
+| **Basic Services**        | ✅        | ✅           | ✅             |
+| **Weather Forecasts**     | ✅        | ✅           | ✅             |
+| **Agricultural Calendar** | ✅        | ✅           | ✅             |
+| **Satellite Imagery**     | ❌        | ✅           | ✅             |
+| **NDVI Analysis**         | ❌        | ✅           | ✅             |
+| **AI Disease Detection**  | ❌        | ✅           | ✅             |
+| **Smart Irrigation**      | ❌        | ✅           | ✅             |
+| **Yield Prediction**      | ❌        | ✅           | ✅             |
+| **Advanced AI Advisor**   | ❌        | ❌           | ✅             |
+| **IoT Integration**       | ❌        | ❌           | ✅             |
+| **Research Tools**        | ❌        | ❌           | ✅             |
+| **Marketplace**           | ❌        | ❌           | ✅             |
+| **Monitoring Stack**      | ❌        | ❌           | ✅             |
+| **Max Fields**            | 10        | 100          | Unlimited      |
+| **API Calls/hour**        | 500       | 2,000        | 50,000         |
+| **Support**               | Community | Email        | 24/7 Dedicated |
 
 ---
 
@@ -328,15 +336,18 @@ docker-compose up -d
 راجع ملف `.env.example` في دليل `packages/` للحصول على قائمة كاملة بالمتغيرات البيئية المطلوبة.
 
 **متغيرات إلزامية لجميع الحزم:**
+
 - `POSTGRES_USER` و `POSTGRES_PASSWORD`
 - `REDIS_PASSWORD`
 - `JWT_SECRET_KEY`
 
 **متغيرات إضافية للحزمة الاحترافية:**
+
 - `SENTINEL_HUB_CLIENT_ID` و `SENTINEL_HUB_CLIENT_SECRET` (اختياري)
 - `NASA_EARTHDATA_USERNAME` و `NASA_EARTHDATA_PASSWORD` (اختياري)
 
 **متغيرات إضافية لحزمة المؤسسات:**
+
 - `ANTHROPIC_API_KEY` أو `OPENAI_API_KEY` (للمستشار الذكي)
 - `MQTT_PASSWORD` (لإنترنت الأشياء)
 - `GRAFANA_ADMIN_PASSWORD` (للمراقبة)
@@ -348,15 +359,18 @@ docker-compose up -d
 See `.env.example` file in `packages/` directory for a complete list of required environment variables.
 
 **Required for all packages:**
+
 - `POSTGRES_USER` and `POSTGRES_PASSWORD`
 - `REDIS_PASSWORD`
 - `JWT_SECRET_KEY`
 
 **Additional for Professional:**
+
 - `SENTINEL_HUB_CLIENT_ID` and `SENTINEL_HUB_CLIENT_SECRET` (optional)
 - `NASA_EARTHDATA_USERNAME` and `NASA_EARTHDATA_PASSWORD` (optional)
 
 **Additional for Enterprise:**
+
 - `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (for AI advisor)
 - `MQTT_PASSWORD` (for IoT)
 - `GRAFANA_ADMIN_PASSWORD` (for monitoring)
@@ -368,6 +382,7 @@ See `.env.example` file in `packages/` directory for a complete list of required
 <div dir="rtl">
 
 لمزيد من المعلومات، راجع:
+
 - [دليل التثبيت](../docs/installation.md)
 - [دليل الإعدادات](../docs/configuration.md)
 - [مرجع API](../docs/api-reference.md)
@@ -376,6 +391,7 @@ See `.env.example` file in `packages/` directory for a complete list of required
 </div>
 
 For more information, see:
+
 - [Installation Guide](../docs/installation.md)
 - [Configuration Guide](../docs/configuration.md)
 - [API Reference](../docs/api-reference.md)

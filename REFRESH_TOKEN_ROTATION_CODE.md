@@ -11,6 +11,7 @@ This document shows the actual code changes made to implement refresh token rota
 **File:** `apps/services/user-service/prisma/schema.prisma`
 
 ### Before
+
 ```prisma
 model RefreshToken {
   id          String   @id @default(uuid())
@@ -30,6 +31,7 @@ model RefreshToken {
 ```
 
 ### After
+
 ```prisma
 model RefreshToken {
   id          String   @id @default(uuid())
@@ -62,6 +64,7 @@ model RefreshToken {
 **File:** `apps/services/user-service/src/auth/auth.service.ts`
 
 ### Before
+
 ```typescript
 export interface JwtPayload {
   sub: string;
@@ -69,13 +72,14 @@ export interface JwtPayload {
   roles: string[];
   tid?: string;
   jti: string;
-  type: 'access' | 'refresh';
+  type: "access" | "refresh";
   iat?: number;
   exp?: number;
 }
 ```
 
 ### After
+
 ```typescript
 export interface JwtPayload {
   sub: string;
@@ -83,8 +87,8 @@ export interface JwtPayload {
   roles: string[];
   tid?: string;
   jti: string;
-  type: 'access' | 'refresh';
-  family?: string;    // ✅ NEW: Token family for refresh token rotation
+  type: "access" | "refresh";
+  family?: string; // ✅ NEW: Token family for refresh token rotation
   iat?: number;
   exp?: number;
 }
@@ -97,6 +101,7 @@ export interface JwtPayload {
 **File:** `apps/services/user-service/src/auth/auth.service.ts`
 
 ### Before
+
 ```typescript
 private async generateTokens(user: any): Promise<{
   access_token: string;
@@ -121,6 +126,7 @@ private async generateTokens(user: any): Promise<{
 ```
 
 ### After
+
 ```typescript
 private async generateTokens(
   user: any,
@@ -198,6 +204,7 @@ private async generateTokens(
 **File:** `apps/services/user-service/src/auth/auth.service.ts`
 
 ### NEW METHOD
+
 ```typescript
 /**
  * Invalidate entire token family (for reuse detection)
@@ -247,6 +254,7 @@ private async invalidateTokenFamily(family: string): Promise<void> {
 **File:** `apps/services/user-service/src/auth/auth.service.ts`
 
 ### Before
+
 ```typescript
 async refreshToken(refreshToken: string): Promise<{
   access_token: string;
@@ -299,6 +307,7 @@ async refreshToken(refreshToken: string): Promise<{
 ```
 
 ### After
+
 ```typescript
 async refreshToken(refreshToken: string): Promise<{
   access_token: string;
@@ -416,6 +425,7 @@ async refreshToken(refreshToken: string): Promise<{
 **File:** `apps/services/user-service/src/auth/auth.controller.ts`
 
 ### Before
+
 ```typescript
 @Post('refresh')
 @ApiOperation({
@@ -440,6 +450,7 @@ async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
 ```
 
 ### After
+
 ```typescript
 @Post('refresh')
 @ApiOperation({
@@ -476,6 +487,7 @@ async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
 **File:** `apps/admin/src/app/api/auth/refresh/route.ts`
 
 ### Before
+
 ```typescript
 // Call backend refresh endpoint
 const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
@@ -496,6 +508,7 @@ if (data.refresh_token) {
 ```
 
 ### After
+
 ```typescript
 // Call backend refresh endpoint
 const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
@@ -566,12 +579,14 @@ COMMENT ON COLUMN refresh_tokens.replaced_by IS 'JTI of the token that replaced 
 ## Summary of Changes
 
 ### Files Modified: 4
+
 1. ✅ `apps/services/user-service/prisma/schema.prisma` - Added rotation fields
 2. ✅ `apps/services/user-service/src/auth/auth.service.ts` - Implemented rotation logic
 3. ✅ `apps/services/user-service/src/auth/auth.controller.ts` - Updated API docs
 4. ✅ `apps/admin/src/app/api/auth/refresh/route.ts` - Handle new refresh token
 
 ### Files Created: 2
+
 1. ✅ `apps/services/user-service/prisma/migrations/add_refresh_token_rotation.sql`
 2. ✅ `docs/REFRESH_TOKEN_ROTATION.md`
 

@@ -3,13 +3,18 @@
  * مكون نموذج المعدات
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useCreateEquipment, useUpdateEquipment } from '../hooks/useEquipment';
-import type { Equipment, EquipmentFormData, EquipmentType, EquipmentStatus } from '../types';
-import { Loader2, Save } from 'lucide-react';
-import { logger } from '@/lib/logger';
+import { useState } from "react";
+import { useCreateEquipment, useUpdateEquipment } from "../hooks/useEquipment";
+import type {
+  Equipment,
+  EquipmentFormData,
+  EquipmentType,
+  EquipmentStatus,
+} from "../types";
+import { Loader2, Save } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 interface EquipmentFormProps {
   equipment?: Equipment;
@@ -17,18 +22,22 @@ interface EquipmentFormProps {
   onCancel?: () => void;
 }
 
-export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormProps) {
+export function EquipmentForm({
+  equipment,
+  onSuccess,
+  onCancel,
+}: EquipmentFormProps) {
   const [formData, setFormData] = useState<EquipmentFormData>({
-    name: equipment?.name || '',
-    nameAr: equipment?.nameAr || '',
-    type: equipment?.type || 'tractor',
-    status: equipment?.status || 'active',
-    serialNumber: equipment?.serialNumber || '',
-    manufacturer: equipment?.manufacturer || '',
-    model: equipment?.model || '',
-    purchaseDate: equipment?.purchaseDate?.split('T')[0] || '',
+    name: equipment?.name || "",
+    nameAr: equipment?.nameAr || "",
+    type: equipment?.type || "tractor",
+    status: equipment?.status || "active",
+    serialNumber: equipment?.serialNumber || "",
+    manufacturer: equipment?.manufacturer || "",
+    model: equipment?.model || "",
+    purchaseDate: equipment?.purchaseDate?.split("T")[0] || "",
     purchasePrice: equipment?.purchasePrice,
-    fuelType: equipment?.fuelType || '',
+    fuelType: equipment?.fuelType || "",
   });
 
   const createMutation = useCreateEquipment();
@@ -45,7 +54,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
       }
       onSuccess?.();
     } catch (error) {
-      logger.error('Failed to save equipment:', error);
+      logger.error("Failed to save equipment:", error);
     }
   };
 
@@ -55,7 +64,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white rounded-lg shadow p-6 space-y-4">
         <h2 className="text-xl font-semibold text-gray-900">
-          {equipment ? 'تعديل المعدة' : 'إضافة معدة جديدة'}
+          {equipment ? "تعديل المعدة" : "إضافة معدة جديدة"}
         </h2>
 
         {/* Names */}
@@ -68,7 +77,9 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               type="text"
               required
               value={formData.nameAr}
-              onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, nameAr: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
@@ -81,7 +92,9 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               type="text"
               required
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
@@ -90,11 +103,18 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
         {/* Type and Status */}
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">النوع *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              النوع *
+            </label>
             <select
               required
               value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value as EquipmentType })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  type: e.target.value as EquipmentType,
+                })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="tractor">جرار</option>
@@ -107,12 +127,17 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">الحالة *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              الحالة *
+            </label>
             <select
               required
               value={formData.status}
               onChange={(e) =>
-                setFormData({ ...formData, status: e.target.value as EquipmentStatus })
+                setFormData({
+                  ...formData,
+                  status: e.target.value as EquipmentStatus,
+                })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
@@ -135,17 +160,23 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               type="text"
               required
               value={formData.serialNumber}
-              onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, serialNumber: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">الشركة المصنعة</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              الشركة المصنعة
+            </label>
             <input
               type="text"
               value={formData.manufacturer}
-              onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, manufacturer: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
@@ -154,21 +185,29 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
         {/* Model and Fuel Type */}
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">الموديل</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              الموديل
+            </label>
             <input
               type="text"
               value={formData.model}
-              onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, model: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">نوع الوقود</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              نوع الوقود
+            </label>
             <input
               type="text"
               value={formData.fuelType}
-              onChange={(e) => setFormData({ ...formData, fuelType: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, fuelType: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
@@ -177,12 +216,16 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
         {/* Purchase Date and Price */}
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ الشراء *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              تاريخ الشراء *
+            </label>
             <input
               type="date"
               required
               value={formData.purchaseDate}
-              onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, purchaseDate: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
@@ -195,11 +238,13 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               type="number"
               min="0"
               step="0.01"
-              value={formData.purchasePrice || ''}
+              value={formData.purchasePrice || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  purchasePrice: e.target.value ? parseFloat(e.target.value) : undefined,
+                  purchasePrice: e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined,
                 })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"

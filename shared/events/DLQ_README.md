@@ -60,19 +60,23 @@ The SAHOOL platform now includes comprehensive Dead Letter Queue (DLQ) support f
 ## Features
 
 ### 1. Automatic Retry with Exponential Backoff
+
 - **Default retries**: 3 attempts
 - **Backoff strategy**: Exponential (1s, 2s, 4s, ...)
 - **Max delay**: 60 seconds
 - **Configurable** via environment variables
 
 ### 2. Persistent DLQ Storage
+
 - **JetStream stream**: `SAHOOL_DLQ`
 - **Retention**: 30 days (configurable)
 - **Max messages**: 100,000 (configurable)
 - **Storage**: File-based (persistent across restarts)
 
 ### 3. Rich Metadata Tracking
+
 Each DLQ message includes:
+
 - Original subject and event ID
 - Retry count and timestamps
 - Error messages from each retry
@@ -82,19 +86,24 @@ Each DLQ message includes:
 - Correlation ID for tracing
 
 ### 4. Intelligent Error Classification
+
 **Non-retriable errors** (moved to DLQ immediately):
+
 - `ValidationError` - Invalid message format
 - `ValueError` - Invalid data
 - `KeyError` - Missing required fields
 - `TypeError` - Wrong data types
 
 **Retriable errors** (retry with backoff):
+
 - `ConnectionError` - Network issues
 - `TimeoutError` - Temporary unavailability
 - Other exceptions
 
 ### 5. Management API
+
 RESTful API for DLQ operations:
+
 - List messages with filtering
 - Replay single/bulk messages
 - Archive old messages
@@ -211,12 +220,14 @@ print(f"Total in DLQ: {dlq_stats['message_count']}")
 ### Running the Service
 
 **Standalone:**
+
 ```bash
 cd shared/events
 uvicorn dlq_service:app --host 0.0.0.0 --port 8000
 ```
 
 **Integrated into existing FastAPI app:**
+
 ```python
 from shared.events.dlq_service import create_dlq_router
 
@@ -227,6 +238,7 @@ app.include_router(create_dlq_router(), prefix="/api/v1")
 ### API Endpoints
 
 #### List DLQ Messages
+
 ```bash
 GET /dlq/messages?page=1&page_size=50
 GET /dlq/messages?subject=sahool.field.created
@@ -235,11 +247,13 @@ GET /dlq/messages?service=notification-service
 ```
 
 #### Get DLQ Statistics
+
 ```bash
 GET /dlq/stats
 ```
 
 Response:
+
 ```json
 {
   "stream_name": "SAHOOL_DLQ",
@@ -254,11 +268,13 @@ Response:
 ```
 
 #### Replay Single Message
+
 ```bash
 POST /dlq/replay/123?delete_after=true
 ```
 
 #### Replay Multiple Messages
+
 ```bash
 POST /dlq/replay/bulk
 Content-Type: application/json
@@ -270,6 +286,7 @@ Content-Type: application/json
 ```
 
 #### Archive Old Messages
+
 ```bash
 POST /dlq/archive
 Content-Type: application/json
@@ -342,6 +359,7 @@ sahool_dlq_replay_success_rate
 ### Alert Rules
 
 Configure alerts when:
+
 - DLQ message count exceeds threshold (default: 100)
 - DLQ size grows rapidly
 - Replay failure rate is high
@@ -350,6 +368,7 @@ Configure alerts when:
 ## Best Practices
 
 ### 1. Handler Design
+
 ```python
 async def handle_event(event: MyEvent):
     """
@@ -377,6 +396,7 @@ async def handle_event(event: MyEvent):
 ### 2. Monitoring
 
 Check DLQ regularly:
+
 ```bash
 # Daily check
 curl http://localhost:8000/dlq/stats
@@ -390,6 +410,7 @@ fi
 ### 3. Regular Cleanup
 
 Archive old messages weekly:
+
 ```bash
 curl -X POST http://localhost:8000/dlq/archive \
   -H "Content-Type: application/json" \
@@ -399,6 +420,7 @@ curl -X POST http://localhost:8000/dlq/archive \
 ### 4. Replay Strategy
 
 When replaying messages:
+
 1. **Investigate root cause** first
 2. **Fix the issue** (code bug, config, external service)
 3. **Deploy fix**
@@ -410,10 +432,12 @@ When replaying messages:
 ### High DLQ Count
 
 **Symptoms:**
+
 - DLQ message count growing
 - Alert triggered
 
 **Diagnosis:**
+
 ```bash
 # Get statistics by error type
 curl http://localhost:8000/dlq/stats | jq '.messages_by_error_type'
@@ -426,6 +450,7 @@ curl http://localhost:8000/dlq/messages?page=1&page_size=10
 ```
 
 **Resolution:**
+
 1. Identify common error patterns
 2. Fix underlying issue (service down, config error, code bug)
 3. Replay messages after fix
@@ -433,15 +458,18 @@ curl http://localhost:8000/dlq/messages?page=1&page_size=10
 ### Messages Not Moving to DLQ
 
 **Symptoms:**
+
 - Errors in logs but DLQ empty
 - Messages being NAK'd
 
 **Diagnosis:**
+
 - Check if DLQ is enabled: `subscriber.stats['dlq_enabled']`
 - Check JetStream is initialized: `subscriber._dlq_initialized`
 - Check logs for DLQ initialization errors
 
 **Resolution:**
+
 ```python
 # Ensure JetStream is enabled
 config = SubscriberConfig(
@@ -453,15 +481,18 @@ config = SubscriberConfig(
 ### Replay Failures
 
 **Symptoms:**
+
 - Replay endpoint returns errors
 - Messages not being processed after replay
 
 **Diagnosis:**
+
 - Check if original subject still exists
 - Check if consumer service is running
 - Check handler is registered
 
 **Resolution:**
+
 - Ensure consumer services are running
 - Verify handler registration
 - Check for code changes that broke handler
@@ -473,6 +504,7 @@ config = SubscriberConfig(
 Existing services using `EventSubscriber` will automatically get DLQ support when upgraded to the new version.
 
 **Before:**
+
 ```python
 subscriber = EventSubscriber()
 await subscriber.connect()
@@ -480,6 +512,7 @@ await subscriber.connect()
 ```
 
 **After (Automatic):**
+
 ```python
 subscriber = EventSubscriber()
 await subscriber.connect()
@@ -490,6 +523,7 @@ await subscriber.connect()
 ### Backward Compatibility
 
 The implementation is **backward compatible**:
+
 - Existing retry logic still works
 - DLQ is opt-in via `enable_dlq=False`
 - No breaking changes to API
@@ -497,11 +531,13 @@ The implementation is **backward compatible**:
 ## Performance Impact
 
 ### Overhead
+
 - **Minimal**: Additional metadata tracking (< 1KB per message)
 - **Retry delay**: Only on failures (doesn't affect success path)
 - **DLQ write**: Single JetStream publish on final failure
 
 ### Benchmarks
+
 - Normal processing: **No impact**
 - Failed message: **+100ms** (retry + DLQ write)
 - DLQ replay: **~50ms** per message
@@ -511,6 +547,7 @@ The implementation is **backward compatible**:
 ### Access Control
 
 Restrict DLQ management endpoints:
+
 ```python
 from fastapi import Depends
 from auth import require_admin
@@ -526,11 +563,13 @@ async def replay_message(
 ### Data Privacy
 
 DLQ messages contain:
+
 - Original event data
 - Error messages
 - Stack traces
 
 **Recommendations:**
+
 - Encrypt DLQ stream at rest
 - Limit access to DLQ management API
 - Redact sensitive data in error messages
@@ -539,6 +578,7 @@ DLQ messages contain:
 ## Support
 
 For issues or questions:
+
 - Check logs: `docker-compose logs notification-service`
 - DLQ stats: `GET /dlq/stats`
 - Documentation: This file

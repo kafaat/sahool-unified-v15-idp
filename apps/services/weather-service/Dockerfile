@@ -24,17 +24,27 @@ RUN groupadd --system sahool && \
 
 
 # Install dependencies (using shared requirements)
-COPY weather-service/requirements.txt .
+COPY apps/services/weather-service/requirements.txt .
 
-# Copy shared libraries
+# Copy shared libraries (from repo root)
 COPY shared/ ./shared/
 
-# Copy source
-COPY weather-service/src/ ./src/
+# Copy services shared modules (needed for errors_py module)
+COPY apps/services/shared/ ./apps/services/shared/
 
-# Upgrade pip, install dependencies, and set ownership
-RUN pip install --upgrade pip || true && \
-    pip install --no-cache-dir -r requirements.txt && \
+# Create compatibility layer: copy errors_py to shared/errors_py so imports work
+RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
+
+# Copy source
+COPY apps/services/weather-service/src/ ./src/
+
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel
+
+# Install dependencies and set ownership
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
     chown -R sahool:sahool /app
 
 USER sahool

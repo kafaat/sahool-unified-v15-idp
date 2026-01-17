@@ -20,22 +20,26 @@
 ## Infrastructure Services
 
 ### 1. PostgreSQL with PostGIS
+
 **Container:** `sahool-postgres`  
 **Port:** 5432  
 **Image:** `postgis/postgis:16-3.4`
 
 #### Functions
+
 - Primary geospatial database for all agricultural data
 - PostGIS extension for spatial queries
 - Multi-tenant data isolation
 - ACID compliance
 
 #### Input/Output
+
 - **Input:** SQL queries via connection string
 - **Output:** Query results with geospatial data (PostGIS geometry types)
 - **Connection:** `postgresql://USER:PASSWORD@postgres:5432/DB_NAME`
 
 #### Configuration
+
 ```yaml
 POSTGRES_USER: Required
 POSTGRES_PASSWORD: Required
@@ -45,16 +49,19 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: Connection refused**
+
 - **Cause:** Service not ready or network issues
 - **Fix:** Check healthcheck, verify network connectivity
 - **Recommendation:** Use healthcheck endpoint before connecting
 
 **Error: PostGIS extension not found**
+
 - **Cause:** Extension not initialized
 - **Fix:** Run `CREATE EXTENSION postgis;` in init script
 - **Recommendation:** Include in `/docker-entrypoint-initdb.d/` scripts
 
 **Error: Authentication failed**
+
 - **Cause:** Wrong credentials
 - **Fix:** Verify POSTGRES_PASSWORD in .env file
 - **Recommendation:** Use strong passwords, rotate regularly
@@ -62,17 +69,20 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 2. Kong API Gateway
+
 **Container:** `sahool-kong`  
 **Port:** 8000 (proxy), 127.0.0.1:8001 (admin)  
 **Image:** `kong:3.9`
 
 #### Functions
+
 - API routing and load balancing
 - Rate limiting and authentication
 - Request/response transformation
 - Declarative configuration
 
 #### Input/Output
+
 - **Input:** HTTP requests from clients
 - **Output:** Routed requests to backend services
 - **Config:** `/infra/kong/kong.yml`
@@ -80,11 +90,13 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: Service unavailable (503)**
+
 - **Cause:** Backend service not responding
 - **Fix:** Check backend service health
 - **Recommendation:** Implement circuit breakers
 
 **Error: Rate limit exceeded (429)**
+
 - **Cause:** Too many requests
 - **Fix:** Adjust rate limit configuration
 - **Recommendation:** Implement client-side retry with exponential backoff
@@ -92,16 +104,19 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 3. NATS Message Broker
+
 **Container:** `sahool-nats`  
 **Port:** 4222 (client), 8222 (monitoring)  
 **Image:** `nats:2.10.24-alpine`
 
 #### Functions
+
 - Pub/sub messaging between services
 - JetStream for event persistence
 - Real-time event streaming
 
 #### Input/Output
+
 - **Input:** Events from services (JSON)
 - **Output:** Published events to subscribers
 - **Topics:** `sahool.fields.*`, `sahool.operations.*`, etc.
@@ -109,6 +124,7 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: Connection timeout**
+
 - **Cause:** NATS not ready or network issues
 - **Fix:** Wait for healthcheck, verify NATS_URL
 - **Recommendation:** Implement reconnection logic
@@ -116,16 +132,19 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 4. Redis Cache
+
 **Container:** `sahool-redis`  
 **Port:** 127.0.0.1:6379  
 **Image:** `redis:7.4-alpine`
 
 #### Functions
+
 - Session storage
 - Cache layer for frequently accessed data
 - Rate limiting counters
 
 #### Input/Output
+
 - **Input:** Key-value pairs (strings, hashes, sets)
 - **Output:** Cached data or cache operations
 - **Connection:** `redis://:PASSWORD@redis:6379/0`
@@ -133,6 +152,7 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: Authentication required**
+
 - **Cause:** Missing or wrong password
 - **Fix:** Set REDIS_PASSWORD in .env
 - **Recommendation:** Use strong passwords
@@ -140,16 +160,19 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 5. MQTT Broker
+
 **Container:** `sahool-mqtt`  
 **Port:** 1883 (MQTT), 9001 (WebSocket)  
 **Image:** `eclipse-mosquitto:2`
 
 #### Functions
+
 - IoT device connectivity
 - Sensor data ingestion
 - Real-time telemetry
 
 #### Input/Output
+
 - **Input:** MQTT messages from sensors
 - **Output:** Published data to subscribers
 - **Topics:** `sahool/sensors/#`
@@ -157,6 +180,7 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: Connection refused**
+
 - **Cause:** Broker not ready or config error
 - **Fix:** Check mosquitto.conf, verify port mapping
 - **Recommendation:** Use authentication for production
@@ -166,11 +190,13 @@ POSTGRES_DB: sahool (default)
 ## Core Services
 
 ### 6. Field Core Service
+
 **Container:** `sahool-field-core`  
 **Port:** 3000  
 **Stack:** Node.js + TypeScript + Express + TypeORM + PostGIS
 
 #### Functions
+
 - Geospatial field boundary management
 - Field CRUD operations with optimistic locking (ETags)
 - Field boundary history tracking
@@ -180,6 +206,7 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **GET `/api/v1/fields`**
+
 - **Description:** List all fields with filtering
 - **Query Parameters:**
   - `tenantId` (string, optional): Filter by tenant
@@ -188,6 +215,7 @@ POSTGRES_DB: sahool (default)
   - `limit` (number, default: 100): Pagination limit
   - `offset` (number, default: 0): Pagination offset
 - **Response:**
+
 ```json
 {
   "success": true,
@@ -216,14 +244,17 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/api/v1/fields/:id`**
+
 - **Description:** Get single field by ID
 - **Response:** Field object with ETag header
 - **Headers:**
   - `ETag`: "field-id:version" (for optimistic locking)
 
 **POST `/api/v1/fields`**
+
 - **Description:** Create new field
 - **Request Body:**
+
 ```json
 {
   "name": "South Field",
@@ -237,21 +268,25 @@ POSTGRES_DB: sahool (default)
   "expectedHarvest": "2025-05-15"
 }
 ```
+
 - **Response:** Created field with ID and ETag
 
 **PUT `/api/v1/fields/:id`**
+
 - **Description:** Update field (requires If-Match header)
 - **Headers:**
   - `If-Match`: ETag value from GET request
 - **Response:** Updated field with new ETag
 
 **DELETE `/api/v1/fields/:id`**
+
 - **Description:** Delete field
 - **Response:** 204 No Content
 
 #### Input/Output Data Types
 
 **Field Model:**
+
 ```typescript
 {
   id: string (UUID)
@@ -270,16 +305,19 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: 409 Conflict**
+
 - **Cause:** ETag mismatch (optimistic locking conflict)
 - **Fix:** Fetch latest version, reapply changes
 - **Recommendation:** Implement conflict resolution UI
 
 **Error: 400 Invalid GeoJSON**
+
 - **Cause:** Invalid polygon coordinates
 - **Fix:** Validate coordinates before sending
 - **Recommendation:** Use map UI for boundary drawing
 
 **Error: 404 Field not found**
+
 - **Cause:** Field ID doesn't exist
 - **Fix:** Verify field ID
 - **Recommendation:** Refresh field list
@@ -287,11 +325,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 7. Field Operations Service
+
 **Container:** `sahool-field-ops`  
 **Port:** 8080  
 **Stack:** Python + FastAPI
 
 #### Functions
+
 - Field operation tracking
 - Task scheduling and assignment
 - Activity logging
@@ -300,11 +340,13 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **GET `/fields`**
+
 - **Query Parameters:**
   - `tenant_id` (required): Filter by tenant
   - `skip` (default: 0): Pagination
   - `limit` (default: 50, max: 100): Page size
 - **Response:**
+
 ```json
 {
   "items": [
@@ -324,7 +366,9 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/fields`**
+
 - **Request Body:**
+
 ```json
 {
   "tenant_id": "tenant_001",
@@ -338,9 +382,11 @@ POSTGRES_DB: sahool (default)
   }
 }
 ```
+
 - **Response:** Created field object
 
 **GET `/operations`**
+
 - **Query Parameters:**
   - `field_id` (required)
   - `status` (optional): Filter by status
@@ -348,7 +394,9 @@ POSTGRES_DB: sahool (default)
 - **Response:** List of operations
 
 **POST `/operations`**
+
 - **Request Body:**
+
 ```json
 {
   "tenant_id": "tenant_001",
@@ -360,12 +408,14 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/operations/{operation_id}/complete`**
+
 - **Description:** Mark operation as completed
 - **Response:** Updated operation with completion date
 
 #### Input/Output Data Types
 
 **FieldCreate:**
+
 ```python
 {
   "tenant_id": str,
@@ -379,6 +429,7 @@ POSTGRES_DB: sahool (default)
 ```
 
 **OperationCreate:**
+
 ```python
 {
   "tenant_id": str,
@@ -393,16 +444,19 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: 422 Validation Error**
+
 - **Cause:** Invalid input data
 - **Fix:** Validate area_hectares > 0, required fields present
 - **Recommendation:** Client-side validation before API call
 
 **Error: 404 Field not found**
+
 - **Cause:** Field ID doesn't exist
 - **Fix:** Verify field_id before creating operation
 - **Recommendation:** Use field list endpoint to verify IDs
 
 **Error: NATS connection failed**
+
 - **Cause:** NATS service unavailable
 - **Fix:** Check NATS health, verify NATS_URL
 - **Recommendation:** Make event publishing optional (graceful degradation)
@@ -410,11 +464,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 8. Task Service
+
 **Container:** `sahool-task-service`  
 **Port:** 8103  
 **Stack:** Python + FastAPI
 
 #### Functions
+
 - Agricultural task management
 - Task assignment and tracking
 - Evidence attachment (photos, notes)
@@ -423,6 +479,7 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **GET `/api/v1/tasks`**
+
 - **Query Parameters:**
   - `field_id` (optional): Filter by field
   - `status` (optional): pending, in_progress, completed, cancelled, overdue
@@ -433,6 +490,7 @@ POSTGRES_DB: sahool (default)
   - `limit` (default: 50, max: 100)
   - `offset` (default: 0)
 - **Response:**
+
 ```json
 {
   "tasks": [
@@ -450,7 +508,7 @@ POSTGRES_DB: sahool (default)
       "scheduled_time": "08:00",
       "estimated_duration_minutes": 120,
       "created_at": "2025-01-14T10:00:00Z",
-      "metadata": {"pump_id": "pump_2", "water_volume_m3": 500}
+      "metadata": { "pump_id": "pump_2", "water_volume_m3": 500 }
     }
   ],
   "total": 25,
@@ -460,7 +518,9 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/api/v1/tasks`**
+
 - **Request Body:**
+
 ```json
 {
   "title": "Pest Inspection",
@@ -475,10 +535,13 @@ POSTGRES_DB: sahool (default)
   "estimated_duration_minutes": 60
 }
 ```
+
 - **Response:** Created task with task_id
 
 **POST `/api/v1/tasks/{task_id}/complete`**
+
 - **Request Body:**
+
 ```json
 {
   "notes": "No pests found",
@@ -489,13 +552,17 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/api/v1/tasks/{task_id}/start`**
+
 - **Description:** Mark task as in progress
 
 **GET `/api/v1/tasks/today`**
+
 - **Description:** Get tasks due today
 
 **GET `/api/v1/tasks/stats`**
+
 - **Response:**
+
 ```json
 {
   "total": 100,
@@ -514,22 +581,27 @@ POSTGRES_DB: sahool (default)
 #### Input/Output Data Types
 
 **TaskType Enum:**
+
 - irrigation, fertilization, spraying, scouting, maintenance, sampling, harvest, planting, other
 
 **TaskPriority Enum:**
+
 - low, medium, high, urgent
 
 **TaskStatus Enum:**
+
 - pending, in_progress, completed, cancelled, overdue
 
 #### Error Reports & Recommendations
 
 **Error: 400 Task is not pending**
+
 - **Cause:** Trying to start non-pending task
 - **Fix:** Check task status before starting
 - **Recommendation:** Disable start button for non-pending tasks
 
 **Error: 422 Validation Error**
+
 - **Cause:** Invalid due_date format or missing required fields
 - **Fix:** Validate datetime format (ISO 8601)
 - **Recommendation:** Use date/time picker components
@@ -537,11 +609,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 9. Equipment Service
+
 **Container:** `sahool-equipment-service`  
 **Port:** 8101  
 **Stack:** Python + FastAPI
 
 #### Functions
+
 - Equipment/asset management (tractors, pumps, drones)
 - Maintenance tracking and alerts
 - Real-time status (fuel, hours, location)
@@ -550,6 +624,7 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **GET `/api/v1/equipment`**
+
 - **Query Parameters:**
   - `equipment_type` (optional): tractor, pump, drone, harvester, etc.
   - `status` (optional): operational, maintenance, inactive, repair
@@ -558,7 +633,9 @@ POSTGRES_DB: sahool (default)
 - **Response:** List of equipment
 
 **POST `/api/v1/equipment`**
+
 - **Request Body:**
+
 ```json
 {
   "name": "John Deere 8R 410",
@@ -575,7 +652,9 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/api/v1/equipment/alerts`**
+
 - **Response:** List of maintenance alerts
+
 ```json
 {
   "alerts": [
@@ -596,21 +675,26 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/api/v1/equipment/{equipment_id}/telemetry`**
+
 - **Request Body:**
+
 ```json
 {
   "fuel_percent": 75.0,
   "hours": 1250.5,
   "lat": 15.3694,
-  "lon": 44.1910
+  "lon": 44.191
 }
 ```
 
 **GET `/api/v1/equipment/qr/{qr_code}`**
+
 - **Description:** Get equipment by QR code
 
 **POST `/api/v1/equipment/{equipment_id}/maintenance`**
+
 - **Request Body:**
+
 ```json
 {
   "maintenance_type": "oil_change",
@@ -624,22 +708,27 @@ POSTGRES_DB: sahool (default)
 #### Input/Output Data Types
 
 **EquipmentType Enum:**
+
 - tractor, pump, drone, harvester, sprayer, pivot, sensor, vehicle, other
 
 **EquipmentStatus Enum:**
+
 - operational, maintenance, inactive, repair
 
 **MaintenanceType Enum:**
+
 - oil_change, filter_change, tire_check, battery_check, calibration, general_service, repair, other
 
 #### Error Reports & Recommendations
 
 **Error: 404 Equipment not found**
+
 - **Cause:** Invalid equipment_id or QR code
 - **Fix:** Verify equipment ID or scan QR code again
 - **Recommendation:** Implement QR scanner with error handling
 
 **Error: 422 Invalid telemetry data**
+
 - **Cause:** Fuel percent out of range (0-100) or invalid coordinates
 - **Fix:** Validate ranges before sending
 - **Recommendation:** Client-side validation for telemetry input
@@ -649,11 +738,13 @@ POSTGRES_DB: sahool (default)
 ## Application Services
 
 ### 10. Satellite Service
+
 **Container:** `sahool-satellite-service`  
 **Port:** 8090  
 **Stack:** Python + FastAPI + eo-learn
 
 #### Functions
+
 - Multi-satellite imagery analysis (Sentinel-2, Landsat-8/9, MODIS)
 - NDVI, NDWI, EVI, SAVI, LAI calculations
 - Vegetation health scoring
@@ -663,20 +754,24 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **POST `/v1/analyze`**
+
 - **Description:** Analyze field using satellite imagery
 - **Request Body:**
+
 ```json
 {
   "field_id": "field_001",
   "latitude": 15.3694,
-  "longitude": 44.1910,
+  "longitude": 44.191,
   "satellite": "sentinel-2",
   "start_date": "2025-01-01",
   "end_date": "2025-01-15",
   "cloud_cover_max": 20.0
 }
 ```
+
 - **Response:**
+
 ```json
 {
   "field_id": "field_001",
@@ -692,7 +787,7 @@ POSTGRES_DB: sahool (default)
     "ndvi": 0.72,
     "ndwi": 0.45,
     "evi": 0.68,
-    "savi": 0.70,
+    "savi": 0.7,
     "lai": 2.5,
     "ndmi": 0.38
   },
@@ -705,6 +800,7 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/v1/timeseries/{field_id}`**
+
 - **Query Parameters:**
   - `start_date` (optional)
   - `end_date` (optional)
@@ -712,18 +808,22 @@ POSTGRES_DB: sahool (default)
 - **Response:** Time series data with NDVI trends
 
 **GET `/v1/satellites`**
+
 - **Response:** List of available satellites with configurations
 
 **POST `/v1/imagery/request`**
+
 - **Description:** Request satellite imagery for specific location
 - **Response:** Imagery request ID and status
 
 #### Input/Output Data Types
 
 **SatelliteSource Enum:**
+
 - sentinel-2, landsat-8, landsat-9, modis
 
 **VegetationIndices:**
+
 ```python
 {
   "ndvi": float (0-1),
@@ -738,16 +838,19 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: 400 Invalid coordinates**
+
 - **Cause:** Latitude or longitude out of range
 - **Fix:** Validate coordinates: lat [-90, 90], lon [-180, 180]
 - **Recommendation:** Use map picker or GPS for coordinates
 
 **Error: 503 Service unavailable (EO-learn not configured)**
+
 - **Cause:** Sentinel Hub credentials missing
 - **Fix:** Set PLANET_API_KEY and PLANET_CLIENT_ID
 - **Recommendation:** Graceful degradation - return mock data if credentials missing
 
 **Error: 504 Gateway timeout**
+
 - **Cause:** Satellite data processing takes too long
 - **Fix:** Use background task processing, return analysis_id
 - **Recommendation:** Implement async pattern with status polling
@@ -755,11 +858,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 11. Weather Advanced Service
+
 **Container:** `sahool-weather-advanced`  
 **Port:** 8092  
 **Stack:** Python + FastAPI + Open-Meteo/OpenWeatherMap
 
 #### Functions
+
 - 7-day weather forecasting
 - Agricultural weather alerts
 - Evapotranspiration calculation
@@ -769,14 +874,16 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **GET `/v1/current/{location_id}`**
+
 - **Description:** Get current weather for Yemen location
 - **Response:**
+
 ```json
 {
   "location_id": "sanaa",
   "location_name_ar": "صنعاء",
   "latitude": 15.3694,
-  "longitude": 44.1910,
+  "longitude": 44.191,
   "timestamp": "2025-01-15T12:00:00Z",
   "temperature_c": 22.5,
   "feels_like_c": 21.8,
@@ -790,14 +897,18 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/v1/forecast/{location_id}`**
+
 - **Query Parameters:**
   - `days` (default: 7, max: 14): Forecast days
 - **Response:**
+
 ```json
 {
   "location_id": "sanaa",
   "generated_at": "2025-01-15T12:00:00Z",
-  "current": { /* CurrentWeather object */ },
+  "current": {
+    /* CurrentWeather object */
+  },
   "hourly_forecast": [
     {
       "datetime": "2025-01-15T13:00:00Z",
@@ -827,27 +938,33 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/v1/alerts/{location_id}`**
+
 - **Response:** List of weather alerts (heat waves, frost, storms, etc.)
 
 **GET `/v1/locations`**
+
 - **Response:** List of all 22 Yemen governorates with coordinates
 
 #### Input/Output Data Types
 
 **Yemen Locations:**
+
 - sanaa, aden, taiz, hodeidah, ibb, dhamar, hadramaut, marib, hajjah, saadah, lahj, abyan, and 10 more
 
 **AlertType Enum:**
+
 - heat_wave, frost, heavy_rain, drought, high_wind, high_humidity, low_humidity, dust_storm
 
 #### Error Reports & Recommendations
 
 **Error: 404 Location not found**
+
 - **Cause:** Invalid location_id
 - **Fix:** Use `/v1/locations` to get valid location IDs
 - **Recommendation:** Auto-detect location from GPS or use location picker
 
 **Error: 503 Weather API unavailable**
+
 - **Cause:** External weather API (Open-Meteo/OpenWeatherMap) down
 - **Fix:** Check API keys, implement fallback
 - **Recommendation:** Cache weather data, use last known values
@@ -855,11 +972,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 12. Crop Health AI Service (Sahool Vision)
+
 **Container:** `sahool-crop-health-ai`  
 **Port:** 8095  
 **Stack:** Python + FastAPI + TensorFlow Lite
 
 #### Functions
+
 - AI-powered plant disease diagnosis from images
 - Batch image processing
 - Disease treatment recommendations
@@ -868,6 +987,7 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **POST `/v1/diagnose`**
+
 - **Description:** Diagnose plant disease from image
 - **Content-Type:** `multipart/form-data`
 - **Form Data:**
@@ -878,6 +998,7 @@ POSTGRES_DB: sahool (default)
   - `governorate` (string, optional): Yemen governorate
   - `lat`, `lng` (float, optional): GPS coordinates
 - **Response:**
+
 ```json
 {
   "diagnosis_id": "diag_001",
@@ -918,6 +1039,7 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/v1/diagnose/batch`**
+
 - **Description:** Diagnose multiple images (max 20)
 - **Form Data:**
   - `images` (files[]): Multiple image files
@@ -925,22 +1047,27 @@ POSTGRES_DB: sahool (default)
 - **Response:** Array of diagnosis results
 
 **GET `/v1/crops`**
+
 - **Response:** List of supported crop types
 
 **GET `/v1/diseases`**
+
 - **Query Parameters:**
   - `crop_type` (optional): Filter by crop
 - **Response:** List of diseases with details
 
 **GET `/v1/treatment/{treatment_id}`**
+
 - **Response:** Detailed treatment information
 
 #### Input/Output Data Types
 
 **CropType Enum:**
+
 - tomato, wheat, coffee, qat, banana, cucumber, pepper, potato, corn, grapes, date_palm, mango, onion, garlic
 
 **Image Requirements:**
+
 - Format: JPEG, PNG
 - Max size: 10MB
 - Recommended: Clear, well-lit photos of affected leaves/plants
@@ -948,16 +1075,19 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: 400 Invalid image format**
+
 - **Cause:** File is not an image or unsupported format
 - **Fix:** Validate image format client-side before upload
 - **Recommendation:** Use image picker with format validation
 
 **Error: 400 Image too large**
+
 - **Cause:** File size > 10MB
 - **Fix:** Compress/resize image before upload
 - **Recommendation:** Implement client-side image compression
 
 **Error: 503 Model not loaded**
+
 - **Cause:** TensorFlow model failed to load
 - **Fix:** Check MODEL_PATH, verify model file exists
 - **Recommendation:** Health check should verify model loaded
@@ -965,11 +1095,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 13. Virtual Sensors Service
+
 **Container:** `sahool-virtual-sensors`  
 **Port:** 8096  
 **Stack:** Python + FastAPI
 
 #### Functions
+
 - FAO-56 Penman-Monteith ET0 calculations (without physical sensors)
 - Crop evapotranspiration (ETc) calculations
 - Soil moisture estimation
@@ -978,12 +1110,14 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **POST `/v1/et0/calculate`**
+
 - **Description:** Calculate reference evapotranspiration
 - **Request Body:**
+
 ```json
 {
   "latitude": 15.3694,
-  "longitude": 44.1910,
+  "longitude": 44.191,
   "date": "2025-01-15",
   "temperature_max_c": 28.0,
   "temperature_min_c": 18.0,
@@ -992,7 +1126,9 @@ POSTGRES_DB: sahool (default)
   "solar_radiation_mj_m2": 22.5
 }
 ```
+
 - **Response:**
+
 ```json
 {
   "et0_mm": 4.2,
@@ -1007,8 +1143,10 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/v1/etc/calculate`**
+
 - **Description:** Calculate crop evapotranspiration
 - **Request Body:**
+
 ```json
 {
   "crop": "tomato",
@@ -1017,7 +1155,9 @@ POSTGRES_DB: sahool (default)
   "area_hectares": 5.0
 }
 ```
+
 - **Response:**
+
 ```json
 {
   "etc_mm": 4.83,
@@ -1028,8 +1168,10 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/v1/irrigation/recommend`**
+
 - **Description:** Get irrigation recommendation
 - **Request Body:**
+
 ```json
 {
   "field_id": "field_001",
@@ -1039,10 +1181,14 @@ POSTGRES_DB: sahool (default)
   "area_hectares": 5.0,
   "last_irrigation_date": "2025-01-10",
   "current_soil_moisture_percent": 45.0,
-  "weather_data": { /* optional */ }
+  "weather_data": {
+    /* optional */
+  }
 }
 ```
+
 - **Response:**
+
 ```json
 {
   "recommendation_id": "rec_001",
@@ -1061,11 +1207,13 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/v1/crops`**
+
 - **Response:** List of crops with Kc coefficients
 
 #### Input/Output Data Types
 
 **Crop Coefficients (Kc):**
+
 ```python
 {
   "crop": str,  # wheat, tomato, coffee, etc.
@@ -1079,11 +1227,13 @@ POSTGRES_DB: sahool (default)
 #### Error Reports & Recommendations
 
 **Error: 422 Invalid growth stage**
+
 - **Cause:** Growth stage not valid for crop
 - **Fix:** Use `/v1/crops` to get valid growth stages
 - **Recommendation:** Dropdown menu with valid stages
 
 **Error: 400 Invalid soil moisture**
+
 - **Cause:** Soil moisture out of range (0-100%)
 - **Fix:** Validate input range
 - **Recommendation:** Use slider component (0-100%)
@@ -1091,11 +1241,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 14. Irrigation Smart Service
+
 **Container:** `sahool-irrigation-smart`  
 **Port:** 8094  
 **Stack:** Python + FastAPI
 
 #### Functions
+
 - AI-powered irrigation scheduling
 - Water conservation optimization
 - Multi-method irrigation support
@@ -1104,8 +1256,10 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **POST `/v1/calculate`**
+
 - **Description:** Calculate irrigation needs
 - **Request Body:**
+
 ```json
 {
   "field_id": "field_001",
@@ -1118,7 +1272,9 @@ POSTGRES_DB: sahool (default)
   "last_irrigation_date": "2025-01-10"
 }
 ```
+
 - **Response:**
+
 ```json
 {
   "schedule_id": "sched_001",
@@ -1139,8 +1295,10 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/v1/water-balance/{field_id}`**
+
 - **Description:** Get water balance for field
 - **Response:**
+
 ```json
 {
   "field_id": "field_001",
@@ -1157,14 +1315,17 @@ POSTGRES_DB: sahool (default)
 #### Input/Output Data Types
 
 **IrrigationMethod Enum:**
+
 - flood, drip, sprinkler, furrow, traditional
 
 **UrgencyLevel Enum:**
+
 - low, medium, high, critical
 
 #### Error Reports & Recommendations
 
 **Error: 422 Invalid crop type**
+
 - **Cause:** Crop not supported
 - **Fix:** Use supported crop types from enum
 - **Recommendation:** Crop selection dropdown
@@ -1174,11 +1335,13 @@ POSTGRES_DB: sahool (default)
 ## Business Services
 
 ### 15. Billing Core Service
+
 **Container:** `sahool-billing-core`  
 **Port:** 8089  
 **Stack:** Python + FastAPI + Stripe
 
 #### Functions
+
 - Subscription plan management
 - Tenant/subscription lifecycle
 - Usage-based billing
@@ -1188,9 +1351,11 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **GET `/v1/plans`**
+
 - **Query Parameters:**
   - `active_only` (default: true)
 - **Response:**
+
 ```json
 {
   "plans": [
@@ -1235,8 +1400,10 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/v1/tenants`**
+
 - **Description:** Create new tenant with subscription
 - **Request Body:**
+
 ```json
 {
   "name": "Ahmed Farm",
@@ -1247,7 +1414,9 @@ POSTGRES_DB: sahool (default)
   "billing_cycle": "monthly"
 }
 ```
+
 - **Response:**
+
 ```json
 {
   "success": true,
@@ -1260,7 +1429,9 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/v1/tenants/{tenant_id}/quota`**
+
 - **Response:**
+
 ```json
 {
   "tenant_id": "tenant_001",
@@ -1286,47 +1457,57 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/v1/tenants/{tenant_id}/invoices`**
+
 - **Response:** List of invoices
 
 **POST `/v1/payments`**
+
 - **Description:** Process payment
 - **Request Body:**
+
 ```json
 {
   "invoice_id": "inv_001",
   "amount": 29.0,
   "method": "credit_card",
-  "stripe_token": "tok_visa"  // Optional for Stripe
+  "stripe_token": "tok_visa" // Optional for Stripe
 }
 ```
 
 #### Input/Output Data Types
 
 **PlanTier Enum:**
+
 - free, starter, professional, enterprise
 
 **BillingCycle Enum:**
+
 - monthly, quarterly, yearly
 
 **Currency Enum:**
+
 - USD, YER (1 USD = 250 YER default)
 
 **PaymentMethod Enum:**
+
 - credit_card, bank_transfer, mobile_money, cash
 
 #### Error Reports & Recommendations
 
 **Error: 429 Quota exceeded**
+
 - **Cause:** Usage limit reached
 - **Fix:** Upgrade plan or wait for next billing cycle
 - **Recommendation:** Show upgrade prompt when limit reached
 
 **Error: 404 Tenant not found**
+
 - **Cause:** Invalid tenant_id
 - **Fix:** Verify tenant_id from authentication token
 - **Recommendation:** Extract tenant_id from JWT token automatically
 
 **Error: 400 Payment failed**
+
 - **Cause:** Stripe payment declined or insufficient funds
 - **Fix:** Verify payment method, check card details
 - **Recommendation:** Show user-friendly error messages
@@ -1334,11 +1515,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 16. Notification Service
+
 **Container:** `sahool-notification-service`  
 **Port:** 8110  
 **Stack:** Python + FastAPI + Firebase FCM
 
 #### Functions
+
 - Multi-channel notifications (Push, SMS, In-App)
 - Personalized alerts based on farmer profile
 - Weather warnings
@@ -1348,6 +1531,7 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **GET `/v1/notifications`**
+
 - **Query Parameters:**
   - `page` (default: 1)
   - `limit` (default: 20)
@@ -1355,8 +1539,10 @@ POSTGRES_DB: sahool (default)
 - **Response:** List of notifications
 
 **POST `/v1/notifications`**
+
 - **Description:** Create custom notification
 - **Request Body:**
+
 ```json
 {
   "tenant_id": "tenant_001",
@@ -1370,7 +1556,9 @@ POSTGRES_DB: sahool (default)
 ```
 
 **GET `/v1/notifications/unread/count`**
+
 - **Response:**
+
 ```json
 {
   "count": 5
@@ -1378,11 +1566,14 @@ POSTGRES_DB: sahool (default)
 ```
 
 **POST `/v1/notifications/{notification_id}/read`**
+
 - **Description:** Mark notification as read
 
 **POST `/push/register`**
+
 - **Description:** Register FCM token for push notifications
 - **Request Body:**
+
 ```json
 {
   "token": "fcm_token_here",
@@ -1394,14 +1585,17 @@ POSTGRES_DB: sahool (default)
 #### Input/Output Data Types
 
 **NotificationType Enum:**
+
 - weather_alert, pest_outbreak, irrigation_reminder, crop_health, market_price, system, task_reminder
 
 **NotificationPriority Enum:**
+
 - low, medium, high, critical
 
 #### Error Reports & Recommendations
 
 **Error: 400 Invalid FCM token**
+
 - **Cause:** FCM token expired or invalid
 - **Fix:** Re-register token
 - **Recommendation:** Auto-refresh FCM token on app start
@@ -1411,11 +1605,13 @@ POSTGRES_DB: sahool (default)
 ## AI & Analysis Services
 
 ### 17. Yield Engine Service
+
 **Container:** `sahool-yield-engine`  
 **Port:** 8098  
 **Stack:** Python + FastAPI + ML Models
 
 #### Functions
+
 - ML-based crop yield prediction
 - Historical yield analysis
 - Yield forecasting
@@ -1423,8 +1619,10 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **POST `/v1/predict`**
+
 - **Description:** Predict crop yield
 - **Request Body:**
+
 ```json
 {
   "field_id": "field_001",
@@ -1435,10 +1633,14 @@ POSTGRES_DB: sahool (default)
     "ph": 6.5,
     "nitrogen_ppm": 120.0
   },
-  "weather_data": { /* historical/forecast */ }
+  "weather_data": {
+    /* historical/forecast */
+  }
 }
 ```
+
 - **Response:**
+
 ```json
 {
   "prediction_id": "pred_001",
@@ -1455,11 +1657,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 18. Fertilizer Advisor Service
+
 **Container:** `sahool-fertilizer-advisor`  
 **Port:** 8093  
 **Stack:** Python + FastAPI
 
 #### Functions
+
 - NPK fertilizer recommendations
 - Soil analysis interpretation
 - Fertilization scheduling
@@ -1468,8 +1672,10 @@ POSTGRES_DB: sahool (default)
 #### API Endpoints
 
 **POST `/v1/recommend`**
+
 - **Description:** Get fertilizer recommendation
 - **Request Body:**
+
 ```json
 {
   "field_id": "field_001",
@@ -1487,7 +1693,9 @@ POSTGRES_DB: sahool (default)
   "target_yield_kg_ha": 50000.0
 }
 ```
+
 - **Response:**
+
 ```json
 {
   "plan_id": "plan_001",
@@ -1500,7 +1708,7 @@ POSTGRES_DB: sahool (default)
       "application_method": "side_dressing",
       "application_method_ar": "تسميد جانبي",
       "timing_ar": "بعد 3 أسابيع من الزراعة",
-      "npk_content": {"N": 20, "P": 20, "K": 20},
+      "npk_content": { "N": 20, "P": 20, "K": 20 },
       "cost_estimate_yer": 150000.0
     }
   ],
@@ -1516,11 +1724,13 @@ POSTGRES_DB: sahool (default)
 ## Observability Services
 
 ### 19. Prometheus
+
 **Container:** `sahool-prometheus`  
 **Port:** 9090  
 **Image:** `prom/prometheus:v2.48.0`
 
 #### Functions
+
 - Metrics collection and storage
 - Alerting
 - Time-series data storage
@@ -1528,11 +1738,13 @@ POSTGRES_DB: sahool (default)
 ---
 
 ### 20. Grafana
+
 **Container:** `sahool-grafana`  
 **Port:** 3002  
 **Image:** `grafana/grafana:10.2.0`
 
 #### Functions
+
 - Metrics visualization
 - Custom dashboards
 - Alert management
@@ -1542,25 +1754,33 @@ POSTGRES_DB: sahool (default)
 ## Common Error Patterns & Solutions
 
 ### Authentication Errors
+
 **Error: 401 Unauthorized**
+
 - **Cause:** Missing or invalid JWT token
 - **Fix:** Include `Authorization: Bearer <token>` header
 - **Recommendation:** Auto-refresh tokens before expiration
 
 ### Rate Limiting
+
 **Error: 429 Too Many Requests**
+
 - **Cause:** API rate limit exceeded
 - **Fix:** Implement exponential backoff retry
 - **Recommendation:** Cache responses, batch requests
 
 ### Network Errors
+
 **Error: Connection timeout**
+
 - **Cause:** Service unavailable or network issues
 - **Fix:** Check service health, implement retry logic
 - **Recommendation:** Circuit breaker pattern for resilience
 
 ### Validation Errors
+
 **Error: 422 Unprocessable Entity**
+
 - **Cause:** Invalid request data
 - **Fix:** Validate input client-side before sending
 - **Recommendation:** Use Pydantic models for validation
@@ -1594,4 +1814,3 @@ POSTGRES_DB: sahool (default)
 ---
 
 **End of Documentation**
-

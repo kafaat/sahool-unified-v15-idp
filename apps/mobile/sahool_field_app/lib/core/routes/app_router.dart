@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/splash/ui/splash_screen.dart';
 import '../../features/auth/ui/role_selection_screen.dart';
 import '../../features/auth/ui/login_screen.dart';
+import '../../features/auth/ui/registration_screen.dart';
 import '../../features/main_layout/main_layout.dart';
 import '../../features/map_home/ui/map_screen.dart';
 import '../../features/fields/presentation/screens/fields_list_screen.dart';
@@ -51,6 +52,12 @@ class AppRouter {
         path: '/login',
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      GoRoute(
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => const RegistrationScreen(),
       ),
 
       // ═══════════════════════════════════════════════════════════════════════

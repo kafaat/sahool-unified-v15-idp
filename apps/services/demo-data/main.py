@@ -102,8 +102,16 @@ class DemoDataGenerator:
             response = await self.client.post("/api/v1/weather/readings", json=data)
             self._log_response("Weather", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"Weather request failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"Weather connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"Weather request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Weather HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -158,8 +166,16 @@ class DemoDataGenerator:
             response = await self.client.post("/api/v1/iot/readings", json=data)
             self._log_response("IoT Sensor", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"IoT request failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"IoT connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"IoT request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"IoT HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -204,8 +220,16 @@ class DemoDataGenerator:
             response = await self.client.post("/api/v1/ndvi/records", json=data)
             self._log_response("NDVI", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"NDVI request failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"NDVI connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"NDVI request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"NDVI HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -265,8 +289,16 @@ class DemoDataGenerator:
             response = await self.client.post("/api/v1/alerts", json=data)
             self._log_response("Alert", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"Alert request failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"Alert connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"Alert request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Alert HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -306,8 +338,16 @@ class DemoDataGenerator:
             response = await self.client.post("/api/v1/tasks", json=data)
             self._log_response("Task", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"Task request failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"Task connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"Task request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Task HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -335,8 +375,16 @@ class DemoDataGenerator:
             response = await self.client.post("/api/v1/yield-prediction/predict", json=data)
             self._log_response("Yield Prediction", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"Yield prediction request failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"Yield prediction connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"Yield prediction request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Yield prediction HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -351,8 +399,16 @@ class DemoDataGenerator:
             response = await self.client.get(f"/api/v1/fields/{field_id}/health")
             self._log_response("Field Health", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"Field health check failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"Field health connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"Field health request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Field health HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -387,8 +443,16 @@ class DemoDataGenerator:
             response = await self.client.post("/api/v1/inventory/transactions", json=data)
             self._log_response("Inventory", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"Inventory update failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"Inventory connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"Inventory request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Inventory HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -427,8 +491,16 @@ class DemoDataGenerator:
             response = await self.client.post("/api/v1/marketplace/products", json=data)
             self._log_response("Marketplace", response)
             return response.status_code < 400
-        except Exception as e:
-            logger.error(f"Marketplace listing failed: {e}")
+        except httpx.ConnectError as e:
+            logger.error(f"Marketplace connection error: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.TimeoutException as e:
+            logger.warning(f"Marketplace request timeout: {e}")
+            self.stats["requests_failed"] += 1
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Marketplace HTTP error: {e}")
             self.stats["requests_failed"] += 1
             return False
 
@@ -443,8 +515,14 @@ class DemoDataGenerator:
             status = "OK" if response.status_code < 400 else "FAIL"
             logger.info(f"Health check {service_name}: {status} ({response.status_code})")
             return response.status_code < 400
-        except Exception as e:
-            logger.warning(f"Health check {service_name}: FAIL ({e})")
+        except httpx.ConnectError:
+            logger.warning(f"Health check {service_name}: FAIL (connection error)")
+            return False
+        except httpx.TimeoutException:
+            logger.warning(f"Health check {service_name}: FAIL (timeout)")
+            return False
+        except httpx.HTTPStatusError as e:
+            logger.warning(f"Health check {service_name}: FAIL (HTTP {e.response.status_code})")
             return False
 
     async def run_health_checks(self):

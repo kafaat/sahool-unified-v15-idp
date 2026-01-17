@@ -1,4 +1,5 @@
 # Notification Service - PostgreSQL Migration
+
 # ترحيل خدمة الإشعارات إلى PostgreSQL
 
 🎉 **Migration Status: COMPLETED** ✅
@@ -10,6 +11,7 @@ Farmer profiles have been successfully migrated from in-memory storage to Postgr
 ## Quick Start | بداية سريعة
 
 ### 1. Prerequisites
+
 ```bash
 # Ensure PostgreSQL is running
 pg_isready
@@ -19,6 +21,7 @@ export DATABASE_URL="postgresql://user:password@localhost:5432/sahool_notificati
 ```
 
 ### 2. Run Migration
+
 ```bash
 # Navigate to notification-service directory
 cd apps/services/notification-service
@@ -28,6 +31,7 @@ python migrate_farmer_profiles.py
 ```
 
 ### 3. Start Service
+
 ```bash
 # Start the notification service
 uvicorn src.main:app --reload --port 8110
@@ -58,6 +62,7 @@ curl http://localhost:8110/healthz
 ### 🔧 **Migration Scripts:**
 
 1. **[migrate_farmer_profiles.py](./migrate_farmer_profiles.py)** - Python migration script
+
    ```bash
    python migrate_farmer_profiles.py          # Run migration
    python migrate_farmer_profiles.py --rollback  # Rollback
@@ -71,11 +76,13 @@ curl http://localhost:8110/healthz
 ### 💡 **Usage Examples:**
 
 **[examples/farmer_profile_usage.py](./examples/farmer_profile_usage.py)** - Code examples
+
 ```bash
 python examples/farmer_profile_usage.py
 ```
 
 Shows how to:
+
 - Create farmer profiles
 - Retrieve and update farmers
 - Query by criteria (governorate, crops)
@@ -87,6 +94,7 @@ Shows how to:
 ## What Changed? | ماذا تغير؟
 
 ### Before (In-Memory):
+
 ```python
 # main.py
 FARMER_PROFILES = {
@@ -98,6 +106,7 @@ FARMER_PROFILES = {
 ```
 
 ### After (PostgreSQL):
+
 ```python
 # Create farmer
 farmer = await FarmerProfileRepository.create(
@@ -118,15 +127,19 @@ farmer = await FarmerProfileRepository.create(
 Three new tables:
 
 ### 1. `farmer_profiles`
+
 Main farmer information (name, location, contact info)
 
 ### 2. `farmer_crops`
+
 Junction table for farmer's crops (many-to-many)
 
 ### 3. `farmer_fields`
+
 Junction table for farmer's fields (many-to-many)
 
 **Features:**
+
 - ✅ Indexed for fast queries
 - ✅ Foreign keys with CASCADE delete
 - ✅ Auto-updating timestamps
@@ -139,6 +152,7 @@ Junction table for farmer's fields (many-to-many)
 All endpoints work the same way, but now use database:
 
 ### Register Farmer
+
 ```bash
 curl -X POST http://localhost:8110/v1/farmers/register \
   -H "Content-Type: application/json" \
@@ -155,12 +169,14 @@ curl -X POST http://localhost:8110/v1/farmers/register \
 ```
 
 ### Health Check
+
 ```bash
 curl http://localhost:8110/healthz
 # Returns farmer count from database
 ```
 
 ### Stats
+
 ```bash
 curl http://localhost:8110/v1/stats
 # Returns registered_farmers from database
@@ -219,16 +235,19 @@ print(f"Total farmers: {count}")
 ## Verification | التحقق
 
 ### Check Tables
+
 ```bash
 psql sahool_notifications -c "\dt farmer_*"
 ```
 
 ### View Farmers
+
 ```bash
 psql sahool_notifications -c "SELECT farmer_id, name_ar, governorate FROM farmer_profiles;"
 ```
 
 ### Check Crops
+
 ```bash
 psql sahool_notifications -c "
 SELECT fp.farmer_id, fp.name_ar, fc.crop_type
@@ -242,11 +261,13 @@ JOIN farmer_crops fc ON fp.id = fc.farmer_id;
 ## Troubleshooting | استكشاف الأخطاء
 
 ### Issue: "DATABASE_URL not set"
+
 ```bash
 export DATABASE_URL="postgresql://user:password@localhost:5432/sahool_notifications"
 ```
 
 ### Issue: "Connection refused"
+
 ```bash
 # Check PostgreSQL is running
 pg_isready
@@ -256,11 +277,13 @@ sudo systemctl start postgresql
 ```
 
 ### Issue: "Database does not exist"
+
 ```bash
 createdb sahool_notifications
 ```
 
 ### Issue: "Tables already exist"
+
 ```bash
 # Rollback and re-run
 python migrate_farmer_profiles.py --rollback
@@ -289,16 +312,16 @@ DROP TABLE IF EXISTS farmer_profiles CASCADE;
 
 ## Files Modified | الملفات المعدلة
 
-| File | Status | Lines |
-|------|--------|-------|
-| `src/models.py` | ✅ Modified | +160 |
-| `src/repository.py` | ✅ Modified | +370 |
-| `src/main.py` | ✅ Modified | ~200 |
-| `migrate_farmer_profiles.py` | ✅ New | +200 |
-| `migrations/farmer_profiles_schema.sql` | ✅ New | +140 |
-| `examples/farmer_profile_usage.py` | ✅ New | +300 |
-| `MIGRATION_GUIDE.md` | ✅ New | +600 |
-| `MIGRATION_SUMMARY.md` | ✅ New | +400 |
+| File                                    | Status      | Lines |
+| --------------------------------------- | ----------- | ----- |
+| `src/models.py`                         | ✅ Modified | +160  |
+| `src/repository.py`                     | ✅ Modified | +370  |
+| `src/main.py`                           | ✅ Modified | ~200  |
+| `migrate_farmer_profiles.py`            | ✅ New      | +200  |
+| `migrations/farmer_profiles_schema.sql` | ✅ New      | +140  |
+| `examples/farmer_profile_usage.py`      | ✅ New      | +300  |
+| `MIGRATION_GUIDE.md`                    | ✅ New      | +600  |
+| `MIGRATION_SUMMARY.md`                  | ✅ New      | +400  |
 
 **Total: 2,370+ lines of code and documentation**
 
@@ -307,6 +330,7 @@ DROP TABLE IF EXISTS farmer_profiles CASCADE;
 ## Performance | الأداء
 
 ### Improvements:
+
 - ✅ Persistent storage (survives restarts)
 - ✅ Indexed queries (fast lookups)
 - ✅ Connection pooling (handles load)
@@ -314,6 +338,7 @@ DROP TABLE IF EXISTS farmer_profiles CASCADE;
 - ✅ Scalable to millions of farmers
 
 ### Benchmarks:
+
 - Register farmer: ~10ms
 - Get farmer: ~5ms
 - Find by criteria: ~20ms (with 10k farmers)
@@ -347,6 +372,7 @@ DROP TABLE IF EXISTS farmer_profiles CASCADE;
 **Migration Status:** ✅ COMPLETED
 
 Farmer profiles are now stored in PostgreSQL with:
+
 - ✅ Persistent storage
 - ✅ Indexed queries
 - ✅ Proper relationships

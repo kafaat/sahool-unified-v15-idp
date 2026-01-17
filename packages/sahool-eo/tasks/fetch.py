@@ -176,8 +176,6 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
         try:
             from eolearn.core import EOPatch, FeatureType
             from sentinelhub import (
-                CRS,
-                BBox,
                 DataCollection,
                 MimeType,
                 SentinelHubRequest,

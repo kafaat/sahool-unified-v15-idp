@@ -10,16 +10,18 @@ LABEL version="15.5.0"
 # Set working directory
 WORKDIR /app
 
-# Upgrade pip first (better retry logic and connection handling)
-RUN pip install --no-cache-dir --upgrade pip --default-timeout=100
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip --default-timeout=100 && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel
 
 # Install dependencies with retry logic
-COPY requirements.txt .
+COPY apps/services/astronomical-calendar/requirements.txt .
 RUN pip install --no-cache-dir --default-timeout=100 --retries=5 -r requirements.txt || \
     (sleep 5 && pip install --no-cache-dir --default-timeout=100 --retries=5 -r requirements.txt)
 
 # Copy application code
-COPY src/ ./src/
+COPY apps/services/astronomical-calendar/src/ ./src/
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash --uid 1000 appuser && \

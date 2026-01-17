@@ -1,6 +1,7 @@
 # SAHOOL Governance Pack v1
 
 هذا المجلد يفرض حوكمة المنصة تلقائيًا عبر:
+
 - **Kyverno** (Policy as Code)
 - **GitOps** (ArgoCD)
 - **CI Guards**
@@ -8,12 +9,12 @@
 
 ## القواعد المفروضة
 
-| القاعدة | الوصف |
-|---------|-------|
-| `restrict-latest-tag` | منع استخدام `image:latest` |
-| `require-resource-limits` | فرض تحديد CPU/Memory |
-| `require-governance-labels` | فرض labels الحوكمة |
-| `baseline-security` | منع privileged containers |
+| القاعدة                     | الوصف                      |
+| --------------------------- | -------------------------- |
+| `restrict-latest-tag`       | منع استخدام `image:latest` |
+| `require-resource-limits`   | فرض تحديد CPU/Memory       |
+| `require-governance-labels` | فرض labels الحوكمة         |
+| `baseline-security`         | منع privileged containers  |
 
 ## Labels المطلوبة
 
@@ -36,6 +37,7 @@ governance/
 ## التطبيق
 
 السياسات تُطبَّق تلقائيًا عبر ArgoCD من:
+
 ```
 gitops/argocd/applications/sahool-governance-policies.yaml
 ```

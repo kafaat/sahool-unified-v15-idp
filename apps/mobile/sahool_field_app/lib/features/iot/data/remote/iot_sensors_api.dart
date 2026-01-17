@@ -5,7 +5,8 @@ import '../../../core/config/api_config.dart';
 /// IoT Sensors Service API Integration
 /// تكامل خدمة مستشعرات إنترنت الأشياء
 ///
-/// Port: 8100 (configurable)
+/// Routes through Kong Gateway on port 8000
+/// WebSocket through ws-gateway on port 8081
 /// Features: Real-time sensor data, actuator control, alerts
 class IoTSensorsApi {
   final Dio _dio;
@@ -17,8 +18,8 @@ class IoTSensorsApi {
     String? baseUrl,
     String? wsUrl,
   })  : _dio = dio ?? Dio(),
-        _baseUrl = baseUrl ?? '${ApiConfig.baseUrl}:8100',
-        _wsUrl = wsUrl ?? 'ws://${ApiConfig.host}:8100/ws';
+        _baseUrl = baseUrl ?? '${ApiConfig.baseUrl}/api/v1/iot',
+        _wsUrl = wsUrl ?? 'ws://${ApiConfig.host}:8081/iot';
 
   // ─────────────────────────────────────────────────────────────────────────
   // Sensors - المستشعرات

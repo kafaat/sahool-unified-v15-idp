@@ -20,18 +20,21 @@ Export comprehensive field analysis including vegetation indices, health scores,
 **Endpoint:** `GET /v1/export/analysis/{field_id}`
 
 **Parameters:**
+
 - `field_id` (path): Field identifier
 - `lat` (query, required): Latitude (-90 to 90)
 - `lon` (query, required): Longitude (-180 to 180)
 - `format` (query, optional): Export format - `geojson`, `csv`, `json`, `kml` (default: `geojson`)
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:8090/v1/export/analysis/FIELD_001?lat=15.3694&lon=44.1910&format=geojson" \
   -o field_analysis.geojson
 ```
 
 **Response:**
+
 - Stream download with appropriate Content-Type
 - Headers include:
   - `Content-Disposition`: attachment filename
@@ -39,6 +42,7 @@ curl "http://localhost:8090/v1/export/analysis/FIELD_001?lat=15.3694&lon=44.1910
   - `X-Generated-At`: timestamp
 
 **Use Cases:**
+
 - Export current field health status
 - Generate reports for stakeholders
 - Import into GIS systems for visualization
@@ -53,6 +57,7 @@ Export vegetation index trends over time (NDVI, EVI, etc.).
 **Endpoint:** `GET /v1/export/timeseries/{field_id}`
 
 **Parameters:**
+
 - `field_id` (path): Field identifier
 - `lat` (query, required): Latitude
 - `lon` (query, required): Longitude
@@ -61,12 +66,14 @@ Export vegetation index trends over time (NDVI, EVI, etc.).
 - `format` (query, optional): `csv`, `json`, `geojson` (default: `csv`)
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:8090/v1/export/timeseries/FIELD_001?lat=15.3694&lon=44.1910&start_date=2023-11-01&end_date=2023-12-15&format=csv" \
   -o timeseries.csv
 ```
 
 **CSV Output Example:**
+
 ```csv
 date,latitude,longitude,ndvi,ndwi,evi,health_score,health_status,cloud_cover
 2023-11-01,15.3694,44.1910,0.65,0.40,0.58,75.0,good,8.5
@@ -75,6 +82,7 @@ date,latitude,longitude,ndvi,ndwi,evi,health_score,health_status,cloud_cover
 ```
 
 **Use Cases:**
+
 - Track vegetation health trends
 - Analyze seasonal patterns
 - Create charts and graphs
@@ -89,16 +97,19 @@ Export field boundaries for multiple fields in GIS-compatible formats.
 **Endpoint:** `GET /v1/export/boundaries`
 
 **Parameters:**
+
 - `field_ids` (query, required): Comma-separated field IDs (max 100)
 - `format` (query, optional): `geojson`, `json`, `kml` (default: `geojson`)
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:8090/v1/export/boundaries?field_ids=FIELD_001,FIELD_002,FIELD_003&format=geojson" \
   -o boundaries.geojson
 ```
 
 **GeoJSON Output Example:**
+
 ```json
 {
   "type": "FeatureCollection",
@@ -120,6 +131,7 @@ curl "http://localhost:8090/v1/export/boundaries?field_ids=FIELD_001,FIELD_002,F
 ```
 
 **Use Cases:**
+
 - Import field boundaries into GIS software
 - Visualize fields in Google Earth (KML)
 - Create farm maps
@@ -134,6 +146,7 @@ Export detailed field reports with various report types.
 **Endpoint:** `GET /v1/export/report/{field_id}`
 
 **Parameters:**
+
 - `field_id` (path): Field identifier
 - `lat` (query, required): Latitude
 - `lon` (query, required): Longitude
@@ -141,23 +154,27 @@ Export detailed field reports with various report types.
 - `format` (query, optional): `json`, `csv`, `geojson` (default: `json`)
 
 **Report Types:**
+
 - **full**: Complete analysis with all indices and recommendations
 - **summary**: High-level health metrics only
 - **changes**: Change detection comparing current vs. 7 days ago
 
 **Example Request (Full Report):**
+
 ```bash
 curl "http://localhost:8090/v1/export/report/FIELD_001?lat=15.3694&lon=44.1910&report_type=full&format=json" \
   -o full_report.json
 ```
 
 **Example Request (Changes Report):**
+
 ```bash
 curl "http://localhost:8090/v1/export/report/FIELD_001?lat=15.3694&lon=44.1910&report_type=changes&format=csv" \
   -o changes_report.csv
 ```
 
 **Use Cases:**
+
 - Generate weekly/monthly reports
 - Track changes and trends
 - Share analysis with agronomists
@@ -292,6 +309,7 @@ for field_id, success in results:
 ### QGIS Integration
 
 1. Export field boundaries as GeoJSON:
+
 ```bash
 curl "http://localhost:8090/v1/export/boundaries?field_ids=FIELD_001,FIELD_002&format=geojson" -o fields.geojson
 ```
@@ -304,6 +322,7 @@ curl "http://localhost:8090/v1/export/boundaries?field_ids=FIELD_001,FIELD_002&f
 ### Google Earth Integration
 
 1. Export as KML:
+
 ```bash
 curl "http://localhost:8090/v1/export/analysis/FIELD_001?lat=15.3694&lon=44.1910&format=kml" -o field.kml
 ```
@@ -313,6 +332,7 @@ curl "http://localhost:8090/v1/export/analysis/FIELD_001?lat=15.3694&lon=44.1910
 ### Excel/Spreadsheet Analysis
 
 1. Export timeseries as CSV:
+
 ```bash
 curl "http://localhost:8090/v1/export/timeseries/FIELD_001?lat=15.3694&lon=44.1910&start_date=2023-11-01&end_date=2023-12-15&format=csv" -o timeseries.csv
 ```
@@ -363,11 +383,13 @@ All export endpoints include these custom headers:
 ## File Naming Convention
 
 All exported files follow this pattern:
+
 ```
 sahool_{type}_{field_id}_{timestamp}.{extension}
 ```
 
 Examples:
+
 - `sahool_field_analysis_FIELD_001_20231215_143022.geojson`
 - `sahool_timeseries_FIELD_002_20231215_143045.csv`
 - `sahool_boundaries_multi_20231215_143100.kml`

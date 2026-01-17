@@ -1,4 +1,5 @@
 # Action Windows Feature - Implementation Summary
+
 # ملخص ميزة نوافذ العمل
 
 **Created:** 2026-01-06
@@ -14,6 +15,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 ## Implemented Files
 
 ### 1. Type Definitions
+
 - **File:** `types/action-windows.ts` (261 lines)
 - **Status:** ✅ Complete
 - **Contains:**
@@ -27,6 +29,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Calculation result types
 
 ### 2. API Client
+
 - **File:** `api/action-windows-api.ts` (574 lines)
 - **Status:** ✅ Complete
 - **Features:**
@@ -39,6 +42,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Query keys for React Query
 
 ### 3. React Hooks
+
 - **File:** `hooks/useActionWindows.ts` (302 lines)
 - **Status:** ✅ Complete
 - **Hooks:**
@@ -56,6 +60,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 ### 4. Components
 
 #### SprayWindowsPanel.tsx
+
 - **Lines:** 352
 - **Status:** ✅ Complete
 - **Features:**
@@ -70,6 +75,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Fully bilingual (AR/EN)
 
 #### IrrigationWindowsPanel.tsx
+
 - **Lines:** 488
 - **Status:** ✅ Complete (Newly Created)
 - **Features:**
@@ -84,6 +90,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Fully bilingual (AR/EN)
 
 #### WindowTimeline.tsx
+
 - **Lines:** 289
 - **Status:** ✅ Complete
 - **Features:**
@@ -96,6 +103,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Accessibility features
 
 #### WeatherConditions.tsx
+
 - **Lines:** 205
 - **Status:** ✅ Complete
 - **Features:**
@@ -105,6 +113,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Icon-based visualization
 
 #### ActionRecommendation.tsx
+
 - **Lines:** 350
 - **Status:** ✅ Complete
 - **Features:**
@@ -118,6 +127,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Loading states
 
 #### ActionWindowsDemo.tsx
+
 - **Lines:** 239
 - **Status:** ✅ Complete (Newly Created)
 - **Features:**
@@ -129,6 +139,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Ready-to-use example
 
 ### 5. Utilities
+
 - **File:** `utils/window-calculator.ts` (398 lines)
 - **Status:** ✅ Complete
 - **Functions:**
@@ -141,11 +152,13 @@ The Action Windows feature provides intelligent, weather-based recommendations f
   - Scoring algorithms
 
 ### 6. Index Files
+
 - **File:** `components/index.ts` (13 lines) ✅ Complete
 - **File:** `index.ts` (76 lines) ✅ Complete
 - Exports all types, hooks, components, and utilities
 
 ### 7. Documentation
+
 - **File:** `README.md` (635 lines) ✅ Complete
 - **File:** `INTEGRATION_EXAMPLES.md` (419 lines) ✅ Complete
 - **File:** `FEATURE_SUMMARY.md` (This file) ✅ Complete
@@ -155,6 +168,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 ## Key Features
 
 ### ✅ Spray Windows
+
 - Weather-based spray timing recommendations
 - Multi-parameter scoring (wind, temperature, humidity, rain)
 - Customizable criteria
@@ -163,6 +177,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 - One-click task creation
 
 ### ✅ Irrigation Windows
+
 - Soil moisture-based recommendations
 - ET calculations (ET₀, ETc, Kc)
 - Priority system (urgent → low)
@@ -172,6 +187,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 - One-click task creation
 
 ### ✅ Visual Components
+
 - Interactive timeline with color coding
 - Weather condition cards
 - Status indicators
@@ -180,6 +196,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 - Accessibility features
 
 ### ✅ Task Integration
+
 - One-click task creation from any window
 - Auto-populated task details
 - Priority assignment
@@ -188,6 +205,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 - Success/error feedback
 
 ### ✅ Developer Experience
+
 - TypeScript types for all data structures
 - React Query hooks for data fetching
 - Comprehensive error handling
@@ -196,6 +214,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 - Extensive documentation
 
 ### ✅ User Experience
+
 - Bilingual support (Arabic/English)
 - Intuitive UI
 - Clear visual feedback
@@ -210,12 +229,14 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 ### Scoring Algorithm (Spray Windows)
 
 **Total Score: 0-100**
+
 - Wind Speed (25 points): 3-15 km/h
 - Temperature (25 points): 10-30°C
 - Humidity (25 points): 50-90%
 - Rain Probability (25 points): <20%
 
 **Status Classification:**
+
 - Optimal: ≥75 points
 - Marginal: 50-74 points
 - Avoid: <50 points
@@ -223,6 +244,7 @@ The Action Windows feature provides intelligent, weather-based recommendations f
 ### Irrigation Priority
 
 Based on soil moisture stress level:
+
 ```
 stress = (current - wiltingPoint) / (fieldCapacity - wiltingPoint)
 
@@ -236,6 +258,7 @@ else: NONE
 ### API Endpoints
 
 **Backend Integration (Optional):**
+
 - `GET /api/v1/action-windows/spray`
 - `GET /api/v1/action-windows/irrigation`
 - `GET /api/v1/action-windows/recommendations`
@@ -256,6 +279,7 @@ else: NONE
 ## Usage Examples
 
 ### Basic Usage
+
 ```tsx
 import { SprayWindowsPanel, IrrigationWindowsPanel } from '@/features/action-windows';
 
@@ -264,9 +288,10 @@ import { SprayWindowsPanel, IrrigationWindowsPanel } from '@/features/action-win
 ```
 
 ### With Task Creation
+
 ```tsx
-import { SprayWindowsPanel } from '@/features/action-windows';
-import { useCreateTask } from '@/features/tasks/hooks/useTasks';
+import { SprayWindowsPanel } from "@/features/action-windows";
+import { useCreateTask } from "@/features/tasks/hooks/useTasks";
 
 const MyComponent = ({ fieldId }) => {
   const createTask = useCreateTask();
@@ -276,30 +301,28 @@ const MyComponent = ({ fieldId }) => {
       title: `Spray Application`,
       title_ar: `رش المبيدات`,
       due_date: window.startTime,
-      priority: 'high',
+      priority: "high",
       field_id: fieldId,
     });
   };
 
   return (
-    <SprayWindowsPanel
-      fieldId={fieldId}
-      onCreateTask={handleCreateTask}
-    />
+    <SprayWindowsPanel fieldId={fieldId} onCreateTask={handleCreateTask} />
   );
 };
 ```
 
 ### Complete Demo
+
 ```tsx
-import { ActionWindowsDemo } from '@/features/action-windows';
+import { ActionWindowsDemo } from "@/features/action-windows";
 
 <ActionWindowsDemo
   fieldId="field-123"
   fieldName="Wheat Field"
   fieldNameAr="حقل القمح"
   days={7}
-/>
+/>;
 ```
 
 ---
@@ -324,6 +347,7 @@ import { ActionWindowsDemo } from '@/features/action-windows';
 ## Future Enhancements
 
 ### Potential Features
+
 1. **Historical Data:** Track and analyze past windows
 2. **Success Metrics:** Monitor task completion rates from windows
 3. **Weather Alerts:** Push notifications for optimal windows
@@ -336,6 +360,7 @@ import { ActionWindowsDemo } from '@/features/action-windows';
 10. **Export/Print:** PDF reports of recommendations
 
 ### Technical Improvements
+
 1. Add comprehensive test suite
 2. Implement caching strategies
 3. Add WebSocket support for real-time updates
@@ -359,6 +384,7 @@ import { ActionWindowsDemo } from '@/features/action-windows';
 **Types:** 20+
 
 **Breakdown:**
+
 - TypeScript: ~3,500 lines
 - Documentation: ~600 lines
 - Comments: ~400 lines
@@ -368,6 +394,7 @@ import { ActionWindowsDemo } from '@/features/action-windows';
 ## Maintenance Notes
 
 ### Code Quality
+
 - ✅ Fully typed with TypeScript
 - ✅ Consistent naming conventions
 - ✅ Comprehensive inline documentation
@@ -376,6 +403,7 @@ import { ActionWindowsDemo } from '@/features/action-windows';
 - ✅ Performance optimizations (React.memo, useMemo)
 
 ### Standards
+
 - ✅ Follows existing project patterns
 - ✅ Consistent with other features
 - ✅ Bilingual support (AR/EN)
@@ -383,6 +411,7 @@ import { ActionWindowsDemo } from '@/features/action-windows';
 - ✅ Modern React practices
 
 ### Dependencies
+
 - No external dependencies beyond project standards
 - Uses existing UI component patterns
 - Integrates with existing task system
@@ -407,6 +436,7 @@ Part of the SAHOOL platform. All rights reserved.
 ## Support
 
 For questions or issues:
+
 1. Check README.md for API reference
 2. Review INTEGRATION_EXAMPLES.md for usage patterns
 3. Inspect component source code

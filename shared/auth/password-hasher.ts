@@ -9,23 +9,23 @@
  * للخلف مع bcrypt و PBKDF2. يدعم الترحيل التلقائي عند تسجيل الدخول الناجح.
  */
 
-import * as crypto from 'crypto';
-import { promisify } from 'util';
+import * as crypto from "crypto";
+import { promisify } from "util";
 
 // Import password hashing libraries
 let argon2: any;
 let bcrypt: any;
 
 try {
-  argon2 = require('argon2');
+  argon2 = require("argon2");
 } catch (e) {
-  console.warn('argon2 not available. Please install: npm install argon2');
+  console.warn("argon2 not available. Please install: npm install argon2");
 }
 
 try {
-  bcrypt = require('bcrypt');
+  bcrypt = require("bcrypt");
 } catch (e) {
-  console.warn('bcrypt not available. Please install: npm install bcrypt');
+  console.warn("bcrypt not available. Please install: npm install bcrypt");
 }
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
@@ -34,10 +34,10 @@ const pbkdf2Async = promisify(crypto.pbkdf2);
  * Supported password hashing algorithms
  */
 export enum HashAlgorithm {
-  ARGON2ID = 'argon2id',
-  BCRYPT = 'bcrypt',
-  PBKDF2_SHA256 = 'pbkdf2_sha256',
-  UNKNOWN = 'unknown',
+  ARGON2ID = "argon2id",
+  BCRYPT = "bcrypt",
+  PBKDF2_SHA256 = "pbkdf2_sha256",
+  UNKNOWN = "unknown",
 }
 
 /**
@@ -88,7 +88,7 @@ export class PasswordHasher {
     this.saltLength = config.saltLength ?? 16; // 128 bits
 
     if (!argon2) {
-      console.warn('Argon2 not available, falling back to bcrypt/PBKDF2');
+      console.warn("Argon2 not available, falling back to bcrypt/PBKDF2");
     }
   }
 
@@ -100,7 +100,7 @@ export class PasswordHasher {
    */
   async hashPassword(password: string): Promise<string> {
     if (!password) {
-      throw new Error('Password cannot be empty');
+      throw new Error("Password cannot be empty");
     }
 
     // Primary: Use Argon2id
@@ -115,7 +115,7 @@ export class PasswordHasher {
           saltLength: this.saltLength,
         });
       } catch (error) {
-        console.error('Argon2 hashing error:', error);
+        console.error("Argon2 hashing error:", error);
         // Fall through to bcrypt
       }
     }
@@ -126,7 +126,7 @@ export class PasswordHasher {
         const saltRounds = 12;
         return await bcrypt.hash(password, saltRounds);
       } catch (error) {
-        console.error('bcrypt hashing error:', error);
+        console.error("bcrypt hashing error:", error);
         // Fall through to PBKDF2
       }
     }
@@ -144,7 +144,7 @@ export class PasswordHasher {
    */
   async verifyPassword(
     password: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<VerificationResult> {
     if (!password || !hashedPassword) {
       return { isValid: false, needsRehash: false };
@@ -161,11 +161,11 @@ export class PasswordHasher {
         case HashAlgorithm.PBKDF2_SHA256:
           return await this.verifyPbkdf2(password, hashedPassword);
         default:
-          console.warn('Unknown hash algorithm for password');
+          console.warn("Unknown hash algorithm for password");
           return { isValid: false, needsRehash: false };
       }
     } catch (error) {
-      console.error('Password verification error:', error);
+      console.error("Password verification error:", error);
       return { isValid: false, needsRehash: false };
     }
   }
@@ -177,15 +177,18 @@ export class PasswordHasher {
    * @returns HashAlgorithm enum value
    */
   private detectAlgorithm(hashedPassword: string): HashAlgorithm {
-    if (hashedPassword.startsWith('$argon2')) {
+    if (hashedPassword.startsWith("$argon2")) {
       return HashAlgorithm.ARGON2ID;
     } else if (
-      hashedPassword.startsWith('$2a$') ||
-      hashedPassword.startsWith('$2b$') ||
-      hashedPassword.startsWith('$2y$')
+      hashedPassword.startsWith("$2a$") ||
+      hashedPassword.startsWith("$2b$") ||
+      hashedPassword.startsWith("$2y$")
     ) {
       return HashAlgorithm.BCRYPT;
-    } else if (hashedPassword.includes('$') && hashedPassword.split('$').length >= 2) {
+    } else if (
+      hashedPassword.includes("$") &&
+      hashedPassword.split("$").length >= 2
+    ) {
       // PBKDF2 format: salt$hash
       return HashAlgorithm.PBKDF2_SHA256;
     } else {
@@ -198,10 +201,10 @@ export class PasswordHasher {
    */
   private async verifyArgon2(
     password: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<VerificationResult> {
     if (!argon2) {
-      console.error('Argon2 not available but hash is Argon2 format');
+      console.error("Argon2 not available but hash is Argon2 format");
       return { isValid: false, needsRehash: false };
     }
 
@@ -231,10 +234,10 @@ export class PasswordHasher {
    */
   private async verifyBcrypt(
     password: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<VerificationResult> {
     if (!bcrypt) {
-      console.error('bcrypt not available but hash is bcrypt format');
+      console.error("bcrypt not available but hash is bcrypt format");
       return { isValid: false, needsRehash: false };
     }
 
@@ -243,7 +246,7 @@ export class PasswordHasher {
       // Always migrate bcrypt to Argon2id
       return { isValid, needsRehash: isValid };
     } catch (error) {
-      console.error('bcrypt verification error:', error);
+      console.error("bcrypt verification error:", error);
       return { isValid: false, needsRehash: false };
     }
   }
@@ -253,16 +256,16 @@ export class PasswordHasher {
    */
   private async verifyPbkdf2(
     password: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<VerificationResult> {
     try {
-      const parts = hashedPassword.split('$');
+      const parts = hashedPassword.split("$");
       if (parts.length !== 2) {
         return { isValid: false, needsRehash: false };
       }
 
       const [saltHex, storedHashHex] = parts;
-      const salt = Buffer.from(saltHex, 'hex');
+      const salt = Buffer.from(saltHex, "hex");
 
       // Compute hash with same salt
       const computedHash = await pbkdf2Async(
@@ -270,19 +273,19 @@ export class PasswordHasher {
         salt,
         100_000,
         32,
-        'sha256'
+        "sha256",
       );
 
       // Constant-time comparison
       const isValid = crypto.timingSafeEqual(
-        Buffer.from(storedHashHex, 'hex'),
-        computedHash
+        Buffer.from(storedHashHex, "hex"),
+        computedHash,
       );
 
       // Always migrate PBKDF2 to Argon2id
       return { isValid, needsRehash: isValid };
     } catch (error) {
-      console.error('PBKDF2 verification error:', error);
+      console.error("PBKDF2 verification error:", error);
       return { isValid: false, needsRehash: false };
     }
   }
@@ -295,8 +298,8 @@ export class PasswordHasher {
    */
   private async hashPbkdf2(password: string): Promise<string> {
     const salt = crypto.randomBytes(32);
-    const hash = await pbkdf2Async(password, salt, 100_000, 32, 'sha256');
-    return `${salt.toString('hex')}$${hash.toString('hex')}`;
+    const hash = await pbkdf2Async(password, salt, 100_000, 32, "sha256");
+    return `${salt.toString("hex")}$${hash.toString("hex")}`;
   }
 
   /**
@@ -342,11 +345,11 @@ let defaultHasher: PasswordHasher | null = null;
 export function getPasswordHasher(): PasswordHasher {
   if (!defaultHasher) {
     defaultHasher = new PasswordHasher({
-      timeCost: 2,        // OWASP recommended minimum
-      memoryCost: 65536,  // 64 MB
-      parallelism: 4,     // 4 parallel threads
-      hashLength: 32,     // 256 bits
-      saltLength: 16,     // 128 bits
+      timeCost: 2, // OWASP recommended minimum
+      memoryCost: 65536, // 64 MB
+      parallelism: 4, // 4 parallel threads
+      hashLength: 32, // 256 bits
+      saltLength: 16, // 128 bits
     });
   }
   return defaultHasher;
@@ -371,7 +374,7 @@ export async function hashPassword(password: string): Promise<string> {
  */
 export async function verifyPassword(
   password: string,
-  hashedPassword: string
+  hashedPassword: string,
 ): Promise<VerificationResult> {
   return getPasswordHasher().verifyPassword(password, hashedPassword);
 }
@@ -395,8 +398,8 @@ export async function needsRehash(hashedPassword: string): Promise<boolean> {
  * @returns Numeric OTP string
  */
 export function generateOTP(length: number = 4): string {
-  const digits = '0123456789';
-  let otp = '';
+  const digits = "0123456789";
+  let otp = "";
   for (let i = 0; i < length; i++) {
     const randomIndex = crypto.randomInt(0, digits.length);
     otp += digits[randomIndex];
@@ -411,5 +414,5 @@ export function generateOTP(length: number = 4): string {
  * @returns Hex-encoded token string
  */
 export function generateSecureToken(length: number = 32): string {
-  return crypto.randomBytes(length).toString('hex');
+  return crypto.randomBytes(length).toString("hex");
 }

@@ -1,4 +1,5 @@
 # Field Health API - Implementation Summary
+
 # ملخص تنفيذ واجهة صحة الحقل
 
 ## ✅ Implementation Complete
@@ -111,12 +112,12 @@ class FieldHealthResponse(BaseModel):
 
 ### Weighted Components
 
-| Component | Weight | Calculation Basis |
-|-----------|--------|-------------------|
-| **NDVI** | 40% | Vegetation index from satellite imagery |
-| **Soil Moisture** | 25% | Crop-specific optimal ranges |
-| **Weather** | 20% | Precipitation, wind speed evaluation |
-| **Sensor Anomaly** | 15% | Detection of abnormal readings |
+| Component          | Weight | Calculation Basis                       |
+| ------------------ | ------ | --------------------------------------- |
+| **NDVI**           | 40%    | Vegetation index from satellite imagery |
+| **Soil Moisture**  | 25%    | Crop-specific optimal ranges            |
+| **Weather**        | 20%    | Precipitation, wind speed evaluation    |
+| **Sensor Anomaly** | 15%    | Detection of abnormal readings          |
 
 ### Formula
 
@@ -130,13 +131,13 @@ Overall Health Score =
 
 ### Health Status Thresholds
 
-| Score | Status (EN) | Status (AR) |
-|-------|-------------|-------------|
-| 85-100 | Excellent | ممتاز |
-| 70-84 | Good | جيد |
-| 50-69 | Fair | مقبول |
-| 30-49 | Poor | ضعيف |
-| 0-29 | Critical | حرج |
+| Score  | Status (EN) | Status (AR) |
+| ------ | ----------- | ----------- |
+| 85-100 | Excellent   | ممتاز       |
+| 70-84  | Good        | جيد         |
+| 50-69  | Fair        | مقبول       |
+| 30-49  | Poor        | ضعيف        |
+| 0-29   | Critical    | حرج         |
 
 ---
 
@@ -272,6 +273,7 @@ app.include_router(field_health_router)
 ```
 
 The endpoint is now available at:
+
 ```
 http://localhost:8080/api/v1/field-health
 ```
@@ -279,6 +281,7 @@ http://localhost:8080/api/v1/field-health
 ### FastAPI Auto-generated Docs
 
 The endpoint automatically appears in:
+
 - Interactive Swagger UI
 - OpenAPI schema
 - ReDoc documentation
@@ -341,9 +344,7 @@ No additional dependencies needed!
   "weather_score": 85.0,
   "sensor_anomaly_score": 100.0,
   "risk_factors": [],
-  "recommendations_ar": [
-    "📊 زيادة تكرار المراقبة لتتبع تحسن الصحة"
-  ],
+  "recommendations_ar": ["📊 زيادة تكرار المراقبة لتتبع تحسن الصحة"],
   "recommendations_en": [
     "📊 Increase monitoring frequency to track health improvement"
   ],
@@ -385,6 +386,7 @@ No additional dependencies needed!
 ## 📚 Documentation
 
 Full documentation available in:
+
 - **`FIELD_HEALTH_API.md`** - Complete API reference
 - **`examples/`** - Usage examples and test scripts
 - **Swagger UI** - Interactive API documentation

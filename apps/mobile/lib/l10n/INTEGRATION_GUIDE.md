@@ -57,6 +57,7 @@ class SahoolFieldApp extends StatelessWidget {
 ### Example: Update Home Screen
 
 **Before (hardcoded strings):**
+
 ```dart
 class HomeScreen extends StatelessWidget {
   @override
@@ -70,6 +71,7 @@ class HomeScreen extends StatelessWidget {
 ```
 
 **After (localized):**
+
 ```dart
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -89,6 +91,7 @@ class HomeScreen extends StatelessWidget {
 ### Example: Update Navigation Drawer
 
 **Before:**
+
 ```dart
 Drawer(
   child: ListView(
@@ -102,6 +105,7 @@ Drawer(
 ```
 
 **After:**
+
 ```dart
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -218,31 +222,32 @@ class _LanguageSettingsState extends State<LanguageSettings> {
 
 Here are common strings to replace throughout your app:
 
-| Hardcoded | Localized Key |
-|-----------|---------------|
-| "Home" | `l10n.home` |
-| "Fields" | `l10n.fields` |
-| "Weather" | `l10n.weather` |
-| "Satellite" | `l10n.satellite` |
-| "NDVI" | `l10n.ndvi` |
-| "VRA" | `l10n.vra` |
-| "GDD" | `l10n.gdd` |
-| "Spray" | `l10n.spray` |
-| "Rotation" | `l10n.rotation` |
+| Hardcoded       | Localized Key        |
+| --------------- | -------------------- |
+| "Home"          | `l10n.home`          |
+| "Fields"        | `l10n.fields`        |
+| "Weather"       | `l10n.weather`       |
+| "Satellite"     | `l10n.satellite`     |
+| "NDVI"          | `l10n.ndvi`          |
+| "VRA"           | `l10n.vra`           |
+| "GDD"           | `l10n.gdd`           |
+| "Spray"         | `l10n.spray`         |
+| "Rotation"      | `l10n.rotation`      |
 | "Profitability" | `l10n.profitability` |
-| "Inventory" | `l10n.inventory` |
-| "Settings" | `l10n.settings` |
-| "Save" | `l10n.save` |
-| "Cancel" | `l10n.cancel` |
-| "Delete" | `l10n.delete` |
-| "Edit" | `l10n.edit` |
-| "Loading..." | `l10n.loading` |
-| "Error" | `l10n.error_` |
-| "Success" | `l10n.success` |
+| "Inventory"     | `l10n.inventory`     |
+| "Settings"      | `l10n.settings`      |
+| "Save"          | `l10n.save`          |
+| "Cancel"        | `l10n.cancel`        |
+| "Delete"        | `l10n.delete`        |
+| "Edit"          | `l10n.edit`          |
+| "Loading..."    | `l10n.loading`       |
+| "Error"         | `l10n.error_`        |
+| "Success"       | `l10n.success`       |
 
 ## Step 6: Test RTL Layout
 
 1. Run app with Arabic:
+
    ```bash
    flutter run --dart-define=LOCALE=ar
    ```
@@ -262,6 +267,7 @@ Here are common strings to replace throughout your app:
 ## Step 7: Replace Forms and Validation
 
 **Before:**
+
 ```dart
 TextFormField(
   decoration: InputDecoration(labelText: 'Name'),
@@ -275,6 +281,7 @@ TextFormField(
 ```
 
 **After:**
+
 ```dart
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -294,6 +301,7 @@ TextFormField(
 ## Step 8: Update Error Messages
 
 **Before:**
+
 ```dart
 ScaffoldMessenger.of(context).showSnackBar(
   SnackBar(content: Text('Network error occurred')),
@@ -301,6 +309,7 @@ ScaffoldMessenger.of(context).showSnackBar(
 ```
 
 **After:**
+
 ```dart
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -314,12 +323,14 @@ ScaffoldMessenger.of(context).showSnackBar(
 ## Step 9: Format Numbers and Currency
 
 **Before:**
+
 ```dart
 Text('Area: ${area.toStringAsFixed(2)} hectares')
 Text('Price: YER ${price.toStringAsFixed(2)}')
 ```
 
 **After:**
+
 ```dart
 import 'l10n/l10n.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -336,11 +347,13 @@ Text('${l10n.price}: ${numberFormat.formatCurrency(price)}')
 Use these regex patterns to find hardcoded strings:
 
 1. Find hardcoded Text widgets:
+
    ```
    Text\s*\(\s*['"]([^'"]+)['"]\s*\)
    ```
 
 2. Find hardcoded labels in TextFormField:
+
    ```
    labelText:\s*['"]([^'"]+)['"]
    ```
@@ -368,26 +381,33 @@ Use these regex patterns to find hardcoded strings:
 ## Troubleshooting
 
 ### Issue: Generated files not found
+
 **Solution:** Run `flutter gen-l10n` and restart IDE
 
 ### Issue: Localization not working
+
 **Solution:** Check that you imported:
+
 ```dart
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 ```
 
 ### Issue: RTL layout broken
+
 **Solution:** Ensure MaterialApp has:
+
 ```dart
 localizationsDelegates: AppLocalizations.localizationsDelegates,
 ```
 
 ### Issue: Language doesn't persist
+
 **Solution:** Use SharedPreferences to save and load language preference
 
 ## Complete Integration Example
 
 See `/home/user/sahool-unified-v15-idp/apps/mobile/lib/l10n/USAGE_EXAMPLES.dart` for 10 complete examples including:
+
 1. Basic localization
 2. Navigation menu
 3. RTL-aware layouts

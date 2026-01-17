@@ -17,12 +17,14 @@ Successfully implemented comprehensive caching improvements for the SAHOOL platf
 **File:** `/apps/services/iot-service/src/iot/iot.service.ts`
 
 **Before:**
+
 ```typescript
 private sensorReadings: Map<string, SensorReading> = new Map();
 private deviceStatuses: Map<string, DeviceStatus> = new Map();
 ```
 
 **After:**
+
 ```typescript
 @InjectRedis() private readonly redis: Redis
 
@@ -32,6 +34,7 @@ async cacheSensorReading(key: string, reading: SensorReading) {
 ```
 
 **Impact:**
+
 - ✅ Data persistence across restarts
 - ✅ Distributed caching across multiple instances
 - ✅ Proper TTL management (5 min sensors, 10 min devices, 1 hour actuators)
@@ -42,24 +45,33 @@ async cacheSensorReading(key: string, reading: SensorReading) {
 **File:** `/shared/auth/user-validation.service.ts`
 
 **Before:**
+
 ```typescript
 const keys = await this.redis.keys(pattern); // ❌ Blocks Redis
 await this.redis.del(...keys);
 ```
 
 **After:**
+
 ```typescript
-let cursor = '0';
+let cursor = "0";
 do {
-  const [newCursor, keys] = await this.redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+  const [newCursor, keys] = await this.redis.scan(
+    cursor,
+    "MATCH",
+    pattern,
+    "COUNT",
+    100,
+  );
   cursor = newCursor;
   if (keys.length > 0) {
     await this.redis.del(...keys);
   }
-} while (cursor !== '0');
+} while (cursor !== "0");
 ```
 
 **Impact:**
+
 - ✅ Non-blocking operation
 - ✅ Production-safe for large key sets
 - ✅ Batched deletion (100 keys at a time)
@@ -71,6 +83,7 @@ do {
 **File:** `/shared/cache/cache-manager.ts`
 
 **Implementation:**
+
 ```typescript
 async getOrFetchWithLock<T>(key: string, fetcher: () => Promise<T>, ttl?: number): Promise<T> {
   const lockKey = `lock:${key}`;
@@ -90,6 +103,7 @@ async getOrFetchWithLock<T>(key: string, fetcher: () => Promise<T>, ttl?: number
 ```
 
 **Impact:**
+
 - ✅ Prevents thundering herd problem
 - ✅ Reduces database load by 80% during cache misses
 - ✅ Uses distributed locks with automatic expiration
@@ -99,6 +113,7 @@ async getOrFetchWithLock<T>(key: string, fetcher: () => Promise<T>, ttl?: number
 **File:** `/shared/cache/cache-warming.service.ts`
 
 **Features:**
+
 - ✅ Startup warming for critical data
 - ✅ Periodic warming (every 5 minutes)
 - ✅ Predictive warming (off-peak hours 2-6 AM)
@@ -106,9 +121,10 @@ async getOrFetchWithLock<T>(key: string, fetcher: () => Promise<T>, ttl?: number
 - ✅ Parallel warming with error handling
 
 **Example Strategy:**
+
 ```typescript
 cacheWarming.registerStrategy({
-  name: 'user-validation-warming',
+  name: "user-validation-warming",
   getKeys: async () => getTopActiveUsers(),
   fetcher: async (key) => fetchUserData(key),
   ttl: CacheTTL.USER_VALIDATION,
@@ -117,6 +133,7 @@ cacheWarming.registerStrategy({
 ```
 
 **Impact:**
+
 - ✅ 50% reduction in cold start latency
 - ✅ Improved user experience for first requests
 - ✅ Configurable warming strategies per service
@@ -126,6 +143,7 @@ cacheWarming.registerStrategy({
 **File:** `/shared/cache/cache-metrics.service.ts`
 
 **Metrics Tracked:**
+
 - Hit/Miss rates
 - Operation counts (sets, deletes, errors)
 - Latency statistics (p50, p95, p99)
@@ -133,6 +151,7 @@ cacheWarming.registerStrategy({
 - Cache health status with recommendations
 
 **Health Status:**
+
 ```typescript
 {
   status: 'healthy' | 'degraded' | 'unhealthy',
@@ -144,6 +163,7 @@ cacheWarming.registerStrategy({
 ```
 
 **Impact:**
+
 - ✅ Real-time visibility into cache performance
 - ✅ Automated health checks with recommendations
 - ✅ Cron-based metrics logging (every 5 minutes)
@@ -171,6 +191,7 @@ async writeThrough<T>(
 ```
 
 **Impact:**
+
 - ✅ Immediate cache consistency
 - ✅ Reduced stale data risk
 - ✅ Ideal for critical paths (user profiles, settings)
@@ -178,6 +199,7 @@ async writeThrough<T>(
 #### 7. Cache Versioning ✅
 
 **Implementation:**
+
 ```typescript
 interface CacheEntry<T> {
   data: T;
@@ -187,6 +209,7 @@ interface CacheEntry<T> {
 ```
 
 **Impact:**
+
 - ✅ Safe cache upgrades
 - ✅ Automatic invalidation of incompatible versions
 - ✅ No manual cache clearing needed during deployments
@@ -237,13 +260,13 @@ interface CacheEntry<T> {
 
 ### Before vs After
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Cache Hit Rate | ~70% | **~85%** | +15% |
-| Database Load (stampede) | 100 req/s | **<20 req/s** | -80% |
-| Cold Start Latency | ~500ms | **~250ms** | -50% |
-| IoT Data Persistence | ❌ Lost on restart | ✅ Persistent | ∞ |
-| Redis Blocking Risk | 🔴 High (KEYS) | 🟢 None (SCAN) | -100% |
+| Metric                   | Before             | After          | Improvement |
+| ------------------------ | ------------------ | -------------- | ----------- |
+| Cache Hit Rate           | ~70%               | **~85%**       | +15%        |
+| Database Load (stampede) | 100 req/s          | **<20 req/s**  | -80%        |
+| Cold Start Latency       | ~500ms             | **~250ms**     | -50%        |
+| IoT Data Persistence     | ❌ Lost on restart | ✅ Persistent  | ∞           |
+| Redis Blocking Risk      | 🔴 High (KEYS)     | 🟢 None (SCAN) | -100%       |
 
 ### Expected Impact (from Audit)
 
@@ -257,6 +280,7 @@ interface CacheEntry<T> {
 ### 1. Environment Variables
 
 Add to `.env`:
+
 ```bash
 # Cache Configuration
 CACHE_ENABLED=true
@@ -275,9 +299,10 @@ REDIS_PASSWORD=your-secure-password
 ### 2. NestJS Module Configuration
 
 Update `app.module.ts`:
+
 ```typescript
-import { CacheMetricsService } from '@shared/cache/cache-metrics.service';
-import { CacheWarmingService } from '@shared/cache/cache-warming.service';
+import { CacheMetricsService } from "@shared/cache/cache-metrics.service";
+import { CacheWarmingService } from "@shared/cache/cache-warming.service";
 
 @Module({
   providers: [
@@ -292,8 +317,9 @@ export class AppModule {}
 ### 3. IoT Service Module
 
 Update `iot.module.ts`:
+
 ```typescript
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from "@liaoliaots/nestjs-redis";
 
 @Module({
   imports: [
@@ -345,10 +371,10 @@ async getCacheMetrics() {
 ```yaml
 # prometheus.yml
 scrape_configs:
-  - job_name: 'sahool-cache-metrics'
-    metrics_path: '/metrics/cache'
+  - job_name: "sahool-cache-metrics"
+    metrics_path: "/metrics/cache"
     static_configs:
-      - targets: ['localhost:3000']
+      - targets: ["localhost:3000"]
 ```
 
 ## Migration Guide for Other Services
@@ -380,16 +406,22 @@ const value = data ? JSON.parse(data) : null;
 
 ```typescript
 // Before
-const keys = Array.from(this.cache.keys()).filter(k => k.startsWith(prefix));
+const keys = Array.from(this.cache.keys()).filter((k) => k.startsWith(prefix));
 
 // After
-let cursor = '0';
+let cursor = "0";
 const keys = [];
 do {
-  const [newCursor, batch] = await this.redis.scan(cursor, 'MATCH', `${prefix}*`, 'COUNT', 100);
+  const [newCursor, batch] = await this.redis.scan(
+    cursor,
+    "MATCH",
+    `${prefix}*`,
+    "COUNT",
+    100,
+  );
   cursor = newCursor;
   keys.push(...batch);
-} while (cursor !== '0');
+} while (cursor !== "0");
 ```
 
 ## Next Steps
@@ -417,17 +449,17 @@ do {
 
 ## Audit Score Breakdown
 
-| Category | Before | After | Notes |
-|----------|--------|-------|-------|
-| HA Configuration | 10/10 | 10/10 | Already excellent |
-| TTL Management | 8/10 | 10/10 | Comprehensive constants added |
-| Invalidation | 5/10 | 10/10 | SCAN implementation |
-| Stampede Protection | 3/10 | 10/10 | Distributed locking |
-| Cache Warming | 0/10 | 10/10 | Full implementation |
-| Metrics | 0/10 | 10/10 | Comprehensive tracking |
-| Write Patterns | 5/10 | 9/10 | Write-through added |
-| Consistency | 7/10 | 9/10 | Versioning added |
-| **Total** | **7.5/10** | **9.5/10** | **+2.0 improvement** |
+| Category            | Before     | After      | Notes                         |
+| ------------------- | ---------- | ---------- | ----------------------------- |
+| HA Configuration    | 10/10      | 10/10      | Already excellent             |
+| TTL Management      | 8/10       | 10/10      | Comprehensive constants added |
+| Invalidation        | 5/10       | 10/10      | SCAN implementation           |
+| Stampede Protection | 3/10       | 10/10      | Distributed locking           |
+| Cache Warming       | 0/10       | 10/10      | Full implementation           |
+| Metrics             | 0/10       | 10/10      | Comprehensive tracking        |
+| Write Patterns      | 5/10       | 9/10       | Write-through added           |
+| Consistency         | 7/10       | 9/10       | Versioning added              |
+| **Total**           | **7.5/10** | **9.5/10** | **+2.0 improvement**          |
 
 ## Conclusion
 

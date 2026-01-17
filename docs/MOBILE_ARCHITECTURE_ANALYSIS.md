@@ -9,14 +9,14 @@
 
 تطبيق SAHOOL Mobile يتبع **Clean Architecture جزئياً** مع نمط **Offline-First** متكامل.
 
-| الجانب | الحالة | التفاصيل |
-|--------|--------|----------|
-| Clean Architecture | جزئي (60%) | معظم الميزات الرئيسية تتبعه |
-| فصل الطبقات | جيد | domain/data/presentation واضحة |
-| تدفق البيانات | ممتاز | Offline-First مع Outbox |
-| إدارة الحالة | ممتاز | Riverpod متكامل |
-| نظام المزامنة | ممتاز | Outbox + ETag |
-| الذكاء الاصطناعي | متقدم | تحليل صحة المحاصيل + أوامر صوتية |
+| الجانب             | الحالة     | التفاصيل                         |
+| ------------------ | ---------- | -------------------------------- |
+| Clean Architecture | جزئي (60%) | معظم الميزات الرئيسية تتبعه      |
+| فصل الطبقات        | جيد        | domain/data/presentation واضحة   |
+| تدفق البيانات      | ممتاز      | Offline-First مع Outbox          |
+| إدارة الحالة       | ممتاز      | Riverpod متكامل                  |
+| نظام المزامنة      | ممتاز      | Outbox + ETag                    |
+| الذكاء الاصطناعي   | متقدم      | تحليل صحة المحاصيل + أوامر صوتية |
 
 ---
 
@@ -135,6 +135,7 @@ EnvConfig.aiServiceUrl:
 ```
 
 ### نمط الكتابة (Offline-First)
+
 ```
 المستخدم يُنشئ حقل
     ↓
@@ -153,20 +154,21 @@ POST إلى /api/v1/fields + تعليم كـ synced
 
 ## 4. خدمات الخلفية
 
-| الخدمة | المنفذ | المسار | الوصف |
-|--------|--------|--------|-------|
-| Kong Gateway | 8000 | /api/v1/* | بوابة API الموحدة |
-| Field Service | 3000 | /fields, /gis | خدمة الحقول |
-| Weather Service | 8092 | /weather | خدمة الطقس |
-| Marketplace | 3010 | /market, /fintech | السوق والمالية |
-| AI Service | 8085 | /predict, /diagnose | الذكاء الاصطناعي |
-| WebSocket | 8090 | ws:// | التحديثات الفورية |
+| الخدمة          | المنفذ | المسار              | الوصف             |
+| --------------- | ------ | ------------------- | ----------------- |
+| Kong Gateway    | 8000   | /api/v1/\*          | بوابة API الموحدة |
+| Field Service   | 3000   | /fields, /gis       | خدمة الحقول       |
+| Weather Service | 8092   | /weather            | خدمة الطقس        |
+| Marketplace     | 3010   | /market, /fintech   | السوق والمالية    |
+| AI Service      | 8085   | /predict, /diagnose | الذكاء الاصطناعي  |
+| WebSocket       | 8090   | ws://               | التحديثات الفورية |
 
 ---
 
 ## 5. قاعدة البيانات المحلية
 
 ### جداول Drift ORM
+
 ```sql
 -- الجداول الرئيسية
 Tasks         -- المهام مع GeoJSON
@@ -177,6 +179,7 @@ SyncEvents    -- تتبع التعارضات
 ```
 
 ### دعم GIS
+
 ```dart
 // تحويل GeoJSON <-> List<LatLng>
 TextColumn get boundary =>
@@ -187,13 +190,13 @@ TextColumn get boundary =>
 
 ## 6. إدارة الحالة (Riverpod)
 
-| النوع | الاستخدام | مثال |
-|-------|----------|------|
-| `Provider<T>` | قراءة فقط | `fieldsRepoProvider` |
-| `StateProvider<T>` | حالة بسيطة | `selectedFieldIdProvider` |
-| `StateNotifierProvider` | منطق معقد | `walletProvider` |
-| `FutureProvider<T>` | async لمرة واحدة | `diagnosisProvider` |
-| `StreamProvider<T>` | تحديثات حية | `fieldsStreamProvider` |
+| النوع                   | الاستخدام        | مثال                      |
+| ----------------------- | ---------------- | ------------------------- |
+| `Provider<T>`           | قراءة فقط        | `fieldsRepoProvider`      |
+| `StateProvider<T>`      | حالة بسيطة       | `selectedFieldIdProvider` |
+| `StateNotifierProvider` | منطق معقد        | `walletProvider`          |
+| `FutureProvider<T>`     | async لمرة واحدة | `diagnosisProvider`       |
+| `StreamProvider<T>`     | تحديثات حية      | `fieldsStreamProvider`    |
 
 ---
 
@@ -201,13 +204,13 @@ TextColumn get boundary =>
 
 ### ملفات تم حذفها بأمان:
 
-| الملف | السبب | التأثير |
-|-------|-------|---------|
-| `core/notifications/notification_provider.dart` | مكرر مبسط | ✅ لا تأثير |
-| `core/services/auth_service.dart` | نسخة قديمة بدون Biometric | ✅ لا تأثير |
-| `features/wallet/ui/wallet_screen.dart` | StatefulWidget مكرر | ✅ لا تأثير |
-| `features/home_v16/*` | غير مربوط بالRouter | ⚠️ كان يحتوي KPI جميل |
-| `features/notifications/notification_provider.dart` | مكرر | ⚠️ كان يحتوي NotificationType enum |
+| الملف                                               | السبب                     | التأثير                            |
+| --------------------------------------------------- | ------------------------- | ---------------------------------- |
+| `core/notifications/notification_provider.dart`     | مكرر مبسط                 | ✅ لا تأثير                        |
+| `core/services/auth_service.dart`                   | نسخة قديمة بدون Biometric | ✅ لا تأثير                        |
+| `features/wallet/ui/wallet_screen.dart`             | StatefulWidget مكرر       | ✅ لا تأثير                        |
+| `features/home_v16/*`                               | غير مربوط بالRouter       | ⚠️ كان يحتوي KPI جميل              |
+| `features/notifications/notification_provider.dart` | مكرر                      | ⚠️ كان يحتوي NotificationType enum |
 
 ### ملاحظات مهمة:
 
@@ -228,16 +231,19 @@ TextColumn get boundary =>
 ## 8. التوصيات
 
 ### أولوية عالية:
+
 1. ✅ توحيد هيكل الـ features
 2. ⬜ إضافة طبقة Use Cases
 3. ⬜ توحيد معالجة الأخطاء
 
 ### أولوية متوسطة:
+
 4. ⬜ توحيد تسمية المجلدات (ui vs presentation)
 5. ⬜ مركزة جميع Providers
 6. ⬜ استخراج Magic Strings
 
 ### تحسينات أداء:
+
 7. ⬜ استخدام Stream لحالة الشبكة
 8. ⬜ تحسين Drift queries
 
@@ -245,25 +251,27 @@ TextColumn get boundary =>
 
 ## 9. مقارنة قبل وبعد
 
-| المقياس | قبل | بعد |
-|---------|-----|-----|
-| ملفات مكررة | 8 | 0 |
-| خدمات Auth | 2 | 1 (موحد) |
-| مزودات Notification | 3 | 1 |
-| CreditTier enum | 2 | 1 (موحد) |
-| شاشات Wallet | 2 | 1 |
+| المقياس             | قبل | بعد      |
+| ------------------- | --- | -------- |
+| ملفات مكررة         | 8   | 0        |
+| خدمات Auth          | 2   | 1 (موحد) |
+| مزودات Notification | 3   | 1        |
+| CreditTier enum     | 2   | 1 (موحد) |
+| شاشات Wallet        | 2   | 1        |
 
 ---
 
 ## 10. الخلاصة
 
 التطبيق يمتلك بنية قوية للذكاء الاصطناعي:
+
 - ✅ تحليل صحة المحاصيل (NDVI, EVI, etc.)
 - ✅ أوامر صوتية عربية
 - ✅ VRT export للزراعة الدقيقة
 - ✅ Offline-First مع مزامنة ذكية
 
 الملفات المحذوفة **لم تحتوِ على منطق AI أساسي** - كانت:
+
 - نسخ UI مكررة
 - خدمات بميزات أقل
 - كود غير مستخدم

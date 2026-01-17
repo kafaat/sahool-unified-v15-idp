@@ -1,4 +1,5 @@
 # SAHOOL Platform - Disaster Recovery Runbook
+
 # دليل التعافي من الكوارث لمنصة سهول
 
 **Version:** 2.0.0
@@ -28,6 +29,7 @@
 This runbook provides step-by-step procedures for disaster recovery scenarios in the SAHOOL agricultural platform. It covers automated and manual failover procedures, complete datacenter loss recovery, and service-specific recovery operations.
 
 **Critical Information:**
+
 - **RTO Target:** 2 hours for database, 6 hours for full system
 - **RPO Target:** <5 minutes (with streaming replication)
 - **On-Call Escalation:** +966-XXX-XXXX-XXX
@@ -40,21 +42,21 @@ This runbook provides step-by-step procedures for disaster recovery scenarios in
 
 ### Primary DR Team
 
-| Role | Name | Phone | Email | Availability |
-|------|------|-------|-------|--------------|
-| DR Lead | [Name] | +966-XXX-XXX-XXX | dr-lead@sahool.sa | 24/7 |
-| Database Admin | [Name] | +966-XXX-XXX-XXX | dba@sahool.sa | 24/7 |
-| Infrastructure Lead | [Name] | +966-XXX-XXX-XXX | infra-lead@sahool.sa | 24/7 |
-| Security Lead | [Name] | +966-XXX-XXX-XXX | security@sahool.sa | On-call |
-| Platform Architect | [Name] | +966-XXX-XXX-XXX | architect@sahool.sa | On-call |
+| Role                | Name   | Phone            | Email                | Availability |
+| ------------------- | ------ | ---------------- | -------------------- | ------------ |
+| DR Lead             | [Name] | +966-XXX-XXX-XXX | dr-lead@sahool.sa    | 24/7         |
+| Database Admin      | [Name] | +966-XXX-XXX-XXX | dba@sahool.sa        | 24/7         |
+| Infrastructure Lead | [Name] | +966-XXX-XXX-XXX | infra-lead@sahool.sa | 24/7         |
+| Security Lead       | [Name] | +966-XXX-XXX-XXX | security@sahool.sa   | On-call      |
+| Platform Architect  | [Name] | +966-XXX-XXX-XXX | architect@sahool.sa  | On-call      |
 
 ### External Contacts
 
-| Service | Contact | Phone | Email |
-|---------|---------|-------|-------|
-| AWS Support | Enterprise | +966-XXX-XXX-XXX | aws-support@sahool.sa |
-| Network Provider | STC | +966-XXX-XXX-XXX | support@stc.sa |
-| MinIO Support | Community | N/A | support@min.io |
+| Service          | Contact    | Phone            | Email                 |
+| ---------------- | ---------- | ---------------- | --------------------- |
+| AWS Support      | Enterprise | +966-XXX-XXX-XXX | aws-support@sahool.sa |
+| Network Provider | STC        | +966-XXX-XXX-XXX | support@stc.sa        |
+| MinIO Support    | Community  | N/A              | support@min.io        |
 
 ### Escalation Path
 
@@ -74,24 +76,24 @@ Level 4: CTO / Platform Architect (60+ min)
 
 ### Component-Level Targets
 
-| Component | RTO | RPO | Failover Type | Priority |
-|-----------|-----|-----|---------------|----------|
-| **PostgreSQL** | 30 seconds | <5 seconds | Automated | Critical |
-| **Redis** | 15 seconds | 0 | Automated | Critical |
-| **NATS** | 2 minutes | 0 | Manual | High |
-| **MinIO** | 30 minutes | 15 minutes | Manual | High |
-| **Kong Gateway** | 1 minute | 0 | Automated | Critical |
-| **Application Services** | 5 minutes | 0 | Automated | High |
+| Component                | RTO        | RPO        | Failover Type | Priority |
+| ------------------------ | ---------- | ---------- | ------------- | -------- |
+| **PostgreSQL**           | 30 seconds | <5 seconds | Automated     | Critical |
+| **Redis**                | 15 seconds | 0          | Automated     | Critical |
+| **NATS**                 | 2 minutes  | 0          | Manual        | High     |
+| **MinIO**                | 30 minutes | 15 minutes | Manual        | High     |
+| **Kong Gateway**         | 1 minute   | 0          | Automated     | Critical |
+| **Application Services** | 5 minutes  | 0          | Automated     | High     |
 
 ### Disaster Scenario Targets
 
-| Scenario | RTO | RPO | Recovery Method |
-|----------|-----|-----|-----------------|
-| Single PostgreSQL node failure | 30 seconds | <5 seconds | Automated failover |
-| Redis master failure | 15 seconds | 0 | Sentinel failover |
-| Single AZ failure | 5 minutes | <5 seconds | K8s auto-healing |
-| Region failure | 2 hours | <5 minutes | Manual region switch |
-| Complete datacenter loss | 6 hours | <15 minutes | Full DR activation |
+| Scenario                       | RTO        | RPO         | Recovery Method      |
+| ------------------------------ | ---------- | ----------- | -------------------- |
+| Single PostgreSQL node failure | 30 seconds | <5 seconds  | Automated failover   |
+| Redis master failure           | 15 seconds | 0           | Sentinel failover    |
+| Single AZ failure              | 5 minutes  | <5 seconds  | K8s auto-healing     |
+| Region failure                 | 2 hours    | <5 minutes  | Manual region switch |
+| Complete datacenter loss       | 6 hours    | <15 minutes | Full DR activation   |
 
 ---
 
@@ -102,6 +104,7 @@ Level 4: CTO / Platform Architect (60+ min)
 **Detection:** Patroni automatically detects primary failure via health checks (5-10 seconds)
 
 **Automatic Actions:**
+
 1. Patroni detects primary is unreachable
 2. ETCD consensus confirms failure
 3. Best replica is selected (lowest lag)
@@ -113,6 +116,7 @@ Level 4: CTO / Platform Architect (60+ min)
 **Expected RPO:** <5 seconds (synchronous replication)
 
 **Monitoring:**
+
 ```bash
 # Watch cluster status during failover
 watch -n 2 '/home/user/sahool-unified-v15-idp/scripts/disaster-recovery/failover-postgres.sh status'
@@ -122,6 +126,7 @@ curl http://localhost:7000/stats
 ```
 
 **No manual intervention required unless:**
+
 - Failover does not complete within 2 minutes
 - Multiple nodes fail simultaneously
 - Data corruption is suspected
@@ -131,6 +136,7 @@ curl http://localhost:7000/stats
 **Use Case:** Planned maintenance, patching, or testing
 
 **Prerequisites:**
+
 - [ ] Announce maintenance window
 - [ ] Verify all replicas are healthy and synchronized
 - [ ] Verify replication lag is minimal (<1MB)
@@ -162,6 +168,7 @@ cd /home/user/sahool-unified-v15-idp
 
 **Rollback:**
 If issues occur, switch back to original primary:
+
 ```bash
 ./scripts/disaster-recovery/failover-postgres.sh switchover postgres-primary
 ```
@@ -169,6 +176,7 @@ If issues occur, switch back to original primary:
 ### Scenario 3: Manual Failover (Emergency)
 
 **When to Use:**
+
 - Automated failover failed
 - Primary node experiencing severe performance issues
 - Data corruption suspected
@@ -195,6 +203,7 @@ docker exec sahool-postgres-primary psql -U postgres -c "SELECT version();"
 ```
 
 **Post-Failover Actions:**
+
 1. Document the incident
 2. Verify application connectivity
 3. Check replication status
@@ -207,6 +216,7 @@ docker exec sahool-postgres-primary psql -U postgres -c "SELECT version();"
 **Detection:** Multiple nodes claim to be primary
 
 **Prevention Mechanisms:**
+
 - ETCD consensus requires quorum
 - Patroni uses distributed locks
 - Synchronous replication prevents data divergence
@@ -259,6 +269,7 @@ Secondary Region: Jeddah (me-central-1)
 **Use Case:** Planned maintenance, testing, or region migration
 
 **Prerequisites:**
+
 - [ ] Secondary region infrastructure is healthy
 - [ ] Database replication lag is minimal
 - [ ] DNS TTL reduced to 60 seconds (24 hours before)
@@ -337,6 +348,7 @@ curl http://prometheus.sahool.sa/api/v1/query?query=up
 ### Scenario 2: Emergency Region Failover
 
 **When to Use:**
+
 - Complete region outage
 - Network partition
 - Natural disaster
@@ -675,10 +687,10 @@ curl -X POST http://postgres-replica1:8008/failover \
 
 ## Document Control
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | 2025-12-27 | DR Team | Initial version |
-| 2.0.0 | 2026-01-06 | DR Team | Added PostgreSQL HA procedures, multi-region failover |
+| Version | Date       | Author  | Changes                                               |
+| ------- | ---------- | ------- | ----------------------------------------------------- |
+| 1.0.0   | 2025-12-27 | DR Team | Initial version                                       |
+| 2.0.0   | 2026-01-06 | DR Team | Added PostgreSQL HA procedures, multi-region failover |
 
 **Next Review Date:** 2026-04-06
 **Classification:** CRITICAL - Internal Use Only
@@ -688,4 +700,4 @@ curl -X POST http://postgres-replica1:8008/failover \
 
 **END OF RUNBOOK**
 
-*For questions or clarifications, contact: dr-team@sahool.sa*
+_For questions or clarifications, contact: dr-team@sahool.sa_

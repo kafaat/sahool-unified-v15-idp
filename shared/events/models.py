@@ -18,9 +18,43 @@ Usage:
 """
 
 from datetime import datetime
+from enum import Enum
 from uuid import UUID
 
 from pydantic import BaseModel, Field
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Enums
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class EventPriority(str, Enum):
+    """Event priority levels"""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class EventStatus(str, Enum):
+    """Event processing status"""
+
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+class EventMetadata(BaseModel):
+    """Metadata attached to every event"""
+
+    correlation_id: str | None = None
+    causation_id: str | None = None
+    user_id: str | None = None
+    trace_id: str | None = None
+    span_id: str | None = None
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Base Event Model

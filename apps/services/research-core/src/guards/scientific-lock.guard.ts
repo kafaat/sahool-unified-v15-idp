@@ -4,8 +4,8 @@ import {
   ExecutionContext,
   ForbiddenException,
   Logger,
-} from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
+} from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
 
 /**
  * Scientific Lock Guard - حارس القفل العلمي
@@ -17,7 +17,7 @@ import { PrismaService } from '@/config/prisma.service';
 export class ScientificLockGuard implements CanActivate {
   private readonly logger = new Logger(ScientificLockGuard.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -25,7 +25,7 @@ export class ScientificLockGuard implements CanActivate {
     const method = request.method;
 
     // السماح بعمليات القراءة
-    if (method === 'GET') {
+    if (method === "GET") {
       return true;
     }
 
@@ -51,13 +51,16 @@ export class ScientificLockGuard implements CanActivate {
       }
 
       // التحقق من القفل
-      if (experiment.status === 'completed' || experiment.status === 'archived') {
+      if (
+        experiment.status === "completed" ||
+        experiment.status === "archived"
+      ) {
         this.logger.warn(
           `Blocked modification attempt on ${experiment.status} experiment: ${experimentId}`,
         );
         throw new ForbiddenException({
           statusCode: 403,
-          error: 'Scientific Lock Violation',
+          error: "Scientific Lock Violation",
           message: `عملية مرفوضة: التجربة في حالة "${experiment.status}" ولا يمكن تعديلها`,
           messageEn: `Operation denied: Experiment is "${experiment.status}" and cannot be modified`,
           experimentId,
@@ -73,9 +76,10 @@ export class ScientificLockGuard implements CanActivate {
         );
         throw new ForbiddenException({
           statusCode: 403,
-          error: 'Scientific Lock Active',
-          message: 'عملية مرفوضة: التجربة مقفلة علمياً لضمان النزاهة',
-          messageEn: 'Operation denied: Experiment is scientifically locked for data integrity',
+          error: "Scientific Lock Active",
+          message: "عملية مرفوضة: التجربة مقفلة علمياً لضمان النزاهة",
+          messageEn:
+            "Operation denied: Experiment is scientifically locked for data integrity",
           experimentId,
           lockedAt: experiment.lockedAt,
           lockedBy: experiment.lockedBy,

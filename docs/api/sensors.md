@@ -1,15 +1,18 @@
 # Sensor/IoT APIs
+
 # واجهات برمجة تطبيقات أجهزة الاستشعار
 
 ## Overview | نظرة عامة
 
 IoT and Sensor APIs enable integration with agricultural sensors and IoT devices:
+
 - Real-time sensor data ingestion
 - Virtual sensors for calculated metrics
 - Sensor configuration and management
 - Historical sensor data retrieval
 
 تتيح واجهات إنترنت الأشياء والاستشعار التكامل مع أجهزة الاستشعار الزراعية:
+
 - استقبال بيانات الاستشعار في الوقت الفعلي
 - أجهزة استشعار افتراضية للمقاييس المحسوبة
 - تكوين وإدارة أجهزة الاستشعار
@@ -22,17 +25,17 @@ IoT and Sensor APIs enable integration with agricultural sensors and IoT devices
 
 ## Sensor Types | أنواع أجهزة الاستشعار
 
-| Type | Description | Units |
-|------|-------------|-------|
-| `soil_moisture` | Soil moisture sensor | % |
-| `soil_temperature` | Soil temperature | °C |
-| `air_temperature` | Air temperature | °C |
-| `air_humidity` | Air humidity | % |
-| `rainfall` | Rain gauge | mm |
-| `wind_speed` | Wind speed | km/h |
-| `light_intensity` | Light sensor | lux |
-| `ph_sensor` | Soil pH | pH |
-| `ec_sensor` | Electrical conductivity | dS/m |
+| Type               | Description             | Units |
+| ------------------ | ----------------------- | ----- |
+| `soil_moisture`    | Soil moisture sensor    | %     |
+| `soil_temperature` | Soil temperature        | °C    |
+| `air_temperature`  | Air temperature         | °C    |
+| `air_humidity`     | Air humidity            | %     |
+| `rainfall`         | Rain gauge              | mm    |
+| `wind_speed`       | Wind speed              | km/h  |
+| `light_intensity`  | Light sensor            | lux   |
+| `ph_sensor`        | Soil pH                 | pH    |
+| `ec_sensor`        | Electrical conductivity | dS/m  |
 
 ## Endpoints | نقاط النهاية
 
@@ -73,6 +76,7 @@ Ingest sensor data from IoT devices.
 Get sensor data for a specific device.
 
 **Query Parameters:**
+
 - `start_date` (string, optional): Start date (ISO 8601)
 - `end_date` (string, optional): End date (ISO 8601)
 - `limit` (integer, optional): Number of readings (default: 100)
@@ -99,6 +103,7 @@ Get sensor data for a specific device.
 Calculate reference evapotranspiration (ET0).
 
 **Query Parameters:**
+
 - `lat` (number, required): Latitude
 - `lon` (number, required): Longitude
 - `date` (string, optional): Date (ISO 8601)
@@ -111,7 +116,7 @@ Calculate reference evapotranspiration (ET0).
   "date": "2024-01-15",
   "location": {
     "lat": 15.3694,
-    "lon": 44.1910
+    "lon": 44.191
   },
   "method": "penman_monteith",
   "weather_data": {
@@ -125,4 +130,4 @@ Calculate reference evapotranspiration (ET0).
 
 ---
 
-*Last updated: 2026-01-02*
+_Last updated: 2026-01-02_

@@ -6,17 +6,20 @@
  * to calculate a comprehensive field health score with actionable insights.
  */
 
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import { useFieldNDVI } from '@/features/ndvi/hooks/useNDVI';
-import { useCurrentWeather } from '@/features/weather/hooks/useWeather';
-import { useToday as useAstronomicalToday } from '@/features/astronomical/hooks/useAstronomical';
-import { useTasksByField } from '@/features/tasks/hooks/useTasks';
-import { useSensors } from '@/features/iot/hooks/useSensors';
-import type { AlertSeverity, AlertCategory } from '@/features/alerts/types';
-import type { RecommendationType, RecommendationPriority } from '@/features/advisor/api';
-import type { Task } from '@/features/tasks/types';
+import { useMemo } from "react";
+import { useFieldNDVI } from "@/features/ndvi/hooks/useNDVI";
+import { useCurrentWeather } from "@/features/weather/hooks/useWeather";
+import { useToday as useAstronomicalToday } from "@/features/astronomical/hooks/useAstronomical";
+import { useTasksByField } from "@/features/tasks/hooks/useTasks";
+import { useSensors } from "@/features/iot/hooks/useSensors";
+import type { AlertSeverity, AlertCategory } from "@/features/alerts/types";
+import type {
+  RecommendationType,
+  RecommendationPriority,
+} from "@/features/advisor/api";
+import type { Task } from "@/features/tasks/types";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Types
@@ -54,7 +57,7 @@ export interface LivingFieldScore {
   hydration: number;
   attention: number;
   astral: number;
-  trend: 'improving' | 'stable' | 'declining';
+  trend: "improving" | "stable" | "declining";
   alerts: FieldAlert[];
   recommendations: Recommendation[];
   lastUpdated: Date;
@@ -109,7 +112,7 @@ const THRESHOLDS = {
  */
 export function useLivingFieldScore(
   fieldId: string,
-  options: UseLivingFieldScoreOptions = {}
+  options: UseLivingFieldScoreOptions = {},
 ) {
   const {
     enabled = true,
@@ -119,15 +122,24 @@ export function useLivingFieldScore(
 
   // Fetch data from multiple sources
   const { data: ndviData, isLoading: isLoadingNDVI } = useFieldNDVI(fieldId);
-  const { data: weatherData, isLoading: isLoadingWeather } = useCurrentWeather({ enabled });
-  const { data: astronomicalData, isLoading: isLoadingAstro } = useAstronomicalToday({ enabled });
-  const { data: tasksData, isLoading: isLoadingTasks } = useTasksByField(fieldId);
+  const { data: weatherData, isLoading: isLoadingWeather } = useCurrentWeather({
+    enabled,
+  });
+  const { data: astronomicalData, isLoading: isLoadingAstro } =
+    useAstronomicalToday({ enabled });
+  const { data: tasksData, isLoading: isLoadingTasks } =
+    useTasksByField(fieldId);
   const { data: sensorsData, isLoading: isLoadingSensors } = useSensors({
     fieldId,
-    type: 'soil_moisture',
+    type: "soil_moisture",
   });
 
-  const isLoading = isLoadingNDVI || isLoadingWeather || isLoadingAstro || isLoadingTasks || isLoadingSensors;
+  const isLoading =
+    isLoadingNDVI ||
+    isLoadingWeather ||
+    isLoadingAstro ||
+    isLoadingTasks ||
+    isLoadingSensors;
 
   // Calculate scores with memoization
   const score = useMemo((): LivingFieldScore => {
@@ -151,12 +163,28 @@ export function useLivingFieldScore(
 
     // Generate alerts
     const alerts = includeAlerts
-      ? generateAlerts(fieldId, health, hydration, attention, ndviData, sensorsData, tasksData)
+      ? generateAlerts(
+          fieldId,
+          health,
+          hydration,
+          attention,
+          ndviData,
+          sensorsData,
+          tasksData,
+        )
       : [];
 
     // Generate recommendations
     const recommendations = includeRecommendations
-      ? generateRecommendations(health, hydration, attention, astral, ndviData, weatherData, astronomicalData)
+      ? generateRecommendations(
+          health,
+          hydration,
+          attention,
+          astral,
+          ndviData,
+          weatherData,
+          astronomicalData,
+        )
       : [];
 
     return {
@@ -215,7 +243,7 @@ function calculateHealthScore(ndviData: any): number {
   }
 
   // Calculate from NDVI value (0-1 range to 0-100 score)
-  if (typeof ndviMean === 'number') {
+  if (typeof ndviMean === "number") {
     if (ndviMean >= THRESHOLDS.NDVI.EXCELLENT) return 95;
     if (ndviMean >= THRESHOLDS.NDVI.GOOD) return 75;
     if (ndviMean >= THRESHOLDS.NDVI.MODERATE) return 50;
@@ -229,22 +257,28 @@ function calculateHealthScore(ndviData: any): number {
 /**
  * Calculate Hydration Score based on soil moisture sensors and weather
  */
-function calculateHydrationScore(sensors: any[] | undefined, weather: any): number {
+function calculateHydrationScore(
+  sensors: any[] | undefined,
+  weather: any,
+): number {
   let score = 50; // Base score
 
   // Check soil moisture sensors
   if (sensors && sensors.length > 0) {
-    const moistureSensors = sensors.filter(s => s.type === 'soil_moisture');
+    const moistureSensors = sensors.filter((s) => s.type === "soil_moisture");
 
     if (moistureSensors.length > 0) {
-      const avgMoisture = moistureSensors.reduce((sum, s) => {
-        const value = s.lastReading?.value || 0;
-        return sum + value;
-      }, 0) / moistureSensors.length;
+      const avgMoisture =
+        moistureSensors.reduce((sum, s) => {
+          const value = s.lastReading?.value || 0;
+          return sum + value;
+        }, 0) / moistureSensors.length;
 
       // Optimal range: 30-60%
-      if (avgMoisture >= THRESHOLDS.SOIL_MOISTURE.OPTIMAL_MIN &&
-          avgMoisture <= THRESHOLDS.SOIL_MOISTURE.OPTIMAL_MAX) {
+      if (
+        avgMoisture >= THRESHOLDS.SOIL_MOISTURE.OPTIMAL_MIN &&
+        avgMoisture <= THRESHOLDS.SOIL_MOISTURE.OPTIMAL_MAX
+      ) {
         score = 90;
       } else if (avgMoisture < THRESHOLDS.SOIL_MOISTURE.CRITICAL_LOW) {
         score = 20; // Critical low
@@ -287,12 +321,12 @@ function calculateAttentionScore(tasks: Task[]): number {
   let pendingTasks = 0;
   let completedTasks = 0;
 
-  tasks.forEach(task => {
+  tasks.forEach((task) => {
     const dueDate = task.due_date ? new Date(task.due_date) : null;
 
-    if (task.status === 'completed') {
+    if (task.status === "completed") {
       completedTasks++;
-    } else if (task.status === 'open' || task.status === 'in_progress') {
+    } else if (task.status === "open" || task.status === "in_progress") {
       pendingTasks++;
 
       if (dueDate && dueDate < now) {
@@ -310,7 +344,7 @@ function calculateAttentionScore(tasks: Task[]): number {
   } else if (overdueTasks >= THRESHOLDS.TASKS.OVERDUE_WARNING) {
     score -= 25;
   } else if (overdueTasks > 0) {
-    score -= (overdueTasks * 10);
+    score -= overdueTasks * 10;
   }
 
   // Deduct for too many pending tasks
@@ -339,7 +373,7 @@ function calculateAstralScore(astronomicalData: any): number {
   const { overall_farming_score, moon_phase, lunar_mansion } = astronomicalData;
 
   // Use overall farming score if available (assuming it's 0-100)
-  if (typeof overall_farming_score === 'number') {
+  if (typeof overall_farming_score === "number") {
     return Math.round(overall_farming_score);
   }
 
@@ -365,14 +399,14 @@ function calculateOverallScore(
   health: number,
   hydration: number,
   attention: number,
-  astral: number
+  astral: number,
 ): number {
   // Weights: Health and Hydration are most critical
   const weights = {
     health: 0.35,
     hydration: 0.35,
-    attention: 0.20,
-    astral: 0.10,
+    attention: 0.2,
+    astral: 0.1,
   };
 
   const overall =
@@ -387,8 +421,11 @@ function calculateOverallScore(
 /**
  * Determine trend based on NDVI history
  */
-function determineTrend(ndviData: any, currentHealth: number): 'improving' | 'stable' | 'declining' {
-  if (!ndviData) return 'stable';
+function determineTrend(
+  ndviData: any,
+  currentHealth: number,
+): "improving" | "stable" | "declining" {
+  if (!ndviData) return "stable";
 
   // Check if we have historical data or trend info
   if (ndviData.trend) {
@@ -396,9 +433,9 @@ function determineTrend(ndviData: any, currentHealth: number): 'improving' | 'st
   }
 
   // Fallback: use current health level
-  if (currentHealth >= 75) return 'stable';
-  if (currentHealth >= 50) return 'stable';
-  return 'declining';
+  if (currentHealth >= 75) return "stable";
+  if (currentHealth >= 50) return "stable";
+  return "declining";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -415,7 +452,7 @@ function generateAlerts(
   _attention: number,
   _ndviData: any,
   sensors: any[] | undefined,
-  tasks: Task[] | undefined
+  tasks: Task[] | undefined,
 ): FieldAlert[] {
   const alerts: FieldAlert[] = [];
   const now = new Date().toISOString();
@@ -424,12 +461,12 @@ function generateAlerts(
   if (health < 30) {
     alerts.push({
       id: `${fieldId}-health-critical`,
-      severity: 'critical',
-      category: 'crop_health',
-      title: 'Critical Crop Health',
-      titleAr: 'صحة المحصول حرجة',
-      message: 'Crop health is critically low. Immediate action required.',
-      messageAr: 'صحة المحصول منخفضة بشكل حرج. مطلوب إجراء فوري.',
+      severity: "critical",
+      category: "crop_health",
+      title: "Critical Crop Health",
+      titleAr: "صحة المحصول حرجة",
+      message: "Crop health is critically low. Immediate action required.",
+      messageAr: "صحة المحصول منخفضة بشكل حرج. مطلوب إجراء فوري.",
       timestamp: now,
       currentValue: health,
       threshold: 30,
@@ -437,12 +474,12 @@ function generateAlerts(
   } else if (health < 50) {
     alerts.push({
       id: `${fieldId}-health-warning`,
-      severity: 'warning',
-      category: 'crop_health',
-      title: 'Low Crop Health',
-      titleAr: 'صحة المحصول منخفضة',
-      message: 'Crop health is below optimal levels. Consider investigation.',
-      messageAr: 'صحة المحصول أقل من المستويات المثالية. يُنصح بالفحص.',
+      severity: "warning",
+      category: "crop_health",
+      title: "Low Crop Health",
+      titleAr: "صحة المحصول منخفضة",
+      message: "Crop health is below optimal levels. Consider investigation.",
+      messageAr: "صحة المحصول أقل من المستويات المثالية. يُنصح بالفحص.",
       timestamp: now,
       currentValue: health,
       threshold: 50,
@@ -451,19 +488,23 @@ function generateAlerts(
 
   // Hydration alerts
   if (sensors && sensors.length > 0) {
-    const moistureSensors = sensors.filter(s => s.type === 'soil_moisture');
-    const avgMoisture = moistureSensors.length > 0
-      ? moistureSensors.reduce((sum, s) => sum + (s.lastReading?.value || 0), 0) / moistureSensors.length
-      : null;
+    const moistureSensors = sensors.filter((s) => s.type === "soil_moisture");
+    const avgMoisture =
+      moistureSensors.length > 0
+        ? moistureSensors.reduce(
+            (sum, s) => sum + (s.lastReading?.value || 0),
+            0,
+          ) / moistureSensors.length
+        : null;
 
     if (avgMoisture !== null) {
       if (avgMoisture < THRESHOLDS.SOIL_MOISTURE.CRITICAL_LOW) {
         alerts.push({
           id: `${fieldId}-moisture-critical-low`,
-          severity: 'critical',
-          category: 'irrigation',
-          title: 'Critical Low Soil Moisture',
-          titleAr: 'رطوبة التربة منخفضة للغاية',
+          severity: "critical",
+          category: "irrigation",
+          title: "Critical Low Soil Moisture",
+          titleAr: "رطوبة التربة منخفضة للغاية",
           message: `Soil moisture is critically low at ${avgMoisture.toFixed(1)}%. Immediate irrigation required.`,
           messageAr: `رطوبة التربة منخفضة جداً عند ${avgMoisture.toFixed(1)}٪. مطلوب ري فوري.`,
           timestamp: now,
@@ -473,10 +514,10 @@ function generateAlerts(
       } else if (avgMoisture > THRESHOLDS.SOIL_MOISTURE.CRITICAL_HIGH) {
         alerts.push({
           id: `${fieldId}-moisture-critical-high`,
-          severity: 'warning',
-          category: 'irrigation',
-          title: 'Excessive Soil Moisture',
-          titleAr: 'رطوبة التربة مفرطة',
+          severity: "warning",
+          category: "irrigation",
+          title: "Excessive Soil Moisture",
+          titleAr: "رطوبة التربة مفرطة",
           message: `Soil moisture is too high at ${avgMoisture.toFixed(1)}%. Risk of waterlogging.`,
           messageAr: `رطوبة التربة عالية جداً عند ${avgMoisture.toFixed(1)}٪. خطر تشبع التربة بالماء.`,
           timestamp: now,
@@ -490,18 +531,22 @@ function generateAlerts(
   // Task attention alerts
   if (tasks && tasks.length > 0) {
     const now = new Date();
-    const overdueTasks = tasks.filter(t => {
+    const overdueTasks = tasks.filter((t) => {
       const dueDate = t.due_date ? new Date(t.due_date) : null;
-      return (t.status === 'open' || t.status === 'in_progress') && dueDate && dueDate < now;
+      return (
+        (t.status === "open" || t.status === "in_progress") &&
+        dueDate &&
+        dueDate < now
+      );
     });
 
     if (overdueTasks.length >= THRESHOLDS.TASKS.OVERDUE_CRITICAL) {
       alerts.push({
         id: `${fieldId}-tasks-overdue-critical`,
-        severity: 'critical',
-        category: 'system',
-        title: 'Multiple Overdue Tasks',
-        titleAr: 'مهام متعددة متأخرة',
+        severity: "critical",
+        category: "system",
+        title: "Multiple Overdue Tasks",
+        titleAr: "مهام متعددة متأخرة",
         message: `${overdueTasks.length} tasks are overdue. Field requires immediate attention.`,
         messageAr: `${overdueTasks.length} مهام متأخرة. الحقل يحتاج إلى اهتمام فوري.`,
         timestamp: now.toISOString(),
@@ -511,10 +556,10 @@ function generateAlerts(
     } else if (overdueTasks.length >= THRESHOLDS.TASKS.OVERDUE_WARNING) {
       alerts.push({
         id: `${fieldId}-tasks-overdue-warning`,
-        severity: 'warning',
-        category: 'system',
-        title: 'Overdue Tasks',
-        titleAr: 'مهام متأخرة',
+        severity: "warning",
+        category: "system",
+        title: "Overdue Tasks",
+        titleAr: "مهام متأخرة",
         message: `${overdueTasks.length} tasks are overdue. Please review field activities.`,
         messageAr: `${overdueTasks.length} مهام متأخرة. يرجى مراجعة أنشطة الحقل.`,
         timestamp: now.toISOString(),
@@ -541,111 +586,124 @@ function generateRecommendations(
   _astral: number,
   _ndviData: any,
   weatherData: any,
-  astronomicalData: any
+  astronomicalData: any,
 ): Recommendation[] {
   const recommendations: Recommendation[] = [];
 
   // Health recommendations
   if (health < 50) {
     recommendations.push({
-      id: 'rec-health-improve',
-      type: 'general',
-      priority: health < 30 ? 'urgent' : 'high',
-      title: 'Improve Crop Health',
-      titleAr: 'تحسين صحة المحصول',
-      description: 'Crop health indicators are below optimal levels. Consider soil testing and nutrient analysis.',
-      descriptionAr: 'مؤشرات صحة المحصول أقل من المستويات المثالية. يُنصح بفحص التربة وتحليل المغذيات.',
+      id: "rec-health-improve",
+      type: "general",
+      priority: health < 30 ? "urgent" : "high",
+      title: "Improve Crop Health",
+      titleAr: "تحسين صحة المحصول",
+      description:
+        "Crop health indicators are below optimal levels. Consider soil testing and nutrient analysis.",
+      descriptionAr:
+        "مؤشرات صحة المحصول أقل من المستويات المثالية. يُنصح بفحص التربة وتحليل المغذيات.",
       actionItems: [
-        'Conduct soil nutrient analysis',
-        'Check for pest or disease signs',
-        'Review irrigation schedule',
-        'Consider targeted fertilization',
+        "Conduct soil nutrient analysis",
+        "Check for pest or disease signs",
+        "Review irrigation schedule",
+        "Consider targeted fertilization",
       ],
-      expectedBenefit: 'Improved crop vitality and yield potential',
-      expectedBenefitAr: 'تحسين حيوية المحصول وإمكانات الإنتاج',
+      expectedBenefit: "Improved crop vitality and yield potential",
+      expectedBenefitAr: "تحسين حيوية المحصول وإمكانات الإنتاج",
     });
   }
 
   // Hydration recommendations
   if (hydration < 40) {
     recommendations.push({
-      id: 'rec-irrigation-increase',
-      type: 'irrigation',
-      priority: 'urgent',
-      title: 'Increase Irrigation',
-      titleAr: 'زيادة الري',
-      description: 'Soil moisture levels are critically low. Immediate irrigation is recommended.',
-      descriptionAr: 'مستويات رطوبة التربة منخفضة للغاية. يُوصى بالري الفوري.',
+      id: "rec-irrigation-increase",
+      type: "irrigation",
+      priority: "urgent",
+      title: "Increase Irrigation",
+      titleAr: "زيادة الري",
+      description:
+        "Soil moisture levels are critically low. Immediate irrigation is recommended.",
+      descriptionAr: "مستويات رطوبة التربة منخفضة للغاية. يُوصى بالري الفوري.",
       actionItems: [
-        'Schedule immediate irrigation',
-        'Check irrigation system functionality',
-        'Monitor soil moisture sensors',
-        'Adjust irrigation frequency',
+        "Schedule immediate irrigation",
+        "Check irrigation system functionality",
+        "Monitor soil moisture sensors",
+        "Adjust irrigation frequency",
       ],
-      expectedBenefit: 'Prevent crop stress and maintain healthy growth',
-      expectedBenefitAr: 'منع إجهاد المحصول والحفاظ على نمو صحي',
+      expectedBenefit: "Prevent crop stress and maintain healthy growth",
+      expectedBenefitAr: "منع إجهاد المحصول والحفاظ على نمو صحي",
     });
   } else if (hydration > 80) {
     recommendations.push({
-      id: 'rec-irrigation-reduce',
-      type: 'irrigation',
-      priority: 'high',
-      title: 'Reduce Irrigation',
-      titleAr: 'تقليل الري',
-      description: 'Soil moisture is too high. Reduce irrigation to prevent waterlogging and root diseases.',
-      descriptionAr: 'رطوبة التربة عالية جداً. قلل الري لمنع تشبع التربة بالماء وأمراض الجذور.',
+      id: "rec-irrigation-reduce",
+      type: "irrigation",
+      priority: "high",
+      title: "Reduce Irrigation",
+      titleAr: "تقليل الري",
+      description:
+        "Soil moisture is too high. Reduce irrigation to prevent waterlogging and root diseases.",
+      descriptionAr:
+        "رطوبة التربة عالية جداً. قلل الري لمنع تشبع التربة بالماء وأمراض الجذور.",
       actionItems: [
-        'Pause irrigation temporarily',
-        'Improve field drainage',
-        'Monitor for signs of waterlogging',
-        'Adjust irrigation schedule',
+        "Pause irrigation temporarily",
+        "Improve field drainage",
+        "Monitor for signs of waterlogging",
+        "Adjust irrigation schedule",
       ],
-      expectedBenefit: 'Prevent root rot and optimize water usage',
-      expectedBenefitAr: 'منع تعفن الجذور وتحسين استخدام المياه',
+      expectedBenefit: "Prevent root rot and optimize water usage",
+      expectedBenefitAr: "منع تعفن الجذور وتحسين استخدام المياه",
     });
   }
 
   // Task attention recommendations
   if (attention < 60) {
     recommendations.push({
-      id: 'rec-tasks-complete',
-      type: 'general',
-      priority: 'high',
-      title: 'Complete Pending Tasks',
-      titleAr: 'إكمال المهام المعلقة',
-      description: 'Several field tasks are pending or overdue. Completing them will improve field management.',
-      descriptionAr: 'عدة مهام حقلية معلقة أو متأخرة. إكمالها سيحسن إدارة الحقل.',
+      id: "rec-tasks-complete",
+      type: "general",
+      priority: "high",
+      title: "Complete Pending Tasks",
+      titleAr: "إكمال المهام المعلقة",
+      description:
+        "Several field tasks are pending or overdue. Completing them will improve field management.",
+      descriptionAr:
+        "عدة مهام حقلية معلقة أو متأخرة. إكمالها سيحسن إدارة الحقل.",
       actionItems: [
-        'Review overdue tasks',
-        'Prioritize urgent activities',
-        'Assign tasks to team members',
-        'Update task completion status',
+        "Review overdue tasks",
+        "Prioritize urgent activities",
+        "Assign tasks to team members",
+        "Update task completion status",
       ],
-      expectedBenefit: 'Better field management and timely crop care',
-      expectedBenefitAr: 'إدارة أفضل للحقل ورعاية المحصول في الوقت المناسب',
+      expectedBenefit: "Better field management and timely crop care",
+      expectedBenefitAr: "إدارة أفضل للحقل ورعاية المحصول في الوقت المناسب",
     });
   }
 
   // Astronomical recommendations
-  if (astronomicalData?.recommendations && astronomicalData.recommendations.length > 0) {
+  if (
+    astronomicalData?.recommendations &&
+    astronomicalData.recommendations.length > 0
+  ) {
     const astroRec = astronomicalData.recommendations[0]; // Take the top recommendation
 
     if (astroRec.suitability_score > 70) {
       recommendations.push({
-        id: 'rec-astro-optimal',
-        type: 'planting',
-        priority: 'medium',
+        id: "rec-astro-optimal",
+        type: "planting",
+        priority: "medium",
         title: `Optimal for ${astroRec.activity}`,
         titleAr: `مثالي لـ ${astroRec.activity}`,
-        description: astroRec.reason || 'Current astronomical conditions are favorable for this activity.',
-        descriptionAr: astroRec.reason || 'الظروف الفلكية الحالية مواتية لهذا النشاط.',
+        description:
+          astroRec.reason ||
+          "Current astronomical conditions are favorable for this activity.",
+        descriptionAr:
+          astroRec.reason || "الظروف الفلكية الحالية مواتية لهذا النشاط.",
         actionItems: [
           `Plan ${astroRec.activity} activities`,
-          'Check weather forecast',
-          'Prepare necessary equipment',
+          "Check weather forecast",
+          "Prepare necessary equipment",
         ],
-        expectedBenefit: 'Take advantage of optimal astronomical timing',
-        expectedBenefitAr: 'الاستفادة من التوقيت الفلكي المثالي',
+        expectedBenefit: "Take advantage of optimal astronomical timing",
+        expectedBenefitAr: "الاستفادة من التوقيت الفلكي المثالي",
       });
     }
   }
@@ -656,21 +714,23 @@ function generateRecommendations(
 
     if (temperature > 35 && humidity < 30) {
       recommendations.push({
-        id: 'rec-heat-stress',
-        type: 'irrigation',
-        priority: 'high',
-        title: 'Heat Stress Mitigation',
-        titleAr: 'التخفيف من الإجهاد الحراري',
-        description: 'High temperatures and low humidity increase water stress. Extra care needed.',
-        descriptionAr: 'درجات الحرارة المرتفعة والرطوبة المنخفضة تزيد من إجهاد الماء. مطلوب عناية إضافية.',
+        id: "rec-heat-stress",
+        type: "irrigation",
+        priority: "high",
+        title: "Heat Stress Mitigation",
+        titleAr: "التخفيف من الإجهاد الحراري",
+        description:
+          "High temperatures and low humidity increase water stress. Extra care needed.",
+        descriptionAr:
+          "درجات الحرارة المرتفعة والرطوبة المنخفضة تزيد من إجهاد الماء. مطلوب عناية إضافية.",
         actionItems: [
-          'Increase irrigation frequency',
-          'Consider shade netting if available',
-          'Monitor crops for stress signs',
-          'Apply mulch to retain moisture',
+          "Increase irrigation frequency",
+          "Consider shade netting if available",
+          "Monitor crops for stress signs",
+          "Apply mulch to retain moisture",
         ],
-        expectedBenefit: 'Protect crops from heat damage',
-        expectedBenefitAr: 'حماية المحاصيل من أضرار الحرارة',
+        expectedBenefit: "Protect crops from heat damage",
+        expectedBenefitAr: "حماية المحاصيل من أضرار الحرارة",
       });
     }
   }

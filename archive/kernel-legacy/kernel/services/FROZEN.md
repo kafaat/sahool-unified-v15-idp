@@ -9,6 +9,7 @@
 This directory is **frozen** and should not receive new features or modifications.
 
 All new development should happen in:
+
 ```
 kernel-services-v15.3/
 ```
@@ -17,22 +18,22 @@ kernel-services-v15.3/
 
 These services are still referenced by `docker-compose.yml` and will be migrated in v16:
 
-| Service | Status | v15.3 Equivalent |
-|---------|--------|------------------|
-| field_core | Active | TBD |
-| field_ops | Active | TBD |
-| ndvi_engine | Active | satellite-service |
-| weather_core | Active | weather-advanced |
-| field_chat | Deprecated | community-chat |
-| iot_gateway | Active | iot-service |
-| agro_advisor | Deprecated | fertilizer-advisor |
-| ws_gateway | Active | TBD |
-| crop_health | Deprecated | crop-health-ai |
-| agro_rules | Active | TBD |
-| task_service | Active | TBD |
-| equipment_service | Active | TBD |
-| community_service | Deprecated | community-chat |
-| provider_config | Active | TBD |
+| Service           | Status     | v15.3 Equivalent   |
+| ----------------- | ---------- | ------------------ |
+| field_core        | Active     | TBD                |
+| field_ops         | Active     | TBD                |
+| ndvi_engine       | Active     | satellite-service  |
+| weather_core      | Active     | weather-advanced   |
+| field_chat        | Deprecated | community-chat     |
+| iot_gateway       | Active     | iot-service        |
+| agro_advisor      | Deprecated | fertilizer-advisor |
+| ws_gateway        | Active     | TBD                |
+| crop_health       | Deprecated | crop-health-ai     |
+| agro_rules        | Active     | TBD                |
+| task_service      | Active     | TBD                |
+| equipment_service | Active     | TBD                |
+| community_service | Deprecated | community-chat     |
+| provider_config   | Active     | TBD                |
 
 ## Next Steps
 
@@ -41,4 +42,5 @@ These services are still referenced by `docker-compose.yml` and will be migrated
 3. Move this directory to `archive/kernel-legacy/`
 
 ---
+
 **Do not add new code here. All changes go to kernel-services-v15.3/**

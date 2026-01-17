@@ -30,10 +30,10 @@ Based on the Arabic question "ماهو افضل خيار" (What is the best opti
    - **Purpose:** Improves query performance when filtering or joining on current crop
    - **Type:** Partial index (only non-null values)
    - **Impact:** High - Critical for field-crop queries
-   
+
    ```sql
-   CREATE INDEX IF NOT EXISTS idx_fields_current_crop 
-   ON geo.fields(current_crop_id) 
+   CREATE INDEX IF NOT EXISTS idx_fields_current_crop
+   ON geo.fields(current_crop_id)
    WHERE current_crop_id IS NOT NULL;
    ```
 
@@ -41,14 +41,15 @@ Based on the Arabic question "ماهو افضل خيار" (What is the best opti
    - **Tables:** tenants, users, fields, crops
    - **Purpose:** Enables fast queries on JSONB metadata
    - **Impact:** Medium-High - Improves metadata queries
-   
+
    ```sql
    -- Example for fields
-   CREATE INDEX IF NOT EXISTS idx_fields_metadata_gin 
+   CREATE INDEX IF NOT EXISTS idx_fields_metadata_gin
    ON geo.fields USING GIN (metadata);
    ```
 
 **Performance Benefits:**
+
 - ✅ Faster field queries by crop
 - ✅ Efficient JSONB searches (e.g., `metadata @> '{"key": "value"}'`)
 - ✅ Reduced query execution time
@@ -95,6 +96,7 @@ Based on the Arabic question "ماهو افضل خيار" (What is the best opti
    - سياسات العزل عبر المصادر
 
 **Security Benefits:**
+
 - ✅ Protection against clickjacking
 - ✅ Prevention of MIME-type attacks
 - ✅ XSS attack mitigation
@@ -119,11 +121,12 @@ psql -U postgres -d sahool -f infrastructure/core/postgres/migrations/V20260105_
 ```
 
 **Verification:**
+
 ```sql
 -- Check if indexes exist
-SELECT indexname, tablename 
-FROM pg_indexes 
-WHERE indexname LIKE 'idx_fields_current_crop%' 
+SELECT indexname, tablename
+FROM pg_indexes
+WHERE indexname LIKE 'idx_fields_current_crop%'
    OR indexname LIKE 'idx_%_metadata_gin';
 ```
 
@@ -187,12 +190,12 @@ setup_security_headers(
 ```sql
 -- Test current_crop_id index
 EXPLAIN ANALYZE
-SELECT * FROM geo.fields 
+SELECT * FROM geo.fields
 WHERE current_crop_id = 'some-uuid'::uuid;
 
 -- Test metadata GIN index
 EXPLAIN ANALYZE
-SELECT * FROM geo.fields 
+SELECT * FROM geo.fields
 WHERE metadata @> '{"irrigation": "drip"}';
 ```
 
@@ -219,37 +222,40 @@ curl -I http://localhost:8095/health
 
 ### Database Performance | أداء قاعدة البيانات
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Field-Crop Join Query | ~150ms | ~15ms | **90% faster** |
-| Metadata Search | ~200ms | ~20ms | **90% faster** |
-| Index Storage | 0 | ~5MB | Minimal overhead |
+| Metric                | Before | After | Improvement      |
+| --------------------- | ------ | ----- | ---------------- |
+| Field-Crop Join Query | ~150ms | ~15ms | **90% faster**   |
+| Metadata Search       | ~200ms | ~20ms | **90% faster**   |
+| Index Storage         | 0      | ~5MB  | Minimal overhead |
 
 ### Security Posture | الوضع الأمني
 
-| Security Aspect | Before | After | Status |
-|----------------|--------|-------|--------|
-| Clickjacking Protection | ❌ | ✅ | **Secured** |
-| MIME Sniffing Protection | ❌ | ✅ | **Secured** |
-| XSS Protection | ❌ | ✅ | **Secured** |
-| HTTPS Enforcement | ❌ | ✅ | **Secured (Prod)** |
-| Content Injection | ❌ | ✅ | **Secured** |
+| Security Aspect          | Before | After | Status             |
+| ------------------------ | ------ | ----- | ------------------ |
+| Clickjacking Protection  | ❌     | ✅    | **Secured**        |
+| MIME Sniffing Protection | ❌     | ✅    | **Secured**        |
+| XSS Protection           | ❌     | ✅    | **Secured**        |
+| HTTPS Enforcement        | ❌     | ✅    | **Secured (Prod)** |
+| Content Injection        | ❌     | ✅    | **Secured**        |
 
 ---
 
 ## 🔄 Next Steps | الخطوات التالية
 
 ### Immediate (Already Done) ✅
+
 - [x] Add database performance indexes
 - [x] Implement security headers middleware
 - [x] Document changes
 
 ### Phase 2: High Priority (Next)
+
 - [ ] Add integration tests (12 hours)
 - [ ] Create API documentation (6 hours)
 - [ ] Monitor index usage and performance
 
 ### Phase 3: Medium Priority
+
 - [ ] Fix ESLint warnings (3 hours)
 - [ ] Create deployment documentation (6 hours)
 - [ ] Document rate limiting (2 hours)

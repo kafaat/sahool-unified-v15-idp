@@ -1,4 +1,5 @@
 # SAHOOL Platform - Production Deployment Guide
+
 # دليل النشر للإنتاج - منصة سهول
 
 **Version:** v16.0.0  
@@ -10,6 +11,7 @@
 ## 📋 Overview | نظرة عامة
 
 This comprehensive guide covers production deployment of the SAHOOL platform including:
+
 - Environment configuration
 - Database setup and optimization
 - Security hardening
@@ -18,6 +20,7 @@ This comprehensive guide covers production deployment of the SAHOOL platform inc
 - Backup and disaster recovery
 
 هذا الدليل الشامل يغطي النشر للإنتاج لمنصة سهول بما في ذلك:
+
 - تكوين البيئة
 - إعداد قاعدة البيانات والتحسين
 - تعزيز الأمان
@@ -204,13 +207,13 @@ psql -U sahool_user -d sahool_db \
 
 # 5. Verify indexes were created
 psql -U sahool_user -d sahool_db -c "
-SELECT 
+SELECT
   schemaname,
   tablename,
   indexname,
   indexdef
-FROM pg_indexes 
-WHERE indexname LIKE 'idx_%_metadata_gin' 
+FROM pg_indexes
+WHERE indexname LIKE 'idx_%_metadata_gin'
    OR indexname LIKE 'idx_sensor_readings_tenant_time'
 ORDER BY tablename, indexname;
 "
@@ -305,7 +308,7 @@ kubectl get ingress -n sahool-prod
 
 ```sql
 -- Monitor index usage
-SELECT 
+SELECT
   schemaname,
   tablename,
   indexname,
@@ -325,7 +328,7 @@ ANALYZE sensor_readings;
 VACUUM ANALYZE;
 
 -- Check bloat
-SELECT 
+SELECT
   schemaname,
   tablename,
   pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
@@ -468,18 +471,18 @@ spec:
   minReplicas: 3
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
 ```
 
 ### Load Testing | اختبار الحمل
@@ -509,24 +512,24 @@ spec:
     matchLabels:
       app: field-service
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          app: kong
-    ports:
-    - protocol: TCP
-      port: 8095
+    - from:
+        - podSelector:
+            matchLabels:
+              app: kong
+      ports:
+        - protocol: TCP
+          port: 8095
   egress:
-  - to:
-    - podSelector:
-        matchLabels:
-          app: postgres
-    ports:
-    - protocol: TCP
-      port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
 ```
 
 ### Security Scanning | فحص الأمان
@@ -554,7 +557,7 @@ helm install falco falcosecurity/falco \
 
 ```sql
 -- Find slow queries
-SELECT 
+SELECT
   pid,
   now() - pg_stat_activity.query_start AS duration,
   query,

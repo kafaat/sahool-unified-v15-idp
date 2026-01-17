@@ -36,6 +36,7 @@ cd sahool-unified-v15-idp
 ```
 
 This creates `.env` with:
+
 - Database credentials
 - JWT secret keys
 - Service configuration
@@ -106,19 +107,19 @@ curl http://localhost:8095/healthz  # Agro Advisor
 
 ## Service Ports
 
-| Service | Port | Description |
-|---------|------|-------------|
-| field_ops | 8080 | Task management API |
-| ndvi_engine | 8097 | NDVI satellite analysis |
-| weather_core | 8098 | Weather forecasting |
-| field_chat | 8099 | Real-time chat |
-| iot_gateway | 8094 | IoT device management |
+| Service      | Port | Description                        |
+| ------------ | ---- | ---------------------------------- |
+| field_ops    | 8080 | Task management API                |
+| ndvi_engine  | 8097 | NDVI satellite analysis            |
+| weather_core | 8098 | Weather forecasting                |
+| field_chat   | 8099 | Real-time chat                     |
+| iot_gateway  | 8094 | IoT device management              |
 | agro_advisor | 8095 | Disease/fertilizer recommendations |
-| ws_gateway | 8090 | WebSocket event broadcasting |
-| postgres | 5432 | Database |
-| nats | 4222 | Message queue |
-| redis | 6379 | Cache |
-| mqtt | 1883 | IoT broker |
+| ws_gateway   | 8090 | WebSocket event broadcasting       |
+| postgres     | 5432 | Database                           |
+| nats         | 4222 | Message queue                      |
+| redis        | 6379 | Cache                              |
+| mqtt         | 1883 | IoT broker                         |
 
 ## Kubernetes Deployment (Helm)
 
@@ -158,23 +159,23 @@ kubectl get services -n sahool
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | **Required** - Set via environment |
-| `NATS_URL` | NATS server URL | nats://nats:4222 |
-| `REDIS_URL` | Redis connection URL | redis://redis:6379/0 |
-| `JWT_SECRET_KEY` | JWT signing key | (generated) |
-| `JWT_ALGORITHM` | JWT algorithm | HS256 |
-| `LOG_LEVEL` | Logging level | INFO |
+| Variable         | Description                  | Default                            |
+| ---------------- | ---------------------------- | ---------------------------------- |
+| `DATABASE_URL`   | PostgreSQL connection string | **Required** - Set via environment |
+| `NATS_URL`       | NATS server URL              | nats://nats:4222                   |
+| `REDIS_URL`      | Redis connection URL         | redis://redis:6379/0               |
+| `JWT_SECRET_KEY` | JWT signing key              | (generated)                        |
+| `JWT_ALGORITHM`  | JWT algorithm                | HS256                              |
+| `LOG_LEVEL`      | Logging level                | INFO                               |
 
 ### Feature Flags
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `ENABLE_SECURITY` | Enable JWT authentication | true |
-| `ENABLE_AUDIT_LOGGING` | Enable audit trail | true |
-| `ENABLE_MTLS` | Enable mutual TLS | false |
-| `ENABLE_RATE_LIMITING` | Enable rate limiting | true |
+| Flag                   | Description               | Default |
+| ---------------------- | ------------------------- | ------- |
+| `ENABLE_SECURITY`      | Enable JWT authentication | true    |
+| `ENABLE_AUDIT_LOGGING` | Enable audit trail        | true    |
+| `ENABLE_MTLS`          | Enable mutual TLS         | false   |
+| `ENABLE_RATE_LIMITING` | Enable rate limiting      | true    |
 
 ## Scaling
 
@@ -190,12 +191,12 @@ kubectl scale deployment sahool-field-ops --replicas=3 -n sahool
 
 ### Recommended Replicas
 
-| Service | Dev | Staging | Production |
-|---------|-----|---------|------------|
-| field_ops | 1 | 2 | 3-5 |
-| field_chat | 1 | 2 | 3-5 |
-| ws_gateway | 1 | 2 | 3-5 |
-| Other services | 1 | 1-2 | 2-3 |
+| Service        | Dev | Staging | Production |
+| -------------- | --- | ------- | ---------- |
+| field_ops      | 1   | 2       | 3-5        |
+| field_chat     | 1   | 2       | 3-5        |
+| ws_gateway     | 1   | 2       | 3-5        |
+| Other services | 1   | 1-2     | 2-3        |
 
 ## Backup and Restore
 

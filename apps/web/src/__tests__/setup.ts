@@ -3,9 +3,9 @@
  * إعداد الاختبارات
  */
 
-import { expect, afterEach, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
-import * as matchers from '@testing-library/jest-dom/matchers';
+import { expect, afterEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
+import * as matchers from "@testing-library/jest-dom/matchers";
 
 // Extend Vitest's expect with Testing Library matchers
 expect.extend(matchers);
@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
@@ -37,7 +37,7 @@ class MockIntersectionObserver {
   unobserve = vi.fn();
 }
 
-Object.defineProperty(window, 'IntersectionObserver', {
+Object.defineProperty(window, "IntersectionObserver", {
   writable: true,
   value: MockIntersectionObserver,
 });
@@ -49,7 +49,7 @@ class MockResizeObserver {
   unobserve = vi.fn();
 }
 
-Object.defineProperty(window, 'ResizeObserver', {
+Object.defineProperty(window, "ResizeObserver", {
   writable: true,
   value: MockResizeObserver,
 });
@@ -60,8 +60,8 @@ global.fetch = vi.fn(() =>
     ok: true,
     status: 200,
     json: () => Promise.resolve({}),
-    text: () => Promise.resolve(''),
-  } as Response)
+    text: () => Promise.resolve(""),
+  } as Response),
 );
 
 // Mock localStorage
@@ -72,17 +72,17 @@ const localStorageMock = {
   clear: vi.fn(),
 };
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
 // Mock sessionStorage
-Object.defineProperty(window, 'sessionStorage', {
+Object.defineProperty(window, "sessionStorage", {
   value: localStorageMock,
 });
 
 // Mock performance
-Object.defineProperty(window, 'performance', {
+Object.defineProperty(window, "performance", {
   value: {
     ...performance,
     now: vi.fn(() => Date.now()),
@@ -94,5 +94,5 @@ Object.defineProperty(window, 'performance', {
 });
 
 // Console spy for tests
-vi.spyOn(console, 'error').mockImplementation(() => {});
-vi.spyOn(console, 'warn').mockImplementation(() => {});
+vi.spyOn(console, "error").mockImplementation(() => {});
+vi.spyOn(console, "warn").mockImplementation(() => {});

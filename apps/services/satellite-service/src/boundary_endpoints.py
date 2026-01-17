@@ -10,8 +10,19 @@ import logging
 from datetime import datetime
 
 from fastapi import HTTPException, Query
+from pydantic import BaseModel, Field
 
 from .field_boundary_detector import BoundaryChange
+
+
+class RefineBoundaryRequest(BaseModel):
+    """Request model for boundary refinement"""
+
+    coords: list[list[float]] = Field(
+        ..., description="Initial boundary coordinates [[lon, lat], ...]"
+    )
+    buffer_m: float = Field(50, description="Refinement buffer in meters")
+
 
 logger = logging.getLogger(__name__)
 
@@ -99,12 +110,7 @@ def register_boundary_endpoints(app, boundary_detector):
             raise HTTPException(status_code=500, detail=str(e)) from e
 
     @app.post("/v1/boundaries/refine", response_model=dict)
-    async def refine_boundary(
-        coords: list[list[float]] = Query(
-            ..., description="Initial boundary coordinates [[lon, lat], ...]"
-        ),
-        buffer_m: float = Query(50, description="Refinement buffer in meters"),
-    ):
+    async def refine_boundary(request: RefineBoundaryRequest):
         """
         Refine a rough field boundary by snapping to NDVI edges.
 
@@ -132,6 +138,9 @@ def register_boundary_endpoints(app, boundary_detector):
         """
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
+
+        coords = request.coords
+        buffer_m = request.buffer_m
 
         try:
             # Convert to tuple format

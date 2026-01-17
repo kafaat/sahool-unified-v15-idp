@@ -35,7 +35,7 @@ class TlsConfig:
 
 def build_mtls_ssl_context(
     cfg: TlsConfig,
-    verify_hostname: bool = False,
+    verify_hostname: bool = True,
 ) -> ssl.SSLContext:
     """
     Build a shared mTLS client SSLContext.
@@ -45,7 +45,7 @@ def build_mtls_ssl_context(
 
     Args:
         cfg: TLS configuration with paths to certificates
-        verify_hostname: Whether to verify hostname (internal SANs may vary)
+        verify_hostname: Whether to verify hostname (default True for security)
 
     Returns:
         ssl.SSLContext configured for mTLS

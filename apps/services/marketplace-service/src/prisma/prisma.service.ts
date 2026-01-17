@@ -3,8 +3,13 @@
  * خدمة الاتصال بقاعدة البيانات
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
 
 @Injectable()
 export class PrismaService
@@ -12,13 +17,15 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name);
+  private isConnected = false;
+  private readonly isTestEnvironment: boolean;
 
   constructor() {
     super({
       log: [
-        { level: 'error', emit: 'stdout' },
-        { level: 'warn', emit: 'stdout' },
-        { level: 'info', emit: 'stdout' },
+        { level: "error", emit: "stdout" },
+        { level: "warn", emit: "stdout" },
+        { level: "info", emit: "stdout" },
       ],
       // Connection pool configuration
       // High traffic service: marketplace transactions
@@ -28,16 +35,35 @@ export class PrismaService
         },
       },
     });
+
+    this.isTestEnvironment = ["test", "ci", "testing"].includes(
+      (process.env.ENVIRONMENT || process.env.NODE_ENV || "").toLowerCase(),
+    );
   }
 
   async onModuleInit() {
-    await this.$connect();
-    this.logger.log('Marketplace Database connected successfully');
+    try {
+      await this.$connect();
+      this.isConnected = true;
+      this.logger.log("Marketplace Database connected successfully");
+    } catch (error) {
+      if (this.isTestEnvironment) {
+        this.logger.warn(
+          `Database connection failed in test environment: ${error.message}`,
+        );
+        this.logger.warn("Running in degraded mode without database");
+        this.isConnected = false;
+      } else {
+        throw error;
+      }
+    }
   }
 
   async onModuleDestroy() {
-    await this.$disconnect();
-    this.logger.log('Marketplace Database disconnected');
+    if (this.isConnected) {
+      await this.$disconnect();
+      this.logger.log("Marketplace Database disconnected");
+    }
   }
 
   /**
@@ -51,7 +77,7 @@ export class PrismaService
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      this.logger.error('Database connection check failed:', error);
+      this.logger.error("Database connection check failed:", error);
       return {
         connected: false,
         timestamp: new Date().toISOString(),

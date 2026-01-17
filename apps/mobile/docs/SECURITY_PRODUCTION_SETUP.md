@@ -15,6 +15,7 @@
 #### الحصول على بصمات الشهادات | Getting Certificate Fingerprints
 
 **للحصول على بصمة SHA-256 (Android):**
+
 ```bash
 # باستخدام OpenSSL
 openssl s_client -connect api.sahool.app:443 -servername api.sahool.app < /dev/null 2>/dev/null | \
@@ -25,6 +26,7 @@ openssl x509 -noout -fingerprint -sha256 | cut -d= -f2 | tr -d ':'
 ```
 
 **للحصول على SPKI Hash (iOS):**
+
 ```bash
 openssl s_client -connect api.sahool.app:443 -servername api.sahool.app < /dev/null 2>/dev/null | \
 openssl x509 -pubkey -noout | \
@@ -109,13 +111,13 @@ BYPASS_SSL_VERIFICATION=false
 
 تأكد من تفعيل الفحوصات التالية:
 
-| الفحص | الحالة للإنتاج |
-|-------|---------------|
-| Jailbreak Detection | ✅ مُفعّل |
-| Root Detection | ✅ مُفعّل |
-| Emulator Detection | ✅ مُفعّل |
-| Frida Detection | ✅ مُفعّل |
-| Debug Mode Detection | ✅ مُفعّل |
+| الفحص                | الحالة للإنتاج |
+| -------------------- | -------------- |
+| Jailbreak Detection  | ✅ مُفعّل      |
+| Root Detection       | ✅ مُفعّل      |
+| Emulator Detection   | ✅ مُفعّل      |
+| Frida Detection      | ✅ مُفعّل      |
+| Debug Mode Detection | ✅ مُفعّل      |
 
 ---
 
@@ -288,5 +290,6 @@ grep -r "api_key\|password\|secret" decoded_apk/
 ## الدعم | Support
 
 للأسئلة المتعلقة بالأمان، تواصل مع فريق الأمان:
+
 - البريد: security@sahool.app
 - Slack: #security-team

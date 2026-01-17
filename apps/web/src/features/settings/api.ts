@@ -3,7 +3,7 @@
  * طبقة API لميزة الإعدادات
  */
 
-import axios, { type AxiosError } from 'axios';
+import axios, { type AxiosError } from "axios";
 import type {
   UserProfile,
   NotificationPreferences,
@@ -14,32 +14,32 @@ import type {
   SubscriptionInfo,
   UpdateProfilePayload,
   UpdatePasswordPayload,
-} from './types';
-import { logger } from '@/lib/logger';
+} from "./types";
+import { logger } from "@/lib/logger";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // Only warn during development, don't throw during build
-if (!process.env.NEXT_PUBLIC_API_URL && typeof window !== 'undefined') {
-  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+if (!process.env.NEXT_PUBLIC_API_URL && typeof window !== "undefined") {
+  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
 }
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 10000, // 10 seconds timeout
 });
 
 // Add auth token interceptor
 // SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 api.interceptors.request.use((config) => {
   // Get token from cookie using secure cookie parser
-  if (typeof window !== 'undefined') {
-    const token = Cookies.get('access_token');
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("access_token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -51,88 +51,88 @@ api.interceptors.request.use((config) => {
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: 'Network error. Using offline data.',
-    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
+    en: "Network error. Using offline data.",
+    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
   },
   PROFILE_FETCH_FAILED: {
-    en: 'Failed to fetch profile. Using cached data.',
-    ar: 'فشل في جلب الملف الشخصي. استخدام البيانات المخزنة.',
+    en: "Failed to fetch profile. Using cached data.",
+    ar: "فشل في جلب الملف الشخصي. استخدام البيانات المخزنة.",
   },
   PROFILE_UPDATE_FAILED: {
-    en: 'Failed to update profile. Please try again.',
-    ar: 'فشل في تحديث الملف الشخصي. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to update profile. Please try again.",
+    ar: "فشل في تحديث الملف الشخصي. الرجاء المحاولة مرة أخرى.",
   },
   AVATAR_UPLOAD_FAILED: {
-    en: 'Failed to upload avatar. Please try again.',
-    ar: 'فشل في رفع الصورة الشخصية. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to upload avatar. Please try again.",
+    ar: "فشل في رفع الصورة الشخصية. الرجاء المحاولة مرة أخرى.",
   },
   SETTINGS_FETCH_FAILED: {
-    en: 'Failed to fetch settings. Using default values.',
-    ar: 'فشل في جلب الإعدادات. استخدام القيم الافتراضية.',
+    en: "Failed to fetch settings. Using default values.",
+    ar: "فشل في جلب الإعدادات. استخدام القيم الافتراضية.",
   },
   SETTINGS_UPDATE_FAILED: {
-    en: 'Failed to update settings. Please try again.',
-    ar: 'فشل في تحديث الإعدادات. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to update settings. Please try again.",
+    ar: "فشل في تحديث الإعدادات. الرجاء المحاولة مرة أخرى.",
   },
   PASSWORD_CHANGE_FAILED: {
-    en: 'Failed to change password. Please try again.',
-    ar: 'فشل في تغيير كلمة المرور. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to change password. Please try again.",
+    ar: "فشل في تغيير كلمة المرور. الرجاء المحاولة مرة أخرى.",
   },
   TWO_FACTOR_FAILED: {
-    en: 'Failed to update two-factor authentication. Please try again.',
-    ar: 'فشل في تحديث المصادقة الثنائية. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to update two-factor authentication. Please try again.",
+    ar: "فشل في تحديث المصادقة الثنائية. الرجاء المحاولة مرة أخرى.",
   },
   SESSION_TERMINATE_FAILED: {
-    en: 'Failed to terminate session. Please try again.',
-    ar: 'فشل في إنهاء الجلسة. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to terminate session. Please try again.",
+    ar: "فشل في إنهاء الجلسة. الرجاء المحاولة مرة أخرى.",
   },
   ACCOUNT_DISCONNECT_FAILED: {
-    en: 'Failed to disconnect account. Please try again.',
-    ar: 'فشل في فصل الحساب. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to disconnect account. Please try again.",
+    ar: "فشل في فصل الحساب. الرجاء المحاولة مرة أخرى.",
   },
   SUBSCRIPTION_CANCEL_FAILED: {
-    en: 'Failed to cancel subscription. Please try again.',
-    ar: 'فشل في إلغاء الاشتراك. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to cancel subscription. Please try again.",
+    ar: "فشل في إلغاء الاشتراك. الرجاء المحاولة مرة أخرى.",
   },
   ACCOUNT_DELETE_FAILED: {
-    en: 'Failed to delete account. Please try again.',
-    ar: 'فشل في حذف الحساب. الرجاء المحاولة مرة أخرى.',
+    en: "Failed to delete account. Please try again.",
+    ar: "فشل في حذف الحساب. الرجاء المحاولة مرة أخرى.",
   },
 };
 
 // Mock data for fallback
 const MOCK_USER_PROFILE: UserProfile = {
-  id: 'user-1',
-  email: 'farmer@sahool.sa',
-  name: 'Ahmed Al-Qarni',
-  nameAr: 'أحمد القرني',
-  phone: '+966501234567',
-  avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Ahmed',
-  bio: 'Experienced farmer specializing in sustainable agriculture',
-  bioAr: 'مزارع ذو خبرة متخصص في الزراعة المستدامة',
+  id: "user-1",
+  email: "farmer@sahool.sa",
+  name: "Ahmed Al-Qarni",
+  nameAr: "أحمد القرني",
+  phone: "+966501234567",
+  avatar: "https://api.dicebear.com/7.x/initials/svg?seed=Ahmed",
+  bio: "Experienced farmer specializing in sustainable agriculture",
+  bioAr: "مزارع ذو خبرة متخصص في الزراعة المستدامة",
   location: {
-    city: 'Riyadh',
-    cityAr: 'الرياض',
-    region: 'Central Region',
-    regionAr: 'المنطقة الوسطى',
-    country: 'Saudi Arabia',
-    countryAr: 'المملكة العربية السعودية',
+    city: "Riyadh",
+    cityAr: "الرياض",
+    region: "Central Region",
+    regionAr: "المنطقة الوسطى",
+    country: "Saudi Arabia",
+    countryAr: "المملكة العربية السعودية",
   },
   farmDetails: {
-    name: 'Al-Qarni Farm',
-    nameAr: 'مزرعة القرني',
+    name: "Al-Qarni Farm",
+    nameAr: "مزرعة القرني",
     totalArea: 50.5,
     establishedYear: 2010,
-    farmType: 'family',
-    mainCrops: ['Wheat', 'Barley', 'Dates'],
-    mainCropsAr: ['قمح', 'شعير', 'تمور'],
+    farmType: "family",
+    mainCrops: ["Wheat", "Barley", "Dates"],
+    mainCropsAr: ["قمح", "شعير", "تمور"],
   },
-  language: 'both',
-  timezone: 'Asia/Riyadh',
-  dateFormat: 'both',
-  role: 'farmer',
+  language: "both",
+  timezone: "Asia/Riyadh",
+  dateFormat: "both",
+  role: "farmer",
   isVerified: true,
-  createdAt: '2023-01-15T10:00:00Z',
+  createdAt: "2023-01-15T10:00:00Z",
   updatedAt: new Date().toISOString(),
 };
 
@@ -164,56 +164,56 @@ const MOCK_SECURITY_SETTINGS: SecuritySettings = {
   twoFactorMethod: undefined,
   sessions: [
     {
-      id: 'session-1',
-      device: 'Desktop',
-      browser: 'Chrome 120',
-      os: 'Windows 11',
-      ip: '192.168.1.100',
-      location: 'Riyadh, SA',
+      id: "session-1",
+      device: "Desktop",
+      browser: "Chrome 120",
+      os: "Windows 11",
+      ip: "192.168.1.100",
+      location: "Riyadh, SA",
       lastActive: new Date().toISOString(),
       isCurrent: true,
     },
     {
-      id: 'session-2',
-      device: 'Mobile',
-      browser: 'Safari 17',
-      os: 'iOS 17',
-      ip: '192.168.1.105',
-      location: 'Riyadh, SA',
+      id: "session-2",
+      device: "Mobile",
+      browser: "Safari 17",
+      os: "iOS 17",
+      ip: "192.168.1.105",
+      location: "Riyadh, SA",
       lastActive: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       isCurrent: false,
     },
   ],
-  lastPasswordChange: '2023-11-01T10:00:00Z',
+  lastPasswordChange: "2023-11-01T10:00:00Z",
   loginHistory: [
     {
-      id: 'login-1',
+      id: "login-1",
       timestamp: new Date().toISOString(),
-      device: 'Desktop',
-      browser: 'Chrome 120',
-      ip: '192.168.1.100',
-      location: 'Riyadh, SA',
+      device: "Desktop",
+      browser: "Chrome 120",
+      ip: "192.168.1.100",
+      location: "Riyadh, SA",
       success: true,
     },
     {
-      id: 'login-2',
+      id: "login-2",
       timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      device: 'Mobile',
-      browser: 'Safari 17',
-      ip: '192.168.1.105',
-      location: 'Riyadh, SA',
+      device: "Mobile",
+      browser: "Safari 17",
+      ip: "192.168.1.105",
+      location: "Riyadh, SA",
       success: true,
     },
   ],
 };
 
 const MOCK_PRIVACY_SETTINGS: PrivacySettings = {
-  profileVisibility: 'community',
+  profileVisibility: "community",
   showEmail: false,
   showPhone: false,
   showLocation: true,
   showFarmDetails: true,
-  allowMessages: 'connections',
+  allowMessages: "connections",
   dataSharing: {
     analytics: true,
     research: false,
@@ -222,37 +222,37 @@ const MOCK_PRIVACY_SETTINGS: PrivacySettings = {
 };
 
 const MOCK_DISPLAY_PREFERENCES: DisplayPreferences = {
-  theme: 'auto',
-  language: 'ar',
+  theme: "auto",
+  language: "ar",
   rtl: true,
-  fontSize: 'medium',
+  fontSize: "medium",
   compactMode: false,
   showWeatherWidget: true,
   showQuickActions: true,
-  defaultDashboard: 'overview',
+  defaultDashboard: "overview",
 };
 
 const MOCK_INTEGRATION_SETTINGS: IntegrationSettings = {
-  weatherProvider: 'openweather',
-  mapProvider: 'google',
+  weatherProvider: "openweather",
+  mapProvider: "google",
   connectedAccounts: [
     {
-      id: 'acc-1',
-      provider: 'Google',
-      providerAr: 'جوجل',
-      accountName: 'farmer@gmail.com',
-      connectedAt: '2023-06-15T10:00:00Z',
-      status: 'active',
+      id: "acc-1",
+      provider: "Google",
+      providerAr: "جوجل",
+      accountName: "farmer@gmail.com",
+      connectedAt: "2023-06-15T10:00:00Z",
+      status: "active",
     },
   ],
 };
 
 const MOCK_SUBSCRIPTION_INFO: SubscriptionInfo = {
-  plan: 'pro',
-  planAr: 'احترافي',
-  status: 'active',
-  startDate: '2024-01-01T00:00:00Z',
-  endDate: '2024-12-31T23:59:59Z',
+  plan: "pro",
+  planAr: "احترافي",
+  status: "active",
+  startDate: "2024-01-01T00:00:00Z",
+  endDate: "2024-12-31T23:59:59Z",
   autoRenew: true,
   features: {
     maxFields: 50,
@@ -277,10 +277,13 @@ export const settingsApi = {
    */
   getProfile: async (): Promise<UserProfile> => {
     try {
-      const response = await api.get('/api/v1/users/profile');
+      const response = await api.get("/api/v1/users/profile");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Failed to fetch user profile from API, using mock data:', error);
+      logger.warn(
+        "Failed to fetch user profile from API, using mock data:",
+        error,
+      );
       return MOCK_USER_PROFILE;
     }
   },
@@ -290,19 +293,28 @@ export const settingsApi = {
    */
   updateProfile: async (data: UpdateProfilePayload): Promise<UserProfile> => {
     try {
-      const response = await api.put('/api/v1/users/profile', data);
+      const response = await api.put("/api/v1/users/profile", data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to update user profile:', error);
+      logger.error("Failed to update user profile:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.PROFILE_UPDATE_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.PROFILE_UPDATE_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.PROFILE_UPDATE_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.PROFILE_UPDATE_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -312,26 +324,39 @@ export const settingsApi = {
   uploadAvatar: async (file: File): Promise<string> => {
     try {
       const formData = new FormData();
-      formData.append('avatar', file);
+      formData.append("avatar", file);
 
-      const response = await api.post('/api/v1/users/profile/avatar', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      const response = await api.post(
+        "/api/v1/users/profile/avatar",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      });
+      );
 
       return response.data.url || response.data.data?.url;
     } catch (error) {
-      logger.error('Failed to upload avatar:', error);
+      logger.error("Failed to upload avatar:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.AVATAR_UPLOAD_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.AVATAR_UPLOAD_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.AVATAR_UPLOAD_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.AVATAR_UPLOAD_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -340,10 +365,13 @@ export const settingsApi = {
    */
   getNotificationSettings: async (): Promise<NotificationPreferences> => {
     try {
-      const response = await api.get('/api/v1/users/settings/notifications');
+      const response = await api.get("/api/v1/users/settings/notifications");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Failed to fetch notification settings from API, using mock data:', error);
+      logger.warn(
+        "Failed to fetch notification settings from API, using mock data:",
+        error,
+      );
       return MOCK_NOTIFICATION_PREFERENCES;
     }
   },
@@ -351,21 +379,35 @@ export const settingsApi = {
   /**
    * Update notification preferences
    */
-  updateNotificationSettings: async (data: NotificationPreferences): Promise<NotificationPreferences> => {
+  updateNotificationSettings: async (
+    data: NotificationPreferences,
+  ): Promise<NotificationPreferences> => {
     try {
-      const response = await api.put('/api/v1/users/settings/notifications', data);
+      const response = await api.put(
+        "/api/v1/users/settings/notifications",
+        data,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to update notification settings:', error);
+      logger.error("Failed to update notification settings:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -374,10 +416,13 @@ export const settingsApi = {
    */
   getSecuritySettings: async (): Promise<SecuritySettings> => {
     try {
-      const response = await api.get('/api/v1/users/settings/security');
+      const response = await api.get("/api/v1/users/settings/security");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Failed to fetch security settings from API, using mock data:', error);
+      logger.warn(
+        "Failed to fetch security settings from API, using mock data:",
+        error,
+      );
       return MOCK_SECURITY_SETTINGS;
     }
   },
@@ -387,18 +432,27 @@ export const settingsApi = {
    */
   changePassword: async (data: UpdatePasswordPayload): Promise<void> => {
     try {
-      await api.put('/api/v1/users/settings/security/password', data);
+      await api.put("/api/v1/users/settings/security/password", data);
     } catch (error) {
-      logger.error('Failed to change password:', error);
+      logger.error("Failed to change password:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.PASSWORD_CHANGE_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.PASSWORD_CHANGE_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.PASSWORD_CHANGE_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.PASSWORD_CHANGE_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -407,22 +461,34 @@ export const settingsApi = {
    */
   enable2FA: async (data: {
     enabled: boolean;
-    method?: '2fa_app' | 'sms' | 'email';
+    method?: "2fa_app" | "sms" | "email";
   }): Promise<SecuritySettings> => {
     try {
-      const response = await api.put('/api/v1/users/settings/security/2fa', data);
+      const response = await api.put(
+        "/api/v1/users/settings/security/2fa",
+        data,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to update two-factor authentication:', error);
+      logger.error("Failed to update two-factor authentication:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.TWO_FACTOR_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.TWO_FACTOR_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.TWO_FACTOR_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.TWO_FACTOR_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -435,14 +501,23 @@ export const settingsApi = {
     } catch (error) {
       logger.error(`Failed to terminate session ${sessionId}:`, error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.SESSION_TERMINATE_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.SESSION_TERMINATE_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.SESSION_TERMINATE_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.SESSION_TERMINATE_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -451,10 +526,13 @@ export const settingsApi = {
    */
   getPrivacySettings: async (): Promise<PrivacySettings> => {
     try {
-      const response = await api.get('/api/v1/users/settings/privacy');
+      const response = await api.get("/api/v1/users/settings/privacy");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Failed to fetch privacy settings from API, using mock data:', error);
+      logger.warn(
+        "Failed to fetch privacy settings from API, using mock data:",
+        error,
+      );
       return MOCK_PRIVACY_SETTINGS;
     }
   },
@@ -462,21 +540,32 @@ export const settingsApi = {
   /**
    * Update privacy settings
    */
-  updatePrivacySettings: async (data: PrivacySettings): Promise<PrivacySettings> => {
+  updatePrivacySettings: async (
+    data: PrivacySettings,
+  ): Promise<PrivacySettings> => {
     try {
-      const response = await api.put('/api/v1/users/settings/privacy', data);
+      const response = await api.put("/api/v1/users/settings/privacy", data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to update privacy settings:', error);
+      logger.error("Failed to update privacy settings:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -485,10 +574,13 @@ export const settingsApi = {
    */
   getDisplayPreferences: async (): Promise<DisplayPreferences> => {
     try {
-      const response = await api.get('/api/v1/users/settings/display');
+      const response = await api.get("/api/v1/users/settings/display");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Failed to fetch display preferences from API, using mock data:', error);
+      logger.warn(
+        "Failed to fetch display preferences from API, using mock data:",
+        error,
+      );
       return MOCK_DISPLAY_PREFERENCES;
     }
   },
@@ -496,21 +588,32 @@ export const settingsApi = {
   /**
    * Update display preferences
    */
-  updateDisplayPreferences: async (data: DisplayPreferences): Promise<DisplayPreferences> => {
+  updateDisplayPreferences: async (
+    data: DisplayPreferences,
+  ): Promise<DisplayPreferences> => {
     try {
-      const response = await api.put('/api/v1/users/settings/display', data);
+      const response = await api.put("/api/v1/users/settings/display", data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to update display preferences:', error);
+      logger.error("Failed to update display preferences:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -519,10 +622,13 @@ export const settingsApi = {
    */
   getIntegrationSettings: async (): Promise<IntegrationSettings> => {
     try {
-      const response = await api.get('/api/v1/users/settings/integrations');
+      const response = await api.get("/api/v1/users/settings/integrations");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Failed to fetch integration settings from API, using mock data:', error);
+      logger.warn(
+        "Failed to fetch integration settings from API, using mock data:",
+        error,
+      );
       return MOCK_INTEGRATION_SETTINGS;
     }
   },
@@ -530,21 +636,35 @@ export const settingsApi = {
   /**
    * Update integration settings
    */
-  updateIntegrationSettings: async (data: Partial<IntegrationSettings>): Promise<IntegrationSettings> => {
+  updateIntegrationSettings: async (
+    data: Partial<IntegrationSettings>,
+  ): Promise<IntegrationSettings> => {
     try {
-      const response = await api.put('/api/v1/users/settings/integrations', data);
+      const response = await api.put(
+        "/api/v1/users/settings/integrations",
+        data,
+      );
       return response.data.data || response.data;
     } catch (error) {
-      logger.error('Failed to update integration settings:', error);
+      logger.error("Failed to update integration settings:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.SETTINGS_UPDATE_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -553,18 +673,29 @@ export const settingsApi = {
    */
   disconnectAccount: async (accountId: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/users/settings/integrations/accounts/${accountId}`);
+      await api.delete(
+        `/api/v1/users/settings/integrations/accounts/${accountId}`,
+      );
     } catch (error) {
       logger.error(`Failed to disconnect account ${accountId}:`, error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.ACCOUNT_DISCONNECT_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.ACCOUNT_DISCONNECT_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.ACCOUNT_DISCONNECT_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.ACCOUNT_DISCONNECT_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -573,10 +704,13 @@ export const settingsApi = {
    */
   getSubscriptionInfo: async (): Promise<SubscriptionInfo> => {
     try {
-      const response = await api.get('/api/v1/users/subscription');
+      const response = await api.get("/api/v1/users/subscription");
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Failed to fetch subscription info from API, using mock data:', error);
+      logger.warn(
+        "Failed to fetch subscription info from API, using mock data:",
+        error,
+      );
       return MOCK_SUBSCRIPTION_INFO;
     }
   },
@@ -586,18 +720,27 @@ export const settingsApi = {
    */
   cancelSubscription: async (): Promise<void> => {
     try {
-      await api.post('/api/v1/users/subscription/cancel');
+      await api.post("/api/v1/users/subscription/cancel");
     } catch (error) {
-      logger.error('Failed to cancel subscription:', error);
+      logger.error("Failed to cancel subscription:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.SUBSCRIPTION_CANCEL_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.SUBSCRIPTION_CANCEL_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.SUBSCRIPTION_CANCEL_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.SUBSCRIPTION_CANCEL_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 
@@ -606,20 +749,29 @@ export const settingsApi = {
    */
   deleteAccount: async (password: string): Promise<void> => {
     try {
-      await api.delete('/api/v1/users/account', {
+      await api.delete("/api/v1/users/account", {
         data: { password },
       });
     } catch (error) {
-      logger.error('Failed to delete account:', error);
+      logger.error("Failed to delete account:", error);
 
-      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.ACCOUNT_DELETE_FAILED.en;
-      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.ACCOUNT_DELETE_FAILED.ar;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        message_ar?: string;
+      }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        ERROR_MESSAGES.ACCOUNT_DELETE_FAILED.en;
+      const errorMessageAr =
+        axiosError.response?.data?.message_ar ||
+        ERROR_MESSAGES.ACCOUNT_DELETE_FAILED.ar;
 
-      throw new Error(JSON.stringify({
-        message: errorMessage,
-        messageAr: errorMessageAr,
-      }));
+      throw new Error(
+        JSON.stringify({
+          message: errorMessage,
+          messageAr: errorMessageAr,
+        }),
+      );
     }
   },
 };

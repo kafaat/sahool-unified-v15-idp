@@ -29,6 +29,32 @@ from .decision_engine import (
     diagnose_zone,
     generate_vrt_properties,
 )
+from .disease_detection import (
+    CropType,
+    DiseaseDetection,
+    DiseaseSeverity,
+    detect_diseases,
+    get_overall_health_status,
+)
+from .nutrient_deficiency import (
+    DeficiencySeverity,
+    NutrientDeficiency,
+    NutrientType,
+    detect_nutrient_deficiencies,
+    generate_fertilizer_plan,
+    get_nutrient_status_summary,
+)
+from .pest_assessment import (
+    RiskLevel,
+    assess_pest_risks,
+    get_pest_summary,
+    get_pest_types,
+)
+from .yield_prediction import (
+    CropType as YieldCropType,
+    get_crop_parameters,
+    predict_yield,
+)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Pydantic Schemas
@@ -714,6 +740,724 @@ def quick_diagnose(body: ObservationIn, zone_id: str = Query(default="zone_temp"
         "status": classify_zone_status(actions),
         "actions": actions,
         "indices_received": body.indices.model_dump(),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Disease Detection Endpoints
+# نقاط نهاية كشف الأمراض
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class DiseaseDetectionRequest(BaseModel):
+    """طلب كشف الأمراض"""
+
+    ndvi: float = Field(..., ge=-1, le=1, description="NDVI value")
+    evi: float = Field(..., ge=-1, le=1, description="EVI value")
+    ndre: float = Field(..., ge=-1, le=1, description="NDRE value")
+    ndwi: float = Field(..., ge=-1, le=1, description="NDWI value")
+    lci: float = Field(..., ge=-1, le=1, description="LCI value")
+    savi: float = Field(..., ge=-1, le=1, description="SAVI value")
+    crop_type: CropType = Field(default=CropType.UNKNOWN, description="نوع المحصول")
+    humidity_pct: float | None = Field(default=None, ge=0, le=100, description="الرطوبة %")
+    temp_c: float | None = Field(default=None, ge=-50, le=60, description="الحرارة °C")
+
+
+@app.post("/api/v1/disease/detect")
+def detect_crop_diseases(body: DiseaseDetectionRequest):
+    """
+    كشف الأمراض المحتملة من المؤشرات النباتية
+    Detect potential diseases from vegetation indices
+
+    Returns diseases with severity, confidence, and treatment recommendations.
+    """
+    detections = detect_diseases(
+        ndvi=body.ndvi,
+        evi=body.evi,
+        ndre=body.ndre,
+        ndwi=body.ndwi,
+        lci=body.lci,
+        savi=body.savi,
+        crop_type=body.crop_type,
+        humidity_pct=body.humidity_pct,
+        temp_c=body.temp_c,
+    )
+
+    health_en, health_ar = get_overall_health_status(detections)
+
+    return {
+        "overall_health": {
+            "status_en": health_en,
+            "status_ar": health_ar,
+        },
+        "detection_count": len(detections),
+        "detections": [d.to_dict() for d in detections],
+        "input_indices": {
+            "ndvi": body.ndvi,
+            "evi": body.evi,
+            "ndre": body.ndre,
+            "ndwi": body.ndwi,
+            "lci": body.lci,
+            "savi": body.savi,
+        },
+        "environmental_context": {
+            "crop_type": body.crop_type.value,
+            "humidity_pct": body.humidity_pct,
+            "temp_c": body.temp_c,
+        },
+    }
+
+
+@app.post("/api/v1/fields/{field_id}/zones/{zone_id}/disease-analysis")
+def analyze_zone_diseases(
+    field_id: str,
+    zone_id: str,
+    humidity_pct: float | None = Query(default=None, ge=0, le=100),
+    temp_c: float | None = Query(default=None, ge=-50, le=60),
+    crop_type: CropType = Query(default=CropType.UNKNOWN),
+):
+    """
+    تحليل أمراض المنطقة من آخر رصد
+    Analyze zone diseases from latest observation
+
+    Combines the latest observation data with optional environmental
+    context to detect potential diseases.
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
+
+    obs_list = OBSERVATIONS[field_id][zone_id]
+    if not obs_list:
+        raise HTTPException(status_code=404, detail="No observations for this zone")
+
+    # Get latest observation
+    latest = obs_list[-1]
+    idx = latest["indices"]
+
+    # Detect diseases
+    detections = detect_diseases(
+        ndvi=idx["ndvi"],
+        evi=idx["evi"],
+        ndre=idx["ndre"],
+        ndwi=idx["ndwi"],
+        lci=idx["lci"],
+        savi=idx["savi"],
+        crop_type=crop_type,
+        humidity_pct=humidity_pct,
+        temp_c=temp_c,
+    )
+
+    health_en, health_ar = get_overall_health_status(detections)
+
+    # Get zone metadata
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
+
+    return {
+        "field_id": field_id,
+        "zone_id": zone_id,
+        "zone_name": zone_meta.get("name", zone_id),
+        "zone_name_ar": zone_meta.get("name_ar"),
+        "observation_date": latest.get("captured_at"),
+        "overall_health": {
+            "status_en": health_en,
+            "status_ar": health_ar,
+        },
+        "detection_count": len(detections),
+        "detections": [d.to_dict() for d in detections],
+        "indices": idx,
+    }
+
+
+@app.get("/api/v1/disease/types")
+def list_disease_types():
+    """
+    قائمة أنواع الأمراض المدعومة
+    List supported disease types
+    """
+    from .disease_detection import DiseaseType, TreatmentType
+
+    return {
+        "disease_types": [{"value": dt.value, "name": dt.name} for dt in DiseaseType],
+        "treatment_types": [{"value": tt.value, "name": tt.name} for tt in TreatmentType],
+        "crop_types": [{"value": ct.value, "name": ct.name} for ct in CropType],
+        "severity_levels": [{"value": ds.value, "name": ds.name} for ds in DiseaseSeverity],
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Nutrient Deficiency Endpoints
+# نقاط نهاية كشف نقص العناصر الغذائية
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class NutrientDetectionRequest(BaseModel):
+    """طلب كشف نقص العناصر الغذائية"""
+
+    ndvi: float = Field(..., ge=-1, le=1, description="NDVI value")
+    evi: float = Field(..., ge=-1, le=1, description="EVI value")
+    ndre: float = Field(..., ge=-1, le=1, description="NDRE value")
+    ndwi: float = Field(..., ge=-1, le=1, description="NDWI value")
+    lci: float = Field(..., ge=-1, le=1, description="LCI value")
+    savi: float = Field(..., ge=-1, le=1, description="SAVI value")
+    growth_stage: str = Field(default="vegetative", description="مرحلة النمو")
+
+
+class FertilizerPlanRequest(BaseModel):
+    """طلب خطة التسميد"""
+
+    ndvi: float = Field(..., ge=-1, le=1)
+    evi: float = Field(..., ge=-1, le=1)
+    ndre: float = Field(..., ge=-1, le=1)
+    ndwi: float = Field(..., ge=-1, le=1)
+    lci: float = Field(..., ge=-1, le=1)
+    savi: float = Field(..., ge=-1, le=1)
+    field_area_hectares: float = Field(default=1.0, gt=0, description="مساحة الحقل بالهكتار")
+    budget_usd: float | None = Field(default=None, ge=0, description="الميزانية بالدولار")
+
+
+@app.post("/api/v1/nutrients/detect")
+def detect_nutrients(body: NutrientDetectionRequest):
+    """
+    كشف نقص العناصر الغذائية من المؤشرات النباتية
+    Detect nutrient deficiencies from vegetation indices
+
+    Returns deficiencies with severity, confidence, and fertilizer recommendations.
+    """
+    deficiencies = detect_nutrient_deficiencies(
+        ndvi=body.ndvi,
+        evi=body.evi,
+        ndre=body.ndre,
+        ndwi=body.ndwi,
+        lci=body.lci,
+        savi=body.savi,
+        growth_stage=body.growth_stage,
+    )
+
+    summary = get_nutrient_status_summary(deficiencies)
+
+    return {
+        "nutrient_status": summary,
+        "deficiency_count": len(deficiencies),
+        "deficiencies": [d.to_dict() for d in deficiencies],
+        "input_indices": {
+            "ndvi": body.ndvi,
+            "evi": body.evi,
+            "ndre": body.ndre,
+            "ndwi": body.ndwi,
+            "lci": body.lci,
+            "savi": body.savi,
+        },
+        "growth_stage": body.growth_stage,
+    }
+
+
+@app.post("/api/v1/nutrients/fertilizer-plan")
+def create_fertilizer_plan(body: FertilizerPlanRequest):
+    """
+    إنشاء خطة تسميد مخصصة
+    Generate a customized fertilizer plan
+
+    Creates a detailed fertilizer application plan based on detected
+    deficiencies, field area, and optional budget constraints.
+    """
+    deficiencies = detect_nutrient_deficiencies(
+        ndvi=body.ndvi,
+        evi=body.evi,
+        ndre=body.ndre,
+        ndwi=body.ndwi,
+        lci=body.lci,
+        savi=body.savi,
+    )
+
+    plan = generate_fertilizer_plan(
+        deficiencies=deficiencies,
+        field_area_hectares=body.field_area_hectares,
+        budget_usd=body.budget_usd,
+    )
+
+    summary = get_nutrient_status_summary(deficiencies)
+
+    return {
+        "nutrient_status": summary,
+        "fertilizer_plan": plan,
+        "deficiencies_detected": len(deficiencies),
+        "field_area_hectares": body.field_area_hectares,
+        "budget_usd": body.budget_usd,
+    }
+
+
+@app.post("/api/v1/fields/{field_id}/zones/{zone_id}/nutrient-analysis")
+def analyze_zone_nutrients(
+    field_id: str,
+    zone_id: str,
+    field_area_hectares: float = Query(default=1.0, gt=0),
+):
+    """
+    تحليل العناصر الغذائية في المنطقة من آخر رصد
+    Analyze zone nutrients from latest observation
+
+    Uses the latest observation data to detect nutrient deficiencies
+    and generate fertilizer recommendations.
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
+
+    obs_list = OBSERVATIONS[field_id][zone_id]
+    if not obs_list:
+        raise HTTPException(status_code=404, detail="No observations for this zone")
+
+    # Get latest observation
+    latest = obs_list[-1]
+    idx = latest["indices"]
+
+    # Detect deficiencies
+    deficiencies = detect_nutrient_deficiencies(
+        ndvi=idx["ndvi"],
+        evi=idx["evi"],
+        ndre=idx["ndre"],
+        ndwi=idx["ndwi"],
+        lci=idx["lci"],
+        savi=idx["savi"],
+        growth_stage=latest.get("growth_stage", "vegetative"),
+    )
+
+    summary = get_nutrient_status_summary(deficiencies)
+    plan = generate_fertilizer_plan(
+        deficiencies=deficiencies,
+        field_area_hectares=field_area_hectares,
+    )
+
+    # Get zone metadata
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
+
+    return {
+        "field_id": field_id,
+        "zone_id": zone_id,
+        "zone_name": zone_meta.get("name", zone_id),
+        "zone_name_ar": zone_meta.get("name_ar"),
+        "observation_date": latest.get("captured_at"),
+        "nutrient_status": summary,
+        "deficiency_count": len(deficiencies),
+        "deficiencies": [d.to_dict() for d in deficiencies],
+        "fertilizer_plan": plan,
+        "indices": idx,
+    }
+
+
+@app.get("/api/v1/nutrients/types")
+def list_nutrient_types():
+    """
+    قائمة أنواع العناصر الغذائية المدعومة
+    List supported nutrient types
+    """
+    return {
+        "nutrient_types": [{"value": nt.value, "name": nt.name} for nt in NutrientType],
+        "severity_levels": [{"value": ds.value, "name": ds.name} for ds in DeficiencySeverity],
+        "macronutrients": [
+            {"value": nt.value, "name_en": nt.name, "name_ar": _get_nutrient_name_ar(nt)}
+            for nt in [
+                NutrientType.NITROGEN,
+                NutrientType.PHOSPHORUS,
+                NutrientType.POTASSIUM,
+                NutrientType.CALCIUM,
+                NutrientType.MAGNESIUM,
+                NutrientType.SULFUR,
+            ]
+        ],
+        "micronutrients": [
+            {"value": nt.value, "name_en": nt.name, "name_ar": _get_nutrient_name_ar(nt)}
+            for nt in [
+                NutrientType.IRON,
+                NutrientType.ZINC,
+                NutrientType.MANGANESE,
+                NutrientType.COPPER,
+                NutrientType.BORON,
+                NutrientType.MOLYBDENUM,
+            ]
+        ],
+    }
+
+
+def _get_nutrient_name_ar(nutrient: NutrientType) -> str:
+    """Get Arabic name for nutrient"""
+    names = {
+        NutrientType.NITROGEN: "نيتروجين",
+        NutrientType.PHOSPHORUS: "فوسفور",
+        NutrientType.POTASSIUM: "بوتاسيوم",
+        NutrientType.CALCIUM: "كالسيوم",
+        NutrientType.MAGNESIUM: "مغنيسيوم",
+        NutrientType.SULFUR: "كبريت",
+        NutrientType.IRON: "حديد",
+        NutrientType.ZINC: "زنك",
+        NutrientType.MANGANESE: "منجنيز",
+        NutrientType.COPPER: "نحاس",
+        NutrientType.BORON: "بورون",
+        NutrientType.MOLYBDENUM: "موليبدنوم",
+    }
+    return names.get(nutrient, nutrient.value)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Yield Prediction Endpoints
+# نقاط نهاية تنبؤ المحصول
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class YieldPredictionRequest(BaseModel):
+    """طلب تنبؤ المحصول"""
+
+    crop_type: str = Field(..., description="نوع المحصول")
+    ndvi: float = Field(..., ge=-1, le=1)
+    evi: float = Field(..., ge=-1, le=1)
+    ndwi: float = Field(..., ge=-1, le=1)
+    ndre: float = Field(..., ge=-1, le=1)
+    lci: float = Field(..., ge=-1, le=1)
+    savi: float = Field(..., ge=-1, le=1)
+    field_area_hectares: float = Field(default=1.0, gt=0, description="مساحة الحقل بالهكتار")
+    growth_stage_percent: float = Field(default=50.0, ge=0, le=100, description="نسبة مرحلة النمو")
+    historical_yield_kg_ha: float | None = Field(default=None, description="المحصول التاريخي")
+
+
+@app.post("/api/v1/yield/predict")
+def predict_crop_yield(body: YieldPredictionRequest):
+    """
+    تنبؤ المحصول من المؤشرات النباتية
+    Predict crop yield from vegetation indices
+
+    Returns predicted yield with confidence interval and recommendations.
+    """
+    # Convert crop type string to enum
+    try:
+        crop = YieldCropType(body.crop_type.lower())
+    except ValueError:
+        crop = YieldCropType.WHEAT  # Default to wheat if unknown
+
+    prediction = predict_yield(
+        crop_type=crop,
+        ndvi=body.ndvi,
+        evi=body.evi,
+        ndwi=body.ndwi,
+        ndre=body.ndre,
+        lci=body.lci,
+        savi=body.savi,
+        field_area_hectares=body.field_area_hectares,
+        growth_stage_percent=body.growth_stage_percent,
+        historical_yield_kg_ha=body.historical_yield_kg_ha,
+    )
+
+    return {
+        "prediction": prediction.to_dict(),
+        "field_area_hectares": body.field_area_hectares,
+        "total_predicted_yield_kg": round(
+            prediction.predicted_yield_kg_ha * body.field_area_hectares
+        ),
+        "input_indices": {
+            "ndvi": body.ndvi,
+            "evi": body.evi,
+            "ndwi": body.ndwi,
+            "ndre": body.ndre,
+            "lci": body.lci,
+            "savi": body.savi,
+        },
+    }
+
+
+@app.post("/api/v1/fields/{field_id}/zones/{zone_id}/yield-prediction")
+def predict_zone_yield(
+    field_id: str,
+    zone_id: str,
+    crop_type: str = Query(default="wheat", description="نوع المحصول"),
+    field_area_hectares: float = Query(default=1.0, gt=0),
+    growth_stage_percent: float = Query(default=50.0, ge=0, le=100),
+):
+    """
+    تنبؤ محصول المنطقة من آخر رصد
+    Predict zone yield from latest observation
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
+
+    obs_list = OBSERVATIONS[field_id][zone_id]
+    if not obs_list:
+        raise HTTPException(status_code=404, detail="No observations for this zone")
+
+    # Get latest observation
+    latest = obs_list[-1]
+    idx = latest["indices"]
+
+    # Convert crop type
+    try:
+        crop = YieldCropType(crop_type.lower())
+    except ValueError:
+        crop = YieldCropType.WHEAT
+
+    prediction = predict_yield(
+        crop_type=crop,
+        ndvi=idx["ndvi"],
+        evi=idx["evi"],
+        ndwi=idx["ndwi"],
+        ndre=idx["ndre"],
+        lci=idx["lci"],
+        savi=idx["savi"],
+        field_area_hectares=field_area_hectares,
+        growth_stage_percent=growth_stage_percent,
+    )
+
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
+
+    return {
+        "field_id": field_id,
+        "zone_id": zone_id,
+        "zone_name": zone_meta.get("name", zone_id),
+        "observation_date": latest.get("captured_at"),
+        "prediction": prediction.to_dict(),
+        "indices": idx,
+    }
+
+
+@app.get("/api/v1/yield/crop-parameters")
+def get_all_crop_parameters(crop_type: str | None = Query(default=None)):
+    """
+    الحصول على معاملات المحاصيل
+    Get crop parameters for yield calculations
+    """
+    if crop_type:
+        try:
+            crop = YieldCropType(crop_type.lower())
+            return get_crop_parameters(crop)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Unknown crop type: {crop_type}")
+
+    return get_crop_parameters()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Pest Risk Assessment Endpoints
+# نقاط نهاية تقييم مخاطر الآفات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class PestAssessmentRequest(BaseModel):
+    """طلب تقييم مخاطر الآفات"""
+
+    temp_c: float = Field(..., ge=-50, le=60, description="الحرارة °م")
+    humidity_pct: float = Field(..., ge=0, le=100, description="الرطوبة %")
+    ndvi: float = Field(..., ge=-1, le=1, description="NDVI")
+    crop_type: str = Field(default="general", description="نوع المحصول")
+    season: str = Field(default="summer", description="الموسم")
+
+
+@app.post("/api/v1/pests/assess")
+def assess_pests(body: PestAssessmentRequest):
+    """
+    تقييم مخاطر الآفات بناءً على الظروف البيئية
+    Assess pest risks based on environmental conditions
+
+    Returns list of pest risks sorted by severity.
+    """
+    risks = assess_pest_risks(
+        temp_c=body.temp_c,
+        humidity_pct=body.humidity_pct,
+        ndvi=body.ndvi,
+        crop_type=body.crop_type,
+        season=body.season,
+    )
+
+    summary = get_pest_summary(risks)
+
+    return {
+        "pest_assessment": summary,
+        "risks_count": len(risks),
+        "risks": [r.to_dict() for r in risks],
+        "environmental_conditions": {
+            "temp_c": body.temp_c,
+            "humidity_pct": body.humidity_pct,
+            "ndvi": body.ndvi,
+        },
+    }
+
+
+@app.post("/api/v1/fields/{field_id}/zones/{zone_id}/pest-assessment")
+def assess_zone_pests(
+    field_id: str,
+    zone_id: str,
+    temp_c: float = Query(..., ge=-50, le=60),
+    humidity_pct: float = Query(..., ge=0, le=100),
+    crop_type: str = Query(default="general"),
+    season: str = Query(default="summer"),
+):
+    """
+    تقييم مخاطر الآفات في المنطقة
+    Assess pest risks for a specific zone
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
+
+    obs_list = OBSERVATIONS[field_id][zone_id]
+    if not obs_list:
+        raise HTTPException(status_code=404, detail="No observations for this zone")
+
+    # Get latest observation
+    latest = obs_list[-1]
+    idx = latest["indices"]
+
+    risks = assess_pest_risks(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        ndvi=idx["ndvi"],
+        crop_type=crop_type,
+        season=season,
+    )
+
+    summary = get_pest_summary(risks)
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
+
+    return {
+        "field_id": field_id,
+        "zone_id": zone_id,
+        "zone_name": zone_meta.get("name", zone_id),
+        "observation_date": latest.get("captured_at"),
+        "pest_assessment": summary,
+        "risks_count": len(risks),
+        "risks": [r.to_dict() for r in risks],
+        "indices": idx,
+    }
+
+
+@app.get("/api/v1/pests/types")
+def list_pest_types():
+    """
+    قائمة أنواع الآفات المدعومة
+    List supported pest types
+    """
+    return {
+        "pest_types": get_pest_types(),
+        "risk_levels": [{"value": rl.value, "name": rl.name} for rl in RiskLevel],
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Comprehensive Analysis Endpoint
+# نقطة نهاية التحليل الشامل
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.post("/api/v1/comprehensive-analysis")
+def comprehensive_analysis(
+    ndvi: float = Query(..., ge=-1, le=1),
+    evi: float = Query(..., ge=-1, le=1),
+    ndre: float = Query(..., ge=-1, le=1),
+    ndwi: float = Query(..., ge=-1, le=1),
+    lci: float = Query(..., ge=-1, le=1),
+    savi: float = Query(..., ge=-1, le=1),
+    crop_type: str = Query(default="wheat"),
+    temp_c: float = Query(default=25, ge=-50, le=60),
+    humidity_pct: float = Query(default=50, ge=0, le=100),
+    field_area_hectares: float = Query(default=1.0, gt=0),
+):
+    """
+    تحليل شامل للحقل
+    Comprehensive field analysis
+
+    Combines disease detection, nutrient analysis, yield prediction, and pest assessment.
+    """
+    # Convert crop type
+    try:
+        yield_crop = YieldCropType(crop_type.lower())
+    except ValueError:
+        yield_crop = YieldCropType.WHEAT
+
+    try:
+        disease_crop = CropType(crop_type.lower())
+    except ValueError:
+        disease_crop = CropType.UNKNOWN
+
+    # Disease detection
+    diseases = detect_diseases(
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+        ndwi=ndwi,
+        lci=lci,
+        savi=savi,
+        crop_type=disease_crop,
+        humidity_pct=humidity_pct,
+        temp_c=temp_c,
+    )
+    health_en, health_ar = get_overall_health_status(diseases)
+
+    # Nutrient deficiencies
+    deficiencies = detect_nutrient_deficiencies(
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+        ndwi=ndwi,
+        lci=lci,
+        savi=savi,
+    )
+    nutrient_summary = get_nutrient_status_summary(deficiencies)
+
+    # Yield prediction
+    yield_pred = predict_yield(
+        crop_type=yield_crop,
+        ndvi=ndvi,
+        evi=evi,
+        ndwi=ndwi,
+        ndre=ndre,
+        lci=lci,
+        savi=savi,
+        field_area_hectares=field_area_hectares,
+    )
+
+    # Pest assessment
+    pest_risks = assess_pest_risks(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        ndvi=ndvi,
+        crop_type=crop_type,
+    )
+    pest_summary = get_pest_summary(pest_risks)
+
+    # Overall status
+    if health_en in ["critical", "poor"] or nutrient_summary["overall_status_en"] == "Critical":
+        overall_status = "critical"
+    elif health_en == "fair" or nutrient_summary["overall_status_en"] == "Deficient":
+        overall_status = "warning"
+    else:
+        overall_status = "good"
+
+    return {
+        "overall_status": overall_status,
+        "crop_type": crop_type,
+        "field_area_hectares": field_area_hectares,
+        "health_assessment": {
+            "status_en": health_en,
+            "status_ar": health_ar,
+            "disease_count": len(diseases),
+            "diseases": [d.to_dict() for d in diseases[:3]],  # Top 3
+        },
+        "nutrient_assessment": {
+            **nutrient_summary,
+            "deficiency_count": len(deficiencies),
+            "deficiencies": [d.to_dict() for d in deficiencies[:3]],  # Top 3
+        },
+        "yield_prediction": yield_pred.to_dict(),
+        "pest_assessment": {
+            **pest_summary,
+            "risks": [r.to_dict() for r in pest_risks[:3]],  # Top 3
+        },
+        "input_indices": {
+            "ndvi": ndvi,
+            "evi": evi,
+            "ndre": ndre,
+            "ndwi": ndwi,
+            "lci": lci,
+            "savi": savi,
+        },
+        "environmental_context": {
+            "temp_c": temp_c,
+            "humidity_pct": humidity_pct,
+        },
     }
 
 

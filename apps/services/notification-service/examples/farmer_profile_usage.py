@@ -13,8 +13,9 @@ import sys
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from database import init_db, close_db
 from repository import FarmerProfileRepository
+
+from database import close_db, init_db
 
 
 async def example_create_farmer():
@@ -262,7 +263,9 @@ if __name__ == "__main__":
     if not os.getenv("DATABASE_URL"):
         print("❌ ERROR: DATABASE_URL environment variable not set!")
         print("   Set it in .env or export it:")
-        print("   export DATABASE_URL='postgresql://user:password@localhost:5432/sahool_notifications'")
+        print(
+            "   export DATABASE_URL='postgresql://user:password@localhost:5432/sahool_notifications'"
+        )
         sys.exit(1)
 
     # Run examples

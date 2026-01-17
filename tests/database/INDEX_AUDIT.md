@@ -26,29 +26,34 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 ## 1. Service-Level Index Analysis
 
 ### 1.1 Chat Service
+
 **Database Models:** 3
 **Total Indexes:** 11
 **Coverage Score:** 8/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| Conversation | 2 | 0 | 0 |
-| Message | 5 | 1 | 0 |
-| Participant | 3 | 1 | 0 |
+
+| Model        | Indexes | Foreign Keys | Missing FK Indexes |
+| ------------ | ------- | ------------ | ------------------ |
+| Conversation | 2       | 0            | 0                  |
+| Message      | 5       | 1            | 0                  |
+| Participant  | 3       | 1            | 0                  |
 
 #### Detailed Index Configuration
 
 **Conversation Model:**
+
 ```prisma
 @@index([productId])
 @@index([orderId])
 ```
+
 - ✅ Good: Indexes on optional foreign keys for product/order lookups
 - ⚠️ Missing: Index on participantIds (array field) for participant queries
 - ⚠️ Missing: Composite index on [isActive, lastMessageAt] for active conversation sorting
 
 **Message Model:**
+
 ```prisma
 @@index([conversationId])
 @@index([senderId])
@@ -56,21 +61,25 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 @@index([conversationId, senderId, isRead]) // Composite for unread counts
 @@index([conversationId, createdAt])        // Composite for pagination
 ```
+
 - ✅ Excellent: Strong indexing strategy with composite indexes
 - ✅ Good: Covers common query patterns (unread messages, pagination)
 - ⚠️ Consider: Partial index for unread messages only: `WHERE isRead = false`
 
 **Participant Model:**
+
 ```prisma
 @@unique([conversationId, userId])
 @@index([userId])
 @@index([conversationId])
 ```
+
 - ✅ Good: Unique constraint prevents duplicate participants
 - ✅ Good: Indexes on both foreign keys
 - ⚠️ Missing: Index on [userId, isOnline] for online user queries
 
 **Recommendations:**
+
 1. Add GIN index on `participantIds` array field
 2. Add composite index: `[isActive, lastMessageAt]` on Conversation
 3. Add partial index on Message: `WHERE isRead = false`
@@ -79,42 +88,48 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 ---
 
 ### 1.2 Field Core Service
+
 **Database Models:** 8
 **Total Indexes:** 23
 **Coverage Score:** 8.5/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| Farm | 3 | 0 | 0 |
-| Field | 4 | 1 | 0 |
-| FieldBoundaryHistory | 2 | 1 | 0 |
-| SyncStatus | 2 | 0 | 0 |
-| Task | 3 | 1 | 0 |
-| NdviReading | 1 | 1 | 0 |
-| PestIncident | 4 | 0 | 0 |
-| PestTreatment | 3 | 1 | 0 |
+
+| Model                | Indexes | Foreign Keys | Missing FK Indexes |
+| -------------------- | ------- | ------------ | ------------------ |
+| Farm                 | 3       | 0            | 0                  |
+| Field                | 4       | 1            | 0                  |
+| FieldBoundaryHistory | 2       | 1            | 0                  |
+| SyncStatus           | 2       | 0            | 0                  |
+| Task                 | 3       | 1            | 0                  |
+| NdviReading          | 1       | 1            | 0                  |
+| PestIncident         | 4       | 0            | 0                  |
+| PestTreatment        | 3       | 1            | 0                  |
 
 #### Detailed Index Configuration
 
 **Farm Model:**
+
 ```prisma
 @@index([tenantId], name: "idx_farm_tenant")
 @@index([ownerId], name: "idx_farm_owner")
 @@index([serverUpdatedAt], name: "idx_farm_sync")
 ```
+
 - ✅ Excellent: Named indexes with clear purpose
 - ✅ Good: Tenant isolation and sync support
 - ⚠️ Missing: Spatial index on `location` and `boundary` (PostGIS)
 - ⚠️ Missing: Index on [isDeleted, serverUpdatedAt] for soft delete queries
 
 **Field Model:**
+
 ```prisma
 @@index([tenantId], name: "idx_field_tenant")
 @@index([serverUpdatedAt], name: "idx_field_sync")
 @@index([status], name: "idx_field_status")
 @@index([cropType], name: "idx_field_crop")
 ```
+
 - ✅ Good: Covers common filtering fields
 - ⚠️ Missing: Foreign key index on `farmId`
 - ⚠️ Missing: Spatial index on `boundary` and `centroid` (PostGIS)
@@ -122,25 +137,30 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 - ⚠️ Missing: Index on [isDeleted] for soft delete queries
 
 **NdviReading Model:**
+
 ```prisma
 @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
 ```
+
 - ✅ Excellent: Composite index for time-series queries
 - ✅ Good: Supports historical NDVI analysis
 - ⚠️ Consider: Partial index for recent readings (last 90 days)
 
 **PestIncident Model:**
+
 ```prisma
 @@index([fieldId], name: "idx_pest_incident_field")
 @@index([tenantId], name: "idx_pest_incident_tenant")
 @@index([status], name: "idx_pest_incident_status")
 @@index([detectedAt], name: "idx_pest_incident_date")
 ```
+
 - ✅ Excellent: Comprehensive indexing
 - ✅ Good: Supports multi-dimensional queries
 - ⚠️ Consider: Composite index [tenantId, status, detectedAt] for dashboard queries
 
 **Recommendations:**
+
 1. **Critical:** Add PostGIS spatial indexes on Farm.location, Farm.boundary, Field.boundary, Field.centroid
 2. Add foreign key index on Field.farmId
 3. Add composite index: `[tenantId, status, cropType]` on Field
@@ -150,53 +170,60 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 ---
 
 ### 1.3 Field Management Service
+
 **Database Models:** 6
 **Total Indexes:** 11
 **Coverage Score:** 7/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| Field | 4 | 0 | 0 |
-| FieldBoundaryHistory | 2 | 1 | 0 |
-| SyncStatus | 2 | 0 | 0 |
-| Task | 3 | 1 | 0 |
-| NdviReading | 1 | 1 | 0 |
+
+| Model                | Indexes | Foreign Keys | Missing FK Indexes |
+| -------------------- | ------- | ------------ | ------------------ |
+| Field                | 4       | 0            | 0                  |
+| FieldBoundaryHistory | 2       | 1            | 0                  |
+| SyncStatus           | 2       | 0            | 0                  |
+| Task                 | 3       | 1            | 0                  |
+| NdviReading          | 1       | 1            | 0                  |
 
 **Note:** This service appears to be a duplicate/subset of Field Core service. Consider consolidation.
 
 **Recommendations:**
+
 1. Same as Field Core service recommendations
 2. **Architectural:** Evaluate consolidating with Field Core service to avoid duplication
 
 ---
 
 ### 1.4 Inventory Service
+
 **Database Models:** 8
 **Total Indexes:** 19
 **Coverage Score:** 7.5/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| InventoryItem | 4 | 0 | 0 |
-| InventoryMovement | 4 | 1 | 0 |
-| InventoryAlert | 4 | 1 | 0 |
-| AlertSettings | 0 | 0 | 0 |
-| Warehouse | 0 | 0 | 0 |
-| Zone | 1 | 1 | 0 |
-| StorageLocation | 2 | 1 | 0 |
-| StockTransfer | 4 | 2 | 0 |
+
+| Model             | Indexes | Foreign Keys | Missing FK Indexes |
+| ----------------- | ------- | ------------ | ------------------ |
+| InventoryItem     | 4       | 0            | 0                  |
+| InventoryMovement | 4       | 1            | 0                  |
+| InventoryAlert    | 4       | 1            | 0                  |
+| AlertSettings     | 0       | 0            | 0                  |
+| Warehouse         | 0       | 0            | 0                  |
+| Zone              | 1       | 1            | 0                  |
+| StorageLocation   | 2       | 1            | 0                  |
+| StockTransfer     | 4       | 2            | 0                  |
 
 #### Detailed Index Configuration
 
 **InventoryItem Model:**
+
 ```prisma
 @@index([tenantId])
 @@index([category])
 @@index([quantity])
 @@index([expiryDate])
 ```
+
 - ✅ Good: Covers filtering and sorting fields
 - ⚠️ Missing: Index on `[sku]` even though it has @unique (automatically indexed)
 - ⚠️ Missing: Composite index [tenantId, category, quantity] for inventory reports
@@ -204,42 +231,51 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 - ⚠️ Missing: Index on [expiryDate] WHERE expiryDate IS NOT NULL for expiry alerts
 
 **InventoryMovement Model:**
+
 ```prisma
 @@index([itemId])
 @@index([tenantId])
 @@index([type])
 @@index([createdAt])
 ```
+
 - ✅ Good: Covers basic queries
 - ⚠️ Missing: Composite index [itemId, createdAt] for item history
 - ⚠️ Missing: Composite index [tenantId, type, createdAt] for movement reports
 
 **InventoryAlert Model:**
+
 ```prisma
 @@index([status, priority])
 @@index([itemId])
 @@index([alertType])
 @@index([createdAt])
 ```
+
 - ✅ Good: Composite index on status and priority
 - ⚠️ Consider: Partial index for active alerts: `WHERE status = 'ACTIVE'`
 
 **Warehouse Model:**
+
 ```prisma
 // NO INDEXES!
 ```
+
 - ❌ **Critical:** Missing all indexes
 - ❌ Missing: Index on [isActive]
 - ❌ Missing: Index on [warehouseType]
 - ❌ Missing: Spatial index on lat/long for location queries
 
 **AlertSettings Model:**
+
 ```prisma
 // NO INDEXES! (but has unique constraint on tenantId)
 ```
+
 - ✅ Acceptable: Small table with unique constraint on tenantId
 
 **Recommendations:**
+
 1. **Critical:** Add indexes to Warehouse model
 2. Add composite index: `[tenantId, category, quantity]` on InventoryItem
 3. Add partial index for low stock items
@@ -249,23 +285,26 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 ---
 
 ### 1.5 IoT Service
+
 **Database Models:** 7
 **Total Indexes:** 31
 **Coverage Score:** 9/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| Device | 8 | 0 | 0 |
-| Sensor | 3 | 1 | 0 |
-| SensorReading | 5 | 2 | 0 |
-| Actuator | 3 | 1 | 0 |
-| ActuatorCommand | 5 | 1 | 0 |
-| DeviceAlert | 7 | 1 | 0 |
+
+| Model           | Indexes | Foreign Keys | Missing FK Indexes |
+| --------------- | ------- | ------------ | ------------------ |
+| Device          | 8       | 0            | 0                  |
+| Sensor          | 3       | 1            | 0                  |
+| SensorReading   | 5       | 2            | 0                  |
+| Actuator        | 3       | 1            | 0                  |
+| ActuatorCommand | 5       | 1            | 0                  |
+| DeviceAlert     | 7       | 1            | 0                  |
 
 #### Detailed Index Configuration
 
 **Device Model:**
+
 ```prisma
 @@unique([tenantId, deviceId])
 @@index([tenantId])
@@ -276,12 +315,14 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 @@index([tenantId, status])      // Composite
 @@index([tenantId, fieldId])     // Composite
 ```
+
 - ✅ **Excellent:** Comprehensive indexing strategy
 - ✅ Good: Composite indexes for common query patterns
 - ✅ Good: Index on lastSeen for offline device detection
 - ⚠️ Consider: Partial index for offline devices: `WHERE status = 'OFFLINE'`
 
 **SensorReading Model:**
+
 ```prisma
 @@index([sensorId])
 @@index([deviceId])
@@ -289,12 +330,14 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 @@index([sensorId, timestamp])    // Composite
 @@index([deviceId, timestamp])    // Composite
 ```
+
 - ✅ **Excellent:** Time-series optimized indexing
 - ✅ Good: Composite indexes for historical queries
 - ⚠️ Consider: BRIN index on timestamp for large tables
 - ⚠️ Consider: Partial index for recent readings (last 7 days)
 
 **DeviceAlert Model:**
+
 ```prisma
 @@index([deviceId])
 @@index([tenantId])
@@ -305,11 +348,13 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 @@index([tenantId, severity])        // Composite
 @@index([deviceId, acknowledged])    // Composite
 ```
+
 - ✅ **Excellent:** Best-in-class indexing
 - ✅ Good: Multiple composite indexes for dashboard queries
 - ✅ Good: Covers all common access patterns
 
 **Recommendations:**
+
 1. Consider BRIN indexes for time-series data (SensorReading.timestamp)
 2. Add partial index for unacknowledged alerts
 3. Add partial index for recent sensor readings
@@ -318,31 +363,34 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 ---
 
 ### 1.6 Marketplace Service
+
 **Database Models:** 16
 **Total Indexes:** 36
 **Coverage Score:** 7/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| Product | 5 | 0 | 0 |
-| Order | 4 | 0 | 0 |
-| OrderItem | 2 | 2 | 0 |
-| Wallet | 1 | 0 | 0 |
-| Transaction | 1 | 2 | 1 |
-| Loan | 1 | 1 | 0 |
-| CreditEvent | 2 | 1 | 0 |
-| Escrow | 3 | 2 | 0 |
-| ScheduledPayment | 3 | 1 | 0 |
-| WalletAuditLog | 4 | 2 | 0 |
-| SellerProfile | 4 | 0 | 0 |
-| BuyerProfile | 2 | 0 | 0 |
-| ProductReview | 5 | 2 | 0 |
-| ReviewResponse | 2 | 2 | 0 |
+
+| Model            | Indexes | Foreign Keys | Missing FK Indexes |
+| ---------------- | ------- | ------------ | ------------------ |
+| Product          | 5       | 0            | 0                  |
+| Order            | 4       | 0            | 0                  |
+| OrderItem        | 2       | 2            | 0                  |
+| Wallet           | 1       | 0            | 0                  |
+| Transaction      | 1       | 2            | 1                  |
+| Loan             | 1       | 1            | 0                  |
+| CreditEvent      | 2       | 1            | 0                  |
+| Escrow           | 3       | 2            | 0                  |
+| ScheduledPayment | 3       | 1            | 0                  |
+| WalletAuditLog   | 4       | 2            | 0                  |
+| SellerProfile    | 4       | 0            | 0                  |
+| BuyerProfile     | 2       | 0            | 0                  |
+| ProductReview    | 5       | 2            | 0                  |
+| ReviewResponse   | 2       | 2            | 0                  |
 
 #### Detailed Index Configuration
 
 **Product Model:**
+
 ```prisma
 @@index([sellerId, status])
 @@index([category, status])
@@ -350,51 +398,61 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 @@index([id, stock])
 @@index([deletedAt])
 ```
+
 - ✅ Good: Composite indexes for filtering
 - ⚠️ Missing: Full-text search index on name/description
 - ⚠️ Missing: Spatial index for location-based queries (governorate/district)
 - ⚠️ Missing: Index on [createdAt] for new listings
 
 **Order Model:**
+
 ```prisma
 @@index([buyerId, status])
 @@index([status, createdAt])
 @@index([createdAt])
 @@index([deletedAt])
 ```
+
 - ✅ Good: Covers common query patterns
 - ⚠️ Missing: Index on [orderNumber] (even though unique)
 - ⚠️ Missing: Composite index [buyerId, createdAt] for buyer history
 
 **Transaction Model:**
+
 ```prisma
 @@index([idempotencyKey])
 // Missing index on walletId (foreign key!)
 ```
+
 - ❌ **Critical:** Missing index on walletId (foreign key)
 - ⚠️ Missing: Composite index [walletId, createdAt] for transaction history
 - ⚠️ Missing: Index on [type] for transaction type filtering
 - ⚠️ Missing: Index on [status] for pending transactions
 
 **Wallet Model:**
+
 ```prisma
 @@index([deletedAt])
 // userId has unique constraint (automatically indexed)
 ```
+
 - ⚠️ Missing: Index on [creditTier] for tier-based queries
 - ⚠️ Missing: Index on [isVerified] for verification status
 
 **WalletAuditLog Model:**
+
 ```prisma
 @@index([walletId])
 @@index([transactionId])
 @@index([createdAt])
 @@index([idempotencyKey])
 ```
+
 - ✅ Good: Audit trail properly indexed
 - ⚠️ Consider: BRIN index on createdAt for large audit tables
 
 **Recommendations:**
+
 1. **Critical:** Add index on Transaction.walletId (foreign key)
 2. Add full-text search indexes on Product (name, description)
 3. Add composite index: `[walletId, createdAt]` on Transaction
@@ -405,25 +463,27 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 ---
 
 ### 1.7 Research Core Service
+
 **Database Models:** 14
 **Total Indexes:** 14
 **Coverage Score:** 6/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| Germplasm | 0 | 0 | 0 |
-| SeedLot | 0 | 1 | 1 |
-| Planting | 0 | 4 | 4 |
-| Experiment | 0 | 0 | 0 |
-| ResearchProtocol | 0 | 1 | 1 |
-| ResearchPlot | 1 | 1 | 0 |
-| Treatment | 0 | 2 | 2 |
-| ResearchDailyLog | 0 | 3 | 3 |
-| LabSample | 0 | 3 | 3 |
-| DigitalSignature | 1 | 0 | 0 |
-| ExperimentCollaborator | 1 | 1 | 0 |
-| ExperimentAuditLog | 0 | 1 | 1 |
+
+| Model                  | Indexes | Foreign Keys | Missing FK Indexes |
+| ---------------------- | ------- | ------------ | ------------------ |
+| Germplasm              | 0       | 0            | 0                  |
+| SeedLot                | 0       | 1            | 1                  |
+| Planting               | 0       | 4            | 4                  |
+| Experiment             | 0       | 0            | 0                  |
+| ResearchProtocol       | 0       | 1            | 1                  |
+| ResearchPlot           | 1       | 1            | 0                  |
+| Treatment              | 0       | 2            | 2                  |
+| ResearchDailyLog       | 0       | 3            | 3                  |
+| LabSample              | 0       | 3            | 3                  |
+| DigitalSignature       | 1       | 0            | 0                  |
+| ExperimentCollaborator | 1       | 1            | 0                  |
+| ExperimentAuditLog     | 0       | 1            | 1                  |
 
 #### Critical Issues
 
@@ -434,9 +494,11 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 **Missing Indexes Analysis:**
 
 **Germplasm Model:**
+
 ```prisma
 // NO INDEXES!
 ```
+
 - ❌ Missing: Index on [accessionNumber] (has unique, auto-indexed)
 - ❌ Missing: Index on [isAvailable]
 - ❌ Missing: Index on [type]
@@ -444,18 +506,22 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 - ❌ Missing: Full-text search on common/scientific names
 
 **SeedLot Model:**
+
 ```prisma
 // NO INDEXES except unique on lotNumber!
 ```
+
 - ❌ Missing: Index on germplasmId (foreign key!)
 - ❌ Missing: Index on [qualityGrade]
 - ❌ Missing: Index on [expiryDate]
 - ❌ Missing: Index on [productionDate]
 
 **Planting Model:**
+
 ```prisma
 // NO INDEXES!
 ```
+
 - ❌ Missing: Index on experimentId (foreign key!)
 - ❌ Missing: Index on plotId (foreign key!)
 - ❌ Missing: Index on germplasmId (foreign key!)
@@ -463,9 +529,11 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 - ❌ Missing: Index on [plantingDate]
 
 **Experiment Model:**
+
 ```prisma
 // NO INDEXES!
 ```
+
 - ❌ Missing: Index on [status]
 - ❌ Missing: Index on [principalResearcherId]
 - ❌ Missing: Index on [organizationId]
@@ -474,10 +542,12 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 - ❌ Missing: Full-text search on title
 
 **Treatment, ResearchDailyLog, LabSample:**
+
 - ❌ All missing critical foreign key indexes
 - ❌ All missing date-based indexes
 
 **Recommendations:**
+
 1. **URGENT:** Add indexes on ALL foreign keys (15+ missing)
 2. **URGENT:** Add indexes on status fields
 3. **URGENT:** Add indexes on date fields (plantingDate, startDate, etc.)
@@ -488,33 +558,38 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 ---
 
 ### 1.8 User Service
+
 **Database Models:** 4
 **Total Indexes:** 13
 **Coverage Score:** 8/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| User | 4 | 0 | 0 |
-| UserProfile | 2 | 1 | 0 |
-| UserRole | 0 | 0 | 0 |
-| UserSession | 3 | 1 | 0 |
-| RefreshToken | 5 | 1 | 0 |
+
+| Model        | Indexes | Foreign Keys | Missing FK Indexes |
+| ------------ | ------- | ------------ | ------------------ |
+| User         | 4       | 0            | 0                  |
+| UserProfile  | 2       | 1            | 0                  |
+| UserRole     | 0       | 0            | 0                  |
+| UserSession  | 3       | 1            | 0                  |
+| RefreshToken | 5       | 1            | 0                  |
 
 #### Detailed Index Configuration
 
 **User Model:**
+
 ```prisma
 @@index([tenantId])
 @@index([email])    // Also has unique constraint
 @@index([status])
 @@index([role])
 ```
+
 - ✅ Good: Covers authentication and authorization queries
 - ⚠️ Missing: Composite index [tenantId, status] for active user queries
 - ⚠️ Missing: Index on [lastLoginAt] for activity tracking
 
 **RefreshToken Model:**
+
 ```prisma
 @@index([userId])
 @@index([jti])      // Also has unique constraint
@@ -522,21 +597,25 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 @@index([token])    // Also has unique constraint
 @@index([expiresAt])
 ```
+
 - ✅ **Excellent:** Proper token rotation support
 - ✅ Good: Index on family for token family tracking
 - ✅ Good: Index on expiresAt for cleanup
 - ⚠️ Consider: Partial index for active tokens: `WHERE revoked = false AND used = false`
 
 **UserSession Model:**
+
 ```prisma
 @@index([userId])
 @@index([token])
 @@index([expiresAt])
 ```
+
 - ✅ Good: Session management properly indexed
 - ⚠️ Consider: Partial index for active sessions: `WHERE expiresAt > NOW()`
 
 **Recommendations:**
+
 1. Add composite index: `[tenantId, status]` on User
 2. Add index on User.lastLoginAt
 3. Add partial indexes for active tokens/sessions
@@ -545,27 +624,31 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 ---
 
 ### 1.9 Weather Service
+
 **Database Models:** 4
 **Total Indexes:** 14
 **Coverage Score:** 8.5/10
 
 #### Indexes Summary
-| Model | Indexes | Foreign Keys | Missing FK Indexes |
-|-------|---------|--------------|-------------------|
-| WeatherObservation | 4 | 0 | 0 |
-| WeatherForecast | 5 | 0 | 0 |
-| WeatherAlert | 5 | 0 | 0 |
-| LocationConfig | 3 | 0 | 0 |
+
+| Model              | Indexes | Foreign Keys | Missing FK Indexes |
+| ------------------ | ------- | ------------ | ------------------ |
+| WeatherObservation | 4       | 0            | 0                  |
+| WeatherForecast    | 5       | 0            | 0                  |
+| WeatherAlert       | 5       | 0            | 0                  |
+| LocationConfig     | 3       | 0            | 0                  |
 
 #### Detailed Index Configuration
 
 **WeatherObservation Model:**
+
 ```prisma
 @@index([locationId, timestamp(sort: Desc)])
 @@index([tenantId, timestamp(sort: Desc)])
 @@index([timestamp(sort: Desc)])
 @@index([latitude, longitude, timestamp])
 ```
+
 - ✅ **Excellent:** Time-series optimized with DESC ordering
 - ✅ Good: Spatial index for location-based queries
 - ✅ Good: Tenant isolation support
@@ -573,6 +656,7 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 - ⚠️ Consider: PostGIS spatial index instead of lat/long composite
 
 **WeatherForecast Model:**
+
 ```prisma
 @@index([locationId, forecastFor(sort: Desc)])
 @@index([tenantId, forecastFor(sort: Desc)])
@@ -580,12 +664,14 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 @@index([fetchedAt(sort: Desc)])
 @@unique([locationId, forecastFor, provider])
 ```
+
 - ✅ **Excellent:** Proper time-series indexing
 - ✅ Good: Unique constraint prevents duplicate forecasts
 - ✅ Good: Index on fetchedAt for data cleanup
 - ⚠️ Consider: Partial index for future forecasts: `WHERE forecastFor > NOW()`
 
 **WeatherAlert Model:**
+
 ```prisma
 @@index([locationId, startTime(sort: Desc)])
 @@index([tenantId, startTime(sort: Desc)])
@@ -593,20 +679,24 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 @@index([startTime, endTime])
 @@index([endTime(sort: Desc)])
 ```
+
 - ✅ **Excellent:** Comprehensive alert querying support
 - ✅ Good: Range index for active alerts
 - ⚠️ Consider: Partial index for active alerts: `WHERE endTime > NOW()`
 
 **LocationConfig Model:**
+
 ```prisma
 @@index([tenantId, isActive])
 @@index([isActive])
 @@unique([tenantId, latitude, longitude])
 ```
+
 - ✅ Good: Active location queries optimized
 - ✅ Good: Prevents duplicate locations per tenant
 
 **Recommendations:**
+
 1. Consider BRIN indexes for time-series columns
 2. Add PostGIS spatial indexes if using geography types
 3. Add partial indexes for active/future records
@@ -618,18 +708,19 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 
 ### 2.1 Index Type Distribution
 
-| Index Type | Count | Percentage |
-|------------|-------|------------|
-| Single Column B-Tree | 89 | 61.4% |
-| Composite B-Tree | 41 | 28.3% |
-| Unique Constraints | 15 | 10.3% |
-| Spatial (PostGIS) | 0 | 0% |
-| Full-Text (GIN) | 0 | 0% |
-| BRIN (Time-Series) | 0 | 0% |
-| Hash | 0 | 0% |
-| Partial | 0 | 0% |
+| Index Type           | Count | Percentage |
+| -------------------- | ----- | ---------- |
+| Single Column B-Tree | 89    | 61.4%      |
+| Composite B-Tree     | 41    | 28.3%      |
+| Unique Constraints   | 15    | 10.3%      |
+| Spatial (PostGIS)    | 0     | 0%         |
+| Full-Text (GIN)      | 0     | 0%         |
+| BRIN (Time-Series)   | 0     | 0%         |
+| Hash                 | 0     | 0%         |
+| Partial              | 0     | 0%         |
 
 **Observations:**
+
 - ❌ **No spatial indexes** despite geographic data (farms, fields, locations)
 - ❌ **No full-text search indexes** despite text search requirements
 - ❌ **No BRIN indexes** despite large time-series tables
@@ -640,16 +731,16 @@ This comprehensive audit analyzes database indexing strategies across the SAHOOL
 
 Total Foreign Keys without Indexes: **8**
 
-| Service | Model | Foreign Key Column | Impact |
-|---------|-------|-------------------|--------|
-| Field Core | Field | farmId | HIGH - Join performance |
-| Research Core | SeedLot | germplasmId | HIGH - Cascading deletes |
-| Research Core | Planting | experimentId | CRITICAL - Main query path |
-| Research Core | Planting | plotId | HIGH - Common joins |
-| Research Core | Planting | germplasmId | HIGH - Lookup queries |
-| Research Core | Planting | seedLotId | MEDIUM - Optional FK |
-| Marketplace | Transaction | walletId | CRITICAL - Transaction queries |
-| Marketplace | Transaction | orderId | HIGH - Order lookups |
+| Service       | Model       | Foreign Key Column | Impact                         |
+| ------------- | ----------- | ------------------ | ------------------------------ |
+| Field Core    | Field       | farmId             | HIGH - Join performance        |
+| Research Core | SeedLot     | germplasmId        | HIGH - Cascading deletes       |
+| Research Core | Planting    | experimentId       | CRITICAL - Main query path     |
+| Research Core | Planting    | plotId             | HIGH - Common joins            |
+| Research Core | Planting    | germplasmId        | HIGH - Lookup queries          |
+| Research Core | Planting    | seedLotId          | MEDIUM - Optional FK           |
+| Marketplace   | Transaction | walletId           | CRITICAL - Transaction queries |
+| Marketplace   | Transaction | orderId            | HIGH - Order lookups           |
 
 ### 2.3 Recommended Composite Indexes
 
@@ -685,24 +776,28 @@ Based on query pattern analysis:
 Partial indexes can significantly improve performance for filtered queries:
 
 1. **Message (Chat):**
+
    ```sql
    CREATE INDEX idx_message_unread ON messages(conversation_id, created_at)
    WHERE is_read = false;
    ```
 
 2. **InventoryItem:**
+
    ```sql
    CREATE INDEX idx_inventory_low_stock ON inventory_items(tenant_id, category)
    WHERE quantity <= reorder_level;
    ```
 
 3. **Device (IoT):**
+
    ```sql
    CREATE INDEX idx_device_offline ON devices(tenant_id, last_seen)
    WHERE status = 'OFFLINE';
    ```
 
 4. **WeatherForecast:**
+
    ```sql
    CREATE INDEX idx_forecast_future ON weather_forecasts(location_id, forecast_for)
    WHERE forecast_for > NOW();
@@ -719,6 +814,7 @@ Partial indexes can significantly improve performance for filtered queries:
 For services using geographic data:
 
 1. **Field Core:**
+
    ```sql
    CREATE INDEX idx_farm_location ON farms USING GIST(location);
    CREATE INDEX idx_farm_boundary ON farms USING GIST(boundary);
@@ -738,6 +834,7 @@ For services using geographic data:
 For text search optimization:
 
 1. **Product (Marketplace):**
+
    ```sql
    CREATE INDEX idx_product_search ON products
    USING GIN(to_tsvector('english', name || ' ' || COALESCE(description, '')));
@@ -747,6 +844,7 @@ For text search optimization:
    ```
 
 2. **Germplasm (Research):**
+
    ```sql
    CREATE INDEX idx_germplasm_search ON germplasm
    USING GIN(to_tsvector('english',
@@ -764,12 +862,14 @@ For text search optimization:
 For large time-series tables:
 
 1. **SensorReading (IoT):**
+
    ```sql
    CREATE INDEX idx_sensor_reading_timestamp_brin ON sensor_readings
    USING BRIN(timestamp) WITH (pages_per_range = 128);
    ```
 
 2. **WeatherObservation:**
+
    ```sql
    CREATE INDEX idx_weather_obs_timestamp_brin ON weather_observations
    USING BRIN(timestamp) WITH (pages_per_range = 128);
@@ -787,45 +887,45 @@ For large time-series tables:
 
 ### 3.1 High Impact Issues (Immediate Action Required)
 
-| Issue | Services Affected | Impact Score | Estimated Impact |
-|-------|------------------|--------------|------------------|
-| Missing FK indexes | Research Core, Marketplace, Field Core | 10/10 | 50-90% slower joins |
-| No spatial indexes | Field Core | 9/10 | 100x slower spatial queries |
-| No indexes on Research models | Research Core | 9/10 | Table scans on all queries |
-| Missing Transaction.walletId index | Marketplace | 9/10 | Slow wallet queries |
-| No full-text search indexes | Marketplace, Research | 8/10 | Slow search queries |
+| Issue                              | Services Affected                      | Impact Score | Estimated Impact            |
+| ---------------------------------- | -------------------------------------- | ------------ | --------------------------- |
+| Missing FK indexes                 | Research Core, Marketplace, Field Core | 10/10        | 50-90% slower joins         |
+| No spatial indexes                 | Field Core                             | 9/10         | 100x slower spatial queries |
+| No indexes on Research models      | Research Core                          | 9/10         | Table scans on all queries  |
+| Missing Transaction.walletId index | Marketplace                            | 9/10         | Slow wallet queries         |
+| No full-text search indexes        | Marketplace, Research                  | 8/10         | Slow search queries         |
 
 ### 3.2 Medium Impact Issues (Plan for Implementation)
 
-| Issue | Impact Score | Estimated Impact |
-|-------|--------------|------------------|
-| Missing composite indexes | 7/10 | 30-50% slower filtered queries |
-| No partial indexes | 6/10 | 20-40% slower on filtered scans |
-| Missing Warehouse indexes | 7/10 | Full table scans |
-| No BRIN indexes for time-series | 6/10 | Larger index size, slower scans |
+| Issue                           | Impact Score | Estimated Impact                |
+| ------------------------------- | ------------ | ------------------------------- |
+| Missing composite indexes       | 7/10         | 30-50% slower filtered queries  |
+| No partial indexes              | 6/10         | 20-40% slower on filtered scans |
+| Missing Warehouse indexes       | 7/10         | Full table scans                |
+| No BRIN indexes for time-series | 6/10         | Larger index size, slower scans |
 
 ### 3.3 Low Impact Issues (Nice to Have)
 
-| Issue | Impact Score | Estimated Impact |
-|-------|--------------|------------------|
-| Additional composite indexes | 5/10 | 10-20% improvement |
-| Named indexes missing | 3/10 | Maintenance clarity |
-| Missing DESC sort hints | 4/10 | 5-10% on sorted queries |
+| Issue                        | Impact Score | Estimated Impact        |
+| ---------------------------- | ------------ | ----------------------- |
+| Additional composite indexes | 5/10         | 10-20% improvement      |
+| Named indexes missing        | 3/10         | Maintenance clarity     |
+| Missing DESC sort hints      | 4/10         | 5-10% on sorted queries |
 
 ### 3.4 Query Performance Projections
 
 Based on typical data volumes:
 
-| Service | Current Performance | With Recommended Indexes | Improvement |
-|---------|-------------------|-------------------------|-------------|
-| Research Core | Poor (table scans) | Good | 100x+ |
-| Field Core | Fair (missing spatial) | Excellent | 50x |
-| Marketplace | Good (missing some FK) | Excellent | 5x |
-| IoT | Excellent | Excellent | 1.1x |
-| Weather | Very Good | Excellent | 2x |
-| Inventory | Good | Very Good | 3x |
-| User | Very Good | Excellent | 1.5x |
-| Chat | Good | Very Good | 2x |
+| Service       | Current Performance    | With Recommended Indexes | Improvement |
+| ------------- | ---------------------- | ------------------------ | ----------- |
+| Research Core | Poor (table scans)     | Good                     | 100x+       |
+| Field Core    | Fair (missing spatial) | Excellent                | 50x         |
+| Marketplace   | Good (missing some FK) | Excellent                | 5x          |
+| IoT           | Excellent              | Excellent                | 1.1x        |
+| Weather       | Very Good              | Excellent                | 2x          |
+| Inventory     | Good                   | Very Good                | 3x          |
+| User          | Very Good              | Excellent                | 1.5x        |
+| Chat          | Good                   | Very Good                | 2x          |
 
 ---
 
@@ -882,10 +982,12 @@ CREATE INDEX CONCURRENTLY idx_field_farm_id ON fields(farm_id);
 Recommend standardizing index names:
 
 **Current:**
+
 - ✅ Good: `idx_farm_tenant`, `idx_field_sync` (Field Core)
 - ❌ Poor: Unnamed indexes in most services
 
 **Recommended Convention:**
+
 ```
 idx_{table}_{columns}_{type}
 
@@ -902,6 +1004,7 @@ Examples:
 ## 5. Implementation Roadmap
 
 ### Phase 1: Critical Fixes (Week 1)
+
 **Priority:** URGENT
 **Estimated Impact:** 100x performance improvement
 
@@ -911,6 +1014,7 @@ Examples:
 4. ✅ Add Transaction.walletId index
 
 **SQL Migration:**
+
 ```sql
 -- Research Core
 CREATE INDEX idx_seed_lot_germplasm ON seed_lots(germplasm_id);
@@ -944,6 +1048,7 @@ CREATE INDEX idx_warehouse_location ON warehouses(latitude, longitude);
 ```
 
 ### Phase 2: Spatial & Full-Text Indexes (Week 2)
+
 **Priority:** HIGH
 **Estimated Impact:** 50x for spatial, 10x for search
 
@@ -951,6 +1056,7 @@ CREATE INDEX idx_warehouse_location ON warehouses(latitude, longitude);
 2. ✅ Add full-text search indexes (6 indexes)
 
 **SQL Migration:**
+
 ```sql
 -- Spatial Indexes (PostGIS)
 CREATE INDEX idx_farm_location_gist ON farms USING GIST(location);
@@ -970,12 +1076,14 @@ CREATE INDEX idx_experiment_search ON experiments
 ```
 
 ### Phase 3: Composite Indexes (Week 3)
+
 **Priority:** MEDIUM
 **Estimated Impact:** 3-5x for filtered queries
 
 1. ✅ Add composite indexes for common query patterns (12 indexes)
 
 **SQL Migration:**
+
 ```sql
 -- Field Core
 CREATE INDEX idx_field_tenant_status_crop ON fields(tenant_id, status, crop_type);
@@ -1002,6 +1110,7 @@ CREATE INDEX idx_participant_user_online ON participants(user_id, is_online);
 ```
 
 ### Phase 4: Partial & BRIN Indexes (Week 4)
+
 **Priority:** LOW-MEDIUM
 **Estimated Impact:** 2-3x for specific queries
 
@@ -1009,6 +1118,7 @@ CREATE INDEX idx_participant_user_online ON participants(user_id, is_online);
 2. ✅ Add BRIN indexes for time-series data (3 indexes)
 
 **SQL Migration:**
+
 ```sql
 -- Partial Indexes
 CREATE INDEX idx_message_unread_partial ON messages(conversation_id, created_at)
@@ -1038,6 +1148,7 @@ CREATE INDEX idx_audit_ts_brin ON wallet_audit_logs
 ```
 
 ### Phase 5: Optimization & Monitoring (Ongoing)
+
 **Priority:** ONGOING
 **Activities:**
 
@@ -1051,17 +1162,17 @@ CREATE INDEX idx_audit_ts_brin ON wallet_audit_logs
 
 ## 6. Service-Level Coverage Scores
 
-| Service | Score | Grade | Status |
-|---------|-------|-------|--------|
-| IoT Service | 9.0/10 | A | ✅ Excellent |
-| Weather Service | 8.5/10 | A- | ✅ Very Good |
-| Chat Service | 8.0/10 | B+ | ✅ Good |
-| User Service | 8.0/10 | B+ | ✅ Good |
-| Field Core | 7.5/10 | B | ⚠️ Needs Improvement |
-| Inventory Service | 7.0/10 | B- | ⚠️ Needs Improvement |
-| Marketplace Service | 7.0/10 | B- | ⚠️ Needs Improvement |
-| Field Management | 7.0/10 | B- | ⚠️ Duplicate Service |
-| Research Core | 3.0/10 | F | ❌ Critical Issues |
+| Service             | Score  | Grade | Status               |
+| ------------------- | ------ | ----- | -------------------- |
+| IoT Service         | 9.0/10 | A     | ✅ Excellent         |
+| Weather Service     | 8.5/10 | A-    | ✅ Very Good         |
+| Chat Service        | 8.0/10 | B+    | ✅ Good              |
+| User Service        | 8.0/10 | B+    | ✅ Good              |
+| Field Core          | 7.5/10 | B     | ⚠️ Needs Improvement |
+| Inventory Service   | 7.0/10 | B-    | ⚠️ Needs Improvement |
+| Marketplace Service | 7.0/10 | B-    | ⚠️ Needs Improvement |
+| Field Management    | 7.0/10 | B-    | ⚠️ Duplicate Service |
+| Research Core       | 3.0/10 | F     | ❌ Critical Issues   |
 
 **Overall Platform Score:** 7.2/10 (C+)
 
@@ -1070,6 +1181,7 @@ CREATE INDEX idx_audit_ts_brin ON wallet_audit_logs
 ## 7. Index Statistics Summary
 
 ### Total Index Counts
+
 - **Total Indexes:** 145
 - **Unique Constraints:** 15
 - **Single Column Indexes:** 89
@@ -1080,6 +1192,7 @@ CREATE INDEX idx_audit_ts_brin ON wallet_audit_logs
 - **BRIN Indexes:** 0
 
 ### Missing Indexes
+
 - **Missing FK Indexes:** 8 (HIGH PRIORITY)
 - **Recommended Composite:** 12
 - **Recommended Partial:** 8
@@ -1094,30 +1207,32 @@ CREATE INDEX idx_audit_ts_brin ON wallet_audit_logs
 ## 8. Cost-Benefit Analysis
 
 ### Storage Impact
+
 Estimated additional storage for recommended indexes:
 
-| Index Type | Count | Avg Size | Total Size |
-|------------|-------|----------|------------|
-| Standard B-Tree | 20 | 50 MB | 1 GB |
-| Composite | 12 | 75 MB | 900 MB |
-| Spatial (PostGIS) | 4 | 200 MB | 800 MB |
-| Full-Text (GIN) | 6 | 150 MB | 900 MB |
-| Partial | 8 | 20 MB | 160 MB |
-| BRIN | 3 | 5 MB | 15 MB |
-| **Total** | **53** | - | **~3.8 GB** |
+| Index Type        | Count  | Avg Size | Total Size  |
+| ----------------- | ------ | -------- | ----------- |
+| Standard B-Tree   | 20     | 50 MB    | 1 GB        |
+| Composite         | 12     | 75 MB    | 900 MB      |
+| Spatial (PostGIS) | 4      | 200 MB   | 800 MB      |
+| Full-Text (GIN)   | 6      | 150 MB   | 900 MB      |
+| Partial           | 8      | 20 MB    | 160 MB      |
+| BRIN              | 3      | 5 MB     | 15 MB       |
+| **Total**         | **53** | -        | **~3.8 GB** |
 
 ### Performance Benefits
 
-| Metric | Current | After Phase 1 | After All Phases |
-|--------|---------|--------------|------------------|
-| Avg Query Time (Research) | 2000ms | 50ms | 20ms |
-| Avg Query Time (Field Core) | 500ms | 100ms | 30ms |
-| Avg Query Time (Marketplace) | 200ms | 50ms | 30ms |
-| Spatial Query Time | 10000ms | N/A | 50ms |
-| Search Query Time | 3000ms | N/A | 100ms |
-| Overall Platform Avg | 800ms | 200ms | 80ms |
+| Metric                       | Current | After Phase 1 | After All Phases |
+| ---------------------------- | ------- | ------------- | ---------------- |
+| Avg Query Time (Research)    | 2000ms  | 50ms          | 20ms             |
+| Avg Query Time (Field Core)  | 500ms   | 100ms         | 30ms             |
+| Avg Query Time (Marketplace) | 200ms   | 50ms          | 30ms             |
+| Spatial Query Time           | 10000ms | N/A           | 50ms             |
+| Search Query Time            | 3000ms  | N/A           | 100ms            |
+| Overall Platform Avg         | 800ms   | 200ms         | 80ms             |
 
 ### ROI Analysis
+
 - **Storage Cost:** ~4 GB additional storage (~$0.10/month cloud storage)
 - **Performance Gain:** 10x average improvement
 - **Development Time:** 40-60 hours implementation
@@ -1131,24 +1246,28 @@ Estimated additional storage for recommended indexes:
 ## 9. Recommendations Summary
 
 ### Immediate Actions (This Week)
+
 1. ✅ **URGENT:** Add missing foreign key indexes (Research Core, Marketplace, Field Core)
 2. ✅ **URGENT:** Add basic indexes to Research Core models
 3. ✅ **URGENT:** Add indexes to Warehouse model
 4. ✅ **HIGH:** Add spatial indexes for geographic queries
 
 ### Short-term (This Month)
+
 1. ✅ Implement full-text search indexes
 2. ✅ Add composite indexes for common query patterns
 3. ✅ Implement partial indexes for filtered queries
 4. ✅ Set up index monitoring and alerting
 
 ### Medium-term (Next Quarter)
+
 1. ✅ Implement BRIN indexes for time-series tables
 2. ✅ Consider table partitioning for large tables
 3. ✅ Evaluate and consolidate duplicate services (Field Management)
 4. ✅ Implement automated index maintenance
 
 ### Long-term (Next 6 Months)
+
 1. ✅ Regular index usage audits
 2. ✅ Implement query performance monitoring
 3. ✅ Optimize database configuration for workload
@@ -1161,6 +1280,7 @@ Estimated additional storage for recommended indexes:
 ### Recommended Monitoring Queries
 
 **1. Find Slow Queries:**
+
 ```sql
 SELECT
     query,
@@ -1174,6 +1294,7 @@ LIMIT 20;
 ```
 
 **2. Index Usage Statistics:**
+
 ```sql
 SELECT
     schemaname,
@@ -1187,6 +1308,7 @@ ORDER BY idx_scan DESC;
 ```
 
 **3. Table Sizes:**
+
 ```sql
 SELECT
     schemaname,
@@ -1199,6 +1321,7 @@ ORDER BY bytes DESC;
 ```
 
 **4. Index Hit Ratio:**
+
 ```sql
 SELECT
     sum(idx_blks_hit) / nullif(sum(idx_blks_hit + idx_blks_read), 0) AS index_hit_ratio
@@ -1214,12 +1337,14 @@ Target: > 0.99 (99% cache hit ratio)
 The SAHOOL platform demonstrates **mixed indexing maturity** across its microservices:
 
 **Strengths:**
+
 - ✅ IoT Service has excellent indexing strategy
 - ✅ Weather Service properly handles time-series data
 - ✅ User Service covers authentication patterns well
 - ✅ Most services have basic tenant isolation indexes
 
 **Critical Issues:**
+
 - ❌ Research Core Service lacks fundamental indexes (URGENT)
 - ❌ Missing spatial indexes for geographic data
 - ❌ No full-text search indexes

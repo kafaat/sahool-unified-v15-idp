@@ -14,6 +14,7 @@
 ## Widget Features Implemented
 
 ### Core Features
+
 - ✅ Display zones as colored polygons on flutter_map
 - ✅ Color-coded health zones based on NDVI values:
   - Green (>0.6) for healthy zones
@@ -32,6 +33,7 @@
 - ✅ Responsive design for all screen sizes
 
 ### UI Components Included
+
 - Map layer with polygons
 - Zone labels (animated on selection)
 - Health status legend
@@ -79,11 +81,13 @@ ZonesMapLayer(
 ## Integration with Existing Code
 
 ### Compatible with existing models:
+
 - ✅ Field entity (`/lib/features/field/domain/entities/field.dart`)
 - ✅ VRA ManagementZone (`/lib/features/vra/models/vra_models.dart`)
 - ✅ Crop Health Zone (`/lib/features/crop_health/domain/entities/crop_health_entities.dart`)
 
 ### Adapts to SAHOOL design system:
+
 - Uses SahoolColors theme
 - OrganicCard widgets with rounded corners
 - IBM Plex Sans Arabic font
@@ -100,6 +104,7 @@ ZonesMapLayer(
 ## Example Screen Output
 
 The example file demonstrates:
+
 - Loading state with spinner
 - Empty state with helpful message
 - Zone map with 4 example zones (healthy, moderate, critical)
@@ -110,6 +115,7 @@ The example file demonstrates:
 ## Next Steps
 
 1. **Test the widget:**
+
    ```bash
    cd apps/mobile
    flutter run
@@ -130,6 +136,7 @@ The example file demonstrates:
 ## Documentation
 
 Full documentation available in:
+
 - **Widget README**: `ZONES_MAP_LAYER_README.md`
 - **Example Usage**: `zones_map_layer_example.dart`
 - **Inline comments**: Throughout `zones_map_layer.dart`
@@ -137,6 +144,7 @@ Full documentation available in:
 ## API Summary
 
 ### ZoneHealth Model
+
 ```dart
 ZoneHealth(
   id: String,              // Unique zone ID
@@ -153,6 +161,7 @@ ZoneHealth(
 ```
 
 ### ZonesMapLayer Parameters
+
 ```dart
 ZonesMapLayer(
   required zones: List<ZoneHealth>,
@@ -170,6 +179,7 @@ ZonesMapLayer(
 ## File Locations
 
 All files created in:
+
 ```
 apps/mobile/lib/features/field/presentation/widgets/
 ├── zones_map_layer.dart              # Main widget (800+ lines)
@@ -180,6 +190,7 @@ apps/mobile/lib/features/field/presentation/widgets/
 ## Testing
 
 The widget can be tested by running the example screen:
+
 ```dart
 // Add to your router or navigate directly
 Navigator.push(

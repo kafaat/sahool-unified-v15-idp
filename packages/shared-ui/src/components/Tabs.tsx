@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Tabs Component
@@ -7,8 +7,8 @@
  * An accessible tab navigation component
  */
 
-import * as React from 'react';
-import { cn } from '@sahool/shared-utils';
+import * as React from "react";
+import { cn } from "@sahool/shared-utils";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -31,9 +31,9 @@ export interface TabsProps {
   /** Tab content keyed by tab id */
   children?: React.ReactNode;
   /** Visual variant */
-  variant?: 'line' | 'pills' | 'enclosed';
+  variant?: "line" | "pills" | "enclosed";
   /** Orientation */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: "horizontal" | "vertical";
   /** Additional class name */
   className?: string;
 }
@@ -67,7 +67,7 @@ export function TabPanel({
       id={`tabpanel-${tabId}`}
       aria-labelledby={`tab-${tabId}`}
       tabIndex={0}
-      className={cn('focus:outline-none', className)}
+      className={cn("focus:outline-none", className)}
     >
       {children}
     </div>
@@ -83,12 +83,12 @@ export function Tabs({
   activeTab: controlledActiveTab,
   onTabChange,
   children,
-  variant = 'line',
-  orientation = 'horizontal',
+  variant = "line",
+  orientation = "horizontal",
   className,
 }: TabsProps) {
   const [internalActiveTab, setInternalActiveTab] = React.useState(
-    tabs[0]?.id || ''
+    tabs[0]?.id || "",
   );
 
   const activeTab = controlledActiveTab ?? internalActiveTab;
@@ -104,14 +104,14 @@ export function Tabs({
   const handleKeyDown = (event: React.KeyboardEvent, currentIndex: number) => {
     const enabledTabs = tabs.filter((tab) => !tab.disabled);
     const currentEnabledIndex = enabledTabs.findIndex(
-      (tab) => tab.id === tabs[currentIndex].id
+      (tab) => tab.id === tabs[currentIndex].id,
     );
 
     let nextIndex: number;
 
-    const isHorizontal = orientation === 'horizontal';
-    const prevKey = isHorizontal ? 'ArrowLeft' : 'ArrowUp';
-    const nextKey = isHorizontal ? 'ArrowRight' : 'ArrowDown';
+    const isHorizontal = orientation === "horizontal";
+    const prevKey = isHorizontal ? "ArrowLeft" : "ArrowUp";
+    const nextKey = isHorizontal ? "ArrowRight" : "ArrowDown";
 
     switch (event.key) {
       case prevKey:
@@ -130,11 +130,11 @@ export function Tabs({
             : 0;
         handleTabChange(enabledTabs[nextIndex].id);
         break;
-      case 'Home':
+      case "Home":
         event.preventDefault();
         handleTabChange(enabledTabs[0].id);
         break;
-      case 'End':
+      case "End":
         event.preventDefault();
         handleTabChange(enabledTabs[enabledTabs.length - 1].id);
         break;
@@ -144,55 +144,50 @@ export function Tabs({
   // Variant styles
   const variantStyles = {
     line: {
-      list: 'border-b border-gray-200',
+      list: "border-b border-gray-200",
       tab: cn(
-        'px-4 py-2 -mb-px border-b-2 transition-colors',
-        'hover:text-sahool-600 hover:border-gray-300',
-        'focus:outline-none focus:ring-2 focus:ring-sahool-200 focus:ring-inset'
+        "px-4 py-2 -mb-px border-b-2 transition-colors",
+        "hover:text-sahool-600 hover:border-gray-300",
+        "focus:outline-none focus:ring-2 focus:ring-sahool-200 focus:ring-inset",
       ),
-      active: 'border-sahool-500 text-sahool-600 font-medium',
-      inactive: 'border-transparent text-gray-500',
+      active: "border-sahool-500 text-sahool-600 font-medium",
+      inactive: "border-transparent text-gray-500",
     },
     pills: {
-      list: 'gap-2',
+      list: "gap-2",
       tab: cn(
-        'px-4 py-2 rounded-lg transition-colors',
-        'hover:bg-gray-100',
-        'focus:outline-none focus:ring-2 focus:ring-sahool-200'
+        "px-4 py-2 rounded-lg transition-colors",
+        "hover:bg-gray-100",
+        "focus:outline-none focus:ring-2 focus:ring-sahool-200",
       ),
-      active: 'bg-sahool-100 text-sahool-700 font-medium',
-      inactive: 'text-gray-600',
+      active: "bg-sahool-100 text-sahool-700 font-medium",
+      inactive: "text-gray-600",
     },
     enclosed: {
-      list: 'border-b border-gray-200',
+      list: "border-b border-gray-200",
       tab: cn(
-        'px-4 py-2 -mb-px border border-transparent rounded-t-lg transition-colors',
-        'hover:bg-gray-50',
-        'focus:outline-none focus:ring-2 focus:ring-sahool-200 focus:ring-inset'
+        "px-4 py-2 -mb-px border border-transparent rounded-t-lg transition-colors",
+        "hover:bg-gray-50",
+        "focus:outline-none focus:ring-2 focus:ring-sahool-200 focus:ring-inset",
       ),
       active:
-        'bg-white border-gray-200 border-b-white text-sahool-600 font-medium',
-      inactive: 'text-gray-500',
+        "bg-white border-gray-200 border-b-white text-sahool-600 font-medium",
+      inactive: "text-gray-500",
     },
   };
 
   const styles = variantStyles[variant];
 
   return (
-    <div
-      className={cn(
-        orientation === 'vertical' && 'flex gap-4',
-        className
-      )}
-    >
+    <div className={cn(orientation === "vertical" && "flex gap-4", className)}>
       {/* Tab List */}
       <div
         role="tablist"
         aria-orientation={orientation}
         className={cn(
-          'flex',
-          orientation === 'vertical' ? 'flex-col' : 'flex-row',
-          styles.list
+          "flex",
+          orientation === "vertical" ? "flex-col" : "flex-row",
+          styles.list,
         )}
       >
         {tabs.map((tab, index) => (
@@ -209,10 +204,10 @@ export function Tabs({
             onClick={() => !tab.disabled && handleTabChange(tab.id)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             className={cn(
-              'flex items-center gap-2 whitespace-nowrap',
+              "flex items-center gap-2 whitespace-nowrap",
               styles.tab,
               activeTab === tab.id ? styles.active : styles.inactive,
-              tab.disabled && 'opacity-50 cursor-not-allowed'
+              tab.disabled && "opacity-50 cursor-not-allowed",
             )}
           >
             {tab.icon}
@@ -223,7 +218,7 @@ export function Tabs({
 
       {/* Tab Panels */}
       {children && (
-        <div className={cn('flex-1', orientation === 'horizontal' && 'mt-4')}>
+        <div className={cn("flex-1", orientation === "horizontal" && "mt-4")}>
           {children}
         </div>
       )}

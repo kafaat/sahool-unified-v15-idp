@@ -6,7 +6,7 @@ Publishes compliance-related events to NATS event bus
 import json
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import nats
@@ -19,7 +19,7 @@ class NatsPublisher:
     """NATS Event Publisher for Compliance Service"""
 
     def __init__(self):
-        self.nc: Optional[NatsClient] = None
+        self.nc: NatsClient | None = None
         self.connected = False
 
     async def connect(self, nats_url: str) -> bool:
@@ -57,7 +57,7 @@ class NatsPublisher:
         subject: str,
         event_type: str,
         payload: dict[str, Any],
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """
         Publish event to NATS
@@ -97,10 +97,10 @@ class NatsPublisher:
 
 
 # Global publisher instance
-_publisher: Optional[NatsPublisher] = None
+_publisher: NatsPublisher | None = None
 
 
-def get_publisher() -> Optional[NatsPublisher]:
+def get_publisher() -> NatsPublisher | None:
     """Get global NATS publisher instance"""
     return _publisher
 
@@ -121,7 +121,7 @@ async def publish_compliance_updated(
     tenant_id: str,
     overall_status: str,
     compliance_percentage: float,
-    changes: Optional[dict] = None,
+    changes: dict | None = None,
 ) -> bool:
     """
     Publish compliance record updated event

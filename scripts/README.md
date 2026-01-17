@@ -45,6 +45,7 @@ Platform bootstrap and initialization.
 ```
 
 **Actions:**
+
 - Install dependencies
 - Initialize databases
 - Generate certificates
@@ -65,6 +66,7 @@ Generate complete SAHOOL platform structure.
 ```
 
 **Generates:**
+
 - All microservices
 - Frontend applications
 - Infrastructure configs
@@ -81,6 +83,7 @@ Generate field enterprise edition.
 ```
 
 **Features:**
+
 - Field management services
 - Satellite integration
 - IoT sensor support
@@ -102,6 +105,7 @@ python scripts/generators/generate_design_tokens.py --config tokens.json
 ```
 
 **Output:**
+
 - `packages/design-system/tokens/`
 - CSS custom properties
 - TypeScript types
@@ -120,6 +124,7 @@ python scripts/generators/generate_infra.py --env staging
 ```
 
 **Generates:**
+
 - Docker Compose files
 - Kubernetes manifests
 - Environment files
@@ -147,6 +152,7 @@ Comprehensive database health monitoring for PostgreSQL and PgBouncer.
 ```
 
 **Checks:**
+
 - PostgreSQL connectivity
 - PgBouncer pool status
 - Active connections count
@@ -156,11 +162,13 @@ Comprehensive database health monitoring for PostgreSQL and PgBouncer.
 - Database size
 
 **Exit Codes:**
+
 - `0` = Healthy
 - `1` = Warning
 - `2` = Critical
 
 **Kubernetes Integration:**
+
 ```yaml
 livenessProbe:
   exec:
@@ -190,6 +198,7 @@ Scan for secret leaks in codebase.
 ```
 
 **Checks for:**
+
 - API keys
 - Passwords
 - Private keys
@@ -213,6 +222,7 @@ Generate TLS certificates.
 ```
 
 **Generates:**
+
 - `tools/security/certs/server.crt`
 - `tools/security/certs/server.key`
 - `tools/security/certs/ca.crt`
@@ -235,6 +245,7 @@ Rotate secrets and credentials.
 ```
 
 **Rotates:**
+
 - JWT secrets
 - Database passwords
 - API keys

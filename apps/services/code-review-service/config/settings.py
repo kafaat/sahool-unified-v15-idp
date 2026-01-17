@@ -6,7 +6,6 @@ Enhanced with multi-model support, caching, and GitHub integration
 محسن بدعم النماذج المتعددة والتخزين المؤقت وتكامل GitHub
 """
 
-
 from pydantic_settings import BaseSettings
 
 

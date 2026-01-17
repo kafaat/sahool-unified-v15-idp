@@ -7,8 +7,8 @@
  * @author SAHOOL Platform Team
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Injectable, Logger } from "@nestjs/common";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 export interface DetailedCacheMetrics {
   // Hit/Miss metrics
@@ -37,7 +37,7 @@ export interface DetailedCacheMetrics {
 }
 
 export interface CacheHealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   hitRate: number;
   errorRate: number;
   issues: string[];
@@ -154,44 +154,54 @@ export class CacheMetricsService {
 
     const issues: string[] = [];
     const recommendations: string[] = [];
-    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+    let status: "healthy" | "degraded" | "unhealthy" = "healthy";
 
     // Check hit rate
     if (metrics.hitRate < 0.5) {
       issues.push(`Low hit rate: ${(metrics.hitRate * 100).toFixed(1)}%`);
-      recommendations.push('Consider increasing TTL or implementing cache warming');
-      status = 'degraded';
+      recommendations.push(
+        "Consider increasing TTL or implementing cache warming",
+      );
+      status = "degraded";
     } else if (metrics.hitRate < 0.3) {
-      status = 'unhealthy';
+      status = "unhealthy";
     }
 
     // Check error rate
     if (errorRate > 0.05) {
       issues.push(`High error rate: ${(errorRate * 100).toFixed(1)}%`);
-      recommendations.push('Check Redis connection and error logs');
-      status = 'degraded';
+      recommendations.push("Check Redis connection and error logs");
+      status = "degraded";
     } else if (errorRate > 0.1) {
-      status = 'unhealthy';
+      status = "unhealthy";
     }
 
     // Check latency
     if (metrics.averageGetLatency > 10) {
-      issues.push(`High GET latency: ${metrics.averageGetLatency.toFixed(2)}ms`);
-      recommendations.push('Consider Redis optimization or scaling');
-      status = status === 'unhealthy' ? 'unhealthy' : 'degraded';
+      issues.push(
+        `High GET latency: ${metrics.averageGetLatency.toFixed(2)}ms`,
+      );
+      recommendations.push("Consider Redis optimization or scaling");
+      status = status === "unhealthy" ? "unhealthy" : "degraded";
     }
 
     if (metrics.averageSetLatency > 20) {
-      issues.push(`High SET latency: ${metrics.averageSetLatency.toFixed(2)}ms`);
-      recommendations.push('Check Redis write performance');
-      status = status === 'unhealthy' ? 'unhealthy' : 'degraded';
+      issues.push(
+        `High SET latency: ${metrics.averageSetLatency.toFixed(2)}ms`,
+      );
+      recommendations.push("Check Redis write performance");
+      status = status === "unhealthy" ? "unhealthy" : "degraded";
     }
 
     // Check stampede prevention effectiveness
     const stampedeRate = total > 0 ? metrics.stampedePreventions / total : 0;
     if (stampedeRate > 0.1) {
-      issues.push(`High stampede prevention rate: ${(stampedeRate * 100).toFixed(1)}%`);
-      recommendations.push('Consider increasing cache TTL or implementing predictive warming');
+      issues.push(
+        `High stampede prevention rate: ${(stampedeRate * 100).toFixed(1)}%`,
+      );
+      recommendations.push(
+        "Consider increasing cache TTL or implementing predictive warming",
+      );
     }
 
     return {
@@ -206,7 +216,7 @@ export class CacheMetricsService {
   /**
    * Get percentile latency
    */
-  getLatencyPercentile(operation: 'get' | 'set', percentile: number): number {
+  getLatencyPercentile(operation: "get" | "set", percentile: number): number {
     const latencies = this.latencies[operation];
     if (latencies.length === 0) return 0;
 
@@ -218,7 +228,7 @@ export class CacheMetricsService {
   /**
    * Get detailed latency statistics
    */
-  getLatencyStats(operation: 'get' | 'set') {
+  getLatencyStats(operation: "get" | "set") {
     return {
       average: this.calculateAverage(this.latencies[operation]),
       p50: this.getLatencyPercentile(operation, 50),
@@ -259,7 +269,8 @@ export class CacheMetricsService {
     const metrics = this.getMetrics();
     const health = this.getHealthStatus();
 
-    this.logger.log(`
+    this.logger.log(
+      `
 ╔═══════════════════════════════════════════════════════════╗
 ║             CACHE METRICS SUMMARY                         ║
 ╠═══════════════════════════════════════════════════════════╣
@@ -276,10 +287,11 @@ export class CacheMetricsService {
 ║ SET Latency:     ${metrics.averageSetLatency.toFixed(2)}ms (avg)                      ║
 ╠═══════════════════════════════════════════════════════════╣
 ║ Health Status:   ${health.status.toUpperCase()}                              ║
-${health.issues.length > 0 ? '║ Issues:                                               ║\n' + health.issues.map(i => `║   - ${i.padEnd(52)}║`).join('\n') : ''}
-${health.recommendations.length > 0 ? '║ Recommendations:                                      ║\n' + health.recommendations.map(r => `║   - ${r.padEnd(52)}║`).join('\n') : ''}
+${health.issues.length > 0 ? "║ Issues:                                               ║\n" + health.issues.map((i) => `║   - ${i.padEnd(52)}║`).join("\n") : ""}
+${health.recommendations.length > 0 ? "║ Recommendations:                                      ║\n" + health.recommendations.map((r) => `║   - ${r.padEnd(52)}║`).join("\n") : ""}
 ╚═══════════════════════════════════════════════════════════╝
-    `.trim());
+    `.trim(),
+    );
 
     // Reset metrics after logging (rolling window)
     // Comment out if you want cumulative metrics

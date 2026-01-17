@@ -9,12 +9,12 @@
  * - Edge cases: missing roles, invalid users
  */
 
-import { ExecutionContext } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { RolesGuard } from './roles.guard';
-import { ROLES_KEY } from './roles.decorator';
+import { ExecutionContext } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { RolesGuard } from "./roles.guard";
+import { ROLES_KEY } from "./roles.decorator";
 
-describe('RolesGuard', () => {
+describe("RolesGuard", () => {
   let guard: RolesGuard;
   let reflector: Reflector;
   let mockExecutionContext: ExecutionContext;
@@ -38,9 +38,9 @@ describe('RolesGuard', () => {
     jest.clearAllMocks();
   });
 
-  describe('canActivate', () => {
-    it('should allow access when no roles are required', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
+  describe("canActivate", () => {
+    it("should allow access when no roles are required", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(undefined);
 
       const result = guard.canActivate(mockExecutionContext);
 
@@ -51,16 +51,16 @@ describe('RolesGuard', () => {
       ]);
     });
 
-    it('should allow access when no roles are required (null)', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(null);
+    it("should allow access when no roles are required (null)", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(null);
 
       const result = guard.canActivate(mockExecutionContext);
 
       expect(result).toBe(true);
     });
 
-    it('should deny access when roles array is empty but user not provided', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([]);
+    it("should deny access when roles array is empty but user not provided", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue([]);
 
       const result = guard.canActivate(mockExecutionContext);
 
@@ -69,14 +69,14 @@ describe('RolesGuard', () => {
       expect(result).toBe(false);
     });
 
-    it('should allow access when user has the required role', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should allow access when user has the required role", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'admin@example.com',
-          roles: ['ADMIN'],
+          id: "user-123",
+          email: "admin@example.com",
+          roles: ["ADMIN"],
         },
       };
 
@@ -89,14 +89,16 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should allow access when user has one of the required roles', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN', 'MANAGER']);
+    it("should allow access when user has one of the required roles", () => {
+      jest
+        .spyOn(reflector, "getAllAndOverride")
+        .mockReturnValue(["ADMIN", "MANAGER"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'manager@example.com',
-          roles: ['MANAGER'],
+          id: "user-123",
+          email: "manager@example.com",
+          roles: ["MANAGER"],
         },
       };
 
@@ -109,14 +111,14 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should allow access when user has multiple roles including required', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['OPERATOR']);
+    it("should allow access when user has multiple roles including required", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["OPERATOR"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'multi@example.com',
-          roles: ['VIEWER', 'OPERATOR', 'MANAGER'],
+          id: "user-123",
+          email: "multi@example.com",
+          roles: ["VIEWER", "OPERATOR", "MANAGER"],
         },
       };
 
@@ -129,14 +131,14 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should deny access when user does not have required role', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should deny access when user does not have required role", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'viewer@example.com',
-          roles: ['VIEWER'],
+          id: "user-123",
+          email: "viewer@example.com",
+          roles: ["VIEWER"],
         },
       };
 
@@ -149,13 +151,13 @@ describe('RolesGuard', () => {
       expect(result).toBe(false);
     });
 
-    it('should deny access when user has no roles', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should deny access when user has no roles", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'noroles@example.com',
+          id: "user-123",
+          email: "noroles@example.com",
           roles: [],
         },
       };
@@ -169,8 +171,8 @@ describe('RolesGuard', () => {
       expect(result).toBe(false);
     });
 
-    it('should deny access when user object is missing', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should deny access when user object is missing", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: null,
@@ -185,8 +187,8 @@ describe('RolesGuard', () => {
       expect(result).toBe(false);
     });
 
-    it('should deny access when user is undefined', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should deny access when user is undefined", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: undefined,
@@ -201,13 +203,13 @@ describe('RolesGuard', () => {
       expect(result).toBe(false);
     });
 
-    it('should deny access when roles property is missing from user', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should deny access when roles property is missing from user", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com',
+          id: "user-123",
+          email: "test@example.com",
           // roles property missing
         },
       };
@@ -221,13 +223,13 @@ describe('RolesGuard', () => {
       expect(result).toBe(false);
     });
 
-    it('should deny access when roles is null', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should deny access when roles is null", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com',
+          id: "user-123",
+          email: "test@example.com",
           roles: null,
         },
       };
@@ -242,15 +244,15 @@ describe('RolesGuard', () => {
     });
   });
 
-  describe('role hierarchy scenarios', () => {
-    it('should enforce strict role matching (ADMIN cannot access MANAGER-only routes)', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['MANAGER']);
+  describe("role hierarchy scenarios", () => {
+    it("should enforce strict role matching (ADMIN cannot access MANAGER-only routes)", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["MANAGER"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'admin@example.com',
-          roles: ['ADMIN'], // Different role
+          id: "user-123",
+          email: "admin@example.com",
+          roles: ["ADMIN"], // Different role
         },
       };
 
@@ -263,14 +265,16 @@ describe('RolesGuard', () => {
       expect(result).toBe(false);
     });
 
-    it('should allow access for multiple required roles when user has all', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN', 'MANAGER', 'OPERATOR']);
+    it("should allow access for multiple required roles when user has all", () => {
+      jest
+        .spyOn(reflector, "getAllAndOverride")
+        .mockReturnValue(["ADMIN", "MANAGER", "OPERATOR"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'superuser@example.com',
-          roles: ['ADMIN', 'MANAGER', 'OPERATOR', 'VIEWER'],
+          id: "user-123",
+          email: "superuser@example.com",
+          roles: ["ADMIN", "MANAGER", "OPERATOR", "VIEWER"],
         },
       };
 
@@ -283,14 +287,16 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should use OR logic for required roles (user needs at least one)', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN', 'MANAGER']);
+    it("should use OR logic for required roles (user needs at least one)", () => {
+      jest
+        .spyOn(reflector, "getAllAndOverride")
+        .mockReturnValue(["ADMIN", "MANAGER"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'operator@example.com',
-          roles: ['OPERATOR'], // Has neither ADMIN nor MANAGER
+          id: "user-123",
+          email: "operator@example.com",
+          roles: ["OPERATOR"], // Has neither ADMIN nor MANAGER
         },
       };
 
@@ -304,15 +310,15 @@ describe('RolesGuard', () => {
     });
   });
 
-  describe('edge cases', () => {
-    it('should handle case-sensitive role names', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+  describe("edge cases", () => {
+    it("should handle case-sensitive role names", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          roles: ['admin'], // lowercase
+          id: "user-123",
+          email: "test@example.com",
+          roles: ["admin"], // lowercase
         },
       };
 
@@ -325,14 +331,16 @@ describe('RolesGuard', () => {
       expect(result).toBe(false); // Should be case-sensitive
     });
 
-    it('should handle role names with special characters', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['CUSTOM_ROLE_123']);
+    it("should handle role names with special characters", () => {
+      jest
+        .spyOn(reflector, "getAllAndOverride")
+        .mockReturnValue(["CUSTOM_ROLE_123"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          roles: ['CUSTOM_ROLE_123'],
+          id: "user-123",
+          email: "test@example.com",
+          roles: ["CUSTOM_ROLE_123"],
         },
       };
 
@@ -345,14 +353,14 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle empty string roles', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['']);
+    it("should handle empty string roles", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue([""]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          roles: [''],
+          id: "user-123",
+          email: "test@example.com",
+          roles: [""],
         },
       };
 
@@ -365,14 +373,14 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle roles array with duplicates', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should handle roles array with duplicates", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          roles: ['ADMIN', 'ADMIN', 'ADMIN'],
+          id: "user-123",
+          email: "test@example.com",
+          roles: ["ADMIN", "ADMIN", "ADMIN"],
         },
       };
 
@@ -385,14 +393,14 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle non-array roles property', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should handle non-array roles property", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          roles: 'ADMIN', // String instead of array
+          id: "user-123",
+          email: "test@example.com",
+          roles: "ADMIN", // String instead of array
         },
       };
 
@@ -407,14 +415,16 @@ describe('RolesGuard', () => {
     });
   });
 
-  describe('reflector integration', () => {
-    it('should check both handler and class metadata', () => {
-      const getAllAndOverrideSpy = jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+  describe("reflector integration", () => {
+    it("should check both handler and class metadata", () => {
+      const getAllAndOverrideSpy = jest
+        .spyOn(reflector, "getAllAndOverride")
+        .mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          roles: ['ADMIN'],
+          id: "user-123",
+          roles: ["ADMIN"],
         },
       };
 
@@ -430,15 +440,15 @@ describe('RolesGuard', () => {
       ]);
     });
 
-    it('should prioritize handler metadata over class metadata', () => {
+    it("should prioritize handler metadata over class metadata", () => {
       // This tests the behavior of getAllAndOverride
       // Handler-level @Roles() should override class-level @Roles()
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['OPERATOR']); // Handler level
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["OPERATOR"]); // Handler level
 
       const mockRequest = {
         user: {
-          id: 'user-123',
-          roles: ['OPERATOR'],
+          id: "user-123",
+          roles: ["OPERATOR"],
         },
       };
 
@@ -452,16 +462,16 @@ describe('RolesGuard', () => {
     });
   });
 
-  describe('real-world scenarios', () => {
-    it('should allow ADMIN to access admin-only endpoint', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+  describe("real-world scenarios", () => {
+    it("should allow ADMIN to access admin-only endpoint", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'admin-user',
-          email: 'admin@sahool.com',
-          roles: ['ADMIN'],
-          tenantId: 'tenant-1',
+          id: "admin-user",
+          email: "admin@sahool.com",
+          roles: ["ADMIN"],
+          tenantId: "tenant-1",
         },
       };
 
@@ -474,15 +484,17 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should allow MANAGER or ADMIN to access management endpoint', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN', 'MANAGER']);
+    it("should allow MANAGER or ADMIN to access management endpoint", () => {
+      jest
+        .spyOn(reflector, "getAllAndOverride")
+        .mockReturnValue(["ADMIN", "MANAGER"]);
 
       const mockRequest = {
         user: {
-          id: 'manager-user',
-          email: 'manager@sahool.com',
-          roles: ['MANAGER'],
-          tenantId: 'tenant-1',
+          id: "manager-user",
+          email: "manager@sahool.com",
+          roles: ["MANAGER"],
+          tenantId: "tenant-1",
         },
       };
 
@@ -495,15 +507,15 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should deny VIEWER access to admin endpoint', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN']);
+    it("should deny VIEWER access to admin endpoint", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
 
       const mockRequest = {
         user: {
-          id: 'viewer-user',
-          email: 'viewer@sahool.com',
-          roles: ['VIEWER'],
-          tenantId: 'tenant-1',
+          id: "viewer-user",
+          email: "viewer@sahool.com",
+          roles: ["VIEWER"],
+          tenantId: "tenant-1",
         },
       };
 
@@ -516,14 +528,14 @@ describe('RolesGuard', () => {
       expect(result).toBe(false);
     });
 
-    it('should allow any authenticated user to access public endpoint (no roles required)', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
+    it("should allow any authenticated user to access public endpoint (no roles required)", () => {
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(undefined);
 
       const mockRequest = {
         user: {
-          id: 'any-user',
-          email: 'user@sahool.com',
-          roles: ['VIEWER'],
+          id: "any-user",
+          email: "user@sahool.com",
+          roles: ["VIEWER"],
         },
       };
 
@@ -536,15 +548,17 @@ describe('RolesGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle user with multiple tenant roles', () => {
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['MANAGER', 'OPERATOR']);
+    it("should handle user with multiple tenant roles", () => {
+      jest
+        .spyOn(reflector, "getAllAndOverride")
+        .mockReturnValue(["MANAGER", "OPERATOR"]);
 
       const mockRequest = {
         user: {
-          id: 'multi-role-user',
-          email: 'multi@sahool.com',
-          roles: ['MANAGER', 'OPERATOR'], // User has both required roles
-          tenantId: 'tenant-1',
+          id: "multi-role-user",
+          email: "multi@sahool.com",
+          roles: ["MANAGER", "OPERATOR"], // User has both required roles
+          tenantId: "tenant-1",
         },
       };
 

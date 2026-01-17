@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Team Management Page
  * صفحة إدارة الفريق
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Users,
   UserPlus,
@@ -16,30 +16,39 @@ import {
   Edit,
   Trash2,
   AlertCircle,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Modal, ModalFooter } from '@/components/ui/modal';
-import { MemberCard } from './MemberCard';
-import { InviteMemberDialog } from './InviteMemberDialog';
-import { PermissionsMatrix } from './PermissionsMatrix';
-import { RoleSelector } from './RoleSelector';
-import { useTeamMembers, useUpdateRole, useRemoveMember, useTeamStats } from '../hooks/useTeam';
-import { TeamMember, Role, UserStatus, ROLE_CONFIGS } from '../types/team';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Modal, ModalFooter } from "@/components/ui/modal";
+import { MemberCard } from "./MemberCard";
+import { InviteMemberDialog } from "./InviteMemberDialog";
+import { PermissionsMatrix } from "./PermissionsMatrix";
+import { RoleSelector } from "./RoleSelector";
+import {
+  useTeamMembers,
+  useUpdateRole,
+  useRemoveMember,
+  useTeamStats,
+} from "../hooks/useTeam";
+import { TeamMember, Role, UserStatus, ROLE_CONFIGS } from "../types/team";
 
-type ViewMode = 'grid' | 'table' | 'permissions';
+type ViewMode = "grid" | "table" | "permissions";
 
 export const TeamManagement: React.FC = () => {
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<Role | ''>('');
-  const [statusFilter, setStatusFilter] = useState<UserStatus | ''>('');
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState<Role | "">("");
+  const [statusFilter, setStatusFilter] = useState<UserStatus | "">("");
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [removingMember, setRemovingMember] = useState<TeamMember | null>(null);
 
   // Hooks
-  const { data: members = [], isLoading, error } = useTeamMembers({
+  const {
+    data: members = [],
+    isLoading,
+    error,
+  } = useTeamMembers({
     search: searchQuery,
     role: roleFilter || undefined,
     status: statusFilter || undefined,
@@ -63,7 +72,7 @@ export const TeamManagement: React.FC = () => {
       });
       setEditingMember(null);
     } catch (error) {
-      console.error('Failed to update role:', error);
+      console.error("Failed to update role:", error);
     }
   };
 
@@ -78,7 +87,7 @@ export const TeamManagement: React.FC = () => {
       await removeMemberMutation.mutateAsync(removingMember.id);
       setRemovingMember(null);
     } catch (error) {
-      console.error('Failed to remove member:', error);
+      console.error("Failed to remove member:", error);
     }
   };
 
@@ -92,9 +101,7 @@ export const TeamManagement: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 إدارة الفريق
               </h1>
-              <p className="text-gray-600">
-                إدارة أعضاء الفريق والصلاحيات
-              </p>
+              <p className="text-gray-600">إدارة أعضاء الفريق والصلاحيات</p>
             </div>
             <Button
               variant="primary"
@@ -115,7 +122,9 @@ export const TeamManagement: React.FC = () => {
                     <Users className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {stats.total}
+                    </div>
                     <div className="text-sm text-gray-600">إجمالي الأعضاء</div>
                   </div>
                 </div>
@@ -127,7 +136,9 @@ export const TeamManagement: React.FC = () => {
                     <Shield className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{stats.active}</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {stats.active}
+                    </div>
                     <div className="text-sm text-gray-600">نشط</div>
                   </div>
                 </div>
@@ -139,7 +150,9 @@ export const TeamManagement: React.FC = () => {
                     <AlertCircle className="w-6 h-6 text-yellow-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{stats.pending}</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {stats.pending}
+                    </div>
                     <div className="text-sm text-gray-600">قيد الانتظار</div>
                   </div>
                 </div>
@@ -151,7 +164,9 @@ export const TeamManagement: React.FC = () => {
                     <Users className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{stats.byRole.ADMIN}</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {stats.byRole.ADMIN}
+                    </div>
                     <div className="text-sm text-gray-600">مدراء</div>
                   </div>
                 </div>
@@ -163,7 +178,9 @@ export const TeamManagement: React.FC = () => {
                     <Users className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{stats.byRole.MANAGER}</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {stats.byRole.MANAGER}
+                    </div>
                     <div className="text-sm text-gray-600">مدراء فريق</div>
                   </div>
                 </div>
@@ -190,7 +207,7 @@ export const TeamManagement: React.FC = () => {
               <div className="w-full md:w-48">
                 <select
                   value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value as Role | '')}
+                  onChange={(e) => setRoleFilter(e.target.value as Role | "")}
                   className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
                 >
                   <option value="">كل الأدوار</option>
@@ -206,7 +223,9 @@ export const TeamManagement: React.FC = () => {
               <div className="w-full md:w-48">
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as UserStatus | '')}
+                  onChange={(e) =>
+                    setStatusFilter(e.target.value as UserStatus | "")
+                  }
                   className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
                 >
                   <option value="">كل الحالات</option>
@@ -220,27 +239,33 @@ export const TeamManagement: React.FC = () => {
               {/* View Mode Toggles */}
               <div className="flex items-center gap-2 border-2 border-gray-200 rounded-lg p-1">
                 <button
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setViewMode("grid")}
                   className={`p-2 rounded transition-colors ${
-                    viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                    viewMode === "grid"
+                      ? "bg-blue-100 text-blue-600"
+                      : "text-gray-600 hover:bg-gray-100"
                   }`}
                   title="عرض الشبكة"
                 >
                   <LayoutGrid className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={() => setViewMode('table')}
+                  onClick={() => setViewMode("table")}
                   className={`p-2 rounded transition-colors ${
-                    viewMode === 'table' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                    viewMode === "table"
+                      ? "bg-blue-100 text-blue-600"
+                      : "text-gray-600 hover:bg-gray-100"
                   }`}
                   title="عرض الجدول"
                 >
                   <LayoutList className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={() => setViewMode('permissions')}
+                  onClick={() => setViewMode("permissions")}
                   className={`p-2 rounded transition-colors ${
-                    viewMode === 'permissions' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                    viewMode === "permissions"
+                      ? "bg-blue-100 text-blue-600"
+                      : "text-gray-600 hover:bg-gray-100"
                   }`}
                   title="مصفوفة الصلاحيات"
                 >
@@ -264,9 +289,9 @@ export const TeamManagement: React.FC = () => {
             <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-3" />
             <p className="text-red-700">فشل في تحميل أعضاء الفريق</p>
           </div>
-        ) : viewMode === 'permissions' ? (
+        ) : viewMode === "permissions" ? (
           <PermissionsMatrix selectedRole={roleFilter || undefined} />
-        ) : viewMode === 'grid' ? (
+        ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {members.map((member) => (
               <MemberCard
@@ -284,34 +309,51 @@ export const TeamManagement: React.FC = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b-2 border-gray-200">
                   <tr>
-                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">العضو</th>
-                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">البريد الإلكتروني</th>
-                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">الدور</th>
-                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">الحالة</th>
-                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">آخر نشاط</th>
-                    <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">الإجراءات</th>
+                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
+                      العضو
+                    </th>
+                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
+                      البريد الإلكتروني
+                    </th>
+                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
+                      الدور
+                    </th>
+                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
+                      الحالة
+                    </th>
+                    <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
+                      آخر نشاط
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">
+                      الإجراءات
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {members.map((member, idx) => {
                     const roleConfig = ROLE_CONFIGS[member.role];
                     const formatLastActive = (date?: string) => {
-                      if (!date) return 'لم يسجل دخول بعد';
-                      const diffMinutes = Math.floor((new Date().getTime() - new Date(date).getTime()) / (1000 * 60));
+                      if (!date) return "لم يسجل دخول بعد";
+                      const diffMinutes = Math.floor(
+                        (new Date().getTime() - new Date(date).getTime()) /
+                          (1000 * 60),
+                      );
                       if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
-                      if (diffMinutes < 1440) return `منذ ${Math.floor(diffMinutes / 60)} ساعة`;
+                      if (diffMinutes < 1440)
+                        return `منذ ${Math.floor(diffMinutes / 60)} ساعة`;
                       return `منذ ${Math.floor(diffMinutes / 1440)} يوم`;
                     };
 
                     return (
                       <tr
                         key={member.id}
-                        className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                        className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                              {member.firstName[0]}{member.lastName[0]}
+                              {member.firstName[0]}
+                              {member.lastName[0]}
                             </div>
                             <div>
                               <div className="font-semibold text-gray-900">
@@ -320,7 +362,9 @@ export const TeamManagement: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-gray-600">{member.email}</td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {member.email}
+                        </td>
                         <td className="px-6 py-4">
                           <Badge className={roleConfig.color} size="sm">
                             {roleConfig.nameAr}
@@ -329,13 +373,19 @@ export const TeamManagement: React.FC = () => {
                         <td className="px-6 py-4">
                           <Badge
                             variant={
-                              member.status === 'ACTIVE' ? 'success' :
-                              member.status === 'PENDING' ? 'warning' : 'default'
+                              member.status === "ACTIVE"
+                                ? "success"
+                                : member.status === "PENDING"
+                                  ? "warning"
+                                  : "default"
                             }
                             size="sm"
                           >
-                            {member.status === 'ACTIVE' ? 'نشط' :
-                             member.status === 'PENDING' ? 'قيد الانتظار' : 'غير نشط'}
+                            {member.status === "ACTIVE"
+                              ? "نشط"
+                              : member.status === "PENDING"
+                                ? "قيد الانتظار"
+                                : "غير نشط"}
                           </Badge>
                         </td>
                         <td className="px-6 py-4 text-gray-600 text-sm">
@@ -444,7 +494,9 @@ export const TeamManagement: React.FC = () => {
               <div className="font-semibold text-gray-900 mb-1">
                 {removingMember.firstName} {removingMember.lastName}
               </div>
-              <div className="text-sm text-gray-600">{removingMember.email}</div>
+              <div className="text-sm text-gray-600">
+                {removingMember.email}
+              </div>
             </div>
           </div>
 
@@ -463,7 +515,7 @@ export const TeamManagement: React.FC = () => {
               disabled={removeMemberMutation.isPending}
             >
               <Trash2 className="w-4 h-4 ml-2" />
-              {removeMemberMutation.isPending ? 'جاري الإزالة...' : 'إزالة'}
+              {removeMemberMutation.isPending ? "جاري الإزالة..." : "إزالة"}
             </Button>
           </ModalFooter>
         </Modal>

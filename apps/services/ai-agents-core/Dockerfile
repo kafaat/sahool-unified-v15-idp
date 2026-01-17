@@ -1,9 +1,5 @@
-# ╔════════════════════════════════════════════════════════════════════════════╗
-# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
-# ║ This service has port conflict with: globalgap-compliance (port 8120)      ║
-# ║ Port Conflict: 8120 → Suggested new port: 8122                             ║
-# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
-# ╚════════════════════════════════════════════════════════════════════════════╝
+# SAHOOL AI Agents Core Service
+# Port: 8122
 
 FROM python:3.11-slim
 
@@ -13,11 +9,19 @@ WORKDIR /app
 RUN groupadd -r sahool && useradd -r -g sahool sahool
 
 # Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY apps/services/ai-agents-core/requirements.txt .
+
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+
+# Copy shared modules (required for imports from shared/)
+COPY apps/services/shared/ ./shared/
 
 # Copy source
-COPY src/ ./src/
+COPY apps/services/ai-agents-core/src/ ./src/
 
 # Set ownership to non-root user
 RUN chown -R sahool:sahool /app
@@ -26,14 +30,14 @@ RUN chown -R sahool:sahool /app
 ENV PYTHONPATH=/app/src
 
 # Expose port
-EXPOSE 8120
+EXPOSE 8122
 
 # Switch to non-root user
 USER sahool
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8120/healthz')"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8122/healthz')"
 
 # Run with uvicorn for production ASGI server
-CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8120"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8122"]

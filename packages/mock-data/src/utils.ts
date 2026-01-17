@@ -7,9 +7,9 @@
  * Generate a random UUID
  */
 export function generateId(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -49,7 +49,7 @@ export function randomFloat(min: number, max: number, precision = 2): number {
  */
 export function randomDate(start: Date, end: Date): Date {
   return new Date(
-    start.getTime() + Math.random() * (end.getTime() - start.getTime())
+    start.getTime() + Math.random() * (end.getTime() - start.getTime()),
   );
 }
 
@@ -67,47 +67,58 @@ export function randomPastDate(days: number): Date {
  */
 export const arabicNames = {
   firstNames: [
-    'أحمد',
-    'محمد',
-    'علي',
-    'عمر',
-    'خالد',
-    'يوسف',
-    'إبراهيم',
-    'سالم',
-    'عبدالله',
-    'حسن',
-    'فاطمة',
-    'مريم',
-    'نورة',
-    'سارة',
-    'آمنة',
+    "أحمد",
+    "محمد",
+    "علي",
+    "عمر",
+    "خالد",
+    "يوسف",
+    "إبراهيم",
+    "سالم",
+    "عبدالله",
+    "حسن",
+    "فاطمة",
+    "مريم",
+    "نورة",
+    "سارة",
+    "آمنة",
   ],
   lastNames: [
-    'الأحمدي',
-    'المحمدي',
-    'السالمي',
-    'الحسني',
-    'العلوي',
-    'الخليلي',
-    'الزهراني',
-    'القحطاني',
-    'المطيري',
-    'الشمري',
+    "الأحمدي",
+    "المحمدي",
+    "السالمي",
+    "الحسني",
+    "العلوي",
+    "الخليلي",
+    "الزهراني",
+    "القحطاني",
+    "المطيري",
+    "الشمري",
   ],
-  crops: ['قمح', 'شعير', 'ذرة', 'قطن', 'بن', 'عنب', 'تمر', 'موز', 'مانجو', 'ليمون'],
-  regions: ['صنعاء', 'عدن', 'تعز', 'الحديدة', 'إب', 'ذمار', 'حضرموت', 'المكلا'],
+  crops: [
+    "قمح",
+    "شعير",
+    "ذرة",
+    "قطن",
+    "بن",
+    "عنب",
+    "تمر",
+    "موز",
+    "مانجو",
+    "ليمون",
+  ],
+  regions: ["صنعاء", "عدن", "تعز", "الحديدة", "إب", "ذمار", "حضرموت", "المكلا"],
 };
 
 /**
  * Check if mock data should be enabled
  */
 export function isMockEnabled(): boolean {
-  if (typeof window === 'undefined') {
-    return process.env.ENABLE_MOCK_DATA === 'true';
+  if (typeof window === "undefined") {
+    return process.env.ENABLE_MOCK_DATA === "true";
   }
   return (
-    process.env.NODE_ENV === 'development' ||
-    localStorage.getItem('enableMockData') === 'true'
+    process.env.NODE_ENV === "development" ||
+    localStorage.getItem("enableMockData") === "true"
   );
 }

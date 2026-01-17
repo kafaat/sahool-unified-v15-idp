@@ -1,4 +1,5 @@
 # SAHOOL Backup & Disaster Recovery System - Installation Summary
+
 # ملخص تثبيت نظام النسخ الاحتياطي والتعافي من الكوارث لسهول
 
 **Installation Date:** 2024-12-26
@@ -11,14 +12,15 @@
 
 ### 1. Core Backup Scripts - سكريبتات النسخ الاحتياطي الأساسية
 
-| File | Description | Status |
-|------|-------------|--------|
-| `backup.sh` | Main backup script (PostgreSQL, Redis, NATS, files) | ✅ |
-| `restore.sh` | Interactive restore with verification | ✅ |
-| `backup-cron.sh` | Automated backup scheduler wrapper | ✅ |
-| `verify-backup.sh` | Backup integrity verification | ✅ |
+| File               | Description                                         | Status |
+| ------------------ | --------------------------------------------------- | ------ |
+| `backup.sh`        | Main backup script (PostgreSQL, Redis, NATS, files) | ✅     |
+| `restore.sh`       | Interactive restore with verification               | ✅     |
+| `backup-cron.sh`   | Automated backup scheduler wrapper                  | ✅     |
+| `verify-backup.sh` | Backup integrity verification                       | ✅     |
 
 **Features:**
+
 - ✅ PostgreSQL custom format dumps with compression
 - ✅ Redis RDB and AOF snapshots
 - ✅ NATS JetStream data backup
@@ -31,26 +33,27 @@
 
 ### 2. Backup Infrastructure - البنية التحتية
 
-| Component | Purpose | Port |
-|-----------|---------|------|
-| **MinIO** | S3-compatible object storage | 9000, 9001 |
-| **Backup Scheduler** | Automated cron-based backups | - |
-| **Backup Monitor** | Web-based file browser | 8082 |
+| Component            | Purpose                      | Port       |
+| -------------------- | ---------------------------- | ---------- |
+| **MinIO**            | S3-compatible object storage | 9000, 9001 |
+| **Backup Scheduler** | Automated cron-based backups | -          |
+| **Backup Monitor**   | Web-based file browser       | 8082       |
 
 **Docker Compose:** `docker-compose.backup.yml`
 
 ### 3. Documentation - التوثيق
 
-| Document | Purpose | Pages |
-|----------|---------|-------|
-| `README.md` | Complete system documentation | Full guide |
+| Document               | Purpose                            | Pages         |
+| ---------------------- | ---------------------------------- | ------------- |
+| `README.md`            | Complete system documentation      | Full guide    |
 | `disaster-recovery.md` | DR procedures, RTO/RPO, checklists | Comprehensive |
-| `QUICK_START.md` | 10-minute setup guide | Quick start |
-| `.env.backup.example` | Configuration template | Config |
+| `QUICK_START.md`       | 10-minute setup guide              | Quick start   |
+| `.env.backup.example`  | Configuration template             | Config        |
 
 ### 4. Integration - التكامل
 
 **Makefile Commands Added:**
+
 ```bash
 make backup                 # Create full backup
 make backup-restore         # Restore from backup
@@ -67,24 +70,24 @@ make backup-logs            # View backup logs
 
 ### What Gets Backed Up - ما يتم نسخه احتياطياً
 
-| Component | Size (Est.) | Frequency | Retention |
-|-----------|-------------|-----------|-----------|
-| PostgreSQL Database | 500MB - 5GB | Daily | 7 days |
-| Redis Cache | 50MB - 500MB | Daily | 7 days |
-| NATS JetStream | 100MB - 1GB | Daily | 7 days |
-| Uploaded Files | 1GB - 50GB | Daily | 7 days |
-| Configuration | 10MB - 50MB | Daily | 7 days |
+| Component           | Size (Est.)  | Frequency | Retention |
+| ------------------- | ------------ | --------- | --------- |
+| PostgreSQL Database | 500MB - 5GB  | Daily     | 7 days    |
+| Redis Cache         | 50MB - 500MB | Daily     | 7 days    |
+| NATS JetStream      | 100MB - 1GB  | Daily     | 7 days    |
+| Uploaded Files      | 1GB - 50GB   | Daily     | 7 days    |
+| Configuration       | 10MB - 50MB  | Daily     | 7 days    |
 
 **Total Estimated:** 2GB - 57GB per backup
 
 ### Backup Schedule - الجدول الزمني
 
-| Type | Time | Day | Retention |
-|------|------|-----|-----------|
-| Daily | 02:00 AM | Every day | 7 days |
-| Weekly | 03:00 AM | Sunday | 28 days |
-| Monthly | 04:00 AM | 1st of month | 365 days |
-| Verification | 06:00 AM | Sunday | - |
+| Type         | Time     | Day          | Retention |
+| ------------ | -------- | ------------ | --------- |
+| Daily        | 02:00 AM | Every day    | 7 days    |
+| Weekly       | 03:00 AM | Sunday       | 28 days   |
+| Monthly      | 04:00 AM | 1st of month | 365 days  |
+| Verification | 06:00 AM | Sunday       | -         |
 
 ---
 
@@ -199,13 +202,13 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/...
 
 ## 🎯 RTO/RPO Targets - أهداف التعافي
 
-| Component | RTO | RPO | Status |
-|-----------|-----|-----|--------|
-| Database (PostgreSQL) | 2 hours | 24 hours | ✅ |
-| Cache (Redis) | 30 minutes | 24 hours | ✅ |
-| Message Queue (NATS) | 1 hour | 24 hours | ✅ |
-| File Storage | 4 hours | 24 hours | ✅ |
-| **Full System** | **6 hours** | **24 hours** | ✅ |
+| Component             | RTO         | RPO          | Status |
+| --------------------- | ----------- | ------------ | ------ |
+| Database (PostgreSQL) | 2 hours     | 24 hours     | ✅     |
+| Cache (Redis)         | 30 minutes  | 24 hours     | ✅     |
+| Message Queue (NATS)  | 1 hour      | 24 hours     | ✅     |
+| File Storage          | 4 hours     | 24 hours     | ✅     |
+| **Full System**       | **6 hours** | **24 hours** | ✅     |
 
 ---
 
@@ -313,12 +316,12 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/...
 
 ### Available Interfaces - الواجهات المتاحة
 
-| Interface | URL | Purpose |
-|-----------|-----|---------|
-| MinIO Console | http://localhost:9001 | S3 storage management |
-| Backup Monitor | http://localhost:8082 | File browser for backups |
-| Docker Logs | `docker logs sahool-backup-scheduler` | Scheduler logs |
-| File Logs | `/logs/backup/*.log` | Detailed backup logs |
+| Interface      | URL                                   | Purpose                  |
+| -------------- | ------------------------------------- | ------------------------ |
+| MinIO Console  | http://localhost:9001                 | S3 storage management    |
+| Backup Monitor | http://localhost:8082                 | File browser for backups |
+| Docker Logs    | `docker logs sahool-backup-scheduler` | Scheduler logs           |
+| File Logs      | `/logs/backup/*.log`                  | Detailed backup logs     |
 
 ### Notification Channels - قنوات الإشعارات
 
@@ -386,6 +389,7 @@ curl http://localhost:9001
 ### Immediate Actions - الإجراءات الفورية
 
 1. ✅ **Configure Environment**
+
    ```bash
    cd scripts/backup
    cp .env.backup.example .env.backup
@@ -393,11 +397,13 @@ curl http://localhost:9001
    ```
 
 2. ✅ **Start Infrastructure**
+
    ```bash
    make backup-infra-up
    ```
 
 3. ✅ **Create First Backup**
+
    ```bash
    make backup
    ```

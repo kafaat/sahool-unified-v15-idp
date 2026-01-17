@@ -16,10 +16,12 @@ This directory contains GitHub Actions workflows that automate the entire softwa
 ### 1. `ci.yml` - Continuous Integration
 
 **Triggers:**
+
 - Push to any branch
 - Pull requests to `main` or `develop`
 
 **Jobs:**
+
 ```
 lint-python → test-python ──┐
 lint-nodejs → test-nodejs ──┼→ build-images → integration-test → ci-summary
@@ -28,6 +30,7 @@ typecheck-nodejs ───────────┘
 ```
 
 **What it does:**
+
 1. **Code Quality Checks**
    - Python: Ruff linting, Black formatting, isort import sorting
    - Node.js: ESLint
@@ -52,6 +55,7 @@ typecheck-nodejs ───────────┘
    - Database connectivity verification
 
 **Configuration:**
+
 ```yaml
 env:
   PYTHON_VERSION: "3.11"
@@ -60,6 +64,7 @@ env:
 ```
 
 **Required Secrets:**
+
 - `CODECOV_TOKEN` - For coverage reporting (optional)
 - `GITHUB_TOKEN` - Automatically provided
 
@@ -68,6 +73,7 @@ env:
 ### 2. `cd-staging.yml` - Staging Deployment
 
 **Triggers:**
+
 - Push to `main` branch
 - Manual workflow dispatch
 
@@ -100,6 +106,7 @@ Starter Package → Integration Tests → Professional Package → Integration T
    - inventory-service
 
 **Required Secrets:**
+
 - `KUBE_CONFIG_STAGING` - Kubernetes configuration
 - `JWT_SECRET_STAGING` - JWT secret key
 - `DATABASE_URL_STAGING` - Database connection string
@@ -115,6 +122,7 @@ Starter Package → Integration Tests → Professional Package → Integration T
 ### 3. `cd-production.yml` - Production Deployment
 
 **Triggers:**
+
 - Release published
 - Manual workflow dispatch with version tag
 
@@ -128,6 +136,7 @@ Validate → Approval → Backup → Deploy Green → Test Green → Switch Traf
 ```
 
 **Key Features:**
+
 - **Manual Approval Gate**: Required before production deployment
 - **Backup**: Full state backup before deployment
 - **Blue-Green Deployment**: Zero-downtime deployment
@@ -136,6 +145,7 @@ Validate → Approval → Backup → Deploy Green → Test Green → Switch Traf
 - **30-minute Safety Window**: Blue environment kept for 30 minutes
 
 **Required Secrets:**
+
 - `KUBE_CONFIG_PRODUCTION` - Production Kubernetes config
 - `JWT_SECRET_PRODUCTION` - Production JWT secret
 - `DATABASE_URL_PRODUCTION` - Production database URL
@@ -147,6 +157,7 @@ Validate → Approval → Backup → Deploy Green → Test Green → Switch Traf
 - `SLACK_WEBHOOK_URL` - Slack notifications
 
 **Example Usage:**
+
 ```bash
 # Via GitHub UI: Create a new release with tag v1.2.3
 # Or manually trigger with version tag
@@ -158,6 +169,7 @@ gh workflow run cd-production.yml -f version=v1.2.3
 ### 4. `security.yml` - Security Scanning
 
 **Triggers:**
+
 - Push to `main` or `develop`
 - Pull requests to `main` or `develop`
 - Daily at 2 AM UTC
@@ -195,6 +207,7 @@ gh workflow run cd-production.yml -f version=v1.2.3
    - Security context verification
 
 **Required Secrets:**
+
 - `SNYK_TOKEN` - Snyk API token (optional)
 - `SLACK_WEBHOOK_URL` - For critical alerts
 
@@ -206,6 +219,7 @@ All security findings are uploaded to GitHub Security tab for centralized tracki
 ### 5. `docs.yml` - Documentation Generation
 
 **Triggers:**
+
 - Push to `main` or `develop` (when service files change)
 - Pull requests to `main`
 - Manual workflow dispatch
@@ -238,6 +252,7 @@ All security findings are uploaded to GitHub Security tab for centralized tracki
    - Updated on every main branch push
 
 **Generated Artifacts:**
+
 - `openapi-specs` - OpenAPI JSON files
 - `api-documentation` - HTML API docs
 - `developer-documentation` - MkDocs site
@@ -249,6 +264,7 @@ All security findings are uploaded to GitHub Security tab for centralized tracki
 ### Required Secrets by Environment
 
 #### Staging
+
 ```
 KUBE_CONFIG_STAGING
 JWT_SECRET_STAGING
@@ -261,6 +277,7 @@ STAGING_API_KEY
 ```
 
 #### Production
+
 ```
 KUBE_CONFIG_PRODUCTION
 JWT_SECRET_PRODUCTION
@@ -273,6 +290,7 @@ PRODUCTION_API_KEY
 ```
 
 #### Optional
+
 ```
 CODECOV_TOKEN          # Code coverage reporting
 SNYK_TOKEN             # Snyk security scanning
@@ -295,17 +313,20 @@ Settings → Secrets and variables → Actions → New repository secret
 ## Environment Protection Rules
 
 ### Staging
+
 - Auto-deploy on main branch push
 - No approval required
 - Review after deployment
 
 ### Production
+
 - Manual approval required
 - Reviewers: DevOps team
 - Deployment delay: Wait for approval
 - Environment secrets isolated
 
 **Setup:**
+
 ```
 Settings → Environments → production → Configure environment
 - Required reviewers: Add DevOps team
@@ -319,23 +340,27 @@ Settings → Environments → production → Configure environment
 ### Slack Notifications
 
 All critical events are sent to Slack:
+
 - ✅ Successful deployments
 - ❌ Failed deployments
 - 🚨 Security alerts
 - 🔄 Rollbacks
 
 **Setup:**
+
 1. Create Slack webhook: https://api.slack.com/messaging/webhooks
 2. Add `SLACK_WEBHOOK_URL` secret
 
 ### GitHub Actions Dashboard
 
 Monitor workflow runs:
+
 ```
 Repository → Actions tab
 ```
 
 Filter by:
+
 - Workflow name
 - Branch
 - Status (success, failure, in progress)
@@ -383,6 +408,7 @@ graph LR
 ## Best Practices
 
 ### 1. Branch Strategy
+
 - `main` - Production-ready code
 - `develop` - Integration branch
 - `feature/*` - Feature branches
@@ -390,7 +416,9 @@ graph LR
 - `release/*` - Release preparation
 
 ### 2. Commit Messages
+
 Follow conventional commits:
+
 ```
 feat(satellite): Add new SAR processing endpoint
 fix(billing): Resolve subscription calculation bug
@@ -399,13 +427,16 @@ chore(deps): Update dependencies
 ```
 
 ### 3. Pull Requests
+
 - All PRs must pass CI checks
 - Require at least 1 approval
 - Keep PRs small and focused
 - Link to related issues
 
 ### 4. Versioning
+
 Follow Semantic Versioning (SemVer):
+
 ```
 v1.2.3
  │ │ │
@@ -415,6 +446,7 @@ v1.2.3
 ```
 
 ### 5. Security
+
 - Never commit secrets
 - Use GitHub Secrets for sensitive data
 - Review security scan results
@@ -428,6 +460,7 @@ v1.2.3
 ### CI Failures
 
 **Linting errors:**
+
 ```bash
 # Fix Python linting
 ruff check --fix apps/services/ shared/
@@ -439,6 +472,7 @@ npm run lint:all -- --fix
 ```
 
 **Test failures:**
+
 ```bash
 # Run tests locally
 pytest apps/services/SERVICE_NAME/tests -v
@@ -449,6 +483,7 @@ pytest --cov=apps/services/SERVICE_NAME
 ```
 
 **Build failures:**
+
 ```bash
 # Test Docker build locally
 docker build -t test-build apps/services/SERVICE_NAME
@@ -457,6 +492,7 @@ docker build -t test-build apps/services/SERVICE_NAME
 ### Deployment Failures
 
 **Check logs:**
+
 ```bash
 # Kubernetes logs
 kubectl logs -n sahool-staging deployment/SERVICE_NAME
@@ -466,12 +502,14 @@ gh run view RUN_ID --log
 ```
 
 **Rollback staging:**
+
 ```bash
 helm rollback SERVICE_NAME -n sahool-staging
 ```
 
 **Rollback production:**
 Production rollback is automatic on failure. Manual rollback:
+
 ```bash
 # Switch back to blue
 kubectl patch service SERVICE_NAME -n sahool-production \
@@ -483,6 +521,7 @@ kubectl patch service SERVICE_NAME -n sahool-production \
 ## Performance Optimization
 
 ### CI Optimization
+
 - ✅ Parallel job execution
 - ✅ Docker build caching
 - ✅ Dependency caching (pip, npm)
@@ -490,6 +529,7 @@ kubectl patch service SERVICE_NAME -n sahool-production \
 - ✅ Fail-fast strategy
 
 ### Deployment Optimization
+
 - ✅ Helm chart reusability
 - ✅ Image pre-warming
 - ✅ Progressive rollout

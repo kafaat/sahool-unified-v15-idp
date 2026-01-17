@@ -5,28 +5,29 @@
  * Receives Content Security Policy violation reports from browsers
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface CSPReport {
-  'document-uri': string;
-  'violated-directive': string;
-  'effective-directive'?: string;
-  'original-policy'?: string;
-  'blocked-uri': string;
-  'status-code'?: number;
-  'source-file'?: string;
-  'line-number'?: number;
-  'column-number'?: number;
+  "document-uri": string;
+  "violated-directive": string;
+  "effective-directive"?: string;
+  "original-policy"?: string;
+  "blocked-uri": string;
+  "status-code"?: number;
+  "source-file"?: string;
+  "line-number"?: number;
+  "column-number"?: number;
   referrer?: string;
   disposition?: string;
 }
 
 interface CSPReportBody {
-  'csp-report': CSPReport;
+  "csp-report": CSPReport;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -69,35 +70,35 @@ setInterval(() => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function isValidCSPReport(report: unknown): report is CSPReportBody {
-  if (!report || typeof report !== 'object') return false;
+  if (!report || typeof report !== "object") return false;
 
-  const cspReport = (report as CSPReportBody)['csp-report'];
-  if (!cspReport || typeof cspReport !== 'object') return false;
+  const cspReport = (report as CSPReportBody)["csp-report"];
+  if (!cspReport || typeof cspReport !== "object") return false;
 
   // Required fields
-  if (typeof cspReport['document-uri'] !== 'string') return false;
-  if (typeof cspReport['violated-directive'] !== 'string') return false;
-  if (typeof cspReport['blocked-uri'] !== 'string') return false;
+  if (typeof cspReport["document-uri"] !== "string") return false;
+  if (typeof cspReport["violated-directive"] !== "string") return false;
+  if (typeof cspReport["blocked-uri"] !== "string") return false;
 
   return true;
 }
 
 function shouldFilterReport(report: CSPReport): boolean {
-  const blockedUri = report['blocked-uri'] || '';
+  const blockedUri = report["blocked-uri"] || "";
 
   // Filter browser extensions
   if (
-    blockedUri.startsWith('chrome-extension://') ||
-    blockedUri.startsWith('moz-extension://') ||
-    blockedUri.startsWith('safari-extension://') ||
-    blockedUri.startsWith('ms-browser-extension://')
+    blockedUri.startsWith("chrome-extension://") ||
+    blockedUri.startsWith("moz-extension://") ||
+    blockedUri.startsWith("safari-extension://") ||
+    blockedUri.startsWith("ms-browser-extension://")
   ) {
     return true;
   }
 
   // Filter development artifacts in dev mode
-  if (process.env.NODE_ENV === 'development') {
-    if (blockedUri === 'about:blank' || blockedUri.startsWith('data:')) {
+  if (process.env.NODE_ENV === "development") {
+    if (blockedUri === "about:blank" || blockedUri.startsWith("data:")) {
       return true;
     }
   }
@@ -116,17 +117,17 @@ function shouldFilterReport(report: CSPReport): boolean {
 export async function POST(request: NextRequest) {
   // Get client IP
   const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown';
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
 
   // Rate limit check
   if (!checkRateLimit(ip)) {
     return new NextResponse(null, {
       status: 429,
       headers: {
-        'Retry-After': '60',
-        'X-Content-Type-Options': 'nosniff',
+        "Retry-After": "60",
+        "X-Content-Type-Options": "nosniff",
       },
     });
   }
@@ -138,15 +139,15 @@ export async function POST(request: NextRequest) {
     // Validate report format
     if (!isValidCSPReport(body)) {
       return NextResponse.json(
-        { error: 'Invalid CSP report format' },
+        { error: "Invalid CSP report format" },
         {
           status: 400,
-          headers: { 'X-Content-Type-Options': 'nosniff' },
-        }
+          headers: { "X-Content-Type-Options": "nosniff" },
+        },
       );
     }
 
-    const report = body['csp-report'];
+    const report = body["csp-report"];
 
     // Filter known false positives
     if (shouldFilterReport(report)) {
@@ -156,43 +157,43 @@ export async function POST(request: NextRequest) {
     // Log the violation
     const logEntry = {
       timestamp: new Date().toISOString(),
-      service: 'sahool-admin',
-      type: 'csp-violation',
-      documentUri: report['document-uri'],
-      violatedDirective: report['violated-directive'],
-      effectiveDirective: report['effective-directive'],
-      blockedUri: report['blocked-uri'],
-      statusCode: report['status-code'],
-      sourceFile: report['source-file'],
-      lineNumber: report['line-number'],
-      columnNumber: report['column-number'],
+      service: "sahool-admin",
+      type: "csp-violation",
+      documentUri: report["document-uri"],
+      violatedDirective: report["violated-directive"],
+      effectiveDirective: report["effective-directive"],
+      blockedUri: report["blocked-uri"],
+      statusCode: report["status-code"],
+      sourceFile: report["source-file"],
+      lineNumber: report["line-number"],
+      columnNumber: report["column-number"],
       clientIP: ip,
-      userAgent: request.headers.get('user-agent'),
+      userAgent: request.headers.get("user-agent"),
     };
 
     // Log to console (in production, send to logging service)
-    if (process.env.NODE_ENV === 'production') {
-      console.error(JSON.stringify(logEntry));
+    if (process.env.NODE_ENV === "production") {
+      logger.critical(JSON.stringify(logEntry));
     } else {
-      console.warn('[CSP Violation]', logEntry);
+      logger.warn("[CSP Violation]", logEntry);
     }
 
     // Return 204 No Content (success, no body)
     return new NextResponse(null, {
       status: 204,
       headers: {
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
       },
     });
   } catch (error) {
-    console.error('[CSP Report] Parse error:', error);
+    logger.critical("[CSP Report] Parse error:", error);
     return NextResponse.json(
-      { error: 'Failed to process CSP report' },
+      { error: "Failed to process CSP report" },
       {
         status: 400,
-        headers: { 'X-Content-Type-Options': 'nosniff' },
-      }
+        headers: { "X-Content-Type-Options": "nosniff" },
+      },
     );
   }
 }
@@ -205,10 +206,10 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Max-Age": "86400",
     },
   });
 }

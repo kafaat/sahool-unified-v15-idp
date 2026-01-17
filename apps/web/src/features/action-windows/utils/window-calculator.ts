@@ -13,7 +13,7 @@ import type {
   SoilMoistureData,
   ETData,
   IrrigationNeed,
-} from '../types/action-windows';
+} from "../types/action-windows";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Default Criteria
@@ -40,15 +40,23 @@ export const DEFAULT_SPRAY_CRITERIA: SprayWindowCriteria = {
  */
 export function calculateSprayWindow(
   weather: WeatherCondition,
-  criteria: Partial<SprayWindowCriteria> = {}
+  criteria: Partial<SprayWindowCriteria> = {},
 ): WindowCalculationResult {
   const rules = { ...DEFAULT_SPRAY_CRITERIA, ...criteria };
 
   const checks = {
-    windSpeed: weather.windSpeed >= rules.windSpeedMin && weather.windSpeed <= rules.windSpeedMax,
-    temperature: weather.temperature >= rules.temperatureMin && weather.temperature <= rules.temperatureMax,
-    humidity: weather.humidity >= rules.humidityMin && weather.humidity <= rules.humidityMax,
-    rain: weather.rainProbability <= rules.rainProbabilityMax && weather.precipitation === 0,
+    windSpeed:
+      weather.windSpeed >= rules.windSpeedMin &&
+      weather.windSpeed <= rules.windSpeedMax,
+    temperature:
+      weather.temperature >= rules.temperatureMin &&
+      weather.temperature <= rules.temperatureMax,
+    humidity:
+      weather.humidity >= rules.humidityMin &&
+      weather.humidity <= rules.humidityMax,
+    rain:
+      weather.rainProbability <= rules.rainProbabilityMax &&
+      weather.precipitation === 0,
   };
 
   const warnings: string[] = [];
@@ -59,29 +67,43 @@ export function calculateSprayWindow(
   // Check wind speed
   if (!checks.windSpeed) {
     if (weather.windSpeed < rules.windSpeedMin) {
-      warnings.push('Wind speed too low - spray drift may occur');
-      warningsAr.push('سرعة الرياح منخفضة جداً - قد يحدث انجراف للرش');
+      warnings.push("Wind speed too low - spray drift may occur");
+      warningsAr.push("سرعة الرياح منخفضة جداً - قد يحدث انجراف للرش");
     } else {
-      warnings.push(`Wind speed too high (${weather.windSpeed} km/h) - avoid spraying`);
-      warningsAr.push(`سرعة الرياح عالية جداً (${weather.windSpeed} كم/ساعة) - تجنب الرش`);
+      warnings.push(
+        `Wind speed too high (${weather.windSpeed} km/h) - avoid spraying`,
+      );
+      warningsAr.push(
+        `سرعة الرياح عالية جداً (${weather.windSpeed} كم/ساعة) - تجنب الرش`,
+      );
     }
   }
 
   // Check temperature
   if (!checks.temperature) {
     if (weather.temperature < rules.temperatureMin) {
-      warnings.push(`Temperature too low (${weather.temperature}°C) - reduced effectiveness`);
-      warningsAr.push(`درجة الحرارة منخفضة جداً (${weather.temperature}°م) - فعالية منخفضة`);
+      warnings.push(
+        `Temperature too low (${weather.temperature}°C) - reduced effectiveness`,
+      );
+      warningsAr.push(
+        `درجة الحرارة منخفضة جداً (${weather.temperature}°م) - فعالية منخفضة`,
+      );
     } else {
-      warnings.push(`Temperature too high (${weather.temperature}°C) - evaporation risk`);
-      warningsAr.push(`درجة الحرارة مرتفعة جداً (${weather.temperature}°م) - خطر التبخر`);
+      warnings.push(
+        `Temperature too high (${weather.temperature}°C) - evaporation risk`,
+      );
+      warningsAr.push(
+        `درجة الحرارة مرتفعة جداً (${weather.temperature}°م) - خطر التبخر`,
+      );
     }
   }
 
   // Check humidity
   if (!checks.humidity) {
     if (weather.humidity < rules.humidityMin) {
-      warnings.push(`Humidity too low (${weather.humidity}%) - rapid evaporation`);
+      warnings.push(
+        `Humidity too low (${weather.humidity}%) - rapid evaporation`,
+      );
       warningsAr.push(`الرطوبة منخفضة جداً (${weather.humidity}%) - تبخر سريع`);
     } else {
       warnings.push(`Humidity too high (${weather.humidity}%) - slow drying`);
@@ -92,26 +114,35 @@ export function calculateSprayWindow(
   // Check rain
   if (!checks.rain) {
     if (weather.precipitation > 0) {
-      warnings.push('Rain detected - spraying not recommended');
-      warningsAr.push('تم اكتشاف أمطار - الرش غير موصى به');
+      warnings.push("Rain detected - spraying not recommended");
+      warningsAr.push("تم اكتشاف أمطار - الرش غير موصى به");
     } else {
-      warnings.push(`High rain probability (${weather.rainProbability}%) - delay spraying`);
-      warningsAr.push(`احتمال أمطار عالٍ (${weather.rainProbability}%) - أجل الرش`);
+      warnings.push(
+        `High rain probability (${weather.rainProbability}%) - delay spraying`,
+      );
+      warningsAr.push(
+        `احتمال أمطار عالٍ (${weather.rainProbability}%) - أجل الرش`,
+      );
     }
   }
 
   // Add recommendations
-  if (checks.windSpeed && checks.temperature && checks.humidity && checks.rain) {
-    recommendations.push('Excellent conditions for spraying');
-    recommendationsAr.push('ظروف ممتازة للرش');
-    recommendations.push('Ensure equipment is calibrated correctly');
-    recommendationsAr.push('تأكد من معايرة المعدات بشكل صحيح');
+  if (
+    checks.windSpeed &&
+    checks.temperature &&
+    checks.humidity &&
+    checks.rain
+  ) {
+    recommendations.push("Excellent conditions for spraying");
+    recommendationsAr.push("ظروف ممتازة للرش");
+    recommendations.push("Ensure equipment is calibrated correctly");
+    recommendationsAr.push("تأكد من معايرة المعدات بشكل صحيح");
   } else if (checks.windSpeed && checks.temperature) {
-    recommendations.push('Fair conditions - monitor weather closely');
-    recommendationsAr.push('ظروف مقبولة - راقب الطقس عن كثب');
+    recommendations.push("Fair conditions - monitor weather closely");
+    recommendationsAr.push("ظروف مقبولة - راقب الطقس عن كثب");
   } else {
-    recommendations.push('Consider postponing until conditions improve');
-    recommendationsAr.push('فكر في التأجيل حتى تتحسن الظروف');
+    recommendations.push("Consider postponing until conditions improve");
+    recommendationsAr.push("فكر في التأجيل حتى تتحسن الظروف");
   }
 
   // Calculate score (0-100)
@@ -122,16 +153,19 @@ export function calculateSprayWindow(
     rain: checks.rain ? 25 : 0,
   };
 
-  const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+  const totalScore = Object.values(scores).reduce(
+    (sum, score) => sum + score,
+    0,
+  );
 
   // Determine status
   let status: WindowStatus;
   if (totalScore >= 75) {
-    status = 'optimal';
+    status = "optimal";
   } else if (totalScore >= 50) {
-    status = 'marginal';
+    status = "marginal";
   } else {
-    status = 'avoid';
+    status = "avoid";
   }
 
   return {
@@ -156,13 +190,13 @@ export function calculateSprayWindow(
 export function calculateIrrigationNeed(
   soilMoisture: SoilMoistureData,
   et: ETData,
-  _fieldAreaHectares: number = 1
+  _fieldAreaHectares: number = 1,
 ): IrrigationNeed {
   const { current, target, fieldCapacity, wiltingPoint } = soilMoisture;
   const { et0, etc, kc } = et;
 
   // Calculate crop evapotranspiration if not provided
-  const cropET = etc || (et0 * (kc || 1.0));
+  const cropET = etc || et0 * (kc || 1.0);
 
   // Calculate soil moisture deficit
   const moistureDeficit = Math.max(0, target - current);
@@ -182,40 +216,45 @@ export function calculateIrrigationNeed(
   const recommendedDuration = Math.ceil(recommendedAmount / irrigationRate);
 
   // Determine urgency
-  let urgency: IrrigationNeed['urgency'];
+  let urgency: IrrigationNeed["urgency"];
   const stressLevel = (current - wiltingPoint) / (fieldCapacity - wiltingPoint);
 
   if (stressLevel < 0.3) {
-    urgency = 'critical';
+    urgency = "critical";
   } else if (stressLevel < 0.5) {
-    urgency = 'high';
+    urgency = "high";
   } else if (stressLevel < 0.7) {
-    urgency = 'medium';
+    urgency = "medium";
   } else if (current < target) {
-    urgency = 'low';
+    urgency = "low";
   } else {
-    urgency = 'none';
+    urgency = "none";
   }
 
   // Calculate next irrigation date
-  const daysUntilNextIrrigation = Math.max(1, Math.floor((current - target) / cropET));
+  const daysUntilNextIrrigation = Math.max(
+    1,
+    Math.floor((current - target) / cropET),
+  );
   const nextIrrigationDate = new Date();
-  nextIrrigationDate.setDate(nextIrrigationDate.getDate() + daysUntilNextIrrigation);
+  nextIrrigationDate.setDate(
+    nextIrrigationDate.getDate() + daysUntilNextIrrigation,
+  );
 
   // Generate reasoning
-  let reasoning = '';
-  let reasoningAr = '';
+  let reasoning = "";
+  let reasoningAr = "";
 
-  if (urgency === 'critical') {
+  if (urgency === "critical") {
     reasoning = `Soil moisture critically low (${current.toFixed(1)}%). Immediate irrigation required to prevent crop stress.`;
     reasoningAr = `رطوبة التربة منخفضة بشكل حرج (${current.toFixed(1)}%). الري الفوري مطلوب لمنع إجهاد المحصول.`;
-  } else if (urgency === 'high') {
+  } else if (urgency === "high") {
     reasoning = `Soil moisture low (${current.toFixed(1)}%). Irrigation needed within 24 hours.`;
     reasoningAr = `رطوبة التربة منخفضة (${current.toFixed(1)}%). الري مطلوب خلال 24 ساعة.`;
-  } else if (urgency === 'medium') {
+  } else if (urgency === "medium") {
     reasoning = `Soil moisture below target (${current.toFixed(1)}% vs ${target.toFixed(1)}%). Schedule irrigation soon.`;
     reasoningAr = `رطوبة التربة أقل من المستوى المستهدف (${current.toFixed(1)}% مقابل ${target.toFixed(1)}%). جدولة الري قريباً.`;
-  } else if (urgency === 'low') {
+  } else if (urgency === "low") {
     reasoning = `Soil moisture adequate (${current.toFixed(1)}%). Monitor and prepare for next irrigation.`;
     reasoningAr = `رطوبة التربة كافية (${current.toFixed(1)}%). راقب واستعد للري القادم.`;
   } else {
@@ -224,7 +263,7 @@ export function calculateIrrigationNeed(
   }
 
   return {
-    fieldId: '', // Will be set by caller
+    fieldId: "", // Will be set by caller
     urgency,
     recommendedAmount,
     recommendedDuration,
@@ -248,12 +287,12 @@ export function calculateIrrigationNeed(
  */
 export function getOptimalWindow(
   conditions: WeatherCondition[],
-  actionType: 'spray' | 'irrigate' = 'spray',
-  criteria?: Partial<SprayWindowCriteria>
+  actionType: "spray" | "irrigate" = "spray",
+  criteria?: Partial<SprayWindowCriteria>,
 ): WeatherCondition | null {
   if (conditions.length === 0) return null;
 
-  if (actionType === 'spray') {
+  if (actionType === "spray") {
     const results = conditions.map((condition) => ({
       condition,
       result: calculateSprayWindow(condition, criteria),
@@ -264,7 +303,7 @@ export function getOptimalWindow(
 
     // Return best condition if it's at least marginal
     const best = results[0];
-    if (best && best.result.status !== 'avoid') {
+    if (best && best.result.status !== "avoid") {
       return best.condition;
     }
   } else {
@@ -274,8 +313,10 @@ export function getOptimalWindow(
 
       // Prefer morning or evening (cooler)
       const hour = new Date(condition.timestamp).getHours();
-      if (hour >= 6 && hour <= 9) score += 20; // Early morning
-      else if (hour >= 17 && hour <= 20) score += 15; // Evening
+      if (hour >= 6 && hour <= 9)
+        score += 20; // Early morning
+      else if (hour >= 17 && hour <= 20)
+        score += 15; // Evening
       else if (hour >= 10 && hour <= 16) score -= 20; // Midday
 
       // Lower temperature is better
@@ -312,17 +353,22 @@ export function calculateET0(
   temperature: number,
   humidity: number,
   windSpeed: number,
-  solarRadiation: number = 20 // MJ/m²/day (default)
+  solarRadiation: number = 20, // MJ/m²/day (default)
 ): number {
   // Simplified Hargreaves equation for ET0
   // ET0 ≈ 0.0023 × (Tmean + 17.8) × (Tmax - Tmin)^0.5 × Ra
   // For hourly data, we use a simplified approach
 
-  const vaporPressureDeficit = calculateVaporPressureDeficit(temperature, humidity);
-  const windFactor = 1 + (windSpeed / 100);
+  const vaporPressureDeficit = calculateVaporPressureDeficit(
+    temperature,
+    humidity,
+  );
+  const windFactor = 1 + windSpeed / 100;
 
   // Simplified ET0 calculation (mm/day)
-  const et0 = (0.408 * solarRadiation * vaporPressureDeficit * windFactor) / (temperature + 273);
+  const et0 =
+    (0.408 * solarRadiation * vaporPressureDeficit * windFactor) /
+    (temperature + 273);
 
   return Math.max(0, et0);
 }
@@ -330,7 +376,10 @@ export function calculateET0(
 /**
  * Calculate vapor pressure deficit
  */
-function calculateVaporPressureDeficit(temperature: number, humidity: number): number {
+function calculateVaporPressureDeficit(
+  temperature: number,
+  humidity: number,
+): number {
   // Saturation vapor pressure (kPa)
   const es = 0.6108 * Math.exp((17.27 * temperature) / (temperature + 237.3));
 
@@ -347,9 +396,19 @@ function calculateVaporPressureDeficit(temperature: number, humidity: number): n
  */
 export function groupIntoWindows(
   conditions: Array<{ timestamp: string; status: WindowStatus }>,
-  minDuration: number = 2
-): Array<{ startTime: string; endTime: string; status: WindowStatus; duration: number }> {
-  const windows: Array<{ startTime: string; endTime: string; status: WindowStatus; duration: number }> = [];
+  minDuration: number = 2,
+): Array<{
+  startTime: string;
+  endTime: string;
+  status: WindowStatus;
+  duration: number;
+}> {
+  const windows: Array<{
+    startTime: string;
+    endTime: string;
+    status: WindowStatus;
+    duration: number;
+  }> = [];
 
   if (conditions.length === 0) return windows;
 
@@ -371,7 +430,8 @@ export function groupIntoWindows(
 
     const prevTime = new Date(prev.timestamp);
     const currTime = new Date(curr.timestamp);
-    const hoursDiff = (currTime.getTime() - prevTime.getTime()) / (1000 * 60 * 60);
+    const hoursDiff =
+      (currTime.getTime() - prevTime.getTime()) / (1000 * 60 * 60);
 
     // If same status and consecutive hours, extend window
     if (curr.status === currentWindow.status && hoursDiff <= 1) {

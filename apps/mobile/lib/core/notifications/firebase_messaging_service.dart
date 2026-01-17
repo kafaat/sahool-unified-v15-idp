@@ -12,6 +12,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../utils/app_logger.dart';
 
 /// Notification types matching backend
 enum SAHOOLNotificationType {
@@ -266,13 +267,13 @@ class FirebaseMessagingService {
       _messaging.onTokenRefresh.listen((token) {
         _fcmToken = token;
         _tokenRefreshController.add(token);
-        debugPrint('🔄 FCM token refreshed');
+        AppLogger.i('FCM token refreshed', tag: 'FCM');
       });
 
       _initialized = true;
-      debugPrint('✅ Firebase Messaging Service initialized');
+      AppLogger.i('Firebase Messaging Service initialized', tag: 'FCM');
     } catch (e) {
-      debugPrint('❌ Failed to initialize Firebase Messaging: $e');
+      AppLogger.e('Failed to initialize Firebase Messaging: $e', tag: 'FCM', error: e);
     }
   }
 
@@ -289,7 +290,7 @@ class FirebaseMessagingService {
     );
 
     final authorized = settings.authorizationStatus == AuthorizationStatus.authorized;
-    debugPrint('📱 Notification permission: ${settings.authorizationStatus}');
+    AppLogger.i('Notification permission: ${settings.authorizationStatus}', tag: 'FCM');
     return authorized;
   }
 
@@ -396,7 +397,7 @@ class FirebaseMessagingService {
 
   /// Handle foreground message
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    debugPrint('📬 Foreground message: ${message.messageId}');
+    AppLogger.d('Foreground message: ${message.messageId}', tag: 'FCM');
 
     // Show local notification
     await _showLocalNotification(message);
@@ -407,7 +408,7 @@ class FirebaseMessagingService {
 
   /// Handle message that opened the app
   void _handleMessageOpenedApp(RemoteMessage message) {
-    debugPrint('📱 Message opened app: ${message.messageId}');
+    AppLogger.d('Message opened app: ${message.messageId}', tag: 'FCM');
     _emitNotification(message, tapped: true);
   }
 
@@ -415,7 +416,7 @@ class FirebaseMessagingService {
   Future<void> _checkInitialMessage() async {
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
-      debugPrint('🚀 Initial message: ${initialMessage.messageId}');
+      AppLogger.d('Initial message: ${initialMessage.messageId}', tag: 'FCM');
       _emitNotification(initialMessage, tapped: true);
     }
   }
@@ -492,7 +493,7 @@ class FirebaseMessagingService {
 
       _notificationStreamController.add(payload);
     } catch (e) {
-      debugPrint('❌ Failed to parse notification payload: $e');
+      AppLogger.e('Failed to parse notification payload: $e', tag: 'FCM', error: e);
     }
   }
 
@@ -506,11 +507,11 @@ class FirebaseMessagingService {
     try {
       _fcmToken = await _messaging.getToken();
       if (_fcmToken != null) {
-        debugPrint('📱 FCM Token: ${_fcmToken!.substring(0, 20)}...');
+        AppLogger.d('FCM Token obtained (${_fcmToken!.length} chars)', tag: 'FCM');
       }
       return _fcmToken;
     } catch (e) {
-      debugPrint('❌ Failed to get FCM token: $e');
+      AppLogger.e('Failed to get FCM token: $e', tag: 'FCM', error: e);
       return null;
     }
   }
@@ -519,9 +520,9 @@ class FirebaseMessagingService {
   Future<void> subscribeToTopic(String topic) async {
     try {
       await _messaging.subscribeToTopic(topic);
-      debugPrint('✅ Subscribed to topic: $topic');
+      AppLogger.d('Subscribed to topic: $topic', tag: 'FCM');
     } catch (e) {
-      debugPrint('❌ Failed to subscribe to topic: $e');
+      AppLogger.e('Failed to subscribe to topic: $e', tag: 'FCM', error: e);
     }
   }
 
@@ -529,9 +530,9 @@ class FirebaseMessagingService {
   Future<void> unsubscribeFromTopic(String topic) async {
     try {
       await _messaging.unsubscribeFromTopic(topic);
-      debugPrint('✅ Unsubscribed from topic: $topic');
+      AppLogger.d('Unsubscribed from topic: $topic', tag: 'FCM');
     } catch (e) {
-      debugPrint('❌ Failed to unsubscribe from topic: $e');
+      AppLogger.e('Failed to unsubscribe from topic: $e', tag: 'FCM', error: e);
     }
   }
 
@@ -586,9 +587,9 @@ class FirebaseMessagingService {
     try {
       await _messaging.deleteToken();
       _fcmToken = null;
-      debugPrint('🗑️ FCM token deleted');
+      AppLogger.i('FCM token deleted', tag: 'FCM');
     } catch (e) {
-      debugPrint('❌ Failed to delete FCM token: $e');
+      AppLogger.e('Failed to delete FCM token: $e', tag: 'FCM', error: e);
     }
   }
 

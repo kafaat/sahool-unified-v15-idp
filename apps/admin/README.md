@@ -16,19 +16,19 @@ React: 19.0.0
 
 ### Main Modules
 
-| Module | Path | Description |
-|--------|------|-------------|
-| Dashboard | `/dashboard` | Overview and KPIs |
-| Farms | `/farms` | Farm management |
-| Fields | `/fields` | Field monitoring |
-| Diseases | `/diseases` | Disease tracking |
-| Epidemic | `/epidemic` | Epidemic alerts |
+| Module     | Path          | Description           |
+| ---------- | ------------- | --------------------- |
+| Dashboard  | `/dashboard`  | Overview and KPIs     |
+| Farms      | `/farms`      | Farm management       |
+| Fields     | `/fields`     | Field monitoring      |
+| Diseases   | `/diseases`   | Disease tracking      |
+| Epidemic   | `/epidemic`   | Epidemic alerts       |
 | Irrigation | `/irrigation` | Irrigation management |
-| Sensors | `/sensors` | IoT sensor monitoring |
-| Yield | `/yield` | Yield predictions |
-| Alerts | `/alerts` | System alerts |
-| Support | `/support` | Support tickets |
-| Lab | `/lab` | Laboratory results |
+| Sensors    | `/sensors`    | IoT sensor monitoring |
+| Yield      | `/yield`      | Yield predictions     |
+| Alerts     | `/alerts`     | System alerts         |
+| Support    | `/support`    | Support tickets       |
+| Lab        | `/lab`        | Laboratory results    |
 
 ---
 
@@ -91,23 +91,23 @@ apps/admin/
 
 ### Internal Packages
 
-| Package | Purpose |
-|---------|---------|
-| `@sahool/api-client` | Unified API client |
-| `@sahool/shared-ui` | Shared UI components |
-| `@sahool/shared-utils` | Utility functions |
-| `@sahool/shared-hooks` | React hooks |
+| Package                | Purpose              |
+| ---------------------- | -------------------- |
+| `@sahool/api-client`   | Unified API client   |
+| `@sahool/shared-ui`    | Shared UI components |
+| `@sahool/shared-utils` | Utility functions    |
+| `@sahool/shared-hooks` | React hooks          |
 
 ### External Libraries
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| Next.js | 15.1.2 | React framework |
-| React | 19.0.0 | UI library |
-| Leaflet | 1.9.4 | Map visualization |
-| Recharts | 2.14.1 | Charts and graphs |
-| TanStack Query | 5.62.8 | Data fetching |
-| Jose | 5.9.6 | JWT handling |
+| Library        | Version | Purpose           |
+| -------------- | ------- | ----------------- |
+| Next.js        | 15.1.2  | React framework   |
+| React          | 19.0.0  | UI library        |
+| Leaflet        | 1.9.4   | Map visualization |
+| Recharts       | 2.14.1  | Charts and graphs |
+| TanStack Query | 5.62.8  | Data fetching     |
+| Jose           | 5.9.6   | JWT handling      |
 
 ---
 
@@ -146,6 +146,7 @@ pnpm analyze:browser
 ```
 
 This will generate interactive HTML reports showing:
+
 - Bundle composition and size
 - Package dependencies
 - Code splitting opportunities
@@ -210,14 +211,14 @@ The admin dashboard uses JWT-based authentication:
 
 The dashboard integrates with these backend services:
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| API Gateway | 8000 | Unified entry point |
-| Auth Service | 8001 | Authentication |
-| Field Service | 8080 | Field operations |
-| Satellite Service | 8090 | NDVI data |
-| Weather Advanced | 8092 | Weather data |
-| Crop Health AI | 8095 | Disease detection |
+| Service           | Port | Purpose             |
+| ----------------- | ---- | ------------------- |
+| API Gateway       | 8000 | Unified entry point |
+| Auth Service      | 8001 | Authentication      |
+| Field Service     | 8080 | Field operations    |
+| Satellite Service | 8090 | NDVI data           |
+| Weather Advanced  | 8092 | Weather data        |
+| Crop Health AI    | 8095 | Disease detection   |
 
 ---
 

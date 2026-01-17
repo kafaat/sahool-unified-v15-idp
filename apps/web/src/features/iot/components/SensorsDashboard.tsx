@@ -3,17 +3,19 @@
  * مكون لوحة المستشعرات
  */
 
-'use client';
+"use client";
 
-import { useSensors, useSensorStats } from '../hooks/useSensors';
-import { SensorCard } from './SensorCard';
-import { Activity, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { useSensors, useSensorStats } from "../hooks/useSensors";
+import { SensorCard } from "./SensorCard";
+import { Activity, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 
 interface SensorsDashboardProps {
   onSensorClick?: (sensorId: string) => void;
 }
 
-export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) {
+export function SensorsDashboard({
+  onSensorClick,
+}: SensorsDashboardProps = {}) {
   const { data: sensors, isLoading: sensorsLoading } = useSensors();
   const { data: stats, isLoading: statsLoading } = useSensorStats();
 
@@ -35,7 +37,9 @@ export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) 
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">إجمالي المستشعرات</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total}</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">
+                  {stats.total}
+                </p>
               </div>
               <Activity className="w-12 h-12 text-blue-600 opacity-50" />
             </div>
@@ -45,7 +49,9 @@ export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) 
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">المستشعرات النشطة</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">{stats.active}</p>
+                <p className="text-3xl font-bold text-green-600 mt-2">
+                  {stats.active}
+                </p>
               </div>
               <CheckCircle className="w-12 h-12 text-green-600 opacity-50" />
             </div>
@@ -80,18 +86,26 @@ export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) 
       {/* Status Overview */}
       {stats && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">حالة المستشعرات</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            حالة المستشعرات
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{stats.byStatus.active || 0}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {stats.byStatus.active || 0}
+              </div>
               <div className="text-sm text-gray-600">نشط</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-600">{stats.byStatus.inactive || 0}</div>
+              <div className="text-2xl font-bold text-gray-600">
+                {stats.byStatus.inactive || 0}
+              </div>
               <div className="text-sm text-gray-600">غير نشط</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{stats.byStatus.error || 0}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {stats.byStatus.error || 0}
+              </div>
               <div className="text-sm text-gray-600">خطأ</div>
             </div>
             <div className="text-center">
@@ -110,7 +124,11 @@ export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) 
         {sensors && sensors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sensors.map((sensor) => (
-              <SensorCard key={sensor.id} sensor={sensor} onClick={onSensorClick} />
+              <SensorCard
+                key={sensor.id}
+                sensor={sensor}
+                onClick={onSensorClick}
+              />
             ))}
           </div>
         ) : (

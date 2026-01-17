@@ -5,16 +5,16 @@ services:
       context: ../../apps/services/iot-service
       dockerfile: Dockerfile
     ports:
-    - 3006:3006
+    - 8117:8117
     environment:
-    - PORT=3006
+    - PORT=8117
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3006/health
+      - http://localhost:8117/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -29,16 +29,16 @@ services:
       context: ../../apps/services/satellite-service
       dockerfile: Dockerfile
     ports:
-    - 8090:8090
+    - 9190:9190
     environment:
-    - PORT=8090
+    - PORT=9190
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8090/health
+      - http://localhost:9190/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -51,6 +51,57 @@ services:
   weather-advanced:
     build:
       context: ../../apps/services/weather-advanced
+      dockerfile: Dockerfile
+    ports:
+    - 9092:9092
+    environment:
+    - PORT=9092
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9092/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+  virtual-sensors:
+    build:
+      context: ../../apps/services/virtual-sensors
+      dockerfile: Dockerfile
+    ports:
+    - 8119:8119
+    environment:
+    - PORT=8119
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8119/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - weather-advanced
+    - satellite-service
+  weather-service:
+    build:
+      context: ../../apps/services/weather-service
       dockerfile: Dockerfile
     ports:
     - 8092:8092
@@ -72,21 +123,25 @@ services:
         limits:
           cpus: '300'
           memory: 256Mi
-  virtual-sensors:
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  astronomical-calendar:
     build:
-      context: ../../apps/services/virtual-sensors
+      context: ../../apps/services/astronomical-calendar
       dockerfile: Dockerfile
     ports:
-    - 8096:8096
+    - 8111:8111
     environment:
-    - PORT=8096
+    - PORT=8111
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8096/health
+      - http://localhost:8111/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -94,11 +149,40 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
-          memory: 384Mi
+          cpus: '200'
+          memory: 256Mi
     depends_on:
-    - weather-advanced
-    - satellite-service
+    - postgres
+    - redis
+  iot-gateway:
+    build:
+      context: ../../apps/services/iot-gateway
+      dockerfile: Dockerfile
+    ports:
+    - 8106:8106
+    environment:
+    - PORT=8106
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8106/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+    - mqtt
 networks:
   sahool-network:
     driver: bridge

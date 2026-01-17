@@ -5,16 +5,16 @@ services:
       context: ../../apps/services/crop-growth-model
       dockerfile: Dockerfile
     ports:
-    - 3000:3000
+    - 3023:3023
     environment:
-    - PORT=3000
+    - PORT=3023
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3000/health
+      - http://localhost:3023/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -29,16 +29,16 @@ services:
       context: ../../apps/services/yield-prediction
       dockerfile: Dockerfile
     ports:
-    - 3003:3003
+    - 3021:3021
     environment:
-    - PORT=3003
+    - PORT=3021
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3003/health
+      - http://localhost:3021/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -84,16 +84,16 @@ services:
       context: ../../apps/services/fertilizer-advisor
       dockerfile: Dockerfile
     ports:
-    - 8093:8093
+    - 9093:9093
     environment:
-    - PORT=8093
+    - PORT=9093
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8093/health
+      - http://localhost:9093/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -133,21 +133,77 @@ services:
     depends_on:
     - weather-advanced
     - virtual-sensors
+  advisory-service:
+    build:
+      context: ../../apps/services/advisory-service
+      dockerfile: Dockerfile
+    ports:
+    - 8093:8093
+    environment:
+    - PORT=8093
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8093/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  agro-advisor:
+    build:
+      context: ../../apps/services/agro-advisor
+      dockerfile: Dockerfile
+    ports:
+    - 8105:8105
+    environment:
+    - PORT=8105
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8105/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
   disaster-assessment:
     build:
       context: ../../apps/services/disaster-assessment
       dockerfile: Dockerfile
     ports:
-    - 3001:3001
+    - 3020:3020
     environment:
-    - PORT=3001
+    - PORT=3020
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3001/health
+      - http://localhost:3020/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -165,16 +221,16 @@ services:
       context: ../../apps/services/lai-estimation
       dockerfile: Dockerfile
     ports:
-    - 3002:3002
+    - 3022:3022
     environment:
-    - PORT=3002
+    - PORT=3022
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3002/health
+      - http://localhost:3022/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -217,6 +273,58 @@ services:
       context: ../../apps/services/crop-health-ai
       dockerfile: Dockerfile
     ports:
+    - 9095:9095
+    environment:
+    - PORT=9095
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9095/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '800'
+          memory: 1Gi
+    depends_on:
+    - satellite-service
+  agro-rules:
+    build:
+      context: ../../apps/services/agro-rules
+      dockerfile: Dockerfile
+    ports:
+    - 8151:8151
+    environment:
+    - PORT=8151
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8151/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+    depends_on:
+    - nats
+  crop-intelligence-service:
+    build:
+      context: ../../apps/services/crop-intelligence-service
+      dockerfile: Dockerfile
+    ports:
     - 8095:8095
     environment:
     - PORT=8095
@@ -234,25 +342,133 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '800'
-          memory: 1Gi
+          cpus: '500'
+          memory: 512Mi
     depends_on:
     - satellite-service
+  ndvi-processor:
+    build:
+      context: ../../apps/services/ndvi-processor
+      dockerfile: Dockerfile
+    ports:
+    - 8118:8118
+    environment:
+    - PORT=8118
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8118/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - satellite-service
+  field-intelligence:
+    build:
+      context: ../../apps/services/field-intelligence
+      dockerfile: Dockerfile
+    ports:
+    - 8120:8120
+    environment:
+    - PORT=8120
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8120/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - indicators-service
+  vegetation-analysis-service:
+    build:
+      context: ../../apps/services/vegetation-analysis-service
+      dockerfile: Dockerfile
+    ports:
+    - 8090:8090
+    environment:
+    - PORT=8090
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8090/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  skills-service:
+    build:
+      context: ../../apps/services/skills-service
+      dockerfile: Dockerfile
+    ports:
+    - 8121:8121
+    environment:
+    - PORT=8121
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8121/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
   marketplace-service:
     build:
       context: ../../apps/services/marketplace-service
       dockerfile: Dockerfile
     ports:
-    - 3004:3004
+    - 3010:3010
     environment:
-    - PORT=3004
+    - PORT=3010
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3004/health
+      - http://localhost:3010/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -267,16 +483,16 @@ services:
       context: ../../apps/services/community-chat
       dockerfile: Dockerfile
     ports:
-    - 3005:3005
+    - 8097:8097
     environment:
-    - PORT=3005
+    - PORT=8097
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3005/health
+      - http://localhost:8097/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -315,16 +531,16 @@ services:
       context: ../../apps/services/billing-core
       dockerfile: Dockerfile
     ports:
-    - 8021:8021
+    - 8089:8089
     environment:
-    - PORT=8021
+    - PORT=8089
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8021/health
+      - http://localhost:8089/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -358,21 +574,286 @@ services:
         limits:
           cpus: '200'
           memory: 256Mi
-  iot-service:
+  mcp-server:
     build:
-      context: ../../apps/services/iot-service
+      context: ../../apps/services/mcp-server
       dockerfile: Dockerfile
     ports:
-    - 3006:3006
+    - 8200:8200
     environment:
-    - PORT=3006
+    - PORT=8200
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8200/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+    depends_on:
+    - kong
+  equipment-service:
+    build:
+      context: ../../apps/services/equipment-service
+      dockerfile: Dockerfile
+    ports:
+    - 8101:8101
+    environment:
+    - PORT=8101
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8101/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+  task-service:
+    build:
+      context: ../../apps/services/task-service
+      dockerfile: Dockerfile
+    ports:
+    - 8103:8103
+    environment:
+    - PORT=8103
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8103/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+  ws-gateway:
+    build:
+      context: ../../apps/services/ws-gateway
+      dockerfile: Dockerfile
+    ports:
+    - 8081:8081
+    environment:
+    - PORT=8081
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8081/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+    depends_on:
+    - nats
+  field-management-service:
+    build:
+      context: ../../apps/services/field-management-service
+      dockerfile: Dockerfile
+    ports:
+    - 3000:3000
+    environment:
+    - PORT=3000
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:3006/health
+      - http://localhost:3000/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  user-service:
+    build:
+      context: ../../apps/services/user-service
+      dockerfile: Dockerfile
+    ports:
+    - 3025:3025
+    environment:
+    - PORT=3025
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3025/api/v1/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+  alert-service:
+    build:
+      context: ../../apps/services/alert-service
+      dockerfile: Dockerfile
+    ports:
+    - 8113:8113
+    environment:
+    - PORT=8113
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8113/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  inventory-service:
+    build:
+      context: ../../apps/services/inventory-service
+      dockerfile: Dockerfile
+    ports:
+    - 8116:8116
+    environment:
+    - PORT=8116
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8116/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+    depends_on:
+    - postgres
+    - redis
+  field-chat:
+    build:
+      context: ../../apps/services/field-chat
+      dockerfile: Dockerfile
+    ports:
+    - 8099:8099
+    environment:
+    - PORT=8099
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8099/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  provider-config:
+    build:
+      context: ../../apps/services/provider-config
+      dockerfile: Dockerfile
+    ports:
+    - 8104:8104
+    environment:
+    - PORT=8104
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8104/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+    depends_on:
+    - postgres
+    - redis
+  iot-service:
+    build:
+      context: ../../apps/services/iot-service
+      dockerfile: Dockerfile
+    ports:
+    - 8117:8117
+    environment:
+    - PORT=8117
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8117/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -387,16 +868,16 @@ services:
       context: ../../apps/services/satellite-service
       dockerfile: Dockerfile
     ports:
-    - 8090:8090
+    - 9190:9190
     environment:
-    - PORT=8090
+    - PORT=9190
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8090/health
+      - http://localhost:9190/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -409,6 +890,57 @@ services:
   weather-advanced:
     build:
       context: ../../apps/services/weather-advanced
+      dockerfile: Dockerfile
+    ports:
+    - 9092:9092
+    environment:
+    - PORT=9092
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9092/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+  virtual-sensors:
+    build:
+      context: ../../apps/services/virtual-sensors
+      dockerfile: Dockerfile
+    ports:
+    - 8119:8119
+    environment:
+    - PORT=8119
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8119/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - weather-advanced
+    - satellite-service
+  weather-service:
+    build:
+      context: ../../apps/services/weather-service
       dockerfile: Dockerfile
     ports:
     - 8092:8092
@@ -430,21 +962,25 @@ services:
         limits:
           cpus: '300'
           memory: 256Mi
-  virtual-sensors:
+    depends_on:
+    - postgres
+    - redis
+    - nats
+  astronomical-calendar:
     build:
-      context: ../../apps/services/virtual-sensors
+      context: ../../apps/services/astronomical-calendar
       dockerfile: Dockerfile
     ports:
-    - 8096:8096
+    - 8111:8111
     environment:
-    - PORT=8096
+    - PORT=8111
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8096/health
+      - http://localhost:8111/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -452,11 +988,40 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
-          memory: 384Mi
+          cpus: '200'
+          memory: 256Mi
     depends_on:
-    - weather-advanced
-    - satellite-service
+    - postgres
+    - redis
+  iot-gateway:
+    build:
+      context: ../../apps/services/iot-gateway
+      dockerfile: Dockerfile
+    ports:
+    - 8106:8106
+    environment:
+    - PORT=8106
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8106/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
+    - mqtt
 networks:
   sahool-network:
     driver: bridge

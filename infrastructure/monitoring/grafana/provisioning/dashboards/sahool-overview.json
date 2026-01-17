@@ -81,9 +81,7 @@
         "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -147,9 +145,7 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -200,23 +196,16 @@
       },
       "id": 3,
       "options": {
-        "displayLabels": [
-          "name",
-          "percent"
-        ],
+        "displayLabels": ["name", "percent"],
         "legend": {
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value"
-          ]
+          "values": ["value"]
         },
         "pieType": "donut",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -304,11 +293,7 @@
       "id": 4,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "max"
-          ],
+          "calcs": ["mean", "lastNotNull", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -407,11 +392,7 @@
       "id": 5,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "max"
-          ],
+          "calcs": ["mean", "lastNotNull", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -554,11 +535,7 @@
       "id": 6,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "max"
-          ],
+          "calcs": ["mean", "lastNotNull", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -646,9 +623,7 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -714,9 +689,7 @@
       "options": {
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -809,11 +782,7 @@
       "id": 9,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "max"
-          ],
+          "calcs": ["mean", "lastNotNull", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -896,9 +865,7 @@
         "justifyMode": "center",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -923,12 +890,7 @@
   "refresh": "30s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [
-    "sahool",
-    "agriculture",
-    "platform",
-    "overview"
-  ],
+  "tags": ["sahool", "agriculture", "platform", "overview"],
   "templating": {
     "list": [
       {
@@ -976,15 +938,7 @@
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": [
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h"
-    ]
+    "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h"]
   },
   "timezone": "Asia/Riyadh",
   "title": "SAHOOL Platform Overview - نظرة عامة على منصة سهول",

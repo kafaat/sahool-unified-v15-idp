@@ -16,7 +16,7 @@ import {
   HttpStatus,
   ForbiddenException,
   UseGuards,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
@@ -24,18 +24,18 @@ import {
   ApiParam,
   ApiQuery,
   ApiBearerAuth,
-} from '@nestjs/swagger';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { CurrentUser } from '../utils/auth-decorators';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+} from "@nestjs/swagger";
+import { UsersService } from "./users.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { CurrentUser } from "../utils/auth-decorators";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { RolesGuard } from "../auth/roles.guard";
+import { Roles } from "../auth/roles.decorator";
 
-@ApiTags('Users')
+@ApiTags("Users")
 @UseGuards(JwtAuthGuard)
-@Controller('users')
+@Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -48,30 +48,30 @@ export class UsersController {
     resourceUserId: string,
   ): void {
     // Allow admins to access any user
-    if (currentUser?.roles?.includes('admin')) {
+    if (currentUser?.roles?.includes("admin")) {
       return;
     }
 
     // Check if the authenticated user is accessing their own data
     if (currentUser?.id !== resourceUserId) {
       throw new ForbiddenException(
-        'You do not have permission to access this resource',
+        "You do not have permission to access this resource",
       );
     }
   }
 
   @Post()
   @ApiOperation({
-    summary: 'Create a new user',
-    description: 'إنشاء مستخدم جديد',
+    summary: "Create a new user",
+    description: "إنشاء مستخدم جديد",
   })
   @ApiResponse({
     status: 201,
-    description: 'User created successfully',
+    description: "User created successfully",
   })
   @ApiResponse({
     status: 409,
-    description: 'User with this email already exists',
+    description: "User with this email already exists",
   })
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
@@ -80,30 +80,30 @@ export class UsersController {
     return {
       success: true,
       data: userWithoutPassword,
-      message: 'User created successfully',
+      message: "User created successfully",
     };
   }
 
   @Get()
   @ApiOperation({
-    summary: 'Get all users',
-    description: 'الحصول على جميع المستخدمين',
+    summary: "Get all users",
+    description: "الحصول على جميع المستخدمين",
   })
-  @ApiQuery({ name: 'tenantId', required: false })
-  @ApiQuery({ name: 'role', required: false })
-  @ApiQuery({ name: 'status', required: false })
-  @ApiQuery({ name: 'skip', required: false, type: Number })
-  @ApiQuery({ name: 'take', required: false, type: Number })
+  @ApiQuery({ name: "tenantId", required: false })
+  @ApiQuery({ name: "role", required: false })
+  @ApiQuery({ name: "status", required: false })
+  @ApiQuery({ name: "skip", required: false, type: Number })
+  @ApiQuery({ name: "take", required: false, type: Number })
   @ApiResponse({
     status: 200,
-    description: 'Users retrieved successfully',
+    description: "Users retrieved successfully",
   })
   async findAll(
-    @Query('tenantId') tenantId?: string,
-    @Query('role') role?: string,
-    @Query('status') status?: string,
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
+    @Query("tenantId") tenantId?: string,
+    @Query("role") role?: string,
+    @Query("status") status?: string,
+    @Query("skip") skip?: string,
+    @Query("take") take?: string,
   ) {
     const result = await this.usersService.findAll({
       tenantId,
@@ -127,25 +127,25 @@ export class UsersController {
     };
   }
 
-  @Get(':id')
+  @Get(":id")
   @ApiOperation({
-    summary: 'Get a user by ID',
-    description: 'الحصول على مستخدم بواسطة المعرف',
+    summary: "Get a user by ID",
+    description: "الحصول على مستخدم بواسطة المعرف",
   })
-  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiParam({ name: "id", description: "User ID" })
   @ApiResponse({
     status: 200,
-    description: 'User retrieved successfully',
+    description: "User retrieved successfully",
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: "User not found",
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - You can only access your own data',
+    description: "Forbidden - You can only access your own data",
   })
-  async findOne(@Param('id') id: string, @CurrentUser() currentUser: any) {
+  async findOne(@Param("id") id: string, @CurrentUser() currentUser: any) {
     // Validate resource ownership - users can only access their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
@@ -157,26 +157,26 @@ export class UsersController {
     };
   }
 
-  @Get('email/:email')
+  @Get("email/:email")
   @ApiOperation({
-    summary: 'Get a user by email',
-    description: 'الحصول على مستخدم بواسطة البريد الإلكتروني',
+    summary: "Get a user by email",
+    description: "الحصول على مستخدم بواسطة البريد الإلكتروني",
   })
-  @ApiParam({ name: 'email', description: 'User email' })
+  @ApiParam({ name: "email", description: "User email" })
   @ApiResponse({
     status: 200,
-    description: 'User retrieved successfully',
+    description: "User retrieved successfully",
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: "User not found",
   })
-  async findByEmail(@Param('email') email: string) {
+  async findByEmail(@Param("email") email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
       return {
         success: false,
-        message: 'User not found',
+        message: "User not found",
       };
     }
     const { passwordHash, ...userWithoutPassword } = user;
@@ -186,26 +186,26 @@ export class UsersController {
     };
   }
 
-  @Put(':id')
+  @Put(":id")
   @ApiOperation({
-    summary: 'Update a user',
-    description: 'تحديث مستخدم',
+    summary: "Update a user",
+    description: "تحديث مستخدم",
   })
-  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiParam({ name: "id", description: "User ID" })
   @ApiResponse({
     status: 200,
-    description: 'User updated successfully',
+    description: "User updated successfully",
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: "User not found",
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - You can only update your own data',
+    description: "Forbidden - You can only update your own data",
   })
   async update(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() currentUser: any,
   ) {
@@ -217,85 +217,85 @@ export class UsersController {
     return {
       success: true,
       data: userWithoutPassword,
-      message: 'User updated successfully',
+      message: "User updated successfully",
     };
   }
 
-  @Delete(':id')
+  @Delete(":id")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Delete a user (soft delete)',
-    description: 'حذف مستخدم (حذف ناعم)',
+    summary: "Delete a user (soft delete)",
+    description: "حذف مستخدم (حذف ناعم)",
   })
-  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiParam({ name: "id", description: "User ID" })
   @ApiResponse({
     status: 200,
-    description: 'User deleted successfully',
+    description: "User deleted successfully",
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: "User not found",
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - You can only delete your own data',
+    description: "Forbidden - You can only delete your own data",
   })
-  async remove(@Param('id') id: string, @CurrentUser() currentUser: any) {
+  async remove(@Param("id") id: string, @CurrentUser() currentUser: any) {
     // Validate resource ownership - users can only delete their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
     await this.usersService.remove(id);
     return {
       success: true,
-      message: 'User deleted successfully',
+      message: "User deleted successfully",
     };
   }
 
-  @Delete(':id/hard')
+  @Delete(":id/hard")
   @UseGuards(RolesGuard)
-  @Roles('ADMIN')
+  @Roles("ADMIN")
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Permanently delete a user (Admin only)',
-    description: 'حذف مستخدم نهائيا (للمشرفين فقط)',
+    summary: "Permanently delete a user (Admin only)",
+    description: "حذف مستخدم نهائيا (للمشرفين فقط)",
   })
-  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiParam({ name: "id", description: "User ID" })
   @ApiResponse({
     status: 200,
-    description: 'User permanently deleted',
+    description: "User permanently deleted",
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - Missing or invalid token',
+    description: "Unauthorized - Missing or invalid token",
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - User does not have ADMIN role',
+    description: "Forbidden - User does not have ADMIN role",
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: "User not found",
   })
-  async hardDelete(@Param('id') id: string) {
+  async hardDelete(@Param("id") id: string) {
     await this.usersService.hardDelete(id);
     return {
       success: true,
-      message: 'User permanently deleted',
+      message: "User permanently deleted",
     };
   }
 
-  @Get('stats/count/:tenantId')
+  @Get("stats/count/:tenantId")
   @ApiOperation({
-    summary: 'Get user count by tenant',
-    description: 'الحصول على عدد المستخدمين حسب المستأجر',
+    summary: "Get user count by tenant",
+    description: "الحصول على عدد المستخدمين حسب المستأجر",
   })
-  @ApiParam({ name: 'tenantId', description: 'Tenant ID' })
+  @ApiParam({ name: "tenantId", description: "Tenant ID" })
   @ApiResponse({
     status: 200,
-    description: 'User count retrieved successfully',
+    description: "User count retrieved successfully",
   })
-  async countByTenant(@Param('tenantId') tenantId: string) {
+  async countByTenant(@Param("tenantId") tenantId: string) {
     const count = await this.usersService.countByTenant(tenantId);
     return {
       success: true,
@@ -303,14 +303,14 @@ export class UsersController {
     };
   }
 
-  @Get('stats/active')
+  @Get("stats/active")
   @ApiOperation({
-    summary: 'Get active users count',
-    description: 'الحصول على عدد المستخدمين النشطين',
+    summary: "Get active users count",
+    description: "الحصول على عدد المستخدمين النشطين",
   })
   @ApiResponse({
     status: 200,
-    description: 'Active users count retrieved successfully',
+    description: "Active users count retrieved successfully",
   })
   async countActive() {
     const count = await this.usersService.countActive();

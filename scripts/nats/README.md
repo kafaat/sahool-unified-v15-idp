@@ -105,32 +105,34 @@ export OUTPUT_DIR="/path/to/output"
 
 The script creates users with predefined permissions:
 
-| User | Account | Permissions | Max Connections |
-|------|---------|-------------|-----------------|
-| `system-monitor` | SYS | Read-only monitoring | 5 |
-| `admin` | APP | Full access | 10 |
-| `monitor` | APP | Read-only | 5 |
-| `service1` | APP | Standard service | 50 |
-| `service2` | APP | Standard service | 50 |
-| `field-service` | APP | Field operations | 50 |
-| `weather-service` | APP | Weather data | 20 |
-| `iot-service` | APP | IoT sensors | 100 |
-| `notification-service` | APP | Notifications | 50 |
-| `marketplace-service` | APP | Marketplace | 50 |
-| `billing-service` | APP | Billing | 30 |
-| `chat-service` | APP | Chat messages | 100 |
+| User                   | Account | Permissions          | Max Connections |
+| ---------------------- | ------- | -------------------- | --------------- |
+| `system-monitor`       | SYS     | Read-only monitoring | 5               |
+| `admin`                | APP     | Full access          | 10              |
+| `monitor`              | APP     | Read-only            | 5               |
+| `service1`             | APP     | Standard service     | 50              |
+| `service2`             | APP     | Standard service     | 50              |
+| `field-service`        | APP     | Field operations     | 50              |
+| `weather-service`      | APP     | Weather data         | 20              |
+| `iot-service`          | APP     | IoT sensors          | 100             |
+| `notification-service` | APP     | Notifications        | 50              |
+| `marketplace-service`  | APP     | Marketplace          | 50              |
+| `billing-service`      | APP     | Billing              | 30              |
+| `chat-service`         | APP     | Chat messages        | 100             |
 
 ## Next Steps
 
 After running the generation script:
 
 1. **Setup Resolver**:
+
    ```bash
    # Copy resolver JWTs to resolver directory
    cp config/nats/generated/resolver/*.jwt config/nats/resolver/
    ```
 
 2. **Extract Environment Variables**:
+
    ```bash
    # Get operator JWT
    OPERATOR_JWT=$(cat config/nats/generated/operator.jwt)
@@ -216,12 +218,14 @@ rm -rf /home/user/sahool-unified-v15-idp/config/nats/nkeys
 ## Documentation
 
 For comprehensive documentation, see:
+
 - [NATS NKey Setup Guide](../../docs/NATS_NKEY_SETUP.md)
 - [NATS Official Documentation](https://docs.nats.io/)
 
 ## Support
 
 For issues or questions, check:
+
 1. Generated setup summary: `config/nats/generated/SETUP_SUMMARY.md`
 2. NATS documentation: https://docs.nats.io/
 3. NSC documentation: https://docs.nats.io/running-a-nats-service/configuration/securing_nats/auth_intro/nsc

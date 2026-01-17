@@ -40,13 +40,20 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY apps/services/provider-config/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
-# Copy shared libraries
+# Copy shared libraries (required for shared.cors_config)
+COPY shared/ ./shared/
+
+# Copy services shared modules (needed for errors_py module)
+COPY apps/services/shared/ ./apps/services/shared/
+
+# Create compatibility layer: copy errors_py to shared/errors_py so imports work
+RUN cp -r ./apps/services/shared/errors_py ./shared/errors_py || true
 
 # Copy source
-COPY src/ ./src/
+COPY apps/services/provider-config/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app
@@ -56,6 +63,6 @@ USER sahool
 EXPOSE 8104
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8104/health')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8104/healthz')" || exit 1
 
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8104"]

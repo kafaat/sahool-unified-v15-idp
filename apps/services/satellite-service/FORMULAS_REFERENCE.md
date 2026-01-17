@@ -1,4 +1,5 @@
 # Vegetation Indices Formulas Reference
+
 ## Complete Technical Reference
 
 All formulas use Sentinel-2 MSI band reflectance values (0-1 scale).
@@ -7,18 +8,18 @@ All formulas use Sentinel-2 MSI band reflectance values (0-1 scale).
 
 ## Sentinel-2 Band Definitions
 
-| Variable | Band | Name | Wavelength | Resolution |
-|----------|------|------|------------|------------|
-| Blue | B02 | Blue | 490 nm | 10 m |
-| Green | B03 | Green | 560 nm | 10 m |
-| Red | B04 | Red | 665 nm | 10 m |
-| RE1 | B05 | Red Edge 1 | 705 nm | 20 m |
-| RE2 | B06 | Red Edge 2 | 740 nm | 20 m |
-| RE3 | B07 | Red Edge 3 | 783 nm | 20 m |
-| NIR | B08 | Near Infrared | 842 nm | 10 m |
-| NIRn | B8A | NIR Narrow | 865 nm | 20 m |
-| SWIR1 | B11 | Short Wave IR 1 | 1610 nm | 20 m |
-| SWIR2 | B12 | Short Wave IR 2 | 2190 nm | 20 m |
+| Variable | Band | Name            | Wavelength | Resolution |
+| -------- | ---- | --------------- | ---------- | ---------- |
+| Blue     | B02  | Blue            | 490 nm     | 10 m       |
+| Green    | B03  | Green           | 560 nm     | 10 m       |
+| Red      | B04  | Red             | 665 nm     | 10 m       |
+| RE1      | B05  | Red Edge 1      | 705 nm     | 20 m       |
+| RE2      | B06  | Red Edge 2      | 740 nm     | 20 m       |
+| RE3      | B07  | Red Edge 3      | 783 nm     | 20 m       |
+| NIR      | B08  | Near Infrared   | 842 nm     | 10 m       |
+| NIRn     | B8A  | NIR Narrow      | 865 nm     | 20 m       |
+| SWIR1    | B11  | Short Wave IR 1 | 1610 nm    | 20 m       |
+| SWIR2    | B12  | Short Wave IR 2 | 2190 nm    | 20 m       |
 
 ---
 
@@ -32,6 +33,7 @@ NDVI = (NIR - Red) / (NIR + Red)
 
 **Range:** -1 to 1 (vegetation: 0.2 to 0.9)
 **Interpretation:**
+
 - > 0.7: Dense vegetation
 - 0.5-0.7: Moderate vegetation
 - 0.2-0.5: Sparse vegetation
@@ -49,6 +51,7 @@ NDWI = (NIR - SWIR1) / (NIR + SWIR1)
 
 **Range:** -1 to 1
 **Interpretation:**
+
 - > 0.2: No water stress
 - 0.0 to 0.2: Mild water stress
 - -0.1 to 0.0: Moderate water stress
@@ -66,6 +69,7 @@ EVI = 2.5 × (NIR - Red) / (NIR + 6×Red - 7.5×Blue + 1)
 
 **Range:** -1 to 1 (vegetation: 0.2 to 0.8)
 **Coefficients:**
+
 - G = 2.5 (gain factor)
 - C1 = 6 (aerosol resistance coefficient for red)
 - C2 = 7.5 (aerosol resistance coefficient for blue)
@@ -83,6 +87,7 @@ SAVI = ((NIR - Red) / (NIR + Red + L)) × (1 + L)
 
 **Where:** L = soil brightness correction factor
 **Standard L values:**
+
 - L = 0.25: High vegetation cover
 - L = 0.5: Intermediate vegetation (default)
 - L = 1.0: Low vegetation cover
@@ -101,6 +106,7 @@ LAI = 3.618 × exp(2.907 × NDVI) - 3.618
 **Constraint:** NDVI capped at 0.68 to avoid unrealistic values
 **Range:** 0 to 8+ (typical crops: 1 to 6)
 **Interpretation:**
+
 - > 4: Full canopy
 - 2.5-4: Good leaf coverage
 - 1.5-2.5: Moderate coverage
@@ -132,6 +138,7 @@ NDRE = (NIR - RE1) / (NIR + RE1)
 
 **Range:** -1 to 1 (typical: 0.2 to 0.7)
 **Interpretation:**
+
 - > 0.35: Excellent chlorophyll (sufficient nitrogen)
 - 0.25-0.35: Good chlorophyll
 - 0.15-0.25: Fair (consider nitrogen)
@@ -160,6 +167,7 @@ MCARI = [(RE1 - Red) - 0.2 × (RE1 - Green)] × (RE1 / Red)
 
 **Range:** 0 to 1.5 (higher = more chlorophyll)
 **Interpretation:**
+
 - > 0.6: High chlorophyll
 - 0.3-0.6: Moderate chlorophyll
 - < 0.3: Low chlorophyll
@@ -187,6 +195,7 @@ SIPI = (NIR - Blue) / (NIR - Red)
 
 **Range:** 0 to 2 (typical: 0.8 to 1.8)
 **Interpretation:**
+
 - < 1: High carotenoid/chlorophyll ratio (stress)
 - ≈ 1: Normal pigment ratio
 - > 1: Low carotenoid/chlorophyll ratio (healthy)
@@ -205,6 +214,7 @@ GNDVI = (NIR - Green) / (NIR + Green)
 
 **Range:** -1 to 1 (typical: 0.3 to 0.8)
 **Interpretation:**
+
 - > 0.6: Excellent photosynthetic activity
 - 0.45-0.6: Good activity
 - 0.3-0.45: Fair (early stress signs)
@@ -233,6 +243,7 @@ GLI = (2×Green - Red - Blue) / (2×Green + Red + Blue)
 
 **Range:** -1 to 1 (typical: -0.5 to 0.5)
 **Interpretation:**
+
 - > 0.2: High green biomass
 - 0 to 0.2: Moderate green biomass
 - < 0: Low green biomass
@@ -261,6 +272,7 @@ MSAVI = (2×NIR + 1 - √[(2×NIR+1)² - 8×(NIR-Red)]) / 2
 ```
 
 **Derivation:**
+
 ```
 a = 2×NIR + 1
 b = a²
@@ -295,6 +307,7 @@ where RB = 2×Red - Blue (red-blue term)
 ```
 
 **Expanded form:**
+
 ```
 ARVI = (NIR - (2×Red - Blue)) / (NIR + (2×Red - Blue))
 ```
@@ -309,12 +322,14 @@ ARVI = (NIR - (2×Red - Blue)) / (NIR + (2×Red - Blue))
 ### Error Handling
 
 **Division by Zero:**
+
 ```python
 if denominator == 0:
     return 0.0
 ```
 
 **Value Clamping:**
+
 ```python
 # Clamp to valid range
 value = max(-1, min(value, 1))
@@ -323,11 +338,13 @@ value = max(-1, min(value, 1))
 ### Rounding
 
 All indices rounded to 4 decimal places:
+
 ```python
 return round(value, 4)
 ```
 
 LAI rounded to 2 decimal places:
+
 ```python
 return round(lai, 2)
 ```
@@ -339,16 +356,19 @@ return round(lai, 2)
 ### Cross-Validation
 
 **NDVI vs EVI Relationship:**
+
 ```
 EVI ≈ 0.7 × NDVI  (approximate for healthy vegetation)
 ```
 
 **NDWI vs NDMI Relationship:**
+
 ```
 NDWI ≈ NDMI  (same formula, different applications)
 ```
 
 **LAI vs NDVI Relationship:**
+
 ```
 LAI increases exponentially with NDVI
 At NDVI=0.5: LAI ≈ 2.5
@@ -360,6 +380,7 @@ At NDVI=0.7: LAI ≈ 4.5
 ## Common Combinations
 
 ### Nitrogen Assessment
+
 ```python
 if NDRE < 0.25 and GNDVI < 0.45:
     # Strong evidence of nitrogen deficiency
@@ -367,6 +388,7 @@ if NDRE < 0.25 and GNDVI < 0.45:
 ```
 
 ### Water Stress Detection
+
 ```python
 if NDWI < 0 and NDMI < 0:
     # Both water indices show stress
@@ -374,6 +396,7 @@ if NDWI < 0 and NDMI < 0:
 ```
 
 ### Overall Health
+
 ```python
 health_score = (
     0.4 × normalize(NDVI) +
@@ -387,13 +410,13 @@ health_score = (
 
 ## References
 
-1. Rouse, J.W., et al. (1974). "Monitoring vegetation systems in the Great Plains with ERTS." *NASA SP-351*.
+1. Rouse, J.W., et al. (1974). "Monitoring vegetation systems in the Great Plains with ERTS." _NASA SP-351_.
 
-2. Gao, B. (1996). "NDWI - A normalized difference water index for remote sensing of vegetation liquid water from space." *Remote Sensing of Environment*, 58(3), 257-266.
+2. Gao, B. (1996). "NDWI - A normalized difference water index for remote sensing of vegetation liquid water from space." _Remote Sensing of Environment_, 58(3), 257-266.
 
-3. Huete, A., et al. (2002). "Overview of the radiometric and biophysical performance of the MODIS vegetation indices." *Remote Sensing of Environment*, 83(1-2), 195-213.
+3. Huete, A., et al. (2002). "Overview of the radiometric and biophysical performance of the MODIS vegetation indices." _Remote Sensing of Environment_, 83(1-2), 195-213.
 
-4. Gitelson, A.A., et al. (2005). "Remote estimation of chlorophyll content in higher plant leaves." *International Journal of Remote Sensing*, 18(12), 2691-2697.
+4. Gitelson, A.A., et al. (2005). "Remote estimation of chlorophyll content in higher plant leaves." _International Journal of Remote Sensing_, 18(12), 2691-2697.
 
 5. ESA (2015). "Sentinel-2 User Handbook." European Space Agency.
 

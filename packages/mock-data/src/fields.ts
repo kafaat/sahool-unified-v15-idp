@@ -3,16 +3,27 @@
  * بيانات الحقول الوهمية
  */
 
-import { generateId, randomItem, randomFloat, randomNumber, arabicNames } from './utils';
+import {
+  generateId,
+  randomItem,
+  randomFloat,
+  randomNumber,
+  arabicNames,
+} from "./utils";
 
-export type FieldStatus = 'active' | 'inactive' | 'deleted';
-export type CropStage = 'seeding' | 'growing' | 'flowering' | 'ripening' | 'harvest';
+export type FieldStatus = "active" | "inactive" | "deleted";
+export type CropStage =
+  | "seeding"
+  | "growing"
+  | "flowering"
+  | "ripening"
+  | "harvest";
 
 export interface MockField {
   id: string;
   name: string;
   area: number;
-  areaUnit: 'hectare' | 'acre';
+  areaUnit: "hectare" | "acre";
   crop: string;
   status: FieldStatus;
   cropStage: CropStage;
@@ -21,7 +32,7 @@ export interface MockField {
   coordinates: [number, number];
   ndviScore: number;
   healthScore: number;
-  irrigationStatus: 'optimal' | 'needs_water' | 'overwatered';
+  irrigationStatus: "optimal" | "needs_water" | "overwatered";
   soilMoisture: number;
   ownerId: string;
   tenantId: string;
@@ -44,7 +55,9 @@ function generateYemenCoordinates(): [number, number] {
 /**
  * Generate a single mock field
  */
-export function generateMockField(overrides: Partial<MockField> = {}): MockField {
+export function generateMockField(
+  overrides: Partial<MockField> = {},
+): MockField {
   const crop = randomItem(arabicNames.crops);
   const plantingDate = new Date();
   plantingDate.setMonth(plantingDate.getMonth() - randomNumber(1, 4));
@@ -56,16 +69,22 @@ export function generateMockField(overrides: Partial<MockField> = {}): MockField
     id: generateId(),
     name: `حقل ${crop} - ${randomItem(arabicNames.regions)}`,
     area: randomFloat(0.5, 50, 1),
-    areaUnit: 'hectare',
+    areaUnit: "hectare",
     crop,
-    status: randomItem<FieldStatus>(['active', 'inactive', 'deleted']),
-    cropStage: randomItem<CropStage>(['seeding', 'growing', 'flowering', 'ripening', 'harvest']),
+    status: randomItem<FieldStatus>(["active", "inactive", "deleted"]),
+    cropStage: randomItem<CropStage>([
+      "seeding",
+      "growing",
+      "flowering",
+      "ripening",
+      "harvest",
+    ]),
     plantingDate: plantingDate.toISOString(),
     expectedHarvest: harvestDate.toISOString(),
     coordinates: generateYemenCoordinates(),
     ndviScore: randomFloat(0.3, 0.9, 2),
     healthScore: randomNumber(60, 100),
-    irrigationStatus: randomItem(['optimal', 'needs_water', 'overwatered']),
+    irrigationStatus: randomItem(["optimal", "needs_water", "overwatered"]),
     soilMoisture: randomNumber(20, 80),
     ownerId: generateId(),
     tenantId: generateId(),
@@ -83,8 +102,9 @@ export function generateMockFields(count: number = 10): MockField[] {
 /**
  * Generate fields for a specific tenant
  */
-export function generateTenantFields(tenantId: string, count: number = 5): MockField[] {
-  return Array.from({ length: count }, () =>
-    generateMockField({ tenantId })
-  );
+export function generateTenantFields(
+  tenantId: string,
+  count: number = 5,
+): MockField[] {
+  return Array.from({ length: count }, () => generateMockField({ tenantId }));
 }

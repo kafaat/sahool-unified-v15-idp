@@ -14,24 +14,26 @@ IoT sensors and actuators management service for smart irrigation and agricultur
 ## الميزات | Features
 
 ### المستشعرات | Sensors
-| النوع | Type | الوحدة | الوصف |
-|-------|------|--------|--------|
-| رطوبة التربة | Soil Moisture | % | قياس رطوبة التربة |
-| درجة الحرارة | Temperature | °C | درجة حرارة التربة والهواء |
-| الرطوبة الجوية | Air Humidity | % | رطوبة الهواء |
-| حموضة التربة | Soil pH | pH | مستوى الحموضة |
-| الموصلية | EC | mS/cm | ملوحة التربة |
-| شدة الإضاءة | Light Intensity | lux | إضاءة الشمس |
-| سرعة الرياح | Wind Speed | km/h | قياس الرياح |
-| هطول الأمطار | Rainfall | mm | كمية المطر |
+
+| النوع          | Type            | الوحدة | الوصف                     |
+| -------------- | --------------- | ------ | ------------------------- |
+| رطوبة التربة   | Soil Moisture   | %      | قياس رطوبة التربة         |
+| درجة الحرارة   | Temperature     | °C     | درجة حرارة التربة والهواء |
+| الرطوبة الجوية | Air Humidity    | %      | رطوبة الهواء              |
+| حموضة التربة   | Soil pH         | pH     | مستوى الحموضة             |
+| الموصلية       | EC              | mS/cm  | ملوحة التربة              |
+| شدة الإضاءة    | Light Intensity | lux    | إضاءة الشمس               |
+| سرعة الرياح    | Wind Speed      | km/h   | قياس الرياح               |
+| هطول الأمطار   | Rainfall        | mm     | كمية المطر                |
 
 ### المحركات | Actuators
-| النوع | Type | الوصف |
-|-------|------|--------|
-| مضخة | Pump | مضخات المياه الرئيسية |
-| صمام | Valve | صمامات التحكم بالتدفق |
-| رشاش | Sprinkler | أنظمة الرش |
-| مروحة | Fan | مراوح التهوية |
+
+| النوع | Type      | الوصف                 |
+| ----- | --------- | --------------------- |
+| مضخة  | Pump      | مضخات المياه الرئيسية |
+| صمام  | Valve     | صمامات التحكم بالتدفق |
+| رشاش  | Sprinkler | أنظمة الرش            |
+| مروحة | Fan       | مراوح التهوية         |
 
 ---
 
@@ -115,76 +117,81 @@ GET /fields/{field_id}/devices/health
 ## نماذج البيانات | Data Models
 
 ### Sensor
+
 ```json
 {
-    "id": "sensor-001",
-    "field_id": "field-001",
-    "name": "مستشعر رطوبة التربة - المنطقة 1",
-    "type": "soil_moisture",
-    "status": "online",
-    "latitude": 15.3694,
-    "longitude": 44.1910,
-    "zone": "zone_1",
-    "last_reading": "2024-01-15T10:30:00Z",
-    "battery_level": 85.5,
-    "unit": "%"
+  "id": "sensor-001",
+  "field_id": "field-001",
+  "name": "مستشعر رطوبة التربة - المنطقة 1",
+  "type": "soil_moisture",
+  "status": "online",
+  "latitude": 15.3694,
+  "longitude": 44.191,
+  "zone": "zone_1",
+  "last_reading": "2024-01-15T10:30:00Z",
+  "battery_level": 85.5,
+  "unit": "%"
 }
 ```
 
 ### SensorReading
+
 ```json
 {
-    "sensor_id": "sensor-001",
-    "value": 45.2,
-    "unit": "%",
-    "timestamp": "2024-01-15T10:30:00Z",
-    "quality": "good"
+  "sensor_id": "sensor-001",
+  "value": 45.2,
+  "unit": "%",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "quality": "good"
 }
 ```
 
 ### Actuator
+
 ```json
 {
-    "id": "pump-001",
-    "field_id": "field-001",
-    "name": "المضخة الرئيسية",
-    "type": "pump",
-    "is_on": false,
-    "last_operation": "2024-01-15T06:45:00Z",
-    "status": "online"
+  "id": "pump-001",
+  "field_id": "field-001",
+  "name": "المضخة الرئيسية",
+  "type": "pump",
+  "is_on": false,
+  "last_operation": "2024-01-15T06:45:00Z",
+  "status": "online"
 }
 ```
 
 ### IoTAlert
+
 ```json
 {
-    "id": "alert-001",
-    "sensor_id": "sensor-001",
-    "type": "threshold_exceeded",
-    "severity": "warning",
-    "message": "رطوبة التربة منخفضة: 18%",
-    "triggered_at": "2024-01-15T10:30:00Z",
-    "acknowledged": false,
-    "value": 18.0,
-    "threshold": 20.0
+  "id": "alert-001",
+  "sensor_id": "sensor-001",
+  "type": "threshold_exceeded",
+  "severity": "warning",
+  "message": "رطوبة التربة منخفضة: 18%",
+  "triggered_at": "2024-01-15T10:30:00Z",
+  "acknowledged": false,
+  "value": 18.0,
+  "threshold": 20.0
 }
 ```
 
 ### IoTDashboard
+
 ```json
 {
-    "field_id": "field-001",
-    "total_sensors": 12,
-    "online_sensors": 11,
-    "total_actuators": 4,
-    "active_actuators": 1,
-    "active_alerts": 2,
-    "current_readings": {
-        "soil_moisture": 45.2,
-        "temperature": 28.5,
-        "humidity": 65.0
-    },
-    "last_update": "2024-01-15T10:30:00Z"
+  "field_id": "field-001",
+  "total_sensors": 12,
+  "online_sensors": 11,
+  "total_actuators": 4,
+  "active_actuators": 1,
+  "active_alerts": 2,
+  "current_readings": {
+    "soil_moisture": 45.2,
+    "temperature": 28.5,
+    "humidity": 65.0
+  },
+  "last_update": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -194,25 +201,27 @@ GET /fields/{field_id}/devices/health
 
 ```javascript
 // الاتصال بـ WebSocket
-const ws = new WebSocket('ws://localhost:8100/ws/fields/field-001?token=JWT_TOKEN');
+const ws = new WebSocket(
+  "ws://localhost:8100/ws/fields/field-001?token=JWT_TOKEN",
+);
 
 ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
+  const data = JSON.parse(event.data);
 
-    switch(data.type) {
-        case 'sensor_reading':
-            // قراءة جديدة من مستشعر
-            console.log(`${data.sensor_id}: ${data.value}`);
-            break;
-        case 'alert':
-            // تنبيه جديد
-            showAlert(data);
-            break;
-        case 'actuator_status':
-            // تغيير حالة محرك
-            updateActuatorUI(data);
-            break;
-    }
+  switch (data.type) {
+    case "sensor_reading":
+      // قراءة جديدة من مستشعر
+      console.log(`${data.sensor_id}: ${data.value}`);
+      break;
+    case "alert":
+      // تنبيه جديد
+      showAlert(data);
+      break;
+    case "actuator_status":
+      // تغيير حالة محرك
+      updateActuatorUI(data);
+      break;
+  }
 };
 ```
 
@@ -250,23 +259,23 @@ AGGREGATION_INTERVAL=5m
 
 ## بروتوكولات الاتصال | Communication Protocols
 
-| البروتوكول | Protocol | الاستخدام |
-|------------|----------|----------|
-| MQTT | IoT Standard | اتصال المستشعرات |
-| WebSocket | Real-time | تحديثات فورية للتطبيق |
-| HTTP/REST | API | طلبات التحكم |
-| CoAP | Low Power | أجهزة منخفضة الطاقة |
+| البروتوكول | Protocol     | الاستخدام             |
+| ---------- | ------------ | --------------------- |
+| MQTT       | IoT Standard | اتصال المستشعرات      |
+| WebSocket  | Real-time    | تحديثات فورية للتطبيق |
+| HTTP/REST  | API          | طلبات التحكم          |
+| CoAP       | Low Power    | أجهزة منخفضة الطاقة   |
 
 ---
 
 ## أنواع التنبيهات | Alert Types
 
-| النوع | Type | الوصف |
-|-------|------|--------|
-| تجاوز العتبة | threshold_exceeded | قيمة خارج النطاق |
-| جهاز غير متصل | device_offline | انقطاع الاتصال |
-| بطارية منخفضة | low_battery | أقل من 20% |
-| خطأ في القراءة | reading_error | بيانات غير صالحة |
+| النوع          | Type               | الوصف            |
+| -------------- | ------------------ | ---------------- |
+| تجاوز العتبة   | threshold_exceeded | قيمة خارج النطاق |
+| جهاز غير متصل  | device_offline     | انقطاع الاتصال   |
+| بطارية منخفضة  | low_battery        | أقل من 20%       |
+| خطأ في القراءة | reading_error      | بيانات غير صالحة |
 
 ---
 
@@ -297,12 +306,14 @@ Response:
 ## التغييرات | Changelog
 
 ### v15.4.0
+
 - إضافة دعم WebSocket للتحديثات الفورية
 - تحسين إدارة التنبيهات
 - إضافة جدولة العمليات
 - دعم CoAP للأجهزة منخفضة الطاقة
 
 ### v15.3.0
+
 - إضافة لوحة التحكم الموحدة
 - تحسين تجميع البيانات
 - دعم TimescaleDB

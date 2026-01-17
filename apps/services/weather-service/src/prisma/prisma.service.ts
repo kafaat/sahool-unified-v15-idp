@@ -3,8 +3,13 @@
  * خدمة الاتصال بقاعدة البيانات
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
 
 @Injectable()
 export class PrismaService
@@ -16,9 +21,9 @@ export class PrismaService
   constructor() {
     super({
       log: [
-        { level: 'error', emit: 'stdout' },
-        { level: 'warn', emit: 'stdout' },
-        { level: 'info', emit: 'stdout' },
+        { level: "error", emit: "stdout" },
+        { level: "warn", emit: "stdout" },
+        { level: "info", emit: "stdout" },
       ],
       datasources: {
         db: {
@@ -30,12 +35,12 @@ export class PrismaService
 
   async onModuleInit() {
     await this.$connect();
-    this.logger.log('Weather Database connected successfully');
+    this.logger.log("Weather Database connected successfully");
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
-    this.logger.log('Weather Database disconnected');
+    this.logger.log("Weather Database disconnected");
   }
 
   /**
@@ -46,7 +51,7 @@ export class PrismaService
       await this.$queryRaw`SELECT 1`;
       return { connected: true, timestamp: new Date().toISOString() };
     } catch (error) {
-      this.logger.error('Database connection check failed:', error);
+      this.logger.error("Database connection check failed:", error);
       return { connected: false, timestamp: new Date().toISOString() };
     }
   }

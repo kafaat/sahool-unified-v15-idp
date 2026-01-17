@@ -17,55 +17,60 @@ export function MyComponent() {
 ## Available Namespaces
 
 ```typescript
-const tCommon = useTranslations('common');      // Buttons, labels, general UI
-const tAuth = useTranslations('auth');          // Login, logout, authentication
-const tNav = useTranslations('nav');            // Navigation items
-const tDashboard = useTranslations('dashboard'); // Dashboard specific
-const tFields = useTranslations('fields');       // Field management
-const tAlerts = useTranslations('alerts');       // Alert messages
-const tErrors = useTranslations('errors');       // Error messages
+const tCommon = useTranslations("common"); // Buttons, labels, general UI
+const tAuth = useTranslations("auth"); // Login, logout, authentication
+const tNav = useTranslations("nav"); // Navigation items
+const tDashboard = useTranslations("dashboard"); // Dashboard specific
+const tFields = useTranslations("fields"); // Field management
+const tAlerts = useTranslations("alerts"); // Alert messages
+const tErrors = useTranslations("errors"); // Error messages
 ```
 
 ## Common Translation Keys
 
 ### Buttons & Actions (`common`)
+
 ```typescript
-t('save')       // "حفظ" / "Save"
-t('delete')     // "حذف" / "Delete"
-t('edit')       // "تعديل" / "Edit"
-t('add')        // "إضافة" / "Add"
-t('cancel')     // "إلغاء" / "Cancel"
-t('confirm')    // "تأكيد" / "Confirm"
-t('submit')     // "إرسال" / "Submit"
-t('search')     // "بحث" / "Search"
+t("save"); // "حفظ" / "Save"
+t("delete"); // "حذف" / "Delete"
+t("edit"); // "تعديل" / "Edit"
+t("add"); // "إضافة" / "Add"
+t("cancel"); // "إلغاء" / "Cancel"
+t("confirm"); // "تأكيد" / "Confirm"
+t("submit"); // "إرسال" / "Submit"
+t("search"); // "بحث" / "Search"
 ```
 
 ### Navigation (`nav`)
+
 ```typescript
-t('dashboard')  // "لوحة التحكم" / "Dashboard"
-t('fields')     // "الحقول" / "Fields"
-t('farms')      // "المزارع" / "Farms"
-t('settings')   // "الإعدادات" / "Settings"
-t('users')      // "المستخدمين" / "Users"
+t("dashboard"); // "لوحة التحكم" / "Dashboard"
+t("fields"); // "الحقول" / "Fields"
+t("farms"); // "المزارع" / "Farms"
+t("settings"); // "الإعدادات" / "Settings"
+t("users"); // "المستخدمين" / "Users"
 ```
 
 ### States (`common`)
+
 ```typescript
-t('loading')    // "جاري التحميل..." / "Loading..."
-t('error')      // "حدث خطأ" / "An error occurred"
-t('noData')     // "لا توجد بيانات" / "No data available"
+t("loading"); // "جاري التحميل..." / "Loading..."
+t("error"); // "حدث خطأ" / "An error occurred"
+t("noData"); // "لا توجد بيانات" / "No data available"
 ```
 
 ## Locale Detection & Switching
 
 ### Get Current Locale
+
 ```typescript
-import { useLocale } from 'next-intl';
+import { useLocale } from "next-intl";
 
 const locale = useLocale(); // 'ar' or 'en'
 ```
 
 ### Add Locale Switcher
+
 ```typescript
 import { LocaleSwitcher } from '@/components/common/LocaleSwitcher';
 
@@ -77,7 +82,7 @@ import { LocaleSwitcher } from '@/components/common/LocaleSwitcher';
 ## RTL/LTR Support
 
 ```typescript
-import { getDirection } from '@sahool/i18n';
+import { getDirection } from "@sahool/i18n";
 
 const direction = getDirection(locale); // 'rtl' or 'ltr'
 ```
@@ -89,6 +94,7 @@ const direction = getDirection(locale); // 'rtl' or 'ltr'
 3. Use the same structure in both files
 
 Example:
+
 ```json
 // ar.json
 {
@@ -108,6 +114,7 @@ Example:
 ```
 
 Then use in component:
+
 ```typescript
 const t = useTranslations('myFeature');
 <h1>{t('title')}</h1>
@@ -154,6 +161,7 @@ export default async function Page() {
 ## Default Locale
 
 Arabic (ar) is the default locale:
+
 - URLs: `/` = Arabic, `/en` = English
 - New users see Arabic by default
 - RTL is the default layout direction
@@ -161,16 +169,19 @@ Arabic (ar) is the default locale:
 ## Troubleshooting
 
 ### Translations not working?
+
 1. Check you're using `'use client'` directive for client components
 2. Verify the translation key exists in the locale files
 3. Make sure you're using the correct namespace
 
 ### Wrong locale detected?
+
 1. Clear browser cookies
 2. Check middleware configuration in `/src/middleware.ts`
 3. Verify locale is in the URL correctly
 
 ### TypeScript errors?
+
 1. Restart TypeScript server (VSCode: Cmd+Shift+P > "Restart TS Server")
 2. Run `npm install` to ensure dependencies are installed
 3. Check tsconfig.json includes the i18n package

@@ -1,47 +1,62 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Tasks Summary Component
  * مكون ملخص المهام
  */
 
-import React from 'react';
-import { CheckCircle2, Clock, Calendar, ArrowLeft } from 'lucide-react';
-import { useDashboardData } from '../hooks/useDashboardData';
-import Link from 'next/link';
+import React from "react";
+import { CheckCircle2, Clock, Calendar, ArrowLeft } from "lucide-react";
+import { useDashboardData } from "../hooks/useDashboardData";
+import Link from "next/link";
 
 interface TaskItemProps {
   id: string;
   title: string;
   titleAr: string;
   dueDate: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: "high" | "medium" | "low";
   status: string;
 }
 
 const priorityColors = {
-  high: 'bg-red-100 text-red-700 border-red-200',
-  medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  low: 'bg-green-100 text-green-700 border-green-200',
+  high: "bg-red-100 text-red-700 border-red-200",
+  medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  low: "bg-green-100 text-green-700 border-green-200",
 };
 
-const TaskItem: React.FC<TaskItemProps> = ({ titleAr, dueDate, priority, status }) => {
-  const isOverdue = new Date(dueDate) < new Date() && status !== 'completed';
+const TaskItem: React.FC<TaskItemProps> = ({
+  titleAr,
+  dueDate,
+  priority,
+  status,
+}) => {
+  const isOverdue = new Date(dueDate) < new Date() && status !== "completed";
 
   return (
     <div className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-      <div className={`mt-1 ${status === 'completed' ? 'text-green-500' : 'text-gray-300'}`}>
+      <div
+        className={`mt-1 ${status === "completed" ? "text-green-500" : "text-gray-300"}`}
+      >
         <CheckCircle2 className="w-5 h-5" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-medium text-gray-900 truncate">{titleAr}</p>
         <div className="flex items-center gap-2 mt-1">
-          <span className={`text-xs px-2 py-1 rounded-full border ${priorityColors[priority]}`}>
-            {priority === 'high' ? 'عالية' : priority === 'medium' ? 'متوسطة' : 'منخفضة'}
+          <span
+            className={`text-xs px-2 py-1 rounded-full border ${priorityColors[priority]}`}
+          >
+            {priority === "high"
+              ? "عالية"
+              : priority === "medium"
+                ? "متوسطة"
+                : "منخفضة"}
           </span>
-          <div className={`flex items-center gap-1 text-xs ${isOverdue ? 'text-red-600' : 'text-gray-500'}`}>
+          <div
+            className={`flex items-center gap-1 text-xs ${isOverdue ? "text-red-600" : "text-gray-500"}`}
+          >
             <Calendar className="w-3 h-3" />
-            <span>{new Date(dueDate).toLocaleDateString('ar-EG')}</span>
+            <span>{new Date(dueDate).toLocaleDateString("ar-EG")}</span>
           </div>
         </div>
       </div>
@@ -58,7 +73,10 @@ export const TasksSummary: React.FC = () => {
         <h3 className="text-lg font-bold text-gray-900 mb-4">المهام القادمة</h3>
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+            <div
+              key={i}
+              className="h-16 bg-gray-100 rounded-lg animate-pulse"
+            />
           ))}
         </div>
       </div>

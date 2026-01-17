@@ -1,4 +1,5 @@
 # Quick Start Guide - Sahool Community Chat
+
 # دليل البدء السريع - خدمة الدردشة
 
 ## ⚡ 5-Minute Setup / الإعداد في 5 دقائق
@@ -26,6 +27,7 @@ npm start
 ```
 
 You should see:
+
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║         🌿 Sahool Community Chat Service 🌿                   ║
@@ -45,6 +47,7 @@ You should see:
 ### Step 4: Explore API / الخطوة 4: استكشاف الـ API
 
 Open in your browser:
+
 - **Swagger UI**: http://localhost:8097/api-docs
 - **ReDoc**: http://localhost:8097/redoc
 
@@ -55,6 +58,7 @@ curl http://localhost:8097/healthz
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",
@@ -72,47 +76,47 @@ Expected response:
 ### Using Node.js
 
 ```javascript
-const io = require('socket.io-client');
+const io = require("socket.io-client");
 
-const socket = io('http://localhost:8097', {
-  auth: { token: 'your-jwt-token' }
+const socket = io("http://localhost:8097", {
+  auth: { token: "your-jwt-token" },
 });
 
-socket.on('connect', () => {
-  console.log('Connected:', socket.id);
+socket.on("connect", () => {
+  console.log("Connected:", socket.id);
 
-  socket.emit('register_user', {
-    userId: 'test_123',
-    userName: 'Test User',
-    userType: 'farmer',
-    governorate: 'Cairo'
+  socket.emit("register_user", {
+    userId: "test_123",
+    userName: "Test User",
+    userType: "farmer",
+    governorate: "Cairo",
   });
 });
 
-socket.on('registration_confirmed', (data) => {
-  console.log('Registered:', data);
+socket.on("registration_confirmed", (data) => {
+  console.log("Registered:", data);
 });
 ```
 
 ### Using Browser Console
 
 ```javascript
-const socket = io('http://localhost:8097', {
-  auth: { token: 'your-jwt-token' }
+const socket = io("http://localhost:8097", {
+  auth: { token: "your-jwt-token" },
 });
 
-socket.on('connect', () => {
-  console.log('Connected!');
-  socket.emit('register_user', {
-    userId: 'browser_test',
-    userName: 'Browser Tester',
-    userType: 'farmer',
-    governorate: 'Cairo'
+socket.on("connect", () => {
+  console.log("Connected!");
+  socket.emit("register_user", {
+    userId: "browser_test",
+    userName: "Browser Tester",
+    userType: "farmer",
+    governorate: "Cairo",
   });
 });
 
-socket.on('registration_confirmed', (data) => {
-  console.log('Success:', data);
+socket.on("registration_confirmed", (data) => {
+  console.log("Success:", data);
 });
 ```
 
@@ -167,25 +171,26 @@ npm run expert
 ### Using Node.js
 
 ```javascript
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const token = jwt.sign(
   {
-    sub: 'test_user_123',
-    role: 'farmer',
-    name: 'Test User'
+    sub: "test_user_123",
+    role: "farmer",
+    name: "Test User",
   },
-  'your-secret-key-minimum-32-characters-long',
-  { expiresIn: '24h' }
+  "your-secret-key-minimum-32-characters-long",
+  { expiresIn: "24h" },
 );
 
-console.log('JWT Token:', token);
+console.log("JWT Token:", token);
 ```
 
 ### Using jwt.io
 
 1. Go to https://jwt.io
 2. In the "PAYLOAD" section, enter:
+
 ```json
 {
   "sub": "test_user_123",
@@ -195,6 +200,7 @@ console.log('JWT Token:', token);
   "exp": 1735381800
 }
 ```
+
 3. In "VERIFY SIGNATURE", enter your secret key
 4. Copy the encoded JWT from the left panel
 
@@ -227,6 +233,7 @@ console.log('JWT Token:', token);
 **Error**: `JWT_SECRET_KEY environment variable is required`
 
 **Solution**: Set the JWT secret key
+
 ```bash
 export JWT_SECRET_KEY="your-secret-key-minimum-32-characters-long"
 ```
@@ -236,11 +243,13 @@ export JWT_SECRET_KEY="your-secret-key-minimum-32-characters-long"
 **Error**: `Authentication required`
 
 **Solution**:
+
 1. Generate a valid JWT token
 2. Pass it in the connection:
+
 ```javascript
-const socket = io('http://localhost:8097', {
-  auth: { token: 'your-valid-token' }
+const socket = io("http://localhost:8097", {
+  auth: { token: "your-valid-token" },
 });
 ```
 
@@ -249,8 +258,10 @@ const socket = io('http://localhost:8097', {
 **Error**: `EADDRINUSE: address already in use :::8097`
 
 **Solution**:
+
 1. Stop the other process using port 8097
 2. Or use a different port:
+
 ```bash
 export PORT=8098
 npm start
@@ -261,6 +272,7 @@ npm start
 **Error**: `has been blocked by CORS policy`
 
 **Solution**: Add your origin to CORS_ORIGINS
+
 ```bash
 export CORS_ORIGINS="http://localhost:3000,http://localhost:3001,http://your-domain.com"
 ```

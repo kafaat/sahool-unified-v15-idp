@@ -11,10 +11,10 @@
  * - Task creation from alerts
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/lib/logger';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { logger } from "@/lib/logger";
 import {
   fetchFieldZones,
   fetchFieldAlerts,
@@ -30,7 +30,7 @@ import {
   type FieldRecommendation,
   type TaskFromAlertData,
   type CreatedTask,
-} from '../api/field-intelligence-api';
+} from "../api/field-intelligence-api";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Re-export Types for Convenience
@@ -93,7 +93,7 @@ export function useFieldZones(fieldId: string, options?: HookOptions) {
     queryFn: async () => {
       const response = await fetchFieldZones(fieldId);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch field zones');
+        throw new Error(response.error || "Failed to fetch field zones");
       }
       return response.data || [];
     },
@@ -120,7 +120,7 @@ export function useFieldAlerts(fieldId: string, options?: HookOptions) {
     queryFn: async () => {
       const response = await fetchFieldAlerts(fieldId);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch field alerts');
+        throw new Error(response.error || "Failed to fetch field alerts");
       }
       return response.data || [];
     },
@@ -141,8 +141,8 @@ export function useFieldAlerts(fieldId: string, options?: HookOptions) {
  * @returns Query result with best days data
  */
 export function useBestDays(
-  activity: string = 'planting',
-  options?: BestDaysOptions
+  activity: string = "planting",
+  options?: BestDaysOptions,
 ) {
   const { enabled = true, days = 14 } = options || {};
 
@@ -151,7 +151,7 @@ export function useBestDays(
     queryFn: async () => {
       const response = await fetchBestDays(activity, days);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch best days');
+        throw new Error(response.error || "Failed to fetch best days");
       }
       return response.data || [];
     },
@@ -176,7 +176,7 @@ export function useBestDays(
 export function useValidateDate(
   date: string,
   activity: string,
-  options?: HookOptions
+  options?: HookOptions,
 ) {
   const { enabled = true } = options || {};
 
@@ -185,7 +185,7 @@ export function useValidateDate(
     queryFn: async () => {
       const response = await validateTaskDate(date, activity);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to validate date');
+        throw new Error(response.error || "Failed to validate date");
       }
       return response.data;
     },
@@ -204,7 +204,10 @@ export function useValidateDate(
  * @param options - Hook options
  * @returns Query result with recommendations data
  */
-export function useFieldRecommendations(fieldId: string, options?: HookOptions) {
+export function useFieldRecommendations(
+  fieldId: string,
+  options?: HookOptions,
+) {
   const { enabled = true } = options || {};
 
   return useQuery({
@@ -212,7 +215,7 @@ export function useFieldRecommendations(fieldId: string, options?: HookOptions) 
     queryFn: async () => {
       const response = await fetchFieldRecommendations(fieldId);
       if (!response.success) {
-        throw new Error(response.error || 'Failed to fetch recommendations');
+        throw new Error(response.error || "Failed to fetch recommendations");
       }
       return response.data || [];
     },
@@ -246,7 +249,7 @@ export function useCreateTaskFromAlert() {
     }) => {
       const response = await apiCreateTaskFromAlert(alertId, taskData);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to create task from alert');
+        throw new Error(response.error || "Failed to create task from alert");
       }
       return response.data;
     },
@@ -270,7 +273,7 @@ export function useCreateTaskFromAlert() {
         queryClient.setQueryData(context.alertQueryKey, context.previousAlerts);
       }
 
-      logger.error('Failed to create task from alert:', error);
+      logger.error("Failed to create task from alert:", error);
     },
     onSuccess: (task, variables) => {
       // Invalidate and refetch affected queries
@@ -284,9 +287,11 @@ export function useCreateTaskFromAlert() {
       }
 
       // Invalidate tasks list to show new task
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
 
-      logger.info(`Task ${task.id} created successfully from alert ${variables.alertId}`);
+      logger.info(
+        `Task ${task.id} created successfully from alert ${variables.alertId}`,
+      );
     },
     onSettled: () => {
       // Refetch after mutation completes (success or error)
@@ -371,7 +376,7 @@ export function useFieldIntelligence(fieldId: string, options?: HookOptions) {
 export function useDebouncedDateValidation(
   date: string,
   activity: string,
-  options?: HookOptions
+  options?: HookOptions,
 ) {
   const validation = useValidateDate(date, activity, options);
 

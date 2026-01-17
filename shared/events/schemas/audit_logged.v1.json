@@ -50,11 +50,7 @@
     },
     "payload": {
       "type": "object",
-      "required": [
-        "user_id",
-        "action",
-        "category"
-      ],
+      "required": ["user_id", "action", "category"],
       "properties": {
         "user_id": {
           "type": "string",

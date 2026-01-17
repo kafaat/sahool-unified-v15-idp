@@ -1,14 +1,17 @@
 # Living Field Card - Quick Start Guide
+
 # دليل البدء السريع - بطاقة الحقل الحي
 
 ## ⚡ 60-Second Quickstart
 
 ### 1. Import the Component
+
 ```tsx
-import { LivingFieldCard } from '@/features/fields';
+import { LivingFieldCard } from "@/features/fields";
 ```
 
 ### 2. Use It
+
 ```tsx
 <LivingFieldCard fieldId="your-field-id" />
 ```
@@ -53,6 +56,7 @@ import { LivingFieldCard } from '@/features/fields';
 ## 🎨 Customization Examples
 
 ### With Field Names
+
 ```tsx
 <LivingFieldCard
   fieldId="field-north-1"
@@ -62,9 +66,10 @@ import { LivingFieldCard } from '@/features/fields';
 ```
 
 ### In a Grid Layout
+
 ```tsx
 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
-  {fields.map(field => (
+  {fields.map((field) => (
     <LivingFieldCard
       key={field.id}
       fieldId={field.id}
@@ -76,6 +81,7 @@ import { LivingFieldCard } from '@/features/fields';
 ```
 
 ### Full-Width Dashboard
+
 ```tsx
 <div className="max-w-4xl mx-auto p-6">
   <LivingFieldCard fieldId="main-field" />
@@ -87,7 +93,7 @@ import { LivingFieldCard } from '@/features/fields';
 ## 🔧 Advanced Usage: Direct Hook Access
 
 ```tsx
-import { useLivingFieldScore } from '@/features/fields';
+import { useLivingFieldScore } from "@/features/fields";
 
 function MyCustomComponent({ fieldId }) {
   const { data, isLoading, isError } = useLivingFieldScore(fieldId);
@@ -99,10 +105,8 @@ function MyCustomComponent({ fieldId }) {
     <div>
       <h2>Field Health: {data.overall}/100</h2>
       <div>
-        Health: {data.health} |
-        Hydration: {data.hydration} |
-        Attention: {data.attention} |
-        Astral: {data.astral}
+        Health: {data.health} | Hydration: {data.hydration} | Attention:{" "}
+        {data.attention} | Astral: {data.astral}
       </div>
       <p>Trend: {data.trend}</p>
       <p>{data.alerts.length} alerts</p>
@@ -116,26 +120,28 @@ function MyCustomComponent({ fieldId }) {
 
 ## 📦 What's Included
 
-| File | Size | Purpose |
-|------|------|---------|
-| `LivingFieldCard.tsx` | 17KB | Main component |
-| `useLivingFieldScore.ts` | 24KB | Data hook |
-| `LivingFieldCard.example.tsx` | 3KB | Usage examples |
-| `LivingFieldCard.md` | 9KB | Full documentation |
-| `LivingFieldCard.QUICKSTART.md` | This file | Quick reference |
-| `LivingFieldCard.summary.md` | 8KB | Implementation summary |
+| File                            | Size      | Purpose                |
+| ------------------------------- | --------- | ---------------------- |
+| `LivingFieldCard.tsx`           | 17KB      | Main component         |
+| `useLivingFieldScore.ts`        | 24KB      | Data hook              |
+| `LivingFieldCard.example.tsx`   | 3KB       | Usage examples         |
+| `LivingFieldCard.md`            | 9KB       | Full documentation     |
+| `LivingFieldCard.QUICKSTART.md` | This file | Quick reference        |
+| `LivingFieldCard.summary.md`    | 8KB       | Implementation summary |
 
 ---
 
 ## 🎯 Score Breakdown
 
 ### Overall Score (0-100)
+
 - **35%** Health (from NDVI satellite data)
 - **35%** Hydration (from sensors + weather)
 - **20%** Attention (from task completion)
 - **10%** Astral (from astronomical calendar)
 
 ### Color Coding
+
 - 🟢 **Green (70-100):** Excellent health
 - 🟡 **Yellow (40-69):** Moderate, needs attention
 - 🔴 **Red (0-39):** Poor, immediate action required
@@ -145,10 +151,13 @@ function MyCustomComponent({ fieldId }) {
 ## 🚨 Common Issues & Solutions
 
 ### Issue: "No data available"
+
 **Solution:** Ensure the field has NDVI data from the satellite service.
 
 ### Issue: Component doesn't load
+
 **Solution:** Check that all required hooks are available:
+
 - `useFieldNDVI` from `@/features/ndvi`
 - `useCurrentWeather` from `@/features/weather`
 - `useToday` from `@/features/astronomical`
@@ -156,9 +165,11 @@ function MyCustomComponent({ fieldId }) {
 - `useSensors` from `@/features/iot`
 
 ### Issue: TypeScript errors
+
 **Solution:** Make sure you're importing from the correct path:
+
 ```tsx
-import { LivingFieldCard } from '@/features/fields';
+import { LivingFieldCard } from "@/features/fields";
 // NOT from '@/features/fields/components/LivingFieldCard'
 ```
 
@@ -186,6 +197,7 @@ import { LivingFieldCard } from '@/features/fields';
 ## 🎨 Styling
 
 Uses Tailwind CSS with custom color schemes:
+
 - Green: Sahool brand green (`sahool-green-*`)
 - Yellow: Warning yellow
 - Red: Danger red
@@ -215,6 +227,7 @@ Uses Tailwind CSS with custom color schemes:
 1. **Performance:** The component uses React Query caching. Data is cached for 2-15 minutes depending on the source.
 
 2. **Real-time Updates:** For real-time updates, you can reduce the staleTime in the hook:
+
    ```tsx
    const { data } = useLivingFieldScore(fieldId, {
      enabled: true,

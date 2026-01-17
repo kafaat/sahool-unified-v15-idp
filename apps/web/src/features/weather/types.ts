@@ -3,7 +3,7 @@
  * أنواع ميزة الطقس
  */
 
-import type { Severity } from '@sahool/api-client';
+import type { Severity } from "@sahool/api-client";
 
 export interface WeatherLocation {
   lat: number;
@@ -54,7 +54,7 @@ export interface DailyForecast {
 export interface WeatherAlert {
   id: string;
   type: string;
-  severity: Severity | 'warning' | 'info';
+  severity: Severity | "warning" | "info";
   title: string;
   titleAr?: string;
   description: string;

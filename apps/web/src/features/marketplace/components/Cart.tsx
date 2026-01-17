@@ -3,12 +3,12 @@
  * سلة التسوق
  */
 
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { X, Minus, Plus, ShoppingCart, Trash2, CreditCard } from 'lucide-react';
-import { useCart } from '../hooks/useCart';
+import React from "react";
+import Image from "next/image";
+import { X, Minus, Plus, ShoppingCart, Trash2, CreditCard } from "lucide-react";
+import { useCart } from "../hooks/useCart";
 
 interface CartProps {
   isOpen: boolean;
@@ -53,7 +53,9 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
           {cart.items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center py-16">
               <ShoppingCart className="w-16 h-16 text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">سلة التسوق فارغة</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                سلة التسوق فارغة
+              </h3>
               <p className="text-gray-500">ابدأ بإضافة المنتجات إلى سلتك</p>
             </div>
           ) : (
@@ -62,7 +64,9 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
                 key={item.productId}
                 item={item}
                 onRemove={() => removeItem(item.productId)}
-                onUpdateQuantity={(quantity) => updateQuantity(item.productId, quantity)}
+                onUpdateQuantity={(quantity) =>
+                  updateQuantity(item.productId, quantity)
+                }
               />
             ))
           )}
@@ -97,8 +101,8 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
               </div>
               {cart.shipping > 0 && cart.subtotal > 400 && (
                 <div className="text-xs text-orange-600">
-                  أضف منتجات بقيمة {(500 - cart.subtotal).toFixed(2)} {cart.currency} للشحن
-                  المجاني!
+                  أضف منتجات بقيمة {(500 - cart.subtotal).toFixed(2)}{" "}
+                  {cart.currency} للشحن المجاني!
                 </div>
               )}
               <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
@@ -146,7 +150,11 @@ interface CartItemProps {
   onUpdateQuantity: (quantity: number) => void;
 }
 
-const CartItem: React.FC<CartItemProps> = ({ item, onRemove, onUpdateQuantity }) => {
+const CartItem: React.FC<CartItemProps> = ({
+  item,
+  onRemove,
+  onUpdateQuantity,
+}) => {
   const { product, quantity } = item;
   const total = product.price * quantity;
 
@@ -174,7 +182,9 @@ const CartItem: React.FC<CartItemProps> = ({ item, onRemove, onUpdateQuantity })
 
       {/* Details */}
       <div className="flex-1 min-w-0">
-        <h4 className="font-semibold text-gray-900 line-clamp-1">{product.nameAr}</h4>
+        <h4 className="font-semibold text-gray-900 line-clamp-1">
+          {product.nameAr}
+        </h4>
         <p className="text-sm text-gray-600 line-clamp-1">{product.name}</p>
 
         <div className="flex items-center justify-between mt-2">

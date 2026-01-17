@@ -36,35 +36,49 @@ class NotificationHandler {
   /// تهيئة معالج الإشعارات مع الموجه
   void initialize(GoRouter router) {
     _router = router;
-    debugPrint('✅ NotificationHandler initialized');
+    if (kDebugMode) {
+      debugPrint('✅ NotificationHandler initialized');
+    }
   }
 
   /// معالجة النقر على الإشعار
   Future<void> handleNotificationTap(Map<String, dynamic>? payload) async {
     if (payload == null) {
-      debugPrint('⚠️ Notification payload is null');
+      if (kDebugMode) {
+        debugPrint('⚠️ Notification payload is null');
+      }
       return;
     }
 
     if (_router == null) {
-      debugPrint('⚠️ Router not initialized in NotificationHandler');
+      if (kDebugMode) {
+        debugPrint('⚠️ Router not initialized in NotificationHandler');
+      }
       return;
     }
 
-    debugPrint('📱 Handling notification tap: $payload');
+    if (kDebugMode) {
+      debugPrint('📱 Handling notification tap: $payload');
+    }
 
     try {
       final action = _parseAction(payload);
       final route = _getRouteForAction(action, payload);
 
       if (route != null) {
-        debugPrint('🔗 Navigating to: $route');
+        if (kDebugMode) {
+          debugPrint('🔗 Navigating to: $route');
+        }
         _router!.go(route);
       } else {
-        debugPrint('⚠️ No route found for action: $action');
+        if (kDebugMode) {
+          debugPrint('⚠️ No route found for action: $action');
+        }
       }
     } catch (e) {
-      debugPrint('❌ Error handling notification tap: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Error handling notification tap: $e');
+      }
     }
   }
 
@@ -211,7 +225,9 @@ class NotificationHandler {
     try {
       return jsonDecode(payloadString) as Map<String, dynamic>;
     } catch (e) {
-      debugPrint('Error parsing payload JSON: $e');
+      if (kDebugMode) {
+        debugPrint('Error parsing payload JSON: $e');
+      }
       return null;
     }
   }

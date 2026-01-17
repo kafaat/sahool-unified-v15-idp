@@ -29,6 +29,7 @@ Based on the comprehensive audit in `/tests/database/SECRETS_MANAGEMENT_AUDIT.md
 **Overall Score:** 7.5/10 (B+ Grade)
 
 **Critical Gaps:**
+
 - ⚠️ No automated secret rotation policy
 - ⚠️ Limited audit logging for secret access
 - ⚠️ No secrets versioning (except when using Vault)
@@ -42,6 +43,7 @@ Based on the comprehensive audit in `/tests/database/SECRETS_MANAGEMENT_AUDIT.md
 **Overall Score:** 9.5/10 (A Grade)
 
 **Improvements:**
+
 - ✅ Automated secret rotation with configurable policies
 - ✅ Comprehensive audit logging with anomaly detection
 - ✅ Full secrets versioning via Vault
@@ -75,6 +77,7 @@ Based on the comprehensive audit in `/tests/database/SECRETS_MANAGEMENT_AUDIT.md
   - Generates AppRole credentials
 
 **Features:**
+
 ```hcl
 # High Availability with Raft
 storage "raft" {
@@ -111,6 +114,7 @@ seal "awskms" {
   - PushSecret for backup to Vault
 
 **Managed Secrets:**
+
 - PostgreSQL credentials
 - Redis credentials
 - NATS credentials
@@ -120,6 +124,7 @@ seal "awskms" {
 - MinIO credentials
 
 **Example:**
+
 ```yaml
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
@@ -156,6 +161,7 @@ spec:
   - Kubernetes secret refresh triggers
 
 **Rotation Intervals:**
+
 - Database passwords: Every 90 days
 - Redis passwords: Every 90 days
 - JWT keys: Every 180 days
@@ -163,6 +169,7 @@ spec:
 - Encryption keys: Every 365 days
 
 **Usage:**
+
 ```bash
 # Check and rotate all secrets that need rotation
 ./scripts/security/automated-rotation-scheduler.sh --rotate-all
@@ -193,6 +200,7 @@ spec:
 **Features:**
 
 1. **Structured Audit Logging:**
+
 ```python
 event = SecretAccessEvent(
     access_type=SecretAccessType.READ,
@@ -213,6 +221,7 @@ await audit_secret_access(event)
    - Access from new IPs
 
 3. **Prometheus Metrics:**
+
 ```
 sahool_secret_access_total{backend,access_type,result,service}
 sahool_secret_access_duration_seconds{backend,access_type}
@@ -220,6 +229,7 @@ sahool_secret_access_failures_total{backend,result,user}
 ```
 
 4. **Access Statistics:**
+
 ```python
 stats = logger.get_access_stats(hours=24)
 # {
@@ -245,6 +255,7 @@ stats = logger.get_access_stats(hours=24)
   - Production-ready deployment template
 
 **Example:**
+
 ```yaml
 secrets:
   postgres_password:
@@ -272,13 +283,15 @@ services:
   - Support for `externalSecrets.enabled` flag
 
 **Before:**
+
 ```yaml
 data:
-  postgres-password: Y2hhbmdlbWU=  # "changeme" in base64
+  postgres-password: Y2hhbmdlbWU= # "changeme" in base64
   password: Y2hhbmdlbWU=
 ```
 
 **After:**
+
 ```yaml
 {{- if not .Values.externalSecrets.enabled }}
 stringData:
@@ -336,11 +349,13 @@ stringData:
 ### 1. Hardcoded Secrets Eliminated
 
 **Before:**
+
 - Helm charts had base64-encoded "changeme" passwords
 - No clear warnings about production deployment
 - Easy to accidentally deploy to production
 
 **After:**
+
 - Clear text placeholders with strong warnings
 - Conditional creation based on External Secrets Operator
 - Impossible to deploy without explicit replacement
@@ -349,12 +364,14 @@ stringData:
 ### 2. Secret Rotation Automation
 
 **Before:**
+
 - Manual rotation only
 - No tracking of last rotation date
 - No automated scheduling
 - No rotation enforcement
 
 **After:**
+
 - Automated rotation scheduler
 - State tracking (`.rotation-state/`)
 - Configurable rotation intervals
@@ -364,12 +381,14 @@ stringData:
 ### 3. Audit Trail Enhancement
 
 **Before:**
+
 - Basic logging only (key names, no context)
 - No anomaly detection
 - No centralized audit log
 - No metrics
 
 **After:**
+
 - Comprehensive structured logging
 - Anomaly detection and alerting
 - Centralized audit logs (`/var/log/sahool/secret-audit.log`)
@@ -379,12 +398,14 @@ stringData:
 ### 4. Kubernetes Integration
 
 **Before:**
+
 - Manual secret creation
 - No automatic synchronization
 - Manual rotation required restart
 - No version control
 
 **After:**
+
 - External Secrets Operator
 - Automatic synchronization (1-hour intervals)
 - Force refresh capability
@@ -397,13 +418,13 @@ stringData:
 
 ### Updated Compliance Scores
 
-| Standard | Before | After | Improvement |
-|----------|--------|-------|-------------|
-| OWASP Top 10 | 80% | 100% | +20% |
-| PCI DSS | 70% | 95% | +25% |
-| SOC 2 | 60% | 90% | +30% |
-| GDPR | 90% | 95% | +5% |
-| ISO 27001 | 80% | 95% | +15% |
+| Standard     | Before | After | Improvement |
+| ------------ | ------ | ----- | ----------- |
+| OWASP Top 10 | 80%    | 100%  | +20%        |
+| PCI DSS      | 70%    | 95%   | +25%        |
+| SOC 2        | 60%    | 90%   | +30%        |
+| GDPR         | 90%    | 95%   | +5%         |
+| ISO 27001    | 80%    | 95%   | +15%        |
 
 ### Specific Improvements
 
@@ -519,6 +540,7 @@ helm install sahool ./helm/sahool -n sahool
 ### 3. Production Environment (AWS/Azure)
 
 **AWS:**
+
 ```bash
 # 1. Configure AWS Secrets Manager
 aws secretsmanager create-secret \
@@ -534,6 +556,7 @@ AWS_REGION=us-east-1
 ```
 
 **Azure:**
+
 ```bash
 # 1. Create Azure Key Vault
 az keyvault create --name sahool-vault --resource-group sahool-rg
@@ -556,6 +579,7 @@ AZURE_KEY_VAULT_URL=https://sahool-vault.vault.azure.net/
 Import dashboard: `monitoring/grafana/dashboards/secrets.json`
 
 **Panels:**
+
 - Secret access rate (by backend, service)
 - Failed access attempts
 - Secret rotation status
@@ -719,22 +743,22 @@ kubectl create secret generic sahool-postgresql-secret \
 
 ### Security Metrics
 
-| Metric | Before | After | Target |
-|--------|--------|-------|--------|
-| Secrets rotation interval | Manual | Automated (90 days) | Automated |
-| Audit coverage | 50% | 100% | 100% |
-| Secrets in Git | 0 | 0 | 0 |
-| Rotation downtime | Manual restart | 0 seconds | 0 seconds |
-| MTTR (secret compromise) | 4 hours | 15 minutes | < 30 minutes |
+| Metric                    | Before         | After               | Target       |
+| ------------------------- | -------------- | ------------------- | ------------ |
+| Secrets rotation interval | Manual         | Automated (90 days) | Automated    |
+| Audit coverage            | 50%            | 100%                | 100%         |
+| Secrets in Git            | 0              | 0                   | 0            |
+| Rotation downtime         | Manual restart | 0 seconds           | 0 seconds    |
+| MTTR (secret compromise)  | 4 hours        | 15 minutes          | < 30 minutes |
 
 ### Operational Metrics
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Manual rotation time | 2 hours | 5 minutes |
-| Secret retrieval latency | N/A | < 100ms (cached) |
-| Failed rotations | N/A | 0% |
-| Audit log retention | 0 days | 365 days |
+| Metric                   | Before  | After            |
+| ------------------------ | ------- | ---------------- |
+| Manual rotation time     | 2 hours | 5 minutes        |
+| Secret retrieval latency | N/A     | < 100ms (cached) |
+| Failed rotations         | N/A     | 0%               |
+| Audit log retention      | 0 days  | 365 days         |
 
 ---
 

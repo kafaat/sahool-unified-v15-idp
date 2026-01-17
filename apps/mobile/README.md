@@ -8,13 +8,13 @@
 
 ## المتطلبات
 
-| المتطلب | الإصدار |
-|---------|---------|
-| Flutter | 3.27.1+ |
-| Dart SDK | 3.6.0+ |
+| المتطلب        | الإصدار          |
+| -------------- | ---------------- |
+| Flutter        | 3.27.1+          |
+| Dart SDK       | 3.6.0+           |
 | Android minSdk | 23 (Android 6.0) |
-| iOS | 12.0+ |
-| Java | 17 |
+| iOS            | 12.0+            |
+| Java           | 17               |
 
 ## التثبيت
 
@@ -61,30 +61,35 @@ lib/
 ## التبعيات الرئيسية
 
 ### إدارة الحالة
+
 ```yaml
-flutter_riverpod: ^2.6.1     # State Management
-riverpod_annotation: ^2.6.1  # Annotations
+flutter_riverpod: ^2.6.1 # State Management
+riverpod_annotation: ^2.6.1 # Annotations
 ```
 
 ### قاعدة البيانات (Offline)
+
 ```yaml
-drift: ^2.24.0               # SQLite ORM
+drift: ^2.24.0 # SQLite ORM
 sqlite3_flutter_libs: ^0.5.28
 ```
 
 ### الشبكة
+
 ```yaml
-dio: ^5.7.0                  # HTTP Client
-connectivity_plus: ^6.1.1    # Network Status
+dio: ^5.7.0 # HTTP Client
+connectivity_plus: ^6.1.1 # Network Status
 ```
 
 ### الخرائط
+
 ```yaml
-flutter_map: ^7.0.2          # Maps
-latlong2: ^0.9.1             # Coordinates
+flutter_map: ^7.0.2 # Maps
+latlong2: ^0.9.1 # Coordinates
 ```
 
 ### التخزين الآمن
+
 ```yaml
 flutter_secure_storage: ^9.2.2
 shared_preferences: ^2.3.3
@@ -102,13 +107,13 @@ cp .env.example .env
 
 ### عناوين الخدمات | Service URLs
 
-| البيئة | API Gateway | WebSocket |
-|--------|-------------|-----------|
-| **Development (Android Emulator)** | `http://10.0.2.2:8000` | `ws://10.0.2.2:8081` |
-| **Development (iOS Simulator)** | `http://localhost:8000` | `ws://localhost:8081` |
-| **Development (Real Device)** | `http://<YOUR-IP>:8000` | `ws://<YOUR-IP>:8081` |
-| **Staging** | `https://api-staging.sahool.app` | `wss://ws-staging.sahool.app` |
-| **Production** | `https://api.sahool.io` | `wss://ws.sahool.io` |
+| البيئة                             | API Gateway                      | WebSocket                     |
+| ---------------------------------- | -------------------------------- | ----------------------------- |
+| **Development (Android Emulator)** | `http://10.0.2.2:8000`           | `ws://10.0.2.2:8081`          |
+| **Development (iOS Simulator)**    | `http://localhost:8000`          | `ws://localhost:8081`         |
+| **Development (Real Device)**      | `http://<YOUR-IP>:8000`          | `ws://<YOUR-IP>:8081`         |
+| **Staging**                        | `https://api-staging.sahool.app` | `wss://ws-staging.sahool.app` |
+| **Production**                     | `https://api.sahool.io`          | `wss://ws.sahool.io`          |
 
 ### خريطة المنافذ | Port Map
 
@@ -333,6 +338,7 @@ flutter build appbundle --release
 ## بناء IPA (iOS)
 
 ### المتطلبات
+
 - macOS مع Xcode 14.0+
 - حساب Apple Developer مفعل
 - شهادة توزيع (Distribution Certificate)
@@ -348,6 +354,7 @@ Test Bundle ID: io.sahool.field.RunnerTests
 ```
 
 **ملاحظة مهمة للـ App Store:**
+
 - معرف الحزمة مكون في `/apps/mobile/ios/Runner.xcodeproj/project.pbxproj`
 - يجب أن يتطابق مع معرف التطبيق المسجل في Apple Developer Console
 - لتغيير معرف الحزمة، قم بتحديث `PRODUCT_BUNDLE_IDENTIFIER` في جميع التكوينات (Debug, Release, Profile)
@@ -408,19 +415,19 @@ ios/
 
 ## مصفوفة التوافق
 
-| الحزمة | الإصدار | ملاحظات |
-|--------|---------|---------|
-| Flutter | 3.27.1 | Dart 3.6.0 |
-| freezed | 2.5.8 | آخر إصدار متوافق مع Dart 3.6.0 |
-| build_runner | 2.4.13 | متوافق مع analyzer 7.x |
-| drift | 2.24.0 | قاعدة بيانات Offline |
+| الحزمة       | الإصدار | ملاحظات                        |
+| ------------ | ------- | ------------------------------ |
+| Flutter      | 3.27.1  | Dart 3.6.0                     |
+| freezed      | 2.5.8   | آخر إصدار متوافق مع Dart 3.6.0 |
+| build_runner | 2.4.13  | متوافق مع analyzer 7.x         |
+| drift        | 2.24.0  | قاعدة بيانات Offline           |
 
 ### الحزم المحذوفة
 
-| الحزمة | السبب |
-|--------|-------|
-| mockito | غير متوافق مع analyzer 7.x |
-| google_fonts | استُبدل بخطوط محلية |
+| الحزمة       | السبب                      |
+| ------------ | -------------------------- |
+| mockito      | غير متوافق مع analyzer 7.x |
+| google_fonts | استُبدل بخطوط محلية        |
 
 ## إدارة الذاكرة
 
@@ -468,8 +475,8 @@ SahoolColors.info      // معلومات
 ```yaml
 # .github/workflows/mobile-ci.yml
 env:
-  FLUTTER_VERSION: '3.27.1'
-  JAVA_VERSION: '17'
+  FLUTTER_VERSION: "3.27.1"
+  JAVA_VERSION: "17"
 
 jobs:
   build:

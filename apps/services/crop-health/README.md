@@ -9,7 +9,6 @@ Please update your references to use `crop-intelligence-service` on port 8095.
 
 ---
 
-
 # Crop Health Service
 
 **خدمة صحة المحاصيل - التشخيص الذكي للحقول الزراعية**
@@ -29,16 +28,19 @@ Intelligent crop health diagnostics with zone-based analysis, vegetation index m
 ## Features | الميزات
 
 ### Zone Management | إدارة المناطق
+
 - Create and manage field zones
 - GeoJSON export
 - Area calculations
 
 ### Observation Ingestion | استقبال الأرصاد
+
 - Multi-source support (Sentinel-2, Drone, Planet, Landsat)
 - Cloud coverage tracking
 - Growth stage association
 
 ### Vegetation Indices | مؤشرات الغطاء النباتي
+
 - NDVI (Normalized Difference Vegetation Index)
 - EVI (Enhanced Vegetation Index)
 - NDRE (Normalized Difference Red Edge)
@@ -47,11 +49,13 @@ Intelligent crop health diagnostics with zone-based analysis, vegetation index m
 - SAVI (Soil-Adjusted Vegetation Index)
 
 ### Diagnosis Engine | محرك التشخيص
+
 - Zone status classification (critical/warning/ok)
 - Priority-based action recommendations
 - Evidence-based decisions
 
 ### VRT Export | تصدير VRT
+
 - Irrigation recommendations
 - Fertilization rates
 - Variable rate application maps
@@ -59,43 +63,50 @@ Intelligent crop health diagnostics with zone-based analysis, vegetation index m
 ## API Endpoints
 
 ### Health
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/healthz` | Health check |
-| GET | `/` | Service info |
+
+| Method | Path       | Description  |
+| ------ | ---------- | ------------ |
+| GET    | `/healthz` | Health check |
+| GET    | `/`        | Service info |
 
 ### Zones
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/v1/fields/{field_id}/zones` | Create zone |
-| GET | `/api/v1/fields/{field_id}/zones` | List zones |
-| GET | `/api/v1/fields/{field_id}/zones.geojson` | Export GeoJSON |
+
+| Method | Path                                      | Description    |
+| ------ | ----------------------------------------- | -------------- |
+| POST   | `/api/v1/fields/{field_id}/zones`         | Create zone    |
+| GET    | `/api/v1/fields/{field_id}/zones`         | List zones     |
+| GET    | `/api/v1/fields/{field_id}/zones.geojson` | Export GeoJSON |
 
 ### Observations
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/v1/fields/{field_id}/zones/{zone_id}/observations` | Ingest observation |
-| GET | `/api/v1/fields/{field_id}/zones/{zone_id}/observations` | List observations |
+
+| Method | Path                                                     | Description        |
+| ------ | -------------------------------------------------------- | ------------------ |
+| POST   | `/api/v1/fields/{field_id}/zones/{zone_id}/observations` | Ingest observation |
+| GET    | `/api/v1/fields/{field_id}/zones/{zone_id}/observations` | List observations  |
 
 ### Diagnosis
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/v1/fields/{field_id}/diagnosis?date=` | Full field diagnosis |
-| POST | `/api/v1/diagnose` | Quick diagnosis (no save) |
+
+| Method | Path                                        | Description               |
+| ------ | ------------------------------------------- | ------------------------- |
+| GET    | `/api/v1/fields/{field_id}/diagnosis?date=` | Full field diagnosis      |
+| POST   | `/api/v1/diagnose`                          | Quick diagnosis (no save) |
 
 ### Timeline
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/v1/fields/{field_id}/zones/{zone_id}/timeline?from=&to=` | Index timeline |
+
+| Method | Path                                                           | Description    |
+| ------ | -------------------------------------------------------------- | -------------- |
+| GET    | `/api/v1/fields/{field_id}/zones/{zone_id}/timeline?from=&to=` | Index timeline |
 
 ### VRT Export
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/v1/fields/{field_id}/vrt?date=` | VRT GeoJSON export |
+
+| Method | Path                                  | Description        |
+| ------ | ------------------------------------- | ------------------ |
+| GET    | `/api/v1/fields/{field_id}/vrt?date=` | VRT GeoJSON export |
 
 ## Usage Examples | أمثلة الاستخدام
 
 ### Ingest Observation
+
 ```bash
 curl -X POST http://localhost:8100/api/v1/fields/field_001/zones/zone_a/observations \
   -H "Content-Type: application/json" \
@@ -116,23 +127,25 @@ curl -X POST http://localhost:8100/api/v1/fields/field_001/zones/zone_a/observat
 ```
 
 ### Get Field Diagnosis
+
 ```bash
 curl "http://localhost:8100/api/v1/fields/field_001/diagnosis?date=2025-12-23"
 ```
 
 ### Export VRT
+
 ```bash
 curl "http://localhost:8100/api/v1/fields/field_001/vrt?date=2025-12-23&action_type=irrigation"
 ```
 
 ## Action Priorities
 
-| Priority | Description | Response Window |
-|----------|-------------|-----------------|
-| P0 | Critical - immediate action | 24 hours |
-| P1 | High - urgent attention | 48 hours |
-| P2 | Medium - planned action | 1 week |
-| P3 | Low - routine monitoring | 2 weeks |
+| Priority | Description                 | Response Window |
+| -------- | --------------------------- | --------------- |
+| P0       | Critical - immediate action | 24 hours        |
+| P1       | High - urgent attention     | 48 hours        |
+| P2       | Medium - planned action     | 1 week          |
+| P3       | Low - routine monitoring    | 2 weeks         |
 
 ## Growth Stages
 
@@ -148,8 +161,8 @@ curl "http://localhost:8100/api/v1/fields/field_001/vrt?date=2025-12-23&action_t
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Service port | `8100` |
-| `CDN_BASE_URL` | CDN for map layers | `https://cdn.sahool.io` |
-| `CORS_ORIGINS` | Allowed CORS origins | - |
+| Variable       | Description          | Default                 |
+| -------------- | -------------------- | ----------------------- |
+| `PORT`         | Service port         | `8100`                  |
+| `CDN_BASE_URL` | CDN for map layers   | `https://cdn.sahool.io` |
+| `CORS_ORIGINS` | Allowed CORS origins | -                       |

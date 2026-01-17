@@ -1,4 +1,5 @@
 # SAHOOL Rate Limiting Middleware - Implementation Summary
+
 # ملخص تطبيق ميدلوير حد المعدل لسهول
 
 ## Overview | نظرة عامة
@@ -14,6 +15,7 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
 ## Files Created | الملفات المنشأة
 
 ### Core Implementation
+
 1. **rate_limiter.py** (1,041 lines)
    - RateLimiter class with multiple strategies
    - FixedWindowLimiter, SlidingWindowLimiter, TokenBucketLimiter
@@ -22,12 +24,13 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
    - @rate_limit decorator
    - Full Redis integration
 
-2. **__init__.py** (61 lines)
+2. ****init**.py** (61 lines)
    - Package initialization
    - Exports all public classes and functions
    - Version information
 
 ### Documentation
+
 3. **README.md** (15 KB)
    - Complete documentation
    - Architecture diagrams
@@ -42,6 +45,7 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
    - Production checklist
 
 ### Examples & Tests
+
 5. **example_usage.py** (441 lines)
    - 10 comprehensive examples
    - All three strategies demonstrated
@@ -66,27 +70,28 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
 ### ✅ Core Requirements
 
 #### 1. RateLimiter Class
+
 - ✅ `check_rate_limit(client_id, endpoint)` - Check rate limits
 - ✅ `get_remaining_requests(client_id)` - Get remaining quota
 - ✅ `reset_limits(client_id)` - Reset limits for client
 
 #### 2. Rate Limit Strategies
+
 - ✅ **FixedWindowLimiter** - Simple and fast
   - Time-based windows
   - Atomic counters
   - Lowest memory usage
-  
 - ✅ **SlidingWindowLimiter** - Accurate and fair
   - Sorted sets with timestamps
   - No window boundary issues
   - Perfect for standard use cases
-  
 - ✅ **TokenBucketLimiter** - Smooth with burst support
   - Token refill mechanism
   - Burst traffic handling
   - Ideal for bursty endpoints
 
 #### 3. Endpoint Configuration
+
 - ✅ `/api/v1/analyze`: 10 req/min (heavy processing)
 - ✅ `/api/v1/field-health`: 30 req/min
 - ✅ `/api/v1/weather`: 60 req/min
@@ -95,6 +100,7 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
 - ✅ Custom endpoint configuration support
 
 #### 4. Client Identification
+
 - ✅ By API key (X-API-Key header)
 - ✅ By user ID (from authentication)
 - ✅ By IP address (fallback)
@@ -102,6 +108,7 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
 - ✅ Custom identification functions
 
 #### 5. Response Headers
+
 - ✅ `X-RateLimit-Limit` - Maximum requests
 - ✅ `X-RateLimit-Remaining` - Remaining requests
 - ✅ `X-RateLimit-Reset` - Time to reset (seconds)
@@ -109,6 +116,7 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
 - ✅ `Retry-After` - When rate limited
 
 #### 6. FastAPI Integration
+
 - ✅ `RateLimitMiddleware` class
 - ✅ `@rate_limit()` decorator
 - ✅ `setup_rate_limiting()` helper function
@@ -116,6 +124,7 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
 - ✅ Custom error responses
 
 #### 7. Redis Storage
+
 - ✅ Distributed rate limiting
 - ✅ Async Redis client
 - ✅ Connection pooling
@@ -123,6 +132,7 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
 - ✅ Fallback to in-memory when Redis unavailable
 
 #### 8. Arabic Support
+
 - ✅ Bilingual comments throughout
 - ✅ Arabic error messages
 - ✅ Arabic documentation
@@ -135,27 +145,28 @@ Advanced API rate limiting middleware for SAHOOL with Redis-backed distributed s
 \`\`\`
 RateLimiter (Main Manager)
 ├── FixedWindowLimiter
-│   └── Redis: String counters with TTL
+│ └── Redis: String counters with TTL
 ├── SlidingWindowLimiter
-│   └── Redis: Sorted sets with timestamps
+│ └── Redis: Sorted sets with timestamps
 └── TokenBucketLimiter
-    └── Redis: Hash with tokens & last_update
+└── Redis: Hash with tokens & last_update
 
 RateLimitMiddleware (FastAPI)
 ├── ClientIdentifier
-│   ├── API Key extraction
-│   ├── User ID extraction
-│   └── IP address fallback
+│ ├── API Key extraction
+│ ├── User ID extraction
+│ └── IP address fallback
 └── RateLimiter integration
 
 Decorator Pattern
 └── @rate_limit(requests, period, strategy)
-    └── Inline rate limiting
+└── Inline rate limiting
 \`\`\`
 
 ### Data Flow
 
 \`\`\`
+
 1. Request arrives → FastAPI
 2. RateLimitMiddleware intercepts
 3. ClientIdentifier extracts client_id
@@ -164,30 +175,31 @@ Decorator Pattern
 6. Decision: Allow or Deny
 7. Headers added to response
 8. Response returned
-\`\`\`
+   \`\`\`
 
 ### Redis Key Patterns
 
 \`\`\`
 Fixed Window:
-  ratelimit:fixed:{client_id}:{endpoint}:{window_start}
-  Type: String (counter)
-  TTL: 2 × period
+ratelimit:fixed:{client_id}:{endpoint}:{window_start}
+Type: String (counter)
+TTL: 2 × period
 
 Sliding Window:
-  ratelimit:sliding:{client_id}:{endpoint}
-  Type: Sorted Set (score=timestamp, member=request_id)
-  TTL: 2 × period
+ratelimit:sliding:{client_id}:{endpoint}
+Type: Sorted Set (score=timestamp, member=request_id)
+TTL: 2 × period
 
 Token Bucket:
-  ratelimit:bucket:{client_id}:{endpoint}
-  Type: Hash {tokens: float, last_update: timestamp}
-  TTL: 2 × period
+ratelimit:bucket:{client_id}:{endpoint}
+Type: Hash {tokens: float, last_update: timestamp}
+TTL: 2 × period
 \`\`\`
 
 ## Usage Examples | أمثلة الاستخدام
 
 ### Basic Setup
+
 \`\`\`python
 from fastapi import FastAPI
 from apps.kernel.common.middleware import setup_rate_limiting
@@ -197,20 +209,22 @@ limiter = setup_rate_limiting(app)
 \`\`\`
 
 ### Decorator Usage
+
 \`\`\`python
 from apps.kernel.common.middleware import rate_limit
 
 @app.post("/api/heavy")
 @rate_limit(requests=10, period=60, strategy="token_bucket")
 async def heavy_endpoint(request: Request):
-    return {"status": "ok"}
+return {"status": "ok"}
 \`\`\`
 
 ### Manual Check
+
 \`\`\`python
 allowed, remaining, reset = await limiter.check_rate_limit(
-    client_id="user:123",
-    endpoint="/api/analyze"
+client_id="user:123",
+endpoint="/api/analyze"
 )
 \`\`\`
 
@@ -218,21 +232,22 @@ allowed, remaining, reset = await limiter.check_rate_limit(
 
 ### Strategy Comparison
 
-| Strategy | Req/sec | Latency (p95) | Memory/client | Accuracy |
-|----------|---------|---------------|---------------|----------|
-| Fixed Window | 5000 | 2ms | 100 bytes | Good |
-| Sliding Window | 3000 | 5ms | 500 bytes | Excellent |
-| Token Bucket | 4000 | 3ms | 200 bytes | Very Good |
+| Strategy       | Req/sec | Latency (p95) | Memory/client | Accuracy  |
+| -------------- | ------- | ------------- | ------------- | --------- |
+| Fixed Window   | 5000    | 2ms           | 100 bytes     | Good      |
+| Sliding Window | 3000    | 5ms           | 500 bytes     | Excellent |
+| Token Bucket   | 4000    | 3ms           | 200 bytes     | Very Good |
 
 ### Recommendations
 
 - **High Traffic (>100 req/min)**: Fixed Window
-- **Standard Traffic (10-100 req/min)**: Sliding Window  
+- **Standard Traffic (10-100 req/min)**: Sliding Window
 - **Bursty Traffic (<10 req/min)**: Token Bucket
 
 ## Testing | الاختبار
 
 ### Test Coverage
+
 - ✅ Unit tests for all strategies
 - ✅ Integration tests with Redis
 - ✅ Middleware tests
@@ -241,14 +256,19 @@ allowed, remaining, reset = await limiter.check_rate_limit(
 - ✅ Error handling tests
 
 ### Run Tests
+
 \`\`\`bash
+
 # All tests
+
 pytest test_rate_limiter.py -v
 
 # With coverage
+
 pytest test_rate_limiter.py --cov=apps.kernel.common.middleware
 
 # Integration tests only
+
 pytest test_rate_limiter.py -m integration
 \`\`\`
 
@@ -265,19 +285,21 @@ pytest-asyncio>=0.24.0 (dev)
 ## Configuration | التكوين
 
 ### Environment Variables
+
 \`\`\`bash
 REDIS_URL=redis://localhost:6379/0
 \`\`\`
 
 ### Endpoint Configuration
+
 \`\`\`python
 from apps.kernel.common.middleware import ENDPOINT_CONFIGS, EndpointConfig
 
 ENDPOINT_CONFIGS["/api/custom"] = EndpointConfig(
-    requests=20,
-    period=60,
-    burst=5,
-    strategy="sliding_window"
+requests=20,
+period=60,
+burst=5,
+strategy="sliding_window"
 )
 \`\`\`
 
@@ -292,6 +314,7 @@ ENDPOINT_CONFIGS["/api/custom"] = EndpointConfig(
 ## Future Enhancements | التحسينات المستقبلية
 
 Potential additions for future versions:
+
 - [ ] Rate limit quotas per tier (free/premium)
 - [ ] Dynamic rate limit adjustment
 - [ ] Rate limit analytics dashboard
@@ -303,6 +326,7 @@ Potential additions for future versions:
 ## Comparison with Existing Implementation
 
 ### New Features Not in Shared Middleware
+
 1. **Multiple Strategies** - Fixed Window, Sliding Window, Token Bucket
 2. **Per-Endpoint Configuration** - Different limits per endpoint
 3. **Token Bucket Algorithm** - Burst support
@@ -324,28 +348,34 @@ Potential additions for future versions:
 ## Quick Reference | مرجع سريع
 
 ### Import Everything
+
 \`\`\`python
 from apps.kernel.common.middleware import (
-    RateLimiter,
-    RateLimitMiddleware,
-    setup_rate_limiting,
-    rate_limit,
-    ClientIdentifier,
-    EndpointConfig,
-    ENDPOINT_CONFIGS,
-    get_rate_limit_stats,
+RateLimiter,
+RateLimitMiddleware,
+setup_rate_limiting,
+rate_limit,
+ClientIdentifier,
+EndpointConfig,
+ENDPOINT_CONFIGS,
+get_rate_limit_stats,
 )
 \`\`\`
 
 ### Strategy Selection Guide
+
 \`\`\`python
+
 # Simple & Fast → Fixed Window
+
 strategy="fixed_window"
 
 # Accurate & Fair → Sliding Window (DEFAULT)
+
 strategy="sliding_window"
 
 # Burst Support → Token Bucket
+
 strategy="token_bucket"
 \`\`\`
 
@@ -365,4 +395,3 @@ Copyright © 2026 SAHOOL. All rights reserved.
 **Implementation Date**: January 2, 2026  
 **Status**: ✅ Complete and Production Ready  
 **Maintainer**: SAHOOL Development Team
-

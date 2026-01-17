@@ -1,4 +1,5 @@
 # NATS Monitoring Guide
+
 # دليل مراقبة NATS
 
 **Version:** 1.0.0
@@ -188,47 +189,47 @@ curl http://localhost:9090/api/v1/alerts | jq '.data.alerts[] | select(.labels.c
 
 #### Server Health Metrics
 
-| Metric | Description | Type | Arabic |
-|--------|-------------|------|--------|
-| `gnatsd_varz_connections` | Current active connections | Gauge | الاتصالات النشطة |
-| `gnatsd_varz_total_connections` | Total connections since start | Counter | إجمالي الاتصالات |
-| `gnatsd_varz_in_msgs` | Incoming messages | Counter | الرسائل الواردة |
-| `gnatsd_varz_out_msgs` | Outgoing messages | Counter | الرسائل الصادرة |
-| `gnatsd_varz_in_bytes` | Incoming bytes | Counter | البايتات الواردة |
-| `gnatsd_varz_out_bytes` | Outgoing bytes | Counter | البايتات الصادرة |
-| `gnatsd_varz_slow_consumers` | Number of slow consumers | Gauge | المستهلكون البطيئون |
-| `gnatsd_varz_subscriptions` | Active subscriptions | Gauge | الاشتراكات النشطة |
-| `gnatsd_varz_cpu` | CPU usage percentage | Gauge | استخدام المعالج |
-| `gnatsd_varz_mem` | Memory usage in bytes | Gauge | استخدام الذاكرة |
+| Metric                          | Description                   | Type    | Arabic              |
+| ------------------------------- | ----------------------------- | ------- | ------------------- |
+| `gnatsd_varz_connections`       | Current active connections    | Gauge   | الاتصالات النشطة    |
+| `gnatsd_varz_total_connections` | Total connections since start | Counter | إجمالي الاتصالات    |
+| `gnatsd_varz_in_msgs`           | Incoming messages             | Counter | الرسائل الواردة     |
+| `gnatsd_varz_out_msgs`          | Outgoing messages             | Counter | الرسائل الصادرة     |
+| `gnatsd_varz_in_bytes`          | Incoming bytes                | Counter | البايتات الواردة    |
+| `gnatsd_varz_out_bytes`         | Outgoing bytes                | Counter | البايتات الصادرة    |
+| `gnatsd_varz_slow_consumers`    | Number of slow consumers      | Gauge   | المستهلكون البطيئون |
+| `gnatsd_varz_subscriptions`     | Active subscriptions          | Gauge   | الاشتراكات النشطة   |
+| `gnatsd_varz_cpu`               | CPU usage percentage          | Gauge   | استخدام المعالج     |
+| `gnatsd_varz_mem`               | Memory usage in bytes         | Gauge   | استخدام الذاكرة     |
 
 #### JetStream Metrics
 
-| Metric | Description | Type | Arabic |
-|--------|-------------|------|--------|
-| `gnatsd_jetstream_enabled` | JetStream status (1=enabled, 0=disabled) | Gauge | حالة JetStream |
-| `gnatsd_jetstream_memory_used` | JetStream memory usage | Gauge | استخدام ذاكرة JetStream |
-| `gnatsd_jetstream_storage_used` | JetStream storage usage | Gauge | استخدام تخزين JetStream |
-| `gnatsd_jetstream_streams` | Number of streams | Gauge | عدد التدفقات |
-| `gnatsd_jetstream_consumers` | Number of consumers | Gauge | عدد المستهلكين |
-| `gnatsd_jetstream_messages` | Total messages in all streams | Gauge | إجمالي الرسائل |
+| Metric                          | Description                              | Type  | Arabic                  |
+| ------------------------------- | ---------------------------------------- | ----- | ----------------------- |
+| `gnatsd_jetstream_enabled`      | JetStream status (1=enabled, 0=disabled) | Gauge | حالة JetStream          |
+| `gnatsd_jetstream_memory_used`  | JetStream memory usage                   | Gauge | استخدام ذاكرة JetStream |
+| `gnatsd_jetstream_storage_used` | JetStream storage usage                  | Gauge | استخدام تخزين JetStream |
+| `gnatsd_jetstream_streams`      | Number of streams                        | Gauge | عدد التدفقات            |
+| `gnatsd_jetstream_consumers`    | Number of consumers                      | Gauge | عدد المستهلكين          |
+| `gnatsd_jetstream_messages`     | Total messages in all streams            | Gauge | إجمالي الرسائل          |
 
 #### Per-Stream Metrics
 
-| Metric | Description | Labels | Arabic |
-|--------|-------------|--------|--------|
-| `nats_jetstream_stream_messages` | Messages in stream | stream, account | الرسائل في التدفق |
-| `nats_jetstream_stream_bytes` | Bytes in stream | stream, account | بايتات التدفق |
-| `nats_jetstream_stream_first_seq` | First sequence number | stream | أول رقم تسلسلي |
-| `nats_jetstream_stream_last_seq` | Last sequence number | stream | آخر رقم تسلسلي |
+| Metric                            | Description           | Labels          | Arabic            |
+| --------------------------------- | --------------------- | --------------- | ----------------- |
+| `nats_jetstream_stream_messages`  | Messages in stream    | stream, account | الرسائل في التدفق |
+| `nats_jetstream_stream_bytes`     | Bytes in stream       | stream, account | بايتات التدفق     |
+| `nats_jetstream_stream_first_seq` | First sequence number | stream          | أول رقم تسلسلي    |
+| `nats_jetstream_stream_last_seq`  | Last sequence number  | stream          | آخر رقم تسلسلي    |
 
 #### Per-Consumer Metrics
 
-| Metric | Description | Labels | Arabic |
-|--------|-------------|--------|--------|
-| `nats_jetstream_consumer_num_pending` | Pending messages | stream, consumer | الرسائل المعلقة |
-| `nats_jetstream_consumer_num_ack_pending` | Unacknowledged messages | stream, consumer | الرسائل غير المؤكدة |
-| `nats_jetstream_consumer_delivered` | Delivered messages | stream, consumer | الرسائل المسلمة |
-| `nats_jetstream_consumer_redelivered` | Redelivered messages | stream, consumer | الرسائل المعاد تسليمها |
+| Metric                                    | Description             | Labels           | Arabic                 |
+| ----------------------------------------- | ----------------------- | ---------------- | ---------------------- |
+| `nats_jetstream_consumer_num_pending`     | Pending messages        | stream, consumer | الرسائل المعلقة        |
+| `nats_jetstream_consumer_num_ack_pending` | Unacknowledged messages | stream, consumer | الرسائل غير المؤكدة    |
+| `nats_jetstream_consumer_delivered`       | Delivered messages      | stream, consumer | الرسائل المسلمة        |
+| `nats_jetstream_consumer_redelivered`     | Redelivered messages    | stream, consumer | الرسائل المعاد تسليمها |
 
 ### Useful PromQL Queries - استعلامات PromQL مفيدة
 
@@ -290,73 +291,85 @@ rate(nats_jetstream_consumer_redelivered[5m])
 
 ### Alert Severity Levels - مستويات خطورة التنبيهات
 
-| Severity | Description | Response Time | Arabic |
-|----------|-------------|---------------|--------|
-| **Critical** | Service down, data loss imminent | Immediate (< 5 min) | حرج |
-| **Warning** | Degraded performance, attention needed | Within 1 hour | تحذير |
-| **Info** | Informational, for awareness | Best effort | معلومات |
+| Severity     | Description                            | Response Time       | Arabic  |
+| ------------ | -------------------------------------- | ------------------- | ------- |
+| **Critical** | Service down, data loss imminent       | Immediate (< 5 min) | حرج     |
+| **Warning**  | Degraded performance, attention needed | Within 1 hour       | تحذير   |
+| **Info**     | Informational, for awareness           | Best effort         | معلومات |
 
 ### Critical Alerts - تنبيهات حرجة
 
 #### NATSServerDown
+
 ```yaml
 alert: NATSServerDown
 expr: up{service="nats"} == 0
 for: 1m
 severity: critical
 ```
+
 **Impact:** All async messaging stopped, platform-wide communication failure.
 **Action:** Check NATS container logs, restart service immediately.
 
 #### JetStreamMemoryCritical
+
 ```yaml
 alert: JetStreamMemoryCritical
-expr: gnatsd_jetstream_memory_used > 966367642  # 900MB (90% of 1GB)
+expr: gnatsd_jetstream_memory_used > 966367642 # 900MB (90% of 1GB)
 for: 2m
 severity: critical
 ```
+
 **Impact:** New messages may be rejected, message loss possible.
 **Action:** Increase memory limit or purge old streams immediately.
 
 #### NATSConnectionLimitReached
+
 ```yaml
 alert: NATSConnectionLimitReached
 expr: gnatsd_varz_connections >= gnatsd_varz_max_connections * 0.95
 for: 2m
 severity: critical
 ```
+
 **Impact:** New clients cannot connect, service degradation.
 **Action:** Increase max_connections or fix connection leaks.
 
 ### Warning Alerts - تنبيهات تحذيرية
 
 #### JetStreamStreamBacklog
+
 ```yaml
 alert: JetStreamStreamBacklog
 expr: nats_jetstream_stream_messages > 100000
 for: 10m
 severity: warning
 ```
+
 **Impact:** Messages not being consumed fast enough.
 **Action:** Scale consumers, check processing capacity.
 
 #### NATSHighCPUUsage
+
 ```yaml
 alert: NATSHighCPUUsage
 expr: gnatsd_varz_cpu > 80
 for: 5m
 severity: warning
 ```
+
 **Impact:** Message processing may be slowed.
 **Action:** Check for message backlog, consider scaling cluster.
 
 #### NATSSlowConsumersDetected
+
 ```yaml
 alert: NATSSlowConsumersDetected
 expr: gnatsd_varz_slow_consumers > 0
 for: 3m
 severity: warning
 ```
+
 **Impact:** Message delivery may be delayed or dropped.
 **Action:** Identify and fix slow consumer services.
 
@@ -366,35 +379,35 @@ severity: warning
 
 ```yaml
 route:
-  group_by: ['alertname', 'component', 'severity']
+  group_by: ["alertname", "component", "severity"]
   group_wait: 10s
   group_interval: 5m
   repeat_interval: 4h
-  receiver: 'default'
+  receiver: "default"
 
   routes:
     # Critical NATS alerts - page on-call
     - match:
         severity: critical
         component: message-queue
-      receiver: 'pagerduty-critical'
+      receiver: "pagerduty-critical"
       continue: true
 
     # Warning alerts - Slack only
     - match:
         severity: warning
         component: message-queue
-      receiver: 'slack-monitoring'
+      receiver: "slack-monitoring"
 
 receivers:
-  - name: 'pagerduty-critical'
+  - name: "pagerduty-critical"
     pagerduty_configs:
-      - service_key: '<pagerduty-key>'
+      - service_key: "<pagerduty-key>"
 
-  - name: 'slack-monitoring'
+  - name: "slack-monitoring"
     slack_configs:
-      - channel: '#monitoring-alerts'
-        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+      - channel: "#monitoring-alerts"
+        text: "{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}"
 ```
 
 ---
@@ -406,6 +419,7 @@ receivers:
 #### Official NATS Dashboard (ID: 2279)
 
 **Panels:**
+
 - Server overview (connections, messages, throughput)
 - CPU and memory usage
 - Message rates (in/out)
@@ -413,6 +427,7 @@ receivers:
 - Subscription statistics
 
 **Import Steps:**
+
 1. Open Grafana: http://localhost:3002
 2. Navigate to: Dashboards → Import
 3. Enter Dashboard ID: `2279`
@@ -422,6 +437,7 @@ receivers:
 #### JetStream Dashboard (ID: 14522)
 
 **Panels:**
+
 - JetStream memory and storage usage
 - Stream list with message counts
 - Consumer lag and processing rates
@@ -429,6 +445,7 @@ receivers:
 - Acknowledgment pending
 
 **Import Steps:**
+
 1. Open Grafana: http://localhost:3002
 2. Navigate to: Dashboards → Import
 3. Enter Dashboard ID: `14522`
@@ -486,11 +503,13 @@ receivers:
 #### 1. NATS Exporter Not Starting
 
 **Symptoms:**
+
 - Container exits immediately
 - No metrics at http://localhost:7777/metrics
 - Error in logs: "connection refused"
 
 **Diagnosis:**
+
 ```bash
 # Check NATS is accessible
 curl http://localhost:8222/varz
@@ -503,6 +522,7 @@ docker exec sahool-nats-prometheus-exporter wget -O- http://nats:8222/varz
 ```
 
 **Solution:**
+
 1. Ensure NATS is running and healthy
 2. Verify NATS monitoring port (8222) is accessible
 3. Check Docker network connectivity
@@ -511,11 +531,13 @@ docker exec sahool-nats-prometheus-exporter wget -O- http://nats:8222/varz
 #### 2. Metrics Not Appearing in Prometheus
 
 **Symptoms:**
+
 - Prometheus shows target as "down"
 - No NATS metrics in Prometheus UI
 - Queries return no data
 
 **Diagnosis:**
+
 ```bash
 # Check Prometheus targets
 curl http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | select(.labels.job == "nats-exporter")'
@@ -528,6 +550,7 @@ docker logs sahool-monitoring-prometheus | grep nats
 ```
 
 **Solution:**
+
 1. Verify scrape config in `prometheus.yml`
 2. Ensure exporter is in correct Docker network
 3. Reload Prometheus config: `curl -X POST http://localhost:9090/-/reload`
@@ -536,11 +559,13 @@ docker logs sahool-monitoring-prometheus | grep nats
 #### 3. High Memory Usage
 
 **Symptoms:**
+
 - JetStream memory alerts firing
 - NATS container memory at limit
 - Messages being rejected
 
 **Diagnosis:**
+
 ```bash
 # Check JetStream memory usage
 curl http://localhost:8222/jsz?acc=APP | jq '.memory'
@@ -553,6 +578,7 @@ curl http://localhost:8222/jsz?acc=APP&streams=true | jq -r '.streams[] | "\(.st
 ```
 
 **Solution:**
+
 1. Review retention policies on streams
 2. Purge old messages: `nats stream purge <stream-name>`
 3. Increase JetStream memory limit in config
@@ -561,11 +587,13 @@ curl http://localhost:8222/jsz?acc=APP&streams=true | jq -r '.streams[] | "\(.st
 #### 4. Slow Consumer Issues
 
 **Symptoms:**
+
 - `NATSSlowConsumersDetected` alert firing
 - Messages being dropped
 - Consumer lag increasing
 
 **Diagnosis:**
+
 ```bash
 # Check slow consumers
 curl http://localhost:8222/connz?state=slow | jq '.'
@@ -578,6 +606,7 @@ curl -G http://localhost:9090/api/v1/query --data-urlencode 'query=rate(nats_jet
 ```
 
 **Solution:**
+
 1. Scale consumer service horizontally
 2. Optimize message processing logic
 3. Increase consumer max_ack_pending
@@ -586,11 +615,13 @@ curl -G http://localhost:9090/api/v1/query --data-urlencode 'query=rate(nats_jet
 #### 5. Connection Limit Reached
 
 **Symptoms:**
+
 - New connections being rejected
 - "maximum connections exceeded" errors
 - Services can't connect to NATS
 
 **Diagnosis:**
+
 ```bash
 # Check current connections
 curl http://localhost:8222/varz | jq '{connections, max_connections}'
@@ -603,6 +634,7 @@ docker exec sahool-nats nats server list connections
 ```
 
 **Solution:**
+
 1. Increase `max_connections` in NATS config
 2. Review services for connection leaks
 3. Implement connection pooling in clients
@@ -617,6 +649,7 @@ docker exec sahool-nats nats server list connections
 #### 1. Connection Pooling
 
 **Python Example:**
+
 ```python
 import asyncio
 from nats.aio.client import Client as NATS
@@ -742,13 +775,13 @@ nats consumer add \
 
 ### File Locations - مواقع الملفات
 
-| File | Path | Description |
-|------|------|-------------|
-| **NATS Config** | `/home/user/sahool-unified-v15-idp/config/nats/nats-secure.conf` | Main NATS configuration |
-| **Exporter Config** | `/home/user/sahool-unified-v15-idp/infrastructure/monitoring/prometheus/nats-exporter.yml` | Prometheus scrape configuration |
-| **Alert Rules** | `/home/user/sahool-unified-v15-idp/infrastructure/monitoring/prometheus/rules/nats-alerts.yml` | NATS alerting rules |
-| **Docker Compose** | `/home/user/sahool-unified-v15-idp/infrastructure/monitoring/docker-compose.nats-monitoring.yml` | NATS monitoring stack |
-| **Main Compose** | `/home/user/sahool-unified-v15-idp/docker-compose.yml` | Main platform compose (includes exporter) |
+| File                | Path                                                                                             | Description                               |
+| ------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| **NATS Config**     | `/home/user/sahool-unified-v15-idp/config/nats/nats-secure.conf`                                 | Main NATS configuration                   |
+| **Exporter Config** | `/home/user/sahool-unified-v15-idp/infrastructure/monitoring/prometheus/nats-exporter.yml`       | Prometheus scrape configuration           |
+| **Alert Rules**     | `/home/user/sahool-unified-v15-idp/infrastructure/monitoring/prometheus/rules/nats-alerts.yml`   | NATS alerting rules                       |
+| **Docker Compose**  | `/home/user/sahool-unified-v15-idp/infrastructure/monitoring/docker-compose.nats-monitoring.yml` | NATS monitoring stack                     |
+| **Main Compose**    | `/home/user/sahool-unified-v15-idp/docker-compose.yml`                                           | Main platform compose (includes exporter) |
 
 ### Useful Commands - أوامر مفيدة
 
@@ -835,6 +868,7 @@ curl http://localhost:7777/metrics
 ### Support - الدعم
 
 For issues with NATS monitoring:
+
 1. Check this documentation first
 2. Review Docker logs for errors
 3. Consult NATS documentation

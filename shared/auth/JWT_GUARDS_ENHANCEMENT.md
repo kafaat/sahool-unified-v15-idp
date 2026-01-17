@@ -1,4 +1,5 @@
 # JWT Guards Enhancement Documentation
+
 # توثيق تحسينات JWT Guards
 
 ## Overview / نظرة عامة
@@ -155,22 +156,25 @@ yarn add @liaoliaots/nestjs-redis ioredis
 
 ```typescript
 // auth.module.ts
-import { Module } from '@nestjs/common';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { JwtStrategy } from '@shared/auth/jwt.strategy';
-import { UserValidationService, IUserRepository } from '@shared/auth/user-validation.service';
-import { JWTConfig } from '@shared/auth/config';
+import { Module } from "@nestjs/common";
+import { PassportModule } from "@nestjs/passport";
+import { JwtModule } from "@nestjs/jwt";
+import { RedisModule } from "@liaoliaots/nestjs-redis";
+import { JwtStrategy } from "@shared/auth/jwt.strategy";
+import {
+  UserValidationService,
+  IUserRepository,
+} from "@shared/auth/user-validation.service";
+import { JWTConfig } from "@shared/auth/config";
 
 // Implement your user repository
 @Injectable()
 class UserRepository implements IUserRepository {
-  constructor(
-    @InjectRepository(User) private userRepo: Repository<User>,
-  ) {}
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
-  async getUserValidationData(userId: string): Promise<UserValidationData | null> {
+  async getUserValidationData(
+    userId: string,
+  ): Promise<UserValidationData | null> {
     const user = await this.userRepo.findOne({ where: { id: userId } });
 
     if (!user) {
@@ -196,16 +200,16 @@ class UserRepository implements IUserRepository {
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: "jwt" }),
     JwtModule.register({
       secret: JWTConfig.JWT_SECRET,
-      signOptions: { expiresIn: '30m' },
+      signOptions: { expiresIn: "30m" },
     }),
     RedisModule.forRoot({
       config: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        db: parseInt(process.env.REDIS_DB || '0'),
+        host: process.env.REDIS_HOST || "localhost",
+        port: parseInt(process.env.REDIS_PORT || "6379"),
+        db: parseInt(process.env.REDIS_DB || "0"),
       },
     }),
   ],
@@ -226,11 +230,11 @@ export class AuthModule {}
 
 ```typescript
 // farms.controller.ts
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '@shared/auth/jwt.guard';
-import { CurrentUser } from '@shared/auth/decorators';
+import { Controller, Get, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "@shared/auth/jwt.guard";
+import { CurrentUser } from "@shared/auth/decorators";
 
-@Controller('farms')
+@Controller("farms")
 @UseGuards(JwtAuthGuard)
 export class FarmsController {
   @Get()
@@ -250,6 +254,7 @@ export class FarmsController {
 ### 1. Database User Validation
 
 **Python:**
+
 ```python
 # Automatically checks database for user existence
 user = await get_current_user(credentials)
@@ -257,6 +262,7 @@ user = await get_current_user(credentials)
 ```
 
 **TypeScript:**
+
 ```typescript
 // JWT Strategy validates user in database
 @UseGuards(JwtAuthGuard)
@@ -277,6 +283,7 @@ The following checks are performed:
 ### 3. Redis Caching
 
 **Performance Improvement:**
+
 - First request: Database query (~50ms)
 - Cached requests: Redis lookup (~2ms)
 - Default TTL: 5 minutes
@@ -284,6 +291,7 @@ The following checks are performed:
 **Cache Invalidation:**
 
 Python:
+
 ```python
 from shared.auth.user_cache import get_user_cache
 
@@ -292,6 +300,7 @@ await cache.invalidate_user(user_id)
 ```
 
 TypeScript:
+
 ```typescript
 @Injectable()
 class UserService {
@@ -310,6 +319,7 @@ class UserService {
 ### 4. Logging
 
 **Python Logs:**
+
 ```log
 WARNING - Authentication failed: User abc123 is inactive
 WARNING - Authentication failed: User abc123 not found in database
@@ -318,6 +328,7 @@ ERROR - Rate limit exceeded for user abc123 (total violations: 5)
 ```
 
 **TypeScript Logs:**
+
 ```log
 [JwtAuthGuard] WARN - Authentication failed [GET /api/farms]: Token expired
 [JwtStrategy] DEBUG - JWT validated successfully for user abc123 (user@example.com)
@@ -327,6 +338,7 @@ ERROR - Rate limit exceeded for user abc123 (total violations: 5)
 ### 5. Rate Limiting
 
 **Configuration:**
+
 ```env
 RATE_LIMIT_ENABLED=true
 RATE_LIMIT_REQUESTS=100          # Max requests
@@ -334,6 +346,7 @@ RATE_LIMIT_WINDOW_SECONDS=60     # Time window
 ```
 
 **Usage:**
+
 ```python
 @router.post("/api/resource")
 async def create_resource(user: User = Depends(rate_limit_dependency)):
@@ -342,6 +355,7 @@ async def create_resource(user: User = Depends(rate_limit_dependency)):
 ```
 
 **Response Headers:**
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -394,7 +408,7 @@ async def test_inactive_user_rejected(user_repo):
 ### TypeScript Tests
 
 ```typescript
-describe('UserValidationService', () => {
+describe("UserValidationService", () => {
   let service: UserValidationService;
   let redis: Redis;
   let repository: IUserRepository;
@@ -411,18 +425,18 @@ describe('UserValidationService', () => {
     service = module.get<UserValidationService>(UserValidationService);
   });
 
-  it('should validate active user', async () => {
-    const userData = await service.validateUser('user123');
+  it("should validate active user", async () => {
+    const userData = await service.validateUser("user123");
     expect(userData.isActive).toBe(true);
   });
 
-  it('should reject deleted user', async () => {
+  it("should reject deleted user", async () => {
     mockRepository.getUserValidationData.mockResolvedValue({
-      userId: 'deleted',
+      userId: "deleted",
       isDeleted: true,
     });
 
-    await expect(service.validateUser('deleted')).rejects.toThrow(
+    await expect(service.validateUser("deleted")).rejects.toThrow(
       UnauthorizedException,
     );
   });
@@ -434,16 +448,19 @@ describe('UserValidationService', () => {
 ## Performance Metrics / مقاييس الأداء
 
 ### Before Enhancement / قبل التحسين
+
 - Authentication time: ~50ms (token only)
 - No database validation
 - No user status checks
 
 ### After Enhancement / بعد التحسين
+
 - First request: ~60ms (database + cache)
 - Cached request: ~5ms (cache only)
 - Full validation with status checks
 
 **Improvement:**
+
 - 92% faster for cached requests
 - 100% security coverage
 
@@ -454,11 +471,13 @@ describe('UserValidationService', () => {
 ### Issue: Redis Connection Failed
 
 **Error:**
+
 ```
 WARNING - Redis not available, user caching disabled
 ```
 
 **Solution:**
+
 1. Check Redis is running: `redis-cli ping`
 2. Verify REDIS_URL in .env
 3. Check firewall settings
@@ -466,11 +485,13 @@ WARNING - Redis not available, user caching disabled
 ### Issue: User Not Found in Database
 
 **Error:**
+
 ```
 WARNING - User abc123 not found in database
 ```
 
 **Solution:**
+
 1. Verify UserRepository implementation
 2. Check database connection
 3. Ensure user exists in database
@@ -479,6 +500,7 @@ WARNING - User abc123 not found in database
 
 **Solution:**
 Adjust in .env:
+
 ```env
 RATE_LIMIT_REQUESTS=1000      # Increase limit
 RATE_LIMIT_WINDOW_SECONDS=60  # Keep window
@@ -491,6 +513,7 @@ RATE_LIMIT_WINDOW_SECONDS=60  # Keep window
 ### Migrating Existing Code
 
 **Before:**
+
 ```python
 @router.get("/profile")
 async def get_profile(token: str = Depends(oauth2_scheme)):
@@ -499,6 +522,7 @@ async def get_profile(token: str = Depends(oauth2_scheme)):
 ```
 
 **After:**
+
 ```python
 @router.get("/profile")
 async def get_profile(user: User = Depends(get_current_user)):
@@ -522,6 +546,7 @@ async def get_profile(user: User = Depends(get_current_user)):
 ## Support / الدعم
 
 For issues or questions:
+
 1. Check logs for detailed error messages
 2. Verify environment configuration
 3. Test with in-memory repository first

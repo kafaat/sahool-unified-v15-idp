@@ -3,6 +3,7 @@
 ## Overview
 
 Fixed API client error handling by:
+
 1. Adding proper error logging
 2. Creating custom error types (ApiError, NetworkError, AuthError, etc.)
 3. Allowing callers to handle errors properly instead of silent failures
@@ -37,6 +38,7 @@ Fixed API client error handling by:
 ### 2. Modified: `src/types.ts`
 
 **Added:**
+
 ```typescript
 export type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug';
 
@@ -56,24 +58,22 @@ export type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug';
 ### 3. Modified: `src/index.ts`
 
 **Added Imports:**
-```typescript
-import {
-  ApiError,
-  NetworkError,
-  AuthError,
-  parseAxiosError,
-} from './errors';
 
-export * from './errors';
+```typescript
+import { ApiError, NetworkError, AuthError, parseAxiosError } from "./errors";
+
+export * from "./errors";
 ```
 
 **Added Class Properties:**
+
 ```typescript
 private logLevel: LogLevel;
 private errorHandling: 'throw' | 'silent';
 ```
 
 **Updated Constructor:**
+
 ```typescript
 constructor(config: ApiClientConfig, ports: Partial<ServicePorts> = {}) {
   this.config = {
@@ -118,6 +118,7 @@ private async safeExecute<T>(
 ```
 
 **Updated request() method:**
+
 ```typescript
 private async request<T>(url: string, options: AxiosRequestConfig = {}): Promise<T> {
   try {
@@ -134,6 +135,7 @@ private async request<T>(url: string, options: AxiosRequestConfig = {}): Promise
 **Updated all API methods to use safeExecute():**
 
 Before:
+
 ```typescript
 async getTasks(): Promise<Task[]> {
   try {
@@ -145,6 +147,7 @@ async getTasks(): Promise<Task[]> {
 ```
 
 After:
+
 ```typescript
 async getTasks(): Promise<Task[]> {
   const endpoint = `${this.urls.task}/api/v1/tasks`;
@@ -157,6 +160,7 @@ async getTasks(): Promise<Task[]> {
 ```
 
 **Methods Updated (22 total):**
+
 - getTasks()
 - updateTaskStatus()
 - getFields()
@@ -183,33 +187,36 @@ async getTasks(): Promise<Task[]> {
 **Updated Tests:**
 
 Before:
+
 ```typescript
-it('should return empty array on error', async () => {
-  mockAxiosInstance.request.mockRejectedValue(new Error('Network error'));
+it("should return empty array on error", async () => {
+  mockAxiosInstance.request.mockRejectedValue(new Error("Network error"));
   const tasks = await client.getTasks();
   expect(tasks).toEqual([]);
 });
 ```
 
 After:
+
 ```typescript
-it('should throw error by default', async () => {
-  mockAxiosInstance.request.mockRejectedValue(new Error('Network error'));
+it("should throw error by default", async () => {
+  mockAxiosInstance.request.mockRejectedValue(new Error("Network error"));
   await expect(client.getTasks()).rejects.toThrow();
 });
 
-it('should handle network errors gracefully in silent mode', async () => {
+it("should handle network errors gracefully in silent mode", async () => {
   const client = new SahoolApiClient({
-    baseUrl: 'http://localhost',
-    errorHandling: 'silent',
+    baseUrl: "http://localhost",
+    errorHandling: "silent",
   });
-  mockAxiosInstance.request.mockRejectedValue(new Error('Network error'));
+  mockAxiosInstance.request.mockRejectedValue(new Error("Network error"));
   const tasks = await client.getTasks();
   expect(tasks).toEqual([]);
 });
 ```
 
 **Added Tests:**
+
 - Error handling in throw mode
 - Error handling in silent mode
 - Default error handling mode
@@ -220,6 +227,7 @@ it('should handle network errors gracefully in silent mode', async () => {
 ### 5. Modified: `package.json`
 
 **Updated scripts:**
+
 ```json
 {
   "scripts": {
@@ -233,6 +241,7 @@ it('should handle network errors gracefully in silent mode', async () => {
 ```
 
 **Updated exports:**
+
 ```json
 {
   "exports": {
@@ -252,11 +261,11 @@ it('should handle network errors gracefully in silent mode', async () => {
 ### Default Behavior (Throw Mode)
 
 ```typescript
-import { SahoolApiClient } from '@sahool/api-client';
-import { isAuthError, isNetworkError } from '@sahool/api-client/errors';
+import { SahoolApiClient } from "@sahool/api-client";
+import { isAuthError, isNetworkError } from "@sahool/api-client/errors";
 
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
+  baseUrl: "http://localhost",
   // errorHandling: 'throw' is the default
 });
 
@@ -278,9 +287,9 @@ try {
 
 ```typescript
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  errorHandling: 'silent',
-  logLevel: 'error', // Still logs errors to console
+  baseUrl: "http://localhost",
+  errorHandling: "silent",
+  logLevel: "error", // Still logs errors to console
 });
 
 // Returns [] on error, just like before
@@ -290,13 +299,13 @@ const tasks = await client.getTasks();
 ### With Custom Logger
 
 ```typescript
-import pino from 'pino';
+import pino from "pino";
 
 const logger = pino();
 
 const client = new SahoolApiClient({
-  baseUrl: 'http://localhost',
-  logLevel: 'debug',
+  baseUrl: "http://localhost",
+  logLevel: "debug",
   logger: {
     error: (msg, ctx) => logger.error(ctx, msg),
     warn: (msg, ctx) => logger.warn(ctx, msg),
@@ -315,7 +324,7 @@ import {
   NotFoundError,
   ServerError,
   TimeoutError,
-} from '@sahool/api-client/errors';
+} from "@sahool/api-client/errors";
 
 try {
   const task = await client.createTask(taskData);
@@ -350,23 +359,26 @@ dist/
 ## Migration Path
 
 1. **Keep existing code working:**
+
    ```typescript
    const client = new SahoolApiClient({
-     baseUrl: 'http://localhost',
-     errorHandling: 'silent',
+     baseUrl: "http://localhost",
+     errorHandling: "silent",
    });
    ```
 
 2. **Enable error logging:**
+
    ```typescript
    const client = new SahoolApiClient({
-     baseUrl: 'http://localhost',
-     errorHandling: 'silent',
-     logLevel: 'error', // See errors in console
+     baseUrl: "http://localhost",
+     errorHandling: "silent",
+     logLevel: "error", // See errors in console
    });
    ```
 
 3. **Update code to handle errors:**
+
    ```typescript
    try {
      const data = await client.getTasks();
@@ -378,8 +390,8 @@ dist/
 4. **Switch to throw mode:**
    ```typescript
    const client = new SahoolApiClient({
-     baseUrl: 'http://localhost',
-     errorHandling: 'throw',
+     baseUrl: "http://localhost",
+     errorHandling: "throw",
    });
    ```
 

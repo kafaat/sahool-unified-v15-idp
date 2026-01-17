@@ -1,4 +1,5 @@
 # Mobile Performance Analysis Report
+
 # تقرير تحليل أداء التطبيق المحمول
 
 **Application**: SAHOOL Field Operations Mobile App
@@ -16,6 +17,7 @@ This report analyzes the performance aspects of the SAHOOL Flutter mobile applic
 **Overall Performance Score**: 7.8/10
 
 ### Key Strengths
+
 - ✅ Comprehensive WebP image optimization implementation
 - ✅ Robust offline-first architecture with sync engine
 - ✅ Advanced caching strategies (network, image, map tiles)
@@ -23,6 +25,7 @@ This report analyzes the performance aspects of the SAHOOL Flutter mobile applic
 - ✅ Strong memory management infrastructure
 
 ### Areas for Improvement
+
 - ⚠️ Inconsistent use of optimized list widgets
 - ⚠️ Widget rebuild optimization opportunities
 - ⚠️ Image loading patterns need standardization
@@ -37,15 +40,18 @@ This report analyzes the performance aspects of the SAHOOL Flutter mobile applic
 ### Implementation Status
 
 #### ✅ Excellent Implementation
+
 The app has a **comprehensive WebP implementation** with professional-grade image compression:
 
 **Key Files**:
+
 - `/apps/mobile/lib/core/utils/image_compression.dart` (14 KB)
 - `/apps/mobile/lib/core/services/tile_service.dart` (15 KB)
 - `/apps/mobile/lib/core/map/compressed_tile_provider.dart` (12 KB)
 - `/apps/mobile/lib/core/performance/image_cache_manager.dart`
 
 **Features**:
+
 ```dart
 // Quality Settings
 ImageCompressionUtil.mobileQuality  // 60% for data savings
@@ -63,6 +69,7 @@ final tileProvider = CompressedTileProvider(
 ```
 
 **Performance Impact**:
+
 - Single 512x512 tile: **180 KB → 60 KB (67% reduction)**
 - City map (zoom 10-12): **~15 MB → ~5 MB (67% reduction)**
 - Field area prefetch: **~3 MB → ~1 MB (67% reduction)**
@@ -77,6 +84,7 @@ final tileProvider = CompressedTileProvider(
 #### ⚠️ Issues Found
 
 **Problem 1: Inconsistent Image Loading**
+
 ```dart
 // Found in 13 widget files:
 Image.asset()  // Not using cache manager
@@ -85,6 +93,7 @@ CachedNetworkImage() // Mixed usage patterns
 ```
 
 **Affected Files**:
+
 - `lib/features/chat/widgets/message_bubble.dart`
 - `lib/features/inventory/widgets/inventory_card.dart`
 - `lib/features/profile/presentation/screens/profile_screen.dart`
@@ -93,6 +102,7 @@ CachedNetworkImage() // Mixed usage patterns
 ### Recommendations
 
 1. **Standardize Image Loading** (Priority: High)
+
 ```dart
 // Create a centralized image widget
 class SahoolImage extends StatelessWidget {
@@ -120,6 +130,7 @@ class SahoolImage extends StatelessWidget {
 ```
 
 2. **Add Image Metrics** (Priority: Medium)
+
 ```dart
 // Track compression effectiveness
 class ImageMetrics {
@@ -139,6 +150,7 @@ class ImageMetrics {
 ### Implementation Status
 
 #### ✅ Good Implementation
+
 Custom optimized list widgets are available:
 
 **File**: `/apps/mobile/lib/core/performance/optimized_list.dart`
@@ -156,6 +168,7 @@ SahoolOptimizedListView<Field>(
 ```
 
 **Features**:
+
 - ✅ Automatic pagination with `onLoadMore` callback
 - ✅ `RepaintBoundary` wrapping for each item
 - ✅ Configurable load threshold (200px default)
@@ -163,6 +176,7 @@ SahoolOptimizedListView<Field>(
 - ✅ Batch processing prevention
 
 **Usage Statistics**:
+
 - Found **64 files** using `ListView`, `GridView`, `PageView`, or `CustomScrollView`
 - Only **1 file** explicitly using `SahoolOptimizedListView`
 
@@ -171,6 +185,7 @@ SahoolOptimizedListView<Field>(
 **Problem 1: Underutilized Optimized Widgets**
 
 Most list views use standard Flutter widgets:
+
 ```dart
 // Common pattern found in multiple screens:
 ListView.builder(
@@ -183,6 +198,7 @@ ListView.builder(
 ```
 
 **Affected Screens**:
+
 - `lib/features/tasks/presentation/tasks_list_screen.dart`
 - `lib/features/inventory/ui/inventory_list_screen.dart`
 - `lib/features/notifications/presentation/screens/notifications_screen.dart`
@@ -191,6 +207,7 @@ ListView.builder(
 **Problem 2: Missing AutomaticKeepAlive**
 
 Only **2 files** use `AutomaticKeepAliveClientMixin`:
+
 - `lib/core/performance/optimized_list.dart`
 - `lib/features/field/presentation/widgets/README.md` (documentation)
 
@@ -199,6 +216,7 @@ This can cause unnecessary rebuilds in `TabBar` and `PageView` widgets.
 ### Recommendations
 
 1. **Migrate to Optimized Widgets** (Priority: High)
+
 ```dart
 // Replace standard ListView with:
 SahoolOptimizedListView<Task>(
@@ -212,6 +230,7 @@ SahoolOptimizedListView<Task>(
 ```
 
 2. **Add KeepAlive for Tab Views** (Priority: Medium)
+
 ```dart
 class TabContentWidget extends StatefulWidget {
   @override
@@ -233,6 +252,7 @@ class _TabContentWidgetState extends State<TabContentWidget>
 ```
 
 3. **Implement Virtual Scrolling** (Priority: Medium)
+
 ```dart
 // For very long lists (>1000 items)
 ListView.builder(
@@ -258,10 +278,12 @@ ListView.builder(
 **Framework**: Riverpod 2.6.1 (Modern, reactive, compile-safe)
 
 **Key Files**:
+
 - `/apps/mobile/lib/core/di/providers.dart`
 - Provider definitions across feature modules
 
 **Architecture**:
+
 ```dart
 // Clean provider architecture
 final apiClientProvider = Provider<ApiClient>((ref) {
@@ -285,6 +307,7 @@ final allFieldsProvider =
 ```
 
 **Statistics**:
+
 - **ConsumerWidget**: Used extensively (most screens)
 - **ConsumerStatefulWidget**: Used for screens with local state
 - **StreamProvider**: 3+ instances for real-time data
@@ -296,6 +319,7 @@ final allFieldsProvider =
 **Problem 1: Excessive setState Usage**
 
 Found **328 setState calls** across **70 files**:
+
 ```dart
 // Common pattern:
 setState(() => _isLoadingMore = true);
@@ -304,6 +328,7 @@ setState(() => _isLoadingMore = false);
 ```
 
 While not always problematic, some could be replaced with Riverpod state:
+
 ```dart
 // Better approach:
 final loadingStateProvider = StateProvider<bool>((ref) => false);
@@ -316,6 +341,7 @@ ref.read(loadingStateProvider.notifier).state = true;
 **Problem 2: Potential Over-Watching**
 
 Some widgets watch multiple providers unnecessarily:
+
 ```dart
 // lib/features/home/presentation/screens/home_dashboard.dart
 @override
@@ -329,6 +355,7 @@ Widget build(BuildContext context) {
 ### Recommendations
 
 1. **Use Riverpod State Over setState** (Priority: Medium)
+
 ```dart
 // Instead of:
 class _ScreenState extends State<Screen> {
@@ -352,6 +379,7 @@ class Screen extends ConsumerWidget {
 ```
 
 2. **Isolate Rebuilds** (Priority: High)
+
 ```dart
 // Wrap frequently changing data in separate Consumer:
 AppBar(
@@ -367,6 +395,7 @@ AppBar(
 ```
 
 3. **Add StateNotifier for Complex State** (Priority: Medium)
+
 ```dart
 class TaskListState {
   final List<Task> tasks;
@@ -410,6 +439,7 @@ class TaskListNotifier extends StateNotifier<TaskListState> {
 **File**: `/apps/mobile/lib/core/performance/memory_manager.dart`
 
 **Features**:
+
 ```dart
 class MemoryManager {
   static MemoryManager get instance { ... }
@@ -444,6 +474,7 @@ mixin MemoryAwareMixin<T extends StatefulWidget> on State<T> {
 ```
 
 **Statistics**:
+
 - **382 dispose() occurrences** across 109 files
 - **382 initState() occurrences** (balanced)
 - Image cache with automatic cleanup
@@ -454,6 +485,7 @@ mixin MemoryAwareMixin<T extends StatefulWidget> on State<T> {
 **Issue 1: StreamController Disposal**
 
 Found **15+ files** with `StreamController`:
+
 ```dart
 // Common pattern (potentially risky):
 final _controller = StreamController<SyncStatus>.broadcast();
@@ -466,6 +498,7 @@ void dispose() {
 ```
 
 **Manual Check Required**:
+
 - `lib/core/offline/offline_sync_engine.dart` - ✅ Properly disposed
 - `lib/core/offline/offline_data_manager.dart` - ✅ Properly disposed
 - `lib/core/performance/memory_manager.dart` - ✅ Properly disposed
@@ -474,6 +507,7 @@ void dispose() {
 **Issue 2: Timer Disposal**
 
 Found timers in several files:
+
 ```dart
 // lib/core/offline/offline_sync_engine.dart
 Timer? _syncTimer;
@@ -498,6 +532,7 @@ void dispose() {
 ### Recommendations
 
 1. **Add Memory Leak Detection** (Priority: High)
+
 ```dart
 // Development mode only
 class LeakTracker {
@@ -523,6 +558,7 @@ class LeakTracker {
 ```
 
 2. **Image Cache Limits** (Priority: Medium)
+
 ```dart
 // Set in app initialization:
 void initializeApp() {
@@ -538,6 +574,7 @@ void initializeApp() {
 ```
 
 3. **Add Disposal Guards** (Priority: Low)
+
 ```dart
 // Mixin to ensure disposal
 mixin DisposalGuard<T extends StatefulWidget> on State<T> {
@@ -568,6 +605,7 @@ mixin DisposalGuard<T extends StatefulWidget> on State<T> {
 #### ✅ Good Practices
 
 **Const Usage**: **5,903 occurrences** across 306 files
+
 ```dart
 // Excellent const usage:
 const SizedBox(height: 16),
@@ -577,6 +615,7 @@ const Text('Title'),
 ```
 
 **RepaintBoundary Usage**:
+
 ```dart
 // In optimized_list.dart:
 if (addRepaintBoundaries) {
@@ -589,12 +628,14 @@ if (addRepaintBoundaries) {
 **Issue 1: Inconsistent RepaintBoundary**
 
 Only found in:
+
 - `lib/core/performance/optimized_list.dart`
 - Not used in custom widgets consistently
 
 **Issue 2: Missing Keys**
 
 Many list items don't use keys:
+
 ```dart
 // Without keys, Flutter rebuilds unnecessarily:
 ListView.builder(
@@ -606,6 +647,7 @@ ListView.builder(
 **Issue 3: Large Build Methods**
 
 Some screens have very large `build()` methods:
+
 ```dart
 // lib/features/home/presentation/screens/home_dashboard.dart
 // ~265 lines in build method
@@ -615,6 +657,7 @@ Some screens have very large `build()` methods:
 ### Recommendations
 
 1. **Add Keys to List Items** (Priority: High)
+
 ```dart
 ListView.builder(
   itemCount: items.length,
@@ -629,6 +672,7 @@ ListView.builder(
 ```
 
 2. **Split Large Widgets** (Priority: Medium)
+
 ```dart
 // Instead of:
 class HomeScreen extends StatelessWidget {
@@ -664,6 +708,7 @@ class _HeaderSection extends StatelessWidget {
 ```
 
 3. **Use const Constructors Everywhere** (Priority: Medium)
+
 ```dart
 // Audit existing widgets and make constructors const:
 class MyWidget extends StatelessWidget {
@@ -682,6 +727,7 @@ class MyWidget extends StatelessWidget {
 ```
 
 4. **Add Selective Rebuilds** (Priority: High)
+
 ```dart
 // Use Selector or select() for granular updates:
 class WeatherDisplay extends ConsumerWidget {
@@ -735,6 +781,7 @@ class NetworkCache {
 ```
 
 **Features**:
+
 - TTL (Time To Live) support
 - Priority-based caching (low, normal, high)
 - Automatic expiry cleanup
@@ -765,6 +812,7 @@ class SahoolImageCacheManager {
 ```
 
 **Features**:
+
 - 200 MB default limit (configurable)
 - 7-day stale period
 - Concurrent preloading (3 images at a time)
@@ -774,11 +822,13 @@ class SahoolImageCacheManager {
 **3. Map Tile Cache**
 
 From `pubspec.yaml`:
+
 ```yaml
-flutter_map_tile_caching: ^9.1.0  # Offline map caching
+flutter_map_tile_caching: ^9.1.0 # Offline map caching
 ```
 
 **Features**:
+
 - WebP compression for tiles (67% size reduction)
 - Organized by zoom level (z/x/y.webp)
 - Prefetch for areas and locations
@@ -789,12 +839,13 @@ flutter_map_tile_caching: ^9.1.0  # Offline map caching
 ```yaml
 drift: ^2.24.0
 sqlite3_flutter_libs: ^0.5.28
-sqlcipher_flutter_libs: ^0.6.1  # Encrypted local database
+sqlcipher_flutter_libs: ^0.6.1 # Encrypted local database
 ```
 
 ### Statistics
 
 **Cache Performance**:
+
 ```
 Network Cache: ~5 minute TTL (default)
 Image Cache: 200 MB, 500 objects max, 7-day retention
@@ -807,6 +858,7 @@ Database: Encrypted SQLite with Drift ORM
 **Issue 1: Cache Coordination**
 
 Different cache layers might cache the same data:
+
 ```dart
 // API response cached in NetworkCache
 // Images from response cached in ImageCacheManager
@@ -817,6 +869,7 @@ Different cache layers might cache the same data:
 ### Recommendations
 
 1. **Add Cache Metrics Dashboard** (Priority: Low)
+
 ```dart
 class CacheMetrics {
   static Future<Map<String, dynamic>> getAllMetrics() async {
@@ -839,6 +892,7 @@ class CacheMetrics {
 ```
 
 2. **Implement Cache Warming** (Priority: Medium)
+
 ```dart
 class CacheWarmer {
   static Future<void> warmCriticalData() async {
@@ -852,6 +906,7 @@ class CacheWarmer {
 ```
 
 3. **Add Cache Versioning** (Priority: Medium)
+
 ```dart
 // Invalidate cache on app update
 class CacheVersioning {
@@ -884,6 +939,7 @@ class CacheVersioning {
 **Features**:
 
 1. **Rate Limiting**
+
 ```dart
 final _rateLimiter = RateLimiter();
 
@@ -895,6 +951,7 @@ _dio.interceptors.add(RateLimitInterceptor(
 ```
 
 2. **Certificate Pinning**
+
 ```dart
 if (config.enableCertificatePinning) {
   _certificatePinningService = CertificatePinningService(
@@ -906,6 +963,7 @@ if (config.enableCertificatePinning) {
 ```
 
 3. **Request Signing**
+
 ```dart
 if (enableRequestSigning && signingKeyService != null) {
   _dio.interceptors.add(RequestSigningInterceptor(signingKeyService));
@@ -913,6 +971,7 @@ if (enableRequestSigning && signingKeyService != null) {
 ```
 
 4. **Security Headers Validation**
+
 ```dart
 _dio.interceptors.add(SecurityHeadersInterceptor(
   config: SecurityHeaderConfig.fromEnvironment(),
@@ -920,6 +979,7 @@ _dio.interceptors.add(SecurityHeadersInterceptor(
 ```
 
 5. **Error Handling**
+
 ```dart
 ApiException _handleError(DioException e) {
   switch (e.type) {
@@ -941,6 +1001,7 @@ ApiException _handleError(DioException e) {
 ```
 
 6. **Timeout Configuration**
+
 ```dart
 BaseOptions(
   baseUrl: baseUrl ?? EnvConfig.apiBaseUrl,
@@ -950,6 +1011,7 @@ BaseOptions(
 ```
 
 7. **Interceptor Chain**
+
 ```
 1. Rate Limiter (controls flow)
 2. Auth Interceptor (adds token)
@@ -961,9 +1023,9 @@ BaseOptions(
 ### Dependencies
 
 ```yaml
-dio: ^5.7.0                    # HTTP client
-connectivity_plus: ^6.1.1      # Network status
-crypto: ^3.0.3                 # Certificate pinning
+dio: ^5.7.0 # HTTP client
+connectivity_plus: ^6.1.1 # Network status
+crypto: ^3.0.3 # Certificate pinning
 ```
 
 #### ⚠️ Minor Issues
@@ -971,6 +1033,7 @@ crypto: ^3.0.3                 # Certificate pinning
 **Issue 1: No Retry Logic in ApiClient**
 
 While exponential backoff exists in sync engine, API client doesn't retry failed requests:
+
 ```dart
 // Current: One attempt, then throw
 final response = await _dio.get(path);
@@ -982,6 +1045,7 @@ final response = await _retryRequest(() => _dio.get(path));
 **Issue 2: No Request Deduplication**
 
 Multiple identical requests could be in flight:
+
 ```dart
 // If user taps button multiple times:
 onTap: () => apiClient.get('/fields') // Could fire multiple times
@@ -990,6 +1054,7 @@ onTap: () => apiClient.get('/fields') // Could fire multiple times
 ### Recommendations
 
 1. **Add Retry Interceptor** (Priority: High)
+
 ```dart
 class RetryInterceptor extends Interceptor {
   final int maxRetries;
@@ -1031,6 +1096,7 @@ class RetryInterceptor extends Interceptor {
 ```
 
 2. **Request Deduplication** (Priority: Medium)
+
 ```dart
 class RequestDeduplicator {
   final _pending = <String, Future<Response>>{};
@@ -1061,6 +1127,7 @@ Future<dynamic> get(String path) async {
 ```
 
 3. **Add Network Quality Detection** (Priority: Low)
+
 ```dart
 class NetworkQuality {
   static Future<String> detect() async {
@@ -1095,6 +1162,7 @@ class NetworkQuality {
 **Features**:
 
 1. **Outbox Pattern**
+
 ```dart
 class OfflineSyncEngine {
   // Queue mutations while offline
@@ -1110,6 +1178,7 @@ class OfflineSyncEngine {
 ```
 
 2. **Automatic Sync on Connection**
+
 ```dart
 // Monitors connectivity
 _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
@@ -1122,6 +1191,7 @@ _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
 ```
 
 3. **Conflict Resolution**
+
 ```dart
 final hasConflict = _conflictResolver.detectConflict(
   local: entry.data,
@@ -1140,6 +1210,7 @@ if (hasConflict) {
 ```
 
 4. **Exponential Backoff Retry**
+
 ```dart
 void _scheduleRetry() {
   if (_retryCount >= _maxRetries) return;
@@ -1151,6 +1222,7 @@ void _scheduleRetry() {
 ```
 
 5. **Priority-Based Queue**
+
 ```dart
 enum SyncPriority {
   low,
@@ -1187,9 +1259,10 @@ class OfflineDataManager {
 ```
 
 7. **Encrypted Local Database**
+
 ```yaml
-drift: ^2.24.0                    # ORM
-sqlcipher_flutter_libs: ^0.6.1   # Encryption
+drift: ^2.24.0 # ORM
+sqlcipher_flutter_libs: ^0.6.1 # Encryption
 ```
 
 ### Architecture Diagram
@@ -1238,6 +1311,7 @@ sqlcipher_flutter_libs: ^0.6.1   # Encryption
 ### Offline Statistics
 
 **Coverage**:
+
 - ✅ Fields (Create, Update, Delete)
 - ✅ Tasks (Create, Update, Delete)
 - ✅ Observations
@@ -1245,6 +1319,7 @@ sqlcipher_flutter_libs: ^0.6.1   # Encryption
 - ✅ Map tiles (preloaded)
 
 **Sync Behavior**:
+
 - Periodic sync: Every **2 minutes** (configurable)
 - Connectivity change: Immediate sync after **2 second delay**
 - Manual sync: Available through UI
@@ -1256,6 +1331,7 @@ sqlcipher_flutter_libs: ^0.6.1   # Encryption
 **Issue 1: No Sync Progress UI**
 
 Users can't see detailed sync progress:
+
 ```dart
 // Currently: Just syncing/idle status
 // Better: Show "Syncing 3 of 15 items..."
@@ -1264,6 +1340,7 @@ Users can't see detailed sync progress:
 **Issue 2: No Selective Sync**
 
 All pending items sync at once:
+
 ```dart
 // Could prioritize critical data:
 // 1. User profile updates
@@ -1275,6 +1352,7 @@ All pending items sync at once:
 ### Recommendations
 
 1. **Add Sync Progress Widget** (Priority: Medium)
+
 ```dart
 class SyncProgressWidget extends ConsumerWidget {
   @override
@@ -1309,6 +1387,7 @@ class SyncProgressWidget extends ConsumerWidget {
 ```
 
 2. **Implement Selective Sync** (Priority: Low)
+
 ```dart
 class PrioritizedSync {
   Future<void> syncByPriority() async {
@@ -1328,6 +1407,7 @@ class PrioritizedSync {
 ```
 
 3. **Add Sync Conflict UI** (Priority: Medium)
+
 ```dart
 class ConflictResolutionDialog extends StatelessWidget {
   final LocalDataItem localData;
@@ -1367,52 +1447,56 @@ class ConflictResolutionDialog extends StatelessWidget {
 
 ### App Startup Time
 
-| Metric | Cold Start | Warm Start |
-|--------|-----------|------------|
-| Time to First Frame | ~2.5s | ~800ms |
-| Time to Interactive | ~3.5s | ~1.2s |
+| Metric              | Cold Start | Warm Start |
+| ------------------- | ---------- | ---------- |
+| Time to First Frame | ~2.5s      | ~800ms     |
+| Time to Interactive | ~3.5s      | ~1.2s      |
 
 **Analysis**:
+
 - ✅ Good cold start performance
 - ✅ Excellent warm start
 - ⚠️ Could improve with splash screen optimization
 
 ### Memory Usage
 
-| Scenario | Heap Size | Native Heap |
-|----------|-----------|-------------|
-| App Launch | ~80 MB | ~45 MB |
-| After 10 min use | ~150 MB | ~65 MB |
-| Image Cache Full | ~350 MB | ~100 MB |
+| Scenario         | Heap Size | Native Heap |
+| ---------------- | --------- | ----------- |
+| App Launch       | ~80 MB    | ~45 MB      |
+| After 10 min use | ~150 MB   | ~65 MB      |
+| Image Cache Full | ~350 MB   | ~100 MB     |
 
 **Analysis**:
+
 - ✅ Good baseline memory usage
 - ✅ Memory manager keeps usage in check
 - ⚠️ Image cache can grow large (limited to 200 MB)
 
 ### Network Performance
 
-| Metric | Value |
-|--------|-------|
-| API Response Cache Hit Rate | ~65% |
-| Image Cache Hit Rate | ~85% |
-| Offline Sync Success Rate | ~92% |
-| Average API Response Time | ~350ms |
+| Metric                      | Value  |
+| --------------------------- | ------ |
+| API Response Cache Hit Rate | ~65%   |
+| Image Cache Hit Rate        | ~85%   |
+| Offline Sync Success Rate   | ~92%   |
+| Average API Response Time   | ~350ms |
 
 **Analysis**:
+
 - ✅ Excellent cache hit rates
 - ✅ Good offline sync reliability
 - ✅ Fast API responses
 
 ### Build Performance
 
-| Widget | First Build | Rebuild | Items |
-|--------|------------|---------|-------|
-| Field List | ~180ms | ~25ms | 20 items |
-| Task List | ~150ms | ~20ms | 15 items |
-| Home Dashboard | ~300ms | ~40ms | Mixed |
+| Widget         | First Build | Rebuild | Items    |
+| -------------- | ----------- | ------- | -------- |
+| Field List     | ~180ms      | ~25ms   | 20 items |
+| Task List      | ~150ms      | ~20ms   | 15 items |
+| Home Dashboard | ~300ms      | ~40ms   | Mixed    |
 
 **Analysis**:
+
 - ✅ Fast initial builds
 - ✅ Very fast rebuilds
 - ✅ const optimization working well
@@ -1731,6 +1815,7 @@ class RetryInterceptor extends Interceptor {
 ### Performance Tests to Add
 
 1. **Widget Rebuild Count Test**
+
 ```dart
 testWidgets('TaskList should not rebuild when unrelated state changes', (tester) async {
   var buildCount = 0;
@@ -1752,6 +1837,7 @@ testWidgets('TaskList should not rebuild when unrelated state changes', (tester)
 ```
 
 2. **Image Cache Test**
+
 ```dart
 test('SahoolImageCacheManager should cache images', () async {
   final manager = SahoolImageCacheManager.instance;
@@ -1764,6 +1850,7 @@ test('SahoolImageCacheManager should cache images', () async {
 ```
 
 3. **Offline Sync Test**
+
 ```dart
 test('OfflineSyncEngine should queue and sync mutations', () async {
   final engine = OfflineSyncEngine.instance;
@@ -1787,6 +1874,7 @@ test('OfflineSyncEngine should queue and sync mutations', () async {
 ```
 
 4. **Memory Leak Test**
+
 ```dart
 testWidgets('Screen should not leak when popped', (tester) async {
   await tester.pumpWidget(MyApp());
@@ -1882,6 +1970,7 @@ The SAHOOL Flutter mobile app demonstrates **excellent architectural decisions**
 ### Path to 9.5/10
 
 By implementing the recommendations in Sprints 1-3, the app can achieve:
+
 - ⚡ **20% faster list scrolling** (optimized widgets)
 - 🎨 **30% fewer rebuilds** (isolated updates, const usage)
 - 📦 **15% smaller memory footprint** (image standardization)
@@ -1899,6 +1988,7 @@ The codebase is **production-ready** with the current implementation, but the re
 ## Appendix | الملحق
 
 ### File Structure
+
 ```
 apps/mobile/
 ├── lib/
@@ -1924,14 +2014,16 @@ apps/mobile/
 ```
 
 ### Dependencies Analysis
+
 ```yaml
 # Performance-Related Dependencies
-flutter_riverpod: ^2.6.1          # ✅ Latest stable
-dio: ^5.7.0                        # ✅ Latest
-cached_network_image: ^3.4.1      # ✅ Good version
-flutter_cache_manager: ^3.x       # ✅ Latest
-drift: ^2.24.0                     # ✅ Latest
-image: ^4.3.0                      # ✅ WebP support
+flutter_riverpod: ^2.6.1 # ✅ Latest stable
+dio: ^5.7.0 # ✅ Latest
+cached_network_image: ^3.4.1 # ✅ Good version
+flutter_cache_manager: ^3.x # ✅ Latest
+drift: ^2.24.0 # ✅ Latest
+image: ^4.3.0 # ✅ WebP support
+
 
 # Could Add:
 # leak_tracker: For memory leak detection
@@ -1939,6 +2031,7 @@ image: ^4.3.0                      # ✅ WebP support
 ```
 
 ### Performance Checklist
+
 - [x] WebP image optimization implemented
 - [x] Image caching with size limits
 - [x] Network response caching
@@ -1960,4 +2053,3 @@ image: ^4.3.0                      # ✅ WebP support
 **Report Generated**: 2026-01-06
 **Analyst**: Claude (Anthropic)
 **Next Review**: After Sprint 1 completion
-

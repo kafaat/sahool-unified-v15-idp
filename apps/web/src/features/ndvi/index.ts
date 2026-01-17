@@ -10,8 +10,8 @@
  */
 
 // API
-export { ndviApi } from './api';
-export type { NDVIData, NDVITimeSeries, NDVIMapData, NDVIFilters } from './api';
+export { ndviApi } from "./api";
+export type { NDVIData, NDVITimeSeries, NDVIMapData, NDVIFilters } from "./api";
 
 // Hooks
 export {
@@ -23,4 +23,4 @@ export {
   useRequestNDVIAnalysis,
   useNDVIComparison,
   ndviKeys,
-} from './hooks/useNDVI';
+} from "./hooks/useNDVI";

@@ -5,9 +5,30 @@
  * These DTOs must match the interfaces defined in the service files
  */
 
-import { IsString, IsNumber, IsOptional, IsPositive, IsArray, ValidateNested, IsBoolean, IsIn, Min, Max, IsNotEmpty, IsEnum, IsDateString, IsObject } from 'class-validator';
-import { Type } from 'class-transformer';
-import { IsMoneyValue, SanitizePlainText, IsYemeniPhone, IsAfterDate, IsFutureDate } from '../utils/validation';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsArray,
+  ValidateNested,
+  IsBoolean,
+  IsIn,
+  Min,
+  Max,
+  IsNotEmpty,
+  IsEnum,
+  IsDateString,
+  IsObject,
+} from "class-validator";
+import { Type } from "class-transformer";
+import {
+  IsMoneyValue,
+  SanitizePlainText,
+  IsYemeniPhone,
+  IsAfterDate,
+  IsFutureDate,
+} from "../utils/validation";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Market DTOs
@@ -193,8 +214,8 @@ class FarmDataDto {
   fieldCount: number;
 
   @IsString()
-  @IsIn(['Low', 'Medium', 'High'])
-  diseaseRisk: 'Low' | 'Medium' | 'High';
+  @IsIn(["Low", "Medium", "High"])
+  diseaseRisk: "Low" | "Medium" | "High";
 
   @IsString()
   @IsNotEmpty()
@@ -245,8 +266,8 @@ class CreditFactorsDto {
   diseaseRiskScore: number;
 
   @IsString()
-  @IsIn(['rainfed', 'drip', 'flood', 'sprinkler'])
-  irrigationType: 'rainfed' | 'drip' | 'flood' | 'sprinkler';
+  @IsIn(["rainfed", "drip", "flood", "sprinkler"])
+  irrigationType: "rainfed" | "drip" | "flood" | "sprinkler";
 
   @IsNumber()
   @Min(0)
@@ -274,12 +295,12 @@ class CreditFactorsDto {
   loanRepaymentRate: number;
 
   @IsString()
-  @IsIn(['basic', 'verified', 'premium'])
-  verificationLevel: 'basic' | 'verified' | 'premium';
+  @IsIn(["basic", "verified", "premium"])
+  verificationLevel: "basic" | "verified" | "premium";
 
   @IsString()
-  @IsIn(['owned', 'leased', 'shared'])
-  landOwnership: 'owned' | 'leased' | 'shared';
+  @IsIn(["owned", "leased", "shared"])
+  landOwnership: "owned" | "leased" | "shared";
 
   @IsBoolean()
   cooperativeMember: boolean;
@@ -451,7 +472,7 @@ export class CreateScheduledPaymentDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsEnum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'])
+  @IsEnum(["DAILY", "WEEKLY", "BIWEEKLY", "MONTHLY", "QUARTERLY", "YEARLY"])
   frequency: string;
 
   @IsString()

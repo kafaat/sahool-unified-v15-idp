@@ -1,4 +1,5 @@
 # Token Revocation Quick Start Guide
+
 # دليل البدء السريع لإلغاء الرموز
 
 Get started with token revocation in 5 minutes!
@@ -64,11 +65,11 @@ async def protected():
 
 ```typescript
 // app.module.ts
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
-import { TokenRevocationModule } from '@shared/auth/token-revocation';
-import { TokenRevocationGuard } from '@shared/auth/token-revocation.guard';
+import { Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
+import { JwtModule } from "@nestjs/jwt";
+import { TokenRevocationModule } from "@shared/auth/token-revocation";
+import { TokenRevocationGuard } from "@shared/auth/token-revocation.guard";
 
 @Module({
   imports: [
@@ -112,25 +113,25 @@ async def logout(request: Request, user = Depends(get_current_user)):
 ### Logout (TypeScript)
 
 ```typescript
-import { Controller, Post, Request, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '@shared/auth/jwt.guard';
-import { RedisTokenRevocationStore } from '@shared/auth/token-revocation';
+import { Controller, Post, Request, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "@shared/auth/jwt.guard";
+import { RedisTokenRevocationStore } from "@shared/auth/token-revocation";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   constructor(private readonly revocationStore: RedisTokenRevocationStore) {}
 
-  @Post('logout')
+  @Post("logout")
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req) {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     const payload = this.jwtService.decode(token);
 
     await this.revocationStore.revokeToken(payload.jti, {
-      reason: 'user_logout',
+      reason: "user_logout",
     });
 
-    return { message: 'Logged out' };
+    return { message: "Logged out" };
   }
 }
 ```
@@ -219,6 +220,7 @@ curl -X GET http://localhost:3000/protected \
 ## Common Use Cases
 
 ### 1. User Logout
+
 ```python
 # Python
 await revoke_token(jti=payload.jti, reason="user_logout")
@@ -226,10 +228,11 @@ await revoke_token(jti=payload.jti, reason="user_logout")
 
 ```typescript
 // TypeScript
-await this.revocationStore.revokeToken(payload.jti, { reason: 'user_logout' });
+await this.revocationStore.revokeToken(payload.jti, { reason: "user_logout" });
 ```
 
 ### 2. Password Change
+
 ```python
 # Python
 await revoke_all_user_tokens(user_id=user.id, reason="password_change")
@@ -237,10 +240,11 @@ await revoke_all_user_tokens(user_id=user.id, reason="password_change")
 
 ```typescript
 // TypeScript
-await this.revocationStore.revokeAllUserTokens(user.id, 'password_change');
+await this.revocationStore.revokeAllUserTokens(user.id, "password_change");
 ```
 
 ### 3. Account Security Reset
+
 ```python
 # Python
 await revoke_all_user_tokens(user_id=user.id, reason="security_reset")
@@ -248,20 +252,20 @@ await revoke_all_user_tokens(user_id=user.id, reason="security_reset")
 
 ```typescript
 // TypeScript
-await this.revocationStore.revokeAllUserTokens(user.id, 'security_reset');
+await this.revocationStore.revokeAllUserTokens(user.id, "security_reset");
 ```
 
 ## API Quick Reference
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/auth/revocation/revoke-current` | POST | Logout (revoke current token) |
-| `/auth/revocation/revoke-all` | POST | Logout from all devices |
-| `/auth/revocation/revoke` | POST | Revoke specific token (admin) |
-| `/auth/revocation/revoke-user-tokens` | POST | Revoke all user tokens (admin) |
-| `/auth/revocation/status/:jti` | GET | Check token status |
-| `/auth/revocation/stats` | GET | Get statistics (admin) |
-| `/auth/revocation/health` | GET | Health check |
+| Endpoint                              | Method | Description                    |
+| ------------------------------------- | ------ | ------------------------------ |
+| `/auth/revocation/revoke-current`     | POST   | Logout (revoke current token)  |
+| `/auth/revocation/revoke-all`         | POST   | Logout from all devices        |
+| `/auth/revocation/revoke`             | POST   | Revoke specific token (admin)  |
+| `/auth/revocation/revoke-user-tokens` | POST   | Revoke all user tokens (admin) |
+| `/auth/revocation/status/:jti`        | GET    | Check token status             |
+| `/auth/revocation/stats`              | GET    | Get statistics (admin)         |
+| `/auth/revocation/health`             | GET    | Health check                   |
 
 ## Troubleshooting
 
@@ -318,6 +322,7 @@ redis-cli monitor
 **Ready to go! 🚀**
 
 For more details, see:
+
 - [Full Documentation](./TOKEN_REVOCATION_README.md)
 - [Detailed Examples](./REVOCATION_EXAMPLES.md)
 - [API Reference](./revocation_api.py)

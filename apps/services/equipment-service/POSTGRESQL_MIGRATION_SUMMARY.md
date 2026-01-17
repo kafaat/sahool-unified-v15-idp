@@ -12,12 +12,14 @@
 Successfully migrated the equipment-service from in-memory storage (Python dictionaries) to PostgreSQL with SQLAlchemy ORM and Alembic migrations.
 
 ### Before Migration
+
 - **Storage:** In-memory Python dictionaries (`equipment_db`, `maintenance_db`, `alerts_db`)
 - **Data Persistence:** ❌ None - data lost on service restart
 - **Scalability:** ❌ Cannot run multiple instances
 - **Audit Trail:** ❌ No maintenance history persistence
 
 ### After Migration
+
 - **Storage:** PostgreSQL database with 3 tables
 - **Data Persistence:** ✅ Full persistence across restarts
 - **Scalability:** ✅ Supports horizontal scaling
@@ -28,9 +30,11 @@ Successfully migrated the equipment-service from in-memory storage (Python dicti
 ## Database Schema
 
 ### 1. Equipment Table
+
 **Purpose:** Stores agricultural equipment and assets (tractors, pumps, drones, harvesters, etc.)
 
 **Columns:**
+
 - `equipment_id` (VARCHAR(50), PK) - Unique equipment identifier
 - `tenant_id` (VARCHAR(100), INDEXED) - Multi-tenancy support
 - `name`, `name_ar` (VARCHAR(200)) - Equipment name (bilingual)
@@ -50,6 +54,7 @@ Successfully migrated the equipment-service from in-memory storage (Python dicti
 - `created_at`, `updated_at` (TIMESTAMP) - Audit timestamps
 
 **Indexes:**
+
 - `ix_equipment_tenant_status` (tenant_id, status)
 - `ix_equipment_type_status` (equipment_type, status)
 - `ix_equipment_field_status` (field_id, status)
@@ -58,9 +63,11 @@ Successfully migrated the equipment-service from in-memory storage (Python dicti
 ---
 
 ### 2. Equipment Maintenance Table
+
 **Purpose:** Tracks all maintenance activities performed on equipment
 
 **Columns:**
+
 - `record_id` (VARCHAR(50), PK) - Unique maintenance record identifier
 - `equipment_id` (VARCHAR(50), INDEXED) - Equipment reference
 - `maintenance_type` (VARCHAR(50)) - Type: oil_change, filter_change, repair, etc.
@@ -72,15 +79,18 @@ Successfully migrated the equipment-service from in-memory storage (Python dicti
 - `parts_replaced` (VARCHAR[]) - Array of replaced parts
 
 **Indexes:**
+
 - `ix_maintenance_equipment_date` (equipment_id, performed_at)
 - `ix_maintenance_type` (maintenance_type, performed_at)
 
 ---
 
 ### 3. Equipment Alerts Table
+
 **Purpose:** Stores maintenance alerts for upcoming or overdue maintenance
 
 **Columns:**
+
 - `alert_id` (VARCHAR(50), PK) - Unique alert identifier
 - `equipment_id` (VARCHAR(50), INDEXED) - Equipment reference
 - `equipment_name` (VARCHAR(200)) - Equipment name (denormalized)
@@ -93,6 +103,7 @@ Successfully migrated the equipment-service from in-memory storage (Python dicti
 - `created_at` (TIMESTAMP) - Alert creation time
 
 **Indexes:**
+
 - `ix_alerts_overdue` (is_overdue, priority)
 - `ix_alerts_equipment_due` (equipment_id, due_at)
 
@@ -163,6 +174,7 @@ Successfully migrated the equipment-service from in-memory storage (Python dicti
 ### ✅ All Existing Endpoints Preserved
 
 **Equipment Management:**
+
 - `GET /api/v1/equipment` - List equipment with filters
 - `GET /api/v1/equipment/{equipment_id}` - Get equipment by ID
 - `GET /api/v1/equipment/qr/{qr_code}` - Get equipment by QR code
@@ -171,19 +183,23 @@ Successfully migrated the equipment-service from in-memory storage (Python dicti
 - `DELETE /api/v1/equipment/{equipment_id}` - Delete equipment
 
 **Equipment Status & Telemetry:**
+
 - `POST /api/v1/equipment/{equipment_id}/status` - Update status
 - `POST /api/v1/equipment/{equipment_id}/location` - Update GPS location
 - `POST /api/v1/equipment/{equipment_id}/telemetry` - Update telemetry (fuel, hours, location)
 
 **Maintenance:**
+
 - `GET /api/v1/equipment/{equipment_id}/maintenance` - Get maintenance history
 - `POST /api/v1/equipment/{equipment_id}/maintenance` - Add maintenance record
 
 **Statistics & Alerts:**
+
 - `GET /api/v1/equipment/stats` - Get equipment statistics
 - `GET /api/v1/equipment/alerts` - Get maintenance alerts
 
 **Health Check:**
+
 - `GET /healthz` - Health check (now includes database status)
 
 ---
@@ -215,26 +231,31 @@ depends_on:
 ## Migration Benefits
 
 ### 1. Data Persistence ✅
+
 - Equipment inventory survives service restarts
 - Maintenance history preserved for compliance
 - Alert data maintained across deployments
 
 ### 2. Scalability ✅
+
 - Can run multiple service instances
 - Horizontal scaling support
 - No shared state issues
 
 ### 3. Performance ✅
+
 - Optimized indexes for common queries
 - Efficient pagination support
 - Fast tenant-based filtering
 
 ### 4. Audit Trail ✅
+
 - Complete maintenance history
 - Timestamps for all records
 - Cost tracking for financial reporting
 
 ### 5. Data Integrity ✅
+
 - UNIQUE constraints on serial_number and qr_code
 - Proper data types (Numeric for precise calculations)
 - Transaction support with rollback
@@ -246,6 +267,7 @@ depends_on:
 The service automatically seeds demo data on first startup:
 
 **5 Demo Equipment Items:**
+
 1. **John Deere 8R 410** - Tractor (operational)
 2. **DJI Agras T40** - Drone (maintenance)
 3. **Grundfos Submersible Pump** - Pump (operational)
@@ -253,6 +275,7 @@ The service automatically seeds demo data on first startup:
 5. **Valley Center Pivot** - Pivot irrigation (operational)
 
 **2 Demo Maintenance Alerts:**
+
 1. Oil change required (medium priority)
 2. Battery inspection overdue (high priority)
 
@@ -300,6 +323,7 @@ curl http://localhost:8101/healthz
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",
@@ -331,11 +355,13 @@ curl http://localhost:8101/api/v1/equipment/alerts
 ## Performance Considerations
 
 ### Indexes Created
+
 - **4 indexes** on `equipment` table for fast filtering
 - **2 indexes** on `equipment_maintenance` for history queries
 - **2 indexes** on `equipment_alerts` for alert filtering
 
 ### Connection Pooling
+
 - Pool size: 10 connections
 - Max overflow: 20 connections
 - Pre-ping enabled for connection health
@@ -371,11 +397,13 @@ curl http://localhost:8101/api/v1/equipment/alerts
 ## Compliance Notes
 
 ### Data Retention
+
 - Maintenance records are never deleted (audit trail)
 - Equipment records persist even when marked inactive
 - All timestamps use UTC with timezone support
 
 ### Multi-Tenancy
+
 - All queries filtered by `tenant_id`
 - Tenant isolation enforced at repository layer
 - No cross-tenant data leakage
@@ -396,6 +424,7 @@ curl http://localhost:8101/api/v1/equipment/alerts
 ## Support
 
 For questions or issues:
+
 - Review migration files in `src/migrations/versions/`
 - Check Alembic documentation: https://alembic.sqlalchemy.org/
 - Review SQLAlchemy ORM guide: https://docs.sqlalchemy.org/

@@ -158,12 +158,14 @@ GET /v1/alerts?priority=critical&limit=50&offset=0
 ```
 
 **Query Parameters:**
+
 - `priority` (optional): low, medium, high, critical
 - `alert_type` (optional): low_stock, out_of_stock, expiring_soon, etc.
 - `limit` (optional): Max results (default: 50)
 - `offset` (optional): Pagination offset (default: 0)
 
 **Response:**
+
 ```json
 {
   "alerts": [
@@ -200,6 +202,7 @@ GET /v1/alerts/summary
 ```
 
 **Response:**
+
 ```json
 {
   "total_active": 15,
@@ -285,23 +288,23 @@ Content-Type: application/json
 
 ### Alert Types
 
-| Type | Description (EN) | Description (AR) |
-|------|------------------|------------------|
-| LOW_STOCK | Below reorder level | أقل من مستوى إعادة الطلب |
-| OUT_OF_STOCK | Zero quantity | نفاد المخزون |
-| EXPIRING_SOON | Expiring within 30 days | ينتهي خلال 30 يوم |
-| EXPIRED | Past expiry date | منتهي الصلاحية |
-| REORDER_POINT | Needs reordering | يحتاج إعادة طلب |
-| STORAGE_CONDITION | Temperature/humidity violation | انتهاك ظروف التخزين |
+| Type              | Description (EN)               | Description (AR)         |
+| ----------------- | ------------------------------ | ------------------------ |
+| LOW_STOCK         | Below reorder level            | أقل من مستوى إعادة الطلب |
+| OUT_OF_STOCK      | Zero quantity                  | نفاد المخزون             |
+| EXPIRING_SOON     | Expiring within 30 days        | ينتهي خلال 30 يوم        |
+| EXPIRED           | Past expiry date               | منتهي الصلاحية           |
+| REORDER_POINT     | Needs reordering               | يحتاج إعادة طلب          |
+| STORAGE_CONDITION | Temperature/humidity violation | انتهاك ظروف التخزين      |
 
 ### Priority Levels
 
-| Priority | Criteria | Channels |
-|----------|----------|----------|
-| CRITICAL | <25% of reorder level, expired, out of stock | In-App + Push + SMS |
-| HIGH | 25-50% of reorder level, <7 days to expiry | In-App + Push |
-| MEDIUM | 50-100% of reorder level, 7-30 days to expiry | In-App + Push |
-| LOW | General notifications | In-App |
+| Priority | Criteria                                      | Channels            |
+| -------- | --------------------------------------------- | ------------------- |
+| CRITICAL | <25% of reorder level, expired, out of stock  | In-App + Push + SMS |
+| HIGH     | 25-50% of reorder level, <7 days to expiry    | In-App + Push       |
+| MEDIUM   | 50-100% of reorder level, 7-30 days to expiry | In-App + Push       |
+| LOW      | General notifications                         | In-App              |
 
 ## 🔄 Alert Lifecycle
 
@@ -432,11 +435,13 @@ Alerts are published to `sahool.alerts.inventory` subject:
 ### Alerts Not Generating
 
 1. Check if scheduler is running:
+
    ```python
    logger.info(f"Scheduler running: {scheduler.running}")
    ```
 
 2. Manually trigger check:
+
    ```bash
    curl -X POST http://localhost:8095/v1/alerts/check-now
    ```
@@ -448,11 +453,13 @@ Alerts are published to `sahool.alerts.inventory` subject:
 ### NATS Connection Issues
 
 1. Check NATS server is running:
+
    ```bash
    docker ps | grep nats
    ```
 
 2. Check connection in logs:
+
    ```
    INFO - Connected to NATS: ['nats://localhost:4222']
    ```
@@ -490,6 +497,7 @@ prisma migrate dev --name add_alert_system
 ## 🤝 Support
 
 For issues or questions:
+
 - Check the integration guide: `src/alert_integration.py`
 - Review API documentation above
 - Check logs for error messages

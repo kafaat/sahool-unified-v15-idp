@@ -39,12 +39,14 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Copy and install requirements
-COPY requirements.txt .
+COPY apps/services/billing-core/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
-# Copy application
-# Note: shared libraries will be mounted or copied at deployment time if needed
-COPY src ./src
+# Copy shared libraries (required for shared.middleware, shared.observability, shared.errors_py)
+COPY shared/ ./shared/
+
+# Copy application source
+COPY apps/services/billing-core/src ./src
 
 # Set ownership
 RUN chown -R sahool:sahool /app

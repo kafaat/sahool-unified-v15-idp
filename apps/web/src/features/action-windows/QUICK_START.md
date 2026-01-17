@@ -1,4 +1,5 @@
 # Action Windows - Quick Start Guide
+
 # دليل البدء السريع لنوافذ العمل
 
 ## 🚀 Ready to Use!
@@ -8,6 +9,7 @@ The Action Windows feature is **fully implemented** and ready for integration.
 ## 📁 What Was Created
 
 ### Core Implementation (7 files)
+
 1. **types/action-windows.ts** - Complete type definitions
 2. **api/action-windows-api.ts** - API client with fallback
 3. **hooks/useActionWindows.ts** - React Query hooks
@@ -17,11 +19,13 @@ The Action Windows feature is **fully implemented** and ready for integration.
 7. **components/WindowTimeline.tsx** - Visual timeline
 
 ### Additional Components (3 files)
+
 8. **components/WeatherConditions.tsx** - Weather display
 9. **components/ActionRecommendation.tsx** - Recommendation cards
 10. **components/ActionWindowsDemo.tsx** - Complete demo ⭐ NEW
 
 ### Documentation (4 files)
+
 11. **README.md** - Full API reference and documentation
 12. **INTEGRATION_EXAMPLES.md** - 7 detailed integration examples
 13. **FEATURE_SUMMARY.md** - Implementation details
@@ -34,8 +38,9 @@ The Action Windows feature is **fully implemented** and ready for integration.
 ## ⚡ Quick Start (30 seconds)
 
 ### Option 1: Use the Complete Demo
+
 ```tsx
-import { ActionWindowsDemo } from '@/features/action-windows';
+import { ActionWindowsDemo } from "@/features/action-windows";
 
 function MyPage() {
   return (
@@ -50,8 +55,12 @@ function MyPage() {
 ```
 
 ### Option 2: Individual Panels
+
 ```tsx
-import { SprayWindowsPanel, IrrigationWindowsPanel } from '@/features/action-windows';
+import {
+  SprayWindowsPanel,
+  IrrigationWindowsPanel,
+} from "@/features/action-windows";
 
 function MyPage() {
   return (
@@ -68,6 +77,7 @@ function MyPage() {
 ## ✨ Key Features
 
 ### Spray Windows
+
 - ✅ 7-day forecast
 - ✅ Weather-based scoring (0-100)
 - ✅ Color-coded status (optimal/marginal/avoid)
@@ -75,6 +85,7 @@ function MyPage() {
 - ✅ One-click task creation
 
 ### Irrigation Windows
+
 - ✅ Soil moisture monitoring
 - ✅ ET calculations (ET₀, ETc, Kc)
 - ✅ Priority system (urgent/high/medium/low)
@@ -83,6 +94,7 @@ function MyPage() {
 - ✅ One-click task creation
 
 ### Integrations
+
 - ✅ Tasks API (create tasks from windows)
 - ✅ Weather API (real-time forecasts)
 - ✅ Fields API (location data)
@@ -123,10 +135,10 @@ function MyPage() {
 ## 🎯 Example: Full Integration
 
 ```tsx
-import { useState } from 'react';
-import { SprayWindowsPanel } from '@/features/action-windows';
-import { useCreateTask } from '@/features/tasks/hooks/useTasks';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { SprayWindowsPanel } from "@/features/action-windows";
+import { useCreateTask } from "@/features/tasks/hooks/useTasks";
+import { toast } from "sonner";
 
 export function FieldActionsPage({ fieldId }: { fieldId: string }) {
   const createTask = useCreateTask();
@@ -139,13 +151,13 @@ export function FieldActionsPage({ fieldId }: { fieldId: string }) {
         description: `Optimal conditions: Score ${window.score}/100`,
         description_ar: `ظروف مثالية: النتيجة ${window.score}/100`,
         due_date: window.startTime,
-        priority: window.score >= 90 ? 'high' : 'medium',
+        priority: window.score >= 90 ? "high" : "medium",
         field_id: fieldId,
-        status: 'open',
+        status: "open",
       });
-      toast.success('Task created successfully!');
+      toast.success("Task created successfully!");
     } catch (error) {
-      toast.error('Failed to create task');
+      toast.error("Failed to create task");
     }
   };
 
@@ -154,7 +166,7 @@ export function FieldActionsPage({ fieldId }: { fieldId: string }) {
       <h1 className="text-3xl font-bold mb-6" dir="rtl">
         نوافذ العمل
       </h1>
-      
+
       <SprayWindowsPanel
         fieldId={fieldId}
         days={7}

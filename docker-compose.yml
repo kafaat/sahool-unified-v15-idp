@@ -52,7 +52,7 @@ services:
   # تجميع اتصالات قاعدة البيانات
   # OPTIMIZED: Enhanced pool settings based on PgBouncer audit (score 7/10 -> 9/10)
   pgbouncer:
-    image: edoburu/pgbouncer:latest
+    image: pgbouncer/pgbouncer:1.22.1
     container_name: sahool-pgbouncer
     environment:
       # Database connection (using individual vars to avoid credential pattern detection)
@@ -64,10 +64,10 @@ services:
       # PgBouncer auth_query user (for SCRAM authentication)
       # Using main database user for auth_query with security definer function
       # The security definer function pgbouncer.get_auth() provides secure access to pg_shadow
-      # AUTH_TYPE is set in pgbouncer.ini (using 'trust' for development)
-      # AUTH_USER: ${POSTGRES_USER:-sahool}
-      # AUTH_TYPE: md5
-      # AUTH_QUERY: SELECT usename, passwd FROM pgbouncer.get_auth($1)
+      # AUTH_TYPE is set in pgbouncer.ini (scram-sha-256 for PostgreSQL 16)
+      # AUTH_USER password must match DB_PASSWORD for backend connections to work
+      AUTH_USER: ${POSTGRES_USER:-sahool}
+      AUTH_USER_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       # Pool settings - OPTIMIZED for 39+ services
       POOL_MODE: transaction
       MAX_DB_CONNECTIONS: 250  # Increased from 100 (6 connections per service avg)
@@ -95,7 +95,7 @@ services:
     healthcheck:
       # Health check - temporarily using a simple port check since authentication is failing
       # TODO: Fix password authentication and restore proper health check
-      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 || exit 1"]
+      test: ["CMD-SHELL", "PGPASSWORD=$POSTGRES_PASSWORD pg_isready -h localhost -p 6432 -U $POSTGRES_USER || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -132,7 +132,7 @@ services:
   # - Connection timeout to prevent resource exhaustion
   # - TLS/SSL ready (uncomment TLS settings in redis.conf)
   redis:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis
     command: [
       "redis-server",
@@ -193,7 +193,7 @@ services:
   # SECURITY: NATS credentials MUST be set in .env file
   # HARDENED: TLS enforced, encryption at rest, rate limiting enabled
   nats:
-    image: nats:2.10-alpine
+    image: nats:2.10.24-alpine
     container_name: sahool-nats
     # Use non-TLS config for development (switch to nats-secure.conf when TLS certs are available)
     command: ["-c", "/etc/nats/nats.conf"]
@@ -291,17 +291,22 @@ services:
   mqtt:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
+    user: root
     environment:
       - MQTT_USER=${MQTT_USER:-sahool_iot}
-      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
     volumes:
-      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl:ro
+      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf.orig:ro
+      - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl.source:ro
+      - ./infrastructure/core/mqtt/init-mqtt.sh:/init-mqtt.sh:ro
       - mqtt_passwd:/mosquitto/config
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
-    # Generate passwd file dynamically from environment variables
-    command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USER} $${MQTT_PASSWORD} && chmod 600 /mosquitto/config/passwd && exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
+    # Fix file permissions using root user to eliminate warnings
+    # The Docker entrypoint chowns /mosquitto to mosquitto:mosquitto when running as root
+    # Our init script fixes permissions after entrypoint and starts mosquitto
+    entrypoint: ["/bin/sh", "/init-mqtt.sh"]
+    command: []
     ports:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
@@ -596,7 +601,11 @@ services:
       MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-jwt}
 
       # Audit logging configuration (disabled for development - requires webhook URL)
-      MINIO_AUDIT_WEBHOOK_ENABLE: ${MINIO_AUDIT_WEBHOOK_ENABLE:-off}
+      # NOTE: MinIO audit webhook is configured via `mc admin config set`, not environment variables.
+      # If you need audit webhook, configure it AFTER MinIO starts using: mc admin config set primary audit_webhook:1 endpoint="http://webhook-url"
+      # For development, disable audit webhook to avoid configuration errors
+      # This variable is only a flag - actual webhook config must be set via MinIO admin API
+      MINIO_AUDIT_WEBHOOK_ENABLE: "off"
 
       # Domain configuration for virtual-host-style requests
       MINIO_DOMAIN: ${MINIO_DOMAIN:-minio.sahool.local}
@@ -709,7 +718,7 @@ services:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: 127.0.0.1:8001
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       # SSL disabled for development - enable in production with valid certificates
       # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
@@ -855,7 +864,7 @@ services:
     environment:
       - PORT=3010
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -898,7 +907,7 @@ services:
     environment:
       - PORT=3015
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -1083,6 +1092,7 @@ services:
       dockerfile: apps/services/crop-growth-model/Dockerfile
     container_name: sahool-crop-growth-model
     environment:
+      - TZ=Asia/Aden
       - PORT=3023
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
@@ -1175,11 +1185,15 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - REDIS_DB=0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
       - MQTT_USER=${MQTT_USER:-sahool_iot}
-      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
@@ -1218,8 +1232,8 @@ services:
   # Kept temporarily for backwards compatibility
   community-chat:
     build:
-      context: ./apps/services/community-chat
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/community-chat/Dockerfile
     container_name: sahool-community-chat
     environment:
       - PORT=8097
@@ -1257,28 +1271,80 @@ services:
     networks:
       - sahool-network
 
+  # User Service - Authentication & User Management
+  # خدمة المستخدمين - المصادقة وإدارة المستخدمين
+  user-service:
+    build:
+      context: .
+      dockerfile: apps/services/user-service/Dockerfile
+    container_name: sahool-user-service
+    environment:
+      - NODE_ENV=production
+      - PORT=3025
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - JWT_REFRESH_TOKEN_EXPIRE_DAYS=${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "3025:3025"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3025/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Python Services (29)
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # ⚠️ DEPRECATED: field_ops - Migrating to field-management-service
-  # This service is being consolidated into field-management-service (Port 3000)
-  # Kept temporarily for backwards compatibility
   # ============================================================================
-  # DEPRECATED: field-ops service - Migrated to field-management-service
+  # DEPRECATED: This service has been replaced by field-management-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/field-ops.md
   # ============================================================================
-  # ⚠️ This service is DEPRECATED and only included for backward compatibility
-  # ⚠️ All functionality has been migrated to field-management-service:3000
-  # ⚠️ To enable this service, run: docker-compose --profile deprecated up
+  # All functionality has been migrated to field-management-service:3000
+  # To enable this service, run: docker-compose --profile deprecated up
   # ============================================================================
   field-ops:
     profiles:
-      - deprecated  # Only runs when explicitly enabled
+      - deprecated
+      - legacy
     build:
-      context: ./apps/services/field-ops
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/field-ops/Dockerfile
     container_name: sahool-field-ops-deprecated
+    labels:
+      - "com.sahool.deprecated=true"
+      - "com.sahool.replacement=field-management-service"
+      - "com.sahool.replacement.port=3000"
+      - "com.sahool.deprecation.reason=Consolidated into field-management-service"
+      - "com.sahool.deprecation.date=2026-01-06"
+      - "com.sahool.removal.version=v17.0.0"
     environment:
+      - DEPRECATED=true
       - PORT=8080
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -1361,14 +1427,14 @@ services:
   # Billing Core Service
   billing-core:
     build:
-      context: ./apps/services/billing-core
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/billing-core/Dockerfile
     container_name: sahool-billing-core
     environment:
       - PORT=8089
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
@@ -1380,7 +1446,7 @@ services:
     ports:
       - "8089:8089"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -1410,8 +1476,8 @@ services:
   # Consolidates: satellite-service, ndvi-processor, ndvi-engine, lai-estimation
   vegetation-analysis-service:
     build:
-      context: ./apps/services
-      dockerfile: vegetation-analysis-service/Dockerfile
+      context: .
+      dockerfile: apps/services/vegetation-analysis-service/Dockerfile
     container_name: sahool-vegetation-analysis-service
     environment:
       - PORT=8090
@@ -1499,8 +1565,8 @@ services:
   # Consolidates: weather-core, weather-advanced
   weather-service:
     build:
-      context: ./apps/services
-      dockerfile: weather-service/Dockerfile
+      context: .
+      dockerfile: apps/services/weather-service/Dockerfile
     container_name: sahool-weather-service
     environment:
       - PORT=8092
@@ -1722,7 +1788,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8098/healthz')"]
+      test: ["CMD", "curl", "-f", "http://localhost:8098/api/v1/yield/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1744,8 +1810,8 @@ services:
   # Field Chat Service
   field-chat:
     build:
-      context: ./apps/services/field-chat
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/field-chat/Dockerfile
     container_name: sahool-field-chat
     environment:
       - PORT=8099
@@ -1804,7 +1870,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1864,15 +1930,15 @@ services:
   # Provider Config Service
   provider-config:
     build:
-      context: ./apps/services/provider-config
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/provider-config/Dockerfile
     container_name: sahool-provider-config
     environment:
       - PORT=8104
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - NATS_URL=nats://nats:4222
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
       - "8104:8104"
     depends_on:
@@ -1902,17 +1968,19 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: agro_advisor - Use advisory-service instead
-  # This service has been deprecated and merged into advisory-service (Port 8093)
+  # ============================================================================
+  # DEPRECATED: This service has been replaced by advisory-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/agro-advisor.md
+  # ============================================================================
   # All functionality (disease diagnosis, nutrient assessment, fertilizer planning)
-  # is now available in advisory-service
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
-  # Migration Date: 2025-01-06
-  # Removal Target: v17.0.0
+  # is now available in advisory-service:8093
+  # To enable this service, run: docker-compose --profile deprecated up
+  # ============================================================================
   agro-advisor:
     build:
-      context: ./apps/services
-      dockerfile: agro-advisor/Dockerfile
+      context: .
+      dockerfile: apps/services/agro-advisor/Dockerfile
     container_name: sahool-agro-advisor
     labels:
       - "com.sahool.deprecated=true"
@@ -1925,6 +1993,7 @@ services:
       - deprecated
       - legacy
     environment:
+      - DEPRECATED=true
       - PORT=8105
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -1972,7 +2041,7 @@ services:
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
       - MQTT_USER=${MQTT_USER:-sahool_iot}
-      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
       - MQTT_TOPIC=sahool/sensors/#
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
@@ -2007,22 +2076,22 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: ndvi_engine - Migrating to vegetation-analysis-service
-  # This service is being consolidated into vegetation-analysis-service (Port 8090)
-  # Deprecation Date: 2026-01-06 | Sunset Date: 2026-06-01
-  #
+  # ============================================================================
+  # DEPRECATED: This service has been replaced by vegetation-analysis-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/ndvi-engine.md
+  # ============================================================================
   # Migration Path:
   # - NDVI computation → vegetation-analysis-service
   # - Vegetation indices (NDVI, EVI, NDRE, NDWI) → vegetation-analysis-service
   # - Zone analysis → vegetation-analysis-service
   # - Anomaly detection → vegetation-analysis-service
-  #
-  # To disable this service, start without the 'deprecated' profile
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
+  # To enable this service, run: docker-compose --profile deprecated up
+  # ============================================================================
   ndvi-engine:
     build:
-      context: ./apps/services/ndvi-engine
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/ndvi-engine/Dockerfile
     container_name: sahool-ndvi-engine
     labels:
       - "com.sahool.deprecated=true"
@@ -2034,6 +2103,7 @@ services:
       - deprecated
       - legacy
     environment:
+      - DEPRECATED=true
       - PORT=8107
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -2068,24 +2138,31 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: weather-core - Use weather-service instead
-  # This service has been deprecated and merged into weather-service (Port 8092)
-  # All functionality is available in weather-service
-  # This service will be removed in the next major release
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
+  # ============================================================================
+  # DEPRECATED: This service has been replaced by weather-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/weather-core.md
+  # ============================================================================
+  # All functionality is now available in weather-service:8092
+  # To enable this service, run: docker-compose --profile deprecated up
+  # ============================================================================
   weather-core:
     build:
-      context: ./apps/services/weather-core
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/weather-core/Dockerfile
     container_name: sahool-weather-core
     labels:
       - "com.sahool.deprecated=true"
       - "com.sahool.replacement=weather-service"
+      - "com.sahool.replacement.port=8092"
       - "com.sahool.deprecation.reason=Consolidated into unified weather-service"
+      - "com.sahool.deprecation.date=2026-01-06"
+      - "com.sahool.removal.version=v17.0.0"
     profiles:
       - deprecated
       - legacy
     environment:
+      - DEPRECATED=true
       - PORT=8108
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -2146,7 +2223,7 @@ services:
     ports:
       - "8110:8110"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -2175,8 +2252,8 @@ services:
   # Astronomical Calendar Service
   astronomical-calendar:
     build:
-      context: ./apps/services/astronomical-calendar
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/astronomical-calendar/Dockerfile
     container_name: sahool-astronomical-calendar
     environment:
       - PORT=8111
@@ -2331,7 +2408,7 @@ services:
     ports:
       - "8113:8113"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       nats:
         condition: service_healthy
@@ -2484,21 +2561,21 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: crop_health - Migrating to crop-intelligence-service
-  # This service is being consolidated into crop-intelligence-service (Port 8095)
-  # Deprecation Date: 2026-01-06 | Sunset Date: 2026-06-01
-  #
+  # ============================================================================
+  # DEPRECATED: This service has been replaced by crop-intelligence-service
+  # Scheduled for removal in v17.0.0
+  # Migration guide: docs/migration/crop-health.md
+  # ============================================================================
   # Migration Path:
   # - All zone-based health monitoring → crop-intelligence-service
   # - Vegetation indices (NDVI, EVI, NDRE, etc.) → crop-intelligence-service
   # - VRT export functionality → crop-intelligence-service
-  #
-  # To disable this service, start without the 'deprecated' profile
-  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
+  # To enable this service, run: docker-compose --profile deprecated up
+  # ============================================================================
   crop-health:
     build:
-      context: ./apps/services/crop-health
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/crop-health/Dockerfile
     container_name: sahool-crop-health
     labels:
       - "com.sahool.deprecated=true"
@@ -2510,6 +2587,7 @@ services:
       - deprecated
       - legacy
     environment:
+      - DEPRECATED=true
       - PORT=8100
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -2539,8 +2617,8 @@ services:
   # Agro Rules Worker - NATS Event-Driven Worker
   agro-rules:
     build:
-      context: ./apps/services/agro-rules
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/agro-rules/Dockerfile
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -2617,6 +2695,44 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Skills Service - AI model skill compression and memory management
+  # خدمة المهارات - ضغط نماذج الذكاء الاصطناعي وإدارة الذاكرة
+  # ─────────────────────────────────────────────────────────────────────────────
+  skills-service:
+    build:
+      context: .
+      dockerfile: apps/services/skills-service/Dockerfile
+    container_name: sahool-skills-service
+    environment:
+      - PORT=8121
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8121:8121"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8121/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Demo Data Service - Simulates API data flow
   # خدمة البيانات التجريبية - تحاكي تدفق البيانات عبر واجهات API
   # ─────────────────────────────────────────────────────────────────────────────
@@ -2644,6 +2760,12 @@ services:
         condition: service_healthy
     profiles:
       - demo
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

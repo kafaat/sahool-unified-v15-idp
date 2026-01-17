@@ -93,7 +93,9 @@ class LocalNotificationService {
       requestSoundPermission: false,
       onDidReceiveLocalNotification: (id, title, body, payload) async {
         // Handle iOS foreground notification (older iOS versions)
-        debugPrint('iOS Notification: $title - $body');
+        if (kDebugMode) {
+          debugPrint('iOS Notification: $title - $body');
+        }
       },
     );
 
@@ -125,7 +127,9 @@ class LocalNotificationService {
     }
 
     _initialized = true;
-    debugPrint('✅ LocalNotificationService initialized');
+    if (kDebugMode) {
+      debugPrint('✅ LocalNotificationService initialized');
+    }
   }
 
   /// معالجة النقر على الإشعار
@@ -135,7 +139,9 @@ class LocalNotificationService {
         final data = jsonDecode(response.payload!) as Map<String, dynamic>;
         _onTapCallback!(data);
       } catch (e) {
-        debugPrint('Error parsing notification payload: $e');
+        if (kDebugMode) {
+          debugPrint('Error parsing notification payload: $e');
+        }
         _onTapCallback!(null);
       }
     }
@@ -145,7 +151,9 @@ class LocalNotificationService {
   @pragma('vm:entry-point')
   static void _handleBackgroundNotificationTap(NotificationResponse response) {
     // Handle background notification tap
-    debugPrint('Background notification tapped: ${response.payload}');
+    if (kDebugMode) {
+      debugPrint('Background notification tapped: ${response.payload}');
+    }
   }
 
   /// طلب إذن الإشعارات
@@ -185,7 +193,9 @@ class LocalNotificationService {
     String? bigPicture,
   }) async {
     if (!_initialized) {
-      debugPrint('⚠️ LocalNotificationService not initialized');
+      if (kDebugMode) {
+        debugPrint('⚠️ LocalNotificationService not initialized');
+      }
       return;
     }
 
@@ -230,7 +240,9 @@ class LocalNotificationService {
       payload: data != null ? jsonEncode(data) : null,
     );
 
-    debugPrint('📬 Local notification shown: $title');
+    if (kDebugMode) {
+      debugPrint('📬 Local notification shown: $title');
+    }
   }
 
   /// عرض إشعار مجدول
@@ -243,7 +255,9 @@ class LocalNotificationService {
     int? id,
   }) async {
     if (!_initialized) {
-      debugPrint('⚠️ LocalNotificationService not initialized');
+      if (kDebugMode) {
+        debugPrint('⚠️ LocalNotificationService not initialized');
+      }
       return;
     }
 
@@ -289,7 +303,9 @@ class LocalNotificationService {
       payload: data != null ? jsonEncode(data) : null,
     );
 
-    debugPrint('⏰ Scheduled notification: $title at $scheduledTime');
+    if (kDebugMode) {
+      debugPrint('⏰ Scheduled notification: $title at $scheduledTime');
+    }
   }
 
   /// عرض إشعار تقدم (Progress notification)
@@ -332,13 +348,17 @@ class LocalNotificationService {
   /// إلغاء جميع الإشعارات
   Future<void> cancelAll() async {
     await _localNotifications.cancelAll();
-    debugPrint('🗑️ All notifications cancelled');
+    if (kDebugMode) {
+      debugPrint('🗑️ All notifications cancelled');
+    }
   }
 
   /// إلغاء إشعار معين
   Future<void> cancelById(int id) async {
     await _localNotifications.cancel(id);
-    debugPrint('🗑️ Notification $id cancelled');
+    if (kDebugMode) {
+      debugPrint('🗑️ Notification $id cancelled');
+    }
   }
 
   /// الحصول على الإشعارات المعلقة

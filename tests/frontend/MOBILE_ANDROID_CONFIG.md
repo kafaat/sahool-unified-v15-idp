@@ -1,4 +1,5 @@
 # Android Configuration Analysis Report
+
 ## SAHOOL Field App - Flutter Mobile Application
 
 **Generated:** 2026-01-06
@@ -19,6 +20,7 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 ## 1. Build Configuration (build.gradle.kts)
 
 ### Root Level Configuration
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/build.gradle.kts`
 
 ```kotlin
@@ -30,14 +32,17 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 **Analysis:** ✅ Good - Proper repository configuration and monorepo-aware build directory setup.
 
 ### App Level Configuration
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/build.gradle.kts`
 
 **Plugins:**
+
 - `com.android.application` - Android application
 - `kotlin-android` - Kotlin support
 - `dev.flutter.flutter-gradle-plugin` - Flutter integration
 
 **Key Features:**
+
 - Namespace: `io.sahool.sahool_field_app`
 - Java Version: 17 (both source and target)
 - Kotlin JVM Target: 17
@@ -52,20 +57,22 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 
 ### Compilation & Target SDK
 
-| Configuration | Value | Status | Notes |
-|--------------|-------|--------|-------|
-| **compileSdk** | 36 | ✅ Latest | Android 16 (latest SDK) |
-| **minSdk** | flutter.minSdkVersion | ⚠️ Dynamic | Likely 23 (Android 6.0) based on launcher icons config |
-| **targetSdk** | flutter.targetSdkVersion | ⚠️ Dynamic | Typically 34-35 for Flutter 3.27.x |
-| **NDK** | 28.2.13676358 | ✅ Current | Latest stable NDK version |
+| Configuration  | Value                    | Status     | Notes                                                  |
+| -------------- | ------------------------ | ---------- | ------------------------------------------------------ |
+| **compileSdk** | 36                       | ✅ Latest  | Android 16 (latest SDK)                                |
+| **minSdk**     | flutter.minSdkVersion    | ⚠️ Dynamic | Likely 23 (Android 6.0) based on launcher icons config |
+| **targetSdk**  | flutter.targetSdkVersion | ⚠️ Dynamic | Typically 34-35 for Flutter 3.27.x                     |
+| **NDK**        | 28.2.13676358            | ✅ Current | Latest stable NDK version                              |
 
 **Analysis:**
+
 - ✅ **compileSdk 36** is excellent - using the latest Android SDK
 - ⚠️ **Dynamic SDK values** from Flutter - minSdk likely 23, targetSdk likely 34+
 - ✅ **minSdk 23** supports 99%+ of Android devices (Android 6.0+)
 - ✅ Modern NDK version for native code compilation
 
 **Recommendations:**
+
 - Consider explicitly setting minSdk and targetSdk for clarity
 - Document the actual Flutter SDK versions being used
 - Based on pubspec.yaml `min_sdk_android: 23`, minimum SDK is Android 6.0
@@ -75,9 +82,11 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 ## 3. ProGuard Configuration
 
 ### Production Rules
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/proguard-rules.pro`
 
 **Optimization Settings:**
+
 - Optimization passes: 5 (aggressive)
 - Obfuscation: Enabled with source file renaming
 - Logging removal: All Android Log and Flutter Log calls stripped
@@ -85,28 +94,29 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 
 **Coverage Analysis:** ✅ Comprehensive
 
-| Category | Status | Rules Count | Coverage |
-|----------|--------|-------------|----------|
-| Flutter Framework | ✅ Complete | 15+ rules | All core Flutter APIs |
-| Android Core | ✅ Complete | 10+ rules | AndroidX, Lifecycle, WorkManager |
-| Kotlin & Coroutines | ✅ Complete | 8+ rules | Full Kotlin support |
-| Dio HTTP Client | ✅ Complete | 12+ rules | OkHttp, Dio, networking |
-| JSON Serialization | ✅ Complete | 15+ rules | Gson, Freezed, json_serializable |
-| Drift Database | ✅ Complete | 8+ rules | SQLite, SQLCipher |
-| Flutter Secure Storage | ✅ Complete | 5+ rules | KeyStore, Crypto |
-| Socket.IO Client | ✅ Complete | 8+ rules | Real-time communication |
-| Riverpod State | ✅ Complete | 5+ rules | State management |
-| Notifications | ✅ Complete | 4+ rules | Local notifications |
-| Image/Media | ✅ Complete | 10+ rules | Camera, ImagePicker, CameraX |
-| Mobile Scanner | ✅ Complete | 6+ rules | QR/Barcode, ML Kit |
-| Maps | ✅ Complete | 8+ rules | Flutter Map, MapLibre GL |
-| Security | ✅ Complete | 6+ rules | Jailbreak detection |
-| Storage | ✅ Complete | 4+ rules | SharedPreferences, PathProvider |
-| Connectivity | ✅ Complete | 3+ rules | Network state |
-| UI Libraries | ✅ Complete | 4+ rules | SVG, Charts |
-| R8 Compatibility | ✅ Complete | 8+ rules | Full R8 mode support |
+| Category               | Status      | Rules Count | Coverage                         |
+| ---------------------- | ----------- | ----------- | -------------------------------- |
+| Flutter Framework      | ✅ Complete | 15+ rules   | All core Flutter APIs            |
+| Android Core           | ✅ Complete | 10+ rules   | AndroidX, Lifecycle, WorkManager |
+| Kotlin & Coroutines    | ✅ Complete | 8+ rules    | Full Kotlin support              |
+| Dio HTTP Client        | ✅ Complete | 12+ rules   | OkHttp, Dio, networking          |
+| JSON Serialization     | ✅ Complete | 15+ rules   | Gson, Freezed, json_serializable |
+| Drift Database         | ✅ Complete | 8+ rules    | SQLite, SQLCipher                |
+| Flutter Secure Storage | ✅ Complete | 5+ rules    | KeyStore, Crypto                 |
+| Socket.IO Client       | ✅ Complete | 8+ rules    | Real-time communication          |
+| Riverpod State         | ✅ Complete | 5+ rules    | State management                 |
+| Notifications          | ✅ Complete | 4+ rules    | Local notifications              |
+| Image/Media            | ✅ Complete | 10+ rules   | Camera, ImagePicker, CameraX     |
+| Mobile Scanner         | ✅ Complete | 6+ rules    | QR/Barcode, ML Kit               |
+| Maps                   | ✅ Complete | 8+ rules    | Flutter Map, MapLibre GL         |
+| Security               | ✅ Complete | 6+ rules    | Jailbreak detection              |
+| Storage                | ✅ Complete | 4+ rules    | SharedPreferences, PathProvider  |
+| Connectivity           | ✅ Complete | 3+ rules    | Network state                    |
+| UI Libraries           | ✅ Complete | 4+ rules    | SVG, Charts                      |
+| R8 Compatibility       | ✅ Complete | 8+ rules    | Full R8 mode support             |
 
 **Security Features:**
+
 - ✅ Removes all logging in production (prevents information leakage)
 - ✅ Strips source file names and line numbers (anti-reverse engineering)
 - ✅ Aggressive obfuscation with 5 optimization passes
@@ -115,9 +125,11 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 **Analysis:** ✅ Excellent - Production-grade ProGuard configuration with comprehensive coverage of all dependencies.
 
 ### Debug Rules
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/proguard-rules-debug.pro`
 
 **Debug-Specific Settings:**
+
 - Optimization passes: 1 (faster builds)
 - Source files & line numbers: KEPT (for debugging)
 - Logging: ENABLED (for development)
@@ -130,30 +142,33 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 ## 4. AndroidManifest.xml Analysis
 
 ### Main Manifest
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/src/main/AndroidManifest.xml`
 
 **Permissions Breakdown:**
 
-| Permission | Purpose | SDK Restrictions | Status |
-|------------|---------|------------------|--------|
-| `INTERNET` | Network access | None | ✅ Required |
-| `ACCESS_NETWORK_STATE` | Network monitoring | None | ✅ Required |
-| `CAMERA` | Camera access | Runtime | ✅ Required |
-| `READ_EXTERNAL_STORAGE` | Read files | maxSdkVersion="32" | ✅ Proper scoping |
-| `WRITE_EXTERNAL_STORAGE` | Write files | maxSdkVersion="29" | ✅ Proper scoping |
-| `READ_MEDIA_IMAGES` | Modern image access | API 33+ | ✅ Modern approach |
-| `ACCESS_FINE_LOCATION` | Precise location | Runtime | ✅ For maps |
-| `ACCESS_COARSE_LOCATION` | Approximate location | Runtime | ✅ For maps |
-| `RECEIVE_BOOT_COMPLETED` | Background sync | None | ✅ Required |
-| `WAKE_LOCK` | Keep device awake | None | ✅ For sync |
+| Permission               | Purpose              | SDK Restrictions   | Status             |
+| ------------------------ | -------------------- | ------------------ | ------------------ |
+| `INTERNET`               | Network access       | None               | ✅ Required        |
+| `ACCESS_NETWORK_STATE`   | Network monitoring   | None               | ✅ Required        |
+| `CAMERA`                 | Camera access        | Runtime            | ✅ Required        |
+| `READ_EXTERNAL_STORAGE`  | Read files           | maxSdkVersion="32" | ✅ Proper scoping  |
+| `WRITE_EXTERNAL_STORAGE` | Write files          | maxSdkVersion="29" | ✅ Proper scoping  |
+| `READ_MEDIA_IMAGES`      | Modern image access  | API 33+            | ✅ Modern approach |
+| `ACCESS_FINE_LOCATION`   | Precise location     | Runtime            | ✅ For maps        |
+| `ACCESS_COARSE_LOCATION` | Approximate location | Runtime            | ✅ For maps        |
+| `RECEIVE_BOOT_COMPLETED` | Background sync      | None               | ✅ Required        |
+| `WAKE_LOCK`              | Keep device awake    | None               | ✅ For sync        |
 
 **Security Configuration:**
+
 - ✅ `usesCleartextTraffic="false"` - HTTPS enforced (production)
 - ✅ `networkSecurityConfig` properly configured
 - ✅ `android:exported="true"` only on launcher activity (secure)
 - ✅ `android:hardwareAccelerated="true"` (performance)
 
 **Activity Configuration:**
+
 - Launch mode: `singleTop` (prevents multiple instances)
 - Task affinity: Empty (isolated task)
 - Window soft input: `adjustResize` (keyboard handling)
@@ -162,12 +177,14 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 **Analysis:** ✅ Excellent - Minimal, well-scoped permissions with proper SDK versioning. Security hardening in place.
 
 ### Debug Manifest
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/src/debug/AndroidManifest.xml`
 
 - Only adds `INTERNET` permission for hot reload
 - ✅ Minimal debug-specific changes
 
 ### Profile Manifest
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/src/profile/AndroidManifest.xml`
 
 - Same as debug manifest
@@ -197,17 +214,18 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 
 **Security Analysis:**
 
-| Aspect | Configuration | Status |
-|--------|---------------|--------|
-| Production Traffic | HTTPS only | ✅ Secure |
-| Certificate Trust | System CAs only | ✅ Secure |
-| Cleartext Traffic | Disabled globally | ✅ Secure |
-| Local Development | HTTP allowed for localhost/LAN | ✅ Practical |
-| Man-in-the-Middle | Protected (production) | ✅ Secure |
+| Aspect             | Configuration                  | Status       |
+| ------------------ | ------------------------------ | ------------ |
+| Production Traffic | HTTPS only                     | ✅ Secure    |
+| Certificate Trust  | System CAs only                | ✅ Secure    |
+| Cleartext Traffic  | Disabled globally              | ✅ Secure    |
+| Local Development  | HTTP allowed for localhost/LAN | ✅ Practical |
+| Man-in-the-Middle  | Protected (production)         | ✅ Secure    |
 
 **Analysis:** ✅ Excellent - Secure by default with practical development exceptions. Production traffic is fully HTTPS-only.
 
 **Recommendations:**
+
 - Consider implementing certificate pinning for production API endpoints
 - Document which endpoints should use HTTPS vs local development
 
@@ -216,6 +234,7 @@ The Android configuration for the SAHOOL Field App demonstrates a **well-structu
 ## 6. Signing Configuration
 
 ### Configuration Location
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/build.gradle.kts` (lines 54-90)
 
 ### Configuration Strategy
@@ -246,6 +265,7 @@ if (releaseConfig.storeFile == null || !releaseConfig.storeFile!!.exists()) {
 ```
 
 **Security Features:**
+
 - ✅ **No debug signing fallback** for release builds
 - ✅ **Clear error messages** with setup instructions
 - ✅ **Keystore files gitignored** (prevents accidental commits)
@@ -271,6 +291,7 @@ keystore.properties
 ### Current Configuration
 
 **Build Types:**
+
 1. **Debug**
    - Minification: Enabled (catches ProGuard issues early)
    - Resource shrinking: Disabled (faster builds)
@@ -286,6 +307,7 @@ keystore.properties
    - Signing: Release keystore (validated)
 
 **APK Split Configuration:**
+
 ```kotlin
 splits {
     abi {
@@ -297,6 +319,7 @@ splits {
 ```
 
 **APK Outputs:**
+
 - arm64-v8a (64-bit ARM) - Modern devices
 - armeabi-v7a (32-bit ARM) - Older devices
 - x86_64 (64-bit Intel) - Emulators/tablets
@@ -305,11 +328,13 @@ splits {
 **Product Flavors:** None currently defined
 
 **Analysis:**
+
 - ✅ Good - Proper build type configuration with security enforcement
 - ✅ Excellent - APK splits for optimized app sizes
 - ⚠️ **No product flavors** - Consider adding for dev/staging/prod environments
 
 **Recommendations:**
+
 - Consider adding product flavors for environment management:
   - `dev` - Development backend
   - `staging` - Staging backend
@@ -321,6 +346,7 @@ splits {
 ## 8. Gradle Configuration
 
 ### Gradle Wrapper
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/gradle/wrapper/gradle-wrapper.properties`
 
 - **Version:** 8.11.1 (all distribution)
@@ -328,17 +354,21 @@ splits {
 - **Released:** December 2024
 
 ### Gradle Properties
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/gradle.properties`
 
 **JVM Configuration:**
+
 ```properties
 org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m
 ```
+
 - ✅ Generous memory allocation (8GB heap)
 - ✅ Proper metaspace configuration
 - ✅ Heap dump on OOM for debugging
 
 **Android Configuration:**
+
 - `android.useAndroidX=true` ✅ Modern AndroidX libraries
 - `android.nonTransitiveRClass=true` ✅ Optimized R class generation
 - `android.nonFinalResIds=false` - Standard resource IDs
@@ -346,19 +376,23 @@ org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m
 - `android.enableR8=true` ✅ R8 code shrinker
 
 **Kotlin Configuration:**
+
 - `kotlin.incremental=false` - Disabled (stability)
 - `kotlin.compiler.execution.strategy=in-process` - Faster compilation
 
 **Gradle Daemon:**
+
 - `org.gradle.daemon=false` - Disabled (CI/CD friendly)
 - `org.gradle.caching=false` - Disabled (clean builds)
 
 **Analysis:** ✅ Excellent - Properly tuned for monorepo builds with generous resources and R8 full mode.
 
 ### Settings Configuration
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/settings.gradle.kts`
 
 **Plugins:**
+
 - Android Gradle Plugin: 8.9.1 ✅ Latest
 - Kotlin Android Plugin: 2.1.0 ✅ Latest
 - Flutter Plugin Loader: 1.0.0 ✅ Current
@@ -369,12 +403,12 @@ org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m
 
 ## 9. Gradle Plugin Versions
 
-| Plugin | Version | Status | Release Date |
-|--------|---------|--------|--------------|
-| Gradle | 8.11.1 | ✅ Latest | Dec 2024 |
-| Android Gradle Plugin | 8.9.1 | ✅ Latest | Dec 2024 |
-| Kotlin | 2.1.0 | ✅ Latest | Nov 2024 |
-| Flutter Gradle Plugin | 1.0.0 | ✅ Current | - |
+| Plugin                | Version | Status     | Release Date |
+| --------------------- | ------- | ---------- | ------------ |
+| Gradle                | 8.11.1  | ✅ Latest  | Dec 2024     |
+| Android Gradle Plugin | 8.9.1   | ✅ Latest  | Dec 2024     |
+| Kotlin                | 2.1.0   | ✅ Latest  | Nov 2024     |
+| Flutter Gradle Plugin | 1.0.0   | ✅ Current | -            |
 
 **Analysis:** ✅ Excellent - All plugins are on latest stable versions.
 
@@ -399,6 +433,7 @@ class MainActivity : FlutterActivity()
 ## 11. Dependencies Analysis
 
 ### Core Dependencies
+
 **File:** `/home/user/sahool-unified-v15-idp/apps/mobile/android/app/build.gradle.kts`
 
 ```kotlin
@@ -410,7 +445,9 @@ dependencies {
 **Analysis:** ✅ Good - Core library desugaring enables Java 8+ APIs on older Android versions (API 21-25).
 
 ### Flutter Dependencies
+
 From `pubspec.yaml`, the app uses:
+
 - Riverpod 2.6.1 (state management)
 - Drift 2.24.0 (database)
 - Dio 5.7.0 (networking)
@@ -428,19 +465,19 @@ From `pubspec.yaml`, the app uses:
 
 ### Security Features: ✅ Excellent
 
-| Feature | Implementation | Status |
-|---------|----------------|--------|
-| HTTPS Enforcement | Network security config | ✅ Enforced |
-| Cleartext Traffic | Disabled in production | ✅ Secure |
-| Code Obfuscation | R8 full mode + ProGuard | ✅ Enabled |
-| Logging Removal | Production builds | ✅ Stripped |
-| Debug Info Removal | Line numbers stripped | ✅ Removed |
-| Signing Validation | Mandatory keystore check | ✅ Enforced |
-| Keystore Protection | Gitignored | ✅ Secure |
-| Root Detection | flutter_jailbreak_detection | ✅ Implemented |
-| Encrypted Database | SQLCipher | ✅ Available |
-| Secure Storage | flutter_secure_storage | ✅ Implemented |
-| Minimal Permissions | Only necessary permissions | ✅ Minimal |
+| Feature             | Implementation              | Status         |
+| ------------------- | --------------------------- | -------------- |
+| HTTPS Enforcement   | Network security config     | ✅ Enforced    |
+| Cleartext Traffic   | Disabled in production      | ✅ Secure      |
+| Code Obfuscation    | R8 full mode + ProGuard     | ✅ Enabled     |
+| Logging Removal     | Production builds           | ✅ Stripped    |
+| Debug Info Removal  | Line numbers stripped       | ✅ Removed     |
+| Signing Validation  | Mandatory keystore check    | ✅ Enforced    |
+| Keystore Protection | Gitignored                  | ✅ Secure      |
+| Root Detection      | flutter_jailbreak_detection | ✅ Implemented |
+| Encrypted Database  | SQLCipher                   | ✅ Available   |
+| Secure Storage      | flutter_secure_storage      | ✅ Implemented |
+| Minimal Permissions | Only necessary permissions  | ✅ Minimal     |
 
 ### Security Recommendations
 
@@ -454,6 +491,7 @@ From `pubspec.yaml`, the app uses:
 ## 13. Performance Optimizations
 
 ### Build Performance
+
 - ✅ 8GB JVM heap allocation
 - ✅ APK splits for smaller download sizes
 - ✅ R8 full mode for aggressive optimization
@@ -461,6 +499,7 @@ From `pubspec.yaml`, the app uses:
 - ✅ NDK for native performance
 
 ### Runtime Performance
+
 - ✅ Hardware acceleration enabled
 - ✅ Core library desugaring (backward compatibility without overhead)
 - ✅ ProGuard optimization passes (5 in release)
@@ -472,6 +511,7 @@ From `pubspec.yaml`, the app uses:
 ## 14. Issues & Recommendations
 
 ### Critical Issues
+
 **None found.** ✅
 
 ### Warnings
@@ -544,6 +584,7 @@ From `pubspec.yaml`, the app uses:
 ## 16. Build Commands Reference
 
 ### Debug Builds
+
 ```bash
 # Debug APK with hot reload support
 flutter build apk --debug
@@ -553,6 +594,7 @@ flutter build appbundle --debug
 ```
 
 ### Release Builds
+
 ```bash
 # Release APK (requires keystore configuration)
 flutter build apk --release
@@ -565,6 +607,7 @@ flutter build apk --release --split-per-abi
 ```
 
 ### ProGuard Testing
+
 ```bash
 # Test ProGuard rules with debug minification
 flutter build apk --debug
@@ -606,6 +649,7 @@ flutter build apk --debug
 ## 18. Testing Recommendations
 
 ### Configuration Testing
+
 1. ✅ Test debug build with minification enabled
 2. ✅ Test release build signing process
 3. ✅ Verify ProGuard rules don't break functionality
@@ -614,6 +658,7 @@ flutter build apk --debug
 6. ✅ Test APK split generation
 
 ### Security Testing
+
 1. ✅ Verify cleartext traffic is blocked
 2. ✅ Test root/jailbreak detection
 3. ✅ Verify debug logging is removed in release
@@ -655,6 +700,7 @@ export FLUTTER_ROOT=/path/to/flutter
 ### Overall Grade: ✅ A+ (Excellent)
 
 **Strengths:**
+
 - ✅ Modern, up-to-date configuration (Gradle 8.11.1, AGP 8.9.1, Kotlin 2.1.0)
 - ✅ Comprehensive security measures (HTTPS enforcement, code obfuscation, signing validation)
 - ✅ Excellent ProGuard configuration (440+ lines, covers all dependencies)
@@ -666,6 +712,7 @@ export FLUTTER_ROOT=/path/to/flutter
 - ✅ Excellent documentation and error messages
 
 **Areas for Enhancement:**
+
 - ⚠️ Consider adding product flavors for environment management
 - ⚠️ Document actual SDK version values (currently dynamic from Flutter)
 - 💡 Consider implementing certificate pinning
@@ -698,16 +745,19 @@ export FLUTTER_ROOT=/path/to/flutter
 ## Appendix B: Quick Reference
 
 ### Important Package Information
+
 - **Package Name:** io.sahool.sahool_field_app
 - **Namespace:** io.sahool.sahool_field_app
 - **Version:** 15.5.0 (build 1)
 
 ### SDK Configuration
+
 - **Compile SDK:** 36 (Android 16)
 - **Min SDK:** ~23 (Android 6.0 Marshmallow)
 - **Target SDK:** ~34-35 (Android 14-15)
 
 ### Build Tool Versions
+
 - **Gradle:** 8.11.1
 - **Android Gradle Plugin:** 8.9.1
 - **Kotlin:** 2.1.0
@@ -715,6 +765,7 @@ export FLUTTER_ROOT=/path/to/flutter
 - **NDK:** 28.2.13676358
 
 ### Security Features
+
 - R8 Full Mode: ✅ Enabled
 - ProGuard: ✅ Comprehensive
 - HTTPS: ✅ Enforced

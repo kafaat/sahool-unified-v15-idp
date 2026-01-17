@@ -1,4 +1,5 @@
 # PostGIS Validation Test Suite for SAHOOL
+
 # مجموعة اختبارات التحقق من PostGIS لنظام سهول
 
 ## Overview | نظرة عامة
@@ -19,6 +20,7 @@ Comprehensive test suite for validating PostGIS spatial operations in the SAHOOL
 - ✅ `test_multipolygon_support` - Tests MultiPolygon geometries
 
 **PostGIS Functions Tested:**
+
 - `ST_IsValid()`
 - `ST_MakeValid()`
 - `ST_IsSimple()`
@@ -35,6 +37,7 @@ Comprehensive test suite for validating PostGIS spatial operations in the SAHOOL
 - ✅ `test_area_calculation_hectares` - Area calculation in hectares
 
 **PostGIS Functions Tested:**
+
 - `ST_Contains()`
 - `ST_Intersection()`
 - `ST_Buffer()`
@@ -50,6 +53,7 @@ Comprehensive test suite for validating PostGIS spatial operations in the SAHOOL
 - ✅ `test_yemen_bounds_validation` - Yemen geographic bounds (12.0-19.0°N, 42.0-54.0°E)
 
 **Coordinate Systems:**
+
 - EPSG:4326 (WGS84) - GPS coordinates
 - EPSG:32638 (UTM Zone 38N) - Yemen projected coordinates
 - Geographic bounds validation
@@ -64,6 +68,7 @@ Comprehensive test suite for validating PostGIS spatial operations in the SAHOOL
 - ✅ `test_field_simplification` - Polygon simplification (ST_Simplify)
 
 **Business Rules:**
+
 - Minimum field area: 0.1 hectares (1,000 m²)
 - Maximum field area: 1,000 hectares (10,000,000 m²)
 - Overlap detection and percentage calculation
@@ -77,6 +82,7 @@ Comprehensive test suite for validating PostGIS spatial operations in the SAHOOL
 - ✅ `test_query_performance_with_index` - Validates index usage and performance
 
 **Indexes Validated:**
+
 - `idx_fields_boundary` - GIST index on field boundaries
 - `idx_fields_centroid` - GIST index on field centroids
 - `idx_farms_location` - GIST index on farm locations
@@ -85,19 +91,23 @@ Comprehensive test suite for validating PostGIS spatial operations in the SAHOOL
 ### 6. Additional Test Classes | فئات اختبار إضافية
 
 **Integration Tests** (`TestPostGISIntegration`):
+
 - Complete field creation workflow
 - GeoJSON conversion and validation
 
 **Utility Functions** (`TestUtilityFunctions`):
+
 - Yemen coordinate validation
 - Haversine distance calculation
 - Geographic utility functions
 
 **Performance Benchmarks** (`TestPerformanceBenchmarks`):
+
 - Bulk geometry validation (1000+ polygons)
 - Throughput measurements
 
 **Error Handling** (`TestErrorHandling`):
+
 - Empty polygon handling
 - Invalid coordinate detection
 - Insufficient points validation
@@ -112,6 +122,7 @@ pip install -r requirements.txt
 ```
 
 **Required packages:**
+
 - `pytest==8.3.4` - Testing framework
 - `pytest-asyncio==0.24.0` - Async test support
 - `pytest-cov==4.1.0` - Code coverage
@@ -206,17 +217,17 @@ pytest tests/test_postgis_validation.py -v --asyncio-mode=auto
 
 ### Test Distribution | توزيع الاختبارات
 
-| Category | Test Count | Arabic Name |
-|----------|------------|-------------|
-| Geometry Validation | 4 | التحقق من الأشكال الهندسية |
-| Spatial Operations | 5 | العمليات المكانية |
-| Coordinate Systems | 3 | أنظمة الإحداثيات |
-| Field Boundaries | 4 | حدود الحقول |
-| Index Performance | 2 | أداء الفهارس |
-| Integration | 2 | التكامل |
-| Utilities | 2 | الأدوات المساعدة |
-| Benchmarks | 1 | قياس الأداء |
-| Error Handling | 3 | معالجة الأخطاء |
+| Category            | Test Count | Arabic Name                |
+| ------------------- | ---------- | -------------------------- |
+| Geometry Validation | 4          | التحقق من الأشكال الهندسية |
+| Spatial Operations  | 5          | العمليات المكانية          |
+| Coordinate Systems  | 3          | أنظمة الإحداثيات           |
+| Field Boundaries    | 4          | حدود الحقول                |
+| Index Performance   | 2          | أداء الفهارس               |
+| Integration         | 2          | التكامل                    |
+| Utilities           | 2          | الأدوات المساعدة           |
+| Benchmarks          | 1          | قياس الأداء                |
+| Error Handling      | 3          | معالجة الأخطاء             |
 
 ## Yemen Geographic Reference | المرجع الجغرافي لليمن
 
@@ -231,12 +242,12 @@ YEMEN_MAX_LON = 54.0  # Eastern boundary
 
 ### Major Cities Coordinates | إحداثيات المدن الرئيسية
 
-| City | Arabic | Latitude | Longitude |
-|------|--------|----------|-----------|
-| Sana'a | صنعاء | 15.3547 | 44.2075 |
-| Aden | عدن | 12.7855 | 45.0328 |
-| Mukalla | المكلا | 14.5519 | 48.7837 |
-| Sa'dah | صعدة | 15.6949 | 43.7461 |
+| City    | Arabic | Latitude | Longitude |
+| ------- | ------ | -------- | --------- |
+| Sana'a  | صنعاء  | 15.3547  | 44.2075   |
+| Aden    | عدن    | 12.7855  | 45.0328   |
+| Mukalla | المكلا | 14.5519  | 48.7837   |
+| Sa'dah  | صعدة   | 15.6949  | 43.7461   |
 
 ### UTM Zones for Yemen | مناطق UTM لليمن
 
@@ -259,28 +270,29 @@ YEMEN_MAX_LON = 54.0  # Eastern boundary
 
 ### Typical Field Sizes | أحجام الحقول النموذجية
 
-| Field Type | Size (hectares) | Arabic |
-|------------|-----------------|--------|
-| Small farm | 0.5 - 5 | مزرعة صغيرة |
-| Medium farm | 5 - 50 | مزرعة متوسطة |
-| Large farm | 50 - 500 | مزرعة كبيرة |
-| Estate | 500 - 1000 | عقار كبير |
+| Field Type  | Size (hectares) | Arabic       |
+| ----------- | --------------- | ------------ |
+| Small farm  | 0.5 - 5         | مزرعة صغيرة  |
+| Medium farm | 5 - 50          | مزرعة متوسطة |
+| Large farm  | 50 - 500        | مزرعة كبيرة  |
+| Estate      | 500 - 1000      | عقار كبير    |
 
 ## Performance Benchmarks | معايير الأداء
 
 ### Expected Performance | الأداء المتوقع
 
-| Operation | Target | Description |
-|-----------|--------|-------------|
-| Validation | >1000/sec | Geometry validation throughput |
-| Point-in-polygon | <1ms | Single point containment check |
-| Intersection | <5ms | Polygon intersection operation |
-| Buffer | <10ms | Buffer generation |
-| Spatial query | <100ms | Indexed spatial query (10K records) |
+| Operation        | Target    | Description                         |
+| ---------------- | --------- | ----------------------------------- |
+| Validation       | >1000/sec | Geometry validation throughput      |
+| Point-in-polygon | <1ms      | Single point containment check      |
+| Intersection     | <5ms      | Polygon intersection operation      |
+| Buffer           | <10ms     | Buffer generation                   |
+| Spatial query    | <100ms    | Indexed spatial query (10K records) |
 
 ### Index Performance | أداء الفهارس
 
 With GIST indexes:
+
 - Radius query (10km): **<10ms** for 10,000 fields
 - Bounding box query: **<5ms** for 10,000 fields
 - Distance calculation: **<1ms** between two fields
@@ -369,30 +381,35 @@ async def test_spatial_query(mock_db_pool):
 
 **Issue:** `ModuleNotFoundError: No module named 'shapely'`
 **Solution:**
+
 ```bash
 pip install shapely==2.0.6
 ```
 
 **Issue:** `ModuleNotFoundError: No module named 'pyproj'`
 **Solution:**
+
 ```bash
 pip install pyproj==3.7.0
 ```
 
 **Issue:** `pytest: command not found`
 **Solution:**
+
 ```bash
 pip install pytest pytest-asyncio
 ```
 
 **Issue:** Tests fail with async warnings
 **Solution:**
+
 ```bash
 pytest --asyncio-mode=auto
 ```
 
 **Issue:** PostGIS functions not available
 **Solution:**
+
 ```sql
 CREATE EXTENSION IF NOT EXISTS postgis;
 ```

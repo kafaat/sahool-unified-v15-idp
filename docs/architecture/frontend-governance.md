@@ -1,4 +1,5 @@
 # SAHOOL Frontend Governance Rules
+
 # قواعد حوكمة الواجهات الأمامية
 
 > Version: 16.0.0
@@ -32,41 +33,41 @@ apps/mobile/    → تطبيق الجوال
 
 ```typescript
 // apps/web can import:
-import { Button } from '@sahool/shared-ui';
-import { useAuth } from '@sahool/shared-hooks';
-import { api } from '@sahool/api-client';
-import { tokens } from '@sahool/design-system';
+import { Button } from "@sahool/shared-ui";
+import { useAuth } from "@sahool/shared-hooks";
+import { api } from "@sahool/api-client";
+import { tokens } from "@sahool/design-system";
 
 // apps/admin can import:
-import { Button } from '@sahool/shared-ui';
-import { useAuth } from '@sahool/shared-hooks';
-import { api } from '@sahool/api-client';
+import { Button } from "@sahool/shared-ui";
+import { useAuth } from "@sahool/shared-hooks";
+import { api } from "@sahool/api-client";
 ```
 
 ### الممنوع ❌
 
 ```typescript
 // ❌ Cross-app imports
-import { Component } from '../../../apps/admin/src/components';
-import { hook } from '../../web/src/hooks';
+import { Component } from "../../../apps/admin/src/components";
+import { hook } from "../../web/src/hooks";
 
 // ❌ Direct service imports
-import { calculateNDVI } from '../../../apps/services/satellite-service';
+import { calculateNDVI } from "../../../apps/services/satellite-service";
 
 // ❌ Relative imports outside feature
-import { util } from '../../../../shared/utils';
+import { util } from "../../../../shared/utils";
 ```
 
 ---
 
 ## 3. Package Responsibilities - مسؤوليات الحزم
 
-| Package | المسؤولية | الممنوع |
-|---------|-----------|---------|
-| `@sahool/design-system` | tokens, theme, colors, spacing, RTL | components, hooks |
-| `@sahool/shared-ui` | Button, Card, Modal, Table, MapShell | business logic |
-| `@sahool/shared-hooks` | useAuth, useTenant, useMap, useQuery | API calls, decisions |
-| `@sahool/api-client` | HTTP client, interceptors, types | UI code, React |
+| Package                 | المسؤولية                            | الممنوع              |
+| ----------------------- | ------------------------------------ | -------------------- |
+| `@sahool/design-system` | tokens, theme, colors, spacing, RTL  | components, hooks    |
+| `@sahool/shared-ui`     | Button, Card, Modal, Table, MapShell | business logic       |
+| `@sahool/shared-hooks`  | useAuth, useTenant, useMap, useQuery | API calls, decisions |
+| `@sahool/api-client`    | HTTP client, interceptors, types     | UI code, React       |
 
 ### قاعدة ذهبية 🏆
 
@@ -117,22 +118,27 @@ apps/web/src/
 
 ### المعيار المعتمد
 
-| نوع الحالة | الأداة | الاستخدام |
-|-----------|--------|-----------|
-| Server State | TanStack Query | API data, caching |
-| UI State | Zustand | modals, sidebars, filters |
-| Form State | React Hook Form | forms, validation |
-| URL State | nuqs / useSearchParams | filters, pagination |
+| نوع الحالة   | الأداة                 | الاستخدام                 |
+| ------------ | ---------------------- | ------------------------- |
+| Server State | TanStack Query         | API data, caching         |
+| UI State     | Zustand                | modals, sidebars, filters |
+| Form State   | React Hook Form        | forms, validation         |
+| URL State    | nuqs / useSearchParams | filters, pagination       |
 
 ### الممنوع ❌
 
 ```typescript
 // ❌ useState for server data
 const [fields, setFields] = useState([]);
-useEffect(() => { fetchFields().then(setFields) }, []);
+useEffect(() => {
+  fetchFields().then(setFields);
+}, []);
 
 // ✅ Use TanStack Query
-const { data: fields } = useQuery({ queryKey: ['fields'], queryFn: fetchFields });
+const { data: fields } = useQuery({
+  queryKey: ["fields"],
+  queryFn: fetchFields,
+});
 ```
 
 ---
@@ -143,12 +149,13 @@ const { data: fields } = useQuery({ queryKey: ['fields'], queryFn: fetchFields }
 
 ```typescript
 // features/field-map/api.ts
-import { api } from '@sahool/api-client';
+import { api } from "@sahool/api-client";
 
 export const fieldMapApi = {
-  getFields: () => api.get('/v1/fields'),
+  getFields: () => api.get("/v1/fields"),
   getFieldById: (id: string) => api.get(`/v1/fields/${id}`),
-  updateField: (id: string, data: FieldUpdate) => api.patch(`/v1/fields/${id}`, data),
+  updateField: (id: string, data: FieldUpdate) =>
+    api.patch(`/v1/fields/${id}`, data),
 };
 ```
 
@@ -159,13 +166,15 @@ export const fieldMapApi = {
 const Component = () => {
   const [data, setData] = useState();
   useEffect(() => {
-    fetch('/api/fields').then(r => r.json()).then(setData);
+    fetch("/api/fields")
+      .then((r) => r.json())
+      .then(setData);
   }, []);
 };
 
 // ❌ Axios in components
-import axios from 'axios';
-const response = await axios.get('/api/fields');
+import axios from "axios";
+const response = await axios.get("/api/fields");
 ```
 
 ---
@@ -181,7 +190,7 @@ const response = await axios.get('/api/fields');
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 // ✅ Validate all user inputs
-import { z } from 'zod';
+import { z } from "zod";
 const schema = z.object({ name: z.string().min(1) });
 ```
 
@@ -189,13 +198,13 @@ const schema = z.object({ name: z.string().min(1) });
 
 ```typescript
 // ❌ Hardcoded secrets
-const API_KEY = 'sk-1234567890';
+const API_KEY = "sk-1234567890";
 
 // ❌ localStorage for tokens
-localStorage.setItem('token', accessToken);
+localStorage.setItem("token", accessToken);
 
 // ❌ Exposed internal URLs
-const dbUrl = 'postgresql://user:pass@localhost:5432/db';
+const dbUrl = "postgresql://user:pass@localhost:5432/db";
 ```
 
 ---
@@ -236,13 +245,13 @@ return <h1>Field Map</h1>;  // Use translations
 
 ```typescript
 // ✅ Lazy load features
-const FieldMap = dynamic(() => import('@/features/field-map'), { ssr: false });
+const FieldMap = dynamic(() => import("@/features/field-map"), { ssr: false });
 
 // ✅ Memoize expensive components
 const MemoizedMap = memo(MapComponent);
 
 // ✅ Use virtual lists for large data
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer } from "@tanstack/react-virtual";
 ```
 
 ### الممنوع ❌

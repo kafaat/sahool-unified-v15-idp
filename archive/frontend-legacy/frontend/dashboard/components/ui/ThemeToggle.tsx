@@ -1,18 +1,20 @@
-'use client'
+"use client";
 
-import { useTheme } from '@/contexts/ThemeContext'
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <button
       onClick={toggleTheme}
       className="theme-toggle"
-      aria-label={theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح'}
-      title={theme === 'light' ? 'الوضع الداكن' : 'الوضع الفاتح'}
+      aria-label={
+        theme === "light" ? "تفعيل الوضع الداكن" : "تفعيل الوضع الفاتح"
+      }
+      title={theme === "light" ? "الوضع الداكن" : "الوضع الفاتح"}
     >
-      {theme === 'light' ? (
+      {theme === "light" ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -50,5 +52,5 @@ export function ThemeToggle() {
         </svg>
       )}
     </button>
-  )
+  );
 }

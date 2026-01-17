@@ -3,10 +3,10 @@
  * Provides field-level change tracking, automatic diff generation, and hash chain integrity
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { diff } from 'deep-diff';
-import * as crypto from 'crypto';
+import { Injectable, Logger } from "@nestjs/common";
+import { v4 as uuidv4 } from "uuid";
+import { diff } from "deep-diff";
+import * as crypto from "crypto";
 import {
   AuditEvent,
   AuditLogOptions,
@@ -19,8 +19,8 @@ import {
   AuditQueryOptions,
   AuditStats,
   HashChainValidation,
-} from './audit-types';
-import { AuditAlertService } from './audit-alerts';
+} from "./audit-types";
+import { AuditAlertService } from "./audit-alerts";
 
 /**
  * Enhanced audit logger with field-level tracking and hash chain
@@ -34,18 +34,18 @@ export class AuditLogger {
   constructor(config: AuditLoggerConfig = {}) {
     this.config = {
       prisma: config.prisma || null,
-      defaultTenantId: config.defaultTenantId || 'default',
+      defaultTenantId: config.defaultTenantId || "default",
       enableHashChain: config.enableHashChain ?? true,
       enableAlerts: config.enableAlerts ?? true,
       alertConfig: config.alertConfig || {},
       globalRedactFields: config.globalRedactFields || [
-        'password',
-        'token',
-        'secret',
-        'apiKey',
-        'privateKey',
-        'accessToken',
-        'refreshToken',
+        "password",
+        "token",
+        "secret",
+        "apiKey",
+        "privateKey",
+        "accessToken",
+        "refreshToken",
       ],
       hashFunction: config.hashFunction || this.defaultHashFunction,
     };
@@ -67,11 +67,11 @@ export class AuditLogger {
       tenantId: event.tenantId || this.config.defaultTenantId,
       actorId: event.actorId,
       actorType: event.actorType || ActorType.SYSTEM,
-      action: event.action || 'unknown',
+      action: event.action || "unknown",
       category: event.category || AuditCategory.SYSTEM,
       severity: event.severity || AuditSeverity.INFO,
-      resourceType: event.resourceType || 'unknown',
-      resourceId: event.resourceId || 'unknown',
+      resourceType: event.resourceType || "unknown",
+      resourceId: event.resourceId || "unknown",
       correlationId: event.correlationId || uuidv4(),
       sessionId: event.sessionId,
       ipAddress: event.ipAddress,
@@ -99,7 +99,11 @@ export class AuditLogger {
     }
 
     // Trigger alerts if enabled
-    if (this.config.enableAlerts && this.alertService && options.triggerAlerts !== false) {
+    if (
+      this.config.enableAlerts &&
+      this.alertService &&
+      options.triggerAlerts !== false
+    ) {
       await this.alertService.checkEvent(completeEvent);
     }
 
@@ -118,8 +122,14 @@ export class AuditLogger {
     newValue: Record<string, unknown>,
     options: AuditLogOptions = {},
   ): Promise<AuditEvent> {
-    const changes = this.detectFieldChanges(oldValue, newValue, options.excludeFields || []);
-    const auditDiff = options.generateDiff ? this.generateDiff(oldValue, newValue) : undefined;
+    const changes = this.detectFieldChanges(
+      oldValue,
+      newValue,
+      options.excludeFields || [],
+    );
+    const auditDiff = options.generateDiff
+      ? this.generateDiff(oldValue, newValue)
+      : undefined;
 
     return this.log(
       {
@@ -140,7 +150,10 @@ export class AuditLogger {
     excludeFields: string[] = [],
   ): FieldChange[] {
     const changes: FieldChange[] = [];
-    const allKeys = new Set([...Object.keys(oldValue), ...Object.keys(newValue)]);
+    const allKeys = new Set([
+      ...Object.keys(oldValue),
+      ...Object.keys(newValue),
+    ]);
 
     for (const key of allKeys) {
       if (excludeFields.includes(key)) continue;
@@ -154,7 +167,7 @@ export class AuditLogger {
           field: key,
           oldValue: undefined,
           newValue: newVal,
-          type: 'create',
+          type: "create",
         });
       } else if (!(key in newValue)) {
         // Field was deleted
@@ -162,7 +175,7 @@ export class AuditLogger {
           field: key,
           oldValue: oldVal,
           newValue: undefined,
-          type: 'delete',
+          type: "delete",
         });
       } else if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
         // Field was modified
@@ -170,7 +183,7 @@ export class AuditLogger {
           field: key,
           oldValue: oldVal,
           newValue: newVal,
-          type: 'update',
+          type: "update",
         });
       }
     }
@@ -194,29 +207,29 @@ export class AuditLogger {
     };
 
     for (const change of differences) {
-      const path = change.path?.join('.') || 'root';
+      const path = change.path?.join(".") || "root";
 
       switch (change.kind) {
-        case 'N': // New
+        case "N": // New
           result.added[path] = (change as any).rhs;
           break;
-        case 'D': // Deleted
+        case "D": // Deleted
           result.deleted[path] = (change as any).lhs;
           break;
-        case 'E': // Edited
+        case "E": // Edited
           result.modified.push({
             field: path,
             oldValue: (change as any).lhs,
             newValue: (change as any).rhs,
-            type: 'update',
+            type: "update",
           });
           break;
-        case 'A': // Array change
+        case "A": // Array change
           result.modified.push({
             field: path,
             oldValue: (change as any).item?.lhs,
             newValue: (change as any).item?.rhs,
-            type: 'update',
+            type: "update",
           });
           break;
       }
@@ -228,7 +241,10 @@ export class AuditLogger {
   /**
    * Redact sensitive data from audit event
    */
-  private redactSensitiveData(event: AuditEvent, options: AuditLogOptions): void {
+  private redactSensitiveData(
+    event: AuditEvent,
+    options: AuditLogOptions,
+  ): void {
     const redactFields = [
       ...this.config.globalRedactFields,
       ...(options.redactFields || []),
@@ -237,9 +253,13 @@ export class AuditLogger {
     // Redact in changes
     if (event.changes) {
       for (const change of event.changes) {
-        if (redactFields.some((field) => change.field.toLowerCase().includes(field.toLowerCase()))) {
-          change.oldValue = '[REDACTED]';
-          change.newValue = '[REDACTED]';
+        if (
+          redactFields.some((field) =>
+            change.field.toLowerCase().includes(field.toLowerCase()),
+          )
+        ) {
+          change.oldValue = "[REDACTED]";
+          change.newValue = "[REDACTED]";
         }
       }
     }
@@ -250,12 +270,12 @@ export class AuditLogger {
         const lowerField = field.toLowerCase();
         for (const key of Object.keys(event.diff.added)) {
           if (key.toLowerCase().includes(lowerField)) {
-            event.diff.added[key] = '[REDACTED]';
+            event.diff.added[key] = "[REDACTED]";
           }
         }
         for (const key of Object.keys(event.diff.deleted)) {
           if (key.toLowerCase().includes(lowerField)) {
-            event.diff.deleted[key] = '[REDACTED]';
+            event.diff.deleted[key] = "[REDACTED]";
           }
         }
       }
@@ -267,7 +287,7 @@ export class AuditLogger {
         const lowerField = field.toLowerCase();
         for (const key of Object.keys(event.metadata)) {
           if (key.toLowerCase().includes(lowerField)) {
-            event.metadata[key] = '[REDACTED]';
+            event.metadata[key] = "[REDACTED]";
           }
         }
       }
@@ -282,7 +302,7 @@ export class AuditLogger {
       // Get last hash for tenant
       const lastEntry = await this.config.prisma.auditLog.findFirst({
         where: { tenantId: event.tenantId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         select: { entryHash: true },
       });
 
@@ -292,7 +312,7 @@ export class AuditLogger {
       const canonical = this.buildCanonicalString(event);
       event.entryHash = this.config.hashFunction(canonical);
     } catch (error) {
-      this.logger.error('Failed to add hash chain', error);
+      this.logger.error("Failed to add hash chain", error);
       // Continue without hash chain
     }
   }
@@ -303,7 +323,7 @@ export class AuditLogger {
   private buildCanonicalString(event: AuditEvent): string {
     const parts = [
       event.tenantId,
-      event.actorId || 'null',
+      event.actorId || "null",
       event.actorType,
       event.action,
       event.resourceType,
@@ -312,17 +332,17 @@ export class AuditLogger {
       JSON.stringify(event.changes || []),
       JSON.stringify(event.metadata || {}),
       event.timestamp?.toISOString() || new Date().toISOString(),
-      event.prevHash || 'null',
+      event.prevHash || "null",
     ];
 
-    return parts.join('|');
+    return parts.join("|");
   }
 
   /**
    * Default hash function (SHA-256)
    */
   private defaultHashFunction(data: string): string {
-    return crypto.createHash('sha256').update(data).digest('hex');
+    return crypto.createHash("sha256").update(data).digest("hex");
   }
 
   /**
@@ -357,7 +377,7 @@ export class AuditLogger {
         },
       });
     } catch (error) {
-      this.logger.error('Failed to store audit event', error);
+      this.logger.error("Failed to store audit event", error);
       // Don't throw - audit logging should not break the application
     }
   }
@@ -366,7 +386,7 @@ export class AuditLogger {
    * Log to console for debugging
    */
   private logToConsole(event: AuditEvent): void {
-    const message = `[AUDIT] ${event.action} on ${event.resourceType}/${event.resourceId} by ${event.actorType}/${event.actorId || 'system'}`;
+    const message = `[AUDIT] ${event.action} on ${event.resourceType}/${event.resourceId} by ${event.actorType}/${event.actorId || "system"}`;
 
     switch (event.severity) {
       case AuditSeverity.CRITICAL:
@@ -386,7 +406,7 @@ export class AuditLogger {
    */
   async query(options: AuditQueryOptions): Promise<AuditEvent[]> {
     if (!this.config.prisma) {
-      throw new Error('Prisma client not configured');
+      throw new Error("Prisma client not configured");
     }
 
     const where: any = {
@@ -408,7 +428,7 @@ export class AuditLogger {
 
     const entries = await this.config.prisma.auditLog.findMany({
       where,
-      orderBy: { createdAt: options.orderBy || 'desc' },
+      orderBy: { createdAt: options.orderBy || "desc" },
       take: options.limit || 100,
       skip: options.offset || 0,
     });
@@ -421,7 +441,7 @@ export class AuditLogger {
    */
   async getStats(tenantId: string, date: Date): Promise<AuditStats> {
     if (!this.config.prisma) {
-      throw new Error('Prisma client not configured');
+      throw new Error("Prisma client not configured");
     }
 
     const startOfDay = new Date(date);
@@ -446,19 +466,27 @@ export class AuditLogger {
       eventsByCategory: {} as Record<AuditCategory, number>,
       eventsBySeverity: {} as Record<AuditSeverity, number>,
       uniqueActors: new Set(events.map((e) => e.actorId)).size,
-      uniqueResources: new Set(events.map((e) => `${e.resourceType}:${e.resourceId}`)).size,
+      uniqueResources: new Set(
+        events.map((e) => `${e.resourceType}:${e.resourceId}`),
+      ).size,
       failedEvents: events.filter((e) => !e.success).length,
-      criticalEvents: events.filter((e) => e.severity === AuditSeverity.CRITICAL).length,
+      criticalEvents: events.filter(
+        (e) => e.severity === AuditSeverity.CRITICAL,
+      ).length,
     };
 
     // Count by category
     for (const category of Object.values(AuditCategory)) {
-      stats.eventsByCategory[category] = events.filter((e) => e.category === category).length;
+      stats.eventsByCategory[category] = events.filter(
+        (e) => e.category === category,
+      ).length;
     }
 
     // Count by severity
     for (const severity of Object.values(AuditSeverity)) {
-      stats.eventsBySeverity[severity] = events.filter((e) => e.severity === severity).length;
+      stats.eventsBySeverity[severity] = events.filter(
+        (e) => e.severity === severity,
+      ).length;
     }
 
     return stats;
@@ -469,12 +497,12 @@ export class AuditLogger {
    */
   async validateHashChain(tenantId: string): Promise<HashChainValidation> {
     if (!this.config.prisma || !this.config.enableHashChain) {
-      throw new Error('Hash chain validation not available');
+      throw new Error("Hash chain validation not available");
     }
 
     const entries = await this.config.prisma.auditLog.findMany({
       where: { tenantId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
 
     const validation: HashChainValidation = {

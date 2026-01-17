@@ -1,4 +1,5 @@
 # Logging Configuration Report - SAHOOL Services
+
 ## All Services in /apps/services/
 
 **Generated:** 2026-01-06
@@ -56,6 +57,7 @@
 #### Node.js/TypeScript Services (Using console.log):
 
 **NestJS Services (12 services):**
+
 - chat-service
 - disaster-assessment
 - lai-estimation
@@ -74,6 +76,7 @@
 **Issue:** Plain text logs, not JSON formatted
 
 **Express/Socket.io Services (1 service):**
+
 - community-chat
 
 **Status:** ❌ Using `console.log()` for logging
@@ -82,6 +85,7 @@
 #### Python/FastAPI Services (45 services) - Using basicConfig:
 
 **Services using `logging.basicConfig(level=logging.INFO)`:**
+
 - notification-service
 - satellite-service
 - vegetation-analysis-service
@@ -134,21 +138,22 @@
 
 Most services support log level configuration via environment variables:
 
-| Service | Env Var | Default | Config File |
-|---------|---------|---------|-------------|
-| ai-advisor | `LOG_LEVEL` | `INFO` | `/apps/services/ai-advisor/src/config.py:22` |
-| agent-registry | `LOG_LEVEL` | `INFO` | `/apps/services/agent-registry/src/config.py:16` |
-| code-review-service | `LOG_LEVEL` | `INFO` | `/apps/services/code-review-service/config/settings.py:26` |
-| globalgap-compliance | `LOG_LEVEL` | `INFO` | `/apps/services/globalgap-compliance/src/config.py:23` |
-| crop-health-ai | Hardcoded | `INFO` | `/apps/services/crop-health-ai/src/main.py:66` |
-| billing-core | Hardcoded | `INFO` | `/apps/services/billing-core/src/main.py:102` |
-| notification-service | Hardcoded | `INFO` | `/apps/services/notification-service/src/main.py:54` |
-| task-service | Hardcoded | Varies | `/apps/services/task-service/src/main.py:34` |
-| demo-data | `LOG_LEVEL` | `INFO` | `/apps/services/demo-data/main.py:24` |
+| Service              | Env Var     | Default | Config File                                                |
+| -------------------- | ----------- | ------- | ---------------------------------------------------------- |
+| ai-advisor           | `LOG_LEVEL` | `INFO`  | `/apps/services/ai-advisor/src/config.py:22`               |
+| agent-registry       | `LOG_LEVEL` | `INFO`  | `/apps/services/agent-registry/src/config.py:16`           |
+| code-review-service  | `LOG_LEVEL` | `INFO`  | `/apps/services/code-review-service/config/settings.py:26` |
+| globalgap-compliance | `LOG_LEVEL` | `INFO`  | `/apps/services/globalgap-compliance/src/config.py:23`     |
+| crop-health-ai       | Hardcoded   | `INFO`  | `/apps/services/crop-health-ai/src/main.py:66`             |
+| billing-core         | Hardcoded   | `INFO`  | `/apps/services/billing-core/src/main.py:102`              |
+| notification-service | Hardcoded   | `INFO`  | `/apps/services/notification-service/src/main.py:54`       |
+| task-service         | Hardcoded   | Varies  | `/apps/services/task-service/src/main.py:34`               |
+| demo-data            | `LOG_LEVEL` | `INFO`  | `/apps/services/demo-data/main.py:24`                      |
 
 **Uvicorn Log Level Configuration:**
 
 Python services using Uvicorn typically configure log level in their startup:
+
 ```python
 uvicorn.run(
     "main:app",
@@ -159,6 +164,7 @@ uvicorn.run(
 ```
 
 **Examples:**
+
 - `/apps/services/ai-advisor/src/main.py:654`
 - `/apps/services/agent-registry/src/main.py:558`
 - `/apps/services/code-review-service/src/main.py:560`
@@ -174,10 +180,12 @@ uvicorn.run(
 **Analysis of Dockerfiles:**
 
 Examined representative Dockerfiles:
+
 - `/apps/services/ai-advisor/Dockerfile`
 - `/apps/services/chat-service/Dockerfile`
 
 **Findings:**
+
 - ✅ Multi-stage builds used (good practice)
 - ✅ Non-root users configured (security best practice)
 - ✅ Health checks implemented
@@ -185,6 +193,7 @@ Examined representative Dockerfiles:
 - ❌ No log rotation settings in containers
 
 **Current Behavior:**
+
 - Using Docker's default `json-file` logging driver
 - No size limits configured (potential disk space issues)
 - No rotation configured (logs can grow indefinitely)
@@ -225,16 +234,19 @@ services:
 ### ❌ No Log Rotation Configured
 
 **Search Results:**
+
 - Searched for: `rotate`, `logrotate`, `max-size`, `max-file`
 - Found: 4 matches (all related to image rotation in ML models, not log rotation)
 
 **Current State:**
+
 - No `/etc/logrotate.d/` configurations found
 - No log rotation in Docker containers
 - No log rotation in application code
 - Python's `logging.handlers.RotatingFileHandler` not used
 
 **Risk Assessment:**
+
 - 🔴 **HIGH RISK:** Logs can grow indefinitely
 - 🔴 **HIGH RISK:** Potential disk space exhaustion
 - 🔴 **HIGH RISK:** Performance degradation with large log files
@@ -244,12 +256,13 @@ services:
 1. **For Docker Deployments (Recommended):**
 
 Add to docker-compose.yml or Kubernetes deployments:
+
 ```yaml
 logging:
   driver: "json-file"
   options:
-    max-size: "10m"      # Maximum size of single log file
-    max-file: "3"        # Keep 3 rotated files (30MB total per container)
+    max-size: "10m" # Maximum size of single log file
+    max-file: "3" # Keep 3 rotated files (30MB total per container)
 ```
 
 2. **For Python Applications (Alternative):**
@@ -267,6 +280,7 @@ handler = RotatingFileHandler(
 3. **For Production (Best Practice):**
 
 Use centralized logging with retention policies:
+
 - ELK Stack (Elasticsearch, Logstash, Kibana)
 - Loki + Grafana
 - AWS CloudWatch with retention policies
@@ -283,6 +297,7 @@ Use centralized logging with retention policies:
 #### ✅ Services with PII Masking
 
 **ai-advisor service:**
+
 - **File:** `/apps/services/ai-advisor/src/utils/pii_masker.py`
 - **Implementation:** `PIIMasker` class with comprehensive masking
 - **Protected Data:**
@@ -311,6 +326,7 @@ Use centralized logging with retention policies:
 #### ⚠️ Services with Potential Sensitive Data Exposure
 
 **Search for password/token/secret logging:**
+
 - Searched patterns: `f".*{.*password|token|secret}"`, `logger.*password`, `console.log(.*password`
 - **Result:** No direct logging of sensitive variables found ✅
 
@@ -336,14 +352,17 @@ Use centralized logging with retention policies:
 #### 🔴 High-Risk Patterns Found
 
 **Database connection strings (potential exposure):**
+
 - Most services use environment variables (good)
 - No hardcoded credentials found ✅
 
 **API Keys in Configuration:**
+
 - Services properly use environment variables
 - No API keys found in code ✅
 
 **JWT Token Handling:**
+
 - community-chat: Proper JWT validation without logging token content ✅
 - marketplace-service, chat-service: Using jsonwebtoken library properly ✅
 
@@ -373,66 +392,66 @@ Use centralized logging with retention policies:
 
 ### Python Services (48 total)
 
-| Service | Structured Logging | Log Level Config | PII Masking | Status |
-|---------|-------------------|------------------|-------------|--------|
-| ai-advisor | ✅ structlog+JSON | ✅ Env var | ✅ YES | ✅ Excellent |
-| agent-registry | ✅ structlog+JSON | ✅ Env var | ❌ NO | ⚠️ Good |
-| globalgap-compliance | ✅ structlog+JSON | ✅ Env var | ❌ NO | ⚠️ Good |
-| notification-service | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| satellite-service | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| vegetation-analysis | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| billing-core | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| task-service | ❌ basicConfig | ⚠️ Mixed | ❌ NO | ⚠️ Needs work |
-| field-chat | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| crop-health-ai | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| code-review-service | ❌ basicConfig | ✅ Env var | ❌ NO | ⚠️ Needs work |
-| alert-service | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| yield-engine | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| ai-agents-core | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| iot-gateway | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| ws-gateway | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| demo-data | ❌ basicConfig | ✅ Env var | ❌ NO | ⚠️ Needs work |
-| inventory-service | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| field-management | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| weather-advanced | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| field-core | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| field-intelligence | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| field-ops | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| field-service | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| ndvi-engine | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| ndvi-processor | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| mcp-server | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| provider-config | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| equipment-service | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| virtual-sensors | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| weather-core | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| advisory-service | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| agro-advisor | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| agro-rules | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| astronomical-calendar | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| crop-health | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| crop-intelligence | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| fertilizer-advisor | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| indicators-service | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
-| irrigation-smart | ❌ basicConfig | ❌ Hardcoded | ❌ NO | ⚠️ Needs work |
+| Service               | Structured Logging | Log Level Config | PII Masking | Status        |
+| --------------------- | ------------------ | ---------------- | ----------- | ------------- |
+| ai-advisor            | ✅ structlog+JSON  | ✅ Env var       | ✅ YES      | ✅ Excellent  |
+| agent-registry        | ✅ structlog+JSON  | ✅ Env var       | ❌ NO       | ⚠️ Good       |
+| globalgap-compliance  | ✅ structlog+JSON  | ✅ Env var       | ❌ NO       | ⚠️ Good       |
+| notification-service  | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| satellite-service     | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| vegetation-analysis   | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| billing-core          | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| task-service          | ❌ basicConfig     | ⚠️ Mixed         | ❌ NO       | ⚠️ Needs work |
+| field-chat            | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| crop-health-ai        | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| code-review-service   | ❌ basicConfig     | ✅ Env var       | ❌ NO       | ⚠️ Needs work |
+| alert-service         | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| yield-engine          | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| ai-agents-core        | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| iot-gateway           | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| ws-gateway            | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| demo-data             | ❌ basicConfig     | ✅ Env var       | ❌ NO       | ⚠️ Needs work |
+| inventory-service     | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| field-management      | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| weather-advanced      | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| field-core            | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| field-intelligence    | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| field-ops             | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| field-service         | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| ndvi-engine           | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| ndvi-processor        | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| mcp-server            | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| provider-config       | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| equipment-service     | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| virtual-sensors       | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| weather-core          | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| advisory-service      | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| agro-advisor          | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| agro-rules            | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| astronomical-calendar | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| crop-health           | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| crop-intelligence     | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| fertilizer-advisor    | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| indicators-service    | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
+| irrigation-smart      | ❌ basicConfig     | ❌ Hardcoded     | ❌ NO       | ⚠️ Needs work |
 
 ### Node.js Services (13 total)
 
-| Service | Structured Logging | Log Level Config | PII Masking | Status |
-|---------|-------------------|------------------|-------------|--------|
-| chat-service | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| community-chat | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| disaster-assessment | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| lai-estimation | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| marketplace-service | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| yield-prediction | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| yield-prediction-service | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| crop-growth-model | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| iot-service | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| research-core | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| user-service | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| weather-service | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
-| shared/errors | ❌ console.log | ❌ NO | ❌ NO | ⚠️ Needs work |
+| Service                  | Structured Logging | Log Level Config | PII Masking | Status        |
+| ------------------------ | ------------------ | ---------------- | ----------- | ------------- |
+| chat-service             | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| community-chat           | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| disaster-assessment      | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| lai-estimation           | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| marketplace-service      | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| yield-prediction         | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| yield-prediction-service | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| crop-growth-model        | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| iot-service              | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| research-core            | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| user-service             | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| weather-service          | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
+| shared/errors            | ❌ console.log     | ❌ NO            | ❌ NO       | ⚠️ Needs work |
 
 ---
 
@@ -503,7 +522,7 @@ Use centralized logging with retention policies:
 Create `docker-compose.logging.yml` overlay:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 x-logging: &default-logging
   driver: "json-file"
@@ -540,8 +559,8 @@ Create: `/apps/services/shared/logging/pii-masker.ts`
 ```typescript
 export class PIIMasker {
   private static readonly PATTERNS = {
-    email: [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]'],
-    phone: [/(\+?[\d\s\-\(\)]{10,})/g, '[PHONE]'],
+    email: [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[EMAIL]"],
+    phone: [/(\+?[\d\s\-\(\)]{10,})/g, "[PHONE]"],
     // ... add more patterns
   };
 
@@ -581,8 +600,8 @@ logger = structlog.get_logger()
 **Node.js Services Template:**
 
 ```typescript
-import pino from 'pino';
-import { PIIMasker } from './shared/logging/pii-masker';
+import pino from "pino";
+import { PIIMasker } from "./shared/logging/pii-masker";
 
 const logger = pino({
   formatters: {
@@ -591,7 +610,7 @@ const logger = pino({
       return PIIMasker.maskObject(obj);
     },
   },
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.LOG_LEVEL || "info",
 });
 ```
 
@@ -611,12 +630,14 @@ const logger = pino({
 **Current Status:** ⚠️ PARTIAL
 
 **Required:**
+
 - ✅ No hardcoded credentials found
 - ⚠️ PII masking only in 1/61 services
 - ❌ No data retention policies configured
 - ❌ No log anonymization in most services
 
 **Action Items:**
+
 1. Implement PII masking in all services
 2. Configure log retention (30-90 days recommended)
 3. Document what PII is logged and why
@@ -627,6 +648,7 @@ const logger = pino({
 **Current Status:** ⚠️ NEEDS IMPROVEMENT
 
 **Checklist:**
+
 - ✅ Non-root users in Docker containers
 - ✅ No credentials in code
 - ✅ JWT secrets from environment variables
@@ -636,6 +658,7 @@ const logger = pino({
 - ❌ No log tampering prevention
 
 **Recommendations:**
+
 1. Encrypt logs at rest if storing sensitive data
 2. Implement log access controls (RBAC)
 3. Consider using audit logs for compliance (immutable)
@@ -648,12 +671,14 @@ const logger = pino({
 ### Log Volume Metrics
 
 **Should monitor:**
+
 - Logs per second per service
 - Error rate (errors/total logs)
 - Log size growth rate
 - Disk usage for log storage
 
 **Alert thresholds:**
+
 - Error rate > 5% for 5 minutes
 - Log volume spike > 200% of baseline
 - Disk usage > 80%
@@ -662,6 +687,7 @@ const logger = pino({
 ### Log Analysis
 
 **Recommended tools:**
+
 - **ELK Stack:** Elasticsearch + Logstash + Kibana
 - **Grafana Loki:** Lightweight alternative to ELK
 - **Datadog/New Relic:** Commercial SaaS options
@@ -671,15 +697,15 @@ const logger = pino({
 
 ## 11. Estimated Effort
 
-| Task | Priority | Effort | Impact | Timeline |
-|------|----------|--------|--------|----------|
-| Implement log rotation | CRITICAL | Low | High | Week 1 |
-| Add PII masking library | CRITICAL | Medium | High | Week 2-3 |
-| Migrate to structured logging | HIGH | High | High | Week 4-8 |
-| Audit print/console.log | HIGH | High | Medium | Week 9-12 |
-| Centralized logging setup | MEDIUM | High | High | Week 13-16 |
-| Log correlation IDs | LOW | Medium | Medium | Week 17-18 |
-| Monitoring and alerting | LOW | Medium | High | Week 19-20 |
+| Task                          | Priority | Effort | Impact | Timeline   |
+| ----------------------------- | -------- | ------ | ------ | ---------- |
+| Implement log rotation        | CRITICAL | Low    | High   | Week 1     |
+| Add PII masking library       | CRITICAL | Medium | High   | Week 2-3   |
+| Migrate to structured logging | HIGH     | High   | High   | Week 4-8   |
+| Audit print/console.log       | HIGH     | High   | Medium | Week 9-12  |
+| Centralized logging setup     | MEDIUM   | High   | High   | Week 13-16 |
+| Log correlation IDs           | LOW      | Medium | Medium | Week 17-18 |
+| Monitoring and alerting       | LOW      | Medium | High   | Week 19-20 |
 
 **Total Estimated Effort:** 20 weeks (5 months) with 2 developers
 
@@ -690,12 +716,14 @@ const logger = pino({
 The SAHOOL microservices platform has a **mixed logging configuration** with significant room for improvement:
 
 ### Strengths:
+
 - ✅ ai-advisor service demonstrates excellent logging practices
 - ✅ Most services support configurable log levels
 - ✅ No hardcoded credentials found
 - ✅ Good security practices (JWT handling, authentication)
 
 ### Critical Gaps:
+
 - 🔴 Only 3/61 services use structured JSON logging
 - 🔴 No log rotation configured (risk of disk exhaustion)
 - 🔴 Only 1/61 services implement PII masking
@@ -703,6 +731,7 @@ The SAHOOL microservices platform has a **mixed logging configuration** with sig
 - 🔴 No centralized log aggregation
 
 ### Recommendations Priority:
+
 1. **Week 1:** Implement log rotation (CRITICAL)
 2. **Week 2-3:** Deploy PII masking across all services (CRITICAL)
 3. **Week 4-8:** Migrate to structured logging (HIGH)
@@ -716,16 +745,19 @@ The SAHOOL microservices platform has a **mixed logging configuration** with sig
 ## Appendix A: Quick Reference
 
 ### Log Level Hierarchy
+
 ```
 DEBUG < INFO < WARNING < ERROR < CRITICAL
 ```
 
 ### Recommended Log Levels by Environment
+
 - **Development:** DEBUG
 - **Staging:** INFO
 - **Production:** WARNING (with INFO for critical services)
 
 ### Environment Variable Standards
+
 ```bash
 LOG_LEVEL=INFO
 LOG_FORMAT=json
@@ -733,6 +765,7 @@ LOG_OUTPUT=stdout
 ```
 
 ### Docker Logging Best Practices
+
 ```yaml
 logging:
   driver: "json-file"

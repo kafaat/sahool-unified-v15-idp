@@ -3,23 +3,27 @@
  * Useful decorators for SAHOOL platform authentication and authorization
  */
 
-import { createParamDecorator, ExecutionContext, SetMetadata } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  SetMetadata,
+} from "@nestjs/common";
 
 /**
  * Public route decorator - mark routes that don't require authentication
  */
-export const Public = () => SetMetadata('isPublic', true);
+export const Public = () => SetMetadata("isPublic", true);
 
 /**
  * Roles decorator - specify required roles for a route
  */
-export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
+export const Roles = (...roles: string[]) => SetMetadata("roles", roles);
 
 /**
  * Require Permissions decorator
  */
 export const RequirePermissions = (...permissions: string[]) =>
-  SetMetadata('permissions', permissions);
+  SetMetadata("permissions", permissions);
 
 /**
  * Current User decorator - extract the current authenticated user from the request
@@ -59,7 +63,7 @@ export const UserRoles = createParamDecorator(
 export const TenantId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string | undefined => {
     const request = ctx.switchToHttp().getRequest();
-    return request.user?.tenantId || request.headers['x-tenant-id'];
+    return request.user?.tenantId || request.headers["x-tenant-id"];
   },
 );
 
@@ -85,9 +89,9 @@ export const AuthToken = createParamDecorator(
       return undefined;
     }
 
-    const [scheme, token] = authorization.split(' ');
+    const [scheme, token] = authorization.split(" ");
 
-    if (scheme.toLowerCase() !== 'bearer') {
+    if (scheme.toLowerCase() !== "bearer") {
       return undefined;
     }
 
@@ -107,13 +111,13 @@ export const RequestLanguage = createParamDecorator(
       return queryLang;
     }
 
-    const acceptLanguage = request.headers['accept-language'];
+    const acceptLanguage = request.headers["accept-language"];
     if (acceptLanguage) {
-      const lang = acceptLanguage.split(',')[0].split('-')[0];
+      const lang = acceptLanguage.split(",")[0].split("-")[0];
       return lang;
     }
 
-    return 'en';
+    return "en";
   },
 );
 

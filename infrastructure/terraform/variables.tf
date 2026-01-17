@@ -24,9 +24,14 @@ variable "primary_region" {
 }
 
 variable "secondary_region" {
-  description = "المنطقة الثانوية AWS / Secondary AWS region"
+  description = "المنطقة الثانوية AWS للتعافي من الكوارث / Secondary AWS region for disaster recovery"
   type        = string
-  default     = "me-south-1"
+  default     = "eu-west-1"
+
+  validation {
+    condition     = contains(["eu-west-1", "eu-central-1", "ap-south-1", "us-east-1", "me-central-1"], var.secondary_region)
+    error_message = "Secondary region must be one of: eu-west-1, eu-central-1, ap-south-1, us-east-1, or me-central-1."
+  }
 }
 
 variable "eks_cluster_version" {

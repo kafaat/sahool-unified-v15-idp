@@ -3,7 +3,6 @@ MIME Type Definitions and Magic Bytes Validation
 تعريفات أنواع MIME والتحقق من البايتات السحرية
 """
 
-
 # MIME Type Whitelists - قوائم بيضاء لأنواع MIME
 ALLOWED_IMAGE_TYPES = [
     "image/jpeg",

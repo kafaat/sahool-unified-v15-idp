@@ -128,7 +128,7 @@ function generateMockPlan(): IrrigationPlan {
   const selectedCrop = crops[Math.floor(Math.random() * crops.length)];
   const selectedStage = stages[Math.floor(Math.random() * stages.length)];
   const selectedMethod = methods[Math.floor(Math.random() * methods.length)];
-  const urgency = urgencies[Math.floor(Math.random() * urgencies.length)];
+  const urgency = urgencies[Math.floor(Math.random() * urgencies.length)] ?? "medium";
 
   const schedules: IrrigationSchedule[] = Array.from({ length: 3 }, (_, i) => {
     const date = new Date();

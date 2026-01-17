@@ -111,10 +111,11 @@ export default function EpidemicCenterPage() {
         (g) => g.id === govName || g.name.includes(govName),
       );
 
-      if (gov && statsMap[gov.id]) {
-        statsMap[gov.id].total++;
-        if (d.severity === "critical") statsMap[gov.id].critical++;
-        if (d.severity === "high") statsMap[gov.id].high++;
+      const govStat = gov ? statsMap[gov.id] : undefined;
+      if (govStat) {
+        govStat.total++;
+        if (d.severity === "critical") govStat.critical++;
+        if (d.severity === "high") govStat.high++;
       }
     });
 

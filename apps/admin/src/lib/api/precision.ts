@@ -18,6 +18,40 @@ function generateMockId(prefix: string, index: number): string {
   return `${prefix}-${index + 1}-${Date.now().toString(36)}`;
 }
 
+/**
+ * Generate a random number for mock data generation.
+ * Uses crypto.getRandomValues() for CodeQL compliance, even though
+ * cryptographic security is not required for mock/demo data.
+ *
+ * @returns A random number between 0 (inclusive) and 1 (exclusive)
+ */
+function mockRandom(): number {
+  // Use crypto API for CodeQL compliance
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    return (arr[0] ?? 0) / 0xffffffff;
+  }
+  // Fallback for environments without crypto (SSR, tests)
+  return Date.now() % 1000 / 1000;
+}
+
+/**
+ * Generate a random integer for mock data within a range.
+ * See mockRandom() for security notes.
+ */
+function mockRandomInt(min: number, max: number): number {
+  return Math.floor(mockRandom() * (max - min + 1)) + min;
+}
+
+/**
+ * Pick a random element from an array for mock data.
+ * See mockRandom() for security notes.
+ */
+function mockRandomPick<T>(arr: readonly T[]): T | undefined {
+  return arr[Math.floor(mockRandom() * arr.length)];
+}
+
 // VRA (Variable Rate Application) Types
 export interface VRAPrescription {
   id: string;
@@ -201,18 +235,18 @@ function generateMockVRAPrescriptions(): VRAPrescription[] {
   return Array.from({ length: 15 }, (_, i) => ({
     id: generateMockId("vra", i),
     farmId: generateMockId("farm", i % 10),
-    farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
+    farmName: `مزرعة ${mockRandomInt(1, 10)}`,
     fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
-    cropType: ["قمح", "بن", "قات", "ذرة"][Math.floor(Math.random() * 4)],
-    prescriptionType: types[Math.floor(Math.random() * types.length)],
-    status: statuses[Math.floor(Math.random() * statuses.length)],
+    cropType: ["قمح", "بن", "قات", "ذرة"][Math.floor(mockRandom() * 4)] ?? "قمح",
+    prescriptionType: types[Math.floor(mockRandom() * types.length)] ?? "fertilizer",
+    status: statuses[Math.floor(mockRandom() * statuses.length)] ?? "pending",
     createdAt: new Date(
-      Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000,
+      Date.now() - mockRandom() * 14 * 24 * 60 * 60 * 1000,
     ).toISOString(),
-    createdBy: `user-${Math.floor(Math.random() * 5) + 1}`,
-    area: Math.random() * 50 + 10,
-    zones: Math.floor(Math.random() * 8) + 3,
-    totalCost: Math.random() * 5000 + 1000,
+    createdBy: `user-${mockRandomInt(1, 5)}`,
+    area: mockRandom() * 50 + 10,
+    zones: mockRandomInt(3, 8),
+    totalCost: mockRandom() * 5000 + 1000,
   }));
 }
 
@@ -225,41 +259,41 @@ function generateMockGDDData(): GDDField[] {
   ];
 
   return Array.from({ length: 8 }, (_, i) => {
-    const stageIndex = Math.floor(Math.random() * (stages.length - 1));
-    const currentStage = stages[stageIndex];
-    const nextStage = stages[stageIndex + 1];
-    const currentGDD = Math.random() * 200 + currentStage.target - 100;
+    const stageIndex = Math.floor(mockRandom() * (stages.length - 1));
+    const currentStage = stages[stageIndex] ?? stages[0];
+    const nextStage = stages[stageIndex + 1] ?? stages[stages.length - 1];
+    const currentGDD = mockRandom() * 200 + (currentStage?.target ?? 800) - 100;
 
     const history = Array.from({ length: 30 }, (_, j) => ({
       date: new Date(Date.now() - (29 - j) * 24 * 60 * 60 * 1000).toISOString(),
       gdd: (currentGDD / 30) * (j + 1),
-      temp_min: 15 + Math.random() * 10,
-      temp_max: 25 + Math.random() * 10,
+      temp_min: 15 + mockRandom() * 10,
+      temp_max: 25 + mockRandom() * 10,
     }));
 
     return {
       id: `field-${i + 1}`,
-      farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
-      farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
+      farmId: `farm-${mockRandomInt(1, 10)}`,
+      farmName: `مزرعة ${mockRandomInt(1, 10)}`,
       fieldName: `حقل ${String.fromCharCode(65 + i)}`,
-      cropType: ["قمح", "ذرة"][Math.floor(Math.random() * 2)],
+      cropType: ["قمح", "ذرة"][Math.floor(mockRandom() * 2)] ?? "قمح",
       plantingDate: new Date(
         Date.now() - 60 * 24 * 60 * 60 * 1000,
       ).toISOString(),
       currentGDD,
-      targetGDD: nextStage.target,
-      currentStage: currentStage.en,
-      currentStageAr: currentStage.ar,
-      nextStage: nextStage.en,
-      nextStageAr: nextStage.ar,
-      daysToNextStage: Math.floor(Math.random() * 20) + 5,
-      gddToNextStage: nextStage.target - currentGDD,
+      targetGDD: nextStage?.target ?? 2000,
+      currentStage: currentStage?.en ?? "Vegetative",
+      currentStageAr: currentStage?.ar ?? "نمو خضري",
+      nextStage: nextStage?.en ?? "Maturity",
+      nextStageAr: nextStage?.ar ?? "نضج",
+      daysToNextStage: mockRandomInt(5, 20),
+      gddToNextStage: (nextStage?.target ?? 2000) - currentGDD,
       alerts:
-        Math.random() > 0.5
+        mockRandom() > 0.5
           ? [
               {
                 type:
-                  Math.random() > 0.7
+                  mockRandom() > 0.7
                     ? "critical"
                     : ("warning" as "info" | "warning" | "critical"),
                 message: "Temperature stress detected",
@@ -288,31 +322,31 @@ function generateMockSprayWindows(): SprayWindow[] {
   ];
 
   return Array.from({ length: 12 }, (_, i) => {
-    const product = products[Math.floor(Math.random() * products.length)];
+    const product = products[Math.floor(mockRandom() * products.length)] ?? products[0];
     const startDate = new Date(
-      Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000,
+      Date.now() + mockRandom() * 7 * 24 * 60 * 60 * 1000,
     );
     const endDate = new Date(startDate.getTime() + 3 * 24 * 60 * 60 * 1000);
 
     return {
       id: `spray-${i + 1}`,
-      farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
-      farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
+      farmId: `farm-${mockRandomInt(1, 10)}`,
+      farmName: `مزرعة ${mockRandomInt(1, 10)}`,
       fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
-      cropType: ["قمح", "بن", "قات"][Math.floor(Math.random() * 3)],
-      productType: product.type,
-      productName: product.name,
+      cropType: ["قمح", "بن", "قات"][Math.floor(mockRandom() * 3)] ?? "قمح",
+      productType: product?.type ?? "pesticide",
+      productName: product?.name ?? "Malathion",
       windowStart: startDate.toISOString(),
       windowEnd: endDate.toISOString(),
       optimalTime: new Date(
         startDate.getTime() + 1.5 * 24 * 60 * 60 * 1000,
       ).toISOString(),
-      status: statuses[Math.floor(Math.random() * statuses.length)],
+      status: statuses[Math.floor(mockRandom() * statuses.length)] ?? "upcoming",
       conditions: {
-        temperature: 20 + Math.random() * 10,
-        windSpeed: 5 + Math.random() * 10,
-        humidity: 40 + Math.random() * 40,
-        precipitation: Math.random() * 5,
+        temperature: 20 + mockRandom() * 10,
+        windSpeed: 5 + mockRandom() * 10,
+        humidity: 40 + mockRandom() * 40,
+        precipitation: mockRandom() * 5,
       },
       recommendations: [
         "Apply early morning or late evening",
@@ -337,20 +371,20 @@ function generateMockSprayHistory(): SprayHistory[] {
   ];
 
   return Array.from({ length: 20 }, (_, i) => {
-    const product = products[Math.floor(Math.random() * products.length)];
+    const product = products[Math.floor(mockRandom() * products.length)] ?? products[0];
     return {
       id: `spray-hist-${i + 1}`,
-      farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
+      farmName: `مزرعة ${mockRandomInt(1, 10)}`,
       fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
-      productType: product.type,
-      productName: product.name,
+      productType: product?.type ?? "pesticide",
+      productName: product?.name ?? "Malathion",
       appliedAt: new Date(
-        Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
+        Date.now() - mockRandom() * 30 * 24 * 60 * 60 * 1000,
       ).toISOString(),
-      area: Math.random() * 30 + 5,
-      quantity: Math.random() * 50 + 10,
-      cost: Math.random() * 1000 + 200,
-      effectiveness: Math.floor(Math.random() * 30) + 70,
+      area: mockRandom() * 30 + 5,
+      quantity: mockRandom() * 50 + 10,
+      cost: mockRandom() * 1000 + 200,
+      effectiveness: mockRandomInt(70, 30),
     };
   });
 }

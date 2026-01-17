@@ -111,10 +111,11 @@ export default function EpidemicCenterPage() {
         (g) => g.id === govName || g.name.includes(govName),
       );
 
-      if (gov) {
-        statsMap[gov.id].total++;
-        if (d.severity === "critical") statsMap[gov.id].critical++;
-        if (d.severity === "high") statsMap[gov.id].high++;
+      const govStat = gov ? statsMap[gov.id] : undefined;
+      if (govStat) {
+        govStat.total++;
+        if (d.severity === "critical") govStat.critical++;
+        if (d.severity === "high") govStat.high++;
       }
     });
 
@@ -281,10 +282,10 @@ export default function EpidemicCenterPage() {
                   </p>
                   <p className="text-xs text-gray-500">حالة</p>
 
-                  {govStats?.critical > 0 && (
+                  {(govStats?.critical ?? 0) > 0 && (
                     <div className="mt-2 flex items-center gap-1 text-xs text-red-600">
                       <AlertTriangle className="w-3 h-3" />
-                      {govStats.critical} حرج
+                      {govStats?.critical ?? 0} حرج
                     </div>
                   )}
                 </button>
@@ -323,7 +324,7 @@ export default function EpidemicCenterPage() {
           <div className="space-y-4">
             {topDiseases.length > 0 ? (
               topDiseases.map(([disease, count], index) => {
-                const maxCount = topDiseases[0][1];
+                const maxCount = topDiseases[0]?.[1] ?? 1;
                 const percentage = (count / maxCount) * 100;
 
                 return (

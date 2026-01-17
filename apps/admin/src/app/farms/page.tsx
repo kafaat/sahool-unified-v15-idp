@@ -14,9 +14,7 @@ import type { Farm } from "@/types";
 import type { BaseFarmData } from "@/components/maps/FarmsMap";
 import { YEMEN_GOVERNORATES } from "@/types";
 import {
-  MapPin,
   Search,
-  Filter,
   List,
   Map as MapIcon,
   Plus,
@@ -96,12 +94,18 @@ export default function FarmsPage() {
       if (!stats[f.governorate]) {
         stats[f.governorate] = { count: 0, area: 0, avgHealth: 0 };
       }
-      stats[f.governorate].count++;
-      stats[f.governorate].area += f.area;
-      stats[f.governorate].avgHealth += f.healthScore;
+      const govStat = stats[f.governorate];
+      if (govStat) {
+        govStat.count++;
+        govStat.area += f.area;
+        govStat.avgHealth += f.healthScore;
+      }
     });
     Object.keys(stats).forEach((key) => {
-      stats[key].avgHealth = stats[key].avgHealth / stats[key].count;
+      const keyStat = stats[key];
+      if (keyStat && keyStat.count > 0) {
+        keyStat.avgHealth = keyStat.avgHealth / keyStat.count;
+      }
     });
     return stats;
   }, [farms]);

@@ -20,7 +20,6 @@ import { logger } from "../../../lib/logger";
 import {
   BarChart,
   Bar,
-  LineChart,
   Line,
   PieChart,
   Pie,
@@ -332,7 +331,7 @@ export default function ProfitabilityPage() {
                   }
                   labelLine={true}
                 >
-                  {data.costBreakdown.map((entry, index) => (
+                  {data.costBreakdown.map((_entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={PIE_COLORS[index % PIE_COLORS.length]}

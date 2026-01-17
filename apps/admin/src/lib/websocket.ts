@@ -7,9 +7,54 @@
  * - Sensor readings
  * - Irrigation status
  * - Farm events
+ *
+ * SECURITY: WebSocket connections are authenticated via JWT token
+ * Tokens are fetched from the server-side API route that reads httpOnly cookies
  */
 
 import { logger } from "./logger";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Authentication Token Management
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface WSTokenResponse {
+  success: boolean;
+  token?: string;
+  tenant_id?: string;
+  error?: string;
+}
+
+/**
+ * Fetch WebSocket authentication token from server
+ * الحصول على توكن المصادقة لـ WebSocket من الخادم
+ *
+ * The token is stored in an httpOnly cookie and not directly accessible.
+ * This endpoint safely provides the token for WebSocket authentication.
+ */
+async function getWebSocketToken(): Promise<WSTokenResponse> {
+  try {
+    const response = await fetch("/api/auth/ws-token", {
+      method: "GET",
+      credentials: "same-origin",
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        return { success: false, error: "Not authenticated" };
+      }
+      if (response.status === 429) {
+        return { success: false, error: "Rate limited" };
+      }
+      return { success: false, error: "Failed to get token" };
+    }
+
+    return await response.json();
+  } catch (error) {
+    logger.error("Failed to fetch WebSocket token:", error);
+    return { success: false, error: "Network error" };
+  }
+}
 
 type WebSocketEventType =
   | "alert"
@@ -90,7 +135,7 @@ interface WebSocketClientConfig {
  */
 export class WebSocketClient {
   private ws: WebSocket | null = null;
-  private url: string;
+  private baseUrl: string;
   private reconnectInterval: number;
   private maxReconnectAttempts: number;
   private heartbeatInterval: number;
@@ -103,6 +148,9 @@ export class WebSocketClient {
   private status: ConnectionStatus = ConnectionStatus.DISCONNECTED;
   private eventListeners = new Map<WebSocketEventType, Set<EventCallback>>();
   private statusListeners = new Set<(status: ConnectionStatus) => void>();
+
+  private currentToken: string | null = null;
+  private currentTenantId: string | null = null;
 
   constructor(config: WebSocketClientConfig = {}) {
     // Determine WebSocket protocol based on current page protocol (for security)
@@ -120,9 +168,8 @@ export class WebSocketClient {
         : "ws://localhost:8081";
     };
 
-    const baseUrl =
+    this.baseUrl =
       config.url || process.env.NEXT_PUBLIC_WS_URL || getDefaultWsUrl();
-    this.url = `${baseUrl}/ws/admin`;
     this.reconnectInterval = config.reconnectInterval || 5000;
     this.maxReconnectAttempts = config.maxReconnectAttempts || 10;
     this.heartbeatInterval = config.heartbeatInterval || 30000;
@@ -130,9 +177,10 @@ export class WebSocketClient {
   }
 
   /**
-   * Connect to WebSocket server
+   * Connect to WebSocket server with authentication
+   * الاتصال بخادم WebSocket مع المصادقة
    */
-  connect(): void {
+  async connect(): Promise<void> {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.log("Already connected");
       return;
@@ -149,9 +197,38 @@ export class WebSocketClient {
         : ConnectionStatus.CONNECTING,
     );
 
+    // Fetch authentication token
+    const tokenResponse = await getWebSocketToken();
+
+    if (!tokenResponse.success || !tokenResponse.token) {
+      this.log(
+        "WebSocket authentication failed:",
+        tokenResponse.error || "No token available",
+      );
+
+      // Set error status if not authenticated
+      if (tokenResponse.error === "Not authenticated") {
+        this.setStatus(ConnectionStatus.DISCONNECTED);
+        return;
+      }
+
+      this.setStatus(ConnectionStatus.ERROR);
+      this.scheduleReconnect();
+      return;
+    }
+
+    this.currentToken = tokenResponse.token;
+    this.currentTenantId = tokenResponse.tenant_id || "default";
+
     try {
-      this.log("Connecting to", this.url);
-      this.ws = new WebSocket(this.url);
+      // Build WebSocket URL with authentication query parameters
+      // The ws-gateway expects: /ws?tenant_id=xxx&token=xxx
+      const wsUrl = new URL(`${this.baseUrl}/ws`);
+      wsUrl.searchParams.set("tenant_id", this.currentTenantId);
+      wsUrl.searchParams.set("token", this.currentToken);
+
+      this.log("Connecting to", wsUrl.toString().replace(/token=[^&]+/, "token=***"));
+      this.ws = new WebSocket(wsUrl.toString());
       this.setupEventHandlers();
     } catch (error) {
       this.log("Connection error:", error);
@@ -254,7 +331,7 @@ export class WebSocketClient {
     if (!this.ws) return;
 
     this.ws.onopen = () => {
-      this.log("Connected");
+      this.log("Connected with authentication");
       this.reconnectAttempts = 0;
       this.setStatus(ConnectionStatus.CONNECTED);
       this.startHeartbeat();
@@ -264,6 +341,13 @@ export class WebSocketClient {
     this.ws.onclose = (event) => {
       this.log("Disconnected:", event.code, event.reason);
       this.clearHeartbeatTimer();
+
+      // Handle authentication errors (4001 = auth required, 4003 = tenant mismatch)
+      if (event.code === 4001 || event.code === 4003) {
+        this.log("WebSocket authentication failed:", event.reason);
+        // Clear cached token to force re-fetch on reconnect
+        this.currentToken = null;
+      }
 
       if (event.code !== 1000) {
         // Abnormal closure, attempt reconnect
@@ -355,7 +439,9 @@ export class WebSocketClient {
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectAttempts++;
-      this.connect();
+      // Clear cached token to fetch fresh token on reconnect
+      this.currentToken = null;
+      void this.connect();
     }, delay);
   }
 
@@ -400,7 +486,7 @@ let wsClient: WebSocketClient | null = null;
  * Dummy WebSocket client for SSR
  */
 class DummyWebSocketClient implements Partial<WebSocketClient> {
-  connect(): void {}
+  async connect(): Promise<void> {}
   disconnect(): void {}
   on<T = unknown>(
     _event: WebSocketEventType,
@@ -440,9 +526,10 @@ export function getWebSocketClient(): WebSocketClient {
 
 /**
  * Initialize WebSocket connection
+ * Initializes and connects the WebSocket client with authentication
  */
-export function initWebSocket(): WebSocketClient {
+export async function initWebSocket(): Promise<WebSocketClient> {
   const client = getWebSocketClient();
-  client.connect();
+  await client.connect();
   return client;
 }

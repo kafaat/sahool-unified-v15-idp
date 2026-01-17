@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   try {
     const cookieStore = await cookies();
 

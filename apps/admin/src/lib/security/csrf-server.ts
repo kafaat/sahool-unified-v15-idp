@@ -7,7 +7,6 @@
  */
 
 import type { NextRequest } from "next/server";
-import { randomBytes } from "crypto";
 
 /**
  * Timing-safe string comparison for Edge Runtime
@@ -49,11 +48,12 @@ export interface CsrfConfig {
  */
 const DEFAULT_CONFIG: Required<CsrfConfig> = {
   cookieName: "sahool_admin_csrf",
-  headerName: "x-csrf-token",
+  headerName: "X-CSRF-Token",
   excludePaths: [
     "/api/auth/login",
     "/api/auth/logout",
     "/api/health",
+    "/api/csrf-token",
     "/login",
   ],
 };

@@ -98,18 +98,22 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       ...(isDevelopment ? ["'unsafe-inline'"] : []),
     ],
 
-    // Image sources
+    // Image sources - Restricted to specific trusted domains
     "img-src": [
       "'self'",
       "data:",
       "blob:",
-      "https:",
-      // SAHOOL API servers
-      "https://api.sahool.io",
-      "https://api.sahool.app",
       // OpenStreetMap tiles for Leaflet maps
       "https://tile.openstreetmap.org",
       "https://*.tile.openstreetmap.org",
+      // Sentinel Hub satellite imagery
+      "https://sentinel-hub.com",
+      "https://*.sentinel-hub.com",
+      // SAHOOL CDN and storage
+      "https://cdn.sahool.ye",
+      "https://storage.sahool.ye",
+      "https://cdn.sahool.io",
+      "https://cdn.sahool.app",
       // Leaflet markers from unpkg
       "https://unpkg.com",
     ],
@@ -125,12 +129,15 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     // Connect sources (API, WebSocket, etc.)
     "connect-src": [
       "'self'",
-      // Backend API
-      "https://api.sahool.io",
-      "https://api.sahool.app",
+      // Backend API - use environment variable if set
+      ...(process.env.NEXT_PUBLIC_API_URL
+        ? [process.env.NEXT_PUBLIC_API_URL]
+        : isDevelopment
+          ? ["http://localhost:8000"]
+          : ["https://api.sahool.io", "https://api.sahool.app"]),
       // WebSocket for real-time features
       ...(isDevelopment
-        ? ["ws://localhost:*", "http://localhost:*", "http://localhost:8000"]
+        ? ["ws://localhost:*", "http://localhost:*"]
         : ["wss:"]),
     ],
 

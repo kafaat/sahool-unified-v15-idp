@@ -56,16 +56,18 @@ function generateMockWeather(): WeatherData[] {
     "windy",
   ];
 
+  const days = ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء"] as const;
+
   return governorates.map((gov) => ({
     governorate: gov,
     temperature: Math.round(20 + Math.random() * 20),
     humidity: Math.round(30 + Math.random() * 50),
     windSpeed: Math.round(5 + Math.random() * 25),
-    condition: conditions[Math.floor(Math.random() * conditions.length)],
+    condition: conditions[Math.floor(Math.random() * conditions.length)] ?? "sunny",
     forecast: Array.from({ length: 5 }, (_, i) => ({
-      day: ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء"][i],
+      day: days[i] ?? "السبت",
       temp: Math.round(18 + Math.random() * 22),
-      condition: conditions[Math.floor(Math.random() * conditions.length)],
+      condition: conditions[Math.floor(Math.random() * conditions.length)] ?? "sunny",
     })),
   }));
 }

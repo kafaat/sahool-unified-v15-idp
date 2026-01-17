@@ -104,6 +104,7 @@ RESULT: ✅ Authorization CANNOT be bypassed:
 ### Scenario 1: Viewer tries to access admin route
 
 #### BEFORE (Vulnerable)
+
 ```bash
 # Attacker: "I'm a viewer, but I want admin access"
 
@@ -120,6 +121,7 @@ curl -X POST https://admin.sahool.io/api/admin/settings \
 ```
 
 #### AFTER (Protected)
+
 ```bash
 # Attacker: "I'm a viewer, but I want admin access"
 
@@ -146,6 +148,7 @@ curl -X POST https://admin.sahool.io/api/admin/settings \
 ### Scenario 2: Stolen supervisor token used for admin action
 
 #### BEFORE (Vulnerable)
+
 ```bash
 # Attacker has stolen supervisor token
 
@@ -157,6 +160,7 @@ curl -X DELETE https://admin.sahool.io/api/users/123 \
 ```
 
 #### AFTER (Protected)
+
 ```bash
 # Attacker has stolen supervisor token
 
@@ -179,6 +183,7 @@ curl -X DELETE https://admin.sahool.io/api/users/123 \
 ### Scenario 3: Expired token still works
 
 #### BEFORE (Vulnerable)
+
 ```bash
 # Token expired 2 hours ago
 
@@ -190,6 +195,7 @@ curl -X GET https://admin.sahool.io/api/admin/data \
 ```
 
 #### AFTER (Protected)
+
 ```bash
 # Token expired 2 hours ago
 
@@ -209,6 +215,7 @@ curl -X GET https://admin.sahool.io/api/admin/data \
 ### Protecting an Admin API Route
 
 #### BEFORE
+
 ```typescript
 // /app/api/admin/settings/route.ts
 
@@ -228,10 +235,11 @@ export async function POST(request: NextRequest) {
 ---
 
 #### AFTER
+
 ```typescript
 // /app/api/admin/settings/route.ts
 
-import { withAdmin } from '@/lib/auth';
+import { withAdmin } from "@/lib/auth";
 
 export const POST = withAdmin(async (request, { user }) => {
   // ✅ Automatically verified:
@@ -256,11 +264,12 @@ export const POST = withAdmin(async (request, { user }) => {
 ## Middleware Comparison
 
 ### BEFORE
+
 ```typescript
 // middleware.ts
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('sahool_admin_token')?.value;
+  const token = request.cookies.get("sahool_admin_token")?.value;
 
   if (!token) {
     // Redirect to login if no token
@@ -275,6 +284,7 @@ export function middleware(request: NextRequest) {
 ```
 
 **Problems:**
+
 - Only checks token existence
 - Doesn't validate signature
 - Doesn't verify expiry
@@ -284,11 +294,12 @@ export function middleware(request: NextRequest) {
 ---
 
 ### AFTER
+
 ```typescript
 // middleware.ts
 
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get('sahool_admin_token')?.value;
+  const token = request.cookies.get("sahool_admin_token")?.value;
 
   if (!token) {
     return NextResponse.redirect(loginUrl);
@@ -309,14 +320,17 @@ export async function middleware(request: NextRequest) {
 
   if (requiredRoles && !requiredRoles.includes(userRole)) {
     // ✅ User doesn't have required role
-    if (pathname.startsWith('/api/')) {
+    if (pathname.startsWith("/api/")) {
       // API route - return 403 JSON
-      return NextResponse.json({
-        error: 'Forbidden',
-        message: 'Insufficient permissions',
-        required_roles: requiredRoles,
-        your_role: userRole,
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          error: "Forbidden",
+          message: "Insufficient permissions",
+          required_roles: requiredRoles,
+          your_role: userRole,
+        },
+        { status: 403 },
+      );
     } else {
       // Page route - redirect with error
       return NextResponse.redirect(unauthorizedUrl);
@@ -329,6 +343,7 @@ export async function middleware(request: NextRequest) {
 ```
 
 **Improvements:**
+
 - Verifies JWT signature
 - Validates expiry
 - Checks user role
@@ -340,43 +355,46 @@ export async function middleware(request: NextRequest) {
 
 ## Security Checklist
 
-| Security Feature | Before | After |
-|-----------------|--------|-------|
-| **Authentication** |
-| Token existence check | ✅ | ✅ |
-| JWT signature verification | ❌ | ✅ |
-| Token expiry validation | ❌ | ✅ |
-| HttpOnly cookies | ✅ | ✅ |
-| **Authorization** |
-| Server-side role check | ❌ | ✅ |
-| Route protection rules | ❌ | ✅ |
-| API endpoint protection | ❌ | ✅ |
-| Role hierarchy enforcement | ⚠️ Client | ✅ Server |
-| **Response Handling** |
-| 401 for invalid token | ⚠️ Redirect | ✅ Proper |
-| 403 for insufficient role | ❌ | ✅ |
-| Proper error messages | ❌ | ✅ |
-| **Developer Experience** |
-| Easy to protect routes | ⚠️ Manual | ✅ Config |
-| Type-safe API | ⚠️ Partial | ✅ Full |
-| Reusable middleware | ❌ | ✅ |
-| Clear documentation | ❌ | ✅ |
+| Security Feature           | Before      | After     |
+| -------------------------- | ----------- | --------- |
+| **Authentication**         |
+| Token existence check      | ✅          | ✅        |
+| JWT signature verification | ❌          | ✅        |
+| Token expiry validation    | ❌          | ✅        |
+| HttpOnly cookies           | ✅          | ✅        |
+| **Authorization**          |
+| Server-side role check     | ❌          | ✅        |
+| Route protection rules     | ❌          | ✅        |
+| API endpoint protection    | ❌          | ✅        |
+| Role hierarchy enforcement | ⚠️ Client   | ✅ Server |
+| **Response Handling**      |
+| 401 for invalid token      | ⚠️ Redirect | ✅ Proper |
+| 403 for insufficient role  | ❌          | ✅        |
+| Proper error messages      | ❌          | ✅        |
+| **Developer Experience**   |
+| Easy to protect routes     | ⚠️ Manual   | ✅ Config |
+| Type-safe API              | ⚠️ Partial  | ✅ Full   |
+| Reusable middleware        | ❌          | ✅        |
+| Clear documentation        | ❌          | ✅        |
 
 ---
 
 ## Impact Summary
 
 ### Security Impact
+
 - **Before:** CRITICAL vulnerability - authorization easily bypassed
 - **After:** SECURE - server-side validation on every request
 - **Improvement:** ~80% security score increase (6.5 → 8.5)
 
 ### Attack Surface
+
 - **Before:** Any authenticated user can perform admin actions
 - **After:** Only users with correct role can access protected resources
 - **Reduction:** ~95% reduction in authorization bypass risk
 
 ### Compliance
+
 - **Before:** Fails authorization requirements for GDPR, HIPAA, SOC2
 - **After:** Meets basic authorization requirements
 - **Status:** Now compliant with standard security frameworks
@@ -386,6 +404,7 @@ export async function middleware(request: NextRequest) {
 ## Testing Recommendations
 
 ### Manual Tests
+
 ```bash
 # Test 1: Admin accesses admin route
 curl -X GET /api/admin/settings -H "Cookie: admin_token"
@@ -409,7 +428,9 @@ curl -X GET /api/admin/settings
 ```
 
 ### Automated Tests
+
 Create test suite covering:
+
 1. JWT verification logic
 2. Role hierarchy
 3. Route protection rules

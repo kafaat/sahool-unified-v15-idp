@@ -13,11 +13,11 @@
  */
 
 // Component exports
-export { SettingsPage } from './components/SettingsPage';
-export { ProfileForm } from './components/ProfileForm';
+export { SettingsPage } from "./components/SettingsPage";
+export { ProfileForm } from "./components/ProfileForm";
 
 // API exports
-export { settingsApi, ERROR_MESSAGES } from './api';
+export { settingsApi, ERROR_MESSAGES } from "./api";
 
 // Hook exports
 export {
@@ -40,7 +40,7 @@ export {
   useSubscriptionInfo,
   useCancelSubscription,
   useDeleteAccount,
-} from './hooks/useSettings';
+} from "./hooks/useSettings";
 
 // Type exports
 export type {
@@ -56,6 +56,6 @@ export type {
   SubscriptionInfo,
   UpdateProfilePayload,
   UpdatePasswordPayload,
-} from './types';
+} from "./types";
 
-export const SETTINGS_FEATURE = 'settings' as const;
+export const SETTINGS_FEATURE = "settings" as const;

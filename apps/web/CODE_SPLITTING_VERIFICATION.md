@@ -3,6 +3,7 @@
 ## Pre-Deployment Verification
 
 ### 1. Build & Bundle Analysis
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/web
 
@@ -14,6 +15,7 @@ npm run analyze
 ```
 
 **Expected Results:**
+
 - ✅ Build completes successfully
 - ✅ Separate chunks created for:
   - `recharts` (used by analytics/IoT)
@@ -22,15 +24,18 @@ npm run analyze
 - ✅ Main bundle size reduced by ~700KB
 
 ### 2. Type Checking
+
 ```bash
 npm run typecheck
 ```
 
 **Expected Results:**
+
 - ✅ No NEW type errors related to dynamic imports
 - ⚠️ Pre-existing errors (unrelated to our changes) may still exist
 
 ### 3. Development Server
+
 ```bash
 npm run dev
 ```
@@ -38,29 +43,34 @@ npm run dev
 **Manual Testing Checklist:**
 
 #### Homepage/Dashboard:
+
 - [ ] Page loads without errors
 - [ ] Heavy libraries (recharts, maplibre-gl, leaflet) NOT loaded initially
 - [ ] Check Network tab - no requests for chart/map libraries
 
 #### Navigate to Analytics Dashboard:
+
 - [ ] Loading spinner appears briefly
 - [ ] Charts render correctly after loading
 - [ ] Check Network tab - `recharts` chunk loaded on demand
 - [ ] All chart interactions work (hover, click, etc.)
 
 #### Navigate to Fields with Map:
+
 - [ ] Map loading spinner appears
 - [ ] Map renders correctly
 - [ ] Check Network tab - `leaflet` chunk loaded on demand
 - [ ] Map interactions work (pan, zoom, click)
 
 #### Navigate to Dashboard with MapView:
+
 - [ ] Map loading spinner appears
 - [ ] MapView renders with field boundaries
 - [ ] Check Network tab - `maplibre-gl` chunk loaded
 - [ ] Map controls work properly
 
 #### Navigate to IoT Sensors:
+
 - [ ] Sensor chart loading spinner appears
 - [ ] Charts render (uses already-loaded recharts if coming from analytics)
 - [ ] All sensor data displays correctly
@@ -68,6 +78,7 @@ npm run dev
 ### 4. Browser DevTools Checks
 
 #### Network Tab:
+
 ```
 Expected chunk loads:
 1. Initial load: Main bundle (no heavy libraries)
@@ -76,11 +87,13 @@ Expected chunk loads:
 ```
 
 #### Performance Tab:
+
 - [ ] Record page load
 - [ ] Check "Parse/Compile" time for JavaScript
 - [ ] Verify heavy libraries only parsed when chunks load
 
 #### Coverage Tab (Chrome):
+
 ```
 1. Open Coverage: Cmd+Shift+P > "Show Coverage"
 2. Record
@@ -94,13 +107,13 @@ Check that components are imported correctly:
 
 ```typescript
 // ✅ CORRECT - Uses dynamic version
-import { YieldChart } from '@/features/analytics/components';
+import { YieldChart } from "@/features/analytics/components";
 
 // ✅ CORRECT - Direct dynamic import
-import { YieldChart } from '@/features/analytics/components/YieldChart.dynamic';
+import { YieldChart } from "@/features/analytics/components/YieldChart.dynamic";
 
 // ⚠️ AVOID - Bypasses code splitting
-import { YieldChart } from '@/features/analytics/components/YieldChart';
+import { YieldChart } from "@/features/analytics/components/YieldChart";
 ```
 
 ### 6. Loading State Testing
@@ -108,21 +121,25 @@ import { YieldChart } from '@/features/analytics/components/YieldChart';
 For each dynamic component, verify:
 
 #### YieldChart, ComparisonChart, YieldAnalysis, CostAnalysis:
+
 - [ ] Shows ChartLoadingSpinner while loading
 - [ ] Smooth transition to rendered chart
 - [ ] Spinner has bilingual text (Arabic + English)
 
 #### SensorChart, SensorReadings:
+
 - [ ] Shows ChartLoadingSpinner while loading
 - [ ] Height appropriate for component
 - [ ] No layout shift during load
 
 #### MapView:
+
 - [ ] Shows MapLoadingSpinner with map emoji
 - [ ] Displays bilingual loading text
 - [ ] No layout shift when map appears
 
 #### InteractiveFieldMap:
+
 - [ ] Shows MapLoadingSpinner
 - [ ] Proper height (600px default)
 - [ ] All map layers load correctly
@@ -168,6 +185,7 @@ Run Lighthouse in Chrome DevTools:
 ```
 
 **Compare Before/After:**
+
 - [ ] Performance score improved
 - [ ] Initial JavaScript bundle size reduced
 - [ ] Time to Interactive (TTI) improved
@@ -182,6 +200,7 @@ npm run analyze:browser
 ```
 
 **Verify:**
+
 - [ ] Recharts in separate chunk
 - [ ] Maplibre-GL in separate chunk
 - [ ] Leaflet in separate chunk
@@ -193,19 +212,25 @@ npm run analyze:browser
 ## Common Issues & Solutions
 
 ### Issue: Component doesn't load
+
 **Solution:** Check browser console for errors. Verify import path uses `.dynamic` version.
 
 ### Issue: Layout shift during load
+
 **Solution:** Ensure loading spinner has same height as component. Update height prop.
 
 ### Issue: Multiple loads of same library
+
 **Solution:** This is expected. Each chunk is loaded once per session and cached.
 
 ### Issue: TypeScript errors
+
 **Solution:** Pre-existing errors unrelated to changes. Focus on new errors only.
 
 ### Issue: Build fails
+
 **Solution:**
+
 1. Clear `.next` folder: `rm -rf .next`
 2. Reinstall dependencies: `npm ci`
 3. Try build again: `npm run build`
@@ -239,11 +264,13 @@ git checkout HEAD~1 -- apps/web/src/components/dashboard/Cockpit.tsx
 ```
 
 **Critical files to revert:**
+
 1. AnalyticsDashboard.tsx
 2. Cockpit.tsx
 3. Index files (if imports break)
 
 **Safe to keep:**
+
 - All `.dynamic.tsx` files (unused if not imported)
 - LoadingSpinner.tsx (standalone utility)
 - Documentation files
@@ -252,4 +279,4 @@ git checkout HEAD~1 -- apps/web/src/components/dashboard/Cockpit.tsx
 
 **Last Updated:** 2026-01-06
 **Verified By:** [Name]
-**Status:** [ ] Passed  [ ] Failed  [ ] Pending
+**Status:** [ ] Passed [ ] Failed [ ] Pending

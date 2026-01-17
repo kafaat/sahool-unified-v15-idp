@@ -23,12 +23,12 @@ The SAHOOL Admin middleware implements basic authentication and strong security 
 
 ```typescript
 // Check for auth token
-const token = request.cookies.get('sahool_admin_token')?.value;
+const token = request.cookies.get("sahool_admin_token")?.value;
 
 if (!token) {
   // Redirect to login with return URL
-  const loginUrl = new URL('/login', request.url);
-  loginUrl.searchParams.set('returnTo', pathname);
+  const loginUrl = new URL("/login", request.url);
+  loginUrl.searchParams.set("returnTo", pathname);
   return NextResponse.redirect(loginUrl);
 }
 ```
@@ -61,10 +61,11 @@ if (!token) {
 **Authorization is NOT enforced in middleware.**
 
 Role checks exist only in client-side components:
+
 - **File:** `/home/user/sahool-unified-v15-idp/apps/admin/src/components/auth/AuthGuard.tsx` (Lines 18-22, 40-51)
 
 ```typescript
-const roleHierarchy: Record<'admin' | 'supervisor' | 'viewer', number> = {
+const roleHierarchy: Record<"admin" | "supervisor" | "viewer", number> = {
   admin: 3,
   supervisor: 2,
   viewer: 1,
@@ -72,7 +73,7 @@ const roleHierarchy: Record<'admin' | 'supervisor' | 'viewer', number> = {
 
 // Check role-based access (client-side only)
 if (userRoleLevel < requiredRoleLevel) {
-  router.push('/dashboard');
+  router.push("/dashboard");
 }
 ```
 
@@ -93,12 +94,13 @@ if (userRoleLevel < requiredRoleLevel) {
 ### Recommendations
 
 1. **CRITICAL - IMMEDIATE ACTION REQUIRED**:
+
    ```typescript
    // Add to middleware.ts
    const roleProtectedRoutes = {
-     '/settings': ['admin'],
-     '/users': ['admin', 'supervisor'],
-     '/api/admin': ['admin'],
+     "/settings": ["admin"],
+     "/users": ["admin", "supervisor"],
+     "/api/admin": ["admin"],
    };
 
    // Decode JWT token to get user role
@@ -106,7 +108,7 @@ if (userRoleLevel < requiredRoleLevel) {
 
    // Check if route requires specific role
    if (!hasRequiredRole(pathname, userRole, roleProtectedRoutes)) {
-     return NextResponse.redirect(new URL('/unauthorized', request.url));
+     return NextResponse.redirect(new URL("/unauthorized", request.url));
    }
    ```
 
@@ -123,16 +125,16 @@ if (userRoleLevel < requiredRoleLevel) {
 
 ```typescript
 // Add security headers
-response.headers.set('X-Frame-Options', 'DENY');
-response.headers.set('X-Content-Type-Options', 'nosniff');
-response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-response.headers.set('X-XSS-Protection', '1; mode=block');
+response.headers.set("X-Frame-Options", "DENY");
+response.headers.set("X-Content-Type-Options", "nosniff");
+response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+response.headers.set("X-XSS-Protection", "1; mode=block");
 
 // HSTS - only in production with HTTPS
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   response.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains'
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains",
   );
 }
 
@@ -167,6 +169,7 @@ response.headers.set(cspHeaderName, cspHeader);
 **File:** `/home/user/sahool-unified-v15-idp/apps/admin/src/lib/security/csp-config.ts`
 
 **Excellent Features:**
+
 - Cryptographically secure nonce generation using Web Crypto API
 - Environment-aware directives (strict in production, relaxed in dev)
 - Upgrade insecure requests in production
@@ -175,6 +178,7 @@ response.headers.set(cspHeaderName, cspHeader);
 - CSP violation reporting endpoint
 
 **Minor Improvements:**
+
 - Consider adding `Permissions-Policy` header to control browser features
 - Add `X-Permitted-Cross-Domain-Policies: none` for Adobe products
 
@@ -183,8 +187,8 @@ response.headers.set(cspHeaderName, cspHeader);
 - **LOW PRIORITY**: Add Permissions-Policy header:
   ```typescript
   response.headers.set(
-    'Permissions-Policy',
-    'geolocation=(), microphone=(), camera=(), payment=()'
+    "Permissions-Policy",
+    "geolocation=(), microphone=(), camera=(), payment=()",
   );
   ```
 
@@ -201,7 +205,9 @@ response.headers.set(cspHeaderName, cspHeader);
 // Idle timeout: 30 minutes
 const IDLE_TIMEOUT = 30 * 60 * 1000;
 
-const lastActivityStr = request.cookies.get('sahool_admin_last_activity')?.value;
+const lastActivityStr = request.cookies.get(
+  "sahool_admin_last_activity",
+)?.value;
 if (lastActivityStr) {
   const lastActivity = parseInt(lastActivityStr, 10);
   const now = Date.now();
@@ -210,9 +216,9 @@ if (lastActivityStr) {
   if (timeSinceLastActivity >= IDLE_TIMEOUT) {
     // Session expired - clear cookies and redirect
     const response = NextResponse.redirect(loginUrl);
-    response.cookies.delete('sahool_admin_token');
-    response.cookies.delete('sahool_admin_refresh_token');
-    response.cookies.delete('sahool_admin_last_activity');
+    response.cookies.delete("sahool_admin_token");
+    response.cookies.delete("sahool_admin_refresh_token");
+    response.cookies.delete("sahool_admin_last_activity");
     return response;
   }
 }
@@ -227,7 +233,7 @@ const REFRESH_CHECK_INTERVAL = 5 * 60 * 1000;
 const ACTIVITY_UPDATE_INTERVAL = 30 * 1000;
 
 // Track user activity
-const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+const events = ["mousedown", "keydown", "scroll", "touchstart", "click"];
 ```
 
 ### Strengths
@@ -258,9 +264,12 @@ const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 ### Recommendations
 
 1. **HIGH PRIORITY**: Add absolute session limit (e.g., 24 hours regardless of activity)
+
    ```typescript
    const SESSION_ABSOLUTE_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
-   const sessionStartStr = request.cookies.get('sahool_admin_session_start')?.value;
+   const sessionStartStr = request.cookies.get(
+     "sahool_admin_session_start",
+   )?.value;
    ```
 
 2. **HIGH PRIORITY**: Implement server-side session store (Redis) for revocation capability
@@ -281,12 +290,12 @@ const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 **File:** `/home/user/sahool-unified-v15-idp/apps/admin/src/app/api/auth/login/route.ts` (Lines 50-56)
 
 ```typescript
-cookieStore.set('sahool_admin_token', data.access_token, {
+cookieStore.set("sahool_admin_token", data.access_token, {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',  // ← CSRF protection
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict", // ← CSRF protection
   maxAge: 86400,
-  path: '/',
+  path: "/",
 });
 ```
 
@@ -317,9 +326,11 @@ cookieStore.set('sahool_admin_token', data.access_token, {
 ```html
 <!-- Attacker site could potentially: -->
 <form action="https://admin.sahool.io/api/users/delete" method="POST">
-  <input name="user_id" value="victim123">
+  <input name="user_id" value="victim123" />
 </form>
-<script>document.forms[0].submit();</script>
+<script>
+  document.forms[0].submit();
+</script>
 ```
 
 Currently blocked by SameSite, but should have additional protection.
@@ -327,34 +338,40 @@ Currently blocked by SameSite, but should have additional protection.
 ### Recommendations
 
 1. **HIGH PRIORITY**: Implement CSRF token generation in middleware:
+
    ```typescript
    // Generate CSRF token
    const csrfToken = generateCsrfToken();
-   response.cookies.set('sahool_csrf_token', csrfToken, {
+   response.cookies.set("sahool_csrf_token", csrfToken, {
      httpOnly: false, // Needs to be readable by JS
-     sameSite: 'strict',
+     sameSite: "strict",
      secure: true,
    });
-   response.headers.set('X-CSRF-Token', csrfToken);
+   response.headers.set("X-CSRF-Token", csrfToken);
    ```
 
 2. **HIGH PRIORITY**: Validate CSRF tokens in API routes:
+
    ```typescript
    // In each POST/PUT/DELETE API route
-   const csrfToken = request.headers.get('X-CSRF-Token');
-   const csrfCookie = request.cookies.get('sahool_csrf_token')?.value;
+   const csrfToken = request.headers.get("X-CSRF-Token");
+   const csrfCookie = request.cookies.get("sahool_csrf_token")?.value;
 
    if (csrfToken !== csrfCookie) {
-     return NextResponse.json({ error: 'CSRF token mismatch' }, { status: 403 });
+     return NextResponse.json(
+       { error: "CSRF token mismatch" },
+       { status: 403 },
+     );
    }
    ```
 
 3. **MEDIUM**: Add Origin/Referer header validation:
+
    ```typescript
-   const origin = request.headers.get('origin');
-   const referer = request.headers.get('referer');
+   const origin = request.headers.get("origin");
+   const referer = request.headers.get("referer");
    if (!isValidOrigin(origin, referer)) {
-     return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+     return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
    }
    ```
 
@@ -400,35 +417,39 @@ done
 1. **CRITICAL - IMMEDIATE ACTION REQUIRED**: Implement rate limiting middleware using Redis or memory store
 
    **Option A - Use Upstash Rate Limit (Recommended):**
+
    ```typescript
-   import { Ratelimit } from '@upstash/ratelimit';
-   import { Redis } from '@upstash/redis';
+   import { Ratelimit } from "@upstash/ratelimit";
+   import { Redis } from "@upstash/redis";
 
    const ratelimit = new Ratelimit({
      redis: Redis.fromEnv(),
-     limiter: Ratelimit.slidingWindow(10, '10 s'),
+     limiter: Ratelimit.slidingWindow(10, "10 s"),
      analytics: true,
    });
 
    // In middleware
-   const identifier = request.ip ?? request.headers.get('x-forwarded-for') ?? 'anonymous';
-   const { success, limit, reset, remaining } = await ratelimit.limit(identifier);
+   const identifier =
+     request.ip ?? request.headers.get("x-forwarded-for") ?? "anonymous";
+   const { success, limit, reset, remaining } =
+     await ratelimit.limit(identifier);
 
    if (!success) {
-     return new NextResponse('Too Many Requests', {
+     return new NextResponse("Too Many Requests", {
        status: 429,
        headers: {
-         'X-RateLimit-Limit': limit.toString(),
-         'X-RateLimit-Remaining': remaining.toString(),
-         'X-RateLimit-Reset': reset.toString(),
+         "X-RateLimit-Limit": limit.toString(),
+         "X-RateLimit-Remaining": remaining.toString(),
+         "X-RateLimit-Reset": reset.toString(),
        },
      });
    }
    ```
 
    **Option B - In-Memory Rate Limiting (for testing/dev):**
+
    ```typescript
-   import rateLimit from 'express-rate-limit';
+   import rateLimit from "express-rate-limit";
    // Note: Doesn't work across multiple instances
    ```
 
@@ -438,6 +459,7 @@ done
    - Token refresh: 10 attempts per minute per token
 
 3. **HIGH PRIORITY**: Add progressive delays after failed login attempts:
+
    ```typescript
    // Implement exponential backoff
    const failedAttempts = await getFailedLoginAttempts(email);
@@ -474,7 +496,7 @@ const roleHierarchy = { admin: 3, supervisor: 2, viewer: 1 };
 
 // Client-side check only
 if (userRoleLevel < requiredRoleLevel) {
-  router.push('/dashboard');
+  router.push("/dashboard");
 }
 ```
 
@@ -482,7 +504,7 @@ if (userRoleLevel < requiredRoleLevel) {
 **File:** `/home/user/sahool-unified-v15-idp/apps/admin/src/lib/auth.ts` (Line 30)
 
 ```typescript
-role: 'admin' | 'supervisor' | 'viewer';
+role: "admin" | "supervisor" | "viewer";
 ```
 
 ### Current Protections
@@ -514,17 +536,18 @@ role: 'admin' | 'supervisor' | 'viewer';
 ### Recommendations
 
 1. **CRITICAL - Server-Side Role Middleware**:
+
    ```typescript
    // Create /lib/middleware/requireRole.ts
    export function requireRole(allowedRoles: string[]) {
      return async (request: NextRequest) => {
-       const token = request.cookies.get('sahool_admin_token')?.value;
+       const token = request.cookies.get("sahool_admin_token")?.value;
        const payload = await verifyJWT(token);
 
        if (!allowedRoles.includes(payload.role)) {
          return NextResponse.json(
-           { error: 'Insufficient permissions' },
-           { status: 403 }
+           { error: "Insufficient permissions" },
+           { status: 403 },
          );
        }
 
@@ -534,26 +557,29 @@ role: 'admin' | 'supervisor' | 'viewer';
    ```
 
 2. **CRITICAL - Route-to-Role Mapping**:
+
    ```typescript
    const protectedRoutes = {
-     '/settings': ['admin'],
-     '/settings/security': ['admin'],
-     '/users': ['admin', 'supervisor'],
-     '/farms': ['admin', 'supervisor', 'viewer'],
-     '/api/users': ['admin'],
-     '/api/settings': ['admin'],
+     "/settings": ["admin"],
+     "/settings/security": ["admin"],
+     "/users": ["admin", "supervisor"],
+     "/farms": ["admin", "supervisor", "viewer"],
+     "/api/users": ["admin"],
+     "/api/settings": ["admin"],
    };
    ```
 
 3. **HIGH PRIORITY - Enforce MFA for Admin Role**:
+
    ```typescript
    // In middleware after token check
-   if (userRole === 'admin' && !hasMFAVerified(token)) {
-     return NextResponse.redirect(new URL('/verify-mfa', request.url));
+   if (userRole === "admin" && !hasMFAVerified(token)) {
+     return NextResponse.redirect(new URL("/verify-mfa", request.url));
    }
    ```
 
 4. **HIGH PRIORITY - Implement Sudo Mode**:
+
    ```typescript
    // For critical actions (delete user, change settings)
    if (isCriticalAction && !recentlyReauthenticated(session)) {
@@ -562,24 +588,26 @@ role: 'admin' | 'supervisor' | 'viewer';
    ```
 
 5. **MEDIUM - Admin IP Whitelist**:
+
    ```typescript
-   if (userRole === 'admin') {
-     const ip = request.ip ?? request.headers.get('x-forwarded-for');
+   if (userRole === "admin") {
+     const ip = request.ip ?? request.headers.get("x-forwarded-for");
      if (!isWhitelistedIP(ip)) {
        await sendAlertEmail(user, ip);
        return NextResponse.json(
-         { error: 'Admin access from unauthorized IP' },
-         { status: 403 }
+         { error: "Admin access from unauthorized IP" },
+         { status: 403 },
        );
      }
    }
    ```
 
 6. **MEDIUM - Time-Based Access Control**:
+
    ```typescript
    // Restrict admin access to business hours
-   if (userRole === 'admin' && !isBusinessHours()) {
-     await sendAlertEmail(user, 'Off-hours access attempt');
+   if (userRole === "admin" && !isBusinessHours()) {
+     await sendAlertEmail(user, "Off-hours access attempt");
      // Optionally require additional verification
    }
    ```
@@ -597,13 +625,20 @@ role: 'admin' | 'supervisor' | 'viewer';
 
 ```typescript
 export const logger = {
-  log: (...args: any[]) => { if (isDev) console.log(...args); },
-  error: (...args: any[]) => { if (isDev) console.error(...args); },
-  critical: (...args: any[]) => { console.error(...args); },
+  log: (...args: any[]) => {
+    if (isDev) console.log(...args);
+  },
+  error: (...args: any[]) => {
+    if (isDev) console.error(...args);
+  },
+  critical: (...args: any[]) => {
+    console.error(...args);
+  },
 };
 ```
 
 **No Structured Logging:**
+
 - No timestamp standardization
 - No request context
 - No user identification
@@ -612,21 +647,24 @@ export const logger = {
 ### What Gets Logged
 
 **Login Errors:**
+
 ```typescript
 // /app/api/auth/login/route.ts
-console.error('Login error:', error);
+console.error("Login error:", error);
 ```
 
 **Logout Errors:**
+
 ```typescript
 // /app/api/auth/logout/route.ts
-console.error('Logout error:', error);
+console.error("Logout error:", error);
 ```
 
 **Token Refresh Errors:**
+
 ```typescript
 // /app/api/auth/refresh/route.ts
-console.error('Token refresh error:', error);
+console.error("Token refresh error:", error);
 ```
 
 ### Critical Gaps
@@ -658,6 +696,7 @@ console.error('Token refresh error:', error);
 ### What Should Be Logged
 
 **Authentication Events:**
+
 - Login attempts (success/failure) with IP, timestamp, user-agent
 - Logout events
 - Token refresh attempts
@@ -666,12 +705,14 @@ console.error('Token refresh error:', error);
 - Session timeout/expiry
 
 **Authorization Events:**
+
 - Access denied events (insufficient role)
 - Role changes
 - Permission grants/revokes
 - Protected resource access
 
 **Admin Actions:**
+
 - User creation/modification/deletion
 - Settings changes
 - Role assignments
@@ -680,6 +721,7 @@ console.error('Token refresh error:', error);
 - Bulk operations
 
 **Security Events:**
+
 - Multiple failed login attempts
 - Login from new location/device
 - Unusual access patterns
@@ -694,11 +736,11 @@ console.error('Token refresh error:', error);
 
    ```typescript
    // Create /lib/audit/audit-logger.ts
-   import { createClient } from '@supabase/supabase-js';
+   import { createClient } from "@supabase/supabase-js";
 
    interface AuditLogEntry {
      timestamp: string;
-     event_type: 'AUTH' | 'AUTHZ' | 'ADMIN_ACTION' | 'SECURITY' | 'DATA_ACCESS';
+     event_type: "AUTH" | "AUTHZ" | "ADMIN_ACTION" | "SECURITY" | "DATA_ACCESS";
      event_name: string;
      user_id?: string;
      user_email?: string;
@@ -713,7 +755,7 @@ console.error('Token refresh error:', error);
      resource_type?: string;
      resource_id?: string;
      action?: string;
-     result: 'SUCCESS' | 'FAILURE' | 'DENIED';
+     result: "SUCCESS" | "FAILURE" | "DENIED";
      error_message?: string;
      metadata?: Record<string, any>;
    }
@@ -722,18 +764,23 @@ console.error('Token refresh error:', error);
      private db: any; // Supabase, Prisma, or other DB client
 
      async log(entry: AuditLogEntry) {
-       await this.db.from('audit_logs').insert({
+       await this.db.from("audit_logs").insert({
          ...entry,
          timestamp: new Date().toISOString(),
        });
      }
 
-     async logAuth(event: string, request: NextRequest, result: string, error?: string) {
+     async logAuth(
+       event: string,
+       request: NextRequest,
+       result: string,
+       error?: string,
+     ) {
        await this.log({
-         event_type: 'AUTH',
+         event_type: "AUTH",
          event_name: event,
-         ip_address: request.ip ?? 'unknown',
-         user_agent: request.headers.get('user-agent') ?? 'unknown',
+         ip_address: request.ip ?? "unknown",
+         user_agent: request.headers.get("user-agent") ?? "unknown",
          path: request.nextUrl.pathname,
          method: request.method,
          result: result as any,
@@ -747,16 +794,16 @@ console.error('Token refresh error:', error);
        request: NextRequest,
        resourceType: string,
        resourceId: string,
-       result: string
+       result: string,
      ) {
        await this.log({
-         event_type: 'ADMIN_ACTION',
+         event_type: "ADMIN_ACTION",
          event_name: action,
          user_id: user.id,
          user_email: user.email,
          user_role: user.role,
-         ip_address: request.ip ?? 'unknown',
-         user_agent: request.headers.get('user-agent') ?? 'unknown',
+         ip_address: request.ip ?? "unknown",
+         user_agent: request.headers.get("user-agent") ?? "unknown",
          path: request.nextUrl.pathname,
          method: request.method,
          resource_type: resourceType,
@@ -776,13 +823,13 @@ console.error('Token refresh error:', error);
 
    // Log auth check
    if (!token) {
-     await auditLogger.logAuth('AUTH_TOKEN_MISSING', request, 'FAILURE');
+     await auditLogger.logAuth("AUTH_TOKEN_MISSING", request, "FAILURE");
      return NextResponse.redirect(loginUrl);
    }
 
    // Log idle timeout
    if (timeSinceLastActivity >= IDLE_TIMEOUT) {
-     await auditLogger.logAuth('AUTH_IDLE_TIMEOUT', request, 'FAILURE');
+     await auditLogger.logAuth("AUTH_IDLE_TIMEOUT", request, "FAILURE");
      return response;
    }
    ```
@@ -795,31 +842,31 @@ console.error('Token refresh error:', error);
 
    // Before login attempt
    await auditLogger.log({
-     event_type: 'AUTH',
-     event_name: 'LOGIN_ATTEMPT',
+     event_type: "AUTH",
+     event_name: "LOGIN_ATTEMPT",
      user_email: email,
-     ip_address: request.ip ?? 'unknown',
-     user_agent: request.headers.get('user-agent') ?? 'unknown',
-     result: 'PENDING',
+     ip_address: request.ip ?? "unknown",
+     user_agent: request.headers.get("user-agent") ?? "unknown",
+     result: "PENDING",
    });
 
    // After successful login
    await auditLogger.log({
-     event_type: 'AUTH',
-     event_name: 'LOGIN_SUCCESS',
+     event_type: "AUTH",
+     event_name: "LOGIN_SUCCESS",
      user_id: data.user.id,
      user_email: email,
      user_role: data.user.role,
-     ip_address: request.ip ?? 'unknown',
-     result: 'SUCCESS',
+     ip_address: request.ip ?? "unknown",
+     result: "SUCCESS",
    });
 
    // After failed login
    await auditLogger.log({
-     event_type: 'AUTH',
-     event_name: 'LOGIN_FAILURE',
+     event_type: "AUTH",
+     event_name: "LOGIN_FAILURE",
      user_email: email,
-     result: 'FAILURE',
+     result: "FAILURE",
      error_message: error.message,
    });
    ```
@@ -868,12 +915,12 @@ console.error('Token refresh error:', error);
    // When checking roles
    if (userRoleLevel < requiredRoleLevel) {
      await auditLogger.log({
-       event_type: 'AUTHZ',
-       event_name: 'ACCESS_DENIED',
+       event_type: "AUTHZ",
+       event_name: "ACCESS_DENIED",
        user_id: user.id,
        user_role: user.role,
        path: pathname,
-       result: 'DENIED',
+       result: "DENIED",
        metadata: {
          required_role: requiredRole,
          user_role: user.role,
@@ -900,7 +947,7 @@ console.error('Token refresh error:', error);
 
        for (const { ip_address, count } of failedLogins) {
          await sendAlert({
-           type: 'BRUTE_FORCE_DETECTED',
+           type: "BRUTE_FORCE_DETECTED",
            ip_address,
            attempt_count: count,
          });
@@ -921,14 +968,15 @@ console.error('Token refresh error:', error);
    export async function GET(request: NextRequest) {
      // Require admin role
      const user = await getCurrentUser(request);
-     if (user.role !== 'admin') {
-       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+     if (user.role !== "admin") {
+       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
      }
 
      const { searchParams } = request.nextUrl;
-     const logs = await db.from('audit_logs')
-       .select('*')
-       .order('timestamp', { ascending: false })
+     const logs = await db
+       .from("audit_logs")
+       .select("*")
+       .order("timestamp", { ascending: false })
        .limit(100);
 
      return NextResponse.json({ logs });
@@ -946,32 +994,32 @@ console.error('Token refresh error:', error);
 
 ### Critical Issues (Require Immediate Attention)
 
-| Issue | Severity | Priority | File(s) Affected |
-|-------|----------|----------|------------------|
-| No server-side role authorization | CRITICAL | IMMEDIATE | middleware.ts, API routes |
-| No rate limiting on any endpoints | HIGH | IMMEDIATE | middleware.ts, auth routes |
-| Insufficient CSRF protection | MEDIUM-HIGH | HIGH | middleware.ts, API routes |
-| No audit logging for security events | HIGH | HIGH | All files |
-| No admin-specific protections (MFA, IP whitelist) | HIGH | HIGH | middleware.ts, auth routes |
+| Issue                                             | Severity    | Priority  | File(s) Affected           |
+| ------------------------------------------------- | ----------- | --------- | -------------------------- |
+| No server-side role authorization                 | CRITICAL    | IMMEDIATE | middleware.ts, API routes  |
+| No rate limiting on any endpoints                 | HIGH        | IMMEDIATE | middleware.ts, auth routes |
+| Insufficient CSRF protection                      | MEDIUM-HIGH | HIGH      | middleware.ts, API routes  |
+| No audit logging for security events              | HIGH        | HIGH      | All files                  |
+| No admin-specific protections (MFA, IP whitelist) | HIGH        | HIGH      | middleware.ts, auth routes |
 
 ### Good Implementations (Keep)
 
-| Feature | Status | Quality |
-|---------|--------|---------|
-| Security Headers (CSP, HSTS, X-Frame-Options) | ✅ | EXCELLENT |
-| HttpOnly Cookie Storage | ✅ | GOOD |
-| Idle Timeout (30 minutes) | ✅ | GOOD |
-| Activity Tracking | ✅ | GOOD |
-| Nonce-based CSP | ✅ | EXCELLENT |
+| Feature                                       | Status | Quality   |
+| --------------------------------------------- | ------ | --------- |
+| Security Headers (CSP, HSTS, X-Frame-Options) | ✅     | EXCELLENT |
+| HttpOnly Cookie Storage                       | ✅     | GOOD      |
+| Idle Timeout (30 minutes)                     | ✅     | GOOD      |
+| Activity Tracking                             | ✅     | GOOD      |
+| Nonce-based CSP                               | ✅     | EXCELLENT |
 
 ### Medium Priority Issues
 
-| Issue | Impact | Effort |
-|-------|--------|--------|
-| No absolute session limit | Medium | Low |
-| No session revocation capability | Medium | High |
-| Client-only role checks | High | Medium |
-| No JWT validation in middleware | Medium | Medium |
+| Issue                            | Impact | Effort |
+| -------------------------------- | ------ | ------ |
+| No absolute session limit        | Medium | Low    |
+| No session revocation capability | Medium | High   |
+| Client-only role checks          | High   | Medium |
+| No JWT validation in middleware  | Medium | Medium |
 
 ---
 
@@ -1014,12 +1062,12 @@ console.error('Token refresh error:', error);
 
 ```typescript
 // In middleware.ts
-import { verify } from 'jsonwebtoken';
+import { verify } from "jsonwebtoken";
 
 const PROTECTED_ROUTES = {
-  '/settings': ['admin'],
-  '/users': ['admin', 'supervisor'],
-  '/farms': ['admin', 'supervisor', 'viewer'],
+  "/settings": ["admin"],
+  "/users": ["admin", "supervisor"],
+  "/farms": ["admin", "supervisor", "viewer"],
 };
 
 // After token check
@@ -1028,7 +1076,7 @@ try {
   const requiredRoles = getRequiredRoles(pathname, PROTECTED_ROUTES);
 
   if (requiredRoles && !requiredRoles.includes(decoded.role)) {
-    return NextResponse.redirect(new URL('/unauthorized', request.url));
+    return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 } catch (err) {
   // Invalid token
@@ -1042,7 +1090,11 @@ try {
 // Create /lib/rate-limit.ts
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
-export function checkRateLimit(identifier: string, limit: number, windowMs: number): boolean {
+export function checkRateLimit(
+  identifier: string,
+  limit: number,
+  windowMs: number,
+): boolean {
   const now = Date.now();
   const record = rateLimitMap.get(identifier);
 
@@ -1060,9 +1112,9 @@ export function checkRateLimit(identifier: string, limit: number, windowMs: numb
 }
 
 // In middleware.ts
-const identifier = request.ip ?? 'unknown';
+const identifier = request.ip ?? "unknown";
 if (!checkRateLimit(identifier, 100, 60000)) {
-  return new NextResponse('Too Many Requests', { status: 429 });
+  return new NextResponse("Too Many Requests", { status: 429 });
 }
 ```
 
@@ -1070,19 +1122,19 @@ if (!checkRateLimit(identifier, 100, 60000)) {
 
 ```typescript
 // In /app/api/auth/login/route.ts
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_KEY!
+  process.env.SUPABASE_KEY!,
 );
 
 // Log login attempt
-await supabase.from('audit_logs').insert({
-  event_type: 'AUTH',
-  event_name: response.ok ? 'LOGIN_SUCCESS' : 'LOGIN_FAILURE',
+await supabase.from("audit_logs").insert({
+  event_type: "AUTH",
+  event_name: response.ok ? "LOGIN_SUCCESS" : "LOGIN_FAILURE",
   user_email: email,
-  ip_address: request.headers.get('x-forwarded-for') ?? 'unknown',
+  ip_address: request.headers.get("x-forwarded-for") ?? "unknown",
   timestamp: new Date().toISOString(),
 });
 ```
@@ -1118,21 +1170,25 @@ await supabase.from('audit_logs').insert({
 ## Compliance Considerations
 
 ### GDPR Article 30 - Records of Processing Activities
+
 - **Current Status**: ❌ NON-COMPLIANT
 - **Required**: Audit logs of data access and processing
 - **Gap**: No logging of data access or admin actions
 
 ### HIPAA §164.312(b) - Audit Controls
+
 - **Current Status**: ❌ NON-COMPLIANT
 - **Required**: Audit trail of security-relevant events
 - **Gap**: No persistent audit logging
 
 ### SOC 2 Type II - Logical Access Controls
+
 - **Current Status**: ⚠️ PARTIAL
 - **Required**: Strong authentication, role-based access, audit logging
 - **Gap**: Missing server-side authorization and audit logs
 
 ### ISO 27001 - Access Control (A.9)
+
 - **Current Status**: ⚠️ PARTIAL
 - **Required**: Secure authentication, authorization, privilege management
 - **Gap**: No MFA enforcement, insufficient admin protections
@@ -1144,6 +1200,7 @@ await supabase.from('audit_logs').insert({
 The SAHOOL Admin middleware provides a solid foundation with excellent security headers and basic authentication, but requires significant enhancements for production use in an admin context. The critical gaps in authorization, rate limiting, and audit logging pose substantial security risks.
 
 **Immediate Actions Required:**
+
 1. Implement server-side role-based authorization
 2. Add rate limiting to prevent abuse
 3. Enhance CSRF protection
@@ -1151,10 +1208,12 @@ The SAHOOL Admin middleware provides a solid foundation with excellent security 
 5. Enforce MFA for admin accounts
 
 **Estimated Effort:**
+
 - Critical fixes: 2-3 weeks (1 developer)
 - Full implementation: 4-6 weeks (1-2 developers)
 
 **Risk Assessment:**
+
 - Current risk level: MEDIUM-HIGH
 - Post-implementation risk level: LOW
 - Business impact of breach: HIGH (admin panel compromise)

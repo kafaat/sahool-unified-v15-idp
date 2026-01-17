@@ -9,7 +9,7 @@
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
@@ -30,7 +30,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let lastTime = 0;
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -62,7 +62,7 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
  */
 export function memoize<T extends (...args: unknown[]) => unknown>(
   func: T,
-  keyResolver?: (...args: Parameters<T>) => string
+  keyResolver?: (...args: Parameters<T>) => string,
 ): T {
   const cache = new Map<string, ReturnType<T>>();
 
@@ -85,7 +85,7 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
  */
 export function batchCalls<T>(
   callback: (items: T[]) => void,
-  wait: number = 16 // ~1 frame at 60fps
+  wait: number = 16, // ~1 frame at 60fps
 ): (item: T) => void {
   let batch: T[] = [];
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -109,11 +109,17 @@ export function batchCalls<T>(
  */
 export function requestIdleCallback(
   callback: () => void,
-  options?: { timeout?: number }
+  options?: { timeout?: number },
 ): number {
-  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-    return (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout?: number }) => number })
-      .requestIdleCallback(callback, options);
+  if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+    return (
+      window as Window & {
+        requestIdleCallback: (
+          cb: () => void,
+          opts?: { timeout?: number },
+        ) => number;
+      }
+    ).requestIdleCallback(callback, options);
   }
   // Fallback to setTimeout
   return setTimeout(callback, options?.timeout || 1) as unknown as number;
@@ -123,8 +129,10 @@ export function requestIdleCallback(
  * Cancel idle callback
  */
 export function cancelIdleCallback(id: number): void {
-  if (typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
-    (window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(id);
+  if (typeof window !== "undefined" && "cancelIdleCallback" in window) {
+    (
+      window as Window & { cancelIdleCallback: (id: number) => void }
+    ).cancelIdleCallback(id);
   } else {
     clearTimeout(id);
   }
@@ -136,13 +144,13 @@ export function cancelIdleCallback(id: number): void {
  */
 export async function measureTime<T>(
   fn: () => T | Promise<T>,
-  label?: string
+  label?: string,
 ): Promise<{ result: T; duration: number }> {
   const start = performance.now();
   const result = await fn();
   const duration = performance.now() - start;
 
-  if (label && process.env.NODE_ENV === 'development') {
+  if (label && process.env.NODE_ENV === "development") {
     console.log(`[Performance] ${label}: ${duration.toFixed(2)}ms`);
   }
 

@@ -1,4 +1,5 @@
 # تقرير إكمال نظام إلغاء الرموز
+
 # Token Revocation System - Complete Implementation Report
 
 ## ✅ تم الانتهاء بنجاح | Successfully Completed
@@ -103,7 +104,7 @@ A comprehensive Redis-based token revocation system has been successfully implem
 12. **`/shared/auth/__init__.py`**
     - ✅ Added token revocation imports
     - ✅ Exported revocation functions
-    - ✅ Updated __all__ list
+    - ✅ Updated **all** list
 
 ---
 
@@ -226,11 +227,13 @@ JWT_AUDIENCE=sahool-api
 ### Dependencies
 
 **Python:**
+
 ```bash
 pip install redis[asyncio]
 ```
 
 **TypeScript:**
+
 ```bash
 npm install redis @nestjs/jwt
 ```
@@ -257,6 +260,7 @@ Create `.env` file with required variables (see above).
 ### 3. Integrate Middleware
 
 **Python (FastAPI):**
+
 ```python
 from shared.auth import JWTAuthMiddleware, TokenRevocationMiddleware
 
@@ -265,6 +269,7 @@ app.add_middleware(TokenRevocationMiddleware)
 ```
 
 **TypeScript (NestJS):**
+
 ```typescript
 import { APP_GUARD } from '@nestjs/core';
 import { TokenRevocationGuard } from '@shared/auth/token-revocation.guard';
@@ -278,6 +283,7 @@ import { TokenRevocationGuard } from '@shared/auth/token-revocation.guard';
 ### 4. Include API Endpoints
 
 **Python:**
+
 ```python
 from shared.auth.revocation_api import router as revocation_router
 
@@ -285,6 +291,7 @@ app.include_router(revocation_router)
 ```
 
 **TypeScript:**
+
 ```typescript
 import { RevocationController } from '@shared/auth/revocation.controller';
 
@@ -326,11 +333,13 @@ curl -X POST http://localhost:3000/auth/revocation/revoke-current \
 ### Code Files
 
 **Python:**
+
 - Core: [token_revocation.py](./shared/auth/token_revocation.py)
 - Middleware: [revocation_middleware.py](./shared/auth/revocation_middleware.py)
 - API: [revocation_api.py](./shared/auth/revocation_api.py)
 
 **TypeScript:**
+
 - Core: [token-revocation.ts](./shared/auth/token-revocation.ts)
 - Guard: [token-revocation.guard.ts](./shared/auth/token-revocation.guard.ts)
 - Controller: [revocation.controller.ts](./shared/auth/revocation.controller.ts)
@@ -443,12 +452,14 @@ async changePassword(@Body() dto: ChangePasswordDto, @Request() req) {
 ### ما تم إنجازه | What Was Accomplished
 
 ✅ **11 ملفات تم إنشاؤها**:
+
 - 3 ملفات Python للتنفيذ
 - 3 ملفات TypeScript للتنفيذ
 - 4 ملفات توثيق
-- 1 ملف محدث (__init__.py)
+- 1 ملف محدث (**init**.py)
 
 ✅ **ميزات شاملة**:
+
 - نظام إلغاء رموز متعدد المستويات
 - دعم Redis موزع
 - إدارة TTL تلقائية
@@ -458,6 +469,7 @@ async changePassword(@Body() dto: ChangePasswordDto, @Request() req) {
 - توثيق شامل
 
 ✅ **جاهز للإنتاج**:
+
 - أداء عالي (< 2ms)
 - بنية قابلة للتوسع
 - أفضل ممارسات الأمان
@@ -465,6 +477,7 @@ async changePassword(@Body() dto: ChangePasswordDto, @Request() req) {
 - دعم المراقبة
 
 ✅ **صديق للمطورين**:
+
 - واجهة برمجية بسيطة
 - أمان الأنواع
 - أمثلة عملية
@@ -506,14 +519,14 @@ async changePassword(@Body() dto: ChangePasswordDto, @Request() req) {
 
 ## 🔗 روابط سريعة | Quick Links
 
-| المستند | الوصف | الرابط |
-|---------|--------|--------|
-| Quick Start | دليل البدء السريع | [REVOCATION_QUICKSTART.md](./shared/auth/REVOCATION_QUICKSTART.md) |
-| Full Documentation | التوثيق الكامل | [TOKEN_REVOCATION_README.md](./shared/auth/TOKEN_REVOCATION_README.md) |
-| Examples | أمثلة عملية | [REVOCATION_EXAMPLES.md](./shared/auth/REVOCATION_EXAMPLES.md) |
-| Implementation | تفاصيل التنفيذ | [REVOCATION_IMPLEMENTATION_SUMMARY.md](./shared/auth/REVOCATION_IMPLEMENTATION_SUMMARY.md) |
-| Python Core | الكود الأساسي Python | [token_revocation.py](./shared/auth/token_revocation.py) |
-| TypeScript Core | الكود الأساسي TypeScript | [token-revocation.ts](./shared/auth/token-revocation.ts) |
+| المستند            | الوصف                    | الرابط                                                                                     |
+| ------------------ | ------------------------ | ------------------------------------------------------------------------------------------ |
+| Quick Start        | دليل البدء السريع        | [REVOCATION_QUICKSTART.md](./shared/auth/REVOCATION_QUICKSTART.md)                         |
+| Full Documentation | التوثيق الكامل           | [TOKEN_REVOCATION_README.md](./shared/auth/TOKEN_REVOCATION_README.md)                     |
+| Examples           | أمثلة عملية              | [REVOCATION_EXAMPLES.md](./shared/auth/REVOCATION_EXAMPLES.md)                             |
+| Implementation     | تفاصيل التنفيذ           | [REVOCATION_IMPLEMENTATION_SUMMARY.md](./shared/auth/REVOCATION_IMPLEMENTATION_SUMMARY.md) |
+| Python Core        | الكود الأساسي Python     | [token_revocation.py](./shared/auth/token_revocation.py)                                   |
+| TypeScript Core    | الكود الأساسي TypeScript | [token-revocation.ts](./shared/auth/token-revocation.ts)                                   |
 
 ---
 

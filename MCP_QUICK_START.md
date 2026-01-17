@@ -28,6 +28,7 @@ curl http://localhost:8200/health
 ```
 
 **Expected Output:**
+
 ```json
 {
   "status": "healthy",
@@ -115,11 +116,13 @@ Or:
 ### 1. Get Weather Forecast
 
 **Ask:**
+
 ```
 "What's the weather forecast for my farm at coordinates 15.5527, 48.5164?"
 ```
 
 **What happens:**
+
 1. AI calls `get_weather_forecast` tool
 2. SAHOOL queries weather service
 3. Returns 7-day forecast with agricultural advisories
@@ -127,11 +130,13 @@ Or:
 ### 2. Analyze Crop Health
 
 **Ask:**
+
 ```
 "How healthy are my crops in field-123? Use satellite imagery."
 ```
 
 **What happens:**
+
 1. AI calls `analyze_crop_health` tool
 2. SAHOOL analyzes latest satellite data
 3. Returns NDVI values, stress areas, and recommendations
@@ -139,11 +144,13 @@ Or:
 ### 3. Plan Irrigation
 
 **Ask:**
+
 ```
 "My wheat field (field-123) has 45% soil moisture and is in flowering stage. When should I irrigate?"
 ```
 
 **What happens:**
+
 1. AI calls `calculate_irrigation` tool
 2. SAHOOL considers weather, crop stage, soil moisture
 3. Returns irrigation schedule and water amount
@@ -151,11 +158,13 @@ Or:
 ### 4. Get Fertilizer Advice
 
 **Ask:**
+
 ```
 "What fertilizer do I need for my corn field? My soil test shows nitrogen: 20 ppm, phosphorus: 15 ppm, potassium: 150 ppm, pH: 6.5"
 ```
 
 **What happens:**
+
 1. AI calls `get_fertilizer_recommendation` tool
 2. SAHOOL analyzes soil test and crop requirements
 3. Returns NPK recommendation and application schedule
@@ -178,6 +187,7 @@ docker-compose restart mcp-server
 ### AI Assistant Can't Connect
 
 1. Verify MCP server is running:
+
    ```bash
    curl http://localhost:8200/health
    ```
@@ -194,11 +204,13 @@ docker-compose restart mcp-server
 ### Tools Not Working
 
 1. Verify SAHOOL core services are running:
+
    ```bash
    docker-compose ps
    ```
 
 2. Check service health:
+
    ```bash
    curl http://localhost:8000/health  # Kong gateway
    ```
@@ -250,17 +262,20 @@ docker-compose logs mcp-server | grep -i error
 ### Production
 
 1. Enable API key authentication:
+
    ```bash
    export MCP_API_KEY=your-secure-api-key
    ```
 
 2. Configure CORS:
+
    ```python
    # Edit apps/services/mcp-server/src/main.py
    allow_origins=["https://your-domain.com"]
    ```
 
 3. Use HTTPS:
+
    ```bash
    export SAHOOL_API_URL=https://api.sahool.io
    ```
@@ -309,6 +324,7 @@ async with MCPClientContext(server_url="http://localhost:8200") as client:
 ### Custom Integrations
 
 See `/shared/mcp/examples.py` for:
+
 - Low-level MCP client usage
 - Batch operations
 - Resource access
@@ -339,6 +355,7 @@ python examples.py
 You now have SAHOOL's agricultural intelligence accessible to AI assistants!
 
 Try asking questions like:
+
 - "What's the weather forecast for my farm?"
 - "How healthy are my crops?"
 - "When should I irrigate my wheat field?"

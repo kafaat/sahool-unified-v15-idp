@@ -1,4 +1,5 @@
 # Redis Sentinel Integration Guide
+
 # دليل التكامل مع Redis Sentinel
 
 ## دمج Redis Sentinel مع الخدمات الحالية | Integrating with Existing Services
@@ -27,6 +28,7 @@ REDIS_MAX_CONNECTIONS=50
 إذا كان لديك كود يستخدم Redis بالفعل:
 
 **قبل:**
+
 ```python
 import redis
 
@@ -40,6 +42,7 @@ redis_client = redis.Redis(
 ```
 
 **بعد:**
+
 ```python
 from shared.cache import get_redis_client
 
@@ -59,7 +62,7 @@ import redis
 def get_cache_client():
     """Get Redis client with Sentinel support if enabled"""
     use_sentinel = os.getenv('USE_REDIS_SENTINEL', 'false').lower() == 'true'
-    
+
     if use_sentinel:
         return get_redis_client()
     else:
@@ -79,32 +82,34 @@ def get_cache_client():
 #### NestJS Integration
 
 **shared/cache/redis.module.ts:**
+
 ```typescript
-import { Module, Global } from '@nestjs/common';
-import { getRedisSentinelClient } from './redis-sentinel';
+import { Module, Global } from "@nestjs/common";
+import { getRedisSentinelClient } from "./redis-sentinel";
 
 @Global()
 @Module({
   providers: [
     {
-      provide: 'REDIS_CLIENT',
+      provide: "REDIS_CLIENT",
       useFactory: () => getRedisSentinelClient(),
     },
   ],
-  exports: ['REDIS_CLIENT'],
+  exports: ["REDIS_CLIENT"],
 })
 export class RedisModule {}
 ```
 
 **Usage in services:**
+
 ```typescript
-import { Injectable, Inject } from '@nestjs/common';
-import { RedisSentinelClient } from '@sahool/cache';
+import { Injectable, Inject } from "@nestjs/common";
+import { RedisSentinelClient } from "@sahool/cache";
 
 @Injectable()
 export class CacheService {
   constructor(
-    @Inject('REDIS_CLIENT')
+    @Inject("REDIS_CLIENT")
     private readonly redis: RedisSentinelClient,
   ) {}
 
@@ -121,15 +126,15 @@ export class CacheService {
 #### Express Integration
 
 ```typescript
-import express from 'express';
-import { getRedisSentinelClient } from '@sahool/cache';
+import express from "express";
+import { getRedisSentinelClient } from "@sahool/cache";
 
 const app = express();
 const redis = getRedisSentinelClient();
 
 // Middleware for session
 app.use(async (req, res, next) => {
-  const sessionId = req.headers['x-session-id'];
+  const sessionId = req.headers["x-session-id"];
   if (sessionId) {
     const session = await redis.get(`session:${sessionId}`);
     if (session) {
@@ -145,18 +150,19 @@ app.use(async (req, res, next) => {
 ### 4. FastAPI Integration (Python)
 
 **app/core/redis.py:**
+
 ```python
 from fastapi import FastAPI
 from shared.cache import get_redis_client, close_redis_client
 
 def init_redis(app: FastAPI):
     """Initialize Redis Sentinel client"""
-    
+
     @app.on_event("startup")
     async def startup():
         app.state.redis = get_redis_client()
         print("✓ Redis Sentinel connected")
-    
+
     @app.on_event("shutdown")
     async def shutdown():
         close_redis_client()
@@ -164,6 +170,7 @@ def init_redis(app: FastAPI):
 ```
 
 **Usage:**
+
 ```python
 from fastapi import FastAPI, Depends, Request
 
@@ -182,13 +189,13 @@ async def get_user(
     cached = redis.get(f"user:{user_id}", use_slave=True)
     if cached:
         return json.loads(cached)
-    
+
     # Get from database
     user = await db.get_user(user_id)
-    
+
     # Cache for 1 hour
     redis.set(f"user:{user_id}", json.dumps(user), ex=3600)
-    
+
     return user
 ```
 
@@ -199,6 +206,7 @@ async def get_user(
 إذا كنت تستخدم Redis الحالي في `docker-compose.yml`:
 
 **قبل:**
+
 ```yaml
 services:
   redis:
@@ -208,6 +216,7 @@ services:
 ```
 
 **بعد:**
+
 ```yaml
 # استبدله بـ:
 services:
@@ -218,6 +227,7 @@ services:
 ```
 
 **أو استخدم النظام الكامل:**
+
 ```bash
 # إيقاف Redis القديم
 docker-compose stop redis
@@ -236,11 +246,12 @@ USE_REDIS_SENTINEL=true
 #### Prometheus
 
 أضف إلى `prometheus.yml`:
+
 ```yaml
 scrape_configs:
-  - job_name: 'redis-sentinel'
+  - job_name: "redis-sentinel"
     static_configs:
-      - targets: ['localhost:9121']
+      - targets: ["localhost:9121"]
 ```
 
 #### Grafana
@@ -258,6 +269,7 @@ scrape_configs:
 #### Notification Service
 
 **قبل:**
+
 ```python
 # apps/services/notification-service/src/cache.py
 import redis
@@ -270,6 +282,7 @@ redis_client = redis.Redis(
 ```
 
 **بعد:**
+
 ```python
 # apps/services/notification-service/src/cache.py
 from shared.cache import get_redis_client
@@ -283,20 +296,22 @@ redis_client = get_redis_client()
 #### Auth Service
 
 **قبل:**
+
 ```typescript
 // apps/services/auth-service/src/redis.ts
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
 export const redis = new Redis({
-  host: 'redis',
+  host: "redis",
   port: 6379,
 });
 ```
 
 **بعد:**
+
 ```typescript
 // apps/services/auth-service/src/redis.ts
-import { getRedisSentinelClient } from '@sahool/cache';
+import { getRedisSentinelClient } from "@sahool/cache";
 
 export const redis = getRedisSentinelClient();
 
@@ -338,18 +353,18 @@ async def health_check():
         "status": "healthy",
         "checks": {}
     }
-    
+
     # Check Redis
     try:
         redis_health = redis_client.health_check()
         health["checks"]["redis"] = redis_health
-        
+
         if redis_health["status"] != "healthy":
             health["status"] = "degraded"
     except Exception as e:
         health["checks"]["redis"] = {"status": "unhealthy", "error": str(e)}
         health["status"] = "unhealthy"
-    
+
     return health
 ```
 
@@ -457,13 +472,13 @@ limiter = RateLimiter(max_requests=1000, window=60)
 @app.middleware("http")
 async def rate_limit_middleware(request, call_next):
     client_ip = request.client.host
-    
+
     if not limiter.is_allowed(client_ip):
         return JSONResponse(
             status_code=429,
             content={"error": "Rate limit exceeded"}
         )
-    
+
     return await call_next(request)
 ```
 
@@ -475,10 +490,10 @@ from shared.cache.examples import DistributedLock
 @app.post("/export")
 async def export_data():
     lock = DistributedLock("export:process", timeout=300)
-    
+
     if not lock.acquire(blocking=False):
         raise HTTPException(409, "Export already in progress")
-    
+
     try:
         # Perform export
         result = await perform_export()
@@ -490,24 +505,28 @@ async def export_data():
 #### Session Management
 
 ```typescript
-import { SessionManager } from '@sahool/cache/examples';
+import { SessionManager } from "@sahool/cache/examples";
 
 const sessions = new SessionManager();
 
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  
+
   // Authenticate
   const user = await authenticate(username, password);
-  
+
   // Create session
   const sessionId = generateSessionId();
-  await sessions.create(sessionId, {
-    userId: user.id,
-    username: user.username,
-    role: user.role,
-  }, 3600);
-  
+  await sessions.create(
+    sessionId,
+    {
+      userId: user.id,
+      username: user.username,
+      role: user.role,
+    },
+    3600,
+  );
+
   res.json({ sessionId });
 });
 ```
@@ -517,6 +536,7 @@ app.post('/login', async (req, res) => {
 ## الدعم | Support
 
 للمساعدة في التكامل:
+
 - 📧 Email: support@sahool.platform
 - 📝 GitHub Issues
 - 📖 Documentation: `/shared/cache/README.md`

@@ -1,4 +1,5 @@
 # PII Masking for AI Advisor Service
+
 # إخفاء المعلومات الشخصية لخدمة المستشار الذكي
 
 ## Overview | نظرة عامة
@@ -25,6 +26,7 @@ The PII masker automatically detects and masks:
 ### Sensitive Field Detection | كشف الحقول الحساسة
 
 Fields with sensitive names are completely redacted:
+
 - `password`, `passwd`, `pwd`
 - `secret`, `token`, `api_key`, `apikey`
 - `authorization`, `auth`, `credential`
@@ -248,6 +250,7 @@ utils/
 ## Support | الدعم
 
 For issues or questions:
+
 - Check the test suite for examples
 - Review structlog documentation
 - Consult the team security guidelines

@@ -26,6 +26,9 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 
+# Configure logger early
+logger = logging.getLogger(__name__)
+
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -304,9 +307,25 @@ async def batch_diagnose(
 @app.get("/v1/diseases", response_model=list[dict])
 async def list_diseases(
     crop_type: CropType | None = Query(None, description="فلترة حسب نوع المحصول"),
+    limit: int = Query(
+        default=50, ge=1, le=100, description="Maximum number of diseases to return"
+    ),
+    offset: int = Query(default=0, ge=0, description="Number of diseases to skip"),
 ):
-    """📋 قائمة الأمراض المدعومة"""
-    return disease_service.get_all_diseases(crop_type)
+    """📋 قائمة الأمراض المدعومة مع الترقيم"""
+    all_diseases = disease_service.get_all_diseases(crop_type)
+
+    # Apply pagination
+    total = len(all_diseases)
+    paginated_diseases = all_diseases[offset : offset + limit]
+
+    return {
+        "diseases": paginated_diseases,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "has_more": (offset + limit) < total,
+    }
 
 
 @app.get("/v1/crops", response_model=list[dict])
@@ -412,6 +431,286 @@ async def update_diagnosis_status(
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════════
+# Context Engineering Endpoints
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.get("/v1/field/{field_id}/health")
+async def get_field_health(field_id: str):
+    """
+    🏥 Get field health metrics
+
+    Returns comprehensive health assessment with disease patterns
+    and risk factors for a specific field.
+    """
+    from services import field_memory
+
+    metrics = field_memory.calculate_field_metrics(field_id)
+
+    return {
+        "field_id": field_id,
+        "health_score": f"{metrics.health_score:.2f}",
+        "total_diagnoses": metrics.total_diagnoses,
+        "healthy_diagnoses": metrics.healthy_diagnoses,
+        "infected_diagnoses": metrics.infected_diagnoses,
+        "infection_trend": metrics.infection_trend,
+        "dominant_disease": metrics.dominant_disease,
+        "disease_variety": metrics.disease_variety,
+        "avg_confidence": f"{metrics.avg_confidence:.2f}",
+        "last_updated": metrics.last_updated.isoformat(),
+    }
+
+
+@app.get("/v1/field/{field_id}/disease-patterns")
+async def get_field_disease_patterns(field_id: str):
+    """
+    📊 Get disease patterns for field
+
+    Analyzes historical disease occurrences and recurrence patterns
+    for predictive insights.
+    """
+    from services import field_memory
+
+    patterns = field_memory.get_disease_patterns(field_id)
+
+    return {
+        "field_id": field_id,
+        "patterns": [
+            {
+                "disease_id": disease_id,
+                "disease_name_ar": pattern.disease_name_ar,
+                "occurrence_count": pattern.occurrence_count,
+                "avg_confidence": f"{pattern.avg_confidence:.2f}",
+                "severity_levels": pattern.severity_levels,
+                "last_occurred": pattern.last_occurred.isoformat(),
+                "avg_days_between": (
+                    sum(pattern.days_between_occurrences)
+                    / len(pattern.days_between_occurrences)
+                    if pattern.days_between_occurrences
+                    else 0
+                ),
+                "avg_severity": pattern.avg_severity,
+            }
+            for disease_id, pattern in patterns.items()
+        ],
+        "total_patterns": len(patterns),
+    }
+
+
+@app.get("/v1/field/{field_id}/risk-assessment")
+async def get_field_risk_assessment(field_id: str):
+    """
+    ⚠️ Get field risk assessment
+
+    Provides comprehensive risk analysis including disease
+    recurrence likelihood and recommended actions.
+    """
+    from services import field_memory
+
+    risk = field_memory.get_field_risk_assessment(field_id)
+
+    return risk
+
+
+@app.post("/v1/field/{field_id}/diagnosis/{diagnosis_id}/mark-treated")
+async def mark_diagnosis_treated(field_id: str, diagnosis_id: str):
+    """
+    ✅ Mark diagnosis as treated
+
+    Records that treatment was applied to track intervention success.
+    """
+    from services import field_memory
+
+    success = field_memory.mark_diagnosis_treated(field_id, diagnosis_id)
+
+    if success:
+        return {
+            "success": True,
+            "message": f"Diagnosis {diagnosis_id} marked as treated",
+            "field_id": field_id,
+        }
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Diagnosis {diagnosis_id} not found in field {field_id}",
+        )
+
+
+@app.get("/v1/field/{field_id}/treatment-effectiveness")
+async def get_treatment_effectiveness(field_id: str):
+    """
+    💊 Get treatment effectiveness metrics
+
+    Shows how successful treatments have been for this field.
+    """
+    from services import field_memory
+
+    effectiveness = field_memory.get_treatment_effectiveness(field_id)
+
+    return effectiveness
+
+
+@app.get("/v1/fields/summary")
+async def get_all_fields_summary():
+    """
+    📈 Get summary across all fields
+
+    Overview of total diagnoses, average health, and at-risk fields.
+    """
+    from services import field_memory
+
+    summary = field_memory.get_all_fields_summary()
+
+    return summary
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Evaluation & Model Performance Endpoints
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.post("/v1/evaluation/record-outcome/{diagnosis_id}")
+async def record_evaluation_outcome(
+    diagnosis_id: str = Query(..., description="Diagnosis ID"),
+    actual_disease: str = Query(..., description="Actual disease ID"),
+    notes: str | None = Query(None, description="Optional notes"),
+):
+    """
+    📝 Record actual diagnosis outcome
+
+    Update prediction with ground truth for accuracy evaluation.
+    Typically called after expert review confirms diagnosis.
+    """
+    from services import evaluation_scorer
+
+    success = evaluation_scorer.record_outcome(diagnosis_id, actual_disease, notes)
+
+    if success:
+        return {
+            "success": True,
+            "diagnosis_id": diagnosis_id,
+            "actual_disease": actual_disease,
+            "message": "Outcome recorded for evaluation",
+        }
+    else:
+        raise HTTPException(
+            status_code=404, detail=f"Diagnosis {diagnosis_id} not found"
+        )
+
+
+@app.get("/v1/evaluation/accuracy-metrics")
+async def get_accuracy_metrics(
+    days_back: int = Query(30, ge=1, le=365, description="Days to include")
+):
+    """
+    📊 Get accuracy metrics
+
+    Prediction accuracy, confidence calibration, and performance by
+    confidence level.
+    """
+    from services import evaluation_scorer
+
+    metrics = evaluation_scorer.get_accuracy_metrics(days_back=days_back)
+
+    return {
+        "period_days": days_back,
+        "total_evaluated": metrics.total_predictions,
+        "correct": metrics.correct_predictions,
+        "accuracy": f"{metrics.accuracy:.1%}",
+        "high_confidence_accuracy": f"{metrics.high_confidence_accuracy:.1%}",
+        "medium_confidence_accuracy": f"{metrics.medium_confidence_accuracy:.1%}",
+        "low_confidence_accuracy": f"{metrics.low_confidence_accuracy:.1%}",
+        "confidence_mean": f"{metrics.confidence_mean:.2f}",
+        "confidence_std": f"{metrics.confidence_std:.2f}",
+        "calibration_score": f"{metrics.calibration_score:.2f}",
+    }
+
+
+@app.get("/v1/evaluation/per-disease-metrics")
+async def get_per_disease_metrics(
+    days_back: int = Query(30, ge=1, le=365, description="Days to include")
+):
+    """
+    🔬 Get accuracy metrics per disease
+
+    Breakdown of prediction accuracy for each disease type.
+    """
+    from services import evaluation_scorer
+
+    metrics = evaluation_scorer.get_per_disease_metrics(days_back=days_back)
+
+    return {
+        "period_days": days_back,
+        "disease_metrics": metrics,
+        "total_diseases": len(metrics),
+    }
+
+
+@app.get("/v1/evaluation/model-drift")
+async def detect_model_drift(
+    recent_days: int = Query(
+        7, ge=1, le=30, description="Recent period for comparison (days)"
+    )
+):
+    """
+    🔴 Detect model drift
+
+    Identifies if model performance is degrading compared to historical
+    performance.
+    """
+    from services import evaluation_scorer
+
+    drift = evaluation_scorer.detect_model_drift(days_back=recent_days)
+
+    return {
+        "drift_detected": drift.drift_detected,
+        "drift_severity": drift.drift_severity,
+        "recent_accuracy": f"{drift.accuracy_7day:.1%}",
+        "historical_accuracy": f"{drift.accuracy_30day:.1%}",
+        "accuracy_change": f"{drift.accuracy_change_percent:+.1f}%",
+        "confidence_trend": drift.confidence_trend,
+        "false_positive_rate": f"{drift.false_positive_rate:.1%}",
+        "false_negative_rate": f"{drift.false_negative_rate:.1%}",
+        "alert": (
+            "⚠️ Model performance degrading!"
+            if drift.drift_detected
+            else "✅ Model performance stable"
+        ),
+    }
+
+
+@app.get("/v1/evaluation/report")
+async def get_evaluation_report(
+    days_back: int = Query(30, ge=1, le=365, description="Report period (days)")
+):
+    """
+    📑 Get comprehensive evaluation report
+
+    Full report on model performance, accuracy trends, and recommendations.
+    """
+    from services import evaluation_scorer
+
+    report = evaluation_scorer.get_evaluation_report(days_back=days_back)
+
+    return report
+
+
+@app.get("/v1/evaluation/statistics")
+async def get_evaluation_statistics():
+    """
+    📈 Get evaluation statistics
+
+    Summary of how many predictions have been evaluated.
+    """
+    from services import evaluation_scorer
+
+    stats = evaluation_scorer.get_statistics_summary()
+
+    return stats
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Field-First: Action Template Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -466,7 +765,7 @@ async def diagnose_with_action(
 
     # Get disease info
     disease_name_ar = getattr(diagnosis, "disease_name_ar", "مرض غير محدد")
-    disease_name_en = getattr(diagnosis, "disease_name_en", "Unknown disease")
+    disease_name_en = getattr(diagnosis, "disease_name", "Unknown disease")
     diagnosis_id = getattr(diagnosis, "diagnosis_id", None)
 
     # Create inspection action first
@@ -492,9 +791,9 @@ async def diagnose_with_action(
         spray_action = ActionTemplateFactory.create_spray_action(
             field_id=field_id or "unknown",
             pesticide_type=pesticide_type,
-            pesticide_name_ar=getattr(treatment, "pesticide_name_ar", "مبيد فطري"),
-            pesticide_name_en=getattr(treatment, "pesticide_name_en", "Fungicide"),
-            concentration=getattr(treatment, "concentration", "0.2%"),
+            pesticide_name_ar=getattr(treatment, "product_name_ar", "مبيد فطري"),
+            pesticide_name_en=getattr(treatment, "product_name", "Fungicide"),
+            concentration=getattr(treatment, "dosage", "0.2%"),
             area_hectares=1.0,  # Default
             urgency=urgency,
             confidence=confidence,

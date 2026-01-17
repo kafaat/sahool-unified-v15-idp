@@ -1,4 +1,5 @@
 # SAHOOL Services Architecture Map
+
 # خريطة بنية خدمات سهول
 
 ---
@@ -110,36 +111,36 @@
 
 ### 🐍 Python Services (FastAPI)
 
-| الخدمة | المنفذ | المسار | الوصف |
-|--------|--------|--------|-------|
-| billing_core | 8089 | `/apps/services/billing-core` | إدارة الاشتراكات والفواتير والمدفوعات |
-| satellite_service | 8090 | `/apps/services/satellite-service` | تحليل صور الأقمار الصناعية وNDVI |
-| indicators_service | 8091 | `/apps/services/indicators-service` | مؤشرات الأداء الزراعية |
-| weather_advanced | 8092 | `/apps/services/weather-advanced` | التنبؤات الجوية المتقدمة |
-| fertilizer_advisor | 8093 | `/apps/services/fertilizer-advisor` | توصيات التسميد الذكية |
-| irrigation_smart | 8094 | `/apps/services/irrigation-smart` | إدارة الري باستخدام FAO-56 |
-| crop_health_ai | 8095 | `/apps/services/crop-health-ai` | تشخيص أمراض المحاصيل بالذكاء الاصطناعي |
-| virtual_sensors | 8096 | `/apps/services/virtual-sensors` | حسابات ET0 والمستشعرات الافتراضية |
-| yield_engine | 8098 | `/apps/services/yield-engine` | توقع الإنتاجية |
-| notification_service | 8110 | `/apps/services/notification-service` | إشعارات Push والتنبيهات |
-| astronomical_calendar | 8111 | `/apps/services/astronomical-calendar` | التقويم الفلكي الزراعي اليمني |
+| الخدمة                | المنفذ | المسار                                 | الوصف                                  |
+| --------------------- | ------ | -------------------------------------- | -------------------------------------- |
+| billing_core          | 8089   | `/apps/services/billing-core`          | إدارة الاشتراكات والفواتير والمدفوعات  |
+| satellite_service     | 8090   | `/apps/services/satellite-service`     | تحليل صور الأقمار الصناعية وNDVI       |
+| indicators_service    | 8091   | `/apps/services/indicators-service`    | مؤشرات الأداء الزراعية                 |
+| weather_advanced      | 8092   | `/apps/services/weather-advanced`      | التنبؤات الجوية المتقدمة               |
+| fertilizer_advisor    | 8093   | `/apps/services/fertilizer-advisor`    | توصيات التسميد الذكية                  |
+| irrigation_smart      | 8094   | `/apps/services/irrigation-smart`      | إدارة الري باستخدام FAO-56             |
+| crop_health_ai        | 8095   | `/apps/services/crop-health-ai`        | تشخيص أمراض المحاصيل بالذكاء الاصطناعي |
+| virtual_sensors       | 8096   | `/apps/services/virtual-sensors`       | حسابات ET0 والمستشعرات الافتراضية      |
+| yield_engine          | 8098   | `/apps/services/yield-engine`          | توقع الإنتاجية                         |
+| notification_service  | 8110   | `/apps/services/notification-service`  | إشعارات Push والتنبيهات                |
+| astronomical_calendar | 8111   | `/apps/services/astronomical-calendar` | التقويم الفلكي الزراعي اليمني          |
 
 ### 🟢 Node.js Services (NestJS)
 
-| الخدمة | المنفذ | المسار | الوصف |
-|--------|--------|--------|-------|
-| marketplace_service | 3010 | `/apps/services/marketplace-service` | سوق المنتجات الزراعية |
-| research_core | 3015 | `/apps/services/research-core` | إدارة التجارب البحثية |
-| disaster_assessment | 3020 | `/apps/services/disaster-assessment` | تقييم الكوارث الزراعية |
-| yield_prediction | 3021 | `/apps/services/yield-prediction` | التنبؤ بالإنتاجية |
-| lai_estimation | 3022 | `/apps/services/lai-estimation` | تقدير مؤشر مساحة الأوراق |
-| crop_growth_model | 3023 | `/apps/services/crop-growth-model` | نموذج نمو المحاصيل (WOFOST) |
+| الخدمة              | المنفذ | المسار                               | الوصف                       |
+| ------------------- | ------ | ------------------------------------ | --------------------------- |
+| marketplace_service | 3010   | `/apps/services/marketplace-service` | سوق المنتجات الزراعية       |
+| research_core       | 3015   | `/apps/services/research-core`       | إدارة التجارب البحثية       |
+| disaster_assessment | 3020   | `/apps/services/disaster-assessment` | تقييم الكوارث الزراعية      |
+| yield_prediction    | 3021   | `/apps/services/yield-prediction`    | التنبؤ بالإنتاجية           |
+| lai_estimation      | 3022   | `/apps/services/lai-estimation`      | تقدير مؤشر مساحة الأوراق    |
+| crop_growth_model   | 3023   | `/apps/services/crop-growth-model`   | نموذج نمو المحاصيل (WOFOST) |
 
 ### 💬 Communication Services
 
-| الخدمة | المنفذ | المسار | الوصف |
-|--------|--------|--------|-------|
-| community_chat | 8097 | `/apps/services/community-chat` | دردشة المجتمع الزراعي |
+| الخدمة         | المنفذ | المسار                          | الوصف                 |
+| -------------- | ------ | ------------------------------- | --------------------- |
+| community_chat | 8097   | `/apps/services/community-chat` | دردشة المجتمع الزراعي |
 
 ---
 
@@ -244,10 +245,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 512M
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 256M
 ```
 
@@ -255,17 +256,17 @@ services:
 
 ## الإصدارات | Versions
 
-| الخدمة | الإصدار | آخر تحديث |
-|--------|---------|-----------|
-| billing_core | 15.5.0 | Dec 2025 |
-| satellite_service | 15.4.0 | Dec 2025 |
-| weather_advanced | 15.4.0 | Dec 2025 |
-| marketplace_service | 15.3.0 | Dec 2025 |
-| research_core | 15.3.0 | Dec 2025 |
-| crop_growth_model | 16.0.0 | Dec 2025 |
-| lai_estimation | 16.0.0 | Dec 2025 |
-| disaster_assessment | 16.0.0 | Dec 2025 |
-| yield_prediction | 16.0.0 | Dec 2025 |
+| الخدمة              | الإصدار | آخر تحديث |
+| ------------------- | ------- | --------- |
+| billing_core        | 15.5.0  | Dec 2025  |
+| satellite_service   | 15.4.0  | Dec 2025  |
+| weather_advanced    | 15.4.0  | Dec 2025  |
+| marketplace_service | 15.3.0  | Dec 2025  |
+| research_core       | 15.3.0  | Dec 2025  |
+| crop_growth_model   | 16.0.0  | Dec 2025  |
+| lai_estimation      | 16.0.0  | Dec 2025  |
+| disaster_assessment | 16.0.0  | Dec 2025  |
+| yield_prediction    | 16.0.0  | Dec 2025  |
 
 ---
 

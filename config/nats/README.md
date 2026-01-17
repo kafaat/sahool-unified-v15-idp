@@ -15,6 +15,7 @@ NATS authentication has been implemented to secure the message queue infrastruct
 **Security Score: 9.5/10**
 
 Enhanced security configuration implementing all audit recommendations:
+
 - ✅ **TLS Enforcement**: `verify_and_map: true` - TLS required for all connections
 - ✅ **JetStream Encryption**: AES-256 encryption at rest
 - ✅ **Rate Limiting**: Per-user connection and message limits
@@ -30,6 +31,7 @@ Enhanced security configuration implementing all audit recommendations:
 **File**: `nats.conf`
 
 This is the standard production configuration with:
+
 - Multi-user authentication (admin, application, monitoring)
 - JetStream enabled for persistent messaging
 - Granular authorization rules per subject namespace
@@ -43,6 +45,7 @@ This is the standard production configuration with:
 **File**: `nats-test.conf`
 
 Simplified configuration for testing environments with:
+
 - Single test user authentication
 - Reduced resource limits
 - Basic JetStream configuration
@@ -86,6 +89,7 @@ openssl rand -base64 32
 ```
 
 Example output:
+
 ```
 zK8mN3pQ7rL9vX2wY5tA1bC4dE6fG8hJ0kL2mN4pQ6r=
 ```
@@ -97,10 +101,12 @@ zK8mN3pQ7rL9vX2wY5tA1bC4dE6fG8hJ0kL2mN4pQ6r=
 **Purpose**: Full administrative access for operations and debugging
 
 **Permissions**:
+
 - Publish to all subjects: `>`
 - Subscribe to all subjects: `>`
 
 **Use Cases**:
+
 - Administrative tools
 - Debugging and monitoring
 - Stream management
@@ -111,6 +117,7 @@ zK8mN3pQ7rL9vX2wY5tA1bC4dE6fG8hJ0kL2mN4pQ6r=
 **Purpose**: Standard access for SAHOOL services
 
 **Permissions**:
+
 - Publish/Subscribe to SAHOOL-specific subjects:
   - `sahool.>` - Core SAHOOL events
   - `field.>` - Field operations
@@ -124,6 +131,7 @@ zK8mN3pQ7rL9vX2wY5tA1bC4dE6fG8hJ0kL2mN4pQ6r=
   - `_INBOX.>` - Request-reply patterns
 
 **Use Cases**:
+
 - All SAHOOL application services
 - API services
 - Background workers
@@ -133,10 +141,12 @@ zK8mN3pQ7rL9vX2wY5tA1bC4dE6fG8hJ0kL2mN4pQ6r=
 **Purpose**: Read-only access for monitoring and observability
 
 **Permissions**:
+
 - Subscribe to all subjects: `>`
 - Publish denied: `>`
 
 **Use Cases**:
+
 - Monitoring tools (Prometheus, Grafana)
 - Log aggregation
 - Analytics
@@ -151,6 +161,7 @@ All SAHOOL events use a hierarchical subject structure:
 ```
 
 Examples:
+
 ```
 field.operations.created.field
 weather.forecast.updated.location
@@ -194,11 +205,11 @@ async def connect_nats():
 ### Application Code (Node.js)
 
 ```javascript
-import { connect } from 'nats';
+import { connect } from "nats";
 
 async function connectNats() {
   const nc = await connect({
-    servers: process.env.NATS_URL
+    servers: process.env.NATS_URL,
   });
   return nc;
 }
@@ -213,6 +224,7 @@ curl http://localhost:8222/healthz
 ```
 
 Response:
+
 ```json
 {
   "status": "ok"
@@ -220,6 +232,7 @@ Response:
 ```
 
 Other monitoring endpoints:
+
 - `/varz` - Server information
 - `/connz` - Connection information
 - `/routez` - Routing information
@@ -263,6 +276,7 @@ tls {
 ```
 
 Update connection URL:
+
 ```bash
 NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222?tls=true
 ```
@@ -274,6 +288,7 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222?tls=true
 **Symptom**: `Error: connect ECONNREFUSED 127.0.0.1:4222`
 
 **Solutions**:
+
 1. Verify NATS container is running: `docker ps | grep nats`
 2. Check NATS logs: `docker logs sahool-nats`
 3. Verify port binding: `netstat -an | grep 4222`
@@ -283,6 +298,7 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222?tls=true
 **Symptom**: `Error: Authorization Violation`
 
 **Solutions**:
+
 1. Verify credentials in `.env` file match `nats.conf`
 2. Check NATS_URL format: `nats://username:password@host:port`
 3. Verify environment variables are loaded: `docker exec sahool-nats env | grep NATS`
@@ -293,6 +309,7 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222?tls=true
 **Symptom**: `Error: Permissions Violation for Publish to "subject.name"`
 
 **Solutions**:
+
 1. Verify subject namespace matches allowed permissions
 2. Check authorization section in `nats.conf`
 3. Use admin user for testing: `NATS_URL=nats://${NATS_ADMIN_USER}:${NATS_ADMIN_PASSWORD}@nats:4222`
@@ -302,6 +319,7 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222?tls=true
 **Symptom**: NATS container unhealthy
 
 **Solutions**:
+
 1. Check monitoring port: `curl http://localhost:8222/healthz`
 2. Verify config file is valid: `docker exec sahool-nats nats-server -c /etc/nats/nats.conf -t`
 3. Check volume mount: `docker exec sahool-nats ls -la /etc/nats/`
@@ -311,11 +329,13 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222?tls=true
 ### Prometheus Metrics
 
 NATS exposes Prometheus metrics at:
+
 ```
 http://localhost:8222/metrics
 ```
 
 Key metrics:
+
 - `nats_server_connections` - Active connections
 - `nats_server_in_msgs` - Incoming messages
 - `nats_server_out_msgs` - Outgoing messages
@@ -324,6 +344,7 @@ Key metrics:
 ### Grafana Dashboard
 
 A Grafana dashboard for NATS monitoring is available in:
+
 ```
 infrastructure/monitoring/grafana/dashboards/nats.json
 ```
@@ -331,11 +352,13 @@ infrastructure/monitoring/grafana/dashboards/nats.json
 ### Logging
 
 View NATS logs:
+
 ```bash
 docker logs -f sahool-nats
 ```
 
 Enable debug logging (development only):
+
 ```yaml
 # In docker-compose.yml, add to nats environment:
 environment:
@@ -350,17 +373,20 @@ environment:
 If you have an existing SAHOOL deployment without NATS authentication:
 
 1. **Backup your data**:
+
    ```bash
    docker exec sahool-nats tar czf /data/backup.tar.gz /data
    docker cp sahool-nats:/data/backup.tar.gz ./nats-backup-$(date +%Y%m%d).tar.gz
    ```
 
 2. **Stop services**:
+
    ```bash
    docker-compose down
    ```
 
 3. **Update environment variables**:
+
    ```bash
    cp .env .env.backup
    nano .env
@@ -368,12 +394,14 @@ If you have an existing SAHOOL deployment without NATS authentication:
    ```
 
 4. **Start NATS with new config**:
+
    ```bash
    docker-compose up -d nats
    docker logs -f sahool-nats  # Verify authentication is working
    ```
 
 5. **Start remaining services**:
+
    ```bash
    docker-compose up -d
    ```
@@ -427,6 +455,7 @@ nk -gen user -pubout
 ```
 
 Update `nats.conf`:
+
 ```conf
 authorization {
     users = [

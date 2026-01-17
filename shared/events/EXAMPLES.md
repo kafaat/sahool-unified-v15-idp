@@ -1,4 +1,5 @@
 # SAHOOL Events - Usage Examples
+
 # أمثلة استخدام نظام الأحداث
 
 This document provides comprehensive examples for using the SAHOOL event system with NATS.
@@ -692,6 +693,7 @@ def test_field_created_event():
 ---
 
 For more information, see the individual module documentation:
+
 - `/home/user/sahool-unified-v15-idp/shared/events/contracts.py`
 - `/home/user/sahool-unified-v15-idp/shared/events/subjects.py`
 - `/home/user/sahool-unified-v15-idp/shared/events/publisher.py`

@@ -50,11 +50,7 @@
     },
     "payload": {
       "type": "object",
-      "required": [
-        "field_id",
-        "anomaly_type",
-        "severity"
-      ],
+      "required": ["field_id", "anomaly_type", "severity"],
       "properties": {
         "field_id": {
           "type": "string",
@@ -62,7 +58,12 @@
         },
         "anomaly_type": {
           "type": "string",
-          "enum": ["sudden_drop", "unusual_pattern", "spatial_anomaly", "trend_reversal"],
+          "enum": [
+            "sudden_drop",
+            "unusual_pattern",
+            "spatial_anomaly",
+            "trend_reversal"
+          ],
           "description": "Type of anomaly detected"
         },
         "severity": {

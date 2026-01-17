@@ -3,24 +3,27 @@
  * مكون خريطة المعدات
  */
 
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { useEquipment } from '../hooks/useEquipment';
-import { MapPin, Loader2 } from 'lucide-react';
+import { useEffect, useRef } from "react";
+import { useEquipment } from "../hooks/useEquipment";
+import { MapPin, Loader2 } from "lucide-react";
 
 export function EquipmentMap() {
   const mapRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markersRef = useRef<any[]>([]);
   const { data: equipment, isLoading } = useEquipment();
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapRef.current) return;
+    if (typeof window === "undefined" || !mapRef.current) return;
 
     // Initialize map
     const initMap = async () => {
       // Access Leaflet from window (loaded via CDN in layout)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const L = (window as typeof window & { L?: any }).L;
       if (!L) return;
 
@@ -28,8 +31,8 @@ export function EquipmentMap() {
       if (!mapInstanceRef.current && mapRef.current) {
         const map = L.map(mapRef.current).setView([15.5527, 48.5164], 6); // Center of Yemen
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
           maxZoom: 19,
         }).addTo(map);
 
@@ -48,16 +51,16 @@ export function EquipmentMap() {
           if (!item.location) return;
 
           const statusColors: Record<string, string> = {
-            active: 'green',
-            maintenance: 'yellow',
-            repair: 'orange',
-            idle: 'gray',
-            retired: 'red',
+            active: "green",
+            maintenance: "yellow",
+            repair: "orange",
+            idle: "gray",
+            retired: "red",
           };
 
           const iconHtml = `
             <div style="
-              background-color: ${statusColors[item.status] || 'gray'};
+              background-color: ${statusColors[item.status] || "gray"};
               width: 30px;
               height: 30px;
               border-radius: 50%;
@@ -68,39 +71,57 @@ export function EquipmentMap() {
 
           const customIcon = L.divIcon({
             html: iconHtml,
-            className: 'custom-equipment-marker',
+            className: "custom-equipment-marker",
             iconSize: [30, 30],
             iconAnchor: [15, 15],
           });
 
-          const marker = L.marker([item.location.latitude, item.location.longitude], {
-            icon: customIcon,
-          })
+          // SECURITY: Use DOM methods to prevent XSS from user data
+          const popupContent = document.createElement("div");
+          popupContent.style.cssText = "direction: rtl; text-align: right;";
+
+          const title = document.createElement("h3");
+          title.style.cssText = "font-weight: bold; margin-bottom: 8px;";
+          title.textContent = item.nameAr; // textContent prevents XSS
+
+          const nameP = document.createElement("p");
+          nameP.style.cssText = "margin: 4px 0;";
+          nameP.textContent = item.name;
+
+          popupContent.appendChild(title);
+          popupContent.appendChild(nameP);
+
+          if (item.location.fieldName) {
+            const fieldP = document.createElement("p");
+            fieldP.style.cssText = "margin: 4px 0; font-size: 0.875rem; color: #666;";
+            fieldP.textContent = `الحقل: ${item.location.fieldName}`;
+            popupContent.appendChild(fieldP);
+          }
+
+          const statusP = document.createElement("p");
+          statusP.style.cssText = "margin: 4px 0; font-size: 0.875rem;";
+          statusP.innerHTML = `الحالة: <span style="font-weight: 600;">${getStatusLabel(item.status)}</span>`;
+          popupContent.appendChild(statusP);
+
+          const marker = L.marker(
+            [item.location.latitude, item.location.longitude],
+            {
+              icon: customIcon,
+            },
+          )
             .addTo(mapInstanceRef.current)
-            .bindPopup(
-              `
-              <div style="direction: rtl; text-align: right;">
-                <h3 style="font-weight: bold; margin-bottom: 8px;">${item.nameAr}</h3>
-                <p style="margin: 4px 0;">${item.name}</p>
-                ${
-                  item.location.fieldName
-                    ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${item.location.fieldName}</p>`
-                    : ''
-                }
-                <p style="margin: 4px 0; font-size: 0.875rem;">
-                  الحالة: <span style="font-weight: 600;">${getStatusLabel(item.status)}</span>
-                </p>
-              </div>
-            `
-            );
+            .bindPopup(popupContent);
 
           markersRef.current.push(marker);
         });
 
         // Fit map to show all markers
-        if (equipmentWithLocation.length > 0) {
+        if (equipmentWithLocation.length > 0 && mapInstanceRef.current) {
           const bounds = L.latLngBounds(
-            equipmentWithLocation.map((e) => [e.location!.latitude, e.location!.longitude])
+            equipmentWithLocation.map((e) => [
+              e.location!.latitude,
+              e.location!.longitude,
+            ]),
           );
           mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
         }
@@ -166,11 +187,11 @@ export function EquipmentMap() {
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    active: 'نشط',
-    maintenance: 'صيانة',
-    repair: 'إصلاح',
-    idle: 'خامل',
-    retired: 'متوقف',
+    active: "نشط",
+    maintenance: "صيانة",
+    repair: "إصلاح",
+    idle: "خامل",
+    retired: "متوقف",
   };
   return labels[status] || status;
 }

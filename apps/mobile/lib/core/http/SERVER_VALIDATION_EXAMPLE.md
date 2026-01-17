@@ -9,6 +9,7 @@ This document provides reference implementations for validating request signatur
 ## Node.js/Express Implementation
 
 ### 1. Install Dependencies
+
 ```bash
 npm install crypto
 npm install redis  # For nonce storage
@@ -17,8 +18,8 @@ npm install redis  # For nonce storage
 ### 2. Signature Validation Middleware
 
 ```javascript
-const crypto = require('crypto');
-const redis = require('redis');
+const crypto = require("crypto");
+const redis = require("redis");
 
 // Configuration
 const MAX_TIMESTAMP_DRIFT_MS = 5 * 60 * 1000; // 5 minutes
@@ -26,7 +27,7 @@ const NONCE_TTL_SECONDS = 300; // 5 minutes
 
 // Redis client for nonce tracking
 const redisClient = redis.createClient({
-  host: process.env.REDIS_HOST || 'localhost',
+  host: process.env.REDIS_HOST || "localhost",
   port: process.env.REDIS_PORT || 6379,
 });
 
@@ -41,24 +42,24 @@ async function validateRequestSignature(req, res, next) {
 
   try {
     // 1. Extract signature headers
-    const signature = req.headers['x-signature'];
-    const timestamp = req.headers['x-timestamp'];
-    const nonce = req.headers['x-nonce'];
-    const version = req.headers['x-signature-version'];
+    const signature = req.headers["x-signature"];
+    const timestamp = req.headers["x-timestamp"];
+    const nonce = req.headers["x-nonce"];
+    const version = req.headers["x-signature-version"];
 
     // 2. Validate headers exist
     if (!signature || !timestamp || !nonce) {
       return res.status(401).json({
-        error: 'MISSING_SIGNATURE',
-        message: 'Request signature headers missing',
+        error: "MISSING_SIGNATURE",
+        message: "Request signature headers missing",
       });
     }
 
     // 3. Validate signature version
-    if (version !== '1') {
+    if (version !== "1") {
       return res.status(401).json({
-        error: 'INVALID_SIGNATURE_VERSION',
-        message: 'Unsupported signature version',
+        error: "INVALID_SIGNATURE_VERSION",
+        message: "Unsupported signature version",
       });
     }
 
@@ -69,8 +70,8 @@ async function validateRequestSignature(req, res, next) {
 
     if (timeDrift > MAX_TIMESTAMP_DRIFT_MS) {
       return res.status(401).json({
-        error: 'TIMESTAMP_EXPIRED',
-        message: 'Request timestamp has expired',
+        error: "TIMESTAMP_EXPIRED",
+        message: "Request timestamp has expired",
         drift: timeDrift,
         maxDrift: MAX_TIMESTAMP_DRIFT_MS,
       });
@@ -80,8 +81,8 @@ async function validateRequestSignature(req, res, next) {
     const isDuplicate = await checkNonce(nonce);
     if (isDuplicate) {
       return res.status(401).json({
-        error: 'DUPLICATE_REQUEST',
-        message: 'Request has already been processed',
+        error: "DUPLICATE_REQUEST",
+        message: "Request has already been processed",
       });
     }
 
@@ -89,8 +90,8 @@ async function validateRequestSignature(req, res, next) {
     const signingKey = await getUserSigningKey(req.user?.id);
     if (!signingKey) {
       return res.status(401).json({
-        error: 'NO_SIGNING_KEY',
-        message: 'User signing key not found',
+        error: "NO_SIGNING_KEY",
+        message: "User signing key not found",
       });
     }
 
@@ -105,8 +106,8 @@ async function validateRequestSignature(req, res, next) {
 
     if (!isValid) {
       return res.status(401).json({
-        error: 'INVALID_SIGNATURE',
-        message: 'Request signature is invalid',
+        error: "INVALID_SIGNATURE",
+        message: "Request signature is invalid",
       });
     }
 
@@ -116,10 +117,10 @@ async function validateRequestSignature(req, res, next) {
     // Signature is valid - proceed
     next();
   } catch (error) {
-    console.error('Signature validation error:', error);
+    console.error("Signature validation error:", error);
     return res.status(500).json({
-      error: 'VALIDATION_ERROR',
-      message: 'Failed to validate request signature',
+      error: "VALIDATION_ERROR",
+      message: "Failed to validate request signature",
     });
   }
 }
@@ -134,14 +135,7 @@ function buildCanonicalRequest(req, timestamp, nonce) {
   const bodyHash = calculateBodyHash(req.body);
 
   // Must match client format exactly!
-  return [
-    method,
-    path,
-    queryParams,
-    timestamp,
-    nonce,
-    bodyHash,
-  ].join('\n');
+  return [method, path, queryParams, timestamp, nonce, bodyHash].join("\n");
 }
 
 /**
@@ -149,7 +143,7 @@ function buildCanonicalRequest(req, timestamp, nonce) {
  */
 function normalizeQueryParams(query) {
   if (!query || Object.keys(query).length === 0) {
-    return '';
+    return "";
   }
 
   const sortedKeys = Object.keys(query).sort();
@@ -158,7 +152,7 @@ function normalizeQueryParams(query) {
     return `${key}=${encodeURIComponent(value)}`;
   });
 
-  return params.join('&');
+  return params.join("&");
 }
 
 /**
@@ -166,17 +160,11 @@ function normalizeQueryParams(query) {
  */
 function calculateBodyHash(body) {
   if (!body || Object.keys(body).length === 0) {
-    return crypto
-      .createHash('sha256')
-      .update('')
-      .digest('base64url');
+    return crypto.createHash("sha256").update("").digest("base64url");
   }
 
   const bodyString = JSON.stringify(body);
-  return crypto
-    .createHash('sha256')
-    .update(bodyString)
-    .digest('base64url');
+  return crypto.createHash("sha256").update(bodyString).digest("base64url");
 }
 
 /**
@@ -184,9 +172,9 @@ function calculateBodyHash(body) {
  */
 function calculateSignature(canonicalRequest, signingKey) {
   return crypto
-    .createHmac('sha256', signingKey)
+    .createHmac("sha256", signingKey)
     .update(canonicalRequest)
-    .digest('base64url');
+    .digest("base64url");
 }
 
 /**
@@ -205,7 +193,7 @@ function verifySignature(providedSignature, expectedSignature) {
     // Constant-time comparison
     return crypto.timingSafeEqual(providedBuffer, expectedBuffer);
   } catch (error) {
-    console.error('Signature comparison error:', error);
+    console.error("Signature comparison error:", error);
     return false;
   }
 }
@@ -224,7 +212,7 @@ async function checkNonce(nonce) {
  */
 async function storeNonce(nonce) {
   const key = `nonce:${nonce}`;
-  await redisClient.setEx(key, NONCE_TTL_SECONDS, '1');
+  await redisClient.setEx(key, NONCE_TTL_SECONDS, "1");
 }
 
 /**
@@ -242,7 +230,7 @@ async function getUserSigningKey(userId) {
 
   // For now, return a placeholder
   // TODO: Implement actual database lookup
-  throw new Error('getUserSigningKey not implemented');
+  throw new Error("getUserSigningKey not implemented");
 }
 
 /**
@@ -250,15 +238,15 @@ async function getUserSigningKey(userId) {
  */
 function isPublicEndpoint(path) {
   const publicPaths = [
-    '/auth/login',
-    '/auth/register',
-    '/auth/forgot-password',
-    '/auth/reset-password',
-    '/auth/verify-email',
-    '/auth/resend-verification',
-    '/health',
-    '/version',
-    '/api-docs',
+    "/auth/login",
+    "/auth/register",
+    "/auth/forgot-password",
+    "/auth/reset-password",
+    "/auth/verify-email",
+    "/auth/resend-verification",
+    "/health",
+    "/version",
+    "/api-docs",
   ];
 
   return publicPaths.some((publicPath) => path.includes(publicPath));
@@ -275,8 +263,10 @@ module.exports = {
 ### 3. Apply Middleware
 
 ```javascript
-const express = require('express');
-const { validateRequestSignature } = require('./middleware/signature-validation');
+const express = require("express");
+const {
+  validateRequestSignature,
+} = require("./middleware/signature-validation");
 
 const app = express();
 
@@ -287,9 +277,9 @@ app.use(express.json());
 app.use(validateRequestSignature);
 
 // Your routes here
-app.post('/api/tasks', (req, res) => {
+app.post("/api/tasks", (req, res) => {
   // Request signature has been validated!
-  res.json({ message: 'Task created' });
+  res.json({ message: "Task created" });
 });
 
 app.listen(3000);
@@ -305,11 +295,11 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-} from '@nestjs/common';
-import { Request } from 'express';
-import * as crypto from 'crypto';
-import { RedisService } from './redis.service';
-import { UsersService } from '../users/users.service';
+} from "@nestjs/common";
+import { Request } from "express";
+import * as crypto from "crypto";
+import { RedisService } from "./redis.service";
+import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class SignatureValidationGuard implements CanActivate {
@@ -339,18 +329,18 @@ export class SignatureValidationGuard implements CanActivate {
 
   private async validateSignature(req: Request): Promise<void> {
     // Extract headers
-    const signature = req.headers['x-signature'] as string;
-    const timestamp = req.headers['x-timestamp'] as string;
-    const nonce = req.headers['x-nonce'] as string;
-    const version = req.headers['x-signature-version'] as string;
+    const signature = req.headers["x-signature"] as string;
+    const timestamp = req.headers["x-timestamp"] as string;
+    const nonce = req.headers["x-nonce"] as string;
+    const version = req.headers["x-signature-version"] as string;
 
     // Validate headers
     if (!signature || !timestamp || !nonce) {
-      throw new Error('Missing signature headers');
+      throw new Error("Missing signature headers");
     }
 
-    if (version !== '1') {
-      throw new Error('Unsupported signature version');
+    if (version !== "1") {
+      throw new Error("Unsupported signature version");
     }
 
     // Validate timestamp
@@ -359,13 +349,13 @@ export class SignatureValidationGuard implements CanActivate {
     const timeDrift = Math.abs(now - requestTime);
 
     if (timeDrift > this.MAX_TIMESTAMP_DRIFT_MS) {
-      throw new Error('Request timestamp expired');
+      throw new Error("Request timestamp expired");
     }
 
     // Check nonce
     const isDuplicate = await this.checkNonce(nonce);
     if (isDuplicate) {
-      throw new Error('Duplicate request detected');
+      throw new Error("Duplicate request detected");
     }
 
     // Get signing key
@@ -373,7 +363,7 @@ export class SignatureValidationGuard implements CanActivate {
     const signingKey = await this.usersService.getSigningKey(userId);
 
     if (!signingKey) {
-      throw new Error('Signing key not found');
+      throw new Error("Signing key not found");
     }
 
     // Build canonical request
@@ -387,7 +377,7 @@ export class SignatureValidationGuard implements CanActivate {
 
     // Verify signature
     if (!this.verifySignature(signature, expectedSignature)) {
-      throw new Error('Invalid signature');
+      throw new Error("Invalid signature");
     }
 
     // Store nonce
@@ -404,12 +394,12 @@ export class SignatureValidationGuard implements CanActivate {
     const queryParams = this.normalizeQueryParams(req.query);
     const bodyHash = this.calculateBodyHash(req.body);
 
-    return [method, path, queryParams, timestamp, nonce, bodyHash].join('\n');
+    return [method, path, queryParams, timestamp, nonce, bodyHash].join("\n");
   }
 
   private normalizeQueryParams(query: any): string {
     if (!query || Object.keys(query).length === 0) {
-      return '';
+      return "";
     }
 
     const sortedKeys = Object.keys(query).sort();
@@ -417,16 +407,16 @@ export class SignatureValidationGuard implements CanActivate {
       (key) => `${key}=${encodeURIComponent(query[key])}`,
     );
 
-    return params.join('&');
+    return params.join("&");
   }
 
   private calculateBodyHash(body: any): string {
     if (!body || Object.keys(body).length === 0) {
-      return crypto.createHash('sha256').update('').digest('base64url');
+      return crypto.createHash("sha256").update("").digest("base64url");
     }
 
     const bodyString = JSON.stringify(body);
-    return crypto.createHash('sha256').update(bodyString).digest('base64url');
+    return crypto.createHash("sha256").update(bodyString).digest("base64url");
   }
 
   private calculateSignature(
@@ -434,9 +424,9 @@ export class SignatureValidationGuard implements CanActivate {
     signingKey: string,
   ): string {
     return crypto
-      .createHmac('sha256', signingKey)
+      .createHmac("sha256", signingKey)
       .update(canonicalRequest)
-      .digest('base64url');
+      .digest("base64url");
   }
 
   private verifySignature(
@@ -464,16 +454,16 @@ export class SignatureValidationGuard implements CanActivate {
 
   private async storeNonce(nonce: string): Promise<void> {
     const key = `nonce:${nonce}`;
-    await this.redisService.setex(key, this.NONCE_TTL_SECONDS, '1');
+    await this.redisService.setex(key, this.NONCE_TTL_SECONDS, "1");
   }
 
   private isPublicEndpoint(path: string): boolean {
     const publicPaths = [
-      '/auth/login',
-      '/auth/register',
-      '/auth/forgot-password',
-      '/health',
-      '/version',
+      "/auth/login",
+      "/auth/register",
+      "/auth/forgot-password",
+      "/health",
+      "/version",
     ];
 
     return publicPaths.some((publicPath) => path.includes(publicPath));
@@ -485,8 +475,8 @@ export class SignatureValidationGuard implements CanActivate {
 
 ```typescript
 // app.module.ts
-import { APP_GUARD } from '@nestjs/core';
-import { SignatureValidationGuard } from './guards/signature-validation.guard';
+import { APP_GUARD } from "@nestjs/core";
+import { SignatureValidationGuard } from "./guards/signature-validation.guard";
 
 @Module({
   providers: [
@@ -689,12 +679,16 @@ def is_public_endpoint(path: str) -> bool:
 ### Test Signature Validation
 
 ```javascript
-const { calculateSignature, buildCanonicalRequest } = require('./signature-validation');
+const {
+  calculateSignature,
+  buildCanonicalRequest,
+} = require("./signature-validation");
 
-describe('Signature Validation', () => {
-  it('should calculate correct signature', () => {
-    const signingKey = 'test-signing-key-12345';
-    const canonicalRequest = 'POST\n/api/tasks\n\n1704290000000\ntest-nonce\nbody-hash';
+describe("Signature Validation", () => {
+  it("should calculate correct signature", () => {
+    const signingKey = "test-signing-key-12345";
+    const canonicalRequest =
+      "POST\n/api/tasks\n\n1704290000000\ntest-nonce\nbody-hash";
 
     const signature = calculateSignature(canonicalRequest, signingKey);
 
@@ -702,19 +696,19 @@ describe('Signature Validation', () => {
     expect(signature.length).toBeGreaterThan(0);
   });
 
-  it('should build canonical request correctly', () => {
+  it("should build canonical request correctly", () => {
     const req = {
-      method: 'POST',
-      path: '/api/tasks',
-      query: { page: '1', limit: '10' },
-      body: { name: 'Task 1' },
+      method: "POST",
+      path: "/api/tasks",
+      query: { page: "1", limit: "10" },
+      body: { name: "Task 1" },
     };
 
-    const canonical = buildCanonicalRequest(req, '1704290000000', 'test-nonce');
+    const canonical = buildCanonicalRequest(req, "1704290000000", "test-nonce");
 
-    expect(canonical).toContain('POST');
-    expect(canonical).toContain('/api/tasks');
-    expect(canonical).toContain('limit=10&page=1'); // Sorted
+    expect(canonical).toContain("POST");
+    expect(canonical).toContain("/api/tasks");
+    expect(canonical).toContain("limit=10&page=1"); // Sorted
   });
 });
 ```
@@ -731,7 +725,7 @@ async function validateRequestSignature(req, res, next) {
   } catch (error) {
     // Log failed signature attempts
     await logSecurityEvent({
-      type: 'SIGNATURE_VALIDATION_FAILED',
+      type: "SIGNATURE_VALIDATION_FAILED",
       userId: req.user?.id,
       ip: req.ip,
       path: req.path,
@@ -743,8 +737,8 @@ async function validateRequestSignature(req, res, next) {
     await checkForSecurityThreats(req.user?.id, req.ip);
 
     return res.status(401).json({
-      error: 'INVALID_SIGNATURE',
-      message: 'Request signature is invalid',
+      error: "INVALID_SIGNATURE",
+      message: "Request signature is invalid",
     });
   }
 }

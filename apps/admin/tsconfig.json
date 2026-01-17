@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -26,18 +22,24 @@
       "@sahool/api-client": ["../../packages/api-client/src"],
       "@sahool/shared-ui": ["../../packages/shared-ui/src"],
       "@sahool/shared-utils": ["../../packages/shared-utils/src"],
-      "@sahool/shared-hooks": ["../../packages/shared-hooks/src"]
+      "@sahool/shared-hooks": ["../../packages/shared-hooks/src"],
+      "@sahool/i18n": ["../../packages/i18n/src"],
+      "@sahool/shared-types": ["../../packages/shared-types/src"],
+      "@sahool/shared-types/*": ["../../packages/shared-types/src/*"]
     },
     "target": "ES2017"
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": [
     "node_modules",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "sentry.*.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "e2e/**",
+    "src/__tests__/**"
   ]
 }

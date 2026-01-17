@@ -48,6 +48,31 @@ class SecurityConfig {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Static Security Feature Flags (Global Settings)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Enable SSL certificate pinning globally
+  /// When enabled, all HTTPS connections will validate against pinned certificates
+  /// CRITICAL: Must be enabled in production to prevent MITM attacks
+  static const bool enableCertificatePinning = true;
+
+  /// Enable root/jailbreak detection
+  /// When enabled, the app will detect and respond to rooted/jailbroken devices
+  static const bool enableRootDetection = true;
+
+  /// Enable app tampering detection
+  /// When enabled, the app will detect modifications to the binary
+  static const bool enableTamperDetection = true;
+
+  /// Enable debug detection
+  /// When enabled, the app will detect if a debugger is attached
+  static const bool enableDebugDetection = true;
+
+  /// Enable emulator detection
+  /// When enabled, the app will detect if running on an emulator
+  static const bool enableEmulatorDetection = true;
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Token Configuration
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -181,13 +206,31 @@ class SecurityConfig {
   }
 
   /// Whether to enable SSL certificate pinning
+  /// SECURITY: This now defaults to true for all security levels except low
+  /// Certificate pinning is critical for preventing MITM attacks
   bool get enableCertificatePinning {
-    return level == SecurityLevel.high || level == SecurityLevel.maximum;
+    // Check static flag first - if globally disabled, return false
+    if (!SecurityConfig.enableCertificatePinning) {
+      return false;
+    }
+    // Enable for medium, high, and maximum levels (disable only for low/dev)
+    return level != SecurityLevel.low;
   }
 
   /// Whether to enforce strict certificate pinning (fail if no match)
   bool get strictCertificatePinning {
     return level == SecurityLevel.maximum;
+  }
+
+  /// Whether root detection is enabled for this security level
+  bool get enableRootDetectionForLevel {
+    return SecurityConfig.enableRootDetection && level != SecurityLevel.low;
+  }
+
+  /// Whether tamper detection is enabled for this security level
+  bool get enableTamperDetectionForLevel {
+    return SecurityConfig.enableTamperDetection &&
+        (level == SecurityLevel.high || level == SecurityLevel.maximum);
   }
 
   /// Whether to allow certificate pinning bypass in debug mode
@@ -462,8 +505,13 @@ class SecurityConfig {
 }
 
 /// Provider for security configuration
+/// Default to SecurityLevel.high to ensure certificate pinning is enabled
+/// This provides protection against MITM attacks in production
+/// Use SecurityLevel.medium only for local development with explicit override
 final securityConfigProvider = StateProvider<SecurityConfig>((ref) {
-  return const SecurityConfig(level: SecurityLevel.medium);
+  // SECURITY: Always default to high security to enable certificate pinning
+  // Certificate pinning is only enabled at high and maximum levels
+  return const SecurityConfig(level: SecurityLevel.high);
 });
 
 /// Provider to get current security level

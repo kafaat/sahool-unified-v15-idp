@@ -1,4 +1,5 @@
 # SAHOOL Billing Core - Database Setup Guide
+
 # دليل إعداد قاعدة البيانات
 
 This guide explains how to set up and manage the PostgreSQL database for the billing-core service.
@@ -18,6 +19,7 @@ This guide explains how to set up and manage the PostgreSQL database for the bil
 ## 🏗️ Architecture
 
 The billing-core service uses:
+
 - **PostgreSQL** as the primary database
 - **Async SQLAlchemy** for ORM and database operations
 - **Alembic** for database migrations
@@ -49,9 +51,11 @@ billing-core/
 ### Tables
 
 #### 1. **subscriptions** (الاشتراكات)
+
 Stores tenant subscription information.
 
 **Columns:**
+
 - `id` (UUID) - Primary key
 - `tenant_id` (String) - Tenant/customer identifier
 - `plan_id` (String) - Plan identifier (free, starter, professional, enterprise)
@@ -66,15 +70,18 @@ Stores tenant subscription information.
 - `created_at`, `updated_at` - Timestamps
 
 **Indexes:**
+
 - `idx_subscription_tenant_status` - (tenant_id, status)
 - `idx_subscription_next_billing` - (next_billing_date, status)
 
 ---
 
 #### 2. **invoices** (الفواتير)
+
 Stores billing invoices.
 
 **Columns:**
+
 - `id` (UUID) - Primary key
 - `invoice_number` (String) - Human-readable invoice number (e.g., SAH-2025-0001)
 - `subscription_id` (UUID) - Foreign key to subscriptions
@@ -88,15 +95,18 @@ Stores billing invoices.
 - `notes`, `notes_ar` - Additional notes
 
 **Indexes:**
+
 - `idx_invoice_tenant_status` - (tenant_id, status)
 - `idx_invoice_due_date_status` - (due_date, status)
 
 ---
 
 #### 3. **payments** (المدفوعات)
+
 Tracks payment transactions.
 
 **Columns:**
+
 - `id` (UUID) - Primary key
 - `invoice_id` (UUID) - Foreign key to invoices
 - `tenant_id` (String) - Tenant identifier
@@ -110,15 +120,18 @@ Tracks payment transactions.
 - `metadata` (JSONB) - Additional data
 
 **Indexes:**
+
 - `idx_payment_tenant_status` - (tenant_id, status)
 - `idx_payment_created` - (created_at)
 
 ---
 
 #### 4. **usage_records** (سجلات الاستخدام)
+
 Records usage metrics for usage-based billing.
 
 **Columns:**
+
 - `id` (UUID) - Primary key
 - `subscription_id` (UUID) - Foreign key to subscriptions
 - `tenant_id` (String) - Tenant identifier
@@ -128,6 +141,7 @@ Records usage metrics for usage-based billing.
 - `metadata` (JSONB) - Additional context
 
 **Indexes:**
+
 - `idx_usage_subscription_metric` - (subscription_id, metric_type)
 - `idx_usage_tenant_metric_date` - (tenant_id, metric_type, recorded_at)
 
@@ -193,6 +207,7 @@ curl http://localhost:8089/healthz
 ```
 
 Expected response:
+
 ```json
 {
   "status": "ok",
@@ -272,12 +287,14 @@ DB_POOL_RECYCLE=3600         # Connection recycle time in seconds
 ### Example Configurations
 
 **Development:**
+
 ```bash
 export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_billing"
 export ENVIRONMENT="development"
 ```
 
 **Production:**
+
 ```bash
 export DATABASE_URL="postgresql+asyncpg://sahool_user:secure_password@db.production.com:5432/sahool_billing"
 export ENVIRONMENT="production"
@@ -388,6 +405,7 @@ POOL_RECYCLE = 3600   # Recycle connections every hour
 ### 4. Monitoring
 
 Monitor these metrics:
+
 - Active connections
 - Query performance
 - Database size
@@ -461,6 +479,7 @@ WHERE schemaname = 'public';
 ## 🆘 Support
 
 For issues or questions:
+
 1. Check the troubleshooting section above
 2. Review application logs
 3. Check PostgreSQL logs

@@ -15,11 +15,11 @@ import {
   UnauthorizedException,
   ForbiddenException,
   Logger,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { AuthGuard } from '@nestjs/passport';
-import { Observable } from 'rxjs';
-import { AuthErrors } from '../config/jwt.config';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { AuthGuard } from "@nestjs/passport";
+import { Observable } from "rxjs";
+import { AuthErrors } from "../config/jwt.config";
 
 /**
  * JWT Authentication Guard
@@ -42,7 +42,7 @@ import { AuthErrors } from '../config/jwt.config';
  * ```
  */
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class JwtAuthGuard extends AuthGuard("jwt") {
   private readonly logger = new Logger(JwtAuthGuard.name);
 
   constructor(private reflector: Reflector) {
@@ -56,7 +56,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     // Check if route is marked as public
-    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+    const isPublic = this.reflector.getAllAndOverride<boolean>("isPublic", [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -77,14 +77,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const method = request.method;
 
     if (err || !user) {
-      if (info?.name === 'TokenExpiredError') {
+      if (info?.name === "TokenExpiredError") {
         this.logger.warn(
           `Authentication failed [${method} ${path}]: Token expired`,
         );
         throw new UnauthorizedException(AuthErrors.EXPIRED_TOKEN.en);
       }
 
-      if (info?.name === 'JsonWebTokenError') {
+      if (info?.name === "JsonWebTokenError") {
         this.logger.warn(
           `Authentication failed [${method} ${path}]: Invalid token - ${info.message}`,
         );
@@ -136,7 +136,7 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>('roles', [
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>("roles", [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -186,7 +186,7 @@ export class PermissionsGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
-      'permissions',
+      "permissions",
       [context.getHandler(), context.getClass()],
     );
 
@@ -243,7 +243,7 @@ export class FarmAccessGuard implements CanActivate {
     }
 
     // Admin users have access to all farms
-    if (user.roles && user.roles.includes('admin')) {
+    if (user.roles && user.roles.includes("admin")) {
       return true;
     }
 
@@ -286,7 +286,7 @@ export class FarmAccessGuard implements CanActivate {
  * ```
  */
 @Injectable()
-export class OptionalAuthGuard extends AuthGuard('jwt') {
+export class OptionalAuthGuard extends AuthGuard("jwt") {
   handleRequest(_err: any, user: any) {
     // Return user if authenticated, null otherwise
     return user || null;

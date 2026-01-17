@@ -3,6 +3,9 @@
  * فهرس الخطافات
  */
 
-export { useKPIs } from './useKPIs';
-export { useAlerts } from './useAlerts';
-export { useWebSocket } from './useWebSocket';
+export { useKPIs } from "./useKPIs";
+export { useAlerts } from "./useAlerts";
+export { useWebSocket } from "./useWebSocket";
+
+// AI Skills Hooks
+export * from "./ai";

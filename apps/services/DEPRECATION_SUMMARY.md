@@ -5,6 +5,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 ## Deprecated Services
 
 ### 1. weather-advanced → weather-service
+
 - **Service Path**: `/home/user/sahool-unified-v15-idp/apps/services/weather-advanced`
 - **Port**: 8092
 - **Replacement**: `weather-service` (port 8108)
@@ -12,6 +13,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Sunset Date**: 2025-06-01
 
 ### 2. crop-health-ai → crop-intelligence-service
+
 - **Service Path**: `/home/user/sahool-unified-v15-idp/apps/services/crop-health-ai`
 - **Port**: 8095
 - **Replacement**: `crop-intelligence-service` (port 8095)
@@ -19,6 +21,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Sunset Date**: 2025-06-01
 
 ### 3. satellite-service → vegetation-analysis-service
+
 - **Service Path**: `/home/user/sahool-unified-v15-idp/apps/services/satellite-service`
 - **Port**: 8090
 - **Replacement**: `vegetation-analysis-service` (port 8090)
@@ -26,6 +29,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Sunset Date**: 2025-06-01
 
 ### 4. crop-health → crop-intelligence-service
+
 - **Service Path**: `/home/user/sahool-unified-v15-idp/apps/services/crop-health`
 - **Port**: 8100
 - **Replacement**: `crop-intelligence-service` (port 8095)
@@ -34,6 +38,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Features Migrated**: Zone-based health monitoring, vegetation indices (NDVI, EVI, NDRE, LCI, NDWI, SAVI), VRT export
 
 ### 5. ndvi-engine → vegetation-analysis-service
+
 - **Service Path**: `/home/user/sahool-unified-v15-idp/apps/services/ndvi-engine`
 - **Port**: 8107
 - **Replacement**: `vegetation-analysis-service` (port 8090)
@@ -46,6 +51,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 For each service, the following changes were made:
 
 ### 1. Module Docstring Updates
+
 Added deprecation notice to the top of each `main.py` file:
 
 ```python
@@ -56,6 +62,7 @@ Please use '<replacement-service>' instead.
 ```
 
 ### 2. Startup Logging
+
 Added deprecation warnings that are logged when the service starts:
 
 ```python
@@ -70,6 +77,7 @@ logger.warning("=" * 80)
 ```
 
 ### 3. HTTP Response Headers
+
 Added middleware to include deprecation headers in all API responses:
 
 ```python
@@ -87,6 +95,7 @@ async def add_deprecation_header(request: Request, call_next):
 ```
 
 ### 4. FastAPI Description Updates
+
 Updated the FastAPI app description to include deprecation notice:
 
 ```python
@@ -98,10 +107,12 @@ app = FastAPI(
 ```
 
 ### 5. README Updates
+
 All three services already had deprecation notices at the top of their README.md files:
 
 ```markdown
 # ⚠️ DEPRECATED - Use <replacement-service> instead
+
 This service has been deprecated and merged into `<replacement-service>`.
 Please update your references to use `<replacement-service>` on port <port>.
 ```
@@ -110,14 +121,14 @@ Please update your references to use `<replacement-service>` on port <port>.
 
 Clients consuming these deprecated services will receive the following HTTP headers with every response:
 
-| Header | Value | Description |
-|--------|-------|-------------|
-| `X-API-Deprecated` | `true` | Indicates the API is deprecated |
-| `X-API-Deprecation-Date` | `2025-01-01` | When the deprecation was announced |
-| `X-API-Deprecation-Info` | Service-specific message | Human-readable deprecation message |
-| `X-API-Sunset` | `2025-06-01` | Expected date when API will be removed |
-| `Link` | `<http://replacement:port>; rel="successor-version"` | Link to replacement service |
-| `Deprecation` | `true` | Standard deprecation header (RFC 8594) |
+| Header                   | Value                                                | Description                            |
+| ------------------------ | ---------------------------------------------------- | -------------------------------------- |
+| `X-API-Deprecated`       | `true`                                               | Indicates the API is deprecated        |
+| `X-API-Deprecation-Date` | `2025-01-01`                                         | When the deprecation was announced     |
+| `X-API-Deprecation-Info` | Service-specific message                             | Human-readable deprecation message     |
+| `X-API-Sunset`           | `2025-06-01`                                         | Expected date when API will be removed |
+| `Link`                   | `<http://replacement:port>; rel="successor-version"` | Link to replacement service            |
+| `Deprecation`            | `true`                                               | Standard deprecation header (RFC 8594) |
 
 ## Migration Guide
 
@@ -163,6 +174,7 @@ deprecation: true
 ## Testing Deprecation Notices
 
 ### Test Startup Warnings
+
 ```bash
 # Start each service and check logs for deprecation warnings
 docker-compose logs weather-advanced | grep "DEPRECATION WARNING"
@@ -171,6 +183,7 @@ docker-compose logs satellite-service | grep "DEPRECATION WARNING"
 ```
 
 ### Test HTTP Headers
+
 ```bash
 # Check response headers include deprecation notices
 curl -I http://localhost:8092/healthz | grep -i deprecat
@@ -179,6 +192,7 @@ curl -I http://localhost:8090/healthz | grep -i deprecat
 ```
 
 ### Test API Documentation
+
 ```bash
 # Check Swagger docs include deprecation in description
 curl http://localhost:8092/docs

@@ -7,6 +7,7 @@ The sync engine now includes comprehensive exponential backoff and circuit break
 ## Key Features
 
 ### 1. Exponential Backoff Algorithm
+
 - **Initial delay**: 1 second
 - **Multiplier**: 2x per retry
 - **Max delay**: 5 minutes (300 seconds)
@@ -14,17 +15,21 @@ The sync engine now includes comprehensive exponential backoff and circuit break
 - **Jitter**: 0-25% random variation to prevent thundering herd
 
 ### 2. Circuit Breaker Pattern
+
 - **Closed**: Normal operation (healthy)
 - **Open**: Too many failures, requests fail fast
 - **Half-Open**: Testing if service recovered
 
 Circuit breaker thresholds:
+
 - Failure threshold: 5 failures
 - Open timeout: 2 minutes
 - Half-open max attempts: 3
 
 ### 3. Per-Endpoint Tracking
+
 Each API endpoint is tracked independently with its own:
+
 - Retry counter
 - Next retry time
 - Circuit breaker state
@@ -99,14 +104,14 @@ Each API endpoint is tracked independently with its own:
 ### Backoff Delays Table
 
 | Retry # | Base Delay | With Max Jitter (25%) | Max Total Wait |
-|---------|------------|----------------------|----------------|
-| 0       | 0s         | 0s                   | 0s             |
-| 1       | 1s         | 1.25s                | 1.25s          |
-| 2       | 2s         | 2.5s                 | 3.75s          |
-| 3       | 4s         | 5s                   | 8.75s          |
-| 4       | 8s         | 10s                  | 18.75s         |
-| 5       | 16s        | 20s                  | 38.75s         |
-| 6+      | 300s       | 375s (capped at 5m)  | -              |
+| ------- | ---------- | --------------------- | -------------- |
+| 0       | 0s         | 0s                    | 0s             |
+| 1       | 1s         | 1.25s                 | 1.25s          |
+| 2       | 2s         | 2.5s                  | 3.75s          |
+| 3       | 4s         | 5s                    | 8.75s          |
+| 4       | 8s         | 10s                   | 18.75s         |
+| 5       | 16s        | 20s                   | 38.75s         |
+| 6+      | 300s       | 375s (capped at 5m)   | -              |
 
 ## Usage
 
@@ -258,21 +263,25 @@ Widget buildSyncHealthIndicator(SyncStatistics stats) {
 ## Benefits
 
 ### 1. Prevents Excessive API Calls
+
 - Automatic backoff prevents hammering failing endpoints
 - Rate limit protection built-in
 - Jitter prevents synchronized retries
 
 ### 2. Resilient to Failures
+
 - Circuit breaker prevents cascading failures
 - Per-endpoint tracking isolates issues
 - Automatic recovery detection
 
 ### 3. Better User Experience
+
 - UI feedback via backoff status stream
 - Predictable retry behavior
 - Clear error states
 
 ### 4. Resource Efficiency
+
 - Reduces battery drain from failed requests
 - Minimizes network usage
 - Prevents server overload
@@ -319,6 +328,7 @@ To test the backoff behavior:
 ## Migration Notes
 
 The implementation is **backward compatible**:
+
 - Existing retry count in database is preserved
 - Outbox items continue to work as before
 - Additional tracking is in-memory only
@@ -328,6 +338,7 @@ No database schema changes required for basic functionality.
 ## Future Enhancements
 
 Potential improvements:
+
 - [ ] Persist circuit breaker state to database
 - [ ] Add metrics/analytics for retry patterns
 - [ ] Configurable backoff policies per endpoint type

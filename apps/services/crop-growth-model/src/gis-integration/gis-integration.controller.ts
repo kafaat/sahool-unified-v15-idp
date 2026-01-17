@@ -1,5 +1,21 @@
-import { Controller, Get, Post, Body, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
-import { GISIntegrationService, GeoJSONFeatureCollection, GeoJSONGeometry, BoundingBox, SpatialQuery, RouteRequest } from './gis-integration.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  HttpException,
+  HttpStatus,
+} from "@nestjs/common";
+import {
+  GISIntegrationService,
+  GeoJSONFeatureCollection,
+  GeoJSONGeometry,
+  BoundingBox,
+  SpatialQuery,
+  RouteRequest,
+} from "./gis-integration.service";
 
 // Request DTOs
 interface GetMapDto {
@@ -33,10 +49,17 @@ interface GetFeaturesDto {
 }
 
 interface SpatialQueryDto {
-  operation: 'intersects' | 'contains' | 'within' | 'overlaps' | 'touches' | 'buffer' | 'union';
+  operation:
+    | "intersects"
+    | "contains"
+    | "within"
+    | "overlaps"
+    | "touches"
+    | "buffer"
+    | "union";
   geometry?: GeoJSONGeometry;
   distance?: number;
-  unit?: 'meters' | 'kilometers' | 'miles';
+  unit?: "meters" | "kilometers" | "miles";
   targetLayer?: string;
   properties?: string[];
 }
@@ -54,7 +77,7 @@ interface CreateFieldDto {
 interface ZonalStatsDto {
   zones: GeoJSONFeatureCollection;
   rasterLayer: string;
-  statistics: ('count' | 'sum' | 'mean' | 'min' | 'max' | 'std')[];
+  statistics: ("count" | "sum" | "mean" | "min" | "max" | "std")[];
 }
 
 interface RouteRequestDto {
@@ -86,7 +109,7 @@ interface ValidateGeoJSONDto {
   geojson: any;
 }
 
-@Controller('gis')
+@Controller("gis")
 export class GISIntegrationController {
   constructor(private readonly gisService: GISIntegrationService) {}
 
@@ -101,45 +124,45 @@ export class GISIntegrationController {
       ...info,
       endpoints: {
         // Service Info
-        info: 'GET /gis - Service information',
+        info: "GET /gis - Service information",
 
         // Layer Management
-        layers: 'GET /gis/layers - List all layers',
-        layerById: 'GET /gis/layers/:layerId - Get layer details',
-        catalog: 'GET /gis/layers/catalog - Get layer catalog',
+        layers: "GET /gis/layers - List all layers",
+        layerById: "GET /gis/layers/:layerId - Get layer details",
+        catalog: "GET /gis/layers/catalog - Get layer catalog",
 
         // OGC WMS
-        wmsCapabilities: 'GET /gis/wms/capabilities - WMS GetCapabilities',
-        wmsGetMap: 'POST /gis/wms/map - WMS GetMap URL',
-        wmsFeatureInfo: 'POST /gis/wms/feature-info - WMS GetFeatureInfo',
+        wmsCapabilities: "GET /gis/wms/capabilities - WMS GetCapabilities",
+        wmsGetMap: "POST /gis/wms/map - WMS GetMap URL",
+        wmsFeatureInfo: "POST /gis/wms/feature-info - WMS GetFeatureInfo",
 
         // OGC WFS
-        wfsCapabilities: 'GET /gis/wfs/capabilities - WFS GetCapabilities',
-        wfsGetFeature: 'POST /gis/wfs/features - WFS GetFeature',
+        wfsCapabilities: "GET /gis/wfs/capabilities - WFS GetCapabilities",
+        wfsGetFeature: "POST /gis/wfs/features - WFS GetFeature",
 
         // Spatial Queries
-        spatialQuery: 'POST /gis/spatial/query - Execute spatial query',
-        buffer: 'POST /gis/spatial/buffer - Create buffer',
+        spatialQuery: "POST /gis/spatial/query - Execute spatial query",
+        buffer: "POST /gis/spatial/buffer - Create buffer",
 
         // Field Management
-        createField: 'POST /gis/fields - Create field boundary',
-        calculateArea: 'POST /gis/fields/area - Calculate area',
-        calculateCentroid: 'POST /gis/fields/centroid - Calculate centroid',
+        createField: "POST /gis/fields - Create field boundary",
+        calculateArea: "POST /gis/fields/area - Calculate area",
+        calculateCentroid: "POST /gis/fields/centroid - Calculate centroid",
 
         // Analysis
-        zonalStats: 'POST /gis/analysis/zonal-stats - Zonal statistics',
+        zonalStats: "POST /gis/analysis/zonal-stats - Zonal statistics",
 
         // Routing
-        route: 'POST /gis/routing/route - Calculate route',
+        route: "POST /gis/routing/route - Calculate route",
 
         // Map Projects
-        createProject: 'POST /gis/projects - Create map project',
-        basemaps: 'GET /gis/basemaps - List basemaps',
+        createProject: "POST /gis/projects - Create map project",
+        basemaps: "GET /gis/basemaps - List basemaps",
 
         // Utilities
-        validate: 'POST /gis/utils/validate - Validate GeoJSON',
-        transform: 'POST /gis/utils/transform - Transform coordinates',
-        demo: 'GET /gis/demo/fields - Generate demo fields',
+        validate: "POST /gis/utils/validate - Validate GeoJSON",
+        transform: "POST /gis/utils/transform - Transform coordinates",
+        demo: "GET /gis/demo/fields - Generate demo fields",
       },
     };
   }
@@ -152,13 +175,13 @@ export class GISIntegrationController {
    * GET /gis/layers
    * List all available layers
    */
-  @Get('layers')
+  @Get("layers")
   getLayers() {
     const layers = this.gisService.getLayers();
     return {
       success: true,
       count: layers.length,
-      layers: layers.map(l => ({
+      layers: layers.map((l) => ({
         id: l.id,
         name: l.name,
         nameAr: l.nameAr,
@@ -173,15 +196,27 @@ export class GISIntegrationController {
    * GET /gis/layers/catalog
    * Get layer catalog grouped by type
    */
-  @Get('layers/catalog')
+  @Get("layers/catalog")
   getLayerCatalog() {
     const catalog = this.gisService.getLayerCatalog();
     return {
       success: true,
       catalog: {
-        vector: catalog.vector.map(l => ({ id: l.id, name: l.name, nameAr: l.nameAr })),
-        raster: catalog.raster.map(l => ({ id: l.id, name: l.name, nameAr: l.nameAr })),
-        services: catalog.services.map(l => ({ id: l.id, name: l.name, nameAr: l.nameAr })),
+        vector: catalog.vector.map((l) => ({
+          id: l.id,
+          name: l.name,
+          nameAr: l.nameAr,
+        })),
+        raster: catalog.raster.map((l) => ({
+          id: l.id,
+          name: l.name,
+          nameAr: l.nameAr,
+        })),
+        services: catalog.services.map((l) => ({
+          id: l.id,
+          name: l.name,
+          nameAr: l.nameAr,
+        })),
       },
     };
   }
@@ -190,11 +225,11 @@ export class GISIntegrationController {
    * GET /gis/layers/:layerId
    * Get layer details
    */
-  @Get('layers/:layerId')
-  getLayer(@Param('layerId') layerId: string) {
+  @Get("layers/:layerId")
+  getLayer(@Param("layerId") layerId: string) {
     const layer = this.gisService.getLayer(layerId);
     if (!layer) {
-      throw new HttpException('Layer not found', HttpStatus.NOT_FOUND);
+      throw new HttpException("Layer not found", HttpStatus.NOT_FOUND);
     }
     return {
       success: true,
@@ -210,12 +245,12 @@ export class GISIntegrationController {
    * GET /gis/wms/capabilities
    * WMS GetCapabilities
    */
-  @Get('wms/capabilities')
+  @Get("wms/capabilities")
   getWMSCapabilities() {
     const capabilities = this.gisService.getWMSCapabilities();
     return {
       success: true,
-      service: 'WMS',
+      service: "WMS",
       ...capabilities,
     };
   }
@@ -224,18 +259,18 @@ export class GISIntegrationController {
    * POST /gis/wms/map
    * Generate WMS GetMap URL
    */
-  @Post('wms/map')
+  @Post("wms/map")
   getMapUrl(@Body() dto: GetMapDto) {
     if (!dto.layers || !dto.bbox || !dto.width || !dto.height) {
       throw new HttpException(
-        'Required: layers, bbox, width, height',
-        HttpStatus.BAD_REQUEST
+        "Required: layers, bbox, width, height",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     const bbox: BoundingBox = {
       ...dto.bbox,
-      srs: dto.srs || 'EPSG:4326',
+      srs: dto.srs || "EPSG:4326",
     };
 
     const url = this.gisService.getWMSMapUrl({
@@ -252,9 +287,9 @@ export class GISIntegrationController {
       success: true,
       url,
       request: {
-        service: 'WMS',
-        version: '1.3.0',
-        request: 'GetMap',
+        service: "WMS",
+        version: "1.3.0",
+        request: "GetMap",
         ...dto,
       },
     };
@@ -264,18 +299,18 @@ export class GISIntegrationController {
    * POST /gis/wms/feature-info
    * WMS GetFeatureInfo
    */
-  @Post('wms/feature-info')
+  @Post("wms/feature-info")
   getFeatureInfo(@Body() dto: GetFeatureInfoDto) {
     if (!dto.layers || !dto.point || !dto.bbox || !dto.width || !dto.height) {
       throw new HttpException(
-        'Required: layers, point, bbox, width, height',
-        HttpStatus.BAD_REQUEST
+        "Required: layers, point, bbox, width, height",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     const bbox: BoundingBox = {
       ...dto.bbox,
-      srs: dto.srs || 'EPSG:4326',
+      srs: dto.srs || "EPSG:4326",
     };
 
     const result = this.gisService.getFeatureInfo({
@@ -301,12 +336,12 @@ export class GISIntegrationController {
    * GET /gis/wfs/capabilities
    * WFS GetCapabilities
    */
-  @Get('wfs/capabilities')
+  @Get("wfs/capabilities")
   getWFSCapabilities() {
     const capabilities = this.gisService.getWFSCapabilities();
     return {
       success: true,
-      service: 'WFS',
+      service: "WFS",
       ...capabilities,
     };
   }
@@ -315,16 +350,18 @@ export class GISIntegrationController {
    * POST /gis/wfs/features
    * WFS GetFeature
    */
-  @Post('wfs/features')
+  @Post("wfs/features")
   getFeatures(@Body() dto: GetFeaturesDto) {
     if (!dto.typeName) {
-      throw new HttpException('Required: typeName', HttpStatus.BAD_REQUEST);
+      throw new HttpException("Required: typeName", HttpStatus.BAD_REQUEST);
     }
 
-    const bbox = dto.bbox ? {
-      ...dto.bbox,
-      srs: 'EPSG:4326',
-    } : undefined;
+    const bbox = dto.bbox
+      ? {
+          ...dto.bbox,
+          srs: "EPSG:4326",
+        }
+      : undefined;
 
     const result = this.gisService.getFeatures({
       typeName: dto.typeName,
@@ -351,10 +388,10 @@ export class GISIntegrationController {
    * POST /gis/spatial/query
    * Execute spatial query
    */
-  @Post('spatial/query')
+  @Post("spatial/query")
   executeSpatialQuery(@Body() dto: SpatialQueryDto) {
     if (!dto.operation) {
-      throw new HttpException('Required: operation', HttpStatus.BAD_REQUEST);
+      throw new HttpException("Required: operation", HttpStatus.BAD_REQUEST);
     }
 
     const query: SpatialQuery = {
@@ -379,17 +416,22 @@ export class GISIntegrationController {
    * POST /gis/spatial/buffer
    * Create buffer around geometry
    */
-  @Post('spatial/buffer')
-  createBuffer(@Body() dto: { geometry: GeoJSONGeometry; distance: number; unit?: string }) {
+  @Post("spatial/buffer")
+  createBuffer(
+    @Body() dto: { geometry: GeoJSONGeometry; distance: number; unit?: string },
+  ) {
     if (!dto.geometry || !dto.distance) {
-      throw new HttpException('Required: geometry, distance', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "Required: geometry, distance",
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const result = this.gisService.executeSpatialQuery({
-      operation: 'buffer',
+      operation: "buffer",
       geometry: dto.geometry,
       distance: dto.distance,
-      unit: (dto.unit as 'meters' | 'kilometers' | 'miles') || 'meters',
+      unit: (dto.unit as "meters" | "kilometers" | "miles") || "meters",
     });
 
     return {
@@ -397,7 +439,7 @@ export class GISIntegrationController {
       buffer: result.features[0],
       originalGeometry: dto.geometry.type,
       distance: dto.distance,
-      unit: dto.unit || 'meters',
+      unit: dto.unit || "meters",
     };
   }
 
@@ -409,12 +451,12 @@ export class GISIntegrationController {
    * POST /gis/fields
    * Create field boundary
    */
-  @Post('fields')
+  @Post("fields")
   createField(@Body() dto: CreateFieldDto) {
     if (!dto.farmId || !dto.name || !dto.geometry) {
       throw new HttpException(
-        'Required: farmId, name, geometry',
-        HttpStatus.BAD_REQUEST
+        "Required: farmId, name, geometry",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -422,8 +464,8 @@ export class GISIntegrationController {
 
     return {
       success: true,
-      message: 'Field boundary created',
-      messageAr: 'تم إنشاء حدود الحقل',
+      message: "Field boundary created",
+      messageAr: "تم إنشاء حدود الحقل",
       field,
     };
   }
@@ -432,10 +474,10 @@ export class GISIntegrationController {
    * POST /gis/fields/area
    * Calculate area of geometry
    */
-  @Post('fields/area')
+  @Post("fields/area")
   calculateArea(@Body() dto: { geometry: GeoJSONGeometry }) {
     if (!dto.geometry) {
-      throw new HttpException('Required: geometry', HttpStatus.BAD_REQUEST);
+      throw new HttpException("Required: geometry", HttpStatus.BAD_REQUEST);
     }
 
     const areaHectares = this.gisService.calculateArea(dto.geometry);
@@ -455,10 +497,10 @@ export class GISIntegrationController {
    * POST /gis/fields/centroid
    * Calculate centroid of geometry
    */
-  @Post('fields/centroid')
+  @Post("fields/centroid")
   calculateCentroid(@Body() dto: { geometry: GeoJSONGeometry }) {
     if (!dto.geometry) {
-      throw new HttpException('Required: geometry', HttpStatus.BAD_REQUEST);
+      throw new HttpException("Required: geometry", HttpStatus.BAD_REQUEST);
     }
 
     const centroid = this.gisService.calculateCentroid(dto.geometry);
@@ -477,12 +519,12 @@ export class GISIntegrationController {
    * POST /gis/analysis/zonal-stats
    * Calculate zonal statistics
    */
-  @Post('analysis/zonal-stats')
+  @Post("analysis/zonal-stats")
   calculateZonalStats(@Body() dto: ZonalStatsDto) {
     if (!dto.zones || !dto.rasterLayer || !dto.statistics) {
       throw new HttpException(
-        'Required: zones, rasterLayer, statistics',
-        HttpStatus.BAD_REQUEST
+        "Required: zones, rasterLayer, statistics",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -505,10 +547,13 @@ export class GISIntegrationController {
    * POST /gis/routing/route
    * Calculate route
    */
-  @Post('routing/route')
+  @Post("routing/route")
   calculateRoute(@Body() dto: RouteRequestDto) {
     if (!dto.origin || !dto.destination) {
-      throw new HttpException('Required: origin, destination', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "Required: origin, destination",
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const result = this.gisService.calculateRoute(dto);
@@ -517,8 +562,8 @@ export class GISIntegrationController {
       success: true,
       route: {
         ...result,
-        distanceUnit: 'km',
-        durationUnit: 'minutes',
+        distanceUnit: "km",
+        durationUnit: "minutes",
       },
     };
   }
@@ -531,18 +576,21 @@ export class GISIntegrationController {
    * POST /gis/projects
    * Create map project
    */
-  @Post('projects')
+  @Post("projects")
   createProject(@Body() dto: CreateProjectDto) {
     if (!dto.name || !dto.layers || !dto.owner) {
-      throw new HttpException('Required: name, layers, owner', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "Required: name, layers, owner",
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const project = this.gisService.createMapProject(dto);
 
     return {
       success: true,
-      message: 'Map project created',
-      messageAr: 'تم إنشاء مشروع الخريطة',
+      message: "Map project created",
+      messageAr: "تم إنشاء مشروع الخريطة",
       project,
     };
   }
@@ -551,7 +599,7 @@ export class GISIntegrationController {
    * GET /gis/basemaps
    * List available basemaps
    */
-  @Get('basemaps')
+  @Get("basemaps")
   getBasemaps() {
     const basemaps = this.gisService.getBasemaps();
     return {
@@ -569,7 +617,7 @@ export class GISIntegrationController {
    * POST /gis/utils/validate
    * Validate GeoJSON
    */
-  @Post('utils/validate')
+  @Post("utils/validate")
   validateGeoJSON(@Body() dto: ValidateGeoJSONDto) {
     const result = this.gisService.validateGeoJSON(dto.geojson);
     return {
@@ -582,19 +630,19 @@ export class GISIntegrationController {
    * POST /gis/utils/transform
    * Transform coordinates between SRS
    */
-  @Post('utils/transform')
+  @Post("utils/transform")
   transformCoordinates(@Body() dto: TransformDto) {
     if (!dto.coordinates || !dto.fromSRS || !dto.toSRS) {
       throw new HttpException(
-        'Required: coordinates, fromSRS, toSRS',
-        HttpStatus.BAD_REQUEST
+        "Required: coordinates, fromSRS, toSRS",
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     const transformed = this.gisService.transformCoordinates(
       dto.coordinates,
       dto.fromSRS,
-      dto.toSRS
+      dto.toSRS,
     );
 
     return {
@@ -614,17 +662,17 @@ export class GISIntegrationController {
    * GET /gis/demo/fields
    * Generate demo agricultural fields
    */
-  @Get('demo/fields')
-  getDemoFields(@Query('count') count?: string) {
+  @Get("demo/fields")
+  getDemoFields(@Query("count") count?: string) {
     const fieldCount = count ? parseInt(count, 10) : 10;
     const fields = this.gisService.generateDemoFields(
-      Math.min(Math.max(1, fieldCount), 50)
+      Math.min(Math.max(1, fieldCount), 50),
     );
 
     return {
       success: true,
-      message: 'Demo agricultural fields generated',
-      messageAr: 'تم إنشاء حقول زراعية تجريبية',
+      message: "Demo agricultural fields generated",
+      messageAr: "تم إنشاء حقول زراعية تجريبية",
       ...fields,
     };
   }
@@ -633,22 +681,28 @@ export class GISIntegrationController {
    * GET /gis/demo/wms
    * Demo WMS request
    */
-  @Get('demo/wms')
+  @Get("demo/wms")
   demoWMS() {
     const capabilities = this.gisService.getWMSCapabilities();
     const mapUrl = this.gisService.getWMSMapUrl({
-      layers: ['fields', 'ndvi'],
-      bbox: { minX: 46.5, minY: 24.5, maxX: 47.0, maxY: 25.0, srs: 'EPSG:4326' },
+      layers: ["fields", "ndvi"],
+      bbox: {
+        minX: 46.5,
+        minY: 24.5,
+        maxX: 47.0,
+        maxY: 25.0,
+        srs: "EPSG:4326",
+      },
       width: 800,
       height: 600,
-      format: 'image/png',
+      format: "image/png",
       transparent: true,
     });
 
     return {
       success: true,
-      demo: 'WMS Service Demo',
-      demoAr: 'عرض خدمة WMS',
+      demo: "WMS Service Demo",
+      demoAr: "عرض خدمة WMS",
       capabilities: {
         version: capabilities.version,
         title: capabilities.title,
@@ -656,9 +710,9 @@ export class GISIntegrationController {
       },
       sampleRequest: {
         url: mapUrl,
-        layers: ['fields', 'ndvi'],
-        bbox: 'Saudi Arabia (Riyadh Region)',
-        dimensions: '800x600',
+        layers: ["fields", "ndvi"],
+        bbox: "Saudi Arabia (Riyadh Region)",
+        dimensions: "800x600",
       },
     };
   }
@@ -667,7 +721,7 @@ export class GISIntegrationController {
    * GET /gis/demo/routing
    * Demo routing request
    */
-  @Get('demo/routing')
+  @Get("demo/routing")
   demoRouting() {
     const route = this.gisService.calculateRoute({
       origin: { lat: 24.7136, lng: 46.6753 }, // Riyadh
@@ -679,11 +733,11 @@ export class GISIntegrationController {
 
     return {
       success: true,
-      demo: 'Routing Service Demo',
-      demoAr: 'عرض خدمة التوجيه',
+      demo: "Routing Service Demo",
+      demoAr: "عرض خدمة التوجيه",
       route: {
-        origin: 'Riyadh',
-        destination: 'Medina',
+        origin: "Riyadh",
+        destination: "Medina",
         distance: `${route.distance} km`,
         duration: `${route.duration} minutes`,
         instructionCount: route.instructions.length,

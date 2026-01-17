@@ -1,4 +1,5 @@
 # SAHOOL Notification Service - Database Setup Guide
+
 # دليل إعداد قاعدة البيانات لخدمة الإشعارات
 
 ## Overview | نظرة عامة
@@ -74,92 +75,96 @@ aerich upgrade
 ### Tables | الجداول
 
 #### 1. notifications
+
 Stores all notifications sent to users.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| tenant_id | VARCHAR(100) | Multi-tenancy support |
-| user_id | VARCHAR(100) | Farmer/User ID |
-| title | VARCHAR(255) | Notification title (English) |
-| title_ar | VARCHAR(255) | Notification title (Arabic) |
-| body | TEXT | Notification body (English) |
-| body_ar | TEXT | Notification body (Arabic) |
-| type | VARCHAR(50) | Type: weather_alert, pest_outbreak, etc. |
-| priority | VARCHAR(20) | Priority: low, medium, high, critical |
-| channel | VARCHAR(20) | Channel: push, sms, in_app |
-| status | VARCHAR(20) | Status: pending, sent, failed, read |
-| sent_at | TIMESTAMP | When notification was sent |
-| read_at | TIMESTAMP | When user read the notification |
-| data | JSON | Additional metadata |
-| action_url | VARCHAR(500) | Deep link or action URL |
-| target_governorates | JSON | List of target governorates |
-| target_crops | JSON | List of target crops |
-| created_at | TIMESTAMP | Creation timestamp |
-| updated_at | TIMESTAMP | Last update timestamp |
-| expires_at | TIMESTAMP | Expiration timestamp |
+| Column              | Type         | Description                              |
+| ------------------- | ------------ | ---------------------------------------- |
+| id                  | UUID         | Primary key                              |
+| tenant_id           | VARCHAR(100) | Multi-tenancy support                    |
+| user_id             | VARCHAR(100) | Farmer/User ID                           |
+| title               | VARCHAR(255) | Notification title (English)             |
+| title_ar            | VARCHAR(255) | Notification title (Arabic)              |
+| body                | TEXT         | Notification body (English)              |
+| body_ar             | TEXT         | Notification body (Arabic)               |
+| type                | VARCHAR(50)  | Type: weather_alert, pest_outbreak, etc. |
+| priority            | VARCHAR(20)  | Priority: low, medium, high, critical    |
+| channel             | VARCHAR(20)  | Channel: push, sms, in_app               |
+| status              | VARCHAR(20)  | Status: pending, sent, failed, read      |
+| sent_at             | TIMESTAMP    | When notification was sent               |
+| read_at             | TIMESTAMP    | When user read the notification          |
+| data                | JSON         | Additional metadata                      |
+| action_url          | VARCHAR(500) | Deep link or action URL                  |
+| target_governorates | JSON         | List of target governorates              |
+| target_crops        | JSON         | List of target crops                     |
+| created_at          | TIMESTAMP    | Creation timestamp                       |
+| updated_at          | TIMESTAMP    | Last update timestamp                    |
+| expires_at          | TIMESTAMP    | Expiration timestamp                     |
 
 #### 2. notification_templates
+
 Reusable templates for common notifications.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| tenant_id | VARCHAR(100) | Multi-tenancy support |
-| name | VARCHAR(100) | Template name/slug (unique) |
-| description | VARCHAR(255) | Template description |
-| title_template | VARCHAR(255) | Title with {{variables}} |
-| title_template_ar | VARCHAR(255) | Arabic title template |
-| body_template | TEXT | Body with {{variables}} |
-| body_template_ar | TEXT | Arabic body template |
-| type | VARCHAR(50) | Default notification type |
-| priority | VARCHAR(20) | Default priority |
-| channel | VARCHAR(20) | Default channel |
-| variables | JSON | Available variables |
-| default_data | JSON | Default data |
-| is_active | BOOLEAN | Active status |
-| created_at | TIMESTAMP | Creation timestamp |
-| updated_at | TIMESTAMP | Last update timestamp |
+| Column            | Type         | Description                 |
+| ----------------- | ------------ | --------------------------- |
+| id                | UUID         | Primary key                 |
+| tenant_id         | VARCHAR(100) | Multi-tenancy support       |
+| name              | VARCHAR(100) | Template name/slug (unique) |
+| description       | VARCHAR(255) | Template description        |
+| title_template    | VARCHAR(255) | Title with {{variables}}    |
+| title_template_ar | VARCHAR(255) | Arabic title template       |
+| body_template     | TEXT         | Body with {{variables}}     |
+| body_template_ar  | TEXT         | Arabic body template        |
+| type              | VARCHAR(50)  | Default notification type   |
+| priority          | VARCHAR(20)  | Default priority            |
+| channel           | VARCHAR(20)  | Default channel             |
+| variables         | JSON         | Available variables         |
+| default_data      | JSON         | Default data                |
+| is_active         | BOOLEAN      | Active status               |
+| created_at        | TIMESTAMP    | Creation timestamp          |
+| updated_at        | TIMESTAMP    | Last update timestamp       |
 
 #### 3. notification_preferences
+
 User preferences for receiving notifications.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| tenant_id | VARCHAR(100) | Multi-tenancy support |
-| user_id | VARCHAR(100) | Farmer/User ID |
-| channel | VARCHAR(20) | Channel: push, sms, in_app |
-| enabled | BOOLEAN | Is channel enabled |
-| quiet_hours_start | TIME | Quiet hours start (e.g., 22:00) |
-| quiet_hours_end | TIME | Quiet hours end (e.g., 06:00) |
-| notification_types | JSON | Type-specific preferences |
-| min_priority | VARCHAR(20) | Minimum priority to receive |
-| device_tokens | JSON | FCM/APNS device tokens |
-| language | VARCHAR(10) | Preferred language (ar, en) |
-| timezone | VARCHAR(50) | User timezone |
-| created_at | TIMESTAMP | Creation timestamp |
-| updated_at | TIMESTAMP | Last update timestamp |
+| Column             | Type         | Description                     |
+| ------------------ | ------------ | ------------------------------- |
+| id                 | UUID         | Primary key                     |
+| tenant_id          | VARCHAR(100) | Multi-tenancy support           |
+| user_id            | VARCHAR(100) | Farmer/User ID                  |
+| channel            | VARCHAR(20)  | Channel: push, sms, in_app      |
+| enabled            | BOOLEAN      | Is channel enabled              |
+| quiet_hours_start  | TIME         | Quiet hours start (e.g., 22:00) |
+| quiet_hours_end    | TIME         | Quiet hours end (e.g., 06:00)   |
+| notification_types | JSON         | Type-specific preferences       |
+| min_priority       | VARCHAR(20)  | Minimum priority to receive     |
+| device_tokens      | JSON         | FCM/APNS device tokens          |
+| language           | VARCHAR(10)  | Preferred language (ar, en)     |
+| timezone           | VARCHAR(50)  | User timezone                   |
+| created_at         | TIMESTAMP    | Creation timestamp              |
+| updated_at         | TIMESTAMP    | Last update timestamp           |
 
 **Unique constraint:** (user_id, channel)
 
 #### 4. notification_logs
+
 Tracks delivery attempts and status.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| notification_id | UUID | Foreign key to notifications |
-| channel | VARCHAR(20) | Channel used for delivery |
-| status | VARCHAR(20) | Status: success, failed, pending, retry |
-| error_message | TEXT | Error message if failed |
-| error_code | VARCHAR(50) | Error code |
-| provider_response | JSON | Response from FCM, SMS gateway, etc. |
-| provider_message_id | VARCHAR(255) | Message ID from provider |
-| retry_count | INTEGER | Number of retry attempts |
-| next_retry_at | TIMESTAMP | When to retry next |
-| attempted_at | TIMESTAMP | Attempt timestamp |
-| completed_at | TIMESTAMP | Completion timestamp |
+| Column              | Type         | Description                             |
+| ------------------- | ------------ | --------------------------------------- |
+| id                  | UUID         | Primary key                             |
+| notification_id     | UUID         | Foreign key to notifications            |
+| channel             | VARCHAR(20)  | Channel used for delivery               |
+| status              | VARCHAR(20)  | Status: success, failed, pending, retry |
+| error_message       | TEXT         | Error message if failed                 |
+| error_code          | VARCHAR(50)  | Error code                              |
+| provider_response   | JSON         | Response from FCM, SMS gateway, etc.    |
+| provider_message_id | VARCHAR(255) | Message ID from provider                |
+| retry_count         | INTEGER      | Number of retry attempts                |
+| next_retry_at       | TIMESTAMP    | When to retry next                      |
+| attempted_at        | TIMESTAMP    | Attempt timestamp                       |
+| completed_at        | TIMESTAMP    | Completion timestamp                    |
 
 ## Development Mode | وضع التطوير
 
@@ -296,6 +301,7 @@ aerich migrate --name "fix_migration"
 ## Support | الدعم
 
 For issues or questions:
+
 - Check logs: `tail -f logs/notification-service.log`
 - Database logs: `tail -f /var/log/postgresql/postgresql-13-main.log`
 - GitHub Issues: https://github.com/your-org/sahool/issues

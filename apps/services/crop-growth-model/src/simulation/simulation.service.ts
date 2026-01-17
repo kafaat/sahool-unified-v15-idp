@@ -3,10 +3,10 @@
 // Integrated Crop Growth Model combining Phenology, Photosynthesis, and Biomass
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from '@nestjs/common';
-import { PhenologyService } from '../phenology/phenology.service';
-import { PhotosynthesisService } from '../photosynthesis/photosynthesis.service';
-import { BiomassService } from '../biomass/biomass.service';
+import { Injectable } from "@nestjs/common";
+import { PhenologyService } from "../phenology/phenology.service";
+import { PhotosynthesisService } from "../photosynthesis/photosynthesis.service";
+import { BiomassService } from "../biomass/biomass.service";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Simulation Input Types
@@ -16,7 +16,7 @@ export interface DailyWeather {
   date: string;
   tmin: number;
   tmax: number;
-  radiation: number;  // MJ m⁻² day⁻¹
+  radiation: number; // MJ m⁻² day⁻¹
   precipitation?: number;
 }
 
@@ -88,23 +88,37 @@ export class GrowthSimulationService {
       estimatedYield: number;
       yieldUnit: string;
     };
-    keyDates: Array<{ event: string; eventAr: string; date: string; daysAfterSowing: number }>;
+    keyDates: Array<{
+      event: string;
+      eventAr: string;
+      date: string;
+      daysAfterSowing: number;
+    }>;
     dailyResults: SimulationResult[];
   } {
     const results: SimulationResult[] = [];
-    const keyDates: Array<{ event: string; eventAr: string; date: string; daysAfterSowing: number }> = [];
+    const keyDates: Array<{
+      event: string;
+      eventAr: string;
+      date: string;
+      daysAfterSowing: number;
+    }> = [];
 
     // Initialize state
     let accumulatedGDD = 0;
     let afterFlowering = false;
     let floweringGDD = 0;
     let biomass = { root: 5, stem: 3, leaf: 2, storage: 0 }; // Initial seedling
-    let currentStage = '';
+    let currentStage = "";
     let maxLAI = 0;
 
     // Get crop parameters
     const cropParams = this.phenologyService.getCropParameters(config.cropType);
-    if (!cropParams || typeof cropParams !== 'object' || !('TSUM1' in cropParams)) {
+    if (
+      !cropParams ||
+      typeof cropParams !== "object" ||
+      !("TSUM1" in cropParams)
+    ) {
       throw new Error(`Unknown crop type: ${config.cropType}`);
     }
 
@@ -132,15 +146,17 @@ export class GrowthSimulationService {
         afterFlowering = true;
         floweringGDD = accumulatedGDD;
         keyDates.push({
-          event: 'Flowering',
-          eventAr: 'الإزهار',
+          event: "Flowering",
+          eventAr: "الإزهار",
           date: weather.date,
           daysAfterSowing,
         });
       }
 
       // Calculate DVS
-      const gddForDVS = afterFlowering ? accumulatedGDD - floweringGDD : accumulatedGDD;
+      const gddForDVS = afterFlowering
+        ? accumulatedGDD - floweringGDD
+        : accumulatedGDD;
       const { dvs, stage } = this.phenologyService.calculateDVS(
         gddForDVS,
         config.cropType,
@@ -164,7 +180,10 @@ export class GrowthSimulationService {
       const par = weather.radiation * 0.5;
 
       // Calculate LAI and fPAR
-      const laiResult = this.biomassService.calculateLAI(biomass.leaf, config.cropType);
+      const laiResult = this.biomassService.calculateLAI(
+        biomass.leaf,
+        config.cropType,
+      );
       const lai = laiResult.lai;
       maxLAI = Math.max(maxLAI, lai);
 
@@ -173,12 +192,13 @@ export class GrowthSimulationService {
       const fpar = Math.min(0.95, 1 - Math.exp(-k * lai));
 
       // Calculate photosynthesis
-      const gppResult = this.photosynthesisService.calculateGrossPrimaryProduction(
-        par,
-        fpar,
-        config.cropType,
-        avgTemp,
-      );
+      const gppResult =
+        this.photosynthesisService.calculateGrossPrimaryProduction(
+          par,
+          fpar,
+          config.cropType,
+          avgTemp,
+        );
 
       // Calculate biomass production
       const production = this.biomassService.calculateDailyBiomassProduction(
@@ -202,7 +222,8 @@ export class GrowthSimulationService {
       biomass.leaf += distribution.toLeaf;
       biomass.storage += distribution.toStorage;
 
-      const totalBiomass = biomass.root + biomass.stem + biomass.leaf + biomass.storage;
+      const totalBiomass =
+        biomass.root + biomass.stem + biomass.leaf + biomass.storage;
 
       results.push({
         date: weather.date,
@@ -232,8 +253,10 @@ export class GrowthSimulationService {
 
     // Calculate final yield
     const finalResult = results[results.length - 1];
-    const abovegroundBiomass = finalResult.biomass.stem +
-      finalResult.biomass.leaf + finalResult.biomass.storage;
+    const abovegroundBiomass =
+      finalResult.biomass.stem +
+      finalResult.biomass.leaf +
+      finalResult.biomass.storage;
     const yieldResult = this.biomassService.calculateYield(
       abovegroundBiomass,
       config.cropType,
@@ -267,7 +290,7 @@ export class GrowthSimulationService {
   generateSampleWeather(
     startDate: string,
     days: number,
-    climate: 'temperate' | 'tropical' | 'arid' = 'temperate',
+    climate: "temperate" | "tropical" | "arid" = "temperate",
   ): DailyWeather[] {
     const weather: DailyWeather[] = [];
     const start = new Date(startDate);
@@ -286,18 +309,21 @@ export class GrowthSimulationService {
       date.setDate(date.getDate() + i);
 
       // Seasonal variation
-      const dayOfYear = this.getDayOfYear(date.toISOString().split('T')[0]);
-      const seasonalFactor = Math.sin((dayOfYear - 80) * 2 * Math.PI / 365);
+      const dayOfYear = this.getDayOfYear(date.toISOString().split("T")[0]);
+      const seasonalFactor = Math.sin(((dayOfYear - 80) * 2 * Math.PI) / 365);
 
       // Add some random variation
       const randomVar = (Math.random() - 0.5) * 5;
 
-      const tmin = params.baseTmin + seasonalFactor * params.seasonalAmp + randomVar;
-      const tmax = params.baseTmax + seasonalFactor * params.seasonalAmp + randomVar;
-      const radiation = params.radiation + seasonalFactor * 5 + (Math.random() - 0.5) * 4;
+      const tmin =
+        params.baseTmin + seasonalFactor * params.seasonalAmp + randomVar;
+      const tmax =
+        params.baseTmax + seasonalFactor * params.seasonalAmp + randomVar;
+      const radiation =
+        params.radiation + seasonalFactor * 5 + (Math.random() - 0.5) * 4;
 
       weather.push({
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split("T")[0],
         tmin: Math.round(tmin * 10) / 10,
         tmax: Math.round(tmax * 10) / 10,
         radiation: Math.round(Math.max(5, radiation) * 10) / 10,
@@ -328,12 +354,16 @@ export class GrowthSimulationService {
 
     // Get crop parameters
     const biomassParams = this.biomassService.getCropParameters(cropType);
-    if (!biomassParams || typeof biomassParams !== 'object' || !('RUE' in biomassParams)) {
+    if (
+      !biomassParams ||
+      typeof biomassParams !== "object" ||
+      !("RUE" in biomassParams)
+    ) {
       return {
         estimatedYield: 0,
-        unit: 'kg ha⁻¹',
-        assumptions: ['Unknown crop type'],
-        confidence: 'very_low',
+        unit: "kg ha⁻¹",
+        assumptions: ["Unknown crop type"],
+        confidence: "very_low",
       };
     }
 
@@ -345,7 +375,10 @@ export class GrowthSimulationService {
 
     // Temperature penalty
     const optTemp = 25; // Generic optimum
-    const tempPenalty = Math.max(0.5, 1 - Math.abs(avgTemperature - optTemp) / 30);
+    const tempPenalty = Math.max(
+      0.5,
+      1 - Math.abs(avgTemperature - optTemp) / 30,
+    );
 
     // Total intercepted PAR
     const totalPAR = avgPAR * avgFPAR * seasonLength;
@@ -361,14 +394,14 @@ export class GrowthSimulationService {
 
     return {
       estimatedYield: Math.round(yieldKgHa),
-      unit: 'kg ha⁻¹',
+      unit: "kg ha⁻¹",
       assumptions: [
         `Average fPAR = ${avgFPAR}`,
         `RUE = ${RUE} g MJ⁻¹`,
         `Harvest Index = ${harvestIndex}`,
-        'No water or nutrient stress assumed',
+        "No water or nutrient stress assumed",
       ],
-      confidence: 'moderate',
+      confidence: "moderate",
     };
   }
 
@@ -386,31 +419,31 @@ export class GrowthSimulationService {
     supportedCrops: Array<{ id: string; nameEn: string; nameAr: string }>;
   } {
     return {
-      name: 'SAHOOL Crop Growth Model',
-      nameAr: 'نموذج نمو المحاصيل - سهول',
-      version: '1.0.0',
+      name: "SAHOOL Crop Growth Model",
+      nameAr: "نموذج نمو المحاصيل - سهول",
+      version: "1.0.0",
       components: [
         {
-          name: 'Phenology',
-          nameAr: 'مراحل النمو',
-          description: 'WOFOST-style DVS with thermal time accumulation',
+          name: "Phenology",
+          nameAr: "مراحل النمو",
+          description: "WOFOST-style DVS with thermal time accumulation",
         },
         {
-          name: 'Photosynthesis',
-          nameAr: 'التمثيل الضوئي',
-          description: 'LUE model and simplified Farquhar (FvCB) model',
+          name: "Photosynthesis",
+          nameAr: "التمثيل الضوئي",
+          description: "LUE model and simplified Farquhar (FvCB) model",
         },
         {
-          name: 'Biomass',
-          nameAr: 'الكتلة الحيوية',
-          description: 'Source-Sink-Flow partitioning with respiration',
+          name: "Biomass",
+          nameAr: "الكتلة الحيوية",
+          description: "Source-Sink-Flow partitioning with respiration",
         },
       ],
       basedOn: [
-        'WOFOST (World Food Studies)',
-        'DSSAT (Decision Support System for Agrotechnology Transfer)',
-        'APSIM (Agricultural Production Systems sIMulator)',
-        'Farquhar-von Caemmerer-Berry (FvCB) Model',
+        "WOFOST (World Food Studies)",
+        "DSSAT (Decision Support System for Agrotechnology Transfer)",
+        "APSIM (Agricultural Production Systems sIMulator)",
+        "Farquhar-von Caemmerer-Berry (FvCB) Model",
       ],
       supportedCrops: this.phenologyService.getAvailableCrops(),
     };

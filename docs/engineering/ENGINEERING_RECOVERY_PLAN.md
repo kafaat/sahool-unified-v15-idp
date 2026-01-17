@@ -1,4 +1,5 @@
 # SAHOOL Engineering Recovery Plan
+
 ## خطة الإنقاذ الهندسي - منصة سهول v15.5
 
 **Classification:** INTERNAL - ENGINEERING LEADERSHIP
@@ -11,9 +12,11 @@
 ## Executive Summary | الملخص التنفيذي
 
 ### الوضع الحالي
+
 منصة SAHOOL تواجه **ديون تقنية حرجة** تهدد استقرار الإنتاج وقابلية التوسع. هذه الخطة تحدد مسار إنقاذ مدته **8 أسابيع** لتحويل المنصة من "نموذج أولي ناجح" إلى "منتج جاهز للإنتاج".
 
 ### القرار الاستراتيجي
+
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    🛑 FEATURE FREEZE - 8 WEEKS                      │
@@ -29,19 +32,22 @@
 ```
 
 ### الأرقام الرئيسية
-| المقياس | الحالي | الهدف | الأثر |
-|---------|--------|-------|-------|
-| MTTR (Time to Recovery) | 4+ ساعات | <30 دقيقة | -87% |
-| تكلفة البنية التحتية | $X/شهر | $0.35X/شهر | -65% |
-| الأعطال الأسبوعية | 3-5 | <0.5 | -90% |
-| وقت Onboarding للمطور | 2 أسبوع | 3 أيام | -78% |
+
+| المقياس                 | الحالي   | الهدف      | الأثر |
+| ----------------------- | -------- | ---------- | ----- |
+| MTTR (Time to Recovery) | 4+ ساعات | <30 دقيقة  | -87%  |
+| تكلفة البنية التحتية    | $X/شهر   | $0.35X/شهر | -65%  |
+| الأعطال الأسبوعية       | 3-5      | <0.5       | -90%  |
+| وقت Onboarding للمطور   | 2 أسبوع  | 3 أيام     | -78%  |
 
 ---
 
 ## Phase 0: Firefighting (الأسبوعين 1-2)
+
 ### 🚨 الإطفاء الفوري - Critical Fixes
 
 ### 0.1 Kong Gateway HA
+
 **المشكلة:** نقطة فشل واحدة (SPOF)
 **الأثر:** أي عطل في Kong = توقف كامل للمنصة
 
@@ -77,6 +83,7 @@ health_checks:
 ```
 
 **المهام:**
+
 - [ ] تفعيل Kong replicas (3 instances)
 - [ ] تكوين Pod Anti-Affinity
 - [ ] إضافة Health Checks
@@ -90,6 +97,7 @@ health_checks:
 ---
 
 ### 0.2 NDVI Cache Layer
+
 **المشكلة:** Offline-First يتعارض مع Real-time NDVI
 **الأثر:** تطبيق "ميداني" لا يعمل بدون إنترنت
 
@@ -97,13 +105,13 @@ health_checks:
 // File: shared/libs/cache/ndvi-cache.service.ts
 // Priority: P0 - CRITICAL
 
-import { Injectable } from '@nestjs/common';
-import { Redis } from 'ioredis';
+import { Injectable } from "@nestjs/common";
+import { Redis } from "ioredis";
 
 interface NDVICacheEntry {
   value: number;
   timestamp: Date;
-  source: 'satellite' | 'interpolated' | 'historical';
+  source: "satellite" | "interpolated" | "historical";
   confidence: number;
   ttl_hours: number;
 }
@@ -140,7 +148,7 @@ export class NDVICacheService {
     // 3. Try L3 (Stale from DB)
     const staleEntry = await this.getStaleFromDB(fieldId, date);
     if (staleEntry) {
-      staleEntry.source = 'historical';
+      staleEntry.source = "historical";
       staleEntry.confidence *= 0.8; // Reduce confidence
       return staleEntry;
     }
@@ -149,12 +157,17 @@ export class NDVICacheService {
     return this.interpolateFromNeighbors(fieldId, date);
   }
 
-  async setNDVI(fieldId: string, date: Date, value: number, source: string): Promise<void> {
+  async setNDVI(
+    fieldId: string,
+    date: Date,
+    value: number,
+    source: string,
+  ): Promise<void> {
     const entry: NDVICacheEntry = {
       value,
       timestamp: new Date(),
       source: source as any,
-      confidence: source === 'satellite' ? 0.95 : 0.75,
+      confidence: source === "satellite" ? 0.95 : 0.75,
       ttl_hours: this.DEFAULT_TTL_HOURS,
     };
 
@@ -164,17 +177,24 @@ export class NDVICacheService {
     await this.redis.setex(
       key,
       this.DEFAULT_TTL_HOURS * 3600,
-      JSON.stringify(entry)
+      JSON.stringify(entry),
     );
 
     // Set in Memory
-    this.memoryCache.set(`ndvi:l1:${fieldId}:${this.dateKey(date)}`, entry, 300);
+    this.memoryCache.set(
+      `ndvi:l1:${fieldId}:${this.dateKey(date)}`,
+      entry,
+      300,
+    );
 
     // Persist to DB for stale fallback
     await this.persistToStaleDB(fieldId, date, entry);
   }
 
-  private async interpolateFromNeighbors(fieldId: string, date: Date): Promise<NDVICacheEntry | null> {
+  private async interpolateFromNeighbors(
+    fieldId: string,
+    date: Date,
+  ): Promise<NDVICacheEntry | null> {
     // Get spatial neighbors within 5km
     const neighbors = await this.getNeighborFields(fieldId, 5000);
 
@@ -182,33 +202,37 @@ export class NDVICacheService {
 
     // Inverse Distance Weighting
     const values = await Promise.all(
-      neighbors.map(n => this.redis.get(`ndvi:${n.id}:${this.dateKey(date)}`))
+      neighbors.map((n) =>
+        this.redis.get(`ndvi:${n.id}:${this.dateKey(date)}`),
+      ),
     );
 
     const validValues = values
-      .filter(v => v !== null)
-      .map(v => JSON.parse(v!));
+      .filter((v) => v !== null)
+      .map((v) => JSON.parse(v!));
 
     if (validValues.length === 0) return null;
 
-    const interpolated = validValues.reduce((sum, v) => sum + v.value, 0) / validValues.length;
+    const interpolated =
+      validValues.reduce((sum, v) => sum + v.value, 0) / validValues.length;
 
     return {
       value: interpolated,
       timestamp: new Date(),
-      source: 'interpolated',
+      source: "interpolated",
       confidence: 0.6 * (validValues.length / neighbors.length),
       ttl_hours: 12, // Shorter TTL for interpolated
     };
   }
 
   private dateKey(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   }
 }
 ```
 
 **المهام:**
+
 - [ ] إنشاء NDVICacheService
 - [ ] تكوين Redis Cluster
 - [ ] إضافة Stale DB schema
@@ -222,6 +246,7 @@ export class NDVICacheService {
 ---
 
 ### 0.3 PostGIS Critical Indexes
+
 **المشكلة:** استعلامات مكانية بدون فهارس = 400% تكلفة زائدة
 **الأثر:** $X/شهر مهدرة على compute
 
@@ -262,6 +287,7 @@ ANALYZE weather_data;
 ```
 
 **المهام:**
+
 - [ ] تنفيذ migration في off-peak hours
 - [ ] مراقبة index creation progress
 - [ ] التحقق من query plans بعد الفهرسة
@@ -275,6 +301,7 @@ ANALYZE weather_data;
 ---
 
 ### 0.4 PGBouncer Connection Pooling
+
 **المشكلة:** كل service يفتح connections مباشرة = exhaustion
 **الأثر:** connection limit errors تحت الضغط
 
@@ -318,6 +345,7 @@ spec:
 ```
 
 **المهام:**
+
 - [ ] نشر PGBouncer deployment
 - [ ] تحديث connection strings في جميع الخدمات
 - [ ] تكوين monitoring لـ connection stats
@@ -330,9 +358,11 @@ spec:
 ---
 
 ## Phase 1: Stabilization (الأسبوعين 3-4)
+
 ### ⚖️ التثبيت والتوحيد
 
 ### 1.1 Platform Manifest
+
 **المشكلة:** لا توجد نقطة حقيقة واحدة للإصدارات
 **الأثر:** "Works on my machine" + Integration failures
 
@@ -529,6 +559,7 @@ validation:
 ```
 
 **المهام:**
+
 - [ ] إنشاء .platform-manifest.yml
 - [ ] كتابة manifest validator script
 - [ ] إضافة pre-commit hook
@@ -542,6 +573,7 @@ validation:
 ---
 
 ### 1.2 Unified Auth Library
+
 **المشكلة:** 5 تطبيقات مختلفة لـ JWT validation
 **الأثر:** Security inconsistencies + maintenance overhead
 
@@ -549,19 +581,24 @@ validation:
 // File: shared/libs/auth/src/index.ts
 // Priority: P1 - HIGH
 
-export * from './guards/jwt.guard';
-export * from './guards/roles.guard';
-export * from './guards/tenant.guard';
-export * from './decorators/current-user.decorator';
-export * from './decorators/requires-role.decorator';
-export * from './services/token.service';
-export * from './middleware/auth.middleware';
-export * from './types';
+export * from "./guards/jwt.guard";
+export * from "./guards/roles.guard";
+export * from "./guards/tenant.guard";
+export * from "./decorators/current-user.decorator";
+export * from "./decorators/requires-role.decorator";
+export * from "./services/token.service";
+export * from "./middleware/auth.middleware";
+export * from "./types";
 
 // File: shared/libs/auth/src/guards/jwt.guard.ts
 
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { TokenService } from '../services/token.service';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { TokenService } from "../services/token.service";
 
 @Injectable()
 export class JwtGuard implements CanActivate {
@@ -572,7 +609,7 @@ export class JwtGuard implements CanActivate {
     const token = this.extractToken(request);
 
     if (!token) {
-      throw new UnauthorizedException('No token provided');
+      throw new UnauthorizedException("No token provided");
     }
 
     try {
@@ -589,7 +626,7 @@ export class JwtGuard implements CanActivate {
 
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException("Invalid token");
     }
   }
 
@@ -597,15 +634,15 @@ export class JwtGuard implements CanActivate {
     const authHeader = request.headers.authorization;
     if (!authHeader) return null;
 
-    const [type, token] = authHeader.split(' ');
-    return type === 'Bearer' ? token : null;
+    const [type, token] = authHeader.split(" ");
+    return type === "Bearer" ? token : null;
   }
 }
 
 // File: shared/libs/auth/src/services/token.service.ts
 
-import { Injectable } from '@nestjs/common';
-import * as jose from 'jose';
+import { Injectable } from "@nestjs/common";
+import * as jose from "jose";
 
 export interface TokenPayload {
   sub: string;
@@ -625,8 +662,8 @@ export class TokenService {
 
   constructor() {
     // Load from environment
-    this.issuer = process.env.JWT_ISSUER || 'sahool';
-    this.audience = process.env.JWT_AUDIENCE || 'sahool-api';
+    this.issuer = process.env.JWT_ISSUER || "sahool";
+    this.audience = process.env.JWT_AUDIENCE || "sahool-api";
   }
 
   async verifyToken(token: string): Promise<TokenPayload> {
@@ -638,13 +675,14 @@ export class TokenService {
     return payload as unknown as TokenPayload;
   }
 
-  async generateToken(user: any, expiresIn: string = '1h'): Promise<string> {
+  async generateToken(user: any, expiresIn: string = "1h"): Promise<string> {
     // Implementation
   }
 }
 ```
 
 **المهام:**
+
 - [ ] إنشاء @sahool/auth package
 - [ ] Migrate جميع الخدمات لاستخدام الـ library
 - [ ] إزالة الـ duplicate auth code
@@ -658,6 +696,7 @@ export class TokenService {
 ---
 
 ### 1.3 Offline Conflict Resolution
+
 **المشكلة:** لا توجد قواعد واضحة لحل التعارضات
 **الأثر:** Data loss أو silent overwrites
 
@@ -769,6 +808,7 @@ class ConflictResolver {
 ```
 
 **المهام:**
+
 - [ ] تعريف conflict rules لكل entity
 - [ ] تنفيذ ConflictResolver
 - [ ] إضافة UI للـ manual resolution
@@ -782,9 +822,11 @@ class ConflictResolver {
 ---
 
 ## Phase 2: Prevention (الأسابيع 5-8)
+
 ### 🛡️ الوقاية والمراقبة
 
 ### 2.1 Pre-commit Hooks
+
 **المشكلة:** Issues تُكتشف في CI بعد ساعات
 **الأثر:** Developer time wasted + delayed feedback
 
@@ -823,23 +865,25 @@ echo "✅ All pre-commit checks passed!"
 ```javascript
 // File: scripts/validate-manifest.js
 
-const yaml = require('js-yaml');
-const fs = require('fs');
-const path = require('path');
+const yaml = require("js-yaml");
+const fs = require("fs");
+const path = require("path");
 
-const MANIFEST_PATH = '.platform-manifest.yml';
+const MANIFEST_PATH = ".platform-manifest.yml";
 
 function validateManifest() {
-  console.log('Validating platform manifest...');
+  console.log("Validating platform manifest...");
 
-  const manifest = yaml.load(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+  const manifest = yaml.load(fs.readFileSync(MANIFEST_PATH, "utf8"));
   const errors = [];
 
   // Check Node version
   const requiredNode = manifest.runtimes.node.version;
   const currentNode = process.version.slice(1);
   if (currentNode !== requiredNode) {
-    errors.push(`Node version mismatch: required ${requiredNode}, found ${currentNode}`);
+    errors.push(
+      `Node version mismatch: required ${requiredNode}, found ${currentNode}`,
+    );
   }
 
   // Check service ports are unique
@@ -854,27 +898,29 @@ function validateManifest() {
   // Check dependencies exist
   for (const [name, service] of Object.entries(manifest.services)) {
     for (const dep of service.dependencies || []) {
-      const libExists = manifest.shared_libs.typescript.some(l => l.name === dep) ||
-                       manifest.shared_libs.python.some(l => l.name === dep);
-      if (!libExists && !dep.startsWith('@sahool/')) {
+      const libExists =
+        manifest.shared_libs.typescript.some((l) => l.name === dep) ||
+        manifest.shared_libs.python.some((l) => l.name === dep);
+      if (!libExists && !dep.startsWith("@sahool/")) {
         errors.push(`Unknown dependency ${dep} in service ${name}`);
       }
     }
   }
 
   if (errors.length > 0) {
-    console.error('❌ Manifest validation failed:');
-    errors.forEach(e => console.error(`  - ${e}`));
+    console.error("❌ Manifest validation failed:");
+    errors.forEach((e) => console.error(`  - ${e}`));
     process.exit(1);
   }
 
-  console.log('✅ Manifest is valid');
+  console.log("✅ Manifest is valid");
 }
 
 validateManifest();
 ```
 
 **المهام:**
+
 - [ ] إعداد Husky
 - [ ] كتابة validation scripts
 - [ ] تكوين lint-staged
@@ -888,6 +934,7 @@ validateManifest();
 ---
 
 ### 2.2 Health Monitoring Dashboard
+
 **المشكلة:** لا رؤية موحدة لصحة النظام
 **الأثر:** Issues discovered by users, not monitoring
 
@@ -1006,6 +1053,7 @@ alerts:
 ```
 
 **المهام:**
+
 - [ ] نشر Prometheus + Grafana
 - [ ] تكوين service metrics
 - [ ] إنشاء dashboard
@@ -1019,6 +1067,7 @@ alerts:
 ---
 
 ### 2.3 Architecture Decision Records (ADRs)
+
 **المشكلة:** قرارات معمارية غير موثقة
 **الأثر:** Repeated debates + inconsistent decisions
 
@@ -1028,16 +1077,21 @@ alerts:
 # ADR-0001: Field-First Architecture Pattern
 
 ## Status
+
 Accepted
 
 ## Context
+
 SAHOOL is designed to serve farmers in rural Yemen where:
+
 - Internet connectivity is unreliable
 - Field workers need real-time decisions
 - Analysis services produce complex outputs
 
 ## Decision
+
 We adopt Field-First Architecture where:
+
 1. Every analysis service MUST produce an ActionTemplate
 2. All data must be available offline within 24h TTL
 3. Notifications use NATS event spine
@@ -1046,27 +1100,33 @@ We adopt Field-First Architecture where:
 ## Consequences
 
 ### Positive
+
 - Mobile app works offline
 - Field workers get actionable guidance
 - Clear data provenance
 
 ### Negative
+
 - More complex service contracts
 - Higher storage requirements on device
 - Sync complexity increases
 
 ## Compliance
+
 All new services MUST:
+
 - Implement ActionTemplate endpoints
 - Publish to NATS on analysis completion
 - Include Badge in responses
 
 ## Related
+
 - ADR-0002: Offline-First Mobile Architecture
 - ADR-0003: NATS Event Spine Pattern
 ```
 
 **المهام:**
+
 - [ ] إنشاء ADR template
 - [ ] توثيق القرارات الحالية (10 ADRs)
 - [ ] إضافة ADR review process
@@ -1081,51 +1141,56 @@ All new services MUST:
 ## Success Metrics | معايير النجاح
 
 ### Sprint 0 (Week 2)
-| Metric | Target | Verification |
-|--------|--------|--------------|
-| Kong HA | 3 replicas running | `kubectl get pods -l app=kong` |
-| NDVI Cache Hit | >80% | Redis stats |
-| Query Time | <100ms avg | pg_stat_statements |
-| Connection Pool | <50% usage | PGBouncer stats |
+
+| Metric          | Target             | Verification                   |
+| --------------- | ------------------ | ------------------------------ |
+| Kong HA         | 3 replicas running | `kubectl get pods -l app=kong` |
+| NDVI Cache Hit  | >80%               | Redis stats                    |
+| Query Time      | <100ms avg         | pg_stat_statements             |
+| Connection Pool | <50% usage         | PGBouncer stats                |
 
 ### Sprint 1 (Week 4)
-| Metric | Target | Verification |
-|--------|--------|--------------|
-| Manifest Coverage | 100% services | CI check |
-| Auth Lib Adoption | 100% services | Dependency audit |
-| Conflict Rules | All entities | Code review |
-| Zero Downtime Deploy | Success | Canary deploy test |
+
+| Metric               | Target        | Verification       |
+| -------------------- | ------------- | ------------------ |
+| Manifest Coverage    | 100% services | CI check           |
+| Auth Lib Adoption    | 100% services | Dependency audit   |
+| Conflict Rules       | All entities  | Code review        |
+| Zero Downtime Deploy | Success       | Canary deploy test |
 
 ### Sprint 2 (Week 8)
-| Metric | Target | Verification |
-|--------|--------|--------------|
-| Pre-commit Pass Rate | >95% | Git hooks |
-| Alert Response Time | <5 min | PagerDuty SLA |
-| ADR Coverage | 10 documents | Directory count |
-| MTTR | <30 min | Incident reports |
+
+| Metric               | Target       | Verification     |
+| -------------------- | ------------ | ---------------- |
+| Pre-commit Pass Rate | >95%         | Git hooks        |
+| Alert Response Time  | <5 min       | PagerDuty SLA    |
+| ADR Coverage         | 10 documents | Directory count  |
+| MTTR                 | <30 min      | Incident reports |
 
 ---
 
 ## Risk Register | سجل المخاطر
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Feature freeze延長 | Medium | High | Weekly stakeholder sync |
-| Key person dependency | Medium | High | Pair programming + docs |
-| Scope creep | High | Medium | Strict change control |
-| Integration regression | Medium | High | Comprehensive test suite |
-| Team fatigue | Medium | Medium | Celebrate milestones |
+| Risk                   | Probability | Impact | Mitigation               |
+| ---------------------- | ----------- | ------ | ------------------------ |
+| Feature freeze延長     | Medium      | High   | Weekly stakeholder sync  |
+| Key person dependency  | Medium      | High   | Pair programming + docs  |
+| Scope creep            | High        | Medium | Strict change control    |
+| Integration regression | Medium      | High   | Comprehensive test suite |
+| Team fatigue           | Medium      | Medium | Celebrate milestones     |
 
 ---
 
 ## Communication Plan | خطة التواصل
 
 ### Weekly
+
 - **Monday:** Sprint planning + blocker review
 - **Wednesday:** Technical deep-dive
 - **Friday:** Demo + retrospective
 
 ### Stakeholders
+
 - **Engineering:** Daily standups
 - **Product:** Weekly status
 - **Leadership:** Bi-weekly executive summary
@@ -1147,23 +1212,26 @@ If recovery efforts cause instability:
 ## Appendix
 
 ### A. Team Allocation
-| Role | Allocation | Sprint 0 | Sprint 1 | Sprint 2 |
-|------|------------|----------|----------|----------|
-| Backend | 3 FTE | Kong, Cache | Auth lib | Monitoring |
-| DevOps | 2 FTE | PGBouncer | CI/CD | Alerts |
-| Mobile | 2 FTE | - | Sync | Conflict UI |
-| QA | 1 FTE | Testing | Testing | Testing |
+
+| Role    | Allocation | Sprint 0    | Sprint 1 | Sprint 2    |
+| ------- | ---------- | ----------- | -------- | ----------- |
+| Backend | 3 FTE      | Kong, Cache | Auth lib | Monitoring  |
+| DevOps  | 2 FTE      | PGBouncer   | CI/CD    | Alerts      |
+| Mobile  | 2 FTE      | -           | Sync     | Conflict UI |
+| QA      | 1 FTE      | Testing     | Testing  | Testing     |
 
 ### B. Dependencies
+
 - Redis Cluster license (if applicable)
 - PagerDuty account
 - Grafana Cloud (or self-hosted)
 
 ### C. Budget
-| Item | Cost | Justification |
-|------|------|---------------|
-| Redis Enterprise | $X/mo | HA requirement |
-| Monitoring | $Y/mo | Grafana Cloud |
+
+| Item              | Cost  | Justification      |
+| ----------------- | ----- | ------------------ |
+| Redis Enterprise  | $X/mo | HA requirement     |
+| Monitoring        | $Y/mo | Grafana Cloud      |
 | Chaos Engineering | $Z/mo | Gremlin (optional) |
 
 ---

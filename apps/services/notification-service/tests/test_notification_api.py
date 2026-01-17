@@ -15,18 +15,22 @@ from fastapi.testclient import TestClient
 @pytest.fixture
 def mock_db():
     """Mock database connection"""
-    with patch("src.database.init_db", new=AsyncMock()), patch(
-        "src.database.check_db_health",
-        new=AsyncMock(return_value={"status": "healthy", "connected": True}),
-    ), patch(
-        "src.database.get_db_stats",
-        new=AsyncMock(
-            return_value={
-                "total_notifications": 100,
-                "pending_notifications": 10,
-                "total_templates": 5,
-                "total_preferences": 20,
-            }
+    with (
+        patch("src.database.init_db", new=AsyncMock()),
+        patch(
+            "src.database.check_db_health",
+            new=AsyncMock(return_value={"status": "healthy", "connected": True}),
+        ),
+        patch(
+            "src.database.get_db_stats",
+            new=AsyncMock(
+                return_value={
+                    "total_notifications": 100,
+                    "pending_notifications": 10,
+                    "total_templates": 5,
+                    "total_preferences": 20,
+                }
+            ),
         ),
     ):
         yield
@@ -134,7 +138,7 @@ class TestNotificationCreation:
             mock_notif.data = {"type_ar": "تنبيه طقس", "priority_ar": "عالية"}
             mock_create.return_value = mock_notif
 
-            response = app_client.post("/v1/notifications", json=payload)
+            response = app_client.post("/", json=payload)
             assert response.status_code == 200
             data = response.json()
             assert "id" in data
@@ -148,7 +152,7 @@ class TestNotificationCreation:
             # Missing title, body, etc.
         }
 
-        response = app_client.post("/v1/notifications", json=payload)
+        response = app_client.post("/", json=payload)
         assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
@@ -173,7 +177,7 @@ class TestNotificationCreation:
             mock_notif.created_at = datetime.utcnow()
             mock_create.return_value = mock_notif
 
-            response = app_client.post("/v1/alerts/weather", json=payload)
+            response = app_client.post("/weather", json=payload)
             assert response.status_code == 200
             data = response.json()
             assert "id" in data
@@ -199,7 +203,7 @@ class TestNotificationCreation:
             mock_notif.created_at = datetime.utcnow()
             mock_create.return_value = mock_notif
 
-            response = app_client.post("/v1/alerts/pest", json=payload)
+            response = app_client.post("/pest", json=payload)
             assert response.status_code == 200
             data = response.json()
             assert "id" in data
@@ -223,7 +227,7 @@ class TestNotificationCreation:
             mock_notif.created_at = datetime.utcnow()
             mock_create.return_value = mock_notif
 
-            response = app_client.post("/v1/reminders/irrigation", json=payload)
+            response = app_client.post("/irrigation", json=payload)
             assert response.status_code == 200
             data = response.json()
             assert "id" in data
@@ -235,7 +239,7 @@ class TestNotificationRetrieval:
     @pytest.mark.asyncio
     async def test_get_farmer_notifications(self, app_client, mock_notification_repo):
         """Test getting notifications for a farmer"""
-        response = app_client.get("/v1/notifications/farmer/farmer-123")
+        response = app_client.get("//farmer/farmer-123")
         assert response.status_code == 200
         data = response.json()
         assert "notifications" in data
@@ -247,7 +251,7 @@ class TestNotificationRetrieval:
     async def test_get_farmer_notifications_with_filters(self, app_client, mock_notification_repo):
         """Test getting notifications with filters"""
         response = app_client.get(
-            "/v1/notifications/farmer/farmer-123",
+            "//farmer/farmer-123",
             params={"unread_only": True, "type": "weather_alert", "limit": 10},
         )
         assert response.status_code == 200
@@ -257,7 +261,7 @@ class TestNotificationRetrieval:
     @pytest.mark.asyncio
     async def test_get_broadcast_notifications(self, app_client, mock_notification_repo):
         """Test getting broadcast notifications"""
-        response = app_client.get("/v1/notifications/broadcast")
+        response = app_client.get("//broadcast")
         assert response.status_code == 200
         data = response.json()
         assert "notifications" in data
@@ -269,7 +273,7 @@ class TestNotificationRetrieval:
     ):
         """Test getting broadcast notifications with filters"""
         response = app_client.get(
-            "/v1/notifications/broadcast",
+            "//broadcast",
             params={"governorate": "sanaa", "crop": "tomato", "limit": 20},
         )
         assert response.status_code == 200
@@ -285,7 +289,7 @@ class TestNotificationActions:
         """Test marking notification as read"""
         notification_id = str(uuid4())
         response = app_client.patch(
-            f"/v1/notifications/{notification_id}/read", params={"farmer_id": "farmer-123"}
+            f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
         )
         assert response.status_code == 200
         data = response.json()
@@ -296,7 +300,7 @@ class TestNotificationActions:
     async def test_mark_notification_as_read_invalid_id(self, app_client):
         """Test marking notification with invalid ID"""
         response = app_client.patch(
-            "/v1/notifications/invalid-id/read", params={"farmer_id": "farmer-123"}
+            "//invalid-id/read", params={"farmer_id": "farmer-123"}
         )
         assert response.status_code == 400
 
@@ -306,7 +310,7 @@ class TestNotificationActions:
         with patch("src.main.NotificationRepository.get_by_id", new=AsyncMock(return_value=None)):
             notification_id = str(uuid4())
             response = app_client.patch(
-                f"/v1/notifications/{notification_id}/read", params={"farmer_id": "farmer-123"}
+                f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
             )
             assert response.status_code == 404
 
@@ -320,7 +324,7 @@ class TestNotificationActions:
 
             notification_id = str(uuid4())
             response = app_client.patch(
-                f"/v1/notifications/{notification_id}/read", params={"farmer_id": "farmer-123"}
+                f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
             )
             assert response.status_code == 403
 
@@ -342,7 +346,7 @@ class TestFarmerManagement:
             "notification_channels": ["push", "sms"],
         }
 
-        response = app_client.post("/v1/farmers/register", json=payload)
+        response = app_client.post("/register", json=payload)
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
@@ -364,7 +368,7 @@ class TestFarmerManagement:
         }
 
         with patch("src.main.NotificationPreferenceRepository.create_or_update", new=AsyncMock()):
-            response = app_client.put("/v1/farmers/farmer-123/preferences", json=payload)
+            response = app_client.put("/farmer-123/preferences", json=payload)
             assert response.status_code == 200
             data = response.json()
             assert data["success"] is True
@@ -376,20 +380,23 @@ class TestNotificationStats:
     @pytest.mark.asyncio
     async def test_get_notification_stats(self, app_client):
         """Test getting notification statistics"""
-        with patch(
-            "src.main.get_db_stats",
-            new=AsyncMock(
-                return_value={
-                    "total_notifications": 1000,
-                    "pending_notifications": 50,
-                    "total_templates": 10,
-                    "total_preferences": 100,
-                }
+        with (
+            patch(
+                "src.main.get_db_stats",
+                new=AsyncMock(
+                    return_value={
+                        "total_notifications": 1000,
+                        "pending_notifications": 50,
+                        "total_templates": 10,
+                        "total_preferences": 100,
+                    }
+                ),
             ),
-        ), patch("src.models.Notification") as mock_model:
+            patch("src.models.Notification") as mock_model,
+        ):
             mock_model.filter.return_value.count = AsyncMock(return_value=10)
 
-            response = app_client.get("/v1/stats")
+            response = app_client.get("/stats")
             assert response.status_code == 200
             data = response.json()
             assert "total_notifications" in data
@@ -405,7 +412,7 @@ class TestErrorHandling:
         with patch(
             "src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")
         ):
-            response = app_client.get("/v1/notifications/farmer/farmer-123")
+            response = app_client.get("//farmer/farmer-123")
             # Should handle error gracefully, not crash
             assert response.status_code in [200, 500]
 
@@ -421,13 +428,13 @@ class TestErrorHandling:
             "body_ar": "اختبار",
         }
 
-        response = app_client.post("/v1/notifications", json=payload)
+        response = app_client.post("/", json=payload)
         assert response.status_code == 422
 
     @pytest.mark.asyncio
     async def test_empty_payload(self, app_client):
         """Test handling empty payload"""
-        response = app_client.post("/v1/notifications", json={})
+        response = app_client.post("/", json={})
         assert response.status_code == 422
 
     @pytest.mark.asyncio
@@ -443,7 +450,7 @@ class TestErrorHandling:
         }
 
         with patch("src.main.create_notification", return_value=None):
-            response = app_client.post("/v1/notifications", json=payload)
+            response = app_client.post("/", json=payload)
             assert response.status_code == 400
 
 
@@ -460,7 +467,7 @@ class TestAuthenticationIntegration:
     async def test_protected_endpoint_behavior(self, app_client):
         """Test protected endpoint behavior"""
         # Test that endpoints handle optional authentication
-        response = app_client.get("/v1/notifications/farmer/farmer-123")
+        response = app_client.get("//farmer/farmer-123")
         # Should work even without auth (for now)
         assert response.status_code in [200, 401, 403]
 
@@ -472,7 +479,7 @@ class TestPaginationAndFiltering:
     async def test_pagination_parameters(self, app_client, mock_notification_repo):
         """Test pagination with limit and offset"""
         response = app_client.get(
-            "/v1/notifications/farmer/farmer-123", params={"limit": 10, "offset": 20}
+            "//farmer/farmer-123", params={"limit": 10, "offset": 20}
         )
         assert response.status_code == 200
 
@@ -481,13 +488,13 @@ class TestPaginationAndFiltering:
         """Test pagination boundary values"""
         # Test minimum
         response = app_client.get(
-            "/v1/notifications/farmer/farmer-123", params={"limit": 1, "offset": 0}
+            "//farmer/farmer-123", params={"limit": 1, "offset": 0}
         )
         assert response.status_code == 200
 
         # Test maximum
         response = app_client.get(
-            "/v1/notifications/farmer/farmer-123", params={"limit": 100, "offset": 0}
+            "//farmer/farmer-123", params={"limit": 100, "offset": 0}
         )
         assert response.status_code == 200
 
@@ -495,6 +502,6 @@ class TestPaginationAndFiltering:
     async def test_filtering_by_type(self, app_client, mock_notification_repo):
         """Test filtering notifications by type"""
         response = app_client.get(
-            "/v1/notifications/farmer/farmer-123", params={"type": "weather_alert"}
+            "//farmer/farmer-123", params={"type": "weather_alert"}
         )
         assert response.status_code == 200

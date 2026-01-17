@@ -18,9 +18,11 @@
 ---
 
 <a name="overview"></a>
+
 ## 1. نظرة عامة | Overview
 
 ### البنية المعمارية | Architecture
+
 منصة سهول تستخدم **بنية الخدمات الصغرية متعددة اللغات (Polyglot Microservices)** مع **الهندسة الموجهة بالأحداث (Event-Driven Architecture)**.
 
 SAHOOL platform uses **Polyglot Microservices Architecture** with **Event-Driven Architecture (EDA)**.
@@ -53,12 +55,14 @@ SAHOOL platform uses **Polyglot Microservices Architecture** with **Event-Driven
 ---
 
 <a name="communication-patterns"></a>
+
 ## 2. أنماط الاتصال بين الخدمات | Service Communication Patterns
 
 ### 2.1 المتزامن (HTTP/REST عبر Kong) | Synchronous (HTTP/REST via Kong)
 
 **الوصف | Description:**
 جميع طلبات HTTP الخارجية تمر عبر Kong API Gateway الذي يوفر:
+
 - التوجيه (Routing)
 - المصادقة (Authentication)
 - تحديد المعدل (Rate Limiting)
@@ -69,16 +73,16 @@ All external HTTP requests go through Kong API Gateway which provides routing, a
 
 **الخدمات المعرضة عبر Kong | Services Exposed via Kong:**
 
-| الخدمة | Service | المنفذ | Port | المسار | Path | الوصف | Description |
-|--------|---------|--------|------|--------|------|-------|-------------|
-| field-ops | Field Operations | 8080 | `/api/v1/fields` | إدارة الحقول | Field Management |
-| ndvi-engine | NDVI Engine | 8107 | `/api/v1/ndvi` | تحليل NDVI | NDVI Analysis |
-| weather-core | Weather Core | 8108 | `/api/v1/weather` | الطقس | Weather |
-| field-chat | Field Chat | 8099 | `/api/v1/chat` | المحادثات | Chat |
-| iot-gateway | IoT Gateway | 8106 | `/api/v1/iot` | إنترنت الأشياء | IoT |
-| agro-advisor | Agro Advisor | 8105 | `/api/v1/advisor` | المستشار الزراعي | Agro Advisor |
-| billing-core | Billing Core | 8089 | `/v1/billing` | الفوترة | Billing |
-| ai-advisor | AI Advisor | 8112 | `/api/v1/ai` | المستشار الذكي | AI Advisor |
+| الخدمة       | Service          | المنفذ | Port              | المسار           | Path             | الوصف | Description |
+| ------------ | ---------------- | ------ | ----------------- | ---------------- | ---------------- | ----- | ----------- |
+| field-ops    | Field Operations | 8080   | `/api/v1/fields`  | إدارة الحقول     | Field Management |
+| ndvi-engine  | NDVI Engine      | 8107   | `/api/v1/ndvi`    | تحليل NDVI       | NDVI Analysis    |
+| weather-core | Weather Core     | 8108   | `/api/v1/weather` | الطقس            | Weather          |
+| field-chat   | Field Chat       | 8099   | `/api/v1/chat`    | المحادثات        | Chat             |
+| iot-gateway  | IoT Gateway      | 8106   | `/api/v1/iot`     | إنترنت الأشياء   | IoT              |
+| agro-advisor | Agro Advisor     | 8105   | `/api/v1/advisor` | المستشار الزراعي | Agro Advisor     |
+| billing-core | Billing Core     | 8089   | `/v1/billing`     | الفوترة          | Billing          |
+| ai-advisor   | AI Advisor       | 8112   | `/api/v1/ai`      | المستشار الذكي   | AI Advisor       |
 
 **مثال على تدفق الطلب | Request Flow Example:**
 
@@ -104,6 +108,7 @@ Response ← Kong ← Service
 The platform uses NATS JetStream for event-based communication between services.
 
 **فوائد | Benefits:**
+
 - ✅ فك الارتباط بين الخدمات | Service Decoupling
 - ✅ معالجة غير متزامنة | Asynchronous Processing
 - ✅ موثوقية الرسائل | Message Reliability
@@ -132,6 +137,7 @@ The platform uses NATS JetStream for event-based communication between services.
 The ws-gateway service provides WebSocket connections for real-time updates.
 
 **حالات الاستخدام | Use Cases:**
+
 - 📱 إشعارات فورية | Real-time Notifications
 - 💬 رسائل الدردشة | Chat Messages
 - 📊 تحديثات لوحة القيادة المباشرة | Live Dashboard Updates
@@ -174,6 +180,7 @@ Storage + Real-time Consumers
 ```
 
 **أنواع المستشعرات | Sensor Types:**
+
 - 💧 رطوبة التربة | Soil Moisture
 - 🌡️ حرارة التربة | Soil Temperature
 - ⚡ التوصيل الكهربائي للتربة | Soil EC
@@ -185,6 +192,7 @@ Storage + Real-time Consumers
 ---
 
 <a name="data-flow-diagrams"></a>
+
 ## 3. مخططات تدفق البيانات | Data Flow Diagrams
 
 ### 3.1 تدفق طلب المستخدم | User Request Flow
@@ -253,6 +261,7 @@ graph TB
 ```
 
 **الخطوات | Steps:**
+
 1. 🛰️ تحميل صور الأقمار الصناعية | Download Satellite Imagery
 2. 📊 حساب NDVI | Calculate NDVI
 3. 🌤️ جلب بيانات الطقس | Fetch Weather Data
@@ -299,6 +308,7 @@ sequenceDiagram
 ```
 
 **مزودو الدفع | Payment Providers:**
+
 - 💳 Stripe (International)
 - 🇾🇪 Tharwatt (Yemen)
 - 💰 Mobile Money
@@ -354,6 +364,7 @@ graph TB
 ```
 
 **الوكلاء | Agents:**
+
 1. 🎯 **Supervisor** - ينسق بين الوكلاء | Coordinates agents
 2. 🗺️ **Field Analyst** - تحليل الحقول | Field analysis
 3. 🦠 **Disease Expert** - كشف الأمراض | Disease detection
@@ -361,6 +372,7 @@ graph TB
 5. 🌾 **Yield Predictor** - التنبؤ بالإنتاج | Yield prediction
 
 **الأدوات | Tools:**
+
 - Satellite Tool → satellite-service
 - Weather Tool → weather-core
 - Crop Health Tool → crop-health-ai
@@ -368,6 +380,7 @@ graph TB
 - NDVI Tool → ndvi-engine
 
 **RAG (Retrieval-Augmented Generation):**
+
 - 📚 Embeddings: `paraphrase-multilingual-MiniLM-L12-v2`
 - 🔍 Vector DB: Qdrant
 - 💡 LLM: Claude (Anthropic)
@@ -406,6 +419,7 @@ graph LR
 ```
 
 **موضوعات MQTT | MQTT Topics:**
+
 ```
 sahool/sensors/{device_id}/soil_moisture
 sahool/sensors/{device_id}/soil_temperature
@@ -419,6 +433,7 @@ sahool/sensors/{device_id}/water_level
 ---
 
 <a name="event-catalog"></a>
+
 ## 4. كتالوج الأحداث | Event Catalog
 
 ### 4.1 مساحات الأسماء | Namespaces
@@ -437,16 +452,16 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.fields.*`
 
-| الحدث | Event | الناشر | Publisher | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|---------|-----------|-----------|-------------|-------|-------------|
-| `sahool.fields.created` | field-ops | analytics, reports | حقل جديد تم إنشاؤه | New field created |
-| `sahool.fields.updated` | field-ops | cache-invalidator | تحديث بيانات الحقل | Field data updated |
-| `sahool.fields.deleted` | field-ops | cleanup-workers | حذف حقل | Field deleted |
-| `sahool.fields.boundary.updated` | field-ops | ndvi-engine, satellite-service | تحديث حدود الحقل | Field boundary updated |
-| `sahool.fields.season.started` | field-ops | crop-growth-model | بدء موسم جديد | New season started |
-| `sahool.fields.season.closed` | field-ops | yield-prediction, reports | إغلاق موسم | Season closed |
-| `sahool.fields.zone.created` | field-ops | irrigation-smart | منطقة إدارة جديدة | New management zone |
-| `sahool.fields.zone.deleted` | field-ops | irrigation-smart | حذف منطقة | Zone deleted |
+| الحدث                            | Event     | الناشر                         | Publisher          | المشتركون              | Subscribers | الوصف | Description |
+| -------------------------------- | --------- | ------------------------------ | ------------------ | ---------------------- | ----------- | ----- | ----------- |
+| `sahool.fields.created`          | field-ops | analytics, reports             | حقل جديد تم إنشاؤه | New field created      |
+| `sahool.fields.updated`          | field-ops | cache-invalidator              | تحديث بيانات الحقل | Field data updated     |
+| `sahool.fields.deleted`          | field-ops | cleanup-workers                | حذف حقل            | Field deleted          |
+| `sahool.fields.boundary.updated` | field-ops | ndvi-engine, satellite-service | تحديث حدود الحقل   | Field boundary updated |
+| `sahool.fields.season.started`   | field-ops | crop-growth-model              | بدء موسم جديد      | New season started     |
+| `sahool.fields.season.closed`    | field-ops | yield-prediction, reports      | إغلاق موسم         | Season closed          |
+| `sahool.fields.zone.created`     | field-ops | irrigation-smart               | منطقة إدارة جديدة  | New management zone    |
+| `sahool.fields.zone.deleted`     | field-ops | irrigation-smart               | حذف منطقة          | Zone deleted           |
 
 **مثال على حمولة الحدث | Event Payload Example:**
 
@@ -474,11 +489,11 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.ndvi.*`
 
-| الحدث | Event | الناشر | Publisher | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|---------|-----------|-----------|-------------|-------|-------------|
-| `sahool.ndvi.computed` | ndvi-engine | agro-rules, field-ops | حساب NDVI اكتمل | NDVI computation completed |
-| `sahool.ndvi.anomaly` | ndvi-engine | alert-service, agro-rules | اكتشاف شذوذ في NDVI | NDVI anomaly detected |
-| `sahool.ndvi.zone_classified` | ndvi-engine | field-ops | تصنيف مناطق الحقل | Field zones classified |
+| الحدث                         | Event       | الناشر                    | Publisher           | المشتركون                  | Subscribers | الوصف | Description |
+| ----------------------------- | ----------- | ------------------------- | ------------------- | -------------------------- | ----------- | ----- | ----------- |
+| `sahool.ndvi.computed`        | ndvi-engine | agro-rules, field-ops     | حساب NDVI اكتمل     | NDVI computation completed |
+| `sahool.ndvi.anomaly`         | ndvi-engine | alert-service, agro-rules | اكتشاف شذوذ في NDVI | NDVI anomaly detected      |
+| `sahool.ndvi.zone_classified` | ndvi-engine | field-ops                 | تصنيف مناطق الحقل   | Field zones classified     |
 
 **مثال | Example:**
 
@@ -494,9 +509,9 @@ sahool.{domain}.{event_type}
   "analysis_date": "2024-12-24",
   "image_url": "https://cdn.sahool.io/ndvi/field_xyz789_20241224.png",
   "zones": [
-    {"zone_id": "z1", "ndvi_range": [0.7, 0.9], "health": "excellent"},
-    {"zone_id": "z2", "ndvi_range": [0.5, 0.7], "health": "good"},
-    {"zone_id": "z3", "ndvi_range": [0.3, 0.5], "health": "poor"}
+    { "zone_id": "z1", "ndvi_range": [0.7, 0.9], "health": "excellent" },
+    { "zone_id": "z2", "ndvi_range": [0.5, 0.7], "health": "good" },
+    { "zone_id": "z3", "ndvi_range": [0.3, 0.5], "health": "poor" }
   ]
 }
 ```
@@ -507,11 +522,11 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.weather.*`
 
-| الحدث | Event | الناشر | Publisher | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|---------|-----------|-----------|-------------|-------|-------------|
-| `sahool.weather.alert` | weather-core | alert-service, agro-rules | تنبيه طقس | Weather alert |
-| `sahool.weather.forecast_issued` | weather-core | agro-rules, irrigation-smart | توقعات طقس جديدة | New weather forecast |
-| `sahool.weather.irrigation_adjustment` | weather-core | irrigation-smart, agro-rules | تعديل جدول الري | Irrigation schedule adjustment |
+| الحدث                                  | Event        | الناشر                       | Publisher        | المشتركون                      | Subscribers | الوصف | Description |
+| -------------------------------------- | ------------ | ---------------------------- | ---------------- | ------------------------------ | ----------- | ----- | ----------- |
+| `sahool.weather.alert`                 | weather-core | alert-service, agro-rules    | تنبيه طقس        | Weather alert                  |
+| `sahool.weather.forecast_issued`       | weather-core | agro-rules, irrigation-smart | توقعات طقس جديدة | New weather forecast           |
+| `sahool.weather.irrigation_adjustment` | weather-core | irrigation-smart, agro-rules | تعديل جدول الري  | Irrigation schedule adjustment |
 
 **مثال | Example:**
 
@@ -523,14 +538,11 @@ sahool.{domain}.{event_type}
   "alert_type": "heavy_rain",
   "severity": "high",
   "field_id": "field_xyz789",
-  "location": {"lat": 15.3694, "lon": 44.1910},
+  "location": { "lat": 15.3694, "lon": 44.191 },
   "start_time": "2024-12-24T14:00:00Z",
   "end_time": "2024-12-24T20:00:00Z",
   "precipitation_mm": 45,
-  "recommendations": [
-    "Postpone irrigation",
-    "Check drainage systems"
-  ]
+  "recommendations": ["Postpone irrigation", "Check drainage systems"]
 }
 ```
 
@@ -540,25 +552,25 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.iot.*`
 
-| الحدث | Event | الناشر | Publisher | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|---------|-----------|-----------|-------------|-------|-------------|
-| `sahool.iot.sensor_reading` | iot-gateway | agro-rules, analytics | قراءة مستشعر | Sensor reading |
-| `sahool.iot.device_status` | iot-gateway | monitoring | حالة جهاز | Device status |
-| `sahool.iot.device_registered` | iot-gateway | inventory | تسجيل جهاز جديد | New device registered |
-| `sahool.iot.device_alert` | iot-gateway | alert-service | تنبيه جهاز | Device alert |
-| `sahool.iot.batch_reading` | iot-gateway | analytics | قراءات دفعية | Batch readings |
+| الحدث                          | Event       | الناشر                | Publisher       | المشتركون             | Subscribers | الوصف | Description |
+| ------------------------------ | ----------- | --------------------- | --------------- | --------------------- | ----------- | ----- | ----------- |
+| `sahool.iot.sensor_reading`    | iot-gateway | agro-rules, analytics | قراءة مستشعر    | Sensor reading        |
+| `sahool.iot.device_status`     | iot-gateway | monitoring            | حالة جهاز       | Device status         |
+| `sahool.iot.device_registered` | iot-gateway | inventory             | تسجيل جهاز جديد | New device registered |
+| `sahool.iot.device_alert`      | iot-gateway | alert-service         | تنبيه جهاز      | Device alert          |
+| `sahool.iot.batch_reading`     | iot-gateway | analytics             | قراءات دفعية    | Batch readings        |
 
 **أحداث حسب نوع المستشعر | Sensor-specific Events:**
 
-| الحدث | Event | الوصف | Description |
-|-------|-------|-------|-------------|
-| `sahool.iot.sensor.soil_moisture` | قراءة رطوبة التربة | Soil moisture reading |
-| `sahool.iot.sensor.soil_temperature` | قراءة حرارة التربة | Soil temperature reading |
-| `sahool.iot.sensor.soil_ec` | قراءة التوصيل الكهربائي | Soil EC reading |
-| `sahool.iot.sensor.air_temperature` | قراءة حرارة الهواء | Air temperature reading |
-| `sahool.iot.sensor.air_humidity` | قراءة رطوبة الهواء | Air humidity reading |
-| `sahool.iot.sensor.water_flow` | قراءة تدفق المياه | Water flow reading |
-| `sahool.iot.sensor.water_level` | قراءة مستوى المياه | Water level reading |
+| الحدث                                | Event                   | الوصف                    | Description |
+| ------------------------------------ | ----------------------- | ------------------------ | ----------- |
+| `sahool.iot.sensor.soil_moisture`    | قراءة رطوبة التربة      | Soil moisture reading    |
+| `sahool.iot.sensor.soil_temperature` | قراءة حرارة التربة      | Soil temperature reading |
+| `sahool.iot.sensor.soil_ec`          | قراءة التوصيل الكهربائي | Soil EC reading          |
+| `sahool.iot.sensor.air_temperature`  | قراءة حرارة الهواء      | Air temperature reading  |
+| `sahool.iot.sensor.air_humidity`     | قراءة رطوبة الهواء      | Air humidity reading     |
+| `sahool.iot.sensor.water_flow`       | قراءة تدفق المياه       | Water flow reading       |
+| `sahool.iot.sensor.water_level`      | قراءة مستوى المياه      | Water level reading      |
 
 **مثال | Example:**
 
@@ -572,7 +584,7 @@ sahool.{domain}.{event_type}
   "sensor_type": "soil_moisture",
   "value": 35.7,
   "unit": "percentage",
-  "location": {"lat": 15.3694, "lon": 44.1910},
+  "location": { "lat": 15.3694, "lon": 44.191 },
   "battery_level": 87,
   "signal_strength": -65
 }
@@ -584,15 +596,15 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.chat.*`
 
-| الحدث | Event | الناشر | Publisher | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|---------|-----------|-----------|-------------|-------|-------------|
-| `sahool.chat.thread_created` | field-chat | ws-gateway | محادثة جديدة | New chat thread |
-| `sahool.chat.message_sent` | field-chat | ws-gateway, notification-service | رسالة جديدة | New message |
-| `sahool.chat.message_edited` | field-chat | ws-gateway | تعديل رسالة | Message edited |
-| `sahool.chat.message_deleted` | field-chat | ws-gateway | حذف رسالة | Message deleted |
-| `sahool.chat.participant_joined` | field-chat | ws-gateway | مشارك انضم | Participant joined |
-| `sahool.chat.participant_left` | field-chat | ws-gateway | مشارك غادر | Participant left |
-| `sahool.chat.messages_read` | field-chat | ws-gateway | قراءة رسائل | Messages read |
+| الحدث                            | Event      | الناشر                           | Publisher    | المشتركون          | Subscribers | الوصف | Description |
+| -------------------------------- | ---------- | -------------------------------- | ------------ | ------------------ | ----------- | ----- | ----------- |
+| `sahool.chat.thread_created`     | field-chat | ws-gateway                       | محادثة جديدة | New chat thread    |
+| `sahool.chat.message_sent`       | field-chat | ws-gateway, notification-service | رسالة جديدة  | New message        |
+| `sahool.chat.message_edited`     | field-chat | ws-gateway                       | تعديل رسالة  | Message edited     |
+| `sahool.chat.message_deleted`    | field-chat | ws-gateway                       | حذف رسالة    | Message deleted    |
+| `sahool.chat.participant_joined` | field-chat | ws-gateway                       | مشارك انضم   | Participant joined |
+| `sahool.chat.participant_left`   | field-chat | ws-gateway                       | مشارك غادر   | Participant left   |
+| `sahool.chat.messages_read`      | field-chat | ws-gateway                       | قراءة رسائل  | Messages read      |
 
 ---
 
@@ -600,15 +612,16 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.alerts.*`
 
-| الحدث | Event | الناشر | Publisher | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|---------|-----------|-----------|-------------|-------|-------------|
-| `sahool.alerts.created` | alert-service | ws-gateway, notification-service | تنبيه جديد | New alert |
-| `sahool.alerts.updated` | alert-service | ws-gateway | تحديث تنبيه | Alert updated |
-| `sahool.alerts.acknowledged` | alert-service | ws-gateway | إقرار بتنبيه | Alert acknowledged |
-| `sahool.alerts.resolved` | alert-service | ws-gateway, analytics | حل تنبيه | Alert resolved |
-| `sahool.alerts.expired` | alert-service | cleanup-workers | انتهاء صلاحية تنبيه | Alert expired |
+| الحدث                        | Event         | الناشر                           | Publisher           | المشتركون          | Subscribers | الوصف | Description |
+| ---------------------------- | ------------- | -------------------------------- | ------------------- | ------------------ | ----------- | ----- | ----------- |
+| `sahool.alerts.created`      | alert-service | ws-gateway, notification-service | تنبيه جديد          | New alert          |
+| `sahool.alerts.updated`      | alert-service | ws-gateway                       | تحديث تنبيه         | Alert updated      |
+| `sahool.alerts.acknowledged` | alert-service | ws-gateway                       | إقرار بتنبيه        | Alert acknowledged |
+| `sahool.alerts.resolved`     | alert-service | ws-gateway, analytics            | حل تنبيه            | Alert resolved     |
+| `sahool.alerts.expired`      | alert-service | cleanup-workers                  | انتهاء صلاحية تنبيه | Alert expired      |
 
 **أنواع التنبيهات | Alert Types:**
+
 - `ndvi_anomaly` - شذوذ في NDVI
 - `weather_alert` - تنبيه طقس
 - `iot_threshold` - تجاوز حد مستشعر
@@ -625,12 +638,12 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.advisor.*`
 
-| الحدث | Event | الناشر | Publisher | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|---------|-----------|-----------|-------------|-------|-------------|
-| `sahool.advisor.recommendation_issued` | agro-advisor | notification-service, field-ops | توصية جديدة | New recommendation |
-| `sahool.advisor.fertilizer_plan_issued` | agro-advisor | notification-service | خطة تسميد | Fertilizer plan |
-| `sahool.advisor.nutrient_assessment_issued` | agro-advisor | reports | تقييم مغذيات | Nutrient assessment |
-| `sahool.advisor.disease_detected` | agro-advisor | alert-service | اكتشاف مرض | Disease detected |
+| الحدث                                       | Event        | الناشر                          | Publisher    | المشتركون           | Subscribers | الوصف | Description |
+| ------------------------------------------- | ------------ | ------------------------------- | ------------ | ------------------- | ----------- | ----- | ----------- |
+| `sahool.advisor.recommendation_issued`      | agro-advisor | notification-service, field-ops | توصية جديدة  | New recommendation  |
+| `sahool.advisor.fertilizer_plan_issued`     | agro-advisor | notification-service            | خطة تسميد    | Fertilizer plan     |
+| `sahool.advisor.nutrient_assessment_issued` | agro-advisor | reports                         | تقييم مغذيات | Nutrient assessment |
+| `sahool.advisor.disease_detected`           | agro-advisor | alert-service                   | اكتشاف مرض   | Disease detected    |
 
 ---
 
@@ -638,12 +651,12 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.ai-advisor.*`
 
-| الحدث | Event | الوصف | Description |
-|-------|-------|-------|-------------|
-| `sahool.ai-advisor.query_received` | استلام استعلام | Query received |
+| الحدث                               | Event          | الوصف           | Description |
+| ----------------------------------- | -------------- | --------------- | ----------- |
+| `sahool.ai-advisor.query_received`  | استلام استعلام | Query received  |
 | `sahool.ai-advisor.query_completed` | اكتمال استعلام | Query completed |
-| `sahool.ai-advisor.agent_invoked` | تفعيل وكيل | Agent invoked |
-| `sahool.ai-advisor.tool_called` | استدعاء أداة | Tool called |
+| `sahool.ai-advisor.agent_invoked`   | تفعيل وكيل     | Agent invoked   |
+| `sahool.ai-advisor.tool_called`     | استدعاء أداة   | Tool called     |
 
 ---
 
@@ -651,8 +664,8 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.operations.*`
 
-| الحدث | Event | الوصف | Description |
-|-------|-------|-------|-------------|
+| الحدث                         | Event     | الوصف        | Description         |
+| ----------------------------- | --------- | ------------ | ------------------- |
 | `sahool.operations.completed` | field-ops | اكتمال عملية | Operation completed |
 
 ---
@@ -661,15 +674,15 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.billing.*`
 
-| الحدث | Event | الوصف | Description |
-|-------|-------|-------|-------------|
-| `sahool.billing.subscription.created` | إنشاء اشتراك | Subscription created |
-| `sahool.billing.subscription.updated` | تحديث اشتراك | Subscription updated |
+| الحدث                                   | Event        | الوصف                  | Description |
+| --------------------------------------- | ------------ | ---------------------- | ----------- |
+| `sahool.billing.subscription.created`   | إنشاء اشتراك | Subscription created   |
+| `sahool.billing.subscription.updated`   | تحديث اشتراك | Subscription updated   |
 | `sahool.billing.subscription.cancelled` | إلغاء اشتراك | Subscription cancelled |
-| `sahool.billing.payment.succeeded` | دفع ناجح | Payment succeeded |
-| `sahool.billing.payment.failed` | فشل دفع | Payment failed |
-| `sahool.billing.invoice.generated` | توليد فاتورة | Invoice generated |
-| `sahool.billing.quota.exceeded` | تجاوز الحصة | Quota exceeded |
+| `sahool.billing.payment.succeeded`      | دفع ناجح     | Payment succeeded      |
+| `sahool.billing.payment.failed`         | فشل دفع      | Payment failed         |
+| `sahool.billing.invoice.generated`      | توليد فاتورة | Invoice generated      |
+| `sahool.billing.quota.exceeded`         | تجاوز الحصة  | Quota exceeded         |
 
 ---
 
@@ -677,8 +690,8 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.analysis.*`
 
-| الحدث | Event | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|-----------|-------------|-------|-------------|
+| الحدث               | Event                | المشتركون          | Subscribers         | الوصف | Description |
+| ------------------- | -------------------- | ------------------ | ------------------- | ----- | ----------- |
 | `sahool.analysis.*` | notification-service | جميع أحداث التحليل | All analysis events |
 
 ---
@@ -687,13 +700,14 @@ sahool.{domain}.{event_type}
 
 **المساحة | Namespace:** `sahool.actions.*`
 
-| الحدث | Event | المشتركون | Subscribers | الوصف | Description |
-|-------|-------|-----------|-------------|-------|-------------|
+| الحدث              | Event                | المشتركون            | Subscribers       | الوصف | Description |
+| ------------------ | -------------------- | -------------------- | ----------------- | ----- | ----------- |
 | `sahool.actions.*` | notification-service | جميع أحداث الإجراءات | All action events |
 
 ---
 
 <a name="database-overview"></a>
+
 ## 5. نظرة عامة على قاعدة البيانات | Database Schema Overview
 
 ### 5.1 PostgreSQL (PostGIS) - قاعدة البيانات الرئيسية
@@ -701,6 +715,7 @@ sahool.{domain}.{event_type}
 **المحرك | Engine:** PostgreSQL 16 + PostGIS 3.4
 
 **الامتدادات | Extensions:**
+
 - `postgis` - بيانات جغرافية مكانية | Geospatial data
 - `postgis_topology` - طبولوجيا | Topology
 - `uuid-ossp` - UUIDs
@@ -708,94 +723,94 @@ sahool.{domain}.{event_type}
 
 #### 5.1.1 الجداول الأساسية | Core Tables
 
-| الجدول | Table | الوصف | Description | الصفوف المتوقعة | Est. Rows |
-|--------|-------|-------|-------------|------------------|-----------|
-| `tenants` | المستأجرين/المنظمات | Tenants/Organizations | 10K - 100K |
-| `users` | المستخدمين | Users | 50K - 1M |
-| `fields` | الحقول الزراعية (GEOMETRY) | Agricultural fields with geometry | 100K - 1M |
-| `farms` | المزارع | Farms | 50K - 500K |
-| `crops` | أنواع المحاصيل | Crop types | 100 - 500 |
+| الجدول    | Table                      | الوصف                             | Description | الصفوف المتوقعة | Est. Rows |
+| --------- | -------------------------- | --------------------------------- | ----------- | --------------- | --------- |
+| `tenants` | المستأجرين/المنظمات        | Tenants/Organizations             | 10K - 100K  |
+| `users`   | المستخدمين                 | Users                             | 50K - 1M    |
+| `fields`  | الحقول الزراعية (GEOMETRY) | Agricultural fields with geometry | 100K - 1M   |
+| `farms`   | المزارع                    | Farms                             | 50K - 500K  |
+| `crops`   | أنواع المحاصيل             | Crop types                        | 100 - 500   |
 
 #### 5.1.2 جداول NDVI والأقمار الصناعية | NDVI & Satellite Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `ndvi_observations` | مشاهدات NDVI | NDVI observations |
-| `ndvi_alerts` | تنبيهات NDVI | NDVI alerts |
-| `ndvi_records` | سجلات NDVI | NDVI records |
+| الجدول              | Table                | الوصف                      | Description |
+| ------------------- | -------------------- | -------------------------- | ----------- |
+| `ndvi_observations` | مشاهدات NDVI         | NDVI observations          |
+| `ndvi_alerts`       | تنبيهات NDVI         | NDVI alerts                |
+| `ndvi_records`      | سجلات NDVI           | NDVI records               |
 | `satellite_imagery` | صور الأقمار الصناعية | Satellite imagery metadata |
 
 #### 5.1.3 جداول البحث العلمي | Research Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `experiments` | التجارب | Experiments |
-| `research_protocols` | البروتوكولات | Protocols |
-| `research_plots` | قطع التجارب | Research plots |
-| `treatments` | المعاملات | Treatments |
-| `research_daily_logs` | السجلات اليومية | Daily logs |
-| `lab_samples` | العينات المختبرية | Lab samples |
-| `digital_signatures` | التوقيعات الرقمية | Digital signatures |
+| الجدول                | Table             | الوصف              | Description |
+| --------------------- | ----------------- | ------------------ | ----------- |
+| `experiments`         | التجارب           | Experiments        |
+| `research_protocols`  | البروتوكولات      | Protocols          |
+| `research_plots`      | قطع التجارب       | Research plots     |
+| `treatments`          | المعاملات         | Treatments         |
+| `research_daily_logs` | السجلات اليومية   | Daily logs         |
+| `lab_samples`         | العينات المختبرية | Lab samples        |
+| `digital_signatures`  | التوقيعات الرقمية | Digital signatures |
 
 #### 5.1.4 جداول السوق | Marketplace Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `products` | المنتجات | Products |
-| `orders` | الطلبات | Orders |
-| `order_items` | عناصر الطلب | Order items |
-| `wallets` | المحافظ المالية | Wallets |
+| الجدول         | Table             | الوصف                  | Description |
+| -------------- | ----------------- | ---------------------- | ----------- |
+| `products`     | المنتجات          | Products               |
+| `orders`       | الطلبات           | Orders                 |
+| `order_items`  | عناصر الطلب       | Order items            |
+| `wallets`      | المحافظ المالية   | Wallets                |
 | `transactions` | المعاملات المالية | Financial transactions |
-| `loans` | القروض | Loans |
+| `loans`        | القروض            | Loans                  |
 
 #### 5.1.5 جداول المحادثات | Chat Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `chat_threads` | خيوط المحادثات | Chat threads |
-| `chat_messages` | الرسائل | Messages |
-| `chat_participants` | المشاركون | Participants |
-| `chat_attachments` | المرفقات | Attachments |
+| الجدول              | Table          | الوصف        | Description |
+| ------------------- | -------------- | ------------ | ----------- |
+| `chat_threads`      | خيوط المحادثات | Chat threads |
+| `chat_messages`     | الرسائل        | Messages     |
+| `chat_participants` | المشاركون      | Participants |
+| `chat_attachments`  | المرفقات       | Attachments  |
 
 #### 5.1.6 جداول IoT | IoT Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `iot_devices` | أجهزة IoT | IoT devices |
-| `iot_readings` | قراءات المستشعرات | Sensor readings |
-| `device_locations` | مواقع الأجهزة | Device locations |
+| الجدول             | Table             | الوصف            | Description |
+| ------------------ | ----------------- | ---------------- | ----------- |
+| `iot_devices`      | أجهزة IoT         | IoT devices      |
+| `iot_readings`     | قراءات المستشعرات | Sensor readings  |
+| `device_locations` | مواقع الأجهزة     | Device locations |
 
 #### 5.1.7 جداول الطقس | Weather Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `weather_records` | سجلات الطقس | Weather records |
+| الجدول              | Table        | الوصف             | Description |
+| ------------------- | ------------ | ----------------- | ----------- |
+| `weather_records`   | سجلات الطقس  | Weather records   |
 | `weather_forecasts` | توقعات الطقس | Weather forecasts |
 
 #### 5.1.8 جداول التنبيهات والمهام | Alerts & Tasks Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `tasks` | المهام | Tasks |
-| `alerts` | التنبيهات | Alerts |
+| الجدول             | Table         | الوصف            | Description |
+| ------------------ | ------------- | ---------------- | ----------- |
+| `tasks`            | المهام        | Tasks            |
+| `alerts`           | التنبيهات     | Alerts           |
 | `notification_log` | سجل الإشعارات | Notification log |
 
 #### 5.1.9 جداول الفوترة | Billing Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `subscriptions` | الاشتراكات | Subscriptions |
-| `invoices` | الفواتير | Invoices |
-| `payments` | المدفوعات | Payments |
+| الجدول          | Table           | الوصف          | Description |
+| --------------- | --------------- | -------------- | ----------- |
+| `subscriptions` | الاشتراكات      | Subscriptions  |
+| `invoices`      | الفواتير        | Invoices       |
+| `payments`      | المدفوعات       | Payments       |
 | `usage_records` | سجلات الاستخدام | Usage tracking |
 
 #### 5.1.10 جداول المزامنة والتدقيق | Sync & Audit Tables
 
-| الجدول | Table | الوصف | Description |
-|--------|-------|-------|-------------|
-| `sync_status` | حالة المزامنة | Synchronization status |
-| `audit_logs` | سجلات التدقيق | Audit logs |
-| `outbox_events` | أحداث Outbox Pattern | Outbox pattern events |
+| الجدول          | Table                | الوصف                  | Description |
+| --------------- | -------------------- | ---------------------- | ----------- |
+| `sync_status`   | حالة المزامنة        | Synchronization status |
+| `audit_logs`    | سجلات التدقيق        | Audit logs             |
+| `outbox_events` | أحداث Outbox Pattern | Outbox pattern events  |
 
 ---
 
@@ -804,6 +819,7 @@ sahool.{domain}.{event_type}
 **النسخة | Version:** Redis 7.4
 
 **حالات الاستخدام | Use Cases:**
+
 - 🔐 جلسات المستخدمين | User sessions
 - 💾 تخزين مؤقت للاستعلامات | Query caching
 - 📊 عدادات في الوقت الفعلي | Real-time counters
@@ -829,19 +845,21 @@ ws:connections:{user_id}             # WebSocket connections
 **النسخة | Version:** Qdrant v1.10.1
 
 **حالات الاستخدام | Use Cases:**
+
 - 🤖 RAG (Retrieval-Augmented Generation) للمستشار الذكي
 - 🔍 البحث الدلالي | Semantic search
 - 📚 تخزين المعرفة الزراعية | Agricultural knowledge storage
 
 **المجموعات | Collections:**
 
-| المجموعة | Collection | الوصف | Description | الأبعاد | Dimensions |
-|----------|-----------|-------|-------------|---------|------------|
-| `agricultural_knowledge` | المعرفة الزراعية | Agricultural knowledge base | 384 |
-| `crop_diseases` | أمراض المحاصيل | Crop diseases database | 384 |
-| `best_practices` | أفضل الممارسات | Best practices | 384 |
+| المجموعة                 | Collection       | الوصف                       | Description | الأبعاد | Dimensions |
+| ------------------------ | ---------------- | --------------------------- | ----------- | ------- | ---------- |
+| `agricultural_knowledge` | المعرفة الزراعية | Agricultural knowledge base | 384         |
+| `crop_diseases`          | أمراض المحاصيل   | Crop diseases database      | 384         |
+| `best_practices`         | أفضل الممارسات   | Best practices              | 384         |
 
 **نموذج التضمين | Embedding Model:**
+
 ```
 paraphrase-multilingual-MiniLM-L12-v2
 ```
@@ -859,12 +877,13 @@ Streams:
       - sahool.>
     Storage: file
     Retention: limits
-    MaxAge: 168h  # 7 days
+    MaxAge: 168h # 7 days
     MaxBytes: 10GB
     Replicas: 1
 ```
 
 **المستهلكون | Consumers:**
+
 - `ws-gateway` - يستمع لجميع الأحداث `sahool.>` | Listens to all `sahool.>` events
 - `notification-service` - يستمع لـ `sahool.analysis.*` و `sahool.actions.*`
 - `agro-rules` - يستمع لـ `sahool.ndvi.*`, `sahool.weather.*`
@@ -872,20 +891,22 @@ Streams:
 ---
 
 <a name="integration-points"></a>
+
 ## 6. نقاط التكامل | Integration Points
 
 ### 6.1 واجهات برمجة التطبيقات الخارجية | External APIs
 
 #### 6.1.1 الطقس | Weather
 
-| المزود | Provider | الخدمة | Service | الحالة | Status | الأولوية | Priority |
-|--------|----------|---------|---------|--------|--------|----------|----------|
-| **Open-Meteo** | weather-advanced | ✅ مفعل | Active | الأساسي | Primary |
-| **OpenWeatherMap** | weather-core | ✅ مفعل | Active | الثانوي | Secondary |
-| **Weather API** | weather-advanced | 🔄 متاح | Available | الثالث | Tertiary |
-| **Visual Crossing** | weather-advanced | 🔄 متاح | Available | احتياطي | Fallback |
+| المزود              | Provider         | الخدمة  | Service   | الحالة  | Status    | الأولوية | Priority |
+| ------------------- | ---------------- | ------- | --------- | ------- | --------- | -------- | -------- |
+| **Open-Meteo**      | weather-advanced | ✅ مفعل | Active    | الأساسي | Primary   |
+| **OpenWeatherMap**  | weather-core     | ✅ مفعل | Active    | الثانوي | Secondary |
+| **Weather API**     | weather-advanced | 🔄 متاح | Available | الثالث  | Tertiary  |
+| **Visual Crossing** | weather-advanced | 🔄 متاح | Available | احتياطي | Fallback  |
 
 **سلسلة الفشل | Failover Chain:**
+
 ```
 Open-Meteo (Free) → OpenWeatherMap (API Key) → Weather API → Visual Crossing
 ```
@@ -894,14 +915,15 @@ Open-Meteo (Free) → OpenWeatherMap (API Key) → Weather API → Visual Crossi
 
 #### 6.1.2 الأقمار الصناعية | Satellite
 
-| المزود | Provider | الخدمة | Service | الحالة | Status | الأولوية | Priority |
-|--------|----------|---------|---------|--------|--------|----------|----------|
-| **Sentinel Hub** | satellite-service | 🔄 متاح | Available | الأساسي | Primary |
-| **Planet Labs** | satellite-service | 🔑 يتطلب مفتاح | Requires Key | الثانوي | Secondary |
-| **Landsat** | satellite-service | ✅ مجاني | Free | الثالث | Tertiary |
-| **Copernicus** | satellite-service | ✅ مجاني | Free | احتياطي | Fallback |
+| المزود           | Provider          | الخدمة         | Service      | الحالة  | Status    | الأولوية | Priority |
+| ---------------- | ----------------- | -------------- | ------------ | ------- | --------- | -------- | -------- |
+| **Sentinel Hub** | satellite-service | 🔄 متاح        | Available    | الأساسي | Primary   |
+| **Planet Labs**  | satellite-service | 🔑 يتطلب مفتاح | Requires Key | الثانوي | Secondary |
+| **Landsat**      | satellite-service | ✅ مجاني       | Free         | الثالث  | Tertiary  |
+| **Copernicus**   | satellite-service | ✅ مجاني       | Free         | احتياطي | Fallback  |
 
 **سلسلة الفشل | Failover Chain:**
+
 ```
 Planet Labs (High-res, Paid) → Sentinel Hub → Landsat (Free) → Copernicus
 ```
@@ -910,13 +932,13 @@ Planet Labs (High-res, Paid) → Sentinel Hub → Landsat (Free) → Copernicus
 
 #### 6.1.3 الدفع | Payment
 
-| المزود | Provider | الدولة | Country | الخدمة | Service | الحالة | Status |
-|--------|----------|--------|---------|---------|---------|--------|--------|
-| **Stripe** | 🌍 عالمي | Global | billing-core | ✅ مفعل | Active |
-| **Tharwatt** | 🇾🇪 اليمن | Yemen | billing-core | ✅ مفعل | Active |
-| **Moyasar** | 🇸🇦 السعودية | Saudi Arabia | billing-core | 🔄 متاح | Available |
-| **HyperPay** | 🌍 الشرق الأوسط | Middle East | billing-core | 🔄 متاح | Available |
-| **Tap** | 🇰🇼 الكويت | Kuwait | billing-core | 🔄 متاح | Available |
+| المزود       | Provider        | الدولة       | Country      | الخدمة  | Service   | الحالة | Status |
+| ------------ | --------------- | ------------ | ------------ | ------- | --------- | ------ | ------ |
+| **Stripe**   | 🌍 عالمي        | Global       | billing-core | ✅ مفعل | Active    |
+| **Tharwatt** | 🇾🇪 اليمن        | Yemen        | billing-core | ✅ مفعل | Active    |
+| **Moyasar**  | 🇸🇦 السعودية     | Saudi Arabia | billing-core | 🔄 متاح | Available |
+| **HyperPay** | 🌍 الشرق الأوسط | Middle East  | billing-core | 🔄 متاح | Available |
+| **Tap**      | 🇰🇼 الكويت       | Kuwait       | billing-core | 🔄 متاح | Available |
 
 **تكوين Tharwatt | Tharwatt Configuration:**
 
@@ -928,6 +950,7 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 ```
 
 **نقاط النهاية | Endpoints:**
+
 - `POST /api/v1/payment/deposit` - بدء دفع | Initiate payment
 - `POST /webhook/tharwatt` - Webhook لحالة الدفع | Payment status webhook
 
@@ -935,12 +958,12 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 
 #### 6.1.4 الإشعارات | Notifications
 
-| المزود | Provider | النوع | Type | الخدمة | Service | الحالة | Status |
-|--------|----------|--------|------|---------|---------|--------|--------|
-| **Firebase FCM** | دفع | Push | notification-service | 🔄 متاح | Available |
-| **OneSignal** | دفع | Push | notification-service | 🔄 متاح | Available |
-| **Twilio SMS** | رسائل نصية | SMS | notification-service | 🔄 متاح | Available |
-| **Unifonic** | رسائل نصية | SMS | notification-service | 🔄 متاح | Available |
+| المزود           | Provider   | النوع | Type                 | الخدمة  | Service   | الحالة | Status |
+| ---------------- | ---------- | ----- | -------------------- | ------- | --------- | ------ | ------ |
+| **Firebase FCM** | دفع        | Push  | notification-service | 🔄 متاح | Available |
+| **OneSignal**    | دفع        | Push  | notification-service | 🔄 متاح | Available |
+| **Twilio SMS**   | رسائل نصية | SMS   | notification-service | 🔄 متاح | Available |
+| **Unifonic**     | رسائل نصية | SMS   | notification-service | 🔄 متاح | Available |
 
 ---
 
@@ -949,6 +972,7 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 **الخدمة | Service:** `provider-config` (Port: 8104)
 
 **الأنواع | Types:**
+
 - 🗺️ `map` - مزودو الخرائط | Map providers
 - 🌤️ `weather` - مزودو الطقس | Weather providers
 - 🛰️ `satellite` - مزودو الأقمار الصناعية | Satellite providers
@@ -957,6 +981,7 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 - 📲 `sms` - مزودو الرسائل النصية | SMS providers
 
 **الأولويات | Priorities:**
+
 - `primary` - الأساسي | Primary
 - `secondary` - الثانوي | Secondary
 - `tertiary` - الثالث | Tertiary
@@ -992,6 +1017,7 @@ Failover chains are configured to automatically switch when the primary provider
 **نوع المصادقة | Auth Type:** JWT (JSON Web Tokens)
 
 **الخوارزميات المدعومة | Supported Algorithms:**
+
 - `RS256` (الافتراضي) | (Default)
 - `HS256`
 
@@ -1018,6 +1044,7 @@ sequenceDiagram
 ```
 
 **رؤوس HTTP | HTTP Headers:**
+
 ```
 Authorization: Bearer {jwt_token}
 X-Tenant-Id: {tenant_id}
@@ -1033,6 +1060,7 @@ X-User-Id: {user_id}
 **النظام | System:** Prometheus + Grafana
 
 **المقاييس المجمعة | Collected Metrics:**
+
 - HTTP request duration
 - Request count by endpoint
 - Error rate
@@ -1043,6 +1071,7 @@ X-User-Id: {user_id}
 - IoT sensor readings count
 
 **نقاط النهاية | Endpoints:**
+
 - Prometheus: `http://localhost:9090`
 - Grafana: `http://localhost:3002`
 
@@ -1051,6 +1080,7 @@ X-User-Id: {user_id}
 **التنسيق | Format:** JSON structured logs
 
 **مستويات السجلات | Log Levels:**
+
 - `DEBUG` - تطوير | Development
 - `INFO` - إنتاج | Production (default)
 - `WARNING` - تحذيرات | Warnings
@@ -1058,6 +1088,7 @@ X-User-Id: {user_id}
 - `CRITICAL` - حرجة | Critical
 
 **مثال | Example:**
+
 ```json
 {
   "timestamp": "2024-12-24T10:30:00Z",
@@ -1078,31 +1109,37 @@ X-User-Id: {user_id}
 ### المميزات الرئيسية | Key Features
 
 ✅ **بنية موزعة قابلة للتوسع | Scalable Distributed Architecture**
+
 - 35+ خدمة صغرية | 35+ microservices
 - دعم متعدد اللغات (Python, Node.js, TypeScript) | Polyglot support
 
 ✅ **اتصالات متنوعة | Multiple Communication Patterns**
+
 - متزامن (HTTP/REST) | Synchronous (HTTP/REST)
 - لامتزامن (NATS) | Asynchronous (NATS)
 - وقت فعلي (WebSocket) | Real-time (WebSocket)
 - IoT (MQTT) | IoT (MQTT)
 
 ✅ **هندسة موجهة بالأحداث | Event-Driven Architecture**
+
 - 100+ نوع حدث | 100+ event types
 - مساحة أسماء موحدة `sahool.*` | Unified `sahool.*` namespace
 - دفق موثوق للأحداث | Reliable event streaming
 
 ✅ **تكاملات خارجية | External Integrations**
+
 - سلاسل فشل تلقائية | Automatic failover chains
 - مزودون متعددون للطقس والأقمار الصناعية | Multiple weather/satellite providers
 - بوابات دفع متعددة | Multiple payment gateways
 
 ✅ **مستشار ذكي متعدد الوكلاء | Multi-Agent AI Advisor**
+
 - 5 وكلاء متخصصين | 5 specialized agents
 - RAG مع Qdrant | RAG with Qdrant
 - دعم Claude (Anthropic) | Claude (Anthropic) support
 
 ✅ **رصد ومراقبة شاملة | Comprehensive Observability**
+
 - Prometheus metrics
 - Grafana dashboards
 - Structured JSON logs

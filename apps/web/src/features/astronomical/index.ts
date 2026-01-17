@@ -17,7 +17,7 @@ export {
   useProverbs,
   useProverbOfTheDay,
   useWisdomToday,
-} from './hooks/useAstronomical';
+} from "./hooks/useAstronomical";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // تصدير الأنواع - Export Types
@@ -39,7 +39,7 @@ export type {
   ProverbOfTheDay,
   AllProverbs,
   DailyWisdom,
-} from './types';
+} from "./types";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // تصدير دوال واجهة برمجة التطبيقات - Export API Functions
@@ -57,4 +57,4 @@ export {
   getProverbs,
   getProverbOfTheDay,
   getWisdomToday,
-} from './api';
+} from "./api";

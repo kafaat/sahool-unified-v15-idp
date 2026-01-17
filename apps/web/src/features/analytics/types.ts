@@ -4,16 +4,22 @@
  */
 
 // Time period for analytics
-export type AnalyticsPeriod = 'week' | 'month' | 'season' | 'year' | 'custom';
+export type AnalyticsPeriod = "week" | "month" | "season" | "year" | "custom";
 
 // Metric types
-export type MetricType = 'yield' | 'cost' | 'revenue' | 'profit' | 'water_usage' | 'fertilizer_usage';
+export type MetricType =
+  | "yield"
+  | "cost"
+  | "revenue"
+  | "profit"
+  | "water_usage"
+  | "fertilizer_usage";
 
 // Chart types
-export type ChartType = 'line' | 'bar' | 'pie' | 'area';
+export type ChartType = "line" | "bar" | "pie" | "area";
 
 // Comparison types
-export type ComparisonType = 'fields' | 'seasons' | 'crops';
+export type ComparisonType = "fields" | "seasons" | "crops";
 
 // Analytics data point
 export interface DataPoint {
@@ -90,8 +96,8 @@ export interface KPIMetric {
   unit: string;
   unitAr: string;
   change: number; // percentage change
-  trend: 'up' | 'down' | 'stable';
-  status: 'good' | 'warning' | 'critical';
+  trend: "up" | "down" | "stable";
+  status: "good" | "warning" | "critical";
   icon: string;
   description?: string;
   descriptionAr?: string;
@@ -128,17 +134,17 @@ export interface ReportConfig {
   sections: ReportSection[];
   includeCharts: boolean;
   includeTables: boolean;
-  format: 'pdf' | 'excel' | 'csv';
-  language: 'en' | 'ar' | 'both';
+  format: "pdf" | "excel" | "csv";
+  language: "en" | "ar" | "both";
 }
 
 export type ReportSectionType =
-  | 'summary'
-  | 'yield_analysis'
-  | 'cost_analysis'
-  | 'revenue_analysis'
-  | 'comparison'
-  | 'recommendations';
+  | "summary"
+  | "yield_analysis"
+  | "cost_analysis"
+  | "revenue_analysis"
+  | "comparison"
+  | "recommendations";
 
 export interface ReportSection {
   type: ReportSectionType;

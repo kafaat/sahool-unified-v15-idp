@@ -19,6 +19,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 **Root Cause**: The gitleaks-action@v2 requires a configuration file to properly filter false positives and provide consistent scanning results.
 
 **Solution Implemented**:
+
 - Created comprehensive `.gitleaks.toml` configuration file with:
   - 30+ security detection rules (AWS keys, GitHub tokens, API keys, etc.)
   - Allowlist for false positives (test files, examples, documentation)
@@ -27,10 +28,12 @@ This document summarizes the comprehensive analysis and resolution of root issue
   - Stop words to prevent flagging placeholder values
 
 **Files Modified**:
+
 - ✅ Created: `.gitleaks.toml`
 - ✅ Modified: `.github/workflows/container-tests.yml` (added config reference and fallback)
 
 **Validation**:
+
 ```bash
 ✅ Gitleaks v8.21.2 tested successfully
 ✅ Configuration validated with multiple test scans
@@ -44,23 +47,26 @@ This document summarizes the comprehensive analysis and resolution of root issue
 **Problem**: The Container Testing & Security workflow was failing to generate artifacts properly, causing job failures and missing test reports.
 
 **Root Causes**:
+
 1. Gitleaks-action@v2 doesn't automatically generate `gitleaks-report.json`
 2. Hadolint SARIF output could fail silently
 3. Missing error handling for artifact generation failures
 
 **Solution Implemented**:
+
 - Added fallback mechanisms for missing artifacts
 - Implemented `continue-on-error: true` for resilience
 - Added steps to generate minimal reports when tools don't produce output
 - Added `if-no-files-found: warn` to artifact upload actions
 
 **Changes Made**:
+
 ```yaml
 # Before
 - name: Run Gitleaks
   uses: gitleaks/gitleaks-action@v2
 
-# After  
+# After
 - name: Run Gitleaks
   uses: gitleaks/gitleaks-action@v2
   continue-on-error: true
@@ -77,11 +83,13 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ```
 
 **Files Modified**:
+
 - ✅ Modified: `.github/workflows/container-tests.yml`
   - Lines 85-110: Enhanced Gitleaks job with fallbacks
   - Lines 36-70: Enhanced Hadolint job with SARIF generation fallback
 
 **Validation**:
+
 ```bash
 ✅ Workflow YAML syntax validated with yamllint
 ✅ All artifact upload steps now have proper error handling
@@ -97,6 +105,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 **Root Cause**: Default hadolint rules are too strict for this multi-service architecture with various Dockerfile patterns.
 
 **Solution Implemented**:
+
 - Created `.hadolint.yaml` configuration file with:
   - Ignored rules for package version pinning (DL3008, DL3013, DL3018)
   - Trusted registry allowlist
@@ -104,10 +113,12 @@ This document summarizes the comprehensive analysis and resolution of root issue
   - Shell script check exclusions for false positives
 
 **Files Modified**:
+
 - ✅ Created: `.hadolint.yaml`
 - ✅ Modified: `.github/workflows/container-tests.yml` (added config reference)
 
 **Validation**:
+
 ```bash
 ✅ Hadolint v2.12.0 installed and tested
 ✅ All service Dockerfiles pass linting:
@@ -126,13 +137,15 @@ This document summarizes the comprehensive analysis and resolution of root issue
 
 **Problem Statement**: Potential dependency resolution issues in the research-core service.
 
-**Analysis Findings**: 
+**Analysis Findings**:
+
 - ✅ No actual dependency issues found
 - ✅ All dependencies install successfully
 - ✅ Prisma client generation works correctly
 - ✅ Service builds without errors
 
 **Validation**:
+
 ```bash
 ✅ npm install completed successfully for research-core
 ✅ Prisma client generated successfully
@@ -141,6 +154,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ```
 
 **Files Checked**:
+
 - `apps/services/research-core/package.json` - All dependencies valid
 - `apps/services/research-core/prisma/schema.prisma` - Schema valid
 - Workspace configuration in root `package.json` - Correctly configured
@@ -154,6 +168,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 **Analysis and Resolution**:
 
 #### Web App (`apps/web`)
+
 ```bash
 ✅ Type checking: PASSED
 ✅ Linting: PASSED (with acceptable warnings)
@@ -164,9 +179,10 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ```
 
 #### Admin App (`apps/admin`)
+
 ```bash
 ✅ Type checking: PASSED
-✅ Linting: PASSED (with acceptable warnings)  
+✅ Linting: PASSED (with acceptable warnings)
 ✅ Production build: PASSED
    - Bundle size: 102 kB shared JS
    - 28 routes generated successfully
@@ -174,6 +190,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ```
 
 #### Mobile App (Flutter)
+
 ```bash
 ✅ Directory structure verified
 ✅ pubspec.yaml exists and valid
@@ -182,6 +199,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ```
 
 **Files Validated**:
+
 - ✅ `.github/workflows/frontend-tests.yml` - Syntax valid
 - ✅ `apps/web/package.json` - All required scripts present
 - ✅ `apps/admin/package.json` - All required scripts present
@@ -193,37 +211,42 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ## 📊 Test Results Summary
 
 ### Build Tests
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Web App | ✅ PASS | Next.js 15.5.9, 20 routes, 121 kB first load |
-| Admin App | ✅ PASS | Next.js 15.5.9, 28 routes, 103 kB first load |
-| Research Core | ✅ PASS | NestJS build successful, Prisma generated |
-| Root Dependencies | ✅ PASS | 2252 packages, 0 vulnerabilities |
+
+| Component         | Status  | Notes                                        |
+| ----------------- | ------- | -------------------------------------------- |
+| Web App           | ✅ PASS | Next.js 15.5.9, 20 routes, 121 kB first load |
+| Admin App         | ✅ PASS | Next.js 15.5.9, 28 routes, 103 kB first load |
+| Research Core     | ✅ PASS | NestJS build successful, Prisma generated    |
+| Root Dependencies | ✅ PASS | 2252 packages, 0 vulnerabilities             |
 
 ### Linting Tests
-| Tool | Status | Files Checked | Issues |
-|------|--------|---------------|--------|
-| ESLint (Web) | ✅ PASS | TypeScript/React files | Warnings only |
-| ESLint (Admin) | ✅ PASS | TypeScript/React files | Warnings only |
-| Hadolint | ✅ PASS | 6+ Dockerfiles | Info level only |
-| YAML Lint | ✅ PASS | Workflow files | Line length only |
+
+| Tool           | Status  | Files Checked          | Issues           |
+| -------------- | ------- | ---------------------- | ---------------- |
+| ESLint (Web)   | ✅ PASS | TypeScript/React files | Warnings only    |
+| ESLint (Admin) | ✅ PASS | TypeScript/React files | Warnings only    |
+| Hadolint       | ✅ PASS | 6+ Dockerfiles         | Info level only  |
+| YAML Lint      | ✅ PASS | Workflow files         | Line length only |
 
 ### Security Tests
-| Tool | Status | Configuration | Coverage |
-|------|--------|---------------|----------|
+
+| Tool     | Status        | Configuration  | Coverage                     |
+| -------- | ------------- | -------------- | ---------------------------- |
 | Gitleaks | ✅ CONFIGURED | .gitleaks.toml | 30+ rules, entropy detection |
-| Hadolint | ✅ CONFIGURED | .hadolint.yaml | Dockerfile best practices |
+| Hadolint | ✅ CONFIGURED | .hadolint.yaml | Dockerfile best practices    |
 
 ---
 
 ## 📁 Files Created/Modified
 
 ### New Files Created
+
 1. ✅ `.gitleaks.toml` (6,189 bytes) - Comprehensive secrets detection configuration
 2. ✅ `.hadolint.yaml` (1,500 bytes) - Dockerfile linting configuration
 3. ✅ `RESOLUTION_SUMMARY.md` (This file) - Complete resolution documentation
 
 ### Modified Files
+
 1. ✅ `.github/workflows/container-tests.yml`
    - Added Gitleaks config reference and fallback report generation
    - Added Hadolint config reference and SARIF fallback
@@ -235,6 +258,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ## 🔧 Technical Configuration Details
 
 ### Gitleaks Configuration Highlights
+
 ```toml
 # Key Features:
 - 30+ detection rules for common secrets
@@ -245,6 +269,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ```
 
 ### Hadolint Configuration Highlights
+
 ```yaml
 # Key Features:
 - Ignored rules: DL3008, DL3013, DL3018
@@ -274,14 +299,16 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ## 🚀 Deployment Readiness
 
 ### CI/CD Pipeline Status
-| Workflow | Status | Notes |
-|----------|--------|-------|
-| Container Tests | ✅ READY | Enhanced with fallbacks and error handling |
-| Frontend Tests | ✅ READY | All apps build successfully |
-| Security Scanning | ✅ READY | Gitleaks configured properly |
-| Dockerfile Linting | ✅ READY | Hadolint configured with reasonable rules |
+
+| Workflow           | Status   | Notes                                      |
+| ------------------ | -------- | ------------------------------------------ |
+| Container Tests    | ✅ READY | Enhanced with fallbacks and error handling |
+| Frontend Tests     | ✅ READY | All apps build successfully                |
+| Security Scanning  | ✅ READY | Gitleaks configured properly               |
+| Dockerfile Linting | ✅ READY | Hadolint configured with reasonable rules  |
 
 ### Pre-deployment Checklist
+
 - [x] All critical workflows fixed
 - [x] Configuration files created
 - [x] Build tests passing
@@ -294,22 +321,26 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ## 📝 Recommendations for Future
 
 ### 1. Monitoring
+
 - Set up alerts for workflow failures
 - Monitor artifact upload success rates
 - Track Gitleaks findings over time
 
 ### 2. Maintenance
+
 - Review Gitleaks allowlist quarterly
 - Update Hadolint rules as Dockerfile patterns evolve
 - Keep GitHub Actions up to date
 
 ### 3. Enhancement Opportunities
+
 - Add automated Lighthouse CI for frontend performance
 - Implement automated security scanning in pre-commit hooks
 - Add bundle size monitoring and alerting
 - Consider adding Snyk or Dependabot for dependency scanning
 
 ### 4. Known Limitations
+
 - Docker build tests may fail in environments with limited internet connectivity
 - Some Dockerfiles use dynamic package installation which can't be fully version-pinned
 - Lint warnings exist but are acceptable per project standards
@@ -336,6 +367,7 @@ This document summarizes the comprehensive analysis and resolution of root issue
 ## 📞 Support
 
 For issues or questions related to these changes:
+
 1. Check workflow logs in GitHub Actions
 2. Review this resolution summary
 3. Consult `.gitleaks.toml` and `.hadolint.yaml` for configuration details

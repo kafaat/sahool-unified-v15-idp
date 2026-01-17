@@ -1,23 +1,23 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import dynamic from 'next/dynamic'
-import { TaskList } from '@/components/TaskList'
-import { EventTimeline } from '@/components/EventTimeline'
-import { StatsCards } from '@/components/StatsCards'
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import { TaskList } from "@/components/TaskList";
+import { EventTimeline } from "@/components/EventTimeline";
+import { StatsCards } from "@/components/StatsCards";
 
 // Dynamic import for MapView (client-side only)
-const MapView = dynamic(() => import('@/components/MapView'), {
+const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full bg-gray-100 flex items-center justify-center">
       <span className="text-gray-500">جاري تحميل الخريطة...</span>
     </div>
   ),
-})
+});
 
 export default function DashboardPage() {
-  const [selectedField, setSelectedField] = useState<string | null>(null)
+  const [selectedField, setSelectedField] = useState<string | null>(null);
 
   return (
     <div className="h-full flex flex-col">
@@ -26,11 +26,11 @@ export default function DashboardPage() {
         <div>
           <h2 className="text-xl font-bold text-gray-800">لوحة التحكم</h2>
           <p className="text-sm text-gray-500">
-            {new Date().toLocaleDateString('ar-YE', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+            {new Date().toLocaleDateString("ar-YE", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         </div>
@@ -104,5 +104,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

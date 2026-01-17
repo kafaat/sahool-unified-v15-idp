@@ -6,7 +6,7 @@
  * to avoid external package dependencies in Docker builds.
  */
 
-import { Logger } from '@nestjs/common';
+import { Logger } from "@nestjs/common";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -48,7 +48,7 @@ export const SLOW_QUERY_THRESHOLD = 1000; // 1 second
 export const FINANCIAL_TRANSACTION_CONFIG = {
   maxWait: 10000, // 10 seconds max wait for transaction slot
   timeout: 30000, // 30 seconds transaction timeout
-  isolationLevel: 'Serializable' as const,
+  isolationLevel: "Serializable" as const,
 };
 
 /**
@@ -58,7 +58,7 @@ export const FINANCIAL_TRANSACTION_CONFIG = {
 export const GENERAL_TRANSACTION_CONFIG = {
   maxWait: 5000, // 5 seconds max wait
   timeout: 15000, // 15 seconds timeout
-  isolationLevel: 'ReadCommitted' as const,
+  isolationLevel: "ReadCommitted" as const,
 };
 
 /**
@@ -68,7 +68,7 @@ export const GENERAL_TRANSACTION_CONFIG = {
 export const READ_TRANSACTION_CONFIG = {
   maxWait: 2000, // 2 seconds max wait
   timeout: 5000, // 5 seconds timeout
-  isolationLevel: 'ReadCommitted' as const,
+  isolationLevel: "ReadCommitted" as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -163,14 +163,16 @@ export async function measureQueryTime<T>(
     const duration = Date.now() - start;
 
     if (logger && duration > SLOW_QUERY_THRESHOLD) {
-      logger.warn(`Slow query ${queryName || 'unknown'}: ${duration}ms`);
+      logger.warn(`Slow query ${queryName || "unknown"}: ${duration}ms`);
     }
 
     return result;
   } catch (error) {
     const duration = Date.now() - start;
     if (logger) {
-      logger.error(`Query ${queryName || 'unknown'} failed after ${duration}ms`);
+      logger.error(
+        `Query ${queryName || "unknown"} failed after ${duration}ms`,
+      );
     }
     throw error;
   }

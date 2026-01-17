@@ -1,4 +1,5 @@
 # Sentinel-1 SAR Integration for Soil Moisture Estimation
+
 # تكامل SAR سنتينل-1 لتقدير رطوبة التربة
 
 ## Overview
@@ -24,11 +25,13 @@ SM = A + B × log₁₀(VV/VH) + C × θ
 ```
 
 **Calibration Parameters:**
+
 - **A = 15.0**: Baseline moisture (%)
 - **B = 8.5**: Sensitivity to backscatter ratio
 - **C = -0.3**: Incidence angle correction
 
 **Soil Properties (Yemen agricultural soils):**
+
 - Porosity: 0.45 (sandy-loam)
 - Field Capacity: 0.35 m³/m³
 - Wilting Point: 0.15 m³/m³
@@ -53,17 +56,20 @@ SM = A + B × log₁₀(VV/VH) + C × θ
 **Endpoint**: `GET /v1/soil-moisture/{field_id}`
 
 **Parameters**:
+
 - `field_id` (path): Field identifier
 - `lat` (query): Field latitude (-90 to 90)
 - `lon` (query): Field longitude (-180 to 180)
 - `date` (query, optional): Target date (YYYY-MM-DD), defaults to today
 
 **Example Request**:
+
 ```bash
 curl "http://localhost:8090/v1/soil-moisture/field_001?lat=15.3694&lon=44.1910"
 ```
 
 **Example Response**:
+
 ```json
 {
   "field_id": "field_001",
@@ -91,15 +97,18 @@ curl "http://localhost:8090/v1/soil-moisture/field_001?lat=15.3694&lon=44.1910"
 **Endpoint**: `GET /v1/irrigation-events/{field_id}`
 
 **Parameters**:
+
 - `field_id` (path): Field identifier
 - `days` (query): Days to look back (7-90, default: 30)
 
 **Example Request**:
+
 ```bash
 curl "http://localhost:8090/v1/irrigation-events/field_001?days=30"
 ```
 
 **Example Response**:
+
 ```json
 {
   "field_id": "field_001",
@@ -141,6 +150,7 @@ curl "http://localhost:8090/v1/irrigation-events/field_001?days=30"
 **Endpoint**: `GET /v1/sar-timeseries/{field_id}`
 
 **Parameters**:
+
 - `field_id` (path): Field identifier
 - `start_date` (query): Start date (YYYY-MM-DD)
 - `end_date` (query): End date (YYYY-MM-DD)
@@ -148,11 +158,13 @@ curl "http://localhost:8090/v1/irrigation-events/field_001?days=30"
 - `lon` (query, optional): Field longitude
 
 **Example Request**:
+
 ```bash
 curl "http://localhost:8090/v1/sar-timeseries/field_001?start_date=2025-11-01&end_date=2025-12-25&lat=15.3694&lon=44.1910"
 ```
 
 **Example Response**:
+
 ```json
 {
   "field_id": "field_001",
@@ -187,12 +199,12 @@ curl "http://localhost:8090/v1/sar-timeseries/field_001?start_date=2025-11-01&en
 
 The system provides automated interpretation of soil moisture levels:
 
-| Range (% of field capacity) | Status | Status (Arabic) | Action |
-|------------------------------|--------|-----------------|--------|
-| < Wilting Point (0.15) | Critical - Wilting Point | حرج - نقطة الذبول | Urgent irrigation required |
-| 0.15 - 0.26 | Low - Water Stress | منخفض - إجهاد مائي | Irrigation needed soon |
-| 0.26 - 0.35 | Optimal - Good for Growth | مثالي - جيد للنمو | Continue current schedule |
-| > 0.35 | High - Near Saturation | مرتفع - قرب التشبع | Avoid over-irrigation |
+| Range (% of field capacity) | Status                    | Status (Arabic)    | Action                     |
+| --------------------------- | ------------------------- | ------------------ | -------------------------- |
+| < Wilting Point (0.15)      | Critical - Wilting Point  | حرج - نقطة الذبول  | Urgent irrigation required |
+| 0.15 - 0.26                 | Low - Water Stress        | منخفض - إجهاد مائي | Irrigation needed soon     |
+| 0.26 - 0.35                 | Optimal - Good for Growth | مثالي - جيد للنمو  | Continue current schedule  |
+| > 0.35                      | High - Near Saturation    | مرتفع - قرب التشبع | Avoid over-irrigation      |
 
 ## Integration with Mobile App
 
@@ -278,7 +290,7 @@ asyncio.run(monitor_soil_moisture("field_sana_001", 15.3694, 44.1910))
 // Fetch soil moisture for a field
 async function getSoilMoisture(fieldId, lat, lon) {
   const response = await fetch(
-    `http://localhost:8090/v1/soil-moisture/${fieldId}?lat=${lat}&lon=${lon}`
+    `http://localhost:8090/v1/soil-moisture/${fieldId}?lat=${lat}&lon=${lon}`,
   );
   const data = await response.json();
 
@@ -288,7 +300,7 @@ async function getSoilMoisture(fieldId, lat, lon) {
     statusAr: data.soil_moisture.status_ar,
     recommendation: data.recommendation_en,
     recommendationAr: data.recommendation_ar,
-    confidence: data.confidence
+    confidence: data.confidence,
   };
 }
 
@@ -297,8 +309,9 @@ function SoilMoistureCard({ fieldId, coordinates }) {
   const [moisture, setMoisture] = useState(null);
 
   useEffect(() => {
-    getSoilMoisture(fieldId, coordinates.lat, coordinates.lon)
-      .then(setMoisture);
+    getSoilMoisture(fieldId, coordinates.lat, coordinates.lon).then(
+      setMoisture,
+    );
   }, [fieldId]);
 
   return (
@@ -314,16 +327,17 @@ function SoilMoistureCard({ fieldId, coordinates }) {
 
 ## Benefits Over Optical Satellite Data
 
-| Feature | Sentinel-1 SAR | Sentinel-2 Optical |
-|---------|----------------|-------------------|
-| **Cloud coverage** | ✅ Works through clouds | ❌ Requires clear skies |
-| **Day/night** | ✅ Day and night | ☀️ Daytime only |
-| **Soil moisture** | ✅ Direct measurement | ⚠️ Indirect (NDWI) |
-| **Vegetation health** | ⚠️ Limited | ✅ Excellent (NDVI) |
-| **Resolution** | 10-20m | 10m |
-| **Revisit time** | 6 days | 5 days |
+| Feature               | Sentinel-1 SAR          | Sentinel-2 Optical      |
+| --------------------- | ----------------------- | ----------------------- |
+| **Cloud coverage**    | ✅ Works through clouds | ❌ Requires clear skies |
+| **Day/night**         | ✅ Day and night        | ☀️ Daytime only         |
+| **Soil moisture**     | ✅ Direct measurement   | ⚠️ Indirect (NDWI)      |
+| **Vegetation health** | ⚠️ Limited              | ✅ Excellent (NDVI)     |
+| **Resolution**        | 10-20m                  | 10m                     |
+| **Revisit time**      | 6 days                  | 5 days                  |
 
 **Recommendation**: Use **both** SAR and optical data for comprehensive field monitoring:
+
 - **SAR**: Soil moisture, irrigation monitoring
 - **Optical**: Vegetation health, crop growth stages
 
@@ -363,6 +377,7 @@ function SoilMoistureCard({ fieldId, coordinates }) {
 ## Support
 
 For questions or issues with the SAR integration:
+
 - Check service health: `GET /healthz`
 - View available providers: `GET /v1/providers`
 - Review logs for error messages

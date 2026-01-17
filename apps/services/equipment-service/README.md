@@ -14,31 +14,34 @@ Agricultural equipment and asset management service for tractors, pumps, drones,
 ## الميزات | Features
 
 ### إدارة المعدات | Equipment Management
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
+
+| الميزة        | Feature                | الوصف                        |
+| ------------- | ---------------------- | ---------------------------- |
 | تسجيل المعدات | Equipment Registration | إضافة معدات جديدة مع QR Code |
-| تتبع الموقع | Location Tracking | GPS للمعدات المتحركة |
-| حالة التشغيل | Status Tracking | تشغيلي، صيانة، معطل |
-| بيانات الوقود | Fuel Monitoring | نسبة الوقود الحالية |
-| ساعات التشغيل | Operating Hours | تتبع ساعات العمل |
+| تتبع الموقع   | Location Tracking      | GPS للمعدات المتحركة         |
+| حالة التشغيل  | Status Tracking        | تشغيلي، صيانة، معطل          |
+| بيانات الوقود | Fuel Monitoring        | نسبة الوقود الحالية          |
+| ساعات التشغيل | Operating Hours        | تتبع ساعات العمل             |
 
 ### أنواع المعدات | Equipment Types
-| النوع | Type | الوصف |
-|-------|------|--------|
-| جرار | Tractor | جرارات زراعية |
-| مضخة | Pump | مضخات الري |
-| درون | Drone | طائرات الرش والمسح |
-| حاصدة | Harvester | آلات الحصاد |
-| رشاش | Sprayer | رشاشات المبيدات |
-| محوري | Pivot | أنظمة الري المحوري |
-| مستشعر | Sensor | أجهزة IoT |
+
+| النوع  | Type      | الوصف              |
+| ------ | --------- | ------------------ |
+| جرار   | Tractor   | جرارات زراعية      |
+| مضخة   | Pump      | مضخات الري         |
+| درون   | Drone     | طائرات الرش والمسح |
+| حاصدة  | Harvester | آلات الحصاد        |
+| رشاش   | Sprayer   | رشاشات المبيدات    |
+| محوري  | Pivot     | أنظمة الري المحوري |
+| مستشعر | Sensor    | أجهزة IoT          |
 
 ### الصيانة | Maintenance
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| تنبيهات الصيانة | Maintenance Alerts | إشعارات تلقائية |
-| سجل الصيانة | Maintenance History | تتبع كامل |
-| الأولويات | Priority Levels | منخفض، متوسط، عالي، حرج |
+
+| الميزة          | Feature             | الوصف                   |
+| --------------- | ------------------- | ----------------------- |
+| تنبيهات الصيانة | Maintenance Alerts  | إشعارات تلقائية         |
+| سجل الصيانة     | Maintenance History | تتبع كامل               |
+| الأولويات       | Priority Levels     | منخفض، متوسط، عالي، حرج |
 
 ---
 
@@ -121,47 +124,49 @@ POST /api/v1/equipment/{equipment_id}/maintenance?maintenance_type=oil_change&de
 ## نماذج البيانات | Data Models
 
 ### Equipment
+
 ```json
 {
-    "equipment_id": "eq_001",
-    "tenant_id": "tenant_demo",
-    "name": "John Deere 8R 410",
-    "name_ar": "جون ديري 8R 410",
-    "equipment_type": "tractor",
-    "status": "operational",
-    "brand": "John Deere",
-    "model": "8R 410",
-    "serial_number": "JD8R410-2023-001",
-    "year": 2023,
-    "horsepower": 410,
-    "fuel_capacity_liters": 800,
-    "current_fuel_percent": 75,
-    "current_hours": 1250,
-    "current_lat": 15.3694,
-    "current_lon": 44.1910,
-    "field_id": "field_north",
-    "location_name": "الحقل الشمالي",
-    "last_maintenance_at": "2024-01-15T10:00:00Z",
-    "next_maintenance_at": "2024-03-15T10:00:00Z",
-    "qr_code": "QR_EQ001_JD8R410",
-    "created_at": "2023-03-15T00:00:00Z",
-    "updated_at": "2024-02-01T14:30:00Z"
+  "equipment_id": "eq_001",
+  "tenant_id": "tenant_demo",
+  "name": "John Deere 8R 410",
+  "name_ar": "جون ديري 8R 410",
+  "equipment_type": "tractor",
+  "status": "operational",
+  "brand": "John Deere",
+  "model": "8R 410",
+  "serial_number": "JD8R410-2023-001",
+  "year": 2023,
+  "horsepower": 410,
+  "fuel_capacity_liters": 800,
+  "current_fuel_percent": 75,
+  "current_hours": 1250,
+  "current_lat": 15.3694,
+  "current_lon": 44.191,
+  "field_id": "field_north",
+  "location_name": "الحقل الشمالي",
+  "last_maintenance_at": "2024-01-15T10:00:00Z",
+  "next_maintenance_at": "2024-03-15T10:00:00Z",
+  "qr_code": "QR_EQ001_JD8R410",
+  "created_at": "2023-03-15T00:00:00Z",
+  "updated_at": "2024-02-01T14:30:00Z"
 }
 ```
 
 ### MaintenanceAlert
+
 ```json
 {
-    "alert_id": "alert_001",
-    "equipment_id": "eq_001",
-    "equipment_name": "John Deere 8R",
-    "maintenance_type": "oil_change",
-    "description": "Engine oil change required",
-    "description_ar": "تغيير زيت المحرك مطلوب",
-    "priority": "medium",
-    "due_hours": 1300,
-    "is_overdue": false,
-    "created_at": "2024-01-20T10:00:00Z"
+  "alert_id": "alert_001",
+  "equipment_id": "eq_001",
+  "equipment_name": "John Deere 8R",
+  "maintenance_type": "oil_change",
+  "description": "Engine oil change required",
+  "description_ar": "تغيير زيت المحرك مطلوب",
+  "priority": "medium",
+  "due_hours": 1300,
+  "is_overdue": false,
+  "created_at": "2024-01-20T10:00:00Z"
 }
 ```
 

@@ -1,4 +1,5 @@
 # Cloud Masking System - Implementation Summary
+
 # نظام تحديد الغطاء السحابي - ملخص التنفيذ
 
 ## Overview
@@ -43,7 +44,7 @@ Successfully implemented an advanced cloud masking system for the SAHOOL satelli
 
 1. **`src/main.py`**
    - Added cloud_masking imports (lines 105-112)
-   - Added _cloud_masker global variable (line 51)
+   - Added \_cloud_masker global variable (line 51)
    - Updated lifespan function to initialize cloud masker (lines 168, 196-198)
    - Added 4 new API endpoints (lines 2571-2843)
    - Fixed missing Tuple import (line 22)
@@ -51,57 +52,69 @@ Successfully implemented an advanced cloud masking system for the SAHOOL satelli
 ## API Endpoints
 
 ### 1. GET /v1/cloud-cover/{field_id}
+
 Analyze cloud cover for a specific date and location.
 
 **Features**:
+
 - SCL-based classification
 - Quality score calculation
 - Usability determination
 - Detailed recommendations
 
 **Example**:
+
 ```bash
 curl "http://localhost:8090/v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-03-15"
 ```
 
 ### 2. GET /v1/clear-observations/{field_id}
+
 Find all clear observations in a date range.
 
 **Features**:
+
 - Date range filtering
 - Cloud threshold configuration
 - Quality-based sorting
 - Multi-satellite tracking
 
 **Example**:
+
 ```bash
 curl "http://localhost:8090/v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15"
 ```
 
 ### 3. GET /v1/best-observation/{field_id}
+
 Find best observation near a target date.
 
 **Features**:
+
 - Target date matching
 - Tolerance window
 - Automatic quality selection
 - Days from target calculation
 
 **Example**:
+
 ```bash
 curl "http://localhost:8090/v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10"
 ```
 
 ### 4. POST /v1/interpolate-cloudy
+
 Interpolate cloudy observations in NDVI time series.
 
 **Features**:
+
 - Multiple interpolation methods (linear, spline, previous)
 - Gap filling
 - Quality preservation
 - Metadata tracking
 
 **Example**:
+
 ```bash
 curl -X POST "http://localhost:8090/v1/interpolate-cloudy?field_id=field_123&method=linear" \
   -H "Content-Type: application/json" \
@@ -111,33 +124,39 @@ curl -X POST "http://localhost:8090/v1/interpolate-cloudy?field_id=field_123&met
 ## Key Features Implemented
 
 ### 1. SCL-Based Classification
+
 - **11 Sentinel-2 classes**: Complete implementation
 - **Accurate detection**: Uses official ESA classifications
 - **Multiple categories**: Clouds, shadows, valid pixels, invalid data
 
 ### 2. Quality Scoring (0-1 scale)
+
 - **Multi-component**: Clear pixels (40%), Low clouds (30%), Low shadows (20%), Bonus (10%)
 - **Intelligent bonuses**: Extra points for very clear scenes
 - **Transparent**: Clear calculation methodology
 
 ### 3. Usability Assessment
+
 - **Automatic determination**: Based on thresholds
 - **Configurable limits**: Cloud ≤20%, Clear ≥70%, Quality ≥0.60
 - **Clear recommendations**: Human-readable guidance
 
 ### 4. Temporal Interpolation
+
 - **Linear interpolation**: Standard gap filling
 - **Spline interpolation**: Smooth curve fitting
 - **Forward fill**: Conservative previous value
 - **Metadata preservation**: Tracks interpolated values
 
 ### 5. Clear Observation Finding
+
 - **Range search**: Find all clear dates
 - **Quality sorting**: Best observations first
 - **Configurable thresholds**: Custom cloud limits
 - **Efficient**: Simulates 5-day Sentinel-2 revisit
 
 ### 6. Best Observation Selection
+
 - **Smart matching**: Finds closest high-quality observation
 - **Tolerance window**: Configurable search range
 - **Distance tracking**: Reports days from target
@@ -247,12 +266,14 @@ print("☁️ Cloud Masker initialized for quality assessment")
 ## Performance Characteristics
 
 ### Response Times (Simulated Data)
+
 - Cloud cover analysis: ~50ms
 - Clear observations (3 months): ~200ms
 - Best observation: ~100ms
 - Interpolation: ~20ms
 
 ### Data Volume
+
 - SCL pixels per request: 100 (simulated)
 - Production scale: Full field polygon
 - API response size: 1-5 KB typical
@@ -260,6 +281,7 @@ print("☁️ Cloud Masker initialized for quality assessment")
 ## Validation
 
 ### Code Quality
+
 - ✅ Type hints throughout
 - ✅ Comprehensive docstrings
 - ✅ Error handling
@@ -267,6 +289,7 @@ print("☁️ Cloud Masker initialized for quality assessment")
 - ✅ Async/await patterns
 
 ### Documentation
+
 - ✅ API documentation (CLOUD_MASKING_README.md)
 - ✅ Inline code comments
 - ✅ Usage examples (examples/cloud_masking_examples.sh)
@@ -274,6 +297,7 @@ print("☁️ Cloud Masker initialized for quality assessment")
 - ✅ Implementation summary (this file)
 
 ### Testing
+
 - ✅ Unit tests for all public methods
 - ✅ Integration tests with service
 - ✅ Edge case handling
@@ -282,6 +306,7 @@ print("☁️ Cloud Masker initialized for quality assessment")
 ## Usage Examples
 
 ### Python (Direct)
+
 ```python
 from cloud_masking import get_cloud_masker
 from datetime import datetime
@@ -302,6 +327,7 @@ print(f"Usable: {result.usable}")
 ```
 
 ### API (HTTP)
+
 ```bash
 # Check today's cloud cover
 curl "http://localhost:8090/v1/cloud-cover/field_123?lat=15.5&lon=44.2"
@@ -316,6 +342,7 @@ curl "http://localhost:8090/v1/best-observation/field_123?lat=15.5&lon=44.2&targ
 ## Production Considerations
 
 ### Current Implementation (Simulated)
+
 - ✅ Complete API structure
 - ✅ Realistic cloud patterns
 - ✅ Seasonal variation (Yemen climate)
@@ -323,6 +350,7 @@ curl "http://localhost:8090/v1/best-observation/field_123?lat=15.5&lon=44.2&targ
 - ⚠️ Uses simulated SCL data
 
 ### Production Requirements
+
 - [ ] Integrate Sentinel Hub SCL band
 - [ ] Fetch real satellite imagery
 - [ ] Handle field polygons
@@ -330,6 +358,7 @@ curl "http://localhost:8090/v1/best-observation/field_123?lat=15.5&lon=44.2&targ
 - [ ] Regional cloud climatology
 
 ### Deployment Checklist
+
 - ✅ Service imports successfully
 - ✅ All endpoints registered
 - ✅ Tests passing
@@ -340,18 +369,21 @@ curl "http://localhost:8090/v1/best-observation/field_123?lat=15.5&lon=44.2&targ
 ## Next Steps
 
 ### Short Term
+
 1. Test with real Sentinel Hub data
 2. Add Redis caching for SCL data
 3. Performance profiling
 4. API rate limiting
 
 ### Medium Term
+
 1. Machine learning cloud probability
 2. Multi-polygon field support
 3. Cloud movement prediction
 4. Historical statistics
 
 ### Long Term
+
 1. Regional cloud climatology
 2. Predictive cloud forecasting
 3. Multi-sensor fusion
@@ -368,15 +400,15 @@ curl "http://localhost:8090/v1/best-observation/field_123?lat=15.5&lon=44.2&targ
 
 ## Files Summary
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `src/cloud_masking.py` | 920 | Core implementation |
-| `src/main.py` (modified) | +274 | API endpoints |
-| `test_cloud_masking.py` | 410 | Test suite |
-| `examples/cloud_masking_examples.sh` | 150 | API examples |
-| `CLOUD_MASKING_README.md` | 600 | Documentation |
-| `CLOUD_MASKING_SUMMARY.md` | 480 | This summary |
-| **Total** | **2,834** | **Complete system** |
+| File                                 | Lines     | Purpose             |
+| ------------------------------------ | --------- | ------------------- |
+| `src/cloud_masking.py`               | 920       | Core implementation |
+| `src/main.py` (modified)             | +274      | API endpoints       |
+| `test_cloud_masking.py`              | 410       | Test suite          |
+| `examples/cloud_masking_examples.sh` | 150       | API examples        |
+| `CLOUD_MASKING_README.md`            | 600       | Documentation       |
+| `CLOUD_MASKING_SUMMARY.md`           | 480       | This summary        |
+| **Total**                            | **2,834** | **Complete system** |
 
 ## Conclusion
 

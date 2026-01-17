@@ -9,56 +9,61 @@
 ## 📊 تحليل الفجوة | Gap Analysis
 
 ### الميزات الموجودة في الويب (5):
-| الميزة | الحالة |
-|--------|--------|
-| advisor | ✅ موجود |
-| alerts | ✅ موجود |
+
+| الميزة    | الحالة   |
+| --------- | -------- |
+| advisor   | ✅ موجود |
+| alerts    | ✅ موجود |
 | field-map | ✅ موجود |
-| ndvi | ✅ موجود |
-| reports | ✅ موجود |
+| ndvi      | ✅ موجود |
+| reports   | ✅ موجود |
 
 ### الميزات الناقصة (35 ميزة):
 
 #### 🔴 أولوية حرجة (Core Features)
-| الميزة | الوصف | التعقيد |
-|--------|--------|---------|
-| auth | المصادقة وإدارة الجلسات | متوسط |
-| home | الصفحة الرئيسية ولوحة المعلومات | متوسط |
-| fields | إدارة الحقول الكاملة | عالي |
-| tasks | إدارة المهام الزراعية | متوسط |
-| weather | بيانات الطقس والتنبؤات | متوسط |
-| notifications | نظام الإشعارات | متوسط |
+
+| الميزة        | الوصف                           | التعقيد |
+| ------------- | ------------------------------- | ------- |
+| auth          | المصادقة وإدارة الجلسات         | متوسط   |
+| home          | الصفحة الرئيسية ولوحة المعلومات | متوسط   |
+| fields        | إدارة الحقول الكاملة            | عالي    |
+| tasks         | إدارة المهام الزراعية           | متوسط   |
+| weather       | بيانات الطقس والتنبؤات          | متوسط   |
+| notifications | نظام الإشعارات                  | متوسط   |
 
 #### 🟠 أولوية عالية (Business Critical)
-| الميزة | الوصف | التعقيد |
-|--------|--------|---------|
-| equipment | إدارة المعدات الزراعية | متوسط |
-| iot | إدارة أجهزة IoT | عالي |
-| marketplace | السوق الزراعي | عالي |
-| payment | نظام الدفع | عالي |
-| wallet | المحفظة الإلكترونية | متوسط |
-| crop_health | صحة المحاصيل | متوسط |
+
+| الميزة      | الوصف                  | التعقيد |
+| ----------- | ---------------------- | ------- |
+| equipment   | إدارة المعدات الزراعية | متوسط   |
+| iot         | إدارة أجهزة IoT        | عالي    |
+| marketplace | السوق الزراعي          | عالي    |
+| payment     | نظام الدفع             | عالي    |
+| wallet      | المحفظة الإلكترونية    | متوسط   |
+| crop_health | صحة المحاصيل           | متوسط   |
 
 #### 🟡 أولوية متوسطة (Enhanced Features)
-| الميزة | الوصف | التعقيد |
-|--------|--------|---------|
-| analytics | التحليلات والإحصائيات | عالي |
-| community | مجتمع المزارعين | متوسط |
-| daily_brief | الملخص اليومي | منخفض |
-| virtual_sensors | الحساسات الافتراضية | متوسط |
-| scanner | ماسح QR/Barcode | منخفض |
-| research | البحث العلمي | متوسط |
-| lab | المختبر الزراعي | متوسط |
+
+| الميزة          | الوصف                 | التعقيد |
+| --------------- | --------------------- | ------- |
+| analytics       | التحليلات والإحصائيات | عالي    |
+| community       | مجتمع المزارعين       | متوسط   |
+| daily_brief     | الملخص اليومي         | منخفض   |
+| virtual_sensors | الحساسات الافتراضية   | متوسط   |
+| scanner         | ماسح QR/Barcode       | منخفض   |
+| research        | البحث العلمي          | متوسط   |
+| lab             | المختبر الزراعي       | متوسط   |
 
 #### 🟢 أولوية منخفضة (Nice to Have)
-| الميزة | الوصف | التعقيد |
-|--------|--------|---------|
-| gamification | نظام النقاط والمكافآت | متوسط |
-| profile | الملف الشخصي | منخفض |
-| settings | الإعدادات | منخفض |
-| onboarding | تعريف المستخدم الجديد | منخفض |
-| smart_alerts | التنبيهات الذكية | متوسط |
-| scouting | الاستكشاف الميداني | متوسط |
+
+| الميزة       | الوصف                 | التعقيد |
+| ------------ | --------------------- | ------- |
+| gamification | نظام النقاط والمكافآت | متوسط   |
+| profile      | الملف الشخصي          | منخفض   |
+| settings     | الإعدادات             | منخفض   |
+| onboarding   | تعريف المستخدم الجديد | منخفض   |
+| smart_alerts | التنبيهات الذكية      | متوسط   |
+| scouting     | الاستكشاف الميداني    | متوسط   |
 
 ---
 
@@ -121,6 +126,7 @@ apps/web/src/
 **المهام:**
 
 1. **إعداد المصادقة (Auth)**
+
    ```
    - تكامل مع auth service
    - JWT handling
@@ -129,6 +135,7 @@ apps/web/src/
    ```
 
 2. **إعداد State Management**
+
    ```
    - Zustand stores
    - React Query للـ API
@@ -136,6 +143,7 @@ apps/web/src/
    ```
 
 3. **إعداد API Client**
+
    ```
    - Axios/Fetch wrapper
    - Error handling
@@ -158,6 +166,7 @@ apps/web/src/
 **المهام:**
 
 1. **الصفحة الرئيسية (Home/Dashboard)**
+
    ```typescript
    // features/home/
    ├── components/
@@ -172,6 +181,7 @@ apps/web/src/
    ```
 
 2. **إدارة الحقول (Fields Management)**
+
    ```typescript
    // features/fields/
    ├── components/
@@ -189,6 +199,7 @@ apps/web/src/
    ```
 
 3. **إدارة المهام (Tasks)**
+
    ```typescript
    // features/tasks/
    ├── components/
@@ -222,6 +233,7 @@ apps/web/src/
 **المهام:**
 
 1. **إدارة المعدات (Equipment)**
+
    ```typescript
    // features/equipment/
    ├── components/
@@ -235,6 +247,7 @@ apps/web/src/
    ```
 
 2. **IoT والحساسات**
+
    ```typescript
    // features/iot/
    ├── components/
@@ -249,6 +262,7 @@ apps/web/src/
    ```
 
 3. **السوق (Marketplace)**
+
    ```typescript
    // features/marketplace/
    ├── components/
@@ -282,6 +296,7 @@ apps/web/src/
 **المهام:**
 
 1. **التحليلات (Analytics)**
+
    ```typescript
    // features/analytics/
    ├── components/
@@ -293,6 +308,7 @@ apps/web/src/
    ```
 
 2. **المجتمع (Community)**
+
    ```typescript
    // features/community/
    ├── components/
@@ -320,36 +336,36 @@ apps/web/src/
 
 ### API Endpoints المطلوبة:
 
-| الخدمة | الـ Endpoints | الأولوية |
-|--------|---------------|----------|
-| field-core | /api/v1/fields/* | حرجة |
-| task-service | /api/v1/tasks/* | حرجة |
-| weather-core | /api/v1/weather/* | حرجة |
-| equipment-service | /api/v1/equipment/* | عالية |
-| iot-service | /api/v1/sensors/*, /api/v1/actuators/* | عالية |
-| marketplace-service | /api/v1/products/*, /api/v1/orders/* | عالية |
-| billing-core | /api/v1/wallet/*, /api/v1/payments/* | عالية |
-| community-chat | /api/v1/posts/*, /api/v1/groups/* | متوسطة |
-| crop-health-ai | /api/v1/diagnosis/* | متوسطة |
-| notification-service | /api/v1/notifications/* | متوسطة |
+| الخدمة               | الـ Endpoints                          | الأولوية |
+| -------------------- | -------------------------------------- | -------- |
+| field-core           | /api/v1/fields/\*                      | حرجة     |
+| task-service         | /api/v1/tasks/\*                       | حرجة     |
+| weather-core         | /api/v1/weather/\*                     | حرجة     |
+| equipment-service    | /api/v1/equipment/\*                   | عالية    |
+| iot-service          | /api/v1/sensors/_, /api/v1/actuators/_ | عالية    |
+| marketplace-service  | /api/v1/products/_, /api/v1/orders/_   | عالية    |
+| billing-core         | /api/v1/wallet/_, /api/v1/payments/_   | عالية    |
+| community-chat       | /api/v1/posts/_, /api/v1/groups/_      | متوسطة   |
+| crop-health-ai       | /api/v1/diagnosis/\*                   | متوسطة   |
+| notification-service | /api/v1/notifications/\*               | متوسطة   |
 
 ### WebSocket Integration:
 
 ```typescript
 // lib/websocket/client.ts
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client";
 
 export const wsClient = io(WS_GATEWAY_URL, {
   auth: { token: getAccessToken() },
-  transports: ['websocket'],
+  transports: ["websocket"],
 });
 
 // الاشتراك في الأحداث
-wsClient.on('field.updated', handleFieldUpdate);
-wsClient.on('task.created', handleNewTask);
-wsClient.on('weather.alert', handleWeatherAlert);
-wsClient.on('iot.reading', handleSensorReading);
-wsClient.on('notification.new', handleNotification);
+wsClient.on("field.updated", handleFieldUpdate);
+wsClient.on("task.created", handleNewTask);
+wsClient.on("weather.alert", handleWeatherAlert);
+wsClient.on("iot.reading", handleSensorReading);
+wsClient.on("notification.new", handleNotification);
 ```
 
 ---
@@ -364,6 +380,7 @@ wsClient.on('notification.new', handleNotification);
    - Fluid typography and spacing
 
 2. **RTL Support**
+
    ```css
    /* Tailwind RTL */
    .rtl {
@@ -373,6 +390,7 @@ wsClient.on('notification.new', handleNotification);
    ```
 
 3. **Dark Mode**
+
    ```typescript
    // استخدام next-themes
    const { theme, setTheme } = useTheme();
@@ -409,6 +427,7 @@ wsClient.on('notification.new', handleNotification);
 ## ✅ قائمة المراجعة | Checklist
 
 ### المرحلة 1:
+
 - [ ] إعداد Auth system
 - [ ] إعداد API client
 - [ ] إعداد State management
@@ -416,6 +435,7 @@ wsClient.on('notification.new', handleNotification);
 - [ ] إعداد i18n (AR/EN)
 
 ### المرحلة 2:
+
 - [ ] تطوير Home/Dashboard
 - [ ] تطوير Fields management
 - [ ] تطوير Tasks management
@@ -423,12 +443,14 @@ wsClient.on('notification.new', handleNotification);
 - [ ] تطوير Notifications
 
 ### المرحلة 3:
+
 - [ ] تطوير Equipment management
 - [ ] تطوير IoT dashboard
 - [ ] تطوير Marketplace
 - [ ] تطوير Wallet & Payment
 
 ### المرحلة 4:
+
 - [ ] تطوير Analytics
 - [ ] تطوير Community
 - [ ] تطوير Crop Health
@@ -438,15 +460,15 @@ wsClient.on('notification.new', handleNotification);
 
 ## 📈 مقاييس النجاح | Success Metrics
 
-| المقياس | الهدف |
-|---------|-------|
-| تغطية الميزات | 100% من ميزات الموبايل |
-| أداء الصفحة (LCP) | < 2.5s |
-| حجم Bundle | < 500KB (gzipped) |
-| نتيجة Lighthouse | > 90 |
-| تغطية الاختبارات | > 80% |
+| المقياس           | الهدف                  |
+| ----------------- | ---------------------- |
+| تغطية الميزات     | 100% من ميزات الموبايل |
+| أداء الصفحة (LCP) | < 2.5s                 |
+| حجم Bundle        | < 500KB (gzipped)      |
+| نتيجة Lighthouse  | > 90                   |
+| تغطية الاختبارات  | > 80%                  |
 
 ---
 
-*تم إنشاء هذه الخطة في: 2024-12-23*
-*الإصدار: 1.0*
+_تم إنشاء هذه الخطة في: 2024-12-23_
+_الإصدار: 1.0_

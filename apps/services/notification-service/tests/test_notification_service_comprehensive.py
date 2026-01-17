@@ -61,13 +61,17 @@ class TestNotificationCreation:
         """Test notification creation respects user preferences"""
         from src.main import NotificationPriority, NotificationType, create_notification
 
-        with patch(
-            "src.repository.NotificationRepository.create",
-            new=AsyncMock(return_value=mock_notification),
-        ), patch(
-            "src.preferences_service.PreferencesService.check_if_should_send",
-            new=AsyncMock(return_value=(True, ["push", "sms"])),
-        ), patch("src.main.send_notification_via_channel", new=AsyncMock()):
+        with (
+            patch(
+                "src.repository.NotificationRepository.create",
+                new=AsyncMock(return_value=mock_notification),
+            ),
+            patch(
+                "src.preferences_service.PreferencesService.check_if_should_send",
+                new=AsyncMock(return_value=(True, ["push", "sms"])),
+            ),
+            patch("src.main.send_notification_via_channel", new=AsyncMock()),
+        ):
             result = await create_notification(
                 type=NotificationType.WEATHER_ALERT,
                 priority=NotificationPriority.HIGH,
@@ -120,13 +124,17 @@ class TestNotificationCreation:
             farmer_id="farmer-123", governorate=Governorate.SANAA, crops=[CropType.TOMATO]
         )
 
-        with patch(
-            "src.repository.NotificationRepository.create",
-            new=AsyncMock(return_value=mock_notification),
-        ), patch(
-            "src.preferences_service.PreferencesService.check_if_should_send",
-            new=AsyncMock(return_value=(True, ["push"])),
-        ), patch("src.main.send_notification_via_channel", new=AsyncMock()):
+        with (
+            patch(
+                "src.repository.NotificationRepository.create",
+                new=AsyncMock(return_value=mock_notification),
+            ),
+            patch(
+                "src.preferences_service.PreferencesService.check_if_should_send",
+                new=AsyncMock(return_value=(True, ["push"])),
+            ),
+            patch("src.main.send_notification_via_channel", new=AsyncMock()),
+        ):
             result = await create_notification(
                 type=NotificationType.PEST_OUTBREAK,
                 priority=NotificationPriority.HIGH,
@@ -153,13 +161,17 @@ class TestNotificationCreation:
             create_notification,
         )
 
-        with patch(
-            "src.repository.NotificationRepository.create",
-            new=AsyncMock(return_value=mock_notification),
-        ), patch(
-            "src.preferences_service.PreferencesService.check_if_should_send",
-            new=AsyncMock(return_value=(True, ["push", "sms", "email"])),
-        ), patch("src.main.send_notification_via_channel", new=AsyncMock()) as mock_send:
+        with (
+            patch(
+                "src.repository.NotificationRepository.create",
+                new=AsyncMock(return_value=mock_notification),
+            ),
+            patch(
+                "src.preferences_service.PreferencesService.check_if_should_send",
+                new=AsyncMock(return_value=(True, ["push", "sms", "email"])),
+            ),
+            patch("src.main.send_notification_via_channel", new=AsyncMock()) as mock_send,
+        ):
             await create_notification(
                 type=NotificationType.WEATHER_ALERT,
                 priority=NotificationPriority.CRITICAL,
@@ -455,7 +467,7 @@ class TestNATSIntegration:
             "expires_in_hours": 24,
         }
 
-        with patch("src.main.create_notification", new=AsyncMock()) as mock_create:
+        with patch("src.main.create_notification", new=AsyncMock()):
             create_notification_from_nats(nats_event)
             # Note: This is sync, so we can't await, but we can verify it was called
             # In reality, this would be tested with proper async handling
@@ -483,13 +495,17 @@ class TestNotificationExpiry:
         """Test notification created with expiry time"""
         from src.main import NotificationPriority, NotificationType, create_notification
 
-        with patch(
-            "src.repository.NotificationRepository.create",
-            new=AsyncMock(return_value=mock_notification),
-        ), patch(
-            "src.preferences_service.PreferencesService.check_if_should_send",
-            new=AsyncMock(return_value=(True, ["push"])),
-        ), patch("src.main.send_notification_via_channel", new=AsyncMock()):
+        with (
+            patch(
+                "src.repository.NotificationRepository.create",
+                new=AsyncMock(return_value=mock_notification),
+            ),
+            patch(
+                "src.preferences_service.PreferencesService.check_if_should_send",
+                new=AsyncMock(return_value=(True, ["push"])),
+            ),
+            patch("src.main.send_notification_via_channel", new=AsyncMock()),
+        ):
             result = await create_notification(
                 type=NotificationType.WEATHER_ALERT,
                 priority=NotificationPriority.HIGH,
@@ -520,9 +536,12 @@ class TestErrorHandling:
         mock_sms_client._initialized = True
         mock_sms_client.send_sms = AsyncMock(side_effect=Exception("Network error"))
 
-        with patch("src.main.get_sms_client", return_value=mock_sms_client), patch(
-            "src.repository.NotificationLogRepository.create_log", new=AsyncMock()
-        ) as mock_log:
+        with (
+            patch("src.main.get_sms_client", return_value=mock_sms_client),
+            patch(
+                "src.repository.NotificationLogRepository.create_log", new=AsyncMock()
+            ) as mock_log,
+        ):
             await send_sms_notification(mock_notification, "farmer-123")
 
             # Verify error was logged
@@ -545,9 +564,12 @@ class TestErrorHandling:
         mock_email_client._initialized = True
         mock_email_client.send_email = AsyncMock(side_effect=Exception("SMTP error"))
 
-        with patch("src.main.get_email_client", return_value=mock_email_client), patch(
-            "src.repository.NotificationLogRepository.create_log", new=AsyncMock()
-        ) as mock_log:
+        with (
+            patch("src.main.get_email_client", return_value=mock_email_client),
+            patch(
+                "src.repository.NotificationLogRepository.create_log", new=AsyncMock()
+            ) as mock_log,
+        ):
             await send_email_notification(mock_notification, "farmer-123")
 
             # Verify error was logged

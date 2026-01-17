@@ -201,6 +201,7 @@ For complete recovery procedures, see [PITR_RECOVERY.md](./PITR_RECOVERY.md)
 ## Support
 
 For issues or questions:
+
 - Check logs: `docker-compose logs postgres`
 - Review documentation: `config/postgres/PITR_RECOVERY.md`
 - Contact: devops@sahool.com

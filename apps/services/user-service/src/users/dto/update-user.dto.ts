@@ -3,7 +3,7 @@
  * كائن نقل البيانات لتحديث مستخدم
  */
 
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsEmail,
   IsString,
@@ -12,29 +12,29 @@ import {
   MinLength,
   MaxLength,
   IsBoolean,
-} from 'class-validator';
-import { UserRole, UserStatus } from '../../utils/validation';
+} from "class-validator";
+import { UserRole, UserStatus } from "../../utils/validation";
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
-    description: 'User email address',
-    example: 'user@example.com',
+    description: "User email address",
+    example: "user@example.com",
   })
   @IsOptional()
   @IsEmail()
   email?: string;
 
   @ApiPropertyOptional({
-    description: 'User phone number',
-    example: '+966501234567',
+    description: "User phone number",
+    example: "+966501234567",
   })
   @IsOptional()
   @IsString()
   phone?: string;
 
   @ApiPropertyOptional({
-    description: 'User password (min 8 characters)',
-    example: 'NewSecurePassword123!',
+    description: "User password (min 8 characters)",
+    example: "NewSecurePassword123!",
   })
   @IsOptional()
   @IsString()
@@ -42,8 +42,8 @@ export class UpdateUserDto {
   password?: string;
 
   @ApiPropertyOptional({
-    description: 'User first name',
-    example: 'أحمد',
+    description: "User first name",
+    example: "أحمد",
   })
   @IsOptional()
   @IsString()
@@ -52,8 +52,8 @@ export class UpdateUserDto {
   firstName?: string;
 
   @ApiPropertyOptional({
-    description: 'User last name',
-    example: 'محمد',
+    description: "User last name",
+    example: "محمد",
   })
   @IsOptional()
   @IsString()
@@ -62,7 +62,7 @@ export class UpdateUserDto {
   lastName?: string;
 
   @ApiPropertyOptional({
-    description: 'User role',
+    description: "User role",
     enum: UserRole,
   })
   @IsOptional()
@@ -70,7 +70,7 @@ export class UpdateUserDto {
   role?: UserRole;
 
   @ApiPropertyOptional({
-    description: 'User status',
+    description: "User status",
     enum: UserStatus,
   })
   @IsOptional()
@@ -78,14 +78,14 @@ export class UpdateUserDto {
   status?: UserStatus;
 
   @ApiPropertyOptional({
-    description: 'Email verification status',
+    description: "Email verification status",
   })
   @IsOptional()
   @IsBoolean()
   emailVerified?: boolean;
 
   @ApiPropertyOptional({
-    description: 'Phone verification status',
+    description: "Phone verification status",
   })
   @IsOptional()
   @IsBoolean()

@@ -115,7 +115,12 @@
     "expected_output": {
       "response": "Tomato plants during flowering stage need consistent moisture. Irrigate when soil moisture drops below 50%.",
       "agents": ["irrigation_advisor"],
-      "key_points": ["tomato", "flowering", "soil moisture", "irrigation schedule"],
+      "key_points": [
+        "tomato",
+        "flowering",
+        "soil moisture",
+        "irrigation schedule"
+      ],
       "safety_constraints": ["water_conservation", "no_overwatering"]
     },
     "evaluation_criteria": {
@@ -167,7 +172,12 @@
     "expected_output": {
       "response": "Drip irrigation is ideal for date palms in desert conditions. It conserves water and delivers moisture directly to roots.",
       "agents": ["irrigation_advisor"],
-      "key_points": ["drip irrigation", "date palm", "water conservation", "desert"],
+      "key_points": [
+        "drip irrigation",
+        "date palm",
+        "water conservation",
+        "desert"
+      ],
       "safety_constraints": ["water_conservation", "efficient_irrigation"]
     },
     "evaluation_criteria": {
@@ -264,7 +274,7 @@
       "context": {
         "field_id": "field-456",
         "crop_type": "wheat",
-        "ndvi_zones": {"zone_a": 0.82, "zone_b": 0.45, "zone_c": 0.71}
+        "ndvi_zones": { "zone_a": 0.82, "zone_b": 0.45, "zone_c": 0.71 }
       }
     },
     "expected_output": {
@@ -289,7 +299,7 @@
       "context": {
         "field_id": "field-456",
         "crop_type": "wheat",
-        "ndvi_zones": {"zone_a": 0.82, "zone_b": 0.45, "zone_c": 0.71}
+        "ndvi_zones": { "zone_a": 0.82, "zone_b": 0.45, "zone_c": 0.71 }
       }
     },
     "expected_output": {
@@ -373,7 +383,12 @@
     "expected_output": {
       "response": "21-day drought during heading stage may reduce barley yield by 20-30%. Consider supplemental irrigation.",
       "agents": ["yield_predictor"],
-      "key_points": ["drought impact", "barley", "yield reduction", "heading stage"],
+      "key_points": [
+        "drought impact",
+        "barley",
+        "yield reduction",
+        "heading stage"
+      ],
       "safety_constraints": ["realistic_expectations"]
     },
     "evaluation_criteria": {
@@ -521,7 +536,7 @@
       "query": "What is the weather forecast for my farm this week?",
       "context": {
         "location": "Riyadh",
-        "coordinates": {"lat": 24.7136, "lng": 46.6753},
+        "coordinates": { "lat": 24.7136, "lng": 46.6753 },
         "crop_type": "wheat"
       }
     },
@@ -546,7 +561,7 @@
       "query": "ما توقعات الطقس لمزرعتي هذا الأسبوع؟",
       "context": {
         "location": "الرياض",
-        "coordinates": {"lat": 24.7136, "lng": 46.6753},
+        "coordinates": { "lat": 24.7136, "lng": 46.6753 },
         "crop_type": "wheat"
       }
     },
@@ -579,7 +594,12 @@
     "expected_output": {
       "response": "Frost risk is HIGH tonight with expected low of 2°C. Protect citrus with covers or irrigation for frost protection.",
       "agents": ["weather_service"],
-      "key_points": ["frost risk", "citrus protection", "temperature", "prevention"],
+      "key_points": [
+        "frost risk",
+        "citrus protection",
+        "temperature",
+        "prevention"
+      ],
       "safety_constraints": ["timely_warning", "crop_protection"]
     },
     "evaluation_criteria": {
@@ -683,7 +703,12 @@
     "expected_output": {
       "response": "Yellow lower leaves in corn suggest nitrogen deficiency. Apply urea at 50kg/hectare or ammonium nitrate for quick uptake.",
       "agents": ["advisory_service", "disease_expert"],
-      "key_points": ["nitrogen deficiency", "corn", "urea", "fertilizer application"],
+      "key_points": [
+        "nitrogen deficiency",
+        "corn",
+        "urea",
+        "fertilizer application"
+      ],
       "safety_constraints": ["proper_dosage", "accurate_diagnosis"]
     },
     "evaluation_criteria": {
@@ -735,7 +760,12 @@
     "expected_output": {
       "response": "For organic aphid control, use neem oil spray or introduce ladybugs. Spray insecticidal soap for immediate effect.",
       "agents": ["pest_control_expert"],
-      "key_points": ["aphids", "organic control", "neem oil", "beneficial insects"],
+      "key_points": [
+        "aphids",
+        "organic control",
+        "neem oil",
+        "beneficial insects"
+      ],
       "safety_constraints": ["organic_methods", "food_safety"]
     },
     "evaluation_criteria": {
@@ -787,7 +817,12 @@
     "expected_output": {
       "response": "Red palm weevil requires immediate action. Inject systemic insecticide into trunk and set pheromone traps. Remove heavily infested palms.",
       "agents": ["pest_control_expert"],
-      "key_points": ["red palm weevil", "systemic treatment", "pheromone traps", "removal"],
+      "key_points": [
+        "red palm weevil",
+        "systemic treatment",
+        "pheromone traps",
+        "removal"
+      ],
       "safety_constraints": ["effective_treatment", "prevent_spread"]
     },
     "evaluation_criteria": {
@@ -813,7 +848,12 @@
     "expected_output": {
       "response": "سوسة النخيل الحمراء تتطلب إجراء فوري. احقن مبيد جهازي في الجذع وضع مصائد فيرمونية. أزل النخيل المصاب بشدة.",
       "agents": ["pest_control_expert"],
-      "key_points": ["سوسة النخيل الحمراء", "علاج جهازي", "مصائد فيرمونية", "إزالة"],
+      "key_points": [
+        "سوسة النخيل الحمراء",
+        "علاج جهازي",
+        "مصائد فيرمونية",
+        "إزالة"
+      ],
       "safety_constraints": ["effective_treatment", "prevent_spread"]
     },
     "evaluation_criteria": {
@@ -939,7 +979,12 @@
     "expected_output": {
       "response": "For Jeddah summer, consider heat-tolerant crops: okra, watermelon, cantaloupe, or date palms. Use drip irrigation.",
       "agents": ["crop_advisor"],
-      "key_points": ["summer crops", "heat tolerance", "regional suitability", "water efficiency"],
+      "key_points": [
+        "summer crops",
+        "heat tolerance",
+        "regional suitability",
+        "water efficiency"
+      ],
       "safety_constraints": ["suitable_recommendations"]
     },
     "evaluation_criteria": {
@@ -965,7 +1010,12 @@
     "expected_output": {
       "response": "لصيف جدة، فكر في محاصيل تتحمل الحرارة: البامية، البطيخ، الشمام، أو النخيل. استخدم الري بالتنقيط.",
       "agents": ["crop_advisor"],
-      "key_points": ["محاصيل صيفية", "تحمل الحرارة", "ملاءمة إقليمية", "كفاءة المياه"],
+      "key_points": [
+        "محاصيل صيفية",
+        "تحمل الحرارة",
+        "ملاءمة إقليمية",
+        "كفاءة المياه"
+      ],
       "safety_constraints": ["suitable_recommendations"]
     },
     "evaluation_criteria": {

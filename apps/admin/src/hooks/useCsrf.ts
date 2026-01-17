@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * CSRF Token Hook
@@ -7,8 +7,8 @@
  * React hook for managing CSRF tokens in forms and API requests
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { CSRF_CONFIG } from '@/lib/csrf';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { CSRF_CONFIG } from "@/lib/csrf";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -66,9 +66,9 @@ export function useCsrf(options: UseCsrfOptions = {}): UseCsrfReturn {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
-      const response = await fetch('/api/csrf-token', {
-        method: 'GET',
-        credentials: 'include',
+      const response = await fetch("/api/csrf-token", {
+        method: "GET",
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -90,7 +90,7 @@ export function useCsrf(options: UseCsrfOptions = {}): UseCsrfReturn {
         setState((prev) => ({
           ...prev,
           loading: false,
-          error: err instanceof Error ? err.message : 'Unknown error',
+          error: err instanceof Error ? err.message : "Unknown error",
         }));
       }
     }
@@ -103,9 +103,9 @@ export function useCsrf(options: UseCsrfOptions = {}): UseCsrfReturn {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
-      const response = await fetch('/api/csrf-token', {
-        method: 'POST',
-        credentials: 'include',
+      const response = await fetch("/api/csrf-token", {
+        method: "POST",
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -127,7 +127,7 @@ export function useCsrf(options: UseCsrfOptions = {}): UseCsrfReturn {
         setState((prev) => ({
           ...prev,
           loading: false,
-          error: err instanceof Error ? err.message : 'Unknown error',
+          error: err instanceof Error ? err.message : "Unknown error",
         }));
       }
     }
@@ -166,7 +166,7 @@ export function useCsrf(options: UseCsrfOptions = {}): UseCsrfReturn {
 
       return headers;
     },
-    [state.token]
+    [state.token],
   );
 
   // Add token to FormData
@@ -176,14 +176,14 @@ export function useCsrf(options: UseCsrfOptions = {}): UseCsrfReturn {
         formData.set(CSRF_CONFIG.FIELD_NAME, state.token);
       }
     },
-    [state.token]
+    [state.token],
   );
 
   // Get hidden input props for forms
   const getHiddenInput = useCallback(() => {
     return {
       name: CSRF_CONFIG.FIELD_NAME,
-      value: state.token || '',
+      value: state.token || "",
     };
   }, [state.token]);
 
@@ -251,7 +251,7 @@ interface UseCsrfFormReturn {
   loading: boolean;
   error: string | null;
   submitWithCsrf: <T>(
-    handler: (formData: FormData) => Promise<T>
+    handler: (formData: FormData) => Promise<T>,
   ) => (event: React.FormEvent<HTMLFormElement>) => Promise<T | undefined>;
 }
 
@@ -262,7 +262,7 @@ export function useCsrfForm(): UseCsrfFormReturn {
   const submitWithCsrf = useCallback(
     <T>(handler: (formData: FormData) => Promise<T>) => {
       return async (
-        event: React.FormEvent<HTMLFormElement>
+        event: React.FormEvent<HTMLFormElement>,
       ): Promise<T | undefined> => {
         event.preventDefault();
 
@@ -277,7 +277,7 @@ export function useCsrfForm(): UseCsrfFormReturn {
         return handler(formData);
       };
     },
-    [addToFormData, fetchToken, needsRefresh]
+    [addToFormData, fetchToken, needsRefresh],
   );
 
   return {

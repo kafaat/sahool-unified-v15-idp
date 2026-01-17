@@ -13,12 +13,14 @@ This wallet feature has been updated to use real API endpoints from the billing-
 The wallet feature now connects to these billing-core endpoints:
 
 ### Read Operations (القراءة)
+
 - **GET** `/api/v1/billing/wallet` - Get wallet details
 - **GET** `/api/v1/billing/wallet/stats` - Get wallet statistics
 - **GET** `/api/v1/billing/transactions` - Get transactions list (with filters)
 - **GET** `/api/v1/billing/transactions/{id}` - Get single transaction
 
 ### Write Operations (الكتابة)
+
 - **POST** `/api/v1/billing/deposit` - Create deposit
 - **POST** `/api/v1/billing/withdraw` - Create withdrawal
 - **POST** `/api/v1/billing/transfer` - Transfer to another user
@@ -28,17 +30,21 @@ The wallet feature now connects to these billing-core endpoints:
 ## Features | المميزات
 
 ### 1. Real API Integration | التكامل مع API الحقيقي
+
 - All wallet operations now use real backend endpoints
 - Automatic request/response handling with proper error handling
 - Support for query parameters and filters
 
 ### 2. Automatic Fallback | التراجع التلقائي
+
 - If the API is unavailable or returns errors, the system automatically falls back to mock data
 - Perfect for development when backend is not running
 - Console warnings notify developers when fallback is active
 
 ### 3. Arabic Error Messages | رسائل الخطأ بالعربية
+
 All error messages are provided in Arabic for better user experience:
+
 - `فشل الاتصال بالخادم` - Network connection failed
 - `لم يتم العثور على المحفظة` - Wallet not found
 - `لم يتم العثور على المعاملة` - Transaction not found
@@ -48,7 +54,9 @@ All error messages are provided in Arabic for better user experience:
 - `غير مصرح لك بهذه العملية` - Unauthorized
 
 ### 4. Enhanced Types | الأنواع المحسّنة
+
 Updated TypeScript types to support:
+
 - Tharwatt payment gateway (بوابة ثروات)
 - Mobile money payments
 - Additional metadata fields
@@ -221,6 +229,7 @@ To test with the real API:
 ### Testing Error Handling
 
 You can test error handling by:
+
 1. Stopping the billing-core service (triggers fallback)
 2. Sending invalid data (triggers validation errors with Arabic messages)
 3. Testing with insufficient balance scenarios
@@ -248,6 +257,7 @@ features/wallet/
 ## What Changed | ما الذي تغير
 
 ### api.ts
+
 - ✅ Added real API endpoint calls to `/api/v1/billing/*`
 - ✅ Implemented automatic fallback to mock data
 - ✅ Added `apiRequest()` helper with error handling
@@ -256,6 +266,7 @@ features/wallet/
 - ✅ Kept all mock data for development fallback
 
 ### types.ts
+
 - ✅ Added `tharwatt` and `mobile_money` payment methods
 - ✅ Added `failureReason` field to Transaction
 - ✅ Added `phoneNumber` and `bankAccount` to metadata
@@ -264,6 +275,7 @@ features/wallet/
 - ✅ Enhanced documentation with Arabic translations
 
 ### hooks/useWallet.ts
+
 - ℹ️ No changes needed - already compatible with new API
 
 ---
@@ -329,6 +341,7 @@ async def create_transfer(data: TransferRequest, user_id: str = Header(...)):
 ## Support | الدعم
 
 For issues or questions:
+
 - Check console for API fallback warnings
 - Review error messages in Arabic
 - Verify billing-core service is running

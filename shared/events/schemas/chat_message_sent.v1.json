@@ -50,11 +50,7 @@
     },
     "payload": {
       "type": "object",
-      "required": [
-        "thread_id",
-        "message_id",
-        "sender_id"
-      ],
+      "required": ["thread_id", "message_id", "sender_id"],
       "properties": {
         "thread_id": {
           "type": "string",

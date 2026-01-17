@@ -6,9 +6,9 @@
  * @description Utilities for validating file uploads (type, size, content)
  */
 
-import { BadRequestException } from '@nestjs/common';
-import { extname } from 'path';
-import * as crypto from 'crypto';
+import { BadRequestException } from "@nestjs/common";
+import { extname } from "path";
+import * as crypto from "crypto";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // File Type Definitions
@@ -18,11 +18,11 @@ import * as crypto from 'crypto';
  * Allowed file types for different contexts
  */
 export const ALLOWED_FILE_TYPES = {
-  IMAGES: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
-  DOCUMENTS: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv'],
-  ARCHIVES: ['zip', 'tar', 'gz', 'rar'],
-  VIDEOS: ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'],
-  AUDIO: ['mp3', 'wav', 'ogg', 'flac', 'm4a'],
+  IMAGES: ["jpg", "jpeg", "png", "gif", "webp", "svg"],
+  DOCUMENTS: ["pdf", "doc", "docx", "xls", "xlsx", "txt", "csv"],
+  ARCHIVES: ["zip", "tar", "gz", "rar"],
+  VIDEOS: ["mp4", "avi", "mov", "wmv", "flv", "webm"],
+  AUDIO: ["mp3", "wav", "ogg", "flac", "m4a"],
   ALL: [] as string[], // Will be populated below
 };
 
@@ -40,48 +40,48 @@ ALLOWED_FILE_TYPES.ALL = [
  */
 export const MIME_TYPES: Record<string, string[]> = {
   // Images
-  jpg: ['image/jpeg'],
-  jpeg: ['image/jpeg'],
-  png: ['image/png'],
-  gif: ['image/gif'],
-  webp: ['image/webp'],
-  svg: ['image/svg+xml'],
-  bmp: ['image/bmp'],
-  ico: ['image/x-icon'],
+  jpg: ["image/jpeg"],
+  jpeg: ["image/jpeg"],
+  png: ["image/png"],
+  gif: ["image/gif"],
+  webp: ["image/webp"],
+  svg: ["image/svg+xml"],
+  bmp: ["image/bmp"],
+  ico: ["image/x-icon"],
 
   // Documents
-  pdf: ['application/pdf'],
-  doc: ['application/msword'],
+  pdf: ["application/pdf"],
+  doc: ["application/msword"],
   docx: [
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ],
-  xls: ['application/vnd.ms-excel'],
-  xlsx: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-  txt: ['text/plain'],
-  csv: ['text/csv', 'application/csv'],
-  json: ['application/json'],
-  xml: ['application/xml', 'text/xml'],
+  xls: ["application/vnd.ms-excel"],
+  xlsx: ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+  txt: ["text/plain"],
+  csv: ["text/csv", "application/csv"],
+  json: ["application/json"],
+  xml: ["application/xml", "text/xml"],
 
   // Archives
-  zip: ['application/zip', 'application/x-zip-compressed'],
-  tar: ['application/x-tar'],
-  gz: ['application/gzip', 'application/x-gzip'],
-  rar: ['application/x-rar-compressed'],
+  zip: ["application/zip", "application/x-zip-compressed"],
+  tar: ["application/x-tar"],
+  gz: ["application/gzip", "application/x-gzip"],
+  rar: ["application/x-rar-compressed"],
 
   // Videos
-  mp4: ['video/mp4'],
-  avi: ['video/x-msvideo'],
-  mov: ['video/quicktime'],
-  wmv: ['video/x-ms-wmv'],
-  flv: ['video/x-flv'],
-  webm: ['video/webm'],
+  mp4: ["video/mp4"],
+  avi: ["video/x-msvideo"],
+  mov: ["video/quicktime"],
+  wmv: ["video/x-ms-wmv"],
+  flv: ["video/x-flv"],
+  webm: ["video/webm"],
 
   // Audio
-  mp3: ['audio/mpeg'],
-  wav: ['audio/wav'],
-  ogg: ['audio/ogg'],
-  flac: ['audio/flac'],
-  m4a: ['audio/mp4'],
+  mp3: ["audio/mpeg"],
+  wav: ["audio/wav"],
+  ogg: ["audio/ogg"],
+  flac: ["audio/flac"],
+  m4a: ["audio/mp4"],
 };
 
 /**
@@ -174,7 +174,7 @@ export function validateFileExtension(
   filename: string,
   allowedExtensions: string[],
 ): boolean {
-  const ext = extname(filename).toLowerCase().replace('.', '');
+  const ext = extname(filename).toLowerCase().replace(".", "");
   return allowedExtensions.map((e) => e.toLowerCase()).includes(ext);
 }
 
@@ -197,7 +197,7 @@ export function validateFileSize(size: number, maxSize: number): boolean {
  * @returns True if MIME type matches extension
  */
 export function validateMimeType(mimetype: string, extension: string): boolean {
-  const ext = extension.toLowerCase().replace('.', '');
+  const ext = extension.toLowerCase().replace(".", "");
   const allowedMimes = MIME_TYPES[ext];
 
   if (!allowedMimes) {
@@ -218,7 +218,7 @@ export function validateMagicNumber(
   buffer: Buffer,
   extension: string,
 ): boolean {
-  const ext = extension.toLowerCase().replace('.', '');
+  const ext = extension.toLowerCase().replace(".", "");
   const magicNumbers = MAGIC_NUMBERS[ext];
 
   if (!magicNumbers) {
@@ -242,47 +242,51 @@ export function validateMagicNumber(
  */
 export function checkMaliciousFilename(filename: string): boolean {
   // Check for path traversal
-  if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+  if (
+    filename.includes("..") ||
+    filename.includes("/") ||
+    filename.includes("\\")
+  ) {
     return false;
   }
 
   // Check for null bytes
-  if (filename.includes('\x00')) {
+  if (filename.includes("\x00")) {
     return false;
   }
 
   // Check for executable extensions
   const dangerousExtensions = [
-    'exe',
-    'bat',
-    'cmd',
-    'sh',
-    'ps1',
-    'dll',
-    'so',
-    'dylib',
-    'app',
-    'deb',
-    'rpm',
-    'msi',
-    'apk',
-    'jar',
-    'com',
-    'scr',
-    'vbs',
-    'js',
-    'jse',
-    'wsf',
-    'wsh',
+    "exe",
+    "bat",
+    "cmd",
+    "sh",
+    "ps1",
+    "dll",
+    "so",
+    "dylib",
+    "app",
+    "deb",
+    "rpm",
+    "msi",
+    "apk",
+    "jar",
+    "com",
+    "scr",
+    "vbs",
+    "js",
+    "jse",
+    "wsf",
+    "wsh",
   ];
 
-  const ext = extname(filename).toLowerCase().replace('.', '');
+  const ext = extname(filename).toLowerCase().replace(".", "");
   if (dangerousExtensions.includes(ext)) {
     return false;
   }
 
   // Check for double extensions (e.g., file.pdf.exe)
-  const parts = filename.split('.');
+  const parts = filename.split(".");
   if (parts.length > 2) {
     for (let i = 1; i < parts.length - 1; i++) {
       if (dangerousExtensions.includes(parts[i].toLowerCase())) {
@@ -309,16 +313,16 @@ export function validateFileUpload(
 
   // Check if file exists
   if (!file) {
-    throw new BadRequestException('No file provided');
+    throw new BadRequestException("No file provided");
   }
 
   const filename = file.originalname;
-  const extension = extname(filename).toLowerCase().replace('.', '');
+  const extension = extname(filename).toLowerCase().replace(".", "");
 
   // Validate filename for malicious content
   if (opts.checkMalicious && !checkMaliciousFilename(filename)) {
     throw new BadRequestException(
-      'Malicious filename detected. Please use a safe filename.',
+      "Malicious filename detected. Please use a safe filename.",
     );
   }
 
@@ -326,7 +330,7 @@ export function validateFileUpload(
   if (opts.allowedExtensions && opts.allowedExtensions.length > 0) {
     if (!validateFileExtension(filename, opts.allowedExtensions)) {
       throw new BadRequestException(
-        `File type .${extension} is not allowed. Allowed types: ${opts.allowedExtensions.join(', ')}`,
+        `File type .${extension} is not allowed. Allowed types: ${opts.allowedExtensions.join(", ")}`,
       );
     }
   }
@@ -374,8 +378,8 @@ export function generateSafeFilename(
 
   // Remove extension and dangerous characters
   let basename = originalFilename
-    .replace(ext, '')
-    .replace(/[^a-zA-Z0-9_-]/g, '_')
+    .replace(ext, "")
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
     .toLowerCase();
 
   // Limit length
@@ -385,11 +389,11 @@ export function generateSafeFilename(
 
   // Add timestamp and random string
   const timestamp = Date.now();
-  const random = crypto.randomBytes(4).toString('hex');
+  const random = crypto.randomBytes(4).toString("hex");
 
   // Construct filename
   const parts = [prefix, basename, timestamp, random].filter(Boolean);
-  return `${parts.join('_')}${ext}`;
+  return `${parts.join("_")}${ext}`;
 }
 
 /**
@@ -400,7 +404,7 @@ export function generateSafeFilename(
  * @returns SHA-256 hash
  */
 export function calculateFileHash(buffer: Buffer): string {
-  return crypto.createHash('sha256').update(buffer).digest('hex');
+  return crypto.createHash("sha256").update(buffer).digest("hex");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -420,10 +424,10 @@ export function createFileFilter(allowedExtensions: string[]) {
     callback: (error: Error | null, acceptFile: boolean) => void,
   ) => {
     if (!validateFileExtension(file.originalname, allowedExtensions)) {
-      const ext = extname(file.originalname).toLowerCase().replace('.', '');
+      const ext = extname(file.originalname).toLowerCase().replace(".", "");
       callback(
         new BadRequestException(
-          `File type .${ext} is not allowed. Allowed types: ${allowedExtensions.join(', ')}`,
+          `File type .${ext} is not allowed. Allowed types: ${allowedExtensions.join(", ")}`,
         ),
         false,
       );
@@ -431,10 +435,7 @@ export function createFileFilter(allowedExtensions: string[]) {
     }
 
     if (!checkMaliciousFilename(file.originalname)) {
-      callback(
-        new BadRequestException('Malicious filename detected'),
-        false,
-      );
+      callback(new BadRequestException("Malicious filename detected"), false);
       return;
     }
 

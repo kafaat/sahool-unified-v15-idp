@@ -1,22 +1,15 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Request,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { SignaturesService } from './signatures.service';
+import { Controller, Get, Post, Body, Param, Request } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { SignaturesService } from "./signatures.service";
 
-@ApiTags('signatures')
+@ApiTags("signatures")
 @ApiBearerAuth()
-@Controller('signatures')
+@Controller("signatures")
 export class SignaturesController {
   constructor(private readonly service: SignaturesService) {}
 
-  @Post('sign')
-  @ApiOperation({ summary: 'Sign an entity - توقيع كيان' })
+  @Post("sign")
+  @ApiOperation({ summary: "Sign an entity - توقيع كيان" })
   sign(
     @Body()
     body: {
@@ -30,15 +23,15 @@ export class SignaturesController {
     return this.service.signEntity(
       body.entityType,
       body.entityId,
-      req.user?.id || 'system',
+      req.user?.id || "system",
       body.purpose,
       body.data,
-      { ip: req.ip, userAgent: req.headers?.['user-agent'] },
+      { ip: req.ip, userAgent: req.headers?.["user-agent"] },
     );
   }
 
-  @Post('verify')
-  @ApiOperation({ summary: 'Verify entity signature - التحقق من توقيع كيان' })
+  @Post("verify")
+  @ApiOperation({ summary: "Verify entity signature - التحقق من توقيع كيان" })
   verify(
     @Body()
     body: {
@@ -50,22 +43,26 @@ export class SignaturesController {
     return this.service.verifyEntity(body.entityType, body.entityId, body.data);
   }
 
-  @Get(':entityType/:entityId/history')
-  @ApiOperation({ summary: 'Get signature history - تاريخ التوقيعات' })
+  @Get(":entityType/:entityId/history")
+  @ApiOperation({ summary: "Get signature history - تاريخ التوقيعات" })
   getHistory(
-    @Param('entityType') entityType: string,
-    @Param('entityId') entityId: string,
+    @Param("entityType") entityType: string,
+    @Param("entityId") entityId: string,
   ) {
     return this.service.getSignatureHistory(entityType, entityId);
   }
 
-  @Post(':id/invalidate')
-  @ApiOperation({ summary: 'Invalidate signature - إبطال توقيع' })
+  @Post(":id/invalidate")
+  @ApiOperation({ summary: "Invalidate signature - إبطال توقيع" })
   invalidate(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() body: { reason: string },
     @Request() req: any,
   ) {
-    return this.service.invalidateSignature(id, body.reason, req.user?.id || 'system');
+    return this.service.invalidateSignature(
+      id,
+      body.reason,
+      req.user?.id || "system",
+    );
   }
 }

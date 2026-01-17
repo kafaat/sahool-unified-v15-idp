@@ -10,7 +10,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 version: "1.0.0"
-last_updated: "2025-12-28"
+last_updated: "2026-01-10"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Agent Registry Configuration
@@ -788,6 +788,306 @@ agents:
 
     status: "active"
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CODE FIX AGENT - وكيل إصلاح الكود
+  # ═══════════════════════════════════════════════════════════════════════════
+  code-fix-agent:
+    name: "Code Fix Agent"
+    name_ar: "وكيل إصلاح الكود"
+    version: "1.0.0"
+    category: intelligence
+    description: "AI-powered code analysis, bug fixing, implementation, and test generation"
+    description_ar: "تحليل الكود وإصلاح الأخطاء وتنفيذ الميزات وتوليد الاختبارات بالذكاء الاصطناعي"
+
+    capabilities:
+      - name: "analyze_code"
+        description: "Comprehensive code analysis for bugs, security, performance, and style"
+        description_ar: "تحليل شامل للكود للأخطاء والأمان والأداء والأسلوب"
+        input_schema:
+          type: object
+          required: ["code", "language"]
+          properties:
+            code: { type: string }
+            language: { type: string, enum: ["python", "typescript", "dart"] }
+            file_path: { type: string }
+        output_schema:
+          type: object
+          properties:
+            issues: { type: array }
+            metrics: { type: object }
+            suggestions: { type: array }
+
+      - name: "fix_code"
+        description: "Automatically fix detected issues in code"
+        description_ar: "إصلاح المشاكل المكتشفة في الكود تلقائياً"
+        input_schema:
+          type: object
+          required: ["code", "errors"]
+          properties:
+            code: { type: string }
+            errors: { type: array }
+            strategy: { type: string, enum: ["minimal", "comprehensive", "refactor"] }
+        output_schema:
+          type: object
+          properties:
+            fixed_code: { type: string }
+            changes: { type: array }
+            confidence: { type: number }
+
+      - name: "review_pr"
+        description: "Review pull request changes and provide feedback"
+        description_ar: "مراجعة تغييرات طلب السحب وتقديم الملاحظات"
+        input_schema:
+          type: object
+          required: ["diff"]
+          properties:
+            diff: { type: string }
+            context_files: { type: array }
+        output_schema:
+          type: object
+          properties:
+            comments: { type: array }
+            approval_status: { type: string }
+            suggestions: { type: array }
+
+      - name: "generate_tests"
+        description: "Generate unit tests for code"
+        description_ar: "توليد اختبارات الوحدة للكود"
+        input_schema:
+          type: object
+          required: ["code", "language"]
+          properties:
+            code: { type: string }
+            language: { type: string }
+            framework: { type: string }
+            coverage_target: { type: number }
+        output_schema:
+          type: object
+          properties:
+            tests: { type: array }
+            coverage_estimate: { type: number }
+
+      - name: "implement_feature"
+        description: "Implement feature from specification"
+        description_ar: "تنفيذ ميزة من المواصفات"
+        input_schema:
+          type: object
+          required: ["specification"]
+          properties:
+            specification: { type: object }
+            target_files: { type: array }
+            design_patterns: { type: array }
+        output_schema:
+          type: object
+          properties:
+            implementation: { type: object }
+            tests: { type: array }
+            documentation: { type: string }
+
+    skills:
+      - skill_id: "code_analysis"
+        name: "Code Analysis"
+        name_ar: "تحليل الكود"
+        level: "expert"
+        keywords: ["analysis", "bugs", "security", "performance", "linting"]
+
+      - skill_id: "code_generation"
+        name: "Code Generation"
+        name_ar: "توليد الكود"
+        level: "expert"
+        keywords: ["generation", "implementation", "refactoring", "patterns"]
+
+      - skill_id: "testing"
+        name: "Test Generation"
+        name_ar: "توليد الاختبارات"
+        level: "advanced"
+        keywords: ["testing", "unit-tests", "coverage", "pytest", "vitest"]
+
+      - skill_id: "code_review"
+        name: "Code Review"
+        name_ar: "مراجعة الكود"
+        level: "expert"
+        keywords: ["review", "pr", "feedback", "best-practices"]
+
+    dependencies:
+      - git-service
+      - ci-cd-pipeline
+
+    endpoint:
+      url: "https://api.sahool.app/agents/code-fix/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/code-fix/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+      requires_developer_role: true
+
+    metadata:
+      tags: ["code", "development", "ai", "automation", "testing", "review"]
+      organization: "SAHOOL"
+      license: "MIT"
+      priority: "high"
+
+    status: "active"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CODE REVIEW AGENT - وكيل مراجعة الكود
+  # ═══════════════════════════════════════════════════════════════════════════
+  code-review-agent:
+    name: "Code Review Agent"
+    name_ar: "وكيل مراجعة الكود"
+    version: "1.0.0"
+    category: intelligence
+    description: "AI-powered code review agent using Claude Agent SDK for comprehensive code analysis"
+    description_ar: "وكيل مراجعة الكود بالذكاء الاصطناعي باستخدام Claude Agent SDK للتحليل الشامل"
+
+    capabilities:
+      - name: "review_code"
+        description: "Comprehensive code review for bugs, security, performance, and style"
+        description_ar: "مراجعة شاملة للكود للأخطاء والأمان والأداء والأسلوب"
+        input_schema:
+          type: object
+          required: ["directory"]
+          properties:
+            directory: { type: string }
+            model: { type: string, enum: ["opus", "sonnet", "haiku"] }
+            use_subagents: { type: boolean }
+        output_schema:
+          type: object
+          properties:
+            issues: { type: array }
+            summary: { type: string }
+            overall_score: { type: number }
+
+      - name: "security_scan"
+        description: "Deep security vulnerability analysis using specialized subagent"
+        description_ar: "تحليل عميق للثغرات الأمنية باستخدام وكيل فرعي متخصص"
+        input_schema:
+          type: object
+          required: ["directory"]
+          properties:
+            directory: { type: string }
+        output_schema:
+          type: object
+          properties:
+            vulnerabilities: { type: array }
+            risk_level: { type: string }
+
+      - name: "test_coverage_analysis"
+        description: "Analyze test coverage and quality using specialized subagent"
+        description_ar: "تحليل تغطية الاختبارات والجودة باستخدام وكيل فرعي متخصص"
+        input_schema:
+          type: object
+          required: ["directory"]
+          properties:
+            directory: { type: string }
+        output_schema:
+          type: object
+          properties:
+            coverage_gaps: { type: array }
+            recommendations: { type: array }
+
+      - name: "performance_analysis"
+        description: "Performance optimization analysis using specialized subagent"
+        description_ar: "تحليل تحسين الأداء باستخدام وكيل فرعي متخصص"
+        input_schema:
+          type: object
+          required: ["directory"]
+          properties:
+            directory: { type: string }
+        output_schema:
+          type: object
+          properties:
+            performance_issues: { type: array }
+            optimization_suggestions: { type: array }
+
+      - name: "export_report"
+        description: "Export review results in various formats (JSON, Markdown, SARIF)"
+        description_ar: "تصدير نتائج المراجعة بصيغ مختلفة (JSON, Markdown, SARIF)"
+        input_schema:
+          type: object
+          required: ["format"]
+          properties:
+            format: { type: string, enum: ["json", "markdown", "sarif"] }
+        output_schema:
+          type: object
+          properties:
+            report: { type: string }
+            format: { type: string }
+
+    skills:
+      - skill_id: "code_review"
+        name: "Code Review"
+        name_ar: "مراجعة الكود"
+        level: "expert"
+        keywords: ["review", "analysis", "bugs", "quality"]
+
+      - skill_id: "security_analysis"
+        name: "Security Analysis"
+        name_ar: "تحليل الأمان"
+        level: "expert"
+        keywords: ["security", "vulnerabilities", "owasp", "injection"]
+
+      - skill_id: "test_analysis"
+        name: "Test Analysis"
+        name_ar: "تحليل الاختبارات"
+        level: "advanced"
+        keywords: ["testing", "coverage", "quality"]
+
+      - skill_id: "performance_analysis"
+        name: "Performance Analysis"
+        name_ar: "تحليل الأداء"
+        level: "advanced"
+        keywords: ["performance", "optimization", "efficiency"]
+
+    subagents:
+      - name: "security-scanner"
+        model: "sonnet"
+        purpose: "Deep security vulnerability detection"
+
+      - name: "test-analyzer"
+        model: "haiku"
+        purpose: "Test coverage and quality analysis"
+
+      - name: "performance-analyzer"
+        model: "sonnet"
+        purpose: "Performance optimization opportunities"
+
+    dependencies:
+      - git-service
+      - ci-cd-pipeline
+
+    endpoint:
+      url: "https://api.sahool.app/agents/code-review/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/code-review/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+      requires_developer_role: true
+
+    hooks:
+      - name: "audit_logger"
+        event: "PreToolUse"
+        description: "Logs all tool usage for compliance"
+
+      - name: "dangerous_command_blocker"
+        event: "PreToolUse"
+        description: "Blocks dangerous shell commands"
+
+    metadata:
+      tags: ["code", "review", "ai", "claude-agent-sdk", "security", "quality"]
+      organization: "SAHOOL"
+      license: "Proprietary"
+      priority: "high"
+      sdk: "@anthropic-ai/claude-agent-sdk"
+
+    status: "active"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Agent Orchestration Rules
 # ─────────────────────────────────────────────────────────────────────────────
@@ -823,6 +1123,47 @@ orchestration:
         - irrigation-advisor-agent
         - crop-growth-monitor-agent
       execution: "parallel"
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # Code Quality Workflows - سير عمل جودة الكود
+    # ═══════════════════════════════════════════════════════════════════════
+
+    code_review:
+      description: "Comprehensive code review workflow / سير عمل مراجعة الكود الشامل"
+      description_ar: "سير عمل مراجعة الكود الشامل"
+      agents:
+        - code-review-agent
+      execution: "parallel"
+      subagents:
+        - security-scanner
+        - test-analyzer
+        - performance-analyzer
+      tasks:
+        - review_code
+        - security_scan
+        - test_coverage_analysis
+        - performance_analysis
+        - export_report
+      trigger: "event"
+      event_types:
+        - pull_request_opened
+        - pull_request_updated
+        - code_push
+
+    code_quality_ci:
+      description: "Code quality check for CI/CD / فحص جودة الكود للتكامل المستمر"
+      description_ar: "فحص جودة الكود للتكامل المستمر"
+      agents:
+        - code-review-agent
+        - code-fix-agent
+      execution: "sequential"
+      tasks:
+        - review_code
+        - generate_tests
+        - fix_code
+      trigger: "event"
+      event_types:
+        - ci_pipeline_started
 
     # ═══════════════════════════════════════════════════════════════════════
     # Security & Audit Workflows - سير عمل الأمان والتدقيق

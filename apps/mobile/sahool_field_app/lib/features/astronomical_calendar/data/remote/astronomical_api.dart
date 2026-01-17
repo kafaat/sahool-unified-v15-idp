@@ -7,6 +7,7 @@ import '../../../../core/config/api_config.dart';
 import '../../domain/entities/astronomical_entities.dart';
 
 /// API Client للتقويم الفلكي
+/// Routes through Kong Gateway on port 8000
 class AstronomicalCalendarApi {
   final http.Client _client;
   final String? _authToken;
@@ -22,7 +23,9 @@ class AstronomicalCalendarApi {
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       };
 
-  String get _baseUrl => ApiConfig.astronomicalCalendarServiceUrl;
+  /// Base URL for astronomical calendar via Kong Gateway
+  /// Kong route: /api/v1/astronomy → astronomical-calendar-service
+  String get _baseUrl => '${ApiConfig.baseUrl}/api/v1/astronomy';
 
   // ═══════════════════════════════════════════════════════════════════════════
   // التقويم اليومي

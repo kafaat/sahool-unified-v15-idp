@@ -1,4 +1,5 @@
 # Shared Crypto Usage Examples
+
 ## أمثلة استخدام مكتبة التشفير
 
 This document provides practical examples of using the @sahool/shared-crypto package.
@@ -22,27 +23,27 @@ This document provides practical examples of using the @sahool/shared-crypto pac
 ### Standard Encryption (Non-searchable)
 
 ```typescript
-import { encrypt, decrypt } from '@sahool/shared-crypto';
+import { encrypt, decrypt } from "@sahool/shared-crypto";
 
 // Encrypt sensitive data
-const sensitiveData = 'User\'s private information';
+const sensitiveData = "User's private information";
 const encrypted = encrypt(sensitiveData);
-console.log('Encrypted:', encrypted);
+console.log("Encrypted:", encrypted);
 // Output: "base64IV:base64AuthTag:base64Ciphertext"
 
 // Decrypt data
 const decrypted = decrypt(encrypted);
-console.log('Decrypted:', decrypted);
+console.log("Decrypted:", decrypted);
 // Output: "User's private information"
 ```
 
 ### Deterministic Encryption (Searchable)
 
 ```typescript
-import { encryptSearchable } from '@sahool/shared-crypto';
+import { encryptSearchable } from "@sahool/shared-crypto";
 
 // Encrypt data for searching
-const nationalId = '1234567890';
+const nationalId = "1234567890";
 const encrypted1 = encryptSearchable(nationalId);
 const encrypted2 = encryptSearchable(nationalId);
 
@@ -52,7 +53,7 @@ console.log(encrypted1 === encrypted2); // true
 // Use for searching in database
 const user = await prisma.user.findFirst({
   where: {
-    nationalId: encryptSearchable('1234567890'),
+    nationalId: encryptSearchable("1234567890"),
   },
 });
 ```
@@ -60,28 +61,29 @@ const user = await prisma.user.findFirst({
 ### Batch Field Encryption
 
 ```typescript
-import { encryptFields, decryptFields } from '@sahool/shared-crypto';
+import { encryptFields, decryptFields } from "@sahool/shared-crypto";
 
 const userData = {
-  name: 'Ahmed',
-  email: 'ahmed@example.com',
-  phone: '0551234567',
-  nationalId: '1234567890',
-  dateOfBirth: '1990-01-01',
+  name: "Ahmed",
+  email: "ahmed@example.com",
+  phone: "0551234567",
+  nationalId: "1234567890",
+  dateOfBirth: "1990-01-01",
 };
 
 // Encrypt specific fields
 const encrypted = encryptFields(
   userData,
-  ['phone', 'nationalId', 'dateOfBirth'],
-  true // Use deterministic for phone and nationalId
+  ["phone", "nationalId", "dateOfBirth"],
+  true, // Use deterministic for phone and nationalId
 );
 
 // Decrypt fields
-const decrypted = decryptFields(
-  encrypted,
-  ['phone', 'nationalId', 'dateOfBirth']
-);
+const decrypted = decryptFields(encrypted, [
+  "phone",
+  "nationalId",
+  "dateOfBirth",
+]);
 ```
 
 ---
@@ -91,17 +93,17 @@ const decrypted = decryptFields(
 ### Hash Password
 
 ```typescript
-import { hashPassword, verifyPassword } from '@sahool/shared-crypto';
+import { hashPassword, verifyPassword } from "@sahool/shared-crypto";
 
 // Hash password (async)
-const password = 'user-secure-password';
+const password = "user-secure-password";
 const hashedPassword = await hashPassword(password);
-console.log('Hashed:', hashedPassword);
+console.log("Hashed:", hashedPassword);
 // Output: "$2a$12$..."
 
 // Verify password
 const isValid = await verifyPassword(password, hashedPassword);
-console.log('Password valid:', isValid); // true
+console.log("Password valid:", isValid); // true
 
 // With custom rounds
 const strongHash = await hashPassword(password, 14); // More secure, slower
@@ -110,11 +112,11 @@ const strongHash = await hashPassword(password, 14); // More secure, slower
 ### Synchronous Password Hashing
 
 ```typescript
-import { hashPasswordSync, verifyPasswordSync } from '@sahool/shared-crypto';
+import { hashPasswordSync, verifyPasswordSync } from "@sahool/shared-crypto";
 
 // For synchronous operations (use async when possible)
-const hashedPassword = hashPasswordSync('password123');
-const isValid = verifyPasswordSync('password123', hashedPassword);
+const hashedPassword = hashPasswordSync("password123");
+const isValid = verifyPasswordSync("password123", hashedPassword);
 ```
 
 ---
@@ -124,13 +126,15 @@ const isValid = verifyPasswordSync('password123', hashedPassword);
 ### Detect PII
 
 ```typescript
-import { detectPII, PIIType } from '@sahool/shared-crypto';
+import { detectPII, PIIType } from "@sahool/shared-crypto";
 
-const text = 'My phone is 0551234567 and email is ahmed@example.com';
+const text = "My phone is 0551234567 and email is ahmed@example.com";
 const detected = detectPII(text);
 
 detected.forEach((pii) => {
-  console.log(`Found ${pii.type}: ${pii.value} (confidence: ${pii.confidence})`);
+  console.log(
+    `Found ${pii.type}: ${pii.value} (confidence: ${pii.confidence})`,
+  );
 });
 // Output:
 // Found PHONE: 0551234567 (confidence: 0.95)
@@ -140,9 +144,9 @@ detected.forEach((pii) => {
 ### Mask PII
 
 ```typescript
-import { maskPII, MaskingStrategy } from '@sahool/shared-crypto';
+import { maskPII, MaskingStrategy } from "@sahool/shared-crypto";
 
-const text = 'Contact me at 0551234567 or ahmed@example.com';
+const text = "Contact me at 0551234567 or ahmed@example.com";
 
 // Partial masking (default)
 const masked = maskPII(text, MaskingStrategy.PARTIAL);
@@ -166,23 +170,23 @@ console.log(redacted);
 import {
   shouldEncrypt,
   autoEncrypt,
-  encryptSensitiveFields
-} from '@sahool/shared-crypto';
+  encryptSensitiveFields,
+} from "@sahool/shared-crypto";
 
 // Check if field should be encrypted
-if (shouldEncrypt('nationalId')) {
-  console.log('This field should be encrypted');
+if (shouldEncrypt("nationalId")) {
+  console.log("This field should be encrypted");
 }
 
 // Auto-encrypt based on field name
-const encrypted = autoEncrypt('nationalId', '1234567890');
+const encrypted = autoEncrypt("nationalId", "1234567890");
 
 // Encrypt all sensitive fields in object
 const userData = {
-  name: 'Ahmed',
-  nationalId: '1234567890',
-  phone: '0551234567',
-  email: 'ahmed@example.com',
+  name: "Ahmed",
+  nationalId: "1234567890",
+  phone: "0551234567",
+  email: "ahmed@example.com",
 };
 
 const encrypted = encryptSensitiveFields(userData);
@@ -197,9 +201,9 @@ const encrypted = encryptSensitiveFields(userData);
 
 ```typescript
 // src/prisma/prisma.service.ts
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { createPrismaEncryptionMiddleware } from '@sahool/shared-crypto';
+import { Injectable, OnModuleInit } from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
+import { createPrismaEncryptionMiddleware } from "@sahool/shared-crypto";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -209,31 +213,31 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     // Configure which fields to encrypt
     const encryptionConfig = {
       User: {
-        phone: { type: 'deterministic' },
-        ssn: { type: 'standard' },
+        phone: { type: "deterministic" },
+        ssn: { type: "standard" },
       },
       UserProfile: {
-        nationalId: { type: 'deterministic' },
-        dateOfBirth: { type: 'standard' },
-        address: { type: 'standard' },
+        nationalId: { type: "deterministic" },
+        dateOfBirth: { type: "standard" },
+        address: { type: "standard" },
       },
       Payment: {
-        creditCardNumber: { type: 'standard' },
-        bankAccount: { type: 'standard' },
+        creditCardNumber: { type: "standard" },
+        bankAccount: { type: "standard" },
       },
     };
 
     // Apply middleware
     this.$use(
       createPrismaEncryptionMiddleware(encryptionConfig, {
-        debug: process.env.CRYPTO_DEBUG === 'true',
+        debug: process.env.CRYPTO_DEBUG === "true",
         onError: (error, context) => {
           console.error(
             `Encryption error in ${context.model}.${context.field}:`,
-            error.message
+            error.message,
           );
         },
-      })
+      }),
     );
   }
 
@@ -249,15 +253,15 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 // Create user with encrypted fields
 const user = await prisma.user.create({
   data: {
-    email: 'ahmed@example.com',
-    phone: '0551234567', // Automatically encrypted
-    passwordHash: await hashPassword('password'),
-    firstName: 'Ahmed',
-    lastName: 'Ali',
+    email: "ahmed@example.com",
+    phone: "0551234567", // Automatically encrypted
+    passwordHash: await hashPassword("password"),
+    firstName: "Ahmed",
+    lastName: "Ali",
     profile: {
       create: {
-        nationalId: '1234567890', // Automatically encrypted
-        dateOfBirth: new Date('1990-01-01'), // Automatically encrypted
+        nationalId: "1234567890", // Automatically encrypted
+        dateOfBirth: new Date("1990-01-01"), // Automatically encrypted
       },
     },
   },
@@ -269,7 +273,7 @@ console.log(user.phone); // "0551234567" (decrypted)
 // Search by encrypted field (works with deterministic)
 const foundUser = await prisma.user.findFirst({
   where: {
-    phone: '0551234567', // Automatically encrypted for search
+    phone: "0551234567", // Automatically encrypted for search
   },
 });
 
@@ -277,7 +281,7 @@ const foundUser = await prisma.user.findFirst({
 await prisma.user.update({
   where: { id: user.id },
   data: {
-    phone: '0559876543', // Automatically encrypted
+    phone: "0559876543", // Automatically encrypted
   },
 });
 ```
@@ -357,33 +361,33 @@ session.commit()
 ### Create and Verify HMAC
 
 ```typescript
-import { createHMAC, verifyHMAC } from '@sahool/shared-crypto';
+import { createHMAC, verifyHMAC } from "@sahool/shared-crypto";
 
 // Create HMAC signature
-const data = 'Important message that must not be tampered with';
+const data = "Important message that must not be tampered with";
 const signature = createHMAC(data);
 
 // Verify data integrity
 const isValid = verifyHMAC(data, signature);
-console.log('Data integrity:', isValid); // true
+console.log("Data integrity:", isValid); // true
 
 // Tampered data
-const tamperedData = 'Important message that was modified';
+const tamperedData = "Important message that was modified";
 const isStillValid = verifyHMAC(tamperedData, signature);
-console.log('Tampered data:', isStillValid); // false
+console.log("Tampered data:", isStillValid); // false
 ```
 
 ### Checksum Verification
 
 ```typescript
-import { createChecksum, verifyChecksum } from '@sahool/shared-crypto';
+import { createChecksum, verifyChecksum } from "@sahool/shared-crypto";
 
-const fileContent = 'File contents here...';
+const fileContent = "File contents here...";
 const checksum = createChecksum(fileContent);
 
 // Later, verify file hasn't changed
 const isValid = verifyChecksum(fileContent, checksum);
-console.log('File intact:', isValid);
+console.log("File intact:", isValid);
 ```
 
 ---
@@ -393,11 +397,11 @@ console.log('File intact:', isValid);
 ### Key Rotation
 
 ```typescript
-import { rotateEncryption } from '@sahool/shared-crypto';
+import { rotateEncryption } from "@sahool/shared-crypto";
 
 // Set PREVIOUS_ENCRYPTION_KEY in environment
 // Then re-encrypt data
-const oldEncrypted = 'existing-encrypted-data';
+const oldEncrypted = "existing-encrypted-data";
 const newEncrypted = rotateEncryption(oldEncrypted);
 
 // Batch rotation
@@ -418,23 +422,23 @@ for (const user of users) {
 ```typescript
 import {
   createPrismaEncryptionMiddleware,
-  mergeEncryptionConfigs
-} from '@sahool/shared-crypto';
+  mergeEncryptionConfigs,
+} from "@sahool/shared-crypto";
 
 // Base config
 const baseConfig = {
   User: {
-    phone: { type: 'deterministic' },
+    phone: { type: "deterministic" },
   },
 };
 
 // Additional config
 const additionalConfig = {
   User: {
-    ssn: { type: 'standard' },
+    ssn: { type: "standard" },
   },
   Payment: {
-    creditCard: { type: 'standard' },
+    creditCard: { type: "standard" },
   },
 };
 
@@ -447,7 +451,11 @@ prisma.$use(createPrismaEncryptionMiddleware(fullConfig));
 ### Conditional Encryption
 
 ```typescript
-import { shouldEncrypt, getSensitivityLevel, SensitivityLevel } from '@sahool/shared-crypto';
+import {
+  shouldEncrypt,
+  getSensitivityLevel,
+  SensitivityLevel,
+} from "@sahool/shared-crypto";
 
 function handleUserData(fieldName: string, value: string) {
   const sensitivity = getSensitivityLevel(fieldName, value);
@@ -478,8 +486,8 @@ function handleUserData(fieldName: string, value: string) {
 ```typescript
 // Search by multiple encrypted fields
 const searchCriteria = {
-  phone: '0551234567',
-  nationalId: '1234567890',
+  phone: "0551234567",
+  nationalId: "1234567890",
 };
 
 const user = await prisma.user.findFirst({
@@ -488,8 +496,8 @@ const user = await prisma.user.findFirst({
       { phone: searchCriteria.phone },
       {
         profile: {
-          nationalId: searchCriteria.nationalId
-        }
+          nationalId: searchCriteria.nationalId,
+        },
       },
     ],
   },
@@ -504,25 +512,25 @@ const user = await prisma.user.findFirst({
 ### Unit Tests
 
 ```typescript
-import { encrypt, decrypt, encryptSearchable } from '@sahool/shared-crypto';
+import { encrypt, decrypt, encryptSearchable } from "@sahool/shared-crypto";
 
-describe('Encryption', () => {
-  it('should encrypt and decrypt data', () => {
-    const original = 'sensitive data';
+describe("Encryption", () => {
+  it("should encrypt and decrypt data", () => {
+    const original = "sensitive data";
     const encrypted = encrypt(original);
     const decrypted = decrypt(encrypted);
     expect(decrypted).toBe(original);
   });
 
-  it('should produce deterministic results', () => {
-    const data = '1234567890';
+  it("should produce deterministic results", () => {
+    const data = "1234567890";
     const encrypted1 = encryptSearchable(data);
     const encrypted2 = encryptSearchable(data);
     expect(encrypted1).toBe(encrypted2);
   });
 
-  it('should detect PII', () => {
-    const text = 'Phone: 0551234567';
+  it("should detect PII", () => {
+    const text = "Phone: 0551234567";
     const detected = detectPII(text);
     expect(detected).toHaveLength(1);
     expect(detected[0].type).toBe(PIIType.PHONE);

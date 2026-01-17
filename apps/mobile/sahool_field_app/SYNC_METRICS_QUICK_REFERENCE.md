@@ -3,6 +3,7 @@
 ## Quick Setup (Copy & Paste)
 
 ### 1. main.dart
+
 ```dart
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/sync/sync_metrics_providers.dart';
@@ -27,6 +28,7 @@ void main() async {
 ```
 
 ### 2. Compact Widget (Dashboard)
+
 ```dart
 import 'features/sync/ui/sync_metrics_widget.dart';
 
@@ -34,6 +36,7 @@ const SyncMetricsWidget(isCompact: true)
 ```
 
 ### 3. Full Screen (Dedicated Page)
+
 ```dart
 import 'features/sync/ui/sync_metrics_widget.dart';
 
@@ -45,16 +48,17 @@ Scaffold(
 
 ## Key Metrics At-a-Glance
 
-| Metric | Formula | Good | Warning | Bad |
-|--------|---------|------|---------|-----|
-| **Success Rate** | successful / total | >90% | 80-90% | <80% |
-| **Queue Depth** | pending items | <5 | 5-10 | >10 |
-| **Avg Duration** | total ms / count | <2s | 2-5s | >5s |
-| **Conflicts/Day** | daily conflicts | <2 | 2-5 | >5 |
+| Metric            | Formula            | Good | Warning | Bad  |
+| ----------------- | ------------------ | ---- | ------- | ---- |
+| **Success Rate**  | successful / total | >90% | 80-90%  | <80% |
+| **Queue Depth**   | pending items      | <5   | 5-10    | >10  |
+| **Avg Duration**  | total ms / count   | <2s  | 2-5s    | >5s  |
+| **Conflicts/Day** | daily conflicts    | <2   | 2-5     | >5   |
 
 ## Common Code Snippets
 
 ### Track Manual Sync Operation
+
 ```dart
 final service = ref.watch(syncMetricsServiceProvider);
 
@@ -74,6 +78,7 @@ await service.completeSyncOperation(
 ```
 
 ### Track with Conflict
+
 ```dart
 await service.completeSyncOperation(
   operationId: opId,
@@ -84,6 +89,7 @@ await service.completeSyncOperation(
 ```
 
 ### Track with Retry
+
 ```dart
 await service.recordRetry(
   operationId: opId,
@@ -93,12 +99,14 @@ await service.recordRetry(
 ```
 
 ### Export for Debugging
+
 ```dart
 final json = service.exportMetricsAsString();
 Clipboard.setData(ClipboardData(text: json));
 ```
 
 ### Reset Metrics
+
 ```dart
 await service.resetMetrics();
 ```
@@ -106,21 +114,27 @@ await service.resetMetrics();
 ## Widget Modes
 
 ### Compact Mode (Small Space)
+
 ```dart
 SyncMetricsWidget(isCompact: true)
 ```
+
 Shows: Health badge, 4 key metrics, last sync time
 
 ### Full Mode (Dedicated Screen)
+
 ```dart
 SyncMetricsWidget(showDebugInfo: false)
 ```
+
 Shows: All cards except debug info
 
 ### Debug Mode (For Developers)
+
 ```dart
 SyncMetricsWidget(showDebugInfo: true)
 ```
+
 Shows: Everything including debug card with export/reset
 
 ## File Locations
@@ -144,6 +158,7 @@ lib/
 ## Data Models Quick Ref
 
 ### SyncMetrics
+
 ```dart
 .totalOperations        // int
 .successfulOperations   // int
@@ -159,6 +174,7 @@ lib/
 ```
 
 ### DailyMetrics
+
 ```dart
 .date                   // DateTime
 .totalOperations        // int
@@ -194,11 +210,13 @@ ref.watch(queueManagerWithMetricsProvider)
 ## Enums Quick Ref
 
 ### SyncOperationType
+
 - `upload` - Uploading to server
 - `download` - Downloading from server
 - `conflict` - Conflict resolution
 
 ### ConflictResolution
+
 - `serverWins` - Server version kept
 - `localWins` - Local version kept
 - `merged` - Data merged
@@ -207,6 +225,7 @@ ref.watch(queueManagerWithMetricsProvider)
 ## Troubleshooting Quick Fixes
 
 ### Provider Error
+
 ```dart
 // Ensure in main.dart:
 syncMetricsServiceProvider.overrideWith((ref) =>
@@ -214,6 +233,7 @@ syncMetricsServiceProvider.overrideWith((ref) =>
 ```
 
 ### Metrics Not Updating
+
 ```dart
 // Check SyncEngine has metrics:
 SyncEngine(
@@ -223,6 +243,7 @@ SyncEngine(
 ```
 
 ### Charts Empty
+
 ```dart
 // Run some syncs first, then:
 Navigator.push(context, MaterialPageRoute(
@@ -231,6 +252,7 @@ Navigator.push(context, MaterialPageRoute(
 ```
 
 ### Export Not Working
+
 ```dart
 // Must add permission for clipboard:
 import 'package:flutter/services.dart';
@@ -240,12 +262,14 @@ Clipboard.setData(ClipboardData(text: json));
 ## Performance Tips
 
 ✅ **DO**:
+
 - Use compact mode in dashboards
 - Export metrics before major updates
 - Monitor success rate weekly
 - Reset metrics after testing
 
 ❌ **DON'T**:
+
 - Show full mode in small spaces
 - Keep debug mode on in production
 - Ignore declining success rates
@@ -290,22 +314,23 @@ assert(metrics.totalOperations > 0);
 
 ## API Method Summary
 
-| Method | Purpose | Returns |
-|--------|---------|---------|
-| `startSyncOperation()` | Begin tracking | String (opId) |
-| `completeSyncOperation()` | End tracking | Future<void> |
-| `recordRetry()` | Log retry attempt | Future<void> |
-| `updateQueueDepth()` | Update queue size | Future<void> |
-| `exportMetrics()` | Get JSON data | Map<String, dynamic> |
-| `exportMetricsAsString()` | Get formatted JSON | String |
-| `resetMetrics()` | Clear all data | Future<void> |
-| `getLastNDays()` | Get daily metrics | List<DailyMetrics> |
-| `getDailyMetrics()` | Get specific day | DailyMetrics? |
-| `getWeeklyMetrics()` | Get specific week | WeeklyMetrics? |
+| Method                    | Purpose            | Returns              |
+| ------------------------- | ------------------ | -------------------- |
+| `startSyncOperation()`    | Begin tracking     | String (opId)        |
+| `completeSyncOperation()` | End tracking       | Future<void>         |
+| `recordRetry()`           | Log retry attempt  | Future<void>         |
+| `updateQueueDepth()`      | Update queue size  | Future<void>         |
+| `exportMetrics()`         | Get JSON data      | Map<String, dynamic> |
+| `exportMetricsAsString()` | Get formatted JSON | String               |
+| `resetMetrics()`          | Clear all data     | Future<void>         |
+| `getLastNDays()`          | Get daily metrics  | List<DailyMetrics>   |
+| `getDailyMetrics()`       | Get specific day   | DailyMetrics?        |
+| `getWeeklyMetrics()`      | Get specific week  | WeeklyMetrics?       |
 
 ## Storage Keys
 
 SharedPreferences keys used:
+
 - `sync_metrics_current` - Current metrics
 - `sync_metrics_daily` - Daily aggregates
 - `sync_metrics_weekly` - Weekly aggregates
@@ -323,6 +348,7 @@ Navigator.push(
 ```
 
 Provides:
+
 - ✅ Simulate successful sync
 - ❌ Simulate failed sync
 - ⚠️ Simulate conflict
@@ -332,12 +358,14 @@ Provides:
 ## Chart Configuration
 
 ### Historical Trends Chart
+
 - **Type**: Line chart
 - **Lines**: 3 (total, success, failed)
 - **Period**: Last 7 days
 - **Colors**: Blue, Green, Red
 
 ### Queue Depth Chart
+
 - **Type**: Line chart
 - **Lines**: 1 (queue depth)
 - **Samples**: Last 100
@@ -345,17 +373,17 @@ Provides:
 
 ## Arabic Translations
 
-| English | Arabic |
-|---------|--------|
-| Sync Status | حالة المزامنة |
-| Operations | العمليات |
-| Success | النجاح |
-| Conflicts | التعارضات |
-| Queue | قيد الانتظار |
-| Last sync | آخر مزامنة |
-| Healthy | صحي |
-| Warning | تحذير |
-| Needs attention | يحتاج انتباه |
+| English         | Arabic        |
+| --------------- | ------------- |
+| Sync Status     | حالة المزامنة |
+| Operations      | العمليات      |
+| Success         | النجاح        |
+| Conflicts       | التعارضات     |
+| Queue           | قيد الانتظار  |
+| Last sync       | آخر مزامنة    |
+| Healthy         | صحي           |
+| Warning         | تحذير         |
+| Needs attention | يحتاج انتباه  |
 
 ## Quick Calculations
 
@@ -374,12 +402,12 @@ else '${bytes/(1024*1024):0.2f} MB'
 
 ## Memory Limits
 
-| Data | Limit | Cleanup |
-|------|-------|---------|
-| Operation History | 100 ops | Auto (FIFO) |
-| Queue Samples | 1000 samples | Auto (FIFO) |
-| Daily Metrics | Unlimited | Manual |
-| Weekly Metrics | Unlimited | Manual |
+| Data              | Limit        | Cleanup     |
+| ----------------- | ------------ | ----------- |
+| Operation History | 100 ops      | Auto (FIFO) |
+| Queue Samples     | 1000 samples | Auto (FIFO) |
+| Daily Metrics     | Unlimited    | Manual      |
+| Weekly Metrics    | Unlimited    | Manual      |
 
 ---
 

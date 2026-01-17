@@ -20,21 +20,25 @@ We needed an architecture that allows the mobile app to function fully without i
 We adopted an **Offline-First Architecture** with the following components:
 
 ### 1. Local Database (Drift/SQLite)
+
 - All data stored locally first
 - Full CRUD operations available offline
 - Automatic schema migrations
 
 ### 2. Sync Engine with Outbox Pattern
+
 - Changes queued in outbox table
 - Background sync when online
 - Conflict resolution strategies
 
 ### 3. Conflict Resolution
+
 - Last-write-wins for non-critical data
 - Server-wins for financial/official data
 - User-choice for complex conflicts
 
 ### 4. Optimistic UI
+
 - UI updates immediately on local change
 - Rollback on sync failure
 - Clear sync status indicators
@@ -67,6 +71,7 @@ We adopted an **Offline-First Architecture** with the following components:
 ### Alternative 1: Online-Only
 
 **Rejected because:**
+
 - Unusable in rural Yemen (60%+ of target users)
 - Data loss during connectivity issues
 - Poor UX with loading states
@@ -74,6 +79,7 @@ We adopted an **Offline-First Architecture** with the following components:
 ### Alternative 2: Cache-First (Read Offline, Write Online)
 
 **Rejected because:**
+
 - Cannot record field data offline
 - Partial functionality frustrates users
 - Complex UX for explaining limitations
@@ -81,6 +87,7 @@ We adopted an **Offline-First Architecture** with the following components:
 ### Alternative 3: PWA with Service Workers
 
 **Rejected because:**
+
 - Limited offline storage (quota issues)
 - Less reliable on Android (target platform)
 - Harder to implement complex sync

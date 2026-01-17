@@ -1,4 +1,5 @@
 # SAHOOL Services - Shared Configuration
+
 # تكوينات مشتركة لخدمات سهول
 
 This directory contains centralized configuration modules used across all SAHOOL microservices.
@@ -12,7 +13,7 @@ Centralized CORS (Cross-Origin Resource Sharing) configuration with secure defau
 #### Features
 
 - **Environment-based configuration**: Automatically selects appropriate origins based on `ENVIRONMENT` variable
-- **Production security**: Prevents wildcard (*) origins in production
+- **Production security**: Prevents wildcard (\*) origins in production
 - **Explicit whitelisting**: All allowed origins are explicitly listed
 - **Logging and monitoring**: Logs CORS configuration and security warnings
 - **Easy integration**: Single function call to configure any FastAPI service
@@ -20,12 +21,14 @@ Centralized CORS (Cross-Origin Resource Sharing) configuration with secure defau
 #### Allowed Origins
 
 **Production:**
+
 - `https://sahool.app`
 - `https://admin.sahool.app`
 - `https://api.sahool.app`
 - `https://www.sahool.app`
 
 **Development:**
+
 - `http://localhost:3000`
 - `http://localhost:3001`
 - `http://localhost:5173`
@@ -36,6 +39,7 @@ Centralized CORS (Cross-Origin Resource Sharing) configuration with secure defau
 - `http://127.0.0.1:8080`
 
 **Staging:**
+
 - `https://staging.sahool.app`
 - `https://admin-staging.sahool.app`
 - `https://api-staging.sahool.app`
@@ -51,14 +55,14 @@ setup_cors_middleware(app)
 
 #### Environment Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `ENVIRONMENT` | Environment name | `production`, `staging`, `development` |
+| Variable       | Description                                         | Example                                       |
+| -------------- | --------------------------------------------------- | --------------------------------------------- |
+| `ENVIRONMENT`  | Environment name                                    | `production`, `staging`, `development`        |
 | `CORS_ORIGINS` | Custom comma-separated origins (overrides defaults) | `https://example.com,https://app.example.com` |
 
 #### Security Features
 
-1. **No wildcard in production**: Automatically blocks wildcard (*) origins in production
+1. **No wildcard in production**: Automatically blocks wildcard (\*) origins in production
 2. **Explicit whitelisting**: All origins must be explicitly listed
 3. **Credential security**: Properly configured credential support with origin validation
 4. **Security warnings**: Logs critical warnings if insecure configuration detected
@@ -112,6 +116,7 @@ setup_cors_middleware(app)  # ✅ Secure, environment-aware configuration
 Returns the list of allowed origins based on environment.
 
 **Priority:**
+
 1. `CORS_ORIGINS` environment variable
 2. Environment-specific defaults (`ENVIRONMENT` variable)
 3. Development origins (safest fallback)
@@ -121,6 +126,7 @@ Returns the list of allowed origins based on environment.
 Configures CORS middleware with secure defaults.
 
 **Parameters:**
+
 - `app`: FastAPI application instance
 - `allowed_origins`: Custom origins list (optional)
 - `allow_credentials`: Allow credentials (default: True)
@@ -134,6 +140,7 @@ Configures CORS middleware with secure defaults.
 Returns current CORS configuration as a dictionary for debugging.
 
 **Returns:**
+
 ```python
 {
     "environment": "production",
@@ -176,7 +183,7 @@ python -m uvicorn main:app
 
 ## Security Best Practices
 
-1. **Never use wildcard (*) in production**
+1. **Never use wildcard (\*) in production**
    - Exposes your API to all domains
    - Allows credential theft
    - Enables CSRF attacks
@@ -207,6 +214,7 @@ python -m uvicorn main:app
 ## Support
 
 For questions or issues with CORS configuration:
+
 1. Check service logs for CORS-related warnings
 2. Verify `ENVIRONMENT` variable is set correctly
 3. Ensure origins are properly formatted (include protocol: `https://`)

@@ -1,4 +1,5 @@
 # PostGIS Test Suite - Quick Reference Card
+
 # مرجع سريع لمجموعة اختبارات PostGIS
 
 ## Installation | التثبيت
@@ -26,18 +27,18 @@ pytest tests/test_postgis_validation.py --cov=src --cov-report=html
 
 ## Test Categories | فئات الاختبارات
 
-| Category | Class Name | Tests |
-|----------|------------|-------|
-| Geometry Validation | TestGeometryValidation | 4 |
-| Spatial Operations | TestSpatialOperations | 5 |
-| Coordinate Systems | TestCoordinateReferenceSystems | 3 |
-| Field Boundaries | TestFieldBoundaryValidation | 4 |
-| Index Performance | TestIndexPerformance | 2 |
-| Integration | TestPostGISIntegration | 2 |
-| Utilities | TestUtilityFunctions | 2 |
-| Benchmarks | TestPerformanceBenchmarks | 1 |
-| Error Handling | TestErrorHandling | 3 |
-| **TOTAL** | **9 classes** | **26 tests** |
+| Category            | Class Name                     | Tests        |
+| ------------------- | ------------------------------ | ------------ |
+| Geometry Validation | TestGeometryValidation         | 4            |
+| Spatial Operations  | TestSpatialOperations          | 5            |
+| Coordinate Systems  | TestCoordinateReferenceSystems | 3            |
+| Field Boundaries    | TestFieldBoundaryValidation    | 4            |
+| Index Performance   | TestIndexPerformance           | 2            |
+| Integration         | TestPostGISIntegration         | 2            |
+| Utilities           | TestUtilityFunctions           | 2            |
+| Benchmarks          | TestPerformanceBenchmarks      | 1            |
+| Error Handling      | TestErrorHandling              | 3            |
+| **TOTAL**           | **9 classes**                  | **26 tests** |
 
 ## Yemen Coordinates | إحداثيات اليمن
 
@@ -119,6 +120,7 @@ sudo apt-get install gdal-bin libgdal-dev
 ## Quick Examples | أمثلة سريعة
 
 ### Validate Polygon
+
 ```python
 from shapely.geometry import Polygon
 
@@ -127,6 +129,7 @@ assert polygon.is_valid
 ```
 
 ### Calculate Area
+
 ```python
 from pyproj import Geod
 
@@ -139,6 +142,7 @@ area_hectares = abs(area_m2) / 10000
 ```
 
 ### Check Point in Polygon
+
 ```python
 from shapely.geometry import Point, Polygon
 
@@ -159,11 +163,11 @@ assert polygon.contains(point)
 
 ## Performance Targets | أهداف الأداء
 
-| Operation | Target | Status |
-|-----------|--------|--------|
-| Geometry validation | >1000/sec | ✅ |
-| Point-in-polygon | <1ms | ✅ |
-| Spatial query | <100ms | ✅ |
+| Operation           | Target    | Status |
+| ------------------- | --------- | ------ |
+| Geometry validation | >1000/sec | ✅     |
+| Point-in-polygon    | <1ms      | ✅     |
+| Spatial query       | <100ms    | ✅     |
 
 ---
 

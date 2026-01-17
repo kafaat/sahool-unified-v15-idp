@@ -517,7 +517,7 @@ async def list_equipment(
                 else None,
                 "created_at": eq.created_at,
                 "updated_at": eq.updated_at,
-                "metadata": eq.metadata,
+                "metadata": eq.extra_metadata,
                 "qr_code": eq.qr_code,
             }
         )
@@ -701,7 +701,7 @@ async def create_equipment(
         fuel_capacity_liters=data.fuel_capacity_liters,
         created_at=now,
         updated_at=now,
-        metadata=data.metadata,
+        extra_metadata=data.metadata,
         qr_code=qr_code,
     )
 
@@ -736,7 +736,7 @@ async def create_equipment(
         next_maintenance_hours=None,
         created_at=db_eq.created_at,
         updated_at=db_eq.updated_at,
-        metadata=db_eq.metadata,
+        extra_metadata=db_eq.extra_metadata,
         qr_code=db_eq.qr_code,
     )
 

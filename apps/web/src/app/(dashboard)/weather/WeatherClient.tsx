@@ -1,29 +1,59 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Weather Page Client Component
  * صفحة الطقس
  */
 
-import React, { useState, useMemo } from 'react';
-import { WeatherDashboard } from '@/features/weather';
-import { MapPin } from 'lucide-react';
+import React, { useState, useMemo } from "react";
+import { WeatherDashboard } from "@/features/weather";
+import { MapPin } from "lucide-react";
 
 // Yemen city coordinates
 const LOCATIONS = [
-  { id: 'sanaa', label: 'صنعاء، اليمن', labelEn: 'Sana\'a, Yemen', lat: 15.3694, lon: 44.1910 },
-  { id: 'aden', label: 'عدن، اليمن', labelEn: 'Aden, Yemen', lat: 12.7855, lon: 45.0187 },
-  { id: 'taiz', label: 'تعز، اليمن', labelEn: 'Taiz, Yemen', lat: 13.5789, lon: 44.0219 },
-  { id: 'hodeidah', label: 'الحديدة، اليمن', labelEn: 'Hodeidah, Yemen', lat: 14.7980, lon: 42.9536 },
-  { id: 'ibb', label: 'إب، اليمن', labelEn: 'Ibb, Yemen', lat: 13.9667, lon: 44.1667 },
+  {
+    id: "sanaa",
+    label: "صنعاء، اليمن",
+    labelEn: "Sana'a, Yemen",
+    lat: 15.3694,
+    lon: 44.191,
+  },
+  {
+    id: "aden",
+    label: "عدن، اليمن",
+    labelEn: "Aden, Yemen",
+    lat: 12.7855,
+    lon: 45.0187,
+  },
+  {
+    id: "taiz",
+    label: "تعز، اليمن",
+    labelEn: "Taiz, Yemen",
+    lat: 13.5789,
+    lon: 44.0219,
+  },
+  {
+    id: "hodeidah",
+    label: "الحديدة، اليمن",
+    labelEn: "Hodeidah, Yemen",
+    lat: 14.798,
+    lon: 42.9536,
+  },
+  {
+    id: "ibb",
+    label: "إب، اليمن",
+    labelEn: "Ibb, Yemen",
+    lat: 13.9667,
+    lon: 44.1667,
+  },
 ];
 
 export default function WeatherClient() {
-  const [locationId, setLocationId] = useState<string>('sanaa');
+  const [locationId, setLocationId] = useState<string>("sanaa");
 
-  const selectedLocation = useMemo(() =>
-    LOCATIONS.find(loc => loc.id === locationId) || LOCATIONS[0],
-    [locationId]
+  const selectedLocation = useMemo(
+    () => LOCATIONS.find((loc) => loc.id === locationId) || LOCATIONS[0],
+    [locationId],
   );
 
   return (
@@ -53,7 +83,11 @@ export default function WeatherClient() {
       </div>
 
       {/* Weather Dashboard */}
-      <WeatherDashboard lat={selectedLocation!.lat} lon={selectedLocation!.lon} enabled={true} />
+      <WeatherDashboard
+        lat={selectedLocation!.lat}
+        lon={selectedLocation!.lon}
+        enabled={true}
+      />
     </div>
   );
 }

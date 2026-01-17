@@ -3,14 +3,18 @@
   "$id": "https://sahool.io/events/WeatherForecastReady.v1.json",
   "title": "Weather Forecast Ready Event",
   "description": "Emitted when weather forecast is updated - يُنشر عند تحديث التوقعات الجوية",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Weather.ForecastReady" },
     "payload": {
       "type": "object",
-      "required": ["forecast_id", "location", "valid_from", "valid_to", "forecast_data"],
+      "required": [
+        "forecast_id",
+        "location",
+        "valid_from",
+        "valid_to",
+        "forecast_data"
+      ],
       "properties": {
         "forecast_id": {
           "type": "string",
@@ -45,7 +49,10 @@
               "precipitation_mm": { "type": "number" },
               "wind_speed_kmh": { "type": "number" },
               "uv_index": { "type": "number" },
-              "et0_mm": { "type": "number", "description": "Reference evapotranspiration" }
+              "et0_mm": {
+                "type": "number",
+                "description": "Reference evapotranspiration"
+              }
             }
           }
         },
@@ -60,6 +67,11 @@
   "x-sahool": {
     "layer": "acquisition",
     "producer": "weather-advanced",
-    "consumers": ["crop-growth-model", "irrigation-smart", "disaster-assessment", "yield-prediction"]
+    "consumers": [
+      "crop-growth-model",
+      "irrigation-smart",
+      "disaster-assessment",
+      "yield-prediction"
+    ]
   }
 }

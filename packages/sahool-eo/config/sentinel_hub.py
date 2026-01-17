@@ -246,9 +246,16 @@ class SahoolEOClient:
         except FileNotFoundError:
             pass
 
-        # Return empty config (will fail on validate)
-        logger.warning("No Sentinel Hub credentials found. Using placeholder config.")
-        return SentinelHubConfig(client_id="PLACEHOLDER", client_secret="PLACEHOLDER")
+        # Return config with empty values (will fail on validate)
+        # Use environment variables instead of hardcoded placeholders
+        logger.error(
+            "No Sentinel Hub credentials found. "
+            "Set SENTINEL_HUB_CLIENT_ID and SENTINEL_HUB_CLIENT_SECRET environment variables."
+        )
+        raise ValueError(
+            "Sentinel Hub credentials required. "
+            "Set SENTINEL_HUB_CLIENT_ID and SENTINEL_HUB_CLIENT_SECRET environment variables."
+        )
 
     def initialize(self) -> bool:
         """

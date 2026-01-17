@@ -65,6 +65,7 @@ Rate limiting has been successfully implemented across all critical Python servi
 **File:** `/apps/services/ai-agents-core/src/main.py`
 
 **Changes:**
+
 ```python
 # Added custom tier function for intelligent routing
 def ai_agents_tier_func(request: Request) -> RateLimitTier:
@@ -86,6 +87,7 @@ rate_limiter = setup_rate_limiting(
 ```
 
 **Rationale:**
+
 - Full field analysis (`/api/v1/analyze`) is extremely resource-intensive with multiple AI agents
 - Edge endpoints (mobile, IoT) need higher throughput for real-time operations
 - System status endpoints excluded for operational monitoring
@@ -95,6 +97,7 @@ rate_limiter = setup_rate_limiting(
 **File:** `/apps/services/iot-gateway/src/main.py`
 
 **Changes:**
+
 ```python
 # Added custom tier function for IoT operations
 def iot_tier_func(request: Request) -> RateLimitTier:
@@ -118,6 +121,7 @@ rate_limiter = setup_rate_limiting(
 ```
 
 **Rationale:**
+
 - IoT Gateway is vulnerable to sensor data flooding
 - Batch uploads need higher limits for efficient data collection
 - Device registration/management needs protection against mass operations
@@ -127,12 +131,12 @@ rate_limiter = setup_rate_limiting(
 
 ### Default Tiers (Configurable via Environment Variables)
 
-| Tier | Requests/Min | Requests/Hour | Burst | Use Case |
-|------|--------------|---------------|-------|----------|
-| FREE | 30 | 500 | 5 | Free tier users |
-| STANDARD | 60 | 2,000 | 10 | Regular API usage |
-| PREMIUM | 120 | 5,000 | 20 | High-volume operations |
-| INTERNAL | 1,000 | 50,000 | 100 | Service-to-service |
+| Tier     | Requests/Min | Requests/Hour | Burst | Use Case               |
+| -------- | ------------ | ------------- | ----- | ---------------------- |
+| FREE     | 30           | 500           | 5     | Free tier users        |
+| STANDARD | 60           | 2,000         | 10    | Regular API usage      |
+| PREMIUM  | 120          | 5,000         | 20    | High-volume operations |
+| INTERNAL | 1,000        | 50,000        | 100   | Service-to-service     |
 
 ### Environment Variables
 
@@ -150,18 +154,21 @@ RATE_LIMIT_INTERNAL_RPM=1000
 ## Security Features
 
 ### 1. Multi-Layer Protection
+
 - IP-based rate limiting (default)
 - Tenant isolation support
 - Internal service authentication
 - Automatic header injection
 
 ### 2. Defense in Depth
+
 - API Gateway rate limiting (first layer)
 - Service-level rate limiting (second layer)
 - Redis-backed distributed limiting
 - In-memory fallback for resilience
 
 ### 3. Monitoring & Alerting
+
 - Rate limit headers in all responses
 - Structured logging of rate limit events
 - Metrics collection for monitoring
@@ -208,6 +215,7 @@ locust -f load_test.py --host=http://localhost:8120
 ### 3. Integration Testing
 
 Verify:
+
 - Rate limit headers present
 - 429 responses when limit exceeded
 - Redis fallback works
@@ -230,24 +238,28 @@ Verify:
 ## Next Steps
 
 ### 1. Immediate Actions
+
 - [ ] Deploy to staging environment
 - [ ] Run load tests
 - [ ] Verify Redis performance
 - [ ] Test failover scenarios
 
 ### 2. Monitoring Setup
+
 - [ ] Configure Prometheus metrics
 - [ ] Set up Grafana dashboards
 - [ ] Configure alerting rules
 - [ ] Test alert notifications
 
 ### 3. Production Rollout
+
 - [ ] Deploy to production
 - [ ] Monitor rate limit metrics
 - [ ] Adjust tiers if needed
 - [ ] Document any issues
 
 ### 4. Future Enhancements
+
 - [ ] Per-user rate limiting (not just IP)
 - [ ] Dynamic tier adjustment based on subscription
 - [ ] Cost-based rate limiting for AI operations
@@ -312,6 +324,7 @@ Rate limiting has been successfully implemented across all critical services wit
 ✅ **Tested** - Test cases and verification procedures
 
 The platform is now protected against:
+
 - DoS and DDoS attacks
 - API abuse and scraping
 - Excessive resource consumption

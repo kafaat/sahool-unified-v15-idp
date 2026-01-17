@@ -26,6 +26,7 @@ security/
 ## 🔒 Security Features
 
 ### 1. **Certificate Pinning** ✅ NEW
+
 - SSL/TLS certificate validation
 - SHA-256 fingerprint pinning
 - Public key pinning support
@@ -38,6 +39,7 @@ security/
 **Files**: `certificate_pinning_service.dart`, `certificate_config.dart`
 
 ### 2. **Security Configuration**
+
 - Multiple security levels (Low, Medium, High, Maximum)
 - Environment-based configuration
 - Biometric authentication settings
@@ -48,6 +50,7 @@ security/
 **Files**: `security_config.dart`
 
 ### 3. **Security Utilities**
+
 - Token validation
 - Encryption helpers
 - Secure storage integration
@@ -63,12 +66,14 @@ security/
 ### Enable Certificate Pinning
 
 1. **Update `pubspec.yaml`** (Already done):
+
    ```yaml
    dependencies:
      dio_certificate_pinning: ^1.0.0
    ```
 
 2. **Get actual certificate fingerprints**:
+
    ```dart
    // In debug mode
    import 'core/security/certificate_tools.dart';
@@ -81,6 +86,7 @@ security/
    Edit `certificate_config.dart` and replace placeholder fingerprints.
 
 4. **Enable in your app**:
+
    ```dart
    import 'core/security/security_config.dart';
 
@@ -100,6 +106,7 @@ That's it! Certificate pinning is now active.
 **Complete Guide**: See [CERTIFICATE_PINNING_GUIDE.md](CERTIFICATE_PINNING_GUIDE.md)
 
 **Quick Reference**:
+
 - **Extract certificates**: Use `certificate_tools.dart`
 - **Configure pins**: Edit `certificate_config.dart`
 - **Monitor status**: Use `CertificateMonitorWidget`
@@ -107,19 +114,21 @@ That's it! Certificate pinning is now active.
 
 ### Security Levels
 
-| Level | Description | Use Case | Certificate Pinning |
-|-------|-------------|----------|---------------------|
-| **Low** | Minimal security | Development | ❌ Disabled |
-| **Medium** | Standard security | Testing | ❌ Disabled |
-| **High** | Enhanced security | Production | ✅ Enabled (with bypass) |
-| **Maximum** | Maximum security | Sensitive data | ✅ Strict mode |
+| Level       | Description       | Use Case       | Certificate Pinning      |
+| ----------- | ----------------- | -------------- | ------------------------ |
+| **Low**     | Minimal security  | Development    | ❌ Disabled              |
+| **Medium**  | Standard security | Testing        | ❌ Disabled              |
+| **High**    | Enhanced security | Production     | ✅ Enabled (with bypass) |
+| **Maximum** | Maximum security  | Sensitive data | ✅ Strict mode           |
 
 **Configure security level**:
+
 ```dart
 final securityConfig = SecurityConfig(level: SecurityLevel.high);
 ```
 
 **Available settings per level**:
+
 - Token refresh intervals
 - Session timeouts
 - Biometric requirements
@@ -310,24 +319,28 @@ for (final level in levels) {
 ### Common Issues
 
 **1. "Certificate validation failed"**
+
 ```
 Cause: Fingerprint mismatch
 Fix: Extract actual fingerprint and update config
 ```
 
 **2. "No certificate pins configured"**
+
 ```
 Cause: Domain not in configuration
 Fix: Add domain to certificate_config.dart
 ```
 
 **3. "All pins expired"**
+
 ```
 Cause: Pins past expiry date
 Fix: Update with current certificate fingerprints
 ```
 
 **4. Works in debug, fails in release**
+
 ```
 Cause: Debug bypass enabled, release enforces pinning
 Fix: This is expected - update pins to match actual certificates
@@ -421,6 +434,7 @@ When adding new security features:
 ## 📝 Changelog
 
 ### Version 1.0.0 (2025-01-01)
+
 - ✅ Added SSL certificate pinning
 - ✅ SHA-256 fingerprint support
 - ✅ Public key pinning support
@@ -430,6 +444,7 @@ When adding new security features:
 - ✅ Integration examples
 
 ### Previous Versions
+
 - Security configuration system
 - Security levels implementation
 - Biometric authentication
@@ -440,6 +455,7 @@ When adding new security features:
 ## 📧 Contact
 
 For security-related questions or issues:
+
 - Security Team: [security@sahool.app]
 - Documentation: See CERTIFICATE_PINNING_GUIDE.md
 - Code Examples: See certificate_pinning_example.dart

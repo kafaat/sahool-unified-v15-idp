@@ -104,10 +104,10 @@ rollout:
   strategy: canary
   canary:
     steps:
-    - setWeight: 5
-    - pause: {duration: 2m}
-    - setWeight: 20
-    - pause: {duration: 5m}
+      - setWeight: 5
+      - pause: { duration: 2m }
+      - setWeight: 20
+      - pause: { duration: 5m }
     # ... more steps
 ```
 
@@ -224,14 +224,14 @@ Traffic routing is controlled via Istio VirtualService with support for:
 ```yaml
 # Automatically managed by Argo Rollouts
 - route:
-  - destination:
-      host: sahool-agent-canary
-      subset: canary
-    weight: 20  # 20% to canary
-  - destination:
-      host: sahool-agent-stable
-      subset: stable
-    weight: 80  # 80% to stable
+    - destination:
+        host: sahool-agent-canary
+        subset: canary
+      weight: 20 # 20% to canary
+    - destination:
+        host: sahool-agent-stable
+        subset: stable
+      weight: 80 # 80% to stable
 ```
 
 #### Header-Based Routing
@@ -319,10 +319,10 @@ Add custom metrics to analysis:
 ```yaml
 analysis:
   templates:
-  - templateName: custom-business-metric
+    - templateName: custom-business-metric
   args:
-  - name: metric-threshold
-    value: "1000"
+    - name: metric-threshold
+      value: "1000"
 ```
 
 ## Promotion Procedures
@@ -335,11 +335,11 @@ When analysis passes all checks, Argo Rollouts automatically promotes:
 rollout:
   canary:
     steps:
-    # ... traffic steps
-    - analysis:
-        templates:
-        - templateName: sahool-agent-success-rate
-        - templateName: sahool-agent-latency
+      # ... traffic steps
+      - analysis:
+          templates:
+            - templateName: sahool-agent-success-rate
+            - templateName: sahool-agent-latency
 ```
 
 ### Manual Promotion
@@ -438,11 +438,13 @@ kubectl argo rollouts status sahool-agent -n sahool
 When a critical issue is detected in production:
 
 1. **Immediate Traffic Shift** (< 30 seconds)
+
    ```bash
    ./scripts/deploy/rollback.sh --immediate --force --notify
    ```
 
 2. **Verify Rollback**
+
    ```bash
    # Check pod status
    kubectl get pods -n sahool -l app=sahool-agent
@@ -513,15 +515,15 @@ kubectl patch deployment sahool-agent-stable -n sahool \
 
 Monitor these metrics during deployments:
 
-| Metric | Threshold | Action |
-|--------|-----------|--------|
-| Success Rate | < 95% | Auto-rollback |
-| Error Rate | > 5% | Auto-rollback |
-| P95 Latency | > 1000ms | Warning |
-| P99 Latency | > 2000ms | Investigation |
-| CPU Utilization | > 80% | Scale up |
-| Memory Utilization | > 80% | Scale up |
-| Pod Restarts | > 3 in 15min | Rollback |
+| Metric             | Threshold    | Action        |
+| ------------------ | ------------ | ------------- |
+| Success Rate       | < 95%        | Auto-rollback |
+| Error Rate         | > 5%         | Auto-rollback |
+| P95 Latency        | > 1000ms     | Warning       |
+| P99 Latency        | > 2000ms     | Investigation |
+| CPU Utilization    | > 80%        | Scale up      |
+| Memory Utilization | > 80%        | Scale up      |
+| Pod Restarts       | > 3 in 15min | Rollback      |
 
 ### Alert Hierarchy
 
@@ -656,12 +658,14 @@ Do not deploy during:
 **Symptoms**: Rollout shows "Progressing" for extended time
 
 **Diagnosis**:
+
 ```bash
 kubectl argo rollouts get rollout sahool-agent -n sahool
 kubectl describe rollout sahool-agent -n sahool
 ```
 
 **Solutions**:
+
 1. Check if analysis is running: `kubectl get analysisrun -n sahool`
 2. Check pod status: `kubectl get pods -n sahool -l app=sahool-agent`
 3. Abort and retry: `kubectl argo rollouts abort sahool-agent -n sahool`
@@ -671,12 +675,14 @@ kubectl describe rollout sahool-agent -n sahool
 **Symptoms**: Analysis runs consistently fail
 
 **Diagnosis**:
+
 ```bash
 kubectl get analysisrun -n sahool
 kubectl describe analysisrun <name> -n sahool
 ```
 
 **Solutions**:
+
 1. Check Prometheus connectivity
 2. Verify metric queries are correct
 3. Review metric thresholds
@@ -687,6 +693,7 @@ kubectl describe analysisrun <name> -n sahool
 **Symptoms**: Canary pods fail readiness probe
 
 **Diagnosis**:
+
 ```bash
 kubectl get pods -n sahool -l deployment-type=canary
 kubectl describe pod <pod-name> -n sahool
@@ -694,6 +701,7 @@ kubectl logs <pod-name> -n sahool
 ```
 
 **Solutions**:
+
 1. Check application logs for errors
 2. Verify database connectivity
 3. Check secret/configmap availability
@@ -704,12 +712,14 @@ kubectl logs <pod-name> -n sahool
 **Symptoms**: All traffic goes to stable despite weight settings
 
 **Diagnosis**:
+
 ```bash
 kubectl get virtualservice sahool-agent -n sahool -o yaml
 kubectl get destinationrule sahool-agent -n sahool -o yaml
 ```
 
 **Solutions**:
+
 1. Verify VirtualService weights are set correctly
 2. Check DestinationRule subsets match labels
 3. Verify Istio proxy is injected: `kubectl get pods -n sahool -o jsonpath='{.items[*].spec.containers[*].name}'`

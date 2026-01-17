@@ -1,4 +1,5 @@
 # SAHOOL User Service
+
 # خدمة إدارة المستخدمين
 
 Version: 16.0.0
@@ -57,6 +58,7 @@ cp .env.example .env
 ```
 
 Key variables:
+
 - `PORT`: Service port (default: 3025)
 - `DATABASE_URL`: PostgreSQL connection string
 - `JWT_SECRET`: Secret key for JWT tokens
@@ -80,37 +82,44 @@ docker run -p 3025:3025 sahool-user-service
 ## API Documentation
 
 Once running, access the Swagger documentation at:
+
 - Local: http://localhost:3025/docs
 - Health Check: http://localhost:3025/api/v1/health
 
 ## Database Schema
 
 ### User Model
+
 - id, tenantId, email (unique), phone, passwordHash
 - firstName, lastName, role, status
 - emailVerified, phoneVerified, lastLoginAt
 - timestamps (createdAt, updatedAt)
 
 ### UserProfile Model
+
 - id, userId (unique), nationalId
 - dateOfBirth, address, city, region, country
 - avatarUrl, timestamps
 
 ### UserRole Model
+
 - id, name (unique), permissions (JSON), isSystem
 - timestamps
 
 ### UserSession Model
+
 - id, userId, token, ipAddress, userAgent
 - expiresAt, timestamps
 
 ### RefreshToken Model
+
 - id, userId, token, expiresAt, revoked
 - createdAt
 
 ## API Endpoints
 
 ### Users
+
 - `POST /api/v1/users` - Create a new user
 - `GET /api/v1/users` - Get all users (with filters)
 - `GET /api/v1/users/:id` - Get user by ID
@@ -120,6 +129,7 @@ Once running, access the Swagger documentation at:
 - `DELETE /api/v1/users/:id/hard` - Hard delete user
 
 ### Statistics
+
 - `GET /api/v1/users/stats/count/:tenantId` - Get user count by tenant
 - `GET /api/v1/users/stats/active` - Get active users count
 

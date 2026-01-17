@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Field Form Component
  * مكون نموذج الحقل
  */
 
-import React, { useState } from 'react';
-import { Save, X } from 'lucide-react';
-import type { Field, FieldFormData } from '../types';
+import React, { useState } from "react";
+import { Save, X } from "lucide-react";
+import type { Field, FieldFormData } from "../types";
 
 interface FieldFormProps {
   field?: Field;
@@ -23,14 +23,14 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   isSubmitting = false,
 }) => {
   const [formData, setFormData] = useState<FieldFormData>({
-    name: field?.name || '',
-    nameAr: field?.nameAr || '',
+    name: field?.name || "",
+    nameAr: field?.nameAr || "",
     area: field?.area || 0,
-    crop: field?.crop || '',
-    cropAr: field?.cropAr || '',
-    description: field?.description || '',
-    descriptionAr: field?.descriptionAr || '',
-    farmId: field?.farmId || '',
+    crop: field?.crop || "",
+    cropAr: field?.cropAr || "",
+    description: field?.description || "",
+    descriptionAr: field?.descriptionAr || "",
+    farmId: field?.farmId || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,15 +40,18 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
   const handleChange = <K extends keyof FieldFormData>(
     field: K,
-    value: FieldFormData[K]
+    value: FieldFormData[K],
   ) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 p-6">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-xl border-2 border-gray-200 p-6"
+    >
       <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        {field ? 'تعديل الحقل' : 'إضافة حقل جديد'}
+        {field ? "تعديل الحقل" : "إضافة حقل جديد"}
       </h2>
 
       <div className="space-y-6">
@@ -61,7 +64,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             type="text"
             required
             value={formData.nameAr}
-            onChange={(e) => handleChange('nameAr', e.target.value)}
+            onChange={(e) => handleChange("nameAr", e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="أدخل اسم الحقل"
           />
@@ -76,7 +79,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             type="text"
             required
             value={formData.name}
-            onChange={(e) => handleChange('name', e.target.value)}
+            onChange={(e) => handleChange("name", e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Enter field name"
             dir="ltr"
@@ -94,7 +97,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             min="0"
             step="0.1"
             value={formData.area}
-            onChange={(e) => handleChange('area', parseFloat(e.target.value))}
+            onChange={(e) => handleChange("area", parseFloat(e.target.value))}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="0.0"
           />
@@ -108,7 +111,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           <input
             type="text"
             value={formData.cropAr}
-            onChange={(e) => handleChange('cropAr', e.target.value)}
+            onChange={(e) => handleChange("cropAr", e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="نوع المحصول"
           />
@@ -122,7 +125,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           <input
             type="text"
             value={formData.crop}
-            onChange={(e) => handleChange('crop', e.target.value)}
+            onChange={(e) => handleChange("crop", e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Crop type"
             dir="ltr"
@@ -136,7 +139,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           </label>
           <textarea
             value={formData.descriptionAr}
-            onChange={(e) => handleChange('descriptionAr', e.target.value)}
+            onChange={(e) => handleChange("descriptionAr", e.target.value)}
             rows={3}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="وصف الحقل"
@@ -150,7 +153,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           </label>
           <textarea
             value={formData.description}
-            onChange={(e) => handleChange('description', e.target.value)}
+            onChange={(e) => handleChange("description", e.target.value)}
             rows={3}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Field description"
@@ -178,7 +181,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
-          <span>{isSubmitting ? 'جاري الحفظ...' : 'حفظ'}</span>
+          <span>{isSubmitting ? "جاري الحفظ..." : "حفظ"}</span>
         </button>
       </div>
     </form>

@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Member Card Component
  * مكون بطاقة العضو
  */
 
-import React from 'react';
-import { Mail, Phone, Clock, MoreVertical, Edit, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { TeamMember, ROLE_CONFIGS } from '../types/team';
+import React from "react";
+import { Mail, Phone, Clock, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { TeamMember, ROLE_CONFIGS } from "../types/team";
 
 interface MemberCardProps {
   member: TeamMember;
@@ -25,11 +25,13 @@ export const MemberCard: React.FC<MemberCardProps> = ({
   const roleConfig = ROLE_CONFIGS[member.role];
 
   const formatLastActive = (date?: string) => {
-    if (!date) return 'لم يسجل دخول بعد';
+    if (!date) return "لم يسجل دخول بعد";
 
     const now = new Date();
     const lastActive = new Date(date);
-    const diffMinutes = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60));
+    const diffMinutes = Math.floor(
+      (now.getTime() - lastActive.getTime()) / (1000 * 60),
+    );
 
     if (diffMinutes < 60) {
       return `منذ ${diffMinutes} دقيقة`;
@@ -95,7 +97,10 @@ export const MemberCard: React.FC<MemberCardProps> = ({
               className="w-full h-full rounded-full object-cover"
             />
           ) : (
-            <span>{member.firstName[0]}{member.lastName[0]}</span>
+            <span>
+              {member.firstName[0]}
+              {member.lastName[0]}
+            </span>
           )}
         </div>
 
@@ -134,10 +139,20 @@ export const MemberCard: React.FC<MemberCardProps> = ({
         </div>
 
         <Badge
-          variant={member.status === 'ACTIVE' ? 'success' : member.status === 'PENDING' ? 'warning' : 'default'}
+          variant={
+            member.status === "ACTIVE"
+              ? "success"
+              : member.status === "PENDING"
+                ? "warning"
+                : "default"
+          }
           size="sm"
         >
-          {member.status === 'ACTIVE' ? 'نشط' : member.status === 'PENDING' ? 'قيد الانتظار' : 'غير نشط'}
+          {member.status === "ACTIVE"
+            ? "نشط"
+            : member.status === "PENDING"
+              ? "قيد الانتظار"
+              : "غير نشط"}
         </Badge>
       </div>
     </div>

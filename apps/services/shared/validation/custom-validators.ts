@@ -14,7 +14,7 @@ import {
   ValidatorConstraintInterface,
   isLatitude,
   isLongitude,
-} from 'class-validator';
+} from "class-validator";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Yemen-Specific Validators
@@ -24,10 +24,10 @@ import {
  * Validates Yemen phone numbers
  * Formats: +967XXXXXXXX, 967XXXXXXXX, 00967XXXXXXXX, 7XXXXXXXX, 77XXXXXXXX, 78XXXXXXXX
  */
-@ValidatorConstraint({ name: 'isYemeniPhone', async: false })
+@ValidatorConstraint({ name: "isYemeniPhone", async: false })
 export class IsYemeniPhoneConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
@@ -38,11 +38,11 @@ export class IsYemeniPhoneConstraint implements ValidatorConstraintInterface {
       /^(77|78)[0-9]{7}$/, // Common mobile prefixes
     ];
 
-    return patterns.some((pattern) => pattern.test(value.replace(/\s/g, '')));
+    return patterns.some((pattern) => pattern.test(value.replace(/\s/g, "")));
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Phone number must be a valid Yemeni phone number (e.g., +967712345678 or 712345678)';
+    return "Phone number must be a valid Yemeni phone number (e.g., +967712345678 or 712345678)";
   }
 }
 
@@ -62,7 +62,7 @@ export function IsYemeniPhone(validationOptions?: ValidationOptions) {
  * Validates coordinates are within Yemen boundaries
  * Yemen bounds: 12-19°N, 42-54°E
  */
-@ValidatorConstraint({ name: 'isWithinYemen', async: false })
+@ValidatorConstraint({ name: "isWithinYemen", async: false })
 export class IsWithinYemenConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
     const object = args.object as any;
@@ -92,7 +92,7 @@ export class IsWithinYemenConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Coordinates must be within Yemen boundaries (12-19°N, 42-54°E)';
+    return "Coordinates must be within Yemen boundaries (12-19°N, 42-54°E)";
   }
 }
 
@@ -119,10 +119,10 @@ export function IsWithinYemen(
 /**
  * Validates that text contains Arabic characters
  */
-@ValidatorConstraint({ name: 'containsArabic', async: false })
+@ValidatorConstraint({ name: "containsArabic", async: false })
 export class ContainsArabicConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
@@ -132,7 +132,7 @@ export class ContainsArabicConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Text must contain Arabic characters';
+    return "Text must contain Arabic characters";
   }
 }
 
@@ -151,10 +151,10 @@ export function ContainsArabic(validationOptions?: ValidationOptions) {
 /**
  * Validates that text is only Arabic characters (with spaces and common punctuation)
  */
-@ValidatorConstraint({ name: 'isArabicOnly', async: false })
+@ValidatorConstraint({ name: "isArabicOnly", async: false })
 export class IsArabicOnlyConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
@@ -164,7 +164,7 @@ export class IsArabicOnlyConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Text must contain only Arabic characters';
+    return "Text must contain only Arabic characters";
   }
 }
 
@@ -187,7 +187,7 @@ export function IsArabicOnly(validationOptions?: ValidationOptions) {
 /**
  * Validates that end date is after start date
  */
-@ValidatorConstraint({ name: 'isAfterDate', async: false })
+@ValidatorConstraint({ name: "isAfterDate", async: false })
 export class IsAfterDateConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
     const [relatedPropertyName] = args.constraints;
@@ -227,7 +227,7 @@ export function IsAfterDate(
 /**
  * Validates that a date is in the future
  */
-@ValidatorConstraint({ name: 'isFutureDate', async: false })
+@ValidatorConstraint({ name: "isFutureDate", async: false })
 export class IsFutureDateConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
     if (!value) {
@@ -261,10 +261,10 @@ export function IsFutureDate(validationOptions?: ValidationOptions) {
  * Validates password complexity
  * Requirements: min length, uppercase, lowercase, number, special character
  */
-@ValidatorConstraint({ name: 'isStrongPassword', async: false })
+@ValidatorConstraint({ name: "isStrongPassword", async: false })
 export class IsStrongPasswordConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
@@ -326,15 +326,15 @@ export function IsStrongPassword(
 /**
  * Validates GeoJSON Polygon
  */
-@ValidatorConstraint({ name: 'isGeoJSONPolygon', async: false })
+@ValidatorConstraint({ name: "isGeoJSONPolygon", async: false })
 export class IsGeoJSONPolygonConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (!value || typeof value !== 'object') {
+    if (!value || typeof value !== "object") {
       return false;
     }
 
     // Check basic GeoJSON structure
-    if (value.type !== 'Polygon') {
+    if (value.type !== "Polygon") {
       return false;
     }
 
@@ -373,7 +373,7 @@ export class IsGeoJSONPolygonConstraint implements ValidatorConstraintInterface 
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Must be a valid GeoJSON Polygon with at least 4 points and closed ring';
+    return "Must be a valid GeoJSON Polygon with at least 4 points and closed ring";
   }
 }
 
@@ -392,10 +392,10 @@ export function IsGeoJSONPolygon(validationOptions?: ValidationOptions) {
 /**
  * Validates minimum field area in hectares
  */
-@ValidatorConstraint({ name: 'isValidFieldArea', async: false })
+@ValidatorConstraint({ name: "isValidFieldArea", async: false })
 export class IsValidFieldAreaConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'number') {
+    if (typeof value !== "number") {
       return false;
     }
 
@@ -435,10 +435,10 @@ export function IsValidFieldArea(
 /**
  * Validates decimal precision for monetary values
  */
-@ValidatorConstraint({ name: 'isMoneyValue', async: false })
+@ValidatorConstraint({ name: "isMoneyValue", async: false })
 export class IsMoneyValueConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'number') {
+    if (typeof value !== "number") {
       return false;
     }
 
@@ -448,7 +448,7 @@ export class IsMoneyValueConstraint implements ValidatorConstraintInterface {
     }
 
     // Check decimal precision (max 2 decimal places)
-    const decimalPlaces = (value.toString().split('.')[1] || '').length;
+    const decimalPlaces = (value.toString().split(".")[1] || "").length;
     if (decimalPlaces > 2) {
       return false;
     }
@@ -457,7 +457,7 @@ export class IsMoneyValueConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Amount must be a positive number with maximum 2 decimal places';
+    return "Amount must be a positive number with maximum 2 decimal places";
   }
 }
 
@@ -476,15 +476,15 @@ export function IsMoneyValue(validationOptions?: ValidationOptions) {
 /**
  * Validates credit card number using Luhn algorithm
  */
-@ValidatorConstraint({ name: 'isCreditCard', async: false })
+@ValidatorConstraint({ name: "isCreditCard", async: false })
 export class IsCreditCardConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
     // Remove spaces and dashes
-    const cardNumber = value.replace(/[\s-]/g, '');
+    const cardNumber = value.replace(/[\s-]/g, "");
 
     // Check if it's all digits
     if (!/^\d+$/.test(cardNumber)) {
@@ -518,7 +518,7 @@ export class IsCreditCardConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Invalid credit card number';
+    return "Invalid credit card number";
   }
 }
 
@@ -541,10 +541,10 @@ export function IsCreditCard(validationOptions?: ValidationOptions) {
 /**
  * Validates EAN-13 barcode
  */
-@ValidatorConstraint({ name: 'isEAN13', async: false })
+@ValidatorConstraint({ name: "isEAN13", async: false })
 export class IsEAN13Constraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
@@ -565,7 +565,7 @@ export class IsEAN13Constraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Invalid EAN-13 barcode';
+    return "Invalid EAN-13 barcode";
   }
 }
 

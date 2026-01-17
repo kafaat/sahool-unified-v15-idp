@@ -1,4 +1,5 @@
 # SAHOOL Platform - Database Disaster Recovery Audit Report
+
 # تقرير تدقيق التعافي من الكوارث لقواعد البيانات - منصة سهول
 
 **Audit Date:** 2026-01-06
@@ -16,16 +17,16 @@ The SAHOOL platform has implemented **foundational disaster recovery capabilitie
 
 ### DR Readiness Score: **5.5/10** ⚠️
 
-| Category | Score | Status |
-|----------|-------|--------|
-| **Backup & Restore** | 8.8/10 | ✅ Excellent |
-| **Database Replication** | 3/10 | ❌ Critical Gap |
-| **Automated Failover** | 4.5/10 | ❌ Partial |
-| **Multi-Region/Multi-AZ** | 5/10 | 🔶 Planned but Not Active |
-| **RTO Capability** | 6/10 | 🔶 Moderate |
-| **RPO Compliance** | 5/10 | 🔶 Needs Improvement |
-| **DR Testing** | 2/10 | ❌ Critical Gap |
-| **Monitoring & Alerting** | 7/10 | ✅ Good |
+| Category                  | Score  | Status                    |
+| ------------------------- | ------ | ------------------------- |
+| **Backup & Restore**      | 8.8/10 | ✅ Excellent              |
+| **Database Replication**  | 3/10   | ❌ Critical Gap           |
+| **Automated Failover**    | 4.5/10 | ❌ Partial                |
+| **Multi-Region/Multi-AZ** | 5/10   | 🔶 Planned but Not Active |
+| **RTO Capability**        | 6/10   | 🔶 Moderate               |
+| **RPO Compliance**        | 5/10   | 🔶 Needs Improvement      |
+| **DR Testing**            | 2/10   | ❌ Critical Gap           |
+| **Monitoring & Alerting** | 7/10   | ✅ Good                   |
 
 **Overall Assessment:** ⚠️ **NOT PRODUCTION READY FOR HIGH AVAILABILITY**
 
@@ -40,6 +41,7 @@ The SAHOOL platform has implemented **foundational disaster recovery capabilitie
 **Completeness:** 9.5/10 - **EXCELLENT DOCUMENTATION**
 
 #### Documented Capabilities:
+
 - ✅ PostgreSQL backup/restore procedures (pg_dump, pg_basebackup)
 - ✅ Redis backup strategies (RDB + AOF)
 - ✅ MinIO/S3 object storage backup
@@ -50,6 +52,7 @@ The SAHOOL platform has implemented **foundational disaster recovery capabilitie
 - ✅ Bilingual documentation (English/Arabic)
 
 #### Documentation Gaps:
+
 - ❌ No documented database replication setup
 - ❌ Missing automated failover procedures
 - ❌ No runbooks for multi-region failover
@@ -61,6 +64,7 @@ The SAHOOL platform has implemented **foundational disaster recovery capabilitie
 **Score:** 8.8/10 ✅
 
 **Implemented Features:**
+
 ```bash
 # Automated Backup Schedule
 Daily:    02:00 AM - All databases (retention: 7 days)
@@ -70,6 +74,7 @@ Verify:   06:00 AM Sunday - Automated verification
 ```
 
 **Backup Coverage:**
+
 - ✅ PostgreSQL (pg_dump with custom format)
 - ✅ Redis (RDB + AOF)
 - ✅ MinIO (mirror + incremental)
@@ -78,6 +83,7 @@ Verify:   06:00 AM Sunday - Automated verification
 - 🔶 Qdrant vector DB (not implemented)
 
 **Strengths:**
+
 - Comprehensive automated scheduling
 - Multi-tier retention (GFS strategy)
 - Weekly verification testing
@@ -86,6 +92,7 @@ Verify:   06:00 AM Sunday - Automated verification
 - Detailed metadata tracking
 
 **Critical Gaps:**
+
 - ❌ PITR not fully implemented (no WAL archiving)
 - ❌ Encryption disabled by default
 - ❌ No off-site backups by default
@@ -100,6 +107,7 @@ Verify:   06:00 AM Sunday - Automated verification
 **Current State:** ⚠️ **SINGLE INSTANCE - NO REPLICATION**
 
 #### Docker Compose Configuration
+
 ```yaml
 postgres:
   image: postgis/postgis:16-3.4
@@ -109,15 +117,17 @@ postgres:
 ```
 
 #### Kubernetes/Helm Configuration
+
 ```yaml
 postgresql:
   enabled: true
   StatefulSet:
-    replicas: 1  # Single instance
+    replicas: 1 # Single instance
     # No read replicas configured
 ```
 
 #### Terraform Configuration (Planning Stage)
+
 ```hcl
 # RDS configuration shows multi-AZ intent
 db_instance_class = var.riyadh_db_instance_class
@@ -126,6 +136,7 @@ backup_retention_period = 30  # ✅ Planned
 ```
 
 **Assessment:**
+
 - ❌ **No streaming replication** configured
 - ❌ **No read replicas** for load distribution
 - ❌ **Single point of failure** in current deployment
@@ -136,6 +147,7 @@ backup_retention_period = 30  # ✅ Planned
 **Risk Level:** 🔴 **CRITICAL**
 
 **Impact of PostgreSQL Failure:**
+
 - Complete platform outage
 - Manual recovery required (2-4 hours estimated)
 - Data loss risk: up to 24 hours (last backup)
@@ -143,6 +155,7 @@ backup_retention_period = 30  # ✅ Planned
 #### PITR Implementation Status
 
 **Documented Configuration (Not Active):**
+
 ```sql
 -- Documented in backup-strategy.md but NOT implemented
 ALTER SYSTEM SET wal_level = 'replica';
@@ -152,6 +165,7 @@ ALTER SYSTEM SET max_wal_senders = 3;
 ```
 
 **PITR Score:** 2/10 ❌
+
 - 🔶 Documentation exists
 - ❌ WAL archiving not configured
 - ❌ No pg_basebackup automation
@@ -162,6 +176,7 @@ ALTER SYSTEM SET max_wal_senders = 3;
 **Current State:** ✅ **HIGH AVAILABILITY CONFIGURED**
 
 #### Architecture
+
 ```
 Master/Replica Setup:
 ├── redis-master (6379)
@@ -175,6 +190,7 @@ Sentinel Cluster:
 ```
 
 **Configuration Highlights:**
+
 ```yaml
 # Redis HA Configuration
 replication_mode: master-slave
@@ -186,6 +202,7 @@ parallel_syncs: 1
 ```
 
 **Automated Failover Testing:**
+
 ```bash
 # Test script exists: infrastructure/core/redis-ha/test-failover.sh
 # Verifies:
@@ -199,6 +216,7 @@ parallel_syncs: 1
 **Redis HA Score:** 9/10 ✅
 
 **Strengths:**
+
 - ✅ Automatic failover with Sentinel
 - ✅ Sub-10-second failover time
 - ✅ Data replication across 3 nodes
@@ -206,6 +224,7 @@ parallel_syncs: 1
 - ✅ Production-grade configuration
 
 **Minor Gaps:**
+
 - 🔶 No cross-region replication
 - 🔶 Single availability zone in Docker deployment
 
@@ -214,10 +233,11 @@ parallel_syncs: 1
 **Current State:** 🔶 **SINGLE NODE - BASIC BACKUP**
 
 **Configuration:**
+
 ```yaml
 nats:
   StatefulSet:
-    replicas: 1  # Single node
+    replicas: 1 # Single node
   jetstream:
     enabled: true
     fileStore:
@@ -225,6 +245,7 @@ nats:
 ```
 
 **Assessment:**
+
 - 🔶 JetStream enabled for persistence
 - ❌ No cluster mode configured
 - ❌ No multi-node replication
@@ -241,6 +262,7 @@ nats:
 **Terraform Infrastructure:** 🔶 **PLANNED BUT NOT DEPLOYED**
 
 #### Documented Regions:
+
 ```hcl
 Primary Region: Riyadh (me-south-1 - Bahrain AWS)
 ├── Availability Zones: me-south-1a, me-south-1b, me-south-1c
@@ -257,6 +279,7 @@ Secondary Region: Jeddah (planned)
 **Multi-Region Score:** 5/10 🔶
 
 **Status:**
+
 - ✅ Terraform modules designed for multi-region
 - ✅ Network architecture supports multi-AZ
 - ❌ **Secondary region not deployed**
@@ -276,6 +299,7 @@ Strategy: Argo CD ApplicationSet
 ```
 
 **Assessment:**
+
 - ✅ Architecture designed for multi-cluster
 - ✅ Safer than Kubernetes federation
 - ❌ Not yet implemented
@@ -286,6 +310,7 @@ Strategy: Argo CD ApplicationSet
 #### Docker Deployment: ❌ **SINGLE ZONE**
 
 Current Docker Compose deployment runs on single host:
+
 - No availability zone distribution
 - Single datacenter dependency
 - Manual geographic redundancy required
@@ -293,6 +318,7 @@ Current Docker Compose deployment runs on single host:
 #### Kubernetes Deployment: 🔶 **MULTI-AZ CAPABLE**
 
 **Terraform Configuration:**
+
 ```hcl
 availability_zones = ["me-south-1a", "me-south-1b", "me-south-1c"]
 
@@ -302,6 +328,7 @@ availability_zones = ["me-south-1a", "me-south-1b", "me-south-1c"]
 ```
 
 **Current Helm Deployments:**
+
 ```yaml
 # StatefulSets (PostgreSQL, NATS)
 replicas: 1  # Not leveraging multi-AZ
@@ -313,6 +340,7 @@ replicas: 1-3  # Can be distributed but not enforced
 **Multi-AZ Score:** 4/10 ❌
 
 **Gaps:**
+
 - ❌ No pod topology spread constraints
 - ❌ No zone-aware scheduling
 - ❌ StatefulSets not configured for multi-AZ
@@ -327,15 +355,17 @@ replicas: 1-3  # Can be distributed but not enforced
 #### Redis Failover ✅ **FULLY AUTOMATED**
 
 **Implementation:**
+
 ```yaml
 Redis Sentinel Configuration:
-- Detection Time: 5 seconds (down_after_milliseconds)
-- Failover Timeout: 10 seconds
-- Quorum: 2/3 sentinels
-- Tested: ✅ Yes (test-failover.sh)
+  - Detection Time: 5 seconds (down_after_milliseconds)
+  - Failover Timeout: 10 seconds
+  - Quorum: 2/3 sentinels
+  - Tested: ✅ Yes (test-failover.sh)
 ```
 
 **Failover Process:**
+
 1. Sentinel detects master failure (5s)
 2. Quorum agreement (2/3 sentinels)
 3. Replica promotion (<5s)
@@ -345,6 +375,7 @@ Redis Sentinel Configuration:
 **Total Failover Time:** ~5-10 seconds ✅
 
 **Testing Evidence:**
+
 ```bash
 # From test-failover.sh results:
 ✓ Failover completed in 8s
@@ -358,6 +389,7 @@ Redis Sentinel Configuration:
 **Current State:** Manual recovery required
 
 **Recovery Procedure:**
+
 ```bash
 # From restore_postgres.sh
 1. Stop dependent services
@@ -371,6 +403,7 @@ Estimated Time: 30-120 minutes
 ```
 
 **No Automatic Failover:**
+
 - ❌ No streaming replication
 - ❌ No automatic promotion
 - ❌ No health-based failover
@@ -381,6 +414,7 @@ Estimated Time: 30-120 minutes
 #### Application-Level Failover 🔶 **PARTIAL**
 
 **Circuit Breakers:** ✅ Implemented
+
 ```typescript
 // From shared/python-lib/sahool_core/resilient_client.py
 CircuitBreaker:
@@ -390,11 +424,13 @@ CircuitBreaker:
 ```
 
 **Service Mesh:** 🔶 Istio configured but not required
+
 - Automatic retry logic
 - Timeout management
 - Health-based routing
 
 **API Gateway:** ✅ Kong with health checks
+
 - Upstream health checks
 - Passive health monitoring
 - Circuit breaking
@@ -402,16 +438,19 @@ CircuitBreaker:
 ### 4.2 Failover Testing
 
 **Redis Failover:** ✅ Tested
+
 - Automated test script exists
 - Documented results
 - Regular testing recommended
 
 **PostgreSQL Failover:** ❌ Not tested
+
 - No automated testing
 - No documented drill results
 - Manual recovery untested in production scenario
 
 **Full Platform DR Drill:** ❌ Never conducted
+
 - No documented disaster simulation
 - Recovery procedures untested
 - RTO/RPO targets unvalidated
@@ -423,6 +462,7 @@ CircuitBreaker:
 ### 5.1 Documented RTO Targets
 
 **From backup-strategy.md:**
+
 ```
 Component Targets:
 ├── PostgreSQL: 2 hours
@@ -435,6 +475,7 @@ Component Targets:
 ### 5.2 Actual RTO Assessment
 
 #### Scenario 1: Redis Master Failure
+
 ```
 Detection:     5 seconds (Sentinel)
 Failover:      5-10 seconds (automated)
@@ -444,6 +485,7 @@ Status: Exceeds target (30 minutes)
 ```
 
 #### Scenario 2: PostgreSQL Failure (with backup)
+
 ```
 Phase 1 - Detection:                    1-5 minutes
 Phase 2 - Decision & preparation:       10-15 minutes
@@ -458,6 +500,7 @@ Status: Within target (2 hours)
 ```
 
 #### Scenario 3: Complete Datacenter Loss
+
 ```
 Phase 1 - Detection & assessment:       15-30 minutes
 Phase 2 - Infrastructure setup:         60-120 minutes
@@ -475,17 +518,20 @@ Status: At/exceeds target (6 hours)
 ### 5.3 RTO Capability Score: 6/10 🔶
 
 **Strengths:**
+
 - ✅ Redis exceeds RTO targets significantly
 - ✅ Single database recovery within target
 - ✅ Well-documented recovery procedures
 
 **Weaknesses:**
+
 - ❌ Datacenter loss RTO relies on manual procedures
 - ❌ No automated infrastructure provisioning for DR
 - ❌ Secondary region not active (requires setup time)
 - 🔶 No practice drills to validate estimates
 
 **Improvement Recommendations:**
+
 1. Implement automated infrastructure provisioning
 2. Maintain warm standby in secondary region
 3. Reduce manual intervention points
@@ -497,16 +543,17 @@ Status: At/exceeds target (6 hours)
 
 ### 6.1 Current RPO by Component
 
-| Component | Backup Frequency | RPO (Maximum Data Loss) | Target | Status |
-|-----------|------------------|------------------------|--------|--------|
-| **PostgreSQL** | Daily (02:00 AM) | **24 hours** | 1 hour | ❌ Fails |
-| **Redis** | Daily (02:15 AM) | 24 hours (cache) | 1 hour | 🔶 Acceptable |
-| **MinIO** | Daily (01:00 AM) | 24 hours | 1 hour | ❌ Fails |
-| **NATS** | Daily (02:30 AM) | 24 hours | 1 hour | ❌ Fails |
+| Component      | Backup Frequency | RPO (Maximum Data Loss) | Target | Status        |
+| -------------- | ---------------- | ----------------------- | ------ | ------------- |
+| **PostgreSQL** | Daily (02:00 AM) | **24 hours**            | 1 hour | ❌ Fails      |
+| **Redis**      | Daily (02:15 AM) | 24 hours (cache)        | 1 hour | 🔶 Acceptable |
+| **MinIO**      | Daily (01:00 AM) | 24 hours                | 1 hour | ❌ Fails      |
+| **NATS**       | Daily (02:30 AM) | 24 hours                | 1 hour | ❌ Fails      |
 
 ### 6.2 RPO Compliance Score: 5/10 🔶
 
 **Current State:**
+
 - ❌ **PostgreSQL RPO: 24 hours** (Target: 1 hour)
 - 🔶 **Redis RPO: 24 hours** (Acceptable for cache)
 - ❌ **Critical data loss risk** for transactional data
@@ -514,10 +561,12 @@ Status: At/exceeds target (6 hours)
 **Impact Analysis:**
 
 **Best Case (backup just completed):**
+
 - Data loss: ~0 hours
 - Impact: Minimal
 
 **Worst Case (failure just before backup):**
+
 - Data loss: ~24 hours
 - Impact: **SEVERE**
   - All transactions from previous day lost
@@ -529,6 +578,7 @@ Status: At/exceeds target (6 hours)
 ### 6.3 RPO Improvement Options
 
 #### Option 1: Point-in-Time Recovery (PITR) ✅ Recommended
+
 ```
 Implementation:
 ├── Enable WAL archiving
@@ -542,6 +592,7 @@ Complexity: Medium
 ```
 
 #### Option 2: Streaming Replication
+
 ```
 Implementation:
 ├── Primary + Standby PostgreSQL
@@ -556,6 +607,7 @@ Complexity: Medium-High
 ```
 
 #### Option 3: Increased Backup Frequency
+
 ```
 Implementation:
 ├── Backup every 6 hours
@@ -569,6 +621,7 @@ Risk: Still exceeds 1-hour target
 ```
 
 **Recommended Approach:** Implement both **PITR (Option 1)** and **Streaming Replication (Option 2)**
+
 - PITR for point-in-time recovery capability
 - Streaming replication for high availability
 - Combined approach provides best RPO and RTO
@@ -583,14 +636,14 @@ Risk: Still exceeds 1-hour target
 
 **Component HA Status:**
 
-| Component | HA Status | Redundancy | Failover | Score |
-|-----------|-----------|------------|----------|-------|
-| **PostgreSQL** | ❌ Single | None | Manual | 2/10 |
-| **Redis** | ✅ HA | Master + 2 Replicas | Automated | 9/10 |
-| **NATS** | ❌ Single | None | Manual | 2/10 |
-| **Kong Gateway** | 🔶 Scalable | 1-N instances | Load balanced | 7/10 |
-| **MinIO** | ❌ Single | None | Manual | 3/10 |
-| **Application Services** | ✅ Scalable | 1-N pods | K8s managed | 8/10 |
+| Component                | HA Status   | Redundancy          | Failover      | Score |
+| ------------------------ | ----------- | ------------------- | ------------- | ----- |
+| **PostgreSQL**           | ❌ Single   | None                | Manual        | 2/10  |
+| **Redis**                | ✅ HA       | Master + 2 Replicas | Automated     | 9/10  |
+| **NATS**                 | ❌ Single   | None                | Manual        | 2/10  |
+| **Kong Gateway**         | 🔶 Scalable | 1-N instances       | Load balanced | 7/10  |
+| **MinIO**                | ❌ Single   | None                | Manual        | 3/10  |
+| **Application Services** | ✅ Scalable | 1-N pods            | K8s managed   | 8/10  |
 
 **Overall HA Score:** 4.5/10 ❌
 
@@ -647,6 +700,7 @@ Downtime per year: ~309 hours (~13 days)
 **Gap:** -3.4% ❌
 
 **With Recommended Improvements:**
+
 ```
 Improved Availabilities:
 ├── PostgreSQL (HA): 99.95%
@@ -667,6 +721,7 @@ Downtime per year: ~26 hours
 ### 8.1 Current Testing Status ❌ **CRITICAL GAP**
 
 **Backup Verification:** ✅ Automated
+
 ```bash
 # Weekly verification: Sunday 06:00 AM
 Script: /scripts/backup/verify-backup.sh
@@ -681,6 +736,7 @@ Tests Performed:
 ```
 
 **Failover Testing:**
+
 - ✅ **Redis:** Automated test script (test-failover.sh)
 - ❌ **PostgreSQL:** No automated testing
 - ❌ **Full Platform:** No DR drills conducted
@@ -712,6 +768,7 @@ Tests Performed:
 ### 8.3 Recommended DR Testing Schedule
 
 **Monthly Testing:**
+
 ```
 Week 1: Backup verification (automated)
 Week 2: Redis failover test (automated)
@@ -720,12 +777,14 @@ Week 4: Application-level DR test
 ```
 
 **Quarterly Testing:**
+
 ```
 Q1, Q3: Partial DR drill (single component failure)
 Q2, Q4: Full DR drill (complete datacenter simulation)
 ```
 
 **Annual Testing:**
+
 ```
 Once per year: Complete disaster simulation
 - Secondary region activation
@@ -762,6 +821,7 @@ Once per year: Complete disaster simulation
 ### 9.2 Backup Monitoring
 
 **Implemented:**
+
 ```bash
 ✅ Backup success/failure logging
 ✅ Backup metadata tracking (JSON)
@@ -773,6 +833,7 @@ Once per year: Complete disaster simulation
 ```
 
 **Missing:**
+
 - ❌ Prometheus metrics for backup jobs
 - ❌ Grafana dashboard for backup health
 - ❌ PagerDuty integration for critical failures
@@ -782,6 +843,7 @@ Once per year: Complete disaster simulation
 ### 9.3 Recommended Monitoring Enhancements
 
 **High Priority:**
+
 1. Add Prometheus exporter for backup jobs
 2. Create Grafana DR dashboard with:
    - Last backup time per component
@@ -801,14 +863,15 @@ Once per year: Complete disaster simulation
 
 **Comprehensive Documentation Found:**
 
-| Document | Location | Quality | Completeness |
-|----------|----------|---------|--------------|
-| Backup Strategy | `/docs/backup-strategy.md` | ⭐⭐⭐⭐⭐ | 95% |
-| Disaster Recovery | `/scripts/backup/disaster-recovery.md` | ⭐⭐⭐⭐⭐ | 90% |
-| Restore Scripts | `/scripts/backup/restore_*.sh` | ⭐⭐⭐⭐ | 85% |
-| Redis Failover | `/infrastructure/core/redis-ha/test-failover.sh` | ⭐⭐⭐⭐ | 80% |
+| Document          | Location                                         | Quality    | Completeness |
+| ----------------- | ------------------------------------------------ | ---------- | ------------ |
+| Backup Strategy   | `/docs/backup-strategy.md`                       | ⭐⭐⭐⭐⭐ | 95%          |
+| Disaster Recovery | `/scripts/backup/disaster-recovery.md`           | ⭐⭐⭐⭐⭐ | 90%          |
+| Restore Scripts   | `/scripts/backup/restore_*.sh`                   | ⭐⭐⭐⭐   | 85%          |
+| Redis Failover    | `/infrastructure/core/redis-ha/test-failover.sh` | ⭐⭐⭐⭐   | 80%          |
 
 **Documentation Strengths:**
+
 - ✅ Bilingual (English/Arabic)
 - ✅ Step-by-step procedures
 - ✅ Code examples and scripts
@@ -845,6 +908,7 @@ Once per year: Complete disaster simulation
 ### 10.3 Runbook Quality Score: 7/10 ✅
 
 **Recommendations:**
+
 1. Create PostgreSQL replication runbooks
 2. Document multi-region procedures
 3. Add rollback procedures
@@ -857,33 +921,33 @@ Once per year: Complete disaster simulation
 
 ### 11.1 Critical Gaps (P0 - Must Fix)
 
-| # | Gap | Impact | Current State | Required State |
-|---|-----|--------|---------------|----------------|
-| 1 | **No PostgreSQL Replication** | 🔴 Critical | Single instance | Primary + 2 replicas |
-| 2 | **No Automated DB Failover** | 🔴 Critical | Manual recovery | Automatic failover <30s |
-| 3 | **RPO 24 hours** | 🔴 Critical | Daily backups | PITR + replication |
-| 4 | **No DR Drills** | 🔴 Critical | Never tested | Quarterly drills |
-| 5 | **Single Datacenter** | 🔴 Critical | Docker on single host | Multi-AZ K8s cluster |
+| #   | Gap                           | Impact      | Current State         | Required State          |
+| --- | ----------------------------- | ----------- | --------------------- | ----------------------- |
+| 1   | **No PostgreSQL Replication** | 🔴 Critical | Single instance       | Primary + 2 replicas    |
+| 2   | **No Automated DB Failover**  | 🔴 Critical | Manual recovery       | Automatic failover <30s |
+| 3   | **RPO 24 hours**              | 🔴 Critical | Daily backups         | PITR + replication      |
+| 4   | **No DR Drills**              | 🔴 Critical | Never tested          | Quarterly drills        |
+| 5   | **Single Datacenter**         | 🔴 Critical | Docker on single host | Multi-AZ K8s cluster    |
 
 ### 11.2 High Priority Gaps (P1 - Should Fix)
 
-| # | Gap | Impact | Timeline |
-|---|-----|--------|----------|
-| 6 | NATS clustering not configured | 🟡 High | 2-4 weeks |
-| 7 | MinIO distributed mode missing | 🟡 High | 2-4 weeks |
-| 8 | PITR not implemented | 🟡 High | 2-3 weeks |
-| 9 | No cross-region replication | 🟡 High | 4-8 weeks |
-| 10 | Backup encryption disabled | 🟡 High | 1 week |
+| #   | Gap                            | Impact  | Timeline  |
+| --- | ------------------------------ | ------- | --------- |
+| 6   | NATS clustering not configured | 🟡 High | 2-4 weeks |
+| 7   | MinIO distributed mode missing | 🟡 High | 2-4 weeks |
+| 8   | PITR not implemented           | 🟡 High | 2-3 weeks |
+| 9   | No cross-region replication    | 🟡 High | 4-8 weeks |
+| 10  | Backup encryption disabled     | 🟡 High | 1 week    |
 
 ### 11.3 Medium Priority Gaps (P2 - Nice to Have)
 
-| # | Gap | Impact | Timeline |
-|---|-----|--------|----------|
-| 11 | ETCD and Qdrant backups missing | 🟢 Medium | 2-3 weeks |
-| 12 | No backup monitoring dashboard | 🟢 Medium | 1-2 weeks |
-| 13 | No automated infrastructure provisioning | 🟢 Medium | 4-6 weeks |
-| 14 | Pod topology constraints missing | 🟢 Medium | 1 week |
-| 15 | No backup deduplication | 🟢 Low | Future |
+| #   | Gap                                      | Impact    | Timeline  |
+| --- | ---------------------------------------- | --------- | --------- |
+| 11  | ETCD and Qdrant backups missing          | 🟢 Medium | 2-3 weeks |
+| 12  | No backup monitoring dashboard           | 🟢 Medium | 1-2 weeks |
+| 13  | No automated infrastructure provisioning | 🟢 Medium | 4-6 weeks |
+| 14  | Pod topology constraints missing         | 🟢 Medium | 1 week    |
+| 15  | No backup deduplication                  | 🟢 Low    | Future    |
 
 ---
 
@@ -892,6 +956,7 @@ Once per year: Complete disaster simulation
 ### 12.1 Immediate Actions (Week 1-2) 🔴
 
 **1. Implement PostgreSQL Streaming Replication**
+
 ```bash
 Priority: 🔴 CRITICAL
 Effort: HIGH (40-60 hours)
@@ -911,6 +976,7 @@ Expected Outcome:
 ```
 
 **2. Enable PostgreSQL PITR**
+
 ```bash
 Priority: 🔴 CRITICAL
 Effort: MEDIUM (20-30 hours)
@@ -930,6 +996,7 @@ Expected Outcome:
 ```
 
 **3. Conduct First DR Drill**
+
 ```bash
 Priority: 🔴 CRITICAL
 Effort: MEDIUM (16-24 hours)
@@ -951,6 +1018,7 @@ Expected Outcome:
 ### 12.2 Short-Term Actions (Month 1-2) 🟡
 
 **4. Deploy Multi-AZ Kubernetes Cluster**
+
 ```bash
 Priority: 🟡 HIGH
 Effort: HIGH (60-80 hours)
@@ -970,6 +1038,7 @@ Expected Outcome:
 ```
 
 **5. Implement NATS Clustering**
+
 ```bash
 Priority: 🟡 HIGH
 Effort: MEDIUM (24-32 hours)
@@ -989,6 +1058,7 @@ Expected Outcome:
 ```
 
 **6. Deploy MinIO Distributed Mode**
+
 ```bash
 Priority: 🟡 HIGH
 Effort: MEDIUM (24-32 hours)
@@ -1010,6 +1080,7 @@ Expected Outcome:
 ### 12.3 Medium-Term Actions (Quarter 1) 🟢
 
 **7. Activate Secondary Region**
+
 ```bash
 Priority: 🟢 MEDIUM
 Effort: VERY HIGH (120-160 hours)
@@ -1031,6 +1102,7 @@ Expected Outcome:
 ```
 
 **8. Implement DR Monitoring Dashboard**
+
 ```bash
 Priority: 🟢 MEDIUM
 Effort: MEDIUM (20-30 hours)
@@ -1050,6 +1122,7 @@ Expected Outcome:
 ```
 
 **9. Automate DR Testing**
+
 ```bash
 Priority: 🟢 MEDIUM
 Effort: HIGH (40-50 hours)
@@ -1083,6 +1156,7 @@ Expected Outcome:
 ### 13.1 Infrastructure Costs (Monthly)
 
 **Current State:**
+
 ```
 Docker Deployment (Single Host):
 ├── Compute: 1 server (~$200-400/month)
@@ -1091,6 +1165,7 @@ Docker Deployment (Single Host):
 ```
 
 **Recommended State (Multi-AZ Kubernetes):**
+
 ```
 AWS Infrastructure (Riyadh Region):
 ├── EKS Cluster: $73/month (control plane)
@@ -1115,6 +1190,7 @@ Grand Total: ~$1,800/month
 ```
 
 **ROI Analysis:**
+
 ```
 Cost Increase: ~$1,350/month ($16,200/year)
 
@@ -1129,16 +1205,16 @@ Break-even: First major incident avoided
 
 ### 13.2 Implementation Costs (One-Time)
 
-| Task | Effort (hours) | Cost @ $150/hr |
-|------|----------------|----------------|
-| PostgreSQL HA Setup | 50 | $7,500 |
-| PITR Implementation | 25 | $3,750 |
-| K8s Migration | 80 | $12,000 |
-| NATS Clustering | 30 | $4,500 |
-| MinIO Distributed | 30 | $4,500 |
-| DR Documentation | 40 | $6,000 |
-| Testing & Validation | 60 | $9,000 |
-| **Total** | **315** | **$47,250** |
+| Task                 | Effort (hours) | Cost @ $150/hr |
+| -------------------- | -------------- | -------------- |
+| PostgreSQL HA Setup  | 50             | $7,500         |
+| PITR Implementation  | 25             | $3,750         |
+| K8s Migration        | 80             | $12,000        |
+| NATS Clustering      | 30             | $4,500         |
+| MinIO Distributed    | 30             | $4,500         |
+| DR Documentation     | 40             | $6,000         |
+| Testing & Validation | 60             | $9,000         |
+| **Total**            | **315**        | **$47,250**    |
 
 ---
 
@@ -1147,18 +1223,21 @@ Break-even: First major incident avoided
 ### Phase 1: Critical Foundation (Weeks 1-4) 🔴
 
 **Week 1-2:**
+
 - [ ] Implement PostgreSQL streaming replication (Patroni/CloudNativePG)
 - [ ] Enable WAL archiving for PITR
 - [ ] Configure automated failover
 - [ ] Update connection strings and test
 
 **Week 3-4:**
+
 - [ ] Conduct first DR drill (PostgreSQL failover)
 - [ ] Deploy multi-AZ Kubernetes cluster (EKS)
 - [ ] Migrate Redis to K8s with Sentinel
 - [ ] Enable backup encryption by default
 
 **Success Criteria:**
+
 - ✅ PostgreSQL RPO <5 seconds
 - ✅ Automated failover <30 seconds
 - ✅ Zero data loss during failover test
@@ -1167,18 +1246,21 @@ Break-even: First major incident avoided
 ### Phase 2: High Availability (Weeks 5-8) 🟡
 
 **Week 5-6:**
+
 - [ ] Implement NATS clustering (3 nodes)
 - [ ] Deploy MinIO distributed mode (4+ nodes)
 - [ ] Migrate StatefulSets to multi-AZ
 - [ ] Configure pod topology spread constraints
 
 **Week 7-8:**
+
 - [ ] Set up cross-region VPN (Riyadh ↔ Jeddah)
 - [ ] Deploy standby infrastructure in secondary region
 - [ ] Configure database cross-region replication
 - [ ] Create DR monitoring dashboard
 
 **Success Criteria:**
+
 - ✅ All critical components HA-enabled
 - ✅ No single points of failure
 - ✅ Secondary region deployed
@@ -1187,18 +1269,21 @@ Break-even: First major incident avoided
 ### Phase 3: Testing & Validation (Weeks 9-12) 🟢
 
 **Week 9-10:**
+
 - [ ] Conduct full platform DR drill
 - [ ] Test multi-region failover
 - [ ] Validate RTO/RPO targets
 - [ ] Document lessons learned
 
 **Week 11-12:**
+
 - [ ] Implement automated DR testing
 - [ ] Create runbooks for all scenarios
 - [ ] Train operations team
 - [ ] Establish monthly DR drill schedule
 
 **Success Criteria:**
+
 - ✅ Full DR drill completed successfully
 - ✅ RTO <2 hours validated
 - ✅ RPO <5 minutes validated
@@ -1221,6 +1306,7 @@ Break-even: First major incident avoided
 **Current State Summary:**
 
 **Strengths:**
+
 - ✅ Comprehensive backup strategy (8.8/10)
 - ✅ Excellent documentation (9.5/10)
 - ✅ Redis HA implemented (9/10)
@@ -1228,6 +1314,7 @@ Break-even: First major incident avoided
 - ✅ Automated backup verification
 
 **Critical Weaknesses:**
+
 - ❌ PostgreSQL single instance (SPOF)
 - ❌ No automated database failover
 - ❌ RPO 24 hours (target: 1 hour)
@@ -1239,12 +1326,14 @@ Break-even: First major incident avoided
 **Verdict:** The SAHOOL platform is **NOT production-ready for high-availability workloads** in its current state.
 
 **Blocking Issues:**
+
 1. 🔴 PostgreSQL SPOF - platform-wide outage risk
 2. 🔴 24-hour RPO - unacceptable data loss risk
 3. 🔴 Manual failover - extended downtime
 4. 🔴 Single host deployment - no infrastructure redundancy
 
 **Minimum Requirements for Production:**
+
 1. ✅ PostgreSQL streaming replication (3 nodes minimum)
 2. ✅ Automated database failover (<30 seconds)
 3. ✅ PITR enabled (RPO <15 minutes)
@@ -1254,12 +1343,14 @@ Break-even: First major incident avoided
 ### 15.3 Recommended Timeline
 
 **Minimum Viable DR (4 weeks):**
+
 - PostgreSQL HA + PITR
 - Multi-AZ Kubernetes
 - First DR drill
 - **Achieves:** 99.5% availability, RPO <5 minutes
 
 **Full DR Implementation (12 weeks):**
+
 - All HA components
 - Secondary region active
 - Automated testing
@@ -1270,6 +1361,7 @@ Break-even: First major incident avoided
 The SAHOOL platform has **strong backup foundations** but **critical gaps in high availability and disaster recovery**. While the backup strategy is comprehensive and well-documented, the platform's reliance on single-instance databases creates an **unacceptable risk** for production agricultural operations.
 
 **Key Risks:**
+
 - **Data Loss:** Up to 24 hours of transactional data
 - **Downtime:** 1-2 hours for database failures, days for datacenter loss
 - **Business Impact:** Farm operations disrupted, financial data lost, compliance violations
@@ -1332,12 +1424,14 @@ The SAHOOL platform has **strong backup foundations** but **critical gaps in hig
 ## Appendix B: Contact Information
 
 **Disaster Recovery Team:**
+
 - DR Lead: [Name]
 - Database Admin: [Name]
 - Infrastructure Lead: [Name]
 - On-Call Escalation: [Phone]
 
 **Emergency Procedures:**
+
 - DR Hotline: [Phone]
 - Incident Slack Channel: #platform-incidents
 - DR Documentation: /docs/disaster-recovery/
@@ -1356,6 +1450,6 @@ The SAHOOL platform has **strong backup foundations** but **critical gaps in hig
 
 **END OF REPORT**
 
-*This audit identifies critical gaps in disaster recovery capabilities. Immediate action required before production deployment.*
+_This audit identifies critical gaps in disaster recovery capabilities. Immediate action required before production deployment._
 
-*هذا التدقيق يحدد الفجوات الحرجة في قدرات التعافي من الكوارث. مطلوب اتخاذ إجراء فوري قبل النشر للإنتاج.*
+_هذا التدقيق يحدد الفجوات الحرجة في قدرات التعافي من الكوارث. مطلوب اتخاذ إجراء فوري قبل النشر للإنتاج._

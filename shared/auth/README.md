@@ -241,11 +241,11 @@ async def heavy_operation(
 
 ```typescript
 // auth.module.ts
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from '@shared/auth/jwt.strategy';
-import { JWTConfig } from '@shared/auth/config';
+import { Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
+import { PassportModule } from "@nestjs/passport";
+import { JwtStrategy } from "@shared/auth/jwt.strategy";
+import { JWTConfig } from "@shared/auth/config";
 
 @Module({
   imports: [
@@ -264,12 +264,12 @@ export class AuthModule {}
 ### 2. Basic Authentication
 
 ```typescript
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '@shared/auth/jwt.guard';
-import { CurrentUser } from '@shared/auth/decorators';
-import { AuthenticatedUser } from '@shared/auth/jwt.strategy';
+import { Controller, Get, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "@shared/auth/jwt.guard";
+import { CurrentUser } from "@shared/auth/decorators";
+import { AuthenticatedUser } from "@shared/auth/jwt.strategy";
 
-@Controller('profile')
+@Controller("profile")
 @UseGuards(JwtAuthGuard)
 export class ProfileController {
   @Get()
@@ -282,12 +282,12 @@ export class ProfileController {
 ### 3. Public Routes
 
 ```typescript
-import { Public } from '@shared/auth/decorators';
+import { Public } from "@shared/auth/decorators";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   @Public()
-  @Post('login')
+  @Post("login")
   login(@Body() credentials: LoginDto) {
     return this.authService.login(credentials);
   }
@@ -297,15 +297,15 @@ export class AuthController {
 ### 4. Role-Based Access Control
 
 ```typescript
-import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, RolesGuard } from '@shared/auth/jwt.guard';
-import { Roles } from '@shared/auth/decorators';
+import { UseGuards } from "@nestjs/common";
+import { JwtAuthGuard, RolesGuard } from "@shared/auth/jwt.guard";
+import { Roles } from "@shared/auth/decorators";
 
-@Controller('admin')
+@Controller("admin")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminController {
-  @Roles('admin', 'manager')
-  @Get('settings')
+  @Roles("admin", "manager")
+  @Get("settings")
   getSettings() {
     return this.adminService.getSettings();
   }
@@ -315,15 +315,15 @@ export class AdminController {
 ### 5. Permission-Based Access Control
 
 ```typescript
-import { PermissionsGuard } from '@shared/auth/jwt.guard';
-import { RequirePermissions } from '@shared/auth/decorators';
+import { PermissionsGuard } from "@shared/auth/jwt.guard";
+import { RequirePermissions } from "@shared/auth/decorators";
 
-@Controller('farms')
+@Controller("farms")
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class FarmsController {
-  @RequirePermissions('farm:delete')
-  @Delete(':id')
-  deleteFarm(@Param('id') id: string) {
+  @RequirePermissions("farm:delete")
+  @Delete(":id")
+  deleteFarm(@Param("id") id: string) {
     return this.farmsService.delete(id);
   }
 }
@@ -332,13 +332,13 @@ export class FarmsController {
 ### 6. Farm Access Control
 
 ```typescript
-import { FarmAccessGuard } from '@shared/auth/jwt.guard';
+import { FarmAccessGuard } from "@shared/auth/jwt.guard";
 
-@Controller('farms')
+@Controller("farms")
 @UseGuards(JwtAuthGuard, FarmAccessGuard)
 export class FarmsController {
-  @Get(':farmId/fields')
-  getFields(@Param('farmId') farmId: string) {
+  @Get(":farmId/fields")
+  getFields(@Param("farmId") farmId: string) {
     return this.fieldsService.findByFarm(farmId);
   }
 }
@@ -353,9 +353,9 @@ import {
   UserRoles,
   TenantId,
   RequestLanguage,
-} from '@shared/auth/decorators';
+} from "@shared/auth/decorators";
 
-@Controller('dashboard')
+@Controller("dashboard")
 export class DashboardController {
   @Get()
   getDashboard(
@@ -377,8 +377,8 @@ export class DashboardController {
 ### 8. Creating Tokens
 
 ```typescript
-import { JwtService } from '@nestjs/jwt';
-import { JWTConfig } from '@shared/auth/config';
+import { JwtService } from "@nestjs/jwt";
+import { JWTConfig } from "@shared/auth/config";
 
 @Injectable()
 export class AuthService {
@@ -396,10 +396,10 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
       refresh_token: this.jwtService.sign(
-        { sub: user.id, tid: user.tenantId, type: 'refresh' },
-        { expiresIn: `${JWTConfig.REFRESH_TOKEN_EXPIRE_DAYS}d` }
+        { sub: user.id, tid: user.tenantId, type: "refresh" },
+        { expiresIn: `${JWTConfig.REFRESH_TOKEN_EXPIRE_DAYS}d` },
       ),
-      token_type: 'bearer',
+      token_type: "bearer",
       expires_in: JWTConfig.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     };
   }
@@ -409,9 +409,9 @@ export class AuthService {
 ### 9. Optional Authentication
 
 ```typescript
-import { OptionalAuthGuard } from '@shared/auth/jwt.guard';
+import { OptionalAuthGuard } from "@shared/auth/jwt.guard";
 
-@Controller('content')
+@Controller("content")
 export class ContentController {
   @Get()
   @UseGuards(OptionalAuthGuard)
@@ -428,8 +428,8 @@ export class ContentController {
 
 ```typescript
 // main.ts
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from '@shared/auth/jwt.guard';
+import { APP_GUARD } from "@nestjs/core";
+import { JwtAuthGuard } from "@shared/auth/jwt.guard";
 
 @Module({
   providers: [
@@ -465,12 +465,12 @@ AuthErrors.INVALID_TOKEN.code  # "invalid_token"
 ### TypeScript
 
 ```typescript
-import { AuthErrors } from '@shared/auth/config';
+import { AuthErrors } from "@shared/auth/config";
 
 // Access error messages
-AuthErrors.INVALID_TOKEN.en  // "Invalid authentication token"
-AuthErrors.INVALID_TOKEN.ar  // "رمز المصادقة غير صالح"
-AuthErrors.INVALID_TOKEN.code  // "invalid_token"
+AuthErrors.INVALID_TOKEN.en; // "Invalid authentication token"
+AuthErrors.INVALID_TOKEN.ar; // "رمز المصادقة غير صالح"
+AuthErrors.INVALID_TOKEN.code; // "invalid_token"
 ```
 
 ### Available Error Messages
@@ -494,48 +494,58 @@ AuthErrors.INVALID_TOKEN.code  // "invalid_token"
 The following permissions are available:
 
 ### Farm Management
+
 - `farm:read` - Read farm data
 - `farm:write` - Create/update farms
 - `farm:delete` - Delete farms
 
 ### Field Management
+
 - `field:read` - Read field data
 - `field:write` - Create/update fields
 - `field:delete` - Delete fields
 
 ### Crop Management
+
 - `crop:read` - Read crop data
 - `crop:write` - Create/update crops
 - `crop:delete` - Delete crops
 
 ### Weather & Climate
+
 - `weather:read` - Read weather data
 - `weather:subscribe` - Subscribe to weather updates
 
 ### Advisory Services
+
 - `advisory:read` - Read advisory content
 - `advisory:request` - Request personalized advice
 
 ### Analytics & Reports
+
 - `analytics:read` - View analytics
 - `analytics:export` - Export reports
 
 ### User Management
+
 - `user:read` - Read user data
 - `user:write` - Create/update users
 - `user:delete` - Delete users
 
 ### Admin Operations
+
 - `admin:access` - Access admin panel
 - `admin:settings` - Modify system settings
 - `admin:billing` - Manage billing
 
 ### Equipment Management
+
 - `equipment:read` - Read equipment data
 - `equipment:write` - Create/update equipment
 - `equipment:delete` - Delete equipment
 
 ### Precision Agriculture
+
 - `vra:read`, `vra:write` - Variable Rate Application
 - `spray:read`, `spray:write` - Spray Timing
 - `gdd:read` - Growing Degree Days
@@ -588,11 +598,11 @@ def test_token_verification():
 ### TypeScript
 
 ```typescript
-import { JwtService } from '@nestjs/jwt';
-import { Test } from '@nestjs/testing';
-import { JWTConfig } from '@shared/auth/config';
+import { JwtService } from "@nestjs/jwt";
+import { Test } from "@nestjs/testing";
+import { JWTConfig } from "@shared/auth/config";
 
-describe('JWT Authentication', () => {
+describe("JWT Authentication", () => {
   let jwtService: JwtService;
 
   beforeEach(async () => {
@@ -610,13 +620,13 @@ describe('JWT Authentication', () => {
     jwtService = module.get<JwtService>(JwtService);
   });
 
-  it('should create and verify token', () => {
-    const payload = { sub: 'user123', roles: ['farmer'] };
+  it("should create and verify token", () => {
+    const payload = { sub: "user123", roles: ["farmer"] };
     const token = jwtService.sign(payload);
     const decoded = jwtService.verify(token);
 
-    expect(decoded.sub).toBe('user123');
-    expect(decoded.roles).toContain('farmer');
+    expect(decoded.sub).toBe("user123");
+    expect(decoded.roles).toContain("farmer");
   });
 });
 ```

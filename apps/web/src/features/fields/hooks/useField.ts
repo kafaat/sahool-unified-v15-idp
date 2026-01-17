@@ -3,9 +3,9 @@
  * خطاف الحقل الفردي
  */
 
-import { useQuery } from '@tanstack/react-query';
-import { fieldsApi } from '../api';
-import { fieldKeys } from './queryKeys';
+import { useQuery } from "@tanstack/react-query";
+import { fieldsApi } from "../api";
+import { fieldKeys } from "./queryKeys";
 
 /**
  * Hook to fetch a single field by ID

@@ -11,7 +11,7 @@
         "id": 1,
         "title": "RTO/RPO Status Overview",
         "type": "stat",
-        "gridPos": {"x": 0, "y": 0, "w": 24, "h": 4},
+        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 4 },
         "targets": [
           {
             "expr": "sahool_rto_compliance_status",
@@ -29,13 +29,13 @@
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"value": 0, "color": "red"},
-                {"value": 1, "color": "green"}
+                { "value": 0, "color": "red" },
+                { "value": 1, "color": "green" }
               ]
             },
             "mappings": [
-              {"value": 0, "text": "NON-COMPLIANT"},
-              {"value": 1, "text": "COMPLIANT"}
+              { "value": 0, "text": "NON-COMPLIANT" },
+              { "value": 1, "text": "COMPLIANT" }
             ]
           }
         }
@@ -44,7 +44,7 @@
         "id": 2,
         "title": "PostgreSQL Replication Status",
         "type": "graph",
-        "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
+        "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
         "targets": [
           {
             "expr": "pg_stat_replication_count",
@@ -57,16 +57,14 @@
             "refId": "B"
           }
         ],
-        "yaxes": [
-          {"label": "Count / Bytes", "format": "short"}
-        ],
+        "yaxes": [{ "label": "Count / Bytes", "format": "short" }],
         "alert": {
           "conditions": [
             {
-              "evaluator": {"params": [0], "type": "lt"},
-              "operator": {"type": "and"},
-              "query": {"params": ["A", "5m", "now"]},
-              "reducer": {"params": [], "type": "last"},
+              "evaluator": { "params": [0], "type": "lt" },
+              "operator": { "type": "and" },
+              "query": { "params": ["A", "5m", "now"] },
+              "reducer": { "params": [], "type": "last" },
               "type": "query"
             }
           ],
@@ -77,7 +75,7 @@
         "id": 3,
         "title": "Backup Freshness",
         "type": "graph",
-        "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
+        "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
         "targets": [
           {
             "expr": "time() - sahool_backup_last_success_timestamp{service=\"postgresql\"}",
@@ -95,18 +93,14 @@
             "refId": "C"
           }
         ],
-        "yaxes": [
-          {"label": "Age (seconds)", "format": "s"}
-        ],
-        "thresholds": [
-          {"value": 86400, "colorMode": "critical"}
-        ]
+        "yaxes": [{ "label": "Age (seconds)", "format": "s" }],
+        "thresholds": [{ "value": 86400, "colorMode": "critical" }]
       },
       {
         "id": 4,
         "title": "Failover Events (Last 24h)",
         "type": "table",
-        "gridPos": {"x": 0, "y": 12, "w": 12, "h": 6},
+        "gridPos": { "x": 0, "y": 12, "w": 12, "h": 6 },
         "targets": [
           {
             "expr": "increase(patroni_failover_total[24h])",
@@ -126,7 +120,7 @@
         "id": 5,
         "title": "Cross-Region Replication Status",
         "type": "stat",
-        "gridPos": {"x": 12, "y": 12, "w": 12, "h": 6},
+        "gridPos": { "x": 12, "y": 12, "w": 12, "h": 6 },
         "targets": [
           {
             "expr": "sahool_s3_replication_status",
@@ -144,7 +138,7 @@
         "id": 6,
         "title": "WAL Archive Status",
         "type": "graph",
-        "gridPos": {"x": 0, "y": 18, "w": 12, "h": 6},
+        "gridPos": { "x": 0, "y": 18, "w": 12, "h": 6 },
         "targets": [
           {
             "expr": "rate(sahool_wal_archived_total[5m])",
@@ -162,7 +156,7 @@
         "id": 7,
         "title": "DR Test Results",
         "type": "table",
-        "gridPos": {"x": 12, "y": 18, "w": 12, "h": 6},
+        "gridPos": { "x": 12, "y": 18, "w": 12, "h": 6 },
         "targets": [
           {
             "expr": "sahool_dr_test_last_result",
@@ -189,7 +183,7 @@
         "id": 8,
         "title": "Backup Storage Utilization",
         "type": "gauge",
-        "gridPos": {"x": 0, "y": 24, "w": 8, "h": 6},
+        "gridPos": { "x": 0, "y": 24, "w": 8, "h": 6 },
         "targets": [
           {
             "expr": "(sahool_backup_storage_used_bytes / sahool_backup_storage_total_bytes) * 100",
@@ -202,9 +196,9 @@
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"value": 0, "color": "green"},
-                {"value": 70, "color": "yellow"},
-                {"value": 85, "color": "red"}
+                { "value": 0, "color": "green" },
+                { "value": 70, "color": "yellow" },
+                { "value": 85, "color": "red" }
               ]
             },
             "unit": "percent"
@@ -215,7 +209,7 @@
         "id": 9,
         "title": "Current RPO (Worst Case)",
         "type": "stat",
-        "gridPos": {"x": 8, "y": 24, "w": 8, "h": 6},
+        "gridPos": { "x": 8, "y": 24, "w": 8, "h": 6 },
         "targets": [
           {
             "expr": "max(time() - sahool_backup_last_success_timestamp)",
@@ -229,9 +223,9 @@
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"value": 0, "color": "green"},
-                {"value": 3600, "color": "yellow"},
-                {"value": 86400, "color": "red"}
+                { "value": 0, "color": "green" },
+                { "value": 3600, "color": "yellow" },
+                { "value": 86400, "color": "red" }
               ]
             }
           }
@@ -241,7 +235,7 @@
         "id": 10,
         "title": "Last DR Drill",
         "type": "stat",
-        "gridPos": {"x": 16, "y": 24, "w": 8, "h": 6},
+        "gridPos": { "x": 16, "y": 24, "w": 8, "h": 6 },
         "targets": [
           {
             "expr": "time() - sahool_dr_drill_last_success_timestamp",
@@ -255,16 +249,16 @@
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"value": 0, "color": "green"},
-                {"value": 5184000, "color": "yellow"},
-                {"value": 7776000, "color": "red"}
+                { "value": 0, "color": "green" },
+                { "value": 5184000, "color": "yellow" },
+                { "value": 7776000, "color": "red" }
               ]
             },
             "mappings": [
               {
                 "type": "value",
                 "options": {
-                  "0": {"text": "Never"}
+                  "0": { "text": "Never" }
                 }
               }
             ]

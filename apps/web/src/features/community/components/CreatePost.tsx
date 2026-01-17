@@ -3,39 +3,40 @@
  * مكون إنشاء منشور
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { X, Image as ImageIcon, Tag, MapPin } from 'lucide-react';
-import { useCreatePost } from '../hooks/useCommunity';
-import type { PostType } from '../types';
-import { logger } from '@/lib/logger';
+import React, { useState } from "react";
+import { X, Image as ImageIcon, Tag, MapPin } from "lucide-react";
+import { useCreatePost } from "../hooks/useCommunity";
+import type { PostType } from "../types";
+import { logger } from "@/lib/logger";
 
 interface CreatePostProps {
   onClose: () => void;
 }
 
 export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
-  const [type, setType] = useState<PostType>('discussion');
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [type, setType] = useState<PostType>("discussion");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
+  const [tagInput, setTagInput] = useState("");
 
   const createMutation = useCreatePost();
 
-  const postTypes: Array<{ value: PostType; label: string; labelAr: string }> = [
-    { value: 'question', label: 'Question', labelAr: 'سؤال' },
-    { value: 'tip', label: 'Tip', labelAr: 'نصيحة' },
-    { value: 'experience', label: 'Experience', labelAr: 'تجربة' },
-    { value: 'discussion', label: 'Discussion', labelAr: 'نقاش' },
-    { value: 'update', label: 'Update', labelAr: 'تحديث' },
-  ];
+  const postTypes: Array<{ value: PostType; label: string; labelAr: string }> =
+    [
+      { value: "question", label: "Question", labelAr: "سؤال" },
+      { value: "tip", label: "Tip", labelAr: "نصيحة" },
+      { value: "experience", label: "Experience", labelAr: "تجربة" },
+      { value: "discussion", label: "Discussion", labelAr: "نقاش" },
+      { value: "update", label: "Update", labelAr: "تحديث" },
+    ];
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       setTags([...tags, tagInput.trim()]);
-      setTagInput('');
+      setTagInput("");
     }
   };
 
@@ -52,17 +53,20 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
         titleAr: title,
         contentAr: content,
         tagsAr: tags,
-        status: 'active',
+        status: "active",
       });
       onClose();
     } catch (error) {
-      logger.error('Failed to create post:', error);
+      logger.error("Failed to create post:", error);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" dir="rtl">
+      <div
+        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        dir="rtl"
+      >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">إنشاء منشور جديد</h2>
@@ -88,8 +92,8 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
                   onClick={() => setType(postType.value)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     type === postType.value
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   {postType.labelAr}
@@ -136,7 +140,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+                onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
                 placeholder="أضف وسماً..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
@@ -190,10 +194,12 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!title.trim() || !content.trim() || createMutation.isPending}
+            disabled={
+              !title.trim() || !content.trim() || createMutation.isPending
+            }
             className="px-6 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
-            {createMutation.isPending ? 'جاري النشر...' : 'نشر'}
+            {createMutation.isPending ? "جاري النشر..." : "نشر"}
           </button>
         </div>
       </div>

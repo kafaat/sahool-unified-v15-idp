@@ -1,9 +1,11 @@
 # SAHOOL Platform - Operational Setup Guide
+
 # دليل التشغيل لمنصة سهول
 
 ## Quick Start (البداية السريعة)
 
 ### Prerequisites (المتطلبات)
+
 - Docker 20.10+
 - Docker Compose 2.0+
 - Node.js 20+
@@ -26,11 +28,11 @@ cd sahool-unified-v15-idp
 
 ## Environment Modes (أوضاع البيئة)
 
-| Mode | Command | Usage |
-|------|---------|-------|
-| Development | `./scripts/bootstrap.sh --dev` | Local development with debug logging |
-| CI/Testing | `./scripts/bootstrap.sh --ci` | Automated testing environment |
-| Production | `./scripts/bootstrap.sh --prod` | Production build and deployment |
+| Mode        | Command                         | Usage                                |
+| ----------- | ------------------------------- | ------------------------------------ |
+| Development | `./scripts/bootstrap.sh --dev`  | Local development with debug logging |
+| CI/Testing  | `./scripts/bootstrap.sh --ci`   | Automated testing environment        |
+| Production  | `./scripts/bootstrap.sh --prod` | Production build and deployment      |
 
 ---
 
@@ -46,13 +48,13 @@ config/
 
 ### Key Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `POSTGRES_PASSWORD` | Database password | ✅ |
-| `REDIS_PASSWORD` | Redis password | ✅ |
-| `JWT_SECRET_KEY` | JWT signing key (32+ chars) | ✅ |
-| `APP_SECRET_KEY` | Application secret | ✅ |
-| `ENVIRONMENT` | dev/ci/production | ✅ |
+| Variable            | Description                 | Required |
+| ------------------- | --------------------------- | -------- |
+| `POSTGRES_PASSWORD` | Database password           | ✅       |
+| `REDIS_PASSWORD`    | Redis password              | ✅       |
+| `JWT_SECRET_KEY`    | JWT signing key (32+ chars) | ✅       |
+| `APP_SECRET_KEY`    | Application secret          | ✅       |
+| `ENVIRONMENT`       | dev/ci/production           | ✅       |
 
 ---
 
@@ -73,13 +75,13 @@ docker-compose -f docker/docker-compose.infra.yml ps
 
 ### Service Endpoints
 
-| Service | Port | Health Check |
-|---------|------|--------------|
-| PostgreSQL | 5432 | `pg_isready` |
-| Redis | 6379 | `redis-cli ping` |
-| NATS | 4222/8222 | `/healthz` |
-| MQTT | 1883/9001 | Sub test |
-| Kong API | 8000 | `/health` |
+| Service    | Port      | Health Check     |
+| ---------- | --------- | ---------------- |
+| PostgreSQL | 5432      | `pg_isready`     |
+| Redis      | 6379      | `redis-cli ping` |
+| NATS       | 4222/8222 | `/healthz`       |
+| MQTT       | 1883/9001 | Sub test         |
+| Kong API   | 8000      | `/health`        |
 
 ---
 
@@ -96,6 +98,7 @@ docker-compose -f docker/docker-compose.infra.yml up db-migrator
 ```
 
 ### Migration Files Location
+
 ```
 infra/postgres/migrations/
 ├── 001_init_extensions.sql    # PostGIS, UUID, etc.

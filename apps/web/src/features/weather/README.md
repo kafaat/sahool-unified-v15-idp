@@ -11,18 +11,21 @@ This feature provides real-time weather data, forecasts, and alerts for agricult
 ## Features | الميزات
 
 ### Current Weather | الطقس الحالي
+
 - Real-time temperature, humidity, wind speed
 - UV index and atmospheric pressure
 - Weather conditions in Arabic and English
 - Automatic fallback to mock data if API fails
 
 ### Weather Forecast | توقعات الطقس
+
 - 7-day forecast (configurable)
 - Daily temperature, precipitation, wind speed
 - Condition descriptions in both languages
 - Graceful degradation to mock data
 
 ### Weather Alerts | تنبيهات الطقس
+
 - Agricultural weather alerts
 - Severity levels (low, medium, high, critical)
 - Affected areas with Arabic names
@@ -123,17 +126,17 @@ function FieldWeather({ field }) {
 
 ```typescript
 interface WeatherData {
-  temperature: number;          // درجة الحرارة (°C)
-  humidity: number;              // الرطوبة (%)
-  windSpeed: number;             // سرعة الرياح (km/h)
-  windDirection: string;         // اتجاه الرياح (N, NE, E, etc.)
-  pressure: number;              // الضغط الجوي (hPa)
-  visibility: number;            // الرؤية (km)
-  uvIndex: number;               // مؤشر الأشعة فوق البنفسجية
-  condition: string;             // الحالة (English)
-  conditionAr: string;           // الحالة (العربية)
-  location: string;              // الموقع
-  timestamp: string;             // وقت القراءة (ISO 8601)
+  temperature: number; // درجة الحرارة (°C)
+  humidity: number; // الرطوبة (%)
+  windSpeed: number; // سرعة الرياح (km/h)
+  windDirection: string; // اتجاه الرياح (N, NE, E, etc.)
+  pressure: number; // الضغط الجوي (hPa)
+  visibility: number; // الرؤية (km)
+  uvIndex: number; // مؤشر الأشعة فوق البنفسجية
+  condition: string; // الحالة (English)
+  conditionAr: string; // الحالة (العربية)
+  location: string; // الموقع
+  timestamp: string; // وقت القراءة (ISO 8601)
 }
 ```
 
@@ -141,13 +144,13 @@ interface WeatherData {
 
 ```typescript
 interface ForecastDataPoint {
-  date: string;                  // تاريخ التنبؤ (ISO 8601)
-  temperature: number;           // متوسط درجة الحرارة (°C)
-  humidity: number;              // الرطوبة (%)
-  precipitation: number;         // الأمطار (mm)
-  windSpeed: number;             // سرعة الرياح (km/h)
-  condition: string;             // الحالة (English)
-  conditionAr: string;           // الحالة (العربية)
+  date: string; // تاريخ التنبؤ (ISO 8601)
+  temperature: number; // متوسط درجة الحرارة (°C)
+  humidity: number; // الرطوبة (%)
+  precipitation: number; // الأمطار (mm)
+  windSpeed: number; // سرعة الرياح (km/h)
+  condition: string; // الحالة (English)
+  conditionAr: string; // الحالة (العربية)
 }
 ```
 
@@ -155,18 +158,18 @@ interface ForecastDataPoint {
 
 ```typescript
 interface WeatherAlert {
-  id: string;                    // معرف التنبيه
-  type: string;                  // نوع التنبيه
-  severity: 'low' | 'medium' | 'high' | 'critical';  // مستوى الخطورة
-  title: string;                 // العنوان (English)
-  titleAr?: string;              // العنوان (العربية)
-  description: string;           // الوصف (English)
-  descriptionAr?: string;        // الوصف (العربية)
-  affectedAreas: string[];       // المناطق المتأثرة
-  affectedAreasAr?: string[];    // المناطق المتأثرة (العربية)
-  startTime: string;             // وقت البداية (ISO 8601)
-  endTime?: string;              // وقت النهاية (ISO 8601)
-  isActive: boolean;             // حالة التنبيه
+  id: string; // معرف التنبيه
+  type: string; // نوع التنبيه
+  severity: "low" | "medium" | "high" | "critical"; // مستوى الخطورة
+  title: string; // العنوان (English)
+  titleAr?: string; // العنوان (العربية)
+  description: string; // الوصف (English)
+  descriptionAr?: string; // الوصف (العربية)
+  affectedAreas: string[]; // المناطق المتأثرة
+  affectedAreasAr?: string[]; // المناطق المتأثرة (العربية)
+  startTime: string; // وقت البداية (ISO 8601)
+  endTime?: string; // وقت النهاية (ISO 8601)
+  isActive: boolean; // حالة التنبيه
 }
 ```
 
@@ -176,9 +179,9 @@ interface WeatherAlert {
 
 ```typescript
 interface WeatherHookOptions {
-  lat?: number;        // خط العرض (default: 15.3694)
-  lon?: number;        // خط الطول (default: 44.191)
-  enabled?: boolean;   // تمكين الاستعلام (default: true)
+  lat?: number; // خط العرض (default: 15.3694)
+  lon?: number; // خط الطول (default: 44.191)
+  enabled?: boolean; // تمكين الاستعلام (default: true)
 }
 ```
 
@@ -254,11 +257,13 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 The hooks now accept options object instead of location string:
 
 **Before:**
+
 ```typescript
-const { data } = useCurrentWeather('Sana\'a');
+const { data } = useCurrentWeather("Sana'a");
 ```
 
 **After:**
+
 ```typescript
 const { data } = useCurrentWeather({ lat: 15.3694, lon: 44.191 });
 ```
@@ -283,6 +288,7 @@ const { data } = useCurrentWeather(); // Uses Sana'a coordinates
 ### Using Mock Data in Production
 
 If you see mock data in production:
+
 - Check `NEXT_PUBLIC_API_URL` is set correctly
 - Verify weather-core service is accessible
 - Check Kong routing configuration

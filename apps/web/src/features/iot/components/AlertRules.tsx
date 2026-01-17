@@ -3,31 +3,35 @@
  * مكون قواعد التنبيهات
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAlertRules, useToggleAlertRule, useDeleteAlertRule } from '../hooks/useActuators';
-import type { AlertRule } from '../types';
-import { Bell, AlertCircle, Plus, Trash2, Power, Loader2 } from 'lucide-react';
-import { logger } from '@/lib/logger';
+import { useState } from "react";
+import {
+  useAlertRules,
+  useToggleAlertRule,
+  useDeleteAlertRule,
+} from "../hooks/useActuators";
+import type { AlertRule } from "../types";
+import { Bell, AlertCircle, Plus, Trash2, Power, Loader2 } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 const severityColors = {
-  info: 'bg-blue-100 text-blue-800',
-  warning: 'bg-yellow-100 text-yellow-800',
-  critical: 'bg-red-100 text-red-800',
+  info: "bg-blue-100 text-blue-800",
+  warning: "bg-yellow-100 text-yellow-800",
+  critical: "bg-red-100 text-red-800",
 };
 
 const severityLabels = {
-  info: 'معلومة',
-  warning: 'تحذير',
-  critical: 'حرج',
+  info: "معلومة",
+  warning: "تحذير",
+  critical: "حرج",
 };
 
 const conditionLabels = {
-  above: 'أعلى من',
-  below: 'أقل من',
-  between: 'بين',
-  outside: 'خارج',
+  above: "أعلى من",
+  below: "أقل من",
+  between: "بين",
+  outside: "خارج",
 };
 
 export function AlertRules() {
@@ -38,19 +42,22 @@ export function AlertRules() {
 
   const handleToggle = async (ruleId: string, currentEnabled: boolean) => {
     try {
-      await toggleMutation.mutateAsync({ id: ruleId, enabled: !currentEnabled });
+      await toggleMutation.mutateAsync({
+        id: ruleId,
+        enabled: !currentEnabled,
+      });
     } catch (error) {
-      logger.error('Failed to toggle alert rule:', error);
+      logger.error("Failed to toggle alert rule:", error);
     }
   };
 
   const handleDelete = async (ruleId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذه القاعدة؟')) return;
+    if (!confirm("هل أنت متأكد من حذف هذه القاعدة؟")) return;
 
     try {
       await deleteMutation.mutateAsync(ruleId);
     } catch (error) {
-      logger.error('Failed to delete alert rule:', error);
+      logger.error("Failed to delete alert rule:", error);
     }
   };
 
@@ -116,30 +123,37 @@ interface AlertRuleCardProps {
   isLoading: boolean;
 }
 
-function AlertRuleCard({ rule, onToggle, onDelete, isLoading }: AlertRuleCardProps) {
+function AlertRuleCard({
+  rule,
+  onToggle,
+  onDelete,
+  isLoading,
+}: AlertRuleCardProps) {
   const getConditionText = (): string => {
     switch (rule.condition) {
-      case 'above':
+      case "above":
         return `${conditionLabels[rule.condition]} ${rule.threshold}`;
-      case 'below':
+      case "below":
         return `${conditionLabels[rule.condition]} ${rule.threshold}`;
-      case 'between':
+      case "between":
         return `${conditionLabels[rule.condition]} ${rule.threshold} و ${rule.thresholdMax}`;
-      case 'outside':
+      case "outside":
         return `${conditionLabels[rule.condition]} ${rule.threshold} و ${rule.thresholdMax}`;
       default:
-        return '';
+        return "";
     }
   };
 
   return (
     <div
-      className={`bg-white rounded-lg shadow p-6 ${!rule.enabled ? 'opacity-60' : ''}`}
+      className={`bg-white rounded-lg shadow p-6 ${!rule.enabled ? "opacity-60" : ""}`}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900">{rule.nameAr}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {rule.nameAr}
+            </h3>
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${
                 severityColors[rule.severity]
@@ -171,17 +185,17 @@ function AlertRuleCard({ rule, onToggle, onDelete, isLoading }: AlertRuleCardPro
               <div className="flex items-center text-gray-700">
                 <span className="font-medium ml-2">الإجراء:</span>
                 <span>
-                  {rule.actionType === 'notification' && 'إرسال إشعار'}
-                  {rule.actionType === 'actuator' && 'تفعيل المُشغل'}
-                  {rule.actionType === 'both' && 'إشعار + تفعيل المُشغل'}
+                  {rule.actionType === "notification" && "إرسال إشعار"}
+                  {rule.actionType === "actuator" && "تفعيل المُشغل"}
+                  {rule.actionType === "both" && "إشعار + تفعيل المُشغل"}
                 </span>
               </div>
             )}
 
             {rule.actuatorId && rule.actuatorAction && (
               <div className="text-xs text-gray-500">
-                إجراء المُشغل:{' '}
-                {rule.actuatorAction === 'turn_on' ? 'تشغيل' : 'إيقاف'}
+                إجراء المُشغل:{" "}
+                {rule.actuatorAction === "turn_on" ? "تشغيل" : "إيقاف"}
               </div>
             )}
           </div>
@@ -194,10 +208,10 @@ function AlertRuleCard({ rule, onToggle, onDelete, isLoading }: AlertRuleCardPro
             disabled={isLoading}
             className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${
               rule.enabled
-                ? 'text-green-600 hover:bg-green-50'
-                : 'text-gray-400 hover:bg-gray-50'
+                ? "text-green-600 hover:bg-green-50"
+                : "text-gray-400 hover:bg-gray-50"
             }`}
-            title={rule.enabled ? 'تعطيل' : 'تفعيل'}
+            title={rule.enabled ? "تعطيل" : "تفعيل"}
           >
             <Power className="w-5 h-5" />
           </button>

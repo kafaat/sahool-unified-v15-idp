@@ -4,18 +4,19 @@ This directory contains systemd and cron configurations for automated certificat
 
 ## Files
 
-| File | Purpose | Type |
-|------|---------|------|
-| `cert-rotation.service` | Systemd service unit | systemd |
-| `cert-rotation.timer` | Systemd timer unit | systemd |
-| `cert-rotation.cron` | Cron job configuration | cron |
-| `README.md` | This file | documentation |
+| File                    | Purpose                | Type          |
+| ----------------------- | ---------------------- | ------------- |
+| `cert-rotation.service` | Systemd service unit   | systemd       |
+| `cert-rotation.timer`   | Systemd timer unit     | systemd       |
+| `cert-rotation.cron`    | Cron job configuration | cron          |
+| `README.md`             | This file              | documentation |
 
 ## Quick Start
 
 ### Option 1: Systemd Timer (Recommended for Linux Servers)
 
 **Advantages:**
+
 - Better logging integration (journald)
 - Dependency management
 - On-boot execution support
@@ -78,6 +79,7 @@ sudo systemctl restart cert-rotation.timer
 ### Option 2: Cron Job (Alternative)
 
 **Advantages:**
+
 - Simpler setup
 - Works on any Unix-like system
 - Familiar to most administrators
@@ -146,6 +148,7 @@ MemoryLimit=512M
 ```
 
 After editing:
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl restart cert-rotation.timer
@@ -171,6 +174,7 @@ RandomizedDelaySec=30min
 ```
 
 After editing:
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl restart cert-rotation.timer
@@ -221,11 +225,11 @@ This file is automatically loaded by the systemd service.
 
 ### Recommended Schedules
 
-| Frequency | Use Case | Cron Expression | Systemd OnCalendar |
-|-----------|----------|-----------------|-------------------|
-| Daily | Production systems | `0 2 * * *` | `daily` or `*-*-* 02:00:00` |
-| Weekly | Staging systems | `0 3 * * 0` | `weekly` or `Sun *-*-* 03:00:00` |
-| Monthly | Development systems | `0 2 1 * *` | `monthly` or `*-*-01 02:00:00` |
+| Frequency | Use Case            | Cron Expression | Systemd OnCalendar               |
+| --------- | ------------------- | --------------- | -------------------------------- |
+| Daily     | Production systems  | `0 2 * * *`     | `daily` or `*-*-* 02:00:00`      |
+| Weekly    | Staging systems     | `0 3 * * 0`     | `weekly` or `Sun *-*-* 03:00:00` |
+| Monthly   | Development systems | `0 2 1 * *`     | `monthly` or `*-*-01 02:00:00`   |
 
 ### Best Practices
 

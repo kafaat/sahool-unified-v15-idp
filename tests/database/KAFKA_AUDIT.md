@@ -1,4 +1,5 @@
 # Kafka Event Streaming Audit Report
+
 **SAHOOL Platform - Comprehensive Analysis**
 
 **Audit Date:** 2026-01-06
@@ -31,6 +32,7 @@ Instead, the SAHOOL platform uses **NATS with JetStream** as its event streaming
 ### 1.1 Search Results
 
 **Files Searched:**
+
 - `**/docker-compose*.yml` - ✅ Searched (36 files)
 - `**/kafka*.{yml,yaml,json,conf}` - ✅ Searched
 - `**/config/kafka*` - ✅ Searched
@@ -50,6 +52,7 @@ Instead, the SAHOOL platform uses **NATS with JetStream** as its event streaming
 The platform uses **NATS v2.10-alpine** with **JetStream** for event-driven architecture.
 
 **Evidence:**
+
 - `/home/user/sahool-unified-v15-idp/config/nats/nats.conf` - Production configuration
 - `/home/user/sahool-unified-v15-idp/docs/adr/ADR-005-nats-event-bus.md` - Architectural decision
 - Docker Compose: `nats:2.10-alpine` container deployed
@@ -64,22 +67,23 @@ The platform uses **NATS v2.10-alpine** with **JetStream** for event-driven arch
 
 The SAHOOL team evaluated multiple message brokers and **explicitly rejected Kafka** for the following reasons:
 
-| Factor | Kafka | NATS | Winner |
-|--------|-------|------|--------|
-| **Operational Complexity** | High (ZooKeeper/KRaft) | Low (single binary) | NATS |
-| **Resource Usage** | 3+ GB RAM per broker | ~30MB RAM | NATS |
-| **Setup Time** | Complex multi-node setup | Single binary deployment | NATS |
-| **Team Familiarity** | Low expertise | Easier learning curve | NATS |
-| **Latency** | 5-10ms | <1ms pub-sub | NATS |
-| **Throughput** | Very High (millions/sec) | Very High (millions/sec) | Tie |
-| **Persistence** | Excellent | JetStream provides persistence | Tie |
-| **Ecosystem** | Rich (Kafka Connect, KSQL) | Growing | Kafka |
-| **Clustering** | Complex | Simple routes configuration | NATS |
-| **Current Scale Needs** | Overkill for 10K events/sec | Perfect fit | NATS |
+| Factor                     | Kafka                       | NATS                           | Winner |
+| -------------------------- | --------------------------- | ------------------------------ | ------ |
+| **Operational Complexity** | High (ZooKeeper/KRaft)      | Low (single binary)            | NATS   |
+| **Resource Usage**         | 3+ GB RAM per broker        | ~30MB RAM                      | NATS   |
+| **Setup Time**             | Complex multi-node setup    | Single binary deployment       | NATS   |
+| **Team Familiarity**       | Low expertise               | Easier learning curve          | NATS   |
+| **Latency**                | 5-10ms                      | <1ms pub-sub                   | NATS   |
+| **Throughput**             | Very High (millions/sec)    | Very High (millions/sec)       | Tie    |
+| **Persistence**            | Excellent                   | JetStream provides persistence | Tie    |
+| **Ecosystem**              | Rich (Kafka Connect, KSQL)  | Growing                        | Kafka  |
+| **Clustering**             | Complex                     | Simple routes configuration    | NATS   |
+| **Current Scale Needs**    | Overkill for 10K events/sec | Perfect fit                    | NATS   |
 
 ### 2.2 Key Quote from ADR-005
 
 > "We chose NATS with JetStream as our event bus infrastructure. Key Reasons:
+>
 > 1. Lightweight: Single binary, minimal resources (~30MB RAM)
 > 2. High performance: Millions of messages/second
 > 3. JetStream: Built-in persistence and exactly-once semantics
@@ -95,6 +99,7 @@ The SAHOOL team evaluated multiple message brokers and **explicitly rejected Kaf
 **Configuration File:** `/home/user/sahool-unified-v15-idp/config/nats/nats.conf`
 
 #### Server Settings
+
 ```conf
 server_name: sahool-nats
 listen: 0.0.0.0:4222
@@ -102,6 +107,7 @@ http_port: 8222
 ```
 
 #### JetStream Configuration
+
 ```conf
 jetstream {
     store_dir: /data
@@ -113,6 +119,7 @@ jetstream {
 **Status:** ✅ JetStream Enabled (equivalent to Kafka's persistent logs)
 
 #### Docker Deployment
+
 ```yaml
 Container: sahool-nats
 Image: nats:2.10-alpine
@@ -133,19 +140,20 @@ NATS uses **subjects** instead of Kafka topics. The platform implements a hierar
 
 **Registered Subjects:**
 
-| Domain | Subjects | Partitioning Equivalent |
-|--------|----------|-------------------------|
-| **Fields** | `sahool.field.{created,updated,deleted}` | Wildcards for filtering |
-| **Weather** | `sahool.weather.{forecast,alert,alert.*}` | Subject hierarchy |
-| **IoT** | `sahool.iot.sensor.{reading,connected,disconnected}` | Queue groups for load balancing |
-| **Billing** | `sahool.billing.{subscription.*,payment.*,invoice.*}` | Multi-tenant isolation |
-| **Notifications** | `sahool.notification.{send,sent,delivered,failed}` | Event sourcing |
-| **Satellite** | `sahool.satellite.{data.ready,processing.*,anomaly.*}` | Stream processing |
-| **Health** | `sahool.health.{disease,pest,stress}.*` | Alert routing |
+| Domain            | Subjects                                               | Partitioning Equivalent         |
+| ----------------- | ------------------------------------------------------ | ------------------------------- |
+| **Fields**        | `sahool.field.{created,updated,deleted}`               | Wildcards for filtering         |
+| **Weather**       | `sahool.weather.{forecast,alert,alert.*}`              | Subject hierarchy               |
+| **IoT**           | `sahool.iot.sensor.{reading,connected,disconnected}`   | Queue groups for load balancing |
+| **Billing**       | `sahool.billing.{subscription.*,payment.*,invoice.*}`  | Multi-tenant isolation          |
+| **Notifications** | `sahool.notification.{send,sent,delivered,failed}`     | Event sourcing                  |
+| **Satellite**     | `sahool.satellite.{data.ready,processing.*,anomaly.*}` | Stream processing               |
+| **Health**        | `sahool.health.{disease,pest,stress}.*`                | Alert routing                   |
 
 **Total Subject Namespaces:** 15+ domains with 100+ specific subjects
 
 **Partitioning Strategy:**
+
 - NATS uses **queue groups** instead of Kafka partitions
 - Messages to same subject can be distributed across multiple consumers
 - JetStream consumers can process in parallel
@@ -154,12 +162,14 @@ NATS uses **subjects** instead of Kafka topics. The platform implements a hierar
 ### 3.3 Consumer Group Settings (Queue Groups)
 
 **NATS Implementation:**
+
 ```typescript
 // Load balancing across multiple consumers
-nc.subscribe(subject, { queue: 'service-workers' }, callback)
+nc.subscribe(subject, { queue: "service-workers" }, callback);
 ```
 
 **Features:**
+
 - ✅ Automatic load distribution (like Kafka consumer groups)
 - ✅ At-least-once delivery
 - ✅ Durable consumers with JetStream
@@ -167,6 +177,7 @@ nc.subscribe(subject, { queue: 'service-workers' }, callback)
 - ✅ Concurrent message processing limits
 
 **Consumer Configuration:**
+
 ```python
 SubscriberConfig:
   enable_jetstream: True
@@ -193,11 +204,13 @@ SubscriberConfig:
 **NATS Security Model:**
 
 #### User Roles
+
 1. **Admin User** - Full access to all subjects
 2. **Application User** - Scoped to `sahool.*`, `field.*`, `billing.*`, etc.
 3. **Monitor User** - Read-only (subscribe only, no publish)
 
 #### Authorization Configuration
+
 ```conf
 authorization {
     users = [
@@ -230,12 +243,14 @@ tls {
 ```
 
 **Certificate Inventory:**
+
 - ✅ CA certificate present
 - ✅ Server certificate present
 - ✅ Private key present (600 permissions)
 - ⚠️ Self-signed (suitable for internal use)
 
 **Issues:**
+
 - ⚠️ TLS configured but NOT enforced (clients can connect without TLS)
 - ⚠️ No automated certificate rotation
 
@@ -244,6 +259,7 @@ tls {
 **NATS Equivalent:** Password-based authentication with environment variables
 
 **Not Implemented:**
+
 - ❌ NKey authentication (NATS equivalent of Kafka SASL/SCRAM)
 - ❌ OAuth/JWT integration
 - ❌ Kerberos (not applicable to NATS)
@@ -251,6 +267,7 @@ tls {
 ### 4.4 Network Security
 
 **Current Configuration:**
+
 - ✅ Monitoring port bound to localhost only (8222)
 - ⚠️ Client port exposed on all interfaces (0.0.0.0:4222)
 - ✅ Docker network isolation
@@ -259,6 +276,7 @@ tls {
 ### 4.5 Security Score: 7/10
 
 **Strengths:**
+
 - ✅ Multi-user authentication
 - ✅ Granular subject-level authorization
 - ✅ TLS configuration present
@@ -267,6 +285,7 @@ tls {
 - ✅ Network isolation via Docker
 
 **Weaknesses:**
+
 - ⚠️ TLS not enforced (should require TLS for all connections)
 - ⚠️ Default passwords in some config files
 - ⚠️ No NKey authentication (more secure than passwords)
@@ -282,16 +301,17 @@ tls {
 
 **JetStream Configuration (equivalent to Kafka log retention):**
 
-| Setting | Value | Kafka Equivalent |
-|---------|-------|------------------|
-| **Max Age** | 30 days (DLQ) | log.retention.hours |
-| **Max Messages** | 100,000 (DLQ) | log.retention.messages |
-| **Max Bytes** | 10GB | log.segment.bytes |
-| **Storage Type** | File-based | log.dirs |
-| **Discard Policy** | Old messages | log.cleanup.policy=delete |
-| **Replicas** | 1 (single node) | replication.factor |
+| Setting            | Value           | Kafka Equivalent          |
+| ------------------ | --------------- | ------------------------- |
+| **Max Age**        | 30 days (DLQ)   | log.retention.hours       |
+| **Max Messages**   | 100,000 (DLQ)   | log.retention.messages    |
+| **Max Bytes**      | 10GB            | log.segment.bytes         |
+| **Storage Type**   | File-based      | log.dirs                  |
+| **Discard Policy** | Old messages    | log.cleanup.policy=delete |
+| **Replicas**       | 1 (single node) | replication.factor        |
 
 **Retention Analysis:**
+
 - ✅ Persistent storage enabled
 - ✅ Automatic cleanup of old messages
 - ✅ Size-based limits prevent disk overflow
@@ -303,15 +323,16 @@ tls {
 
 **Comparison:**
 
-| Feature | Kafka (Typical) | NATS (Current) | NATS (HA Capable) |
-|---------|-----------------|----------------|-------------------|
-| **Nodes** | 3+ brokers | 1 node | 3+ nodes |
-| **Replication** | 3x | None | 3x |
-| **Failover** | Automatic | None | Automatic |
-| **Split-Brain Protection** | Yes | N/A | Yes |
-| **Data Loss Risk** | Low | Medium | Low |
+| Feature                    | Kafka (Typical) | NATS (Current) | NATS (HA Capable) |
+| -------------------------- | --------------- | -------------- | ----------------- |
+| **Nodes**                  | 3+ brokers      | 1 node         | 3+ nodes          |
+| **Replication**            | 3x              | None           | 3x                |
+| **Failover**               | Automatic       | None           | Automatic         |
+| **Split-Brain Protection** | Yes             | N/A            | Yes               |
+| **Data Loss Risk**         | Low             | Medium         | Low               |
 
 **Clustering Capability:**
+
 - ✅ Configuration present (commented out)
 - ⚠️ Not enabled in production
 
@@ -338,6 +359,7 @@ DLQConfig:
 ```
 
 **Features:**
+
 - ✅ Exponential backoff retry
 - ✅ Metadata tracking (retry count, errors, timestamps)
 - ✅ Replay capabilities
@@ -345,22 +367,24 @@ DLQConfig:
 - ✅ Automatic stream creation
 
 **Comparison to Kafka:**
+
 - Kafka: No built-in DLQ (must implement manually)
 - NATS: Full DLQ implementation with monitoring
 
 ### 5.4 Message Ordering Guarantees
 
-| System | Guarantee | Notes |
-|--------|-----------|-------|
-| **Kafka** | Per-partition ordering | Strong ordering within partition |
-| **NATS Core** | No ordering | Fire-and-forget messaging |
-| **NATS JetStream** | Per-stream ordering | Equivalent to Kafka partition ordering |
+| System             | Guarantee              | Notes                                  |
+| ------------------ | ---------------------- | -------------------------------------- |
+| **Kafka**          | Per-partition ordering | Strong ordering within partition       |
+| **NATS Core**      | No ordering            | Fire-and-forget messaging              |
+| **NATS JetStream** | Per-stream ordering    | Equivalent to Kafka partition ordering |
 
 **SAHOOL Implementation:** Uses JetStream for ordered delivery
 
 ### 5.5 Reliability Score: 8/10
 
 **Strengths:**
+
 - ✅ JetStream persistence (equivalent to Kafka logs)
 - ✅ Sophisticated DLQ with retry logic
 - ✅ Automatic reconnection (infinite retries)
@@ -371,6 +395,7 @@ DLQConfig:
 - ✅ At-least-once delivery
 
 **Weaknesses:**
+
 - ⚠️ Single point of failure (no clustering)
 - ⚠️ No replication (replicas=1)
 - ⚠️ Limited resource allocation (512MB RAM)
@@ -388,6 +413,7 @@ DLQConfig:
 **Location:** `/home/user/sahool-unified-v15-idp/shared/libs/events/schema_registry.py`
 
 **Features:**
+
 - ✅ JSON Schema validation
 - ✅ Schema versioning (v1, v2, ...)
 - ✅ Breaking change detection
@@ -398,22 +424,24 @@ DLQConfig:
 
 **Registered Schemas:** 5 events
 
-| Schema Ref | Topic | Version | Owner |
-|------------|-------|---------|-------|
-| `events.field.created:v1` | field.created | 1 | field_suite |
-| `events.field.updated:v1` | field.updated | 1 | field_suite |
-| `events.farm.created:v1` | farm.created | 1 | field_suite |
-| `events.crop.planted:v1` | crop.planted | 1 | field_suite |
-| `events.advisor.recommendation:v1` | advisor.recommendation | 1 | advisor |
+| Schema Ref                         | Topic                  | Version | Owner       |
+| ---------------------------------- | ---------------------- | ------- | ----------- |
+| `events.field.created:v1`          | field.created          | 1       | field_suite |
+| `events.field.updated:v1`          | field.updated          | 1       | field_suite |
+| `events.farm.created:v1`           | farm.created           | 1       | field_suite |
+| `events.crop.planted:v1`           | crop.planted           | 1       | field_suite |
+| `events.advisor.recommendation:v1` | advisor.recommendation | 1       | advisor     |
 
 ### 6.2 Schema Validation
 
 **Validation Points:**
+
 1. **Enqueue Time** - Before adding to outbox
 2. **Publish Time** - Before sending to NATS
 3. **Consume Time** - Before processing
 
 **Example:**
+
 ```python
 from shared.libs.events.schema_registry import SchemaRegistry
 
@@ -423,15 +451,15 @@ registry.validate('events.field.created:v1', payload)
 
 ### 6.3 Comparison to Confluent Schema Registry
 
-| Feature | Confluent Schema Registry | SAHOOL Schema Registry |
-|---------|---------------------------|------------------------|
-| **Schema Formats** | Avro, Protobuf, JSON | JSON Schema |
-| **Versioning** | ✅ Yes | ✅ Yes |
-| **Compatibility Checks** | ✅ Automated | ⚠️ Manual (breaking_policy) |
-| **REST API** | ✅ Yes | ❌ File-based |
-| **Schema Evolution** | ✅ Yes | ✅ Yes (new versions) |
-| **Centralized** | ✅ Yes (HTTP server) | ✅ Yes (git-based) |
-| **Integration** | Kafka Serializers | Python/TS libraries |
+| Feature                  | Confluent Schema Registry | SAHOOL Schema Registry      |
+| ------------------------ | ------------------------- | --------------------------- |
+| **Schema Formats**       | Avro, Protobuf, JSON      | JSON Schema                 |
+| **Versioning**           | ✅ Yes                    | ✅ Yes                      |
+| **Compatibility Checks** | ✅ Automated              | ⚠️ Manual (breaking_policy) |
+| **REST API**             | ✅ Yes                    | ❌ File-based               |
+| **Schema Evolution**     | ✅ Yes                    | ✅ Yes (new versions)       |
+| **Centralized**          | ✅ Yes (HTTP server)      | ✅ Yes (git-based)          |
+| **Integration**          | Kafka Serializers         | Python/TS libraries         |
 
 **Verdict:** Custom implementation is **sufficient for current scale** but lacks advanced features like REST API and automated compatibility checks.
 
@@ -444,6 +472,7 @@ registry.validate('events.field.created:v1', payload)
 **File:** `/home/user/sahool-unified-v15-idp/shared/events/publisher.py`
 
 **Features:**
+
 ```python
 class EventPublisher:
     - Automatic JSON serialization from Pydantic models
@@ -457,6 +486,7 @@ class EventPublisher:
 ```
 
 **Configuration:**
+
 ```python
 PublisherConfig:
   servers: [NATS_URL]
@@ -472,6 +502,7 @@ PublisherConfig:
 **File:** `/home/user/sahool-unified-v15-idp/shared/events/subscriber.py`
 
 **Features:**
+
 - ✅ Async/await support
 - ✅ DLQ integration
 - ✅ Queue groups for load balancing
@@ -481,6 +512,7 @@ PublisherConfig:
 - ✅ Graceful shutdown
 
 **Configuration:**
+
 ```python
 SubscriberConfig:
   enable_jetstream: True
@@ -495,27 +527,32 @@ SubscriberConfig:
 **Status:** ✅ **Transactional Outbox Implemented**
 
 **Flow:**
+
 ```
 Business Transaction → Outbox Table → NATS Publisher → JetStream → Consumers
 ```
 
 **Files:**
+
 - `/home/user/sahool-unified-v15-idp/shared/libs/outbox/models.py`
 - `/home/user/sahool-unified-v15-idp/shared/libs/outbox/publisher.py`
 - `/home/user/sahool-unified-v15-idp/shared/libs/events/producer.py`
 
 **Benefits:**
+
 - ✅ Exactly-once semantics (DB transaction + outbox)
 - ✅ No lost messages on failure
 - ✅ Decouples message production from delivery
 
 **Comparison to Kafka:**
+
 - Kafka: Requires custom outbox implementation or Debezium CDC
 - NATS: Custom implementation with transactional outbox
 
 ### 7.4 Code Quality Assessment
 
 **Strengths:**
+
 - ✅ Strong typing with Pydantic models
 - ✅ Comprehensive error handling
 - ✅ Logging throughout
@@ -524,6 +561,7 @@ Business Transaction → Outbox Table → NATS Publisher → JetStream → Consu
 - ✅ Context managers for resource cleanup
 
 **Weaknesses:**
+
 - ⚠️ No circuit breaker pattern
 - ⚠️ Limited metrics/observability integration
 - ⚠️ No distributed tracing (Jaeger/Zipkin)
@@ -537,6 +575,7 @@ Business Transaction → Outbox Table → NATS Publisher → JetStream → Consu
 **Naming Convention:** `sahool.{domain}.{entity}.{action}`
 
 **Domains:**
+
 1. **Field Management** - `sahool.field.*`
 2. **Farm Operations** - `sahool.farm.*`
 3. **Weather Services** - `sahool.weather.*`
@@ -553,24 +592,28 @@ Business Transaction → Outbox Table → NATS Publisher → JetStream → Consu
 **Pattern:** `sahool.tenant.{tenant_id}.{domain}.{action}`
 
 **Implementation:**
+
 ```python
 def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
     return f"sahool.tenant.{tenant_id}.{domain}.{action}"
 ```
 
 **Benefits:**
+
 - ✅ Complete tenant isolation
 - ✅ Subscription filtering per tenant
 - ✅ Data privacy compliance
 - ✅ Flexible permission management
 
 **Comparison to Kafka:**
+
 - Kafka: Requires separate topics per tenant or message filtering
 - NATS: Subject hierarchy provides natural isolation
 
 ### 8.3 Organization Score: 9/10
 
 **Strengths:**
+
 - ✅ Clear hierarchical structure
 - ✅ Multi-tenant isolation
 - ✅ Consistent naming conventions
@@ -579,6 +622,7 @@ def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
 - ✅ Centralized subject registry
 
 **Minor Issues:**
+
 - ⚠️ Some legacy subjects without `sahool.` prefix
 
 ---
@@ -588,14 +632,17 @@ def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
 ### 9.1 Expected Throughput
 
 **NATS Core (without JetStream):**
+
 - Single node: ~10M msgs/sec (small messages)
 - Latency: <1ms
 
 **JetStream (with persistence):**
+
 - Single node: ~100k-500k msgs/sec
 - Latency: 1-5ms
 
 **Kafka (for comparison):**
+
 - Single broker: ~100k-1M msgs/sec
 - Latency: 5-10ms
 
@@ -609,6 +656,7 @@ ping_interval: 120s
 ```
 
 **Analysis:**
+
 - ✅ Generous payload size (8MB)
 - ✅ Adequate connection limits for current scale
 - ⚠️ No per-user rate limiting
@@ -618,11 +666,13 @@ ping_interval: 120s
 **Current Scale:** 10,000+ events/second at peak
 
 **Bottlenecks:**
+
 1. **Single NATS Node** - Limited to one server's capacity
 2. **Memory Limits** - 512MB in production may be insufficient
 3. **Disk I/O** - 10GB JetStream storage could fill quickly
 
 **Scaling Options:**
+
 1. **Vertical Scaling** - Increase CPU/RAM/Disk
 2. **Horizontal Scaling** - Enable clustering (3+ nodes)
 3. **Stream Optimization** - Tune retention policies
@@ -636,6 +686,7 @@ ping_interval: 120s
 ### 10.1 Health Monitoring
 
 **HTTP Endpoints:**
+
 ```
 http://localhost:8222/healthz  - Health status
 http://localhost:8222/varz     - Server info
@@ -645,6 +696,7 @@ http://localhost:8222/jsz      - JetStream info
 ```
 
 **Docker Health Check:**
+
 ```yaml
 healthcheck:
   test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
@@ -671,6 +723,7 @@ DLQMonitor:
 **Current Status:** ⚠️ **No Prometheus Exporter**
 
 **Recommendation:** Add NATS Prometheus Exporter
+
 ```yaml
 nats-exporter:
   image: natsio/prometheus-nats-exporter:latest
@@ -680,6 +733,7 @@ nats-exporter:
 ```
 
 **Key Metrics Needed:**
+
 - `nats_server_connections` - Active connections
 - `nats_server_in_msgs` - Incoming messages/sec
 - `nats_server_out_msgs` - Outgoing messages/sec
@@ -692,27 +746,28 @@ nats-exporter:
 
 ### 11.1 Feature Comparison
 
-| Feature | Kafka | NATS (SAHOOL) | Winner |
-|---------|-------|---------------|--------|
-| **Deployment Complexity** | High | Low | NATS |
-| **Resource Footprint** | 3+ GB/broker | 128-512 MB | NATS |
-| **Latency** | 5-10ms | <1ms (core), 1-5ms (JS) | NATS |
-| **Throughput** | Very High | Very High | Tie |
-| **Persistence** | Excellent | JetStream (Good) | Kafka |
-| **Replication** | Built-in | Available (not enabled) | Kafka |
-| **Stream Processing** | Kafka Streams | None (external) | Kafka |
-| **Schema Registry** | Confluent SR | Custom | Kafka |
-| **Connectors** | 100+ connectors | Limited | Kafka |
-| **Ecosystem** | Rich | Growing | Kafka |
-| **Clustering** | Complex | Simple | NATS |
-| **Multi-Tenancy** | Manual | Subject hierarchy | NATS |
-| **DLQ** | Manual | Built-in | NATS |
-| **Operational Overhead** | High | Low | NATS |
-| **Current Scale Fit** | Overkill | Perfect | NATS |
+| Feature                   | Kafka           | NATS (SAHOOL)           | Winner |
+| ------------------------- | --------------- | ----------------------- | ------ |
+| **Deployment Complexity** | High            | Low                     | NATS   |
+| **Resource Footprint**    | 3+ GB/broker    | 128-512 MB              | NATS   |
+| **Latency**               | 5-10ms          | <1ms (core), 1-5ms (JS) | NATS   |
+| **Throughput**            | Very High       | Very High               | Tie    |
+| **Persistence**           | Excellent       | JetStream (Good)        | Kafka  |
+| **Replication**           | Built-in        | Available (not enabled) | Kafka  |
+| **Stream Processing**     | Kafka Streams   | None (external)         | Kafka  |
+| **Schema Registry**       | Confluent SR    | Custom                  | Kafka  |
+| **Connectors**            | 100+ connectors | Limited                 | Kafka  |
+| **Ecosystem**             | Rich            | Growing                 | Kafka  |
+| **Clustering**            | Complex         | Simple                  | NATS   |
+| **Multi-Tenancy**         | Manual          | Subject hierarchy       | NATS   |
+| **DLQ**                   | Manual          | Built-in                | NATS   |
+| **Operational Overhead**  | High            | Low                     | NATS   |
+| **Current Scale Fit**     | Overkill        | Perfect                 | NATS   |
 
 ### 11.2 When to Consider Kafka
 
 **Kafka would be beneficial if:**
+
 1. ✅ Sustained throughput exceeds 1M events/sec
 2. ✅ Need complex stream processing (aggregations, joins)
 3. ✅ Require 100+ connectors to external systems
@@ -729,6 +784,7 @@ nats-exporter:
 ### 12.1 Security Score: 7/10
 
 **Breakdown:**
+
 - Authentication: 8/10 (multi-user, good granularity)
 - Authorization: 8/10 (subject-level permissions)
 - Encryption: 6/10 (TLS configured but not enforced)
@@ -741,6 +797,7 @@ nats-exporter:
 ### 12.2 Reliability Score: 8/10
 
 **Breakdown:**
+
 - Persistence: 9/10 (JetStream file storage)
 - High Availability: 4/10 (single node - critical weakness)
 - Replication: 3/10 (no replication enabled)
@@ -755,6 +812,7 @@ nats-exporter:
 ### 12.3 Performance Score: 8/10
 
 **Breakdown:**
+
 - Latency: 9/10 (<1ms core, 1-5ms JetStream)
 - Throughput: 8/10 (sufficient for current scale)
 - Resource Efficiency: 9/10 (128-512MB RAM)
@@ -777,9 +835,11 @@ nats-exporter:
 ### 13.2 High Priority Issues 🟠
 
 #### 1. Single Point of Failure
+
 **Impact:** Complete event bus failure if NATS node crashes
 **Risk:** High availability not configured
 **Recommendation:**
+
 ```yaml
 # Enable 3-node NATS cluster
 cluster {
@@ -793,9 +853,11 @@ replicas: 3  # Enable in JetStream streams
 ```
 
 #### 2. TLS Not Enforced
+
 **Impact:** Clients can connect without encryption
 **Risk:** Credential interception, data exposure
 **Recommendation:**
+
 ```conf
 # Add to nats.conf
 tls {
@@ -805,14 +867,17 @@ tls {
 ```
 
 #### 3. No Prometheus Metrics
+
 **Impact:** Limited observability, reactive vs proactive monitoring
 **Risk:** Issues not detected until failure
 **Recommendation:** Deploy NATS Prometheus Exporter
 
 #### 4. Weak Default Credentials
+
 **Impact:** Monitor user has weak default password
 **Risk:** Unauthorized access to all messages
 **Recommendation:**
+
 ```bash
 # Generate strong passwords
 NATS_PASSWORD=$(openssl rand -base64 32)
@@ -823,20 +888,25 @@ NATS_MONITOR_PASSWORD=$(openssl rand -base64 32)
 ### 13.3 Medium Priority Issues 🟡
 
 #### 5. Resource Limits
+
 **Impact:** 512MB RAM may be insufficient under heavy load
 **Recommendation:** Increase to 1GB based on monitoring
 
 #### 6. No Automated Certificate Rotation
+
 **Impact:** Certificates will expire
 **Recommendation:** Implement cert-manager or automated renewal
 
 #### 7. DLQ Overflow Not Handled
+
 **Impact:** DLQ has hard limits (100k messages, 10GB)
 **Recommendation:** Implement archival strategy for old DLQ messages
 
 #### 8. No Rate Limiting
+
 **Impact:** No protection against message flooding
 **Recommendation:**
+
 ```conf
 authorization {
     users = [{
@@ -851,14 +921,17 @@ authorization {
 ### 13.4 Low Priority Issues 🟢
 
 #### 9. No Distributed Tracing
+
 **Impact:** Difficult to trace events across services
 **Recommendation:** Integrate Jaeger/Zipkin with correlation IDs
 
 #### 10. Debug Logging in Production
+
 **Impact:** Verbose logs consume storage
 **Recommendation:** Ensure `debug: false` in production config
 
 #### 11. No NKey Authentication
+
 **Impact:** Password-based auth less secure
 **Recommendation:** Migrate to NKey authentication
 
@@ -869,17 +942,20 @@ authorization {
 ### 14.1 Immediate Actions (Week 1)
 
 1. **Enforce Strong Passwords**
+
    ```bash
    openssl rand -base64 32 > .secrets/nats-password
    openssl rand -base64 32 > .secrets/nats-admin-password
    ```
 
 2. **Require TLS**
+
    ```conf
    tls { verify_and_map: true }
    ```
 
 3. **Add Prometheus Exporter**
+
    ```yaml
    nats-exporter:
      image: natsio/prometheus-nats-exporter:latest
@@ -912,6 +988,7 @@ authorization {
 ### 14.3 Long-Term (Quarter 1)
 
 9. **Implement High Availability**
+
    ```yaml
    services:
      nats-1: # Primary
@@ -920,11 +997,13 @@ authorization {
    ```
 
 10. **Stream Replication**
+
     ```python
     replicas: 3  # In all critical streams
     ```
 
 11. **Migrate to NKey Authentication**
+
     ```bash
     nk -gen user -pubout
     ```
@@ -943,6 +1022,7 @@ authorization {
 For reference, if Kafka were implemented, these would be key areas to audit:
 
 **Kafka Topics:**
+
 - ✅ Partition count per topic
 - ✅ Replication factor (minimum 3)
 - ✅ Retention policies (time and size)
@@ -950,6 +1030,7 @@ For reference, if Kafka were implemented, these would be key areas to audit:
 - ✅ Compression type (snappy, lz4, zstd)
 
 **Kafka Brokers:**
+
 - ✅ Cluster size (3+ brokers)
 - ✅ Rack awareness
 - ✅ Quotas and rate limiting
@@ -957,6 +1038,7 @@ For reference, if Kafka were implemented, these would be key areas to audit:
 - ✅ JVM heap sizing
 
 **Kafka Security:**
+
 - ✅ SASL/SCRAM authentication
 - ✅ SSL/TLS encryption
 - ✅ ACLs per topic
@@ -964,6 +1046,7 @@ For reference, if Kafka were implemented, these would be key areas to audit:
 - ✅ Inter-broker encryption
 
 **Kafka Consumers:**
+
 - ✅ Consumer group configuration
 - ✅ Offset management
 - ✅ Session timeouts
@@ -971,6 +1054,7 @@ For reference, if Kafka were implemented, these would be key areas to audit:
 - ✅ Deserializer configuration
 
 **Kafka Producers:**
+
 - ✅ Acknowledgment settings (acks=all)
 - ✅ Idempotence enabled
 - ✅ Batching configuration
@@ -978,12 +1062,14 @@ For reference, if Kafka were implemented, these would be key areas to audit:
 - ✅ Retry configuration
 
 **Schema Registry:**
+
 - ✅ Confluent Schema Registry deployed
 - ✅ Compatibility modes configured
 - ✅ Schema versioning strategy
 - ✅ Avro/Protobuf schemas registered
 
 **Monitoring:**
+
 - ✅ JMX metrics exported
 - ✅ Kafka lag monitoring
 - ✅ Burrow for consumer lag
@@ -992,6 +1078,7 @@ For reference, if Kafka were implemented, these would be key areas to audit:
 ### 15.2 Kafka Migration Path (If Needed)
 
 **When to migrate from NATS to Kafka:**
+
 1. Sustained throughput exceeds 500k events/sec
 2. Need for complex stream processing (Kafka Streams)
 3. Requirement for 100+ external system connectors
@@ -999,12 +1086,14 @@ For reference, if Kafka were implemented, these would be key areas to audit:
 5. Need for event sourcing with replay from any point
 
 **Migration Strategy:**
+
 1. **Dual Write** - Publish to both NATS and Kafka
 2. **Consumer Migration** - Gradually move consumers to Kafka
 3. **Deprecate NATS** - Once all consumers migrated
 4. **Estimated Effort** - 3-6 months for full migration
 
 **Cost Comparison:**
+
 - **NATS (current):** ~$30-40/month
 - **Kafka (3 brokers):** ~$300-500/month
 - **Managed Kafka (MSK/Confluent):** ~$500-1500/month
@@ -1026,6 +1115,7 @@ The SAHOOL platform **does not use Apache Kafka** and instead employs **NATS wit
 ### 16.2 Key Findings
 
 ✅ **Strengths:**
+
 - Well-designed event architecture with clear subject hierarchy
 - Comprehensive DLQ implementation with retry logic
 - Schema registry with JSON Schema validation
@@ -1035,6 +1125,7 @@ The SAHOOL platform **does not use Apache Kafka** and instead employs **NATS wit
 - Good security foundation (authentication, authorization, TLS)
 
 ⚠️ **Areas for Improvement:**
+
 - Single point of failure (no clustering)
 - TLS not enforced
 - No Prometheus metrics export
@@ -1053,12 +1144,14 @@ The NATS infrastructure is **production-ready for current scale** (10K events/se
 **NATS vs Kafka Decision:** **CORRECT for current requirements**
 
 The decision to use NATS instead of Kafka was appropriate given:
+
 - Current scale (10K events/sec vs 1M+ events/sec needed for Kafka)
 - Operational capacity (small team vs dedicated infrastructure team)
 - Budget constraints (NATS is more cost-effective)
 - Latency requirements (sub-millisecond needed)
 
 **When to reconsider Kafka:**
+
 - Sustained throughput exceeds 500k events/sec
 - Need for complex stream processing
 - Requirement for extensive third-party connectors
@@ -1096,12 +1189,14 @@ The decision to use NATS instead of Kafka was appropriate given:
 ### 18.1 Configuration Files Analyzed
 
 **NATS Configuration:**
+
 - `/home/user/sahool-unified-v15-idp/config/nats/nats.conf`
 - `/home/user/sahool-unified-v15-idp/config/nats/nats-test.conf`
 - `/home/user/sahool-unified-v15-idp/docker-compose.yml`
 - `/home/user/sahool-unified-v15-idp/docker-compose.prod.yml`
 
 **Event Streaming Code:**
+
 - `/home/user/sahool-unified-v15-idp/shared/events/publisher.py`
 - `/home/user/sahool-unified-v15-idp/shared/events/subscriber.py`
 - `/home/user/sahool-unified-v15-idp/shared/events/subjects.py`
@@ -1110,6 +1205,7 @@ The decision to use NATS instead of Kafka was appropriate given:
 - `/home/user/sahool-unified-v15-idp/shared/libs/events/producer.py`
 
 **Schema Registry:**
+
 - `/home/user/sahool-unified-v15-idp/shared/contracts/events/registry.json`
 - `/home/user/sahool-unified-v15-idp/shared/contracts/events/*.v1.json`
 
@@ -1130,6 +1226,7 @@ grep -ri "jetstream"
 ### 18.3 Docker Services Using NATS
 
 **116+ services connected to NATS**, including:
+
 - field-management-service
 - marketplace-service
 - billing-core

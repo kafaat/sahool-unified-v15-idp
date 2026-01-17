@@ -31,11 +31,11 @@ Unified API client for backend communication.
 
 ```typescript
 // Usage
-import { SahoolClient, FieldsAPI } from '@sahool/api-client';
+import { SahoolClient, FieldsAPI } from "@sahool/api-client";
 
 const client = new SahoolClient({
-  baseURL: 'http://localhost:8000',
-  token: accessToken
+  baseURL: "http://localhost:8000",
+  token: accessToken,
 });
 
 const fields = await client.fields.list();
@@ -43,6 +43,7 @@ const field = await client.fields.get(fieldId);
 ```
 
 **Package:**
+
 ```json
 {
   "name": "@sahool/api-client",
@@ -76,6 +77,7 @@ import { Button, Card, DataTable, StatCard } from '@sahool/shared-ui';
 ```
 
 **Package:**
+
 ```json
 {
   "name": "@sahool/shared-ui",
@@ -95,12 +97,12 @@ Utility functions.
 
 ```typescript
 // Usage
-import { formatDate, formatNumber, cn, debounce } from '@sahool/shared-utils';
+import { formatDate, formatNumber, cn, debounce } from "@sahool/shared-utils";
 
-formatDate(new Date());        // "21 Dec 2025"
-formatNumber(12345.67);        // "12,345.67"
-cn('base-class', isActive && 'active');  // className merge
-debounce(fn, 300);             // Debounce function
+formatDate(new Date()); // "21 Dec 2025"
+formatNumber(12345.67); // "12,345.67"
+cn("base-class", isActive && "active"); // className merge
+debounce(fn, 300); // Debounce function
 ```
 
 ---
@@ -115,13 +117,13 @@ import {
   useDebounce,
   useLocalStorage,
   useOnlineStatus,
-  useMediaQuery
-} from '@sahool/shared-hooks';
+  useMediaQuery,
+} from "@sahool/shared-hooks";
 
 const debouncedValue = useDebounce(searchTerm, 300);
-const [stored, setStored] = useLocalStorage('key', defaultValue);
+const [stored, setStored] = useLocalStorage("key", defaultValue);
 const isOnline = useOnlineStatus();
-const isMobile = useMediaQuery('(max-width: 768px)');
+const isMobile = useMediaQuery("(max-width: 768px)");
 ```
 
 ---
@@ -145,6 +147,7 @@ t('common.save');  // "حفظ" or "Save"
 ```
 
 **Supported locales:**
+
 - `ar` - Arabic
 - `en` - English
 
@@ -156,17 +159,17 @@ Design tokens and theme configuration.
 
 ```typescript
 // Usage
-import { colors, spacing, typography } from '@sahool/design-system';
+import { colors, spacing, typography } from "@sahool/design-system";
 
 // Colors
-colors.primary[500]    // "#10B981"
-colors.danger[600]     // "#DC2626"
+colors.primary[500]; // "#10B981"
+colors.danger[600]; // "#DC2626"
 
 // Spacing
-spacing[4]             // "1rem"
+spacing[4]; // "1rem"
 
 // Typography
-typography.fontSizes.lg  // "1.125rem"
+typography.fontSizes.lg; // "1.125rem"
 ```
 
 ---
@@ -177,15 +180,11 @@ Mock data for testing and development.
 
 ```typescript
 // Usage
-import {
-  mockFields,
-  mockUsers,
-  mockNDVIData
-} from '@sahool/mock-data';
+import { mockFields, mockUsers, mockNDVIData } from "@sahool/mock-data";
 
 // In tests
-const fields = mockFields(5);  // Generate 5 mock fields
-const user = mockUsers(1)[0];  // Generate 1 mock user
+const fields = mockFields(5); // Generate 5 mock fields
+const user = mockUsers(1)[0]; // Generate 1 mock user
 ```
 
 ---
@@ -196,14 +195,14 @@ Shared Tailwind CSS configuration.
 
 ```javascript
 // tailwind.config.js
-const sharedConfig = require('@sahool/tailwind-config');
+const sharedConfig = require("@sahool/tailwind-config");
 
 module.exports = {
   ...sharedConfig,
   content: [
-    './src/**/*.{js,ts,jsx,tsx}',
-    '../../packages/shared-ui/**/*.{js,ts,jsx,tsx}'
-  ]
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "../../packages/shared-ui/**/*.{js,ts,jsx,tsx}",
+  ],
 };
 ```
 
@@ -227,6 +226,7 @@ Shared TypeScript configuration.
 ```
 
 **Presets:**
+
 - `base.json` - Base config
 - `nextjs.json` - Next.js apps
 - `react-library.json` - React libraries

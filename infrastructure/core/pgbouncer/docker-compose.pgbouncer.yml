@@ -51,6 +51,8 @@ services:
     volumes:
       - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
       - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
+      # TLS certificates for encrypted connections
+      - ../../../config/certs:/etc/certs:ro
 
     ports:
       - "127.0.0.1:6432:6432"  # SECURITY: localhost only

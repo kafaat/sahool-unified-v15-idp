@@ -3,7 +3,7 @@
  * إعدادات Sentry للواجهة الأمامية
  */
 
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from "@sentry/nextjs";
 
 export interface SentryConfig {
   dsn: string;
@@ -29,7 +29,7 @@ export function initSentry(config: SentryConfig): void {
   } = config;
 
   if (!dsn) {
-    console.warn('Sentry DSN not provided - error tracking disabled');
+    console.warn("Sentry DSN not provided - error tracking disabled");
     return;
   }
 
@@ -58,12 +58,12 @@ export function initSentry(config: SentryConfig): void {
       const error = hint.originalException as Error;
 
       // Ignore network errors that are often user-side
-      if (error?.message?.includes('Network Error')) {
+      if (error?.message?.includes("Network Error")) {
         return null;
       }
 
       // Ignore aborted requests
-      if (error?.name === 'AbortError') {
+      if (error?.name === "AbortError") {
         return null;
       }
 
@@ -73,8 +73,8 @@ export function initSentry(config: SentryConfig): void {
     // Don't send PII
     beforeBreadcrumb(breadcrumb: Sentry.Breadcrumb): Sentry.Breadcrumb | null {
       // Remove sensitive data from breadcrumbs
-      if (breadcrumb.category === 'xhr' || breadcrumb.category === 'fetch') {
-        if (breadcrumb.data?.url?.includes('password')) {
+      if (breadcrumb.category === "xhr" || breadcrumb.category === "fetch") {
+        if (breadcrumb.data?.url?.includes("password")) {
           return null;
         }
       }
@@ -98,7 +98,7 @@ export function setUserContext(user: {
     email: user.email,
     // Custom context
     tenant_id: user.tenantId,
-    roles: user.roles?.join(','),
+    roles: user.roles?.join(","),
   });
 }
 
@@ -114,7 +114,10 @@ export function clearUserContext(): void {
  * Set additional context
  * تعيين سياق إضافي
  */
-export function setContext(name: string, context: Record<string, unknown>): void {
+export function setContext(
+  name: string,
+  context: Record<string, unknown>,
+): void {
   Sentry.setContext(name, context);
 }
 
@@ -125,8 +128,8 @@ export function setContext(name: string, context: Record<string, unknown>): void
 export function addBreadcrumb(
   message: string,
   category: string,
-  level: Sentry.SeverityLevel = 'info',
-  data?: Record<string, unknown>
+  level: Sentry.SeverityLevel = "info",
+  data?: Record<string, unknown>,
 ): void {
   Sentry.addBreadcrumb({
     message,
@@ -147,7 +150,7 @@ export function captureException(
     tags?: Record<string, string>;
     extra?: Record<string, unknown>;
     level?: Sentry.SeverityLevel;
-  }
+  },
 ): string {
   return Sentry.captureException(error, {
     tags: context?.tags,
@@ -162,8 +165,8 @@ export function captureException(
  */
 export function captureMessage(
   message: string,
-  level: Sentry.SeverityLevel = 'info',
-  context?: Record<string, unknown>
+  level: Sentry.SeverityLevel = "info",
+  context?: Record<string, unknown>,
 ): string {
   return Sentry.captureMessage(message, {
     level,
@@ -177,7 +180,7 @@ export function captureMessage(
  */
 export function startTransaction(
   name: string,
-  op: string
+  op: string,
 ): Sentry.Span | undefined {
   return Sentry.startInactiveSpan({
     name,
@@ -191,7 +194,7 @@ export function startTransaction(
  */
 export function startSpan<T>(
   options: { name: string; op: string },
-  callback: (span: Sentry.Span | undefined) => T
+  callback: (span: Sentry.Span | undefined) => T,
 ): T {
   return Sentry.startSpan(options, callback);
 }

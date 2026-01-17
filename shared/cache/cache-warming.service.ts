@@ -7,9 +7,9 @@
  * @author SAHOOL Platform Team
  */
 
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { CacheManager, CacheTTL } from './cache-manager';
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import { CacheManager, CacheTTL } from "./cache-manager";
 
 export interface WarmingStrategy {
   /** Strategy name */
@@ -36,7 +36,7 @@ export class CacheWarmingService implements OnModuleInit {
    * Initialize and warm cache on application startup
    */
   async onModuleInit() {
-    this.logger.log('🔥 Initializing cache warming...');
+    this.logger.log("🔥 Initializing cache warming...");
     await this.warmOnStartup();
   }
 
@@ -53,7 +53,7 @@ export class CacheWarmingService implements OnModuleInit {
    */
   private async warmOnStartup(): Promise<void> {
     if (this.isWarming) {
-      this.logger.warn('Warming already in progress, skipping...');
+      this.logger.warn("Warming already in progress, skipping...");
       return;
     }
 
@@ -63,11 +63,13 @@ export class CacheWarmingService implements OnModuleInit {
       const enabledStrategies = this.strategies.filter((s) => s.enabled);
 
       if (enabledStrategies.length === 0) {
-        this.logger.log('No warming strategies enabled');
+        this.logger.log("No warming strategies enabled");
         return;
       }
 
-      this.logger.log(`Warming cache with ${enabledStrategies.length} strategies...`);
+      this.logger.log(
+        `Warming cache with ${enabledStrategies.length} strategies...`,
+      );
 
       for (const strategy of enabledStrategies) {
         try {
@@ -79,7 +81,7 @@ export class CacheWarmingService implements OnModuleInit {
         }
       }
 
-      this.logger.log('✅ Cache warming completed');
+      this.logger.log("✅ Cache warming completed");
     } finally {
       this.isWarming = false;
     }
@@ -123,11 +125,13 @@ export class CacheWarmingService implements OnModuleInit {
   @Cron(CronExpression.EVERY_5_MINUTES)
   async periodicWarming(): Promise<void> {
     if (this.isWarming) {
-      this.logger.debug('Warming already in progress, skipping periodic warming');
+      this.logger.debug(
+        "Warming already in progress, skipping periodic warming",
+      );
       return;
     }
 
-    this.logger.debug('Running periodic cache warming...');
+    this.logger.debug("Running periodic cache warming...");
     await this.warmOnStartup();
   }
 
@@ -135,13 +139,13 @@ export class CacheWarmingService implements OnModuleInit {
    * Predictive warming based on usage patterns
    * Warms cache during off-peak hours (2 AM - 6 AM)
    */
-  @Cron('0 2-6 * * *') // Every hour between 2 AM and 6 AM
+  @Cron("0 2-6 * * *") // Every hour between 2 AM and 6 AM
   async predictiveWarming(): Promise<void> {
-    this.logger.log('Running predictive cache warming for off-peak hours...');
+    this.logger.log("Running predictive cache warming for off-peak hours...");
 
     // Warm high-traffic data during off-peak hours
     const predictiveStrategies = this.strategies.filter(
-      (s) => s.enabled && s.name.includes('predictive'),
+      (s) => s.enabled && s.name.includes("predictive"),
     );
 
     for (const strategy of predictiveStrategies) {
@@ -199,7 +203,7 @@ export function createUserWarmingStrategy(
   fetchUserData: (userId: string) => Promise<any>,
 ): WarmingStrategy {
   return {
-    name: 'user-validation-warming',
+    name: "user-validation-warming",
     getKeys: async () => {
       const userIds = await getTopUserIds();
       return userIds.map((id) => `user_auth:${id}`);
@@ -218,7 +222,7 @@ export function createFieldWarmingStrategy(
   fetchFieldData: (fieldId: string) => Promise<any>,
 ): WarmingStrategy {
   return {
-    name: 'field-data-warming',
+    name: "field-data-warming",
     getKeys: async () => {
       const fieldIds = await getActiveFieldIds();
       return fieldIds.map((id) => `field:${id}`);
@@ -237,13 +241,13 @@ export function createPredictiveWarmingStrategy(
   fetchItem: (type: string, id: string) => Promise<any>,
 ): WarmingStrategy {
   return {
-    name: 'predictive-daytime-warming',
+    name: "predictive-daytime-warming",
     getKeys: async () => {
       const items = await getPopularItems();
       return items.map((item) => `${item.type}:${item.id}`);
     },
     fetcher: async (key: string) => {
-      const [type, id] = key.split(':');
+      const [type, id] = key.split(":");
       return fetchItem(type, id);
     },
     ttl: CacheTTL.FIELD_DATA,

@@ -3,27 +3,29 @@
  * خطافات ميزة المحفظة
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { walletApi } from '../api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { walletApi } from "../api";
 import type {
   TransactionFilters,
   TransferFormData,
   DepositFormData,
   WithdrawalFormData,
-} from '../types';
+} from "../types";
 
 // Query Keys
 export const walletKeys = {
-  all: ['wallet'] as const,
-  wallet: () => [...walletKeys.all, 'details'] as const,
-  stats: () => [...walletKeys.all, 'stats'] as const,
+  all: ["wallet"] as const,
+  wallet: () => [...walletKeys.all, "details"] as const,
+  stats: () => [...walletKeys.all, "stats"] as const,
   transactions: {
-    all: ['transactions'] as const,
-    lists: () => [...walletKeys.transactions.all, 'list'] as const,
-    list: (filters?: TransactionFilters) => [...walletKeys.transactions.lists(), filters] as const,
-    detail: (id: string) => [...walletKeys.transactions.all, 'detail', id] as const,
+    all: ["transactions"] as const,
+    lists: () => [...walletKeys.transactions.all, "list"] as const,
+    list: (filters?: TransactionFilters) =>
+      [...walletKeys.transactions.lists(), filters] as const,
+    detail: (id: string) =>
+      [...walletKeys.transactions.all, "detail", id] as const,
   },
 };
 
@@ -82,7 +84,9 @@ export function useDeposit() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: walletKeys.wallet() });
       queryClient.invalidateQueries({ queryKey: walletKeys.stats() });
-      queryClient.invalidateQueries({ queryKey: walletKeys.transactions.lists() });
+      queryClient.invalidateQueries({
+        queryKey: walletKeys.transactions.lists(),
+      });
     },
   });
 }
@@ -98,7 +102,9 @@ export function useWithdraw() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: walletKeys.wallet() });
       queryClient.invalidateQueries({ queryKey: walletKeys.stats() });
-      queryClient.invalidateQueries({ queryKey: walletKeys.transactions.lists() });
+      queryClient.invalidateQueries({
+        queryKey: walletKeys.transactions.lists(),
+      });
     },
   });
 }
@@ -114,7 +120,9 @@ export function useTransfer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: walletKeys.wallet() });
       queryClient.invalidateQueries({ queryKey: walletKeys.stats() });
-      queryClient.invalidateQueries({ queryKey: walletKeys.transactions.lists() });
+      queryClient.invalidateQueries({
+        queryKey: walletKeys.transactions.lists(),
+      });
     },
   });
 }

@@ -925,7 +925,9 @@ class FarmerProfileRepository:
             # Remove crops that are no longer in the list
             crops_to_remove = existing_crop_types - new_crop_types
             if crops_to_remove:
-                await FarmerCrop.filter(farmer=profile, crop_type__in=list(crops_to_remove)).delete()
+                await FarmerCrop.filter(
+                    farmer=profile, crop_type__in=list(crops_to_remove)
+                ).delete()
 
             # Add new crops
             crops_to_add = new_crop_types - existing_crop_types
@@ -947,7 +949,9 @@ class FarmerProfileRepository:
             # Remove fields that are no longer in the list
             fields_to_remove = existing_field_ids - new_field_ids
             if fields_to_remove:
-                await FarmerField.filter(farmer=profile, field_id__in=list(fields_to_remove)).delete()
+                await FarmerField.filter(
+                    farmer=profile, field_id__in=list(fields_to_remove)
+                ).delete()
 
             # Add new fields
             fields_to_add = new_field_ids - existing_field_ids

@@ -4,11 +4,7 @@
   "title": "DeviceStatus",
   "description": "Event emitted when device status changes",
   "type": "object",
-  "required": [
-    "device_id",
-    "status",
-    "last_seen"
-  ],
+  "required": ["device_id", "status", "last_seen"],
   "properties": {
     "device_id": {
       "type": "string",

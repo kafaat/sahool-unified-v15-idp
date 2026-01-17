@@ -6,14 +6,30 @@
       "type": "cereal",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 3, "end_month": 4, "description": "Spring planting"},
-          "secondary": {"start_month": 8, "end_month": 9, "description": "Autumn planting"}
+          "main": {
+            "start_month": 3,
+            "end_month": 4,
+            "description": "Spring planting"
+          },
+          "secondary": {
+            "start_month": 8,
+            "end_month": 9,
+            "description": "Autumn planting"
+          }
         },
         "highlands": {
-          "main": {"start_month": 3, "end_month": 4, "description": "After winter rains"}
+          "main": {
+            "start_month": 3,
+            "end_month": 4,
+            "description": "After winter rains"
+          }
         },
         "hadhramaut": {
-          "main": {"start_month": 2, "end_month": 3, "description": "Early spring"}
+          "main": {
+            "start_month": 2,
+            "end_month": 3,
+            "description": "Early spring"
+          }
         }
       },
       "growth_stages": {
@@ -36,7 +52,11 @@
           "duration_days": 30,
           "order": 3,
           "water_requirement": "very_high",
-          "critical_tasks": ["pollination_support", "irrigation", "pest_control"]
+          "critical_tasks": [
+            "pollination_support",
+            "irrigation",
+            "pest_control"
+          ]
         },
         "fruiting": {
           "name_ar": "إثمار",
@@ -68,13 +88,25 @@
       "type": "cereal",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 10, "end_month": 11, "description": "Cool season planting"}
+          "main": {
+            "start_month": 10,
+            "end_month": 11,
+            "description": "Cool season planting"
+          }
         },
         "highlands": {
-          "main": {"start_month": 10, "end_month": 11, "description": "Winter planting"}
+          "main": {
+            "start_month": 10,
+            "end_month": 11,
+            "description": "Winter planting"
+          }
         },
         "hadhramaut": {
-          "main": {"start_month": 11, "end_month": 12, "description": "Late autumn"}
+          "main": {
+            "start_month": 11,
+            "end_month": 12,
+            "description": "Late autumn"
+          }
         }
       },
       "growth_stages": {
@@ -90,7 +122,11 @@
           "duration_days": 45,
           "order": 2,
           "water_requirement": "high",
-          "critical_tasks": ["nitrogen_application", "weed_control", "irrigation"]
+          "critical_tasks": [
+            "nitrogen_application",
+            "weed_control",
+            "irrigation"
+          ]
         },
         "flowering": {
           "name_ar": "إزهار",
@@ -129,15 +165,35 @@
       "type": "vegetable",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 1, "end_month": 12, "description": "Year-round production"},
-          "best": {"start_month": 9, "end_month": 3, "description": "Cooler months preferred"}
+          "main": {
+            "start_month": 1,
+            "end_month": 12,
+            "description": "Year-round production"
+          },
+          "best": {
+            "start_month": 9,
+            "end_month": 3,
+            "description": "Cooler months preferred"
+          }
         },
         "highlands": {
-          "main": {"start_month": 2, "end_month": 5, "description": "Spring planting"},
-          "secondary": {"start_month": 8, "end_month": 9, "description": "Late summer"}
+          "main": {
+            "start_month": 2,
+            "end_month": 5,
+            "description": "Spring planting"
+          },
+          "secondary": {
+            "start_month": 8,
+            "end_month": 9,
+            "description": "Late summer"
+          }
         },
         "hadhramaut": {
-          "main": {"start_month": 9, "end_month": 3, "description": "Cool season"}
+          "main": {
+            "start_month": 9,
+            "end_month": 3,
+            "description": "Cool season"
+          }
         }
       },
       "growth_stages": {
@@ -167,7 +223,11 @@
           "duration_days": 35,
           "order": 4,
           "water_requirement": "very_high",
-          "critical_tasks": ["consistent_irrigation", "fertilization", "pest_control"]
+          "critical_tasks": [
+            "consistent_irrigation",
+            "fertilization",
+            "pest_control"
+          ]
         },
         "maturity": {
           "name_ar": "نضج",
@@ -192,11 +252,19 @@
       "type": "perennial",
       "planting_windows": {
         "highlands": {
-          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting for new trees"}
+          "main": {
+            "start_month": 3,
+            "end_month": 5,
+            "description": "Spring planting for new trees"
+          }
         }
       },
       "harvest_season": {
-        "highlands": {"start_month": 10, "end_month": 12, "description": "Main harvest period"}
+        "highlands": {
+          "start_month": 10,
+          "end_month": 12,
+          "description": "Main harvest period"
+        }
       },
       "growth_stages": {
         "germination": {
@@ -251,11 +319,19 @@
       "type": "perennial",
       "planting_windows": {
         "highlands": {
-          "main": {"start_month": 3, "end_month": 5, "description": "Rainy season planting"}
+          "main": {
+            "start_month": 3,
+            "end_month": 5,
+            "description": "Rainy season planting"
+          }
         }
       },
       "harvest_season": {
-        "highlands": {"start_month": 1, "end_month": 12, "description": "Year-round harvest"}
+        "highlands": {
+          "start_month": 1,
+          "end_month": 12,
+          "description": "Year-round harvest"
+        }
       },
       "growth_stages": {
         "germination": {
@@ -298,7 +374,11 @@
           "duration_days": 365,
           "order": 6,
           "water_requirement": "very_high",
-          "critical_tasks": ["continuous_picking", "quality_selection", "immediate_market"]
+          "critical_tasks": [
+            "continuous_picking",
+            "quality_selection",
+            "immediate_market"
+          ]
         }
       },
       "perennial": true,
@@ -310,15 +390,31 @@
       "type": "perennial",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"}
+          "main": {
+            "start_month": 2,
+            "end_month": 4,
+            "description": "Spring planting"
+          }
         },
         "hadhramaut": {
-          "main": {"start_month": 2, "end_month": 4, "description": "Early spring"}
+          "main": {
+            "start_month": 2,
+            "end_month": 4,
+            "description": "Early spring"
+          }
         }
       },
       "harvest_season": {
-        "tihama": {"start_month": 7, "end_month": 10, "description": "Summer harvest"},
-        "hadhramaut": {"start_month": 7, "end_month": 10, "description": "Main harvest"}
+        "tihama": {
+          "start_month": 7,
+          "end_month": 10,
+          "description": "Summer harvest"
+        },
+        "hadhramaut": {
+          "start_month": 7,
+          "end_month": 10,
+          "description": "Main harvest"
+        }
       },
       "growth_stages": {
         "germination": {
@@ -373,11 +469,19 @@
       "type": "perennial",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+          "main": {
+            "start_month": 3,
+            "end_month": 5,
+            "description": "Spring planting"
+          }
         }
       },
       "harvest_season": {
-        "tihama": {"start_month": 4, "end_month": 8, "description": "Spring to summer harvest"}
+        "tihama": {
+          "start_month": 4,
+          "end_month": 8,
+          "description": "Spring to summer harvest"
+        }
       },
       "growth_stages": {
         "germination": {
@@ -432,11 +536,19 @@
       "type": "perennial",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 1, "end_month": 12, "description": "Year-round planting"}
+          "main": {
+            "start_month": 1,
+            "end_month": 12,
+            "description": "Year-round planting"
+          }
         }
       },
       "harvest_season": {
-        "tihama": {"start_month": 1, "end_month": 12, "description": "Year-round harvest"}
+        "tihama": {
+          "start_month": 1,
+          "end_month": 12,
+          "description": "Year-round harvest"
+        }
       },
       "growth_stages": {
         "germination": {
@@ -451,7 +563,11 @@
           "duration_days": 180,
           "order": 2,
           "water_requirement": "very_high",
-          "critical_tasks": ["frequent_irrigation", "fertilization", "sucker_removal"]
+          "critical_tasks": [
+            "frequent_irrigation",
+            "fertilization",
+            "sucker_removal"
+          ]
         },
         "flowering": {
           "name_ar": "إزهار",
@@ -465,7 +581,11 @@
           "duration_days": 90,
           "order": 4,
           "water_requirement": "very_high",
-          "critical_tasks": ["bunch_support", "consistent_irrigation", "pest_control"]
+          "critical_tasks": [
+            "bunch_support",
+            "consistent_irrigation",
+            "pest_control"
+          ]
         },
         "maturity": {
           "name_ar": "نضج",
@@ -479,7 +599,11 @@
           "duration_days": 10,
           "order": 6,
           "water_requirement": "high",
-          "critical_tasks": ["proper_cutting", "ripening_management", "packaging"]
+          "critical_tasks": [
+            "proper_cutting",
+            "ripening_management",
+            "packaging"
+          ]
         }
       },
       "perennial": true,
@@ -491,11 +615,19 @@
       "type": "perennial",
       "planting_windows": {
         "highlands": {
-          "main": {"start_month": 2, "end_month": 3, "description": "Late winter planting"}
+          "main": {
+            "start_month": 2,
+            "end_month": 3,
+            "description": "Late winter planting"
+          }
         }
       },
       "harvest_season": {
-        "highlands": {"start_month": 6, "end_month": 8, "description": "Summer harvest"}
+        "highlands": {
+          "start_month": 6,
+          "end_month": 8,
+          "description": "Summer harvest"
+        }
       },
       "growth_stages": {
         "germination": {
@@ -550,11 +682,23 @@
       "type": "vegetable",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 10, "end_month": 2, "description": "Cool season"}
+          "main": {
+            "start_month": 10,
+            "end_month": 2,
+            "description": "Cool season"
+          }
         },
         "highlands": {
-          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"},
-          "secondary": {"start_month": 8, "end_month": 9, "description": "Late summer"}
+          "main": {
+            "start_month": 2,
+            "end_month": 4,
+            "description": "Spring planting"
+          },
+          "secondary": {
+            "start_month": 8,
+            "end_month": 9,
+            "description": "Late summer"
+          }
         }
       },
       "growth_stages": {
@@ -609,10 +753,18 @@
       "type": "vegetable",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 9, "end_month": 11, "description": "Cool season planting"}
+          "main": {
+            "start_month": 9,
+            "end_month": 11,
+            "description": "Cool season planting"
+          }
         },
         "highlands": {
-          "main": {"start_month": 10, "end_month": 12, "description": "Winter planting"}
+          "main": {
+            "start_month": 10,
+            "end_month": 12,
+            "description": "Winter planting"
+          }
         }
       },
       "growth_stages": {
@@ -667,11 +819,23 @@
       "type": "vegetable",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"},
-          "secondary": {"start_month": 9, "end_month": 10, "description": "Autumn planting"}
+          "main": {
+            "start_month": 2,
+            "end_month": 4,
+            "description": "Spring planting"
+          },
+          "secondary": {
+            "start_month": 9,
+            "end_month": 10,
+            "description": "Autumn planting"
+          }
         },
         "highlands": {
-          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+          "main": {
+            "start_month": 3,
+            "end_month": 5,
+            "description": "Spring planting"
+          }
         }
       },
       "growth_stages": {
@@ -726,11 +890,23 @@
       "type": "vegetable",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"},
-          "secondary": {"start_month": 8, "end_month": 9, "description": "Late summer"}
+          "main": {
+            "start_month": 2,
+            "end_month": 4,
+            "description": "Spring planting"
+          },
+          "secondary": {
+            "start_month": 8,
+            "end_month": 9,
+            "description": "Late summer"
+          }
         },
         "highlands": {
-          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+          "main": {
+            "start_month": 3,
+            "end_month": 5,
+            "description": "Spring planting"
+          }
         }
       },
       "growth_stages": {
@@ -760,7 +936,11 @@
           "duration_days": 40,
           "order": 4,
           "water_requirement": "very_high",
-          "critical_tasks": ["consistent_irrigation", "fertilization", "pest_monitoring"]
+          "critical_tasks": [
+            "consistent_irrigation",
+            "fertilization",
+            "pest_monitoring"
+          ]
         },
         "maturity": {
           "name_ar": "نضج",
@@ -785,11 +965,23 @@
       "type": "vegetable",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"},
-          "secondary": {"start_month": 8, "end_month": 9, "description": "Late summer"}
+          "main": {
+            "start_month": 2,
+            "end_month": 4,
+            "description": "Spring planting"
+          },
+          "secondary": {
+            "start_month": 8,
+            "end_month": 9,
+            "description": "Late summer"
+          }
         },
         "highlands": {
-          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+          "main": {
+            "start_month": 3,
+            "end_month": 5,
+            "description": "Spring planting"
+          }
         }
       },
       "growth_stages": {
@@ -819,7 +1011,11 @@
           "duration_days": 35,
           "order": 4,
           "water_requirement": "very_high",
-          "critical_tasks": ["consistent_irrigation", "pest_control", "fertilization"]
+          "critical_tasks": [
+            "consistent_irrigation",
+            "pest_control",
+            "fertilization"
+          ]
         },
         "maturity": {
           "name_ar": "نضج",
@@ -833,7 +1029,11 @@
           "duration_days": 30,
           "order": 6,
           "water_requirement": "high",
-          "critical_tasks": ["multiple_pickings", "careful_handling", "packaging"]
+          "critical_tasks": [
+            "multiple_pickings",
+            "careful_handling",
+            "packaging"
+          ]
         }
       },
       "total_cycle_days": 155
@@ -844,10 +1044,18 @@
       "type": "legume",
       "planting_windows": {
         "tihama": {
-          "main": {"start_month": 10, "end_month": 12, "description": "Cool season"}
+          "main": {
+            "start_month": 10,
+            "end_month": 12,
+            "description": "Cool season"
+          }
         },
         "highlands": {
-          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+          "main": {
+            "start_month": 3,
+            "end_month": 5,
+            "description": "Spring planting"
+          }
         }
       },
       "growth_stages": {
@@ -902,10 +1110,18 @@
       "type": "legume",
       "planting_windows": {
         "highlands": {
-          "main": {"start_month": 10, "end_month": 11, "description": "Cool season planting"}
+          "main": {
+            "start_month": 10,
+            "end_month": 11,
+            "description": "Cool season planting"
+          }
         },
         "hadhramaut": {
-          "main": {"start_month": 11, "end_month": 12, "description": "Winter planting"}
+          "main": {
+            "start_month": 11,
+            "end_month": 12,
+            "description": "Winter planting"
+          }
         }
       },
       "growth_stages": {
@@ -960,7 +1176,11 @@
       "type": "legume",
       "planting_windows": {
         "highlands": {
-          "main": {"start_month": 10, "end_month": 11, "description": "Cool season"}
+          "main": {
+            "start_month": 10,
+            "end_month": 11,
+            "description": "Cool season"
+          }
         }
       },
       "growth_stages": {
@@ -1017,7 +1237,7 @@
       "description": "Coastal plain region",
       "description_ar": "السهل الساحلي",
       "climate": "hot_humid",
-      "average_temp_range": {"min": 25, "max": 40},
+      "average_temp_range": { "min": 25, "max": 40 },
       "rainfall_pattern": "low_irregular",
       "growing_seasons": ["year_round"],
       "characteristics": [
@@ -1033,7 +1253,7 @@
       "description": "Mountain highlands region",
       "description_ar": "المناطق الجبلية المرتفعة",
       "climate": "temperate_seasonal",
-      "average_temp_range": {"min": 10, "max": 28},
+      "average_temp_range": { "min": 10, "max": 28 },
       "rainfall_pattern": "seasonal_bimodal",
       "growing_seasons": ["spring", "autumn"],
       "characteristics": [
@@ -1049,7 +1269,7 @@
       "description": "Eastern desert and valleys",
       "description_ar": "الصحراء والوديان الشرقية",
       "climate": "arid_desert",
-      "average_temp_range": {"min": 15, "max": 42},
+      "average_temp_range": { "min": 15, "max": 42 },
       "rainfall_pattern": "very_low",
       "growing_seasons": ["winter", "spring"],
       "characteristics": [
@@ -1095,25 +1315,91 @@
     },
     "fertilization": {
       "sorghum": [
-        {"stage": "vegetative", "day": 15, "type": "nitrogen", "amount_kg_ha": 50, "description_ar": "تسميد نيتروجيني"},
-        {"stage": "vegetative", "day": 30, "type": "npk", "amount_kg_ha": 40, "description_ar": "تسميد مركب"}
+        {
+          "stage": "vegetative",
+          "day": 15,
+          "type": "nitrogen",
+          "amount_kg_ha": 50,
+          "description_ar": "تسميد نيتروجيني"
+        },
+        {
+          "stage": "vegetative",
+          "day": 30,
+          "type": "npk",
+          "amount_kg_ha": 40,
+          "description_ar": "تسميد مركب"
+        }
       ],
       "wheat": [
-        {"stage": "vegetative", "day": 20, "type": "nitrogen", "amount_kg_ha": 60, "description_ar": "تسميد نيتروجيني"},
-        {"stage": "flowering", "day": 5, "type": "phosphate", "amount_kg_ha": 30, "description_ar": "تسميد فوسفاتي"}
+        {
+          "stage": "vegetative",
+          "day": 20,
+          "type": "nitrogen",
+          "amount_kg_ha": 60,
+          "description_ar": "تسميد نيتروجيني"
+        },
+        {
+          "stage": "flowering",
+          "day": 5,
+          "type": "phosphate",
+          "amount_kg_ha": 30,
+          "description_ar": "تسميد فوسفاتي"
+        }
       ],
       "tomato": [
-        {"stage": "vegetative", "day": 14, "type": "npk", "amount_kg_ha": 80, "description_ar": "تسميد مركب"},
-        {"stage": "flowering", "day": 7, "type": "calcium", "amount_kg_ha": 20, "description_ar": "كالسيوم لمنع التعفن"},
-        {"stage": "fruiting", "day": 14, "type": "potassium", "amount_kg_ha": 50, "description_ar": "بوتاسيوم للثمار"}
+        {
+          "stage": "vegetative",
+          "day": 14,
+          "type": "npk",
+          "amount_kg_ha": 80,
+          "description_ar": "تسميد مركب"
+        },
+        {
+          "stage": "flowering",
+          "day": 7,
+          "type": "calcium",
+          "amount_kg_ha": 20,
+          "description_ar": "كالسيوم لمنع التعفن"
+        },
+        {
+          "stage": "fruiting",
+          "day": 14,
+          "type": "potassium",
+          "amount_kg_ha": 50,
+          "description_ar": "بوتاسيوم للثمار"
+        }
       ],
       "coffee": [
-        {"stage": "vegetative", "day": 60, "type": "organic", "amount_kg_ha": 200, "description_ar": "سماد عضوي"},
-        {"stage": "flowering", "day": 10, "type": "npk", "amount_kg_ha": 100, "description_ar": "تسميد مركب"}
+        {
+          "stage": "vegetative",
+          "day": 60,
+          "type": "organic",
+          "amount_kg_ha": 200,
+          "description_ar": "سماد عضوي"
+        },
+        {
+          "stage": "flowering",
+          "day": 10,
+          "type": "npk",
+          "amount_kg_ha": 100,
+          "description_ar": "تسميد مركب"
+        }
       ],
       "dates": [
-        {"stage": "vegetative", "day": 90, "type": "organic", "amount_kg_ha": 300, "description_ar": "سماد عضوي"},
-        {"stage": "fruiting", "day": 30, "type": "potassium", "amount_kg_ha": 80, "description_ar": "بوتاسيوم للثمار"}
+        {
+          "stage": "vegetative",
+          "day": 90,
+          "type": "organic",
+          "amount_kg_ha": 300,
+          "description_ar": "سماد عضوي"
+        },
+        {
+          "stage": "fruiting",
+          "day": 30,
+          "type": "potassium",
+          "amount_kg_ha": 80,
+          "description_ar": "بوتاسيوم للثمار"
+        }
       ]
     },
     "pest_monitoring": {

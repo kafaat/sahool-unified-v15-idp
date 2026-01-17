@@ -1,4 +1,5 @@
 # GlobalGAP Supply Chain Portal API Client
+
 # عميل واجهة برمجة بوابة سلسلة التوريد GlobalGAP
 
 ## Overview / نظرة عامة
@@ -103,16 +104,19 @@ async def verify_certificate(self, ggn: str) -> CertificateInfo
 ```
 
 **Parameters:**
+
 - `ggn`: GlobalGAP Number (13 digits starting with 4)
 
 **Returns:** `CertificateInfo` object
 
 **Raises:**
+
 - `InvalidGGN`: If GGN format is invalid
 - `CertificateNotFound`: If certificate doesn't exist
 - `GlobalGAPAPIError`: On API errors
 
 **Example:**
+
 ```python
 cert = await client.verify_certificate("4063061891234")
 if cert.is_valid():
@@ -130,11 +134,13 @@ async def get_certificate_status(self, ggn: str) -> CertificateStatus
 ```
 
 **Parameters:**
+
 - `ggn`: GlobalGAP Number
 
 **Returns:** `CertificateStatus` enum value
 
 **Example:**
+
 ```python
 status = await client.get_certificate_status("4063061891234")
 if status == CertificateStatus.VALID:
@@ -158,6 +164,7 @@ async def search_producers(
 ```
 
 **Parameters:**
+
 - `query`: Search query (name, location, etc.)
 - `country`: Filter by country code (ISO 2-letter)
 - `product_category`: Filter by product category
@@ -166,6 +173,7 @@ async def search_producers(
 **Returns:** List of `Producer` objects
 
 **Example:**
+
 ```python
 producers = await client.search_producers(
     query="organic farm",
@@ -188,11 +196,13 @@ async def batch_verify_certificates(
 ```
 
 **Parameters:**
+
 - `ggns`: List of GlobalGAP Numbers
 
 **Returns:** Dictionary mapping GGN to CertificateInfo
 
 **Example:**
+
 ```python
 results = await client.batch_verify_certificates([
     "4063061891234",
@@ -230,6 +240,7 @@ class CertificateInfo:
 ```
 
 **Methods:**
+
 - `is_valid()`: Check if certificate is currently valid
 - `days_until_expiry()`: Calculate days until expiry (negative if expired)
 
@@ -404,6 +415,7 @@ client = GlobalGAPClient(
 ```
 
 Retry strategy:
+
 - Initial wait: 2 seconds
 - Maximum wait: 10 seconds
 - Exponential backoff multiplier: 1

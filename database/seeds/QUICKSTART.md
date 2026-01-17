@@ -48,13 +48,13 @@ python seed_runner.py --db-url <your-url> --verify-only
 
 After seeding, you can login with:
 
-| Email | Password | Role | Region |
-|-------|----------|------|--------|
-| admin@sahool.ye | admin123 | Admin | System |
-| ahmed.alsanani@sahool.ye | farmer123 | Farmer | Sana'a |
-| mohammed.altaizi@sahool.ye | farmer123 | Farmer | Ta'izz (Coffee) |
-| ali.alhadrami@sahool.ye | farmer123 | Farmer | Hadramout (Dates) |
-| dr.khalid@sahool.ye | admin123 | Agronomist | Advisory |
+| Email                      | Password  | Role       | Region            |
+| -------------------------- | --------- | ---------- | ----------------- |
+| admin@sahool.ye            | admin123  | Admin      | System            |
+| ahmed.alsanani@sahool.ye   | farmer123 | Farmer     | Sana'a            |
+| mohammed.altaizi@sahool.ye | farmer123 | Farmer     | Ta'izz (Coffee)   |
+| ali.alhadrami@sahool.ye    | farmer123 | Farmer     | Hadramout (Dates) |
+| dr.khalid@sahool.ye        | admin123  | Agronomist | Advisory          |
 
 ⚠️ **IMPORTANT**: Change these passwords immediately in production!
 
@@ -106,19 +106,23 @@ GROUP BY category;
 ## Troubleshooting
 
 **Error: psycopg2 not installed**
+
 ```bash
 pip install psycopg2-binary
 ```
 
 **Error: connection refused**
+
 - Check PostgreSQL is running
 - Verify connection string (host, port, user, password, database)
 
 **Error: table does not exist**
+
 - Run database migrations first
 - Or use the CREATE TABLE statements in the SQL files
 
 **Error: duplicate key**
+
 - Database already has data
 - Uncomment TRUNCATE statements in SQL files to clear first
 

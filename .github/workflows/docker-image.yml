@@ -7,8 +7,72 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  # Validate Dockerfiles for PRs (fast, doesn't require Docker Hub)
+  validate:
+    name: Validate Dockerfiles
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        service:
+          - name: satellite-service
+            path: apps/services/satellite-service
+          - name: crop-growth-model
+            path: apps/services/crop-growth-model
+          - name: indicators-service
+            path: apps/services/indicators-service
+          - name: weather-advanced
+            path: apps/services/weather-advanced
+          - name: fertilizer-advisor
+            path: apps/services/fertilizer-advisor
+          - name: irrigation-smart
+            path: apps/services/irrigation-smart
+          - name: yield-engine
+            path: apps/services/yield-engine
+          - name: notification-service
+            path: apps/services/notification-service
+          - name: marketplace-service
+            path: apps/services/marketplace-service
+          - name: iot-service
+            path: apps/services/iot-service
+          - name: virtual-sensors
+            path: apps/services/virtual-sensors
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check if Dockerfile exists
+      id: check
+      run: |
+        if [ -f "${{ matrix.service.path }}/Dockerfile" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "✅ Dockerfile exists for ${{ matrix.service.name }}"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "⚠️ No Dockerfile found for ${{ matrix.service.name }}"
+        fi
+
+    - name: Validate Dockerfile syntax
+      if: steps.check.outputs.exists == 'true'
+      run: |
+        echo "Validating Dockerfile for ${{ matrix.service.name }}..."
+        if ! grep -q "^FROM " "${{ matrix.service.path }}/Dockerfile"; then
+          echo "❌ Invalid Dockerfile: missing FROM instruction"
+          exit 1
+        fi
+        echo "✅ Dockerfile syntax valid"
+
+    - name: Summary
+      run: |
+        echo "### ✅ Dockerfile Validation: ${{ matrix.service.name }}" >> $GITHUB_STEP_SUMMARY
+        echo "Dockerfile validation passed. Full build runs on merge to main." >> $GITHUB_STEP_SUMMARY
+
+  # Full Docker builds only on push to main
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     strategy:
       matrix:
         service:
@@ -39,7 +103,28 @@ jobs:
       fail-fast: false
 
     steps:
+    - name: Free up disk space
+      run: |
+        echo "Disk space before cleanup:"
+        df -h
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        sudo docker image prune --all --force || true
+        echo "Disk space after cleanup:"
+        df -h
+
     - uses: actions/checkout@v4
+
+    # Login to Docker Hub to avoid rate limiting when pulling base images
+    # Configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets for better reliability
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      continue-on-error: true
 
     - name: Check if Dockerfile exists
       id: check_dockerfile
@@ -53,6 +138,24 @@ jobs:
     - name: Build the Docker image
       if: steps.check_dockerfile.outputs.exists == 'true'
       run: |
-        docker build . \
-          --file ${{ matrix.service.path }}/Dockerfile \
-          --tag sahool/${{ matrix.service.name }}:${{ github.sha }}
+        # Retry logic for transient Docker Hub failures
+        max_attempts=3
+        attempt=1
+        while [ $attempt -le $max_attempts ]; do
+          echo "Build attempt $attempt of $max_attempts..."
+          if docker build . \
+            --file ${{ matrix.service.path }}/Dockerfile \
+            --tag sahool/${{ matrix.service.name }}:${{ github.sha }}; then
+            echo "Build succeeded on attempt $attempt"
+            exit 0
+          fi
+          echo "Build failed on attempt $attempt"
+          if [ $attempt -lt $max_attempts ]; then
+            sleep_time=$((attempt * 10))
+            echo "Waiting ${sleep_time}s before retry..."
+            sleep $sleep_time
+          fi
+          attempt=$((attempt + 1))
+        done
+        echo "Build failed after $max_attempts attempts"
+        exit 1

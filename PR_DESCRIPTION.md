@@ -15,12 +15,12 @@ This PR delivers a comprehensive security and infrastructure overhaul of the SAH
 
 ### 🗄️ Database Persistence Migrations (4 Services)
 
-| Service | Status | Tables | Features |
-|---------|--------|--------|----------|
-| alert-service | ✅ | alerts, alert_rules, alert_history | SQLAlchemy + Alembic |
-| equipment-service | ✅ | equipment, maintenance_records, alerts | Full CRUD repository |
-| task-service | ✅ | tasks, task_evidence, task_history | 35-field schema |
-| provider-config | ✅ | configs, config_versions | Redis caching + versioning |
+| Service           | Status | Tables                                 | Features                   |
+| ----------------- | ------ | -------------------------------------- | -------------------------- |
+| alert-service     | ✅     | alerts, alert_rules, alert_history     | SQLAlchemy + Alembic       |
+| equipment-service | ✅     | equipment, maintenance_records, alerts | Full CRUD repository       |
+| task-service      | ✅     | tasks, task_evidence, task_history     | 35-field schema            |
+| provider-config   | ✅     | configs, config_versions               | Redis caching + versioning |
 
 ### 🚪 Kong API Gateway Updates
 
@@ -31,13 +31,13 @@ This PR delivers a comprehensive security and infrastructure overhaul of the SAH
 
 ### 📦 Deprecated Services Handling (5 Services)
 
-| Deprecated | Replacement | Migration Path |
-|------------|-------------|----------------|
-| field-ops | field-management-service | Profiles: deprecated |
-| weather-core | weather-service | Kong routes redirect |
-| agro-advisor | advisory-service | Deprecation headers |
-| ndvi-engine | vegetation-analysis-service | Headers + route update |
-| crop-health | crop-intelligence-service | Headers + route update |
+| Deprecated   | Replacement                 | Migration Path         |
+| ------------ | --------------------------- | ---------------------- |
+| field-ops    | field-management-service    | Profiles: deprecated   |
+| weather-core | weather-service             | Kong routes redirect   |
+| agro-advisor | advisory-service            | Deprecation headers    |
+| ndvi-engine  | vegetation-analysis-service | Headers + route update |
+| crop-health  | crop-intelligence-service   | Headers + route update |
 
 ### 🏦 FinTech Service Refactoring
 
@@ -49,6 +49,7 @@ Split monolithic `fintech.service.ts` (2,335 lines) into 4 focused modules:
 - `escrow.service.ts` - Marketplace escrow protection, disputes
 
 Added 103 comprehensive unit tests covering:
+
 - Wallet operations (deposits, withdrawals, limits, dashboard)
 - Credit scoring (BRONZE → PLATINUM tiers)
 - Loan management (request, approval, repayment, scheduling)

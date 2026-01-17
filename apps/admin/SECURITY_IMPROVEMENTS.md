@@ -1,44 +1,53 @@
 # Admin App Cookie Security Improvements
 
 ## Overview
+
 This document outlines the comprehensive security improvements made to the authentication system in the Sahool Admin application.
 
 ## Security Issues Fixed
 
 ### 1. HttpOnly Cookie Flag Added ✓
+
 **Issue**: Auth cookies were accessible from JavaScript, vulnerable to XSS attacks.
 
 **Solution**: All authentication cookies now use the `httpOnly: true` flag, making them inaccessible to client-side JavaScript.
 
 **Files Modified**:
+
 - Created server-side API routes for cookie management
 - Updated authentication flow to use httpOnly cookies
 
 ### 2. Session Duration Reduced ✓
+
 **Issue**: Session duration was 7 days, too long for admin access.
 
 **Solution**: Reduced session duration from 7 days to 1 day (24 hours).
 
 **Implementation**:
+
 - Access token: `maxAge: 86400` (1 day)
 - Refresh token: `maxAge: 604800` (7 days)
 
 ### 3. Token Refresh Mechanism ✓
+
 **Issue**: No automatic token refresh, users logged out after token expiry.
 
 **Solution**: Implemented automatic token refresh mechanism.
 
 **Features**:
+
 - Refresh check runs every 5 minutes
 - Seamless token renewal without user interruption
 - Refresh endpoint: `/api/auth/refresh`
 
 ### 4. Idle Timeout (30 minutes) ✓
+
 **Issue**: No idle session timeout, security risk for unattended sessions.
 
 **Solution**: Implemented 30-minute idle timeout with activity tracking.
 
 **Features**:
+
 - Tracks user activity (mouse, keyboard, scroll, touch, click)
 - Updates activity timestamp every 30 seconds when active
 - Client-side and server-side idle timeout checks
@@ -47,6 +56,7 @@ This document outlines the comprehensive security improvements made to the authe
 ## Files Created
 
 ### Server-Side API Routes
+
 1. **`/apps/admin/src/app/api/auth/login/route.ts`**
    - Handles login with secure httpOnly cookie setting
    - Sets access token, refresh token, and last activity timestamp
@@ -72,7 +82,9 @@ This document outlines the comprehensive security improvements made to the authe
 ## Files Modified
 
 ### 1. `/apps/admin/src/stores/auth.store.tsx`
+
 **Changes**:
+
 - Removed client-side cookie manipulation (js-cookie)
 - Integrated with new server-side API routes
 - Added idle timeout tracking (30 minutes)
@@ -81,6 +93,7 @@ This document outlines the comprehensive security improvements made to the authe
 - Automatic logout on idle timeout
 
 **New Constants**:
+
 ```typescript
 const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 const REFRESH_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -88,7 +101,9 @@ const ACTIVITY_UPDATE_INTERVAL = 30 * 1000; // 30 seconds
 ```
 
 ### 2. `/apps/admin/src/lib/auth.ts`
+
 **Changes**:
+
 - Marked as deprecated (kept for backward compatibility)
 - Updated to use server-side API routes
 - Removed client-side cookie access
@@ -96,14 +111,18 @@ const ACTIVITY_UPDATE_INTERVAL = 30 * 1000; // 30 seconds
 - `getToken()` and `setToken()` now deprecated with warnings
 
 ### 3. `/apps/admin/src/middleware.ts`
+
 **Changes**:
+
 - Added idle timeout check (30 minutes)
 - Validates last activity timestamp from httpOnly cookie
 - Redirects to login with reason if session expired
 - Clears all auth cookies on idle timeout
 
 ### 4. `/apps/admin/src/lib/api.ts`
+
 **Changes**:
+
 - Added `withCredentials: true` to axios config for cookie support
 - Updated error interceptor to use logout API route
 - Added documentation about httpOnly cookie limitations
@@ -111,18 +130,19 @@ const ACTIVITY_UPDATE_INTERVAL = 30 * 1000; // 30 seconds
 
 ## Security Features Summary
 
-| Feature | Before | After |
-|---------|--------|-------|
-| Cookie HttpOnly | ❌ No | ✅ Yes |
-| Session Duration | 7 days | 1 day |
-| Token Refresh | ❌ None | ✅ Every 5 min |
-| Idle Timeout | ❌ None | ✅ 30 minutes |
-| Cookie Secure Flag | ✅ Production | ✅ Production |
-| Cookie SameSite | ✅ Strict | ✅ Strict |
+| Feature            | Before        | After          |
+| ------------------ | ------------- | -------------- |
+| Cookie HttpOnly    | ❌ No         | ✅ Yes         |
+| Session Duration   | 7 days        | 1 day          |
+| Token Refresh      | ❌ None       | ✅ Every 5 min |
+| Idle Timeout       | ❌ None       | ✅ 30 minutes  |
+| Cookie Secure Flag | ✅ Production | ✅ Production  |
+| Cookie SameSite    | ✅ Strict     | ✅ Strict      |
 
 ## Cookie Configuration
 
 ### Access Token Cookie
+
 ```typescript
 {
   name: 'sahool_admin_token',
@@ -135,6 +155,7 @@ const ACTIVITY_UPDATE_INTERVAL = 30 * 1000; // 30 seconds
 ```
 
 ### Refresh Token Cookie
+
 ```typescript
 {
   name: 'sahool_admin_refresh_token',
@@ -147,6 +168,7 @@ const ACTIVITY_UPDATE_INTERVAL = 30 * 1000; // 30 seconds
 ```
 
 ### Last Activity Cookie
+
 ```typescript
 {
   name: 'sahool_admin_last_activity',
@@ -161,6 +183,7 @@ const ACTIVITY_UPDATE_INTERVAL = 30 * 1000; // 30 seconds
 ## Activity Tracking
 
 ### Client-Side
+
 - Monitors: mousedown, keydown, scroll, touchstart, click
 - Updates activity timestamp locally
 - Sends activity update to server every 30 seconds
@@ -168,6 +191,7 @@ const ACTIVITY_UPDATE_INTERVAL = 30 * 1000; // 30 seconds
 - Automatic logout after 30 minutes of inactivity
 
 ### Server-Side
+
 - Middleware checks last activity on every request
 - Redirects to login if idle timeout exceeded
 - Clears all auth cookies on timeout
@@ -230,6 +254,7 @@ const ACTIVITY_UPDATE_INTERVAL = 30 * 1000; // 30 seconds
 ## Compliance
 
 These improvements help meet security requirements for:
+
 - OWASP Top 10 (XSS, CSRF, Broken Authentication)
 - PCI DSS (if handling payment data)
 - GDPR (session management and data protection)

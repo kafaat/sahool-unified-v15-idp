@@ -3,7 +3,7 @@
  * Example demonstrating how to integrate request logging into a NestJS service.
  */
 
-import { NestFactory } from '@nestjs/core';
+import { NestFactory } from "@nestjs/core";
 import {
   Module,
   Controller,
@@ -15,9 +15,9 @@ import {
   Injectable,
   HttpException,
   HttpStatus,
-} from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { Request } from 'express';
+} from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { Request } from "express";
 
 // Import request logging middleware
 import {
@@ -25,7 +25,7 @@ import {
   getCorrelationId,
   getRequestContext,
   StructuredLogger,
-} from '../request-logging';
+} from "../request-logging";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DTOs (Data Transfer Objects)
@@ -52,40 +52,43 @@ interface ConversationResponse {
 
 @Injectable()
 class ConversationService {
-  private readonly logger = new StructuredLogger('chat-service', 'ConversationService');
+  private readonly logger = new StructuredLogger(
+    "chat-service",
+    "ConversationService",
+  );
 
   /**
    * Find all conversations for a tenant
    */
   async findAll(tenantId: string, correlationId: string): Promise<any[]> {
-    this.logger.log('Fetching conversations', {
+    this.logger.log("Fetching conversations", {
       correlationId,
       tenantId,
-      operation: 'findAll',
+      operation: "findAll",
     });
 
     // Simulate database query
     const conversations = [
       {
-        id: 'conv-1',
-        buyer_id: 'buyer-1',
-        seller_id: 'seller-1',
-        product_id: 'product-1',
+        id: "conv-1",
+        buyer_id: "buyer-1",
+        seller_id: "seller-1",
+        product_id: "product-1",
         tenant_id: tenantId,
       },
       {
-        id: 'conv-2',
-        buyer_id: 'buyer-2',
-        seller_id: 'seller-2',
-        product_id: 'product-2',
+        id: "conv-2",
+        buyer_id: "buyer-2",
+        seller_id: "seller-2",
+        product_id: "product-2",
         tenant_id: tenantId,
       },
     ];
 
-    this.logger.log('Conversations fetched', {
+    this.logger.log("Conversations fetched", {
       correlationId,
       tenantId,
-      operation: 'findAll',
+      operation: "findAll",
       count: conversations.length,
     });
 
@@ -100,10 +103,10 @@ class ConversationService {
     tenantId: string,
     correlationId: string,
   ): Promise<any> {
-    this.logger.log('Creating conversation', {
+    this.logger.log("Creating conversation", {
       correlationId,
       tenantId,
-      operation: 'create',
+      operation: "create",
       buyerId: dto.buyer_id,
       sellerId: dto.seller_id,
     });
@@ -111,25 +114,25 @@ class ConversationService {
     try {
       // Simulate conversation creation
       const conversation = {
-        id: 'conv-new',
+        id: "conv-new",
         ...dto,
         tenant_id: tenantId,
         created_at: new Date().toISOString(),
       };
 
-      this.logger.log('Conversation created', {
+      this.logger.log("Conversation created", {
         correlationId,
         tenantId,
-        operation: 'create',
+        operation: "create",
         conversationId: conversation.id,
       });
 
       return conversation;
     } catch (error) {
-      this.logger.error('Failed to create conversation', {
+      this.logger.error("Failed to create conversation", {
         correlationId,
         tenantId,
-        operation: 'create',
+        operation: "create",
         error: error.message,
       });
       throw error;
@@ -139,31 +142,35 @@ class ConversationService {
   /**
    * Find conversation by ID
    */
-  async findOne(id: string, tenantId: string, correlationId: string): Promise<any> {
-    this.logger.log('Fetching conversation', {
+  async findOne(
+    id: string,
+    tenantId: string,
+    correlationId: string,
+  ): Promise<any> {
+    this.logger.log("Fetching conversation", {
       correlationId,
       tenantId,
-      operation: 'findOne',
+      operation: "findOne",
       conversationId: id,
     });
 
     // Simulate database lookup
-    if (id === 'conv-404') {
-      this.logger.warn('Conversation not found', {
+    if (id === "conv-404") {
+      this.logger.warn("Conversation not found", {
         correlationId,
         tenantId,
-        operation: 'findOne',
+        operation: "findOne",
         conversationId: id,
       });
 
-      throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
+      throw new HttpException("Conversation not found", HttpStatus.NOT_FOUND);
     }
 
     return {
       id,
-      buyer_id: 'buyer-1',
-      seller_id: 'seller-1',
-      product_id: 'product-1',
+      buyer_id: "buyer-1",
+      seller_id: "seller-1",
+      product_id: "product-1",
       tenant_id: tenantId,
     };
   }
@@ -171,22 +178,28 @@ class ConversationService {
   /**
    * Call external service with correlation ID propagation
    */
-  async callExternalService(correlationId: string, tenantId: string): Promise<any> {
-    this.logger.log('Calling external service', {
+  async callExternalService(
+    correlationId: string,
+    tenantId: string,
+  ): Promise<any> {
+    this.logger.log("Calling external service", {
       correlationId,
       tenantId,
-      operation: 'callExternalService',
-      targetService: 'marketplace-service',
+      operation: "callExternalService",
+      targetService: "marketplace-service",
     });
 
     try {
       // Example using fetch or axios
-      const response = await fetch('http://marketplace-service:8080/api/v1/products', {
-        headers: {
-          'X-Correlation-ID': correlationId,
-          'X-Tenant-ID': tenantId,
+      const response = await fetch(
+        "http://marketplace-service:8080/api/v1/products",
+        {
+          headers: {
+            "X-Correlation-ID": correlationId,
+            "X-Tenant-ID": tenantId,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -194,25 +207,25 @@ class ConversationService {
 
       const data = await response.json();
 
-      this.logger.log('External service call succeeded', {
+      this.logger.log("External service call succeeded", {
         correlationId,
         tenantId,
-        operation: 'callExternalService',
-        targetService: 'marketplace-service',
+        operation: "callExternalService",
+        targetService: "marketplace-service",
       });
 
       return data;
     } catch (error) {
-      this.logger.error('External service call failed', {
+      this.logger.error("External service call failed", {
         correlationId,
         tenantId,
-        operation: 'callExternalService',
-        targetService: 'marketplace-service',
+        operation: "callExternalService",
+        targetService: "marketplace-service",
         error: error.message,
       });
 
       throw new HttpException(
-        'External service unavailable',
+        "External service unavailable",
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
@@ -223,7 +236,7 @@ class ConversationService {
 // Controller Layer
 // ─────────────────────────────────────────────────────────────────────────────
 
-@Controller('api/v1/conversations')
+@Controller("api/v1/conversations")
 class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
 
@@ -241,7 +254,7 @@ class ConversationController {
     const { tenantId } = getRequestContext(request);
 
     const conversations = await this.conversationService.findAll(
-      tenantId || 'unknown',
+      tenantId || "unknown",
       correlationId,
     );
 
@@ -270,7 +283,7 @@ class ConversationController {
 
     const conversation = await this.conversationService.create(
       dto,
-      tenantId || 'unknown',
+      tenantId || "unknown",
       correlationId,
     );
 
@@ -287,14 +300,14 @@ class ConversationController {
    * - Path parameter handling
    * - Error logging (when conversation not found)
    */
-  @Get(':id')
-  async findOne(@Param('id') id: string, @Req() request: Request) {
+  @Get(":id")
+  async findOne(@Param("id") id: string, @Req() request: Request) {
     const correlationId = getCorrelationId(request);
     const { tenantId } = getRequestContext(request);
 
     const conversation = await this.conversationService.findOne(
       id,
-      tenantId || 'unknown',
+      tenantId || "unknown",
       correlationId,
     );
 
@@ -311,14 +324,14 @@ class ConversationController {
    * - Correlation ID propagation to downstream services
    * - Service-to-service communication tracing
    */
-  @Get('external/products')
+  @Get("external/products")
   async getExternalProducts(@Req() request: Request) {
     const correlationId = getCorrelationId(request);
     const { tenantId } = getRequestContext(request);
 
     const products = await this.conversationService.callExternalService(
       correlationId,
-      tenantId || 'unknown',
+      tenantId || "unknown",
     );
 
     return {
@@ -332,11 +345,11 @@ class ConversationController {
 // Health Check Controller
 // ─────────────────────────────────────────────────────────────────────────────
 
-@Controller('healthz')
+@Controller("healthz")
 class HealthController {
   @Get()
   check() {
-    return { status: 'ok', service: 'chat-service' };
+    return { status: "ok", service: "chat-service" };
   }
 }
 
@@ -350,7 +363,7 @@ class HealthController {
     ConversationService,
     {
       provide: APP_INTERCEPTOR,
-      useValue: new RequestLoggingInterceptor('chat-service'),
+      useValue: new RequestLoggingInterceptor("chat-service"),
     },
   ],
 })
@@ -365,14 +378,19 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://app.sahool.com'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Correlation-ID'],
+    origin: ["http://localhost:3000", "https://app.sahool.com"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Tenant-ID",
+      "X-Correlation-ID",
+    ],
     credentials: true,
   });
 
   // Global prefix
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix("api/v1");
 
   const port = process.env.PORT || 8114;
   await app.listen(port);

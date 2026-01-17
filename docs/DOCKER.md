@@ -1,4 +1,5 @@
 # Docker Deployment Guide | دليل نشر Docker
+
 # SAHOOL Platform v15.5
 
 ---
@@ -72,54 +73,54 @@ PLANET_API_KEY=<your-api-key>
 
 ### البنية التحتية | Infrastructure
 
-| الخدمة | المنفذ | الوصف |
-|--------|--------|-------|
-| postgres | 5432 | PostGIS Database |
-| redis | 6379 | Cache & Sessions |
-| nats | 4222, 8222 | Message Queue |
-| mqtt | 1883, 9001 | IoT Protocol |
-| kong | 8000, 8001 | API Gateway |
+| الخدمة   | المنفذ     | الوصف            |
+| -------- | ---------- | ---------------- |
+| postgres | 5432       | PostGIS Database |
+| redis    | 6379       | Cache & Sessions |
+| nats     | 4222, 8222 | Message Queue    |
+| mqtt     | 1883, 9001 | IoT Protocol     |
+| kong     | 8000, 8001 | API Gateway      |
 
 ### الخدمات الأساسية | Core Services
 
-| الخدمة | المنفذ | اللغة | الوصف |
-|--------|--------|-------|-------|
-| crop_health_ai | 8095 | Python | تشخيص صحة المحاصيل |
-| virtual_sensors | 8096 | Python | المستشعرات الافتراضية |
-| community_chat | 8097 | Node.js | الدردشة المجتمعية |
-| yield_engine | 8098 | Python | توقع الإنتاجية |
-| billing_core | 8089 | Python | الفوترة والاشتراكات |
-| satellite_service | 8090 | Python | صور الأقمار الصناعية |
-| indicators_service | 8091 | Python | المؤشرات الزراعية |
-| weather_advanced | 8092 | Python | التنبؤات الجوية |
-| fertilizer_advisor | 8093 | Python | مستشار التسميد |
-| irrigation_smart | 8094 | Python | الري الذكي |
-| notification_service | 8110 | Python | الإشعارات |
-| astronomical_calendar | 8111 | Python | التقويم الفلكي |
+| الخدمة                | المنفذ | اللغة   | الوصف                 |
+| --------------------- | ------ | ------- | --------------------- |
+| crop_health_ai        | 8095   | Python  | تشخيص صحة المحاصيل    |
+| virtual_sensors       | 8096   | Python  | المستشعرات الافتراضية |
+| community_chat        | 8097   | Node.js | الدردشة المجتمعية     |
+| yield_engine          | 8098   | Python  | توقع الإنتاجية        |
+| billing_core          | 8089   | Python  | الفوترة والاشتراكات   |
+| satellite_service     | 8090   | Python  | صور الأقمار الصناعية  |
+| indicators_service    | 8091   | Python  | المؤشرات الزراعية     |
+| weather_advanced      | 8092   | Python  | التنبؤات الجوية       |
+| fertilizer_advisor    | 8093   | Python  | مستشار التسميد        |
+| irrigation_smart      | 8094   | Python  | الري الذكي            |
+| notification_service  | 8110   | Python  | الإشعارات             |
+| astronomical_calendar | 8111   | Python  | التقويم الفلكي        |
 
 ### خدمات NestJS
 
-| الخدمة | المنفذ | الوصف |
-|--------|--------|-------|
-| marketplace_service | 3010 | سوق المنتجات |
-| research_core | 3015 | البحث العلمي |
-| disaster_assessment | 3020 | تقييم الكوارث |
-| yield_prediction | 3021 | التنبؤ بالإنتاج |
-| lai_estimation | 3022 | تقدير LAI |
-| crop_growth_model | 3023 | نموذج نمو المحاصيل |
+| الخدمة              | المنفذ | الوصف              |
+| ------------------- | ------ | ------------------ |
+| marketplace_service | 3010   | سوق المنتجات       |
+| research_core       | 3015   | البحث العلمي       |
+| disaster_assessment | 3020   | تقييم الكوارث      |
+| yield_prediction    | 3021   | التنبؤ بالإنتاج    |
+| lai_estimation      | 3022   | تقدير LAI          |
+| crop_growth_model   | 3023   | نموذج نمو المحاصيل |
 
 ### المراقبة | Observability
 
-| الخدمة | المنفذ | الوصف |
-|--------|--------|-------|
-| prometheus | 9090 | Metrics Collection |
-| grafana | 3002 | Dashboards |
+| الخدمة     | المنفذ | الوصف              |
+| ---------- | ------ | ------------------ |
+| prometheus | 9090   | Metrics Collection |
+| grafana    | 3002   | Dashboards         |
 
 ### الواجهات | Frontends
 
-| الخدمة | المنفذ | الوصف |
-|--------|--------|-------|
-| admin_dashboard | 3001 | لوحة تحكم المشرفين |
+| الخدمة          | المنفذ | الوصف              |
+| --------------- | ------ | ------------------ |
+| admin_dashboard | 3001   | لوحة تحكم المشرفين |
 
 ---
 
@@ -281,6 +282,7 @@ networks:
 ### الأسرار
 
 لا تضع الأسرار في docker-compose.yml مباشرة. استخدم:
+
 - ملف `.env` (للتطوير)
 - Docker Secrets (للإنتاج)
 - HashiCorp Vault (موصى به)
@@ -306,6 +308,7 @@ docker run --rm -v sahool-postgres-data:/data -v $(pwd):/backup \
 ## الإنتاج | Production
 
 للإنتاج، استخدم:
+
 - Kubernetes (Helm charts في `/helm`)
 - إعداد متغيرات البيئة الآمنة
 - تفعيل TLS/SSL

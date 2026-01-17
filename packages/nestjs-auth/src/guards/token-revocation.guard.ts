@@ -11,18 +11,18 @@ import {
   ExecutionContext,
   UnauthorizedException,
   Logger,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import { RedisTokenRevocationStore } from '../services/token-revocation';
-import { JwtPayload } from '../strategies/jwt.strategy';
-import { AuthErrors } from '../config/jwt.config';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { JwtService } from "@nestjs/jwt";
+import { Request } from "express";
+import { RedisTokenRevocationStore } from "../services/token-revocation";
+import { JwtPayload } from "../strategies/jwt.strategy";
+import { AuthErrors } from "../config/jwt.config";
 
 /**
  * Metadata key for skipping revocation check
  */
-export const SKIP_REVOCATION_CHECK_KEY = 'skipRevocationCheck';
+export const SKIP_REVOCATION_CHECK_KEY = "skipRevocationCheck";
 
 /**
  * Decorator to skip token revocation check
@@ -139,7 +139,8 @@ export class TokenRevocationGuard implements CanActivate {
       }
 
       // Log error but allow access (fail open)
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       this.logger.error(`Error checking token revocation: ${errorMessage}`);
       return true;
     }
@@ -155,9 +156,9 @@ export class TokenRevocationGuard implements CanActivate {
       return null;
     }
 
-    const [scheme, token] = authorization.split(' ');
+    const [scheme, token] = authorization.split(" ");
 
-    if (scheme?.toLowerCase() !== 'bearer' || !token) {
+    if (scheme?.toLowerCase() !== "bearer" || !token) {
       return null;
     }
 
@@ -190,8 +191,8 @@ import {
   Injectable as InjectableInterceptor,
   NestInterceptor,
   CallHandler,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
+} from "@nestjs/common";
+import { Observable } from "rxjs";
 
 @InjectableInterceptor()
 export class TokenRevocationInterceptor implements NestInterceptor {
@@ -243,7 +244,8 @@ export class TokenRevocationInterceptor implements NestInterceptor {
         }
 
         // Log error but continue (fail open)
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
         this.logger.error(`Error checking token revocation: ${errorMessage}`);
       }
     }
@@ -258,9 +260,9 @@ export class TokenRevocationInterceptor implements NestInterceptor {
       return null;
     }
 
-    const [scheme, token] = authorization.split(' ');
+    const [scheme, token] = authorization.split(" ");
 
-    if (scheme?.toLowerCase() !== 'bearer' || !token) {
+    if (scheme?.toLowerCase() !== "bearer" || !token) {
       return null;
     }
 

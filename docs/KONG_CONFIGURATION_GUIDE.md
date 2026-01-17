@@ -1,4 +1,5 @@
 # دليل تكوين Kong API Gateway
+
 # Kong API Gateway Configuration Guide
 
 **التاريخ:** 2026-01-05
@@ -10,10 +11,10 @@
 
 يحتوي مشروع سهول على ملفين لتكوين Kong API Gateway:
 
-| الملف | الموقع | الغرض |
-|-------|--------|-------|
-| **الأساسي** | `/infra/kong/kong.yml` | التكوين الرئيسي (المصدر الموثوق) |
-| **الثانوي** | `/infrastructure/gateway/kong/kong.yml` | نسخة للبنية التحتية |
+| الملف       | الموقع                                  | الغرض                            |
+| ----------- | --------------------------------------- | -------------------------------- |
+| **الأساسي** | `/infra/kong/kong.yml`                  | التكوين الرئيسي (المصدر الموثوق) |
+| **الثانوي** | `/infrastructure/gateway/kong/kong.yml` | نسخة للبنية التحتية              |
 
 ---
 
@@ -88,37 +89,42 @@ echo "✅ Kong configurations are synchronized"
 ## 📊 مقارنة الملفين | File Comparison
 
 ### الخدمات في `/infra/kong/kong.yml` فقط:
+
 - (جميع الخدمات موجودة)
 
 ### الخدمات في `/infrastructure/gateway/kong/kong.yml` فقط:
+
 - `auth-service` (placeholder للمصادقة)
 
 ### اختلافات المنافذ:
 
-| الخدمة | infra | infrastructure |
-|--------|-------|----------------|
-| ndvi-engine | 8118 (ndvi-processor) | 8107 |
-| inventory-service | 8115 | 8116 |
-| weather-advanced | 8108 | 8092 |
-| yield-engine | 3021 | 8098 |
+| الخدمة            | infra                 | infrastructure |
+| ----------------- | --------------------- | -------------- |
+| ndvi-engine       | 8118 (ndvi-processor) | 8107           |
+| inventory-service | 8115                  | 8116           |
+| weather-advanced  | 8108                  | 8092           |
+| yield-engine      | 3021                  | 8098           |
 
 ---
 
 ## ✅ خطوات التوحيد | Unification Steps
 
 ### 1. تحديد الملف الرئيسي
+
 ```bash
 # الملف الرئيسي هو:
 /infra/kong/kong.yml
 ```
 
 ### 2. مزامنة التغييرات المهمة
+
 ```bash
 # نسخ الخدمات المفقودة من الملف الثانوي للرئيسي
 # مثل: auth-service
 ```
 
 ### 3. تحديث المراجع
+
 ```yaml
 # في docker-compose.yml, استخدم المسار الموحد
 volumes:
@@ -126,6 +132,7 @@ volumes:
 ```
 
 ### 4. حذف أو ربط الملف الثانوي
+
 ```bash
 # إما حذف
 rm infrastructure/gateway/kong/kong.yml
@@ -135,6 +142,7 @@ ln -s ../../../infra/kong/kong.yml infrastructure/gateway/kong/kong.yml
 ```
 
 ### 5. تحديث CI/CD
+
 ```yaml
 # .github/workflows/ci.yml
 - name: Validate Kong Config
@@ -158,6 +166,7 @@ pytest tests/integration/test_kong_routes.py -v
 ```
 
 ### الاختبارات المتوفرة:
+
 - ✅ التحقق من هيكل التكوين
 - ✅ التحقق من الخدمات المطلوبة
 - ✅ التحقق من مسارات التقويم الفلكي (backward compatibility)
@@ -174,16 +183,19 @@ pytest tests/integration/test_kong_routes.py -v
 ### أفضل الممارسات
 
 1. **استخدام Environment Variables** للقيم الحساسة
+
    ```yaml
    redis_password: ${REDIS_PASSWORD}
    ```
 
 2. **استخدام Upstreams** للخدمات ذات الـ Load Balancing
+
    ```yaml
    host: field-management-upstream
    ```
 
 3. **تفعيل Health Checks** لجميع الخدمات
+
    ```yaml
    healthchecks:
      active:

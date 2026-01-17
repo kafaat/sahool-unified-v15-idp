@@ -5,7 +5,7 @@
  * Unit tests for the SyncManager
  */
 
-import SyncManager from '../syncManager';
+import SyncManager from "../syncManager";
 import {
   SyncOperationType,
   SyncDataType,
@@ -13,22 +13,22 @@ import {
   ConflictResolutionStrategy,
   SyncEventType,
   SyncStatus,
-} from '../../models/syncTypes';
+} from "../../models/syncTypes";
 
 // Mock dependencies
-jest.mock('@react-native-async-storage/async-storage', () => ({
+jest.mock("@react-native-async-storage/async-storage", () => ({
   setItem: jest.fn(() => Promise.resolve()),
   getItem: jest.fn(() => Promise.resolve(null)),
   removeItem: jest.fn(() => Promise.resolve()),
 }));
 
-jest.mock('@react-native-community/netinfo', () => ({
+jest.mock("@react-native-community/netinfo", () => ({
   addEventListener: jest.fn(() => jest.fn()),
   fetch: jest.fn(() =>
     Promise.resolve({
       isConnected: true,
-      type: 'wifi',
-    })
+      type: "wifi",
+    }),
   ),
 }));
 
@@ -37,12 +37,12 @@ global.fetch = jest.fn(() =>
   Promise.resolve({
     ok: true,
     status: 200,
-    statusText: 'OK',
+    statusText: "OK",
     json: () => Promise.resolve({ success: true }),
-  })
+  }),
 ) as jest.Mock;
 
-describe('SyncManager', () => {
+describe("SyncManager", () => {
   let syncManager: SyncManager;
 
   beforeEach(() => {
@@ -65,20 +65,20 @@ describe('SyncManager', () => {
   // اختبارات التهيئة - Initialization Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Initialization', () => {
-    test('should create singleton instance', () => {
+  describe("Initialization", () => {
+    test("should create singleton instance", () => {
       const instance1 = SyncManager.getInstance();
       const instance2 = SyncManager.getInstance();
 
       expect(instance1).toBe(instance2);
     });
 
-    test('should initialize with default config', () => {
+    test("should initialize with default config", () => {
       const manager = SyncManager.getInstance();
       expect(manager).toBeDefined();
     });
 
-    test('should initialize with custom config', () => {
+    test("should initialize with custom config", () => {
       const manager = SyncManager.getInstance({
         maxRetries: 10,
         syncInterval: 60000,
@@ -92,28 +92,28 @@ describe('SyncManager', () => {
   // اختبارات إضافة العمليات - Queue Operations Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Queue Operations', () => {
-    test('should queue a field observation', async () => {
+  describe("Queue Operations", () => {
+    test("should queue a field observation", async () => {
       const observation = {
-        fieldId: 'field-123',
+        fieldId: "field-123",
         observedAt: new Date(),
-        observationType: 'PEST_DETECTION',
-        notes: 'Test observation',
-        userId: 'user-456',
+        observationType: "PEST_DETECTION",
+        notes: "Test observation",
+        userId: "user-456",
       };
 
       const operationId = await syncManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        observation
+        observation,
       );
 
       expect(operationId).toBeDefined();
-      expect(typeof operationId).toBe('string');
+      expect(typeof operationId).toBe("string");
     });
 
-    test('should queue with custom priority', async () => {
-      const data = { test: 'data' };
+    test("should queue with custom priority", async () => {
+      const data = { test: "data" };
 
       const operationId = await syncManager.queueOperation(
         SyncOperationType.CREATE,
@@ -121,28 +121,28 @@ describe('SyncManager', () => {
         data,
         {
           priority: SyncPriority.HIGH,
-        }
+        },
       );
 
       expect(operationId).toBeDefined();
     });
 
-    test('should queue multiple operations', async () => {
+    test("should queue multiple operations", async () => {
       const operations = [
         {
           type: SyncOperationType.CREATE,
           dataType: SyncDataType.FIELD_OBSERVATION,
-          data: { test: 'data1' },
+          data: { test: "data1" },
         },
         {
           type: SyncOperationType.CREATE,
           dataType: SyncDataType.SENSOR_READING,
-          data: { test: 'data2' },
+          data: { test: "data2" },
         },
         {
           type: SyncOperationType.UPDATE,
           dataType: SyncDataType.FIELD_UPDATE,
-          data: { test: 'data3' },
+          data: { test: "data3" },
         },
       ];
 
@@ -152,16 +152,16 @@ describe('SyncManager', () => {
         const id = await syncManager.queueOperation(
           op.type,
           op.dataType,
-          op.data
+          op.data,
         );
         ids.push(id);
       }
 
       expect(ids).toHaveLength(3);
-      expect(ids.every((id) => typeof id === 'string')).toBe(true);
+      expect(ids.every((id) => typeof id === "string")).toBe(true);
     });
 
-    test('should throw error when queue is full', async () => {
+    test("should throw error when queue is full", async () => {
       // Create manager with small queue size
       const smallQueueManager = SyncManager.getInstance({
         maxQueueSize: 2,
@@ -171,13 +171,13 @@ describe('SyncManager', () => {
       await smallQueueManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        { test: 'data1' }
+        { test: "data1" },
       );
 
       await smallQueueManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        { test: 'data2' }
+        { test: "data2" },
       );
 
       // This should throw
@@ -185,8 +185,8 @@ describe('SyncManager', () => {
         smallQueueManager.queueOperation(
           SyncOperationType.CREATE,
           SyncDataType.FIELD_OBSERVATION,
-          { test: 'data3' }
-        )
+          { test: "data3" },
+        ),
       ).rejects.toThrow();
     });
   });
@@ -195,24 +195,24 @@ describe('SyncManager', () => {
   // اختبارات الحالة - Status Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Status', () => {
-    test('should get sync status', async () => {
+  describe("Status", () => {
+    test("should get sync status", async () => {
       const status = await syncManager.getSyncStatus();
 
       expect(status).toBeDefined();
       expect(status.status).toBeDefined();
-      expect(typeof status.isOnline).toBe('boolean');
-      expect(typeof status.isSyncing).toBe('boolean');
-      expect(typeof status.pendingCount).toBe('number');
-      expect(typeof status.failedCount).toBe('number');
-      expect(typeof status.conflictCount).toBe('number');
+      expect(typeof status.isOnline).toBe("boolean");
+      expect(typeof status.isSyncing).toBe("boolean");
+      expect(typeof status.pendingCount).toBe("number");
+      expect(typeof status.failedCount).toBe("number");
+      expect(typeof status.conflictCount).toBe("number");
     });
 
-    test('should reflect queued operations in status', async () => {
+    test("should reflect queued operations in status", async () => {
       await syncManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        { test: 'data' }
+        { test: "data" },
       );
 
       const status = await syncManager.getSyncStatus();
@@ -220,13 +220,13 @@ describe('SyncManager', () => {
       expect(status.pendingCount).toBeGreaterThan(0);
     });
 
-    test('should get statistics', () => {
+    test("should get statistics", () => {
       const stats = syncManager.getStatistics();
 
       expect(stats).toBeDefined();
-      expect(typeof stats.totalOperations).toBe('number');
-      expect(typeof stats.successfulOperations).toBe('number');
-      expect(typeof stats.failedOperations).toBe('number');
+      expect(typeof stats.totalOperations).toBe("number");
+      expect(typeof stats.successfulOperations).toBe("number");
+      expect(typeof stats.failedOperations).toBe("number");
     });
   });
 
@@ -234,8 +234,8 @@ describe('SyncManager', () => {
   // اختبارات الأحداث - Event Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Events', () => {
-    test('should add event listener', () => {
+  describe("Events", () => {
+    test("should add event listener", () => {
       const listener = jest.fn();
 
       syncManager.addEventListener(SyncEventType.SYNC_STARTED, listener);
@@ -246,7 +246,7 @@ describe('SyncManager', () => {
       }).not.toThrow();
     });
 
-    test('should remove event listener', () => {
+    test("should remove event listener", () => {
       const listener = jest.fn();
 
       syncManager.addEventListener(SyncEventType.SYNC_STARTED, listener);
@@ -258,7 +258,7 @@ describe('SyncManager', () => {
       }).not.toThrow();
     });
 
-    test('should emit OPERATION_QUEUED event when operation is queued', (done) => {
+    test("should emit OPERATION_QUEUED event when operation is queued", (done) => {
       const listener = jest.fn((event) => {
         expect(event.type).toBe(SyncEventType.OPERATION_QUEUED);
         expect(event.operationId).toBeDefined();
@@ -270,7 +270,7 @@ describe('SyncManager', () => {
       syncManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        { test: 'data' }
+        { test: "data" },
       );
     });
   });
@@ -279,14 +279,14 @@ describe('SyncManager', () => {
   // اختبارات التحكم في المزامنة - Sync Control Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Sync Control', () => {
-    test('should start auto sync', () => {
+  describe("Sync Control", () => {
+    test("should start auto sync", () => {
       expect(() => {
         syncManager.startAutoSync();
       }).not.toThrow();
     });
 
-    test('should stop auto sync', () => {
+    test("should stop auto sync", () => {
       syncManager.startAutoSync();
 
       expect(() => {
@@ -294,7 +294,7 @@ describe('SyncManager', () => {
       }).not.toThrow();
     });
 
-    test('should pause sync', () => {
+    test("should pause sync", () => {
       syncManager.pause();
 
       // Status should reflect paused state
@@ -304,7 +304,7 @@ describe('SyncManager', () => {
       }).not.toThrow();
     });
 
-    test('should resume sync', () => {
+    test("should resume sync", () => {
       syncManager.pause();
       syncManager.resume();
 
@@ -318,39 +318,39 @@ describe('SyncManager', () => {
   // اختبارات حل التعارضات - Conflict Resolution Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Conflict Resolution', () => {
-    test('should register custom resolver', () => {
+  describe("Conflict Resolution", () => {
+    test("should register custom resolver", () => {
       const resolver = jest.fn((local, server, base) =>
-        Promise.resolve({ ...server, custom: true })
+        Promise.resolve({ ...server, custom: true }),
       );
 
       expect(() => {
         syncManager.registerCustomResolver(
           SyncDataType.FIELD_OBSERVATION,
-          resolver
+          resolver,
         );
       }).not.toThrow();
     });
 
-    test('should use custom resolver for conflicts', async () => {
+    test("should use custom resolver for conflicts", async () => {
       const resolver = jest.fn((local, server, base) =>
-        Promise.resolve({ ...local, resolved: true })
+        Promise.resolve({ ...local, resolved: true }),
       );
 
       syncManager.registerCustomResolver(
         SyncDataType.FIELD_OBSERVATION,
-        resolver
+        resolver,
       );
 
       // Queue an update operation that might conflict
       await syncManager.queueOperation(
         SyncOperationType.UPDATE,
         SyncDataType.FIELD_OBSERVATION,
-        { id: 'obs-123', notes: 'Local changes' },
+        { id: "obs-123", notes: "Local changes" },
         {
-          entityId: 'obs-123',
-          previousData: { id: 'obs-123', notes: 'Original' },
-        }
+          entityId: "obs-123",
+          previousData: { id: "obs-123", notes: "Original" },
+        },
       );
 
       // Custom resolver is registered
@@ -362,25 +362,25 @@ describe('SyncManager', () => {
   // اختبارات التخزين - Storage Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Storage', () => {
-    test('should save queue to storage', async () => {
+  describe("Storage", () => {
+    test("should save queue to storage", async () => {
       await syncManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        { test: 'data' }
+        { test: "data" },
       );
 
       await expect(syncManager.saveQueueToStorage()).resolves.not.toThrow();
     });
 
-    test('should load queue from storage', async () => {
+    test("should load queue from storage", async () => {
       await expect(syncManager.loadQueueFromStorage()).resolves.not.toThrow();
     });
 
-    test('should clear completed operations', async () => {
+    test("should clear completed operations", async () => {
       const cleared = await syncManager.clearCompletedOperations();
 
-      expect(typeof cleared).toBe('number');
+      expect(typeof cleared).toBe("number");
       expect(cleared).toBeGreaterThanOrEqual(0);
     });
   });
@@ -389,28 +389,28 @@ describe('SyncManager', () => {
   // اختبارات المزامنة - Sync Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Sync Processing', () => {
-    test('should process queue', async () => {
+  describe("Sync Processing", () => {
+    test("should process queue", async () => {
       await syncManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        { test: 'data' }
+        { test: "data" },
       );
 
       const result = await syncManager.processQueue();
 
       expect(result).toBeDefined();
-      expect(typeof result.success).toBe('boolean');
-      expect(typeof result.totalOperations).toBe('number');
-      expect(typeof result.successCount).toBe('number');
-      expect(typeof result.failedCount).toBe('number');
+      expect(typeof result.success).toBe("boolean");
+      expect(typeof result.totalOperations).toBe("number");
+      expect(typeof result.successCount).toBe("number");
+      expect(typeof result.failedCount).toBe("number");
     });
 
-    test('should force sync', async () => {
+    test("should force sync", async () => {
       await syncManager.queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        { test: 'data' }
+        { test: "data" },
       );
 
       const result = await syncManager.forceSync();
@@ -418,7 +418,7 @@ describe('SyncManager', () => {
       expect(result).toBeDefined();
     });
 
-    test('should return empty result when queue is empty', async () => {
+    test("should return empty result when queue is empty", async () => {
       const result = await syncManager.processQueue();
 
       expect(result.totalOperations).toBe(0);
@@ -430,15 +430,15 @@ describe('SyncManager', () => {
   // اختبارات الشبكة - Network Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Network', () => {
-    test('should detect network status', async () => {
+  describe("Network", () => {
+    test("should detect network status", async () => {
       const status = await syncManager.detectNetworkStatus();
 
       expect(status).toBeDefined();
-      expect(typeof status).toBe('string');
+      expect(typeof status).toBe("string");
     });
 
-    test('should sync when online', async () => {
+    test("should sync when online", async () => {
       await expect(syncManager.syncWhenOnline()).resolves.not.toThrow();
     });
   });
@@ -447,8 +447,8 @@ describe('SyncManager', () => {
   // اختبارات التنظيف - Cleanup Tests
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Cleanup', () => {
-    test('should shutdown gracefully', async () => {
+  describe("Cleanup", () => {
+    test("should shutdown gracefully", async () => {
       await expect(syncManager.shutdown()).resolves.not.toThrow();
     });
   });
@@ -458,7 +458,7 @@ describe('SyncManager', () => {
 // اختبارات التكامل - Integration Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('SyncManager Integration', () => {
+describe("SyncManager Integration", () => {
   let syncManager: SyncManager;
 
   beforeEach(() => {
@@ -469,18 +469,18 @@ describe('SyncManager Integration', () => {
     });
   });
 
-  test('should handle complete workflow', async () => {
+  test("should handle complete workflow", async () => {
     // 1. Queue operations
     const id1 = await syncManager.queueOperation(
       SyncOperationType.CREATE,
       SyncDataType.FIELD_OBSERVATION,
-      { fieldId: 'field-1', notes: 'Test observation' }
+      { fieldId: "field-1", notes: "Test observation" },
     );
 
     const id2 = await syncManager.queueOperation(
       SyncOperationType.CREATE,
       SyncDataType.SENSOR_READING,
-      { sensorId: 'sensor-1', value: 45.5 }
+      { sensorId: "sensor-1", value: 45.5 },
     );
 
     // 2. Check status
@@ -499,7 +499,7 @@ describe('SyncManager Integration', () => {
     expect(status.completedCount).toBeGreaterThanOrEqual(0);
   });
 
-  test('should handle events in workflow', (done) => {
+  test("should handle events in workflow", (done) => {
     let eventsReceived = 0;
     const expectedEvents = 2; // OPERATION_QUEUED, SYNC_STARTED
 
@@ -517,7 +517,7 @@ describe('SyncManager Integration', () => {
       .queueOperation(
         SyncOperationType.CREATE,
         SyncDataType.FIELD_OBSERVATION,
-        { test: 'data' }
+        { test: "data" },
       )
       .then(() => {
         return syncManager.processQueue();

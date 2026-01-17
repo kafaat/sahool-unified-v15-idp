@@ -167,7 +167,9 @@ def create_refresh_token(
         payload["tenant_id"] = tenant_id
 
     token = jwt.encode(payload, config.secret_key, algorithm=config.algorithm)
-    logger.debug(f"Created refresh token for user {user_id}, jti={jti[:8]}..., family={family_id[:8]}..., expires at {expire}")
+    logger.debug(
+        f"Created refresh token for user {user_id}, jti={jti[:8]}..., family={family_id[:8]}..., expires at {expire}"
+    )
 
     return token, jti, family_id
 

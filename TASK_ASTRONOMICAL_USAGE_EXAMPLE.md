@@ -188,28 +188,28 @@ curl -X POST http://localhost:8103/api/v1/tasks \
 
 The service maps your task type to the appropriate agricultural activity:
 
-| Task Type | Arabic Activity | Optimal Time |
-|-----------|----------------|--------------|
-| `planting` | زراعة | 07:00-10:00 |
-| `irrigation` | ري | 06:00-08:00 |
-| `harvest` | حصاد | 07:00-11:00 |
-| `fertilization` | تسميد | 07:00-10:00 |
-| `spraying` | رش | 06:00-08:00 |
-| `maintenance` | تقليم | 07:00-10:00 |
-| `scouting` | فحص | 07:00-10:00 |
-| `sampling` | جمع عينات | 07:00-10:00 |
+| Task Type       | Arabic Activity | Optimal Time |
+| --------------- | --------------- | ------------ |
+| `planting`      | زراعة           | 07:00-10:00  |
+| `irrigation`    | ري              | 06:00-08:00  |
+| `harvest`       | حصاد            | 07:00-11:00  |
+| `fertilization` | تسميد           | 07:00-10:00  |
+| `spraying`      | رش              | 06:00-08:00  |
+| `maintenance`   | تقليم           | 07:00-10:00  |
+| `scouting`      | فحص             | 07:00-10:00  |
+| `sampling`      | جمع عينات       | 07:00-10:00  |
 
 ---
 
 ## Astronomical Score Interpretation
 
-| Score | Quality | Recommendation |
-|-------|---------|----------------|
-| 9-10 | Excellent | Best days for the activity |
-| 7-8 | Very Good | Highly recommended |
-| 5-6 | Good | Acceptable |
-| 3-4 | Poor | Not recommended (warnings issued) |
-| 1-2 | Very Poor | Strongly not recommended (warnings issued) |
+| Score | Quality   | Recommendation                             |
+| ----- | --------- | ------------------------------------------ |
+| 9-10  | Excellent | Best days for the activity                 |
+| 7-8   | Very Good | Highly recommended                         |
+| 5-6   | Good      | Acceptable                                 |
+| 3-4   | Poor      | Not recommended (warnings issued)          |
+| 1-2   | Very Poor | Strongly not recommended (warnings issued) |
 
 ---
 
@@ -226,6 +226,7 @@ export ASTRONOMICAL_SERVICE_URL="http://astronomical-calendar:8111"
 ### Error Handling
 
 If the astronomical calendar service is unavailable:
+
 - All astronomical fields will be `null`
 - No warnings will be generated
 - Task creation/update will still succeed
@@ -321,6 +322,7 @@ Check service logs for astronomical data fetching:
 ## Support
 
 For questions or issues:
+
 1. Check service logs for astronomical service connectivity
 2. Verify ASTRONOMICAL_SERVICE_URL is correct
 3. Test astronomical service directly: `curl http://localhost:8111/v1/today`

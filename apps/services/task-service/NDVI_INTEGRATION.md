@@ -14,12 +14,14 @@ This document describes the NDVI integration endpoints added to the task-service
 **الوصف:** إنشاء مهمة من تنبيه NDVI
 
 Creates a task automatically when an NDVI anomaly is detected. The endpoint:
+
 - Calculates task priority based on NDVI severity
 - Generates bilingual (Arabic/English) task content
 - Auto-assigns tasks to field managers
 - Sends notifications to assignees
 
 **Request Body:**
+
 ```json
 {
   "field_id": "field_123",
@@ -37,11 +39,13 @@ Creates a task automatically when an NDVI anomaly is detected. The endpoint:
 ```
 
 **Alert Types:**
+
 - `critical`: NDVI below critical threshold (< 0.2)
 - `drop`: Significant decline in NDVI
 - `anomaly`: Statistical anomaly detected
 
 **Priority Calculation:**
+
 - **URGENT**: NDVI < 0.2 OR drop > 30%
 - **HIGH**: Drop 20-30% OR deviation > 25%
 - **MEDIUM**: Drop 10-20% OR moderate anomaly
@@ -50,6 +54,7 @@ Creates a task automatically when an NDVI anomaly is detected. The endpoint:
 **Response:** Returns created `Task` object
 
 **Example Response:**
+
 ```json
 {
   "task_id": "task_a1b2c3d4",
@@ -85,9 +90,11 @@ Creates a task automatically when an NDVI anomaly is detected. The endpoint:
 Analyzes field NDVI history and returns AI-generated task suggestions.
 
 **Query Parameters:**
+
 - `field_id` (path): Field identifier
 
 **Response:**
+
 ```json
 {
   "field_id": "field_123",
@@ -123,6 +130,7 @@ Analyzes field NDVI history and returns AI-generated task suggestions.
 ```
 
 **Use Cases:**
+
 - Weekly field health review
 - Preventive task planning
 - Proactive issue detection
@@ -137,6 +145,7 @@ Analyzes field NDVI history and returns AI-generated task suggestions.
 Creates multiple tasks at once from AI/ML recommendations.
 
 **Request Body:**
+
 ```json
 {
   "field_id": "field_123",
@@ -160,12 +169,17 @@ Creates multiple tasks at once from AI/ML recommendations.
 ```
 
 **Response:**
+
 ```json
 {
   "field_id": "field_123",
   "created": [
-    { /* Task object 1 */ },
-    { /* Task object 2 */ }
+    {
+      /* Task object 1 */
+    },
+    {
+      /* Task object 2 */
+    }
   ],
   "failed": [],
   "summary": {
@@ -178,6 +192,7 @@ Creates multiple tasks at once from AI/ML recommendations.
 ```
 
 **Features:**
+
 - Batch creation with error handling
 - Individual task failure tracking
 - Summary notification sent
@@ -188,6 +203,7 @@ Creates multiple tasks at once from AI/ML recommendations.
 ## Request Models | نماذج الطلبات
 
 ### NdviAlertTaskRequest
+
 ```python
 class NdviAlertTaskRequest(BaseModel):
     field_id: str              # Required: Field ID
@@ -201,6 +217,7 @@ class NdviAlertTaskRequest(BaseModel):
 ```
 
 ### TaskSuggestion
+
 ```python
 class TaskSuggestion(BaseModel):
     task_type: TaskType        # Task type enum
@@ -217,6 +234,7 @@ class TaskSuggestion(BaseModel):
 ```
 
 ### TaskAutoCreateRequest
+
 ```python
 class TaskAutoCreateRequest(BaseModel):
     field_id: str              # Field for tasks
@@ -230,7 +248,9 @@ class TaskAutoCreateRequest(BaseModel):
 ## Helper Functions | الدوال المساعدة
 
 ### calculate_ndvi_priority()
+
 Calculates task priority based on NDVI severity:
+
 ```python
 def calculate_ndvi_priority(
     ndvi_value: float,
@@ -241,6 +261,7 @@ def calculate_ndvi_priority(
 ```
 
 **Priority Rules:**
+
 - NDVI < 0.2 → URGENT
 - Drop > 30% → URGENT
 - Drop 20-30% → HIGH
@@ -250,7 +271,9 @@ def calculate_ndvi_priority(
 - Others → MEDIUM/LOW
 
 ### generate_ndvi_task_content()
+
 Generates bilingual task titles and descriptions:
+
 ```python
 def generate_ndvi_task_content(
     alert_type: str,
@@ -264,7 +287,9 @@ def generate_ndvi_task_content(
 Returns: `(title, title_ar, description, description_ar)`
 
 ### send_task_notification()
+
 Sends notification via notification-service:
+
 ```python
 async def send_task_notification(
     tenant_id: str,
@@ -274,6 +299,7 @@ async def send_task_notification(
 ```
 
 **Notification Types:**
+
 - `ndvi_alert_task`: High-priority NDVI alert
 - `tasks_batch_created`: Batch creation summary
 - `task_created`: Standard task creation
@@ -285,6 +311,7 @@ async def send_task_notification(
 All task creations trigger notifications through the notification-service:
 
 **Notification Payload:**
+
 ```json
 {
   "tenant_id": "tenant_demo",
@@ -312,6 +339,7 @@ All task creations trigger notifications through the notification-service:
 ## Usage Examples | أمثلة الاستخدام
 
 ### Example 1: Critical NDVI Alert
+
 ```bash
 curl -X POST http://localhost:8103/api/v1/tasks/from-ndvi-alert \
   -H "Content-Type: application/json" \
@@ -325,6 +353,7 @@ curl -X POST http://localhost:8103/api/v1/tasks/from-ndvi-alert \
 ```
 
 ### Example 2: NDVI Drop Detection
+
 ```bash
 curl -X POST http://localhost:8103/api/v1/tasks/from-ndvi-alert \
   -H "Content-Type: application/json" \
@@ -344,12 +373,14 @@ curl -X POST http://localhost:8103/api/v1/tasks/from-ndvi-alert \
 ```
 
 ### Example 3: Get Field Suggestions
+
 ```bash
 curl -X GET http://localhost:8103/api/v1/tasks/suggest-for-field/field_123 \
   -H "X-Tenant-Id: tenant_demo"
 ```
 
 ### Example 4: Auto-Create Tasks
+
 ```bash
 curl -X POST http://localhost:8103/api/v1/tasks/auto-create \
   -H "Content-Type: application/json" \
@@ -381,11 +412,13 @@ curl -X POST http://localhost:8103/api/v1/tasks/auto-create \
 All endpoints include comprehensive logging:
 
 **Log Levels:**
+
 - `INFO`: Task creation events, assignments, notifications
 - `WARNING`: Failed notifications, partial failures
 - `ERROR`: Task creation errors, service communication errors
 
 **Log Examples:**
+
 ```
 INFO - Creating task from NDVI alert: field=field_123, type=drop, ndvi=0.350
 INFO - Severe NDVI drop: 46.2% - Setting URGENT priority
@@ -395,6 +428,7 @@ INFO - Notification sent for task task_a1b2c3d4 to user field_manager
 ```
 
 **Monitoring Metrics:**
+
 - Task creation rate from NDVI alerts
 - Priority distribution
 - Assignment success rate
@@ -406,6 +440,7 @@ INFO - Notification sent for task task_a1b2c3d4 to user field_manager
 ## TODO Items | المهام المستقبلية
 
 1. **Field Manager Lookup**: Integrate with field-service to fetch actual field managers instead of using placeholder
+
    ```python
    # TODO: Fetch field manager from field service
    # For now, use a placeholder
@@ -413,6 +448,7 @@ INFO - Notification sent for task task_a1b2c3d4 to user field_manager
    ```
 
 2. **Real NDVI Service Integration**: Replace mock suggestions with actual NDVI service calls
+
    ```python
    # TODO: Call NDVI service to get field health data
    # For now, return mock suggestions based on common scenarios
@@ -429,17 +465,21 @@ INFO - Notification sent for task task_a1b2c3d4 to user field_manager
 ## Testing | الاختبار
 
 ### Unit Tests
+
 Add tests for:
+
 - Priority calculation logic
 - Arabic content generation
 - Error handling
 
 ### Integration Tests
+
 - NDVI service communication
 - Notification service integration
 - Task creation flow
 
 ### Load Tests
+
 - Batch task creation performance
 - Concurrent alert handling
 
@@ -457,6 +497,7 @@ Add tests for:
 ## API Documentation
 
 Full API documentation available at:
+
 - Swagger UI: http://localhost:8103/docs
 - ReDoc: http://localhost:8103/redoc
 
@@ -465,6 +506,7 @@ Full API documentation available at:
 ## Support | الدعم
 
 For issues or questions:
+
 - Check logs in `/var/log/sahool/task-service.log`
 - Review API documentation at `/docs`
 - Contact: dev@sahool.io

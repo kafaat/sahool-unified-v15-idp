@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from collections.abc import Callable
 from datetime import datetime
 from typing import Any
+from urllib.parse import urlparse
 
 from pydantic import BaseModel, Field
 
@@ -35,10 +37,12 @@ except ImportError:
 class SubscriberConfig(BaseModel):
     """NATS subscriber configuration"""
 
-    servers: list[str] = Field(default_factory=lambda: ["nats://localhost:4222"])
+    servers: list[str] = Field(default_factory=lambda: _get_nats_servers())
     name: str = Field(default="notification-subscriber")
     reconnect_time_wait: int = Field(default=2)
     max_reconnect_attempts: int = Field(default=60)
+    user: str | None = Field(default=None)
+    password: str | None = Field(default=None)
 
     # Subscription subjects
     analysis_subjects: list[str] = Field(
@@ -47,6 +51,32 @@ class SubscriberConfig(BaseModel):
             "sahool.actions.*",  # All action events
         ]
     )
+
+
+def _get_nats_servers() -> list[str]:
+    """Parse NATS_URL environment variable and return server list"""
+    nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
+    try:
+        # Parse URL: nats://user:password@host:port
+        parsed = urlparse(nats_url)
+        # Reconstruct server URL without credentials
+        server_url = f"{parsed.scheme}://{parsed.hostname}:{parsed.port or 4222}"
+        return [server_url]
+    except Exception as e:
+        logger.warning(f"Failed to parse NATS_URL '{nats_url}': {e}. Using default.")
+        return ["nats://localhost:4222"]
+
+
+def _get_nats_credentials() -> tuple[str | None, str | None]:
+    """Extract username and password from NATS_URL"""
+    nats_url = os.getenv("NATS_URL", "")
+    try:
+        parsed = urlparse(nats_url)
+        if parsed.username and parsed.password:
+            return parsed.username, parsed.password
+    except Exception:
+        pass
+    return None, None
 
 
 class ReceivedEvent(BaseModel):
@@ -78,7 +108,11 @@ class NATSSubscriber:
         config: SubscriberConfig | None = None,
         notification_callback: Callable | None = None,
     ):
-        self.config = config or SubscriberConfig()
+        if config is None:
+            # Create config with credentials from environment
+            user, password = _get_nats_credentials()
+            config = SubscriberConfig(user=user, password=password)
+        self.config = config
         self._nc: NATSClient | None = None
         self._subscriptions: list[Any] = []
         self._connected = False
@@ -103,15 +137,20 @@ class NATSSubscriber:
             return False
 
         try:
-            self._nc = await nats.connect(
-                servers=self.config.servers,
-                name=self.config.name,
-                reconnect_time_wait=self.config.reconnect_time_wait,
-                max_reconnect_attempts=self.config.max_reconnect_attempts,
-                error_cb=self._error_callback,
-                disconnected_cb=self._disconnected_callback,
-                reconnected_cb=self._reconnected_callback,
-            )
+            connect_kwargs = {
+                "servers": self.config.servers,
+                "name": self.config.name,
+                "reconnect_time_wait": self.config.reconnect_time_wait,
+                "max_reconnect_attempts": self.config.max_reconnect_attempts,
+                "error_cb": self._error_callback,
+                "disconnected_cb": self._disconnected_callback,
+                "reconnected_cb": self._reconnected_callback,
+            }
+            # Add authentication if credentials are provided
+            if self.config.user and self.config.password:
+                connect_kwargs["user"] = self.config.user
+                connect_kwargs["password"] = self.config.password
+            self._nc = await nats.connect(**connect_kwargs)
             self._connected = True
             logger.info(f"Connected to NATS: {self.config.servers}")
             return True

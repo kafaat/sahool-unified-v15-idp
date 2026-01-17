@@ -22,10 +22,17 @@ WORKDIR /app
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install Python dependencies
+# Install Python dependencies with retry logic for network resilience
 COPY apps/services/virtual-sensors/requirements.txt .
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel && \
+    pip install --no-cache-dir \
+    --timeout=300 \
+    --retries=10 \
+    -r requirements.txt || \
+    (sleep 5 && pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt)
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image
@@ -41,7 +48,7 @@ LABEL description="Virtual Sensors Engine for Smart Irrigation - FAO-56 ET0"
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
-    PORT=8096 \
+    PORT=8119 \
     LOG_LEVEL=INFO
 
 WORKDIR /app
@@ -61,12 +68,12 @@ RUN useradd --create-home --shell /bin/bash --uid 1000 sahool && \
     chown -R sahool:sahool /app
 USER sahool
 
-# Expose port
-EXPOSE 8096
+# Expose port (can be overridden via PORT env var)
+EXPOSE 8119
 
 # Health check using Python (no curl needed)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')" || exit 1
+    CMD sh -c "python -c \"import urllib.request, os; port=os.getenv('PORT', '8119'); urllib.request.urlopen(f'http://localhost:{port}/healthz')\"" || exit 1
 
 # Run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8096"]
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8119}"]

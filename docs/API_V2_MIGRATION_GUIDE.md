@@ -6,12 +6,12 @@ This guide helps you migrate from SAHOOL API v1 to v2. The v2 API introduces sev
 
 ## Timeline
 
-| Date | Milestone |
-|------|-----------|
-| 2025-01-06 | v2 API Released |
+| Date       | Milestone                                      |
+| ---------- | ---------------------------------------------- |
+| 2025-01-06 | v2 API Released                                |
 | 2025-06-30 | v1 API Deprecated (deprecation warnings added) |
-| 2026-01-01 | v1 Rate limits reduced |
-| 2026-06-30 | v1 API Sunset (removed completely) |
+| 2026-01-01 | v1 Rate limits reduced                         |
+| 2026-06-30 | v1 API Sunset (removed completely)             |
 
 ## Breaking Changes
 
@@ -27,6 +27,7 @@ This guide helps you migrate from SAHOOL API v1 to v2. The v2 API introduces sev
 #### Success Response
 
 **v1:**
+
 ```json
 {
   "success": true,
@@ -36,6 +37,7 @@ This guide helps you migrate from SAHOOL API v1 to v2. The v2 API introduces sev
 ```
 
 **v2:**
+
 ```json
 {
   "success": true,
@@ -50,12 +52,14 @@ This guide helps you migrate from SAHOOL API v1 to v2. The v2 API introduces sev
 ```
 
 **Required Changes:**
+
 - Update response parsing to handle `version`, `timestamp`, and `meta` fields
 - Use `meta.requestId` for request tracing and support tickets
 
 #### Error Response
 
 **v1:**
+
 ```json
 {
   "success": false,
@@ -64,6 +68,7 @@ This guide helps you migrate from SAHOOL API v1 to v2. The v2 API introduces sev
 ```
 
 **v2:**
+
 ```json
 {
   "success": false,
@@ -83,6 +88,7 @@ This guide helps you migrate from SAHOOL API v1 to v2. The v2 API introduces sev
 ```
 
 **Required Changes:**
+
 - Update error handling to use `error.code` instead of parsing `message`
 - Use `error.field` to identify which field caused the error
 - Reference `meta.documentation` for error details
@@ -92,16 +98,19 @@ This guide helps you migrate from SAHOOL API v1 to v2. The v2 API introduces sev
 #### Query Parameters
 
 **v1:**
+
 ```http
 GET /api/v1/users?skip=0&take=20
 ```
 
 **v2:**
+
 ```http
 GET /api/v2/users?page=1&limit=20
 ```
 
 **Required Changes:**
+
 ```typescript
 // v1
 const skip = (page - 1) * pageSize;
@@ -114,6 +123,7 @@ const url = `/api/v2/users?page=${page}&limit=${pageSize}`;
 #### Response Format
 
 **v1:**
+
 ```json
 {
   "success": true,
@@ -123,6 +133,7 @@ const url = `/api/v2/users?page=${page}&limit=${pageSize}`;
 ```
 
 **v2:**
+
 ```json
 {
   "success": true,
@@ -144,6 +155,7 @@ const url = `/api/v2/users?page=${page}&limit=${pageSize}`;
 ```
 
 **Required Changes:**
+
 - Use `meta.pagination.total` instead of `count`
 - Use `meta.pagination.hasNext` and `hasPrev` for navigation
 - Calculate current page using `meta.pagination.page`
@@ -151,11 +163,13 @@ const url = `/api/v2/users?page=${page}&limit=${pageSize}`;
 ### 4. Sorting
 
 **v2 New Feature:**
+
 ```http
 GET /api/v2/users?page=1&limit=20&sort=createdAt&order=desc
 ```
 
 Supported sort orders:
+
 - `asc` - Ascending
 - `desc` - Descending
 
@@ -170,6 +184,7 @@ Supported sort orders:
 ```
 
 **Required Changes:**
+
 ```typescript
 // Parse dates using ISO 8601
 const date = new Date(response.data.createdAt); // Always works in v2
@@ -199,22 +214,22 @@ npm install @sahool/client@latest
 
 ```typescript
 // v1
-import { SahoolClient } from '@sahool/client';
-const client = new SahoolClient({ version: 'v1' });
+import { SahoolClient } from "@sahool/client";
+const client = new SahoolClient({ version: "v1" });
 
 // v2
-import { SahoolClient } from '@sahool/client';
-const client = new SahoolClient({ version: 'v2' });
+import { SahoolClient } from "@sahool/client";
+const client = new SahoolClient({ version: "v2" });
 ```
 
 ### Step 2: Update Base URL
 
 ```typescript
 // v1
-const BASE_URL = 'https://api.sahool.app/api/v1';
+const BASE_URL = "https://api.sahool.app/api/v1";
 
 // v2
-const BASE_URL = 'https://api.sahool.app/api/v2';
+const BASE_URL = "https://api.sahool.app/api/v2";
 ```
 
 ### Step 3: Update Response Handlers
@@ -317,13 +332,13 @@ try {
   if (!success) {
     // Structured error handling
     switch (error.code) {
-      case 'USER_NOT_FOUND':
-        alert('User not found');
+      case "USER_NOT_FOUND":
+        alert("User not found");
         break;
-      case 'UNAUTHORIZED':
+      case "UNAUTHORIZED":
         redirectToLogin();
         break;
-      case 'VALIDATION_ERROR':
+      case "VALIDATION_ERROR":
         displayFieldError(error.field, error.message);
         break;
       default:
@@ -331,7 +346,7 @@ try {
     }
   }
 } catch (error) {
-  console.error('Network error:', error);
+  console.error("Network error:", error);
 }
 ```
 
@@ -345,18 +360,18 @@ async function makeRequest(url: string, options: RequestInit = {}) {
     headers: {
       ...options.headers,
       // Optional: Send request ID for tracing
-      'X-Request-ID': generateRequestId(),
+      "X-Request-ID": generateRequestId(),
     },
   });
 
   const data = await response.json();
 
   // Log request ID for debugging
-  console.log('Request ID:', data.meta.requestId);
+  console.log("Request ID:", data.meta.requestId);
 
   // Store request ID for support tickets
   if (!response.ok) {
-    localStorage.setItem('lastFailedRequestId', data.meta.requestId);
+    localStorage.setItem("lastFailedRequestId", data.meta.requestId);
   }
 
   return data;
@@ -372,16 +387,16 @@ Run both v1 and v2 in parallel to verify consistency:
 ```typescript
 async function testMigration() {
   const [v1Response, v2Response] = await Promise.all([
-    fetch('https://api.sahool.app/api/v1/users/123'),
-    fetch('https://api.sahool.app/api/v2/users/123'),
+    fetch("https://api.sahool.app/api/v1/users/123"),
+    fetch("https://api.sahool.app/api/v2/users/123"),
   ]);
 
   const v1Data = await v1Response.json();
   const v2Data = await v2Response.json();
 
   // Compare data (accounting for format differences)
-  console.log('v1:', v1Data.data);
-  console.log('v2:', v2Data.data);
+  console.log("v1:", v1Data.data);
+  console.log("v2:", v2Data.data);
 }
 ```
 
@@ -391,10 +406,10 @@ Ensure all v1 features are available in v2:
 
 ```typescript
 const endpoints = [
-  '/users',
-  '/fields',
-  '/weather',
-  '/satellite',
+  "/users",
+  "/fields",
+  "/weather",
+  "/satellite",
   // ... all your endpoints
 ];
 
@@ -428,7 +443,7 @@ If you encounter issues during migration:
 
 ```typescript
 // Use environment variable for easy switching
-const API_VERSION = process.env.API_VERSION || 'v2';
+const API_VERSION = process.env.API_VERSION || "v2";
 const BASE_URL = `https://api.sahool.app/api/${API_VERSION}`;
 ```
 
@@ -439,7 +454,7 @@ const BASE_URL = `https://api.sahool.app/api/${API_VERSION}`;
 function getApiVersion() {
   const rolloutPercentage = 10; // Start with 10%
   const random = Math.random() * 100;
-  return random < rolloutPercentage ? 'v2' : 'v1';
+  return random < rolloutPercentage ? "v2" : "v1";
 }
 
 const version = getApiVersion();
@@ -456,9 +471,7 @@ const features = {
   useV2Weather: false,
 };
 
-const usersUrl = features.useV2Users
-  ? '/api/v2/users'
-  : '/api/v1/users';
+const usersUrl = features.useV2Users ? "/api/v2/users" : "/api/v1/users";
 ```
 
 ## Common Issues
@@ -468,13 +481,14 @@ const usersUrl = features.useV2Users
 **Problem:** Dates not parsing correctly
 
 **Solution:**
+
 ```typescript
 // Always use ISO 8601 parser
 const date = new Date(dateString); // Works for ISO 8601
 
 // For v1 dates, convert first
 function parseV1Date(dateStr: string) {
-  return dateStr.replace(' ', 'T') + 'Z';
+  return dateStr.replace(" ", "T") + "Z";
 }
 ```
 
@@ -483,6 +497,7 @@ function parseV1Date(dateStr: string) {
 **Problem:** Wrong page displayed after migration
 
 **Solution:**
+
 ```typescript
 // v1 to v2 conversion
 function convertV1ToV2Pagination(skip: number, take: number) {
@@ -506,16 +521,17 @@ function convertV2ToV1Pagination(page: number, limit: number) {
 **Problem:** Error messages not displaying correctly
 
 **Solution:**
+
 ```typescript
 // Create error code mapping
 const ERROR_MESSAGES = {
-  USER_NOT_FOUND: 'المستخدم غير موجود',
-  UNAUTHORIZED: 'غير مصرح',
-  VALIDATION_ERROR: 'خطأ في التحقق',
+  USER_NOT_FOUND: "المستخدم غير موجود",
+  UNAUTHORIZED: "غير مصرح",
+  VALIDATION_ERROR: "خطأ في التحقق",
 };
 
 function getErrorMessage(errorCode: string) {
-  return ERROR_MESSAGES[errorCode] || 'حدث خطأ غير متوقع';
+  return ERROR_MESSAGES[errorCode] || "حدث خطأ غير متوقع";
 }
 ```
 
@@ -548,15 +564,15 @@ If you need help with migration:
 
 ### Error Code Reference
 
-| Code | Description | HTTP Status |
-|------|-------------|-------------|
-| USER_NOT_FOUND | User does not exist | 404 |
-| FIELD_NOT_FOUND | Field does not exist | 404 |
-| UNAUTHORIZED | Missing or invalid authentication | 401 |
-| FORBIDDEN | Insufficient permissions | 403 |
-| VALIDATION_ERROR | Request data validation failed | 400 |
-| RATE_LIMIT_EXCEEDED | Too many requests | 429 |
-| INTERNAL_ERROR | Server error | 500 |
+| Code                | Description                       | HTTP Status |
+| ------------------- | --------------------------------- | ----------- |
+| USER_NOT_FOUND      | User does not exist               | 404         |
+| FIELD_NOT_FOUND     | Field does not exist              | 404         |
+| UNAUTHORIZED        | Missing or invalid authentication | 401         |
+| FORBIDDEN           | Insufficient permissions          | 403         |
+| VALIDATION_ERROR    | Request data validation failed    | 400         |
+| RATE_LIMIT_EXCEEDED | Too many requests                 | 429         |
+| INTERNAL_ERROR      | Server error                      | 500         |
 
 ---
 

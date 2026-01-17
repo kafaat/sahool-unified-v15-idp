@@ -6,23 +6,25 @@ Comprehensive test coverage has been created for the SAHOOL Marketplace Service 
 
 ### Test Files Created
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `marketplace.controller.spec.ts` | 664 | API endpoint and controller tests |
-| `product.service.spec.ts` | 704 | Product CRUD operations |
-| `order.service.spec.ts` | 778 | Order management and processing |
-| `payment.service.spec.ts` | 989 | Wallet and payment operations |
-| **TOTAL** | **3,135** | **Complete test coverage** |
+| File                             | Lines     | Purpose                           |
+| -------------------------------- | --------- | --------------------------------- |
+| `marketplace.controller.spec.ts` | 664       | API endpoint and controller tests |
+| `product.service.spec.ts`        | 704       | Product CRUD operations           |
+| `order.service.spec.ts`          | 778       | Order management and processing   |
+| `payment.service.spec.ts`        | 989       | Wallet and payment operations     |
+| **TOTAL**                        | **3,135** | **Complete test coverage**        |
 
 ## Quick Start
 
 ### 1. Install Dependencies
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/marketplace-service
 npm install
 ```
 
 ### 2. Run Tests
+
 ```bash
 # Run all tests
 npm test
@@ -43,6 +45,7 @@ npm test:watch
 ## Test Coverage Overview
 
 ### 1. Marketplace Controller Tests (marketplace.controller.spec.ts)
+
 - ✅ Health check endpoints
 - ✅ Product API endpoints (GET, POST)
 - ✅ Product filtering (category, governorate, seller, price)
@@ -55,6 +58,7 @@ npm test:watch
 **Total**: ~30 test cases
 
 ### 2. Product Service Tests (product.service.spec.ts)
+
 - ✅ Product retrieval with filters
 - ✅ Product creation (full and minimal)
 - ✅ Harvest to product conversion
@@ -66,6 +70,7 @@ npm test:watch
 **Total**: ~35 test cases
 
 ### 3. Order Service Tests (order.service.spec.ts)
+
 - ✅ Single and multiple product orders
 - ✅ Order calculations (fees, totals)
 - ✅ Stock decrement and validation
@@ -78,6 +83,7 @@ npm test:watch
 **Total**: ~25 test cases
 
 ### 4. Payment Service Tests (payment.service.spec.ts)
+
 - ✅ Wallet creation and retrieval
 - ✅ Deposit operations
 - ✅ Withdrawal operations
@@ -96,48 +102,58 @@ npm test:watch
 ## Test Features
 
 ### Comprehensive Coverage
+
 ✅ **Product CRUD Operations**
+
 - Create, read, update products
 - Filter by category, location, price
 - Convert harvest predictions to products
 
 ✅ **Order Management**
+
 - Create orders with validation
 - Stock management
 - Order calculations
 - Transaction handling
 
 ✅ **Payment Processing**
+
 - Wallet operations
 - Deposits and withdrawals
 - Security features (limits, idempotency)
 - Escrow management
 
 ✅ **API Endpoints**
+
 - All REST endpoints tested
 - Authentication/authorization
 - Input validation
 - Error responses
 
 ### Jest/NestJS Best Practices
+
 ✅ **Mocking Strategy**
+
 - Prisma database operations
 - External services
 - Event publishers
 
 ✅ **Test Structure**
+
 - Clear describe/it blocks
 - Arrange-Act-Assert pattern
 - Independent tests
 - Clean setup/teardown
 
 ✅ **Security Testing**
+
 - Idempotency keys
 - Optimistic locking
 - Transaction isolation
 - Audit logging
 
 ✅ **Edge Cases**
+
 - Empty data sets
 - Invalid inputs
 - Concurrent operations
@@ -190,6 +206,7 @@ Time:        5.234 s
 ## Test Architecture
 
 ### Mocking Pattern
+
 ```typescript
 const mockPrismaService = {
   product: {
@@ -203,6 +220,7 @@ const mockPrismaService = {
 ```
 
 ### Transaction Testing
+
 ```typescript
 mockPrismaService.$transaction.mockImplementation(async (callback) => {
   const tx = {
@@ -214,38 +232,47 @@ mockPrismaService.$transaction.mockImplementation(async (callback) => {
 ```
 
 ### Event Testing
+
 ```typescript
 await service.createOrder(orderData);
 expect(mockEventsService.publishOrderPlaced).toHaveBeenCalledWith(
   expect.objectContaining({
     orderId: expect.any(String),
     totalAmount: expect.any(Number),
-  })
+  }),
 );
 ```
 
 ## Troubleshooting
 
 ### Issue: Jest not found
+
 **Solution**: Install dependencies
+
 ```bash
 npm install
 ```
 
 ### Issue: Import errors
+
 **Solution**: Ensure tsconfig.json is correct
+
 ```bash
 cat tsconfig.json
 ```
 
 ### Issue: Tests timing out
+
 **Solution**: Increase timeout
+
 ```typescript
 jest.setTimeout(10000);
 ```
 
 ### Issue: Mock not working
+
 **Solution**: Clear mocks between tests
+
 ```typescript
 afterEach(() => {
   jest.clearAllMocks();
@@ -255,6 +282,7 @@ afterEach(() => {
 ## CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 - name: Run Tests
   run: |
@@ -271,6 +299,7 @@ afterEach(() => {
 ## Coverage Goals
 
 Target coverage metrics:
+
 - **Statements**: ≥ 90%
 - **Branches**: ≥ 85%
 - **Functions**: ≥ 90%
@@ -293,6 +322,7 @@ Target coverage metrics:
 ## Test Locations
 
 All test files are located in:
+
 ```
 /home/user/sahool-unified-v15-idp/apps/services/marketplace-service/src/__tests__/
 ├── marketplace.controller.spec.ts  (API endpoints)

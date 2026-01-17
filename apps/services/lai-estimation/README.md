@@ -5,7 +5,6 @@ Please update your references to use `vegetation-analysis-service` on port 8090.
 
 ---
 
-
 # LAI Estimation - تقدير مؤشر مساحة الورقة
 
 ## نظرة عامة | Overview
@@ -22,19 +21,21 @@ Leaf Area Index (LAI) estimation service using satellite imagery and statistical
 ## الميزات | Features
 
 ### مصادر البيانات | Data Sources
-| المصدر | Source | الدقة |
-|--------|--------|--------|
-| Sentinel-2 | Sentinel-2 | 10-20m |
-| Landsat | Landsat | 30m |
-| صور طائرات | Drone Images | 1-5cm |
+
+| المصدر         | Source             | الدقة  |
+| -------------- | ------------------ | ------ |
+| Sentinel-2     | Sentinel-2         | 10-20m |
+| Landsat        | Landsat            | 30m    |
+| صور طائرات     | Drone Images       | 1-5cm  |
 | قياسات ميدانية | Field Measurements | مرجعية |
 
 ### النماذج | Models
-| النموذج | Model | الوصف |
-|---------|-------|--------|
-| تجريبي | Empirical | علاقات إحصائية مع NDVI |
-| فيزيائي | Physical | نماذج انتقال الإشعاع |
-| تعلم آلي | ML | شبكات عصبية |
+
+| النموذج  | Model     | الوصف                  |
+| -------- | --------- | ---------------------- |
+| تجريبي   | Empirical | علاقات إحصائية مع NDVI |
+| فيزيائي  | Physical  | نماذج انتقال الإشعاع   |
+| تعلم آلي | ML        | شبكات عصبية            |
 
 ---
 
@@ -195,6 +196,7 @@ Response:
 ## نماذج البيانات | Data Models
 
 ### LAIEstimate
+
 ```json
 {
     "id": "lai-001",
@@ -229,26 +231,27 @@ Response:
 ```
 
 ### FieldMeasurement
+
 ```json
 {
-    "id": "meas-001",
-    "field_id": "field-001",
-    "measurement_date": "2024-01-15",
-    "location": {
-        "lat": 15.35,
-        "lng": 44.15
-    },
-    "lai_value": 3.4,
-    "method": "ceptometer",
-    "instrument": "AccuPAR LP-80",
-    "conditions": {
-        "time": "10:30",
-        "sky_condition": "clear",
-        "solar_elevation": 55
-    },
-    "operator_id": "user-001",
-    "notes": "قياس في منتصف الحقل",
-    "created_at": "2024-01-15T10:35:00Z"
+  "id": "meas-001",
+  "field_id": "field-001",
+  "measurement_date": "2024-01-15",
+  "location": {
+    "lat": 15.35,
+    "lng": 44.15
+  },
+  "lai_value": 3.4,
+  "method": "ceptometer",
+  "instrument": "AccuPAR LP-80",
+  "conditions": {
+    "time": "10:30",
+    "sky_condition": "clear",
+    "solar_elevation": 55
+  },
+  "operator_id": "user-001",
+  "notes": "قياس في منتصف الحقل",
+  "created_at": "2024-01-15T10:35:00Z"
 }
 ```
 

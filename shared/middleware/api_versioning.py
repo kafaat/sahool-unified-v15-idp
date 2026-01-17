@@ -172,9 +172,7 @@ class APIVersionMiddleware(BaseHTTPMiddleware):
         if path in self.EXCLUDED_PATHS:
             return True
         # Prefix match for docs
-        if path.startswith("/docs") or path.startswith("/redoc"):
-            return True
-        return False
+        return bool(path.startswith("/docs") or path.startswith("/redoc"))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

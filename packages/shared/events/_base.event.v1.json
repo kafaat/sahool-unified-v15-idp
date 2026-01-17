@@ -4,7 +4,14 @@
   "title": "SAHOOL Base Event Schema",
   "description": "Base schema for all SAHOOL domain events - القالب الأساسي لجميع أحداث سهول",
   "type": "object",
-  "required": ["event_id", "event_type", "event_version", "tenant_id", "timestamp", "source"],
+  "required": [
+    "event_id",
+    "event_type",
+    "event_version",
+    "tenant_id",
+    "timestamp",
+    "source"
+  ],
   "properties": {
     "event_id": {
       "type": "string",

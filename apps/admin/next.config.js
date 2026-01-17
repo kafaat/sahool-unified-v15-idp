@@ -1,44 +1,45 @@
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: "standalone",
 
   // Security Headers
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
           },
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
           },
           {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+            key: "Permissions-Policy",
+            value:
+              "camera=(), microphone=(), geolocation=(self), interest-cohort=()",
           },
           // CSP is now handled by middleware with nonce-based security
           // See: src/middleware.ts and src/lib/security/csp-config.ts
@@ -50,16 +51,16 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'api.sahool.io',
+        protocol: "https",
+        hostname: "api.sahool.io",
       },
       {
-        protocol: 'https',
-        hostname: 'api.sahool.app',
+        protocol: "https",
+        hostname: "api.sahool.app",
       },
       {
-        protocol: 'http',
-        hostname: 'localhost',
+        protocol: "http",
+        hostname: "localhost",
       },
     ],
   },
@@ -92,10 +93,10 @@ const nextConfig = {
 
     // Add parent node_modules to module resolution for workspace dependencies
     // This allows Next.js to find dependencies hoisted to the root in npm workspaces
-    const path = require('path');
-    const parentNodeModules = path.resolve(__dirname, '../../node_modules');
+    const path = require("path");
+    const parentNodeModules = path.resolve(__dirname, "../../node_modules");
     config.resolve.modules = [
-      ...(config.resolve.modules || ['node_modules']),
+      ...(config.resolve.modules || ["node_modules"]),
       parentNodeModules,
     ];
 
@@ -104,7 +105,11 @@ const nextConfig = {
 
   // Experimental features
   experimental: {
-    optimizePackageImports: ['lucide-react', '@tanstack/react-query', 'recharts'],
+    optimizePackageImports: [
+      "lucide-react",
+      "@tanstack/react-query",
+      "recharts",
+    ],
   },
   // Note: missingSuspenseWithCSRBailout was removed in Next.js 15
 };

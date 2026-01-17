@@ -1,4 +1,5 @@
 # Shared Middleware Audit Report
+
 # تقرير تدقيق البرمجيات الوسيطة المشتركة
 
 **Date:** 2026-01-06
@@ -14,12 +15,14 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 ### Overall Assessment: **GOOD** ✅
 
 **Strengths:**
+
 - Well-structured and comprehensive middleware implementations
 - Bilingual support (English/Arabic) throughout
 - Security-conscious design with proper sanitization
 - Good separation of concerns
 
 **Critical Issues:**
+
 - 🔴 Code duplication in ai-advisor service
 - 🟡 Inconsistent import patterns across services
 - 🟡 Missing comprehensive input validation in some areas
@@ -33,6 +36,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 #### Location: `/apps/services/shared/middleware/`
 
 **Files Reviewed:**
+
 - `health.py` - Health check endpoints
 - `exception_handler.py` - Global exception handling
 - `rate_limiter.py` - Rate limiting middleware
@@ -41,12 +45,14 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 #### Findings:
 
 ✅ **STRENGTHS:**
+
 1. **Well-Documented**: All middleware files have clear bilingual documentation
 2. **Comprehensive Implementation**: Complete feature sets for each middleware type
 3. **Production-Ready**: Proper error handling, logging, and configuration management
 4. **Flexible Architecture**: Support for both development and production environments
 
 ⚠️ **AREAS FOR IMPROVEMENT:**
+
 1. Missing request body size validation in exception handler
 2. No middleware for CORS (exists separately but not exported from middleware module)
 3. Health checks could include more comprehensive dependency checks
@@ -56,18 +62,21 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 #### Location: `/apps/services/shared/middleware/`
 
 **Files Reviewed:**
+
 - `request-logging.ts` - Request logging interceptor
 - `index.ts` - Module exports
 
 #### Findings:
 
 ✅ **STRENGTHS:**
+
 1. **Structured JSON Logging**: Consistent log format with correlation IDs
 2. **Context Propagation**: Proper request/tenant/user ID tracking
 3. **Sensitive Data Filtering**: Headers and query params properly sanitized
 4. **OpenTelemetry Compatible**: Supports trace propagation
 
 ⚠️ **AREAS FOR IMPROVEMENT:**
+
 1. Limited TypeScript middleware (only logging)
 2. No TypeScript equivalent for rate limiting or health checks
 3. Error handling relies on NestJS built-ins rather than custom implementation
@@ -91,6 +100,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
    - `/livez` - Liveness probe
 
 2. **Extensible Health Checks:**
+
    ```python
    # Easy to register custom checks
    health_manager.register_check("database", db_check)
@@ -114,6 +124,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 ### Security Analysis:
 
 ✅ **SECURE:**
+
 - Health endpoints don't expose sensitive information
 - Error messages are sanitized
 - No authentication required (as per industry standard)
@@ -132,6 +143,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 ## 3. Logging Middleware | وسيط التسجيل
 
 ### Python: No dedicated logging middleware
+
 ### TypeScript: `/apps/services/shared/middleware/request-logging.ts`
 
 **Lines of Code:** 435
@@ -148,6 +160,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
    - Correlation ID generation and propagation
 
 2. **Structured JSON Output:**
+
    ```typescript
    {
      timestamp: "2026-01-06T...",
@@ -173,11 +186,13 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 ### Security Analysis:
 
 ✅ **SECURE:**
+
 - Comprehensive sensitive data filtering
 - No password/token logging
 - Stack traces only in development
 
 ⚠️ **POTENTIAL ISSUES:**
+
 - Query parameters logged (could contain sensitive data)
 - User agent strings logged (privacy concern)
 
@@ -196,6 +211,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 #### Location: `/apps/services/shared/errors_py/`
 
 **Files Reviewed:**
+
 - `exceptions.py` (407 lines) - Custom exception classes
 - `exception_handlers.py` (360 lines) - FastAPI exception handlers
 - `error_codes.py` - Error code registry
@@ -218,6 +234,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
    - `RateLimitException` - Rate limiting
 
 2. **Bilingual Support:**
+
    ```python
    {
      "error": {
@@ -229,6 +246,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
    ```
 
 3. **Type-Specific Factory Methods:**
+
    ```python
    NotFoundException.user(user_id="123")
    NotFoundException.farm(farm_id="456")
@@ -263,6 +281,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 #### Location: `/apps/services/shared/errors/`
 
 **Files Reviewed:**
+
 - `exceptions.ts` (414 lines) - Custom exception classes
 - `http-exception.filter.ts` (349 lines) - NestJS exception filters
 - `error-codes.ts` - Error code registry
@@ -287,14 +306,15 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 
 3. **Advanced Error Detection:**
    ```typescript
-   isDatabaseError(error) // Detect Prisma/TypeORM errors
-   isNetworkError(error)  // Detect network issues
-   isRetryable(error)     // Check if error is retryable
+   isDatabaseError(error); // Detect Prisma/TypeORM errors
+   isNetworkError(error); // Detect network issues
+   isRetryable(error); // Check if error is retryable
    ```
 
 ### Security Analysis:
 
 ✅ **HIGHLY SECURE:**
+
 - Comprehensive sensitive data sanitization
 - Patterns for passwords, tokens, secrets, API keys
 - Database URLs sanitized
@@ -315,6 +335,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 ### Location: `/apps/services/shared/auth/`
 
 **Files Reviewed:**
+
 - `jwt.py` (225 lines) - JWT token management
 - `password.py` (128 lines) - Password hashing
 - `dependencies.py` (283 lines) - FastAPI dependencies
@@ -332,6 +353,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
    - Issuer and audience verification
    - Token type validation (access vs refresh)
    - Required claims enforcement
+
    ```python
    decode_options = {
        "verify_signature": True,
@@ -370,6 +392,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 ### Security Analysis:
 
 ✅ **HIGHLY SECURE:**
+
 - Industry-standard cryptography
 - Proper token validation
 - No timing attacks (bcrypt)
@@ -377,6 +400,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 - Multi-factor support ready
 
 ⚠️ **POTENTIAL IMPROVEMENTS:**
+
 1. 🟡 Token refresh rotation not enforced
 2. 🟡 No token revocation/blacklist mechanism
 3. 🟡 No account lockout after failed attempts (should be in rate limiter)
@@ -393,6 +417,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 ## 6. Validation Utilities | أدوات التحقق
 
 ### Locations:
+
 - `/apps/services/shared/errors_py/exception_handlers.py` - Request validation
 - `/apps/services/shared/errors/error-utils.ts` - Error validation
 - `/apps/services/ai-advisor/src/middleware/input_validator.py` - Input validation
@@ -405,6 +430,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
    - Pydantic model validation
    - Detailed field-level error messages
    - Bilingual error responses
+
    ```python
    {
      "fields": [
@@ -438,6 +464,7 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 ### Recommendations:
 
 1. 🔴 **Create Shared Validation Library:**
+
    ```python
    from shared.validation import (
        validate_email,
@@ -475,15 +502,17 @@ This audit examined the shared middleware implementations across the SAHOOL plat
 The ai-advisor service has its own rate limiter implementation that duplicates functionality from the shared middleware:
 
 **Shared Implementation Features:**
+
 - ✅ Redis-backed distributed rate limiting
 - ✅ In-memory fallback
 - ✅ Multiple rate limit tiers (free, standard, premium, internal)
 - ✅ Configurable per-minute and per-hour limits
 - ✅ Burst protection
-- ✅ Rate limit headers (X-RateLimit-*)
+- ✅ Rate limit headers (X-RateLimit-\*)
 - ✅ Environment-based configuration
 
 **AI-Advisor Implementation Features:**
+
 - ⚠️ In-memory only (no Redis)
 - ⚠️ Hard-coded limits (30 req/min, 500 req/hour)
 - ⚠️ Basic implementation
@@ -491,6 +520,7 @@ The ai-advisor service has its own rate limiter implementation that duplicates f
 - ⚠️ No rate limit headers
 
 **Impact:**
+
 - Inconsistent rate limiting across services
 - Maintenance burden (two implementations)
 - Missing features in ai-advisor
@@ -530,6 +560,7 @@ from shared.errors_py.exception_handlers import setup_exception_handlers
 ```
 
 **Impact:**
+
 - Confusion for developers
 - Potential import errors
 - Harder to maintain
@@ -555,6 +586,7 @@ from apps.services.shared.auth import get_current_user, require_roles
 Python has comprehensive middleware (health, rate limiting, exceptions), but TypeScript only has request logging.
 
 **Services Affected:**
+
 - All NestJS/TypeScript services lack:
   - Health check middleware
   - Rate limiting middleware
@@ -563,6 +595,7 @@ Python has comprehensive middleware (health, rate limiting, exceptions), but Typ
 **Recommendation:** 🟡 **CREATE TYPESCRIPT EQUIVALENTS**
 
 Develop NestJS versions of:
+
 1. Health check endpoints
 2. Rate limiting interceptor
 3. Exception filters (basic exists, needs enhancement)
@@ -641,6 +674,7 @@ Develop NestJS versions of:
 ### Recommendations:
 
 1. 🔴 **HIGH PRIORITY - Add Security Headers Middleware:**
+
    ```python
    # shared/middleware/security_headers.py
    def setup_security_headers(app: FastAPI):
@@ -656,6 +690,7 @@ Develop NestJS versions of:
    ```
 
 2. 🔴 **HIGH PRIORITY - Add CSRF Protection:**
+
    ```python
    # For APIs with session-based auth
    from starlette_csrf import CSRFMiddleware
@@ -663,6 +698,7 @@ Develop NestJS versions of:
    ```
 
 3. 🟡 **MEDIUM PRIORITY - Add Token Blacklist:**
+
    ```python
    # shared/auth/token_blacklist.py
    class TokenBlacklist:
@@ -677,6 +713,7 @@ Develop NestJS versions of:
    ```
 
 4. 🟡 **MEDIUM PRIORITY - Add Account Lockout:**
+
    ```python
    # shared/auth/lockout.py
    class AccountLockout:
@@ -699,6 +736,7 @@ Develop NestJS versions of:
 ### Location: `/apps/services/shared/database/`
 
 **Files Reviewed:**
+
 - `session.py` (223 lines) - Session management
 - `repository.py` (268 lines) - Repository pattern
 - `base.py` - Base models and mixins
@@ -716,6 +754,7 @@ Develop NestJS versions of:
    - Both sync and async support
 
 2. **Repository Pattern:**
+
    ```python
    class BaseRepository(Generic[ModelType]):
        def get_by_id(id) -> ModelType | None
@@ -728,6 +767,7 @@ Develop NestJS versions of:
    ```
 
 3. **Tenant Isolation:**
+
    ```python
    class TenantRepository(BaseRepository):
        # Automatically filters by tenant_id
@@ -736,6 +776,7 @@ Develop NestJS versions of:
    ```
 
 4. **FastAPI Integration:**
+
    ```python
    @app.get("/items")
    def get_items(db: Session = Depends(get_db)):
@@ -750,12 +791,14 @@ Develop NestJS versions of:
 ### Security Analysis:
 
 ✅ **SECURE:**
+
 - No raw SQL queries
 - ORM prevents SQL injection
 - Tenant isolation enforced
 - Connection pooling prevents connection exhaustion
 
 ⚠️ **POTENTIAL IMPROVEMENTS:**
+
 1. 🟡 Query logging could expose sensitive data
 2. 🟡 No query timeout enforcement
 3. 🟡 No automatic field-level encryption
@@ -764,6 +807,7 @@ Develop NestJS versions of:
 
 1. ✅ **Keep Current Implementation** - Well designed
 2. 🟡 **Add Query Timeout Decorator:**
+
    ```python
    @with_timeout(30)  # 30 second query timeout
    def expensive_query(db):
@@ -771,6 +815,7 @@ Develop NestJS versions of:
    ```
 
 3. 🟡 **Add Field Encryption Support:**
+
    ```python
    from sqlalchemy_utils import EncryptedType
 
@@ -847,6 +892,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware): ...
 ### Strengths:
 
 ✅ **Good Documentation:**
+
 1. Comprehensive README.md with examples
 2. Inline docstrings in English and Arabic
 3. Usage examples in code comments
@@ -855,6 +901,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware): ...
 ### Weaknesses:
 
 ⚠️ **Missing Documentation:**
+
 1. 🟡 No API reference docs (Sphinx/MkDocs)
 2. 🟡 No architecture diagrams
 3. 🟡 No migration guide for existing services
@@ -927,6 +974,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware): ...
 ### Performance Recommendations:
 
 1. 🟡 **Add Health Check Caching:**
+
    ```python
    @cached(ttl=10)  # Cache for 10 seconds
    async def run_checks(self) -> ServiceHealth:
@@ -934,12 +982,14 @@ class RequestValidationMiddleware(BaseHTTPMiddleware): ...
    ```
 
 2. 🟡 **Add Request-Local Rate Limit Caching:**
+
    ```python
    # Check Redis once per request, cache result
    request.state.rate_limit_checked = True
    ```
 
 3. 🟡 **Use Async Logging:**
+
    ```python
    import logging.handlers
 
@@ -963,11 +1013,13 @@ class RequestValidationMiddleware(BaseHTTPMiddleware): ...
 ⚠️ **LIMITED TESTING:**
 
 **Test Coverage:**
+
 - ❌ No unit tests for middleware
 - ❌ No integration tests for middleware
 - ✅ `/shared/utils/tests/test_fallback_manager.py` exists (only test file found)
 
 **Missing Test Coverage:**
+
 1. Health check endpoints
 2. Rate limiting logic
 3. Exception handlers
@@ -1104,14 +1156,14 @@ async def test_full_middleware_chain():
 
 ### Test Coverage Goals:
 
-| Component | Current Coverage | Target Coverage |
-|-----------|-----------------|-----------------|
-| Health Checks | 0% | 90% |
-| Rate Limiting | 0% | 90% |
-| Error Handling | 0% | 85% |
-| Authentication | 0% | 95% |
-| Database Repositories | 0% | 80% |
-| **Overall** | **~5%** | **85%** |
+| Component             | Current Coverage | Target Coverage |
+| --------------------- | ---------------- | --------------- |
+| Health Checks         | 0%               | 90%             |
+| Rate Limiting         | 0%               | 90%             |
+| Error Handling        | 0%               | 85%             |
+| Authentication        | 0%               | 95%             |
+| Database Repositories | 0%               | 80%             |
+| **Overall**           | **~5%**          | **85%**         |
 
 ---
 
@@ -1213,6 +1265,7 @@ async def test_full_middleware_chain():
 The SAHOOL shared middleware library is well-designed with strong foundations in security, error handling, and authentication. The bilingual support and comprehensive feature set demonstrate thoughtful architecture.
 
 ### Strengths:
+
 - ✅ Comprehensive middleware implementations
 - ✅ Strong security practices
 - ✅ Bilingual support throughout
@@ -1220,6 +1273,7 @@ The SAHOOL shared middleware library is well-designed with strong foundations in
 - ✅ Production-ready features
 
 ### Key Issues to Address:
+
 - 🔴 Code duplication in ai-advisor service
 - 🔴 Missing security headers middleware
 - 🔴 Lack of unit tests
@@ -1229,32 +1283,27 @@ The SAHOOL shared middleware library is well-designed with strong foundations in
 ### Priority Actions:
 
 **Week 1:**
+
 1. Remove rate limiter duplication
 2. Add security headers middleware
 3. Add CSRF protection
 4. Standardize imports
 
-**Week 2-3:**
-5. Create comprehensive test suite
-6. Add token blacklist
-7. Add account lockout
+**Week 2-3:** 5. Create comprehensive test suite 6. Add token blacklist 7. Add account lockout
 
-**Month 2:**
-8. Create TypeScript equivalents
-9. Add validation library
-10. Performance optimizations
+**Month 2:** 8. Create TypeScript equivalents 9. Add validation library 10. Performance optimizations
 
 ### Final Rating:
 
-| Category | Rating | Notes |
-|----------|--------|-------|
-| **Implementation Quality** | ⭐⭐⭐⭐ (4/5) | Well-structured, minor gaps |
-| **Security** | ⭐⭐⭐⭐ (4/5) | Strong, needs headers |
-| **Documentation** | ⭐⭐⭐ (3/5) | Good inline, needs API docs |
-| **Testing** | ⭐ (1/5) | Critical gap |
-| **Performance** | ⭐⭐⭐⭐ (4/5) | Good, can optimize |
-| **Maintainability** | ⭐⭐⭐⭐ (4/5) | Clean code, some duplication |
-| **Overall** | ⭐⭐⭐ (3.5/5) | **GOOD** |
+| Category                   | Rating         | Notes                        |
+| -------------------------- | -------------- | ---------------------------- |
+| **Implementation Quality** | ⭐⭐⭐⭐ (4/5) | Well-structured, minor gaps  |
+| **Security**               | ⭐⭐⭐⭐ (4/5) | Strong, needs headers        |
+| **Documentation**          | ⭐⭐⭐ (3/5)   | Good inline, needs API docs  |
+| **Testing**                | ⭐ (1/5)       | Critical gap                 |
+| **Performance**            | ⭐⭐⭐⭐ (4/5) | Good, can optimize           |
+| **Maintainability**        | ⭐⭐⭐⭐ (4/5) | Clean code, some duplication |
+| **Overall**                | ⭐⭐⭐ (3.5/5) | **GOOD**                     |
 
 ---
 
@@ -1404,14 +1453,10 @@ import {
   RequestLoggingInterceptor,
   getCorrelationId,
   StructuredLogger,
-} from '@shared/middleware/request-logging';
+} from "@shared/middleware/request-logging";
 
 // Error Handling
-import {
-  AppException,
-  HttpExceptionFilter,
-  ErrorCode,
-} from '@shared/errors';
+import { AppException, HttpExceptionFilter, ErrorCode } from "@shared/errors";
 ```
 
 ---

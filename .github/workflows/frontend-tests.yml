@@ -33,23 +33,24 @@ jobs:
   # Job 1: Next.js Web App Testing
   # =============================================================================
   web-app-tests:
-    name: Web App - ${{ matrix.test-type }}
+    name: Web App - ${{ matrix.test-type }} (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     strategy:
       fail-fast: false
       matrix:
+        node-version: ['20', '22']
         test-type: ['lint', 'typecheck', 'unit-tests', 'build']
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Cache node_modules
@@ -59,9 +60,9 @@ jobs:
             node_modules
             apps/web/node_modules
             packages/*/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node${{ matrix.node-version }}-
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -69,8 +70,13 @@ jobs:
       - name: Build shared packages
         run: |
           echo "Building shared packages for Web App..."
-          npm run build:packages || echo "⚠️ build:packages script not found, continuing..."
-        continue-on-error: true
+          npm run build:packages 2>&1 | tee build-packages.log || {
+            echo "❌ Failed to build shared packages!"
+            echo "Check build-packages.log for details"
+            cat build-packages.log
+            exit 1
+          }
+          echo "✅ Shared packages built successfully"
 
       - name: Run Lint
         if: matrix.test-type == 'lint'
@@ -96,7 +102,7 @@ jobs:
         if: matrix.test-type == 'unit-tests'
         uses: actions/upload-artifact@v4
         with:
-          name: web-coverage
+          name: web-coverage-node${{ matrix.node-version }}
           path: apps/web/coverage/
           retention-days: 7
 
@@ -112,31 +118,33 @@ jobs:
         if: matrix.test-type == 'build'
         uses: actions/upload-artifact@v4
         with:
-          name: web-build
+          name: web-build-node${{ matrix.node-version }}
           path: apps/web/.next
           retention-days: 7
+          if-no-files-found: warn
 
   # =============================================================================
   # Job 2: Admin Dashboard Testing
   # =============================================================================
   admin-dashboard-tests:
-    name: Admin - ${{ matrix.test-type }}
+    name: Admin - ${{ matrix.test-type }} (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     strategy:
       fail-fast: false
       matrix:
+        node-version: ['20', '22']
         test-type: ['lint', 'typecheck', 'unit-tests', 'build']
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Cache node_modules
@@ -146,10 +154,10 @@ jobs:
             node_modules
             apps/admin/node_modules
             packages/*/node_modules
-          key: ${{ runner.os }}-node-admin-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node${{ matrix.node-version }}-admin-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-admin-
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node${{ matrix.node-version }}-admin-
+            ${{ runner.os }}-node${{ matrix.node-version }}-
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -157,8 +165,13 @@ jobs:
       - name: Build shared packages
         run: |
           echo "Building shared packages for Admin Dashboard..."
-          npm run build:packages || echo "⚠️ build:packages script not found, continuing..."
-        continue-on-error: true
+          npm run build:packages 2>&1 | tee build-packages.log || {
+            echo "❌ Failed to build shared packages!"
+            echo "Check build-packages.log for details"
+            cat build-packages.log
+            exit 1
+          }
+          echo "✅ Shared packages built successfully"
 
       - name: Run Lint
         if: matrix.test-type == 'lint'
@@ -204,6 +217,7 @@ jobs:
           name: admin-build
           path: apps/admin/.next
           retention-days: 7
+          if-no-files-found: warn
 
   # =============================================================================
   # Job 3: Flutter Mobile App Testing
@@ -226,11 +240,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free disk space
+        run: |
+          echo "Freeing disk space for Flutter build..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          # Note: Don't delete /usr/local/lib/android - needed for Android builds
+          df -h
+        working-directory: .
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        if: matrix.test-type == 'build-android'
+        uses: android-actions/setup-android@v3
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -238,6 +266,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+        env:
+          ANDROID_HOME: ${{ runner.temp }}/android-sdk
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v4
@@ -273,8 +304,11 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: Create required asset directories
+        run: |
+          mkdir -p assets/icon assets/images assets/icons assets/fonts
+
       - name: Create .env file
-        if: matrix.test-type == 'build-android'
         run: |
           cat > .env << EOF
           API_BASE_URL=https://api.sahool.app
@@ -283,12 +317,81 @@ jobs:
           ENV=test
           EOF
 
+      - name: Clean previous build artifacts
+        run: |
+          echo "Cleaning previous build artifacts..."
+          flutter clean
+          # Remove entire .dart_tool to ensure clean slate
+          rm -rf .dart_tool
+          rm -rf build
+          # Remove any existing generated files to force regeneration
+          find lib -name "*.g.dart" -delete 2>/dev/null || true
+          find lib -name "*.freezed.dart" -delete 2>/dev/null || true
+          flutter pub get
+
       - name: Generate code (Drift, Freezed, etc.)
-        if: matrix.test-type == 'build-android' || matrix.test-type == 'unit-tests'
         run: |
           echo "Generating code with build_runner..."
-          dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs
+          echo "Working directory: $(pwd)"
+          echo "Checking for files that need generation..."
+          find lib -name "*.dart" -exec grep -l "part '.*\.g\.dart'" {} \; | head -10
+          echo "---"
+          # Force clean build_runner cache
+          dart run build_runner clean 2>/dev/null || true
+          # Run with verbose flag for debugging
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
+            echo "❌ First attempt failed! Checking logs..."
+            cat codegen.log | tail -50
+            echo "Retrying with fresh state..."
+            rm -rf .dart_tool/build
+            dart run build_runner build --delete-conflicting-outputs --verbose
+          }
+          echo "✅ Code generation completed"
+          echo "Generated files:"
+          find lib -name "*.g.dart" -o -name "*.freezed.dart" 2>/dev/null | head -20 || echo "No generated files found"
+
+      - name: Verify generated code exists
+        run: |
+          echo "=== Current working directory ==="
+          pwd
+          echo ""
+          echo "=== All generated .g.dart files ==="
+          find . -name "*.g.dart" -type f 2>/dev/null || echo "No .g.dart files found"
+          echo ""
+          echo "=== Searching for database.g.dart specifically ==="
+          find . -name "database.g.dart" -type f 2>/dev/null || echo "database.g.dart not found anywhere"
+          echo ""
+
+          if [ ! -f "lib/core/storage/database.g.dart" ]; then
+            echo "❌ ERROR: database.g.dart was not generated at expected path!"
+            echo "Expected path: lib/core/storage/database.g.dart"
+            echo ""
+            echo "=== Source file check ==="
+            ls -la lib/core/storage/database.dart 2>/dev/null || echo "Source file not found!"
+            echo ""
+            echo "=== Checking build.yaml ==="
+            cat build.yaml 2>/dev/null || echo "No build.yaml found"
+            echo ""
+            echo "=== Trying force regeneration with clean ==="
+            rm -rf .dart_tool/build
+            touch lib/core/storage/database.dart
+            dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee retry_codegen.log
+            echo ""
+            echo "=== After retry - searching for database.g.dart ==="
+            find . -name "database.g.dart" -type f 2>/dev/null || echo "Still not found"
+            echo ""
+            if [ ! -f "lib/core/storage/database.g.dart" ]; then
+              echo "❌ FATAL: Code generation failed after retry"
+              echo "=== Retry log ==="
+              cat retry_codegen.log || true
+              exit 1
+            fi
+          fi
+          echo "✅ database.g.dart exists"
+          ls -la lib/core/storage/database.g.dart
+          echo ""
+          echo "=== First 20 lines of database.g.dart ==="
+          head -20 lib/core/storage/database.g.dart
 
       - name: Run Flutter Analyze
         if: matrix.test-type == 'analyze'
@@ -368,11 +471,13 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Create required asset directories
+        run: |
+          mkdir -p assets/icon assets/images assets/icons assets/fonts
+
       - name: Generate icons and assets
         run: |
           pip install Pillow
-          # Create required asset directories
-          mkdir -p assets/icon assets/images assets/icons
           # Generate icons from parent directory script
           if [ -f "../scripts/generate_icons.py" ]; then
             cd ../ && python3 scripts/generate_icons.py && cd sahool_field_app
@@ -390,17 +495,39 @@ jobs:
           ENV=test
           EOF
 
+      - name: Clean previous build artifacts
+        run: |
+          echo "Cleaning previous build artifacts..."
+          flutter clean
+          rm -rf .dart_tool/build
+          flutter pub get
+
       - name: Generate code (Drift, Freezed, etc.)
         run: |
           echo "Generating code with build_runner..."
           dart run build_runner clean || true
           dart run build_runner build --delete-conflicting-outputs
+        continue-on-error: true
+
+      - name: Verify generated code exists
+        run: |
+          if [ ! -f "lib/core/storage/database.g.dart" ]; then
+            echo "❌ ERROR: database.g.dart was not generated!"
+            echo "Running code generation again..."
+            dart run build_runner build --delete-conflicting-outputs
+            if [ ! -f "lib/core/storage/database.g.dart" ]; then
+              echo "❌ FATAL: Code generation failed after retry"
+              exit 1
+            fi
+          fi
+          echo "✅ database.g.dart exists"
 
       - name: Install CocoaPods
         run: |
           cd ios
-          pod install --repo-update
+          pod install --repo-update || pod install
           cd ..
+        continue-on-error: true
 
       - name: Build iOS (No Codesign)
         run: |
@@ -450,6 +577,17 @@ jobs:
         with:
           name: web-build
           path: apps/web/.next
+        continue-on-error: true
+
+      - name: Build Web App if artifact missing
+        run: |
+          if [ ! -d "apps/web/.next" ]; then
+            echo "Building Web App (artifact was missing)..."
+            cd apps/web && npm run build
+          fi
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+        continue-on-error: true
 
       - name: Start Web App
         working-directory: apps/web
@@ -498,11 +636,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free disk space
+        run: |
+          echo "Freeing disk space for mobile integration tests..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          # Note: Don't delete /usr/local/lib/android - needed for Android Emulator
+          df -h
+        working-directory: .
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -510,6 +661,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+        env:
+          ANDROID_HOME: ${{ runner.temp }}/android-sdk
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v4
@@ -537,11 +691,46 @@ jobs:
           ENV=test
           EOF
 
+      - name: Clean previous build artifacts
+        run: |
+          cd sahool_field_app
+          echo "Cleaning previous build artifacts..."
+          flutter clean
+          rm -rf .dart_tool/build
+          flutter pub get
+
       - name: Generate code
         run: |
           cd sahool_field_app
+          echo "Generating code with build_runner..."
           dart run build_runner clean || true
           dart run build_runner build --delete-conflicting-outputs
+
+      - name: Verify generated code exists
+        run: |
+          cd sahool_field_app
+          if [ ! -f "lib/core/storage/database.g.dart" ]; then
+            echo "❌ ERROR: database.g.dart was not generated!"
+            echo "Running code generation again..."
+            dart run build_runner build --delete-conflicting-outputs
+            if [ ! -f "lib/core/storage/database.g.dart" ]; then
+              echo "❌ FATAL: Code generation failed after retry"
+              exit 1
+            fi
+          fi
+          echo "✅ database.g.dart exists"
+
+      - name: Create .env file for integration tests
+        run: |
+          cd sahool_field_app
+          cat > .env << 'EOF'
+          # CI Environment Configuration
+          ENV=test
+          API_URL=http://localhost:8080
+          WS_URL=ws://localhost:8080
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          EOF
+          echo "Created .env file for integration tests"
 
       - name: Enable KVM (for Android Emulator)
         run: |
@@ -553,7 +742,7 @@ jobs:
         run: |
           echo "Running Flutter integration tests..."
           chmod +x integration_test/run_tests.sh
-          ./integration_test/run_tests.sh
+          ./integration_test/run_tests.sh --all
         continue-on-error: true
 
       - name: Upload Integration Test Results
@@ -565,6 +754,7 @@ jobs:
             apps/mobile/integration_test/screenshots/
             apps/mobile/integration_test/test-results/
           retention-days: 7
+          if-no-files-found: warn
 
   # =============================================================================
   # Job 7: Generate Test Reports

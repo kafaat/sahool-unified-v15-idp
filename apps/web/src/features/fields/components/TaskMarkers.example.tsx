@@ -3,13 +3,13 @@
  * مثال على استخدام مكون علامات المهام
  */
 
-'use client';
+"use client";
 
-import { useRef, useEffect } from 'react';
-import { TaskMarkers } from './TaskMarkers';
-import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { useFields } from '../hooks/useFields';
-import { Loader2 } from 'lucide-react';
+import { useRef, useEffect } from "react";
+import { TaskMarkers } from "./TaskMarkers";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
+import { useFields } from "../hooks/useFields";
+import { Loader2 } from "lucide-react";
 
 /**
  * Example 1: Basic Usage with Map
@@ -22,7 +22,7 @@ export function TaskMapExample() {
   const { data: fields = [], isLoading: fieldsLoading } = useFields();
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapContainerRef.current) return;
+    if (typeof window === "undefined" || !mapContainerRef.current) return;
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) return;
@@ -31,8 +31,8 @@ export function TaskMapExample() {
     if (!mapRef.current && mapContainerRef.current) {
       const map = L.map(mapContainerRef.current).setView([15.5527, 48.5164], 6);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
         maxZoom: 19,
       }).addTo(map);
 
@@ -59,7 +59,9 @@ export function TaskMapExample() {
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold">خريطة المهام</h2>
-        <p className="text-sm text-gray-600">عرض {tasks.length} مهمة على الخريطة</p>
+        <p className="text-sm text-gray-600">
+          عرض {tasks.length} مهمة على الخريطة
+        </p>
       </div>
       <div ref={mapContainerRef} className="h-96 w-full" />
       <TaskMarkers tasks={tasks} fields={fields} mapRef={mapRef} />
@@ -78,14 +80,14 @@ export function TaskMapWithoutClusteringExample() {
   const { data: fields = [] } = useFields();
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapContainerRef.current) return;
+    if (typeof window === "undefined" || !mapContainerRef.current) return;
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) return;
 
     if (!mapRef.current && mapContainerRef.current) {
       const map = L.map(mapContainerRef.current).setView([15.5527, 48.5164], 6);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
       }).addTo(map);
       mapRef.current = map;
@@ -112,23 +114,23 @@ export function TaskMapWithoutClusteringExample() {
 export function HighPriorityTaskMapExample() {
   const mapRef = useRef<any>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const { data: allTasks = [] } = useTasks({ priority: 'high' });
+  const { data: allTasks = [] } = useTasks({ priority: "high" });
   const { data: fields = [] } = useFields();
 
   // Filter for high priority tasks only
   const highPriorityTasks = allTasks.filter(
-    (task) => task.priority === 'high' || task.priority === 'urgent'
+    (task) => task.priority === "high" || task.priority === "urgent",
   );
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapContainerRef.current) return;
+    if (typeof window === "undefined" || !mapContainerRef.current) return;
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) return;
 
     if (!mapRef.current && mapContainerRef.current) {
       const map = L.map(mapContainerRef.current).setView([15.5527, 48.5164], 6);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
       }).addTo(map);
       mapRef.current = map;
@@ -138,8 +140,12 @@ export function HighPriorityTaskMapExample() {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="p-4 border-b border-gray-200 bg-red-50">
-        <h2 className="text-lg font-semibold text-red-900">المهام ذات الأولوية العالية</h2>
-        <p className="text-sm text-red-700">{highPriorityTasks.length} مهمة عاجلة</p>
+        <h2 className="text-lg font-semibold text-red-900">
+          المهام ذات الأولوية العالية
+        </h2>
+        <p className="text-sm text-red-700">
+          {highPriorityTasks.length} مهمة عاجلة
+        </p>
       </div>
       <div ref={mapContainerRef} className="h-96 w-full" />
       <TaskMarkers tasks={highPriorityTasks} fields={fields} mapRef={mapRef} />
@@ -158,14 +164,14 @@ export function TaskMapWithCustomClickExample() {
   const { data: fields = [] } = useFields();
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapContainerRef.current) return;
+    if (typeof window === "undefined" || !mapContainerRef.current) return;
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) return;
 
     if (!mapRef.current && mapContainerRef.current) {
       const map = L.map(mapContainerRef.current).setView([15.5527, 48.5164], 6);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
       }).addTo(map);
       mapRef.current = map;
@@ -209,7 +215,7 @@ export function FieldTaskMapExample({ fieldId }: { fieldId: string }) {
   const field = fields.find((f) => f.id === fieldId);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapContainerRef.current) return;
+    if (typeof window === "undefined" || !mapContainerRef.current) return;
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L || !field?.centroid) return;
@@ -217,7 +223,7 @@ export function FieldTaskMapExample({ fieldId }: { fieldId: string }) {
     if (!mapRef.current && mapContainerRef.current) {
       const [lng, lat] = field.centroid.coordinates;
       const map = L.map(mapContainerRef.current).setView([lat, lng], 14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
       }).addTo(map);
       mapRef.current = map;
@@ -227,7 +233,9 @@ export function FieldTaskMapExample({ fieldId }: { fieldId: string }) {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold">مهام الحقل: {field?.nameAr || field?.name}</h2>
+        <h2 className="text-lg font-semibold">
+          مهام الحقل: {field?.nameAr || field?.name}
+        </h2>
         <p className="text-sm text-gray-600">{fieldTasks.length} مهمة</p>
       </div>
       <div ref={mapContainerRef} className="h-96 w-full" />

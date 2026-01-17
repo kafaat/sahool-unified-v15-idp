@@ -1,4 +1,5 @@
 # Migration Guide
+
 # دليل الترحيل
 
 This guide helps you migrate existing SAHOOL backend services to use the new shared error handling module.
@@ -36,9 +37,10 @@ Update your `tsconfig.json`:
 **File:** `src/main.ts`
 
 **Before:**
+
 ```typescript
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -48,10 +50,11 @@ bootstrap();
 ```
 
 **After:**
+
 ```typescript
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from '@sahool/shared/errors';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { HttpExceptionFilter } from "@sahool/shared/errors";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -67,16 +70,18 @@ bootstrap();
 ### Step 3: Replace Exception Imports
 
 **Before:**
+
 ```typescript
 import {
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
   InternalServerErrorException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 ```
 
 **After:**
+
 ```typescript
 import {
   ErrorCode,
@@ -84,7 +89,7 @@ import {
   NotFoundException,
   AuthenticationException,
   InternalServerException,
-} from '@sahool/shared/errors';
+} from "@sahool/shared/errors";
 ```
 
 ### Step 4: Update Exception Throws
@@ -92,6 +97,7 @@ import {
 #### Example 1: Not Found Exceptions
 
 **Before:**
+
 ```typescript
 async getWallet(walletId: string) {
   const wallet = await this.walletRepository.findById(walletId);
@@ -103,6 +109,7 @@ async getWallet(walletId: string) {
 ```
 
 **After:**
+
 ```typescript
 async getWallet(walletId: string) {
   const wallet = await this.walletRepository.findById(walletId);
@@ -116,6 +123,7 @@ async getWallet(walletId: string) {
 #### Example 2: Business Logic Exceptions
 
 **Before:**
+
 ```typescript
 async withdraw(walletId: string, amount: number) {
   if (amount <= 0) {
@@ -133,6 +141,7 @@ async withdraw(walletId: string, amount: number) {
 ```
 
 **After:**
+
 ```typescript
 import { BusinessLogicException } from '@sahool/shared/errors';
 
@@ -154,6 +163,7 @@ async withdraw(walletId: string, amount: number) {
 #### Example 3: Authentication Exceptions
 
 **Before:**
+
 ```typescript
 private extractUserId(headers: any): string {
   const userId = headers['x-user-id'];
@@ -165,6 +175,7 @@ private extractUserId(headers: any): string {
 ```
 
 **After:**
+
 ```typescript
 import { AuthenticationException, ErrorCode } from '@sahool/shared/errors';
 
@@ -180,6 +191,7 @@ private extractUserId(headers: any): string {
 #### Example 4: Validation Exceptions
 
 **Before:**
+
 ```typescript
 async createLoan(data: CreateLoanDto) {
   if (data.amount <= 0 || data.amount > 1000000) {
@@ -192,6 +204,7 @@ async createLoan(data: CreateLoanDto) {
 ```
 
 **After:**
+
 ```typescript
 import { ValidationException, ErrorCode } from '@sahool/shared/errors';
 
@@ -213,6 +226,7 @@ async createLoan(data: CreateLoanDto) {
 ### Step 5: Update Response Format
 
 **Before:**
+
 ```typescript
 @Get(':id')
 async getFarm(@Param('id') id: string) {
@@ -222,6 +236,7 @@ async getFarm(@Param('id') id: string) {
 ```
 
 **After:**
+
 ```typescript
 import { createSuccessResponse } from '@sahool/shared/errors';
 
@@ -239,6 +254,7 @@ async getFarm(@Param('id') id: string) {
 ### Step 6: Update API Documentation
 
 **Before:**
+
 ```typescript
 @ApiResponse({
   status: 404,
@@ -247,6 +263,7 @@ async getFarm(@Param('id') id: string) {
 ```
 
 **After:**
+
 ```typescript
 import { ErrorResponseDto } from '@sahool/shared/errors';
 
@@ -264,33 +281,37 @@ import { ErrorResponseDto } from '@sahool/shared/errors';
 ### Pattern 1: Replace All BadRequestException
 
 **Find:**
+
 ```typescript
-throw new BadRequestException('...');
+throw new BadRequestException("...");
 ```
 
 **Replace with one of:**
+
 ```typescript
 // For validation errors
 throw new ValidationException(ErrorCode.INVALID_INPUT, {
-  en: 'English message',
-  ar: 'الرسالة العربية'
+  en: "English message",
+  ar: "الرسالة العربية",
 });
 
 // For business logic errors
 throw new BusinessLogicException(ErrorCode.BUSINESS_RULE_VIOLATION, {
-  en: 'English message',
-  ar: 'الرسالة العربية'
+  en: "English message",
+  ar: "الرسالة العربية",
 });
 ```
 
 ### Pattern 2: Replace All NotFoundException
 
 **Find:**
+
 ```typescript
-throw new NotFoundException('المحفظة غير موجودة');
+throw new NotFoundException("المحفظة غير موجودة");
 ```
 
 **Replace with:**
+
 ```typescript
 throw NotFoundException.wallet(walletId);
 // or
@@ -300,11 +321,13 @@ throw new NotFoundException(ErrorCode.WALLET_NOT_FOUND);
 ### Pattern 3: Replace All UnauthorizedException
 
 **Find:**
+
 ```typescript
-throw new UnauthorizedException('...');
+throw new UnauthorizedException("...");
 ```
 
 **Replace with:**
+
 ```typescript
 throw new AuthenticationException(ErrorCode.AUTHENTICATION_FAILED);
 // or for specific cases
@@ -314,11 +337,13 @@ throw new AuthenticationException(ErrorCode.TOKEN_EXPIRED);
 ### Pattern 4: Replace All ForbiddenException
 
 **Find:**
+
 ```typescript
-throw new ForbiddenException('...');
+throw new ForbiddenException("...");
 ```
 
 **Replace with:**
+
 ```typescript
 throw new AuthorizationException(ErrorCode.FORBIDDEN);
 // or for specific cases
@@ -334,6 +359,7 @@ throw new AuthorizationException(ErrorCode.INSUFFICIENT_PERMISSIONS);
 **File:** `apps/services/marketplace-service/src/fintech/fintech.service.ts`
 
 **Before:**
+
 ```typescript
 async deposit(walletId: string, amount: number) {
   if (amount <= 0) {
@@ -350,6 +376,7 @@ async deposit(walletId: string, amount: number) {
 ```
 
 **After:**
+
 ```typescript
 import {
   BusinessLogicException,
@@ -375,6 +402,7 @@ async deposit(walletId: string, amount: number) {
 **File:** `apps/services/chat-service/src/chat/chat.controller.ts`
 
 **Before:**
+
 ```typescript
 private extractUserId(headers: any): string {
   const userId = headers['x-user-id'];
@@ -386,6 +414,7 @@ private extractUserId(headers: any): string {
 ```
 
 **After:**
+
 ```typescript
 import { AuthenticationException, ErrorCode } from '@sahool/shared/errors';
 
@@ -426,25 +455,27 @@ After migration, verify:
 Update your tests:
 
 **Before:**
+
 ```typescript
-it('should throw NotFoundException', async () => {
-  await expect(service.findById('invalid')).rejects.toThrow(NotFoundException);
+it("should throw NotFoundException", async () => {
+  await expect(service.findById("invalid")).rejects.toThrow(NotFoundException);
 });
 ```
 
 **After:**
-```typescript
-import { NotFoundException, ErrorCode } from '@sahool/shared/errors';
 
-it('should throw NotFoundException with correct error code', async () => {
+```typescript
+import { NotFoundException, ErrorCode } from "@sahool/shared/errors";
+
+it("should throw NotFoundException with correct error code", async () => {
   try {
-    await service.findById('invalid');
-    fail('Should have thrown NotFoundException');
+    await service.findById("invalid");
+    fail("Should have thrown NotFoundException");
   } catch (error) {
     expect(error).toBeInstanceOf(NotFoundException);
     expect(error.errorCode).toBe(ErrorCode.FARM_NOT_FOUND);
-    expect(error.messageEn).toBe('Farm not found');
-    expect(error.messageAr).toBe('المزرعة غير موجودة');
+    expect(error.messageEn).toBe("Farm not found");
+    expect(error.messageAr).toBe("المزرعة غير موجودة");
   }
 });
 ```
@@ -456,6 +487,7 @@ it('should throw NotFoundException with correct error code', async () => {
 ### Response Format
 
 **Old:**
+
 ```json
 {
   "statusCode": 404,
@@ -464,6 +496,7 @@ it('should throw NotFoundException with correct error code', async () => {
 ```
 
 **New:**
+
 ```json
 {
   "success": false,

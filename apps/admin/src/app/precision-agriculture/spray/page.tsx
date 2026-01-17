@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 // Spray Management - Optimal Application Windows
 // إدارة الرش - نوافذ التطبيق المثلى
 
-import { useEffect, useState } from 'react';
-import Header from '@/components/layout/Header';
-import StatCard from '@/components/ui/StatCard';
-import StatusBadge from '@/components/ui/StatusBadge';
-import { fetchSprayWindows, fetchSprayHistory } from '@/lib/api/precision';
+import { useEffect, useState } from "react";
+import Header from "@/components/layout/Header";
+import StatCard from "@/components/ui/StatCard";
+import StatusBadge from "@/components/ui/StatusBadge";
+import { fetchSprayWindows, fetchSprayHistory } from "@/lib/api/precision";
 import {
   Droplet,
   Wind,
@@ -17,10 +17,10 @@ import {
   AlertTriangle,
   Calendar,
   TrendingUp,
-  Sun
-} from 'lucide-react';
-import { formatDate } from '@/lib/utils';
-import { logger } from '../../../lib/logger';
+  Sun,
+} from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import { logger } from "../../../lib/logger";
 import {
   BarChart,
   Bar,
@@ -31,8 +31,8 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
-} from 'recharts';
+  Cell,
+} from "recharts";
 
 interface SprayWindow {
   id: string;
@@ -40,12 +40,12 @@ interface SprayWindow {
   farmName: string;
   fieldName: string;
   cropType: string;
-  productType: 'pesticide' | 'herbicide' | 'fungicide' | 'fertilizer';
+  productType: "pesticide" | "herbicide" | "fungicide" | "fertilizer";
   productName: string;
   windowStart: string;
   windowEnd: string;
   optimalTime: string;
-  status: 'upcoming' | 'optimal' | 'missed' | 'completed';
+  status: "upcoming" | "optimal" | "missed" | "completed";
   conditions: {
     temperature: number;
     windSpeed: number;
@@ -70,19 +70,19 @@ interface SprayHistory {
 }
 
 const CHART_COLORS = {
-  primary: '#2E7D32',
-  secondary: '#4CAF50',
-  accent: '#81C784',
-  warning: '#FF9800',
+  primary: "#2E7D32",
+  secondary: "#4CAF50",
+  accent: "#81C784",
+  warning: "#FF9800",
 };
 
-const PIE_COLORS = ['#2E7D32', '#4CAF50', '#81C784', '#A5D6A7'];
+const PIE_COLORS = ["#2E7D32", "#4CAF50", "#81C784", "#A5D6A7"];
 
 export default function SprayPage() {
   const [windows, setWindows] = useState<SprayWindow[]>([]);
   const [history, setHistory] = useState<SprayHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'windows' | 'history'>('windows');
+  const [activeTab, setActiveTab] = useState<"windows" | "history">("windows");
 
   useEffect(() => {
     loadData();
@@ -93,59 +93,62 @@ export default function SprayPage() {
     try {
       const [windowsData, historyData] = await Promise.all([
         fetchSprayWindows(),
-        fetchSprayHistory({ limit: 20 })
+        fetchSprayHistory({ limit: 20 }),
       ]);
       setWindows(windowsData);
       setHistory(historyData);
     } catch (error) {
-      logger.error('Failed to load spray data:', error);
+      logger.error("Failed to load spray data:", error);
     } finally {
       setIsLoading(false);
     }
   }
 
   const stats = {
-    upcoming: windows.filter(w => w.status === 'upcoming').length,
-    optimal: windows.filter(w => w.status === 'optimal').length,
-    completed: windows.filter(w => w.status === 'completed').length,
+    upcoming: windows.filter((w) => w.status === "upcoming").length,
+    optimal: windows.filter((w) => w.status === "optimal").length,
+    completed: windows.filter((w) => w.status === "completed").length,
     totalCost: history.reduce((sum, h) => sum + h.cost, 0),
   };
 
-  const productUsage = history.reduce((acc, h) => {
-    const type = h.productType;
-    if (!acc[type]) {
-      acc[type] = { type, quantity: 0, cost: 0 };
-    }
-    acc[type].quantity += h.quantity;
-    acc[type].cost += h.cost;
-    return acc;
-  }, {} as Record<string, { type: string; quantity: number; cost: number }>);
+  const productUsage = history.reduce(
+    (acc, h) => {
+      const type = h.productType;
+      if (!acc[type]) {
+        acc[type] = { type, quantity: 0, cost: 0 };
+      }
+      acc[type].quantity += h.quantity;
+      acc[type].cost += h.cost;
+      return acc;
+    },
+    {} as Record<string, { type: string; quantity: number; cost: number }>,
+  );
 
   const productUsageData = Object.values(productUsage);
 
   const productTypeLabels: Record<string, string> = {
-    pesticide: 'مبيدات حشرية',
-    herbicide: 'مبيدات أعشاب',
-    fungicide: 'مبيدات فطرية',
-    fertilizer: 'أسمدة',
+    pesticide: "مبيدات حشرية",
+    herbicide: "مبيدات أعشاب",
+    fungicide: "مبيدات فطرية",
+    fertilizer: "أسمدة",
   };
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      upcoming: 'bg-blue-100 text-blue-700',
-      optimal: 'bg-green-100 text-green-700',
-      missed: 'bg-red-100 text-red-700',
-      completed: 'bg-gray-100 text-gray-700',
+      upcoming: "bg-blue-100 text-blue-700",
+      optimal: "bg-green-100 text-green-700",
+      missed: "bg-red-100 text-red-700",
+      completed: "bg-gray-100 text-gray-700",
     };
-    return colors[status] || 'bg-gray-100 text-gray-700';
+    return colors[status] || "bg-gray-100 text-gray-700";
   };
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      upcoming: 'قادم',
-      optimal: 'مثالي الآن',
-      missed: 'فات الموعد',
-      completed: 'مكتمل',
+      upcoming: "قادم",
+      optimal: "مثالي الآن",
+      missed: "فات الموعد",
+      completed: "مكتمل",
     };
     return labels[status] || status;
   };
@@ -190,21 +193,21 @@ export default function SprayPage() {
         <div className="border-b border-gray-100">
           <div className="flex">
             <button
-              onClick={() => setActiveTab('windows')}
+              onClick={() => setActiveTab("windows")}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
-                activeTab === 'windows'
-                  ? 'text-sahool-600 border-b-2 border-sahool-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                activeTab === "windows"
+                  ? "text-sahool-600 border-b-2 border-sahool-600"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
               نوافذ الرش القادمة
             </button>
             <button
-              onClick={() => setActiveTab('history')}
+              onClick={() => setActiveTab("history")}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
-                activeTab === 'history'
-                  ? 'text-sahool-600 border-b-2 border-sahool-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                activeTab === "history"
+                  ? "text-sahool-600 border-b-2 border-sahool-600"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
               سجل الرش
@@ -213,7 +216,7 @@ export default function SprayPage() {
         </div>
 
         {/* Windows Tab Content */}
-        {activeTab === 'windows' && (
+        {activeTab === "windows" && (
           <div className="p-6">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
@@ -232,10 +235,16 @@ export default function SprayPage() {
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-bold text-gray-900">{window.farmName}</h3>
-                        <p className="text-sm text-gray-500">{window.fieldName} - {window.cropType}</p>
+                        <h3 className="font-bold text-gray-900">
+                          {window.farmName}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {window.fieldName} - {window.cropType}
+                        </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(window.status)}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(window.status)}`}
+                      >
                         {getStatusLabel(window.status)}
                       </span>
                     </div>
@@ -243,32 +252,46 @@ export default function SprayPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                       <div>
                         <p className="text-xs text-gray-500 mb-1">المنتج</p>
-                        <p className="font-medium text-gray-900 text-sm">{window.productName}</p>
-                        <p className="text-xs text-gray-500">{productTypeLabels[window.productType]}</p>
+                        <p className="font-medium text-gray-900 text-sm">
+                          {window.productName}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {productTypeLabels[window.productType]}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">الوقت المثالي</p>
-                        <p className="font-medium text-gray-900 text-sm">{formatDate(window.optimalTime)}</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          الوقت المثالي
+                        </p>
+                        <p className="font-medium text-gray-900 text-sm">
+                          {formatDate(window.optimalTime)}
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">الحرارة</p>
                         <div className="flex items-center gap-1">
                           <Sun className="w-4 h-4 text-yellow-500" />
-                          <span className="font-medium text-gray-900 text-sm">{window.conditions.temperature}°C</span>
+                          <span className="font-medium text-gray-900 text-sm">
+                            {window.conditions.temperature}°C
+                          </span>
                         </div>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">الرياح</p>
                         <div className="flex items-center gap-1">
                           <Wind className="w-4 h-4 text-blue-500" />
-                          <span className="font-medium text-gray-900 text-sm">{window.conditions.windSpeed} km/h</span>
+                          <span className="font-medium text-gray-900 text-sm">
+                            {window.conditions.windSpeed} km/h
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     {window.recommendationsAr.length > 0 && (
                       <div className="bg-blue-50 rounded-lg p-3">
-                        <p className="text-xs font-medium text-blue-900 mb-2">توصيات:</p>
+                        <p className="text-xs font-medium text-blue-900 mb-2">
+                          توصيات:
+                        </p>
                         <ul className="text-xs text-blue-700 space-y-1">
                           {window.recommendationsAr.map((rec, index) => (
                             <li key={index} className="flex items-start gap-2">
@@ -287,27 +310,40 @@ export default function SprayPage() {
         )}
 
         {/* History Tab Content */}
-        {activeTab === 'history' && (
+        {activeTab === "history" && (
           <div className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
               {/* Product Usage Chart */}
               <div className="lg:col-span-2">
-                <h3 className="font-bold text-gray-900 mb-4">استخدام المنتجات</h3>
+                <h3 className="font-bold text-gray-900 mb-4">
+                  استخدام المنتجات
+                </h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={productUsageData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="type" tick={{ fontSize: 11 }} tickFormatter={(value) => productTypeLabels[value] || value} />
+                      <XAxis
+                        dataKey="type"
+                        tick={{ fontSize: 11 }}
+                        tickFormatter={(value) =>
+                          productTypeLabels[value] || value
+                        }
+                      />
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: '#fff',
-                          border: '1px solid #e0e0e0',
-                          borderRadius: '8px',
-                          direction: 'rtl',
+                          backgroundColor: "#fff",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "8px",
+                          direction: "rtl",
                         }}
                       />
-                      <Bar dataKey="quantity" fill={CHART_COLORS.primary} radius={[4, 4, 0, 0]} name="الكمية (لتر)" />
+                      <Bar
+                        dataKey="quantity"
+                        fill={CHART_COLORS.primary}
+                        radius={[4, 4, 0, 0]}
+                        name="الكمية (لتر)"
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -326,11 +362,16 @@ export default function SprayPage() {
                         cx="50%"
                         cy="50%"
                         outerRadius={80}
-                        label={({ type, percent }) => `${productTypeLabels[type]} ${((percent || 0) * 100).toFixed(0)}%`}
+                        label={({ type, percent }) =>
+                          `${productTypeLabels[type]} ${((percent || 0) * 100).toFixed(0)}%`
+                        }
                         labelLine={false}
                       >
                         {productUsageData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={PIE_COLORS[index % PIE_COLORS.length]}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -345,33 +386,64 @@ export default function SprayPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">المزرعة / الحقل</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">المنتج</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">المساحة</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الكمية</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">التكلفة</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الفعالية</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">التاريخ</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      المزرعة / الحقل
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      المنتج
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      المساحة
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      الكمية
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      التكلفة
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      الفعالية
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      التاريخ
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {history.map((record) => (
-                    <tr key={record.id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={record.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-4 py-3">
                         <div>
-                          <p className="font-medium text-gray-900 text-sm">{record.farmName}</p>
-                          <p className="text-xs text-gray-500">{record.fieldName}</p>
+                          <p className="font-medium text-gray-900 text-sm">
+                            {record.farmName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {record.fieldName}
+                          </p>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div>
-                          <p className="font-medium text-gray-900 text-sm">{record.productName}</p>
-                          <p className="text-xs text-gray-500">{productTypeLabels[record.productType]}</p>
+                          <p className="font-medium text-gray-900 text-sm">
+                            {record.productName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {productTypeLabels[record.productType]}
+                          </p>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{record.area.toFixed(1)} هكتار</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{record.quantity.toFixed(1)} لتر</td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">${record.cost.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">
+                        {record.area.toFixed(1)} هكتار
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900">
+                        {record.quantity.toFixed(1)} لتر
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        ${record.cost.toFixed(2)}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -380,10 +452,14 @@ export default function SprayPage() {
                               style={{ width: `${record.effectiveness}%` }}
                             ></div>
                           </div>
-                          <span className="text-xs text-gray-600">{record.effectiveness}%</span>
+                          <span className="text-xs text-gray-600">
+                            {record.effectiveness}%
+                          </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">{formatDate(record.appliedAt)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-500">
+                        {formatDate(record.appliedAt)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

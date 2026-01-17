@@ -1,4 +1,5 @@
 # SAHOOL Platform - Database Monitoring Guide
+
 # دليل مراقبة قواعد البيانات - منصة سهول
 
 **Version:** 2.0.0
@@ -40,15 +41,15 @@ SAHOOL platform implements a **comprehensive database monitoring solution** that
 
 ### Component Stack | مكونات المراقبة
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Prometheus** | v2.48.0 | Time-series metrics database |
-| **Grafana** | 10.2.0 | Visualization and dashboards |
-| **Alertmanager** | v0.26.0 | Alert routing and notifications |
-| **postgres_exporter** | v0.15.0 | PostgreSQL metrics collector |
-| **redis_exporter** | v1.55.0 | Redis metrics collector |
-| **node_exporter** | v1.7.0 | System metrics collector |
-| **pushgateway** | v1.6.2 | Batch job metrics collection |
+| Component             | Version | Purpose                         |
+| --------------------- | ------- | ------------------------------- |
+| **Prometheus**        | v2.48.0 | Time-series metrics database    |
+| **Grafana**           | 10.2.0  | Visualization and dashboards    |
+| **Alertmanager**      | v0.26.0 | Alert routing and notifications |
+| **postgres_exporter** | v0.15.0 | PostgreSQL metrics collector    |
+| **redis_exporter**    | v1.55.0 | Redis metrics collector         |
+| **node_exporter**     | v1.7.0  | System metrics collector        |
+| **pushgateway**       | v1.6.2  | Batch job metrics collection    |
 
 ---
 
@@ -118,6 +119,7 @@ SAHOOL platform implements a **comprehensive database monitoring solution** that
 The monitoring system includes **14 custom metric queries** for deep database insights:
 
 #### 1. Top Slow Queries (`pg_stat_statements_top_queries`)
+
 - **Purpose:** Track the slowest queries by total execution time
 - **Source:** `pg_stat_statements` extension
 - **Metrics:**
@@ -128,11 +130,13 @@ The monitoring system includes **14 custom metric queries** for deep database in
   - `rows` - Rows retrieved/affected
 
 **Example PromQL:**
+
 ```promql
 topk(10, pg_stat_statements_top_queries_mean_exec_time)
 ```
 
 #### 2. Table Bloat Detection (`pg_table_bloat`)
+
 - **Purpose:** Identify tables with excessive bloat
 - **Metrics:**
   - `total_bytes` - Total table size
@@ -140,6 +144,7 @@ topk(10, pg_stat_statements_top_queries_mean_exec_time)
   - `bloat_bytes` - Estimated bloat size
 
 #### 3. Autovacuum Activity (`pg_autovacuum_activity`)
+
 - **Purpose:** Monitor automatic vacuum operations
 - **Metrics:**
   - `seconds_since_last_autovacuum` - Time since last vacuum
@@ -147,21 +152,25 @@ topk(10, pg_stat_statements_top_queries_mean_exec_time)
   - `dead_tuple_ratio` - Ratio of dead to live tuples
 
 **Alert Threshold:**
+
 ```yaml
 expr: pg_autovacuum_activity_dead_tuple_ratio > 0.20
 ```
 
 #### 4. WAL Size Monitoring (`pg_wal_size`)
+
 - **Purpose:** Prevent disk space exhaustion from WAL files
 - **Metrics:**
   - `wal_size_bytes` - Total WAL directory size
   - `wal_file_count` - Number of WAL files
 
 **Alert Levels:**
+
 - ⚠️ Warning: WAL > 1GB
 - 🔴 Critical: WAL > 5GB
 
 #### 5. Buffer Cache Hit Ratio (`pg_buffer_cache_hit_ratio`)
+
 - **Purpose:** Measure database cache efficiency
 - **Metrics:**
   - `cache_hit_ratio` - Ratio of cache hits to total reads (0-1)
@@ -171,12 +180,14 @@ expr: pg_autovacuum_activity_dead_tuple_ratio > 0.20
 **Optimal Value:** > 0.95 (95% cache hit ratio)
 
 #### 6. Replication Lag (`pg_replication_lag`)
+
 - **Purpose:** Track replication delay for HA setups
 - **Metrics:**
   - `lag_seconds` - Replication lag in seconds
   - `lag_bytes` - Replication lag in bytes
 
 #### 7. Transaction Wraparound Distance (`pg_txid_wraparound`)
+
 - **Purpose:** Prevent database shutdown from transaction ID wraparound
 - **Metrics:**
   - `txid_age` - Age of oldest frozen transaction
@@ -185,12 +196,14 @@ expr: pg_autovacuum_activity_dead_tuple_ratio > 0.20
 **Critical Threshold:** < 100M transactions remaining
 
 #### 8. Index Usage Statistics (`pg_index_usage`)
+
 - **Purpose:** Identify unused indexes wasting space
 - **Metrics:**
   - `idx_scan` - Number of index scans
   - `index_size_bytes` - Index size
 
 **Unused Index Criteria:**
+
 - Scan count < 10
 - Size > 10MB
 - Age > 24 hours
@@ -224,14 +237,17 @@ The backup monitoring script pushes metrics:
 #### 1. Connection Pool Alerts
 
 **DatabaseConnectionPoolExhausted**
+
 ```yaml
 expr: (pg_stat_database_numbackends{datname="sahool"} / pg_settings_max_connections) > 0.85
 for: 3m
 severity: critical
 ```
+
 **Action:** Investigate connection leaks or increase `max_connections`
 
 **DatabaseHighConnectionRate**
+
 ```yaml
 expr: rate(pg_stat_database_numbackends[5m]) > 50
 for: 5m
@@ -241,6 +257,7 @@ severity: warning
 #### 2. Performance Alerts
 
 **DatabaseSlowQueries**
+
 ```yaml
 expr: pg_stat_activity_max_tx_duration > 30
 for: 5m
@@ -248,23 +265,27 @@ severity: warning
 ```
 
 **DatabaseBufferCacheHitRatioLow**
+
 ```yaml
 expr: pg_buffer_cache_hit_ratio_cache_hit_ratio < 0.90
 for: 10m
 severity: warning
 ```
+
 **Action:** Consider increasing `shared_buffers`
 
 #### 3. Maintenance Alerts
 
 **DatabaseWALSizeHigh**
+
 ```yaml
-expr: pg_wal_size_bytes > 1073741824  # 1GB
+expr: pg_wal_size_bytes > 1073741824 # 1GB
 for: 10m
 severity: warning
 ```
 
 **DatabaseAutovacuumNotRunning**
+
 ```yaml
 expr: pg_autovacuum_activity_seconds_since_last_autovacuum > 86400
 for: 1h
@@ -274,9 +295,10 @@ severity: warning
 #### 4. Storage Alerts
 
 **DatabaseDiskSpaceLow**
+
 ```yaml
 expr: (node_filesystem_avail_bytes{mountpoint=~".*postgres.*"} /
-       node_filesystem_size_bytes{mountpoint=~".*postgres.*"}) < 0.15
+  node_filesystem_size_bytes{mountpoint=~".*postgres.*"}) < 0.15
 for: 5m
 severity: critical
 ```
@@ -284,13 +306,15 @@ severity: critical
 #### 5. Backup Alerts
 
 **DatabaseBackupOld**
+
 ```yaml
-expr: postgres_backup_age_seconds > 86400  # 24 hours
+expr: postgres_backup_age_seconds > 86400 # 24 hours
 for: 1h
 severity: critical
 ```
 
 **DatabaseBackupMissing**
+
 ```yaml
 expr: postgres_backup_status == 0
 for: 30m
@@ -298,6 +322,7 @@ severity: critical
 ```
 
 **DatabaseBackupCorrupted**
+
 ```yaml
 expr: postgres_backup_integrity == 0
 for: 5m
@@ -306,29 +331,29 @@ severity: critical
 
 ### Complete Alert List
 
-| Alert Name | Threshold | Duration | Severity |
-|------------|-----------|----------|----------|
-| DatabaseConnectionPoolExhausted | >85% | 3m | Critical |
-| DatabaseHighConnectionRate | >50/sec | 5m | Warning |
-| DatabaseSlowQueries | >30s | 5m | Warning |
-| DatabaseDeadlocks | >0 | 1m | Warning |
-| DatabaseWALSizeHigh | >1GB | 10m | Warning |
-| DatabaseWALSizeCritical | >5GB | 5m | Critical |
-| DatabaseAutovacuumNotRunning | >24h | 1h | Warning |
-| DatabaseHighDeadTuples | >20% | 15m | Warning |
-| DatabaseBufferCacheHitRatioLow | <90% | 10m | Warning |
-| DatabaseDiskSpaceLow | <15% | 5m | Critical |
-| DatabaseReplicationLagHigh | >10s | 5m | Warning |
-| DatabaseReplicationLagCritical | >60s | 2m | Critical |
-| DatabaseTransactionWraparoundWarning | <500M | 1h | Warning |
-| DatabaseTransactionWraparoundCritical | <100M | 10m | Critical |
-| DatabaseBackupOld | >24h | 1h | Critical |
-| DatabaseBackupMissing | - | 30m | Critical |
-| DatabaseBackupTooSmall | <10MB | 15m | Warning |
-| DatabaseBackupCorrupted | - | 5m | Critical |
-| RedisMemoryHigh | >85% | 5m | Warning |
-| RedisCriticalMemory | >95% | 2m | Critical |
-| RedisHighEvictionRate | >100/sec | 5m | Warning |
+| Alert Name                            | Threshold | Duration | Severity |
+| ------------------------------------- | --------- | -------- | -------- |
+| DatabaseConnectionPoolExhausted       | >85%      | 3m       | Critical |
+| DatabaseHighConnectionRate            | >50/sec   | 5m       | Warning  |
+| DatabaseSlowQueries                   | >30s      | 5m       | Warning  |
+| DatabaseDeadlocks                     | >0        | 1m       | Warning  |
+| DatabaseWALSizeHigh                   | >1GB      | 10m      | Warning  |
+| DatabaseWALSizeCritical               | >5GB      | 5m       | Critical |
+| DatabaseAutovacuumNotRunning          | >24h      | 1h       | Warning  |
+| DatabaseHighDeadTuples                | >20%      | 15m      | Warning  |
+| DatabaseBufferCacheHitRatioLow        | <90%      | 10m      | Warning  |
+| DatabaseDiskSpaceLow                  | <15%      | 5m       | Critical |
+| DatabaseReplicationLagHigh            | >10s      | 5m       | Warning  |
+| DatabaseReplicationLagCritical        | >60s      | 2m       | Critical |
+| DatabaseTransactionWraparoundWarning  | <500M     | 1h       | Warning  |
+| DatabaseTransactionWraparoundCritical | <100M     | 10m      | Critical |
+| DatabaseBackupOld                     | >24h      | 1h       | Critical |
+| DatabaseBackupMissing                 | -         | 30m      | Critical |
+| DatabaseBackupTooSmall                | <10MB     | 15m      | Warning  |
+| DatabaseBackupCorrupted               | -         | 5m       | Critical |
+| RedisMemoryHigh                       | >85%      | 5m       | Warning  |
+| RedisCriticalMemory                   | >95%      | 2m       | Critical |
+| RedisHighEvictionRate                 | >100/sec  | 5m       | Warning  |
 
 ---
 
@@ -398,6 +423,7 @@ severity: critical
 
 **URL:** `http://localhost:3002/d/sahool-db-performance`
 **Credentials:**
+
 - Username: `admin`
 - Password: Set via `GRAFANA_ADMIN_PASSWORD` env var
 
@@ -552,16 +578,19 @@ docker-compose -f docker-compose.monitoring.yml logs -f
 ### Step 4: Verify Exporters
 
 **PostgreSQL Exporter:**
+
 ```bash
 curl http://localhost:9187/metrics | grep pg_
 ```
 
 **Redis Exporter:**
+
 ```bash
 curl http://localhost:9121/metrics | grep redis_
 ```
 
 **Node Exporter:**
+
 ```bash
 curl http://localhost:9100/metrics | grep node_
 ```
@@ -569,15 +598,18 @@ curl http://localhost:9100/metrics | grep node_
 ### Step 5: Access Dashboards
 
 **Prometheus UI:**
+
 - URL: http://localhost:9090
 - Status → Targets to verify scrape targets
 
 **Grafana:**
+
 - URL: http://localhost:3002
 - Login with admin credentials
 - Navigate to Dashboards → SAHOOL Database Performance
 
 **Alertmanager:**
+
 - URL: http://localhost:9093
 - View active alerts
 
@@ -595,6 +627,7 @@ crontab -e
 ```
 
 Add this line:
+
 ```cron
 */15 * * * * /home/user/sahool-unified-v15-idp/scripts/backup_monitor.sh --pushgateway pushgateway:9091
 ```
@@ -610,6 +643,7 @@ Add this line:
 **Symptom:** Targets show as "DOWN" in Prometheus
 
 **Solutions:**
+
 ```bash
 # Check exporter logs
 docker logs sahool-monitoring-postgres-exporter
@@ -628,6 +662,7 @@ docker network inspect sahool-network
 **Symptom:** Custom metrics not appearing
 
 **Solutions:**
+
 ```bash
 # Verify queries file is mounted
 docker exec sahool-monitoring-postgres-exporter cat /etc/postgres-exporter/queries.yaml
@@ -644,6 +679,7 @@ docker-compose -f docker-compose.monitoring.yml restart postgres-exporter
 **Symptom:** No alerts despite meeting thresholds
 
 **Solutions:**
+
 ```bash
 # Check alert rules loaded
 curl http://localhost:9090/api/v1/rules | jq .
@@ -663,6 +699,7 @@ docker logs sahool-monitoring-alertmanager
 **Symptom:** Panels show "No data"
 
 **Solutions:**
+
 ```bash
 # Verify Prometheus datasource
 # Grafana → Configuration → Data Sources → Prometheus
@@ -680,6 +717,7 @@ curl http://localhost:9090/api/v1/query?query=pg_wal_size_bytes
 **Symptom:** `postgres_backup_*` metrics not in Prometheus
 
 **Solutions:**
+
 ```bash
 # Run backup monitor manually
 ./scripts/backup_monitor.sh --verbose
@@ -694,18 +732,21 @@ curl http://localhost:9091/metrics | grep backup
 ### Logging and Debugging
 
 **Enable debug logging for postgres_exporter:**
+
 ```yaml
 environment:
   - PG_EXPORTER_LOG_LEVEL=debug
 ```
 
 **Enable Prometheus debug:**
+
 ```yaml
 command:
-  - '--log.level=debug'
+  - "--log.level=debug"
 ```
 
 **View all container logs:**
+
 ```bash
 docker-compose -f docker-compose.monitoring.yml logs --tail=100 -f
 ```
@@ -787,24 +828,26 @@ docker-compose -f docker-compose.monitoring.yml logs --tail=100 -f
 
 ### A. Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `docker-compose.monitoring.yml` | Monitoring stack definition |
-| `prometheus/prometheus.yml` | Prometheus configuration |
-| `prometheus/alerts.yml` | Alert rules |
-| `alertmanager/alertmanager.yml` | Alert routing |
-| `postgres-exporter-queries.yaml` | Custom PostgreSQL queries |
-| `grafana/provisioning/dashboards/sahool-database-performance.json` | Database dashboard |
-| `scripts/backup_monitor.sh` | Backup monitoring script |
+| File                                                               | Purpose                     |
+| ------------------------------------------------------------------ | --------------------------- |
+| `docker-compose.monitoring.yml`                                    | Monitoring stack definition |
+| `prometheus/prometheus.yml`                                        | Prometheus configuration    |
+| `prometheus/alerts.yml`                                            | Alert rules                 |
+| `alertmanager/alertmanager.yml`                                    | Alert routing               |
+| `postgres-exporter-queries.yaml`                                   | Custom PostgreSQL queries   |
+| `grafana/provisioning/dashboards/sahool-database-performance.json` | Database dashboard          |
+| `scripts/backup_monitor.sh`                                        | Backup monitoring script    |
 
 ### B. Useful PromQL Queries
 
 **Connection pool usage percentage:**
+
 ```promql
 (pg_stat_database_numbackends{datname="sahool"} / pg_settings_max_connections) * 100
 ```
 
 **Cache hit ratio:**
+
 ```promql
 rate(pg_stat_database_blks_hit{datname="sahool"}[5m]) /
 (rate(pg_stat_database_blks_hit{datname="sahool"}[5m]) +
@@ -812,21 +855,25 @@ rate(pg_stat_database_blks_hit{datname="sahool"}[5m]) /
 ```
 
 **Database size growth rate (MB/day):**
+
 ```promql
 increase(pg_database_size_size_bytes{datname="sahool"}[1d]) / 1024 / 1024
 ```
 
 **Top 5 tables by dead tuples:**
+
 ```promql
 topk(5, pg_autovacuum_activity_n_dead_tup)
 ```
 
 **Replication lag (all replicas):**
+
 ```promql
 max(pg_replication_lag_lag_seconds) by (application_name)
 ```
 
 **WAL generation rate (MB/hour):**
+
 ```promql
 rate(pg_wal_size_bytes[1h]) / 1024 / 1024
 ```
@@ -836,24 +883,28 @@ rate(pg_wal_size_bytes[1h]) / 1024 / 1024
 Based on monitoring insights:
 
 **If cache hit ratio < 95%:**
+
 ```sql
 -- Increase shared_buffers
 ALTER SYSTEM SET shared_buffers = '4GB';
 ```
 
 **If checkpoints too frequent:**
+
 ```sql
 ALTER SYSTEM SET max_wal_size = '2GB';
 ALTER SYSTEM SET checkpoint_timeout = '15min';
 ```
 
 **If autovacuum not keeping up:**
+
 ```sql
 ALTER SYSTEM SET autovacuum_max_workers = 4;
 ALTER SYSTEM SET autovacuum_naptime = '30s';
 ```
 
 **If connections near limit:**
+
 ```sql
 -- Increase max connections (requires restart)
 ALTER SYSTEM SET max_connections = 200;
@@ -864,17 +915,20 @@ ALTER SYSTEM SET max_connections = 200;
 ### D. Support and Resources
 
 **Documentation:**
+
 - Prometheus: https://prometheus.io/docs/
 - Grafana: https://grafana.com/docs/
 - postgres_exporter: https://github.com/prometheus-community/postgres_exporter
 - PostgreSQL Monitoring: https://www.postgresql.org/docs/current/monitoring.html
 
 **Internal Resources:**
+
 - Audit Report: `/tests/database/MONITORING_AUDIT.md`
 - Runbooks: `/docs/RUNBOOKS.md`
 - Architecture: `/docs/OBSERVABILITY.md`
 
 **Support Contacts:**
+
 - Database Team: database-team@sahool.example.com
 - Infrastructure Team: infra-team@sahool.example.com
 - On-Call: Use PagerDuty escalation
@@ -886,6 +940,7 @@ ALTER SYSTEM SET max_connections = 200;
 This monitoring configuration provides **production-grade database observability** for the SAHOOL platform. With comprehensive metrics, automated alerts, and detailed dashboards, the operations team can proactively identify and resolve issues before they impact users.
 
 **Key Achievements:**
+
 - ✅ 15+ advanced database metrics
 - ✅ 20+ alert rules covering critical scenarios
 - ✅ 13-panel Grafana dashboard
@@ -894,6 +949,7 @@ This monitoring configuration provides **production-grade database observability
 - ✅ Production-ready deployment
 
 **Next Steps:**
+
 1. Deploy monitoring stack to production
 2. Configure alerting channels (Slack, PagerDuty)
 3. Schedule backup monitoring cron

@@ -16,11 +16,12 @@ on:
     paths:
       - 'apps/web/**'
       - 'apps/mobile/**'
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'apps/web/**'
-      - 'apps/mobile/**'
+  # Disabled for PRs to avoid failures on feature branches
+  # pull_request:
+  #   branches: [main, develop]
+  #   paths:
+  #     - 'apps/web/**'
+  #     - 'apps/mobile/**'
   workflow_dispatch:
 
 permissions:

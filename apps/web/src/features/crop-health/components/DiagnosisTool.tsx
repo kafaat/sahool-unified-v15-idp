@@ -3,61 +3,76 @@
  * أداة تشخيص الأمراض
  */
 
-'use client';
+"use client";
 
-import React, { useState, useCallback } from 'react';
-import { Upload, X, Camera, FileImage, AlertCircle, Loader2 } from 'lucide-react';
-import { useCreateDiagnosis, useUploadDiagnosisImages } from '../hooks/useCropHealth';
-import { logger } from '@/lib/logger';
+import React, { useState, useCallback } from "react";
+import {
+  Upload,
+  X,
+  Camera,
+  FileImage,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import {
+  useCreateDiagnosis,
+  useUploadDiagnosisImages,
+} from "../hooks/useCropHealth";
+import { logger } from "@/lib/logger";
 
 interface DiagnosisToolProps {
   onDiagnosisCreated?: (diagnosisId: string) => void;
 }
 
-export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated }) => {
+export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
+  onDiagnosisCreated,
+}) => {
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [cropType, setCropType] = useState('');
-  const [fieldId, setFieldId] = useState('');
-  const [description, setDescription] = useState('');
-  const [descriptionAr, setDescriptionAr] = useState('');
+  const [cropType, setCropType] = useState("");
+  const [fieldId, setFieldId] = useState("");
+  const [description, setDescription] = useState("");
+  const [descriptionAr, setDescriptionAr] = useState("");
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [symptomsAr, setSymptomsAr] = useState<string[]>([]);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const uploadImages = useUploadDiagnosisImages();
   const createDiagnosis = useCreateDiagnosis();
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length === 0) return;
 
-    // Validate file types
-    const validFiles = files.filter((file) => file.type.startsWith('image/'));
-    if (validFiles.length !== files.length) {
-      setError('يرجى تحميل صور فقط');
-      return;
-    }
+      // Validate file types
+      const validFiles = files.filter((file) => file.type.startsWith("image/"));
+      if (validFiles.length !== files.length) {
+        setError("يرجى تحميل صور فقط");
+        return;
+      }
 
-    // Limit to 5 images
-    const totalImages = images.length + validFiles.length;
-    if (totalImages > 5) {
-      setError('الحد الأقصى 5 صور');
-      return;
-    }
+      // Limit to 5 images
+      const totalImages = images.length + validFiles.length;
+      if (totalImages > 5) {
+        setError("الحد الأقصى 5 صور");
+        return;
+      }
 
-    setError('');
-    setImages((prev) => [...prev, ...validFiles]);
+      setError("");
+      setImages((prev) => [...prev, ...validFiles]);
 
-    // Create previews
-    validFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviews((prev) => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  }, [images.length]);
+      // Create previews
+      validFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviews((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+    [images.length],
+  );
 
   const handleRemoveImage = useCallback((index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
@@ -66,16 +81,16 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     // Validation
     if (images.length === 0) {
-      setError('يرجى تحميل صورة واحدة على الأقل');
+      setError("يرجى تحميل صورة واحدة على الأقل");
       return;
     }
 
     if (!cropType) {
-      setError('يرجى اختيار نوع المحصول');
+      setError("يرجى اختيار نوع المحصول");
       return;
     }
 
@@ -98,10 +113,10 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
       // Reset form
       setImages([]);
       setPreviews([]);
-      setCropType('');
-      setFieldId('');
-      setDescription('');
-      setDescriptionAr('');
+      setCropType("");
+      setFieldId("");
+      setDescription("");
+      setDescriptionAr("");
       setSymptoms([]);
       setSymptomsAr([]);
 
@@ -110,7 +125,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
         onDiagnosisCreated(diagnosis.id);
       }
     } catch (err) {
-      setError('حدث خطأ أثناء إنشاء التشخيص');
+      setError("حدث خطأ أثناء إنشاء التشخيص");
       logger.error(err);
     }
   };
@@ -118,28 +133,29 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
   const isLoading = uploadImages.isPending || createDiagnosis.isPending;
 
   const cropTypes = [
-    { value: 'wheat', label: 'Wheat', labelAr: 'قمح' },
-    { value: 'corn', label: 'Corn', labelAr: 'ذرة' },
-    { value: 'rice', label: 'Rice', labelAr: 'أرز' },
-    { value: 'tomato', label: 'Tomato', labelAr: 'طماطم' },
-    { value: 'potato', label: 'Potato', labelAr: 'بطاطس' },
-    { value: 'cucumber', label: 'Cucumber', labelAr: 'خيار' },
-    { value: 'pepper', label: 'Pepper', labelAr: 'فلفل' },
-    { value: 'eggplant', label: 'Eggplant', labelAr: 'باذنجان' },
-    { value: 'dates', label: 'Dates', labelAr: 'تمور' },
-    { value: 'olive', label: 'Olive', labelAr: 'زيتون' },
+    { value: "wheat", label: "Wheat", labelAr: "قمح" },
+    { value: "corn", label: "Corn", labelAr: "ذرة" },
+    { value: "rice", label: "Rice", labelAr: "أرز" },
+    { value: "tomato", label: "Tomato", labelAr: "طماطم" },
+    { value: "potato", label: "Potato", labelAr: "بطاطس" },
+    { value: "cucumber", label: "Cucumber", labelAr: "خيار" },
+    { value: "pepper", label: "Pepper", labelAr: "فلفل" },
+    { value: "eggplant", label: "Eggplant", labelAr: "باذنجان" },
+    { value: "dates", label: "Dates", labelAr: "تمور" },
+    { value: "olive", label: "Olive", labelAr: "زيتون" },
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6" dir="rtl">
+    <div
+      className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+      dir="rtl"
+    >
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Camera className="w-6 h-6 text-green-500" />
           تشخيص الأمراض بالذكاء الاصطناعي
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
-          AI Crop Disease Diagnosis
-        </p>
+        <p className="text-sm text-gray-600 mt-1">AI Crop Disease Diagnosis</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -237,10 +253,10 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
             onClick={() => {
               setImages([]);
               setPreviews([]);
-              setCropType('');
-              setDescription('');
-              setDescriptionAr('');
-              setError('');
+              setCropType("");
+              setDescription("");
+              setDescriptionAr("");
+              setError("");
             }}
             className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
             disabled={isLoading}

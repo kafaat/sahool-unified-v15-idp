@@ -58,15 +58,15 @@ docker compose logs --since 2024-01-15T10:00:00 field_ops
 
 ### Health Check Endpoints
 
-| Service | Health URL | Ready URL |
-|---------|-----------|-----------|
-| field_ops | :8080/healthz | :8080/readyz |
-| ndvi_engine | :8097/healthz | :8097/readyz |
+| Service      | Health URL    | Ready URL    |
+| ------------ | ------------- | ------------ |
+| field_ops    | :8080/healthz | :8080/readyz |
+| ndvi_engine  | :8097/healthz | :8097/readyz |
 | weather_core | :8098/healthz | :8098/readyz |
-| field_chat | :8099/healthz | :8099/readyz |
-| iot_gateway | :8094/healthz | :8094/readyz |
+| field_chat   | :8099/healthz | :8099/readyz |
+| iot_gateway  | :8094/healthz | :8094/readyz |
 | agro_advisor | :8095/healthz | :8095/readyz |
-| ws_gateway | :8090/healthz | :8090/readyz |
+| ws_gateway   | :8090/healthz | :8090/readyz |
 
 ### Health Check Script
 
@@ -200,12 +200,14 @@ docker exec sahool-redis redis-cli KEYS "session:*" | xargs docker exec sahool-r
 **Symptoms**: Container exits immediately
 
 **Diagnosis**:
+
 ```bash
 docker compose logs field_ops --tail=50
 docker inspect sahool-field-ops --format='{{.State.ExitCode}}'
 ```
 
 **Common Causes**:
+
 1. Database not ready - wait for postgres healthcheck
 2. Missing environment variables
 3. Port already in use
@@ -215,6 +217,7 @@ docker inspect sahool-field-ops --format='{{.State.ExitCode}}'
 **Symptoms**: "connection refused" or timeout
 
 **Diagnosis**:
+
 ```bash
 # Check postgres is running
 docker compose ps postgres
@@ -224,6 +227,7 @@ docker exec sahool-field-ops nc -zv postgres 5432
 ```
 
 **Solutions**:
+
 1. Restart postgres: `docker compose restart postgres`
 2. Check network: `docker network inspect sahool-network`
 
@@ -232,12 +236,14 @@ docker exec sahool-field-ops nc -zv postgres 5432
 **Symptoms**: OOM kills, slow responses
 
 **Diagnosis**:
+
 ```bash
 docker stats
 docker compose top
 ```
 
 **Solutions**:
+
 1. Increase container limits in docker-compose.yml
 2. Add more replicas for load distribution
 3. Check for memory leaks in logs
@@ -247,12 +253,14 @@ docker compose top
 **Symptoms**: Events not flowing
 
 **Diagnosis**:
+
 ```bash
 curl http://localhost:8222/connz
 docker compose logs nats --tail=50
 ```
 
 **Solutions**:
+
 1. Restart NATS: `docker compose restart nats`
 2. Check JetStream is enabled
 3. Verify network connectivity
@@ -309,11 +317,13 @@ docker exec sahool-redis redis-cli CONFIG SET maxmemory-policy allkeys-lru
 ### Complete System Recovery
 
 1. **Stop all services**
+
    ```bash
    docker compose down
    ```
 
 2. **Restore database**
+
    ```bash
    docker compose up -d postgres
    sleep 10
@@ -321,12 +331,14 @@ docker exec sahool-redis redis-cli CONFIG SET maxmemory-policy allkeys-lru
    ```
 
 3. **Restore NATS streams** (if backed up)
+
    ```bash
    docker compose up -d nats
    nats stream restore /backups/nats/
    ```
 
 4. **Start all services**
+
    ```bash
    docker compose up -d
    ```

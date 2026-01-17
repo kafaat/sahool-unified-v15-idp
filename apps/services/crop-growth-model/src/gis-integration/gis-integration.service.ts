@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GIS Integration Service - خدمة تكامل نظم المعلومات الجغرافية
@@ -7,12 +7,18 @@ import { Injectable } from '@nestjs/common';
 
 // GeoJSON Feature types
 export interface GeoJSONGeometry {
-  type: 'Point' | 'LineString' | 'Polygon' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon';
+  type:
+    | "Point"
+    | "LineString"
+    | "Polygon"
+    | "MultiPoint"
+    | "MultiLineString"
+    | "MultiPolygon";
   coordinates: number[] | number[][] | number[][][] | number[][][][];
 }
 
 export interface GeoJSONFeature {
-  type: 'Feature';
+  type: "Feature";
   id?: string | number;
   geometry: GeoJSONGeometry;
   properties: Record<string, any>;
@@ -20,7 +26,7 @@ export interface GeoJSONFeature {
 }
 
 export interface GeoJSONFeatureCollection {
-  type: 'FeatureCollection';
+  type: "FeatureCollection";
   features: GeoJSONFeature[];
   bbox?: number[];
   crs?: { type: string; properties: { name: string } };
@@ -31,7 +37,7 @@ export interface LayerConfig {
   id: string;
   name: string;
   nameAr: string;
-  type: 'vector' | 'raster' | 'wms' | 'wmts';
+  type: "vector" | "raster" | "wms" | "wmts";
   source: string;
   workspace?: string;
   style?: string;
@@ -85,10 +91,17 @@ export interface FieldBoundary {
 
 // Spatial query types
 export interface SpatialQuery {
-  operation: 'intersects' | 'contains' | 'within' | 'overlaps' | 'touches' | 'buffer' | 'union';
+  operation:
+    | "intersects"
+    | "contains"
+    | "within"
+    | "overlaps"
+    | "touches"
+    | "buffer"
+    | "union";
   geometry?: GeoJSONGeometry;
   distance?: number;
-  unit?: 'meters' | 'kilometers' | 'miles';
+  unit?: "meters" | "kilometers" | "miles";
   targetLayer?: string;
   properties?: string[];
 }
@@ -197,122 +210,135 @@ export class GISIntegrationService {
     minY: 16.0,
     maxX: 56.0,
     maxY: 32.0,
-    srs: 'EPSG:4326',
+    srs: "EPSG:4326",
   };
 
   // Agricultural layers catalog
   private readonly agriculturalLayers: LayerConfig[] = [
     {
-      id: 'fields',
-      name: 'Agricultural Fields',
-      nameAr: 'الحقول الزراعية',
-      type: 'vector',
-      source: 'postgis://sahool/agricultural_fields',
-      workspace: 'sahool',
-      style: 'agricultural_fields_style',
+      id: "fields",
+      name: "Agricultural Fields",
+      nameAr: "الحقول الزراعية",
+      type: "vector",
+      source: "postgis://sahool/agricultural_fields",
+      workspace: "sahool",
+      style: "agricultural_fields_style",
       visible: true,
       opacity: 0.8,
       metadata: {
-        title: 'Agricultural Field Boundaries',
-        abstract: 'Boundaries of registered agricultural fields',
-        keywords: ['agriculture', 'fields', 'boundaries', 'crops'],
+        title: "Agricultural Field Boundaries",
+        abstract: "Boundaries of registered agricultural fields",
+        keywords: ["agriculture", "fields", "boundaries", "crops"],
         spatialExtent: this.regionExtent,
-        updateFrequency: 'daily',
+        updateFrequency: "daily",
       },
     },
     {
-      id: 'ndvi',
-      name: 'NDVI Index',
-      nameAr: 'مؤشر الغطاء النباتي',
-      type: 'raster',
-      source: 'sentinel-2-ndvi',
+      id: "ndvi",
+      name: "NDVI Index",
+      nameAr: "مؤشر الغطاء النباتي",
+      type: "raster",
+      source: "sentinel-2-ndvi",
       visible: true,
       opacity: 0.7,
       metadata: {
-        title: 'Normalized Difference Vegetation Index',
-        abstract: 'NDVI derived from Sentinel-2 imagery',
-        keywords: ['ndvi', 'vegetation', 'sentinel-2', 'remote sensing'],
+        title: "Normalized Difference Vegetation Index",
+        abstract: "NDVI derived from Sentinel-2 imagery",
+        keywords: ["ndvi", "vegetation", "sentinel-2", "remote sensing"],
         spatialExtent: this.regionExtent,
-        updateFrequency: 'weekly',
+        updateFrequency: "weekly",
       },
     },
     {
-      id: 'soil',
-      name: 'Soil Types',
-      nameAr: 'أنواع التربة',
-      type: 'vector',
-      source: 'postgis://sahool/soil_types',
+      id: "soil",
+      name: "Soil Types",
+      nameAr: "أنواع التربة",
+      type: "vector",
+      source: "postgis://sahool/soil_types",
       visible: false,
       opacity: 0.6,
       metadata: {
-        title: 'Soil Classification Map',
-        abstract: 'Soil types and characteristics',
-        keywords: ['soil', 'classification', 'agriculture'],
+        title: "Soil Classification Map",
+        abstract: "Soil types and characteristics",
+        keywords: ["soil", "classification", "agriculture"],
         spatialExtent: this.regionExtent,
-        updateFrequency: 'yearly',
+        updateFrequency: "yearly",
       },
     },
     {
-      id: 'irrigation',
-      name: 'Irrigation Networks',
-      nameAr: 'شبكات الري',
-      type: 'vector',
-      source: 'postgis://sahool/irrigation_networks',
+      id: "irrigation",
+      name: "Irrigation Networks",
+      nameAr: "شبكات الري",
+      type: "vector",
+      source: "postgis://sahool/irrigation_networks",
       visible: false,
       opacity: 0.8,
       metadata: {
-        title: 'Irrigation Infrastructure',
-        abstract: 'Irrigation canals, wells, and distribution networks',
-        keywords: ['irrigation', 'water', 'infrastructure'],
+        title: "Irrigation Infrastructure",
+        abstract: "Irrigation canals, wells, and distribution networks",
+        keywords: ["irrigation", "water", "infrastructure"],
         spatialExtent: this.regionExtent,
-        updateFrequency: 'monthly',
+        updateFrequency: "monthly",
       },
     },
     {
-      id: 'weather_stations',
-      name: 'Weather Stations',
-      nameAr: 'محطات الطقس',
-      type: 'vector',
-      source: 'postgis://sahool/weather_stations',
+      id: "weather_stations",
+      name: "Weather Stations",
+      nameAr: "محطات الطقس",
+      type: "vector",
+      source: "postgis://sahool/weather_stations",
       visible: true,
       opacity: 1.0,
       metadata: {
-        title: 'Weather Monitoring Stations',
-        abstract: 'Location and data from weather stations',
-        keywords: ['weather', 'stations', 'monitoring', 'climate'],
+        title: "Weather Monitoring Stations",
+        abstract: "Location and data from weather stations",
+        keywords: ["weather", "stations", "monitoring", "climate"],
         spatialExtent: this.regionExtent,
-        updateFrequency: 'hourly',
+        updateFrequency: "hourly",
       },
     },
   ];
 
   // Basemap options
-  private readonly basemaps: Map<string, { url: string; attribution: string }> = new Map([
-    ['osm', {
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '© OpenStreetMap contributors',
-    }],
-    ['satellite', {
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      attribution: '© Esri',
-    }],
-    ['terrain', {
-      url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-      attribution: '© OpenTopoMap',
-    }],
-    ['arabic', {
-      url: 'https://mt1.google.com/vt/lyrs=m@224&hl=ar&x={x}&y={y}&z={z}',
-      attribution: '© Google',
-    }],
-  ]);
+  private readonly basemaps: Map<string, { url: string; attribution: string }> =
+    new Map([
+      [
+        "osm",
+        {
+          url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          attribution: "© OpenStreetMap contributors",
+        },
+      ],
+      [
+        "satellite",
+        {
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          attribution: "© Esri",
+        },
+      ],
+      [
+        "terrain",
+        {
+          url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+          attribution: "© OpenTopoMap",
+        },
+      ],
+      [
+        "arabic",
+        {
+          url: "https://mt1.google.com/vt/lyrs=m@224&hl=ar&x={x}&y={y}&z={z}",
+          attribution: "© Google",
+        },
+      ],
+    ]);
 
   // Coordinate systems
   private readonly supportedSRS: string[] = [
-    'EPSG:4326',   // WGS 84
-    'EPSG:3857',   // Web Mercator
-    'EPSG:32637',  // UTM Zone 37N (Saudi Arabia East)
-    'EPSG:32638',  // UTM Zone 38N (Saudi Arabia East)
-    'EPSG:32639',  // UTM Zone 39N (Gulf Region)
+    "EPSG:4326", // WGS 84
+    "EPSG:3857", // Web Mercator
+    "EPSG:32637", // UTM Zone 37N (Saudi Arabia East)
+    "EPSG:32638", // UTM Zone 38N (Saudi Arabia East)
+    "EPSG:32639", // UTM Zone 39N (Gulf Region)
   ];
 
   /**
@@ -328,23 +354,31 @@ export class GISIntegrationService {
     supportedSRS: string[];
   } {
     return {
-      name: 'GIS Integration Service',
-      nameAr: 'خدمة تكامل نظم المعلومات الجغرافية',
-      version: '1.0.0',
+      name: "GIS Integration Service",
+      nameAr: "خدمة تكامل نظم المعلومات الجغرافية",
+      version: "1.0.0",
       capabilities: [
-        'OGC WMS - Web Map Service',
-        'OGC WFS - Web Feature Service',
-        'OGC WMTS - Web Map Tile Service',
-        'GeoJSON import/export',
-        'Spatial queries (PostGIS)',
-        'Field boundary management',
-        'Zonal statistics',
-        'Route planning (PgRouting)',
-        'Multi-CRS support',
-        'Agricultural layer catalog',
+        "OGC WMS - Web Map Service",
+        "OGC WFS - Web Feature Service",
+        "OGC WMTS - Web Map Tile Service",
+        "GeoJSON import/export",
+        "Spatial queries (PostGIS)",
+        "Field boundary management",
+        "Zonal statistics",
+        "Route planning (PgRouting)",
+        "Multi-CRS support",
+        "Agricultural layer catalog",
       ],
-      basedOn: ['GeoSuite', 'QCarta', 'GeoServer', 'PostGIS', 'PgRouting'],
-      supportedFormats: ['GeoJSON', 'GML', 'KML', 'Shapefile', 'GeoTIFF', 'WKT', 'WKB'],
+      basedOn: ["GeoSuite", "QCarta", "GeoServer", "PostGIS", "PgRouting"],
+      supportedFormats: [
+        "GeoJSON",
+        "GML",
+        "KML",
+        "Shapefile",
+        "GeoTIFF",
+        "WKT",
+        "WKB",
+      ],
       supportedSRS: this.supportedSRS,
     };
   }
@@ -364,7 +398,7 @@ export class GISIntegrationService {
    * Get layer by ID
    */
   getLayer(layerId: string): LayerConfig | undefined {
-    return this.agriculturalLayers.find(l => l.id === layerId);
+    return this.agriculturalLayers.find((l) => l.id === layerId);
   }
 
   /**
@@ -376,9 +410,11 @@ export class GISIntegrationService {
     services: LayerConfig[];
   } {
     return {
-      vector: this.agriculturalLayers.filter(l => l.type === 'vector'),
-      raster: this.agriculturalLayers.filter(l => l.type === 'raster'),
-      services: this.agriculturalLayers.filter(l => l.type === 'wms' || l.type === 'wmts'),
+      vector: this.agriculturalLayers.filter((l) => l.type === "vector"),
+      raster: this.agriculturalLayers.filter((l) => l.type === "raster"),
+      services: this.agriculturalLayers.filter(
+        (l) => l.type === "wms" || l.type === "wmts",
+      ),
     };
   }
 
@@ -391,19 +427,19 @@ export class GISIntegrationService {
    */
   getWMSCapabilities(): WMSCapabilities {
     return {
-      version: '1.3.0',
-      title: 'SAHOOL Agricultural WMS',
-      abstract: 'Web Map Service for SAHOOL Agricultural Platform',
-      layers: this.agriculturalLayers.map(layer => ({
+      version: "1.3.0",
+      title: "SAHOOL Agricultural WMS",
+      abstract: "Web Map Service for SAHOOL Agricultural Platform",
+      layers: this.agriculturalLayers.map((layer) => ({
         name: layer.id,
         title: layer.name,
-        abstract: layer.metadata?.abstract || '',
+        abstract: layer.metadata?.abstract || "",
         srs: this.supportedSRS,
         boundingBox: layer.metadata?.spatialExtent || this.regionExtent,
-        styles: [{ name: 'default', title: 'Default Style' }],
-        queryable: layer.type === 'vector',
+        styles: [{ name: "default", title: "Default Style" }],
+        queryable: layer.type === "vector",
       })),
-      formats: ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'],
+      formats: ["image/png", "image/jpeg", "image/gif", "image/svg+xml"],
       srs: this.supportedSRS,
     };
   }
@@ -421,18 +457,18 @@ export class GISIntegrationService {
     styles?: string[];
     transparent?: boolean;
   }): string {
-    const baseUrl = '/gis/wms';
+    const baseUrl = "/gis/wms";
     const queryParams = new URLSearchParams({
-      SERVICE: 'WMS',
-      VERSION: '1.3.0',
-      REQUEST: 'GetMap',
-      LAYERS: params.layers.join(','),
+      SERVICE: "WMS",
+      VERSION: "1.3.0",
+      REQUEST: "GetMap",
+      LAYERS: params.layers.join(","),
       BBOX: `${params.bbox.minX},${params.bbox.minY},${params.bbox.maxX},${params.bbox.maxY}`,
       WIDTH: params.width.toString(),
       HEIGHT: params.height.toString(),
-      FORMAT: params.format || 'image/png',
-      CRS: params.srs || 'EPSG:4326',
-      STYLES: params.styles?.join(',') || '',
+      FORMAT: params.format || "image/png",
+      CRS: params.srs || "EPSG:4326",
+      STYLES: params.styles?.join(",") || "",
       TRANSPARENT: (params.transparent !== false).toString(),
     });
 
@@ -455,12 +491,12 @@ export class GISIntegrationService {
 
     for (const layerId of params.layers) {
       const layer = this.getLayer(layerId);
-      if (layer && layer.type === 'vector') {
+      if (layer && layer.type === "vector") {
         features.push({
-          type: 'Feature',
+          type: "Feature",
           id: `${layerId}_sample`,
           geometry: {
-            type: 'Point',
+            type: "Point",
             coordinates: [params.point.x, params.point.y],
           },
           properties: {
@@ -469,8 +505,8 @@ export class GISIntegrationService {
             layerNameAr: layer.nameAr,
             queryPoint: params.point,
             // Sample data
-            fieldId: 'F001',
-            cropType: 'wheat',
+            fieldId: "F001",
+            cropType: "wheat",
             area: 45.5,
             ndvi: 0.72,
           },
@@ -479,11 +515,11 @@ export class GISIntegrationService {
     }
 
     return {
-      type: 'FeatureCollection',
+      type: "FeatureCollection",
       features,
       crs: {
-        type: 'name',
-        properties: { name: params.srs || 'EPSG:4326' },
+        type: "name",
+        properties: { name: params.srs || "EPSG:4326" },
       },
     };
   }
@@ -497,19 +533,19 @@ export class GISIntegrationService {
    */
   getWFSCapabilities(): WFSCapabilities {
     return {
-      version: '2.0.0',
-      title: 'SAHOOL Agricultural WFS',
+      version: "2.0.0",
+      title: "SAHOOL Agricultural WFS",
       featureTypes: this.agriculturalLayers
-        .filter(l => l.type === 'vector')
-        .map(layer => ({
+        .filter((l) => l.type === "vector")
+        .map((layer) => ({
           name: layer.id,
           title: layer.name,
-          abstract: layer.metadata?.abstract || '',
-          srs: 'EPSG:4326',
+          abstract: layer.metadata?.abstract || "",
+          srs: "EPSG:4326",
           boundingBox: layer.metadata?.spatialExtent || this.regionExtent,
           keywords: layer.metadata?.keywords || [],
         })),
-      outputFormats: ['application/json', 'application/gml+xml', 'text/xml'],
+      outputFormats: ["application/json", "application/gml+xml", "text/xml"],
     };
   }
 
@@ -531,16 +567,23 @@ export class GISIntegrationService {
     const maxFeatures = params.maxFeatures || 100;
 
     // Sample agricultural fields
-    if (params.typeName === 'fields') {
+    if (params.typeName === "fields") {
       for (let i = 0; i < Math.min(5, maxFeatures); i++) {
         features.push(this.generateSampleField(i));
       }
     }
 
     return {
-      type: 'FeatureCollection',
+      type: "FeatureCollection",
       features,
-      bbox: params.bbox ? [params.bbox.minX, params.bbox.minY, params.bbox.maxX, params.bbox.maxY] : undefined,
+      bbox: params.bbox
+        ? [
+            params.bbox.minX,
+            params.bbox.minY,
+            params.bbox.maxX,
+            params.bbox.maxY,
+          ]
+        : undefined,
     };
   }
 
@@ -548,35 +591,37 @@ export class GISIntegrationService {
    * Generate sample field feature
    */
   private generateSampleField(index: number): GeoJSONFeature {
-    const baseLat = 24.7 + (index * 0.1);
-    const baseLng = 46.7 + (index * 0.1);
-    const size = 0.02 + (Math.random() * 0.03);
+    const baseLat = 24.7 + index * 0.1;
+    const baseLng = 46.7 + index * 0.1;
+    const size = 0.02 + Math.random() * 0.03;
 
     return {
-      type: 'Feature',
+      type: "Feature",
       id: `field_${index + 1}`,
       geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [baseLng, baseLat],
-          [baseLng + size, baseLat],
-          [baseLng + size, baseLat + size],
-          [baseLng, baseLat + size],
-          [baseLng, baseLat],
-        ]],
+        type: "Polygon",
+        coordinates: [
+          [
+            [baseLng, baseLat],
+            [baseLng + size, baseLat],
+            [baseLng + size, baseLat + size],
+            [baseLng, baseLat + size],
+            [baseLng, baseLat],
+          ],
+        ],
       },
       properties: {
-        id: `F${String(index + 1).padStart(3, '0')}`,
+        id: `F${String(index + 1).padStart(3, "0")}`,
         name: `Field ${index + 1}`,
         nameAr: `حقل ${index + 1}`,
         farmId: `FARM${Math.floor(index / 3) + 1}`,
-        cropType: ['wheat', 'barley', 'date_palm', 'alfalfa'][index % 4],
-        areaHectares: Math.round((size * size * 111 * 111) * 100) / 100,
-        soilType: ['loamy', 'sandy', 'clay'][index % 3],
-        irrigationType: ['drip', 'sprinkler', 'flood'][index % 3],
+        cropType: ["wheat", "barley", "date_palm", "alfalfa"][index % 4],
+        areaHectares: Math.round(size * size * 111 * 111 * 100) / 100,
+        soilType: ["loamy", "sandy", "clay"][index % 3],
+        irrigationType: ["drip", "sprinkler", "flood"][index % 3],
         ndviCurrent: Math.round((0.4 + Math.random() * 0.4) * 100) / 100,
-        plantingDate: '2024-11-15',
-        status: 'active',
+        plantingDate: "2024-11-15",
+        status: "active",
       },
     };
   }
@@ -594,15 +639,21 @@ export class GISIntegrationService {
     const features: GeoJSONFeature[] = [];
 
     switch (query.operation) {
-      case 'buffer':
+      case "buffer":
         if (query.geometry && query.distance) {
-          features.push(this.createBuffer(query.geometry, query.distance, query.unit || 'meters'));
+          features.push(
+            this.createBuffer(
+              query.geometry,
+              query.distance,
+              query.unit || "meters",
+            ),
+          );
         }
         break;
 
-      case 'intersects':
-      case 'contains':
-      case 'within':
+      case "intersects":
+      case "contains":
+      case "within":
         // Simulate spatial query results
         for (let i = 0; i < 3; i++) {
           features.push(this.generateSampleField(i));
@@ -621,19 +672,26 @@ export class GISIntegrationService {
   /**
    * Create buffer around geometry
    */
-  private createBuffer(geometry: GeoJSONGeometry, distance: number, unit: string): GeoJSONFeature {
+  private createBuffer(
+    geometry: GeoJSONGeometry,
+    distance: number,
+    unit: string,
+  ): GeoJSONFeature {
     // Convert distance to degrees (approximate)
-    const distanceDegrees = unit === 'kilometers' ? distance / 111 :
-                           unit === 'miles' ? distance / 69 :
-                           distance / 111000; // meters
+    const distanceDegrees =
+      unit === "kilometers"
+        ? distance / 111
+        : unit === "miles"
+          ? distance / 69
+          : distance / 111000; // meters
 
     // Simplified buffer for point
-    if (geometry.type === 'Point') {
+    if (geometry.type === "Point") {
       const [lng, lat] = geometry.coordinates as number[];
       const bufferCoords: number[][] = [];
 
       for (let i = 0; i <= 36; i++) {
-        const angle = (i * 10) * Math.PI / 180;
+        const angle = (i * 10 * Math.PI) / 180;
         bufferCoords.push([
           lng + distanceDegrees * Math.cos(angle),
           lat + distanceDegrees * Math.sin(angle),
@@ -641,13 +699,13 @@ export class GISIntegrationService {
       }
 
       return {
-        type: 'Feature',
+        type: "Feature",
         geometry: {
-          type: 'Polygon',
+          type: "Polygon",
           coordinates: [bufferCoords],
         },
         properties: {
-          operation: 'buffer',
+          operation: "buffer",
           distance,
           unit,
           originalGeometry: geometry.type,
@@ -657,13 +715,13 @@ export class GISIntegrationService {
 
     // Return original geometry with buffer flag for complex geometries
     return {
-      type: 'Feature',
+      type: "Feature",
       geometry,
       properties: {
-        operation: 'buffer',
+        operation: "buffer",
         distance,
         unit,
-        note: 'Complex buffer requires PostGIS',
+        note: "Complex buffer requires PostGIS",
       },
     };
   }
@@ -676,8 +734,10 @@ export class GISIntegrationService {
       return this.regionExtent;
     }
 
-    let minX = Infinity, minY = Infinity;
-    let maxX = -Infinity, maxY = -Infinity;
+    let minX = Infinity,
+      minY = Infinity;
+    let maxX = -Infinity,
+      maxY = -Infinity;
 
     for (const feature of features) {
       const coords = this.flattenCoordinates(feature.geometry.coordinates);
@@ -689,20 +749,20 @@ export class GISIntegrationService {
       }
     }
 
-    return { minX, minY, maxX, maxY, srs: 'EPSG:4326' };
+    return { minX, minY, maxX, maxY, srs: "EPSG:4326" };
   }
 
   /**
    * Flatten nested coordinates
    */
   private flattenCoordinates(coords: any): number[][] {
-    if (typeof coords[0] === 'number') {
+    if (typeof coords[0] === "number") {
       return [coords as number[]];
     }
-    if (typeof coords[0][0] === 'number') {
+    if (typeof coords[0][0] === "number") {
       return coords as number[][];
     }
-    return coords.flat(10).filter((c: any) => typeof c[0] === 'number');
+    return coords.flat(10).filter((c: any) => typeof c[0] === "number");
   }
 
   // ═══════════════════════════════════════════════════════════════════════════════
@@ -740,7 +800,7 @@ export class GISIntegrationService {
       currentCrop: input.currentCrop,
       metadata: {
         createdAt: new Date().toISOString(),
-        source: 'user_input',
+        source: "user_input",
       },
     };
   }
@@ -749,14 +809,15 @@ export class GISIntegrationService {
    * Calculate area in hectares
    */
   calculateArea(geometry: GeoJSONGeometry): number {
-    if (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon') {
+    if (geometry.type !== "Polygon" && geometry.type !== "MultiPolygon") {
       return 0;
     }
 
     // Simplified shoelace formula for polygon area
-    const coords = geometry.type === 'Polygon'
-      ? geometry.coordinates[0] as number[][]
-      : (geometry.coordinates[0] as number[][][])[0];
+    const coords =
+      geometry.type === "Polygon"
+        ? (geometry.coordinates[0] as number[][])
+        : (geometry.coordinates[0] as number[][][])[0];
 
     let area = 0;
     for (let i = 0; i < coords.length - 1; i++) {
@@ -775,19 +836,22 @@ export class GISIntegrationService {
    * Calculate perimeter in kilometers
    */
   calculatePerimeter(geometry: GeoJSONGeometry): number {
-    if (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon') {
+    if (geometry.type !== "Polygon" && geometry.type !== "MultiPolygon") {
       return 0;
     }
 
-    const coords = geometry.type === 'Polygon'
-      ? geometry.coordinates[0] as number[][]
-      : (geometry.coordinates[0] as number[][][])[0];
+    const coords =
+      geometry.type === "Polygon"
+        ? (geometry.coordinates[0] as number[][])
+        : (geometry.coordinates[0] as number[][][])[0];
 
     let perimeter = 0;
     for (let i = 0; i < coords.length - 1; i++) {
       perimeter += this.haversineDistance(
-        coords[i][1], coords[i][0],
-        coords[i + 1][1], coords[i + 1][0]
+        coords[i][1],
+        coords[i][0],
+        coords[i + 1][1],
+        coords[i + 1][0],
       );
     }
 
@@ -811,13 +875,21 @@ export class GISIntegrationService {
   /**
    * Haversine distance in kilometers
    */
-  private haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  private haversineDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
     const R = 6371; // Earth's radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
@@ -832,12 +904,12 @@ export class GISIntegrationService {
   calculateZonalStatistics(params: {
     zones: GeoJSONFeatureCollection;
     rasterLayer: string;
-    statistics: ('count' | 'sum' | 'mean' | 'min' | 'max' | 'std')[];
+    statistics: ("count" | "sum" | "mean" | "min" | "max" | "std")[];
   }): ZonalStatistics[] {
     const results: ZonalStatistics[] = [];
 
     for (const zone of params.zones.features) {
-      const zoneId = zone.id?.toString() || 'unknown';
+      const zoneId = zone.id?.toString() || "unknown";
       const area = this.calculateArea(zone.geometry);
 
       // Simulate statistics based on zone area
@@ -872,7 +944,7 @@ export class GISIntegrationService {
     // Create route geometry
     const coordinates: number[][] = [
       [origin.lng, origin.lat],
-      ...waypoints.map(wp => [wp.lng, wp.lat]),
+      ...waypoints.map((wp) => [wp.lng, wp.lat]),
       [destination.lng, destination.lat],
     ];
 
@@ -880,8 +952,10 @@ export class GISIntegrationService {
     let totalDistance = 0;
     for (let i = 0; i < coordinates.length - 1; i++) {
       totalDistance += this.haversineDistance(
-        coordinates[i][1], coordinates[i][0],
-        coordinates[i + 1][1], coordinates[i + 1][0]
+        coordinates[i][1],
+        coordinates[i][0],
+        coordinates[i + 1][1],
+        coordinates[i + 1][0],
       );
     }
 
@@ -890,7 +964,7 @@ export class GISIntegrationService {
 
     return {
       geometry: {
-        type: 'LineString',
+        type: "LineString",
         coordinates,
       },
       distance: Math.round(totalDistance * 100) / 100,
@@ -902,31 +976,36 @@ export class GISIntegrationService {
   /**
    * Generate route instructions
    */
-  private generateRouteInstructions(coordinates: number[][]): RouteInstruction[] {
+  private generateRouteInstructions(
+    coordinates: number[][],
+  ): RouteInstruction[] {
     const instructions: RouteInstruction[] = [];
 
     instructions.push({
-      type: 'start',
-      text: 'ابدأ من نقطة الانطلاق',
+      type: "start",
+      text: "ابدأ من نقطة الانطلاق",
       distance: 0,
       duration: 0,
     });
 
     for (let i = 0; i < coordinates.length - 1; i++) {
       const distance = this.haversineDistance(
-        coordinates[i][1], coordinates[i][0],
-        coordinates[i + 1][1], coordinates[i + 1][0]
+        coordinates[i][1],
+        coordinates[i][0],
+        coordinates[i + 1][1],
+        coordinates[i + 1][0],
       );
 
       instructions.push({
-        type: i === coordinates.length - 2 ? 'arrive' : 'continue',
-        text: i === coordinates.length - 2
-          ? 'وصلت إلى الوجهة'
-          : `استمر ${Math.round(distance * 10) / 10} كم`,
+        type: i === coordinates.length - 2 ? "arrive" : "continue",
+        text:
+          i === coordinates.length - 2
+            ? "وصلت إلى الوجهة"
+            : `استمر ${Math.round(distance * 10) / 10} كم`,
         distance: Math.round(distance * 100) / 100,
         duration: Math.round((distance / 60) * 60),
         geometry: {
-          type: 'LineString',
+          type: "LineString",
           coordinates: [coordinates[i], coordinates[i + 1]],
         },
       });
@@ -954,7 +1033,7 @@ export class GISIntegrationService {
     owner: string;
   }): MapProject {
     const selectedLayers = input.layers
-      .map(id => this.getLayer(id))
+      .map((id) => this.getLayer(id))
       .filter((l): l is LayerConfig => l !== undefined);
 
     return {
@@ -963,7 +1042,7 @@ export class GISIntegrationService {
       nameAr: input.nameAr,
       description: input.description,
       layers: selectedLayers,
-      basemap: input.basemap || 'satellite',
+      basemap: input.basemap || "satellite",
       center: input.center || { lat: 24.7, lng: 46.7 },
       zoom: input.zoom || 10,
       extent: this.regionExtent,
@@ -977,7 +1056,12 @@ export class GISIntegrationService {
   /**
    * Get available basemaps
    */
-  getBasemaps(): { id: string; name: string; url: string; attribution: string }[] {
+  getBasemaps(): {
+    id: string;
+    name: string;
+    url: string;
+    attribution: string;
+  }[] {
     return Array.from(this.basemaps.entries()).map(([id, config]) => ({
       id,
       name: id.charAt(0).toUpperCase() + id.slice(1),
@@ -996,35 +1080,42 @@ export class GISIntegrationService {
     const errors: string[] = [];
 
     if (!geojson) {
-      errors.push('GeoJSON object is null or undefined');
+      errors.push("GeoJSON object is null or undefined");
       return { valid: false, errors };
     }
 
     if (!geojson.type) {
-      errors.push('Missing type property');
+      errors.push("Missing type property");
     }
 
-    if (geojson.type === 'Feature') {
+    if (geojson.type === "Feature") {
       if (!geojson.geometry) {
-        errors.push('Feature missing geometry');
+        errors.push("Feature missing geometry");
       }
       if (!geojson.properties) {
-        errors.push('Feature missing properties');
+        errors.push("Feature missing properties");
       }
     }
 
-    if (geojson.type === 'FeatureCollection') {
+    if (geojson.type === "FeatureCollection") {
       if (!Array.isArray(geojson.features)) {
-        errors.push('FeatureCollection features must be an array');
+        errors.push("FeatureCollection features must be an array");
       }
     }
 
     const validGeometryTypes = [
-      'Point', 'LineString', 'Polygon',
-      'MultiPoint', 'MultiLineString', 'MultiPolygon',
+      "Point",
+      "LineString",
+      "Polygon",
+      "MultiPoint",
+      "MultiLineString",
+      "MultiPolygon",
     ];
 
-    if (geojson.geometry && !validGeometryTypes.includes(geojson.geometry.type)) {
+    if (
+      geojson.geometry &&
+      !validGeometryTypes.includes(geojson.geometry.type)
+    ) {
       errors.push(`Invalid geometry type: ${geojson.geometry.type}`);
     }
 
@@ -1040,21 +1131,23 @@ export class GISIntegrationService {
   transformCoordinates(
     coordinates: number[],
     fromSRS: string,
-    toSRS: string
+    toSRS: string,
   ): number[] {
     // For EPSG:4326 to EPSG:3857 (Web Mercator)
-    if (fromSRS === 'EPSG:4326' && toSRS === 'EPSG:3857') {
+    if (fromSRS === "EPSG:4326" && toSRS === "EPSG:3857") {
       const [lng, lat] = coordinates;
-      const x = lng * 20037508.34 / 180;
-      const y = Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180);
-      return [x, y * 20037508.34 / 180];
+      const x = (lng * 20037508.34) / 180;
+      const y =
+        Math.log(Math.tan(((90 + lat) * Math.PI) / 360)) / (Math.PI / 180);
+      return [x, (y * 20037508.34) / 180];
     }
 
     // For EPSG:3857 to EPSG:4326
-    if (fromSRS === 'EPSG:3857' && toSRS === 'EPSG:4326') {
+    if (fromSRS === "EPSG:3857" && toSRS === "EPSG:4326") {
       const [x, y] = coordinates;
-      const lng = x * 180 / 20037508.34;
-      const lat = Math.atan(Math.exp(y * Math.PI / 20037508.34)) * 360 / Math.PI - 90;
+      const lng = (x * 180) / 20037508.34;
+      const lat =
+        (Math.atan(Math.exp((y * Math.PI) / 20037508.34)) * 360) / Math.PI - 90;
       return [lng, lat];
     }
 
@@ -1073,7 +1166,7 @@ export class GISIntegrationService {
     }
 
     return {
-      type: 'FeatureCollection',
+      type: "FeatureCollection",
       features,
       bbox: [46.5, 24.5, 47.0, 25.0],
     };

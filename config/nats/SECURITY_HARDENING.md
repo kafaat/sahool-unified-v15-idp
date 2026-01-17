@@ -12,26 +12,28 @@ This document describes the comprehensive security hardening implemented for the
 
 ### Security Improvements
 
-| Feature | Before | After | Impact |
-|---------|--------|-------|--------|
-| **TLS Enforcement** | Optional | Required (verify_and_map: true) | 🔴 Critical |
-| **JetStream Encryption** | None | AES-256 at rest | 🔴 Critical |
-| **Rate Limiting** | None | Per-user limits | 🟠 High |
-| **System Account** | Not configured | Dedicated monitoring account | 🟠 High |
-| **Cluster Security** | Not configured | TLS + authentication ready | 🟡 Medium |
-| **Authorization** | Basic | Granular subject-level | ✅ Enhanced |
-| **Connection Limits** | Global only | Per-user + per-IP | ✅ Enhanced |
+| Feature                  | Before         | After                           | Impact      |
+| ------------------------ | -------------- | ------------------------------- | ----------- |
+| **TLS Enforcement**      | Optional       | Required (verify_and_map: true) | 🔴 Critical |
+| **JetStream Encryption** | None           | AES-256 at rest                 | 🔴 Critical |
+| **Rate Limiting**        | None           | Per-user limits                 | 🟠 High     |
+| **System Account**       | Not configured | Dedicated monitoring account    | 🟠 High     |
+| **Cluster Security**     | Not configured | TLS + authentication ready      | 🟡 Medium   |
+| **Authorization**        | Basic          | Granular subject-level          | ✅ Enhanced |
+| **Connection Limits**    | Global only    | Per-user + per-IP               | ✅ Enhanced |
 
 ---
 
 ## 1. Configuration Files
 
 ### Primary Configuration
+
 - **Production Config:** `/config/nats/nats-secure.conf` (Hardened)
 - **Legacy Config:** `/config/nats/nats.conf` (Original)
 - **Certificates:** `/config/certs/nats/`
 
 ### Environment Variables
+
 All credentials are managed via environment variables in `/config/base.env`:
 
 ```bash
@@ -66,6 +68,7 @@ NATS_JETSTREAM_KEY=<generate-with-script>
 ### 2.1 TLS Enforcement ✅
 
 **Implementation:**
+
 ```conf
 tls {
     cert_file: "/etc/nats/certs/server.crt"
@@ -85,12 +88,14 @@ tls {
 ```
 
 **Benefits:**
+
 - All client connections MUST use TLS
 - No plaintext credentials transmission
 - Modern cipher suites only (no weak ciphers)
 - Minimum TLS 1.2 enforced
 
 **Client Connection:**
+
 ```bash
 # Old (insecure - now rejected)
 nats://user:password@nats:4222
@@ -102,6 +107,7 @@ tls://user:password@nats:4222?tls_verify=true
 ### 2.2 JetStream Encryption at Rest ✅
 
 **Implementation:**
+
 ```conf
 jetstream {
     store_dir: /data
@@ -113,12 +119,14 @@ jetstream {
 ```
 
 **Benefits:**
+
 - All persisted messages encrypted with AES-256
 - Encryption key managed via environment variable
 - Protects data at rest from disk access
 - Meets compliance requirements (SOC 2, GDPR)
 
 **Key Generation:**
+
 ```bash
 openssl rand -base64 32
 ```
@@ -126,6 +134,7 @@ openssl rand -base64 32
 ### 2.3 Rate Limiting & Connection Limits ✅
 
 **Implementation:**
+
 ```conf
 # Admin User Limits
 connection_limits = {
@@ -158,6 +167,7 @@ max_pending_size: 64MB
 ```
 
 **Benefits:**
+
 - Prevents resource exhaustion attacks
 - Limits blast radius of compromised credentials
 - Enforces fair resource usage
@@ -166,6 +176,7 @@ max_pending_size: 64MB
 ### 2.4 System Account for Monitoring ✅
 
 **Implementation:**
+
 ```conf
 system_account: SYS
 
@@ -182,12 +193,14 @@ accounts {
 ```
 
 **Benefits:**
+
 - Dedicated account for NATS internal metrics
 - Enables advanced monitoring and observability
 - Separates operational traffic from application traffic
 - Foundation for Prometheus/Grafana integration
 
 **Monitoring Endpoints:**
+
 ```bash
 # Server stats
 curl http://localhost:8222/varz
@@ -205,6 +218,7 @@ curl -u $NATS_SYSTEM_USER:$NATS_SYSTEM_PASSWORD http://localhost:8222/accountz
 ### 2.5 Cluster Security (HA Ready) ✅
 
 **Implementation:**
+
 ```conf
 cluster {
     name: sahool-cluster
@@ -231,12 +245,14 @@ cluster {
 ```
 
 **Benefits:**
+
 - Secure inter-node communication
 - Prevents unauthorized cluster joining
 - Ready for 3-node HA deployment
 - TLS-encrypted cluster traffic
 
 **HA Deployment (Future):**
+
 ```yaml
 # docker-compose.cluster.yml
 services:
@@ -259,10 +275,12 @@ services:
 ### 2.6 Enhanced Authorization ✅
 
 **Account-Based Isolation:**
+
 - `SYS` account: System monitoring (isolated)
 - `APP` account: Application services (isolated)
 
 **Granular Permissions:**
+
 ```conf
 # Application user - subject-level control
 permissions = {
@@ -292,6 +310,7 @@ permissions = {
 ```
 
 **Monitor User (Read-Only):**
+
 ```conf
 permissions = {
     publish = {
@@ -394,29 +413,29 @@ Update NATS client connection:
 
 ```typescript
 // packages/shared-events/src/nats-client.ts
-import { connect, NatsConnection, ConnectionOptions } from 'nats';
+import { connect, NatsConnection, ConnectionOptions } from "nats";
 
 const options: ConnectionOptions = {
-    servers: [process.env.NATS_URL || 'tls://nats:4222'],
+  servers: [process.env.NATS_URL || "tls://nats:4222"],
 
-    // ⭐ NEW: TLS configuration
-    tls: {
-        caFile: '/etc/nats/certs/ca.crt',
-        certFile: '/etc/nats/certs/server.crt',
-        keyFile: '/etc/nats/certs/server.key',
-    },
+  // ⭐ NEW: TLS configuration
+  tls: {
+    caFile: "/etc/nats/certs/ca.crt",
+    certFile: "/etc/nats/certs/server.crt",
+    keyFile: "/etc/nats/certs/server.key",
+  },
 
-    // Authentication
-    user: process.env.NATS_USER,
-    pass: process.env.NATS_PASSWORD,
+  // Authentication
+  user: process.env.NATS_USER,
+  pass: process.env.NATS_PASSWORD,
 
-    // Connection settings
-    maxReconnectAttempts: -1,
-    reconnectTimeWait: 2000,
-    timeout: 10000,
+  // Connection settings
+  maxReconnectAttempts: -1,
+  reconnectTimeWait: 2000,
+  timeout: 10000,
 
-    // NEW: Connection name for monitoring
-    name: `${process.env.SERVICE_NAME || 'app'}-${process.pid}`,
+  // NEW: Connection name for monitoring
+  name: `${process.env.SERVICE_NAME || "app"}-${process.pid}`,
 };
 
 const nc: NatsConnection = await connect(options);
@@ -517,13 +536,13 @@ services:
 
 ### 5.3 Key Metrics to Monitor
 
-| Metric | Alert Threshold | Action |
-|--------|----------------|--------|
-| `nats_varz_connections` | > 900 | Scale NATS or investigate |
-| `nats_varz_slow_consumers` | > 10 | Investigate slow services |
-| `nats_jetstream_storage_used` | > 80% | Increase limits or archive |
-| `nats_varz_cpu` | > 80% | Scale or optimize |
-| `nats_varz_mem` | > 90% | Increase memory limits |
+| Metric                        | Alert Threshold | Action                     |
+| ----------------------------- | --------------- | -------------------------- |
+| `nats_varz_connections`       | > 900           | Scale NATS or investigate  |
+| `nats_varz_slow_consumers`    | > 10            | Investigate slow services  |
+| `nats_jetstream_storage_used` | > 80%           | Increase limits or archive |
+| `nats_varz_cpu`               | > 80%           | Scale or optimize          |
+| `nats_varz_mem`               | > 90%           | Increase memory limits     |
 
 ---
 
@@ -572,11 +591,11 @@ accounts {
 
 ```typescript
 // TypeScript
-import { connect } from 'nats';
+import { connect } from "nats";
 
 const nc = await connect({
-    servers: ['tls://nats:4222'],
-    userCreds: '/etc/nats/creds/app_service.creds',
+  servers: ["tls://nats:4222"],
+  userCreds: "/etc/nats/creds/app_service.creds",
 });
 ```
 
@@ -634,6 +653,7 @@ openssl s_client -connect localhost:4222 -showcerts
 ### 7.3 Incident Response
 
 **Compromised Credentials:**
+
 1. Immediately rotate affected credentials
 2. Review NATS logs for unauthorized access
 3. Check message subjects for data exfiltration
@@ -648,6 +668,7 @@ docker logs sahool-nats | grep -E "PUB|SUB" | tail -1000
 ```
 
 **Service Failure:**
+
 1. Check NATS health: `curl http://localhost:8222/healthz`
 2. Review logs: `docker logs sahool-nats --tail=100`
 3. Check disk space: `df -h /var/lib/docker/volumes/sahool-nats-data`
@@ -659,14 +680,14 @@ docker logs sahool-nats | grep -E "PUB|SUB" | tail -1000
 
 ### 8.1 Security Controls Implemented
 
-| Control | Standard | Implementation | Evidence |
-|---------|----------|----------------|----------|
-| **Encryption in Transit** | SOC 2, PCI-DSS | TLS 1.2+ required | Config: `verify_and_map: true` |
-| **Encryption at Rest** | SOC 2, GDPR | AES-256 JetStream | Config: `cipher: "aes"` |
-| **Access Control** | SOC 2, ISO 27001 | Account-based RBAC | Config: `accounts {...}` |
-| **Rate Limiting** | OWASP | Per-user limits | Config: `connection_limits` |
-| **Audit Logging** | SOC 2 | Server events | Logs: `/var/log/nats` |
-| **Credential Management** | CIS | Env variables | No hardcoded secrets |
+| Control                   | Standard         | Implementation     | Evidence                       |
+| ------------------------- | ---------------- | ------------------ | ------------------------------ |
+| **Encryption in Transit** | SOC 2, PCI-DSS   | TLS 1.2+ required  | Config: `verify_and_map: true` |
+| **Encryption at Rest**    | SOC 2, GDPR      | AES-256 JetStream  | Config: `cipher: "aes"`        |
+| **Access Control**        | SOC 2, ISO 27001 | Account-based RBAC | Config: `accounts {...}`       |
+| **Rate Limiting**         | OWASP            | Per-user limits    | Config: `connection_limits`    |
+| **Audit Logging**         | SOC 2            | Server events      | Logs: `/var/log/nats`          |
+| **Credential Management** | CIS              | Env variables      | No hardcoded secrets           |
 
 ### 8.2 Audit Checklist
 
@@ -685,16 +706,17 @@ docker logs sahool-nats | grep -E "PUB|SUB" | tail -1000
 
 ### 9.1 Expected Overhead
 
-| Feature | CPU Impact | Latency Impact | Throughput Impact |
-|---------|------------|----------------|-------------------|
-| TLS Encryption | +10-15% | +0.5-1ms | -5-10% |
-| JetStream Encryption | +5-8% | +0.2-0.5ms | -3-5% |
-| Rate Limiting | +1-2% | +0.1ms | None (under limits) |
-| System Account | +1% | None | None |
+| Feature              | CPU Impact | Latency Impact | Throughput Impact   |
+| -------------------- | ---------- | -------------- | ------------------- |
+| TLS Encryption       | +10-15%    | +0.5-1ms       | -5-10%              |
+| JetStream Encryption | +5-8%      | +0.2-0.5ms     | -3-5%               |
+| Rate Limiting        | +1-2%      | +0.1ms         | None (under limits) |
+| System Account       | +1%        | None           | None                |
 
 **Total Estimated Impact:** +17-26% CPU, +0.8-1.6ms latency, -8-15% throughput
 
 **Mitigation:**
+
 - Increase NATS CPU allocation to 1.5-2.0 cores
 - Use connection pooling in clients
 - Enable client-side message compression
@@ -717,27 +739,35 @@ nats bench pub --msgs=100000 --size=1024 --tls test.subject
 ### 10.1 Common Issues
 
 **Issue: "TLS required" error**
+
 ```
 Error: TLS required
 ```
+
 **Solution:** Update client to use `tls://` URL instead of `nats://`
 
 **Issue: JetStream encryption key mismatch**
+
 ```
 Error: jetstream: cipher key mismatch
 ```
+
 **Solution:** Ensure `NATS_JETSTREAM_KEY` is consistent across restarts
 
 **Issue: Rate limit exceeded**
+
 ```
 Error: maximum connections exceeded
 ```
+
 **Solution:** Review connection limits and adjust per service needs
 
 **Issue: Certificate verification failed**
+
 ```
 Error: x509: certificate signed by unknown authority
 ```
+
 **Solution:** Ensure CA certificate is mounted and path is correct
 
 ### 10.2 Debug Mode
@@ -769,20 +799,21 @@ docker exec sahool-nats nats-server --signal reload=nodebug
 
 ## 12. Change Log
 
-| Date | Version | Changes | Author |
-|------|---------|---------|--------|
-| 2026-01-06 | 1.0 | Initial hardened configuration | Security Team |
-| | | - TLS enforcement enabled | |
-| | | - JetStream encryption at rest | |
-| | | - Rate limiting implemented | |
-| | | - System account configured | |
-| | | - Cluster security prepared | |
+| Date       | Version | Changes                        | Author        |
+| ---------- | ------- | ------------------------------ | ------------- |
+| 2026-01-06 | 1.0     | Initial hardened configuration | Security Team |
+|            |         | - TLS enforcement enabled      |               |
+|            |         | - JetStream encryption at rest |               |
+|            |         | - Rate limiting implemented    |               |
+|            |         | - System account configured    |               |
+|            |         | - Cluster security prepared    |               |
 
 ---
 
 ## 13. Next Steps
 
 ### Immediate (Week 1)
+
 - [x] Deploy hardened configuration
 - [x] Generate secure credentials
 - [x] Update client configurations
@@ -791,6 +822,7 @@ docker exec sahool-nats nats-server --signal reload=nodebug
 - [ ] Configure monitoring alerts
 
 ### Short-term (Month 1)
+
 - [ ] Deploy Prometheus exporter
 - [ ] Create Grafana dashboard
 - [ ] Implement automated backups
@@ -799,6 +831,7 @@ docker exec sahool-nats nats-server --signal reload=nodebug
 - [ ] Security audit validation
 
 ### Long-term (Quarter 1)
+
 - [ ] Migrate to NKey authentication
 - [ ] Implement 3-node HA cluster
 - [ ] Set up automated certificate rotation
@@ -809,6 +842,7 @@ docker exec sahool-nats nats-server --signal reload=nodebug
 ---
 
 **For questions or issues, contact:**
+
 - Security Team: security@sahool.com
 - Infrastructure Team: infrastructure@sahool.com
 - Documentation: [NATS README](/config/nats/README.md)

@@ -19,6 +19,7 @@ This document summarizes the implementation of NATS authentication across the SA
 ### 1. NATS Configuration Files
 
 #### `/home/user/sahool-unified-v15-idp/config/nats/nats.conf`
+
 - **Purpose**: Production NATS server configuration
 - **Features**:
   - Multi-user authentication (admin, application, monitoring)
@@ -29,6 +30,7 @@ This document summarizes the implementation of NATS authentication across the SA
   - Cluster configuration for HA deployments
 
 **Key Configuration Sections**:
+
 ```conf
 authorization {
     users = [
@@ -45,6 +47,7 @@ authorization {
 ```
 
 #### `/home/user/sahool-unified-v15-idp/config/nats/nats-test.conf`
+
 - **Purpose**: Simplified test environment configuration
 - **Features**:
   - Single test user authentication
@@ -52,6 +55,7 @@ authorization {
   - Basic JetStream configuration
 
 #### `/home/user/sahool-unified-v15-idp/config/nats/README.md`
+
 - **Purpose**: Comprehensive documentation
 - **Contents**:
   - Setup instructions
@@ -66,7 +70,9 @@ authorization {
 ### 1. Environment Configuration
 
 #### `/home/user/sahool-unified-v15-idp/.env.example`
+
 **Changes**:
+
 - Added NATS authentication credentials
 - Updated NATS_URL to include authentication
 
@@ -87,7 +93,9 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
 ```
 
 #### `/home/user/sahool-unified-v15-idp/config/base.env`
+
 **Changes**:
+
 - Added NATS user credentials
 - Updated NATS_URL construction
 
@@ -103,7 +111,9 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@${NATS_HOST}:${NATS_PORT}
 ### 2. Docker Compose Files
 
 #### `/home/user/sahool-unified-v15-idp/docker-compose.yml`
+
 **Changes**:
+
 1. **NATS Service Configuration**:
    - Added environment variables for credentials
    - Mounted config file: `./config/nats/nats.conf:/etc/nats/nats.conf:ro`
@@ -115,6 +125,7 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@${NATS_HOST}:${NATS_PORT}
    - Updated to: `NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222`
 
 **Services Updated**:
+
 - field-management-service
 - marketplace-service
 - research-core
@@ -153,7 +164,9 @@ NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@${NATS_HOST}:${NATS_PORT}
 - (all other services with NATS connections)
 
 #### `/home/user/sahool-unified-v15-idp/docker-compose.test.yml`
+
 **Changes**:
+
 - Updated NATS test service to use config file
 - Updated all test service NATS URLs to use test credentials
 - Mounted test config: `./config/nats/nats-test.conf:/etc/nats/nats-test.conf:ro`
@@ -169,7 +182,9 @@ NATS_URL=nats://test_user:test_password@nats_test:4222
 ```
 
 #### `/home/user/sahool-unified-v15-idp/docker/docker-compose.iot.yml`
+
 **Changes**:
+
 - Updated NATS test service configuration
 - Updated IoT service NATS URLs
 - Added NATS test data volume
@@ -182,7 +197,9 @@ NATS_URL=nats://test_user:test_password@nats_test:4222
 ```
 
 #### `/home/user/sahool-unified-v15-idp/docker/docker-compose.dlq.yml`
+
 **Changes**:
+
 - Updated DLQ service NATS URLs
 - Updated DLQ monitor NATS URLs
 
@@ -199,11 +216,13 @@ NATS_URL: nats://${NATS_USER:-sahool_app}:${NATS_PASSWORD:-changeme}@nats:4222
 ### User Roles
 
 #### 1. Admin User
+
 - **Variable**: `NATS_ADMIN_USER` / `NATS_ADMIN_PASSWORD`
 - **Permissions**: Full access to all subjects (publish + subscribe)
 - **Use Cases**: Administration, debugging, stream management
 
 #### 2. Application User
+
 - **Variable**: `NATS_USER` / `NATS_PASSWORD`
 - **Permissions**: Access to SAHOOL-specific subject namespaces
 - **Allowed Subjects**:
@@ -219,6 +238,7 @@ NATS_URL: nats://${NATS_USER:-sahool_app}:${NATS_PASSWORD:-changeme}@nats:4222
   - `_INBOX.>` - Request-reply patterns
 
 #### 3. Monitor User
+
 - **Variable**: `NATS_MONITOR_USER` / `NATS_MONITOR_PASSWORD`
 - **Permissions**: Read-only (subscribe only, publish denied)
 - **Use Cases**: Monitoring, observability, analytics
@@ -226,11 +246,13 @@ NATS_URL: nats://${NATS_USER:-sahool_app}:${NATS_PASSWORD:-changeme}@nats:4222
 ### Authorization Rules
 
 Subject namespacing follows hierarchical structure:
+
 ```
 <module>.<service>.<action>.<entity>
 ```
 
 Examples:
+
 - `field.operations.created.field`
 - `weather.forecast.updated.location`
 - `iot.sensors.reading.temperature`
@@ -238,6 +260,7 @@ Examples:
 ## Security Enhancements
 
 ### Before Implementation
+
 - ❌ No authentication required
 - ❌ Any client could connect
 - ❌ Unrestricted publish/subscribe access
@@ -245,6 +268,7 @@ Examples:
 - ❌ Vulnerable to unauthorized access
 
 ### After Implementation
+
 - ✅ Multi-user authentication required
 - ✅ Role-based access control (RBAC)
 - ✅ Granular subject-level permissions
@@ -258,6 +282,7 @@ Examples:
 ### 1. Update Environment Variables
 
 Copy and update `.env` file:
+
 ```bash
 cp .env.example .env
 nano .env
@@ -271,6 +296,7 @@ openssl rand -base64 32  # For NATS_MONITOR_PASSWORD
 ### 2. Verify Configuration Files
 
 Ensure config files exist:
+
 ```bash
 ls -la config/nats/
 # Should show:
@@ -375,12 +401,14 @@ curl http://localhost:8222/metrics
 If issues occur:
 
 1. **Backup current state**:
+
    ```bash
    cp .env .env.new
    cp docker-compose.yml docker-compose.yml.new
    ```
 
 2. **Restore previous configuration**:
+
    ```bash
    git checkout .env.example
    git checkout docker-compose.yml
@@ -420,16 +448,19 @@ If issues occur:
 ## Impact Analysis
 
 ### Services Affected: 39 services
+
 - ✅ All services updated with authenticated NATS URLs
 - ✅ No service downtime required (rolling restart)
 - ✅ Backward compatible with proper .env configuration
 
 ### Breaking Changes
+
 - ⚠️ **REQUIRED**: Environment variables must be set before deployment
 - ⚠️ **REQUIRED**: `.env` file must be updated with NATS credentials
 - ⚠️ Services will fail to start without proper credentials
 
 ### Migration Path
+
 1. Update `.env` with NATS credentials
 2. Restart NATS service with new config
 3. Rolling restart of application services
@@ -500,6 +531,7 @@ NATS authentication has been successfully implemented across the entire SAHOOL p
 All 39 services have been updated to use authenticated NATS connections, with proper documentation and troubleshooting guides provided.
 
 **Next Steps**:
+
 1. Update production `.env` files with secure credentials
 2. Test in staging environment
 3. Deploy to production with rolling restart

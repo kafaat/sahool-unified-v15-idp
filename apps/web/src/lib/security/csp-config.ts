@@ -11,25 +11,26 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface CSPDirectives {
-  'default-src'?: string[];
-  'script-src'?: string[];
-  'style-src'?: string[];
-  'img-src'?: string[];
-  'font-src'?: string[];
-  'connect-src'?: string[];
-  'media-src'?: string[];
-  'object-src'?: string[];
-  'frame-src'?: string[];
-  'worker-src'?: string[];
-  'child-src'?: string[];
-  'frame-ancestors'?: string[];
-  'form-action'?: string[];
-  'base-uri'?: string[];
-  'manifest-src'?: string[];
-  'upgrade-insecure-requests'?: boolean;
-  'block-all-mixed-content'?: boolean;
-  'report-uri'?: string[];
-  'report-to'?: string;
+  "default-src"?: string[];
+  "script-src"?: string[];
+  "style-src"?: string[];
+  "style-src-attr"?: string[];
+  "img-src"?: string[];
+  "font-src"?: string[];
+  "connect-src"?: string[];
+  "media-src"?: string[];
+  "object-src"?: string[];
+  "frame-src"?: string[];
+  "worker-src"?: string[];
+  "child-src"?: string[];
+  "frame-ancestors"?: string[];
+  "form-action"?: string[];
+  "base-uri"?: string[];
+  "manifest-src"?: string[];
+  "upgrade-insecure-requests"?: boolean;
+  "block-all-mixed-content"?: boolean;
+  "report-uri"?: string[];
+  "report-to"?: string;
 }
 
 export interface CSPConfig {
@@ -61,17 +62,17 @@ export function generateNonce(): string {
 // Environment Detection
 // ═══════════════════════════════════════════════════════════════════════════
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === "development";
+const isProduction = process.env.NODE_ENV === "production";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Development Port Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const DEV_API_PORT = process.env.DEV_API_PORT || '8000';
-const DEV_WS_PORT = process.env.DEV_WS_PORT || '8081';
-const DEV_WEB_PORT = process.env.DEV_WEB_PORT || '3000';
-const DEV_ADMIN_PORT = process.env.DEV_ADMIN_PORT || '3001';
+const DEV_API_PORT = process.env.DEV_API_PORT || "8000";
+const DEV_WS_PORT = process.env.DEV_WS_PORT || "8081";
+const DEV_WEB_PORT = process.env.DEV_WEB_PORT || "3000";
+const DEV_ADMIN_PORT = process.env.DEV_ADMIN_PORT || "3001";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CSP Directives Configuration
@@ -83,10 +84,10 @@ const DEV_ADMIN_PORT = process.env.DEV_ADMIN_PORT || '3001';
  */
 export function getCSPDirectives(nonce?: string): CSPDirectives {
   const directives: CSPDirectives = {
-    'default-src': ["'self'"],
+    "default-src": ["'self'"],
 
     // Script sources - Use nonce in production, allow unsafe-eval only in dev
-    'script-src': [
+    "script-src": [
       "'self'",
       ...(nonce ? [`'nonce-${nonce}'`] : []),
       // Next.js requires 'unsafe-eval' for hot reloading in development
@@ -96,99 +97,110 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     ],
 
     // Style sources - Use nonce in production
-    'style-src': [
+    "style-src": [
       "'self'",
       ...(nonce ? [`'nonce-${nonce}'`] : []),
       // Google Fonts
-      'https://fonts.googleapis.com',
+      "https://fonts.googleapis.com",
       // Allow inline styles only in development
       ...(isDevelopment ? ["'unsafe-inline'"] : []),
     ],
 
+    // Style attributes (inline style="...") - Allow in development
+    "style-src-attr": [
+      ...(isDevelopment ? ["'unsafe-inline'"] : []),
+      ...(nonce ? [`'nonce-${nonce}'`] : []),
+    ],
+
     // Image sources
-    'img-src': [
+    "img-src": [
       "'self'",
-      'data:',
-      'blob:',
-      'https:',
+      "data:",
+      "blob:",
+      "https:",
       // OpenStreetMap tiles
-      'https://tile.openstreetmap.org',
-      'https://*.tile.openstreetmap.org',
+      "https://tile.openstreetmap.org",
+      "https://*.tile.openstreetmap.org",
       // Sentinel Hub satellite imagery
-      'https://sentinel-hub.com',
-      'https://*.sentinel-hub.com',
+      "https://sentinel-hub.com",
+      "https://*.sentinel-hub.com",
       // SAHOOL CDN
-      'https://*.sahool.ye',
+      "https://*.sahool.ye",
     ],
 
     // Font sources
-    'font-src': [
+    "font-src": [
       "'self'",
-      'data:',
+      "data:",
       // Google Fonts
-      'https://fonts.gstatic.com',
+      "https://fonts.gstatic.com",
     ],
 
     // Connect sources (API, WebSocket, etc.)
-    'connect-src': [
+    "connect-src": [
       "'self'",
       // Backend API - require environment variable or use localhost in dev only
-      ...(process.env.NEXT_PUBLIC_API_URL ? [process.env.NEXT_PUBLIC_API_URL] :
-          isDevelopment ? [`http://localhost:${DEV_API_PORT}`] : []),
+      ...(process.env.NEXT_PUBLIC_API_URL
+        ? [process.env.NEXT_PUBLIC_API_URL]
+        : isDevelopment
+          ? [`http://localhost:${DEV_API_PORT}`]
+          : []),
       // Development-only localhost connections with specific ports
-      ...(isDevelopment ? [
-        // WebSocket for hot module replacement and real-time features
-        `ws://localhost:${DEV_WS_PORT}`,
-        // API backend
-        `http://localhost:${DEV_API_PORT}`,
-        // Next.js dev server
-        `http://localhost:${DEV_WEB_PORT}`,
-        // Admin dev server
-        `http://localhost:${DEV_ADMIN_PORT}`,
-      ] : []),
+      ...(isDevelopment
+        ? [
+            // WebSocket for hot module replacement and real-time features
+            `ws://localhost:${DEV_WS_PORT}`,
+            // API backend
+            `http://localhost:${DEV_API_PORT}`,
+            // Next.js dev server
+            `http://localhost:${DEV_WEB_PORT}`,
+            // Admin dev server
+            `http://localhost:${DEV_ADMIN_PORT}`,
+          ]
+        : []),
       // External services
-      'https://tile.openstreetmap.org',
-      'https://*.tile.openstreetmap.org',
-      'https://sentinel-hub.com',
-      'https://*.sentinel-hub.com',
-      'https://*.sahool.ye',
+      "https://tile.openstreetmap.org",
+      "https://*.tile.openstreetmap.org",
+      "https://sentinel-hub.com",
+      "https://*.sentinel-hub.com",
+      "https://*.sahool.ye",
     ],
 
     // Media sources
-    'media-src': ["'self'", 'https://*.sahool.ye'],
+    "media-src": ["'self'", "https://*.sahool.ye"],
 
     // Object sources - Block all
-    'object-src': ["'none'"],
+    "object-src": ["'none'"],
 
     // Frame sources
-    'frame-src': ["'none'"],
+    "frame-src": ["'none'"],
 
     // Worker sources (for service workers, web workers)
-    'worker-src': ["'self'", 'blob:'],
+    "worker-src": ["'self'", "blob:"],
 
     // Child sources
-    'child-src': ["'self'", 'blob:'],
+    "child-src": ["'self'", "blob:"],
 
     // Frame ancestors - Prevent clickjacking
-    'frame-ancestors': ["'none'"],
+    "frame-ancestors": ["'none'"],
 
     // Form action - Only allow same origin
-    'form-action': ["'self'"],
+    "form-action": ["'self'"],
 
     // Base URI - Restrict base tag
-    'base-uri': ["'self'"],
+    "base-uri": ["'self'"],
 
     // Manifest source
-    'manifest-src': ["'self'"],
+    "manifest-src": ["'self'"],
 
     // Upgrade insecure requests in production
-    'upgrade-insecure-requests': isProduction,
+    "upgrade-insecure-requests": isProduction,
 
     // Block mixed content in production
-    'block-all-mixed-content': isProduction,
+    "block-all-mixed-content": isProduction,
 
     // CSP reporting endpoint
-    'report-uri': ['/api/csp-report'],
+    "report-uri": ["/api/csp-report"],
   };
 
   return directives;
@@ -203,7 +215,7 @@ export function buildCSPHeader(directives: CSPDirectives): string {
 
   for (const [key, value] of Object.entries(directives)) {
     // Handle boolean directives
-    if (typeof value === 'boolean') {
+    if (typeof value === "boolean") {
       if (value) {
         policies.push(key);
       }
@@ -212,16 +224,16 @@ export function buildCSPHeader(directives: CSPDirectives): string {
 
     // Handle array directives
     if (Array.isArray(value) && value.length > 0) {
-      policies.push(`${key} ${value.join(' ')}`);
+      policies.push(`${key} ${value.join(" ")}`);
     }
 
     // Handle string directives
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       policies.push(`${key} ${value}`);
     }
   }
 
-  return policies.join('; ');
+  return policies.join("; ");
 }
 
 /**
@@ -232,7 +244,7 @@ export function getCSPConfig(nonce?: string): CSPConfig {
   return {
     directives: getCSPDirectives(nonce),
     // Use report-only mode in development for testing
-    reportOnly: isDevelopment && process.env.CSP_REPORT_ONLY === 'true',
+    reportOnly: isDevelopment && process.env.CSP_REPORT_ONLY === "true",
   };
 }
 
@@ -250,7 +262,9 @@ export function getCSPHeader(nonce?: string): string {
  * الحصول على اسم header CSP بناءً على الوضع
  */
 export function getCSPHeaderName(reportOnly = false): string {
-  return reportOnly ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy';
+  return reportOnly
+    ? "Content-Security-Policy-Report-Only"
+    : "Content-Security-Policy";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -258,19 +272,19 @@ export function getCSPHeaderName(reportOnly = false): string {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface CSPViolationReport {
-  'document-uri': string;
-  'violated-directive': string;
-  'effective-directive': string;
-  'original-policy': string;
-  'blocked-uri': string;
-  'status-code': number;
-  'source-file'?: string;
-  'line-number'?: number;
-  'column-number'?: number;
+  "document-uri": string;
+  "violated-directive": string;
+  "effective-directive": string;
+  "original-policy": string;
+  "blocked-uri": string;
+  "status-code": number;
+  "source-file"?: string;
+  "line-number"?: number;
+  "column-number"?: number;
 }
 
 export interface CSPReportBody {
-  'csp-report': CSPViolationReport;
+  "csp-report": CSPViolationReport;
 }
 
 /**
@@ -278,22 +292,22 @@ export interface CSPReportBody {
  * التحقق من صحة تقرير انتهاك CSP
  */
 export function isValidCSPReport(body: unknown): body is CSPReportBody {
-  if (typeof body !== 'object' || body === null) return false;
+  if (typeof body !== "object" || body === null) return false;
 
   const report = body as Record<string, unknown>;
 
-  if (!('csp-report' in report)) return false;
+  if (!("csp-report" in report)) return false;
 
-  const cspReport = report['csp-report'];
-  if (typeof cspReport !== 'object' || cspReport === null) return false;
+  const cspReport = report["csp-report"];
+  if (typeof cspReport !== "object" || cspReport === null) return false;
 
   const violation = cspReport as Record<string, unknown>;
 
   // Required fields
   return (
-    typeof violation['document-uri'] === 'string' &&
-    typeof violation['violated-directive'] === 'string' &&
-    typeof violation['blocked-uri'] === 'string'
+    typeof violation["document-uri"] === "string" &&
+    typeof violation["violated-directive"] === "string" &&
+    typeof violation["blocked-uri"] === "string"
   );
 }
 
@@ -301,17 +315,19 @@ export function isValidCSPReport(body: unknown): body is CSPReportBody {
  * Sanitize CSP report for logging
  * تنظيف تقرير CSP للتسجيل
  */
-export function sanitizeCSPReport(report: CSPViolationReport): Record<string, unknown> {
+export function sanitizeCSPReport(
+  report: CSPViolationReport,
+): Record<string, unknown> {
   return {
     timestamp: new Date().toISOString(),
-    documentUri: report['document-uri'],
-    violatedDirective: report['violated-directive'],
-    effectiveDirective: report['effective-directive'],
-    blockedUri: report['blocked-uri'],
-    statusCode: report['status-code'],
-    sourceFile: report['source-file'],
-    lineNumber: report['line-number'],
-    columnNumber: report['column-number'],
+    documentUri: report["document-uri"],
+    violatedDirective: report["violated-directive"],
+    effectiveDirective: report["effective-directive"],
+    blockedUri: report["blocked-uri"],
+    statusCode: report["status-code"],
+    sourceFile: report["source-file"],
+    lineNumber: report["line-number"],
+    columnNumber: report["column-number"],
   };
 }
 

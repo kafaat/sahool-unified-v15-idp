@@ -55,6 +55,7 @@ services:
 ```
 
 **Features:**
+
 - Request routing
 - Rate limiting
 - Authentication
@@ -72,6 +73,7 @@ password_file /mosquitto/config/password.txt
 ```
 
 **Ports:**
+
 - 1883: MQTT protocol
 - 9001: WebSocket
 
@@ -86,16 +88,17 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ```
 
 **Extensions:**
+
 - `postgis` - Geospatial queries
 - `uuid-ossp` - UUID generation
 - `pg_trgm` - Text search
 
 **Migrations:**
 
-| File | Description |
-|------|-------------|
+| File                      | Description        |
+| ------------------------- | ------------------ |
 | `001_init_extensions.sql` | Install extensions |
-| `002_base_tables.sql` | Core tables |
+| `002_base_tables.sql`     | Core tables        |
 
 ### Qdrant Vector Database
 
@@ -106,6 +109,7 @@ docker compose -f infra/qdrant/docker-compose.qdrant.yml up -d
 ```
 
 **Usage:**
+
 - Crop disease image similarity
 - Document embeddings
 - Semantic search
@@ -119,6 +123,7 @@ docker compose -f infra/vault/docker-compose.vault.yml up -d
 ```
 
 **Features:**
+
 - Secret storage
 - Dynamic credentials
 - Encryption as a service
@@ -191,18 +196,18 @@ COMMIT;
 
 ## Ports Reference
 
-| Component | Port | Protocol |
-|-----------|------|----------|
-| Kong | 8000 | HTTP |
-| Kong Admin | 8001 | HTTP |
-| PostgreSQL | 5432 | TCP |
-| Redis | 6379 | TCP |
-| NATS | 4222 | TCP |
-| NATS Monitor | 8222 | HTTP |
-| MQTT | 1883 | TCP |
-| MQTT WS | 9001 | WS |
-| Qdrant | 6333 | HTTP |
-| Vault | 8200 | HTTP |
+| Component    | Port | Protocol |
+| ------------ | ---- | -------- |
+| Kong         | 8000 | HTTP     |
+| Kong Admin   | 8001 | HTTP     |
+| PostgreSQL   | 5432 | TCP      |
+| Redis        | 6379 | TCP      |
+| NATS         | 4222 | TCP      |
+| NATS Monitor | 8222 | HTTP     |
+| MQTT         | 1883 | TCP      |
+| MQTT WS      | 9001 | WS       |
+| Qdrant       | 6333 | HTTP     |
+| Vault        | 8200 | HTTP     |
 
 ---
 

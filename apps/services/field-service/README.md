@@ -5,7 +5,6 @@ Please update your references to use `field-management-service` on port 3000.
 
 ---
 
-
 # Field Service - خدمة الحقول
 
 ## نظرة عامة | Overview
@@ -22,19 +21,21 @@ Agricultural field management service including boundaries, metadata, and core o
 ## الميزات | Features
 
 ### إدارة الحقول | Field Management
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| إنشاء حقل | Create Field | تسجيل حقل جديد |
-| تحديد الحدود | Boundaries | رسم حدود جغرافية |
-| معلومات المحصول | Crop Info | نوع المحصول الحالي |
-| تاريخ الحقل | Field History | سجل العمليات |
+
+| الميزة          | Feature       | الوصف              |
+| --------------- | ------------- | ------------------ |
+| إنشاء حقل       | Create Field  | تسجيل حقل جديد     |
+| تحديد الحدود    | Boundaries    | رسم حدود جغرافية   |
+| معلومات المحصول | Crop Info     | نوع المحصول الحالي |
+| تاريخ الحقل     | Field History | سجل العمليات       |
 
 ### الخرائط | Maps
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
+
+| الميزة        | Feature          | الوصف                  |
+| ------------- | ---------------- | ---------------------- |
 | خرائط تفاعلية | Interactive Maps | عرض الحقول على الخريطة |
-| طبقات متعددة | Multiple Layers | NDVI, رطوبة، حرارة |
-| تصدير KML | KML Export | تصدير للـ Google Earth |
+| طبقات متعددة  | Multiple Layers  | NDVI, رطوبة، حرارة     |
+| تصدير KML     | KML Export       | تصدير للـ Google Earth |
 
 ---
 
@@ -170,6 +171,7 @@ GET /users/{user_id}/fields/stats
 ## نماذج البيانات | Data Models
 
 ### Field
+
 ```json
 {
     "id": "field-001",
@@ -204,6 +206,7 @@ GET /users/{user_id}/fields/stats
 ```
 
 ### CropSeason
+
 ```json
 {
     "id": "season-001",

@@ -1,9 +1,11 @@
 # Token Revocation Examples
+
 # أمثلة على إلغاء الرموز
 
 This document provides practical examples of using the token revocation system.
 
 ## Table of Contents
+
 1. [Python Examples](#python-examples)
 2. [TypeScript/NestJS Examples](#typescriptnestjs-examples)
 3. [API Usage Examples](#api-usage-examples)
@@ -132,13 +134,13 @@ async def protected_route(current_user: User = Depends(get_current_user)):
 
 ```typescript
 // app.module.ts
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
-import { TokenRevocationModule } from '@shared/auth/token-revocation';
-import { TokenRevocationGuard } from '@shared/auth/token-revocation.guard';
-import { RevocationController } from '@shared/auth/revocation.controller';
-import { JWTConfig } from '@shared/auth/config';
+import { Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
+import { JwtModule } from "@nestjs/jwt";
+import { TokenRevocationModule } from "@shared/auth/token-revocation";
+import { TokenRevocationGuard } from "@shared/auth/token-revocation.guard";
+import { RevocationController } from "@shared/auth/revocation.controller";
+import { JWTConfig } from "@shared/auth/config";
 
 @Module({
   imports: [
@@ -167,33 +169,33 @@ export class AppModule {}
 
 ```typescript
 // auth.controller.ts
-import { Controller, Post, Request, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '@shared/auth/jwt.guard';
-import { RedisTokenRevocationStore } from '@shared/auth/token-revocation';
-import { JwtService } from '@nestjs/jwt';
+import { Controller, Post, Request, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "@shared/auth/jwt.guard";
+import { RedisTokenRevocationStore } from "@shared/auth/token-revocation";
+import { JwtService } from "@nestjs/jwt";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   constructor(
     private readonly revocationStore: RedisTokenRevocationStore,
     private readonly jwtService: JwtService,
   ) {}
 
-  @Post('logout')
+  @Post("logout")
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req) {
     // Extract token
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     const payload = this.jwtService.decode(token);
 
     // Revoke the token
     await this.revocationStore.revokeToken(payload.jti, {
       expiresIn: 3600, // 1 hour
-      reason: 'user_logout',
+      reason: "user_logout",
       userId: req.user.id,
     });
 
-    return { message: 'Successfully logged out' };
+    return { message: "Successfully logged out" };
   }
 }
 ```
@@ -235,15 +237,15 @@ async changePassword(
 ### 4. Skip Revocation Check for Specific Route
 
 ```typescript
-import { Controller, Get } from '@nestjs/common';
-import { SkipRevocationCheck } from '@shared/auth/token-revocation.guard';
+import { Controller, Get } from "@nestjs/common";
+import { SkipRevocationCheck } from "@shared/auth/token-revocation.guard";
 
-@Controller('public')
+@Controller("public")
 export class PublicController {
-  @Get('data')
+  @Get("data")
   @SkipRevocationCheck()
   async getPublicData() {
-    return { data: 'This route skips revocation check' };
+    return { data: "This route skips revocation check" };
   }
 }
 ```
@@ -278,8 +280,8 @@ async function checkTokenManually(
 
 ```typescript
 // app.module.ts
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { TokenRevocationInterceptor } from '@shared/auth/token-revocation.guard';
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { TokenRevocationInterceptor } from "@shared/auth/token-revocation.guard";
 
 @Module({
   providers: [
@@ -305,6 +307,7 @@ curl -X POST http://localhost:3000/auth/revocation/revoke-current \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -322,6 +325,7 @@ curl -X POST http://localhost:3000/auth/revocation/revoke-all \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -364,6 +368,7 @@ curl -X GET http://localhost:3000/auth/revocation/status/550e8400-e29b-41d4-a716
 ```
 
 Response:
+
 ```json
 {
   "isRevoked": true,
@@ -381,6 +386,7 @@ curl -X GET http://localhost:3000/auth/revocation/stats \
 ```
 
 Response:
+
 ```json
 {
   "initialized": true,
@@ -399,6 +405,7 @@ curl -X GET http://localhost:3000/auth/revocation/health
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -412,6 +419,7 @@ Response:
 ## Common Scenarios
 
 ### Scenario 1: User Logout
+
 User clicks logout button → Revoke current token → User redirected to login
 
 ```python
@@ -421,10 +429,11 @@ await revoke_token(jti=payload.jti, reason="user_logout")
 
 ```typescript
 // TypeScript
-await this.revocationStore.revokeToken(payload.jti, { reason: 'user_logout' });
+await this.revocationStore.revokeToken(payload.jti, { reason: "user_logout" });
 ```
 
 ### Scenario 2: Password Change
+
 User changes password → Revoke all user tokens → User must login again
 
 ```python
@@ -434,10 +443,11 @@ await revoke_all_user_tokens(user_id=user.id, reason="password_change")
 
 ```typescript
 // TypeScript
-await this.revocationStore.revokeAllUserTokens(user.id, 'password_change');
+await this.revocationStore.revokeAllUserTokens(user.id, "password_change");
 ```
 
 ### Scenario 3: Suspicious Activity
+
 Admin detects suspicious activity → Revoke all user tokens → Investigate
 
 ```python
@@ -447,10 +457,14 @@ await revoke_all_user_tokens(user_id=suspicious_user_id, reason="suspicious_acti
 
 ```typescript
 // TypeScript
-await this.revocationStore.revokeAllUserTokens(suspiciousUserId, 'suspicious_activity');
+await this.revocationStore.revokeAllUserTokens(
+  suspiciousUserId,
+  "suspicious_activity",
+);
 ```
 
 ### Scenario 4: Account Deactivation
+
 Admin deactivates account → Revoke all user tokens → User cannot access
 
 ```python
@@ -460,10 +474,11 @@ await revoke_all_user_tokens(user_id=user_id, reason="account_deactivated")
 
 ```typescript
 // TypeScript
-await this.revocationStore.revokeAllUserTokens(userId, 'account_deactivated');
+await this.revocationStore.revokeAllUserTokens(userId, "account_deactivated");
 ```
 
 ### Scenario 5: Security Breach
+
 Security breach detected → Revoke all tenant tokens → All users must re-login
 
 ```python
@@ -475,7 +490,7 @@ await store.revoke_all_tenant_tokens(tenant_id=tenant_id, reason="security_breac
 
 ```typescript
 // TypeScript (Admin only)
-await this.revocationStore.revokeAllTenantTokens(tenantId, 'security_breach');
+await this.revocationStore.revokeAllTenantTokens(tenantId, "security_breach");
 ```
 
 ---
@@ -525,7 +540,7 @@ async def test_redis():
 const store = new RedisTokenRevocationStore();
 await store.initialize();
 const isHealthy = await store.healthCheck();
-console.log(`Redis is ${isHealthy ? 'healthy' : 'unhealthy'}`);
+console.log(`Redis is ${isHealthy ? "healthy" : "unhealthy"}`);
 ```
 
 ### Test Token Revocation
@@ -631,6 +646,7 @@ redis-cli KEYS "revoked:*" | xargs redis-cli DEL
 ---
 
 For more information, see:
+
 - [Token Revocation README](./README.md)
 - [JWT Handler Documentation](./jwt_handler.py)
 - [Redis Documentation](https://redis.io/documentation)

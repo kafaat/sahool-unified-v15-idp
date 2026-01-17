@@ -5,6 +5,7 @@ This guide explains how to switch from `flutter_map` to `mapbox_maps_flutter` fo
 ## Why Mapbox?
 
 Mapbox provides:
+
 - High-quality satellite imagery
 - Better offline map support
 - Advanced styling options
@@ -13,6 +14,7 @@ Mapbox provides:
 ## Prerequisites
 
 You need two tokens from Mapbox:
+
 1. **Public Access Token** - For runtime map display
 2. **Secret Downloads Token** - For building the Android/iOS SDK
 
@@ -25,6 +27,7 @@ You need two tokens from Mapbox:
 ## Step 2: Get Your Tokens
 
 ### Public Access Token
+
 1. Go to [https://account.mapbox.com/access-tokens/](https://account.mapbox.com/access-tokens/)
 2. Copy your **Default public token** (starts with `pk.`)
 3. Add it to your `.env` file:
@@ -33,6 +36,7 @@ You need two tokens from Mapbox:
    ```
 
 ### Secret Downloads Token
+
 1. On the same page, click **Create a token**
 2. Name it "Downloads Token"
 3. Under **Secret scopes**, check `DOWNLOADS:READ`
@@ -60,6 +64,7 @@ You need two tokens from Mapbox:
 Replace `flutter_map` widgets with Mapbox widgets in your map screens.
 
 Example:
+
 ```dart
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -67,7 +72,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 // In your widget:
 MapboxMap(
   accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN']!,
-  styleUri: dotenv.env['MAPBOX_STYLE_URL'] ?? 
+  styleUri: dotenv.env['MAPBOX_STYLE_URL'] ??
             'mapbox://styles/mapbox/satellite-streets-v12',
   // ... other configuration
 )
@@ -76,15 +81,18 @@ MapboxMap(
 ## Troubleshooting
 
 ### "SDK Registry token is null"
+
 - Make sure you added `MAPBOX_DOWNLOADS_TOKEN` to `android/gradle.properties`
 - The token must start with `sk.`
 - Run `flutter clean` after adding the token
 
 ### Build fails on iOS
+
 - Add your secret token to `ios/Podfile` or create `~/.netrc` file
 - See: [https://docs.mapbox.com/ios/maps/guides/install/](https://docs.mapbox.com/ios/maps/guides/install/)
 
 ### Map doesn't display
+
 - Check that your public token (pk.) is in the `.env` file
 - Verify the token has the correct scopes
 - Check network connectivity
@@ -98,6 +106,7 @@ MapboxMap(
 ## Alternative: Keep Using flutter_map
 
 If you prefer not to use Mapbox:
+
 - `flutter_map` works great with OpenStreetMap tiles (free)
 - No authentication required
 - Good for basic mapping needs

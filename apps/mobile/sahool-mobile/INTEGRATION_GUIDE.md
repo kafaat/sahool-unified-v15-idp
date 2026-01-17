@@ -1,4 +1,5 @@
 # SAHOOL Sync Manager - Integration Guide
+
 # دليل دمج مدير المزامنة - تطبيق ساهول
 
 ## 📋 Overview - نظرة عامة
@@ -12,6 +13,7 @@ This guide explains how to integrate the TypeScript/React Native Sync Manager in
 ### Current Flutter Implementation
 
 The SAHOOL mobile app currently has Flutter-based sync functionality:
+
 - `/apps/mobile/lib/core/offline/offline_sync_engine.dart`
 - `/apps/mobile/lib/core/offline/sync_conflict_resolver.dart`
 - `/apps/mobile/lib/core/sync/queue_manager.dart`
@@ -19,6 +21,7 @@ The SAHOOL mobile app currently has Flutter-based sync functionality:
 ### Migration Strategy
 
 #### Option 1: Complete Migration to React Native
+
 If you're planning to migrate the entire app to React Native:
 
 1. **Phase 1**: Set up React Native project structure
@@ -28,6 +31,7 @@ If you're planning to migrate the entire app to React Native:
 5. **Phase 5**: Testing and deployment
 
 #### Option 2: Keep Flutter, Use Concepts
+
 If staying with Flutter, use this TypeScript implementation as a reference:
 
 1. **Adapt patterns**: Apply the same architectural patterns to Dart
@@ -95,12 +99,12 @@ export default App;
 Create `src/services/apiClient.ts`:
 
 ```typescript
-import SyncManager from './syncManager';
+import SyncManager from "./syncManager";
 import {
   SyncOperationType,
   SyncDataType,
   SyncPriority,
-} from '../models/syncTypes';
+} from "../models/syncTypes";
 
 class APIClient {
   private syncManager: SyncManager;
@@ -109,7 +113,7 @@ class APIClient {
 
   constructor() {
     this.syncManager = SyncManager.getInstance();
-    this.baseURL = process.env.API_BASE_URL || 'https://api.sahool.com';
+    this.baseURL = process.env.API_BASE_URL || "https://api.sahool.com";
   }
 
   setAuthToken(token: string) {
@@ -124,11 +128,11 @@ class APIClient {
       observation,
       {
         priority: SyncPriority.HIGH,
-        endpoint: '/api/v1/field-observations',
+        endpoint: "/api/v1/field-observations",
         metadata: {
           timestamp: new Date().toISOString(),
         },
-      }
+      },
     );
   }
 
@@ -142,7 +146,7 @@ class APIClient {
         previousData,
         priority: SyncPriority.NORMAL,
         endpoint: `/api/v1/field-observations/${id}`,
-      }
+      },
     );
   }
 
@@ -154,8 +158,8 @@ class APIClient {
       reading,
       {
         priority: SyncPriority.NORMAL,
-        endpoint: '/api/v1/sensor-readings',
-      }
+        endpoint: "/api/v1/sensor-readings",
+      },
     );
   }
 
@@ -168,7 +172,7 @@ class APIClient {
       {
         priority: SyncPriority.HIGH,
         endpoint: `/api/v1/tasks/${taskId}/complete`,
-      }
+      },
     );
   }
 
@@ -180,8 +184,8 @@ class APIClient {
       imageData,
       {
         priority: SyncPriority.LOW,
-        endpoint: '/api/v1/images',
-      }
+        endpoint: "/api/v1/images",
+      },
     );
   }
 }
@@ -194,13 +198,13 @@ export default new APIClient();
 Create `src/hooks/useSync.ts`:
 
 ```typescript
-import { useState, useEffect } from 'react';
-import SyncManager from '../services/syncManager';
+import { useState, useEffect } from "react";
+import SyncManager from "../services/syncManager";
 import {
   SyncStatusInfo,
   SyncEventType,
   SyncStatistics,
-} from '../models/syncTypes';
+} from "../models/syncTypes";
 
 export const useSyncStatus = () => {
   const [status, setStatus] = useState<SyncStatusInfo | null>(null);
@@ -226,15 +230,24 @@ export const useSyncStatus = () => {
     const onNetworkChange = () => updateStatus();
 
     syncManager.addEventListener(SyncEventType.SYNC_COMPLETED, onSyncCompleted);
-    syncManager.addEventListener(SyncEventType.NETWORK_STATUS_CHANGED, onNetworkChange);
+    syncManager.addEventListener(
+      SyncEventType.NETWORK_STATUS_CHANGED,
+      onNetworkChange,
+    );
 
     // Update every 10 seconds
     const interval = setInterval(updateStatus, 10000);
 
     return () => {
       clearInterval(interval);
-      syncManager.removeEventListener(SyncEventType.SYNC_COMPLETED, onSyncCompleted);
-      syncManager.removeEventListener(SyncEventType.NETWORK_STATUS_CHANGED, onNetworkChange);
+      syncManager.removeEventListener(
+        SyncEventType.SYNC_COMPLETED,
+        onSyncCompleted,
+      );
+      syncManager.removeEventListener(
+        SyncEventType.NETWORK_STATUS_CHANGED,
+        onNetworkChange,
+      );
     };
   }, []);
 
@@ -259,7 +272,10 @@ export const useSyncStatistics = () => {
     syncManager.addEventListener(SyncEventType.SYNC_COMPLETED, updateStats);
 
     return () => {
-      syncManager.removeEventListener(SyncEventType.SYNC_COMPLETED, updateStats);
+      syncManager.removeEventListener(
+        SyncEventType.SYNC_COMPLETED,
+        updateStats,
+      );
     };
   }, []);
 
@@ -460,16 +476,16 @@ export default ConflictResolver;
 ### Setup Analytics Integration
 
 ```typescript
-import SyncManager from './services/syncManager';
-import { SyncEventType } from './models/syncTypes';
-import Analytics from './services/analytics'; // Your analytics service
+import SyncManager from "./services/syncManager";
+import { SyncEventType } from "./models/syncTypes";
+import Analytics from "./services/analytics"; // Your analytics service
 
 const setupSyncAnalytics = () => {
   const syncManager = SyncManager.getInstance();
 
   // Track sync events
   syncManager.addEventListener(SyncEventType.SYNC_COMPLETED, (event) => {
-    Analytics.track('Sync Completed', {
+    Analytics.track("Sync Completed", {
       successCount: event.data.successCount,
       failedCount: event.data.failedCount,
       duration: event.data.duration,
@@ -477,13 +493,13 @@ const setupSyncAnalytics = () => {
   });
 
   syncManager.addEventListener(SyncEventType.SYNC_FAILED, (event) => {
-    Analytics.track('Sync Failed', {
+    Analytics.track("Sync Failed", {
       error: event.data.message,
     });
   });
 
   syncManager.addEventListener(SyncEventType.CONFLICT_DETECTED, (event) => {
-    Analytics.track('Conflict Detected', {
+    Analytics.track("Conflict Detected", {
       operationId: event.operationId,
     });
   });
@@ -510,15 +526,15 @@ npm test syncManager.test.ts
 ### Integration Testing
 
 ```typescript
-import SyncManager from './services/syncManager';
-import apiClient from './services/apiClient';
+import SyncManager from "./services/syncManager";
+import apiClient from "./services/apiClient";
 
-describe('E2E Sync Flow', () => {
-  it('should sync field observation from creation to server', async () => {
+describe("E2E Sync Flow", () => {
+  it("should sync field observation from creation to server", async () => {
     // Create observation
     const observationId = await apiClient.createFieldObservation({
-      fieldId: 'field-123',
-      notes: 'Test observation',
+      fieldId: "field-123",
+      notes: "Test observation",
     });
 
     // Wait for sync
@@ -537,13 +553,13 @@ describe('E2E Sync Flow', () => {
 ### Encrypt Sensitive Data
 
 ```typescript
-import * as Crypto from 'expo-crypto';
+import * as Crypto from "expo-crypto";
 
 const encryptData = async (data: any) => {
   const jsonString = JSON.stringify(data);
   const encrypted = await Crypto.digestStringAsync(
     Crypto.CryptoDigestAlgorithm.SHA256,
-    jsonString
+    jsonString,
   );
   return encrypted;
 };
@@ -552,18 +568,20 @@ const encryptData = async (data: any) => {
 await syncManager.queueOperation(
   SyncOperationType.CREATE,
   SyncDataType.FIELD_OBSERVATION,
-  await encryptData(sensitiveData)
+  await encryptData(sensitiveData),
 );
 ```
 
 ## 📱 Platform-Specific Considerations
 
 ### iOS
+
 - Enable background fetch capability
 - Handle app state changes
 - Respect low power mode
 
 ### Android
+
 - Use WorkManager for background sync
 - Handle doze mode
 - Respect battery optimization settings
@@ -571,6 +589,7 @@ await syncManager.queueOperation(
 ## 🚀 Performance Optimization
 
 ### 1. Batch Operations
+
 ```typescript
 // Instead of multiple individual operations
 const observations = [...]; // Array of observations
@@ -585,16 +604,18 @@ for (const obs of observations) {
 ```
 
 ### 2. Prioritize Critical Data
+
 ```typescript
 await syncManager.queueOperation(
   SyncOperationType.CREATE,
   SyncDataType.TASK_COMPLETION,
   data,
-  { priority: SyncPriority.CRITICAL } // Will sync first
+  { priority: SyncPriority.CRITICAL }, // Will sync first
 );
 ```
 
 ### 3. Monitor Queue Size
+
 ```typescript
 const status = await syncManager.getSyncStatus();
 
@@ -607,6 +628,7 @@ if (status.pendingCount > 100) {
 ## 📞 Support
 
 For issues or questions:
+
 - Check the [SYNC_MANAGER_README.md](./SYNC_MANAGER_README.md)
 - Review examples in [syncManager.example.ts](./src/services/syncManager.example.ts)
 - Contact the development team

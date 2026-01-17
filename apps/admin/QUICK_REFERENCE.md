@@ -40,7 +40,7 @@
 
 ```typescript
 // /app/api/admin/settings/route.ts
-import { withAdmin } from '@/lib/auth';
+import { withAdmin } from "@/lib/auth";
 
 export const POST = withAdmin(async (request, { user }) => {
   // Only admins reach this code
@@ -53,13 +53,16 @@ export const POST = withAdmin(async (request, { user }) => {
 
 ```typescript
 // /app/api/farms/route.ts
-import { withRole } from '@/lib/auth';
+import { withRole } from "@/lib/auth";
 
-export const GET = withRole(['admin', 'supervisor'], async (request, { user }) => {
-  // Admins and supervisors can access
-  // Viewers get 403
-  return NextResponse.json({ farms: [] });
-});
+export const GET = withRole(
+  ["admin", "supervisor"],
+  async (request, { user }) => {
+    // Admins and supervisors can access
+    // Viewers get 403
+    return NextResponse.json({ farms: [] });
+  },
+);
 ```
 
 ### Protect a Page Route
@@ -68,8 +71,8 @@ Add to `/src/lib/auth/route-protection.ts`:
 
 ```typescript
 export const PROTECTED_ROUTES = {
-  '/my-new-page': ['admin'], // Admin only
-  '/another-page': ['admin', 'supervisor'], // Admin + Supervisor
+  "/my-new-page": ["admin"], // Admin only
+  "/another-page": ["admin", "supervisor"], // Admin + Supervisor
 };
 ```
 
@@ -116,12 +119,14 @@ Higher roles inherit lower role permissions.
 ## 📊 Protected Routes
 
 ### Admin Only
+
 - `/settings/*` - All settings pages
 - `/api/admin/*` - Admin API endpoints
 - `/api/users/*` - User management
 - `/api/settings/*` - Settings API
 
 ### Admin + Supervisor
+
 - `/farms/*` - Farm management
 - `/diseases/*` - Disease tracking
 - `/sensors/*` - Sensor data
@@ -130,6 +135,7 @@ Higher roles inherit lower role permissions.
 - `/yield/*` - Yield prediction
 
 ### All Authenticated Users
+
 - `/dashboard` - Main dashboard
 - `/analytics/*` - Analytics pages
 - `/precision-agriculture/*` - PA features
@@ -158,7 +164,7 @@ Edit `/src/lib/auth/route-protection.ts`:
 ```typescript
 export const PROTECTED_ROUTES = {
   // Add your new route here
-  '/new-feature': ['admin', 'supervisor'],
+  "/new-feature": ["admin", "supervisor"],
 };
 ```
 
@@ -214,6 +220,7 @@ npm run typecheck
 ### Example API Route
 
 See `/src/app/api/admin/example/route.ts` for complete examples:
+
 - Admin-only GET endpoint
 - Multi-role POST endpoint
 - Any authenticated PATCH endpoint
@@ -244,15 +251,19 @@ See `/src/app/api/admin/example/route.ts` for complete examples:
 ## 🚨 Troubleshooting
 
 ### Issue: 401 Unauthorized with valid token
+
 **Solution:** Check `JWT_SECRET` matches backend
 
 ### Issue: 403 Forbidden for admin user
+
 **Solution:** Verify token contains `role: "admin"`
 
 ### Issue: TypeScript errors
+
 **Solution:** Import types: `import type { UserRole } from '@/lib/auth';`
 
 ### Issue: Middleware not running
+
 **Solution:** Check middleware config matcher patterns
 
 ---
@@ -274,18 +285,21 @@ See `/src/app/api/admin/example/route.ts` for complete examples:
 ## 🎯 Next Steps
 
 ### Immediate (Required)
+
 1. Add `JWT_SECRET` to environment variables
 2. Deploy to development environment
 3. Test with real JWT tokens
 4. Verify all three roles work correctly
 
 ### Short-term (Recommended)
+
 1. Add audit logging for authorization events
 2. Implement rate limiting
 3. Create custom 403 error page
 4. Add automated tests
 
 ### Long-term (Future)
+
 1. CSRF protection
 2. MFA enforcement for admin role
 3. Server-side session management
@@ -304,6 +318,7 @@ See `/src/app/api/admin/example/route.ts` for complete examples:
 ---
 
 **Quick Start:**
+
 1. Add `JWT_SECRET` to `.env.local`
 2. Import `withAdmin` in your API routes
 3. Protect routes with one line: `export const POST = withAdmin(...)`
@@ -312,6 +327,7 @@ See `/src/app/api/admin/example/route.ts` for complete examples:
 ---
 
 **Need Help?**
+
 - See `ADMIN_AUTHORIZATION_IMPLEMENTATION.md` for full guide
 - Check `AUTHORIZATION_COMPARISON.md` for before/after comparison
 - Review `/src/app/api/admin/example/route.ts` for code examples

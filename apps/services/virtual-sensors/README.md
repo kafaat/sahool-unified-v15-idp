@@ -14,22 +14,24 @@ Virtual sensors service for estimating agricultural measurements using models an
 ## الميزات | Features
 
 ### المستشعرات المتاحة | Available Sensors
-| المستشعر | Sensor | الوصف |
-|----------|--------|--------|
-| رطوبة التربة | Soil Moisture | تقدير من NDWI والطقس |
-| درجة حرارة السطح | Surface Temp | من الأقمار الحرارية |
-| الإجهاد المائي | Water Stress | مؤشر الإجهاد |
-| الكتلة الحيوية | Biomass | تقدير الكتلة الخضراء |
-| النتروجين | Nitrogen | محتوى النيتروجين |
-| الكلوروفيل | Chlorophyll | محتوى اليخضور |
+
+| المستشعر         | Sensor        | الوصف                |
+| ---------------- | ------------- | -------------------- |
+| رطوبة التربة     | Soil Moisture | تقدير من NDWI والطقس |
+| درجة حرارة السطح | Surface Temp  | من الأقمار الحرارية  |
+| الإجهاد المائي   | Water Stress  | مؤشر الإجهاد         |
+| الكتلة الحيوية   | Biomass       | تقدير الكتلة الخضراء |
+| النتروجين        | Nitrogen      | محتوى النيتروجين     |
+| الكلوروفيل       | Chlorophyll   | محتوى اليخضور        |
 
 ### مصادر البيانات | Data Sources
-| المصدر | Source | البيانات |
-|--------|--------|----------|
-| Sentinel-2 | Sentinel-2 | NDVI, NDWI |
-| Landsat | Landsat | حرارة السطح |
-| SMAP | SMAP | رطوبة التربة |
-| بيانات الطقس | Weather | درجات الحرارة، الرطوبة |
+
+| المصدر       | Source     | البيانات               |
+| ------------ | ---------- | ---------------------- |
+| Sentinel-2   | Sentinel-2 | NDVI, NDWI             |
+| Landsat      | Landsat    | حرارة السطح            |
+| SMAP         | SMAP       | رطوبة التربة           |
+| بيانات الطقس | Weather    | درجات الحرارة، الرطوبة |
 
 ---
 
@@ -208,52 +210,54 @@ Response:
 ## نماذج البيانات | Data Models
 
 ### VirtualSensorReading
+
 ```json
 {
-    "id": "read-001",
-    "field_id": "field-001",
-    "sensor_type": "soil_moisture",
-    "timestamp": "2024-01-15T10:00:00Z",
-    "reading": {
-        "value": 42.5,
-        "unit": "percent",
-        "precision": 2
-    },
-    "model": {
-        "name": "smi_ndwi_weather",
-        "version": "2.1",
-        "confidence": 0.85
-    },
-    "inputs": {
-        "ndwi": 0.35,
-        "temperature_c": 25.5,
-        "humidity_percent": 45,
-        "days_since_rain": 3
-    },
-    "quality": {
-        "data_completeness": 0.95,
-        "cloud_free": true
-    }
+  "id": "read-001",
+  "field_id": "field-001",
+  "sensor_type": "soil_moisture",
+  "timestamp": "2024-01-15T10:00:00Z",
+  "reading": {
+    "value": 42.5,
+    "unit": "percent",
+    "precision": 2
+  },
+  "model": {
+    "name": "smi_ndwi_weather",
+    "version": "2.1",
+    "confidence": 0.85
+  },
+  "inputs": {
+    "ndwi": 0.35,
+    "temperature_c": 25.5,
+    "humidity_percent": 45,
+    "days_since_rain": 3
+  },
+  "quality": {
+    "data_completeness": 0.95,
+    "cloud_free": true
+  }
 }
 ```
 
 ### CalibrationPoint
+
 ```json
 {
-    "id": "cal-001",
-    "field_id": "field-001",
-    "sensor_type": "soil_moisture",
-    "measurement_date": "2024-01-15",
-    "location": {
-        "lat": 15.35,
-        "lng": 44.15,
-        "depth_cm": 30
-    },
-    "measured_value": 44.0,
-    "predicted_value": 42.5,
-    "error": -1.5,
-    "method": "tdr_probe",
-    "operator_id": "user-001"
+  "id": "cal-001",
+  "field_id": "field-001",
+  "sensor_type": "soil_moisture",
+  "measurement_date": "2024-01-15",
+  "location": {
+    "lat": 15.35,
+    "lng": 44.15,
+    "depth_cm": 30
+  },
+  "measured_value": 44.0,
+  "predicted_value": 42.5,
+  "error": -1.5,
+  "method": "tdr_probe",
+  "operator_id": "user-001"
 }
 ```
 

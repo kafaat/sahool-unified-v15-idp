@@ -15,7 +15,10 @@ export default function DashboardLoading() {
       {/* Stats Cards Skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white rounded-xl border-2 border-gray-200 p-6 animate-pulse">
+          <div
+            key={i}
+            className="bg-white rounded-xl border-2 border-gray-200 p-6 animate-pulse"
+          >
             <div className="h-4 bg-gray-200 rounded w-2/3 mb-3"></div>
             <div className="h-10 bg-gray-200 rounded w-1/2"></div>
           </div>

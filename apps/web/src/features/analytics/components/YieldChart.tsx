@@ -3,9 +3,9 @@
  * مكون رسم بياني للمحصول
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   LineChart,
   Line,
@@ -19,8 +19,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import type { DataPoint, ChartType } from '../types';
+} from "recharts";
+import type { DataPoint, ChartType } from "../types";
 
 interface YieldChartProps {
   data: DataPoint[];
@@ -34,7 +34,7 @@ interface YieldChartProps {
 
 export const YieldChart: React.FC<YieldChartProps> = ({
   data,
-  chartType = 'line',
+  chartType = "line",
   title,
   titleAr,
   height = 400,
@@ -56,14 +56,14 @@ export const YieldChart: React.FC<YieldChartProps> = ({
     };
 
     const tooltipStyle = {
-      backgroundColor: '#fff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      padding: '8px 12px',
+      backgroundColor: "#fff",
+      border: "1px solid #e5e7eb",
+      borderRadius: "8px",
+      padding: "8px 12px",
     };
 
     switch (chartType) {
-      case 'bar':
+      case "bar":
         return (
           <BarChart {...commonProps}>
             {showGrid && <CartesianGrid strokeDasharray="3 3" />}
@@ -77,10 +77,15 @@ export const YieldChart: React.FC<YieldChartProps> = ({
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip contentStyle={tooltipStyle} />
             {showLegend && <Legend />}
-            <Bar dataKey="value" fill="#10b981" name="الإنتاج" radius={[8, 8, 0, 0]} />
+            <Bar
+              dataKey="value"
+              fill="#10b981"
+              name="الإنتاج"
+              radius={[8, 8, 0, 0]}
+            />
           </BarChart>
         );
-      case 'area':
+      case "area":
         return (
           <AreaChart {...commonProps}>
             {showGrid && <CartesianGrid strokeDasharray="3 3" />}
@@ -104,7 +109,7 @@ export const YieldChart: React.FC<YieldChartProps> = ({
             />
           </AreaChart>
         );
-      case 'line':
+      case "line":
       default:
         return (
           <LineChart {...commonProps}>

@@ -1,4 +1,5 @@
 # Password Hashing Migration to Argon2id
+
 # ترحيل تشفير كلمات المرور إلى Argon2id
 
 ## Overview / نظرة عامة
@@ -88,6 +89,7 @@ psql -U postgres -d sahool -f database/migrations/011_migrate_passwords_to_argon
 ```
 
 This will:
+
 - Add `password_needs_migration` column
 - Add `password_algorithm` column
 - Flag existing bcrypt/PBKDF2 passwords
@@ -141,21 +143,21 @@ async def register(email: str, password: str, db: Session = Depends(get_db)):
 #### TypeScript (NestJS/Express Example)
 
 ```typescript
-import { hashPassword, verifyPassword } from '@/shared/auth/password-hasher';
+import { hashPassword, verifyPassword } from "@/shared/auth/password-hasher";
 
 // Login endpoint
 async function login(email: string, password: string) {
   // Get user from database
   const user = await getUserByEmail(email);
   if (!user) {
-    throw new UnauthorizedException('Invalid credentials');
+    throw new UnauthorizedException("Invalid credentials");
   }
 
   // Verify password and check migration
   const result = await verifyPassword(password, user.passwordHash);
 
   if (!result.isValid) {
-    throw new UnauthorizedException('Invalid credentials');
+    throw new UnauthorizedException("Invalid credentials");
   }
 
   // If needs migration, rehash and update
@@ -177,7 +179,7 @@ async function register(email: string, password: string) {
   const user = await createUser({
     email,
     passwordHash,
-    passwordAlgorithm: 'argon2id',
+    passwordAlgorithm: "argon2id",
   });
 
   return { userId: user.id };
@@ -267,21 +269,21 @@ token = generate_secure_token(32)  # 32 bytes = 64 hex chars
 #### `PasswordHasher` Class
 
 ```typescript
-import { PasswordHasher } from '@/shared/auth/password-hasher';
+import { PasswordHasher } from "@/shared/auth/password-hasher";
 
 const hasher = new PasswordHasher({
-  timeCost: 2,        // Argon2 time cost (iterations)
-  memoryCost: 65536,  // Memory usage in KiB (64 MB)
-  parallelism: 4,     // Number of threads
-  hashLength: 32,     // Hash length in bytes
-  saltLength: 16      // Salt length in bytes
+  timeCost: 2, // Argon2 time cost (iterations)
+  memoryCost: 65536, // Memory usage in KiB (64 MB)
+  parallelism: 4, // Number of threads
+  hashLength: 32, // Hash length in bytes
+  saltLength: 16, // Salt length in bytes
 });
 
 // Hash a password
-const hashed = await hasher.hashPassword('MyPassword123!');
+const hashed = await hasher.hashPassword("MyPassword123!");
 
 // Verify a password
-const result = await hasher.verifyPassword('MyPassword123!', hashed);
+const result = await hasher.verifyPassword("MyPassword123!", hashed);
 // result = { isValid: true, needsRehash: false }
 
 // Check if rehashing is needed
@@ -296,20 +298,20 @@ import {
   verifyPassword,
   needsRehash,
   generateOTP,
-  generateSecureToken
-} from '@/shared/auth/password-hasher';
+  generateSecureToken,
+} from "@/shared/auth/password-hasher";
 
 // Hash password
-const hashed = await hashPassword('MyPassword123!');
+const hashed = await hashPassword("MyPassword123!");
 
 // Verify password
-const result = await verifyPassword('MyPassword123!', hashed);
+const result = await verifyPassword("MyPassword123!", hashed);
 
 // Generate OTP
-const otp = generateOTP(6);  // 6-digit OTP
+const otp = generateOTP(6); // 6-digit OTP
 
 // Generate secure token
-const token = generateSecureToken(32);  // 32 bytes = 64 hex chars
+const token = generateSecureToken(32); // 32 bytes = 64 hex chars
 ```
 
 ## Security Considerations / اعتبارات الأمان
@@ -317,6 +319,7 @@ const token = generateSecureToken(32);  // 32 bytes = 64 hex chars
 ### Argon2id Parameters
 
 Current settings (OWASP recommended for 2024):
+
 - **Time cost**: 2 iterations
 - **Memory cost**: 64 MB
 - **Parallelism**: 4 threads
@@ -376,6 +379,7 @@ jest tests/test_password_hasher.test.ts
 ### Issue: "argon2-cffi not available"
 
 **Solution**:
+
 ```bash
 pip install argon2-cffi
 # or
@@ -385,6 +389,7 @@ npm install argon2
 ### Issue: Migration not happening
 
 **Check**:
+
 1. SQL migration was applied: `SELECT * FROM password_migration_stats;`
 2. Code is using new password hasher
 3. `password_needs_migration` column exists
@@ -393,6 +398,7 @@ npm install argon2
 ### Issue: Performance concerns
 
 **Solution**: Adjust Argon2 parameters based on your server capacity:
+
 ```python
 # Lower settings for resource-constrained environments
 hasher = PasswordHasher(
@@ -406,11 +412,11 @@ hasher = PasswordHasher(
 
 Approximate hashing times on modern hardware:
 
-| Algorithm | Time | Memory |
-|-----------|------|--------|
-| Argon2id (current) | ~100ms | 64 MB |
-| bcrypt (rounds=12) | ~250ms | Minimal |
-| PBKDF2 (100k iterations) | ~50ms | Minimal |
+| Algorithm                | Time   | Memory  |
+| ------------------------ | ------ | ------- |
+| Argon2id (current)       | ~100ms | 64 MB   |
+| bcrypt (rounds=12)       | ~250ms | Minimal |
+| PBKDF2 (100k iterations) | ~50ms  | Minimal |
 
 **Note**: Argon2id is intentionally slower to resist brute-force attacks.
 
@@ -423,6 +429,7 @@ Approximate hashing times on modern hardware:
 ## Support / الدعم
 
 For questions or issues:
+
 1. Check this README
 2. Review test files for examples
 3. Check `password_migration_helper.py` for integration examples

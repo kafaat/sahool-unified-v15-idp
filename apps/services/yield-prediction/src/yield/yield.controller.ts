@@ -3,12 +3,16 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { YieldService, ActionTemplate, PreHarvestAlertResponse } from './yield.service';
+import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
+import {
+  YieldService,
+  ActionTemplate,
+  PreHarvestAlertResponse,
+} from "./yield.service";
 
-@ApiTags('yield')
-@Controller('api/v1/yield')
+@ApiTags("yield")
+@Controller("api/v1/yield")
 export class YieldController {
   constructor(private readonly yieldService: YieldService) {}
 
@@ -16,13 +20,13 @@ export class YieldController {
   // Predict Field Yield - التنبؤ بإنتاجية الحقل
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('predict/:fieldId')
+  @Get("predict/:fieldId")
   @ApiOperation({
-    summary: 'Predict field yield',
-    description: 'التنبؤ بإنتاجية حقل معين بناءً على بيانات الاستشعار عن بُعد',
+    summary: "Predict field yield",
+    description: "التنبؤ بإنتاجية حقل معين بناءً على بيانات الاستشعار عن بُعد",
   })
-  @ApiResponse({ status: 200, description: 'Yield prediction result' })
-  async predictFieldYield(@Param('fieldId') fieldId: string) {
+  @ApiResponse({ status: 200, description: "Yield prediction result" })
+  async predictFieldYield(@Param("fieldId") fieldId: string) {
     return this.yieldService.predictFieldYield(fieldId);
   }
 
@@ -30,12 +34,12 @@ export class YieldController {
   // Get Growth Stage - مرحلة النمو
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('growth-stage/:fieldId')
+  @Get("growth-stage/:fieldId")
   @ApiOperation({
-    summary: 'Get crop growth stage',
-    description: 'الحصول على مرحلة نمو المحصول الحالية',
+    summary: "Get crop growth stage",
+    description: "الحصول على مرحلة نمو المحصول الحالية",
   })
-  async getGrowthStage(@Param('fieldId') fieldId: string) {
+  async getGrowthStage(@Param("fieldId") fieldId: string) {
     return this.yieldService.getGrowthStage(fieldId);
   }
 
@@ -43,12 +47,12 @@ export class YieldController {
   // Predict Harvest Date - التنبؤ بموعد الحصاد
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('harvest-date/:fieldId')
+  @Get("harvest-date/:fieldId")
   @ApiOperation({
-    summary: 'Predict harvest date',
-    description: 'التنبؤ بموعد الحصاد الأمثل',
+    summary: "Predict harvest date",
+    description: "التنبؤ بموعد الحصاد الأمثل",
   })
-  async predictHarvestDate(@Param('fieldId') fieldId: string) {
+  async predictHarvestDate(@Param("fieldId") fieldId: string) {
     return this.yieldService.predictHarvestDate(fieldId);
   }
 
@@ -56,17 +60,17 @@ export class YieldController {
   // Get Regional Statistics - إحصائيات المنطقة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('regional/:governorate')
+  @Get("regional/:governorate")
   @ApiOperation({
-    summary: 'Get regional yield statistics',
-    description: 'الحصول على إحصائيات الإنتاجية للمنطقة',
+    summary: "Get regional yield statistics",
+    description: "الحصول على إحصائيات الإنتاجية للمنطقة",
   })
-  @ApiQuery({ name: 'cropType', required: false })
-  @ApiQuery({ name: 'year', required: false })
+  @ApiQuery({ name: "cropType", required: false })
+  @ApiQuery({ name: "year", required: false })
   async getRegionalStats(
-    @Param('governorate') governorate: string,
-    @Query('cropType') cropType?: string,
-    @Query('year') year?: number,
+    @Param("governorate") governorate: string,
+    @Query("cropType") cropType?: string,
+    @Query("year") year?: number,
   ) {
     return this.yieldService.getRegionalStats({ governorate, cropType, year });
   }
@@ -75,15 +79,15 @@ export class YieldController {
   // Get Historical Yields - الإنتاجية التاريخية
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('history/:fieldId')
+  @Get("history/:fieldId")
   @ApiOperation({
-    summary: 'Get historical yield data',
-    description: 'الحصول على بيانات الإنتاجية التاريخية للحقل',
+    summary: "Get historical yield data",
+    description: "الحصول على بيانات الإنتاجية التاريخية للحقل",
   })
-  @ApiQuery({ name: 'years', required: false, type: Number })
+  @ApiQuery({ name: "years", required: false, type: Number })
   async getHistoricalYields(
-    @Param('fieldId') fieldId: string,
-    @Query('years') years?: number,
+    @Param("fieldId") fieldId: string,
+    @Query("years") years?: number,
   ) {
     return this.yieldService.getHistoricalYields(fieldId, years || 5);
   }
@@ -92,12 +96,12 @@ export class YieldController {
   // Get Maturity Monitoring - مراقبة النضج
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('maturity/:fieldId')
+  @Get("maturity/:fieldId")
   @ApiOperation({
-    summary: 'Get maturity monitoring data',
-    description: 'مراقبة نضج المحصول',
+    summary: "Get maturity monitoring data",
+    description: "مراقبة نضج المحصول",
   })
-  async getMaturityMonitoring(@Param('fieldId') fieldId: string) {
+  async getMaturityMonitoring(@Param("fieldId") fieldId: string) {
     return this.yieldService.getMaturityMonitoring(fieldId);
   }
 
@@ -106,16 +110,19 @@ export class YieldController {
   // تنبيه ما قبل الحصاد مع قالب الإجراء
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('predict-with-action/:fieldId')
+  @Get("predict-with-action/:fieldId")
   @ApiOperation({
-    summary: 'Predict yield with ActionTemplate',
-    description: 'التنبؤ بالإنتاجية مع قالب إجراء ما قبل الحصاد - Field-First',
+    summary: "Predict yield with ActionTemplate",
+    description: "التنبؤ بالإنتاجية مع قالب إجراء ما قبل الحصاد - Field-First",
   })
-  @ApiResponse({ status: 200, description: 'Pre-harvest alert with ActionTemplate' })
+  @ApiResponse({
+    status: 200,
+    description: "Pre-harvest alert with ActionTemplate",
+  })
   async predictWithAction(
-    @Param('fieldId') fieldId: string,
-    @Query('farmerId') farmerId?: string,
-    @Query('tenantId') tenantId?: string,
+    @Param("fieldId") fieldId: string,
+    @Query("farmerId") farmerId?: string,
+    @Query("tenantId") tenantId?: string,
   ): Promise<PreHarvestAlertResponse> {
     return this.yieldService.predictWithAction(fieldId, farmerId, tenantId);
   }
@@ -125,14 +132,14 @@ export class YieldController {
   // فحص جاهزية الحصاد
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('harvest-readiness/:fieldId')
+  @Get("harvest-readiness/:fieldId")
   @ApiOperation({
-    summary: 'Check harvest readiness with ActionTemplate',
-    description: 'فحص جاهزية الحصاد مع توصيات عملية',
+    summary: "Check harvest readiness with ActionTemplate",
+    description: "فحص جاهزية الحصاد مع توصيات عملية",
   })
   async getHarvestReadiness(
-    @Param('fieldId') fieldId: string,
-    @Query('farmerId') farmerId?: string,
+    @Param("fieldId") fieldId: string,
+    @Query("farmerId") farmerId?: string,
   ) {
     return this.yieldService.getHarvestReadiness(fieldId, farmerId);
   }
@@ -141,8 +148,12 @@ export class YieldController {
   // Health Check
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('health')
+  @Get("health")
   healthCheck() {
-    return { status: 'ok', service: 'yield-prediction', timestamp: new Date().toISOString() };
+    return {
+      status: "ok",
+      service: "yield-prediction",
+      timestamp: new Date().toISOString(),
+    };
   }
 }

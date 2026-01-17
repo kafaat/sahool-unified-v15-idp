@@ -31,6 +31,7 @@
 **Result**: NO signal handlers found in any Node.js service
 
 **Services Checked**:
+
 - `/apps/services/chat-service/src/main.ts` - NO signal handling
 - `/apps/services/user-service/src/main.ts` - NO signal handling
 - `/apps/services/iot-service/src/main.ts` - NO signal handling
@@ -45,6 +46,7 @@
 - `/apps/services/field-management-service/` - NO signal handling
 
 **Impact**:
+
 - WebSocket connections terminated abruptly (chat-service, community-chat, ws-gateway)
 - Database connections not closed properly
 - Redis connections leaked
@@ -60,6 +62,7 @@
 **Result**: NO signal handlers found in any Python service
 
 **Services Checked**:
+
 - `/apps/services/ai-advisor/src/main.py` - NO signal handling
 - `/apps/services/field-ops/src/main.py` - NO signal handling
 - `/apps/services/provider-config/src/main.py` - NO signal handling
@@ -99,6 +102,7 @@
 - `/apps/services/ws-gateway/` - NO signal handling
 
 **Impact**:
+
 - AI/LLM requests interrupted mid-generation
 - Database transactions not rolled back
 - HTTP client connections not closed
@@ -112,6 +116,7 @@
 
 **Special Concern - Uvicorn Workers**:
 Many services run with `--workers 2` flag:
+
 - `/apps/services/yield-engine/Dockerfile`: `CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8098", "--workers", "2"]`
 - `/apps/services/crop-health-ai/Dockerfile`: `CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8095", "--workers", "2"]`
 
@@ -128,12 +133,14 @@ Worker processes will be forcefully killed without coordinated shutdown.
 **Result**: NO init systems found in any Dockerfile
 
 **Impact**:
+
 - Zombie processes not reaped
 - Signals not properly forwarded to child processes
 - PID 1 problem: Services run as PID 1, which has special signal handling in Linux
 - Multi-worker services (uvicorn --workers 2) won't propagate signals to workers
 
 **Example Dockerfiles Checked**:
+
 - `/apps/services/chat-service/Dockerfile` - NO tini/dumb-init
 - `/apps/services/ai-advisor/Dockerfile` - NO tini/dumb-init
 - All 52 Dockerfiles - NO tini/dumb-init
@@ -144,6 +151,7 @@ Worker processes will be forcefully killed without coordinated shutdown.
 **ENTRYPOINT Usage**: 0 services (0%)
 
 **All Services Use CMD**:
+
 ```dockerfile
 # Node.js services
 CMD ["node", "dist/main.js"]
@@ -158,6 +166,7 @@ CMD ["python", "-m", "src.worker"]
 ```
 
 **Impact**:
+
 - Services run directly as PID 1
 - Shell-based CMD (`sh -c`) creates additional process layer
 - Signals must be handled by application code (currently NOT implemented)
@@ -171,9 +180,10 @@ CMD ["python", "-m", "src.worker"]
 
 ### 3.1 stop_grace_period
 
-**Pattern Searched**: `stop_grace_period` in all docker-compose*.yml files
+**Pattern Searched**: `stop_grace_period` in all docker-compose\*.yml files
 
 **Files Checked**:
+
 - `/docker-compose.yml` (2525 lines)
 - `/docker-compose.prod.yml`
 - `/docker-compose.test.yml`
@@ -187,11 +197,13 @@ CMD ["python", "-m", "src.worker"]
 **Result**: NO stop_grace_period configured for ANY service
 
 **Default Behavior**:
+
 - Docker default `stop_grace_period` is **10 seconds**
 - After 10 seconds, Docker sends SIGKILL (force kill, cannot be caught)
 - Since no services handle SIGTERM, they run for full 10 seconds then get SIGKILL
 
 **Impact**:
+
 - Services killed after 10 seconds regardless of cleanup needs
 - No opportunity for proper cleanup even if implemented
 - Database connections forcefully closed
@@ -333,11 +345,13 @@ CMD ["python", "-m", "src.worker"]
 ### 5.1 Kubernetes Behavior
 
 **Default Kubernetes Pod Termination**:
+
 1. Pod receives SIGTERM
 2. `terminationGracePeriodSeconds` countdown starts (default: 30s)
 3. If process still running after grace period, SIGKILL sent
 
 **Current State**:
+
 - Services don't handle SIGTERM → run until SIGKILL
 - Wastes grace period time
 - No cleanup occurs
@@ -346,11 +360,13 @@ CMD ["python", "-m", "src.worker"]
 ### 5.2 Docker Compose Behavior
 
 **Docker Compose Stop**:
+
 1. Sends SIGTERM to container
 2. Waits `stop_grace_period` (default: 10s, none configured)
 3. Sends SIGKILL
 
 **Current State**:
+
 - `docker-compose down` kills all services after 10s
 - No cleanup occurs
 - Database connections not closed
@@ -359,12 +375,14 @@ CMD ["python", "-m", "src.worker"]
 ### 5.3 Docker Swarm Behavior
 
 **Swarm Service Update**:
+
 1. Starts new container
 2. Sends SIGTERM to old container
 3. Waits `stop_grace_period`
 4. Sends SIGKILL
 
 **Current State**:
+
 - Rolling updates always wait full 10s per container
 - Slow deployment times
 - No graceful connection draining
@@ -378,6 +396,7 @@ CMD ["python", "-m", "src.worker"]
 **Scenario**: Service receives SIGTERM during database transaction
 
 **Current Behavior**:
+
 1. Service continues running (doesn't handle SIGTERM)
 2. After 10s, receives SIGKILL
 3. Database transaction not committed or rolled back
@@ -385,6 +404,7 @@ CMD ["python", "-m", "src.worker"]
 5. PostgreSQL marks connection as "terminated abnormally"
 
 **Impact**:
+
 - PgBouncer connection pool may hold dead connections
 - Database locks not released
 - Transaction log bloat
@@ -395,6 +415,7 @@ CMD ["python", "-m", "src.worker"]
 **Scenario**: chat-service receives SIGTERM with 100 active WebSocket connections
 
 **Current Behavior**:
+
 1. Service continues running (doesn't handle SIGTERM)
 2. After 10s, receives SIGKILL
 3. All 100 WebSocket connections dropped instantly
@@ -402,6 +423,7 @@ CMD ["python", "-m", "src.worker"]
 5. Clients see network error, not graceful disconnect
 
 **Impact**:
+
 - Poor user experience (connection errors)
 - Message loss for in-flight messages
 - Clients must implement aggressive retry logic
@@ -412,6 +434,7 @@ CMD ["python", "-m", "src.worker"]
 **Scenario**: ai-advisor receives SIGTERM during OpenAI API call
 
 **Current Behavior**:
+
 1. Service continues running (doesn't handle SIGTERM)
 2. After 10s, receives SIGKILL
 3. OpenAI API request terminated mid-stream
@@ -420,6 +443,7 @@ CMD ["python", "-m", "src.worker"]
 6. HTTP client connection not closed
 
 **Impact**:
+
 - Wasted API credits (partial responses)
 - Cost tracking inaccurate
 - Client receives 502/504 error
@@ -430,6 +454,7 @@ CMD ["python", "-m", "src.worker"]
 **Scenario**: crop-health-ai receives SIGTERM during image upload processing
 
 **Current Behavior**:
+
 1. Service continues running (doesn't handle SIGTERM)
 2. After 10s, receives SIGKILL
 3. Image file partially written
@@ -437,6 +462,7 @@ CMD ["python", "-m", "src.worker"]
 5. Temporary files not cleaned up
 
 **Impact**:
+
 - Disk space leaked (temp files)
 - Corrupted image files
 - Processing job lost
@@ -454,18 +480,19 @@ CMD ["python", "-m", "src.worker"]
 services:
   chat-service:
     # ... existing config ...
-    stop_grace_period: 30s  # Allow 30s for cleanup
+    stop_grace_period: 30s # Allow 30s for cleanup
 
   ai-advisor:
     # ... existing config ...
-    stop_grace_period: 60s  # AI services need more time
+    stop_grace_period: 60s # AI services need more time
 
   marketplace-service:
     # ... existing config ...
-    stop_grace_period: 30s  # Financial data needs proper cleanup
+    stop_grace_period: 30s # Financial data needs proper cleanup
 ```
 
 **Recommended grace periods**:
+
 - Standard services: 30s
 - AI/ML services: 60s
 - Data processing services: 45s
@@ -506,8 +533,8 @@ CMD ["node", "dist/main.js"]
 **Add to all NestJS main.ts files**:
 
 ```typescript
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -517,7 +544,7 @@ async function bootstrap() {
   await app.listen(port);
 
   // Graceful shutdown handling
-  const signals = ['SIGTERM', 'SIGINT'];
+  const signals = ["SIGTERM", "SIGINT"];
 
   for (const signal of signals) {
     process.on(signal, async () => {
@@ -526,20 +553,20 @@ async function bootstrap() {
       try {
         // Close server (stop accepting new connections)
         await app.close();
-        console.log('Server closed successfully');
+        console.log("Server closed successfully");
 
         // Exit successfully
         process.exit(0);
       } catch (error) {
-        console.error('Error during shutdown:', error);
+        console.error("Error during shutdown:", error);
         process.exit(1);
       }
     });
   }
 
   // Handle uncaught errors during shutdown
-  process.on('uncaughtException', (error) => {
-    console.error('Uncaught exception during shutdown:', error);
+  process.on("uncaughtException", (error) => {
+    console.error("Uncaught exception during shutdown:", error);
     process.exit(1);
   });
 }
@@ -548,6 +575,7 @@ bootstrap();
 ```
 
 **What app.close() does**:
+
 - Closes HTTP server (stops accepting connections)
 - Waits for in-flight requests to complete
 - Closes WebSocket connections gracefully
@@ -650,15 +678,15 @@ async def lifespan(app: FastAPI):
 **chat-service (WebSocket cleanup)**:
 
 ```typescript
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, closing WebSocket connections...');
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, closing WebSocket connections...");
 
   // Get Socket.IO server instance
   const io = app.get(SocketIoAdapter).io;
 
   // Emit disconnect event to all clients
-  io.emit('server_shutdown', {
-    message: 'Server is shutting down, please reconnect'
+  io.emit("server_shutdown", {
+    message: "Server is shutting down, please reconnect",
   });
 
   // Close all socket connections
@@ -668,7 +696,7 @@ process.on('SIGTERM', async () => {
   }
 
   // Wait briefly for disconnects to process
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   // Close HTTP server
   await app.close();
@@ -710,8 +738,8 @@ async def lifespan(app: FastAPI):
 **iot-service (MQTT cleanup)**:
 
 ```typescript
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, closing MQTT connections...');
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, closing MQTT connections...");
 
   const mqttService = app.get(MqttService);
 
@@ -778,14 +806,14 @@ let isShuttingDown = false;
 const activeConnections = new Set();
 
 // Track connections
-server.on('connection', (conn) => {
+server.on("connection", (conn) => {
   activeConnections.add(conn);
-  conn.on('close', () => {
+  conn.on("close", () => {
     activeConnections.delete(conn);
   });
 });
 
-process.on('SIGTERM', async () => {
+process.on("SIGTERM", async () => {
   isShuttingDown = true;
 
   // Stop accepting new connections
@@ -797,7 +825,7 @@ process.on('SIGTERM', async () => {
 
   while (activeConnections.size > 0 && Date.now() - startTime < maxWait) {
     console.log(`Waiting for ${activeConnections.size} connections...`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   // Force close remaining connections
@@ -818,7 +846,7 @@ export class ShutdownMiddleware implements NestMiddleware {
   private isShuttingDown = false;
 
   constructor() {
-    process.on('SIGTERM', () => {
+    process.on("SIGTERM", () => {
       this.isShuttingDown = true;
     });
   }
@@ -826,8 +854,8 @@ export class ShutdownMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     if (this.isShuttingDown) {
       res.status(503).json({
-        error: 'Service is shutting down',
-        code: 'SERVICE_UNAVAILABLE'
+        error: "Service is shutting down",
+        code: "SERVICE_UNAVAILABLE",
       });
       return;
     }
@@ -888,8 +916,8 @@ docker-compose stop chat-service
 **Integration Test**:
 
 ```typescript
-describe('Graceful Shutdown', () => {
-  it('should close all connections on SIGTERM', async () => {
+describe("Graceful Shutdown", () => {
+  it("should close all connections on SIGTERM", async () => {
     // Start service
     const app = await bootstrap();
 
@@ -898,10 +926,10 @@ describe('Graceful Shutdown', () => {
     const conn2 = await createHttpRequest();
 
     // Send SIGTERM
-    process.kill(process.pid, 'SIGTERM');
+    process.kill(process.pid, "SIGTERM");
 
     // Wait for shutdown
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     // Verify connections closed gracefully
     expect(conn1.readyState).toBe(WebSocket.CLOSED);
@@ -929,6 +957,7 @@ kubectl logs -f deployment/chat-service -n sahool
 ```
 
 **Metric to Monitor**:
+
 - Connection error rate should NOT spike during deployments
 - Request success rate should stay >99.9%
 - Database connection pool should not show dead connections
@@ -939,28 +968,28 @@ kubectl logs -f deployment/chat-service -n sahool
 
 ### Critical Priority (Implement First)
 
-| Service | Risk Level | Reason | Estimated Effort |
-|---------|------------|--------|------------------|
-| marketplace-service | CRITICAL | Financial transactions | 4 hours |
-| billing-core | CRITICAL | Billing data | 4 hours |
-| chat-service | HIGH | 100+ concurrent WebSocket connections | 6 hours |
-| field-management-service | HIGH | Core field data | 4 hours |
-| iot-service | HIGH | Real-time sensor data + MQTT | 6 hours |
-| ai-advisor | HIGH | Expensive LLM operations | 6 hours |
-| task-service | HIGH | Task state management | 4 hours |
+| Service                  | Risk Level | Reason                                | Estimated Effort |
+| ------------------------ | ---------- | ------------------------------------- | ---------------- |
+| marketplace-service      | CRITICAL   | Financial transactions                | 4 hours          |
+| billing-core             | CRITICAL   | Billing data                          | 4 hours          |
+| chat-service             | HIGH       | 100+ concurrent WebSocket connections | 6 hours          |
+| field-management-service | HIGH       | Core field data                       | 4 hours          |
+| iot-service              | HIGH       | Real-time sensor data + MQTT          | 6 hours          |
+| ai-advisor               | HIGH       | Expensive LLM operations              | 6 hours          |
+| task-service             | HIGH       | Task state management                 | 4 hours          |
 
 **Total Estimated Effort: 34 hours (4-5 days)**
 
 ### High Priority (Implement Second)
 
-| Service | Risk Level | Reason | Estimated Effort |
-|---------|------------|--------|------------------|
-| user-service | HIGH | Authentication/session | 4 hours |
-| community-chat | HIGH | WebSocket connections | 4 hours |
-| crop-health-ai | MEDIUM | Image processing | 4 hours |
-| ndvi-processor | MEDIUM | Satellite processing | 4 hours |
-| weather-service | MEDIUM | External API connections | 3 hours |
-| notification-service | MEDIUM | Message queue | 3 hours |
+| Service              | Risk Level | Reason                   | Estimated Effort |
+| -------------------- | ---------- | ------------------------ | ---------------- |
+| user-service         | HIGH       | Authentication/session   | 4 hours          |
+| community-chat       | HIGH       | WebSocket connections    | 4 hours          |
+| crop-health-ai       | MEDIUM     | Image processing         | 4 hours          |
+| ndvi-processor       | MEDIUM     | Satellite processing     | 4 hours          |
+| weather-service      | MEDIUM     | External API connections | 3 hours          |
+| notification-service | MEDIUM     | Message queue            | 3 hours          |
 
 **Total Estimated Effort: 22 hours (3 days)**
 
@@ -1030,6 +1059,7 @@ All remaining services: 30 services × 3 hours = 90 hours (11 days)
 ### Metrics to Track
 
 **Application Metrics**:
+
 - `shutdown_duration_seconds` - Time taken for graceful shutdown
 - `shutdown_requests_completed` - Requests completed during shutdown
 - `shutdown_requests_rejected` - Requests rejected during shutdown (503)
@@ -1037,12 +1067,14 @@ All remaining services: 30 services × 3 hours = 90 hours (11 days)
 - `shutdown_success` - Boolean, was shutdown successful
 
 **Infrastructure Metrics**:
+
 - Container restart count (should decrease)
 - Pod termination duration (should decrease to <30s)
 - Database connection pool size (should not spike)
 - Connection error rate (should stay flat during deployments)
 
 **Business Metrics**:
+
 - Transaction success rate (should stay >99.9%)
 - Message delivery rate (should stay >99.9%)
 - API error rate (should not spike during deployments)
@@ -1051,28 +1083,28 @@ All remaining services: 30 services × 3 hours = 90 hours (11 days)
 
 ```typescript
 // On SIGTERM received
-logger.info('Graceful shutdown initiated', {
+logger.info("Graceful shutdown initiated", {
   timestamp: new Date().toISOString(),
   activeConnections: getActiveConnectionCount(),
   activeRequests: getActiveRequestCount(),
-  pid: process.pid
+  pid: process.pid,
 });
 
 // During shutdown
-logger.info('Closing server', {
-  timestamp: new Date().toISOString()
+logger.info("Closing server", {
+  timestamp: new Date().toISOString(),
 });
 
-logger.info('Waiting for connections to close', {
-  remainingConnections: getActiveConnectionCount()
+logger.info("Waiting for connections to close", {
+  remainingConnections: getActiveConnectionCount(),
 });
 
 // On shutdown complete
-logger.info('Graceful shutdown complete', {
+logger.info("Graceful shutdown complete", {
   timestamp: new Date().toISOString(),
   duration: shutdownDuration,
   requestsCompleted: completedCount,
-  requestsRejected: rejectedCount
+  requestsRejected: rejectedCount,
 });
 ```
 
@@ -1085,7 +1117,7 @@ logger.info('Graceful shutdown complete', {
 **File**: `apps/services/shared/shutdown/graceful-shutdown.ts`
 
 ```typescript
-import { INestApplication } from '@nestjs/common';
+import { INestApplication } from "@nestjs/common";
 
 export interface ShutdownOptions {
   gracePeriodMs?: number;
@@ -1098,9 +1130,9 @@ export class GracefulShutdown {
 
   constructor(
     private app: INestApplication,
-    private options: ShutdownOptions = {}
+    private options: ShutdownOptions = {},
   ) {
-    const signals = options.signals || ['SIGTERM', 'SIGINT'];
+    const signals = options.signals || ["SIGTERM", "SIGINT"];
 
     for (const signal of signals) {
       process.on(signal, () => this.shutdown(signal));
@@ -1126,16 +1158,18 @@ export class GracefulShutdown {
     try {
       // Wait for active requests to complete
       while (this.activeRequests > 0 && Date.now() - startTime < gracePeriod) {
-        console.log(`Waiting for ${this.activeRequests} requests to complete...`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(
+          `Waiting for ${this.activeRequests} requests to complete...`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
       // Close application
       await this.app.close();
-      console.log('Graceful shutdown complete');
+      console.log("Graceful shutdown complete");
       process.exit(0);
     } catch (error) {
-      console.error('Error during shutdown:', error);
+      console.error("Error during shutdown:", error);
       process.exit(1);
     }
   }
@@ -1235,8 +1269,8 @@ export class RequestTrackingMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const release = this.shutdown.trackRequest();
 
-    res.on('finish', release);
-    res.on('close', release);
+    res.on("finish", release);
+    res.on("close", release);
 
     next();
   }
@@ -1278,12 +1312,14 @@ This comprehensive analysis reveals a **critical gap in production readiness**: 
 ### Impact Assessment
 
 **Current State**:
+
 - Every deployment, scaling operation, or container restart risks data corruption
 - Database connection pool exhaustion during high-frequency deployments
 - Poor user experience with connection errors
 - Wasted compute resources and API credits
 
 **After Implementation**:
+
 - Zero-downtime deployments
 - Improved system reliability
 - Better resource utilization
@@ -1301,6 +1337,7 @@ This comprehensive analysis reveals a **critical gap in production readiness**: 
 ### Risk Mitigation
 
 Without these changes, the platform is at risk of:
+
 - Data corruption during deployments
 - Service degradation during scaling
 - Kubernetes pod eviction failures
@@ -1315,60 +1352,60 @@ Without these changes, the platform is at risk of:
 
 ### Services with Dockerfiles (52 total)
 
-| # | Service Name | Type | Dockerfile | SIGTERM | tini | stop_grace_period |
-|---|--------------|------|------------|---------|------|-------------------|
-| 1 | advisory-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 2 | agent-registry | Python | ✓ | ✗ | ✗ | ✗ |
-| 3 | agro-advisor | Python | ✓ | ✗ | ✗ | ✗ |
-| 4 | agro-rules | Python | ✓ | ✗ | ✗ | ✗ |
-| 5 | ai-advisor | Python | ✓ | ✗ | ✗ | ✗ |
-| 6 | ai-agents-core | Python | ✓ | ✗ | ✗ | ✗ |
-| 7 | alert-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 8 | astronomical-calendar | Python | ✓ | ✗ | ✗ | ✗ |
-| 9 | billing-core | Python | ✓ | ✗ | ✗ | ✗ |
-| 10 | chat-service | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 11 | code-review-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 12 | community-chat | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 13 | crop-growth-model | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 14 | crop-health | Python | ✓ | ✗ | ✗ | ✗ |
-| 15 | crop-health-ai | Python | ✓ | ✗ | ✗ | ✗ |
-| 16 | crop-intelligence-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 17 | demo-data | Python | ✓ | ✗ | ✗ | ✗ |
-| 18 | disaster-assessment | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 19 | equipment-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 20 | fertilizer-advisor | Python | ✓ | ✗ | ✗ | ✗ |
-| 21 | field-chat | Python | ✓ | ✗ | ✗ | ✗ |
-| 22 | field-core | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 23 | field-intelligence | Python | ✓ | ✗ | ✗ | ✗ |
-| 24 | field-management-service | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 25 | field-ops | Python | ✓ | ✗ | ✗ | ✗ |
-| 26 | field-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 27 | globalgap-compliance | Python | ✓ | ✗ | ✗ | ✗ |
-| 28 | indicators-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 29 | inventory-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 30 | iot-gateway | Python | ✓ | ✗ | ✗ | ✗ |
-| 31 | iot-service | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 32 | irrigation-smart | Python | ✓ | ✗ | ✗ | ✗ |
-| 33 | lai-estimation | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 34 | marketplace-service | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 35 | mcp-server | Python | ✓ | ✗ | ✗ | ✗ |
-| 36 | ndvi-engine | Python | ✓ | ✗ | ✗ | ✗ |
-| 37 | ndvi-processor | Python | ✓ | ✗ | ✗ | ✗ |
-| 38 | notification-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 39 | provider-config | Python | ✓ | ✗ | ✗ | ✗ |
-| 40 | research-core | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 41 | satellite-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 42 | task-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 43 | user-service | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 44 | vegetation-analysis-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 45 | virtual-sensors | Python | ✓ | ✗ | ✗ | ✗ |
-| 46 | weather-advanced | Python | ✓ | ✗ | ✗ | ✗ |
-| 47 | weather-core | Python | ✓ | ✗ | ✗ | ✗ |
-| 48 | weather-service | Python | ✓ | ✗ | ✗ | ✗ |
-| 49 | ws-gateway | Python | ✓ | ✗ | ✗ | ✗ |
-| 50 | yield-engine | Python | ✓ | ✗ | ✗ | ✗ |
-| 51 | yield-prediction | Node.js | ✓ | ✗ | ✗ | ✗ |
-| 52 | yield-prediction-service | Node.js | ✓ | ✗ | ✗ | ✗ |
+| #   | Service Name                | Type    | Dockerfile | SIGTERM | tini | stop_grace_period |
+| --- | --------------------------- | ------- | ---------- | ------- | ---- | ----------------- |
+| 1   | advisory-service            | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 2   | agent-registry              | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 3   | agro-advisor                | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 4   | agro-rules                  | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 5   | ai-advisor                  | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 6   | ai-agents-core              | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 7   | alert-service               | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 8   | astronomical-calendar       | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 9   | billing-core                | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 10  | chat-service                | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 11  | code-review-service         | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 12  | community-chat              | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 13  | crop-growth-model           | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 14  | crop-health                 | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 15  | crop-health-ai              | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 16  | crop-intelligence-service   | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 17  | demo-data                   | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 18  | disaster-assessment         | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 19  | equipment-service           | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 20  | fertilizer-advisor          | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 21  | field-chat                  | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 22  | field-core                  | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 23  | field-intelligence          | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 24  | field-management-service    | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 25  | field-ops                   | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 26  | field-service               | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 27  | globalgap-compliance        | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 28  | indicators-service          | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 29  | inventory-service           | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 30  | iot-gateway                 | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 31  | iot-service                 | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 32  | irrigation-smart            | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 33  | lai-estimation              | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 34  | marketplace-service         | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 35  | mcp-server                  | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 36  | ndvi-engine                 | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 37  | ndvi-processor              | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 38  | notification-service        | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 39  | provider-config             | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 40  | research-core               | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 41  | satellite-service           | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 42  | task-service                | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 43  | user-service                | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 44  | vegetation-analysis-service | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 45  | virtual-sensors             | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 46  | weather-advanced            | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 47  | weather-core                | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 48  | weather-service             | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 49  | ws-gateway                  | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 50  | yield-engine                | Python  | ✓          | ✗       | ✗    | ✗                 |
+| 51  | yield-prediction            | Node.js | ✓          | ✗       | ✗    | ✗                 |
+| 52  | yield-prediction-service    | Node.js | ✓          | ✗       | ✗    | ✗                 |
 
 **Legend**: ✓ = Implemented, ✗ = Not Implemented
 
@@ -1379,21 +1416,25 @@ Without these changes, the platform is at risk of:
 ### By Language/Framework
 
 **Node.js/NestJS Services (13)**:
+
 - chat-service, community-chat, crop-growth-model, disaster-assessment
 - field-core, field-management-service, iot-service, lai-estimation
 - marketplace-service, research-core, user-service, yield-prediction
 - yield-prediction-service
 
 **Python/FastAPI Services (39)**:
+
 - All remaining services use Python with FastAPI + uvicorn
 
 ### By Risk Level
 
 **CRITICAL (7 services)**:
+
 - marketplace-service, billing-core, chat-service
 - field-management-service, iot-service, ai-advisor, task-service
 
 **HIGH (25 services)**:
+
 - user-service, community-chat, crop-health-ai, ndvi-processor
 - weather-service, notification-service, provider-config
 - field-core, iot-gateway, crop-intelligence-service
@@ -1403,6 +1444,7 @@ Without these changes, the platform is at risk of:
 - agro-advisor, advisory-service, agent-registry, ai-agents-core
 
 **MEDIUM (20 services)**:
+
 - All remaining services
 
 ---

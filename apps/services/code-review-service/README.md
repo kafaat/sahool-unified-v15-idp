@@ -15,6 +15,7 @@ Real-time code review service using Ollama + DeepSeek model to review codebase c
 ## API Endpoints
 
 ### Health Check
+
 ```bash
 GET http://localhost:8096/health
 ```
@@ -22,6 +23,7 @@ GET http://localhost:8096/health
 Returns service health status and Ollama connectivity.
 
 ### Review Code Content
+
 ```bash
 POST http://localhost:8096/review
 Content-Type: application/json
@@ -36,6 +38,7 @@ Content-Type: application/json
 Reviews the provided code and returns a structured review.
 
 **Response:**
+
 ```json
 {
   "summary": "Code looks good with proper Python syntax...",
@@ -47,6 +50,7 @@ Reviews the provided code and returns a structured review.
 ```
 
 ### Review File from Codebase
+
 ```bash
 POST http://localhost:8096/review/file
 Content-Type: application/json
@@ -74,6 +78,7 @@ Reviews a file from the mounted codebase.
 ### Watched Paths
 
 By default, the service monitors:
+
 - `infrastructure/` - Infrastructure and configuration files
 - `docker-compose.yml` - Main Docker Compose configuration
 - `docker/` - Docker-related files
@@ -87,6 +92,7 @@ docker compose up -d code-review-service
 ```
 
 The service will:
+
 1. Start the HTTP API server on port 8096
 2. Start watching configured paths for file changes (if `REVIEW_ON_CHANGE=true`)
 
@@ -113,6 +119,7 @@ curl -X POST http://localhost:8096/review/file \
 ### API Documentation
 
 Once running, visit:
+
 - Swagger UI: `http://localhost:8096/docs`
 - ReDoc: `http://localhost:8096/redoc`
 
@@ -158,6 +165,7 @@ The service reviews code for:
 ## Integration
 
 The service automatically starts when:
+
 - Ollama service is healthy
 - Codebase is mounted at `/app/codebase`
 
@@ -166,16 +174,18 @@ It will automatically review any changes to files in the watched paths.
 ## Troubleshooting
 
 ### Service not starting
+
 - Check Ollama is running: `docker logs sahool-ollama`
 - Verify model is downloaded: `docker exec sahool-ollama ollama list`
 
 ### No reviews generated
+
 - Check file paths are in watched directories
 - Verify file extensions are supported
 - Check file size is under `MAX_FILE_SIZE`
 
 ### Slow reviews
+
 - Reduce `MAX_FILE_SIZE` to review smaller files
 - Check Ollama resource limits in docker-compose.yml
 - Consider using a smaller model variant
-

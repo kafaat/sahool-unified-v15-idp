@@ -6,9 +6,9 @@
  * in your React components for various use cases.
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   useFieldZones,
   useFieldAlerts,
@@ -19,7 +19,7 @@ import {
   useFieldIntelligence,
   useDebouncedDateValidation,
   type TaskFromAlertData,
-} from './useFieldIntelligence';
+} from "./useFieldIntelligence";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Example 1: Basic Field Zones Display
@@ -34,7 +34,11 @@ export function FieldZonesExample({ fieldId }: { fieldId: string }) {
   }
 
   if (isError) {
-    return <div>خطأ: {error?.message} / Error: {error?.message}</div>;
+    return (
+      <div>
+        خطأ: {error?.message} / Error: {error?.message}
+      </div>
+    );
   }
 
   return (
@@ -63,24 +67,27 @@ export function FieldAlertsExample({ fieldId }: { fieldId: string }) {
 
   const handleCreateTask = (alertId: string) => {
     const taskData: TaskFromAlertData = {
-      title: 'Task from Alert',
-      titleAr: 'مهمة من تنبيه',
-      priority: 'high',
+      title: "Task from Alert",
+      titleAr: "مهمة من تنبيه",
+      priority: "high",
     };
 
-    createTask.mutate({
-      alertId,
-      taskData,
-    }, {
-      onSuccess: (task) => {
-        console.log('Task created:', task);
-        alert(`Task ${task.id} created successfully!`);
+    createTask.mutate(
+      {
+        alertId,
+        taskData,
       },
-      onError: (error) => {
-        console.error('Failed to create task:', error);
-        alert('Failed to create task');
+      {
+        onSuccess: (task) => {
+          console.log("Task created:", task);
+          alert(`Task ${task.id} created successfully!`);
+        },
+        onError: (error) => {
+          console.error("Failed to create task:", error);
+          alert("Failed to create task");
+        },
       },
-    });
+    );
   };
 
   if (isLoading) {
@@ -107,12 +114,16 @@ export function FieldAlertsExample({ fieldId }: { fieldId: string }) {
         <div
           key={alert.id}
           className={`border p-4 rounded ${
-            alert.severity === 'critical' ? 'border-red-500 bg-red-50' :
-            alert.severity === 'warning' ? 'border-yellow-500 bg-yellow-50' :
-            'border-blue-500 bg-blue-50'
+            alert.severity === "critical"
+              ? "border-red-500 bg-red-50"
+              : alert.severity === "warning"
+                ? "border-yellow-500 bg-yellow-50"
+                : "border-blue-500 bg-blue-50"
           }`}
         >
-          <h3 className="font-semibold">{alert.titleAr} / {alert.title}</h3>
+          <h3 className="font-semibold">
+            {alert.titleAr} / {alert.title}
+          </h3>
           <p>{alert.messageAr}</p>
           <p className="text-sm text-gray-600">Severity: {alert.severity}</p>
           <button
@@ -120,7 +131,9 @@ export function FieldAlertsExample({ fieldId }: { fieldId: string }) {
             disabled={createTask.isPending}
             className="mt-2 px-3 py-1 bg-green-500 text-white rounded text-sm"
           >
-            {createTask.isPending ? 'جاري الإنشاء...' : 'إنشاء مهمة / Create Task'}
+            {createTask.isPending
+              ? "جاري الإنشاء..."
+              : "إنشاء مهمة / Create Task"}
           </button>
         </div>
       ))}
@@ -134,7 +147,7 @@ export function FieldAlertsExample({ fieldId }: { fieldId: string }) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function BestDaysExample() {
-  const [activity, setActivity] = useState('زراعة');
+  const [activity, setActivity] = useState("زراعة");
   const [days, setDays] = useState(30);
 
   const { data: bestDays, isLoading } = useBestDays(activity, {
@@ -207,14 +220,14 @@ export function BestDaysExample() {
 
 export function DateValidationExample() {
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0] as string
+    new Date().toISOString().split("T")[0] as string,
   );
-  const [activity, setActivity] = useState('زراعة');
+  const [activity, setActivity] = useState("زراعة");
 
   const { data: validation, isLoading } = useValidateDate(
-    selectedDate || '',
+    selectedDate || "",
     activity,
-    { enabled: !!selectedDate }
+    { enabled: !!selectedDate },
   );
 
   return (
@@ -223,9 +236,7 @@ export function DateValidationExample() {
 
       <div className="space-y-2">
         <div>
-          <label className="block text-sm font-medium">
-            Date / التاريخ:
-          </label>
+          <label className="block text-sm font-medium">Date / التاريخ:</label>
           <input
             type="date"
             value={selectedDate}
@@ -256,14 +267,16 @@ export function DateValidationExample() {
         <div
           className={`border p-4 rounded ${
             validation.suitable && validation.score > 70
-              ? 'bg-green-50 border-green-500'
+              ? "bg-green-50 border-green-500"
               : validation.score > 40
-              ? 'bg-yellow-50 border-yellow-500'
-              : 'bg-red-50 border-red-500'
+                ? "bg-yellow-50 border-yellow-500"
+                : "bg-red-50 border-red-500"
           }`}
         >
           <h3 className="font-semibold">
-            {validation.suitable ? '✓ تاريخ صالح / Valid Date' : '✗ تاريخ غير مثالي / Suboptimal Date'}
+            {validation.suitable
+              ? "✓ تاريخ صالح / Valid Date"
+              : "✗ تاريخ غير مثالي / Suboptimal Date"}
           </h3>
           <p className="mt-2">Score: {validation.score}/100</p>
           <p className="mt-2">Rating: {validation.ratingAr}</p>
@@ -300,7 +313,11 @@ export function DateValidationExample() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function FieldRecommendationsExample({ fieldId }: { fieldId: string }) {
-  const { data: recommendations, isLoading, refetch } = useFieldRecommendations(fieldId);
+  const {
+    data: recommendations,
+    isLoading,
+    refetch,
+  } = useFieldRecommendations(fieldId);
 
   if (isLoading) {
     return <div>جاري تحميل التوصيات... / Loading recommendations...</div>;
@@ -330,10 +347,13 @@ export function FieldRecommendationsExample({ fieldId }: { fieldId: string }) {
         <div
           key={rec.id}
           className={`border p-4 rounded ${
-            rec.priority === 'urgent' ? 'border-red-500 bg-red-50' :
-            rec.priority === 'high' ? 'border-orange-500 bg-orange-50' :
-            rec.priority === 'medium' ? 'border-yellow-500 bg-yellow-50' :
-            'border-blue-500 bg-blue-50'
+            rec.priority === "urgent"
+              ? "border-red-500 bg-red-50"
+              : rec.priority === "high"
+                ? "border-orange-500 bg-orange-50"
+                : rec.priority === "medium"
+                  ? "border-yellow-500 bg-yellow-50"
+                  : "border-blue-500 bg-blue-50"
           }`}
         >
           <div className="flex justify-between items-start">
@@ -343,10 +363,13 @@ export function FieldRecommendationsExample({ fieldId }: { fieldId: string }) {
             </div>
             <span
               className={`px-2 py-1 text-xs rounded ${
-                rec.priority === 'urgent' ? 'bg-red-200 text-red-800' :
-                rec.priority === 'high' ? 'bg-orange-200 text-orange-800' :
-                rec.priority === 'medium' ? 'bg-yellow-200 text-yellow-800' :
-                'bg-blue-200 text-blue-800'
+                rec.priority === "urgent"
+                  ? "bg-red-200 text-red-800"
+                  : rec.priority === "high"
+                    ? "bg-orange-200 text-orange-800"
+                    : rec.priority === "medium"
+                      ? "bg-yellow-200 text-yellow-800"
+                      : "bg-blue-200 text-blue-800"
               }`}
             >
               {rec.priority}
@@ -360,8 +383,11 @@ export function FieldRecommendationsExample({ fieldId }: { fieldId: string }) {
               <p className="font-medium text-sm">Action Items:</p>
               <ul className="list-disc list-inside text-sm space-y-1">
                 {rec.actionItems.map((item, idx) => (
-                  <li key={idx} className={item.required ? 'font-semibold' : ''}>
-                    {item.actionAr} {item.required && '(مطلوب)'}
+                  <li
+                    key={idx}
+                    className={item.required ? "font-semibold" : ""}
+                  >
+                    {item.actionAr} {item.required && "(مطلوب)"}
                   </li>
                 ))}
               </ul>
@@ -392,7 +418,9 @@ export function FieldIntelligenceDashboard({ fieldId }: { fieldId: string }) {
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4">جاري تحميل بيانات الذكاء... / Loading intelligence data...</p>
+          <p className="mt-4">
+            جاري تحميل بيانات الذكاء... / Loading intelligence data...
+          </p>
         </div>
       </div>
     );
@@ -423,7 +451,9 @@ export function FieldIntelligenceDashboard({ fieldId }: { fieldId: string }) {
         {intelligence.zones.data?.map((zone) => (
           <div key={zone.id} className="mb-2 p-2 bg-gray-50 rounded">
             <p className="font-medium">{zone.name}</p>
-            <p className="text-sm">NDVI: {zone.ndviValue.toFixed(2)} - {zone.status}</p>
+            <p className="text-sm">
+              NDVI: {zone.ndviValue.toFixed(2)} - {zone.status}
+            </p>
           </div>
         ))}
       </section>
@@ -431,7 +461,8 @@ export function FieldIntelligenceDashboard({ fieldId }: { fieldId: string }) {
       {/* Alerts Section */}
       <section className="border rounded p-4">
         <h2 className="text-lg font-semibold mb-3">
-          Active Alerts ({intelligence.alerts.data?.length || 0}) / التنبيهات النشطة
+          Active Alerts ({intelligence.alerts.data?.length || 0}) / التنبيهات
+          النشطة
         </h2>
         {intelligence.alerts.isLoading && <p>Loading alerts...</p>}
         {intelligence.alerts.data?.length === 0 && (
@@ -441,22 +472,26 @@ export function FieldIntelligenceDashboard({ fieldId }: { fieldId: string }) {
           <div
             key={alert.id}
             className={`mb-2 p-3 rounded ${
-              alert.severity === 'critical' ? 'bg-red-100' :
-              alert.severity === 'warning' ? 'bg-yellow-100' :
-              'bg-blue-100'
+              alert.severity === "critical"
+                ? "bg-red-100"
+                : alert.severity === "warning"
+                  ? "bg-yellow-100"
+                  : "bg-blue-100"
             }`}
           >
             <p className="font-medium">{alert.titleAr}</p>
             <p className="text-sm">{alert.messageAr}</p>
             <button
-              onClick={() => intelligence.createTask.mutate({
-                alertId: alert.id,
-                taskData: {
-                  title: `Task for: ${alert.title}`,
-                  titleAr: `مهمة لـ: ${alert.titleAr}`,
-                  priority: alert.severity === 'critical' ? 'urgent' : 'high',
-                },
-              })}
+              onClick={() =>
+                intelligence.createTask.mutate({
+                  alertId: alert.id,
+                  taskData: {
+                    title: `Task for: ${alert.title}`,
+                    titleAr: `مهمة لـ: ${alert.titleAr}`,
+                    priority: alert.severity === "critical" ? "urgent" : "high",
+                  },
+                })
+              }
               disabled={intelligence.createTask.isPending}
               className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
             >
@@ -469,9 +504,12 @@ export function FieldIntelligenceDashboard({ fieldId }: { fieldId: string }) {
       {/* Recommendations Section */}
       <section className="border rounded p-4">
         <h2 className="text-lg font-semibold mb-3">
-          Recommendations ({intelligence.recommendations.data?.length || 0}) / التوصيات
+          Recommendations ({intelligence.recommendations.data?.length || 0}) /
+          التوصيات
         </h2>
-        {intelligence.recommendations.isLoading && <p>Loading recommendations...</p>}
+        {intelligence.recommendations.isLoading && (
+          <p>Loading recommendations...</p>
+        )}
         {intelligence.recommendations.data?.length === 0 && (
           <p className="text-gray-500">No recommendations available</p>
         )}
@@ -495,8 +533,8 @@ export function FieldIntelligenceDashboard({ fieldId }: { fieldId: string }) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function DebouncedDateValidationForm() {
-  const [date, setDate] = useState('');
-  const [activity] = useState('زراعة');
+  const [date, setDate] = useState("");
+  const [activity] = useState("زراعة");
 
   // This will automatically debounce API calls
   const validation = useDebouncedDateValidation(date, activity);
@@ -527,8 +565,8 @@ export function DebouncedDateValidationForm() {
         <div
           className={`p-3 rounded text-sm ${
             validation.isSuitable && (validation.score || 0) > 70
-              ? 'bg-green-100 text-green-800'
-              : 'bg-yellow-100 text-yellow-800'
+              ? "bg-green-100 text-green-800"
+              : "bg-yellow-100 text-yellow-800"
           }`}
         >
           <p>Suitability Score: {validation.score}/100</p>

@@ -1,9 +1,11 @@
 # Field Management APIs
+
 # واجهات برمجة تطبيقات إدارة الحقول
 
 ## Overview | نظرة عامة
 
 Field Management APIs provide comprehensive tools for managing agricultural fields, including:
+
 - Field registration and boundaries
 - Crop profitability analysis
 - Cost and revenue tracking
@@ -11,6 +13,7 @@ Field Management APIs provide comprehensive tools for managing agricultural fiel
 - Regional benchmarks
 
 توفر واجهات إدارة الحقول أدوات شاملة لإدارة الحقول الزراعية، بما في ذلك:
+
 - تسجيل الحقول والحدود
 - تحليل ربحية المحاصيل
 - تتبع التكاليف والإيرادات
@@ -31,7 +34,6 @@ Authorization: Bearer <access_token>
 
 ## Endpoints | نقاط النهاية
 
-
 ### POST /fields
 
 **Service:** field-service (Port: 3000)
@@ -40,10 +42,10 @@ Authorization: Bearer <access_token>
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `update` | boundaryupdate | ✓ | path |  |
+| Name       | Type           | Required | Location | Description |
+| ---------- | -------------- | -------- | -------- | ----------- |
+| `field_id` | str            | ✓        | path     |             |
+| `update`   | boundaryupdate | ✓        | path     |             |
 
 #### Example Request
 
@@ -51,7 +53,6 @@ Authorization: Bearer <access_token>
 curl -X POST http://localhost:3000/fields \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields
 
@@ -61,10 +62,10 @@ curl -X POST http://localhost:3000/fields \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `update` | boundaryupdate | ✓ | path |  |
+| Name       | Type           | Required | Location | Description |
+| ---------- | -------------- | -------- | -------- | ----------- |
+| `field_id` | str            | ✓        | path     |             |
+| `update`   | boundaryupdate | ✓        | path     |             |
 
 #### Example Request
 
@@ -72,7 +73,6 @@ curl -X POST http://localhost:3000/fields \
 curl -X GET http://localhost:3000/fields \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### POST /fields/check-overlap
 
@@ -87,7 +87,6 @@ curl -X POST http://localhost:3000/fields/check-overlap \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /fields/{field_id}
 
 **Service:** field-service (Port: 3000)
@@ -96,10 +95,10 @@ curl -X POST http://localhost:3000/fields/check-overlap \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `update` | boundaryupdate | ✓ | path |  |
+| Name       | Type           | Required | Location | Description |
+| ---------- | -------------- | -------- | -------- | ----------- |
+| `field_id` | str            | ✓        | path     |             |
+| `update`   | boundaryupdate | ✓        | path     |             |
 
 #### Example Request
 
@@ -107,7 +106,6 @@ curl -X POST http://localhost:3000/fields/check-overlap \
 curl -X GET http://localhost:3000/fields/{field_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### PATCH /fields/{field_id}
 
@@ -117,10 +115,10 @@ curl -X GET http://localhost:3000/fields/{field_id} \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `update` | boundaryupdate | ✓ | path |  |
+| Name       | Type           | Required | Location | Description |
+| ---------- | -------------- | -------- | -------- | ----------- |
+| `field_id` | str            | ✓        | path     |             |
+| `update`   | boundaryupdate | ✓        | path     |             |
 
 #### Example Request
 
@@ -128,7 +126,6 @@ curl -X GET http://localhost:3000/fields/{field_id} \
 curl -X PATCH http://localhost:3000/fields/{field_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### DELETE /fields/{field_id}
 
@@ -138,10 +135,10 @@ curl -X PATCH http://localhost:3000/fields/{field_id} \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `update` | boundaryupdate | ✓ | path |  |
+| Name       | Type           | Required | Location | Description |
+| ---------- | -------------- | -------- | -------- | ----------- |
+| `field_id` | str            | ✓        | path     |             |
+| `update`   | boundaryupdate | ✓        | path     |             |
 
 #### Example Request
 
@@ -149,7 +146,6 @@ curl -X PATCH http://localhost:3000/fields/{field_id} \
 curl -X DELETE http://localhost:3000/fields/{field_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields/{field_id}/area
 
@@ -159,9 +155,9 @@ curl -X DELETE http://localhost:3000/fields/{field_id} \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
+| Name       | Type | Required | Location | Description |
+| ---------- | ---- | -------- | -------- | ----------- |
+| `field_id` | str  | ✓        | path     |             |
 
 #### Example Request
 
@@ -169,7 +165,6 @@ curl -X DELETE http://localhost:3000/fields/{field_id} \
 curl -X GET http://localhost:3000/fields/{field_id}/area \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### PUT /fields/{field_id}/boundary
 
@@ -179,10 +174,10 @@ curl -X GET http://localhost:3000/fields/{field_id}/area \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `update` | boundaryupdate | ✓ | path |  |
+| Name       | Type           | Required | Location | Description |
+| ---------- | -------------- | -------- | -------- | ----------- |
+| `field_id` | str            | ✓        | path     |             |
+| `update`   | boundaryupdate | ✓        | path     |             |
 
 #### Example Request
 
@@ -190,7 +185,6 @@ curl -X GET http://localhost:3000/fields/{field_id}/area \
 curl -X PUT http://localhost:3000/fields/{field_id}/boundary \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### POST /fields/{field_id}/crops
 
@@ -200,10 +194,10 @@ curl -X PUT http://localhost:3000/fields/{field_id}/boundary \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `season` | cropseasoncreate | ✓ | path |  |
+| Name       | Type             | Required | Location | Description |
+| ---------- | ---------------- | -------- | -------- | ----------- |
+| `field_id` | str              | ✓        | path     |             |
+| `season`   | cropseasoncreate | ✓        | path     |             |
 
 #### Example Request
 
@@ -211,7 +205,6 @@ curl -X PUT http://localhost:3000/fields/{field_id}/boundary \
 curl -X POST http://localhost:3000/fields/{field_id}/crops \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### POST /fields/{field_id}/crops/current/close
 
@@ -221,10 +214,10 @@ curl -X POST http://localhost:3000/fields/{field_id}/crops \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `close_data` | cropseasonclose | ✓ | path |  |
+| Name         | Type            | Required | Location | Description |
+| ------------ | --------------- | -------- | -------- | ----------- |
+| `field_id`   | str             | ✓        | path     |             |
+| `close_data` | cropseasonclose | ✓        | path     |             |
 
 #### Example Request
 
@@ -232,7 +225,6 @@ curl -X POST http://localhost:3000/fields/{field_id}/crops \
 curl -X POST http://localhost:3000/fields/{field_id}/crops/current/close \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields/{field_id}/crops/history
 
@@ -242,11 +234,11 @@ curl -X POST http://localhost:3000/fields/{field_id}/crops/current/close \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
-| `close_data` | cropseasonclose | ✓ | path |  |
+| Name         | Type            | Required | Location | Description |
+| ------------ | --------------- | -------- | -------- | ----------- |
+| `field_id`   | str             | ✓        | path     |             |
+| `field_id`   | str             | ✓        | path     |             |
+| `close_data` | cropseasonclose | ✓        | path     |             |
 
 #### Example Request
 
@@ -254,7 +246,6 @@ curl -X POST http://localhost:3000/fields/{field_id}/crops/current/close \
 curl -X GET http://localhost:3000/fields/{field_id}/crops/history \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields/{field_id}/export/geojson
 
@@ -264,11 +255,11 @@ curl -X GET http://localhost:3000/fields/{field_id}/crops/history \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
-| `season` | cropseasoncreate | ✓ | path |  |
+| Name       | Type             | Required | Location | Description |
+| ---------- | ---------------- | -------- | -------- | ----------- |
+| `field_id` | str              | ✓        | path     |             |
+| `field_id` | str              | ✓        | path     |             |
+| `season`   | cropseasoncreate | ✓        | path     |             |
 
 #### Example Request
 
@@ -276,7 +267,6 @@ curl -X GET http://localhost:3000/fields/{field_id}/crops/history \
 curl -X GET http://localhost:3000/fields/{field_id}/export/geojson \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields/{field_id}/export/kml
 
@@ -286,10 +276,10 @@ curl -X GET http://localhost:3000/fields/{field_id}/export/geojson \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
+| Name       | Type | Required | Location | Description |
+| ---------- | ---- | -------- | -------- | ----------- |
+| `field_id` | str  | ✓        | path     |             |
+| `field_id` | str  | ✓        | path     |             |
 
 #### Example Request
 
@@ -297,7 +287,6 @@ curl -X GET http://localhost:3000/fields/{field_id}/export/geojson \
 curl -X GET http://localhost:3000/fields/{field_id}/export/kml \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### POST /fields/{field_id}/ndvi
 
@@ -307,11 +296,11 @@ curl -X GET http://localhost:3000/fields/{field_id}/export/kml \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `record` | ndvirecord | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
+| Name       | Type       | Required | Location | Description |
+| ---------- | ---------- | -------- | -------- | ----------- |
+| `field_id` | str        | ✓        | path     |             |
+| `record`   | ndvirecord | ✓        | path     |             |
+| `field_id` | str        | ✓        | path     |             |
 
 #### Example Request
 
@@ -319,7 +308,6 @@ curl -X GET http://localhost:3000/fields/{field_id}/export/kml \
 curl -X POST http://localhost:3000/fields/{field_id}/ndvi \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields/{field_id}/ndvi/history
 
@@ -329,11 +317,11 @@ curl -X POST http://localhost:3000/fields/{field_id}/ndvi \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `record` | ndvirecord | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
+| Name       | Type       | Required | Location | Description |
+| ---------- | ---------- | -------- | -------- | ----------- |
+| `field_id` | str        | ✓        | path     |             |
+| `record`   | ndvirecord | ✓        | path     |             |
+| `field_id` | str        | ✓        | path     |             |
 
 #### Example Request
 
@@ -341,7 +329,6 @@ curl -X POST http://localhost:3000/fields/{field_id}/ndvi \
 curl -X GET http://localhost:3000/fields/{field_id}/ndvi/history \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields/{field_id}/stats
 
@@ -351,9 +338,9 @@ curl -X GET http://localhost:3000/fields/{field_id}/ndvi/history \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
+| Name       | Type | Required | Location | Description |
+| ---------- | ---- | -------- | -------- | ----------- |
+| `field_id` | str  | ✓        | path     |             |
 
 #### Example Request
 
@@ -361,7 +348,6 @@ curl -X GET http://localhost:3000/fields/{field_id}/ndvi/history \
 curl -X GET http://localhost:3000/fields/{field_id}/stats \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### POST /fields/{field_id}/zones
 
@@ -371,10 +357,10 @@ curl -X GET http://localhost:3000/fields/{field_id}/stats \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `zone` | zonecreate | ✓ | path |  |
+| Name       | Type       | Required | Location | Description |
+| ---------- | ---------- | -------- | -------- | ----------- |
+| `field_id` | str        | ✓        | path     |             |
+| `zone`     | zonecreate | ✓        | path     |             |
 
 #### Example Request
 
@@ -382,7 +368,6 @@ curl -X GET http://localhost:3000/fields/{field_id}/stats \
 curl -X POST http://localhost:3000/fields/{field_id}/zones \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields/{field_id}/zones
 
@@ -392,10 +377,10 @@ curl -X POST http://localhost:3000/fields/{field_id}/zones \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `zone_id` | str | ✓ | path |  |
+| Name       | Type | Required | Location | Description |
+| ---------- | ---- | -------- | -------- | ----------- |
+| `field_id` | str  | ✓        | path     |             |
+| `zone_id`  | str  | ✓        | path     |             |
 
 #### Example Request
 
@@ -403,7 +388,6 @@ curl -X POST http://localhost:3000/fields/{field_id}/zones \
 curl -X GET http://localhost:3000/fields/{field_id}/zones \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /health
 
@@ -420,7 +404,6 @@ curl -X GET http://localhost:3000/health \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /healthz
 
 **Service:** field-service (Port: 3000)
@@ -431,10 +414,10 @@ curl -X GET http://localhost:3000/health \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field` | fieldcreate | ✓ | path |  |
-| `boundary` | is_valid | ✓ | path |  |
+| Name       | Type        | Required | Location | Description |
+| ---------- | ----------- | -------- | -------- | ----------- |
+| `field`    | fieldcreate | ✓        | path     |             |
+| `boundary` | is_valid    | ✓        | path     |             |
 
 #### Example Request
 
@@ -442,7 +425,6 @@ curl -X GET http://localhost:3000/health \
 curl -X GET http://localhost:3000/healthz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /readyz
 
@@ -454,10 +436,10 @@ curl -X GET http://localhost:3000/healthz \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field` | fieldcreate | ✓ | path |  |
-| `boundary` | is_valid | ✓ | path |  |
+| Name       | Type        | Required | Location | Description |
+| ---------- | ----------- | -------- | -------- | ----------- |
+| `field`    | fieldcreate | ✓        | path     |             |
+| `boundary` | is_valid    | ✓        | path     |             |
 
 #### Example Request
 
@@ -465,7 +447,6 @@ curl -X GET http://localhost:3000/healthz \
 curl -X GET http://localhost:3000/readyz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### DELETE /zones/{zone_id}
 
@@ -475,11 +456,11 @@ curl -X GET http://localhost:3000/readyz \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `limit` | string |  | query |  |
-| `zone_id` | str | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
+| Name       | Type   | Required | Location | Description |
+| ---------- | ------ | -------- | -------- | ----------- |
+| `limit`    | string |          | query    |             |
+| `zone_id`  | str    | ✓        | path     |             |
+| `field_id` | str    | ✓        | path     |             |
 
 #### Example Request
 
@@ -487,7 +468,6 @@ curl -X GET http://localhost:3000/readyz \
 curl -X DELETE http://localhost:3000/zones/{zone_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### POST /fields
 
@@ -497,9 +477,9 @@ curl -X DELETE http://localhost:3000/zones/{zone_id} \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field` | fieldcreate | ✓ | path |  |
+| Name    | Type        | Required | Location | Description |
+| ------- | ----------- | -------- | -------- | ----------- |
+| `field` | fieldcreate | ✓        | path     |             |
 
 #### Example Request
 
@@ -507,7 +487,6 @@ curl -X DELETE http://localhost:3000/zones/{zone_id} \
 curl -X POST http://localhost:8080/fields \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields
 
@@ -517,12 +496,12 @@ curl -X POST http://localhost:8080/fields \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `update` | fieldupdate | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
-| `op` | operationcreate | ✓ | path |  |
+| Name       | Type            | Required | Location | Description |
+| ---------- | --------------- | -------- | -------- | ----------- |
+| `field_id` | str             | ✓        | path     |             |
+| `update`   | fieldupdate     | ✓        | path     |             |
+| `field_id` | str             | ✓        | path     |             |
+| `op`       | operationcreate | ✓        | path     |             |
 
 #### Example Request
 
@@ -530,7 +509,6 @@ curl -X POST http://localhost:8080/fields \
 curl -X GET http://localhost:8080/fields \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /fields/{field_id}
 
@@ -540,14 +518,14 @@ curl -X GET http://localhost:8080/fields \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `tenant_id` | string | ✓ | query |  |
-| `skip` | string |  | query |  |
-| `limit` | string |  | query |  |
-| `field_id` | str | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
-| `update` | fieldupdate | ✓ | path |  |
+| Name        | Type        | Required | Location | Description |
+| ----------- | ----------- | -------- | -------- | ----------- |
+| `tenant_id` | string      | ✓        | query    |             |
+| `skip`      | string      |          | query    |             |
+| `limit`     | string      |          | query    |             |
+| `field_id`  | str         | ✓        | path     |             |
+| `field_id`  | str         | ✓        | path     |             |
+| `update`    | fieldupdate | ✓        | path     |             |
 
 #### Example Request
 
@@ -555,7 +533,6 @@ curl -X GET http://localhost:8080/fields \
 curl -X GET http://localhost:8080/fields/{field_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### PUT /fields/{field_id}
 
@@ -565,12 +542,12 @@ curl -X GET http://localhost:8080/fields/{field_id} \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `update` | fieldupdate | ✓ | path |  |
-| `field_id` | str | ✓ | path |  |
-| `op` | operationcreate | ✓ | path |  |
+| Name       | Type            | Required | Location | Description |
+| ---------- | --------------- | -------- | -------- | ----------- |
+| `field_id` | str             | ✓        | path     |             |
+| `update`   | fieldupdate     | ✓        | path     |             |
+| `field_id` | str             | ✓        | path     |             |
+| `op`       | operationcreate | ✓        | path     |             |
 
 #### Example Request
 
@@ -578,7 +555,6 @@ curl -X GET http://localhost:8080/fields/{field_id} \
 curl -X PUT http://localhost:8080/fields/{field_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### DELETE /fields/{field_id}
 
@@ -588,10 +564,10 @@ curl -X PUT http://localhost:8080/fields/{field_id} \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | str | ✓ | path |  |
-| `op` | operationcreate | ✓ | path |  |
+| Name       | Type            | Required | Location | Description |
+| ---------- | --------------- | -------- | -------- | ----------- |
+| `field_id` | str             | ✓        | path     |             |
+| `op`       | operationcreate | ✓        | path     |             |
 
 #### Example Request
 
@@ -599,7 +575,6 @@ curl -X PUT http://localhost:8080/fields/{field_id} \
 curl -X DELETE http://localhost:8080/fields/{field_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /healthz
 
@@ -614,7 +589,6 @@ curl -X GET http://localhost:8080/healthz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### POST /operations
 
 **Service:** field-ops (Port: 8080)
@@ -623,11 +597,11 @@ curl -X GET http://localhost:8080/healthz \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | string | ✓ | query |  |
-| `op` | operationcreate | ✓ | path |  |
-| `operation_id` | str | ✓ | path |  |
+| Name           | Type            | Required | Location | Description |
+| -------------- | --------------- | -------- | -------- | ----------- |
+| `field_id`     | string          | ✓        | query    |             |
+| `op`           | operationcreate | ✓        | path     |             |
+| `operation_id` | str             | ✓        | path     |             |
 
 #### Example Request
 
@@ -635,7 +609,6 @@ curl -X GET http://localhost:8080/healthz \
 curl -X POST http://localhost:8080/operations \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /operations
 
@@ -645,9 +618,9 @@ curl -X POST http://localhost:8080/operations \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `operation_id` | str | ✓ | path |  |
+| Name           | Type | Required | Location | Description |
+| -------------- | ---- | -------- | -------- | ----------- |
+| `operation_id` | str  | ✓        | path     |             |
 
 #### Example Request
 
@@ -655,7 +628,6 @@ curl -X POST http://localhost:8080/operations \
 curl -X GET http://localhost:8080/operations \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /operations/{operation_id}
 
@@ -665,13 +637,13 @@ curl -X GET http://localhost:8080/operations \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `field_id` | string | ✓ | query |  |
-| `skip` | string |  | query |  |
-| `limit` | string |  | query |  |
-| `operation_id` | str | ✓ | path |  |
-| `operation_id` | str | ✓ | path |  |
+| Name           | Type   | Required | Location | Description |
+| -------------- | ------ | -------- | -------- | ----------- |
+| `field_id`     | string | ✓        | query    |             |
+| `skip`         | string |          | query    |             |
+| `limit`        | string |          | query    |             |
+| `operation_id` | str    | ✓        | path     |             |
+| `operation_id` | str    | ✓        | path     |             |
 
 #### Example Request
 
@@ -679,7 +651,6 @@ curl -X GET http://localhost:8080/operations \
 curl -X GET http://localhost:8080/operations/{operation_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### POST /operations/{operation_id}/complete
 
@@ -689,9 +660,9 @@ curl -X GET http://localhost:8080/operations/{operation_id} \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `operation_id` | str | ✓ | path |  |
+| Name           | Type | Required | Location | Description |
+| -------------- | ---- | -------- | -------- | ----------- |
+| `operation_id` | str  | ✓        | path     |             |
 
 #### Example Request
 
@@ -699,7 +670,6 @@ curl -X GET http://localhost:8080/operations/{operation_id} \
 curl -X POST http://localhost:8080/operations/{operation_id}/complete \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /readyz
 
@@ -714,7 +684,6 @@ curl -X GET http://localhost:8080/readyz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /stats/tenant/{tenant_id}
 
 **Service:** field-ops (Port: 8080)
@@ -723,9 +692,9 @@ curl -X GET http://localhost:8080/readyz \
 
 #### Parameters | المعاملات
 
-| Name | Type | Required | Location | Description |
-|------|------|----------|----------|-------------|
-| `tenant_id` | str | ✓ | path |  |
+| Name        | Type | Required | Location | Description |
+| ----------- | ---- | -------- | -------- | ----------- |
+| `tenant_id` | str  | ✓        | path     |             |
 
 #### Example Request
 
@@ -734,7 +703,6 @@ curl -X GET http://localhost:8080/stats/tenant/{tenant_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /healthz
 
 **Service:** field-core (Port: 8090)
@@ -748,7 +716,6 @@ curl -X GET http://localhost:8090/healthz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /healthz
 
 **Service:** field-management-service (Port: 8090)
@@ -761,7 +728,6 @@ curl -X GET http://localhost:8090/healthz \
 curl -X GET http://localhost:8090/healthz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /readyz
 
@@ -776,7 +742,6 @@ curl -X GET http://localhost:8090/readyz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /readyz
 
 **Service:** field-management-service (Port: 8090)
@@ -789,7 +754,6 @@ curl -X GET http://localhost:8090/readyz \
 curl -X GET http://localhost:8090/readyz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /v1/costs/categories
 
@@ -804,7 +768,6 @@ curl -X GET http://localhost:8090/v1/costs/categories \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/costs/categories
 
 **Service:** field-management-service (Port: 8090)
@@ -817,7 +780,6 @@ curl -X GET http://localhost:8090/v1/costs/categories \
 curl -X GET http://localhost:8090/v1/costs/categories \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /v1/crops/list
 
@@ -834,7 +796,6 @@ curl -X GET http://localhost:8090/v1/crops/list \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/crops/list
 
 **Service:** field-management-service (Port: 8090)
@@ -850,7 +811,6 @@ curl -X GET http://localhost:8090/v1/crops/list \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### POST /v1/profitability/analyze
 
 **Service:** field-core (Port: 8090)
@@ -864,7 +824,6 @@ curl -X POST http://localhost:8090/v1/profitability/analyze \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### POST /v1/profitability/analyze
 
 **Service:** field-management-service (Port: 8090)
@@ -877,7 +836,6 @@ curl -X POST http://localhost:8090/v1/profitability/analyze \
 curl -X POST http://localhost:8090/v1/profitability/analyze \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /v1/profitability/benchmarks/{crop_code}
 
@@ -894,7 +852,6 @@ curl -X GET http://localhost:8090/v1/profitability/benchmarks/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/profitability/benchmarks/{crop_code}
 
 **Service:** field-management-service (Port: 8090)
@@ -910,7 +867,6 @@ curl -X GET http://localhost:8090/v1/profitability/benchmarks/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/profitability/break-even
 
 **Service:** field-core (Port: 8090)
@@ -926,7 +882,6 @@ curl -X GET http://localhost:8090/v1/profitability/break-even \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/profitability/break-even
 
 **Service:** field-management-service (Port: 8090)
@@ -941,7 +896,6 @@ Returns crop codes, names in both languages, and regional data availability.
 curl -X GET http://localhost:8090/v1/profitability/break-even \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /v1/profitability/compare
 
@@ -958,7 +912,6 @@ curl -X GET http://localhost:8090/v1/profitability/compare \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/profitability/compare
 
 **Service:** field-management-service (Port: 8090)
@@ -974,7 +927,6 @@ curl -X GET http://localhost:8090/v1/profitability/compare \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/profitability/cost-breakdown/{crop_code}
 
 **Service:** field-core (Port: 8090)
@@ -989,7 +941,6 @@ Returns crop codes, names in both languages, and regional data availability.
 curl -X GET http://localhost:8090/v1/profitability/cost-breakdown/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /v1/profitability/cost-breakdown/{crop_code}
 
@@ -1006,7 +957,6 @@ curl -X GET http://localhost:8090/v1/profitability/cost-breakdown/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/profitability/crop/{crop_season_id}
 
 **Service:** field-core (Port: 8090)
@@ -1020,7 +970,6 @@ curl -X GET http://localhost:8090/v1/profitability/crop/{crop_season_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/profitability/crop/{crop_season_id}
 
 **Service:** field-management-service (Port: 8090)
@@ -1033,7 +982,6 @@ curl -X GET http://localhost:8090/v1/profitability/crop/{crop_season_id} \
 curl -X GET http://localhost:8090/v1/profitability/crop/{crop_season_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ### GET /v1/profitability/history/{field_id}/{crop_code}
 
@@ -1050,7 +998,6 @@ curl -X GET http://localhost:8090/v1/profitability/history/{field_id}/{crop_code
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### GET /v1/profitability/history/{field_id}/{crop_code}
 
 **Service:** field-management-service (Port: 8090)
@@ -1066,7 +1013,6 @@ curl -X GET http://localhost:8090/v1/profitability/history/{field_id}/{crop_code
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### POST /v1/profitability/season
 
 **Service:** field-core (Port: 8090)
@@ -1080,7 +1026,6 @@ curl -X POST http://localhost:8090/v1/profitability/season \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-
 ### POST /v1/profitability/season
 
 **Service:** field-management-service (Port: 8090)
@@ -1093,7 +1038,6 @@ curl -X POST http://localhost:8090/v1/profitability/season \
 curl -X POST http://localhost:8090/v1/profitability/season \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
 
 ## Data Models | نماذج البيانات
 
@@ -1114,7 +1058,7 @@ interface Field {
   crop_type: string;
   planting_date?: string;
   harvest_date?: string;
-  status: 'active' | 'inactive' | 'fallow';
+  status: "active" | "inactive" | "fallow";
   created_at: string;
   updated_at: string;
 }
@@ -1151,13 +1095,13 @@ interface CropProfitability {
 
 ## Error Codes | رموز الخطأ
 
-| Code | Message | Description |
-|------|---------|-------------|
-| `field_not_found` | Field not found | The specified field does not exist |
-| `invalid_area` | Invalid area | Area must be greater than 0 |
-| `invalid_crop_code` | Invalid crop code | The crop code is not recognized |
+| Code                | Message                     | Description                               |
+| ------------------- | --------------------------- | ----------------------------------------- |
+| `field_not_found`   | Field not found             | The specified field does not exist        |
+| `invalid_area`      | Invalid area                | Area must be greater than 0               |
+| `invalid_crop_code` | Invalid crop code           | The crop code is not recognized           |
 | `no_benchmark_data` | No benchmark data available | Regional data not available for this crop |
 
 ---
 
-*Last updated: 2026-01-02*
+_Last updated: 2026-01-02_

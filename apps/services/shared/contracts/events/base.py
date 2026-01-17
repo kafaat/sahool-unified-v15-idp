@@ -13,7 +13,6 @@ from typing import Any, ClassVar
 from uuid import UUID, uuid4
 
 import jsonschema
-from jsonschema import ValidationError
 
 # Schema directory relative to this file
 _SCHEMA_DIR = Path(__file__).parent.parent / "schemas"

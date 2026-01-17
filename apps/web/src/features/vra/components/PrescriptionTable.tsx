@@ -5,14 +5,14 @@
  * Table view of VRA prescription zones with export functionality.
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Table, FileJson, FileText, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useExportPrescription } from '../hooks/useVRA';
-import type { PrescriptionResponse, ExportFormat } from '../types/vra';
+import React, { useState } from "react";
+import { Table, FileJson, FileText, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useExportPrescription } from "../hooks/useVRA";
+import type { PrescriptionResponse, ExportFormat } from "../types/vra";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Component Props
@@ -31,7 +31,9 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
   prescription,
   showExport = true,
 }) => {
-  const [exportingFormat, setExportingFormat] = useState<ExportFormat | null>(null);
+  const [exportingFormat, setExportingFormat] = useState<ExportFormat | null>(
+    null,
+  );
   const exportMutation = useExportPrescription();
 
   // Handle export
@@ -46,18 +48,19 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
 
       // Trigger download
       const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: format === 'geojson' ? 'application/geo+json' : 'application/json',
+        type:
+          format === "geojson" ? "application/geo+json" : "application/json",
       });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `prescription_${prescription.id}_${format}.${format === 'geojson' ? 'geojson' : 'json'}`;
+      link.download = `prescription_${prescription.id}_${format}.${format === "geojson" ? "geojson" : "json"}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error("Export failed:", error);
     } finally {
       setExportingFormat(null);
     }
@@ -66,17 +69,17 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
   // Handle CSV export (client-side generation)
   const handleCSVExport = () => {
     const headers = [
-      'Zone ID',
-      'Zone Name',
-      'Zone Name (AR)',
-      'Zone Level',
-      'NDVI Min',
-      'NDVI Max',
-      'Area (ha)',
-      'Percentage (%)',
-      'Rate',
-      'Unit',
-      'Total Product',
+      "Zone ID",
+      "Zone Name",
+      "Zone Name (AR)",
+      "Zone Level",
+      "NDVI Min",
+      "NDVI Max",
+      "Area (ha)",
+      "Percentage (%)",
+      "Rate",
+      "Unit",
+      "Total Product",
     ];
 
     const rows = prescription.zones.map((zone) => [
@@ -94,19 +97,19 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
     ]);
 
     const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.join(',')),
-      '',
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+      "",
       `Total Area,${prescription.totalAreaHa.toFixed(2)} ha`,
       `Total Product,${prescription.totalProductNeeded.toFixed(2)} ${prescription.unit}`,
       `Flat Rate Product,${prescription.flatRateProduct.toFixed(2)} ${prescription.unit}`,
       `Savings,${prescription.savingsPercent.toFixed(1)}%`,
       `Savings Amount,${prescription.savingsAmount.toFixed(2)} ${prescription.unit}`,
-    ].join('\n');
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = `prescription_${prescription.id}.csv`;
     document.body.appendChild(link);
@@ -131,7 +134,7 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
                 onClick={handleCSVExport}
                 disabled={exportingFormat !== null}
               >
-                {exportingFormat === 'csv' ? (
+                {exportingFormat === "csv" ? (
                   <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                 ) : (
                   <FileText className="w-4 h-4 mr-1" />
@@ -141,10 +144,10 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleExport('geojson')}
+                onClick={() => handleExport("geojson")}
                 disabled={exportingFormat !== null}
               >
-                {exportingFormat === 'geojson' ? (
+                {exportingFormat === "geojson" ? (
                   <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                 ) : (
                   <FileJson className="w-4 h-4 mr-1" />
@@ -197,12 +200,16 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
                       />
                       <div>
                         <p className="text-sm font-medium">{zone.zoneName}</p>
-                        <p className="text-xs text-gray-500">{zone.zoneNameAr}</p>
+                        <p className="text-xs text-gray-500">
+                          {zone.zoneNameAr}
+                        </p>
                       </div>
                     </div>
                   </td>
                   <td className="p-3">
-                    <span className="text-sm capitalize">{zone.zoneLevel.replace('_', ' ')}</span>
+                    <span className="text-sm capitalize">
+                      {zone.zoneLevel.replace("_", " ")}
+                    </span>
                   </td>
                   <td className="p-3 text-right">
                     <span className="text-sm">
@@ -210,10 +217,14 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
                     </span>
                   </td>
                   <td className="p-3 text-right">
-                    <span className="text-sm font-medium">{zone.areaHa.toFixed(2)}</span>
+                    <span className="text-sm font-medium">
+                      {zone.areaHa.toFixed(2)}
+                    </span>
                   </td>
                   <td className="p-3 text-right">
-                    <span className="text-sm">{zone.percentage.toFixed(1)}%</span>
+                    <span className="text-sm">
+                      {zone.percentage.toFixed(1)}%
+                    </span>
                   </td>
                   <td className="p-3 text-right">
                     <div className="text-sm">
@@ -225,7 +236,9 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
                   </td>
                   <td className="p-3 text-right">
                     <div className="text-sm">
-                      <p className="font-medium">{zone.totalProduct.toFixed(2)}</p>
+                      <p className="font-medium">
+                        {zone.totalProduct.toFixed(2)}
+                      </p>
                       <p className="text-xs text-gray-500">{zone.unit}</p>
                     </div>
                   </td>
@@ -240,18 +253,20 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
                 <td className="p-3 text-right text-sm font-bold">
                   {prescription.totalAreaHa.toFixed(2)} ha
                 </td>
-                <td className="p-3 text-right text-sm font-bold">
-                  100%
-                </td>
+                <td className="p-3 text-right text-sm font-bold">100%</td>
                 <td className="p-3 text-right text-sm font-bold text-green-700">
                   {prescription.targetRate.toFixed(2)}*
                 </td>
                 <td className="p-3 text-right text-sm font-bold">
-                  {prescription.totalProductNeeded.toFixed(2)} {prescription.unit}
+                  {prescription.totalProductNeeded.toFixed(2)}{" "}
+                  {prescription.unit}
                 </td>
               </tr>
               <tr className="bg-blue-50">
-                <td colSpan={6} className="p-3 text-sm font-semibold text-blue-700">
+                <td
+                  colSpan={6}
+                  className="p-3 text-sm font-semibold text-blue-700"
+                >
                   Flat Rate Application | التطبيق بمعدل ثابت
                 </td>
                 <td className="p-3 text-right text-sm font-semibold text-blue-700">
@@ -259,16 +274,23 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
                 </td>
               </tr>
               <tr className="bg-green-50">
-                <td colSpan={6} className="p-3 text-sm font-bold text-green-700">
+                <td
+                  colSpan={6}
+                  className="p-3 text-sm font-bold text-green-700"
+                >
                   Savings vs. Flat Rate | التوفير مقارنة بالمعدل الثابت
                 </td>
                 <td className="p-3 text-right text-sm font-bold text-green-700">
-                  {prescription.savingsAmount.toFixed(2)} {prescription.unit} ({prescription.savingsPercent.toFixed(1)}%)
+                  {prescription.savingsAmount.toFixed(2)} {prescription.unit} (
+                  {prescription.savingsPercent.toFixed(1)}%)
                 </td>
               </tr>
               {prescription.costSavings && (
                 <tr className="bg-purple-50">
-                  <td colSpan={6} className="p-3 text-sm font-bold text-purple-700">
+                  <td
+                    colSpan={6}
+                    className="p-3 text-sm font-bold text-purple-700"
+                  >
                     Cost Savings | توفير التكلفة
                   </td>
                   <td className="p-3 text-right text-sm font-bold text-purple-700">
@@ -282,9 +304,13 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
 
         {/* Notes Section */}
         <div className="mt-4 text-xs text-gray-500">
-          <p>* Average target rate across all zones | المعدل المستهدف المتوسط عبر جميع المناطق</p>
+          <p>
+            * Average target rate across all zones | المعدل المستهدف المتوسط عبر
+            جميع المناطق
+          </p>
           <p className="mt-1">
-            Prescription ID: {prescription.id} | Created: {new Date(prescription.createdAt).toLocaleDateString()}
+            Prescription ID: {prescription.id} | Created:{" "}
+            {new Date(prescription.createdAt).toLocaleDateString()}
           </p>
           {prescription.notes && (
             <p className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">

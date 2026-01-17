@@ -264,6 +264,7 @@ FIELD_001,2024-01-02,0.67,29.0,43.5
 - **Suitable for**: Professional reports, presentations
 
 **Sheet structure:**
+
 1. معلومات الحقل (Field Info)
 2. NDVI History
 3. قراءات المستشعرات (Sensors)
@@ -314,7 +315,7 @@ FIELD_001,2024-01-02,0.67,29.0,43.5
   "type": "Feature",
   "geometry": {
     "type": "Point",
-    "coordinates": [44.1910, 15.3694]
+    "coordinates": [44.191, 15.3694]
   },
   "properties": {
     "field_id": "FIELD_001",
@@ -332,6 +333,7 @@ FIELD_001,2024-01-02,0.67,29.0,43.5
 - **Suitable for**: Official reports, stakeholders
 
 **PDF Report sections:**
+
 - Executive summary with status indicators
 - Field information table
 - NDVI analysis and trends
@@ -349,6 +351,7 @@ FIELD_001,2024-01-02,0.67,29.0,43.5
 Located at: `report_templates/daily_summary.py`
 
 **Features:**
+
 - Executive summary with status indicators (good/warning/critical)
 - Field metadata table
 - NDVI analysis with interpretation
@@ -409,6 +412,7 @@ exporter = DataExporter(arabic_font_path="/usr/share/fonts/truetype/DejaVuSans.t
 ```
 
 Recommended Arabic fonts:
+
 - DejaVu Sans
 - Arial Unicode MS
 - Amiri
@@ -526,6 +530,7 @@ python example_data_export.py
 ```
 
 This will:
+
 - Generate sample exports in all formats
 - Create all report types
 - Save files to `/tmp/`
@@ -623,7 +628,7 @@ if not data_exporter.OPENPYXL_AVAILABLE:
 
 #### Methods
 
-- **export_field_data**(field_id, format, date_range, **options) → ExportResult
+- **export_field_data**(field_id, format, date_range, \*\*options) → ExportResult
 - **export_sensor_readings**(field_id, format, date_range) → ExportResult
 - **export_recommendations**(field_id, format, date_range) → ExportResult
 - **generate_report**(report_type, params) → ExportResult
@@ -670,6 +675,7 @@ if not data_exporter.OPENPYXL_AVAILABLE:
 ## Support / الدعم
 
 For questions or issues:
+
 - Check the example file: `example_data_export.py`
 - Review the code documentation
 - Contact SAHOOL development team
@@ -686,6 +692,7 @@ All rights reserved.
 ## Changelog / سجل التغييرات
 
 ### Version 1.0.0 (2024-01-15)
+
 - Initial release
 - Support for CSV, Excel, JSON, GeoJSON, PDF formats
 - 5 report types

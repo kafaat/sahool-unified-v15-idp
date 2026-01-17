@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Recent Activity Component
  * مكون النشاط الأخير
  */
 
-import React from 'react';
-import { Activity, Clock } from 'lucide-react';
-import { useDashboardData } from '../hooks/useDashboardData';
+import React from "react";
+import { Activity, Clock } from "lucide-react";
+import { useDashboardData } from "../hooks/useDashboardData";
 
 interface ActivityItem {
   id: string;
-  type: 'task' | 'alert' | 'field' | 'weather';
+  type: "task" | "alert" | "field" | "weather";
   title: string;
   titleAr: string;
   description: string;
@@ -19,14 +19,29 @@ interface ActivityItem {
   timestamp: string;
 }
 
-const activityIcons: Record<string, { icon: React.ReactNode; color: string }> = {
-  task: { icon: <Activity className="w-4 h-4" />, color: 'bg-blue-100 text-blue-600' },
-  alert: { icon: <Activity className="w-4 h-4" />, color: 'bg-red-100 text-red-600' },
-  field: { icon: <Activity className="w-4 h-4" />, color: 'bg-green-100 text-green-600' },
-  weather: { icon: <Activity className="w-4 h-4" />, color: 'bg-cyan-100 text-cyan-600' },
-};
+const activityIcons: Record<string, { icon: React.ReactNode; color: string }> =
+  {
+    task: {
+      icon: <Activity className="w-4 h-4" />,
+      color: "bg-blue-100 text-blue-600",
+    },
+    alert: {
+      icon: <Activity className="w-4 h-4" />,
+      color: "bg-red-100 text-red-600",
+    },
+    field: {
+      icon: <Activity className="w-4 h-4" />,
+      color: "bg-green-100 text-green-600",
+    },
+    weather: {
+      icon: <Activity className="w-4 h-4" />,
+      color: "bg-cyan-100 text-cyan-600",
+    },
+  };
 
-const ActivityItemComponent: React.FC<{ activity: ActivityItem }> = ({ activity }) => {
+const ActivityItemComponent: React.FC<{ activity: ActivityItem }> = ({
+  activity,
+}) => {
   const iconConfig = activityIcons[activity.type] || activityIcons.task;
 
   return (
@@ -36,10 +51,12 @@ const ActivityItemComponent: React.FC<{ activity: ActivityItem }> = ({ activity 
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-medium text-gray-900">{activity.titleAr}</p>
-        <p className="text-sm text-gray-500 truncate">{activity.descriptionAr}</p>
+        <p className="text-sm text-gray-500 truncate">
+          {activity.descriptionAr}
+        </p>
         <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
           <Clock className="w-3 h-3" />
-          <span>{new Date(activity.timestamp).toLocaleString('ar-EG')}</span>
+          <span>{new Date(activity.timestamp).toLocaleString("ar-EG")}</span>
         </div>
       </div>
     </div>
@@ -55,7 +72,10 @@ export const RecentActivity: React.FC = () => {
         <h3 className="text-lg font-bold text-gray-900 mb-4">النشاط الأخير</h3>
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse" />
+            <div
+              key={i}
+              className="h-20 bg-gray-100 rounded-lg animate-pulse"
+            />
           ))}
         </div>
       </div>

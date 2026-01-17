@@ -1,4 +1,5 @@
 # API Integration Analysis Report
+
 **SAHOOL Unified Platform - Frontend to Backend Integration**
 
 **Generated:** 2026-01-06
@@ -22,12 +23,15 @@ This report analyzes the API integration between SAHOOL's frontend applications 
 **Main API Client:** `/apps/web/src/lib/api/client.ts`
 
 #### Architecture
+
 - **Library:** Native `fetch` API
 - **Pattern:** Class-based singleton (`SahoolApiClient`)
 - **Base URL:** `process.env.NEXT_PUBLIC_API_URL` (default: empty string with warning)
 
 #### Key Features
+
 ✅ **Strengths:**
+
 - Comprehensive retry logic with exponential backoff
 - Request timeout handling via AbortController
 - Smart retry strategy (only 5xx and network errors)
@@ -37,12 +41,14 @@ This report analyzes the API integration between SAHOOL's frontend applications 
 - Bilingual error messages (English/Arabic)
 
 ⚠️ **Weaknesses:**
+
 - No automatic token refresh on 401 errors
 - No request queuing for offline scenarios
 - Missing request deduplication
 - No circuit breaker pattern for failing services
 
 #### Configuration
+
 ```typescript
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const MAX_RETRY_ATTEMPTS = 3;
@@ -50,6 +56,7 @@ const RETRY_DELAY = 1000; // 1 second (exponential backoff)
 ```
 
 **Retry Logic:**
+
 ```typescript
 - Attempt 1: Immediate
 - Attempt 2: 1 second delay
@@ -58,6 +65,7 @@ const RETRY_DELAY = 1000; // 1 second (exponential backoff)
 ```
 
 **Error Classification:**
+
 - **Client Errors (4xx):** No retry (considered user errors)
 - **Server Errors (5xx):** Retry up to 3 times
 - **Network Errors:** Retry up to 3 times
@@ -66,6 +74,7 @@ const RETRY_DELAY = 1000; // 1 second (exponential backoff)
 #### Feature-Specific API Files
 
 All feature APIs extend the base client pattern:
+
 - `/apps/web/src/features/fields/api.ts` - Uses axios with 10s timeout
 - `/apps/web/src/features/advisor/api.ts`
 - `/apps/web/src/features/weather/api.ts` (missing from analysis)
@@ -81,12 +90,15 @@ All feature APIs extend the base client pattern:
 **Main API Client:** `/apps/mobile/lib/core/http/api_client.dart`
 
 #### Architecture
+
 - **Library:** Dio (HTTP client for Dart/Flutter)
 - **Pattern:** Class-based with dependency injection
 - **Base URL:** `EnvConfig.apiBaseUrl` (configurable per environment)
 
 #### Key Features
+
 ✅ **Strengths:**
+
 - **Certificate Pinning:** SSL/TLS certificate validation with domain-specific pins
 - **Rate Limiting:** Built-in RateLimiter to prevent API abuse
 - **Request Signing:** Cryptographic request signing for security
@@ -96,11 +108,13 @@ All feature APIs extend the base client pattern:
 - **Offline Support:** Designed to work with local database sync
 
 ⚠️ **Weaknesses:**
+
 - No explicit retry logic in ApiClient (relies on Dio defaults)
 - Limited error recovery strategies
 - No automatic token refresh visible
 
 #### Configuration
+
 ```dart
 // From EnvConfig
 connectTimeout: 30 seconds (5000ms for specific services)
@@ -115,6 +129,7 @@ longOperationTimeout: 60 seconds (satellite imagery, uploads)
 ```
 
 #### Security Features
+
 1. **Certificate Pinning:**
    - Production: Strict mode with SHA-256 pins
    - Staging: Relaxed mode
@@ -139,6 +154,7 @@ longOperationTimeout: 60 seconds (satellite imagery, uploads)
 **File:** `/infrastructure/gateway/kong/kong.yml`
 
 **Services Configured:** 39 microservices across 3 tiers:
+
 - **Starter Package** (6 services): Field management, weather, calendar, advisory, notifications
 - **Professional Package** (9 services): Satellite, NDVI, crop health, irrigation, sensors, equipment
 - **Enterprise Package** (9 services): AI advisor, IoT gateway, research, marketplace, billing
@@ -147,35 +163,36 @@ longOperationTimeout: 60 seconds (satellite imagery, uploads)
 
 #### ✅ Matching Endpoints (Web App)
 
-| Frontend API | Kong Route | Backend Service | Status |
-|--------------|------------|-----------------|--------|
-| `/api/v1/fields` | `/api/v1/fields` | field-core | ✅ Match |
-| `/api/v1/weather` | `/api/v1/weather` | weather-service | ✅ Match |
-| `/api/v1/satellite` | `/api/v1/satellite` | satellite-service | ✅ Match |
-| `/api/v1/crop-health` | `/api/v1/crop-health` | crop-health-ai | ✅ Match |
-| `/api/v1/irrigation` | `/api/v1/irrigation` | irrigation-smart | ✅ Match |
-| `/api/v1/iot` | `/api/v1/iot` | iot-gateway | ✅ Match |
-| `/api/v1/tasks` | `/api/v1/tasks` | task-service | ✅ Match |
-| `/api/v1/equipment` | `/api/v1/equipment` | equipment-service | ✅ Match |
-| `/api/v1/billing` | `/api/v1/billing` | billing-core | ✅ Match |
+| Frontend API            | Kong Route              | Backend Service      | Status   |
+| ----------------------- | ----------------------- | -------------------- | -------- |
+| `/api/v1/fields`        | `/api/v1/fields`        | field-core           | ✅ Match |
+| `/api/v1/weather`       | `/api/v1/weather`       | weather-service      | ✅ Match |
+| `/api/v1/satellite`     | `/api/v1/satellite`     | satellite-service    | ✅ Match |
+| `/api/v1/crop-health`   | `/api/v1/crop-health`   | crop-health-ai       | ✅ Match |
+| `/api/v1/irrigation`    | `/api/v1/irrigation`    | irrigation-smart     | ✅ Match |
+| `/api/v1/iot`           | `/api/v1/iot`           | iot-gateway          | ✅ Match |
+| `/api/v1/tasks`         | `/api/v1/tasks`         | task-service         | ✅ Match |
+| `/api/v1/equipment`     | `/api/v1/equipment`     | equipment-service    | ✅ Match |
+| `/api/v1/billing`       | `/api/v1/billing`       | billing-core         | ✅ Match |
 | `/api/v1/notifications` | `/api/v1/notifications` | notification-service | ✅ Match |
 
 #### ✅ Matching Endpoints (Mobile App)
 
-| Mobile API Config | Kong Route | Backend Service | Status |
-|-------------------|------------|-----------------|--------|
-| `ApiConfig.weather` | `/api/v1/weather` | weather-service | ✅ Match |
-| `ApiConfig.ndvi` | `/api/v1/satellite` | satellite-service | ✅ Match |
-| `ApiConfig.diagnose` | `/api/v1/crop-health` | crop-health-ai | ✅ Match |
-| `ApiConfig.irrigationCalculate` | `/api/v1/irrigation` | irrigation-smart | ✅ Match |
-| `ApiConfig.et0Calculate` | `/api/v1/sensors/virtual` | virtual-sensors | ✅ Match |
-| `ApiConfig.equipment` | `/api/v1/equipment` | equipment-service | ✅ Match |
-| `ApiConfig.notifications` | `/api/v1/notifications` | notification-service | ✅ Match |
-| `ApiConfig.marketplace` | `/api/v1/marketplace` | marketplace-service | ✅ Match |
+| Mobile API Config               | Kong Route                | Backend Service      | Status   |
+| ------------------------------- | ------------------------- | -------------------- | -------- |
+| `ApiConfig.weather`             | `/api/v1/weather`         | weather-service      | ✅ Match |
+| `ApiConfig.ndvi`                | `/api/v1/satellite`       | satellite-service    | ✅ Match |
+| `ApiConfig.diagnose`            | `/api/v1/crop-health`     | crop-health-ai       | ✅ Match |
+| `ApiConfig.irrigationCalculate` | `/api/v1/irrigation`      | irrigation-smart     | ✅ Match |
+| `ApiConfig.et0Calculate`        | `/api/v1/sensors/virtual` | virtual-sensors      | ✅ Match |
+| `ApiConfig.equipment`           | `/api/v1/equipment`       | equipment-service    | ✅ Match |
+| `ApiConfig.notifications`       | `/api/v1/notifications`   | notification-service | ✅ Match |
+| `ApiConfig.marketplace`         | `/api/v1/marketplace`     | marketplace-service  | ✅ Match |
 
 #### ⚠️ Route Configuration Notes
 
 **Observation:** Mobile app uses `useDirectServices = false` by default, routing through gateway:
+
 ```dart
 // From api_config.dart line 74
 static const bool useDirectServices = false;
@@ -209,6 +226,7 @@ if (response.status >= 500) {
 ```
 
 #### Error Response Structure
+
 ```typescript
 interface ApiResponse<T> {
   success: boolean;
@@ -218,6 +236,7 @@ interface ApiResponse<T> {
 ```
 
 #### Network Error Handling
+
 - **Timeout:** AbortError caught, returns "Request timeout - please try again"
 - **Network Error:** Caught, returns "Network error - please check your connection"
 - **JSON Parse Error:** Caught, returns "Invalid JSON response from server"
@@ -227,11 +246,11 @@ interface ApiResponse<T> {
 ```typescript
 // Graceful degradation to mock data
 try {
-  const response = await api.get('/api/v1/fields')
-  return response.data
+  const response = await api.get("/api/v1/fields");
+  return response.data;
 } catch (error) {
-  logger.warn('Failed to fetch fields, using mock data')
-  return MOCK_FIELDS
+  logger.warn("Failed to fetch fields, using mock data");
+  return MOCK_FIELDS;
 }
 ```
 
@@ -261,6 +280,7 @@ switch (e.type) {
 ```
 
 #### Security Error Handling
+
 ```dart
 if (e.error is SecurityHeaderException) {
   return ApiException(
@@ -294,11 +314,13 @@ if (response.statusCode == 200) {
 ### 4.1 Web Application
 
 #### Token Storage
+
 - **Location:** HTTP-only cookies (via `js-cookie` library)
 - **Cookie Name:** `access_token`
 - **Security:** ✅ Uses secure cookie parser to prevent XSS
 
 #### Token Injection
+
 ```typescript
 // From client.ts
 private token: string | null = null;
@@ -314,15 +336,17 @@ if (this.token) {
 ```
 
 #### Token Lifecycle
+
 - **Set:** Via `apiClient.setToken(token)` after login
 - **Clear:** Via `apiClient.clearToken()` on logout
 - **Refresh:** ❌ No automatic refresh implemented
 
 #### Feature API Token Injection
+
 ```typescript
 // From fields/api.ts - axios interceptor
 api.interceptors.request.use((config) => {
-  const token = Cookies.get('access_token');
+  const token = Cookies.get("access_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -337,11 +361,13 @@ api.interceptors.request.use((config) => {
 ### 4.2 Mobile Application
 
 #### Token Storage
+
 - **Location:** Secure storage (platform-specific)
 - **Access:** Via `getToken()` callback function
 - **Security:** ✅ Never exposed in logs
 
 #### Token Injection
+
 ```dart
 // From api_client.dart _AuthInterceptor
 @override
@@ -355,10 +381,12 @@ void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
 ```
 
 #### Additional Headers
+
 - **X-Tenant-Id:** Always sent for multi-tenancy
 - **X-Request-ID:** Correlation ID for tracing
 
 #### Token Lifecycle
+
 - **Set:** Via `apiClient.setAuthToken(token)`
 - **Tenant:** Via `apiClient.setTenantId(tenantId)`
 - **Refresh:** ❌ No automatic refresh visible in ApiClient
@@ -386,20 +414,21 @@ void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
 #### ✅ Recommendations
 
 1. **Implement Token Refresh Interceptor**
+
 ```typescript
 // Pseudo-code for web app
 api.interceptors.response.use(
-  response => response,
-  async error => {
+  (response) => response,
+  async (error) => {
     if (error.response?.status === 401) {
       const newToken = await refreshToken();
       if (newToken) {
-        error.config.headers['Authorization'] = `Bearer ${newToken}`;
+        error.config.headers["Authorization"] = `Bearer ${newToken}`;
         return axios.request(error.config);
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -420,6 +449,7 @@ api.interceptors.response.use(
 ### 5.1 Web Application Retry Logic
 
 #### Implementation
+
 ```typescript
 // From client.ts lines 105-183
 const maxAttempts = skipRetry ? 1 : MAX_RETRY_ATTEMPTS; // 3 attempts
@@ -441,7 +471,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
 
     return response;
   } catch (error) {
-    if (error.name === 'AbortError') {
+    if (error.name === "AbortError") {
       return timeout_error; // No retry for timeouts
     }
 
@@ -454,29 +484,34 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
 ```
 
 #### Retry Schedule
+
 - **Attempt 1:** Immediate (0ms)
 - **Attempt 2:** 1000ms delay
 - **Attempt 3:** 2000ms delay
 - **Total Time:** Request + 3000ms max
 
 #### Retry Conditions
+
 ✅ **Retry:**
+
 - HTTP 5xx errors (server errors)
 - Network errors (connection failed, DNS, etc.)
 - Parse errors (malformed JSON)
 
 ❌ **No Retry:**
+
 - HTTP 4xx errors (client errors)
 - Timeout errors (AbortError)
 - Requests with `skipRetry: true` flag (auth requests)
 
 #### Skip Retry Configuration
+
 ```typescript
 // Authentication requests don't retry
-await this.request('/api/v1/auth/login', {
-  method: 'POST',
+await this.request("/api/v1/auth/login", {
+  method: "POST",
   body: JSON.stringify({ email, password }),
-  skipRetry: true // Don't retry auth failures
+  skipRetry: true, // Don't retry auth failures
 });
 ```
 
@@ -487,10 +522,12 @@ await this.request('/api/v1/auth/login', {
 #### ⚠️ Issue: No Explicit Retry in ApiClient
 
 The Dart `ApiClient` does **not** implement retry logic. It relies on:
+
 1. **Dio's built-in retry** (if configured)
 2. **Rate limiter queue** (for rate-limited requests)
 
 #### Rate Limiter Behavior
+
 ```dart
 // Requests are queued if rate limit exceeded
 _dio.interceptors.add(RateLimitInterceptor(
@@ -502,6 +539,7 @@ _dio.interceptors.add(RateLimitInterceptor(
 This queues requests but doesn't retry failed requests.
 
 #### Timeout Configuration
+
 ```dart
 // From api_config.dart
 const Duration connectTimeout = Duration(seconds: 30);
@@ -534,6 +572,7 @@ const Duration longOperationTimeout = Duration(seconds: 60);
 #### ✅ Recommendations
 
 1. **Add Retry to Mobile ApiClient**
+
 ```dart
 // Pseudo-code for Dio retry interceptor
 class RetryInterceptor extends Interceptor {
@@ -555,13 +594,15 @@ class RetryInterceptor extends Interceptor {
 ```
 
 2. **Add Jitter to Web Backoff**
+
 ```typescript
 const delay = RETRY_DELAY * (attempt + 1) * (0.5 + Math.random() * 0.5);
 ```
 
 3. **Make Timeouts Retryable**
+
 ```typescript
-if (error.name === 'AbortError' && attempt < maxAttempts - 1) {
+if (error.name === "AbortError" && attempt < maxAttempts - 1) {
   await delay(RETRY_DELAY * (attempt + 1));
   continue; // Retry timeout
 }
@@ -581,6 +622,7 @@ if (error.name === 'AbortError' && attempt < maxAttempts - 1) {
 **Implementation:** `/apps/web/src/lib/ws/index.ts`
 
 #### Architecture
+
 ```typescript
 class WebSocketClient {
   private ws: WebSocket | null = null;
@@ -592,6 +634,7 @@ class WebSocketClient {
 ```
 
 #### Connection Flow
+
 ```
 1. connect() → new WebSocket(`${url}/events`)
 2. onopen → subscribe to topics
@@ -601,6 +644,7 @@ class WebSocketClient {
 ```
 
 #### Reconnection Logic
+
 ```typescript
 private attemptReconnect() {
   if (this.reconnectAttempts >= this.maxReconnectAttempts) {
@@ -618,6 +662,7 @@ private attemptReconnect() {
 ```
 
 **Reconnect Schedule:**
+
 - Attempt 1: 2 seconds
 - Attempt 2: 4 seconds
 - Attempt 3: 8 seconds
@@ -626,7 +671,9 @@ private attemptReconnect() {
 - **Give up after 62 seconds total**
 
 #### Features
+
 ✅ **Strengths:**
+
 - Automatic reconnection with exponential backoff
 - Subscription resubscription after reconnect
 - Ping/pong keepalive
@@ -634,15 +681,17 @@ private attemptReconnect() {
 - Event handlers with cleanup
 
 ⚠️ **Weaknesses:**
+
 - No message queuing when disconnected
 - No offline detection
 - No visibility timeout (when tab inactive)
 - Hard-coded max attempts (not configurable)
 
 #### Message Format
+
 ```typescript
 interface WSMessage {
-  type: 'event' | 'ping' | 'subscribed' | 'error';
+  type: "event" | "ping" | "subscribed" | "error";
   data?: TimelineEvent;
   message?: string;
 }
@@ -658,9 +707,10 @@ interface TimelineEvent {
 ```
 
 #### Subscription Topics
+
 ```typescript
 // Default subscriptions
-connect(['tasks.*', 'diagnosis.*', 'weather.*', 'ndvi.*'])
+connect(["tasks.*", "diagnosis.*", "weather.*", "ndvi.*"]);
 ```
 
 ---
@@ -670,6 +720,7 @@ connect(['tasks.*', 'diagnosis.*', 'weather.*', 'ndvi.*'])
 **Implementation:** `/apps/mobile/lib/core/websocket/websocket_service.dart`
 
 #### Architecture
+
 ```dart
 class WebSocketService {
   WebSocketChannel? _channel;
@@ -684,6 +735,7 @@ class WebSocketService {
 ```
 
 #### Connection Flow
+
 ```
 1. connect() → Get token & tenant from callbacks
 2. WebSocketChannel.connect(ws://host/ws?tenant_id=X&token=Y)
@@ -694,6 +746,7 @@ class WebSocketService {
 ```
 
 #### Reconnection Logic
+
 ```dart
 void _scheduleReconnect() {
   if (_reconnectAttempts >= _maxReconnectAttempts) {
@@ -711,6 +764,7 @@ void _scheduleReconnect() {
 ```
 
 **Reconnect Schedule:**
+
 - Attempt 1: 3 seconds
 - Attempt 2: 6 seconds
 - Attempt 3: 9 seconds
@@ -719,7 +773,9 @@ void _scheduleReconnect() {
 - **Give up after 45 seconds total**
 
 #### Features
+
 ✅ **Strengths:**
+
 - Room/topic subscription management
 - Automatic resubscription after reconnect
 - Ping/pong keepalive (30s interval)
@@ -728,12 +784,14 @@ void _scheduleReconnect() {
 - Typing indicators & read receipts
 
 ⚠️ **Weaknesses:**
+
 - Token in URL query params (visible in logs)
 - No message queuing when disconnected
 - Fixed reconnect delay (linear, not exponential)
 - No offline mode handling
 
 #### Message Format
+
 ```dart
 class WebSocketEvent {
   final String type;
@@ -748,6 +806,7 @@ class WebSocketEvent {
 ```
 
 #### Subscription Management
+
 ```dart
 // Subscribe to topics
 await subscribe(['field.123', 'weather.alerts', 'iot.sensors']);
@@ -789,6 +848,7 @@ await broadcastToRoom('field-chat-456', {'text': 'Hello'});
 #### ⚠️ URL Mismatch Issue
 
 **Web App Connection:**
+
 ```typescript
 // Connects to: ws://localhost:8081/events
 const wsUrl = process.env.NEXT_PUBLIC_WS_URL; // ws://localhost:8081
@@ -796,6 +856,7 @@ this.ws = new WebSocket(`${this.url}/events`);
 ```
 
 **Mobile App Connection:**
+
 ```dart
 // Connects to: ws://localhost:8090/ws?tenant_id=X&token=Y
 final wsUrl = baseUrl.replaceFirst('http', 'ws');
@@ -809,17 +870,20 @@ final uri = Uri.parse('$wsUrl/ws?tenant_id=$tenantId&token=$token');
 #### ✅ Recommendation: Route Through Kong
 
 **Web:**
+
 ```typescript
-const wsUrl = API_BASE_URL.replace('http', 'ws'); // Use same base as API
+const wsUrl = API_BASE_URL.replace("http", "ws"); // Use same base as API
 this.ws = new WebSocket(`${wsUrl}/api/v1/ws/events`);
 ```
 
 **Mobile:**
+
 ```dart
 final uri = Uri.parse('$wsUrl/api/v1/ws?tenant_id=$tenantId&token=$token');
 ```
 
 **Benefits:**
+
 - Unified authentication through Kong JWT plugin
 - Rate limiting protection
 - ACL enforcement
@@ -857,6 +921,7 @@ final uri = Uri.parse('$wsUrl/api/v1/ws?tenant_id=$tenantId&token=$token');
 #### ✅ Recommendations
 
 1. **Use Token in Header (Mobile)**
+
 ```dart
 // Send token in Sec-WebSocket-Protocol header
 final channel = IOWebSocketChannel.connect(
@@ -866,6 +931,7 @@ final channel = IOWebSocketChannel.connect(
 ```
 
 2. **Route Through Kong (Both)**
+
 ```typescript
 // Web
 const wsUrl = API_BASE_URL.replace('http', 'ws');
@@ -877,6 +943,7 @@ channel = WebSocketChannel.connect('$wsUrl/api/v1/ws');
 ```
 
 3. **Implement Message Queue**
+
 ```typescript
 class MessageQueue {
   private queue: Array<{ type: string; data: unknown }> = [];
@@ -890,7 +957,7 @@ class MessageQueue {
   }
 
   onReconnect() {
-    this.queue.forEach(msg => this.send(msg));
+    this.queue.forEach((msg) => this.send(msg));
     this.queue = [];
   }
 }
@@ -902,8 +969,9 @@ class MessageQueue {
    - Make max attempts configurable
 
 5. **Add Visibility Handling (Web)**
+
 ```typescript
-document.addEventListener('visibilitychange', () => {
+document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     this.disconnect(); // Close when hidden
   } else {
@@ -919,6 +987,7 @@ document.addEventListener('visibilitychange', () => {
 ### 7.1 Web Application Timeouts
 
 #### Main API Client
+
 ```typescript
 // From client.ts
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
@@ -928,6 +997,7 @@ const cropHealthTimeout = 60000; // 60 seconds for image upload
 ```
 
 #### Feature API Timeouts
+
 ```typescript
 // From fields/api.ts (axios)
 const api = axios.create({
@@ -938,6 +1008,7 @@ const api = axios.create({
 **Issue:** Inconsistent timeouts across feature APIs.
 
 #### Timeout Implementation
+
 ```typescript
 const controller = new AbortController();
 const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -950,11 +1021,12 @@ clearTimeout(timeoutId);
 ```
 
 **Abort Handling:**
+
 ```typescript
-if (error.name === 'AbortError') {
+if (error.name === "AbortError") {
   return {
     success: false,
-    error: 'Request timeout - please try again',
+    error: "Request timeout - please try again",
   };
 }
 ```
@@ -964,6 +1036,7 @@ if (error.name === 'AbortError') {
 ### 7.2 Mobile Application Timeouts
 
 #### From EnvConfig (environment-specific)
+
 ```dart
 // Default from .env.example
 CONNECT_TIMEOUT_SECONDS=10  // Android emulator uses 10.0.2.2
@@ -971,6 +1044,7 @@ RECEIVE_TIMEOUT_SECONDS=30
 ```
 
 #### From ApiConfig (hardcoded)
+
 ```dart
 // From api_config.dart lines 277-288
 static const Duration connectTimeout = Duration(seconds: 30);
@@ -982,6 +1056,7 @@ static const Duration longOperationTimeout = Duration(seconds: 60);
 #### Service-Specific Timeouts
 
 **Kong Configuration:**
+
 ```yaml
 # Field Core Service
 connect_timeout: 5000  # 5 seconds
@@ -1000,6 +1075,7 @@ read_timeout: 180000     # 180 seconds
 ```
 
 #### Timeout Handling
+
 ```dart
 // From api_client.dart
 case DioExceptionType.connectionTimeout:
@@ -1056,6 +1132,7 @@ case DioExceptionType.receiveTimeout:
 #### ✅ Recommendations
 
 1. **Standardize Web Timeouts**
+
 ```typescript
 // All feature APIs should use these
 const TIMEOUT_CONFIGS = {
@@ -1067,6 +1144,7 @@ const TIMEOUT_CONFIGS = {
 ```
 
 2. **Clarify Mobile Timeout Precedence**
+
 ```dart
 // Use Kong service timeout + 5s buffer
 const baseTimeout = serviceTimeout + 5000;
@@ -1075,6 +1153,7 @@ receiveTimeout = baseTimeout;
 ```
 
 3. **Implement Adaptive Timeouts**
+
 ```typescript
 class AdaptiveTimeout {
   private avgLatency = 1000; // ms
@@ -1091,17 +1170,19 @@ class AdaptiveTimeout {
 ```
 
 4. **Add Progress Indicators**
+
 ```typescript
 if (elapsedTime > timeout * 0.5) {
-  showMessage('This is taking longer than usual...');
+  showMessage("This is taking longer than usual...");
 }
 
 if (elapsedTime > timeout * 0.8) {
-  showMessage('Almost there, please wait...');
+  showMessage("Almost there, please wait...");
 }
 ```
 
 5. **Align Client and Server Timeouts**
+
 ```
 Client Timeout = Server Timeout + Network Buffer
 Client: 65s = Server: 60s + 5s buffer
@@ -1114,19 +1195,24 @@ Client: 65s = Server: 60s + 5s buffer
 ### 8.1 Authentication & Authorization
 
 #### Web App
+
 ✅ **Strengths:**
+
 - Uses HTTP-only cookies for tokens
 - Secure cookie parsing with `js-cookie`
 - Bearer token in Authorization header
 - HTTPS enforcement in production (CSP config)
 
 ⚠️ **Weaknesses:**
+
 - No token refresh on 401
 - No CSRF protection visible
 - Some feature APIs use different auth patterns
 
 #### Mobile App
+
 ✅ **Strengths:**
+
 - Certificate pinning (production)
 - Request signing with HMAC
 - Security header validation
@@ -1134,6 +1220,7 @@ Client: 65s = Server: 60s + 5s buffer
 - No token logging
 
 ⚠️ **Weaknesses:**
+
 - WebSocket token in URL query params
 - No token refresh on 401
 
@@ -1142,7 +1229,9 @@ Client: 65s = Server: 60s + 5s buffer
 ### 8.2 Input Validation
 
 #### Web App
+
 ✅ **Good:**
+
 ```typescript
 // From client.ts login method
 const sanitizedEmail = sanitizers.email(email);
@@ -1157,7 +1246,9 @@ if (sanitizedMessage.length > 2000) {
 ```
 
 #### Mobile App
+
 ⚠️ **Limited:**
+
 - No visible input validation in ApiClient
 - Relies on server-side validation
 - Should validate before sending
@@ -1167,6 +1258,7 @@ if (sanitizedMessage.length > 2000) {
 ### 8.3 Network Security
 
 #### Mobile Certificate Pinning
+
 ```dart
 // From api_client.dart
 if (config.enableCertificatePinning) {
@@ -1188,18 +1280,21 @@ if (config.enableCertificatePinning) {
 ### 8.4 Security Recommendations
 
 1. **Add CSRF Protection (Web)**
+
 ```typescript
 // Add CSRF token to state-changing requests
-headers['X-CSRF-Token'] = getCsrfToken();
+headers["X-CSRF-Token"] = getCsrfToken();
 ```
 
 2. **Move Token to Header (Mobile WebSocket)**
+
 ```dart
 headers: {'Authorization': 'Bearer $token'}
 // Remove from URL query params
 ```
 
 3. **Implement Token Refresh**
+
 ```typescript
 async function refreshTokenOnUnauthorized(error) {
   if (error.response?.status === 401) {
@@ -1214,6 +1309,7 @@ async function refreshTokenOnUnauthorized(error) {
 ```
 
 4. **Add Input Validation to Mobile**
+
 ```dart
 class InputValidator {
   static void validateEmail(String email) {
@@ -1236,26 +1332,32 @@ class InputValidator {
 ### 9.1 Current Optimizations
 
 #### Web App
+
 ✅ **Good:**
+
 - Request timeout prevents hanging requests
 - Retry with exponential backoff reduces server load
 - Singleton API client reduces initialization overhead
 - ETag support for optimistic locking
 
 ⚠️ **Missing:**
+
 - No request deduplication (multiple identical requests in flight)
 - No response caching (every request hits server)
 - No request batching
 - No connection pooling visible
 
 #### Mobile App
+
 ✅ **Good:**
+
 - Rate limiting prevents API abuse
 - Dio connection pooling
 - Certificate pinning caching
 - Offline mode with local database
 
 ⚠️ **Missing:**
+
 - No response caching in ApiClient
 - No request deduplication
 - No batching API
@@ -1265,6 +1367,7 @@ class InputValidator {
 ### 9.2 Performance Recommendations
 
 1. **Implement Request Deduplication**
+
 ```typescript
 class RequestDeduplicator {
   private pending = new Map<string, Promise<any>>();
@@ -1285,6 +1388,7 @@ class RequestDeduplicator {
 ```
 
 2. **Add Response Caching**
+
 ```typescript
 class CachedApiClient {
   private cache = new Map<string, { data: any; expires: number }>();
@@ -1303,16 +1407,18 @@ class CachedApiClient {
 ```
 
 3. **Implement Request Batching**
+
 ```typescript
 // Batch multiple field requests into one
 const fields = await batchAPI.getMany([
-  { type: 'field', id: '1' },
-  { type: 'field', id: '2' },
-  { type: 'weather', location: 'sanaa' },
+  { type: "field", id: "1" },
+  { type: "field", id: "2" },
+  { type: "weather", location: "sanaa" },
 ]);
 ```
 
 4. **Add Connection Pooling (Web)**
+
 ```typescript
 // Use keep-alive for HTTP/1.1
 const keepAliveAgent = new https.Agent({
@@ -1333,17 +1439,19 @@ const keepAliveAgent = new https.Agent({
 ### 10.1 Current Logging
 
 #### Web App
-```typescript
-import { logger } from '../logger';
 
-logger.warn('NEXT_PUBLIC_API_URL environment variable is not set');
-logger.log('WebSocket connected');
-logger.error('Failed to parse WebSocket message:', error);
+```typescript
+import { logger } from "../logger";
+
+logger.warn("NEXT_PUBLIC_API_URL environment variable is not set");
+logger.log("WebSocket connected");
+logger.error("Failed to parse WebSocket message:", error);
 ```
 
 **Limited structured logging.**
 
 #### Mobile App
+
 ```dart
 import '../utils/app_logger.dart';
 
@@ -1359,6 +1467,7 @@ AppLogger.e('WebSocket connection failed', e);
 ### 10.2 Missing Observability
 
 ❌ **Not Implemented:**
+
 - No distributed tracing (trace ID propagation)
 - No request duration metrics
 - No error rate tracking
@@ -1370,31 +1479,34 @@ AppLogger.e('WebSocket connection failed', e);
 ### 10.3 Observability Recommendations
 
 1. **Add Distributed Tracing**
+
 ```typescript
 // Generate or extract trace ID
-const traceId = headers['X-Trace-Id'] || generateUUID();
-headers['X-Trace-Id'] = traceId;
-headers['X-Request-ID'] = generateUUID();
+const traceId = headers["X-Trace-Id"] || generateUUID();
+headers["X-Trace-Id"] = traceId;
+headers["X-Request-ID"] = generateUUID();
 
 // Log with trace ID
-logger.info('API Request', { traceId, method, url, duration });
+logger.info("API Request", { traceId, method, url, duration });
 ```
 
 2. **Track Request Metrics**
+
 ```typescript
 class MetricsCollector {
   recordRequest(method: string, url: string, duration: number, status: number) {
-    prometheus.histogram('api_request_duration_ms', duration, { method, url });
-    prometheus.counter('api_request_total', 1, { method, url, status });
+    prometheus.histogram("api_request_duration_ms", duration, { method, url });
+    prometheus.counter("api_request_total", 1, { method, url, status });
   }
 
   recordError(method: string, url: string, error: string) {
-    prometheus.counter('api_error_total', 1, { method, url, error });
+    prometheus.counter("api_error_total", 1, { method, url, error });
   }
 }
 ```
 
 3. **Add Health Check Endpoint**
+
 ```typescript
 // Expose API health status to monitoring
 GET /api/health
@@ -1410,6 +1522,7 @@ GET /api/health
 ```
 
 4. **Implement Error Budgets**
+
 ```typescript
 class ErrorBudget {
   private readonly threshold = 0.01; // 1% error rate
@@ -1434,11 +1547,13 @@ class ErrorBudget {
 ### 11.1 Current Tests
 
 ✅ **Web App:**
+
 - `/apps/web/src/lib/api/__tests__/client.test.ts` (unit tests)
 - `/apps/web/e2e/iot.spec.ts` (E2E tests)
 - Feature-level API tests
 
 ✅ **Mobile App:**
+
 - `/apps/mobile/sahool_field_app/test/unit/http/api_client_test.dart`
 - `/apps/mobile/test/unit/api/api_client_test.dart`
 
@@ -1447,6 +1562,7 @@ class ErrorBudget {
 ### 11.2 Missing Test Coverage
 
 ❌ **Not Tested:**
+
 1. **Retry Logic Edge Cases**
    - Retry on 5xx → 2xx success
    - Retry on 5xx → 5xx → 5xx (all fail)
@@ -1485,20 +1601,24 @@ class ErrorBudget {
 ### 11.3 Testing Recommendations
 
 1. **Add Integration Tests**
+
 ```typescript
-describe('API Client Integration', () => {
-  it('retries 5xx errors', async () => {
-    mockServer.get('/api/v1/fields')
-      .onFirstCall().reply(500)
-      .onSecondCall().reply(200, { data: [] });
+describe("API Client Integration", () => {
+  it("retries 5xx errors", async () => {
+    mockServer
+      .get("/api/v1/fields")
+      .onFirstCall()
+      .reply(500)
+      .onSecondCall()
+      .reply(200, { data: [] });
 
     const result = await apiClient.getFields();
     expect(result.success).toBe(true);
     expect(mockServer.requestCount).toBe(2);
   });
 
-  it('does not retry 4xx errors', async () => {
-    mockServer.get('/api/v1/fields').reply(404);
+  it("does not retry 4xx errors", async () => {
+    mockServer.get("/api/v1/fields").reply(404);
 
     const result = await apiClient.getFields();
     expect(result.success).toBe(false);
@@ -1508,9 +1628,10 @@ describe('API Client Integration', () => {
 ```
 
 2. **Add WebSocket Tests**
+
 ```typescript
-describe('WebSocket Client', () => {
-  it('reconnects after disconnect', async () => {
+describe("WebSocket Client", () => {
+  it("reconnects after disconnect", async () => {
     const ws = new WebSocketClient(url);
     ws.connect();
 
@@ -1524,19 +1645,21 @@ describe('WebSocket Client', () => {
 ```
 
 3. **Add E2E Tests**
+
 ```typescript
-test('handles API timeout gracefully', async ({ page }) => {
-  await page.route('**/api/v1/fields', route => {
+test("handles API timeout gracefully", async ({ page }) => {
+  await page.route("**/api/v1/fields", (route) => {
     // Simulate slow response
     setTimeout(() => route.fulfill({ status: 200 }), 35000);
   });
 
-  await page.goto('/fields');
-  await expect(page.getByText('Request timeout')).toBeVisible();
+  await page.goto("/fields");
+  await expect(page.getByText("Request timeout")).toBeVisible();
 });
 ```
 
 4. **Add Load Tests**
+
 ```bash
 # Test concurrent requests
 k6 run --vus 100 --duration 30s load-test.js
@@ -1642,6 +1765,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 5. ✅ Consolidate web API clients to single library
 
 **Expected Impact:**
+
 - Reduce user logout incidents by 80%
 - Improve mobile success rate by 15% (unstable networks)
 - Unified security/rate limiting for WebSocket
@@ -1657,6 +1781,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 10. ✅ Implement message queuing for WebSocket
 
 **Expected Impact:**
+
 - Reduce API calls by 20-30% (caching + dedup)
 - Better UX during network issues
 - Prevent thundering herd on backend
@@ -1672,6 +1797,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 15. ✅ Add error budgets
 
 **Expected Impact:**
+
 - 10x faster issue resolution
 - Proactive detection of degradation
 - Data-driven performance optimization
@@ -1687,6 +1813,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 20. ✅ Add circuit breaker pattern
 
 **Expected Impact:**
+
 - Catch bugs before production
 - Better handling of backend failures
 - Improved resilience
@@ -1698,6 +1825,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 ### Strengths
 
 ✅ **Both applications have:**
+
 - Solid foundational API client implementations
 - Proper authentication token handling
 - Good error handling with user-friendly messages
@@ -1705,12 +1833,14 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 - Bilingual error messages (English/Arabic)
 
 ✅ **Mobile app excels at:**
+
 - Certificate pinning for security
 - Rate limiting to prevent abuse
 - Request signing for integrity
 - Security header validation
 
 ✅ **Web app excels at:**
+
 - Retry logic with exponential backoff
 - Smart retry strategy (only 5xx/network)
 - Input validation and sanitization
@@ -1721,6 +1851,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 ### Weaknesses
 
 ❌ **Critical issues:**
+
 - No automatic token refresh (both)
 - No retry logic (mobile)
 - WebSocket bypasses Kong (both)
@@ -1728,6 +1859,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 - Token in URL (mobile WebSocket)
 
 ⚠️ **Performance issues:**
+
 - No request deduplication
 - No response caching
 - No distributed tracing
@@ -1737,25 +1869,26 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 
 ### Overall Rating
 
-| Aspect | Web | Mobile | Comments |
-|--------|-----|--------|----------|
-| API Client | 7/10 | 6/10 | Good base, needs retry (mobile) |
-| Error Handling | 8/10 | 8/10 | Excellent error messages |
-| Authentication | 6/10 | 7/10 | Needs auto-refresh |
-| Retry Logic | 8/10 | 3/10 | Mobile missing retry |
-| WebSocket | 7/10 | 7/10 | Should route through Kong |
-| Timeouts | 6/10 | 6/10 | Inconsistent configs |
-| Security | 7/10 | 9/10 | Mobile has cert pinning |
-| Performance | 5/10 | 6/10 | No caching/dedup |
-| Observability | 4/10 | 5/10 | Limited metrics |
-| Testing | 6/10 | 6/10 | Needs more coverage |
-| **Overall** | **6.4/10** | **6.3/10** | **Good, needs improvements** |
+| Aspect         | Web        | Mobile     | Comments                        |
+| -------------- | ---------- | ---------- | ------------------------------- |
+| API Client     | 7/10       | 6/10       | Good base, needs retry (mobile) |
+| Error Handling | 8/10       | 8/10       | Excellent error messages        |
+| Authentication | 6/10       | 7/10       | Needs auto-refresh              |
+| Retry Logic    | 8/10       | 3/10       | Mobile missing retry            |
+| WebSocket      | 7/10       | 7/10       | Should route through Kong       |
+| Timeouts       | 6/10       | 6/10       | Inconsistent configs            |
+| Security       | 7/10       | 9/10       | Mobile has cert pinning         |
+| Performance    | 5/10       | 6/10       | No caching/dedup                |
+| Observability  | 4/10       | 5/10       | Limited metrics                 |
+| Testing        | 6/10       | 6/10       | Needs more coverage             |
+| **Overall**    | **6.4/10** | **6.3/10** | **Good, needs improvements**    |
 
 ---
 
 ### Success Criteria
 
 **After implementing Phase 1-2 recommendations:**
+
 - ✅ API success rate: > 99.5%
 - ✅ User logout rate: < 1% per day
 - ✅ Retry success rate: > 50%
@@ -1763,6 +1896,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 - ✅ Cache hit rate: > 30%
 
 **After Phase 3-4:**
+
 - ✅ Mean time to detection (MTTD): < 5 minutes
 - ✅ Mean time to resolution (MTTR): < 30 minutes
 - ✅ Test coverage: > 80%
@@ -1773,6 +1907,7 @@ artillery quick --count 100 --num 10 http://localhost:8000/api/v1/fields
 ## Appendix A: Environment Variables
 
 ### Web App (.env.example)
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_WS_URL=ws://localhost:8081
@@ -1784,6 +1919,7 @@ NEXT_PUBLIC_ENABLE_IOT=true
 ```
 
 ### Mobile App (.env.example)
+
 ```bash
 ENV=development
 API_URL=http://10.0.2.2:8000/api/v1
@@ -1798,24 +1934,25 @@ DEFAULT_TENANT_ID=sahool-demo
 
 ## Appendix B: Kong Route Mapping
 
-| Service | Kong Route | Port | Timeout | ACL |
-|---------|------------|------|---------|-----|
-| field-core | /api/v1/fields | 3000 | 60s | starter+ |
-| weather-service | /api/v1/weather | 8092 | 60s | starter+ |
-| satellite-service | /api/v1/satellite | 8090 | 120s | professional+ |
-| crop-health-ai | /api/v1/crop-health | 8095 | 120s | professional+ |
-| irrigation-smart | /api/v1/irrigation | 8094 | 60s | professional+ |
-| ai-advisor | /api/v1/ai-advisor | 8112 | 180s | enterprise |
-| iot-gateway | /api/v1/iot | 8106 | 60s | enterprise |
-| marketplace | /api/v1/marketplace | 3010 | 60s | enterprise |
-| billing-core | /api/v1/billing | 8089 | 60s | all |
-| ws-gateway | /api/v1/ws | 8081 | - | all |
+| Service           | Kong Route          | Port | Timeout | ACL           |
+| ----------------- | ------------------- | ---- | ------- | ------------- |
+| field-core        | /api/v1/fields      | 3000 | 60s     | starter+      |
+| weather-service   | /api/v1/weather     | 8092 | 60s     | starter+      |
+| satellite-service | /api/v1/satellite   | 8090 | 120s    | professional+ |
+| crop-health-ai    | /api/v1/crop-health | 8095 | 120s    | professional+ |
+| irrigation-smart  | /api/v1/irrigation  | 8094 | 60s     | professional+ |
+| ai-advisor        | /api/v1/ai-advisor  | 8112 | 180s    | enterprise    |
+| iot-gateway       | /api/v1/iot         | 8106 | 60s     | enterprise    |
+| marketplace       | /api/v1/marketplace | 3010 | 60s     | enterprise    |
+| billing-core      | /api/v1/billing     | 8089 | 60s     | all           |
+| ws-gateway        | /api/v1/ws          | 8081 | -       | all           |
 
 ---
 
 ## Appendix C: API Client Code Examples
 
 ### Web: Retry Logic
+
 ```typescript
 // From /apps/web/src/lib/api/client.ts lines 105-190
 for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -1844,7 +1981,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
 
     return parseResponse(response);
   } catch (error) {
-    if (error.name === 'AbortError') {
+    if (error.name === "AbortError") {
       return timeoutError;
     }
 
@@ -1857,6 +1994,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
 ```
 
 ### Mobile: Error Handling
+
 ```dart
 // From /apps/mobile/lib/core/http/api_client.dart lines 259-309
 ApiException _handleError(DioException e) {

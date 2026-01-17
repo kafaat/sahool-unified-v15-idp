@@ -1657,13 +1657,7 @@
   "refresh": "10s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [
-    "sahool",
-    "microservices",
-    "overview",
-    "services",
-    "خدمات"
-  ],
+  "tags": ["sahool", "microservices", "overview", "services", "خدمات"],
   "templating": {
     "list": []
   },
@@ -1672,15 +1666,7 @@
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m"
-    ]
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m"]
   },
   "timezone": "Asia/Riyadh",
   "title": "SAHOOL Services Overview - نظرة عامة على خدمات سهول",

@@ -21,7 +21,7 @@ License: MIT
 
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx
@@ -48,9 +48,9 @@ logger = logging.getLogger(__name__)
 # Service URLs Configuration - إعدادات عناوين الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
 
-TASK_SERVICE_URL = os.getenv("TASK_SERVICE_URL", "http://task-service:8080")
-NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8080")
-ALERT_SERVICE_URL = os.getenv("ALERT_SERVICE_URL", "http://alert-service:8080")
+TASK_SERVICE_URL = os.getenv("TASK_SERVICE_URL", "http://task-service:8103")
+NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8110")
+ALERT_SERVICE_URL = os.getenv("ALERT_SERVICE_URL", "http://alert-service:8113")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -862,7 +862,7 @@ class FieldRulesEngine:
                         rule_id=rule.rule_id,
                         event_id=event.event_id,
                         success=False,
-                        executed_at=datetime.utcnow(),
+                        executed_at=datetime.now(UTC),
                         actions_executed=0,
                         actions_failed=0,
                         error_message=str(e),
@@ -927,7 +927,7 @@ class FieldRulesEngine:
 
         # تحديث آخر وقت تفعيل
         # Update last execution time
-        self.execution_history[rule.rule_id] = datetime.utcnow()
+        self.execution_history[rule.rule_id] = datetime.now(UTC)
 
         return execution_result
 
@@ -947,10 +947,10 @@ class FieldRulesEngine:
 
         last_execution = self.execution_history[rule.rule_id]
         cooldown_end = last_execution + timedelta(minutes=rule.cooldown_minutes)
-        can_execute = datetime.utcnow() >= cooldown_end
+        can_execute = datetime.now(UTC) >= cooldown_end
 
         if not can_execute:
-            remaining_minutes = (cooldown_end - datetime.utcnow()).total_seconds() / 60
+            remaining_minutes = (cooldown_end - datetime.now(UTC)).total_seconds() / 60
             logger.debug(
                 f"⏸️ القاعدة {rule.rule_id} في فترة تهدئة. متبقي {remaining_minutes:.1f} دقيقة"
             )
@@ -1074,10 +1074,7 @@ class FieldRulesEngine:
         value: Any = event
 
         for part in parts:
-            if isinstance(value, dict):
-                value = value.get(part)
-            else:
-                value = getattr(value, part, None)
+            value = value.get(part) if isinstance(value, dict) else getattr(value, part, None)
 
             if value is None:
                 return None
@@ -1146,7 +1143,7 @@ class FieldRulesEngine:
             rule_id=rule.rule_id,
             event_id=event.event_id,
             success=actions_failed == 0,
-            executed_at=datetime.utcnow(),
+            executed_at=datetime.now(UTC),
             actions_executed=actions_executed,
             actions_failed=actions_failed,
             execution_details=execution_details,
@@ -1225,7 +1222,7 @@ class FieldRulesEngine:
 
         # حساب موعد الاستحقاق
         # Calculate due date
-        due_date = datetime.utcnow() + timedelta(hours=task_config.due_hours)
+        due_date = datetime.now(UTC) + timedelta(hours=task_config.due_hours)
 
         # إعداد البيانات للإرسال
         # Prepare payload
@@ -1404,7 +1401,7 @@ class FieldRulesEngine:
         # Calculate expiry
         expire_at = None
         if alert_config.expire_hours:
-            expire_at = (datetime.utcnow() + timedelta(hours=alert_config.expire_hours)).isoformat()
+            expire_at = (datetime.now(UTC) + timedelta(hours=alert_config.expire_hours)).isoformat()
 
         # إعداد البيانات
         # Prepare payload
@@ -1493,7 +1490,7 @@ class FieldRulesEngine:
                     "name": rule.name,
                     "name_ar": rule.name_ar,
                 },
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
         logger.info(f"🌐 استدعاء Webhook: {webhook_config.method} {webhook_config.url}")
@@ -1562,7 +1559,7 @@ class FieldRulesEngine:
         return {
             "action_type": "log_event",
             "success": True,
-            "logged_at": datetime.utcnow().isoformat(),
+            "logged_at": datetime.now(UTC).isoformat(),
         }
 
     # ─────────────────────────────────────────────────────────────────────────

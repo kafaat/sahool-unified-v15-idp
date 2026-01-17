@@ -22,6 +22,7 @@ Certificate pinning has been enabled in the main mobile app at `/apps/mobile/`. 
 ## ⚡ How It Works
 
 ### Development (Debug Mode)
+
 ```bash
 flutter run
 # Output: ⚠️ Certificate pinning is disabled
@@ -29,6 +30,7 @@ flutter run
 ```
 
 ### Production (Release Mode)
+
 ```bash
 flutter build apk --release
 # Output: 🔒 SSL Certificate Pinning enabled
@@ -66,6 +68,7 @@ cd /apps/mobile
 ```
 
 The script will:
+
 - Generate both Android (SHA256) and iOS (SPKI) pins
 - Save a summary file with all the pins
 - Show you exactly where to paste each pin
@@ -95,12 +98,14 @@ You need to update pins in **THREE** places:
 Edit `/apps/mobile/android/app/src/main/res/xml/network_security_config.xml`:
 
 **Find the TODO comments and replace:**
+
 ```xml
 <!-- TODO: Replace AAAA... with actual SHA256 fingerprint -->
 <pin digest="sha256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
 ```
 
 **With your generated pin:**
+
 ```xml
 <pin digest="sha256">YOUR_ACTUAL_SHA256_FINGERPRINT_HERE</pin>
 ```
@@ -110,6 +115,7 @@ Edit `/apps/mobile/android/app/src/main/res/xml/network_security_config.xml`:
 Edit `/apps/mobile/ios/Runner/Info.plist`:
 
 **Find the TODO comments and replace:**
+
 ```xml
 <!-- TODO: Replace AAAA... with actual SPKI hash from production certificate -->
 <key>SPKI-SHA256-BASE64</key>
@@ -117,6 +123,7 @@ Edit `/apps/mobile/ios/Runner/Info.plist`:
 ```
 
 **With your generated SPKI hash:**
+
 ```xml
 <key>SPKI-SHA256-BASE64</key>
 <string>YOUR_ACTUAL_SPKI_HASH_HERE</string>
@@ -127,12 +134,14 @@ Edit `/apps/mobile/ios/Runner/Info.plist`:
 Edit `/apps/mobile/lib/core/security/certificate_config.dart`:
 
 **Find the TODO comments and replace:**
+
 ```dart
 // TODO: CRITICAL - Replace with actual production certificate fingerprint
 value: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // PLACEHOLDER
 ```
 
 **With your generated fingerprint:**
+
 ```dart
 value: 'your_actual_sha256_fingerprint_in_lowercase',
 ```
@@ -168,15 +177,18 @@ adb logcat | grep "Certificate"
 ## 🔧 Configuration Files
 
 ### Main Configuration File
+
 ```
 /apps/mobile/lib/core/security/certificate_config.dart
 ```
 
 **Update these sections:**
+
 - `getProductionPins()` - Production certificate fingerprints
 - `getStagingPins()` - Staging certificate fingerprints
 
 **Example:**
+
 ```dart
 static Map<String, List<CertificatePin>> getProductionPins() {
   return {
@@ -203,6 +215,7 @@ static Map<String, List<CertificatePin>> getProductionPins() {
 ## 📝 Pre-Deployment Checklist
 
 ### Generate Certificate Pins
+
 - [ ] Run `./scripts/generate_cert_pins.sh` for all domains
 - [ ] Save the generated summary files for reference
 - [ ] Get certificate fingerprints for all domains:
@@ -213,6 +226,7 @@ static Map<String, List<CertificatePin>> getProductionPins() {
   - [ ] ws-staging.sahool.app
 
 ### Update Configuration Files
+
 - [ ] Update Android `network_security_config.xml` with SHA256 pins
 - [ ] Update iOS `Info.plist` with SPKI hashes
 - [ ] Update Dart `certificate_config.dart` with SHA256 pins
@@ -220,6 +234,7 @@ static Map<String, List<CertificatePin>> getProductionPins() {
 - [ ] Verify ALL placeholder values are replaced (search for AAAA, BBBB, CCCC, etc.)
 
 ### Testing
+
 - [ ] Test in staging environment first
 - [ ] Build in release mode (`--release` flag)
 - [ ] Verify certificate pinning is enabled in logs
@@ -228,6 +243,7 @@ static Map<String, List<CertificatePin>> getProductionPins() {
 - [ ] Verify error handling when pins don't match
 
 ### Monitoring
+
 - [ ] Set up alerts for certificate expiry (30 days before)
 - [ ] Document certificate rotation procedures
 - [ ] Monitor for errors after deployment
@@ -236,16 +252,19 @@ static Map<String, List<CertificatePin>> getProductionPins() {
 ## 🧪 Testing
 
 ### Check if Pinning is Enabled
+
 ```bash
 adb logcat | grep "Certificate"
 ```
 
 **Debug build:**
+
 ```
 ⚠️ Certificate pinning is disabled
 ```
 
 **Release build:**
+
 ```
 🔒 SSL Certificate Pinning enabled
    Environment: production
@@ -255,11 +274,13 @@ adb logcat | grep "Certificate"
 ```
 
 ### Successful Connection
+
 ```
 ✅ Certificate pin matched for host: api.sahool.app
 ```
 
 ### Failed Validation
+
 ```
 ❌ Certificate validation failed for host: api.sahool.app
    Certificate fingerprint: abc123...
@@ -268,23 +289,28 @@ adb logcat | grep "Certificate"
 ## 📚 Documentation
 
 ### Quick Reference
+
 - **This file** - Quick start guide
 - `/lib/core/security/README.md` - Module overview
 
 ### Detailed Guides
+
 - `/lib/core/security/CERTIFICATE_PINNING_GUIDE.md` - Complete setup guide
 - `/apps/mobile/CERTIFICATE_PINNING_IMPLEMENTATION.md` - Implementation details
 - `/apps/mobile/CERTIFICATE_PINNING_CODE_CHANGES.md` - All code changes
 
 ### Examples
+
 - `/lib/core/security/certificate_pinning_example.dart` - 8 usage examples
 
 ## 🔍 Troubleshooting
 
 ### App Can't Connect in Production
+
 **Problem:** Network errors in release build, works in debug
 
 **Solution:**
+
 1. Check fingerprints match actual server certificates
 2. Use the helper function to get actual fingerprint:
    ```dart
@@ -295,17 +321,21 @@ adb logcat | grep "Certificate"
 4. Rebuild app
 
 ### Pinning Not Enabled
+
 **Problem:** Logs show "Certificate pinning is disabled" in production
 
 **Solution:**
+
 1. Ensure building with `--release` flag
 2. Check you're using `flutter build apk --release` (not `flutter run`)
 3. Verify app is installed from release build
 
 ### Certificate Mismatch
+
 **Problem:** "Certificate validation failed"
 
 **Solution:**
+
 1. Get current fingerprint from server
 2. Compare with configured values
 3. Update configuration if needed
@@ -368,6 +398,7 @@ cd /apps/mobile
 ### Output
 
 The script generates:
+
 1. **Console output** with formatted pins for each platform
 2. **Summary file** (`cert_pins_<domain>_<timestamp>.txt`) with all the information
 
@@ -414,6 +445,7 @@ The mobile app currently contains **PLACEHOLDER** certificate pins that are **NO
 ### Why This Matters
 
 Without real certificate pins:
+
 - Certificate pinning will **NOT WORK** in production
 - The app is **VULNERABLE** to man-in-the-middle attacks
 - Security benefits of certificate pinning are **LOST**
@@ -444,6 +476,7 @@ grep -r "PLACEHOLDER - MUST REPLACE" lib/core/security/
 ### Deployment Blockers
 
 **DO NOT DEPLOY TO PRODUCTION IF:**
+
 - Any placeholder values (AAAA..., BBBB..., etc.) remain in configuration files
 - Grep commands above return any results
 - You haven't tested with real certificate pins in staging

@@ -4,14 +4,23 @@
 // Paper: https://arxiv.org/abs/2509.17808 (2025)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Interfaces & Types - واجهات وأنواع
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Direction = 'up' | 'down' | 'left' | 'right';
-type ScenarioType = 'general' | 'flood' | 'urban' | 'rural' | 'agricultural';
+type Direction = "up" | "down" | "left" | "right";
+type ScenarioType = "general" | "flood" | "urban" | "rural" | "agricultural";
+
+// Security: Whitelist of allowed scenario types to prevent property injection
+const ALLOWED_SCENARIOS: Set<string> = new Set([
+  "general",
+  "flood",
+  "urban",
+  "rural",
+  "agricultural",
+]);
 
 export interface TileData {
   id: string;
@@ -25,7 +34,14 @@ export interface TileData {
 }
 
 export interface LandCoverClass {
-  type: 'vegetation' | 'water' | 'built_up' | 'bare_soil' | 'road' | 'agriculture' | 'forest';
+  type:
+    | "vegetation"
+    | "water"
+    | "built_up"
+    | "bare_soil"
+    | "road"
+    | "agriculture"
+    | "forest";
   percentage: number;
   confidence: number;
 }
@@ -62,10 +78,10 @@ export interface ScenarioAnalysis {
 }
 
 export interface RiskAssessment {
-  type: 'flood' | 'drought' | 'urban_expansion' | 'deforestation';
-  level: 'low' | 'medium' | 'high' | 'critical';
+  type: "flood" | "drought" | "urban_expansion" | "deforestation";
+  level: "low" | "medium" | "high" | "critical";
   affectedArea: number;
-  trend: 'increasing' | 'stable' | 'decreasing';
+  trend: "increasing" | "stable" | "decreasing";
   confidence: number;
 }
 
@@ -111,39 +127,42 @@ export class RSWorldModelService {
 
   private readonly modelArchitecture: ModelArchitecture[] = [
     {
-      stage: 'feature_encoding',
-      nameEn: 'Feature Encoding',
-      nameAr: 'ترميز الخصائص',
-      description: 'Extract visual features from input tile and encode direction into learnable embedding',
+      stage: "feature_encoding",
+      nameEn: "Feature Encoding",
+      nameAr: "ترميز الخصائص",
+      description:
+        "Extract visual features from input tile and encode direction into learnable embedding",
       components: [
-        'Visual Encoder (ViT-based)',
-        'Direction Embedding Layer',
-        'Positional Encoding',
-        'Feature Normalization',
+        "Visual Encoder (ViT-based)",
+        "Direction Embedding Layer",
+        "Positional Encoding",
+        "Feature Normalization",
       ],
     },
     {
-      stage: 'multimodal_integration',
-      nameEn: 'Multimodal Integration',
-      nameAr: 'التكامل متعدد الوسائط',
-      description: 'Fuse visual features with direction embedding using cross-attention and self-attention',
+      stage: "multimodal_integration",
+      nameEn: "Multimodal Integration",
+      nameAr: "التكامل متعدد الوسائط",
+      description:
+        "Fuse visual features with direction embedding using cross-attention and self-attention",
       components: [
-        'Cross-Attention Module',
-        'Self-Attention Layers',
-        'Spatial Dependency Capture',
-        'Semantic Understanding',
+        "Cross-Attention Module",
+        "Self-Attention Layers",
+        "Spatial Dependency Capture",
+        "Semantic Understanding",
       ],
     },
     {
-      stage: 'decoding_generation',
-      nameEn: 'Decoding & Generation',
-      nameAr: 'فك الترميز والتوليد',
-      description: 'Synthesize adjacent tiles with geographic structure continuity',
+      stage: "decoding_generation",
+      nameEn: "Decoding & Generation",
+      nameAr: "فك الترميز والتوليد",
+      description:
+        "Synthesize adjacent tiles with geographic structure continuity",
       components: [
-        'Diffusion Decoder',
-        'Structure Continuity Module',
-        'Boundary Consistency Check',
-        'Output Refinement',
+        "Diffusion Decoder",
+        "Structure Continuity Module",
+        "Boundary Consistency Check",
+        "Output Refinement",
       ],
     },
   ];
@@ -152,36 +171,97 @@ export class RSWorldModelService {
   // Scenario Templates - قوالب السيناريوهات
   // ─────────────────────────────────────────────────────────────────────────────
 
-  private readonly scenarioTemplates: Map<ScenarioType, {
-    typicalFeatures: string[];
-    landCoverDistribution: Partial<{ [key: string]: [number, number] }>;
-    indices: { ndvi: [number, number]; ndwi: [number, number]; ndbi: [number, number] };
-  }> = new Map([
-    ['general', {
-      typicalFeatures: ['mixed terrain', 'variable vegetation', 'natural features'],
-      landCoverDistribution: { vegetation: [0.2, 0.6], bare_soil: [0.1, 0.4], water: [0, 0.2] },
-      indices: { ndvi: [0.2, 0.7], ndwi: [-0.2, 0.3], ndbi: [-0.3, 0.2] },
-    }],
-    ['flood', {
-      typicalFeatures: ['water bodies', 'flooded areas', 'damaged structures', 'debris'],
-      landCoverDistribution: { water: [0.3, 0.8], vegetation: [0.1, 0.4], bare_soil: [0.1, 0.3] },
-      indices: { ndvi: [0.0, 0.4], ndwi: [0.2, 0.8], ndbi: [-0.4, 0.1] },
-    }],
-    ['urban', {
-      typicalFeatures: ['buildings', 'roads', 'infrastructure', 'parks'],
-      landCoverDistribution: { built_up: [0.4, 0.8], road: [0.1, 0.3], vegetation: [0.05, 0.2] },
-      indices: { ndvi: [0.0, 0.3], ndwi: [-0.3, 0.1], ndbi: [0.2, 0.6] },
-    }],
-    ['rural', {
-      typicalFeatures: ['farmland', 'scattered buildings', 'natural vegetation', 'small roads'],
-      landCoverDistribution: { agriculture: [0.4, 0.7], vegetation: [0.2, 0.4], built_up: [0.05, 0.15] },
-      indices: { ndvi: [0.3, 0.8], ndwi: [-0.1, 0.2], ndbi: [-0.2, 0.1] },
-    }],
-    ['agricultural', {
-      typicalFeatures: ['crop fields', 'irrigation channels', 'farm structures', 'greenhouses'],
-      landCoverDistribution: { agriculture: [0.6, 0.9], vegetation: [0.1, 0.3], bare_soil: [0.05, 0.2] },
-      indices: { ndvi: [0.4, 0.9], ndwi: [0.0, 0.3], ndbi: [-0.3, 0.0] },
-    }],
+  private readonly scenarioTemplates: Map<
+    ScenarioType,
+    {
+      typicalFeatures: string[];
+      landCoverDistribution: Partial<{ [key: string]: [number, number] }>;
+      indices: {
+        ndvi: [number, number];
+        ndwi: [number, number];
+        ndbi: [number, number];
+      };
+    }
+  > = new Map([
+    [
+      "general",
+      {
+        typicalFeatures: [
+          "mixed terrain",
+          "variable vegetation",
+          "natural features",
+        ],
+        landCoverDistribution: {
+          vegetation: [0.2, 0.6],
+          bare_soil: [0.1, 0.4],
+          water: [0, 0.2],
+        },
+        indices: { ndvi: [0.2, 0.7], ndwi: [-0.2, 0.3], ndbi: [-0.3, 0.2] },
+      },
+    ],
+    [
+      "flood",
+      {
+        typicalFeatures: [
+          "water bodies",
+          "flooded areas",
+          "damaged structures",
+          "debris",
+        ],
+        landCoverDistribution: {
+          water: [0.3, 0.8],
+          vegetation: [0.1, 0.4],
+          bare_soil: [0.1, 0.3],
+        },
+        indices: { ndvi: [0.0, 0.4], ndwi: [0.2, 0.8], ndbi: [-0.4, 0.1] },
+      },
+    ],
+    [
+      "urban",
+      {
+        typicalFeatures: ["buildings", "roads", "infrastructure", "parks"],
+        landCoverDistribution: {
+          built_up: [0.4, 0.8],
+          road: [0.1, 0.3],
+          vegetation: [0.05, 0.2],
+        },
+        indices: { ndvi: [0.0, 0.3], ndwi: [-0.3, 0.1], ndbi: [0.2, 0.6] },
+      },
+    ],
+    [
+      "rural",
+      {
+        typicalFeatures: [
+          "farmland",
+          "scattered buildings",
+          "natural vegetation",
+          "small roads",
+        ],
+        landCoverDistribution: {
+          agriculture: [0.4, 0.7],
+          vegetation: [0.2, 0.4],
+          built_up: [0.05, 0.15],
+        },
+        indices: { ndvi: [0.3, 0.8], ndwi: [-0.1, 0.2], ndbi: [-0.2, 0.1] },
+      },
+    ],
+    [
+      "agricultural",
+      {
+        typicalFeatures: [
+          "crop fields",
+          "irrigation channels",
+          "farm structures",
+          "greenhouses",
+        ],
+        landCoverDistribution: {
+          agriculture: [0.6, 0.9],
+          vegetation: [0.1, 0.3],
+          bare_soil: [0.05, 0.2],
+        },
+        indices: { ndvi: [0.4, 0.9], ndwi: [0.0, 0.3], ndbi: [-0.3, 0.0] },
+      },
+    ],
   ]);
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -198,13 +278,43 @@ export class RSWorldModelService {
   /**
    * Get available scenarios
    */
-  getScenarios(): { id: ScenarioType; nameEn: string; nameAr: string; description: string }[] {
+  getScenarios(): {
+    id: ScenarioType;
+    nameEn: string;
+    nameAr: string;
+    description: string;
+  }[] {
     return [
-      { id: 'general', nameEn: 'General', nameAr: 'عام', description: 'Diverse terrain (mountains, forests, coasts)' },
-      { id: 'flood', nameEn: 'Flood', nameAr: 'فيضانات', description: 'Disaster response, flooded areas' },
-      { id: 'urban', nameEn: 'Urban', nameAr: 'حضري', description: 'Dense built environments, road networks' },
-      { id: 'rural', nameEn: 'Rural', nameAr: 'ريفي', description: 'Agricultural areas, natural vegetation' },
-      { id: 'agricultural', nameEn: 'Agricultural', nameAr: 'زراعي', description: 'Crop fields, irrigation, farms' },
+      {
+        id: "general",
+        nameEn: "General",
+        nameAr: "عام",
+        description: "Diverse terrain (mountains, forests, coasts)",
+      },
+      {
+        id: "flood",
+        nameEn: "Flood",
+        nameAr: "فيضانات",
+        description: "Disaster response, flooded areas",
+      },
+      {
+        id: "urban",
+        nameEn: "Urban",
+        nameAr: "حضري",
+        description: "Dense built environments, road networks",
+      },
+      {
+        id: "rural",
+        nameEn: "Rural",
+        nameAr: "ريفي",
+        description: "Agricultural areas, natural vegetation",
+      },
+      {
+        id: "agricultural",
+        nameEn: "Agricultural",
+        nameAr: "زراعي",
+        description: "Crop fields, irrigation, farms",
+      },
     ];
   }
 
@@ -220,16 +330,22 @@ export class RSWorldModelService {
     const template = this.scenarioTemplates.get(params.scenario)!;
 
     // Generate indices based on scenario template
-    const randomInRange = (range: [number, number]) => range[0] + Math.random() * (range[1] - range[0]);
+    const randomInRange = (range: [number, number]) =>
+      range[0] + Math.random() * (range[1] - range[0]);
 
     const landCover: LandCoverClass[] = [];
     let remainingPct = 100;
 
-    for (const [type, range] of Object.entries(template.landCoverDistribution)) {
+    for (const [type, range] of Object.entries(
+      template.landCoverDistribution,
+    )) {
       if (range && remainingPct > 0) {
-        const pct = Math.min(randomInRange(range as [number, number]) * 100, remainingPct);
+        const pct = Math.min(
+          randomInRange(range as [number, number]) * 100,
+          remainingPct,
+        );
         landCover.push({
-          type: type as LandCoverClass['type'],
+          type: type as LandCoverClass["type"],
           percentage: Math.round(pct),
           confidence: 0.85 + Math.random() * 0.1,
         });
@@ -247,7 +363,10 @@ export class RSWorldModelService {
         ndbi: randomInRange(template.indices.ndbi),
       },
       landCover,
-      features: template.typicalFeatures.slice(0, 2 + Math.floor(Math.random() * 2)),
+      features: template.typicalFeatures.slice(
+        0,
+        2 + Math.floor(Math.random() * 2),
+      ),
       scenario: params.scenario,
       timestamp: new Date().toISOString(),
     };
@@ -267,45 +386,57 @@ export class RSWorldModelService {
     const tileWidth = centralTile.bounds.maxLng - centralTile.bounds.minLng;
     const tileHeight = centralTile.bounds.maxLat - centralTile.bounds.minLat;
 
-    let newBounds: TileData['bounds'];
+    let newBounds: TileData["bounds"];
     let newPosition: { row: number; col: number };
 
     switch (direction) {
-      case 'up':
+      case "up":
         newBounds = {
           minLat: centralTile.bounds.maxLat,
           maxLat: centralTile.bounds.maxLat + tileHeight,
           minLng: centralTile.bounds.minLng,
           maxLng: centralTile.bounds.maxLng,
         };
-        newPosition = { row: centralTile.position.row - 1, col: centralTile.position.col };
+        newPosition = {
+          row: centralTile.position.row - 1,
+          col: centralTile.position.col,
+        };
         break;
-      case 'down':
+      case "down":
         newBounds = {
           minLat: centralTile.bounds.minLat - tileHeight,
           maxLat: centralTile.bounds.minLat,
           minLng: centralTile.bounds.minLng,
           maxLng: centralTile.bounds.maxLng,
         };
-        newPosition = { row: centralTile.position.row + 1, col: centralTile.position.col };
+        newPosition = {
+          row: centralTile.position.row + 1,
+          col: centralTile.position.col,
+        };
         break;
-      case 'left':
+      case "left":
         newBounds = {
           minLat: centralTile.bounds.minLat,
           maxLat: centralTile.bounds.maxLat,
           minLng: centralTile.bounds.minLng - tileWidth,
           maxLng: centralTile.bounds.minLng,
         };
-        newPosition = { row: centralTile.position.row, col: centralTile.position.col - 1 };
+        newPosition = {
+          row: centralTile.position.row,
+          col: centralTile.position.col - 1,
+        };
         break;
-      case 'right':
+      case "right":
         newBounds = {
           minLat: centralTile.bounds.minLat,
           maxLat: centralTile.bounds.maxLat,
           minLng: centralTile.bounds.maxLng,
           maxLng: centralTile.bounds.maxLng + tileWidth,
         };
-        newPosition = { row: centralTile.position.row, col: centralTile.position.col + 1 };
+        newPosition = {
+          row: centralTile.position.row,
+          col: centralTile.position.col + 1,
+        };
         break;
     }
 
@@ -319,14 +450,16 @@ export class RSWorldModelService {
 
     // Apply spatial continuity - indices should be similar at boundaries
     const continuityFactor = 0.7 + Math.random() * 0.2;
-    predictedTile.indices.ndvi = centralTile.indices.ndvi * continuityFactor +
+    predictedTile.indices.ndvi =
+      centralTile.indices.ndvi * continuityFactor +
       predictedTile.indices.ndvi * (1 - continuityFactor);
-    predictedTile.indices.ndwi = centralTile.indices.ndwi * continuityFactor +
+    predictedTile.indices.ndwi =
+      centralTile.indices.ndwi * continuityFactor +
       predictedTile.indices.ndwi * (1 - continuityFactor);
 
     // Calculate quality metrics
     const spatialContinuity = 0.85 + Math.random() * 0.1;
-    const semanticConsistency = 0.80 + Math.random() * 0.15;
+    const semanticConsistency = 0.8 + Math.random() * 0.15;
     const confidence = (spatialContinuity + semanticConsistency) / 2;
 
     return {
@@ -336,7 +469,7 @@ export class RSWorldModelService {
       confidence,
       spatialContinuity,
       semanticConsistency,
-      generationMethod: 'RemoteBAGEL Directional Conditional Generation',
+      generationMethod: "RemoteBAGEL Directional Conditional Generation",
     };
   }
 
@@ -350,10 +483,22 @@ export class RSWorldModelService {
     const { centralTile, expansionLevels = 1 } = params;
 
     // Generate expansions in all 4 directions
-    const upResult = this.performSpatialReasoning({ centralTile, direction: 'up' });
-    const downResult = this.performSpatialReasoning({ centralTile, direction: 'down' });
-    const leftResult = this.performSpatialReasoning({ centralTile, direction: 'left' });
-    const rightResult = this.performSpatialReasoning({ centralTile, direction: 'right' });
+    const upResult = this.performSpatialReasoning({
+      centralTile,
+      direction: "up",
+    });
+    const downResult = this.performSpatialReasoning({
+      centralTile,
+      direction: "down",
+    });
+    const leftResult = this.performSpatialReasoning({
+      centralTile,
+      direction: "left",
+    });
+    const rightResult = this.performSpatialReasoning({
+      centralTile,
+      direction: "right",
+    });
 
     // Build 3x3 grid (or larger based on expansion levels)
     const gridSize = 1 + expansionLevels * 2;
@@ -365,29 +510,42 @@ export class RSWorldModelService {
         if (r === Math.floor(gridSize / 2) && c === Math.floor(gridSize / 2)) {
           row.push(centralTile);
         } else {
-          row.push(this.generateTile({
-            id: `tile_${r}_${c}`,
-            position: { row: r, col: c },
-            bounds: {
-              minLat: centralTile.bounds.minLat + (Math.floor(gridSize / 2) - r) *
-                (centralTile.bounds.maxLat - centralTile.bounds.minLat),
-              maxLat: centralTile.bounds.maxLat + (Math.floor(gridSize / 2) - r) *
-                (centralTile.bounds.maxLat - centralTile.bounds.minLat),
-              minLng: centralTile.bounds.minLng + (c - Math.floor(gridSize / 2)) *
-                (centralTile.bounds.maxLng - centralTile.bounds.minLng),
-              maxLng: centralTile.bounds.maxLng + (c - Math.floor(gridSize / 2)) *
-                (centralTile.bounds.maxLng - centralTile.bounds.minLng),
-            },
-            scenario: centralTile.scenario,
-          }));
+          row.push(
+            this.generateTile({
+              id: `tile_${r}_${c}`,
+              position: { row: r, col: c },
+              bounds: {
+                minLat:
+                  centralTile.bounds.minLat +
+                  (Math.floor(gridSize / 2) - r) *
+                    (centralTile.bounds.maxLat - centralTile.bounds.minLat),
+                maxLat:
+                  centralTile.bounds.maxLat +
+                  (Math.floor(gridSize / 2) - r) *
+                    (centralTile.bounds.maxLat - centralTile.bounds.minLat),
+                minLng:
+                  centralTile.bounds.minLng +
+                  (c - Math.floor(gridSize / 2)) *
+                    (centralTile.bounds.maxLng - centralTile.bounds.minLng),
+                maxLng:
+                  centralTile.bounds.maxLng +
+                  (c - Math.floor(gridSize / 2)) *
+                    (centralTile.bounds.maxLng - centralTile.bounds.minLng),
+              },
+              scenario: centralTile.scenario,
+            }),
+          );
         }
       }
       fullCoverage.push(row);
     }
 
     // Calculate total area
-    const tileArea = (centralTile.bounds.maxLat - centralTile.bounds.minLat) *
-      (centralTile.bounds.maxLng - centralTile.bounds.minLng) * 111 * 111; // km²
+    const tileArea =
+      (centralTile.bounds.maxLat - centralTile.bounds.minLat) *
+      (centralTile.bounds.maxLng - centralTile.bounds.minLng) *
+      111 *
+      111; // km²
     const totalArea = tileArea * gridSize * gridSize;
 
     // Analyze scenarios across expanded area
@@ -413,34 +571,44 @@ export class RSWorldModelService {
   private analyzeScenarios(tiles: TileData[]): ScenarioAnalysis {
     const scenarioCounts: { [key in ScenarioType]?: number } = {};
 
-    tiles.forEach(tile => {
-      scenarioCounts[tile.scenario] = (scenarioCounts[tile.scenario] || 0) + 1;
+    tiles.forEach((tile) => {
+      // Security: Validate scenario against whitelist to prevent property injection
+      if (ALLOWED_SCENARIOS.has(tile.scenario)) {
+        scenarioCounts[tile.scenario] =
+          (scenarioCounts[tile.scenario] || 0) + 1;
+      }
     });
 
-    const dominantScenario = Object.entries(scenarioCounts)
-      .sort((a, b) => b[1] - a[1])[0][0] as ScenarioType;
+    const dominantScenario = Object.entries(scenarioCounts).sort(
+      (a, b) => b[1] - a[1],
+    )[0][0] as ScenarioType;
 
     const scenarioDistribution: { [key in ScenarioType]?: number } = {};
     Object.entries(scenarioCounts).forEach(([scenario, count]) => {
-      scenarioDistribution[scenario as ScenarioType] = Math.round(count / tiles.length * 100);
+      // Security: Validate scenario against whitelist
+      if (ALLOWED_SCENARIOS.has(scenario)) {
+        scenarioDistribution[scenario as ScenarioType] = Math.round(
+          (count / tiles.length) * 100,
+        );
+      }
     });
 
     // Generate risk assessment based on scenario
     let riskAssessment: RiskAssessment | null = null;
-    if (dominantScenario === 'flood') {
+    if (dominantScenario === "flood") {
       riskAssessment = {
-        type: 'flood',
-        level: 'high',
-        affectedArea: tiles.filter(t => t.scenario === 'flood').length * 10, // km²
-        trend: 'stable',
+        type: "flood",
+        level: "high",
+        affectedArea: tiles.filter((t) => t.scenario === "flood").length * 10, // km²
+        trend: "stable",
         confidence: 0.85,
       };
-    } else if (dominantScenario === 'urban') {
+    } else if (dominantScenario === "urban") {
       riskAssessment = {
-        type: 'urban_expansion',
-        level: 'medium',
-        affectedArea: tiles.filter(t => t.scenario === 'urban').length * 10,
-        trend: 'increasing',
+        type: "urban_expansion",
+        level: "medium",
+        affectedArea: tiles.filter((t) => t.scenario === "urban").length * 10,
+        trend: "increasing",
         confidence: 0.78,
       };
     }
@@ -448,16 +616,26 @@ export class RSWorldModelService {
     const recommendations: string[] = [];
     const recommendationsAr: string[] = [];
 
-    if (dominantScenario === 'flood') {
-      recommendations.push('Deploy flood monitoring sensors in affected areas');
-      recommendations.push('Activate early warning system for downstream regions');
-      recommendationsAr.push('نشر مستشعرات مراقبة الفيضانات في المناطق المتأثرة');
-      recommendationsAr.push('تفعيل نظام الإنذار المبكر للمناطق في اتجاه التيار');
-    } else if (dominantScenario === 'agricultural') {
-      recommendations.push('Monitor crop health indices across expanded area');
-      recommendations.push('Plan irrigation based on spatial vegetation patterns');
-      recommendationsAr.push('مراقبة مؤشرات صحة المحاصيل عبر المنطقة الموسعة');
-      recommendationsAr.push('تخطيط الري بناءً على أنماط الغطاء النباتي المكاني');
+    if (dominantScenario === "flood") {
+      recommendations.push("Deploy flood monitoring sensors in affected areas");
+      recommendations.push(
+        "Activate early warning system for downstream regions",
+      );
+      recommendationsAr.push(
+        "نشر مستشعرات مراقبة الفيضانات في المناطق المتأثرة",
+      );
+      recommendationsAr.push(
+        "تفعيل نظام الإنذار المبكر للمناطق في اتجاه التيار",
+      );
+    } else if (dominantScenario === "agricultural") {
+      recommendations.push("Monitor crop health indices across expanded area");
+      recommendations.push(
+        "Plan irrigation based on spatial vegetation patterns",
+      );
+      recommendationsAr.push("مراقبة مؤشرات صحة المحاصيل عبر المنطقة الموسعة");
+      recommendationsAr.push(
+        "تخطيط الري بناءً على أنماط الغطاء النباتي المكاني",
+      );
     }
 
     return {
@@ -532,11 +710,15 @@ export class RSWorldModelService {
     const centerCol = 1;
     const centralTile = partition.tiles[centerRow][centerCol];
 
-    const directions: { dir: Direction; rowOffset: number; colOffset: number }[] = [
-      { dir: 'up', rowOffset: -1, colOffset: 0 },
-      { dir: 'down', rowOffset: 1, colOffset: 0 },
-      { dir: 'left', rowOffset: 0, colOffset: -1 },
-      { dir: 'right', rowOffset: 0, colOffset: 1 },
+    const directions: {
+      dir: Direction;
+      rowOffset: number;
+      colOffset: number;
+    }[] = [
+      { dir: "up", rowOffset: -1, colOffset: 0 },
+      { dir: "down", rowOffset: 1, colOffset: 0 },
+      { dir: "left", rowOffset: 0, colOffset: -1 },
+      { dir: "right", rowOffset: 0, colOffset: 1 },
     ];
 
     directions.forEach(({ dir, rowOffset, colOffset }) => {
@@ -568,7 +750,9 @@ export class RSWorldModelService {
 
     // Simulate FID score (lower is better, we invert for display)
     const fid = groundTruthTile
-      ? 100 - Math.abs(predictedTile.indices.ndvi - groundTruthTile.indices.ndvi) * 100
+      ? 100 -
+        Math.abs(predictedTile.indices.ndvi - groundTruthTile.indices.ndvi) *
+          100
       : 85 + Math.random() * 10;
 
     // Simulate GPT-4o spatial reasoning score
@@ -614,28 +798,28 @@ export class RSWorldModelService {
   }[] {
     return [
       {
-        model: 'RemoteBAGEL (Ours)',
+        model: "RemoteBAGEL (Ours)",
         rswise: 88.8,
-        improvement: 'Baseline',
-        training: { images: 4000, pairs: 10080, gpus: '4×H100', hours: 20 },
+        improvement: "Baseline",
+        training: { images: 4000, pairs: 10080, gpus: "4×H100", hours: 20 },
       },
       {
-        model: 'BAGEL-7B',
+        model: "BAGEL-7B",
         rswise: 62.4,
-        improvement: '-29.7%',
-        training: { images: 0, pairs: 0, gpus: 'N/A', hours: 0 },
+        improvement: "-29.7%",
+        training: { images: 0, pairs: 0, gpus: "N/A", hours: 0 },
       },
       {
-        model: 'GPT-4o',
+        model: "GPT-4o",
         rswise: 58.2,
-        improvement: '-34.5%',
-        training: { images: 0, pairs: 0, gpus: 'N/A', hours: 0 },
+        improvement: "-34.5%",
+        training: { images: 0, pairs: 0, gpus: "N/A", hours: 0 },
       },
       {
-        model: 'Claude-3.5',
+        model: "Claude-3.5",
         rswise: 55.8,
-        improvement: '-37.2%',
-        training: { images: 0, pairs: 0, gpus: 'N/A', hours: 0 },
+        improvement: "-37.2%",
+        training: { images: 0, pairs: 0, gpus: "N/A", hours: 0 },
       },
     ];
   }
@@ -651,39 +835,39 @@ export class RSWorldModelService {
   }[] {
     return [
       {
-        name: 'Directional Spatial Reasoning',
-        nameAr: 'الاستدلال المكاني الاتجاهي',
-        description: 'Generate adjacent tiles based on direction commands',
+        name: "Directional Spatial Reasoning",
+        nameAr: "الاستدلال المكاني الاتجاهي",
+        description: "Generate adjacent tiles based on direction commands",
         supported: true,
       },
       {
-        name: 'Multi-Directional Expansion',
-        nameAr: 'التوسع متعدد الاتجاهات',
-        description: 'Expand imagery in all 4 directions simultaneously',
+        name: "Multi-Directional Expansion",
+        nameAr: "التوسع متعدد الاتجاهات",
+        description: "Expand imagery in all 4 directions simultaneously",
         supported: true,
       },
       {
-        name: 'Self-Supervised Training',
-        nameAr: 'التدريب الذاتي الإشراف',
-        description: 'No manual labeling required',
+        name: "Self-Supervised Training",
+        nameAr: "التدريب الذاتي الإشراف",
+        description: "No manual labeling required",
         supported: true,
       },
       {
-        name: 'Scenario-Aware Generation',
-        nameAr: 'التوليد الواعي بالسيناريو',
-        description: 'Adapt to flood, urban, rural, agricultural contexts',
+        name: "Scenario-Aware Generation",
+        nameAr: "التوليد الواعي بالسيناريو",
+        description: "Adapt to flood, urban, rural, agricultural contexts",
         supported: true,
       },
       {
-        name: 'Spatial Continuity',
-        nameAr: 'الاستمرارية المكانية',
-        description: 'Maintain geographic structure across boundaries',
+        name: "Spatial Continuity",
+        nameAr: "الاستمرارية المكانية",
+        description: "Maintain geographic structure across boundaries",
         supported: true,
       },
       {
-        name: 'Digital Twin Integration',
-        nameAr: 'تكامل التوأم الرقمي',
-        description: 'Connect with SAHOOL Digital Twin Core',
+        name: "Digital Twin Integration",
+        nameAr: "تكامل التوأم الرقمي",
+        description: "Connect with SAHOOL Digital Twin Core",
         supported: true,
       },
     ];

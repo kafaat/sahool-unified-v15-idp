@@ -7,9 +7,11 @@ This document summarizes the implementation of comprehensive geospatial support 
 ## Files Created/Modified
 
 ### 1. Database Migration
+
 **Location**: `/home/user/sahool-unified-v15-idp/apps/services/field-core/prisma/migrations/0002_add_geospatial_indexes/migration.sql`
 
 **Contents**:
+
 - Creates `farms` table with PostGIS geometry columns
   - `location geometry(Point, 4326)` - Farm headquarters location
   - `boundary geometry(Polygon, 4326)` - Farm boundary
@@ -32,14 +34,17 @@ This document summarizes the implementation of comprehensive geospatial support 
   - `fields_with_farm` - Fields joined with farm information
 
 ### 2. Prisma Schema Update
+
 **Location**: `/home/user/sahool-unified-v15-idp/apps/services/field-core/prisma/schema.prisma`
 
 **Changes**:
+
 - Added `Farm` model with geospatial columns
 - Added `farmId` field to `Field` model with relation to `Farm`
 - Includes proper indexes for tenant, owner, and sync queries
 
 **Farm Model**:
+
 ```prisma
 model Farm {
   id      String @id @default(uuid()) @db.Uuid
@@ -67,11 +72,13 @@ model Farm {
 ```
 
 ### 3. Geospatial Service
+
 **Location**: `/home/user/sahool-unified-v15-idp/packages/field-shared/src/geo/geo-service.ts`
 
 **Class**: `GeoService`
 
 **Methods**:
+
 - `findFieldsInRadius(lat, lng, radiusKm, tenantId?)` - Find fields within radius
 - `findNearbyFarms(lat, lng, limit, tenantId?)` - Find nearby farms
 - `calculateFieldArea(fieldId)` - Calculate field area
@@ -89,6 +96,7 @@ model Farm {
 **Export**: Singleton instance `geoService` for easy use
 
 ### 4. Geospatial API Routes
+
 **Location**: `/home/user/sahool-unified-v15-idp/packages/field-shared/src/geo/geo-routes.ts`
 
 **Router**: Express router with comprehensive validation
@@ -96,6 +104,7 @@ model Farm {
 **Endpoints**:
 
 #### Query Endpoints
+
 - `GET /api/v1/geo/fields/radius` - Find fields in radius
 - `GET /api/v1/geo/farms/nearby` - Find nearby farms
 - `GET /api/v1/geo/fields/:fieldId/area` - Calculate field area
@@ -108,11 +117,13 @@ model Farm {
 - `GET /api/v1/geo/farms/:farmId/fields` - Get farm's fields
 
 #### Mutation Endpoints
+
 - `POST /api/v1/geo/fields` - Create field with boundary
 - `PUT /api/v1/geo/fields/:fieldId/boundary` - Update field boundary
 - `POST /api/v1/geo/farms` - Create farm with location
 
 **Validation**:
+
 - Latitude: -90 to 90
 - Longitude: -180 to 180
 - Radius: 0 to 1000 km
@@ -120,32 +131,40 @@ model Farm {
 - UUID format validation
 
 ### 5. App.ts Integration
+
 **Location**: `/home/user/sahool-unified-v15-idp/packages/field-shared/src/app.ts`
 
 **Changes**:
+
 - Imported `geoRoutes` from geo module
 - Registered routes: `app.use("/api/v1/geo", geoRoutes)`
 - Added geospatial endpoints to startup console output
 
 ### 6. Module Index
+
 **Location**: `/home/user/sahool-unified-v15-idp/packages/field-shared/src/geo/index.ts`
 
 **Exports**:
+
 - `GeoService` class
 - `geoService` singleton instance
 - `geoRoutes` Express router
 - TypeScript types for all response formats
 
 ### 7. Package Index Update
+
 **Location**: `/home/user/sahool-unified-v15-idp/packages/field-shared/src/index.ts`
 
 **Changes**:
+
 - Added geo module exports for easy importing
 
 ### 8. Documentation
+
 **Location**: `/home/user/sahool-unified-v15-idp/packages/field-shared/src/geo/README.md`
 
 **Contents**:
+
 - Complete API documentation
 - Database setup instructions
 - Usage examples
@@ -156,6 +175,7 @@ model Farm {
 ## Database Schema
 
 ### Farms Table
+
 ```sql
 CREATE TABLE farms (
     id UUID PRIMARY KEY,
@@ -179,6 +199,7 @@ CREATE TABLE farms (
 ```
 
 ### Spatial Indexes
+
 ```sql
 -- Fields (from initial migration)
 CREATE INDEX idx_fields_boundary ON fields USING GIST(boundary);
@@ -192,26 +213,31 @@ CREATE INDEX idx_farms_boundary ON farms USING GIST(boundary);
 ## Key Features
 
 ### 1. Accurate Distance Calculations
+
 - Uses PostGIS `geography` type for precise calculations
 - Accounts for Earth's curvature
 - Returns distances in kilometers
 
 ### 2. Efficient Spatial Queries
+
 - GIST indexes for fast spatial lookups
 - Optimized bounding box queries
 - Support for large datasets
 
 ### 3. GeoJSON Support
+
 - Create fields with GeoJSON polygon boundaries
 - Export fields/farms as GeoJSON
 - Compatible with mapping libraries (Leaflet, Mapbox, Google Maps)
 
 ### 4. Automatic Calculations
+
 - Field area calculated automatically from boundary
 - Centroid calculated on field creation/update
 - Farm area calculated from boundary
 
 ### 5. Multi-tenant Support
+
 - All queries support tenant filtering
 - Proper indexing for tenant isolation
 - Security through tenant_id validation
@@ -219,15 +245,16 @@ CREATE INDEX idx_farms_boundary ON farms USING GIST(boundary);
 ## Usage Examples
 
 ### TypeScript/JavaScript
+
 ```typescript
 import { geoService } from "@sahool/field-shared";
 
 // Find fields near a location
 const fields = await geoService.findFieldsInRadius(
   15.3694, // latitude
-  44.1910, // longitude
-  10,      // radius in km
-  "tenant123" // optional tenant filter
+  44.191, // longitude
+  10, // radius in km
+  "tenant123", // optional tenant filter
 );
 
 // Create field with boundary
@@ -239,18 +266,19 @@ const newField = await geoService.createFieldWithBoundary({
     type: "Polygon",
     coordinates: [
       [
-        [44.1910, 15.3694],
-        [44.1920, 15.3694],
-        [44.1920, 15.3704],
-        [44.1910, 15.3704],
-        [44.1910, 15.3694]
-      ]
-    ]
-  }
+        [44.191, 15.3694],
+        [44.192, 15.3694],
+        [44.192, 15.3704],
+        [44.191, 15.3704],
+        [44.191, 15.3694],
+      ],
+    ],
+  },
 });
 ```
 
 ### REST API
+
 ```bash
 # Find fields in radius
 curl "http://localhost:3000/api/v1/geo/fields/radius?lat=15.3694&lng=44.1910&radius=10"
@@ -265,6 +293,7 @@ curl "http://localhost:3000/api/v1/geo/region/stats?minLat=15.0&minLng=44.0&maxL
 ```
 
 ### SQL (Direct)
+
 ```sql
 -- Find fields in radius
 SELECT * FROM find_fields_in_radius(15.3694, 44.1910, 10, 'tenant123');
@@ -279,23 +308,27 @@ SELECT calculate_fields_distance('field-uuid-1', 'field-uuid-2');
 ## Deployment Steps
 
 1. **Apply Migrations**
+
    ```bash
    cd apps/services/field-core
    npm run prisma:migrate:deploy
    ```
 
 2. **Generate Prisma Client**
+
    ```bash
    npm run prisma:generate
    ```
 
 3. **Rebuild and Restart Service**
+
    ```bash
    npm run build
    npm start
    ```
 
 4. **Verify PostGIS**
+
    ```sql
    SELECT PostGIS_Version();
    ```
@@ -308,6 +341,7 @@ SELECT calculate_fields_distance('field-uuid-1', 'field-uuid-2');
 ## Performance Benchmarks
 
 With proper GIST indexes:
+
 - Radius query (10km): < 10ms for 10,000 fields
 - Bounding box query: < 5ms for 10,000 fields
 - Point-in-polygon: < 1ms per field
@@ -316,6 +350,7 @@ With proper GIST indexes:
 ## Coordinate System
 
 **SRID 4326** (WGS 84 - Standard GPS)
+
 - Longitude: -180 to 180
 - Latitude: -90 to 90
 - Format: [longitude, latitude] in GeoJSON
@@ -331,11 +366,13 @@ With proper GIST indexes:
 ## Testing
 
 Run the full test suite:
+
 ```bash
 npm test
 ```
 
 Test specific geospatial functions:
+
 ```bash
 # See packages/field-shared/src/geo/README.md for detailed examples
 ```
@@ -349,6 +386,7 @@ Test specific geospatial functions:
 ## Support
 
 For issues or questions:
+
 1. Check the geo module README
 2. Review PostGIS documentation
 3. Test queries in SQL first
@@ -357,6 +395,7 @@ For issues or questions:
 ## Future Enhancements
 
 Potential additions:
+
 - [ ] Spatial clustering (ST_ClusterKMeans)
 - [ ] Route optimization between fields
 - [ ] Field overlap detection

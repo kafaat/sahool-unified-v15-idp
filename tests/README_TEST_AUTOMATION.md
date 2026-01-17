@@ -1,4 +1,5 @@
 # SAHOOL Platform - Comprehensive Test Automation System
+
 # نظام الاختبار الآلي الشامل لمنصة سهول
 
 ## Overview - نظرة عامة
@@ -34,12 +35,14 @@ tests/
 ### 1. Integration Tests (tests/integration/)
 
 #### Service Health Tests
+
 - Tests all 41+ services for health and availability
 - Validates infrastructure services (PostgreSQL, Redis, NATS, Qdrant, Kong, etc.)
 - Validates application services (Field Ops, Weather, NDVI, AI Advisor, etc.)
 - **File**: `test_service_health.py`
 
 #### API Endpoint Tests
+
 - Tests RESTful API endpoints
 - Validates request/response formats
 - Tests authentication and authorization
@@ -47,6 +50,7 @@ tests/
 - **File**: `test_api_endpoints.py`
 
 #### Data Flow Tests
+
 - Tests NATS messaging between services
 - Tests Redis caching behavior
 - Tests PostgreSQL database operations
@@ -57,7 +61,9 @@ tests/
 ### 2. End-to-End Workflow Tests (tests/e2e/)
 
 #### Field Workflow Test
+
 Complete agricultural field management workflow:
+
 1. Create field in Field Ops
 2. Request NDVI analysis
 3. Get weather data for field location
@@ -67,7 +73,9 @@ Complete agricultural field management workflow:
 **File**: `test_field_workflow.py`
 
 #### Payment Workflow Test
+
 Complete payment and billing workflow:
+
 1. Create subscription
 2. Create payment intent
 3. Process payment via Tharwatt (Yemen payment gateway)
@@ -77,7 +85,9 @@ Complete payment and billing workflow:
 **File**: `test_payment_workflow.py`
 
 #### AI Advisor Workflow Test
+
 Complete AI advisor multi-agent workflow:
+
 1. Submit agricultural question (Arabic/English)
 2. Multi-agent coordination:
    - Weather Agent
@@ -113,18 +123,18 @@ Complete AI advisor multi-agent workflow:
 
 ### Test Options - خيارات الاختبار
 
-| Option | Description | الوصف |
-|--------|-------------|-------|
-| `--unit` | Run unit tests only | تشغيل اختبارات الوحدة فقط |
-| `--integration` | Run integration tests only | تشغيل اختبارات التكامل فقط |
-| `--e2e` | Run E2E workflow tests only | تشغيل اختبارات سير العمل فقط |
-| `--health` | Run health check tests only | تشغيل اختبارات الصحة فقط |
-| `--all` | Run all tests (default) | تشغيل جميع الاختبارات |
-| `--fast` | Skip slow tests | تخطي الاختبارات البطيئة |
-| `--verbose` | Verbose output | مخرجات مفصلة |
-| `--coverage` | Generate coverage report | إنشاء تقرير التغطية |
-| `--docker` | Run in Docker containers | تشغيل في حاويات Docker |
-| `--clean` | Clean test environment first | تنظيف بيئة الاختبار أولاً |
+| Option          | Description                  | الوصف                        |
+| --------------- | ---------------------------- | ---------------------------- |
+| `--unit`        | Run unit tests only          | تشغيل اختبارات الوحدة فقط    |
+| `--integration` | Run integration tests only   | تشغيل اختبارات التكامل فقط   |
+| `--e2e`         | Run E2E workflow tests only  | تشغيل اختبارات سير العمل فقط |
+| `--health`      | Run health check tests only  | تشغيل اختبارات الصحة فقط     |
+| `--all`         | Run all tests (default)      | تشغيل جميع الاختبارات        |
+| `--fast`        | Skip slow tests              | تخطي الاختبارات البطيئة      |
+| `--verbose`     | Verbose output               | مخرجات مفصلة                 |
+| `--coverage`    | Generate coverage report     | إنشاء تقرير التغطية          |
+| `--docker`      | Run in Docker containers     | تشغيل في حاويات Docker       |
+| `--clean`       | Clean test environment first | تنظيف بيئة الاختبار أولاً    |
 
 ### Direct pytest Commands
 
@@ -164,6 +174,7 @@ docker-compose -f docker-compose.test.yml down
 ### Test Environment Services
 
 The test environment includes:
+
 - PostgreSQL (test database)
 - Redis (test cache)
 - NATS (test messaging)
@@ -228,6 +239,7 @@ markers =
 ### Services Tested (41+ Services)
 
 #### Infrastructure Services (8)
+
 - ✓ PostgreSQL (PostGIS)
 - ✓ Kong API Gateway
 - ✓ NATS Messaging
@@ -238,6 +250,7 @@ markers =
 - ✓ Grafana
 
 #### Core Application Services (33+)
+
 - ✓ Field Core
 - ✓ Field Operations
 - ✓ NDVI Engine
@@ -281,6 +294,7 @@ Generate coverage report:
 ```
 
 View coverage report:
+
 ```bash
 open htmlcov/index.html
 ```
@@ -326,12 +340,14 @@ test:
 ### Writing Tests
 
 1. **Use descriptive test names** - استخدم أسماء وصفية للاختبارات
+
    ```python
    async def test_field_creation_with_valid_data():
        # Test implementation
    ```
 
 2. **Use fixtures for setup** - استخدم التهيئة للإعداد
+
    ```python
    @pytest.fixture
    async def test_field():
@@ -339,6 +355,7 @@ test:
    ```
 
 3. **Test both success and failure cases** - اختبر حالات النجاح والفشل
+
    ```python
    async def test_valid_field_creation():
        # Test valid case
@@ -348,6 +365,7 @@ test:
    ```
 
 4. **Use markers for categorization** - استخدم العلامات للتصنيف
+
    ```python
    @pytest.mark.integration
    @pytest.mark.slow
@@ -366,6 +384,7 @@ test:
 ### Common Issues
 
 #### Tests failing due to services not running
+
 ```bash
 # Start services first
 docker-compose up -d
@@ -375,6 +394,7 @@ docker-compose up -d
 ```
 
 #### Port conflicts
+
 ```bash
 # Clean environment
 ./scripts/run-tests.sh --clean
@@ -384,6 +404,7 @@ docker-compose up -d
 ```
 
 #### Slow tests timing out
+
 ```bash
 # Skip slow tests
 ./scripts/run-tests.sh --fast
@@ -409,6 +430,7 @@ When adding new services or features:
 ## Contact - التواصل
 
 For questions or issues with the test suite:
+
 - Open an issue in the repository
 - Contact the SAHOOL Platform Team
 

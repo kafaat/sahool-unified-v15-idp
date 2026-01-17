@@ -11,39 +11,41 @@ The versioning utilities support both URI-based and header-based API versioning 
 ### Base Controllers
 
 #### BaseControllerV1
+
 Provides v1-specific response formats and utilities (deprecated).
 
 ```typescript
-import { Controller } from '@nestjs/common';
-import { BaseControllerV1 } from '@sahool/versioning';
+import { Controller } from "@nestjs/common";
+import { BaseControllerV1 } from "@sahool/versioning";
 
-@Controller({ path: 'users', version: '1' })
+@Controller({ path: "users", version: "1" })
 export class UsersV1Controller extends BaseControllerV1 {
   @Get()
   async findAll() {
-    this.logDeprecationWarning('/api/v1/users');
+    this.logDeprecationWarning("/api/v1/users");
 
     const users = await this.usersService.findAll();
 
-    return this.success(users, 'Users retrieved successfully');
+    return this.success(users, "Users retrieved successfully");
   }
 }
 ```
 
 #### BaseControllerV2
+
 Provides v2-specific response formats and utilities (current).
 
 ```typescript
-import { Controller, Get } from '@nestjs/common';
-import { BaseControllerV2, RequestId } from '@sahool/versioning';
+import { Controller, Get } from "@nestjs/common";
+import { BaseControllerV2, RequestId } from "@sahool/versioning";
 
-@Controller({ path: 'users', version: '2' })
+@Controller({ path: "users", version: "2" })
 export class UsersV2Controller extends BaseControllerV2 {
   @Get()
   async findAll(
     @RequestId() requestId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
     const { page: p, limit: l, skip } = this.parsePaginationParams(page, limit);
 
@@ -57,21 +59,23 @@ export class UsersV2Controller extends BaseControllerV2 {
 ### Decorators
 
 #### @ApiV1 / @ApiV2
+
 Mark controllers with version-specific metadata.
 
 ```typescript
-import { ApiV1, ApiV2 } from '@sahool/versioning';
+import { ApiV1, ApiV2 } from "@sahool/versioning";
 
-@ApiV1('Users')
-@Controller({ path: 'users', version: '1' })
+@ApiV1("Users")
+@Controller({ path: "users", version: "1" })
 export class UsersV1Controller {}
 
-@ApiV2('Users')
-@Controller({ path: 'users', version: '2' })
+@ApiV2("Users")
+@Controller({ path: "users", version: "2" })
 export class UsersV2Controller {}
 ```
 
 #### @ApiDeprecated
+
 Mark specific methods as deprecated.
 
 ```typescript
@@ -85,6 +89,7 @@ async legacyEndpoint() {
 ```
 
 #### @RequestId
+
 Extract or generate request ID.
 
 ```typescript
@@ -100,12 +105,13 @@ async findAll(@RequestId() requestId: string) {
 ### Interceptors
 
 #### DeprecationInterceptor
+
 Automatically adds deprecation headers to v1 responses.
 
 ```typescript
-import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { DeprecationInterceptor } from '@sahool/versioning';
+import { Module } from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { DeprecationInterceptor } from "@sahool/versioning";
 
 @Module({
   providers: [
@@ -202,17 +208,20 @@ Warning: 299 - "API version 1 is deprecated and will be removed on 2026-06-30"
 Version can be specified in multiple ways (in order of priority):
 
 1. **URI Version** (highest priority)
+
    ```
    GET /api/v2/users
    ```
 
 2. **X-API-Version Header**
+
    ```http
    GET /api/users
    X-API-Version: 2
    ```
 
 3. **Accept Header**
+
    ```http
    GET /api/users
    Accept: application/vnd.sahool.v2+json
@@ -234,19 +243,16 @@ Version can be specified in multiple ways (in order of priority):
 ### Step 1: Create v1 controller (maintain existing behavior)
 
 ```typescript
-@ApiV1('Users')
-@Controller({ path: 'users', version: '1' })
+@ApiV1("Users")
+@Controller({ path: "users", version: "1" })
 export class UsersV1Controller extends BaseControllerV1 {
   constructor(private usersService: UsersService) {
     super();
   }
 
   @Get()
-  async findAll(
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
-  ) {
-    this.logDeprecationWarning('/api/v1/users');
+  async findAll(@Query("skip") skip?: string, @Query("take") take?: string) {
+    this.logDeprecationWarning("/api/v1/users");
 
     const users = await this.usersService.findAll({
       skip: skip ? parseInt(skip) : 0,
@@ -261,8 +267,8 @@ export class UsersV1Controller extends BaseControllerV1 {
 ### Step 2: Create v2 controller (with enhancements)
 
 ```typescript
-@ApiV2('Users')
-@Controller({ path: 'users', version: '2' })
+@ApiV2("Users")
+@Controller({ path: "users", version: "2" })
 export class UsersV2Controller extends BaseControllerV2 {
   constructor(private usersService: UsersService) {
     super();
@@ -271,10 +277,10 @@ export class UsersV2Controller extends BaseControllerV2 {
   @Get()
   async findAll(
     @RequestId() requestId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-    @Query('sort') sort?: string,
-    @Query('order') order?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("sort") sort?: string,
+    @Query("order") order?: string,
   ) {
     const { page: p, limit: l, skip } = this.parsePaginationParams(page, limit);
     const { field, order: o } = this.parseSortParams(sort, order);
@@ -294,14 +300,14 @@ export class UsersV2Controller extends BaseControllerV2 {
 ### Step 3: Enable versioning in main.ts
 
 ```typescript
-import { VersioningType } from '@nestjs/common';
+import { VersioningType } from "@nestjs/common";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: '2',
+    defaultVersion: "2",
   });
 
   // ... rest of configuration
@@ -313,15 +319,13 @@ async function bootstrap() {
 ### Test v1 response format
 
 ```typescript
-describe('UsersV1Controller', () => {
-  it('should return v1 format', async () => {
-    const response = await request(app)
-      .get('/api/v1/users')
-      .expect(200);
+describe("UsersV1Controller", () => {
+  it("should return v1 format", async () => {
+    const response = await request(app).get("/api/v1/users").expect(200);
 
-    expect(response.body).toHaveProperty('success');
-    expect(response.body).toHaveProperty('data');
-    expect(response.headers['x-api-deprecated']).toBe('true');
+    expect(response.body).toHaveProperty("success");
+    expect(response.body).toHaveProperty("data");
+    expect(response.headers["x-api-deprecated"]).toBe("true");
   });
 });
 ```
@@ -329,15 +333,13 @@ describe('UsersV1Controller', () => {
 ### Test v2 response format
 
 ```typescript
-describe('UsersV2Controller', () => {
-  it('should return v2 format', async () => {
-    const response = await request(app)
-      .get('/api/v2/users')
-      .expect(200);
+describe("UsersV2Controller", () => {
+  it("should return v2 format", async () => {
+    const response = await request(app).get("/api/v2/users").expect(200);
 
-    expect(response.body).toHaveProperty('version', '2');
-    expect(response.body).toHaveProperty('meta');
-    expect(response.body.meta).toHaveProperty('requestId');
+    expect(response.body).toHaveProperty("version", "2");
+    expect(response.body).toHaveProperty("meta");
+    expect(response.body.meta).toHaveProperty("requestId");
   });
 });
 ```
@@ -345,6 +347,7 @@ describe('UsersV2Controller', () => {
 ## Support
 
 For questions or issues, please refer to:
+
 - [API Versioning Strategy](/docs/API_VERSIONING_STRATEGY.md)
 - [Migration Guide](/docs/API_V2_MIGRATION_GUIDE.md)
 - [SAHOOL Documentation](https://docs.sahool.app)

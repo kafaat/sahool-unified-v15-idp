@@ -103,6 +103,7 @@ SAHOOL Platform implements a comprehensive secrets management system that suppor
 **Use Cases:** Local development, testing, simple deployments
 
 **Configuration:**
+
 ```bash
 # .env
 SECRET_BACKEND=environment
@@ -112,11 +113,13 @@ JWT_SECRET_KEY=your-jwt-secret
 ```
 
 **Pros:**
+
 - Simple and straightforward
 - No external dependencies
 - Fast access
 
 **Cons:**
+
 - No rotation support
 - Limited security
 - No audit trail
@@ -128,6 +131,7 @@ JWT_SECRET_KEY=your-jwt-secret
 **Use Cases:** Production deployments, high-security environments
 
 **Configuration:**
+
 ```bash
 # .env
 SECRET_BACKEND=vault
@@ -139,6 +143,7 @@ VAULT_PATH_PREFIX=sahool
 ```
 
 **Features:**
+
 - Dynamic secrets with automatic rotation
 - Comprehensive audit logging
 - Encryption at rest and in transit
@@ -154,6 +159,7 @@ VAULT_PATH_PREFIX=sahool
 **Use Cases:** AWS deployments, EKS clusters
 
 **Configuration:**
+
 ```bash
 # .env
 SECRET_BACKEND=aws_secrets_manager
@@ -165,6 +171,7 @@ AWS_SECRETS_PREFIX=sahool/
 ```
 
 **Features:**
+
 - Automatic rotation support
 - IAM-based access control
 - Integration with AWS services
@@ -177,6 +184,7 @@ AWS_SECRETS_PREFIX=sahool/
 **Use Cases:** Azure deployments, AKS clusters
 
 **Configuration:**
+
 ```bash
 # .env
 SECRET_BACKEND=azure_key_vault
@@ -187,6 +195,7 @@ AZURE_CLIENT_SECRET=<your-client-secret>
 ```
 
 **Features:**
+
 - Managed identities support
 - Hardware security module (HSM) backed keys
 - Automatic key rotation
@@ -199,11 +208,13 @@ AZURE_CLIENT_SECRET=<your-client-secret>
 ### Development Setup (Environment Variables)
 
 1. **Copy environment template:**
+
 ```bash
 cp .env.example .env
 ```
 
 2. **Generate secure secrets:**
+
 ```bash
 # PostgreSQL password
 openssl rand -base64 32 > /tmp/pg_pass
@@ -222,6 +233,7 @@ rm /tmp/{pg_pass,redis_pass,jwt_secret}
 ```
 
 3. **Use secrets in application:**
+
 ```python
 from shared.secrets import get_secrets_manager, SecretKey
 
@@ -247,11 +259,13 @@ jwt_secret = await secrets.get_secret(SecretKey.JWT_SECRET)
 ### 1. Deploy Vault
 
 **Docker Compose (Development):**
+
 ```bash
 docker compose -f infrastructure/core/vault/docker-compose.vault.yml up -d
 ```
 
 **Kubernetes (Production):**
+
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm install vault hashicorp/vault \
@@ -293,6 +307,7 @@ export JWT_SECRET_KEY=$(openssl rand -base64 32)
 ```
 
 This script will:
+
 - Enable secrets engines (KV v2, Database, PKI)
 - Create SAHOOL secret structure
 - Configure authentication (AppRole, Kubernetes)
@@ -311,6 +326,7 @@ VAULT_SECRET_ID=<secret-id>
 **Store these securely:**
 
 For Kubernetes:
+
 ```bash
 kubectl create secret generic vault-approle-secret \
   --from-literal=role-id=<role-id> \
@@ -319,6 +335,7 @@ kubectl create secret generic vault-approle-secret \
 ```
 
 For environment:
+
 ```bash
 echo "VAULT_ROLE_ID=<role-id>" >> .env
 echo "VAULT_SECRET_ID=<secret-id>" >> .env
@@ -361,6 +378,7 @@ For production, use the provided configuration:
 **File:** `infrastructure/core/vault/vault-production.hcl`
 
 **Features:**
+
 - Raft storage (integrated HA)
 - TLS encryption
 - Auto-unseal (AWS KMS, Azure KeyVault, GCP Cloud KMS)
@@ -370,6 +388,7 @@ For production, use the provided configuration:
 **Enable auto-unseal:**
 
 For AWS:
+
 ```hcl
 seal "awskms" {
   region     = "us-east-1"
@@ -378,6 +397,7 @@ seal "awskms" {
 ```
 
 For Azure:
+
 ```hcl
 seal "azurekeyvault" {
   tenant_id     = "<tenant-id>"
@@ -410,6 +430,7 @@ kubectl apply -f gitops/secrets/external-secrets-operator.yaml
 ```
 
 This creates:
+
 - **SecretStore** for Vault/AWS/Azure
 - **ExternalSecret** resources for PostgreSQL, Redis, NATS, JWT, etc.
 - Automatic secret synchronization every 1 hour
@@ -492,13 +513,13 @@ SAHOOL implements **automated secret rotation** with configurable policies.
 
 ### Rotation Schedule
 
-| Secret Type | Rotation Interval | Implementation |
-|-------------|------------------|----------------|
-| Database passwords | Every 90 days | Vault dynamic secrets or manual |
-| JWT signing keys | Every 180 days | Manual with grace period |
-| Redis passwords | Every 90 days | Manual (requires restart) |
-| API keys | Every 90 days | Manual |
-| Encryption keys | Every 365 days | Manual with re-encryption |
+| Secret Type        | Rotation Interval | Implementation                  |
+| ------------------ | ----------------- | ------------------------------- |
+| Database passwords | Every 90 days     | Vault dynamic secrets or manual |
+| JWT signing keys   | Every 180 days    | Manual with grace period        |
+| Redis passwords    | Every 90 days     | Manual (requires restart)       |
+| API keys           | Every 90 days     | Manual                          |
+| Encryption keys    | Every 365 days    | Manual with re-encryption       |
 
 ### Manual Rotation
 
@@ -527,6 +548,7 @@ Add to crontab:
 ```
 
 Output:
+
 ```
 ═══════════════════════════════════════════════════════════════════
                     Secret Rotation Status
@@ -553,11 +575,13 @@ USE_VAULT_DYNAMIC_SECRETS=true
 ```
 
 Vault will:
+
 - Generate new database credentials on demand
 - Automatically rotate credentials based on TTL (24h default)
 - Revoke old credentials after expiry
 
 **Benefits:**
+
 - Zero-touch rotation
 - Least privilege access
 - Automatic cleanup
@@ -604,6 +628,7 @@ The audit system automatically detects:
 4. **Access from new IPs**
 
 **Alerts are sent via:**
+
 - Log warnings
 - Slack/Teams webhooks (configure `SLACK_WEBHOOK_URL`)
 - Email notifications
@@ -766,6 +791,7 @@ vault/
 ### Issue: "Cannot connect to Vault"
 
 **Symptoms:**
+
 ```
 ConnectionError: Cannot connect to Vault at https://vault:8200
 ```
@@ -773,6 +799,7 @@ ConnectionError: Cannot connect to Vault at https://vault:8200
 **Solutions:**
 
 1. Check Vault is running:
+
 ```bash
 docker ps | grep vault
 # or
@@ -780,18 +807,21 @@ kubectl get pods -n vault
 ```
 
 2. Verify VAULT_ADDR:
+
 ```bash
 echo $VAULT_ADDR
 curl -k $VAULT_ADDR/v1/sys/health
 ```
 
 3. Check network connectivity:
+
 ```bash
 ping vault
 telnet vault 8200
 ```
 
 4. Verify TLS certificates:
+
 ```bash
 openssl s_client -connect vault:8200 -showcerts
 ```
@@ -801,6 +831,7 @@ openssl s_client -connect vault:8200 -showcerts
 ### Issue: "Invalid Vault token"
 
 **Symptoms:**
+
 ```
 ConnectionError: Invalid Vault token
 ```
@@ -808,16 +839,19 @@ ConnectionError: Invalid Vault token
 **Solutions:**
 
 1. Check token is set:
+
 ```bash
 echo $VAULT_TOKEN
 ```
 
 2. Verify token is valid:
+
 ```bash
 vault token lookup
 ```
 
 3. Use AppRole instead:
+
 ```bash
 unset VAULT_TOKEN
 export VAULT_ROLE_ID=<role-id>
@@ -825,6 +859,7 @@ export VAULT_SECRET_ID=<secret-id>
 ```
 
 4. Renew token:
+
 ```bash
 vault token renew
 ```
@@ -834,6 +869,7 @@ vault token renew
 ### Issue: "Secret not found"
 
 **Symptoms:**
+
 ```
 KeyError: Secret not found: database/password
 ```
@@ -841,11 +877,13 @@ KeyError: Secret not found: database/password
 **Solutions:**
 
 1. List available secrets:
+
 ```bash
 vault kv list secret/sahool
 ```
 
 2. Check secret path:
+
 ```bash
 # Correct ✅
 vault kv get secret/sahool/database/postgres
@@ -855,12 +893,14 @@ vault kv get secret/database/postgres
 ```
 
 3. Verify SECRET_BACKEND:
+
 ```bash
 echo $SECRET_BACKEND
 # Should be: vault, aws_secrets_manager, azure_key_vault, or environment
 ```
 
 4. Check fallback to environment:
+
 ```bash
 # If Vault fails, it falls back to environment variables
 echo $DATABASE_PASSWORD
@@ -871,33 +911,39 @@ echo $DATABASE_PASSWORD
 ### Issue: "External Secrets not syncing"
 
 **Symptoms:**
+
 - ExternalSecret status shows error
 - Kubernetes secrets not created
 
 **Solutions:**
 
 1. Check ExternalSecret status:
+
 ```bash
 kubectl describe externalsecret postgresql-credentials -n sahool
 ```
 
 2. Check SecretStore:
+
 ```bash
 kubectl describe secretstore vault-backend -n sahool
 ```
 
 3. Verify Vault connectivity from cluster:
+
 ```bash
 kubectl run vault-test --rm -it --image=hashicorp/vault -- \
   vault status -address=https://vault:8200
 ```
 
 4. Check AppRole secret:
+
 ```bash
 kubectl get secret vault-approle-secret -n sahool
 ```
 
 5. Force refresh:
+
 ```bash
 kubectl delete externalsecret postgresql-credentials -n sahool
 kubectl apply -f gitops/secrets/external-secrets-operator.yaml
@@ -908,6 +954,7 @@ kubectl apply -f gitops/secrets/external-secrets-operator.yaml
 ### Issue: "Secret rotation failed"
 
 **Symptoms:**
+
 ```
 [ERROR] Failed to rotate database password
 ```
@@ -915,27 +962,32 @@ kubectl apply -f gitops/secrets/external-secrets-operator.yaml
 **Solutions:**
 
 1. Check rotation logs:
+
 ```bash
 cat /var/log/sahool-rotation.log
 ```
 
 2. Verify Vault permissions:
+
 ```bash
 vault token capabilities secret/sahool/database/postgres
 # Should include: create, update
 ```
 
 3. Test manual rotation:
+
 ```bash
 ./scripts/security/rotate-secrets.sh --database
 ```
 
 4. Check database connectivity:
+
 ```bash
 PGPASSWORD=$POSTGRES_ADMIN_PASSWORD psql -h postgres -U postgres -c "SELECT 1"
 ```
 
 5. Verify rotation state:
+
 ```bash
 ls -la .rotation-state/
 cat .rotation-state/database_last_rotation

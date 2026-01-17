@@ -1,1 +1,4 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
+
+# Shell scripts should always use LF line endings
+*.sh text eol=lf

@@ -672,6 +672,29 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
+  # User Service - Authentication & User Management
+  - name: user-service-upstream
+    targets:
+      - target: sahool-user-service:3025
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
 # ─────────────────────────────────────────────────────────────────────────────
@@ -712,6 +735,38 @@ consumers:
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
+  # User Service - Authentication & User Management
+  # خدمة المستخدمين - المصادقة وإدارة المستخدمين
+  - name: user-service
+    host: user-service-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: auth-route
+        paths:
+          - /api/v1/auth
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 500
+              policy: local
+      - name: users-route
+        paths:
+          - /api/v1/users
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 2000
+              policy: local
+
   # Field Operations Service
   - name: field-ops-service
     host: field-ops-upstream

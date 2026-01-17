@@ -1,4 +1,5 @@
 # ✅ PostgreSQL Integration Complete - SAHOOL Billing Core
+
 # اكتمل دمج PostgreSQL - خدمة الفوترة الأساسية
 
 ## 📋 Summary | الملخص
@@ -14,7 +15,9 @@ PostgreSQL integration has been successfully completed for the billing-core serv
 ### 1. Core Database Files | ملفات قاعدة البيانات الأساسية
 
 #### `/src/database.py` (398 lines)
+
 **Purpose:** Database configuration and session management
+
 - ✅ Async SQLAlchemy engine configuration
 - ✅ Connection pooling setup (configurable for dev/prod)
 - ✅ Session factory and dependency injection
@@ -22,6 +25,7 @@ PostgreSQL integration has been successfully completed for the billing-core serv
 - ✅ Health check functionality
 
 **Key Functions:**
+
 ```python
 - get_engine() -> AsyncEngine
 - get_session_factory() -> async_sessionmaker[AsyncSession]
@@ -35,6 +39,7 @@ PostgreSQL integration has been successfully completed for the billing-core serv
 ---
 
 #### `/src/models.py` (611 lines)
+
 **Purpose:** SQLAlchemy ORM models with complete type hints
 
 **Models Created:**
@@ -61,6 +66,7 @@ PostgreSQL integration has been successfully completed for the billing-core serv
    - Indexes: subscription_metric, tenant_metric_date
 
 **Features:**
+
 - ✅ All fields with proper types using `Mapped[]`
 - ✅ Complete indexes for query optimization
 - ✅ Foreign key relationships with cascade delete
@@ -72,11 +78,13 @@ PostgreSQL integration has been successfully completed for the billing-core serv
 ---
 
 #### `/src/repository.py` (730 lines)
+
 **Purpose:** Database operations layer (CRUD)
 
 **Repository Classes:**
 
 1. **SubscriptionRepository**
+
    ```python
    - create() - إنشاء اشتراك جديد
    - get_by_id() - الحصول على اشتراك بواسطة المعرف
@@ -90,6 +98,7 @@ PostgreSQL integration has been successfully completed for the billing-core serv
    ```
 
 2. **InvoiceRepository**
+
    ```python
    - create() - إنشاء فاتورة
    - get_by_id() - الحصول على فاتورة
@@ -103,6 +112,7 @@ PostgreSQL integration has been successfully completed for the billing-core serv
    ```
 
 3. **PaymentRepository**
+
    ```python
    - create() - إنشاء دفعة
    - get_by_id() - الحصول على دفعة
@@ -115,6 +125,7 @@ PostgreSQL integration has been successfully completed for the billing-core serv
    ```
 
 4. **UsageRecordRepository**
+
    ```python
    - create() - إنشاء سجل استخدام
    - get_by_id() - الحصول على السجل
@@ -129,6 +140,7 @@ PostgreSQL integration has been successfully completed for the billing-core serv
    - Transaction management helpers
 
 **Features:**
+
 - ✅ Complete async/await support
 - ✅ Type hints on all functions
 - ✅ Proper error handling
@@ -141,16 +153,21 @@ PostgreSQL integration has been successfully completed for the billing-core serv
 ### 2. Migration Files | ملفات الترحيل
 
 #### `/alembic.ini`
+
 Alembic configuration for database migrations
 
 #### `/alembic/env.py`
+
 Alembic environment setup for async SQLAlchemy
 
 #### `/alembic/script.py.mako`
+
 Template for generating migration files
 
 #### `/alembic/versions/001_initial_billing_schema.py` (463 lines)
+
 Initial database schema migration
+
 - Creates all tables with proper types
 - Creates all enum types
 - Creates all indexes
@@ -161,15 +178,18 @@ Initial database schema migration
 ### 3. Helper Scripts | السكريبتات المساعدة
 
 #### `/scripts/init_db.py` (237 lines)
+
 Database initialization script with sample data seeding
 
 **Features:**
+
 - ✅ Initialize database tables
 - ✅ Drop database (with confirmation)
 - ✅ Seed sample data for testing
 - ✅ Check-only mode for connection testing
 
 **Usage:**
+
 ```bash
 # Initialize database
 python scripts/init_db.py
@@ -189,7 +209,9 @@ python scripts/init_db.py --check-only
 ### 4. Documentation | التوثيق
 
 #### `/DATABASE_SETUP.md` (Comprehensive Guide)
+
 Complete documentation covering:
+
 - ✅ Architecture overview
 - ✅ Database schema details
 - ✅ Setup instructions
@@ -204,7 +226,9 @@ Complete documentation covering:
 ### 5. Integration Updates | تحديثات التكامل
 
 #### `/src/main.py` (Updated)
+
 **Changes Made:**
+
 - ✅ Imported database, repository, and models
 - ✅ Updated lifespan to initialize database
 - ✅ Updated health check with database status
@@ -215,6 +239,7 @@ Complete documentation covering:
 - ✅ Updated usage recording to use database
 
 **Endpoints Updated:**
+
 - `POST /v1/tenants` - Create tenant with DB subscription
 - `GET /v1/tenants/{tenant_id}/subscription` - Get from DB
 - `POST /v1/tenants/{tenant_id}/usage` - Record to DB
@@ -227,6 +252,7 @@ Complete documentation covering:
 ## 🎯 Features Implemented | الميزات المنفذة
 
 ### Database Layer
+
 - ✅ Async SQLAlchemy with asyncpg driver
 - ✅ Connection pooling (configurable)
 - ✅ Session management
@@ -234,6 +260,7 @@ Complete documentation covering:
 - ✅ Proper cleanup on shutdown
 
 ### ORM Models
+
 - ✅ Subscription model with full fields
 - ✅ Invoice model with line items (JSONB)
 - ✅ Payment model with multiple gateways
@@ -243,6 +270,7 @@ Complete documentation covering:
 - ✅ Check constraints for validation
 
 ### Repository Layer
+
 - ✅ CRUD operations for all models
 - ✅ Complex queries (filtering, sorting, pagination)
 - ✅ Aggregation functions
@@ -250,12 +278,14 @@ Complete documentation covering:
 - ✅ Type safety with type hints
 
 ### Migrations
+
 - ✅ Alembic integration
 - ✅ Initial schema migration
 - ✅ Auto-generation support
 - ✅ Upgrade/downgrade support
 
 ### Integration
+
 - ✅ FastAPI dependency injection
 - ✅ Backward compatibility (in-memory fallback)
 - ✅ Proper error handling
@@ -266,22 +296,26 @@ Complete documentation covering:
 ## 🚀 Quick Start | البداية السريعة
 
 ### 1. Set Environment Variable
+
 ```bash
 export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_billing"
 ```
 
 ### 2. Initialize Database
+
 ```bash
 cd apps/services/billing-core
 python scripts/init_db.py --seed
 ```
 
 ### 3. Run Service
+
 ```bash
 python src/main.py
 ```
 
 ### 4. Test
+
 ```bash
 curl http://localhost:8089/healthz
 ```
@@ -332,18 +366,21 @@ ENVIRONMENT="production"     # Environment mode
 ## 📈 Performance Optimizations
 
 ### Indexes Created
+
 - ✅ Composite indexes for common queries
 - ✅ Foreign key indexes
 - ✅ Status-based indexes
 - ✅ Date-based indexes for time-series queries
 
 ### Connection Pooling
+
 - ✅ Configurable pool size
 - ✅ Connection recycling
 - ✅ Pool timeout handling
 - ✅ Pre-ping for connection validation
 
 ### Query Optimization
+
 - ✅ Selective loading (selectinload)
 - ✅ Pagination support
 - ✅ Efficient aggregations
@@ -354,13 +391,16 @@ ENVIRONMENT="production"     # Environment mode
 ## 🧪 Testing
 
 ### Sample Data Available
+
 The `init_db.py --seed` command creates:
+
 - 2 sample subscriptions (active + trial)
 - 1 sample invoice
 - 1 sample payment (paid)
 - 5 sample usage records
 
 ### API Endpoints to Test
+
 ```bash
 # Health check (includes DB status)
 curl http://localhost:8089/healthz
@@ -386,6 +426,7 @@ curl -X POST http://localhost:8089/v1/tenants \
 ## 📚 Next Steps
 
 ### Recommended Enhancements
+
 1. **Add Tenant Model to Database**
    - Currently tenants are still in-memory
    - Create `tenants` table
@@ -434,6 +475,7 @@ curl -X POST http://localhost:8089/v1/tenants \
 ## 📞 Support
 
 For issues or questions:
+
 1. Check `DATABASE_SETUP.md` for detailed documentation
 2. Review Alembic logs for migration issues
 3. Check PostgreSQL logs for connection issues

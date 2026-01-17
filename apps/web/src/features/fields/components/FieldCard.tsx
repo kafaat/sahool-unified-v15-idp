@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Field Card Component
@@ -12,9 +12,9 @@
  * - RTL support
  */
 
-import React from 'react';
-import { MapPin, Sprout, Maximize2, Calendar } from 'lucide-react';
-import type { Field } from '../types';
+import React from "react";
+import { MapPin, Sprout, Maximize2, Calendar } from "lucide-react";
+import type { Field } from "../types";
 
 interface FieldCardProps {
   field: Field;
@@ -24,7 +24,7 @@ interface FieldCardProps {
 const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
   // Handle keyboard navigation for accessibility
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (onClick && (event.key === 'Enter' || event.key === ' ')) {
+    if (onClick && (event.key === "Enter" || event.key === " ")) {
       event.preventDefault();
       onClick();
     }
@@ -32,7 +32,7 @@ const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
 
   // Construct descriptive ARIA label
   const ariaLabel = `${field.nameAr || field.name}, المساحة ${field.area} هكتار${
-    field.crop ? `, المحصول ${field.cropAr || field.crop}` : ''
+    field.crop ? `, المحصول ${field.cropAr || field.crop}` : ""
   }`;
 
   // Check if card is interactive
@@ -42,7 +42,7 @@ const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
     <div
       onClick={onClick}
       onKeyDown={handleKeyDown}
-      role={isInteractive ? 'button' : undefined}
+      role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : undefined}
       aria-label={isInteractive ? ariaLabel : undefined}
       dir="auto"
@@ -56,7 +56,7 @@ const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
                hover:shadow-lg hover:border-blue-300 hover:scale-[1.02]
                focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
                active:scale-[0.98]`
-            : ''
+            : ""
         }
       `}
     >
@@ -110,7 +110,7 @@ const FieldCardComponent: React.FC<FieldCardProps> = ({ field, onClick }) => {
             />
             <span className="text-gray-600">تاريخ الإضافة:</span>
             <span className="text-gray-500">
-              {new Date(field.createdAt).toLocaleDateString('ar-EG')}
+              {new Date(field.createdAt).toLocaleDateString("ar-EG")}
             </span>
           </div>
         )}

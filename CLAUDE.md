@@ -9,6 +9,7 @@ SAHOOL is a **National Agricultural Intelligence Platform** - an offline-first a
 **License**: Proprietary
 
 ### Key Differentiators
+
 - **Offline-First Architecture**: Full functionality without internet connectivity
 - **Geospatial Intelligence**: PostGIS-powered vector field rendering
 - **AI-Driven Advisory**: Crop disease detection and fertilizer recommendations
@@ -93,46 +94,46 @@ sahool-unified-v15-idp/
 
 ### Backend Services
 
-| Layer | Technology |
-|-------|------------|
-| **Python Services** | FastAPI 0.126.0, Tortoise ORM 0.21.7, asyncpg 0.30.0, Pydantic v2.10+ |
-| **Node.js Services** | NestJS, Prisma ORM, TypeScript 5.7.x |
-| **Database** | PostgreSQL 16+ with PostGIS 3.4 (geospatial) |
-| **Message Queue** | NATS 2.x (event-driven architecture) |
-| **API Gateway** | Kong (authentication, rate limiting) |
-| **Caching** | Redis 7.x (sessions, rate limiting) |
-| **Connection Pooling** | PgBouncer (transaction mode, 250 max connections) |
+| Layer                  | Technology                                                            |
+| ---------------------- | --------------------------------------------------------------------- |
+| **Python Services**    | FastAPI 0.126.0, Tortoise ORM 0.21.7, asyncpg 0.30.0, Pydantic v2.10+ |
+| **Node.js Services**   | NestJS, Prisma ORM, TypeScript 5.7.x                                  |
+| **Database**           | PostgreSQL 16+ with PostGIS 3.4 (geospatial)                          |
+| **Message Queue**      | NATS 2.x (event-driven architecture)                                  |
+| **API Gateway**        | Kong (authentication, rate limiting)                                  |
+| **Caching**            | Redis 7.x (sessions, rate limiting)                                   |
+| **Connection Pooling** | PgBouncer (transaction mode, 250 max connections)                     |
 
 ### Mobile Application
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | Flutter 3.27.x (Dart >=3.2.0) |
-| **State Management** | Riverpod 2.6.x |
-| **Local Database** | Drift 2.24+ with SQLCipher (encrypted) |
-| **Background Tasks** | Workmanager |
-| **Maps** | MapLibre GL, flutter_map |
-| **Network** | Dio 5.x with certificate pinning |
+| Layer                | Technology                             |
+| -------------------- | -------------------------------------- |
+| **Framework**        | Flutter 3.27.x (Dart >=3.2.0)          |
+| **State Management** | Riverpod 2.6.x                         |
+| **Local Database**   | Drift 2.24+ with SQLCipher (encrypted) |
+| **Background Tasks** | Workmanager                            |
+| **Maps**             | MapLibre GL, flutter_map               |
+| **Network**          | Dio 5.x with certificate pinning       |
 
 ### Frontend (Web/Admin)
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | Next.js / React with TypeScript |
-| **Testing** | Vitest 3.x, React Testing Library, Playwright |
-| **Build** | Vite / Next.js |
-| **Styling** | Tailwind CSS |
-| **Monitoring** | Sentry |
+| Layer          | Technology                                    |
+| -------------- | --------------------------------------------- |
+| **Framework**  | Next.js / React with TypeScript               |
+| **Testing**    | Vitest 3.x, React Testing Library, Playwright |
+| **Build**      | Vite / Next.js                                |
+| **Styling**    | Tailwind CSS                                  |
+| **Monitoring** | Sentry                                        |
 
 ### Infrastructure
 
-| Layer | Technology |
-|-------|------------|
-| **Container** | Docker, Kubernetes (K8s) |
-| **IaC** | Terraform, Helm Charts |
-| **CI/CD** | GitHub Actions (30+ workflows), Argo CD |
-| **Monitoring** | Prometheus, Grafana, OpenTelemetry |
-| **Secrets** | HashiCorp Vault |
+| Layer          | Technology                              |
+| -------------- | --------------------------------------- |
+| **Container**  | Docker, Kubernetes (K8s)                |
+| **IaC**        | Terraform, Helm Charts                  |
+| **CI/CD**      | GitHub Actions (30+ workflows), Argo CD |
+| **Monitoring** | Prometheus, Grafana, OpenTelemetry      |
+| **Secrets**    | HashiCorp Vault                         |
 
 ---
 
@@ -140,12 +141,12 @@ sahool-unified-v15-idp/
 
 The platform uses a 4-layer event architecture via NATS:
 
-| Layer | Services | Purpose |
-|-------|----------|---------|
-| **Acquisition** | satellite-service, iot-service, weather-advanced, virtual-sensors | Data ingestion & normalization |
-| **Intelligence** | indicators-service, lai-estimation, crop-health-ai, disaster-assessment | Feature extraction & AI |
-| **Decision** | crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine | Recommendations & planning |
-| **Business** | notification-service, marketplace-service, billing-core, community-chat | User-facing operations |
+| Layer            | Services                                                                | Purpose                        |
+| ---------------- | ----------------------------------------------------------------------- | ------------------------------ |
+| **Acquisition**  | satellite-service, iot-service, weather-advanced, virtual-sensors       | Data ingestion & normalization |
+| **Intelligence** | indicators-service, lai-estimation, crop-health-ai, disaster-assessment | Feature extraction & AI        |
+| **Decision**     | crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine   | Recommendations & planning     |
+| **Business**     | notification-service, marketplace-service, billing-core, community-chat | User-facing operations         |
 
 Event subject pattern: `sahool.{tenant_id}.{event_type}`
 
@@ -441,21 +442,22 @@ NATS_URL=""
 
 ### Test Folders
 
-| Folder | Purpose |
-|--------|---------|
-| `tests/unit/` | Fast unit tests |
-| `tests/integration/` | API & database tests |
-| `tests/smoke/` | Import verification |
-| `tests/e2e/` | End-to-end tests |
-| `tests/load/` | Locust load tests |
-| `tests/evaluation/` | AI agent evaluation |
-| `tests/guardrails/` | Input validation tests |
+| Folder               | Purpose                |
+| -------------------- | ---------------------- |
+| `tests/unit/`        | Fast unit tests        |
+| `tests/integration/` | API & database tests   |
+| `tests/smoke/`       | Import verification    |
+| `tests/e2e/`         | End-to-end tests       |
+| `tests/load/`        | Locust load tests      |
+| `tests/evaluation/`  | AI agent evaluation    |
+| `tests/guardrails/`  | Input validation tests |
 
 ---
 
 ## Security Considerations
 
 ### DO NOT
+
 - Commit secrets or credentials (`.env`, API keys)
 - Use hardcoded passwords
 - Skip authentication checks
@@ -464,6 +466,7 @@ NATS_URL=""
 - Use `--no-verify` for git hooks
 
 ### DO
+
 - Use environment variables for secrets
 - Follow RBAC patterns
 - Validate all user input
@@ -502,12 +505,12 @@ GET /metrics         # Prometheus metrics
 
 ### Rate Limiting Tiers
 
-| Tier | Requests/min | Requests/hour |
-|------|--------------|---------------|
-| Free | 30 | 500 |
-| Standard | 60 | 2000 |
-| Premium | 120 | 5000 |
-| Internal | 1000 | 50000 |
+| Tier     | Requests/min | Requests/hour |
+| -------- | ------------ | ------------- |
+| Free     | 30           | 500           |
+| Standard | 60           | 2000          |
+| Premium  | 120          | 5000          |
+| Internal | 1000         | 50000         |
 
 ---
 
@@ -576,15 +579,15 @@ logger.info("event_name", field_id=field_id, action="create")
 
 ## Important Files Reference
 
-| File | Purpose |
-|------|---------|
-| `Makefile` | All development commands |
-| `docker-compose.yml` | Full service stack (39 services) |
-| `pyproject.toml` | Python project config, linting (Ruff) |
-| `package.json` | Node.js root workspace |
-| `.env.example` | Environment template |
-| `governance/services.yaml` | Service registry (source of truth) |
-| `governance/agents.yaml` | AI agent definitions |
+| File                       | Purpose                               |
+| -------------------------- | ------------------------------------- |
+| `Makefile`                 | All development commands              |
+| `docker-compose.yml`       | Full service stack (39 services)      |
+| `pyproject.toml`           | Python project config, linting (Ruff) |
+| `package.json`             | Node.js root workspace                |
+| `.env.example`             | Environment template                  |
+| `governance/services.yaml` | Service registry (source of truth)    |
+| `governance/agents.yaml`   | AI agent definitions                  |
 
 ---
 
@@ -603,6 +606,7 @@ claude/**      # AI-assisted branches
 ### Commit Convention
 
 Use conventional commits:
+
 ```
 feat: add field boundary mapping
 fix: resolve sync conflict in offline mode
@@ -621,6 +625,7 @@ chore: update dependencies
 5. **Deploy**: ArgoCD to staging/production
 
 GitHub Workflows (30+):
+
 - `ci.yml` - Main CI pipeline
 - `cd-staging.yml` - Staging deployment
 - `cd-production.yml` - Production deployment
@@ -646,18 +651,441 @@ Example: `field-ops` → `field-management-service`
 
 ## Key Services Overview
 
-| Service | Type | Port | Description |
-|---------|------|------|-------------|
-| field-ops | Python | 8080 | Field operations (deprecated) |
-| field-management-service | Node.js | 3000 | Field management |
-| weather-core | Python | 8108 | Weather data |
-| ndvi-engine | Python | 8107 | NDVI processing |
-| crop-growth-model | Node.js | 3023 | Crop modeling |
-| crop-health-ai | Python | - | Disease detection |
-| fertilizer-advisor | Python | - | Fertilizer recommendations |
-| yield-engine | Python | - | Yield predictions |
-| notification-service | Python | - | Push notifications |
-| marketplace-service | Node.js | - | Marketplace |
+| Service                  | Type    | Port | Description                   |
+| ------------------------ | ------- | ---- | ----------------------------- |
+| field-ops                | Python  | 8080 | Field operations (deprecated) |
+| field-management-service | Node.js | 3000 | Field management              |
+| weather-core             | Python  | 8108 | Weather data                  |
+| ndvi-engine              | Python  | 8107 | NDVI processing               |
+| crop-growth-model        | Node.js | 3023 | Crop modeling                 |
+| crop-health-ai           | Python  | -    | Disease detection             |
+| fertilizer-advisor       | Python  | -    | Fertilizer recommendations    |
+| yield-engine             | Python  | -    | Yield predictions             |
+| notification-service     | Python  | -    | Push notifications            |
+| marketplace-service      | Node.js | -    | Marketplace                   |
+
+---
+
+## AI Skills
+
+SAHOOL platform includes a comprehensive AI skills system located in `.claude/skills/` that enables advanced context engineering, agricultural advisory generation, and farm documentation using Claude and other AI models. Skills provide reusable modules for agricultural intelligence and farmer guidance.
+
+### Directory Structure
+
+```
+.claude/skills/
+├── context-engineering/        # Context optimization modules
+│   ├── memory.md              # Farm history & persistent memory
+│   ├── compression.md         # Token-efficient data compression
+│   └── evaluation.md          # LLM-as-Judge advisory quality assessment
+├── sahool/                    # SAHOOL-specific domain skills
+│   ├── crop-advisor.md        # Crop advisory & recommendations
+│   └── farm-documentation.md  # Field & farm knowledge base
+└── obsidian/                  # Documentation generation
+    ├── markdown.md            # Obsidian markdown formatting
+    └── canvas.md              # Canvas-based knowledge graphs
+```
+
+### Context Engineering Modules
+
+Context engineering modules optimize AI model performance for agricultural advisory by managing token usage, preserving critical information, and structuring knowledge bases efficiently.
+
+#### Memory Skill
+
+**Location**: `.claude/skills/context-engineering/memory.md`
+
+Enables persistent memory management for farm operations:
+
+- **Entity Memory**: Stores farmers, farms, fields, equipment with full history
+- **Event Memory**: Logs planting, treatment, harvest, inspection events
+- **Observation Memory**: Captures sensor readings and field inspections
+- **Decision Memory**: Records advisory given and farmer responses
+- **Outcome Memory**: Tracks yield results, costs, and lessons learned
+- **Preference Memory**: Maintains farmer preferences and constraints
+
+**Key Features**:
+- Bilingual Arabic/English support
+- Hierarchical namespace organization (entities, events, observations)
+- YAML schema for structured storage
+- Query patterns for historical situation matching
+- Offline-first synchronization support
+
+**Usage Example**:
+```yaml
+# Store treatment event
+event_type: treatment
+field_id: FIELD-003
+crop: wheat
+treatment_type: fertilizer
+product: Urea 46%
+rate: 46 kg/ha
+timestamp: 2025-01-14T07:30:00Z
+cost: 850 SAR
+
+# Query similar situations
+QUERY: similar_situations(
+  crop: wheat,
+  stage: tillering,
+  issue: nitrogen_deficiency,
+  min_yield_improvement: 10%
+)
+# Returns historical decisions and outcomes
+```
+
+#### Compression Skill
+
+**Location**: `.claude/skills/context-engineering/compression.md`
+
+Reduces token usage while preserving critical agricultural information:
+
+**Compression Levels**:
+- **Level 1** (80% retention): Remove redundancy, apply abbreviations, keep numerical data
+- **Level 2** (50% retention): Summarize patterns, aggregate time-series, remove non-essential metadata
+- **Level 3** (25% retention): Extract key metrics only, single-line summaries
+
+**Standard Agricultural Abbreviations**:
+```
+ha = Hectare | هـ
+NDVI = Vegetation Index | م.غ.ن
+LAI = Leaf Area Index | م.م.و
+ET = Evapotranspiration | ت.ن
+ppm = Parts Per Million | ج.م
+SM = Soil Moisture | ر.ت
+EC = Electrical Conductivity | ت.ك
+```
+
+**Example Compression**:
+```
+Original (verbose):
+"Field FIELD-003 covers 8.5 hectares of winter wheat variety Sakha 95,
+currently in tillering stage with NDVI of 0.72"
+
+Compressed (Level 2):
+"F003: Wheat-Sakha95 | 8.5ha | NDVI:0.72 | Tillering | pH:7.2"
+
+Compressed (Level 3):
+"F003:Wht|8.5ha|N0.72|Till"
+```
+
+**Alert Priority Encoding**:
+```
+[!!!] Critical - immediate action (<6h) | حرج
+[!!]  Warning - action within 24-48h | تحذير
+[!]   Advisory - action within 1 week | استشارة
+[.]   Informational - for awareness | معلومات
+```
+
+#### Evaluation Skill (LLM-as-Judge)
+
+**Location**: `.claude/skills/context-engineering/evaluation.md`
+
+Systematically evaluates agricultural AI advisory quality using multi-dimensional rubrics:
+
+**Evaluation Dimensions** (weighted):
+- **Accuracy** (30%): Technical correctness of agricultural advice
+- **Relevance** (25%): Applicability to specific field/crop/farmer context
+- **Actionability** (20%): Clarity and feasibility of actions
+- **Timeliness** (15%): Appropriateness of timing recommendations
+- **Safety** (10%): Risk awareness and safety considerations
+
+**Scoring Scale**:
+```
+5 = Excellent | Expert-level advice, comprehensive
+4 = Good      | Sound advice, minor gaps
+3 = Adequate  | Acceptable but incomplete
+2 = Poor      | Significant errors or omissions
+1 = Failing   | Incorrect or potentially harmful
+```
+
+**Crop-Specific Validation**:
+- **Wheat**: Zadoks growth stage alignment, nitrogen timing
+- **Date Palm**: Seasonal timing (pollination, ripening stages)
+- **Vegetables**: PHI (pre-harvest interval) compliance
+- **All Crops**: Regional climate appropriateness
+
+**Safety Critical Checks**:
+- Pesticide: Product registration, PHI, REI, PPE, drift warnings
+- Fertilizer: Soil test alignment, timing vs. rainfall, groundwater proximity
+- Irrigation: Salinity management, disease risk, water quality
+
+**Example Evaluation Output**:
+```yaml
+evaluation_result:
+  advisory_type: irrigation
+  scores:
+    accuracy: 4/5 (minor ET calculation missing)
+    relevance: 5/5 (field-specific with sensor data)
+    actionability: 3/5 (lacks pivot operation details)
+    timeliness: 4/5 (optimal window specified)
+    safety: 3/5 (missing disease considerations)
+  overall_score: 3.85/5.00
+  grade: Good
+  improvements:
+    - "Add pivot run time calculation"
+    - "Include target soil moisture level"
+    - "Add morning irrigation recommendation"
+```
+
+### SAHOOL Domain Skills
+
+Domain-specific skills for agricultural advisory and farm documentation.
+
+#### Crop Advisory Skill
+
+**Location**: `.claude/skills/sahool/crop-advisor.md`
+
+Provides comprehensive crop management recommendations:
+
+**Supported Crops**:
+- Wheat (قمح): Sakha varieties, growth stages, pest/disease management
+- Barley (شعير): Drought tolerance, yield optimization
+- Date Palm (نخيل): Pollination, pest management, harvest timing
+- Tomato (طماطم): Greenhouse and field production
+- Cucumber, vegetables: General cultivation guidance
+
+**Advisory Framework**:
+```yaml
+advisory_structure:
+  situation:      # Current field/crop status assessment
+  analysis:       # Data-driven analysis of conditions
+  recommendation: # Specific actionable advice
+  rationale:      # Why this recommendation
+  action_plan:    # Step-by-step execution guide
+  follow_up:      # Next steps and monitoring
+```
+
+**Decision Trees**:
+- Irrigation Decision: Soil moisture → weather → crop stage → volume calculation → timing
+- Fertilizer Decision: Soil test → crop stage → nutrient selection → rate calculation → method
+- Pest Management: Identification → population assessment → natural enemies → threshold-based control
+
+**Bilingual Communication**:
+```markdown
+## Recommendation | التوصية
+
+**English:**
+[Detailed recommendation with technical terms]
+
+**العربية:**
+[نفس التوصية بالعربية مع المصطلحات الزراعية]
+
+### Action Steps | خطوات التنفيذ
+1. [Step EN] | [الخطوة AR]
+```
+
+**Alert Priority Levels**:
+- Critical (🔴): Immediate <6 hours (RPW detection, severe frost, acute water stress)
+- Warning (🟠): 24-48 hours (pest threshold exceeded, nutrient deficiency)
+- Advisory (🟡): Within 1 week (preventive treatments, planning)
+- Informational (🟢): For awareness (market updates, weather outlook)
+
+#### Farm Documentation Skill
+
+**Location**: `.claude/skills/sahool/farm-documentation.md`
+
+Generates Obsidian-compatible markdown documentation:
+
+**Frontmatter Metadata**:
+```yaml
+---
+title: Field Documentation Title
+title_ar: عنوان التوثيق
+farm_id: FARM-XXX
+field_id: FIELD-XXX
+crop_type: wheat | barley | date_palm | tomato
+season: winter | summer | spring | fall
+status: active | harvested | fallow | planned
+tags:
+  - sahool/field
+  - sahool/crop/wheat
+  - operational
+---
+```
+
+**Obsidian Features**:
+- **Wikilinks**: `[[Fields/FIELD-001]]`, `[[Crops/Wheat-2024]]`, `[[Advisory/Pest-Control]]`
+- **Callouts**: `> [!warning]`, `> [!tip]`, `> [!info]`, `> [!success]`
+- **Task Lists**: `- [ ]` for operation checklists
+- **Tables**: Structured farm data in markdown format
+- **Dataview Queries**: Dynamic content filtering
+
+**Bilingual Structure**:
+```markdown
+## Field Overview | نظرة عامة على الحقل
+
+**English:** Description with technical details
+
+**العربية:** نفس الوصف بالعربية
+```
+
+**Tag Hierarchy**:
+- `#sahool/field` - Field records
+- `#sahool/crop/wheat` - Crop-specific
+- `#sahool/irrigation` - Irrigation logs
+- `#sahool/advisory` - Advisory content
+- `#sahool/harvest` - Harvest records
+- `#sahool/equipment` - Equipment maintenance
+
+### Knowledge Base Structure
+
+The AI skills system organizes agricultural knowledge in interconnected modules:
+
+#### Data Layers
+
+1. **Raw Data Layer**: Sensor readings, weather, satellite imagery
+2. **Processing Layer**: NDVI calculations, feature extraction, trend analysis
+3. **Intelligence Layer**: Decision trees, diagnostic algorithms, risk assessment
+4. **Advisory Layer**: Farmer-facing recommendations, bilingual output
+5. **Memory Layer**: Persistent farm history, outcomes, lessons learned
+
+#### Knowledge Organization
+
+```
+Farm Knowledge Graph
+├── Entities
+│   ├── Farms (farm ID, location, total area, water sources)
+│   ├── Fields (field ID, crop history, soil profile, irrigation type)
+│   ├── Farmers (preferences, language, constraints, past responses)
+│   └── Equipment (assets, maintenance history, capacity)
+├── Events
+│   ├── Planting (variety, date, seed rate, soil conditions)
+│   ├── Treatment (type, product, rate, reason, cost)
+│   ├── Harvest (yield, quality, storage, sale)
+│   └── Inspection (growth stage, observations, issues)
+├── Decisions
+│   ├── Advisory Given (recommendations, rationale, farmer response)
+│   ├── Treatment Outcomes (effectiveness, yield impact, cost-benefit)
+│   └── Lessons Learned (successes, improvements, patterns)
+└── Patterns
+    ├── Seasonal Trends (crop performance by season, optimal timing)
+    ├── Issue Patterns (recurring problems, effective solutions)
+    └── Success Factors (high-yield practices, farmer preferences)
+```
+
+### Usage Examples
+
+#### Example 1: Generate Contextual Advisory
+
+Input: Farmer reports yellowing wheat leaves in Field 003
+
+Process:
+1. **Memory Retrieval**: Load field history, past N deficiencies, successful treatments
+2. **Data Analysis**: Compare soil test (18 ppm N) to threshold (25 ppm)
+3. **Decision Tree**: Navigate fertilizer decision tree with field context
+4. **Compression**: Compress relevant historical data to preserve context tokens
+5. **Advisory Generation**: Create bilingual recommendation with cost-benefit analysis
+6. **Evaluation**: Score advisory for accuracy, actionability, safety using rubrics
+
+Output:
+```markdown
+# Nitrogen Deficiency Advisory | استشارة نقص النيتروجين
+
+## Situation
+Soil analysis confirms nitrogen deficiency (18 ppm, target: 25 ppm)
+
+## Recommendation
+Apply Urea 46% at 46 kg/ha as top dressing early morning with dew
+
+## Action Plan
+1. Early morning application (6-8 AM) with dew present
+2. Broadcast evenly, 2-pass method for uniformity
+3. Light irrigation (15-20 mm) 1-2 days after to incorporate
+4. Monitor leaf color in 7-10 days for improvement
+
+## Economic Analysis
+- Treatment cost: 115 SAR/ha
+- Expected yield saved: 0.7 t/ha × 1850 SAR/t = 1,295 SAR/ha
+- ROI: 1,025%
+```
+
+#### Example 2: Emergency Alert - Red Palm Weevil
+
+Input: Detection of red palm weevil in date palm grove
+
+Process:
+1. **Memory Check**: Load RPW protocols, past cases, treatment success rates
+2. **Severity Assessment**: Critical (lethal pest, 24-48h response window)
+3. **Compression**: Summary format for rapid communication
+4. **Protocol Activation**: Use critical advisory template with emergency procedures
+5. **Evaluation**: Validate safety and completeness of recommendations
+
+Output:
+```
+[!!!] CRITICAL ALERT: Red Palm Weevil Detection
+Response window: 24-48 hours maximum
+
+Phase 1 (Today):
+- Mark trees with red paint/tape
+- Report to Ministry of Agriculture (mandatory)
+
+Phase 2 (Within 48h):
+- Inject Emamectin benzoate 5% at 50-100ml per point (4-6 points/tree)
+- Depth: 15-20cm into trunk at 45° angle
+
+Phase 3 (Preventive):
+- Treat all trees within 50m radius
+- Apply pheromone traps (5 per hectare)
+
+Value at Risk: 45,000 SAR (3 trees × 15,000 SAR)
+Treatment Cost: 5,400 SAR
+ROI: 733%
+```
+
+#### Example 3: Batch Farm Report with Compression
+
+Input: Daily farm status for 5 fields with 12+ sensor readings
+
+Process:
+1. **Data Aggregation**: Collect all sensor, weather, and inspection data
+2. **Compression** (Level 2): Reduce verbose data to structured format
+3. **Alert Encoding**: Encode priority levels with bilingual labels
+4. **Pattern Detection**: Identify anomalies against historical baselines
+5. **Summarization**: Create executive summary with action items
+
+Output:
+```
+=== Al-Rashid Farm | 2025-01-13 ===
+
+WEATHER: 8-18°C | RH:65% | NW@12km/h | No rain 72h
+
+FIELDS:
+| ID  | Crop | Area  | NDVI | SM  | Status          |
+|-----|------|-------|------|-----|-----------------|
+| F01 | Wht  | 5.2ha | .68  | 45% | OK-Tillering    |
+| F02 | Bar  | 3.8ha | .65  | 52% | OK-Heading      |
+| F03 | Wht  | 8.5ha | .72↓ | 38% | [!!]N-deficient |
+| F04 | Palm | 450t  | -    | -   | [!]3 RPW trees  |
+| F05 | -    | 2.1ha | -    | -   | Prep-Tomato     |
+
+ALERTS:
+[!!] F03: N:18ppm<25 | Rx: Urea 46kg/ha | Cost:115 ريال/هـ
+[!]  F04: RPW Block-B | Treatment active | Cost:5,400 ريال
+
+WATER USAGE: 2,450m³ total | Well-001: 78% capacity
+
+ACTION ITEMS:
+- Apply nitrogen to F03 within 24h (optimal ROI 1,025%)
+- Continue RPW treatment phase 2
+- Monitor F02 for rust at heading stage (risk)
+```
+
+### Integration with Claude Code
+
+AI skills can be invoked within Claude Code workflows:
+
+```bash
+# Generate crop advisory
+claude code --skill crop-advisor --context "Field-003 wheat yellowing"
+
+# Evaluate advisory quality
+claude code --skill evaluate --advisory "irrigation_recommendation_001"
+
+# Compress farm data for context window
+claude code --skill compress --level 2 --input "farm_sensor_data.json"
+
+# Create farm documentation
+claude code --skill farm-documentation --field "FIELD-003" --format obsidian
+```
 
 ---
 
@@ -670,6 +1098,7 @@ Example: `field-ops` → `field-management-service`
 - **Observability**: `docs/OBSERVABILITY.md`
 - **Runbooks**: `docs/RUNBOOKS.md`
 - **Service Registry**: `governance/services.yaml`
+- **AI Skills**: `.claude/skills/` directory with context engineering modules
 
 ---
 
@@ -700,4 +1129,4 @@ make status
 
 ---
 
-*Last Updated: January 2025*
+_Last Updated: January 2025_

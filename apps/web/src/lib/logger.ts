@@ -5,8 +5,10 @@
  * Provides environment-aware logging that:
  * - Only logs in development mode by default
  * - Provides critical logging for production errors
- * - Integrates with error tracking service
+ * - Integrates with error tracking service (Sentry)
  */
+
+import * as Sentry from "@sentry/nextjs";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -92,9 +94,23 @@ export const logger = {
     // Always log critical errors
     console.error(...args);
 
-    // TODO: Send to error tracking service in production
-    // Example: Sentry.captureException(args[0]);
-    // Example: Send to custom error logging endpoint
+    // Send to Sentry in production
+    if (!isDev) {
+      const firstArg = args[0];
+      if (firstArg instanceof Error) {
+        Sentry.captureException(firstArg, {
+          extra: args.length > 1 ? { additionalArgs: args.slice(1) } : undefined,
+        });
+      } else {
+        Sentry.captureMessage(
+          typeof firstArg === "string" ? firstArg : JSON.stringify(firstArg),
+          {
+            level: "error",
+            extra: args.length > 1 ? { additionalArgs: args.slice(1) } : undefined,
+          },
+        );
+      }
+    }
   },
 
   /**

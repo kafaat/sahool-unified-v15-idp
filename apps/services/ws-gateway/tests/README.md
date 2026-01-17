@@ -53,7 +53,7 @@ The test suite covers:
 ```
 pytest==8.3.4
 pytest-asyncio==0.24.0
-python-jose  # For JWT testing
+PyJWT  # For JWT testing
 ```
 
 ## Security Testing | اختبار الأمان

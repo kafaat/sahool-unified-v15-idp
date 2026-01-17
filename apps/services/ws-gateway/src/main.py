@@ -23,7 +23,8 @@ from fastapi import (
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from jose import JWTError, jwt
+import jwt
+from jwt.exceptions import PyJWTError as JWTError
 from pydantic import BaseModel
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 

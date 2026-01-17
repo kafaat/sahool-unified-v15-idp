@@ -49,11 +49,16 @@ android {
 
     signingConfigs {
         // Debug signing configuration
+        // Uses custom keystore if available, falls back to default Android debug keystore
         getByName("debug") {
-            storeFile = file("debug.keystore")
-            storePassword = "android"
-            keyAlias = "debug"
-            keyPassword = "android"
+            val debugKeystoreFile = file("debug.keystore")
+            if (debugKeystoreFile.exists()) {
+                storeFile = debugKeystoreFile
+                storePassword = "android"
+                keyAlias = "debug"
+                keyPassword = "android"
+            }
+            // If debug.keystore doesn't exist, Android will use the default debug keystore
         }
         // Release signing configuration
         // Reads from keystore.properties file or falls back to environment variables for CI/CD

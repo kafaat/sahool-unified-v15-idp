@@ -305,7 +305,7 @@ class SlidingWindowLimiter(RateLimitStrategy):
 
             # إضافة الطلب الحالي
             # Add current request
-            request_id = f"{now}:{hashlib.md5(str(now).encode(), usedforsecurity=False).hexdigest()[:8]}"
+            request_id = f"{now}:{hashlib.sha256(str(now).encode(), usedforsecurity=False).hexdigest()[:8]}"
             pipe.zadd(key, {request_id: now})
 
             # تعيين انتهاء الصلاحية

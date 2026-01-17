@@ -20,10 +20,8 @@ import 'package:flutter/foundation.dart';
 /// print(info);
 /// ```
 Future<CertificateInfo?> getCertificateInfo(String url) async {
+  // This tool should only be used in debug/development mode
   if (!kDebugMode) {
-    if (kDebugMode) {
-      debugPrint('⚠️ Certificate tools should only be used in debug mode');
-    }
     return null;
   }
 

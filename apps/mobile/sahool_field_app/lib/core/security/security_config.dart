@@ -54,7 +54,7 @@ class SecurityConfig {
   /// Enable SSL certificate pinning globally
   /// When enabled, all HTTPS connections will validate against pinned certificates
   /// CRITICAL: Must be enabled in production to prevent MITM attacks
-  static const bool enableCertificatePinning = true;
+  static const bool certificatePinningGloballyEnabled = true;
 
   /// Enable root/jailbreak detection
   /// When enabled, the app will detect and respond to rooted/jailbroken devices
@@ -210,7 +210,7 @@ class SecurityConfig {
   /// Certificate pinning is critical for preventing MITM attacks
   bool get enableCertificatePinning {
     // Check static flag first - if globally disabled, return false
-    if (!SecurityConfig.enableCertificatePinning) {
+    if (!SecurityConfig.certificatePinningGloballyEnabled) {
       return false;
     }
     // Enable for medium, high, and maximum levels (disable only for low/dev)

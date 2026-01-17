@@ -16,6 +16,10 @@ const eslintConfig = [
       // Downgrade TypeScript rules to warnings for existing code
       "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-explicit-any": "warn",
+      // Disable rules that have ESLint 9 compatibility issues
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-unsafe-declaration-merging": "off",
+      "prefer-spread": "warn",
     },
   },
 ];

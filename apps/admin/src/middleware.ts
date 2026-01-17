@@ -25,6 +25,10 @@ import {
   validateCsrfRequest,
   generateCsrfToken,
 } from "@/lib/security/csrf-server";
+import {
+  isValidReturnTo,
+  DEFAULT_RETURN_PATH,
+} from "@/lib/security/url-validation";
 import { verifyToken, isTokenExpired } from "@/lib/auth/jwt-verify";
 import {
   isPublicRoute,
@@ -62,7 +66,9 @@ export async function middleware(request: NextRequest) {
   if (!token) {
     // No token - redirect to login
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("returnTo", pathname);
+    // Validate returnTo to prevent open redirect attacks
+    const safeReturnTo = isValidReturnTo(pathname) ? pathname : DEFAULT_RETURN_PATH;
+    loginUrl.searchParams.set("returnTo", safeReturnTo);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -70,7 +76,9 @@ export async function middleware(request: NextRequest) {
   if (isTokenExpired(token)) {
     // Token expired - clear cookies and redirect
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("returnTo", pathname);
+    // Validate returnTo to prevent open redirect attacks
+    const safeReturnTo = isValidReturnTo(pathname) ? pathname : DEFAULT_RETURN_PATH;
+    loginUrl.searchParams.set("returnTo", safeReturnTo);
     loginUrl.searchParams.set("reason", "token_expired");
 
     const response = NextResponse.redirect(loginUrl);
@@ -95,7 +103,9 @@ export async function middleware(request: NextRequest) {
     logger.error("Token verification failed:", error);
 
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("returnTo", pathname);
+    // Validate returnTo to prevent open redirect attacks
+    const safeReturnTo = isValidReturnTo(pathname) ? pathname : DEFAULT_RETURN_PATH;
+    loginUrl.searchParams.set("returnTo", safeReturnTo);
     loginUrl.searchParams.set("reason", "invalid_token");
 
     const response = NextResponse.redirect(loginUrl);
@@ -173,7 +183,9 @@ export async function middleware(request: NextRequest) {
     if (timeSinceLastActivity >= IDLE_TIMEOUT) {
       // Session expired due to inactivity - clear cookies and redirect
       const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("returnTo", pathname);
+      // Validate returnTo to prevent open redirect attacks
+      const safeReturnTo = isValidReturnTo(pathname) ? pathname : DEFAULT_RETURN_PATH;
+      loginUrl.searchParams.set("returnTo", safeReturnTo);
       loginUrl.searchParams.set("reason", "session_expired");
 
       const response = NextResponse.redirect(loginUrl);

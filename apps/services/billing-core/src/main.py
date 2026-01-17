@@ -243,6 +243,13 @@ THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
 THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
 THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
 
+# In-memory storage for webhook handlers (legacy support)
+# Note: Production should use database-backed BillingRepository
+PAYMENTS: dict[str, Any] = {}
+INVOICES: dict[str, Any] = {}
+SUBSCRIPTIONS: dict[str, Any] = {}
+TENANTS: dict[str, Any] = {}
+
 
 # =============================================================================
 # Authentication Helpers - مساعدات المصادقة

@@ -110,6 +110,7 @@ dev_dependencies:
   freezed: 2.5.8  # Last 2.x version compatible with Dart 3.6.0
   json_serializable: ^6.9.0
   # mockito removed: 5.4.5 incompatible with analyzer 7.x, 5.4.6+ requires Dart 3.7.0
+  mocktail: ^1.0.4  # For comprehensive testing and mocking
 
   # App Branding
   flutter_launcher_icons: ^0.14.2

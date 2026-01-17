@@ -14,9 +14,7 @@ import type { DiagnosisRecord } from "@/types";
 import { logger } from "../../lib/logger";
 import {
   Bug,
-  Filter,
   Search,
-  Eye,
   Check,
   X,
   Pill,
@@ -60,7 +58,7 @@ function DiseasesContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [severityFilter, setSeverityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [farmIdFilter, setFarmIdFilter] = useState(farmIdParam);
+  const [farmIdFilter, _setFarmIdFilter] = useState(farmIdParam);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);

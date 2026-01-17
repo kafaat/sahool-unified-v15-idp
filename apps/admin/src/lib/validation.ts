@@ -319,7 +319,7 @@ export function validateForm(
   // ES5-compatible iteration
   for (const field in inputs) {
     if (inputs.hasOwnProperty(field)) {
-      const value = inputs[field];
+      const value = inputs[field] ?? "";
       const rule = rules[field];
       if (rule) {
         results[field] = validateInput(value, rule);
@@ -344,7 +344,8 @@ export function isFormValid(
   // ES5-compatible iteration
   for (const field in validationResults) {
     if (validationResults.hasOwnProperty(field)) {
-      if (!validationResults[field].isValid) {
+      const fieldResult = validationResults[field];
+      if (fieldResult && !fieldResult.isValid) {
         return false;
       }
     }

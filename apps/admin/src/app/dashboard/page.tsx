@@ -426,7 +426,7 @@ export default function DashboardPage() {
                   }
                   labelLine={false}
                 >
-                  {cropDistributionData.map((entry, index) => (
+                  {cropDistributionData.map((_entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={PIE_COLORS[index % PIE_COLORS.length]}

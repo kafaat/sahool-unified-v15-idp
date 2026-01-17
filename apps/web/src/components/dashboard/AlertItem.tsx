@@ -5,6 +5,7 @@
 
 import React from "react";
 import { Alert as AlertType, AlertSeverity } from "../../types";
+import { sanitizeUrl } from "../../lib/security";
 
 interface AlertItemProps {
   alert: AlertType;
@@ -107,9 +108,14 @@ export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
               {alert.fieldName && ` • ${alert.fieldName}`}
             </span>
 
-            {alert.actionUrl && (
+            {alert.actionUrl && sanitizeUrl(alert.actionUrl) && (
               <button
-                onClick={() => onAction?.(alert.actionUrl!)}
+                onClick={() => {
+                  const safeUrl = sanitizeUrl(alert.actionUrl);
+                  if (safeUrl) {
+                    onAction?.(safeUrl);
+                  }
+                }}
                 className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label={`عرض تفاصيل: ${alert.titleAr}`}
               >

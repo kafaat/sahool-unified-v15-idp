@@ -14,6 +14,7 @@ import { QuickActions } from "./QuickActions";
 import { useAlerts } from "../../hooks/useAlerts";
 import { ErrorTracking } from "@/lib/monitoring/error-tracking";
 import { MapView } from "./MapView.dynamic";
+import { sanitizeUrl } from "@/lib/security";
 // import type { KPI } from '@/types';
 
 interface CockpitProps {
@@ -55,7 +56,11 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
   }, []);
 
   const handleAlertAction = useCallback((url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
+    // Validate URL to prevent XSS via javascript: protocol
+    const safeUrl = sanitizeUrl(url);
+    if (safeUrl) {
+      window.open(safeUrl, "_blank", "noopener,noreferrer");
+    }
   }, []);
 
   // Memoized formatted date

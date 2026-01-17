@@ -1,6 +1,9 @@
 /**
  * SAHOOL WebSocket Client
  * خدمة الأحداث المباشرة - متوافق مع الـ kernel المسترجع
+ *
+ * SECURITY: WebSocket connections are authenticated via JWT token
+ * Tokens are fetched from the server-side API route that reads httpOnly cookies
  */
 
 import { logger } from "../logger";
@@ -36,6 +39,48 @@ const getWebSocketUrl = (): string => {
 
 const WS_URL = getWebSocketUrl();
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Authentication Token Management
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface WSTokenResponse {
+  success: boolean;
+  token?: string;
+  tenant_id?: string;
+  error?: string;
+}
+
+/**
+ * Fetch WebSocket authentication token from server
+ * الحصول على توكن المصادقة لـ WebSocket من الخادم
+ *
+ * The token is stored in an httpOnly cookie and not directly accessible.
+ * This endpoint safely provides the token for WebSocket authentication.
+ */
+async function getWebSocketToken(): Promise<WSTokenResponse> {
+  try {
+    const response = await fetch("/api/auth/ws-token", {
+      method: "GET",
+      credentials: "same-origin",
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        return { success: false, error: "Not authenticated" };
+      }
+      if (response.status === 429) {
+        return { success: false, error: "Rate limited" };
+      }
+      return { success: false, error: "Failed to get token" };
+    }
+
+    return await response.json();
+  } catch (error) {
+    logger.error("Failed to fetch WebSocket token:", error);
+    return { success: false, error: "Network error" };
+  }
+}
+
 export interface TimelineEvent {
   event_id: string;
   event_type: string;
@@ -65,12 +110,20 @@ class WebSocketClient {
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private subscriptions: string[] = [];
   private shouldReconnect = true;
+  private currentToken: string | null = null;
+  private currentTenantId: string | null = null;
 
   constructor(url: string) {
     this.url = url;
   }
 
-  connect(
+  /**
+   * Connect to WebSocket server with authentication
+   * الاتصال بخادم WebSocket مع المصادقة
+   *
+   * @param subscriptions - Topics to subscribe to after connection
+   */
+  async connect(
     subscriptions: string[] = ["tasks.*", "diagnosis.*", "weather.*", "ndvi.*"],
   ) {
     if (typeof window === "undefined") return; // SSR check
@@ -81,11 +134,38 @@ class WebSocketClient {
     this.shouldReconnect = true;
     this.subscriptions = subscriptions;
 
+    // Fetch authentication token
+    const tokenResponse = await getWebSocketToken();
+
+    if (!tokenResponse.success || !tokenResponse.token) {
+      logger.warn(
+        "WebSocket authentication failed:",
+        tokenResponse.error || "No token available",
+      );
+      // Still notify handlers about failed connection attempt
+      this.notifyConnectionHandlers(false);
+
+      // Schedule reconnect if we should keep trying
+      if (this.shouldReconnect && tokenResponse.error !== "Not authenticated") {
+        this.attemptReconnect();
+      }
+      return;
+    }
+
+    this.currentToken = tokenResponse.token;
+    this.currentTenantId = tokenResponse.tenant_id || "default";
+
     try {
-      this.ws = new WebSocket(`${this.url}/events`);
+      // Build WebSocket URL with authentication query parameters
+      // The ws-gateway expects: /ws?tenant_id=xxx&token=xxx
+      const wsUrl = new URL(`${this.url}/ws`);
+      wsUrl.searchParams.set("tenant_id", this.currentTenantId);
+      wsUrl.searchParams.set("token", this.currentToken);
+
+      this.ws = new WebSocket(wsUrl.toString());
 
       this.ws.onopen = () => {
-        logger.log("🔌 WebSocket connected");
+        logger.log("WebSocket connected with authentication");
         this.reconnectAttempts = 0;
         this.notifyConnectionHandlers(true);
         this.subscribe(subscriptions);
@@ -106,8 +186,16 @@ class WebSocketClient {
       };
 
       this.ws.onclose = (event) => {
-        logger.log("🔌 WebSocket disconnected", event.code);
+        logger.log("WebSocket disconnected", event.code, event.reason);
         this.notifyConnectionHandlers(false);
+
+        // Handle authentication errors (4001 = auth required, 4003 = tenant mismatch)
+        if (event.code === 4001 || event.code === 4003) {
+          logger.warn("WebSocket authentication failed:", event.reason);
+          // Clear cached token to force re-fetch on reconnect
+          this.currentToken = null;
+        }
+
         this.attemptReconnect();
       };
 
@@ -156,7 +244,9 @@ class WebSocketClient {
 
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = null;
-      this.connect(this.subscriptions);
+      // Clear cached token to fetch fresh token on reconnect
+      this.currentToken = null;
+      void this.connect(this.subscriptions);
     }, delay);
   }
 

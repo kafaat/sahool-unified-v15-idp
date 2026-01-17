@@ -112,20 +112,22 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       ...(nonce ? [`'nonce-${nonce}'`] : []),
     ],
 
-    // Image sources
+    // Image sources - Restricted to specific trusted domains
     "img-src": [
       "'self'",
       "data:",
       "blob:",
-      "https:",
       // OpenStreetMap tiles
       "https://tile.openstreetmap.org",
       "https://*.tile.openstreetmap.org",
       // Sentinel Hub satellite imagery
       "https://sentinel-hub.com",
       "https://*.sentinel-hub.com",
-      // SAHOOL CDN
-      "https://*.sahool.ye",
+      // SAHOOL CDN and storage
+      "https://cdn.sahool.ye",
+      "https://storage.sahool.ye",
+      "https://cdn.sahool.io",
+      "https://cdn.sahool.app",
     ],
 
     // Font sources

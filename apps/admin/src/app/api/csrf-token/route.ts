@@ -4,41 +4,42 @@
  *
  * GET  - Generate new CSRF token
  * POST - Refresh existing token
+ *
+ * Uses the same token format as middleware expects (simple hex string)
+ * to avoid cookie/header mismatch during validation.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import {
-  createCsrfTokenPayload,
-  serializeCsrfTokenPayload,
-  getCsrfCookieOptions,
-  CSRF_CONFIG,
-} from "@/lib/csrf";
+import { generateCsrfToken } from "@/lib/security/csrf-server";
 import { logger } from "@/lib/logger";
+
+/**
+ * CSRF cookie configuration - must match middleware settings
+ */
+const CSRF_COOKIE_NAME = "sahool_admin_csrf";
+const CSRF_COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours in seconds
 
 /**
  * GET /api/csrf-token
  * Generate and return a new CSRF token
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
-    // Generate new token payload
-    const payload = createCsrfTokenPayload();
-    const serialized = serializeCsrfTokenPayload(payload);
-    const cookieOptions = getCsrfCookieOptions();
+    // Generate new token using the same function as middleware
+    const token = generateCsrfToken();
 
     // Create response with token
     const response = NextResponse.json({
-      token: payload.token,
-      expiresAt: payload.expiresAt,
+      token: token,
     });
 
-    // Set httpOnly cookie with full payload
-    response.cookies.set(CSRF_CONFIG.COOKIE_NAME, serialized, {
-      httpOnly: cookieOptions.httpOnly,
-      secure: cookieOptions.secure,
-      sameSite: cookieOptions.sameSite,
-      path: cookieOptions.path,
-      maxAge: cookieOptions.maxAge,
+    // Set cookie with same settings as middleware (httpOnly: false so client can read)
+    response.cookies.set(CSRF_COOKIE_NAME, token, {
+      httpOnly: false, // Must be readable by JavaScript for AJAX requests
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: CSRF_COOKIE_MAX_AGE,
     });
 
     // Security headers
@@ -63,27 +64,24 @@ export async function GET(request: NextRequest) {
  * POST /api/csrf-token
  * Refresh existing CSRF token
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
-    // Generate new token payload
-    const payload = createCsrfTokenPayload();
-    const serialized = serializeCsrfTokenPayload(payload);
-    const cookieOptions = getCsrfCookieOptions();
+    // Generate new token using the same function as middleware
+    const token = generateCsrfToken();
 
     // Create response with new token
     const response = NextResponse.json({
-      token: payload.token,
-      expiresAt: payload.expiresAt,
+      token: token,
       refreshed: true,
     });
 
-    // Set httpOnly cookie with full payload
-    response.cookies.set(CSRF_CONFIG.COOKIE_NAME, serialized, {
-      httpOnly: cookieOptions.httpOnly,
-      secure: cookieOptions.secure,
-      sameSite: cookieOptions.sameSite,
-      path: cookieOptions.path,
-      maxAge: cookieOptions.maxAge,
+    // Set cookie with same settings as middleware
+    response.cookies.set(CSRF_COOKIE_NAME, token, {
+      httpOnly: false, // Must be readable by JavaScript for AJAX requests
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: CSRF_COOKIE_MAX_AGE,
     });
 
     // Security headers

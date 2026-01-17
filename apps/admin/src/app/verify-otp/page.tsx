@@ -177,7 +177,8 @@ function VerifyOTPForm() {
 
   // Handle key down events
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
+    const currentValue = otp[index] ?? "";
+    if (e.key === "Backspace" && !currentValue && index > 0) {
       // Move to previous input on backspace if current is empty
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === "ArrowLeft" && index > 0) {
@@ -194,7 +195,10 @@ function VerifyOTPForm() {
     const newOtp = [...otp];
 
     for (let i = 0; i < pastedData.length && i < 6; i++) {
-      newOtp[i] = pastedData[i];
+      const char = pastedData[i];
+      if (char !== undefined) {
+        newOtp[i] = char;
+      }
     }
 
     setOtp(newOtp);
@@ -324,10 +328,11 @@ function VerifyOTPForm() {
     if (id.includes("@")) {
       // Email
       const [local, domain] = id.split("@");
-      const maskedLocal = local.length > 2
-        ? `${local[0]}${"*".repeat(local.length - 2)}${local[local.length - 1]}`
-        : local;
-      return `${maskedLocal}@${domain}`;
+      const localPart = local ?? "";
+      const maskedLocal = localPart.length > 2
+        ? `${localPart[0] ?? ""}${"*".repeat(localPart.length - 2)}${localPart[localPart.length - 1] ?? ""}`
+        : localPart;
+      return `${maskedLocal}@${domain ?? ""}`;
     } else {
       // Phone
       if (id.length > 4) {

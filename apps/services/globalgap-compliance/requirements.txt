@@ -23,7 +23,7 @@ python-dateutil>=2.8.2
 structlog>=23.2.0
 
 # HTTP Client
-httpx>=0.25.0
+httpx>=0.28.0  # Security update
 
 # NATS Messaging
 nats-py>=2.7.0

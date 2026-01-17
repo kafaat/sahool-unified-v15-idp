@@ -5,6 +5,12 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -26,7 +32,11 @@
       "@sahool/shared-hooks": ["../../packages/shared-hooks/src"],
       "@sahool/i18n": ["../../packages/i18n/src"],
       "@sahool/shared-types": ["../../packages/shared-types/src"],
-      "@sahool/shared-types/*": ["../../packages/shared-types/src/*"]
+      "@sahool/shared-types/*": ["../../packages/shared-types/src/*"],
+      "@sahool/ui": ["../../packages/shared-ui/src"],
+      "@sahool/hooks": ["../../packages/shared-hooks/src"],
+      "@sahool/utils": ["../../packages/shared-utils/src"],
+      "@sahool/api": ["../../packages/api-client/src"]
     },
     "target": "ES2017"
   },

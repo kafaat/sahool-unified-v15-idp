@@ -14,7 +14,7 @@ import { randomBytes, createHash, timingSafeEqual } from "crypto";
 export const CSRF_CONFIG = {
   TOKEN_LENGTH: 32, // 256-bit tokens
   TOKEN_EXPIRATION: 60 * 60 * 1000, // 1 hour in milliseconds
-  COOKIE_NAME: "sahool_csrf_token",
+  COOKIE_NAME: "sahool_admin_csrf",
   HEADER_NAME: "X-CSRF-Token",
   FIELD_NAME: "_csrf",
 } as const;

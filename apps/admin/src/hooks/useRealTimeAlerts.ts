@@ -262,7 +262,7 @@ export function useCriticalAlerts(
     if (criticalAlerts.length > 0) {
       const latest = criticalAlerts[0];
 
-      if (!latestCritical || latest.id !== latestCritical.id) {
+      if (latest && (!latestCritical || latest.id !== latestCritical.id)) {
         setLatestCritical(latest);
 
         // Play sound alert
@@ -271,7 +271,7 @@ export function useCriticalAlerts(
         }
 
         // Call custom handler
-        if (onCriticalAlert) {
+        if (onCriticalAlert && latest) {
           onCriticalAlert(latest);
         }
       }

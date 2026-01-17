@@ -3,14 +3,14 @@
  * Demonstrates server-side role verification
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { withAdmin, withRole, withAuth } from "@/lib/auth";
 
 /**
  * GET - Admin only endpoint
  * Example: Fetch admin-only data
  */
-export const GET = withAdmin(async (request, { user }) => {
+export const GET = withAdmin(async (_request, { user }) => {
   // Only admins can access this endpoint
   // The withAdmin wrapper ensures server-side role verification
 

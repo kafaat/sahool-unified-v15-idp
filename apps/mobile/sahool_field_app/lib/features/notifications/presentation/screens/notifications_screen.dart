@@ -327,7 +327,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      // TODO: Navigate to action URL
+                      _navigateToActionUrl(notification.actionUrl!);
                     },
                     icon: const Icon(Icons.open_in_new),
                     label: const Text('فتح التفاصيل'),
@@ -353,6 +353,25 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         builder: (context) => const NotificationSettingsScreen(),
       ),
     );
+  }
+
+  /// Navigate to the action URL from a notification
+  /// الانتقال إلى رابط الإجراء من الإشعار
+  void _navigateToActionUrl(String actionUrl) {
+    try {
+      final uri = Uri.parse(actionUrl);
+      final route = uri.path;
+      final arguments = uri.queryParameters.isNotEmpty ? uri.queryParameters : null;
+
+      Navigator.pushNamed(
+        context,
+        route,
+        arguments: arguments,
+      );
+    } catch (e) {
+      // If URL parsing fails, try navigating directly
+      Navigator.pushNamed(context, actionUrl);
+    }
   }
 }
 

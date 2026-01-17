@@ -1,7 +1,7 @@
 # FastAPI and Web Framework Dependencies
 # تبعيات FastAPI وإطار العمل
 # Updated: December 2025 - Unified versions across all services
-fastapi==0.115.5
+fastapi>=0.126.0,<0.129.0
 uvicorn[standard]>=0.30.0,<1.0.0
 httpx==0.28.1
 pydantic==2.9.2

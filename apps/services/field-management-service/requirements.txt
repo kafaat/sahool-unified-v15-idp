@@ -3,7 +3,7 @@
 # Version: 15.3.3
 
 # Base requirements
-fastapi==0.115.5
+fastapi>=0.126.0,<0.129.0
 uvicorn[standard]>=0.30.0,<1.0.0
 pydantic==2.9.2
 httpx==0.28.1

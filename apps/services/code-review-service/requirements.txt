@@ -1,10 +1,10 @@
 watchdog==3.0.0
-requests==2.31.0
+requests>=2.32.4
 python-dotenv==1.0.1
 pydantic==2.9.2
 pydantic-settings==2.7.1
 aiohttp>=3.11.12
-fastapi==0.126.0
+fastapi>=0.126.0,<0.129.0
 uvicorn[standard]==0.27.0
 pytest==8.3.4
 pytest-asyncio==0.24.0

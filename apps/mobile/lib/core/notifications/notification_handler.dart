@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../features/notifications/data/remote/notification_api.dart';
 import 'firebase_messaging_service.dart';
 
 /// Navigation action for notifications
@@ -33,6 +34,9 @@ class NotificationHandler {
   /// Global navigator key for routing
   GlobalKey<NavigatorState>? _navigatorKey;
 
+  /// Notification API client for server communication
+  NotificationApi? _notificationApi;
+
   /// Unread notification count
   int _unreadCount = 0;
   int get unreadCount => _unreadCount;
@@ -45,6 +49,12 @@ class NotificationHandler {
   void initialize(GlobalKey<NavigatorState> navigatorKey) {
     _navigatorKey = navigatorKey;
     _listenToNotifications();
+  }
+
+  /// Configure the notification API client
+  /// Must be called with authentication token after user login
+  void setNotificationApi(NotificationApi api) {
+    _notificationApi = api;
   }
 
   /// Listen to notification stream
@@ -296,13 +306,29 @@ class NotificationHandler {
 
   /// Mark notification as read
   Future<void> markAsRead(String notificationId) async {
-    // TODO: Call API to mark notification as read
+    // Call API to mark notification as read
+    if (_notificationApi != null) {
+      try {
+        await _notificationApi!.markAsRead(notificationId);
+      } catch (e) {
+        debugPrint('Failed to mark notification as read: $e');
+        // Continue with local state update even if API call fails
+      }
+    }
     _decrementUnreadCount();
   }
 
   /// Mark all as read
   Future<void> markAllAsRead() async {
-    // TODO: Call API to mark all notifications as read
+    // Call API to mark all notifications as read
+    if (_notificationApi != null) {
+      try {
+        await _notificationApi!.markAllAsRead();
+      } catch (e) {
+        debugPrint('Failed to mark all notifications as read: $e');
+        // Continue with local state update even if API call fails
+      }
+    }
     resetUnreadCount();
   }
 }

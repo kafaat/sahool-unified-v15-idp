@@ -12,7 +12,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   share_plus
   smart_auth
   sqlcipher_flutter_libs
-  sqlite3_flutter_libs
   url_launcher_windows
 )
 

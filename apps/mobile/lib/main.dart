@@ -13,6 +13,9 @@ import 'core/security/device_security_screen.dart';
 import 'core/security/security_config.dart';
 import 'core/utils/app_logger.dart';
 
+// Global crash reporting instance
+final crashReporting = CrashReportingService();
+
 void main() async {
   // Ensure Flutter bindings are initialized first
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +26,6 @@ void main() async {
     FlutterError.presentError(details);
 
     // Report to crash reporting service
-    final crashReporting = CrashReportingService();
     crashReporting.reportError(
       details.exception,
       details.stack,
@@ -49,7 +51,6 @@ void main() async {
 
     // Initialize crash reporting service early
     try {
-      final crashReporting = CrashReportingService();
       await crashReporting.initialize(
         samplingRate: 1.0, // 100% in production, can be adjusted
         maxBreadcrumbs: 100,
@@ -168,7 +169,6 @@ void main() async {
 
     // Initialize database
     late AppDatabase database;
-    final crashReporting = CrashReportingService();
     try {
       crashReporting.recordBreadcrumb(
         message: 'Initializing database',
@@ -286,7 +286,6 @@ void main() async {
     AppLogger.critical('Uncaught error: $error', tag: 'Main', error: error, stackTrace: stackTrace);
 
     // Report to crash reporting service
-    final crashReporting = CrashReportingService();
     crashReporting.reportError(
       error,
       stackTrace,

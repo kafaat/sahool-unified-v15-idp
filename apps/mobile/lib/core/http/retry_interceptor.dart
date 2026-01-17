@@ -1,11 +1,12 @@
-import 'dart:io';
+﻿import 'dart:io';
+import 'dart:async';
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../utils/app_logger.dart';
 
 /// SAHOOL Retry Interceptor
-/// معترض إعادة المحاولة
+/// Ù…Ø¹ØªØ±Ø¶ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©
 ///
 /// Features:
 /// - Automatic retry on network errors
@@ -78,7 +79,8 @@ class RetryInterceptor extends Interceptor {
             responseType: requestOptions.responseType,
             contentType: requestOptions.contentType,
             validateStatus: requestOptions.validateStatus,
-            receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
+            receiveDataWhenStatusError:
+                requestOptions.receiveDataWhenStatusError,
             followRedirects: requestOptions.followRedirects,
             maxRedirects: requestOptions.maxRedirects,
             extra: requestOptions.extra,
@@ -197,7 +199,9 @@ class RetryInterceptor extends Interceptor {
         final shouldRetry = statusCode >= 500;
         if (kDebugMode) {
           AppLogger.d(
-            shouldRetry ? 'Server error - will retry' : 'Bad response - will not retry',
+            shouldRetry
+                ? 'Server error - will retry'
+                : 'Bad response - will not retry',
             tag: 'RetryInterceptor',
             data: {
               'statusCode': statusCode,

@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import '../storage/database.dart';
@@ -99,7 +99,8 @@ class SyncEngine {
       await database.logSync(
         type: 'full_sync',
         status: 'success',
-        message: 'Uploaded: ${uploadResult.processed}, Pulled: ${pullResult.count}, Skipped: ${uploadResult.skipped}',
+        message:
+            'Uploaded: ${uploadResult.processed}, Pulled: ${pullResult.count}, Skipped: ${uploadResult.skipped}',
       );
 
       // Reset failure counter and backoff on success
@@ -133,7 +134,9 @@ class SyncEngine {
       // Apply exponential backoff if too many failures
       if (_consecutiveFailures >= 3) {
         final backoffDuration = _calculateBackoff(_consecutiveFailures);
-        AppLogger.w('Too many sync failures, backing off', tag: 'SyncEngine', data: {'backoff_seconds': backoffDuration.inSeconds});
+        AppLogger.w('Too many sync failures, backing off',
+            tag: 'SyncEngine',
+            data: {'backoff_seconds': backoffDuration.inSeconds});
 
         // Reschedule next sync with backoff
         _syncTimer?.cancel();
@@ -170,7 +173,9 @@ class SyncEngine {
         // Update backoff status for UI
         _emitBackoffStatus();
 
-        AppLogger.d('Skipping outbox item', tag: 'SyncEngine', data: {'itemId': item.id, 'status': status.statusDescription});
+        AppLogger.d('Skipping outbox item',
+            tag: 'SyncEngine',
+            data: {'itemId': item.id, 'status': status.statusDescription});
         continue;
       }
 
@@ -194,15 +199,18 @@ class SyncEngine {
         // Emit updated backoff status
         _emitBackoffStatus();
       } catch (e) {
-        AppLogger.e('Outbox item failed', tag: 'SyncEngine', error: e, data: {'itemId': item.id});
+        AppLogger.e('Outbox item failed',
+            tag: 'SyncEngine',
+            data: {'itemId': item.id, 'error': e.toString()});
 
         // Check if it's a rate limit error
         final isRateLimitError = e.toString().contains('RateLimitException') ||
-                                  e.toString().contains('429');
+            e.toString().contains('429');
 
         if (isRateLimitError) {
           // For rate limit errors, add longer delay and retry later
-          AppLogger.w('Rate limit hit, pausing outbox processing', tag: 'SyncEngine');
+          AppLogger.w('Rate limit hit, pausing outbox processing',
+              tag: 'SyncEngine');
           await Future.delayed(const Duration(seconds: 5));
 
           // Don't increment retry count for rate limit errors
@@ -225,7 +233,8 @@ class SyncEngine {
             await database.logSync(
               type: 'outbox_max_retry',
               status: 'failed',
-              message: 'Item ${item.id} exceeded max retries (endpoint: $endpoint)',
+              message:
+                  'Item ${item.id} exceeded max retries (endpoint: $endpoint)',
             );
           }
         }
@@ -234,7 +243,8 @@ class SyncEngine {
 
     // Log summary if items were skipped
     if (skipped > 0) {
-      AppLogger.d('Skipped items due to backoff/circuit breaker', tag: 'SyncEngine', data: {'skipped': skipped});
+      AppLogger.d('Skipped items due to backoff/circuit breaker',
+          tag: 'SyncEngine', data: {'skipped': skipped});
       await database.logSync(
         type: 'outbox_backoff',
         status: 'info',
@@ -292,7 +302,8 @@ class SyncEngine {
     await database.addSyncEvent(
       tenantId: _tenantId,
       type: 'CONFLICT',
-      message: 'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(item.entityType)}',
+      message:
+          'ØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ù†Ø³Ø®Ø© Ø§Ù„Ø³ÙŠØ±ÙØ± Ø¨Ø³Ø¨Ø¨ ØªØ¹Ø§Ø±Ø¶ ÙÙŠ ${_getEntityTypeAr(item.entityType)}',
       entityType: item.entityType,
       entityId: item.entityId,
     );
@@ -300,7 +311,8 @@ class SyncEngine {
     await database.logSync(
       type: 'conflict',
       status: 'resolved',
-      message: 'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
+      message:
+          'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
     );
   }
 
@@ -308,11 +320,11 @@ class SyncEngine {
   String _getEntityTypeAr(String type) {
     switch (type) {
       case 'field':
-        return 'الحقل';
+        return 'Ø§Ù„Ø­Ù‚Ù„';
       case 'task':
-        return 'المهمة';
+        return 'Ø§Ù„Ù…Ù‡Ù…Ø©';
       default:
-        return 'البيانات';
+        return 'Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª';
     }
   }
 
@@ -324,7 +336,10 @@ class SyncEngine {
     // Check if tasks endpoint can be accessed
     if (!_retryTracker.canRetryNow(tasksEndpoint)) {
       final status = _retryTracker.getEndpointStatus(tasksEndpoint);
-      AppLogger.d('Skipping pull from endpoint', tag: 'SyncEngine', data: {'endpoint': tasksEndpoint, 'status': status.statusDescription});
+      AppLogger.d('Skipping pull from endpoint', tag: 'SyncEngine', data: {
+        'endpoint': tasksEndpoint,
+        'status': status.statusDescription
+      });
       return PullResult(count: 0);
     }
 
@@ -345,9 +360,11 @@ class SyncEngine {
       // Record success
       _retryTracker.recordSuccess(tasksEndpoint);
     } catch (e) {
-      AppLogger.w('Failed to pull tasks', tag: 'SyncEngine', error: e);
-
-      // Record failure in circuit breaker
+      AppLogger.w(
+        'Failed to pull tasks',
+        tag: 'SyncEngine',
+        data: {'error': e.toString()},
+      ); // Record failure in circuit breaker
       final currentRetry = _retryTracker.getRetryCount(tasksEndpoint);
       _retryTracker.recordFailure(tasksEndpoint, currentRetry + 1);
 
@@ -364,7 +381,7 @@ class SyncEngine {
   /// Force refresh from server
   Future<void> forceRefresh() async {
     if (!await _networkStatus.checkOnline()) {
-      throw Exception('لا يوجد اتصال بالإنترنت');
+      throw Exception('Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª');
     }
 
     _syncStatusController.add(SyncStatus.syncing);
@@ -384,7 +401,8 @@ class SyncEngine {
 
     // Find endpoints with backoff active
     final backoffEndpoints = endpointStatuses.entries
-        .where((e) => !e.value.canRetry || e.value.circuitState != CircuitState.closed)
+        .where((e) =>
+            !e.value.canRetry || e.value.circuitState != CircuitState.closed)
         .map((e) => e.value)
         .toList();
 
@@ -420,9 +438,8 @@ class SyncEngine {
   /// Get sync statistics
   SyncStatistics getStatistics() {
     final backoffStatuses = _retryTracker.getAllEndpointStatuses();
-    final unhealthyEndpoints = backoffStatuses.values
-        .where((s) => !s.isHealthy)
-        .length;
+    final unhealthyEndpoints =
+        backoffStatuses.values.where((s) => !s.isHealthy).length;
 
     return SyncStatistics(
       consecutiveFailures: _consecutiveFailures,
@@ -435,6 +452,15 @@ class SyncEngine {
   /// Get rate limit status for sync endpoints
   RateLimitStatus getSyncRateLimitStatus() {
     return _apiClient.getRateLimitStatus('sync');
+  }
+
+  /// Calculate exponential backoff duration after repeated sync failures.
+  /// Starts after 3 failures, doubles each time, capped at 5 minutes.
+  Duration _calculateBackoff(int failures) {
+    final exponent = (failures - 3).clamp(0, 10);
+    final seconds = (1 << exponent);
+    final capped = seconds.clamp(1, 300);
+    return Duration(seconds: capped);
   }
 
   void dispose() {
@@ -480,7 +506,7 @@ class OutboxResult {
   @override
   String toString() {
     return 'OutboxResult(processed: $processed, failed: $failed, '
-           'conflicts: $conflicts, skipped: $skipped)';
+        'conflicts: $conflicts, skipped: $skipped)';
   }
 }
 
@@ -518,9 +544,9 @@ class SyncStatistics {
   @override
   String toString() {
     return 'SyncStatistics(failures: $consecutiveFailures, '
-           'lastSync: ${timeSinceLastSync?.inMinutes ?? "never"} min ago, '
-           'syncing: $isSyncing, unhealthyEndpoints: $unhealthyEndpoints, '
-           'healthy: $isHealthy)';
+        'lastSync: ${timeSinceLastSync?.inMinutes ?? "never"} min ago, '
+        'syncing: $isSyncing, unhealthyEndpoints: $unhealthyEndpoints, '
+        'healthy: $isHealthy)';
   }
 }
 
@@ -602,7 +628,7 @@ class BackoffStatus {
   @override
   String toString() {
     return 'BackoffStatus(active: $isBackoffActive, '
-           'endpoints: $totalEndpointsInBackoff, '
-           'message: $statusMessage)';
+        'endpoints: $totalEndpointsInBackoff, '
+        'message: $statusMessage)';
   }
 }

@@ -6,9 +6,9 @@ class AppConfig {
   // For iOS Simulator, use localhost
   // For real devices, set your machine's IP address
   /// @deprecated Use EnvConfig.apiBaseUrl instead
-  static const String apiBaseUrl = 'http://10.0.2.2:8000/api/v1';
+  static const String apiBaseUrl = 'http://192.168.8.205:8000/api/v1';
   /// @deprecated Use EnvConfig.wsBaseUrl instead
-  static const String wsBaseUrl = 'ws://10.0.2.2:8081';
+  static const String wsBaseUrl = 'ws://192.168.8.205:8081';
 
   // Sync Configuration
   static const Duration syncInterval = Duration(seconds: 20);

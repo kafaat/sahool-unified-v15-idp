@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:collection';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -448,8 +448,20 @@ class RateLimitInterceptor extends Interceptor {
             await rateLimiter.waitForToken(newOptions.path);
 
             // Create a new Dio instance to retry (using the same base)
-            final dio = Dio()..options = newOptions;
-            final response = await dio.fetch(newOptions);
+            final dio = Dio(
+              BaseOptions(
+                baseUrl: newOptions.baseUrl,
+                headers: Map<String, dynamic>.from(newOptions.headers ?? const {}),
+                connectTimeout: newOptions.connectTimeout,
+                receiveTimeout: newOptions.receiveTimeout,
+                sendTimeout: newOptions.sendTimeout,
+                responseType: newOptions.responseType,
+                contentType: newOptions.contentType,
+                followRedirects: newOptions.followRedirects,
+                receiveDataWhenStatusError: newOptions.receiveDataWhenStatusError,
+                validateStatus: newOptions.validateStatus,
+              ),
+            );final response = await dio.fetch(newOptions);
             handler.resolve(response);
           } catch (e) {
             if (e is DioException) {

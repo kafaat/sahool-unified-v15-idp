@@ -1,7 +1,7 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 /// SAHOOL PII Filter - Comprehensive Personally Identifiable Information Filter
-/// نظام تصفية البيانات الشخصية الحساسة
+/// Ù†Ø¸Ø§Ù… ØªØµÙÙŠØ© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø´Ø®ØµÙŠØ© Ø§Ù„Ø­Ø³Ø§Ø³Ø©
 ///
 /// Features:
 /// - Phone number masking
@@ -185,8 +185,8 @@ class PiiFilter {
     );
 
     // Remove API keys (common formats)
-    result = result.replaceAll(
-      RegExp(r'[A-Za-z0-9]{32,}'),
+    result = result.replaceAllMapped(
+      RegExp(r'\b[A-Za-z0-9]{32,}\b'),
       (match) {
         // Only redact if it looks like a key (all alphanumeric, long)
         final str = match.group(0)!;
@@ -364,7 +364,8 @@ class PiiFilter {
         _emailPattern.hasMatch(input) ||
         _nationalIdPattern.hasMatch(input) ||
         _creditCardPattern.hasMatch(input) ||
-        input.contains(RegExp(r'Bearer\s+[A-Za-z0-9-_.]+', caseSensitive: false)) ||
+        input.contains(
+            RegExp(r'Bearer\s+[A-Za-z0-9-_.]+', caseSensitive: false)) ||
         input.contains(RegExp(r'eyJ[A-Za-z0-9-_]+'));
   }
 

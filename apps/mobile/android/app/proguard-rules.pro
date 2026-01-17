@@ -353,6 +353,18 @@
 -keep class java.lang.invoke.** { *; }
 
 ##############################################################################
+# XML PULL PARSER - Prevent R8 Errors
+##############################################################################
+
+# Android provides XML Pull Parser interfaces, but some dependencies
+# may bundle org.xmlpull.v1.XmlPullParser as a program class.
+# This causes R8 to fail with "Type referenced as program class is on classpath"
+# We suppress these warnings since Android's implementation will be used at runtime.
+-dontwarn org.xmlpull.v1.**
+-dontwarn org.kxml2.io.**
+-dontwarn org.xmlpull.**
+
+##############################################################################
 # CUSTOM APP CLASSES (Adjust package names as needed)
 ##############################################################################
 

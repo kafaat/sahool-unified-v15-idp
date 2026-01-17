@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
@@ -104,7 +104,7 @@ class SyncLogs extends Table {
   DateTimeColumn get timestamp => dateTime()();
 }
 
-/// Sync Events Table - أحداث المزامنة والتعارضات
+/// Sync Events Table - Ø£Ø­Ø¯Ø§Ø« Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø© ÙˆØ§Ù„ØªØ¹Ø§Ø±Ø¶Ø§Øª
 class SyncEvents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tenantId => text()();
@@ -745,8 +745,11 @@ Future<void> _migrateToEncryptedDatabase(
             oldDb.execute(createSql.replaceFirst('CREATE INDEX', 'CREATE INDEX encrypted.'));
           } catch (e) {
             // Index might already exist, ignore
-            AppLogger.w('Could not create index', tag: 'Database', error: e);
-          }
+            AppLogger.w(
+              'Could not create index',
+              tag: 'Database',
+              data: {'error': e.toString()},
+            );}
         }
       }
 

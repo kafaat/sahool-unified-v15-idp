@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -58,8 +61,8 @@ android {
             val useKeystoreProperties = keystorePropertiesFile.exists()
 
             if (useKeystoreProperties) {
-                val keystoreProperties = java.util.Properties()
-                keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+                val keystoreProperties = Properties()
+                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
                 storeFile = file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
@@ -91,16 +94,10 @@ android {
 
     buildTypes {
         debug {
-            // Enable minification for debug builds to catch ProGuard issues early
-            // but use less aggressive rules to maintain debuggability
-            isMinifyEnabled = true
-            isShrinkResources = false  // Disable resource shrinking for faster builds
-
-            // Use debug-specific ProGuard rules
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules-debug.pro"
-            )
+            // Disable minification for debug builds to avoid R8 issues
+            // and ensure faster build times during development
+            isMinifyEnabled = false
+            isShrinkResources = false
 
             // Keep debug symbols and crash reporting information
             isDebuggable = true
@@ -120,42 +117,44 @@ android {
             // Production releases MUST use proper keystore
             val isCI = System.getenv("CI") == "true" || System.getenv("GITHUB_ACTIONS") == "true"
 
-            if (!hasValidKeystore && !isCI) {
-                throw GradleException(
-                    """
-                    |
-                    |========================================================================
-                    | ERROR: Release keystore is not configured!
-                    |========================================================================
-                    |
-                    | Release builds require a proper keystore configuration for security.
-                    | Debug signing is NOT allowed for release builds.
-                    |
-                    | To fix this, choose ONE of the following options:
-                    |
-                    | Option 1: Create keystore.properties file (recommended for local builds)
-                    |   1. Copy android/keystore.properties.example to android/keystore.properties
-                    |   2. Fill in your keystore details:
-                    |      - storeFile=/path/to/your/keystore.jks
-                    |      - storePassword=your_keystore_password
-                    |      - keyAlias=your_key_alias
-                    |      - keyPassword=your_key_password
-                    |   3. Ensure keystore.properties is in .gitignore (never commit it!)
-                    |
-                    | Option 2: Set environment variables (recommended for CI/CD)
-                    |   export KEYSTORE_FILE=/path/to/your/keystore.jks
-                    |   export KEYSTORE_PASSWORD=your_keystore_password
-                    |   export KEY_ALIAS=your_key_alias
-                    |   export KEY_PASSWORD=your_key_password
-                    |
-                    | For development/testing only, you can use the debug build variant:
-                    |   flutter build apk --debug
-                    |
-                    |========================================================================
-                    |
-                    """.trimMargin()
-                )
-            }
+val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
+
+if (isReleaseTask && !hasValidKeystore && !isCI) {
+    throw GradleException(
+        """
+        |
+        |========================================================================
+        | ERROR: Release keystore is not configured!
+        |========================================================================
+        |
+        | Release builds require a proper keystore configuration for security.
+        | Debug signing is NOT allowed for release builds.
+        |
+        | To fix this, choose ONE of the following options:
+        |
+        | Option 1: Create keystore.properties file (recommended for local builds)
+        |   1. Copy android/keystore.properties.example to android/keystore.properties
+        |   2. Fill in your keystore details:
+        |      - storeFile=/path/to/your/keystore.jks
+        |      - storePassword=your_keystore_password
+        |      - keyAlias=your_key_alias
+        |      - keyPassword=your_key_password
+        |   3. Ensure keystore.properties is in .gitignore (never commit it!)
+        |
+        | Option 2: Set environment variables (recommended for CI/CD)
+        |   export KEYSTORE_FILE=/path/to/your/keystore.jks
+        |   export KEYSTORE_PASSWORD=your_keystore_password
+        |   export KEY_ALIAS=your_key_alias
+        |   export KEY_PASSWORD=your_key_password
+        |
+        | For development/testing only, you can use the debug build variant:
+        |   flutter build apk --debug
+        |
+        |========================================================================
+        |
+        """.trimMargin()
+    )
+}
 
             // Use proper keystore if configured, otherwise fall back to debug (CI only)
             signingConfig = if (hasValidKeystore) {

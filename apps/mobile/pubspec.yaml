@@ -56,12 +56,11 @@ dependencies:
   # Charts
   fl_chart: ^0.69.2
 
-  # Maps - Multiple Providers Support
-  # دعم متعدد لمزودي الخرائط
+  # Maps - flutter_map with Vector Tiles Support
+  # خرائط flutter_map مع دعم Vector Tiles
   flutter_map: ^7.0.2
-  maplibre_gl: ^0.19.0  # MapLibre GL - Open Source (no API key required)
   latlong2: ^0.9.1
-  vector_map_tiles: ^8.0.0  # Vector tiles support
+  vector_map_tiles: ^8.0.0  # Vector tiles support (replaces maplibre_gl)
   flutter_map_tile_caching: ^9.1.0  # Offline map caching
 
   # Environment Configuration

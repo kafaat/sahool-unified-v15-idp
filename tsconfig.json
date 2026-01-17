@@ -1,0 +1,36 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@sahool/shared-utils": ["packages/shared-utils/src"],
+      "@sahool/shared-ui": ["packages/shared-ui/src"],
+      "@sahool/shared-hooks": ["packages/shared-hooks/src"],
+      "@sahool/api-client": ["packages/api-client/src"],
+      "@sahool/shared-types": ["packages/shared-types/src"],
+      "@sahool/i18n": ["packages/i18n/src"]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "**/dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "apps/**"
+  ],
+  "references": [
+    { "path": "packages/shared-types" },
+    { "path": "packages/shared-utils" },
+    { "path": "packages/shared-ui" },
+    { "path": "packages/shared-hooks" },
+    { "path": "packages/api-client" },
+    { "path": "packages/i18n" }
+  ]
+}

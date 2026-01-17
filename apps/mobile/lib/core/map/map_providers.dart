@@ -1,22 +1,21 @@
-/// SAHOOL Map Providers - Multiple Map Library Support
-/// دعم متعدد لمكتبات الخرائط
+/// SAHOOL Map Providers - flutter_map with Vector Tiles Support
+/// دعم flutter_map مع Vector Tiles
 ///
-/// Supported Providers:
-/// - MapLibre GL (Open Source - No API key required)
+/// Supported Providers (using flutter_map + vector_map_tiles):
+/// - Vector Tiles (Open Source - No API key required)
 /// - OpenStreetMap (Free)
 /// - Mapbox (Requires API key)
 /// - Google Maps (Requires API key)
 /// - Custom Tile Server
 
-import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Map Provider Types
 /// أنواع مزودي الخرائط
 enum MapProvider {
-  /// MapLibre GL - Open Source fork of Mapbox GL
+  /// Vector Tiles - Open Source (using flutter_map + vector_map_tiles)
   /// مفتوح المصدر - لا يحتاج مفتاح API
-  maplibre,
+  vectorTiles,
 
   /// OpenStreetMap - Free community maps
   /// خرائط مجانية من المجتمع
@@ -88,12 +87,12 @@ class MapProviderConfig {
 /// سجل مزودي الخرائط في سهول
 class SahoolMapProviders {
 
-  /// MapLibre OpenStreetMap Style (Free, No API Key)
-  /// نمط MapLibre مع OpenStreetMap (مجاني)
-  static MapProviderConfig get maplibreOsm => const MapProviderConfig(
-    provider: MapProvider.maplibre,
-    name: 'MapLibre OSM',
-    nameAr: 'MapLibre - خرائط مفتوحة',
+  /// Vector Tiles OpenStreetMap Style (Free, No API Key)
+  /// نمط Vector Tiles مع OpenStreetMap (مجاني)
+  static MapProviderConfig get vectorTilesOsm => const MapProviderConfig(
+    provider: MapProvider.vectorTiles,
+    name: 'Vector Tiles OSM',
+    nameAr: 'خرائط متجهة - مفتوحة',
     tileUrl: 'https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png',
     styleUrl: 'https://tiles.openfreemap.org/styles/liberty.json',
     attribution: '© OpenStreetMap contributors',
@@ -103,11 +102,11 @@ class SahoolMapProviders {
     supportsVector: true,
   );
 
-  /// MapLibre with Protomaps (Free Vector Tiles)
-  static MapProviderConfig get maplibreProtomaps => const MapProviderConfig(
-    provider: MapProvider.maplibre,
-    name: 'MapLibre Protomaps',
-    nameAr: 'MapLibre - بروتومابس',
+  /// Vector Tiles with Protomaps (Free Vector Tiles)
+  static MapProviderConfig get vectorTilesProtomaps => const MapProviderConfig(
+    provider: MapProvider.vectorTiles,
+    name: 'Vector Tiles Protomaps',
+    nameAr: 'خرائط متجهة - بروتومابس',
     tileUrl: 'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt',
     styleUrl: 'https://api.protomaps.com/styles/v2/light.json',
     attribution: '© Protomaps © OpenStreetMap',
@@ -159,7 +158,7 @@ class SahoolMapProviders {
 
   /// Stadia Maps (Free tier available)
   static MapProviderConfig get stadiaMaps => const MapProviderConfig(
-    provider: MapProvider.maplibre,
+    provider: MapProvider.vectorTiles,
     name: 'Stadia Maps',
     nameAr: 'خرائط ستاديا',
     tileUrl: 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png',
@@ -217,17 +216,17 @@ class SahoolMapProviders {
   /// Get all free providers (no API key required)
   /// الحصول على جميع المزودين المجانيين
   static List<MapProviderConfig> get freeProviders => [
-    maplibreOsm,
-    maplibreProtomaps,
+    vectorTilesOsm,
+    vectorTilesProtomaps,
     openStreetMap,
     osmHot,
     esriSatellite,
     stadiaMaps,
   ];
 
-  /// Get default provider (MapLibre OSM - Free)
+  /// Get default provider (Vector Tiles OSM - Free)
   /// المزود الافتراضي (مجاني)
-  static MapProviderConfig get defaultProvider => maplibreOsm;
+  static MapProviderConfig get defaultProvider => vectorTilesOsm;
 
   /// Get satellite provider (ESRI - Free)
   static MapProviderConfig get defaultSatellite => esriSatellite;

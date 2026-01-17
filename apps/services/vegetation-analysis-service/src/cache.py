@@ -75,7 +75,7 @@ def _generate_cache_key(prefix: str, **kwargs) -> str:
     # Sort kwargs for consistent key generation
     sorted_items = sorted(kwargs.items())
     key_data = json.dumps(sorted_items, sort_keys=True, default=str)
-    key_hash = hashlib.md5(key_data.encode()).hexdigest()[:12]
+    key_hash = hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()[:12]
     return f"satellite:{prefix}:{key_hash}"
 
 

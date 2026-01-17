@@ -1,7 +1,7 @@
 name: sahool_field_app
 description: SAHOOL Field Operations App - Offline-First Mobile Application
 publish_to: 'none'
-version: 15.5.0+1
+version: 16.0.0+1
 
 environment:
   sdk: '>=3.2.0 <4.0.0'  # Flutter 3.27.x uses Dart 3.6.0
@@ -16,9 +16,10 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
 
-  # Database (Offline)
+  # Database (Offline) - Using SQLCipher for encrypted database
+  # Note: sqlcipher_flutter_libs replaces sqlite3_flutter_libs (provides same API + encryption)
   drift: ^2.24.0
-  sqlite3_flutter_libs: ^0.5.28
+  sqlcipher_flutter_libs: ^0.6.1
   path_provider: ^2.1.5
   path: ^1.9.0
 

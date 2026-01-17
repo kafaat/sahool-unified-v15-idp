@@ -36,9 +36,10 @@ export { default as Security } from "./security";
 export * from "./csp-config";
 export { default as CSP } from "./csp-config";
 
-// Nonce utilities
-export * from "./nonce";
-export { default as Nonce } from "./nonce";
+// Note: Nonce utilities are NOT exported here because they use next/headers
+// which only works in Server Components. Import directly from "./nonce" in
+// Server Components only:
+// import { getNonce } from "@/lib/security/nonce";
 
 // URL sanitization utilities (preferred over security.ts sanitizeUrl)
 export { sanitizeUrl, isUrlSafe, sanitizeUrlForNavigation } from "./url-sanitizer";

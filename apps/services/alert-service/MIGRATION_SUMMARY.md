@@ -1,4 +1,5 @@
 # Alert Service - Migration Summary
+
 # ملخص إعداد قاعدة البيانات والـ Migrations
 
 ## نظرة عامة | Overview
@@ -14,6 +15,7 @@ This summary documents the successful setup of the Alert Service database using 
 ### 1. نماذج قاعدة البيانات | Database Models
 
 #### **src/db_models.py** (11KB)
+
 - `Alert` model: جدول التنبيهات الرئيسي
 - `AlertRule` model: جدول قواعد التنبيه الآلي
 - SQLAlchemy ORM models with full type hints
@@ -23,6 +25,7 @@ This summary documents the successful setup of the Alert Service database using 
 - Comprehensive indexing strategy
 
 **الجداول:**
+
 ```sql
 -- alerts: يخزن التنبيهات
 - id (UUID PK)
@@ -49,6 +52,7 @@ This summary documents the successful setup of the Alert Service database using 
 ### 2. إعدادات قاعدة البيانات | Database Configuration
 
 #### **src/database.py** (4KB)
+
 - SQLAlchemy engine configuration
 - Session factory with connection pooling
 - `get_db()` dependency for FastAPI
@@ -56,6 +60,7 @@ This summary documents the successful setup of the Alert Service database using 
 - Environment-based configuration
 
 **الإعدادات:**
+
 - Connection pooling: 10 base + 20 overflow
 - Pre-ping enabled for connection verification
 - Auto-commit disabled for explicit transaction control
@@ -63,9 +68,11 @@ This summary documents the successful setup of the Alert Service database using 
 ### 3. طبقة الوصول للبيانات | Repository Layer
 
 #### **src/repository.py** (14KB)
+
 Complete data access layer with 20+ functions:
 
 **Alert Operations:**
+
 - `create_alert()` - إنشاء تنبيه
 - `get_alert()` - جلب تنبيه محدد
 - `get_alerts_by_field()` - جلب تنبيهات حقل مع pagination
@@ -76,6 +83,7 @@ Complete data access layer with 20+ functions:
 - `get_alert_statistics()` - إحصائيات شاملة
 
 **Alert Rule Operations:**
+
 - `create_alert_rule()` - إنشاء قاعدة
 - `get_alert_rule()` - جلب قاعدة محددة
 - `get_alert_rules_by_field()` - جلب قواعد حقل
@@ -88,38 +96,45 @@ Complete data access layer with 20+ functions:
 ### 4. Alembic Configuration
 
 #### **alembic.ini** (1KB)
+
 - Alembic configuration file
 - Script location: `src/migrations`
 - Logging configuration
 - Timezone: UTC
 
 #### **src/migrations/env.py** (2KB)
+
 - Alembic environment setup
 - Automatic model detection
 - Support for both online and offline migrations
 - Database URL from environment variables
 
 #### **src/migrations/script.py.mako** (0.5KB)
+
 - Template for new migrations
 - Consistent migration structure
 
 ### 5. Initial Migration
 
 #### **src/migrations/versions/s16_0001_alerts_initial.py** (6KB)
+
 Complete initial migration with:
 
 **upgrade():**
+
 - Creates `alerts` table with 20+ columns
 - Creates `alert_rules` table with 10+ columns
 - Creates 8 indexes for optimal query performance
 - Includes all constraints and defaults
 
 **downgrade():**
+
 - Properly drops all indexes
 - Drops tables in correct order
 - Ensures clean rollback
 
 **الفهارس المُنشأة:**
+
 1. `ix_alerts_field_status` - (field_id, status, created_at)
 2. `ix_alerts_tenant_created` - (tenant_id, created_at)
 3. `ix_alerts_type_severity` - (type, severity)
@@ -132,6 +147,7 @@ Complete initial migration with:
 ### 6. التوثيق | Documentation
 
 #### **MIGRATIONS.md** (5KB)
+
 - دليل شامل للـ migrations
 - أوامر Alembic الأساسية
 - أفضل الممارسات
@@ -139,12 +155,14 @@ Complete initial migration with:
 - مراجع ووثائق
 
 #### **QUICKSTART.md** (3KB)
+
 - دليل البدء السريع
 - خطوات الإعداد الأساسية
 - الأوامر الشائعة
 - أمثلة الاستخدام
 
 #### **src/migrations/README.md** (3KB)
+
 - توثيق بنية Migrations
 - شرح الجداول والحقول
 - إرشادات الاستخدام
@@ -152,7 +170,9 @@ Complete initial migration with:
 ### 7. أمثلة | Examples
 
 #### **example_usage.py** (3KB)
+
 أمثلة عملية لاستخدام Repository layer:
+
 - إنشاء تنبيه
 - جلب تنبيهات
 - تحديث الحالة
@@ -163,7 +183,9 @@ Complete initial migration with:
 ### 8. التحديثات | Updates
 
 #### **requirements.txt**
+
 تمت إضافة:
+
 ```
 sqlalchemy==2.0.23
 alembic==1.13.1
@@ -171,6 +193,7 @@ psycopg2-binary==2.9.9
 ```
 
 تم إزالة:
+
 ```
 tortoise-orm==0.21.7  # استُبدل بـ SQLAlchemy
 ```
@@ -241,7 +264,7 @@ alembic current
 
 ```bash
 # تشغيل مع uvicorn
-uvicorn src.main:app --host 0.0.0.0 --port 8107 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8113 --reload
 
 # أو
 python -m src.main
@@ -254,10 +277,10 @@ python -m src.main
 python example_usage.py
 
 # اختبار API
-curl http://localhost:8107/health
+curl http://localhost:8113/health
 
 # الوثائق التفاعلية
-open http://localhost:8107/docs
+open http://localhost:8113/docs
 ```
 
 ---
@@ -265,31 +288,37 @@ open http://localhost:8107/docs
 ## الميزات الرئيسية | Key Features
 
 ### ✅ Multi-tenancy Support
+
 - كل تنبيه وقاعدة مرتبط بـ tenant_id
 - عزل كامل للبيانات بين المستأجرين
 
 ### ✅ Bilingual Support
+
 - دعم العربية والإنجليزية في جميع النصوص
 - `title` / `title_en`
 - `message` / `message_en`
 - `recommendations` / `recommendations_en`
 
 ### ✅ Flexible Metadata
+
 - JSONB fields لتخزين بيانات إضافية
 - `metadata` في alerts
 - `condition` و `alert_config` في rules
 
 ### ✅ Comprehensive Indexing
+
 - 8 فهارس محسّنة
 - أداء عالي للاستعلامات الشائعة
 - دعم pagination
 
 ### ✅ Transaction Safety
+
 - Auto-rollback في حالة الخطأ
 - Explicit commits
 - Connection pooling
 
 ### ✅ Type Safety
+
 - Full type hints في جميع الملفات
 - SQLAlchemy 2.0 style (Mapped columns)
 - Pydantic integration
@@ -323,6 +352,7 @@ open http://localhost:8107/docs
 ## الخطوات التالية | Next Steps
 
 ### 1. دمج مع main.py
+
 حالياً `main.py` يستخدم in-memory storage. يمكن دمج repository layer:
 
 ```python
@@ -343,6 +373,7 @@ async def create_alert_endpoint(
 ```
 
 ### 2. إضافة Background Jobs
+
 لإدارة انتهاء صلاحية التنبيهات:
 
 ```python
@@ -357,6 +388,7 @@ async def check_expired_alerts():
 ```
 
 ### 3. إضافة Caching
+
 لتحسين الأداء:
 
 ```python
@@ -369,6 +401,7 @@ def get_active_alerts_cached(field_id: str):
 ```
 
 ### 4. إضافة Testing
+
 ```python
 # tests/test_repository.py
 def test_create_alert(test_db):
@@ -382,6 +415,7 @@ def test_create_alert(test_db):
 ## الإحصائيات | Statistics
 
 ### عدد الأسطر البرمجية | Lines of Code
+
 - `db_models.py`: ~360 lines
 - `database.py`: ~110 lines
 - `repository.py`: ~440 lines
@@ -389,12 +423,14 @@ def test_create_alert(test_db):
 - **Total**: ~1100 lines of new code
 
 ### الملفات الجديدة | New Files
+
 - 10 ملفات Python جديدة
 - 4 ملفات توثيق
 - 1 ملف تكوين (alembic.ini)
 - **Total**: 15 ملف جديد
 
 ### الوقت المقدر للتطوير | Estimated Development Time
+
 - Database Models: ~2 hours
 - Repository Layer: ~3 hours
 - Migrations: ~1 hour
@@ -416,6 +452,7 @@ def test_create_alert(test_db):
 ## الملخص | Summary
 
 تم بنجاح:
+
 1. ✅ إنشاء نماذج SQLAlchemy كاملة
 2. ✅ إعداد database configuration
 3. ✅ إنشاء repository layer شامل

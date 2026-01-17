@@ -39,7 +39,18 @@ from shared.errors_py import (
 
 from .events import get_publisher
 from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvider
-from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
+from .risks import (
+    assess_weather,
+    calculate_chill_hours,
+    calculate_drought_index,
+    calculate_evapotranspiration,
+    calculate_frost_risk,
+    calculate_growing_degree_days,
+    calculate_heat_stress_index,
+    calculate_spray_window,
+    get_irrigation_adjustment,
+    heat_stress_risk,
+)
 
 # Configuration
 USE_MOCK_WEATHER = os.getenv("USE_MOCK_WEATHER", "false").lower() == "true"
@@ -403,6 +414,412 @@ async def get_providers():
             "total": 1,
             "configured": 1,
         }
+
+
+# ============== Advanced Agricultural Endpoints ==============
+
+
+class ETRequest(BaseModel):
+    """Evapotranspiration calculation request"""
+
+    tenant_id: str
+    field_id: str
+    temp_c: float = Field(ge=-50, le=60)
+    humidity_pct: float = Field(ge=0, le=100)
+    wind_speed_kmh: float = Field(ge=0)
+    solar_radiation_mj: float = Field(default=15.0, ge=0, le=50)
+
+
+class GDDRequest(BaseModel):
+    """Growing Degree Days calculation request"""
+
+    tenant_id: str
+    field_id: str
+    temp_max_c: float = Field(ge=-50, le=60)
+    temp_min_c: float = Field(ge=-50, le=60)
+    base_temp_c: float = Field(default=10.0, ge=0, le=30)
+    upper_temp_c: float = Field(default=30.0, ge=20, le=50)
+
+
+class SprayWindowRequest(BaseModel):
+    """Spray window assessment request"""
+
+    tenant_id: str
+    field_id: str
+    temp_c: float = Field(ge=-50, le=60)
+    humidity_pct: float = Field(ge=0, le=100)
+    wind_speed_kmh: float = Field(ge=0)
+    precipitation_probability: float = Field(default=0, ge=0, le=100)
+
+
+@app.post("/weather/evapotranspiration")
+async def calculate_et(req: ETRequest):
+    """
+    Calculate Reference Evapotranspiration (ET0)
+    حساب التبخر-نتح المرجعي
+
+    Uses FAO-56 Penman-Monteith equation (simplified).
+    Essential for irrigation scheduling.
+
+    Returns:
+        ET0 in mm/day with irrigation recommendations
+    """
+    result = calculate_evapotranspiration(
+        temp_c=req.temp_c,
+        humidity_pct=req.humidity_pct,
+        wind_speed_kmh=req.wind_speed_kmh,
+        solar_radiation_mj=req.solar_radiation_mj,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "evapotranspiration": result,
+    }
+
+
+@app.post("/weather/gdd")
+async def calculate_gdd(req: GDDRequest):
+    """
+    Calculate Growing Degree Days (GDD)
+    حساب أيام النمو الحراري
+
+    GDD predicts crop development stages based on accumulated heat.
+    Essential for phenology modeling and harvest prediction.
+
+    Returns:
+        Daily GDD with growth rate classification
+    """
+    result = calculate_growing_degree_days(
+        temp_max_c=req.temp_max_c,
+        temp_min_c=req.temp_min_c,
+        base_temp_c=req.base_temp_c,
+        upper_temp_c=req.upper_temp_c,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "growing_degree_days": result,
+    }
+
+
+@app.post("/weather/spray-window")
+async def assess_spray_window(req: SprayWindowRequest):
+    """
+    Assess spray window suitability
+    تقييم مدى ملاءمة نافذة الرش
+
+    Evaluates if current conditions are suitable for pesticide/herbicide application.
+    Considers temperature, humidity, wind, and precipitation probability.
+
+    Returns:
+        Spray suitability score and recommendations
+    """
+    result = calculate_spray_window(
+        temp_c=req.temp_c,
+        humidity_pct=req.humidity_pct,
+        wind_speed_kmh=req.wind_speed_kmh,
+        precipitation_probability=req.precipitation_probability,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "spray_window": result,
+    }
+
+
+@app.post("/weather/agricultural-report")
+async def get_agricultural_report(req: LocationRequest):
+    """
+    Comprehensive agricultural weather report
+    تقرير الطقس الزراعي الشامل
+
+    Combines current weather, alerts, ET0, GDD, and spray window
+    into a single comprehensive report for farmers.
+    """
+    # Get current weather
+    if app.state.multi_provider:
+        weather_data = await app.state.multi_provider.get_current_weather(lat=req.lat, lon=req.lon)
+    else:
+        weather_data = await app.state.weather_provider.get_current_weather(
+            lat=req.lat, lon=req.lon
+        )
+
+    if "error" in weather_data:
+        raise ExternalServiceException(
+            service_name="Weather Provider", message=weather_data["error"]
+        )
+
+    temp_c = weather_data.get("temperature_c", 25)
+    humidity_pct = weather_data.get("humidity_percent", 50)
+    wind_speed_kmh = weather_data.get("wind_speed_kmh", 10)
+
+    # Calculate all metrics
+    et_result = calculate_evapotranspiration(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    gdd_result = calculate_growing_degree_days(
+        temp_max_c=temp_c + 5,  # Estimated daily range
+        temp_min_c=temp_c - 5,
+    )
+
+    spray_result = calculate_spray_window(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    # Assess alerts
+    alerts = assess_weather(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    # Irrigation adjustment
+    irrigation = get_irrigation_adjustment(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "location": {"lat": req.lat, "lon": req.lon},
+        "current_weather": weather_data,
+        "evapotranspiration": et_result,
+        "growing_degree_days": gdd_result,
+        "spray_window": spray_result,
+        "irrigation_adjustment": irrigation,
+        "alerts": [a.to_dict() for a in alerts],
+        "alert_count": len(alerts),
+    }
+
+
+# ============== Frost, Heat Stress & Chill Hours Endpoints ==============
+
+
+class FrostRiskRequest(BaseModel):
+    """Frost risk assessment request"""
+
+    tenant_id: str
+    field_id: str
+    temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
+    humidity_pct: float = Field(ge=0, le=100, description="Humidity %")
+    wind_speed_kmh: float = Field(ge=0, description="Wind speed km/h")
+    cloud_cover_pct: float = Field(default=0, ge=0, le=100, description="Cloud cover %")
+    dew_point_c: float | None = Field(default=None, ge=-50, le=50, description="Dew point °C")
+
+
+class HeatStressRequest(BaseModel):
+    """Heat stress assessment request"""
+
+    tenant_id: str
+    field_id: str
+    temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
+    humidity_pct: float = Field(ge=0, le=100, description="Humidity %")
+    solar_radiation_mj: float = Field(
+        default=15.0, ge=0, le=50, description="Solar radiation MJ/m²/day"
+    )
+    wind_speed_kmh: float = Field(default=10.0, ge=0, description="Wind speed km/h")
+
+
+class ChillHoursRequest(BaseModel):
+    """Chill hours calculation request"""
+
+    tenant_id: str
+    field_id: str
+    hourly_temps: list[float] = Field(..., description="List of hourly temperatures °C")
+    model: str = Field(default="utah", description="Model: simple, utah, or dynamic")
+    base_temp_c: float = Field(default=7.2, ge=0, le=15, description="Base temp for simple model")
+
+
+class DroughtIndexRequest(BaseModel):
+    """Drought index calculation request"""
+
+    tenant_id: str
+    field_id: str
+    precipitation_mm: float = Field(ge=0, description="Total precipitation mm")
+    et0_mm: float = Field(ge=0, description="Total ET0 mm")
+    days: int = Field(default=30, ge=1, le=365, description="Period in days")
+
+
+@app.post("/weather/frost-risk")
+async def assess_frost_risk(req: FrostRiskRequest):
+    """
+    Assess frost risk and get protection recommendations
+    تقييم خطر الصقيع والحصول على توصيات الحماية
+
+    Evaluates frost risk based on temperature, humidity, wind, and cloud cover.
+    Returns protection measures for different risk levels.
+    """
+    result = calculate_frost_risk(
+        temp_c=req.temp_c,
+        humidity_pct=req.humidity_pct,
+        wind_speed_kmh=req.wind_speed_kmh,
+        cloud_cover_pct=req.cloud_cover_pct,
+        dew_point_c=req.dew_point_c,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "frost_risk": result,
+    }
+
+
+@app.post("/weather/heat-stress")
+async def assess_heat_stress(req: HeatStressRequest):
+    """
+    Calculate heat stress index for crops
+    حساب مؤشر الإجهاد الحراري للمحاصيل
+
+    Evaluates heat stress using Temperature-Humidity Index (THI).
+    Returns mitigation recommendations for high stress conditions.
+    """
+    result = calculate_heat_stress_index(
+        temp_c=req.temp_c,
+        humidity_pct=req.humidity_pct,
+        solar_radiation_mj=req.solar_radiation_mj,
+        wind_speed_kmh=req.wind_speed_kmh,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "heat_stress": result,
+    }
+
+
+@app.post("/weather/chill-hours")
+async def calculate_chill(req: ChillHoursRequest):
+    """
+    Calculate chill hours/units for fruit trees
+    حساب ساعات البرودة للأشجار المثمرة
+
+    Supports multiple chill models:
+    - simple: Hours below threshold
+    - utah: Utah Chill Unit model (default, more accurate)
+    - dynamic: Dynamic model for mild winters
+
+    Returns chill units and which crops' requirements are satisfied.
+    """
+    result = calculate_chill_hours(
+        hourly_temps=req.hourly_temps,
+        model=req.model,
+        base_temp_c=req.base_temp_c,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "chill_hours": result,
+    }
+
+
+@app.post("/weather/drought-index")
+async def calculate_drought(req: DroughtIndexRequest):
+    """
+    Calculate drought stress index
+    حساب مؤشر الإجهاد الجفافي
+
+    Based on water balance (precipitation vs evapotranspiration).
+    Returns irrigation recommendations.
+    """
+    result = calculate_drought_index(
+        precipitation_mm=req.precipitation_mm,
+        et0_mm=req.et0_mm,
+        days=req.days,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "drought_index": result,
+    }
+
+
+@app.post("/weather/comprehensive-stress-report")
+async def get_stress_report(req: LocationRequest):
+    """
+    Comprehensive weather stress report
+    تقرير الإجهاد الجوي الشامل
+
+    Combines frost risk, heat stress, spray window, and alerts
+    into a single comprehensive stress assessment.
+    """
+    # Get current weather
+    if app.state.multi_provider:
+        weather_data = await app.state.multi_provider.get_current_weather(lat=req.lat, lon=req.lon)
+    else:
+        weather_data = await app.state.weather_provider.get_current_weather(
+            lat=req.lat, lon=req.lon
+        )
+
+    if "error" in weather_data:
+        raise ExternalServiceException(
+            service_name="Weather Provider", message=weather_data["error"]
+        )
+
+    temp_c = weather_data.get("temperature_c", 25)
+    humidity_pct = weather_data.get("humidity_percent", 50)
+    wind_speed_kmh = weather_data.get("wind_speed_kmh", 10)
+    cloud_cover_pct = weather_data.get("cloud_cover_percent", 50)
+
+    # Calculate stress metrics
+    frost_result = calculate_frost_risk(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+        cloud_cover_pct=cloud_cover_pct,
+    )
+
+    heat_result = calculate_heat_stress_index(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    spray_result = calculate_spray_window(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    # Determine overall stress level
+    if frost_result["risk_level"] in ["critical", "high"] or heat_result["stress_level"] in [
+        "extreme",
+        "severe",
+    ]:
+        overall_status = "critical"
+        overall_color = "red"
+    elif frost_result["risk_level"] == "moderate" or heat_result["stress_level"] in ["high"]:
+        overall_status = "warning"
+        overall_color = "orange"
+    elif frost_result["risk_level"] == "low" or heat_result["stress_level"] == "moderate":
+        overall_status = "caution"
+        overall_color = "yellow"
+    else:
+        overall_status = "normal"
+        overall_color = "green"
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "location": {"lat": req.lat, "lon": req.lon},
+        "current_weather": weather_data,
+        "overall_status": overall_status,
+        "overall_color": overall_color,
+        "frost_risk": frost_result,
+        "heat_stress": heat_result,
+        "spray_window": spray_result,
+    }
 
 
 if __name__ == "__main__":

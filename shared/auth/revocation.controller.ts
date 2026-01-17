@@ -17,46 +17,46 @@ import {
   HttpException,
   Logger,
   ForbiddenException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
   ApiBody,
-} from '@nestjs/swagger';
-import { JwtService } from '@nestjs/jwt';
-import { RedisTokenRevocationStore, RevocationStats } from './token-revocation';
-import { JwtAuthGuard } from './jwt.guard';
-import { AuthenticatedUser, JwtPayload } from './jwt.strategy';
+} from "@nestjs/swagger";
+import { JwtService } from "@nestjs/jwt";
+import { RedisTokenRevocationStore, RevocationStats } from "./token-revocation";
+import { JwtAuthGuard } from "./jwt.guard";
+import { AuthenticatedUser, JwtPayload } from "./jwt.strategy";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DTOs (Data Transfer Objects)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsOptional, IsNotEmpty } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 /**
  * Request to revoke a single token
  */
 export class RevokeTokenDto {
   @ApiProperty({
-    description: 'JWT ID to revoke',
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    description: "JWT ID to revoke",
+    example: "550e8400-e29b-41d4-a716-446655440000",
   })
   @IsString()
   @IsNotEmpty()
   jti: string;
 
   @ApiProperty({
-    description: 'Reason for revocation',
-    example: 'user_logout',
+    description: "Reason for revocation",
+    example: "user_logout",
     required: false,
   })
   @IsString()
   @IsOptional()
-  reason?: string = 'manual';
+  reason?: string = "manual";
 }
 
 /**
@@ -64,21 +64,21 @@ export class RevokeTokenDto {
  */
 export class RevokeUserTokensDto {
   @ApiProperty({
-    description: 'User ID',
-    example: 'user-123',
+    description: "User ID",
+    example: "user-123",
   })
   @IsString()
   @IsNotEmpty()
   userId: string;
 
   @ApiProperty({
-    description: 'Reason for revocation',
-    example: 'password_change',
+    description: "Reason for revocation",
+    example: "password_change",
     required: false,
   })
   @IsString()
   @IsOptional()
-  reason?: string = 'manual';
+  reason?: string = "manual";
 }
 
 /**
@@ -86,34 +86,34 @@ export class RevokeUserTokensDto {
  */
 export class RevokeTenantTokensDto {
   @ApiProperty({
-    description: 'Tenant ID',
-    example: 'tenant-456',
+    description: "Tenant ID",
+    example: "tenant-456",
   })
   @IsString()
   @IsNotEmpty()
   tenantId: string;
 
   @ApiProperty({
-    description: 'Reason for revocation',
-    example: 'security_breach',
+    description: "Reason for revocation",
+    example: "security_breach",
     required: false,
   })
   @IsString()
   @IsOptional()
-  reason?: string = 'security';
+  reason?: string = "security";
 }
 
 /**
  * Response for revocation operations
  */
 export class RevocationResponse {
-  @ApiProperty({ description: 'Whether operation succeeded' })
+  @ApiProperty({ description: "Whether operation succeeded" })
   success: boolean;
 
-  @ApiProperty({ description: 'Response message' })
+  @ApiProperty({ description: "Response message" })
   message: string;
 
-  @ApiProperty({ description: 'Number of tokens revoked', required: false })
+  @ApiProperty({ description: "Number of tokens revoked", required: false })
   revokedCount?: number;
 }
 
@@ -121,13 +121,13 @@ export class RevocationResponse {
  * Response for token status check
  */
 export class TokenStatusResponse {
-  @ApiProperty({ description: 'Whether token is revoked' })
+  @ApiProperty({ description: "Whether token is revoked" })
   isRevoked: boolean;
 
-  @ApiProperty({ description: 'Revocation reason', required: false })
+  @ApiProperty({ description: "Revocation reason", required: false })
   reason?: string;
 
-  @ApiProperty({ description: 'When token was revoked', required: false })
+  @ApiProperty({ description: "When token was revoked", required: false })
   revokedAt?: number;
 }
 
@@ -135,8 +135,8 @@ export class TokenStatusResponse {
 // Controller
 // ─────────────────────────────────────────────────────────────────────────────
 
-@ApiTags('Token Revocation')
-@Controller('auth/revocation')
+@ApiTags("Token Revocation")
+@Controller("auth/revocation")
 export class RevocationController {
   private readonly logger = new Logger(RevocationController.name);
 
@@ -149,21 +149,21 @@ export class RevocationController {
    * Revoke a single token by JTI
    * إلغاء رمز واحد بواسطة JTI
    */
-  @Post('revoke')
+  @Post("revoke")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Revoke a single token',
-    description: 'Revoke a specific token by its JTI (JWT ID)',
+    summary: "Revoke a single token",
+    description: "Revoke a specific token by its JTI (JWT ID)",
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Token revoked successfully',
+    description: "Token revoked successfully",
     type: RevocationResponse,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
-    description: 'Unauthorized',
+    description: "Unauthorized",
   })
   @ApiBody({ type: RevokeTokenDto })
   async revokeToken(
@@ -181,12 +181,12 @@ export class RevocationController {
       if (success) {
         return {
           success: true,
-          message: 'Token revoked successfully',
+          message: "Token revoked successfully",
           revokedCount: 1,
         };
       } else {
         throw new HttpException(
-          'Failed to revoke token',
+          "Failed to revoke token",
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -203,16 +203,16 @@ export class RevocationController {
    * Revoke current token (logout)
    * إلغاء الرمز الحالي (تسجيل الخروج)
    */
-  @Post('revoke-current')
+  @Post("revoke-current")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Revoke current token',
-    description: 'Revoke the currently authenticated token (logout)',
+    summary: "Revoke current token",
+    description: "Revoke the currently authenticated token (logout)",
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Successfully logged out',
+    description: "Successfully logged out",
     type: RevocationResponse,
   })
   async revokeCurrentToken(@Request() req: any): Promise<RevocationResponse> {
@@ -220,15 +220,15 @@ export class RevocationController {
       // Extract token from request
       const authorization = req.headers.authorization;
       if (!authorization) {
-        throw new HttpException('No token provided', HttpStatus.BAD_REQUEST);
+        throw new HttpException("No token provided", HttpStatus.BAD_REQUEST);
       }
 
-      const token = authorization.split(' ')[1];
+      const token = authorization.split(" ")[1];
       const payload = this.jwtService.decode(token) as JwtPayload;
 
       if (!payload || !payload.jti) {
         throw new HttpException(
-          'Token does not have JTI claim',
+          "Token does not have JTI claim",
           HttpStatus.BAD_REQUEST,
         );
       }
@@ -237,19 +237,19 @@ export class RevocationController {
 
       // Revoke token
       const success = await this.revocationStore.revokeToken(payload.jti, {
-        reason: 'user_logout',
+        reason: "user_logout",
         userId: user.id,
       });
 
       if (success) {
         return {
           success: true,
-          message: 'Successfully logged out',
+          message: "Successfully logged out",
           revokedCount: 1,
         };
       } else {
         throw new HttpException(
-          'Failed to logout',
+          "Failed to logout",
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -270,21 +270,21 @@ export class RevocationController {
    * Revoke all tokens for a user
    * إلغاء جميع رموز المستخدم
    */
-  @Post('revoke-user-tokens')
+  @Post("revoke-user-tokens")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Revoke all user tokens',
-    description: 'Revoke all tokens for a specific user',
+    summary: "Revoke all user tokens",
+    description: "Revoke all tokens for a specific user",
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'All user tokens revoked',
+    description: "All user tokens revoked",
     type: RevocationResponse,
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden - can only revoke own tokens',
+    description: "Forbidden - can only revoke own tokens",
   })
   @ApiBody({ type: RevokeUserTokensDto })
   async revokeUserTokens(
@@ -295,10 +295,10 @@ export class RevocationController {
 
     // Check authorization
     const isAdmin =
-      user.roles.includes('admin') || user.roles.includes('superadmin');
+      user.roles.includes("admin") || user.roles.includes("superadmin");
 
     if (dto.userId !== user.id && !isAdmin) {
-      throw new ForbiddenException('You can only revoke your own tokens');
+      throw new ForbiddenException("You can only revoke your own tokens");
     }
 
     try {
@@ -314,7 +314,7 @@ export class RevocationController {
         };
       } else {
         throw new HttpException(
-          'Failed to revoke user tokens',
+          "Failed to revoke user tokens",
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -335,16 +335,16 @@ export class RevocationController {
    * Revoke all current user's tokens
    * إلغاء جميع رموز المستخدم الحالي
    */
-  @Post('revoke-all')
+  @Post("revoke-all")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: "Revoke all current user's tokens",
-    description: 'Revoke all tokens for the currently authenticated user',
+    description: "Revoke all tokens for the currently authenticated user",
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'All tokens revoked',
+    description: "All tokens revoked",
     type: RevocationResponse,
   })
   async revokeAllCurrentUserTokens(
@@ -355,18 +355,18 @@ export class RevocationController {
 
       const success = await this.revocationStore.revokeAllUserTokens(
         user.id,
-        'user_logout_all',
+        "user_logout_all",
       );
 
       if (success) {
         return {
           success: true,
           message:
-            'All your tokens have been revoked. Logged out from all devices.',
+            "All your tokens have been revoked. Logged out from all devices.",
         };
       } else {
         throw new HttpException(
-          'Failed to revoke all tokens',
+          "Failed to revoke all tokens",
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -383,22 +383,22 @@ export class RevocationController {
    * Revoke all tenant tokens (Admin only)
    * إلغاء جميع رموز المستأجر (للمسؤولين فقط)
    */
-  @Post('revoke-tenant-tokens')
+  @Post("revoke-tenant-tokens")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Revoke all tenant tokens (Admin only)',
+    summary: "Revoke all tenant tokens (Admin only)",
     description:
-      'Revoke all tokens for a specific tenant (requires admin privileges)',
+      "Revoke all tokens for a specific tenant (requires admin privileges)",
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'All tenant tokens revoked',
+    description: "All tenant tokens revoked",
     type: RevocationResponse,
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden - admin privileges required',
+    description: "Forbidden - admin privileges required",
   })
   @ApiBody({ type: RevokeTenantTokensDto })
   async revokeTenantTokens(
@@ -409,10 +409,10 @@ export class RevocationController {
 
     // Check admin authorization
     const isAdmin =
-      user.roles.includes('admin') || user.roles.includes('superadmin');
+      user.roles.includes("admin") || user.roles.includes("superadmin");
 
     if (!isAdmin) {
-      throw new ForbiddenException('Admin privileges required');
+      throw new ForbiddenException("Admin privileges required");
     }
 
     try {
@@ -428,7 +428,7 @@ export class RevocationController {
         };
       } else {
         throw new HttpException(
-          'Failed to revoke tenant tokens',
+          "Failed to revoke tenant tokens",
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -449,20 +449,20 @@ export class RevocationController {
    * Check token status
    * التحقق من حالة الرمز
    */
-  @Get('status/:jti')
+  @Get("status/:jti")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Check token status',
-    description: 'Check if a specific token is revoked',
+    summary: "Check token status",
+    description: "Check if a specific token is revoked",
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Token status',
+    description: "Token status",
     type: TokenStatusResponse,
   })
   async checkTokenStatus(
-    @Param('jti') jti: string,
+    @Param("jti") jti: string,
   ): Promise<TokenStatusResponse> {
     try {
       // Check if token is revoked
@@ -492,30 +492,30 @@ export class RevocationController {
    * Get revocation statistics (Admin only)
    * الحصول على إحصائيات الإلغاء (للمسؤولين فقط)
    */
-  @Get('stats')
+  @Get("stats")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Get revocation statistics (Admin only)',
-    description: 'Get statistics about revoked tokens',
+    summary: "Get revocation statistics (Admin only)",
+    description: "Get statistics about revoked tokens",
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Revocation statistics',
+    description: "Revocation statistics",
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden - admin privileges required',
+    description: "Forbidden - admin privileges required",
   })
   async getRevocationStats(@Request() req: any): Promise<RevocationStats> {
     const user: AuthenticatedUser = req.user;
 
     // Check admin authorization
     const isAdmin =
-      user.roles.includes('admin') || user.roles.includes('superadmin');
+      user.roles.includes("admin") || user.roles.includes("superadmin");
 
     if (!isAdmin) {
-      throw new ForbiddenException('Admin privileges required');
+      throw new ForbiddenException("Admin privileges required");
     }
 
     try {
@@ -533,14 +533,14 @@ export class RevocationController {
    * Health check
    * فحص الصحة
    */
-  @Get('health')
+  @Get("health")
   @ApiOperation({
-    summary: 'Health check',
-    description: 'Check if token revocation service is healthy',
+    summary: "Health check",
+    description: "Check if token revocation service is healthy",
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Service health status',
+    description: "Service health status",
   })
   async healthCheck(): Promise<{
     status: string;
@@ -551,16 +551,16 @@ export class RevocationController {
       const isHealthy = await this.revocationStore.healthCheck();
 
       return {
-        status: isHealthy ? 'healthy' : 'unhealthy',
-        service: 'token_revocation',
-        redis: isHealthy ? 'connected' : 'disconnected',
+        status: isHealthy ? "healthy" : "unhealthy",
+        service: "token_revocation",
+        redis: isHealthy ? "connected" : "disconnected",
       };
     } catch (error) {
       this.logger.error(`Health check failed: ${error.message}`);
       return {
-        status: 'unhealthy',
-        service: 'token_revocation',
-        redis: 'error',
+        status: "unhealthy",
+        service: "token_revocation",
+        redis: "error",
       };
     }
   }

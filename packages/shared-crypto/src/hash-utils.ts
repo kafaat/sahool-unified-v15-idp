@@ -11,15 +11,15 @@
  * @author SAHOOL Team
  */
 
-import * as crypto from 'crypto';
-import * as bcrypt from 'bcryptjs';
+import * as crypto from "crypto";
+import * as bcrypt from "bcryptjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
 // ═══════════════════════════════════════════════════════════════════════════
 
 const DEFAULT_BCRYPT_ROUNDS = 12;
-const DEFAULT_HMAC_ALGORITHM = 'sha256';
+const DEFAULT_HMAC_ALGORITHM = "sha256";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Password Hashing (bcrypt)
@@ -40,17 +40,19 @@ const DEFAULT_HMAC_ALGORITHM = 'sha256';
  */
 export async function hashPassword(
   password: string,
-  rounds: number = DEFAULT_BCRYPT_ROUNDS
+  rounds: number = DEFAULT_BCRYPT_ROUNDS,
 ): Promise<string> {
   if (!password) {
-    throw new Error('Password cannot be empty');
+    throw new Error("Password cannot be empty");
   }
 
   try {
     const salt = await bcrypt.genSalt(rounds);
     return await bcrypt.hash(password, salt);
   } catch (error) {
-    throw new Error(`Password hashing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Password hashing failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -69,7 +71,10 @@ export async function hashPassword(
  * }
  * ```
  */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
   if (!password || !hash) {
     return false;
   }
@@ -77,7 +82,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   try {
     return await bcrypt.compare(password, hash);
   } catch (error) {
-    console.error('Password verification error:', error);
+    console.error("Password verification error:", error);
     return false;
   }
 }
@@ -91,17 +96,19 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
  */
 export function hashPasswordSync(
   password: string,
-  rounds: number = DEFAULT_BCRYPT_ROUNDS
+  rounds: number = DEFAULT_BCRYPT_ROUNDS,
 ): string {
   if (!password) {
-    throw new Error('Password cannot be empty');
+    throw new Error("Password cannot be empty");
   }
 
   try {
     const salt = bcrypt.genSaltSync(rounds);
     return bcrypt.hashSync(password, salt);
   } catch (error) {
-    throw new Error(`Password hashing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Password hashing failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -120,7 +127,7 @@ export function verifyPasswordSync(password: string, hash: string): boolean {
   try {
     return bcrypt.compareSync(password, hash);
   } catch (error) {
-    console.error('Password verification error:', error);
+    console.error("Password verification error:", error);
     return false;
   }
 }
@@ -142,7 +149,7 @@ export function verifyPasswordSync(password: string, hash: string): boolean {
  * ```
  */
 export function sha256(data: string | Buffer): string {
-  return crypto.createHash('sha256').update(data).digest('hex');
+  return crypto.createHash("sha256").update(data).digest("hex");
 }
 
 /**
@@ -152,7 +159,7 @@ export function sha256(data: string | Buffer): string {
  * @returns Base64-encoded SHA-256 hash
  */
 export function sha256Base64(data: string | Buffer): string {
-  return crypto.createHash('sha256').update(data).digest('base64');
+  return crypto.createHash("sha256").update(data).digest("base64");
 }
 
 /**
@@ -162,7 +169,7 @@ export function sha256Base64(data: string | Buffer): string {
  * @returns Hex-encoded SHA-512 hash
  */
 export function sha512(data: string | Buffer): string {
-  return crypto.createHash('sha512').update(data).digest('hex');
+  return crypto.createHash("sha512").update(data).digest("hex");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -175,7 +182,7 @@ export function sha512(data: string | Buffer): string {
 function getHmacSecret(): string {
   const secret = process.env.HMAC_SECRET;
   if (!secret) {
-    throw new Error('HMAC_SECRET environment variable is not set');
+    throw new Error("HMAC_SECRET environment variable is not set");
   }
   return secret;
 }
@@ -198,14 +205,16 @@ function getHmacSecret(): string {
 export function createHMAC(
   data: string | Buffer,
   secret?: string,
-  algorithm: string = DEFAULT_HMAC_ALGORITHM
+  algorithm: string = DEFAULT_HMAC_ALGORITHM,
 ): string {
   const hmacSecret = secret || getHmacSecret();
 
   try {
-    return crypto.createHmac(algorithm, hmacSecret).update(data).digest('hex');
+    return crypto.createHmac(algorithm, hmacSecret).update(data).digest("hex");
   } catch (error) {
-    throw new Error(`HMAC creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `HMAC creation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -222,16 +231,16 @@ export function verifyHMAC(
   data: string | Buffer,
   signature: string,
   secret?: string,
-  algorithm: string = DEFAULT_HMAC_ALGORITHM
+  algorithm: string = DEFAULT_HMAC_ALGORITHM,
 ): boolean {
   try {
     const expectedSignature = createHMAC(data, secret, algorithm);
     return crypto.timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
+      Buffer.from(signature, "hex"),
+      Buffer.from(expectedSignature, "hex"),
     );
   } catch (error) {
-    console.error('HMAC verification error:', error);
+    console.error("HMAC verification error:", error);
     return false;
   }
 }
@@ -242,10 +251,10 @@ export function verifyHMAC(
 export function createHMACBase64(
   data: string | Buffer,
   secret?: string,
-  algorithm: string = DEFAULT_HMAC_ALGORITHM
+  algorithm: string = DEFAULT_HMAC_ALGORITHM,
 ): string {
   const hmacSecret = secret || getHmacSecret();
-  return crypto.createHmac(algorithm, hmacSecret).update(data).digest('base64');
+  return crypto.createHmac(algorithm, hmacSecret).update(data).digest("base64");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -272,9 +281,9 @@ export function createDeterministicHash(data: string): string {
  */
 export function hashSensitiveData(
   data: string,
-  salt?: string
+  salt?: string,
 ): { hash: string; salt: string } {
-  const dataSalt = salt || crypto.randomBytes(16).toString('hex');
+  const dataSalt = salt || crypto.randomBytes(16).toString("hex");
   const hash = sha256(`${data}${dataSalt}`);
 
   return { hash, salt: dataSalt };
@@ -291,13 +300,13 @@ export function hashSensitiveData(
 export function verifySensitiveDataHash(
   data: string,
   hash: string,
-  salt: string
+  salt: string,
 ): boolean {
   const computedHash = sha256(`${data}${salt}`);
   try {
     return crypto.timingSafeEqual(
-      Buffer.from(hash, 'hex'),
-      Buffer.from(computedHash, 'hex')
+      Buffer.from(hash, "hex"),
+      Buffer.from(computedHash, "hex"),
     );
   } catch {
     return false;
@@ -325,12 +334,15 @@ export function createChecksum(data: string | Buffer): string {
  * @param checksum - Expected checksum
  * @returns True if data is intact
  */
-export function verifyChecksum(data: string | Buffer, checksum: string): boolean {
+export function verifyChecksum(
+  data: string | Buffer,
+  checksum: string,
+): boolean {
   const computed = createChecksum(data);
   try {
     return crypto.timingSafeEqual(
-      Buffer.from(checksum, 'hex'),
-      Buffer.from(computed, 'hex')
+      Buffer.from(checksum, "hex"),
+      Buffer.from(computed, "hex"),
     );
   } catch {
     return false;
@@ -344,7 +356,7 @@ export function verifyChecksum(data: string | Buffer, checksum: string): boolean
  * @returns Promise with file hash
  */
 export async function hashFile(filePath: string): Promise<string> {
-  const fs = await import('fs/promises');
+  const fs = await import("fs/promises");
   const data = await fs.readFile(filePath);
   return sha256(data);
 }
@@ -360,7 +372,7 @@ export async function hashFile(filePath: string): Promise<string> {
  * @returns Hex-encoded random token
  */
 export function generateToken(length: number = 32): string {
-  return crypto.randomBytes(length).toString('hex');
+  return crypto.randomBytes(length).toString("hex");
 }
 
 /**
@@ -370,7 +382,7 @@ export function generateToken(length: number = 32): string {
  * @returns Base64url-encoded random string
  */
 export function generateSecureRandomString(length: number = 32): string {
-  return crypto.randomBytes(length).toString('base64url');
+  return crypto.randomBytes(length).toString("base64url");
 }
 
 /**

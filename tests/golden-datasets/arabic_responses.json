@@ -4,8 +4,19 @@
     "created": "2025-12-28",
     "description": "Arabic language test cases with Yemen dialect focus",
     "total_test_cases": 45,
-    "dialects": ["Modern Standard Arabic (MSA)", "Yemeni Arabic", "Gulf Arabic"],
-    "categories": ["weather", "crop_health", "irrigation", "fertilizer", "pest_management", "general_advice"]
+    "dialects": [
+      "Modern Standard Arabic (MSA)",
+      "Yemeni Arabic",
+      "Gulf Arabic"
+    ],
+    "categories": [
+      "weather",
+      "crop_health",
+      "irrigation",
+      "fertilizer",
+      "pest_management",
+      "general_advice"
+    ]
   },
   "test_cases": [
     {
@@ -565,11 +576,7 @@
       "expected_output": {
         "language": "ar",
         "must_be_arabic": true,
-        "acceptable_patterns": [
-          "الغمر بالماء",
-          "نقص الأكسجين",
-          "تحسين الصرف"
-        ],
+        "acceptable_patterns": ["الغمر بالماء", "نقص الأكسجين", "تحسين الصرف"],
         "required_elements": [
           "تشخيص الغمر",
           "حلول الصرف",
@@ -829,11 +836,7 @@
       "expected_output": {
         "language": "ar",
         "must_be_arabic": true,
-        "acceptable_patterns": [
-          "سقوط البادرات",
-          "مرض التخميد",
-          "عدوى فطرية"
-        ],
+        "acceptable_patterns": ["سقوط البادرات", "مرض التخميد", "عدوى فطرية"],
         "required_elements": [
           "تحديد مرض التخميد",
           "مسببات فطرية",
@@ -1238,11 +1241,7 @@
       "expected_output": {
         "language": "ar",
         "must_be_arabic": true,
-        "acceptable_patterns": [
-          "بقع بيضاء",
-          "لفحة الشمس",
-          "اضطراب فسيولوجي"
-        ],
+        "acceptable_patterns": ["بقع بيضاء", "لفحة الشمس", "اضطراب فسيولوجي"],
         "required_elements": [
           "تحديد لفحة الشمس",
           "استراتيجيات التظليل",

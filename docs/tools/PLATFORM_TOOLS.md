@@ -1,4 +1,5 @@
 # SAHOOL Platform Tools
+
 ## أدوات منصة سهول
 
 **Version:** 15.5.0
@@ -10,12 +11,12 @@
 
 This document describes the development and operations tools available for the SAHOOL platform:
 
-| Tool | Purpose | Location |
-|------|---------|----------|
-| **Complete Analyzer** | Dependency & conflict detection | `tools/complete-analyzer.py` |
-| **Pre-commit Hook** | Quality checks before commit | `tools/scripts/pre-commit` |
-| **Verify Fixes** | Validate infrastructure setup | `tools/scripts/verify-fixes.py` |
-| **Memory Manager** | Flutter memory optimization | `apps/mobile/lib/services/memory_manager.dart` |
+| Tool                  | Purpose                         | Location                                       |
+| --------------------- | ------------------------------- | ---------------------------------------------- |
+| **Complete Analyzer** | Dependency & conflict detection | `tools/complete-analyzer.py`                   |
+| **Pre-commit Hook**   | Quality checks before commit    | `tools/scripts/pre-commit`                     |
+| **Verify Fixes**      | Validate infrastructure setup   | `tools/scripts/verify-fixes.py`                |
+| **Memory Manager**    | Flutter memory optimization     | `apps/mobile/lib/services/memory_manager.dart` |
 
 ---
 
@@ -24,6 +25,7 @@ This document describes the development and operations tools available for the S
 ### Purpose
 
 Analyzes the entire SAHOOL platform for:
+
 - Dependency version conflicts
 - PostGIS slow query patterns
 - Kong configuration issues
@@ -67,14 +69,14 @@ python3 tools/complete-analyzer.py --root /path/to/project
 
 ### Checks Performed
 
-| Check | Description |
-|-------|-------------|
-| Python Dependencies | Scans all `requirements.txt` for version conflicts |
-| Flutter Dependencies | Scans all `pubspec.yaml` for version conflicts |
-| Node.js Dependencies | Scans all `package.json` for version conflicts |
-| PostGIS Queries | Detects slow query patterns (SELECT *, geometry casts) |
-| Kong Configuration | Validates health checks, rate limiting |
-| Docker Files | Checks for multi-stage builds, caching issues |
+| Check                | Description                                             |
+| -------------------- | ------------------------------------------------------- |
+| Python Dependencies  | Scans all `requirements.txt` for version conflicts      |
+| Flutter Dependencies | Scans all `pubspec.yaml` for version conflicts          |
+| Node.js Dependencies | Scans all `package.json` for version conflicts          |
+| PostGIS Queries      | Detects slow query patterns (SELECT \*, geometry casts) |
+| Kong Configuration   | Validates health checks, rate limiting                  |
+| Docker Files         | Checks for multi-stage builds, caching issues           |
 
 ---
 
@@ -155,15 +157,15 @@ python3 tools/scripts/verify-fixes.py
 
 ### Checks Performed
 
-| Component | Validation |
-|-----------|------------|
-| Kong HA | Config files exist, services defined |
-| Circuit Breaker | Classes and methods present |
+| Component         | Validation                             |
+| ----------------- | -------------------------------------- |
+| Kong HA           | Config files exist, services defined   |
+| Circuit Breaker   | Classes and methods present            |
 | PostGIS Migration | GIST, partitioning, materialized views |
-| Memory Manager | LRU cache, pagination support |
-| Platform Analyzer | Analysis functions present |
-| Pre-commit Hook | Quality checks configured |
-| Pubspec Fixes | mockito version, analyzer override |
+| Memory Manager    | LRU cache, pagination support          |
+| Platform Analyzer | Analysis functions present             |
+| Pre-commit Hook   | Quality checks configured              |
+| Pubspec Fixes     | mockito version, analyzer override     |
 
 ### Output Example
 
@@ -194,6 +196,7 @@ python3 tools/scripts/verify-fixes.py
 ### Purpose
 
 Provides intelligent memory management for the Flutter mobile app:
+
 - LRU cache eviction
 - Pagination support
 - Stale data cleanup
@@ -237,11 +240,11 @@ MemoryManager().invalidateByPattern(r'^fields:.*');
 
 ### Configuration
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `maxCacheSize` | 50 | Maximum cached items |
-| `maxCacheAgeDays` | 7 | Days before auto-eviction |
-| `memoryThreshold` | 0.8 | Trigger eviction at 80% |
+| Parameter         | Default | Description               |
+| ----------------- | ------- | ------------------------- |
+| `maxCacheSize`    | 50      | Maximum cached items      |
+| `maxCacheAgeDays` | 7       | Days before auto-eviction |
+| `memoryThreshold` | 0.8     | Trigger eviction at 80%   |
 
 ### Best Practices
 
@@ -298,5 +301,6 @@ echo "✅ Done"
 ---
 
 **Related Documents:**
+
 - [Engineering Recovery Plan](../engineering/ENGINEERING_RECOVERY_PLAN.md)
 - [Development Guidelines](../development/GUIDELINES.md)

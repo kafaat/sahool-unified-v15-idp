@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Admin Auth Guard
  * Component to protect routes that require authentication
  */
 
-import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/stores/auth.store';
-import { Loader2 } from 'lucide-react';
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/stores/auth.store";
+import { Loader2 } from "lucide-react";
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'supervisor' | 'viewer';
+  requiredRole?: "admin" | "supervisor" | "viewer";
 }
 
-const roleHierarchy: Record<'admin' | 'supervisor' | 'viewer', number> = {
+const roleHierarchy: Record<"admin" | "supervisor" | "viewer", number> = {
   admin: 3,
   supervisor: 2,
   viewer: 1,
@@ -45,7 +45,7 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
 
       if (userRoleLevel < requiredRoleLevel) {
         // User doesn't have sufficient permissions
-        router.push('/dashboard');
+        router.push("/dashboard");
       }
     }
   }, [isLoading, isAuthenticated, user, requiredRole, router]);

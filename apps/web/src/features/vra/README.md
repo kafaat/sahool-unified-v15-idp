@@ -84,6 +84,7 @@ The VRA feature enables farmers and agronomists to create precision agriculture 
 Main component for generating VRA prescriptions.
 
 **Props:**
+
 ```typescript
 interface VRAPanelProps {
   fieldId: string;
@@ -96,6 +97,7 @@ interface VRAPanelProps {
 ```
 
 **Usage:**
+
 ```tsx
 <VRAPanel
   fieldId="field_123"
@@ -104,7 +106,7 @@ interface VRAPanelProps {
   latitude={15.5}
   longitude={44.2}
   onPrescriptionGenerated={(prescription) => {
-    console.log('Generated prescription:', prescription.id);
+    console.log("Generated prescription:", prescription.id);
   }}
 />
 ```
@@ -114,6 +116,7 @@ interface VRAPanelProps {
 Leaflet map component for visualizing VRA zones.
 
 **Props:**
+
 ```typescript
 interface PrescriptionMapProps {
   prescription: PrescriptionResponse;
@@ -122,6 +125,7 @@ interface PrescriptionMapProps {
 ```
 
 **Features:**
+
 - GeoJSON polygon rendering
 - Color-coded zones by vigor level
 - Interactive popups with zone details
@@ -129,11 +133,9 @@ interface PrescriptionMapProps {
 - Auto-centering and zoom
 
 **Usage:**
+
 ```tsx
-<PrescriptionMap
-  prescription={prescription}
-  height="600px"
-/>
+<PrescriptionMap prescription={prescription} height="600px" />
 ```
 
 ### PrescriptionTable
@@ -141,6 +143,7 @@ interface PrescriptionMapProps {
 Table view of zone details with export functionality.
 
 **Props:**
+
 ```typescript
 interface PrescriptionTableProps {
   prescription: PrescriptionResponse;
@@ -149,6 +152,7 @@ interface PrescriptionTableProps {
 ```
 
 **Features:**
+
 - Zone-by-zone breakdown
 - NDVI ranges, areas, percentages
 - Recommended rates and total product
@@ -156,11 +160,9 @@ interface PrescriptionTableProps {
 - CSV and GeoJSON export
 
 **Usage:**
+
 ```tsx
-<PrescriptionTable
-  prescription={prescription}
-  showExport={true}
-/>
+<PrescriptionTable prescription={prescription} showExport={true} />
 ```
 
 ### VRAHistory
@@ -168,6 +170,7 @@ interface PrescriptionTableProps {
 List of historical prescriptions for a field.
 
 **Props:**
+
 ```typescript
 interface VRAHistoryProps {
   fieldId: string;
@@ -178,12 +181,9 @@ interface VRAHistoryProps {
 ```
 
 **Usage:**
+
 ```tsx
-<VRAHistory
-  fieldId="field_123"
-  fieldName="North Field"
-  limit={20}
-/>
+<VRAHistory fieldId="field_123" fieldName="North Field" limit={20} />
 ```
 
 ## 🔧 Hooks
@@ -227,41 +227,41 @@ vra.delete.mutate(prescriptionId)
 ```typescript
 // Generate prescription
 const response = await generatePrescription({
-  fieldId: 'field_123',
+  fieldId: "field_123",
   latitude: 15.5,
   longitude: 44.2,
-  vraType: 'fertilizer',
+  vraType: "fertilizer",
   targetRate: 100,
-  unit: 'kg/ha',
+  unit: "kg/ha",
   numZones: 3,
-  zoneMethod: 'ndvi',
+  zoneMethod: "ndvi",
   productPricePerUnit: 2.5,
 });
 
 // Get history
-const history = await getPrescriptionHistory('field_123', 10);
+const history = await getPrescriptionHistory("field_123", 10);
 
 // Get details
-const details = await getPrescriptionDetails('prescription_456');
+const details = await getPrescriptionDetails("prescription_456");
 
 // Export
-const exported = await exportPrescription('prescription_456', 'geojson');
+const exported = await exportPrescription("prescription_456", "geojson");
 
 // Delete
-await deletePrescription('prescription_456');
+await deletePrescription("prescription_456");
 ```
 
 ### Query Keys
 
 ```typescript
-import { vraKeys } from '@/features/vra';
+import { vraKeys } from "@/features/vra";
 
 // For cache invalidation and refetching
-vraKeys.all                                      // ['vra']
-vraKeys.prescriptions()                          // ['vra', 'prescriptions']
-vraKeys.prescription(id)                         // ['vra', 'prescriptions', id]
-vraKeys.history(fieldId)                         // ['vra', 'history', fieldId]
-vraKeys.export(prescriptionId, format)           // ['vra', 'export', id, format]
+vraKeys.all; // ['vra']
+vraKeys.prescriptions(); // ['vra', 'prescriptions']
+vraKeys.prescription(id); // ['vra', 'prescriptions', id]
+vraKeys.history(fieldId); // ['vra', 'history', fieldId]
+vraKeys.export(prescriptionId, format); // ['vra', 'export', id, format]
 ```
 
 ## 📊 Types
@@ -269,15 +269,16 @@ vraKeys.export(prescriptionId, format)           // ['vra', 'export', id, format
 ### Core Types
 
 ```typescript
-type VRAType = 'fertilizer' | 'seed' | 'lime' | 'pesticide' | 'irrigation';
-type VRAMethod = 'ndvi' | 'yield' | 'soil' | 'combined';
-type ZoneLevel = 'very_low' | 'low' | 'medium' | 'high' | 'very_high';
-type ExportFormat = 'geojson' | 'csv' | 'shapefile' | 'isoxml';
+type VRAType = "fertilizer" | "seed" | "lime" | "pesticide" | "irrigation";
+type VRAMethod = "ndvi" | "yield" | "soil" | "combined";
+type ZoneLevel = "very_low" | "low" | "medium" | "high" | "very_high";
+type ExportFormat = "geojson" | "csv" | "shapefile" | "isoxml";
 ```
 
 ### Request/Response Models
 
 See `/types/vra.ts` for full type definitions:
+
 - `PrescriptionRequest` - Request payload for generation
 - `PrescriptionResponse` - Complete prescription with zones
 - `ZoneResult` - Individual management zone details
@@ -289,36 +290,36 @@ See `/types/vra.ts` for full type definitions:
 ### VRA Types
 
 ```typescript
-import { VRA_TYPES } from '@/features/vra';
+import { VRA_TYPES } from "@/features/vra";
 
-VRA_TYPES.fertilizer  // { name, nameAr, description, defaultUnit, strategy }
-VRA_TYPES.seed        // ...
-VRA_TYPES.lime
-VRA_TYPES.pesticide
-VRA_TYPES.irrigation
+VRA_TYPES.fertilizer; // { name, nameAr, description, defaultUnit, strategy }
+VRA_TYPES.seed; // ...
+VRA_TYPES.lime;
+VRA_TYPES.pesticide;
+VRA_TYPES.irrigation;
 ```
 
 ### Zone Methods
 
 ```typescript
-import { ZONE_METHODS } from '@/features/vra';
+import { ZONE_METHODS } from "@/features/vra";
 
-ZONE_METHODS.ndvi      // NDVI-based classification
-ZONE_METHODS.yield     // Yield map-based
-ZONE_METHODS.soil      // Soil analysis-based
-ZONE_METHODS.combined  // Multi-factor
+ZONE_METHODS.ndvi; // NDVI-based classification
+ZONE_METHODS.yield; // Yield map-based
+ZONE_METHODS.soil; // Soil analysis-based
+ZONE_METHODS.combined; // Multi-factor
 ```
 
 ### Zone Colors
 
 ```typescript
-import { ZONE_COLORS } from '@/features/vra';
+import { ZONE_COLORS } from "@/features/vra";
 
-ZONE_COLORS.very_low   // '#d62728' (red)
-ZONE_COLORS.low        // '#ff7f0e' (orange)
-ZONE_COLORS.medium     // '#ffdd00' (yellow)
-ZONE_COLORS.high       // '#98df8a' (light green)
-ZONE_COLORS.very_high  // '#2ca02c' (dark green)
+ZONE_COLORS.very_low; // '#d62728' (red)
+ZONE_COLORS.low; // '#ff7f0e' (orange)
+ZONE_COLORS.medium; // '#ffdd00' (yellow)
+ZONE_COLORS.high; // '#98df8a' (light green)
+ZONE_COLORS.very_high; // '#2ca02c' (dark green)
 ```
 
 ## 🔐 Backend Integration
@@ -334,6 +335,7 @@ DELETE /v1/vra/prescription/:id            # Delete
 ```
 
 Backend implementation:
+
 - `/apps/services/satellite-service/src/vra_generator.py`
 - `/apps/services/satellite-service/src/vra_endpoints.py`
 
@@ -342,7 +344,7 @@ Backend implementation:
 ### Complete VRA Workflow
 
 ```tsx
-import { VRAPanel, PrescriptionMap, PrescriptionTable } from '@/features/vra';
+import { VRAPanel, PrescriptionMap, PrescriptionTable } from "@/features/vra";
 
 function FieldPrecisionAgriculturePage({ field }) {
   const [prescription, setPrescription] = useState(null);
@@ -368,7 +370,7 @@ function FieldPrecisionAgriculturePage({ field }) {
 ### Custom Hook Integration
 
 ```tsx
-import { useVRA, PrescriptionMap } from '@/features/vra';
+import { useVRA, PrescriptionMap } from "@/features/vra";
 
 function CustomVRAInterface({ fieldId }) {
   const vra = useVRA(fieldId);
@@ -379,11 +381,11 @@ function CustomVRAInterface({ fieldId }) {
       fieldId,
       latitude: 15.5,
       longitude: 44.2,
-      vraType: 'fertilizer',
+      vraType: "fertilizer",
       targetRate: 100,
-      unit: 'kg/ha',
+      unit: "kg/ha",
       numZones: 3,
-      zoneMethod: 'ndvi',
+      zoneMethod: "ndvi",
     });
 
     setSelectedId(prescription.id);
@@ -397,7 +399,7 @@ function CustomVRAInterface({ fieldId }) {
       </button>
 
       {/* History */}
-      {vra.history.data?.prescriptions.map(p => (
+      {vra.history.data?.prescriptions.map((p) => (
         <div key={p.id} onClick={() => setSelectedId(p.id)}>
           {p.vraType} - {p.savingsPercent}% savings
         </div>

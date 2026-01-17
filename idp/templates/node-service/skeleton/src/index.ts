@@ -11,7 +11,7 @@ client.collectDefaultMetrics({ register });
 const httpReqs = new client.Counter({
   name: "http_requests_total",
   help: "Total HTTP requests",
-  labelNames: ["service", "path", "method"] as const
+  labelNames: ["service", "path", "method"] as const,
 });
 register.registerMetric(httpReqs);
 
@@ -26,4 +26,6 @@ app.get("/", (_req, res) => {
   res.json({ service });
 });
 
-app.listen(port, "0.0.0.0", () => console.log(`[${service}] listening on ${port}`));
+app.listen(port, "0.0.0.0", () =>
+  console.log(`[${service}] listening on ${port}`),
+);

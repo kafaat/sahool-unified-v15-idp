@@ -1,4 +1,5 @@
 # SAHOOL Helm Chart - Quick Start Guide
+
 # دليل البدء السريع لمخطط Helm
 
 ## Prerequisites | المتطلبات
@@ -219,14 +220,14 @@ helm rollback sahool 1 -n sahool
 
 ## Service Endpoints | نقاط النهاية
 
-| Service | Port | Path |
-|---------|------|------|
-| Field Core | 3000 | /api/v1/fields |
-| Weather Core | 8108 | /api/v1/weather |
-| Agro Advisor | 8105 | /api/v1/advisory |
+| Service       | Port | Path                  |
+| ------------- | ---- | --------------------- |
+| Field Core    | 3000 | /api/v1/fields        |
+| Weather Core  | 8108 | /api/v1/weather       |
+| Agro Advisor  | 8105 | /api/v1/advisory      |
 | Notifications | 8110 | /api/v1/notifications |
-| Kong Admin | 8001 | /admin |
-| Kong Proxy | 8000 | / |
+| Kong Admin    | 8001 | /admin                |
+| Kong Proxy    | 8000 | /                     |
 
 ## Support | الدعم
 

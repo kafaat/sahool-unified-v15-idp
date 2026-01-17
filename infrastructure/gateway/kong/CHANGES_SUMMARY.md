@@ -1,4 +1,5 @@
 # Kong Configuration - Critical Issues Fixed
+
 # ملخص إصلاح المشاكل الحرجة في تكوين Kong
 
 ## Date: 2025-12-26
@@ -14,16 +15,19 @@ All 3 CRITICAL issues have been successfully fixed, plus additional improvements
 ## Issue 1: Konga Database Missing ✅ FIXED
 
 ### Problem
+
 - Konga service expected a 'konga' database in PostgreSQL
 - Only 'kong' database was being created
 - Konga would fail to start due to missing database
 
 ### Solution
+
 - Created `/home/user/sahool-unified-v15-idp/infrastructure/kong/init-konga-db.sh`
 - Script automatically creates 'konga' database on PostgreSQL initialization
 - Mounted script in docker-compose.yml at `/docker-entrypoint-initdb.d/init-konga-db.sh`
 
 ### Files Modified
+
 - `init-konga-db.sh` (NEW) - Database initialization script
 - `docker-compose.yml` - Added volume mount for init script (line 55)
 
@@ -32,19 +36,23 @@ All 3 CRITICAL issues have been successfully fixed, plus additional improvements
 ## Issue 2: Network Configuration ✅ FIXED
 
 ### Problem
+
 - `sahool-network` was marked as `external: true`
 - Docker would fail if network didn't exist externally
 - No clear documentation on network requirements
 
 ### Solution
+
 - Changed `sahool-net` from external to local bridge network
 - Network is now created automatically by docker-compose
 - Added comments explaining how to switch back to external mode if needed
 
 ### Files Modified
+
 - `docker-compose.yml` - Network configuration (lines 15-20)
 
 ### Configuration Change
+
 ```yaml
 # BEFORE:
 sahool-net:
@@ -65,12 +73,14 @@ sahool-net:
 ## Issue 3: Declarative Config Not Loaded ✅ FIXED
 
 ### Problem
+
 - Kong was configured for database mode (KONG_DATABASE: postgres)
 - Declarative config was commented out
 - Migration services required for startup
 - Confusion between DB mode and DB-less mode
 
 ### Solution (Chose DB-less mode for simplicity)
+
 - Set `KONG_DATABASE=off` for Kong service
 - Enabled `KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yml`
 - Removed `kong-migrations` and `kong-migrations-up` services (not needed)
@@ -78,11 +88,13 @@ sahool-net:
 - Updated comments to clarify Kong runs in DB-less mode
 
 ### Files Modified
+
 - `docker-compose.yml` - Kong service configuration (lines 72-139)
 - `docker-compose.yml` - Removed migration services
 - `DBLESS_SETUP.md` (NEW) - Comprehensive documentation
 
 ### Configuration Change
+
 ```yaml
 # BEFORE:
 environment:
@@ -115,9 +127,14 @@ environment:
 Added proper health checks for services that were missing them:
 
 1. **Konga** (lines 167-172)
+
    ```yaml
    healthcheck:
-     test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:1337 || exit 1"]
+     test:
+       [
+         "CMD-SHELL",
+         "wget --no-verbose --tries=1 --spider http://localhost:1337 || exit 1",
+       ]
      interval: 30s
      timeout: 10s
      retries: 3
@@ -125,9 +142,14 @@ Added proper health checks for services that were missing them:
    ```
 
 2. **Prometheus** (lines 205-210)
+
    ```yaml
    healthcheck:
-     test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+     test:
+       [
+         "CMD-SHELL",
+         "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1",
+       ]
      interval: 30s
      timeout: 10s
      retries: 3
@@ -137,7 +159,11 @@ Added proper health checks for services that were missing them:
 3. **Grafana** (lines 244-249)
    ```yaml
    healthcheck:
-     test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+     test:
+       [
+         "CMD-SHELL",
+         "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1",
+       ]
      interval: 30s
      timeout: 10s
      retries: 3
@@ -147,6 +173,7 @@ Added proper health checks for services that were missing them:
 ### Volume Definitions Consolidated ✅
 
 All volume definitions now in one place (lines 22-34):
+
 ```yaml
 volumes:
   kong-postgres-data:
@@ -171,6 +198,7 @@ volumes:
 ## Files Created/Modified | الملفات المنشأة/المعدلة
 
 ### New Files
+
 1. `/home/user/sahool-unified-v15-idp/infrastructure/kong/init-konga-db.sh`
    - Purpose: Initialize Konga database in PostgreSQL
    - Permissions: Executable (chmod +x)
@@ -186,6 +214,7 @@ volumes:
    - Language: English & Arabic
 
 ### Modified Files
+
 1. `/home/user/sahool-unified-v15-idp/infrastructure/kong/docker-compose.yml`
    - Size: 13K
    - Major changes:
@@ -201,6 +230,7 @@ volumes:
 ## Architecture Changes | تغييرات البنية
 
 ### Before (Database Mode)
+
 ```
 PostgreSQL (kong + missing konga db)
     ↓
@@ -212,6 +242,7 @@ Konga ← FAILS (no konga database)
 ```
 
 ### After (DB-less Mode)
+
 ```
 PostgreSQL (konga database only)
     ↓
@@ -230,23 +261,27 @@ Declarative Config Files:
 ## Benefits of Changes | فوائد التغييرات
 
 ### Performance | الأداء
+
 - ✅ Faster Kong startup (no database migrations)
 - ✅ Lower resource usage (no database connections for Kong)
 - ✅ Reduced latency (configuration in memory)
 
 ### Reliability | الموثوقية
+
 - ✅ Konga now starts successfully
 - ✅ Network created automatically
 - ✅ Health checks detect failures early
 - ✅ No migration dependencies
 
 ### Maintainability | سهولة الصيانة
+
 - ✅ Configuration is version-controlled
 - ✅ Easy to review changes (git diff)
 - ✅ Simple rollback (git revert)
 - ✅ Clear documentation
 
 ### Simplicity | البساطة
+
 - ✅ No database migrations to manage
 - ✅ Configuration updates via file edit + reload
 - ✅ Easier to understand and debug
@@ -257,6 +292,7 @@ Declarative Config Files:
 ## Testing Recommendations | توصيات الاختبار
 
 ### 1. Validate Configuration
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/infrastructure/kong
 
@@ -268,6 +304,7 @@ docker run --rm -v $(pwd):/kong kong:3.5-alpine kong config parse /kong/kong.yml
 ```
 
 ### 2. Start Services
+
 ```bash
 # Start all services
 docker compose up -d
@@ -277,6 +314,7 @@ docker compose logs -f kong konga
 ```
 
 ### 3. Verify Services
+
 ```bash
 # Check Kong status
 curl http://localhost:8001/status
@@ -295,12 +333,14 @@ curl http://localhost:3002/api/health
 ```
 
 ### 4. Verify Database
+
 ```bash
 # Check Konga database exists
 docker exec kong-postgres psql -U kong -l | grep konga
 ```
 
 ### 5. Test Configuration Reload
+
 ```bash
 # Make a change to kong.yml
 # Then reload Kong
@@ -367,12 +407,14 @@ docker compose up -d
 ## Support & Documentation | الدعم والوثائق
 
 ### Documentation Files
+
 - `DBLESS_SETUP.md` - Comprehensive DB-less mode guide
 - `CHANGES_SUMMARY.md` - This file
 - `README.md` - General Kong setup guide
 - `INDEX.md` - Kong infrastructure index
 
 ### Useful Commands
+
 ```bash
 # View all Kong configuration
 docker exec kong-gateway kong config db_export -
@@ -391,6 +433,7 @@ docker compose logs -f [service-name]
 ```
 
 ### External Resources
+
 - Kong DB-less Mode: https://docs.konghq.com/gateway/latest/production/deployment-topologies/db-less-and-declarative-config/
 - Kong Declarative Config: https://docs.konghq.com/gateway/latest/production/deployment-topologies/db-less-and-declarative-config/
 - deck (Kong CLI): https://docs.konghq.com/deck/latest/
@@ -400,6 +443,7 @@ docker compose logs -f [service-name]
 ## Contact | التواصل
 
 For questions or issues related to these changes:
+
 - Review logs: `docker compose logs [service]`
 - Check documentation: `DBLESS_SETUP.md`
 - Validate config: `docker exec kong-gateway kong config parse /etc/kong/kong.yml`
@@ -416,4 +460,4 @@ For questions or issues related to these changes:
 
 ---
 
-*End of Summary | نهاية الملخص*
+_End of Summary | نهاية الملخص_

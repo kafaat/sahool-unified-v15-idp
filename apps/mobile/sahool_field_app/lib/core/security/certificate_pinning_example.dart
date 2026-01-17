@@ -193,9 +193,11 @@ Future<void> checkExpiringCertificates(ApiClient apiClient) async {
   }
 
   // Log warning
-  debugPrint('⚠️ ALERT: ${expiringPins.length} certificate(s) expiring soon:');
-  for (final pin in expiringPins) {
-    debugPrint('  - ${pin.domain}: ${pin.daysUntilExpiry} days remaining');
+  if (kDebugMode) {
+    debugPrint('⚠️ ALERT: ${expiringPins.length} certificate(s) expiring soon:');
+    for (final pin in expiringPins) {
+      debugPrint('  - ${pin.domain}: ${pin.daysUntilExpiry} days remaining');
+    }
   }
 
   // In production, you might want to:

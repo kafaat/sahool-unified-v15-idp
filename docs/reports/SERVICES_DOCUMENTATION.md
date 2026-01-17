@@ -1,4 +1,5 @@
 # SAHOOL v15.3 - توثيق الخدمات
+
 # Services Documentation
 
 ## نظرة عامة | Overview
@@ -11,38 +12,39 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
 
 ## البنية التحتية | Infrastructure Services
 
-| الخدمة | المنفذ | الوصف |
-|--------|-------|-------|
-| PostgreSQL (PostGIS) | 5432 | قاعدة البيانات المكانية |
-| Kong API Gateway | 8000, 8001 | بوابة API |
-| NATS | 4222, 8222 | نظام الرسائل |
-| Redis | 6379 | التخزين المؤقت |
-| MQTT (Mosquitto) | 1883, 9001 | IoT messaging |
+| الخدمة               | المنفذ     | الوصف                   |
+| -------------------- | ---------- | ----------------------- |
+| PostgreSQL (PostGIS) | 5432       | قاعدة البيانات المكانية |
+| Kong API Gateway     | 8000, 8001 | بوابة API               |
+| NATS                 | 4222, 8222 | نظام الرسائل            |
+| Redis                | 6379       | التخزين المؤقت          |
+| MQTT (Mosquitto)     | 1883, 9001 | IoT messaging           |
 
 ---
 
 ## خدمات النواة القديمة | Legacy Kernel Services
 
-| الخدمة | المنفذ | الوصف |
-|--------|-------|-------|
-| field_core | 3000 | خدمة الحقول الأساسية |
-| field_ops | 8080 | عمليات الحقول |
-| ws_gateway | 8089 | بوابة WebSocket |
-| crop_health | 8100 | صحة المحاصيل (قديم) |
-| equipment_service | 8101 | إدارة المعدات |
-| community_service | 8102 | خدمة المجتمع |
-| task_service | 8103 | إدارة المهام |
-| provider_config | 8104 | تكوين المزودين |
-| agro_advisor | 8105 | المستشار الزراعي |
-| iot_gateway | 8106 | بوابة IoT |
-| ndvi_engine | 8107 | محرك NDVI |
-| weather_core | 8108 | خدمة الطقس الأساسية |
+| الخدمة            | المنفذ | الوصف                |
+| ----------------- | ------ | -------------------- |
+| field_core        | 3000   | خدمة الحقول الأساسية |
+| field_ops         | 8080   | عمليات الحقول        |
+| ws_gateway        | 8089   | بوابة WebSocket      |
+| crop_health       | 8100   | صحة المحاصيل (قديم)  |
+| equipment_service | 8101   | إدارة المعدات        |
+| community_service | 8102   | خدمة المجتمع         |
+| task_service      | 8103   | إدارة المهام         |
+| provider_config   | 8104   | تكوين المزودين       |
+| agro_advisor      | 8105   | المستشار الزراعي     |
+| iot_gateway       | 8106   | بوابة IoT            |
+| ndvi_engine       | 8107   | محرك NDVI            |
+| weather_core      | 8108   | خدمة الطقس الأساسية  |
 
 ---
 
 ## خدمات v15.3 الجديدة | New v15.3 Services
 
 ### 1. Satellite Service - خدمة الأقمار الصناعية
+
 - **المنفذ:** 8090
 - **المسار:** `kernel-services-v15.3/satellite-service`
 - **الوصف:** تحليل صور الأقمار الصناعية ومؤشر NDVI
@@ -53,6 +55,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
   - `GET /healthz` - فحص الصحة
 
 ### 2. Indicators Service - خدمة المؤشرات
+
 - **المنفذ:** 8091
 - **المسار:** `kernel-services-v15.3/indicators-service`
 - **الوصف:** مؤشرات الأداء الزراعية والتحليلات
@@ -63,6 +66,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
   - `GET /healthz` - فحص الصحة
 
 ### 3. Weather Advanced - خدمة الطقس المتقدمة
+
 - **المنفذ:** 8092
 - **المسار:** `kernel-services-v15.3/weather-advanced`
 - **الوصف:** التنبؤ بالطقس الزراعي والتنبيهات
@@ -74,6 +78,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
   - `GET /healthz` - فحص الصحة
 
 ### 4. Fertilizer Advisor - مستشار التسميد
+
 - **المنفذ:** 8093
 - **المسار:** `kernel-services-v15.3/fertilizer-advisor`
 - **الوصف:** توصيات التسميد الذكية
@@ -85,6 +90,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
   - `GET /healthz` - فحص الصحة
 
 ### 5. Irrigation Smart - الري الذكي
+
 - **المنفذ:** 8094
 - **المسار:** `kernel-services-v15.3/irrigation-smart`
 - **الوصف:** جدولة الري الذكية باستخدام FAO-56 Penman-Monteith
@@ -98,6 +104,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
   - `GET /healthz` - فحص الصحة
 
 ### 6. Crop Health AI - سهول فيجن
+
 - **المنفذ:** 8095
 - **المسار:** `kernel-services-v15.3/crop-health-ai`
 - **الوصف:** الذكاء الاصطناعي للكشف عن أمراض النباتات
@@ -110,6 +117,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
   - `GET /healthz` - فحص الصحة
 
 ### 7. Virtual Sensors - المستشعرات الافتراضية
+
 - **المنفذ:** 8096
 - **المسار:** `kernel-services-v15.3/virtual-sensors`
 - **الوصف:** محرك حساب ET0 وETc بدون أجهزة استشعار
@@ -123,6 +131,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
   - `GET /healthz` - فحص الصحة
 
 ### 8. Community Chat - الدردشة المجتمعية
+
 - **المنفذ:** 8097
 - **المسار:** `kernel-services-v15.3/community-chat`
 - **الوصف:** خدمة الدردشة في الوقت الفعلي مع الخبراء
@@ -135,6 +144,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
   - `GET /healthz` - فحص الصحة
 
 ### 9. Yield Engine - محرك الإنتاجية
+
 - **المنفذ:** 8098
 - **المسار:** `kernel-services-v15.3/yield-engine`
 - **الوصف:** التنبؤ بإنتاجية المحاصيل بالذكاء الاصطناعي
@@ -154,18 +164,19 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
 - **المسار:** `web_admin/`
 
 ### الصفحات المتاحة:
-| المسار | الوصف |
-|--------|-------|
-| `/dashboard` | لوحة التحكم الرئيسية |
-| `/farms` | إدارة المزارع |
-| `/epidemic` | مركز رصد الأوبئة |
-| `/diseases` | إدارة الأمراض |
-| `/yield` | حاسبة الإنتاجية |
-| `/irrigation` | الري الذكي |
-| `/sensors` | المستشعرات الافتراضية |
-| `/alerts` | الطقس والتنبيهات |
-| `/support` | الدعم الفني |
-| `/settings` | الإعدادات |
+
+| المسار        | الوصف                 |
+| ------------- | --------------------- |
+| `/dashboard`  | لوحة التحكم الرئيسية  |
+| `/farms`      | إدارة المزارع         |
+| `/epidemic`   | مركز رصد الأوبئة      |
+| `/diseases`   | إدارة الأمراض         |
+| `/yield`      | حاسبة الإنتاجية       |
+| `/irrigation` | الري الذكي            |
+| `/sensors`    | المستشعرات الافتراضية |
+| `/alerts`     | الطقس والتنبيهات      |
+| `/support`    | الدعم الفني           |
+| `/settings`   | الإعدادات             |
 
 ---
 
@@ -175,6 +186,7 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
 - **التقنية:** Flutter + Riverpod + Freezed
 
 ### الميزات:
+
 - تشخيص أمراض النباتات بالكاميرا
 - عرض خرائط الحقول مع NDVI
 - جدولة الري الذكية
@@ -188,11 +200,13 @@ SAHOOL Smart Agricultural Platform - An integrated farm management system for Ye
 ## التشغيل | Running the Platform
 
 ### المتطلبات:
+
 - Docker & Docker Compose
 - Node.js 18+ (للتطوير)
 - Python 3.11+ (للتطوير)
 
 ### بدء التشغيل:
+
 ```bash
 # إنشاء ملف .env من المثال
 cp .env.example .env
@@ -208,6 +222,7 @@ docker-compose logs -f [service_name]
 ```
 
 ### فحص صحة الخدمات:
+
 ```bash
 # فحص جميع الخدمات
 curl http://localhost:8095/healthz  # crop_health_ai
@@ -271,6 +286,7 @@ curl http://localhost:8092/healthz  # weather_advanced
 ## المحافظات المدعومة | Supported Governorates
 
 اليمن - 22 محافظة:
+
 - صنعاء (Sanaa)
 - عدن (Aden)
 - تعز (Taiz)
@@ -299,22 +315,22 @@ curl http://localhost:8092/healthz  # weather_advanced
 ## المحاصيل المدعومة | Supported Crops
 
 | المحصول | الاسم الإنجليزي |
-|---------|----------------|
-| طماطم | Tomato |
-| قمح | Wheat |
-| بن | Coffee |
-| قات | Qat |
-| موز | Banana |
-| خيار | Cucumber |
-| فلفل | Pepper |
-| بطاطس | Potato |
-| ذرة | Corn |
-| عنب | Grapes |
-| نخيل | Date Palm |
-| مانجو | Mango |
-| بصل | Onion |
-| ثوم | Garlic |
-| برسيم | Alfalfa |
+| ------- | --------------- |
+| طماطم   | Tomato          |
+| قمح     | Wheat           |
+| بن      | Coffee          |
+| قات     | Qat             |
+| موز     | Banana          |
+| خيار    | Cucumber        |
+| فلفل    | Pepper          |
+| بطاطس   | Potato          |
+| ذرة     | Corn            |
+| عنب     | Grapes          |
+| نخيل    | Date Palm       |
+| مانجو   | Mango           |
+| بصل     | Onion           |
+| ثوم     | Garlic          |
+| برسيم   | Alfalfa         |
 
 ---
 

@@ -9,8 +9,12 @@
  * - Dispute handling
  */
 
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class EscrowService {
@@ -30,7 +34,7 @@ export class EscrowService {
     ipAddress?: string,
   ) {
     if (amount <= 0) {
-      throw new BadRequestException('المبلغ يجب أن يكون أكبر من صفر');
+      throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
 
     if (idempotencyKey) {
@@ -52,7 +56,7 @@ export class EscrowService {
         });
 
         if (existingEscrow) {
-          throw new BadRequestException('يوجد إسكرو لهذا الطلب بالفعل');
+          throw new BadRequestException("يوجد إسكرو لهذا الطلب بالفعل");
         }
 
         const buyerWalletRows = await tx.$queryRaw<any[]>`
@@ -60,7 +64,7 @@ export class EscrowService {
         `;
 
         if (!buyerWalletRows || buyerWalletRows.length === 0) {
-          throw new NotFoundException('محفظة المشتري غير موجودة');
+          throw new NotFoundException("محفظة المشتري غير موجودة");
         }
 
         const buyerWallet = buyerWalletRows[0];
@@ -82,7 +86,7 @@ export class EscrowService {
           where: { id: sellerWalletId },
         });
         if (!sellerWalletExists) {
-          throw new NotFoundException('محفظة البائع غير موجودة');
+          throw new NotFoundException("محفظة البائع غير موجودة");
         }
 
         const escrow = await tx.escrow.create({
@@ -91,7 +95,7 @@ export class EscrowService {
             buyerWalletId,
             sellerWalletId,
             amount,
-            status: 'HELD',
+            status: "HELD",
             notes,
           },
         });
@@ -111,15 +115,15 @@ export class EscrowService {
         const transaction = await tx.transaction.create({
           data: {
             walletId: buyerWalletId,
-            type: 'ESCROW_HOLD',
+            type: "ESCROW_HOLD",
             amount: -amount,
             balanceAfter: newBalance,
             balanceBefore,
             referenceId: orderId,
-            referenceType: 'order',
-            description: 'Funds held in escrow for order',
-            descriptionAr: 'مبلغ محجوز في الإسكرو للطلب',
-            status: 'COMPLETED',
+            referenceType: "order",
+            description: "Funds held in escrow for order",
+            descriptionAr: "مبلغ محجوز في الإسكرو للطلب",
+            status: "COMPLETED",
             idempotencyKey,
             userId,
             ipAddress,
@@ -131,7 +135,7 @@ export class EscrowService {
             walletId: buyerWalletId,
             transactionId: transaction.id,
             userId,
-            operation: 'ESCROW_HOLD',
+            operation: "ESCROW_HOLD",
             balanceBefore,
             balanceAfter: newBalance,
             amount: -amount,
@@ -157,7 +161,7 @@ export class EscrowService {
         };
       },
       {
-        isolationLevel: 'Serializable',
+        isolationLevel: "Serializable",
         maxWait: 5000,
         timeout: 10000,
       },
@@ -197,10 +201,10 @@ export class EscrowService {
         });
 
         if (!escrow) {
-          throw new NotFoundException('الإسكرو غير موجود');
+          throw new NotFoundException("الإسكرو غير موجود");
         }
 
-        if (escrow.status !== 'HELD') {
+        if (escrow.status !== "HELD") {
           throw new BadRequestException(
             `الإسكرو ليس في حالة محجوز. الحالة الحالية: ${escrow.status}`,
           );
@@ -216,11 +220,11 @@ export class EscrowService {
         ]);
 
         if (!buyerWalletRows || buyerWalletRows.length === 0) {
-          throw new NotFoundException('محفظة المشتري غير موجودة');
+          throw new NotFoundException("محفظة المشتري غير موجودة");
         }
 
         if (!sellerWalletRows || sellerWalletRows.length === 0) {
-          throw new NotFoundException('محفظة البائع غير موجودة');
+          throw new NotFoundException("محفظة البائع غير موجودة");
         }
 
         const buyerWallet = buyerWalletRows[0];
@@ -233,7 +237,7 @@ export class EscrowService {
 
         if (buyerEscrowBefore < escrow.amount) {
           throw new BadRequestException(
-            'رصيد الإسكرو غير كافي - قد يكون تم إطلاقه مسبقاً',
+            "رصيد الإسكرو غير كافي - قد يكون تم إطلاقه مسبقاً",
           );
         }
 
@@ -244,7 +248,7 @@ export class EscrowService {
         const updatedEscrow = await tx.escrow.update({
           where: { id: escrowId },
           data: {
-            status: 'RELEASED',
+            status: "RELEASED",
             releasedAt: now,
             notes: notes || escrow.notes,
           },
@@ -275,16 +279,18 @@ export class EscrowService {
         const buyerTx = await tx.transaction.create({
           data: {
             walletId: escrow.buyerWalletId,
-            type: 'ESCROW_RELEASE',
+            type: "ESCROW_RELEASE",
             amount: 0,
             balanceAfter: buyerWallet.balance,
             balanceBefore: buyerWallet.balance,
             referenceId: escrow.orderId,
-            referenceType: 'order',
-            description: 'Escrow released to seller',
-            descriptionAr: 'تم إطلاق الإسكرو للبائع',
-            status: 'COMPLETED',
-            idempotencyKey: idempotencyKey ? `${idempotencyKey}-buyer` : undefined,
+            referenceType: "order",
+            description: "Escrow released to seller",
+            descriptionAr: "تم إطلاق الإسكرو للبائع",
+            status: "COMPLETED",
+            idempotencyKey: idempotencyKey
+              ? `${idempotencyKey}-buyer`
+              : undefined,
             userId,
             ipAddress,
           },
@@ -293,15 +299,15 @@ export class EscrowService {
         const sellerTx = await tx.transaction.create({
           data: {
             walletId: escrow.sellerWalletId,
-            type: 'MARKETPLACE_SALE',
+            type: "MARKETPLACE_SALE",
             amount: escrow.amount,
             balanceAfter: sellerBalanceAfter,
             balanceBefore: sellerBalanceBefore,
             referenceId: escrow.orderId,
-            referenceType: 'order',
-            description: 'Payment received from escrow',
-            descriptionAr: 'استلام دفعة من الإسكرو',
-            status: 'COMPLETED',
+            referenceType: "order",
+            description: "Payment received from escrow",
+            descriptionAr: "استلام دفعة من الإسكرو",
+            status: "COMPLETED",
             idempotencyKey,
             userId,
             ipAddress,
@@ -314,7 +320,7 @@ export class EscrowService {
               walletId: escrow.buyerWalletId,
               transactionId: buyerTx.id,
               userId,
-              operation: 'ESCROW_RELEASE_BUYER',
+              operation: "ESCROW_RELEASE_BUYER",
               balanceBefore: buyerWallet.balance,
               balanceAfter: buyerWallet.balance,
               amount: 0,
@@ -335,7 +341,7 @@ export class EscrowService {
               walletId: escrow.sellerWalletId,
               transactionId: sellerTx.id,
               userId,
-              operation: 'ESCROW_RELEASE_SELLER',
+              operation: "ESCROW_RELEASE_SELLER",
               balanceBefore: sellerBalanceBefore,
               balanceAfter: sellerBalanceAfter,
               amount: escrow.amount,
@@ -353,10 +359,10 @@ export class EscrowService {
         await tx.creditEvent.create({
           data: {
             walletId: escrow.sellerWalletId,
-            eventType: 'ORDER_COMPLETED',
+            eventType: "ORDER_COMPLETED",
             amount: escrow.amount,
             impact: 5,
-            description: 'طلب مكتمل بنجاح في السوق',
+            description: "طلب مكتمل بنجاح في السوق",
             metadata: { orderId: escrow.orderId, escrowId },
           },
         });
@@ -370,7 +376,7 @@ export class EscrowService {
         };
       },
       {
-        isolationLevel: 'Serializable',
+        isolationLevel: "Serializable",
         maxWait: 5000,
         timeout: 10000,
       },
@@ -407,10 +413,10 @@ export class EscrowService {
         });
 
         if (!escrow) {
-          throw new NotFoundException('الإسكرو غير موجود');
+          throw new NotFoundException("الإسكرو غير موجود");
         }
 
-        if (escrow.status !== 'HELD' && escrow.status !== 'DISPUTED') {
+        if (escrow.status !== "HELD" && escrow.status !== "DISPUTED") {
           throw new BadRequestException(
             `لا يمكن استرداد هذا الإسكرو. الحالة الحالية: ${escrow.status}`,
           );
@@ -421,7 +427,7 @@ export class EscrowService {
         `;
 
         if (!buyerWalletRows || buyerWalletRows.length === 0) {
-          throw new NotFoundException('محفظة المشتري غير موجودة');
+          throw new NotFoundException("محفظة المشتري غير موجودة");
         }
 
         const buyerWallet = buyerWalletRows[0];
@@ -431,7 +437,7 @@ export class EscrowService {
 
         if (escrowBalanceBefore < escrow.amount) {
           throw new BadRequestException(
-            'رصيد الإسكرو غير كافي - قد يكون تم استرداده مسبقاً',
+            "رصيد الإسكرو غير كافي - قد يكون تم استرداده مسبقاً",
           );
         }
 
@@ -443,7 +449,7 @@ export class EscrowService {
         const updatedEscrow = await tx.escrow.update({
           where: { id: escrowId },
           data: {
-            status: 'REFUNDED',
+            status: "REFUNDED",
             refundedAt: now,
             disputeReason: reason,
           },
@@ -464,15 +470,15 @@ export class EscrowService {
         const transaction = await tx.transaction.create({
           data: {
             walletId: escrow.buyerWalletId,
-            type: 'ESCROW_REFUND',
+            type: "ESCROW_REFUND",
             amount: escrow.amount,
             balanceAfter: newBalance,
             balanceBefore,
             referenceId: escrow.orderId,
-            referenceType: 'order',
-            description: `Escrow refunded: ${reason || 'Order cancelled'}`,
-            descriptionAr: `استرداد الإسكرو: ${reason || 'تم إلغاء الطلب'}`,
-            status: 'COMPLETED',
+            referenceType: "order",
+            description: `Escrow refunded: ${reason || "Order cancelled"}`,
+            descriptionAr: `استرداد الإسكرو: ${reason || "تم إلغاء الطلب"}`,
+            status: "COMPLETED",
             idempotencyKey,
             userId,
             ipAddress,
@@ -484,7 +490,7 @@ export class EscrowService {
             walletId: escrow.buyerWalletId,
             transactionId: transaction.id,
             userId,
-            operation: 'ESCROW_REFUND',
+            operation: "ESCROW_REFUND",
             balanceBefore,
             balanceAfter: newBalance,
             amount: escrow.amount,
@@ -505,10 +511,10 @@ export class EscrowService {
         await tx.creditEvent.create({
           data: {
             walletId: escrow.sellerWalletId,
-            eventType: 'ORDER_CANCELLED',
+            eventType: "ORDER_CANCELLED",
             amount: escrow.amount,
             impact: -5,
-            description: 'طلب ملغي - تم استرداد المبلغ للمشتري',
+            description: "طلب ملغي - تم استرداد المبلغ للمشتري",
             metadata: { orderId: escrow.orderId, escrowId, reason },
           },
         });
@@ -521,7 +527,7 @@ export class EscrowService {
         };
       },
       {
-        isolationLevel: 'Serializable',
+        isolationLevel: "Serializable",
         maxWait: 5000,
         timeout: 10000,
       },
@@ -548,11 +554,11 @@ export class EscrowService {
     const [asBuyer, asSeller] = await Promise.all([
       this.prisma.escrow.findMany({
         where: { buyerWalletId: walletId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
       this.prisma.escrow.findMany({
         where: { sellerWalletId: walletId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
     ]);
 

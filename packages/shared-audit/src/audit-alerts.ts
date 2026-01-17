@@ -3,8 +3,8 @@
  * Detects patterns in audit events and triggers alerts for critical security events
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { Injectable, Logger } from "@nestjs/common";
+import { v4 as uuidv4 } from "uuid";
 import {
   AuditEvent,
   AuditAlert,
@@ -14,79 +14,81 @@ import {
   AlertRule,
   AlertCondition,
   AlertHandler,
-} from './audit-types';
+} from "./audit-types";
 
 /**
  * Default alert rules for common security patterns
  */
 const DEFAULT_ALERT_RULES: AlertRule[] = [
   {
-    name: 'multiple_failed_logins',
-    description: 'Multiple failed login attempts from same IP',
+    name: "multiple_failed_logins",
+    description: "Multiple failed login attempts from same IP",
     conditions: [
-      { field: 'action', operator: 'equals', value: 'auth.login' },
-      { field: 'success', operator: 'equals', value: false },
+      { field: "action", operator: "equals", value: "auth.login" },
+      { field: "success", operator: "equals", value: false },
     ],
     severity: AuditSeverity.WARNING,
     batchSimilar: true,
   },
   {
-    name: 'privilege_escalation',
-    description: 'User attempting to access admin resources',
+    name: "privilege_escalation",
+    description: "User attempting to access admin resources",
     conditions: [
-      { field: 'category', operator: 'equals', value: AuditCategory.ADMIN },
-      { field: 'success', operator: 'equals', value: false },
+      { field: "category", operator: "equals", value: AuditCategory.ADMIN },
+      { field: "success", operator: "equals", value: false },
     ],
     severity: AuditSeverity.CRITICAL,
   },
   {
-    name: 'financial_transaction_failure',
-    description: 'Financial transaction failed',
+    name: "financial_transaction_failure",
+    description: "Financial transaction failed",
     conditions: [
-      { field: 'category', operator: 'equals', value: AuditCategory.FINANCIAL },
-      { field: 'success', operator: 'equals', value: false },
+      { field: "category", operator: "equals", value: AuditCategory.FINANCIAL },
+      { field: "success", operator: "equals", value: false },
     ],
     severity: AuditSeverity.ERROR,
   },
   {
-    name: 'data_deletion',
-    description: 'Data deletion event',
+    name: "data_deletion",
+    description: "Data deletion event",
     conditions: [
-      { field: 'action', operator: 'contains', value: 'delete' },
-      { field: 'category', operator: 'equals', value: AuditCategory.DATA },
+      { field: "action", operator: "contains", value: "delete" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
     ],
     severity: AuditSeverity.WARNING,
   },
   {
-    name: 'critical_error',
-    description: 'Critical severity event occurred',
-    conditions: [{ field: 'severity', operator: 'equals', value: AuditSeverity.CRITICAL }],
+    name: "critical_error",
+    description: "Critical severity event occurred",
+    conditions: [
+      { field: "severity", operator: "equals", value: AuditSeverity.CRITICAL },
+    ],
     severity: AuditSeverity.CRITICAL,
   },
   {
-    name: 'unauthorized_access',
-    description: 'Unauthorized access attempt',
+    name: "unauthorized_access",
+    description: "Unauthorized access attempt",
     conditions: [
-      { field: 'category', operator: 'equals', value: AuditCategory.ACCESS },
-      { field: 'success', operator: 'equals', value: false },
+      { field: "category", operator: "equals", value: AuditCategory.ACCESS },
+      { field: "success", operator: "equals", value: false },
     ],
     severity: AuditSeverity.WARNING,
   },
   {
-    name: 'security_config_change',
-    description: 'Security configuration changed',
+    name: "security_config_change",
+    description: "Security configuration changed",
     conditions: [
-      { field: 'category', operator: 'equals', value: AuditCategory.SECURITY },
-      { field: 'action', operator: 'contains', value: 'update' },
+      { field: "category", operator: "equals", value: AuditCategory.SECURITY },
+      { field: "action", operator: "contains", value: "update" },
     ],
     severity: AuditSeverity.WARNING,
   },
   {
-    name: 'bulk_data_export',
-    description: 'Large data export detected',
+    name: "bulk_data_export",
+    description: "Large data export detected",
     conditions: [
-      { field: 'action', operator: 'contains', value: 'export' },
-      { field: 'category', operator: 'equals', value: AuditCategory.DATA },
+      { field: "action", operator: "contains", value: "export" },
+      { field: "category", operator: "equals", value: AuditCategory.DATA },
     ],
     severity: AuditSeverity.INFO,
   },
@@ -148,33 +150,36 @@ export class AuditAlertService {
   /**
    * Check if event matches a condition
    */
-  private matchesCondition(event: AuditEvent, condition: AlertCondition): boolean {
+  private matchesCondition(
+    event: AuditEvent,
+    condition: AlertCondition,
+  ): boolean {
     const value = event[condition.field];
 
     switch (condition.operator) {
-      case 'equals':
+      case "equals":
         return value === condition.value;
 
-      case 'contains':
-        if (typeof value === 'string' && typeof condition.value === 'string') {
+      case "contains":
+        if (typeof value === "string" && typeof condition.value === "string") {
           return value.includes(condition.value);
         }
         return false;
 
-      case 'startsWith':
-        if (typeof value === 'string' && typeof condition.value === 'string') {
+      case "startsWith":
+        if (typeof value === "string" && typeof condition.value === "string") {
           return value.startsWith(condition.value);
         }
         return false;
 
-      case 'endsWith':
-        if (typeof value === 'string' && typeof condition.value === 'string') {
+      case "endsWith":
+        if (typeof value === "string" && typeof condition.value === "string") {
           return value.endsWith(condition.value);
         }
         return false;
 
-      case 'matches':
-        if (typeof value === 'string' && typeof condition.value === 'string') {
+      case "matches":
+        if (typeof value === "string" && typeof condition.value === "string") {
           try {
             const regex = new RegExp(condition.value);
             return regex.test(value);
@@ -184,14 +189,14 @@ export class AuditAlertService {
         }
         return false;
 
-      case 'greaterThan':
-        if (typeof value === 'number' && typeof condition.value === 'number') {
+      case "greaterThan":
+        if (typeof value === "number" && typeof condition.value === "number") {
           return value > condition.value;
         }
         return false;
 
-      case 'lessThan':
-        if (typeof value === 'number' && typeof condition.value === 'number') {
+      case "lessThan":
+        if (typeof value === "number" && typeof condition.value === "number") {
           return value < condition.value;
         }
         return false;
@@ -204,7 +209,10 @@ export class AuditAlertService {
   /**
    * Trigger an alert
    */
-  private async triggerAlert(rule: AlertRule, event: AuditEvent): Promise<void> {
+  private async triggerAlert(
+    rule: AlertRule,
+    event: AuditEvent,
+  ): Promise<void> {
     const alert: AuditAlert = {
       id: uuidv4(),
       rule: rule.name,
@@ -227,7 +235,7 @@ export class AuditAlertService {
    * Build alert message
    */
   private buildAlertMessage(rule: AlertRule, event: AuditEvent): string {
-    return `[${rule.name}] ${rule.description}: ${event.action} on ${event.resourceType}/${event.resourceId} by ${event.actorType}/${event.actorId || 'system'}`;
+    return `[${rule.name}] ${rule.description}: ${event.action} on ${event.resourceType}/${event.resourceId} by ${event.actorType}/${event.actorId || "system"}`;
   }
 
   /**
@@ -243,7 +251,10 @@ export class AuditAlertService {
         try {
           await handler.handle(alert);
         } catch (error) {
-          this.logger.error(`Failed to execute alert handler ${rule.handler}`, error);
+          this.logger.error(
+            `Failed to execute alert handler ${rule.handler}`,
+            error,
+          );
         }
       }
     }
@@ -254,7 +265,10 @@ export class AuditAlertService {
         try {
           await handler.handle(alert);
         } catch (error) {
-          this.logger.error(`Failed to execute alert handler ${handler.name}`, error);
+          this.logger.error(
+            `Failed to execute alert handler ${handler.name}`,
+            error,
+          );
         }
       }
     }
@@ -351,14 +365,14 @@ export class AuditAlertService {
  * Console alert handler (for debugging)
  */
 export const consoleAlertHandler: AlertHandler = {
-  name: 'console',
+  name: "console",
   async handle(alert: AuditAlert): Promise<void> {
-    console.error('='.repeat(80));
+    console.error("=".repeat(80));
     console.error(`🚨 SECURITY ALERT: ${alert.message}`);
     console.error(`Severity: ${alert.severity}`);
     console.error(`Events: ${alert.events.length}`);
     console.error(`Timestamp: ${alert.timestamp.toISOString()}`);
-    console.error('='.repeat(80));
+    console.error("=".repeat(80));
   },
 };
 
@@ -366,10 +380,10 @@ export const consoleAlertHandler: AlertHandler = {
  * Email alert handler (placeholder - integrate with your email service)
  */
 export const emailAlertHandler: AlertHandler = {
-  name: 'email',
+  name: "email",
   async handle(alert: AuditAlert): Promise<void> {
     // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
-    console.log('Email alert:', alert.message);
+    console.log("Email alert:", alert.message);
   },
 };
 
@@ -377,10 +391,10 @@ export const emailAlertHandler: AlertHandler = {
  * Slack alert handler (placeholder - integrate with Slack)
  */
 export const slackAlertHandler: AlertHandler = {
-  name: 'slack',
+  name: "slack",
   async handle(alert: AuditAlert): Promise<void> {
     // TODO: Integrate with Slack webhook
-    console.log('Slack alert:', alert.message);
+    console.log("Slack alert:", alert.message);
   },
 };
 
@@ -389,19 +403,19 @@ export const slackAlertHandler: AlertHandler = {
  */
 export function createWebhookAlertHandler(url: string): AlertHandler {
   return {
-    name: 'webhook',
+    name: "webhook",
     async handle(alert: AuditAlert): Promise<void> {
       try {
         const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(alert),
         });
         if (!response.ok) {
           throw new Error(`Webhook failed: ${response.statusText}`);
         }
       } catch (error) {
-        console.error('Failed to send webhook alert:', error);
+        console.error("Failed to send webhook alert:", error);
       }
     },
   };

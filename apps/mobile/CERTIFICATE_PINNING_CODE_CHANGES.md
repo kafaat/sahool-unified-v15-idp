@@ -11,12 +11,14 @@ This document details all the code changes made to enable certificate pinning in
 The core certificate pinning service that handles SSL validation.
 
 **Key Classes:**
+
 - `CertificatePinningService` - Main service class
 - `CertificatePin` - Pin configuration model
 - `PinType` - Enum for pin types (SHA256, PublicKey)
 - `ExpiringPin` - Model for tracking expiring pins
 
 **Key Methods:**
+
 ```dart
 // Configure Dio with certificate pinning
 void configureDio(Dio dio)
@@ -35,6 +37,7 @@ Future<String?> getCertificateFingerprintFromUrl(String url)
 ```
 
 **Default Pin Configuration:**
+
 ```dart
 static Map<String, List<CertificatePin>> _getDefaultPins() {
   return {
@@ -56,10 +59,12 @@ static Map<String, List<CertificatePin>> _getDefaultPins() {
 Centralized certificate pin configurations for all environments.
 
 **Key Classes:**
+
 - `CertificateConfig` - Static configuration provider
 - `CertificateRotationHelper` - Utilities for managing rotation
 
 **Key Methods:**
+
 ```dart
 // Get pins for specific environment
 static Map<String, List<CertificatePin>> getProductionPins()
@@ -74,6 +79,7 @@ static List<String> validatePinConfiguration(Map<String, List<CertificatePin>> p
 ```
 
 **Production Configuration Example:**
+
 ```dart
 static Map<String, List<CertificatePin>> getProductionPins() {
   return {
@@ -102,9 +108,11 @@ static Map<String, List<CertificatePin>> getProductionPins() {
 Security configuration that controls when features are enabled.
 
 **Key Class:**
+
 - `SecurityConfig` - Security settings container
 
 **Predefined Configurations:**
+
 ```dart
 // Production: Strict pinning, no bypass
 static const production = SecurityConfig(
@@ -132,6 +140,7 @@ static const development = SecurityConfig(
 ```
 
 **Factory Methods:**
+
 ```dart
 // Get config based on environment string
 factory SecurityConfig.forEnvironment(String environment)
@@ -151,6 +160,7 @@ factory SecurityConfig.fromBuildMode() {
 Comprehensive examples showing 8 different usage scenarios.
 
 **Examples Included:**
+
 1. Basic usage with auto configuration
 2. Manual configuration for specific environment
 3. Custom certificate pins
@@ -167,6 +177,7 @@ Comprehensive examples showing 8 different usage scenarios.
 Quick start guide and module overview.
 
 **Sections:**
+
 - Quick Start (for development and production)
 - How It Works (build mode detection)
 - Integration (with ApiClient)
@@ -179,6 +190,7 @@ Quick start guide and module overview.
 Complete setup and maintenance guide.
 
 **Sections:**
+
 - Overview and how it works
 - Configuration files explanation
 - Getting certificate fingerprints (3 methods)
@@ -194,6 +206,7 @@ Complete setup and maintenance guide.
 Implementation summary document (this directory level).
 
 **Sections:**
+
 - Overview of changes
 - Detailed file-by-file changes
 - Configuration requirements
@@ -208,6 +221,7 @@ Implementation summary document (this directory level).
 ### 1. `/lib/core/http/api_client.dart`
 
 **Added Imports:**
+
 ```dart
 import '../config/env_config.dart';
 import '../security/security_config.dart';
@@ -216,11 +230,13 @@ import '../security/certificate_config.dart';
 ```
 
 **Added Instance Variable:**
+
 ```dart
 CertificatePinningService? _certificatePinningService;
 ```
 
 **Updated Constructor:**
+
 ```dart
 ApiClient({
   String? baseUrl,
@@ -275,6 +291,7 @@ ApiClient({
 ```
 
 **Added Helper Methods:**
+
 ```dart
 /// Get certificate pinning service instance
 CertificatePinningService? get certificatePinningService => _certificatePinningService;
@@ -295,6 +312,7 @@ void updateCertificatePins(String domain, List<CertificatePin> pins) {
 ```
 
 **Changes Summary:**
+
 - Added 4 new imports
 - Added 1 new instance variable
 - Updated constructor with 2 new optional parameters
@@ -305,6 +323,7 @@ void updateCertificatePins(String domain, List<CertificatePin> pins) {
 ### 2. `/lib/core/di/providers.dart`
 
 **Updated Provider Documentation:**
+
 ```dart
 /// API Client Provider
 /// Automatically configures certificate pinning based on build mode:
@@ -318,22 +337,25 @@ final apiClientProvider = Provider<ApiClient>((ref) {
 ```
 
 **Changes Summary:**
+
 - Added 5 lines of documentation
 - No code logic changes (works automatically)
 
 ### 3. `/pubspec.yaml`
 
 **Added Dependency:**
+
 ```yaml
 # Network
 dio: ^5.7.0
 http: ^1.2.2
 connectivity_plus: ^6.1.1
 socket_io_client: ^2.0.3+1
-crypto: ^3.0.3  # For certificate pinning  <-- ADDED
+crypto: ^3.0.3 # For certificate pinning  <-- ADDED
 ```
 
 **Changes Summary:**
+
 - Added `crypto: ^3.0.3` dependency for SHA-256 hashing
 
 ## Integration Flow
@@ -395,6 +417,7 @@ Allow connection           Block connection
 The implementation is complete but requires configuration before production deployment:
 
 **What's Complete:**
+
 - ✅ All code files created
 - ✅ API client integration
 - ✅ Automatic build mode detection
@@ -402,6 +425,7 @@ The implementation is complete but requires configuration before production depl
 - ✅ Testing infrastructure
 
 **What's Required:**
+
 - ⚠️ Replace placeholder fingerprints in `certificate_config.dart`
 - ⚠️ Get actual certificate fingerprints from production servers
 - ⚠️ Update expiry dates
@@ -422,12 +446,14 @@ value: 'a1b2c3d4e5f67890...',  // Actual SHA-256 fingerprint from your cert
 ## Testing Commands
 
 ### Development Build (Pinning Disabled)
+
 ```bash
 flutter run
 # Expected: Certificate pinning is disabled
 ```
 
 ### Staging Build (Pinning Enabled, Debug Bypass)
+
 ```bash
 flutter build apk --dart-define=ENV=staging --release
 adb install build/app/outputs/flutter-apk/app-release.apk
@@ -436,6 +462,7 @@ adb logcat | grep "Certificate"
 ```
 
 ### Production Build (Pinning Enabled, Strict)
+
 ```bash
 flutter build apk --dart-define=ENV=production --release
 # Expected: Certificate pinning enabled, strict: true
@@ -448,7 +475,7 @@ Before deploying to production:
 - [ ] Get actual certificate fingerprints from all domains:
   - [ ] api.sahool.app
   - [ ] ws.sahool.app
-  - [ ] *.sahool.io (if applicable)
+  - [ ] \*.sahool.io (if applicable)
 - [ ] Update `certificate_config.dart` with real fingerprints
 - [ ] Add backup pins (minimum 2 per domain)
 - [ ] Set correct expiry dates based on certificate validity
@@ -462,12 +489,14 @@ Before deploying to production:
 ## Getting Certificate Fingerprints
 
 ### Method 1: OpenSSL (Recommended)
+
 ```bash
 openssl s_client -connect api.sahool.app:443 < /dev/null 2>/dev/null | \
   openssl x509 -fingerprint -sha256 -noout -in /dev/stdin
 ```
 
 ### Method 2: Using the App
+
 ```dart
 // In debug mode
 final fp = await getCertificateFingerprintFromUrl('https://api.sahool.app');
@@ -475,6 +504,7 @@ print('Fingerprint: $fp');
 ```
 
 ### Method 3: Browser
+
 1. Visit https://api.sahool.app
 2. Click lock icon → Certificate
 3. Copy SHA-256 fingerprint
@@ -482,6 +512,7 @@ print('Fingerprint: $fp');
 ## Summary
 
 **Total Changes:**
+
 - **6 new files** created in `/lib/core/security/`
 - **3 documentation files** created
 - **3 files modified** (api_client.dart, providers.dart, pubspec.yaml)
@@ -489,6 +520,7 @@ print('Fingerprint: $fp');
 - **Comprehensive documentation** included
 
 **Key Features:**
+
 - Zero-configuration automatic setup
 - Build mode detection
 - Environment-based pin configuration
@@ -498,6 +530,7 @@ print('Fingerprint: $fp');
 - Production-ready security
 
 **Next Steps:**
+
 1. Get actual certificate fingerprints
 2. Update certificate_config.dart
 3. Test in staging
@@ -506,6 +539,7 @@ print('Fingerprint: $fp');
 ---
 
 For detailed setup instructions, see:
+
 - `/lib/core/security/README.md` - Quick start
 - `/lib/core/security/CERTIFICATE_PINNING_GUIDE.md` - Complete guide
 - `/apps/mobile/CERTIFICATE_PINNING_IMPLEMENTATION.md` - Implementation details

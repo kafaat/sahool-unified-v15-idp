@@ -3,8 +3,13 @@
  * خدمة الاتصال بقاعدة البيانات
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
 
 @Injectable()
 export class PrismaService
@@ -12,30 +17,97 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name);
+  private isConnected = false;
+  private readonly isTestEnvironment: boolean;
 
   constructor() {
+    const databaseUrl = process.env.DATABASE_URL;
+    const environment = (
+      process.env.ENVIRONMENT ||
+      process.env.NODE_ENV ||
+      ""
+    ).toLowerCase();
+
+    // Detect CI/test environment
+    const isTestEnv = ["test", "ci", "testing"].includes(environment);
+
+    // Validate DATABASE_URL before calling super() (can't use 'this' before super)
+    if (!databaseUrl && !isTestEnv) {
+      console.error("DATABASE_URL environment variable is not set");
+      throw new Error(
+        "DATABASE_URL is required but not provided. Please check your .env file and ensure POSTGRES_PASSWORD is set correctly.",
+      );
+    }
+
+    // Call super() with validated URL or a placeholder for test environments
     super({
       log: [
-        { level: 'error', emit: 'stdout' },
-        { level: 'warn', emit: 'stdout' },
-        { level: 'info', emit: 'stdout' },
+        { level: "error", emit: "stdout" },
+        { level: "warn", emit: "stdout" },
+        { level: "info", emit: "stdout" },
       ],
       datasources: {
         db: {
-          url: process.env.DATABASE_URL,
+          url: databaseUrl || "postgresql://localhost:5432/test",
         },
       },
     });
+
+    this.isTestEnvironment = isTestEnv;
+
+    // Log connection details (mask password for security) - now we can use this.logger
+    if (databaseUrl) {
+      const maskedUrl = databaseUrl.replace(/:([^:@]+)@/, ":****@");
+      this.logger.log(`Connecting to database: ${maskedUrl}`);
+    }
   }
 
   async onModuleInit() {
-    await this.$connect();
-    this.logger.log('Chat Database connected successfully');
+    try {
+      await this.$connect();
+      this.isConnected = true;
+      this.logger.log("Chat Database connected successfully");
+    } catch (error: any) {
+      // In test/CI environment, log warning but don't crash
+      if (this.isTestEnvironment) {
+        this.logger.warn(
+          `Database connection failed in test environment: ${error.message}`,
+        );
+        this.isConnected = false;
+        return; // Don't throw in test environment
+      }
+
+      this.logger.error("Failed to connect to database");
+      this.logger.error(`Error: ${error.message}`);
+
+      // Provide helpful error messages for common issues
+      if (error.message?.includes("password authentication failed")) {
+        this.logger.error(
+          "Authentication failed: Please verify POSTGRES_PASSWORD in your .env file",
+        );
+        this.logger.error(
+          "Ensure POSTGRES_PASSWORD matches the PostgreSQL database password",
+        );
+      } else if (
+        error.message?.includes("connection refused") ||
+        error.message?.includes("ECONNREFUSED")
+      ) {
+        this.logger.error(
+          "Connection refused: Ensure pgbouncer service is running and healthy",
+        );
+      } else if (error.message?.includes("does not exist")) {
+        this.logger.error(
+          "Database does not exist: Please verify POSTGRES_DB in your .env file",
+        );
+      }
+
+      throw error;
+    }
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
-    this.logger.log('Chat Database disconnected');
+    this.logger.log("Chat Database disconnected");
   }
 
   /**
@@ -46,7 +118,7 @@ export class PrismaService
       await this.$queryRaw`SELECT 1`;
       return { connected: true, timestamp: new Date().toISOString() };
     } catch (error) {
-      this.logger.error('Database connection check failed:', error);
+      this.logger.error("Database connection check failed:", error);
       return { connected: false, timestamp: new Date().toISOString() };
     }
   }

@@ -26,7 +26,13 @@
     "lifecycle": {
       "type": "string",
       "description": "Service lifecycle stage",
-      "enum": ["experimental", "internal", "production", "deprecated", "retired"]
+      "enum": [
+        "experimental",
+        "internal",
+        "production",
+        "deprecated",
+        "retired"
+      ]
     },
     "tier": {
       "type": "string",

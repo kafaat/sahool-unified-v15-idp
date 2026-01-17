@@ -1,4 +1,5 @@
 # SAHOOL Grafana Infrastructure Monitoring Dashboards
+
 # لوحات مراقبة البنية التحتية لمنصة سهول
 
 ## Overview - نظرة عامة
@@ -10,11 +11,13 @@ This directory contains comprehensive Grafana dashboards for monitoring the SAHO
 ## Dashboard Files - ملفات اللوحات
 
 ### 1. Infrastructure Overview Dashboard
+
 **File:** `dashboards/infrastructure-overview.json`
 **UID:** `sahool-infrastructure-overview`
 **Folder:** Infrastructure
 
 #### Metrics Covered:
+
 - **Service Health Status** - حالة صحة الخدمات
   - PostgreSQL, Redis, NATS, Kong Gateway availability
   - Running container count
@@ -46,16 +49,19 @@ This directory contains comprehensive Grafana dashboards for monitoring the SAHO
   - Disk I/O (read/write)
 
 #### Refresh Rate: 30 seconds
+
 #### Time Range: Last 1 hour (default)
 
 ---
 
 ### 2. Database Performance Dashboard
+
 **File:** `dashboards/database-performance.json`
 **UID:** `sahool-database-performance`
 **Folder:** Database
 
 #### Metrics Covered:
+
 - **PostgreSQL Overview** - نظرة عامة
   - Total active connections
   - Queries per second
@@ -87,8 +93,11 @@ This directory contains comprehensive Grafana dashboards for monitoring the SAHO
   - Deadlock rate monitoring
 
 #### Refresh Rate: 30 seconds
+
 #### Time Range: Last 1 hour (default)
+
 #### Variables:
+
 - `interval`: Time range for queries (1m, 5m, 15m, 1h)
 - `database`: Filter by database name (multi-select)
 
@@ -101,6 +110,7 @@ This directory contains comprehensive Grafana dashboards for monitoring the SAHO
 This configuration file enables automatic loading of dashboards into Grafana on startup.
 
 ### Providers:
+
 1. **SAHOOL Infrastructure Dashboards**
    - Folder: Infrastructure
    - Path: `/var/lib/grafana/dashboards/infrastructure`
@@ -112,6 +122,7 @@ This configuration file enables automatic loading of dashboards into Grafana on 
    - Auto-reload: Every 30 seconds
 
 ### Features:
+
 - ✅ Auto-reload dashboards every 30 seconds
 - ✅ UI updates allowed
 - ✅ Organized into separate folders
@@ -124,18 +135,23 @@ This configuration file enables automatic loading of dashboards into Grafana on 
 The dashboards use metrics from the following Prometheus exporters:
 
 ### 1. PostgreSQL Exporter (Port 9187)
+
 Metrics: `pg_stat_database_*`, `pg_stat_replication_*`, `pg_locks_*`, etc.
 
 ### 2. Redis Exporter (Port 9121)
+
 Metrics: `redis_memory_*`, `redis_connected_clients`, `redis_commands_*`, etc.
 
 ### 3. NATS Exporter (Port 7777)
+
 Metrics: `gnatsd_*`, `nats_jetstream_*`
 
 ### 4. Node Exporter (Port 9100)
+
 Metrics: `node_*`, `container_*`
 
 ### 5. PgBouncer Exporter
+
 Metrics: `pgbouncer_pools_*`, `pgbouncer_stats_*`
 
 ---
@@ -175,12 +191,14 @@ curl -s http://admin:password@localhost:3002/api/search?type=dash-db | jq
 ## Dashboard Access - الوصول للوحات
 
 ### Default URLs:
+
 - **Grafana UI:** http://localhost:3002
 - **Default Credentials:**
   - Username: `admin`
   - Password: Set via `GRAFANA_ADMIN_PASSWORD` environment variable
 
 ### Dashboard Navigation:
+
 1. **Infrastructure Overview:** Dashboards → Infrastructure → SAHOOL Infrastructure Overview
 2. **Database Performance:** Dashboards → Database → SAHOOL Database Performance
 
@@ -189,6 +207,7 @@ curl -s http://admin:password@localhost:3002/api/search?type=dash-db | jq
 ## Configuration - الإعدادات
 
 ### Time Settings:
+
 - **Timezone:** Asia/Riyadh (Yemen timezone)
 - **Week Start:** Saturday (Islamic calendar alignment)
 - **Default Time Range:** Last 1 hour
@@ -197,15 +216,18 @@ curl -s http://admin:password@localhost:3002/api/search?type=dash-db | jq
 ### Thresholds - العتبات:
 
 #### PostgreSQL:
+
 - Connections: Yellow at 80, Red at 95
 - Cache Hit Ratio: Red below 90%, Yellow at 90-95%, Green above 95%
 - Replication Lag: Yellow at 5s, Red at 10s
 
 #### Redis:
+
 - Memory: Yellow at 5GB, Red at 6GB
 - Cache Hit Rate: Red below 80%, Yellow at 80-90%, Green above 90%
 
 #### Containers:
+
 - CPU: Yellow at 70%, Red at 85%
 - Memory: Yellow at 70%, Red at 80%
 
@@ -214,11 +236,13 @@ curl -s http://admin:password@localhost:3002/api/search?type=dash-db | jq
 ## Customization - التخصيص
 
 ### Adding Custom Panels:
+
 1. Edit the dashboard JSON files in `dashboards/` directory
 2. Add new panel configuration
 3. Save and restart Grafana or wait for auto-reload
 
 ### Modifying Queries:
+
 All dashboard panels use PromQL queries. Example:
 
 ```promql
@@ -233,6 +257,7 @@ rate(gnatsd_varz_in_msgs[5m])
 ```
 
 ### Adding Variables:
+
 Edit the `templating.list` section in dashboard JSON to add new variables.
 
 ---
@@ -240,12 +265,15 @@ Edit the `templating.list` section in dashboard JSON to add new variables.
 ## Troubleshooting - استكشاف الأخطاء
 
 ### No Data Displayed:
+
 1. Verify Prometheus is running and scraping targets:
+
    ```bash
    curl http://localhost:9090/api/v1/targets
    ```
 
 2. Check exporter availability:
+
    ```bash
    curl http://localhost:9187/metrics  # PostgreSQL
    curl http://localhost:9121/metrics  # Redis
@@ -257,7 +285,9 @@ Edit the `templating.list` section in dashboard JSON to add new variables.
    - Test connection
 
 ### Dashboard Not Loading:
+
 1. Check Grafana logs:
+
    ```bash
    docker logs sahool-monitoring-grafana
    ```
@@ -270,7 +300,9 @@ Edit the `templating.list` section in dashboard JSON to add new variables.
    ```
 
 ### Metrics Missing:
+
 1. Ensure all exporters are running:
+
    ```bash
    docker ps | grep exporter
    ```
@@ -285,17 +317,20 @@ Edit the `templating.list` section in dashboard JSON to add new variables.
 ## Best Practices - أفضل الممارسات
 
 ### Performance:
+
 - Use appropriate time ranges to avoid overloading Prometheus
 - Limit the number of concurrent dashboard viewers
 - Set reasonable refresh intervals (30s recommended)
 
 ### Monitoring:
+
 - Review slow queries regularly
 - Monitor replication lag closely in HA setups
 - Set up alerts for critical thresholds
 - Track connection pool usage to prevent exhaustion
 
 ### Maintenance:
+
 - Regularly backup dashboard JSON files
 - Version control dashboard changes
 - Document custom modifications
@@ -315,6 +350,7 @@ Edit the `templating.list` section in dashboard JSON to add new variables.
 ## Support - الدعم
 
 For issues or questions:
+
 - Check Grafana documentation: https://grafana.com/docs/
 - Review Prometheus best practices: https://prometheus.io/docs/practices/
 - Contact SAHOOL platform team

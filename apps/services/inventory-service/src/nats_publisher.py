@@ -5,6 +5,7 @@ Publishes alert notifications to NATS for the notification service to consume
 
 import json
 import logging
+import os
 from datetime import datetime
 from typing import Any
 
@@ -30,14 +31,18 @@ class NATSPublisher:
     Publishes alert events to NATS for consumption by the notification service
     """
 
-    def __init__(self, servers: list[str] = None):
+    def __init__(self, servers: list[str] | None = None):
         """
         Initialize NATS publisher
 
         Args:
-            servers: List of NATS server URLs
+            servers: List of NATS server URLs (defaults to NATS_URL env var or nats://nats:4222)
         """
-        self.servers = servers or ["nats://localhost:4222"]
+        if servers is None:
+            nats_url = os.getenv("NATS_URL", "nats://nats:4222")
+            self.servers = [nats_url]
+        else:
+            self.servers = servers
         self._nc: NATSClient | None = None
         self._connected = False
 

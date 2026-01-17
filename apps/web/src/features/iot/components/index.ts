@@ -8,8 +8,13 @@
 
 // Export dynamic (lazy-loaded) components by default for optimal bundle size
 // تصدير المكونات الديناميكية (التحميل الكسول) بشكل افتراضي لحجم حزمة أمثل
-export { SensorChart } from './SensorChart.dynamic';
-export { SensorReadings } from './SensorReadings.dynamic';
+export { SensorChart } from "./SensorChart.dynamic";
+export { SensorReadings } from "./SensorReadings.dynamic";
 
 // Re-export types
-export type { SensorReading, Sensor, SensorFilters, SensorReadingsQuery } from '../types';
+export type {
+  SensorReading,
+  Sensor,
+  SensorFilters,
+  SensorReadingsQuery,
+} from "../types";

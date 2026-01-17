@@ -1,4 +1,5 @@
 # Service Activation Map - خريطة تفعيل الخدمات
+
 ## SAHOOL Field-First Architecture v15.5
 
 ---
@@ -46,13 +47,14 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 
 **الغرض:** تحليل صور الأقمار الصناعية وتحويلها لتنبيهات ميدانية
 
-| Endpoint | الوصف | ActionTemplate |
-|----------|--------|----------------|
-| `POST /v1/analyze-with-action` | تحليل مع إجراء | ✅ |
-| `GET /v1/fields/{id}/ndvi` | قيمة NDVI | ❌ (تحليل فقط) |
-| `GET /v1/fields/{id}/anomalies` | الشذوذات | ❌ (تحليل فقط) |
+| Endpoint                        | الوصف          | ActionTemplate |
+| ------------------------------- | -------------- | -------------- |
+| `POST /v1/analyze-with-action`  | تحليل مع إجراء | ✅             |
+| `GET /v1/fields/{id}/ndvi`      | قيمة NDVI      | ❌ (تحليل فقط) |
+| `GET /v1/fields/{id}/anomalies` | الشذوذات       | ❌ (تحليل فقط) |
 
 **المخرجات Field-First:**
+
 ```json
 {
   "action_template": {
@@ -73,21 +75,25 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 
 **الغرض:** حسابات IoT بديلة للمناطق الريفية بدون أجهزة
 
-| Endpoint | الوصف | ActionTemplate |
-|----------|--------|----------------|
-| `POST /v1/irrigation/recommend-with-action` | توصية ري مع إجراء | ✅ |
-| `GET /v1/quick-check-with-action` | فحص سريع مع إجراء | ✅ |
-| `POST /v1/calculate-et0` | حساب ET₀ | ❌ (حساب فقط) |
-| `POST /v1/estimate-soil-moisture` | تقدير رطوبة التربة | ❌ (تقدير فقط) |
+| Endpoint                                    | الوصف              | ActionTemplate |
+| ------------------------------------------- | ------------------ | -------------- |
+| `POST /v1/irrigation/recommend-with-action` | توصية ري مع إجراء  | ✅             |
+| `GET /v1/quick-check-with-action`           | فحص سريع مع إجراء  | ✅             |
+| `POST /v1/calculate-et0`                    | حساب ET₀           | ❌ (حساب فقط)  |
+| `POST /v1/estimate-soil-moisture`           | تقدير رطوبة التربة | ❌ (تقدير فقط) |
 
 **المخرجات Field-First:**
+
 ```json
 {
   "action_template": {
     "type": "irrigation_urgent",
     "what": "إجراء ري طارئ",
     "why": "رطوبة التربة المقدرة منخفضة (22%)",
-    "when": { "deadline": "6 ساعات", "optimal_window": "المساء بعد غروب الشمس" },
+    "when": {
+      "deadline": "6 ساعات",
+      "optimal_window": "المساء بعد غروب الشمس"
+    },
     "how": ["شغّل المضخة الرئيسية", "اسقِ لمدة 15 دقيقة", "راقب تشرب التربة"],
     "fallback": "إذا لم تتوفر المضخة: ري يدوي عميق حول الجذور",
     "badge": { "type": "virtual_estimate", "label_ar": "تقدير افتراضي" },
@@ -104,13 +110,14 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 
 **الغرض:** قرارات "متى" للعمليات الزراعية
 
-| Endpoint | الوصف | ActionTemplate |
-|----------|--------|----------------|
-| `POST /v1/analyze-timing` | تحليل توقيت النمو | ✅ |
-| `GET /v1/growth-stages/{crop}` | مراحل النمو | ❌ (مرجع) |
-| `GET /health` | فحص الصحة | ❌ |
+| Endpoint                       | الوصف             | ActionTemplate |
+| ------------------------------ | ----------------- | -------------- |
+| `POST /v1/analyze-timing`      | تحليل توقيت النمو | ✅             |
+| `GET /v1/growth-stages/{crop}` | مراحل النمو       | ❌ (مرجع)      |
+| `GET /health`                  | فحص الصحة         | ❌             |
 
 **المخرجات Field-First:**
+
 ```json
 {
   "action_template": {
@@ -139,10 +146,10 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 
 **الغرض:** جدولة الري الذكي
 
-| Endpoint | الوصف | ActionTemplate |
-|----------|--------|----------------|
-| `POST /v1/schedule` | جدولة الري | ✅ |
-| `GET /v1/fields/{id}/next` | الري القادم | ✅ |
+| Endpoint                   | الوصف       | ActionTemplate |
+| -------------------------- | ----------- | -------------- |
+| `POST /v1/schedule`        | جدولة الري  | ✅             |
+| `GET /v1/fields/{id}/next` | الري القادم | ✅             |
 
 ---
 
@@ -150,14 +157,15 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 
 **الغرض:** توصيل الإشعارات للتطبيق المحمول
 
-| Component | الوصف |
-|-----------|--------|
+| Component       | الوصف                 |
+| --------------- | --------------------- |
 | NATS Subscriber | استقبال أحداث التحليل |
-| Firebase Push | إرسال إشعارات |
-| SMS Gateway | رسائل SMS للطوارئ |
-| Webhook | إشعارات خارجية |
+| Firebase Push   | إرسال إشعارات         |
+| SMS Gateway     | رسائل SMS للطوارئ     |
+| Webhook         | إشعارات خارجية        |
 
 **المواضيع المشترك فيها | Subscribed Topics:**
+
 - `sahool.analysis.completed`
 - `sahool.alerts.created`
 - `sahool.actions.acknowledged`
@@ -171,6 +179,7 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 **الغرض:** توقع الإنتاجية وتنبيهات ما قبل الحصاد
 
 **المدخلات:**
+
 ```json
 {
   "field_id": "field-001",
@@ -182,6 +191,7 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 ```
 
 **المخرجات المطلوبة:**
+
 ```json
 {
   "predicted_yield_kg_ha": 3200,
@@ -211,6 +221,7 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 **الغرض:** الكشف المبكر عن الإجهاد من LAI
 
 **المدخلات:**
+
 ```json
 {
   "field_id": "field-001",
@@ -221,6 +232,7 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 ```
 
 **المخرجات المطلوبة:**
+
 ```json
 {
   "lai_value": 2.8,
@@ -238,7 +250,10 @@ Transform dormant analysis services into field-actionable value through Tasks, A
       "صوّر المنطقة المتأثرة"
     ],
     "fallback": "إذا لم تجد السبب: استشر المهندس الزراعي",
-    "badge": { "type": "satellite_estimate", "label_ar": "تقدير من القمر الصناعي" }
+    "badge": {
+      "type": "satellite_estimate",
+      "label_ar": "تقدير من القمر الصناعي"
+    }
   }
 }
 ```
@@ -252,6 +267,7 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 **الغرض:** تقييم الكوارث وتوليد Playbooks
 
 **المدخلات:**
+
 ```json
 {
   "field_id": "field-001",
@@ -262,6 +278,7 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 ```
 
 **المخرجات المطلوبة:**
+
 ```json
 {
   "assessment": { ... },
@@ -311,6 +328,7 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 **الغرض:** جدولة العمليات حسب الطقس
 
 **التكامل المطلوب:**
+
 ```
 weather-advanced ──▶ irrigation-smart
                         │
@@ -376,12 +394,14 @@ sahool.
 ## 🚦 أولويات التفعيل | Activation Priorities
 
 ### المرحلة 1 - مكتمل ✅
+
 1. ~~satellite-service~~ → ActionTemplate endpoints
 2. ~~virtual-sensors~~ → ActionTemplate + Badge system
 3. ~~crop-growth-timing~~ → Python bridge for timing decisions
 4. ~~notification-service~~ → NATS subscriber
 
 ### المرحلة 2 - مكتمل ✅
+
 5. ~~yield-prediction~~ → Pre-harvest alerts + ActionTemplate
    - `GET /api/v1/yield/predict-with-action/:fieldId` - تنبيهات ما قبل الحصاد
    - `GET /api/v1/yield/harvest-readiness/:fieldId` - فحص جاهزية الحصاد
@@ -392,6 +412,7 @@ sahool.
    - Badge: `satellite_estimate` / `satellite_anomaly`
 
 ### المرحلة 3 - مخطط 📋
+
 7. disaster-assessment → Playbook generation
 8. weather-advanced → Weather-driven scheduling
 
@@ -399,12 +420,12 @@ sahool.
 
 ## 📏 معايير النجاح | Success Criteria
 
-| المعيار | Metric | الهدف |
-|---------|--------|-------|
-| نسبة التحليلات مع ActionTemplate | % analyses with ActionTemplate | > 80% |
-| زمن وصول الإشعار | Notification latency | < 5 seconds |
-| نسبة تنفيذ الإجراءات | Action execution rate | > 60% |
-| رضا المستخدم | User satisfaction | > 4.0/5.0 |
+| المعيار                          | Metric                         | الهدف       |
+| -------------------------------- | ------------------------------ | ----------- |
+| نسبة التحليلات مع ActionTemplate | % analyses with ActionTemplate | > 80%       |
+| زمن وصول الإشعار                 | Notification latency           | < 5 seconds |
+| نسبة تنفيذ الإجراءات             | Action execution rate          | > 60%       |
+| رضا المستخدم                     | User satisfaction              | > 4.0/5.0   |
 
 ---
 

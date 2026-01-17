@@ -41,23 +41,23 @@ export interface AuthenticatedUser extends User {
 }
 
 export type UserRole =
-  | 'admin'
-  | 'super_admin'
-  | 'manager'
-  | 'operator'
-  | 'expert'
-  | 'farmer'
-  | 'agronomist'
-  | 'researcher'
-  | 'field_officer'
-  | 'viewer';
+  | "admin"
+  | "super_admin"
+  | "manager"
+  | "operator"
+  | "expert"
+  | "farmer"
+  | "agronomist"
+  | "researcher"
+  | "field_officer"
+  | "viewer";
 
 export interface Permission {
   id: string;
   name: string;
   resource: string;
   action: string;
-  scope?: 'own' | 'tenant' | 'global';
+  scope?: "own" | "tenant" | "global";
 }
 
 export interface Role {

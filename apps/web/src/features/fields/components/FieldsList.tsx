@@ -1,28 +1,31 @@
-'use client';
+"use client";
 
 /**
  * SAHOOL Fields List Component
  * مكون قائمة الحقول
  */
 
-import React, { useState } from 'react';
-import { Grid3x3, List, Map as MapIcon, Search, Plus } from 'lucide-react';
-import { useFields } from '../hooks/useFields';
-import { FieldCard } from './FieldCard';
-import type { FieldViewMode, FieldFilters } from '../types';
+import React, { useState } from "react";
+import { Grid3x3, List, Map as MapIcon, Search, Plus } from "lucide-react";
+import { useFields } from "../hooks/useFields";
+import { FieldCard } from "./FieldCard";
+import type { FieldViewMode, FieldFilters } from "../types";
 
 interface FieldsListProps {
   onFieldClick?: (fieldId: string) => void;
   onCreateClick?: () => void;
 }
 
-export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateClick }) => {
-  const [viewMode, setViewMode] = useState<FieldViewMode>('grid');
+export const FieldsList: React.FC<FieldsListProps> = ({
+  onFieldClick,
+  onCreateClick,
+}) => {
+  const [viewMode, setViewMode] = useState<FieldViewMode>("grid");
   const [filters, setFilters] = useState<FieldFilters>({});
   const { data: fields, isLoading } = useFields(filters);
 
   const handleSearch = (search: string) => {
-    setFilters(prev => ({ ...prev, search }));
+    setFilters((prev) => ({ ...prev, search }));
   };
 
   if (isLoading) {
@@ -34,7 +37,10 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-48 bg-gray-200 rounded-xl animate-pulse" />
+            <div
+              key={i}
+              className="h-48 bg-gray-200 rounded-xl animate-pulse"
+            />
           ))}
         </div>
       </div>
@@ -61,20 +67,20 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
           {/* View Mode Toggle */}
           <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
             <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+              onClick={() => setViewMode("grid")}
+              className={`p-2 rounded ${viewMode === "grid" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
             >
               <Grid3x3 className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded ${viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+              onClick={() => setViewMode("list")}
+              className={`p-2 rounded ${viewMode === "list" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
             >
               <List className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setViewMode('map')}
-              className={`p-2 rounded ${viewMode === 'map' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+              onClick={() => setViewMode("map")}
+              className={`p-2 rounded ${viewMode === "map" ? "bg-white shadow-sm" : "hover:bg-gray-200"}`}
             >
               <MapIcon className="w-5 h-5" />
             </button>
@@ -97,7 +103,9 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
       {!fields || fields.length === 0 ? (
         <div className="text-center py-16">
           <MapIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد حقول</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            لا توجد حقول
+          </h3>
           <p className="text-gray-500 mb-6">ابدأ بإضافة حقلك الأول</p>
           {onCreateClick && (
             <button
@@ -109,7 +117,13 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
           )}
         </div>
       ) : (
-        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              : "space-y-4"
+          }
+        >
           {fields.map((field) => (
             <FieldCard
               key={field.id}

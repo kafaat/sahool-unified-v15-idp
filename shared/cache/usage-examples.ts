@@ -5,17 +5,20 @@
  * Comprehensive examples demonstrating all caching features
  */
 
-import { Injectable, Module, OnModuleInit } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
+import { Injectable, Module, OnModuleInit } from "@nestjs/common";
+import { InjectRedis } from "@liaoliaots/nestjs-redis";
+import Redis from "ioredis";
 import {
   CacheManager,
   CacheTTL,
   getCacheManager,
   resetCacheManager,
-} from './cache-manager';
-import { CacheMetricsService } from './cache-metrics.service';
-import { CacheWarmingService, createUserWarmingStrategy } from './cache-warming.service';
+} from "./cache-manager";
+import { CacheMetricsService } from "./cache-metrics.service";
+import {
+  CacheWarmingService,
+  createUserWarmingStrategy,
+} from "./cache-warming.service";
 
 // =============================================================================
 // Example 1: Basic Cache Operations
@@ -27,7 +30,7 @@ export class UserService {
 
   constructor(@InjectRedis() private readonly redis: Redis) {
     this.cacheManager = new CacheManager(redis, {
-      keyPrefix: 'user:',
+      keyPrefix: "user:",
       defaultTTL: CacheTTL.USER_VALIDATION,
       enableStampedeProtection: true,
       enableMetrics: true,
@@ -73,7 +76,7 @@ export class UserService {
 
   private async fetchUserFromDatabase(userId: string) {
     // Simulate database query
-    return { id: userId, name: 'John Doe', email: 'john@example.com' };
+    return { id: userId, name: "John Doe", email: "john@example.com" };
   }
 
   private async updateUserInDatabase(userId: string, data: any) {
@@ -113,7 +116,10 @@ export class IotCacheService {
   /**
    * Get sensor reading from cache
    */
-  async getSensorReading(fieldId: string, sensorType: string): Promise<SensorReading | null> {
+  async getSensorReading(
+    fieldId: string,
+    sensorType: string,
+  ): Promise<SensorReading | null> {
     const key = `sensor:${fieldId}:${sensorType}`;
     const data = await this.redis.get(key);
     return data ? JSON.parse(data) : null;
@@ -125,14 +131,14 @@ export class IotCacheService {
   async getFieldSensorData(fieldId: string): Promise<SensorReading[]> {
     const readings: SensorReading[] = [];
     const pattern = `sensor:${fieldId}:*`;
-    let cursor = '0';
+    let cursor = "0";
 
     do {
       const [newCursor, keys] = await this.redis.scan(
         cursor,
-        'MATCH',
+        "MATCH",
         pattern,
-        'COUNT',
+        "COUNT",
         100,
       );
       cursor = newCursor;
@@ -143,7 +149,7 @@ export class IotCacheService {
           readings.push(JSON.parse(data));
         }
       }
-    } while (cursor !== '0');
+    } while (cursor !== "0");
 
     return readings;
   }
@@ -153,15 +159,15 @@ export class IotCacheService {
    */
   async invalidateFieldSensors(fieldId: string): Promise<number> {
     const pattern = `sensor:${fieldId}:*`;
-    let cursor = '0';
+    let cursor = "0";
     let totalDeleted = 0;
 
     do {
       const [newCursor, keys] = await this.redis.scan(
         cursor,
-        'MATCH',
+        "MATCH",
         pattern,
-        'COUNT',
+        "COUNT",
         100,
       );
       cursor = newCursor;
@@ -169,7 +175,7 @@ export class IotCacheService {
       if (keys.length > 0) {
         totalDeleted += await this.redis.del(...keys);
       }
-    } while (cursor !== '0');
+    } while (cursor !== "0");
 
     return totalDeleted;
   }
@@ -185,7 +191,7 @@ export class ExpensiveOperationService {
 
   constructor(@InjectRedis() private readonly redis: Redis) {
     this.cacheManager = new CacheManager(redis, {
-      keyPrefix: 'expensive:',
+      keyPrefix: "expensive:",
       defaultTTL: 600,
       enableStampedeProtection: true, // ✅ Enable stampede protection
     });
@@ -202,7 +208,7 @@ export class ExpensiveOperationService {
         console.log(`🔥 Executing expensive operation for ${key}...`);
         // Simulate expensive operation (5 seconds)
         await new Promise((resolve) => setTimeout(resolve, 5000));
-        return { data: 'expensive result', timestamp: new Date() };
+        return { data: "expensive result", timestamp: new Date() };
       },
       600,
     );
@@ -212,19 +218,21 @@ export class ExpensiveOperationService {
    * Test stampede protection
    */
   async testStampedeProtection() {
-    console.log('Starting 100 concurrent requests...');
+    console.log("Starting 100 concurrent requests...");
     const startTime = Date.now();
 
     // 100 concurrent requests for the same key
     const promises = Array(100)
       .fill(null)
-      .map(() => this.getExpensiveData('test-key'));
+      .map(() => this.getExpensiveData("test-key"));
 
     const results = await Promise.all(promises);
 
     const duration = Date.now() - startTime;
     console.log(`✅ Completed in ${duration}ms`);
-    console.log(`All results identical: ${results.every((r) => r === results[0])}`);
+    console.log(
+      `All results identical: ${results.every((r) => r === results[0])}`,
+    );
     console.log(`Expected: ~5000ms (one execution)`);
     console.log(`Without protection: ~500000ms (100 executions)`);
 
@@ -249,7 +257,7 @@ export class CacheWarmingExample implements OnModuleInit {
       createUserWarmingStrategy(
         // Get top active users
         async () => {
-          return ['user-1', 'user-2', 'user-3'];
+          return ["user-1", "user-2", "user-3"];
         },
         // Fetch user data
         async (userId) => {
@@ -260,7 +268,7 @@ export class CacheWarmingExample implements OnModuleInit {
 
     // Register field warming strategy
     this.cacheWarming.registerStrategy({
-      name: 'field-data-warming',
+      name: "field-data-warming",
       getKeys: async () => {
         // Get active fields from database
         return await this.getActiveFieldIds();
@@ -272,7 +280,7 @@ export class CacheWarmingExample implements OnModuleInit {
       enabled: true,
     });
 
-    console.log('✅ Cache warming strategies registered');
+    console.log("✅ Cache warming strategies registered");
   }
 
   /**
@@ -280,11 +288,11 @@ export class CacheWarmingExample implements OnModuleInit {
    */
   async warmCache() {
     await this.cacheWarming.warmNow();
-    console.log('✅ Cache warmed successfully');
+    console.log("✅ Cache warmed successfully");
   }
 
   private async getActiveFieldIds(): Promise<string[]> {
-    return ['field-1', 'field-2', 'field-3'];
+    return ["field-1", "field-2", "field-3"];
   }
 
   private async fetchFieldData(fieldId: string) {
@@ -314,8 +322,8 @@ export class CacheMonitoringService {
       manager: managerMetrics,
       service: {
         ...serviceMetrics,
-        getLatency: this.metricsService.getLatencyStats('get'),
-        setLatency: this.metricsService.getLatencyStats('set'),
+        getLatency: this.metricsService.getLatencyStats("get"),
+        setLatency: this.metricsService.getLatencyStats("set"),
       },
     };
   }
@@ -347,7 +355,7 @@ export class CacheMonitoringService {
 ║ GET p99:         ${metrics.service.getLatency.p99.toFixed(2)}ms                            ║
 ╠═══════════════════════════════════════════════════════════╣
 ║ Health Status:   ${health.status.toUpperCase()}                              ║
-${health.issues.length > 0 ? '║ Issues:          ' + health.issues.join(', ').padEnd(40) + '║' : ''}
+${health.issues.length > 0 ? "║ Issues:          " + health.issues.join(", ").padEnd(40) + "║" : ""}
 ╚═══════════════════════════════════════════════════════════╝
     `);
 
@@ -390,7 +398,7 @@ export class CacheTests {
 
   constructor(redis: Redis) {
     this.cacheManager = new CacheManager(redis, {
-      keyPrefix: 'test:',
+      keyPrefix: "test:",
       defaultTTL: 60,
       enableStampedeProtection: true,
       enableMetrics: true,
@@ -401,92 +409,96 @@ export class CacheTests {
    * Test basic cache operations
    */
   async testBasicOperations() {
-    console.log('Testing basic cache operations...');
+    console.log("Testing basic cache operations...");
 
     // Set
-    await this.cacheManager.set('key1', 'value1', 60);
+    await this.cacheManager.set("key1", "value1", 60);
 
     // Get
-    const value = await this.cacheManager.get('key1');
-    console.assert(value === 'value1', 'Value should be "value1"');
+    const value = await this.cacheManager.get("key1");
+    console.assert(value === "value1", 'Value should be "value1"');
 
     // Exists
-    const exists = await this.cacheManager.exists('key1');
-    console.assert(exists === true, 'Key should exist');
+    const exists = await this.cacheManager.exists("key1");
+    console.assert(exists === true, "Key should exist");
 
     // Delete
-    await this.cacheManager.delete('key1');
-    const deleted = await this.cacheManager.get('key1');
-    console.assert(deleted === null, 'Key should be deleted');
+    await this.cacheManager.delete("key1");
+    const deleted = await this.cacheManager.get("key1");
+    console.assert(deleted === null, "Key should be deleted");
 
-    console.log('✅ Basic operations test passed');
+    console.log("✅ Basic operations test passed");
   }
 
   /**
    * Test stampede protection
    */
   async testStampedeProtection() {
-    console.log('Testing stampede protection...');
+    console.log("Testing stampede protection...");
 
     let dbCallCount = 0;
     const fetcher = async () => {
       dbCallCount++;
       await new Promise((resolve) => setTimeout(resolve, 100));
-      return 'result';
+      return "result";
     };
 
     // 10 concurrent requests
     await Promise.all(
       Array(10)
         .fill(null)
-        .map(() => this.cacheManager.getOrFetch('stampede-key', fetcher)),
+        .map(() => this.cacheManager.getOrFetch("stampede-key", fetcher)),
     );
 
-    console.assert(dbCallCount === 1, 'Should only call fetcher once');
-    console.log(`✅ Stampede protection test passed (DB calls: ${dbCallCount}/10)`);
+    console.assert(dbCallCount === 1, "Should only call fetcher once");
+    console.log(
+      `✅ Stampede protection test passed (DB calls: ${dbCallCount}/10)`,
+    );
   }
 
   /**
    * Test pattern invalidation
    */
   async testPatternInvalidation() {
-    console.log('Testing pattern invalidation...');
+    console.log("Testing pattern invalidation...");
 
     // Set multiple keys
-    await this.cacheManager.set('user:1', { id: 1 });
-    await this.cacheManager.set('user:2', { id: 2 });
-    await this.cacheManager.set('user:3', { id: 3 });
+    await this.cacheManager.set("user:1", { id: 1 });
+    await this.cacheManager.set("user:2", { id: 2 });
+    await this.cacheManager.set("user:3", { id: 3 });
 
     // Invalidate pattern
-    const deleted = await this.cacheManager.invalidatePattern('user:*');
-    console.assert(deleted === 3, 'Should delete 3 keys');
+    const deleted = await this.cacheManager.invalidatePattern("user:*");
+    console.assert(deleted === 3, "Should delete 3 keys");
 
     // Verify deletion
-    const user1 = await this.cacheManager.get('user:1');
-    console.assert(user1 === null, 'Keys should be deleted');
+    const user1 = await this.cacheManager.get("user:1");
+    console.assert(user1 === null, "Keys should be deleted");
 
-    console.log('✅ Pattern invalidation test passed');
+    console.log("✅ Pattern invalidation test passed");
   }
 
   /**
    * Test cache metrics
    */
   async testMetrics() {
-    console.log('Testing cache metrics...');
+    console.log("Testing cache metrics...");
 
     // Reset metrics
     this.cacheManager.resetMetrics();
 
     // Cause some hits and misses
-    await this.cacheManager.set('metric-key', 'value');
-    await this.cacheManager.get('metric-key'); // Hit
-    await this.cacheManager.get('nonexistent'); // Miss
+    await this.cacheManager.set("metric-key", "value");
+    await this.cacheManager.get("metric-key"); // Hit
+    await this.cacheManager.get("nonexistent"); // Miss
 
     const metrics = this.cacheManager.getMetrics();
-    console.assert(metrics.hits >= 1, 'Should have at least 1 hit');
-    console.assert(metrics.misses >= 1, 'Should have at least 1 miss');
+    console.assert(metrics.hits >= 1, "Should have at least 1 hit");
+    console.assert(metrics.misses >= 1, "Should have at least 1 miss");
 
-    console.log(`✅ Metrics test passed (Hit rate: ${(metrics.hitRate * 100).toFixed(1)}%)`);
+    console.log(
+      `✅ Metrics test passed (Hit rate: ${(metrics.hitRate * 100).toFixed(1)}%)`,
+    );
   }
 
   /**
@@ -498,7 +510,7 @@ export class CacheTests {
     await this.testPatternInvalidation();
     await this.testMetrics();
 
-    console.log('\n✅ All cache tests passed!');
+    console.log("\n✅ All cache tests passed!");
   }
 }
 

@@ -5,7 +5,13 @@
   "description": "Event emitted when a crop is planted in a field",
   "type": "object",
   "additionalProperties": false,
-  "required": ["crop_id", "field_id", "crop_type", "planting_date", "created_at"],
+  "required": [
+    "crop_id",
+    "field_id",
+    "crop_type",
+    "planting_date",
+    "created_at"
+  ],
   "properties": {
     "crop_id": {
       "type": "string",

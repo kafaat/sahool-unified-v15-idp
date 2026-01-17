@@ -7,11 +7,11 @@
 **File:** `src/main.ts`
 
 ```typescript
-import { VersioningType } from '@nestjs/common';
+import { VersioningType } from "@nestjs/common";
 
 app.enableVersioning({
   type: VersioningType.URI,
-  defaultVersion: '2',
+  defaultVersion: "2",
 });
 ```
 
@@ -20,11 +20,11 @@ app.enableVersioning({
 **File:** `src/users/users.v2.controller.ts`
 
 ```typescript
-import { Controller, Get, Query } from '@nestjs/common';
-import { BaseControllerV2, ApiV2, RequestId } from '@sahool/versioning';
+import { Controller, Get, Query } from "@nestjs/common";
+import { BaseControllerV2, ApiV2, RequestId } from "@sahool/versioning";
 
-@ApiV2('Users')
-@Controller({ path: 'users', version: '2' })
+@ApiV2("Users")
+@Controller({ path: "users", version: "2" })
 export class UsersV2Controller extends BaseControllerV2 {
   constructor(private usersService: UsersService) {
     super();
@@ -33,8 +33,8 @@ export class UsersV2Controller extends BaseControllerV2 {
   @Get()
   async findAll(
     @RequestId() requestId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
     const { page: p, limit: l, skip } = this.parsePaginationParams(page, limit);
     const [users, total] = await this.usersService.findAllWithCount(skip, l);
@@ -48,16 +48,20 @@ export class UsersV2Controller extends BaseControllerV2 {
 **File:** `src/users/users.v1.controller.ts`
 
 ```typescript
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
-import { BaseControllerV1, ApiV1, DeprecationInterceptor } from '@sahool/versioning';
+import { Controller, Get, UseInterceptors } from "@nestjs/common";
+import {
+  BaseControllerV1,
+  ApiV1,
+  DeprecationInterceptor,
+} from "@sahool/versioning";
 
-@ApiV1('Users')
-@Controller({ path: 'users', version: '1' })
+@ApiV1("Users")
+@Controller({ path: "users", version: "1" })
 @UseInterceptors(DeprecationInterceptor)
 export class UsersV1Controller extends BaseControllerV1 {
   @Get()
   async findAll() {
-    this.logDeprecationWarning('GET /api/v1/users');
+    this.logDeprecationWarning("GET /api/v1/users");
     const users = await this.usersService.findAll();
     return this.success(users);
   }
@@ -67,6 +71,7 @@ export class UsersV1Controller extends BaseControllerV1 {
 ## API Endpoint URLs
 
 ### v1 (Deprecated)
+
 ```
 GET  /api/v1/users
 POST /api/v1/users
@@ -76,6 +81,7 @@ DELETE /api/v1/users/:id
 ```
 
 ### v2 (Current)
+
 ```
 GET  /api/v2/users
 POST /api/v2/users
@@ -88,6 +94,7 @@ DELETE /api/v2/users/:id
 ## Response Formats
 
 ### v1 Success Response
+
 ```json
 {
   "success": true,
@@ -96,6 +103,7 @@ DELETE /api/v2/users/:id
 ```
 
 ### v2 Success Response
+
 ```json
 {
   "success": true,
@@ -109,6 +117,7 @@ DELETE /api/v2/users/:id
 ```
 
 ### v1 Error Response
+
 ```json
 {
   "success": false,
@@ -117,6 +126,7 @@ DELETE /api/v2/users/:id
 ```
 
 ### v2 Error Response
+
 ```json
 {
   "success": false,
@@ -137,6 +147,7 @@ DELETE /api/v2/users/:id
 ## Pagination
 
 ### v1 Pagination
+
 ```typescript
 // Request
 GET /api/v1/users?skip=0&take=20
@@ -150,6 +161,7 @@ GET /api/v1/users?skip=0&take=20
 ```
 
 ### v2 Pagination
+
 ```typescript
 // Request
 GET /api/v2/users?page=1&limit=20&sort=createdAt&order=desc
@@ -286,12 +298,14 @@ async update(
 ## Decorators
 
 ### @ApiV1 / @ApiV2
+
 ```typescript
 @ApiV1('ResourceName')  // For v1 controllers
 @ApiV2('ResourceName')  // For v2 controllers
 ```
 
 ### @RequestId
+
 ```typescript
 async method(@RequestId() requestId: string) {
   // requestId is automatically extracted or generated
@@ -299,6 +313,7 @@ async method(@RequestId() requestId: string) {
 ```
 
 ### @ApiDeprecated
+
 ```typescript
 @ApiDeprecated('Reason', '/api/v2/alternative')
 ```
@@ -306,18 +321,22 @@ async method(@RequestId() requestId: string) {
 ## Version Negotiation
 
 ### Priority Order
+
 1. **URI Version** (Highest)
+
    ```
    GET /api/v2/users
    ```
 
 2. **X-API-Version Header**
+
    ```
    GET /api/users
    X-API-Version: 2
    ```
 
 3. **Accept Header**
+
    ```
    GET /api/users
    Accept: application/vnd.sahool.v2+json
@@ -349,13 +368,13 @@ curl "https://api.sahool.app/api/v2/users?sort=createdAt&order=desc"
 ### Unit Test Example
 
 ```typescript
-describe('UsersV2Controller', () => {
-  it('should return v2 format', async () => {
-    const response = await controller.findAll('req_123', '1', '20');
+describe("UsersV2Controller", () => {
+  it("should return v2 format", async () => {
+    const response = await controller.findAll("req_123", "1", "20");
 
-    expect(response).toHaveProperty('version', '2');
-    expect(response).toHaveProperty('timestamp');
-    expect(response.meta).toHaveProperty('requestId', 'req_123');
+    expect(response).toHaveProperty("version", "2");
+    expect(response).toHaveProperty("timestamp");
+    expect(response.meta).toHaveProperty("requestId", "req_123");
     expect(response.meta.pagination).toBeDefined();
   });
 });
@@ -363,28 +382,29 @@ describe('UsersV2Controller', () => {
 
 ## Error Codes
 
-| Code | Description | HTTP Status |
-|------|-------------|-------------|
-| `USER_NOT_FOUND` | User does not exist | 404 |
-| `FIELD_NOT_FOUND` | Field does not exist | 404 |
-| `UNAUTHORIZED` | Missing/invalid auth | 401 |
-| `FORBIDDEN` | Insufficient permissions | 403 |
-| `VALIDATION_ERROR` | Invalid request data | 400 |
-| `RATE_LIMIT_EXCEEDED` | Too many requests | 429 |
-| `INTERNAL_ERROR` | Server error | 500 |
+| Code                  | Description              | HTTP Status |
+| --------------------- | ------------------------ | ----------- |
+| `USER_NOT_FOUND`      | User does not exist      | 404         |
+| `FIELD_NOT_FOUND`     | Field does not exist     | 404         |
+| `UNAUTHORIZED`        | Missing/invalid auth     | 401         |
+| `FORBIDDEN`           | Insufficient permissions | 403         |
+| `VALIDATION_ERROR`    | Invalid request data     | 400         |
+| `RATE_LIMIT_EXCEEDED` | Too many requests        | 429         |
+| `INTERNAL_ERROR`      | Server error             | 500         |
 
 ## Deprecation Timeline
 
-| Date | Event |
-|------|-------|
-| 2025-01-06 | v2 Released |
-| 2025-06-30 | v1 Deprecated |
+| Date       | Event                  |
+| ---------- | ---------------------- |
+| 2025-01-06 | v2 Released            |
+| 2025-06-30 | v1 Deprecated          |
 | 2026-01-01 | v1 Rate limits reduced |
-| 2026-06-30 | v1 Removed (Sunset) |
+| 2026-06-30 | v1 Removed (Sunset)    |
 
 ## Kong Configuration
 
 ### v2 Route Example
+
 ```yaml
 - name: service-v2
   url: http://service:3000
@@ -402,6 +422,7 @@ describe('UsersV2Controller', () => {
 ```
 
 ### v1 Route with Deprecation
+
 ```yaml
 - name: service-v1
   url: http://service:3000
@@ -417,10 +438,10 @@ describe('UsersV2Controller', () => {
           headers:
             - "X-API-Deprecated: true"
             - "X-API-Sunset-Date: 2026-06-30"
-            - "Link: </api/v2/resource>; rel=\"successor-version\""
+            - 'Link: </api/v2/resource>; rel="successor-version"'
     - name: rate-limiting
       config:
-        minute: 50  # Reduced from 100
+        minute: 50 # Reduced from 100
 ```
 
 ## Common Issues
@@ -428,6 +449,7 @@ describe('UsersV2Controller', () => {
 ### Issue: Request ID not showing
 
 **Solution:**
+
 ```typescript
 // Make sure to use @RequestId() decorator
 async findAll(@RequestId() requestId: string) { ... }
@@ -436,6 +458,7 @@ async findAll(@RequestId() requestId: string) { ... }
 ### Issue: Pagination not working
 
 **Solution:**
+
 ```typescript
 // Use parsePaginationParams helper
 const { page, limit, skip } = this.parsePaginationParams(page, limit);
@@ -444,6 +467,7 @@ const { page, limit, skip } = this.parsePaginationParams(page, limit);
 ### Issue: Deprecation headers not appearing
 
 **Solution:**
+
 ```typescript
 // Add DeprecationInterceptor to module
 @Module({

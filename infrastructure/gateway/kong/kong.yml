@@ -1,3038 +1,22 @@
-# ============================================================================
-# NOTE: This file should mirror /infra/kong/kong.yml
-# The canonical configuration is in /infra/kong/kong.yml
-# ============================================================================
-
 _format_version: "3.0"
 _transform: true
 
-# ============================================================================
-# تكوين Kong API Gateway لمنصة سهول الزراعية
-# SAHOOL Platform Kong API Gateway Configuration
-# ============================================================================
-# يوفر هذا التكوين:
-# - إدارة جميع الخدمات الـ 39 المصغرة
-# - تحديد المعدل حسب باقة الاشتراك
-# - مصادقة JWT
-# - التحكم في الوصول ACL
-# - فحوصات الصحة
-# ============================================================================
-
-# ============================================================================
-# الخوادم النهائية - Upstreams
-# ============================================================================
-
-upstreams:
-  - name: field-management-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: field-management-service:3000
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: weather-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: weather-service:8092
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: vegetation-analysis-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: vegetation-analysis-service:8090
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: ai-advisor-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: ai-advisor:8112
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: crop-intelligence-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: crop-intelligence-service:8095
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: advisory-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: advisory-service:8093
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: iot-gateway-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: iot-gateway:8106
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: iot-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: iot-service:8117
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: virtual-sensors-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: virtual-sensors:8119
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: marketplace-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: marketplace-service:3010
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: billing-core-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: billing-core:8089
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: notification-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: notification-service:8110
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: research-core-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: research-core:3015
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: disaster-assessment-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: disaster-assessment:3020
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: field-intelligence-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: field-intelligence:8120
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: mcp-server-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: mcp-server:8200
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: code-review-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      # FIX: Changed port from 8096 to 8102 to match docker-compose.yml
-      - target: code-review-service:8102
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # WARNING: NON-EXISTENT SERVICE UPSTREAMS (Code Engineer 2026-01-08)
-  # ═══════════════════════════════════════════════════════════════════════════
-  # The following 16 upstreams reference services NOT defined in docker-compose.yml
-  # These routes will return 503 Service Unavailable when accessed
-  # They are kept here as placeholders for future service implementations
-  #
-  # To fix: Either implement the services in docker-compose.yml OR
-  #         comment out these upstreams and their corresponding services/routes
-  #
-  # Services not implemented:
-  #   - user-service:3025
-  #   - agent-registry:8150
-  #   - ai-agents-core:8122
-  #   - globalgap-compliance:8153
-  #   - analytics-service:8154
-  #   - reporting-service:8155
-  #   - integration-service:8156
-  #   - audit-service:8157
-  #   - export-service:8158
-  #   - import-service:8159
-  #   - admin-dashboard:3001
-  #   - monitoring-service:8160
-  #   - logging-service:8161
-  #   - tracing-service:8162
-  #   - cache-service:8163
-  #   - search-service:8164
-  # ═══════════════════════════════════════════════════════════════════════════
-
-  - name: user-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: user-service:3025
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: agent-registry-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: agent-registry:8150
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: ai-agents-core-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: ai-agents-core:8122
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: globalgap-compliance-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: globalgap-compliance:8153
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: analytics-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: analytics-service:8154
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: reporting-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: reporting-service:8155
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: integration-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: integration-service:8156
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: audit-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: audit-service:8157
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: export-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: export-service:8158
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: import-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: import-service:8159
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: admin-dashboard-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: admin-dashboard:3001
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: monitoring-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: monitoring-service:8160
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: logging-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: logging-service:8161
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: tracing-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: tracing-service:8162
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: cache-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: cache-service:8163
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-  - name: search-service-upstream
-    algorithm: round-robin
-    slots: 10000
-    targets:
-      - target: search-service:8164
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 5
-          successes: 2
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          tcp_failures: 3
-          timeouts: 3
-          http_statuses: [500, 502, 503, 504]
-      passive:
-        healthy:
-          http_statuses: [200, 201, 204]
-        unhealthy:
-          http_statuses: [500, 502, 503, 504]
-          tcp_failures: 3
-
-# ============================================================================
-# الخدمات الأساسية - Starter Package Services
-# للمزارعين الصغار وملاك الأراضي الجدد
-# ============================================================================
-
-services:
-  # ============================================================================
-  # إدارة الحقول - Field Management
-  # ============================================================================
-  - name: field-core
-    host: field-management-upstream
-    tags:
-      - starter
-      - core
-    retries: 3
-    connect_timeout: 5000
-    write_timeout: 60000
-    read_timeout: 60000
-    routes:
-      - name: field-core-route
-        paths:
-          - /api/v1/fields
-          - /api/v1/field-core
-        strip_path: false
-        methods:
-          - GET
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-    plugins:
-      - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          hour: 5000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: correlation-id
-        config:
-          header_name: X-Request-ID
-          generator: uuid
-      - name: request-size-limiting
-        config:
-          allowed_payload_size: 10
-
-  # ============================================================================
-  # خدمة الطقس - Weather Service
-  # ============================================================================
-  - name: weather-service
-    host: weather-service-upstream
-    tags:
-      - starter
-      - weather
-    retries: 3
-    routes:
-      - name: weather-service-route
-        paths:
-          - /api/v1/weather
-        strip_path: false
-        methods:
-          - GET
-          - POST
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: response-transformer
-        config:
-          add:
-            headers:
-              - "X-Service: weather-service"
-
-  # ============================================================================
-  # التقويم الفلكي اليمني - Astronomical Calendar
-  # ============================================================================
-  - name: astronomical-calendar
-    url: http://astronomical-calendar:8111
-    tags:
-      - starter
-      - calendar
-    routes:
-      - name: astronomical-calendar-route
-        paths:
-          - /api/v1/astronomical
-          - /api/v1/calendar
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة الاستشارات الزراعية - Advisory Service (Unified)
-  # Consolidates: agro-advisor (deprecated), fertilizer-advisor (deprecated)
-  # المستشار الزراعي - Agricultural Advisory
-  # ============================================================================
-  - name: advisory-service
-    url: http://advisory-service:8093
-    tags:
-      - starter
-      - advisory
-    routes:
-      - name: advisory-route
-        paths:
-          - /api/v1/advice
-          - /api/v1/advisory
-          - /api/v1/agro-advisor  # Legacy path for backwards compatibility
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة الإشعارات - Notification Service
-  # ============================================================================
-  - name: notification-service
-    url: http://notification-service:8110
-    tags:
-      - starter
-      - notifications
-    routes:
-      - name: notification-route
-        paths:
-          - /api/v1/notifications
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # الخدمات المتوسطة - Professional Package Services
-  # للمزارعين المحترفين والتعاونيات
-  # ============================================================================
-
-  # ============================================================================
-  # خدمة الأقمار الصناعية - Satellite Service
-  # ============================================================================
-  - name: satellite-service
-    host: vegetation-analysis-upstream
-    tags:
-      - professional
-      - satellite
-    retries: 3
-    connect_timeout: 10000
-    write_timeout: 120000
-    read_timeout: 120000
-    routes:
-      - name: satellite-route
-        paths:
-          - /api/v1/satellite
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          hour: 50000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: request-size-limiting
-        config:
-          allowed_payload_size: 50
-
-  # ============================================================================
-  # محرك NDVI - NDVI Engine
-  # ============================================================================
-  - name: ndvi-engine
-    url: http://ndvi-processor:8118
-    tags:
-      - professional
-      - analytics
-    routes:
-      - name: ndvi-route
-        paths:
-          - /api/v1/ndvi
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # الذكاء الاصطناعي لصحة المحاصيل - Crop Health AI
-  # ============================================================================
-  - name: crop-health-ai
-    host: crop-intelligence-upstream
-    tags:
-      - professional
-      - ai
-    connect_timeout: 10000
-    write_timeout: 120000
-    read_timeout: 120000
-    routes:
-      - name: crop-health-route
-        paths:
-          - /api/v1/crop-health
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: request-size-limiting
-        config:
-          allowed_payload_size: 25
-
-  # ============================================================================
-  # الري الذكي - Smart Irrigation
-  # ============================================================================
-  - name: irrigation-smart
-    url: http://irrigation-smart:8094
-    tags:
-      - professional
-      - irrigation
-    routes:
-      - name: irrigation-route
-        paths:
-          - /api/v1/irrigation
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # المستشعرات الافتراضية - Virtual Sensors (ET0)
-  # ============================================================================
-  - name: virtual-sensors
-    host: virtual-sensors-upstream
-    tags:
-      - professional
-      - sensors
-    routes:
-      - name: virtual-sensors-route
-        paths:
-          - /api/v1/sensors/virtual
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # محرك توقع الإنتاجية - Yield Engine
-  # ============================================================================
-  - name: yield-engine
-    url: http://yield-prediction-service:8098
-    tags:
-      - professional
-      - analytics
-    routes:
-      - name: yield-engine-route
-        paths:
-          - /api/v1/yield
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # مستشار التسميد - Fertilizer Advisor
-  # ============================================================================
-  - name: fertilizer-advisor
-    host: advisory-service-upstream
-    tags:
-      - professional
-      - advisory
-    routes:
-      - name: fertilizer-route
-        paths:
-          - /api/v1/fertilizer
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة المخزون - Inventory Service
-  # ============================================================================
-  - name: inventory-service
-    url: http://inventory-service:8116
-    tags:
-      - professional
-      - inventory
-    routes:
-      - name: inventory-route
-        paths:
-          - /api/v1/inventory
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Field Intelligence Service - خدمة ذكاء الحقل
-  # ============================================================================
-  - name: field-intelligence
-    url: http://field-intelligence:8120
-    tags:
-      - professional
-      - intelligence
-    routes:
-      - name: field-intelligence-route
-        paths:
-          - /api/v1/field-intelligence
-          - /api/v1/intelligence
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # الخدمات المتقدمة - Enterprise Package Services
-  # للشركات الزراعية ومراكز البحث
-  # ============================================================================
-
-  # ============================================================================
-  # المستشار الذكي متعدد الوكلاء - AI Advisor
-  # ============================================================================
-  - name: ai-advisor
-    host: ai-advisor-upstream
-    tags:
-      - enterprise
-      - ai
-    connect_timeout: 15000
-    write_timeout: 180000
-    read_timeout: 180000
-    routes:
-      - name: ai-advisor-route
-        paths:
-          - /api/v1/ai-advisor
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          hour: 500000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: request-size-limiting
-        config:
-          allowed_payload_size: 50
-
-  # ============================================================================
-  # بوابة إنترنت الأشياء - IoT Gateway
-  # ============================================================================
-  - name: iot-gateway
-    host: iot-gateway-upstream
-    tags:
-      - enterprise
-      - iot
-    routes:
-      - name: iot-gateway-route
-        paths:
-          - /api/v1/iot
-          - /api/v1/agro-rules
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: ip-restriction
-        config:
-          allow:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-
-  # ============================================================================
-  # إدارة الأبحاث - Research Core
-  # ============================================================================
-  - name: research-core
-    url: http://research-core:3015
-    tags:
-      - enterprise
-      - research
-    routes:
-      - name: research-route
-        paths:
-          - /api/v1/research
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: ip-restriction
-        config:
-          allow:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-
-  # ============================================================================
-  # السوق الزراعي - Marketplace Service
-  # ============================================================================
-  - name: marketplace-service
-    url: http://marketplace-service:3010
-    tags:
-      - enterprise
-      - marketplace
-    routes:
-      - name: marketplace-route
-        paths:
-          - /api/v1/marketplace
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: ip-restriction
-        config:
-          allow:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-
-  # ============================================================================
-  # الفوترة والمدفوعات - Billing Core
-  # ============================================================================
-  - name: billing-core
-    url: http://billing-core:8089
-    tags:
-      - enterprise
-      - billing
-    routes:
-      - name: billing-route
-        paths:
-          - /api/v1/billing
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: ip-restriction
-        config:
-          allow:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-
-  # ============================================================================
-  # تقييم الكوارث - Disaster Assessment
-  # ============================================================================
-  - name: disaster-assessment
-    url: http://disaster-assessment:3020
-    tags:
-      - enterprise
-      - disaster
-    routes:
-      - name: disaster-route
-        paths:
-          - /api/v1/disaster
-          - /api/v1/disasters
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: ip-restriction
-        config:
-          allow:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-
-  # ============================================================================
-  # نماذج نمو المحاصيل - Crop Growth Model (WOFOST)
-  # ============================================================================
-  - name: crop-growth-model
-    url: http://crop-growth-model:3023
-    tags:
-      - enterprise
-      - modeling
-    connect_timeout: 15000
-    write_timeout: 180000
-    read_timeout: 180000
-    routes:
-      - name: crop-model-route
-        paths:
-          - /api/v1/crop-model
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # تقدير مؤشر مساحة الورق - LAI Estimation
-  # ============================================================================
-  - name: lai-estimation
-    url: http://lai-estimation:3022
-    tags:
-      - enterprise
-      - analytics
-    routes:
-      - name: lai-route
-        paths:
-          - /api/v1/lai
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمات إضافية - Additional Services
-  # ============================================================================
-
-  # ============================================================================
-  # عمليات الحقول - Field Operations
-  # ============================================================================
-  - name: field-ops
-    url: http://field-management-service:3000
-    tags:
-      - shared
-      - operations
-    routes:
-      - name: field-ops-route
-        paths:
-          - /api/v1/field-ops
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # بوابة WebSocket - WebSocket Gateway
-  # ============================================================================
-  - name: ws-gateway
-    url: http://ws-gateway:8081
-    tags:
-      - shared
-      - websocket
-    routes:
-      - name: ws-gateway-route
-        paths:
-          - /api/v1/ws
-        strip_path: false
-        protocols:
-          - http
-          - https
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 5000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة المؤشرات - Indicators Service
-  # ============================================================================
-  - name: indicators-service
-    url: http://indicators-service:8091
-    tags:
-      - shared
-      - analytics
-    routes:
-      - name: indicators-route
-        paths:
-          - /api/v1/indicators
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # الطقس المتقدم - Advanced Weather (Consolidated into weather-service)
-  # ============================================================================
-  - name: weather-advanced
-    url: http://weather-service:8092
-    tags:
-      - professional
-      - weather
-    routes:
-      - name: weather-advanced-route
-        paths:
-          - /api/v1/weather/advanced
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # محادثة المجتمع - Community Chat
-  # ============================================================================
-  - name: community-chat
-    url: http://community-chat:8097
-    tags:
-      - shared
-      - social
-    routes:
-      - name: community-chat-route
-        paths:
-          - /api/v1/community/chat
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 2000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # محادثة الحقل - Field Chat
-  # ============================================================================
-  - name: field-chat
-    url: http://field-chat:8099
-    tags:
-      - shared
-      - social
-    routes:
-      - name: field-chat-route
-        paths:
-          - /api/v1/field/chat
-          - /api/v1/field-chat
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 2000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة المعدات - Equipment Service
-  # ============================================================================
-  - name: equipment-service
-    url: http://equipment-service:8101
-    tags:
-      - professional
-      - equipment
-    routes:
-      - name: equipment-route
-        paths:
-          - /api/v1/equipment
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة المهام - Task Service
-  # ============================================================================
-  - name: task-service
-    url: http://task-service:8103
-    tags:
-      - shared
-      - tasks
-    routes:
-      - name: task-route
-        paths:
-          - /api/v1/tasks
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # تكوين المزودين - Provider Config
-  # ============================================================================
-  - name: provider-config
-    url: http://provider-config:8104
-    tags:
-      - shared
-      - config
-    routes:
-      - name: provider-config-route
-        paths:
-          - /api/v1/providers
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 500
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # لوحة التحكم - Admin Dashboard
-  # ============================================================================
-  # TODO: Admin dashboard service needs to be created
-  # خدمة لوحة التحكم تحتاج للإنشاء
-  # - name: admin-dashboard
-  #   url: http://admin-dashboard:3001
-  #   tags:
-  #     - admin
-  #     - dashboard
-  #   routes:
-  #     - name: admin-route
-  #       paths:
-  #         - /api/v1/admin
-  #       strip_path: false
-  #   plugins:
-  #     - name: jwt
-  #     - name: acl
-  #       config:
-  #         allow:
-  #           - admin-users
-  #     - name: rate-limiting
-  #       config:
-  #         minute: 5000
-  #         policy: redis
-  #         redis_host: redis
-  #         redis_port: 6379
-  #         redis_password: ${REDIS_PASSWORD}
-  #         redis_database: 1
-  #         redis_timeout: 2000
-  #         fault_tolerant: true
-  #     - name: ip-restriction
-  #       config:
-  #         allow:
-  #           - 10.0.0.0/8
-  #           - 172.16.0.0/12
-  #           - 192.168.0.0/16
-
-  # ============================================================================
-  # توقع الإنتاجية - Yield Prediction
-  # ============================================================================
-  - name: yield-prediction
-    url: http://yield-prediction:3021
-    tags:
-      - enterprise
-      - analytics
-    routes:
-      - name: yield-prediction-route
-        paths:
-          - /api/v1/yield-prediction
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة التنبيهات - Alert Service
-  # ============================================================================
-  - name: alert-service
-    url: http://alert-service:8113
-    tags:
-      - shared
-      - alerts
-    routes:
-      - name: alert-route
-        paths:
-          - /api/v1/alerts
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة المحادثة - Chat Service
-  # ============================================================================
-  - name: chat-service
-    url: http://chat-service:8114
-    tags:
-      - shared
-      - chat
-    routes:
-      - name: chat-service-route
-        paths:
-          - /api/v1/chat
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 2000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة الحقول - Field Service
-  # ============================================================================
-  - name: field-service
-    url: http://field-management-service:3000
-    tags:
-      - shared
-      - fields
-    routes:
-      - name: field-service-route
-        paths:
-          - /api/v1/field-service
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # خدمة IoT - IoT Service
-  # ============================================================================
-  - name: iot-service
-    host: iot-service-upstream
-    tags:
-      - enterprise
-      - iot
-    routes:
-      - name: iot-service-route
-        paths:
-          - /api/v1/iot-service
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # معالج NDVI - NDVI Processor
-  # ============================================================================
-  - name: ndvi-processor
-    url: http://ndvi-processor:8118
-    tags:
-      - professional
-      - analytics
-    routes:
-      - name: ndvi-processor-route
-        paths:
-          - /api/v1/ndvi-processor
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # MCP Server - Model Context Protocol Integration
-  # خادم بروتوكول سياق النموذج - تكامل مع مساعدي الذكاء الاصطناعي
-  # ============================================================================
-  - name: mcp-server
-    host: mcp-server-upstream
-    tags:
-      - shared
-      - integration
-      - ai
-    routes:
-      - name: mcp-server-route
-        paths:
-          - /api/v1/mcp
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          hour: 50000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Code Review Service - AI-Powered Code Analysis
-  # خدمة مراجعة الكود - تحليل الكود بالذكاء الاصطناعي
-  # ============================================================================
-  - name: code-review-service
-    host: code-review-upstream
-    tags:
-      - shared
-      - development
-      - ai
-    routes:
-      - name: code-review-route
-        paths:
-          - /api/v1/code-review
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 500
-          hour: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # NEW SERVICES - 17 Missing Routes Added
-  # ═══════════════════════════════════════════════════════════════════════════
-
-  # ============================================================================
-  # User Service - Authentication and User Management (CRITICAL)
-  # خدمة المستخدمين - المصادقة وإدارة المستخدمين
-  # ============================================================================
-  - name: user-service
-    host: user-service-upstream
-    tags:
-      - critical
-      - auth
-      - users
-    retries: 3
-    connect_timeout: 5000
-    write_timeout: 60000
-    read_timeout: 60000
-    routes:
-      - name: user-service-route
-        paths:
-          - /api/v1/users
-          - /api/v1/auth
-        strip_path: false
-        methods:
-          - GET
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-    plugins:
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 2000
-          hour: 100000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: correlation-id
-        config:
-          header_name: X-Request-ID
-          generator: uuid
-      - name: request-size-limiting
-        config:
-          allowed_payload_size: 5
-
-  # ============================================================================
-  # Agent Registry - AI Agent Management
-  # سجل الوكلاء - إدارة وكلاء الذكاء الاصطناعي
-  # ============================================================================
-  - name: agent-registry
-    host: agent-registry-upstream
-    tags:
-      - professional
-      - ai
-      - agents
-    routes:
-      - name: agent-registry-route
-        paths:
-          - /api/v1/agents
-          - /api/v1/agent-registry
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # AI Agents Core - Multi-Agent Orchestration
-  # نواة وكلاء الذكاء الاصطناعي - تنسيق الوكلاء المتعددين
-  # ============================================================================
-  - name: ai-agents-core
-    host: ai-agents-core-upstream
-    tags:
-      - enterprise
-      - ai
-      - orchestration
-    connect_timeout: 15000
-    write_timeout: 180000
-    read_timeout: 180000
-    routes:
-      - name: ai-agents-core-route
-        paths:
-          - /api/v1/ai-agents
-          - /api/v1/orchestration
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 5000
-          hour: 250000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: request-size-limiting
-        config:
-          allowed_payload_size: 50
-
-  # ============================================================================
-  # GlobalGAP Compliance - Agricultural Compliance Tracking
-  # الامتثال لـ GlobalGAP - تتبع الامتثال الزراعي
-  # ============================================================================
-  - name: globalgap-compliance
-    host: globalgap-compliance-upstream
-    tags:
-      - professional
-      - compliance
-      - globalgap
-    routes:
-      - name: globalgap-route
-        paths:
-          - /api/v1/compliance
-          - /api/v1/globalgap
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Crop Intelligence Service - Direct Access
-  # خدمة ذكاء المحاصيل - وصول مباشر
-  # ============================================================================
-  - name: crop-intelligence-direct
-    host: crop-intelligence-upstream
-    tags:
-      - professional
-      - ai
-      - crops
-    routes:
-      - name: crop-intelligence-route
-        paths:
-          - /api/v1/crop-intelligence
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Vegetation Analysis Service - Direct Access
-  # خدمة تحليل الغطاء النباتي - وصول مباشر
-  # ============================================================================
-  - name: vegetation-analysis-direct
-    host: vegetation-analysis-upstream
-    tags:
-      - professional
-      - satellite
-      - analysis
-    routes:
-      - name: vegetation-analysis-route
-        paths:
-          - /api/v1/vegetation
-          - /api/v1/vegetation-analysis
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Field Management Service - Direct Access
-  # خدمة إدارة الحقول - وصول مباشر
-  # ============================================================================
-  - name: field-management-direct
-    host: field-management-upstream
-    tags:
-      - starter
-      - fields
-      - management
-    routes:
-      - name: field-management-route
-        paths:
-          - /api/v1/field-management
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Analytics Service - Platform Analytics
-  # خدمة التحليلات - تحليلات المنصة
-  # ============================================================================
-  - name: analytics-service
-    host: analytics-service-upstream
-    tags:
-      - enterprise
-      - analytics
-    routes:
-      - name: analytics-route
-        paths:
-          - /api/v1/analytics
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-            - research-users
-      - name: rate-limiting
-        config:
-          minute: 5000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Reporting Service - Report Generation
-  # خدمة التقارير - إنشاء التقارير
-  # ============================================================================
-  - name: reporting-service
-    host: reporting-service-upstream
-    tags:
-      - professional
-      - reporting
-    routes:
-      - name: reporting-route
-        paths:
-          - /api/v1/reports
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 500
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Integration Service - Third-Party Integrations
-  # خدمة التكامل - تكامل الجهات الخارجية
-  # ============================================================================
-  - name: integration-service
-    host: integration-service-upstream
-    tags:
-      - professional
-      - integration
-    routes:
-      - name: integration-route
-        paths:
-          - /api/v1/integrations
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Audit Service - System Audit Logs
-  # خدمة التدقيق - سجلات تدقيق النظام
-  # ============================================================================
-  - name: audit-service
-    host: audit-service-upstream
-    tags:
-      - enterprise
-      - audit
-      - security
-    routes:
-      - name: audit-route
-        paths:
-          - /api/v1/audit
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 2000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: ip-restriction
-        config:
-          allow:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-
-  # ============================================================================
-  # Export Service - Data Export
-  # خدمة التصدير - تصدير البيانات
-  # ============================================================================
-  - name: export-service
-    host: export-service-upstream
-    tags:
-      - professional
-      - export
-    routes:
-      - name: export-route
-        paths:
-          - /api/v1/export
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Import Service - Data Import
-  # خدمة الاستيراد - استيراد البيانات
-  # ============================================================================
-  - name: import-service
-    host: import-service-upstream
-    tags:
-      - professional
-      - import
-    routes:
-      - name: import-route
-        paths:
-          - /api/v1/import
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 100
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: request-size-limiting
-        config:
-          allowed_payload_size: 100
-
-  # ============================================================================
-  # Admin Dashboard - Administration Interface
-  # لوحة تحكم المسؤول - واجهة الإدارة
-  # ============================================================================
-  - name: admin-dashboard
-    host: admin-dashboard-upstream
-    tags:
-      - admin
-      - dashboard
-    routes:
-      - name: admin-route
-        paths:
-          - /api/v1/admin
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 5000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: ip-restriction
-        config:
-          allow:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-
-  # ============================================================================
-  # Monitoring Service - System Monitoring
-  # خدمة المراقبة - مراقبة النظام
-  # ============================================================================
-  - name: monitoring-service
-    host: monitoring-service-upstream
-    tags:
-      - observability
-      - monitoring
-    routes:
-      - name: monitoring-route
-        paths:
-          - /api/v1/monitoring
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Logging Service - Centralized Logging
-  # خدمة السجلات - السجلات المركزية
-  # ============================================================================
-  - name: logging-service
-    host: logging-service-upstream
-    tags:
-      - observability
-      - logging
-    routes:
-      - name: logging-route
-        paths:
-          - /api/v1/logs
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Tracing Service - Distributed Tracing
-  # خدمة التتبع - التتبع الموزع
-  # ============================================================================
-  - name: tracing-service
-    host: tracing-service-upstream
-    tags:
-      - observability
-      - tracing
-    routes:
-      - name: tracing-route
-        paths:
-          - /api/v1/tracing
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - enterprise-users
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 10000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Cache Service - Distributed Caching
-  # خدمة التخزين المؤقت - التخزين المؤقت الموزع
-  # ============================================================================
-  - name: cache-service
-    host: cache-service-upstream
-    tags:
-      - infrastructure
-      - cache
-    routes:
-      - name: cache-route
-        paths:
-          - /api/v1/cache
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 50000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Search Service - Full-Text Search
-  # خدمة البحث - البحث عن النصوص الكاملة
-  # ============================================================================
-  - name: search-service
-    host: search-service-upstream
-    tags:
-      - professional
-      - search
-    routes:
-      - name: search-route
-        paths:
-          - /api/v1/search
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - starter-users
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 5000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # نقاط فحص الصحة - Health Check Endpoints
-  # ============================================================================
-  - name: health-check
-    url: http://kong:8000
-    routes:
-      - name: health-route
-        paths:
-          - /health
-          - /ping
-        strip_path: false
-        methods:
-          - GET
-    plugins:
-      - name: request-termination
-        config:
-          status_code: 200
-          message: "SAHOOL Platform is healthy"
-
-# ============================================================================
-# الإضافات العامة - Global Plugins
-# ============================================================================
-
+# ------------------------------------------------------------------------------
+# Kong Declarative Config (DB-less)
+# Generated from docker-compose.yml
+# Fix applied: service.name + service.host (docker DNS) + service.port (internal)
+# Only includes services that actually exist in docker-compose.yml
+# ------------------------------------------------------------------------------
+
+# Optional: global plugins (applies to all routes/services)
 plugins:
-  # CORS للسماح بالطلبات من المتصفحات
   - name: cors
     config:
       origins:
-        - "https://sahool.app"
-        - "https://www.sahool.app"
-        - "https://admin.sahool.app"
-        - "https://api.sahool.app"
-        - "https://staging.sahool.app"
-        - "http://localhost:3000"
-        - "http://localhost:5173"
-        - "http://localhost:8080"
+        - "https://sahool.kafaat.com"
+        - "https://admin.sahool.kafaat.com"
+        - "https://app.sahool.kafaat.com"
+        - "https://api.sahool.kafaat.com"
       methods:
         - GET
         - POST
@@ -3042,139 +26,795 @@ plugins:
         - OPTIONS
       headers:
         - Accept
-        - Accept-Version
-        - Content-Length
-        - Content-MD5
-        - Content-Type
-        - Date
         - Authorization
-        - X-Auth-Token
+        - Content-Type
+        - X-Request-ID
+        - X-Tenant-ID
       exposed_headers:
         - X-Request-ID
       credentials: true
       max_age: 3600
 
-  # تسجيل الطلبات
-  - name: file-log
-    config:
-      path: /var/log/kong/access.log
-      reopen: true
-
-  # Prometheus للمراقبة
   - name: prometheus
+    config: {}
 
-  # Security Headers
+  # JWT Authentication with claims verification for token revocation support
+  # Note: jti (JWT ID) claim is used for token revocation via blacklist
+  - name: jwt
+    config:
+      # URI parameter names to check for JWT (e.g., ?jwt=<token>)
+      uri_param_names:
+        - jwt
+      # Cookie names to check for JWT (disabled for security)
+      cookie_names: []
+      # Claims to verify - exp required for revocation support
+      claims_to_verify:
+        - exp
+      # Key claim name (identifies the consumer/issuer)
+      key_claim_name: iss
+      # Secret is not base64 encoded
+      secret_is_base64: false
+      # No anonymous access - require valid JWT
+      anonymous: null
+      # Run JWT validation on preflight (OPTIONS) requests
+      run_on_preflight: true
+      # Maximum token lifetime (1 hour) - short-lived tokens for security
+      maximum_expiration: 3600
+
+  # OpenID Connect plugin for token introspection and revocation checking
+  # This enables real-time token validation against the identity provider
+  - name: openid-connect
+    config:
+      # OIDC Issuer URL (identity provider)
+      issuer: ${OIDC_ISSUER_URL}
+      # Token introspection endpoint for revocation status checking
+      introspection_endpoint: ${OIDC_INTROSPECTION_URL}
+      # Token endpoint for token exchange
+      token_endpoint: ${OIDC_TOKEN_URL}
+      # Enable JWT token introspection for revocation checking
+      introspect_jwt_tokens: true
+      # Verify token signature
+      verify_signature: true
+      # Cache introspection results (seconds) - short TTL for revocation responsiveness
+      introspection_cache_ttl: 60
+      # Additional security settings
+      ssl_verify: true
+      # Scopes to validate
+      scopes_required: []
+      # Audience claim validation (optional)
+      audience_required: []
+
+  # Global rate limiting to prevent token abuse and brute-force attacks
+  - name: rate-limiting
+    config:
+      # Rate limit: 60 requests per minute
+      minute: 60
+      # Use Redis for distributed rate limiting across Kong nodes
+      policy: redis
+      # Redis connection settings
+      redis_host: redis
+      redis_port: 6379
+      redis_password: ${REDIS_PASSWORD}
+      redis_database: 1
+      redis_timeout: 2000
+      # Fault tolerant - allow requests if Redis is unavailable
+      fault_tolerant: true
+      # Show rate limit headers to clients
+      hide_client_headers: false
+
+  # Redis-based token blacklist for revocation
+  # This plugin checks if the token's jti is in the Redis blacklist
+  # Note: Requires custom plugin or use key-auth with Redis for blacklist checking
+  # Alternative: Use response-transformer to add revocation headers for downstream validation
   - name: response-transformer
     config:
       add:
         headers:
-          - "X-Content-Type-Options: nosniff"
-          - "X-Frame-Options: DENY"
-          - "X-XSS-Protection: 1; mode=block"
-          - "Referrer-Policy: strict-origin-when-cross-origin"
-          - "Permissions-Policy: geolocation=(), microphone=(), camera=()"
-          - "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.sahool.app wss://api.sahool.app"
-          - "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"
+          - "X-Token-Revocation-Check:enabled"
+          - "X-Revocation-Endpoint:/api/v1/auth/revoke"
+          - "X-Token-Introspection-Endpoint:/api/v1/auth/introspect"
 
-  # معرف الطلب
-  - name: correlation-id
-    config:
-      header_name: X-Request-ID
-      generator: uuid
-      echo_downstream: true
+# ------------------------------------------------------------------------------
+# Services + Routes
+# NOTE:
+# - host MUST be the docker-compose service key (not container_name)
+# - port is the container listen port (your PORT env var)
+# - Only services that exist in docker-compose.yml are included
+# ------------------------------------------------------------------------------
 
-# ============================================================================
-# مستهلكو الخدمة - Service Consumers
-# ============================================================================
+services:
+  # -----------------------------
+  # Node.js services
+  # -----------------------------
+  - name: field-management-service
+    host: field-management-service
+    port: 3000
+    protocol: http
+    routes:
+      - name: field-management-service-route
+        paths: ["/api/v1/fields", "/api/v1/field", "/field"]
+        strip_path: true
+        protocols: ["http", "https"]
 
-consumers:
-  # المستخدمون الأساسيون - Starter Users
-  - username: starter-user-sample
-    custom_id: starter-001
-    tags:
-      - starter
-    jwt_secrets:
-      - key: starter-jwt-key-hs256
-        algorithm: HS256
-        secret: ${STARTER_JWT_SECRET}
-      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
-      # - key: starter-jwt-key-rs256
-      #   algorithm: RS256
-      #   rsa_public_key: ${JWT_PUBLIC_KEY}
+  - name: user-service
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-route
+        paths: ["/api/v1/auth", "/api/v1/users", "/auth", "/users"]
+        strip_path: true
+        protocols: ["http", "https"]
+      # Token revocation endpoint - requires POST method only
+      - name: token-revocation-route
+        paths: ["/api/v1/auth/revoke", "/auth/revoke"]
+        methods: ["POST"]
+        strip_path: true
+        protocols: ["http", "https"]
+      # Token introspection endpoint for revocation status check
+      - name: token-introspection-route
+        paths: ["/api/v1/auth/introspect", "/auth/introspect"]
+        methods: ["POST"]
+        strip_path: true
+        protocols: ["http", "https"]
+      # Token blacklist check endpoint (internal use)
+      - name: token-blacklist-route
+        paths: ["/api/v1/auth/blacklist", "/auth/blacklist"]
+        methods: ["GET", "POST"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      # Rate limiting for authentication endpoints to prevent brute-force attacks
+      - name: rate-limiting
+        config:
+          # Stricter limits for auth endpoints
+          second: 5
+          minute: 30
+          hour: 200
+          # Use Redis for distributed rate limiting
+          policy: redis
+          fault_tolerant: true
+          hide_client_headers: false
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
 
-  # المستخدمون المحترفون - Professional Users
-  - username: professional-user-sample
-    custom_id: professional-001
-    tags:
-      - professional
-    jwt_secrets:
-      - key: professional-jwt-key-hs256
-        algorithm: HS256
-        secret: ${PROFESSIONAL_JWT_SECRET}
-      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
-      # - key: professional-jwt-key-rs256
-      #   algorithm: RS256
-      #   rsa_public_key: ${JWT_PUBLIC_KEY}
+  - name: marketplace-service
+    host: marketplace-service
+    port: 3010
+    protocol: http
+    routes:
+      - name: marketplace-service-route
+        paths: ["/api/v1/marketplace", "/marketplace"]
+        strip_path: true
+        protocols: ["http", "https"]
 
-  # المستخدمون المؤسسيون - Enterprise Users
-  - username: enterprise-user-sample
-    custom_id: enterprise-001
-    tags:
-      - enterprise
-    jwt_secrets:
-      - key: enterprise-jwt-key-hs256
-        algorithm: HS256
-        secret: ${ENTERPRISE_JWT_SECRET}
-      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
-      # - key: enterprise-jwt-key-rs256
-      #   algorithm: RS256
-      #   rsa_public_key: ${JWT_PUBLIC_KEY}
+  - name: research-core
+    host: research-core
+    port: 3015
+    protocol: http
+    routes:
+      - name: research-core-route
+        paths: ["/api/v1/research", "/research"]
+        strip_path: true
+        protocols: ["http", "https"]
 
-  # المستخدمون البحثيون - Research Users
-  - username: research-user-sample
-    custom_id: research-001
-    tags:
-      - research
-    jwt_secrets:
-      - key: research-jwt-key-hs256
-        algorithm: HS256
-        secret: ${RESEARCH_JWT_SECRET}
-      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
-      # - key: research-jwt-key-rs256
-      #   algorithm: RS256
-      #   rsa_public_key: ${JWT_PUBLIC_KEY}
+  - name: disaster-assessment
+    host: disaster-assessment
+    port: 3020
+    protocol: http
+    routes:
+      - name: disaster-assessment-route
+        paths: ["/api/v1/disaster", "/disaster"]
+        strip_path: true
+        protocols: ["http", "https"]
 
-  # المستخدمون المسؤولون - Admin Users
-  - username: admin-user-sample
-    custom_id: admin-001
-    tags:
-      - admin
-    jwt_secrets:
-      - key: admin-jwt-key-hs256
-        algorithm: HS256
-        secret: ${ADMIN_JWT_SECRET}
-      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
-      # - key: admin-jwt-key-rs256
-      #   algorithm: RS256
-      #   rsa_public_key: ${JWT_PUBLIC_KEY}
+  # DEPRECATED (still routable if needed)
+  - name: yield-prediction
+    host: yield-prediction
+    port: 3021
+    protocol: http
+    routes:
+      - name: yield-prediction-route
+        paths: ["/yield-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
 
-# ============================================================================
-# مجموعات التحكم في الوصول - ACL Groups
-# ============================================================================
+  # DEPRECATED (still routable if needed)
+  - name: lai-estimation
+    host: lai-estimation
+    port: 3022
+    protocol: http
+    routes:
+      - name: lai-estimation-route
+        paths: ["/lai-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
 
-acls:
-  - consumer: starter-user-sample
-    group: starter-users
-  - consumer: professional-user-sample
-    group: professional-users
-  - consumer: enterprise-user-sample
-    group: enterprise-users
-  - consumer: research-user-sample
-    group: research-users
-  - consumer: admin-user-sample
-    group: admin-users
+  # DEPRECATED (still routable if needed)
+  - name: crop-growth-model
+    host: crop-growth-model
+    port: 3023
+    protocol: http
+    routes:
+      - name: crop-growth-model-route
+        paths: ["/crop-growth-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
 
-# ============================================================================
-# نهاية التكوين
-# End of Configuration
-# ============================================================================
+  - name: chat-service
+    host: chat-service
+    port: 8114
+    protocol: http
+    routes:
+      - name: chat-service-route
+        paths: ["/api/v1/chat", "/chat"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: iot-service
+    host: iot-service
+    port: 8117
+    protocol: http
+    routes:
+      - name: iot-service-route
+        paths: ["/api/v1/iot", "/iot"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Community Chat - Posts and community features
+  - name: community-chat
+    host: community-chat
+    port: 8097
+    protocol: http
+    routes:
+      - name: community-chat-route
+        paths: ["/api/v1/community", "/api/v1/posts", "/community", "/community-chat-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # -----------------------------
+  # Python services
+  # -----------------------------
+  # DEPRECATED profile (only runs if profile enabled)
+  - name: field-ops
+    host: field-ops
+    port: 8080
+    protocol: http
+    routes:
+      - name: field-ops-route
+        paths: ["/field-ops-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: ws-gateway
+    host: ws-gateway
+    port: 8081
+    protocol: http
+    routes:
+      - name: ws-gateway-route
+        paths: ["/ws"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: billing-core
+    host: billing-core
+    port: 8089
+    protocol: http
+    routes:
+      - name: billing-core-route
+        paths: ["/api/v1/billing", "/billing"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: vegetation-analysis-service
+    host: vegetation-analysis-service
+    port: 8090
+    protocol: http
+    routes:
+      - name: vegetation-analysis-service-route
+        paths: ["/api/v1/vegetation", "/vegetation"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: satellite-route
+        paths: ["/api/v1/satellite", "/satellite"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: ndvi-route
+        paths: ["/api/v1/ndvi", "/ndvi"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: indicators-service
+    host: indicators-service
+    port: 8091
+    protocol: http
+    routes:
+      - name: indicators-service-route
+        paths: ["/api/v1/indicators", "/indicators"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: weather-service
+    host: weather-service
+    port: 8092
+    protocol: http
+    routes:
+      - name: weather-service-route
+        paths: ["/api/v1/weather", "/weather"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: advisory-service
+    host: advisory-service
+    port: 8093
+    protocol: http
+    routes:
+      - name: advisory-service-route
+        paths: ["/api/v1/advisory", "/api/v1/fertilizer", "/advisory", "/fertilizer"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: irrigation-smart
+    host: irrigation-smart
+    port: 8094
+    protocol: http
+    routes:
+      - name: irrigation-smart-route
+        paths: ["/api/v1/irrigation", "/irrigation"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: crop-intelligence-service
+    host: crop-intelligence-service
+    port: 8095
+    protocol: http
+    routes:
+      - name: crop-intelligence-service-route
+        paths: ["/api/v1/crop-health", "/api/v1/crop", "/crop"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: virtual-sensors
+    host: virtual-sensors
+    port: 8119
+    protocol: http
+    routes:
+      - name: virtual-sensors-route
+        paths: ["/api/v1/virtual-sensors", "/virtual-sensors"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: yield-prediction-service
+    host: yield-prediction-service
+    port: 8098
+    protocol: http
+    routes:
+      - name: yield-prediction-service-route
+        paths: ["/api/v1/yield", "/yield"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: field-chat
+    host: field-chat
+    port: 8099
+    protocol: http
+    routes:
+      - name: field-chat-route
+        paths: ["/api/v1/field-chat", "/field-chat"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: equipment-service
+    host: equipment-service
+    port: 8101
+    protocol: http
+    routes:
+      - name: equipment-service-route
+        paths: ["/api/v1/equipment", "/equipment"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # gpu profile (only if enabled)
+  - name: code-review-service
+    host: code-review-service
+    port: 8102
+    protocol: http
+    routes:
+      - name: code-review-service-route
+        paths: ["/api/v1/code-review", "/code-review"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: task-service
+    host: task-service
+    port: 8103
+    protocol: http
+    routes:
+      - name: task-service-route
+        paths: ["/api/v1/tasks", "/api/v1/task", "/task"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: provider-config
+    host: provider-config
+    port: 8104
+    protocol: http
+    routes:
+      - name: provider-config-route
+        paths: ["/api/v1/provider-config", "/provider-config"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Agro Advisor - Agricultural advice and rules
+  - name: agro-advisor
+    host: agro-advisor
+    port: 8105
+    protocol: http
+    routes:
+      - name: agro-advisor-route
+        paths: ["/api/v1/agro-advisor", "/api/v1/agro-rules", "/agro-advisor", "/agro-advisor-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: iot-gateway
+    host: iot-gateway
+    port: 8106
+    protocol: http
+    routes:
+      - name: iot-gateway-route
+        paths: ["/api/v1/iot-gateway", "/iot-gateway"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # DEPRECATED
+  - name: ndvi-engine
+    host: ndvi-engine
+    port: 8107
+    protocol: http
+    routes:
+      - name: ndvi-engine-route
+        paths: ["/ndvi-engine-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # Weather Core - Advanced weather assessment (POST-based API with lat/lon)
+  - name: weather-core
+    host: weather-core
+    port: 8108
+    protocol: http
+    routes:
+      - name: weather-core-route
+        paths: ["/api/v1/weather-core", "/weather-core", "/weather-core-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: notification-service
+    host: notification-service
+    port: 8110
+    protocol: http
+    routes:
+      - name: notification-service-route
+        paths: ["/api/v1/notifications", "/api/v1/notification", "/notification"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-channels-route
+        paths: ["/api/v1/channels"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-preferences-route
+        paths: ["/api/v1/preferences"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-alerts-route
+        paths: ["/api/v1/alerts", "/alerts"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-stats-route
+        paths: ["/api/v1/notification-stats"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-reminders-route
+        paths: ["/api/v1/reminders"]
+        strip_path: true
+        protocols: ["http", "https"]
+      - name: notification-farmers-route
+        paths: ["/api/v1/farmers"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: astronomical-calendar
+    host: astronomical-calendar
+    port: 8111
+    protocol: http
+    routes:
+      - name: astronomical-calendar-route
+        paths: ["/api/v1/astronomy", "/astronomy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: ai-advisor
+    host: ai-advisor
+    port: 8112
+    protocol: http
+    routes:
+      - name: ai-advisor-route
+        paths: ["/api/v1/ai-advisor", "/ai-advisor"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: alert-service
+    host: alert-service
+    port: 8113
+    protocol: http
+    routes:
+      - name: alert-service-route
+        paths: ["/api/v1/alerts", "/alerts"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: field-service
+    host: field-service
+    port: 8115
+    protocol: http
+    routes:
+      - name: field-service-route
+        paths: ["/field-service-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: inventory-service
+    host: inventory-service
+    port: 8116
+    protocol: http
+    routes:
+      - name: inventory-service-route
+        paths: ["/api/v1/inventory", "/inventory"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: ndvi-processor
+    host: ndvi-processor
+    port: 8118
+    protocol: http
+    routes:
+      - name: ndvi-processor-route
+        paths: ["/ndvi-processor-legacy"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: field-intelligence
+    host: field-intelligence
+    port: 8120
+    protocol: http
+    routes:
+      - name: field-intelligence-route
+        paths: ["/api/v1/field-intelligence", "/api/v1/field-core", "/field-intelligence"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: mcp-server
+    host: mcp-server
+    port: 8200
+    protocol: http
+    routes:
+      - name: mcp-server-route
+        paths: ["/api/v1/mcp", "/mcp"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  - name: skills-service
+    host: skills-service
+    port: 8121
+    protocol: http
+    routes:
+      - name: skills-service-route
+        paths: ["/api/v1/skills", "/skills"]
+        strip_path: true
+        protocols: ["http", "https"]
+
+  # -----------------------------
+  # Token Blacklist Service (Internal)
+  # -----------------------------
+  # This service handles token revocation and blacklist management
+  # It connects to Redis to store/check revoked token JTIs
+  - name: token-blacklist-service
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      # Internal endpoint for token validation (used by other services)
+      - name: token-validate-route
+        paths: ["/internal/token/validate"]
+        methods: ["POST"]
+        strip_path: true
+        protocols: ["http", "https"]
+      # Internal endpoint for batch token validation
+      - name: token-batch-validate-route
+        paths: ["/internal/token/batch-validate"]
+        methods: ["POST"]
+        strip_path: true
+        protocols: ["http", "https"]
+      # Internal endpoint for token revocation events (NATS webhook)
+      - name: token-revocation-webhook-route
+        paths: ["/internal/token/revocation-webhook"]
+        methods: ["POST"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      # Strict rate limiting for internal token validation endpoints
+      - name: rate-limiting
+        config:
+          second: 100
+          minute: 1000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          fault_tolerant: true
+          hide_client_headers: true
+      # IP restriction - only allow internal services
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 127.0.0.1/32
+          status: 403
+          message: "Access denied - internal endpoint"
+
+  # -----------------------------
+  # Platform endpoints
+  # -----------------------------
+  - name: root-endpoint
+    url: http://kong:8000
+    routes:
+      - name: root-route
+        paths: ["/"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          content_type: "application/json"
+          body: '{"platform":"SAHOOL","version":"16.0.0","description":"National Agricultural Intelligence Platform","status":"operational","endpoints":{"/health":"Health check","/ping":"Ping check","/api/v1":"API Gateway"},"documentation":"https://github.com/kafaat/sahool-unified-v15-idp"}'
+
+  - name: health-check
+    url: http://kong:8000
+    routes:
+      - name: health-route
+        paths: ["/health", "/ping"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          message: "SAHOOL Platform is healthy"
+
+# ------------------------------------------------------------------------------
+# Intentionally NOT added to Kong (non-HTTP APIs / internal infra / workers)
+# - postgres, pgbouncer, redis, nats, nats-prometheus-exporter, mqtt, qdrant
+# - etcd, etcd-init, minio, milvus
+# - agro-rules (worker, no HTTP)
+# - demo-data (client, not an API)
+# - ollama / ollama-model-loader (only if you want to expose)
+# - crop-health (check if it has HTTP endpoints)
+# ------------------------------------------------------------------------------
+
+# ==============================================================================
+# TOKEN REVOCATION CONFIGURATION
+# ==============================================================================
+#
+# REQUIRED ENVIRONMENT VARIABLES:
+# --------------------------------
+# OIDC_ISSUER_URL        - OpenID Connect issuer URL (e.g., https://auth.sahool.kafaat.com)
+# OIDC_INTROSPECTION_URL - Token introspection endpoint for revocation checking
+# OIDC_TOKEN_URL         - Token endpoint for token exchange/refresh
+# REDIS_PASSWORD         - Redis password for rate limiting and blacklist storage
+#
+# Token Revocation Architecture:
+# 1. JWT tokens include a 'jti' (JWT ID) claim for unique identification
+# 2. When a token is revoked, its jti is added to a Redis blacklist
+# 3. The openid-connect plugin validates tokens against the introspection endpoint
+# 4. The user-service handles token revocation via /api/v1/auth/revoke endpoint
+# 5. Downstream services validate tokens against the Redis blacklist
+#
+# Plugins Enabled for Token Revocation:
+# 1. jwt           - Validates JWT tokens, checks exp claim, enforces 1-hour max expiration
+# 2. openid-connect - Introspects tokens for real-time revocation status
+# 3. rate-limiting  - Prevents token abuse with Redis-backed distributed limiting
+# 4. response-transformer - Adds revocation headers for downstream validation
+#
+# Redis Configuration:
+# - Key pattern: sahool:revoked_tokens:{jti}
+# - TTL: Set to match the token's remaining lifetime (max 1 hour with new config)
+# - Redis database: 1 (separate from session storage)
+# - Rate limiting data also stored in Redis database 1
+#
+# Public Revocation Endpoints (via user-service):
+# - POST /api/v1/auth/revoke       - Revoke a specific token (requires token in body)
+# - POST /api/v1/auth/introspect   - Check if a token is valid/revoked (OIDC-compliant)
+# - GET  /api/v1/auth/blacklist    - List revoked tokens (admin only)
+# - POST /api/v1/auth/blacklist    - Manually blacklist a token (admin only)
+#
+# Internal Endpoints (via token-blacklist-service):
+# - POST /internal/token/validate       - Validate token against blacklist (internal)
+# - POST /internal/token/batch-validate - Batch validate tokens (internal)
+# - POST /internal/token/revocation-webhook - Receive revocation events (NATS)
+#
+# Request Format for /api/v1/auth/revoke:
+# {
+#   "token": "<JWT_TOKEN_TO_REVOKE>",
+#   "reason": "logout|security|admin_action"
+# }
+#
+# Response Format:
+# {
+#   "success": true,
+#   "jti": "<TOKEN_JTI>",
+#   "revoked_at": "2025-01-16T12:00:00Z",
+#   "expires_at": "2025-01-16T13:00:00Z"
+# }
+#
+# Token Introspection Response (RFC 7662 compliant):
+# {
+#   "active": true|false,
+#   "scope": "read write",
+#   "client_id": "sahool-mobile-app",
+#   "username": "farmer@example.com",
+#   "token_type": "Bearer",
+#   "exp": 1705410000,
+#   "iat": 1705406400,
+#   "sub": "user-uuid",
+#   "aud": "sahool-api",
+#   "iss": "https://auth.sahool.kafaat.com",
+#   "jti": "unique-token-id"
+# }
+#
+# Rate Limiting Tiers:
+# - Global: 60 requests/minute (all endpoints)
+# - Auth endpoints: 5/second, 30/minute, 200/hour (stricter for security)
+# - Internal endpoints: 100/second, 1000/minute (high throughput for service-to-service)
+#
+# For custom Kong plugin (advanced):
+# To implement a pre-function plugin that checks Redis directly:
+#
+# plugins:
+#   - name: pre-function
+#     config:
+#       access:
+#         - |
+#           local redis = require "resty.redis"
+#           local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+#           local red = redis:new()
+#           red:set_timeout(1000)
+#           local ok, err = red:connect("redis", 6379)
+#           if ok then
+#             red:auth(os.getenv("REDIS_PASSWORD"))
+#             red:select(1)  -- Use database 1 for token blacklist
+#             local token = kong.request.get_header("Authorization")
+#             if token then
+#               token = token:gsub("Bearer ", "")
+#               local jwt, err = jwt_decoder:new(token)
+#               if jwt and jwt.claims and jwt.claims.jti then
+#                 local revoked = red:get("sahool:revoked_tokens:" .. jwt.claims.jti)
+#                 if revoked and revoked ~= ngx.null then
+#                   return kong.response.exit(401, { message = "Token has been revoked" })
+#                 end
+#               end
+#             end
+#           end
+#
+# Note: The above pre-function plugin requires Kong Enterprise or custom plugin
+# development. For Kong OSS, token revocation is handled by:
+# 1. openid-connect plugin introspection (if OIDC provider available)
+# 2. user-service middleware which checks Redis on each authenticated request
+# ==============================================================================

@@ -4,11 +4,11 @@
  */
 
 // Components
-export { TeamManagement } from './components/TeamManagement';
-export { MemberCard } from './components/MemberCard';
-export { InviteMemberDialog } from './components/InviteMemberDialog';
-export { RoleSelector } from './components/RoleSelector';
-export { PermissionsMatrix } from './components/PermissionsMatrix';
+export { TeamManagement } from "./components/TeamManagement";
+export { MemberCard } from "./components/MemberCard";
+export { InviteMemberDialog } from "./components/InviteMemberDialog";
+export { RoleSelector } from "./components/RoleSelector";
+export { PermissionsMatrix } from "./components/PermissionsMatrix";
 
 // Hooks
 export {
@@ -20,10 +20,10 @@ export {
   useInviteMember,
   useUpdateRole,
   useRemoveMember,
-} from './hooks/useTeam';
+} from "./hooks/useTeam";
 
 // API
-export { teamApi } from './api/team-api';
+export { teamApi } from "./api/team-api";
 
 // Types
 export type {
@@ -39,6 +39,6 @@ export type {
   TeamStats,
   TeamFilters,
   ApiResponse,
-} from './types/team';
+} from "./types/team";
 
-export { ROLE_CONFIGS } from './types/team';
+export { ROLE_CONFIGS } from "./types/team";

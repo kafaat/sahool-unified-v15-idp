@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Page, expect } from "@playwright/test";
 
 /**
  * Authentication Helper Functions
@@ -15,15 +15,18 @@ export interface LoginCredentials {
  * بيانات المستخدم الافتراضية للاختبار
  */
 export const TEST_USER: LoginCredentials = {
-  email: process.env.TEST_USER_EMAIL || 'test@sahool.com',
-  password: process.env.TEST_USER_PASSWORD || 'Test@123456',
+  email: process.env.TEST_USER_EMAIL || "test@sahool.com",
+  password: process.env.TEST_USER_PASSWORD || "Test@123456",
 };
 
 /**
  * Login to the application
  * تسجيل الدخول إلى التطبيق
  */
-export async function login(page: Page, credentials: LoginCredentials = TEST_USER) {
+export async function login(
+  page: Page,
+  credentials: LoginCredentials = TEST_USER,
+) {
   // In CI environment, use mock authentication by setting cookies directly
   if (process.env.CI) {
     await mockLogin(page);
@@ -31,10 +34,10 @@ export async function login(page: Page, credentials: LoginCredentials = TEST_USE
   }
 
   // Navigate to login page
-  await page.goto('/login');
+  await page.goto("/login");
 
   // Wait for page to load
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
 
   // Fill in credentials
   await page.fill('input[type="email"]', credentials.email);
@@ -44,7 +47,7 @@ export async function login(page: Page, credentials: LoginCredentials = TEST_USE
   await page.click('button[type="submit"]');
 
   // Wait for navigation to dashboard
-  await page.waitForURL('**/dashboard', { timeout: 15000 });
+  await page.waitForURL("**/dashboard", { timeout: 15000 });
 
   // Verify successful login
   await expect(page).toHaveURL(/\/dashboard/);
@@ -56,39 +59,39 @@ export async function login(page: Page, credentials: LoginCredentials = TEST_USE
  * تسجيل دخول وهمي لاختبارات CI/E2E
  */
 export async function mockLogin(page: Page) {
-  const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+  const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 
   // Set mock authentication cookies
   await page.context().addCookies([
     {
-      name: 'access_token',
-      value: 'mock_test_token_for_e2e_testing',
+      name: "access_token",
+      value: "mock_test_token_for_e2e_testing",
       domain: new URL(baseURL).hostname,
-      path: '/',
+      path: "/",
       httpOnly: true,
       secure: false,
-      sameSite: 'Lax',
+      sameSite: "Lax",
     },
     {
-      name: 'user_session',
+      name: "user_session",
       value: JSON.stringify({
-        id: 'test-user-123',
-        email: 'test@sahool.com',
-        name: 'Test User',
-        nameAr: 'مستخدم اختباري',
-        role: 'admin',
+        id: "test-user-123",
+        email: "test@sahool.com",
+        name: "Test User",
+        nameAr: "مستخدم اختباري",
+        role: "admin",
       }),
       domain: new URL(baseURL).hostname,
-      path: '/',
+      path: "/",
       httpOnly: false,
       secure: false,
-      sameSite: 'Lax',
+      sameSite: "Lax",
     },
   ]);
 
   // Navigate to dashboard
-  await page.goto('/dashboard');
-  await page.waitForLoadState('domcontentloaded');
+  await page.goto("/dashboard");
+  await page.waitForLoadState("domcontentloaded");
 }
 
 /**
@@ -98,7 +101,11 @@ export async function mockLogin(page: Page) {
 export async function logout(page: Page) {
   // Look for logout button or user menu
   // This may need adjustment based on actual UI structure
-  const userMenuButton = page.locator('[data-testid="user-menu"], [aria-label*="menu"], button:has-text("Settings")').first();
+  const userMenuButton = page
+    .locator(
+      '[data-testid="user-menu"], [aria-label*="menu"], button:has-text("Settings")',
+    )
+    .first();
 
   if (await userMenuButton.isVisible()) {
     await userMenuButton.click();
@@ -107,12 +114,16 @@ export async function logout(page: Page) {
     await page.waitForTimeout(500);
 
     // Click logout button
-    const logoutButton = page.locator('[data-testid="logout"], button:has-text("Logout"), button:has-text("تسجيل الخروج")').first();
+    const logoutButton = page
+      .locator(
+        '[data-testid="logout"], button:has-text("Logout"), button:has-text("تسجيل الخروج")',
+      )
+      .first();
     await logoutButton.click();
   }
 
   // Wait for redirect to login page
-  await page.waitForURL('**/login', { timeout: 10000 });
+  await page.waitForURL("**/login", { timeout: 10000 });
 
   // Verify we're on login page
   await expect(page).toHaveURL(/\/login/);
@@ -125,8 +136,8 @@ export async function logout(page: Page) {
 export async function isLoggedIn(page: Page): Promise<boolean> {
   try {
     // Check if we can access dashboard
-    await page.goto('/dashboard', { waitUntil: 'networkidle', timeout: 5000 });
-    return page.url().includes('/dashboard');
+    await page.goto("/dashboard", { waitUntil: "networkidle", timeout: 5000 });
+    return page.url().includes("/dashboard");
   } catch {
     return false;
   }
@@ -161,7 +172,7 @@ export async function clearAuth(page: Page) {
   // Only clear storage if we're on a valid page (not about:blank)
   try {
     const url = page.url();
-    if (url && url !== 'about:blank') {
+    if (url && url !== "about:blank") {
       await page.evaluate(() => {
         localStorage.clear();
         sessionStorage.clear();

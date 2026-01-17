@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/http/api_client.dart';
 import '../../domain/entities/task.dart';
 
@@ -41,7 +43,7 @@ class TasksApi {
         return FieldTask.fromJson(response);
       }
     } catch (e) {
-      print('❌ Failed to fetch task $taskId: $e');
+      debugPrint('❌ Failed to fetch task $taskId: $e');
     }
 
     return null;
@@ -64,7 +66,7 @@ class TasksApi {
       );
       return true;
     } catch (e) {
-      print('❌ Failed to complete task $taskId: $e');
+      debugPrint('❌ Failed to complete task $taskId: $e');
       return false;
     }
   }
@@ -83,7 +85,7 @@ class TasksApi {
       );
       return true;
     } catch (e) {
-      print('❌ Failed to update task status: $e');
+      debugPrint('❌ Failed to update task status: $e');
       return false;
     }
   }
@@ -100,7 +102,7 @@ class TasksApi {
         return FieldTask.fromJson(response);
       }
     } catch (e) {
-      print('❌ Failed to create task: $e');
+      debugPrint('❌ Failed to create task: $e');
     }
 
     return null;

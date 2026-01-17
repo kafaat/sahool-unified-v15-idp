@@ -8,6 +8,7 @@ This service helps farmers plan optimal crop rotations based on agronomic princi
 ## Features
 
 ### Core Functionality
+
 - **5-Year Rotation Planning**: Generate comprehensive multi-year rotation plans
 - **Crop Family Management**: Track 15+ crop families with specific rotation rules
 - **Disease Risk Assessment**: Identify and prevent disease buildup from repeated crops
@@ -16,6 +17,7 @@ This service helps farmers plan optimal crop rotations based on agronomic princi
 - **Compatibility Checking**: Verify crop sequences follow agronomic best practices
 
 ### Yemen-Specific Features
+
 - **50+ Yemen Crops**: Complete catalog of crops grown in Yemen
 - **Regional Adaptation**: Crop suggestions based on Yemen's agricultural zones
 - **Bilingual Support**: Full Arabic and English support
@@ -36,6 +38,7 @@ This service helps farmers plan optimal crop rotations based on agronomic princi
 **GET** `/v1/rotation/plan`
 
 Query Parameters:
+
 - `field_id`: Field identifier
 - `field_name`: Name of the field
 - `start_year`: Starting year (e.g., 2025)
@@ -48,6 +51,7 @@ curl "http://localhost:8099/v1/rotation/plan?field_id=F001&field_name=Field1&sta
 **POST** `/v1/rotation/plan`
 
 Request body with custom history:
+
 ```json
 {
   "field_id": "F001",
@@ -70,6 +74,7 @@ Request body with custom history:
 ```
 
 Response:
+
 ```json
 {
   "field_id": "F001",
@@ -91,6 +96,7 @@ Response:
 **GET** `/v1/rotation/suggest/{field_id}`
 
 Query Parameters:
+
 - `season`: Growing season (winter, summer, spring, autumn)
 
 ```bash
@@ -98,6 +104,7 @@ curl "http://localhost:8099/v1/rotation/suggest/F001?season=winter"
 ```
 
 Response:
+
 ```json
 {
   "field_id": "F001",
@@ -123,6 +130,7 @@ Response:
 **POST** `/v1/rotation/evaluate`
 
 Request body:
+
 ```json
 {
   "seasons": [
@@ -149,6 +157,7 @@ Request body:
 ```
 
 Response:
+
 ```json
 {
   "evaluation": {
@@ -167,6 +176,7 @@ Response:
 **GET** `/v1/rotation/rules`
 
 Returns all rotation rules by crop family:
+
 ```json
 {
   "rules": {
@@ -191,6 +201,7 @@ Returns all rotation rules by crop family:
 **GET** `/v1/rotation/families`
 
 Returns all crop families and their crops:
+
 ```json
 {
   "families": {
@@ -208,6 +219,7 @@ Returns all crop families and their crops:
 **GET** `/v1/rotation/check`
 
 Query Parameters:
+
 - `crop_family`: Crop family to check
 - `previous_crops`: Comma-separated list of previous crop codes
 
@@ -216,6 +228,7 @@ curl "http://localhost:8099/v1/rotation/check?crop_family=legumes&previous_crops
 ```
 
 Response:
+
 ```json
 {
   "crop_family": "legumes",
@@ -289,16 +302,19 @@ The service supports 15 crop families:
 ### Local Development
 
 1. Install dependencies:
+
 ```bash
 pip install -r rotation-requirements.txt
 ```
 
 2. Run the service:
+
 ```bash
 python -m src.rotation_main
 ```
 
 3. Access API documentation:
+
 ```
 http://localhost:8099/docs
 ```
@@ -306,11 +322,13 @@ http://localhost:8099/docs
 ### Docker
 
 1. Build the image:
+
 ```bash
 docker build -f rotation-Dockerfile -t sahool-crop-rotation:latest .
 ```
 
 2. Run the container:
+
 ```bash
 docker run -p 8099:8099 sahool-crop-rotation:latest
 ```
@@ -318,6 +336,7 @@ docker run -p 8099:8099 sahool-crop-rotation:latest
 ### Docker Compose
 
 Add to `docker-compose.yml`:
+
 ```yaml
 services:
   crop-rotation:
@@ -356,6 +375,7 @@ create_tables(engine)
 ## Integration with SAHOOL Platform
 
 ### With Field Service
+
 ```python
 # Get field data
 field = await field_service.get_field(field_id)
@@ -370,6 +390,7 @@ plan = await rotation_service.create_rotation_plan(
 ```
 
 ### With Agro Advisor
+
 ```python
 # Get crop recommendations
 suggestions = await rotation_service.suggest_next_crop(field_id, season="winter")
@@ -380,6 +401,7 @@ for suggestion in suggestions:
 ```
 
 ### With Satellite Service
+
 ```python
 # Track actual performance
 actual_yield = await satellite_service.estimate_yield(field_id)
@@ -391,6 +413,7 @@ await rotation_service.update_season_yield(season_id, actual_yield)
 ## Testing
 
 Run tests:
+
 ```bash
 pytest tests/ -v --cov=src
 ```
@@ -398,12 +421,14 @@ pytest tests/ -v --cov=src
 ## API Documentation
 
 Interactive API documentation is available at:
+
 - Swagger UI: `http://localhost:8099/docs`
 - ReDoc: `http://localhost:8099/redoc`
 
 ## Configuration
 
 Environment variables:
+
 - `PORT`: Service port (default: 8099)
 - `DATABASE_URL`: PostgreSQL connection string
 - `NATS_URL`: NATS server URL for event publishing (optional)
@@ -411,6 +436,7 @@ Environment variables:
 ## References
 
 This implementation is based on agronomic principles from:
+
 - **OneSoil**: Field management and crop rotation planning
 - **LiteFarm**: Sustainable farming practices
 - **FAO Guidelines**: Crop rotation and soil health best practices
@@ -424,6 +450,7 @@ Copyright (c) 2025
 ## Support
 
 For issues and questions:
+
 - GitHub Issues: [sahool-unified-v15-idp](https://github.com/your-org/sahool-unified-v15-idp)
 - Documentation: `/docs`
 - Email: support@sahool.example

@@ -17,22 +17,26 @@ MQTT to NATS bridge service for sensor data ingestion. Receives sensor readings 
 ## Features | الميزات
 
 ### MQTT Bridge | جسر MQTT
+
 - Subscribe to sensor topics
 - Multi-device support
 - QoS handling
 
 ### Data Normalization | تطبيع البيانات
+
 - Unified reading format
 - Unit conversion
 - Timestamp standardization
 
 ### Device Registry | سجل الأجهزة
+
 - Auto-registration
 - Device status tracking
 - Battery monitoring
 - Signal strength logging
 
 ### Event Publishing | نشر الأحداث
+
 - NATS integration
 - Tenant-scoped events
 - Real-time streaming
@@ -40,11 +44,13 @@ MQTT to NATS bridge service for sensor data ingestion. Receives sensor readings 
 ## MQTT Topics
 
 ### Sensor Data
+
 ```
 sahool/sensors/{tenant_id}/{field_id}/{device_id}
 ```
 
 ### Device Status
+
 ```
 sahool/devices/{tenant_id}/{device_id}/status
 ```
@@ -52,27 +58,31 @@ sahool/devices/{tenant_id}/{device_id}/status
 ## API Endpoints
 
 ### Health
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/healthz` | Health check |
-| GET | `/readyz` | Readiness (MQTT + NATS) |
+
+| Method | Path       | Description             |
+| ------ | ---------- | ----------------------- |
+| GET    | `/healthz` | Health check            |
+| GET    | `/readyz`  | Readiness (MQTT + NATS) |
 
 ### Devices
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/v1/devices` | List registered devices |
-| GET | `/api/v1/devices/{id}` | Get device status |
-| POST | `/api/v1/devices/{id}/command` | Send command to device |
+
+| Method | Path                           | Description             |
+| ------ | ------------------------------ | ----------------------- |
+| GET    | `/api/v1/devices`              | List registered devices |
+| GET    | `/api/v1/devices/{id}`         | Get device status       |
+| POST   | `/api/v1/devices/{id}/command` | Send command to device  |
 
 ### Readings
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/v1/readings/latest` | Get latest readings |
-| GET | `/api/v1/fields/{field_id}/readings` | Field readings |
+
+| Method | Path                                 | Description         |
+| ------ | ------------------------------------ | ------------------- |
+| GET    | `/api/v1/readings/latest`            | Get latest readings |
+| GET    | `/api/v1/fields/{field_id}/readings` | Field readings      |
 
 ## Sensor Reading Format
 
 ### Input (MQTT)
+
 ```json
 {
   "device_id": "sensor_001",
@@ -86,6 +96,7 @@ sahool/devices/{tenant_id}/{device_id}/status
 ```
 
 ### Normalized Output (NATS)
+
 ```json
 {
   "tenant_id": "tenant_001",
@@ -105,26 +116,26 @@ sahool/devices/{tenant_id}/{device_id}/status
 
 ## Supported Sensor Types
 
-| Type | Arabic | Unit |
-|------|--------|------|
-| `soil_moisture` | رطوبة التربة | % |
-| `soil_temperature` | حرارة التربة | °C |
-| `air_temperature` | حرارة الهواء | °C |
-| `air_humidity` | رطوبة الهواء | % |
-| `light_intensity` | شدة الإضاءة | lux |
-| `water_level` | مستوى الماء | cm |
-| `water_flow` | تدفق الماء | L/min |
-| `ph_level` | مستوى pH | pH |
-| `ec_level` | التوصيل الكهربائي | mS/cm |
+| Type               | Arabic            | Unit  |
+| ------------------ | ----------------- | ----- |
+| `soil_moisture`    | رطوبة التربة      | %     |
+| `soil_temperature` | حرارة التربة      | °C    |
+| `air_temperature`  | حرارة الهواء      | °C    |
+| `air_humidity`     | رطوبة الهواء      | %     |
+| `light_intensity`  | شدة الإضاءة       | lux   |
+| `water_level`      | مستوى الماء       | cm    |
+| `water_flow`       | تدفق الماء        | L/min |
+| `ph_level`         | مستوى pH          | pH    |
+| `ec_level`         | التوصيل الكهربائي | mS/cm |
 
 ## Device Status
 
-| Status | Arabic | Description |
-|--------|--------|-------------|
-| `online` | متصل | Active and sending data |
-| `offline` | غير متصل | No data for > 5 minutes |
-| `error` | خطأ | Device reporting errors |
-| `low_battery` | بطارية منخفضة | Battery < 20% |
+| Status        | Arabic        | Description             |
+| ------------- | ------------- | ----------------------- |
+| `online`      | متصل          | Active and sending data |
+| `offline`     | غير متصل      | No data for > 5 minutes |
+| `error`       | خطأ           | Device reporting errors |
+| `low_battery` | بطارية منخفضة | Battery < 20%           |
 
 ## Dependencies
 
@@ -134,14 +145,14 @@ sahool/devices/{tenant_id}/{device_id}/status
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Service port | `8096` |
-| `MQTT_BROKER` | MQTT broker host | `localhost` |
-| `MQTT_PORT` | MQTT broker port | `1883` |
-| `MQTT_TOPIC` | Subscribe topic | `sahool/sensors/#` |
-| `NATS_URL` | NATS server URL | - |
-| `DEFAULT_TENANT` | Default tenant ID | `default` |
+| Variable         | Description       | Default            |
+| ---------------- | ----------------- | ------------------ |
+| `PORT`           | Service port      | `8096`             |
+| `MQTT_BROKER`    | MQTT broker host  | `localhost`        |
+| `MQTT_PORT`      | MQTT broker port  | `1883`             |
+| `MQTT_TOPIC`     | Subscribe topic   | `sahool/sensors/#` |
+| `NATS_URL`       | NATS server URL   | -                  |
+| `DEFAULT_TENANT` | Default tenant ID | `default`          |
 
 ## Events Published
 

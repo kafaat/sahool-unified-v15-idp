@@ -71,10 +71,10 @@ And include the clustering script:
 ### Basic Usage / الاستخدام الأساسي
 
 ```tsx
-import { useRef, useEffect } from 'react';
-import { TaskMarkers } from '@/features/fields/components/TaskMarkers';
-import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { useFields } from '@/features/fields/hooks/useFields';
+import { useRef, useEffect } from "react";
+import { TaskMarkers } from "@/features/fields/components/TaskMarkers";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
+import { useFields } from "@/features/fields/hooks/useFields";
 
 export function TaskMap() {
   const mapRef = useRef<any>(null);
@@ -83,7 +83,7 @@ export function TaskMap() {
   const { data: fields = [] } = useFields();
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapContainerRef.current) return;
+    if (typeof window === "undefined" || !mapContainerRef.current) return;
 
     const L = (window as typeof window & { L?: any }).L;
     if (!L) return;
@@ -92,8 +92,8 @@ export function TaskMap() {
     if (!mapRef.current && mapContainerRef.current) {
       const map = L.map(mapContainerRef.current).setView([15.5527, 48.5164], 6);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
         maxZoom: 19,
       }).addTo(map);
 
@@ -139,7 +139,7 @@ export function TaskMap() {
   mapRef={mapRef}
   onTaskClick={(taskId) => {
     // Custom logic
-    console.log('Task clicked:', taskId);
+    console.log("Task clicked:", taskId);
     // Open modal, sidebar, etc.
   }}
 />
@@ -150,7 +150,7 @@ export function TaskMap() {
 ```tsx
 const { data: allTasks = [] } = useTasks();
 const urgentTasks = allTasks.filter(
-  (task) => task.priority === 'urgent' || task.priority === 'high'
+  (task) => task.priority === "urgent" || task.priority === "high",
 );
 
 <TaskMarkers tasks={urgentTasks} fields={fields} mapRef={mapRef} />;
@@ -158,51 +158,52 @@ const urgentTasks = allTasks.filter(
 
 ## Props / الخصائص
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `tasks` | `Task[]` | Yes | - | Array of tasks to display on the map |
-| `fields` | `Field[]` | Yes | - | Array of fields (used to get task locations) |
-| `mapRef` | `React.RefObject<any>` | Yes | - | Reference to the Leaflet map instance |
-| `enableClustering` | `boolean` | No | `true` | Enable/disable marker clustering |
-| `onTaskClick` | `(taskId: string) => void` | No | Navigate to `/dashboard/tasks/{id}` | Custom handler for task marker clicks |
+| Prop               | Type                       | Required | Default                             | Description                                  |
+| ------------------ | -------------------------- | -------- | ----------------------------------- | -------------------------------------------- |
+| `tasks`            | `Task[]`                   | Yes      | -                                   | Array of tasks to display on the map         |
+| `fields`           | `Field[]`                  | Yes      | -                                   | Array of fields (used to get task locations) |
+| `mapRef`           | `React.RefObject<any>`     | Yes      | -                                   | Reference to the Leaflet map instance        |
+| `enableClustering` | `boolean`                  | No       | `true`                              | Enable/disable marker clustering             |
+| `onTaskClick`      | `(taskId: string) => void` | No       | Navigate to `/dashboard/tasks/{id}` | Custom handler for task marker clicks        |
 
 ## Task Types / أنواع المهام
 
 The component supports the following task types with corresponding icons:
 
-| Type | Icon | Arabic Label |
-|------|------|--------------|
-| `irrigation` | 💧 | ري |
-| `inspection` | 🔍 | فحص |
-| `fertilization` | 🌱 | تسميد |
-| `planting` | 🌾 | زراعة |
-| `harvesting` | 🌽 | حصاد |
-| `pest_control` | 🐛 | مكافحة آفات |
-| `maintenance` | 🔧 | صيانة |
-| `other` | 📋 | أخرى |
+| Type            | Icon | Arabic Label |
+| --------------- | ---- | ------------ |
+| `irrigation`    | 💧   | ري           |
+| `inspection`    | 🔍   | فحص          |
+| `fertilization` | 🌱   | تسميد        |
+| `planting`      | 🌾   | زراعة        |
+| `harvesting`    | 🌽   | حصاد         |
+| `pest_control`  | 🐛   | مكافحة آفات  |
+| `maintenance`   | 🔧   | صيانة        |
+| `other`         | 📋   | أخرى         |
 
 ## Priority Colors / ألوان الأولوية
 
-| Priority | Color | Hex |
-|----------|-------|-----|
-| `urgent` | Red | `#dc2626` |
-| `high` | Red | `#ef4444` |
+| Priority | Color  | Hex       |
+| -------- | ------ | --------- |
+| `urgent` | Red    | `#dc2626` |
+| `high`   | Red    | `#ef4444` |
 | `medium` | Yellow | `#eab308` |
-| `low` | Green | `#22c55e` |
+| `low`    | Green  | `#22c55e` |
 
 ## Status Labels / تسميات الحالة
 
-| Status | Arabic Label |
-|--------|--------------|
-| `open` | مفتوح |
-| `pending` | معلق |
-| `in_progress` | قيد التنفيذ |
-| `completed` | مكتمل |
-| `cancelled` | ملغي |
+| Status        | Arabic Label |
+| ------------- | ------------ |
+| `open`        | مفتوح        |
+| `pending`     | معلق         |
+| `in_progress` | قيد التنفيذ  |
+| `completed`   | مكتمل        |
+| `cancelled`   | ملغي         |
 
 ## Popup Content / محتوى النافذة المنبثقة
 
 The task popup displays:
+
 - Task title (Arabic and English)
 - Task type with icon
 - Task status
@@ -215,6 +216,7 @@ The task popup displays:
 ## Clustering Behavior / سلوك التجميع
 
 When clustering is enabled and multiple tasks are at nearby locations:
+
 - Markers are grouped into clusters
 - Cluster color represents the highest priority task in the group
 - Cluster badge shows the count of tasks
@@ -253,6 +255,7 @@ When clustering is enabled and multiple tasks are at nearby locations:
 **Problem:** No markers on the map
 
 **Checklist:**
+
 1. Verify tasks have `field_id` property
 2. Verify fields have `centroid` property with valid coordinates
 3. Check that map is properly initialized before TaskMarkers mounts
@@ -263,6 +266,7 @@ When clustering is enabled and multiple tasks are at nearby locations:
 **Problem:** Markers not clustering
 
 **Solutions:**
+
 1. Install `leaflet.markercluster` package
 2. Include clustering CSS and JS in layout
 3. Verify `enableClustering={true}` (or omit for default behavior)
@@ -270,6 +274,7 @@ When clustering is enabled and multiple tasks are at nearby locations:
 ## Examples / الأمثلة
 
 See `TaskMarkers.example.tsx` for comprehensive usage examples including:
+
 - Basic map with all tasks
 - Map without clustering
 - Filtered high-priority tasks
@@ -287,6 +292,7 @@ See `TaskMarkers.example.tsx` for comprehensive usage examples including:
 ## Contributing / المساهمة
 
 When extending this component, please:
+
 1. Maintain RTL (right-to-left) support for Arabic
 2. Follow existing color coding conventions
 3. Test with large datasets (100+ tasks)

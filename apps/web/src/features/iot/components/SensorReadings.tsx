@@ -3,13 +3,22 @@
  * مكون قراءات المستشعر مع الرسم البياني
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useSensorReadings } from '../hooks/useSensors';
-import type { SensorReadingsQuery } from '../types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Calendar, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { useSensorReadings } from "../hooks/useSensors";
+import type { SensorReadingsQuery } from "../types";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { Calendar, Loader2 } from "lucide-react";
 
 interface SensorReadingsProps {
   sensorId: string;
@@ -18,8 +27,13 @@ interface SensorReadingsProps {
   limit?: number;
 }
 
-export function SensorReadings({ sensorId, sensorName, unit, limit }: SensorReadingsProps) {
-  const [interval, setInterval] = useState<'1h' | '1d' | '1w' | '1m'>('1d');
+export function SensorReadings({
+  sensorId,
+  sensorName,
+  unit,
+  limit,
+}: SensorReadingsProps) {
+  const [interval, setInterval] = useState<"1h" | "1d" | "1w" | "1m">("1d");
 
   const query: SensorReadingsQuery = {
     sensorId,
@@ -48,15 +62,16 @@ export function SensorReadings({ sensorId, sensorName, unit, limit }: SensorRead
     );
   }
 
-  const chartData = readings?.map((reading) => ({
-    timestamp: new Date(reading.timestamp).toLocaleString('ar-YE', {
-      month: 'short',
-      day: 'numeric',
-      hour: interval === '1h' ? '2-digit' : undefined,
-      minute: interval === '1h' ? '2-digit' : undefined,
-    }),
-    value: reading.value,
-  })) || [];
+  const chartData =
+    readings?.map((reading) => ({
+      timestamp: new Date(reading.timestamp).toLocaleString("ar-YE", {
+        month: "short",
+        day: "numeric",
+        hour: interval === "1h" ? "2-digit" : undefined,
+        minute: interval === "1h" ? "2-digit" : undefined,
+      }),
+      value: reading.value,
+    })) || [];
 
   return (
     <div className="bg-white rounded-lg shadow">
@@ -65,47 +80,47 @@ export function SensorReadings({ sensorId, sensorName, unit, limit }: SensorRead
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center">
             <Calendar className="w-5 h-5 ml-2 text-green-600" />
-            قراءات {sensorName || 'المستشعر'}
+            قراءات {sensorName || "المستشعر"}
           </h2>
 
           {/* Interval Selector */}
           <div className="flex gap-2">
             <button
-              onClick={() => setInterval('1h')}
+              onClick={() => setInterval("1h")}
               className={`px-3 py-1 rounded-lg text-sm ${
-                interval === '1h'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                interval === "1h"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               ساعة
             </button>
             <button
-              onClick={() => setInterval('1d')}
+              onClick={() => setInterval("1d")}
               className={`px-3 py-1 rounded-lg text-sm ${
-                interval === '1d'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                interval === "1d"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               يوم
             </button>
             <button
-              onClick={() => setInterval('1w')}
+              onClick={() => setInterval("1w")}
               className={`px-3 py-1 rounded-lg text-sm ${
-                interval === '1w'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                interval === "1w"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               أسبوع
             </button>
             <button
-              onClick={() => setInterval('1m')}
+              onClick={() => setInterval("1m")}
               className={`px-3 py-1 rounded-lg text-sm ${
-                interval === '1m'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                interval === "1m"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               شهر
@@ -120,29 +135,30 @@ export function SensorReadings({ sensorId, sensorName, unit, limit }: SensorRead
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="timestamp"
-                style={{ fontSize: '12px' }}
-              />
+              <XAxis dataKey="timestamp" style={{ fontSize: "12px" }} />
               <YAxis
-                style={{ fontSize: '12px' }}
-                label={{ value: unit || '', angle: -90, position: 'insideLeft' }}
+                style={{ fontSize: "12px" }}
+                label={{
+                  value: unit || "",
+                  angle: -90,
+                  position: "insideLeft",
+                }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
+                  backgroundColor: "white",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
                 }}
               />
               <Legend />
               <Line
                 type="monotone"
                 dataKey="value"
-                name={`القيمة${unit ? ` (${unit})` : ''}`}
+                name={`القيمة${unit ? ` (${unit})` : ""}`}
                 stroke="#16a34a"
                 strokeWidth={2}
-                dot={{ fill: '#16a34a', r: 4 }}
+                dot={{ fill: "#16a34a", r: 4 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>
@@ -161,20 +177,25 @@ export function SensorReadings({ sensorId, sensorName, unit, limit }: SensorRead
             <div>
               <p className="text-sm text-gray-600">المتوسط</p>
               <p className="text-2xl font-bold text-gray-900">
-                {(readings.reduce((sum, r) => sum + r.value, 0) / readings.length).toFixed(2)}{' '}
-                {unit || ''}
+                {(
+                  readings.reduce((sum, r) => sum + r.value, 0) /
+                  readings.length
+                ).toFixed(2)}{" "}
+                {unit || ""}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">الحد الأدنى</p>
               <p className="text-2xl font-bold text-blue-600">
-                {Math.min(...readings.map((r) => r.value)).toFixed(2)} {unit || ''}
+                {Math.min(...readings.map((r) => r.value)).toFixed(2)}{" "}
+                {unit || ""}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">الحد الأقصى</p>
               <p className="text-2xl font-bold text-red-600">
-                {Math.max(...readings.map((r) => r.value)).toFixed(2)} {unit || ''}
+                {Math.max(...readings.map((r) => r.value)).toFixed(2)}{" "}
+                {unit || ""}
               </p>
             </div>
           </div>
@@ -184,19 +205,19 @@ export function SensorReadings({ sensorId, sensorName, unit, limit }: SensorRead
   );
 }
 
-function getStartDate(interval: '1h' | '1d' | '1w' | '1m'): string {
+function getStartDate(interval: "1h" | "1d" | "1w" | "1m"): string {
   const now = new Date();
   switch (interval) {
-    case '1h':
+    case "1h":
       now.setHours(now.getHours() - 1);
       break;
-    case '1d':
+    case "1d":
       now.setDate(now.getDate() - 1);
       break;
-    case '1w':
+    case "1w":
       now.setDate(now.getDate() - 7);
       break;
-    case '1m':
+    case "1m":
       now.setMonth(now.getMonth() - 1);
       break;
   }

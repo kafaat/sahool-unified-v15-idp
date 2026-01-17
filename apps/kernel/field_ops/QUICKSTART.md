@@ -103,17 +103,20 @@ print(f"Cost: {schedule.estimated_electricity_cost:.2f} YER")
 ## المحاصيل المدعومة - Supported Crops
 
 ### الحبوب - Cereals
+
 - `CropType.WHEAT` - قمح
 - `CropType.BARLEY` - شعير
 - `CropType.SORGHUM` - ذرة رفيعة
 - `CropType.MILLET` - دخن
 
 ### البقوليات - Legumes
+
 - `CropType.LENTILS` - عدس
 - `CropType.BEANS` - فول
 - `CropType.CHICKPEAS` - حمص
 
 ### الخضروات - Vegetables
+
 - `CropType.TOMATO` - طماطم
 - `CropType.POTATO` - بطاطس
 - `CropType.ONION` - بصل
@@ -122,17 +125,20 @@ print(f"Cost: {schedule.estimated_electricity_cost:.2f} YER")
 - `CropType.PEPPER` - فلفل
 
 ### المحاصيل النقدية - Cash Crops
+
 - `CropType.COTTON` - قطن
 - `CropType.TOBACCO` - تبغ
 - `CropType.SESAME` - سمسم
 
 ### الفواكه - Fruits
+
 - `CropType.MANGO` - مانجو
 - `CropType.BANANA` - موز
 - `CropType.GRAPES` - عنب
 - `CropType.DATES` - نخيل
 
 ### المحاصيل العطرية - Aromatic
+
 - `CropType.COFFEE` - بن
 - `CropType.QAT` - قات
 

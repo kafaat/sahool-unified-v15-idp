@@ -164,9 +164,7 @@
       "get": {
         "summary": "Health Check",
         "description": "",
-        "tags": [
-          "ai-agents-core"
-        ],
+        "tags": ["ai-agents-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -187,9 +185,7 @@
       "post": {
         "summary": "Assess Disease",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -220,9 +216,7 @@
       "post": {
         "summary": "Assess Symptoms",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -253,9 +247,7 @@
       "get": {
         "summary": "Search Disease",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -304,9 +296,7 @@
       "get": {
         "summary": "Get Crop Diseases",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -355,9 +345,7 @@
       "get": {
         "summary": "Get Disease Info",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -397,9 +385,7 @@
       "post": {
         "summary": "Assess From Ndvi Endpoint",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -430,9 +416,7 @@
       "post": {
         "summary": "Assess Visual Endpoint",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -463,9 +447,7 @@
       "get": {
         "summary": "Get Deficiency Info",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -505,9 +487,7 @@
       "post": {
         "summary": "Create Fertilizer Plan",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -547,9 +527,7 @@
       "get": {
         "summary": "Get Fertilizer Info",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -589,9 +567,7 @@
       "get": {
         "summary": "List crop categories with counts",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -622,9 +598,7 @@
       "get": {
         "summary": "List crop categories with counts",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -655,9 +629,7 @@
       "get": {
         "summary": "Search Crops Endpoint",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -688,9 +660,7 @@
       "get": {
         "summary": "List all crops grouped by category",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -711,9 +681,7 @@
       "get": {
         "summary": "Get Crop Details",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -744,9 +712,7 @@
       "get": {
         "summary": "Get Crop Varieties",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -777,9 +743,7 @@
       "get": {
         "summary": "Get Crop Stages",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -828,9 +792,7 @@
       "get": {
         "summary": "Get Crop Requirements Legacy",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -870,9 +832,7 @@
       "get": {
         "summary": "Get Action",
         "description": "",
-        "tags": [
-          "agro-advisor"
-        ],
+        "tags": ["agro-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -903,9 +863,7 @@
       "get": {
         "summary": "Get registry statistics",
         "description": "الحصول على إحصائيات السجل",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "الحصول على إحصائيات السجل",
         "x-description-ar": "",
         "parameters": [],
@@ -926,9 +884,7 @@
       "post": {
         "summary": "Register Agent",
         "description": "",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -947,9 +903,7 @@
       "get": {
         "summary": "List Agents",
         "description": "",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -970,9 +924,7 @@
       "get": {
         "summary": "Get Agent",
         "description": "",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1001,9 +953,7 @@
       "delete": {
         "summary": "Deregister Agent",
         "description": "",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1034,9 +984,7 @@
       "get": {
         "summary": "Discover By Capability",
         "description": "",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1076,9 +1024,7 @@
       "get": {
         "summary": "Discover By Skill",
         "description": "",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1109,9 +1055,7 @@
       "post": {
         "summary": "Discover By Tags",
         "description": "",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -1132,9 +1076,7 @@
       "get": {
         "summary": "Check Agent Health",
         "description": "",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1165,9 +1107,7 @@
       "get": {
         "summary": "Get health statuses of all agents",
         "description": "الحصول على حالات صحة جميع الوكلاء",
-        "tags": [
-          "agent-registry"
-        ],
+        "tags": ["agent-registry"],
         "x-summary-ar": "الحصول على حالات صحة جميع الوكلاء",
         "x-description-ar": "",
         "parameters": [],
@@ -1188,9 +1128,7 @@
       "post": {
         "summary": "Ask Question",
         "description": "",
-        "tags": [
-          "ai-advisor"
-        ],
+        "tags": ["ai-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -1211,9 +1149,7 @@
       "post": {
         "summary": "Diagnose Disease",
         "description": "",
-        "tags": [
-          "ai-advisor"
-        ],
+        "tags": ["ai-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -1234,9 +1170,7 @@
       "post": {
         "summary": "Get Recommendations",
         "description": "",
-        "tags": [
-          "ai-advisor"
-        ],
+        "tags": ["ai-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -1257,9 +1191,7 @@
       "post": {
         "summary": "Analyze Field",
         "description": "",
-        "tags": [
-          "ai-advisor"
-        ],
+        "tags": ["ai-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -1280,9 +1212,7 @@
       "get": {
         "summary": "List available agents",
         "description": "قائمة الوكلاء المتاحين\nReturns information about all available AI agents.\nيعيد معلومات حول جميع وكلاء الذكاء الاصطناعي المتاحين.",
-        "tags": [
-          "ai-advisor"
-        ],
+        "tags": ["ai-advisor"],
         "x-summary-ar": "قائمة الوكلاء المتاحين",
         "x-description-ar": "",
         "parameters": [],
@@ -1303,9 +1233,7 @@
       "get": {
         "summary": "List available external tools",
         "description": "قائمة الأدوات الخارجية المتاحة",
-        "tags": [
-          "ai-advisor"
-        ],
+        "tags": ["ai-advisor"],
         "x-summary-ar": "قائمة الأدوات الخارجية المتاحة",
         "x-description-ar": "",
         "parameters": [],
@@ -1326,9 +1254,7 @@
       "get": {
         "summary": "Get RAG system information",
         "description": "الحصول على معلومات نظام RAG",
-        "tags": [
-          "ai-advisor"
-        ],
+        "tags": ["ai-advisor"],
         "x-summary-ar": "الحصول على معلومات نظام RAG",
         "x-description-ar": "",
         "parameters": [],
@@ -1349,9 +1275,7 @@
       "get": {
         "summary": "فحص الصحة - Health check with metrics",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "فحص الصحة - Health check with metrics",
         "x-description-ar": "",
         "parameters": [],
@@ -1372,9 +1296,7 @@
       "get": {
         "summary": "Get gateway statistics including room and NATS information",
         "description": "",
-        "tags": [
-          "ws-gateway"
-        ],
+        "tags": ["ws-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1423,9 +1345,7 @@
       "post": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1456,9 +1376,7 @@
       "get": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1487,9 +1405,7 @@
       "patch": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1518,9 +1434,7 @@
       "delete": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1551,9 +1465,7 @@
       "get": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1584,9 +1496,7 @@
       "post": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1617,9 +1527,7 @@
       "post": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1650,9 +1558,7 @@
       "post": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1683,9 +1589,7 @@
       "post": {
         "summary": "Create Rule",
         "description": "",
-        "tags": [
-          "alert-service"
-        ],
+        "tags": ["alert-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1716,9 +1620,7 @@
       "get": {
         "summary": "الحصول على البيانات الفلكية لليوم الحالي",
         "description": "يرجع:\n- التاريخ الهجري\n- مرحلة القمر\n- المنزلة القمرية\n- البرج\n- الموسم الزراعي\n- التوصيات الزراعية",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "الحصول على البيانات الفلكية لليوم الحالي",
         "x-description-ar": "",
         "parameters": [
@@ -1749,9 +1651,7 @@
       "get": {
         "summary": "Get Date",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -1782,9 +1682,7 @@
       "get": {
         "summary": "قائمة جميع المنازل القمرية الـ 28",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة جميع المنازل القمرية الـ 28",
         "x-description-ar": "",
         "parameters": [],
@@ -1805,9 +1703,7 @@
       "get": {
         "summary": "قائمة جميع المنازل القمرية الـ 28",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة جميع المنازل القمرية الـ 28",
         "x-description-ar": "",
         "parameters": [],
@@ -1828,9 +1724,7 @@
       "get": {
         "summary": "قائمة جميع المنازل القمرية الـ 28",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة جميع المنازل القمرية الـ 28",
         "x-description-ar": "",
         "parameters": [],
@@ -1851,9 +1745,7 @@
       "get": {
         "summary": "قائمة جميع المنازل القمرية الـ 28",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة جميع المنازل القمرية الـ 28",
         "x-description-ar": "",
         "parameters": [],
@@ -1874,9 +1766,7 @@
       "get": {
         "summary": "قائمة الأشهر الهجرية",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة الأشهر الهجرية",
         "x-description-ar": "",
         "parameters": [],
@@ -1897,9 +1787,7 @@
       "get": {
         "summary": "قائمة الأشهر الهجرية",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة الأشهر الهجرية",
         "x-description-ar": "",
         "parameters": [],
@@ -1920,9 +1808,7 @@
       "get": {
         "summary": "قائمة الأبراج مع معلومات الخصوبة الزراعية",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة الأبراج مع معلومات الخصوبة الزراعية",
         "x-description-ar": "",
         "parameters": [
@@ -1953,9 +1839,7 @@
       "get": {
         "summary": "قائمة الأبراج مع معلومات الخصوبة الزراعية",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة الأبراج مع معلومات الخصوبة الزراعية",
         "x-description-ar": "",
         "parameters": [
@@ -1986,9 +1870,7 @@
       "get": {
         "summary": "قائمة المواسم الزراعية اليمنية",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "قائمة المواسم الزراعية اليمنية",
         "x-description-ar": "",
         "parameters": [
@@ -2019,9 +1901,7 @@
       "get": {
         "summary": "الحصول على الموسم الزراعي الحالي",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "الحصول على الموسم الزراعي الحالي",
         "x-description-ar": "",
         "parameters": [
@@ -2052,9 +1932,7 @@
       "get": {
         "summary": "Get Crop Calendar",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -2085,9 +1963,7 @@
       "get": {
         "summary": "قائمة المحاصيل المدعومة للتنبؤ",
         "description": "",
-        "tags": [
-          "yield-engine"
-        ],
+        "tags": ["yield-engine"],
         "x-summary-ar": "قائمة المحاصيل المدعومة للتنبؤ",
         "x-description-ar": "",
         "parameters": [
@@ -2118,9 +1994,7 @@
       "get": {
         "summary": "الحصول على جميع الأمثال الزراعية اليمنية",
         "description": "تشمل:\n- الأمثال العامة\n- أمثال حسب المحصول\n- أمثال حسب الموسم",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "الحصول على جميع الأمثال الزراعية اليمنية",
         "x-description-ar": "",
         "parameters": [],
@@ -2141,9 +2015,7 @@
       "get": {
         "summary": "الحصول على جميع الأمثال الزراعية اليمنية",
         "description": "تشمل:\n- الأمثال العامة\n- أمثال حسب المحصول\n- أمثال حسب الموسم",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "الحصول على جميع الأمثال الزراعية اليمنية",
         "x-description-ar": "",
         "parameters": [],
@@ -2164,9 +2036,7 @@
       "get": {
         "summary": "الحصول على جميع الأمثال الزراعية اليمنية",
         "description": "تشمل:\n- الأمثال العامة\n- أمثال حسب المحصول\n- أمثال حسب الموسم",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "الحصول على جميع الأمثال الزراعية اليمنية",
         "x-description-ar": "",
         "parameters": [],
@@ -2187,9 +2057,7 @@
       "get": {
         "summary": "الحصول على مثل اليوم مع تفسيره",
         "description": "يختار مثلاً مناسباً بناءً على:\n- المنزلة القمرية الحالية\n- الموسم الحالي\n- مرحلة القمر",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "الحصول على مثل اليوم مع تفسيره",
         "x-description-ar": "",
         "parameters": [],
@@ -2210,9 +2078,7 @@
       "get": {
         "summary": "Get Crop Proverbs",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -2252,9 +2118,7 @@
       "get": {
         "summary": "Get Mansion Proverbs",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -2285,9 +2149,7 @@
       "get": {
         "summary": "الحصول على النجوم المهمة في التقويم الزراعي اليمني",
         "description": "تشمل:\n- سهيل (Canopus)\n- الثريا (Pleiades)\n- السماك (Spica)",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "الحصول على النجوم المهمة في التقويم الزراعي اليمني",
         "x-description-ar": "",
         "parameters": [
@@ -2318,9 +2180,7 @@
       "get": {
         "summary": "Get Star Info",
         "description": "",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -2351,9 +2211,7 @@
       "get": {
         "summary": "الحكمة الزراعية اليومية الشاملة",
         "description": "تجمع بين:\n- مثل اليوم\n- نصيحة المنزلة\n- توقعات النجوم\n- توصيات الموسم",
-        "tags": [
-          "astronomical-calendar"
-        ],
+        "tags": ["astronomical-calendar"],
         "x-summary-ar": "الحكمة الزراعية اليومية الشاملة",
         "x-description-ar": "",
         "parameters": [],
@@ -2374,9 +2232,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2395,9 +2251,7 @@
       "post": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2418,9 +2272,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2441,9 +2293,7 @@
       "post": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2464,9 +2314,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2487,9 +2335,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2508,9 +2354,7 @@
       "patch": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2531,9 +2375,7 @@
       "post": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2554,9 +2396,7 @@
       "post": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2577,9 +2417,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2600,9 +2438,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2623,9 +2459,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2646,9 +2480,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2669,9 +2501,7 @@
       "post": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2692,9 +2522,7 @@
       "post": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2715,9 +2543,7 @@
       "get": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2738,9 +2564,7 @@
       "post": {
         "summary": "Tharwatt Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2761,9 +2585,7 @@
       "post": {
         "summary": "Stripe Webhook",
         "description": "",
-        "tags": [
-          "billing-core"
-        ],
+        "tags": ["billing-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2784,9 +2606,7 @@
       "get": {
         "summary": "Service information",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -2807,9 +2627,7 @@
       "post": {
         "summary": "Create Zone",
         "description": "",
-        "tags": [
-          "crop-intelligence-service"
-        ],
+        "tags": ["crop-intelligence-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -2865,9 +2683,7 @@
       "get": {
         "summary": "List Zones",
         "description": "",
-        "tags": [
-          "crop-intelligence-service"
-        ],
+        "tags": ["crop-intelligence-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -2907,9 +2723,7 @@
       "get": {
         "summary": "Get Zones Geojson",
         "description": "",
-        "tags": [
-          "crop-intelligence-service"
-        ],
+        "tags": ["crop-intelligence-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -2940,9 +2754,7 @@
       "post": {
         "summary": "Ingest Observation",
         "description": "",
-        "tags": [
-          "crop-intelligence-service"
-        ],
+        "tags": ["crop-intelligence-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3018,9 +2830,7 @@
       "post": {
         "summary": "🌾 قائمة المحاصيل المدعومة",
         "description": "",
-        "tags": [
-          "crop-health-ai"
-        ],
+        "tags": ["crop-health-ai"],
         "x-summary-ar": "🌾 قائمة المحاصيل المدعومة",
         "x-description-ar": "",
         "parameters": [
@@ -3069,9 +2879,7 @@
       "post": {
         "summary": "🌾 قائمة المحاصيل المدعومة",
         "description": "",
-        "tags": [
-          "crop-health-ai"
-        ],
+        "tags": ["crop-health-ai"],
         "x-summary-ar": "🌾 قائمة المحاصيل المدعومة",
         "x-description-ar": "",
         "parameters": [
@@ -3120,9 +2928,7 @@
       "get": {
         "summary": "🌾 قائمة المحاصيل المدعومة",
         "description": "",
-        "tags": [
-          "crop-health-ai"
-        ],
+        "tags": ["crop-health-ai"],
         "x-summary-ar": "🌾 قائمة المحاصيل المدعومة",
         "x-description-ar": "",
         "parameters": [
@@ -3171,9 +2977,7 @@
       "get": {
         "summary": "Get Treatment Details",
         "description": "",
-        "tags": [
-          "crop-health-ai"
-        ],
+        "tags": ["crop-health-ai"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3222,9 +3026,7 @@
       "post": {
         "summary": "📊 إحصائيات التشخيصات",
         "description": "",
-        "tags": [
-          "crop-health-ai"
-        ],
+        "tags": ["crop-health-ai"],
         "x-summary-ar": "📊 إحصائيات التشخيصات",
         "x-description-ar": "",
         "parameters": [
@@ -3273,9 +3075,7 @@
       "get": {
         "summary": "📊 إحصائيات التشخيصات",
         "description": "",
-        "tags": [
-          "crop-health-ai"
-        ],
+        "tags": ["crop-health-ai"],
         "x-summary-ar": "📊 إحصائيات التشخيصات",
         "x-description-ar": "",
         "parameters": [
@@ -3324,9 +3124,7 @@
       "get": {
         "summary": "📊 إحصائيات التشخيصات",
         "description": "",
-        "tags": [
-          "crop-health-ai"
-        ],
+        "tags": ["crop-health-ai"],
         "x-summary-ar": "📊 إحصائيات التشخيصات",
         "x-description-ar": "",
         "parameters": [
@@ -3375,9 +3173,7 @@
       "get": {
         "summary": "Get Diagnosis By Id",
         "description": "",
-        "tags": [
-          "crop-health-ai"
-        ],
+        "tags": ["crop-health-ai"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3426,9 +3222,7 @@
       "get": {
         "summary": "قائمة الأسمدة المتاحة",
         "description": "",
-        "tags": [
-          "fertilizer-advisor"
-        ],
+        "tags": ["fertilizer-advisor"],
         "x-summary-ar": "قائمة الأسمدة المتاحة",
         "x-description-ar": "",
         "parameters": [],
@@ -3449,9 +3243,7 @@
       "post": {
         "summary": "Get Recommendation",
         "description": "",
-        "tags": [
-          "fertilizer-advisor"
-        ],
+        "tags": ["fertilizer-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3472,9 +3264,7 @@
       "post": {
         "summary": "Interpret Soil Analysis",
         "description": "",
-        "tags": [
-          "fertilizer-advisor"
-        ],
+        "tags": ["fertilizer-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3505,9 +3295,7 @@
       "get": {
         "summary": "Get Deficiency Symptoms",
         "description": "",
-        "tags": [
-          "fertilizer-advisor"
-        ],
+        "tags": ["fertilizer-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3538,9 +3326,7 @@
       "post": {
         "summary": "Get Recommendation With Action",
         "description": "",
-        "tags": [
-          "fertilizer-advisor"
-        ],
+        "tags": ["fertilizer-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3561,9 +3347,7 @@
       "post": {
         "summary": "Interpret Soil Analysis With Action",
         "description": "",
-        "tags": [
-          "fertilizer-advisor"
-        ],
+        "tags": ["fertilizer-advisor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3594,9 +3378,7 @@
       "get": {
         "summary": "Analyze Profitability",
         "description": "",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3617,9 +3399,7 @@
       "post": {
         "summary": "Analyze Profitability",
         "description": "",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3640,9 +3420,7 @@
       "post": {
         "summary": "Get Season Summary",
         "description": "",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3663,9 +3441,7 @@
       "get": {
         "summary": "List all crops with available profitability data.",
         "description": "Returns crop codes, names in both languages, and regional data availability.",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3686,9 +3462,7 @@
       "get": {
         "summary": "List all crops with available profitability data.",
         "description": "Returns crop codes, names in both languages, and regional data availability.",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3709,9 +3483,7 @@
       "get": {
         "summary": "List all crops with available profitability data.",
         "description": "Returns crop codes, names in both languages, and regional data availability.",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3732,9 +3504,7 @@
       "get": {
         "summary": "List all crops with available profitability data.",
         "description": "Returns crop codes, names in both languages, and regional data availability.",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3755,9 +3525,7 @@
       "get": {
         "summary": "List all crops with available profitability data.",
         "description": "Returns crop codes, names in both languages, and regional data availability.",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3778,9 +3546,7 @@
       "get": {
         "summary": "List all crops with available profitability data.",
         "description": "Returns crop codes, names in both languages, and regional data availability.",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3801,9 +3567,7 @@
       "get": {
         "summary": "List all available cost categories",
         "description": "",
-        "tags": [
-          "field-management-service"
-        ],
+        "tags": ["field-management-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -3824,9 +3588,7 @@
       "post": {
         "summary": "Update Boundary",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3864,9 +3626,7 @@
       "get": {
         "summary": "Update Boundary",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3906,9 +3666,7 @@
       "get": {
         "summary": "Update Boundary",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -3946,9 +3704,7 @@
       "put": {
         "summary": "Update Field",
         "description": "",
-        "tags": [
-          "field-ops"
-        ],
+        "tags": ["field-ops"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4004,9 +3760,7 @@
       "delete": {
         "summary": "Update Boundary",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4044,9 +3798,7 @@
       "patch": {
         "summary": "Update Boundary",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4086,9 +3838,7 @@
       "post": {
         "summary": "Create Operation",
         "description": "",
-        "tags": [
-          "field-ops"
-        ],
+        "tags": ["field-ops"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4135,9 +3885,7 @@
       "get": {
         "summary": "Complete Operation",
         "description": "",
-        "tags": [
-          "field-ops"
-        ],
+        "tags": ["field-ops"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4168,9 +3916,7 @@
       "get": {
         "summary": "Get Operation",
         "description": "",
-        "tags": [
-          "field-ops"
-        ],
+        "tags": ["field-ops"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4237,9 +3983,7 @@
       "post": {
         "summary": "Complete Operation",
         "description": "",
-        "tags": [
-          "field-ops"
-        ],
+        "tags": ["field-ops"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4270,9 +4014,7 @@
       "get": {
         "summary": "Get Tenant Stats",
         "description": "",
-        "tags": [
-          "field-ops"
-        ],
+        "tags": ["field-ops"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4303,9 +4045,7 @@
       "put": {
         "summary": "Update Boundary",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4345,9 +4085,7 @@
       "get": {
         "summary": "Calculate Field Area",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4378,9 +4116,7 @@
       "post": {
         "summary": "Check Overlap",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -4401,9 +4137,7 @@
       "get": {
         "summary": "Export Field Kml",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4443,9 +4177,7 @@
       "get": {
         "summary": "Export Field Geojson",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4494,9 +4226,7 @@
       "post": {
         "summary": "Start Crop Season",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4536,9 +4266,7 @@
       "get": {
         "summary": "Get Crop History",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4587,9 +4315,7 @@
       "post": {
         "summary": "Close Crop Season",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4629,9 +4355,7 @@
       "post": {
         "summary": "Create Zone",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4669,9 +4393,7 @@
       "get": {
         "summary": "List Zones",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4711,9 +4433,7 @@
       "delete": {
         "summary": "Delete Zone",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4762,9 +4482,7 @@
       "get": {
         "summary": "Add Ndvi Record",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4813,9 +4531,7 @@
       "post": {
         "summary": "Add Ndvi Record",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4862,9 +4578,7 @@
       "get": {
         "summary": "Get Latest Ndvi",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4922,9 +4636,7 @@
       "get": {
         "summary": "Get Field Stats",
         "description": "",
-        "tags": [
-          "field-service"
-        ],
+        "tags": ["field-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -4955,9 +4667,7 @@
       "get": {
         "summary": "Kubernetes liveness probe",
         "description": "فحص الصحة - Kubernetes liveness probe",
-        "tags": [
-          "globalgap-compliance"
-        ],
+        "tags": ["globalgap-compliance"],
         "x-summary-ar": "فحص الصحة - Kubernetes liveness probe",
         "x-description-ar": "",
         "parameters": [
@@ -4988,9 +4698,7 @@
       "get": {
         "summary": "Kubernetes readiness probe",
         "description": "فحص الجاهزية - Kubernetes readiness probe",
-        "tags": [
-          "globalgap-compliance"
-        ],
+        "tags": ["globalgap-compliance"],
         "x-summary-ar": "فحص الجاهزية - Kubernetes readiness probe",
         "x-description-ar": "",
         "parameters": [
@@ -5021,9 +4729,7 @@
       "get": {
         "summary": "الحصول على تعريفات جميع المؤشرات",
         "description": "",
-        "tags": [
-          "indicators-service"
-        ],
+        "tags": ["indicators-service"],
         "x-summary-ar": "الحصول على تعريفات جميع المؤشرات",
         "x-description-ar": "",
         "parameters": [
@@ -5054,9 +4760,7 @@
       "get": {
         "summary": "Get Field Indicators",
         "description": "",
-        "tags": [
-          "indicators-service"
-        ],
+        "tags": ["indicators-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5087,9 +4791,7 @@
       "post": {
         "summary": "Post Sensor Reading",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5120,9 +4822,7 @@
       "post": {
         "summary": "Post Batch Readings",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5153,9 +4853,7 @@
       "post": {
         "summary": "Register Device",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5195,9 +4893,7 @@
       "get": {
         "summary": "Get Device",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5235,9 +4931,7 @@
       "delete": {
         "summary": "Delete Device",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5286,9 +4980,7 @@
       "get": {
         "summary": "Get Device Status",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5328,9 +5020,7 @@
       "get": {
         "summary": "List Devices",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5370,9 +5060,7 @@
       "get": {
         "summary": "Get Field Devices",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5412,9 +5100,7 @@
       "get": {
         "summary": "Get Field Latest Readings",
         "description": "",
-        "tags": [
-          "iot-gateway"
-        ],
+        "tags": ["iot-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5445,9 +5131,7 @@
       "get": {
         "summary": "Get gateway statistics including room and NATS information",
         "description": "",
-        "tags": [
-          "ws-gateway"
-        ],
+        "tags": ["ws-gateway"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5496,9 +5180,7 @@
       "get": {
         "summary": "طرق الري المتاحة",
         "description": "",
-        "tags": [
-          "irrigation-smart"
-        ],
+        "tags": ["irrigation-smart"],
         "x-summary-ar": "طرق الري المتاحة",
         "x-description-ar": "",
         "parameters": [],
@@ -5519,9 +5201,7 @@
       "post": {
         "summary": "Calculate Irrigation",
         "description": "",
-        "tags": [
-          "irrigation-smart"
-        ],
+        "tags": ["irrigation-smart"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5542,9 +5222,7 @@
       "get": {
         "summary": "Record Sensor Reading",
         "description": "",
-        "tags": [
-          "irrigation-smart"
-        ],
+        "tags": ["irrigation-smart"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5575,9 +5253,7 @@
       "post": {
         "summary": "Record Sensor Reading",
         "description": "",
-        "tags": [
-          "irrigation-smart"
-        ],
+        "tags": ["irrigation-smart"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5608,9 +5284,7 @@
       "get": {
         "summary": "Calculate Irrigation With Action",
         "description": "",
-        "tags": [
-          "irrigation-smart"
-        ],
+        "tags": ["irrigation-smart"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5631,9 +5305,7 @@
       "post": {
         "summary": "Calculate Irrigation With Action",
         "description": "",
-        "tags": [
-          "irrigation-smart"
-        ],
+        "tags": ["irrigation-smart"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5654,9 +5326,7 @@
       "post": {
         "summary": "Record Sensor Reading With Action",
         "description": "",
-        "tags": [
-          "irrigation-smart"
-        ],
+        "tags": ["irrigation-smart"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5687,9 +5357,7 @@
       "get": {
         "summary": "Readiness probe",
         "description": "",
-        "tags": [
-          "mcp-server"
-        ],
+        "tags": ["mcp-server"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5710,9 +5378,7 @@
       "get": {
         "summary": "Prometheus metrics endpoint",
         "description": "",
-        "tags": [
-          "mcp-server"
-        ],
+        "tags": ["mcp-server"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5733,9 +5399,7 @@
       "post": {
         "summary": "Handle Mcp Request",
         "description": "",
-        "tags": [
-          "mcp-server"
-        ],
+        "tags": ["mcp-server"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5756,9 +5420,7 @@
       "get": {
         "summary": "Handle Sse",
         "description": "",
-        "tags": [
-          "mcp-server"
-        ],
+        "tags": ["mcp-server"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5779,9 +5441,7 @@
       "get": {
         "summary": "List available tools (convenience endpoint)",
         "description": "",
-        "tags": [
-          "mcp-server"
-        ],
+        "tags": ["mcp-server"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5802,9 +5462,7 @@
       "get": {
         "summary": "List available resources (convenience endpoint)",
         "description": "",
-        "tags": [
-          "mcp-server"
-        ],
+        "tags": ["mcp-server"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5825,9 +5483,7 @@
       "get": {
         "summary": "List available prompts (convenience endpoint)",
         "description": "",
-        "tags": [
-          "mcp-server"
-        ],
+        "tags": ["mcp-server"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -5848,9 +5504,7 @@
       "post": {
         "summary": "Compute Ndvi",
         "description": "",
-        "tags": [
-          "ndvi-engine"
-        ],
+        "tags": ["ndvi-engine"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5881,9 +5535,7 @@
       "post": {
         "summary": "Get Ndvi Zones",
         "description": "",
-        "tags": [
-          "ndvi-engine"
-        ],
+        "tags": ["ndvi-engine"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5923,9 +5575,7 @@
       "post": {
         "summary": "Calculate Indices",
         "description": "",
-        "tags": [
-          "ndvi-engine"
-        ],
+        "tags": ["ndvi-engine"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -5965,9 +5615,7 @@
       "post": {
         "summary": "Check Anomaly",
         "description": "",
-        "tags": [
-          "ndvi-engine"
-        ],
+        "tags": ["ndvi-engine"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6007,9 +5655,7 @@
       "get": {
         "summary": "Get Health Status",
         "description": "",
-        "tags": [
-          "ndvi-engine"
-        ],
+        "tags": ["ndvi-engine"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6040,9 +5686,7 @@
       "post": {
         "summary": "Start Processing",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6071,9 +5715,7 @@
       "get": {
         "summary": "Get Latest Ndvi",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6131,9 +5773,7 @@
       "get": {
         "summary": "Get Job Status",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6191,9 +5831,7 @@
       "delete": {
         "summary": "Cancel Processing",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6251,9 +5889,7 @@
       "get": {
         "summary": "Get Latest Ndvi",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6311,9 +5947,7 @@
       "get": {
         "summary": "Post Change Analysis",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6380,9 +6014,7 @@
       "get": {
         "summary": "Post Change Analysis",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6447,9 +6079,7 @@
       "post": {
         "summary": "Post Change Analysis",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6516,9 +6146,7 @@
       "get": {
         "summary": "Create Monthly Composite",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6558,9 +6186,7 @@
       "get": {
         "summary": "Create Monthly Composite",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6600,9 +6226,7 @@
       "get": {
         "summary": "Create Monthly Composite",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6642,9 +6266,7 @@
       "post": {
         "summary": "Create Monthly Composite",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6684,9 +6306,7 @@
       "get": {
         "summary": "Get Composite",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6735,9 +6355,7 @@
       "get": {
         "summary": "Get Composite",
         "description": "",
-        "tags": [
-          "ndvi-processor"
-        ],
+        "tags": ["ndvi-processor"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6786,9 +6404,7 @@
       "post": {
         "summary": "Create Custom Notification",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -6809,9 +6425,7 @@
       "post": {
         "summary": "Create Weather Alert",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -6832,9 +6446,7 @@
       "post": {
         "summary": "Create Pest Alert",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -6855,9 +6467,7 @@
       "post": {
         "summary": "Create Irrigation Reminder",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -6878,9 +6488,7 @@
       "get": {
         "summary": "Register Farmer",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6929,9 +6537,7 @@
       "patch": {
         "summary": "Register Farmer",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -6980,9 +6586,7 @@
       "get": {
         "summary": "Register Farmer",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7031,9 +6635,7 @@
       "post": {
         "summary": "Register Farmer",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7082,9 +6684,7 @@
       "put": {
         "summary": "Update Preferences",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7124,9 +6724,7 @@
       "get": {
         "summary": "إحصائيات الإشعارات",
         "description": "",
-        "tags": [
-          "notification-service"
-        ],
+        "tags": ["notification-service"],
         "x-summary-ar": "إحصائيات الإشعارات",
         "x-description-ar": "",
         "parameters": [],
@@ -7147,9 +6745,7 @@
       "get": {
         "summary": "List all available providers",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7170,9 +6766,7 @@
       "get": {
         "summary": "List all map providers",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7193,9 +6787,7 @@
       "get": {
         "summary": "List all weather providers",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7216,9 +6808,7 @@
       "get": {
         "summary": "List all satellite providers",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7239,9 +6829,7 @@
       "get": {
         "summary": "List all payment providers - قائمة مزودي الدفع",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "List all payment providers - قائمة مزودي الدفع",
         "x-description-ar": "",
         "parameters": [],
@@ -7262,9 +6850,7 @@
       "get": {
         "summary": "List all SMS providers - قائمة مزودي الرسائل النصية",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "List all SMS providers - قائمة مزودي الرسائل النصية",
         "x-description-ar": "",
         "parameters": [],
@@ -7285,9 +6871,7 @@
       "get": {
         "summary": "List all notification providers - قائمة مزودي الإشعارات",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "List all notification providers - قائمة مزودي الإشعارات",
         "x-description-ar": "",
         "parameters": [
@@ -7318,9 +6902,7 @@
       "get": {
         "summary": "Select Provider",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7351,9 +6933,7 @@
       "get": {
         "summary": "Get Failover Chain",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7384,9 +6964,7 @@
       "post": {
         "summary": "Check Provider Health",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7407,9 +6985,7 @@
       "get": {
         "summary": "Check health of all free providers (no API key required)",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7430,9 +7006,7 @@
       "get": {
         "summary": "Get Tenant Config",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7479,9 +7053,7 @@
       "post": {
         "summary": "Update Tenant Config",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7528,9 +7100,7 @@
       "delete": {
         "summary": "Reset Tenant Config",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7561,9 +7131,7 @@
       "get": {
         "summary": "Recommend Providers",
         "description": "",
-        "tags": [
-          "provider-config"
-        ],
+        "tags": ["provider-config"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7584,9 +7152,7 @@
       "get": {
         "summary": "Get list of available satellite data providers",
         "description": "الحصول على قائمة مزودي بيانات الأقمار الصناعية المتاحين",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "الحصول على قائمة مزودي بيانات الأقمار الصناعية المتاحين",
         "x-description-ar": "",
         "parameters": [],
@@ -7607,9 +7173,7 @@
       "get": {
         "summary": "إحصائيات الـCache",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "إحصائيات الـCache",
         "x-description-ar": "",
         "parameters": [],
@@ -7630,9 +7194,7 @@
       "get": {
         "summary": "فحص صحة الـCache",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "فحص صحة الـCache",
         "x-description-ar": "",
         "parameters": [],
@@ -7653,9 +7215,7 @@
       "get": {
         "summary": "حالة تكامل eo-learn",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "حالة تكامل eo-learn",
         "x-description-ar": "",
         "parameters": [],
@@ -7676,9 +7236,7 @@
       "get": {
         "summary": "قائمة الأقمار الصناعية المتاحة",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "قائمة الأقمار الصناعية المتاحة",
         "x-description-ar": "",
         "parameters": [],
@@ -7699,9 +7257,7 @@
       "get": {
         "summary": "المناطق المراقبة في اليمن",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "المناطق المراقبة في اليمن",
         "x-description-ar": "",
         "parameters": [],
@@ -7722,9 +7278,7 @@
       "post": {
         "summary": "Request Imagery",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7745,9 +7299,7 @@
       "post": {
         "summary": "Analyze Field",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7768,9 +7320,7 @@
       "post": {
         "summary": "Analyze Field With Action",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7791,9 +7341,7 @@
       "post": {
         "summary": "Analyze Field Real",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -7814,9 +7362,7 @@
       "get": {
         "summary": "Get Stage Recommendations",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7856,9 +7402,7 @@
       "get": {
         "summary": "Get Stage Recommendations",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7898,9 +7442,7 @@
       "get": {
         "summary": "Get Stage Recommendations",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7940,9 +7482,7 @@
       "get": {
         "summary": "Get Stage Recommendations",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -7982,9 +7522,7 @@
       "get": {
         "summary": "List all supported crops for phenology detection",
         "description": "قائمة جميع المحاصيل المدعومة لكشف مراحل النمو",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "قائمة جميع المحاصيل المدعومة لكشف مراحل النمو",
         "x-description-ar": "",
         "parameters": [],
@@ -8005,9 +7543,7 @@
       "post": {
         "summary": "Analyze Phenology With Action",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8028,9 +7564,7 @@
       "get": {
         "summary": "Interpret Indices",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8051,9 +7585,7 @@
       "get": {
         "summary": "Interpret Indices",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8074,9 +7606,7 @@
       "get": {
         "summary": "Interpret Indices",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8097,9 +7627,7 @@
       "get": {
         "summary": "Interpret Indices",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8120,9 +7648,7 @@
       "get": {
         "summary": "Interpret Indices",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8143,9 +7669,7 @@
       "post": {
         "summary": "Interpret Indices",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8166,9 +7690,7 @@
       "get": {
         "summary": "Get usage guide for vegetation indices by growth stage",
         "description": "الحصول على دليل استخدام المؤشرات النباتية حسب مراحل النمو",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "الحصول على دليل استخدام المؤشرات النباتية حسب مراحل النمو",
         "x-description-ar": "",
         "parameters": [],
@@ -8189,9 +7711,7 @@
       "post": {
         "summary": "Predict Yield",
         "description": "",
-        "tags": [
-          "vegetation-analysis-service"
-        ],
+        "tags": ["vegetation-analysis-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8212,9 +7732,7 @@
       "get": {
         "summary": "Get service information",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8235,9 +7753,7 @@
       "post": {
         "summary": "Calculate Et0",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8268,9 +7784,7 @@
       "get": {
         "summary": "Get Crop Kc Values",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8301,9 +7815,7 @@
       "post": {
         "summary": "Get list of supported soil types with properties",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8334,9 +7846,7 @@
       "get": {
         "summary": "Get list of supported soil types with properties",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8367,9 +7877,7 @@
       "post": {
         "summary": "Estimate Virtual Soil Moisture",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8400,9 +7908,7 @@
       "get": {
         "summary": "Get irrigation methods with efficiencies",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8433,9 +7939,7 @@
       "post": {
         "summary": "Get Irrigation Recommendation",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8466,9 +7970,7 @@
       "get": {
         "summary": "Get Irrigation Recommendation With Action",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8489,9 +7991,7 @@
       "post": {
         "summary": "Get Irrigation Recommendation With Action",
         "description": "",
-        "tags": [
-          "virtual-sensors"
-        ],
+        "tags": ["virtual-sensors"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8512,9 +8012,7 @@
       "get": {
         "summary": "قائمة المواقع المتاحة",
         "description": "",
-        "tags": [
-          "weather-advanced"
-        ],
+        "tags": ["weather-advanced"],
         "x-summary-ar": "قائمة المواقع المتاحة",
         "x-description-ar": "",
         "parameters": [
@@ -8545,9 +8043,7 @@
       "get": {
         "summary": "Get Current Weather",
         "description": "",
-        "tags": [
-          "weather-advanced"
-        ],
+        "tags": ["weather-advanced"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8578,9 +8074,7 @@
       "get": {
         "summary": "Get Weather Alerts",
         "description": "",
-        "tags": [
-          "weather-advanced"
-        ],
+        "tags": ["weather-advanced"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8629,9 +8123,7 @@
       "get": {
         "summary": "Get Weather Alerts",
         "description": "",
-        "tags": [
-          "weather-advanced"
-        ],
+        "tags": ["weather-advanced"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8680,9 +8172,7 @@
       "post": {
         "summary": "Assess",
         "description": "",
-        "tags": [
-          "weather-service"
-        ],
+        "tags": ["weather-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8713,9 +8203,7 @@
       "post": {
         "summary": "Get Current Weather",
         "description": "",
-        "tags": [
-          "weather-service"
-        ],
+        "tags": ["weather-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8746,9 +8234,7 @@
       "post": {
         "summary": "Get Forecast",
         "description": "",
-        "tags": [
-          "weather-service"
-        ],
+        "tags": ["weather-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8779,9 +8265,7 @@
       "post": {
         "summary": "Irrigation Adjustment",
         "description": "",
-        "tags": [
-          "weather-service"
-        ],
+        "tags": ["weather-service"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8812,9 +8296,7 @@
       "get": {
         "summary": "Get list of available weather providers",
         "description": "الحصول على قائمة مزودي الطقس المتاحين",
-        "tags": [
-          "weather-service"
-        ],
+        "tags": ["weather-service"],
         "x-summary-ar": "الحصول على قائمة مزودي الطقس المتاحين",
         "x-description-ar": "",
         "parameters": [
@@ -8845,9 +8327,7 @@
       "get": {
         "summary": "Get list of available weather providers",
         "description": "الحصول على قائمة مزودي الطقس المتاحين",
-        "tags": [
-          "weather-service"
-        ],
+        "tags": ["weather-service"],
         "x-summary-ar": "الحصول على قائمة مزودي الطقس المتاحين",
         "x-description-ar": "",
         "parameters": [],
@@ -8868,9 +8348,7 @@
       "post": {
         "summary": "Predict Yield",
         "description": "",
-        "tags": [
-          "yield-engine"
-        ],
+        "tags": ["yield-engine"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8891,9 +8369,7 @@
       "get": {
         "summary": "Get Crop Price",
         "description": "",
-        "tags": [
-          "yield-engine"
-        ],
+        "tags": ["yield-engine"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [
@@ -8924,9 +8400,7 @@
       "post": {
         "summary": "Analyze Field",
         "description": "",
-        "tags": [
-          "ai-agents-core"
-        ],
+        "tags": ["ai-agents-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8947,9 +8421,7 @@
       "post": {
         "summary": "Process Sensor Data",
         "description": "",
-        "tags": [
-          "ai-agents-core"
-        ],
+        "tags": ["ai-agents-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8970,9 +8442,7 @@
       "post": {
         "summary": "Mobile Quick Action",
         "description": "",
-        "tags": [
-          "ai-agents-core"
-        ],
+        "tags": ["ai-agents-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -8993,9 +8463,7 @@
       "post": {
         "summary": "Submit Feedback",
         "description": "",
-        "tags": [
-          "ai-agents-core"
-        ],
+        "tags": ["ai-agents-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [],
@@ -9016,9 +8484,7 @@
       "get": {
         "summary": "حالة النظام",
         "description": "",
-        "tags": [
-          "ai-agents-core"
-        ],
+        "tags": ["ai-agents-core"],
         "x-summary-ar": "حالة النظام",
         "x-description-ar": "",
         "parameters": [
@@ -9049,9 +8515,7 @@
       "get": {
         "summary": "Get Agent Metrics",
         "description": "",
-        "tags": [
-          "ai-agents-core"
-        ],
+        "tags": ["ai-agents-core"],
         "x-summary-ar": "",
         "x-description-ar": "",
         "parameters": [

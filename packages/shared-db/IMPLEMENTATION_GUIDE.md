@@ -23,6 +23,7 @@ The soft delete pattern marks records as deleted without physically removing the
 ## For Prisma Services
 
 ### Services Using Prisma
+
 - field-core
 - marketplace-service (✅ **Complete Example**)
 - research-core
@@ -54,6 +55,7 @@ model YourModel {
 ```
 
 **Important Considerations:**
+
 - Add to main entity models (e.g., Product, Order, User)
 - Consider if junction/relation tables need it
 - Skip audit/log tables (they should be permanent)
@@ -80,9 +82,9 @@ Modify your Prisma service to apply the middleware:
 
 ```typescript
 // src/prisma/prisma.service.ts
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { createSoftDeleteMiddleware } from '@sahool/shared-db';
+import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
+import { createSoftDeleteMiddleware } from "@sahool/shared-db";
 
 @Injectable()
 export class PrismaService
@@ -91,7 +93,7 @@ export class PrismaService
 {
   constructor() {
     super({
-      log: ['query', 'info', 'warn', 'error'],
+      log: ["query", "info", "warn", "error"],
     });
 
     // Apply soft delete middleware
@@ -99,18 +101,18 @@ export class PrismaService
       createSoftDeleteMiddleware({
         excludedModels: [
           // Add models that should NOT use soft delete
-          'AuditLog',
-          'EventLog',
+          "AuditLog",
+          "EventLog",
           // etc...
         ],
-        enableLogging: process.env.NODE_ENV === 'development',
-      })
+        enableLogging: process.env.NODE_ENV === "development",
+      }),
     );
   }
 
   async onModuleInit() {
     await this.$connect();
-    console.log('✅ Database connected with soft delete middleware');
+    console.log("✅ Database connected with soft delete middleware");
   }
 
   async onModuleDestroy() {
@@ -124,20 +126,16 @@ export class PrismaService
 Use soft delete helpers in your services:
 
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from './prisma/prisma.service';
-import { softDelete, restore, findWithDeleted } from '@sahool/shared-db';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "./prisma/prisma.service";
+import { softDelete, restore, findWithDeleted } from "@sahool/shared-db";
 
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
   async deleteProduct(id: string, userId: string) {
-    return softDelete(
-      this.prisma.product,
-      { id },
-      { deletedBy: userId }
-    );
+    return softDelete(this.prisma.product, { id }, { deletedBy: userId });
   }
 
   async restoreProduct(id: string) {
@@ -173,6 +171,7 @@ async restoreProduct(@Param('id') id: string) {
 ## For SQLAlchemy Services
 
 ### Services Using SQLAlchemy
+
 - billing-core (✅ **Example Available**)
 - inventory-service
 - notification-service
@@ -199,6 +198,7 @@ class YourModel(Base, SoftDeleteMixin):
 ```
 
 **Note:** The mixin automatically adds:
+
 - `deleted_at: Column[DateTime]`
 - `deleted_by: Column[String]`
 
@@ -328,16 +328,16 @@ def restore_record(
 ### Unit Tests (TypeScript/Prisma)
 
 ```typescript
-describe('Soft Delete', () => {
-  it('should soft delete a record', async () => {
+describe("Soft Delete", () => {
+  it("should soft delete a record", async () => {
     const product = await prisma.product.create({
-      data: { name: 'Test', price: 100 }
+      data: { name: "Test", price: 100 },
     });
 
     await softDelete(
       prisma.product,
       { id: product.id },
-      { deletedBy: 'test-user' }
+      { deletedBy: "test-user" },
     );
 
     const deleted = await prisma.product.findUnique({
@@ -346,24 +346,24 @@ describe('Soft Delete', () => {
     });
 
     expect(deleted.deletedAt).toBeDefined();
-    expect(deleted.deletedBy).toBe('test-user');
+    expect(deleted.deletedBy).toBe("test-user");
   });
 
-  it('should exclude deleted from queries', async () => {
+  it("should exclude deleted from queries", async () => {
     const products = await prisma.product.findMany();
-    expect(products.every(p => !p.deletedAt)).toBe(true);
+    expect(products.every((p) => !p.deletedAt)).toBe(true);
   });
 
-  it('should restore deleted record', async () => {
+  it("should restore deleted record", async () => {
     const product = await prisma.product.create({
-      data: { name: 'Test', price: 100 }
+      data: { name: "Test", price: 100 },
     });
 
     await softDelete(prisma.product, { id: product.id });
     await restore(prisma.product, { id: product.id });
 
     const restored = await prisma.product.findUnique({
-      where: { id: product.id }
+      where: { id: product.id },
     });
 
     expect(restored.deletedAt).toBeNull();
@@ -436,6 +436,7 @@ def test_restore(session):
 **Problem**: CASCADE DELETE still hard deletes child records.
 
 **Solution**:
+
 - Add soft delete to child models too
 - Handle cascades manually in application code
 
@@ -492,6 +493,7 @@ await prisma.$transaction(async (tx) => {
 ## Support
 
 For questions or issues:
+
 1. Check the [README](./README.md)
 2. Review examples in marketplace-service or billing-core
 3. Create an issue in the repository

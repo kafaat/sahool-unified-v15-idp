@@ -1,15 +1,18 @@
 # VRA Quick Reference Card
+
 # بطاقة مرجع سريع لنظام التطبيق المتغير
 
 ## 🚀 Quick Start (3 Steps)
 
 ### 1. Start Service
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service
 python3 -m src.main
 ```
 
 ### 2. Generate Prescription
+
 ```bash
 curl -X POST http://localhost:8090/v1/vra/generate \
   -H "Content-Type: application/json" \
@@ -25,6 +28,7 @@ curl -X POST http://localhost:8090/v1/vra/generate \
 ```
 
 ### 3. Export to GeoJSON
+
 ```bash
 curl "http://localhost:8090/v1/vra/export/PRESCRIPTION_ID?format=geojson" > map.geojson
 ```
@@ -33,38 +37,40 @@ curl "http://localhost:8090/v1/vra/export/PRESCRIPTION_ID?format=geojson" > map.
 
 ## 📋 API Endpoints
 
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| POST | `/v1/vra/generate` | Create prescription |
-| GET | `/v1/vra/zones/{field_id}` | Preview zones |
-| GET | `/v1/vra/prescriptions/{field_id}` | Get history |
-| GET | `/v1/vra/prescription/{id}` | Get details |
-| GET | `/v1/vra/export/{id}` | Export |
-| DELETE | `/v1/vra/prescription/{id}` | Delete |
-| GET | `/v1/vra/info` | Get info |
+| Method | Endpoint                           | Purpose             |
+| ------ | ---------------------------------- | ------------------- |
+| POST   | `/v1/vra/generate`                 | Create prescription |
+| GET    | `/v1/vra/zones/{field_id}`         | Preview zones       |
+| GET    | `/v1/vra/prescriptions/{field_id}` | Get history         |
+| GET    | `/v1/vra/prescription/{id}`        | Get details         |
+| GET    | `/v1/vra/export/{id}`              | Export              |
+| DELETE | `/v1/vra/prescription/{id}`        | Delete              |
+| GET    | `/v1/vra/info`                     | Get info            |
 
 ---
 
 ## 🎯 VRA Types
 
-| Type | Arabic | Use Case |
-|------|--------|----------|
-| `fertilizer` | تسميد | Variable nitrogen/fertilizer |
-| `seed` | بذار | Variable seeding rates |
-| `lime` | جير | pH correction |
-| `pesticide` | مبيدات | Targeted pest control |
-| `irrigation` | ري | Variable water application |
+| Type         | Arabic | Use Case                     |
+| ------------ | ------ | ---------------------------- |
+| `fertilizer` | تسميد  | Variable nitrogen/fertilizer |
+| `seed`       | بذار   | Variable seeding rates       |
+| `lime`       | جير    | pH correction                |
+| `pesticide`  | مبيدات | Targeted pest control        |
+| `irrigation` | ري     | Variable water application   |
 
 ---
 
 ## 📊 Zone Options
 
 **3-Zone System (Simple):**
+
 - Low (منخفض)
 - Medium (متوسط)
 - High (عالي)
 
 **5-Zone System (Detailed):**
+
 - Very Low (منخفض جداً)
 - Low (منخفض)
 - Medium (متوسط)
@@ -75,17 +81,18 @@ curl "http://localhost:8090/v1/vra/export/PRESCRIPTION_ID?format=geojson" > map.
 
 ## 💾 Export Formats
 
-| Format | Use For |
-|--------|---------|
-| `geojson` | Web maps, GIS apps |
+| Format      | Use For                      |
+| ----------- | ---------------------------- |
+| `geojson`   | Web maps, GIS apps           |
 | `shapefile` | Farm equipment, GIS software |
-| `isoxml` | ISOBUS equipment |
+| `isoxml`    | ISOBUS equipment             |
 
 ---
 
 ## 📝 Example Requests
 
 ### Fertilizer (Wheat)
+
 ```json
 {
   "field_id": "wheat_001",
@@ -100,6 +107,7 @@ curl "http://localhost:8090/v1/vra/export/PRESCRIPTION_ID?format=geojson" > map.
 ```
 
 ### Seeds (Sorghum)
+
 ```json
 {
   "field_id": "sorghum_001",
@@ -115,6 +123,7 @@ curl "http://localhost:8090/v1/vra/export/PRESCRIPTION_ID?format=geojson" > map.
 ```
 
 ### Irrigation
+
 ```json
 {
   "field_id": "field_001",
@@ -132,12 +141,14 @@ curl "http://localhost:8090/v1/vra/export/PRESCRIPTION_ID?format=geojson" > map.
 ## 🧪 Testing
 
 ### Run Tests
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service
 python3 tests/test_vra_generator.py
 ```
 
 ### Run Examples
+
 ```bash
 python3 examples/vra_example.py
 ```
@@ -201,6 +212,7 @@ curl http://localhost:8090/v1/vra/info
 ## 🔧 Troubleshooting
 
 **Service won't start?**
+
 ```bash
 # Check if port is in use
 lsof -i :8090
@@ -210,12 +222,14 @@ python3 -c "from src.vra_generator import VRAGenerator"
 ```
 
 **Import errors?**
+
 ```bash
 # Install dependencies
 pip install fastapi uvicorn pydantic httpx numpy
 ```
 
 **Tests failing?**
+
 ```bash
 # Check Python version (requires 3.11+)
 python3 --version

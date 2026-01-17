@@ -1,4 +1,5 @@
 # Sensor Data Aggregation Service - SAHOOL IoT
+
 # خدمة تجميع بيانات المستشعرات - صحول
 
 ## Overview | نظرة عامة
@@ -10,6 +11,7 @@ A comprehensive sensor data aggregation and analytics service for SAHOOL IoT Gat
 ## Features | الميزات
 
 ### 1. Statistical Aggregation | التجميع الإحصائي
+
 - **Basic Statistics** | الإحصائيات الأساسية
   - Mean (متوسط), Median (وسيط), Min (أدنى), Max (أقصى)
   - Standard Deviation (الانحراف المعياري)
@@ -67,16 +69,16 @@ Three methods for anomaly detection:
 
 Optimized alert thresholds for Yemen's agricultural conditions:
 
-| Sensor Type | Min | Max | Unit | Critical Min | Critical Max |
-|-------------|-----|-----|------|--------------|--------------|
-| **Soil Moisture** (رطوبة التربة) | 20% | 80% | % | 10% | 90% |
-| **Air Temperature** (درجة حرارة الهواء) | 5°C | 45°C | °C | 0°C | 50°C |
-| **Soil Temperature** (درجة حرارة التربة) | 10°C | 35°C | °C | 5°C | 40°C |
-| **Air Humidity** (رطوبة الهواء) | 10% | 95% | % | 5% | 98% |
-| **Soil EC** (الملوحة) | 0 | 4 | dS/m | 0 | 6 |
-| **Soil pH** (حموضة التربة) | 5.5 | 8.5 | - | 4.5 | 9.5 |
-| **Rainfall** (الأمطار) | 0 | 100 | mm/day | 0 | 200 |
-| **Wind Speed** (سرعة الرياح) | 0 | 15 | m/s | 0 | 25 |
+| Sensor Type                              | Min  | Max  | Unit   | Critical Min | Critical Max |
+| ---------------------------------------- | ---- | ---- | ------ | ------------ | ------------ |
+| **Soil Moisture** (رطوبة التربة)         | 20%  | 80%  | %      | 10%          | 90%          |
+| **Air Temperature** (درجة حرارة الهواء)  | 5°C  | 45°C | °C     | 0°C          | 50°C         |
+| **Soil Temperature** (درجة حرارة التربة) | 10°C | 35°C | °C     | 5°C          | 40°C         |
+| **Air Humidity** (رطوبة الهواء)          | 10%  | 95%  | %      | 5%           | 98%          |
+| **Soil EC** (الملوحة)                    | 0    | 4    | dS/m   | 0            | 6            |
+| **Soil pH** (حموضة التربة)               | 5.5  | 8.5  | -      | 4.5          | 9.5          |
+| **Rainfall** (الأمطار)                   | 0    | 100  | mm/day | 0            | 200          |
+| **Wind Speed** (سرعة الرياح)             | 0    | 15   | m/s    | 0            | 25           |
 
 ## Installation | التثبيت
 
@@ -447,6 +449,7 @@ async def handle_mqtt_message(msg: MqttMessage):
 ## Support | الدعم
 
 For issues or questions:
+
 - Create an issue in the repository
 - Contact: support@sahool.io
 - Documentation: https://docs.sahool.io

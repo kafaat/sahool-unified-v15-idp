@@ -3,28 +3,37 @@
  * خطافات React لميزة التحليلات
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from "@tanstack/react-query";
 import type {
   AnalyticsFilters,
   ReportConfig,
   ComparisonType,
   MetricType,
-} from '../types';
-import { analyticsApi } from '../api';
+} from "../types";
+import { analyticsApi } from "../api";
 
 // Query Keys
 const ANALYTICS_KEYS = {
-  all: ['analytics'] as const,
-  summary: (filters?: AnalyticsFilters) => [...ANALYTICS_KEYS.all, 'summary', filters] as const,
-  yield: (filters?: AnalyticsFilters) => [...ANALYTICS_KEYS.all, 'yield', filters] as const,
-  cost: (filters?: AnalyticsFilters) => [...ANALYTICS_KEYS.all, 'cost', filters] as const,
-  revenue: (filters?: AnalyticsFilters) => [...ANALYTICS_KEYS.all, 'revenue', filters] as const,
-  kpis: (filters?: AnalyticsFilters) => [...ANALYTICS_KEYS.all, 'kpis', filters] as const,
-  comparison: (type: ComparisonType, metric: MetricType, filters?: AnalyticsFilters) =>
-    [...ANALYTICS_KEYS.all, 'comparison', type, metric, filters] as const,
-  resources: (filters?: AnalyticsFilters) => [...ANALYTICS_KEYS.all, 'resources', filters] as const,
+  all: ["analytics"] as const,
+  summary: (filters?: AnalyticsFilters) =>
+    [...ANALYTICS_KEYS.all, "summary", filters] as const,
+  yield: (filters?: AnalyticsFilters) =>
+    [...ANALYTICS_KEYS.all, "yield", filters] as const,
+  cost: (filters?: AnalyticsFilters) =>
+    [...ANALYTICS_KEYS.all, "cost", filters] as const,
+  revenue: (filters?: AnalyticsFilters) =>
+    [...ANALYTICS_KEYS.all, "revenue", filters] as const,
+  kpis: (filters?: AnalyticsFilters) =>
+    [...ANALYTICS_KEYS.all, "kpis", filters] as const,
+  comparison: (
+    type: ComparisonType,
+    metric: MetricType,
+    filters?: AnalyticsFilters,
+  ) => [...ANALYTICS_KEYS.all, "comparison", type, metric, filters] as const,
+  resources: (filters?: AnalyticsFilters) =>
+    [...ANALYTICS_KEYS.all, "resources", filters] as const,
 };
 
 /**
@@ -88,7 +97,7 @@ export function useKPIMetrics(filters?: AnalyticsFilters) {
 export function useComparison(
   type: ComparisonType,
   metric: MetricType,
-  filters?: AnalyticsFilters
+  filters?: AnalyticsFilters,
 ) {
   return useQuery({
     queryKey: ANALYTICS_KEYS.comparison(type, metric, filters),

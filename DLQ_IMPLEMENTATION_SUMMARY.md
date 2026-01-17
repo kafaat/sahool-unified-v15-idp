@@ -15,6 +15,7 @@ Successfully implemented comprehensive Dead Letter Queue (DLQ) pattern for the S
 ### 1. DLQ Infrastructure (`shared/events/dlq_config.py`)
 
 **Features:**
+
 - JetStream stream configuration for DLQ
 - Configurable retry attempts (default: 3)
 - Exponential backoff with configurable delays
@@ -23,11 +24,13 @@ Successfully implemented comprehensive Dead Letter Queue (DLQ) pattern for the S
 - Environment variable configuration
 
 **Key Classes:**
+
 - `DLQConfig` - Configuration model with env overrides
 - `DLQMessageMetadata` - Rich metadata for failed messages
 - `StreamConfig` - JetStream stream configuration
 
 **Functions:**
+
 - `create_dlq_streams()` - Initialize DLQ streams
 - `should_retry()` - Retry decision logic
 - `is_retriable_error()` - Error classification
@@ -35,6 +38,7 @@ Successfully implemented comprehensive Dead Letter Queue (DLQ) pattern for the S
 ### 2. Enhanced EventSubscriber (`shared/events/subscriber.py`)
 
 **Updated Features:**
+
 - Automatic DLQ support (enabled by default)
 - Retry count tracking in message headers
 - Metadata collection during retries
@@ -42,6 +46,7 @@ Successfully implemented comprehensive Dead Letter Queue (DLQ) pattern for the S
 - DLQ statistics tracking
 
 **New Configuration:**
+
 ```python
 class SubscriberConfig:
     enable_dlq: bool = True
@@ -49,6 +54,7 @@ class SubscriberConfig:
 ```
 
 **New Statistics:**
+
 - `dlq_count` - Messages moved to DLQ
 - `retry_count` - Total retry attempts
 - `dlq_enabled` - DLQ status
@@ -56,6 +62,7 @@ class SubscriberConfig:
 ### 3. DLQ Handler Methods (`shared/events/subscriber_dlq.py`)
 
 **Methods:**
+
 - `_handle_failed_message_with_dlq()` - Main failure handler
 - `_retry_message_with_dlq()` - Retry with metadata tracking
 - `_move_to_dlq()` - Move message to DLQ stream
@@ -65,16 +72,17 @@ class SubscriberConfig:
 
 **FastAPI Service with Endpoints:**
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/dlq/messages` | GET | List DLQ messages with filtering |
-| `/dlq/messages/{seq}` | GET | Get specific message |
-| `/dlq/stats` | GET | Get DLQ statistics |
-| `/dlq/replay/{seq}` | POST | Replay single message |
-| `/dlq/replay/bulk` | POST | Replay multiple messages |
-| `/dlq/archive` | POST | Archive old messages |
+| Endpoint              | Method | Description                      |
+| --------------------- | ------ | -------------------------------- |
+| `/dlq/messages`       | GET    | List DLQ messages with filtering |
+| `/dlq/messages/{seq}` | GET    | Get specific message             |
+| `/dlq/stats`          | GET    | Get DLQ statistics               |
+| `/dlq/replay/{seq}`   | POST   | Replay single message            |
+| `/dlq/replay/bulk`    | POST   | Replay multiple messages         |
+| `/dlq/archive`        | POST   | Archive old messages             |
 
 **Features:**
+
 - Pagination and filtering
 - Replay with delete option
 - Statistics aggregation
@@ -83,12 +91,14 @@ class SubscriberConfig:
 ### 5. DLQ Monitoring (`shared/events/dlq_monitoring.py`)
 
 **DLQMonitor Class:**
+
 - Background task for monitoring DLQ size
 - Threshold-based alerting
 - Configurable check intervals
 - Alert cooldown to prevent spam
 
 **Alert Integrations:**
+
 - `send_dlq_alert_to_slack()` - Slack webhook integration
 - `send_dlq_alert_email()` - Email alerts
 - `log_dlq_alert()` - Log-based alerts
@@ -96,23 +106,28 @@ class SubscriberConfig:
 ### 6. Documentation
 
 **Created Files:**
+
 - `shared/events/DLQ_README.md` - Comprehensive user guide
 - `shared/events/DLQ_ENV_EXAMPLE.env` - Environment configuration examples
 - `DLQ_IMPLEMENTATION_SUMMARY.md` - This file
 
 **Updated Files:**
+
 - `shared/events/__init__.py` - Added DLQ exports
 - `.env.example` - Added DLQ configuration
 
 ### 7. Deployment & Operations
 
 **Docker Compose:**
+
 - `docker/docker-compose.dlq.yml` - DLQ service deployment
 
 **Scripts:**
+
 - `scripts/dlq-quickstart.sh` - Quick start CLI tool
 
 **Commands:**
+
 ```bash
 # Start DLQ service
 ./scripts/dlq-quickstart.sh start
@@ -201,12 +216,14 @@ DLQ:       sahool.dlq.weather.alert
 ### Error Classification
 
 **Non-Retriable (Immediate DLQ):**
+
 - `ValidationError` - Invalid message format
 - `ValueError` - Invalid data
 - `KeyError` - Missing fields
 - `TypeError` - Wrong types
 
 **Retriable (With Backoff):**
+
 - `ConnectionError` - Network issues
 - `TimeoutError` - Temporary unavailability
 - Other exceptions
@@ -238,6 +255,7 @@ DLQ_ALERT_THRESHOLD=100
 ### Retry Delays
 
 With default configuration:
+
 - Attempt 1: 1.0s delay
 - Attempt 2: 2.0s delay
 - Attempt 3: 4.0s delay
@@ -285,6 +303,7 @@ subscriber = EventSubscriber(config=config)
 ### Services Updated
 
 All NATS consumers automatically benefit:
+
 - ✅ notification-service
 - ✅ agro-rules worker
 - ✅ field-chat worker
@@ -378,6 +397,7 @@ await monitor.start()
 ### Alert Triggers
 
 Alerts are triggered when:
+
 - Message count exceeds threshold (default: 100)
 - Severity escalates based on count
 - Cooldown period prevents spam (15 minutes)
@@ -438,12 +458,12 @@ Each DLQ message contains:
 
 ### Benchmarks
 
-| Scenario | Impact |
-|----------|--------|
-| Normal processing (success) | No impact |
-| Failed message (3 retries) | +7s total (1s + 2s + 4s delays) |
-| DLQ write | ~100ms |
-| DLQ replay | ~50ms per message |
+| Scenario                    | Impact                          |
+| --------------------------- | ------------------------------- |
+| Normal processing (success) | No impact                       |
+| Failed message (3 retries)  | +7s total (1s + 2s + 4s delays) |
+| DLQ write                   | ~100ms                          |
+| DLQ replay                  | ~50ms per message               |
 
 ### Resource Usage
 
@@ -474,11 +494,13 @@ async def replay_message(
 ### Data Privacy
 
 DLQ messages contain:
+
 - Original event data
 - Error messages
 - Stack traces
 
 **Recommendations:**
+
 - Encrypt DLQ stream at rest
 - Limit access to DLQ API
 - Regular cleanup (30-day retention)
@@ -559,6 +581,7 @@ def test_retry_delay():
 ### Backward Compatibility
 
 ✅ **Fully backward compatible**
+
 - Existing code works without changes
 - DLQ is opt-in via configuration
 - Legacy retry logic still available
@@ -570,6 +593,7 @@ def test_retry_delay():
 Services automatically get DLQ when upgraded to new `shared/events` version.
 
 To verify:
+
 ```python
 subscriber = EventSubscriber()
 print(subscriber.stats['dlq_enabled'])  # Should be True
@@ -604,6 +628,7 @@ print(subscriber.stats['dlq_enabled'])  # Should be True
 ### Common Issues
 
 **1. High DLQ Count**
+
 ```bash
 # Diagnose
 ./scripts/dlq-quickstart.sh stats
@@ -616,11 +641,13 @@ print(subscriber.stats['dlq_enabled'])  # Should be True
 ```
 
 **2. Messages Not Moving to DLQ**
+
 - Ensure `DLQ_ENABLED=true`
 - Check JetStream is enabled
 - Check logs for initialization errors
 
 **3. Replay Failures**
+
 - Ensure consumer service is running
 - Verify handler is registered
 - Check for code changes
@@ -639,6 +666,7 @@ print(subscriber.stats['dlq_enabled'])  # Should be True
 ✅ **Successfully implemented comprehensive DLQ pattern**
 
 **Key Benefits:**
+
 - ✅ Prevents message loss
 - ✅ Automatic retry with backoff
 - ✅ Rich failure tracking
@@ -647,12 +675,14 @@ print(subscriber.stats['dlq_enabled'])  # Should be True
 - ✅ Zero code changes for existing services
 
 **Production Ready:**
+
 - Configurable via environment
 - Backward compatible
 - Well documented
 - Easy to operate
 
 **Next Steps:**
+
 1. Deploy to staging
 2. Monitor DLQ accumulation
 3. Set up alerts (Slack/PagerDuty)

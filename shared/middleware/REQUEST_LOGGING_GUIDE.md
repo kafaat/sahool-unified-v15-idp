@@ -5,6 +5,7 @@ This guide explains how to use the request logging middleware for FastAPI and Ne
 ## Overview
 
 The request logging infrastructure provides:
+
 - ✅ Structured JSON logging for all HTTP requests
 - ✅ Request method, path, status code, and duration tracking
 - ✅ User ID and Tenant ID extraction from headers or JWT
@@ -79,7 +80,7 @@ async def example_endpoint(request: Request):
   "http": {
     "method": "POST",
     "path": "/api/v1/fields",
-    "query": {"page": "1"},
+    "query": { "page": "1" },
     "user_agent": "Mozilla/5.0..."
   },
   "tenant_id": "tenant-123",
@@ -113,17 +114,15 @@ async def example_endpoint(request: Request):
 In your `main.ts`:
 
 ```typescript
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { RequestLoggingInterceptor } from '../shared/middleware/request-logging';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { RequestLoggingInterceptor } from "../shared/middleware/request-logging";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Add request logging interceptor
-  app.useGlobalInterceptors(
-    new RequestLoggingInterceptor('my-service')
-  );
+  app.useGlobalInterceptors(new RequestLoggingInterceptor("my-service"));
 
   await app.listen(3000);
 }
@@ -136,15 +135,15 @@ bootstrap();
 In your `app.module.ts`:
 
 ```typescript
-import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { RequestLoggingInterceptor } from '../shared/middleware/request-logging';
+import { Module } from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { RequestLoggingInterceptor } from "../shared/middleware/request-logging";
 
 @Module({
   providers: [
     {
       provide: APP_INTERCEPTOR,
-      useValue: new RequestLoggingInterceptor('my-service'),
+      useValue: new RequestLoggingInterceptor("my-service"),
     },
   ],
 })
@@ -154,11 +153,14 @@ export class AppModule {}
 ### Using Correlation ID in Your Code
 
 ```typescript
-import { Controller, Get, Req } from '@nestjs/common';
-import { Request } from 'express';
-import { getCorrelationId, getRequestContext } from '../shared/middleware/request-logging';
+import { Controller, Get, Req } from "@nestjs/common";
+import { Request } from "express";
+import {
+  getCorrelationId,
+  getRequestContext,
+} from "../shared/middleware/request-logging";
 
-@Controller('example')
+@Controller("example")
 export class ExampleController {
   @Get()
   async getExample(@Req() request: Request) {
@@ -170,7 +172,7 @@ export class ExampleController {
     // context = { correlationId: "...", tenantId: "...", userId: "..." }
 
     // Use in logging or pass to downstream services
-    this.logger.log('Processing request', context);
+    this.logger.log("Processing request", context);
 
     return { correlationId };
   }
@@ -180,25 +182,25 @@ export class ExampleController {
 ### Using Structured Logger
 
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { StructuredLogger } from '../shared/middleware/request-logging';
+import { Injectable } from "@nestjs/common";
+import { StructuredLogger } from "../shared/middleware/request-logging";
 
 @Injectable()
 export class MyService {
-  private readonly logger = new StructuredLogger('my-service', 'MyService');
+  private readonly logger = new StructuredLogger("my-service", "MyService");
 
   async doSomething(correlationId: string, tenantId: string) {
-    this.logger.log('Starting operation', {
+    this.logger.log("Starting operation", {
       correlationId,
       tenantId,
-      operation: 'doSomething',
+      operation: "doSomething",
     });
 
     try {
       // Do work...
-      this.logger.log('Operation completed', { correlationId, tenantId });
+      this.logger.log("Operation completed", { correlationId, tenantId });
     } catch (error) {
-      this.logger.error('Operation failed', {
+      this.logger.error("Operation failed", {
         correlationId,
         tenantId,
         error: error.message,
@@ -220,7 +222,7 @@ export class MyService {
   "http": {
     "method": "POST",
     "path": "/api/v1/conversations",
-    "query": {"limit": "10"},
+    "query": { "limit": "10" },
     "user_agent": "Mozilla/5.0..."
   },
   "tenant_id": "tenant-123",
@@ -254,21 +256,23 @@ export class MyService {
 When making requests from the frontend, you can:
 
 1. **Generate and pass correlation ID**:
+
 ```typescript
 const correlationId = crypto.randomUUID();
 
-fetch('/api/v1/fields', {
+fetch("/api/v1/fields", {
   headers: {
-    'X-Correlation-ID': correlationId,
-    'X-Tenant-ID': tenantId,
+    "X-Correlation-ID": correlationId,
+    "X-Tenant-ID": tenantId,
   },
 });
 ```
 
 2. **Receive correlation ID from response**:
+
 ```typescript
-const response = await fetch('/api/v1/fields');
-const correlationId = response.headers.get('X-Correlation-ID');
+const response = await fetch("/api/v1/fields");
+const correlationId = response.headers.get("X-Correlation-ID");
 ```
 
 ### Service-to-Service Communication
@@ -276,6 +280,7 @@ const correlationId = response.headers.get('X-Correlation-ID');
 When one service calls another, propagate the correlation ID:
 
 #### Python (FastAPI)
+
 ```python
 import httpx
 from fastapi import Request
@@ -297,9 +302,10 @@ async def call_external_service(request: Request):
 ```
 
 #### TypeScript (NestJS)
+
 ```typescript
-import { HttpService } from '@nestjs/axios';
-import { getCorrelationId } from '../shared/middleware/request-logging';
+import { HttpService } from "@nestjs/axios";
+import { getCorrelationId } from "../shared/middleware/request-logging";
 
 @Injectable()
 export class MyService {
@@ -309,12 +315,14 @@ export class MyService {
     const correlationId = getCorrelationId(request);
     const { tenantId } = getRequestContext(request);
 
-    return this.httpService.get('http://other-service/api/endpoint', {
-      headers: {
-        'X-Correlation-ID': correlationId,
-        'X-Tenant-ID': tenantId,
-      },
-    }).toPromise();
+    return this.httpService
+      .get("http://other-service/api/endpoint", {
+        headers: {
+          "X-Correlation-ID": correlationId,
+          "X-Tenant-ID": tenantId,
+        },
+      })
+      .toPromise();
   }
 }
 ```
@@ -324,24 +332,28 @@ export class MyService {
 With structured JSON logging, you can easily search and filter logs:
 
 ### Search by correlation ID
+
 ```bash
 # Find all logs for a specific request
 kubectl logs -l app=my-service | grep "550e8400-e29b-41d4-a716-446655440000"
 ```
 
 ### Search by tenant
+
 ```bash
 # Find all requests from a specific tenant
 kubectl logs -l app=my-service | jq 'select(.tenant_id == "tenant-123")'
 ```
 
 ### Find slow requests
+
 ```bash
 # Find requests taking longer than 1 second
 kubectl logs -l app=my-service | jq 'select(.http.duration_ms > 1000)'
 ```
 
 ### Count errors by type
+
 ```bash
 # Count errors by type
 kubectl logs -l app=my-service | jq -r 'select(.type == "error") | .error.type' | sort | uniq -c
@@ -359,9 +371,11 @@ kubectl logs -l app=my-service | jq -r 'select(.type == "error") | .error.type' 
 ## Integration with Observability Stack
 
 ### OpenTelemetry
+
 The middleware is compatible with OpenTelemetry trace context. Correlation IDs can be used as trace IDs.
 
 ### Log Aggregation (ELK, Loki, etc.)
+
 The structured JSON format is ready for ingestion by log aggregation systems:
 
 ```yaml
@@ -385,16 +399,19 @@ The structured JSON format is ready for ingestion by log aggregation systems:
 ## Troubleshooting
 
 ### Correlation ID not appearing
+
 - Make sure the middleware is added **after** CORS middleware
 - Check that excluded paths don't include your endpoint
 - Verify the request is actually hitting the middleware
 
 ### User/Tenant ID missing
+
 - Ensure authentication middleware runs **before** logging middleware
 - Check that JWT claims include `sub` (user_id) and `tid` (tenant_id)
 - Verify headers `X-User-ID` and `X-Tenant-ID` are being sent
 
 ### Logs not in JSON format
+
 - Check Python: `ENVIRONMENT=production` environment variable
 - Check NestJS: Logs should always be JSON with this middleware
 
@@ -403,6 +420,7 @@ The structured JSON format is ready for ingestion by log aggregation systems:
 If you have existing logging code:
 
 ### Python
+
 ```python
 # Old way
 logger.info(f"Processing request for tenant {tenant_id}")
@@ -415,13 +433,14 @@ logger.info("Processing request", extra=context)
 ```
 
 ### TypeScript
+
 ```typescript
 // Old way
 this.logger.log(`Processing request for tenant ${tenantId}`);
 
 // New way (with structured logger)
-import { StructuredLogger } from '../shared/middleware/request-logging';
+import { StructuredLogger } from "../shared/middleware/request-logging";
 
-const logger = new StructuredLogger('my-service');
-logger.log('Processing request', { tenantId, correlationId });
+const logger = new StructuredLogger("my-service");
+logger.log("Processing request", { tenantId, correlationId });
 ```

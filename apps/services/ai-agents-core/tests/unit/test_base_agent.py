@@ -11,9 +11,9 @@ Tests for core agent functionality:
 - Performance metrics
 """
 
-import pytest
 from datetime import datetime, timedelta
 
+import pytest
 from agents import (
     AgentAction,
     AgentContext,
@@ -24,7 +24,6 @@ from agents import (
     AgentType,
     BaseAgent,
 )
-
 
 # ============================================================================
 # Test Agent Implementation for Testing
@@ -275,7 +274,9 @@ class TestRuleBasedBehavior:
         """Test adding rules to agent"""
         agent = TestAgent()
 
-        condition = lambda ctx: ctx.sensor_data.get("temperature", 0) > 35
+        def condition(ctx):
+            return ctx.sensor_data.get("temperature", 0) > 35
+
         action = AgentAction(
             action_type="alert",
             parameters={},
@@ -293,7 +294,9 @@ class TestRuleBasedBehavior:
         agent = TestAgent()
 
         # Add rule for high temperature
-        condition = lambda ctx: ctx.sensor_data.get("temperature", 0) > 20
+        def condition(ctx):
+            return ctx.sensor_data.get("temperature", 0) > 20
+
         action = AgentAction(
             action_type="temperature_alert",
             parameters={},
@@ -314,7 +317,9 @@ class TestRuleBasedBehavior:
         agent = TestAgent()
 
         # Add rule for very high temperature
-        condition = lambda ctx: ctx.sensor_data.get("temperature", 0) > 50
+        def condition(ctx):
+            return ctx.sensor_data.get("temperature", 0) > 50
+
         action = AgentAction(
             action_type="emergency",
             parameters={},
@@ -334,14 +339,18 @@ class TestRuleBasedBehavior:
         agent = TestAgent()
 
         # Rule 1
-        condition1 = lambda ctx: ctx.sensor_data.get("temperature", 0) > 20
+        def condition1(ctx):
+            return ctx.sensor_data.get("temperature", 0) > 20
+
         action1 = AgentAction(
             action_type="action1", parameters={}, confidence=0.9, priority=1, reasoning="Rule 1"
         )
         agent.add_rule(condition1, action1)
 
         # Rule 2
-        condition2 = lambda ctx: ctx.sensor_data.get("temperature", 0) > 15
+        def condition2(ctx):
+            return ctx.sensor_data.get("temperature", 0) > 15
+
         action2 = AgentAction(
             action_type="action2", parameters={}, confidence=0.9, priority=2, reasoning="Rule 2"
         )
@@ -367,7 +376,8 @@ class TestUtilityBasedBehavior:
         """Test setting utility function"""
         agent = TestAgent()
 
-        utility_func = lambda action, context: 0.8
+        def utility_func(action, context):
+            return 0.8
 
         agent.set_utility_function(utility_func)
 
@@ -377,7 +387,8 @@ class TestUtilityBasedBehavior:
         """Test utility calculation"""
         agent = TestAgent()
 
-        utility_func = lambda action, context: action.confidence * 0.5
+        def utility_func(action, context):
+            return action.confidence * 0.5
 
         agent.set_utility_function(utility_func)
 

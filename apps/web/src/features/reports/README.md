@@ -37,11 +37,11 @@ A comprehensive report generation system with Arabic RTL support for the SAHOOL 
 ### 1. Generate a Field Report
 
 ```tsx
-import { ReportGenerator } from '@/features/reports';
+import { ReportGenerator } from "@/features/reports";
 
 function MyFieldPage({ fieldId }) {
   const handleReportGenerated = (reportId: string) => {
-    console.log('Report generated:', reportId);
+    console.log("Report generated:", reportId);
     // Navigate to preview or show success message
   };
 
@@ -59,7 +59,7 @@ function MyFieldPage({ fieldId }) {
 ### 2. View Report History
 
 ```tsx
-import { ReportHistory } from '@/features/reports';
+import { ReportHistory } from "@/features/reports";
 
 function MyReportsPage() {
   const handleViewReport = (reportId: string) => {
@@ -84,15 +84,12 @@ function MyReportsPage() {
 ### 3. Preview a Report
 
 ```tsx
-import { ReportPreview } from '@/features/reports';
+import { ReportPreview } from "@/features/reports";
 
 function ReportPreviewPage({ reportId }) {
   return (
     <div className="container mx-auto py-8">
-      <ReportPreview
-        reportId={reportId}
-        showNavigation={true}
-      />
+      <ReportPreview reportId={reportId} showNavigation={true} />
     </div>
   );
 }
@@ -101,7 +98,7 @@ function ReportPreviewPage({ reportId }) {
 ### 4. Custom Report Template
 
 ```tsx
-import { FieldReportTemplate, useFieldReportData } from '@/features/reports';
+import { FieldReportTemplate, useFieldReportData } from "@/features/reports";
 
 function CustomReportView({ fieldId, startDate, endDate }) {
   const { data, isLoading } = useFieldReportData(fieldId, startDate, endDate);
@@ -112,7 +109,7 @@ function CustomReportView({ fieldId, startDate, endDate }) {
   return (
     <FieldReportTemplate
       data={data}
-      sections={['field_info', 'ndvi_trend', 'recommendations']}
+      sections={["field_info", "ndvi_trend", "recommendations"]}
       language="both"
       startDate={startDate}
       endDate={endDate}
@@ -131,7 +128,7 @@ import {
   useReportHistory,
   useDownloadReport,
   useShareReport,
-} from '@/features/reports';
+} from "@/features/reports";
 
 function ReportsManager() {
   // Generate a report
@@ -139,8 +136,8 @@ function ReportsManager() {
 
   // Get report history
   const { data: reports } = useReportHistory({
-    type: 'field',
-    status: 'ready',
+    type: "field",
+    status: "ready",
   });
 
   // Download a report
@@ -151,16 +148,16 @@ function ReportsManager() {
 
   const handleGenerate = async () => {
     const result = await generateReport.mutateAsync({
-      fieldId: 'field-123',
-      sections: ['field_info', 'ndvi_trend', 'recommendations'],
+      fieldId: "field-123",
+      sections: ["field_info", "ndvi_trend", "recommendations"],
       options: {
-        format: 'pdf',
-        language: 'both',
+        format: "pdf",
+        language: "both",
         includeCharts: true,
         includeMaps: true,
       },
     });
-    console.log('Report ID:', result.id);
+    console.log("Report ID:", result.id);
   };
 
   const handleDownload = async (reportId: string) => {
@@ -170,15 +167,15 @@ function ReportsManager() {
   const handleShare = async (reportId: string) => {
     const result = await shareReport.mutateAsync({
       reportId,
-      method: 'link',
+      method: "link",
     });
-    console.log('Share URL:', result.shareUrl);
+    console.log("Share URL:", result.shareUrl);
   };
 
   return (
     <div>
       <button onClick={handleGenerate}>Generate Report</button>
-      {reports?.map(report => (
+      {reports?.map((report) => (
         <div key={report.id}>
           <h3>{report.titleAr}</h3>
           <button onClick={() => handleDownload(report.id)}>Download</button>
@@ -193,6 +190,7 @@ function ReportsManager() {
 ## Report Sections
 
 ### Field Report Sections
+
 - `field_info` - Basic field information (required)
 - `ndvi_trend` - NDVI trend analysis
 - `health_zones` - Health zones distribution map
@@ -201,6 +199,7 @@ function ReportsManager() {
 - `recommendations` - AI-powered recommendations
 
 ### Season Report Sections
+
 - `field_info` - Field and crop information (required)
 - `crop_stages` - Growth stages timeline
 - `yield_estimate` - Yield predictions
@@ -250,7 +249,7 @@ import type {
   GenerateFieldReportRequest,
   GeneratedReport,
   // ... and more
-} from '@/features/reports';
+} from "@/features/reports";
 ```
 
 ## Utilities
@@ -267,7 +266,7 @@ import {
   generateFieldReportHTML,
   downloadPDF,
   generateShareLink,
-} from '@/features/reports';
+} from "@/features/reports";
 ```
 
 ## Development Notes

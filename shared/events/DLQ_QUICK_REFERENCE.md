@@ -3,11 +3,13 @@
 ## Common Commands
 
 ### Start DLQ Service
+
 ```bash
 ./scripts/dlq-quickstart.sh start
 ```
 
 ### View Statistics
+
 ```bash
 ./scripts/dlq-quickstart.sh stats
 # or
@@ -15,6 +17,7 @@ curl http://localhost:8090/dlq/stats | jq
 ```
 
 ### List Messages
+
 ```bash
 ./scripts/dlq-quickstart.sh messages
 # or with pagination
@@ -22,6 +25,7 @@ curl http://localhost:8090/dlq/stats | jq
 ```
 
 ### Replay Messages
+
 ```bash
 # Single message
 ./scripts/dlq-quickstart.sh replay 123
@@ -31,20 +35,21 @@ curl http://localhost:8090/dlq/stats | jq
 ```
 
 ### Stop DLQ Service
+
 ```bash
 ./scripts/dlq-quickstart.sh stop
 ```
 
 ## API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/dlq/stats` | GET | Get DLQ statistics |
-| `/dlq/messages` | GET | List messages (supports ?page=1&page_size=50) |
-| `/dlq/messages?subject=sahool.field.created` | GET | Filter by subject |
-| `/dlq/messages?error_type=ConnectionError` | GET | Filter by error type |
-| `/dlq/replay/123` | POST | Replay single message |
-| `/dlq/replay/bulk` | POST | Replay multiple (body: {message_seqs: [...]}) |
+| Endpoint                                     | Method | Description                                   |
+| -------------------------------------------- | ------ | --------------------------------------------- |
+| `/dlq/stats`                                 | GET    | Get DLQ statistics                            |
+| `/dlq/messages`                              | GET    | List messages (supports ?page=1&page_size=50) |
+| `/dlq/messages?subject=sahool.field.created` | GET    | Filter by subject                             |
+| `/dlq/messages?error_type=ConnectionError`   | GET    | Filter by error type                          |
+| `/dlq/replay/123`                            | POST   | Replay single message                         |
+| `/dlq/replay/bulk`                           | POST   | Replay multiple (body: {message_seqs: [...]}) |
 
 ## Environment Variables
 
@@ -59,6 +64,7 @@ DLQ_ALERT_THRESHOLD=100      # Alert when message count exceeds
 ## Troubleshooting
 
 ### High DLQ Count
+
 ```bash
 # 1. Check what's failing
 ./scripts/dlq-quickstart.sh messages | jq '.messages[].metadata.error_type'
@@ -73,12 +79,15 @@ DLQ_ALERT_THRESHOLD=100      # Alert when message count exceeds
 ```
 
 ### Messages Not Moving to DLQ
+
 Check logs:
+
 ```bash
 docker-compose logs notification-service | grep DLQ
 ```
 
 Verify DLQ is enabled:
+
 ```python
 subscriber.stats['dlq_enabled']  # Should be True
 ```
@@ -86,6 +95,7 @@ subscriber.stats['dlq_enabled']  # Should be True
 ## Code Integration
 
 ### Default (DLQ enabled automatically)
+
 ```python
 from shared.events import EventSubscriber
 
@@ -95,6 +105,7 @@ await subscriber.subscribe(subject, handler)
 ```
 
 ### Custom Configuration
+
 ```python
 from shared.events import EventSubscriber, DLQConfig, SubscriberConfig
 
@@ -108,6 +119,7 @@ subscriber = EventSubscriber(config=config)
 ```
 
 ### Get Statistics
+
 ```python
 stats = subscriber.stats
 print(f"DLQ count: {stats['dlq_count']}")
@@ -120,12 +132,14 @@ print(f"Total in DLQ: {dlq_stats['message_count']}")
 ## Error Types
 
 **Non-Retriable (immediate DLQ):**
+
 - ValidationError
 - ValueError
 - KeyError
 - TypeError
 
 **Retriable (with backoff):**
+
 - ConnectionError
 - TimeoutError
 - Other exceptions
@@ -133,6 +147,7 @@ print(f"Total in DLQ: {dlq_stats['message_count']}")
 ## Retry Timeline
 
 With default config (3 retries, 2x multiplier):
+
 - Attempt 1: Immediate
 - Attempt 2: 1s delay
 - Attempt 3: 2s delay
@@ -142,11 +157,13 @@ With default config (3 retries, 2x multiplier):
 ## Monitoring
 
 ### Check DLQ Size
+
 ```bash
 curl -s http://localhost:8090/dlq/stats | jq '.total_messages'
 ```
 
 ### Alert if threshold exceeded
+
 ```bash
 count=$(curl -s http://localhost:8090/dlq/stats | jq '.total_messages')
 if [ "$count" -gt 100 ]; then
@@ -155,6 +172,7 @@ fi
 ```
 
 ### Set up monitoring
+
 ```python
 from shared.events.dlq_monitoring import DLQMonitor
 

@@ -1,4 +1,5 @@
 # Kong API Gateway Quick Start Guide
+
 # دليل البدء السريع لبوابة Kong API
 
 ## Quick Setup (5 minutes) | الإعداد السريع (5 دقائق)
@@ -14,6 +15,7 @@ cd /home/user/sahool-unified-v15-idp/infrastructure/kong
 ```
 
 The setup script will:
+
 - Check prerequisites
 - Generate secure JWT secrets
 - Create .env file
@@ -22,6 +24,7 @@ The setup script will:
 - Verify setup
 
 سيقوم سكريبت الإعداد بـ:
+
 - فحص المتطلبات الأساسية
 - توليد أسرار JWT آمنة
 - إنشاء ملف .env
@@ -33,13 +36,13 @@ The setup script will:
 
 Once setup is complete, you can access:
 
-| Service | URL | Purpose |
-|---------|-----|---------|
-| Kong Proxy | http://localhost:8000 | API Gateway |
-| Kong Admin | http://localhost:8001 | Admin API |
-| Konga UI | http://localhost:1337 | Web Interface |
-| Prometheus | http://localhost:9090 | Metrics |
-| Grafana | http://localhost:3002 | Dashboards |
+| Service    | URL                   | Purpose       |
+| ---------- | --------------------- | ------------- |
+| Kong Proxy | http://localhost:8000 | API Gateway   |
+| Kong Admin | http://localhost:8001 | Admin API     |
+| Konga UI   | http://localhost:1337 | Web Interface |
+| Prometheus | http://localhost:9090 | Metrics       |
+| Grafana    | http://localhost:3002 | Dashboards    |
 
 ### 3. Test the Setup | اختبار الإعداد
 
@@ -66,6 +69,7 @@ cp .env.example .env
 ```
 
 Edit `.env` and update these critical values:
+
 ```bash
 STARTER_JWT_SECRET=your-random-secret-here
 PROFESSIONAL_JWT_SECRET=your-random-secret-here
@@ -74,6 +78,7 @@ KONG_PG_PASSWORD=your-database-password
 ```
 
 Generate secrets:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -98,6 +103,7 @@ echo "Kong is ready!"
 ### Step 4: Apply Configuration
 
 Using deck (recommended):
+
 ```bash
 # Install deck
 brew install deck
@@ -109,6 +115,7 @@ deck sync -s consumers.yml
 ```
 
 Or using Kong Admin API:
+
 ```bash
 curl -i -X POST http://localhost:8001/config \
   --form config=@kong.yml
@@ -347,6 +354,7 @@ echo $STARTER_TOKEN | cut -d. -f2 | base64 -d | jq
 ### Optimize for High Traffic
 
 Edit `docker-compose.yml`:
+
 ```yaml
 kong:
   environment:
@@ -355,7 +363,7 @@ kong:
   deploy:
     resources:
       limits:
-        cpus: '4.0'
+        cpus: "4.0"
         memory: 4G
 ```
 
@@ -371,6 +379,7 @@ curl -X POST http://localhost:8001/plugins \
 ### Database Connection Pooling
 
 Edit `docker-compose.yml`:
+
 ```yaml
 kong:
   environment:
@@ -383,6 +392,7 @@ kong:
 ### Production Recommendations
 
 1. **Enable HTTPS Only**
+
 ```yaml
 routes:
   - protocols:
@@ -390,6 +400,7 @@ routes:
 ```
 
 2. **Restrict Admin API Access**
+
 ```yaml
 plugins:
   - name: ip-restriction
@@ -400,6 +411,7 @@ plugins:
 ```
 
 3. **Enable Rate Limiting Globally**
+
 ```yaml
 plugins:
   - name: rate-limiting
@@ -409,6 +421,7 @@ plugins:
 ```
 
 4. **Rotate JWT Secrets Regularly**
+
 ```bash
 # Generate new secret
 NEW_SECRET=$(openssl rand -base64 32)
@@ -434,6 +447,7 @@ For detailed documentation, see [README.md](README.md)
 ---
 
 **Quick Reference:**
+
 - Main Config: `kong.yml`
 - Package Routes: `kong-packages.yml`
 - Consumers: `consumers.yml`
@@ -441,5 +455,6 @@ For detailed documentation, see [README.md](README.md)
 - Setup Script: `./setup.sh`
 
 **Support:**
+
 - Documentation: https://docs.sahool.platform
 - Email: support@sahool.platform

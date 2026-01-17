@@ -15,6 +15,7 @@ The SAHOOL web application demonstrates **good performance practices** in severa
 ### Overall Performance Score: 7/10
 
 **Strengths**:
+
 - ✅ Proper Next.js 15 App Router implementation with SSR/CSR separation
 - ✅ Good image optimization with next/image usage
 - ✅ React.memo and useMemo/useCallback for preventing re-renders
@@ -23,6 +24,7 @@ The SAHOOL web application demonstrates **good performance practices** in severa
 - ✅ React Query implementation for data caching
 
 **Critical Areas for Improvement**:
+
 - ⚠️ Limited code splitting and lazy loading (only 6 dynamic imports)
 - ⚠️ Heavy charting library (recharts) not lazy-loaded
 - ⚠️ Map libraries (maplibre-gl, leaflet) loaded eagerly
@@ -38,6 +40,7 @@ The SAHOOL web application demonstrates **good performance practices** in severa
 **Files Using Dynamic Imports**: 6 out of 317 files (1.9%)
 
 #### Files with Dynamic Imports:
+
 1. `/home/user/sahool-unified-v15-idp/apps/web/src/features/vra/components/PrescriptionMap.tsx`
 2. `/home/user/sahool-unified-v15-idp/apps/web/src/app/(dashboard)/analytics/AnalyticsDashboardClient.tsx`
 3. `/home/user/sahool-unified-v15-idp/apps/web/src/components/dashboard/Cockpit.tsx`
@@ -48,14 +51,27 @@ The SAHOOL web application demonstrates **good performance practices** in severa
 ### Issues Identified:
 
 #### 🔴 Critical: Charting Library Not Lazy Loaded
+
 **Location**: `/home/user/sahool-unified-v15-idp/apps/web/src/features/analytics/components/YieldAnalysis.tsx`
 
 ```typescript
 // Lines 9: Direct import of recharts
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 ```
 
 **Impact**: `recharts` is a large library (~350KB gzipped). Importing it directly in 3 files:
+
 - `YieldAnalysis.tsx`
 - `CostAnalysis.tsx`
 - `SensorReadings.tsx`
@@ -70,17 +86,19 @@ const YieldChart = dynamic(() => import('./YieldChart'), {
 ```
 
 #### 🔴 Critical: Map Libraries Not Lazy Loaded
+
 **Location**: Multiple map components
 
 ```typescript
 // MapView.tsx - Line 5: Eager import
-import maplibregl, { type MapMouseEvent } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import maplibregl, { type MapMouseEvent } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 // FieldMapWithTasks.tsx - Uses Leaflet eagerly
 ```
 
 **Impact**:
+
 - `maplibre-gl`: ~200KB gzipped
 - `leaflet`: ~150KB gzipped
 - These are loaded even on pages that don't display maps
@@ -90,6 +108,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 #### 🟡 Medium: Feature Components Should Be Code-Split
 
 Heavy feature components loaded eagerly:
+
 - Community feed components
 - IoT sensor dashboards
 - Equipment management
@@ -106,6 +125,7 @@ Heavy feature components loaded eagerly:
 **Analysis**: Application properly uses Next.js Image component for optimization.
 
 ### Files Using `next/image`: 5 files
+
 1. `/home/user/sahool-unified-v15-idp/apps/web/src/features/community/components/PostCard.tsx`
 2. `/home/user/sahool-unified-v15-idp/apps/web/src/features/marketplace/components/ProductCard.tsx`
 3. `/home/user/sahool-unified-v15-idp/apps/web/src/features/marketplace/components/Cart.tsx`
@@ -135,6 +155,7 @@ images: {
 ### Image Implementation Examples:
 
 #### ✅ Good: Proper lazy loading and blur placeholder
+
 **Location**: `PostCard.tsx` (Lines 139-148)
 
 ```typescript
@@ -151,6 +172,7 @@ images: {
 ```
 
 #### ✅ Good: ProductCard optimization
+
 **Location**: `ProductCard.tsx` (Lines 63-72)
 
 ```typescript
@@ -184,6 +206,7 @@ images: {
 ### Memoization Analysis:
 
 #### ✅ Excellent: Component Memoization
+
 **Example**: `PostCard.tsx` (Line 249)
 
 ```typescript
@@ -192,10 +215,11 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
 };
 
 export const PostCard = React.memo(PostCardComponent);
-PostCard.displayName = 'PostCard';
+PostCard.displayName = "PostCard";
 ```
 
 **Files with React.memo**:
+
 - `PostCard.tsx`
 - `ProductCard.tsx`
 - `MapView.tsx`
@@ -206,26 +230,38 @@ PostCard.displayName = 'PostCard';
 - And 27 more...
 
 #### ✅ Good: Callback Optimization
+
 **Example**: `ProductCard.tsx` (Lines 27-30)
 
 ```typescript
-const handleAddToCart = useCallback((e: React.MouseEvent) => {
-  e.stopPropagation();
-  addItem(product, 1);
-}, [addItem, product]);
+const handleAddToCart = useCallback(
+  (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addItem(product, 1);
+  },
+  [addItem, product],
+);
 ```
 
 #### ✅ Good: Computed Values Memoization
+
 **Example**: `ProductCard.tsx` (Lines 46-49)
 
 ```typescript
 const ariaLabel = useMemo(() => {
   const price = discountedPrice || product.price;
   return `${product.nameAr}, السعر ${price.toFixed(2)} ${product.currency}`;
-}, [product.nameAr, product.price, product.currency, product.category, discountedPrice]);
+}, [
+  product.nameAr,
+  product.price,
+  product.currency,
+  product.category,
+  discountedPrice,
+]);
 ```
 
 #### ✅ Good: Cart Context Optimization
+
 **Location**: `useCart.tsx` (Lines 109-114)
 
 ```typescript
@@ -233,21 +269,22 @@ const cart = React.useMemo(() => calculateTotals(items), [items]);
 
 const value = React.useMemo(
   () => ({ cart, addItem, removeItem, updateQuantity, clearCart }),
-  [cart, addItem, removeItem, updateQuantity, clearCart]
+  [cart, addItem, removeItem, updateQuantity, clearCart],
 );
 ```
 
 ### Areas for Improvement:
 
 #### 🟡 Medium: Task Statistics Calculation
+
 **Location**: `FieldMapWithTasks.tsx` (Lines 113-122)
 
 ```typescript
 // Recalculated on every render
 const taskStats = {
   total: allTasks.length,
-  urgent: allTasks.filter((t) => t.priority === 'urgent').length,
-  high: allTasks.filter((t) => t.priority === 'high').length,
+  urgent: allTasks.filter((t) => t.priority === "urgent").length,
+  high: allTasks.filter((t) => t.priority === "high").length,
   // ...
 };
 ```
@@ -255,15 +292,20 @@ const taskStats = {
 **Recommendation**: Wrap in `useMemo`:
 
 ```typescript
-const taskStats = useMemo(() => ({
-  total: allTasks.length,
-  urgent: allTasks.filter((t) => t.priority === 'urgent').length,
-  // ...
-}), [allTasks]);
+const taskStats = useMemo(
+  () => ({
+    total: allTasks.length,
+    urgent: allTasks.filter((t) => t.priority === "urgent").length,
+    // ...
+  }),
+  [allTasks],
+);
 ```
 
 #### 🟡 Medium: Dashboard Components
+
 Several dashboard components recalculate derived state on every render. Consider memoization for:
+
 - `StatsCards.tsx` - Statistics calculations
 - `EventTimeline.tsx` - Event filtering
 - `TaskList.tsx` - Task filtering and sorting
@@ -279,12 +321,13 @@ Several dashboard components recalculate derived state on every render. Consider
 **Location**: `next.config.js` (Lines 2-4)
 
 ```javascript
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
 });
 ```
 
 **Available Scripts** (package.json):
+
 ```json
 {
   "analyze": "ANALYZE=true next build",
@@ -307,18 +350,19 @@ experimental: {
 
 ### Large Dependencies Identified:
 
-| Package | Approximate Size | Usage | Risk Level |
-|---------|-----------------|--------|------------|
-| `recharts` | ~350KB | Charts in 3 components | 🔴 High |
-| `maplibre-gl` | ~200KB | Map rendering | 🔴 High |
-| `leaflet` | ~150KB | Alternate map library | 🟡 Medium |
-| `@tanstack/react-query` | ~50KB | Data fetching | ✅ Low (core) |
-| `lucide-react` | ~25KB (optimized) | Icons | ✅ Low |
-| `axios` | ~15KB | HTTP client | ✅ Low |
+| Package                 | Approximate Size  | Usage                  | Risk Level    |
+| ----------------------- | ----------------- | ---------------------- | ------------- |
+| `recharts`              | ~350KB            | Charts in 3 components | 🔴 High       |
+| `maplibre-gl`           | ~200KB            | Map rendering          | 🔴 High       |
+| `leaflet`               | ~150KB            | Alternate map library  | 🟡 Medium     |
+| `@tanstack/react-query` | ~50KB             | Data fetching          | ✅ Low (core) |
+| `lucide-react`          | ~25KB (optimized) | Icons                  | ✅ Low        |
+| `axios`                 | ~15KB             | HTTP client            | ✅ Low        |
 
 ### Recommendations:
 
 1. 🔴 **Critical**: Run bundle analyzer to identify actual bundle sizes:
+
    ```bash
    npm run analyze
    ```
@@ -354,11 +398,12 @@ const [queryClient] = useState(
           refetchOnWindowFocus: false, // ✅ Prevents unnecessary refetches
         },
       },
-    })
+    }),
 );
 ```
 
 ✅ **Good Practices**:
+
 - Appropriate stale time (1 minute)
 - Disabled window focus refetching
 - Query client created once per provider instance
@@ -374,6 +419,7 @@ const RETRY_DELAY = 1000; // 1 second ✅
 ```
 
 ✅ **Retry Logic** (Lines 108-183):
+
 - Exponential backoff
 - Differentiated retry for 4xx vs 5xx errors
 - Proper timeout handling
@@ -381,6 +427,7 @@ const RETRY_DELAY = 1000; // 1 second ✅
 ### Feature-Specific Caching:
 
 #### ✅ Excellent: Sensor Data Caching
+
 **Location**: `useSensors.ts` (Lines 28-35)
 
 ```typescript
@@ -395,6 +442,7 @@ export function useSensors(filters?: SensorFilters) {
 ```
 
 #### ✅ Good: Latest Reading with Polling
+
 **Location**: `useSensors.ts` (Lines 63-71)
 
 ```typescript
@@ -414,28 +462,30 @@ export function useLatestReading(sensorId: string) {
 **Files using localStorage/sessionStorage**: 16 files
 
 #### ✅ Good: Cart Persistence
+
 **Location**: `useCart.tsx` (Lines 48-62)
 
 ```typescript
 // Load cart from localStorage on mount
 React.useEffect(() => {
-  const savedCart = localStorage.getItem('sahool-cart');
+  const savedCart = localStorage.getItem("sahool-cart");
   if (savedCart) {
     try {
       setItems(JSON.parse(savedCart));
     } catch (error) {
-      logger.error('Failed to load cart:', error);
+      logger.error("Failed to load cart:", error);
     }
   }
 }, []);
 
 // Save cart to localStorage on change
 React.useEffect(() => {
-  localStorage.setItem('sahool-cart', JSON.stringify(items));
+  localStorage.setItem("sahool-cart", JSON.stringify(items));
 }, [items]);
 ```
 
 ✅ **Good Practices**:
+
 - Error handling for JSON parsing
 - Proper cleanup
 - Separation of concerns
@@ -443,6 +493,7 @@ React.useEffect(() => {
 ### Areas for Improvement:
 
 #### 🟡 Medium: Add HTTP Cache Headers
+
 **Location**: `middleware.ts`
 
 Current middleware adds security headers but not cache headers.
@@ -451,10 +502,14 @@ Current middleware adds security headers but not cache headers.
 
 ```typescript
 // For static pages
-response.headers.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+response.headers.set(
+  "Cache-Control",
+  "public, max-age=3600, stale-while-revalidate=86400",
+);
 ```
 
 #### 💡 Consider: Service Worker for Offline Caching
+
 For improved offline experience and performance.
 
 ---
@@ -472,9 +527,11 @@ This means ~161 files are Server Components by default.
 ### Architecture Pattern:
 
 #### ✅ Excellent: Server/Client Separation
+
 **Example**: Dashboard Page
 
 **Server Component** - `page.tsx` (Lines 1-22):
+
 ```typescript
 // No 'use client' - Server Component by default
 import { Metadata } from 'next';
@@ -491,27 +548,30 @@ export default function DashboardPage() {
 ```
 
 **Client Component** - `DashboardClient.tsx`:
-```typescript
-'use client'; // ✅ Properly marked
 
-import { useState, useEffect } from 'react';
+```typescript
+"use client"; // ✅ Properly marked
+
+import { useState, useEffect } from "react";
 // ... interactive logic
 ```
 
 ### Page Structure Analysis:
 
 All pages follow this pattern:
+
 1. **Server Component** (page.tsx)
    - Generates metadata
    - Can fetch data at build time
    - Renders layout
 
-2. **Client Component** (*Client.tsx)
+2. **Client Component** (\*Client.tsx)
    - Handles interactivity
    - Uses React hooks
    - Manages client-side state
 
 **Examples**:
+
 - `/dashboard/page.tsx` → `DashboardClient.tsx`
 - `/analytics/page.tsx` → `AnalyticsDashboardClient.tsx`
 - `/tasks/page.tsx` → `TasksClient.tsx`
@@ -535,13 +595,13 @@ All pages implement proper metadata:
 
 ```typescript
 export const metadata: Metadata = {
-  title: 'Page Title | SAHOOL',
-  description: 'Page description',
-  keywords: ['keyword1', 'keyword2'],
+  title: "Page Title | SAHOOL",
+  description: "Page description",
+  keywords: ["keyword1", "keyword2"],
   openGraph: {
-    title: 'OG Title',
-    description: 'OG Description',
-    type: 'website',
+    title: "OG Title",
+    description: "OG Description",
+    type: "website",
   },
 };
 ```
@@ -549,6 +609,7 @@ export const metadata: Metadata = {
 ### API Routes:
 
 **Server-Side API Routes**:
+
 - `/api/csp-report/route.ts` - CSP violation reporting
 - `/api/log-error/route.ts` - Error logging
 
@@ -571,6 +632,7 @@ export const metadata: Metadata = {
 ### Cleanup Pattern Analysis:
 
 #### ✅ Excellent: WebSocket Cleanup
+
 **Location**: `useWebSocket.ts` (Lines 91-111)
 
 ```typescript
@@ -598,12 +660,14 @@ useEffect(() => {
 ```
 
 ✅ **Perfect Implementation**:
+
 - Mounted ref to prevent state updates after unmount
 - Clears all timers
 - Closes WebSocket connection
 - Nullifies references
 
 #### ✅ Excellent: EventSource Cleanup
+
 **Location**: `useSensors.ts` (Lines 142-159)
 
 ```typescript
@@ -628,6 +692,7 @@ useEffect(() => {
 ```
 
 #### ✅ Excellent: Map Cleanup
+
 **Location**: `MapView.tsx` (Lines 131-148)
 
 ```typescript
@@ -653,24 +718,25 @@ return () => {
 ✅ **Excellent**: Proper order of cleanup (React → DOM → Map)
 
 #### ✅ Good: LocalStorage Sync
+
 **Location**: `useCart.tsx` (Lines 48-62)
 
 ```typescript
 // Load cart from localStorage on mount
 React.useEffect(() => {
-  const savedCart = localStorage.getItem('sahool-cart');
+  const savedCart = localStorage.getItem("sahool-cart");
   if (savedCart) {
     try {
       setItems(JSON.parse(savedCart));
     } catch (error) {
-      logger.error('Failed to load cart:', error); // ✅ Error handling
+      logger.error("Failed to load cart:", error); // ✅ Error handling
     }
   }
 }, []); // ✅ Runs only once
 
 // Save cart to localStorage on change
 React.useEffect(() => {
-  localStorage.setItem('sahool-cart', JSON.stringify(items));
+  localStorage.setItem("sahool-cart", JSON.stringify(items));
 }, [items]); // ✅ Proper dependency
 ```
 
@@ -686,6 +752,7 @@ React.useEffect(() => {
 ### No Memory Leaks Found ✅
 
 All analyzed components properly clean up:
+
 - Event listeners
 - Timers (setTimeout, setInterval)
 - WebSocket connections
@@ -705,6 +772,7 @@ All analyzed components properly clean up:
 **Location**: `/home/user/sahool-unified-v15-idp/apps/web/src/lib/api/client.ts`
 
 #### ✅ Excellent: Centralized API Client
+
 - Single source of truth for all API calls
 - Consistent error handling
 - Built-in retry logic
@@ -713,6 +781,7 @@ All analyzed components properly clean up:
 ### Key Features:
 
 #### 1. ✅ Retry Logic with Exponential Backoff
+
 **Lines 104-183**:
 
 ```typescript
@@ -725,7 +794,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
     if (!response.ok) {
       // Don't retry client errors (4xx)
       if (response.status >= 400 && response.status < 500) {
-        return { success: false, error: '...' };
+        return { success: false, error: "..." };
       }
 
       // Retry server errors (5xx)
@@ -745,6 +814,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
 ```
 
 #### 2. ✅ Request Timeout with AbortController
+
 **Lines 110-120**:
 
 ```typescript
@@ -761,6 +831,7 @@ clearTimeout(timeoutId); // ✅ Cleanup
 ```
 
 #### 3. ✅ Input Validation and Sanitization
+
 **Lines 196-213** (Login example):
 
 ```typescript
@@ -785,6 +856,7 @@ async login(email: string, password: string) {
 ```
 
 #### 4. ✅ File Upload with Validation
+
 **Lines 329-396** (Image upload):
 
 ```typescript
@@ -808,27 +880,32 @@ async analyzeCropHealth(imageFile: File) {
 ### React Query Integration:
 
 #### ✅ Excellent: Query Key Factory Pattern
+
 **Location**: `useSensors.ts` (Lines 14-23)
 
 ```typescript
 export const sensorKeys = {
-  all: ['sensors'] as const,
-  lists: () => [...sensorKeys.all, 'list'] as const,
+  all: ["sensors"] as const,
+  lists: () => [...sensorKeys.all, "list"] as const,
   list: (filters?: SensorFilters) => [...sensorKeys.lists(), filters] as const,
-  detail: (id: string) => [...sensorKeys.all, 'detail', id] as const,
-  readings: (query: SensorReadingsQuery) => [...sensorKeys.all, 'readings', query] as const,
-  latest: (sensorId: string) => [...sensorKeys.all, 'latest', sensorId] as const,
-  stats: () => [...sensorKeys.all, 'stats'] as const,
+  detail: (id: string) => [...sensorKeys.all, "detail", id] as const,
+  readings: (query: SensorReadingsQuery) =>
+    [...sensorKeys.all, "readings", query] as const,
+  latest: (sensorId: string) =>
+    [...sensorKeys.all, "latest", sensorId] as const,
+  stats: () => [...sensorKeys.all, "stats"] as const,
 };
 ```
 
 ✅ **Benefits**:
+
 - Consistent query key structure
 - Easy invalidation
 - Type-safe
 - Hierarchical organization
 
 #### ✅ Good: Optimistic Updates
+
 **Location**: `useSensors.ts` (Lines 168-196)
 
 ```typescript
@@ -839,13 +916,17 @@ export function useUpdateSensor() {
     mutationFn: ({ id, data }) => sensorsApi.updateSensor(id, data),
     onSuccess: (updatedSensor) => {
       queryClient.invalidateQueries({ queryKey: sensorKeys.lists() }); // ✅ Refresh list
-      queryClient.setQueryData(sensorKeys.detail(updatedSensor.id), updatedSensor); // ✅ Update cache
+      queryClient.setQueryData(
+        sensorKeys.detail(updatedSensor.id),
+        updatedSensor,
+      ); // ✅ Update cache
     },
   });
 }
 ```
 
 #### ✅ Good: Conditional Fetching
+
 **Location**: `useSensors.ts` (Lines 40-46)
 
 ```typescript
@@ -860,21 +941,22 @@ export function useSensor(id: string) {
 
 ### Performance Characteristics:
 
-| Feature | Status | Details |
-|---------|--------|---------|
-| Retry Logic | ✅ Excellent | 3 attempts, exponential backoff |
-| Timeout Handling | ✅ Excellent | 30s default, 60s for uploads |
-| Request Cancellation | ✅ Excellent | AbortController support |
-| Error Handling | ✅ Excellent | Differentiated 4xx vs 5xx |
-| Type Safety | ✅ Excellent | Full TypeScript coverage |
-| Input Validation | ✅ Excellent | Sanitization + validation |
-| Caching | ✅ Excellent | React Query integration |
-| Optimistic Updates | ✅ Good | Implemented for mutations |
-| Query Invalidation | ✅ Excellent | Hierarchical key system |
+| Feature              | Status       | Details                         |
+| -------------------- | ------------ | ------------------------------- |
+| Retry Logic          | ✅ Excellent | 3 attempts, exponential backoff |
+| Timeout Handling     | ✅ Excellent | 30s default, 60s for uploads    |
+| Request Cancellation | ✅ Excellent | AbortController support         |
+| Error Handling       | ✅ Excellent | Differentiated 4xx vs 5xx       |
+| Type Safety          | ✅ Excellent | Full TypeScript coverage        |
+| Input Validation     | ✅ Excellent | Sanitization + validation       |
+| Caching              | ✅ Excellent | React Query integration         |
+| Optimistic Updates   | ✅ Good      | Implemented for mutations       |
+| Query Invalidation   | ✅ Excellent | Hierarchical key system         |
 
 ### Areas for Minor Improvement:
 
 #### 🟡 Consider: Request Deduplication
+
 React Query already handles this, but manual fetch calls could benefit:
 
 ```typescript
@@ -883,6 +965,7 @@ const pendingRequests = new Map();
 ```
 
 #### 🟡 Consider: Offline Queue
+
 For better offline experience:
 
 ```typescript
@@ -906,9 +989,11 @@ For better offline experience:
    **Impact**: HIGH
 
 2. **Run Bundle Analyzer**
+
    ```bash
    npm run analyze
    ```
+
    Identify exact bundle composition and optimization opportunities.
 
    **Priority**: HIGH
@@ -986,6 +1071,7 @@ For better offline experience:
 ### Performance Testing:
 
 1. **Lighthouse Audits**
+
    ```bash
    npm install -g lighthouse
    lighthouse https://your-app-url --view
@@ -999,6 +1085,7 @@ For better offline experience:
 3. **Bundle Size Monitoring**
    - Set up CI/CD bundle size checks
    - Alert on size increases > 10%
+
    ```json
    {
      "scripts": {
@@ -1026,6 +1113,7 @@ For better offline experience:
 ### Recommendations:
 
 1. **Add Performance Monitoring**
+
    ```typescript
    // Use Next.js built-in performance monitoring
    export function reportWebVitals(metric: NextWebVitalsMetric) {
@@ -1035,6 +1123,7 @@ For better offline experience:
    ```
 
 2. **Add React Profiler**
+
    ```typescript
    import { Profiler } from 'react';
 
@@ -1056,6 +1145,7 @@ For better offline experience:
 The SAHOOL web application demonstrates **strong fundamentals** with proper Next.js 15 App Router implementation, good image optimization, and excellent memory management. The code quality is high with consistent patterns for preventing re-renders and proper cleanup in effects.
 
 ### Key Strengths:
+
 - ✅ Modern Next.js 15 architecture
 - ✅ Proper SSR/CSR separation
 - ✅ Excellent error handling and retry logic
@@ -1064,6 +1154,7 @@ The SAHOOL web application demonstrates **strong fundamentals** with proper Next
 - ✅ React Query implementation for data caching
 
 ### Primary Optimization Opportunities:
+
 - 🔴 Implement code splitting for heavy libraries (500-700KB savings)
 - 🔴 Lazy load charting and mapping libraries
 - 🟡 Route-based code splitting for features
@@ -1071,6 +1162,7 @@ The SAHOOL web application demonstrates **strong fundamentals** with proper Next
 - 🟡 Standardize on one map library
 
 ### Estimated Performance Gains:
+
 - **Initial Bundle Size Reduction**: 40-50% (with code splitting)
 - **Time to Interactive**: 1-2 seconds faster
 - **First Contentful Paint**: 0.5-1 second faster

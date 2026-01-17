@@ -4,14 +4,14 @@
 
 ## Modules
 
-| Module | Description |
-|--------|-------------|
-| `ai/` | LLM client, ranker, prompt engine, RAG pipeline |
-| `rag/` | Document store, Qdrant adapter, ingestion |
-| `context/` | Context aggregation and service |
-| `feedback/` | User feedback collection and analysis |
-| `explainability/` | AI decision explainability |
-| `monitoring/` | Metrics and monitoring |
+| Module            | Description                                     |
+| ----------------- | ----------------------------------------------- |
+| `ai/`             | LLM client, ranker, prompt engine, RAG pipeline |
+| `rag/`            | Document store, Qdrant adapter, ingestion       |
+| `context/`        | Context aggregation and service                 |
+| `feedback/`       | User feedback collection and analysis           |
+| `explainability/` | AI decision explainability                      |
+| `monitoring/`     | Metrics and monitoring                          |
 
 ## Usage
 

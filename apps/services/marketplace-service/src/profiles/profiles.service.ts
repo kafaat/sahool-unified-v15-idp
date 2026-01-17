@@ -8,9 +8,9 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 // Note: Using 'any' type for JSON fields to avoid Prisma version-specific type issues
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from "../prisma/prisma.service";
 import {
   CreateSellerProfileDto,
   UpdateSellerProfileDto,
@@ -19,7 +19,7 @@ import {
   AddShippingAddressDto,
   UpdateLoyaltyPointsDto,
   ShippingAddress,
-} from '../dto/profiles.dto';
+} from "../dto/profiles.dto";
 
 @Injectable()
 export class ProfilesService {
@@ -40,7 +40,7 @@ export class ProfilesService {
 
     if (existing) {
       throw new ConflictException(
-        'Seller profile already exists for this user',
+        "Seller profile already exists for this user",
       );
     }
 
@@ -68,14 +68,14 @@ export class ProfilesService {
           include: {
             review: true,
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: 10,
         },
       },
     });
 
     if (!profile) {
-      throw new NotFoundException('Seller profile not found');
+      throw new NotFoundException("Seller profile not found");
     }
 
     return profile;
@@ -92,14 +92,14 @@ export class ProfilesService {
           include: {
             review: true,
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: 10,
         },
       },
     });
 
     if (!profile) {
-      throw new NotFoundException('Seller profile not found');
+      throw new NotFoundException("Seller profile not found");
     }
 
     return profile;
@@ -114,7 +114,7 @@ export class ProfilesService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Seller profile not found');
+      throw new NotFoundException("Seller profile not found");
     }
 
     return this.prisma.sellerProfile.update({
@@ -140,7 +140,7 @@ export class ProfilesService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Seller profile not found');
+      throw new NotFoundException("Seller profile not found");
     }
 
     return this.prisma.sellerProfile.update({
@@ -181,7 +181,7 @@ export class ProfilesService {
 
     return this.prisma.sellerProfile.findMany({
       where,
-      orderBy: { rating: 'desc' },
+      orderBy: { rating: "desc" },
     });
   }
 
@@ -234,7 +234,7 @@ export class ProfilesService {
     });
 
     if (existing) {
-      throw new ConflictException('Buyer profile already exists for this user');
+      throw new ConflictException("Buyer profile already exists for this user");
     }
 
     return this.prisma.buyerProfile.create({
@@ -255,14 +255,14 @@ export class ProfilesService {
       where: { userId },
       include: {
         reviews: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: 10,
         },
       },
     });
 
     if (!profile) {
-      throw new NotFoundException('Buyer profile not found');
+      throw new NotFoundException("Buyer profile not found");
     }
 
     return profile;
@@ -276,14 +276,14 @@ export class ProfilesService {
       where: { id },
       include: {
         reviews: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: 10,
         },
       },
     });
 
     if (!profile) {
-      throw new NotFoundException('Buyer profile not found');
+      throw new NotFoundException("Buyer profile not found");
     }
 
     return profile;
@@ -298,7 +298,7 @@ export class ProfilesService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Buyer profile not found');
+      throw new NotFoundException("Buyer profile not found");
     }
 
     return this.prisma.buyerProfile.update({
@@ -323,7 +323,7 @@ export class ProfilesService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Buyer profile not found');
+      throw new NotFoundException("Buyer profile not found");
     }
 
     const addresses =
@@ -360,7 +360,7 @@ export class ProfilesService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Buyer profile not found');
+      throw new NotFoundException("Buyer profile not found");
     }
 
     const addresses =
@@ -384,13 +384,13 @@ export class ProfilesService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Buyer profile not found');
+      throw new NotFoundException("Buyer profile not found");
     }
 
     const newPoints = profile.loyaltyPoints + dto.points;
 
     if (newPoints < 0) {
-      throw new BadRequestException('Insufficient loyalty points');
+      throw new BadRequestException("Insufficient loyalty points");
     }
 
     return this.prisma.buyerProfile.update({
@@ -452,7 +452,7 @@ export class ProfilesService {
 
     return this.prisma.buyerProfile.findMany({
       where,
-      orderBy: { totalSpent: 'desc' },
+      orderBy: { totalSpent: "desc" },
     });
   }
 }

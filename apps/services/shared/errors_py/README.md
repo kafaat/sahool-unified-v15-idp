@@ -135,9 +135,11 @@ All errors follow this standardized format:
 ## Available Exception Classes
 
 ### Base Exception
+
 - `AppException`: Base class for all custom exceptions
 
 ### Domain-Specific Exceptions
+
 - `ValidationException`: For input validation errors (400)
 - `AuthenticationException`: For authentication failures (401)
 - `AuthorizationException`: For permission denials (403)
@@ -152,6 +154,7 @@ All errors follow this standardized format:
 ### Helper Methods
 
 #### NotFoundException
+
 ```python
 # Specific resource types
 NotFoundException.user("user-123")
@@ -167,6 +170,7 @@ NotFoundException.product("product-123")
 ```
 
 #### BusinessLogicException
+
 ```python
 # Predefined business logic errors
 BusinessLogicException.insufficient_balance(available=100, required=500)
@@ -176,6 +180,7 @@ BusinessLogicException.operation_not_allowed("delete", "Resource is locked")
 ```
 
 #### ExternalServiceException
+
 ```python
 # Service-specific errors
 ExternalServiceException.weather_service(error)
@@ -186,6 +191,7 @@ ExternalServiceException.email_service(error)
 ```
 
 #### RateLimitException
+
 ```python
 # With retry information
 RateLimitException.with_retry_after(retry_after_seconds=60)
@@ -196,6 +202,7 @@ RateLimitException.with_retry_after(retry_after_seconds=60)
 Error codes are organized by category:
 
 ### Validation Errors (1000-1999)
+
 - `ERR_1000`: VALIDATION_ERROR
 - `ERR_1001`: INVALID_INPUT
 - `ERR_1002`: MISSING_REQUIRED_FIELD
@@ -207,6 +214,7 @@ Error codes are organized by category:
 - `ERR_1008`: INVALID_ENUM_VALUE
 
 ### Authentication Errors (2000-2999)
+
 - `ERR_2000`: AUTHENTICATION_FAILED
 - `ERR_2001`: INVALID_CREDENTIALS
 - `ERR_2002`: TOKEN_EXPIRED
@@ -218,6 +226,7 @@ Error codes are organized by category:
 - `ERR_2008`: EMAIL_NOT_VERIFIED
 
 ### Authorization Errors (3000-3999)
+
 - `ERR_3000`: FORBIDDEN
 - `ERR_3001`: INSUFFICIENT_PERMISSIONS
 - `ERR_3002`: ACCESS_DENIED
@@ -227,6 +236,7 @@ Error codes are organized by category:
 - `ERR_3006`: QUOTA_EXCEEDED
 
 ### Not Found Errors (4000-4999)
+
 - `ERR_4000`: RESOURCE_NOT_FOUND
 - `ERR_4001`: USER_NOT_FOUND
 - `ERR_4002`: FARM_NOT_FOUND
@@ -240,6 +250,7 @@ Error codes are organized by category:
 - `ERR_4010`: PRODUCT_NOT_FOUND
 
 ### Conflict Errors (5000-5999)
+
 - `ERR_5000`: RESOURCE_ALREADY_EXISTS
 - `ERR_5001`: DUPLICATE_EMAIL
 - `ERR_5002`: DUPLICATE_PHONE
@@ -247,6 +258,7 @@ Error codes are organized by category:
 - `ERR_5004`: VERSION_MISMATCH
 
 ### Business Logic Errors (6000-6999)
+
 - `ERR_6000`: BUSINESS_RULE_VIOLATION
 - `ERR_6001`: INSUFFICIENT_BALANCE
 - `ERR_6002`: INVALID_STATE_TRANSITION
@@ -260,6 +272,7 @@ Error codes are organized by category:
 - `ERR_6010`: PAYMENT_NOT_PENDING
 
 ### External Service Errors (7000-7999)
+
 - `ERR_7000`: EXTERNAL_SERVICE_ERROR
 - `ERR_7001`: WEATHER_SERVICE_UNAVAILABLE
 - `ERR_7002`: SATELLITE_SERVICE_UNAVAILABLE
@@ -269,6 +282,7 @@ Error codes are organized by category:
 - `ERR_7006`: MAPS_SERVICE_ERROR
 
 ### Database Errors (8000-8999)
+
 - `ERR_8000`: DATABASE_ERROR
 - `ERR_8001`: DATABASE_CONNECTION_FAILED
 - `ERR_8002`: QUERY_TIMEOUT
@@ -278,6 +292,7 @@ Error codes are organized by category:
 - `ERR_8006`: UNIQUE_CONSTRAINT_VIOLATION
 
 ### Internal Errors (9000-9999)
+
 - `ERR_9000`: INTERNAL_SERVER_ERROR
 - `ERR_9001`: SERVICE_UNAVAILABLE
 - `ERR_9002`: CONFIGURATION_ERROR
@@ -285,6 +300,7 @@ Error codes are organized by category:
 - `ERR_9004`: DEPENDENCY_FAILED
 
 ### Rate Limiting (10000-10999)
+
 - `ERR_10000`: RATE_LIMIT_EXCEEDED
 - `ERR_10001`: TOO_MANY_REQUESTS
 - `ERR_10002`: API_QUOTA_EXCEEDED
@@ -292,13 +308,17 @@ Error codes are organized by category:
 ## Security Features
 
 ### Stack Trace Hiding
+
 Stack traces are only included in development environments. Set:
+
 - `ENVIRONMENT=development` or
 - `NODE_ENV=development` or
 - `INCLUDE_STACK_TRACE=true`
 
 ### Sensitive Information Redaction
+
 Automatically sanitizes:
+
 - Passwords
 - API keys
 - Tokens
@@ -306,7 +326,9 @@ Automatically sanitizes:
 - File paths
 
 ### Request ID Correlation
+
 Every error includes a unique request ID for:
+
 - Tracking errors across services
 - Correlating logs
 - Customer support
@@ -397,6 +419,7 @@ raise NotFoundException.farm("farm-123")
 ## Support
 
 For issues or questions:
+
 1. Check the error code in the registry
 2. Review the logs with the request ID
 3. Contact the platform team

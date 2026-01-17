@@ -3,8 +3,8 @@
  * Marks fields for special handling in audit logs
  */
 
-import 'reflect-metadata';
-import { AUDIT_METADATA, AuditFieldOptions } from '../audit-types';
+import "reflect-metadata";
+import { AUDIT_METADATA, AuditFieldOptions } from "../audit-types";
 
 /**
  * Decorator to mark a field for audit tracking
@@ -38,7 +38,11 @@ export function AuditField(options: AuditFieldOptions = {}): PropertyDecorator {
     });
 
     // Store back
-    Reflect.defineMetadata(AUDIT_METADATA.AUDIT_FIELD, existingFields, target.constructor);
+    Reflect.defineMetadata(
+      AUDIT_METADATA.AUDIT_FIELD,
+      existingFields,
+      target.constructor,
+    );
   };
 }
 

@@ -89,6 +89,7 @@
 ## Position Variants / أشكال المواقع
 
 ### Top-Right (Default)
+
 ```
 ┌────────────────────────────────────────┐
 │                           ┌──────────┐ │
@@ -103,6 +104,7 @@
 ```
 
 ### Top-Left
+
 ```
 ┌────────────────────────────────────────┐
 │ ┌──────────┐                           │
@@ -117,6 +119,7 @@
 ```
 
 ### Bottom-Right
+
 ```
 ┌────────────────────────────────────────┐
 │                                        │
@@ -130,6 +133,7 @@
 ```
 
 ### Bottom-Left
+
 ```
 ┌────────────────────────────────────────┐
 │                                        │
@@ -147,11 +151,13 @@
 ### Toggle Switch States
 
 **ON State (Active)**
+
 ```
 ●─────○
 ```
 
 **OFF State (Inactive)**
+
 ```
 ○─────○
 ```
@@ -191,6 +197,7 @@ Click to open calendar:
 ## Color Palette / لوحة الألوان
 
 ### NDVI Colors
+
 ```
 █ #006600  Very Dense    كثيف جداً     1.0
 █ #00CC00  Dense         كثيف          0.8
@@ -205,6 +212,7 @@ Click to open calendar:
 ```
 
 ### UI Colors
+
 ```
 █ #16A34A  Primary (Green)     - Active states, icons
 █ #10B981  Success (Emerald)   - Healthy status
@@ -217,17 +225,20 @@ Click to open calendar:
 ## Responsive Behavior / السلوك المتجاوب
 
 ### Desktop (> 768px)
+
 - Full panel width: 384px (max-w-sm)
 - All features visible
 - Hover effects enabled
 - Smooth animations
 
 ### Tablet (768px - 1024px)
+
 - Reduced panel width
 - Compact spacing
 - Touch-friendly targets
 
 ### Mobile (< 768px)
+
 - Full-width panel option
 - Larger touch targets
 - Simplified legend
@@ -236,6 +247,7 @@ Click to open calendar:
 ## Accessibility Indicators / مؤشرات إمكانية الوصول
 
 ### Keyboard Focus
+
 ```
 ┌─────────────────────────────┐
 │ ┏━━━━━━━━━━━━━━━━━━━━━━━┓ │
@@ -245,6 +257,7 @@ Click to open calendar:
 ```
 
 ### Screen Reader Announcements
+
 ```
 "Toggle switch for NDVI Layer, currently on"
 "Slider, NDVI layer opacity, 70 percent"
@@ -255,6 +268,7 @@ Click to open calendar:
 ## Animation States / حالات الحركة
 
 ### Expand/Collapse
+
 ```
 Frame 1 (0ms):     ▲ Panel visible
                    ┌─────┐
@@ -273,6 +287,7 @@ Frame 3 (300ms):   ▼ Panel hidden
 ```
 
 ### Switch Toggle
+
 ```
 OFF → ON
 ○────○  →  ●────○  →  ●────○
@@ -282,6 +297,7 @@ State 1   State 2   State 3
 ```
 
 ### Slider Movement
+
 ```
 ●────────────────────
 ↓
@@ -378,16 +394,19 @@ User Action              Component Response          Map Update
 ## Tips & Tricks / نصائح وحيل
 
 ### Quick Actions
+
 - Double-click header to collapse/expand
 - Use keyboard shortcuts for faster control
 - Middle-click reset to keep panel open
 
 ### Customization
+
 - Change position prop for different layouts
 - Use className for custom styling
 - Override storageKey for multiple instances
 
 ### Best Practices
+
 - Keep NDVI opacity between 50-80% for best visibility
 - Use historical dates to compare field changes
 - Toggle weather overlay only when needed

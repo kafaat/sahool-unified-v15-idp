@@ -3,9 +3,9 @@
  * لوحة معلومات المحفظة
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Wallet as WalletIcon,
   TrendingUp,
@@ -14,8 +14,8 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   CreditCard,
-} from 'lucide-react';
-import { useWallet, useWalletStats } from '../hooks/useWallet';
+} from "lucide-react";
+import { useWallet, useWalletStats } from "../hooks/useWallet";
 
 interface WalletDashboardProps {
   onTransferClick?: () => void;
@@ -37,7 +37,10 @@ export const WalletDashboard: React.FC<WalletDashboardProps> = ({
         <div className="h-48 bg-gray-200 rounded-xl animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded-xl animate-pulse" />
+            <div
+              key={i}
+              className="h-32 bg-gray-200 rounded-xl animate-pulse"
+            />
           ))}
         </div>
       </div>
@@ -48,7 +51,9 @@ export const WalletDashboard: React.FC<WalletDashboardProps> = ({
     return (
       <div className="text-center py-16">
         <WalletIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد بيانات للمحفظة</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          لا توجد بيانات للمحفظة
+        </h3>
         <p className="text-gray-500">حدث خطأ في تحميل بيانات المحفظة</p>
       </div>
     );
@@ -67,7 +72,8 @@ export const WalletDashboard: React.FC<WalletDashboardProps> = ({
             {wallet.pendingBalance > 0 && (
               <p className="text-blue-200 text-sm flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                قيد الانتظار: {wallet.pendingBalance.toFixed(2)} {wallet.currency}
+                قيد الانتظار: {wallet.pendingBalance.toFixed(2)}{" "}
+                {wallet.currency}
               </p>
             )}
           </div>
@@ -113,7 +119,9 @@ export const WalletDashboard: React.FC<WalletDashboardProps> = ({
           <h3 className="text-2xl font-bold text-gray-900 mb-1">
             {stats.monthlyIncome.toFixed(2)} {stats.currency}
           </h3>
-          <p className="text-sm text-gray-600">إجمالي الإيداعات | Total Income</p>
+          <p className="text-sm text-gray-600">
+            إجمالي الإيداعات | Total Income
+          </p>
         </div>
 
         {/* Total Expenses */}
@@ -127,7 +135,9 @@ export const WalletDashboard: React.FC<WalletDashboardProps> = ({
           <h3 className="text-2xl font-bold text-gray-900 mb-1">
             {stats.monthlyExpenses.toFixed(2)} {stats.currency}
           </h3>
-          <p className="text-sm text-gray-600">إجمالي المصروفات | Total Expenses</p>
+          <p className="text-sm text-gray-600">
+            إجمالي المصروفات | Total Expenses
+          </p>
         </div>
 
         {/* Transactions Count */}
@@ -138,14 +148,18 @@ export const WalletDashboard: React.FC<WalletDashboardProps> = ({
             </div>
             <span className="text-xs text-gray-500">جميع المعاملات</span>
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-1">{stats.transactionCount}</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            {stats.transactionCount}
+          </h3>
           <p className="text-sm text-gray-600">عدد المعاملات | Transactions</p>
         </div>
       </div>
 
       {/* Wallet Info */}
       <div className="bg-gray-50 rounded-xl p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">معلومات المحفظة | Wallet Info</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">
+          معلومات المحفظة | Wallet Info
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <p className="text-gray-600 mb-1">معرف المحفظة</p>
@@ -167,8 +181,8 @@ export const WalletDashboard: React.FC<WalletDashboardProps> = ({
             <p className="text-gray-600 mb-1">آخر معاملة</p>
             <p className="font-semibold text-gray-900">
               {wallet.lastTransactionAt
-                ? new Date(wallet.lastTransactionAt).toLocaleDateString('ar-SA')
-                : '-'}
+                ? new Date(wallet.lastTransactionAt).toLocaleDateString("ar-SA")
+                : "-"}
             </p>
           </div>
         </div>

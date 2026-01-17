@@ -26,14 +26,14 @@ export interface UserProfile {
     nameAr: string;
     totalArea: number; // hectares
     establishedYear?: number;
-    farmType: 'individual' | 'family' | 'company' | 'cooperative';
+    farmType: "individual" | "family" | "company" | "cooperative";
     mainCrops: string[];
     mainCropsAr: string[];
   };
-  language: 'ar' | 'en' | 'both';
+  language: "ar" | "en" | "both";
   timezone: string;
-  dateFormat: 'gregorian' | 'hijri' | 'both';
-  role: 'farmer' | 'expert' | 'admin' | 'manager';
+  dateFormat: "gregorian" | "hijri" | "both";
+  role: "farmer" | "expert" | "admin" | "manager";
   isVerified: boolean;
   createdAt: string;
   updatedAt: string;
@@ -66,7 +66,7 @@ export interface NotificationPreferences {
 // Security settings
 export interface SecuritySettings {
   twoFactorEnabled: boolean;
-  twoFactorMethod?: '2fa_app' | 'sms' | 'email';
+  twoFactorMethod?: "2fa_app" | "sms" | "email";
   sessions: ActiveSession[];
   lastPasswordChange?: string;
   loginHistory: LoginHistory[];
@@ -97,12 +97,12 @@ export interface LoginHistory {
 
 // Privacy settings
 export interface PrivacySettings {
-  profileVisibility: 'public' | 'community' | 'private';
+  profileVisibility: "public" | "community" | "private";
   showEmail: boolean;
   showPhone: boolean;
   showLocation: boolean;
   showFarmDetails: boolean;
-  allowMessages: 'everyone' | 'connections' | 'none';
+  allowMessages: "everyone" | "connections" | "none";
   dataSharing: {
     analytics: boolean;
     research: boolean;
@@ -112,20 +112,20 @@ export interface PrivacySettings {
 
 // Display preferences
 export interface DisplayPreferences {
-  theme: 'light' | 'dark' | 'auto';
-  language: 'ar' | 'en';
+  theme: "light" | "dark" | "auto";
+  language: "ar" | "en";
   rtl: boolean;
-  fontSize: 'small' | 'medium' | 'large';
+  fontSize: "small" | "medium" | "large";
   compactMode: boolean;
   showWeatherWidget: boolean;
   showQuickActions: boolean;
-  defaultDashboard: 'overview' | 'fields' | 'tasks' | 'analytics';
+  defaultDashboard: "overview" | "fields" | "tasks" | "analytics";
 }
 
 // Integration settings
 export interface IntegrationSettings {
-  weatherProvider: 'openweather' | 'weatherapi' | 'local';
-  mapProvider: 'google' | 'mapbox' | 'osm';
+  weatherProvider: "openweather" | "weatherapi" | "local";
+  mapProvider: "google" | "mapbox" | "osm";
   connectedAccounts: ConnectedAccount[];
 }
 
@@ -136,14 +136,14 @@ export interface ConnectedAccount {
   providerAr: string;
   accountName: string;
   connectedAt: string;
-  status: 'active' | 'expired' | 'revoked';
+  status: "active" | "expired" | "revoked";
 }
 
 // Subscription info
 export interface SubscriptionInfo {
-  plan: 'free' | 'basic' | 'pro' | 'enterprise';
+  plan: "free" | "basic" | "pro" | "enterprise";
   planAr: string;
-  status: 'active' | 'trial' | 'expired' | 'cancelled';
+  status: "active" | "trial" | "expired" | "cancelled";
   startDate: string;
   endDate?: string;
   autoRenew: boolean;
@@ -171,11 +171,11 @@ export interface UpdateProfilePayload {
   avatar?: string;
   bio?: string;
   bioAr?: string;
-  location?: UserProfile['location'];
-  farmDetails?: UserProfile['farmDetails'];
-  language?: UserProfile['language'];
-  timezone?: UserProfile['timezone'];
-  dateFormat?: UserProfile['dateFormat'];
+  location?: UserProfile["location"];
+  farmDetails?: UserProfile["farmDetails"];
+  language?: UserProfile["language"];
+  timezone?: UserProfile["timezone"];
+  dateFormat?: UserProfile["dateFormat"];
 }
 
 export interface UpdatePasswordPayload {

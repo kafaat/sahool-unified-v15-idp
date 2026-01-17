@@ -5,9 +5,11 @@ This directory contains automated scripts for TLS certificate management in the 
 ## Scripts Overview
 
 ### 🔐 generate-certs.sh
+
 **Purpose**: Generate TLS certificates for all infrastructure services
 
 **Usage:**
+
 ```bash
 # Generate all certificates
 ./generate-certs.sh
@@ -26,6 +28,7 @@ This directory contains automated scripts for TLS certificate management in the 
 ```
 
 **Features:**
+
 - Generates self-signed CA certificate (10 years)
 - Creates service certificates (2.25 years)
 - Sets proper file permissions
@@ -33,9 +36,11 @@ This directory contains automated scripts for TLS certificate management in the 
 - Shows detailed certificate information
 
 ### ✅ validate-certs.sh
+
 **Purpose**: Validate TLS certificates and check for expiration
 
 **Usage:**
+
 ```bash
 # Validate all certificates
 ./validate-certs.sh
@@ -54,6 +59,7 @@ This directory contains automated scripts for TLS certificate management in the 
 ```
 
 **Features:**
+
 - Checks certificate expiration
 - Validates certificate chain
 - Verifies private key matches certificate
@@ -61,14 +67,17 @@ This directory contains automated scripts for TLS certificate management in the 
 - Configurable warning thresholds
 
 **Exit Codes:**
+
 - `0` - All certificates valid
 - `1` - Certificate error or expired
 - `2` - Certificate expiring soon (warning)
 
 ### 🔄 rotate-certs.sh
+
 **Purpose**: Automate certificate rotation with zero downtime
 
 **Usage:**
+
 ```bash
 # Rotate all expiring certificates
 ./rotate-certs.sh
@@ -90,6 +99,7 @@ This directory contains automated scripts for TLS certificate management in the 
 ```
 
 **Features:**
+
 - Automatic expiration checking (30-day threshold)
 - Backup management with retention
 - Zero-downtime service restarts
@@ -376,14 +386,14 @@ grep -q "config/certs/**/*.key" ../../.gitignore || echo "config/certs/**/*.key"
 
 Configure in `/etc/default/sahool-certs` or export before running scripts:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ROTATION_THRESHOLD_DAYS` | Days before expiration to rotate | 30 |
-| `WARNING_DAYS` | Days before expiration to warn | 30 |
-| `NOTIFICATION_EMAIL` | Email address for notifications | None |
-| `SLACK_WEBHOOK_URL` | Slack webhook for notifications | None |
-| `BACKUP_RETENTION` | Number of backups to keep | 10 |
-| `UNATTENDED` | Skip interactive prompts | 0 |
+| Variable                  | Description                      | Default |
+| ------------------------- | -------------------------------- | ------- |
+| `ROTATION_THRESHOLD_DAYS` | Days before expiration to rotate | 30      |
+| `WARNING_DAYS`            | Days before expiration to warn   | 30      |
+| `NOTIFICATION_EMAIL`      | Email address for notifications  | None    |
+| `SLACK_WEBHOOK_URL`       | Slack webhook for notifications  | None    |
+| `BACKUP_RETENTION`        | Number of backups to keep        | 10      |
+| `UNATTENDED`              | Skip interactive prompts         | 0       |
 
 ## Advanced Usage
 

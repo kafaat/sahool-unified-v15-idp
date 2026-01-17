@@ -3,6 +3,7 @@
 ## Overview
 
 This package provides comprehensive observability for the SAHOOL platform:
+
 - **Metrics**: Prometheus metrics and Platform KPIs
 - **Dashboards**: Grafana dashboards for platform health
 - **Alerts**: PrometheusRule alerts for critical conditions
@@ -25,16 +26,17 @@ observability/
 
 ## Platform KPIs
 
-| KPI | Target | Description |
-|-----|--------|-------------|
-| Time to create service | < 15 min | Golden Path adoption |
-| Deployment success rate | > 99% | GitOps reliability |
-| Services without owner | 0 | Governance compliance |
-| Golden Path adoption | > 90% | Platform standardization |
+| KPI                     | Target   | Description              |
+| ----------------------- | -------- | ------------------------ |
+| Time to create service  | < 15 min | Golden Path adoption     |
+| Deployment success rate | > 99%    | GitOps reliability       |
+| Services without owner  | 0        | Governance compliance    |
+| Golden Path adoption    | > 90%    | Platform standardization |
 
 ## Required Labels
 
 All services must expose these Prometheus labels:
+
 ```yaml
 service: "<service-name>"
 owner: "<owner>"
@@ -46,6 +48,7 @@ tier: "<tier>"
 ## Installation
 
 Apply via ArgoCD:
+
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application

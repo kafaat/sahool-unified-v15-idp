@@ -15,6 +15,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 ### 1. Certificate Infrastructure
 
 #### Certificate Authority (CA)
+
 - **Location**: `/home/user/sahool-unified-v15-idp/config/certs/ca/`
 - **Type**: Self-signed Root CA
 - **Validity**: 10 years (3650 days)
@@ -24,15 +25,16 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 
 #### Service Certificates Generated
 
-| Service | Certificate Path | Status |
-|---------|-----------------|--------|
-| PostgreSQL | `/config/certs/postgres/` | ✅ Valid |
-| PgBouncer | `/config/certs/pgbouncer/` | ✅ Valid |
-| Redis | `/config/certs/redis/` | ✅ Valid |
-| NATS | `/config/certs/nats/` | ✅ Valid |
-| Kong | `/config/certs/kong/` | ✅ Valid |
+| Service    | Certificate Path           | Status   |
+| ---------- | -------------------------- | -------- |
+| PostgreSQL | `/config/certs/postgres/`  | ✅ Valid |
+| PgBouncer  | `/config/certs/pgbouncer/` | ✅ Valid |
+| Redis      | `/config/certs/redis/`     | ✅ Valid |
+| NATS       | `/config/certs/nats/`      | ✅ Valid |
+| Kong       | `/config/certs/kong/`      | ✅ Valid |
 
 **Certificate Properties**:
+
 - Validity: 825 days (~2.25 years)
 - Key Size: 2048-bit RSA
 - Algorithm: SHA-256
@@ -43,6 +45,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 **File**: `/home/user/sahool-unified-v15-idp/config/certs/generate-internal-tls.sh`
 
 **Features**:
+
 - Automated CA generation
 - Batch service certificate generation
 - Certificate verification
@@ -51,6 +54,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 - Force regeneration option
 
 **Usage**:
+
 ```bash
 ./generate-internal-tls.sh          # Generate all certificates
 ./generate-internal-tls.sh --verify  # Verify certificates
@@ -66,6 +70,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 **File**: `/home/user/sahool-unified-v15-idp/config/postgres/postgresql-tls.conf`
 
 **Settings**:
+
 - SSL enabled
 - TLS 1.2 minimum
 - Strong cipher suites
@@ -79,6 +84,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 **File**: `/home/user/sahool-unified-v15-idp/config/redis/redis-tls.conf`
 
 **Settings**:
+
 - TLS port: 6379 (plain port disabled)
 - Optional client authentication
 - TLS 1.2 and 1.3 support
@@ -92,6 +98,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 **File**: `/home/user/sahool-unified-v15-idp/config/nats/nats.conf` (updated)
 
 **Settings**:
+
 - TLS enabled on port 4222
 - Certificate verification enabled
 - 2-second timeout
@@ -104,6 +111,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 **File**: `/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/pgbouncer.ini` (updated)
 
 **Settings**:
+
 - Server TLS: prefer (to PostgreSQL)
 - Client TLS: prefer (from applications)
 - CA verification enabled
@@ -115,6 +123,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 **Integration**: Environment variables in docker-compose.tls.yml
 
 **Settings**:
+
 - HTTPS proxy on port 8443
 - SSL certificate configured
 - HTTP proxy maintained on port 8000 for backward compatibility
@@ -126,6 +135,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 **Purpose**: Docker Compose override file that adds TLS configuration to all services
 
 **Services Configured**:
+
 - PostgreSQL: SSL enabled via command-line args
 - PgBouncer: Certificates mounted
 - Redis: TLS configuration via command-line args
@@ -133,6 +143,7 @@ Successfully configured TLS/SSL encryption for all critical internal services in
 - Kong: HTTPS enabled on port 8443
 
 **Usage**:
+
 ```bash
 # Method 1: Command line
 docker-compose -f docker-compose.yml -f docker-compose.tls.yml up -d
@@ -171,6 +182,7 @@ docker-compose up -d
 **File**: `/home/user/sahool-unified-v15-idp/config/certs/.gitignore`
 
 **Protected Files**:
+
 - `*.key` - All private keys
 - `*.pem` - PEM files
 - `ca.srl` - CA serial number
@@ -276,6 +288,7 @@ docker-compose exec postgres psql -U sahool -c "SHOW ssl;"
 Applications connecting to these services need to be updated:
 
 #### PostgreSQL
+
 ```bash
 # Old connection string
 postgresql://user:pass@postgres:5432/db
@@ -288,6 +301,7 @@ postgresql://user:pass@postgres:5432/db?sslmode=require
 ```
 
 #### Redis
+
 ```bash
 # Old connection string
 redis://:password@redis:6379/0
@@ -297,6 +311,7 @@ rediss://:password@redis:6379/0
 ```
 
 #### NATS
+
 ```bash
 # Old connection string
 nats://user:pass@nats:4222
@@ -306,6 +321,7 @@ nats://user:pass@nats:4222?tls=true
 ```
 
 #### Kong
+
 ```bash
 # HTTP (still available)
 http://kong:8000
@@ -317,6 +333,7 @@ https://kong:8443
 ## Certificate Lifecycle
 
 ### Current Status
+
 - **CA Certificate**: Valid for 10 years
 - **Service Certificates**: Valid for 825 days (~2.25 years)
 - **Generated**: 2026-01-06
@@ -387,16 +404,19 @@ curl -k https://localhost:8443/
 ## Migration Path
 
 ### Phase 1: TLS Optional (Current)
+
 - ✅ TLS enabled on all services
 - ✅ Non-TLS connections still accepted (fallback)
 - ✅ Applications can migrate gradually
 
 ### Phase 2: Update Applications
+
 - 🔄 Update connection strings to use TLS
 - 🔄 Test thoroughly in development
 - 🔄 Deploy to staging/production
 
 ### Phase 3: Enforce TLS (Future)
+
 - ⏳ Require TLS for all connections
 - ⏳ Disable non-TLS ports
 - ⏳ Enable mutual TLS (mTLS) for critical services
@@ -437,11 +457,13 @@ nats sub test --tlscert=config/certs/nats/server.crt \
 ## Security Considerations
 
 ### Development
+
 - Self-signed certificates are acceptable
 - Use `sslmode=prefer` for gradual migration
 - Certificates in version control (except private keys)
 
 ### Production
+
 - Consider using CA-signed certificates
 - Use `sslmode=require` or `sslmode=verify-full`
 - Store certificates in secrets management system
@@ -451,6 +473,7 @@ nats sub test --tlscert=config/certs/nats/server.crt \
 - Audit certificate access
 
 ### Private Key Protection
+
 - ✅ Never commit to version control (protected by .gitignore)
 - ✅ File permissions set to 600 (owner read/write only)
 - ✅ Mounted read-only in Docker containers
@@ -510,6 +533,7 @@ nats sub test --tlscert=config/certs/nats/server.crt \
 ✅ **TLS/SSL encryption has been successfully configured for all critical internal services in the SAHOOL platform.**
 
 The infrastructure now supports:
+
 - Encrypted PostgreSQL connections
 - Encrypted Redis connections
 - Encrypted NATS messaging

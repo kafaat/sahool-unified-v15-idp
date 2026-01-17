@@ -1,7 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/config/prisma.service';
-import { Prisma } from '@prisma/client';
-import { CreateProtocolDto, UpdateProtocolDto } from './dto/protocol.dto';
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "@/config/prisma.service";
+import { Prisma } from "@prisma/client";
+import { CreateProtocolDto, UpdateProtocolDto } from "./dto/protocol.dto";
 
 @Injectable()
 export class ProtocolsService {
@@ -9,8 +9,16 @@ export class ProtocolsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Sanitize input for safe logging (prevents log injection)
+   */
+  private sanitizeForLog(input: string): string {
+    if (typeof input !== "string") return String(input);
+    return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
+  }
+
   async create(dto: CreateProtocolDto) {
-    this.logger.log(`Creating protocol: ${dto.name}`);
+    this.logger.log("Creating protocol", { name: this.sanitizeForLog(dto.name) });
 
     const { variables, measurementSchedule, ...restDto } = dto;
 
@@ -19,7 +27,9 @@ export class ProtocolsService {
         ...restDto,
         approvedAt: dto.approvedAt ? new Date(dto.approvedAt) : null,
         variables: variables as Prisma.InputJsonValue | undefined,
-        measurementSchedule: measurementSchedule as Prisma.InputJsonValue | undefined,
+        measurementSchedule: measurementSchedule as
+          | Prisma.InputJsonValue
+          | undefined,
       },
       include: {
         experiment: {
@@ -51,7 +61,7 @@ export class ProtocolsService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           experiment: {
             select: {
@@ -109,8 +119,14 @@ export class ProtocolsService {
       data: {
         ...restDto,
         approvedAt: dto.approvedAt ? new Date(dto.approvedAt) : undefined,
-        variables: variables !== undefined ? (variables as Prisma.InputJsonValue) : undefined,
-        measurementSchedule: measurementSchedule !== undefined ? (measurementSchedule as Prisma.InputJsonValue) : undefined,
+        variables:
+          variables !== undefined
+            ? (variables as Prisma.InputJsonValue)
+            : undefined,
+        measurementSchedule:
+          measurementSchedule !== undefined
+            ? (measurementSchedule as Prisma.InputJsonValue)
+            : undefined,
       },
       include: {
         experiment: {

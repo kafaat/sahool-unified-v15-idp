@@ -15,12 +15,12 @@ This document summarizes the PgBouncer connection pooling optimizations implemen
 
 ### Key Improvements
 
-| Category | Before | After | Improvement |
-|----------|--------|-------|-------------|
-| **Pool Efficiency** | 7/10 | 9/10 | +28% |
-| **Security** | 8/10 | 9/10 | +12% |
-| **Monitoring** | 6/10 | 8/10 | +33% |
-| **Overall Rating** | 7.25/10 | 9.0/10 | **+24%** |
+| Category            | Before  | After  | Improvement |
+| ------------------- | ------- | ------ | ----------- |
+| **Pool Efficiency** | 7/10    | 9/10   | +28%        |
+| **Security**        | 8/10    | 9/10   | +12%        |
+| **Monitoring**      | 6/10    | 8/10   | +33%        |
+| **Overall Rating**  | 7.25/10 | 9.0/10 | **+24%**    |
 
 ---
 
@@ -43,11 +43,13 @@ default_pool_size = 25    # Increased by 25%
 ```
 
 **Impact:**
+
 - **Before:** ~2.5 connections per service (100 ÷ 39 services)
 - **After:** ~3.8 connections per service (150 ÷ 39 services)
 - **Benefit:** 50% more headroom for peak load, reducing connection wait timeouts
 
 **Rationale:**
+
 - With 39+ microservices, the previous pool size of 100 connections provided limited headroom
 - Increased to 150 to support 3-4 connections per service on average
 - 20% buffer included for traffic spikes and future growth
@@ -69,11 +71,13 @@ client_idle_timeout = 900  # 15 minutes
 ```
 
 **Impact:**
+
 - **Issue Fixed:** Idle clients holding pool connections indefinitely
 - **Risk Eliminated:** Connection pool exhaustion from abandoned connections
 - **Benefit:** Automatic cleanup of idle connections after 15 minutes
 
 **Rationale:**
+
 - Prevents connection leaks from crashed or buggy clients
 - Frees up pool slots for active connections
 - 15-minute timeout balances cleanup with user experience
@@ -99,11 +103,13 @@ client_tls_protocols = secure    # TLS 1.2+ only
 ```
 
 **Impact:**
+
 - **Security Level:** Medium → High
 - **Risk Eliminated:** Silent fallback to unencrypted connections
 - **Benefit:** Guaranteed encryption for all database traffic
 
 **Production Deployment Note:**
+
 ```ini
 # Development override included (commented out):
 ; server_tls_sslmode = prefer
@@ -111,6 +117,7 @@ client_tls_protocols = secure    # TLS 1.2+ only
 ```
 
 **Rationale:**
+
 - Production security best practice (PCI DSS, GDPR compliance)
 - Prevents man-in-the-middle attacks
 - Modern TLS protocols only (TLS 1.2+)
@@ -137,11 +144,13 @@ log_level = info
 ```
 
 **Impact:**
+
 - **Observability:** Basic → Good
 - **Log Control:** Explicit log level configuration
 - **Benefit:** Better incident response and debugging
 
 **Rationale:**
+
 - `info` level provides good balance of detail vs. performance
 - Syslog integration ready for centralized logging
 - Verbose mode available for debugging (performance impact noted)
@@ -153,6 +162,7 @@ log_level = info
 #### Changes Made
 
 **Files:**
+
 - `/docker-compose.yml` (pgbouncer service)
 - `/infrastructure/core/pgbouncer/docker-compose.pgbouncer.yml`
 
@@ -175,11 +185,13 @@ healthcheck:
 ```
 
 **Impact:**
+
 - **Check Quality:** Basic port check → Active pool verification
 - **Accuracy:** Detects actual pool health, not just process running
 - **Benefit:** Earlier detection of pool saturation or configuration issues
 
 **Rationale:**
+
 - `pg_isready` only checks if port is open
 - `SHOW POOLS` verifies PgBouncer is functioning and pools are accessible
 - Longer interval (30s) reduces overhead while maintaining reliability
@@ -191,6 +203,7 @@ healthcheck:
 #### Changes Made
 
 **Files:**
+
 - `/docker-compose.yml`
 - `/infrastructure/core/pgbouncer/docker-compose.pgbouncer.yml`
 
@@ -198,18 +211,19 @@ healthcheck:
 # ADDED/UPDATED Environment Variables
 environment:
   # Pool settings - OPTIMIZED for 39+ services
-  MAX_DB_CONNECTIONS: 150   # Increased from 100
-  DEFAULT_POOL_SIZE: 25     # Increased from 20
+  MAX_DB_CONNECTIONS: 150 # Increased from 100
+  DEFAULT_POOL_SIZE: 25 # Increased from 20
 
   # Timeouts - OPTIMIZED
-  CLIENT_IDLE_TIMEOUT: 900  # Added: 15 min (was 0/disabled)
-  SERVER_IDLE_TIMEOUT: 600  # Made explicit: 10 min
+  CLIENT_IDLE_TIMEOUT: 900 # Added: 15 min (was 0/disabled)
+  SERVER_IDLE_TIMEOUT: 600 # Made explicit: 10 min
 
   # Auth query added to standalone deployment
   AUTH_QUERY: SELECT usename, passwd FROM pgbouncer.get_auth($1)
 ```
 
 **Impact:**
+
 - **Consistency:** All deployments use same optimized settings
 - **Override Capability:** Environment variables can override pgbouncer.ini
 - **Benefit:** Easier configuration management across environments
@@ -220,11 +234,11 @@ environment:
 
 ### Files Modified
 
-| File | Changes | Status |
-|------|---------|--------|
-| `/infrastructure/core/pgbouncer/pgbouncer.ini` | Pool sizing, timeouts, TLS, logging | ✅ Updated |
-| `/docker-compose.yml` (pgbouncer service) | Environment vars, healthcheck | ✅ Updated |
-| `/infrastructure/core/pgbouncer/docker-compose.pgbouncer.yml` | Environment vars, healthcheck | ✅ Updated |
+| File                                                          | Changes                             | Status     |
+| ------------------------------------------------------------- | ----------------------------------- | ---------- |
+| `/infrastructure/core/pgbouncer/pgbouncer.ini`                | Pool sizing, timeouts, TLS, logging | ✅ Updated |
+| `/docker-compose.yml` (pgbouncer service)                     | Environment vars, healthcheck       | ✅ Updated |
+| `/infrastructure/core/pgbouncer/docker-compose.pgbouncer.yml` | Environment vars, healthcheck       | ✅ Updated |
 
 ### Configuration Consistency Verification
 
@@ -246,24 +260,26 @@ grep -E "(MAX_DB_CONNECTIONS|DEFAULT_POOL_SIZE|CLIENT_IDLE_TIMEOUT)" \
 
 ### Expected Performance Improvements
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| **Max DB Connections** | 100 | 150 | +50% |
-| **Connections per Service** | ~2.5 | ~3.8 | +52% |
-| **Default Pool Size** | 20 | 25 | +25% |
-| **Idle Connection Cleanup** | Never | 15 min | ✅ Enabled |
-| **Connection Wait Probability** | Medium | Low | ⬇️ Reduced |
-| **Pool Utilization Threshold** | 80% @ 80 conn | 80% @ 120 conn | +50% headroom |
+| Metric                          | Before        | After          | Change        |
+| ------------------------------- | ------------- | -------------- | ------------- |
+| **Max DB Connections**          | 100           | 150            | +50%          |
+| **Connections per Service**     | ~2.5          | ~3.8           | +52%          |
+| **Default Pool Size**           | 20            | 25             | +25%          |
+| **Idle Connection Cleanup**     | Never         | 15 min         | ✅ Enabled    |
+| **Connection Wait Probability** | Medium        | Low            | ⬇️ Reduced    |
+| **Pool Utilization Threshold**  | 80% @ 80 conn | 80% @ 120 conn | +50% headroom |
 
 ### Capacity Planning
 
 **Current Capacity (After Optimization):**
+
 - **Services:** 39+ microservices
 - **Max DB Connections:** 150
 - **Avg per Service:** 3.8 connections
 - **Buffer:** 20% for spikes
 
 **Future Growth Capacity:**
+
 - **Target:** 50 services
 - **Recommended:** 200 max DB connections
 - **Formula:** `(50 × 4) + 40 buffer = 240 connections`
@@ -277,12 +293,14 @@ grep -E "(MAX_DB_CONNECTIONS|DEFAULT_POOL_SIZE|CLIENT_IDLE_TIMEOUT)" \
 ### TLS Enforcement
 
 **Before:**
+
 ```
 [Client] --?--> [PgBouncer] --?--> [PostgreSQL]
   Optional TLS      Optional TLS
 ```
 
 **After:**
+
 ```
 [Client] --🔒--> [PgBouncer] --🔒--> [PostgreSQL]
   Required TLS 1.2+   Required TLS 1.2+
@@ -290,12 +308,12 @@ grep -E "(MAX_DB_CONNECTIONS|DEFAULT_POOL_SIZE|CLIENT_IDLE_TIMEOUT)" \
 
 ### Security Compliance
 
-| Standard | Before | After | Status |
-|----------|--------|-------|--------|
+| Standard                     | Before  | After   | Status     |
+| ---------------------------- | ------- | ------- | ---------- |
 | **CIS PostgreSQL Benchmark** | ✅ Pass | ✅ Pass | Maintained |
-| **OWASP** | ✅ Pass | ✅ Pass | Maintained |
-| **PCI DSS (TLS)** | ❌ Fail | ✅ Pass | **Fixed** |
-| **GDPR (Audit Logs)** | ✅ Pass | ✅ Pass | Enhanced |
+| **OWASP**                    | ✅ Pass | ✅ Pass | Maintained |
+| **PCI DSS (TLS)**            | ❌ Fail | ✅ Pass | **Fixed**  |
+| **GDPR (Audit Logs)**        | ✅ Pass | ✅ Pass | Enhanced   |
 
 ---
 
@@ -304,6 +322,7 @@ grep -E "(MAX_DB_CONNECTIONS|DEFAULT_POOL_SIZE|CLIENT_IDLE_TIMEOUT)" \
 ### Enhanced Logging
 
 **New Capabilities:**
+
 - ✅ Explicit log level control (`log_level = info`)
 - ✅ Syslog integration ready (optional)
 - ✅ Structured logging format
@@ -312,12 +331,14 @@ grep -E "(MAX_DB_CONNECTIONS|DEFAULT_POOL_SIZE|CLIENT_IDLE_TIMEOUT)" \
 ### Improved Healthcheck
 
 **Detection Improvements:**
+
 - ✅ Pool saturation detection
 - ✅ Authentication failures
 - ✅ Database connectivity issues
 - ✅ Configuration errors
 
 **Response Time:**
+
 - Check interval: 30 seconds
 - Failure detection: 3 retries = 90 seconds
 - Startup grace period: 30 seconds
@@ -325,6 +346,7 @@ grep -E "(MAX_DB_CONNECTIONS|DEFAULT_POOL_SIZE|CLIENT_IDLE_TIMEOUT)" \
 ### Available Metrics
 
 **Via SHOW Commands:**
+
 ```sql
 -- Pool status
 SHOW POOLS;
@@ -343,6 +365,7 @@ SHOW DATABASES;
 ```
 
 **Recommended Monitoring:**
+
 - Pool utilization percentage (alert @ 80%)
 - Client connection count
 - Query wait times
@@ -358,6 +381,7 @@ SHOW DATABASES;
 **With TLS Disabled (for testing without certificates):**
 
 1. Edit `pgbouncer.ini` to use `prefer` mode:
+
    ```ini
    # Uncomment these lines for development:
    server_tls_sslmode = prefer
@@ -374,17 +398,20 @@ SHOW DATABASES;
 **With TLS Enabled (recommended):**
 
 1. Ensure TLS certificates exist:
+
    ```bash
    ls -la infrastructure/core/pgbouncer/certs/
    # Should contain: ca.crt, server.crt, server.key
    ```
 
 2. If certificates don't exist, generate them:
+
    ```bash
    ./config/certs/generate-internal-tls.sh
    ```
 
 3. Deploy with optimized configuration:
+
    ```bash
    # Using main docker-compose.yml
    docker compose up -d pgbouncer
@@ -401,16 +428,19 @@ SHOW DATABASES;
 ### 6.3 Verification Steps
 
 **1. Check PgBouncer is running:**
+
 ```bash
 docker ps | grep pgbouncer
 ```
 
 **2. Verify pool configuration:**
+
 ```bash
 docker exec sahool-pgbouncer cat /etc/pgbouncer/pgbouncer.ini | grep -E "max_db_connections|default_pool_size|client_idle_timeout"
 ```
 
 **Expected output:**
+
 ```
 max_db_connections = 150
 default_pool_size = 25
@@ -418,16 +448,19 @@ client_idle_timeout = 900
 ```
 
 **3. Test connection:**
+
 ```bash
 PGPASSWORD=$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d sahool -c "SELECT current_user, current_database();"
 ```
 
 **4. Check pool status:**
+
 ```bash
 PGPASSWORD=$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d pgbouncer -c "SHOW POOLS;"
 ```
 
 **5. Monitor connections:**
+
 ```bash
 watch -n 5 "PGPASSWORD=$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d pgbouncer -c 'SHOW POOLS;'"
 ```
@@ -439,6 +472,7 @@ watch -n 5 "PGPASSWORD=$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d
 If issues occur, rollback to previous configuration:
 
 **Option 1: Git Rollback**
+
 ```bash
 cd /home/user/sahool-unified-v15-idp
 git checkout HEAD~1 -- infrastructure/core/pgbouncer/pgbouncer.ini
@@ -450,6 +484,7 @@ docker compose restart pgbouncer
 **Option 2: Manual Rollback**
 
 Edit `pgbouncer.ini`:
+
 ```ini
 max_db_connections = 100
 default_pool_size = 20
@@ -459,6 +494,7 @@ client_tls_sslmode = prefer
 ```
 
 Edit `docker-compose.yml` and `docker-compose.pgbouncer.yml`:
+
 ```yaml
 MAX_DB_CONNECTIONS: 100
 DEFAULT_POOL_SIZE: 20
@@ -466,6 +502,7 @@ DEFAULT_POOL_SIZE: 20
 ```
 
 Restart:
+
 ```bash
 docker compose restart pgbouncer
 ```
@@ -477,6 +514,7 @@ docker compose restart pgbouncer
 ### 8.1 Connection Pool Load Testing
 
 **Simulate 100 concurrent connections:**
+
 ```bash
 seq 1 100 | xargs -P 100 -I {} psql \
   -h 127.0.0.1 -p 6432 -U sahool -d sahool \
@@ -487,6 +525,7 @@ watch -n 1 "PGPASSWORD=$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d
 ```
 
 **Expected Results:**
+
 - ✅ All connections handled successfully
 - ✅ No connection timeouts
 - ✅ Pool utilization < 80% (< 120 of 150 connections)
@@ -495,6 +534,7 @@ watch -n 1 "PGPASSWORD=$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d
 ### 8.2 Idle Connection Cleanup Testing
 
 **Test client idle timeout:**
+
 ```bash
 # Open connection and leave idle
 psql -h 127.0.0.1 -p 6432 -U sahool -d sahool
@@ -511,6 +551,7 @@ SELECT 1;
 ### 8.3 TLS Verification
 
 **Test TLS enforcement:**
+
 ```bash
 # Should succeed with TLS
 PGSSLMODE=require PGPASSWORD=$POSTGRES_PASSWORD psql \
@@ -526,6 +567,7 @@ PGSSLMODE=disable PGPASSWORD=$POSTGRES_PASSWORD psql \
 ### 8.4 Healthcheck Validation
 
 **Test enhanced healthcheck:**
+
 ```bash
 # Execute healthcheck command manually
 docker exec sahool-pgbouncer psql -h localhost -p 6432 -U sahool -d pgbouncer -c 'SHOW POOLS;' || echo "FAILED"
@@ -542,17 +584,18 @@ docker inspect sahool-pgbouncer | jq '.[0].State.Health'
 
 ### 9.1 Key Metrics to Monitor
 
-| Metric | Alert Threshold | Action |
-|--------|----------------|--------|
-| **Pool Utilization** | >80% | Increase max_db_connections |
-| **Client Connections** | >400/500 | Investigate connection leaks |
-| **Query Wait Time** | >10s average | Check slow queries |
-| **Connection Errors** | >5/min | Check auth/network issues |
-| **Idle Connections** | >100 | Verify client_idle_timeout working |
+| Metric                 | Alert Threshold | Action                             |
+| ---------------------- | --------------- | ---------------------------------- |
+| **Pool Utilization**   | >80%            | Increase max_db_connections        |
+| **Client Connections** | >400/500        | Investigate connection leaks       |
+| **Query Wait Time**    | >10s average    | Check slow queries                 |
+| **Connection Errors**  | >5/min          | Check auth/network issues          |
+| **Idle Connections**   | >100            | Verify client_idle_timeout working |
 
 ### 9.2 Grafana Dashboard (Future)
 
 **Recommended Metrics:**
+
 - Pool utilization percentage over time
 - Client connection count (line chart)
 - Query wait times (histogram)
@@ -560,6 +603,7 @@ docker inspect sahool-pgbouncer | jq '.[0].State.Health'
 - Server connection age (distribution)
 
 **Implementation:**
+
 ```bash
 # Deploy pgbouncer_exporter for Prometheus
 docker run -d \
@@ -573,6 +617,7 @@ docker run -d \
 ### 9.3 Health Check Script
 
 Use existing health check script:
+
 ```bash
 ./scripts/db_health_check.sh \
   --pgbouncer-host 127.0.0.1 \
@@ -583,6 +628,7 @@ Use existing health check script:
 ```
 
 **Add to cron for regular monitoring:**
+
 ```bash
 # Check every 5 minutes
 */5 * * * * /home/user/sahool-unified-v15-idp/scripts/db_health_check.sh \
@@ -622,22 +668,22 @@ Use existing health check script:
 
 ### Issues Fixed in This Optimization
 
-| Issue ID | Description | Priority | Status |
-|----------|-------------|----------|--------|
-| PGBOUNCER-1 | Client idle timeout disabled | High | ✅ Fixed |
-| PGBOUNCER-2 | TLS in "prefer" mode | High | ✅ Fixed |
-| PGBOUNCER-3 | Limited connection pool (100) | Medium | ✅ Fixed |
-| PGBOUNCER-4 | No structured logging | Medium | ✅ Fixed |
-| PGBOUNCER-5 | Basic healthcheck (pg_isready) | Medium | ✅ Fixed |
+| Issue ID    | Description                    | Priority | Status   |
+| ----------- | ------------------------------ | -------- | -------- |
+| PGBOUNCER-1 | Client idle timeout disabled   | High     | ✅ Fixed |
+| PGBOUNCER-2 | TLS in "prefer" mode           | High     | ✅ Fixed |
+| PGBOUNCER-3 | Limited connection pool (100)  | Medium   | ✅ Fixed |
+| PGBOUNCER-4 | No structured logging          | Medium   | ✅ Fixed |
+| PGBOUNCER-5 | Basic healthcheck (pg_isready) | Medium   | ✅ Fixed |
 
 ### Remaining Issues (Future Work)
 
-| Issue ID | Description | Priority | Target |
-|----------|-------------|----------|--------|
-| PGBOUNCER-6 | No Prometheus metrics export | Medium | Month 1 |
-| PGBOUNCER-7 | No per-service limits | Low | Month 2 |
-| PGBOUNCER-8 | Single point of failure | Low | Month 5 |
-| PGBOUNCER-9 | No read replica routing | Low | Month 3 |
+| Issue ID    | Description                  | Priority | Target  |
+| ----------- | ---------------------------- | -------- | ------- |
+| PGBOUNCER-6 | No Prometheus metrics export | Medium   | Month 1 |
+| PGBOUNCER-7 | No per-service limits        | Low      | Month 2 |
+| PGBOUNCER-8 | Single point of failure      | Low      | Month 5 |
+| PGBOUNCER-9 | No read replica routing      | Low      | Month 3 |
 
 ---
 
@@ -663,29 +709,30 @@ Use existing health check script:
 
 ### Before Optimization
 
-| Metric | Value |
-|--------|-------|
-| Max DB Connections | 100 |
-| Connections per Service | 2.5 avg |
-| Pool Size | 20 |
-| Idle Timeout | Disabled |
-| TLS Mode | Optional |
-| Pool Utilization @ Peak | ~85% (risky) |
-| Connection Wait Probability | Medium |
+| Metric                      | Value        |
+| --------------------------- | ------------ |
+| Max DB Connections          | 100          |
+| Connections per Service     | 2.5 avg      |
+| Pool Size                   | 20           |
+| Idle Timeout                | Disabled     |
+| TLS Mode                    | Optional     |
+| Pool Utilization @ Peak     | ~85% (risky) |
+| Connection Wait Probability | Medium       |
 
 ### After Optimization
 
-| Metric | Value |
-|--------|-------|
-| Max DB Connections | 150 (+50%) |
-| Connections per Service | 3.8 avg (+52%) |
-| Pool Size | 25 (+25%) |
-| Idle Timeout | 15 min (enabled) |
-| TLS Mode | Required |
-| Pool Utilization @ Peak | ~65% (healthy) |
-| Connection Wait Probability | Low |
+| Metric                      | Value            |
+| --------------------------- | ---------------- |
+| Max DB Connections          | 150 (+50%)       |
+| Connections per Service     | 3.8 avg (+52%)   |
+| Pool Size                   | 25 (+25%)        |
+| Idle Timeout                | 15 min (enabled) |
+| TLS Mode                    | Required         |
+| Pool Utilization @ Peak     | ~65% (healthy)   |
+| Connection Wait Probability | Low              |
 
 **Improvement Summary:**
+
 - 🚀 **50% more database connections** for peak load handling
 - 🔒 **TLS enforced** for all connections (PCI DSS compliant)
 - ⏱️ **Idle connection cleanup** prevents resource leaks
@@ -733,6 +780,6 @@ The optimized configuration is **production-ready** and addresses all critical c
 
 ---
 
-*Document Version: 1.0*
-*Last Updated: 2026-01-06*
-*Author: Claude Code Agent*
+_Document Version: 1.0_
+_Last Updated: 2026-01-06_
+_Author: Claude Code Agent_

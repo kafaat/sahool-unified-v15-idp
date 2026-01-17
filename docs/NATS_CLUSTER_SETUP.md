@@ -82,13 +82,13 @@ This guide covers the setup and operation of a high-availability NATS cluster fo
 
 ### Communication Ports
 
-| Port | Protocol | Purpose |
-|------|----------|---------|
-| 4222 | TCP/TLS | Client connections |
-| 6222 | TCP/TLS | Cluster routing (inter-node communication) |
-| 7222 | TCP/TLS | Gateway connections (super-cluster) |
-| 8222 | HTTP | Monitoring and health checks |
-| 7777 | HTTP | Prometheus metrics |
+| Port | Protocol | Purpose                                    |
+| ---- | -------- | ------------------------------------------ |
+| 4222 | TCP/TLS  | Client connections                         |
+| 6222 | TCP/TLS  | Cluster routing (inter-node communication) |
+| 7222 | TCP/TLS  | Gateway connections (super-cluster)        |
+| 8222 | HTTP     | Monitoring and health checks               |
+| 7777 | HTTP     | Prometheus metrics                         |
 
 ---
 
@@ -602,6 +602,7 @@ curl http://localhost:8222/varz | jq
 ```
 
 Returns:
+
 - Server version and uptime
 - Connection count
 - Message statistics
@@ -614,6 +615,7 @@ curl http://localhost:8222/routez | jq
 ```
 
 Returns:
+
 - Cluster topology
 - Route connections
 - Pending messages per route
@@ -625,6 +627,7 @@ curl http://localhost:8222/connz | jq
 ```
 
 Returns:
+
 - Active client connections
 - IP addresses and user info
 - Pending bytes per connection
@@ -636,6 +639,7 @@ curl http://localhost:8222/jsz | jq
 ```
 
 Returns:
+
 - JetStream enabled status
 - Stream and consumer counts
 - Memory and storage usage
@@ -650,6 +654,7 @@ curl http://localhost:7777/metrics
 ```
 
 Key metrics:
+
 - `nats_up`: Server availability
 - `nats_varz_connections`: Connection count
 - `nats_varz_in_msgs`: Inbound messages
@@ -662,6 +667,7 @@ Key metrics:
 ### Grafana Dashboards
 
 Import the NATS dashboard:
+
 - Dashboard ID: 2279 (NATS Server)
 - Dashboard ID: 11187 (NATS JetStream)
 
@@ -680,6 +686,7 @@ nats://sahool:PASSWORD@nats-node1:4222,nats://sahool:PASSWORD@nats-node2:4222,na
 ```
 
 Kubernetes:
+
 ```
 nats://sahool:PASSWORD@nats-client.nats-system.svc.cluster.local:4222
 ```
@@ -687,6 +694,7 @@ nats://sahool:PASSWORD@nats-client.nats-system.svc.cluster.local:4222
 #### Application Examples
 
 **Go:**
+
 ```go
 nc, err := nats.Connect(
     "nats://nats-node1:4222,nats://nats-node2:4222,nats://nats-node3:4222",
@@ -700,6 +708,7 @@ nc, err := nats.Connect(
 ```
 
 **Python:**
+
 ```python
 import asyncio
 from nats.aio.client import Client as NATS
@@ -721,22 +730,23 @@ async def connect():
 ```
 
 **Node.js/TypeScript:**
+
 ```typescript
-import { connect, StringCodec } from 'nats';
+import { connect, StringCodec } from "nats";
 
 const nc = await connect({
-    servers: [
-        'nats://nats-node1:4222',
-        'nats://nats-node2:4222',
-        'nats://nats-node3:4222'
-    ],
-    user: 'sahool',
-    pass: 'PASSWORD',
-    tls: {
-        minVersion: 'TLSv1.2'
-    },
-    maxReconnectAttempts: -1,
-    reconnectTimeWait: 2000
+  servers: [
+    "nats://nats-node1:4222",
+    "nats://nats-node2:4222",
+    "nats://nats-node3:4222",
+  ],
+  user: "sahool",
+  pass: "PASSWORD",
+  tls: {
+    minVersion: "TLSv1.2",
+  },
+  maxReconnectAttempts: -1,
+  reconnectTimeWait: 2000,
 });
 ```
 
@@ -799,6 +809,7 @@ docker-compose -f infrastructure/nats/docker-compose.nats-cluster.yml up -d nats
 **Symptoms**: Nodes start but don't see each other
 
 **Check**:
+
 ```bash
 # View cluster routes
 curl http://localhost:8222/routez
@@ -808,6 +819,7 @@ docker logs sahool-nats-node1 | grep -i cluster
 ```
 
 **Solution**:
+
 - Verify network connectivity between nodes
 - Check cluster authentication credentials
 - Ensure cluster routes are correctly configured
@@ -818,6 +830,7 @@ docker logs sahool-nats-node1 | grep -i cluster
 **Symptoms**: Replicas out of sync
 
 **Check**:
+
 ```bash
 # Check stream info
 nats stream info field_events
@@ -827,6 +840,7 @@ curl http://localhost:8222/jsz?streams=true | jq '.streams[].cluster'
 ```
 
 **Solution**:
+
 - Verify all nodes have JetStream enabled
 - Check storage capacity
 - Review logs for sync errors
@@ -837,6 +851,7 @@ curl http://localhost:8222/jsz?streams=true | jq '.streams[].cluster'
 **Symptoms**: Memory consumption growing
 
 **Check**:
+
 ```bash
 # Check memory stats
 curl http://localhost:8222/varz | jq '.mem'
@@ -846,6 +861,7 @@ curl http://localhost:8222/jsz | jq '.memory, .store'
 ```
 
 **Solution**:
+
 - Review stream retention policies
 - Implement message TTL
 - Increase max file storage
@@ -856,6 +872,7 @@ curl http://localhost:8222/jsz | jq '.memory, .store'
 **Symptoms**: Clients can't connect
 
 **Check**:
+
 ```bash
 # Test connection
 telnet localhost 4222
@@ -865,6 +882,7 @@ openssl s_client -connect localhost:4222 -servername nats-node1
 ```
 
 **Solution**:
+
 - Verify credentials
 - Check TLS certificates
 - Review firewall rules
@@ -901,10 +919,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.0'
+          cpus: "2.0"
           memory: 4G
         reservations:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 2G
 ```
 
@@ -965,6 +983,7 @@ jetstream {
 Configure gateways to connect clusters across regions:
 
 **Region 1 (us-east-1):**
+
 ```conf
 gateway {
     name: sahool-dc1
@@ -984,6 +1003,7 @@ gateway {
 ```
 
 **Region 2 (eu-west-1):**
+
 ```conf
 gateway {
     name: sahool-dc2
@@ -1071,6 +1091,7 @@ nats stream restore field_events field_events_backup.json
 ### Migrating from Single Node to Cluster
 
 1. **Backup existing data**
+
    ```bash
    nats stream backup --all
    ```
@@ -1078,6 +1099,7 @@ nats stream restore field_events field_events_backup.json
 2. **Deploy cluster** (see Quick Start)
 
 3. **Restore streams with replication**
+
    ```bash
    nats stream restore field_events backup.json --replicas=3
    ```
@@ -1130,6 +1152,7 @@ sahool-unified-v15-idp/
 ### Support
 
 For issues or questions:
+
 - GitHub Issues: [SAHOOL Platform Repository]
 - NATS Slack: https://slack.nats.io
 - Email: platform-team@sahool.io

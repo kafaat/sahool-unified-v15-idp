@@ -17,7 +17,9 @@ This document describes the comprehensive rate limiting implementation across th
 The rate limiting is implemented at three layers:
 
 ### 1. Kong Gateway Layer (Entry Point)
+
 ### 2. Application Layer (NestJS Services)
+
 ### 3. Application Layer (FastAPI Services)
 
 ---
@@ -35,6 +37,7 @@ Kong Gateway provides the first line of defense with Redis-backed distributed ra
 ### Authentication Endpoints
 
 #### Login Endpoint
+
 - **Path**: `/api/v1/auth/login`
 - **Rate Limit**: 5 requests/minute, 20 requests/hour
 - **Policy**: Redis-backed
@@ -53,6 +56,7 @@ Kong Gateway provides the first line of defense with Redis-backed distributed ra
 ```
 
 #### Password Reset Endpoint
+
 - **Path**: `/api/v1/auth/password-reset`, `/api/v1/auth/forgot-password`
 - **Rate Limit**: 3 requests/minute, 10 requests/hour
 - **Policy**: Redis-backed
@@ -71,6 +75,7 @@ Kong Gateway provides the first line of defense with Redis-backed distributed ra
 ```
 
 #### Registration Endpoint
+
 - **Path**: `/api/v1/auth/register`, `/api/v1/auth/signup`
 - **Rate Limit**: 10 requests/minute, 50 requests/hour
 - **Policy**: Redis-backed
@@ -89,6 +94,7 @@ Kong Gateway provides the first line of defense with Redis-backed distributed ra
 ```
 
 #### Token Refresh Endpoint
+
 - **Path**: `/api/v1/auth/refresh`
 - **Rate Limit**: 10 requests/minute, 100 requests/hour
 - **Policy**: Redis-backed
@@ -96,18 +102,22 @@ Kong Gateway provides the first line of defense with Redis-backed distributed ra
 ### General API Endpoints
 
 #### Standard Tier (Starter Users)
+
 - **Rate Limit**: 100 requests/minute, 5000 requests/hour
 - **Services**: Field management, Weather, Calendar, Notifications
 
 #### Professional Tier
+
 - **Rate Limit**: 1000 requests/minute, 50000 requests/hour
 - **Services**: Satellite, NDVI, Crop Health AI, Irrigation, Yield Engine
 
 #### Enterprise Tier
+
 - **Rate Limit**: 10000 requests/minute, 500000 requests/hour
 - **Services**: AI Advisor, IoT Gateway, Research, Marketplace
 
 #### Admin Endpoints
+
 - **Path**: `/api/v1/admin/*`
 - **Rate Limit**: 50 requests/minute, 2000 requests/hour
 - **Additional Security**: IP restriction to private networks
@@ -135,26 +145,26 @@ The throttler is already installed in all NestJS services:
 Each NestJS service has throttler configured in `app.module.ts`:
 
 ```typescript
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { APP_GUARD } from "@nestjs/core";
 
 @Module({
   imports: [
     ThrottlerModule.forRoot([
       {
-        name: 'short',
-        ttl: 1000,      // 1 second
-        limit: 10,      // 10 requests per second
+        name: "short",
+        ttl: 1000, // 1 second
+        limit: 10, // 10 requests per second
       },
       {
-        name: 'medium',
-        ttl: 60000,     // 1 minute
-        limit: 100,     // 100 requests per minute
+        name: "medium",
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
       },
       {
-        name: 'long',
-        ttl: 3600000,   // 1 hour
-        limit: 1000,    // 1000 requests per hour
+        name: "long",
+        ttl: 3600000, // 1 hour
+        limit: 1000, // 1000 requests per hour
       },
     ]),
   ],
@@ -173,34 +183,33 @@ export class AppModule {}
 Use the `@Throttle()` decorator for specific rate limits:
 
 ```typescript
-import { Throttle } from '@nestjs/throttler';
+import { Throttle } from "@nestjs/throttler";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
-
   // Login - 5 requests per minute
-  @Post('login')
+  @Post("login")
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async login(@Body() loginDto: LoginDto) {
     // ...
   }
 
   // Registration - 10 requests per minute
-  @Post('register')
+  @Post("register")
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   async register(@Body() registerDto: RegisterDto) {
     // ...
   }
 
   // Password reset - 3 requests per minute
-  @Post('forgot-password')
+  @Post("forgot-password")
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     // ...
   }
 
   // Skip rate limiting for specific endpoints
-  @Post('logout')
+  @Post("logout")
   @SkipThrottle()
   async logout() {
     // ...
@@ -327,11 +336,11 @@ All rate-limited endpoints return the following headers:
 
 ### Header Definitions
 
-| Header | Description | Example |
-|--------|-------------|---------|
-| `X-RateLimit-Limit` | Maximum requests allowed in the current window | `5` |
-| `X-RateLimit-Remaining` | Number of requests remaining in the current window | `3` |
-| `X-RateLimit-Reset` | Seconds until the rate limit window resets | `45` |
+| Header                  | Description                                        | Example |
+| ----------------------- | -------------------------------------------------- | ------- |
+| `X-RateLimit-Limit`     | Maximum requests allowed in the current window     | `5`     |
+| `X-RateLimit-Remaining` | Number of requests remaining in the current window | `3`     |
+| `X-RateLimit-Reset`     | Seconds until the rate limit window resets         | `45`    |
 
 ### Example Response
 
@@ -371,54 +380,60 @@ Content-Type: application/json
 
 ### Authentication Endpoints
 
-| Endpoint | Rate Limit | Window | Policy |
-|----------|------------|--------|--------|
-| Login | 5 requests | 1 minute | IP + Username |
-| Password Reset | 3 requests | 1 minute | IP + Email |
-| Registration | 10 requests | 1 minute | IP + Email |
-| Token Refresh | 10 requests | 1 minute | IP + User ID |
-| Logout | Unlimited | - | No limit |
+| Endpoint       | Rate Limit  | Window   | Policy        |
+| -------------- | ----------- | -------- | ------------- |
+| Login          | 5 requests  | 1 minute | IP + Username |
+| Password Reset | 3 requests  | 1 minute | IP + Email    |
+| Registration   | 10 requests | 1 minute | IP + Email    |
+| Token Refresh  | 10 requests | 1 minute | IP + User ID  |
+| Logout         | Unlimited   | -        | No limit      |
 
 ### API Endpoints by Tier
 
-| Tier | Rate Limit | Services |
-|------|------------|----------|
-| Starter | 100/min, 5000/hour | Basic services |
-| Professional | 1000/min, 50000/hour | Advanced analytics |
-| Enterprise | 10000/min, 500000/hour | AI, IoT, Research |
-| Admin | 50/min, 2000/hour | Admin dashboard |
+| Tier         | Rate Limit             | Services           |
+| ------------ | ---------------------- | ------------------ |
+| Starter      | 100/min, 5000/hour     | Basic services     |
+| Professional | 1000/min, 50000/hour   | Advanced analytics |
+| Enterprise   | 10000/min, 500000/hour | AI, IoT, Research  |
+| Admin        | 50/min, 2000/hour      | Admin dashboard    |
 
 ---
 
 ## Security Best Practices
 
 ### 1. Use IP + Identifier for Rate Limiting
+
 - Login: Use IP + username/email combination
 - Password Reset: Use IP + email
 - Registration: Use IP + email
 - This prevents attackers from bypassing limits by trying different accounts
 
 ### 2. Return Generic Error Messages
+
 - Don't reveal whether an account exists
 - Always return success for password reset, even if email doesn't exist
 - Prevents account enumeration attacks
 
 ### 3. Log Failed Attempts
+
 - Log all failed authentication attempts
 - Include IP address, timestamp, and attempted credential
 - Monitor for patterns indicating attacks
 
 ### 4. Implement Account Lockout
+
 - Lock account after N failed login attempts (e.g., 10)
 - Require manual unlock or time-based unlock
 - Send notification to user about lockout
 
 ### 5. Use Redis for Distributed Systems
+
 - Ensure rate limits work across multiple service instances
 - Configure Redis password and secure connection
 - Use separate Redis database for rate limiting (database 1)
 
 ### 6. Monitor Rate Limit Violations
+
 - Set up alerts for repeated rate limit violations
 - Track patterns of abuse
 - Implement IP blocking for persistent violators
@@ -463,6 +478,7 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 ```
 
 Expected output:
+
 ```
 X-RateLimit-Limit: 5
 X-RateLimit-Remaining: 4
@@ -496,12 +512,16 @@ The Redis service is already configured in `docker-compose.yml`:
 ```yaml
 redis:
   image: redis:7-alpine
-  command: [
-    "redis-server",
-    "--requirepass", "${REDIS_PASSWORD}",
-    "--maxmemory", "512mb",
-    "--maxmemory-policy", "allkeys-lru"
-  ]
+  command:
+    [
+      "redis-server",
+      "--requirepass",
+      "${REDIS_PASSWORD}",
+      "--maxmemory",
+      "512mb",
+      "--maxmemory-policy",
+      "allkeys-lru",
+    ]
   ports:
     - "127.0.0.1:6379:6379"
 ```
@@ -540,6 +560,7 @@ kong_latency - Request processing time
 ### Log Monitoring
 
 Monitor logs for:
+
 - `Rate limit exceeded` messages
 - `Failed login attempt` messages
 - Repeated attempts from same IP
@@ -552,6 +573,7 @@ Monitor logs for:
 ### Issue: Rate limits not working
 
 **Check:**
+
 1. Redis connection: `redis-cli -a $REDIS_PASSWORD ping`
 2. Kong configuration reload: `docker-compose restart kong`
 3. Service restart: `docker-compose restart <service-name>`
@@ -559,6 +581,7 @@ Monitor logs for:
 ### Issue: Rate limits too strict
 
 **Solution:**
+
 1. Adjust limits in Kong config: `infrastructure/gateway/kong/kong.yml`
 2. Update NestJS throttler config in `app.module.ts`
 3. Modify FastAPI rate limit configs in `rate_limiting.py`
@@ -567,6 +590,7 @@ Monitor logs for:
 ### Issue: Headers not appearing
 
 **Check:**
+
 1. Kong response-transformer plugin configured
 2. NestJS throttler guard enabled
 3. FastAPI middleware properly added
@@ -576,11 +600,13 @@ Monitor logs for:
 ## Files Modified/Created
 
 ### Modified Files
+
 1. `/home/user/sahool-unified-v15-idp/infrastructure/gateway/kong/kong.yml`
    - Added authentication endpoints with rate limiting
    - Updated admin endpoint rate limits
 
 ### Created Files
+
 1. `/home/user/sahool-unified-v15-idp/apps/services/shared/auth/rate_limiting.py`
    - Authentication-specific rate limiting for FastAPI
 
@@ -594,6 +620,7 @@ Monitor logs for:
    - This documentation file
 
 ### Existing Files (No Changes Needed)
+
 1. `/home/user/sahool-unified-v15-idp/apps/services/shared/middleware/rate_limiter.py`
    - Already has comprehensive rate limiting middleware
 
@@ -604,6 +631,7 @@ Monitor logs for:
 ## Next Steps
 
 1. **Test the implementation**:
+
    ```bash
    # Start the services
    docker-compose up -d
@@ -634,6 +662,7 @@ Monitor logs for:
 ## Support
 
 For questions or issues with rate limiting implementation:
+
 - Check logs: `docker-compose logs kong` or `docker-compose logs <service-name>`
 - Review Redis: `docker-compose exec redis redis-cli -a $REDIS_PASSWORD`
 - Test endpoint: Use curl with `-v` flag to see headers

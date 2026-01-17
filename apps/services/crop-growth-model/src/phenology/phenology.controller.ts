@@ -3,9 +3,16 @@
 // Based on WOFOST DVS (Development Stage) and thermal time accumulation
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody, ApiParam } from '@nestjs/swagger';
-import { PhenologyService } from './phenology.service';
+import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiBody,
+  ApiParam,
+} from "@nestjs/swagger";
+import { PhenologyService } from "./phenology.service";
 
 class GDDInput {
   tmin: number;
@@ -32,8 +39,8 @@ class PredictDatesInput {
   avgDailyGDD?: number;
 }
 
-@ApiTags('phenology')
-@Controller('api/v1/phenology')
+@ApiTags("phenology")
+@Controller("api/v1/phenology")
 export class PhenologyController {
   constructor(private readonly phenologyService: PhenologyService) {}
 
@@ -42,25 +49,41 @@ export class PhenologyController {
   // حساب درجات الحرارة المتراكمة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Post('gdd')
+  @Post("gdd")
   @ApiOperation({
-    summary: 'Calculate Growing Degree Days',
-    description: 'حساب درجات الحرارة المتراكمة (GDD) لتحديد تطور المحصول',
+    summary: "Calculate Growing Degree Days",
+    description: "حساب درجات الحرارة المتراكمة (GDD) لتحديد تطور المحصول",
   })
   @ApiBody({
-    description: 'Temperature data for GDD calculation',
+    description: "Temperature data for GDD calculation",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        tmin: { type: 'number', example: 15, description: 'Minimum temperature (°C)' },
-        tmax: { type: 'number', example: 28, description: 'Maximum temperature (°C)' },
-        tbase: { type: 'number', example: 10, description: 'Base temperature (°C)' },
-        tmaxEff: { type: 'number', example: 30, description: 'Maximum effective temperature (°C)' },
+        tmin: {
+          type: "number",
+          example: 15,
+          description: "Minimum temperature (°C)",
+        },
+        tmax: {
+          type: "number",
+          example: 28,
+          description: "Maximum temperature (°C)",
+        },
+        tbase: {
+          type: "number",
+          example: 10,
+          description: "Base temperature (°C)",
+        },
+        tmaxEff: {
+          type: "number",
+          example: 30,
+          description: "Maximum effective temperature (°C)",
+        },
       },
-      required: ['tmin', 'tmax'],
+      required: ["tmin", "tmax"],
     },
   })
-  @ApiResponse({ status: 200, description: 'GDD calculation result' })
+  @ApiResponse({ status: 200, description: "GDD calculation result" })
   calculateGDD(@Body() input: GDDInput) {
     const tbase = input.tbase ?? 10;
     const tmaxEff = input.tmaxEff ?? 30;
@@ -81,7 +104,7 @@ export class PhenologyController {
       },
       result: {
         gdd,
-        unit: '°C·day',
+        unit: "°C·day",
         tavg: (input.tmin + input.tmax) / 2,
       },
     };
@@ -92,24 +115,37 @@ export class PhenologyController {
   // حساب مرحلة التطور
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Post('dvs')
+  @Post("dvs")
   @ApiOperation({
-    summary: 'Calculate Development Stage (DVS)',
-    description: 'حساب مرحلة التطور DVS من درجات الحرارة المتراكمة - نظام WOFOST',
+    summary: "Calculate Development Stage (DVS)",
+    description:
+      "حساب مرحلة التطور DVS من درجات الحرارة المتراكمة - نظام WOFOST",
   })
   @ApiBody({
-    description: 'Accumulated GDD and crop parameters',
+    description: "Accumulated GDD and crop parameters",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        accumulatedGDD: { type: 'number', example: 500, description: 'Accumulated GDD (°C·day)' },
-        cropType: { type: 'string', example: 'WHEAT', description: 'Crop type identifier' },
-        afterFlowering: { type: 'boolean', example: false, description: 'Is crop past flowering?' },
+        accumulatedGDD: {
+          type: "number",
+          example: 500,
+          description: "Accumulated GDD (°C·day)",
+        },
+        cropType: {
+          type: "string",
+          example: "WHEAT",
+          description: "Crop type identifier",
+        },
+        afterFlowering: {
+          type: "boolean",
+          example: false,
+          description: "Is crop past flowering?",
+        },
       },
-      required: ['accumulatedGDD', 'cropType'],
+      required: ["accumulatedGDD", "cropType"],
     },
   })
-  @ApiResponse({ status: 200, description: 'DVS calculation result' })
+  @ApiResponse({ status: 200, description: "DVS calculation result" })
   calculateDVS(@Body() input: DVSInput) {
     const result = this.phenologyService.calculateDVS(
       input.accumulatedGDD,
@@ -135,34 +171,34 @@ export class PhenologyController {
   // محاكاة مراحل النمو للموسم
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Post('simulate')
+  @Post("simulate")
   @ApiOperation({
-    summary: 'Simulate crop phenology through season',
-    description: 'محاكاة مراحل نمو المحصول خلال الموسم باستخدام بيانات الطقس',
+    summary: "Simulate crop phenology through season",
+    description: "محاكاة مراحل نمو المحصول خلال الموسم باستخدام بيانات الطقس",
   })
   @ApiBody({
-    description: 'Simulation parameters with weather data',
+    description: "Simulation parameters with weather data",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        cropType: { type: 'string', example: 'WHEAT' },
-        sowingDate: { type: 'string', example: '2024-11-15' },
+        cropType: { type: "string", example: "WHEAT" },
+        sowingDate: { type: "string", example: "2024-11-15" },
         weatherData: {
-          type: 'array',
+          type: "array",
           items: {
-            type: 'object',
+            type: "object",
             properties: {
-              date: { type: 'string', example: '2024-11-15' },
-              tmin: { type: 'number', example: 12 },
-              tmax: { type: 'number', example: 25 },
+              date: { type: "string", example: "2024-11-15" },
+              tmin: { type: "number", example: 12 },
+              tmax: { type: "number", example: 25 },
             },
           },
         },
       },
-      required: ['cropType', 'sowingDate', 'weatherData'],
+      required: ["cropType", "sowingDate", "weatherData"],
     },
   })
-  @ApiResponse({ status: 200, description: 'Phenology simulation results' })
+  @ApiResponse({ status: 200, description: "Phenology simulation results" })
   simulatePhenology(@Body() input: SimulationInput) {
     const results = this.phenologyService.simulatePhenology(
       input.cropType,
@@ -171,8 +207,13 @@ export class PhenologyController {
     );
 
     // Extract key transitions
-    const stageTransitions: Array<{ stage: string; stageAr: string; day: number; date: string }> = [];
-    let lastStage = '';
+    const stageTransitions: Array<{
+      stage: string;
+      stageAr: string;
+      day: number;
+      date: string;
+    }> = [];
+    let lastStage = "";
     results.forEach((r) => {
       if (r.stage !== lastStage) {
         stageTransitions.push({
@@ -201,24 +242,29 @@ export class PhenologyController {
   // التنبؤ بالتواريخ الرئيسية
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Post('predict')
+  @Post("predict")
   @ApiOperation({
-    summary: 'Predict key phenological dates',
-    description: 'التنبؤ بالتواريخ الرئيسية لمراحل النمو (الإنبات، الإزهار، النضج)',
+    summary: "Predict key phenological dates",
+    description:
+      "التنبؤ بالتواريخ الرئيسية لمراحل النمو (الإنبات، الإزهار، النضج)",
   })
   @ApiBody({
-    description: 'Prediction parameters',
+    description: "Prediction parameters",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        cropType: { type: 'string', example: 'CORN' },
-        sowingDate: { type: 'string', example: '2024-04-15' },
-        avgDailyGDD: { type: 'number', example: 15, description: 'Average daily GDD (°C·day)' },
+        cropType: { type: "string", example: "CORN" },
+        sowingDate: { type: "string", example: "2024-04-15" },
+        avgDailyGDD: {
+          type: "number",
+          example: 15,
+          description: "Average daily GDD (°C·day)",
+        },
       },
-      required: ['cropType', 'sowingDate'],
+      required: ["cropType", "sowingDate"],
     },
   })
-  @ApiResponse({ status: 200, description: 'Predicted key dates' })
+  @ApiResponse({ status: 200, description: "Predicted key dates" })
   predictKeyDates(@Body() input: PredictDatesInput) {
     const predictions = this.phenologyService.predictKeyDates(
       input.cropType,
@@ -241,14 +287,18 @@ export class PhenologyController {
   // الحصول على معاملات المحصول
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('parameters/:cropType')
+  @Get("parameters/:cropType")
   @ApiOperation({
-    summary: 'Get WOFOST-style crop phenology parameters',
-    description: 'الحصول على معاملات مراحل النمو للمحصول بأسلوب WOFOST',
+    summary: "Get WOFOST-style crop phenology parameters",
+    description: "الحصول على معاملات مراحل النمو للمحصول بأسلوب WOFOST",
   })
-  @ApiParam({ name: 'cropType', example: 'WHEAT', description: 'Crop type identifier' })
-  @ApiResponse({ status: 200, description: 'Crop phenology parameters' })
-  getCropParameters(@Param('cropType') cropType: string) {
+  @ApiParam({
+    name: "cropType",
+    example: "WHEAT",
+    description: "Crop type identifier",
+  })
+  @ApiResponse({ status: 200, description: "Crop phenology parameters" })
+  getCropParameters(@Param("cropType") cropType: string) {
     const params = this.phenologyService.getCropParameters(cropType);
     if (!params) {
       return {
@@ -264,12 +314,12 @@ export class PhenologyController {
   // قائمة المحاصيل المتاحة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('crops')
+  @Get("crops")
   @ApiOperation({
-    summary: 'List available crops with phenology models',
-    description: 'قائمة المحاصيل المتاحة مع نماذج مراحل النمو',
+    summary: "List available crops with phenology models",
+    description: "قائمة المحاصيل المتاحة مع نماذج مراحل النمو",
   })
-  @ApiResponse({ status: 200, description: 'List of available crops' })
+  @ApiResponse({ status: 200, description: "List of available crops" })
   listAvailableCrops() {
     return {
       crops: this.phenologyService.getAvailableCrops(),
@@ -282,14 +332,18 @@ export class PhenologyController {
   // الحصول على مراحل النمو للمحصول
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('stages/:cropType')
+  @Get("stages/:cropType")
   @ApiOperation({
-    summary: 'Get growth stages for a specific crop',
-    description: 'الحصول على مراحل النمو لمحصول محدد مع نطاقات DVS',
+    summary: "Get growth stages for a specific crop",
+    description: "الحصول على مراحل النمو لمحصول محدد مع نطاقات DVS",
   })
-  @ApiParam({ name: 'cropType', example: 'RICE', description: 'Crop type identifier' })
-  @ApiResponse({ status: 200, description: 'Growth stages for the crop' })
-  getGrowthStages(@Param('cropType') cropType: string) {
+  @ApiParam({
+    name: "cropType",
+    example: "RICE",
+    description: "Crop type identifier",
+  })
+  @ApiResponse({ status: 200, description: "Growth stages for the crop" })
+  getGrowthStages(@Param("cropType") cropType: string) {
     const stages = this.phenologyService.getGrowthStages(cropType);
     if (!stages) {
       return {
@@ -305,18 +359,18 @@ export class PhenologyController {
   // فحص صحة الخدمة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  @Get('health')
+  @Get("health")
   @ApiOperation({
-    summary: 'Phenology service health check',
-    description: 'فحص صحة خدمة مراحل النمو',
+    summary: "Phenology service health check",
+    description: "فحص صحة خدمة مراحل النمو",
   })
-  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  @ApiResponse({ status: 200, description: "Service is healthy" })
   healthCheck() {
     return {
-      status: 'healthy',
-      service: 'phenology',
+      status: "healthy",
+      service: "phenology",
       timestamp: new Date().toISOString(),
-      version: '1.0.0',
+      version: "1.0.0",
     };
   }
 }

@@ -22,6 +22,44 @@ datasource db {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Farm Entity - المزارع
+// Farm that contains multiple fields
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Farm {
+  id      String @id @default(uuid()) @db.Uuid
+
+  // Basic Info
+  name     String  @db.VarChar(255)
+  tenantId String  @map("tenant_id") @db.VarChar(100)
+  ownerId  String? @map("owner_id") @db.Uuid
+
+  // Geospatial (PostGIS)
+  location Unsupported("geometry(Point, 4326)")?
+  boundary Unsupported("geometry(Polygon, 4326)")?
+
+  // Farm Details
+  totalAreaHectares Decimal? @map("total_area_hectares") @db.Decimal(10, 4)
+  address           String?  @db.Text
+  phone             String?  @db.VarChar(20)
+  email             String?  @db.VarChar(255)
+
+  // Status
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  fields Field[]
+
+  // Indexes
+  @@index([tenantId], name: "idx_farm_tenant")
+  @@map("farms")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Field Entity - الحقول الزراعية
 // Core geospatial entity with sync support
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,6 +73,7 @@ model Field {
   tenantId String  @map("tenant_id") @db.VarChar(100)
   cropType String  @map("crop_type") @db.VarChar(100)
   ownerId  String? @map("owner_id") @db.Uuid
+  farmId   String? @map("farm_id") @db.Uuid
 
   // Geospatial (PostGIS) - handled via raw SQL
   // boundary: geometry(Polygon, 4326)
@@ -74,6 +113,7 @@ model Field {
   boundaryHistory FieldBoundaryHistory[]
   tasks           Task[]
   ndviReadings    NdviReading[]
+  farm            Farm?                   @relation(fields: [farmId], references: [id], onDelete: SetNull)
 
   // Indexes
   @@index([tenantId], name: "idx_field_tenant")

@@ -27,6 +27,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    text,
 )
 from sqlalchemy import (
     Enum as SQLEnum,
@@ -127,7 +128,7 @@ class Plan(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     # Plan Identifier (e.g., "free", "starter", "professional")
@@ -198,7 +199,7 @@ class Plan(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -207,7 +208,7 @@ class Plan(Base):
         nullable=False,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ آخر تحديث",
     )
 
@@ -233,7 +234,7 @@ class Tenant(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     # Tenant ID (for external references)
@@ -285,7 +286,7 @@ class Tenant(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -294,7 +295,7 @@ class Tenant(Base):
         nullable=False,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ آخر تحديث",
     )
 
@@ -320,7 +321,7 @@ class Subscription(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     # Foreign Keys
@@ -404,7 +405,7 @@ class Subscription(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -413,7 +414,7 @@ class Subscription(Base):
         nullable=False,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ آخر تحديث",
     )
 
@@ -455,7 +456,7 @@ class Invoice(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     # Invoice Number (human-readable)
@@ -580,7 +581,7 @@ class Invoice(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -625,7 +626,7 @@ class Payment(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     # Foreign Keys
@@ -705,7 +706,7 @@ class Payment(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -741,7 +742,7 @@ class UsageRecord(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     # Foreign Keys
@@ -772,7 +773,7 @@ class UsageRecord(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         index=True,
         comment="تاريخ التسجيل",
     )

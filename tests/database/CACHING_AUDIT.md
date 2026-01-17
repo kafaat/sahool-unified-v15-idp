@@ -13,6 +13,7 @@
 The SAHOOL platform implements a solid caching infrastructure with Redis Sentinel for high availability, comprehensive TTL management, and proper cache-aside patterns. However, there are opportunities for improvement in cache warming, stampede prevention, and consistency patterns.
 
 **Key Strengths:**
+
 - ✅ Redis Sentinel with HA configuration
 - ✅ Circuit breaker pattern for resilience
 - ✅ Comprehensive token revocation caching
@@ -21,6 +22,7 @@ The SAHOOL platform implements a solid caching infrastructure with Redis Sentine
 - ✅ Distributed locking implementation
 
 **Key Weaknesses:**
+
 - ⚠️ No explicit cache warming strategies
 - ⚠️ Limited cache stampede protection
 - ⚠️ Inconsistent TTL configurations
@@ -37,6 +39,7 @@ The SAHOOL platform implements a solid caching infrastructure with Redis Sentine
 **Location:** `/home/user/sahool-unified-v15-idp/shared/cache/redis-sentinel.ts`
 
 **Architecture:**
+
 ```typescript
 - Master-Slave replication
 - Automatic failover handling
@@ -46,6 +49,7 @@ The SAHOOL platform implements a solid caching infrastructure with Redis Sentine
 ```
 
 **Configuration:**
+
 - **Sentinels:** 3 nodes (ports 26379, 26380, 26381)
 - **Master name:** `sahool-master`
 - **Connect timeout:** 10000ms
@@ -54,6 +58,7 @@ The SAHOOL platform implements a solid caching infrastructure with Redis Sentine
 - **Retry strategy:** Exponential backoff (min 100ms, max 3000ms)
 
 **Circuit Breaker:**
+
 - Failure threshold: 5 failures
 - Recovery timeout: 60 seconds
 - Half-open max attempts: 3
@@ -62,32 +67,33 @@ The SAHOOL platform implements a solid caching infrastructure with Redis Sentine
 
 ### 1.2 Cache Key Naming Conventions
 
-| Service | Prefix | Example | TTL |
-|---------|--------|---------|-----|
-| Token Revocation | `revoked:token:` | `revoked:token:{jti}` | 24h (86400s) |
-| User Revocation | `revoked:user:` | `revoked:user:{userId}` | 30 days (2592000s) |
-| Tenant Revocation | `revoked:tenant:` | `revoked:tenant:{tenantId}` | 30 days (2592000s) |
-| User Validation | `user_auth:` | `user_auth:{userId}` | 5 min (300s) |
-| Rate Limiting | `rate_limit:` | `rate_limit:{identifier}` | Window-based |
-| Session | `session:` | `session:{sessionId}` | Configurable (default 3600s) |
+| Service           | Prefix            | Example                     | TTL                          |
+| ----------------- | ----------------- | --------------------------- | ---------------------------- |
+| Token Revocation  | `revoked:token:`  | `revoked:token:{jti}`       | 24h (86400s)                 |
+| User Revocation   | `revoked:user:`   | `revoked:user:{userId}`     | 30 days (2592000s)           |
+| Tenant Revocation | `revoked:tenant:` | `revoked:tenant:{tenantId}` | 30 days (2592000s)           |
+| User Validation   | `user_auth:`      | `user_auth:{userId}`        | 5 min (300s)                 |
+| Rate Limiting     | `rate_limit:`     | `rate_limit:{identifier}`   | Window-based                 |
+| Session           | `session:`        | `session:{sessionId}`       | Configurable (default 3600s) |
 
 **Assessment:** ✅ Good - Consistent naming with clear prefixes
 
 ### 1.3 TTL Configurations Analysis
 
-| Cache Type | TTL | Justification | Status |
-|------------|-----|---------------|--------|
-| Token Revocation | 24 hours | Matches JWT expiration | ✅ Optimal |
-| User Validation | 5 minutes | Balance freshness/performance | ✅ Good |
-| Session Data | 1 hour | Standard web session | ✅ Good |
-| Rate Limit | Window-based | Per-request tracking | ✅ Appropriate |
-| User Revocation | 30 days | Long-term invalidation | ✅ Good |
-| Frontend: Fields | 2 minutes | Semi-static data | ✅ Good |
-| Frontend: NDVI | 1 minute | Real-time updates | ✅ Good |
-| Frontend: Weather | 5 minutes | Weather API limits | ✅ Good |
-| Frontend: Sensors | 30 seconds | IoT real-time data | ✅ Good |
+| Cache Type        | TTL          | Justification                 | Status         |
+| ----------------- | ------------ | ----------------------------- | -------------- |
+| Token Revocation  | 24 hours     | Matches JWT expiration        | ✅ Optimal     |
+| User Validation   | 5 minutes    | Balance freshness/performance | ✅ Good        |
+| Session Data      | 1 hour       | Standard web session          | ✅ Good        |
+| Rate Limit        | Window-based | Per-request tracking          | ✅ Appropriate |
+| User Revocation   | 30 days      | Long-term invalidation        | ✅ Good        |
+| Frontend: Fields  | 2 minutes    | Semi-static data              | ✅ Good        |
+| Frontend: NDVI    | 1 minute     | Real-time updates             | ✅ Good        |
+| Frontend: Weather | 5 minutes    | Weather API limits            | ✅ Good        |
+| Frontend: Sensors | 30 seconds   | IoT real-time data            | ✅ Good        |
 
 **Issues Found:**
+
 - ⚠️ IoT service uses in-memory cache instead of Redis (line 78-81 in iot.service.ts)
 - ⚠️ No TTL for some hash operations (potential memory leak)
 
@@ -98,6 +104,7 @@ The SAHOOL platform implements a solid caching infrastructure with Redis Sentine
 ### 2.1 Implemented Invalidation Methods
 
 **Token Revocation (`/shared/auth/token-revocation.ts`):**
+
 ```typescript
 // Individual token invalidation
 async revokeToken(jti: string, options: {...}): Promise<boolean>
@@ -110,6 +117,7 @@ async revokeAllTenantTokens(tenantId: string, reason: string): Promise<boolean>
 ```
 
 **User Validation (`/shared/auth/user-validation.service.ts`):**
+
 ```typescript
 // Single user invalidation
 async invalidateUser(userId: string): Promise<void>
@@ -121,6 +129,7 @@ async clearAll(): Promise<number>
 **Pattern:** Cache-aside with manual invalidation
 
 **Assessment:** ⚠️ Partial - Good for auth, but missing:
+
 - Event-driven invalidation
 - Cascade invalidation for related data
 - Time-based background cleanup
@@ -129,6 +138,7 @@ async clearAll(): Promise<number>
 ### 2.2 Cache Invalidation Issues
 
 **Critical Issue - Using KEYS in Production:**
+
 ```typescript
 // shared/auth/user-validation.service.ts:201
 const keys = await this.redis.keys(pattern);
@@ -137,6 +147,7 @@ const keys = await this.redis.keys(pattern);
 **Problem:** `KEYS` command blocks Redis and is O(N). Should use `SCAN` instead.
 
 **Recommendation:**
+
 ```typescript
 // Use SCAN for safe pattern-based deletion
 async clearAll(): Promise<number> {
@@ -166,20 +177,22 @@ async clearAll(): Promise<number> {
 ### 3.1 Current Protection Mechanisms
 
 **Distributed Lock Implementation:**
+
 ```typescript
 // Location: shared/cache/examples.ts:139-211
 class DistributedLock {
-  async acquire(blocking, acquireTimeout): Promise<boolean>
-  async release(): Promise<boolean>
-  async withLock<T>(callback): Promise<T>
+  async acquire(blocking, acquireTimeout): Promise<boolean>;
+  async release(): Promise<boolean>;
+  async withLock<T>(callback): Promise<T>;
 }
 ```
 
 **Pattern:** Lock-based stampede prevention
 
 **Example Usage:**
+
 ```typescript
-const lock = new DistributedLock('export:process', 5);
+const lock = new DistributedLock("export:process", 5);
 await lock.withLock(async () => {
   // Protected operation
 });
@@ -187,16 +200,17 @@ await lock.withLock(async () => {
 
 ### 3.2 Vulnerable Endpoints
 
-| Endpoint/Service | Risk Level | Reason | Mitigation |
-|------------------|------------|--------|------------|
-| User Validation Cache Miss | 🔴 High | No lock on DB fetch | Add distributed lock |
-| NDVI Data Fetch | 🟡 Medium | Multiple concurrent requests | Request deduplication exists |
-| Weather API | 🟡 Medium | External API rate limits | Has staleTime protection |
-| Field List | 🟢 Low | Infrequent updates | React Query handles well |
+| Endpoint/Service           | Risk Level | Reason                       | Mitigation                   |
+| -------------------------- | ---------- | ---------------------------- | ---------------------------- |
+| User Validation Cache Miss | 🔴 High    | No lock on DB fetch          | Add distributed lock         |
+| NDVI Data Fetch            | 🟡 Medium  | Multiple concurrent requests | Request deduplication exists |
+| Weather API                | 🟡 Medium  | External API rate limits     | Has staleTime protection     |
+| Field List                 | 🟢 Low     | Infrequent updates           | React Query handles well     |
 
 ### 3.3 Recommendations
 
 **Add Stampede Protection to User Validation:**
+
 ```typescript
 async validateUser(userId: string): Promise<UserValidationData> {
   const cached = await this.getCachedUser(userId);
@@ -226,6 +240,7 @@ async validateUser(userId: string): Promise<UserValidationData> {
 **Pattern Used:** 100% Cache-Aside (Lazy Loading)
 
 **Evidence:**
+
 ```typescript
 // Cache-aside pattern in user-validation.service.ts:67-103
 async validateUser(userId: string): Promise<UserValidationData> {
@@ -245,12 +260,12 @@ async validateUser(userId: string): Promise<UserValidationData> {
 
 ### 4.2 Where Write-Through Would Be Beneficial
 
-| Use Case | Current | Recommended | Benefit |
-|----------|---------|-------------|---------|
-| User Profile Updates | Cache-aside | Write-through | Immediate consistency |
-| Field Metadata Changes | Cache-aside | Write-through | Avoid stale data |
-| Sensor Configuration | None | Write-through | Real-time updates |
-| Token Revocation | Write-only | Write-through | Already optimal |
+| Use Case               | Current     | Recommended   | Benefit               |
+| ---------------------- | ----------- | ------------- | --------------------- |
+| User Profile Updates   | Cache-aside | Write-through | Immediate consistency |
+| Field Metadata Changes | Cache-aside | Write-through | Avoid stale data      |
+| Sensor Configuration   | None        | Write-through | Real-time updates     |
+| Token Revocation       | Write-only  | Write-through | Already optimal       |
 
 **Assessment:** ⚠️ Improvement Needed - Add write-through for critical paths
 
@@ -261,17 +276,20 @@ async validateUser(userId: string): Promise<UserValidationData> {
 ### 5.1 Consistency Patterns
 
 **Current Approach:**
+
 - **Eventual consistency** for most caches
 - **Strong consistency** for token revocation (write-first)
 - **TTL-based expiration** for automatic cleanup
 
 **Token Revocation Pattern (Strong Consistency):**
+
 ```typescript
 // Write to cache immediately, no DB persistence needed
 await this.redis.setEx(key, ttl, JSON.stringify(value));
 ```
 
 **User Validation Pattern (Eventual Consistency):**
+
 ```typescript
 // DB is source of truth, cache can lag
 const userData = await this.userRepository.getUserValidationData(userId);
@@ -283,6 +301,7 @@ await this.cacheUser(userData); // Fire and forget
 **Potential Race Conditions:**
 
 1. **User Data Update Race:**
+
    ```
    Thread A: Update DB -> Clear cache
    Thread B: Read cache (miss) -> Read DB (old) -> Write cache (stale)
@@ -292,6 +311,7 @@ await this.cacheUser(userData); // Fire and forget
    **Fix:** Use cache versioning or TTL-based expiration
 
 2. **Concurrent Revocation:**
+
    ```
    Service A: Revoke token X
    Service B: Check token X (before revocation propagates)
@@ -305,6 +325,7 @@ await this.cacheUser(userData); // Fire and forget
 ### 5.3 Cache Coherence Across Services
 
 **Setup:**
+
 - Shared Redis Sentinel cluster
 - Same key prefixes across services
 - No cache partitioning
@@ -323,42 +344,45 @@ await this.cacheUser(userData); // Fire and forget
 
 ### 6.2 Impact Analysis
 
-| Service | Cold Start Impact | User Experience |
-|---------|-------------------|-----------------|
-| User Service | First login slow | 🟡 Moderate |
-| Field Service | First field list slow | 🟡 Moderate |
-| NDVI Service | First calculation slow | 🔴 High |
-| Weather Service | External API delay | 🟢 Low (cached externally) |
+| Service         | Cold Start Impact      | User Experience            |
+| --------------- | ---------------------- | -------------------------- |
+| User Service    | First login slow       | 🟡 Moderate                |
+| Field Service   | First field list slow  | 🟡 Moderate                |
+| NDVI Service    | First calculation slow | 🔴 High                    |
+| Weather Service | External API delay     | 🟢 Low (cached externally) |
 
 ### 6.3 Recommended Warming Strategies
 
 **1. Application Startup Warming:**
+
 ```typescript
 // Add to app initialization
 async function warmCache() {
   // Preload frequently accessed data
   const popularFields = await db.getTopAccessedFields(100);
   await Promise.all(
-    popularFields.map(field =>
-      redis.setEx(`field:${field.id}`, 300, JSON.stringify(field))
-    )
+    popularFields.map((field) =>
+      redis.setEx(`field:${field.id}`, 300, JSON.stringify(field)),
+    ),
   );
 }
 ```
 
 **2. Time-Based Warming:**
+
 ```typescript
 // Cron job to refresh critical caches
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule("*/5 * * * *", async () => {
   // Refresh NDVI summary for active tenants
   const activeTenants = await getActiveTenants();
   await Promise.all(
-    activeTenants.map(tenant => refreshNdviSummary(tenant.id))
+    activeTenants.map((tenant) => refreshNdviSummary(tenant.id)),
   );
 });
 ```
 
 **3. Predictive Warming:**
+
 ```typescript
 // Warm cache based on usage patterns
 async function predictiveWarm() {
@@ -379,17 +403,18 @@ async function predictiveWarm() {
 
 **Location:** `/home/user/sahool-unified-v15-idp/apps/web/src/lib/api/hooks.ts`
 
-| Data Type | staleTime | refetchInterval | Assessment |
-|-----------|-----------|-----------------|------------|
-| Fields | 2 min | None | ✅ Good |
-| Field (single) | 2 min | None | ✅ Good |
-| NDVI | 1 min | 60s | ✅ Real-time |
-| Weather | 5 min | 5 min | ✅ Optimal |
-| Forecast | 1 hour | 1 hour | ✅ Optimal |
-| Sensors | 30s | 30s | ✅ Real-time |
-| Irrigation | 2 min | None | ✅ Good |
+| Data Type      | staleTime | refetchInterval | Assessment   |
+| -------------- | --------- | --------------- | ------------ |
+| Fields         | 2 min     | None            | ✅ Good      |
+| Field (single) | 2 min     | None            | ✅ Good      |
+| NDVI           | 1 min     | 60s             | ✅ Real-time |
+| Weather        | 5 min     | 5 min           | ✅ Optimal   |
+| Forecast       | 1 hour    | 1 hour          | ✅ Optimal   |
+| Sensors        | 30s       | 30s             | ✅ Real-time |
+| Irrigation     | 2 min     | None            | ✅ Good      |
 
 **Retry Configuration:**
+
 ```typescript
 retry: 3,
 retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
@@ -400,6 +425,7 @@ retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
 ### 7.2 Request Deduplication
 
 **Implementation:**
+
 ```typescript
 // apps/web/src/lib/performance/optimization.ts:192-229
 const pendingRequests = new Map<string, PendingRequest<unknown>>();
@@ -407,8 +433,8 @@ const pendingRequests = new Map<string, PendingRequest<unknown>>();
 async function deduplicateRequest<T>(
   key: string,
   requestFn: () => Promise<T>,
-  options: { window?: number } = {}
-): Promise<T>
+  options: { window?: number } = {},
+): Promise<T>;
 ```
 
 **Assessment:** ✅ Excellent - Prevents duplicate in-flight requests
@@ -416,16 +442,21 @@ async function deduplicateRequest<T>(
 ### 7.3 Client-Side Memoization
 
 **Implementation:**
+
 ```typescript
 // apps/web/src/lib/performance/optimization.ts:149-188
-export function memoize<T>(func: T, options: {
-  maxSize?: number;      // Default: 100
-  ttl?: number;          // Optional
-  keyGenerator?: (...args) => string;
-})
+export function memoize<T>(
+  func: T,
+  options: {
+    maxSize?: number; // Default: 100
+    ttl?: number; // Optional
+    keyGenerator?: (...args) => string;
+  },
+);
 ```
 
 **Features:**
+
 - LRU eviction when maxSize exceeded
 - TTL-based expiration
 - Custom key generation
@@ -439,18 +470,19 @@ export function memoize<T>(func: T, options: {
 
 ### 8.1 Hit Rate Analysis (Estimated)
 
-| Cache Type | Est. Hit Rate | Reasoning |
-|------------|---------------|-----------|
-| User Validation | 85-90% | 5min TTL, frequent re-auth |
-| Token Revocation | 99%+ | Write-mostly, rare reads |
-| Rate Limiting | 95%+ | Active users checked frequently |
-| Frontend Fields | 70-80% | 2min TTL, user navigation |
-| Frontend NDVI | 60-70% | 1min TTL, real-time updates |
-| Frontend Weather | 80-90% | 5min TTL, slow-changing |
+| Cache Type       | Est. Hit Rate | Reasoning                       |
+| ---------------- | ------------- | ------------------------------- |
+| User Validation  | 85-90%        | 5min TTL, frequent re-auth      |
+| Token Revocation | 99%+          | Write-mostly, rare reads        |
+| Rate Limiting    | 95%+          | Active users checked frequently |
+| Frontend Fields  | 70-80%        | 2min TTL, user navigation       |
+| Frontend NDVI    | 60-70%        | 1min TTL, real-time updates     |
+| Frontend Weather | 80-90%        | 5min TTL, slow-changing         |
 
 **Overall Estimated Hit Rate:** ~80%
 
 **Improvement Opportunities:**
+
 - Add hit/miss metrics instrumentation
 - Implement cache warming for NDVI (↑ to 80%)
 - Extend TTL for fields (↑ to 85%)
@@ -458,6 +490,7 @@ export function memoize<T>(func: T, options: {
 ### 8.2 Memory Efficiency
 
 **Redis Memory Usage (Estimated):**
+
 ```
 Token Revocation:  ~10MB  (10k tokens × 1KB)
 User Validation:   ~50MB  (100k users × 500B)
@@ -471,12 +504,14 @@ Total:            ~180MB (with overhead: ~250MB)
 ### 8.3 Network Efficiency
 
 **Redis Sentinel Optimizations:**
+
 - ✅ Pipeline operations for batch writes
 - ✅ Slave reads for GET operations
 - ✅ Connection pooling
 - ✅ Command timeout (5s)
 
 **Frontend Optimizations:**
+
 - ✅ Request deduplication
 - ✅ Stale-while-revalidate via staleTime
 - ✅ Background refetching
@@ -550,9 +585,10 @@ Total:            ~180MB (with overhead: ~250MB)
 ### 10.1 Immediate Actions (P0)
 
 **1. Fix IoT Service Caching**
+
 ```typescript
 // Replace in-memory cache with Redis
-import { getRedisSentinelClient } from '@shared/cache/redis-sentinel';
+import { getRedisSentinelClient } from "@shared/cache/redis-sentinel";
 
 @Injectable()
 export class IotService {
@@ -566,6 +602,7 @@ export class IotService {
 ```
 
 **2. Replace KEYS with SCAN**
+
 ```typescript
 async clearAll(): Promise<number> {
   let cursor = '0';
@@ -593,6 +630,7 @@ async clearAll(): Promise<number> {
 ### 10.2 High Priority (P1)
 
 **3. Add Cache Stampede Protection**
+
 ```typescript
 import { DistributedLock } from '@shared/cache/examples';
 
@@ -613,6 +651,7 @@ async validateUser(userId: string): Promise<UserValidationData> {
 ```
 
 **4. Implement Cache Warming**
+
 ```typescript
 // Add to app module initialization
 @Injectable()
@@ -623,22 +662,25 @@ export class CacheWarmingService implements OnModuleInit {
 
   async warmFrequentlyAccessedData() {
     const topFields = await this.getTopAccessedFields(100);
-    await Promise.all(
-      topFields.map(field => this.cacheField(field))
-    );
+    await Promise.all(topFields.map((field) => this.cacheField(field)));
   }
 }
 ```
 
 **5. Add Cache Metrics**
+
 ```typescript
 @Injectable()
 export class CacheMetricsService {
   private hits = 0;
   private misses = 0;
 
-  recordHit() { this.hits++; }
-  recordMiss() { this.misses++; }
+  recordHit() {
+    this.hits++;
+  }
+  recordMiss() {
+    this.misses++;
+  }
 
   getHitRate(): number {
     const total = this.hits + this.misses;
@@ -650,6 +692,7 @@ export class CacheMetricsService {
 ### 10.3 Medium Priority (P2)
 
 **6. Implement Write-Through for Critical Paths**
+
 ```typescript
 async updateUserProfile(userId: string, updates: Partial<User>): Promise<void> {
   // Write-through pattern
@@ -662,6 +705,7 @@ async updateUserProfile(userId: string, updates: Partial<User>): Promise<void> {
 ```
 
 **7. Add Cache Versioning**
+
 ```typescript
 interface CachedData<T> {
   version: number;
@@ -682,6 +726,7 @@ async cacheWithVersion<T>(key: string, data: T, ttl: number): Promise<void> {
 ### 10.4 Low Priority (P3)
 
 **8. Implement Cache Compression**
+
 ```typescript
 import { gzip, gunzip } from 'zlib';
 import { promisify } from 'util';
@@ -702,15 +747,15 @@ async cacheCompressed(key: string, data: any, ttl: number): Promise<void> {
 
 ### 11.1 Expected Performance
 
-| Operation | Expected Latency | Actual (Est.) | Status |
-|-----------|------------------|---------------|--------|
-| Redis GET | < 1ms | ~0.5ms | ✅ |
-| Redis SET | < 1ms | ~0.7ms | ✅ |
-| Redis Pipeline (10 ops) | < 2ms | ~1.5ms | ✅ |
-| Circuit Breaker Open | < 0.1ms | ~0.05ms | ✅ |
-| User Validation (cache hit) | < 5ms | ~2ms | ✅ |
-| User Validation (cache miss) | < 100ms | ~50ms | ✅ |
-| Token Revocation Check | < 2ms | ~1ms | ✅ |
+| Operation                    | Expected Latency | Actual (Est.) | Status |
+| ---------------------------- | ---------------- | ------------- | ------ |
+| Redis GET                    | < 1ms            | ~0.5ms        | ✅     |
+| Redis SET                    | < 1ms            | ~0.7ms        | ✅     |
+| Redis Pipeline (10 ops)      | < 2ms            | ~1.5ms        | ✅     |
+| Circuit Breaker Open         | < 0.1ms          | ~0.05ms       | ✅     |
+| User Validation (cache hit)  | < 5ms            | ~2ms          | ✅     |
+| User Validation (cache miss) | < 100ms          | ~50ms         | ✅     |
+| Token Revocation Check       | < 2ms            | ~1ms          | ✅     |
 
 ### 11.2 Load Testing Recommendations
 
@@ -732,6 +777,7 @@ ab -n 1000 -c 100 http://localhost:3000/api/users/validation/user-123
 ### 12.1 Recommended Metrics
 
 **Redis Metrics:**
+
 - Cache hit rate (per service)
 - Cache miss rate (per service)
 - Average TTL remaining
@@ -741,6 +787,7 @@ ab -n 1000 -c 100 http://localhost:3000/api/users/validation/user-123
 - Circuit breaker state changes
 
 **Application Metrics:**
+
 - Cache operation latency (p50, p95, p99)
 - Stampede prevention hits
 - Lock acquisition time
@@ -774,6 +821,7 @@ alerts:
 ### Overall Assessment: 7.5/10
 
 **Strengths:**
+
 1. ✅ Robust Redis Sentinel HA setup
 2. ✅ Well-implemented circuit breaker pattern
 3. ✅ Comprehensive token revocation system
@@ -782,6 +830,7 @@ alerts:
 6. ✅ Distributed locking available
 
 **Critical Improvements Needed:**
+
 1. 🔴 Migrate IoT service from in-memory to Redis
 2. 🔴 Replace KEYS command with SCAN
 3. 🟡 Implement cache stampede protection
@@ -790,6 +839,7 @@ alerts:
 6. 🟡 Add write-through patterns for critical paths
 
 **Estimated Impact of Fixes:**
+
 - **Performance:** +20% reduction in database load
 - **Reliability:** +30% improvement in cache hit rate
 - **User Experience:** -50% reduction in cold start latency
@@ -811,29 +861,29 @@ alerts:
 // Complete cache key mapping
 const CACHE_KEYS = {
   // Authentication
-  TOKEN_REVOCATION: 'revoked:token:{jti}',
-  USER_REVOCATION: 'revoked:user:{userId}',
-  TENANT_REVOCATION: 'revoked:tenant:{tenantId}',
-  USER_VALIDATION: 'user_auth:{userId}',
+  TOKEN_REVOCATION: "revoked:token:{jti}",
+  USER_REVOCATION: "revoked:user:{userId}",
+  TENANT_REVOCATION: "revoked:tenant:{tenantId}",
+  USER_VALIDATION: "user_auth:{userId}",
 
   // Rate Limiting
-  RATE_LIMIT: 'rate_limit:{identifier}',
+  RATE_LIMIT: "rate_limit:{identifier}",
 
   // Sessions
-  SESSION: 'session:{sessionId}',
+  SESSION: "session:{sessionId}",
 
   // IoT (proposed)
-  SENSOR_READING: 'sensor:{fieldId}:{sensorType}',
-  DEVICE_STATUS: 'device:{deviceId}:status',
-  ACTUATOR_STATE: 'actuator:{fieldId}:{actuatorType}',
+  SENSOR_READING: "sensor:{fieldId}:{sensorType}",
+  DEVICE_STATUS: "device:{deviceId}:status",
+  ACTUATOR_STATE: "actuator:{fieldId}:{actuatorType}",
 
   // Fields (proposed)
-  FIELD: 'field:{fieldId}',
-  FIELD_LIST: 'fields:{tenantId}',
-  FIELD_NDVI: 'ndvi:{fieldId}',
+  FIELD: "field:{fieldId}",
+  FIELD_LIST: "fields:{tenantId}",
+  FIELD_NDVI: "ndvi:{fieldId}",
 
   // Locks
-  LOCK: 'lock:{lockName}',
+  LOCK: "lock:{lockName}",
 };
 ```
 
@@ -871,22 +921,22 @@ services:
 // config/cache.config.ts
 export const CacheConfig = {
   REDIS_SENTINEL_HOSTS: [
-    { host: 'sentinel-1', port: 26379 },
-    { host: 'sentinel-2', port: 26380 },
-    { host: 'sentinel-3', port: 26381 },
+    { host: "sentinel-1", port: 26379 },
+    { host: "sentinel-2", port: 26380 },
+    { host: "sentinel-3", port: 26381 },
   ],
-  REDIS_MASTER_NAME: 'sahool-master',
+  REDIS_MASTER_NAME: "sahool-master",
   REDIS_PASSWORD: process.env.REDIS_PASSWORD,
 
   TTL: {
-    TOKEN_REVOCATION: 86400,    // 24 hours
-    USER_VALIDATION: 300,       // 5 minutes
-    SESSION: 3600,              // 1 hour
-    RATE_LIMIT: 60,             // 1 minute
-    FIELD_DATA: 120,            // 2 minutes
-    NDVI_DATA: 60,              // 1 minute
-    WEATHER_DATA: 300,          // 5 minutes
-    SENSOR_DATA: 30,            // 30 seconds
+    TOKEN_REVOCATION: 86400, // 24 hours
+    USER_VALIDATION: 300, // 5 minutes
+    SESSION: 3600, // 1 hour
+    RATE_LIMIT: 60, // 1 minute
+    FIELD_DATA: 120, // 2 minutes
+    NDVI_DATA: 60, // 1 minute
+    WEATHER_DATA: 300, // 5 minutes
+    SENSOR_DATA: 30, // 30 seconds
   },
 
   CIRCUIT_BREAKER: {

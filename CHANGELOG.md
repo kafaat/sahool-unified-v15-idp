@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **CI/CD Pipeline Fixes** (PR #496)
+  - Fixed Flutter integration tests by adding `.env` file creation step
+  - Added `--all` flag to integration test runner script
+  - Fixed `SecureApplicationController` constructor for `secure_application 4.1.0` API changes
+  - Added Android SDK setup step after disk cleanup (was being deleted)
+  - Set `ANDROID_HOME` and `ANDROID_SDK_ROOT` environment variables
+  - Fixed Drift code generation glob patterns (`*.dart` for direct files)
+  - Enabled dependency injection in `SyncEngine` for better testability
+
+- **Security Fixes** (PR #496)
+  - Fixed CodeQL High-severity Log Injection vulnerability in `alert-service`
+  - Added `sanitize_log_input()` helper to escape control characters in user input
+  - Changed unsafe f-string logging to parameterized % formatting
+
 ### Added
+
 - **Docker Sequential Build Scripts** (PR #315)
   - `docker-one-by-one.ps1`: PowerShell script for sequential container builds
   - `docker-one-by-one.sh`: Bash equivalent for Linux/macOS users
@@ -38,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [16.0.1] - 2024-12-24
 
 ### Security
+
 - **API Gateway Security Hardening**
   - Removed wildcard CORS (`allow_origins=["*"]`) from 4 core services
   - Implemented centralized CORS configuration with environment-based whitelisting
@@ -55,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Total: 31 upstreams configured with active/passive health monitoring
 
 ### Added
+
 - **Mobile App - Golden Release Improvements**
   - Comprehensive testing infrastructure with fixtures, mocks, and test helpers
   - 17 new loading state components (Shimmer, Skeleton patterns)
@@ -78,12 +97,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced epidemic, irrigation, and sensor monitoring pages
 
 ### Changed
+
 - Database schema updated to v5 with performance optimizations
 - Biometric service enhanced with Arabic prompts
 - Auth interceptor with automatic 401 handling
 - Improved field, task, and weather data fetching hooks
 
 ### Fixed
+
 - Docker build compatibility issues across multiple services
 - Android dexing problems in mobile app
 - Package-lock.json synchronization issues
@@ -92,6 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [16.0.0] - 2024-12-17
 
 ### Added
+
 - Sprint 1 Governance Pack
   - Ruff linter/formatter with strict configuration
   - Pre-commit hooks for code quality
@@ -101,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Contract structure for events/APIs
 
 ### Added
+
 - **Sprint 10**: AI Explainability & Feedback System
   - Explanation models with confidence breakdown
   - Evidence tracking for AI decisions
@@ -127,6 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Slack notifications
 
 ### Changed
+
 - Updated all dependencies to December 2025 versions
 - Python target version upgraded to 3.11
 - Flutter minimum SDK version to 3.24.0
@@ -134,23 +158,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [15.3.2] - 2025-12-15
 
 ### Fixed
+
 - Flutter build compatibility issues
 - Python import refactoring for clean structure
 - Android dexing issue resolution
 
 ### Changed
+
 - Research core module integration
 - Agro rules engine updates
 
 ## [15.2.0] - 2025-12-01
 
 ### Added
+
 - Marketplace API endpoints
 - Field operations service
 - NATS messaging integration
 - Kong API Gateway configuration
 
 ### Security
+
 - OTP-based authentication system
 - JWT token validation
 - Rate limiting on API endpoints

@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
 // Farms Management Page
 // صفحة إدارة المزارع
 
-import { useEffect, useState, useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import Header from '@/components/layout/Header';
-import StatusBadge from '@/components/ui/StatusBadge';
-import DataTable from '@/components/ui/DataTable';
-import { fetchFarms } from '@/lib/api';
-import { formatDate, formatArea, getHealthScoreColor, cn } from '@/lib/utils';
-import type { Farm } from '@/types';
-import type { BaseFarmData } from '@/components/maps/FarmsMap';
-import { YEMEN_GOVERNORATES } from '@/types';
+import { useEffect, useState, useMemo } from "react";
+import dynamic from "next/dynamic";
+import Header from "@/components/layout/Header";
+import StatusBadge from "@/components/ui/StatusBadge";
+import DataTable from "@/components/ui/DataTable";
+import { fetchFarms } from "@/lib/api";
+import { formatDate, formatArea, getHealthScoreColor, cn } from "@/lib/utils";
+import type { Farm } from "@/types";
+import type { BaseFarmData } from "@/components/maps/FarmsMap";
+import { YEMEN_GOVERNORATES } from "@/types";
 import {
   MapPin,
   Search,
@@ -23,12 +23,12 @@ import {
   RefreshCw,
   Download,
   Eye,
-} from 'lucide-react';
-import Link from 'next/link';
-import { logger } from '../../lib/logger';
+} from "lucide-react";
+import Link from "next/link";
+import { logger } from "../../lib/logger";
 
 // Dynamic import for map (no SSR)
-const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
+const FarmsMap = dynamic(() => import("@/components/maps/FarmsMap"), {
   ssr: false,
   loading: () => (
     <div className="h-[600px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
@@ -37,18 +37,18 @@ const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
   ),
 });
 
-type ViewMode = 'map' | 'table';
+type ViewMode = "map" | "table";
 
 export default function FarmsPage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>('map');
+  const [viewMode, setViewMode] = useState<ViewMode>("map");
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [governorateFilter, setGovernorateFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [governorateFilter, setGovernorateFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   useEffect(() => {
     loadFarms();
@@ -60,7 +60,7 @@ export default function FarmsPage() {
       const data = await fetchFarms();
       setFarms(data);
     } catch (error) {
-      logger.error('Failed to load farms:', error);
+      logger.error("Failed to load farms:", error);
     } finally {
       setIsLoading(false);
     }
@@ -72,14 +72,15 @@ export default function FarmsPage() {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         if (
-          !(f.nameAr || '').toLowerCase().includes(query) &&
+          !(f.nameAr || "").toLowerCase().includes(query) &&
           !f.name.toLowerCase().includes(query) &&
           !f.governorate.toLowerCase().includes(query)
         ) {
           return false;
         }
       }
-      if (governorateFilter && f.governorate !== governorateFilter) return false;
+      if (governorateFilter && f.governorate !== governorateFilter)
+        return false;
       if (statusFilter && f.status !== statusFilter) return false;
       return true;
     });
@@ -87,7 +88,10 @@ export default function FarmsPage() {
 
   // Stats by governorate
   const governorateStats = useMemo(() => {
-    const stats: Record<string, { count: number; area: number; avgHealth: number }> = {};
+    const stats: Record<
+      string,
+      { count: number; area: number; avgHealth: number }
+    > = {};
     farms.forEach((f) => {
       if (!stats[f.governorate]) {
         stats[f.governorate] = { count: 0, area: 0, avgHealth: 0 };
@@ -109,8 +113,8 @@ export default function FarmsPage() {
   // Table columns
   const columns = [
     {
-      key: 'nameAr',
-      header: 'اسم المزرعة',
+      key: "nameAr",
+      header: "اسم المزرعة",
       render: (farm: Farm) => (
         <div>
           <p className="font-medium text-gray-900">{farm.nameAr}</p>
@@ -119,43 +123,48 @@ export default function FarmsPage() {
       ),
     },
     {
-      key: 'governorate',
-      header: 'المحافظة',
+      key: "governorate",
+      header: "المحافظة",
       render: (farm: Farm) => (
         <span className="text-gray-700">{farm.governorate}</span>
       ),
     },
     {
-      key: 'area',
-      header: 'المساحة',
+      key: "area",
+      header: "المساحة",
       render: (farm: Farm) => (
         <span className="text-gray-700">{formatArea(farm.area)}</span>
       ),
     },
     {
-      key: 'crops',
-      header: 'المحاصيل',
+      key: "crops",
+      header: "المحاصيل",
       render: (farm: Farm) => (
-        <span className="text-gray-700">{farm.crops.join(', ')}</span>
+        <span className="text-gray-700">{farm.crops.join(", ")}</span>
       ),
     },
     {
-      key: 'healthScore',
-      header: 'الصحة',
+      key: "healthScore",
+      header: "الصحة",
       render: (farm: Farm) => (
-        <span className={cn('px-2 py-1 rounded font-bold text-sm', getHealthScoreColor(farm.healthScore))}>
+        <span
+          className={cn(
+            "px-2 py-1 rounded font-bold text-sm",
+            getHealthScoreColor(farm.healthScore),
+          )}
+        >
           {farm.healthScore}%
         </span>
       ),
     },
     {
-      key: 'status',
-      header: 'الحالة',
+      key: "status",
+      header: "الحالة",
       render: (farm: Farm) => <StatusBadge status={farm.status} />,
     },
     {
-      key: 'actions',
-      header: '',
+      key: "actions",
+      header: "",
       render: (farm: Farm) => (
         <Link
           href={`/farms/${farm.id}`}
@@ -164,33 +173,37 @@ export default function FarmsPage() {
           <Eye className="w-4 h-4 text-gray-500" />
         </Link>
       ),
-      className: 'w-12',
+      className: "w-12",
     },
   ];
 
   return (
     <div className="p-6">
-      <Header
-        title="إدارة المزارع"
-        subtitle={`${farms.length} مزرعة مسجلة`}
-      />
+      <Header title="إدارة المزارع" subtitle={`${farms.length} مزرعة مسجلة`} />
 
       {/* Stats by Governorate */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {Object.entries(governorateStats).slice(0, 6).map(([gov, stats]) => (
-          <div
-            key={gov}
-            className={cn(
-              'bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all',
-              governorateFilter === gov && 'ring-2 ring-sahool-500 border-sahool-500'
-            )}
-            onClick={() => setGovernorateFilter(governorateFilter === gov ? '' : gov)}
-          >
-            <p className="text-xl font-bold text-gray-900">{stats.count}</p>
-            <p className="text-sm text-gray-500 truncate">{gov}</p>
-            <p className="text-xs text-gray-400 mt-1">{stats.area.toFixed(0)} هكتار</p>
-          </div>
-        ))}
+        {Object.entries(governorateStats)
+          .slice(0, 6)
+          .map(([gov, stats]) => (
+            <div
+              key={gov}
+              className={cn(
+                "bg-white rounded-xl p-4 border border-gray-100 cursor-pointer transition-all",
+                governorateFilter === gov &&
+                  "ring-2 ring-sahool-500 border-sahool-500",
+              )}
+              onClick={() =>
+                setGovernorateFilter(governorateFilter === gov ? "" : gov)
+              }
+            >
+              <p className="text-xl font-bold text-gray-900">{stats.count}</p>
+              <p className="text-sm text-gray-500 truncate">{gov}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {stats.area.toFixed(0)} هكتار
+              </p>
+            </div>
+          ))}
       </div>
 
       {/* Filters and View Toggle */}
@@ -237,19 +250,23 @@ export default function FarmsPage() {
           {/* View Toggle */}
           <div className="flex border border-gray-200 rounded-lg overflow-hidden">
             <button
-              onClick={() => setViewMode('map')}
+              onClick={() => setViewMode("map")}
               className={cn(
-                'p-2 transition-colors',
-                viewMode === 'map' ? 'bg-sahool-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                "p-2 transition-colors",
+                viewMode === "map"
+                  ? "bg-sahool-600 text-white"
+                  : "bg-white text-gray-600 hover:bg-gray-50",
               )}
             >
               <MapIcon className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setViewMode('table')}
+              onClick={() => setViewMode("table")}
               className={cn(
-                'p-2 transition-colors',
-                viewMode === 'table' ? 'bg-sahool-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                "p-2 transition-colors",
+                viewMode === "table"
+                  ? "bg-sahool-600 text-white"
+                  : "bg-white text-gray-600 hover:bg-gray-50",
               )}
             >
               <List className="w-5 h-5" />
@@ -261,7 +278,12 @@ export default function FarmsPage() {
             onClick={loadFarms}
             className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <RefreshCw className={cn('w-5 h-5 text-gray-600', isLoading && 'animate-spin')} />
+            <RefreshCw
+              className={cn(
+                "w-5 h-5 text-gray-600",
+                isLoading && "animate-spin",
+              )}
+            />
           </button>
           <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
             <Download className="w-5 h-5 text-gray-600" />
@@ -277,7 +299,7 @@ export default function FarmsPage() {
       <div className="mt-6">
         {isLoading ? (
           <div className="h-[600px] bg-gray-200 animate-pulse rounded-xl"></div>
-        ) : viewMode === 'map' ? (
+        ) : viewMode === "map" ? (
           <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
             <FarmsMap
               farms={filteredFarms}
@@ -299,12 +321,16 @@ export default function FarmsPage() {
       </div>
 
       {/* Selected Farm Panel */}
-      {selectedFarm && viewMode === 'map' && (
+      {selectedFarm && viewMode === "map" && (
         <div className="fixed bottom-6 left-6 right-6 mr-64 bg-white rounded-xl shadow-2xl border border-gray-100 p-6 animate-slide-up z-40">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-xl font-bold text-gray-900">{selectedFarm.nameAr}</h3>
-              <p className="text-gray-500">{selectedFarm.governorate} • {selectedFarm.district}</p>
+              <h3 className="text-xl font-bold text-gray-900">
+                {selectedFarm.nameAr}
+              </h3>
+              <p className="text-gray-500">
+                {selectedFarm.governorate} • {selectedFarm.district}
+              </p>
             </div>
             <button
               onClick={() => setSelectedFarm(null)}
@@ -320,17 +346,24 @@ export default function FarmsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500">المحاصيل</p>
-              <p className="font-medium">{selectedFarm.crops.join(', ')}</p>
+              <p className="font-medium">{selectedFarm.crops.join(", ")}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">مستوى الصحة</p>
-              <span className={cn('px-2 py-1 rounded font-bold', getHealthScoreColor(selectedFarm.healthScore))}>
+              <span
+                className={cn(
+                  "px-2 py-1 rounded font-bold",
+                  getHealthScoreColor(selectedFarm.healthScore),
+                )}
+              >
                 {selectedFarm.healthScore}%
               </span>
             </div>
             <div>
               <p className="text-sm text-gray-500">آخر تحديث</p>
-              <p className="font-medium">{formatDate(selectedFarm.lastUpdated)}</p>
+              <p className="font-medium">
+                {formatDate(selectedFarm.lastUpdated)}
+              </p>
             </div>
           </div>
           <div className="mt-4 flex gap-3">

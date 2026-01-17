@@ -11,23 +11,27 @@
 ## الميزات الرئيسية | Key Features
 
 ### 1. عرض التقويم الفلكي | Astronomical Calendar Display
+
 - **التاريخ الهجري** | Current Hijri date with full formatting
 - **المنزلة القمرية** | Lunar mansion (منزلة) with constellation details
 - **طور القمر** | Moon phase with icon, name, and illumination percentage
 - **التقييم الزراعي العام** | Overall farming score for the day
 
 ### 2. التوصيات الزراعية | Farming Recommendations
+
 - **اختيار النشاط** | Activity selector (زراعة، ري، حصاد، تقليم)
 - **توصية اليوم** | Today's recommendation with suitability score (0-10)
 - **أفضل 3 أيام** | Best 3 days this week for selected activity
 - **الوقت الأمثل** | Best time of day for the activity
 
 ### 3. إنشاء المهام | Task Creation
+
 - **إنشاء سريع** | Quick action to create task on best day
 - **بيانات كاملة** | Automatic task data with Arabic and English
 - **أولوية ذكية** | Smart priority assignment
 
 ### 4. العرض التفصيلي | Detailed View
+
 - **قابل للطي** | Collapsible detailed information
 - **تفاصيل المنزلة** | Lunar mansion details with crops and activities
 - **أفضل الأيام** | Weekly best days with scores and reasons
@@ -39,16 +43,16 @@
 ### استيراد المكون | Import Component
 
 ```typescript
-import { AstralFieldWidget } from '@/features/fields';
+import { AstralFieldWidget } from "@/features/fields";
 // or
-import { AstralFieldWidget } from '@/features/fields/components/AstralFieldWidget';
+import { AstralFieldWidget } from "@/features/fields/components/AstralFieldWidget";
 ```
 
 ### مثال بسيط | Basic Example
 
 ```tsx
-import { AstralFieldWidget } from '@/features/fields';
-import { useField } from '@/features/fields';
+import { AstralFieldWidget } from "@/features/fields";
+import { useField } from "@/features/fields";
 
 function FieldDetailPage({ fieldId }: { fieldId: string }) {
   const { data: field } = useField(fieldId);
@@ -67,9 +71,9 @@ function FieldDetailPage({ fieldId }: { fieldId: string }) {
 ### مثال مع إنشاء المهام | Example with Task Creation
 
 ```tsx
-import { AstralFieldWidget } from '@/features/fields';
-import { useField } from '@/features/fields';
-import { useCreateTask } from '@/features/tasks';
+import { AstralFieldWidget } from "@/features/fields";
+import { useField } from "@/features/fields";
+import { useCreateTask } from "@/features/tasks";
 
 function FieldAstralView({ fieldId }: { fieldId: string }) {
   const { data: field } = useField(fieldId);
@@ -78,9 +82,9 @@ function FieldAstralView({ fieldId }: { fieldId: string }) {
   const handleCreateTask = async (taskData) => {
     try {
       await createTask.mutateAsync(taskData);
-      alert('تم إنشاء المهمة بنجاح!');
+      alert("تم إنشاء المهمة بنجاح!");
     } catch (error) {
-      console.error('Failed to create task:', error);
+      console.error("Failed to create task:", error);
     }
   };
 
@@ -113,11 +117,11 @@ function FieldAstralView({ fieldId }: { fieldId: string }) {
 
 ### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `field` | `Field` | ✅ Yes | - | Field object containing field details |
-| `onCreateTask` | `(taskData: TaskData) => void` | ❌ No | - | Callback function when creating a task |
-| `compact` | `boolean` | ❌ No | `false` | Whether to show compact view (collapsed by default) |
+| Prop           | Type                           | Required | Default | Description                                         |
+| -------------- | ------------------------------ | -------- | ------- | --------------------------------------------------- |
+| `field`        | `Field`                        | ✅ Yes   | -       | Field object containing field details               |
+| `onCreateTask` | `(taskData: TaskData) => void` | ❌ No    | -       | Callback function when creating a task              |
+| `compact`      | `boolean`                      | ❌ No    | `false` | Whether to show compact view (collapsed by default) |
 
 ### Field Type
 
@@ -137,13 +141,13 @@ interface Field {
 
 ```typescript
 interface TaskData {
-  title: string;              // English title
-  title_ar: string;           // Arabic title
-  description: string;        // English description
-  description_ar: string;     // Arabic description
-  due_date: string;          // ISO date string (YYYY-MM-DD)
-  field_id: string;          // Field ID
-  priority: 'high' | 'medium' | 'low';  // Task priority
+  title: string; // English title
+  title_ar: string; // Arabic title
+  description: string; // English description
+  description_ar: string; // Arabic description
+  due_date: string; // ISO date string (YYYY-MM-DD)
+  field_id: string; // Field ID
+  priority: "high" | "medium" | "low"; // Task priority
 }
 ```
 
@@ -152,6 +156,7 @@ interface TaskData {
 ## التصميم والأقسام | Design & Sections
 
 ### 1. القسم العلوي | Header Section
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │ 🌙 التقويم الفلكي اليمني              [▼ Expand]  │
@@ -160,6 +165,7 @@ interface TaskData {
 ```
 
 ### 2. التاريخ والمنزلة | Date & Mansion
+
 ```
 ┌──────────────────────┬──────────────────────┐
 │ 📅 التاريخ الهجري   │ ⭐ المنزلة القمرية │
@@ -169,6 +175,7 @@ interface TaskData {
 ```
 
 ### 3. طور القمر | Moon Phase
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │ 🌕 بدر                                     [مناسب] │
@@ -177,6 +184,7 @@ interface TaskData {
 ```
 
 ### 4. اختيار النشاط | Activity Selector
+
 ```
 ┌───────┬───────┬───────┬───────┐
 │ 🌱زراعة│ 💧 ري │✂️ حصاد│✨ تقليم│
@@ -184,6 +192,7 @@ interface TaskData {
 ```
 
 ### 5. توصية اليوم | Today's Recommendation
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │ توصية اليوم للزراعة                                │
@@ -195,6 +204,7 @@ interface TaskData {
 ```
 
 ### 6. أفضل 3 أيام | Best 3 Days
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │ 📅 أفضل 3 أيام هذا الأسبوع للزراعة                │
@@ -211,6 +221,7 @@ interface TaskData {
 ```
 
 ### 7. زر الإنشاء السريع | Quick Create Button
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │ [+ إنشاء مهمة في أفضل يوم (الثلاثاء 7 يناير)]     │
@@ -222,29 +233,31 @@ interface TaskData {
 ## البيانات الفلكية | Astronomical Data
 
 ### مصدر البيانات | Data Source
+
 ```
 API Endpoint: /api/v1/astronomical/today
 API Endpoint: /api/v1/astronomical/best-days?activity=زراعة&days=7
 ```
 
 ### الخطافات المستخدمة | Hooks Used
+
 ```typescript
-import { useToday, useBestDays } from '@/features/astronomical';
+import { useToday, useBestDays } from "@/features/astronomical";
 
 const { data: todayData } = useToday();
-const { data: bestDaysData } = useBestDays('زراعة', { days: 7 });
+const { data: bestDaysData } = useBestDays("زراعة", { days: 7 });
 ```
 
 ---
 
 ## الأنشطة المدعومة | Supported Activities
 
-| Activity | Arabic | Icon | Description |
-|----------|--------|------|-------------|
-| Planting | زراعة | 🌱 | Planting seeds and crops |
-| Irrigation | ري | 💧 | Watering and irrigation |
-| Harvest | حصاد | ✂️ | Harvesting crops |
-| Pruning | تقليم | ✨ | Pruning and trimming |
+| Activity   | Arabic | Icon | Description              |
+| ---------- | ------ | ---- | ------------------------ |
+| Planting   | زراعة  | 🌱   | Planting seeds and crops |
+| Irrigation | ري     | 💧   | Watering and irrigation  |
+| Harvest    | حصاد   | ✂️   | Harvesting crops         |
+| Pruning    | تقليم  | ✨   | Pruning and trimming     |
 
 ---
 
@@ -252,13 +265,13 @@ const { data: bestDaysData } = useBestDays('زراعة', { days: 7 });
 
 ### مقياس الملاءمة | Suitability Score
 
-| Score | Arabic | English | Color |
-|-------|--------|---------|-------|
-| 9-10 | ممتاز | Excellent | 🟢 Green |
-| 8 | جيد جداً | Very Good | 🟢 Green |
-| 6-7 | جيد | Good | 🟡 Amber |
-| 5 | متوسط | Fair | 🟡 Amber |
-| 0-4 | غير مناسب | Not Suitable | 🔴 Red |
+| Score | Arabic    | English      | Color    |
+| ----- | --------- | ------------ | -------- |
+| 9-10  | ممتاز     | Excellent    | 🟢 Green |
+| 8     | جيد جداً  | Very Good    | 🟢 Green |
+| 6-7   | جيد       | Good         | 🟡 Amber |
+| 5     | متوسط     | Fair         | 🟡 Amber |
+| 0-4   | غير مناسب | Not Suitable | 🔴 Red   |
 
 ---
 
@@ -272,10 +285,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'sahool-green': {
-          50: '#f0fdf4',
-          600: '#16a34a',
-          900: '#14532d',
+        "sahool-green": {
+          50: "#f0fdf4",
+          600: "#16a34a",
+          900: "#14532d",
         },
       },
     },
@@ -286,10 +299,10 @@ module.exports = {
 ### تخصيص الأيقونات | Custom Icons
 
 ```tsx
-import { CustomMoonIcon } from '@/components/icons';
+import { CustomMoonIcon } from "@/components/icons";
 
 // In component:
-<CustomMoonIcon className="w-5 h-5" />
+<CustomMoonIcon className="w-5 h-5" />;
 ```
 
 ---
@@ -307,11 +320,11 @@ import { CustomMoonIcon } from '@/components/icons';
 
 ### الملاحة بلوحة المفاتيح | Keyboard Navigation
 
-| Key | Action |
-|-----|--------|
-| `Tab` | Navigate between elements |
-| `Enter` / `Space` | Toggle expand/collapse |
-| `Escape` | Close details |
+| Key               | Action                    |
+| ----------------- | ------------------------- |
+| `Tab`             | Navigate between elements |
+| `Enter` / `Space` | Toggle expand/collapse    |
+| `Escape`          | Close details             |
 
 ---
 
@@ -376,12 +389,14 @@ describe('AstralFieldWidget', () => {
 ## الأخطاء الشائعة | Common Issues
 
 ### 1. API URL غير محدد | API URL not set
+
 ```
 Solution: Set NEXT_PUBLIC_API_URL in .env
 NEXT_PUBLIC_API_URL=https://api.sahool.app
 ```
 
 ### 2. البيانات لا تظهر | Data not loading
+
 ```
 Check:
 - API is running
@@ -390,6 +405,7 @@ Check:
 ```
 
 ### 3. الأيقونات لا تظهر | Icons not displaying
+
 ```
 Solution: Install lucide-react
 npm install lucide-react
@@ -415,6 +431,7 @@ Part of SAHOOL Unified Platform v15-IDP
 ## الدعم | Support
 
 For issues or questions:
+
 - 📧 Email: support@sahool.app
 - 📝 GitHub Issues: [github.com/sahool/issues](https://github.com/sahool/issues)
 - 📚 Documentation: [docs.sahool.app](https://docs.sahool.app)

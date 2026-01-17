@@ -20,9 +20,11 @@ This module provides comprehensive API client functions for field intelligence f
 Calculates a comprehensive score for field health based on NDVI, irrigation, tasks, and astronomical data.
 
 **Parameters:**
+
 - `fieldId` (string): The field identifier
 
 **Returns:**
+
 ```typescript
 {
   success: boolean;
@@ -47,13 +49,14 @@ Calculates a comprehensive score for field health based on NDVI, irrigation, tas
 ```
 
 **Usage Example:**
-```typescript
-import { fetchLivingFieldScore } from '@/features/fields';
 
-const response = await fetchLivingFieldScore('field-123');
+```typescript
+import { fetchLivingFieldScore } from "@/features/fields";
+
+const response = await fetchLivingFieldScore("field-123");
 if (response.success) {
-  console.log('Overall Score:', response.data.overall);
-  console.log('Trend:', response.data.trend);
+  console.log("Overall Score:", response.data.overall);
+  console.log("Trend:", response.data.trend);
 }
 ```
 
@@ -62,9 +65,11 @@ if (response.success) {
 Retrieves field zones with health data, NDVI values, and recommendations.
 
 **Parameters:**
+
 - `fieldId` (string): The field identifier
 
 **Returns:**
+
 ```typescript
 {
   success: boolean;
@@ -75,12 +80,13 @@ Retrieves field zones with health data, NDVI values, and recommendations.
 ```
 
 **Usage Example:**
-```typescript
-import { fetchFieldZones } from '@/features/fields';
 
-const response = await fetchFieldZones('field-123');
+```typescript
+import { fetchFieldZones } from "@/features/fields";
+
+const response = await fetchFieldZones("field-123");
 if (response.success) {
-  response.data?.forEach(zone => {
+  response.data?.forEach((zone) => {
     console.log(`Zone ${zone.name}: Health ${zone.healthScore}`);
   });
 }
@@ -91,9 +97,11 @@ if (response.success) {
 Gets all active alerts for a specific field.
 
 **Parameters:**
+
 - `fieldId` (string): The field identifier
 
 **Returns:**
+
 ```typescript
 {
   success: boolean;
@@ -104,12 +112,15 @@ Gets all active alerts for a specific field.
 ```
 
 **Usage Example:**
-```typescript
-import { fetchFieldAlerts } from '@/features/fields';
 
-const response = await fetchFieldAlerts('field-123');
+```typescript
+import { fetchFieldAlerts } from "@/features/fields";
+
+const response = await fetchFieldAlerts("field-123");
 if (response.success) {
-  const criticalAlerts = response.data?.filter(a => a.severity === 'critical');
+  const criticalAlerts = response.data?.filter(
+    (a) => a.severity === "critical",
+  );
   console.log(`Critical alerts: ${criticalAlerts?.length}`);
 }
 ```
@@ -119,6 +130,7 @@ if (response.success) {
 Converts an alert into an actionable task.
 
 **Parameters:**
+
 - `alertId` (string): The alert identifier
 - `taskData` (TaskFromAlertData): Task creation data
   ```typescript
@@ -134,6 +146,7 @@ Converts an alert into an actionable task.
   ```
 
 **Returns:**
+
 ```typescript
 {
   success: boolean;
@@ -144,14 +157,15 @@ Converts an alert into an actionable task.
 ```
 
 **Usage Example:**
-```typescript
-import { createTaskFromAlert } from '@/features/fields';
 
-const response = await createTaskFromAlert('alert-456', {
-  title: 'Fix Irrigation System',
-  titleAr: 'إصلاح نظام الري',
-  priority: 'urgent',
-  dueDate: '2026-01-10',
+```typescript
+import { createTaskFromAlert } from "@/features/fields";
+
+const response = await createTaskFromAlert("alert-456", {
+  title: "Fix Irrigation System",
+  titleAr: "إصلاح نظام الري",
+  priority: "urgent",
+  dueDate: "2026-01-10",
 });
 ```
 
@@ -160,10 +174,12 @@ const response = await createTaskFromAlert('alert-456', {
 Analyzes weather and astronomical conditions to find optimal days for farming activities.
 
 **Parameters:**
+
 - `activity` (string): Activity type (e.g., 'planting', 'irrigation', 'harvesting')
 - `days` (number): Number of days to analyze (1-30, default: 14)
 
 **Returns:**
+
 ```typescript
 {
   success: boolean;
@@ -174,10 +190,11 @@ Analyzes weather and astronomical conditions to find optimal days for farming ac
 ```
 
 **Usage Example:**
-```typescript
-import { fetchBestDays } from '@/features/fields';
 
-const response = await fetchBestDays('planting', 7);
+```typescript
+import { fetchBestDays } from "@/features/fields";
+
+const response = await fetchBestDays("planting", 7);
 if (response.success) {
   const bestDay = response.data?.[0];
   console.log(`Best day: ${bestDay?.date} (${bestDay?.suitability})`);
@@ -189,10 +206,12 @@ if (response.success) {
 Checks if a specific date is suitable for a farming activity.
 
 **Parameters:**
+
 - `date` (string): ISO 8601 date string
 - `activity` (string): Activity type
 
 **Returns:**
+
 ```typescript
 {
   success: boolean;
@@ -211,15 +230,16 @@ Checks if a specific date is suitable for a farming activity.
 ```
 
 **Usage Example:**
-```typescript
-import { validateTaskDate } from '@/features/fields';
 
-const response = await validateTaskDate('2026-01-15', 'irrigation');
+```typescript
+import { validateTaskDate } from "@/features/fields";
+
+const response = await validateTaskDate("2026-01-15", "irrigation");
 if (response.success && response.data) {
   if (response.data.suitable) {
-    console.log('Date is suitable:', response.data.rating);
+    console.log("Date is suitable:", response.data.rating);
   } else {
-    console.log('Better alternatives:', response.data.alternatives);
+    console.log("Better alternatives:", response.data.alternatives);
   }
 }
 ```
@@ -229,9 +249,11 @@ if (response.success && response.data) {
 Retrieves AI-powered recommendations for field management.
 
 **Parameters:**
+
 - `fieldId` (string): The field identifier
 
 **Returns:**
+
 ```typescript
 {
   success: boolean;
@@ -242,13 +264,14 @@ Retrieves AI-powered recommendations for field management.
 ```
 
 **Usage Example:**
-```typescript
-import { fetchFieldRecommendations } from '@/features/fields';
 
-const response = await fetchFieldRecommendations('field-123');
+```typescript
+import { fetchFieldRecommendations } from "@/features/fields";
+
+const response = await fetchFieldRecommendations("field-123");
 if (response.success) {
-  const urgentRecs = response.data?.filter(r => r.priority === 'urgent');
-  urgentRecs?.forEach(rec => {
+  const urgentRecs = response.data?.filter((r) => r.priority === "urgent");
+  urgentRecs?.forEach((rec) => {
     console.log(`${rec.title}: ${rec.description}`);
   });
 }
@@ -259,8 +282,11 @@ if (response.success) {
 All API functions are designed to work seamlessly with TanStack Query. Use the provided query keys for optimal caching and invalidation:
 
 ```typescript
-import { useQuery } from '@tanstack/react-query';
-import { fetchLivingFieldScore, fieldIntelligenceKeys } from '@/features/fields';
+import { useQuery } from "@tanstack/react-query";
+import {
+  fetchLivingFieldScore,
+  fieldIntelligenceKeys,
+} from "@/features/fields";
 
 function MyComponent({ fieldId }: { fieldId: string }) {
   const { data, isLoading, error } = useQuery({
@@ -279,14 +305,28 @@ The module exports a `fieldIntelligenceKeys` object for TanStack Query:
 
 ```typescript
 fieldIntelligenceKeys = {
-  all: ['field-intelligence'],
-  score: (fieldId) => ['field-intelligence', 'score', fieldId],
-  zones: (fieldId) => ['field-intelligence', 'zones', fieldId],
-  alerts: (fieldId) => ['field-intelligence', 'alerts', fieldId],
-  recommendations: (fieldId) => ['field-intelligence', 'recommendations', fieldId],
-  bestDays: (activity, days) => ['field-intelligence', 'best-days', activity, days],
-  dateValidation: (date, activity) => ['field-intelligence', 'validate-date', date, activity],
-}
+  all: ["field-intelligence"],
+  score: (fieldId) => ["field-intelligence", "score", fieldId],
+  zones: (fieldId) => ["field-intelligence", "zones", fieldId],
+  alerts: (fieldId) => ["field-intelligence", "alerts", fieldId],
+  recommendations: (fieldId) => [
+    "field-intelligence",
+    "recommendations",
+    fieldId,
+  ],
+  bestDays: (activity, days) => [
+    "field-intelligence",
+    "best-days",
+    activity,
+    days,
+  ],
+  dateValidation: (date, activity) => [
+    "field-intelligence",
+    "validate-date",
+    date,
+    activity,
+  ],
+};
 ```
 
 ## Error Handling
@@ -294,7 +334,7 @@ fieldIntelligenceKeys = {
 All API functions return bilingual error messages (English and Arabic) and handle errors gracefully:
 
 ```typescript
-const response = await fetchLivingFieldScore('field-123');
+const response = await fetchLivingFieldScore("field-123");
 
 if (!response.success) {
   // English error
@@ -304,7 +344,7 @@ if (!response.success) {
   console.error(response.error_ar);
 
   // Display to user based on their language preference
-  const message = locale === 'ar' ? response.error_ar : response.error;
+  const message = locale === "ar" ? response.error_ar : response.error;
   toast.error(message);
 }
 ```
@@ -314,7 +354,7 @@ if (!response.success) {
 The module exports `INTELLIGENCE_ERROR_MESSAGES` constant with all error messages:
 
 ```typescript
-import { INTELLIGENCE_ERROR_MESSAGES } from '@/features/fields';
+import { INTELLIGENCE_ERROR_MESSAGES } from "@/features/fields";
 
 console.log(INTELLIGENCE_ERROR_MESSAGES.SCORE_FETCH_FAILED.en);
 // "Failed to fetch living field score"
@@ -348,7 +388,7 @@ import type {
   DateValidation,
   FieldRecommendation,
   TaskFromAlertData,
-} from '@/features/fields';
+} from "@/features/fields";
 ```
 
 ## Best Practices

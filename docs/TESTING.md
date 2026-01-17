@@ -9,11 +9,11 @@ Sprint 2 establishes the testing baseline that enables safe refactoring in futur
 
 We follow the standard testing pyramid with these ratios:
 
-| Test Type | Coverage Target | Purpose |
-|-----------|-----------------|---------|
-| Unit Tests | 60% | Protect business logic |
-| Integration Tests | 30% | Protect API contracts |
-| Smoke Tests | 10% | Verify system starts |
+| Test Type         | Coverage Target | Purpose                |
+| ----------------- | --------------- | ---------------------- |
+| Unit Tests        | 60%             | Protect business logic |
+| Integration Tests | 30%             | Protect API contracts  |
+| Smoke Tests       | 10%             | Verify system starts   |
 
 ## Directory Structure
 
@@ -154,19 +154,19 @@ def test_admin_can_delete_field():
 
 ### Available Fixtures (from conftest.py)
 
-| Fixture | Scope | Description |
-|---------|-------|-------------|
-| `test_user_id` | function | Standard test user ID |
-| `test_tenant_id` | function | Standard test tenant ID |
-| `test_roles` | function | Default test roles |
-| `test_scopes` | function | Default test scopes |
-| `test_principal` | function | Decoded JWT payload |
-| `admin_principal` | function | Admin JWT payload |
-| `sample_field_data` | function | Field creation data |
+| Fixture                 | Scope    | Description             |
+| ----------------------- | -------- | ----------------------- |
+| `test_user_id`          | function | Standard test user ID   |
+| `test_tenant_id`        | function | Standard test tenant ID |
+| `test_roles`            | function | Default test roles      |
+| `test_scopes`           | function | Default test scopes     |
+| `test_principal`        | function | Decoded JWT payload     |
+| `admin_principal`       | function | Admin JWT payload       |
+| `sample_field_data`     | function | Field creation data     |
 | `sample_operation_data` | function | Operation creation data |
-| `mock_nats` | function | Mock NATS client |
-| `mock_redis` | function | Mock Redis client |
-| `db_session` | function | Database session |
+| `mock_nats`             | function | Mock NATS client        |
+| `mock_redis`            | function | Mock Redis client       |
+| `db_session`            | function | Database session        |
 
 ### Creating Custom Fixtures
 
@@ -209,17 +209,18 @@ open coverage_html/index.html
 ## CI Integration
 
 Tests run automatically on:
+
 - Push to `main`, `develop`, `feature/**`, `release/**`, `claude/**`
 - Pull requests to `main`, `develop`
 
 ### CI Gates
 
-| Gate | Requirement |
-|------|-------------|
-| Lint | Ruff format and check pass |
-| Unit Tests | All tests pass |
-| Coverage | ≥ 60% |
-| Integration | API contracts valid |
+| Gate        | Requirement                |
+| ----------- | -------------------------- |
+| Lint        | Ruff format and check pass |
+| Unit Tests  | All tests pass             |
+| Coverage    | ≥ 60%                      |
+| Integration | API contracts valid        |
 
 ## Test Categories
 
@@ -248,6 +249,7 @@ Tests run automatically on:
 ### Common Issues
 
 **Import Errors**
+
 ```bash
 # Add path to sys.path in test file
 import sys
@@ -255,12 +257,14 @@ sys.path.insert(0, "kernel/services/field_ops/src")
 ```
 
 **Missing Fixtures**
+
 ```bash
 # Check conftest.py is in tests/ directory
 # Ensure pytest finds it: pytest --fixtures
 ```
 
 **Coverage Too Low**
+
 ```bash
 # Check what's not covered
 pytest --cov=shared --cov-report=term-missing

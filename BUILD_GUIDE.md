@@ -1,4 +1,5 @@
 # دليل البناء والتشغيل السريع
+
 # Quick Build & Run Guide
 
 **SAHOOL v16.0.0** - Smart Agricultural Platform
@@ -8,6 +9,7 @@
 ## 🚀 البدء السريع | Quick Start
 
 ### المتطلبات الأساسية | Prerequisites
+
 ```bash
 # Node.js 20+
 node --version  # v20.0.0 or higher
@@ -28,6 +30,7 @@ docker-compose --version
 ## 📦 تثبيت التبعيات | Installation
 
 ### 1. تثبيت التبعيات الأساسية
+
 ```bash
 # Install all npm dependencies
 npm install
@@ -36,7 +39,8 @@ npm install
 ```
 
 **المدة المتوقعة:** 2-3 دقائق  
-**النتيجة المتوقعة:** 
+**النتيجة المتوقعة:**
+
 - ✅ 2190+ packages installed
 - ✅ Prisma clients generated
 - ✅ 0 vulnerabilities
@@ -46,6 +50,7 @@ npm install
 ## 🔨 البناء | Build
 
 ### بناء الحزم المشتركة
+
 ```bash
 # Build shared packages (required first)
 npm run build:packages
@@ -59,11 +64,13 @@ npm run build --workspace=packages/shared-hooks
 
 **المدة المتوقعة:** 30-60 ثانية  
 **النتيجة المتوقعة:**
+
 - ✅ dist/ folders created
 - ✅ 0 warnings after fixes
 - ✅ TypeScript types generated
 
 ### بناء التطبيقات
+
 ```bash
 # Build web app
 npm run build:web
@@ -77,6 +84,7 @@ npm run build:all
 
 **المدة المتوقعة:** 3-5 دقائق  
 **النتيجة المتوقعة:**
+
 - ✅ All services built
 - ✅ Prisma clients generated
 - ✅ TypeScript compiled
@@ -86,6 +94,7 @@ npm run build:all
 ## ✅ الفحص والاختبار | Testing & Validation
 
 ### فحص الأنواع
+
 ```bash
 # Type check all workspaces
 npm run typecheck
@@ -97,6 +106,7 @@ npm run typecheck --workspace=apps/web
 **النتيجة المتوقعة:** ✅ 0 errors
 
 ### Linting
+
 ```bash
 # Lint all workspaces
 npm run lint
@@ -108,6 +118,7 @@ npm run lint -- --fix
 **النتيجة المتوقعة:** ⚠️ ~211 warnings (non-critical)
 
 ### فحص الأمان
+
 ```bash
 # Check for security vulnerabilities
 npm audit
@@ -135,6 +146,7 @@ npm run dev:admin
 ```
 
 ### تشغيل الخدمات الخلفية
+
 ```bash
 # Using Docker Compose (recommended)
 docker-compose up -d
@@ -147,6 +159,7 @@ docker-compose down
 ```
 
 **الخدمات المتاحة:**
+
 - PostgreSQL: localhost:5432
 - PgBouncer: localhost:6432
 - Kong Gateway: localhost:8000
@@ -158,6 +171,7 @@ docker-compose down
 ## 🛠️ الأوامر المفيدة | Useful Commands
 
 ### إدارة قاعدة البيانات
+
 ```bash
 # Generate Prisma clients
 npm run prisma:generate
@@ -171,6 +185,7 @@ npx prisma studio
 ```
 
 ### التنظيف
+
 ```bash
 # Clean all node_modules and dist folders
 npm run clean
@@ -180,6 +195,7 @@ npm install
 ```
 
 ### التوثيق
+
 ```bash
 # Generate documentation
 npm run docs
@@ -194,6 +210,7 @@ npm run docs:admin
 ## 🐛 حل المشاكل | Troubleshooting
 
 ### المشكلة: Build fails with warnings
+
 ```bash
 # الحل: تم إصلاحه في هذا PR
 git pull origin copilot/analyze-and-fix-project-issues
@@ -202,6 +219,7 @@ npm run build:packages
 ```
 
 ### المشكلة: Prisma client not found
+
 ```bash
 # الحل: Generate Prisma clients
 npm run prisma:generate
@@ -212,6 +230,7 @@ npx prisma generate
 ```
 
 ### المشكلة: CORS errors in services
+
 ```bash
 # الحل: تم إصلاحه في هذا PR
 # CORS_SETTINGS now exported correctly
@@ -219,6 +238,7 @@ git pull origin copilot/analyze-and-fix-project-issues
 ```
 
 ### المشكلة: TypeScript errors
+
 ```bash
 # الحل: Check type definitions
 npm run typecheck
@@ -232,6 +252,7 @@ npm run build:packages
 ## 📊 مؤشرات الجودة | Quality Metrics
 
 ### بعد الإصلاحات (Current State)
+
 - ✅ Build: **Success** (0 errors, 0 warnings)
 - ✅ TypeScript: **Clean** (0 type errors)
 - ✅ Security: **Secure** (0 vulnerabilities)
@@ -239,6 +260,7 @@ npm run build:packages
 - ✅ Tests: **Passing** (31/33 smoke tests)
 
 ### الأداء (Performance)
+
 - Build Time: ~3-5 minutes (full build)
 - Type Check: ~30 seconds
 - Lint: ~40 seconds
@@ -249,12 +271,14 @@ npm run build:packages
 ## 🔗 روابط مهمة | Important Links
 
 ### الوثائق
+
 - [README.md](./README.md) - نظرة عامة
 - [CODEBASE_ANALYSIS_REPORT.md](./CODEBASE_ANALYSIS_REPORT.md) - تحليل سابق
 - [PROJECT_ANALYSIS_REPORT.md](./PROJECT_ANALYSIS_REPORT.md) - هذا التحليل
 - [DATABASE_ANALYSIS_REPORT.md](./DATABASE_ANALYSIS_REPORT.md) - قاعدة البيانات
 
 ### الخدمات
+
 - Web App: http://localhost:3000
 - Admin App: http://localhost:3001
 - Kong Gateway: http://localhost:8000

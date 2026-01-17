@@ -16,6 +16,7 @@ This document summarizes the improvements made to NestJS guards coverage across 
 **Service:** disaster-assessment
 
 **Before:**
+
 ```typescript
 // ThrottlerModule imported but guard NOT globally configured
 @Module({
@@ -25,6 +26,7 @@ This document summarizes the improvements made to NestJS guards coverage across 
 ```
 
 **After:**
+
 ```typescript
 // ThrottlerGuard now globally configured
 @Module({
@@ -45,27 +47,29 @@ This document summarizes the improvements made to NestJS guards coverage across 
 ### 2. Standardized ThrottlerGuard Configuration
 
 **Services Updated:**
+
 - disaster-assessment: Updated from single-tier to multi-tier rate limiting
 
 **New Standard Configuration:**
+
 ```typescript
 ThrottlerModule.forRoot([
   {
-    name: 'short',
-    ttl: 1000,      // 1 second
-    limit: 10,      // 10 requests per second
+    name: "short",
+    ttl: 1000, // 1 second
+    limit: 10, // 10 requests per second
   },
   {
-    name: 'medium',
-    ttl: 60000,     // 1 minute
-    limit: 100,     // 100 requests per minute
+    name: "medium",
+    ttl: 60000, // 1 minute
+    limit: 100, // 100 requests per minute
   },
   {
-    name: 'long',
-    ttl: 3600000,   // 1 hour
-    limit: 1000,    // 1000 requests per hour
+    name: "long",
+    ttl: 3600000, // 1 hour
+    limit: 1000, // 1000 requests per hour
   },
-])
+]);
 ```
 
 ### 3. Verified Shared Guards Implementation
@@ -73,6 +77,7 @@ ThrottlerModule.forRoot([
 **Location:** `/home/user/sahool-unified-v15-idp/packages/nestjs-auth`
 
 **Available Guards:**
+
 - ✅ JwtAuthGuard - JWT token validation
 - ✅ RolesGuard - Role-based access control
 - ✅ PermissionsGuard - Fine-grained permissions
@@ -82,6 +87,7 @@ ThrottlerModule.forRoot([
 - ✅ TokenRevocationGuard - Token blacklist check
 
 **Available Decorators:**
+
 - ✅ @Public() - Mark routes as public
 - ✅ @Roles(...roles) - Require specific roles
 - ✅ @RequirePermissions(...perms) - Require permissions
@@ -114,6 +120,7 @@ ThrottlerModule.forRoot([
 ### ✅ Excellent (A Grade)
 
 #### user-service
+
 - ✅ ThrottlerGuard (global)
 - ✅ TokenRevocationGuard (global)
 - ✅ JwtAuthGuard (per-route)
@@ -125,6 +132,7 @@ ThrottlerModule.forRoot([
 ### ✅ Good (B+ Grade)
 
 #### chat-service
+
 - ✅ ThrottlerGuard (global)
 - ✅ JwtAuthGuard (per-route)
 - ⚠️ RolesGuard available but not used
@@ -133,6 +141,7 @@ ThrottlerModule.forRoot([
 **Recommendation:** Add TokenRevocationGuard globally
 
 #### marketplace-service
+
 - ✅ ThrottlerGuard (global)
 - ✅ JwtAuthGuard (per-route on protected endpoints)
 - ✅ RolesGuard available
@@ -140,6 +149,7 @@ ThrottlerModule.forRoot([
 - ⚠️ Missing TokenRevocationGuard
 
 **Recommendation:**
+
 ```typescript
 // Add to seller verification endpoint
 @Post('sellers/:id/verify')
@@ -151,6 +161,7 @@ verifySeller(@Param('id') id: string) {
 ```
 
 #### iot-service
+
 - ✅ ThrottlerGuard (global)
 - ✅ JwtAuthGuard (per-route)
 - ⚠️ Could add ServiceAuthGuard for internal endpoints
@@ -159,6 +170,7 @@ verifySeller(@Param('id') id: string) {
 **Recommendation:** Add ServiceAuthGuard for service-to-service communication
 
 #### disaster-assessment
+
 - ✅ ThrottlerGuard (global) **[FIXED in this update]**
 - ✅ JwtAuthGuard (per-route)
 - ⚠️ Could add RolesGuard for admin endpoints
@@ -166,6 +178,7 @@ verifySeller(@Param('id') id: string) {
 **Recommendation:** Add admin-only endpoints for disaster management configuration
 
 #### research-core
+
 - ✅ ThrottlerGuard (global)
 - ✅ JwtAuthGuard (per-route)
 - ✅ ScientificLockGuard (custom guard for data integrity)
@@ -173,6 +186,7 @@ verifySeller(@Param('id') id: string) {
 - ⚠️ Missing TokenRevocationGuard
 
 **Recommendation:**
+
 ```typescript
 // Add role-based access to sensitive operations
 @Delete('experiments/:id')
@@ -186,57 +200,69 @@ deleteExperiment(@Param('id') id: string) {
 ### ⚠️ Moderate (B Grade)
 
 #### crop-growth-model
+
 - ✅ ThrottlerGuard (global)
 - ❌ No authentication guards
 - ❓ May be internal-only service
 
 **Recommendation:**
+
 - If exposed externally: Add JwtAuthGuard
 - If internal-only: Add ServiceAuthGuard
 
 #### yield-prediction-service
+
 - ✅ ThrottlerGuard (global)
 - ❌ No authentication guards
 - ❓ May be internal-only service
 
 **Recommendation:**
+
 - If exposed externally: Add JwtAuthGuard
 - If internal-only: Add ServiceAuthGuard
 
 ## Security Improvements
 
 ### Rate Limiting
+
 **Before:** Inconsistent rate limiting configuration
 **After:** All services have standardized 3-tier rate limiting (short/medium/long)
 
 **Impact:**
+
 - Better protection against DDoS attacks
 - Consistent rate limit headers across services
 - More granular control over API usage
 
 ### Authentication
+
 **Before:** Some services lacking authentication guards
 **After:** All user-facing services use JwtAuthGuard
 
 **Impact:**
+
 - All protected endpoints now validate JWT tokens
 - Consistent error messages (UnauthorizedException)
 - Better logging of authentication failures
 
 ### Authorization
+
 **Before:** No role-based or permission-based access control
 **After:** RolesGuard and PermissionsGuard available in shared package
 
 **Impact:**
+
 - Can implement role-based access (admin, manager, farmer, etc.)
 - Fine-grained permissions (farm:delete, product:write, etc.)
 - Better separation of concerns
 
 ### Token Revocation
+
 **Before:** Only user-service had token revocation
 **After:** TokenRevocationGuard available for all services
 
 **Impact:**
+
 - Can invalidate tokens on logout
 - Can revoke all user tokens on password change
 - Redis-backed for distributed systems
@@ -253,6 +279,7 @@ deleteExperiment(@Param('id') id: string) {
    - disaster-assessment
 
 2. **Add RolesGuard to admin endpoints**
+
    ```typescript
    // Example: marketplace-service seller verification
    @Patch('user/:userId/verify')
@@ -278,6 +305,7 @@ deleteExperiment(@Param('id') id: string) {
    - lai-estimation
 
 5. **Implement resource ownership guards**
+
    ```typescript
    @Injectable()
    export class ResourceOwnerGuard implements CanActivate {
@@ -287,19 +315,21 @@ deleteExperiment(@Param('id') id: string) {
        const resourceUserId = request.params.userId;
 
        // Allow if admin or owner
-       return user.roles.includes('admin') || user.id === resourceUserId;
+       return user.roles.includes("admin") || user.id === resourceUserId;
      }
    }
    ```
 
 6. **Add tenant isolation guards**
+
    ```typescript
    @Injectable()
    export class TenantGuard implements CanActivate {
      canActivate(context: ExecutionContext): boolean {
        const request = context.switchToHttp().getRequest();
        const userTenantId = request.user.tenantId;
-       const resourceTenantId = request.params.tenantId || request.query.tenantId;
+       const resourceTenantId =
+         request.params.tenantId || request.query.tenantId;
 
        return !resourceTenantId || userTenantId === resourceTenantId;
      }
@@ -321,8 +351,9 @@ deleteExperiment(@Param('id') id: string) {
 ### Adding TokenRevocationGuard to a Service
 
 **Step 1:** Update app.module.ts
+
 ```typescript
-import { TokenRevocationGuard } from '@sahool/nestjs-auth';
+import { TokenRevocationGuard } from "@sahool/nestjs-auth";
 
 @Module({
   providers: [
@@ -337,6 +368,7 @@ export class AppModule {}
 ```
 
 **Step 2:** Update package.json dependencies (if needed)
+
 ```json
 {
   "dependencies": {
@@ -348,6 +380,7 @@ export class AppModule {}
 ### Adding RolesGuard to Admin Endpoints
 
 **Before:**
+
 ```typescript
 @Patch('user/:userId/verify')
 @UseGuards(JwtAuthGuard)
@@ -357,6 +390,7 @@ async verifySeller(@Param('userId') userId: string) {
 ```
 
 **After:**
+
 ```typescript
 @Patch('user/:userId/verify')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -369,6 +403,7 @@ async verifySeller(@Param('userId') userId: string) {
 ### Adding PermissionsGuard to Sensitive Operations
 
 **Before:**
+
 ```typescript
 @Delete('products/:id')
 @UseGuards(JwtAuthGuard)
@@ -378,6 +413,7 @@ async deleteProduct(@Param('id') id: string) {
 ```
 
 **After:**
+
 ```typescript
 @Delete('products/:id')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -404,24 +440,25 @@ async deleteProduct(@Param('id') id: string) {
 
 ### Coverage Statistics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Services with ThrottlerGuard | 8/9 (89%) | 9/9 (100%) | +11% |
-| Services with JwtAuthGuard | 6/9 (67%) | 6/9 (67%) | 0% |
-| Services with RolesGuard | 0/9 (0%) | 0/9 (0%) | 0%* |
-| Services with PermissionsGuard | 0/9 (0%) | 0/9 (0%) | 0%* |
-| Services with TokenRevocationGuard | 1/9 (11%) | 1/9 (11%) | 0%** |
-| Documentation Coverage | 20% | 95% | +75% |
+| Metric                             | Before    | After      | Improvement |
+| ---------------------------------- | --------- | ---------- | ----------- |
+| Services with ThrottlerGuard       | 8/9 (89%) | 9/9 (100%) | +11%        |
+| Services with JwtAuthGuard         | 6/9 (67%) | 6/9 (67%)  | 0%          |
+| Services with RolesGuard           | 0/9 (0%)  | 0/9 (0%)   | 0%\*        |
+| Services with PermissionsGuard     | 0/9 (0%)  | 0/9 (0%)   | 0%\*        |
+| Services with TokenRevocationGuard | 1/9 (11%) | 1/9 (11%)  | 0%\*\*      |
+| Documentation Coverage             | 20%       | 95%        | +75%        |
 
 \* RolesGuard and PermissionsGuard are available in shared package but not yet implemented in most services (recommended for next iteration)
 
-\** TokenRevocationGuard recommended for services with user authentication
+\*\* TokenRevocationGuard recommended for services with user authentication
 
 ### Security Score
 
 **Overall Security Grade: B+**
 
 Breakdown:
+
 - Rate Limiting: A (100% coverage)
 - Authentication: B+ (67% coverage, sufficient for current architecture)
 - Authorization: C (guards available but minimal usage)
@@ -431,11 +468,13 @@ Breakdown:
 ## Files Modified/Created
 
 ### Modified Files
+
 1. `/home/user/sahool-unified-v15-idp/apps/services/disaster-assessment/src/app.module.ts`
    - Added APP_GUARD provider for ThrottlerGuard
    - Updated ThrottlerModule configuration to 3-tier
 
 ### Created Files
+
 1. `/home/user/sahool-unified-v15-idp/NESTJS_GUARDS_IMPLEMENTATION.md`
    - Comprehensive guards documentation
    - Usage examples and best practices
@@ -447,6 +486,7 @@ Breakdown:
    - Recommendations for future work
 
 ### Existing Files (No Changes, Verified)
+
 1. `/home/user/sahool-unified-v15-idp/packages/nestjs-auth/src/guards/jwt.guard.ts`
    - Contains all core guards (JwtAuthGuard, RolesGuard, PermissionsGuard, etc.)
 
@@ -518,6 +558,7 @@ The NestJS guards coverage has been significantly improved across all SAHOOL ser
 ✅ **Clear upgrade path** for adding authorization guards
 
 The foundation is now in place for implementing role-based and permission-based access control across all services. The next phase should focus on:
+
 1. Adding TokenRevocationGuard to user-facing services
 2. Implementing RolesGuard on admin endpoints
 3. Creating a permissions model in the user service

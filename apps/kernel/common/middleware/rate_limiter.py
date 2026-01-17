@@ -218,9 +218,12 @@ class FixedWindowLimiter(RateLimitStrategy):
 
             return allowed, remaining, reset_time
 
-        except Exception as e:
-            logger.error(f"خطأ في التحقق من حد المعدل - Rate limit check error: {e}")
+        except (ConnectionError, TimeoutError, OSError) as e:
+            logger.warning(f"خطأ في الاتصال بـ Redis - Redis connection error: {e}")
             # السماح بالطلب عند الفشل - Allow request on failure
+            return True, config.requests, config.period
+        except ValueError as e:
+            logger.error(f"خطأ في قيم حد المعدل - Rate limit value error: {e}")
             return True, config.requests, config.period
 
     async def reset_limits(self, client_id: str, endpoint: str) -> bool:
@@ -248,8 +251,8 @@ class FixedWindowLimiter(RateLimitStrategy):
             )
             return True
 
-        except Exception as e:
-            logger.error(f"خطأ في إعادة تعيين الحدود - Reset error: {e}")
+        except (ConnectionError, TimeoutError, OSError) as e:
+            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
             return False
 
 
@@ -330,8 +333,11 @@ class SlidingWindowLimiter(RateLimitStrategy):
 
             return allowed, remaining, reset_time
 
-        except Exception as e:
-            logger.error(f"خطأ في التحقق من حد المعدل - Rate limit check error: {e}")
+        except (ConnectionError, TimeoutError, OSError) as e:
+            logger.warning(f"خطأ في الاتصال بـ Redis - Redis connection error: {e}")
+            return True, config.requests, config.period
+        except ValueError as e:
+            logger.error(f"خطأ في قيم حد المعدل - Rate limit value error: {e}")
             return True, config.requests, config.period
 
     async def reset_limits(self, client_id: str, endpoint: str) -> bool:
@@ -349,8 +355,8 @@ class SlidingWindowLimiter(RateLimitStrategy):
             )
             return True
 
-        except Exception as e:
-            logger.error(f"خطأ في إعادة تعيين الحدود - Reset error: {e}")
+        except (ConnectionError, TimeoutError, OSError) as e:
+            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
             return False
 
 
@@ -446,8 +452,11 @@ class TokenBucketLimiter(RateLimitStrategy):
 
             return allowed, remaining, reset_time
 
-        except Exception as e:
-            logger.error(f"خطأ في التحقق من حد المعدل - Rate limit check error: {e}")
+        except (ConnectionError, TimeoutError, OSError) as e:
+            logger.warning(f"خطأ في الاتصال بـ Redis - Redis connection error: {e}")
+            return True, config.requests, config.period
+        except ValueError as e:
+            logger.error(f"خطأ في قيم حد المعدل - Rate limit value error: {e}")
             return True, config.requests, config.period
 
     async def reset_limits(self, client_id: str, endpoint: str) -> bool:
@@ -465,8 +474,8 @@ class TokenBucketLimiter(RateLimitStrategy):
             )
             return True
 
-        except Exception as e:
-            logger.error(f"خطأ في إعادة تعيين الحدود - Reset error: {e}")
+        except (ConnectionError, TimeoutError, OSError) as e:
+            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
             return False
 
 
@@ -532,7 +541,12 @@ class RateLimiter:
                 f"✓ Redis متصل للحد من المعدل - Redis connected for rate limiting: {self.redis_url}"
             )
 
-        except Exception as e:
+        except ImportError as e:
+            logger.warning(
+                f"⚠ مكتبة Redis غير متاحة - Redis library not available: {e}"
+            )
+            self.redis = None
+        except (ConnectionError, TimeoutError, OSError) as e:
             logger.warning(
                 f"⚠ Redis غير متاح، حد المعدل معطل - "
                 f"Redis not available, rate limiting disabled: {e}"
@@ -670,8 +684,8 @@ class RateLimiter:
                                 await self.redis.delete(*keys)
                             if cursor == 0:
                                 break
-                except Exception as e:
-                    logger.error(f"خطأ في إعادة التعيين - Reset error: {e}")
+                except (ConnectionError, TimeoutError, OSError) as e:
+                    logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
                     success = False
 
             logger.info(f"إعادة تعيين جميع حدود المعدل - All rate limits reset: client={client_id}")

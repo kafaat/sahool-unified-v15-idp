@@ -3,25 +3,24 @@
  * سجل المعاملات
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import {
-  ArrowUpRight,
-  ArrowDownLeft,
-  CreditCard,
-
-  Filter,
-
-} from 'lucide-react';
-import { useTransactions } from '../hooks/useWallet';
-import type { Transaction, TransactionFilters, TransactionType } from '../types';
+import React, { useState } from "react";
+import { ArrowUpRight, ArrowDownLeft, CreditCard, Filter } from "lucide-react";
+import { useTransactions } from "../hooks/useWallet";
+import type {
+  Transaction,
+  TransactionFilters,
+  TransactionType,
+} from "../types";
 
 interface TransactionHistoryProps {
   onTransactionClick?: (transactionId: string) => void;
 }
 
-export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransactionClick }) => {
+export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
+  onTransactionClick,
+}) => {
   const [filters, setFilters] = useState<TransactionFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   const { data: transactions, isLoading } = useTransactions(filters);
@@ -44,7 +43,9 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
     <div className="space-y-6">
       {/* Header & Filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold">سجل المعاملات | Transaction History</h2>
+        <h2 className="text-2xl font-bold">
+          سجل المعاملات | Transaction History
+        </h2>
 
         <div className="flex items-center gap-2">
           {/* Filter Toggle */}
@@ -65,48 +66,48 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
             onClick={() => handleTypeFilter(undefined)}
             className={`px-4 py-2 rounded-lg transition-colors ${
               !filters.type
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border-2 border-gray-200 hover:border-blue-400'
+                ? "bg-blue-600 text-white"
+                : "bg-white border-2 border-gray-200 hover:border-blue-400"
             }`}
           >
             الكل
           </button>
           <button
-            onClick={() => handleTypeFilter('deposit')}
+            onClick={() => handleTypeFilter("deposit")}
             className={`px-4 py-2 rounded-lg transition-colors ${
-              filters.type === 'deposit'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border-2 border-gray-200 hover:border-blue-400'
+              filters.type === "deposit"
+                ? "bg-blue-600 text-white"
+                : "bg-white border-2 border-gray-200 hover:border-blue-400"
             }`}
           >
             إيداع
           </button>
           <button
-            onClick={() => handleTypeFilter('withdrawal')}
+            onClick={() => handleTypeFilter("withdrawal")}
             className={`px-4 py-2 rounded-lg transition-colors ${
-              filters.type === 'withdrawal'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border-2 border-gray-200 hover:border-blue-400'
+              filters.type === "withdrawal"
+                ? "bg-blue-600 text-white"
+                : "bg-white border-2 border-gray-200 hover:border-blue-400"
             }`}
           >
             سحب
           </button>
           <button
-            onClick={() => handleTypeFilter('payment')}
+            onClick={() => handleTypeFilter("payment")}
             className={`px-4 py-2 rounded-lg transition-colors ${
-              filters.type === 'payment'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border-2 border-gray-200 hover:border-blue-400'
+              filters.type === "payment"
+                ? "bg-blue-600 text-white"
+                : "bg-white border-2 border-gray-200 hover:border-blue-400"
             }`}
           >
             دفع
           </button>
           <button
-            onClick={() => handleTypeFilter('transfer_out')}
+            onClick={() => handleTypeFilter("transfer_out")}
             className={`px-4 py-2 rounded-lg transition-colors ${
-              filters.type === 'transfer_out'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border-2 border-gray-200 hover:border-blue-400'
+              filters.type === "transfer_out"
+                ? "bg-blue-600 text-white"
+                : "bg-white border-2 border-gray-200 hover:border-blue-400"
             }`}
           >
             تحويل
@@ -118,8 +119,12 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
       {!transactions || transactions.length === 0 ? (
         <div className="text-center py-16">
           <CreditCard className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد معاملات</h3>
-          <p className="text-gray-500">لم يتم العثور على معاملات بالفلاتر المحددة</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            لا توجد معاملات
+          </h3>
+          <p className="text-gray-500">
+            لم يتم العثور على معاملات بالفلاتر المحددة
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -133,7 +138,8 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
 
           {/* Results Count */}
           <div className="text-center text-sm text-gray-500 pt-4">
-            عرض {transactions.length} معاملة | Showing {transactions.length} transactions
+            عرض {transactions.length} معاملة | Showing {transactions.length}{" "}
+            transactions
           </div>
         </div>
       )}
@@ -149,9 +155,16 @@ interface TransactionItemProps {
   onClick?: () => void;
 }
 
-const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick }) => {
-  const isIncoming = ['deposit', 'transfer_in', 'refund'].includes(transaction.type);
-  const isOutgoing = ['withdrawal', 'payment', 'transfer_out'].includes(transaction.type);
+const TransactionItem: React.FC<TransactionItemProps> = ({
+  transaction,
+  onClick,
+}) => {
+  const isIncoming = ["deposit", "transfer_in", "refund"].includes(
+    transaction.type,
+  );
+  const isOutgoing = ["withdrawal", "payment", "transfer_out"].includes(
+    transaction.type,
+  );
 
   return (
     <div
@@ -165,10 +178,10 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
           <div
             className={`p-3 rounded-lg ${
               isIncoming
-                ? 'bg-green-100 text-green-600'
+                ? "bg-green-100 text-green-600"
                 : isOutgoing
-                ? 'bg-red-100 text-red-600'
-                : 'bg-blue-100 text-blue-600'
+                  ? "bg-red-100 text-red-600"
+                  : "bg-blue-100 text-blue-600"
             }`}
           >
             {isIncoming ? (
@@ -182,24 +195,28 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
 
           {/* Details */}
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 line-clamp-1">{transaction.descriptionAr}</h4>
-            <p className="text-sm text-gray-600 line-clamp-1">{transaction.description}</p>
+            <h4 className="font-semibold text-gray-900 line-clamp-1">
+              {transaction.descriptionAr}
+            </h4>
+            <p className="text-sm text-gray-600 line-clamp-1">
+              {transaction.description}
+            </p>
             <div className="flex items-center gap-2 mt-1">
               <span
                 className={`text-xs px-2 py-1 rounded-full ${
-                  transaction.status === 'completed'
-                    ? 'bg-green-100 text-green-700'
-                    : transaction.status === 'pending'
-                    ? 'bg-yellow-100 text-yellow-700'
-                    : transaction.status === 'failed'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-gray-100 text-gray-700'
+                  transaction.status === "completed"
+                    ? "bg-green-100 text-green-700"
+                    : transaction.status === "pending"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : transaction.status === "failed"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-gray-100 text-gray-700"
                 }`}
               >
                 {getStatusLabel(transaction.status)}
               </span>
               <span className="text-xs text-gray-500">
-                {new Date(transaction.createdAt).toLocaleDateString('ar-SA')}
+                {new Date(transaction.createdAt).toLocaleDateString("ar-SA")}
               </span>
             </div>
           </div>
@@ -209,14 +226,20 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
         <div className="text-right">
           <div
             className={`text-lg font-bold ${
-              isIncoming ? 'text-green-600' : isOutgoing ? 'text-red-600' : 'text-gray-900'
+              isIncoming
+                ? "text-green-600"
+                : isOutgoing
+                  ? "text-red-600"
+                  : "text-gray-900"
             }`}
           >
-            {isIncoming ? '+' : isOutgoing ? '-' : ''}
+            {isIncoming ? "+" : isOutgoing ? "-" : ""}
             {transaction.amount.toFixed(2)} {transaction.currency}
           </div>
           {transaction.fee && transaction.fee > 0 && (
-            <div className="text-xs text-gray-500">رسوم: {transaction.fee.toFixed(2)}</div>
+            <div className="text-xs text-gray-500">
+              رسوم: {transaction.fee.toFixed(2)}
+            </div>
           )}
         </div>
       </div>
@@ -227,12 +250,12 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
 /**
  * Get status label in Arabic
  */
-function getStatusLabel(status: Transaction['status']): string {
+function getStatusLabel(status: Transaction["status"]): string {
   const labels: Record<typeof status, string> = {
-    pending: 'قيد الانتظار',
-    completed: 'مكتمل',
-    failed: 'فشل',
-    cancelled: 'ملغي',
+    pending: "قيد الانتظار",
+    completed: "مكتمل",
+    failed: "فشل",
+    cancelled: "ملغي",
   };
   return labels[status] || status;
 }

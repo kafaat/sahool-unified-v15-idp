@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 export interface LanguageSwitcherProps {
-  currentLocale: 'ar' | 'en';
-  onLocaleChange: (locale: 'ar' | 'en') => void;
+  currentLocale: "ar" | "en";
+  onLocaleChange: (locale: "ar" | "en") => void;
   className?: string;
 }
 
 const localeNames = {
-  ar: 'العربية',
-  en: 'English',
+  ar: "العربية",
+  en: "English",
 };
 
 /**
@@ -20,9 +20,9 @@ const localeNames = {
 export function LanguageSwitcher({
   currentLocale,
   onLocaleChange,
-  className = '',
+  className = "",
 }: LanguageSwitcherProps) {
-  const otherLocale = currentLocale === 'ar' ? 'en' : 'ar';
+  const otherLocale = currentLocale === "ar" ? "en" : "ar";
 
   return (
     <button

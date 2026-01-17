@@ -1,4 +1,5 @@
 # Redis Security Hardening Implementation Summary
+
 # ملخص تنفيذ تعزيز أمان Redis
 
 **Platform:** SAHOOL Unified Agricultural Platform v15-IDP
@@ -14,14 +15,14 @@ This document summarizes the comprehensive Redis security hardening implementati
 
 ### Security Improvements
 
-| Feature | Before | After | Priority |
-|---------|--------|-------|----------|
-| **TLS/SSL Encryption** | ❌ Not configured | ✅ Ready to enable | 🔴 Critical |
-| **ACL (Access Control)** | ❌ Not implemented | ✅ Configured | 🟡 High |
-| **Dangerous Commands** | ✅ Renamed | ✅ Maintained | ✅ Complete |
-| **Memory Limits (K8s)** | ⚠️ Missing | ✅ Configured | 🟡 High |
-| **Timeout Settings** | ✅ Configured | ✅ Enhanced | ✅ Complete |
-| **HA/Sentinel** | ✅ Available | ✅ Maintained | ✅ Complete |
+| Feature                  | Before             | After              | Priority    |
+| ------------------------ | ------------------ | ------------------ | ----------- |
+| **TLS/SSL Encryption**   | ❌ Not configured  | ✅ Ready to enable | 🔴 Critical |
+| **ACL (Access Control)** | ❌ Not implemented | ✅ Configured      | 🟡 High     |
+| **Dangerous Commands**   | ✅ Renamed         | ✅ Maintained      | ✅ Complete |
+| **Memory Limits (K8s)**  | ⚠️ Missing         | ✅ Configured      | 🟡 High     |
+| **Timeout Settings**     | ✅ Configured      | ✅ Enhanced        | ✅ Complete |
+| **HA/Sentinel**          | ✅ Available       | ✅ Maintained      | ✅ Complete |
 
 ### Security Score Improvement
 
@@ -123,6 +124,7 @@ This document summarizes the comprehensive Redis security hardening implementati
 **Status:** Configured but disabled by default for compatibility
 
 **Features:**
+
 - TLS 1.2 and TLS 1.3 support only
 - Strong cipher suites (HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4)
 - Optional client certificate authentication
@@ -215,6 +217,7 @@ docker-compose restart redis
 **Status:** ✅ Implemented and active
 
 **Features:**
+
 - Configurable `maxmemory` via Helm values (default: 768mb)
 - Configurable eviction policy (default: allkeys-lru)
 - Prevents OOM kills in Kubernetes pods
@@ -226,8 +229,8 @@ docker-compose restart redis
 # helm/infra/values.yaml or helm/sahool/values.yaml
 redis:
   master:
-    maxmemory: "768mb"          # Adjust based on pod memory limit
-    evictionPolicy: "allkeys-lru"  # or "volatile-lru", "noeviction"
+    maxmemory: "768mb" # Adjust based on pod memory limit
+    evictionPolicy: "allkeys-lru" # or "volatile-lru", "noeviction"
 ```
 
 ### 2.4 Dangerous Command Protection
@@ -235,6 +238,7 @@ redis:
 **Status:** ✅ Maintained from previous configuration
 
 **Protected Commands:**
+
 - `FLUSHDB` → `SAHOOL_FLUSHDB_DANGER_f5a8d2e9`
 - `FLUSHALL` → `SAHOOL_FLUSHALL_DANGER_b3c7f1a4`
 - `CONFIG` → `SAHOOL_CONFIG_ADMIN_c8e2d4f6`
@@ -250,14 +254,14 @@ redis:
 
 ### 3.1 Redis Configuration Comparison
 
-| Setting | Old (redis-docker.conf) | New (redis-secure.conf) | Impact |
-|---------|------------------------|------------------------|---------|
-| **TLS Support** | ❌ Not configured | ✅ Ready (commented) | High - Encryption |
-| **ACL Users** | ❌ None | ✅ 4 roles defined | High - Access control |
-| **Slow Log Size** | 128 entries | 256 entries | Low - Better debugging |
-| **Maxmemory** | Via command line | Via command line | None - Same |
-| **Persistence** | AOF + RDB | AOF + RDB | None - Same |
-| **Dangerous Commands** | Renamed | Renamed | None - Same |
+| Setting                | Old (redis-docker.conf) | New (redis-secure.conf) | Impact                 |
+| ---------------------- | ----------------------- | ----------------------- | ---------------------- |
+| **TLS Support**        | ❌ Not configured       | ✅ Ready (commented)    | High - Encryption      |
+| **ACL Users**          | ❌ None                 | ✅ 4 roles defined      | High - Access control  |
+| **Slow Log Size**      | 128 entries             | 256 entries             | Low - Better debugging |
+| **Maxmemory**          | Via command line        | Via command line        | None - Same            |
+| **Persistence**        | AOF + RDB               | AOF + RDB               | None - Same            |
+| **Dangerous Commands** | Renamed                 | Renamed                 | None - Same            |
 
 ### 3.2 Environment Variables
 
@@ -272,6 +276,7 @@ REDIS_READONLY_PASSWORD=${REDIS_READONLY_PASSWORD:-${REDIS_PASSWORD}}
 ```
 
 **Backward Compatibility:**
+
 - If not set, ACL passwords default to `REDIS_PASSWORD`
 - Existing deployments continue to work without changes
 - ACL is not enforced until explicitly enabled
@@ -386,7 +391,7 @@ redis:
   auth:
     enabled: true
   master:
-    maxmemory: "768mb"           # Adjust based on needs
+    maxmemory: "768mb" # Adjust based on needs
     evictionPolicy: "allkeys-lru"
     persistence:
       enabled: true
@@ -424,17 +429,17 @@ kubectl exec deployment/sahool-redis -- redis-cli -a $REDIS_PASSWORD CONFIG GET 
 
 ### 5.1 Security Controls Implemented
 
-| Control | Implementation | Status | Compliance |
-|---------|---------------|--------|------------|
-| **Encryption in Transit** | TLS 1.2/1.3 | Ready | ⚠️ Disabled by default |
-| **Encryption at Rest** | Volume-level | OS-dependent | ℹ️ Platform-specific |
-| **Authentication** | Password + ACL | Ready | ✅ Active |
-| **Authorization** | Role-based ACL | Ready | ⚠️ Disabled by default |
-| **Network Isolation** | Docker network | Active | ✅ Complete |
-| **Command Protection** | Rename dangerous | Active | ✅ Complete |
-| **Resource Limits** | Memory + CPU | Active | ✅ Complete |
-| **Audit Logging** | Slow log | Active | ✅ Complete |
-| **High Availability** | Sentinel | Available | ℹ️ Optional |
+| Control                   | Implementation   | Status       | Compliance             |
+| ------------------------- | ---------------- | ------------ | ---------------------- |
+| **Encryption in Transit** | TLS 1.2/1.3      | Ready        | ⚠️ Disabled by default |
+| **Encryption at Rest**    | Volume-level     | OS-dependent | ℹ️ Platform-specific   |
+| **Authentication**        | Password + ACL   | Ready        | ✅ Active              |
+| **Authorization**         | Role-based ACL   | Ready        | ⚠️ Disabled by default |
+| **Network Isolation**     | Docker network   | Active       | ✅ Complete            |
+| **Command Protection**    | Rename dangerous | Active       | ✅ Complete            |
+| **Resource Limits**       | Memory + CPU     | Active       | ✅ Complete            |
+| **Audit Logging**         | Slow log         | Active       | ✅ Complete            |
+| **High Availability**     | Sentinel         | Available    | ℹ️ Optional            |
 
 ### 5.2 Security Best Practices Applied
 
@@ -468,12 +473,14 @@ kubectl exec deployment/sahool-redis -- redis-cli -a $REDIS_PASSWORD CONFIG GET 
 ### 6.1 Validation Checklist
 
 **Pre-Deployment:**
+
 - [ ] Environment variables set in `.env`
 - [ ] TLS certificates generated (if enabling TLS)
 - [ ] Docker compose files reviewed
 - [ ] Backup of existing Redis data taken
 
 **Post-Deployment:**
+
 - [ ] Redis responds to PING
 - [ ] Authentication works
 - [ ] Memory limits enforced
@@ -725,12 +732,12 @@ docker cp sahool-redis:/data/sahool-appendonly.aof ./backup/redis-aof-$(date +%Y
 
 ### 9.2 Configuration Files
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `infrastructure/redis/redis-secure.conf` | Main secure configuration | ✅ Active |
-| `infrastructure/redis/redis-docker.conf` | Legacy Docker config | 📋 Deprecated |
-| `infrastructure/redis/redis-production.conf` | Legacy production config | 📋 Reference |
-| `config/redis/redis-tls.conf` | Standalone TLS config | 📋 Merged into redis-secure.conf |
+| File                                         | Purpose                   | Status                           |
+| -------------------------------------------- | ------------------------- | -------------------------------- |
+| `infrastructure/redis/redis-secure.conf`     | Main secure configuration | ✅ Active                        |
+| `infrastructure/redis/redis-docker.conf`     | Legacy Docker config      | 📋 Deprecated                    |
+| `infrastructure/redis/redis-production.conf` | Legacy production config  | 📋 Reference                     |
+| `config/redis/redis-tls.conf`                | Standalone TLS config     | 📋 Merged into redis-secure.conf |
 
 ### 9.3 Environment Variables
 
@@ -751,38 +758,43 @@ REDIS_MAXMEMORY=512mb
 ### 9.4 Connection Strings
 
 **Standard (No TLS):**
+
 ```
 redis://:${REDIS_PASSWORD}@redis:6379/0
 ```
 
 **With TLS:**
+
 ```
 rediss://:${REDIS_PASSWORD}@redis:6379/0
 ```
 
 **With ACL:**
+
 ```
 redis://sahool_app:${REDIS_APP_PASSWORD}@redis:6379/0
 ```
 
 **With ACL and TLS:**
+
 ```
 rediss://sahool_app:${REDIS_APP_PASSWORD}@redis:6379/0
 ```
 
 **Sentinel (HA):**
+
 ```
 redis-sentinel://redis-sentinel-1:26379,redis-sentinel-2:26380,redis-sentinel-3:26381?master=sahool-master&password=${REDIS_PASSWORD}
 ```
 
 ### 9.5 Support Contacts
 
-| Area | Contact | Priority |
-|------|---------|----------|
-| **General Questions** | DevOps Team | Normal |
-| **Security Issues** | Security Team | High |
-| **Production Incidents** | On-Call Engineer | Critical |
-| **Architecture Decisions** | Platform Architect | Normal |
+| Area                       | Contact            | Priority |
+| -------------------------- | ------------------ | -------- |
+| **General Questions**      | DevOps Team        | Normal   |
+| **Security Issues**        | Security Team      | High     |
+| **Production Incidents**   | On-Call Engineer   | Critical |
+| **Architecture Decisions** | Platform Architect | Normal   |
 
 ---
 
@@ -876,7 +888,7 @@ docker exec sahool-redis redis-cli -a $REDIS_PASSWORD CONFIG GET maxmemory
 ```javascript
 // Node.js Redis client example
 const redis = new Redis({
-  host: 'redis',
+  host: "redis",
   port: 6379,
   password: process.env.REDIS_PASSWORD,
   maxRetriesPerRequest: 3,
@@ -900,6 +912,7 @@ const redis = new Redis({
 ### 10.4 Certificate Renewal
 
 **When to Renew:**
+
 - 30 days before expiration (automated alerts recommended)
 - After security incidents
 - When changing domain names
@@ -938,6 +951,7 @@ This implementation provides enterprise-grade security for Redis while maintaini
 4. **Phase 4 (Month 3+):** Implement advanced features (clustering, multi-region)
 
 **Questions or Issues?**
+
 - Review: `tests/database/REDIS_AUDIT.md`
 - Read: `infrastructure/redis/REDIS_SECURITY.md`
 - Contact: DevOps Team or Security Team
@@ -950,4 +964,4 @@ This implementation provides enterprise-grade security for Redis while maintaini
 
 ---
 
-*End of Redis Security Hardening Implementation Summary*
+_End of Redis Security Hardening Implementation Summary_

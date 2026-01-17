@@ -247,18 +247,18 @@ app.add_middleware(MetricsMiddleware)
 
 Events follow versioned JSON schemas:
 
-| Event | Schema |
-|-------|--------|
-| `audit_logged.v1` | Audit log entry |
-| `chat_message_sent.v1` | Chat message |
-| `device_status.v1` | IoT device status |
-| `fertilizer_plan_issued.v1` | Fertilization plan |
-| `irrigation_adjustment.v1` | Irrigation change |
-| `ndvi_anomaly.v1` | NDVI anomaly detected |
-| `ndvi_computed.v1` | NDVI computation result |
-| `recommendation_issued.v1` | System recommendation |
-| `sensor_reading.v1` | Sensor data |
-| `weather_alert.v1` | Weather alert |
+| Event                       | Schema                  |
+| --------------------------- | ----------------------- |
+| `audit_logged.v1`           | Audit log entry         |
+| `chat_message_sent.v1`      | Chat message            |
+| `device_status.v1`          | IoT device status       |
+| `fertilizer_plan_issued.v1` | Fertilization plan      |
+| `irrigation_adjustment.v1`  | Irrigation change       |
+| `ndvi_anomaly.v1`           | NDVI anomaly detected   |
+| `ndvi_computed.v1`          | NDVI computation result |
+| `recommendation_issued.v1`  | System recommendation   |
+| `sensor_reading.v1`         | Sensor data             |
+| `weather_alert.v1`          | Weather alert           |
 
 ---
 

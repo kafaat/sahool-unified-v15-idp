@@ -1,6 +1,7 @@
 # Task Service Astronomical Integration Summary
 
 ## Overview
+
 Successfully integrated astronomical calendar data into the Task Service to provide farmers with optimal timing recommendations based on traditional Yemeni agricultural astronomy.
 
 ## Changes Made
@@ -8,6 +9,7 @@ Successfully integrated astronomical calendar data into the Task Service to prov
 ### 1. Task Model Updates
 
 #### Added Astronomical Fields to `Task` Model:
+
 - `astronomical_score` (Optional[int], 1-10): Overall farming suitability score
 - `moon_phase_at_due_date` (Optional[str]): Moon phase in Arabic (e.g., "البدر", "الهلال المتزايد")
 - `lunar_mansion_at_due_date` (Optional[str]): Lunar mansion in Arabic (e.g., "الثريا", "السماك")
@@ -17,12 +19,14 @@ Successfully integrated astronomical calendar data into the Task Service to prov
 - `astronomical_warnings` (list[str]): Warnings about non-optimal dates (bilingual: Arabic & English)
 
 #### Added Astronomical Fields to `TaskCreate` and `TaskUpdate` Models:
+
 - Same fields as Task model (except `astronomical_warnings`)
 - Fields can be manually set or auto-populated when `due_date` is provided
 
 ### 2. Helper Functions
 
 #### `fetch_astronomical_data(due_date, task_type) -> dict`
+
 - **Purpose**: Fetches astronomical data from the astronomical calendar service
 - **Features**:
   - Maps task types to agricultural activities in Arabic
@@ -33,6 +37,7 @@ Successfully integrated astronomical calendar data into the Task Service to prov
 - **Error Handling**: Gracefully handles service unavailability
 
 #### `validate_and_enrich_task_with_astronomy(task, task_type) -> Task`
+
 - **Purpose**: Validates and enriches task with astronomical data
 - **Features**:
   - Calls `fetch_astronomical_data()` to get astronomical information
@@ -43,7 +48,9 @@ Successfully integrated astronomical calendar data into the Task Service to prov
 ### 3. Endpoint Updates
 
 #### `POST /api/v1/tasks` (create_task)
+
 **Behavior**:
+
 - When `due_date` is provided:
   - Automatically fetches astronomical data
   - Populates all astronomical fields
@@ -53,7 +60,9 @@ Successfully integrated astronomical calendar data into the Task Service to prov
   - No automatic fetching
 
 #### `PUT /api/v1/tasks/{task_id}` (update_task)
+
 **Behavior**:
+
 - When `due_date` is changed:
   - Automatically refreshes astronomical data
   - Updates all astronomical fields
@@ -63,6 +72,7 @@ Successfully integrated astronomical calendar data into the Task Service to prov
   - Manual astronomical field updates are preserved
 
 ### 4. Configuration
+
 - Added `ASTRONOMICAL_SERVICE_URL` environment variable
 - Default: `http://astronomical-calendar:8111`
 - Uses existing `httpx` dependency for async HTTP calls
@@ -70,6 +80,7 @@ Successfully integrated astronomical calendar data into the Task Service to prov
 ## Arabic Field Labels (حقول بالعربية)
 
 All astronomical fields include Arabic descriptions in the Field() metadata:
+
 - **التصنيف الفلكي** - Astronomical score
 - **مرحلة القمر** - Moon phase
 - **المنزلة القمرية** - Lunar mansion
@@ -81,6 +92,7 @@ All astronomical fields include Arabic descriptions in the Field() metadata:
 ## Task Type to Activity Mapping
 
 The service maps task types to Arabic agricultural activities:
+
 - `PLANTING` → زراعة (Planting)
 - `IRRIGATION` → ري (Irrigation)
 - `HARVEST` → حصاد (Harvesting)
@@ -94,6 +106,7 @@ The service maps task types to Arabic agricultural activities:
 ## Optimal Time Recommendations
 
 Based on activity type:
+
 - **Irrigation/Spraying**: 06:00-08:00 (Early morning)
 - **Harvesting**: 07:00-11:00 (Morning)
 - **Other activities**: 07:00-10:00 (General morning work)
@@ -101,10 +114,12 @@ Based on activity type:
 ## Warning System
 
 The system generates bilingual warnings when:
+
 1. **Astronomical score < 5**: Date is not optimal for the activity
 2. **Moon phase not suitable**: Moon is in waning phase (not good for planting)
 
 Example warnings:
+
 ```
 - "التاريخ المحدد غير مثالي للنشاط (زراعة). الدرجة: 3/10"
 - "Selected date is not optimal for planting. Score: 3/10"
@@ -117,6 +132,7 @@ Example warnings:
 ### Create Task with Astronomical Data
 
 **Request**:
+
 ```json
 POST /api/v1/tasks
 {
@@ -131,6 +147,7 @@ POST /api/v1/tasks
 ```
 
 **Response**:
+
 ```json
 {
   "task_id": "task_abc123",
@@ -158,6 +175,7 @@ POST /api/v1/tasks
 ## Integration with Astronomical Calendar Service
 
 The task service calls the following endpoints:
+
 - `GET /v1/date/{date}` - Get astronomical data for a specific date
 
 Service URL is configurable via `ASTRONOMICAL_SERVICE_URL` environment variable.

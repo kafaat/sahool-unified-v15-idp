@@ -1,4 +1,5 @@
 # Changelog - Sahool Community Chat Service
+
 # سجل التغييرات - خدمة الدردشة الحية
 
 All notable changes to this project will be documented in this file.
@@ -11,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added / الإضافات
 
 #### 📚 API Documentation / توثيق الـ API
+
 - **OpenAPI 3.0.3 Specification** (`openapi.yaml`)
   - Comprehensive REST API documentation
   - WebSocket events documentation
@@ -38,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - مواصفات JSON
 
 #### 📖 Documentation Files / ملفات التوثيق
+
 - **API_DOCUMENTATION.md** - Complete API guide with bilingual support (EN/AR)
   - REST API endpoints
   - WebSocket events
@@ -73,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - تكامل Angular
 
 #### 🔧 Example Code / الأمثلة البرمجية
+
 - **examples/client-example.js** - Complete ChatClient class
   - Farmer client example
   - Expert client example
@@ -85,11 +89,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - أمثلة REST API
 
 #### 📦 Dependencies / المتطلبات
+
 - `swagger-jsdoc@^6.2.8` - OpenAPI specification generation
 - `swagger-ui-express@^5.0.0` - Swagger UI middleware
 - `js-yaml@^4.1.0` - YAML parsing for OpenAPI spec
 
 #### 🛠️ Tools & Collections / الأدوات
+
 - **postman_collection.json** - Postman collection for API testing
   - All REST endpoints
   - Example requests/responses
@@ -117,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation Coverage / تغطية التوثيق
 
 #### REST API Endpoints (5/5) ✅
+
 - ✅ `GET /healthz` - Health check
 - ✅ `GET /v1/requests` - Get support requests
 - ✅ `GET /v1/rooms/:roomId/messages` - Get room messages
@@ -126,6 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### WebSocket Events (18/18) ✅
 
 **Client → Server (8 events)**
+
 - ✅ `register_user` - Register user on connection
 - ✅ `join_room` - Join a chat room
 - ✅ `send_message` - Send a message
@@ -136,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ `leave_room` - Leave a room
 
 **Server → Client (10 events)**
+
 - ✅ `registration_confirmed` - User registered
 - ✅ `load_history` - Room message history
 - ✅ `receive_message` - New message
@@ -150,6 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ `error` - Error notification
 
 #### Data Schemas (7/7) ✅
+
 - ✅ HealthResponse
 - ✅ SupportRequest
 - ✅ Message
@@ -161,6 +171,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Features / الميزات
 
 #### 🎯 What's Documented
+
 - Complete REST API reference
 - WebSocket events with examples
 - Authentication flows
@@ -178,6 +189,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - التحقق من البيانات
 
 #### 🌐 Bilingual Support
+
 - All documentation in English and Arabic
 - Code comments in both languages
 - Examples with Arabic text
@@ -186,6 +198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - أمثلة بالنص العربي
 
 #### 🧪 Testing Support
+
 - Postman collection
 - cURL examples
 - Node.js client examples
@@ -198,6 +211,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security / الأمان
 
 Documented security features:
+
 - JWT authentication requirements
 - Room access control
 - Message validation and sanitization
@@ -222,6 +236,7 @@ Documented security features:
 ## Future Enhancements / التحسينات المستقبلية
 
 ### Planned for v1.1.0
+
 - [ ] Redis integration documentation
 - [ ] Rate limiting implementation guide
 - [ ] Monitoring and logging setup
@@ -234,6 +249,7 @@ Documented security features:
 - [ ] أمثلة اختبار الحمل
 
 ### Planned for v1.2.0
+
 - [ ] GraphQL API support
 - [ ] Advanced filtering options
 - [ ] Message search functionality

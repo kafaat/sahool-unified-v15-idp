@@ -11,20 +11,24 @@ This mobile app implements SSL certificate pinning for enhanced security. Certif
 3. **Production Mode**: Certificate pinning is ENABLED and STRICT (no bypass allowed)
 
 The security configuration is automatically selected based on the build mode:
+
 - Debug builds → Development config (pinning disabled)
 - Release builds → Production config (pinning enabled and strict)
 
 ## Configuration Files
 
 ### 1. `certificate_pinning_service.dart`
+
 Core service that handles certificate validation and pinning logic.
 
 ### 2. `certificate_config.dart`
+
 Contains the actual certificate fingerprints for all domains (production, staging, development).
 
 **IMPORTANT**: You MUST replace the placeholder fingerprints with actual values before deploying to production!
 
 ### 3. `security_config.dart`
+
 Controls when certificate pinning is enabled based on environment.
 
 ## Getting Certificate Fingerprints
@@ -169,11 +173,13 @@ Certificate pinning is disabled in debug mode by default, so you can test with l
 ### Staging Testing
 
 1. Build in release mode with staging environment:
+
    ```bash
    flutter build apk --dart-define=ENV=staging
    ```
 
 2. Install and test:
+
    ```bash
    adb install build/app/outputs/flutter-apk/app-release.apk
    adb logcat | grep "Certificate"
@@ -184,6 +190,7 @@ Certificate pinning is disabled in debug mode by default, so you can test with l
 ### Production Testing
 
 1. Build production release:
+
    ```bash
    flutter build apk --dart-define=ENV=production --release
    ```
@@ -202,11 +209,13 @@ Certificate pinning is disabled in debug mode by default, so you can test with l
 **Symptom**: App shows network errors in production but works in development
 
 **Possible Causes**:
+
 1. Certificate fingerprints don't match actual server certificates
 2. Certificate has expired
 3. Using wrong environment configuration
 
 **Solution**:
+
 1. Get current certificate fingerprint from server
 2. Update `certificate_config.dart` with correct value
 3. Rebuild and redeploy app
@@ -216,6 +225,7 @@ Certificate pinning is disabled in debug mode by default, so you can test with l
 **Symptom**: Logs show "Certificate validation failed for host: api.sahool.app"
 
 **Solution**:
+
 1. Check that the fingerprint in the logs matches your configuration
 2. Verify the domain name matches exactly
 3. Ensure certificate hasn't expired
@@ -225,6 +235,7 @@ Certificate pinning is disabled in debug mode by default, so you can test with l
 **Symptom**: Logs show "Certificate pinning bypassed in debug mode" in production
 
 **Solution**:
+
 1. Ensure you're building with `--release` flag
 2. Check that `SecurityConfig.fromBuildMode()` returns production config
 3. Verify `kReleaseMode` is true in production builds
@@ -253,6 +264,7 @@ flutter build apk --dart-define=ENV=production --release
 ## Support
 
 For questions or issues with certificate pinning:
+
 1. Check logs for specific error messages
 2. Verify certificate fingerprints match
 3. Review this guide's troubleshooting section

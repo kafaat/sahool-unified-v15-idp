@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import maplibregl, { type MapMouseEvent } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import { apiClient } from '@/lib/api';
-import type { Field } from '@/lib/api/types';
-import { logger } from '@/lib/logger';
+import React, { useEffect, useRef, useState } from "react";
+import { createRoot } from "react-dom/client";
+import maplibregl, { type MapMouseEvent } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { apiClient } from "@/lib/api";
+import type { Field } from "@/lib/api/types";
+import { logger } from "@/lib/logger";
 
 interface MapViewProps {
   tenantId?: string;
@@ -19,47 +19,57 @@ interface PopupData {
   crop: string;
   area: number | string;
   ndvi: number | null;
-  status: 'healthy' | 'warning' | 'critical';
+  status: "healthy" | "warning" | "critical";
 }
 
 // Status colors for NDVI/health
 const STATUS_COLORS: Record<string, string> = {
-  healthy: '#10b981',
-  warning: '#f59e0b',
-  critical: '#ef4444',
+  healthy: "#10b981",
+  warning: "#f59e0b",
+  critical: "#ef4444",
 };
 
-function getFieldStatus(ndviValue?: number): 'healthy' | 'warning' | 'critical' {
-  if (!ndviValue) return 'warning';
-  if (ndviValue >= 0.6) return 'healthy';
-  if (ndviValue >= 0.4) return 'warning';
-  return 'critical';
+function getFieldStatus(
+  ndviValue?: number,
+): "healthy" | "warning" | "critical" {
+  if (!ndviValue) return "warning";
+  if (ndviValue >= 0.6) return "healthy";
+  if (ndviValue >= 0.4) return "warning";
+  return "critical";
 }
 
 // Secure popup content component using React instead of raw HTML
-const PopupContent: React.FC<PopupData> = ({ name, crop, area, ndvi, status }) => {
+const PopupContent: React.FC<PopupData> = ({
+  name,
+  crop,
+  area,
+  ndvi,
+  status,
+}) => {
   const statusClasses = {
-    healthy: 'bg-green-100 text-green-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    critical: 'bg-red-100 text-red-800',
+    healthy: "bg-green-100 text-green-800",
+    warning: "bg-yellow-100 text-yellow-800",
+    critical: "bg-red-100 text-red-800",
   };
 
   const statusLabels = {
-    healthy: 'صحي',
-    warning: 'تحذير',
-    critical: 'حرج',
+    healthy: "صحي",
+    warning: "تحذير",
+    critical: "حرج",
   };
 
   return (
     <div className="p-2 text-right" dir="rtl">
-      <h4 className="font-bold text-sm">{name || 'حقل'}</h4>
-      <p className="text-xs text-gray-600">المحصول: {crop || '-'}</p>
-      <p className="text-xs text-gray-600">المساحة: {area || '0'} هكتار</p>
+      <h4 className="font-bold text-sm">{name || "حقل"}</h4>
+      <p className="text-xs text-gray-600">المحصول: {crop || "-"}</p>
+      <p className="text-xs text-gray-600">المساحة: {area || "0"} هكتار</p>
       <p className="text-xs text-gray-600">
-        NDVI: {ndvi !== null && ndvi !== undefined ? ndvi.toFixed(2) : 'N/A'}
+        NDVI: {ndvi !== null && ndvi !== undefined ? ndvi.toFixed(2) : "N/A"}
       </p>
       <div className="mt-2">
-        <span className={`text-xs px-2 py-0.5 rounded-full ${statusClasses[status]}`}>
+        <span
+          className={`text-xs px-2 py-0.5 rounded-full ${statusClasses[status]}`}
+        >
           {statusLabels[status]}
         </span>
       </div>
@@ -67,7 +77,11 @@ const PopupContent: React.FC<PopupData> = ({ name, crop, area, ndvi, status }) =
   );
 };
 
-const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSelect, fields: propFields }) {
+const MapView = React.memo<MapViewProps>(function MapView({
+  tenantId,
+  onFieldSelect,
+  fields: propFields,
+}) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<InstanceType<typeof maplibregl.Map> | null>(null);
   const popupRef = useRef<InstanceType<typeof maplibregl.Popup> | null>(null);
@@ -84,8 +98,9 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
     }
 
     if (tenantId) {
-      apiClient.getFields(tenantId)
-        .then(response => {
+      apiClient
+        .getFields(tenantId)
+        .then((response) => {
           if (response.success && response.data) {
             setFields(response.data);
           }
@@ -104,17 +119,17 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
         version: 8,
         sources: {
           osm: {
-            type: 'raster',
-            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            type: "raster",
+            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
             tileSize: 256,
-            attribution: '&copy; OpenStreetMap contributors',
+            attribution: "&copy; OpenStreetMap contributors",
           },
         },
         layers: [
           {
-            id: 'osm',
-            type: 'raster',
-            source: 'osm',
+            id: "osm",
+            type: "raster",
+            source: "osm",
           },
         ],
       },
@@ -122,9 +137,9 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
       zoom: 6,
     });
 
-    map.current.addControl(new maplibregl.NavigationControl(), 'top-left');
+    map.current.addControl(new maplibregl.NavigationControl(), "top-left");
 
-    map.current.on('load', () => {
+    map.current.on("load", () => {
       setMapLoaded(true);
     });
 
@@ -152,11 +167,11 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
     if (!map.current || !mapLoaded || fields.length === 0) return;
 
     const geojsonData: GeoJSON.FeatureCollection = {
-      type: 'FeatureCollection',
+      type: "FeatureCollection",
       features: fields
-        .filter(field => field.boundary)
-        .map(field => ({
-          type: 'Feature' as const,
+        .filter((field) => field.boundary)
+        .map((field) => ({
+          type: "Feature" as const,
           id: field.id,
           properties: {
             id: field.id,
@@ -171,74 +186,80 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
     };
 
     // Remove existing layers and source
-    if (map.current.getSource('fields')) {
-      map.current.removeLayer('fields-label');
-      map.current.removeLayer('fields-outline');
-      map.current.removeLayer('fields-fill');
-      map.current.removeSource('fields');
+    if (map.current.getSource("fields")) {
+      map.current.removeLayer("fields-label");
+      map.current.removeLayer("fields-outline");
+      map.current.removeLayer("fields-fill");
+      map.current.removeSource("fields");
     }
 
     // Add fields source
-    map.current.addSource('fields', {
-      type: 'geojson',
+    map.current.addSource("fields", {
+      type: "geojson",
       data: geojsonData,
     });
 
     // Add fields fill layer
     map.current.addLayer({
-      id: 'fields-fill',
-      type: 'fill',
-      source: 'fields',
+      id: "fields-fill",
+      type: "fill",
+      source: "fields",
       paint: {
-        'fill-color': [
-          'match',
-          ['get', 'status'],
-          'healthy', STATUS_COLORS.healthy,
-          'warning', STATUS_COLORS.warning,
-          'critical', STATUS_COLORS.critical,
-          '#9ca3af',
+        "fill-color": [
+          "match",
+          ["get", "status"],
+          "healthy",
+          STATUS_COLORS.healthy,
+          "warning",
+          STATUS_COLORS.warning,
+          "critical",
+          STATUS_COLORS.critical,
+          "#9ca3af",
         ],
-        'fill-opacity': 0.6,
+        "fill-opacity": 0.6,
       },
     });
 
     // Add fields outline layer
     map.current.addLayer({
-      id: 'fields-outline',
-      type: 'line',
-      source: 'fields',
+      id: "fields-outline",
+      type: "line",
+      source: "fields",
       paint: {
-        'line-color': [
-          'match',
-          ['get', 'status'],
-          'healthy', STATUS_COLORS.healthy,
-          'warning', STATUS_COLORS.warning,
-          'critical', STATUS_COLORS.critical,
-          '#6b7280',
+        "line-color": [
+          "match",
+          ["get", "status"],
+          "healthy",
+          STATUS_COLORS.healthy,
+          "warning",
+          STATUS_COLORS.warning,
+          "critical",
+          STATUS_COLORS.critical,
+          "#6b7280",
         ],
-        'line-width': 2,
+        "line-width": 2,
       },
     });
 
     // Add labels
     map.current.addLayer({
-      id: 'fields-label',
-      type: 'symbol',
-      source: 'fields',
+      id: "fields-label",
+      type: "symbol",
+      source: "fields",
       layout: {
-        'text-field': ['get', 'name'],
-        'text-size': 12,
-        'text-anchor': 'center',
+        "text-field": ["get", "name"],
+        "text-size": 12,
+        "text-anchor": "center",
       },
       paint: {
-        'text-color': '#1f2937',
-        'text-halo-color': '#ffffff',
-        'text-halo-width': 1,
+        "text-color": "#1f2937",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1,
       },
     });
 
     // Click handler - using React createRoot for secure popup rendering
-    map.current.on('click', 'fields-fill', (e: MapMouseEvent) => {
+    map.current.on("click", "fields-fill", (e: MapMouseEvent) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
         const props = feature.properties;
@@ -273,12 +294,12 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
             popupRootRef.current = createRoot(popupContainer);
             popupRootRef.current.render(
               <PopupContent
-                name={props?.name || 'حقل'}
-                crop={props?.crop || '-'}
-                area={props?.area || '0'}
+                name={props?.name || "حقل"}
+                crop={props?.crop || "-"}
+                area={props?.area || "0"}
                 ndvi={props?.ndvi ?? null}
-                status={props?.status || 'warning'}
-              />
+                status={props?.status || "warning"}
+              />,
             );
           }
         });
@@ -289,26 +310,29 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
     });
 
     // Hover effect
-    map.current.on('mouseenter', 'fields-fill', () => {
+    map.current.on("mouseenter", "fields-fill", () => {
       if (map.current) {
-        map.current.getCanvas().style.cursor = 'pointer';
+        map.current.getCanvas().style.cursor = "pointer";
       }
     });
 
-    map.current.on('mouseleave', 'fields-fill', () => {
+    map.current.on("mouseleave", "fields-fill", () => {
       if (map.current) {
-        map.current.getCanvas().style.cursor = '';
+        map.current.getCanvas().style.cursor = "";
       }
     });
 
     // Fit bounds to fields
     if (geojsonData.features.length > 0) {
       const bounds = new maplibregl.LngLatBounds();
-      geojsonData.features.forEach(feature => {
-        if (feature.geometry.type === 'Polygon' && feature.geometry.coordinates) {
+      geojsonData.features.forEach((feature) => {
+        if (
+          feature.geometry.type === "Polygon" &&
+          feature.geometry.coordinates
+        ) {
           const outerRing = feature.geometry.coordinates[0];
           if (outerRing) {
-            outerRing.forEach(coord => {
+            outerRing.forEach((coord) => {
               bounds.extend(coord as [number, number]);
             });
           }

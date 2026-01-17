@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../di/providers.dart';
 import '../http/api_client.dart';
 import '../utils/app_logger.dart';
 import 'secure_storage_service.dart';
@@ -20,6 +21,7 @@ import 'biometric_service.dart';
 // Providers
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(
+    apiClient: ref.read(apiClientProvider),
     secureStorage: ref.read(secureStorageProvider),
     biometricService: ref.read(biometricServiceProvider),
   );
@@ -141,6 +143,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
 /// Auth Service Implementation
 class AuthService {
+  final ApiClient apiClient;
   final SecureStorageService secureStorage;
   final BiometricService biometricService;
 
@@ -153,6 +156,7 @@ class AuthService {
   int _retryCount = 0;
 
   AuthService({
+    required this.apiClient,
     required this.secureStorage,
     required this.biometricService,
   });
@@ -166,29 +170,63 @@ class AuthService {
     AppLogger.i('Login attempt', tag: 'AUTH', data: {'email': email});
 
     try {
-      // In production, this would call the API
-      // final response = await _apiClient.post('/auth/login', {
-      //   'email': email,
-      //   'password': password,
-      // });
+      TokenPair tokens;
+      User user;
 
-      // Simulated response for development
-      final tokens = TokenPair(
-        accessToken: 'access_token_${DateTime.now().millisecondsSinceEpoch}',
-        refreshToken: 'refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-        expiresIn: 3600, // 1 hour
-      );
+      // Use mock data only in debug mode for development/testing
+      if (kDebugMode) {
+        AppLogger.d('Using mock authentication (debug mode)', tag: 'AUTH');
+        tokens = TokenPair(
+          accessToken: 'access_token_${DateTime.now().millisecondsSinceEpoch}',
+          refreshToken: 'refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+          expiresIn: 3600, // 1 hour
+        );
 
-      final user = User(
-        id: 'user_001',
-        email: email,
-        name: 'مستخدم سهول',
-        role: 'farmer',
-        tenantId: 'tenant_1',
-      );
+        user = User(
+          id: 'user_001',
+          email: email,
+          name: 'مستخدم سهول',
+          role: 'farmer',
+          tenantId: 'tenant_1',
+        );
+      } else {
+        // Production: Call the actual API
+        final response = await apiClient.post('/auth/login', {
+          'email': email,
+          'password': password,
+        });
+
+        // Parse response
+        if (response == null) {
+          throw AuthException('فشل تسجيل الدخول: لم يتم استلام استجابة من الخادم', code: 'NO_RESPONSE');
+        }
+
+        final Map<String, dynamic> data = response is Map<String, dynamic>
+            ? response
+            : throw AuthException('فشل تسجيل الدخول: استجابة غير صالحة', code: 'INVALID_RESPONSE');
+
+        // Extract tokens from response
+        final tokenData = data['tokens'] ?? data;
+        tokens = TokenPair(
+          accessToken: tokenData['access_token'] as String? ??
+              (throw AuthException('فشل تسجيل الدخول: لم يتم استلام رمز الوصول', code: 'NO_ACCESS_TOKEN')),
+          refreshToken: tokenData['refresh_token'] as String? ??
+              (throw AuthException('فشل تسجيل الدخول: لم يتم استلام رمز التحديث', code: 'NO_REFRESH_TOKEN')),
+          expiresIn: tokenData['expires_in'] as int? ?? 3600,
+        );
+
+        // Extract user from response
+        final userData = data['user'] as Map<String, dynamic>? ??
+            (throw AuthException('فشل تسجيل الدخول: لم يتم استلام بيانات المستخدم', code: 'NO_USER_DATA'));
+
+        user = User.fromJson(userData);
+      }
 
       // Store tokens securely
       await _storeTokens(tokens);
+
+      // Set the auth token on the API client for subsequent requests
+      apiClient.setAuthToken(tokens.accessToken);
 
       // Store user data securely
       await secureStorage.setUserData(user.toJson());
@@ -204,6 +242,9 @@ class AuthService {
 
       AppLogger.i('Login successful', tag: 'AUTH');
       return user;
+    } on ApiException catch (e) {
+      AppLogger.e('Login API error', tag: 'AUTH', error: e);
+      throw AuthException(e.message, code: e.code);
     } catch (e) {
       AppLogger.e('Login failed', tag: 'AUTH', error: e);
       rethrow;
@@ -251,11 +292,26 @@ class AuthService {
 
     _cancelTokenRefresh();
 
+    // In production, call logout API to invalidate token on server
+    if (!kDebugMode) {
+      try {
+        final refreshToken = await secureStorage.getRefreshToken();
+        if (refreshToken != null) {
+          await apiClient.post('/auth/logout', {
+            'refresh_token': refreshToken,
+          });
+        }
+      } catch (e) {
+        // Log but don't throw - we still want to clear local tokens
+        AppLogger.e('Logout API call failed', tag: 'AUTH', error: e);
+      }
+    }
+
+    // Clear auth token from API client
+    apiClient.setAuthToken('');
+
     // Clear stored tokens
     await secureStorage.clearAll();
-
-    // In production, also call logout API
-    // await _apiClient.post('/auth/logout');
   }
 
   /// Check if user is logged in
@@ -320,31 +376,83 @@ class AuthService {
   Future<void> _refreshTokenWithRetry({int attempt = 0}) async {
     AppLogger.i('Refreshing token (attempt ${attempt + 1}/$_maxRetries)', tag: 'AUTH');
 
-    final refreshToken = await secureStorage.getRefreshToken();
-    if (refreshToken == null) {
+    final storedRefreshToken = await secureStorage.getRefreshToken();
+    if (storedRefreshToken == null) {
       throw AuthException('لا يوجد refresh token');
     }
 
     try {
-      // In production, call refresh endpoint
-      // final response = await _apiClient.post('/auth/refresh', {
-      //   'refresh_token': refreshToken,
-      // });
+      TokenPair tokens;
 
-      // Simulated response
-      final tokens = TokenPair(
-        accessToken: 'new_access_token_${DateTime.now().millisecondsSinceEpoch}',
-        refreshToken: 'new_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-        expiresIn: 3600,
-      );
+      // Use mock data only in debug mode for development/testing
+      if (kDebugMode) {
+        AppLogger.d('Using mock token refresh (debug mode)', tag: 'AUTH');
+        tokens = TokenPair(
+          accessToken: 'new_access_token_${DateTime.now().millisecondsSinceEpoch}',
+          refreshToken: 'new_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+          expiresIn: 3600,
+        );
+      } else {
+        // Production: Call the actual refresh endpoint
+        final response = await apiClient.post('/auth/refresh', {
+          'refresh_token': storedRefreshToken,
+        });
+
+        // Parse response
+        if (response == null) {
+          throw AuthException('فشل تحديث الجلسة: لم يتم استلام استجابة من الخادم', code: 'NO_RESPONSE');
+        }
+
+        final Map<String, dynamic> data = response is Map<String, dynamic>
+            ? response
+            : throw AuthException('فشل تحديث الجلسة: استجابة غير صالحة', code: 'INVALID_RESPONSE');
+
+        // Extract tokens from response
+        final tokenData = data['tokens'] ?? data;
+        tokens = TokenPair(
+          accessToken: tokenData['access_token'] as String? ??
+              (throw AuthException('فشل تحديث الجلسة: لم يتم استلام رمز الوصول', code: 'NO_ACCESS_TOKEN')),
+          refreshToken: tokenData['refresh_token'] as String? ??
+              (throw AuthException('فشل تحديث الجلسة: لم يتم استلام رمز التحديث', code: 'NO_REFRESH_TOKEN')),
+          expiresIn: tokenData['expires_in'] as int? ?? 3600,
+        );
+      }
 
       await _storeTokens(tokens);
+
+      // Update the auth token on the API client for subsequent requests
+      apiClient.setAuthToken(tokens.accessToken);
+
       _scheduleTokenRefresh(tokens.expiresIn);
 
       // Reset retry count on success
       _retryCount = 0;
 
       AppLogger.i('Token refreshed successfully', tag: 'AUTH');
+    } on ApiException catch (e) {
+      AppLogger.e('Token refresh API error (attempt ${attempt + 1})', tag: 'AUTH', error: e);
+
+      // Check if it's a network error (retryable) or auth error (not retryable)
+      if (e.statusCode == 401 || e.statusCode == 403) {
+        // Token is invalid, logout immediately
+        AppLogger.e('Refresh token invalid, logging out', tag: 'AUTH');
+        await logout();
+        throw AuthException('الجلسة منتهية، يرجى تسجيل الدخول مرة أخرى', code: 'INVALID_REFRESH_TOKEN');
+      }
+
+      // Retry with exponential backoff for network errors
+      if (attempt < _maxRetries - 1) {
+        final delay = _calculateRetryDelay(attempt);
+        AppLogger.i('Retrying token refresh in ${delay.inSeconds}s', tag: 'AUTH');
+
+        await Future.delayed(delay);
+        return await _refreshTokenWithRetry(attempt: attempt + 1);
+      } else {
+        // Max retries reached, logout
+        AppLogger.e('Max retry attempts reached, logging out', tag: 'AUTH');
+        await logout();
+        throw AuthException('فشل تحديث الجلسة بعد عدة محاولات', code: 'MAX_RETRY_REACHED');
+      }
     } catch (e) {
       AppLogger.e('Token refresh failed (attempt ${attempt + 1})', tag: 'AUTH', error: e);
 

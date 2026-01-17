@@ -1,4 +1,5 @@
 # 📦 أرشيف الخدمات القديمة (Legacy Services)
+
 ## SAHOOL Platform v15.5
 
 ---
@@ -17,28 +18,29 @@ docker compose --profile legacy up -d
 
 ## 📋 قائمة الخدمات القديمة (14 خدمة)
 
-| # | الخدمة القديمة | المنفذ | البديل الحديث | المنفذ الجديد |
-|---|---------------|--------|--------------|---------------|
-| 1 | field_core | 3000 | field-service | - |
-| 2 | field_ops | 8080 | field-service | - |
-| 3 | ndvi_engine | 8107 | satellite-service | 8090 |
-| 4 | weather_core | 8108 | weather-advanced | 8092 |
-| 5 | field_chat | 8099 | community-chat | 8097 |
-| 6 | iot_gateway | 8106 | iot-service | - |
-| 7 | agro_advisor | 8105 | fertilizer-advisor | 8093 |
-| 8 | ws_gateway | 8090 | notification-service | 8110 |
-| 9 | crop_health | - | crop-health-ai | 8095 |
-| 10 | agro_rules | - | indicators-service | 8091 |
-| 11 | task_service | - | field-service | - |
-| 12 | equipment_service | - | - | (merged) |
-| 13 | community_service | - | community-chat | 8097 |
-| 14 | provider_config | - | - | (merged) |
+| #   | الخدمة القديمة    | المنفذ | البديل الحديث        | المنفذ الجديد |
+| --- | ----------------- | ------ | -------------------- | ------------- |
+| 1   | field_core        | 3000   | field-service        | -             |
+| 2   | field_ops         | 8080   | field-service        | -             |
+| 3   | ndvi_engine       | 8107   | satellite-service    | 8090          |
+| 4   | weather_core      | 8108   | weather-advanced     | 8092          |
+| 5   | field_chat        | 8099   | community-chat       | 8097          |
+| 6   | iot_gateway       | 8106   | iot-service          | -             |
+| 7   | agro_advisor      | 8105   | fertilizer-advisor   | 8093          |
+| 8   | ws_gateway        | 8090   | notification-service | 8110          |
+| 9   | crop_health       | -      | crop-health-ai       | 8095          |
+| 10  | agro_rules        | -      | indicators-service   | 8091          |
+| 11  | task_service      | -      | field-service        | -             |
+| 12  | equipment_service | -      | -                    | (merged)      |
+| 13  | community_service | -      | community-chat       | 8097          |
+| 14  | provider_config   | -      | -                    | (merged)      |
 
 ---
 
 ## 📂 تفاصيل كل خدمة قديمة
 
 ### 1. field_core
+
 ```yaml
 الخدمة: field_core
 المنفذ: 3000
@@ -49,6 +51,7 @@ docker compose --profile legacy up -d
 ```
 
 **ملفات الامتداد:**
+
 - `apps/services/field-service/Dockerfile`
 - `apps/services/field-service/src/`
 - `apps/services/field-service/package.json`
@@ -56,6 +59,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 2. field_ops
+
 ```yaml
 الخدمة: field_ops
 المنفذ: 8080
@@ -66,6 +70,7 @@ docker compose --profile legacy up -d
 ```
 
 **التبعيات:**
+
 - postgres (database)
 - nats (events)
 - redis (cache)
@@ -73,6 +78,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 3. ndvi_engine
+
 ```yaml
 الخدمة: ndvi_engine
 المنفذ: 8107
@@ -83,19 +89,23 @@ docker compose --profile legacy up -d
 ```
 
 **ملفات الامتداد:**
+
 - `apps/services/ndvi-processor/Dockerfile`
 - `apps/services/ndvi-processor/src/`
 - `apps/services/ndvi-processor/requirements.txt`
 
 **المخرجات القديمة:**
+
 - NDVI only
 
 **المخرجات الجديدة (satellite-service):**
+
 - NDVI, NDWI, EVI, SAVI, LAI
 
 ---
 
 ### 4. weather_core
+
 ```yaml
 الخدمة: weather_core
 المنفذ: 8108
@@ -106,16 +116,19 @@ docker compose --profile legacy up -d
 ```
 
 **ملفات الامتداد:**
+
 - `apps/services/weather-advanced/Dockerfile`
 - `apps/services/weather-advanced/src/`
 - `apps/services/weather-advanced/requirements.txt`
 
 **API Keys المطلوبة:**
+
 - `OPENWEATHER_API_KEY`
 
 ---
 
 ### 5. field_chat
+
 ```yaml
 الخدمة: field_chat
 المنفذ: 8099
@@ -126,6 +139,7 @@ docker compose --profile legacy up -d
 ```
 
 **ملفات الامتداد:**
+
 - `apps/services/community-chat/Dockerfile`
 - `apps/services/community-chat/src/`
 - `apps/services/community-chat/package.json`
@@ -133,6 +147,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 6. iot_gateway
+
 ```yaml
 الخدمة: iot_gateway
 المنفذ: 8106
@@ -143,12 +158,14 @@ docker compose --profile legacy up -d
 ```
 
 **التبعيات:**
+
 - mqtt (broker)
 - nats (events)
 
 ---
 
 ### 7. agro_advisor
+
 ```yaml
 الخدمة: agro_advisor
 المنفذ: 8105
@@ -161,6 +178,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 8. ws_gateway
+
 ```yaml
 الخدمة: ws_gateway
 المنفذ: 8090
@@ -171,9 +189,11 @@ docker compose --profile legacy up -d
 ```
 
 **القنوات القديمة:**
+
 - WebSocket only
 
 **القنوات الجديدة:**
+
 - Push notifications
 - SMS
 - In-app
@@ -182,6 +202,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 9. crop_health
+
 ```yaml
 الخدمة: crop_health
 المنفذ: -
@@ -193,6 +214,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 10. agro_rules
+
 ```yaml
 الخدمة: agro_rules
 المنفذ: -
@@ -204,6 +226,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 11. task_service
+
 ```yaml
 الخدمة: task_service
 المنفذ: -
@@ -215,6 +238,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 12. equipment_service
+
 ```yaml
 الخدمة: equipment_service
 المنفذ: -
@@ -226,6 +250,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 13. community_service
+
 ```yaml
 الخدمة: community_service
 المنفذ: -
@@ -237,6 +262,7 @@ docker compose --profile legacy up -d
 ---
 
 ### 14. provider_config
+
 ```yaml
 الخدمة: provider_config
 المنفذ: -
@@ -328,6 +354,7 @@ apps/services/
 ## ⚠️ تحذيرات الترحيل
 
 ### 1. تغيير المنافذ
+
 ```yaml
 # القديم → الجديد
 8107 (ndvi_engine) → 8090 (satellite-service)
@@ -338,6 +365,7 @@ apps/services/
 ```
 
 ### 2. تغيير API Endpoints
+
 ```yaml
 # ndvi_engine → satellite-service
 GET /ndvi/{field_id} → GET /v1/satellite/analyze
@@ -350,6 +378,7 @@ POST /advise → POST /v1/fertilizer/recommend
 ```
 
 ### 3. تغيير Environment Variables
+
 ```yaml
 # قديم
 DATABASE_URL=postgres://...
@@ -366,18 +395,19 @@ DB_NAME=sahool
 
 ## 🗓️ جدول الإيقاف
 
-| المرحلة | التاريخ | الإجراء |
-|---------|---------|---------|
-| الآن | Dec 2025 | Legacy في profile منفصل |
+| المرحلة | التاريخ  | الإجراء                 |
+| ------- | -------- | ----------------------- |
+| الآن    | Dec 2025 | Legacy في profile منفصل |
 | Phase 2 | Jan 2026 | إزالة من docker-compose |
-| Phase 3 | Feb 2026 | أرشفة الكود |
-| Final | Mar 2026 | حذف نهائي |
+| Phase 3 | Feb 2026 | أرشفة الكود             |
+| Final   | Mar 2026 | حذف نهائي               |
 
 ---
 
 ## 📞 الدعم
 
 للترحيل من الخدمات القديمة:
+
 1. راجع `docs/architecture/PRINCIPLES.md`
 2. استخدم `config/service-registry.yaml` للتصنيف
 3. اختبر مع `docker compose --profile legacy up -d`

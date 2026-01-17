@@ -1,4 +1,5 @@
 # PII Filtering Guide - SAHOOL Mobile App
+
 # دليل تصفية البيانات الشخصية - تطبيق سهول للجوال
 
 ## Overview / نظرة عامة
@@ -12,6 +13,7 @@ The SAHOOL PII (Personally Identifiable Information) filtering system automatica
 ### 1. Automatic Data Masking / إخفاء البيانات التلقائي
 
 The system automatically masks:
+
 - **Phone Numbers**: `+966501234567` → `+966****4567`
 - **Email Addresses**: `ahmed@example.com` → `ah****@example.com`
 - **National IDs**: `1234567890` → `12******90`
@@ -22,6 +24,7 @@ The system automatically masks:
 ### 2. Complete Removal / الحذف الكامل
 
 The system completely removes:
+
 - **Tokens**: JWT tokens, Bearer tokens
 - **Passwords**: All password fields
 - **API Keys**: Long alphanumeric keys
@@ -166,6 +169,7 @@ print('Filtered ${stats['filtered_count']} PII instances');
 ### DO ✅
 
 1. **Always use AppLogger** instead of print() or debugPrint()
+
    ```dart
    // ✅ Good
    AppLogger.d('User logged in');
@@ -175,6 +179,7 @@ print('Filtered ${stats['filtered_count']} PII instances');
    ```
 
 2. **Use structured logging with data maps**
+
    ```dart
    // ✅ Good
    AppLogger.i('User login', tag: 'AUTH', data: {
@@ -184,6 +189,7 @@ print('Filtered ${stats['filtered_count']} PII instances');
    ```
 
 3. **Log errors with context**
+
    ```dart
    // ✅ Good
    AppLogger.e(
@@ -203,6 +209,7 @@ print('Filtered ${stats['filtered_count']} PII instances');
 ### DON'T ❌
 
 1. **Never log raw tokens or passwords**
+
    ```dart
    // ❌ NEVER DO THIS
    AppLogger.d('Token: $accessToken');
@@ -212,6 +219,7 @@ print('Filtered ${stats['filtered_count']} PII instances');
    ```
 
 2. **Don't bypass PII filtering in production**
+
    ```dart
    // ❌ NEVER DO THIS
    if (kReleaseMode) {
@@ -220,6 +228,7 @@ print('Filtered ${stats['filtered_count']} PII instances');
    ```
 
 3. **Don't log entire user objects**
+
    ```dart
    // ❌ Bad - may contain sensitive data
    AppLogger.d('User: ${user.toJson()}');
@@ -298,6 +307,7 @@ This PII filtering system helps comply with:
 ## Support / الدعم
 
 For questions or issues:
+
 1. Check existing logs for PII exposure
 2. Review this guide
 3. Contact the security team

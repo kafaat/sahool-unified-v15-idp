@@ -1,7 +1,7 @@
 /**
  * SAHOOL Platform - Cache Module
  * ==============================
- * 
+ *
  * Main entry point for the advanced caching module
  */
 
@@ -15,14 +15,14 @@ export {
   CacheTTL,
   getCacheManager,
   resetCacheManager,
-} from './cache-manager';
+} from "./cache-manager";
 
 // Metrics service
 export {
   CacheMetricsService,
   DetailedCacheMetrics,
   CacheHealthStatus,
-} from './cache-metrics.service';
+} from "./cache-metrics.service";
 
 // Cache warming service
 export {
@@ -31,7 +31,7 @@ export {
   createUserWarmingStrategy,
   createFieldWarmingStrategy,
   createPredictiveWarmingStrategy,
-} from './cache-warming.service';
+} from "./cache-warming.service";
 
 // Redis Sentinel client
 export {
@@ -41,7 +41,7 @@ export {
   SentinelInfo,
   getRedisSentinelClient,
   closeRedisSentinelClient,
-} from './redis-sentinel';
+} from "./redis-sentinel";
 
 // Re-export for convenience
-export { default as RedisSentinel } from './redis-sentinel';
+export { default as RedisSentinel } from "./redis-sentinel";

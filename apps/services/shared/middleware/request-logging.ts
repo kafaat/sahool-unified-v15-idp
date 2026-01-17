@@ -44,11 +44,11 @@ import {
   ExecutionContext,
   CallHandler,
   Logger,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
-import { Request, Response } from 'express';
-import { randomUUID } from 'crypto';
+} from "@nestjs/common";
+import { Observable } from "rxjs";
+import { tap, catchError } from "rxjs/operators";
+import { Request, Response } from "express";
+import { randomUUID } from "crypto";
 
 /**
  * Extended Express Request with custom properties
@@ -71,7 +71,7 @@ interface ExtendedRequest extends Request {
 interface LogEntry {
   timestamp: string;
   service: string;
-  type: 'request' | 'response' | 'error';
+  type: "request" | "response" | "error";
   correlation_id: string;
   http: {
     method: string;
@@ -102,25 +102,25 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 
   // Paths to exclude from logging
   private readonly excludePaths: string[] = [
-    '/healthz',
-    '/readyz',
-    '/livez',
-    '/health',
-    '/metrics',
-    '/docs',
-    '/api-docs',
+    "/healthz",
+    "/readyz",
+    "/livez",
+    "/health",
+    "/metrics",
+    "/docs",
+    "/api-docs",
   ];
 
   // Sensitive headers to redact
   private readonly sensitiveHeaders: Set<string> = new Set([
-    'authorization',
-    'cookie',
-    'x-api-key',
-    'x-auth-token',
-    'x-secret-key',
-    'password',
-    'secret',
-    'token',
+    "authorization",
+    "cookie",
+    "x-api-key",
+    "x-auth-token",
+    "x-secret-key",
+    "password",
+    "secret",
+    "token",
   ]);
 
   constructor(
@@ -152,7 +152,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     request.userId = userId;
 
     // Add correlation ID to response headers
-    response.setHeader('X-Correlation-ID', correlationId);
+    response.setHeader("X-Correlation-ID", correlationId);
 
     // Record start time
     const startTime = Date.now();
@@ -210,8 +210,8 @@ export class RequestLoggingInterceptor implements NestInterceptor {
    */
   private getOrCreateCorrelationId(request: ExtendedRequest): string {
     return (
-      request.headers['x-correlation-id'] as string ||
-      request.headers['x-request-id'] as string ||
+      (request.headers["x-correlation-id"] as string) ||
+      (request.headers["x-request-id"] as string) ||
       randomUUID()
     );
   }
@@ -221,7 +221,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
    */
   private extractTenantId(request: ExtendedRequest): string | undefined {
     // Try header first
-    let tenantId = request.headers['x-tenant-id'] as string;
+    let tenantId = request.headers["x-tenant-id"] as string;
 
     // Try from JWT (if decoded by auth guard)
     if (!tenantId && request.user?.tenantId) {
@@ -236,7 +236,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
    */
   private extractUserId(request: ExtendedRequest): string | undefined {
     // Try header first
-    let userId = request.headers['x-user-id'] as string;
+    let userId = request.headers["x-user-id"] as string;
 
     // Try from JWT (if decoded by auth guard)
     if (!userId && request.user?.sub) {
@@ -262,13 +262,14 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       service: this.serviceName,
-      type: 'request',
+      type: "request",
       correlation_id: correlationId,
       http: {
         method: request.method,
         path: request.path,
-        query: Object.keys(request.query).length > 0 ? request.query : undefined,
-        user_agent: request.headers['user-agent'],
+        query:
+          Object.keys(request.query).length > 0 ? request.query : undefined,
+        user_agent: request.headers["user-agent"],
       },
       tenant_id: tenantId,
       user_id: userId,
@@ -294,7 +295,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       service: this.serviceName,
-      type: 'response',
+      type: "response",
       correlation_id: correlationId,
       http: {
         method: request.method,
@@ -334,7 +335,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       service: this.serviceName,
-      type: 'error',
+      type: "error",
       correlation_id: correlationId,
       http: {
         method: request.method,
@@ -345,8 +346,8 @@ export class RequestLoggingInterceptor implements NestInterceptor {
       tenant_id: tenantId,
       user_id: userId,
       error: {
-        type: error.name || 'Error',
-        message: error.message || 'Unknown error',
+        type: error.name || "Error",
+        message: error.message || "Unknown error",
         stack: error.stack,
       },
       message: `Request failed: ${request.method} ${request.path} - ${error.message}`,
@@ -361,7 +362,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
  */
 export function getCorrelationId(request: Request): string {
   const extReq = request as ExtendedRequest;
-  return extReq.correlationId || 'unknown';
+  return extReq.correlationId || "unknown";
 }
 
 /**
@@ -397,7 +398,7 @@ export class StructuredLogger {
    * Log with structured format
    */
   private logStructured(
-    level: 'log' | 'error' | 'warn' | 'debug',
+    level: "log" | "error" | "warn" | "debug",
     message: string,
     context?: {
       correlationId?: string;
@@ -417,18 +418,18 @@ export class StructuredLogger {
   }
 
   log(message: string, context?: any): void {
-    this.logStructured('log', message, context);
+    this.logStructured("log", message, context);
   }
 
   error(message: string, context?: any): void {
-    this.logStructured('error', message, context);
+    this.logStructured("error", message, context);
   }
 
   warn(message: string, context?: any): void {
-    this.logStructured('warn', message, context);
+    this.logStructured("warn", message, context);
   }
 
   debug(message: string, context?: any): void {
-    this.logStructured('debug', message, context);
+    this.logStructured("debug", message, context);
   }
 }

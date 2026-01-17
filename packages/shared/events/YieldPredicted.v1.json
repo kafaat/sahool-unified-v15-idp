@@ -3,14 +3,17 @@
   "$id": "https://sahool.io/events/YieldPredicted.v1.json",
   "title": "Yield Predicted Event",
   "description": "Emitted when yield prediction is generated - يُنشر عند توليد تنبؤ الإنتاجية",
-  "allOf": [
-    { "$ref": "_base.event.v1.json" }
-  ],
+  "allOf": [{ "$ref": "_base.event.v1.json" }],
   "properties": {
     "event_type": { "const": "Analytics.YieldPredicted" },
     "payload": {
       "type": "object",
-      "required": ["field_id", "crop_type", "prediction_date", "predicted_yield"],
+      "required": [
+        "field_id",
+        "crop_type",
+        "prediction_date",
+        "predicted_yield"
+      ],
       "properties": {
         "field_id": {
           "type": "string",
@@ -59,16 +62,31 @@
           "type": "object",
           "description": "Key factors influencing prediction",
           "properties": {
-            "weather_impact": { "type": "string", "enum": ["positive", "neutral", "negative"] },
-            "health_impact": { "type": "string", "enum": ["positive", "neutral", "negative"] },
-            "historical_trend": { "type": "string", "enum": ["above_average", "average", "below_average"] }
+            "weather_impact": {
+              "type": "string",
+              "enum": ["positive", "neutral", "negative"]
+            },
+            "health_impact": {
+              "type": "string",
+              "enum": ["positive", "neutral", "negative"]
+            },
+            "historical_trend": {
+              "type": "string",
+              "enum": ["above_average", "average", "below_average"]
+            }
           }
         },
         "comparison": {
           "type": "object",
           "properties": {
-            "vs_last_season": { "type": "number", "description": "Percentage change" },
-            "vs_regional_avg": { "type": "number", "description": "Percentage vs regional average" }
+            "vs_last_season": {
+              "type": "number",
+              "description": "Percentage change"
+            },
+            "vs_regional_avg": {
+              "type": "number",
+              "description": "Percentage vs regional average"
+            }
           }
         }
       }
@@ -77,6 +95,10 @@
   "x-sahool": {
     "layer": "decision",
     "producer": "yield-prediction",
-    "consumers": ["marketplace-service", "notification-service", "research-core"]
+    "consumers": [
+      "marketplace-service",
+      "notification-service",
+      "research-core"
+    ]
   }
 }

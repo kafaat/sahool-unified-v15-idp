@@ -15,8 +15,8 @@
  * @version 2.0.0
  */
 
-import Redis from 'ioredis';
-import { Logger } from '@nestjs/common';
+import Redis from "ioredis";
+import { Logger } from "@nestjs/common";
 
 // =============================================================================
 // Types & Interfaces
@@ -145,12 +145,12 @@ export class CacheManager {
       const acquired = await this.redis.set(
         this.makeKey(lockKey),
         lockValue,
-        'EX',
+        "EX",
         lockTTL,
-        'NX',
+        "NX",
       );
 
-      if (acquired === 'OK') {
+      if (acquired === "OK") {
         // We got the lock, fetch data
         this.recordStampedePrevention();
 
@@ -218,7 +218,9 @@ export class CacheManager {
 
       this.logger.debug(`Write-through completed for key: ${key}`);
     } catch (error) {
-      this.logger.error(`Write-through failed for key ${key}: ${error.message}`);
+      this.logger.error(
+        `Write-through failed for key ${key}: ${error.message}`,
+      );
       throw error;
     }
   }
@@ -334,16 +336,16 @@ export class CacheManager {
   async invalidatePattern(pattern: string): Promise<number> {
     try {
       const fullPattern = this.makeKey(pattern);
-      let cursor = '0';
+      let cursor = "0";
       let totalDeleted = 0;
       const batchSize = 100;
 
       do {
         const [newCursor, keys] = await this.redis.scan(
           cursor,
-          'MATCH',
+          "MATCH",
           fullPattern,
-          'COUNT',
+          "COUNT",
           batchSize,
         );
 
@@ -354,13 +356,17 @@ export class CacheManager {
           totalDeleted += deleted;
           this.logger.debug(`Deleted ${deleted} keys matching ${pattern}`);
         }
-      } while (cursor !== '0');
+      } while (cursor !== "0");
 
-      this.logger.log(`Invalidated ${totalDeleted} keys matching pattern: ${pattern}`);
+      this.logger.log(
+        `Invalidated ${totalDeleted} keys matching pattern: ${pattern}`,
+      );
       return totalDeleted;
     } catch (error) {
       this.recordError();
-      this.logger.error(`Pattern invalidation error for ${pattern}: ${error.message}`);
+      this.logger.error(
+        `Pattern invalidation error for ${pattern}: ${error.message}`,
+      );
       return 0;
     }
   }
@@ -369,7 +375,7 @@ export class CacheManager {
    * Clear all cache entries with this prefix
    */
   async clearAll(): Promise<number> {
-    return this.invalidatePattern('*');
+    return this.invalidatePattern("*");
   }
 
   // ===========================================================================
@@ -391,16 +397,20 @@ export class CacheManager {
           await this.set(key, data, options.ttl);
           return { key, success: true };
         } catch (error) {
-          this.logger.error(`Failed to warm cache for ${key}: ${error.message}`);
+          this.logger.error(
+            `Failed to warm cache for ${key}: ${error.message}`,
+          );
           return { key, success: false, error };
         }
       }),
     );
 
-    const successful = results.filter((r) => r.status === 'fulfilled').length;
+    const successful = results.filter((r) => r.status === "fulfilled").length;
     const failed = results.length - successful;
 
-    this.logger.log(`Cache warming completed: ${successful} succeeded, ${failed} failed`);
+    this.logger.log(
+      `Cache warming completed: ${successful} succeeded, ${failed} failed`,
+    );
   }
 
   /**
@@ -559,7 +569,9 @@ export function getCacheManager(
   }
 
   if (!cacheManagerInstance) {
-    throw new Error('CacheManager not initialized. Call with redis and config first.');
+    throw new Error(
+      "CacheManager not initialized. Call with redis and config first.",
+    );
   }
 
   return cacheManagerInstance;

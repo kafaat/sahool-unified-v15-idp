@@ -3,13 +3,13 @@
  * Automatically logs audit events for controller methods
  */
 
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata } from "@nestjs/common";
 import {
   AUDIT_METADATA,
   AuditableOptions,
   AuditCategory,
   AuditSeverity,
-} from '../audit-types';
+} from "../audit-types";
 
 /**
  * Decorator to mark a controller method as auditable
@@ -46,9 +46,12 @@ export const Auditable = (options: AuditableOptions = {}): MethodDecorator => {
 /**
  * Audit create operations
  */
-export const AuditCreate = (resourceType?: string, options: Partial<AuditableOptions> = {}) => {
+export const AuditCreate = (
+  resourceType?: string,
+  options: Partial<AuditableOptions> = {},
+) => {
   return Auditable({
-    action: options.action || `${resourceType || 'resource'}.create`,
+    action: options.action || `${resourceType || "resource"}.create`,
     category: AuditCategory.DATA,
     severity: AuditSeverity.INFO,
     resourceType,
@@ -60,9 +63,12 @@ export const AuditCreate = (resourceType?: string, options: Partial<AuditableOpt
 /**
  * Audit update operations
  */
-export const AuditUpdate = (resourceType?: string, options: Partial<AuditableOptions> = {}) => {
+export const AuditUpdate = (
+  resourceType?: string,
+  options: Partial<AuditableOptions> = {},
+) => {
   return Auditable({
-    action: options.action || `${resourceType || 'resource'}.update`,
+    action: options.action || `${resourceType || "resource"}.update`,
     category: AuditCategory.DATA,
     severity: AuditSeverity.INFO,
     resourceType,
@@ -74,9 +80,12 @@ export const AuditUpdate = (resourceType?: string, options: Partial<AuditableOpt
 /**
  * Audit delete operations
  */
-export const AuditDelete = (resourceType?: string, options: Partial<AuditableOptions> = {}) => {
+export const AuditDelete = (
+  resourceType?: string,
+  options: Partial<AuditableOptions> = {},
+) => {
   return Auditable({
-    action: options.action || `${resourceType || 'resource'}.delete`,
+    action: options.action || `${resourceType || "resource"}.delete`,
     category: AuditCategory.DATA,
     severity: AuditSeverity.WARNING,
     resourceType,
@@ -88,7 +97,10 @@ export const AuditDelete = (resourceType?: string, options: Partial<AuditableOpt
 /**
  * Audit security-related operations
  */
-export const AuditSecurity = (action: string, options: Partial<AuditableOptions> = {}) => {
+export const AuditSecurity = (
+  action: string,
+  options: Partial<AuditableOptions> = {},
+) => {
   return Auditable({
     action,
     category: AuditCategory.SECURITY,
@@ -100,7 +112,10 @@ export const AuditSecurity = (action: string, options: Partial<AuditableOptions>
 /**
  * Audit admin operations
  */
-export const AuditAdmin = (action: string, options: Partial<AuditableOptions> = {}) => {
+export const AuditAdmin = (
+  action: string,
+  options: Partial<AuditableOptions> = {},
+) => {
   return Auditable({
     action,
     category: AuditCategory.ADMIN,
@@ -112,7 +127,10 @@ export const AuditAdmin = (action: string, options: Partial<AuditableOptions> = 
 /**
  * Audit financial operations
  */
-export const AuditFinancial = (action: string, options: Partial<AuditableOptions> = {}) => {
+export const AuditFinancial = (
+  action: string,
+  options: Partial<AuditableOptions> = {},
+) => {
   return Auditable({
     action,
     category: AuditCategory.FINANCIAL,

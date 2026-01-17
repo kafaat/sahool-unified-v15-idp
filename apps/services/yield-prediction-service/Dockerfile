@@ -21,7 +21,9 @@ COPY apps/services/yield-prediction-service ./yield-prediction-service/
 WORKDIR /workspace/yield-prediction-service
 
 # Install dependencies with retry for network resilience
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Suppress deprecation warnings from transitive dependencies (they're non-blocking, from old packages like glob@7)
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
+    (echo "Retrying npm install..." && npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)
 
 # Build the application
 RUN npm run build
@@ -34,20 +36,21 @@ WORKDIR /app
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Copy package files and install production dependencies
+# Copy package files from builder (includes generated package-lock.json)
 # NOTE: reflect-metadata MUST be in dependencies (not devDependencies) for NestJS to work
-COPY apps/services/yield-prediction-service/package.json ./
-COPY apps/services/yield-prediction-service/package-lock.json ./
+COPY --from=builder /workspace/yield-prediction-service/package.json ./
+COPY --from=builder /workspace/yield-prediction-service/package-lock.json ./
 
-# Install only production dependencies
+# Install production dependencies with npm ci (deterministic) with fallback to npm install
 # reflect-metadata is required at runtime for NestJS decorators and DI
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Note: Deprecation warnings (inflight, glob@7) are from transitive dependencies and are non-blocking
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
+    (echo "npm ci failed, falling back to npm install..." && npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)
 
 # Copy built application
 COPY --from=builder /workspace/yield-prediction-service/dist ./dist
 
-# Expose port
+# Expose port (can be overridden via PORT env var)
 EXPOSE 8098
 
 # Set ownership and switch to non-root user (use existing node user)
@@ -56,7 +59,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8098/api/v1/yield/health || exit 1
+    CMD sh -c "curl -f http://localhost:${PORT:-8098}/api/v1/yield/health || exit 1"
 
 # Run the application
 CMD ["node", "dist/main.js"]

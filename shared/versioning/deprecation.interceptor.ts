@@ -8,10 +8,10 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { Observable } from "rxjs";
+import { tap } from "rxjs/operators";
 
 /**
  * Deprecation configuration
@@ -27,10 +27,10 @@ export interface DeprecationConfig {
  * Default deprecation configuration for v1
  */
 const DEFAULT_V1_DEPRECATION: DeprecationConfig = {
-  deprecationDate: '2025-06-30',
-  sunsetDate: '2026-06-30',
-  successorVersion: 'v2',
-  infoUrl: 'https://docs.sahool.app/api/deprecation/v1',
+  deprecationDate: "2025-06-30",
+  sunsetDate: "2026-06-30",
+  successorVersion: "v2",
+  infoUrl: "https://docs.sahool.app/api/deprecation/v1",
 };
 
 /**
@@ -49,34 +49,43 @@ export class DeprecationInterceptor implements NestInterceptor {
 
     // Check if the endpoint is marked as deprecated
     const isDeprecated = this.reflector.get<boolean>(
-      'api-v1-deprecated',
+      "api-v1-deprecated",
       context.getHandler(),
     );
 
     // Check if the route is a v1 route
-    const isV1Route = request.url.includes('/api/v1/');
+    const isV1Route = request.url.includes("/api/v1/");
 
     return next.handle().pipe(
       tap(() => {
         if (isDeprecated || isV1Route) {
           // Add deprecation headers
-          response.setHeader('X-API-Deprecated', 'true');
-          response.setHeader('X-API-Deprecation-Date', this.config.deprecationDate);
-          response.setHeader('X-API-Sunset-Date', this.config.sunsetDate);
-          response.setHeader('X-API-Deprecation-Info', this.config.infoUrl);
+          response.setHeader("X-API-Deprecated", "true");
+          response.setHeader(
+            "X-API-Deprecation-Date",
+            this.config.deprecationDate,
+          );
+          response.setHeader("X-API-Sunset-Date", this.config.sunsetDate);
+          response.setHeader("X-API-Deprecation-Info", this.config.infoUrl);
 
           // Add Link header for successor version
-          const successorPath = request.url.replace('/v1/', `/${this.config.successorVersion}/`);
-          response.setHeader('Link', `<${successorPath}>; rel="successor-version"`);
+          const successorPath = request.url.replace(
+            "/v1/",
+            `/${this.config.successorVersion}/`,
+          );
+          response.setHeader(
+            "Link",
+            `<${successorPath}>; rel="successor-version"`,
+          );
 
           // Add warning header (RFC 7234)
           const warningMessage = `299 - "API version 1 is deprecated and will be removed on ${this.config.sunsetDate}"`;
-          response.setHeader('Warning', warningMessage);
+          response.setHeader("Warning", warningMessage);
 
           // Log deprecation access
           console.warn(
             `[DEPRECATION] Deprecated endpoint accessed: ${request.method} ${request.url} ` +
-            `by ${request.ip || 'unknown'} - User-Agent: ${request.headers['user-agent'] || 'unknown'}`,
+              `by ${request.ip || "unknown"} - User-Agent: ${request.headers["user-agent"] || "unknown"}`,
           );
         }
       }),

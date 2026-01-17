@@ -13,13 +13,12 @@ Tests for FastAPI endpoints:
 - Request/response validation
 """
 
-import pytest
 from datetime import datetime
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
-
 
 # ============================================================================
 # Test Health Check Endpoint
@@ -527,7 +526,10 @@ class TestRateLimiting:
                 "/api/v1/analyze", json=request_data, headers=rate_limit_headers
             )
             # Internal service should not be rate limited
-            assert response.status_code in [status.HTTP_200_OK, status.HTTP_500_INTERNAL_SERVER_ERROR]
+            assert response.status_code in [
+                status.HTTP_200_OK,
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+            ]
 
     def test_rate_limit_health_check_excluded(self, api_client):
         """Test health check is excluded from rate limiting"""
@@ -550,7 +552,7 @@ class TestRateLimiting:
             "crop_type": "wheat",
         }
 
-        response = api_client.post("/api/v1/analyze", json=request_data)
+        api_client.post("/api/v1/analyze", json=request_data)
 
         # Check for rate limit headers (if implemented)
         # Common headers: X-RateLimit-Limit, X-RateLimit-Remaining
@@ -582,7 +584,7 @@ class TestCORS:
 
     def test_cors_allows_credentials(self, api_client):
         """Test CORS allows credentials"""
-        response = api_client.get(
+        api_client.get(
             "/healthz",
             headers={"Origin": "http://localhost:3000"},
         )
@@ -610,15 +612,12 @@ class TestResponseFormat:
         ]
 
         for path, method, data in endpoints:
-            if method == "get":
-                response = api_client.get(path)
-            else:
-                response = api_client.post(path, json=data)
+            response = api_client.get(path) if method == "get" else api_client.post(path, json=data)
 
             if response.status_code == 200:
                 data = response.json()
                 # Should have timestamp
-                assert "timestamp" in data or "executed_at" in data or True  # Flexible check
+                assert True  # Flexible check
 
     def test_error_responses_have_detail(self, api_client):
         """Test error responses include detail"""

@@ -13,10 +13,10 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
 
 ### Overall Ratings
 
-| Component | Arabic Support | RTL Layout | Translation Coverage | Date/Number Formatting | Overall Score |
-|-----------|---------------|------------|---------------------|----------------------|---------------|
-| **Mobile App** | ✅ Excellent | ✅ Excellent | ✅ 95% | ✅ Excellent | 🟢 **9/10** |
-| **Web App** | ⚠️ Partial | ⚠️ Partial | ⚠️ 40% | ⚠️ Partial | 🟡 **5/10** |
+| Component      | Arabic Support | RTL Layout   | Translation Coverage | Date/Number Formatting | Overall Score |
+| -------------- | -------------- | ------------ | -------------------- | ---------------------- | ------------- |
+| **Mobile App** | ✅ Excellent   | ✅ Excellent | ✅ 95%               | ✅ Excellent           | 🟢 **9/10**   |
+| **Web App**    | ⚠️ Partial     | ⚠️ Partial   | ⚠️ 40%               | ⚠️ Partial             | 🟡 **5/10**   |
 
 ---
 
@@ -25,6 +25,7 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
 ### 1.1 Web App (apps/web)
 
 #### ✅ Strengths
+
 - **i18n Package**: Centralized `@sahool/i18n` package at `/packages/i18n/`
 - **Translation Files**:
   - Arabic: `/packages/i18n/src/locales/ar.json` (91 keys)
@@ -35,16 +36,18 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
 - **Locale Switcher**: Implemented at `/apps/web/src/components/common/LocaleSwitcher.tsx`
 
 #### ❌ Critical Issues
+
 1. **Hardcoded Strings** - Found in multiple components:
+
    ```typescript
    // apps/web/src/app/(dashboard)/fields/FieldsClient.tsx
-   alert('تم إنشاء الحقل بنجاح | Field created successfully (mock)');
-   alert('فشل في إنشاء الحقل | Failed to create field');
+   alert("تم إنشاء الحقل بنجاح | Field created successfully (mock)");
+   alert("فشل في إنشاء الحقل | Failed to create field");
 
    // Hardcoded titles
-   title="Create New Field"
-   title="Edit Field"
-   title="Confirm Delete"
+   title = "Create New Field";
+   title = "Edit Field";
+   title = "Confirm Delete";
    ```
 
 2. **Inconsistent Translation Usage**:
@@ -52,6 +55,7 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
    - ❌ Components NOT using translations: Most dashboard pages, AlertsPanel, FieldsClient, TasksClient
 
 3. **Mixed Language Text** - Components contain both Arabic and English hardcoded:
+
    ```typescript
    // apps/web/src/features/fields/components/AlertsPanel.tsx
    labelAr: 'انخفاض NDVI',  // Mixed in code
@@ -66,6 +70,7 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
    ```
 
 #### 📊 Translation Coverage
+
 - **Available**: 91 translation keys covering:
   - Common UI (27 keys): buttons, actions, status
   - Navigation (14 keys): menu items
@@ -88,6 +93,7 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
   - Action windows
 
 #### 📁 Key Files
+
 ```
 /apps/web/
 ├── src/i18n.ts                          # i18n configuration
@@ -119,12 +125,14 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
 #### ✅ Excellent Implementation
 
 **Translation Files**:
+
 - Arabic ARB: `/apps/mobile/lib/l10n/app_ar.arb` (75 KB, 1,779 strings)
 - English ARB: `/apps/mobile/lib/l10n/app_en.arb` (59 KB, 1,779 strings)
 - Configuration: `/apps/mobile/l10n.yaml`
 - Utilities: `/apps/mobile/lib/l10n/l10n.dart` (305 lines)
 
 **Coverage Categories (1,779 total strings)**:
+
 - ✅ Common: 100+ (buttons, labels, status)
 - ✅ Navigation: 70+ (menu items, screens)
 - ✅ Authentication: 30+ (login, signup, verification)
@@ -149,6 +157,7 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
 - ✅ Miscellaneous: 230+ (confirmations, dialogs, help)
 
 **Yemen-Specific Content**:
+
 ```json
 {
   "yemeniRial": "ريال يمني",
@@ -164,12 +173,14 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
 ```
 
 **Documentation**:
+
 - ✅ Comprehensive setup guide: `LOCALIZATION_SETUP.md`
 - ✅ Integration guide: `lib/l10n/INTEGRATION_GUIDE.md`
 - ✅ Usage examples: `lib/l10n/USAGE_EXAMPLES.dart`
 - ✅ README: `lib/l10n/README.md`
 
 **Generated Files**:
+
 ```
 /apps/mobile/lib/generated/l10n/
 ├── app_localizations.dart       # Main localization class
@@ -184,7 +195,9 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
 ### 2.1 Web App
 
 #### ✅ Implemented Features
+
 1. **HTML Direction Attribute**:
+
    ```typescript
    // apps/web/src/app/layout.tsx
    const direction = getDirection(locale);
@@ -192,6 +205,7 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
    ```
 
 2. **CSS RTL Support**:
+
    ```css
    /* apps/web/src/app/globals.css */
    [dir="rtl"] {
@@ -209,18 +223,20 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
    - Examples: `border-e`, `text-start`, `end-1`
 
 4. **Utility Functions**:
+
    ```typescript
    // packages/i18n/src/index.ts
    export function isRTL(locale: Locale): boolean {
-     return locale === 'ar';
+     return locale === "ar";
    }
 
-   export function getDirection(locale: Locale): 'rtl' | 'ltr' {
-     return isRTL(locale) ? 'rtl' : 'ltr';
+   export function getDirection(locale: Locale): "rtl" | "ltr" {
+     return isRTL(locale) ? "rtl" : "ltr";
    }
    ```
 
 #### ⚠️ Potential Issues
+
 1. **Inconsistent Usage**:
    - Some components use directional properties (`start`/`end`)
    - Others still use fixed directions (`left`/`right`)
@@ -234,6 +250,7 @@ The SAHOOL platform has a **partially implemented** localization strategy with s
    - Dashboard components have mixed implementation
 
 #### 🔍 Files with RTL Implementation
+
 ```
 apps/web/src/app/layout.tsx              # ✅ dir attribute
 apps/web/src/app/globals.css             # ✅ RTL CSS
@@ -248,6 +265,7 @@ apps/web/src/components/layouts/sidebar.tsx # ✅ Using start/end
 #### ✅ Excellent RTL Implementation
 
 **1. Automatic Text Direction**:
+
 ```dart
 // lib/l10n/l10n.dart
 bool get isRTL => locale.languageCode == 'ar';
@@ -255,6 +273,7 @@ TextDirection get textDirection => isRTL ? TextDirection.rtl : TextDirection.ltr
 ```
 
 **2. Direction-Aware Padding**:
+
 ```dart
 class LocalizedLayout {
   EdgeInsets edgeInsets({
@@ -272,6 +291,7 @@ class LocalizedLayout {
 ```
 
 **3. Direction-Aware Alignment**:
+
 ```dart
 Alignment getAlignment(Alignment ltrAlignment) {
   if (!context.isRTL) return ltrAlignment;
@@ -282,6 +302,7 @@ Alignment getAlignment(Alignment ltrAlignment) {
 ```
 
 **4. Directional Icons**:
+
 ```dart
 class DirectionalIcon extends StatelessWidget {
   Widget build(BuildContext context) {
@@ -298,6 +319,7 @@ class DirectionalIcon extends StatelessWidget {
 ```
 
 **5. Text Alignment**:
+
 ```dart
 TextAlign get defaultTextAlign => context.isRTL ? TextAlign.right : TextAlign.left;
 TextAlign get startAlign => context.isRTL ? TextAlign.right : TextAlign.left;
@@ -311,6 +333,7 @@ TextAlign get endAlign => context.isRTL ? TextAlign.left : TextAlign.right;
 ### 3.1 Web App - Critical Issues
 
 #### 🔴 Dashboard Components (High Priority)
+
 ```typescript
 // apps/web/src/app/(dashboard)/fields/FieldsClient.tsx
 <h1 className="text-3xl font-bold text-gray-900 mb-2">الحقول</h1>
@@ -329,6 +352,7 @@ title="Create New Task"
 ```
 
 #### 🟡 Feature Components (Medium Priority)
+
 ```typescript
 // apps/web/src/features/fields/components/AlertsPanel.tsx
 const ALERT_TYPE_CONFIG = {
@@ -360,6 +384,7 @@ const categoryLabels = {
 ```
 
 #### 🟢 Properly Translated Components
+
 ```typescript
 // apps/web/src/components/layouts/header.tsx
 const t = useTranslations('common');
@@ -372,6 +397,7 @@ const t = useTranslations('nav');
 ```
 
 #### 📊 Estimated Hardcoded Strings Count
+
 - **Dashboard Pages**: ~150-200 hardcoded strings
 - **Feature Components**: ~300-400 hardcoded strings
 - **Alert Messages**: ~50 hardcoded strings
@@ -382,6 +408,7 @@ const t = useTranslations('nav');
 ### 3.2 Mobile App
 
 #### ✅ No Significant Issues
+
 - **Generated Localization**: All strings accessed via `AppLocalizations.of(context)!.keyName`
 - **Type Safety**: Compile-time checking prevents hardcoded strings
 - **Comprehensive Coverage**: 1,779 keys cover virtually all UI text
@@ -393,47 +420,50 @@ const t = useTranslations('nav');
 ### 4.1 Web App Structure
 
 **Current Structure** (`/packages/i18n/src/locales/`):
+
 ```json
 {
   "common": {
     "appName": "سهول",
     "tagline": "منصة الزراعة الذكية",
-    "loading": "جاري التحميل...",
+    "loading": "جاري التحميل..."
     // ... 27 keys
   },
   "auth": {
-    "login": "تسجيل الدخول",
+    "login": "تسجيل الدخول"
     // ... 5 keys
   },
   "nav": {
-    "dashboard": "لوحة التحكم",
+    "dashboard": "لوحة التحكم"
     // ... 14 keys
   },
   "dashboard": {
-    "title": "لوحة التحكم",
+    "title": "لوحة التحكم"
     // ... 5 keys
   },
   "fields": {
-    "title": "الحقول",
+    "title": "الحقول"
     // ... 12 keys
   },
   "alerts": {
-    "title": "التنبيهات",
+    "title": "التنبيهات"
     // ... 6 keys
   },
   "errors": {
-    "unexpected": "حدث خطأ غير متوقع",
+    "unexpected": "حدث خطأ غير متوقع"
     // ... 4 keys
   }
 }
 ```
 
 #### ✅ Strengths
+
 - **Namespace Organization**: Clear separation by feature area
 - **Consistency**: Matching structure in `ar.json` and `en.json`
 - **Type Safety**: TypeScript types generated from JSON structure
 
 #### ❌ Gaps
+
 - Missing namespaces for:
   - `marketplace`, `equipment`, `community`, `team`
   - `iot`, `reports`, `wallet`, `scouting`
@@ -445,6 +475,7 @@ const t = useTranslations('nav');
 ### 4.2 Mobile App Structure
 
 **ARB File Format** (`/apps/mobile/lib/l10n/app_ar.arb`):
+
 ```json
 {
   "@@locale": "ar",
@@ -458,13 +489,14 @@ const t = useTranslations('nav');
   "save": "حفظ",
   "@save": {
     "description": "Save button text"
-  },
+  }
 
   // ... 1,779 keys with metadata
 }
 ```
 
 #### ✅ Strengths
+
 - **Metadata**: Each key has `@keyName` description
 - **Flat Structure**: Easy to navigate and search
 - **Flutter Standard**: ARB format is industry standard
@@ -480,16 +512,23 @@ const t = useTranslations('nav');
 #### ⚠️ Partial Implementation
 
 **Current Usage**:
+
 ```typescript
 // Date formatting - found in multiple files
-const formattedDate = new Date().toLocaleDateString('ar-SA');
+const formattedDate = new Date().toLocaleDateString("ar-SA");
 
 // Number formatting
-{totalCost.toLocaleString('ar-SA')} ريال
-{(value).toLocaleString('ar-SA', { maximumFractionDigits: 0 })}
+{
+  totalCost.toLocaleString("ar-SA");
+}
+ريال;
+{
+  value.toLocaleString("ar-SA", { maximumFractionDigits: 0 });
+}
 ```
 
 **Found in Files**:
+
 - `apps/web/src/features/analytics/components/CostAnalysis.tsx`
 - `apps/web/src/features/analytics/components/AnalyticsDashboard.tsx`
 - `apps/web/src/features/analytics/components/KPICards.tsx`
@@ -497,6 +536,7 @@ const formattedDate = new Date().toLocaleDateString('ar-SA');
 - `apps/web/src/features/action-windows/components/*.tsx`
 
 #### 🔴 Issues
+
 1. **Inconsistent Locale**: Mixing 'ar-SA' (Saudi Arabia) with Yemen locale
    - Should use 'ar-YE' for Yemen
    - Timezone hardcoded to 'Asia/Aden' ✅
@@ -512,30 +552,31 @@ const formattedDate = new Date().toLocaleDateString('ar-SA');
    - No consistent number grouping
 
 #### 💡 Recommended Implementation
+
 ```typescript
 // Should use next-intl's useFormatter
-import { useFormatter } from 'next-intl';
+import { useFormatter } from "next-intl";
 
 function Component() {
   const format = useFormatter();
 
   // Date formatting
   const date = format.dateTime(new Date(), {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   // Number formatting
   const number = format.number(12345.67, {
-    style: 'decimal',
-    minimumFractionDigits: 2
+    style: "decimal",
+    minimumFractionDigits: 2,
   });
 
   // Currency formatting
   const currency = format.number(12345.67, {
-    style: 'currency',
-    currency: 'YER'
+    style: "currency",
+    currency: "YER",
   });
 }
 ```
@@ -547,6 +588,7 @@ function Component() {
 #### ✅ Excellent Implementation
 
 **Number Formatting**:
+
 ```dart
 class LocalizedNumberFormat {
   final Locale locale;
@@ -571,6 +613,7 @@ class LocalizedNumberFormat {
 ```
 
 **Currency Formatting**:
+
 ```dart
 String formatCurrency(num amount, {String? currencySymbol}) {
   final symbol = currencySymbol ?? 'ريال';
@@ -585,6 +628,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 ```
 
 **Percentage Formatting**:
+
 ```dart
 String formatPercentage(num value, {int decimalDigits = 1}) {
   final formatted = format(value, decimalDigits: decimalDigits);
@@ -593,6 +637,7 @@ String formatPercentage(num value, {int decimalDigits = 1}) {
 ```
 
 **Arabic Numerals**:
+
 - ✅ Automatic conversion: `123` → `١٢٣`
 - ✅ Bidirectional: Arabic → Western for calculations
 - ✅ Consistent across all numeric displays
@@ -606,13 +651,21 @@ String formatPercentage(num value, {int decimalDigits = 1}) {
 #### ⚠️ Issues
 
 **Current Implementation**:
+
 ```typescript
 // Hardcoded currency symbol
-{totalCost.toLocaleString('ar-SA')} ريال
-{field.costPerHectare.toLocaleString('ar-SA')} ریال/هکتار
+{
+  totalCost.toLocaleString("ar-SA");
+}
+ريال;
+{
+  field.costPerHectare.toLocaleString("ar-SA");
+}
+ریال / هکتار;
 ```
 
 **Problems**:
+
 1. **Hardcoded Symbol**: Currency symbol "ريال" is hardcoded
 2. **Wrong Locale**: Using 'ar-SA' instead of 'ar-YE'
 3. **No ISO Code**: Should use 'YER' (Yemeni Rial)
@@ -620,22 +673,23 @@ String formatPercentage(num value, {int decimalDigits = 1}) {
 5. **No Intl.NumberFormat**: Not using proper currency formatting
 
 #### 💡 Recommended Fix
+
 ```typescript
 // packages/i18n/src/utils/formatting.ts
 export function formatCurrency(
   amount: number,
   locale: string,
-  currency: string = 'YER'
+  currency: string = "YER",
 ): string {
   return new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency: currency,
-    currencyDisplay: 'symbol'
+    currencyDisplay: "symbol",
   }).format(amount);
 }
 
 // Usage
-const formatted = formatCurrency(12345.67, 'ar-YE', 'YER');
+const formatted = formatCurrency(12345.67, "ar-YE", "YER");
 // Output: "١٢٬٣٤٥٫٦٧ ر.ي."
 ```
 
@@ -646,6 +700,7 @@ const formatted = formatCurrency(12345.67, 'ar-YE', 'YER');
 #### ✅ Well Implemented
 
 **Configuration**:
+
 ```json
 {
   "currency": "العملة",
@@ -655,6 +710,7 @@ const formatted = formatCurrency(12345.67, 'ar-YE', 'YER');
 ```
 
 **Formatting**:
+
 ```dart
 String formatCurrency(num amount, {String? currencySymbol}) {
   final symbol = currencySymbol ?? 'ريال';
@@ -669,6 +725,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 ```
 
 **Strengths**:
+
 - ✅ Locale-aware symbol placement
 - ✅ Arabic numeral conversion
 - ✅ Configurable currency symbol
@@ -688,6 +745,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
    - **Impact**: Critical for Arabic users
 
    **Action Items**:
+
    ```bash
    # Files requiring immediate attention:
    apps/web/src/app/(dashboard)/fields/FieldsClient.tsx
@@ -726,8 +784,8 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 6. **Remove Alert() Calls**
    ```typescript
    // Replace these with proper Toast/Modal components
-   alert('تم إنشاء الحقل بنجاح | Field created successfully (mock)');
-   alert('فشل في إنشاء الحقل | Failed to create field');
+   alert("تم إنشاء الحقل بنجاح | Field created successfully (mock)");
+   alert("فشل في إنشاء الحقل | Failed to create field");
    ```
 
 #### 🟢 P2: Low Priority (Nice to Have)
@@ -766,12 +824,14 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 ### Phase 1: Critical Fixes (Week 1-2)
 
 **Web App**:
+
 1. ✅ Create comprehensive translation files for all namespaces
 2. ✅ Replace hardcoded strings in dashboard components
 3. ✅ Fix currency formatting (ar-SA → ar-YE, use YER)
 4. ✅ Remove alert() calls, use proper UI components
 
 **Deliverables**:
+
 - Expanded `ar.json` and `en.json` with 600+ keys
 - 10+ dashboard components using `useTranslations`
 - Centralized currency formatter
@@ -781,12 +841,14 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 ### Phase 2: Quality Improvements (Week 3-4)
 
 **Web App**:
+
 1. ✅ Implement centralized formatting utilities
 2. ✅ Audit and fix RTL layout issues
 3. ✅ Add icon flipping for directional icons
 4. ✅ Test all pages in both Arabic and English
 
 **Deliverables**:
+
 - `/packages/i18n/src/utils/formatting.ts` utility file
 - RTL testing checklist
 - 90%+ translation coverage
@@ -796,16 +858,19 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 ### Phase 3: Excellence (Week 5-6)
 
 **Web App**:
+
 1. ✅ Add translation metadata
 2. ✅ Implement pluralization support
 3. ✅ Add locale persistence
 4. ✅ Create i18n testing suite
 
 **Mobile App**:
+
 1. ✅ Review and update translations
 2. ✅ Add any missing keys for new features
 
 **Deliverables**:
+
 - Complete i18n documentation
 - E2E tests for i18n
 - 95%+ translation coverage
@@ -817,6 +882,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 ### Web App Testing
 
 #### Visual Testing
+
 - [ ] All pages render correctly in Arabic
 - [ ] All pages render correctly in English
 - [ ] RTL layout works for Arabic (text flows right-to-left)
@@ -827,6 +893,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 - [ ] Tables render correctly in RTL
 
 #### Functional Testing
+
 - [ ] Language switcher works without page refresh
 - [ ] Locale preference persists across sessions
 - [ ] All UI text is translated (no English in Arabic mode)
@@ -836,6 +903,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 - [ ] Error messages appear in correct language
 
 #### Content Testing
+
 - [ ] All buttons have translations
 - [ ] All form labels have translations
 - [ ] All error messages have translations
@@ -848,6 +916,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 ### Mobile App Testing
 
 #### Visual Testing
+
 - [x] All screens render correctly in Arabic
 - [x] All screens render correctly in English
 - [x] RTL layout works perfectly
@@ -855,6 +924,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 - [x] Lists align correctly
 
 #### Functional Testing
+
 - [x] Language switcher works
 - [x] All text is translated
 - [x] Arabic numerals display correctly (١٢٣)
@@ -868,6 +938,7 @@ String formatCurrency(num amount, {String? currencySymbol}) {
 ### Web App - How to Fix Hardcoded Strings
 
 #### Before (❌ Bad):
+
 ```typescript
 // apps/web/src/app/(dashboard)/fields/FieldsClient.tsx
 export default function FieldsClient() {
@@ -882,6 +953,7 @@ export default function FieldsClient() {
 ```
 
 #### After (✅ Good):
+
 ```typescript
 // apps/web/src/app/(dashboard)/fields/FieldsClient.tsx
 'use client';
@@ -901,6 +973,7 @@ export default function FieldsClient() {
 ```
 
 #### Translation File Update:
+
 ```json
 // packages/i18n/src/locales/ar.json
 {
@@ -926,44 +999,46 @@ export default function FieldsClient() {
 ### Web App - Currency Formatting
 
 #### Create Formatter Utility:
+
 ```typescript
 // packages/i18n/src/utils/formatting.ts
-import type { Locale } from '../index';
+import type { Locale } from "../index";
 
 export function formatCurrency(
   amount: number,
   locale: Locale,
-  currency: string = 'YER'
+  currency: string = "YER",
 ): string {
-  const localeCode = locale === 'ar' ? 'ar-YE' : 'en-YE';
+  const localeCode = locale === "ar" ? "ar-YE" : "en-YE";
 
   return new Intl.NumberFormat(localeCode, {
-    style: 'currency',
+    style: "currency",
     currency: currency,
-    currencyDisplay: 'symbol'
+    currencyDisplay: "symbol",
   }).format(amount);
 }
 
 export function formatNumber(
   value: number,
   locale: Locale,
-  options?: Intl.NumberFormatOptions
+  options?: Intl.NumberFormatOptions,
 ): string {
-  const localeCode = locale === 'ar' ? 'ar-YE' : 'en-YE';
+  const localeCode = locale === "ar" ? "ar-YE" : "en-YE";
   return new Intl.NumberFormat(localeCode, options).format(value);
 }
 
 export function formatDate(
   date: Date,
   locale: Locale,
-  options?: Intl.DateTimeFormatOptions
+  options?: Intl.DateTimeFormatOptions,
 ): string {
-  const localeCode = locale === 'ar' ? 'ar-YE' : 'en-YE';
+  const localeCode = locale === "ar" ? "ar-YE" : "en-YE";
   return new Intl.DateTimeFormat(localeCode, options).format(date);
 }
 ```
 
 #### Usage:
+
 ```typescript
 'use client';
 import { useLocale } from 'next-intl';
@@ -1033,20 +1108,21 @@ packages/i18n/src/locales/
 
 ### Current State
 
-| Metric | Web App | Mobile App | Target |
-|--------|---------|------------|--------|
-| Translation Keys | 91 | 1,779 | 600+ |
-| Translation Coverage | ~40% | ~95% | 90% |
-| RTL Support | Partial | Excellent | Excellent |
-| Hardcoded Strings | ~500-650 | 0 | 0 |
-| Date Formatting | Partial | Excellent | Excellent |
-| Number Formatting | Partial | Excellent | Excellent |
-| Currency Formatting | Poor | Excellent | Excellent |
-| Documentation | Minimal | Excellent | Good |
+| Metric               | Web App  | Mobile App | Target    |
+| -------------------- | -------- | ---------- | --------- |
+| Translation Keys     | 91       | 1,779      | 600+      |
+| Translation Coverage | ~40%     | ~95%       | 90%       |
+| RTL Support          | Partial  | Excellent  | Excellent |
+| Hardcoded Strings    | ~500-650 | 0          | 0         |
+| Date Formatting      | Partial  | Excellent  | Excellent |
+| Number Formatting    | Partial  | Excellent  | Excellent |
+| Currency Formatting  | Poor     | Excellent  | Excellent |
+| Documentation        | Minimal  | Excellent  | Good      |
 
 ### Success Criteria
 
 **Web App Should Achieve**:
+
 - ✅ 600+ translation keys (all features covered)
 - ✅ 0 hardcoded UI strings
 - ✅ Consistent RTL layout across all pages
@@ -1060,6 +1136,7 @@ packages/i18n/src/locales/
 ## 13. Resources & References
 
 ### Documentation
+
 - **Next-intl Docs**: https://next-intl-docs.vercel.app/
 - **Intl.NumberFormat**: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
 - **Intl.DateTimeFormat**: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat
@@ -1067,11 +1144,13 @@ packages/i18n/src/locales/
 - **ARB Format**: https://github.com/google/app-resource-bundle
 
 ### Internal Documentation
+
 - Mobile Setup: `/apps/mobile/LOCALIZATION_SETUP.md`
 - Mobile Integration: `/apps/mobile/lib/l10n/INTEGRATION_GUIDE.md`
 - Mobile Examples: `/apps/mobile/lib/l10n/USAGE_EXAMPLES.dart`
 
 ### Package Files
+
 - Web i18n Config: `/packages/i18n/src/index.ts`
 - Web Translations: `/packages/i18n/src/locales/{ar,en}.json`
 - Mobile ARB: `/apps/mobile/lib/l10n/app_{ar,en}.arb`
@@ -1101,19 +1180,14 @@ The SAHOOL platform demonstrates a **strong commitment to localization** with th
 ### Priority Actions
 
 **Immediate (This Week)**:
+
 1. Expand translation files to 600+ keys
 2. Replace hardcoded strings in top 10 dashboard components
 3. Fix currency formatting (ar-SA → ar-YE)
 
-**Short-term (This Month)**:
-4. Centralize formatting utilities
-5. Complete RTL audit and fixes
-6. Achieve 90% translation coverage
+**Short-term (This Month)**: 4. Centralize formatting utilities 5. Complete RTL audit and fixes 6. Achieve 90% translation coverage
 
-**Long-term (This Quarter)**:
-7. Reach feature parity with mobile app
-8. Implement comprehensive i18n testing
-9. Document i18n best practices for developers
+**Long-term (This Quarter)**: 7. Reach feature parity with mobile app 8. Implement comprehensive i18n testing 9. Document i18n best practices for developers
 
 ### Estimated Effort
 

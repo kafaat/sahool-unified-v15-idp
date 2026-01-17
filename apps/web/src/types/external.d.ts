@@ -3,7 +3,7 @@
  */
 
 // maplibre-gl types
-declare module 'maplibre-gl' {
+declare module "maplibre-gl" {
   export interface MapOptions {
     container: string | HTMLElement;
     style: string | object;
@@ -44,10 +44,17 @@ declare module 'maplibre-gl' {
   export class Map {
     constructor(options: MapOptions);
     on(event: string, callback: (e: MapMouseEvent) => void): this;
-    on(event: string, layer: string, callback: (e: MapMouseEvent) => void): this;
+    on(
+      event: string,
+      layer: string,
+      callback: (e: MapMouseEvent) => void,
+    ): this;
     off(event: string, callback?: (e: MapMouseEvent) => void): this;
     remove(): void;
-    addControl(control: NavigationControl | GeolocateControl, position?: string): this;
+    addControl(
+      control: NavigationControl | GeolocateControl,
+      position?: string,
+    ): this;
     addSource(id: string, source: any): this;
     addLayer(layer: any): this;
     getSource(id: string): any;
@@ -56,7 +63,10 @@ declare module 'maplibre-gl' {
     removeLayer(id: string): this;
     setStyle(style: string | object): this;
     flyTo(options: any): this;
-    fitBounds(bounds: LngLatBounds | [[number, number], [number, number]], options?: any): this;
+    fitBounds(
+      bounds: LngLatBounds | [[number, number], [number, number]],
+      options?: any,
+    ): this;
     getCanvas(): HTMLCanvasElement;
     getBounds(): LngLatBounds;
     project(lngLat: any): { x: number; y: number };
@@ -64,7 +74,11 @@ declare module 'maplibre-gl' {
   }
 
   export class NavigationControl {
-    constructor(options?: { showCompass?: boolean; showZoom?: boolean; visualizePitch?: boolean });
+    constructor(options?: {
+      showCompass?: boolean;
+      showZoom?: boolean;
+      visualizePitch?: boolean;
+    });
   }
 
   export class GeolocateControl {
@@ -81,7 +95,11 @@ declare module 'maplibre-gl' {
   }
 
   export class Popup {
-    constructor(options?: { closeButton?: boolean; closeOnClick?: boolean; offset?: number | [number, number] });
+    constructor(options?: {
+      closeButton?: boolean;
+      closeOnClick?: boolean;
+      offset?: number | [number, number];
+    });
     setLngLat(lngLat: [number, number] | LngLat): this;
     setHTML(html: string): this;
     addTo(map: Map): this;

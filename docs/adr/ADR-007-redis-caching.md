@@ -177,6 +177,7 @@ async def update_field(field_id: str, data: dict):
 ### Alternative 1: Memcached
 
 **Rejected because:**
+
 - No persistence options
 - Limited data structures
 - No pub/sub capability
@@ -185,6 +186,7 @@ async def update_field(field_id: str, data: dict):
 ### Alternative 2: Application-Level Cache
 
 **Rejected because:**
+
 - Not distributed (each node has own cache)
 - Memory duplication across instances
 - Cache invalidation complexity
@@ -192,9 +194,11 @@ async def update_field(field_id: str, data: dict):
 ### Alternative 3: CDN Caching (for satellite imagery)
 
 **Considered for:**
+
 - Satellite tile caching only
 
 **Decision:**
+
 - Will add CDN layer in Phase 3
 - Redis remains primary cache for computed data
 

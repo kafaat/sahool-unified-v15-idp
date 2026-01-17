@@ -7,6 +7,7 @@ This document describes the refresh token rotation security feature implemented 
 ## Problem Statement
 
 **Before:** Refresh tokens could be reused indefinitely until expiration, making them vulnerable to:
+
 - Token theft and replay attacks
 - Unauthorized access if a token is compromised
 - No detection mechanism for token reuse
@@ -14,6 +15,7 @@ This document describes the refresh token rotation security feature implemented 
 ## Solution
 
 **After:** Implemented automatic refresh token rotation with:
+
 1. **One-time use tokens:** Each refresh token can only be used once
 2. **Token family tracking:** All rotated tokens share a family ID
 3. **Reuse detection:** Detects when a used token is replayed
@@ -59,6 +61,7 @@ Reuse Attack (using Token 1 again)
 **File:** `/home/user/sahool-unified-v15-idp/apps/services/user-service/prisma/schema.prisma`
 
 Added to `RefreshToken` model:
+
 - `jti`: Unique JWT ID for token identification
 - `family`: Token family ID for rotation tracking
 - `used`: Boolean flag indicating if token was used
@@ -103,7 +106,7 @@ export interface JwtPayload {
   roles: string[];
   tid?: string;
   jti: string;
-  type: 'access' | 'refresh';
+  type: "access" | "refresh";
   family?: string; // Token family for refresh token rotation
   iat?: number;
   exp?: number;
@@ -113,6 +116,7 @@ export interface JwtPayload {
 ### 3. Token Generation with Family
 
 Updated `generateTokens()` method:
+
 - Accepts optional `family` parameter
 - Generates new family ID on initial login
 - Reuses family ID on token rotation
@@ -148,6 +152,7 @@ private async generateTokens(
 ### 4. Token Family Invalidation
 
 New method `invalidateTokenFamily()`:
+
 - Marks all tokens in family as revoked in PostgreSQL
 - Blacklists all tokens in family in Redis
 - Logs security warning
@@ -183,6 +188,7 @@ private async invalidateTokenFamily(family: string): Promise<void> {
 Completely rewritten `refreshToken()` method:
 
 **Security Checks:**
+
 1. Verify JWT signature and expiration
 2. Verify token type is 'refresh'
 3. Check token exists in database
@@ -192,6 +198,7 @@ Completely rewritten `refreshToken()` method:
 7. Verify user account is still active
 
 **Rotation Process:**
+
 1. Mark current token as USED in database
 2. Store `replacedBy` JTI for audit trail
 3. Blacklist old token in Redis (5 min TTL for detection window)
@@ -199,6 +206,7 @@ Completely rewritten `refreshToken()` method:
 5. Return new access and refresh tokens
 
 **Reuse Detection:**
+
 ```typescript
 // Check if token was already used (replay attack detection)
 if (storedToken.used) {
@@ -212,7 +220,7 @@ if (storedToken.used) {
   }
 
   throw new UnauthorizedException(
-    'Token reuse detected - all tokens in family have been invalidated',
+    "Token reuse detected - all tokens in family have been invalidated",
   );
 }
 ```
@@ -251,12 +259,12 @@ Updated to store new refresh token in cookies:
 ```typescript
 // Update refresh token (always rotated now)
 if (data.refresh_token) {
-  cookieStore.set('sahool_admin_refresh_token', data.refresh_token, {
+  cookieStore.set("sahool_admin_refresh_token", data.refresh_token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
     maxAge: 604800, // 7 days
-    path: '/',
+    path: "/",
   });
 }
 ```
@@ -264,21 +272,25 @@ if (data.refresh_token) {
 ## Security Benefits
 
 ### 1. Token Reuse Detection
+
 - Each token can only be used once
 - Reuse triggers immediate security response
 - All related tokens are invalidated
 
 ### 2. Reduced Attack Window
+
 - Used tokens blacklisted in Redis for 5 minutes
 - Detects concurrent reuse attempts
 - Fast response time for security events
 
 ### 3. Audit Trail
+
 - Complete history of token rotation in database
 - `replacedBy` field tracks token lineage
 - Security logs for all reuse attempts
 
 ### 4. Family-based Invalidation
+
 - Single compromised token doesn't invalidate all user sessions
 - Only affected token family is invalidated
 - Other login sessions remain valid
@@ -426,11 +438,13 @@ TTL revoked:token:your-jti-here
 ### Log Messages
 
 **Successful Rotation:**
+
 ```
 Token refreshed for user: usr_123, Old JTI: abc123..., New JTI: def456...
 ```
 
 **Reuse Detection:**
+
 ```
 Token reuse detected! Token: abc123..., Family: xyz789...
 Token family invalidated due to reuse detection: family=xyz789...
@@ -461,6 +475,7 @@ Token family invalidated due to reuse detection: family=xyz789...
 **Cause:** Race condition - client made concurrent refresh requests
 
 **Solution:**
+
 - Implement request queuing on client side
 - Use mutex/lock for refresh operations
 - Increase Redis TTL for detection window
@@ -470,6 +485,7 @@ Token family invalidated due to reuse detection: family=xyz789...
 **Cause:** Token reuse in one session invalidated entire family
 
 **Solution:**
+
 - Each login creates a NEW family
 - Different devices/sessions have different families
 - Only the compromised session is invalidated
@@ -479,6 +495,7 @@ Token family invalidated due to reuse detection: family=xyz789...
 **Cause:** Many used tokens in Redis
 
 **Solution:**
+
 - Reduce detection window TTL (currently 5 minutes)
 - Implement Redis eviction policy (LRU)
 - Monitor and adjust based on usage patterns

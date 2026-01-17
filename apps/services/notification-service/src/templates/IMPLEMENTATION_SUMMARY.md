@@ -1,4 +1,5 @@
 # SAHOOL Notification Templating System - Implementation Summary
+
 # ملخص تنفيذ نظام قوالب الإشعارات
 
 ## Overview / نظرة عامة
@@ -10,9 +11,11 @@ Successfully implemented a comprehensive bilingual notification templating syste
 ### 1. Core Components Created
 
 #### Main Template Manager
+
 **File**: `/home/user/sahool-unified-v15-idp/apps/services/notification-service/src/templates/notification_templates.py`
 
 **Features Implemented**:
+
 - `NotificationTemplateManager` class with full template lifecycle management
 - `get_template(template_id, language='ar')` - Retrieve templates by ID
 - `render_template(template_id, context)` - Render with context placeholders
@@ -20,6 +23,7 @@ Successfully implemented a comprehensive bilingual notification templating syste
 - `list_templates(category)` - List and filter templates by category
 
 **Channel-Specific Formatters**:
+
 - ✅ `format_for_push()` - Firebase/FCM push notifications with rich content
 - ✅ `format_for_sms()` - SMS with 160 char limit and emoji removal
 - ✅ `format_for_email()` - HTML emails with RTL support for Arabic
@@ -28,39 +32,44 @@ Successfully implemented a comprehensive bilingual notification templating syste
 ### 2. Template Categories
 
 #### ALERT (تنبيهات عاجلة) - 5 templates
-| Template ID | Arabic Title | Priority | Icon |
-|------------|--------------|----------|------|
-| `disease_detected` | 🦠 تنبيه: مرض مكتشف | HIGH | 🦠 |
-| `weather_alert` | ⚠️ تنبيه طقس | HIGH | ⚠️ |
-| `sensor_alert` | 📡 تنبيه المستشعر | HIGH | 📡 |
-| `pest_outbreak` | 🐛 تحذير: انتشار آفات | CRITICAL | 🐛 |
-| `water_shortage` | 🚰 تحذير: نقص المياه | CRITICAL | 🚰 |
+
+| Template ID        | Arabic Title          | Priority | Icon |
+| ------------------ | --------------------- | -------- | ---- |
+| `disease_detected` | 🦠 تنبيه: مرض مكتشف   | HIGH     | 🦠   |
+| `weather_alert`    | ⚠️ تنبيه طقس          | HIGH     | ⚠️   |
+| `sensor_alert`     | 📡 تنبيه المستشعر     | HIGH     | 📡   |
+| `pest_outbreak`    | 🐛 تحذير: انتشار آفات | CRITICAL | 🐛   |
+| `water_shortage`   | 🚰 تحذير: نقص المياه  | CRITICAL | 🚰   |
 
 #### REMINDER (تذكيرات) - 3 templates
-| Template ID | Arabic Title | Priority | Icon |
-|------------|--------------|----------|------|
-| `irrigation_reminder` | 💧 تذكير: وقت الري | MEDIUM | 💧 |
-| `fertilizer_reminder` | 🌱 تذكير: وقت التسميد | MEDIUM | 🌱 |
-| `harvest_ready` | 🌾 حان وقت الحصاد | HIGH | 🌾 |
+
+| Template ID           | Arabic Title          | Priority | Icon |
+| --------------------- | --------------------- | -------- | ---- |
+| `irrigation_reminder` | 💧 تذكير: وقت الري    | MEDIUM   | 💧   |
+| `fertilizer_reminder` | 🌱 تذكير: وقت التسميد | MEDIUM   | 🌱   |
+| `harvest_ready`       | 🌾 حان وقت الحصاد     | HIGH     | 🌾   |
 
 #### REPORT (تقارير) - 4 templates
-| Template ID | Arabic Title | Priority | Icon |
-|------------|--------------|----------|------|
-| `daily_report` | 📋 تقرير يومي | LOW | 📋 |
-| `weekly_report` | 📊 تقرير أسبوعي | LOW | 📊 |
-| `yield_prediction` | 📊 توقع الإنتاج | MEDIUM | 📊 |
-| `market_price` | 📈 تحديث أسعار السوق | MEDIUM | 📈 |
+
+| Template ID        | Arabic Title         | Priority | Icon |
+| ------------------ | -------------------- | -------- | ---- |
+| `daily_report`     | 📋 تقرير يومي        | LOW      | 📋   |
+| `weekly_report`    | 📊 تقرير أسبوعي      | LOW      | 📊   |
+| `yield_prediction` | 📊 توقع الإنتاج      | MEDIUM   | 📊   |
+| `market_price`     | 📈 تحديث أسعار السوق | MEDIUM   | 📈   |
 
 #### RECOMMENDATION (توصيات) - 1 template
-| Template ID | Arabic Title | Priority | Icon |
-|------------|--------------|----------|------|
-| `ai_recommendation` | 🤖 توصية ذكية | MEDIUM | 🤖 |
+
+| Template ID         | Arabic Title  | Priority | Icon |
+| ------------------- | ------------- | -------- | ---- |
+| `ai_recommendation` | 🤖 توصية ذكية | MEDIUM   | 🤖   |
 
 ### 3. Bilingual Template Files
 
 Created **26 JSON template files** (13 Arabic + 13 English):
 
 **Arabic Templates** (`ar/` directory):
+
 ```
 ✓ disease_detected.json
 ✓ irrigation_reminder.json
@@ -78,6 +87,7 @@ Created **26 JSON template files** (13 Arabic + 13 English):
 ```
 
 **English Templates** (`en/` directory):
+
 ```
 ✓ (Same files as Arabic, with English content)
 ```
@@ -87,6 +97,7 @@ Created **26 JSON template files** (13 Arabic + 13 English):
 Each template supports dynamic placeholders:
 
 **Common Placeholders**:
+
 - `{field_name}` - اسم الحقل
 - `{field_id}` - معرف الحقل
 - `{crop_type}` - نوع المحصول
@@ -99,6 +110,7 @@ Each template supports dynamic placeholders:
 - `{value}` - قيمة
 
 **Template Structure**:
+
 ```json
 {
   "template_id": "disease_detected",
@@ -115,6 +127,7 @@ Each template supports dynamic placeholders:
 ### 5. Channel-Specific Features
 
 #### Push Notifications
+
 ```python
 {
   "title": "🦠 تنبيه: مرض مكتشف",
@@ -132,14 +145,17 @@ Each template supports dynamic placeholders:
 ```
 
 #### SMS (160 characters max)
+
 ```
 تنبيه: مرض مكتشف: تم اكتشاف البياض الدقيقي في حقل القمح...
 ```
+
 - Emojis automatically removed
 - Auto-truncation with "..."
 - Optimized for Arabic and English
 
 #### Email (HTML + Plain Text)
+
 - RTL support for Arabic (`dir="rtl"`)
 - Responsive design
 - SAHOOL branding
@@ -147,6 +163,7 @@ Each template supports dynamic placeholders:
 - Plain text alternative
 
 #### WhatsApp
+
 ```
 *🦠 تنبيه: مرض مكتشف*
 
@@ -247,16 +264,19 @@ templates/
 ## Integration Guide / دليل التكامل
 
 ### Step 1: Import
+
 ```python
 from src.templates import get_template_manager, NotificationChannel
 ```
 
 ### Step 2: Get Manager
+
 ```python
 manager = get_template_manager()
 ```
 
 ### Step 3: Prepare Context
+
 ```python
 context = {
     "field_name": "حقل القمح",
@@ -266,6 +286,7 @@ context = {
 ```
 
 ### Step 4: Render for Channel
+
 ```python
 # Push notification
 push_data = manager.format_for_push(
@@ -293,26 +314,31 @@ await sms_client.send(user_phone, sms_text)
 All templates are designed specifically for Yemen's agricultural needs:
 
 ### Disease Detection
+
 - Common Yemen crop diseases
 - Immediate action guidance
 - Visual confidence indicators
 
 ### Weather Alerts
+
 - Yemen-specific weather patterns (frost, heat waves, droughts)
 - Governorate-level targeting
 - Protection recommendations
 
 ### Irrigation
+
 - Water conservation focus (critical for Yemen)
 - Optimal timing (early morning)
 - Evaporation reduction tips
 
 ### Market Prices
+
 - Yemen Riyal (YER) currency
 - Local market names
 - Selling recommendations
 
 ### Pest Control
+
 - Regional pest outbreaks
 - Affected crop identification
 - Distance-based alerts
@@ -377,6 +403,7 @@ Potential additions (not in current scope):
 ## Contact & Support
 
 For questions or issues with the templating system:
+
 - Check `README.md` for usage documentation
 - Run `template_examples.py` for interactive examples
 - Run `test_templates.py` to verify functionality

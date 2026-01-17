@@ -9,46 +9,46 @@
 
 export const PERMISSIONS = {
   // Field Management
-  FIELD_VIEW: 'field:view',
-  FIELD_CREATE: 'field:create',
-  FIELD_EDIT: 'field:edit',
-  FIELD_DELETE: 'field:delete',
+  FIELD_VIEW: "field:view",
+  FIELD_CREATE: "field:create",
+  FIELD_EDIT: "field:edit",
+  FIELD_DELETE: "field:delete",
 
   // NDVI & Satellite
-  NDVI_VIEW: 'ndvi:view',
-  NDVI_ANALYZE: 'ndvi:analyze',
-  SATELLITE_ACCESS: 'satellite:access',
+  NDVI_VIEW: "ndvi:view",
+  NDVI_ANALYZE: "ndvi:analyze",
+  SATELLITE_ACCESS: "satellite:access",
 
   // Alerts
-  ALERT_VIEW: 'alert:view',
-  ALERT_ACKNOWLEDGE: 'alert:acknowledge',
-  ALERT_RESOLVE: 'alert:resolve',
-  ALERT_MANAGE: 'alert:manage',
+  ALERT_VIEW: "alert:view",
+  ALERT_ACKNOWLEDGE: "alert:acknowledge",
+  ALERT_RESOLVE: "alert:resolve",
+  ALERT_MANAGE: "alert:manage",
 
   // Reports
-  REPORT_VIEW: 'report:view',
-  REPORT_CREATE: 'report:create',
-  REPORT_EXPORT: 'report:export',
+  REPORT_VIEW: "report:view",
+  REPORT_CREATE: "report:create",
+  REPORT_EXPORT: "report:export",
 
   // Advisor
-  ADVISOR_VIEW: 'advisor:view',
-  ADVISOR_REQUEST: 'advisor:request',
+  ADVISOR_VIEW: "advisor:view",
+  ADVISOR_REQUEST: "advisor:request",
 
   // Admin Functions
-  USER_VIEW: 'user:view',
-  USER_CREATE: 'user:create',
-  USER_EDIT: 'user:edit',
-  USER_DELETE: 'user:delete',
+  USER_VIEW: "user:view",
+  USER_CREATE: "user:create",
+  USER_EDIT: "user:edit",
+  USER_DELETE: "user:delete",
 
-  TENANT_VIEW: 'tenant:view',
-  TENANT_MANAGE: 'tenant:manage',
+  TENANT_VIEW: "tenant:view",
+  TENANT_MANAGE: "tenant:manage",
 
-  SETTINGS_VIEW: 'settings:view',
-  SETTINGS_EDIT: 'settings:edit',
+  SETTINGS_VIEW: "settings:view",
+  SETTINGS_EDIT: "settings:edit",
 
   // System
-  SYSTEM_MONITOR: 'system:monitor',
-  SYSTEM_ADMIN: 'system:admin',
+  SYSTEM_MONITOR: "system:monitor",
+  SYSTEM_ADMIN: "system:admin",
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -59,18 +59,18 @@ export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export const ROLES = {
   // End Users
-  FARMER: 'farmer',
-  FIELD_MANAGER: 'field_manager',
-  AGRONOMIST: 'agronomist',
+  FARMER: "farmer",
+  FIELD_MANAGER: "field_manager",
+  AGRONOMIST: "agronomist",
 
   // Organization
-  ORG_ADMIN: 'org_admin',
-  ORG_VIEWER: 'org_viewer',
+  ORG_ADMIN: "org_admin",
+  ORG_VIEWER: "org_viewer",
 
   // Platform
-  SUPPORT: 'support',
-  ADMIN: 'admin',
-  SUPER_ADMIN: 'super_admin',
+  SUPPORT: "support",
+  ADMIN: "admin",
+  SUPER_ADMIN: "super_admin",
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
@@ -206,14 +206,20 @@ export function hasPermission(roles: Role[], permission: Permission): boolean {
 /**
  * Check if a user has any of the given permissions
  */
-export function hasAnyPermission(roles: Role[], permissions: Permission[]): boolean {
+export function hasAnyPermission(
+  roles: Role[],
+  permissions: Permission[],
+): boolean {
   return permissions.some((permission) => hasPermission(roles, permission));
 }
 
 /**
  * Check if a user has all of the given permissions
  */
-export function hasAllPermissions(roles: Role[], permissions: Permission[]): boolean {
+export function hasAllPermissions(
+  roles: Role[],
+  permissions: Permission[],
+): boolean {
   return permissions.every((permission) => hasPermission(roles, permission));
 }
 

@@ -102,6 +102,12 @@ class ProfileScreen extends StatelessWidget {
                         title: 'الأمان والخصوصية',
                         onTap: () {},
                       ),
+                      _SettingItem(
+                        icon: Icons.fingerprint,
+                        title: 'تسجيل الدخول بالبصمة',
+                        subtitle: 'الوصول السريع والآمن',
+                        onTap: () => context.push('/biometric-settings'),
+                      ),
                     ],
                   ),
 

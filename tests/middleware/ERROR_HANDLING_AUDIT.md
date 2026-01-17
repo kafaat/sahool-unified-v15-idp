@@ -1,4 +1,5 @@
 # Error Handling Middleware Audit Report
+
 # تقرير تدقيق معالجة الأخطاء
 
 **Date:** 2026-01-06
@@ -11,6 +12,7 @@
 ## Executive Summary
 
 This audit examines error handling middleware across the SAHOOL platform, focusing on:
+
 - Global error handlers in NestJS services
 - Exception handlers in FastAPI services
 - Error boundaries in web applications
@@ -22,6 +24,7 @@ This audit examines error handling middleware across the SAHOOL platform, focusi
 ### Overall Assessment: **MODERATE** ⚠️
 
 **Strengths:**
+
 - ✅ Centralized error handling infrastructure exists for both NestJS and FastAPI
 - ✅ Bilingual error messages (English/Arabic) implemented
 - ✅ Structured error codes with categorization
@@ -30,6 +33,7 @@ This audit examines error handling middleware across the SAHOOL platform, focusi
 - ✅ Request ID correlation for error tracking
 
 **Critical Issues:**
+
 - ❌ Inconsistent implementation across services (only 5% of FastAPI services use unified handlers)
 - ❌ Local error handlers in NestJS services duplicate code and lack standardization
 - ❌ Stack traces exposed conditionally but may leak in production
@@ -47,6 +51,7 @@ This audit examines error handling middleware across the SAHOOL platform, focusi
 **Implementation Analysis:**
 
 ✅ **Strengths:**
+
 - Comprehensive exception filter using `@Catch()` decorator
 - Handles three types of exceptions:
   - `AppException` (custom application exceptions)
@@ -69,6 +74,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 ```
 
 **Error Response Format:**
+
 ```json
 {
   "success": false,
@@ -92,6 +98,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 **Services with Global Filters:** 3 (30%)
 
 **Services Using Unified Handler:**
+
 - ❌ Chat Service - Local implementation
 - ❌ User Service - Local implementation
 - ❌ Marketplace Service - Local implementation
@@ -103,14 +110,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
 @Catch()
 class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
-    const status = exception instanceof HttpException
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
 
     response.status(status).json({
       success: false,
       error: {
-        code: `ERR_${status}`,  // ❌ Not using standard error codes
+        code: `ERR_${status}`, // ❌ Not using standard error codes
         message,
         timestamp: new Date().toISOString(),
         path: request.url,
@@ -121,6 +129,7 @@ class HttpExceptionFilter implements ExceptionFilter {
 ```
 
 **Problems with Local Implementation:**
+
 1. ❌ Does not use standardized error codes from `ErrorCode` enum
 2. ❌ Missing bilingual messages
 3. ❌ No request ID correlation
@@ -131,9 +140,11 @@ class HttpExceptionFilter implements ExceptionFilter {
 ### 1.3 Recommendations for NestJS
 
 **HIGH PRIORITY:**
+
 1. **Standardize all services** to use shared `HttpExceptionFilter`:
+
    ```typescript
-   import { HttpExceptionFilter } from '@sahool/shared/errors';
+   import { HttpExceptionFilter } from "@sahool/shared/errors";
 
    async function bootstrap() {
      const app = await NestFactory.create(AppModule);
@@ -156,6 +167,7 @@ class HttpExceptionFilter implements ExceptionFilter {
 **Implementation Analysis:**
 
 ✅ **Strengths:**
+
 - Comprehensive exception handling setup via `setup_exception_handlers(app)`
 - Four exception types handled:
   - `AppException` (custom)
@@ -169,6 +181,7 @@ class HttpExceptionFilter implements ExceptionFilter {
 - Proper logging with structured context
 
 **Sanitization Patterns:**
+
 ```python
 sensitive_patterns = [
     (r"password[=:]\s*\S+", "[REDACTED]"),
@@ -185,6 +198,7 @@ sensitive_patterns = [
 ```
 
 **Details Filtering:**
+
 ```python
 # Filter out sensitive keys from details
 safe_details = {
@@ -199,14 +213,17 @@ safe_details = {
 **Services with Unified Exception Handlers:** 2 (5%)
 
 **Services Using Unified Handler:**
+
 - ✅ Weather Service (`/apps/services/weather-service/src/main.py`)
 - ✅ Advisory Service (`/apps/services/agro-advisor/src/main.py`)
 
 **Services with Legacy Handler:**
+
 - ⚠️ Field Core Service (no unified handlers detected)
 - ⚠️ 38+ other FastAPI services
 
 **Example of Proper Implementation:**
+
 ```python
 from errors_py import setup_exception_handlers, add_request_id_middleware
 
@@ -222,6 +239,7 @@ add_request_id_middleware(app)
 **Location:** `/apps/services/shared/middleware/exception_handler.py`
 
 A secondary exception handler implementation was found with similar but less comprehensive functionality:
+
 - ❌ Less detailed error codes
 - ❌ No regex-based sanitization
 - ❌ Simpler error structure
@@ -231,6 +249,7 @@ A secondary exception handler implementation was found with similar but less com
 ### 2.4 Recommendations for FastAPI
 
 **CRITICAL PRIORITY:**
+
 1. **Migrate all 38 services** to use unified exception handlers from `shared/errors_py`
 2. **Deprecate** the legacy exception handler in `shared/middleware/exception_handler.py`
 3. **Add CI/CD checks** to ensure all new FastAPI services use `setup_exception_handlers(app)`
@@ -245,6 +264,7 @@ A secondary exception handler implementation was found with similar but less com
 **Location:** `/packages/shared-ui/src/components/ErrorBoundary.tsx`
 
 ✅ **Strengths:**
+
 - Class-based React error boundary with comprehensive error handling
 - Optional Sentry integration (checks for availability)
 - Customizable fallback UI (function or component)
@@ -255,29 +275,31 @@ A secondary exception handler implementation was found with similar but less com
 - Retry functionality
 
 **Features:**
+
 ```typescript
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode | ((error: Error, retry: () => void) => ReactNode);
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   showRetry?: boolean;
-  showDetails?: boolean;  // Shows details in development
+  showDetails?: boolean; // Shows details in development
   enableSentry?: boolean;
 }
 ```
 
 **Sentry Integration:**
+
 ```typescript
 if (this.props.enableSentry !== false) {
   try {
     const Sentry = (window as any).Sentry;
-    if (Sentry && typeof Sentry.captureException === 'function') {
+    if (Sentry && typeof Sentry.captureException === "function") {
       Sentry.captureException(error, {
         extra: { componentStack: errorInfo.componentStack },
       });
     }
   } catch (sentryError) {
-    console.warn('Sentry not available:', sentryError);
+    console.warn("Sentry not available:", sentryError);
   }
 }
 ```
@@ -287,6 +309,7 @@ if (this.props.enableSentry !== false) {
 **Location:** `/apps/web/src/components/common/ErrorBoundary.tsx`
 
 ✅ **Features:**
+
 - Server-side error logging via `/api/log-error` endpoint
 - RTL support (Arabic)
 - Development mode shows full error details
@@ -294,18 +317,19 @@ if (this.props.enableSentry !== false) {
 - Retry and reload functionality
 
 **Error Logging:**
+
 ```typescript
-await fetch('/api/log-error', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+await fetch("/api/log-error", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    type: 'react_error_boundary',
+    type: "react_error_boundary",
     message: error.message,
     stack: error.stack,
     componentStack: errorInfo.componentStack,
     url: window.location.href,
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'production',
+    environment: process.env.NODE_ENV || "production",
   }),
 });
 ```
@@ -315,6 +339,7 @@ await fetch('/api/log-error', {
 **Location:** `/apps/admin/src/components/common/ErrorBoundary.tsx`
 
 ✅ **Features:**
+
 - Admin-specific error display with more technical details
 - Expandable stack trace and component stack
 - Server-side error logging
@@ -323,9 +348,11 @@ await fetch('/api/log-error', {
 ### 3.4 Error Logging Endpoints
 
 #### Web App Error Logger
+
 **Location:** `/apps/web/src/app/api/log-error/route.ts`
 
 ✅ **Strengths:**
+
 - Rate limiting (10 requests per minute per IP)
 - Request validation
 - Structured logging with context
@@ -333,19 +360,23 @@ await fetch('/api/log-error', {
 - User agent and referer tracking
 
 ❌ **Issues:**
+
 - Missing actual integration with external logging service (commented out)
 - No error alerting system
 - No error aggregation
 
 #### Admin App Error Logger
+
 **Location:** `/apps/admin/src/app/api/log-error/route.ts`
 
 ✅ **Strengths:**
+
 - Rate limiting (20 requests per minute per IP - higher for admin)
 - Request validation
 - Structured logging
 
 ❌ **Issues:**
+
 - In-memory rate limiting (will reset on server restart)
 - Missing external logging service integration
 
@@ -360,6 +391,7 @@ No error boundary implementation found in `/apps/mobile/` directory.
 ### 3.6 Recommendations for Error Boundaries
 
 **HIGH PRIORITY:**
+
 1. **Implement error boundary for mobile app** (React Native)
 2. **Integrate actual error tracking service:**
    - Sentry
@@ -381,6 +413,7 @@ No error boundary implementation found in `/apps/mobile/` directory.
 Both NestJS and FastAPI services use a similar response structure:
 
 **Success Response:**
+
 ```json
 {
   "success": true,
@@ -392,6 +425,7 @@ Both NestJS and FastAPI services use a similar response structure:
 ```
 
 **Error Response:**
+
 ```json
 {
   "success": false,
@@ -420,12 +454,14 @@ Both NestJS and FastAPI services use a similar response structure:
 ### 4.2 Consistency Analysis
 
 ✅ **Consistent Fields:**
+
 - `success` boolean flag
 - Bilingual messages (`message`, `messageAr`)
 - Timestamp in ISO 8601 format
 - Error code structure
 
 ⚠️ **Inconsistencies Found:**
+
 - Local NestJS implementations use `ERR_{status}` instead of semantic codes
 - Some services don't include `category` field
 - Request ID format varies (`req-*` vs `x-request-id`)
@@ -433,6 +469,7 @@ Both NestJS and FastAPI services use a similar response structure:
 ### 4.3 Validation Error Format
 
 **NestJS (class-validator):**
+
 ```json
 {
   "error": {
@@ -452,6 +489,7 @@ Both NestJS and FastAPI services use a similar response structure:
 ```
 
 **FastAPI (Pydantic):**
+
 ```json
 {
   "error": {
@@ -481,6 +519,7 @@ Both NestJS and FastAPI services use a similar response structure:
 **Current Implementation:**
 
 **NestJS:**
+
 ```typescript
 private shouldIncludeStack(): boolean {
   return process.env.NODE_ENV === 'development'
@@ -489,6 +528,7 @@ private shouldIncludeStack(): boolean {
 ```
 
 **FastAPI:**
+
 ```python
 def should_include_stack() -> bool:
     env = os.getenv("ENVIRONMENT", os.getenv("NODE_ENV", "production")).lower()
@@ -499,11 +539,13 @@ def should_include_stack() -> bool:
 ```
 
 ⚠️ **Issues:**
+
 1. `INCLUDE_STACK_TRACE` environment variable could accidentally be set to `true` in production
 2. No explicit check for production environment to force disable
 3. Stack traces may contain sensitive file paths
 
 **Recommendation:**
+
 ```typescript
 private shouldIncludeStack(): boolean {
   // Never include stack traces in production, even if env var is set
@@ -537,6 +579,7 @@ def sanitize_error_message(message: str) -> str:
 ```
 
 ❌ **Missing in NestJS:**
+
 - No sanitization of error messages
 - No filtering of connection strings
 - No path redaction
@@ -547,6 +590,7 @@ Implement similar sanitization in NestJS error filter.
 ### 5.3 Database Connection Strings
 
 ✅ **Good:** Connection strings in error messages are sanitized in FastAPI:
+
 ```
 postgresql://[REDACTED]@localhost/db
 ```
@@ -556,6 +600,7 @@ postgresql://[REDACTED]@localhost/db
 ### 5.4 File Paths
 
 ✅ **Good:** Paths are redacted in FastAPI:
+
 ```
 /home/user/file.py → [PATH]
 /app/service/file.py → [PATH]
@@ -566,6 +611,7 @@ postgresql://[REDACTED]@localhost/db
 ### 5.5 User Data
 
 ✅ **Good:** Sensitive fields filtered from error details:
+
 ```python
 safe_details = {
     k: v for k, v in details.items()
@@ -576,13 +622,14 @@ safe_details = {
 ### 5.6 Request/Response Logging
 
 **NestJS:**
+
 ```typescript
 if (this.shouldIncludeStack()) {
-  this.logger.debug('Request details', {
+  this.logger.debug("Request details", {
     method: request.method,
     url: request.url,
-    headers: request.headers,  // ⚠️ May include Authorization header
-    body: request.body,        // ⚠️ May include sensitive data
+    headers: request.headers, // ⚠️ May include Authorization header
+    body: request.body, // ⚠️ May include sensitive data
     params: request.params,
     query: request.query,
   });
@@ -592,9 +639,10 @@ if (this.shouldIncludeStack()) {
 ❌ **Critical Issue:** Request headers and body logged in development mode without sanitization.
 
 **Recommendation:**
+
 ```typescript
 if (this.shouldIncludeStack()) {
-  this.logger.debug('Request details', {
+  this.logger.debug("Request details", {
     method: request.method,
     url: request.url,
     headers: this.sanitizeHeaders(request.headers),
@@ -612,6 +660,7 @@ if (this.shouldIncludeStack()) {
 ### 6.1 NestJS Logging
 
 **Implementation:**
+
 ```typescript
 private logError(exception: any, request: Request, status: HttpStatus) {
   const message = `${request.method} ${request.url} - Status: ${status}`;
@@ -629,11 +678,13 @@ private logError(exception: any, request: Request, status: HttpStatus) {
 ```
 
 ✅ **Strengths:**
+
 - Appropriate log levels (error for 5xx, warn for 4xx)
 - Request ID correlation
 - HTTP method and URL context
 
 ❌ **Issues:**
+
 - No structured logging format
 - Missing tenant ID
 - Missing user context
@@ -642,6 +693,7 @@ private logError(exception: any, request: Request, status: HttpStatus) {
 ### 6.2 FastAPI Logging
 
 **Implementation:**
+
 ```python
 if exc.http_status >= 500:
     logger.error(
@@ -668,12 +720,14 @@ else:
 ```
 
 ✅ **Strengths:**
+
 - Structured logging with `extra` fields
 - Request ID in message and metadata
 - Appropriate log levels
 - Conditional stack traces via `exc_info`
 
 ❌ **Issues:**
+
 - Missing tenant ID
 - Missing user context
 - No distributed tracing correlation
@@ -681,27 +735,30 @@ else:
 ### 6.3 Frontend Error Logging
 
 **Web App:**
+
 ```typescript
-await fetch('/api/log-error', {
-  method: 'POST',
+await fetch("/api/log-error", {
+  method: "POST",
   body: JSON.stringify({
-    type: 'react_error_boundary',
+    type: "react_error_boundary",
     message: error.message,
     stack: error.stack,
     componentStack: errorInfo.componentStack,
     url: window.location.href,
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'production',
+    environment: process.env.NODE_ENV || "production",
   }),
 });
 ```
 
 ✅ **Strengths:**
+
 - Comprehensive error context
 - Environment tracking
 - URL context
 
 ❌ **Issues:**
+
 - No user identification
 - No session ID
 - Errors logged to server but not to external service
@@ -712,12 +769,14 @@ await fetch('/api/log-error', {
 **Status:** ❌ **NOT IMPLEMENTED**
 
 **Current State:**
+
 - Logs written to console/files
 - No centralized log aggregation
 - No log retention policy
 - No log analysis tools
 
 **Missing:**
+
 - ELK Stack (Elasticsearch, Logstash, Kibana)
 - Loki/Grafana
 - Datadog Logs
@@ -727,6 +786,7 @@ await fetch('/api/log-error', {
 ### 6.5 Recommendations for Logging
 
 **CRITICAL PRIORITY:**
+
 1. **Implement centralized log aggregation:**
    - Deploy ELK Stack or equivalent
    - Configure log shipping from all services
@@ -739,17 +799,18 @@ await fetch('/api/log-error', {
    - Session ID for frontend errors
 
 3. **Implement structured logging:**
+
    ```typescript
    logger.error({
-     message: 'Database query failed',
-     error_code: 'ERR_8000',
+     message: "Database query failed",
+     error_code: "ERR_8000",
      request_id: requestId,
      tenant_id: tenantId,
      user_id: userId,
      trace_id: traceId,
-     service: 'user-service',
-     method: 'POST',
-     path: '/api/v1/users',
+     service: "user-service",
+     method: "POST",
+     path: "/api/v1/users",
      duration_ms: 1234,
      stack: sanitizedStack,
    });
@@ -774,6 +835,7 @@ await fetch('/api/log-error', {
 **Format:** `ERR_{category}{number}`
 
 **Categories:**
+
 - 1000-1999: Validation errors
 - 2000-2999: Authentication errors
 - 3000-3999: Authorization errors
@@ -791,18 +853,20 @@ await fetch('/api/log-error', {
 **FastAPI:** `/apps/services/shared/errors_py/error_codes.py`
 
 ✅ **Strengths:**
+
 - Comprehensive error code coverage (70+ codes)
 - Bilingual messages for all codes
 - Category-based organization
 - Metadata includes HTTP status and retryability
 
 **Example:**
+
 ```typescript
 export enum ErrorCode {
-  VALIDATION_ERROR = 'ERR_1000',
-  INVALID_INPUT = 'ERR_1001',
-  USER_NOT_FOUND = 'ERR_4001',
-  FARM_NOT_FOUND = 'ERR_4002',
+  VALIDATION_ERROR = "ERR_1000",
+  INVALID_INPUT = "ERR_1001",
+  USER_NOT_FOUND = "ERR_4001",
+  FARM_NOT_FOUND = "ERR_4002",
   // ...
 }
 
@@ -812,8 +876,8 @@ export const ERROR_REGISTRY: Record<ErrorCode, ErrorCodeMetadata> = {
     category: ErrorCategory.VALIDATION,
     httpStatus: HttpStatus.BAD_REQUEST,
     message: {
-      en: 'Validation error occurred',
-      ar: 'حدث خطأ في التحقق من صحة البيانات'
+      en: "Validation error occurred",
+      ar: "حدث خطأ في التحقق من صحة البيانات",
     },
     retryable: false,
   },
@@ -826,12 +890,14 @@ export const ERROR_REGISTRY: Record<ErrorCode, ErrorCodeMetadata> = {
 ✅ **Synchronized:** Both NestJS and FastAPI versions are in sync with identical codes.
 
 ❌ **Usage Inconsistency:**
+
 - Local NestJS implementations use `ERR_{status}` (e.g., `ERR_404`)
 - Should use semantic codes (e.g., `ERR_4001` for USER_NOT_FOUND)
 
 ### 7.4 Missing Error Codes
 
 **Identified Gaps:**
+
 1. No error codes for:
    - File upload errors (ERR_7100 range)
    - Cache errors (ERR_8100 range)
@@ -847,7 +913,9 @@ export const ERROR_REGISTRY: Record<ErrorCode, ErrorCodeMetadata> = {
 ### 7.5 Recommendations for Error Codes
 
 **MEDIUM PRIORITY:**
+
 1. **Expand error code registry:**
+
    ```typescript
    // File upload errors
    FILE_TOO_LARGE = 'ERR_7100',
@@ -864,6 +932,7 @@ export const ERROR_REGISTRY: Record<ErrorCode, ErrorCodeMetadata> = {
    ```
 
 2. **Add domain-specific codes:**
+
    ```typescript
    // Agricultural domain
    CROP_SEASON_OVERLAP = 'ERR_6100',
@@ -884,21 +953,22 @@ export const ERROR_REGISTRY: Record<ErrorCode, ErrorCodeMetadata> = {
 
 **Current Risks:**
 
-| Risk | Severity | Status |
-|------|----------|--------|
-| Stack traces in production | HIGH | ⚠️ Mitigated (env-based) |
-| Database connection strings | HIGH | ✅ Sanitized (FastAPI only) |
-| File paths in errors | MEDIUM | ⚠️ Partial (FastAPI only) |
-| Request headers in logs | HIGH | ❌ Not sanitized |
-| Request body in logs | CRITICAL | ❌ Not sanitized |
-| SQL queries in errors | HIGH | ❓ Unknown |
-| Internal service URLs | MEDIUM | ❓ Unknown |
+| Risk                        | Severity | Status                      |
+| --------------------------- | -------- | --------------------------- |
+| Stack traces in production  | HIGH     | ⚠️ Mitigated (env-based)    |
+| Database connection strings | HIGH     | ✅ Sanitized (FastAPI only) |
+| File paths in errors        | MEDIUM   | ⚠️ Partial (FastAPI only)   |
+| Request headers in logs     | HIGH     | ❌ Not sanitized            |
+| Request body in logs        | CRITICAL | ❌ Not sanitized            |
+| SQL queries in errors       | HIGH     | ❓ Unknown                  |
+| Internal service URLs       | MEDIUM   | ❓ Unknown                  |
 
 ### 8.2 Error Enumeration
 
 **Attack Vector:** Attackers may use error messages to enumerate valid resources.
 
 **Example Vulnerable Response:**
+
 ```json
 {
   "error": {
@@ -909,6 +979,7 @@ export const ERROR_REGISTRY: Record<ErrorCode, ErrorCodeMetadata> = {
 ```
 
 ✅ **Mitigated:** Generic messages used:
+
 ```json
 {
   "error": {
@@ -923,10 +994,12 @@ export const ERROR_REGISTRY: Record<ErrorCode, ErrorCodeMetadata> = {
 **Risk:** Malicious clients could trigger excessive error logging.
 
 ✅ **Mitigated:**
+
 - Rate limiting on `/api/log-error` endpoint (10-20 requests/minute)
 - Rate limiting in error handlers (not implemented universally)
 
 ❌ **Missing:**
+
 - Circuit breakers to prevent error cascade
 - Error rate monitoring and alerting
 - Automatic throttling for high error rates
@@ -936,6 +1009,7 @@ export const ERROR_REGISTRY: Record<ErrorCode, ErrorCodeMetadata> = {
 **Risk:** User input reflected in error messages could enable XSS.
 
 **Example Vulnerable Code:**
+
 ```typescript
 throw new NotFoundException(`Farm ${farmId} not found`);
 ```
@@ -943,21 +1017,24 @@ throw new NotFoundException(`Farm ${farmId} not found`);
 If `farmId` contains `<script>alert('XSS')</script>`, it could be rendered unsafely.
 
 ⚠️ **Status:**
+
 - Backend APIs return JSON (not vulnerable)
 - Frontend error boundaries use React (auto-escaped)
 - Server-side rendered errors may be vulnerable
 
 **Recommendation:**
 Always sanitize user input in error messages:
+
 ```typescript
 throw new NotFoundException(`Farm not found`, {
-  details: { farmId: sanitize(farmId) }
+  details: { farmId: sanitize(farmId) },
 });
 ```
 
 ### 8.5 Recommendations for Security
 
 **HIGH PRIORITY:**
+
 1. **Implement request sanitization in NestJS** (matching FastAPI implementation)
 2. **Force disable stack traces in production** (ignore INCLUDE_STACK_TRACE env var)
 3. **Add circuit breakers** to prevent error cascades
@@ -965,8 +1042,8 @@ throw new NotFoundException(`Farm not found`, {
 5. **Audit all error messages** for information disclosure
 6. **Add security headers** to error responses:
    ```typescript
-   response.setHeader('X-Content-Type-Options', 'nosniff');
-   response.setHeader('X-Frame-Options', 'DENY');
+   response.setHeader("X-Content-Type-Options", "nosniff");
+   response.setHeader("X-Frame-Options", "DENY");
    ```
 
 ---
@@ -976,12 +1053,14 @@ throw new NotFoundException(`Farm not found`, {
 ### 9.1 Current State
 
 **Available:**
+
 - ✅ Request ID correlation
 - ✅ Structured logging (FastAPI only)
 - ✅ HTTP status code logging
 - ✅ Error categorization
 
 **Missing:**
+
 - ❌ Distributed tracing (OpenTelemetry)
 - ❌ Error rate metrics (Prometheus)
 - ❌ Error dashboards (Grafana)
@@ -993,6 +1072,7 @@ throw new NotFoundException(`Farm not found`, {
 ### 9.2 Metrics Recommendations
 
 **Metrics to Track:**
+
 1. **Error Rate:**
    - Total errors per minute
    - Errors by service
@@ -1016,6 +1096,7 @@ throw new NotFoundException(`Farm not found`, {
 ### 9.3 Dashboard Recommendations
 
 **Suggested Dashboards:**
+
 1. **Error Overview:**
    - Total error count (24h, 7d, 30d)
    - Error rate trend
@@ -1037,6 +1118,7 @@ throw new NotFoundException(`Farm not found`, {
 ### 9.4 Alerting Recommendations
 
 **Alert Rules:**
+
 1. **Critical Alerts:**
    - Error rate > 5% for 5 minutes → PagerDuty
    - 5xx errors > 10 per minute → PagerDuty
@@ -1058,29 +1140,30 @@ throw new NotFoundException(`Farm not found`, {
 ### 10.1 Unit Tests for Error Handlers
 
 **NestJS Example:**
+
 ```typescript
-describe('HttpExceptionFilter', () => {
-  it('should handle AppException correctly', () => {
+describe("HttpExceptionFilter", () => {
+  it("should handle AppException correctly", () => {
     // Test AppException handling
   });
 
-  it('should handle HttpException correctly', () => {
+  it("should handle HttpException correctly", () => {
     // Test HttpException handling
   });
 
-  it('should handle unknown errors correctly', () => {
+  it("should handle unknown errors correctly", () => {
     // Test catch-all handling
   });
 
-  it('should sanitize sensitive information', () => {
+  it("should sanitize sensitive information", () => {
     // Test sanitization
   });
 
-  it('should not include stack traces in production', () => {
+  it("should not include stack traces in production", () => {
     // Test stack trace exclusion
   });
 
-  it('should generate request ID when missing', () => {
+  it("should generate request ID when missing", () => {
     // Test request ID generation
   });
 });
@@ -1089,6 +1172,7 @@ describe('HttpExceptionFilter', () => {
 ### 10.2 Integration Tests
 
 **Test Scenarios:**
+
 1. Validation errors return correct format
 2. Authentication errors return 401
 3. Authorization errors return 403
@@ -1099,6 +1183,7 @@ describe('HttpExceptionFilter', () => {
 ### 10.3 E2E Tests
 
 **Test Scenarios:**
+
 1. Frontend error boundary catches React errors
 2. Frontend error logging works correctly
 3. Error response format is consistent across services
@@ -1111,33 +1196,33 @@ describe('HttpExceptionFilter', () => {
 
 ### 11.1 Critical Issues (Fix Immediately)
 
-| # | Issue | Impact | Services Affected |
-|---|-------|--------|-------------------|
-| 1 | Only 5% of FastAPI services use unified error handlers | Inconsistent error handling, information leakage risk | 38/40 FastAPI services |
-| 2 | Request headers/body logged without sanitization in NestJS | Credentials/tokens may be logged | All NestJS services |
-| 3 | No mobile app error boundary | App crashes without graceful handling | Mobile app |
-| 4 | No centralized error tracking/monitoring | Cannot identify or respond to production issues | All services |
-| 5 | Local NestJS error handlers don't use standard error codes | Inconsistent API responses | 7/10 NestJS services |
+| #   | Issue                                                      | Impact                                                | Services Affected      |
+| --- | ---------------------------------------------------------- | ----------------------------------------------------- | ---------------------- |
+| 1   | Only 5% of FastAPI services use unified error handlers     | Inconsistent error handling, information leakage risk | 38/40 FastAPI services |
+| 2   | Request headers/body logged without sanitization in NestJS | Credentials/tokens may be logged                      | All NestJS services    |
+| 3   | No mobile app error boundary                               | App crashes without graceful handling                 | Mobile app             |
+| 4   | No centralized error tracking/monitoring                   | Cannot identify or respond to production issues       | All services           |
+| 5   | Local NestJS error handlers don't use standard error codes | Inconsistent API responses                            | 7/10 NestJS services   |
 
 ### 11.2 High Priority Issues (Fix Soon)
 
-| # | Issue | Impact | Services Affected |
-|---|-------|--------|-------------------|
-| 6 | No sanitization in NestJS error messages | Database strings, paths may leak | All NestJS services |
-| 7 | Stack traces may be enabled in production via env var | Internal implementation details exposed | All services |
-| 8 | Error logging endpoints don't integrate with external service | Lost error data, no alerting | Web and Admin apps |
-| 9 | In-memory rate limiting for error logging | Ineffective across multiple instances | Web and Admin apps |
-| 10 | No distributed tracing | Cannot trace errors across services | All services |
+| #   | Issue                                                         | Impact                                  | Services Affected   |
+| --- | ------------------------------------------------------------- | --------------------------------------- | ------------------- |
+| 6   | No sanitization in NestJS error messages                      | Database strings, paths may leak        | All NestJS services |
+| 7   | Stack traces may be enabled in production via env var         | Internal implementation details exposed | All services        |
+| 8   | Error logging endpoints don't integrate with external service | Lost error data, no alerting            | Web and Admin apps  |
+| 9   | In-memory rate limiting for error logging                     | Ineffective across multiple instances   | Web and Admin apps  |
+| 10  | No distributed tracing                                        | Cannot trace errors across services     | All services        |
 
 ### 11.3 Medium Priority Issues (Fix When Possible)
 
-| # | Issue | Impact | Services Affected |
-|---|-------|--------|-------------------|
-| 11 | Missing domain-specific error codes | Generic error messages | Domain services |
-| 12 | No error dashboards | Poor visibility into system health | All services |
-| 13 | No automated alerting | Delayed incident response | All services |
-| 14 | No session replay for frontend errors | Difficult to reproduce user issues | Web apps |
-| 15 | Legacy exception handler not deprecated | Confusion about which to use | FastAPI services |
+| #   | Issue                                   | Impact                             | Services Affected |
+| --- | --------------------------------------- | ---------------------------------- | ----------------- |
+| 11  | Missing domain-specific error codes     | Generic error messages             | Domain services   |
+| 12  | No error dashboards                     | Poor visibility into system health | All services      |
+| 13  | No automated alerting                   | Delayed incident response          | All services      |
+| 14  | No session replay for frontend errors   | Difficult to reproduce user issues | Web apps          |
+| 15  | Legacy exception handler not deprecated | Confusion about which to use       | FastAPI services  |
 
 ---
 
@@ -1146,50 +1231,38 @@ describe('HttpExceptionFilter', () => {
 ### Phase 1: Critical Fixes (Week 1-2)
 
 **Week 1:**
+
 1. ✅ Create migration guide for unified error handlers
 2. ✅ Migrate 5 high-traffic FastAPI services to unified handlers
 3. ✅ Implement request sanitization in NestJS
 4. ✅ Set up Sentry or equivalent error tracking service
 5. ✅ Implement mobile app error boundary
 
-**Week 2:**
-6. ✅ Migrate remaining FastAPI services (batch of 10 per day)
-7. ✅ Migrate all NestJS services to shared error filter
-8. ✅ Force disable stack traces in production
-9. ✅ Add comprehensive test suite for error handlers
-10. ✅ Deploy error tracking to production
+**Week 2:** 6. ✅ Migrate remaining FastAPI services (batch of 10 per day) 7. ✅ Migrate all NestJS services to shared error filter 8. ✅ Force disable stack traces in production 9. ✅ Add comprehensive test suite for error handlers 10. ✅ Deploy error tracking to production
 
 ### Phase 2: High Priority (Week 3-4)
 
 **Week 3:**
+
 1. ✅ Implement centralized log aggregation (ELK or equivalent)
 2. ✅ Add distributed tracing (OpenTelemetry)
 3. ✅ Integrate error logging endpoints with external service
 4. ✅ Implement Redis-based rate limiting for error endpoints
 5. ✅ Add correlation IDs (trace, tenant, user, session)
 
-**Week 4:**
-6. ✅ Create error rate metrics (Prometheus)
-7. ✅ Set up error dashboards (Grafana)
-8. ✅ Implement automated alerting (PagerDuty/Slack)
-9. ✅ Add circuit breakers for error cascades
-10. ✅ Deprecate legacy exception handler
+**Week 4:** 6. ✅ Create error rate metrics (Prometheus) 7. ✅ Set up error dashboards (Grafana) 8. ✅ Implement automated alerting (PagerDuty/Slack) 9. ✅ Add circuit breakers for error cascades 10. ✅ Deprecate legacy exception handler
 
 ### Phase 3: Medium Priority (Week 5-8)
 
 **Week 5-6:**
+
 1. ✅ Expand error code registry with missing codes
 2. ✅ Add domain-specific error codes
 3. ✅ Update API documentation with error codes
 4. ✅ Implement session replay (LogRocket or equivalent)
 5. ✅ Add APM integration (Datadog/New Relic)
 
-**Week 7-8:**
-6. ✅ Create runbooks for common errors
-7. ✅ Implement error recovery strategies
-8. ✅ Add retry logic with exponential backoff
-9. ✅ Create error code migration tool
-10. ✅ Conduct security audit of all error messages
+**Week 7-8:** 6. ✅ Create runbooks for common errors 7. ✅ Implement error recovery strategies 8. ✅ Add retry logic with exponential backoff 9. ✅ Create error code migration tool 10. ✅ Conduct security audit of all error messages
 
 ### Phase 4: Continuous Improvement (Ongoing)
 
@@ -1206,6 +1279,7 @@ describe('HttpExceptionFilter', () => {
 ### 13.1 Migrating FastAPI Service to Unified Handlers
 
 **Before:**
+
 ```python
 from fastapi import FastAPI, HTTPException
 
@@ -1219,6 +1293,7 @@ async def get_item(item_id: str):
 ```
 
 **After:**
+
 ```python
 from fastapi import FastAPI
 from errors_py import (
@@ -1247,9 +1322,10 @@ async def get_item(item_id: str):
 ### 13.2 Migrating NestJS Service to Shared Filter
 
 **Before (main.ts):**
+
 ```typescript
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
 
 // Local implementation
 @Catch()
@@ -1267,10 +1343,11 @@ async function bootstrap() {
 ```
 
 **After (main.ts):**
+
 ```typescript
-import { NestFactory } from '@nestjs/core';
-import { HttpExceptionFilter } from '@sahool/shared/errors';
-import { AppModule } from './app.module';
+import { NestFactory } from "@nestjs/core";
+import { HttpExceptionFilter } from "@sahool/shared/errors";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -1282,32 +1359,34 @@ async function bootstrap() {
 ### 13.3 Using Custom Exceptions
 
 **NestJS:**
+
 ```typescript
 import {
   NotFoundException,
   ValidationException,
   ErrorCode,
   BilingualMessage,
-} from '@sahool/shared/errors';
+} from "@sahool/shared/errors";
 
 // Simple usage
-throw NotFoundException.farm('farm-123');
+throw NotFoundException.farm("farm-123");
 
 // Custom message
 throw new ValidationException(
   ErrorCode.INVALID_INPUT,
   new BilingualMessage(
-    'Invalid farm coordinates',
-    'إحداثيات المزرعة غير صالحة'
+    "Invalid farm coordinates",
+    "إحداثيات المزرعة غير صالحة",
   ),
   {
-    field: 'coordinates',
+    field: "coordinates",
     value: coordinates,
-  }
+  },
 );
 ```
 
 **FastAPI:**
+
 ```python
 from errors_py import (
     NotFoundException,
@@ -1336,6 +1415,7 @@ raise ValidationException(
 ### 13.4 Implementing Error Boundary in Mobile App
 
 **React Native:**
+
 ```typescript
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
@@ -1451,6 +1531,7 @@ const styles = StyleSheet.create({
 ### 14.1 Success Metrics
 
 **Target Metrics (After Implementation):**
+
 - ✅ 100% of services use unified error handlers
 - ✅ 0 stack traces leaked in production
 - ✅ 0 credentials/tokens logged
@@ -1474,18 +1555,21 @@ const styles = StyleSheet.create({
 ### 14.3 Improvement Targets
 
 **Month 1:**
+
 - FastAPI unified handlers: 50% (20/40)
 - NestJS unified handlers: 100% (10/10)
 - Mobile error boundary: 100% (1/1)
 - Error tracking: 100% (all services)
 
 **Month 2:**
+
 - FastAPI unified handlers: 100% (40/40)
 - Centralized logging: 100%
 - Alerting: 100%
 - Error dashboards: Deployed
 
 **Month 3:**
+
 - MTTD < 5 minutes
 - MTTR < 30 minutes
 - Error rate < 1%
@@ -1520,6 +1604,7 @@ The SAHOOL platform has a **solid foundation** for error handling with centraliz
 ### Final Recommendation
 
 **Prioritize Phase 1 (Critical Fixes)** immediately. The inconsistent implementation of error handlers across 95% of FastAPI services and lack of mobile error boundary are critical gaps that could lead to:
+
 - Information disclosure
 - Poor user experience
 - Difficulty troubleshooting production issues
@@ -1534,6 +1619,7 @@ With the existing shared error handling infrastructure, migrating all services s
 ### Appendix A: Services Inventory
 
 **NestJS Services (10 total):**
+
 1. chat-service
 2. crop-growth-model
 3. disaster-assessment
@@ -1546,10 +1632,12 @@ With the existing shared error handling infrastructure, migrating all services s
 10. yield-prediction-service
 
 **FastAPI Services with Unified Handlers (2):**
+
 1. weather-service ✅
 2. advisory-service (agro-advisor) ✅
 
 **FastAPI Services Needing Migration (38):**
+
 1. field-core
 2. field-service
 3. field-management-service

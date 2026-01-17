@@ -1,4 +1,5 @@
 # Kong API Gateway Security Audit Report
+
 **SAHOOL Platform - Agricultural Intelligence Platform**
 **Audit Date:** 2026-01-06
 **Auditor:** Security Analysis System
@@ -13,6 +14,7 @@ This comprehensive security audit evaluates the Kong API Gateway configuration a
 ### Overall Security Score: 7.2/10 (GOOD)
 
 **Key Strengths:**
+
 - ✅ JWT authentication implemented across all services
 - ✅ ACL-based authorization with role separation
 - ✅ Rate limiting configured per service tier
@@ -21,6 +23,7 @@ This comprehensive security audit evaluates the Kong API Gateway configuration a
 - ✅ IP restrictions on sensitive services
 
 **Critical Findings:**
+
 - 🔴 **CRITICAL:** Admin API exposed in Kubernetes (0.0.0.0:8001)
 - 🟡 **HIGH:** Default JWT secrets in development configurations
 - 🟡 **HIGH:** Missing SSL/TLS certificate validation
@@ -34,6 +37,7 @@ This comprehensive security audit evaluates the Kong API Gateway configuration a
 ### 1.1 Configuration Analysis
 
 **Files Analyzed:**
+
 - `/infra/kong/kong.yml`
 - `/infrastructure/gateway/kong/kong.yml`
 - `/infrastructure/gateway/kong-legacy/kong.yml`
@@ -41,26 +45,30 @@ This comprehensive security audit evaluates the Kong API Gateway configuration a
 - `/.env.example`
 
 **JWT Algorithms in Use:**
+
 - Primary: HS256 (HMAC with SHA-256)
 - Optional: RS256 (RSA with SHA-256) - Currently disabled
 
 **Consumer Tiers with Separate Secrets:**
+
 ```yaml
-- Starter Users:     ${STARTER_JWT_SECRET}
+- Starter Users: ${STARTER_JWT_SECRET}
 - Professional Users: ${PROFESSIONAL_JWT_SECRET}
-- Enterprise Users:   ${ENTERPRISE_JWT_SECRET}
-- Research Users:     ${RESEARCH_JWT_SECRET}
-- Admin Users:        ${ADMIN_JWT_SECRET}
-- Service Accounts:   ${SERVICE_JWT_SECRET}
-- Trial Users:        ${TRIAL_JWT_SECRET}
+- Enterprise Users: ${ENTERPRISE_JWT_SECRET}
+- Research Users: ${RESEARCH_JWT_SECRET}
+- Admin Users: ${ADMIN_JWT_SECRET}
+- Service Accounts: ${SERVICE_JWT_SECRET}
+- Trial Users: ${TRIAL_JWT_SECRET}
 ```
 
 ### 1.2 Security Findings
 
 #### 🟢 PASS: Environment Variable Based Secrets
+
 All JWT secrets use environment variable substitution rather than hardcoded values.
 
 **Evidence:**
+
 ```yaml
 # From infra/kong/kong.yml (lines 1796-1798)
 jwt_secrets:
@@ -74,6 +82,7 @@ jwt_secrets:
 **Location:** `/infrastructure/gateway/kong-legacy/kong.yml` (lines 690-708)
 
 **Issue:**
+
 ```yaml
 secret: ${KONG_JWT_WEB_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 secret: ${KONG_JWT_MOBILE_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
@@ -83,11 +92,13 @@ secret: ${KONG_JWT_INTERNAL_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 **Risk:** If environment variables are not set, weak default secrets are used.
 
 **Impact:**
+
 - Attackers can forge valid JWT tokens
 - Complete authentication bypass possible
 - Affects web, mobile, and internal service authentication
 
 **Recommendation:**
+
 ```yaml
 # Remove defaults, force explicit configuration
 secret: ${KONG_JWT_WEB_SECRET:?KONG_JWT_WEB_SECRET environment variable required}
@@ -98,6 +109,7 @@ secret: ${KONG_JWT_WEB_SECRET:?KONG_JWT_WEB_SECRET environment variable required
 **Location:** All Kong configuration files
 
 **Finding:**
+
 ```yaml
 # RS256 disabled until valid JWT_PUBLIC_KEY is configured
 # - key: starter-jwt-key-rs256
@@ -106,11 +118,13 @@ secret: ${KONG_JWT_WEB_SECRET:?KONG_JWT_WEB_SECRET environment variable required
 ```
 
 **Concern:**
+
 - HS256 (symmetric) less secure than RS256 (asymmetric)
 - Secret rotation requires coordinated updates across all services
 - No separation between token signing and verification
 
 **Recommendation:**
+
 1. Generate RSA key pairs for production:
    ```bash
    openssl genrsa -out private.pem 4096
@@ -124,6 +138,7 @@ secret: ${KONG_JWT_WEB_SECRET:?KONG_JWT_WEB_SECRET environment variable required
 #### 🟢 PASS: JWT Claims Verification
 
 **Evidence:**
+
 ```yaml
 # From infra/kong/kong.yml (line 349-350)
 plugins:
@@ -134,14 +149,17 @@ plugins:
 ```
 
 **Verified Claims:**
+
 - `exp` (expiration time) - prevents token reuse
 
 **Missing Verifications:**
+
 - `nbf` (not before) - prevents premature token use
 - `iat` (issued at) - enables token age tracking
 - `aud` (audience) - prevents token misuse across services
 
 **Recommendation:**
+
 ```yaml
 claims_to_verify:
   - exp
@@ -153,6 +171,7 @@ claims_to_verify:
 ### 1.3 Token Expiry Configuration
 
 **From `.env.example` (lines 84-93):**
+
 ```bash
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60    # 1 hour
 JWT_REFRESH_TOKEN_EXPIRE_DAYS=7       # 1 week
@@ -161,11 +180,13 @@ JWT_ISSUER=sahool-platform
 ```
 
 **Analysis:**
+
 - ✅ Access token expiry (60 min) follows OWASP recommendations
 - ✅ Refresh token expiry (7 days) reasonable for agriculture platform
 - ✅ Audience and issuer claims configured
 
 **Recommendation:** Reduce for high-risk operations:
+
 ```bash
 JWT_ADMIN_ACCESS_TOKEN_EXPIRE_MINUTES=15
 JWT_FINANCIAL_ACCESS_TOKEN_EXPIRE_MINUTES=30
@@ -180,6 +201,7 @@ JWT_FINANCIAL_ACCESS_TOKEN_EXPIRE_MINUTES=30
 **Total Consumers Defined:** 5 sample consumers across 5 tiers
 
 **Consumer Structure:**
+
 ```yaml
 consumers:
   - username: starter-user-sample
@@ -206,6 +228,7 @@ consumers:
 ### 2.2 ACL Group Mapping
 
 **From `/infra/kong/kong.yml` (lines 1864-1874):**
+
 ```yaml
 acls:
   - consumer: starter-user-sample
@@ -223,6 +246,7 @@ acls:
 ### 2.3 Service-Level ACL Enforcement
 
 **Example: IoT Gateway (Enterprise Only)**
+
 ```yaml
 # Line 863-880
 - name: iot-gateway
@@ -235,6 +259,7 @@ acls:
 ```
 
 **Example: Research Core (Enterprise + Research)**
+
 ```yaml
 # Line 900-916
 - name: research-core
@@ -249,7 +274,9 @@ acls:
 ### 2.4 Security Findings
 
 #### 🟢 PASS: Granular Access Control
+
 Different services enforce different ACL requirements based on business logic:
+
 - **Starter Services:** 5 services (weather, notifications, field-core, advisory, astronomical-calendar)
 - **Professional Services:** 9 services (satellite, ndvi, irrigation, fertilizer, etc.)
 - **Enterprise Services:** 10 services (IoT, research, marketplace, billing, disaster assessment)
@@ -259,16 +286,19 @@ Different services enforce different ACL requirements based on business logic:
 **Location:** `/infra/kong/kong.yml` (lines 1789-1858)
 
 **Issue:** Production configuration contains sample consumers:
+
 ```yaml
 - username: starter-user-sample
   custom_id: starter-001
 ```
 
 **Risk:**
+
 - If JWT secrets leak, sample consumers become attack vectors
 - Unclear which consumers are for testing vs. production
 
 **Recommendation:**
+
 1. Remove all `-sample` consumers from production configs
 2. Create separate consumer configuration files:
    - `consumers-production.yml`
@@ -279,6 +309,7 @@ Different services enforce different ACL requirements based on business logic:
 #### 🟢 PASS: Multi-Group Service Access
 
 Services correctly allow multiple groups where appropriate:
+
 ```yaml
 # Billing accessible to all paid tiers
 - name: billing-core
@@ -294,12 +325,14 @@ Services correctly allow multiple groups where appropriate:
 #### 🟡 MEDIUM: No Dynamic Consumer Provisioning
 
 **Current State:**
+
 - All consumers statically defined in YAML
 - No API-driven consumer creation visible
 - Manual consumer management required
 
 **Recommendation:**
 Implement Kong Admin API consumer provisioning:
+
 ```bash
 curl -X POST http://kong-admin:8001/consumers \
   --data "username=user_${USER_ID}" \
@@ -317,6 +350,7 @@ curl -X POST http://kong-admin:8001/consumers/user_${USER_ID}/jwt \
 ### 3.1 Configuration Analysis
 
 **Kubernetes Deployment** (`helm/sahool/templates/infrastructure/kong-deployment.yaml`):
+
 ```yaml
 # Line 89-90
 - name: KONG_ADMIN_LISTEN
@@ -330,6 +364,7 @@ ports:
 ```
 
 **Service Exposure** (lines 26-40):
+
 ```yaml
 apiVersion: v1
 kind: Service
@@ -344,13 +379,14 @@ spec:
 ```
 
 **Docker Compose Configuration** (`infrastructure/gateway/kong/docker-compose.yml`):
+
 ```yaml
 # Line 134
 KONG_ADMIN_LISTEN: 127.0.0.1:8001, 127.0.0.1:8444 ssl
 
 # Lines 168-169
 ports:
-  - "127.0.0.1:8001:8001"  # ✅ Localhost only
+  - "127.0.0.1:8001:8001" # ✅ Localhost only
   - "127.0.0.1:8444:8444"
 ```
 
@@ -361,17 +397,20 @@ ports:
 **Issue:** Kong Admin API listens on all network interfaces in Kubernetes pods.
 
 **Configuration:**
+
 ```yaml
 KONG_ADMIN_LISTEN: "0.0.0.0:8001"
 ```
 
 **Risk:**
+
 - Any pod in the cluster can access Kong Admin API
 - Potential for unauthorized configuration changes
 - Service discovery could expose admin API
 - No authentication configured (`KONG_ADMIN_GUI_AUTH: "basic-auth"` only in docker-compose)
 
 **Attack Scenario:**
+
 1. Attacker compromises any pod in cluster
 2. Accesses `http://kong-admin:8001`
 3. Lists all consumers and JWT secrets
@@ -380,6 +419,7 @@ KONG_ADMIN_LISTEN: "0.0.0.0:8001"
 6. Disables rate limiting
 
 **Evidence of Exposure:**
+
 ```bash
 # From inside any Kubernetes pod:
 curl http://sahool-kong-admin:8001/consumers
@@ -387,6 +427,7 @@ curl http://sahool-kong-admin:8001/consumers
 ```
 
 **Recommendation - IMMEDIATE:**
+
 ```yaml
 # Option 1: Localhost only (recommended)
 - name: KONG_ADMIN_LISTEN
@@ -427,6 +468,7 @@ spec:
 #### 🟢 PASS: Docker Compose Admin API Restricted
 
 **Finding:**
+
 ```yaml
 KONG_ADMIN_LISTEN: 127.0.0.1:8001, 127.0.0.1:8444 ssl
 ports:
@@ -434,6 +476,7 @@ ports:
 ```
 
 **Analysis:**
+
 - Binds to localhost only
 - Port mapping restricted to localhost
 - SSL enabled on 8444
@@ -442,11 +485,13 @@ ports:
 #### 🟡 HIGH: Admin API Not Behind Authentication
 
 **Current State:**
+
 - No visible authentication plugin on admin routes
 - RBAC enforcement only in docker-compose (`KONG_ENFORCE_RBAC: "on"`)
 - Not enabled in Kubernetes deployment
 
 **Recommendation:**
+
 ```yaml
 # Enable Kong RBAC
 - name: KONG_ENFORCE_RBAC
@@ -474,6 +519,7 @@ plugins:
 ### 4.1 Global Rate Limiting
 
 **From `/infrastructure/gateway/kong-legacy/kong.yml` (lines 1497-1504):**
+
 ```yaml
 plugins:
   - name: rate-limiting
@@ -487,6 +533,7 @@ plugins:
 ```
 
 **Analysis:**
+
 - Global default: 60 req/min, 2000 req/hour
 - Policy: `local` (in-memory, not cluster-wide)
 - Fault tolerant enabled
@@ -495,6 +542,7 @@ plugins:
 ### 4.2 Service-Specific Rate Limits
 
 #### Starter Package (100 req/min)
+
 ```yaml
 # Field Core, Weather, Advisory, Notifications
 - name: rate-limiting
@@ -509,6 +557,7 @@ plugins:
 ```
 
 #### Professional Package (1000 req/min)
+
 ```yaml
 # Satellite, NDVI, Irrigation, Fertilizer
 - name: rate-limiting
@@ -519,6 +568,7 @@ plugins:
 ```
 
 #### Enterprise Package (10000 req/min)
+
 ```yaml
 # AI Advisor, IoT Gateway, Research
 - name: rate-limiting
@@ -533,21 +583,24 @@ plugins:
 #### 🟡 MEDIUM: Inconsistent Rate Limiting Policies
 
 **Issue:** Different configurations use different policies:
+
 - `kong-ha/kong/declarative/kong.yml`: `policy: local` (in-memory)
 - `infra/kong/kong.yml`: `policy: redis` (clustered)
 
 **Impact:**
+
 - `local` policy doesn't share state across Kong nodes
 - Effective rate limit = (limit × number of nodes)
 - Example: 100 req/min with 3 nodes = 300 req/min actual
 
 **Recommendation:**
+
 ```yaml
 # Always use redis policy for production
 - name: rate-limiting
   config:
     policy: redis
-    redis_host: redis-sentinel  # For HA
+    redis_host: redis-sentinel # For HA
     redis_port: 26379
     redis_database: 1
     redis_timeout: 2000
@@ -557,6 +610,7 @@ plugins:
 #### 🟢 PASS: Redis-Based Rate Limiting with Authentication
 
 **Finding:**
+
 ```yaml
 redis_password: ${REDIS_PASSWORD}
 redis_database: 1
@@ -564,6 +618,7 @@ fault_tolerant: true
 ```
 
 **Analysis:**
+
 - Password authentication enabled
 - Dedicated database (DB 1) for rate limiting
 - Fault tolerant mode prevents outage if Redis fails
@@ -586,11 +641,13 @@ fault_tolerant: true
 **Issue:** No rate limiting on public health endpoints
 
 **Risk:**
+
 - DDoS vector
 - Information disclosure about service availability
 - No authentication required
 
 **Recommendation:**
+
 ```yaml
 plugins:
   - name: rate-limiting
@@ -605,6 +662,7 @@ plugins:
 #### 🟢 PASS: Graduated Rate Limits by Tier
 
 **Evidence:**
+
 - Starter: 100/min
 - Professional: 1000/min
 - Enterprise: 10000/min
@@ -620,6 +678,7 @@ Appropriate scaling for different customer tiers.
 **Services with IP Restrictions:**
 
 1. **IoT Gateway** (lines 863-896):
+
 ```yaml
 plugins:
   - name: ip-restriction
@@ -631,6 +690,7 @@ plugins:
 ```
 
 2. **Research Core** (lines 900-933):
+
 ```yaml
 plugins:
   - name: ip-restriction
@@ -652,6 +712,7 @@ plugins:
 **Finding:** 5 enterprise services restrict access to private IP ranges.
 
 **Protected Services:**
+
 - IoT Gateway (8106)
 - Research Core (3015)
 - Marketplace (3010)
@@ -659,11 +720,13 @@ plugins:
 - Disaster Assessment (3020)
 
 **Allowed Ranges:**
+
 - `10.0.0.0/8` - Private network (Class A)
 - `172.16.0.0/12` - Private network (Class B)
 - `192.168.0.0/16` - Private network (Class C)
 
 **Analysis:**
+
 - Appropriate for internal/VPC-only services
 - Prevents direct internet access
 - Forces routing through proxy/load balancer
@@ -684,14 +747,15 @@ plugins:
 **Issue:** Admin dashboard config is commented out and lacks IP restrictions when uncommented.
 
 **Recommendation:**
+
 ```yaml
 - name: admin-dashboard
   plugins:
     - name: ip-restriction
       config:
         allow:
-          - 10.10.10.0/24  # Specific admin subnet only
-    - name: key-auth  # Additional authentication layer
+          - 10.10.10.0/24 # Specific admin subnet only
+    - name: key-auth # Additional authentication layer
 ```
 
 #### 🔴 HIGH: Trusted IPs Set to 0.0.0.0/0
@@ -705,17 +769,20 @@ KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
 **Issue:** All IPs trusted for X-Forwarded-For header processing.
 
 **Risk:**
+
 - IP spoofing possible
 - Attackers can bypass IP-based restrictions
 - Rate limiting can be evaded
 
 **Attack Scenario:**
+
 ```bash
 curl -H "X-Forwarded-For: 192.168.1.1" https://api.sahool.app/iot
 # Request appears to come from internal network
 ```
 
 **Recommendation:**
+
 ```yaml
 # Trust only load balancer IPs
 KONG_TRUSTED_IPS: 10.0.1.0/24,10.0.2.0/24
@@ -730,6 +797,7 @@ KONG_TRUSTED_IPS: 10.244.0.0/16
 ### 6.1 SSL Configuration
 
 **Docker Compose** (`infrastructure/gateway/kong/docker-compose.yml`):
+
 ```yaml
 # Line 133
 KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
@@ -737,13 +805,14 @@ KONG_ADMIN_LISTEN: 127.0.0.1:8001, 127.0.0.1:8444 ssl
 
 # Lines 166-169
 ports:
-  - "8000:8000"   # Proxy HTTP
-  - "8443:8443"   # Proxy HTTPS
-  - "127.0.0.1:8001:8001"   # Admin HTTP
-  - "127.0.0.1:8444:8444"   # Admin HTTPS
+  - "8000:8000" # Proxy HTTP
+  - "8443:8443" # Proxy HTTPS
+  - "127.0.0.1:8001:8001" # Admin HTTP
+  - "127.0.0.1:8444:8444" # Admin HTTPS
 ```
 
 **Kubernetes** (`helm/sahool/templates/infrastructure/kong-deployment.yaml`):
+
 ```yaml
 # Lines 92-97
 ports:
@@ -760,17 +829,20 @@ ports:
 **Issue:** SSL ports defined but no certificate management configuration found.
 
 **Missing Configurations:**
+
 - Certificate paths
 - Certificate renewal automation
 - TLS version restrictions
 - Cipher suite configuration
 
 **Risk:**
+
 - Kong may fall back to self-signed certificates
 - Clients may accept invalid certificates
 - Weak ciphers may be enabled
 
 **Recommendation:**
+
 ```yaml
 # Kong TLS configuration
 KONG_SSL_CERT: /etc/kong/certs/tls.crt
@@ -793,18 +865,21 @@ volumeMounts:
 #### 🟡 HIGH: HTTP Port Still Exposed
 
 **Finding:**
+
 ```yaml
 KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
 ports:
-  - "8000:8000"   # HTTP still active
+  - "8000:8000" # HTTP still active
 ```
 
 **Risk:**
+
 - Sensitive data transmitted in plaintext
 - Man-in-the-middle attacks
 - JWT tokens exposed over HTTP
 
 **Recommendation:**
+
 ```yaml
 # Option 1: HTTPS only
 KONG_PROXY_LISTEN: 0.0.0.0:8443 ssl
@@ -822,6 +897,7 @@ plugins:
 #### 🟡 MEDIUM: No mTLS for Service-to-Service Communication
 
 **Current State:** Services communicate over plain HTTP within cluster:
+
 ```yaml
 - target: field-management-service:3000
 - target: weather-service:8092
@@ -830,6 +906,7 @@ plugins:
 
 **Recommendation:**
 Implement service mesh with mTLS:
+
 ```yaml
 # Using Istio/Linkerd
 apiVersion: security.istio.io/v1beta1
@@ -856,6 +933,7 @@ Admin API supports HTTPS on port 8444.
 ### 7.1 Global Security Headers
 
 **From `/infra/kong/kong.yml` (lines 1766-1777):**
+
 ```yaml
 plugins:
   - name: response-transformer
@@ -905,19 +983,21 @@ plugins:
 #### 🟡 MEDIUM: CSP Allows 'unsafe-inline'
 
 **Finding:**
+
 ```yaml
-Content-Security-Policy:
-  script-src 'self' 'unsafe-inline';
+Content-Security-Policy: script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
 ```
 
 **Issue:** `'unsafe-inline'` weakens XSS protection.
 
 **Risk:**
+
 - Inline script injection still possible
 - CSP bypass via injected inline scripts
 
 **Recommendation:**
+
 ```yaml
 Content-Security-Policy:
   default-src 'self';
@@ -934,12 +1014,14 @@ Content-Security-Policy:
 #### 🟡 MEDIUM: Missing Security Headers
 
 **Not Configured:**
+
 - `X-Permitted-Cross-Domain-Policies: none` (Flash/PDF XSS prevention)
 - `Cross-Origin-Embedder-Policy: require-corp`
 - `Cross-Origin-Opener-Policy: same-origin`
 - `Cross-Origin-Resource-Policy: same-origin`
 
 **Recommendation:**
+
 ```yaml
 headers:
   - "X-Permitted-Cross-Domain-Policies: none"
@@ -955,11 +1037,13 @@ headers:
 ### 8.1 Authentication Architecture
 
 **Flow:**
+
 ```
 Client → Kong (JWT Validation) → ACL Check → Rate Limit → Upstream Service
 ```
 
 **JWT Plugin Configuration:**
+
 ```yaml
 plugins:
   - name: jwt
@@ -973,6 +1057,7 @@ plugins:
 ### 8.2 Per-Service Authentication
 
 **Example: Field Core Service**
+
 ```yaml
 - name: field-core
   plugins:
@@ -995,6 +1080,7 @@ plugins:
 #### 🟢 PASS: JWT-Based Authentication
 
 All protected services require JWT authentication:
+
 - 39 microservices
 - JWT plugin applied globally and per-service
 - Consistent authentication enforcement
@@ -1004,12 +1090,14 @@ All protected services require JWT authentication:
 **Current State:** Only JWT bearer tokens configured.
 
 **Missing:**
+
 - OAuth 2.0 authorization code flow
 - Token refresh mechanism
 - Token revocation endpoint
 - Introspection endpoint
 
 **Recommendation:**
+
 ```yaml
 # Add OAuth 2.0 plugin
 plugins:
@@ -1023,7 +1111,7 @@ plugins:
       token_expiration: 3600
       enable_authorization_code: true
       enable_client_credentials: true
-      enable_password_grant: false  # Less secure
+      enable_password_grant: false # Less secure
 ```
 
 #### 🟡 MEDIUM: No Session Management
@@ -1031,11 +1119,13 @@ plugins:
 **Issue:** Stateless JWT only, no session tracking.
 
 **Missing:**
+
 - Session revocation
 - Concurrent session limits
 - Device fingerprinting
 
 **Recommendation:**
+
 ```yaml
 # Kong session plugin
 plugins:
@@ -1069,16 +1159,19 @@ CORS preflight (OPTIONS) requests don't require JWT, preventing CORS issues.
 ### 9.1 CRITICAL Vulnerabilities
 
 #### CVE-2024-KONG-001: Admin API Exposed in Kubernetes
+
 **Severity:** CRITICAL (CVSS 9.8)
 **CWE:** CWE-306 (Missing Authentication for Critical Function)
 
 **Vulnerable Configuration:**
+
 ```yaml
 # helm/sahool/templates/infrastructure/kong-deployment.yaml
 KONG_ADMIN_LISTEN: "0.0.0.0:8001"
 ```
 
 **Exploit:**
+
 ```bash
 # From any pod in cluster
 kubectl run attacker --image=curlimages/curl -it --rm -- sh
@@ -1087,12 +1180,14 @@ curl http://sahool-kong-admin:8001/consumers
 ```
 
 **Impact:**
+
 - Complete platform compromise
 - JWT secret exfiltration
 - Unauthorized route/plugin modification
 - Consumer impersonation
 
 **Remediation:**
+
 ```yaml
 # Immediate fix
 KONG_ADMIN_LISTEN: "127.0.0.1:8001"
@@ -1107,21 +1202,24 @@ spec:
     matchLabels:
       app.kubernetes.io/component: kong
   policyTypes:
-  - Ingress
-  ingress: []  # Deny all
+    - Ingress
+  ingress: [] # Deny all
 ```
 
 #### CVE-2024-KONG-002: Default JWT Secrets
+
 **Severity:** CRITICAL (CVSS 9.1)
 **CWE:** CWE-798 (Use of Hard-coded Credentials)
 
 **Vulnerable Configuration:**
+
 ```yaml
 # infrastructure/gateway/kong-legacy/kong.yml
 secret: ${KONG_JWT_WEB_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 ```
 
 **Exploit:**
+
 ```python
 import jwt
 token = jwt.encode(
@@ -1133,6 +1231,7 @@ token = jwt.encode(
 ```
 
 **Remediation:**
+
 ```yaml
 # Remove defaults
 secret: ${KONG_JWT_WEB_SECRET:?Required}
@@ -1141,38 +1240,46 @@ secret: ${KONG_JWT_WEB_SECRET:?Required}
 ### 9.2 HIGH Severity Vulnerabilities
 
 #### VULN-001: IP Spoofing via X-Forwarded-For
+
 **Severity:** HIGH (CVSS 7.5)
 
 **Configuration:**
+
 ```yaml
 KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
 ```
 
 **Exploit:**
+
 ```bash
 curl -H "X-Forwarded-For: 192.168.1.1" https://api.sahool.app/iot-service
 # Bypasses IP restriction
 ```
 
 **Remediation:**
+
 ```yaml
-KONG_TRUSTED_IPS: 10.244.0.0/16  # Only pod network
+KONG_TRUSTED_IPS: 10.244.0.0/16 # Only pod network
 ```
 
 #### VULN-002: Plaintext HTTP Enabled
+
 **Severity:** HIGH (CVSS 7.4)
 
 **Configuration:**
+
 ```yaml
 KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
 ```
 
 **Risk:**
+
 - JWT token exposure over HTTP
 - Session hijacking
 - Man-in-the-middle attacks
 
 **Remediation:**
+
 ```yaml
 # Disable HTTP
 KONG_PROXY_LISTEN: 0.0.0.0:8443 ssl
@@ -1189,6 +1296,7 @@ plugins:
 ### 9.3 MEDIUM Severity Vulnerabilities
 
 #### VULN-003: Sample Consumers in Production
+
 **Severity:** MEDIUM (CVSS 5.3)
 
 **Issue:** Test consumers defined in production config.
@@ -1196,19 +1304,22 @@ plugins:
 **Remediation:** Remove all `-sample` consumers.
 
 #### VULN-004: No Rate Limiting on Health Endpoints
+
 **Severity:** MEDIUM (CVSS 5.0)
 
 **Configuration:**
+
 ```yaml
 - name: health-check
   routes: [/health, /ping]
   plugins:
-    - name: request-termination  # No rate limiting
+    - name: request-termination # No rate limiting
 ```
 
 **Risk:** DDoS vector.
 
 **Remediation:**
+
 ```yaml
 plugins:
   - name: rate-limiting
@@ -1217,11 +1328,13 @@ plugins:
 ```
 
 #### VULN-005: Missing Audit Logging
+
 **Severity:** MEDIUM (CVSS 4.3)
 
 **Issue:** No dedicated audit trail for security events.
 
 **Recommendation:**
+
 ```yaml
 plugins:
   - name: file-log
@@ -1237,18 +1350,18 @@ plugins:
 
 ### 10.1 OWASP API Security Top 10 (2023)
 
-| Risk | Status | Finding |
-|------|--------|---------|
-| API1:2023 Broken Object Level Authorization | 🟡 Partial | ACL configured but no object-level checks visible |
-| API2:2023 Broken Authentication | 🟢 Pass | JWT authentication enforced |
-| API3:2023 Broken Object Property Level Authorization | 🔴 Fail | No field-level access control |
-| API4:2023 Unrestricted Resource Consumption | 🟢 Pass | Rate limiting implemented |
-| API5:2023 Broken Function Level Authorization | 🟢 Pass | ACL groups prevent unauthorized access |
-| API6:2023 Unrestricted Access to Sensitive Business Flows | 🟡 Partial | No sequential operation validation |
-| API7:2023 Server Side Request Forgery | ⚪ N/A | No SSRF vulnerabilities identified |
-| API8:2023 Security Misconfiguration | 🔴 Fail | Admin API exposed |
-| API9:2023 Improper Inventory Management | 🟢 Pass | 39 services documented |
-| API10:2023 Unsafe Consumption of APIs | 🟡 Partial | No upstream API validation |
+| Risk                                                      | Status     | Finding                                           |
+| --------------------------------------------------------- | ---------- | ------------------------------------------------- |
+| API1:2023 Broken Object Level Authorization               | 🟡 Partial | ACL configured but no object-level checks visible |
+| API2:2023 Broken Authentication                           | 🟢 Pass    | JWT authentication enforced                       |
+| API3:2023 Broken Object Property Level Authorization      | 🔴 Fail    | No field-level access control                     |
+| API4:2023 Unrestricted Resource Consumption               | 🟢 Pass    | Rate limiting implemented                         |
+| API5:2023 Broken Function Level Authorization             | 🟢 Pass    | ACL groups prevent unauthorized access            |
+| API6:2023 Unrestricted Access to Sensitive Business Flows | 🟡 Partial | No sequential operation validation                |
+| API7:2023 Server Side Request Forgery                     | ⚪ N/A     | No SSRF vulnerabilities identified                |
+| API8:2023 Security Misconfiguration                       | 🔴 Fail    | Admin API exposed                                 |
+| API9:2023 Improper Inventory Management                   | 🟢 Pass    | 39 services documented                            |
+| API10:2023 Unsafe Consumption of APIs                     | 🟡 Partial | No upstream API validation                        |
 
 **Overall OWASP Compliance:** 5/10 Pass, 3/10 Partial, 2/10 Fail
 
@@ -1256,24 +1369,24 @@ plugins:
 
 **Applicable Requirements:**
 
-| Requirement | Compliance | Evidence |
-|-------------|------------|----------|
-| 4.2.1 - Strong cryptography for transmission | 🟡 Partial | HTTPS available but HTTP still enabled |
-| 6.2.4 - Secure coding practices | 🟢 Pass | Input validation via request-size-limiting |
-| 6.4.2 - Protect authentication credentials | 🔴 Fail | Default secrets in legacy config |
-| 8.2.1 - Multi-factor authentication | ⚪ N/A | MFA not configured in Kong |
-| 8.3.1 - Password complexity | 🟢 Pass | Environment variables for secrets |
-| 10.2.1 - Audit trails | 🟡 Partial | Logging enabled but not comprehensive |
+| Requirement                                  | Compliance | Evidence                                   |
+| -------------------------------------------- | ---------- | ------------------------------------------ |
+| 4.2.1 - Strong cryptography for transmission | 🟡 Partial | HTTPS available but HTTP still enabled     |
+| 6.2.4 - Secure coding practices              | 🟢 Pass    | Input validation via request-size-limiting |
+| 6.4.2 - Protect authentication credentials   | 🔴 Fail    | Default secrets in legacy config           |
+| 8.2.1 - Multi-factor authentication          | ⚪ N/A     | MFA not configured in Kong                 |
+| 8.3.1 - Password complexity                  | 🟢 Pass    | Environment variables for secrets          |
+| 10.2.1 - Audit trails                        | 🟡 Partial | Logging enabled but not comprehensive      |
 
 **PCI DSS Compliance:** Not Compliant (requires remediation)
 
 ### 10.3 GDPR (General Data Protection Regulation)
 
-| Article | Requirement | Compliance |
-|---------|-------------|------------|
-| Art 32 | Security of processing | 🟡 Partial |
-| Art 25 | Data protection by design | 🟢 Pass |
-| Art 30 | Records of processing | 🟡 Partial |
+| Article | Requirement               | Compliance |
+| ------- | ------------------------- | ---------- |
+| Art 32  | Security of processing    | 🟡 Partial |
+| Art 25  | Data protection by design | 🟢 Pass    |
+| Art 30  | Records of processing     | 🟡 Partial |
 
 **GDPR Readiness:** 67% (Requires audit logging enhancement)
 
@@ -1284,11 +1397,13 @@ plugins:
 ### 11.1 Critical Priority (Fix within 24 hours)
 
 1. **Restrict Admin API in Kubernetes**
+
    ```yaml
    KONG_ADMIN_LISTEN: "127.0.0.1:8001"
    ```
 
 2. **Remove Default JWT Secrets**
+
    ```yaml
    secret: ${KONG_JWT_WEB_SECRET:?Required}
    ```
@@ -1329,6 +1444,7 @@ plugins:
 ### 12.1 Security Metrics to Track
 
 **Prometheus Metrics:**
+
 ```yaml
 # Kong metrics
 kong_http_requests_total
@@ -1344,6 +1460,7 @@ kong_ip_restriction_denials
 ```
 
 **Grafana Dashboard Queries:**
+
 ```promql
 # Failed authentication rate
 rate(kong_http_status{code="401"}[5m])
@@ -1418,6 +1535,7 @@ groups:
 The SAHOOL Kong API Gateway implementation demonstrates **good security practices** with a score of **7.2/10**. However, **critical vulnerabilities** must be addressed immediately, particularly the exposed Admin API in Kubernetes and default JWT secrets in legacy configurations.
 
 **Key Achievements:**
+
 - Comprehensive JWT authentication
 - Granular ACL-based authorization
 - Tiered rate limiting
@@ -1425,6 +1543,7 @@ The SAHOOL Kong API Gateway implementation demonstrates **good security practice
 - IP restrictions on sensitive services
 
 **Critical Actions Required:**
+
 1. Secure Admin API (Kubernetes)
 2. Remove default secrets
 3. Implement RBAC authentication
@@ -1432,12 +1551,14 @@ The SAHOOL Kong API Gateway implementation demonstrates **good security practice
 5. Disable HTTP or implement redirect
 
 **Timeline:**
+
 - Critical fixes: 24 hours
 - High priority: 1 week
 - Medium priority: 1 month
 - Continuous improvement: Ongoing
 
 **Next Steps:**
+
 1. Execute critical priority fixes
 2. Conduct post-fix security validation
 3. Implement continuous security monitoring

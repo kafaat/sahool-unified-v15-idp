@@ -3,42 +3,56 @@
  * خطافات React لميزة التقارير (موسعة)
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/lib/logger';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { logger } from "@/lib/logger";
 import {
   reportsApi,
   type Report,
   type GenerateReportRequest,
   type ReportFilters,
-} from '../api';
-import { reportsApi as fieldReportsApi } from '../api/reports-api';
+} from "../api";
+import { reportsApi as fieldReportsApi } from "../api/reports-api";
 import type {
   GenerateFieldReportRequest,
   GenerateSeasonReportRequest,
   ReportHistoryFilters,
   ShareReportRequest,
   GeneratedReport,
-} from '../types/reports';
+} from "../types/reports";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 const REPORTS_KEYS = {
-  all: ['reports'] as const,
-  list: (filters?: ReportFilters) => [...REPORTS_KEYS.all, 'list', filters] as const,
-  detail: (id: string) => [...REPORTS_KEYS.all, 'detail', id] as const,
-  templates: () => [...REPORTS_KEYS.all, 'templates'] as const,
-  stats: () => [...REPORTS_KEYS.all, 'stats'] as const,
-  scheduled: () => [...REPORTS_KEYS.all, 'scheduled'] as const,
-  history: (filters?: ReportHistoryFilters) => [...REPORTS_KEYS.all, 'history', filters] as const,
+  all: ["reports"] as const,
+  list: (filters?: ReportFilters) =>
+    [...REPORTS_KEYS.all, "list", filters] as const,
+  detail: (id: string) => [...REPORTS_KEYS.all, "detail", id] as const,
+  templates: () => [...REPORTS_KEYS.all, "templates"] as const,
+  stats: () => [...REPORTS_KEYS.all, "stats"] as const,
+  scheduled: () => [...REPORTS_KEYS.all, "scheduled"] as const,
+  history: (filters?: ReportHistoryFilters) =>
+    [...REPORTS_KEYS.all, "history", filters] as const,
   fieldData: (fieldId: string, startDate?: string, endDate?: string) =>
-    [...REPORTS_KEYS.all, 'fieldData', fieldId, startDate, endDate] as const,
-  seasonData: (fieldId: string, season?: string, startDate?: string, endDate?: string) =>
-    [...REPORTS_KEYS.all, 'seasonData', fieldId, season, startDate, endDate] as const,
-  status: (id: string) => [...REPORTS_KEYS.all, 'status', id] as const,
+    [...REPORTS_KEYS.all, "fieldData", fieldId, startDate, endDate] as const,
+  seasonData: (
+    fieldId: string,
+    season?: string,
+    startDate?: string,
+    endDate?: string,
+  ) =>
+    [
+      ...REPORTS_KEYS.all,
+      "seasonData",
+      fieldId,
+      season,
+      startDate,
+      endDate,
+    ] as const,
+  status: (id: string) => [...REPORTS_KEYS.all, "status", id] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -67,7 +81,7 @@ export function useReport(id: string) {
     // Poll for status updates if report is generating
     refetchInterval: (query) => {
       const report = query.state.data as Report | undefined;
-      if (report?.status === 'generating' || report?.status === 'pending') {
+      if (report?.status === "generating" || report?.status === "pending") {
         return 5000; // Poll every 5 seconds
       }
       return false;
@@ -82,7 +96,8 @@ export function useGenerateReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: GenerateReportRequest) => reportsApi.generateReport(request),
+    mutationFn: (request: GenerateReportRequest) =>
+      reportsApi.generateReport(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.all });
     },
@@ -94,7 +109,7 @@ export function useGenerateReport() {
  */
 export function useReportDownload(id: string) {
   return useQuery({
-    queryKey: [...REPORTS_KEYS.detail(id), 'download'],
+    queryKey: [...REPORTS_KEYS.detail(id), "download"],
     queryFn: () => reportsApi.getDownloadUrl(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -145,8 +160,12 @@ export function useScheduleReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: GenerateReportRequest & { schedule: string; recipients: string[] }) =>
-      reportsApi.scheduleReport(request),
+    mutationFn: (
+      request: GenerateReportRequest & {
+        schedule: string;
+        recipients: string[];
+      },
+    ) => reportsApi.scheduleReport(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.scheduled() });
     },
@@ -176,14 +195,15 @@ export function useGenerateFieldReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: GenerateFieldReportRequest) => fieldReportsApi.generateFieldReport(request),
+    mutationFn: (request: GenerateFieldReportRequest) =>
+      fieldReportsApi.generateFieldReport(request),
     onSuccess: (data: GeneratedReport) => {
       queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.history() });
       queryClient.setQueryData(REPORTS_KEYS.detail(data.id), data);
-      logger.info('Field report generated successfully:', data.id);
+      logger.info("Field report generated successfully:", data.id);
     },
     onError: (error) => {
-      logger.error('Failed to generate field report:', error);
+      logger.error("Failed to generate field report:", error);
     },
   });
 }
@@ -201,10 +221,10 @@ export function useGenerateSeasonReport() {
     onSuccess: (data: GeneratedReport) => {
       queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.history() });
       queryClient.setQueryData(REPORTS_KEYS.detail(data.id), data);
-      logger.info('Season report generated successfully:', data.id);
+      logger.info("Season report generated successfully:", data.id);
     },
     onError: (error) => {
-      logger.error('Failed to generate season report:', error);
+      logger.error("Failed to generate season report:", error);
     },
   });
 }
@@ -231,12 +251,12 @@ export function useDownloadReport() {
       const response = await fieldReportsApi.downloadReport(reportId);
       if (response.url) {
         // Trigger download
-        window.open(response.url, '_blank');
+        window.open(response.url, "_blank");
       }
       return response;
     },
     onError: (error) => {
-      logger.error('Failed to download report:', error);
+      logger.error("Failed to download report:", error);
     },
   });
 }
@@ -249,13 +269,16 @@ export function useShareReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: ShareReportRequest) => fieldReportsApi.shareReport(request),
+    mutationFn: (request: ShareReportRequest) =>
+      fieldReportsApi.shareReport(request),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.detail(variables.reportId) });
-      logger.info('Report shared successfully:', variables.reportId);
+      queryClient.invalidateQueries({
+        queryKey: REPORTS_KEYS.detail(variables.reportId),
+      });
+      logger.info("Report shared successfully:", variables.reportId);
     },
     onError: (error) => {
-      logger.error('Failed to share report:', error);
+      logger.error("Failed to share report:", error);
     },
   });
 }
@@ -272,10 +295,10 @@ export function useDeleteFieldReport() {
     onSuccess: (_, reportId) => {
       queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.history() });
       queryClient.removeQueries({ queryKey: REPORTS_KEYS.detail(reportId) });
-      logger.info('Report deleted successfully:', reportId);
+      logger.info("Report deleted successfully:", reportId);
     },
     onError: (error) => {
-      logger.error('Failed to delete report:', error);
+      logger.error("Failed to delete report:", error);
     },
   });
 }
@@ -284,10 +307,15 @@ export function useDeleteFieldReport() {
  * Hook to fetch field report data
  * خطاف لجلب بيانات تقرير الحقل
  */
-export function useFieldReportData(fieldId: string, startDate?: string, endDate?: string) {
+export function useFieldReportData(
+  fieldId: string,
+  startDate?: string,
+  endDate?: string,
+) {
   return useQuery({
     queryKey: REPORTS_KEYS.fieldData(fieldId, startDate, endDate),
-    queryFn: () => fieldReportsApi.getFieldReportData(fieldId, startDate, endDate),
+    queryFn: () =>
+      fieldReportsApi.getFieldReportData(fieldId, startDate, endDate),
     enabled: !!fieldId,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -301,11 +329,12 @@ export function useSeasonReportData(
   fieldId: string,
   season?: string,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
 ) {
   return useQuery({
     queryKey: REPORTS_KEYS.seasonData(fieldId, season, startDate, endDate),
-    queryFn: () => fieldReportsApi.getSeasonReportData(fieldId, season, startDate, endDate),
+    queryFn: () =>
+      fieldReportsApi.getSeasonReportData(fieldId, season, startDate, endDate),
     enabled: !!fieldId,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -322,7 +351,7 @@ export function useReportStatus(reportId: string, enabled = true) {
     enabled: !!reportId && enabled,
     refetchInterval: (query) => {
       const report = query.state.data as GeneratedReport | undefined;
-      if (report?.status === 'generating' || report?.status === 'pending') {
+      if (report?.status === "generating" || report?.status === "pending") {
         return 3000; // Poll every 3 seconds while generating
       }
       return false; // Stop polling when ready, failed, or expired
@@ -336,7 +365,7 @@ export function useReportStatus(reportId: string, enabled = true) {
  */
 export function useFieldReportTemplates() {
   return useQuery({
-    queryKey: [...REPORTS_KEYS.templates(), 'field'],
+    queryKey: [...REPORTS_KEYS.templates(), "field"],
     queryFn: () => fieldReportsApi.getReportTemplates(),
     staleTime: 30 * 60 * 1000, // 30 minutes
   });

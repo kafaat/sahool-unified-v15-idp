@@ -3,34 +3,39 @@
  * مكون تبديل اللغة
  *
  * Allows users to switch between Arabic and English
+ * Uses cookie-based locale storage (NEXT_LOCALE) since localePrefix is "never"
  */
 
-'use client';
+"use client";
 
-import React, { useTransition } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useLocale } from 'next-intl';
-import { Globe } from 'lucide-react';
-import { clsx } from 'clsx';
-import { locales, getLocaleDisplayName } from '@sahool/i18n';
+import React, { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
+import { Globe } from "lucide-react";
+import { clsx } from "clsx";
+import { locales, getLocaleDisplayName } from "@sahool/i18n";
+
+/**
+ * Set the locale cookie and refresh the page
+ * Since localePrefix is "never", we use cookies to store the locale
+ */
+function setLocaleCookie(locale: string): void {
+  // Set NEXT_LOCALE cookie - this is what next-intl reads
+  document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+}
 
 export function LocaleSwitcher() {
   const router = useRouter();
-  const pathname = usePathname();
   const currentLocale = useLocale();
   const [isPending, startTransition] = useTransition();
 
   const handleLocaleChange = (newLocale: string) => {
     startTransition(() => {
-      // Remove the current locale from pathname if it exists
-      const pathnameWithoutLocale = pathname.replace(/^\/(ar|en)/, '') || '/';
+      // Set the locale cookie
+      setLocaleCookie(newLocale);
 
-      // Add new locale prefix only if not the default locale
-      const newPath = newLocale === 'ar'
-        ? pathnameWithoutLocale
-        : `/${newLocale}${pathnameWithoutLocale}`;
-
-      router.replace(newPath);
+      // Refresh the page to apply the new locale
+      router.refresh();
     });
   };
 
@@ -47,15 +52,15 @@ export function LocaleSwitcher() {
                 onClick={() => handleLocaleChange(locale)}
                 disabled={isPending || isActive}
                 className={clsx(
-                  'px-3 py-1 text-sm font-medium rounded transition-colors',
-                  'focus:outline-none focus:ring-2 focus:ring-sahool-green-500',
+                  "px-3 py-1 text-sm font-medium rounded transition-colors",
+                  "focus:outline-none focus:ring-2 focus:ring-sahool-green-500",
                   isActive
-                    ? 'bg-sahool-green-100 text-sahool-green-700'
-                    : 'text-gray-600 hover:bg-gray-100',
-                  isPending && 'opacity-50 cursor-wait'
+                    ? "bg-sahool-green-100 text-sahool-green-700"
+                    : "text-gray-600 hover:bg-gray-100",
+                  isPending && "opacity-50 cursor-wait",
                 )}
                 aria-label={`Switch to ${getLocaleDisplayName(locale)}`}
-                aria-current={isActive ? 'true' : undefined}
+                aria-current={isActive ? "true" : undefined}
               >
                 {getLocaleDisplayName(locale)}
               </button>

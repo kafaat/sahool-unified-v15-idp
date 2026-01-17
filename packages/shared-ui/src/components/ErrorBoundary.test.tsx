@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { ErrorBoundary, withErrorBoundary } from "./ErrorBoundary";
 
 // Component that throws an error
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) {
-    throw new Error('Test error message');
+    throw new Error("Test error message");
   }
   return <div>Normal content</div>;
 };
@@ -19,38 +19,38 @@ afterAll(() => {
   console.error = originalError;
 });
 
-describe('ErrorBoundary', () => {
-  it('renders children when there is no error', () => {
+describe("ErrorBoundary", () => {
+  it("renders children when there is no error", () => {
     render(
       <ErrorBoundary>
         <div>Test content</div>
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
-    expect(screen.getByText('Test content')).toBeInTheDocument();
+    expect(screen.getByText("Test content")).toBeInTheDocument();
   });
 
-  it('renders fallback UI when an error occurs', () => {
+  it("renders fallback UI when an error occurs", () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
-    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText("حدث خطأ غير متوقع")).toBeInTheDocument();
   });
 
-  it('renders custom fallback when provided', () => {
+  it("renders custom fallback when provided", () => {
     render(
       <ErrorBoundary fallback={<div>Custom error message</div>}>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
-    expect(screen.getByText('Custom error message')).toBeInTheDocument();
+    expect(screen.getByText("Custom error message")).toBeInTheDocument();
   });
 
-  it('renders fallback function when provided', () => {
+  it("renders fallback function when provided", () => {
     render(
       <ErrorBoundary
         fallback={(error, retry) => (
@@ -61,33 +61,33 @@ describe('ErrorBoundary', () => {
         )}
       >
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
-    expect(screen.getByText('Error: Test error message')).toBeInTheDocument();
-    expect(screen.getByText('Retry')).toBeInTheDocument();
+    expect(screen.getByText("Error: Test error message")).toBeInTheDocument();
+    expect(screen.getByText("Retry")).toBeInTheDocument();
   });
 
-  it('calls onError callback when an error occurs', () => {
+  it("calls onError callback when an error occurs", () => {
     const onError = vi.fn();
 
     render(
       <ErrorBoundary onError={onError}>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onError.mock.calls[0][0]).toBeInstanceOf(Error);
-    expect(onError.mock.calls[0][0].message).toBe('Test error message');
+    expect(onError.mock.calls[0][0].message).toBe("Test error message");
   });
 
-  it('allows retry after error', () => {
+  it("allows retry after error", () => {
     // Use a controlled component that can change behavior
     let shouldThrow = true;
     const ControlledThrow = () => {
       if (shouldThrow) {
-        throw new Error('Test error');
+        throw new Error("Test error");
       }
       return <div>Normal content</div>;
     };
@@ -95,53 +95,53 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ControlledThrow />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     // Error state
-    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText("حدث خطأ غير متوقع")).toBeInTheDocument();
 
     // Change the throwing behavior before retry
     shouldThrow = false;
 
     // Click retry button - this will re-render children which now won't throw
-    fireEvent.click(screen.getByText('إعادة المحاولة'));
+    fireEvent.click(screen.getByText("إعادة المحاولة"));
 
-    expect(screen.getByText('Normal content')).toBeInTheDocument();
+    expect(screen.getByText("Normal content")).toBeInTheDocument();
   });
 
-  it('hides retry button when showRetry is false', () => {
+  it("hides retry button when showRetry is false", () => {
     render(
       <ErrorBoundary showRetry={false}>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
-    expect(screen.queryByText('إعادة المحاولة')).not.toBeInTheDocument();
+    expect(screen.queryByText("إعادة المحاولة")).not.toBeInTheDocument();
   });
 });
 
-describe('withErrorBoundary HOC', () => {
-  it('wraps component with error boundary', () => {
+describe("withErrorBoundary HOC", () => {
+  it("wraps component with error boundary", () => {
     const WrappedComponent = withErrorBoundary(ThrowError);
 
     render(<WrappedComponent shouldThrow={false} />);
-    expect(screen.getByText('Normal content')).toBeInTheDocument();
+    expect(screen.getByText("Normal content")).toBeInTheDocument();
   });
 
-  it('catches errors in wrapped component', () => {
+  it("catches errors in wrapped component", () => {
     const WrappedComponent = withErrorBoundary(ThrowError);
 
     render(<WrappedComponent shouldThrow={true} />);
-    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText("حدث خطأ غير متوقع")).toBeInTheDocument();
   });
 
-  it('uses custom fallback from HOC options', () => {
+  it("uses custom fallback from HOC options", () => {
     const WrappedComponent = withErrorBoundary(ThrowError, {
       fallback: <div>HOC custom fallback</div>,
     });
 
     render(<WrappedComponent shouldThrow={true} />);
-    expect(screen.getByText('HOC custom fallback')).toBeInTheDocument();
+    expect(screen.getByText("HOC custom fallback")).toBeInTheDocument();
   });
 });

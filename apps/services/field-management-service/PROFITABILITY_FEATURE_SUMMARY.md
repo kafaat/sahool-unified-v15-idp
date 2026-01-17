@@ -14,6 +14,7 @@ Successfully implemented a comprehensive crop profitability analysis feature for
 ## Files Created
 
 ### Core Implementation
+
 1. **`src/profitability_analyzer.py`** (825 lines)
    - Complete profitability analysis engine
    - 12 major Yemen crops with regional data
@@ -31,6 +32,7 @@ Successfully implemented a comprehensive crop profitability analysis feature for
    - Error handling and logging
 
 ### Testing
+
 3. **`tests/test_profitability.py`** (381 lines)
    - 20+ unit tests for profitability analyzer
    - Tests for all major functions
@@ -44,6 +46,7 @@ Successfully implemented a comprehensive crop profitability analysis feature for
    - Edge case scenarios
 
 ### Infrastructure
+
 5. **`Dockerfile.python`**
    - Multi-stage Python container
    - Security hardened (non-root user)
@@ -64,6 +67,7 @@ Successfully implemented a comprehensive crop profitability analysis feature for
    - Python 3.12 compatible
 
 ### Documentation
+
 8. **`README.md`** (updated)
    - Added profitability analysis section
    - API endpoint documentation
@@ -80,6 +84,7 @@ Successfully implemented a comprehensive crop profitability analysis feature for
 10. **`PROFITABILITY_FEATURE_SUMMARY.md`** (this file)
 
 ### Supporting Files
+
 11. **`src/__init__.py`**
 12. **`tests/__init__.py`**
 
@@ -90,28 +95,31 @@ Successfully implemented a comprehensive crop profitability analysis feature for
 ## Supported Crops
 
 ### Grains (الحبوب)
-| Crop | Arabic | Yield (kg/ha) | Price (YER/kg) | Profit/ha (YER) |
-|------|--------|---------------|----------------|-----------------|
-| Wheat | قمح | 2,800 | 550 | ~870,000 |
-| Barley | شعير | 2,500 | 480 | ~624,000 |
-| Sorghum | ذرة رفيعة | 2,200 | 400 | ~460,000 |
-| Maize | ذرة شامية | 3,200 | 520 | ~947,000 |
+
+| Crop    | Arabic    | Yield (kg/ha) | Price (YER/kg) | Profit/ha (YER) |
+| ------- | --------- | ------------- | -------------- | --------------- |
+| Wheat   | قمح       | 2,800         | 550            | ~870,000        |
+| Barley  | شعير      | 2,500         | 480            | ~624,000        |
+| Sorghum | ذرة رفيعة | 2,200         | 400            | ~460,000        |
+| Maize   | ذرة شامية | 3,200         | 520            | ~947,000        |
 
 ### Vegetables (الخضروات)
-| Crop | Arabic | Yield (kg/ha) | Price (YER/kg) | Profit/ha (YER) |
-|------|--------|---------------|----------------|-----------------|
-| Tomato | طماطم | 25,000 | 280 | ~5,935,000 |
-| Potato | بطاطس | 18,000 | 350 | ~5,065,000 |
-| Onion | بصل | 22,000 | 300 | ~5,840,000 |
-| Cucumber | خيار | 20,000 | 250 | ~3,892,000 |
-| Watermelon | بطيخ | 30,000 | 180 | ~4,650,000 |
+
+| Crop       | Arabic | Yield (kg/ha) | Price (YER/kg) | Profit/ha (YER) |
+| ---------- | ------ | ------------- | -------------- | --------------- |
+| Tomato     | طماطم  | 25,000        | 280            | ~5,935,000      |
+| Potato     | بطاطس  | 18,000        | 350            | ~5,065,000      |
+| Onion      | بصل    | 22,000        | 300            | ~5,840,000      |
+| Cucumber   | خيار   | 20,000        | 250            | ~3,892,000      |
+| Watermelon | بطيخ   | 30,000        | 180            | ~4,650,000      |
 
 ### Cash Crops (المحاصيل النقدية)
-| Crop | Arabic | Yield (kg/ha) | Price (YER/kg) | Profit/ha (YER) |
-|------|--------|---------------|----------------|-----------------|
-| Coffee | بن | 800 | 8,500 | ~5,740,000 |
-| Qat | قات | 3,500 | 3,500 | ~11,030,000 |
-| Mango | مانجو | 12,000 | 800 | ~8,520,000 |
+
+| Crop   | Arabic | Yield (kg/ha) | Price (YER/kg) | Profit/ha (YER) |
+| ------ | ------ | ------------- | -------------- | --------------- |
+| Coffee | بن     | 800           | 8,500          | ~5,740,000      |
+| Qat    | قات    | 3,500         | 3,500          | ~11,030,000     |
+| Mango  | مانجو  | 12,000        | 800            | ~8,520,000      |
 
 **Note:** Profit estimates based on 2025 Yemen regional averages
 
@@ -120,22 +128,27 @@ Successfully implemented a comprehensive crop profitability analysis feature for
 ## API Endpoints
 
 ### Profitability Analysis
+
 1. **POST** `/v1/profitability/analyze` - Analyze single crop with custom costs/revenues
 2. **POST** `/v1/profitability/season` - Analyze entire season with multiple crops
 3. **GET** `/v1/profitability/crop/{crop_season_id}` - Get crop profitability (regional data)
 
 ### Planning & Comparison
+
 4. **GET** `/v1/profitability/compare` - Compare multiple crops for planning
 5. **GET** `/v1/profitability/break-even` - Calculate break-even yield and price
 
 ### Benchmarking
+
 6. **GET** `/v1/profitability/benchmarks/{crop_code}` - Regional benchmark data
 7. **GET** `/v1/profitability/cost-breakdown/{crop_code}` - Cost breakdown by category
 
 ### Historical Data
+
 8. **GET** `/v1/profitability/history/{field_id}/{crop_code}` - Historical trends
 
 ### Utility
+
 9. **GET** `/v1/crops/list` - List all available crops
 10. **GET** `/v1/costs/categories` - List cost categories
 11. **GET** `/healthz` - Health check
@@ -146,7 +159,9 @@ Successfully implemented a comprehensive crop profitability analysis feature for
 ## Key Features
 
 ### 1. Comprehensive Cost Tracking
+
 Nine cost categories:
+
 - Seeds (بذور)
 - Fertilizer (أسمدة)
 - Pesticides (مبيدات)
@@ -158,12 +173,14 @@ Nine cost categories:
 - Other (أخرى)
 
 ### 2. Revenue Management
+
 - Multiple revenue items per crop
 - Quality grade tracking
 - Unit price flexibility
 - Quantity tracking
 
 ### 3. Profitability Metrics
+
 - **Gross Profit** - Revenue minus direct costs
 - **Gross Margin %** - Profitability as percentage
 - **Net Profit** - After all costs
@@ -173,12 +190,14 @@ Nine cost categories:
 - **Break-even Price** - Minimum viable price
 
 ### 4. Regional Benchmarking
+
 - Compare farmer's performance to regional averages
 - Identify above/below average performance
 - Percentage variance calculations
 - Regional cost standards
 
 ### 5. Season Analysis
+
 - Multi-crop season summary
 - Crop ranking by profitability
 - Best and worst performers
@@ -186,7 +205,9 @@ Nine cost categories:
 - Overall margin analysis
 
 ### 6. Intelligent Recommendations
+
 Bilingual recommendations based on:
+
 - Yield performance vs regional average
 - Cost efficiency
 - Profit margins
@@ -194,12 +215,14 @@ Bilingual recommendations based on:
 - Crop diversification
 
 ### 7. Historical Trends
+
 - Multi-year profitability tracking
 - Trend analysis
 - Performance over time
 - Data-driven planning
 
 ### 8. Break-even Analysis
+
 - Calculate minimum yield needed
 - Calculate minimum price needed
 - Safety margin calculations
@@ -210,7 +233,9 @@ Bilingual recommendations based on:
 ## Regional Data (Yemen Market - 2025)
 
 ### Cost Standards (YER per hectare)
+
 Based on Sanaa region averages, including:
+
 - Input costs (seeds, fertilizer, pesticides)
 - Labor costs (planting, maintenance, harvesting)
 - Irrigation and water costs
@@ -219,7 +244,9 @@ Based on Sanaa region averages, including:
 - Marketing and transport costs
 
 ### Yield Standards (kg per hectare)
+
 Based on:
+
 - Typical Yemen growing conditions
 - Average farmer practices
 - Regional climate patterns
@@ -227,7 +254,9 @@ Based on:
 - Water availability
 
 ### Price Standards (YER per kg)
+
 Based on:
+
 - 2025 market prices
 - Regional market data
 - Quality grades
@@ -239,6 +268,7 @@ Based on:
 ## Technical Architecture
 
 ### Stack
+
 - **Language:** Python 3.12
 - **Framework:** FastAPI
 - **ASGI Server:** Uvicorn
@@ -248,6 +278,7 @@ Based on:
 - **Testing:** pytest, httpx
 
 ### Design Patterns
+
 - **Dataclasses:** Type-safe data models
 - **Async/Await:** Non-blocking operations
 - **Dependency Injection:** FastAPI state management
@@ -255,6 +286,7 @@ Based on:
 - **Strategy Pattern:** Recommendation generation
 
 ### Code Quality
+
 - Type hints throughout
 - Comprehensive docstrings
 - Logging at appropriate levels
@@ -267,6 +299,7 @@ Based on:
 ## Usage Examples
 
 ### Example 1: Analyze Wheat Crop
+
 ```bash
 curl -X POST "http://localhost:8090/v1/profitability/analyze" \
   -H "Content-Type: application/json" \
@@ -287,6 +320,7 @@ curl -X POST "http://localhost:8090/v1/profitability/analyze" \
 ```
 
 **Result:**
+
 ```json
 {
   "analysis": {
@@ -306,6 +340,7 @@ curl -X POST "http://localhost:8090/v1/profitability/analyze" \
 ```
 
 ### Example 2: Compare Crops for Planning
+
 ```bash
 curl "http://localhost:8090/v1/profitability/compare?crops=wheat,tomato,coffee&area_ha=2.5"
 ```
@@ -313,6 +348,7 @@ curl "http://localhost:8090/v1/profitability/compare?crops=wheat,tomato,coffee&a
 **Result:** Ranked list showing coffee most profitable, then tomato, then wheat.
 
 ### Example 3: Season Summary
+
 ```bash
 curl -X POST "http://localhost:8090/v1/profitability/season" \
   -H "Content-Type: application/json" \
@@ -333,6 +369,7 @@ curl -X POST "http://localhost:8090/v1/profitability/season" \
 ## Testing
 
 ### Run All Tests
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/field-core
 pip install pytest pytest-asyncio httpx
@@ -340,12 +377,14 @@ pytest tests/test_profitability.py tests/test_api.py -v
 ```
 
 ### Test Coverage
+
 - Unit tests: 15+ tests covering core analyzer functions
 - Integration tests: 15+ tests covering all API endpoints
 - Edge cases: Negative profits, very large/small areas, all crops
 - Validation: Input validation, error handling
 
 ### Verified Working
+
 ```
 ✓ profitability_analyzer.py imports successfully
 ✓ ProfitabilityAnalyzer initialized
@@ -364,23 +403,27 @@ pytest tests/test_profitability.py tests/test_api.py -v
 ## Deployment
 
 ### Development
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/field-core
 python src/main.py
 ```
 
 ### Docker
+
 ```bash
 docker build -f Dockerfile.python -t sahool-profitability .
 docker run -p 8090:8090 sahool-profitability
 ```
 
 ### Docker Compose
+
 ```bash
 docker-compose -f docker-compose.profitability.yml up -d
 ```
 
 ### Production Considerations
+
 - Set `DATABASE_URL` for persistent storage
 - Configure `NATS_URL` for event streaming
 - Set up reverse proxy (nginx) for SSL
@@ -393,6 +436,7 @@ docker-compose -f docker-compose.profitability.yml up -d
 ## Integration Points
 
 ### With Existing SAHOOL Services
+
 1. **Field Service** - Get field boundaries and metadata
 2. **Field Ops** - Import operation costs automatically
 3. **Harvest Service** - Import harvest data for revenue
@@ -401,6 +445,7 @@ docker-compose -f docker-compose.profitability.yml up -d
 6. **Notification Service** - Alert on low profitability
 
 ### Data Flow
+
 ```
 Field Data → Profitability Analysis → Recommendations → Farmer Dashboard
      ↑              ↓                        ↓
@@ -412,6 +457,7 @@ Market Prices   Historical DB          Advisory System
 ## Future Enhancements
 
 ### Short Term
+
 - [ ] Connect to actual field/crop database
 - [ ] Real-time market price integration
 - [ ] PDF/Excel report export
@@ -419,6 +465,7 @@ Market Prices   Historical DB          Advisory System
 - [ ] Email/SMS profitability alerts
 
 ### Medium Term
+
 - [ ] Predictive profitability modeling
 - [ ] Weather impact on profitability
 - [ ] Cooperative benchmarking
@@ -426,6 +473,7 @@ Market Prices   Historical DB          Advisory System
 - [ ] Cash flow projections
 
 ### Long Term
+
 - [ ] Machine learning for yield prediction
 - [ ] Climate change impact analysis
 - [ ] Market price forecasting
@@ -437,6 +485,7 @@ Market Prices   Historical DB          Advisory System
 ## Business Value
 
 ### For Farmers
+
 - **Data-Driven Decisions:** Know which crops are profitable
 - **Cost Optimization:** Identify high-cost areas
 - **Revenue Maximization:** Compare crop options
@@ -444,12 +493,14 @@ Market Prices   Historical DB          Advisory System
 - **Seasonal Planning:** Historical trends
 
 ### For Cooperatives
+
 - **Aggregate Analysis:** Compare member performance
 - **Best Practices:** Share successful strategies
 - **Collective Bargaining:** Better price negotiations
 - **Training Needs:** Identify improvement areas
 
 ### For Advisors
+
 - **Personalized Recommendations:** Based on actual data
 - **Impact Measurement:** Track advisory effectiveness
 - **Resource Allocation:** Focus on low performers
@@ -459,6 +510,7 @@ Market Prices   Historical DB          Advisory System
 ## Success Metrics
 
 ### Quantitative
+
 - Number of crops analyzed per month
 - Average profit margin improvement
 - Farmer adoption rate
@@ -466,6 +518,7 @@ Market Prices   Historical DB          Advisory System
 - Service uptime (target: 99.9%)
 
 ### Qualitative
+
 - Farmer satisfaction with insights
 - Quality of recommendations
 - Usefulness of benchmarking data
@@ -476,6 +529,7 @@ Market Prices   Historical DB          Advisory System
 ## Documentation
 
 All documentation includes:
+
 - Arabic and English versions
 - Code examples
 - API reference
@@ -483,6 +537,7 @@ All documentation includes:
 - Integration examples
 
 Files:
+
 - `README.md` - Main service documentation
 - `PROFITABILITY_QUICKSTART.md` - User guide
 - `PROFITABILITY_FEATURE_SUMMARY.md` - This document
@@ -493,6 +548,7 @@ Files:
 ## Maintenance
 
 ### Regular Updates Needed
+
 1. **Market Prices:** Update quarterly or as market changes
 2. **Cost Data:** Update annually for inflation
 3. **Yield Benchmarks:** Update based on climate patterns
@@ -500,6 +556,7 @@ Files:
 5. **Regional Data:** Expand to other Yemen regions
 
 ### Monitoring
+
 - API endpoint performance
 - Error rates and types
 - Data quality issues

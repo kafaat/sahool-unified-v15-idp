@@ -33,12 +33,14 @@ Created `/apps/web/src/components/ui/LoadingSpinner.tsx` with three loading comp
 Created dynamic wrappers for chart components:
 
 #### Files Created:
+
 - `/apps/web/src/features/analytics/components/YieldChart.dynamic.tsx`
 - `/apps/web/src/features/analytics/components/ComparisonChart.dynamic.tsx`
 - `/apps/web/src/features/analytics/components/YieldAnalysis.dynamic.tsx`
 - `/apps/web/src/features/analytics/components/CostAnalysis.dynamic.tsx`
 
 **Pattern Used:**
+
 ```typescript
 import dynamic from 'next/dynamic';
 import { ChartLoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -59,6 +61,7 @@ const YieldChartComponent = dynamic(
 Created dynamic wrappers for sensor chart components:
 
 #### Files Created:
+
 - `/apps/web/src/features/iot/components/SensorChart.dynamic.tsx`
 - `/apps/web/src/features/iot/components/SensorReadings.dynamic.tsx`
 
@@ -81,6 +84,7 @@ const MapViewComponent = dynamic(
 ```
 
 **Updated:** `/apps/web/src/components/dashboard/Cockpit.tsx`
+
 - Removed inline dynamic import
 - Imported from `MapView.dynamic.tsx`
 
@@ -91,6 +95,7 @@ const MapViewComponent = dynamic(
 **File Created:** `/apps/web/src/features/fields/components/InteractiveFieldMap.dynamic.tsx`
 
 **Updated:** `/apps/web/src/features/fields/components/InteractiveFieldMap.example.tsx`
+
 - Changed import from `./InteractiveFieldMap` to `./InteractiveFieldMap.dynamic`
 
 **Impact:** Leaflet (~150KB) and React-Leaflet are loaded only when interactive field maps are rendered.
@@ -100,43 +105,48 @@ const MapViewComponent = dynamic(
 Updated index files to export dynamic versions by default:
 
 #### `/apps/web/src/features/analytics/components/index.ts`
+
 ```typescript
 // Export dynamic (lazy-loaded) components by default
-export { YieldChart } from './YieldChart.dynamic';
-export { ComparisonChart } from './ComparisonChart.dynamic';
-export { YieldAnalysis } from './YieldAnalysis.dynamic';
-export { CostAnalysis } from './CostAnalysis.dynamic';
+export { YieldChart } from "./YieldChart.dynamic";
+export { ComparisonChart } from "./ComparisonChart.dynamic";
+export { YieldAnalysis } from "./YieldAnalysis.dynamic";
+export { CostAnalysis } from "./CostAnalysis.dynamic";
 ```
 
 #### `/apps/web/src/features/iot/components/index.ts`
+
 ```typescript
-export { SensorChart } from './SensorChart.dynamic';
-export { SensorReadings } from './SensorReadings.dynamic';
+export { SensorChart } from "./SensorChart.dynamic";
+export { SensorReadings } from "./SensorReadings.dynamic";
 ```
 
 #### `/apps/web/src/components/dashboard/index.ts`
+
 ```typescript
 // Export dynamic (lazy-loaded) map component (~200KB saved)
-export { MapView } from './MapView.dynamic';
+export { MapView } from "./MapView.dynamic";
 ```
 
 #### `/apps/web/src/features/fields/components/index.ts`
+
 ```typescript
 // Export dynamic (lazy-loaded) map component (~150KB saved)
-export { InteractiveFieldMap } from './InteractiveFieldMap.dynamic';
+export { InteractiveFieldMap } from "./InteractiveFieldMap.dynamic";
 ```
 
 ### 6. Parent Component Updates
 
 **Updated:** `/apps/web/src/features/analytics/components/AnalyticsDashboard.tsx`
+
 ```typescript
 // Before
-import { YieldAnalysis } from './YieldAnalysis';
-import { CostAnalysis } from './CostAnalysis';
+import { YieldAnalysis } from "./YieldAnalysis";
+import { CostAnalysis } from "./CostAnalysis";
 
 // After
-import { YieldAnalysis } from './YieldAnalysis.dynamic';
-import { CostAnalysis } from './CostAnalysis.dynamic';
+import { YieldAnalysis } from "./YieldAnalysis.dynamic";
+import { CostAnalysis } from "./CostAnalysis.dynamic";
 ```
 
 ---
@@ -145,12 +155,12 @@ import { CostAnalysis } from './CostAnalysis.dynamic';
 
 ### Estimated Savings:
 
-| Component Type | Library Size | Components | Total Saved |
-|---------------|--------------|------------|-------------|
-| Analytics Charts | ~350KB | 4 components | ~350KB |
-| IoT Charts | ~350KB | 2 components | ~350KB (shared) |
-| MapView | ~200KB | 1 component | ~200KB |
-| InteractiveFieldMap | ~150KB | 1 component | ~150KB |
+| Component Type      | Library Size | Components   | Total Saved     |
+| ------------------- | ------------ | ------------ | --------------- |
+| Analytics Charts    | ~350KB       | 4 components | ~350KB          |
+| IoT Charts          | ~350KB       | 2 components | ~350KB (shared) |
+| MapView             | ~200KB       | 1 component  | ~200KB          |
+| InteractiveFieldMap | ~150KB       | 1 component  | ~150KB          |
 
 **Total Potential Savings:** ~700KB (recharts + maplibre-gl + leaflet)
 
@@ -163,15 +173,16 @@ import { CostAnalysis } from './CostAnalysis.dynamic';
 ### For Developers:
 
 1. **Importing Components:**
+
    ```typescript
    // ✅ Recommended - Uses dynamic version automatically
-   import { YieldChart } from '@/features/analytics/components';
+   import { YieldChart } from "@/features/analytics/components";
 
    // ✅ Also works - Direct import of dynamic version
-   import { YieldChart } from '@/features/analytics/components/YieldChart.dynamic';
+   import { YieldChart } from "@/features/analytics/components/YieldChart.dynamic";
 
    // ⚠️ Avoid - Loads recharts eagerly (350KB)
-   import { YieldChart } from '@/features/analytics/components/YieldChart';
+   import { YieldChart } from "@/features/analytics/components/YieldChart";
    ```
 
 2. **Loading States:**
@@ -197,11 +208,13 @@ import { CostAnalysis } from './CostAnalysis.dynamic';
 ### Verify Code Splitting:
 
 1. **Build the application:**
+
    ```bash
    npm run build
    ```
 
 2. **Analyze bundle:**
+
    ```bash
    npm run analyze
    ```
@@ -224,11 +237,13 @@ import { CostAnalysis } from './CostAnalysis.dynamic';
 ## Performance Metrics
 
 ### Before Implementation:
+
 - Initial bundle size: ~2.5MB (estimated)
 - Heavy libraries: Loaded eagerly
 - Dynamic imports: 6/317 files (1.9%)
 
 ### After Implementation:
+
 - Initial bundle size: ~1.8MB (estimated, -700KB)
 - Heavy libraries: Loaded on demand
 - Dynamic imports: 15+ files (~5%)
@@ -242,25 +257,27 @@ import { CostAnalysis } from './CostAnalysis.dynamic';
 If you have existing code importing the old components:
 
 1. **Analytics/IoT Charts:**
+
    ```typescript
    // Old
-   import { YieldChart } from '@/features/analytics/components/YieldChart';
+   import { YieldChart } from "@/features/analytics/components/YieldChart";
 
    // New (recommended)
-   import { YieldChart } from '@/features/analytics/components';
+   import { YieldChart } from "@/features/analytics/components";
    // or
-   import { YieldChart } from '@/features/analytics/components/YieldChart.dynamic';
+   import { YieldChart } from "@/features/analytics/components/YieldChart.dynamic";
    ```
 
 2. **Map Components:**
+
    ```typescript
    // Old
-   import { MapView } from '@/components/dashboard/MapView';
+   import { MapView } from "@/components/dashboard/MapView";
 
    // New (recommended)
-   import { MapView } from '@/components/dashboard';
+   import { MapView } from "@/components/dashboard";
    // or
-   import { MapView } from '@/components/dashboard/MapView.dynamic';
+   import { MapView } from "@/components/dashboard/MapView.dynamic";
    ```
 
 ---
@@ -278,6 +295,7 @@ If you have existing code importing the old components:
 ## Files Modified/Created Summary
 
 ### Created Files (13):
+
 1. `/apps/web/src/components/ui/LoadingSpinner.tsx`
 2. `/apps/web/src/features/analytics/components/YieldChart.dynamic.tsx`
 3. `/apps/web/src/features/analytics/components/ComparisonChart.dynamic.tsx`
@@ -291,6 +309,7 @@ If you have existing code importing the old components:
 11. `/apps/web/src/features/fields/components/InteractiveFieldMap.dynamic.tsx`
 
 ### Modified Files (5):
+
 1. `/apps/web/src/features/analytics/components/AnalyticsDashboard.tsx`
 2. `/apps/web/src/components/dashboard/Cockpit.tsx`
 3. `/apps/web/src/features/fields/components/InteractiveFieldMap.example.tsx`
@@ -298,6 +317,7 @@ If you have existing code importing the old components:
 5. `/apps/web/src/features/fields/components/index.ts`
 
 ### Original Files (Unchanged):
+
 All original component files remain unchanged and can still be imported directly if eager loading is needed.
 
 ---
@@ -305,6 +325,7 @@ All original component files remain unchanged and can still be imported directly
 ## Maintenance
 
 This implementation requires minimal maintenance:
+
 - ✅ Original components remain as-is
 - ✅ Dynamic wrappers are thin and stable
 - ✅ Loading components are reusable

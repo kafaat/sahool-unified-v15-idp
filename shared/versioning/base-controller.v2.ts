@@ -62,8 +62,8 @@ export interface V2ErrorResponse {
  * Sort order enum
  */
 export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
+  ASC = "asc",
+  DESC = "desc",
 }
 
 /**
@@ -71,7 +71,7 @@ export enum SortOrder {
  * Provides utility methods for v2 controllers
  */
 export abstract class BaseControllerV2 {
-  protected readonly version = '2';
+  protected readonly version = "2";
 
   /**
    * Create a success response in v2 format
@@ -171,10 +171,10 @@ export abstract class BaseControllerV2 {
     page?: string | number,
     limit?: string | number,
   ): { page: number; limit: number; skip: number } {
-    const parsedPage = Math.max(1, parseInt(String(page || '1'), 10));
+    const parsedPage = Math.max(1, parseInt(String(page || "1"), 10));
     const parsedLimit = Math.min(
       100,
-      Math.max(1, parseInt(String(limit || '20'), 10)),
+      Math.max(1, parseInt(String(limit || "20"), 10)),
     );
     const skip = this.calculateSkip(parsedPage, parsedLimit);
 
@@ -193,8 +193,8 @@ export abstract class BaseControllerV2 {
     order?: string,
   ): { field: string; order: SortOrder } {
     return {
-      field: sort || 'createdAt',
-      order: (order?.toLowerCase() === 'asc' ? SortOrder.ASC : SortOrder.DESC),
+      field: sort || "createdAt",
+      order: order?.toLowerCase() === "asc" ? SortOrder.ASC : SortOrder.DESC,
     };
   }
 }

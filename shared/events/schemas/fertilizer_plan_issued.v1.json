@@ -4,12 +4,7 @@
   "title": "FertilizerPlanIssued",
   "description": "Event emitted when a fertilizer plan is generated",
   "type": "object",
-  "required": [
-    "field_id",
-    "crop",
-    "stage",
-    "plan"
-  ],
+  "required": ["field_id", "crop", "stage", "plan"],
   "properties": {
     "field_id": {
       "type": "string",
@@ -51,7 +46,13 @@
           },
           "method": {
             "type": "string",
-            "enum": ["broadcast", "banding", "fertigation", "foliar", "side_dress"],
+            "enum": [
+              "broadcast",
+              "banding",
+              "fertigation",
+              "foliar",
+              "side_dress"
+            ],
             "description": "Application method"
           }
         }

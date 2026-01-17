@@ -1,4 +1,5 @@
 # Startup Dependencies Report - SAHOOL Platform
+
 ## Complete Analysis of Service Startup Order and Dependencies
 
 **Generated:** 2026-01-06
@@ -13,6 +14,7 @@
 ## Executive Summary
 
 The SAHOOL platform implements a **layered startup dependency model** with:
+
 - ✅ **Health Check-Based Dependencies** - 114 health check dependencies configured
 - ✅ **Database Connection Retry Logic** - Exponential backoff with 3 retries by default
 - ✅ **NATS Reconnection Support** - 60 reconnection attempts with 2s intervals
@@ -30,18 +32,19 @@ The SAHOOL platform implements a **layered startup dependency model** with:
 
 These services form the foundation and have **NO dependencies**:
 
-| Service | Port | Health Check | Start Period |
-|---------|------|--------------|--------------|
-| **postgres** | 5432 | `pg_isready -U sahool` | 30s |
-| **redis** | 6379 | `redis-cli ping` | 30s |
-| **nats** | 4222 | `wget /healthz` | 30s |
-| **mqtt** | 1883 | `pidof mosquitto` | 10s |
-| **qdrant** | 6333 | TCP check | 30s |
-| **etcd** | 2379 | `etcdctl endpoint health` | 30s |
-| **minio** | 9000 | `curl /health/live` | 30s |
-| **ollama** | 11434 | `ollama list` | 30s |
+| Service      | Port  | Health Check              | Start Period |
+| ------------ | ----- | ------------------------- | ------------ |
+| **postgres** | 5432  | `pg_isready -U sahool`    | 30s          |
+| **redis**    | 6379  | `redis-cli ping`          | 30s          |
+| **nats**     | 4222  | `wget /healthz`           | 30s          |
+| **mqtt**     | 1883  | `pidof mosquitto`         | 10s          |
+| **qdrant**   | 6333  | TCP check                 | 30s          |
+| **etcd**     | 2379  | `etcdctl endpoint health` | 30s          |
+| **minio**    | 9000  | `curl /health/live`       | 30s          |
+| **ollama**   | 11434 | `ollama list`             | 30s          |
 
 **Health Check Configuration:**
+
 ```yaml
 # Example from postgres
 healthcheck:
@@ -54,12 +57,13 @@ healthcheck:
 
 ### 1.2 Connection Pool Layer
 
-| Service | Depends On | Purpose |
-|---------|-----------|---------|
-| **pgbouncer** | postgres (healthy) | Database connection pooling |
-| **kong** | redis (healthy) | API Gateway with rate limiting |
+| Service       | Depends On         | Purpose                        |
+| ------------- | ------------------ | ------------------------------ |
+| **pgbouncer** | postgres (healthy) | Database connection pooling    |
+| **kong**      | redis (healthy)    | API Gateway with rate limiting |
 
 **Dependency Configuration:**
+
 ```yaml
 # From docker-compose.yml
 pgbouncer:
@@ -73,6 +77,7 @@ pgbouncer:
 All 39 application services follow this pattern:
 
 **Common Dependencies:**
+
 - Database: `postgres` or `pgbouncer` (service_healthy)
 - Message Queue: `nats` (service_healthy)
 - Cache: `redis` (service_healthy) - for services using caching
@@ -80,16 +85,16 @@ All 39 application services follow this pattern:
 
 **Example Service Dependency Matrix:**
 
-| Service | postgres | pgbouncer | redis | nats | mqtt | qdrant | Other |
-|---------|----------|-----------|-------|------|------|--------|-------|
-| field-management-service | ✅ | - | ✅ | ✅ | - | - | - |
-| billing-core | ✅ | - | ✅ | ✅ | - | - | - |
-| ai-advisor | - | - | - | ✅ | - | ✅ | vegetation-analysis-service |
-| iot-gateway | ✅ | - | - | ✅ | ✅ | - | - |
-| crop-health-ai | ✅ | - | - | ✅ | - | - | - |
-| field-ops | ✅ | - | ✅ | ✅ | - | - | - |
-| weather-core | ✅ | - | - | ✅ | - | - | - |
-| ndvi-engine | ✅ | - | - | ✅ | - | - | - |
+| Service                  | postgres | pgbouncer | redis | nats | mqtt | qdrant | Other                       |
+| ------------------------ | -------- | --------- | ----- | ---- | ---- | ------ | --------------------------- |
+| field-management-service | ✅       | -         | ✅    | ✅   | -    | -      | -                           |
+| billing-core             | ✅       | -         | ✅    | ✅   | -    | -      | -                           |
+| ai-advisor               | -        | -         | -     | ✅   | -    | ✅     | vegetation-analysis-service |
+| iot-gateway              | ✅       | -         | -     | ✅   | ✅   | -      | -                           |
+| crop-health-ai           | ✅       | -         | -     | ✅   | -    | -      | -                           |
+| field-ops                | ✅       | -         | ✅    | ✅   | -    | -      | -                           |
+| weather-core             | ✅       | -         | -     | ✅   | -    | -      | -                           |
+| ndvi-engine              | ✅       | -         | -     | ✅   | -    | -      | -                           |
 
 **Total Dependency Declarations:** 114 `condition: service_healthy` entries
 
@@ -108,6 +113,7 @@ The platform uses **Docker Compose health checks** and **application-level retry
 **Script-based waiting patterns:**
 
 1. **Database migrator service** (docker-compose.infra.yml):
+
 ```bash
 # Inline wait script
 until pg_isready -h postgres -U ${POSTGRES_USER:-sahool}; do
@@ -117,6 +123,7 @@ done
 ```
 
 2. **E2E test script** (scripts/e2e-test.sh):
+
 ```bash
 until docker compose exec -T postgres pg_isready -U sahool > /dev/null 2>&1; do
   echo "Waiting for PostgreSQL..."
@@ -125,6 +132,7 @@ done
 ```
 
 3. **Bootstrap script** (scripts/bootstrap.sh):
+
 ```bash
 wait_for_service "postgres"
 ```
@@ -140,12 +148,14 @@ wait_for_service "postgres"
 **Location:** `/home/user/sahool-unified-v15-idp/shared/libs/database.py`
 
 **Features:**
+
 - ✅ Connection pooling with SQLAlchemy
 - ✅ Automatic retry with exponential backoff
 - ✅ Connection health checks (pool_pre_ping=True)
 - ✅ Configurable retry parameters via environment variables
 
 **Configuration:**
+
 ```python
 class DatabaseConfig:
     max_retries: int = 3              # DB_MAX_RETRIES
@@ -159,6 +169,7 @@ class DatabaseConfig:
 ```
 
 **Retry Logic:**
+
 ```python
 async def execute_with_retry(self, func, *args, **kwargs):
     delay = self.config.retry_delay
@@ -174,14 +185,16 @@ async def execute_with_retry(self, func, *args, **kwargs):
 ```
 
 **Retry Timeline:**
+
 - Attempt 1: Immediate
 - Attempt 2: After 1.0s
-- Attempt 3: After 3.0s (1.0 * 2^1)
-- Attempt 4: After 7.0s (1.0 * 2^2)
+- Attempt 3: After 3.0s (1.0 \* 2^1)
+- Attempt 4: After 7.0s (1.0 \* 2^2)
 
 **Services Using Database Retry Logic:** 32 services
 
 **Examples:**
+
 - field-management-service (Node.js) - Uses Prisma with retry middleware
 - billing-core (Python) - Uses shared DatabaseManager
 - field-ops (Python) - Uses asyncpg with retry wrapper
@@ -204,12 +217,14 @@ async def execute_with_retry(self, func, *args, **kwargs):
 **Location:** `/home/user/sahool-unified-v15-idp/shared/events/publisher.py`
 
 **Features:**
+
 - ✅ Automatic reconnection (60 attempts)
 - ✅ Retry logic for publish failures (3 retries with exponential backoff)
 - ✅ JetStream support for guaranteed delivery
 - ✅ Circuit breaker pattern via callbacks
 
 **Configuration:**
+
 ```python
 class PublisherConfig:
     reconnect_time_wait: int = 2        # Seconds between reconnects
@@ -221,6 +236,7 @@ class PublisherConfig:
 ```
 
 **Connection Resilience:**
+
 ```python
 await nats.connect(
     servers=["nats://nats:4222"],
@@ -233,6 +249,7 @@ await nats.connect(
 ```
 
 **Automatic Reconnection Timeline:**
+
 - Total retry window: 120 seconds (60 attempts × 2s)
 - Auto-reconnect on network failures
 - Graceful degradation on publish failures
@@ -240,6 +257,7 @@ await nats.connect(
 **Services Using NATS:** 36 services
 
 **Example Service Integration:**
+
 ```python
 # From billing-core/src/main.py
 async def init_nats():
@@ -260,6 +278,7 @@ async def init_nats():
 **Location:** `/home/user/sahool-unified-v15-idp/shared/cache/redis_sentinel.py`
 
 **Features:**
+
 - ✅ Redis Sentinel support for high availability
 - ✅ Circuit breaker pattern (5 failures → OPEN state)
 - ✅ Automatic failover to slave nodes
@@ -267,6 +286,7 @@ async def init_nats():
 - ✅ Connection pooling
 
 **Configuration:**
+
 ```python
 class RedisSentinelConfig:
     socket_timeout: int = 5
@@ -277,6 +297,7 @@ class RedisSentinelConfig:
 ```
 
 **Circuit Breaker Pattern:**
+
 ```python
 class CircuitBreaker:
     failure_threshold: int = 5     # Failures before OPEN
@@ -289,6 +310,7 @@ class CircuitBreaker:
 ```
 
 **Retry Logic:**
+
 ```python
 def _execute_with_retry(self, func, *args, max_retries=3, retry_delay=0.5, **kwargs):
     for attempt in range(max_retries):
@@ -303,10 +325,11 @@ def _execute_with_retry(self, func, *args, max_retries=3, retry_delay=0.5, **kwa
 ```
 
 **Retry Timeline:**
+
 - Attempt 1: Immediate
 - Attempt 2: After 0.5s
-- Attempt 3: After 1.5s (0.5 * 2^1)
-- Attempt 4: After 3.5s (0.5 * 2^2)
+- Attempt 3: After 1.5s (0.5 \* 2^1)
+- Attempt 4: After 3.5s (0.5 \* 2^2)
 
 **Services Using Redis:** 18 services
 
@@ -350,6 +373,7 @@ Layer 4: Dependent Application Services (depends on Layers 1-3)
 ### 6.2 Startup Timeline
 
 **Optimistic Scenario (all services healthy):**
+
 ```
 T+0s:   Layer 1 services start
 T+30s:  Layer 1 infrastructure healthy (max start_period)
@@ -362,6 +386,7 @@ T+125s: All services operational
 ```
 
 **Pessimistic Scenario (with retries):**
+
 ```
 T+0s:    Layer 1 services start
 T+90s:   Layer 1 healthy (with 3 retry cycles)
@@ -374,6 +399,7 @@ T+300s:  All services operational
 ```
 
 **Worst Case (infrastructure failures):**
+
 - Database unreachable: Services fail after 3 retries (~7s total retry window)
 - NATS unreachable: Services continue but with degraded functionality
 - Redis unreachable: Circuit breaker opens after 5 failures
@@ -386,6 +412,7 @@ T+300s:  All services operational
 ### 7.1 Docker Compose Health Checks
 
 **Infrastructure Services:**
+
 ```yaml
 # postgres
 healthcheck:
@@ -413,10 +440,17 @@ healthcheck:
 ```
 
 **Application Services:**
+
 ```yaml
 # Generic health check pattern
 healthcheck:
-  test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"]
+  test:
+    [
+      "CMD",
+      "python",
+      "-c",
+      "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')",
+    ]
   interval: 30s
   timeout: 10s
   retries: 3
@@ -424,10 +458,12 @@ healthcheck:
 ```
 
 **Health Check Endpoints:**
+
 - `/healthz` - Liveness check (service is alive)
 - `/ready` or `/readyz` - Readiness check (service is ready to accept traffic)
 
 **Example from field-ops:**
+
 ```python
 @app.get("/healthz")
 def health():
@@ -445,6 +481,7 @@ def readiness():
 ### 7.2 Kubernetes Probes
 
 **Liveness Probes:**
+
 ```yaml
 livenessProbe:
   httpGet:
@@ -457,6 +494,7 @@ livenessProbe:
 ```
 
 **Readiness Probes:**
+
 ```yaml
 readinessProbe:
   httpGet:
@@ -479,6 +517,7 @@ readinessProbe:
 These services **start successfully even without dependencies**:
 
 **field-ops:**
+
 ```python
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -507,6 +546,7 @@ async def lifespan(app: FastAPI):
 ```
 
 **billing-core:**
+
 ```python
 async def init_nats():
     global nats_client, js
@@ -563,14 +603,17 @@ initContainers:
 **Recommended init containers:**
 
 1. **Database Migration Init Container:**
+
 ```yaml
 initContainers:
   - name: db-migration
     image: migrate/migrate
-    command: ["migrate", "-path", "/migrations", "-database", "${DATABASE_URL}", "up"]
+    command:
+      ["migrate", "-path", "/migrations", "-database", "${DATABASE_URL}", "up"]
 ```
 
 2. **Database Readiness Init Container:**
+
 ```yaml
 initContainers:
   - name: wait-for-postgres
@@ -586,6 +629,7 @@ initContainers:
 ```
 
 3. **NATS Stream Setup Init Container:**
+
 ```yaml
 initContainers:
   - name: nats-stream-setup
@@ -610,20 +654,24 @@ initContainers:
 ### 10.2 Warnings
 
 ⚠️ **1. No Startup Probes in Kubernetes**
+
 - **Impact:** Slow-starting services may be killed before ready
 - **Recommendation:** Add startup probes for services with >30s startup time
 - **Affected:** ai-advisor, ollama, milvus
 
 ⚠️ **2. Inconsistent Database Retry Logic**
+
 - **Impact:** Some Node.js services lack retry middleware
 - **Recommendation:** Standardize Prisma retry configuration
 - **Affected:** 8 Node.js services
 
 ⚠️ **3. Kong DNS Resolution Issues**
+
 - **Status:** Fixed in recent PR (kong/fix-dns-errors)
 - **Previously:** Kong couldn't resolve service names on startup
 
 ⚠️ **4. No Health Check Dependency for Service-to-Service Calls**
+
 - **Impact:** Services may start before their dependencies are healthy
 - **Example:** ai-advisor depends on vegetation-analysis-service but no health check
 - **Recommendation:** Add readiness checks for inter-service dependencies
@@ -631,6 +679,7 @@ initContainers:
 ### 10.3 Recommendations
 
 1. **Add Startup Probes:**
+
 ```yaml
 startupProbe:
   httpGet:
@@ -641,6 +690,7 @@ startupProbe:
 ```
 
 2. **Standardize Retry Configuration:**
+
 ```typescript
 // Prisma retry middleware
 const prisma = new PrismaClient().$extends({
@@ -653,17 +703,18 @@ const prisma = new PrismaClient().$extends({
             return await query(args);
           } catch (e) {
             lastError = e;
-            await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i)));
+            await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, i)));
           }
         }
         throw lastError;
-      }
-    }
-  }
+      },
+    },
+  },
 });
 ```
 
 3. **Add Init Container for Database Migrations:**
+
 ```yaml
 initContainers:
   - name: db-migrate
@@ -683,40 +734,40 @@ initContainers:
 
 ### 11.1 Infrastructure Services
 
-| Service | Health Check | Dependencies | Retry Logic | Start Period |
-|---------|--------------|--------------|-------------|--------------|
-| postgres | ✅ pg_isready | None | N/A | 30s |
-| pgbouncer | ✅ pg_isready | postgres | N/A | 30s |
-| redis | ✅ redis-cli ping | None | ✅ Circuit breaker | 30s |
-| nats | ✅ /healthz | None | ✅ 60 reconnects | 30s |
-| mqtt | ✅ pidof | None | ❌ | 10s |
-| qdrant | ✅ TCP check | None | ❌ | 30s |
-| kong | ✅ kong health | redis | ❌ | 30s |
-| etcd | ✅ endpoint health | None | ❌ | 30s |
-| minio | ✅ /health/live | None | ❌ | 30s |
-| ollama | ✅ ollama list | None | ❌ | 30s |
-| milvus | ✅ /healthz | etcd, minio | ❌ | 30s |
+| Service   | Health Check       | Dependencies | Retry Logic        | Start Period |
+| --------- | ------------------ | ------------ | ------------------ | ------------ |
+| postgres  | ✅ pg_isready      | None         | N/A                | 30s          |
+| pgbouncer | ✅ pg_isready      | postgres     | N/A                | 30s          |
+| redis     | ✅ redis-cli ping  | None         | ✅ Circuit breaker | 30s          |
+| nats      | ✅ /healthz        | None         | ✅ 60 reconnects   | 30s          |
+| mqtt      | ✅ pidof           | None         | ❌                 | 10s          |
+| qdrant    | ✅ TCP check       | None         | ❌                 | 30s          |
+| kong      | ✅ kong health     | redis        | ❌                 | 30s          |
+| etcd      | ✅ endpoint health | None         | ❌                 | 30s          |
+| minio     | ✅ /health/live    | None         | ❌                 | 30s          |
+| ollama    | ✅ ollama list     | None         | ❌                 | 30s          |
+| milvus    | ✅ /healthz        | etcd, minio  | ❌                 | 30s          |
 
 ### 11.2 Application Services Dependencies
 
-| Service Category | Count | Typical Dependencies | Retry Logic |
-|-----------------|-------|---------------------|-------------|
-| Field Services | 6 | postgres, nats, redis | ✅ DB + NATS |
-| Weather Services | 3 | postgres, nats | ✅ DB + NATS |
-| AI/ML Services | 4 | qdrant, nats, other services | ✅ NATS |
-| IoT Services | 3 | postgres, mqtt, nats | ✅ DB + NATS |
-| Business Services | 8 | postgres, redis, nats | ✅ DB + NATS + Redis |
-| Support Services | 15 | postgres, nats | ✅ DB + NATS |
+| Service Category  | Count | Typical Dependencies         | Retry Logic          |
+| ----------------- | ----- | ---------------------------- | -------------------- |
+| Field Services    | 6     | postgres, nats, redis        | ✅ DB + NATS         |
+| Weather Services  | 3     | postgres, nats               | ✅ DB + NATS         |
+| AI/ML Services    | 4     | qdrant, nats, other services | ✅ NATS              |
+| IoT Services      | 3     | postgres, mqtt, nats         | ✅ DB + NATS         |
+| Business Services | 8     | postgres, redis, nats        | ✅ DB + NATS + Redis |
+| Support Services  | 15    | postgres, nats               | ✅ DB + NATS         |
 
 ### 11.3 Retry Configuration Summary
 
-| Component | Max Retries | Initial Delay | Backoff | Total Retry Window |
-|-----------|-------------|---------------|---------|-------------------|
-| Database | 3 | 1.0s | 2x | ~7s |
-| NATS Publish | 3 | 0.5s | 2x | ~3.5s |
-| NATS Connect | 60 | 2.0s | None | 120s |
-| Redis | 3 | 0.5s | 2x | ~3.5s |
-| Redis Circuit Breaker | 5 failures | N/A | 60s recovery | N/A |
+| Component             | Max Retries | Initial Delay | Backoff      | Total Retry Window |
+| --------------------- | ----------- | ------------- | ------------ | ------------------ |
+| Database              | 3           | 1.0s          | 2x           | ~7s                |
+| NATS Publish          | 3           | 0.5s          | 2x           | ~3.5s              |
+| NATS Connect          | 60          | 2.0s          | None         | 120s               |
+| Redis                 | 3           | 0.5s          | 2x           | ~3.5s              |
+| Redis Circuit Breaker | 5 failures  | N/A           | 60s recovery | N/A                |
 
 ---
 
@@ -785,6 +836,7 @@ initContainers:
 **Rating: 8/10** ⭐⭐⭐⭐⭐⭐⭐⭐☆☆
 
 The SAHOOL platform implements **solid startup dependency management** with comprehensive health checks and retry logic. The main areas for improvement are:
+
 - Adding Kubernetes startup probes
 - Standardizing retry logic across all services
 - Implementing init containers for migrations
@@ -792,19 +844,14 @@ The SAHOOL platform implements **solid startup dependency management** with comp
 ### 13.4 Recommendations Priority
 
 **High Priority:**
+
 1. Add startup probes for slow-starting services (ai-advisor, ollama)
 2. Standardize Prisma retry middleware across Node.js services
 3. Add database migration init containers
 
-**Medium Priority:**
-4. Implement service mesh for consistent retry policies
-5. Add inter-service dependency health checks
-6. Document startup order in deployment guides
+**Medium Priority:** 4. Implement service mesh for consistent retry policies 5. Add inter-service dependency health checks 6. Document startup order in deployment guides
 
-**Low Priority:**
-7. Add NATS stream setup init containers
-8. Implement startup readiness dashboard
-9. Add startup metrics and monitoring
+**Low Priority:** 7. Add NATS stream setup init containers 8. Implement startup readiness dashboard 9. Add startup metrics and monitoring
 
 ---
 
@@ -837,6 +884,7 @@ The SAHOOL platform implements **solid startup dependency management** with comp
 ### 14.2 Monitoring Recommendations
 
 **Metrics to track:**
+
 - Service startup time (p50, p95, p99)
 - Health check failure rate
 - Dependency connection retry count
@@ -859,4 +907,4 @@ The SAHOOL platform implements **solid startup dependency management** with comp
 
 **Report End**
 
-*For questions or updates, contact the platform team.*
+_For questions or updates, contact the platform team._

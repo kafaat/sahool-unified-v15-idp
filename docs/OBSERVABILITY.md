@@ -15,16 +15,13 @@ All services expose standardized health check endpoints:
 - **`GET /health/live`** - Liveness probe
   - Returns 200 if service is running
   - Used by Kubernetes to restart crashed containers
-  
 - **`GET /health/ready`** - Readiness probe
   - Returns 200 if service can handle requests
   - Returns 503 if dependencies are unavailable
   - Used by Kubernetes to route traffic
-  
 - **`GET /health/startup`** - Startup probe
   - Returns 200 when service initialization is complete
   - Used by Kubernetes for slow-starting containers
-  
 - **`GET /health`** - Combined health check
   - Returns overall service health status
   - Includes all component checks
@@ -80,6 +77,7 @@ Services expose metrics in Prometheus format at `/metrics`.
 #### Default Metrics
 
 All services automatically track:
+
 - **Request count** - Total requests by method, endpoint, and status
 - **Request duration** - Histogram of request latencies
 - **Error count** - Total errors by type and severity
@@ -149,11 +147,13 @@ set_request_context(
 #### Log Format
 
 **Development (human-readable):**
+
 ```
 [INFO    ] [2024-12-19 22:00:00] [my-service] [req:abc123] Processing request
 ```
 
 **Production (JSON):**
+
 ```json
 {
   "timestamp": "2024-12-19T22:00:00.000Z",
@@ -179,6 +179,7 @@ Optional distributed tracing with OpenTelemetry.
 #### Configuration
 
 Set environment variable:
+
 ```bash
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 ```
@@ -216,40 +217,40 @@ spec:
   template:
     spec:
       containers:
-      - name: app
-        image: crop-health-ai:latest
-        ports:
-        - containerPort: 8095
-        
-        # Liveness probe
-        livenessProbe:
-          httpGet:
-            path: /health/live
-            port: 8095
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        
-        # Readiness probe
-        readinessProbe:
-          httpGet:
-            path: /health/ready
-            port: 8095
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 2
-        
-        # Startup probe (for slow-starting services)
-        startupProbe:
-          httpGet:
-            path: /health/startup
-            port: 8095
-          initialDelaySeconds: 0
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 30
+        - name: app
+          image: crop-health-ai:latest
+          ports:
+            - containerPort: 8095
+
+          # Liveness probe
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8095
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8095
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+
+          # Startup probe (for slow-starting services)
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: 8095
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
 ```
 
 ### ServiceMonitor for Prometheus
@@ -264,9 +265,9 @@ spec:
     matchLabels:
       app: crop-health-ai
   endpoints:
-  - port: metrics
-    interval: 30s
-    path: /metrics
+    - port: metrics
+      interval: 30s
+      path: /metrics
 ```
 
 ## Alert Rules
@@ -275,33 +276,33 @@ Example Prometheus alert rules:
 
 ```yaml
 groups:
-- name: service_alerts
-  rules:
-  - alert: HighErrorRate
-    expr: rate(service_errors_total[5m]) > 0.05
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High error rate on {{ $labels.service }}"
-      description: "Error rate is {{ $value }} errors/sec"
-  
-  - alert: HighResponseTime
-    expr: histogram_quantile(0.95, rate(service_request_duration_seconds_bucket[5m])) > 5
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High response time on {{ $labels.service }}"
-      description: "95th percentile is {{ $value }}s"
-  
-  - alert: ServiceDown
-    expr: up{job="sahool-services"} == 0
-    for: 2m
-    labels:
-      severity: critical
-    annotations:
-      summary: "Service {{ $labels.service }} is down"
+  - name: service_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(service_errors_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value }} errors/sec"
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(service_request_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time on {{ $labels.service }}"
+          description: "95th percentile is {{ $value }}s"
+
+      - alert: ServiceDown
+        expr: up{job="sahool-services"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
 ```
 
 ## Grafana Dashboards

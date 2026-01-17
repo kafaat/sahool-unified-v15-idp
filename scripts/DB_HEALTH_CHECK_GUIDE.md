@@ -1,4 +1,5 @@
 # Database Health Check Guide
+
 # دليل فحص صحة قاعدة البيانات
 
 ## Overview / نظرة عامة
@@ -70,6 +71,7 @@ export POSTGRES_PASSWORD="your_password"
 ```
 
 **Example JSON Output:**
+
 ```json
 {
   "timestamp": "2025-01-06T12:00:00Z",
@@ -102,16 +104,16 @@ export POSTGRES_PASSWORD="your_password"
 
 ### Environment Variables / متغيرات البيئة
 
-| Variable | Default | Description (EN) | الوصف (AR) |
-|----------|---------|------------------|-----------|
-| `POSTGRES_HOST` | localhost | PostgreSQL hostname | اسم مضيف PostgreSQL |
-| `POSTGRES_PORT` | 5432 | PostgreSQL port | منفذ PostgreSQL |
-| `PGBOUNCER_HOST` | localhost | PgBouncer hostname | اسم مضيف PgBouncer |
-| `PGBOUNCER_PORT` | 6432 | PgBouncer port | منفذ PgBouncer |
-| `POSTGRES_USER` | sahool | Database user | مستخدم قاعدة البيانات |
-| `POSTGRES_PASSWORD` | *(required)* | Database password | كلمة مرور قاعدة البيانات |
-| `POSTGRES_DB` | sahool | Database name | اسم قاعدة البيانات |
-| `DB_CHECK_TIMEOUT` | 30 | Timeout in seconds | المهلة الزمنية بالثواني |
+| Variable            | Default      | Description (EN)    | الوصف (AR)               |
+| ------------------- | ------------ | ------------------- | ------------------------ |
+| `POSTGRES_HOST`     | localhost    | PostgreSQL hostname | اسم مضيف PostgreSQL      |
+| `POSTGRES_PORT`     | 5432         | PostgreSQL port     | منفذ PostgreSQL          |
+| `PGBOUNCER_HOST`    | localhost    | PgBouncer hostname  | اسم مضيف PgBouncer       |
+| `PGBOUNCER_PORT`    | 6432         | PgBouncer port      | منفذ PgBouncer           |
+| `POSTGRES_USER`     | sahool       | Database user       | مستخدم قاعدة البيانات    |
+| `POSTGRES_PASSWORD` | _(required)_ | Database password   | كلمة مرور قاعدة البيانات |
+| `POSTGRES_DB`       | sahool       | Database name       | اسم قاعدة البيانات       |
+| `DB_CHECK_TIMEOUT`  | 30           | Timeout in seconds  | المهلة الزمنية بالثواني  |
 
 ### Command Line Options / خيارات سطر الأوامر
 
@@ -141,10 +143,10 @@ export POSTGRES_PASSWORD="your_password"
 
 ## Exit Codes / رموز الخروج
 
-| Code | Status | Description (EN) | الوصف (AR) |
-|------|--------|------------------|-----------|
-| **0** | Healthy | All checks passed | كل الفحوصات نجحت |
-| **1** | Warning | Some metrics exceed warning thresholds | بعض المقاييس تجاوزت حدود التحذير |
+| Code  | Status   | Description (EN)                           | الوصف (AR)                              |
+| ----- | -------- | ------------------------------------------ | --------------------------------------- |
+| **0** | Healthy  | All checks passed                          | كل الفحوصات نجحت                        |
+| **1** | Warning  | Some metrics exceed warning thresholds     | بعض المقاييس تجاوزت حدود التحذير        |
 | **2** | Critical | Critical issues detected or cannot connect | تم اكتشاف مشاكل حرجة أو لا يمكن الاتصال |
 
 ---
@@ -162,6 +164,7 @@ export POSTGRES_PASSWORD="your_password"
 ### 2. Systemd Timer / مؤقت Systemd
 
 **Service file** (`/etc/systemd/system/db-health-check.service`):
+
 ```ini
 [Unit]
 Description=Database Health Check
@@ -177,6 +180,7 @@ StandardError=journal
 ```
 
 **Timer file** (`/etc/systemd/system/db-health-check.timer`):
+
 ```ini
 [Unit]
 Description=Run Database Health Check every 5 minutes
@@ -191,6 +195,7 @@ WantedBy=timers.target
 ```
 
 Enable and start:
+
 ```bash
 sudo systemctl enable --now db-health-check.timer
 sudo systemctl list-timers
@@ -218,6 +223,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 See `db_health_check.k8s.example.yaml` for complete examples.
 
 **Quick example:**
+
 ```yaml
 livenessProbe:
   exec:
@@ -319,6 +325,7 @@ groups:
 
 **Problem:** Missing password environment variable
 **Solution:**
+
 ```bash
 export POSTGRES_PASSWORD="your_password"
 # Or pass via file
@@ -328,12 +335,14 @@ export POSTGRES_PASSWORD=$(cat /path/to/password/file)
 #### 2. "Cannot connect to PostgreSQL"
 
 **Possible causes:**
+
 - Database is down / قاعدة البيانات متوقفة
 - Incorrect host/port / المضيف/المنفذ غير صحيح
 - Network connectivity issues / مشاكل اتصال الشبكة
 - Firewall blocking connection / جدار الحماية يحجب الاتصال
 
 **Debug:**
+
 ```bash
 # Test connectivity manually
 psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT 1;"
@@ -352,6 +361,7 @@ journalctl -u postgresql
 **Note:** This is a WARNING, not CRITICAL. The script continues checking PostgreSQL directly.
 
 **If PgBouncer should be available:**
+
 ```bash
 # Check PgBouncer status
 docker logs sahool-pgbouncer
@@ -363,6 +373,7 @@ psql -h $PGBOUNCER_HOST -p $PGBOUNCER_PORT -U $POSTGRES_USER -d pgbouncer -c "SH
 #### 4. High Connection Usage
 
 **Investigation:**
+
 ```sql
 -- Check active connections by state
 SELECT state, count(*)
@@ -386,6 +397,7 @@ WHERE state = 'idle'
 #### 5. Long-Running Queries
 
 **Investigation:**
+
 ```sql
 -- View long-running queries
 SELECT pid, usename, application_name, client_addr,
@@ -435,6 +447,7 @@ The health check script is designed to be lightweight:
 - **Execution Time**: Typically 1-3 seconds
 
 **Recommended frequency:**
+
 - Development: Every 30-60 seconds / كل 30-60 ثانية
 - Production: Every 15-30 seconds for critical systems / كل 15-30 ثانية للأنظمة الحرجة
 - Monitoring: Every 1-5 minutes / كل 1-5 دقائق
@@ -453,6 +466,7 @@ The health check script is designed to be lightweight:
 ## Support / الدعم
 
 For issues or questions:
+
 - GitHub Issues: https://github.com/kafaat/sahool-unified-v15-idp/issues
 - Documentation: `/docs/operations/database-monitoring.md`
 - Team Contact: devops@sahool.com

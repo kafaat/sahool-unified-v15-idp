@@ -1,4 +1,5 @@
 # SAHOOL Change Detection System
+
 # نظام كشف التغيرات الزراعية - سهول
 
 ## Overview | نظرة عامة
@@ -45,6 +46,7 @@ The Change Detection System analyzes satellite time series data to automatically
 Analyzes a time period to detect all significant changes.
 
 **Parameters**:
+
 - `field_id` (required): Field identifier
 - `lat` (required): Field latitude (-90 to 90)
 - `lon` (required): Field longitude (-180 to 180)
@@ -53,11 +55,13 @@ Analyzes a time period to detect all significant changes.
 - `crop_type` (optional): Crop type (wheat, sorghum, coffee, qat, etc.)
 
 **Example Request**:
+
 ```bash
 curl "http://localhost:8090/v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat"
 ```
 
 **Example Response**:
+
 ```json
 {
   "field_id": "field_123",
@@ -126,6 +130,7 @@ curl "http://localhost:8090/v1/changes/field_123?lat=15.5&lon=44.2&start_date=20
 Compares two specific dates for before/after analysis.
 
 **Parameters**:
+
 - `field_id` (required): Field identifier
 - `lat` (required): Field latitude
 - `lon` (required): Field longitude
@@ -133,11 +138,13 @@ Compares two specific dates for before/after analysis.
 - `date2` (required): Second date (YYYY-MM-DD)
 
 **Example Request**:
+
 ```bash
 curl "http://localhost:8090/v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01"
 ```
 
 **Example Response**:
+
 ```json
 {
   "field_id": "field_123",
@@ -168,6 +175,7 @@ curl "http://localhost:8090/v1/changes/field_123/compare?lat=15.5&lon=44.2&date1
 Identifies unusual NDVI values that deviate from expected patterns.
 
 **Parameters**:
+
 - `field_id` (required): Field identifier
 - `lat` (required): Field latitude
 - `lon` (required): Field longitude
@@ -175,11 +183,13 @@ Identifies unusual NDVI values that deviate from expected patterns.
 - `crop_type` (optional): Crop type for expected pattern
 
 **Example Request**:
+
 ```bash
 curl "http://localhost:8090/v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat"
 ```
 
 **Example Response**:
+
 ```json
 {
   "field_id": "field_123",
@@ -197,7 +207,7 @@ curl "http://localhost:8090/v1/changes/field_123/anomalies?lat=15.5&lon=44.2&day
       "z_score": 2.45,
       "severity": "moderate",
       "ndwi": 0.12,
-      "ndmi": 0.10
+      "ndmi": 0.1
     }
   ],
   "crop_type": "wheat",
@@ -238,23 +248,27 @@ ANOMALY_THRESHOLDS = {
 ### Classification Logic
 
 **Harvest Detection**:
+
 - NDVI before > 0.5 (healthy crop)
 - NDVI after < 0.3 (bare soil)
 - Change > -0.3
 - Within 30 days
 
 **Planting Detection**:
+
 - NDVI before < 0.25 (bare soil)
 - NDVI after > 0.35 (vegetation)
 - Change > +0.2
 - Within 45 days
 
 **Water Stress**:
+
 - NDVI decline
 - NDWI decline (simultaneous)
 - Moderate change rate
 
 **Flooding**:
+
 - NDVI decline
 - NDWI increase (water accumulation)
 - Rapid change
@@ -262,21 +276,25 @@ ANOMALY_THRESHOLDS = {
 ## Crop-Specific Patterns | الأنماط الخاصة بالمحاصيل
 
 ### Wheat (القمح)
+
 - Planting: November
 - Peak NDVI: ~0.75
 - Harvest: May
 
 ### Sorghum (الذرة الرفيعة)
+
 - Planting: June
 - Peak NDVI: ~0.80
 - Harvest: October
 
 ### Coffee (البن)
+
 - Perennial crop
 - Peak NDVI: ~0.85
 - Base NDVI: ~0.65
 
 ### Qat (القات)
+
 - Perennial crop
 - Peak NDVI: ~0.80
 - Base NDVI: ~0.60
@@ -284,21 +302,27 @@ ANOMALY_THRESHOLDS = {
 ## Use Cases | حالات الاستخدام
 
 ### 1. Early Warning System
+
 Monitor fields continuously and receive alerts when stress is detected early, allowing preventive action.
 
 ### 2. Harvest Planning
+
 Automatically detect when crops are harvested and plan next planting cycle.
 
 ### 3. Irrigation Management
+
 Identify water stress events and optimize irrigation schedules.
 
 ### 4. Insurance Claims
+
 Document crop damage events with satellite evidence for insurance verification.
 
 ### 5. Yield Prediction
+
 Use change patterns to improve yield forecasting accuracy.
 
 ### 6. Farm Management
+
 Track multiple fields and prioritize attention based on severity.
 
 ## Integration Examples | أمثلة التكامل
@@ -338,7 +362,7 @@ for event in report['events']:
 ### JavaScript/Node.js Client
 
 ```javascript
-const axios = require('axios');
+const axios = require("axios");
 
 async function detectChanges(fieldId, lat, lon, startDate, endDate) {
   try {
@@ -350,9 +374,9 @@ async function detectChanges(fieldId, lat, lon, startDate, endDate) {
           lon,
           start_date: startDate,
           end_date: endDate,
-          crop_type: 'wheat'
-        }
-      }
+          crop_type: "wheat",
+        },
+      },
     );
 
     const report = response.data;
@@ -360,13 +384,13 @@ async function detectChanges(fieldId, lat, lon, startDate, endDate) {
     console.log(`Events: ${report.events.length}`);
 
     // Display recommendations
-    report.recommendations_en.forEach(rec => {
+    report.recommendations_en.forEach((rec) => {
       console.log(`📋 ${rec}`);
     });
 
     return report;
   } catch (error) {
-    console.error('Change detection failed:', error.message);
+    console.error("Change detection failed:", error.message);
   }
 }
 ```
@@ -432,6 +456,7 @@ suspend fun detectChanges(
 ## Support | الدعم
 
 For questions or issues, contact the SAHOOL development team:
+
 - Email: support@sahool.ye
 - Documentation: https://docs.sahool.ye
 - GitHub: https://github.com/sahool/satellite-service

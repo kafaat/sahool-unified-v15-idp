@@ -1,4 +1,5 @@
 # Data Encryption Implementation Summary
+
 ## ملخص تنفيذ تشفير البيانات
 
 **Date**: 2026-01-01
@@ -21,37 +22,37 @@ A new shared package providing encryption utilities for the entire platform.
 
 #### TypeScript Modules
 
-| File | Description |
-|------|-------------|
-| `src/field-encryption.ts` | AES-256-GCM encryption with standard and deterministic modes |
-| `src/hash-utils.ts` | Password hashing (bcrypt), SHA-256, and HMAC utilities |
-| `src/pii-handler.ts` | PII detection, masking, and auto-encryption logic |
-| `src/prisma-encryption.ts` | Automatic encryption middleware for Prisma ORM |
-| `src/index.ts` | Main export file for all utilities |
+| File                       | Description                                                  |
+| -------------------------- | ------------------------------------------------------------ |
+| `src/field-encryption.ts`  | AES-256-GCM encryption with standard and deterministic modes |
+| `src/hash-utils.ts`        | Password hashing (bcrypt), SHA-256, and HMAC utilities       |
+| `src/pii-handler.ts`       | PII detection, masking, and auto-encryption logic            |
+| `src/prisma-encryption.ts` | Automatic encryption middleware for Prisma ORM               |
+| `src/index.ts`             | Main export file for all utilities                           |
 
 #### Python Modules
 
-| File | Description |
-|------|-------------|
+| File                           | Description                                         |
+| ------------------------------ | --------------------------------------------------- |
 | `src/sqlalchemy_encryption.py` | Encrypted column types and utilities for SQLAlchemy |
 
 #### Configuration Files
 
-| File | Description |
-|------|-------------|
-| `package.json` | NPM package configuration |
-| `tsconfig.json` | TypeScript configuration |
-| `requirements.txt` | Python dependencies |
-| `.env.example` | Example environment variables |
-| `.gitignore` | Git ignore patterns |
+| File               | Description                   |
+| ------------------ | ----------------------------- |
+| `package.json`     | NPM package configuration     |
+| `tsconfig.json`    | TypeScript configuration      |
+| `requirements.txt` | Python dependencies           |
+| `.env.example`     | Example environment variables |
+| `.gitignore`       | Git ignore patterns           |
 
 #### Documentation
 
-| File | Description |
-|------|-------------|
-| `README.md` | Package overview and quick start |
+| File                  | Description                              |
+| --------------------- | ---------------------------------------- |
+| `README.md`           | Package overview and quick start         |
 | `ENCRYPTION_SETUP.md` | Detailed setup guide with key generation |
-| `USAGE_EXAMPLES.md` | Practical code examples for all features |
+| `USAGE_EXAMPLES.md`   | Practical code examples for all features |
 
 ---
 
@@ -80,6 +81,7 @@ A new shared package providing encryption utilities for the entire platform.
 ### 🛡️ PII Detection & Handling
 
 Automatic detection of:
+
 - National IDs (Saudi format: 1xxxxxxxxx)
 - Phone numbers (multiple formats)
 - Email addresses
@@ -89,6 +91,7 @@ Automatic detection of:
 - Dates of birth
 
 Masking strategies:
+
 - **Partial**: Show first/last characters
 - **Full**: Replace all with asterisks
 - **Hash**: Replace with hash reference
@@ -97,6 +100,7 @@ Masking strategies:
 ### 🔧 Database Integration
 
 #### Prisma (TypeScript/NestJS)
+
 - Automatic encryption on create/update
 - Automatic decryption on read
 - Query transformation for searchable fields
@@ -104,6 +108,7 @@ Masking strategies:
 - Error handling with callbacks
 
 #### SQLAlchemy (Python)
+
 - Custom column types: `EncryptedString`, `EncryptedText`
 - Transparent encryption/decryption
 - Works with existing models
@@ -122,17 +127,19 @@ Masking strategies:
 
 ### Files Modified
 
-| File | Changes |
-|------|---------|
+| File                                                       | Changes                     |
+| ---------------------------------------------------------- | --------------------------- |
 | `/apps/services/user-service/src/prisma/prisma.service.ts` | Added encryption middleware |
-| `/apps/services/user-service/.env.example` | Added encryption keys |
+| `/apps/services/user-service/.env.example`                 | Added encryption keys       |
 
 ### Encrypted Fields
 
 #### User Model
+
 - ✅ `phone` - Deterministic (searchable)
 
 #### UserProfile Model
+
 - ✅ `nationalId` - Deterministic (searchable)
 - ✅ `dateOfBirth` - Standard (non-searchable)
 
@@ -141,11 +148,11 @@ Masking strategies:
 ```typescript
 const encryptionConfig = {
   User: {
-    phone: { type: 'deterministic' },
+    phone: { type: "deterministic" },
   },
   UserProfile: {
-    nationalId: { type: 'deterministic' },
-    dateOfBirth: { type: 'standard' },
+    nationalId: { type: "deterministic" },
+    dateOfBirth: { type: "standard" },
   },
 };
 ```
@@ -212,12 +219,12 @@ CRYPTO_DEBUG=false
 // Data is automatically encrypted/decrypted
 const user = await prisma.user.create({
   data: {
-    email: 'user@example.com',
-    phone: '0551234567', // ← Encrypted automatically
+    email: "user@example.com",
+    phone: "0551234567", // ← Encrypted automatically
     profile: {
       create: {
-        nationalId: '1234567890', // ← Encrypted automatically
-        dateOfBirth: new Date('1990-01-01'), // ← Encrypted automatically
+        nationalId: "1234567890", // ← Encrypted automatically
+        dateOfBirth: new Date("1990-01-01"), // ← Encrypted automatically
       },
     },
   },
@@ -225,7 +232,7 @@ const user = await prisma.user.create({
 
 // Searching works with deterministic encryption
 const found = await prisma.user.findFirst({
-  where: { phone: '0551234567' }, // ← Auto-encrypted for search
+  where: { phone: "0551234567" }, // ← Auto-encrypted for search
 });
 ```
 
@@ -326,19 +333,22 @@ user = session.query(User).filter(
 ### How to Rotate
 
 1. Generate new key:
+
    ```bash
    node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    ```
 
 2. Update environment:
+
    ```env
    ENCRYPTION_KEY=new-key-here
    PREVIOUS_ENCRYPTION_KEY=old-key-here
    ```
 
 3. Re-encrypt data:
+
    ```typescript
-   import { rotateEncryption } from '@sahool/shared-crypto';
+   import { rotateEncryption } from "@sahool/shared-crypto";
 
    // System automatically uses PREVIOUS_ENCRYPTION_KEY for decryption
    // and ENCRYPTION_KEY for encryption
@@ -352,12 +362,12 @@ user = session.query(User).filter(
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| "ENCRYPTION_KEY not set" | Add keys to `.env` file |
-| "Decryption failed" | Check if using correct key, try PREVIOUS_ENCRYPTION_KEY |
-| Search not working | Ensure field uses `deterministic` encryption |
-| Performance issues | Review which fields are encrypted, use indexes |
+| Issue                    | Solution                                                |
+| ------------------------ | ------------------------------------------------------- |
+| "ENCRYPTION_KEY not set" | Add keys to `.env` file                                 |
+| "Decryption failed"      | Check if using correct key, try PREVIOUS_ENCRYPTION_KEY |
+| Search not working       | Ensure field uses `deterministic` encryption            |
+| Performance issues       | Review which fields are encrypted, use indexes          |
 
 ### Debug Mode
 
@@ -368,6 +378,7 @@ CRYPTO_DEBUG=true
 ```
 
 This will log:
+
 - Encryption operations
 - Decryption operations
 - Field transformations
@@ -483,6 +494,7 @@ packages/shared-crypto/
 ### Immediate Actions
 
 1. **Generate Production Keys**
+
    ```bash
    node -e "console.log('ENCRYPTION_KEY=' + require('crypto').randomBytes(32).toString('hex'))"
    node -e "console.log('DETERMINISTIC_ENCRYPTION_KEY=' + require('crypto').randomBytes(32).toString('hex'))"

@@ -1,4 +1,5 @@
 # SAHOOL Backup System - Quick Start Guide
+
 # دليل البدء السريع لنظام النسخ الاحتياطي لسهول
 
 **Version:** 1.0.0
@@ -34,6 +35,7 @@ nano .env.backup
 ```
 
 **Minimum required settings:**
+
 ```bash
 POSTGRES_PASSWORD=your_secure_password
 REDIS_PASSWORD=your_redis_password
@@ -51,6 +53,7 @@ docker compose -f scripts/backup/docker-compose.backup.yml up -d
 ```
 
 **Access Points:**
+
 - MinIO Console: http://localhost:9001
 - Backup Monitor: http://localhost:8082
 
@@ -92,11 +95,11 @@ scripts/backup/
 
 ## ⏰ Backup Schedule - جدول النسخ الاحتياطي
 
-| Type | Time | Retention | Status |
-|------|------|-----------|--------|
-| **Daily** | 02:00 AM | 7 days | ✅ Automated |
-| **Weekly** | Sunday 03:00 AM | 28 days | ✅ Automated |
-| **Monthly** | 1st 04:00 AM | 365 days | ✅ Automated |
+| Type        | Time            | Retention | Status       |
+| ----------- | --------------- | --------- | ------------ |
+| **Daily**   | 02:00 AM        | 7 days    | ✅ Automated |
+| **Weekly**  | Sunday 03:00 AM | 28 days   | ✅ Automated |
+| **Monthly** | 1st 04:00 AM    | 365 days  | ✅ Automated |
 
 **Verification:** Every Sunday at 06:00 AM (automated)
 
@@ -150,6 +153,7 @@ tail -f logs/backup/backup_*.log
 ### Issue: "Backup fails - disk space"
 
 **Solution:**
+
 ```bash
 # Check disk space
 df -h /backups
@@ -161,6 +165,7 @@ find /backups -name "*.tar.gz" -mtime +30 -delete
 ### Issue: "Container not running"
 
 **Solution:**
+
 ```bash
 # Check container status
 docker ps | grep sahool
@@ -172,6 +177,7 @@ docker compose up -d postgres redis nats
 ### Issue: "S3 upload fails"
 
 **Solution:**
+
 ```bash
 # Check MinIO is running
 docker logs sahool-backup-minio
@@ -219,18 +225,21 @@ docker ps --filter name=sahool-backup
 ## 🔒 Security Best Practices - أفضل ممارسات الأمان
 
 1. **Strong Passwords** - كلمات مرور قوية
+
    ```bash
    # Use at least 16 characters
    POSTGRES_PASSWORD=$(openssl rand -base64 24)
    ```
 
 2. **Enable S3 for Off-site Backups** - تفعيل S3 للنسخ خارج الموقع
+
    ```bash
    S3_BACKUP_ENABLED=true
    S3_ENDPOINT=https://s3.amazonaws.com
    ```
 
 3. **Enable Notifications** - تفعيل الإشعارات
+
    ```bash
    EMAIL_NOTIFICATIONS_ENABLED=true
    SLACK_NOTIFICATIONS_ENABLED=true
@@ -258,17 +267,20 @@ docker ps --filter name=sahool-backup
 ### System Down? Follow These Steps - النظام معطل؟ اتبع هذه الخطوات
 
 1. **List backups:**
+
    ```bash
    ls -lh backups/sahool_backup_*.tar.gz
    ```
 
 2. **Restore latest backup:**
+
    ```bash
    ./scripts/backup/restore.sh
    # Select latest backup
    ```
 
 3. **Start services:**
+
    ```bash
    docker compose up -d
    ```
@@ -323,17 +335,20 @@ docker ps --filter name=sahool-backup
 ## 💡 Pro Tips - نصائح احترافية
 
 1. **Backup Before Updates**
+
    ```bash
    make backup && make upgrade
    ```
 
 2. **Test Restore Regularly**
+
    ```bash
    # Monthly verification
    make backup-verify
    ```
 
 3. **Monitor Disk Space**
+
    ```bash
    # Add to monitoring dashboard
    df -h /backups
@@ -357,6 +372,7 @@ docker ps --filter name=sahool-backup
 ## 🎉 Success! - نجاح!
 
 Your SAHOOL platform now has:
+
 - ✅ Automated backups
 - ✅ Disaster recovery capability
 - ✅ Cloud storage integration

@@ -32,7 +32,7 @@ def _is_rate_limited(self, identifier: str) -> bool:
 - ✅ **خوارزمية Sliding Window** - دقة عالية في تتبع الطلبات
 - ✅ **Token Bucket** - حماية من هجمات Burst
 - ✅ **دعم ثلاث مستويات** - Minute, Hour, Burst limits
-- ✅ **Headers احترافية** - X-RateLimit-* headers مع كل response
+- ✅ **Headers احترافية** - X-RateLimit-\* headers مع كل response
 
 #### الوظائف الجديدة:
 
@@ -47,6 +47,7 @@ async def _check_rate_limit(self, identifier: str) -> tuple[bool, int, int]:
 ```
 
 **الميزات:**
+
 - اتصال Redis كسول (lazy initialization)
 - تراجع تلقائي للذاكرة عند فشل Redis
 - تنظيف تلقائي للبيانات القديمة
@@ -61,6 +62,7 @@ async def _check_rate_limit(self, identifier: str) -> tuple[bool, int, int]:
 #### Decorators جديدة:
 
 1. **`@rate_limit()`** - تحديد معدل مخصص
+
    ```python
    @app.get("/expensive")
    @rate_limit(requests_per_minute=10, burst_limit=2)
@@ -69,6 +71,7 @@ async def _check_rate_limit(self, identifier: str) -> tuple[bool, int, int]:
    ```
 
 2. **`@rate_limit_by_user()`** - تحديد بناءً على المستخدم
+
    ```python
    @app.get("/user/data")
    @rate_limit_by_user(requests_per_minute=30)
@@ -78,6 +81,7 @@ async def _check_rate_limit(self, identifier: str) -> tuple[bool, int, int]:
    ```
 
 3. **`@rate_limit_by_api_key()`** - تحديد بناءً على API Key
+
    ```python
    @app.get("/api/v1/data")
    @rate_limit_by_api_key(requests_per_minute=100)
@@ -193,6 +197,7 @@ app.add_middleware(
 ```
 
 **الفوائد:**
+
 - ✅ يعمل عبر عدة خوادم
 - ✅ دقة عالية في العد
 - ✅ أداء ممتاز
@@ -201,6 +206,7 @@ app.add_middleware(
 ### 2. خوارزميات متقدمة
 
 #### Token Bucket Algorithm
+
 ```
 - حماية من هجمات Burst السريعة
 - إعادة ملء تلقائية للـ tokens
@@ -208,6 +214,7 @@ app.add_middleware(
 ```
 
 #### Sliding Window Algorithm
+
 ```
 - تتبع دقيق للطلبات في الوقت
 - نوافذ: 60 ثانية (minute) و 3600 ثانية (hour)
@@ -216,12 +223,12 @@ app.add_middleware(
 
 ### 3. مستويات متعددة (Tiers)
 
-| المستوى | RPM | RPH | Burst |
-|---------|-----|-----|-------|
-| Free | 30 | 500 | 5 |
-| Standard | 60 | 2000 | 10 |
-| Premium | 120 | 5000 | 20 |
-| Internal | 1000 | 50000 | 100 |
+| المستوى  | RPM  | RPH   | Burst |
+| -------- | ---- | ----- | ----- |
+| Free     | 30   | 500   | 5     |
+| Standard | 60   | 2000  | 10    |
+| Premium  | 120  | 5000  | 20    |
+| Internal | 1000 | 50000 | 100   |
 
 ### 4. Headers احترافية
 
@@ -370,7 +377,7 @@ app.add_middleware(
 
 3. ✅ `/home/user/sahool-unified-v15-idp/shared/middleware/__init__.py`
    - تصدير الـ decorators الجديدة
-   - تحديث __all__
+   - تحديث **all**
 
 4. ✅ `/home/user/sahool-unified-v15-idp/.env.example`
    - إضافة متغيرات rate limiting
@@ -399,21 +406,25 @@ app.add_middleware(
 ## ✨ الفوائد
 
 ### 1. الأمان
+
 - ✅ حماية من DDoS وهجمات Brute Force
 - ✅ منع الاستخدام المفرط للموارد
 - ✅ تتبع ومراقبة الطلبات المشبوهة
 
 ### 2. الأداء
+
 - ✅ خفيف على الذاكرة
 - ✅ سريع جداً (< 1ms لكل طلب)
 - ✅ قابل للتوسع أفقياً
 
 ### 3. المرونة
+
 - ✅ قابل للتخصيص بالكامل
 - ✅ مستويات متعددة
 - ✅ Decorators سهلة الاستخدام
 
 ### 4. الموثوقية
+
 - ✅ تراجع تلقائي عند فشل Redis
 - ✅ معالجة أخطاء شاملة
 - ✅ اختبارات شاملة
@@ -423,11 +434,13 @@ app.add_middleware(
 ## 🎓 Best Practices
 
 ### 1. استخدم Redis في Production
+
 ```bash
 REDIS_URL=redis://:password@redis-cluster:6379/0
 ```
 
 ### 2. حدود مناسبة للموارد
+
 ```python
 # موارد مكلفة = حدود منخفضة
 @rate_limit(requests_per_minute=5)
@@ -441,6 +454,7 @@ async def cached_data():
 ```
 
 ### 3. استثن endpoints الضرورية
+
 ```python
 app.add_middleware(
     RateLimitMiddleware,
@@ -449,6 +463,7 @@ app.add_middleware(
 ```
 
 ### 4. راقب Rate Limiting
+
 ```python
 # أضف metrics للمراقبة
 from prometheus_client import Counter
@@ -466,6 +481,7 @@ rate_limit_exceeded = Counter(
 ### المشكلة: Rate limiting لا يعمل
 
 **الحل:**
+
 ```bash
 # تحقق من التفعيل
 echo $RATE_LIMIT_ENABLED  # يجب أن يكون "true"
@@ -477,6 +493,7 @@ tail -f logs/app.log | grep -i rate
 ### المشكلة: Redis غير متصل
 
 **الحل:**
+
 ```bash
 # فحص Redis
 redis-cli ping
@@ -488,6 +505,7 @@ python -c "import redis; r=redis.from_url('redis://localhost:6379'); print(r.pin
 ### المشكلة: معدلات خاطئة
 
 **الحل:**
+
 ```bash
 # إعادة ضبط العدادات
 redis-cli KEYS "ratelimit:*" | xargs redis-cli DEL

@@ -13,6 +13,7 @@ A comprehensive soft delete pattern has been implemented across the SAHOOL platf
 A new shared package was created containing:
 
 #### TypeScript/Prisma Implementation
+
 - **File**: `src/soft-delete.ts`
 - **Features**:
   - Prisma middleware for automatic soft delete filtering
@@ -21,6 +22,7 @@ A new shared package was created containing:
   - Full TypeScript type support
 
 #### Python/SQLAlchemy Implementation
+
 - **File**: `src/soft_delete_sqlalchemy.py`
 - **Features**:
   - `SoftDeleteMixin` class for SQLAlchemy models
@@ -33,18 +35,22 @@ A new shared package was created containing:
 **Location**: `/home/user/sahool-unified-v15-idp/apps/services/marketplace-service/`
 
 #### Schema Updates (`prisma/schema.prisma`)
+
 Added soft delete fields to key models:
+
 - ✅ **Product**: `deletedAt`, `deletedBy` + index
 - ✅ **Order**: `deletedAt`, `deletedBy` + index
 - ✅ **Wallet**: `deletedAt`, `deletedBy` + index
 - ✅ **Loan**: `deletedAt`, `deletedBy` + index
 
 #### Service Integration
+
 - Updated `src/prisma/prisma.service.ts` with middleware
 - Created comprehensive usage examples in `src/examples/soft-delete-usage.example.ts`
 - Middleware configured to exclude audit tables (WalletAuditLog, CreditEvent, Transaction)
 
 #### Migration
+
 - Created example migration: `prisma/migrations/20260101000000_add_soft_delete_fields/migration.sql`
 - Includes SQL for adding columns, indexes, and comments
 - Provides example queries for soft delete operations
@@ -138,6 +144,7 @@ Created comprehensive documentation:
 ## Key Features
 
 ### 1. Automatic Filtering
+
 Records marked as deleted are automatically excluded from queries:
 
 ```typescript
@@ -146,6 +153,7 @@ const products = await prisma.product.findMany();
 ```
 
 ### 2. Explicit Include
+
 When needed, include deleted records:
 
 ```typescript
@@ -153,6 +161,7 @@ const allProducts = await findWithDeleted(prisma.product);
 ```
 
 ### 3. Audit Trail
+
 Track deletion metadata:
 
 ```typescript
@@ -167,12 +176,13 @@ await restore(prisma.product, { id: productId });
 ```
 
 ### 5. Model Exclusion
+
 Exclude specific models from soft delete (e.g., audit logs):
 
 ```typescript
 createSoftDeleteMiddleware({
-  excludedModels: ['AuditLog', 'Transaction']
-})
+  excludedModels: ["AuditLog", "Transaction"],
+});
 ```
 
 ## Database Schema Pattern
@@ -193,12 +203,14 @@ CREATE INDEX "idx_table_deleted_at" ON "table_name"("deleted_at");
 ### Indexes
 
 All soft-deletable tables include:
+
 - Index on `deleted_at` for filtering performance
 - Existing indexes preserved
 
 ## Services Ready for Implementation
 
 ### Prisma Services (TypeScript)
+
 1. ✅ **marketplace-service** (Complete - Reference Implementation)
 2. 🟡 field-core (Schema ready, add middleware)
 3. 🟡 research-core (Schema ready, add middleware)
@@ -209,6 +221,7 @@ All soft-deletable tables include:
 8. 🟡 weather-service (Schema ready, add middleware)
 
 ### SQLAlchemy Services (Python)
+
 1. ✅ **billing-core** (Examples created - Reference Implementation)
 2. 🟡 inventory-service (Add SoftDeleteMixin)
 3. 🟡 notification-service (Add SoftDeleteMixin)
@@ -218,21 +231,21 @@ All soft-deletable tables include:
 ### TypeScript/Prisma
 
 ```typescript
-import { PrismaService } from './prisma/prisma.service';
-import { softDelete, restore } from '@sahool/shared-db';
+import { PrismaService } from "./prisma/prisma.service";
+import { softDelete, restore } from "@sahool/shared-db";
 
 // Soft delete
 await softDelete(
   prisma.product,
-  { id: 'product-123' },
-  { deletedBy: 'user-456' }
+  { id: "product-123" },
+  { deletedBy: "user-456" },
 );
 
 // Find active only (default)
 const products = await prisma.product.findMany();
 
 // Restore
-await restore(prisma.product, { id: 'product-123' });
+await restore(prisma.product, { id: "product-123" });
 ```
 
 ### Python/SQLAlchemy
@@ -259,26 +272,31 @@ session.commit()
 ## Benefits
 
 ### 1. Data Recovery
+
 - Accidentally deleted records can be restored
 - No data loss from user errors
 - Simple restore process
 
 ### 2. Audit Compliance
+
 - Track who deleted what and when
 - Full audit trail of deletions
 - Meet regulatory requirements
 
 ### 3. Analytics
+
 - Analyze deletion patterns
 - Understand user behavior
 - Identify data quality issues
 
 ### 4. Performance
+
 - Queries remain fast with indexes
 - Minimal overhead vs hard delete
 - Optional cleanup of old deletions
 
 ### 5. Flexibility
+
 - Can switch to hard delete when needed
 - Model-level exclusions supported
 - Backwards compatible with existing code
@@ -286,44 +304,52 @@ session.commit()
 ## Best Practices
 
 ### 1. Always Provide deletedBy
+
 ```typescript
 await softDelete(model, where, { deletedBy: userId }); // ✅ Good
 await softDelete(model, where); // ❌ Missing audit info
 ```
 
 ### 2. Index All Soft Delete Fields
+
 ```prisma
 @@index([deletedAt]) // Required for performance
 ```
 
 ### 3. Exclude Audit Tables
+
 ```typescript
-excludedModels: ['AuditLog', 'Transaction', 'WalletAuditLog']
+excludedModels: ["AuditLog", "Transaction", "WalletAuditLog"];
 ```
 
 ### 4. Handle Unique Constraints
+
 ```prisma
 @@unique([email, deletedAt]) // Allows email reuse after deletion
 ```
 
 ### 5. Regular Cleanup
+
 Periodically hard delete very old soft-deleted records for storage management.
 
 ## Testing Strategy
 
 ### Unit Tests
+
 - Test soft delete operations
 - Verify automatic filtering
 - Test restoration
 - Check metadata tracking
 
 ### Integration Tests
+
 - Test cascade deletes
 - Verify foreign key handling
 - Test transaction scenarios
 - Performance testing with indexes
 
 ### Example Test Suite
+
 ```typescript
 describe('Soft Delete', () => {
   it('should soft delete a record', async () => { ... });
@@ -337,18 +363,21 @@ describe('Soft Delete', () => {
 ## Migration Path
 
 ### Phase 1: Preparation
+
 1. ✅ Create shared package
 2. ✅ Implement Prisma middleware
 3. ✅ Implement SQLAlchemy mixin
 4. ✅ Create documentation
 
 ### Phase 2: Pilot Implementation
+
 1. ✅ Implement in marketplace-service
 2. ✅ Create examples for billing-core
 3. Test thoroughly
 4. Gather feedback
 
 ### Phase 3: Rollout (Next Steps)
+
 1. Implement in remaining Prisma services
 2. Implement in remaining SQLAlchemy services
 3. Monitor performance
@@ -357,6 +386,7 @@ describe('Soft Delete', () => {
 ## Files Created
 
 ### Shared Package
+
 - `/home/user/sahool-unified-v15-idp/packages/shared-db/package.json`
 - `/home/user/sahool-unified-v15-idp/packages/shared-db/tsconfig.json`
 - `/home/user/sahool-unified-v15-idp/packages/shared-db/src/index.ts`
@@ -366,15 +396,18 @@ describe('Soft Delete', () => {
 - `/home/user/sahool-unified-v15-idp/packages/shared-db/IMPLEMENTATION_GUIDE.md`
 
 ### Marketplace Service (Complete Example)
+
 - Updated: `/home/user/sahool-unified-v15-idp/apps/services/marketplace-service/prisma/schema.prisma`
 - Updated: `/home/user/sahool-unified-v15-idp/apps/services/marketplace-service/src/prisma/prisma.service.ts`
 - Created: `/home/user/sahool-unified-v15-idp/apps/services/marketplace-service/src/examples/soft-delete-usage.example.ts`
 - Created: `/home/user/sahool-unified-v15-idp/apps/services/marketplace-service/prisma/migrations/20260101000000_add_soft_delete_fields/migration.sql`
 
 ### Billing Core (Python Example)
+
 - Created: `/home/user/sahool-unified-v15-idp/apps/services/billing-core/examples/soft_delete_usage_example.py`
 
 ### Documentation
+
 - Created: `/home/user/sahool-unified-v15-idp/SOFT_DELETE_IMPLEMENTATION_SUMMARY.md` (this file)
 
 ## Next Steps
@@ -404,28 +437,33 @@ describe('Soft Delete', () => {
 ### Recommended Order
 
 **Prisma Services:**
+
 1. user-service (critical, test carefully)
 2. field-core (high traffic)
 3. research-core (research data preservation)
 4. chat-service, iot-service, weather-service (lower risk)
 
 **SQLAlchemy Services:**
+
 1. notification-service (relatively simple)
 2. inventory-service (moderate complexity)
 
 ## Performance Considerations
 
 ### Storage Impact
+
 - Deleted records remain in database
 - Implement periodic cleanup for very old deletions
 - Monitor table sizes
 
 ### Query Performance
+
 - Indexes ensure minimal overhead
 - Automatic filtering is efficient
 - Benchmark before/after implementation
 
 ### Recommendations
+
 - Run `VACUUM ANALYZE` after large deletions
 - Monitor index usage
 - Consider partitioning for very large tables

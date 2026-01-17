@@ -4,7 +4,7 @@
 // Multiple AI perspectives converge on agricultural recommendations
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Interfaces - الواجهات
@@ -28,7 +28,7 @@ export interface AgentPerspective {
 
 export interface ConsensusResult {
   hasConsensus: boolean;
-  consensusLevel: 'full' | 'majority' | 'partial' | 'none';
+  consensusLevel: "full" | "majority" | "partial" | "none";
   finalRecommendation: string;
   finalRecommendationAr: string;
   dissenting: string[];
@@ -91,56 +91,79 @@ export class MultiAgentAdvisorService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   private readonly agents: Map<string, AgentProfile> = new Map([
-    ['fao_expert', {
-      id: 'fao_expert',
-      name: 'FAO Standards Expert',
-      nameAr: 'خبير معايير الفاو',
-      specialty: 'International agricultural standards and best practices',
-      specialtyAr: 'المعايير الزراعية الدولية وأفضل الممارسات',
-      approach: 'Evidence-based recommendations following FAO-56, FAO-33 guidelines',
-      approachAr: 'توصيات مبنية على الأدلة وفق إرشادات FAO-56 و FAO-33',
-      weight: 0.25,
-    }],
-    ['crop_model', {
-      id: 'crop_model',
-      name: 'Crop Model Specialist',
-      nameAr: 'أخصائي نماذج المحاصيل',
-      specialty: 'DSSAT, APSIM, WOFOST crop simulation models',
-      specialtyAr: 'نماذج محاكاة المحاصيل DSSAT و APSIM و WOFOST',
-      approach: 'Process-based simulation considering phenology, photosynthesis, and biomass',
-      approachAr: 'محاكاة قائمة على العمليات تراعي الفينولوجيا والتمثيل الضوئي والكتلة الحيوية',
-      weight: 0.25,
-    }],
-    ['local_wisdom', {
-      id: 'local_wisdom',
-      name: 'Regional Agriculture Expert',
-      nameAr: 'خبير الزراعة الإقليمية',
-      specialty: 'Traditional knowledge and local farming practices',
-      specialtyAr: 'المعرفة التقليدية والممارسات الزراعية المحلية',
-      approach: 'Considers local climate, soil conditions, and proven regional methods',
-      approachAr: 'يراعي المناخ المحلي وظروف التربة والطرق الإقليمية المثبتة',
-      weight: 0.20,
-    }],
-    ['precision_ag', {
-      id: 'precision_ag',
-      name: 'Precision Agriculture Analyst',
-      nameAr: 'محلل الزراعة الدقيقة',
-      specialty: 'IoT sensors, remote sensing, and data-driven farming',
-      specialtyAr: 'مستشعرات إنترنت الأشياء والاستشعار عن بعد والزراعة المبنية على البيانات',
-      approach: 'Real-time data analysis with satellite imagery and sensor networks',
-      approachAr: 'تحليل البيانات الفوري مع صور الأقمار الصناعية وشبكات المستشعرات',
-      weight: 0.15,
-    }],
-    ['economic_advisor', {
-      id: 'economic_advisor',
-      name: 'Agricultural Economist',
-      nameAr: 'اقتصادي زراعي',
-      specialty: 'Cost-benefit analysis and market considerations',
-      specialtyAr: 'تحليل التكلفة والعائد واعتبارات السوق',
-      approach: 'Optimizes for economic returns while considering resource constraints',
-      approachAr: 'يحسّن العوائد الاقتصادية مع مراعاة قيود الموارد',
-      weight: 0.15,
-    }],
+    [
+      "fao_expert",
+      {
+        id: "fao_expert",
+        name: "FAO Standards Expert",
+        nameAr: "خبير معايير الفاو",
+        specialty: "International agricultural standards and best practices",
+        specialtyAr: "المعايير الزراعية الدولية وأفضل الممارسات",
+        approach:
+          "Evidence-based recommendations following FAO-56, FAO-33 guidelines",
+        approachAr: "توصيات مبنية على الأدلة وفق إرشادات FAO-56 و FAO-33",
+        weight: 0.25,
+      },
+    ],
+    [
+      "crop_model",
+      {
+        id: "crop_model",
+        name: "Crop Model Specialist",
+        nameAr: "أخصائي نماذج المحاصيل",
+        specialty: "DSSAT, APSIM, WOFOST crop simulation models",
+        specialtyAr: "نماذج محاكاة المحاصيل DSSAT و APSIM و WOFOST",
+        approach:
+          "Process-based simulation considering phenology, photosynthesis, and biomass",
+        approachAr:
+          "محاكاة قائمة على العمليات تراعي الفينولوجيا والتمثيل الضوئي والكتلة الحيوية",
+        weight: 0.25,
+      },
+    ],
+    [
+      "local_wisdom",
+      {
+        id: "local_wisdom",
+        name: "Regional Agriculture Expert",
+        nameAr: "خبير الزراعة الإقليمية",
+        specialty: "Traditional knowledge and local farming practices",
+        specialtyAr: "المعرفة التقليدية والممارسات الزراعية المحلية",
+        approach:
+          "Considers local climate, soil conditions, and proven regional methods",
+        approachAr: "يراعي المناخ المحلي وظروف التربة والطرق الإقليمية المثبتة",
+        weight: 0.2,
+      },
+    ],
+    [
+      "precision_ag",
+      {
+        id: "precision_ag",
+        name: "Precision Agriculture Analyst",
+        nameAr: "محلل الزراعة الدقيقة",
+        specialty: "IoT sensors, remote sensing, and data-driven farming",
+        specialtyAr:
+          "مستشعرات إنترنت الأشياء والاستشعار عن بعد والزراعة المبنية على البيانات",
+        approach:
+          "Real-time data analysis with satellite imagery and sensor networks",
+        approachAr:
+          "تحليل البيانات الفوري مع صور الأقمار الصناعية وشبكات المستشعرات",
+        weight: 0.15,
+      },
+    ],
+    [
+      "economic_advisor",
+      {
+        id: "economic_advisor",
+        name: "Agricultural Economist",
+        nameAr: "اقتصادي زراعي",
+        specialty: "Cost-benefit analysis and market considerations",
+        specialtyAr: "تحليل التكلفة والعائد واعتبارات السوق",
+        approach:
+          "Optimizes for economic returns while considering resource constraints",
+        approachAr: "يحسّن العوائد الاقتصادية مع مراعاة قيود الموارد",
+        weight: 0.15,
+      },
+    ],
   ]);
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -167,13 +190,13 @@ export class MultiAgentAdvisorService {
     perspectives.push(this.getEconomicIrrigationPerspective(input));
 
     // Build consensus
-    const consensus = this.buildConsensus(perspectives, 'irrigation');
+    const consensus = this.buildConsensus(perspectives, "irrigation");
 
     return {
       sessionId,
       question: `Should I irrigate ${input.cropType} now?`,
       questionAr: `هل يجب أن أروي ${input.cropType} الآن؟`,
-      category: 'irrigation',
+      category: "irrigation",
       timestamp: new Date().toISOString(),
       perspectives,
       consensus,
@@ -182,8 +205,10 @@ export class MultiAgentAdvisorService {
     };
   }
 
-  private getFAOIrrigationPerspective(input: IrrigationQuestion): AgentPerspective {
-    const agent = this.agents.get('fao_expert')!;
+  private getFAOIrrigationPerspective(
+    input: IrrigationQuestion,
+  ): AgentPerspective {
+    const agent = this.agents.get("fao_expert")!;
 
     // Calculate based on FAO-56 principles
     const depletionThreshold = 0.55; // Typical MAD for most crops
@@ -194,8 +219,8 @@ export class MultiAgentAdvisorService {
     const effectiveRain = input.weatherForecast.precipitation * 0.8;
     const netDemand = input.weatherForecast.et0 - effectiveRain;
 
-    let recommendation = '';
-    let recommendationAr = '';
+    let recommendation = "";
+    let recommendationAr = "";
     let confidence = 0.85;
 
     if (shouldIrrigate && netDemand > 3) {
@@ -208,7 +233,7 @@ export class MultiAgentAdvisorService {
     } else if (input.weatherForecast.precipitation > 5) {
       recommendation = `Wait for predicted rainfall (${input.weatherForecast.precipitation}mm expected).`;
       recommendationAr = `انتظر الأمطار المتوقعة (${input.weatherForecast.precipitation} مم متوقعة).`;
-      confidence = 0.90;
+      confidence = 0.9;
     } else {
       recommendation = `No irrigation needed. Current soil moisture adequate.`;
       recommendationAr = `لا حاجة للري. رطوبة التربة الحالية كافية.`;
@@ -235,14 +260,20 @@ export class MultiAgentAdvisorService {
         `ET0: ${input.weatherForecast.et0} مم/يوم`,
         `الأمطار المتوقعة: ${input.weatherForecast.precipitation} مم`,
       ],
-      dataUsed: ['FAO-56 Penman-Monteith', 'Soil moisture sensor', 'Weather forecast'],
+      dataUsed: [
+        "FAO-56 Penman-Monteith",
+        "Soil moisture sensor",
+        "Weather forecast",
+      ],
       recommendation,
       recommendationAr,
     };
   }
 
-  private getCropModelIrrigationPerspective(input: IrrigationQuestion): AgentPerspective {
-    const agent = this.agents.get('crop_model')!;
+  private getCropModelIrrigationPerspective(
+    input: IrrigationQuestion,
+  ): AgentPerspective {
+    const agent = this.agents.get("crop_model")!;
 
     // Crop model considers growth stage sensitivity
     const stageSensitivity: { [key: string]: number } = {
@@ -253,15 +284,18 @@ export class MultiAgentAdvisorService {
     };
 
     const sensitivity = stageSensitivity[input.growthStage] || 0.7;
-    const stressThreshold = 0.60 - (sensitivity * 0.15);
+    const stressThreshold = 0.6 - sensitivity * 0.15;
     const currentDepletion = 1 - input.currentSoilMoisture;
-    const yieldImpact = currentDepletion > stressThreshold ? (currentDepletion - stressThreshold) * sensitivity * 100 : 0;
+    const yieldImpact =
+      currentDepletion > stressThreshold
+        ? (currentDepletion - stressThreshold) * sensitivity * 100
+        : 0;
 
-    let recommendation = '';
-    let recommendationAr = '';
+    let recommendation = "";
+    let recommendationAr = "";
     let confidence = 0.88;
 
-    if (input.growthStage === 'flowering' && currentDepletion > 0.35) {
+    if (input.growthStage === "flowering" && currentDepletion > 0.35) {
       recommendation = `CRITICAL: Flowering stage - irrigate immediately to prevent ${yieldImpact.toFixed(0)}% yield loss.`;
       recommendationAr = `حرج: مرحلة الإزهار - اروِ فوراً لمنع خسارة ${yieldImpact.toFixed(0)}% من الإنتاج.`;
       confidence = 0.95;
@@ -298,22 +332,28 @@ export class MultiAgentAdvisorService {
         `الاستنزاف الحالي: ${(currentDepletion * 100).toFixed(0)}%`,
         `التأثير المقدر على الإنتاج: ${yieldImpact.toFixed(1)}%`,
       ],
-      dataUsed: ['DSSAT crop model', 'Growth stage parameters', 'Yield response functions'],
+      dataUsed: [
+        "DSSAT crop model",
+        "Growth stage parameters",
+        "Yield response functions",
+      ],
       recommendation,
       recommendationAr,
     };
   }
 
-  private getLocalWisdomIrrigationPerspective(input: IrrigationQuestion): AgentPerspective {
-    const agent = this.agents.get('local_wisdom')!;
+  private getLocalWisdomIrrigationPerspective(
+    input: IrrigationQuestion,
+  ): AgentPerspective {
+    const agent = this.agents.get("local_wisdom")!;
 
     // Regional wisdom based on temperature and season
     const isHotDay = input.weatherForecast.temperature > 35;
     const isCoolDay = input.weatherForecast.temperature < 20;
 
-    let recommendation = '';
-    let recommendationAr = '';
-    let confidence = 0.70;
+    let recommendation = "";
+    let recommendationAr = "";
+    let confidence = 0.7;
 
     if (isHotDay && input.currentSoilMoisture < 0.5) {
       recommendation = `Local practice: Irrigate early morning or late evening. Avoid midday irrigation.`;
@@ -322,7 +362,7 @@ export class MultiAgentAdvisorService {
     } else if (input.weatherForecast.precipitation > 10) {
       recommendation = `Traditional wisdom: Trust the rain. Save water and costs.`;
       recommendationAr = `الحكمة التقليدية: ثق بالمطر. وفّر الماء والتكاليف.`;
-      confidence = 0.80;
+      confidence = 0.8;
     } else if (isCoolDay) {
       recommendation = `Cool weather reduces water demand. Light irrigation if soil is very dry.`;
       recommendationAr = `الطقس البارد يقلل الطلب على الماء. ري خفيف إذا كانت التربة جافة جداً.`;
@@ -352,28 +392,35 @@ export class MultiAgentAdvisorService {
         `طرق تقييم التربة التقليدية`,
         `مراعاة الأنماط الموسمية`,
       ],
-      dataUsed: ['Local farming calendars', 'Traditional knowledge', 'Regional climate patterns'],
+      dataUsed: [
+        "Local farming calendars",
+        "Traditional knowledge",
+        "Regional climate patterns",
+      ],
       recommendation,
       recommendationAr,
     };
   }
 
-  private getPrecisionAgIrrigationPerspective(input: IrrigationQuestion): AgentPerspective {
-    const agent = this.agents.get('precision_ag')!;
+  private getPrecisionAgIrrigationPerspective(
+    input: IrrigationQuestion,
+  ): AgentPerspective {
+    const agent = this.agents.get("precision_ag")!;
 
     // Data-driven analysis
     const moistureDeficit = (0.28 - input.currentSoilMoisture) * 100; // Assuming FC = 0.28
-    const evaporativeDemand = input.weatherForecast.et0 * (input.weatherForecast.temperature / 25);
+    const evaporativeDemand =
+      input.weatherForecast.et0 * (input.weatherForecast.temperature / 25);
 
-    let recommendation = '';
-    let recommendationAr = '';
+    let recommendation = "";
+    let recommendationAr = "";
     let confidence = 0.82;
 
     if (moistureDeficit > 10 && evaporativeDemand > 5) {
       const precisAmount = Math.round(moistureDeficit * 0.4 * 10) / 10;
       recommendation = `Sensor data indicates: Apply exactly ${precisAmount}mm via drip irrigation. Zone-specific application recommended.`;
       recommendationAr = `بيانات المستشعرات تشير: طبّق بالضبط ${precisAmount} مم عبر الري بالتنقيط. يُوصى بالتطبيق حسب المنطقة.`;
-      confidence = 0.90;
+      confidence = 0.9;
     } else if (moistureDeficit > 5) {
       recommendation = `Mild deficit detected. Schedule irrigation for tomorrow morning based on sensor trends.`;
       recommendationAr = `عجز طفيف مكتشف. جدول الري لصباح غد بناءً على اتجاهات المستشعرات.`;
@@ -403,14 +450,21 @@ export class MultiAgentAdvisorService {
         `حالة شبكة المستشعرات: نشطة`,
         `مؤشر صحة NDVI: طبيعي`,
       ],
-      dataUsed: ['IoT soil sensors', 'Weather station', 'Satellite NDVI', 'Historical trends'],
+      dataUsed: [
+        "IoT soil sensors",
+        "Weather station",
+        "Satellite NDVI",
+        "Historical trends",
+      ],
       recommendation,
       recommendationAr,
     };
   }
 
-  private getEconomicIrrigationPerspective(input: IrrigationQuestion): AgentPerspective {
-    const agent = this.agents.get('economic_advisor')!;
+  private getEconomicIrrigationPerspective(
+    input: IrrigationQuestion,
+  ): AgentPerspective {
+    const agent = this.agents.get("economic_advisor")!;
 
     // Economic analysis
     const waterCostPerMm = 0.15; // $/mm/ha
@@ -419,8 +473,8 @@ export class MultiAgentAdvisorService {
     const lossValue = potentialYieldLoss * cropValue;
     const irrigationCost = input.weatherForecast.et0 * waterCostPerMm;
 
-    let recommendation = '';
-    let recommendationAr = '';
+    let recommendation = "";
+    let recommendationAr = "";
     let confidence = 0.75;
 
     if (lossValue > irrigationCost * 3) {
@@ -430,7 +484,7 @@ export class MultiAgentAdvisorService {
     } else if (input.weatherForecast.precipitation > 5) {
       recommendation = `Cost-effective: Wait for free rain. Save $${irrigationCost.toFixed(0)} in irrigation costs.`;
       recommendationAr = `فعّال من حيث التكلفة: انتظر المطر المجاني. وفّر ${irrigationCost.toFixed(0)}$ من تكاليف الري.`;
-      confidence = 0.80;
+      confidence = 0.8;
     } else {
       recommendation = `Marginal benefit: Monitor closely. Delay irrigation if possible to optimize costs.`;
       recommendationAr = `فائدة هامشية: راقب عن كثب. أخّر الري إن أمكن لتحسين التكاليف.`;
@@ -457,7 +511,12 @@ export class MultiAgentAdvisorService {
         `نسبة التكلفة/العائد: ${(lossValue / irrigationCost).toFixed(1)}`,
         `احتمالية المطر المجاني مُراعاة`,
       ],
-      dataUsed: ['Water costs', 'Crop market prices', 'Yield response curves', 'Weather probability'],
+      dataUsed: [
+        "Water costs",
+        "Crop market prices",
+        "Yield response curves",
+        "Weather probability",
+      ],
       recommendation,
       recommendationAr,
     };
@@ -478,13 +537,13 @@ export class MultiAgentAdvisorService {
     perspectives.push(this.getPrecisionAgPestPerspective(input));
     perspectives.push(this.getEconomicPestPerspective(input));
 
-    const consensus = this.buildConsensus(perspectives, 'pest');
+    const consensus = this.buildConsensus(perspectives, "pest");
 
     return {
       sessionId,
-      question: `Pest/disease diagnosis for ${input.cropType} with symptoms: ${input.symptoms.join(', ')}`,
-      questionAr: `تشخيص الآفة/المرض لـ ${input.cropType} مع أعراض: ${input.symptoms.join('، ')}`,
-      category: 'pest',
+      question: `Pest/disease diagnosis for ${input.cropType} with symptoms: ${input.symptoms.join(", ")}`,
+      questionAr: `تشخيص الآفة/المرض لـ ${input.cropType} مع أعراض: ${input.symptoms.join("، ")}`,
+      category: "pest",
       timestamp: new Date().toISOString(),
       perspectives,
       consensus,
@@ -494,33 +553,42 @@ export class MultiAgentAdvisorService {
   }
 
   private getFAOPestPerspective(input: PestQuestion): AgentPerspective {
-    const agent = this.agents.get('fao_expert')!;
+    const agent = this.agents.get("fao_expert")!;
 
     // Simple symptom matching (in production, this would use ML models)
-    const hasYellowLeaves = input.symptoms.some(s => s.toLowerCase().includes('yellow'));
-    const hasSpots = input.symptoms.some(s => s.toLowerCase().includes('spot'));
-    const hasWilting = input.symptoms.some(s => s.toLowerCase().includes('wilt'));
+    const hasYellowLeaves = input.symptoms.some((s) =>
+      s.toLowerCase().includes("yellow"),
+    );
+    const hasSpots = input.symptoms.some((s) =>
+      s.toLowerCase().includes("spot"),
+    );
+    const hasWilting = input.symptoms.some((s) =>
+      s.toLowerCase().includes("wilt"),
+    );
 
-    let diagnosis = 'General stress';
-    let diagnosisAr = 'إجهاد عام';
-    let treatment = 'Monitor and maintain proper irrigation';
-    let treatmentAr = 'راقب وحافظ على الري المناسب';
+    let diagnosis = "General stress";
+    let diagnosisAr = "إجهاد عام";
+    let treatment = "Monitor and maintain proper irrigation";
+    let treatmentAr = "راقب وحافظ على الري المناسب";
 
     if (hasYellowLeaves && input.humidity > 70) {
-      diagnosis = 'Possible fungal infection (early blight)';
-      diagnosisAr = 'احتمال عدوى فطرية (لفحة مبكرة)';
-      treatment = 'Apply copper-based fungicide. Follow IPM guidelines.';
-      treatmentAr = 'طبّق مبيد فطري نحاسي. اتبع إرشادات الإدارة المتكاملة للآفات.';
+      diagnosis = "Possible fungal infection (early blight)";
+      diagnosisAr = "احتمال عدوى فطرية (لفحة مبكرة)";
+      treatment = "Apply copper-based fungicide. Follow IPM guidelines.";
+      treatmentAr =
+        "طبّق مبيد فطري نحاسي. اتبع إرشادات الإدارة المتكاملة للآفات.";
     } else if (hasSpots) {
-      diagnosis = 'Leaf spot disease - bacterial or fungal';
-      diagnosisAr = 'مرض تبقع الأوراق - بكتيري أو فطري';
-      treatment = 'Remove affected leaves. Apply appropriate fungicide/bactericide.';
-      treatmentAr = 'أزل الأوراق المصابة. طبّق مبيد فطري/بكتيري مناسب.';
+      diagnosis = "Leaf spot disease - bacterial or fungal";
+      diagnosisAr = "مرض تبقع الأوراق - بكتيري أو فطري";
+      treatment =
+        "Remove affected leaves. Apply appropriate fungicide/bactericide.";
+      treatmentAr = "أزل الأوراق المصابة. طبّق مبيد فطري/بكتيري مناسب.";
     } else if (hasWilting) {
-      diagnosis = 'Possible root disease or water stress';
-      diagnosisAr = 'احتمال مرض جذري أو إجهاد مائي';
-      treatment = 'Check root health. Adjust irrigation. May need soil treatment.';
-      treatmentAr = 'افحص صحة الجذور. اضبط الري. قد يحتاج معالجة التربة.';
+      diagnosis = "Possible root disease or water stress";
+      diagnosisAr = "احتمال مرض جذري أو إجهاد مائي";
+      treatment =
+        "Check root health. Adjust irrigation. May need soil treatment.";
+      treatmentAr = "افحص صحة الجذور. اضبط الري. قد يحتاج معالجة التربة.";
     }
 
     return {
@@ -533,25 +601,29 @@ export class MultiAgentAdvisorService {
       responseAr: `تشخيص الإدارة المتكاملة للآفات (FAO): ${diagnosisAr}`,
       confidence: 0.75,
       reasoning: [
-        `Symptoms: ${input.symptoms.join(', ')}`,
+        `Symptoms: ${input.symptoms.join(", ")}`,
         `Temperature: ${input.temperature}°C`,
         `Humidity: ${input.humidity}%`,
         `IPM threshold assessment`,
       ],
       reasoningAr: [
-        `الأعراض: ${input.symptoms.join('، ')}`,
+        `الأعراض: ${input.symptoms.join("، ")}`,
         `درجة الحرارة: ${input.temperature}°م`,
         `الرطوبة: ${input.humidity}%`,
         `تقييم عتبة الإدارة المتكاملة للآفات`,
       ],
-      dataUsed: ['FAO IPPC guidelines', 'Symptom database', 'Climate conditions'],
+      dataUsed: [
+        "FAO IPPC guidelines",
+        "Symptom database",
+        "Climate conditions",
+      ],
       recommendation: treatment,
       recommendationAr: treatmentAr,
     };
   }
 
   private getCropModelPestPerspective(input: PestQuestion): AgentPerspective {
-    const agent = this.agents.get('crop_model')!;
+    const agent = this.agents.get("crop_model")!;
     return {
       agentId: agent.id,
       agentName: agent.name,
@@ -560,17 +632,26 @@ export class MultiAgentAdvisorService {
       specialtyAr: agent.specialtyAr,
       response: `Disease pressure model indicates moderate risk based on temperature (${input.temperature}°C) and humidity (${input.humidity}%).`,
       responseAr: `نموذج ضغط الأمراض يشير إلى خطر متوسط بناءً على درجة الحرارة (${input.temperature}°م) والرطوبة (${input.humidity}%).`,
-      confidence: 0.70,
-      reasoning: ['Disease pressure index calculation', 'Environmental conditions', 'Crop susceptibility'],
-      reasoningAr: ['حساب مؤشر ضغط الأمراض', 'الظروف البيئية', 'قابلية المحصول للإصابة'],
-      dataUsed: ['DSSAT pest module', 'Weather data', 'Disease models'],
-      recommendation: 'Monitor closely. Preventive treatment if conditions persist.',
-      recommendationAr: 'راقب عن كثب. علاج وقائي إذا استمرت الظروف.',
+      confidence: 0.7,
+      reasoning: [
+        "Disease pressure index calculation",
+        "Environmental conditions",
+        "Crop susceptibility",
+      ],
+      reasoningAr: [
+        "حساب مؤشر ضغط الأمراض",
+        "الظروف البيئية",
+        "قابلية المحصول للإصابة",
+      ],
+      dataUsed: ["DSSAT pest module", "Weather data", "Disease models"],
+      recommendation:
+        "Monitor closely. Preventive treatment if conditions persist.",
+      recommendationAr: "راقب عن كثب. علاج وقائي إذا استمرت الظروف.",
     };
   }
 
   private getLocalWisdomPestPerspective(input: PestQuestion): AgentPerspective {
-    const agent = this.agents.get('local_wisdom')!;
+    const agent = this.agents.get("local_wisdom")!;
     return {
       agentId: agent.id,
       agentName: agent.name,
@@ -580,16 +661,30 @@ export class MultiAgentAdvisorService {
       response: `Traditional observation: These symptoms are common in ${input.season}. Local farmers use neem-based solutions.`,
       responseAr: `الملاحظة التقليدية: هذه الأعراض شائعة في ${input.season}. المزارعون المحليون يستخدمون محاليل النيم.`,
       confidence: 0.65,
-      reasoning: ['Seasonal patterns', 'Traditional treatments', 'Local crop varieties resilience'],
-      reasoningAr: ['الأنماط الموسمية', 'العلاجات التقليدية', 'مقاومة الأصناف المحلية'],
-      dataUsed: ['Traditional knowledge', 'Local pest calendars', 'Organic treatments'],
-      recommendation: 'Try neem oil spray first. Consult local extension officer if persists.',
-      recommendationAr: 'جرّب رش زيت النيم أولاً. استشر مسؤول الإرشاد المحلي إذا استمرت.',
+      reasoning: [
+        "Seasonal patterns",
+        "Traditional treatments",
+        "Local crop varieties resilience",
+      ],
+      reasoningAr: [
+        "الأنماط الموسمية",
+        "العلاجات التقليدية",
+        "مقاومة الأصناف المحلية",
+      ],
+      dataUsed: [
+        "Traditional knowledge",
+        "Local pest calendars",
+        "Organic treatments",
+      ],
+      recommendation:
+        "Try neem oil spray first. Consult local extension officer if persists.",
+      recommendationAr:
+        "جرّب رش زيت النيم أولاً. استشر مسؤول الإرشاد المحلي إذا استمرت.",
     };
   }
 
   private getPrecisionAgPestPerspective(input: PestQuestion): AgentPerspective {
-    const agent = this.agents.get('precision_ag')!;
+    const agent = this.agents.get("precision_ag")!;
     return {
       agentId: agent.id,
       agentName: agent.name,
@@ -599,16 +694,26 @@ export class MultiAgentAdvisorService {
       response: `Multispectral analysis shows stress patterns. AI image analysis suggests 78% match with fungal infection.`,
       responseAr: `التحليل متعدد الطيف يُظهر أنماط إجهاد. تحليل الصور بالذكاء الاصطناعي يشير إلى تطابق 78% مع عدوى فطرية.`,
       confidence: 0.78,
-      reasoning: ['NDVI anomaly detection', 'AI disease classification', 'Thermal imaging'],
-      reasoningAr: ['كشف شذوذ NDVI', 'تصنيف الأمراض بالذكاء الاصطناعي', 'التصوير الحراري'],
-      dataUsed: ['Drone imagery', 'AI disease models', 'Spectral analysis'],
-      recommendation: 'Target affected zones only. Variable-rate application recommended.',
-      recommendationAr: 'استهدف المناطق المصابة فقط. يُوصى بالتطبيق المتغير المعدل.',
+      reasoning: [
+        "NDVI anomaly detection",
+        "AI disease classification",
+        "Thermal imaging",
+      ],
+      reasoningAr: [
+        "كشف شذوذ NDVI",
+        "تصنيف الأمراض بالذكاء الاصطناعي",
+        "التصوير الحراري",
+      ],
+      dataUsed: ["Drone imagery", "AI disease models", "Spectral analysis"],
+      recommendation:
+        "Target affected zones only. Variable-rate application recommended.",
+      recommendationAr:
+        "استهدف المناطق المصابة فقط. يُوصى بالتطبيق المتغير المعدل.",
     };
   }
 
   private getEconomicPestPerspective(input: PestQuestion): AgentPerspective {
-    const agent = this.agents.get('economic_advisor')!;
+    const agent = this.agents.get("economic_advisor")!;
     return {
       agentId: agent.id,
       agentName: agent.name,
@@ -618,11 +723,25 @@ export class MultiAgentAdvisorService {
       response: `Treatment cost-benefit: Early intervention saves ~$200/ha vs late treatment. Action threshold reached.`,
       responseAr: `تكلفة/عائد العلاج: التدخل المبكر يوفر ~200$/هكتار مقارنة بالعلاج المتأخر. تم الوصول لعتبة العمل.`,
       confidence: 0.72,
-      reasoning: ['Treatment costs', 'Yield loss estimation', 'Market value impact'],
-      reasoningAr: ['تكاليف العلاج', 'تقدير خسارة الإنتاج', 'تأثير القيمة السوقية'],
-      dataUsed: ['Treatment prices', 'Yield impact studies', 'Market forecasts'],
-      recommendation: 'Treat now. Cost of inaction exceeds treatment cost by 3x.',
-      recommendationAr: 'عالج الآن. تكلفة عدم التصرف تتجاوز تكلفة العلاج بـ 3 أضعاف.',
+      reasoning: [
+        "Treatment costs",
+        "Yield loss estimation",
+        "Market value impact",
+      ],
+      reasoningAr: [
+        "تكاليف العلاج",
+        "تقدير خسارة الإنتاج",
+        "تأثير القيمة السوقية",
+      ],
+      dataUsed: [
+        "Treatment prices",
+        "Yield impact studies",
+        "Market forecasts",
+      ],
+      recommendation:
+        "Treat now. Cost of inaction exceeds treatment cost by 3x.",
+      recommendationAr:
+        "عالج الآن. تكلفة عدم التصرف تتجاوز تكلفة العلاج بـ 3 أضعاف.",
     };
   }
 
@@ -630,35 +749,46 @@ export class MultiAgentAdvisorService {
   // Consensus Building - بناء التوافق
   // ─────────────────────────────────────────────────────────────────────────────
 
-  private buildConsensus(perspectives: AgentPerspective[], category: string): ConsensusResult {
+  private buildConsensus(
+    perspectives: AgentPerspective[],
+    category: string,
+  ): ConsensusResult {
     // Analyze recommendations for agreement
-    const recommendations = perspectives.map(p => p.recommendation.toLowerCase());
+    const recommendations = perspectives.map((p) =>
+      p.recommendation.toLowerCase(),
+    );
 
     // Simple consensus detection (in production, would use NLP)
-    const irrigateVotes = recommendations.filter(r =>
-      r.includes('irrigate') && !r.includes('no irrigation') && !r.includes('wait')
+    const irrigateVotes = recommendations.filter(
+      (r) =>
+        r.includes("irrigate") &&
+        !r.includes("no irrigation") &&
+        !r.includes("wait"),
     ).length;
-    const waitVotes = recommendations.filter(r =>
-      r.includes('wait') || r.includes('no irrigation') || r.includes('monitor')
+    const waitVotes = recommendations.filter(
+      (r) =>
+        r.includes("wait") ||
+        r.includes("no irrigation") ||
+        r.includes("monitor"),
     ).length;
 
     const totalVotes = perspectives.length;
     const agreeingCount = Math.max(irrigateVotes, waitVotes);
 
-    let consensusLevel: 'full' | 'majority' | 'partial' | 'none';
+    let consensusLevel: "full" | "majority" | "partial" | "none";
     let hasConsensus: boolean;
 
     if (agreeingCount === totalVotes) {
-      consensusLevel = 'full';
+      consensusLevel = "full";
       hasConsensus = true;
     } else if (agreeingCount >= totalVotes * 0.6) {
-      consensusLevel = 'majority';
+      consensusLevel = "majority";
       hasConsensus = true;
     } else if (agreeingCount >= totalVotes * 0.4) {
-      consensusLevel = 'partial';
+      consensusLevel = "partial";
       hasConsensus = false;
     } else {
-      consensusLevel = 'none';
+      consensusLevel = "none";
       hasConsensus = false;
     }
 
@@ -668,38 +798,41 @@ export class MultiAgentAdvisorService {
     let totalWeight = 0;
 
     perspectives.forEach((p, i) => {
-      const agent = agents.find(a => a.id === p.agentId);
+      const agent = agents.find((a) => a.id === p.agentId);
       const weight = agent?.weight || 0.2;
       weightedConfidence += p.confidence * weight;
       totalWeight += weight;
     });
 
     // Find dissenting opinions
-    const majorityAction = irrigateVotes > waitVotes ? 'irrigate' : 'wait';
+    const majorityAction = irrigateVotes > waitVotes ? "irrigate" : "wait";
     const dissenting = perspectives
-      .filter(p => {
+      .filter((p) => {
         const rec = p.recommendation.toLowerCase();
-        if (majorityAction === 'irrigate') {
-          return rec.includes('wait') || rec.includes('no irrigation');
+        if (majorityAction === "irrigate") {
+          return rec.includes("wait") || rec.includes("no irrigation");
         } else {
-          return rec.includes('irrigate') && !rec.includes('no irrigation');
+          return rec.includes("irrigate") && !rec.includes("no irrigation");
         }
       })
-      .map(p => `${p.agentName}: ${p.recommendation}`);
+      .map((p) => `${p.agentName}: ${p.recommendation}`);
 
     const dissentingAr = perspectives
-      .filter(p => {
+      .filter((p) => {
         const rec = p.recommendation.toLowerCase();
-        if (majorityAction === 'irrigate') {
-          return rec.includes('wait') || rec.includes('no irrigation');
+        if (majorityAction === "irrigate") {
+          return rec.includes("wait") || rec.includes("no irrigation");
         } else {
-          return rec.includes('irrigate') && !rec.includes('no irrigation');
+          return rec.includes("irrigate") && !rec.includes("no irrigation");
         }
       })
-      .map(p => `${p.agentNameAr}: ${p.recommendationAr}`);
+      .map((p) => `${p.agentNameAr}: ${p.recommendationAr}`);
 
     // Generate final recommendation
-    const highestConfidence = perspectives.reduce((max, p) => p.confidence > max.confidence ? p : max, perspectives[0]);
+    const highestConfidence = perspectives.reduce(
+      (max, p) => (p.confidence > max.confidence ? p : max),
+      perspectives[0],
+    );
 
     return {
       hasConsensus,
@@ -712,54 +845,69 @@ export class MultiAgentAdvisorService {
         : `آراء متباينة. التوصية الرئيسية: ${highestConfidence.recommendationAr}`,
       dissenting,
       dissentingAr,
-      confidence: Math.round(weightedConfidence / totalWeight * 100) / 100,
+      confidence: Math.round((weightedConfidence / totalWeight) * 100) / 100,
     };
   }
 
-  private generateSummary(perspectives: AgentPerspective[], consensus: ConsensusResult): string {
+  private generateSummary(
+    perspectives: AgentPerspective[],
+    consensus: ConsensusResult,
+  ): string {
     const agreeCount = perspectives.length - consensus.dissenting.length;
-    return `Council session complete. ${agreeCount}/${perspectives.length} agents agree. ` +
-           `Consensus: ${consensus.consensusLevel} (${(consensus.confidence * 100).toFixed(0)}% confidence). ` +
-           `Final recommendation: ${consensus.finalRecommendation}`;
+    return (
+      `Council session complete. ${agreeCount}/${perspectives.length} agents agree. ` +
+      `Consensus: ${consensus.consensusLevel} (${(consensus.confidence * 100).toFixed(0)}% confidence). ` +
+      `Final recommendation: ${consensus.finalRecommendation}`
+    );
   }
 
-  private generateSummaryAr(perspectives: AgentPerspective[], consensus: ConsensusResult): string {
+  private generateSummaryAr(
+    perspectives: AgentPerspective[],
+    consensus: ConsensusResult,
+  ): string {
     const agreeCount = perspectives.length - consensus.dissentingAr.length;
-    return `اكتملت جلسة المجلس. ${agreeCount}/${perspectives.length} وكلاء متفقون. ` +
-           `التوافق: ${consensus.consensusLevel} (ثقة ${(consensus.confidence * 100).toFixed(0)}%). ` +
-           `التوصية النهائية: ${consensus.finalRecommendationAr}`;
+    return (
+      `اكتملت جلسة المجلس. ${agreeCount}/${perspectives.length} وكلاء متفقون. ` +
+      `التوافق: ${consensus.consensusLevel} (ثقة ${(consensus.confidence * 100).toFixed(0)}%). ` +
+      `التوصية النهائية: ${consensus.finalRecommendationAr}`
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Quick Consultation - استشارة سريعة
   // ─────────────────────────────────────────────────────────────────────────────
 
-  quickConsult(question: string, category: 'irrigation' | 'pest' | 'fertilizer' | 'general'): {
+  quickConsult(
+    question: string,
+    category: "irrigation" | "pest" | "fertilizer" | "general",
+  ): {
     answer: string;
     answerAr: string;
     confidence: number;
     sources: string[];
   } {
     // Simplified quick response
-    const responses: { [key: string]: { en: string; ar: string; confidence: number } } = {
+    const responses: {
+      [key: string]: { en: string; ar: string; confidence: number };
+    } = {
       irrigation: {
-        en: 'For quick irrigation decisions: Check soil moisture at 10cm depth. If dry, irrigate early morning. Consider weather forecast.',
-        ar: 'لقرارات الري السريعة: افحص رطوبة التربة على عمق 10 سم. إذا كانت جافة، اروِ في الصباح الباكر. راعِ توقعات الطقس.',
+        en: "For quick irrigation decisions: Check soil moisture at 10cm depth. If dry, irrigate early morning. Consider weather forecast.",
+        ar: "لقرارات الري السريعة: افحص رطوبة التربة على عمق 10 سم. إذا كانت جافة، اروِ في الصباح الباكر. راعِ توقعات الطقس.",
         confidence: 0.75,
       },
       pest: {
-        en: 'For pest identification: Take clear photos of symptoms. Check undersides of leaves. Monitor for 2-3 days if not severe.',
-        ar: 'لتحديد الآفات: التقط صوراً واضحة للأعراض. افحص أسفل الأوراق. راقب لمدة 2-3 أيام إذا لم تكن شديدة.',
-        confidence: 0.70,
+        en: "For pest identification: Take clear photos of symptoms. Check undersides of leaves. Monitor for 2-3 days if not severe.",
+        ar: "لتحديد الآفات: التقط صوراً واضحة للأعراض. افحص أسفل الأوراق. راقب لمدة 2-3 أيام إذا لم تكن شديدة.",
+        confidence: 0.7,
       },
       fertilizer: {
-        en: 'For fertilizer guidance: Test soil NPK levels first. Apply based on crop growth stage. Avoid over-fertilization.',
-        ar: 'لإرشادات التسميد: اختبر مستويات NPK في التربة أولاً. طبّق حسب مرحلة نمو المحصول. تجنب الإفراط في التسميد.',
+        en: "For fertilizer guidance: Test soil NPK levels first. Apply based on crop growth stage. Avoid over-fertilization.",
+        ar: "لإرشادات التسميد: اختبر مستويات NPK في التربة أولاً. طبّق حسب مرحلة نمو المحصول. تجنب الإفراط في التسميد.",
         confidence: 0.72,
       },
       general: {
-        en: 'For detailed guidance, use the full council consultation with specific parameters for your situation.',
-        ar: 'للإرشادات التفصيلية، استخدم الاستشارة الكاملة للمجلس مع معاملات محددة لحالتك.',
+        en: "For detailed guidance, use the full council consultation with specific parameters for your situation.",
+        ar: "للإرشادات التفصيلية، استخدم الاستشارة الكاملة للمجلس مع معاملات محددة لحالتك.",
         confidence: 0.65,
       },
     };
@@ -770,7 +918,7 @@ export class MultiAgentAdvisorService {
       answer: response.en,
       answerAr: response.ar,
       confidence: response.confidence,
-      sources: ['FAO Guidelines', 'Local Best Practices', 'Crop Models'],
+      sources: ["FAO Guidelines", "Local Best Practices", "Crop Models"],
     };
   }
 

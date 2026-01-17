@@ -5,11 +5,13 @@
 ### Added - Dead Letter Queue (DLQ) Pattern
 
 #### Infrastructure
+
 - **DLQ JetStream Stream** - Created `SAHOOL_DLQ` stream for persistent failed message storage
 - **Configurable Retention** - 30-day default retention with 100K message limit
 - **Subject Pattern** - `sahool.dlq.*` for all DLQ messages
 
 #### Core Features
+
 - **Automatic Retry Logic** - Exponential backoff with configurable attempts (default: 3)
 - **Rich Metadata Tracking** - Comprehensive failure information including:
   - Original subject and event ID
@@ -23,6 +25,7 @@
 #### Components
 
 **Configuration (`shared/events/dlq_config.py`)**
+
 - `DLQConfig` - Configuration model with environment variable support
 - `DLQMessageMetadata` - Rich metadata model for failed messages
 - `create_dlq_streams()` - JetStream stream initialization
@@ -30,18 +33,21 @@
 - `should_retry()` - Retry decision logic
 
 **Enhanced Subscriber (`shared/events/subscriber.py`)**
+
 - DLQ support enabled by default
 - Retry count tracking in message headers
 - Automatic metadata collection
 - Statistics tracking (dlq_count, retry_count)
 
 **DLQ Handler (`shared/events/subscriber_dlq.py`)**
+
 - `_handle_failed_message_with_dlq()` - Main failure handler
 - `_retry_message_with_dlq()` - Retry with metadata
 - `_move_to_dlq()` - DLQ message creation
 - `get_dlq_stats()` - DLQ statistics
 
 **Management Service (`shared/events/dlq_service.py`)**
+
 - FastAPI-based REST API
 - Endpoints:
   - `GET /dlq/messages` - List with filtering and pagination
@@ -51,6 +57,7 @@
   - `POST /dlq/archive` - Archive old messages
 
 **Monitoring (`shared/events/dlq_monitoring.py`)**
+
 - `DLQMonitor` - Background monitoring task
 - Threshold-based alerting
 - Configurable check intervals
@@ -60,11 +67,13 @@
 #### Deployment
 
 **Docker Compose (`docker/docker-compose.dlq.yml`)**
+
 - DLQ management service container
 - DLQ monitor background task
 - Health checks and auto-restart
 
 **CLI Tool (`scripts/dlq-quickstart.sh`)**
+
 - `start` - Start DLQ services
 - `stop` - Stop DLQ services
 - `stats` - View statistics
@@ -80,6 +89,7 @@
 #### Configuration
 
 **Environment Variables:**
+
 ```bash
 DLQ_ENABLED=true
 DLQ_MAX_RETRIES=3
@@ -96,6 +106,7 @@ DLQ_ALERT_THRESHOLD=100
 ### Changed
 
 **EventSubscriber (`shared/events/subscriber.py`)**
+
 - Added `enable_dlq` configuration (default: true)
 - Added `dlq_config` parameter
 - Enhanced statistics with DLQ metrics
@@ -103,16 +114,19 @@ DLQ_ALERT_THRESHOLD=100
 - Added DLQ stream initialization on connect
 
 **Module Exports (`shared/events/__init__.py`)**
+
 - Added DLQ configuration classes
 - Added DLQ management classes
 - Added DLQ monitoring classes
 
 **Environment Configuration (`.env.example`)**
+
 - Added DLQ configuration variables
 
 ### Backward Compatibility
 
 ✅ **Fully Backward Compatible**
+
 - Existing code works without modifications
 - DLQ is opt-in via configuration (but enabled by default)
 - Legacy retry logic still available via `enable_dlq=False`
@@ -136,6 +150,7 @@ await subscriber.connect()
 ```
 
 To customize:
+
 ```python
 from shared.events import DLQConfig, SubscriberConfig
 
@@ -147,6 +162,7 @@ subscriber = EventSubscriber(config=config)
 ### Services Affected
 
 All NATS consumers automatically benefit:
+
 - notification-service
 - agro-rules worker
 - field-chat worker
@@ -177,6 +193,7 @@ All NATS consumers automatically benefit:
 ### Future Enhancements
 
 **Planned for v1.1:**
+
 - Prometheus metrics export
 - Grafana dashboard templates
 - Advanced filtering in management API
@@ -186,6 +203,7 @@ All NATS consumers automatically benefit:
 - Enhanced security (RBAC)
 
 **Planned for v1.2:**
+
 - Real-time DLQ dashboard
 - Message search and analytics
 - Replay scheduling

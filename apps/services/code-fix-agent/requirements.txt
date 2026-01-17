@@ -1,0 +1,36 @@
+# SAHOOL Code Fix Agent Dependencies
+# ====================================
+
+# Core Framework
+fastapi>=0.126.0
+uvicorn[standard]>=0.34.0
+pydantic>=2.10.0
+
+# Async Support
+asyncpg>=0.30.0
+httpx>=0.28.0
+aiofiles>=24.1.0
+
+# Code Analysis
+astroid>=3.3.0
+pylint>=3.3.0
+mypy>=1.14.0
+bandit>=1.8.0
+
+# Testing & Coverage
+pytest>=8.3.0
+pytest-asyncio>=0.25.0
+pytest-cov>=6.0.0
+
+# Git Integration
+gitpython>=3.1.0
+
+# Utilities
+structlog>=24.4.0
+python-json-logger>=3.2.0
+
+# NATS Messaging
+nats-py>=2.9.0
+
+# Shared modules (local)
+# -e ../../shared

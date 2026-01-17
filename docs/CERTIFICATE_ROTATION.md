@@ -23,13 +23,13 @@ The SAHOOL platform uses TLS certificates to secure internal communication betwe
 
 The certificate rotation system manages TLS certificates for:
 
-| Service | Description | Port(s) |
-|---------|-------------|---------|
-| **PostgreSQL** | Main database server | 5432 |
-| **PgBouncer** | Database connection pooler | 6432 |
-| **Redis** | Cache and session store | 6379 |
-| **NATS** | Message queue and event bus | 4222 |
-| **Kong** | API Gateway | 8443 |
+| Service        | Description                 | Port(s) |
+| -------------- | --------------------------- | ------- |
+| **PostgreSQL** | Main database server        | 5432    |
+| **PgBouncer**  | Database connection pooler  | 6432    |
+| **Redis**      | Cache and session store     | 6379    |
+| **NATS**       | Message queue and event bus | 4222    |
+| **Kong**       | API Gateway                 | 8443    |
 
 ### Key Features
 
@@ -436,6 +436,7 @@ CRITICAL: 1 certificate(s) expired/invalid: postgres(Certificate expired 5 days 
 ```
 
 Exit codes:
+
 - `0` = OK
 - `1` = WARNING
 - `2` = CRITICAL
@@ -848,11 +849,11 @@ For issues or questions:
 
 ### Script Reference
 
-| Script | Purpose | Location |
-|--------|---------|----------|
+| Script              | Purpose                   | Location         |
+| ------------------- | ------------------------- | ---------------- |
 | `generate-certs.sh` | Generate TLS certificates | `scripts/certs/` |
-| `validate-certs.sh` | Validate certificates | `scripts/certs/` |
-| `rotate-certs.sh` | Rotate certificates | `scripts/certs/` |
+| `validate-certs.sh` | Validate certificates     | `scripts/certs/` |
+| `rotate-certs.sh`   | Rotate certificates       | `scripts/certs/` |
 
 ### Certificate Specifications
 

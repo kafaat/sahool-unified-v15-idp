@@ -6,38 +6,39 @@
 
 ### 1. Database Configuration & Models
 
-| الملف | الوصف | المسار الكامل |
-|------|-------|---------------|
-| `database.py` | TORTOISE_ORM configuration | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/database.py` |
+| الملف          | الوصف                          | المسار الكامل                                                                    |
+| -------------- | ------------------------------ | -------------------------------------------------------------------------------- |
+| `database.py`  | TORTOISE_ORM configuration     | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/database.py`  |
 | `db_models.py` | Tortoise ORM models (4 models) | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/db_models.py` |
 
 ### 2. Migration Files
 
-| الملف | الوصف | المسار الكامل |
-|------|-------|---------------|
-| `migrations/__init__.py` | Package initializer | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/migrations/__init__.py` |
-| `migrations/models/__init__.py` | Models package initializer | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/migrations/models/__init__.py` |
-| `0_20251227000000_init.py` | Initial migration (150 lines) | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/migrations/models/0_20251227000000_init.py` |
+| الملف                           | الوصف                         | المسار الكامل                                                                                                  |
+| ------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `migrations/__init__.py`        | Package initializer           | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/migrations/__init__.py`                     |
+| `migrations/models/__init__.py` | Models package initializer    | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/migrations/models/__init__.py`              |
+| `0_20251227000000_init.py`      | Initial migration (150 lines) | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/migrations/models/0_20251227000000_init.py` |
 
 ### 3. Configuration Files
 
-| الملف | الوصف | المسار الكامل |
-|------|-------|---------------|
-| `aerich.ini` | Aerich configuration (INI format) | `/home/user/sahool-unified-v15-idp/apps/services/field-service/aerich.ini` |
-| `pyproject.toml` | Project & Aerich configuration | `/home/user/sahool-unified-v15-idp/apps/services/field-service/pyproject.toml` |
+| الملف            | الوصف                             | المسار الكامل                                                                  |
+| ---------------- | --------------------------------- | ------------------------------------------------------------------------------ |
+| `aerich.ini`     | Aerich configuration (INI format) | `/home/user/sahool-unified-v15-idp/apps/services/field-service/aerich.ini`     |
+| `pyproject.toml` | Project & Aerich configuration    | `/home/user/sahool-unified-v15-idp/apps/services/field-service/pyproject.toml` |
 
 ### 4. Documentation
 
-| الملف | الوصف | المسار الكامل |
-|------|-------|---------------|
-| `migrations/README.md` | Migration usage guide | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/migrations/README.md` |
-| `MIGRATION_GUIDE.md` | Complete migration guide | `/home/user/sahool-unified-v15-idp/apps/services/field-service/MIGRATION_GUIDE.md` |
+| الملف                  | الوصف                    | المسار الكامل                                                                            |
+| ---------------------- | ------------------------ | ---------------------------------------------------------------------------------------- |
+| `migrations/README.md` | Migration usage guide    | `/home/user/sahool-unified-v15-idp/apps/services/field-service/src/migrations/README.md` |
+| `MIGRATION_GUIDE.md`   | Complete migration guide | `/home/user/sahool-unified-v15-idp/apps/services/field-service/MIGRATION_GUIDE.md`       |
 
 ## 🗄️ Database Models
 
 تم إنشاء 4 نماذج في `db_models.py`:
 
 ### 1. Field (حقل زراعي)
+
 ```python
 class Field(Model):
     id = fields.UUIDField(pk=True)
@@ -58,10 +59,12 @@ class Field(Model):
 ```
 
 **Constraints:**
+
 - Unique: `(tenant_id, name)`
 - Indexes: `tenant_id`, `user_id`, `(tenant_id, user_id)`, `(tenant_id, status)`, `(user_id, status)`
 
 ### 2. CropSeason (موسم محصول)
+
 ```python
 class CropSeason(Model):
     id = fields.UUIDField(pk=True)
@@ -85,6 +88,7 @@ class CropSeason(Model):
 **Indexes:** `field_id`, `tenant_id`, `(field_id, status)`, `(tenant_id, crop_type)`, `planting_date`
 
 ### 3. Zone (منطقة فرعية)
+
 ```python
 class Zone(Model):
     id = fields.UUIDField(pk=True)
@@ -103,6 +107,7 @@ class Zone(Model):
 **Indexes:** `field_id`, `tenant_id`
 
 ### 4. NDVIRecord (سجل NDVI)
+
 ```python
 class NDVIRecord(Model):
     id = fields.UUIDField(pk=True)
@@ -120,12 +125,14 @@ class NDVIRecord(Model):
 ```
 
 **Constraints:**
+
 - Unique: `(field_id, date, source)`
 - Indexes: `field_id`, `tenant_id`, `(field_id, date)`, `(tenant_id, date)`
 
 ## 🔧 Configuration Files
 
 ### aerich.ini
+
 ```ini
 [aerich]
 tortoise_orm = src.database.TORTOISE_ORM
@@ -134,6 +141,7 @@ src_folder = ./src
 ```
 
 ### pyproject.toml
+
 ```toml
 [tool.aerich]
 tortoise_orm = "src.database.TORTOISE_ORM"
@@ -166,6 +174,7 @@ aerich upgrade
 ### الطريقة 3: Automated في Docker Compose
 
 أضف في `docker-compose.yml`:
+
 ```yaml
 field-service:
   command: sh -c "aerich upgrade && uvicorn src.main:app --host 0.0.0.0 --port 3000"
@@ -245,13 +254,14 @@ ndvi_records
 ## 🆘 دعم
 
 راجع الملفات التالية للمزيد من المعلومات:
+
 - `/src/migrations/README.md` - دليل استخدام Migrations
 - `/MIGRATION_GUIDE.md` - دليل شامل مع حلول المشاكل
 
 ## ✨ ملخص الإنجاز
 
 - ✅ 2 ملفات Python (database.py, db_models.py)
-- ✅ 3 ملفات migrations (__init__.py files + initial migration)
+- ✅ 3 ملفات migrations (**init**.py files + initial migration)
 - ✅ 2 ملفات configuration (aerich.ini, pyproject.toml)
 - ✅ 2 ملفات documentation (README.md, MIGRATION_GUIDE.md)
 - ✅ **المجموع: 9 ملفات جديدة**

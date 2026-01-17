@@ -1,6 +1,7 @@
 # Advanced Credit Scoring System - Enhancement Summary
 
 ## Overview
+
 Successfully enhanced the SAHOOL marketplace credit scoring system with advanced factors, detailed reporting, and actionable recommendations.
 
 ---
@@ -10,6 +11,7 @@ Successfully enhanced the SAHOOL marketplace credit scoring system with advanced
 ### 1. Database Schema Updates (`prisma/schema.prisma`)
 
 #### Added CreditEvent Model
+
 ```prisma
 model CreditEvent {
   id          String   @id @default(uuid())
@@ -29,6 +31,7 @@ model CreditEvent {
 ```
 
 #### Added CreditEventType Enum
+
 ```prisma
 enum CreditEventType {
   LOAN_REPAID_ONTIME    // +15 points
@@ -44,7 +47,9 @@ enum CreditEventType {
 ```
 
 #### Updated Wallet Model
+
 Added relation to credit events:
+
 ```prisma
 creditEvents CreditEvent[]
 ```
@@ -56,22 +61,23 @@ creditEvents CreditEvent[]
 #### New Interfaces
 
 **CreditFactors** - Comprehensive credit evaluation
+
 ```typescript
 interface CreditFactors {
   // Basic factors (existing)
   farmArea: number;
   numberOfSeasons: number;
   diseaseRiskScore: number; // 0-100
-  irrigationType: 'rainfed' | 'drip' | 'flood' | 'sprinkler';
+  irrigationType: "rainfed" | "drip" | "flood" | "sprinkler";
   yieldScore: number; // 0-100
   paymentHistory: number; // 0-100
 
   // NEW advanced factors
-  cropDiversity: number;        // 1-10
-  marketplaceHistory: number;   // 0-100
-  loanRepaymentRate: number;    // 0-100%
-  verificationLevel: 'basic' | 'verified' | 'premium';
-  landOwnership: 'owned' | 'leased' | 'shared';
+  cropDiversity: number; // 1-10
+  marketplaceHistory: number; // 0-100
+  loanRepaymentRate: number; // 0-100%
+  verificationLevel: "basic" | "verified" | "premium";
+  landOwnership: "owned" | "leased" | "shared";
   cooperativeMember: boolean;
   yearsOfExperience: number;
   satelliteVerified: boolean;
@@ -79,6 +85,7 @@ interface CreditFactors {
 ```
 
 **CreditReport** - Complete credit analysis
+
 ```typescript
 interface CreditReport {
   userId: string;
@@ -94,17 +101,18 @@ interface CreditReport {
   recommendations: CreditRecommendation[];
   recentEvents: any[];
   availableCredit: number;
-  riskLevel: 'low' | 'medium' | 'high';
+  riskLevel: "low" | "medium" | "high";
 }
 ```
 
 **CreditRecommendation** - Actionable improvements
+
 ```typescript
 interface CreditRecommendation {
-  action: string;           // What to do
-  impact: number;           // Expected score increase
-  priority: 'high' | 'medium' | 'low';
-  category: string;         // Type of action
+  action: string; // What to do
+  impact: number; // Expected score increase
+  priority: "high" | "medium" | "low";
+  category: string; // Type of action
 }
 ```
 
@@ -163,6 +171,7 @@ async getCreditReport(@Param('userId') userId: string)
 ```
 
 **Note:** Kept original endpoint for backward compatibility:
+
 ```typescript
 // POST /api/v1/fintech/calculate-score (legacy)
 async calculateCreditScore(@Body() body)
@@ -175,12 +184,13 @@ async calculateCreditScore(@Body() body)
 ### Score Distribution (Total: 300-850 points)
 
 #### 1. Farm Data Score (40% = 340 points)
+
 - **Farm area** (100 points)
   - ≥10 hectares: 100 pts
   - ≥5 hectares: 80 pts
   - ≥2 hectares: 60 pts
   - ≥1 hectare: 40 pts
-  - >0 hectares: 20 pts
+  - > 0 hectares: 20 pts
 
 - **Crop diversity** (60 points)
   - Points = min(60, cropDiversity × 6)
@@ -201,11 +211,13 @@ async calculateCreditScore(@Body() body)
   - Points = diseaseRiskScore × 0.5
 
 #### 2. Payment & Marketplace History (30% = 255 points)
+
 - **Payment history** (100 points): Direct from factor
 - **Loan repayment rate** (100 points): Direct from factor
 - **Marketplace orders** (55 points): min(55, orders × 0.55)
 
 #### 3. Verification & Trust (20% = 170 points)
+
 - **Verification level** (70 points)
   - Premium: 70 pts
   - Verified: 50 pts
@@ -221,6 +233,7 @@ async calculateCreditScore(@Body() body)
   - No: 0 pts
 
 #### 4. Bonus Factors (10% = 85 points)
+
 - **Cooperative member** (40 points)
   - Yes: 40 pts
   - No: 0 pts
@@ -232,12 +245,12 @@ async calculateCreditScore(@Body() body)
 
 ## Credit Tiers & Loan Limits
 
-| Tier | Score Range | Multiplier | Max Loan Limit |
-|------|-------------|------------|----------------|
-| **BRONZE** | 300-499 | 10x | 4,990 YER |
-| **SILVER** | 500-649 | 20x | 12,980 YER |
-| **GOLD** | 650-749 | 35x | 26,215 YER |
-| **PLATINUM** | 750-850 | 50x | 42,500 YER |
+| Tier         | Score Range | Multiplier | Max Loan Limit |
+| ------------ | ----------- | ---------- | -------------- |
+| **BRONZE**   | 300-499     | 10x        | 4,990 YER      |
+| **SILVER**   | 500-649     | 20x        | 12,980 YER     |
+| **GOLD**     | 650-749     | 35x        | 26,215 YER     |
+| **PLATINUM** | 750-850     | 50x        | 42,500 YER     |
 
 Formula: `loanLimit = creditScore × multiplier`
 
@@ -245,17 +258,17 @@ Formula: `loanLimit = creditScore × multiplier`
 
 ## Event Impact Table
 
-| Event Type | Impact | Description |
-|------------|--------|-------------|
-| `LOAN_REPAID_ONTIME` | **+15** | Loan repaid on or before due date |
-| `LOAN_REPAID_LATE` | **-10** | Loan repaid after due date |
-| `LOAN_DEFAULTED` | **-50** | Loan not repaid (severe penalty) |
-| `ORDER_COMPLETED` | **+5** | Marketplace order successfully completed |
-| `ORDER_CANCELLED` | **-5** | Order cancelled by seller/buyer |
-| `VERIFICATION_UPGRADE` | **+30** | Account verification level increased |
-| `FARM_VERIFIED` | **+20** | Farm verified via satellite imagery |
-| `COOPERATIVE_JOINED` | **+10** | Joined agricultural cooperative |
-| `LAND_VERIFIED` | **+15** | Land ownership documents verified |
+| Event Type             | Impact  | Description                              |
+| ---------------------- | ------- | ---------------------------------------- |
+| `LOAN_REPAID_ONTIME`   | **+15** | Loan repaid on or before due date        |
+| `LOAN_REPAID_LATE`     | **-10** | Loan repaid after due date               |
+| `LOAN_DEFAULTED`       | **-50** | Loan not repaid (severe penalty)         |
+| `ORDER_COMPLETED`      | **+5**  | Marketplace order successfully completed |
+| `ORDER_CANCELLED`      | **-5**  | Order cancelled by seller/buyer          |
+| `VERIFICATION_UPGRADE` | **+30** | Account verification level increased     |
+| `FARM_VERIFIED`        | **+20** | Farm verified via satellite imagery      |
+| `COOPERATIVE_JOINED`   | **+10** | Joined agricultural cooperative          |
+| `LAND_VERIFIED`        | **+15** | Land ownership documents verified        |
 
 ---
 
@@ -264,16 +277,19 @@ Formula: `loanLimit = creditScore × multiplier`
 The system generates up to 5 prioritized recommendations:
 
 ### High Priority (30-35 points impact)
+
 - "وثق ملكية الأرض لزيادة تصنيفك" (+35 points)
 - "قم برفع مستوى التحقق من حسابك إلى 'موثق'" (+30 points)
 
 ### Medium Priority (15-25 points impact)
+
 - "قم بالتحقق من مزرعتك عبر صور الأقمار الصناعية" (+20 points)
 - "حافظ على سداد القروض في الوقت المحدد" (+20 points)
 - "حسّن نظام الري إلى الري بالتنقيط أو الرش" (+25 points)
 - "أكمل 5 طلبات إضافية في السوق" (+15 points)
 
 ### Low Priority (10-12 points impact)
+
 - "انضم إلى تعاونية زراعية لزيادة مصداقيتك" (+10 points)
 - "زد من تنوع المحاصيل" (+12 points)
 
@@ -282,6 +298,7 @@ The system generates up to 5 prioritized recommendations:
 ## Integration Points
 
 ### Services to Integrate
+
 The current implementation uses default values for some factors. Integrate with:
 
 1. **farm-core service**
@@ -306,7 +323,9 @@ The current implementation uses default values for some factors. Integrate with:
 ## Testing & Validation
 
 ### Database Migration
+
 Run after deployment:
+
 ```bash
 cd apps/services/marketplace-service
 npx prisma migrate dev --name add_credit_events
@@ -314,7 +333,9 @@ npx prisma generate
 ```
 
 ### Testing the API
+
 Use the provided test file:
+
 ```bash
 # Use VS Code REST Client extension
 # Open: test-credit-scoring.http
@@ -324,6 +345,7 @@ Use the provided test file:
 ### Example Test Scenarios
 
 **Scenario 1: New Farmer (BRONZE → SILVER)**
+
 1. Start with basic factors (score ~350)
 2. Record `FARM_VERIFIED` event (+20)
 3. Complete 5 orders (+25 via events)
@@ -332,6 +354,7 @@ Use the provided test file:
 6. Expected: ~550 points (SILVER tier)
 
 **Scenario 2: Experienced Farmer (GOLD → PLATINUM)**
+
 1. High farm area (10+ hectares)
 2. 8+ crops
 3. Premium verification
@@ -344,6 +367,7 @@ Use the provided test file:
 ## Files Created/Modified
 
 ### Modified
+
 1. `/apps/services/marketplace-service/prisma/schema.prisma`
    - Added CreditEvent model
    - Added CreditEventType enum
@@ -363,6 +387,7 @@ Use the provided test file:
    - Added 4 new endpoints for credit scoring
 
 ### Created
+
 1. `/apps/services/marketplace-service/CREDIT_SCORING_API.md`
    - Complete API documentation
    - Usage examples
@@ -381,17 +406,20 @@ Use the provided test file:
 ## Next Steps
 
 ### Immediate
+
 1. Run database migration
 2. Test all new endpoints
 3. Integrate with farm-core for actual farm data
 
 ### Short-term
+
 1. Add automated event recording in loan repayment flow
 2. Add automated event recording in order completion flow
 3. Build credit score history tracking
 4. Add credit score charts to dashboard
 
 ### Long-term
+
 1. Implement machine learning for default prediction
 2. Add social credit features (peer reviews)
 3. Build credit score improvement tracking
@@ -404,11 +432,13 @@ Use the provided test file:
 ## Security & Compliance
 
 ### Implemented
+
 - Event-based audit trail
 - Automatic score recalculation
 - Tier-based limits
 
 ### Recommended
+
 1. Add role-based access control for credit events
 2. Implement rate limiting on credit calculations
 3. Add fraud detection for score manipulation
@@ -420,11 +450,13 @@ Use the provided test file:
 ## Performance Considerations
 
 ### Current Implementation
+
 - O(1) credit score calculation
 - Database indexed on walletId and eventType
 - Recommendations limited to top 5
 
 ### Optimization Opportunities
+
 1. Cache credit factors (refresh hourly)
 2. Batch credit event processing
 3. Precompute recommendations for common scenarios
@@ -435,6 +467,7 @@ Use the provided test file:
 ## Success Metrics
 
 Track these KPIs:
+
 - Average credit score by region
 - Time to upgrade from BRONZE to SILVER
 - Loan default rate by credit tier
@@ -455,6 +488,7 @@ Track these KPIs:
 ---
 
 ## Version
+
 - **Enhanced**: 2025-12-25
 - **Base Version**: 15.3.0
 - **Feature**: Advanced Credit Scoring v2.0

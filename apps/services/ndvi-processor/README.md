@@ -5,7 +5,6 @@ Please update your references to use `vegetation-analysis-service` on port 8090.
 
 ---
 
-
 # NDVI Processor - معالج NDVI
 
 ## نظرة عامة | Overview
@@ -22,20 +21,22 @@ NDVI (Normalized Difference Vegetation Index) processing and calculation from sa
 ## الميزات | Features
 
 ### مصادر البيانات | Data Sources
-| المصدر | Source | الدقة | التردد |
-|--------|--------|--------|--------|
-| Sentinel-2 | Sentinel-2 | 10m | 5 أيام |
-| Landsat-8 | Landsat-8 | 30m | 16 يوم |
-| Landsat-9 | Landsat-9 | 30m | 16 يوم |
-| MODIS | MODIS | 250m | يومي |
+
+| المصدر     | Source     | الدقة | التردد |
+| ---------- | ---------- | ----- | ------ |
+| Sentinel-2 | Sentinel-2 | 10m   | 5 أيام |
+| Landsat-8  | Landsat-8  | 30m   | 16 يوم |
+| Landsat-9  | Landsat-9  | 30m   | 16 يوم |
+| MODIS      | MODIS      | 250m  | يومي   |
 
 ### المعالجة | Processing
-| العملية | Operation | الوصف |
-|---------|-----------|--------|
-| تصحيح جوي | Atmospheric Correction | إزالة تأثير الغلاف الجوي |
-| قناع السحب | Cloud Masking | إزالة السحب |
-| حساب NDVI | NDVI Calculation | (NIR-Red)/(NIR+Red) |
-| دمج | Compositing | دمج صور متعددة |
+
+| العملية    | Operation              | الوصف                    |
+| ---------- | ---------------------- | ------------------------ |
+| تصحيح جوي  | Atmospheric Correction | إزالة تأثير الغلاف الجوي |
+| قناع السحب | Cloud Masking          | إزالة السحب              |
+| حساب NDVI  | NDVI Calculation       | (NIR-Red)/(NIR+Red)      |
+| دمج        | Compositing            | دمج صور متعددة           |
 
 ---
 
@@ -188,60 +189,62 @@ GET /composites/{composite_id}/download?format=geotiff
 ## نماذج البيانات | Data Models
 
 ### NDVIResult
+
 ```json
 {
-    "id": "ndvi-001",
-    "field_id": "field-001",
-    "date": "2024-01-15",
-    "source": {
-        "satellite": "sentinel-2",
-        "scene_id": "S2A_MSIL2A_20240115",
-        "acquisition_time": "2024-01-15T10:30:00Z"
-    },
-    "processing": {
-        "atmospheric_correction": "sen2cor",
-        "cloud_mask": "s2cloudless",
-        "processed_at": "2024-01-15T12:00:00Z"
-    },
-    "statistics": {
-        "mean": 0.72,
-        "median": 0.74,
-        "std": 0.12,
-        "min": 0.35,
-        "max": 0.89,
-        "percentiles": {
-            "p10": 0.55,
-            "p25": 0.65,
-            "p75": 0.80,
-            "p90": 0.85
-        }
-    },
-    "quality": {
-        "cloud_cover_percent": 5,
-        "shadow_percent": 2,
-        "valid_pixels_percent": 93
-    },
-    "files": {
-        "geotiff": "s3://ndvi/field-001/2024-01-15.tif",
-        "thumbnail": "s3://ndvi/field-001/2024-01-15_thumb.png"
+  "id": "ndvi-001",
+  "field_id": "field-001",
+  "date": "2024-01-15",
+  "source": {
+    "satellite": "sentinel-2",
+    "scene_id": "S2A_MSIL2A_20240115",
+    "acquisition_time": "2024-01-15T10:30:00Z"
+  },
+  "processing": {
+    "atmospheric_correction": "sen2cor",
+    "cloud_mask": "s2cloudless",
+    "processed_at": "2024-01-15T12:00:00Z"
+  },
+  "statistics": {
+    "mean": 0.72,
+    "median": 0.74,
+    "std": 0.12,
+    "min": 0.35,
+    "max": 0.89,
+    "percentiles": {
+      "p10": 0.55,
+      "p25": 0.65,
+      "p75": 0.8,
+      "p90": 0.85
     }
+  },
+  "quality": {
+    "cloud_cover_percent": 5,
+    "shadow_percent": 2,
+    "valid_pixels_percent": 93
+  },
+  "files": {
+    "geotiff": "s3://ndvi/field-001/2024-01-15.tif",
+    "thumbnail": "s3://ndvi/field-001/2024-01-15_thumb.png"
+  }
 }
 ```
 
 ### ProcessingJob
+
 ```json
 {
-    "id": "job-001",
-    "field_id": "field-001",
-    "type": "ndvi_calculation",
-    "status": "processing",
-    "progress_percent": 45,
-    "parameters": {
-        "source": "sentinel-2",
-        "date_range": ["2024-01-01", "2024-01-15"]
-    },
-    "started_at": "2024-01-15T10:00:00Z",
-    "estimated_completion": "2024-01-15T10:05:00Z"
+  "id": "job-001",
+  "field_id": "field-001",
+  "type": "ndvi_calculation",
+  "status": "processing",
+  "progress_percent": 45,
+  "parameters": {
+    "source": "sentinel-2",
+    "date_range": ["2024-01-01", "2024-01-15"]
+  },
+  "started_at": "2024-01-15T10:00:00Z",
+  "estimated_completion": "2024-01-15T10:05:00Z"
 }
 ```
 

@@ -3,11 +3,11 @@
  * خطاف عمليات التعديل في الحقول
  */
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { FieldFormData } from '../types';
-import { fieldsApi } from '../api';
-import { logger } from '@/lib/logger';
-import { fieldKeys } from './queryKeys';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { FieldFormData } from "../types";
+import { fieldsApi } from "../api";
+import { logger } from "@/lib/logger";
+import { fieldKeys } from "./queryKeys";
 
 /**
  * Hook to create a new field
@@ -17,8 +17,13 @@ export function useCreateField() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ data, tenantId }: { data: FieldFormData; tenantId?: string }) =>
-      fieldsApi.createField(data, tenantId),
+    mutationFn: ({
+      data,
+      tenantId,
+    }: {
+      data: FieldFormData;
+      tenantId?: string;
+    }) => fieldsApi.createField(data, tenantId),
     onSuccess: () => {
       // Invalidate all field queries to refetch
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
@@ -28,9 +33,12 @@ export function useCreateField() {
       // Parse error message
       try {
         const errorData = JSON.parse(error.message);
-        logger.error('Create field error:', errorData.messageAr || errorData.message);
+        logger.error(
+          "Create field error:",
+          errorData.messageAr || errorData.message,
+        );
       } catch {
-        logger.error('Create field error:', error.message);
+        logger.error("Create field error:", error.message);
       }
     },
   });
@@ -47,7 +55,7 @@ export function useUpdateField() {
     mutationFn: ({
       id,
       data,
-      tenantId
+      tenantId,
     }: {
       id: string;
       data: Partial<FieldFormData>;
@@ -65,9 +73,12 @@ export function useUpdateField() {
       // Parse error message
       try {
         const errorData = JSON.parse(error.message);
-        logger.error('Update field error:', errorData.messageAr || errorData.message);
+        logger.error(
+          "Update field error:",
+          errorData.messageAr || errorData.message,
+        );
       } catch {
-        logger.error('Update field error:', error.message);
+        logger.error("Update field error:", error.message);
       }
     },
   });
@@ -94,9 +105,12 @@ export function useDeleteField() {
       // Parse error message
       try {
         const errorData = JSON.parse(error.message);
-        logger.error('Delete field error:', errorData.messageAr || errorData.message);
+        logger.error(
+          "Delete field error:",
+          errorData.messageAr || errorData.message,
+        );
       } catch {
-        logger.error('Delete field error:', error.message);
+        logger.error("Delete field error:", error.message);
       }
     },
   });
@@ -116,8 +130,6 @@ export function useFieldMutations() {
     updateField,
     deleteField,
     isLoading:
-      createField.isPending ||
-      updateField.isPending ||
-      deleteField.isPending,
+      createField.isPending || updateField.isPending || deleteField.isPending,
   };
 }

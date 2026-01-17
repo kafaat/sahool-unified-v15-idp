@@ -4,7 +4,15 @@
     "created": "2025-12-28",
     "description": "Edge case scenarios for AI agent robustness testing",
     "total_test_cases": 40,
-    "categories": ["invalid_input", "out_of_scope", "ambiguous", "contradictory", "extreme_values", "multilingual_mix", "incomplete_context"]
+    "categories": [
+      "invalid_input",
+      "out_of_scope",
+      "ambiguous",
+      "contradictory",
+      "extreme_values",
+      "multilingual_mix",
+      "incomplete_context"
+    ]
   },
   "test_cases": [
     {

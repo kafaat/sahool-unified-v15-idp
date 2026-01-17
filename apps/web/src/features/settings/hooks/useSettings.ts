@@ -3,10 +3,10 @@
  * خطافات React لميزة الإعدادات
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { settingsApi } from '../api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { settingsApi } from "../api";
 import type {
   NotificationPreferences,
   PrivacySettings,
@@ -14,18 +14,18 @@ import type {
   IntegrationSettings,
   UpdateProfilePayload,
   UpdatePasswordPayload,
-} from '../types';
+} from "../types";
 
 // Query Keys
 const SETTINGS_KEYS = {
-  all: ['settings'] as const,
-  profile: () => [...SETTINGS_KEYS.all, 'profile'] as const,
-  notifications: () => [...SETTINGS_KEYS.all, 'notifications'] as const,
-  security: () => [...SETTINGS_KEYS.all, 'security'] as const,
-  privacy: () => [...SETTINGS_KEYS.all, 'privacy'] as const,
-  display: () => [...SETTINGS_KEYS.all, 'display'] as const,
-  integrations: () => [...SETTINGS_KEYS.all, 'integrations'] as const,
-  subscription: () => [...SETTINGS_KEYS.all, 'subscription'] as const,
+  all: ["settings"] as const,
+  profile: () => [...SETTINGS_KEYS.all, "profile"] as const,
+  notifications: () => [...SETTINGS_KEYS.all, "notifications"] as const,
+  security: () => [...SETTINGS_KEYS.all, "security"] as const,
+  privacy: () => [...SETTINGS_KEYS.all, "privacy"] as const,
+  display: () => [...SETTINGS_KEYS.all, "display"] as const,
+  integrations: () => [...SETTINGS_KEYS.all, "integrations"] as const,
+  subscription: () => [...SETTINGS_KEYS.all, "subscription"] as const,
 };
 
 /**
@@ -85,9 +85,12 @@ export function useUpdateNotificationPreferences() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: NotificationPreferences) => settingsApi.updateNotificationSettings(data),
+    mutationFn: (data: NotificationPreferences) =>
+      settingsApi.updateNotificationSettings(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SETTINGS_KEYS.notifications() });
+      queryClient.invalidateQueries({
+        queryKey: SETTINGS_KEYS.notifications(),
+      });
     },
   });
 }
@@ -108,7 +111,8 @@ export function useSecuritySettings() {
  */
 export function useUpdatePassword() {
   return useMutation({
-    mutationFn: (data: UpdatePasswordPayload) => settingsApi.changePassword(data),
+    mutationFn: (data: UpdatePasswordPayload) =>
+      settingsApi.changePassword(data),
   });
 }
 
@@ -121,7 +125,7 @@ export function useToggleTwoFactor() {
   return useMutation({
     mutationFn: (data: {
       enabled: boolean;
-      method?: '2fa_app' | 'sms' | 'email';
+      method?: "2fa_app" | "sms" | "email";
     }) => settingsApi.enable2FA(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SETTINGS_KEYS.security() });
@@ -161,7 +165,8 @@ export function useUpdatePrivacySettings() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: PrivacySettings) => settingsApi.updatePrivacySettings(data),
+    mutationFn: (data: PrivacySettings) =>
+      settingsApi.updatePrivacySettings(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SETTINGS_KEYS.privacy() });
     },
@@ -186,7 +191,8 @@ export function useUpdateDisplayPreferences() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: DisplayPreferences) => settingsApi.updateDisplayPreferences(data),
+    mutationFn: (data: DisplayPreferences) =>
+      settingsApi.updateDisplayPreferences(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SETTINGS_KEYS.display() });
     },
@@ -211,7 +217,8 @@ export function useUpdateIntegrationSettings() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Partial<IntegrationSettings>) => settingsApi.updateIntegrationSettings(data),
+    mutationFn: (data: Partial<IntegrationSettings>) =>
+      settingsApi.updateIntegrationSettings(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SETTINGS_KEYS.integrations() });
     },

@@ -21,24 +21,28 @@ frontend/
 ## 🖥️ Dashboard Features
 
 ### 🗺️ خريطة الحقول | Map View
+
 - MapLibre GL integration
 - Yemen regions & fields
 - Status overlay (healthy/warning/critical)
 - NDVI visualization (coming)
 
 ### 📋 المهام اليومية | Daily Tasks
+
 - Task list with filters
 - Priority indicators
 - Due date tracking
 - Complete with evidence
 
 ### 📊 الأحداث المباشرة | Live Timeline
+
 - Real-time event stream
 - WebSocket connection
 - Event type filtering
 - Auto-refresh
 
 ### 📈 الإحصائيات | Stats Cards
+
 - Fields count & area
 - Health score
 - Pending tasks
@@ -51,6 +55,7 @@ frontend/
 ## 🏃 Quick Start
 
 ### Development
+
 ```bash
 cd frontend/dashboard
 npm install
@@ -59,6 +64,7 @@ npm run dev
 ```
 
 ### Docker
+
 ```bash
 cd frontend
 docker compose up -d
@@ -70,49 +76,54 @@ docker compose up -d
 ## 🔌 WebSocket Gateway
 
 ### Endpoints
+
 - `ws://localhost:8081/events` - Event stream
 
 ### Subscribe
+
 ```javascript
-ws.send(JSON.stringify({
-  type: 'subscribe',
-  subjects: ['tasks.*', 'weather.*', 'diagnosis.*']
-}))
+ws.send(
+  JSON.stringify({
+    type: "subscribe",
+    subjects: ["tasks.*", "weather.*", "diagnosis.*"],
+  }),
+);
 ```
 
 ### Event Types
-| Subject | Description |
-|---------|-------------|
-| `tasks.task_created` | New task created |
-| `tasks.task_completed` | Task completed |
-| `weather.alert_issued` | Weather alert |
+
+| Subject                     | Description       |
+| --------------------------- | ----------------- |
+| `tasks.task_created`        | New task created  |
+| `tasks.task_completed`      | Task completed    |
+| `weather.alert_issued`      | Weather alert     |
 | `diagnosis.image_diagnosed` | Disease diagnosis |
-| `ndvi.processed` | NDVI analysis |
+| `ndvi.processed`            | NDVI analysis     |
 
 ---
 
 ## 🎨 UI Components
 
 ### TaskCard
+
 ```tsx
-<TaskCard
-  task={task}
-  onComplete={handleComplete}
-  onSelect={handleSelect}
-/>
+<TaskCard task={task} onComplete={handleComplete} onSelect={handleSelect} />
 ```
 
 ### EventTimeline
+
 ```tsx
 <EventTimeline />
 ```
 
 ### MapView
+
 ```tsx
 <MapView onFieldSelect={setSelectedField} />
 ```
 
 ### StatusBadge
+
 ```tsx
 <StatusBadge status="healthy" />
 <StatusBadge status="warning" />
@@ -124,17 +135,19 @@ ws.send(JSON.stringify({
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```env
 API_URL=http://localhost:8080
 WS_URL=ws://localhost:8081
 ```
 
 ### Ports
-| Service | Port |
-|---------|------|
-| Dashboard | 3000 |
+
+| Service    | Port |
+| ---------- | ---- |
+| Dashboard  | 3000 |
 | WS Gateway | 8081 |
-| Nginx | 80 |
+| Nginx      | 80   |
 
 ---
 

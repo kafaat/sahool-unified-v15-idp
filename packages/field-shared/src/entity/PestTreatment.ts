@@ -1,12 +1,12 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    Index,
-    ManyToOne,
-    JoinColumn
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
 import { PestIncident } from "./PestIncident";
 
@@ -21,79 +21,78 @@ import { PestIncident } from "./PestIncident";
 @Index("idx_pest_treatment_tenant", ["tenantId"])
 @Index("idx_pest_treatment_date", ["treatmentDate"])
 export class PestTreatment {
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+  // ─────────────────────────────────────────────────────────────────────────
+  // References
+  // ─────────────────────────────────────────────────────────────────────────
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // References
-    // ─────────────────────────────────────────────────────────────────────────
+  @Column({ name: "incident_id", type: "uuid" })
+  incidentId!: string;
 
-    @Column({ name: "incident_id", type: "uuid" })
-    incidentId!: string;
+  @Column({ name: "tenant_id", length: 100 })
+  tenantId!: string;
 
-    @Column({ name: "tenant_id", length: 100 })
-    tenantId!: string;
+  // ─────────────────────────────────────────────────────────────────────────
+  // Treatment Details
+  // ─────────────────────────────────────────────────────────────────────────
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Treatment Details
-    // ─────────────────────────────────────────────────────────────────────────
+  @Column({ name: "treatment_date", type: "timestamptz" })
+  treatmentDate!: Date;
 
-    @Column({ name: "treatment_date", type: "timestamptz" })
-    treatmentDate!: Date;
+  @Column({ length: 255 })
+  method!: string;
 
-    @Column({ length: 255 })
-    method!: string;
+  @Column({ name: "product_used", length: 255 })
+  productUsed!: string;
 
-    @Column({ name: "product_used", length: 255 })
-    productUsed!: string;
+  @Column({ name: "product_id", type: "uuid", nullable: true })
+  productId?: string;
 
-    @Column({ name: "product_id", type: "uuid", nullable: true })
-    productId?: string;
+  // ─────────────────────────────────────────────────────────────────────────
+  // Application Details
+  // ─────────────────────────────────────────────────────────────────────────
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Application Details
-    // ─────────────────────────────────────────────────────────────────────────
+  @Column({ type: "decimal", precision: 10, scale: 3 })
+  quantity!: number;
 
-    @Column({ type: "decimal", precision: 10, scale: 3 })
-    quantity!: number;
+  @Column({ length: 50 })
+  unit!: string;
 
-    @Column({ length: 50 })
-    unit!: string;
+  @Column({ name: "applied_by", length: 255 })
+  appliedBy!: string;
 
-    @Column({ name: "applied_by", length: 255 })
-    appliedBy!: string;
+  // ─────────────────────────────────────────────────────────────────────────
+  // Results
+  // ─────────────────────────────────────────────────────────────────────────
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Results
-    // ─────────────────────────────────────────────────────────────────────────
+  @Column({ type: "smallint", nullable: true })
+  effectiveness?: number; // 1-5 scale
 
-    @Column({ type: "smallint", nullable: true })
-    effectiveness?: number; // 1-5 scale
+  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  cost?: number;
 
-    @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
-    cost?: number;
+  @Column({ type: "text", nullable: true })
+  notes?: string;
 
-    @Column({ type: "text", nullable: true })
-    notes?: string;
+  // ─────────────────────────────────────────────────────────────────────────
+  // Relations
+  // ─────────────────────────────────────────────────────────────────────────
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Relations
-    // ─────────────────────────────────────────────────────────────────────────
+  @ManyToOne(() => PestIncident, (incident) => incident.treatments, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "incident_id" })
+  incident?: PestIncident;
 
-    @ManyToOne(() => PestIncident, incident => incident.treatments, {
-        onDelete: "CASCADE"
-    })
-    @JoinColumn({ name: "incident_id" })
-    incident?: PestIncident;
+  // ─────────────────────────────────────────────────────────────────────────
+  // Timestamps
+  // ─────────────────────────────────────────────────────────────────────────
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Timestamps
-    // ─────────────────────────────────────────────────────────────────────────
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
+  createdAt!: Date;
 
-    @CreateDateColumn({ name: "created_at", type: "timestamptz" })
-    createdAt!: Date;
-
-    @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
-    updatedAt!: Date;
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
+  updatedAt!: Date;
 }

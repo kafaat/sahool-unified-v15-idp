@@ -1,13 +1,16 @@
 # Alert Service Database Migrations Guide
+
 # دليل ترحيل قاعدة البيانات لخدمة التنبيهات
 
 ## نظرة عامة | Overview
 
 تم إعداد خدمة التنبيهات للعمل مع قاعدة بيانات PostgreSQL باستخدام:
+
 - **SQLAlchemy**: ORM للتعامل مع قاعدة البيانات
 - **Alembic**: إدارة إصدارات قاعدة البيانات (migrations)
 
 The Alert Service has been set up to work with PostgreSQL using:
+
 - **SQLAlchemy**: ORM for database operations
 - **Alembic**: Database version control and migrations
 
@@ -38,6 +41,7 @@ alert-service/
 يخزن التنبيهات الزراعية والإنذارات للحقول.
 
 **الحقول الرئيسية:**
+
 - `id` (UUID): المعرف الفريد
 - `tenant_id` (UUID): معرف المستأجر (multi-tenancy)
 - `field_id` (String): معرف الحقل
@@ -51,6 +55,7 @@ alert-service/
 - `created_at`, `expires_at`, `acknowledged_at`, `dismissed_at`, `resolved_at`: التواريخ
 
 **الفهارس:**
+
 - `ix_alerts_field_status`: للبحث بالحقل والحالة
 - `ix_alerts_tenant_created`: للبحث بالمستأجر
 - `ix_alerts_type_severity`: للتصفية بالنوع والخطورة
@@ -62,6 +67,7 @@ alert-service/
 يخزن قواعد التنبيه الآلي.
 
 **الحقول الرئيسية:**
+
 - `id` (UUID): المعرف الفريد
 - `tenant_id` (UUID): معرف المستأجر
 - `field_id` (String): معرف الحقل
@@ -73,6 +79,7 @@ alert-service/
 - `last_triggered_at`: آخر وقت تم تفعيل القاعدة فيه
 
 **الفهارس:**
+
 - `ix_alert_rules_field`: للبحث بالحقل
 - `ix_alert_rules_tenant`: للبحث بالمستأجر
 - `ix_alert_rules_enabled`: للقواعد المفعلة
@@ -87,6 +94,7 @@ pip install -r requirements.txt
 ```
 
 المكتبات الجديدة:
+
 - `sqlalchemy==2.0.23`
 - `alembic==1.13.1`
 - `psycopg2-binary==2.9.9`
@@ -108,6 +116,7 @@ export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/sahool_alerts
 ```
 
 أو في ملف `.env`:
+
 ```
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/sahool_alerts
 ```
@@ -227,6 +236,7 @@ else:
 ## أفضل الممارسات | Best Practices
 
 ### 1. دائماً اختبر في Development أولاً
+
 ```bash
 # استخدم قاعدة بيانات منفصلة للتطوير
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/sahool_alerts_dev"
@@ -234,9 +244,11 @@ alembic upgrade head
 ```
 
 ### 2. لا تعدل Migrations القديمة
+
 إذا احتجت تغيير، أنشئ migration جديدة.
 
 ### 3. دائماً قدم upgrade و downgrade
+
 ```python
 def upgrade() -> None:
     op.add_column('alerts', sa.Column('new_field', sa.String()))
@@ -246,6 +258,7 @@ def downgrade() -> None:
 ```
 
 ### 4. اختبر downgrade
+
 ```bash
 # تطبيق
 alembic upgrade head
@@ -258,6 +271,7 @@ alembic upgrade head
 ```
 
 ### 5. استخدم Transactions لـ Data Migrations
+
 ```python
 from alembic import op
 
@@ -278,6 +292,7 @@ alembic stamp head
 ### DATABASE_URL غير موجود
 
 تأكد من ضبط متغير البيانات:
+
 ```bash
 echo $DATABASE_URL
 export DATABASE_URL="postgresql://user:pass@host:5432/dbname"
@@ -317,15 +332,19 @@ alembic upgrade head
 ## الأمان | Security
 
 ### 1. لا تحفظ كلمات المرور في الكود
+
 استخدم متغيرات البيئة فقط.
 
 ### 2. استخدم SSL للإنتاج
+
 ```python
 DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
 ```
 
 ### 3. قيّد صلاحيات المستخدم
+
 أنشئ مستخدم خاص بالتطبيق مع صلاحيات محدودة:
+
 ```sql
 CREATE USER alert_service WITH PASSWORD 'secure_password';
 GRANT CONNECT ON DATABASE sahool_alerts TO alert_service;
@@ -336,6 +355,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO alert_ser
 ## الخلاصة | Summary
 
 تم إعداد خدمة التنبيهات بنجاح مع:
+
 - ✅ نماذج SQLAlchemy (`db_models.py`)
 - ✅ إعدادات قاعدة البيانات (`database.py`)
 - ✅ طبقة Repository (`repository.py`)
@@ -344,6 +364,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO alert_ser
 - ✅ توثيق شامل
 
 للبدء:
+
 ```bash
 cd apps/services/alert-service
 pip install -r requirements.txt

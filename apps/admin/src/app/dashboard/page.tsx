@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
 // Sahool Admin Dashboard - Main Page
 // الصفحة الرئيسية للوحة تحكم سهول - غرفة العمليات المركزية
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import Header from '@/components/layout/Header';
-import StatCard from '@/components/ui/StatCard';
-import AlertBadge from '@/components/ui/AlertBadge';
-import { fetchDashboardStats, fetchFarms, fetchDiagnoses } from '@/lib/api';
-import { formatDate } from '@/lib/utils';
-import type { DashboardStats, Farm, DiagnosisRecord } from '@/types';
-import type { BaseFarmData } from '@/components/maps/FarmsMap';
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import Header from "@/components/layout/Header";
+import StatCard from "@/components/ui/StatCard";
+import AlertBadge from "@/components/ui/AlertBadge";
+import { fetchDashboardStats, fetchFarms, fetchDiagnoses } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
+import type { DashboardStats, Farm, DiagnosisRecord } from "@/types";
+import type { BaseFarmData } from "@/components/maps/FarmsMap";
 import {
   MapPin,
   Leaf,
@@ -26,12 +26,12 @@ import {
   Sun,
   Wifi,
   WifiOff,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useWebSocket, useWebSocketEvent } from '@/hooks/useWebSocket';
-import { useRealTimeAlerts } from '@/hooks/useRealTimeAlerts';
-import type { SensorMessage, DiagnosisMessage } from '@/hooks/useWebSocket';
-import { logger } from '../../lib/logger';
+} from "lucide-react";
+import Link from "next/link";
+import { useWebSocket, useWebSocketEvent } from "@/hooks/useWebSocket";
+import { useRealTimeAlerts } from "@/hooks/useRealTimeAlerts";
+import type { SensorMessage, DiagnosisMessage } from "@/hooks/useWebSocket";
+import { logger } from "../../lib/logger";
 import {
   BarChart,
   Bar,
@@ -46,10 +46,10 @@ import {
   Cell,
   AreaChart,
   Area,
-} from 'recharts';
+} from "recharts";
 
 // Dynamic import for map (no SSR)
-const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
+const FarmsMap = dynamic(() => import("@/components/maps/FarmsMap"), {
   ssr: false,
   loading: () => (
     <div className="h-[400px] bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
@@ -60,42 +60,42 @@ const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
 
 // Chart colors
 const CHART_COLORS = {
-  primary: '#2E7D32',
-  secondary: '#4CAF50',
-  accent: '#81C784',
-  warning: '#FF9800',
-  danger: '#F44336',
-  info: '#2196F3',
+  primary: "#2E7D32",
+  secondary: "#4CAF50",
+  accent: "#81C784",
+  warning: "#FF9800",
+  danger: "#F44336",
+  info: "#2196F3",
 };
 
-const PIE_COLORS = ['#2E7D32', '#4CAF50', '#81C784', '#A5D6A7', '#C8E6C9'];
+const PIE_COLORS = ["#2E7D32", "#4CAF50", "#81C784", "#A5D6A7", "#C8E6C9"];
 
 // Mock data for charts
 const yieldTrendData = [
-  { month: 'يناير', yield: 120, forecast: 115 },
-  { month: 'فبراير', yield: 140, forecast: 135 },
-  { month: 'مارس', yield: 280, forecast: 250 },
-  { month: 'أبريل', yield: 320, forecast: 300 },
-  { month: 'مايو', yield: 180, forecast: 190 },
-  { month: 'يونيو', yield: 95, forecast: 100 },
+  { month: "يناير", yield: 120, forecast: 115 },
+  { month: "فبراير", yield: 140, forecast: 135 },
+  { month: "مارس", yield: 280, forecast: 250 },
+  { month: "أبريل", yield: 320, forecast: 300 },
+  { month: "مايو", yield: 180, forecast: 190 },
+  { month: "يونيو", yield: 95, forecast: 100 },
 ];
 
 const cropDistributionData = [
-  { name: 'قمح', value: 35 },
-  { name: 'بن', value: 25 },
-  { name: 'قات', value: 20 },
-  { name: 'فواكه', value: 12 },
-  { name: 'خضروات', value: 8 },
+  { name: "قمح", value: 35 },
+  { name: "بن", value: 25 },
+  { name: "قات", value: 20 },
+  { name: "فواكه", value: 12 },
+  { name: "خضروات", value: 8 },
 ];
 
 const weeklyActivityData = [
-  { day: 'السبت', diagnoses: 12, irrigations: 8, alerts: 3 },
-  { day: 'الأحد', diagnoses: 18, irrigations: 12, alerts: 5 },
-  { day: 'الاثنين', diagnoses: 15, irrigations: 10, alerts: 2 },
-  { day: 'الثلاثاء', diagnoses: 22, irrigations: 15, alerts: 4 },
-  { day: 'الأربعاء', diagnoses: 19, irrigations: 11, alerts: 6 },
-  { day: 'الخميس', diagnoses: 25, irrigations: 14, alerts: 3 },
-  { day: 'الجمعة', diagnoses: 8, irrigations: 5, alerts: 1 },
+  { day: "السبت", diagnoses: 12, irrigations: 8, alerts: 3 },
+  { day: "الأحد", diagnoses: 18, irrigations: 12, alerts: 5 },
+  { day: "الاثنين", diagnoses: 15, irrigations: 10, alerts: 2 },
+  { day: "الثلاثاء", diagnoses: 22, irrigations: 15, alerts: 4 },
+  { day: "الأربعاء", diagnoses: 19, irrigations: 11, alerts: 6 },
+  { day: "الخميس", diagnoses: 25, irrigations: 14, alerts: 3 },
+  { day: "الجمعة", diagnoses: 8, irrigations: 5, alerts: 1 },
 ];
 
 export default function DashboardPage() {
@@ -109,7 +109,7 @@ export default function DashboardPage() {
   const { isConnected } = useWebSocket({ autoConnect: true });
   const { unreadCount, criticalAlerts } = useRealTimeAlerts({
     enableNotifications: true,
-    minSeverity: 'medium',
+    minSeverity: "medium",
   });
 
   // Load initial data
@@ -125,7 +125,7 @@ export default function DashboardPage() {
         setFarms(farmsData);
         setRecentDiagnoses(diagnosesData.slice(0, 5));
       } catch (error) {
-        logger.error('Failed to load dashboard data:', error);
+        logger.error("Failed to load dashboard data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -134,12 +134,12 @@ export default function DashboardPage() {
   }, []);
 
   // Real-time diagnosis updates via WebSocket
-  useWebSocketEvent<DiagnosisMessage>('diagnosis', (diagnosis) => {
+  useWebSocketEvent<DiagnosisMessage>("diagnosis", (diagnosis) => {
     // Update weekly diagnoses count
     setStats((prev) =>
       prev
         ? { ...prev, weeklyDiagnoses: (prev.weeklyDiagnoses || 0) + 1 }
-        : prev
+        : prev,
     );
 
     // Add to recent diagnoses
@@ -149,17 +149,17 @@ export default function DashboardPage() {
         farmId: diagnosis.farmId,
         farmName: diagnosis.farmName,
         diseaseNameAr: diagnosis.diseaseNameAr,
-        diseaseName: '',
-        diseaseId: '',
-        imageUrl: '/api/placeholder/400/300',
-        thumbnailUrl: '/api/placeholder/100/100',
-        cropType: '',
+        diseaseName: "",
+        diseaseId: "",
+        imageUrl: "/api/placeholder/400/300",
+        thumbnailUrl: "/api/placeholder/100/100",
+        cropType: "",
         confidence: diagnosis.confidence,
         severity: diagnosis.severity,
-        status: 'pending',
+        status: "pending",
         location: { lat: 0, lng: 0 },
         diagnosedAt: diagnosis.timestamp,
-        createdBy: '',
+        createdBy: "",
       };
 
       return [newDiagnosis, ...prev].slice(0, 5);
@@ -167,18 +167,16 @@ export default function DashboardPage() {
   });
 
   // Real-time sensor updates via WebSocket
-  useWebSocketEvent<SensorMessage>('sensor', (sensor) => {
+  useWebSocketEvent<SensorMessage>("sensor", (sensor) => {
     // Log sensor readings - can be extended to show live sensor data
-    logger.log('New sensor reading:', sensor);
+    logger.log("New sensor reading:", sensor);
   });
 
   // Update critical alerts count from real-time data
   useEffect(() => {
     if (criticalAlerts.length > 0) {
       setStats((prev) =>
-        prev
-          ? { ...prev, criticalAlerts: criticalAlerts.length }
-          : prev
+        prev ? { ...prev, criticalAlerts: criticalAlerts.length } : prev,
       );
     }
   }, [criticalAlerts.length]);
@@ -194,7 +192,10 @@ export default function DashboardPage() {
         <Header title="لوحة التحكم" subtitle="نظرة عامة على المنصة" />
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 animate-pulse rounded-xl"></div>
+            <div
+              key={i}
+              className="h-32 bg-gray-200 animate-pulse rounded-xl"
+            ></div>
           ))}
         </div>
       </div>
@@ -238,7 +239,7 @@ export default function DashboardPage() {
         />
         <StatCard
           title="المساحة الإجمالية"
-          value={stats?.totalArea?.toFixed(1) || '0'}
+          value={stats?.totalArea?.toFixed(1) || "0"}
           suffix="هكتار"
           icon={Leaf}
           trend={{ value: 8, isPositive: true }}
@@ -263,7 +264,7 @@ export default function DashboardPage() {
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="متوسط صحة المحاصيل"
-          value={`${stats?.avgHealthScore?.toFixed(1) || '0'}%`}
+          value={`${stats?.avgHealthScore?.toFixed(1) || "0"}%`}
           icon={Activity}
           iconColor="text-emerald-600"
         />
@@ -287,15 +288,31 @@ export default function DashboardPage() {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-900">توقعات الإنتاجية (طن)</h3>
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">آخر 6 أشهر</span>
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              آخر 6 أشهر
+            </span>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={yieldTrendData}>
                 <defs>
-                  <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3} />
-                    <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0} />
+                  <linearGradient
+                    id="yieldGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor={CHART_COLORS.primary}
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={CHART_COLORS.primary}
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -303,10 +320,10 @@ export default function DashboardPage() {
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    direction: 'rtl',
+                    backgroundColor: "#fff",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    direction: "rtl",
                   }}
                 />
                 <Area
@@ -358,15 +375,30 @@ export default function DashboardPage() {
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    direction: 'rtl',
+                    backgroundColor: "#fff",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    direction: "rtl",
                   }}
                 />
-                <Bar dataKey="diagnoses" fill={CHART_COLORS.primary} radius={[4, 4, 0, 0]} name="تشخيصات" />
-                <Bar dataKey="irrigations" fill={CHART_COLORS.info} radius={[4, 4, 0, 0]} name="عمليات ري" />
-                <Bar dataKey="alerts" fill={CHART_COLORS.danger} radius={[4, 4, 0, 0]} name="تنبيهات" />
+                <Bar
+                  dataKey="diagnoses"
+                  fill={CHART_COLORS.primary}
+                  radius={[4, 4, 0, 0]}
+                  name="تشخيصات"
+                />
+                <Bar
+                  dataKey="irrigations"
+                  fill={CHART_COLORS.info}
+                  radius={[4, 4, 0, 0]}
+                  name="عمليات ري"
+                />
+                <Bar
+                  dataKey="alerts"
+                  fill={CHART_COLORS.danger}
+                  radius={[4, 4, 0, 0]}
+                  name="تنبيهات"
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -389,11 +421,16 @@ export default function DashboardPage() {
                   outerRadius={70}
                   paddingAngle={2}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${((percent || 0) * 100).toFixed(0)}%`
+                  }
                   labelLine={false}
                 >
                   {cropDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={PIE_COLORS[index % PIE_COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -480,7 +517,10 @@ export default function DashboardPage() {
               </div>
             ) : (
               recentDiagnoses.map((diagnosis) => (
-                <div key={diagnosis.id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div
+                  key={diagnosis.id}
+                  className="p-4 hover:bg-gray-50 transition-colors"
+                >
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                       <Bug className="w-6 h-6 text-gray-400" />
@@ -517,7 +557,9 @@ export default function DashboardPage() {
       {selectedFarm && (
         <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-6 animate-fade-in">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-lg text-gray-900">{selectedFarm.nameAr}</h2>
+            <h2 className="font-bold text-lg text-gray-900">
+              {selectedFarm.nameAr}
+            </h2>
             <button
               onClick={() => setSelectedFarm(null)}
               className="text-gray-400 hover:text-gray-600"
@@ -532,15 +574,19 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500">المساحة</p>
-              <p className="font-medium">{selectedFarm.area.toFixed(1)} هكتار</p>
+              <p className="font-medium">
+                {selectedFarm.area.toFixed(1)} هكتار
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">المحاصيل</p>
-              <p className="font-medium">{selectedFarm.crops.join(', ')}</p>
+              <p className="font-medium">{selectedFarm.crops.join(", ")}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">مستوى الصحة</p>
-              <p className="font-bold text-sahool-600">{selectedFarm.healthScore}%</p>
+              <p className="font-bold text-sahool-600">
+                {selectedFarm.healthScore}%
+              </p>
             </div>
           </div>
           <div className="mt-4 flex gap-3">

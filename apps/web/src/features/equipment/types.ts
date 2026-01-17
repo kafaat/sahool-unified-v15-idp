@@ -3,9 +3,24 @@
  * أنواع ميزة المعدات
  */
 
-export type EquipmentStatus = 'active' | 'maintenance' | 'repair' | 'idle' | 'retired';
-export type EquipmentType = 'tractor' | 'harvester' | 'irrigation_system' | 'sprayer' | 'planter' | 'other';
-export type MaintenanceStatus = 'scheduled' | 'in_progress' | 'completed' | 'overdue';
+export type EquipmentStatus =
+  | "active"
+  | "maintenance"
+  | "repair"
+  | "idle"
+  | "retired";
+export type EquipmentType =
+  | "tractor"
+  | "harvester"
+  | "irrigation_system"
+  | "sprayer"
+  | "planter"
+  | "other";
+export type MaintenanceStatus =
+  | "scheduled"
+  | "in_progress"
+  | "completed"
+  | "overdue";
 
 export interface Equipment {
   id: string;
@@ -44,7 +59,7 @@ export interface MaintenanceRecord {
   id: string;
   equipmentId: string;
   equipmentName: string;
-  type: 'routine' | 'repair' | 'inspection' | 'emergency';
+  type: "routine" | "repair" | "inspection" | "emergency";
   status: MaintenanceStatus;
   scheduledDate: string;
   completedDate?: string;
@@ -91,7 +106,7 @@ export interface EquipmentFormData {
 
 export interface MaintenanceFormData {
   equipmentId: string;
-  type: 'routine' | 'repair' | 'inspection' | 'emergency';
+  type: "routine" | "repair" | "inspection" | "emergency";
   scheduledDate: string;
   description: string;
   descriptionAr: string;

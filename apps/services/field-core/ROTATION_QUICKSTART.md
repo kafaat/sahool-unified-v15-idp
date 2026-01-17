@@ -7,17 +7,20 @@
 ### Option 1: Run with Python
 
 1. Install dependencies:
+
 ```bash
 cd /home/user/sahool-unified-v15-idp/apps/services/field-core
 pip install -r rotation-requirements.txt
 ```
 
 2. Run the service:
+
 ```bash
 python -m src.rotation_main
 ```
 
 3. Access the API:
+
 ```
 http://localhost:8099/docs
 ```
@@ -38,6 +41,7 @@ curl "http://localhost:8099/v1/rotation/plan?field_id=F001&field_name=MyField&st
 ```
 
 Response:
+
 ```json
 {
   "field_id": "F001",
@@ -87,6 +91,7 @@ python examples/rotation_example.py
 ```
 
 This will demonstrate:
+
 - Creating rotation plans
 - Suggesting next crops
 - Evaluating rotations
@@ -101,14 +106,14 @@ pytest tests/test_rotation.py -v
 
 ## Key Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/rotation/plan` | GET/POST | Create rotation plan |
-| `/v1/rotation/suggest/{field_id}` | GET | Suggest next crop |
-| `/v1/rotation/evaluate` | POST | Evaluate rotation |
-| `/v1/rotation/rules` | GET | View rotation rules |
-| `/v1/rotation/families` | GET | List crop families |
-| `/v1/rotation/check` | GET | Check compatibility |
+| Endpoint                          | Method   | Description          |
+| --------------------------------- | -------- | -------------------- |
+| `/v1/rotation/plan`               | GET/POST | Create rotation plan |
+| `/v1/rotation/suggest/{field_id}` | GET      | Suggest next crop    |
+| `/v1/rotation/evaluate`           | POST     | Evaluate rotation    |
+| `/v1/rotation/rules`              | GET      | View rotation rules  |
+| `/v1/rotation/families`           | GET      | List crop families   |
+| `/v1/rotation/check`              | GET      | Check compatibility  |
 
 ## Crop Families Supported
 

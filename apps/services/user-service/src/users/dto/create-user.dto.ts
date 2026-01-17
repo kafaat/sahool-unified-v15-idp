@@ -3,7 +3,7 @@
  * كائن نقل البيانات لإنشاء مستخدم
  */
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsEmail,
   IsString,
@@ -13,42 +13,49 @@ import {
   MaxLength,
   IsPhoneNumber,
   IsBoolean,
-} from 'class-validator';
-import { IsYemeniPhone, IsStrongPassword, SanitizePlainText, UserRole, UserStatus } from '../../utils/validation';
+} from "class-validator";
+import {
+  IsYemeniPhone,
+  IsStrongPassword,
+  SanitizePlainText,
+  UserRole,
+  UserStatus,
+} from "../../utils/validation";
 
 export class CreateUserDto {
   @ApiProperty({
-    description: 'Tenant ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: "Tenant ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @IsString()
   tenantId: string;
 
   @ApiProperty({
-    description: 'User email address',
-    example: 'user@example.com',
+    description: "User email address",
+    example: "user@example.com",
   })
   @IsEmail()
   email: string;
 
   @ApiPropertyOptional({
-    description: 'User phone number (Yemen format: +967XXXXXXXX or 7XXXXXXXX)',
-    example: '+967712345678',
+    description: "User phone number (Yemen format: +967XXXXXXXX or 7XXXXXXXX)",
+    example: "+967712345678",
   })
   @IsOptional()
   @IsYemeniPhone()
   phone?: string;
 
   @ApiProperty({
-    description: 'User password (min 8 characters, must contain uppercase, lowercase, number, and special character)',
-    example: 'SecurePassword123!',
+    description:
+      "User password (min 8 characters, must contain uppercase, lowercase, number, and special character)",
+    example: "SecurePassword123!",
   })
   @IsStrongPassword(8)
   password: string;
 
   @ApiProperty({
-    description: 'User first name',
-    example: 'أحمد',
+    description: "User first name",
+    example: "أحمد",
   })
   @IsString()
   @MinLength(2)
@@ -57,8 +64,8 @@ export class CreateUserDto {
   firstName: string;
 
   @ApiProperty({
-    description: 'User last name',
-    example: 'محمد',
+    description: "User last name",
+    example: "محمد",
   })
   @IsString()
   @MinLength(2)
@@ -67,7 +74,7 @@ export class CreateUserDto {
   lastName: string;
 
   @ApiPropertyOptional({
-    description: 'User role',
+    description: "User role",
     enum: UserRole,
     default: UserRole.VIEWER,
   })
@@ -76,7 +83,7 @@ export class CreateUserDto {
   role?: UserRole;
 
   @ApiPropertyOptional({
-    description: 'User status',
+    description: "User status",
     enum: UserStatus,
     default: UserStatus.PENDING,
   })
@@ -85,7 +92,7 @@ export class CreateUserDto {
   status?: UserStatus;
 
   @ApiPropertyOptional({
-    description: 'Email verification status',
+    description: "Email verification status",
     default: false,
   })
   @IsOptional()
@@ -93,7 +100,7 @@ export class CreateUserDto {
   emailVerified?: boolean;
 
   @ApiPropertyOptional({
-    description: 'Phone verification status',
+    description: "Phone verification status",
     default: false,
   })
   @IsOptional()

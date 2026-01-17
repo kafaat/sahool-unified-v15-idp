@@ -10,30 +10,30 @@
 
 ### 1. Scripts (`/home/user/sahool-unified-v15-idp/scripts/nats/`)
 
-| File | Description | Executable |
-|------|-------------|-----------|
-| `generate-nkeys.sh` | Generates operator, accounts, and user NKeys | ✅ |
-| `setup-nkey-env.sh` | Extracts values and creates .env.nkey file | ✅ |
-| `README.md` | Scripts documentation | - |
+| File                | Description                                  | Executable |
+| ------------------- | -------------------------------------------- | ---------- |
+| `generate-nkeys.sh` | Generates operator, accounts, and user NKeys | ✅         |
+| `setup-nkey-env.sh` | Extracts values and creates .env.nkey file   | ✅         |
+| `README.md`         | Scripts documentation                        | -          |
 
 ### 2. Configuration Files (`/home/user/sahool-unified-v15-idp/config/nats/`)
 
-| File | Description |
-|------|-------------|
-| `nats-nkey.conf` | NKey-based NATS server configuration |
-| `.env.nkey.template` | Environment variables template |
-| `QUICK_START.md` | Quick start guide for developers |
+| File                 | Description                          |
+| -------------------- | ------------------------------------ |
+| `nats-nkey.conf`     | NKey-based NATS server configuration |
+| `.env.nkey.template` | Environment variables template       |
+| `QUICK_START.md`     | Quick start guide for developers     |
 
 ### 3. Documentation (`/home/user/sahool-unified-v15-idp/docs/`)
 
-| File | Description |
-|------|-------------|
+| File                 | Description                                    |
+| -------------------- | ---------------------------------------------- |
 | `NATS_NKEY_SETUP.md` | Comprehensive NKey authentication guide (26KB) |
 
 ### 4. Security Updates
 
-| File | Description |
-|------|-------------|
+| File         | Description                             |
+| ------------ | --------------------------------------- |
 | `.gitignore` | Updated to exclude credentials and keys |
 
 ---
@@ -85,15 +85,16 @@ services:
     env_file:
       - ./config/nats/.env.nkey
     ports:
-      - "4222:4222"  # Client connections
-      - "8222:8222"  # HTTP monitoring
-      - "6222:6222"  # Cluster connections
+      - "4222:4222" # Client connections
+      - "8222:8222" # HTTP monitoring
+      - "6222:6222" # Cluster connections
     networks:
       - sahool-network
     restart: unless-stopped
 ```
 
 Start NATS:
+
 ```bash
 docker-compose up -d nats
 ```
@@ -106,25 +107,25 @@ After running the setup scripts, you'll have these credential files:
 
 ### System Account (SYS)
 
-| User | File | Purpose |
-|------|------|---------|
+| User             | File                       | Purpose                     |
+| ---------------- | -------------------------- | --------------------------- |
 | `system-monitor` | `SYS_system-monitor.creds` | Read-only system monitoring |
 
 ### Application Account (APP)
 
-| User | File | Purpose | Max Connections |
-|------|------|---------|-----------------|
-| `admin` | `APP_admin.creds` | Full administrative access | 10 |
-| `monitor` | `APP_monitor.creds` | Read-only monitoring | 5 |
-| `service1` | `APP_service1.creds` | General service | 50 |
-| `service2` | `APP_service2.creds` | General service | 50 |
-| `field-service` | `APP_field-service.creds` | Field operations (field.>) | 50 |
-| `weather-service` | `APP_weather-service.creds` | Weather data (weather.>) | 20 |
-| `iot-service` | `APP_iot-service.creds` | IoT sensors (iot.>) | 100 |
-| `notification-service` | `APP_notification-service.creds` | Notifications | 50 |
-| `marketplace-service` | `APP_marketplace-service.creds` | Marketplace | 50 |
-| `billing-service` | `APP_billing-service.creds` | Billing | 30 |
-| `chat-service` | `APP_chat-service.creds` | Chat messages | 100 |
+| User                   | File                             | Purpose                    | Max Connections |
+| ---------------------- | -------------------------------- | -------------------------- | --------------- |
+| `admin`                | `APP_admin.creds`                | Full administrative access | 10              |
+| `monitor`              | `APP_monitor.creds`              | Read-only monitoring       | 5               |
+| `service1`             | `APP_service1.creds`             | General service            | 50              |
+| `service2`             | `APP_service2.creds`             | General service            | 50              |
+| `field-service`        | `APP_field-service.creds`        | Field operations (field.>) | 50              |
+| `weather-service`      | `APP_weather-service.creds`      | Weather data (weather.>)   | 20              |
+| `iot-service`          | `APP_iot-service.creds`          | IoT sensors (iot.>)        | 100             |
+| `notification-service` | `APP_notification-service.creds` | Notifications              | 50              |
+| `marketplace-service`  | `APP_marketplace-service.creds`  | Marketplace                | 50              |
+| `billing-service`      | `APP_billing-service.creds`      | Billing                    | 30              |
+| `chat-service`         | `APP_chat-service.creds`         | Chat messages              | 100             |
 
 **All credential files will be in**: `/home/user/sahool-unified-v15-idp/config/nats/creds/`
 
@@ -135,20 +136,21 @@ After running the setup scripts, you'll have these credential files:
 ### Node.js / TypeScript
 
 ```typescript
-import { connect } from 'nats';
+import { connect } from "nats";
 
 const nc = await connect({
-    servers: 'nats://localhost:4222',
-    userCreds: '/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds'
+  servers: "nats://localhost:4222",
+  userCreds:
+    "/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds",
 });
 
 // Publish
-await nc.publish('field.operation.created', JSON.stringify({ id: '123' }));
+await nc.publish("field.operation.created", JSON.stringify({ id: "123" }));
 
 // Subscribe
-const sub = nc.subscribe('field.>');
+const sub = nc.subscribe("field.>");
 for await (const msg of sub) {
-    console.log(`Received: ${msg.subject}`, msg.data);
+  console.log(`Received: ${msg.subject}`, msg.data);
 }
 ```
 
@@ -263,13 +265,13 @@ config/nats/
 
 ## 📚 Documentation Reference
 
-| Document | Location | Purpose |
-|----------|----------|---------|
-| **Quick Start** | `/config/nats/QUICK_START.md` | Get started in 3 steps |
-| **Full Setup Guide** | `/docs/NATS_NKEY_SETUP.md` | Comprehensive documentation (26KB) |
-| **Scripts README** | `/scripts/nats/README.md` | Script usage guide |
-| **Setup Summary** | `/config/nats/generated/SETUP_SUMMARY.md` | Auto-generated after running scripts |
-| **This File** | `/config/nats/NKEY_SETUP_COMPLETE.md` | Overview and checklist |
+| Document             | Location                                  | Purpose                              |
+| -------------------- | ----------------------------------------- | ------------------------------------ |
+| **Quick Start**      | `/config/nats/QUICK_START.md`             | Get started in 3 steps               |
+| **Full Setup Guide** | `/docs/NATS_NKEY_SETUP.md`                | Comprehensive documentation (26KB)   |
+| **Scripts README**   | `/scripts/nats/README.md`                 | Script usage guide                   |
+| **Setup Summary**    | `/config/nats/generated/SETUP_SUMMARY.md` | Auto-generated after running scripts |
+| **This File**        | `/config/nats/NKEY_SETUP_COMPLETE.md`     | Overview and checklist               |
 
 ---
 
@@ -290,6 +292,7 @@ Before deploying to production, verify:
 - [ ] Test connection successful
 
 Verify checklist:
+
 ```bash
 # Run this command to verify setup
 cd /home/user/sahool-unified-v15-idp
@@ -348,21 +351,27 @@ nsc describe account APP -J > config/nats/resolver/APP.jwt
 ## 🆘 Troubleshooting
 
 ### Issue: "authorization violation"
+
 **Solution**: Verify credential file exists and is readable
+
 ```bash
 ls -la config/nats/creds/APP_field-service.creds
 cat config/nats/creds/APP_field-service.creds
 ```
 
 ### Issue: "permission denied for publish"
+
 **Solution**: Check and update user permissions
+
 ```bash
 nsc describe user -a APP -n field-service
 nsc edit user -a APP -n field-service --allow-pub "new-subject.>"
 ```
 
 ### Issue: "no route to account"
+
 **Solution**: Verify account JWT in resolver
+
 ```bash
 ls -la config/nats/resolver/
 nsc describe account APP -J > config/nats/resolver/APP.jwt
@@ -408,6 +417,7 @@ docker-compose restart nats
 **Setup Complete! You're ready to deploy secure NATS with NKey authentication.** 🚀
 
 For questions or issues, refer to the documentation or check NATS server logs:
+
 ```bash
 docker logs sahool-nats
 ```

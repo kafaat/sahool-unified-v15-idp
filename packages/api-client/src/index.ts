@@ -3,7 +3,7 @@
 // عميل API الموحد لمنصة سهول
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
 import type {
   ApiClientConfig,
   ServicePorts,
@@ -27,16 +27,13 @@ import type {
   Severity,
   DiagnosisStatus,
   LogLevel,
-} from './types';
-import {
-  ApiError,
-  parseAxiosError,
-} from './errors';
+} from "./types";
+import { ApiError, parseAxiosError } from "./errors";
 
 // Re-export all types
-export * from './types';
+export * from "./types";
 // Re-export all errors
-export * from './errors';
+export * from "./errors";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Default Configuration
@@ -73,29 +70,29 @@ export class SahoolApiClient {
   private ports: ServicePorts;
   private isProduction: boolean;
   private logLevel: LogLevel;
-  private errorHandling: 'throw' | 'silent';
+  private errorHandling: "throw" | "silent";
 
   constructor(config: ApiClientConfig, ports: Partial<ServicePorts> = {}) {
     this.config = {
       timeout: 30000,
-      locale: 'ar',
+      locale: "ar",
       enableMockData: false,
-      errorHandling: 'throw',
-      logLevel: 'error',
+      errorHandling: "throw",
+      logLevel: "error",
       ...config,
     };
     this.ports = { ...DEFAULT_PORTS, ...ports };
-    this.isProduction = process.env.NODE_ENV === 'production';
-    this.logLevel = this.config.logLevel || 'error';
-    this.errorHandling = this.config.errorHandling || 'throw';
+    this.isProduction = process.env.NODE_ENV === "production";
+    this.logLevel = this.config.logLevel || "error";
+    this.errorHandling = this.config.errorHandling || "throw";
 
     // Create axios instance
     this.client = axios.create({
       timeout: this.config.timeout,
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Accept-Language': `${this.config.locale},en`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Accept-Language": `${this.config.locale},en`,
       },
     });
 
@@ -121,7 +118,7 @@ export class SahoolApiClient {
           this.config.onUnauthorized?.();
         }
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -129,7 +126,11 @@ export class SahoolApiClient {
   // Logging Utilities
   // ─────────────────────────────────────────────────────────────────────────
 
-  private log(level: LogLevel, message: string, context?: Record<string, unknown>): void {
+  private log(
+    level: LogLevel,
+    message: string,
+    context?: Record<string, unknown>,
+  ): void {
     const logLevels: Record<LogLevel, number> = {
       none: 0,
       error: 1,
@@ -139,31 +140,33 @@ export class SahoolApiClient {
     };
 
     // Skip logging if level is 'none' or below threshold
-    if (level === 'none' || logLevels[this.logLevel] < logLevels[level]) {
+    if (level === "none" || logLevels[this.logLevel] < logLevels[level]) {
       return;
     }
 
     const logger = this.config.logger;
     const logMessage = `[SAHOOL API Client] ${message}`;
-    const logContext = context ? { ...context, timestamp: new Date().toISOString() } : undefined;
+    const logContext = context
+      ? { ...context, timestamp: new Date().toISOString() }
+      : undefined;
 
     if (logger) {
       // Logger doesn't have 'none', so we check for valid log levels
-      const validLogLevel = level as 'error' | 'warn' | 'info' | 'debug';
+      const validLogLevel = level as "error" | "warn" | "info" | "debug";
       logger[validLogLevel]?.(logMessage, logContext);
     } else {
       // Fallback to console
       switch (level) {
-        case 'error':
+        case "error":
           console.error(logMessage, logContext);
           break;
-        case 'warn':
+        case "warn":
           console.warn(logMessage, logContext);
           break;
-        case 'info':
+        case "info":
           console.info(logMessage, logContext);
           break;
-        case 'debug':
+        case "debug":
           console.debug(logMessage, logContext);
           break;
       }
@@ -171,14 +174,18 @@ export class SahoolApiClient {
   }
 
   private logError(error: ApiError): void {
-    this.log('error', error.message, error.toJSON());
+    this.log("error", error.message, error.toJSON());
   }
 
   // ─────────────────────────────────────────────────────────────────────────
   // Error Handling Utilities
   // ─────────────────────────────────────────────────────────────────────────
 
-  private handleError(error: unknown, endpoint?: string, method?: string): never {
+  private handleError(
+    error: unknown,
+    endpoint?: string,
+    method?: string,
+  ): never {
     let apiError: ApiError;
 
     if (axios.isAxiosError(error)) {
@@ -192,7 +199,7 @@ export class SahoolApiClient {
         method,
       });
     } else {
-      apiError = new ApiError('Unknown error occurred', {
+      apiError = new ApiError("Unknown error occurred", {
         endpoint,
         method,
         context: { error },
@@ -210,21 +217,29 @@ export class SahoolApiClient {
   private async safeExecute<T>(
     operation: () => Promise<T>,
     fallback: T,
-    context?: { endpoint?: string; method?: string }
+    context?: { endpoint?: string; method?: string },
   ): Promise<T> {
     try {
       return await operation();
     } catch (error) {
-      if (this.errorHandling === 'silent') {
+      if (this.errorHandling === "silent") {
         // Log the error even in silent mode
         if (axios.isAxiosError(error)) {
-          const apiError = parseAxiosError(error, context?.endpoint, context?.method);
+          const apiError = parseAxiosError(
+            error,
+            context?.endpoint,
+            context?.method,
+          );
           this.logError(apiError);
         } else {
-          this.log('error', `Silent error: ${error instanceof Error ? error.message : 'Unknown error'}`, {
-            error,
-            ...context,
-          });
+          this.log(
+            "error",
+            `Silent error: ${error instanceof Error ? error.message : "Unknown error"}`,
+            {
+              error,
+              ...context,
+            },
+          );
         }
         return fallback;
       } else {
@@ -273,24 +288,24 @@ export class SahoolApiClient {
 
   private async request<T>(
     url: string,
-    options: AxiosRequestConfig = {}
+    options: AxiosRequestConfig = {},
   ): Promise<T> {
     try {
-      this.log('debug', `Request: ${options.method || 'GET'} ${url}`, {
+      this.log("debug", `Request: ${options.method || "GET"} ${url}`, {
         params: options.params,
         data: options.data,
       });
 
       const response = await this.client.request<T>({ url, ...options });
 
-      this.log('debug', `Response: ${options.method || 'GET'} ${url}`, {
+      this.log("debug", `Response: ${options.method || "GET"} ${url}`, {
         status: response.status,
         statusText: response.statusText,
       });
 
       return response.data;
     } catch (error) {
-      this.handleError(error, url, options.method?.toUpperCase() || 'GET');
+      this.handleError(error, url, options.method?.toUpperCase() || "GET");
     }
   }
 
@@ -317,7 +332,7 @@ export class SahoolApiClient {
     return this.safeExecute(
       () => this.request<Task[]>(endpoint, { params }),
       [],
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
@@ -327,14 +342,17 @@ export class SahoolApiClient {
 
   async createTask(task: CreateTaskRequest): Promise<Task> {
     return this.request<Task>(`${this.urls.task}/api/v1/tasks`, {
-      method: 'POST',
+      method: "POST",
       data: task,
     });
   }
 
-  async updateTask(taskId: string, data: Partial<CreateTaskRequest>): Promise<Task> {
+  async updateTask(
+    taskId: string,
+    data: Partial<CreateTaskRequest>,
+  ): Promise<Task> {
     return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
-      method: 'PUT',
+      method: "PUT",
       data,
     });
   }
@@ -344,27 +362,30 @@ export class SahoolApiClient {
     return this.safeExecute(
       async () => {
         await this.request(endpoint, {
-          method: 'PATCH',
+          method: "PATCH",
           data: { status },
         });
         return true;
       },
       false,
-      { endpoint, method: 'PATCH' }
+      { endpoint, method: "PATCH" },
     );
   }
 
   async deleteTask(taskId: string): Promise<void> {
     await this.request<void>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
   async completeTask(taskId: string, evidence?: TaskEvidence): Promise<Task> {
-    return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}/complete`, {
-      method: 'POST',
-      data: evidence || {},
-    });
+    return this.request<Task>(
+      `${this.urls.task}/api/v1/tasks/${taskId}/complete`,
+      {
+        method: "POST",
+        data: evidence || {},
+      },
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -376,12 +397,14 @@ export class SahoolApiClient {
     return this.safeExecute(
       () => this.request<Field[]>(endpoint, { params }),
       [],
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
   async getField(fieldId: string): Promise<Field> {
-    return this.request<Field>(`${this.urls.fieldCore}/api/v1/fields/${fieldId}`);
+    return this.request<Field>(
+      `${this.urls.fieldCore}/api/v1/fields/${fieldId}`,
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -394,23 +417,25 @@ export class SahoolApiClient {
       async () => {
         const response = await this.request<Field[]>(endpoint);
         // Map fields to farms format
-        return response.map((f): Farm => ({
-          id: f.id,
-          name: f.name,
-          nameAr: f.name_ar,
-          ownerId: f.tenant_id || '',
-          governorate: '',
-          area: f.area_hectares || f.area || 0,
-          coordinates: f.coordinates || { lat: 0, lng: 0 },
-          crops: [f.crop_type || f.crop || ''],
-          status: f.status as 'active' | 'inactive' | 'suspended',
-          healthScore: f.health_score || 0,
-          lastUpdated: f.updated_at || new Date().toISOString(),
-          createdAt: f.created_at || new Date().toISOString(),
-        }));
+        return response.map(
+          (f): Farm => ({
+            id: f.id,
+            name: f.name,
+            nameAr: f.name_ar,
+            ownerId: f.tenant_id || "",
+            governorate: "",
+            area: f.area_hectares || f.area || 0,
+            coordinates: f.coordinates || { lat: 0, lng: 0 },
+            crops: [f.crop_type || f.crop || ""],
+            status: f.status as "active" | "inactive" | "suspended",
+            healthScore: f.health_score || 0,
+            lastUpdated: f.updated_at || new Date().toISOString(),
+            createdAt: f.created_at || new Date().toISOString(),
+          }),
+        );
       },
       this.config.enableMockData ? this.generateMockFarms() : [],
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
@@ -423,19 +448,19 @@ export class SahoolApiClient {
           id: field.id,
           name: field.name,
           nameAr: field.name_ar,
-          ownerId: field.tenant_id || '',
-          governorate: '',
+          ownerId: field.tenant_id || "",
+          governorate: "",
           area: field.area_hectares || field.area || 0,
           coordinates: field.coordinates || { lat: 0, lng: 0 },
-          crops: [field.crop_type || field.crop || ''],
-          status: field.status as 'active' | 'inactive' | 'suspended',
+          crops: [field.crop_type || field.crop || ""],
+          status: field.status as "active" | "inactive" | "suspended",
           healthScore: field.health_score || 0,
           lastUpdated: field.updated_at || new Date().toISOString(),
           createdAt: field.created_at || new Date().toISOString(),
         };
       },
       null,
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
@@ -445,29 +470,30 @@ export class SahoolApiClient {
 
   async getWeather(locationId: string): Promise<WeatherData | null> {
     const endpoint = `${this.urls.weather}/api/v1/weather/current/${locationId}`;
-    return this.safeExecute(
-      () => this.request<WeatherData>(endpoint),
-      null,
-      { endpoint, method: 'GET' }
-    );
+    return this.safeExecute(() => this.request<WeatherData>(endpoint), null, {
+      endpoint,
+      method: "GET",
+    });
   }
 
-  async getWeatherForecast(locationId: string, days = 7): Promise<WeatherForecast | null> {
+  async getWeatherForecast(
+    locationId: string,
+    days = 7,
+  ): Promise<WeatherForecast | null> {
     const endpoint = `${this.urls.weather}/api/v1/weather/forecast/${locationId}`;
     return this.safeExecute(
       () => this.request<WeatherForecast>(endpoint, { params: { days } }),
       null,
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
   async getWeatherAlerts(): Promise<WeatherAlert[]> {
     const endpoint = `${this.urls.weather}/v1/alerts`;
-    return this.safeExecute(
-      () => this.request<WeatherAlert[]>(endpoint),
-      [],
-      { endpoint, method: 'GET' }
-    );
+    return this.safeExecute(() => this.request<WeatherAlert[]>(endpoint), [], {
+      endpoint,
+      method: "GET",
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -495,29 +521,37 @@ export class SahoolApiClient {
               limit: params?.limit || 50,
               offset: params?.offset || 0,
             },
-          }
+          },
         );
 
         return response.map((d) => ({
           id: d.id as string,
-          farmId: (d.field_id as string) || `farm-${Math.floor(Math.random() * 25) + 1}`,
-          farmName: d.governorate ? `مزرعة في ${d.governorate}` : 'مزرعة',
-          imageUrl: (d.image_url as string) || '/api/placeholder/400/300',
-          thumbnailUrl: (d.thumbnail_url as string) || (d.image_url as string) || '/api/placeholder/100/100',
-          cropType: (d.crop_type as string) || 'unknown',
+          farmId:
+            (d.field_id as string) ||
+            `farm-${Math.floor(Math.random() * 25) + 1}`,
+          farmName: d.governorate ? `مزرعة في ${d.governorate}` : "مزرعة",
+          imageUrl: (d.image_url as string) || "/api/placeholder/400/300",
+          thumbnailUrl:
+            (d.thumbnail_url as string) ||
+            (d.image_url as string) ||
+            "/api/placeholder/100/100",
+          cropType: (d.crop_type as string) || "unknown",
           diseaseId: d.disease_id as string,
           diseaseName: d.disease_name as string,
           diseaseNameAr: d.disease_name_ar as string,
           confidence: (d.confidence as number) * 100,
           severity: d.severity as Severity,
           status: d.status as DiagnosisStatus,
-          location: (d.location as { lat: number; lng: number }) || { lat: 15.3694, lng: 44.191 },
+          location: (d.location as { lat: number; lng: number }) || {
+            lat: 15.3694,
+            lng: 44.191,
+          },
           diagnosedAt: d.timestamp as string,
-          createdBy: (d.farmer_id as string) || 'unknown',
+          createdBy: (d.farmer_id as string) || "unknown",
           expertReview: d.expert_notes
             ? {
-                expertId: 'expert-1',
-                expertName: 'خبير زراعي',
+                expertId: "expert-1",
+                expertName: "خبير زراعي",
                 notes: d.expert_notes as string,
                 reviewedAt: d.updated_at as string,
               }
@@ -525,7 +559,7 @@ export class SahoolApiClient {
         }));
       },
       this.config.enableMockData ? this.generateMockDiagnoses() : [],
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
@@ -555,23 +589,24 @@ export class SahoolApiClient {
         byDisease: {},
         byGovernorate: {},
       },
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
   async updateDiagnosisStatus(
     id: string,
     status: DiagnosisStatus,
-    notes?: string
+    notes?: string,
   ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
     const endpoint = `${this.urls.cropHealth}/v1/diagnoses/${id}`;
     return this.safeExecute(
-      () => this.request(endpoint, {
-        method: 'PATCH',
-        params: { status, expert_notes: notes },
-      }),
+      () =>
+        this.request(endpoint, {
+          method: "PATCH",
+          params: { status, expert_notes: notes },
+        }),
       { success: true, diagnosis_id: id, status },
-      { endpoint, method: 'PATCH' }
+      { endpoint, method: "PATCH" },
     );
   }
 
@@ -605,17 +640,16 @@ export class SahoolApiClient {
     return this.safeExecute(
       () => this.request<DashboardStats>(endpoint),
       this.config.enableMockData ? mockData : emptyData,
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
   async getDashboard(tenantId: string): Promise<DashboardData | null> {
     const endpoint = `${this.urls.indicators}/api/v1/indicators/dashboard/${tenantId}`;
-    return this.safeExecute(
-      () => this.request<DashboardData>(endpoint),
-      null,
-      { endpoint, method: 'GET' }
-    );
+    return this.safeExecute(() => this.request<DashboardData>(endpoint), null, {
+      endpoint,
+      method: "GET",
+    });
   }
 
   async getFieldIndicators(fieldId: string): Promise<FieldIndicators | null> {
@@ -623,7 +657,7 @@ export class SahoolApiClient {
     return this.safeExecute(
       () => this.request<FieldIndicators>(endpoint),
       null,
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
@@ -633,19 +667,21 @@ export class SahoolApiClient {
 
   async getSensorReadings(farmId: string): Promise<SensorReading[]> {
     const endpoint = `${this.urls.virtualSensors}/v1/readings/${farmId}`;
-    return this.safeExecute(
-      () => this.request<SensorReading[]>(endpoint),
-      [],
-      { endpoint, method: 'GET' }
-    );
+    return this.safeExecute(() => this.request<SensorReading[]>(endpoint), [], {
+      endpoint,
+      method: "GET",
+    });
   }
 
-  async getEquipment(params?: { type?: string; status?: string }): Promise<Equipment[]> {
+  async getEquipment(params?: {
+    type?: string;
+    status?: string;
+  }): Promise<Equipment[]> {
     const endpoint = `${this.urls.equipment}/api/v1/equipment`;
     return this.safeExecute(
       () => this.request<Equipment[]>(endpoint, { params }),
       [],
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
@@ -662,7 +698,7 @@ export class SahoolApiClient {
     return this.safeExecute(
       () => this.request<Notification[]>(endpoint, { params }),
       [],
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
@@ -670,11 +706,11 @@ export class SahoolApiClient {
     const endpoint = `${this.urls.notifications}/v1/notifications/${id}/read`;
     return this.safeExecute(
       async () => {
-        await this.request(endpoint, { method: 'PATCH' });
+        await this.request(endpoint, { method: "PATCH" });
         return true;
       },
       false,
-      { endpoint, method: 'PATCH' }
+      { endpoint, method: "PATCH" },
     );
   }
 
@@ -690,7 +726,7 @@ export class SahoolApiClient {
     return this.safeExecute(
       () => this.request<CommunityPost[]>(endpoint, { params }),
       [],
-      { endpoint, method: 'GET' }
+      { endpoint, method: "GET" },
     );
   }
 
@@ -711,15 +747,15 @@ export class SahoolApiClient {
         try {
           await this.client.get(`${url}/healthz`, { timeout: 5000 });
           results[name] = true;
-          this.log('debug', `Service health check passed: ${name}`, { url });
+          this.log("debug", `Service health check passed: ${name}`, { url });
         } catch (error) {
           results[name] = false;
-          this.log('warn', `Service health check failed: ${name}`, {
+          this.log("warn", `Service health check failed: ${name}`, {
             url,
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: error instanceof Error ? error.message : "Unknown error",
           });
         }
-      })
+      }),
     );
 
     return results;
@@ -730,60 +766,105 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   private generateMockFarms(): Farm[] {
-    const governorates = ['sanaa', 'taiz', 'ibb', 'hadramaut', 'hodeidah', 'dhamar'] as const;
-    const crops = ['wheat', 'coffee', 'qat', 'date_palm', 'mango', 'banana', 'sorghum'] as const;
+    const governorates = [
+      "sanaa",
+      "taiz",
+      "ibb",
+      "hadramaut",
+      "hodeidah",
+      "dhamar",
+    ] as const;
+    const crops = [
+      "wheat",
+      "coffee",
+      "qat",
+      "date_palm",
+      "mango",
+      "banana",
+      "sorghum",
+    ] as const;
 
     return Array.from({ length: 25 }, (_, i) => ({
       id: `farm-${i + 1}`,
       name: `Farm ${i + 1}`,
       nameAr: `مزرعة ${i + 1}`,
       ownerId: `user-${Math.floor(Math.random() * 10) + 1}`,
-      governorate: governorates[Math.floor(Math.random() * governorates.length)] ?? 'sanaa',
-      district: 'District',
+      governorate:
+        governorates[Math.floor(Math.random() * governorates.length)] ??
+        "sanaa",
+      district: "District",
       area: Math.random() * 50 + 5,
       coordinates: {
         lat: 13.5 + Math.random() * 3,
         lng: 43.5 + Math.random() * 5,
       },
-      crops: [crops[Math.floor(Math.random() * crops.length)] ?? 'wheat'],
-      status: 'active' as const,
+      crops: [crops[Math.floor(Math.random() * crops.length)] ?? "wheat"],
+      status: "active" as const,
       healthScore: Math.floor(Math.random() * 40) + 60,
       lastUpdated: new Date().toISOString(),
-      createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(
+        Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
     }));
   }
 
   private generateMockDiagnoses(): DiagnosisRecord[] {
     const diseases = [
-      { id: 'tomato_late_blight', name: 'Late Blight', nameAr: 'اللفحة المتأخرة' },
-      { id: 'tomato_early_blight', name: 'Early Blight', nameAr: 'اللفحة المبكرة' },
-      { id: 'powdery_mildew', name: 'Powdery Mildew', nameAr: 'البياض الدقيقي' },
-      { id: 'bacterial_spot', name: 'Bacterial Spot', nameAr: 'التبقع البكتيري' },
+      {
+        id: "tomato_late_blight",
+        name: "Late Blight",
+        nameAr: "اللفحة المتأخرة",
+      },
+      {
+        id: "tomato_early_blight",
+        name: "Early Blight",
+        nameAr: "اللفحة المبكرة",
+      },
+      {
+        id: "powdery_mildew",
+        name: "Powdery Mildew",
+        nameAr: "البياض الدقيقي",
+      },
+      {
+        id: "bacterial_spot",
+        name: "Bacterial Spot",
+        nameAr: "التبقع البكتيري",
+      },
     ] as const;
     const defaultDisease = diseases[0];
-    const severities: Severity[] = ['low', 'medium', 'high', 'critical'];
-    const statuses: DiagnosisStatus[] = ['pending', 'confirmed', 'rejected', 'treated'];
+    const severities: Severity[] = ["low", "medium", "high", "critical"];
+    const statuses: DiagnosisStatus[] = [
+      "pending",
+      "confirmed",
+      "rejected",
+      "treated",
+    ];
 
     return Array.from({ length: 20 }, (_, i) => {
-      const disease = diseases[Math.floor(Math.random() * diseases.length)] ?? defaultDisease;
+      const disease =
+        diseases[Math.floor(Math.random() * diseases.length)] ?? defaultDisease;
       return {
         id: `diag-${i + 1}`,
         farmId: `farm-${Math.floor(Math.random() * 25) + 1}`,
         farmName: `مزرعة ${Math.floor(Math.random() * 25) + 1}`,
         imageUrl: `/api/placeholder/400/300`,
         thumbnailUrl: `/api/placeholder/100/100`,
-        cropType: 'tomato',
+        cropType: "tomato",
         diseaseId: disease.id,
         diseaseName: disease.name,
         diseaseNameAr: disease.nameAr,
         confidence: Math.random() * 30 + 70,
-        severity: severities[Math.floor(Math.random() * severities.length)] ?? 'medium',
-        status: statuses[Math.floor(Math.random() * statuses.length)] ?? 'pending',
+        severity:
+          severities[Math.floor(Math.random() * severities.length)] ?? "medium",
+        status:
+          statuses[Math.floor(Math.random() * statuses.length)] ?? "pending",
         location: {
           lat: 13.5 + Math.random() * 3,
           lng: 43.5 + Math.random() * 5,
         },
-        diagnosedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+        diagnosedAt: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
         createdBy: `user-${Math.floor(Math.random() * 10) + 1}`,
       };
     });

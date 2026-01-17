@@ -44,14 +44,6 @@ function mockRandomInt(min: number, max: number): number {
   return Math.floor(mockRandom() * (max - min + 1)) + min;
 }
 
-/**
- * Pick a random element from an array for mock data.
- * See mockRandom() for security notes.
- */
-function _mockRandomPick<T>(arr: readonly T[]): T | undefined {
-  return arr[Math.floor(mockRandom() * arr.length)];
-}
-
 // VRA (Variable Rate Application) Types
 export interface VRAPrescription {
   id: string;

@@ -203,9 +203,9 @@ function generateMockVRAPrescriptions(): VRAPrescription[] {
     farmId: generateMockId("farm", i % 10),
     farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
     fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
-    cropType: ["قمح", "بن", "قات", "ذرة"][Math.floor(Math.random() * 4)],
-    prescriptionType: types[Math.floor(Math.random() * types.length)],
-    status: statuses[Math.floor(Math.random() * statuses.length)],
+    cropType: ["قمح", "بن", "قات", "ذرة"][Math.floor(Math.random() * 4)] ?? "قمح",
+    prescriptionType: types[Math.floor(Math.random() * types.length)] ?? "fertilizer",
+    status: statuses[Math.floor(Math.random() * statuses.length)] ?? "pending",
     createdAt: new Date(
       Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000,
     ).toISOString(),
@@ -226,9 +226,9 @@ function generateMockGDDData(): GDDField[] {
 
   return Array.from({ length: 8 }, (_, i) => {
     const stageIndex = Math.floor(Math.random() * (stages.length - 1));
-    const currentStage = stages[stageIndex];
-    const nextStage = stages[stageIndex + 1];
-    const currentGDD = Math.random() * 200 + currentStage.target - 100;
+    const currentStage = stages[stageIndex] ?? stages[0];
+    const nextStage = stages[stageIndex + 1] ?? stages[stages.length - 1];
+    const currentGDD = Math.random() * 200 + (currentStage?.target ?? 800) - 100;
 
     const history = Array.from({ length: 30 }, (_, j) => ({
       date: new Date(Date.now() - (29 - j) * 24 * 60 * 60 * 1000).toISOString(),
@@ -242,18 +242,18 @@ function generateMockGDDData(): GDDField[] {
       farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
       farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
       fieldName: `حقل ${String.fromCharCode(65 + i)}`,
-      cropType: ["قمح", "ذرة"][Math.floor(Math.random() * 2)],
+      cropType: ["قمح", "ذرة"][Math.floor(Math.random() * 2)] ?? "قمح",
       plantingDate: new Date(
         Date.now() - 60 * 24 * 60 * 60 * 1000,
       ).toISOString(),
       currentGDD,
-      targetGDD: nextStage.target,
-      currentStage: currentStage.en,
-      currentStageAr: currentStage.ar,
-      nextStage: nextStage.en,
-      nextStageAr: nextStage.ar,
+      targetGDD: nextStage?.target ?? 2000,
+      currentStage: currentStage?.en ?? "Vegetative",
+      currentStageAr: currentStage?.ar ?? "نمو خضري",
+      nextStage: nextStage?.en ?? "Maturity",
+      nextStageAr: nextStage?.ar ?? "نضج",
       daysToNextStage: Math.floor(Math.random() * 20) + 5,
-      gddToNextStage: nextStage.target - currentGDD,
+      gddToNextStage: (nextStage?.target ?? 2000) - currentGDD,
       alerts:
         Math.random() > 0.5
           ? [
@@ -288,7 +288,7 @@ function generateMockSprayWindows(): SprayWindow[] {
   ];
 
   return Array.from({ length: 12 }, (_, i) => {
-    const product = products[Math.floor(Math.random() * products.length)];
+    const product = products[Math.floor(Math.random() * products.length)] ?? products[0];
     const startDate = new Date(
       Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000,
     );
@@ -299,15 +299,15 @@ function generateMockSprayWindows(): SprayWindow[] {
       farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
       farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
       fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
-      cropType: ["قمح", "بن", "قات"][Math.floor(Math.random() * 3)],
-      productType: product.type,
-      productName: product.name,
+      cropType: ["قمح", "بن", "قات"][Math.floor(Math.random() * 3)] ?? "قمح",
+      productType: product?.type ?? "pesticide",
+      productName: product?.name ?? "Malathion",
       windowStart: startDate.toISOString(),
       windowEnd: endDate.toISOString(),
       optimalTime: new Date(
         startDate.getTime() + 1.5 * 24 * 60 * 60 * 1000,
       ).toISOString(),
-      status: statuses[Math.floor(Math.random() * statuses.length)],
+      status: statuses[Math.floor(Math.random() * statuses.length)] ?? "upcoming",
       conditions: {
         temperature: 20 + Math.random() * 10,
         windSpeed: 5 + Math.random() * 10,
@@ -337,13 +337,13 @@ function generateMockSprayHistory(): SprayHistory[] {
   ];
 
   return Array.from({ length: 20 }, (_, i) => {
-    const product = products[Math.floor(Math.random() * products.length)];
+    const product = products[Math.floor(Math.random() * products.length)] ?? products[0];
     return {
       id: `spray-hist-${i + 1}`,
       farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
       fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
-      productType: product.type,
-      productName: product.name,
+      productType: product?.type ?? "pesticide",
+      productName: product?.name ?? "Malathion",
       appliedAt: new Date(
         Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
       ).toISOString(),

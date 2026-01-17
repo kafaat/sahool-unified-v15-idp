@@ -7,7 +7,6 @@
  */
 
 import type { NextRequest } from "next/server";
-import { randomBytes } from "crypto";
 
 /**
  * Timing-safe string comparison for Edge Runtime

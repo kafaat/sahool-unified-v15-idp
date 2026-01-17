@@ -13,7 +13,6 @@ import {
   MapPin,
   FileText,
   AlertTriangle,
-  CheckCircle,
   Calendar,
   Filter,
 } from "lucide-react";

@@ -23,7 +23,7 @@ const CSRF_COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours in seconds
  * GET /api/csrf-token
  * Generate and return a new CSRF token
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Generate new token using the same function as middleware
     const token = generateCsrfToken();
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
  * POST /api/csrf-token
  * Refresh existing CSRF token
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Generate new token using the same function as middleware
     const token = generateCsrfToken();

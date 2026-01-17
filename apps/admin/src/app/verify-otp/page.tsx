@@ -328,10 +328,11 @@ function VerifyOTPForm() {
     if (id.includes("@")) {
       // Email
       const [local, domain] = id.split("@");
-      const maskedLocal = local.length > 2
-        ? `${local[0]}${"*".repeat(local.length - 2)}${local[local.length - 1]}`
-        : local;
-      return `${maskedLocal}@${domain}`;
+      const localPart = local ?? "";
+      const maskedLocal = localPart.length > 2
+        ? `${localPart[0] ?? ""}${"*".repeat(localPart.length - 2)}${localPart[localPart.length - 1] ?? ""}`
+        : localPart;
+      return `${maskedLocal}@${domain ?? ""}`;
     } else {
       // Phone
       if (id.length > 4) {

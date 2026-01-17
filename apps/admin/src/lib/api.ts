@@ -159,7 +159,7 @@ export async function fetchDiagnoses(params?: {
     );
 
     // Map backend response to our frontend model
-    return response.data.map((d: Record<string, unknown>, index: number) => ({
+    return response.data.map((d: Record<string, unknown>, _index: number) => ({
       id: d.id as string,
       farmId:
         (d.field_id as string) || `farm-${crypto.randomUUID().slice(0, 8)}`,
@@ -288,7 +288,7 @@ export async function getWeatherCurrent(
 export async function getWeatherForecast(
   lat: number,
   lng: number,
-  days: number = 7,
+  _days: number = 7,
   fieldId: string = "default"
 ) {
   try {

@@ -11,8 +11,6 @@ import { API_URLS, apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
   Droplets,
-  Thermometer,
-  Wind,
   Calendar,
   Clock,
   TrendingDown,
@@ -20,7 +18,6 @@ import {
   AlertTriangle,
   CheckCircle,
   RefreshCw,
-  MapPin,
   Leaf,
   BarChart3,
   Gauge,
@@ -139,9 +136,9 @@ function generateMockPlan(): IrrigationPlan {
     return {
       schedule_id: `sch-${i + 1}`,
       field_id: "field-1",
-      crop: selectedCrop.id,
-      crop_name_ar: selectedCrop.ar,
-      irrigation_date: date.toISOString().split("T")[0],
+      crop: selectedCrop?.id ?? "tomato",
+      crop_name_ar: selectedCrop?.ar ?? "طماطم",
+      irrigation_date: date.toISOString().split("T")[0] ?? "",
       start_time: "06:00",
       duration_minutes: 45 + Math.floor(Math.random() * 30),
       water_amount_liters: 5000 + Math.floor(Math.random() * 3000),
@@ -155,9 +152,9 @@ function generateMockPlan(): IrrigationPlan {
             : urgency === "medium"
               ? "متوسط"
               : "منخفض",
-      method: selectedMethod.id,
-      method_ar: selectedMethod.ar,
-      reasoning_ar: `${selectedCrop.ar} في مرحلة ${selectedStage.ar} يحتاج ري منتظم`,
+      method: selectedMethod?.id ?? "drip",
+      method_ar: selectedMethod?.ar ?? "ري بالتنقيط",
+      reasoning_ar: `${selectedCrop?.ar ?? "المحصول"} في مرحلة ${selectedStage?.ar ?? "النمو"} يحتاج ري منتظم`,
       weather_adjusted: Math.random() > 0.5,
       savings_percent: Math.random() * 30,
     };
@@ -166,10 +163,10 @@ function generateMockPlan(): IrrigationPlan {
   return {
     plan_id: "plan-1",
     field_id: "field-1",
-    crop: selectedCrop.id,
-    crop_name_ar: selectedCrop.ar,
-    growth_stage: selectedStage.id,
-    growth_stage_ar: selectedStage.ar,
+    crop: selectedCrop?.id ?? "tomato",
+    crop_name_ar: selectedCrop?.ar ?? "طماطم",
+    growth_stage: selectedStage?.id ?? "vegetative",
+    growth_stage_ar: selectedStage?.ar ?? "نمو خضري",
     area_hectares: 2.5,
     current_water_need_mm: 15 + Math.random() * 10,
     daily_et_mm: 5 + Math.random() * 3,
@@ -195,7 +192,7 @@ function generateMockWaterBalance(): {
     date.setDate(date.getDate() - (14 - i - 1));
     return {
       field_id: "field-1",
-      date: date.toISOString().split("T")[0],
+      date: date.toISOString().split("T")[0] ?? "",
       et_mm: 4 + Math.random() * 4,
       rainfall_mm: Math.random() > 0.85 ? Math.random() * 15 : 0,
       irrigation_mm: Math.random() > 0.7 ? Math.random() * 30 : 0,
@@ -213,7 +210,7 @@ function generateMockWaterBalance(): {
         0,
       ),
       cumulative_deficit_mm:
-        dailyData[dailyData.length - 1].cumulative_deficit_mm,
+        dailyData[dailyData.length - 1]?.cumulative_deficit_mm ?? 0,
     },
     daily_data: dailyData,
   };
@@ -672,7 +669,7 @@ export default function IrrigationPage() {
                     <span className="text-sm font-medium">التبخر الكلي</span>
                   </div>
                   <p className="text-2xl font-bold text-red-700">
-                    {waterBalance?.summary.total_et_mm.toFixed(1)} ملم
+                    {waterBalance?.summary?.total_et_mm?.toFixed(1) ?? "0"} ملم
                   </p>
                 </div>
 
@@ -682,7 +679,7 @@ export default function IrrigationPage() {
                     <span className="text-sm font-medium">الأمطار الكلية</span>
                   </div>
                   <p className="text-2xl font-bold text-blue-700">
-                    {waterBalance?.summary.total_rainfall_mm.toFixed(1)} ملم
+                    {waterBalance?.summary?.total_rainfall_mm?.toFixed(1) ?? "0"} ملم
                   </p>
                 </div>
 
@@ -692,7 +689,7 @@ export default function IrrigationPage() {
                     <span className="text-sm font-medium">الري الكلي</span>
                   </div>
                   <p className="text-2xl font-bold text-green-700">
-                    {waterBalance?.summary.total_irrigation_mm.toFixed(1)} ملم
+                    {waterBalance?.summary?.total_irrigation_mm?.toFixed(1) ?? "0"} ملم
                   </p>
                 </div>
 
@@ -711,12 +708,12 @@ export default function IrrigationPage() {
                   <p
                     className={cn(
                       "text-2xl font-bold",
-                      (waterBalance?.summary.cumulative_deficit_mm || 0) > 20
+                      (waterBalance?.summary?.cumulative_deficit_mm ?? 0) > 20
                         ? "text-red-700"
                         : "text-gray-700",
                     )}
                   >
-                    {waterBalance?.summary.cumulative_deficit_mm.toFixed(1)} ملم
+                    {waterBalance?.summary?.cumulative_deficit_mm?.toFixed(1) ?? "0"} ملم
                   </p>
                 </div>
               </div>

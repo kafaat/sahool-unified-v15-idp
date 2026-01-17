@@ -78,12 +78,9 @@ export function isValidReturnTo(url: string | null | undefined): boolean {
 
     // Ensure the pathname matches the original url (no host manipulation)
     // This catches cases like /\evil.com or /@evil.com
-    if (parsed.pathname !== url.split("?")[0].split("#")[0]) {
-      // Allow query params and hash, but pathname must match
-      const urlPathOnly = url.split("?")[0].split("#")[0];
-      if (parsed.pathname !== urlPathOnly) {
-        return false;
-      }
+    const urlPathOnly = url.split("?")[0]?.split("#")[0] ?? "";
+    if (parsed.pathname !== urlPathOnly) {
+      return false;
     }
 
     // Check if the path starts with a whitelisted route

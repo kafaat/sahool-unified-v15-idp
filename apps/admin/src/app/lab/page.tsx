@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // Types
 interface Sample {
@@ -162,8 +162,8 @@ const statusConfig = {
 };
 
 export default function LabDashboard() {
-  const [samples, setSamples] = useState<Sample[]>(demoSamples);
-  const [batches, setBatches] = useState<BatchSummary[]>(demoBatches);
+  const [samples, _setSamples] = useState<Sample[]>(demoSamples);
+  const [batches, _setBatches] = useState<BatchSummary[]>(demoBatches);
   const [selectedBatch, setSelectedBatch] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
 

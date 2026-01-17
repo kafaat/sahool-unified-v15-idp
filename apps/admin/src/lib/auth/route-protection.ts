@@ -83,7 +83,7 @@ export function getRequiredRoles(pathname: string): UserRole[] | null {
     pathname.startsWith(route),
   );
 
-  if (matchingRoute) {
+  if (matchingRoute && PROTECTED_ROUTES[matchingRoute]) {
     return PROTECTED_ROUTES[matchingRoute];
   }
 

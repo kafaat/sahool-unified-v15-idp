@@ -56,7 +56,7 @@ export default function AlertsPanel({
     setFilteredAlerts(filtered.slice(0, maxItems));
   }, [alerts, filter, maxItems]);
 
-  const getAlertIcon = (type: string) => {
+  const getAlertIcon = (_type: string) => {
     return AlertTriangle;
   };
 

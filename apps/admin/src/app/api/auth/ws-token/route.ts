@@ -87,9 +87,15 @@ function extractTenantId(token: string): string | null {
       return null;
     }
 
-    // Decode the payload (second part)
+    // Get payload part (second part) with null check for TypeScript strict mode
+    const payloadPart = parts[1];
+    if (!payloadPart) {
+      return null;
+    }
+
+    // Decode the payload
     const payload = JSON.parse(
-      Buffer.from(parts[1], "base64url").toString("utf-8"),
+      Buffer.from(payloadPart, "base64url").toString("utf-8"),
     );
 
     return payload.tenant_id || null;

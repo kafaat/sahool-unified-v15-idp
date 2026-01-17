@@ -7,8 +7,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
-import AlertBadge from "@/components/ui/AlertBadge";
-import { fetchSatelliteData, fetchNDVITrends } from "@/lib/api/analytics";
+import { fetchSatelliteData } from "@/lib/api/analytics";
 import {
   Satellite,
   TrendingUp,
@@ -22,8 +21,6 @@ import {
 import { formatDate } from "@/lib/utils";
 import { logger } from "../../../lib/logger";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -31,9 +28,6 @@ import {
   ResponsiveContainer,
   Area,
   AreaChart,
-  ScatterChart,
-  Scatter,
-  ZAxis,
 } from "recharts";
 
 // Dynamic map import
@@ -124,7 +118,10 @@ export default function SatellitePage() {
       const satelliteData = await fetchSatelliteData({ range: dateRange });
       setData(satelliteData);
       if (satelliteData.fields.length > 0 && !selectedField) {
-        setSelectedField(satelliteData.fields[0].id);
+        const firstField = satelliteData.fields[0];
+        if (firstField) {
+          setSelectedField(firstField.id);
+        }
       }
     } catch (error) {
       logger.error("Failed to load satellite data:", error);

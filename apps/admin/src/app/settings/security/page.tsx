@@ -39,13 +39,13 @@ interface TwoFAVerifyResponse {
   backup_codes: string[];
 }
 
-interface BackupCode {
+interface _BackupCode {
   code: string;
   used: boolean;
 }
 
 export default function SecuritySettingsPage() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");

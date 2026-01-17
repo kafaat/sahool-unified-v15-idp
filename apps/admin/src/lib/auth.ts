@@ -125,7 +125,7 @@ export function getToken(): string | undefined {
  * @deprecated Use server-side /api/auth/login endpoint instead
  * Tokens are now set via httpOnly cookies from server-side for security
  */
-export function setToken(token: string): void {
+export function setToken(_token: string): void {
   logger.warn(
     "setToken() is deprecated. Use /api/auth/login endpoint to set tokens securely via httpOnly cookies.",
   );

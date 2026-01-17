@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 
 /// شريط التنبيهات
 class AlertBanner extends StatelessWidget {
-  const AlertBanner({super.key});
+  const AlertBanner({
+    super.key,
+    this.onDismiss,
+  });
+
+  /// Callback invoked when the user dismisses the alert
+  final VoidCallback? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +60,7 @@ class AlertBanner extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.close, size: 18),
-            onPressed: () {
-              // TODO: Dismiss alert
-            },
+            onPressed: onDismiss,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),

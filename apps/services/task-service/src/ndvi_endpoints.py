@@ -151,87 +151,63 @@ async def get_task_suggestions_for_field(
     logger.info(f"Generating task suggestions for field: {field_id}")
 
     try:
-        # TODO: Call NDVI service to get field health data
-        # For now, return mock suggestions based on common scenarios
+        # Call NDVI service to get field health data
+        from .ndvi_client import get_ndvi_client, get_task_suggestions_from_health
+
+        ndvi_client = get_ndvi_client()
+        health_data = await ndvi_client.get_field_health(field_id=field_id)
+
+        logger.info(
+            f"Retrieved health data for field {field_id}: "
+            f"score={health_data.health_score}, status={health_data.health_status.value}"
+        )
+
+        # Generate task suggestions based on health data
+        raw_suggestions = get_task_suggestions_from_health(health_data)
+
+        # Convert to TaskSuggestion objects
         suggestions = []
+        for raw in raw_suggestions:
+            # Map task type string to TaskType enum
+            task_type_map = {
+                "scouting": TaskType.SCOUTING,
+                "irrigation": TaskType.IRRIGATION,
+                "sampling": TaskType.SAMPLING,
+                "fertilization": TaskType.FERTILIZATION,
+                "spraying": TaskType.SPRAYING,
+            }
+            task_type = task_type_map.get(raw["task_type"], TaskType.SCOUTING)
 
-        # Mock NDVI data analysis (replace with actual service call)
-        # Example: Low NDVI suggests irrigation or nutrient issues
-        suggestions.append(
-            TaskSuggestion(
-                task_type=TaskType.IRRIGATION,
-                priority=TaskPriority.HIGH,
-                title="Increase Irrigation Frequency",
-                title_ar="زيادة تكرار الري",
-                description=(
-                    "Recent NDVI trend shows declining vegetation health. "
-                    "Consider increasing irrigation frequency or duration "
-                    "to address potential water stress."
-                ),
-                description_ar=(
-                    "يُظهر اتجاه NDVI الأخير تراجعاً في صحة النباتات. "
-                    "فكر في زيادة تكرار الري أو مدته "
-                    "لمعالجة الإجهاد المائي المحتمل."
-                ),
-                reason="NDVI declining trend detected",
-                reason_ar="تم اكتشاف اتجاه تراجع في NDVI",
-                confidence=0.75,
-                suggested_due_days=2,
-                metadata={
-                    "analysis_type": "trend_analysis",
-                    "data_points": 7,
-                },
-            )
-        )
+            # Map priority string to TaskPriority enum
+            priority_map = {
+                "urgent": TaskPriority.URGENT,
+                "high": TaskPriority.HIGH,
+                "medium": TaskPriority.MEDIUM,
+                "low": TaskPriority.LOW,
+            }
+            priority = priority_map.get(raw["priority"], TaskPriority.MEDIUM)
 
-        suggestions.append(
-            TaskSuggestion(
-                task_type=TaskType.SCOUTING,
-                priority=TaskPriority.MEDIUM,
-                title="Field Inspection - Vegetation Health",
-                title_ar="فحص الحقل - الصحة النباتية",
-                description=(
-                    "Conduct visual inspection to verify satellite observations. "
-                    "Check for pest activity, disease symptoms, and overall plant vigor."
-                ),
-                description_ar=(
-                    "قم بفحص بصري للتحقق من ملاحظات الأقمار الصناعية. "
-                    "تحقق من نشاط الآفات وأعراض الأمراض وحيوية النبات العامة."
-                ),
-                reason="Verification of satellite data",
-                reason_ar="التحقق من بيانات الأقمار الصناعية",
-                confidence=0.85,
-                suggested_due_days=3,
-                metadata={
-                    "recommended_time": "morning",
-                },
+            suggestions.append(
+                TaskSuggestion(
+                    task_type=task_type,
+                    priority=priority,
+                    title=raw["title"],
+                    title_ar=raw["title_ar"],
+                    description=raw["description"],
+                    description_ar=raw["description_ar"],
+                    reason=raw["reason"],
+                    reason_ar=raw["reason_ar"],
+                    confidence=raw["confidence"],
+                    suggested_due_days=raw["suggested_due_days"],
+                    metadata={
+                        "source": "ndvi_analysis",
+                        "health_score": health_data.health_score,
+                        "health_status": health_data.health_status.value,
+                        "ndvi_mean": health_data.ndvi_mean,
+                        "zones": health_data.zones,
+                    },
+                )
             )
-        )
-
-        suggestions.append(
-            TaskSuggestion(
-                task_type=TaskType.SAMPLING,
-                priority=TaskPriority.MEDIUM,
-                title="Soil Nutrient Testing",
-                title_ar="فحص مغذيات التربة",
-                description=(
-                    "Collect soil samples from areas showing low NDVI values. "
-                    "Test for N, P, K, and micronutrient levels to guide fertilization."
-                ),
-                description_ar=(
-                    "جمع عينات التربة من المناطق ذات قيم NDVI منخفضة. "
-                    "اختبر مستويات N و P و K والعناصر الدقيقة لتوجيه التسميد."
-                ),
-                reason="Nutrient deficiency suspected",
-                reason_ar="يُشتبه في نقص المغذيات",
-                confidence=0.65,
-                suggested_due_days=5,
-                metadata={
-                    "sample_count": 5,
-                    "test_types": ["NPK", "micronutrients"],
-                },
-            )
-        )
 
         logger.info(f"Generated {len(suggestions)} task suggestions for field {field_id}")
 

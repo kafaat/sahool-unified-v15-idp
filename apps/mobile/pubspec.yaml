@@ -87,6 +87,9 @@ dependencies:
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
 
+  # File Picker
+  file_picker: ^8.1.4
+
   # Sharing & URLs
   share_plus: ^7.2.1
   url_launcher: ^6.2.2

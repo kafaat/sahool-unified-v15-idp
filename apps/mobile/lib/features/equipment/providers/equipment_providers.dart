@@ -204,6 +204,46 @@ class EquipmentController extends StateNotifier<AsyncValue<void>> {
     );
     return false;
   }
+
+  /// إنشاء معدة جديدة
+  Future<bool> createEquipment({
+    required String name,
+    String? nameAr,
+    required EquipmentType type,
+    String? serialNumber,
+    String? brand,
+    String? model,
+    int? year,
+    String? fieldId,
+    String? locationName,
+  }) async {
+    state = const AsyncValue.loading();
+
+    final result = await _repo.createEquipment(
+      name: name,
+      nameAr: nameAr,
+      type: type,
+      serialNumber: serialNumber,
+      brand: brand,
+      model: model,
+      year: year,
+      fieldId: fieldId,
+      locationName: locationName,
+    );
+
+    if (result.isSuccess) {
+      state = const AsyncValue.data(null);
+      _ref.invalidate(equipmentListProvider);
+      _ref.invalidate(equipmentStatsProvider);
+      return true;
+    }
+
+    state = AsyncValue.error(
+      result.errorAr ?? result.error ?? 'فشل في إنشاء المعدة',
+      StackTrace.current,
+    );
+    return false;
+  }
 }
 
 /// مزود Controller

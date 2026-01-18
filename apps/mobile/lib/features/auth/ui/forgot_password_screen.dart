@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/utils/input_validator.dart';
+import '../services/otp_service.dart' as otp_svc;
 import 'otp_verification_screen.dart';
 
 /// SAHOOL Forgot Password Screen
@@ -245,16 +246,38 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Call API to send OTP
-      // await ref.read(authServiceProvider).sendPasswordResetOTP(
-      //   identifier: _getFormattedIdentifier(),
-      //   channel: _selectedChannel.channel.name,
-      // );
+      // Call OTP service to send verification code
+      final otpService = ref.read(otp_svc.otpServiceProvider);
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 1));
+      // Map local OTPChannel to service OTPChannel
+      final serviceChannel = otp_svc.OTPChannel.values.firstWhere(
+        (c) => c.name == _selectedChannel.channel.name,
+      );
 
-      // Navigate to OTP verification screen
+      final result = await otpService.sendOTP(
+        identifier: _getFormattedIdentifier(),
+        channel: serviceChannel,
+        purpose: otp_svc.OTPPurpose.passwordReset,
+      );
+
+      // Handle API result
+      final success = result.when(
+        success: (_) => true,
+        failure: (message, _) {
+          setState(() {
+            _errorMessage = message;
+          });
+          return false;
+        },
+      );
+
+      if (!success) {
+        _shakeController.forward(from: 0);
+        HapticFeedback.heavyImpact();
+        return;
+      }
+
+      // Navigate to OTP verification screen on success
       if (mounted) {
         Navigator.of(context).push(
           PageRouteBuilder(

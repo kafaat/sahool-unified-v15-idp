@@ -392,6 +392,20 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
     }
   }
 
+  /// Map local OTPChannel to service OTPChannel
+  otp_svc.OTPChannel _mapToServiceChannel(OTPChannel channel) {
+    switch (channel) {
+      case OTPChannel.sms:
+        return otp_svc.OTPChannel.sms;
+      case OTPChannel.whatsapp:
+        return otp_svc.OTPChannel.whatsapp;
+      case OTPChannel.telegram:
+        return otp_svc.OTPChannel.telegram;
+      case OTPChannel.email:
+        return otp_svc.OTPChannel.email;
+    }
+  }
+
   /// Resend OTP
   Future<void> _resendOTP() async {
     if (_state.resendCooldown > 0 || _state.isLoading) return;
@@ -401,44 +415,59 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
     });
 
     try {
-      // TODO: Call API to resend OTP
-      // await ref.read(authServiceProvider).sendOTP(
-      //   identifier: widget.identifier,
-      //   channel: widget.channel.name,
-      //   purpose: widget.purpose.name,
-      // );
+      // Convert local enums to service enums
+      final serviceChannel = _mapToServiceChannel(widget.channel);
+      final servicePurpose = _mapToServicePurpose(widget.purpose);
 
-      // Simulate API call
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Call API to resend OTP
+      final result = await ref.read(otp_svc.otpServiceProvider).resendOTP(
+        identifier: widget.identifier,
+        channel: serviceChannel,
+        purpose: servicePurpose,
+      );
 
-      // Reset timer
-      setState(() {
-        _state = _state.copyWith(
-          isLoading: false,
-          remainingSeconds: 300,
-        );
-      });
+      // Handle API response
+      result.when(
+        success: (response) {
+          // Reset timer with expiry from response or default 5 minutes
+          final expirySeconds = response.expiresInSeconds ?? 300;
 
-      _startCountdownTimer();
-      _startResendCooldown();
+          setState(() {
+            _state = _state.copyWith(
+              isLoading: false,
+              remainingSeconds: expirySeconds,
+            );
+          });
 
-      // Clear OTP inputs
-      for (final controller in _otpControllers) {
-        controller.clear();
-      }
-      _focusNodes[0].requestFocus();
+          _startCountdownTimer();
+          _startResendCooldown();
 
-      // Show success snackbar
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_getResendSuccessMessage()),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+          // Clear OTP inputs
+          for (final controller in _otpControllers) {
+            controller.clear();
+          }
+          _focusNodes[0].requestFocus();
 
+          // Show success snackbar
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_getResendSuccessMessage()),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+        failure: (message, statusCode) {
+          setState(() {
+            _state = _state.copyWith(
+              isLoading: false,
+              error: message,
+            );
+          });
+        },
+      );
     } catch (e) {
       setState(() {
         _state = _state.copyWith(

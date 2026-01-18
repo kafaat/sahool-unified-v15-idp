@@ -68,6 +68,40 @@ class DiagnosisNotifier extends StateNotifier<DiagnosisState> {
     }
   }
 
+  /// تحديد الإجراء كمنفذ
+  Future<void> markActionCompleted(
+    String fieldId,
+    String zoneId,
+    String actionType,
+  ) async {
+    try {
+      // Call API to mark action as completed
+      await _api.markActionCompleted(fieldId, zoneId, actionType);
+
+      // Update local state by removing the completed action
+      if (state.diagnosis != null) {
+        final updatedActions = state.diagnosis!.actions
+            .where((a) => !(a.zoneId == zoneId && a.type == actionType))
+            .toList();
+
+        final updatedDiagnosis = FieldDiagnosis(
+          fieldId: state.diagnosis!.fieldId,
+          date: state.diagnosis!.date,
+          summary: state.diagnosis!.summary,
+          actions: updatedActions,
+          mapLayers: state.diagnosis!.mapLayers,
+        );
+
+        state = state.copyWith(diagnosis: updatedDiagnosis);
+      }
+    } catch (e) {
+      state = state.copyWith(
+        error: 'فشل تحديث الإجراء: ${e.toString()}',
+      );
+      rethrow;
+    }
+  }
+
   void clear() {
     state = const DiagnosisState();
   }

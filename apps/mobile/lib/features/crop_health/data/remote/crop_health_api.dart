@@ -179,4 +179,25 @@ class CropHealthApi {
       queryParameters: params,
     );
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Actions
+  // ═══════════════════════════════════════════════════════════════
+
+  /// تحديد الإجراء كمنفذ
+  Future<void> markActionCompleted(
+    String fieldId,
+    String zoneId,
+    String actionType, {
+    String? notes,
+  }) async {
+    await _client.post(
+      '$_baseUrl/fields/$fieldId/zones/$zoneId/actions/complete',
+      {
+        'action_type': actionType,
+        'completed_at': DateTime.now().toIso8601String(),
+        'notes': notes,
+      },
+    );
+  }
 }

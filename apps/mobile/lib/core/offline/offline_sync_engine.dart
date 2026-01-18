@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -324,7 +325,11 @@ class OfflineSyncEngine {
     }
 
     _retryCount++;
-    final delay = Duration(seconds: (2 << _retryCount)); // Exponential backoff
+    // Proper exponential backoff: 2^retryCount seconds with jitter
+    // Retry 1: ~2s, Retry 2: ~4s, Retry 3: ~8s, Retry 4: ~16s, Retry 5: ~32s
+    final baseDelaySeconds = pow(2, _retryCount).toInt();
+    final jitterMs = Random().nextInt(1000); // Add 0-1s jitter to prevent thundering herd
+    final delay = Duration(seconds: baseDelaySeconds, milliseconds: jitterMs);
 
     Timer(delay, _checkAndSync);
     AppLogger.d('Retry scheduled in ${delay.inSeconds}s (attempt $_retryCount)', tag: 'SYNC');
@@ -538,10 +543,12 @@ final offlineSyncEngineProvider = Provider<OfflineSyncEngine>((ref) {
   return OfflineSyncEngine.instance;
 });
 
-final syncStatusProvider = StreamProvider<SyncStatus>((ref) {
+/// Uses autoDispose to clean up subscription when no longer watched
+final syncStatusProvider = StreamProvider.autoDispose<SyncStatus>((ref) {
   return OfflineSyncEngine.instance.syncStatus;
 });
 
-final outboxStatsProvider = FutureProvider<OutboxStats>((ref) {
+/// Uses autoDispose to clean up when no longer watched
+final outboxStatsProvider = FutureProvider.autoDispose<OutboxStats>((ref) {
   return OfflineSyncEngine.instance.getStats();
 });

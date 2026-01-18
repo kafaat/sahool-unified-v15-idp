@@ -221,8 +221,14 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
           );
         }
 
-        return Column(
-          children: equipmentList.map((equipment) {
+        // Use ListView.builder for efficient lazy rendering
+        // Only builds visible items, better for large equipment lists
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: equipmentList.length,
+          itemBuilder: (context, index) {
+            final equipment = equipmentList[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: _EquipmentItem(
@@ -230,7 +236,7 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
                 onTap: () => _showEquipmentDetails(context, equipment),
               ),
             );
-          }).toList(),
+          },
         );
       },
       loading: () => const Center(

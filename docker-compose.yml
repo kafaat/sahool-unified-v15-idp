@@ -725,9 +725,12 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      # Development: HTTP only on port 8000
+      # Production: Uncomment the line below and comment out the HTTP-only line
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
-      # SSL disabled for development - enable in production with valid certificates
       # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
+      # SSL Configuration (REQUIRED for production)
+      # Generate certificates and place in ./infrastructure/gateway/kong/ssl/
       # KONG_SSL_CERT: /etc/kong/ssl/server.crt
       # KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
       # Plugins - Optimized execution order for performance
@@ -779,9 +782,9 @@ services:
       KONG_MEM_CACHE_SIZE: 128m
     ports:
       - "8000:8000"
-      # SSL port disabled for development
+      # SSL port (REQUIRED for production - uncomment when SSL is enabled)
       # - "8443:8443"
-      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8001:8001" # Admin API - localhost only for security
     volumes:
       - ./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro
       - ./infrastructure/gateway/kong/ssl:/etc/kong/ssl:ro
@@ -1289,6 +1292,7 @@ services:
       - PORT=3025
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-30}
@@ -1296,11 +1300,14 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3025:3025"
+      # SECURITY: Bind to localhost only - service should only be accessed via Kong API Gateway
+      - "127.0.0.1:3025:3025"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      nats:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3025/api/v1/health" ]

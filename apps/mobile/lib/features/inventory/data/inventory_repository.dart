@@ -502,6 +502,59 @@ class InventoryRepository {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // Image Upload
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// رفع صورة عنصر المخزون
+  /// Upload inventory item image
+  Future<ApiResult<String>> uploadImage(String filePath) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          filePath,
+          filename: filePath.split('/').last,
+        ),
+      });
+
+      final response = await _dio.post(
+        '/v1/inventory/upload',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+          sendTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 60),
+        ),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      final imageUrl = data['url'] as String?;
+
+      if (imageUrl != null) {
+        return ApiResult.success(imageUrl);
+      }
+
+      return ApiResult.failure(
+        'No image URL returned',
+        'لم يتم إرجاع رابط الصورة',
+      );
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        return ApiResult.failure(
+          'Upload timed out. Please try again.',
+          'انتهت مهلة الرفع. يرجى المحاولة مرة أخرى.',
+        );
+      }
+      return ApiResult.failure(
+        e.message ?? 'Failed to upload image',
+        'فشل في رفع الصورة',
+      );
+    } catch (e) {
+      return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // Statistics
   // ─────────────────────────────────────────────────────────────────────────────
 

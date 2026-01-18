@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../services/otp_service.dart' as otp_svc;
+
 /// SAHOOL OTP Verification Screen
 /// شاشة التحقق من رمز OTP
 ///
@@ -283,41 +285,61 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
     });
 
     try {
-      // TODO: Call API to verify OTP
-      // final response = await ref.read(authServiceProvider).verifyOTP(
-      //   identifier: widget.identifier,
-      //   otpCode: otp,
-      //   purpose: widget.purpose.name,
-      // );
+      // Convert local OTPPurpose to service OTPPurpose
+      final servicePurpose = _mapToServicePurpose(widget.purpose);
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 1));
+      // Call API to verify OTP
+      final result = await ref.read(otp_svc.otpServiceProvider).verifyOTP(
+        identifier: widget.identifier,
+        otp: otp,
+        purpose: servicePurpose,
+      );
 
-      // For demo, accept any 6-digit code
-      // In production, validate against server
+      // Handle API response
+      result.when(
+        success: (response) async {
+          setState(() {
+            _state = _state.copyWith(
+              isLoading: false,
+              isVerified: true,
+              resetToken: response.resetToken,
+            );
+          });
 
-      setState(() {
-        _state = _state.copyWith(
-          isLoading: false,
-          isVerified: true,
-          resetToken: 'demo_reset_token_${DateTime.now().millisecondsSinceEpoch}',
-        );
-      });
+          // Show success feedback
+          HapticFeedback.mediumImpact();
 
-      // Show success feedback
-      HapticFeedback.mediumImpact();
+          // Notify parent
+          if (widget.purpose == OTPPurpose.passwordReset && _state.resetToken != null) {
+            widget.onResetTokenReceived?.call(_state.resetToken!);
+          }
+          widget.onVerified?.call();
 
-      // Notify parent
-      if (widget.purpose == OTPPurpose.passwordReset && _state.resetToken != null) {
-        widget.onResetTokenReceived?.call(_state.resetToken!);
-      }
-      widget.onVerified?.call();
+          // Navigate to next screen after delay
+          await Future.delayed(const Duration(seconds: 1));
+          if (mounted) {
+            _navigateToNextScreen();
+          }
+        },
+        failure: (message, statusCode) {
+          // Error - shake and clear
+          _shakeController.forward(from: 0);
+          HapticFeedback.heavyImpact();
 
-      // Navigate to next screen after delay
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted) {
-        _navigateToNextScreen();
-      }
+          setState(() {
+            _state = _state.copyWith(
+              isLoading: false,
+              error: message,
+            );
+          });
+
+          // Clear OTP inputs
+          for (final controller in _otpControllers) {
+            controller.clear();
+          }
+          _focusNodes[0].requestFocus();
+        },
+      );
 
     } catch (e) {
       // Error - shake and clear
@@ -355,6 +377,18 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
       case OTPPurpose.twoFactor:
         Navigator.of(context).pop(true);
         break;
+    }
+  }
+
+  /// Map local OTPPurpose to service OTPPurpose
+  otp_svc.OTPPurpose _mapToServicePurpose(OTPPurpose purpose) {
+    switch (purpose) {
+      case OTPPurpose.passwordReset:
+        return otp_svc.OTPPurpose.passwordReset;
+      case OTPPurpose.phoneVerification:
+        return otp_svc.OTPPurpose.phoneVerification;
+      case OTPPurpose.twoFactor:
+        return otp_svc.OTPPurpose.twoFactor;
     }
   }
 

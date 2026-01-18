@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/auth/auth_service.dart';
 import '../../../core/theme/sahool_theme.dart';
 
 /// SAHOOL Reset Password Screen
@@ -373,14 +374,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
     });
 
     try {
-      // TODO: Call API to reset password
-      // final response = await ref.read(authServiceProvider).resetPassword(
-      //   token: widget.token,
-      //   newPassword: _passwordController.text,
-      // );
-
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      // Call API to reset password
+      await ref.read(authServiceProvider).resetPassword(
+        token: widget.token,
+        newPassword: _passwordController.text,
+      );
 
       // Success
       setState(() {
@@ -403,10 +401,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
       HapticFeedback.heavyImpact();
       _shakeController.forward(from: 0);
 
+      // Extract error message from AuthException or use default
+      String errorMessage = 'فشل تغيير كلمة المرور. يرجى المحاولة مرة اخرى.';
+      if (e is AuthException) {
+        errorMessage = e.message;
+      }
+
       setState(() {
         _state = _state.copyWith(
           isLoading: false,
-          error: 'فشل تغيير كلمة المرور. يرجى المحاولة مرة اخرى.',
+          error: errorMessage,
         );
       });
     }

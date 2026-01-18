@@ -4,8 +4,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../../core/widgets/barcode_scanner_widget.dart';
 import '../data/inventory_models.dart';
+import '../data/inventory_repository.dart';
 import '../providers/inventory_providers.dart';
 
 /// شاشة إضافة عنصر مخزون جديد
@@ -35,6 +38,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   String? _selectedSupplierId;
   DateTime? _expiryDate;
   String? _imageUrl;
+  bool _isUploadingImage = false;
 
   @override
   void dispose() {
@@ -73,11 +77,20 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                   CircleAvatar(
                     radius: 60,
                     backgroundColor: Colors.grey.shade200,
-                    child: _imageUrl != null
-                        ? ClipOval(
-                            child: Image.network(_imageUrl!, fit: BoxFit.cover),
-                          )
-                        : Icon(Icons.inventory_2, size: 60, color: Colors.grey.shade400),
+                    child: _isUploadingImage
+                        ? const CircularProgressIndicator()
+                        : _imageUrl != null
+                            ? ClipOval(
+                                child: Image.network(
+                                  _imageUrl!,
+                                  fit: BoxFit.cover,
+                                  width: 120,
+                                  height: 120,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(Icons.broken_image, size: 60, color: Colors.grey.shade400),
+                                ),
+                              )
+                            : Icon(Icons.inventory_2, size: 60, color: Colors.grey.shade400),
                   ),
                   Positioned(
                     bottom: 0,
@@ -86,7 +99,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                       backgroundColor: Theme.of(context).primaryColor,
                       child: IconButton(
                         icon: const Icon(Icons.camera_alt, color: Colors.white),
-                        onPressed: _pickImage,
+                        onPressed: _isUploadingImage ? null : _pickImage,
                       ),
                     ),
                   ),
@@ -389,20 +402,100 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
+
     if (image != null) {
-      // TODO: Upload image and get URL
       setState(() {
-        _imageUrl = image.path;
+        _isUploadingImage = true;
       });
+
+      try {
+        final repository = ref.read(inventoryRepositoryProvider);
+        final result = await repository.uploadImage(image.path);
+
+        if (!mounted) return;
+
+        if (result.isSuccess && result.data != null) {
+          setState(() {
+            _imageUrl = result.data;
+            _isUploadingImage = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم رفع الصورة بنجاح'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          setState(() {
+            _isUploadingImage = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.errorAr ?? result.error ?? 'فشل في رفع الصورة'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _isUploadingImage = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ في رفع الصورة: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _scanBarcode() async {
-    // TODO: Implement barcode scanning
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('الماسح الضوئي قيد التطوير')),
-    );
+    try {
+      final result = await BarcodeScannerScreen.scan(
+        context,
+        title: 'مسح الباركود',
+        subtitle: 'وجّه الكاميرا نحو الباركود لمسحه',
+        formats: [
+          BarcodeFormat.ean13,
+          BarcodeFormat.ean8,
+          BarcodeFormat.upcA,
+          BarcodeFormat.upcE,
+          BarcodeFormat.code128,
+          BarcodeFormat.code39,
+          BarcodeFormat.code93,
+          BarcodeFormat.qrCode,
+        ],
+      );
+
+      if (result != null && mounted) {
+        setState(() {
+          _barcodeController.text = result.value;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('تم مسح الباركود: ${result.value}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ في مسح الباركود: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _submitForm() async {

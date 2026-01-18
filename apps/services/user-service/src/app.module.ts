@@ -15,7 +15,7 @@ import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { PrismaModule } from "./prisma/prisma.module";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
-import { HealthController } from "./health/health.controller";
+import { HealthController, HealthzController } from "./health/health.controller";
 import { JwtService, JwtModule } from "@nestjs/jwt";
 import { Reflector } from "@nestjs/core";
 
@@ -52,7 +52,7 @@ import { JWTConfig } from "./utils/jwt.config";
     AuthModule, // Authentication module with token revocation
     UsersModule,
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, HealthzController],
   providers: [
     // Global rate limiting guard
     {

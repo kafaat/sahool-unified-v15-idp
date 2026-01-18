@@ -40,8 +40,9 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache curl openssl openssl-dev
+# Install curl for health checks and OpenSSL 3.0.x for Prisma runtime compatibility
+# Note: openssl-dev is NOT needed in production - only runtime library required
+RUN apk add --no-cache curl openssl
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds

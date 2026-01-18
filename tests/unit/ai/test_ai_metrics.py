@@ -448,11 +448,24 @@ class TestLatencyMetrics:
     @pytest.mark.asyncio
     async def test_track_operation_async_context_manager(self):
         """Test async context manager for operation tracking"""
+        metrics = get_ai_metrics_registry()
+
+        # Record initial state of compression latency metric
+        # (track_operation_async should record latency to appropriate histogram)
+        initial_latency_count = metrics.compression_latency.count
+
+        # Execute operation within async context manager
         async with track_operation_async("test_operation"):
             await asyncio.sleep(0.01)
 
-        # If we reach here, context manager worked correctly
-        assert True
+        # Verify context manager completed successfully and recorded metrics
+        # Latency should have been recorded for the operation
+        assert metrics.compression_latency.count > initial_latency_count, \
+            "Context manager should record operation latency"
+
+        # Verify the latency recorded is positive (non-zero time passed)
+        assert metrics.compression_latency.sum > 0, \
+            "Operation should have measurable latency"
 
     @pytest.mark.asyncio
     async def test_track_operation_async_error_handling(self):

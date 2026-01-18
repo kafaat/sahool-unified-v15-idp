@@ -19,6 +19,7 @@ import os
 import time
 from collections.abc import AsyncGenerator, Generator
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Any
 
 import httpx
@@ -182,6 +183,85 @@ def db_cursor(db_connection):
     cursor = db_connection.cursor()
     yield cursor
     cursor.close()
+
+
+def pytest_addoption(parser):
+    """
+    Add custom command-line options for pytest
+    إضافة خيارات سطر أوامر مخصصة لـ pytest
+    """
+    parser.addoption(
+        "--postgis",
+        action="store_true",
+        default=False,
+        help="Enable PostGIS integration tests (requires PostGIS to be installed)",
+    )
+
+
+def pytest_configure(config):
+    """
+    Configure pytest and check PostGIS availability
+    تكوين pytest والتحقق من توفر PostGIS
+    """
+    config.postgis_available = False
+    config.postgis_skip_reason = "PostGIS not available (--postgis flag not set)"
+
+    if config.getoption("--postgis"):
+        try:
+            # Try to connect and check for PostGIS
+            from tests.integration.conftest import TestConfig as TC
+
+            test_config = TC()
+            conn = psycopg2.connect(
+                host=test_config.postgres_host,
+                port=test_config.postgres_port,
+                user=test_config.postgres_user,
+                password=test_config.postgres_password,
+                dbname=test_config.postgres_db,
+                cursor_factory=RealDictCursor,
+                connect_timeout=5,
+            )
+            cursor = conn.cursor()
+            cursor.execute("SELECT extname FROM pg_extension WHERE extname = 'postgis';")
+            result = cursor.fetchone()
+            cursor.close()
+            conn.close()
+
+            if result:
+                config.postgis_available = True
+                config.postgis_skip_reason = None
+            else:
+                config.postgis_skip_reason = (
+                    "PostGIS extension not installed. Run: CREATE EXTENSION postgis;"
+                )
+        except Exception as e:
+            config.postgis_skip_reason = f"Could not verify PostGIS availability: {str(e)}"
+
+
+def pytest_collection_modifyitems(config, items):
+    """
+    Modify test collection to skip PostGIS tests based on availability
+    تعديل مجموعة الاختبارات لتخطي اختبارات PostGIS بناءً على التوفر
+    """
+    skip_postgis = pytest.mark.skip(reason=config.postgis_skip_reason)
+
+    for item in items:
+        # Check if test is in TestPostGISIntegration class
+        if "TestPostGISIntegration" in item.nodeid:
+            if not config.postgis_available:
+                item.add_marker(skip_postgis)
+
+
+@pytest.fixture(scope="session")
+def postgis_available(request) -> bool:
+    """
+    Check if PostGIS extension is available in the database
+    فحص ما إذا كان امتداد PostGIS متاحاً في قاعدة البيانات
+
+    Returns True if PostGIS is installed and enabled, False otherwise.
+    This fixture allows tests to conditionally check PostGIS availability.
+    """
+    return request.config.postgis_available
 
 
 @pytest.fixture(autouse=True)

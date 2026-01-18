@@ -97,9 +97,8 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      # Health check - temporarily using a simple port check since authentication is failing
-      # TODO: Fix password authentication and restore proper health check
-      test: [ "CMD-SHELL", "PGPASSWORD=$$DB_PASSWORD pg_isready -h localhost -p 6432 -U $$DB_USER -d $$DB_NAME || exit 1" ]
+      # Health check - uses environment variables for password authentication
+      test: [ "CMD-SHELL", "PGPASSWORD=$DB_PASSWORD pg_isready -h localhost -p 6432 -U $DB_USER -d $DB_NAME || exit 1" ]
 
       interval: 30s
       timeout: 10s

@@ -4,6 +4,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
 import '../providers/satellite_provider.dart';
 import '../../widgets/health_indicator.dart';
 import '../../widgets/weather_card.dart';
@@ -11,6 +13,7 @@ import '../../widgets/ndvi_chart.dart';
 import 'ndvi_detail_screen.dart';
 import 'weather_screen.dart';
 import 'phenology_screen.dart';
+import 'satellite_history_screen.dart';
 
 class SatelliteDashboardScreen extends ConsumerStatefulWidget {
   final String fieldId;
@@ -549,6 +552,18 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
+  void _navigateToHistory(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SatelliteHistoryScreen(
+          fieldId: widget.fieldId,
+          fieldName: widget.fieldName,
+        ),
+      ),
+    );
+  }
+
   void _showOptionsMenu(BuildContext context, bool isArabic) {
     showModalBottomSheet(
       context: context,
@@ -561,7 +576,7 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
               title: Text(isArabic ? 'تصدير البيانات' : 'Export Data'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement export
+                _exportSatelliteData(isArabic);
               },
             ),
             ListTile(
@@ -569,12 +584,214 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
               title: Text(isArabic ? 'عرض السجل' : 'View History'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement history
+                _navigateToHistory(context);
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  /// Export satellite data as text report
+  /// تصدير بيانات الأقمار الصناعية كتقرير نصي
+  Future<void> _exportSatelliteData(bool isArabic) async {
+    final state = ref.read(satelliteDashboardProvider);
+
+    if (!state.hasData) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isArabic ? 'لا توجد بيانات للتصدير' : 'No data available to export',
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    final dateFormatter = DateFormat('yyyy-MM-dd HH:mm');
+    final reportDate = dateFormatter.format(DateTime.now());
+
+    // Build the export report
+    final buffer = StringBuffer();
+
+    // Header
+    if (isArabic) {
+      buffer.writeln('=' * 40);
+      buffer.writeln('تقرير مراقبة الأقمار الصناعية - SAHOOL');
+      buffer.writeln('=' * 40);
+      buffer.writeln();
+      buffer.writeln('الحقل: ${widget.fieldName}');
+      buffer.writeln('معرف الحقل: ${widget.fieldId}');
+      buffer.writeln('تاريخ التقرير: $reportDate');
+      buffer.writeln();
+    } else {
+      buffer.writeln('=' * 40);
+      buffer.writeln('SAHOOL - Satellite Monitoring Report');
+      buffer.writeln('=' * 40);
+      buffer.writeln();
+      buffer.writeln('Field: ${widget.fieldName}');
+      buffer.writeln('Field ID: ${widget.fieldId}');
+      buffer.writeln('Report Date: $reportDate');
+      buffer.writeln();
+    }
+
+    // Field Health Section
+    if (state.fieldHealth != null) {
+      final health = state.fieldHealth!;
+      if (isArabic) {
+        buffer.writeln('-' * 40);
+        buffer.writeln('صحة الحقل');
+        buffer.writeln('-' * 40);
+        buffer.writeln('الدرجة: ${health.healthScore.toStringAsFixed(1)}/100');
+        buffer.writeln('الحالة: ${health.status.getLabel(true)}');
+        buffer.writeln('NDVI: ${health.ndvi.toStringAsFixed(3)}');
+        buffer.writeln('NDWI: ${health.ndwi.toStringAsFixed(3)}');
+        buffer.writeln('EVI: ${health.evi.toStringAsFixed(3)}');
+        if (health.soilMoisture != null) {
+          buffer.writeln('رطوبة التربة: ${health.soilMoisture!.toStringAsFixed(1)}%');
+        }
+        buffer.writeln();
+      } else {
+        buffer.writeln('-' * 40);
+        buffer.writeln('Field Health');
+        buffer.writeln('-' * 40);
+        buffer.writeln('Score: ${health.healthScore.toStringAsFixed(1)}/100');
+        buffer.writeln('Status: ${health.status.getLabel(false)}');
+        buffer.writeln('NDVI: ${health.ndvi.toStringAsFixed(3)}');
+        buffer.writeln('NDWI: ${health.ndwi.toStringAsFixed(3)}');
+        buffer.writeln('EVI: ${health.evi.toStringAsFixed(3)}');
+        if (health.soilMoisture != null) {
+          buffer.writeln('Soil Moisture: ${health.soilMoisture!.toStringAsFixed(1)}%');
+        }
+        buffer.writeln();
+      }
+
+      // Alerts
+      if (health.alerts.isNotEmpty) {
+        buffer.writeln(isArabic ? 'التنبيهات:' : 'Alerts:');
+        for (final alert in health.alerts) {
+          buffer.writeln('  - ${isArabic ? alert.messageAr : alert.message}');
+        }
+        buffer.writeln();
+      }
+
+      // Recommendations
+      if (health.recommendations.isNotEmpty) {
+        buffer.writeln(isArabic ? 'التوصيات:' : 'Recommendations:');
+        for (final rec in health.recommendations) {
+          buffer.writeln('  - ${isArabic ? rec.titleAr : rec.title}');
+        }
+        buffer.writeln();
+      }
+    }
+
+    // NDVI Analysis Section
+    if (state.ndviAnalysis != null) {
+      final ndvi = state.ndviAnalysis!;
+      if (isArabic) {
+        buffer.writeln('-' * 40);
+        buffer.writeln('تحليل NDVI');
+        buffer.writeln('-' * 40);
+        buffer.writeln('القيمة الحالية: ${ndvi.currentNdvi.toStringAsFixed(3)}');
+        buffer.writeln('القيمة السابقة: ${ndvi.previousNdvi.toStringAsFixed(3)}');
+        buffer.writeln('نسبة التغيير: ${ndvi.changeRate >= 0 ? '+' : ''}${ndvi.changeRate.toStringAsFixed(1)}%');
+        buffer.writeln('حالة الغطاء النباتي: ${ndvi.health.getLabel(true)}');
+        buffer.writeln();
+      } else {
+        buffer.writeln('-' * 40);
+        buffer.writeln('NDVI Analysis');
+        buffer.writeln('-' * 40);
+        buffer.writeln('Current Value: ${ndvi.currentNdvi.toStringAsFixed(3)}');
+        buffer.writeln('Previous Value: ${ndvi.previousNdvi.toStringAsFixed(3)}');
+        buffer.writeln('Change Rate: ${ndvi.changeRate >= 0 ? '+' : ''}${ndvi.changeRate.toStringAsFixed(1)}%');
+        buffer.writeln('Vegetation Health: ${ndvi.health.getLabel(false)}');
+        buffer.writeln();
+      }
+
+      // NDVI Time Series Summary
+      if (ndvi.timeSeries.isNotEmpty) {
+        buffer.writeln(isArabic ? 'السلسلة الزمنية (آخر ${ndvi.timeSeries.length} قراءة):' : 'Time Series (last ${ndvi.timeSeries.length} readings):');
+        for (final point in ndvi.timeSeries.take(10)) {
+          final dateStr = DateFormat('yyyy-MM-dd').format(point.date);
+          buffer.writeln('  $dateStr: ${point.value.toStringAsFixed(3)}');
+        }
+        if (ndvi.timeSeries.length > 10) {
+          buffer.writeln('  ...');
+        }
+        buffer.writeln();
+      }
+
+      // Additional Indices
+      if (ndvi.indices != null && ndvi.indices!.isNotEmpty) {
+        buffer.writeln(isArabic ? 'المؤشرات النباتية:' : 'Vegetation Indices:');
+        ndvi.indices!.forEach((key, value) {
+          buffer.writeln('  $key: ${value.toStringAsFixed(3)}');
+        });
+        buffer.writeln();
+      }
+    }
+
+    // Phenology Section
+    if (state.phenologyData != null) {
+      final phenology = state.phenologyData!;
+      if (isArabic) {
+        buffer.writeln('-' * 40);
+        buffer.writeln('مراحل النمو');
+        buffer.writeln('-' * 40);
+        buffer.writeln('المرحلة الحالية: ${phenology.currentStage.getLabel(true)}');
+        if (phenology.daysToHarvest != null) {
+          buffer.writeln('أيام حتى الحصاد: ${phenology.daysToHarvest}');
+        }
+        buffer.writeln();
+      } else {
+        buffer.writeln('-' * 40);
+        buffer.writeln('Growth Stage');
+        buffer.writeln('-' * 40);
+        buffer.writeln('Current Stage: ${phenology.currentStage.getLabel(false)}');
+        if (phenology.daysToHarvest != null) {
+          buffer.writeln('Days to Harvest: ${phenology.daysToHarvest}');
+        }
+        buffer.writeln();
+      }
+    }
+
+    // Last update info
+    if (state.lastUpdate != null) {
+      final lastUpdateStr = dateFormatter.format(state.lastUpdate!);
+      buffer.writeln(isArabic ? 'آخر تحديث: $lastUpdateStr' : 'Last Updated: $lastUpdateStr');
+    }
+
+    // Footer
+    buffer.writeln();
+    buffer.writeln('=' * 40);
+    buffer.writeln(isArabic ? 'تم إنشاؤه بواسطة تطبيق SAHOOL' : 'Generated by SAHOOL App');
+    buffer.writeln('=' * 40);
+
+    // Share the report
+    final reportText = buffer.toString();
+    final subject = isArabic
+        ? 'تقرير الأقمار الصناعية - ${widget.fieldName}'
+        : 'Satellite Report - ${widget.fieldName}';
+
+    try {
+      await Share.share(
+        reportText,
+        subject: subject,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isArabic ? 'فشل في مشاركة التقرير' : 'Failed to share report',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

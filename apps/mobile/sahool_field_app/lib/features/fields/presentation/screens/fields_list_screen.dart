@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/di/providers.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -207,7 +208,12 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  // TODO: Refresh from API
+                  // Refresh fields from API
+                  const tenantId = 't1'; // TODO: Get from auth provider
+                  final repo = ref.read(fieldsRepoProvider);
+                  await repo.refreshFromServer(tenantId);
+                  // Invalidate providers to refresh cached data
+                  ref.invalidate(allFieldsProvider(tenantId));
                 },
                 child: _isGridView ? _buildGridView() : _buildListView(),
               ),

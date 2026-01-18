@@ -377,24 +377,358 @@ export const consoleAlertHandler: AlertHandler = {
 };
 
 /**
- * Email alert handler (placeholder - integrate with your email service)
+ * Email configuration from environment variables
+ */
+interface EmailConfig {
+  apiKey: string;
+  fromAddress: string;
+  toAddresses: string[];
+}
+
+/**
+ * Email parameters for sending
+ */
+interface EmailParams {
+  to: string[];
+  subject: string;
+  body: string;
+  htmlBody?: string;
+}
+
+/**
+ * Get email configuration from environment variables
+ */
+function getEmailConfig(): EmailConfig | null {
+  const apiKey = process.env.EMAIL_SERVICE_API_KEY;
+  const fromAddress = process.env.EMAIL_FROM_ADDRESS;
+  const toAddresses = process.env.EMAIL_ALERT_RECIPIENTS?.split(",").map((e) =>
+    e.trim(),
+  );
+
+  if (!apiKey || !fromAddress) {
+    return null;
+  }
+
+  return {
+    apiKey,
+    fromAddress,
+    toAddresses: toAddresses || [],
+  };
+}
+
+/**
+ * Logger for email handler
+ */
+const emailLogger = new Logger("EmailAlertHandler");
+
+/**
+ * Send email via SendGrid API
+ */
+async function sendEmail(params: EmailParams): Promise<void> {
+  const config = getEmailConfig();
+
+  if (!config) {
+    emailLogger.warn(
+      "Email service not configured. Set EMAIL_SERVICE_API_KEY and EMAIL_FROM_ADDRESS environment variables.",
+    );
+    return;
+  }
+
+  const recipients = params.to.length > 0 ? params.to : config.toAddresses;
+
+  if (recipients.length === 0) {
+    emailLogger.warn(
+      "No email recipients configured. Set EMAIL_ALERT_RECIPIENTS environment variable.",
+    );
+    return;
+  }
+
+  emailLogger.log(
+    `Sending email alert to ${recipients.length} recipient(s): ${params.subject}`,
+  );
+
+  const payload = {
+    personalizations: [
+      {
+        to: recipients.map((email) => ({ email })),
+      },
+    ],
+    from: { email: config.fromAddress },
+    subject: params.subject,
+    content: [
+      {
+        type: "text/plain",
+        value: params.body,
+      },
+      ...(params.htmlBody
+        ? [
+            {
+              type: "text/html",
+              value: params.htmlBody,
+            },
+          ]
+        : []),
+    ],
+  };
+
+  try {
+    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `SendGrid API error: ${response.status} ${response.statusText} - ${errorText}`,
+      );
+    }
+
+    emailLogger.log(`Email alert sent successfully to ${recipients.join(", ")}`);
+  } catch (error) {
+    emailLogger.error(
+      `Failed to send email alert: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    throw error;
+  }
+}
+
+/**
+ * Format alert as plain text for email body
+ */
+function formatAlertAsText(alert: AuditAlert): string {
+  const lines = [
+    `SECURITY ALERT: ${alert.rule}`,
+    ``,
+    `Severity: ${alert.severity.toUpperCase()}`,
+    `Message: ${alert.message}`,
+    `Timestamp: ${alert.timestamp.toISOString()}`,
+    `Alert ID: ${alert.id}`,
+    ``,
+    `Events (${alert.events.length}):`,
+  ];
+
+  for (const event of alert.events.slice(0, 10)) {
+    lines.push(
+      `  - ${event.action} on ${event.resourceType}/${event.resourceId} by ${event.actorType}/${event.actorId || "system"}`,
+    );
+  }
+
+  if (alert.events.length > 10) {
+    lines.push(`  ... and ${alert.events.length - 10} more events`);
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Format alert as HTML for email body
+ */
+function formatAlertAsHtml(alert: AuditAlert): string {
+  const severityColor =
+    {
+      critical: "#dc2626",
+      error: "#ea580c",
+      warning: "#ca8a04",
+      info: "#2563eb",
+      debug: "#6b7280",
+    }[alert.severity] || "#6b7280";
+
+  const eventRows = alert.events
+    .slice(0, 10)
+    .map(
+      (event) =>
+        `<tr>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${event.action}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${event.resourceType}/${event.resourceId}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${event.actorType}/${event.actorId || "system"}</td>
+        </tr>`,
+    )
+    .join("");
+
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: ${severityColor}; color: white; padding: 16px; border-radius: 8px 8px 0 0;">
+        <h2 style="margin: 0;">Security Alert: ${alert.rule}</h2>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; padding: 16px; border-radius: 0 0 8px 8px;">
+        <p><strong>Severity:</strong> ${alert.severity.toUpperCase()}</p>
+        <p><strong>Message:</strong> ${alert.message}</p>
+        <p><strong>Timestamp:</strong> ${alert.timestamp.toISOString()}</p>
+        <p><strong>Alert ID:</strong> ${alert.id}</p>
+
+        <h3>Events (${alert.events.length})</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background-color: #f3f4f6;">
+              <th style="padding: 8px; text-align: left;">Action</th>
+              <th style="padding: 8px; text-align: left;">Resource</th>
+              <th style="padding: 8px; text-align: left;">Actor</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${eventRows}
+          </tbody>
+        </table>
+        ${alert.events.length > 10 ? `<p><em>... and ${alert.events.length - 10} more events</em></p>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Email alert handler - sends security alerts via email using SendGrid
+ *
+ * Required environment variables:
+ * - EMAIL_SERVICE_API_KEY: SendGrid API key
+ * - EMAIL_FROM_ADDRESS: Sender email address (must be verified in SendGrid)
+ * - EMAIL_ALERT_RECIPIENTS: Comma-separated list of recipient email addresses
  */
 export const emailAlertHandler: AlertHandler = {
   name: "email",
   async handle(alert: AuditAlert): Promise<void> {
-    // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
-    console.log("Email alert:", alert.message);
+    const subject = `[${alert.severity.toUpperCase()}] Security Alert: ${alert.rule}`;
+    const body = formatAlertAsText(alert);
+    const htmlBody = formatAlertAsHtml(alert);
+
+    await sendEmail({
+      to: [],
+      subject,
+      body,
+      htmlBody,
+    });
   },
 };
 
 /**
- * Slack alert handler (placeholder - integrate with Slack)
+ * Slack severity color mapping
+ */
+const SLACK_SEVERITY_COLORS: Record<AuditSeverity, string> = {
+  [AuditSeverity.DEBUG]: "#808080", // Gray
+  [AuditSeverity.INFO]: "#36a64f", // Green
+  [AuditSeverity.WARNING]: "#ff9900", // Orange
+  [AuditSeverity.ERROR]: "#ff0000", // Red
+  [AuditSeverity.CRITICAL]: "#8b0000", // Dark red
+};
+
+/**
+ * Slack message payload interface
+ */
+interface SlackMessagePayload {
+  channel?: string;
+  text: string;
+  attachments?: SlackAttachment[];
+}
+
+/**
+ * Slack attachment interface
+ */
+interface SlackAttachment {
+  color: string;
+  title: string;
+  text: string;
+  fields?: Array<{
+    title: string;
+    value: string;
+    short: boolean;
+  }>;
+  footer?: string;
+  ts?: number;
+}
+
+/**
+ * Logger for Slack handler
+ */
+const slackLogger = new Logger("SlackAlertHandler");
+
+/**
+ * Slack alert handler - sends audit alerts to Slack via webhook
  */
 export const slackAlertHandler: AlertHandler = {
   name: "slack",
   async handle(alert: AuditAlert): Promise<void> {
-    // TODO: Integrate with Slack webhook
-    console.log("Slack alert:", alert.message);
+    const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+
+    if (!webhookUrl) {
+      slackLogger.warn(
+        "SLACK_WEBHOOK_URL not configured, skipping Slack notification",
+      );
+      return;
+    }
+
+    slackLogger.log(
+      `Sending Slack notification for alert: ${alert.rule} (severity: ${alert.severity})`,
+    );
+
+    const payload: SlackMessagePayload = {
+      text: `Security Alert: ${alert.message}`,
+      attachments: [
+        {
+          color: SLACK_SEVERITY_COLORS[alert.severity] || "#808080",
+          title: `Alert: ${alert.rule}`,
+          text: alert.message,
+          fields: [
+            {
+              title: "Severity",
+              value: alert.severity.toUpperCase(),
+              short: true,
+            },
+            {
+              title: "Events",
+              value: String(alert.events.length),
+              short: true,
+            },
+            {
+              title: "Alert ID",
+              value: alert.id,
+              short: true,
+            },
+            {
+              title: "Timestamp",
+              value: alert.timestamp.toISOString(),
+              short: true,
+            },
+          ],
+          footer: "SAHOOL Audit System",
+          ts: Math.floor(alert.timestamp.getTime() / 1000),
+        },
+      ],
+    };
+
+    // Add channel override if specified in environment
+    const slackChannel = process.env.SLACK_ALERT_CHANNEL;
+    if (slackChannel) {
+      payload.channel = slackChannel;
+    }
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Slack webhook failed with status ${response.status}: ${errorText}`,
+        );
+      }
+
+      slackLogger.log(
+        `Slack notification sent successfully for alert: ${alert.id}`,
+      );
+    } catch (error) {
+      slackLogger.error(
+        `Failed to send Slack notification for alert ${alert.id}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      // Re-throw to allow upstream handling if needed
+      throw error;
+    }
   },
 };
 

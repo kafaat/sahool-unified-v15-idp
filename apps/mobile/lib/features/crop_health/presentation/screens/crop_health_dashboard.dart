@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../domain/entities/crop_health_entities.dart';
@@ -675,7 +676,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                         child: OutlinedButton.icon(
                           onPressed: () {
                             Navigator.pop(context);
-                            // TODO: Navigate to zone on map
+                            _navigateToZoneOnMap(action.zoneId);
                           },
                           icon: const Icon(Icons.map),
                           label: const Text('عرض على الخريطة'),
@@ -717,5 +718,19 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       default:
         return hint;
     }
+  }
+
+  /// Navigate to map screen and focus on the specified zone
+  void _navigateToZoneOnMap(String zoneId) {
+    final zonesState = ref.read(zonesProvider);
+    final zone = zonesState.zones.where((z) => z.zoneId == zoneId).firstOrNull;
+
+    context.push('/map', extra: {
+      'zoneId': zoneId,
+      'zoneName': zone?.nameAr ?? zone?.name ?? zoneId,
+      'geometry': zone?.geometry,
+      'fieldId': widget.fieldId,
+      'fieldName': widget.fieldName,
+    });
   }
 }

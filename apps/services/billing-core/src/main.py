@@ -567,6 +567,60 @@ class CreatePaymentRequest(BaseModel):
 # across multiple instances and restarts.
 INVOICE_COUNTER: int = 0
 
+# Overage rates per metric (USD per unit over limit)
+# رسوم تجاوز الاستخدام لكل مقياس (بالدولار لكل وحدة إضافية)
+OVERAGE_RATES: dict[str, Decimal] = {
+    "fields": Decimal("5.00"),                        # $5 per additional field
+    "satellite_analyses_per_month": Decimal("0.50"),  # $0.50 per additional analysis
+    "ai_diagnoses_per_month": Decimal("0.25"),        # $0.25 per additional diagnosis
+    "pdf_reports_per_month": Decimal("0.10"),         # $0.10 per additional report
+    "storage_gb": Decimal("2.00"),                    # $2 per additional GB
+    "api_calls_per_day": Decimal("0.001"),            # $0.001 per additional API call
+    "team_members": Decimal("10.00"),                 # $10 per additional team member
+}
+
+# Plan limits for legacy in-memory invoice generation
+# NOTE: This mirrors the limits in init_default_plans_in_db for backward compatibility
+PLAN_LIMITS: dict[str, dict[str, int]] = {
+    "free": {
+        "fields": 3,
+        "satellite_analyses_per_month": 10,
+        "storage_gb": 1,
+        "api_calls_per_day": 100,
+    },
+    "starter": {
+        "fields": 10,
+        "satellite_analyses_per_month": 50,
+        "ai_diagnoses_per_month": 20,
+        "pdf_reports_per_month": 10,
+        "storage_gb": 5,
+        "api_calls_per_day": 500,
+    },
+    "professional": {
+        "fields": 50,
+        "satellite_analyses_per_month": 200,
+        "ai_diagnoses_per_month": 100,
+        "pdf_reports_per_month": -1,  # Unlimited
+        "storage_gb": 25,
+        "api_calls_per_day": 2000,
+        "team_members": 5,
+    },
+    "enterprise": {
+        "fields": -1,  # Unlimited
+        "satellite_analyses_per_month": -1,
+        "ai_diagnoses_per_month": -1,
+        "pdf_reports_per_month": -1,
+        "storage_gb": 100,
+        "api_calls_per_day": 10000,
+        "team_members": -1,
+    },
+}
+
+# In-memory usage tracking for legacy generate_invoice function
+# NOTE: In production, this should be replaced with database queries
+# tenant_id -> {metric -> count}
+USAGE_RECORDS: dict[str, dict[str, int]] = {}
+
 # PLANS: In-memory plan definitions for backward compatibility with generate_invoice function
 # NOTE: This is a legacy structure. The service now uses database-driven plans via BillingRepository.
 # This dict is kept for backward compatibility with the generate_invoice() helper function.
@@ -1048,6 +1102,77 @@ async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) ->
     }
 
 
+def calculate_overage_charges(
+    tenant_id: str,
+    plan_id: str,
+    usage: dict[str, int] | None = None,
+) -> list[InvoiceLineItem]:
+    """
+    Calculate overage charges based on usage exceeding plan limits
+    حساب رسوم تجاوز الاستخدام بناءً على تجاوز حدود الخطة
+
+    Args:
+        tenant_id: Tenant ID for usage lookup
+        plan_id: Plan ID to get limits from
+        usage: Optional usage dict override. If not provided, uses USAGE_RECORDS.
+
+    Returns:
+        List of InvoiceLineItem for overage charges
+    """
+    overage_items: list[InvoiceLineItem] = []
+
+    # Get plan limits
+    plan_limits = PLAN_LIMITS.get(plan_id, {})
+    if not plan_limits:
+        logger.warning(f"No limits found for plan {plan_id}, skipping overage calculation")
+        return overage_items
+
+    # Get usage data - use provided usage or fall back to in-memory tracking
+    tenant_usage = usage if usage is not None else USAGE_RECORDS.get(tenant_id, {})
+
+    # Calculate overages for each metered feature
+    for metric, limit in plan_limits.items():
+        # Skip unlimited features (-1) or metrics without overage rates
+        if limit == -1 or metric not in OVERAGE_RATES:
+            continue
+
+        used = tenant_usage.get(metric, 0)
+        if used > limit:
+            excess = used - limit
+            rate = OVERAGE_RATES[metric]
+            overage_amount = rate * Decimal(str(excess))
+
+            # Create human-readable metric name
+            metric_name = metric.replace("_", " ").replace(" per month", "").replace(" per day", "").title()
+            metric_name_ar = {
+                "fields": "الحقول",
+                "satellite_analyses_per_month": "تحليلات الأقمار الصناعية",
+                "ai_diagnoses_per_month": "تشخيصات الذكاء الاصطناعي",
+                "pdf_reports_per_month": "تقارير PDF",
+                "storage_gb": "التخزين (جيجابايت)",
+                "api_calls_per_day": "استدعاءات API",
+                "team_members": "أعضاء الفريق",
+            }.get(metric, metric)
+
+            overage_items.append(
+                InvoiceLineItem(
+                    description=f"Overage: {metric_name} ({excess} units over {limit} limit @ ${rate}/unit)",
+                    description_ar=f"تجاوز: {metric_name_ar} ({excess} وحدة إضافية فوق الحد {limit} @ {rate}$/وحدة)",
+                    quantity=excess,
+                    unit_price=rate,
+                    amount=overage_amount,
+                    is_usage_based=True,
+                )
+            )
+
+            logger.info(
+                f"Overage charge calculated for tenant {tenant_id}: "
+                f"{metric} - {excess} units over limit, amount: ${overage_amount}"
+            )
+
+    return overage_items
+
+
 def generate_invoice(subscription: Subscription) -> Invoice:
     """توليد فاتورة للاشتراك"""
     plan = PLANS[subscription.plan_id]
@@ -1063,8 +1188,13 @@ def generate_invoice(subscription: Subscription) -> Invoice:
         )
     ]
 
-    # Add usage-based charges
-    # TODO: Calculate overage charges
+    # Add usage-based overage charges
+    # Calculate overage for features where usage exceeds plan limits
+    overage_items = calculate_overage_charges(
+        tenant_id=subscription.tenant_id,
+        plan_id=subscription.plan_id,
+    )
+    line_items.extend(overage_items)
 
     subtotal = sum(item.amount for item in line_items)
     tax_amount = Decimal("0")  # Yemen generally has no VAT on agricultural services

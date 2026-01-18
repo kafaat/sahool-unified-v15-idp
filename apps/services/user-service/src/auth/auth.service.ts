@@ -19,6 +19,7 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
+import * as nodemailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
 import { PrismaService } from "../prisma/prisma.service";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
@@ -717,6 +718,177 @@ export class AuthService {
   }
 
   /**
+   * Send password reset email
+   * إرسال بريد إلكتروني لإعادة تعيين كلمة المرور
+   *
+   * @param email - User's email address
+   * @param firstName - User's first name for personalization
+   * @param resetToken - The password reset token
+   */
+  private async sendPasswordResetEmail(
+    email: string,
+    firstName: string,
+    resetToken: string,
+  ): Promise<void> {
+    // Get email configuration from environment variables
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPassword = process.env.SMTP_PASSWORD;
+    const emailFrom = process.env.EMAIL_FROM || "noreply@sahool.app";
+    const frontendUrl = process.env.FRONTEND_URL || "https://app.sahool.app";
+
+    // Build the reset link URL
+    const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+    // Check if SMTP is configured
+    if (!smtpHost || !smtpUser || !smtpPassword) {
+      this.logger.warn(
+        "SMTP not configured, skipping password reset email. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD environment variables.",
+        { email: this.sanitizeForLog(email) },
+      );
+      // In development, log the reset link for testing
+      if (process.env.NODE_ENV === "development") {
+        this.logger.debug(`[DEV] Password reset link: ${resetLink}`);
+      }
+      return;
+    }
+
+    // Create nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465, // true for 465, false for other ports
+      auth: {
+        user: smtpUser,
+        pass: smtpPassword,
+      },
+    });
+
+    // Build bilingual email content (Arabic/English)
+    const subject = "SAHOOL - Password Reset Request | طلب إعادة تعيين كلمة المرور";
+
+    const htmlBody = `
+<!DOCTYPE html>
+<html dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Reset | إعادة تعيين كلمة المرور</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <!-- English Section -->
+  <div style="margin-bottom: 40px;">
+    <h2 style="color: #2c5530;">Password Reset Request</h2>
+    <p>Hello ${firstName},</p>
+    <p>We received a request to reset your password for your SAHOOL account.</p>
+    <p>Click the button below to reset your password:</p>
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="${resetLink}"
+         style="background-color: #2c5530; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+        Reset Password
+      </a>
+    </p>
+    <p>Or copy and paste this link into your browser:</p>
+    <p style="word-break: break-all; color: #666; font-size: 14px;">${resetLink}</p>
+    <p><strong>This link will expire in 1 hour.</strong></p>
+    <p>If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>
+  </div>
+
+  <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+
+  <!-- Arabic Section -->
+  <div dir="rtl" style="text-align: right;">
+    <h2 style="color: #2c5530;">طلب إعادة تعيين كلمة المرور</h2>
+    <p>مرحباً ${firstName}،</p>
+    <p>لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك في ساهول.</p>
+    <p>انقر على الزر أدناه لإعادة تعيين كلمة المرور:</p>
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="${resetLink}"
+         style="background-color: #2c5530; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+        إعادة تعيين كلمة المرور
+      </a>
+    </p>
+    <p>أو انسخ والصق هذا الرابط في متصفحك:</p>
+    <p style="word-break: break-all; color: #666; font-size: 14px;" dir="ltr">${resetLink}</p>
+    <p><strong>ستنتهي صلاحية هذا الرابط خلال ساعة واحدة.</strong></p>
+    <p>إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذا البريد الإلكتروني أو الاتصال بالدعم إذا كانت لديك مخاوف.</p>
+  </div>
+
+  <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+
+  <!-- Footer -->
+  <div style="text-align: center; color: #888; font-size: 12px;">
+    <p>SAHOOL - National Agricultural Intelligence Platform</p>
+    <p>ساهول - المنصة الوطنية للذكاء الزراعي</p>
+    <p>&copy; ${new Date().getFullYear()} KAFAAT. All rights reserved.</p>
+  </div>
+</body>
+</html>
+`;
+
+    const textBody = `
+Password Reset Request | طلب إعادة تعيين كلمة المرور
+=====================================================
+
+Hello ${firstName},
+
+We received a request to reset your password for your SAHOOL account.
+
+Reset your password by visiting this link:
+${resetLink}
+
+This link will expire in 1 hour.
+
+If you did not request a password reset, please ignore this email.
+
+-----------------------------------------------------
+
+مرحباً ${firstName}،
+
+لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك في ساهول.
+
+أعد تعيين كلمة المرور بزيارة هذا الرابط:
+${resetLink}
+
+ستنتهي صلاحية هذا الرابط خلال ساعة واحدة.
+
+إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذا البريد الإلكتروني.
+
+-----------------------------------------------------
+SAHOOL - National Agricultural Intelligence Platform
+ساهول - المنصة الوطنية للذكاء الزراعي
+`;
+
+    try {
+      this.logger.log("Sending password reset email", {
+        email: this.sanitizeForLog(email),
+        smtpHost,
+      });
+
+      await transporter.sendMail({
+        from: emailFrom,
+        to: email,
+        subject,
+        text: textBody,
+        html: htmlBody,
+      });
+
+      this.logger.log("Password reset email sent successfully", {
+        email: this.sanitizeForLog(email),
+      });
+    } catch (error) {
+      this.logger.error("Failed to send password reset email", {
+        email: this.sanitizeForLog(email),
+        error: error.message,
+        stack: error.stack,
+      });
+      // Don't throw error to prevent email enumeration
+      // The caller will still return success message
+    }
+  }
+
+  /**
    * Request password reset - generates reset token
    * طلب إعادة تعيين كلمة المرور - إنشاء رمز إعادة التعيين
    */
@@ -759,15 +931,12 @@ export class AuthService {
       },
     });
 
-    // TODO: Send email with reset link
-    // The reset link should be: ${FRONTEND_URL}/reset-password?token=${resetToken}
-    // For now, we log it (in production, send via email service)
-    this.logger.log(`Password reset token generated for user`, {
+    // Send password reset email
+    await this.sendPasswordResetEmail(user.email, user.firstName, resetToken);
+
+    this.logger.log(`Password reset email sent`, {
       userId: user.id,
       email: this.sanitizeForLog(email),
-      // In production, NEVER log the actual token
-      // This is only for development/testing
-      tokenPreview: process.env.NODE_ENV === "development" ? resetToken.substring(0, 8) + "..." : "[hidden]",
     });
 
     return {

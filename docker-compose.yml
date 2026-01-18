@@ -95,7 +95,8 @@ services:
     healthcheck:
       # Health check - temporarily using a simple port check since authentication is failing
       # TODO: Fix password authentication and restore proper health check
-      test: [ "CMD-SHELL", "PGPASSWORD=$POSTGRES_PASSWORD pg_isready -h localhost -p 6432 -U $POSTGRES_USER || exit 1" ]
+      test: [ "CMD-SHELL", "PGPASSWORD=$$DB_PASSWORD pg_isready -h localhost -p 6432 -U $$DB_USER -d $$DB_NAME || exit 1" ]
+
       interval: 30s
       timeout: 10s
       retries: 3

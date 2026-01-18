@@ -59,13 +59,13 @@ TORTOISE_ORM_LOCAL = {
 }
 
 
-async def init_db(create_db: bool = False) -> None:
+async def init_db(create_schema: bool = False) -> None:
     """
     تهيئة اتصال قاعدة البيانات
     Initialize database connection and create tables
 
     Args:
-        create_db: If True, creates tables (use only in development)
+        create_schema: If True, creates tables (use only in development)
     """
     try:
         # Determine which config to use based on module path
@@ -97,7 +97,7 @@ async def init_db(create_db: bool = False) -> None:
         logger.info("📊 Database URL: %s", db_host)
 
         # Generate schemas (only in development!)
-        if create_db:
+        if create_schema:
             logger.warning(
                 "⚠️  Creating database schemas - this should only be done in development!"
             )

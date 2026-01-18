@@ -909,12 +909,12 @@ async def lifespan(app: FastAPI):
 
     # Initialize database (non-blocking - service can still start)
     try:
-        # In production, set create_db=False and use migrations
-        create_db = os.getenv("CREATE_DB_SCHEMA", "false").lower() == "true"
-        await init_db(create_db=create_db)
+        # In production, set CREATE_DB_SCHEMA=false and use migrations
+        create_schema = os.getenv("CREATE_DB_SCHEMA", "false").lower() == "true"
+        await init_db(create_schema=create_schema)
         logger.info("✅ Database initialized")
     except Exception as e:
-        logger.warning(f"⚠️ Database initialization failed (service will continue): {e}")
+        logger.warning("⚠️ Database initialization failed (service will continue): %s", e)
         # Don't raise - allow service to start in degraded mode
 
     # Start NATS subscriber (optional)
@@ -923,7 +923,7 @@ async def lifespan(app: FastAPI):
             _nats_subscriber = await start_subscription(create_notification_from_nats)
             logger.info("✅ NATS subscriber started")
         except Exception as e:
-            logger.warning(f"⚠️  Failed to start NATS subscriber: {e}")
+            logger.warning("⚠️  Failed to start NATS subscriber: %s", e)
 
     # Initialize SMS client (optional)
     try:

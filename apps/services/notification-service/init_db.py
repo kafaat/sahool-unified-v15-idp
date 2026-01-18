@@ -62,7 +62,7 @@ async def main():
         # Health check only
         if args.check:
             logger.info("Checking database health...")
-            await init_db(create_db=False)
+            await init_db(create_schema=False)
 
             health = await check_db_health()
             stats = await get_db_stats()
@@ -86,7 +86,7 @@ async def main():
             logger.warning("⚠️  Creating schema directly - THIS SHOULD ONLY BE USED IN DEVELOPMENT!")
             logger.warning("⚠️  In production, use Aerich migrations instead!")
 
-            await init_db(create_db=True)
+            await init_db(create_schema=True)
             logger.info("✅ Database schema created successfully!")
 
         else:
@@ -94,7 +94,7 @@ async def main():
             logger.info("To create schema, use: aerich init-db")
             logger.info("Or for development only: python init_db.py --create-schema")
 
-            await init_db(create_db=False)
+            await init_db(create_schema=False)
 
         # Get stats
         health = await check_db_health()

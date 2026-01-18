@@ -73,6 +73,33 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+def _sanitize_for_log(value: str | None, max_length: int = 100) -> str:
+    """
+    Sanitize user input for safe logging to prevent log injection attacks.
+    تعقيم المدخلات لمنع هجمات حقن السجلات
+
+    This function removes newlines, carriage returns, and other control
+    characters that could be used for log injection attacks.
+
+    Args:
+        value: The input value to sanitize
+        max_length: Maximum length of the output string
+
+    Returns:
+        A sanitized string safe for logging
+    """
+    if value is None:
+        return "<none>"
+    # Convert to string and remove control characters
+    sanitized = str(value)
+    # Remove newlines, carriage returns, tabs, and other control chars
+    for char in ['\n', '\r', '\t', '\x00', '\x0b', '\x0c']:
+        sanitized = sanitized.replace(char, '')
+    # Truncate to max length
+    return sanitized[:max_length] if len(sanitized) > max_length else sanitized
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Configuration
 # ═══════════════════════════════════════════════════════════════════════════
@@ -772,17 +799,22 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
     Returns:
         str | None: User ID of the field manager, or None if not found
     """
-    try:
-        # Sanitize field_id to prevent SSRF and log injection
-        import re
-        if not re.match(r'^[a-zA-Z0-9_-]+$', field_id):
-            logger.warning("Invalid field_id format detected")
-            return None
-        safe_field_id = str(field_id)[:100]
+    import re
 
+    # Validate and sanitize field_id to prevent SSRF
+    if not field_id or not re.match(r'^[a-zA-Z0-9_-]+$', field_id):
+        logger.warning("Invalid field_id format detected")
+        return None
+
+    # Create validated copy for URL (SSRF prevention)
+    validated_field_id = field_id[:100]
+    # Create sanitized version for logging (log injection prevention)
+    log_field_id = _sanitize_for_log(field_id)
+
+    try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(
-                f"{FIELD_SERVICE_URL}/fields/{safe_field_id}",
+                f"{FIELD_SERVICE_URL}/fields/{validated_field_id}",
                 headers={
                     "X-Tenant-Id": tenant_id,
                     "Content-Type": "application/json",
@@ -794,28 +826,28 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
                 # The field service returns user_id as the field owner/manager
                 manager_id = field_data.get("user_id")
                 if manager_id:
-                    safe_manager_id = str(manager_id).replace('\n', '').replace('\r', '')[:100]
+                    log_manager_id = _sanitize_for_log(manager_id)
                     logger.info(
-                        "Fetched field manager for field %s: %s", safe_field_id, safe_manager_id
+                        "Fetched field manager for field %s: %s", log_field_id, log_manager_id
                     )
                     return manager_id
                 else:
                     logger.warning(
-                        "Field %s has no user_id/manager assigned", safe_field_id
+                        "Field %s has no user_id/manager assigned", log_field_id
                     )
                     return None
             elif response.status_code == 404:
-                logger.warning("Field %s not found in field service", safe_field_id)
+                logger.warning("Field %s not found in field service", log_field_id)
                 return None
             else:
                 logger.error(
-                    "Field service returned %s for field %s",
-                    response.status_code, safe_field_id
+                    "Field service returned status %d for field %s",
+                    response.status_code, log_field_id
                 )
                 return None
 
     except httpx.TimeoutException:
-        logger.error("Timeout fetching field manager for field %s", safe_field_id)
+        logger.error("Timeout fetching field manager for field %s", log_field_id)
         return None
     except httpx.RequestError as e:
         logger.error("Error connecting to field service: %s", type(e).__name__)

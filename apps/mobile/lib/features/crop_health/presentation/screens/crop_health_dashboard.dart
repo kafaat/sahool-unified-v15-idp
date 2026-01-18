@@ -687,7 +687,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                         child: ElevatedButton.icon(
                           onPressed: () {
                             Navigator.pop(context);
-                            // TODO: Mark as done
+                            _markActionAsDone(action);
                           },
                           icon: const Icon(Icons.check),
                           label: const Text('تم التنفيذ'),
@@ -732,5 +732,84 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       'fieldId': widget.fieldId,
       'fieldName': widget.fieldName,
     });
+  }
+
+  /// Mark an action as completed
+  Future<void> _markActionAsDone(DiagnosisAction action) async {
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text('جاري تحديث الإجراء: ${action.title}...'),
+          ],
+        ),
+        backgroundColor: const Color(0xFF367C2B),
+        duration: const Duration(seconds: 30), // Long duration, will be dismissed
+      ),
+    );
+
+    try {
+      // Call the provider to mark the action as completed
+      await ref.read(diagnosisProvider.notifier).markActionCompleted(
+            widget.fieldId,
+            action.zoneId,
+            action.type,
+          );
+
+      if (mounted) {
+        // Hide loading and show success
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('تم تنفيذ: ${action.title}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        // Hide loading and show error
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('فشل تحديث الإجراء: ${e.toString()}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'إعادة المحاولة',
+              textColor: Colors.white,
+              onPressed: () => _markActionAsDone(action),
+            ),
+          ),
+        );
+      }
+    }
   }
 }

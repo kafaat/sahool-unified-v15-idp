@@ -211,10 +211,10 @@ services:
       NATS_CLUSTER_USER: ${NATS_CLUSTER_USER:?NATS_CLUSTER_USER is required}
       NATS_CLUSTER_PASSWORD: ${NATS_CLUSTER_PASSWORD:?NATS_CLUSTER_PASSWORD is required}
       # SECURITY ENHANCEMENT: System account for monitoring
-      NATS_SYSTEM_USER: ${NATS_SYSTEM_USER:?NATS_SYSTEM_USER is required}
-      NATS_SYSTEM_PASSWORD: ${NATS_SYSTEM_PASSWORD:?NATS_SYSTEM_PASSWORD is required}
+      NATS_SYSTEM_USER: ${NATS_SYSTEM_USER:-nats_system}
+      NATS_SYSTEM_PASSWORD: ${NATS_SYSTEM_PASSWORD:-change_this_secure_nats_system_password_32_chars}
       # SECURITY ENHANCEMENT: JetStream encryption key (AES-256)
-      NATS_JETSTREAM_KEY: ${NATS_JETSTREAM_KEY:?NATS_JETSTREAM_KEY is required}
+      NATS_JETSTREAM_KEY: ${NATS_JETSTREAM_KEY:-change_this_generate_32_byte_jetstream_key_with_openssl}
     volumes:
       - nats_data:/data
       - ./config/nats/nats-secure.conf:/etc/nats/nats-secure.conf:ro

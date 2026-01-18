@@ -590,14 +590,16 @@ async def init_invoice_sequence() -> None:
         async with get_db_context() as db:
             # Create sequence if it doesn't exist
             # Start from 1 and increment by 1
+            # Note: Using literal string to avoid SQL injection warnings
+            # INVOICE_SEQUENCE_NAME is a constant defined at module level
             await db.execute(
-                text(f"""
+                text("""
                     DO $$
                     BEGIN
                         IF NOT EXISTS (
-                            SELECT 1 FROM pg_sequences WHERE schemaname = 'public' AND sequencename = '{INVOICE_SEQUENCE_NAME}'
+                            SELECT 1 FROM pg_sequences WHERE schemaname = 'public' AND sequencename = 'invoice_number_seq'
                         ) THEN
-                            CREATE SEQUENCE {INVOICE_SEQUENCE_NAME}
+                            CREATE SEQUENCE invoice_number_seq
                                 START WITH 1
                                 INCREMENT BY 1
                                 NO MAXVALUE
@@ -608,9 +610,9 @@ async def init_invoice_sequence() -> None:
             )
             await db.commit()
             _invoice_sequence_initialized = True
-            logger.info(f"Invoice sequence '{INVOICE_SEQUENCE_NAME}' initialized successfully")
+            logger.info("Invoice sequence 'invoice_number_seq' initialized successfully")
     except Exception as e:
-        logger.error(f"Failed to initialize invoice sequence: {e}")
+        logger.error("Failed to initialize invoice sequence", exc_info=True)
         # Don't raise - allow service to start with fallback
 
 
@@ -633,8 +635,9 @@ async def get_next_invoice_number() -> str:
     try:
         async with get_db_context() as db:
             # Get next value from sequence (atomic operation)
+            # Note: Using literal string to avoid SQL injection warnings
             result = await db.execute(
-                text(f"SELECT nextval('{INVOICE_SEQUENCE_NAME}')")
+                text("SELECT nextval('invoice_number_seq')")
             )
             sequence_value = result.scalar()
             await db.commit()
@@ -643,7 +646,7 @@ async def get_next_invoice_number() -> str:
     except Exception as e:
         # Fallback: Generate unique number using UUID suffix
         # This ensures uniqueness even if sequence fails
-        logger.warning(f"Invoice sequence failed, using fallback: {e}")
+        logger.warning("Invoice sequence failed, using fallback", exc_info=True)
         import hashlib
         unique_suffix = hashlib.sha256(
             f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode()

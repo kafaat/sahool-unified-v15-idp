@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Smart Alerts Provider
 /// موفر التنبيهات الذكية
 
-final smartAlertsProvider = FutureProvider<List<SmartAlert>>((ref) async {
+/// Uses autoDispose to clean up when no longer watched
+final smartAlertsProvider = FutureProvider.autoDispose<List<SmartAlert>>((ref) async {
   // In production, this would fetch from API/WebSocket
   await Future.delayed(const Duration(milliseconds: 300));
 
@@ -77,7 +78,8 @@ final smartAlertsProvider = FutureProvider<List<SmartAlert>>((ref) async {
 });
 
 /// Stream provider for real-time alerts
-final alertsStreamProvider = StreamProvider<List<SmartAlert>>((ref) async* {
+/// Uses autoDispose to clean up subscription when no longer watched
+final alertsStreamProvider = StreamProvider.autoDispose<List<SmartAlert>>((ref) async* {
   // Initial data
   yield await ref.read(smartAlertsProvider.future);
 

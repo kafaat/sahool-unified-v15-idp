@@ -805,8 +805,6 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
     Returns:
         str | None: User ID of the field manager, or None if not found
     """
-    import re
-
     # Validate and sanitize field_id to prevent SSRF
     if not field_id or not re.match(r'^[a-zA-Z0-9_-]+$', field_id):
         logger.warning("Invalid field_id format detected")

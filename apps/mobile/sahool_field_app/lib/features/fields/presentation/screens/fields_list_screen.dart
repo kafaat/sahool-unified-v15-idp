@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/di/providers.dart';
-import '../../../field/domain/entities/field.dart' as domain;
+import '../../../field/domain/entities/field.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -26,7 +26,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
 
   /// Map domain Field entity to FieldEntity for UI
   /// تحويل كيان الحقل من المستودع إلى كيان العرض
-  FieldEntity _mapDomainToUiEntity(domain.Field field) {
+  FieldEntity _mapDomainToUiEntity(Field field) {
     // Calculate health score from NDVI value
     final healthScore = field.ndviCurrent ?? 0.0;
 

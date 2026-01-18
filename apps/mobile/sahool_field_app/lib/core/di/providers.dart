@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../storage/database.dart';
+import '../storage/database.dart' hide Field;
 import '../../features/field/data/repo/fields_repo.dart';
 import '../../features/field/data/remote/fields_api.dart';
+import '../../features/field/domain/entities/field.dart';
 import '../sync/network_status.dart';
 import '../http/api_client.dart';
 

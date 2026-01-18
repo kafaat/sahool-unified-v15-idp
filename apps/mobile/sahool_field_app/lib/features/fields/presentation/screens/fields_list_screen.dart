@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/di/providers.dart';
-import '../../../field/domain/entities/field.dart';
+import '../../../field/domain/entities/field.dart' hide FieldStatus;
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -588,7 +588,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => FieldDetailsScreen(field: field),
+        builder: (context) => FieldDetailsScreen(fieldId: field.id, field: field),
       ),
     );
   }

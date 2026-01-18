@@ -22,7 +22,6 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Any
-from uuid import UUID
 
 import asyncpg
 from asyncpg.pool import Pool

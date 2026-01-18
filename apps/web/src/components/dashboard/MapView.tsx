@@ -23,11 +23,11 @@ interface PopupData {
 }
 
 // Status colors for NDVI/health
-const STATUS_COLORS: Record<string, string> = {
+const STATUS_COLORS = {
   healthy: "#10b981",
   warning: "#f59e0b",
   critical: "#ef4444",
-};
+} as const;
 
 function getFieldStatus(
   ndviValue?: number,

@@ -13,9 +13,9 @@ import sys
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from repository import FarmerProfileRepository
+from src.repository import FarmerProfileRepository
 
-from database import close_db, init_db
+from src.database import close_db, init_db
 
 
 async def example_create_farmer():

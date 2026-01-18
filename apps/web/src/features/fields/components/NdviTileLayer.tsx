@@ -246,7 +246,6 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
 
     try {
       if (mapInstance.getLayer(LAYER_ID)) {
-        // @ts-expect-error - MapLibre GL types may be incomplete
         mapInstance.setPaintProperty(LAYER_ID, "raster-opacity", opacity);
       }
     } catch (err) {
@@ -264,7 +263,6 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
 
     try {
       if (mapInstance.getLayer(LAYER_ID)) {
-        // @ts-expect-error - MapLibre GL types may be incomplete
         mapInstance.setLayoutProperty(
           LAYER_ID,
           "visibility",

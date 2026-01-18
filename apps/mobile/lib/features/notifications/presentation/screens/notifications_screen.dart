@@ -359,6 +359,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   /// Navigate to the action URL
   /// Handles both internal app routes and external URLs
+  /// التنقل إلى رابط الإجراء - يدعم المسارات الداخلية والروابط الخارجية
   Future<void> _navigateToActionUrl(String actionUrl) async {
     // Check if it's an internal route (starts with /)
     if (actionUrl.startsWith('/')) {

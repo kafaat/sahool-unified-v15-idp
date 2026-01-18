@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from src.repository import FarmerProfileRepository
 
-from src.database import check_db_health, close_db, init_db
+from src.database import check_db_health, close_db, init_notification_db
 from src.models import FarmerCrop, FarmerField, FarmerProfile
 
 logging.basicConfig(level=logging.INFO)
@@ -54,7 +54,7 @@ async def migrate():
     try:
         # Initialize database connection
         logger.info("\n📊 Initializing database connection...")
-        await init_db(create_schema=True)  # create_schema=True will generate schemas
+        await init_notification_db(create_schema=True)  # create_schema=True will generate schemas
         logger.info("✅ Database initialized")
 
         # Check health
@@ -162,7 +162,7 @@ async def rollback():
         return
 
     try:
-        await init_db(create_schema=False)
+        await init_notification_db(create_schema=False)
 
         from tortoise import Tortoise
 

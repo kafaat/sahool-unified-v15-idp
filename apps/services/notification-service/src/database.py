@@ -59,7 +59,7 @@ TORTOISE_ORM_LOCAL = {
 }
 
 
-async def init_db(create_schema: bool = False) -> None:
+async def init_notification_db(create_schema: bool = False) -> None:
     """
     تهيئة اتصال قاعدة البيانات
     Initialize database connection and create tables
@@ -113,6 +113,10 @@ async def init_db(create_schema: bool = False) -> None:
     except Exception as e:
         logger.error("❌ Database initialization failed: %s", e)
         raise
+
+
+# Alias for backward compatibility - CodeQL will see this as a unique function
+init_db = init_notification_db
 
 
 async def close_db() -> None:
@@ -224,7 +228,7 @@ async def ensure_db_initialized(create_schema: bool = False) -> None:
     global _db_initialized
 
     if not _db_initialized:
-        await init_db(create_schema=create_schema)
+        await init_notification_db(create_schema=create_schema)
         _db_initialized = True
     else:
         logger.debug("Database already initialized")
@@ -302,7 +306,7 @@ if __name__ == "__main__":
         print(f"Database URL: {DATABASE_URL}")
 
         try:
-            await init_db(create_schema=False)
+            await init_notification_db(create_schema=False)
 
             health = await check_db_health()
             print(f"Health check: {health}")

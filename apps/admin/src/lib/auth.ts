@@ -133,8 +133,11 @@ export function setToken(token: string): void {
 }
 
 /**
- * Get stored user
- * الحصول على بيانات المستخدم
+ * Get stored user (for UI display only)
+ * الحصول على بيانات المستخدم (للعرض فقط)
+ *
+ * SECURITY NOTE: User data in localStorage is for client-side display only.
+ * Do NOT use this for authorization decisions - always verify on server.
  */
 export function getUser(): User | null {
   if (typeof window === "undefined") return null;
@@ -150,8 +153,11 @@ export function getUser(): User | null {
 }
 
 /**
- * Set user in localStorage
- * حفظ بيانات المستخدم
+ * Set user in localStorage (for UI display only)
+ * حفظ بيانات المستخدم (للعرض فقط)
+ *
+ * SECURITY NOTE: This cached user data is for UI convenience.
+ * Authorization must always be verified server-side via JWT claims.
  */
 export function setUser(user: User): void {
   if (typeof window !== "undefined") {
@@ -168,10 +174,22 @@ export function isAuthenticated(): boolean {
 }
 
 /**
- * Check if user has required role
- * التحقق من الصلاحيات
+ * Check if user has required role (client-side only)
+ * التحقق من الصلاحيات (جانب العميل فقط)
+ *
+ * SECURITY WARNING: This function is for UI display purposes only!
+ * The role stored in localStorage can be manipulated by the user.
+ *
+ * For actual authorization decisions, ALWAYS use server-side role verification:
+ * - Use the route-protection.ts middleware for API routes
+ * - Use the api-middleware.ts for protected API endpoints
+ * - JWT claims should contain the authoritative role from the server
+ *
+ * @deprecated Use server-side authorization for security-sensitive operations
  */
 export function hasRole(requiredRole: User["role"]): boolean {
+  // SECURITY: This is only for client-side UI purposes
+  // Actual authorization MUST be done server-side
   const user = getUser();
   if (!user) return false;
 

@@ -39,12 +39,12 @@ log_error() {
 # Wait for PostgreSQL to be ready using netcat (available in Alpine)
 # ═══════════════════════════════════════════════════════════════════════════════
 wait_for_postgres() {
-    local max_attempts=30
-    local attempt=1
+    _max_attempts=30
+    _attempt=1
 
     log_info "Waiting for PostgreSQL at ${DB_HOST}:${DB_PORT}..."
 
-    while [ $attempt -le $max_attempts ]; do
+    while [ "$_attempt" -le "$_max_attempts" ]; do
         # Try to connect to PostgreSQL port using nc (netcat)
         if nc -z "$DB_HOST" "$DB_PORT" 2>/dev/null; then
             log_info "PostgreSQL port is open!"
@@ -53,9 +53,9 @@ wait_for_postgres() {
             return 0
         fi
 
-        log_warn "Attempt $attempt/$max_attempts: PostgreSQL not ready, waiting..."
+        log_warn "Attempt $_attempt/$_max_attempts: PostgreSQL not ready, waiting..."
         sleep 2
-        attempt=$((attempt + 1))
+        _attempt=$((_attempt + 1))
     done
 
     log_error "PostgreSQL did not become ready in time"

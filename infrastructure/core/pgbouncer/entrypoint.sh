@@ -20,7 +20,7 @@ DB_USER="${DB_USER:-sahool}"
 DB_PASSWORD="${DB_PASSWORD:-}"
 DB_NAME="${DB_NAME:-sahool}"
 PGBOUNCER_CONFIG="${PGBOUNCER_CONFIG:-/etc/pgbouncer/pgbouncer.ini}"
-USERLIST_FILE="${USERLIST_FILE:-/etc/pgbouncer/userlist.txt}"
+USERLIST_FILE="${USERLIST_FILE:-/etc/pgbouncer/runtime/userlist.txt}"
 
 # Logging functions
 log_info() {

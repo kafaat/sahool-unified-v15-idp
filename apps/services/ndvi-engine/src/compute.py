@@ -531,8 +531,11 @@ def compute_from_sentinel(
     # Get SentinelHub client
     client = get_sentinel_hub_client()
 
+    # Sanitize field_id to prevent log injection attacks
+    safe_field_id = str(field_id).replace('\n', '').replace('\r', '').replace('\t', '')[:100]
+
     if not client.is_configured:
-        logger.info(f"SentinelHub not configured for field {field_id}, using mock data")
+        logger.info("SentinelHub not configured for field %s, using mock data", safe_field_id)
         return compute_mock(field_id)
 
     # Run async fetch in sync context
@@ -553,11 +556,11 @@ def compute_from_sentinel(
             )
         )
     except Exception as e:
-        logger.error(f"SentinelHub fetch failed for field {field_id}: {e}")
+        logger.error("SentinelHub fetch failed for field %s: %s", safe_field_id, str(e))
         ndvi_data = None
 
     if ndvi_data is None:
-        logger.warning(f"No SentinelHub data for field {field_id}, falling back to mock")
+        logger.warning("No SentinelHub data for field %s, falling back to mock", safe_field_id)
         return compute_mock(field_id)
 
     # Calculate quality score based on cloud cover and valid pixels
@@ -616,8 +619,11 @@ async def compute_from_sentinel_async(
     # Get SentinelHub client
     client = get_sentinel_hub_client()
 
+    # Sanitize field_id to prevent log injection attacks
+    safe_field_id = str(field_id).replace('\n', '').replace('\r', '').replace('\t', '')[:100]
+
     if not client.is_configured:
-        logger.info(f"SentinelHub not configured for field {field_id}, using mock data")
+        logger.info("SentinelHub not configured for field %s, using mock data", safe_field_id)
         return compute_mock(field_id)
 
     try:
@@ -629,11 +635,11 @@ async def compute_from_sentinel_async(
             max_cloud_cover=30.0,
         )
     except Exception as e:
-        logger.error(f"SentinelHub fetch failed for field {field_id}: {e}")
+        logger.error("SentinelHub fetch failed for field %s: %s", safe_field_id, str(e))
         ndvi_data = None
 
     if ndvi_data is None:
-        logger.warning(f"No SentinelHub data for field {field_id}, falling back to mock")
+        logger.warning("No SentinelHub data for field %s, falling back to mock", safe_field_id)
         return compute_mock(field_id)
 
     # Calculate quality score based on cloud cover and valid pixels

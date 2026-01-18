@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/auth/auth_service.dart';
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
@@ -209,7 +210,12 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   // Refresh fields from API
-                  const tenantId = 't1'; // TODO: Get from auth provider
+                  final authState = ref.read(authStateProvider);
+                  final tenantId = authState.user?.tenantId;
+                  if (tenantId == null) {
+                    // User not authenticated, skip refresh
+                    return;
+                  }
                   final repo = ref.read(fieldsRepoProvider);
                   await repo.refreshFromServer(tenantId);
                   // Invalidate providers to refresh cached data

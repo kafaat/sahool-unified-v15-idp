@@ -647,6 +647,7 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
   final _nameController = TextEditingController();
   final _serialController = TextEditingController();
   EquipmentType _selectedType = EquipmentType.tractor;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -737,18 +738,62 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async {
+              onPressed: _isSubmitting ? null : () async {
                 if (_nameController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('الرجاء إدخال اسم المعدة')),
+                    const SnackBar(
+                      content: Text('الرجاء إدخال اسم المعدة'),
+                      backgroundColor: Colors.orange,
+                    ),
                   );
                   return;
                 }
 
-                // TODO: Call repository to create equipment
-                Navigator.pop(context);
-                ref.invalidate(equipmentListProvider);
-                ref.invalidate(equipmentStatsProvider);
+                setState(() => _isSubmitting = true);
+
+                try {
+                  final controller = ref.read(equipmentControllerProvider.notifier);
+                  final success = await controller.createEquipment(
+                    name: _nameController.text,
+                    nameAr: _nameController.text,
+                    type: _selectedType,
+                    serialNumber: _serialController.text.isNotEmpty
+                        ? _serialController.text
+                        : null,
+                  );
+
+                  if (mounted) {
+                    if (success) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('تم إضافة المعدة بنجاح'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('فشل في إضافة المعدة'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('حدث خطأ: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() => _isSubmitting = false);
+                  }
+                }
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -758,7 +803,16 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("إضافة المعدة", style: TextStyle(fontSize: 16)),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text("إضافة المعدة", style: TextStyle(fontSize: 16)),
             ),
           ),
         ],

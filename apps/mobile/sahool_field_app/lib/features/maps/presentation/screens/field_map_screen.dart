@@ -7,12 +7,14 @@ class FieldMapScreen extends ConsumerStatefulWidget {
   final String fieldId;
   final String? fieldName;
   final Map<String, dynamic>? initialCenter;
+  final String? highlightZoneId;
 
   const FieldMapScreen({
     super.key,
     required this.fieldId,
     this.fieldName,
     this.initialCenter,
+    this.highlightZoneId,
   });
 
   @override
@@ -28,6 +30,15 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   bool _isTracking = false;
   String? _selectedZoneId;
   double _currentZoom = 15.0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set initial zone selection from highlightZoneId parameter
+    if (widget.highlightZoneId != null) {
+      _selectedZoneId = widget.highlightZoneId;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

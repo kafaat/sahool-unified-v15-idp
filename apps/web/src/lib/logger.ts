@@ -8,6 +8,8 @@
  * - Integrates with error tracking service
  */
 
+import * as Sentry from "@sentry/nextjs";
+
 const isDev = process.env.NODE_ENV === "development";
 
 export const logger = {
@@ -92,9 +94,23 @@ export const logger = {
     // Always log critical errors
     console.error(...args);
 
-    // TODO: Send to error tracking service in production
-    // Example: Sentry.captureException(args[0]);
-    // Example: Send to custom error logging endpoint
+    // Send to error tracking service in production
+    if (!isDev) {
+      const [firstArg, ...extraArgs] = args;
+      const extraContext =
+        extraArgs.length > 0 ? { extra: { additionalData: extraArgs } } : {};
+
+      if (firstArg instanceof Error) {
+        Sentry.captureException(firstArg, extraContext);
+      } else {
+        const message =
+          typeof firstArg === "string" ? firstArg : JSON.stringify(firstArg);
+        Sentry.captureMessage(message, {
+          level: "error",
+          ...extraContext,
+        });
+      }
+    }
   },
 
   /**

@@ -49,10 +49,22 @@ from .revocation_middleware import (
 from .service_auth import (
     ALLOWED_SERVICES,
     SERVICE_COMMUNICATION_MATRIX,
+    ServiceCallAuditLog,
+    ServiceCallRateLimiter,
     ServiceToken,
+    ServiceTokenRevocationStore,
+    check_service_call_rate_limit,
     create_service_token,
     get_allowed_targets,
+    get_audit_log,
+    get_rate_limiter,
+    get_revocation_store,
+    get_service_audit_logs,
+    get_service_call_stats,
     is_service_authorized,
+    is_service_token_revoked,
+    log_service_call,
+    revoke_service_token,
     verify_service_token,
 )
 from .service_middleware import (
@@ -127,12 +139,27 @@ __all__ = [
     "AuthErrorMessage",
     # Service-to-Service Authentication
     "ServiceToken",
+    "ServiceTokenRevocationStore",
+    "ServiceCallAuditLog",
+    "ServiceCallRateLimiter",
     "create_service_token",
     "verify_service_token",
     "is_service_authorized",
     "get_allowed_targets",
     "ALLOWED_SERVICES",
     "SERVICE_COMMUNICATION_MATRIX",
+    # Service Token Revocation
+    "revoke_service_token",
+    "is_service_token_revoked",
+    "get_revocation_store",
+    # Service Call Audit Logging
+    "get_audit_log",
+    "log_service_call",
+    "get_service_audit_logs",
+    # Service Call Rate Limiting
+    "get_rate_limiter",
+    "check_service_call_rate_limit",
+    "get_service_call_stats",
     # Service Authentication Middleware
     "ServiceAuthMiddleware",
     "verify_service_request",

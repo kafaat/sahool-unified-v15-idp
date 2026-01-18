@@ -54,7 +54,7 @@ async def migrate():
     try:
         # Initialize database connection
         logger.info("\n📊 Initializing database connection...")
-        await init_db(create_db=True)  # create_db=True will generate schemas
+        await init_db(create_schema=True)  # create_schema=True will generate schemas
         logger.info("✅ Database initialized")
 
         # Check health
@@ -162,7 +162,7 @@ async def rollback():
         return
 
     try:
-        await init_db(create_db=False)
+        await init_db(create_schema=False)
 
         from tortoise import Tortoise
 

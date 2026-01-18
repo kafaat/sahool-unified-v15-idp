@@ -14,6 +14,7 @@ Provides task management for agricultural operations:
 
 import logging
 import os
+import re
 import sys
 import uuid
 from datetime import datetime, timedelta
@@ -74,13 +75,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Regex pattern for all ASCII control characters (0x00-0x1F and 0x7F)
+_CONTROL_CHAR_PATTERN = re.compile(r'[\x00-\x1f\x7f]')
+
+
 def _sanitize_for_log(value: str | None, max_length: int = 100) -> str:
     """
     Sanitize user input for safe logging to prevent log injection attacks.
     تعقيم المدخلات لمنع هجمات حقن السجلات
 
-    This function removes newlines, carriage returns, and other control
-    characters that could be used for log injection attacks.
+    This function removes ALL ASCII control characters (0x00-0x1F, 0x7F)
+    to prevent log injection attacks including newline injection.
 
     Args:
         value: The input value to sanitize
@@ -91,11 +96,12 @@ def _sanitize_for_log(value: str | None, max_length: int = 100) -> str:
     """
     if value is None:
         return "<none>"
-    # Convert to string and remove control characters
-    sanitized = str(value)
-    # Remove newlines, carriage returns, tabs, and other control chars
-    for char in ['\n', '\r', '\t', '\x00', '\x0b', '\x0c']:
-        sanitized = sanitized.replace(char, '')
+    # Convert to string
+    raw = str(value)
+    # Remove ALL ASCII control characters using regex
+    sanitized = _CONTROL_CHAR_PATTERN.sub('', raw)
+    # Additional safety: keep only printable characters
+    sanitized = ''.join(c for c in sanitized if c.isprintable())
     # Truncate to max length
     return sanitized[:max_length] if len(sanitized) > max_length else sanitized
 

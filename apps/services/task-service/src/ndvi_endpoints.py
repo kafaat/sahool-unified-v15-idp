@@ -73,10 +73,16 @@ async def create_task_from_ndvi_alert(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            # For now, use a placeholder
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned task to {assigned_to}")
+            # Fetch field manager from field service
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info(f"Auto-assigned NDVI task to field manager: {assigned_to}")
+            else:
+                logger.warning(
+                    f"Could not fetch field manager for field {data.field_id}, "
+                    f"task will be created without assignment"
+                )
 
         # Build metadata
         metadata = {
@@ -253,9 +259,16 @@ async def auto_create_tasks(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned tasks to {assigned_to}")
+            # Fetch field manager from field service
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info(f"Auto-assigned batch tasks to field manager: {assigned_to}")
+            else:
+                logger.warning(
+                    f"Could not fetch field manager for field {data.field_id}, "
+                    f"tasks will be created without assignment"
+                )
 
         # Create tasks from suggestions
         for idx, suggestion in enumerate(data.suggestions):

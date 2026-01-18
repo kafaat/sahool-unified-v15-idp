@@ -654,9 +654,9 @@ async def get_next_invoice_number() -> str:
         return f"SAH-{year}-{unique_suffix}"
 
 
-# Legacy in-memory counter (kept for backward compatibility with tests)
-# NOTE: This is deprecated. Use get_next_invoice_number() for production.
-INVOICE_COUNTER: int = 0
+# NOTE: Legacy INVOICE_COUNTER has been removed for security reasons.
+# Use get_next_invoice_number() for production (uses PostgreSQL sequence).
+# For tests, generate_invoice_number() now uses UUID-based suffixes.
 
 # =============================================================================
 # Arabic Translations - الترجمات العربية
@@ -1246,14 +1246,23 @@ def generate_invoice_number() -> str:
     Generate invoice number (legacy synchronous version).
     توليد رقم الفاتورة (النسخة المتزامنة القديمة)
 
-    NOTE: This is a legacy function kept for backward compatibility.
+    NOTE: This is a legacy function kept for backward compatibility with tests.
     For production use, prefer `get_next_invoice_number()` which uses
     a PostgreSQL sequence for proper uniqueness across instances.
+
+    SECURITY: Uses UUID-based suffix to prevent information disclosure
+    about invoice volume.
     """
-    global INVOICE_COUNTER
-    INVOICE_COUNTER += 1
+    import warnings
+    warnings.warn(
+        "generate_invoice_number() is deprecated. Use get_next_invoice_number() instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     year = datetime.now(UTC).year
-    return f"SAH-{year}-{INVOICE_COUNTER:04d}"
+    # Use UUID-based suffix to prevent sequential number exposure
+    unique_suffix = uuid.uuid4().hex[:8].upper()
+    return f"SAH-{year}-{unique_suffix}"
 
 
 def convert_to_yer(amount_usd: Decimal) -> Decimal:

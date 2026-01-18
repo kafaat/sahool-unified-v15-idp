@@ -67,8 +67,8 @@ async def main():
             health = await check_db_health()
             stats = await get_db_stats()
 
-            logger.info(f"Database health: {health}")
-            logger.info(f"Database stats: {stats}")
+            logger.info("Database health: %s", health)
+            logger.info("Database stats: %s", stats)
 
             await close_db()
 
@@ -100,8 +100,8 @@ async def main():
         health = await check_db_health()
         stats = await get_db_stats()
 
-        logger.info(f"Database health: {health}")
-        logger.info(f"Database stats: {stats}")
+        logger.info("Database health: %s", health)
+        logger.info("Database stats: %s", stats)
 
         # Close connection
         await close_db()
@@ -114,7 +114,7 @@ async def main():
         sys.exit(130)
 
     except Exception as e:
-        logger.error(f"❌ Database initialization failed: {e}")
+        logger.error("❌ Database initialization failed: %s", e)
         logger.exception(e)
         sys.exit(1)
 

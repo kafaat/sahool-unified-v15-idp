@@ -320,9 +320,12 @@ jobs:
           tags: |
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:latest
-          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
-          cache-from: type=gha,scope=${{ matrix.service.name }}-v2
-          cache-to: type=gha,scope=${{ matrix.service.name }}-v2,mode=max
+          # Use inline cache as fallback when GHA cache is unavailable
+          # This makes builds resilient to GitHub Actions cache service outages
+          cache-from: |
+            type=gha,scope=${{ matrix.service.name }}-v2
+            type=inline
+          cache-to: type=inline,mode=max
           build-args: |
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}

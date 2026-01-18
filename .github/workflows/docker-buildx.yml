@@ -233,9 +233,11 @@ jobs:
           push: ${{ github.event.inputs.push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
-          cache-from: type=gha,scope=${{ matrix.service }}-v2
-          cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max
+          # Use inline cache as fallback when GHA cache is unavailable
+          cache-from: |
+            type=gha,scope=${{ matrix.service }}-v2
+            type=inline
+          cache-to: type=inline,mode=max
           build-args: |
             SERVICE_NAME=${{ matrix.service }}
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
@@ -405,9 +407,11 @@ jobs:
           push: ${{ github.event.inputs.push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
-          cache-from: type=gha,scope=${{ matrix.service }}-v2
-          cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max
+          # Use inline cache as fallback when GHA cache is unavailable
+          cache-from: |
+            type=gha,scope=${{ matrix.service }}-v2
+            type=inline
+          cache-to: type=inline,mode=max
 
   build-summary:
     name: Build Summary

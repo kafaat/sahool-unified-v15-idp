@@ -141,8 +141,11 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ needs.validate.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Use inline cache as fallback when GHA cache is unavailable
+          cache-from: |
+            type=gha
+            type=inline
+          cache-to: type=inline,mode=max
           labels: |
             org.opencontainers.image.title=${{ matrix.service }}
             org.opencontainers.image.version=${{ needs.validate.outputs.version }}

@@ -25,6 +25,14 @@ from ..models.rules import (
 from ..services.event_processor import EventProcessor
 from ..services.rules_engine import RulesEngine
 
+
+def _sanitize_log_input(value: str, max_length: int = 100) -> str:
+    """Sanitize user input for safe logging to prevent log injection."""
+    if value is None:
+        return ""
+    return str(value).replace('\n', '').replace('\r', '').replace('\t', '')[:max_length]
+
+
 # Database imports
 try:
     from ..database import events_repo, rules_repo, get_pool
@@ -161,7 +169,7 @@ async def create_event(
             # Fallback to in-memory
             _events_fallback[event_response.event_id] = event_response
 
-        logger.info("✓ تم إنشاء حدث %s للحقل %s", event_response.event_id, event_data.field_id)
+        logger.info("✓ تم إنشاء حدث %s للحقل %s", _sanitize_log_input(event_response.event_id), _sanitize_log_input(event_data.field_id))
 
         return event_response
 
@@ -345,7 +353,7 @@ async def update_event_status(
         if not event_data:
             raise HTTPException(status_code=404, detail="Event not found")
 
-        logger.info("✓ تم تحديث حالة الحدث %s إلى %s", event_id, new_status.value)
+        logger.info("✓ تم تحديث حالة الحدث %s إلى %s", _sanitize_log_input(event_id), new_status.value)
 
         return EventResponse(
             event_id=event_data["event_id"],
@@ -390,7 +398,7 @@ async def update_event_status(
 
         _events_fallback[event_id] = event
 
-        logger.info("✓ تم تحديث حالة الحدث %s إلى %s", event_id, new_status.value)
+        logger.info("✓ تم تحديث حالة الحدث %s إلى %s", _sanitize_log_input(event_id), new_status.value)
 
         return event
 
@@ -504,7 +512,7 @@ async def create_rule(
             if not rule_row:
                 raise HTTPException(status_code=500, detail="Failed to create rule in database")
 
-            logger.info("✓ تم إنشاء قاعدة %s: %s", rule_id, rule_data.name)
+            logger.info("✓ تم إنشاء قاعدة %s: %s", _sanitize_log_input(rule_id), _sanitize_log_input(rule_data.name))
 
             return RuleResponse(
                 rule_id=rule_row["rule_id"],
@@ -549,7 +557,7 @@ async def create_rule(
 
             _rules_fallback[rule_id] = rule
 
-            logger.info("✓ تم إنشاء قاعدة %s: %s", rule_id, rule.name)
+            logger.info("✓ تم إنشاء قاعدة %s: %s", _sanitize_log_input(rule_id), _sanitize_log_input(rule.name))
 
             return RuleResponse(**rule.model_dump())
 
@@ -721,7 +729,7 @@ async def update_rule(
         if not rule_data:
             raise HTTPException(status_code=404, detail="Rule not found")
 
-        logger.info("✓ تم تحديث القاعدة %s", rule_id)
+        logger.info("✓ تم تحديث القاعدة %s", _sanitize_log_input(rule_id))
 
         return RuleResponse(
             rule_id=rule_data["rule_id"],
@@ -763,7 +771,7 @@ async def update_rule(
         rule.updated_at = datetime.utcnow()
         _rules_fallback[rule_id] = rule
 
-        logger.info("✓ تم تحديث القاعدة %s", rule_id)
+        logger.info("✓ تم تحديث القاعدة %s", _sanitize_log_input(rule_id))
 
         return RuleResponse(**rule.model_dump())
 
@@ -786,7 +794,7 @@ async def delete_rule(
         if not deleted:
             raise HTTPException(status_code=404, detail="Rule not found")
 
-        logger.info("✓ تم حذف القاعدة %s", rule_id)
+        logger.info("✓ تم حذف القاعدة %s", _sanitize_log_input(rule_id))
 
         return {"status": "deleted", "rule_id": rule_id}
     else:
@@ -802,7 +810,7 @@ async def delete_rule(
 
         del _rules_fallback[rule_id]
 
-        logger.info("✓ تم حذف القاعدة %s", rule_id)
+        logger.info("✓ تم حذف القاعدة %s", _sanitize_log_input(rule_id))
 
         return {"status": "deleted", "rule_id": rule_id}
 
@@ -835,7 +843,7 @@ async def toggle_rule_status(
         if not updated_rule:
             raise HTTPException(status_code=500, detail="Failed to update rule")
 
-        logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", rule_id, new_status.value)
+        logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", _sanitize_log_input(rule_id), new_status.value)
 
         return RuleResponse(
             rule_id=updated_rule["rule_id"],
@@ -877,7 +885,7 @@ async def toggle_rule_status(
         rule.updated_at = datetime.utcnow()
         _rules_fallback[rule_id] = rule
 
-        logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", rule_id, rule.status.value)
+        logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", _sanitize_log_input(rule_id), rule.status.value)
 
         return RuleResponse(**rule.model_dump())
 

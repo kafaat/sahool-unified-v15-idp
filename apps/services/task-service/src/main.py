@@ -794,8 +794,9 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
                 # The field service returns user_id as the field owner/manager
                 manager_id = field_data.get("user_id")
                 if manager_id:
+                    safe_manager_id = str(manager_id).replace('\n', '').replace('\r', '')[:100]
                     logger.info(
-                        "Fetched field manager for field %s: %s", safe_field_id, manager_id
+                        "Fetched field manager for field %s: %s", safe_field_id, safe_manager_id
                     )
                     return manager_id
                 else:

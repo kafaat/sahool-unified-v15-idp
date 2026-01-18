@@ -238,6 +238,33 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
+  /// Block a user
+  Future<bool> blockUser(String userId, String conversationId) async {
+    try {
+      await _repository.blockUser(userId, conversationId);
+
+      // Remove conversation from state
+      final updatedConversations = state.conversations
+          .where((c) => c.id != conversationId)
+          .toList();
+
+      // Clear active conversation if it's the blocked one
+      final clearActive = state.activeConversationId == conversationId;
+
+      state = state.copyWith(
+        conversations: updatedConversations,
+        clearActiveConversation: clearActive,
+      );
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        error: 'فشل في حظر المستخدم: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // Messages
   // ───────────────────────────────────────────────────────────────────────────

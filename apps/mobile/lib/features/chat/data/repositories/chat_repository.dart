@@ -93,6 +93,15 @@ class ChatRepository {
     return await _api.getUnreadCount();
   }
 
+  /// Block a user
+  Future<void> blockUser(String userId, String conversationId) async {
+    await _api.blockUser(userId);
+
+    // Remove conversation from cache
+    _conversationsCache.remove(conversationId);
+    _messagesCache.remove(conversationId);
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Messages
   // ─────────────────────────────────────────────────────────────────────────────

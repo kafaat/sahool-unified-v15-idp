@@ -11,6 +11,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/config/theme.dart';
 import '../../data/models/message_model.dart';
 import '../providers/chat_provider.dart';
@@ -425,10 +426,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _handleMenuAction(String action, conversation) {
     switch (action) {
       case 'view_profile':
-        // TODO: Navigate to user profile
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('عرض الملف الشخصي - قيد التطوير')),
-        );
+        // Navigate to user profile
+        final currentUserId = ref.read(chatUserIdProvider);
+        final otherParticipant = conversation.getOtherParticipant(currentUserId);
+        if (otherParticipant != null) {
+          context.push(
+            '/user/${otherParticipant.userId}',
+            extra: {
+              'userId': otherParticipant.userId,
+              'name': otherParticipant.name,
+              'nameAr': otherParticipant.nameAr,
+              'avatarUrl': otherParticipant.avatarUrl,
+              'role': otherParticipant.role,
+            },
+          );
+        }
         break;
 
       case 'view_product':
@@ -446,30 +458,94 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         break;
 
       case 'block':
-        // TODO: Implement block user
-        _showBlockConfirmation();
+        _showBlockConfirmation(conversation);
         break;
     }
   }
 
-  void _showBlockConfirmation() {
+  void _showBlockConfirmation(conversation) {
+    final currentUserId = ref.read(chatUserIdProvider);
+    final otherParticipant = conversation.getOtherParticipant(currentUserId);
+
+    if (otherParticipant == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('لا يمكن حظر هذا المستخدم'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('حظر المستخدم'),
-        content: const Text('هل أنت متأكد أنك تريد حظر هذا المستخدم؟'),
+        content: Text(
+          'هل أنت متأكد أنك تريد حظر ${otherParticipant.displayName}؟\n\n'
+          'لن تتمكن من تلقي رسائل من هذا المستخدم بعد الآن.',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('إلغاء'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Implement block
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+
+              // Show loading indicator
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('تم حظر المستخدم')),
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Text('جاري حظر المستخدم...'),
+                    ],
+                  ),
+                  duration: Duration(seconds: 30),
+                ),
               );
+
+              // Call block user API
+              final success = await ref.read(chatProvider.notifier).blockUser(
+                    otherParticipant.userId,
+                    conversation.id as String,
+                  );
+
+              if (!mounted) return;
+
+              // Hide loading snackbar
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+              if (success) {
+                // Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('تم حظر ${otherParticipant.displayName}'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+
+                // Navigate back to conversations list
+                Navigator.pop(context);
+              } else {
+                // Show error message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('فشل في حظر المستخدم. يرجى المحاولة مرة أخرى.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,

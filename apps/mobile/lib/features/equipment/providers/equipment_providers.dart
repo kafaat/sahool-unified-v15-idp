@@ -70,6 +70,20 @@ final equipmentByQrProvider = FutureProvider.autoDispose
   throw Exception(result.errorAr ?? result.error ?? 'المعدة غير موجودة');
 });
 
+/// مزود سجل صيانة المعدة
+final equipmentHistoryProvider = FutureProvider.autoDispose
+    .family<List<MaintenanceRecord>, String>((ref, equipmentId) async {
+  final repo = ref.watch(equipmentRepositoryProvider);
+  final result = await repo.getMaintenanceHistory(equipmentId);
+
+  if (result.isSuccess) {
+    return (result.data ?? [])
+        .map((record) => MaintenanceRecord.fromJson(record))
+        .toList();
+  }
+  throw Exception(result.errorAr ?? result.error ?? 'فشل في جلب سجل الصيانة');
+});
+
 /// حالة الفلتر المحددة
 final selectedEquipmentFilterProvider = StateProvider<EquipmentFilter?>((ref) => null);
 

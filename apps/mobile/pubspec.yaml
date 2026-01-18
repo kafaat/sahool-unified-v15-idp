@@ -77,6 +77,9 @@ dependencies:
   image_picker: ^1.1.2
   camera: ^0.11.0+2
 
+  # Location
+  geolocator: ^13.0.2
+
   # Barcode/QR Scanner
   mobile_scanner: ^6.0.2
 
@@ -89,6 +92,10 @@ dependencies:
 
   # File Picker
   file_picker: ^8.1.4
+
+  # Audio Recording
+  record: ^5.1.2
+  permission_handler: ^11.3.1
 
   # Sharing & URLs
   share_plus: ^7.2.1

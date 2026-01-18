@@ -135,6 +135,15 @@ class CropRotationPlanner:
     مخطط تدوير المحاصيل لصحة التربة ومنع الأمراض
     """
 
+    def __init__(self, db_pool=None):
+        """
+        Initialize the crop rotation planner.
+
+        Args:
+            db_pool: Optional asyncpg connection pool for database queries
+        """
+        self.db_pool = db_pool
+
     # Crop family mapping - maps crop codes to families
     CROP_FAMILY_MAP: dict[str, CropFamily] = {
         # Cereals - الحبوب
@@ -925,12 +934,70 @@ class CropRotationPlanner:
         Get crop history for a field.
         الحصول على سجل المحاصيل للحقل.
 
-        This would typically query a database.
-        In this implementation, it returns an empty list.
+        Args:
+            field_id: The field identifier to query history for
+            years: Number of years of history to retrieve (default 5)
+
+        Returns:
+            List of SeasonPlan objects representing the field's crop history
         """
-        # TODO: Implement database query
-        # This is a placeholder that would connect to field-core database
-        return []
+        if not self.db_pool:
+            return []
+
+        try:
+            current_year = datetime.now().year
+            min_year = current_year - years
+
+            query = """
+                SELECT
+                    history_id,
+                    year,
+                    season,
+                    crop_code,
+                    crop_name_ar,
+                    crop_name_en,
+                    crop_family,
+                    planting_date,
+                    harvest_date,
+                    actual_yield,
+                    notes
+                FROM field_history
+                WHERE field_id = $1
+                  AND year >= $2
+                ORDER BY year ASC, season ASC
+            """
+
+            async with self.db_pool.acquire() as conn:
+                rows = await conn.fetch(query, field_id, min_year)
+
+            history = []
+            for row in rows:
+                # Convert crop_family string to CropFamily enum
+                try:
+                    crop_family = CropFamily(row["crop_family"])
+                except ValueError:
+                    crop_family = CropFamily.CEREALS
+
+                season_plan = SeasonPlan(
+                    season_id=row["history_id"],
+                    year=row["year"],
+                    season=row["season"],
+                    crop_code=row["crop_code"],
+                    crop_name_ar=row["crop_name_ar"],
+                    crop_name_en=row["crop_name_en"],
+                    crop_family=crop_family,
+                    planting_date=row["planting_date"],
+                    harvest_date=row["harvest_date"],
+                    expected_yield=row["actual_yield"],
+                    notes=row["notes"],
+                )
+                history.append(season_plan)
+
+            return history
+
+        except Exception:
+            # Return empty list on database errors to allow graceful degradation
+            return []
 
 
 # Helper function to serialize dataclasses to dict

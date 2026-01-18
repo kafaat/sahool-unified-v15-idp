@@ -233,6 +233,15 @@ class ChatApi {
     }
   }
 
+  /// Block a user
+  Future<void> blockUser(String userId) async {
+    try {
+      await _dio.post('/api/v1/users/$userId/block');
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // WebSocket Methods (Socket.IO)
   // ─────────────────────────────────────────────────────────────────────────────

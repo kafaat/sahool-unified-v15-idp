@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../../core/geo/geojson.dart';
@@ -687,12 +688,10 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   void _openDiagnosis() {
-    // TODO: Navigate to diagnosis screen
-    Navigator.pushNamed(
-      context,
-      '/crop-health',
-      arguments: {'fieldId': widget.fieldId},
-    );
+    context.push('/crop-health', extra: {
+      'fieldId': widget.fieldId,
+      'fieldName': widget.fieldName,
+    });
   }
 }
 

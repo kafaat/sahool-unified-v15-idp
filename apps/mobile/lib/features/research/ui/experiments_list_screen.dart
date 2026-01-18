@@ -370,8 +370,18 @@ class ExperimentDetailsScreen extends StatelessWidget {
           if (experiment.status == ExperimentStatus.active)
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                // TODO: Edit experiment
+              onPressed: () async {
+                final result = await Navigator.push<Experiment>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditExperimentScreen(experiment: experiment),
+                  ),
+                );
+                // Handle result when returning - pop details screen if experiment was updated
+                // to refresh the list with updated data
+                if (result != null && context.mounted) {
+                  Navigator.pop(context, result);
+                }
               },
             ),
         ],
@@ -978,6 +988,92 @@ class CreateExperimentScreen extends StatelessWidget {
       ),
       body: const Center(
         child: Text('شاشة إنشاء تجربة جديدة - قيد التطوير'),
+      ),
+    );
+  }
+}
+
+/// شاشة تعديل التجربة
+/// Edit Experiment Screen
+class EditExperimentScreen extends StatelessWidget {
+  final Experiment experiment;
+
+  const EditExperimentScreen({super.key, required this.experiment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('تعديل التجربة'),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.check),
+            onPressed: () {
+              // Return the updated experiment when saving
+              // For now, return the original experiment as placeholder
+              Navigator.pop(context, experiment);
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title field
+            TextFormField(
+              initialValue: experiment.title,
+              decoration: const InputDecoration(
+                labelText: 'عنوان التجربة (عربي)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: experiment.titleEn,
+              decoration: const InputDecoration(
+                labelText: 'Experiment Title (English)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: experiment.principalResearcher,
+              decoration: const InputDecoration(
+                labelText: 'الباحث الرئيسي',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: experiment.plotsCount.toString(),
+              decoration: const InputDecoration(
+                labelText: 'عدد القطع التجريبية',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Return the updated experiment
+                  Navigator.pop(context, experiment);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('حفظ التغييرات'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

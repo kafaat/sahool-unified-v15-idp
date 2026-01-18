@@ -13,7 +13,6 @@
     "rootDir": "./src",
     "incremental": true,
     "skipLibCheck": true,
-    "lib": ["ES2021"],
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
@@ -22,7 +21,11 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": false,
+    "types": ["node"],
+    "lib": ["ES2021"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*.spec.ts", "**/*.test.ts"]

@@ -9,16 +9,20 @@ usage alerts, and seasonal pattern tracking.
 تنبيهات الاستخدام، وتتبع الأنماط الموسمية.
 """
 
+import logging
 from datetime import date, datetime
 from enum import Enum
 from typing import Any
 
+import httpx
 from pydantic import BaseModel, Field
 
 from .water_metrics import (
     WaterSource,
     WaterUsageMetric,
 )
+
+logger = logging.getLogger(__name__)
 
 # ==================== Alert Models ====================
 
@@ -236,6 +240,8 @@ class SpringIntegration:
         start_date: date,
         end_date: date,
         include_sensor_data: bool = True,
+        timeout: float = 30.0,
+        max_retries: int = 3,
     ) -> dict[str, Any]:
         """
         Pull irrigation data from irrigation-smart service
@@ -245,17 +251,75 @@ class SpringIntegration:
             start_date: Start date for data retrieval
             end_date: End date for data retrieval
             include_sensor_data: Include soil moisture sensor data
+            timeout: Request timeout in seconds
+            max_retries: Maximum number of retry attempts
 
         Returns:
             Dictionary containing irrigation data
 
-        Note:
-            This is a placeholder. In production, this would make HTTP requests
-            to the irrigation-smart service API.
+        Raises:
+            httpx.HTTPError: If API request fails after retries
         """
-        # TODO: Implement actual API integration
-        # For now, return structure that would be expected from API
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
 
+        params = {
+            "farm_id": self.farm_id,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "include_sensors": str(include_sensor_data).lower(),
+        }
+
+        url = f"{self.irrigation_service_url}/irrigation/data"
+
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                with httpx.Client(timeout=timeout) as client:
+                    response = client.get(url, headers=headers, params=params)
+                    response.raise_for_status()
+                    return response.json()
+
+            except httpx.TimeoutException as e:
+                last_error = e
+                logger.warning(
+                    "Timeout pulling irrigation data (attempt %d/%d): %s",
+                    attempt + 1,
+                    max_retries,
+                    str(e),
+                )
+            except httpx.HTTPStatusError as e:
+                last_error = e
+                logger.warning(
+                    "HTTP error pulling irrigation data (attempt %d/%d): %s",
+                    attempt + 1,
+                    max_retries,
+                    str(e),
+                )
+                # Don't retry on 4xx errors (client errors)
+                if 400 <= e.response.status_code < 500:
+                    break
+            except httpx.RequestError as e:
+                last_error = e
+                logger.warning(
+                    "Request error pulling irrigation data (attempt %d/%d): %s",
+                    attempt + 1,
+                    max_retries,
+                    str(e),
+                )
+
+        # If all retries failed, log and return empty structure
+        logger.error(
+            "Failed to pull irrigation data after %d attempts: %s",
+            max_retries,
+            str(last_error),
+        )
+
+        # Return fallback structure for graceful degradation
         return {
             "farm_id": self.farm_id,
             "period_start": start_date.isoformat(),
@@ -268,7 +332,128 @@ class SpringIntegration:
                 "active_zones": 0,
                 "maintenance_alerts": [],
             },
+            "_error": str(last_error) if last_error else None,
+            "_fallback": True,
         }
+
+    async def pull_irrigation_data_async(
+        self,
+        start_date: date,
+        end_date: date,
+        include_sensor_data: bool = True,
+        timeout: float = 30.0,
+        max_retries: int = 3,
+    ) -> dict[str, Any]:
+        """
+        Pull irrigation data asynchronously from irrigation-smart service
+        سحب بيانات الري بشكل غير متزامن من خدمة الري الذكي
+
+        Args:
+            start_date: Start date for data retrieval
+            end_date: End date for data retrieval
+            include_sensor_data: Include soil moisture sensor data
+            timeout: Request timeout in seconds
+            max_retries: Maximum number of retry attempts
+
+        Returns:
+            Dictionary containing irrigation data
+        """
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        params = {
+            "farm_id": self.farm_id,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "include_sensors": str(include_sensor_data).lower(),
+        }
+
+        url = f"{self.irrigation_service_url}/irrigation/data"
+
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    response = await client.get(url, headers=headers, params=params)
+                    response.raise_for_status()
+                    return response.json()
+
+            except httpx.TimeoutException as e:
+                last_error = e
+                logger.warning(
+                    "Timeout pulling irrigation data async (attempt %d/%d)",
+                    attempt + 1,
+                    max_retries,
+                )
+            except httpx.HTTPStatusError as e:
+                last_error = e
+                if 400 <= e.response.status_code < 500:
+                    break
+            except httpx.RequestError as e:
+                last_error = e
+
+        logger.error("Failed to pull irrigation data async: %s", str(last_error))
+        return {
+            "farm_id": self.farm_id,
+            "period_start": start_date.isoformat(),
+            "period_end": end_date.isoformat(),
+            "usage_records": [],
+            "sensor_readings": [] if include_sensor_data else None,
+            "weather_data": {},
+            "irrigation_schedules": [],
+            "system_status": {"active_zones": 0, "maintenance_alerts": []},
+            "_error": str(last_error) if last_error else None,
+            "_fallback": True,
+        }
+
+    def push_alerts_to_service(
+        self,
+        alerts: list["WaterUsageAlert"],
+        timeout: float = 30.0,
+    ) -> dict[str, Any]:
+        """
+        Push water usage alerts to irrigation-smart service
+        إرسال تنبيهات استخدام المياه إلى خدمة الري الذكي
+
+        Args:
+            alerts: List of alerts to push
+            timeout: Request timeout in seconds
+
+        Returns:
+            API response with push status
+        """
+        if not alerts:
+            return {"status": "success", "pushed_count": 0}
+
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        url = f"{self.irrigation_service_url}/alerts/batch"
+        payload = {
+            "farm_id": self.farm_id,
+            "alerts": [alert.model_dump(mode="json") for alert in alerts],
+        }
+
+        try:
+            with httpx.Client(timeout=timeout) as client:
+                response = client.post(url, headers=headers, json=payload)
+                response.raise_for_status()
+                return response.json()
+        except httpx.HTTPError as e:
+            logger.error("Failed to push alerts: %s", str(e))
+            return {
+                "status": "error",
+                "error": str(e),
+                "pushed_count": 0,
+            }
 
     def calculate_water_footprint(
         self,

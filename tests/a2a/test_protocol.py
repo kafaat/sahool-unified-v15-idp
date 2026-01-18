@@ -12,19 +12,21 @@ from typing import Any
 
 import pytest
 
-# Add shared path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
+# Add project root to path (not shared directly, to avoid shadowing stdlib modules)
+project_root = os.path.join(os.path.dirname(__file__), "..", "..")
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-from a2a.agent import (
+from shared.a2a.agent import (
     A2AAgent,
     AgentCapability,
     AgentCard,
 )
-from a2a.client import (
+from shared.a2a.client import (
     A2AClient,
     AgentDiscovery,
 )
-from a2a.protocol import (
+from shared.a2a.protocol import (
     ConversationContext,
     ErrorMessage,
     MessageType,
@@ -683,7 +685,8 @@ class TestA2AIntegration:
         assert result.state == TaskState.COMPLETED
         assert result.result["echo"]["message"] == "Hello, A2A!"
         assert result.execution_time_ms is not None
-        assert result.execution_time_ms > 0
+        # Execution can be 0ms if very fast, so check >= 0
+        assert result.execution_time_ms >= 0
 
         # Verify stats
         stats = agent.get_stats()

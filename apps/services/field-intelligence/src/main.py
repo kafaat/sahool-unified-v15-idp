@@ -57,6 +57,13 @@ from .api.routes import router
 from .services.event_processor import EventProcessor
 from .services.rules_engine import RulesEngine
 
+# Database module
+try:
+    from .database import init_db as init_database, close_pool, rules_repo
+    DB_MODULE_AVAILABLE = True
+except ImportError:
+    DB_MODULE_AVAILABLE = False
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
 # الإعدادات
@@ -102,18 +109,40 @@ async def lifespan(app: FastAPI):
     app.state.nats_connected = False
     app.state.rules_loaded = 0
 
-    # تهيئة اتصال قاعدة البيانات (PostgreSQL)
-    db_url = os.getenv("DATABASE_URL")
-    if db_url:
+    # تهيئة اتصال قاعدة البيانات (PostgreSQL) using database module
+    if DB_MODULE_AVAILABLE:
         try:
-            import asyncpg
+            db_initialized = await init_database()
+            if db_initialized:
+                app.state.db_connected = True
+                logger.info("✓ Database connected and tables initialized")
 
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
-            app.state.db_connected = True
-            logger.info("✓ Database connected")
+                # Load count of active rules from database
+                try:
+                    rules_count = await rules_repo.count_active_rules()
+                    app.state.rules_loaded = rules_count
+                    logger.info(f"✓ Loaded {app.state.rules_loaded} active rules from database")
+                except Exception as e:
+                    logger.warning(f"Failed to count rules from database: {e}")
+                    app.state.rules_loaded = 0
+            else:
+                logger.warning("Database not configured - running in memory mode")
         except Exception as e:
-            logger.warning(f"Database connection failed: {e}")
-            app.state.db_pool = None
+            logger.warning(f"Database initialization failed: {e}")
+            app.state.db_connected = False
+    else:
+        # Fallback to direct asyncpg if database module not available
+        db_url = os.getenv("DATABASE_URL")
+        if db_url:
+            try:
+                import asyncpg
+
+                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+                app.state.db_connected = True
+                logger.info("✓ Database connected (legacy mode)")
+            except Exception as e:
+                logger.warning(f"Database connection failed: {e}")
+                app.state.db_pool = None
 
     # تهيئة NATS للرسائل
     nats_url = os.getenv("NATS_URL")
@@ -128,20 +157,6 @@ async def lifespan(app: FastAPI):
             logger.warning(f"NATS connection failed: {e}")
             app.state.nc = None
 
-    # تحميل القواعد النشطة من قاعدة البيانات
-    if app.state.db_connected and app.state.db_pool:
-        try:
-            async with app.state.db_pool.acquire() as conn:
-                # Load count of active rules from database
-                result = await conn.fetchval(
-                    "SELECT COUNT(*) FROM rules WHERE status = 'active'"
-                )
-                app.state.rules_loaded = result or 0
-                logger.info(f"✓ Loaded {app.state.rules_loaded} active rules from database")
-        except Exception as e:
-            logger.warning(f"Failed to load rules from database: {e}")
-            app.state.rules_loaded = 0
-
     logger.info("✓ Field Intelligence Service ready on port 8119")
     logger.info("✓ Rules Engine initialized")
     logger.info("✓ Event Processor initialized")
@@ -154,10 +169,16 @@ async def lifespan(app: FastAPI):
     # إغلاق الاتصالات
     await event_processor.close()
 
-    # Close database connection
-    if hasattr(app.state, "db_pool") and app.state.db_pool:
+    # Close database connection using database module
+    if DB_MODULE_AVAILABLE:
+        try:
+            await close_pool()
+            logger.info("✓ Database connection pool closed")
+        except Exception as e:
+            logger.warning(f"Error closing database pool: {e}")
+    elif hasattr(app.state, "db_pool") and app.state.db_pool:
         await app.state.db_pool.close()
-        logger.info("✓ Database connection closed")
+        logger.info("✓ Database connection closed (legacy mode)")
 
     # Close NATS connection
     if hasattr(app.state, "nc") and app.state.nc:
@@ -345,10 +366,12 @@ if ENVIRONMENT in ("development", "dev", "test"):
         """
         بذر قواعد تجريبية - Seed demo rules (Development only)
         Creates sample automation rules for testing
+
+        Stores rules in PostgreSQL if available, otherwise in-memory fallback.
         """
         from uuid import uuid4
 
-        from .api.routes import rules_db
+        from .api.routes import _rules_fallback, is_db_connected
         from .models.rules import (
             ActionConfig,
             ActionType,
@@ -361,175 +384,208 @@ if ENVIRONMENT in ("development", "dev", "test"):
             TaskConfig,
         )
 
-        demo_rules = []
+        demo_rules_data = []
 
         # قاعدة 1: إنشاء مهمة فحص عند انخفاض NDVI
-        rule1 = Rule(
-            rule_id=str(uuid4()),
-            tenant_id="demo_tenant",
-            name="NDVI Drop - Create Inspection Task",
-            name_ar="انخفاض NDVI - إنشاء مهمة فحص",
-            description="Create field inspection task when NDVI drops significantly",
-            description_ar="إنشاء مهمة فحص الحقل عند انخفاض NDVI بشكل كبير",
-            status=RuleStatus.ACTIVE,
-            field_ids=[],  # ينطبق على جميع الحقول
-            event_types=["ndvi_drop", "ndvi_anomaly"],
-            conditions=RuleConditionGroup(
-                logic="AND",
-                conditions=[
-                    RuleCondition(
-                        field="metadata.drop_percentage",
-                        operator=ConditionOperator.GREATER_THAN,
-                        value=15.0,
-                        value_type="number",
-                    ),
-                    RuleCondition(
-                        field="severity",
-                        operator=ConditionOperator.IN,
-                        value=["high", "critical"],
-                        value_type="list",
-                    ),
+        rule1_data = {
+            "rule_id": str(uuid4()),
+            "tenant_id": "demo_tenant",
+            "name": "NDVI Drop - Create Inspection Task",
+            "name_ar": "انخفاض NDVI - إنشاء مهمة فحص",
+            "description": "Create field inspection task when NDVI drops significantly",
+            "description_ar": "إنشاء مهمة فحص الحقل عند انخفاض NDVI بشكل كبير",
+            "status": "active",
+            "field_ids": [],
+            "event_types": ["ndvi_drop", "ndvi_anomaly"],
+            "conditions": {
+                "logic": "AND",
+                "conditions": [
+                    {
+                        "field": "metadata.drop_percentage",
+                        "operator": "greater_than",
+                        "value": 15.0,
+                        "value_type": "number",
+                    },
+                    {
+                        "field": "severity",
+                        "operator": "in",
+                        "value": ["high", "critical"],
+                        "value_type": "list",
+                    },
                 ],
-            ),
-            actions=[
-                ActionConfig(
-                    action_type=ActionType.CREATE_TASK,
-                    enabled=True,
-                    task_config=TaskConfig(
-                        title="Field Inspection Required",
-                        title_ar="مطلوب فحص الحقل",
-                        description="NDVI drop detected. Inspect field for issues.",
-                        description_ar="تم اكتشاف انخفاض في NDVI. فحص الحقل للمشاكل.",
-                        task_type="scouting",
-                        priority="high",
-                        due_hours=24,
-                    ),
-                ),
-                ActionConfig(
-                    action_type=ActionType.SEND_NOTIFICATION,
-                    enabled=True,
-                    notification_config=NotificationConfig(
-                        channels=["push", "sms"],
-                        recipients=["field_owner"],
-                        title="NDVI Alert",
-                        title_ar="تنبيه NDVI",
-                        message="NDVI drop detected in your field. Immediate inspection recommended.",
-                        message_ar="تم اكتشاف انخفاض في NDVI في حقلك. يوصى بالفحص الفوري.",
-                        priority="high",
-                    ),
-                ),
+            },
+            "actions": [
+                {
+                    "action_type": "create_task",
+                    "enabled": True,
+                    "task_config": {
+                        "title": "Field Inspection Required",
+                        "title_ar": "مطلوب فحص الحقل",
+                        "description": "NDVI drop detected. Inspect field for issues.",
+                        "description_ar": "تم اكتشاف انخفاض في NDVI. فحص الحقل للمشاكل.",
+                        "task_type": "scouting",
+                        "priority": "high",
+                        "due_hours": 24,
+                    },
+                },
+                {
+                    "action_type": "send_notification",
+                    "enabled": True,
+                    "notification_config": {
+                        "channels": ["push", "sms"],
+                        "recipients": ["field_owner"],
+                        "title": "NDVI Alert",
+                        "title_ar": "تنبيه NDVI",
+                        "message": "NDVI drop detected in your field. Immediate inspection recommended.",
+                        "message_ar": "تم اكتشاف انخفاض في NDVI في حقلك. يوصى بالفحص الفوري.",
+                        "priority": "high",
+                    },
+                },
             ],
-            cooldown_minutes=120,
-            priority=10,
-            created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC),
-        )
+            "cooldown_minutes": 120,
+            "priority": 10,
+            "metadata": {},
+        }
 
         # قاعدة 2: إشعار الطقس القاسي
-        rule2 = Rule(
-            rule_id=str(uuid4()),
-            tenant_id="demo_tenant",
-            name="Severe Weather - Notification",
-            name_ar="طقس قاسي - إشعار",
-            description="Send urgent notification for severe weather alerts",
-            description_ar="إرسال إشعار عاجل لتنبيهات الطقس القاسي",
-            status=RuleStatus.ACTIVE,
-            field_ids=[],
-            event_types=["weather_alert"],
-            conditions=RuleConditionGroup(
-                logic="OR",
-                conditions=[
-                    RuleCondition(
-                        field="metadata.alert_type",
-                        operator=ConditionOperator.IN,
-                        value=["frost", "heatwave", "storm"],
-                        value_type="list",
-                    ),
-                    RuleCondition(
-                        field="severity",
-                        operator=ConditionOperator.EQUALS,
-                        value="critical",
-                        value_type="string",
-                    ),
+        rule2_data = {
+            "rule_id": str(uuid4()),
+            "tenant_id": "demo_tenant",
+            "name": "Severe Weather - Notification",
+            "name_ar": "طقس قاسي - إشعار",
+            "description": "Send urgent notification for severe weather alerts",
+            "description_ar": "إرسال إشعار عاجل لتنبيهات الطقس القاسي",
+            "status": "active",
+            "field_ids": [],
+            "event_types": ["weather_alert"],
+            "conditions": {
+                "logic": "OR",
+                "conditions": [
+                    {
+                        "field": "metadata.alert_type",
+                        "operator": "in",
+                        "value": ["frost", "heatwave", "storm"],
+                        "value_type": "list",
+                    },
+                    {
+                        "field": "severity",
+                        "operator": "equals",
+                        "value": "critical",
+                        "value_type": "string",
+                    },
                 ],
-            ),
-            actions=[
-                ActionConfig(
-                    action_type=ActionType.SEND_NOTIFICATION,
-                    enabled=True,
-                    notification_config=NotificationConfig(
-                        channels=["push", "sms", "whatsapp"],
-                        recipients=["field_owner"],
-                        title="Severe Weather Alert",
-                        title_ar="تنبيه طقس قاسي",
-                        message="Severe weather conditions expected. Take protective measures.",
-                        message_ar="ظروف طقس قاسية متوقعة. اتخذ التدابير الوقائية.",
-                        priority="urgent",
-                    ),
-                ),
+            },
+            "actions": [
+                {
+                    "action_type": "send_notification",
+                    "enabled": True,
+                    "notification_config": {
+                        "channels": ["push", "sms", "whatsapp"],
+                        "recipients": ["field_owner"],
+                        "title": "Severe Weather Alert",
+                        "title_ar": "تنبيه طقس قاسي",
+                        "message": "Severe weather conditions expected. Take protective measures.",
+                        "message_ar": "ظروف طقس قاسية متوقعة. اتخذ التدابير الوقائية.",
+                        "priority": "urgent",
+                    },
+                },
             ],
-            cooldown_minutes=60,
-            priority=5,
-            created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC),
-        )
+            "cooldown_minutes": 60,
+            "priority": 5,
+            "metadata": {},
+        }
 
         # قاعدة 3: رطوبة منخفضة - مهمة ري
-        rule3 = Rule(
-            rule_id=str(uuid4()),
-            tenant_id="demo_tenant",
-            name="Low Soil Moisture - Irrigation Task",
-            name_ar="رطوبة منخفضة - مهمة ري",
-            description="Create irrigation task when soil moisture is low",
-            description_ar="إنشاء مهمة ري عند انخفاض رطوبة التربة",
-            status=RuleStatus.ACTIVE,
-            field_ids=[],
-            event_types=["soil_moisture_low"],
-            conditions=RuleConditionGroup(
-                logic="AND",
-                conditions=[
-                    RuleCondition(
-                        field="metadata.current_moisture_percent",
-                        operator=ConditionOperator.LESS_THAN,
-                        value=30.0,
-                        value_type="number",
-                    ),
+        rule3_data = {
+            "rule_id": str(uuid4()),
+            "tenant_id": "demo_tenant",
+            "name": "Low Soil Moisture - Irrigation Task",
+            "name_ar": "رطوبة منخفضة - مهمة ري",
+            "description": "Create irrigation task when soil moisture is low",
+            "description_ar": "إنشاء مهمة ري عند انخفاض رطوبة التربة",
+            "status": "active",
+            "field_ids": [],
+            "event_types": ["soil_moisture_low"],
+            "conditions": {
+                "logic": "AND",
+                "conditions": [
+                    {
+                        "field": "metadata.current_moisture_percent",
+                        "operator": "less_than",
+                        "value": 30.0,
+                        "value_type": "number",
+                    },
                 ],
-            ),
-            actions=[
-                ActionConfig(
-                    action_type=ActionType.CREATE_TASK,
-                    enabled=True,
-                    task_config=TaskConfig(
-                        title="Irrigation Required",
-                        title_ar="ري مطلوب",
-                        description="Soil moisture is low. Irrigate the field.",
-                        description_ar="رطوبة التربة منخفضة. قم بري الحقل.",
-                        task_type="irrigation",
-                        priority="medium",
-                        due_hours=12,
-                    ),
-                ),
+            },
+            "actions": [
+                {
+                    "action_type": "create_task",
+                    "enabled": True,
+                    "task_config": {
+                        "title": "Irrigation Required",
+                        "title_ar": "ري مطلوب",
+                        "description": "Soil moisture is low. Irrigate the field.",
+                        "description_ar": "رطوبة التربة منخفضة. قم بري الحقل.",
+                        "task_type": "irrigation",
+                        "priority": "medium",
+                        "due_hours": 12,
+                    },
+                },
             ],
-            cooldown_minutes=240,  # 4 ساعات
-            priority=20,
-            created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC),
-        )
+            "cooldown_minutes": 240,
+            "priority": 20,
+            "metadata": {},
+        }
 
-        demo_rules = [rule1, rule2, rule3]
+        demo_rules_data = [rule1_data, rule2_data, rule3_data]
+        created_rule_ids = []
 
-        # حفظ القواعد
-        for rule in demo_rules:
-            rules_db[rule.rule_id] = rule
+        # Check if database is available
+        db_connected = await is_db_connected()
 
-        logger.info(f"✓ تم بذر {len(demo_rules)} قاعدة تجريبية")
+        if db_connected and DB_MODULE_AVAILABLE:
+            # حفظ القواعد في PostgreSQL
+            for rule_data in demo_rules_data:
+                try:
+                    result = await rules_repo.create(**rule_data)
+                    if result:
+                        created_rule_ids.append(rule_data["rule_id"])
+                except Exception as e:
+                    logger.warning(f"Failed to create rule {rule_data['rule_id']}: {e}")
+
+            logger.info(f"✓ تم بذر {len(created_rule_ids)} قاعدة تجريبية في PostgreSQL")
+        else:
+            # حفظ القواعد في الذاكرة (fallback)
+            for rule_data in demo_rules_data:
+                rule = Rule(
+                    rule_id=rule_data["rule_id"],
+                    tenant_id=rule_data["tenant_id"],
+                    name=rule_data["name"],
+                    name_ar=rule_data["name_ar"],
+                    description=rule_data["description"],
+                    description_ar=rule_data["description_ar"],
+                    status=RuleStatus.ACTIVE,
+                    field_ids=rule_data["field_ids"],
+                    event_types=rule_data["event_types"],
+                    conditions=RuleConditionGroup(**rule_data["conditions"]),
+                    actions=[ActionConfig(**a) for a in rule_data["actions"]],
+                    cooldown_minutes=rule_data["cooldown_minutes"],
+                    priority=rule_data["priority"],
+                    created_at=datetime.now(UTC),
+                    updated_at=datetime.now(UTC),
+                    metadata=rule_data["metadata"],
+                )
+                _rules_fallback[rule.rule_id] = rule
+                created_rule_ids.append(rule.rule_id)
+
+            logger.info(f"✓ تم بذر {len(created_rule_ids)} قاعدة تجريبية في الذاكرة")
 
         return {
             "status": "success",
             "message": "Demo rules created",
-            "rules_created": len(demo_rules),
-            "rule_ids": [r.rule_id for r in demo_rules],
+            "storage": "postgresql" if db_connected and DB_MODULE_AVAILABLE else "memory",
+            "rules_created": len(created_rule_ids),
+            "rule_ids": created_rule_ids,
         }
 
 

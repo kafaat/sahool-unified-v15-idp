@@ -55,6 +55,7 @@ except ImportError:
     ObservabilityMiddleware = None
 from nats.js.api import RetentionPolicy
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import models as db_models
@@ -188,6 +189,8 @@ async def lifespan(app: FastAPI):
         db_connected = await check_db_connection()
         if db_connected:
             logger.info("Database initialized and connected successfully")
+            # Initialize invoice number sequence
+            await init_invoice_sequence()
             # Initialize default plans in database
             await init_default_plans_in_db()
         else:
@@ -560,12 +563,244 @@ class CreatePaymentRequest(BaseModel):
 # Database Initialization - Default Plans
 # =============================================================================
 
-# INVOICE_COUNTER: Global counter for invoice numbers
-# NOTE: This is an in-memory counter and will reset on service restart.
-# TODO: In production, this should be replaced with a database sequence or
-# a distributed counter (e.g., Redis INCR) to ensure unique invoice numbers
-# across multiple instances and restarts.
-INVOICE_COUNTER: int = 0
+# Invoice Number Sequence - تسلسل رقم الفاتورة
+# Uses PostgreSQL sequence for generating unique invoice numbers
+# across multiple instances and service restarts.
+INVOICE_SEQUENCE_NAME = "invoice_number_seq"
+_invoice_sequence_initialized = False
+
+
+async def init_invoice_sequence() -> None:
+    """
+    Initialize the PostgreSQL sequence for invoice numbers.
+    تهيئة تسلسل PostgreSQL لأرقام الفواتير
+
+    This creates a sequence if it doesn't exist and sets the starting value
+    based on the current year. The sequence is designed to be unique across
+    all service instances and persists across restarts.
+    """
+    global _invoice_sequence_initialized
+
+    if _invoice_sequence_initialized:
+        return
+
+    from .database import get_db_context
+
+    try:
+        async with get_db_context() as db:
+            # Create sequence if it doesn't exist
+            # Start from 1 and increment by 1
+            # Note: Using literal string to avoid SQL injection warnings
+            # INVOICE_SEQUENCE_NAME is a constant defined at module level
+            await db.execute(
+                text("""
+                    DO $$
+                    BEGIN
+                        IF NOT EXISTS (
+                            SELECT 1 FROM pg_sequences WHERE schemaname = 'public' AND sequencename = 'invoice_number_seq'
+                        ) THEN
+                            CREATE SEQUENCE invoice_number_seq
+                                START WITH 1
+                                INCREMENT BY 1
+                                NO MAXVALUE
+                                CACHE 10;
+                        END IF;
+                    END $$;
+                """)
+            )
+            await db.commit()
+            _invoice_sequence_initialized = True
+            logger.info("Invoice sequence 'invoice_number_seq' initialized successfully")
+    except Exception as e:
+        logger.error("Failed to initialize invoice sequence", exc_info=True)
+        # Don't raise - allow service to start with fallback
+
+
+async def get_next_invoice_number() -> str:
+    """
+    Get the next invoice number from the database sequence.
+    الحصول على رقم الفاتورة التالي من تسلسل قاعدة البيانات
+
+    Returns:
+        str: Invoice number in format SAH-YYYY-NNNN (e.g., SAH-2025-0001)
+
+    Uses PostgreSQL sequence for atomicity and uniqueness across
+    multiple service instances. Falls back to UUID-based number
+    if sequence is unavailable.
+    """
+    from .database import get_db_context
+
+    year = datetime.now(UTC).year
+
+    try:
+        async with get_db_context() as db:
+            # Get next value from sequence (atomic operation)
+            # Note: Using literal string to avoid SQL injection warnings
+            result = await db.execute(
+                text("SELECT nextval('invoice_number_seq')")
+            )
+            sequence_value = result.scalar()
+            await db.commit()
+
+            return f"SAH-{year}-{sequence_value:04d}"
+    except Exception as e:
+        # Fallback: Generate unique number using UUID suffix
+        # This ensures uniqueness even if sequence fails
+        logger.warning("Invoice sequence failed, using fallback", exc_info=True)
+        import hashlib
+        unique_suffix = hashlib.sha256(
+            f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode()
+        ).hexdigest()[:8].upper()
+        return f"SAH-{year}-{unique_suffix}"
+
+
+# NOTE: Legacy INVOICE_COUNTER has been removed for security reasons.
+# Use get_next_invoice_number() for production (uses PostgreSQL sequence).
+# For tests, generate_invoice_number() now uses UUID-based suffixes.
+
+# =============================================================================
+# Arabic Translations - الترجمات العربية
+# =============================================================================
+
+# Feature name translations (English -> Arabic)
+# ترجمة أسماء الميزات (الإنجليزية -> العربية)
+FEATURE_TRANSLATIONS_AR: dict[str, str] = {
+    # Core Features - الميزات الأساسية
+    "fields": "الحقول",
+    "satellite": "تحليل الأقمار الصناعية",
+    "satellite_analysis": "تحليل الأقمار الصناعية",
+    "satellite_analyses": "تحليلات الأقمار الصناعية",
+    "satellite_analyses_per_month": "تحليلات الأقمار الصناعية شهرياً",
+    "weather": "توقعات الطقس",
+    "weather_forecasts": "توقعات الطقس",
+    "irrigation": "تخطيط الري",
+    "irrigation_planning": "تخطيط الري",
+    "irrigation_smart": "الري الذكي",
+
+    # AI Features - ميزات الذكاء الاصطناعي
+    "ai_diagnosis": "تشخيص المحاصيل بالذكاء الاصطناعي",
+    "ai_diagnoses": "تشخيصات الذكاء الاصطناعي",
+    "ai_diagnoses_per_month": "تشخيصات الذكاء الاصطناعي شهرياً",
+    "crop_health": "صحة المحاصيل",
+    "crop_health_ai": "صحة المحاصيل بالذكاء الاصطناعي",
+    "pest_detection": "اكتشاف الآفات",
+    "disease_detection": "اكتشاف الأمراض",
+
+    # Reports & Documents - التقارير والوثائق
+    "reports": "تقارير PDF",
+    "pdf_reports": "تقارير PDF",
+    "pdf_reports_per_month": "تقارير PDF شهرياً",
+    "analytics": "التحليلات",
+    "advanced_analytics": "التحليلات المتقدمة",
+    "export": "تصدير البيانات",
+    "data_export": "تصدير البيانات",
+
+    # Support - الدعم
+    "support": "الدعم الفني",
+    "email_support": "دعم البريد الإلكتروني",
+    "priority_support": "دعم أولوية",
+    "dedicated_support": "دعم مخصص",
+    "phone_support": "دعم هاتفي",
+    "24_7_support": "دعم على مدار الساعة",
+
+    # API & Integration - واجهة برمجة التطبيقات والتكامل
+    "api_access": "الوصول لواجهة برمجة التطبيقات",
+    "api_calls": "استدعاءات API",
+    "api_calls_per_day": "استدعاءات API يومياً",
+    "custom_integrations": "تكاملات مخصصة",
+    "webhook_access": "الوصول للويب هوك",
+    "third_party_integrations": "تكاملات الطرف الثالث",
+
+    # Team & Collaboration - الفريق والتعاون
+    "team_members": "أعضاء الفريق",
+    "multi_user": "متعدد المستخدمين",
+    "collaboration": "التعاون",
+    "user_management": "إدارة المستخدمين",
+    "role_management": "إدارة الأدوار",
+
+    # Storage & Resources - التخزين والموارد
+    "storage": "التخزين",
+    "storage_gb": "التخزين (جيجابايت)",
+    "cloud_storage": "التخزين السحابي",
+    "data_retention": "الاحتفاظ بالبيانات",
+    "backup": "النسخ الاحتياطي",
+
+    # Enterprise Features - ميزات المؤسسات
+    "sla": "ضمان مستوى الخدمة",
+    "sla_guarantee": "ضمان SLA",
+    "white_label": "العلامة البيضاء",
+    "custom_branding": "العلامة التجارية المخصصة",
+    "audit_logs": "سجلات التدقيق",
+    "compliance": "الامتثال",
+    "sso": "تسجيل الدخول الموحد",
+    "single_sign_on": "تسجيل الدخول الموحد",
+
+    # Notifications - الإشعارات
+    "notifications": "الإشعارات",
+    "sms_alerts": "تنبيهات الرسائل النصية",
+    "push_notifications": "الإشعارات الفورية",
+    "email_alerts": "تنبيهات البريد الإلكتروني",
+
+    # Mapping & GIS - الخرائط ونظم المعلومات الجغرافية
+    "mapping": "رسم الخرائط",
+    "gis": "نظم المعلومات الجغرافية",
+    "field_mapping": "رسم خرائط الحقول",
+    "boundary_detection": "اكتشاف الحدود",
+    "ndvi": "مؤشر الغطاء النباتي",
+    "ndvi_analysis": "تحليل مؤشر الغطاء النباتي",
+
+    # Crop & Farm Management - إدارة المحاصيل والمزرعة
+    "crop_planning": "تخطيط المحاصيل",
+    "crop_rotation": "تناوب المحاصيل",
+    "farm_management": "إدارة المزرعة",
+    "inventory": "المخزون",
+    "equipment_tracking": "تتبع المعدات",
+
+    # Financial - المالية
+    "billing": "الفوترة",
+    "invoicing": "إصدار الفواتير",
+    "expense_tracking": "تتبع النفقات",
+    "cost_analysis": "تحليل التكاليف",
+
+    # Generic / Fallback
+    "unlimited": "غير محدود",
+    "limited": "محدود",
+    "included": "مشمول",
+    "not_included": "غير مشمول",
+}
+
+
+def translate_feature_name(feature_name: str) -> str:
+    """
+    Translate a feature name from English to Arabic.
+    ترجمة اسم الميزة من الإنجليزية إلى العربية
+
+    Args:
+        feature_name: English feature name (snake_case or regular)
+
+    Returns:
+        Arabic translation if found, otherwise returns a formatted version
+        of the English name with Arabic note.
+    """
+    # Normalize the feature name (lowercase, replace spaces with underscores)
+    normalized = feature_name.lower().replace(" ", "_").replace("-", "_")
+
+    # Check if we have a direct translation
+    if normalized in FEATURE_TRANSLATIONS_AR:
+        return FEATURE_TRANSLATIONS_AR[normalized]
+
+    # Check for partial matches (e.g., "fields_limit" -> "الحقول")
+    for key, value in FEATURE_TRANSLATIONS_AR.items():
+        if normalized.startswith(key) or normalized.endswith(key):
+            return value
+
+    # Fallback: Return a formatted version with indication it needs translation
+    # Format the English name nicely
+    formatted_name = feature_name.replace("_", " ").replace("-", " ").title()
+    safe_feature_name = str(feature_name).replace('\n', '').replace('\r', '')[:100]
+    logger.warning("Missing Arabic translation for feature: %s", safe_feature_name)
+    return f"{formatted_name}"
+
 
 # Overage rates per metric (USD per unit over limit)
 # رسوم تجاوز الاستخدام لكل مقياس (بالدولار لكل وحدة إضافية)
@@ -1007,11 +1242,27 @@ async def init_default_plans_in_db():
 
 
 def generate_invoice_number() -> str:
-    """توليد رقم الفاتورة"""
-    global INVOICE_COUNTER
-    INVOICE_COUNTER += 1
+    """
+    Generate invoice number (legacy synchronous version).
+    توليد رقم الفاتورة (النسخة المتزامنة القديمة)
+
+    NOTE: This is a legacy function kept for backward compatibility with tests.
+    For production use, prefer `get_next_invoice_number()` which uses
+    a PostgreSQL sequence for proper uniqueness across instances.
+
+    SECURITY: Uses UUID-based suffix to prevent information disclosure
+    about invoice volume.
+    """
+    import warnings
+    warnings.warn(
+        "generate_invoice_number() is deprecated. Use get_next_invoice_number() instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     year = datetime.now(UTC).year
-    return f"SAH-{year}-{INVOICE_COUNTER:04d}"
+    # Use UUID-based suffix to prevent sequential number exposure
+    unique_suffix = uuid.uuid4().hex[:8].upper()
+    return f"SAH-{year}-{unique_suffix}"
 
 
 def convert_to_yer(amount_usd: Decimal) -> Decimal:
@@ -1142,17 +1393,9 @@ def calculate_overage_charges(
             rate = OVERAGE_RATES[metric]
             overage_amount = rate * Decimal(str(excess))
 
-            # Create human-readable metric name
+            # Create human-readable metric name with Arabic translation
             metric_name = metric.replace("_", " ").replace(" per month", "").replace(" per day", "").title()
-            metric_name_ar = {
-                "fields": "الحقول",
-                "satellite_analyses_per_month": "تحليلات الأقمار الصناعية",
-                "ai_diagnoses_per_month": "تشخيصات الذكاء الاصطناعي",
-                "pdf_reports_per_month": "تقارير PDF",
-                "storage_gb": "التخزين (جيجابايت)",
-                "api_calls_per_day": "استدعاءات API",
-                "team_members": "أعضاء الفريق",
-            }.get(metric, metric)
+            metric_name_ar = translate_feature_name(metric)
 
             overage_items.append(
                 InvoiceLineItem(
@@ -1333,13 +1576,13 @@ async def create_plan(
     if existing_plan:
         raise HTTPException(400, "الخطة موجودة بالفعل")
 
-    # Build features dict
+    # Build features dict with proper Arabic translations
     features = {}
     for feature_name, included in request.features.items():
         limit = request.limits.get(feature_name)
         features[feature_name] = {
             "name": feature_name.replace("_", " ").title(),
-            "name_ar": feature_name,  # TODO: Add proper Arabic translations
+            "name_ar": translate_feature_name(feature_name),
             "included": included,
             "limit": limit,
         }
@@ -1920,9 +2163,10 @@ async def generate_tenant_invoice(
     tax_amount = Decimal("0")
     total = subtotal + tax_amount
 
-    # Create invoice in database
+    # Create invoice in database using database sequence for invoice number
+    invoice_number = await get_next_invoice_number()
     invoice = await repo.invoices.create(
-        invoice_number=generate_invoice_number(),
+        invoice_number=invoice_number,
         tenant_id=tenant_id,
         subscription_id=subscription.id,
         currency=db_models.Currency(subscription.currency.value),

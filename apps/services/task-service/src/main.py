@@ -73,6 +73,33 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+def _sanitize_for_log(value: str | None, max_length: int = 100) -> str:
+    """
+    Sanitize user input for safe logging to prevent log injection attacks.
+    تعقيم المدخلات لمنع هجمات حقن السجلات
+
+    This function removes newlines, carriage returns, and other control
+    characters that could be used for log injection attacks.
+
+    Args:
+        value: The input value to sanitize
+        max_length: Maximum length of the output string
+
+    Returns:
+        A sanitized string safe for logging
+    """
+    if value is None:
+        return "<none>"
+    # Convert to string and remove control characters
+    sanitized = str(value)
+    # Remove newlines, carriage returns, tabs, and other control chars
+    for char in ['\n', '\r', '\t', '\x00', '\x0b', '\x0c']:
+        sanitized = sanitized.replace(char, '')
+    # Truncate to max length
+    return sanitized[:max_length] if len(sanitized) > max_length else sanitized
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Configuration
 # ═══════════════════════════════════════════════════════════════════════════
@@ -81,6 +108,9 @@ SERVICE_NAME = "sahool-task-service"
 SERVICE_PORT = int(os.getenv("PORT", "8103"))
 ASTRONOMICAL_SERVICE_URL = os.getenv(
     "ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111"
+)
+FIELD_SERVICE_URL = os.getenv(
+    "FIELD_SERVICE_URL", "http://field-service:8115"
 )
 
 app = FastAPI(
@@ -755,6 +785,76 @@ async def send_task_notification(
     except Exception as e:
         logger.error(f"Error sending task notification: {e}", exc_info=True)
         return False
+
+
+async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
+    """
+    Fetch field manager/owner from field service
+    جلب مدير/مالك الحقل من خدمة الحقول
+
+    Args:
+        field_id: Field ID to look up
+        tenant_id: Tenant ID for authentication
+
+    Returns:
+        str | None: User ID of the field manager, or None if not found
+    """
+    import re
+
+    # Validate and sanitize field_id to prevent SSRF
+    if not field_id or not re.match(r'^[a-zA-Z0-9_-]+$', field_id):
+        logger.warning("Invalid field_id format detected")
+        return None
+
+    # Create validated copy for URL (SSRF prevention)
+    validated_field_id = field_id[:100]
+    # Create sanitized version for logging (log injection prevention)
+    log_field_id = _sanitize_for_log(field_id)
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"{FIELD_SERVICE_URL}/fields/{validated_field_id}",
+                headers={
+                    "X-Tenant-Id": tenant_id,
+                    "Content-Type": "application/json",
+                },
+            )
+
+            if response.status_code == 200:
+                field_data = response.json()
+                # The field service returns user_id as the field owner/manager
+                manager_id = field_data.get("user_id")
+                if manager_id:
+                    log_manager_id = _sanitize_for_log(manager_id)
+                    logger.info(
+                        "Fetched field manager for field %s: %s", log_field_id, log_manager_id
+                    )
+                    return manager_id
+                else:
+                    logger.warning(
+                        "Field %s has no user_id/manager assigned", log_field_id
+                    )
+                    return None
+            elif response.status_code == 404:
+                logger.warning("Field %s not found in field service", log_field_id)
+                return None
+            else:
+                logger.error(
+                    "Field service returned status %d for field %s",
+                    response.status_code, log_field_id
+                )
+                return None
+
+    except httpx.TimeoutException:
+        logger.error("Timeout fetching field manager for field %s", log_field_id)
+        return None
+    except httpx.RequestError as e:
+        logger.error("Error connecting to field service: %s", type(e).__name__)
+        return None
+    except Exception as e:
+        logger.error("Unexpected error fetching field manager", exc_info=True)
+        return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1540,10 +1640,17 @@ async def create_task_from_ndvi_alert(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            # For now, use a placeholder
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned task to {assigned_to}")
+            # Fetch field manager from field service
+            safe_field_id = str(data.field_id).replace('\n', '').replace('\r', '')[:100]
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info("Auto-assigned NDVI task to field manager: %s", assigned_to)
+            else:
+                logger.warning(
+                    "Could not fetch field manager for field %s, task will be created without assignment",
+                    safe_field_id
+                )
 
         # Build metadata
         metadata = {
@@ -1615,7 +1722,9 @@ async def get_task_suggestions_for_field(
     - Suggests preventive and corrective actions
     - Returns prioritized list with confidence scores
     """
-    logger.info(f"Generating task suggestions for field: {field_id}")
+    # Sanitize field_id for logging to prevent log injection
+    safe_field_id = str(field_id).replace('\n', '').replace('\r', '')[:100]
+    logger.info("Generating task suggestions for field: %s", safe_field_id)
 
     try:
         # Import NDVI client for field health analysis
@@ -1629,8 +1738,8 @@ async def get_task_suggestions_for_field(
         health_data = await ndvi_client.get_field_health(field_id)
 
         logger.info(
-            f"Field {field_id} health: score={health_data.health_score}, "
-            f"status={health_data.health_status.value}"
+            "Field %s health: score=%s, status=%s",
+            safe_field_id, health_data.health_score, health_data.health_status.value
         )
 
         # Generate task suggestions based on actual field health data
@@ -1681,7 +1790,7 @@ async def get_task_suggestions_for_field(
                 )
             )
 
-        logger.info(f"Generated {len(suggestions)} task suggestions for field {field_id}")
+        logger.info("Generated %d task suggestions for field %s", len(suggestions), safe_field_id)
 
         return {
             "field_id": field_id,
@@ -1697,9 +1806,9 @@ async def get_task_suggestions_for_field(
         }
 
     except Exception as e:
-        logger.error(f"Error generating task suggestions: {e}", exc_info=True)
+        logger.error("Error generating task suggestions", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Failed to generate task suggestions: {str(e)}"
+            status_code=500, detail="Failed to generate task suggestions"
         )
 
 
@@ -1764,9 +1873,17 @@ async def auto_create_tasks(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned tasks to {assigned_to}")
+            # Fetch field manager from field service
+            safe_field_id = str(data.field_id).replace('\n', '').replace('\r', '')[:100]
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info("Auto-assigned batch tasks to field manager: %s", assigned_to)
+            else:
+                logger.warning(
+                    "Could not fetch field manager for field %s, tasks will be created without assignment",
+                    safe_field_id
+                )
 
         # Create tasks from suggestions
         for idx, suggestion in enumerate(data.suggestions):

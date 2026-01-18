@@ -135,6 +135,16 @@ class CropRotationPlanner:
     مخطط تدوير المحاصيل لصحة التربة ومنع الأمراض
     """
 
+    def __init__(self, db_pool=None):
+        """
+        Initialize the crop rotation planner.
+        تهيئة مخطط تدوير المحاصيل.
+
+        Args:
+            db_pool: asyncpg connection pool for database queries
+        """
+        self.db_pool = db_pool
+
     # Crop family mapping - maps crop codes to families
     CROP_FAMILY_MAP: dict[str, CropFamily] = {
         # Cereals - الحبوب
@@ -925,12 +935,100 @@ class CropRotationPlanner:
         Get crop history for a field.
         الحصول على سجل المحاصيل للحقل.
 
-        This would typically query a database.
-        In this implementation, it returns an empty list.
+        Queries the crop_seasons table for historical crop data.
+
+        Args:
+            field_id: The field identifier (UUID as string)
+            years: Number of years of history to retrieve (default: 5)
+
+        Returns:
+            List of SeasonPlan objects ordered by planting date (oldest first)
         """
-        # TODO: Implement database query
-        # This is a placeholder that would connect to field-core database
-        return []
+        if not self.db_pool:
+            # Return empty list if no database connection available
+            return []
+
+        try:
+            # Query crop_seasons table for the specified field and time range
+            # Uses parameterized query to prevent SQL injection
+            query = """
+                SELECT
+                    id::text as season_id,
+                    EXTRACT(YEAR FROM planting_date)::int as year,
+                    EXTRACT(MONTH FROM planting_date)::int as planting_month,
+                    crop_type,
+                    variety,
+                    planting_date,
+                    harvest_date,
+                    expected_yield_kg,
+                    actual_yield_kg,
+                    notes
+                FROM crop_seasons
+                WHERE field_id = $1::uuid
+                  AND planting_date >= (CURRENT_DATE - INTERVAL '1 year' * $2)
+                ORDER BY planting_date ASC
+            """
+
+            rows = await self.db_pool.fetch(query, field_id, years)
+
+            season_plans = []
+            for row in rows:
+                # Determine season based on planting month
+                season = self._determine_season_from_month(row["planting_month"])
+
+                # Get crop code from crop_type (normalize to uppercase)
+                crop_code = row["crop_type"].upper().replace(" ", "_")
+
+                # Get crop family
+                crop_family = self.get_crop_family(crop_code)
+
+                # Create SeasonPlan object
+                season_plan = SeasonPlan(
+                    season_id=row["season_id"],
+                    year=row["year"],
+                    season=season,
+                    crop_code=crop_code,
+                    crop_name_ar=self._get_crop_name_ar(crop_family),
+                    crop_name_en=self._get_crop_name_en(crop_family),
+                    crop_family=crop_family,
+                    planting_date=row["planting_date"],
+                    harvest_date=row["harvest_date"],
+                    expected_yield=row["actual_yield_kg"] or row["expected_yield_kg"],
+                    notes=row["notes"],
+                )
+                season_plans.append(season_plan)
+
+            return season_plans
+
+        except Exception as e:
+            # Log the error but don't crash - return empty list
+            # This allows the rotation planner to work with default recommendations
+            import logging
+
+            logger = logging.getLogger(__name__)
+            safe_field_id = str(field_id).replace('\n', '').replace('\r', '')[:100]
+            logger.warning("Failed to fetch field history for %s", safe_field_id)
+            return []
+
+    def _determine_season_from_month(self, month: int) -> str:
+        """
+        Determine the growing season based on planting month.
+        تحديد موسم الزراعة بناءً على شهر الزراعة.
+
+        Args:
+            month: Month number (1-12)
+
+        Returns:
+            Season name: "winter", "spring", "summer", or "autumn"
+        """
+        if month in (10, 11, 12, 1, 2):
+            return "winter"
+        elif month in (3, 4, 5):
+            return "spring"
+        elif month in (6, 7, 8):
+            return "summer"
+        else:  # month == 9
+            return "autumn"
 
 
 # Helper function to serialize dataclasses to dict

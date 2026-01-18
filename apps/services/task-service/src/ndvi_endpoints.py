@@ -73,10 +73,16 @@ async def create_task_from_ndvi_alert(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            # For now, use a placeholder
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned task to {assigned_to}")
+            # Fetch field manager from field service
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info(f"Auto-assigned NDVI task to field manager: {assigned_to}")
+            else:
+                logger.warning(
+                    f"Could not fetch field manager for field {data.field_id}, "
+                    f"task will be created without assignment"
+                )
 
         # Build metadata
         metadata = {
@@ -148,7 +154,9 @@ async def get_task_suggestions_for_field(
     - Suggests preventive and corrective actions
     - Returns prioritized list with confidence scores
     """
-    logger.info(f"Generating task suggestions for field: {field_id}")
+    # Sanitize field_id for logging to prevent log injection
+    safe_field_id = str(field_id).replace('\n', '').replace('\r', '')[:100]
+    logger.info("Generating task suggestions for field: %s", safe_field_id)
 
     try:
         # Call NDVI service to get field health data
@@ -158,8 +166,8 @@ async def get_task_suggestions_for_field(
         health_data = await ndvi_client.get_field_health(field_id=field_id)
 
         logger.info(
-            f"Retrieved health data for field {field_id}: "
-            f"score={health_data.health_score}, status={health_data.health_status.value}"
+            "Retrieved health data for field %s: score=%s, status=%s",
+            safe_field_id, health_data.health_score, health_data.health_status.value
         )
 
         # Generate task suggestions based on health data
@@ -209,7 +217,7 @@ async def get_task_suggestions_for_field(
                 )
             )
 
-        logger.info(f"Generated {len(suggestions)} task suggestions for field {field_id}")
+        logger.info("Generated %d task suggestions for field %s", len(suggestions), safe_field_id)
 
         return {
             "field_id": field_id,
@@ -219,9 +227,9 @@ async def get_task_suggestions_for_field(
         }
 
     except Exception as e:
-        logger.error(f"Error generating task suggestions: {e}", exc_info=True)
+        logger.error("Error generating task suggestions", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Failed to generate task suggestions: {str(e)}"
+            status_code=500, detail="Failed to generate task suggestions"
         )
 
 
@@ -253,9 +261,16 @@ async def auto_create_tasks(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned tasks to {assigned_to}")
+            # Fetch field manager from field service
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info(f"Auto-assigned batch tasks to field manager: {assigned_to}")
+            else:
+                logger.warning(
+                    f"Could not fetch field manager for field {data.field_id}, "
+                    f"tasks will be created without assignment"
+                )
 
         # Create tasks from suggestions
         for idx, suggestion in enumerate(data.suggestions):

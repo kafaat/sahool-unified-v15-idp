@@ -90,9 +90,15 @@ ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
 GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO pgbouncer;
 
 -- Grant execute permission to sahool user (used as auth_user in PgBouncer config)
+-- Also grant USAGE on schema so sahool can access the function
 DO $$
 BEGIN
     IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'sahool') THEN
+        -- CRITICAL: Grant USAGE on schema first - required to call functions in the schema
+        GRANT USAGE ON SCHEMA pgbouncer TO sahool;
+        RAISE NOTICE 'Granted USAGE on pgbouncer schema to sahool user';
+
+        -- Grant execute permission on the auth function
         GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO sahool;
         RAISE NOTICE 'Granted EXECUTE on pgbouncer.get_auth() to sahool user';
     END IF;

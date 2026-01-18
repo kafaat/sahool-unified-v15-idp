@@ -26,7 +26,7 @@ COPY apps/services/iot-service ./iot-service/
 
 # Build shared-events package first
 WORKDIR /workspace/packages/shared-events
-RUN npm install --legacy-peer-deps && npm run build || true
+RUN npm install --legacy-peer-deps && { npm run build || true; }
 
 WORKDIR /workspace/iot-service
 

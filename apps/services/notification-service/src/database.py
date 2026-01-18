@@ -216,7 +216,7 @@ async def run_migrations() -> None:
 _db_initialized = False
 
 
-async def ensure_db_initialized(create_db: bool = False) -> None:
+async def ensure_db_initialized(create_schema: bool = False) -> None:
     """
     التأكد من تهيئة قاعدة البيانات
     Ensure database is initialized (idempotent)
@@ -224,7 +224,7 @@ async def ensure_db_initialized(create_db: bool = False) -> None:
     global _db_initialized
 
     if not _db_initialized:
-        await init_db(create_db=create_db)
+        await init_db(create_schema=create_schema)
         _db_initialized = True
     else:
         logger.debug("Database already initialized")
@@ -237,11 +237,11 @@ class DatabaseSession:
     Context manager for database session
     """
 
-    def __init__(self, create_db: bool = False):
-        self.create_db = create_db
+    def __init__(self, create_schema: bool = False):
+        self.create_schema = create_schema
 
     async def __aenter__(self):
-        await ensure_db_initialized(create_db=self.create_db)
+        await ensure_db_initialized(create_schema=self.create_schema)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -302,7 +302,7 @@ if __name__ == "__main__":
         print(f"Database URL: {DATABASE_URL}")
 
         try:
-            await init_db(create_db=False)
+            await init_db(create_schema=False)
 
             health = await check_db_health()
             print(f"Health check: {health}")

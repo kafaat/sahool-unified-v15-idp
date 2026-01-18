@@ -228,7 +228,7 @@ async def run_all_examples():
 
     # Initialize database
     print("\n📊 Initializing database...")
-    await init_db(create_db=False)  # Don't recreate schema
+    await init_db(create_schema=False)  # Don't recreate schema
     print("✅ Database initialized")
 
     try:

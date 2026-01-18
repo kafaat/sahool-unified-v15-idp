@@ -242,6 +242,44 @@ class ChatApi {
     }
   }
 
+  /// Mute a conversation
+  Future<void> muteConversation(String conversationId, {bool mute = true}) async {
+    try {
+      await _dio.put('/api/v1/conversations/$conversationId/mute', data: {
+        'muted': mute,
+      });
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Report a conversation/user
+  Future<void> reportConversation(
+    String conversationId, {
+    required String reason,
+    String? description,
+  }) async {
+    try {
+      await _dio.post('/api/v1/conversations/$conversationId/report', data: {
+        'reason': reason,
+        'description': description != null
+            ? InputSanitizer.sanitizeForStorage(description)
+            : null,
+      });
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Clear chat history for a conversation
+  Future<void> clearChatHistory(String conversationId) async {
+    try {
+      await _dio.delete('/api/v1/conversations/$conversationId/messages');
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // WebSocket Methods (Socket.IO)
   // ─────────────────────────────────────────────────────────────────────────────

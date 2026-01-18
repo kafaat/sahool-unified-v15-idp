@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/utils/input_validator.dart';
@@ -937,8 +938,23 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                 ),
               ),
               TextButton(
-                onPressed: () {
-                  // TODO: Navigate to support
+                onPressed: () async {
+                  // Open WhatsApp support with pre-filled message
+                  const supportPhone = '967777000000';
+                  const message = 'مرحباً، أحتاج مساعدة في استعادة كلمة المرور';
+                  final whatsappUrl = Uri.parse(
+                    'https://wa.me/$supportPhone?text=${Uri.encodeComponent(message)}',
+                  );
+
+                  if (await canLaunchUrl(whatsappUrl)) {
+                    await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+                  } else {
+                    // Fallback to email support
+                    final emailUrl = Uri.parse('mailto:support@sahool.app?subject=Password%20Recovery%20Help');
+                    if (await canLaunchUrl(emailUrl)) {
+                      await launchUrl(emailUrl);
+                    }
+                  }
                 },
                 child: Text(
                   'تواصل معنا',

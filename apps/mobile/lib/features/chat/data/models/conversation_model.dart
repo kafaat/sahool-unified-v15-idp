@@ -140,6 +140,9 @@ class Conversation {
   /// Is user typing (other participant)
   final bool isTyping;
 
+  /// Is conversation muted
+  final bool isMuted;
+
   /// Created at timestamp
   final DateTime createdAt;
 
@@ -157,6 +160,7 @@ class Conversation {
     this.orderId,
     this.metadata,
     this.isTyping = false,
+    this.isMuted = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -182,6 +186,7 @@ class Conversation {
       orderId: json['orderId'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
       isTyping: json['isTyping'] as bool? ?? false,
+      isMuted: json['isMuted'] as bool? ?? false,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
@@ -203,6 +208,7 @@ class Conversation {
         'orderId': orderId,
         'metadata': metadata,
         'isTyping': isTyping,
+        'isMuted': isMuted,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
       };
@@ -214,11 +220,13 @@ class Conversation {
     String? title,
     List<ConversationParticipant>? participants,
     Message? lastMessage,
+    bool clearLastMessage = false,
     int? unreadCount,
     String? productId,
     String? orderId,
     Map<String, dynamic>? metadata,
     bool? isTyping,
+    bool? isMuted,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -227,12 +235,13 @@ class Conversation {
       type: type ?? this.type,
       title: title ?? this.title,
       participants: participants ?? this.participants,
-      lastMessage: lastMessage ?? this.lastMessage,
+      lastMessage: clearLastMessage ? null : (lastMessage ?? this.lastMessage),
       unreadCount: unreadCount ?? this.unreadCount,
       productId: productId ?? this.productId,
       orderId: orderId ?? this.orderId,
       metadata: metadata ?? this.metadata,
       isTyping: isTyping ?? this.isTyping,
+      isMuted: isMuted ?? this.isMuted,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

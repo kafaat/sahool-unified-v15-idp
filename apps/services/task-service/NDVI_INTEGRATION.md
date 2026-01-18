@@ -439,13 +439,19 @@ INFO - Notification sent for task task_a1b2c3d4 to user field_manager
 
 ## TODO Items | المهام المستقبلية
 
-1. **Field Manager Lookup**: Integrate with field-service to fetch actual field managers instead of using placeholder
+1. **Field Manager Lookup**: ~~Integrate with field-service to fetch actual field managers instead of using placeholder~~ **DONE**
+
+   The `fetch_field_manager()` function in `main.py` now fetches the field manager from the field service:
 
    ```python
-   # TODO: Fetch field manager from field service
-   # For now, use a placeholder
-   assigned_to = "field_manager"
+   # Fetch field manager from field service
+   field_manager = await fetch_field_manager(data.field_id, tenant_id)
+   if field_manager:
+       assigned_to = field_manager
+       logger.info(f"Auto-assigned task to field manager: {assigned_to}")
    ```
+
+   Configuration: Set `FIELD_SERVICE_URL` environment variable (default: `http://field-service:8115`)
 
 2. **Real NDVI Service Integration**: Replace mock suggestions with actual NDVI service calls
 

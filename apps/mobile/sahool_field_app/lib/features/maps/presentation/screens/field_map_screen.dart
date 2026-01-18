@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
+
+import '../../../../core/di/providers.dart';
+import '../../../../core/geo/geojson.dart';
+import '../../../crop_health/presentation/screens/crop_health_dashboard.dart';
 
 /// شاشة خريطة الحقل مع طبقات NDVI
 /// Field Map Screen with NDVI Layers
@@ -30,6 +35,61 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   bool _isTracking = false;
   String? _selectedZoneId;
   double _currentZoom = 15.0;
+
+  /// Field boundary for map bounds calculation
+  List<LatLng>? _fieldBoundary;
+
+  /// Calculated field bounds
+  LatLngBounds? _fieldBounds;
+
+  /// Center point of the field
+  LatLng? _fieldCenter;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set initial zone selection from highlightZoneId parameter
+    if (widget.highlightZoneId != null) {
+      _selectedZoneId = widget.highlightZoneId;
+    }
+    // Load field data to get bounds
+    _loadFieldData();
+  }
+
+  /// Load field data to calculate bounds for map centering
+  Future<void> _loadFieldData() async {
+    try {
+      // Try to get field data from initial center if provided
+      if (widget.initialCenter != null) {
+        final lat = widget.initialCenter!['latitude'] as double?;
+        final lng = widget.initialCenter!['longitude'] as double?;
+        if (lat != null && lng != null) {
+          setState(() {
+            _fieldCenter = LatLng(lat, lng);
+          });
+          return;
+        }
+      }
+
+      // Load field from repository
+      final fieldsRepo = ref.read(fieldsRepoProvider);
+      final fields = await fieldsRepo.getAllFields('');
+
+      // Find the field matching our fieldId
+      final matchingField = fields.where((f) => f.id == widget.fieldId).firstOrNull;
+
+      if (matchingField != null && matchingField.boundary.isNotEmpty) {
+        setState(() {
+          _fieldBoundary = matchingField.boundary;
+          _fieldBounds = GeoJson.calculateBounds(matchingField.boundary);
+          _fieldCenter = matchingField.centroid ?? GeoJson.calculateCentroid(matchingField.boundary);
+        });
+      }
+    } catch (e) {
+      // Field data not available, use default behavior
+      debugPrint('Could not load field data: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -564,19 +624,110 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
+  /// Center the map camera on the field's geographic bounds
+  /// When actual MapLibre map is integrated, this will animate the camera
+  /// to fit the field bounds within the viewport with appropriate padding
   void _centerOnField() {
-    // TODO: Center map on field bounds
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('توسيط على الحقل')),
-    );
+    if (_fieldBounds != null) {
+      // When MapLibre is integrated, use:
+      // mapController.fitBounds(
+      //   _fieldBounds!,
+      //   options: FitBoundsOptions(
+      //     padding: EdgeInsets.all(50),
+      //     maxZoom: 18,
+      //   ),
+      // );
+
+      // Calculate optimal zoom level based on bounds span
+      final latSpan = _fieldBounds!.north - _fieldBounds!.south;
+      final lngSpan = _fieldBounds!.east - _fieldBounds!.west;
+      final maxSpan = latSpan > lngSpan ? latSpan : lngSpan;
+
+      // Approximate zoom level calculation
+      // Higher span = lower zoom, smaller span = higher zoom
+      double calculatedZoom = 15.0;
+      if (maxSpan > 0.01) {
+        calculatedZoom = 13.0;
+      } else if (maxSpan > 0.005) {
+        calculatedZoom = 14.0;
+      } else if (maxSpan > 0.001) {
+        calculatedZoom = 16.0;
+      } else {
+        calculatedZoom = 17.0;
+      }
+
+      setState(() {
+        _currentZoom = calculatedZoom;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.center_focus_strong, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                'تم توسيط الخريطة على ${widget.fieldName ?? "الحقل"} (تكبير: ${calculatedZoom.toStringAsFixed(1)}x)',
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF367C2B),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else if (_fieldCenter != null) {
+      // If we only have center point, use it
+      // When MapLibre is integrated, use:
+      // mapController.move(_fieldCenter!, _currentZoom);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.center_focus_strong, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                'تم توسيط الخريطة على ${widget.fieldName ?? "الحقل"}',
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF367C2B),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      // No field data available yet
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.white),
+              SizedBox(width: 8),
+              Text('جاري تحميل بيانات الحقل...'),
+            ],
+          ),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      // Retry loading field data
+      _loadFieldData();
+    }
   }
 
+  /// Navigate to the crop health diagnosis dashboard
+  /// This opens the NDVI-based crop health analysis screen
+  /// where farmers can view diagnosis results, zone health status,
+  /// and recommended actions for their field
   void _openDiagnosis() {
-    // TODO: Navigate to diagnosis screen
-    Navigator.pushNamed(
+    Navigator.push(
       context,
-      '/crop-health',
-      arguments: {'fieldId': widget.fieldId},
+      MaterialPageRoute(
+        builder: (context) => CropHealthDashboard(
+          fieldId: widget.fieldId,
+          fieldName: widget.fieldName,
+        ),
+      ),
     );
   }
 }

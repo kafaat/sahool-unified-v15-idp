@@ -386,7 +386,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
           TextButton(
             onPressed: () {
-              // TODO: Navigate to product/order
+              // Navigate to product or order details based on conversation context
+              if (conversation.productId != null) {
+                context.push('/product/${conversation.productId}');
+              } else if (conversation.orderId != null) {
+                context.push('/order/${conversation.orderId}');
+              }
             },
             child: const Text('عرض'),
           ),

@@ -82,6 +82,9 @@ SERVICE_PORT = int(os.getenv("PORT", "8103"))
 ASTRONOMICAL_SERVICE_URL = os.getenv(
     "ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111"
 )
+FIELD_SERVICE_URL = os.getenv(
+    "FIELD_SERVICE_URL", "http://field-service:8115"
+)
 
 app = FastAPI(
     title="SAHOOL Task Service",
@@ -755,6 +758,63 @@ async def send_task_notification(
     except Exception as e:
         logger.error(f"Error sending task notification: {e}", exc_info=True)
         return False
+
+
+async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
+    """
+    Fetch field manager/owner from field service
+    جلب مدير/مالك الحقل من خدمة الحقول
+
+    Args:
+        field_id: Field ID to look up
+        tenant_id: Tenant ID for authentication
+
+    Returns:
+        str | None: User ID of the field manager, or None if not found
+    """
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"{FIELD_SERVICE_URL}/fields/{field_id}",
+                headers={
+                    "X-Tenant-Id": tenant_id,
+                    "Content-Type": "application/json",
+                },
+            )
+
+            if response.status_code == 200:
+                field_data = response.json()
+                # The field service returns user_id as the field owner/manager
+                manager_id = field_data.get("user_id")
+                if manager_id:
+                    logger.info(
+                        f"Fetched field manager for field {field_id}: {manager_id}"
+                    )
+                    return manager_id
+                else:
+                    logger.warning(
+                        f"Field {field_id} has no user_id/manager assigned"
+                    )
+                    return None
+            elif response.status_code == 404:
+                logger.warning(f"Field {field_id} not found in field service")
+                return None
+            else:
+                logger.error(
+                    f"Field service returned {response.status_code} for field {field_id}: "
+                    f"{response.text}"
+                )
+                return None
+
+    except httpx.TimeoutException:
+        logger.error(f"Timeout fetching field manager for field {field_id}")
+        return None
+    except httpx.RequestError as e:
+        logger.error(f"Error connecting to field service for field {field_id}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error fetching field manager: {e}", exc_info=True)
+        return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1540,10 +1600,16 @@ async def create_task_from_ndvi_alert(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            # For now, use a placeholder
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned task to {assigned_to}")
+            # Fetch field manager from field service
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info(f"Auto-assigned NDVI task to field manager: {assigned_to}")
+            else:
+                logger.warning(
+                    f"Could not fetch field manager for field {data.field_id}, "
+                    f"task will be created without assignment"
+                )
 
         # Build metadata
         metadata = {
@@ -1764,9 +1830,16 @@ async def auto_create_tasks(
         # Determine assignee
         assigned_to = data.assigned_to
         if data.auto_assign and not assigned_to:
-            # TODO: Fetch field manager from field service
-            assigned_to = "field_manager"
-            logger.info(f"Auto-assigned tasks to {assigned_to}")
+            # Fetch field manager from field service
+            field_manager = await fetch_field_manager(data.field_id, tenant_id)
+            if field_manager:
+                assigned_to = field_manager
+                logger.info(f"Auto-assigned batch tasks to field manager: {assigned_to}")
+            else:
+                logger.warning(
+                    f"Could not fetch field manager for field {data.field_id}, "
+                    f"tasks will be created without assignment"
+                )
 
         # Create tasks from suggestions
         for idx, suggestion in enumerate(data.suggestions):

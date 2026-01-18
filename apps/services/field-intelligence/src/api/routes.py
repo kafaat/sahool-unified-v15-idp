@@ -161,15 +161,15 @@ async def create_event(
             # Fallback to in-memory
             _events_fallback[event_response.event_id] = event_response
 
-        logger.info(f"✓ تم إنشاء حدث {event_response.event_id} للحقل {event_data.field_id}")
+        logger.info("✓ تم إنشاء حدث %s للحقل %s", event_response.event_id, event_data.field_id)
 
         return event_response
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"خطأ في إنشاء الحدث: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to create event: {str(e)}")
+        logger.error("خطأ في إنشاء الحدث", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to create event")
 
 
 @router.get("/events/{event_id}", response_model=EventResponse, tags=["Events"])
@@ -345,7 +345,7 @@ async def update_event_status(
         if not event_data:
             raise HTTPException(status_code=404, detail="Event not found")
 
-        logger.info(f"✓ تم تحديث حالة الحدث {event_id} إلى {new_status.value}")
+        logger.info("✓ تم تحديث حالة الحدث %s إلى %s", event_id, new_status.value)
 
         return EventResponse(
             event_id=event_data["event_id"],
@@ -390,7 +390,7 @@ async def update_event_status(
 
         _events_fallback[event_id] = event
 
-        logger.info(f"✓ تم تحديث حالة الحدث {event_id} إلى {new_status.value}")
+        logger.info("✓ تم تحديث حالة الحدث %s إلى %s", event_id, new_status.value)
 
         return event
 
@@ -504,7 +504,7 @@ async def create_rule(
             if not rule_row:
                 raise HTTPException(status_code=500, detail="Failed to create rule in database")
 
-            logger.info(f"✓ تم إنشاء قاعدة {rule_id}: {rule_data.name}")
+            logger.info("✓ تم إنشاء قاعدة %s: %s", rule_id, rule_data.name)
 
             return RuleResponse(
                 rule_id=rule_row["rule_id"],
@@ -549,14 +549,14 @@ async def create_rule(
 
             _rules_fallback[rule_id] = rule
 
-            logger.info(f"✓ تم إنشاء قاعدة {rule_id}: {rule.name}")
+            logger.info("✓ تم إنشاء قاعدة %s: %s", rule_id, rule.name)
 
             return RuleResponse(**rule.model_dump())
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"خطأ في إنشاء القاعدة: {str(e)}", exc_info=True)
+        logger.error("خطأ في إنشاء القاعدة", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to create rule: {str(e)}")
 
 
@@ -721,7 +721,7 @@ async def update_rule(
         if not rule_data:
             raise HTTPException(status_code=404, detail="Rule not found")
 
-        logger.info(f"✓ تم تحديث القاعدة {rule_id}")
+        logger.info("✓ تم تحديث القاعدة %s", rule_id)
 
         return RuleResponse(
             rule_id=rule_data["rule_id"],
@@ -763,7 +763,7 @@ async def update_rule(
         rule.updated_at = datetime.utcnow()
         _rules_fallback[rule_id] = rule
 
-        logger.info(f"✓ تم تحديث القاعدة {rule_id}")
+        logger.info("✓ تم تحديث القاعدة %s", rule_id)
 
         return RuleResponse(**rule.model_dump())
 
@@ -786,7 +786,7 @@ async def delete_rule(
         if not deleted:
             raise HTTPException(status_code=404, detail="Rule not found")
 
-        logger.info(f"✓ تم حذف القاعدة {rule_id}")
+        logger.info("✓ تم حذف القاعدة %s", rule_id)
 
         return {"status": "deleted", "rule_id": rule_id}
     else:
@@ -802,7 +802,7 @@ async def delete_rule(
 
         del _rules_fallback[rule_id]
 
-        logger.info(f"✓ تم حذف القاعدة {rule_id}")
+        logger.info("✓ تم حذف القاعدة %s", rule_id)
 
         return {"status": "deleted", "rule_id": rule_id}
 
@@ -835,7 +835,7 @@ async def toggle_rule_status(
         if not updated_rule:
             raise HTTPException(status_code=500, detail="Failed to update rule")
 
-        logger.info(f"✓ تم تبديل حالة القاعدة {rule_id} إلى {new_status.value}")
+        logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", rule_id, new_status.value)
 
         return RuleResponse(
             rule_id=updated_rule["rule_id"],
@@ -877,7 +877,7 @@ async def toggle_rule_status(
         rule.updated_at = datetime.utcnow()
         _rules_fallback[rule_id] = rule
 
-        logger.info(f"✓ تم تبديل حالة القاعدة {rule_id} إلى {rule.status.value}")
+        logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", rule_id, rule.status.value)
 
         return RuleResponse(**rule.model_dump())
 

@@ -1006,7 +1006,8 @@ class CropRotationPlanner:
             import logging
 
             logger = logging.getLogger(__name__)
-            logger.warning(f"Failed to fetch field history for {field_id}: {e}")
+            safe_field_id = str(field_id).replace('\n', '').replace('\r', '')[:100]
+            logger.warning("Failed to fetch field history for %s", safe_field_id)
             return []
 
     def _determine_season_from_month(self, month: int) -> str:

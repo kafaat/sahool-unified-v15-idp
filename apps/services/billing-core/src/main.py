@@ -794,7 +794,8 @@ def translate_feature_name(feature_name: str) -> str:
     # Fallback: Return a formatted version with indication it needs translation
     # Format the English name nicely
     formatted_name = feature_name.replace("_", " ").replace("-", " ").title()
-    logger.warning(f"Missing Arabic translation for feature: {feature_name}")
+    safe_feature_name = str(feature_name).replace('\n', '').replace('\r', '')[:100]
+    logger.warning("Missing Arabic translation for feature: %s", safe_feature_name)
     return f"{formatted_name}"
 
 

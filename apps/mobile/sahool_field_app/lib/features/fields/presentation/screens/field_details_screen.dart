@@ -27,6 +27,8 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     areaHectares: 0,
     status: FieldStatus.active,
     healthScore: 0,
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
   );
 
   @override

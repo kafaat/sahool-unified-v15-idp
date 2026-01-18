@@ -73,6 +73,63 @@ def mock_openai_client():
 
 
 @pytest.fixture
+def mock_ollama_response():
+    """
+    Mock Ollama API response
+    محاكاة استجابة Ollama API
+    """
+    return {
+        "message": {"content": "This is a test response from Ollama."},
+        "done": True,
+        "done_reason": "stop",
+        "prompt_eval_count": 50,
+        "eval_count": 100,
+        "model": "llama3.2",
+    }
+
+
+@pytest.fixture
+def mock_ollama_embeddings_response():
+    """
+    Mock Ollama embeddings response
+    محاكاة استجابة تضمينات Ollama
+    """
+    return {
+        "embedding": [0.1, 0.2, 0.3, 0.4, 0.5] * 76 + [0.1, 0.2, 0.3, 0.4],  # 384-dim
+    }
+
+
+@pytest.fixture
+def mock_ollama_models_response():
+    """
+    Mock Ollama models list response
+    محاكاة قائمة نماذج Ollama
+    """
+    return {
+        "models": [
+            {
+                "name": "llama3.2",
+                "size": 4000000000,
+                "digest": "abc123",
+                "modified_at": "2024-01-15T10:30:00Z",
+            },
+            {
+                "name": "nomic-embed-text",
+                "size": 500000000,
+                "digest": "def456",
+                "modified_at": "2024-01-14T08:00:00Z",
+            },
+            {
+                "name": "qwen2.5:7b",
+                "size": 5000000000,
+                "digest": "ghi789",
+                "modified_at": "2024-01-13T12:00:00Z",
+            },
+        ]
+    }
+
+
+@pytest.fixture
 def mock_embeddings_manager():
     """
     Mock embeddings manager

@@ -60,7 +60,7 @@ except ImportError:
 # Database imports
 # Multi-channel support
 from .channels_controller import router as channels_router
-from .database import check_db_health, close_db, get_db_stats, init_db
+from .database import check_db_health, close_db, get_db_stats, init_notification_db
 from .email_client import get_email_client
 from .otp_controller import router as otp_router
 from .preferences_controller import router as preferences_router
@@ -911,7 +911,7 @@ async def lifespan(app: FastAPI):
     try:
         # In production, set CREATE_DB_SCHEMA=false and use migrations
         create_schema = os.getenv("CREATE_DB_SCHEMA", "false").lower() == "true"
-        await init_db(create_schema=create_schema)
+        await init_notification_db(create_schema=create_schema)
         logger.info("✅ Database initialized")
     except Exception as e:
         logger.warning("⚠️ Database initialization failed (service will continue): %s", e)

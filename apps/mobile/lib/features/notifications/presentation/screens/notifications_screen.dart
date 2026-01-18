@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/notification_entities.dart';
 import '../providers/notification_provider.dart';
 
@@ -18,6 +19,51 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     Future.microtask(() {
       ref.read(notificationsProvider.notifier).loadNotifications();
     });
+  }
+
+  /// Launch action URL in browser or app
+  /// فتح رابط الإجراء في المتصفح أو التطبيق
+  Future<void> _launchActionUrl(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('رابط غير صالح'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      // Check if URL can be launched
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('لا يمكن فتح هذا الرابط'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ في فتح الرابط: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -325,9 +371,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.pop(context);
-                      // TODO: Navigate to action URL
+                      await _launchActionUrl(notification.actionUrl!);
                     },
                     icon: const Icon(Icons.open_in_new),
                     label: const Text('فتح التفاصيل'),

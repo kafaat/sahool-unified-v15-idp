@@ -18,10 +18,20 @@ WORKDIR /workspace
 # Copy shared modules first (required for imports from ../../shared/)
 COPY apps/services/shared ./shared/
 
+# Copy shared-events package (workspace dependency)
+COPY packages/shared-events ./packages/shared-events/
+
 # Copy service to maintain relative path: ../../shared/ from iot-service/src/
 COPY apps/services/iot-service ./iot-service/
 
+# Build shared-events package first
+WORKDIR /workspace/packages/shared-events
+RUN npm install --legacy-peer-deps && { npm run build || true; }
+
 WORKDIR /workspace/iot-service
+
+# Update package.json to use local shared-events
+RUN sed -i 's|"@sahool/shared-events": "\*"|"@sahool/shared-events": "file:../packages/shared-events"|g' package.json
 
 # Install all dependencies with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
@@ -58,8 +68,13 @@ COPY --from=builder /workspace/iot-service/package.json ./
 COPY --from=builder /workspace/iot-service/package-lock.json ./
 
 # Install production dependencies with retry for network resilience
+# Note: npm ci may fail on file: dependencies, fallback to npm install
 RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force || \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
+
+# Copy built shared-events package to node_modules (required for runtime)
+# This must be done AFTER npm install to prevent being overwritten
+COPY --from=builder /workspace/packages/shared-events /app/node_modules/@sahool/shared-events
 
 # Copy Prisma schema and regenerate client for production
 COPY --from=builder /workspace/iot-service/prisma ./prisma

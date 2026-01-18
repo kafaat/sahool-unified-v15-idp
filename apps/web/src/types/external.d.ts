@@ -2,118 +2,103 @@
  * Type declarations for external modules
  */
 
-// maplibre-gl types
-declare module "maplibre-gl" {
-  export interface MapOptions {
-    container: string | HTMLElement;
-    style: string | object;
-    center?: [number, number];
+// ═══════════════════════════════════════════════════════════════════════════
+// react-leaflet types fix for React 19 compatibility
+// إصلاح أنواع react-leaflet للتوافق مع React 19
+// ═══════════════════════════════════════════════════════════════════════════
+import type { ReactNode } from "react";
+
+declare module "react-leaflet" {
+  import type {
+    LatLngExpression,
+    MapOptions as LeafletMapOptions,
+  } from "leaflet";
+
+  // Extend MapContainer props for React 19
+  interface MapContainerProps extends Partial<LeafletMapOptions> {
+    children?: ReactNode;
+    center?: LatLngExpression;
     zoom?: number;
-    minZoom?: number;
-    maxZoom?: number;
-    bearing?: number;
-    pitch?: number;
-    attributionControl?: boolean;
-    [key: string]: any;
+    zoomControl?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+    whenReady?: () => void;
+    whenCreated?: (map: L.Map) => void;
   }
 
-  export interface MapMouseEvent {
-    lngLat: LngLat;
-    point: { x: number; y: number };
-    features?: any[];
-    target: Map;
-    originalEvent: MouseEvent;
+  // Extend TileLayer props
+  interface TileLayerProps {
+    url: string;
+    attribution?: string;
+    children?: ReactNode;
   }
 
-  export interface LngLat {
-    lng: number;
-    lat: number;
-    wrap(): LngLat;
-    toArray(): [number, number];
+  // Extend LayersControl props
+  interface LayersControlProps {
+    position?: "topleft" | "topright" | "bottomleft" | "bottomright";
+    children?: ReactNode;
   }
 
-  export class LngLatBounds {
-    constructor(sw?: [number, number] | LngLat, ne?: [number, number] | LngLat);
-    extend(point: [number, number] | LngLat): this;
-    getCenter(): LngLat;
-    getSouthWest(): LngLat;
-    getNorthEast(): LngLat;
-    toArray(): [[number, number], [number, number]];
+  // Extend BaseLayer props
+  namespace LayersControl {
+    interface BaseLayerProps {
+      checked?: boolean;
+      name: string;
+      children?: ReactNode;
+    }
+
+    interface OverlayProps {
+      checked?: boolean;
+      name: string;
+      children?: ReactNode;
+    }
   }
 
-  export class Map {
-    constructor(options: MapOptions);
-    on(event: string, callback: (e: MapMouseEvent) => void): this;
-    on(
-      event: string,
-      layer: string,
-      callback: (e: MapMouseEvent) => void,
-    ): this;
-    off(event: string, callback?: (e: MapMouseEvent) => void): this;
-    remove(): void;
-    addControl(
-      control: NavigationControl | GeolocateControl,
-      position?: string,
-    ): this;
-    addSource(id: string, source: any): this;
-    addLayer(layer: any): this;
-    getSource(id: string): any;
-    removeSource(id: string): this;
-    getLayer(id: string): any;
-    removeLayer(id: string): this;
-    setStyle(style: string | object): this;
-    flyTo(options: any): this;
-    fitBounds(
-      bounds: LngLatBounds | [[number, number], [number, number]],
-      options?: any,
-    ): this;
-    getCanvas(): HTMLCanvasElement;
-    getBounds(): LngLatBounds;
-    project(lngLat: any): { x: number; y: number };
-    unproject(point: any): LngLat;
+  // Extend Marker props
+  interface MarkerProps {
+    position: LatLngExpression;
+    icon?: L.Icon;
+    children?: ReactNode;
+    eventHandlers?: Record<string, (e: L.LeafletEvent) => void>;
   }
 
-  export class NavigationControl {
-    constructor(options?: {
-      showCompass?: boolean;
-      showZoom?: boolean;
-      visualizePitch?: boolean;
-    });
+  // Extend Popup props
+  interface PopupProps {
+    children?: ReactNode;
   }
 
-  export class GeolocateControl {
-    constructor(options?: any);
+  // Extend Polygon props
+  interface PolygonProps {
+    positions: LatLngExpression[] | LatLngExpression[][];
+    pathOptions?: L.PathOptions;
+    children?: ReactNode;
+    eventHandlers?: Record<string, (e: L.LeafletEvent) => void>;
   }
 
-  export class Marker {
-    constructor(options?: { color?: string; element?: HTMLElement });
-    setLngLat(lngLat: [number, number] | LngLat): this;
-    addTo(map: Map): this;
-    remove(): this;
-    setPopup(popup: Popup): this;
-    getElement(): HTMLElement;
+  // Extend Circle props
+  interface CircleProps {
+    center: LatLngExpression;
+    radius: number;
+    pathOptions?: L.PathOptions;
+    children?: ReactNode;
   }
 
-  export class Popup {
-    constructor(options?: {
-      closeButton?: boolean;
-      closeOnClick?: boolean;
-      offset?: number | [number, number];
-    });
-    setLngLat(lngLat: [number, number] | LngLat): this;
-    setHTML(html: string): this;
-    addTo(map: Map): this;
-    remove(): this;
+  // Extend GeoJSON props
+  interface GeoJSONProps {
+    data: GeoJSON.GeoJsonObject;
+    style?: L.StyleFunction | L.PathOptions;
+    onEachFeature?: (feature: GeoJSON.Feature, layer: L.Layer) => void;
+    children?: ReactNode;
   }
 
-  const maplibregl: {
-    Map: typeof Map;
-    Marker: typeof Marker;
-    Popup: typeof Popup;
-    NavigationControl: typeof NavigationControl;
-    GeolocateControl: typeof GeolocateControl;
-    LngLatBounds: typeof LngLatBounds;
-  };
-
-  export default maplibregl;
+  // Extend ZoomControl props
+  interface ZoomControlProps {
+    position?: "topleft" | "topright" | "bottomleft" | "bottomright";
+  }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// maplibre-gl types - using library's own types
+// Note: maplibre-gl has its own TypeScript definitions (@types/maplibre-gl)
+// We only add minimal augmentations if needed, not full replacements
+// ═══════════════════════════════════════════════════════════════════════════

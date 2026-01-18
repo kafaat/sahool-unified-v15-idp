@@ -32,7 +32,7 @@ sahool-unified-v15-idp/
 │   │   ├── sahool_field_app/   # Main field app
 │   │   ├── lib/                # Core Flutter code
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 53 microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 57+ microservices (Python FastAPI & Node.js NestJS)
 │   └── web/                    # Web dashboard (Next.js/React)
 ├── packages/                   # Shared packages (npm workspaces)
 │   ├── shared-utils/           # Common utilities
@@ -50,7 +50,14 @@ sahool-unified-v15-idp/
 │   ├── mock-data/              # Test mock data
 │   ├── i18n/                   # Internationalization
 │   ├── tailwind-config/        # Tailwind configuration
-│   └── typescript-config/      # TypeScript configuration
+│   ├── typescript-config/      # TypeScript configuration
+│   ├── advisor/                # Advisory package
+│   ├── field_suite/            # Field suite components
+│   ├── kernel_domain/          # Kernel domain logic
+│   ├── sahool-eo/              # Earth Observation (eo-learn integration)
+│   ├── starter/                # Starter package config
+│   ├── professional/           # Professional package config
+│   └── enterprise/             # Enterprise package config
 ├── shared/                     # Python shared modules
 │   ├── auth/                   # Authentication (JWT, 2FA, token revocation)
 │   ├── cache/                  # Caching layer
@@ -66,12 +73,17 @@ sahool-unified-v15-idp/
 │   ├── observability/          # Logging, tracing
 │   ├── security/               # Security utilities
 │   ├── secrets/                # Secrets management
-│   └── telemetry/              # OpenTelemetry
+│   ├── telemetry/              # OpenTelemetry
+│   ├── a2a/                    # Agent-to-Agent communication
+│   ├── ai/                     # AI utilities
+│   ├── globalgap/              # GlobalGAP compliance
+│   ├── versioning/             # API versioning utilities
+│   └── python-lib/             # Python library utilities
 ├── config/                     # Configuration files
 │   ├── certs/                  # TLS certificates
 │   └── nats/                   # NATS configuration
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (80+ docs)
+├── docs/                       # Technical documentation (109+ docs)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
 ├── helm/                       # Kubernetes Helm charts
@@ -84,7 +96,14 @@ sahool-unified-v15-idp/
 │   ├── e2e/                    # End-to-end tests
 │   ├── load/                   # Load tests (Locust)
 │   ├── evaluation/             # AI agent evaluation
-│   └── guardrails/             # Input validation tests
+│   ├── guardrails/             # Input validation tests
+│   ├── a2a/                    # Agent-to-Agent tests
+│   ├── container/              # Container tests
+│   ├── database/               # Database tests
+│   ├── frontend/               # Frontend tests
+│   ├── middleware/             # Middleware tests
+│   ├── simulation/             # Simulation tests
+│   └── golden-datasets/        # Golden dataset tests
 └── scripts/                    # Utility scripts
 ```
 
@@ -131,7 +150,7 @@ sahool-unified-v15-idp/
 | -------------- | --------------------------------------- |
 | **Container**  | Docker, Kubernetes (K8s)                |
 | **IaC**        | Terraform, Helm Charts                  |
-| **CI/CD**      | GitHub Actions (30+ workflows), Argo CD |
+| **CI/CD**      | GitHub Actions (38 workflows), Argo CD  |
 | **Monitoring** | Prometheus, Grafana, OpenTelemetry      |
 | **Secrets**    | HashiCorp Vault                         |
 
@@ -141,12 +160,12 @@ sahool-unified-v15-idp/
 
 The platform uses a 4-layer event architecture via NATS:
 
-| Layer            | Services                                                                | Purpose                        |
-| ---------------- | ----------------------------------------------------------------------- | ------------------------------ |
-| **Acquisition**  | satellite-service, iot-service, weather-advanced, virtual-sensors       | Data ingestion & normalization |
-| **Intelligence** | indicators-service, lai-estimation, crop-health-ai, disaster-assessment | Feature extraction & AI        |
-| **Decision**     | crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine   | Recommendations & planning     |
-| **Business**     | notification-service, marketplace-service, billing-core, community-chat | User-facing operations         |
+| Layer            | Services                                                                              | Purpose                        |
+| ---------------- | ------------------------------------------------------------------------------------- | ------------------------------ |
+| **Acquisition**  | satellite-service, iot-service, weather-service, virtual-sensors, iot-gateway         | Data ingestion & normalization |
+| **Intelligence** | indicators-service, lai-estimation, crop-intelligence-service, vegetation-analysis-service, ndvi-processor, field-intelligence, skills-service | Feature extraction & AI        |
+| **Decision**     | crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, agro-advisor | Recommendations & planning     |
+| **Business**     | notification-service, marketplace-service, billing-core, community-chat, task-service, equipment-service, ws-gateway | User-facing operations         |
 
 Event subject pattern: `sahool.{tenant_id}.{event_type}`
 
@@ -158,7 +177,7 @@ Event subject pattern: `sahool.{tenant_id}.{event_type}`
 
 ```bash
 # Start development environment
-make dev                    # Full stack (39 services)
+make dev                    # Full stack
 make dev-starter           # Starter package only
 make dev-professional      # Professional package
 make dev-enterprise        # All enterprise services
@@ -442,15 +461,21 @@ NATS_URL=""
 
 ### Test Folders
 
-| Folder               | Purpose                |
-| -------------------- | ---------------------- |
-| `tests/unit/`        | Fast unit tests        |
-| `tests/integration/` | API & database tests   |
-| `tests/smoke/`       | Import verification    |
-| `tests/e2e/`         | End-to-end tests       |
-| `tests/load/`        | Locust load tests      |
-| `tests/evaluation/`  | AI agent evaluation    |
-| `tests/guardrails/`  | Input validation tests |
+| Folder               | Purpose                    |
+| -------------------- | -------------------------- |
+| `tests/unit/`        | Fast unit tests            |
+| `tests/integration/` | API & database tests       |
+| `tests/smoke/`       | Import verification        |
+| `tests/e2e/`         | End-to-end tests           |
+| `tests/load/`        | Locust load tests          |
+| `tests/evaluation/`  | AI agent evaluation        |
+| `tests/guardrails/`  | Input validation tests     |
+| `tests/a2a/`         | Agent-to-Agent tests       |
+| `tests/container/`   | Container tests            |
+| `tests/database/`    | Database-specific tests    |
+| `tests/frontend/`    | Frontend component tests   |
+| `tests/middleware/`  | Middleware tests           |
+| `tests/simulation/`  | Simulation tests           |
 
 ---
 
@@ -582,7 +607,7 @@ logger.info("event_name", field_id=field_id, action="create")
 | File                       | Purpose                               |
 | -------------------------- | ------------------------------------- |
 | `Makefile`                 | All development commands              |
-| `docker-compose.yml`       | Full service stack (39 services)      |
+| `docker-compose.yml`       | Full service stack                    |
 | `pyproject.toml`           | Python project config, linting (Ruff) |
 | `package.json`             | Node.js root workspace                |
 | `.env.example`             | Environment template                  |
@@ -624,7 +649,7 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (30+):
+GitHub Workflows (38):
 
 - `ci.yml` - Main CI pipeline
 - `cd-staging.yml` - Staging deployment
@@ -633,36 +658,93 @@ GitHub Workflows (30+):
 - `codeql-analysis.yml` - Security scanning
 - `frontend-tests.yml` - Frontend tests
 - `load-testing.yml` - Performance tests
+- `agent-evaluation.yml` - AI agent evaluation
+- `governance-ci.yml` - Governance checks
+- `security-checks.yml` - Security audits
 
 ---
 
 ## Deprecated Services
 
-Some services are deprecated and will be removed. Check deprecation warnings in service logs:
+Some services are deprecated and have been replaced. Check deprecation warnings in service logs:
 
 ```
-⚠️  DEPRECATION WARNING: [service] is DEPRECATED
+DEPRECATION WARNING: [service] is DEPRECATED
 This service has been migrated to [new-service]
 ```
 
-Example: `field-ops` → `field-management-service`
+| Deprecated Service   | Replaced By                   | Deprecation Date |
+| -------------------- | ----------------------------- | ---------------- |
+| `satellite-service`  | `vegetation-analysis-service` | 2026-01-11       |
+| `weather-advanced`   | `weather-service`             | 2026-01-11       |
+| `crop-health-ai`     | `crop-intelligence-service`   | 2026-01-11       |
+| `fertilizer-advisor` | `advisory-service`            | 2026-01-11       |
+| `field-ops`          | `field-management-service`    | Legacy           |
+| `field-core`         | `field-management-service`    | Legacy           |
+| `field-service`      | `field-management-service`    | Legacy           |
 
 ---
 
 ## Key Services Overview
 
-| Service                  | Type    | Port | Description                   |
-| ------------------------ | ------- | ---- | ----------------------------- |
-| field-ops                | Python  | 8080 | Field operations (deprecated) |
-| field-management-service | Node.js | 3000 | Field management              |
-| weather-core             | Python  | 8108 | Weather data                  |
-| ndvi-engine              | Python  | 8107 | NDVI processing               |
-| crop-growth-model        | Node.js | 3023 | Crop modeling                 |
-| crop-health-ai           | Python  | -    | Disease detection             |
-| fertilizer-advisor       | Python  | -    | Fertilizer recommendations    |
-| yield-engine             | Python  | -    | Yield predictions             |
-| notification-service     | Python  | -    | Push notifications            |
-| marketplace-service      | Node.js | -    | Marketplace                   |
+### Core Services
+
+| Service                    | Type    | Port | Description                      |
+| -------------------------- | ------- | ---- | -------------------------------- |
+| field-management-service   | Node.js | 3000 | Field management (consolidated)  |
+| user-service               | Node.js | 3025 | Authentication & user management |
+| notification-service       | Python  | 8110 | Push notifications               |
+| billing-core               | Python  | 8089 | Billing & invoicing              |
+| task-service               | Python  | 8103 | Task management                  |
+| equipment-service          | Python  | 8101 | Equipment tracking               |
+| alert-service              | Python  | 8113 | Alert management                 |
+
+### Analytics & Intelligence
+
+| Service                      | Type    | Port | Description                    |
+| ---------------------------- | ------- | ---- | ------------------------------ |
+| vegetation-analysis-service  | Python  | 8090 | Satellite imagery analysis     |
+| crop-intelligence-service    | Python  | 8095 | Crop health AI                 |
+| indicators-service           | Python  | 8091 | Field indicators computation   |
+| ndvi-processor               | Python  | 8118 | NDVI processing                |
+| field-intelligence           | Python  | 8120 | Field analytics                |
+| lai-estimation               | Node.js | 3022 | Leaf Area Index estimation     |
+| skills-service               | Python  | 8121 | Farmer skills assessment       |
+
+### Decision & Advisory
+
+| Service          | Type    | Port | Description                  |
+| ---------------- | ------- | ---- | ---------------------------- |
+| crop-growth-model| Node.js | 3023 | Crop growth simulation       |
+| advisory-service | Python  | 8093 | Advisory & recommendations   |
+| irrigation-smart | Python  | 8094 | Smart irrigation             |
+| yield-engine     | Python  | 8098 | Yield estimation             |
+| yield-prediction | Node.js | 3021 | Yield prediction ML          |
+| agro-advisor     | Python  | 8105 | Agricultural advisory        |
+| agro-rules       | Python  | 8151 | Agronomic rules engine       |
+
+### Integration & IoT
+
+| Service               | Type    | Port | Description                  |
+| --------------------- | ------- | ---- | ---------------------------- |
+| iot-service           | Node.js | 8117 | IoT device management        |
+| iot-gateway           | Python  | 8106 | IoT protocol gateway         |
+| weather-service       | Python  | 8092 | Weather data                 |
+| virtual-sensors       | Python  | 8119 | Virtual sensor computation   |
+| ws-gateway            | Python  | 8081 | WebSocket gateway            |
+| mcp-server            | Python  | 8200 | Model Context Protocol       |
+| astronomical-calendar | Python  | 8111 | Islamic calendar & timings   |
+
+### Community & Business
+
+| Service             | Type    | Port | Description              |
+| ------------------- | ------- | ---- | ------------------------ |
+| marketplace-service | Node.js | 3010 | Agricultural marketplace |
+| community-chat      | Node.js | 8097 | Community features       |
+| research-core       | Node.js | 3015 | Research trials          |
+| disaster-assessment | Node.js | 3020 | Disaster risk assessment |
+| field-chat          | Python  | 8099 | Field-level chat         |
+| inventory-service   | Python  | 8116 | Inventory management     |
 
 ---
 
@@ -1091,7 +1173,7 @@ claude code --skill farm-documentation --field "FIELD-003" --format obsidian
 
 ## Getting Help
 
-- **Documentation**: `docs/` directory (80+ documents)
+- **Documentation**: `docs/` directory (109+ documents)
 - **API Gateway**: `docs/API_GATEWAY.md`
 - **Deployment**: `docs/DEPLOYMENT.md`
 - **Security**: `docs/SECURITY.md`
@@ -1129,4 +1211,4 @@ make status
 
 ---
 
-_Last Updated: January 2025_
+_Last Updated: January 2026_

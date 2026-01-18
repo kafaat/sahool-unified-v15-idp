@@ -5,10 +5,13 @@ Provides standardized metrics for all services
 
 from __future__ import annotations
 
+import logging
 import time
 from collections.abc import Callable
 from functools import wraps
 from typing import TYPE_CHECKING
+
+logger = logging.getLogger(__name__)
 
 # Conditional import for FastAPI - not required for core metrics functionality
 try:
@@ -289,12 +292,33 @@ def setup_metrics(app: "FastAPI", service_name: str = "sahool"):
             request_counter.inc()
             request_latency.observe(duration)
 
+            log_level = "debug" if response.status_code < 400 else "warning"
+            log_method = getattr(logger, log_level)
+            log_method(
+                "http_request",
+                extra={
+                    "method": request.method,
+                    "path": request.url.path,
+                    "status_code": response.status_code,
+                    "duration_seconds": duration,
+                },
+            )
+
             if response.status_code >= 400:
                 error_counter.inc()
 
             return response
-        except Exception:
+        except Exception as e:
             error_counter.inc()
+            logger.error(
+                "http_request_failed",
+                extra={
+                    "method": request.method,
+                    "path": request.url.path,
+                    "error": str(e),
+                    "duration_seconds": time.time() - start_time,
+                },
+            )
             raise
         finally:
             active_requests.dec()
@@ -323,10 +347,19 @@ def track_db_query(func: Callable):
         try:
             result = await func(*args, **kwargs)
             query_counter.inc()
-            query_latency.observe(time.time() - start_time)
+            duration = time.time() - start_time
+            query_latency.observe(duration)
+            logger.debug(
+                "db_query_completed",
+                extra={"function": func.__name__, "duration_seconds": duration},
+            )
             return result
-        except Exception:
+        except Exception as e:
             query_errors.inc()
+            logger.error(
+                "db_query_failed",
+                extra={"function": func.__name__, "error": str(e)},
+            )
             raise
 
     return wrapper
@@ -360,9 +393,20 @@ def track_external_call(service_name: str):
                 result = await func(*args, **kwargs)
                 call_counter.inc()
                 call_latency.observe(time.time() - start_time)
+                logger.debug(
+                    "external_call_completed",
+                    extra={
+                        "service": service_name,
+                        "duration_seconds": time.time() - start_time,
+                    },
+                )
                 return result
-            except Exception:
+            except Exception as e:
                 call_errors.inc()
+                logger.error(
+                    "external_call_failed",
+                    extra={"service": service_name, "error": str(e)},
+                )
                 raise
 
         return wrapper

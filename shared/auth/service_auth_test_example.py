@@ -16,9 +16,18 @@ from service_auth import (
     ALLOWED_SERVICES,
     SERVICE_COMMUNICATION_MATRIX,
     ServiceToken,
+    check_service_call_rate_limit,
     create_service_token,
     get_allowed_targets,
+    get_audit_log,
+    get_rate_limiter,
+    get_revocation_store,
+    get_service_audit_logs,
+    get_service_call_stats,
     is_service_authorized,
+    is_service_token_revoked,
+    log_service_call,
+    revoke_service_token,
     verify_service_token,
 )
 
@@ -238,6 +247,158 @@ def test_token_expiration():
         return False
 
 
+def test_service_token_revocation():
+    """Test service token revocation functionality"""
+    print("\n=== Test 9: Service Token Revocation ===")
+
+    try:
+        # Create a token
+        token = create_service_token(
+            service_name="crop-service", target_service="advisory-service", ttl=300
+        )
+        print("✓ Token created")
+
+        # Verify it works
+        payload = verify_service_token(token)
+        print("✓ Token verified successfully")
+        jti = payload["jti"]
+
+        # Revoke the token
+        revoke_service_token(jti)
+        print(f"✓ Token revoked: {jti}")
+
+        # Check revocation status
+        if is_service_token_revoked(jti):
+            print("✓ Token correctly marked as revoked")
+        else:
+            print("✗ Token should be marked as revoked")
+            return False
+
+        # Try to verify revoked token (should fail)
+        try:
+            verify_service_token(token)
+            print("✗ Revoked token should have been rejected")
+            return False
+        except Exception as e:
+            print(f"✓ Revoked token correctly rejected: {e}")
+            return True
+
+    except Exception as e:
+        print(f"✗ Test failed: {e}")
+        return False
+
+
+def test_audit_logging():
+    """Test service call audit logging"""
+    print("\n=== Test 10: Audit Logging ===")
+
+    try:
+        # Create and verify a token to get JTI
+        token = create_service_token(
+            service_name="field-service",
+            target_service="weather-service",
+            ttl=300,
+        )
+        payload = verify_service_token(token)
+        jti = payload["jti"]
+
+        # Log some service calls
+        log_service_call(
+            source_service="field-service",
+            target_service="weather-service",
+            jti=jti,
+            success=True,
+        )
+        print("✓ Logged successful service call")
+
+        log_service_call(
+            source_service="field-service",
+            target_service="weather-service",
+            jti=jti,
+            success=False,
+            error_message="Connection timeout",
+        )
+        print("✓ Logged failed service call")
+
+        # Get audit logs
+        logs = get_service_audit_logs("field-service", limit=10)
+        print(f"✓ Retrieved {len(logs)} audit log entries")
+
+        if len(logs) >= 2:
+            print("✓ Audit log contains expected entries")
+            return True
+        else:
+            print("✗ Not enough audit log entries")
+            return False
+
+    except Exception as e:
+        print(f"✗ Test failed: {e}")
+        return False
+
+
+def test_rate_limiting():
+    """Test service call rate limiting"""
+    print("\n=== Test 11: Rate Limiting ===")
+
+    try:
+        limiter = get_rate_limiter()
+        print(f"✓ Rate limiter configured: {limiter.calls_per_minute} calls/min")
+
+        # Check rate limit multiple times
+        for i in range(3):
+            allowed, remaining = check_service_call_rate_limit(
+                "advisory-service", "notification-service"
+            )
+            print(f"  Call {i+1}: Allowed={allowed}, Remaining={remaining}")
+
+        # Test stats
+        stats = get_service_call_stats("advisory-service", "notification-service")
+        print(f"✓ Service call stats retrieved")
+        print(f"  Recent calls: {stats['recent_call_count']}")
+        print(f"  Success rate: {stats['success_rate']:.0%}")
+
+        return True
+
+    except Exception as e:
+        print(f"✗ Test failed: {e}")
+        return False
+
+
+def test_revocation_store_access():
+    """Test access to revocation store"""
+    print("\n=== Test 12: Revocation Store Access ===")
+
+    try:
+        # Get the revocation store
+        store = get_revocation_store()
+        print("✓ Revocation store accessed")
+
+        # Create and revoke a token
+        token = create_service_token(
+            service_name="equipment-service",
+            target_service="inventory-service",
+            ttl=300,
+        )
+        payload = verify_service_token(token)
+        jti = payload["jti"]
+
+        # Revoke using store
+        store.revoke(jti)
+        print(f"✓ Token revoked via store: {jti}")
+
+        # Verify it's revoked
+        if store.is_revoked(jti):
+            print("✓ Revocation check passed")
+            return True
+        else:
+            print("✗ Token should be revoked")
+            return False
+
+    except Exception as e:
+        print(f"✗ Test failed: {e}")
+        return False
+
+
 def run_all_tests():
     """Run all tests and report results"""
     print("\n" + "=" * 60)
@@ -253,6 +414,10 @@ def run_all_tests():
         ("Get Allowed Targets", test_get_allowed_targets),
         ("Service Matrix Validation", test_all_services_in_matrix),
         ("Token Expiration", test_token_expiration),
+        ("Service Token Revocation", test_service_token_revocation),
+        ("Audit Logging", test_audit_logging),
+        ("Rate Limiting", test_rate_limiting),
+        ("Revocation Store Access", test_revocation_store_access),
     ]
 
     results = []

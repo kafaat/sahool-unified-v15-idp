@@ -1292,22 +1292,17 @@ services:
       - PORT=3025
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       - JWT_REFRESH_TOKEN_EXPIRE_DAYS=${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
       # SECURITY: Bind to localhost only - service should only be accessed via Kong API Gateway
       - "127.0.0.1:3025:3025"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      nats:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3025/api/v1/health" ]

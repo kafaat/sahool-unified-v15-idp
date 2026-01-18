@@ -409,7 +409,7 @@ export class AuthService {
       });
 
       // Revoke each token in Redis
-      const revokePromises = familyTokens.map((token) =>
+      const revokePromises = familyTokens.map((token: { jti: string }) =>
         this.revocationStore.revokeToken(token.jti, {
           expiresIn: JWTConfig.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
           reason: "token_reuse_detected",
@@ -1065,7 +1065,9 @@ SAHOOL - National Agricultural Intelligence Platform
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+        };
         this.logger.error(`Failed to send OTP via notification service`, {
           identifier: this.sanitizeForLog(identifier),
           status: response.status,
@@ -1076,7 +1078,10 @@ SAHOOL - National Agricultural Intelligence Platform
         );
       }
 
-      const result = await response.json();
+      const result = (await response.json()) as {
+        message?: string;
+        expiresIn?: number;
+      };
 
       this.logger.log(`OTP sent successfully`, {
         identifier: this.sanitizeForLog(identifier),
@@ -1130,7 +1135,9 @@ SAHOOL - National Agricultural Intelligence Platform
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+        };
         this.logger.warn(`OTP verification failed`, {
           identifier: this.sanitizeForLog(identifier),
           status: response.status,
@@ -1140,7 +1147,10 @@ SAHOOL - National Agricultural Intelligence Platform
         );
       }
 
-      const result = await response.json();
+      const result = (await response.json()) as {
+        verified?: boolean;
+        message?: string;
+      };
 
       this.logger.log(`OTP verified successfully`, {
         identifier: this.sanitizeForLog(identifier),

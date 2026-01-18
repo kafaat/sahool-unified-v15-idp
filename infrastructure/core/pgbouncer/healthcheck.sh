@@ -125,8 +125,9 @@ while IFS='|' read -r db user cl_active cl_waiting sv_active sv_idle sv_used sv_
   fi
 done <<< "$POOL_DATA"
 
-# Calculate utilization (assuming max_db_connections = 150)
-MAX_CONNECTIONS=150
+# Calculate utilization (matching max_db_connections in pgbouncer.ini)
+# UPDATED: Changed from 150 to 250 to match pgbouncer.ini configuration
+MAX_CONNECTIONS=250
 TOTAL_SV_CONNECTIONS=$((TOTAL_SV_ACTIVE + TOTAL_SV_IDLE))
 UTILIZATION=0
 if [[ $MAX_CONNECTIONS -gt 0 ]]; then

@@ -59,9 +59,13 @@ END
 $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- Create the pgbouncer schema first (needed for function creation)
+-- Create the pgbouncer schema (needed for function creation)
+-- Note: Schema is created first, then authorization is granted after user exists
 -- ═══════════════════════════════════════════════════════════════════════════════
-CREATE SCHEMA IF NOT EXISTS pgbouncer AUTHORIZATION pgbouncer;
+CREATE SCHEMA IF NOT EXISTS pgbouncer;
+
+-- Grant schema ownership to pgbouncer user (user was created above)
+ALTER SCHEMA pgbouncer OWNER TO pgbouncer;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Create a SECURITY DEFINER function for auth_query

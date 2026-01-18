@@ -2,8 +2,10 @@
 // شاشة الدردشة لمجتمع سهول
 
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../data/models/chat_models.dart';
 import '../../data/repositories/chat_repository.dart';
 
@@ -30,6 +32,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<ChatMessage> _messages = [];
+  final ImagePicker _imagePicker = ImagePicker();
 
   StreamSubscription? _messageSubscription;
   StreamSubscription? _typingSubscription;
@@ -38,6 +41,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _isTyping = false;
   String? _typingUser;
   bool _expertJoined = false;
+  File? _selectedImage;
 
   @override
   void initState() {
@@ -165,6 +169,171 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           _addMockExpertMessage(_getMockExpertResponse(text));
+        }
+      });
+    }
+  }
+
+  /// Show attachment options bottom sheet
+  /// عرض خيارات المرفقات
+  void _showAttachmentOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: Color(0xFF16A34A),
+                child: Icon(Icons.camera_alt, color: Colors.white),
+              ),
+              title: const Text('التقاط صورة'),
+              subtitle: const Text('فتح الكاميرا'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: Color(0xFF2563EB),
+                child: Icon(Icons.photo_library, color: Colors.white),
+              ),
+              title: const Text('اختيار من المعرض'),
+              subtitle: const Text('صورة من الجهاز'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Pick image from camera or gallery
+  /// اختيار صورة من الكاميرا أو المعرض
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+
+        // Show preview and send option
+        if (mounted) {
+          _showImagePreview();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ في اختيار الصورة: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Show image preview before sending
+  /// عرض معاينة الصورة قبل الإرسال
+  void _showImagePreview() {
+    if (_selectedImage == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('معاينة الصورة', textDirection: TextDirection.rtl),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _selectedImage!,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'هل تريد إرسال هذه الصورة؟',
+              textDirection: TextDirection.rtl,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() => _selectedImage = null);
+            },
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _sendImageMessage();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF16A34A),
+            ),
+            child: const Text('إرسال', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Send image message
+  /// إرسال رسالة صورة
+  void _sendImageMessage() {
+    if (_selectedImage == null) return;
+
+    // Add image message to chat
+    final imageMessage = ChatMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      roomId: widget.roomId,
+      author: widget.userName,
+      authorType: 'farmer',
+      message: '📷 صورة مرفقة',
+      timestamp: DateTime.now(),
+      attachmentUrl: _selectedImage!.path,
+      attachmentType: 'image',
+    );
+
+    setState(() {
+      _messages.add(imageMessage);
+      _selectedImage = null;
+    });
+
+    _scrollToBottom();
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('تم إرسال الصورة'),
+        backgroundColor: Color(0xFF16A34A),
+        duration: Duration(seconds: 1),
+      ),
+    );
+
+    // Mock expert response for image
+    if (_expertJoined) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          _addMockExpertMessage('شكراً على الصورة. دعني أفحصها وأعطيك رأيي خلال لحظات...');
         }
       });
     }
@@ -299,15 +468,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   IconButton(
                     icon: const Icon(Icons.attach_file),
                     color: Colors.grey[600],
-                    onPressed: () {
-                      // TODO: Implement attachment picker
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('إرفاق الصور قريباً...'),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    },
+                    onPressed: _showAttachmentOptions,
                   ),
 
                   // Text input

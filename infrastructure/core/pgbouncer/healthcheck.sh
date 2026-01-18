@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 # ═══════════════════════════════════════════════════════════════════════════════
-# PgBouncer Health Check Script
+# PgBouncer Health Check Script (POSIX-compliant version)
 # Comprehensive health verification for PgBouncer connection pooler
 #
 # Usage:
@@ -12,7 +12,7 @@
 #   2 - Warning (degraded but operational)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-set -euo pipefail
+set -e
 
 # Configuration
 PGBOUNCER_HOST="${PGBOUNCER_HOST:-localhost}"
@@ -21,13 +21,19 @@ POSTGRES_USER="${POSTGRES_USER:-sahool}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
 WARN_THRESHOLD=80  # Warn at 80% pool utilization
 CRIT_THRESHOLD=95  # Critical at 95% pool utilization
+PSQL_TIMEOUT=10    # Timeout for psql commands in seconds
 
 # Output format
 VERBOSE=false
 JSON_OUTPUT=false
 
+# Health check status tracking
+CONNECTIVITY_CHECK=false
+POOLS_CHECK=false
+CONFIGURATION_CHECK=false
+
 # Parse arguments
-while [[ $# -gt 0 ]]; do
+while [ $# -gt 0 ]; do
   case $1 in
     --verbose|-v)
       VERBOSE=true
@@ -51,7 +57,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Colors for output (disabled in JSON mode)
-if [[ "$JSON_OUTPUT" == "false" ]]; then
+if [ "$JSON_OUTPUT" = "false" ]; then
   RED='\033[0;31m'
   GREEN='\033[0;32m'
   YELLOW='\033[1;33m'
@@ -65,41 +71,60 @@ fi
 
 # Function to log messages
 log() {
-  if [[ "$VERBOSE" == "true" ]] && [[ "$JSON_OUTPUT" == "false" ]]; then
-    echo -e "$1"
+  if [ "$VERBOSE" = "true" ] && [ "$JSON_OUTPUT" = "false" ]; then
+    printf "%b\n" "$1"
   fi
 }
 
-# Function to execute psql command
-execute_query() {
-  local query=$1
-  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-    -U "$POSTGRES_USER" -d pgbouncer -t -A -c "$query" 2>/dev/null
+# Function to check dependencies
+check_dependencies() {
+  if ! command -v psql > /dev/null 2>&1; then
+    if [ "$JSON_OUTPUT" = "true" ]; then
+      echo '{"status":"unhealthy","error":"psql command not found. Install postgresql-client.","checks":{"connectivity":false,"pools":false,"configuration":false}}'
+    else
+      printf "%b\n" "${RED}✗ Error: psql command not found${NC}"
+      printf "Please install postgresql-client package.\n"
+    fi
+    exit 1
+  fi
+  log "${GREEN}✓ Dependencies check passed${NC}"
 }
+
+# Function to execute psql command with timeout
+execute_query() {
+  _query=$1
+  PGPASSWORD="$POSTGRES_PASSWORD" timeout "$PSQL_TIMEOUT" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+    -U "$POSTGRES_USER" -d pgbouncer -t -A -c "$_query" 2>/dev/null || return 1
+}
+
+# Check dependencies first
+check_dependencies
 
 # Check 1: Basic connectivity
 log "${YELLOW}Checking PgBouncer connectivity...${NC}"
 if ! execute_query "SELECT 1" > /dev/null; then
-  if [[ "$JSON_OUTPUT" == "true" ]]; then
-    echo '{"status":"unhealthy","error":"Cannot connect to PgBouncer","checks":{"connectivity":false}}'
+  if [ "$JSON_OUTPUT" = "true" ]; then
+    echo '{"status":"unhealthy","error":"Cannot connect to PgBouncer","checks":{"connectivity":false,"pools":false,"configuration":false}}'
   else
-    echo -e "${RED}✗ Cannot connect to PgBouncer${NC}"
+    printf "%b\n" "${RED}✗ Cannot connect to PgBouncer${NC}"
   fi
   exit 1
 fi
+CONNECTIVITY_CHECK=true
 log "${GREEN}✓ PgBouncer is reachable${NC}"
 
 # Check 2: Pool status
 log "${YELLOW}Checking pool status...${NC}"
 POOL_DATA=$(execute_query "SHOW POOLS;" 2>/dev/null || echo "")
-if [[ -z "$POOL_DATA" ]]; then
-  if [[ "$JSON_OUTPUT" == "true" ]]; then
-    echo '{"status":"unhealthy","error":"Cannot retrieve pool status","checks":{"connectivity":true,"pools":false}}'
+if [ -z "$POOL_DATA" ]; then
+  if [ "$JSON_OUTPUT" = "true" ]; then
+    echo '{"status":"unhealthy","error":"Cannot retrieve pool status","checks":{"connectivity":true,"pools":false,"configuration":false}}'
   else
-    echo -e "${RED}✗ Cannot retrieve pool status${NC}"
+    printf "%b\n" "${RED}✗ Cannot retrieve pool status${NC}"
   fi
   exit 1
 fi
+POOLS_CHECK=true
 log "${GREEN}✓ Pool status retrieved${NC}"
 
 # Parse pool data (database|user|cl_active|cl_waiting|sv_active|sv_idle|sv_used|sv_tested|sv_login|maxwait|pool_mode)
@@ -109,27 +134,36 @@ TOTAL_SV_ACTIVE=0
 TOTAL_SV_IDLE=0
 MAX_WAIT=0
 
-while IFS='|' read -r db user cl_active cl_waiting sv_active sv_idle sv_used sv_tested sv_login maxwait pool_mode; do
+# Use printf and read in a subshell to avoid here-string
+echo "$POOL_DATA" | while IFS='|' read -r db user cl_active cl_waiting sv_active sv_idle sv_used sv_tested sv_login maxwait pool_mode; do
   # Skip header and pgbouncer database
-  if [[ "$db" == "pgbouncer" ]] || [[ "$db" == "database" ]]; then
+  if [ "$db" = "pgbouncer" ] || [ "$db" = "database" ]; then
     continue
   fi
 
+  # Output values to be collected (POSIX doesn't preserve variables from pipe subshell)
+  echo "$cl_active $cl_waiting $sv_active $sv_idle $maxwait"
+done > /tmp/pgbouncer_pool_data.$$
+
+# Read and aggregate pool data
+while read -r cl_active cl_waiting sv_active sv_idle maxwait; do
   TOTAL_CL_ACTIVE=$((TOTAL_CL_ACTIVE + cl_active))
   TOTAL_CL_WAITING=$((TOTAL_CL_WAITING + cl_waiting))
   TOTAL_SV_ACTIVE=$((TOTAL_SV_ACTIVE + sv_active))
   TOTAL_SV_IDLE=$((TOTAL_SV_IDLE + sv_idle))
 
-  if [[ $maxwait -gt $MAX_WAIT ]]; then
+  if [ "$maxwait" -gt "$MAX_WAIT" ] 2>/dev/null; then
     MAX_WAIT=$maxwait
   fi
-done <<< "$POOL_DATA"
+done < /tmp/pgbouncer_pool_data.$$
+rm -f /tmp/pgbouncer_pool_data.$$
 
-# Calculate utilization (assuming max_db_connections = 150)
-MAX_CONNECTIONS=150
+# Calculate utilization (matching max_db_connections in pgbouncer.ini)
+# UPDATED: Changed from 150 to 250 to match pgbouncer.ini configuration
+MAX_CONNECTIONS=250
 TOTAL_SV_CONNECTIONS=$((TOTAL_SV_ACTIVE + TOTAL_SV_IDLE))
 UTILIZATION=0
-if [[ $MAX_CONNECTIONS -gt 0 ]]; then
+if [ "$MAX_CONNECTIONS" -gt 0 ]; then
   UTILIZATION=$((TOTAL_SV_CONNECTIONS * 100 / MAX_CONNECTIONS))
 fi
 
@@ -146,11 +180,11 @@ log "  Max wait time: ${MAX_WAIT}s"
 STATUS="healthy"
 EXIT_CODE=0
 
-if [[ $UTILIZATION -ge $CRIT_THRESHOLD ]]; then
+if [ "$UTILIZATION" -ge "$CRIT_THRESHOLD" ]; then
   STATUS="critical"
   EXIT_CODE=1
   log "${RED}✗ CRITICAL: Pool utilization at ${UTILIZATION}% (threshold: ${CRIT_THRESHOLD}%)${NC}"
-elif [[ $UTILIZATION -ge $WARN_THRESHOLD ]]; then
+elif [ "$UTILIZATION" -ge "$WARN_THRESHOLD" ]; then
   STATUS="warning"
   EXIT_CODE=2
   log "${YELLOW}⚠ WARNING: Pool utilization at ${UTILIZATION}% (threshold: ${WARN_THRESHOLD}%)${NC}"
@@ -158,13 +192,13 @@ else
   log "${GREEN}✓ Pool utilization healthy (${UTILIZATION}%)${NC}"
 fi
 
-if [[ $TOTAL_CL_WAITING -gt 0 ]]; then
+if [ "$TOTAL_CL_WAITING" -gt 0 ]; then
   STATUS="warning"
   EXIT_CODE=2
   log "${YELLOW}⚠ WARNING: ${TOTAL_CL_WAITING} clients waiting for connections${NC}"
 fi
 
-if [[ $MAX_WAIT -gt 10 ]]; then
+if [ "$MAX_WAIT" -gt 10 ]; then
   STATUS="warning"
   EXIT_CODE=2
   log "${YELLOW}⚠ WARNING: Maximum wait time is ${MAX_WAIT}s (>10s)${NC}"
@@ -173,10 +207,11 @@ fi
 # Check 3: Configuration verification
 log "${YELLOW}Checking configuration...${NC}"
 CONFIG_DATA=$(execute_query "SHOW CONFIG;" 2>/dev/null || echo "")
-if [[ -n "$CONFIG_DATA" ]]; then
+if [ -n "$CONFIG_DATA" ]; then
+  CONFIGURATION_CHECK=true
   log "${GREEN}✓ Configuration accessible${NC}"
 
-  if [[ "$VERBOSE" == "true" ]]; then
+  if [ "$VERBOSE" = "true" ]; then
     # Extract key settings
     MAX_DB_CONN=$(echo "$CONFIG_DATA" | grep "max_db_connections" | cut -d'|' -f2 | tr -d ' ')
     DEFAULT_POOL=$(echo "$CONFIG_DATA" | grep "default_pool_size" | cut -d'|' -f2 | tr -d ' ')
@@ -186,19 +221,26 @@ if [[ -n "$CONFIG_DATA" ]]; then
     log "  default_pool_size: $DEFAULT_POOL"
     log "  pool_mode: $POOL_MODE"
   fi
+else
+  log "${YELLOW}⚠ Configuration check failed (non-critical)${NC}"
 fi
 
+# Convert boolean variables to JSON format
+_CONNECTIVITY="$([ "$CONNECTIVITY_CHECK" = "true" ] && echo "true" || echo "false")"
+_POOLS="$([ "$POOLS_CHECK" = "true" ] && echo "true" || echo "false")"
+_CONFIGURATION="$([ "$CONFIGURATION_CHECK" = "true" ] && echo "true" || echo "false")"
+
 # Output results
-if [[ "$JSON_OUTPUT" == "true" ]]; then
+if [ "$JSON_OUTPUT" = "true" ]; then
   cat <<EOF
 {
   "status": "$STATUS",
   "exit_code": $EXIT_CODE,
   "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "checks": {
-    "connectivity": true,
-    "pools": true,
-    "configuration": true
+    "connectivity": $_CONNECTIVITY,
+    "pools": $_POOLS,
+    "configuration": $_CONFIGURATION
   },
   "metrics": {
     "client_active": $TOTAL_CL_ACTIVE,
@@ -221,13 +263,20 @@ else
   echo "═══════════════════════════════════════"
   echo "PgBouncer Health Check Summary"
   echo "═══════════════════════════════════════"
-  echo -e "Status: $(
-    case $STATUS in
-      healthy) echo "${GREEN}✓ HEALTHY${NC}" ;;
-      warning) echo "${YELLOW}⚠ WARNING${NC}" ;;
-      critical) echo "${RED}✗ CRITICAL${NC}" ;;
-    esac
-  )"
+
+  # Print status with color
+  case $STATUS in
+    healthy)
+      printf "Status: %b\n" "${GREEN}✓ HEALTHY${NC}"
+      ;;
+    warning)
+      printf "Status: %b\n" "${YELLOW}⚠ WARNING${NC}"
+      ;;
+    critical)
+      printf "Status: %b\n" "${RED}✗ CRITICAL${NC}"
+      ;;
+  esac
+
   echo "Pool Utilization: ${UTILIZATION}% (${TOTAL_SV_CONNECTIONS}/${MAX_CONNECTIONS} connections)"
   echo "Active Clients: $TOTAL_CL_ACTIVE"
   echo "Waiting Clients: $TOTAL_CL_WAITING"

@@ -325,18 +325,16 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
             isScoutingMode && "cursor-crosshair",
           )}
         >
-          {/* TODO: react-leaflet 4.2.1 types incompatible with React 19 - using type assertion */}
+          {/* react-leaflet with React 19 compatible types (see types/external.d.ts) */}
           <MapContainer
             center={center}
             zoom={zoom}
             style={{ width: "100%", height: "100%" }}
             className="z-0"
-            {...({} as any)}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              {...({} as any)}
             />
 
             {/* Map click handler */}
@@ -356,7 +354,6 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
                 }}
                 onDelete={handleDeleteObservation}
                 editable={isSessionActive}
-                {...({} as any)}
               />
             ))}
           </MapContainer>

@@ -14,6 +14,7 @@ Provides task management for agricultural operations:
 
 import logging
 import os
+import re
 import sys
 import uuid
 from datetime import datetime, timedelta
@@ -74,13 +75,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Regex pattern for all ASCII control characters (0x00-0x1F and 0x7F)
+_CONTROL_CHAR_PATTERN = re.compile(r'[\x00-\x1f\x7f]')
+
+
 def _sanitize_for_log(value: str | None, max_length: int = 100) -> str:
     """
     Sanitize user input for safe logging to prevent log injection attacks.
     تعقيم المدخلات لمنع هجمات حقن السجلات
 
-    This function removes newlines, carriage returns, and other control
-    characters that could be used for log injection attacks.
+    This function removes ALL ASCII control characters (0x00-0x1F, 0x7F)
+    to prevent log injection attacks including newline injection.
 
     Args:
         value: The input value to sanitize
@@ -91,11 +96,12 @@ def _sanitize_for_log(value: str | None, max_length: int = 100) -> str:
     """
     if value is None:
         return "<none>"
-    # Convert to string and remove control characters
-    sanitized = str(value)
-    # Remove newlines, carriage returns, tabs, and other control chars
-    for char in ['\n', '\r', '\t', '\x00', '\x0b', '\x0c']:
-        sanitized = sanitized.replace(char, '')
+    # Convert to string
+    raw = str(value)
+    # Remove ALL ASCII control characters using regex
+    sanitized = _CONTROL_CHAR_PATTERN.sub('', raw)
+    # Additional safety: keep only printable characters
+    sanitized = ''.join(c for c in sanitized if c.isprintable())
     # Truncate to max length
     return sanitized[:max_length] if len(sanitized) > max_length else sanitized
 
@@ -437,6 +443,13 @@ class DateValidationResponse(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════
 # PostgreSQL Database Storage - تخزين قاعدة بيانات PostgreSQL
 # ═══════════════════════════════════════════════════════════════════════════
+
+# DEPRECATED: In-memory task storage (should be replaced with database)
+# These dictionaries are temporary fallbacks and should be removed in the database migration.
+# TODO: Replace all usage of tasks_db and evidence_db with TaskRepository calls
+# See TODO_IMPLEMENTATION.md for migration plan
+tasks_db: dict[str, Task] = {}
+evidence_db: dict[str, Evidence] = {}
 
 # Astronomical data cache - التخزين المؤقت للبيانات الفلكية
 # Cache format: {(activity, days): (data, timestamp)}
@@ -799,8 +812,6 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
     Returns:
         str | None: User ID of the field manager, or None if not found
     """
-    import re
-
     # Validate and sanitize field_id to prevent SSRF
     if not field_id or not re.match(r'^[a-zA-Z0-9_-]+$', field_id):
         logger.warning("Invalid field_id format detected")
@@ -1294,12 +1305,14 @@ async def get_task_stats(
 async def get_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Get a specific task by ID"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
+    repo = TaskRepository(db)
+    task = repo.get_task_by_id(task_id, tenant_id)
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return task
+    return db_task_to_dict(task)
 
 
 @app.post("/api/v1/tasks", response_model=Task, status_code=201)
@@ -1465,33 +1478,34 @@ async def complete_task(
 async def start_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    db: Session = Depends(get_db),
 ):
     """Mark a task as in progress"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
-        raise HTTPException(status_code=404, detail="Task not found")
+    repo = TaskRepository(db)
+    performed_by = user.id if user else "system"
 
-    if task.status != TaskStatus.PENDING:
-        raise HTTPException(status_code=400, detail="Task is not pending")
+    try:
+        task = repo.start_task(task_id, tenant_id, performed_by)
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
 
-    task.status = TaskStatus.IN_PROGRESS
-    task.updated_at = datetime.utcnow()
-    tasks_db[task_id] = task
+        # Publish task started event
+        if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+            try:
+                from events import publish_task_started
 
-    # Publish task started event
-    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
-        try:
-            from events import publish_task_started
+                await publish_task_started(
+                    task_id=task_id,
+                    tenant_id=tenant_id,
+                    started_by=task.assigned_to or "system",
+                )
+            except Exception as e:
+                logger.warning(f"Failed to publish task_started event: {e}")
 
-            await publish_task_started(
-                task_id=task_id,
-                tenant_id=tenant_id,
-                started_by=task.assigned_to or "system",
-            )
-        except Exception as e:
-            logger.warning(f"Failed to publish task_started event: {e}")
-
-    return task
+        return db_task_to_dict(task)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.post("/api/v1/tasks/{task_id}/cancel", response_model=Task)
@@ -1499,18 +1513,16 @@ async def cancel_task(
     task_id: str,
     reason: str | None = None,
     tenant_id: str = Depends(get_tenant_id),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    db: Session = Depends(get_db),
 ):
     """Cancel a task"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
+    repo = TaskRepository(db)
+    performed_by = user.id if user else "system"
+
+    task = repo.cancel_task(task_id, tenant_id, performed_by, reason)
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-
-    task.status = TaskStatus.CANCELLED
-    task.updated_at = datetime.utcnow()
-    if reason:
-        task.task_metadata = {**(task.task_metadata or {}), "cancel_reason": reason}
-
-    tasks_db[task_id] = task
 
     # Publish task cancelled event
     if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
@@ -1526,20 +1538,20 @@ async def cancel_task(
         except Exception as e:
             logger.warning(f"Failed to publish task_cancelled event: {e}")
 
-    return task
+    return db_task_to_dict(task)
 
 
 @app.delete("/api/v1/tasks/{task_id}", status_code=204)
 async def delete_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """Delete a task"""
-    task = tasks_db.get(task_id)
-    if not task or task.tenant_id != tenant_id:
+    repo = TaskRepository(db)
+    success = repo.delete_task(task_id, tenant_id)
+    if not success:
         raise HTTPException(status_code=404, detail="Task not found")
-
-    del tasks_db[task_id]
 
 
 @app.post("/api/v1/tasks/{task_id}/evidence", response_model=Evidence, status_code=201)

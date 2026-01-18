@@ -309,6 +309,88 @@ class AuthService {
     return kDebugMode && const bool.fromEnvironment('USE_MOCK_AUTH', defaultValue: false);
   }
 
+  /// Reset password with token
+  /// إعادة تعيين كلمة المرور باستخدام رمز التحقق
+  Future<void> resetPassword({
+    required String token,
+    required String newPassword,
+  }) async {
+    AppLogger.i('Reset password attempt', tag: 'AUTH');
+
+    try {
+      // Use real API if available, otherwise fall back to mock in development
+      if (apiClient != null && !_shouldUseMockMode()) {
+        await _resetPasswordWithApi(token, newPassword);
+      } else {
+        await _resetPasswordWithMock();
+      }
+    } catch (e) {
+      AppLogger.e('Reset password failed', tag: 'AUTH', error: e);
+
+      // In development, fallback to mock if API fails
+      if (kDebugMode && e is ApiException && e.isNetworkError) {
+        AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
+        await _resetPasswordWithMock();
+        return;
+      }
+
+      rethrow;
+    }
+  }
+
+  /// Reset password using real API
+  Future<void> _resetPasswordWithApi(String token, String newPassword) async {
+    AppLogger.i('Resetting password via API', tag: 'AUTH');
+
+    try {
+      final response = await apiClient!.post(
+        '/api/v1/auth/reset-password',
+        {
+          'token': token,
+          'newPassword': newPassword,
+        },
+      );
+
+      // Parse API response
+      if (response == null) {
+        throw AuthException('استجابة غير صالحة من الخادم');
+      }
+
+      final data = response is Map<String, dynamic> ? response : response['data'];
+      final success = data['success'] ?? false;
+
+      if (!success) {
+        final message = data['message'] ?? 'فشل تغيير كلمة المرور';
+        throw AuthException(message);
+      }
+
+      AppLogger.i('API password reset successful', tag: 'AUTH');
+    } on ApiException catch (e) {
+      AppLogger.e('API password reset failed', tag: 'AUTH', error: e);
+
+      // Convert API exceptions to auth exceptions with Arabic messages
+      if (e.statusCode == 400) {
+        throw AuthException('رمز التحقق غير صالح أو منتهي الصلاحية', code: 'INVALID_TOKEN');
+      } else if (e.statusCode == 429) {
+        throw AuthException('محاولات كثيرة جداً. يرجى المحاولة لاحقاً', code: 'TOO_MANY_ATTEMPTS');
+      } else if (e.isNetworkError) {
+        throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
+      } else {
+        throw AuthException(e.message, code: e.code);
+      }
+    }
+  }
+
+  /// Reset password using mock data (development only)
+  Future<void> _resetPasswordWithMock() async {
+    AppLogger.w('Using MOCK password reset (development only)', tag: 'AUTH');
+
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    AppLogger.i('Mock password reset successful', tag: 'AUTH');
+  }
+
   /// Login with biometric
   Future<User?> loginWithBiometric() async {
     AppLogger.i('Biometric login attempt', tag: 'AUTH');

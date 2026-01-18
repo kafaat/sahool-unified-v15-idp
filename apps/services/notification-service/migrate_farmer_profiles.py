@@ -21,13 +21,13 @@ import logging
 import os
 import sys
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
+# Add notification-service root to path so 'from src.X import' works
+sys.path.insert(0, os.path.dirname(__file__))
 
-from repository import FarmerProfileRepository
+from src.repository import FarmerProfileRepository
 
-from database import check_db_health, close_db, init_db
-from models import FarmerCrop, FarmerField, FarmerProfile
+from src.database import check_db_health, close_db, init_notification_db
+from src.models import FarmerCrop, FarmerField, FarmerProfile
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("migration")
@@ -54,7 +54,7 @@ async def migrate():
     try:
         # Initialize database connection
         logger.info("\n📊 Initializing database connection...")
-        await init_db(create_db=True)  # create_db=True will generate schemas
+        await init_notification_db(create_schema=True)  # create_schema=True will generate schemas
         logger.info("✅ Database initialized")
 
         # Check health
@@ -162,7 +162,7 @@ async def rollback():
         return
 
     try:
-        await init_db(create_db=False)
+        await init_notification_db(create_schema=False)
 
         from tortoise import Tortoise
 

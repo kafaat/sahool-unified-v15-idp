@@ -6,7 +6,32 @@ Note: This configuration only supports HS256 algorithm.
 RS256 with RSA keys has been deprecated.
 """
 
+import logging
 import os
+from typing import Dict, List
+
+logger = logging.getLogger(__name__)
+
+# Security constants
+MIN_SECRET_KEY_LENGTH = 32
+MIN_ACCESS_TOKEN_MINUTES = 1
+MAX_ACCESS_TOKEN_MINUTES = 1440  # 24 hours
+MIN_REFRESH_TOKEN_DAYS = 1
+MAX_REFRESH_TOKEN_DAYS = 365  # 1 year
+MIN_RATE_LIMIT_REQUESTS = 1
+MAX_RATE_LIMIT_REQUESTS = 10000
+MIN_RATE_LIMIT_WINDOW_SECONDS = 1
+MAX_RATE_LIMIT_WINDOW_SECONDS = 3600  # 1 hour
+MIN_REDIS_PORT = 1
+MAX_REDIS_PORT = 65535
+MIN_REDIS_DB = 0
+MAX_REDIS_DB = 15  # Redis typically supports 0-15
+
+
+class JWTConfigError(Exception):
+    """JWT Configuration validation error"""
+
+    pass
 
 
 class JWTConfig:
@@ -47,12 +72,190 @@ class JWTConfig:
 
     @classmethod
     def validate(cls) -> None:
-        """Validate JWT configuration"""
-        env = os.getenv("ENVIRONMENT", "development")
+        """
+        Validate JWT configuration and raise errors for invalid settings.
 
-        if env in ("production", "staging"):
-            if not cls.JWT_SECRET or len(cls.JWT_SECRET) < 32:
-                raise ValueError("JWT_SECRET must be at least 32 characters in production")
+        Performs comprehensive validation including:
+        - JWT secret key strength and length
+        - Token expiration times (reasonable ranges)
+        - Rate limiting parameters
+        - Redis configuration when needed
+        - JWT issuer and audience non-empty
+
+        Raises:
+            JWTConfigError: If any critical configuration is invalid
+        """
+        env = os.getenv("ENVIRONMENT", "development")
+        errors: List[str] = []
+        warnings: List[str] = []
+
+        # Validate JWT Secret
+        if not cls.JWT_SECRET:
+            msg = "JWT_SECRET_KEY is not set"
+            if env in ("production", "staging"):
+                errors.append(msg)
+            else:
+                warnings.append(f"WARNING: {msg} (development mode)")
+        elif len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
+            msg = f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters (currently {len(cls.JWT_SECRET)} characters)"
+            if env in ("production", "staging"):
+                errors.append(msg)
+            else:
+                warnings.append(f"WARNING: {msg} (development mode)")
+
+        # Validate token expiration times
+        if not (MIN_ACCESS_TOKEN_MINUTES <= cls.ACCESS_TOKEN_EXPIRE_MINUTES <= MAX_ACCESS_TOKEN_MINUTES):
+            errors.append(
+                f"ACCESS_TOKEN_EXPIRE_MINUTES must be between {MIN_ACCESS_TOKEN_MINUTES} and {MAX_ACCESS_TOKEN_MINUTES} "
+                f"(currently {cls.ACCESS_TOKEN_EXPIRE_MINUTES})"
+            )
+
+        if not (MIN_REFRESH_TOKEN_DAYS <= cls.REFRESH_TOKEN_EXPIRE_DAYS <= MAX_REFRESH_TOKEN_DAYS):
+            errors.append(
+                f"REFRESH_TOKEN_EXPIRE_DAYS must be between {MIN_REFRESH_TOKEN_DAYS} and {MAX_REFRESH_TOKEN_DAYS} "
+                f"(currently {cls.REFRESH_TOKEN_EXPIRE_DAYS})"
+            )
+
+        # Validate issuer and audience are non-empty
+        if not cls.JWT_ISSUER:
+            errors.append("JWT_ISSUER cannot be empty")
+
+        if not cls.JWT_AUDIENCE:
+            errors.append("JWT_AUDIENCE cannot be empty")
+
+        # Validate rate limiting parameters
+        if cls.RATE_LIMIT_ENABLED:
+            if not (MIN_RATE_LIMIT_REQUESTS <= cls.RATE_LIMIT_REQUESTS <= MAX_RATE_LIMIT_REQUESTS):
+                errors.append(
+                    f"RATE_LIMIT_REQUESTS must be between {MIN_RATE_LIMIT_REQUESTS} and {MAX_RATE_LIMIT_REQUESTS} "
+                    f"(currently {cls.RATE_LIMIT_REQUESTS})"
+                )
+
+            if not (MIN_RATE_LIMIT_WINDOW_SECONDS <= cls.RATE_LIMIT_WINDOW_SECONDS <= MAX_RATE_LIMIT_WINDOW_SECONDS):
+                errors.append(
+                    f"RATE_LIMIT_WINDOW_SECONDS must be between {MIN_RATE_LIMIT_WINDOW_SECONDS} and {MAX_RATE_LIMIT_WINDOW_SECONDS} "
+                    f"(currently {cls.RATE_LIMIT_WINDOW_SECONDS})"
+                )
+
+        # Validate Redis configuration when token revocation is enabled
+        if cls.TOKEN_REVOCATION_ENABLED:
+            if not (MIN_REDIS_PORT <= cls.REDIS_PORT <= MAX_REDIS_PORT):
+                errors.append(
+                    f"REDIS_PORT must be between {MIN_REDIS_PORT} and {MAX_REDIS_PORT} "
+                    f"(currently {cls.REDIS_PORT})"
+                )
+
+            if not (MIN_REDIS_DB <= cls.REDIS_DB <= MAX_REDIS_DB):
+                errors.append(
+                    f"REDIS_DB must be between {MIN_REDIS_DB} and {MAX_REDIS_DB} "
+                    f"(currently {cls.REDIS_DB})"
+                )
+
+            # Warn if neither REDIS_URL nor HOST is properly configured
+            if not cls.REDIS_URL and not cls.REDIS_HOST:
+                errors.append("Either REDIS_URL or REDIS_HOST must be configured when TOKEN_REVOCATION_ENABLED is true")
+
+        # Log warnings
+        for warning in warnings:
+            logger.warning(warning)
+
+        # Raise error if any validation failed
+        if errors:
+            error_message = "JWT Configuration validation failed:\n" + "\n".join(f"  - {error}" for error in errors)
+            raise JWTConfigError(error_message)
+
+        logger.info("JWT Configuration validation passed")
+
+    @classmethod
+    def validate_with_report(cls) -> Dict[str, bool | List[str]]:
+        """
+        Validate JWT configuration and return detailed report.
+
+        Returns:
+            Dict containing:
+                - 'valid': True if all checks pass, False otherwise
+                - 'errors': List of error messages (if any)
+                - 'warnings': List of warning messages (if any)
+                - 'summary': Summary of configuration
+        """
+        env = os.getenv("ENVIRONMENT", "development")
+        errors: List[str] = []
+        warnings: List[str] = []
+
+        # Validate JWT Secret
+        if not cls.JWT_SECRET:
+            msg = "JWT_SECRET_KEY is not set"
+            if env in ("production", "staging"):
+                errors.append(msg)
+            else:
+                warnings.append(msg)
+        elif len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
+            msg = f"JWT_SECRET_KEY length is {len(cls.JWT_SECRET)}, minimum recommended is {MIN_SECRET_KEY_LENGTH}"
+            if env in ("production", "staging"):
+                errors.append(msg)
+            else:
+                warnings.append(msg)
+
+        # Validate token expiration times
+        if not (MIN_ACCESS_TOKEN_MINUTES <= cls.ACCESS_TOKEN_EXPIRE_MINUTES <= MAX_ACCESS_TOKEN_MINUTES):
+            errors.append(
+                f"ACCESS_TOKEN_EXPIRE_MINUTES {cls.ACCESS_TOKEN_EXPIRE_MINUTES} out of range "
+                f"[{MIN_ACCESS_TOKEN_MINUTES}, {MAX_ACCESS_TOKEN_MINUTES}]"
+            )
+
+        if not (MIN_REFRESH_TOKEN_DAYS <= cls.REFRESH_TOKEN_EXPIRE_DAYS <= MAX_REFRESH_TOKEN_DAYS):
+            errors.append(
+                f"REFRESH_TOKEN_EXPIRE_DAYS {cls.REFRESH_TOKEN_EXPIRE_DAYS} out of range "
+                f"[{MIN_REFRESH_TOKEN_DAYS}, {MAX_REFRESH_TOKEN_DAYS}]"
+            )
+
+        # Validate issuer and audience
+        if not cls.JWT_ISSUER:
+            errors.append("JWT_ISSUER cannot be empty")
+
+        if not cls.JWT_AUDIENCE:
+            errors.append("JWT_AUDIENCE cannot be empty")
+
+        # Validate rate limiting
+        if cls.RATE_LIMIT_ENABLED:
+            if not (MIN_RATE_LIMIT_REQUESTS <= cls.RATE_LIMIT_REQUESTS <= MAX_RATE_LIMIT_REQUESTS):
+                errors.append(
+                    f"RATE_LIMIT_REQUESTS {cls.RATE_LIMIT_REQUESTS} out of range "
+                    f"[{MIN_RATE_LIMIT_REQUESTS}, {MAX_RATE_LIMIT_REQUESTS}]"
+                )
+
+            if not (MIN_RATE_LIMIT_WINDOW_SECONDS <= cls.RATE_LIMIT_WINDOW_SECONDS <= MAX_RATE_LIMIT_WINDOW_SECONDS):
+                errors.append(
+                    f"RATE_LIMIT_WINDOW_SECONDS {cls.RATE_LIMIT_WINDOW_SECONDS} out of range "
+                    f"[{MIN_RATE_LIMIT_WINDOW_SECONDS}, {MAX_RATE_LIMIT_WINDOW_SECONDS}]"
+                )
+
+        # Validate Redis configuration
+        if cls.TOKEN_REVOCATION_ENABLED:
+            if not (MIN_REDIS_PORT <= cls.REDIS_PORT <= MAX_REDIS_PORT):
+                errors.append(f"REDIS_PORT {cls.REDIS_PORT} out of valid range [1, 65535]")
+
+            if not (MIN_REDIS_DB <= cls.REDIS_DB <= MAX_REDIS_DB):
+                errors.append(f"REDIS_DB {cls.REDIS_DB} out of valid range [0, 15]")
+
+            if not cls.REDIS_URL and not cls.REDIS_HOST:
+                errors.append("Redis configuration incomplete: neither REDIS_URL nor REDIS_HOST configured")
+
+        return {
+            "valid": len(errors) == 0,
+            "errors": errors,
+            "warnings": warnings,
+            "environment": env,
+            "summary": {
+                "jwt_secret_configured": bool(cls.JWT_SECRET),
+                "jwt_secret_length": len(cls.JWT_SECRET) if cls.JWT_SECRET else 0,
+                "access_token_minutes": cls.ACCESS_TOKEN_EXPIRE_MINUTES,
+                "refresh_token_days": cls.REFRESH_TOKEN_EXPIRE_DAYS,
+                "rate_limiting_enabled": cls.RATE_LIMIT_ENABLED,
+                "token_revocation_enabled": cls.TOKEN_REVOCATION_ENABLED,
+                "redis_configured": bool(cls.REDIS_URL or cls.REDIS_HOST),
+            },
+        }
 
     @classmethod
     def get_signing_key(cls) -> str:

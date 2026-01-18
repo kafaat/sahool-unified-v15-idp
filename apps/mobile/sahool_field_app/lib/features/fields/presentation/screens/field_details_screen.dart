@@ -21,6 +21,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   /// Get field - uses provided field or creates a placeholder
   FieldEntity get field => widget.field ?? FieldEntity(
     id: widget.fieldId,
+    tenantId: '',
     name: 'جاري التحميل...',
     cropType: '',
     areaHectares: 0,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/notification_entities.dart';
 import '../providers/notification_provider.dart';
@@ -374,7 +373,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       Navigator.pop(context);
-                      _navigateToActionUrl(notification.actionUrl!);
+                      await _launchActionUrl(notification.actionUrl!);
                     },
                     icon: const Icon(Icons.open_in_new),
                     label: const Text('فتح التفاصيل'),
@@ -400,60 +399,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         builder: (context) => const NotificationSettingsScreen(),
       ),
     );
-  }
-
-  /// Navigate to the action URL
-  /// Handles both internal app routes and external URLs
-  /// التنقل إلى رابط الإجراء - يدعم المسارات الداخلية والروابط الخارجية
-  Future<void> _navigateToActionUrl(String actionUrl) async {
-    // Check if it's an internal route (starts with /)
-    if (actionUrl.startsWith('/')) {
-      // Internal app route - use go_router
-      context.push(actionUrl);
-    } else if (actionUrl.startsWith('http://') || actionUrl.startsWith('https://')) {
-      // External URL - use url_launcher
-      final uri = Uri.parse(actionUrl);
-      try {
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('لا يمكن فتح الرابط'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('حدث خطأ أثناء فتح الرابط'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } else if (actionUrl.startsWith('sahool://')) {
-      // Custom scheme deep link - use url_launcher
-      final uri = Uri.parse(actionUrl);
-      try {
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri);
-        }
-      } catch (e) {
-        // Fallback: try to extract path and navigate internally
-        final path = uri.path;
-        if (path.isNotEmpty) {
-          context.push(path);
-        }
-      }
-    } else {
-      // Unknown format - try as internal route
-      context.push('/$actionUrl');
-    }
   }
 }
 

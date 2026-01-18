@@ -83,7 +83,7 @@ sahool-unified-v15-idp/
 │   ├── certs/                  # TLS certificates
 │   └── nats/                   # NATS configuration
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (178+ docs)
+├── docs/                       # Technical documentation (109+ docs)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
 ├── helm/                       # Kubernetes Helm charts
@@ -150,7 +150,7 @@ sahool-unified-v15-idp/
 | -------------- | --------------------------------------- |
 | **Container**  | Docker, Kubernetes (K8s)                |
 | **IaC**        | Terraform, Helm Charts                  |
-| **CI/CD**      | GitHub Actions (35 workflows), Argo CD  |
+| **CI/CD**      | GitHub Actions (38 workflows), Argo CD  |
 | **Monitoring** | Prometheus, Grafana, OpenTelemetry      |
 | **Secrets**    | HashiCorp Vault                         |
 
@@ -158,7 +158,7 @@ sahool-unified-v15-idp/
 
 ## Event Architecture (4-Layer)
 
-The platform uses a 4-layer event architecture via NATS 2.x with JetStream:
+The platform uses a 4-layer event architecture via NATS:
 
 | Layer            | Services                                                                              | Purpose                        |
 | ---------------- | ------------------------------------------------------------------------------------- | ------------------------------ |
@@ -167,78 +167,7 @@ The platform uses a 4-layer event architecture via NATS 2.x with JetStream:
 | **Decision**     | crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, agro-advisor | Recommendations & planning     |
 | **Business**     | notification-service, marketplace-service, billing-core, community-chat, task-service, equipment-service, ws-gateway | User-facing operations         |
 
-### Event Subject Patterns
-
-```
-sahool.{tenant_id}.{domain}.{event_type}
-
-# Examples:
-sahool.tenant123.field.created
-sahool.tenant123.field.updated
-sahool.tenant123.crop.planted
-sahool.tenant123.irrigation.scheduled
-sahool.tenant123.advisory.generated
-sahool.tenant123.alert.triggered
-```
-
-### Event Flow Example
-
-```
-[IoT Sensor] → iot-gateway → NATS
-                               ↓
-                    sahool.*.sensor.reading
-                               ↓
-              ┌────────────────┼────────────────┐
-              ↓                ↓                ↓
-      indicators-service  virtual-sensors  weather-service
-              ↓                ↓                ↓
-      sahool.*.ndvi.calculated  sahool.*.et.calculated
-                               ↓
-                    irrigation-smart
-                               ↓
-                    sahool.*.irrigation.recommendation
-                               ↓
-              ┌────────────────┼────────────────┐
-              ↓                ↓                ↓
-    notification-service   ws-gateway    advisory-service
-              ↓                ↓                ↓
-         [Push]           [WebSocket]      [Dashboard]
-```
-
-### JetStream Configuration
-
-```yaml
-# NATS JetStream streams
-streams:
-  - name: SAHOOL_EVENTS
-    subjects: ["sahool.>"]
-    retention: limits
-    max_age: 7d
-    max_bytes: 10GB
-    replicas: 3
-
-  - name: SAHOOL_ALERTS
-    subjects: ["sahool.*.alert.>"]
-    retention: workqueue
-    max_deliver: 5
-```
-
-### Event Publishing Pattern
-
-```python
-# Python service event publishing
-from shared.events import publish_event
-
-await publish_event(
-    subject=f"sahool.{tenant_id}.field.updated",
-    data={
-        "field_id": field_id,
-        "changes": {"ndvi": 0.72},
-        "timestamp": datetime.utcnow().isoformat()
-    },
-    headers={"correlation_id": request_id}
-)
-```
+Event subject pattern: `sahool.{tenant_id}.{event_type}`
 
 ---
 
@@ -340,120 +269,6 @@ make ps                   # List running containers
 make stats                # Show project statistics
 make quickstart           # Quick start for new developers
 make ci                   # Run CI checks (lint + test)
-```
-
----
-
-## Monitoring & Observability
-
-### Stack Overview
-
-| Component | Purpose | Port |
-|-----------|---------|------|
-| **Prometheus** | Metrics collection | 9090 |
-| **Grafana** | Dashboards & visualization | 3000 |
-| **Jaeger** | Distributed tracing | 16686 |
-| **Loki** | Log aggregation | 3100 |
-| **AlertManager** | Alert routing | 9093 |
-
-### Prometheus Metrics
-
-All services expose metrics at `/metrics`:
-
-```python
-# Python service metrics pattern
-from prometheus_client import Counter, Histogram
-
-REQUEST_COUNT = Counter(
-    'http_requests_total',
-    'Total HTTP requests',
-    ['method', 'endpoint', 'status']
-)
-
-REQUEST_LATENCY = Histogram(
-    'http_request_duration_seconds',
-    'HTTP request latency',
-    ['method', 'endpoint']
-)
-```
-
-### Standard Metrics
-
-```
-# Service health
-sahool_service_up{service="field-management"} 1
-
-# Request metrics
-http_requests_total{method="GET", endpoint="/api/v1/fields", status="200"}
-http_request_duration_seconds_bucket{le="0.5"}
-
-# Business metrics
-sahool_fields_total{tenant_id="123"}
-sahool_advisory_generated_total{crop_type="wheat"}
-sahool_irrigation_scheduled_total
-```
-
-### Structured Logging
-
-```python
-import structlog
-
-logger = structlog.get_logger()
-
-# All logs include standard fields
-logger.info(
-    "field_created",
-    field_id=field_id,
-    tenant_id=tenant_id,
-    user_id=user_id,
-    request_id=request_id,  # Correlation ID
-    duration_ms=elapsed
-)
-```
-
-### Log Format (JSON)
-
-```json
-{
-  "timestamp": "2026-01-19T10:30:00Z",
-  "level": "info",
-  "service": "field-management-service",
-  "event": "field_created",
-  "field_id": "F001",
-  "tenant_id": "T123",
-  "request_id": "req-abc-123",
-  "trace_id": "trace-xyz-789"
-}
-```
-
-### Grafana Dashboards
-
-Pre-configured dashboards in `infrastructure/monitoring/dashboards/`:
-- `service-overview.json` - All services health
-- `api-gateway.json` - Kong metrics
-- `database.json` - PostgreSQL performance
-- `redis.json` - Cache hit rates
-- `nats.json` - Event throughput
-- `business-metrics.json` - Agricultural KPIs
-
-### Alerting Rules
-
-```yaml
-# Critical alerts
-- alert: ServiceDown
-  expr: up{job="sahool-services"} == 0
-  for: 1m
-  severity: critical
-
-- alert: HighErrorRate
-  expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
-  for: 5m
-  severity: warning
-
-- alert: DatabaseConnectionExhausted
-  expr: pg_stat_activity_count > 200
-  for: 2m
-  severity: critical
 ```
 
 ---
@@ -583,18 +398,6 @@ npx prisma studio
 
 ## Flutter Mobile Conventions
 
-### Technology Stack
-
-| Component | Technology |
-|-----------|------------|
-| **Framework** | Flutter 3.27.x (Dart >=3.2.0) |
-| **State Management** | Riverpod 2.6.x with code generation |
-| **Local Database** | Drift 2.24+ with SQLCipher encryption |
-| **Network** | Dio 5.x with interceptors |
-| **Maps** | MapLibre GL, flutter_map |
-| **Background** | Workmanager for sync tasks |
-| **Security** | Certificate pinning, biometric auth |
-
 ### State Management (Riverpod)
 
 ```dart
@@ -604,109 +407,28 @@ class FieldNotifier extends _$FieldNotifier {
   Future<List<Field>> build() async {
     return ref.watch(fieldRepositoryProvider).getFields();
   }
-
-  Future<void> updateField(Field field) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      await ref.read(fieldRepositoryProvider).update(field);
-      return ref.read(fieldRepositoryProvider).getFields();
-    });
-  }
 }
 ```
 
-### Offline-First Architecture
+### Offline-First Pattern
 
-```dart
-// Sync queue for offline operations
-class SyncQueue {
-  // Operations queued when offline
-  Future<void> enqueue(SyncOperation op) async {
-    await _localDb.insertOperation(op);
-    if (await _connectivity.isOnline) {
-      await _processQueue();
-    }
-  }
-
-  // Conflict resolution strategy
-  ConflictResolution resolveConflict(local, remote) {
-    // Server wins for shared fields
-    // Client wins for local-only data
-    return local.updatedAt > remote.updatedAt
-        ? ConflictResolution.keepLocal
-        : ConflictResolution.keepRemote;
-  }
-}
-```
-
-### Security Features
-
-```dart
-// Certificate pinning
-final dio = Dio()
-  ..httpClientAdapter = IOHttpClientAdapter(
-    createHttpClient: () {
-      final client = HttpClient();
-      client.badCertificateCallback = (cert, host, port) {
-        return _pinnedCerts.contains(cert.sha256);
-      };
-      return client;
-    },
-  );
-
-// Biometric authentication
-final canAuth = await LocalAuthentication().canCheckBiometrics;
-if (canAuth) {
-  final authenticated = await LocalAuthentication().authenticate(
-    localizedReason: 'Authenticate to access SAHOOL',
-  );
-}
-```
+- Use Drift for local SQLite database with SQLCipher encryption
+- Background sync with Workmanager
+- Conflict resolution for offline edits
+- Certificate pinning for secure connections
 
 ### File Structure
 
 ```
 lib/
 ├── core/
-│   ├── database/           # Drift database & DAOs
-│   ├── network/            # Dio client, interceptors
-│   ├── notifications/      # FCM, local notifications
-│   ├── security/           # Encryption, auth
-│   └── sync/               # Offline sync engine
+│   ├── notifications/
+│   └── security/
 ├── features/
-│   ├── auth/               # Login, registration
-│   ├── field/              # Field management
-│   ├── crop/               # Crop tracking
-│   ├── irrigation/         # Irrigation scheduling
-│   ├── advisory/           # AI recommendations
-│   ├── rotation/           # Crop rotation
-│   └── spray/              # Spray logging
-├── shared/
-│   ├── widgets/            # Reusable UI components
-│   └── utils/              # Utility functions
-└── l10n/                   # Arabic/English translations
-    ├── app_ar.arb
-    └── app_en.arb
-```
-
-### Localization (Arabic/English)
-
-```dart
-// In widget
-Text(context.l10n.fieldName)
-
-// ARB files
-// app_ar.arb
-{
-  "fieldName": "اسم الحقل",
-  "irrigationSchedule": "جدول الري"
-}
-
-// app_en.arb
-{
-  "fieldName": "Field Name",
-  "irrigationSchedule": "Irrigation Schedule"
-}
+│   ├── field/
+│   ├── rotation/
+│   └── spray/
+└── l10n/                   # Localization (Arabic/English)
 ```
 
 ---
@@ -759,27 +481,6 @@ NATS_URL=""
 
 ## Security Considerations
 
-### Authentication & Authorization
-
-| Feature | Implementation |
-|---------|---------------|
-| **JWT Tokens** | HS256 (development), RS256 (production) |
-| **Token Expiry** | Access: 15 min, Refresh: 7 days |
-| **2FA Support** | TOTP (Google Authenticator compatible) |
-| **Password Hashing** | Argon2id with secure defaults |
-| **Token Revocation** | Redis-backed blacklist |
-
-### RBAC Roles (6 Levels)
-
-```
-admin          # Full system access
-farm_manager   # Farm-level operations
-agronomist     # Advisory and analysis
-field_operator # Field-level tasks
-viewer         # Read-only access
-api_client     # Machine-to-machine
-```
-
 ### DO NOT
 
 - Commit secrets or credentials (`.env`, API keys)
@@ -788,51 +489,24 @@ api_client     # Machine-to-machine
 - Disable TLS/SSL in production
 - Run containers as root
 - Use `--no-verify` for git hooks
-- Store sensitive data in logs
-- Expose internal service ports publicly
 
 ### DO
 
 - Use environment variables for secrets
-- Follow RBAC patterns (check user roles)
-- Validate all user input (use Pydantic models)
+- Follow RBAC patterns
+- Validate all user input
 - Use parameterized queries (no SQL injection)
 - Enable rate limiting on endpoints
-- Use TLS for all connections (sslmode=require)
+- Use TLS for all connections
 - Implement certificate pinning for mobile
-- Audit log security-sensitive operations
-- Use request IDs for traceability
 
-### Security Scanning (CI/CD)
+### Security Scanning
 
-| Tool | Purpose | Trigger |
-|------|---------|---------|
-| **CodeQL** | Semantic analysis for Python/TypeScript | PR, main branch |
-| **Bandit** | Python security linter | Every commit |
-| **Semgrep** | Pattern-based vulnerability scanning | PR |
-| **Trivy** | Container & dependency scanning | Image builds |
-| **Gitleaks** | Secret detection in commits | Pre-commit, PR |
-| **Dependency Review** | Known vulnerability check | PR |
-
-### Security Headers (Kong Gateway)
-
-```yaml
-# Applied to all responses
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-X-XSS-Protection: 1; mode=block
-Content-Security-Policy: default-src 'self'
-Strict-Transport-Security: max-age=31536000; includeSubDomains
-```
-
-### Input Validation (Guardrails)
-
-All user input passes through `shared/guardrails/`:
-- SQL injection prevention
-- XSS sanitization
-- Path traversal protection
-- File upload validation (type, size, content)
-- Rate limiting per endpoint and user tier
+- **CodeQL**: Semantic analysis for Python/TypeScript
+- **Bandit**: Python security linter
+- **Semgrep**: Pattern-based scanning
+- **Trivy**: Container vulnerability scanning
+- **Gitleaks**: Secret detection
 
 ---
 
@@ -895,122 +569,6 @@ LOG_LEVEL=INFO|DEBUG|WARNING|ERROR
 
 ---
 
-## Deployment Tiers (Package System)
-
-SAHOOL uses a 3-tier package system for scalable deployment:
-
-### Starter Package
-- **Services**: 5 core services
-- **Target**: Small farms, individual farmers
-- **Features**: Basic field management, weather, simple advisory
-- **Resource**: Minimal infrastructure requirements
-
-### Professional Package
-- **Services**: 13 services (includes Starter)
-- **Target**: Medium farms, cooperatives
-- **Features**: Full analytics, IoT integration, marketplace access
-- **Additional**: Yield prediction, smart irrigation, crop intelligence
-
-### Enterprise Package
-- **Services**: 21+ services (includes Professional)
-- **Target**: Large agricultural operations, government programs
-- **Features**: Full platform with research tools, disaster assessment, advanced AI
-- **Additional**: Multi-tenant support, custom integrations, SLA guarantees
-
-### Docker Compose Profiles
-
-```bash
-# Start by tier
-make dev-starter           # Starter services only
-make dev-professional      # Professional tier
-make dev-enterprise        # Full enterprise stack
-
-# Docker Compose files (33 total)
-docker/
-├── docker-compose.yml           # Base configuration
-├── docker-compose.starter.yml   # Starter tier services
-├── docker-compose.professional.yml
-├── docker-compose.enterprise.yml
-├── docker-compose.monitoring.yml
-├── docker-compose.test.yml
-└── docker-compose.override.yml  # Local development overrides
-```
-
----
-
-## Kubernetes Deployment
-
-### Helm Charts Structure
-
-```
-helm/
-├── sahool-platform/            # Umbrella chart
-│   ├── Chart.yaml
-│   ├── values.yaml             # Default values
-│   ├── values-staging.yaml     # Staging overrides
-│   ├── values-production.yaml  # Production overrides
-│   └── charts/                 # Subcharts
-├── sahool-starter/             # Starter package chart
-├── sahool-professional/        # Professional package chart
-└── sahool-enterprise/          # Enterprise package chart
-```
-
-### Kubernetes Features
-
-| Feature | Description |
-|---------|-------------|
-| **HPA** | Horizontal Pod Autoscaler for CPU/memory-based scaling |
-| **VPA** | Vertical Pod Autoscaler for resource optimization |
-| **PDB** | Pod Disruption Budgets for high availability |
-| **Argo Rollouts** | Progressive delivery with canary/blue-green deployments |
-| **Network Policies** | Service-to-service communication control |
-| **Pod Security** | Non-root containers, read-only filesystems |
-
-### ArgoCD Applications
-
-```yaml
-# gitops/applications/
-- sahool-core.yaml          # Core infrastructure
-- sahool-services.yaml      # Microservices
-- sahool-monitoring.yaml    # Prometheus/Grafana stack
-- sahool-secrets.yaml       # External Secrets Operator
-```
-
----
-
-## Infrastructure (Terraform)
-
-### AWS Multi-Region Architecture
-
-```
-infrastructure/terraform/
-├── modules/
-│   ├── eks/                # Kubernetes cluster
-│   ├── rds/                # PostgreSQL RDS
-│   ├── elasticache/        # Redis cluster
-│   ├── s3/                 # Object storage (satellite imagery)
-│   ├── cloudfront/         # CDN for static assets
-│   ├── vpc/                # Network configuration
-│   └── iam/                # IAM roles and policies
-├── environments/
-│   ├── staging/
-│   └── production/
-└── global/                 # Cross-region resources
-```
-
-### Key Infrastructure Components
-
-| Component | Configuration |
-|-----------|---------------|
-| **EKS** | Kubernetes 1.28+, managed node groups, Karpenter autoscaling |
-| **RDS** | PostgreSQL 16, Multi-AZ, automated backups, 7-day retention |
-| **ElastiCache** | Redis 7.x cluster mode, encrypted at rest |
-| **S3** | Versioning enabled, lifecycle policies, cross-region replication |
-| **CloudFront** | TLS 1.3, HTTP/3 support, edge caching |
-| **Route 53** | Geo-routing for regional failover |
-
----
-
 ## Common Patterns
 
 ### Database Connection
@@ -1044,74 +602,17 @@ logger.info("event_name", field_id=field_id, action="create")
 
 ---
 
-## Shared Modules Reference
-
-### Python Shared Modules (25+)
-
-Located in `shared/`:
-
-| Module | Purpose |
-|--------|---------|
-| `auth/` | JWT authentication, 2FA, token revocation, RBAC |
-| `cache/` | Redis caching layer with TTL management |
-| `contracts/` | API request/response contracts (Pydantic) |
-| `domain/` | Domain models and business logic |
-| `events/` | NATS event definitions and handlers |
-| `file_validation/` | File upload validation (type, size, malware) |
-| `guardrails/` | Input validation and sanitization |
-| `libs/` | Utility libraries |
-| `mcp/` | Model Context Protocol for AI integration |
-| `middleware/` | HTTP middleware (CORS, logging, auth) |
-| `monitoring/` | Prometheus metrics exporters |
-| `observability/` | Structured logging, OpenTelemetry tracing |
-| `security/` | Encryption, hashing, security utilities |
-| `secrets/` | HashiCorp Vault integration |
-| `telemetry/` | OpenTelemetry SDK configuration |
-| `a2a/` | Agent-to-Agent communication protocol |
-| `ai/` | AI/ML utilities and model integration |
-| `globalgap/` | GlobalGAP compliance checking |
-| `versioning/` | API versioning utilities |
-
-### NPM Packages (26)
-
-Located in `packages/`:
-
-| Package | Purpose |
-|---------|---------|
-| `@sahool/shared-utils` | Common utility functions |
-| `@sahool/shared-ui` | React UI component library |
-| `@sahool/shared-types` | TypeScript type definitions |
-| `@sahool/shared-hooks` | React hooks (data fetching, state) |
-| `@sahool/shared-events` | NATS event type definitions |
-| `@sahool/shared-crypto` | Cryptography utilities |
-| `@sahool/shared-db` | Database utilities (Prisma helpers) |
-| `@sahool/shared-audit` | Audit logging for compliance |
-| `@sahool/nestjs-auth` | NestJS authentication module |
-| `@sahool/field-shared` | Field domain types |
-| `@sahool/api-client` | Generated API client |
-| `@sahool/design-system` | Design tokens, themes |
-| `@sahool/mock-data` | Test fixtures and mocks |
-| `@sahool/i18n` | Arabic/English translations |
-| `@sahool/tailwind-config` | Shared Tailwind configuration |
-| `@sahool/typescript-config` | Shared tsconfig base |
-
----
-
 ## Important Files Reference
 
 | File                       | Purpose                               |
 | -------------------------- | ------------------------------------- |
-| `Makefile`                 | All development commands (50+ targets)|
+| `Makefile`                 | All development commands              |
 | `docker-compose.yml`       | Full service stack                    |
 | `pyproject.toml`           | Python project config, linting (Ruff) |
 | `package.json`             | Node.js root workspace                |
 | `.env.example`             | Environment template                  |
-| `governance/services.yaml` | Service registry (57+ services)       |
+| `governance/services.yaml` | Service registry (source of truth)    |
 | `governance/agents.yaml`   | AI agent definitions                  |
-| `governance/security.yaml` | Security policies                     |
-| `helm/sahool-platform/`    | Kubernetes deployment charts          |
-| `infrastructure/terraform/`| AWS infrastructure as code            |
-| `.github/workflows/`       | CI/CD pipeline definitions (35)       |
 
 ---
 
@@ -1148,39 +649,18 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (35 total):
+GitHub Workflows (38):
 
-**Testing Workflows (13)**:
 - `ci.yml` - Main CI pipeline
-- `container-tests.yml` - Docker container tests
-- `frontend-tests.yml` - Frontend tests
-- `load-testing.yml` - Performance tests (k6, Locust)
-- `agent-evaluation.yml` - AI agent evaluation
-- `test-python.yml`, `test-node.yml`, `test-flutter.yml` - Language-specific tests
-
-**Deployment Workflows (5)**:
 - `cd-staging.yml` - Staging deployment
 - `cd-production.yml` - Production deployment
-- `deploy-preview.yml` - PR preview environments
-- `argocd-sync.yml` - GitOps synchronization
-
-**Security Workflows (6)**:
-- `codeql-analysis.yml` - Semantic code analysis
+- `container-tests.yml` - Docker container tests
+- `codeql-analysis.yml` - Security scanning
+- `frontend-tests.yml` - Frontend tests
+- `load-testing.yml` - Performance tests
+- `agent-evaluation.yml` - AI agent evaluation
+- `governance-ci.yml` - Governance checks
 - `security-checks.yml` - Security audits
-- `trivy-scan.yml` - Container vulnerability scanning
-- `gitleaks.yml` - Secret detection
-- `dependency-review.yml` - Dependency vulnerability checks
-
-**Build & Release Workflows (4)**:
-- `build-images.yml` - Docker image builds
-- `release.yml` - Semantic versioning releases
-- `changelog.yml` - Automatic changelog generation
-
-**Governance & Quality (4)**:
-- `governance-ci.yml` - Service registry validation
-- `lint.yml` - Code quality checks
-- `docs-check.yml` - Documentation validation
-- `schema-validation.yml` - API schema validation
 
 ---
 
@@ -1693,15 +1173,14 @@ claude code --skill farm-documentation --field "FIELD-003" --format obsidian
 
 ## Getting Help
 
-- **Documentation**: `docs/` directory (178+ documents, 77,900+ lines)
+- **Documentation**: `docs/` directory (109+ documents)
 - **API Gateway**: `docs/API_GATEWAY.md`
 - **Deployment**: `docs/DEPLOYMENT.md`
 - **Security**: `docs/SECURITY.md`
 - **Observability**: `docs/OBSERVABILITY.md`
 - **Runbooks**: `docs/RUNBOOKS.md`
-- **Architecture**: `docs/ARCHITECTURE.md`
-- **Service Registry**: `governance/services.yaml` (57+ services defined)
-- **AI Skills**: `.claude/skills/` directory (7 files, 4,010 lines)
+- **Service Registry**: `governance/services.yaml`
+- **AI Skills**: `.claude/skills/` directory with context engineering modules
 
 ---
 
